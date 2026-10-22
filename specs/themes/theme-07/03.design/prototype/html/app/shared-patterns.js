@@ -5,10 +5,10 @@
  * (appShell) vì chân màn là một phần của khuôn.
  *
  *   K1 trạng thái chung      k1Loading, k1Denied, k1Stale, k1Locked, k1Empty, k1ExitAttr
- *   K2 lập → duyệt → kết quả k2Pending, k2Decision, k2RejectSheet, k2SelfCommitSheet
+ *   K2 lập → duyệt → kết quả k2Pending, k2Attention, k2Decision, k2RejectSheet
  *   K3 kết quả chưa rõ       k3Unknown
  *   K4 kết quả xong          k4Result
- *   K7 bố cục web            k7Split, k7Table, k7FilterChips, k7EditCell (lớp k7-wide gắn qua appShell({ extraClass }))
+ *   K7 bố cục web            k7Split, k7Table (cột chọn `select`), k7Check, k7FilterChips, k7EditCell (lớp k7-wide gắn qua appShell({ extraClass }))
  *   Thành phần dùng chung    dsSegmented (VSegmentedControl), dsChoiceRow (thẻ lựa chọn lớn có nút tròn) — dựng ở CAP-01
  */
 
@@ -55,25 +55,23 @@ function k2Pending({ approver, sentAt, facts = [] }) {
   return `${vBanner("info", "Đang chờ duyệt", `Chờ ${esc(approver)} duyệt · gửi ${esc(sentAt)}`)}${facts.length ? ac310InfoSurface("Yêu cầu", facts) : ""}<p class="ac310-note k2-lock-note">Dữ liệu đã khoá. Tồn kho chưa thay đổi.</p>`;
 }
 
-// Người duyệt. Thứ tự cố định: câu hỏi → dòng người gửi → "Cần chú ý" → số liệu → chi tiết (bảng).
+// Khối "Cần chú ý" (người duyệt và người lập ở rà soát dùng chung).
 // attention: [[nhãn, giá trị, tone]] — tone "warning" (mặc định) hoặc "info" cho dòng chỉ để biết (vd. "Sau khi duyệt").
-function k2Decision({ question, maker, sentAt, attention = [], facts = [], detail = "" }) {
-  const attentionHtml = attention.length
+function k2Attention(attention = []) {
+  return attention.length
     ? `<section class="ac310-surface k2-attention" data-layout-pattern="Grouped surface" ><div class="ac310-surface__head"><h2>Cần chú ý</h2></div><div class="ac310-key-value-stack">${attention.map(([label, value, tone = "warning"]) => `<div class="k2-attention__row">${icon(tone === "info" ? "info" : "alert", `icon--sm k2-attention__icon k2-attention__icon--${tone}`)}<span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div></section>`
     : "";
-  return `<div class="ac310-section-title" data-ds-component="VText"><h2>Cần quyết</h2></div><h3 class="k2-question">${esc(question)}</h3><p class="k2-maker">${esc(maker)} gửi ${esc(sentAt)}</p>${attentionHtml}${facts.length ? ac310InfoSurface("", facts) : ""}${detail}`;
+}
+
+// Người duyệt. Thứ tự cố định: câu hỏi → dòng người gửi → "Cần chú ý" → số liệu → chi tiết (bảng).
+function k2Decision({ question, maker, sentAt, attention = [], facts = [], detail = "" }) {
+  return `<div class="ac310-section-title" data-ds-component="VText"><h2>Cần quyết</h2></div><h3 class="k2-question">${esc(question)}</h3><p class="k2-maker">${esc(maker)} gửi ${esc(sentAt)}</p>${k2Attention(attention)}${facts.length ? ac310InfoSurface("", facts) : ""}${detail}`;
 }
 
 // Sheet từ chối bắt buộc lý do (giữ chữ của sheet từ chối BJ-12 cũ).
 function k2RejectSheet({ open, title, reason, reasonAttr, confirmAttr, closeAttr }) {
   if (!open) return "";
   return `<div class="sheet-backdrop" ${closeAttr}><section class="bottom-sheet k2-reject-sheet" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}" onclick="event.stopPropagation()" data-ds-component="VBottomSheet" data-figma-node="4695:6353"><div class="sheet-handle"></div><div class="sheet-title"><h3>${esc(title)}</h3></div><div class="sheet-divider"></div><div class="sheet-content">${icTextarea("Lý do từ chối", reason, reasonAttr, "Nhập nội dung người lập cần sửa")}<div class="sheet-actions">${cfSecondary("Hủy", closeAttr)}<button class="button button--primary" type="button" ${confirmAttr} data-ds-component="VButton" ${String(reason || "").trim() ? "" : "disabled"}>Xác nhận từ chối</button></div></div></section></div>`;
-}
-
-// Sheet xác nhận khi người lập cũng là người có quyền duyệt (Owner tự duyệt): số liệu + cảnh báo một lần + Huỷ | xác nhận.
-function k2SelfCommitSheet({ open, title, facts = [], warning, confirmLabel, confirmAttr, closeAttr }) {
-  if (!open) return "";
-  return `<div class="sheet-backdrop" ${closeAttr}><section class="bottom-sheet k2-self-sheet" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}" onclick="event.stopPropagation()" data-ds-component="VBottomSheet" data-figma-node="4695:6353"><div class="sheet-handle"></div><div class="sheet-title"><h3>${esc(title)}</h3></div><div class="sheet-divider"></div><div class="sheet-content">${ioReadCard(facts.map(([label, value, strong]) => ioMetaRow(esc(label), esc(value), strong !== false)).join(""))}${vBanner("warning", esc(warning), "")}<div class="sheet-actions">${cfSecondary("Huỷ", closeAttr)}<button class="button button--primary" type="button" ${confirmAttr} data-ds-component="VButton">${esc(confirmLabel)}</button></div></div></section></div>`;
 }
 
 /* ---------- Chân màn dùng chung K3 / K4 ---------- */
@@ -88,33 +86,47 @@ function k4Footer(buttons) {
 
 /* ---------- K3 — kết quả chưa rõ ---------- */
 
-function k3Unknown({ operation, scope, ref, sentAt, safe, sourceFlow, exitAttr, facts = [] }) {
+// title: tiêu đề màn (BJ-02 giữ "Đối soát nhận hàng"); detail: HTML chèn sau bảng số liệu (dòng thời gian bằng chứng…).
+// Kết quả và detail cùng một cột (.k3-column): iPhone như cũ, web tối đa 720px giữa khung.
+function k3Unknown({ operation, scope, ref, sentAt, safe, sourceFlow, exitAttr, facts = [], title = "Xác minh kết quả", detail = "" }) {
   const rows = [["Nghiệp vụ", operation], ["Phạm vi", scope], ["Mã tham chiếu", ref], ["Thời điểm gửi", sentAt], ...facts, ["Trạng thái", "Chưa kết luận"]];
-  const body = ioResult("Kết quả chưa xác định", `Không gửi lại thao tác. Chuyển đúng lần xử lý này sang xác minh kết quả.${safe ? ` ${safe}` : ""}`, rows, "warning");
+  const body = `<div class="k3-column">${ioResult("Kết quả chưa xác định", `Không gửi lại thao tác. Chuyển đúng lần xử lý này sang xác minh kết quả.${safe ? ` ${safe}` : ""}`, rows, "warning")}${detail}</div>`;
   const handoff = `data-v350-action="handoff-unknown" data-source-flow="${escapeAttribute(sourceFlow)}" data-operation="${escapeAttribute(operation)}" data-scope="${escapeAttribute(scope)}"`;
-  return appShell({ title: "Xác minh kết quả", body, actions: k4Footer([{ label: "Về Kho", attr: exitAttr }, { label: "Chuyển sang xác minh", attr: handoff, primary: true }]), centered: true, back: false, extraClass: "k7-wide" });
+  return appShell({ title, body, actions: k4Footer([{ label: "Về Kho", attr: exitAttr }, { label: "Chuyển sang xác minh", attr: handoff, primary: true }]), centered: true, back: false, extraClass: "k7-wide" });
 }
 
 /* ---------- K4 — kết quả xong ---------- */
 
 // next: [{ label, attr, primary }] — phụ | chính.
-function k4Result({ screenTitle = "Kết quả", kind = "success", title, description, facts = [], next = [] }) {
-  return appShell({ title: screenTitle, body: ioResult(title, description, facts, kind), actions: next.length ? k4Footer(next) : "", centered: true, back: false, extraClass: "k7-wide" });
+// button: HTML đặt sau bảng số liệu (vd. liên kết "Xem {n} dòng hàng").
+function k4Result({ screenTitle = "Kết quả", kind = "success", title, description, facts = [], next = [], button = "" }) {
+  return appShell({ title: screenTitle, body: ioResult(title, description, facts, kind, button), actions: next.length ? k4Footer(next) : "", centered: true, back: false, extraClass: "k7-wide" });
 }
 
 /* ---------- K7 — bố cục web ---------- */
 
-function k7Split({ main, aside }) {
-  return `<div class="k7-split"><div class="k7-split__main">${main}</div><aside class="k7-split__aside">${aside}</aside></div>`;
+// wideMain: bảng rộng bên trái, khối tóm tắt hẹp bên phải (mặc định cột trái hẹp); asideWebOnly: iPhone không hiện khối phải.
+function k7Split({ main, aside, wideMain = false, asideWebOnly = false }) {
+  return `<div class="k7-split${wideMain ? " k7-split--wide-main" : ""}"><div class="k7-split__main">${main}</div><aside class="k7-split__aside${asideWebOnly ? " k7-split__aside--web" : ""}">${aside}</aside></div>`;
+}
+
+// Ô tick (VCheckbox). k7CheckMark: chỉ phần hộp (dùng khi cả thẻ là một nút); k7Check: nút đủ vùng chạm 44 × 44 cho bảng.
+function k7CheckMark(checked, disabled = false) {
+  return `<span class="k7-check__box${checked ? " is-checked" : ""}${disabled ? " is-disabled" : ""}" aria-hidden="true">${checked ? icon("check", "icon--sm") : ""}</span>`;
+}
+function k7Check({ attr, checked = false, disabled = false, label }) {
+  return `<button type="button" class="k7-check" role="checkbox" aria-checked="${checked}" aria-label="${escapeAttribute(label)}" ${attr}${disabled ? ' disabled aria-disabled="true"' : ""} data-ds-component="VCheckbox">${k7CheckMark(checked, disabled)}</button>`;
 }
 
 // Trả CẢ HAI dạng: bảng (khung web) và danh sách (khung mobile); đổi khung không dựng lại nên CSS ẩn / hiện.
 // columns: [{ key, label, align: "start" | "end", mono, html, cls(row) }]; empty: tham số k1Empty khi không còn dòng.
-function k7Table({ columns, rows, mobileRow, caption = "", footer = "", empty = null }) {
+// rowAttr(r): thuộc tính thêm cho <tr> (vd. dòng bấm được); mặc định không có.
+// select(r): { attr, checked, disabled, label } → thêm cột ô tick đầu bảng; bỏ trống thì HTML như cũ. Danh sách mobile tự dựng ô tick trong mobileRow.
+function k7Table({ columns, rows, mobileRow, caption = "", footer = "", empty = null, rowAttr = null, select = null, selectLabel = "Chọn" }) {
   if (!rows.length && empty) return k1Empty(empty);
-  const head = columns.map((c) => `<th scope="col" class="k7-col-${c.align || "start"}">${esc(c.label)}</th>`).join("");
+  const head = (select ? `<th scope="col" class="k7-col-check"><span class="k7-sr">${esc(selectLabel)}</span></th>` : "") + columns.map((c) => `<th scope="col" class="k7-col-${c.align || "start"}">${esc(c.label)}</th>`).join("");
   const cell = (c, r) => `<td class="k7-col-${c.align || "start"}${c.mono ? " k7-mono" : ""}${c.cls ? ` ${c.cls(r) || ""}` : ""}">${c.html ? r[c.key] : esc(r[c.key] ?? "")}</td>`;
-  const body = rows.map((r) => `<tr>${columns.map((c) => cell(c, r)).join("")}</tr>`).join("");
+  const body = rows.map((r) => `<tr${rowAttr ? ` ${rowAttr(r)}` : ""}>${select ? `<td class="k7-col-check">${k7Check(select(r))}</td>` : ""}${columns.map((c) => cell(c, r)).join("")}</tr>`).join("");
   const foot = footer ? `<p class="k7-table__footer">${esc(footer)}</p>` : "";
   return `<div class="k7-table-wrap"><table class="k7-table" data-ds-component="VTable">${caption ? `<caption>${esc(caption)}</caption>` : ""}<thead><tr>${head}</tr></thead><tbody>${body}</tbody></table><div class="k7-table-list">${rows.map((r) => mobileRow(r)).join("")}</div>${foot}</div>`;
 }

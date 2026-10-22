@@ -63,7 +63,7 @@ Payload, kết quả, movement và audit của operation hoàn tất phải đư
 | Operation gốc đang `UNKNOWN` | Chặn reversal và operation thay thế |
 | Operation gốc đã có một reversal có hiệu lực | Không tạo reversal có hiệu lực thứ hai |
 | Reversal vượt ngưỡng rủi ro | Chờ người đủ thẩm quyền phê duyệt |
-| Người tạo đồng thời muốn tự duyệt | Từ chối theo maker–checker |
+| Người tạo đồng thời muốn tự duyệt | Từ chối theo maker–checker (trừ chủ cửa hàng `is_owner`: vẫn gửi duyệt rồi tự duyệt) |
 
 “Trung hòa phụ thuộc” phải diễn ra qua các operation hợp lệ và có liên kết; không được sửa số dư tay để làm cho reversal đi qua.
 
@@ -88,7 +88,7 @@ Nếu operation gốc đã tham gia một lần đối soát giá, reversal ph�
 
 #### 6. Phê duyệt theo rủi ro
 
-Reversal được đánh giá theo ngưỡng rủi ro số lượng hoặc giá trị. Người tạo không được tự duyệt. Phê duyệt chỉ cho phép operation đi tiếp; khi thực thi, hệ thống vẫn phải kiểm tra lại tồn, trạng thái, phụ thuộc và khóa hiện hành.
+Reversal được đánh giá theo ngưỡng rủi ro số lượng hoặc giá trị. Người tạo không được tự duyệt (trừ chủ cửa hàng `is_owner`: vẫn gửi duyệt rồi tự duyệt). Phê duyệt chỉ cho phép operation đi tiếp; khi thực thi, hệ thống vẫn phải kiểm tra lại tồn, trạng thái, phụ thuộc và khóa hiện hành.
 
 ### Ví dụ xuyên suốt
 

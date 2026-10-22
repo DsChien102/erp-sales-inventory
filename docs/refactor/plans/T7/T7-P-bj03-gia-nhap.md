@@ -1,9 +1,9 @@
 # T7-P · BJ-03 Xác lập giá trị nhập ban đầu — thiết kế lại (bước B–E)
 
-> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21 — mục 0.10) | Plan C–E ✅ (viết cùng brief; **rà lại theo code sau khi BJ-02 xong**) | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21 — mục 0.10) | Plan C–E ✅ (rà lại theo code BJ-02 khi làm) | Làm ✅ 2026-10-22 (v5.9.0, chưa commit) | Review ⬜
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 2 "Nhập hàng"**, BJ thứ hai. Làm **sau** [BJ-02](T7-P-bj02-nhan-hang.md) (fixture chung chặng 2 ở bước C0 của BJ-02; nút "Xác lập giá trị" ở SCR-012). Sau BJ-03 là [BJ-13](T7-P-bj13-dieu-chinh-gia-tri.md).
 > Dùng lại K1, K3, K4, K7 và `k7EditCell`, `dsSegmented`; không có duyệt (UC-03-01 không có bước duyệt) nên **không dùng K2**.
-> Thiết bị chính: **web** (Owner ngồi máy tính, T7-P mục 2); iPhone dùng được đủ việc.
+> Thiết bị: **cả iPhone và web đều là thiết bị chính** (sửa 2026-10-22, T7-P mục 2). Plan viết khi còn "web chính, iPhone dùng được"; rà lại 2026-10-22: **đạt cả hai khung**; lỗi nhỏ còn lại sửa ở [plan hotfix T7-HF1](T7-HF1-hai-thiet-bi.md).
 > Ước lượng: **~1,5 ngày, 2 commit** (C + D; E). Người làm: bạn. Review: phiên plan / review.
 
 Đường dẫn tính từ `specs/themes/theme-07/03.design/prototype/html/` nếu không ghi khác. Câu trong ngoặc kép là chữ hiển thị, chép nguyên văn; **(mới)** = chữ mới, vào T7-P mục 13 ở bước E.
@@ -70,7 +70,7 @@ Hub → Giá trị kho → "Hàng chờ xác lập giá trị" → 014 ──┤
 4. Web: `k7Table` — Phiếu nhận · Nhà cung cấp · Cách nhận · Ngày nhận · Sản phẩm chờ · "Chờ" ("{n} ngày" **(mới)**, từ `ageDays`) · Tình trạng.
 5. `EMPTY` → `k1Empty({ title:"Không còn hàng chờ giá trị", description:"Các phiếu nhận đã được xác lập giá trị." (mới) })`; `FILTER_EMPTY` → `k1Empty` + "Xem tất cả" (chữ CAP-01); `LOADING` → `k1Loading`; `PERMISSION_DENIED` và `FINANCIAL_MASKED` → `k1Denied` (mục 13).
 
-*SCR-015 Xác lập giá trị nhập ban đầu* (một phiếu; web chính, K7)
+*SCR-015 Xác lập giá trị nhập ban đầu* (một phiếu; K7)
 
 6. Đầu: dòng ngữ cảnh "{phiếu} · {NCC}" + phụ "{Theo chứng từ | Nhập nhanh} · nhận {ngày}".
 7. **Bảng sản phẩm** (`k7Table`; iPhone danh sách thẻ): ô tick · Sản phẩm (tên + mã; dưới tên các lô "Lô {mã} · {SL} {ĐVT}") · Số lượng chờ · "Đơn giá" (đ/{ĐVT}) · "Thành tiền" · Tình trạng. Dòng **đủ căn cứ được tick sẵn** (chốt 0.10 c); bỏ tick được.
@@ -176,7 +176,7 @@ Quy tắc ở 0.1; mọi hàm tính trong khối v397 (`basisCandidate`, `calc`,
 
 ### 3.1 Fixture (`app/bj03.js`)
 
-1. `val03Receipts[0]` (VAL03-R1, PN-260816-04, Minh Dũng): **khớp phiếu BJ-02** — G1 Nobivac DHPPi (`code` = `SP-000184`, hộp, LOT) một lát `ROL-401 | LOT-DH2507 | SELLABLE` 121 hộp (căn cứ `BASIS-G1-A` giữ → 81.700 đ/hộp → 9.885.700 đ); G2 đổi "Amoxicillin LA" → **Oxytetracycline LA** (`SP-000147`, chai, NONE) 24 chai, hai căn cứ PO 120.000 / xác nhận NCC 121.000 (giữ → `CONFLICT`). Bỏ lát DH2509 / cách ly của Nobivac (ghi chú CHANGELOG: ca nhiều lát giữ ở logic, fixture không còn).
+1. *(đã làm sớm 2026-10-22 cùng BJ-02, v5.8.0; `val03OpenForReceipt` ở 3.2 cũng đã có, hàm trong `bj03.js` — chỉ còn rà lại khi làm 014 / 015)* `val03Receipts[0]` (VAL03-R1, PN-260816-04, Minh Dũng): **khớp phiếu BJ-02** — G1 Nobivac DHPPi (`code` = `SP-000184`, hộp, LOT) một lát `ROL-401 | LOT-DH2507 | SELLABLE` 121 hộp (căn cứ `BASIS-G1-A` giữ → 81.700 đ/hộp → 9.885.700 đ); G2 đổi "Amoxicillin LA" → **Oxytetracycline LA** (`SP-000147`, chai, NONE) 24 chai, hai căn cứ PO 120.000 / xác nhận NCC 121.000 (giữ → `CONFLICT`). Bỏ lát DH2509 / cách ly của Nobivac (ghi chú CHANGELOG: ca nhiều lát giữ ở logic, fixture không còn).
 2. Các phiếu khác (R2 nhập nhanh Găng tay — `DIRECT_MISSING`; R3 Vaccine Canine X — USD đã chuẩn hoá; R4 VietVet — một dòng đủ căn cứ, một dòng `COMMERCIAL_MISSING`) giữ, chỉ thêm `ageDays` nếu thiếu và `officialCostVnd` cho Găng tay (135.000 đ/hộp, lấy từ `quickProductCatalog` của BJ-02) để gợi ý giá.
 3. `isQuick(r)` đọc trường `entryType:"QUICK"|"DOCUMENT"` (thêm vào fixture) thay vì so `id`.
 4. Bỏ `ensureVal03ReviewFixture` (017 không còn; hàm nằm ở `shared-valuation.js:42`) và thay `ensureVal03ResultFixture` (`shared-valuation.js:52`) bằng một kết quả mẫu tĩnh cho ca vào thẳng `SCR-019&state=COMPLETED` (`val03LastResult ||= {...}` dựng từ R1 G1) — không gọi `val03Commit` khi render.
@@ -256,7 +256,29 @@ Sửa `SC_bj03_list`, `SC_bj03_basis`, `SC_bj03_confirm` theo selector mới (`S
 
 ## 8. Ghi chú khi làm
 
-(Điền khi làm.)
+Làm 2026-10-22 (prototype v5.9.0). Mọi việc ở mục 3, 4, 5 xong; chưa commit, chưa review. Mốc mới: `tools/.golden-bj03-after` (1560 ca, mobile) và `tools/.golden-bj03-web-after` (686 ca, web) — không vào git (xem README). CHANGELOG `[5.9.0]` có bản đầy đủ; dưới đây là chỗ **khác plan** và chỗ cần review.
+
+**Kiểm (bước D)**
+- Golden so `.golden-bj02-after` / `.golden-bj02-web-after`: chỉ khác trong danh sách 0.8 — `UIF-03_*` (ca `SCR-017` mất), `SC_bj03_*`, `SC_entry_UIF-03_*`, `SC_ws_valuation_*`, `SC_bj02_owner_flow` / `SC_bj02_result_owner` (bước "Xác lập giá trị"); web: `UIF-03_*@web`, `SC_bj03_*@web`, `SC_bj02_owner_flow@web`. 0 lỗi JS; `node --check app/*.js harness/*.js tools/golden.mjs` đạt.
+- Mọi trạng thái 0.5 dựng khác nhau (so `.txt` và `.png`), **trừ** `UIF-03_SCR-014_PERMISSION_DENIED` = `FINANCIAL_MASKED` — brief cho cả hai cùng `k1Denied`.
+- `/impeccable audit` (CDP, 18 màn / trạng thái × 2 khung): sửa 2 lỗi tương phản (chữ mục chọn của thanh "Cách hiểu giá" 4,31:1; số tiền trong sheet chi tiết 4,13:1), 1 lỗi bàn phím (tick xong mất focus), 1 lỗi focus hộp thoại (xem CHANGELOG). Sau sửa: 0 lỗi tương phản / vùng chạm / tên truy cập ở iPhone; web: Space tick, Enter mở hộp thoại, Esc đóng, focus về nút đã mở.
+- Chưa gửi ảnh (mục 4.4): người dùng tự mở prototype hoặc xem ảnh ở `tools/.golden-bj03-after`, `…-web-after`.
+
+**Khác plan**
+1. `SC_bj03_from_receipt` bắt đầu ở `T + 'inventory'` và đi theo `SC_bj02_owner_flow` (lập → gửi duyệt → Chờ duyệt → duyệt → "Xác lập giá trị"), không phải `R + 'SCR-007&entry=owner'` ("`SC_bj02_owner_self`" không còn — chủ cửa hàng lập cũng gửi duyệt, 2026-10-22). Kịch bản thêm: `SC_bj03_untick`, `SC_bj03_result`.
+2. `val03ApplySourceUpdate` (hàm "không đổi" ở 0.7) sửa **một điều kiện**: `selectedAffected` trước là `activeScreenId==='SCR-017' && …`, nay `selectedQty(g)>0` vì 017 không còn; phần tính giữ nguyên.
+3. Hai hàm tính mới trong khối v397 để bảng hiện đơn giá / thành tiền khi chưa tick: `val03UnitActual`, `val03GroupAmount` (dùng `unitActual`, `confirmationAmount` có sẵn).
+4. Nhãn căn cứ trong fixture rút gọn (vd. "Căn cứ tổng hợp PO-2608-041" → "Đơn mua PO-2608-041 (v3)") để "Căn cứ: {nhãn}" không thành "Căn cứ: Căn cứ …"; nhãn này cũng là "{nguồn 1}" ở dòng mâu thuẫn.
+5. "Cách hiểu giá" mặc định "Đã gồm thuế" (thanh chọn luôn có một mục); lỗi "Chọn cách hiểu giá." của bản cũ bỏ.
+6. Ca `VALIDATION_ERROR` dựng từ ngoài (đổi trạng thái ở bộ kiểm) mở sheet căn cứ của R2 G3 rồi tự đóng và trả phiếu đang xem khi sang trạng thái khác (`val03Ui.demo`), để sheet không rò sang ca sau.
+7. Bảng web: khối "Tóm tắt" là `k7Split({ wideMain: true })` (bảng 1fr, tóm tắt 320px) — mặc định 5fr / 7fr của K7 hẹp bên trái nên không hợp bảng 6 cột. Nút "Ghi giá trị ({n})" có hai bản (khối "Tóm tắt" ở web, chân ở iPhone; bản kia ẩn).
+8. Ngoài danh sách mục 9: "Chi tiết {n} sản phẩm", "Chọn sản phẩm" (chỉ đọc màn hình), "Đóng", "Quay lại" ở sheet căn cứ, "Người ghi: Chủ cửa hàng", "Lúc: 10:05 · 16/09/2026" (giờ cố định của prototype) — đã ghi vào T7-P mục 13.
+
+**Còn lại / ghi cho review**
+- Mã chết chưa dọn (ngoài phạm vi 3.3, hàm "tính" nằm chung khối v397): `val03ScopeGroupsHtml`, `val03CalculationGroupsHtml`, `val03EvidenceSheet`, `val03ReviewGroupsHtml`, `val03ResultGroupsHtml`, `componentsHtml`, `val03EvidenceSheetOpen`… — không còn nơi nào gọi. Đề xuất xoá ở lượt dọn mã sau BJ-13 (BJ-13 / BJ-14 chưa đọc chúng; kiểm bằng `grep` trước).
+- `tokenStale` / `reviewTokens` (v397) vẫn không được gán: xác nhận lệch chỉ so `sourceVersion` như bản cũ.
+- Bản gốc `CLAUDE.md` yêu cầu `impact` / `detect_changes` của GitNexus trước khi sửa / commit; công cụ MCP đó không có trong phiên này nên dùng `grep` thay: ký hiệu BJ-03 chỉ BJ-02 (`val03OpenForReceipt`, `bj02LastCommitted`) và `shared-valuation.js` (hai hàm `ensureVal03*` đã xoá) tham chiếu; `VAL_UI_430` / `VAL_UI_461` giữ nguyên cho BJ-13 / BJ-14. Chạy `detect_changes` trước khi commit.
+- Chưa động tới: `docs/` bên ngoài `specs/`, `09.generated/registries/**` (chỉ `sync-registry.py` cho phần prototype; `screen-registry.md`, `traceability.md`, `bj-ui-flow-map.md` còn SCR-017 — bảng sinh tự động).
 
 ## 9. Chữ trên màn
 
@@ -273,4 +295,8 @@ Sửa `SC_bj03_list`, `SC_bj03_basis`, `SC_bj03_confirm` theo selector mới (`S
 
 ## 10. Review
 
-(Phiên review điền.)
+**2026-10-22 — gộp vào review [T7-HF1 mục 8](T7-HF1-hai-thiet-bi.md#8-review-2026-10-22-phiên-review--gộp-review-bj-02-bj-03), chạy trên bản 5.9.1.**
+- Tiêu chí D chạy lại: golden 0 lỗi JS, `node --check` đạt; `SC_bj03_*` chạy được ở hai khung; ảnh 015 web đã xem (dòng đủ căn cứ tick sẵn, dòng mâu thuẫn ≤ 3 dòng, khối "Tóm tắt" + "Ghi giá trị (1)"). Audit của người làm (mục 8) không chạy lại.
+- Không có lỗi chặn riêng của BJ-03. Nhỏ: cột "Sản phẩm" của 015 web bị hẹp sau khi HF1 đặt cột "Tình trạng" 240px (HF1 mục 8, mục 6).
+- Còn mở (không chặn, đã ghi ở mục 8): mã chết khối v397 (`val03ScopeGroupsHtml`, `val03EvidenceSheet`…) — dọn sau BJ-13; `tokenStale` chưa được gán; `screen-registry.md` còn `SCR-017` là màn đang dùng.
+- Trạng thái: ✅ về phần BJ-03; commit cùng lượt với HF1 sau khi sửa HF1 lỗi 1–2.

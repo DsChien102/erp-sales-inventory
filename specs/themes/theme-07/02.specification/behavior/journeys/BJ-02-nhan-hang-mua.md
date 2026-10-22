@@ -28,9 +28,9 @@ Một chứng từ/source line có thể được nhận qua **nhiều phiếu n
 
 | Tác nhân | Trách nhiệm | Phạm vi thẩm quyền |
 |---|---|---|
-| Thủ kho | Ghi nhận hàng thực nhận theo chứng từ và chênh lệch giao nhận theo đúng nguồn/version. | Không sửa chứng từ nguồn; khi lượng accepted physical vượt tolerance/ngưỡng của source theo ApprovalPolicy thì bàn giao người duyệt, người lập không tự duyệt. |
+| Thủ kho | Ghi nhận hàng thực nhận theo chứng từ và chênh lệch giao nhận theo đúng nguồn/version. | Không sửa chứng từ nguồn; khi lượng accepted physical vượt tolerance/ngưỡng của source theo ApprovalPolicy thì bàn giao người duyệt; người lập không tự duyệt — **ngoại lệ** chủ cửa hàng (`is_owner`) lập thì vẫn gửi duyệt rồi tự duyệt được (cửa hàng chỉ có một chủ), không có đường ghi nhận thẳng. |
 | Thủ kho hoặc người có quyền lập hồ sơ nhận hàng nhanh | Chuẩn bị dữ liệu phiếu nhận hàng nhanh trong phiên UI và gửi một lệnh create-and-submit với Supplier/Product/UOM, evidence và căn cứ duyệt hợp lệ. | Không tạo PO giả; phiếu nhận hàng nhanh luôn đi đúng approval policy trước khi ghi tồn. |
-| Người có quyền và cấp phê duyệt phù hợp, khác người lập | Duyệt hoặc từ chối yêu cầu nhận hàng trên snapshot/bằng chứng hiện hành. | Không sửa payload của người lập; từ chối phải có lý do. |
+| Người duyệt: `is_owner` hoặc vai trò `store_owner`, khác người lập (trừ ngoại lệ `is_owner` tự duyệt) | Duyệt hoặc từ chối yêu cầu nhận hàng trên snapshot/bằng chứng hiện hành. | Không sửa payload của người lập; từ chối phải có lý do. |
 | Hệ thống; Thủ kho/adapter khi truy vấn kết quả | Hệ thống tự thực thi phiếu nhận hàng khi operation đã `READY`; Thủ kho/adapter chỉ truy vấn/phục hồi ngắn khi finality chưa rõ. | Không có CTA người dùng để commit lại phiếu nhận hàng; retry/query phải giữ cùng operation/idempotency identity và không tạo movement thứ hai. |
 
 ## 3. Sơ đồ hành trình nghiệp vụ

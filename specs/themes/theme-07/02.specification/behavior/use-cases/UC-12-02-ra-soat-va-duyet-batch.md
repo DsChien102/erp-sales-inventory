@@ -26,7 +26,7 @@ Có prepared batch hợp lệ
 
 ### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-Batch được duyệt hoặc từ chối; Approval decision độc lập với người lập, **trừ ngoại lệ**: chủ cửa hàng (`is_owner`) lập thì tự duyệt được — bước rà soát kết thúc bằng một xác nhận “Ghi nhận” của chính họ (không có trạng thái chờ duyệt); lịch sử ghi người duyệt là “Chủ cửa hàng (tự duyệt)”. Vai trò `store_owner` không phải `is_owner` vẫn cần `is_owner` duyệt.
+Batch được duyệt hoặc từ chối; Approval decision độc lập với người lập, **trừ ngoại lệ**: cửa hàng chỉ có một chủ cửa hàng (`is_owner`); chủ lập thì vẫn gửi duyệt rồi tự duyệt ở bước này, như batch của nhân viên — không có đường ghi nhận thẳng; lịch sử ghi người duyệt là “Chủ cửa hàng”. Vai trò `store_owner` không phải `is_owner` vẫn cần `is_owner` duyệt.
 
 ### 2.3 Không bao gồm
 
@@ -54,7 +54,7 @@ Không commit tồn đầu kỳ và không sửa dòng nguồn đã khóa. UC ch
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
 | BF-01 | Người duyệt | Mở batch đã validation và xem tổng quantity/value, lỗi cảnh báo và sample/chi tiết. |  |
-| BF-02 | Hệ thống | Kiểm tra quyền, segregation và batch version; bảo đảm không có giao dịch vận hành chen vào. Segregation: người duyệt phải là `is_owner` hoặc có vai trò `store_owner` và khác người lập; **ngoại lệ** `is_owner` lập thì tự duyệt được. | EF-A — Không đủ quyền/stale |
+| BF-02 | Hệ thống | Kiểm tra quyền, segregation và batch version; bảo đảm không có giao dịch vận hành chen vào. Segregation: người duyệt phải là `is_owner` hoặc có vai trò `store_owner` và khác người lập; **ngoại lệ** `is_owner` lập thì vẫn gửi duyệt rồi tự duyệt được (cửa hàng chỉ có một chủ). | EF-A — Không đủ quyền/stale |
 | BF-03 | Người duyệt | Quyết định Duyệt hoặc Từ chối batch. | AF-A — Từ chối |
 | BF-04 | Hệ thống | Commit approval và khóa batch version cho UC-12-03. | EF-B — Kết quả quyết định chưa xác định |
 | BF-05 | — | [Kết thúc UC]. | |
@@ -122,7 +122,7 @@ Không commit tồn đầu kỳ và không sửa dòng nguồn đã khóa. UC ch
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-068` | Khi kiểm tra đạt, là màn rà soát của người lập (số dư sẽ ghi nhận, từng dòng sẽ vào kho); chủ cửa hàng tự lập ghi nhận ngay tại đây (sheet xác nhận). `SCR-069` cũ đã gộp vào đây. |
+| `SCR-068` | Khi kiểm tra đạt, là màn rà soát của người lập (số dư sẽ ghi nhận, từng dòng sẽ vào kho); chủ cửa hàng tự lập cũng gửi duyệt từ đây. `SCR-069` cũ đã gộp vào đây. |
 | `SCR-070` | Trình bày basis/evidence và hành động ra quyết định của “Rà soát và duyệt batch”; không tự thực thi effect sau duyệt. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)

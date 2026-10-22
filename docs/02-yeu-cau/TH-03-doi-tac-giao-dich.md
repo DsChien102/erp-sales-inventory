@@ -1108,7 +1108,7 @@ Quy ước chung: thao tác thành công → toast "Thành công" + nội dung; 
 
 - Nhãn trạng thái / vai trò có chữ, không chỉ dựa vào màu.
 - SĐT mở bàn phím số; email bàn phím email; MST bàn phím số kèm "-".
-- Màn rộng: nội dung một cột tối đa ~720 px.
+- Hai thiết bị đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md), sửa 2026-10-22): mỗi màn có bố cục iPhone và bố cục web thiết kế đủ như nhau — web không phải cột iPhone đặt giữa hay kéo giãn. Web dùng bố cục chung: danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet thành hộp thoại, đi được bằng bàn phím; bố cục từng màn chốt trong plan của theme.
 
 ---
 

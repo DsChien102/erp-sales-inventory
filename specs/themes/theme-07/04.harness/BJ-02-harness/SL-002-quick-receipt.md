@@ -87,7 +87,7 @@ Thủ kho gửi quick receipt tới `PENDING_APPROVAL` và hệ thống chưa t�
 | [BC-IC-07](../../02.specification/behavior/behavioral-contracts/BC-IC-07.md) | `operation_type=QUICK_RECEIPT` luôn tạo ApprovalCase |
 | [T7-DR-072](../../01.knowledge/decisions/decision-register.md#t7-dr-072) | Client giữ `operationRequestId` ổn định cho ý định nhận nhanh, khác `idempotencyKey`. Cùng khóa mà payload khác → `IDEMPOTENCY_PAYLOAD_MISMATCH`. [DOM-IO INV-IO-09](../../02.specification/domain/domain-foundation/DOM-IO.md) ghi `IDEMPOTENCY_CONFLICT`. Quy tắc nền tảng idempotency dẫn từ `docs/architecture`; slice ghi cách outcome này áp dụng |
 | Trước mutation | Kho chưa `ACTIVE` → `INVENTORY_NOT_ACTIVATED`. Product `DISCONTINUED` → `PRODUCT_DISCONTINUED_FOR_RECEIPT`. Product `ARCHIVED` → `PRODUCT_ARCHIVED`. Không tạo phiếu |
-| [T7-DR-121](../../01.knowledge/decisions/decision-register.md#t7-dr-121) / [SCR-006](../../03.design/screens/SCR-006.md) | Không có capability thì không hiện lối nhập nhanh. Blocker tạm thời: hàng điều hướng Disabled kèm lý do, không đi sâu |
+| [T7-DR-121](../../01.knowledge/decisions/decision-register.md#t7-dr-121) / [SCR-006](../../03.design/screens/RETIRED.md) | Không có capability thì không hiện lối nhập nhanh. Blocker tạm thời: hàng điều hướng Disabled kèm lý do, không đi sâu |
 
 Phiếu nhận nhanh bắt đầu ở `PENDING_APPROVAL` khi gửi thành công. `READY`, `COMMITTED`, `REJECTED`, `UNKNOWN` thuộc các slice sau. [ENT-IO-01](../../02.specification/domain/entities/ENT-IO-01-GoodsReceipt.md) vẫn mô tả bắt đầu `DRAFT`. Slice này không đổi entity.
 
@@ -294,7 +294,7 @@ class SubmitQuickReceiptResultDto {
 
 | Screen | State / action | Nguồn |
 | --- | --- | --- |
-| SCR-006 | Không có capability thì không render card nhanh. Có capability: «Nhập hàng nhanh» → SCR-008. Blocker tạm thời: hàng Disabled kèm lý do, không đi sâu. «Nhận theo chứng từ» giữ card, disabled, không → SCR-007 | [SCR-006](../../03.design/screens/SCR-006.md) |
+| SCR-006 | Không có capability thì không render card nhanh. Có capability: «Nhập hàng nhanh» → SCR-008. Blocker tạm thời: hàng Disabled kèm lý do, không đi sâu. «Nhận theo chứng từ» giữ card, disabled, không → SCR-007 | [SCR-006](../../03.design/screens/RETIRED.md) |
 | SCR-008 | Supplier master, ngày nghiệp vụ read-only, kho read-only. Chứng từ: `VFileDropZone` và `VAttachment` (gỡ từng file, không mở viewer). Trần số file, MIME và kích thước theo Shared Attachment Policy — không hard-code 3. Đủ trần thì khóa vùng chọn. Batch vượt trần thì không nhận. «Xác nhận & tiếp tục» chỉ sang SCR-009 trong phiên, không gọi `BC-IO-16`. Không nút Lưu nháp | [SCR-008](../../03.design/screens/SCR-008.md) |
 | SCR-009 | Danh sách Product+UOM. Quick: `VSearchBar` tìm Product. Một UOM thì vào thẳng SCR-084. Nhiều UOM: chọn trực tiếp một UOM rồi vào SCR-084, không dropdown. Trùng Product+UOM: không tạo mục mới, `VBanner.warning` và «Mở sản phẩm đã có». «Rà soát» chỉ bật khi có ít nhất một mục và mọi mục đã xử lý | [SCR-009](../../03.design/screens/SCR-009.md) |
 | SCR-084 | Một mục: bốn phân loại là input. Tổng kiểm nhận và vào tồn là derived, read-only. `NONE` không render lô. `LOT`: mã lô bắt buộc, HSD theo policy, NSX tùy chọn, precision `day` / `month` / `year`. «Thêm lô khác» chỉ thêm lô. «Xong» quay SCR-009. Quick được xóa mục có kiểm soát | [SCR-084](../../03.design/screens/SCR-084.md) |

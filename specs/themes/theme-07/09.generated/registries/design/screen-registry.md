@@ -9,7 +9,7 @@
 | `SCR-003` | Chi tiết tồn kho | detail | BJ-01 | UC-01-02, UC-01-03, UC-01-04, UC-01-05 | BUSINESS_JOURNEY | BJ01_ACTIVE_v3.9.1 |
 | `SCR-004` | Chi tiết lô | overlay | BJ-01 | UC-01-02, UC-01-05 | BUSINESS_JOURNEY | OVERLAY_IN_SCR-003_v3.9.1 |
 | `SCR-005` | Nguồn và thời điểm cập nhật | overlay | BJ-01 | UC-01-03 | BUSINESS_JOURNEY | OVERLAY_IN_SCR-003_v3.9.1 |
-| `SCR-006` | Chọn cách nhận hàng | choice | BJ-02 | UC-02-01, UC-02-02 | BUSINESS_JOURNEY | BJ02_PILOT_CALIBRATING_v0.2.9 |
+| `SCR-006` | Chọn cách nhận hàng — Đã gộp vào SCR-007 | choice | — | — | HISTORICAL_MIGRATION | RETIRED_v5.8.0 |
 | `SCR-007` | Chứng từ chờ nhận | list | BJ-02 | UC-02-01 | BUSINESS_JOURNEY | BJ02_PILOT_CALIBRATING_v0.2.9 |
 | `SCR-008` | Thông tin nhập hàng nhanh | form | BJ-02 | UC-02-02 | BUSINESS_JOURNEY | SEMANTIC_UX_v4.6.0 |
 | `SCR-009` | Hàng thực nhận | list | BJ-02 | UC-02-01, UC-02-02 | BUSINESS_JOURNEY | BJ02_PILOT_REFINED_v0.3.4 |

@@ -128,7 +128,6 @@ Không ghi tăng tồn ở bước chuẩn bị và không sửa số lượng/�
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-006` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị nhận theo chứng từ”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
 | `SCR-007` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị nhận theo chứng từ”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
 | `SCR-009` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị nhận theo chứng từ”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
 | `SCR-084` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị nhận theo chứng từ”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |

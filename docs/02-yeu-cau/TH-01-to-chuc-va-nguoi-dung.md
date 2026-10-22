@@ -1084,6 +1084,7 @@ Không còn màn quản trị nền tảng. Khung cũ (C1–C7) chỉ để đ�
 - Ô mã 6 số / 8 ký tự hỗ trợ dán cả mã; bàn phím số cho mã 6 số.
 - Mật khẩu có nút hiện / ẩn.
 - Nhãn trạng thái có chữ, không chỉ màu.
+- Hai thiết bị đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md), sửa 2026-10-22): mỗi màn có bố cục iPhone và bố cục web thiết kế đủ như nhau — web không phải cột iPhone đặt giữa hay kéo giãn. Web dùng bố cục chung: danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet thành hộp thoại, đi được bằng bàn phím; bố cục từng màn chốt trong plan của theme.
 
 ---
 

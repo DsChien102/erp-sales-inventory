@@ -2,7 +2,7 @@
 
 > Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (rà lại theo code sau Giai đoạn 1 + H1 + plan BJ-12: 2026-10-21) | Làm ✅ 2026-10-21 (v5.6.0, chưa commit) | Review ✅ 2026-10-22 (đạt; R1–R5 xong, v5.7.2 — [plan CAP-01 mục 10](T7-P-cap01-chinh-sach-ton.md#10-review))
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md). Brief đã duyệt 2026-10-16: mục 0 của plan này. Bước A đã xong (`app/bj01.js`).
-> Ước lượng: **~1–1,5 ngày, 2 commit** (C+D; E). Làm **sau** [dọn tài liệu 7.1](T7-P-doc-don-tai-lieu.md) (bước E dùng khuôn ở đó) **và sau BJ-12** — 2026-10-20 Giai đoạn 2 sắp theo chặng hành trình, BJ-01 là BJ thứ hai của chặng 1 "Mở kho" ([T7-P mục 8.2](T7-P-thiet-ke-lai-luong.md)); K1 dựng ở BJ-12 (`app/shared-patterns.js`), plan này dùng lại. Thiết bị chính: **iPhone**; web phải dùng được (T7-P mục 2). Phiên bản đích **5.6.0** (BJ-12 = 5.5.0, CAP-01 = 5.7.0).
+> Ước lượng: **~1–1,5 ngày, 2 commit** (C+D; E). Làm **sau** [dọn tài liệu 7.1](T7-P-doc-don-tai-lieu.md) (bước E dùng khuôn ở đó) **và sau BJ-12** — 2026-10-20 Giai đoạn 2 sắp theo chặng hành trình, BJ-01 là BJ thứ hai của chặng 1 "Mở kho" ([T7-P mục 8.2](T7-P-thiet-ke-lai-luong.md)); K1 dựng ở BJ-12 (`app/shared-patterns.js`), plan này dùng lại. Thiết bị: plan viết khi còn "iPhone chính, web dùng được"; **sửa 2026-10-22: cả iPhone và web đều là thiết bị chính** (T7-P mục 2) — bản v5.6.0 mới đạt web "không vỡ" (mục 4 dòng "Web dùng được"), phần web bù ở [plan hotfix T7-HF1](T7-HF1-hai-thiet-bi.md). Phiên bản đích **5.6.0** (BJ-12 = 5.5.0, CAP-01 = 5.7.0).
 > Người làm: bạn. Review: phiên plan / review.
 
 Đường dẫn tính từ `specs/themes/theme-07/03.design/prototype/html/` nếu không ghi khác. Câu trong ngoặc kép là chữ hiển thị, chép nguyên văn.
@@ -240,7 +240,7 @@ Giữ các kịch bản `SC_bj01_*` hiện có (thuộc tính `data-bj01-*` khô
 |---|---|
 | Golden mobile | So `tools/.golden-bj01-base`: chỉ khác ở `UIF-01_*`, `SC_bj01_*`, `SC_search_*`, `SC_quick_UIF-01_*`, `SC_ws_inventory_0_*`, `UIF-09_SCR-036_*` (dòng Tylosin thêm vào BJ-09) và kịch bản mới. Mọi ca khác "Khớp hoàn toàn" |
 | Golden web | So `tools/.golden-bj01-web-base`: chỉ khác `UIF-01_*@web`, `UIF-09_SCR-036_*@web` |
-| Web dùng được | Khung web: SCR-001 / 003 không vỡ, không tràn ngang, đủ nút; BJ-01 **không** dùng `k7-wide` (iPhone chính — giữ cột ở giữa); `SC_bj01_barcode_type` đạt |
+| Web dùng được | Khung web: SCR-001 / 003 không vỡ, không tràn ngang, đủ nút; BJ-01 **không** dùng `k7-wide` (iPhone chính — giữ cột ở giữa) — *đã sửa ở T7-HF1 (5.9.1): web là danh sách – chi tiết, dùng `k7-wide`*; `SC_bj01_barcode_type` đạt |
 | Bộ bấm thử | 0 lỗi JS (phiên review chạy lại khi review) |
 | Bỏ chạm luồng khác | `SC_bj01_receive` dừng ở SCR-008 nhập nhanh; `SC_bj01_expired` dừng ở SCR-036 BJ-09 có đúng một dòng "Tylosin 20% · TY2408" |
 | `PERMISSION_DENIED` | DOM của SCR-001 / 003 không có tên, mã hay số lượng sản phẩm nào (`innerText` của `#app-screen` chỉ gồm chữ trạng thái, thanh trạng thái và nút) |

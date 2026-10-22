@@ -2,7 +2,7 @@
 
 > Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21) | Plan C–E ✅ | Làm ✅ 2026-10-21 (v5.7.0, chưa commit) | Review ✅ 2026-10-22 (đạt; R1–R5 xong, v5.7.2)
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 1 "Mở kho"**, BJ thứ ba (cuối chặng). Làm **sau** [BJ-12](T7-P-bj12-ton-dau-ky.md) (dựng K1–K4, K7) và [BJ-01](T7-P-bj01-ton-kho.md). Dùng lại khuôn, không dựng khuôn mới.
-> Thiết bị chính: **web** (Owner đặt ngưỡng cho nhiều sản phẩm một lượt); sửa lẻ một sản phẩm từ chi tiết tồn chạy tốt trên iPhone.
+> Thiết bị: **cả iPhone và web đều là thiết bị chính** (sửa 2026-10-22, T7-P mục 2) — đặt ngưỡng nhiều sản phẩm một lượt và sửa lẻ một sản phẩm đều phải làm trọn trên cả hai. Plan viết khi còn "web chính"; rà lại 2026-10-22: **đạt cả hai khung**; lỗi nhỏ còn lại sửa ở [plan hotfix T7-HF1](T7-HF1-hai-thiet-bi.md).
 > Hết plan này = **hết chặng 1**: kịch bản `SC_journey_1` (mục 4.5) đi một mạch Home Kho chưa kích hoạt → khởi tạo → xem tồn → đặt ngưỡng → thấy chỉ báo đổi.
 > Ước lượng: **~1,25 ngày, 2 commit** (C+D; E). Người làm: bạn. Review: phiên plan / review.
 
@@ -53,7 +53,7 @@ Home Kho → Thiết lập kho → "Chính sách tồn & cận hạn" → SCR-06
 2. Bỏ khối "Phạm vi / Tác động sổ kho" ở đầu; thay bằng một dòng chú thích cuối màn "Thay đổi chính sách không làm đổi số tồn." **(mới)**.
 3. Bỏ ô chọn "Nguồn áp dụng": ngưỡng tồn **luôn theo sản phẩm** (062); cận hạn có **mặc định** + **danh sách sản phẩm có chính sách riêng** (063).
 
-*SCR-062 Ngưỡng tồn* (web chính, K7)
+*SCR-062 Ngưỡng tồn* (K7)
 
 4. **Bảng sản phẩm** (dữ liệu = sản phẩm của BJ-01): cột Sản phẩm (tên + mã) · ĐVT · Khả dụng · "Ngưỡng cảnh báo" · "Mức tồn mục tiêu" · "Chỉ báo" (badge sau khi áp giá trị đang gõ). Hai cột ngưỡng là ô số **sửa tại dòng**. Lọc "Tất cả 5 · Chưa có ngưỡng 1" **(mới)**. Dòng đã sửa có chấm đánh dấu; dòng sai hiện lỗi dưới ô "Mục tiêu phải lớn hơn hoặc bằng ngưỡng." **(mới)**.
 5. Chân: phụ "Huỷ thay đổi" **(mới)** | chính **"Lưu thay đổi ({n})" (mới)** — tắt khi chưa sửa gì hoặc còn dòng sai.

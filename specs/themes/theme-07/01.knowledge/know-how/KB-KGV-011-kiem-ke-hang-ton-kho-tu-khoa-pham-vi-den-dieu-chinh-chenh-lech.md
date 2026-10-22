@@ -53,7 +53,7 @@ Nếu phiên bị hủy, khóa được giải phóng nhưng số dư vẫn là 
 - **Cho giao dịch đi qua trong lúc đếm:** biến chênh lệch thành một mục tiêu di động.
 - **Hiện số sổ trước khi đếm:** tạo thiên kiến xác nhận.
 - **Sửa balance trực tiếp về số đếm:** phá Dữ liệu gốc là movement ledger.
-- **Cho người đếm tự duyệt:** làm mất kiểm soát maker–checker.
+- **Cho người đếm tự duyệt:** làm mất kiểm soát maker–checker (ngoại lệ chủ cửa hàng `is_owner` — mỗi cửa hàng một chủ — vẫn gửi duyệt rồi tự duyệt).
 
 ## 3. Ý nghĩa đối với Theme
 

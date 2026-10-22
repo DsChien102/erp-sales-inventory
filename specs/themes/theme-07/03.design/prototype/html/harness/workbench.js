@@ -49,8 +49,8 @@ function renderFlowInspector() {
   const actions=(screen.actions||[]).map((a)=>a.id).join(" · ") || (screen.traceActions?.length ? `System: ${screen.traceActions.join(" · ")}` : "Navigation / query");
   const figmaMigrationLabel = ({
     "UIF-01":"v3.0.1 · BJ01 migrated + DS hard-gated",
-    "UIF-02":"v3.0.1 · BJ02 migrated + DS hard-gated",
-    "UIF-03":"v3.0.1 · BJ03 valuation hierarchy + evidence",
+    "UIF-02":"v5.8.0 · BJ-02 thiết kế lại",
+    "UIF-03":"v5.9.0 · BJ-03 thiết kế lại",
     "UIF-13":"v3.0.1 · BJ13 late-cost allocation + review",
     "UIF-14":"v3.0.1 · BJ14 costing run + publish",
     "UIF-04":"v3.0.1 · BJ04 migrated + DS hard-gated",
@@ -409,6 +409,9 @@ document.addEventListener("click", (event) => {
     syncReviewUrl();
     document.querySelectorAll(".viewport-button").forEach((button) => button.classList.toggle("is-active", button === viewportButton));
     document.getElementById("device-preview").className = `device-preview is-${viewport}`;
+    // Màn có bố cục riêng theo khung (T7-HF1) dựng lại sau khi đổi khung; BJ đăng ký móc chuẩn hoá trạng thái trước đó.
+    onViewportChange.forEach((hook) => hook(viewport));
+    renderAppScreen();
     fitReviewDeviceToViewport();
     return;
   }
@@ -452,7 +455,7 @@ requestAnimationFrame(fitReviewDeviceToViewport);
 
 window.__VET45_PROTOTYPE__ = {
   productKind: "app",
-  version: "5.7.2",
+  version: "5.9.1",
   defaultViewport: { width: 402, height: 874 },
   offline: true,
   uiFlows: flowCatalog.map((f) => f.id),

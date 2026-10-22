@@ -9,18 +9,17 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-003 | Chi tiết tồn kho | BJ-01 | IN_REVIEW | Có |
 | SCR-004 | Chi tiết lô — OVERLAY COMPATIBILITY | BJ-01, BJ-05 | FROZEN | Sheet lô trong SCR-003 |
 | SCR-005 | Nguồn số liệu — OVERLAY COMPATIBILITY | BJ-15 | FROZEN | Sheet "Nguồn và thời điểm cập nhật" trong SCR-003 |
-| SCR-006 | Chọn cách nhận hàng | BJ-02 | FROZEN | Có |
-| SCR-007 | Chứng từ chờ nhận | BJ-02 | FROZEN | Có |
-| SCR-008 | Thông tin nhập hàng nhanh | BJ-02 | IN_REVIEW | Có |
-| SCR-009 | Hàng thực nhận | BJ-02 | FROZEN | Có |
-| SCR-010 | Rà soát và gửi xử lý | BJ-02 | FROZEN | Có |
-| SCR-011 | Phê duyệt yêu cầu nhận hàng | BJ-02 | FROZEN | Có |
-| SCR-012 | Kết quả nhận hàng | BJ-02 | FROZEN | Có |
-| SCR-013 | Đối soát kết quả nhận hàng | BJ-02 | FROZEN | Có |
+| SCR-007 | Nhận hàng | BJ-02 | IN_REVIEW | Có |
+| SCR-008 | Nhập hàng nhanh | BJ-02 | IN_REVIEW | Có |
+| SCR-009 | Hàng thực nhận | BJ-02 | IN_REVIEW | Có |
+| SCR-010 | Rà soát nhận hàng | BJ-02 | IN_REVIEW | Có |
+| SCR-011 | Phê duyệt yêu cầu nhận hàng | BJ-02 | IN_REVIEW | Có |
+| SCR-012 | Kết quả nhận hàng | BJ-02 | IN_REVIEW | Có |
+| SCR-013 | Đối soát nhận hàng | BJ-02 | IN_REVIEW | Có |
 | SCR-014 | Hàng chờ xác lập giá trị | BJ-03 | IN_REVIEW | Có |
 | SCR-015 | Xác lập giá trị nhập ban đầu | BJ-03 | IN_REVIEW | Có |
 | SCR-016 | Căn cứ và cách tính — Đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
-| SCR-017 | Rà soát giá trị nhập ban đầu | BJ-03 | IN_REVIEW | Có |
+| SCR-017 | Rà soát giá trị nhập ban đầu — Đã gộp vào SCR-015 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-018 | Ghi chi phí mua bổ sung — Đã thay thế | BJ-13 | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-019 | Kết quả xác lập giá trị | BJ-03 | IN_REVIEW | Có |
 | SCR-020 | Đơn cần giữ hàng | BJ-04 | FROZEN | Chưa dựng (BJ-04 hiện chỉ có SCR-021) |
@@ -87,7 +86,7 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-081 | Đang khôi phục số liệu | BJ-16 | FROZEN | Có |
 | SCR-082 | Rà soát kết quả | BJ-16, BJ-17 | FROZEN | Có |
 | SCR-083 | Kết quả xử lý | BJ-16, BJ-17 | FROZEN | Có |
-| SCR-084 | Chi tiết hàng thực nhận | BJ-02 | FROZEN | Có |
+| SCR-084 | Chi tiết hàng thực nhận | BJ-02 | IN_REVIEW | Có |
 | SCR-085 | Điều chỉnh giá trị hàng nhập | BJ-13 | IN_REVIEW | Có |
 | SCR-086 | Phân bổ điều chỉnh giá trị | BJ-13 | IN_REVIEW | Có |
 | SCR-087 | Phân bổ điều chỉnh — Đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |

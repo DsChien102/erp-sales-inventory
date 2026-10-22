@@ -1343,7 +1343,7 @@ Xong → chia sẻ hệ điều hành; lỗi → toast "Hóa đơn điện tử 
 - Trạng thái luôn có chữ (badge, nhãn), không chỉ dựa vào màu; vòng xoay có nhãn trợ năng.
 - Khi tải, chữ của nút / mục **không đổi**, chỉ khóa và thêm vòng xoay.
 - Bàn phím không che nút "Gửi hóa đơn" (sheet cuộn được).
-- Tablet/desktop: sheet có thể thành hộp thoại giữa màn; ý nghĩa, thứ tự và chữ giữ nguyên.
+- Hai thiết bị đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md), sửa 2026-10-22): mỗi màn có bố cục iPhone và bố cục web thiết kế đủ như nhau — web không phải cột iPhone đặt giữa hay kéo giãn. Web dùng bố cục chung: danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet thành hộp thoại, đi được bằng bàn phím; bố cục từng màn chốt trong plan của theme. Ý nghĩa, thứ tự và chữ giữ nguyên giữa hai bố cục.
 
 ---
 

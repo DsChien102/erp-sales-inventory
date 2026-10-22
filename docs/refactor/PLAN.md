@@ -111,11 +111,11 @@ Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** 
 
 ### Thiết bị (chốt 2026-10-20)
 
-Ưu tiên **iPhone** và **web trên máy tính**; Android build từ cùng mã, xếp sau; không iPad, không app macOS / Windows. Khung web = **thanh bên trái**, cửa sổ hẹp về thanh dưới 5 tab. Chi tiết và thiết bị chính của từng phần: [LUONG-UNG-DUNG mục 1.1](../02-yeu-cau/LUONG-UNG-DUNG.md#11-thiết-bị-và-khung-chốt-2026-10-20).
+Ưu tiên **iPhone** và **web trên máy tính**; Android build từ cùng mã, xếp sau; không iPad, không app macOS / Windows. Khung web = **thanh bên trái**, cửa sổ hẹp về thanh dưới 5 tab. **Cả hai đều là thiết bị chính ở mọi màn** (sửa 2026-10-22). Chi tiết: [LUONG-UNG-DUNG mục 1.1](../02-yeu-cau/LUONG-UNG-DUNG.md#11-thiết-bị-và-khung-chốt-2026-10-20).
 
 Áp cho mọi plan từ nay:
 
-1. Plan có màn hình ghi **thiết bị chính** của từng màn và bố cục web (danh sách – chi tiết, bảng, hộp thoại) ngay trong plan; không để dồn sang một đợt sau. Theme 2, 3, 4, 5, 8 làm bố cục web trong chính plan của theme; Theme 1 (đã làm) sửa ở mục **Web cho app**; Theme 7 theo T7-P. **Thứ tự (2026-10-20):** Theme 7 trước, rồi mới quay lại từng theme.
+1. Plan có màn hình thiết kế **đủ cả hai bố cục** cho từng màn — iPhone và web (danh sách – chi tiết, bảng, hộp thoại), tối ưu như nhau — ngay trong plan; không để dồn sang một đợt sau. Theme 2, 3, 4, 5, 8 làm bố cục web trong chính plan của theme; Theme 1 (đã làm) sửa ở mục **Web cho app**; Theme 7 theo T7-P. **Thứ tự (2026-10-20):** Theme 7 trước, rồi mới quay lại từng theme.
 2. Review kiểm cả hai: iPhone (simulator) và Chrome cửa sổ rộng + hẹp; trên web đi được bằng bàn phím.
 3. Bố cục theo bề rộng; mật độ (`VDensity`) theo cách thao tác (`compact` khi dùng chuột), không suy từ bề rộng.
 
@@ -760,7 +760,7 @@ Chi tiết từng việc:
 | Theme 7 | UI trên fixture che lỗi hợp đồng dữ liệu (kiểu số, null, phân trang) | Repository giữ chữ ký như RPC; model theo `PRJ-*` / `ENT-*`; plan backend rà lại model trước khi nối |
 | Theme 7 | 421 trạng thái → test phình | Bảng "trạng thái → test" ở T7-0 / T7-16; test theo bảng, không viết tay từng cái |
 | Theme 7 | Theme 7 lớn (UI ~40 ngày + backend) mà đứng trước Theme 4, 5, 8 → luồng demo bán hàng + HĐĐT bị đẩy lùi | Theo dõi tiến độ Theme 7 sát; nếu trễ thì chốt lại phạm vi trước khi vào Theme 4 |
-| Mọi theme | Thêm bố cục web làm mỗi theme dài thêm (~10–20% phần UI) | Chỉ tối ưu thiết bị chính của màn; thiết bị kia chỉ cần không vỡ, đủ hành động |
+| Mọi theme | Thêm bố cục web làm mỗi theme dài thêm (~10–20% phần UI; cao hơn từ 2026-10-22 vì không còn thiết bị phụ) | Không cắt bằng cách hạ một thiết bị xuống phụ. Dùng lại khuôn bố cục web chung (K7 của Theme 7) thay vì dựng lại từng theme; ước lượng lại trong plan từng theme |
 | Theme 5 | Mất rule nghiệp vụ khi bỏ Aggregate | Bước 5 của công thức: port rule thành hàm thuần và giữ test cũ |
 | Theme 5 | Từ lúc sổ kho Theme 7 chạy tới khi Theme 5 nối kho (8-D), Sales cũ vẫn đọc tồn cơ bản không còn cập nhật | Chỉ ảnh hưởng Dev (Prod chưa chạy); 8-D chuyển sang khả dụng của Theme 7 |
 | Theme 8 | UI einvoice nằm ở module nên phải chuyển nhiều file | Chuyển nguyên thư mục trước, đổi dependency sau, 2 PR riêng |

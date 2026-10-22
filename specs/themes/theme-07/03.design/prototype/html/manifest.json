@@ -1,5 +1,5 @@
 {
-  "version": "5.7.2",
+  "version": "5.9.1",
   "parent": "5.4.0",
   "status": "T7_P_BJ12_REDESIGN",
   "scope": "T7-P BJ-12: thiết kế lại luồng khởi tạo tồn đầu kỳ (SCR-066/067/068/070/071, SCR-069 gộp vào 068); dựng khuôn K1–K4, K7 ở app/shared-patterns.js; Home Kho có khối \"Kho chưa kích hoạt\" và \"Chờ duyệt\".",

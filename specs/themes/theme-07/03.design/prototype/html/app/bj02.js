@@ -1,11 +1,14 @@
-/* BJ-02 — Nhận hàng mua (UIF-02). Màn: SCR-006, SCR-007, SCR-008, SCR-009, SCR-084, SCR-010, SCR-011, SCR-012, SCR-013.
+/* BJ-02 — Nhận hàng mua (UIF-02). Màn: SCR-007 (gồm lối nhập nhanh; SCR-006 đã gộp vào), 008, 009, 084, 010, 011, 012, 013.
  *
- * Đã viết lại sạch (T7-P gói A4, 2026-10-17): mọi fixture, trạng thái, helper, hàm dựng và xử lý sự kiện của BJ-02
- * nằm ở đây. Sửa BJ-02: sửa thẳng file này.
- * Dùng chung từ app/core.js: appShell, stateBanner, deniedBody, loadingBody, emptyBody, vBanner, vBadge, resultHero,
- * icon, primaryFooter, esc, escapeAttribute, navigate, renderAppScreen, showToast, onPrevious, flowMode.
- * UNKNOWN: listener bj02-verify-unknown / bj02-handoff-unknown ở file này (A10); handoff gọi bj17HandoffUnknown.
- * Còn ở hub: addPendingReviewExit / "Về Kho" (Giai đoạn 2).
+ * Thiết kế lại (T7-P BJ-02, v5.8.0): nhân viên lập trên iPhone, chủ cửa hàng duyệt trên web (K2). Cửa hàng chỉ có một chủ; chủ lập phiếu
+ * cũng phải gửi duyệt rồi tự vào SCR-011 duyệt một lần nữa (như phiếu của thủ kho) — không có đường ghi nhận thẳng.
+ * Mọi fixture, trạng thái, hàm dựng và xử lý sự kiện của BJ-02 nằm ở đây. Sửa BJ-02: sửa thẳng file này.
+ * Khuôn dùng chung K1–K4, K7 → app/shared-patterns.js. Dùng chung từ app/core.js: appShell, vBanner, ds24*, icon, primaryFooter,
+ * esc, escapeAttribute, navigate, renderAppScreen, showToast, onPrevious, flowMode.
+ *
+ * Fixture chung chặng 2 — BJ-03 / BJ-13 đọc cùng tên, mã (Nobivac DHPPi SP-000184, Oxytetracycline LA SP-000147, phiếu PN-260816-04).
+ * `productRef` = mã sản phẩm của BJ-01: nhận xong thì BJ-02 cộng tồn vào đó (bj01ApplyReceipt).
+ * Nguồn "Chờ duyệt" của nhận hàng ở lại hub.js (cần `inventoryActivated` trong IIFE của Hub); ba dòng mở cùng fixture 011.
  */
 
 const supplierCatalog = [
@@ -14,16 +17,16 @@ const supplierCatalog = [
   { id: "SUP-PHUONG-NAM", name: "Phương Nam", code: "NCC-0067" },
 ];
 const quickProductCatalog = [
-  { id: "P-NOB-DHPP", name: "Nobivac DHPPi", sku: "NOB-DHPP", barcode: "8938500001012", baseUomId: "UOM-VIAL", baseUom: "lọ", uoms: [
+  { id: "P-NOB-DHPP", productRef: "INV-NOB", name: "Nobivac DHPPi", sku: "SP-000184", barcode: "8938500001012", baseUomId: "UOM-VIAL", baseUom: "lọ", uoms: [
       { id: "UOM-BOX", label: "hộp", conversionRatio: 10 },
       { id: "UOM-VIAL", label: "lọ", conversionRatio: 1 },
     ], trackingPolicy: "LOT", expiryRequired: true,
     priceBasisSnapshot: { kind: "OFFICIAL_COST", unitPriceVndPerBase: 8500, priceVersion: "COST-2026-09-v12", currency: "VND", fxVersion: "FX-VND-1" } },
-  { id: "P-AMX-LA", name: "Amoxicillin LA", sku: "AMX-LA", barcode: "8938500002026", baseUomId: "UOM-BOTTLE", baseUom: "chai", uoms: [
+  { id: "P-OXY-LA", productRef: "INV-OXY", name: "Oxytetracycline LA", sku: "SP-000147", barcode: "8938500007144", baseUomId: "UOM-BOTTLE", baseUom: "chai", uoms: [
       { id: "UOM-BOTTLE", label: "chai", conversionRatio: 1 },
-    ], trackingPolicy: "LOT", expiryRequired: false,
+    ], trackingPolicy: "NONE", expiryRequired: false,
     priceBasisSnapshot: { kind: "OFFICIAL_COST", unitPriceVndPerBase: 120000, priceVersion: "COST-2026-09-v21", currency: "VND", fxVersion: "FX-VND-1" } },
-  { id: "P-GLOVE-N", name: "Găng tay khám Nitrile", sku: "GLOVE-N", barcode: "8938500003033", baseUomId: "UOM-BOX", baseUom: "hộp", uoms: [
+  { id: "P-GLOVE-N", productRef: null, name: "Găng tay khám Nitrile", sku: "GLOVE-N", barcode: "8938500003033", baseUomId: "UOM-BOX", baseUom: "hộp", uoms: [
       { id: "UOM-BOX", label: "hộp", conversionRatio: 1 },
     ], trackingPolicy: "NONE", expiryRequired: false,
     priceBasisSnapshot: { kind: "OFFICIAL_COST", unitPriceVndPerBase: 135000, priceVersion: "COST-2026-09-v8", currency: "VND", fxVersion: "FX-VND-1" } },
@@ -36,7 +39,7 @@ const documentReceiptCatalog = {
     sourceDocumentRef: "PN-260816-04",
     lines: [
       { id: "DOC-04-01", sourceLineId: "PO-04-01", sourceLineVersion: "v7.3", productId: "P-NOB-DHPP", uomId: "UOM-BOX", uom: "hộp", remainingReceivableQty: 120, conversionRatioSnapshot: 10, trackingPolicy: "LOT", expiryRequired: true, priceBasisSnapshot: { kind: "SOURCE_PRICE_FX", unitPriceVndPerBase: 8500, sourceRef: "PO-04-01", priceVersion: "PO-v7.3", currency: "VND", fxVersion: "FX-VND-1" } },
-      { id: "DOC-04-02", sourceLineId: "PO-04-02", sourceLineVersion: "v7.1", productId: "P-AMX-LA", uomId: "UOM-BOTTLE", uom: "chai", remainingReceivableQty: 24, conversionRatioSnapshot: 1, trackingPolicy: "LOT", expiryRequired: false, priceBasisSnapshot: { kind: "SOURCE_PRICE_FX", unitPriceVndPerBase: 120000, sourceRef: "PO-04-02", priceVersion: "PO-v7.1", currency: "VND", fxVersion: "FX-VND-1" } },
+      { id: "DOC-04-02", sourceLineId: "PO-04-02", sourceLineVersion: "v7.1", productId: "P-OXY-LA", uomId: "UOM-BOTTLE", uom: "chai", remainingReceivableQty: 24, conversionRatioSnapshot: 1, trackingPolicy: "NONE", expiryRequired: false, priceBasisSnapshot: { kind: "SOURCE_PRICE_FX", unitPriceVndPerBase: 120000, sourceRef: "PO-04-02", priceVersion: "PO-v7.1", currency: "VND", fxVersion: "FX-VND-1" } },
     ],
   },
   "PN-260816-05": {
@@ -65,10 +68,10 @@ function quickReceiptDateValid(value) { return value === BJ02_TENANT_BUSINESS_DA
 let bj02Header = { supplierId: null, supplier: "", businessDate: BJ02_TENANT_BUSINESS_DATE, evidence: "", evidenceRefs: [], ownershipAssertion: null };
 let bj02Lines = [];
 let activeReceiptLineId = null;
+let bj02WebLineId = null; // dòng đang chọn ở SCR-009 khung web (editor bên phải); iPhone bỏ qua
+let bj02EditorForce = false; // đồng bộ nháp từ DOM khi đổi khung (viewport đã đổi nhưng DOM còn của khung cũ)
 let lineEditorDraft = null;
 let activeLotDraftId = null;
-let lineClassificationExpanded = false; // legacy runtime flag; classification fields are always visible from v0.3.4
-let lotClassificationExpanded = false; // legacy runtime flag; classification fields are always visible from v0.3.4
 let lotManufactureExpanded = false;
 let lineProductMenuOpen = false;
 let quickOverviewProductQuery = "";
@@ -78,14 +81,24 @@ let quickOverviewDuplicateLineId = null;
 let quickLineSequence = 1;
 let supplierMenuOpen = false;
 let supplierSearchQuery = "";
-let bj02NumericPad = null;
 let bj02ReviewOpenLineId = null;
-let pendingRemoveLotId = null;
-let pendingRemoveLineId = null;
 let documentSearchQuery = "";
+let lineSearchQuery = "";
 let supplierValidationVisible = false;
 let lineEditorReadOnly = false;
 let lineEditorDirty = false;
+// Sheet / hộp thoại do trạng thái điều khiển (dựng lại cùng màn, nhận focus qua syncDialogFocus).
+let bj02ScanOpen = false;
+let bj02RejectOpen = false;
+let bj02LinesSheetOpen = false;
+let bj02Confirm = null; // { kind: "remove-lot" | "remove-line" | "not-received", id }
+let bj02PendingSubmitted = false; // phiếu của chính phiên này đang chờ duyệt: Hub mở đúng phiếu đó ở "Chờ duyệt"
+let bj02Approver = null; // null (không cần duyệt) | { name }
+let bj02LastCommitted = null; // { ref, mode, lines } — BJ-03 đọc biến này
+const bj02AppliedRefs = new Set(); // số thứ tự lần ghi nhận đã cộng vào tồn BJ-01 (một lần mỗi phiếu)
+let bj02CommitSeq = 0;
+let bj02CameraShots = 0;
+let bj02RejectedBy = "Chủ cửa hàng";
 
 const BJ02_CONTEXT = {
     version: 'bj02',
@@ -101,6 +114,7 @@ const BJ02_CONTEXT = {
       maker: 'Nguyễn Văn An',
       submittedAt: '16/09/2026 · 09:41',
       receiptRef: 'REC-260916-04',
+      rejectedAt: '16/09/2026 · 09:52',
     },
     recoveryEvidence: {
       checkedAt: '16/09/2026 · 09:45:18',
@@ -114,133 +128,82 @@ const BJ02_CONTEXT = {
   };
 
 // Ensure every live document line carries source authority + conversion + price basis snapshot.
-  Object.values(documentReceiptCatalog).forEach((doc)=>{
-    doc.documentDate ||= doc.businessDate || '16/08/2026';
-    doc.sourceDocumentVersion ||= 'v1';
-    (doc.lines||[]).forEach((line)=>{
-      const product=productById(line.productId);
-      const uom=product?.uoms?.find((x)=>x.id===line.uomId);
-      line.sourceLineVersion ||= 'v1';
-      line.conversionRatioSnapshot ||= uom?.conversionRatio || 1;
-      line.priceBasisSnapshot ||= product?.priceBasisSnapshot ? cloneBj02(product.priceBasisSnapshot) : null;
-    });
+Object.values(documentReceiptCatalog).forEach((doc)=>{
+  doc.documentDate ||= doc.businessDate || '16/08/2026';
+  doc.sourceDocumentVersion ||= 'v1';
+  (doc.lines||[]).forEach((line)=>{
+    const product=productById(line.productId);
+    const uom=product?.uoms?.find((x)=>x.id===line.uomId);
+    line.sourceLineVersion ||= 'v1';
+    line.conversionRatioSnapshot ||= uom?.conversionRatio || 1;
+    line.priceBasisSnapshot ||= product?.priceBasisSnapshot ? cloneBj02(product.priceBasisSnapshot) : null;
   });
-  bj02Header.businessDate=BJ02_CONTEXT.tenantBusinessDate;
-  bj02Header.evidenceRefs ||= [];
-  if('note' in bj02Header) delete bj02Header.note;
+});
+bj02Header.businessDate=BJ02_CONTEXT.tenantBusinessDate;
+
+/* ---------- Vai, lối ra, trạng thái chung ---------- */
+
+const bj02IsApprover = () => ["owner", "approver"].includes(currentActor());
+const bj02Exit = () => k1ExitAttr("SCR-007");
+function bj02Denied(what, next = "Nhờ chủ cửa hàng cấp quyền rồi quay lại.") { return k1Denied({ what, next, exitAttr: bj02Exit() }); }
+// Stale / khoá dùng chung K1 (chữ của stateBanner giữ nguyên).
+function bj02StateNotice(state) {
+  if (state === "CONFLICT") return k1Stale({ title: "Dữ liệu vừa thay đổi", description: "Tải phiên bản hiện hành trước khi tiếp tục; hệ thống không ghi đè im lặng.", actionAttr: 'data-bj02-action="reload"' });
+  if (state === "LOCKED") return k1Locked({ title: "Kho đang được khóa", description: "Chỉ có thể xem dữ liệu. Mở công việc đang giữ khóa để biết thêm chi tiết." });
+  if (state === "READ_ONLY") return k1Locked({ title: "Chế độ chỉ xem", description: "Dữ liệu vẫn hiển thị nhưng mọi thao tác thay đổi đã bị khóa." });
+  return stateBanner(state);
+}
+// Chân màn có dòng lý do ngay trên nút (hiện khi nút tắt).
+function bj02Footer(label, attr, disabled = false, reason = "") {
+  return primaryFooter(label, attr, disabled).replace("<button", `<div class="bj02-footer-stack"><p class="bj02-footer-reason" data-bj02-reason${disabled && reason ? "" : " hidden"}>${esc(disabled ? reason : "")}</p><button`).replace("</button></footer>", "</button></div></footer>");
+}
+
+/* ---------- Số liệu và quy tắc (không đổi) ---------- */
 
 function bj02AcceptedPhysical(line) {
- return lineTotals(line).physicalIncrease; 
+ return lineTotals(line).physicalIncrease;
 }
 function bj02AcceptedPhysicalTotal() {
- return bj02Lines.reduce((n,line)=>n+bj02AcceptedPhysical(line),0); 
+ return bj02Lines.reduce((n,line)=>n+bj02AcceptedPhysical(line),0);
 }
 function bj02SourceRemaining(line) {
- return Math.max(0,Number(line?.remainingReceivableQty)||0); 
+ return Math.max(0,Number(line?.remainingReceivableQty)||0);
 }
-function bj02ValidPrecisionValue(value,precision='DAY') {
-
-    const v=String(value||'').trim();
-    if(!v) return false;
-    if(precision==='YEAR') return /^\d{4}$/.test(v);
-    if(precision==='MONTH') return /^(0?[1-9]|1[0-2])[\/\-]\d{4}$/.test(v);
-    return /^(0?[1-9]|[12]\d|3[01])[\/\-](0?[1-9]|1[0-2])[\/\-]\d{4}$/.test(v);
-  
+// Một ô hạn dùng / ngày sản xuất: "30/11/2026", "11/2026" hoặc "2026"; độ chính xác tự suy.
+function bj02ExpiryParse(text) {
+  const v = String(text || "").trim();
+  if (/^\d{4}$/.test(v)) return { precision: "YEAR", valid: Number(v) >= 1900 && Number(v) <= 2200 };
+  if (/^(0?[1-9]|1[0-2])[\/\-]\d{4}$/.test(v)) return { precision: "MONTH", valid: true };
+  const m = v.match(/^(0?[1-9]|[12]\d|3[01])[\/\-](0?[1-9]|1[0-2])[\/\-](\d{4})$/);
+  if (m) return { precision: "DAY", valid: Number(m[1]) <= new Date(Number(m[3]), Number(m[2]), 0).getDate() };
+  return { precision: "DAY", valid: false };
 }
 function bj02EvidenceRefs() {
-
-    const refs=Array.isArray(bj02Header.evidenceRefs)?bj02Header.evidenceRefs:[];
-    if(refs.length) return refs;
-    return bj02Header.evidence ? [{id:'EV-LEGACY-1',name:bj02Header.evidence,type:'DELIVERY_DOCUMENT'}] : [];
-  
-}
-function bj02EvidenceLabel() {
-
-    const refs=bj02EvidenceRefs();
-    if(!refs.length) return 'Chưa có';
-    if(refs.length===1) return refs[0].name;
-    return `${refs.length} tệp chứng từ`;
-  
+  const refs=Array.isArray(bj02Header.evidenceRefs)?bj02Header.evidenceRefs:[];
+  if(refs.length) return refs;
+  return bj02Header.evidence ? [{id:'EV-LEGACY-1',name:bj02Header.evidence,type:'DELIVERY_DOCUMENT'}] : [];
 }
 function bj02OwnershipReady() {
- return Boolean(bj02Header.ownershipAssertion?.status==='ASSERTED'); 
+ return Boolean(bj02Header.ownershipAssertion?.status==='ASSERTED');
 }
 function bj02MakeOwnershipAssertion() {
-
-    bj02Header.ownershipAssertion={
-      status:'ASSERTED',
-      actorId:'USR-NVA',
-      actorName:'Nguyễn Văn An',
-      assertedAt:'2026-09-16T10:34:00+07:00',
-      evidenceRefs:bj02EvidenceRefs().map((x)=>x.id),
-      assertionVersion:'OWN-v1',
-    };
-  
+  bj02Header.ownershipAssertion={
+    status:'ASSERTED',
+    actorId:'USR-NVA',
+    actorName:'Nguyễn Văn An',
+    assertedAt:'2026-09-16T10:34:00+07:00',
+    evidenceRefs:bj02EvidenceRefs().map((x)=>x.id),
+    assertionVersion:'OWN-v1',
+  };
 }
-function bj02EvidencePreviewSheet() {
-
-    if(!BJ02_CONTEXT.evidenceSheetOpen) return '';
-    const refs=flowMode==='quick'?bj02EvidenceRefs():[{id:documentContext().sourceDocumentRef||selectedDocumentId,name:selectedDocumentId,type:'SOURCE_DOCUMENT'}];
-    return `<div class="sheet-backdrop v392-evidence-backdrop" data-v392-close-evidence><section class="bj02-review-detail-sheet v392-evidence-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" role="dialog" aria-modal="true" aria-label="Chứng từ giao nhận" onclick="event.stopPropagation()"><div class="bj02-review-sheet-handle"></div><h2>Chứng từ giao nhận</h2><p class="bj02-review-sheet-context">Bằng chứng đã khóa theo phiên bản yêu cầu gửi duyệt.</p><div class="v392-evidence-list">${refs.map((ref)=>`<div class="v392-evidence-item" data-composed-from="VIconBox,VText"><span>${icon('fileText','icon--sm')}</span><div><strong>${esc(ref.name)}</strong><small>${ref.type==='SOURCE_DOCUMENT'?'Chứng từ nguồn':'Chứng từ giao nhận'}</small></div><button type="button" class="button button--tertiary" data-v392-preview-file>Xem</button></div>`).join('')}</div><button class="button button--secondary button--full" data-v392-close-evidence type="button" data-ds-component="VButton">Đóng</button></section></div>`;
-  
+// Đổi bộ chứng từ: lời xác nhận đã tick theo bộ mới nếu còn tệp, mất nếu hết tệp.
+function bj02RefreshOwnership() {
+  if (!bj02OwnershipReady()) return;
+  if (bj02EvidenceRefs().length) bj02MakeOwnershipAssertion(); else bj02Header.ownershipAssertion = null;
 }
-function bj02ChangeSourceSheet() {
-
-    if(!BJ02_CONTEXT.changeSourceConfirmOpen) return '';
-    return `<div class="confirm-backdrop" data-v392-cancel-source-change><section class="confirm-dialog" data-ds-component="DS v2 / Confirmation Sheet" data-figma-node="550:1058" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><h3>Đổi chứng từ?</h3><p>Đổi chứng từ sẽ xóa dữ liệu nhận hàng đang nhập để tránh giữ lại số lượng, lô hoặc phiên bản chứng từ không còn đúng.</p><div class="confirm-dialog-actions"><button class="button button--secondary" data-v392-cancel-source-change type="button">Giữ chứng từ</button><button class="button button--primary" data-v392-confirm-source-change type="button">Đổi chứng từ</button></div></section></div>`;
-  
+function bj02SupplierValid() {
+  return supplierCatalog.some((x)=>x.id===bj02Header.supplierId&&x.name===bj02Header.supplier.trim());
 }
-
-function bj02SeedDocumentLines(forceApproval=false){
-  flowMode="document"; selectedDocumentId="PN-260816-04";
-  if(!bj02Lines.length) bj02Lines=createDocumentReceiptLines(selectedDocumentId);
-  bj02Lines.forEach((line,idx)=>{
-    const expected=Math.max(1,Number(line.remainingReceivableQty)||1);
-    const received=expected+((forceApproval&&idx===0)?1:0);
-    line.status="COMPLETED";
-    line.accepted=received; line.quarantine=0; line.damaged=0; line.rejected=0; line.totalReceived=received;
-    if(line.trackingPolicy==="LOT"){
-      line.lots=[{id:`V360-L${idx+1}`,code:idx===0?"DH2507":"AM2507",expiry:line.expiryRequired?(idx===0?"30/11/2026":"31/12/2027"):"",manufactureDate:"",accepted:received,totalReceived:received,quarantine:0,damaged:0,rejected:0}];
-    }
-  });
-}
-function bj02HasExplicitDraftData(){
-  return Array.isArray(bj02Lines) && bj02Lines.some(line=>{
-    if(!line) return false;
-    if(["COMPLETED","NOT_RECEIVED"].includes(line.status)) return true;
-    const direct=[line.accepted,line.quarantine,line.damaged,line.rejected,line.totalReceived].some(v=>Number(v||0)>0);
-    const lots=Array.isArray(line.lots) && line.lots.some(l=>[l.accepted,l.quarantine,l.damaged,l.rejected,l.totalReceived].some(v=>Number(v||0)>0) || String(l.code||"").trim());
-    return direct || lots;
-  });
-}
-function ensureBj02ReviewFixture(){
-  if(activeFlowId!=="UIF-02") return;
-  const st=stateByScreen[activeScreenId];
-  if(activeScreenId==="SCR-084" && st==="READY" && !lineEditorDraft){
-    if(!bj02Lines.length) bj02SeedDocumentLines(false);
-    const line=bj02Lines[0];
-    activeReceiptLineId=line?.id||null;
-    lineEditorDraft=line?cloneBj02(line):null;
-    activeLotDraftId=lineEditorDraft?.lots?.[0]?.id||null;
-    lineEditorDirty=false; lineEditorReadOnly=false; lineProductMenuOpen=false;
-    lineClassificationExpanded=false; lotClassificationExpanded=false; lotManufactureExpanded=Boolean(lineEditorDraft?.lots?.[0]?.manufactureDate);
-    return;
-  }
-  if(activeScreenId==="SCR-010" && st==="READY"){
-    // Direct Inspector entry needs a representative fixture, but an explicit
-    // in-progress/user-prepared receipt must never be overwritten by review seeding.
-    if(!bj02Lines.length || (!allReceiptLinesHandled() && !bj02HasExplicitDraftData())) bj02SeedDocumentLines(false);
-    return;
-  }
-  if(activeScreenId==="SCR-011" && ["READY","APPROVAL_REQUIRED","APPROVAL_REVIEW"].includes(st)){
-    if(!bj02Lines.length || !allReceiptLinesHandled() || !bj02RequiresApproval()) bj02SeedDocumentLines(true);
-    return;
-  }
-  if(activeScreenId==="SCR-012" && ["COMPLETED","VALUATION_PENDING_RESULT"].includes(st)){
-    if(!bj02Lines.length || !allReceiptLinesHandled()) bj02SeedDocumentLines(false);
-  }
-}
-
 function cloneBj02(value) { return JSON.parse(JSON.stringify(value)); }
 function productById(productId) { return quickProductCatalog.find((p) => p.id === productId) || null; }
 function emptyLot(id = `LOT-DRAFT-${Date.now()}`) { return { id, code: "", expiry: "", expiryPrecision: "DAY", manufactureDate: "", manufacturePrecision: "DAY", accepted: 0, totalReceived: 0, quarantine: 0, damaged: 0, rejected: 0 }; }
@@ -259,6 +222,7 @@ function hydrateReceiptLine(raw) {
     ...cloneBj02(raw),
     name: raw.name || product.name,
     sku: raw.sku || product.sku,
+    productRef: raw.productRef !== undefined ? raw.productRef : (product.productRef ?? null),
     status: raw.status || "PENDING",
     accepted,
     totalReceived: accepted + quarantine + damaged + rejected,
@@ -273,10 +237,9 @@ function createDocumentReceiptLines(documentId) {
 }
 function resetBj02Receipt(mode = flowMode) {
   activeReceiptLineId = null;
+  bj02WebLineId = null;
   lineEditorDraft = null;
   activeLotDraftId = null;
-  lineClassificationExpanded = false;
-  lotClassificationExpanded = false;
   lotManufactureExpanded = false;
   lineProductMenuOpen = false;
   quickOverviewProductQuery = "";
@@ -286,8 +249,11 @@ function resetBj02Receipt(mode = flowMode) {
   quickLineSequence = 1;
   supplierMenuOpen = false;
   supplierSearchQuery = "";
-  bj02NumericPad = null;
   bj02ReviewOpenLineId = null;
+  bj02ScanOpen = false; bj02RejectOpen = false; bj02LinesSheetOpen = false; bj02Confirm = null;
+  BJ02_CONTEXT.evidenceSheetOpen = false; BJ02_CONTEXT.changeSourceConfirmOpen = false;
+  bj02Approver = null;
+  lineSearchQuery = "";
   supplierValidationVisible = false;
   lineEditorReadOnly = false;
   lineEditorDirty = false;
@@ -299,295 +265,12 @@ function resetBj02Receipt(mode = flowMode) {
     bj02Header = { supplierId: null, supplier: "", businessDate: BJ02_TENANT_BUSINESS_DATE, evidence: "", evidenceRefs: [], ownershipAssertion: null };
   }
 }
+// Bắt đầu một lần nhận mới do người dùng: các màn sau 009 về trạng thái mặc định (URL ?state= vẫn giữ ở lần nạp đầu).
+function bj02ResetFlowStates() {
+  stateByScreen["SCR-010"] = "READY"; stateByScreen["SCR-011"] = "READY"; stateByScreen["SCR-012"] = "COMPLETED"; stateByScreen["SCR-013"] = "PROCESSING_OR_UNKNOWN";
+}
 resetBj02Receipt(flowMode);
 
-function bj02ListRow({title, subtitle, attr="", type="Navigation", disabled=false, iconName="package"}) {
-  return `<button class="bj02-ds-list-row" ${attr} data-ds-component="DS v2 / List Row" data-figma-node="525:519" data-ds-prop-type="${type}" data-ds-prop-density="Default" data-ds-prop-state="Default" type="button" ${disabled ? "disabled" : ""}>
-    <span class="bj02-ds-list-leading" data-ds-internal="DS v2 / List Row.leading">${icon(iconName, "icon--sm")}</span>
-    <span class="bj02-ds-list-copy"><strong>${title}</strong><span>${subtitle}</span></span>
-    <span class="bj02-ds-list-trailing" data-ds-internal="DS v2 / List Row.trailing">${type === "Selection" ? '<span class="bj02-radio-control" aria-hidden="true"></span>' : navChevron()}</span>
-  </button>`;
-}
-function bj02RecordCard({title,supporting1,supporting2,summary,timestamp="",attr="",status=""}) {
-  return `<button class="bj02-record-card" ${attr} data-ds-component="DS v2 / Record Card" data-figma-node="1001:7201" data-ds-prop-status="${status ? 'Visible':'Hidden'}" type="button">
-    <span class="bj02-record-head"><strong>${title}</strong>${status ? vBadge(status,'info') : ''}</span>
-    <span class="bj02-record-support secondary">${supporting1}</span>
-    <span class="bj02-record-support primary">${supporting2}</span>
-    <span class="bj02-record-meta"><span>${summary}</span><span>${timestamp}</span></span>
-  </button>`;
-}
-function bj02InfoRow(label, value) {
-  return `<div class="bj02-info-row" data-ds-component="DS v2 / Info Row" data-figma-node="525:351" data-ds-prop-state="Default"><span>${escapeAttribute(label)}</span><strong>${escapeAttribute(value)}</strong></div>`;
-}
-function bj02ReadOnlyDetail(label, value) {
-  return `<div class="bj02-readonly-detail" data-composed-from="VText"><span data-ds-component="VText" data-ds-prop-style="Body/Small">${escapeAttribute(label)}</span><p data-ds-component="VText" data-ds-prop-style="Body/Default">${escapeAttribute(value)}</p></div>`;
-}
-function bj02KeyValueRow(label, value, emphasis = false, extraClass = "") {
-  const risk = /rủi ro/i.test(String(label || ""));
-  let display = value;
-  if (typeof display === "string" && /^-\d/.test(display)) display = "−" + display.slice(1);
-  const classes = ["bj02-key-value-row", emphasis ? "is-emphasis" : "", extraClass, risk ? "v470-kv--warning" : ""].filter(Boolean).join(" ");
-  return `<div class="${classes}" data-ds-component="DS v2 / Key-value Row" data-figma-node="525:358" data-ds-prop-state="${emphasis ? "Emphasis" : "Default"}"><span>${escapeAttribute(label)}</span><strong>${escapeAttribute(display)}</strong></div>`;
-}
-function bj02SupplierSelectSheet(locked=false) {
-
-    if(!supplierMenuOpen||locked) return '';
-    const options=supplierCatalog.map((supplier)=>{
-      const selected=supplier.id===bj02Header.supplierId;
-      return `<button class="bj02-sheet-list-row${selected?' is-selected':''}" data-bj02-supplier-option="${supplier.id}" data-bj02-supplier-search-text="${escapeAttribute(`${supplier.name} ${supplier.code}`.toLowerCase())}" data-ds-component="DS v2 / List Row" data-figma-node="525:519" data-ds-prop-type="Selection" data-ds-prop-density="Default" data-ds-prop-state="${selected?'Selected':'Default'}" type="button" role="option" aria-selected="${selected}"><span class="bj02-ds-list-leading">${icon('user','icon--sm')}</span><span class="bj02-ds-list-copy"><strong>${esc(supplier.name)}</strong><span>${esc(supplier.code)}</span></span><span class="bj02-radio-control" aria-hidden="true"></span></button>`;
-    }).join('');
-    return `<div class="bj02-select-backdrop" data-bj02-supplier-backdrop><section class="bj02-select-sheet" data-ds-component="DS v2 / Select Sheet" data-figma-node="550:1148" role="dialog" aria-modal="true" aria-label="Chọn nhà cung cấp"><div class="bj02-sheet-handle"></div><h2>Chọn nhà cung cấp</h2><div class="bj02-sheet-search" data-ds-component="VSearchBar" data-figma-node="522:7245"><span>${icon('search','icon--sm')}</span><input data-bj02-supplier-search value="${escapeAttribute(supplierSearchQuery)}" placeholder="Tìm tên hoặc mã nhà cung cấp" autocomplete="off" aria-label="Tìm nhà cung cấp" /></div><div class="bj02-sheet-list" data-bj02-supplier-menu role="listbox">${options}<div class="combobox-empty" data-bj02-supplier-empty hidden>Không có nhà cung cấp phù hợp. Nhà cung cấp phải được tạo trước ở Theme 3.</div></div></section></div>`;
-  
-}
-function bj02ReceiptContext() {
-
-    const handled=receiptHandledCount(), total=bj02Lines.length;
-    const progress=total?`${handled}/${total} đã xử lý`:'Chưa có mặt hàng';
-    if(flowMode==='quick') return `<section class="bj02-context-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Thông tin lần nhận</strong><span>${progress}</span></div><div class="bj02-info-stack">${bj02InfoRow('Nhà cung cấp',currentReceiptSupplier())}${bj02InfoRow('Kho nhận',BJ02_CONTEXT.warehouse.name)}${bj02InfoRow('Ngày nhận',formatIsoDate(bj02Header.businessDate))}</div></section>`;
-    return `<section class="bj02-context-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Thông tin lần nhận</strong><span>${progress}</span></div><div class="bj02-info-stack">${bj02InfoRow('Chứng từ',selectedDocumentId)}${bj02InfoRow('Nhà cung cấp',currentReceiptSupplier())}${bj02InfoRow('Kho nhận',BJ02_CONTEXT.warehouse.name)}${bj02InfoRow('Ngày nhận',formatIsoDate(bj02Header.businessDate||BJ02_CONTEXT.tenantBusinessDate))}</div></section>`;
-  
-}
-function bj02SourceRows() {
-
-    if(flowMode==='quick'){
-      const own=bj02OwnershipReady()?'Đã xác nhận':'Chưa xác nhận';
-      return `${bj02InfoRow('Nhà cung cấp',bj02Header.supplier||'—')}${bj02InfoRow('Kho nhận',BJ02_CONTEXT.warehouse.name)}${bj02InfoRow('Ngày nhận',formatIsoDate(bj02Header.businessDate))}${bj02ReadOnlyDetail('Chứng từ giao nhận',bj02EvidenceLabel())}${bj02InfoRow('Quyền sở hữu',own)}`;
-    }
-    const doc=documentContext();
-    return `${bj02InfoRow('Chứng từ',selectedDocumentId)}${bj02InfoRow('Nhà cung cấp',doc.supplier)}${bj02InfoRow('Kho nhận',BJ02_CONTEXT.warehouse.name)}${bj02InfoRow('Ngày chứng từ',doc.documentDate)}${bj02InfoRow('Ngày nhận',formatIsoDate(bj02Header.businessDate||BJ02_CONTEXT.tenantBusinessDate))}`;
-  
-}
-function bj02ReviewIssue(line) {
-
-    const t=lineTotals(line);
-    if(line?.status==='NOT_RECEIVED') return {label:'Chưa nhận',tone:'warning'};
-    if(line?.status!=='COMPLETED') return {label:'Chưa xong',tone:'warning'};
-    if(t.rejected>0) return {label:'Có từ chối',tone:'error'};
-    if(t.damaged>0) return {label:'Có hàng hỏng',tone:'error'};
-    if(t.quarantine>0) return {label:'Có cách ly',tone:'warning'};
-    if(flowMode==='document'&&line.remainingReceivableQty!=null&&t.physicalIncrease>bj02SourceRemaining(line)) return {label:'Vượt chứng từ',tone:'warning'};
-    if(flowMode==='document'&&line.remainingReceivableQty!=null&&t.physicalIncrease<bj02SourceRemaining(line)) return {label:'Nhận một phần',tone:'info'};
-    return null;
-  
-}
-function bj02ReviewProductCount() {
-  return new Set(bj02Lines.map((line) => line.productId)).size;
-}
-function bj02ReviewSubtitle(line) {
-  const t = lineTotals(line);
-  const lotCount = line.trackingPolicy === "LOT" ? (line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0).length : 0;
-  const issue = bj02ReviewIssue(line);
-  return [line.sku || line.productId, line.uom, lotCount ? `${lotCount} lô` : "", `${t.totalReceived} ${line.uom}`].filter(Boolean).join(" · ");
-}
-function bj02ReviewProductBlocks(opts = {}) {
-  const interactive = opts.interactive !== false;
-  const e = (v) => escapeAttribute(v == null ? "" : String(v));
-  function lotLines(line) {
-    if (line.trackingPolicy !== "LOT") return "";
-    const lots = (line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0);
-    if (!lots.length) return "";
-    return `<span class="v471-lot-list">${lots.map((lot) => {
-      const lt = lotDraftTotals(lot);
-      const hsd = lot.expiry ? `<span>HSD ${e(lot.expiry)}</span>` : "";
-      return `<span class="v471-lot"><b>Lô ${e(lot.code || "—")}</b><span class="v471-qty">${e(lt.totalReceived)} ${e(line.uom)}</span>${hsd}</span>`;
-    }).join("")}</span>`;
-  }
-  if (!bj02Lines.length) return `<div class="empty-state bj02-review-empty" data-ds-component="VEmptyState"><div class="icon-box" data-ds-component="VEmptyMedia">${icon("package","icon--empty-media")}</div><h3 data-ds-component="VEmptyTitle">Chưa có hàng để rà soát</h3><p data-ds-component="VEmptyDescription">Hoàn tất hàng thực nhận trước khi sang bước rà soát.</p></div>`;
-  // Base row HTML (pre-v471), then apply the same DOM rewrite v471 used so innerHTML matches golden.
-  const html = `<div class="bj02-review-summary-list" data-composed-from="DS v2 / List Row,VBadge">${bj02Lines.map((line) => {
-    let issue = bj02ReviewIssue(line);
-    if (opts.resultMode && issue && issue.label === "Vượt chứng từ") issue = { label: "Đã duyệt vượt", tone: "success" };
-    const attrs = interactive ? `data-bj02-review-line="${line.id}" type="button"` : `type="button" disabled`;
-    const badge = issue ? vBadge(issue.label, issue.tone === "error" ? "danger" : issue.tone) : vBadge("Đã xong", "success");
-    return `<button class="bj02-review-summary-row" ${attrs} data-ds-component="DS v2 / List Row" data-figma-node="525:519" data-ds-prop-type="Status" data-ds-prop-density="Compact" data-ds-prop-state="Default"><span class="bj02-review-summary-icon">${icon("package","icon--sm")}</span><span class="bj02-review-summary-copy"><strong>${escapeAttribute(line.name)}</strong><span>${escapeAttribute(bj02ReviewSubtitle(line))}</span></span><span class="bj02-review-summary-status">${badge}</span></button>`;
-  }).join("")}</div>`;
-  if (!bj02Lines.length) return html;
-  const host = document.createElement("div");
-  host.innerHTML = html;
-  host.querySelectorAll(".bj02-review-summary-row").forEach((row, index) => {
-    const line = bj02Lines[index];
-    const copy = row.querySelector(".bj02-review-summary-copy");
-    if (!line || !copy) return;
-    const t = lineTotals(line);
-    const sub = copy.querySelector(":scope > span");
-    if (sub) sub.textContent = [line.sku || line.productId, `${t.totalReceived} ${line.uom}`].filter(Boolean).join(" · ");
-    copy.insertAdjacentHTML("beforeend", lotLines(line));
-    if (opts.resultMode) {
-      const badgeEl = row.querySelector(".bj02-review-summary-status .status-badge, .bj02-review-summary-status [data-ds-component]");
-      // badge already set via resultMode on issue above
-    }
-  });
-  return host.innerHTML;
-}
-function bj02ReviewDetailSheet() {
-  if (!bj02ReviewOpenLineId) return "";
-  const line = bj02Lines.find((item) => item.id === bj02ReviewOpenLineId);
-  if (!line) return "";
-  const t = lineTotals(line);
-  const quantityRows = [
-    ["Đạt", t.accepted], ["Cách ly", t.quarantine], ["Hỏng", t.damaged], ["Từ chối", t.rejected],
-  ].filter(([, value]) => Number(value) > 0).map(([label, value]) => bj02InfoRow(label, `${value} ${line.uom}`)).join("");
-  const lotRows = line.trackingPolicy === "LOT" ? (line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0).map((lot) => {
-    const lt = lotDraftTotals(lot);
-    return `<div class="bj02-review-lot-group"><div class="bj02-review-lot-title"><strong>Lô ${escapeAttribute(lot.code || "—")}</strong>${lot.expiry ? `<span>HSD ${escapeAttribute(lot.expiry)}</span>` : ""}</div>${bj02InfoRow("Số lượng", `${lt.totalReceived} ${line.uom}`)}</div>`;
-  }).join("") : "";
-  const issue = bj02ReviewIssue(line);
-  const issueBanner = issue ? vBanner(issue.tone === "error" ? "error" : issue.tone, issue.label, "Kiểm tra lại dòng hàng này trước khi xác nhận hồ sơ.", "", "Compact") : "";
-  return `<div class="sheet-backdrop bj02-review-detail-backdrop" data-bj02-review-close><section class="bj02-review-detail-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" data-ds-prop-show-title="true" role="dialog" aria-modal="true" aria-label="Chi tiết ${escapeAttribute(line.name)}" onclick="event.stopPropagation()"><div class="bj02-review-sheet-handle"></div><h2>${escapeAttribute(line.name)}</h2><p class="bj02-review-sheet-context">${escapeAttribute(line.sku || line.productId)} · ${escapeAttribute(line.uom)}</p>${issueBanner}<section class="bj02-review-detail-section" data-ds-component="VSection"><div class="bj02-review-detail-heading"><strong>Phân loại số lượng</strong><span>${t.totalReceived} ${line.uom}</span></div><div class="bj02-review-detail-rows">${quantityRows || bj02InfoRow("Tổng kiểm nhận", `${t.totalReceived} ${line.uom}`)}</div></section>${lotRows ? `<section class="bj02-review-detail-section" data-ds-component="VSection"><div class="bj02-review-detail-heading"><strong>Lô và hạn dùng</strong><span>${(line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0).length} lô</span></div><div class="bj02-review-lot-list">${lotRows}</div></section>` : ""}<button class="button button--secondary button--full bj02-review-close-button" data-bj02-review-close type="button" data-ds-component="VButton">Đóng</button></section></div>`;
-}
-function bj02NumericValue(target, key, lotId = null) {
-  if (!lineEditorDraft) return 0;
-  if (target === "lot") {
-    const lot = (lineEditorDraft.lots || []).find((item) => item.id === (lotId || activeLotDraftId));
-    return Math.max(0, Number(lot?.[key]) || 0);
-  }
-  return Math.max(0, Number(lineEditorDraft[key]) || 0);
-}
-function openBj02NumericPad(target, key, lotId = null) {
-  if (lineEditorIsReadOnly() || !lineEditorDraft) return;
-  const value = bj02NumericValue(target, key, lotId);
-  bj02NumericPad = { target, key, lotId: lotId || null, draft: String(value), unit: lineEditorDraft.uom || "" };
-  renderAppScreen();
-}
-function updateBj02NumericPad(key) {
-  if (!bj02NumericPad) return;
-  let v = String(bj02NumericPad.draft || "0");
-  if (key === "backspace") v = v.length <= 1 ? "0" : v.slice(0, -1);
-  else if (/^\d$/.test(key)) v = v === "0" ? key : `${v}${key}`;
-  bj02NumericPad.draft = v.replace(/^0+(?=\d)/, "") || "0";
-  renderAppScreen();
-}
-function closeBj02NumericPad() { bj02NumericPad = null; renderAppScreen(); }
-function saveBj02NumericPad() {
-  if (!bj02NumericPad || !lineEditorDraft) return;
-  const value = Math.max(0, Number(bj02NumericPad.draft) || 0);
-  if (bj02NumericPad.target === "lot") {
-    const lot = (lineEditorDraft.lots || []).find((item) => item.id === (bj02NumericPad.lotId || activeLotDraftId));
-    if (lot) { lot[bj02NumericPad.key] = value; lot.totalReceived = lotDraftTotals(lot).totalReceived; }
-  } else {
-    lineEditorDraft[bj02NumericPad.key] = value;
-    lineEditorDraft.totalReceived = lineTotals(lineEditorDraft).totalReceived;
-  }
-  lineEditorDirty = true;
-  bj02NumericPad = null;
-  renderAppScreen();
-}
-function bj02NumericKeypadOverlay() {
-  if (!bj02NumericPad) return "";
-  const labels = { accepted:"Đạt", quarantine:"Cách ly", damaged:"Hỏng", rejected:"Từ chối" };
-  const keys = [["1","2","3"],["4","5","6"],["7","8","9"],["decimal","0","backspace"]];
-  return `<div class="bj02-numeric-backdrop"><section class="bj02-numeric-sheet" data-ds-component="VNumericKeypadSheet" data-figma-node="1829:16196" data-ds-prop-mode="Quantity" role="dialog" aria-modal="true"><div class="bj02-numeric-handle"></div><div class="bj02-numeric-head"><div><h2>Nhập ${labels[bj02NumericPad.key] || "số lượng"}</h2><span>Đơn vị: ${escapeAttribute(bj02NumericPad.unit)}</span></div></div><div class="bj02-numeric-display">${escapeAttribute(bj02NumericPad.draft || "0")}</div><div class="bj02-keypad-grid">${keys.map((row) => `<div class="bj02-keypad-row">${row.map((key) => key === "decimal" ? `<button class="bj02-keypad-key" type="button" disabled aria-label="Đơn vị hiện tại không cho phép số lẻ">.</button>` : `<button class="bj02-keypad-key" data-bj02-numeric-key="${key}" type="button" aria-label="${key === "backspace" ? "Xóa một số" : key}">${key === "backspace" ? "⌫" : key}</button>`).join("")}</div>`).join("")}</div><div class="bj02-numeric-actions"><button class="button button--secondary" data-bj02-action="numeric-cancel" data-ds-component="VButton" type="button">Hủy</button><button class="button button--primary" data-bj02-action="numeric-save" data-ds-component="VButton" type="button">Lưu</button></div></section></div>`;
-}
-function render006BJ02(state) {
-  if (state === "PERMISSION_DENIED") return appShell({ title: "Nhận hàng", body: deniedBody(), centered: true, back: false });
-  if (state === "LOADING") return appShell({ title: "Nhận hàng", body: loadingBody(), back: false });
-const doc=bj02ListRow({title:'Nhận theo chứng từ',subtitle:'Đã có chứng từ mua để đối chiếu.',attr:'data-flow="document"',disabled:state==='LOCKED',iconName:'fileText'});
-    const quick=!BJ02_CONTEXT.capabilities.quickReceipt?'':bj02ListRow({title:'Nhập hàng nhanh',subtitle:BJ02_CONTEXT.quickBlocker||'Hàng đã đến, chưa có chứng từ mua.',attr:'data-flow="quick"',disabled:state==='LOCKED'||Boolean(BJ02_CONTEXT.quickBlocker),iconName:'zap'});
-    return appShell({title:'Nhận hàng',body:`${stateBanner(state)}<div class="bj02-choice-stack">${doc}${quick}</div>`,back:false});
-}
-function render007BJ02(state) {
-  if (state === "LOADING") return appShell({ title: "Chứng từ chờ nhận", body: loadingBody() });
-  if (state === "PERMISSION_DENIED") return appShell({ title: "Chứng từ chờ nhận", body: deniedBody(), centered: true });
-  if (state === "EMPTY") return appShell({ title: "Chứng từ chờ nhận", body: emptyBody(false), centered: true });
-  const forcedFilterEmpty = state === "FILTER_EMPTY";
-  const searchValue = forcedFilterEmpty ? "Không có kết quả" : documentSearchQuery;
-  const search = `<div class="bj02-search" data-ds-component="VSearchBar" data-figma-node="522:7245"><span>${icon("search","icon--sm")}</span><input data-bj02-document-search value="${escapeAttribute(searchValue)}" placeholder="Tìm mã chứng từ hoặc nhà cung cấp" aria-label="Tìm chứng từ"/></div>`;
-  const cards=[
-    {id:"PN-260816-04",supplier:"Minh Dũng",date:"16/08/2026",summary:"2 mặt hàng đang chờ nhận",status:""},
-    {id:"PN-260816-05",supplier:"An Việt",date:"16/08/2026",summary:"1 mặt hàng",status:"Đã nhận một phần"}
-  ];
-  const list=cards.map(x=>bj02RecordCard({title:x.id,supporting1:x.supplier,supporting2:x.summary,summary:x.status||"",timestamp:x.date,attr:`data-bj02-document-id="${x.id}" data-bj02-document-search-text="${escapeAttribute(`${x.id} ${x.supplier}`.toLowerCase())}" ${forcedFilterEmpty?'hidden':''}`})).join("");
-  const noResult=`<div class="empty-state document-filter-empty" data-bj02-document-filter-empty data-ds-component="VEmptyState" ${forcedFilterEmpty?"":"hidden"}><div class="icon-box" data-ds-component="VEmptyMedia">${icon("search","icon--empty-media")}</div><h3 data-ds-component="VEmptyTitle">Không có kết quả phù hợp</h3><p data-ds-component="VEmptyDescription">Thử mã chứng từ hoặc tên nhà cung cấp khác.</p></div>`;
-  return appShell({title:"Chứng từ chờ nhận",body:`${stateBanner(state)}${search}<div class="bj02-record-stack">${list}</div>${noResult}`});
-}
-function render008BJ02(state) {
-
-    if(state==='PERMISSION_DENIED') return appShell({title:'Nhập hàng nhanh',body:deniedBody(),centered:true});
-    const locked=state==='LOCKED', hasError=state==='VALIDATION_ERROR';
-    const supplierValid=supplierCatalog.some((x)=>x.id===bj02Header.supplierId&&x.name===bj02Header.supplier.trim());
-    const evidence=bj02EvidenceRefs(), evidenceReady=evidence.length>0;
-    const supplierValue=supplierValid?bj02Header.supplier:'Chọn nhà cung cấp';
-    const body=`${stateBanner(state)}<section class="v-section compact-section-heading" data-ds-component="VSection"><div class="v-section-copy"><h2 data-ds-component="VText">Thông tin lần nhận</h2><p data-ds-component="VText">Xác định nhà cung cấp, phạm vi nhận và chứng từ giao nhận.</p></div></section><div class="form-stack quick-source-form">
-      <div class="form-field supplier-field${locked?' is-disabled':''}" data-ds-component="VSelect" data-figma-node="522:7291"><label>Nhà cung cấp <span class="required">*</span></label><button class="bj02-vselect-trigger${supplierValid?' is-filled':''}${hasError&&!supplierValid?' is-error':''}" data-bj02-open-supplier-sheet type="button" ${locked?'disabled':''}><span>${esc(supplierValue)}</span>${icon('chevronDown','icon--sm')}</button>${hasError&&!supplierValid?'<span class="field-error" data-bj02-supplier-error>Chọn nhà cung cấp trong danh sách.</span>':'<span class="field-error" data-bj02-supplier-error hidden>Chọn nhà cung cấp trong danh sách.</span>'}</div>
-      <div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186" data-ds-prop-state="Filled"><label>Kho nhận</label><span class="input-shell is-readonly"><input value="${esc(BJ02_CONTEXT.warehouse.name)}" disabled aria-disabled="true"/></span></div>
-      <div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186" data-ds-prop-state="Filled"><label>Ngày nhận</label><span class="input-shell is-readonly"><span class="bj02-date-leading">${icon('calendar','icon--sm')}</span><input value="${formatIsoDate(bj02Header.businessDate)}" disabled aria-disabled="true"/></span></div>
-      <div class="form-field" data-ds-component="VFileDropZone" data-figma-node="522:7507"><label>Chứng từ giao nhận <span class="required">*</span></label><label class="file-drop-zone"><input data-bj02-evidence-file type="file" multiple ${locked?'disabled':''}/><span class="file-drop-icon">${icon('cloudUpload','icon--24')}</span><span class="file-drop-copy"><strong>${evidenceReady?'Đã chọn chứng từ':'Chọn hoặc kéo tệp'}</strong><small>${evidenceReady?'Có thể chọn lại để thay bộ chứng từ':'Phiếu giao hàng, biên bản bàn giao, vận đơn hoặc bản scan/ảnh rõ nội dung'}</small></span></label>${evidenceReady?`<div class="v392-evidence-chips">${evidence.map((x)=>`<span>${esc(x.name)}</span>`).join('')}</div>`:''}</div>
-      ${vBanner('info','Xác nhận quyền sở hữu','Hệ thống lưu người xác nhận, thời điểm và chứng từ giao nhận.','','Default')}
-    </div>${bj02SupplierSelectSheet(locked)}`;
-    const disabled=locked||!supplierValid||!evidenceReady||!BJ02_CONTEXT.capabilities.assertOwnership;
-    return appShell({title:'Nhập hàng nhanh',body,actions:primaryFooter('Xác nhận & tiếp tục','data-v392-quick-continue',disabled)});
-  
-}
-function render010BJ02(state) {
-  ensureBj02ReviewFixture();
-
-    if(state==='PERMISSION_DENIED') return appShell({title:'Rà soát nhận hàng',body:deniedBody(),centered:true});
-    const pending=state==='PENDING_APPROVAL', approverBlocked=state==='APPROVER_CONFIGURATION_MISSING';
-    const requiresApproval=bj02RequiresApproval(), noLines=bj02Lines.length===0, incomplete=!noLines&&!allReceiptLinesHandled();
-    const quickZero=flowMode==='quick'&&bj02AcceptedPhysicalTotal()===0;
-    const disabled=pending||approverBlocked||noLines||incomplete||quickZero||(flowMode==='quick'&&!bj02OwnershipReady());
-    const routeNotice=pending?vBanner('info','Đã gửi phê duyệt','Đang chờ người duyệt; tồn kho chưa thay đổi.','','Compact'):
-      approverBlocked?vBanner('error','Chưa có người duyệt phù hợp','Chưa thể tạo phiếu. Cần cấu hình người duyệt đủ quyền và phạm vi rồi gửi lại trong phiên hiện tại.'):
-      quickZero?vBanner('error','Chưa có hàng vào tồn','Nhập hàng nhanh chỉ gửi được khi Đạt + Cách ly + Hỏng lớn hơn 0.'):
-      requiresApproval?(flowMode==='quick'?vBanner('info','Cần phê duyệt trước khi ghi nhận','Nhập hàng nhanh luôn cần người duyệt độc lập. Tồn kho chưa thay đổi.','','Compact'):vBanner('warning','Lượng vào tồn vượt chứng từ','Đạt + Cách ly + Hỏng vượt lượng còn được nhận. Hồ sơ cần phê duyệt.')):'';
-    const stateNotice=['PENDING_APPROVAL','APPROVAL_REQUIRED'].includes(state)?'':stateBanner(state);
-    const readiness=noLines?`<div class="empty-state bj02-review-empty" data-ds-component="VEmptyState"><div class="icon-box">${icon('package','icon--empty-media')}</div><h3>Chưa có hàng để rà soát</h3><p>Thêm và hoàn tất hàng thực nhận trước khi tiếp tục.</p></div>`:incomplete?vBanner('warning','Còn mặt hàng chưa hoàn tất','Quay lại Hàng thực nhận để hoàn tất từng mặt hàng.') : '';
-    // Không cộng chéo transaction-UOM trên Review. Quantity authority vẫn ở từng Product+UOM line;
-    // aggregate toàn hồ sơ chỉ dùng cho money risk sau khi normalize về base UOM.
-    const physicalSummary=!noLines?`<div class="v392-quantity-summary v440-grouped-surface" data-composed-from="DS v2 / Key-value Row" data-layout-pattern="Grouped surface" data-v440-grouped-surface="auto">${bj02KeyValueRow('Mặt hàng đã xử lý',`${bj02ReviewProductCount()} mặt hàng`)}${bj02KeyValueRow('Dòng nhận hàng',`${bj02Lines.length} dòng`,true)}</div>`:'';
-    const content=noLines?readiness:`<section class="bj02-review-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Thông tin lần nhận</strong>${pending?'':`<button class="inline-edit" ${flowMode==='quick'?'data-next="SCR-008"':'data-v392-change-source'} data-ds-component="VButton" type="button">${flowMode==='quick'?'Sửa':'Đổi chứng từ'}</button>`}</div><div class="bj02-info-stack">${bj02SourceRows()}</div></section><section class="bj02-review-section" data-ds-component="VSection"><div class="bj02-section-heading"><div><strong>Hàng thực nhận</strong><span>${bj02ReviewProductCount()} mặt hàng · ${bj02Lines.length} dòng</span></div>${pending?'':'<button class="inline-edit" data-next="SCR-009" data-ds-component="VButton" type="button">Sửa</button>'}</div>${physicalSummary}<div class="bj02-review-products">${bj02ReviewProductBlocks()}</div></section>${incomplete?readiness:''}`;
-    const footer=pending?'':primaryFooter(requiresApproval?'Gửi phê duyệt':'Xác nhận nhận hàng','data-action="submit"',disabled);
-    return appShell({title:'Rà soát nhận hàng',body:`${stateNotice}${routeNotice}${content}${bj02ReviewDetailSheet()}${bj02ChangeSourceSheet()}`,actions:footer});
-  
-}
-function render011BJ02(state) {
-  ensureBj02ReviewFixture();
-
-    if(state==='PERMISSION_DENIED') return appShell({title:'Phê duyệt yêu cầu nhận hàng',subtitle:'Việc dành cho người phê duyệt',body:deniedBody(),centered:true,backAction:'exit-approval'});
-    const disabled=['SELF_APPROVAL_NOT_ALLOWED','APPROVAL_ALREADY_DECIDED','PROCESSING'].includes(state), decided=state==='APPROVAL_ALREADY_DECIDED';
-    if(!bj02Lines.length) return appShell({title:'Phê duyệt yêu cầu nhận hàng',subtitle:'Việc dành cho người phê duyệt',body:`<div class="empty-state" data-ds-component="VEmptyState"><h3>Không có yêu cầu để duyệt</h3><p>Yêu cầu chỉ xuất hiện sau khi người lập gửi hồ sơ hợp lệ.</p></div>`,centered:true,backAction:'exit-approval'});
-    const over=bj02Lines.some((line)=>flowMode==='document'&&lineAcceptedBase(line)>documentLineAllowanceBase(line));
-    const reason=!decided?vBanner(flowMode==='quick'?'info':'warning','Lý do cần duyệt',flowMode==='quick'?'Nhập hàng nhanh bắt buộc phê duyệt.':over?'Lượng vào tồn vật lý vượt chứng từ nguồn.':'Hồ sơ được định tuyến theo chính sách phê duyệt.','','Compact'):approvalRejectReason?vBanner('error','Đã từ chối',approvalRejectReason):'';
-    const risk=receiptRiskValue();
-    const riskRow=flowMode==='quick'?'':(BJ02_CONTEXT.capabilities.viewApprovalRiskTotal&&state!=='FINANCIAL_MASKED'?bj02KeyValueRow('Tổng giá trị rủi ro',`${risk.toLocaleString('vi-VN')} đ`,true):bj02InfoRow('Tổng giá trị rủi ro','Không có quyền xem'));
-    const facts=`${bj02InfoRow('Người gửi',BJ02_CONTEXT.submitted.maker)}${bj02InfoRow('Gửi lúc',BJ02_CONTEXT.submitted.submittedAt)}${riskRow}`;
-    const evidenceAction=`<button class="button button--secondary button--full v392-evidence-preview" data-v392-open-evidence type="button" data-ds-component="VButton">${icon('fileText','icon--sm')} Xem chứng từ giao nhận</button>`;
-    const body=`${state==='APPROVAL_REQUIRED'?'':stateBanner(state)}${reason}<section class="bj02-review-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Thông tin lần nhận</strong></div><div class="bj02-info-stack">${bj02SourceRows()}</div>${evidenceAction}</section><section class="bj02-review-section"><div class="bj02-section-heading"><strong>Thông tin yêu cầu</strong></div><div class="bj02-info-stack">${facts}</div></section><section class="bj02-review-section"><div class="bj02-section-heading"><strong>Hàng thực nhận</strong><span>${bj02ReviewProductCount()} mặt hàng · ${bj02Lines.length} dòng</span></div><div class="bj02-review-products">${bj02ReviewProductBlocks()}</div></section>${bj02ReviewDetailSheet()}${bj02EvidencePreviewSheet()}`;
-    const footer=decided?'':`<footer class="app-actions is-split approval-actions figma-sticky-footer v361-dual-footer v361-dual-footer--danger" data-ds-component="DS v2 / Sticky Footer" data-ds-prop-layout="Dual" data-figma-node="549:927" data-ds-prop-tone="Danger"><button class="button button--secondary" data-action="open-reject" data-ds-prop-tone="VComponentTone.danger" data-ds-profile="button.destructiveSecondary" type="button" ${disabled?'disabled':''}>Từ chối</button><button class="button button--primary" data-action="approve" type="button" ${disabled?'disabled':''}>Duyệt</button></footer>`;
-    return appShell({title:'Phê duyệt yêu cầu nhận hàng',subtitle:`Việc dành cho người phê duyệt · ${BJ02_CONTEXT.submitted.maker} gửi`,body,actions:footer,backAction:'exit-approval'});
-  
-}
-function render012BJ02(state) {
-  ensureBj02ReviewFixture();
-
-    if(state==='PERMISSION_DENIED') return appShell({title:'Kết quả nhận hàng',body:deniedBody(),centered:true});
-    if(state==='PROCESSING') return appShell({title:'Kết quả nhận hàng',body:`<div class="loading-state" data-ds-component="VLoading"><span class="v-loading-spinner"></span><strong>Đang ghi nhận hàng</strong><p>Hệ thống đang xử lý. Bạn không cần thực hiện lại.</p></div>`});
-    if(['UNKNOWN','COMMIT_UNKNOWN'].includes(state)) return appShell({title:'Kết quả nhận hàng',body:`<div class="loading-state" data-ds-component="VLoading"><span class="v-loading-spinner"></span><strong>Đang xác minh kết quả</strong><p>Không thực hiện lại thao tác nhận hàng.</p></div>${vBanner('warning','Giữ nguyên lần nhận hiện tại','Hệ thống tiếp tục đối soát kết quả của lần nhận này.')}`,actions:primaryFooter('Xác minh kết quả','data-v350-action="bj02-verify-unknown"'),centered:true,back:false});
-    if(state==='REJECTED_EXECUTION') return appShell({title:'Kết quả nhận hàng',body:`<div class="empty-state result-empty" data-ds-component="VEmptyState"><h2>Chưa ghi nhận hàng</h2><p>Yêu cầu bị chặn trước khi tồn kho thay đổi.</p></div>`,centered:true});
-    const physical=bj02AcceptedPhysicalTotal(), zeroImpact=physical===0;
-    const hero=zeroImpact?resultHero('Đã ghi nhận kết quả lần nhận','Không có hàng vào tồn vật lý trong lần nhận này.'):resultHero('Đã ghi nhận hàng',`Đã tăng tồn vật lý theo ${bj02Lines.length} dòng hàng được xử lý.`);
-    const valuation=state==='VALUATION_PENDING_RESULT'&&physical>0?vBanner('info','Đang chờ xác nhận giá','Phần Đạt chờ xác nhận giá; Cách ly/Hỏng giữ nguyên trạng thái.') : '';
-    const body=`${hero}<section class="bj02-review-section result-lines-card"><div class="bj02-section-heading"><strong>Kết quả theo dòng hàng</strong></div><div class="bj02-review-products">${bj02ReviewProductBlocks({interactive:false, resultMode:true})}</div></section>${valuation}`;
-    return appShell({title:'Kết quả nhận hàng',body,actions:primaryFooter('Xong','data-action="exit-flow"')});
-  
-}
-function render013BJ02(state) {
-
-    if(state==='LOADING') return appShell({title:'Đối soát nhận hàng',subtitle:'Tự mở khi kết quả lần nhận chưa xác định',body:loadingBody()});
-    if(state==='PERMISSION_DENIED') return appShell({title:'Đối soát nhận hàng',subtitle:'Tự mở khi kết quả lần nhận chưa xác định',body:deniedBody(),centered:true});
-    if(state==='EMPTY') return appShell({title:'Đối soát nhận hàng',subtitle:'Tự mở khi kết quả lần nhận chưa xác định',body:`<div class="empty-state" data-ds-component="VEmptyState"><h3>Chưa có kết quả mới</h3><p>Hệ thống vẫn đang theo dõi lần nhận này. Bạn không cần tạo lại thao tác.</p></div>`,centered:true});
-    const uncertain=['PROCESSING_OR_UNKNOWN','STALE'].includes(state), ev=BJ02_CONTEXT.recoveryEvidence;
-    const item=(tone,ico,title,desc,meta)=>`<div class="timeline-item ${tone==='warning'?'is-warning':''}" data-ds-component="DS v2 / Timeline Item" data-figma-node="525:587"><span class="timeline-marker" data-ds-component="VIconBox" data-ds-prop-tone="VComponentTone.${tone}">${icon(ico,'icon--sm')}</span><div class="timeline-content"><strong>${title}</strong><span>${desc}</span><small>${meta}</small></div></div>`;
-    let timeline='';
-    if(ev.submitted.proven) timeline+=item('neutral','fileText','Hồ sơ nhận đã được khóa',BJ02_CONTEXT.submitted.receiptRef,`${ev.submitted.at} · ${ev.submitted.actor}`);
-    if((flowMode==='quick'||bj02RequiresApproval())&&ev.approval.proven) timeline+=item('success','shield','Yêu cầu đã được duyệt',`Người duyệt: ${ev.approval.actor}`,ev.approval.at);
-    timeline+=uncertain?item('warning','clock','Đang xác lập kết quả cuối cùng','Kết quả của lần nhận hiện tại','Đang tiếp tục kiểm tra'):ev.operationResult.proven?item('success','check','Kết quả ghi nhận đã được xác lập','Kết quả của lần nhận hiện tại',ev.operationResult.at):'';
-    timeline+=uncertain?item('warning','clock','Đang kiểm tra biến động tồn kho','Chưa có bằng chứng xác nhận biến động tồn kho đã được ghi','Không cần tạo lần nhận mới'):ev.inventoryMovement.proven?item('success','package','Biến động tồn kho đã được ghi',`${bj02Lines.length} dòng hàng · mốc sổ ${ev.inventoryMovement.ledgerSequence}`,ev.inventoryMovement.at):'';
-    const status=state==='TERMINAL'?vBanner('success','Đã xác lập kết quả','Kết quả cuối cùng đã có; hệ thống sẽ đưa bạn về màn kết quả.'):`<div class="loading-state loading-state--compact" data-ds-component="VLoading"><span class="v-loading-spinner"></span><strong>Đang xác minh kết quả nhận hàng</strong><p>Chưa cần thực hiện lại lần nhận.</p></div>`;
-    const body=`${status}${state==='STALE'?stateBanner('STALE'):''}<div class="as-of"><span>Lần kiểm tra gần nhất</span><strong class="mono">${ev.checkedAt}</strong></div><section class="timeline-card" data-ds-component="VSection"><div class="timeline">${timeline}</div></section>${uncertain?`<button class="button button--secondary manual-refresh" data-action="refresh" type="button">${icon('rotate','icon--sm')} Làm mới</button>`:''}`;
-    return appShell({title:'Đối soát nhận hàng',subtitle:'Tự mở khi kết quả lần nhận chưa xác định',body,actions:state==='PROCESSING_OR_UNKNOWN'?primaryFooter('Xem hỗ trợ xử lý','data-v350-action="bj02-handoff-unknown"'):''});
-  
-}
 function lineTotals(line) {
   if (!line) return { totalReceived: 0, accepted: 0, quarantine: 0, damaged: 0, rejected: 0, physicalIncrease: 0 };
   if (line.trackingPolicy === "LOT") {
@@ -610,33 +293,32 @@ function lineTotals(line) {
   const totalReceived = accepted + quarantine + damaged + rejected;
   return { totalReceived, accepted, quarantine, damaged, rejected, physicalIncrease: accepted + quarantine + damaged };
 }
+function lotDraftTotals(lot) {
+  const accepted = Math.max(0, Number(lot?.accepted) || 0);
+  const quarantine = Math.max(0, Number(lot?.quarantine) || 0);
+  const damaged = Math.max(0, Number(lot?.damaged) || 0);
+  const rejected = Math.max(0, Number(lot?.rejected) || 0);
+  return { totalReceived: accepted + quarantine + damaged + rejected, accepted, quarantine, damaged, rejected };
+}
 function documentLineVariance(line) {
-
-    if(flowMode!=='document'||!line||line.remainingReceivableQty==null) return null;
-    const t=lineTotals(line), allowed=bj02SourceRemaining(line);
-    return {
-      allowed,
-      totalInspected:t.totalReceived,
-      acceptedPhysical:t.physicalIncrease,
-      rejected:t.rejected,
-      remainingAfterAccepted:Math.max(0,allowed-t.physicalIncrease),
-      inspectedOver:Math.max(0,t.totalReceived-allowed),
-      acceptedPhysicalOver:Math.max(0,t.physicalIncrease-allowed),
-    };
-  
+  if(flowMode!=='document'||!line||line.remainingReceivableQty==null) return null;
+  const t=lineTotals(line), allowed=bj02SourceRemaining(line);
+  return {
+    allowed,
+    totalInspected:t.totalReceived,
+    acceptedPhysical:t.physicalIncrease,
+    rejected:t.rejected,
+    remainingAfterAccepted:Math.max(0,allowed-t.physicalIncrease),
+    inspectedOver:Math.max(0,t.totalReceived-allowed),
+    acceptedPhysicalOver:Math.max(0,t.physicalIncrease-allowed),
+  };
 }
 function documentVarianceFeedback(line) {
-
-    const v=documentLineVariance(line); if(!v||v.totalInspected<=0) return '';
-    if(v.acceptedPhysicalOver>0) return vBanner('warning','Lượng vào tồn vượt chứng từ',`Vào tồn vật lý ${v.acceptedPhysical} ${line.uom}, vượt ${v.acceptedPhysicalOver} ${line.uom} so với lượng còn được nhận. Hồ sơ sẽ cần phê duyệt.`,'','Compact');
-    if(v.acceptedPhysical<v.allowed) return vBanner('info','Còn hàng chưa nhận',`Vào tồn vật lý ${v.acceptedPhysical} ${line.uom}; còn ${v.remainingAfterAccepted} ${line.uom} theo chứng từ nguồn.`,'','Compact');
-    if(v.inspectedOver>0) return vBanner('info','Có lượng từ chối ngoài số vào tồn',`Tổng kiểm nhận ${v.totalInspected} ${line.uom}; vào tồn vật lý ${v.acceptedPhysical} ${line.uom}. Lượng từ chối không làm tăng tồn.`,'','Compact');
-    return '';
-  
-}
-function quantityFeedback(totals) {
-  if (!totals || totals.totalReceived > 0) return "";
-  return `<p class="balance-status-text">Nhập ít nhất một phân loại số lượng để tiếp tục.</p>`;
+  const v=documentLineVariance(line); if(!v||v.totalInspected<=0) return '';
+  if(v.acceptedPhysicalOver>0) return vBanner('warning','Lượng vào tồn vượt chứng từ',`Vào tồn vật lý ${v.acceptedPhysical} ${line.uom}, vượt ${v.acceptedPhysicalOver} ${line.uom} so với lượng còn được nhận. Hồ sơ sẽ cần phê duyệt.`,'','Compact');
+  if(v.acceptedPhysical<v.allowed) return vBanner('info','Còn hàng chưa nhận',`Vào tồn vật lý ${v.acceptedPhysical} ${line.uom}; còn ${v.remainingAfterAccepted} ${line.uom} theo chứng từ nguồn.`,'','Compact');
+  if(v.inspectedOver>0) return vBanner('info','Có lượng từ chối ngoài số vào tồn',`Tổng kiểm nhận ${v.totalInspected} ${line.uom}; vào tồn vật lý ${v.acceptedPhysical} ${line.uom}. Lượng từ chối không làm tăng tồn.`,'','Compact');
+  return '';
 }
 function duplicateLotDraft(lotId, code) {
   const normalized = String(code || "").trim().toUpperCase();
@@ -654,81 +336,293 @@ function receiptHandledCount() { return bj02Lines.filter(lineHandled).length; }
 function allReceiptLinesHandled() { return bj02Lines.length > 0 && bj02Lines.every(lineHandled); }
 function documentContext() { return documentReceiptCatalog[selectedDocumentId] || documentReceiptCatalog["PN-260816-04"]; }
 function currentReceiptSupplier() { return flowMode === "quick" ? bj02Header.supplier : documentContext().supplier; }
-function currentReceiptEvidence() { return flowMode === "quick" ? bj02Header.evidence : selectedDocumentId; }
-function classificationText(line) {
-  const t = lineTotals(line);
-  if (line?.status === "NOT_RECEIVED") return "Chưa nhận lần này";
-  if (!t.totalReceived) return "Chưa ghi nhận";
-  return [`${t.accepted} đạt`, t.quarantine ? `${t.quarantine} cách ly` : "", t.damaged ? `${t.damaged} hỏng` : "", t.rejected ? `${t.rejected} từ chối` : ""].filter(Boolean).join(" · ");
-}
-function lineMetaText(line) {
-  const t = lineTotals(line);
-  if (line.status === "NOT_RECEIVED") return "Chưa nhận lần này";
-  if (line.status !== "COMPLETED") return "Chưa ghi nhận";
-  const lotCount = line.trackingPolicy === "LOT" ? (line.lots || []).filter((lot) => Number(lot.totalReceived) > 0).length : 0;
-  const lotText = lotCount ? `${lotCount} lô · ` : "";
-  return `${lotText}${classificationText(line)}`;
-}
-function linePrimaryText(line) {
-  const t = lineTotals(line);
-  if (line.status === "NOT_RECEIVED") return flowMode === "document" ? `${line.remainingReceivableQty} ${line.uom} theo chứng từ` : "Chưa nhận";
-  if (line.status !== "COMPLETED") return flowMode === "document" && line.remainingReceivableQty != null ? `Còn chờ nhận ${line.remainingReceivableQty} ${line.uom}` : `Đơn vị: ${line.uom || "—"}`;
-  if (flowMode === "document" && line.remainingReceivableQty != null) {
-    const expected = Math.max(0, Number(line.remainingReceivableQty) || 0);
-    const delta = t.totalReceived - expected;
-    if (delta < 0) return `${t.totalReceived} / ${expected} ${line.uom} · còn ${Math.abs(delta)}`;
-    if (delta > 0) return `${t.totalReceived} / ${expected} ${line.uom} · vượt ${delta}`;
-    return `${t.totalReceived} / ${expected} ${line.uom}`;
-  }
-  return `${t.totalReceived} ${line.uom}`;
-}
-function lineLotReviewDetails(line) {
-  if (line?.trackingPolicy !== "LOT" || line?.status === "NOT_RECEIVED") return "";
-  const rows = (line.lots || []).filter((lot) => Number(lot.totalReceived) > 0 || String(lot.code || "").trim()).map((lot) => {
-    const t = lotDraftTotals(lot);
-    const expiry = String(lot.expiry || "").trim();
-    const right = [`${t.totalReceived} ${line.uom}`, expiry ? `HSD ${expiry}` : ""].filter(Boolean).join(" · ");
-    return `<div class="receipt-lot-review"><span><small class="io-object-kicker">Lô</small><strong>${escapeAttribute(lot.code || "Chưa có mã lô")}</strong></span><strong>${right}</strong></div>`;
-  }).join("");
-  return rows ? `<div class="receipt-lot-review-list">${rows}</div>` : "";
-}
 function lineAcceptedBase(line) {
-
-    const product=productById(line.productId); const uom=product?.uoms?.find((x)=>x.id===line.uomId);
-    const ratio=Number(line.conversionRatioSnapshot ?? uom?.conversionRatio ?? 1)||1;
-    return bj02AcceptedPhysical(line)*ratio;
-  
+  const product=productById(line.productId); const uom=product?.uoms?.find((x)=>x.id===line.uomId);
+  const ratio=Number(line.conversionRatioSnapshot ?? uom?.conversionRatio ?? 1)||1;
+  return bj02AcceptedPhysical(line)*ratio;
 }
 function documentLineAllowanceBase(line) {
-
-    const product=productById(line.productId); const uom=product?.uoms?.find((x)=>x.id===line.uomId);
-    const ratio=Number(line.conversionRatioSnapshot ?? uom?.conversionRatio ?? 1)||1;
-    return bj02SourceRemaining(line)*ratio;
-  
+  const product=productById(line.productId); const uom=product?.uoms?.find((x)=>x.id===line.uomId);
+  const ratio=Number(line.conversionRatioSnapshot ?? uom?.conversionRatio ?? 1)||1;
+  return bj02SourceRemaining(line)*ratio;
 }
+function bj02LineOver(line) { return flowMode==='document' && lineAcceptedBase(line)>documentLineAllowanceBase(line); }
 function bj02RequiresApproval() {
-
-    if(flowMode==='quick') return true;
-    return bj02Lines.some((line)=>lineAcceptedBase(line)>documentLineAllowanceBase(line));
-  
+  if(flowMode==='quick') return true;
+  return bj02Lines.some(bj02LineOver);
 }
 function receiptRiskValue() {
-
-    return bj02Lines.reduce((sum,line)=>{
-      const basis=line.priceBasisSnapshot || productById(line.productId)?.priceBasisSnapshot;
-      return sum + lineAcceptedBase(line)*(Number(basis?.unitPriceVndPerBase)||0);
-    },0);
-  
+  return bj02Lines.reduce((sum,line)=>{
+    const basis=line.priceBasisSnapshot || productById(line.productId)?.priceBasisSnapshot;
+    return sum + lineAcceptedBase(line)*(Number(basis?.unitPriceVndPerBase)||0);
+  },0);
 }
-function receiptLineCards({ review = false, includeLotDetails = review } = {}) {
-  return `<div class="bj02-record-stack receipt-line-list">${bj02Lines.map((line) => {
-    const t=lineTotals(line);
-    const lotText=includeLotDetails && line.trackingPolicy==="LOT" ? (line.lots||[]).map(l=>`Lô ${escapeAttribute(l.code||"—")} · ${lotDraftTotals(l).totalReceived} ${line.uom}${l.expiry?` · HSD ${escapeAttribute(l.expiry)}`:""}`).join("; ") : lineMetaText(line);
-    const cls=classificationText(line);
-    const primary=review ? `${t.totalReceived} ${line.uom} · ${cls}` : linePrimaryText(line);
-    const tag=review?'article':'button';
-    return `<${tag} class="bj02-record-card receipt-line-card" ${review?'':`data-bj02-line-id="${line.id}" type="button"`} data-ds-component="DS v2 / Record Card" data-figma-node="1001:7201" data-ds-prop-status="Hidden"><span class="bj02-record-head"><strong>${line.name}</strong></span><span class="bj02-record-support secondary">${line.uom} · ${line.sku||line.productId}</span><span class="bj02-record-support primary">${primary}</span><span class="bj02-record-meta"><span>${lotText}</span><span></span></span></${tag}>`;
-  }).join("")}</div>`;
+function bj02ReviewIssue(line) {
+  const t=lineTotals(line);
+  if(line?.status==='NOT_RECEIVED') return {label:'Chưa nhận',tone:'warning'};
+  if(line?.status!=='COMPLETED') return {label:'Chưa xong',tone:'warning'};
+  if(t.rejected>0) return {label:'Có từ chối',tone:'error'};
+  if(t.damaged>0) return {label:'Có hàng hỏng',tone:'error'};
+  if(t.quarantine>0) return {label:'Có cách ly',tone:'warning'};
+  if(flowMode==='document'&&line.remainingReceivableQty!=null&&t.physicalIncrease>bj02SourceRemaining(line)) return {label:'Vượt chứng từ',tone:'warning'};
+  if(flowMode==='document'&&line.remainingReceivableQty!=null&&t.physicalIncrease<bj02SourceRemaining(line)) return {label:'Nhận một phần',tone:'info'};
+  return null;
+}
+function bj02ReviewProductCount() {
+  return new Set(bj02Lines.map((line) => line.productId)).size;
+}
+
+/* ---------- Fixture xem trước ---------- */
+
+function bj02SeedDocumentLines(forceApproval=false){
+  flowMode="document"; selectedDocumentId="PN-260816-04";
+  if(!bj02Lines.length) bj02Lines=createDocumentReceiptLines(selectedDocumentId);
+  bj02Lines.forEach((line,idx)=>{
+    const expected=Math.max(1,Number(line.remainingReceivableQty)||1);
+    const received=expected+((forceApproval&&idx===0)?1:0);
+    line.status="COMPLETED";
+    line.accepted=received; line.quarantine=0; line.damaged=0; line.rejected=0; line.totalReceived=received;
+    if(line.trackingPolicy==="LOT"){
+      line.lots=[{id:`V360-L${idx+1}`,code:"DH2507",expiry:"30/11/2026",expiryPrecision:"DAY",manufactureDate:"",manufacturePrecision:"DAY",accepted:received,totalReceived:received,quarantine:0,damaged:0,rejected:0}];
+    }
+  });
+}
+function bj02HasExplicitDraftData(){
+  return Array.isArray(bj02Lines) && bj02Lines.some(line=>{
+    if(!line) return false;
+    if(["COMPLETED","NOT_RECEIVED"].includes(line.status)) return true;
+    const direct=[line.accepted,line.quarantine,line.damaged,line.rejected,line.totalReceived].some(v=>Number(v||0)>0);
+    const lots=Array.isArray(line.lots) && line.lots.some(l=>[l.accepted,l.quarantine,l.damaged,l.rejected,l.totalReceived].some(v=>Number(v||0)>0) || String(l.code||"").trim());
+    return direct || lots;
+  });
+}
+function ensureBj02ReviewFixture(){
+  if(activeFlowId!=="UIF-02") return;
+  const st=stateByScreen[activeScreenId];
+  if(activeScreenId==="SCR-084" && st==="READY" && !lineEditorDraft){
+    if(!bj02Lines.length) bj02SeedDocumentLines(false);
+    const line=bj02Lines[0];
+    activeReceiptLineId=line?.id||null;
+    lineEditorDraft=line?cloneBj02(line):null;
+    activeLotDraftId=lineEditorDraft?.lots?.[0]?.id||null;
+    lineEditorDirty=false; lineEditorReadOnly=false; lineProductMenuOpen=false;
+    lotManufactureExpanded=Boolean(lineEditorDraft?.lots?.[0]?.manufactureDate);
+    return;
+  }
+  if(activeScreenId==="SCR-010" && ["READY","APPROVAL_REQUIRED","PENDING_APPROVAL","REJECTED"].includes(st)){
+    // Vào thẳng rà soát cần fixture mẫu, nhưng lần nhận người dùng đang làm dở không bao giờ bị ghi đè.
+    if(!bj02Lines.length || (!allReceiptLinesHandled() && !bj02HasExplicitDraftData())) bj02SeedDocumentLines(false);
+    return;
+  }
+  if(activeScreenId==="SCR-011" && ["READY","APPROVAL_REQUIRED","APPROVAL_REVIEW","REJECTED_DONE"].includes(st)){
+    if(!bj02Lines.length || !allReceiptLinesHandled() || !bj02RequiresApproval()) bj02SeedDocumentLines(true);
+    return;
+  }
+  if(activeScreenId==="SCR-012" && ["COMPLETED","VALUATION_PENDING_RESULT"].includes(st)){
+    if(!bj02Lines.length || !allReceiptLinesHandled()) bj02SeedDocumentLines(false);
+  }
+}
+
+/* ---------- Thành phần dùng ở nhiều màn ---------- */
+
+function bj02RecordCard({title,supporting1,supporting2,summary,timestamp="",attr="",status=""}) {
+  return `<button class="bj02-record-card" ${attr} data-ds-component="DS v2 / Record Card" data-figma-node="1001:7201" data-ds-prop-status="${status ? 'Visible':'Hidden'}" type="button">
+    <span class="bj02-record-head"><strong>${title}</strong>${status ? vBadge(status,'info') : ''}</span>
+    <span class="bj02-record-support secondary">${supporting1}</span>
+    <span class="bj02-record-support primary">${supporting2}</span>
+    <span class="bj02-record-meta"><span>${summary}</span><span>${timestamp}</span></span>
+  </button>`;
+}
+function bj02InfoRow(label, value) {
+  return `<div class="bj02-info-row" data-ds-component="DS v2 / Info Row" data-figma-node="525:351" data-ds-prop-state="Default"><span>${escapeAttribute(label)}</span><strong>${escapeAttribute(value)}</strong></div>`;
+}
+function bj02KeyValueRow(label, value, emphasis = false, extraClass = "", valueAttr = "") {
+  let display = value;
+  if (typeof display === "string" && /^-\d/.test(display)) display = "−" + display.slice(1);
+  const classes = ["bj02-key-value-row", emphasis ? "is-emphasis" : "", extraClass].filter(Boolean).join(" ");
+  return `<div class="${classes}" data-ds-component="DS v2 / Key-value Row" data-figma-node="525:358" data-ds-prop-state="${emphasis ? "Emphasis" : "Default"}"><span>${escapeAttribute(label)}</span><strong ${valueAttr}>${escapeAttribute(display)}</strong></div>`;
+}
+function bj02ReceiptDate() { return formatIsoDate(bj02Header.businessDate||BJ02_CONTEXT.tenantBusinessDate); }
+// Một dòng ngữ cảnh lần nhận (009, 010): "PN-260816-04 · Minh Dũng" / "Nhập nhanh · {NCC}" + kho, ngày; edit = { label, attr } cho liên kết bên phải.
+function bj02ContextRow(edit = null) {
+  const quick = flowMode === "quick";
+  const title = quick ? `Nhập nhanh · ${currentReceiptSupplier() || "—"}` : `${selectedDocumentId} · ${currentReceiptSupplier()}`;
+  const trailing = edit ? `<button class="inline-edit bj02-context-edit" type="button" ${edit.attr} data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.link">${esc(edit.label)}</button>` : "";
+  return ds24ListRow({ title, subtitle: `${BJ02_CONTEXT.warehouse.name} · nhận ${bj02ReceiptDate()}`, trailing, leading: "warehouse", type: "Status", density: "Compact", interactive: false, extraClass: "bj02-context-row" });
+}
+function bj02Progress() {
+  const done = receiptHandledCount(), total = bj02Lines.length;
+  if (!total) return "";
+  return `<div class="bj02-progress-block" data-ds-component="VProgress"><div class="bj02-progress" role="progressbar" aria-label="Tiến độ xử lý" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}"><span style="width:${Math.round(done / total * 100)}%"></span></div><small>Đã xử lý ${done}/${total} mặt hàng</small></div>`;
+}
+function bj02IssueBadge(line) {
+  if (!lineHandled(line)) return "";
+  const issue = bj02ReviewIssue(line);
+  if (!issue) return ds24Badge("Đã xong", "Success");
+  return ds24Badge(issue.label, { warning: "Warning", error: "Danger", info: "Info" }[issue.tone] || "Neutral");
+}
+// Số bên phải dòng: "{nhận} / {chứng từ}" theo chứng từ, "{nhận} {ĐVT}" khi nhập nhanh; chưa xử lý thì "—".
+function bj02LineQuantity(line) {
+  const docLine = flowMode === "document" && line.remainingReceivableQty != null;
+  const received = line.status === "NOT_RECEIVED" ? 0 : lineTotals(line).physicalIncrease;
+  const shown = lineHandled(line) ? String(received) : "—";
+  return docLine ? `${shown} / ${bj02SourceRemaining(line)}` : (lineHandled(line) ? `${shown} ${line.uom || ""}`.trim() : shown);
+}
+function bj02LineSubtitle(line) {
+  if (flowMode === "document" && line.remainingReceivableQty != null && !lineHandled(line)) return `Còn chờ nhận ${line.remainingReceivableQty} ${line.uom}`;
+  return [line.sku || line.productId, line.uom].filter(Boolean).join(" · ");
+}
+function bj02LineRow(line, attrs) {
+  return ds24StockRow({ title: line.name, subtitle: bj02LineSubtitle(line), quantity: bj02LineQuantity(line), badge: bj02IssueBadge(line), attrs });
+}
+// Dòng chỉ đọc (sheet "Xem n dòng hàng", thẻ trên iPhone của bảng duyệt).
+function bj02ReadOnlyLine(line) {
+  const lots = line.trackingPolicy === "LOT" ? (line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0).map((lot) => [lot.code || "—", lot.expiry ? `HSD ${lot.expiry}` : ""].filter(Boolean).join(" · ")).join("; ") : "";
+  const subtitle = [bj02LineSubtitle(line), lots].filter(Boolean).join(" · ");
+  return ds24ListRow({ title: line.name, subtitle, trailing: `<span class="bj02-line-qty">${esc(bj02LineQuantity(line))}</span>${bj02IssueBadge(line)}`, leading: null, type: "Status", density: "Compact", interactive: false, extraClass: "bj02-readonly-line" });
+}
+function bj02ConfirmSheet() {
+  if (!bj02Confirm) return "";
+  const cfg = {
+    "remove-lot": { title: "Xóa lô này?", text: "Số lượng và thông tin đã nhập cho lô sẽ bị xóa khỏi dòng hàng.", cancel: "Giữ lô", ok: "Xóa lô", danger: true },
+    "remove-line": { title: "Xóa khỏi lần nhận?", text: "Toàn bộ số lượng và thông tin lô của dòng hàng này sẽ bị xóa.", cancel: "Giữ lại", ok: "Xóa", danger: true },
+    "not-received": { title: "Đánh dấu chưa nhận lần này?", text: "Số lượng và thông tin lô đã nhập cho dòng hàng này sẽ được xóa. Phần còn lại trên chứng từ vẫn được giữ.", cancel: "Giữ dữ liệu", ok: "Chưa nhận lần này", danger: true },
+    "change-source": { title: "Đổi chứng từ?", text: "Đổi chứng từ sẽ xóa dữ liệu nhận hàng đang nhập để tránh giữ lại số lượng, lô hoặc phiên bản chứng từ không còn đúng.", cancel: "Giữ chứng từ", ok: "Đổi chứng từ", danger: false },
+  }[bj02Confirm.kind];
+  return `<div class="confirm-backdrop" data-bj02-action="confirm-close"><section class="confirm-dialog" data-ds-component="DS v2 / Confirmation Sheet" data-figma-node="550:1058" data-ds-prop-is-destructive="${cfg.danger}" role="dialog" aria-modal="true" aria-label="${escapeAttribute(cfg.title)}" onclick="event.stopPropagation()"><h3>${esc(cfg.title)}</h3><p>${esc(cfg.text)}</p><div class="confirm-dialog-actions"><button class="button button--secondary" data-bj02-action="confirm-close" type="button">${esc(cfg.cancel)}</button><button class="button button--primary" data-bj02-action="confirm-ok" data-ds-prop-tone="VComponentTone.${cfg.danger ? "danger" : "primary"}" type="button">${esc(cfg.ok)}</button></div></section></div>`;
+}
+function bj02ReviewDetailSheet() {
+  if (!bj02ReviewOpenLineId) return "";
+  const line = bj02Lines.find((item) => item.id === bj02ReviewOpenLineId);
+  if (!line) return "";
+  const t = lineTotals(line);
+  const quantityRows = [
+    ["Đạt", t.accepted], ["Cách ly", t.quarantine], ["Hỏng", t.damaged], ["Từ chối", t.rejected],
+  ].filter(([, value]) => Number(value) > 0).map(([label, value]) => bj02InfoRow(label, `${value} ${line.uom}`)).join("");
+  const lotRows = line.trackingPolicy === "LOT" ? (line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0).map((lot) => {
+    const lt = lotDraftTotals(lot);
+    return `<div class="bj02-review-lot-group"><div class="bj02-review-lot-title"><strong>Lô ${escapeAttribute(lot.code || "—")}</strong>${lot.expiry ? `<span>HSD ${escapeAttribute(lot.expiry)}</span>` : ""}</div>${bj02InfoRow("Số lượng", `${lt.totalReceived} ${line.uom}`)}</div>`;
+  }).join("") : "";
+  const issue = bj02ReviewIssue(line);
+  const issueBanner = issue ? vBanner(issue.tone === "error" ? "error" : issue.tone, issue.label, "Kiểm tra lại dòng hàng này trước khi xác nhận hồ sơ.", "", "Compact") : "";
+  return `<div class="sheet-backdrop bj02-review-detail-backdrop" data-bj02-review-close><section class="bj02-review-detail-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" data-ds-prop-show-title="true" role="dialog" aria-modal="true" aria-label="Chi tiết ${escapeAttribute(line.name)}" onclick="event.stopPropagation()"><div class="bj02-review-sheet-handle"></div><h2>${escapeAttribute(line.name)}</h2><p class="bj02-review-sheet-context">${escapeAttribute(line.sku || line.productId)} · ${escapeAttribute(line.uom)}</p>${issueBanner}<section class="bj02-review-detail-section" data-ds-component="VSection"><div class="bj02-review-detail-heading"><strong>Phân loại số lượng</strong><span>${t.totalReceived} ${line.uom}</span></div><div class="bj02-review-detail-rows">${quantityRows || bj02InfoRow("Tổng kiểm nhận", `${t.totalReceived} ${line.uom}`)}</div></section>${lotRows ? `<section class="bj02-review-detail-section" data-ds-component="VSection"><div class="bj02-review-detail-heading"><strong>Lô và hạn dùng</strong><span>${(line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0).length} lô</span></div><div class="bj02-review-lot-list">${lotRows}</div></section>` : ""}<button class="button button--secondary button--full bj02-review-close-button" data-bj02-review-close type="button" data-ds-component="VButton">Đóng</button></section></div>`;
+}
+function bj02LinesSheet() {
+  if (!bj02LinesSheetOpen) return "";
+  return ds24Sheet({ title: "Hàng thực nhận", attrs: 'data-bj02-action="close-lines"', body: `<div class="ds24-list-stack bj02-lines-sheet">${bj02Lines.map(bj02ReadOnlyLine).join("")}</div><button class="ds24-button ds24-button--secondary" data-bj02-action="close-lines" type="button" data-ds-component="VButton" data-figma-node="521:529">Đóng</button>` });
+}
+function bj02EvidenceSheet() {
+  if (!BJ02_CONTEXT.evidenceSheetOpen) return "";
+  const refs = flowMode === "quick" ? bj02EvidenceRefs() : [{ id: documentContext().sourceDocumentRef || selectedDocumentId, name: selectedDocumentId, type: "SOURCE_DOCUMENT" }];
+  const rows = refs.map((ref) => ds24ListRow({ title: ref.name, subtitle: ref.type === "SOURCE_DOCUMENT" ? "Chứng từ nguồn" : "Chứng từ giao nhận", leading: "fileText", type: "Status", density: "Compact", interactive: false, trailing: `<button class="button button--tertiary" type="button" data-bj02-action="preview-file" data-ds-component="VButton">Xem</button>` })).join("");
+  return ds24Sheet({ title: "Chứng từ giao nhận", attrs: 'data-bj02-action="close-evidence"', body: `<p class="ds24-context vet45-text-style-7">Bằng chứng đã khóa theo phiên bản yêu cầu gửi duyệt.</p><div class="ds24-list-stack">${rows}</div><button class="ds24-button ds24-button--secondary" data-bj02-action="close-evidence" type="button" data-ds-component="VButton" data-figma-node="521:529">Đóng</button>` });
+}
+function bj02ScanSheet() {
+  if (!bj02ScanOpen) return "";
+  const sample = productById("P-OXY-LA");
+  return ds24Sheet({ title: "Quét mã vạch", attrs: 'data-bj02-action="scan-close"', body: `<div class="bj01-scan-frame" aria-hidden="true">${icon("scan")}</div><p class="ds24-context vet45-text-style-7">Đưa mã vạch vào khung</p><button class="ds24-button ds24-button--secondary" data-bj02-scan-sample="${sample.id}" type="button" data-ds-component="VButton" data-figma-node="521:529">Quét thử: ${esc(sample.name)}</button>` });
+}
+function bj02SupplierSelectSheet(locked=false) {
+  if(!supplierMenuOpen||locked) return '';
+  const options=supplierCatalog.map((supplier)=>{
+    const selected=supplier.id===bj02Header.supplierId;
+    return `<button class="bj02-sheet-list-row${selected?' is-selected':''}" data-bj02-supplier-option="${supplier.id}" data-bj02-supplier-search-text="${escapeAttribute(`${supplier.name} ${supplier.code}`.toLowerCase())}" data-ds-component="DS v2 / List Row" data-figma-node="525:519" data-ds-prop-type="Selection" data-ds-prop-density="Default" data-ds-prop-state="${selected?'Selected':'Default'}" type="button" role="option" aria-selected="${selected}"><span class="bj02-ds-list-leading">${icon('user','icon--sm')}</span><span class="bj02-ds-list-copy"><strong>${esc(supplier.name)}</strong><span>${esc(supplier.code)}</span></span><span class="bj02-radio-control" aria-hidden="true"></span></button>`;
+  }).join('');
+  return `<div class="bj02-select-backdrop" data-bj02-supplier-backdrop><section class="bj02-select-sheet" data-ds-component="DS v2 / Select Sheet" data-figma-node="550:1148" role="dialog" aria-modal="true" aria-label="Chọn nhà cung cấp"><div class="bj02-sheet-handle"></div><h2>Chọn nhà cung cấp</h2><div class="bj02-sheet-search" data-ds-component="VSearchBar" data-figma-node="522:7245"><span>${icon('search','icon--sm')}</span><input data-bj02-supplier-search value="${escapeAttribute(supplierSearchQuery)}" placeholder="Tìm tên hoặc mã nhà cung cấp" autocomplete="off" aria-label="Tìm nhà cung cấp" /></div><div class="bj02-sheet-list" data-bj02-supplier-menu role="listbox">${options}<div class="combobox-empty" data-bj02-supplier-empty hidden>Không có nhà cung cấp phù hợp. Nhà cung cấp phải được tạo trước ở Theme 3.</div></div></section></div>`;
+}
+
+/* ---------- SCR-007 Nhận hàng (chứng từ chờ nhận + hàng đến chưa có chứng từ) ---------- */
+
+function bj02DocumentRows() {
+  return Object.entries(documentReceiptCatalog).map(([id, doc]) => {
+    const names = doc.lines.map((l) => productById(l.productId)?.name).filter(Boolean);
+    const itemsText = names.length > 2 ? `${names.slice(0, 2).join(", ")} +${names.length - 2}` : names.join(", ");
+    const searchText = [id, doc.supplier, ...doc.lines.flatMap((l) => { const p = productById(l.productId); return [p?.name, p?.sku, p?.barcode]; })].filter(Boolean).join(" ").toLowerCase();
+    return { id, supplier: doc.supplier, date: doc.documentDate, itemsText, count: doc.lines.length, status: doc.partial ? "Đã nhận một phần" : "", searchText };
+  });
+}
+function bj02QuickEntry(state) {
+  if (!BJ02_CONTEXT.capabilities.quickReceipt) return "";
+  const blocker = BJ02_CONTEXT.quickBlocker;
+  const disabled = state === "LOCKED" || Boolean(blocker);
+  const row = ds24ListRow({ title: "Hàng đến chưa có chứng từ", subtitle: blocker || "Nhập hàng nhanh · cần chủ cửa hàng duyệt", leading: "zap", attrs: 'data-flow="quick"', disabled });
+  return `<div class="k7-mobile-only"><section class="ds24-list-stack bj02-quick-entry" data-composed-from="DS v2 / List Row">${row}</section></div><div class="k7-web-only"><button class="button button--secondary bj02-quick-button" type="button" data-flow="quick" data-ds-component="VButton" ${disabled ? "disabled" : ""}>Hàng đến chưa có chứng từ</button></div>`;
+}
+function render007BJ02(state) {
+  const title = "Nhận hàng";
+  if (state === "PERMISSION_DENIED") return appShell({ title, body: bj02Denied("nhận hàng"), centered: true, back: false });
+  if (state === "LOADING") return appShell({ title, body: k1Loading({ blocks: ["search", "row", "row", "row"] }), back: false });
+  const quick = bj02QuickEntry(state);
+  if (state === "EMPTY") return appShell({ title, body: `${k1Empty({ title: "Không có chứng từ đang chờ nhận", description: "Hàng đã đến mà chưa có chứng từ mua thì nhập hàng nhanh." })}${quick}`, back: false, extraClass: "k7-wide" });
+  const locked = ["LOCKED", "READ_ONLY"].includes(state);
+  const query = state === "FILTER_EMPTY" ? "Không có kết quả" : documentSearchQuery;
+  const q = ioNormalizeSearch(query);
+  const search = ds24Search(query, 'data-bj02-document-search', 'Tìm chứng từ, nhà cung cấp hoặc sản phẩm');
+  const rows = bj02DocumentRows().map((r) => ({ ...r, hidden: Boolean(q) && !r.searchText.includes(q) }));
+  const visible = rows.filter((r) => !r.hidden).length;
+  const rowAttr = (r) => `data-bj02-document-id="${r.id}" data-bj02-document-search-text="${escapeAttribute(r.searchText)}"${r.hidden ? " hidden" : ""}`;
+  const columns = [
+    { key: "idHtml", label: "Chứng từ", html: true },
+    { key: "supplier", label: "Nhà cung cấp" },
+    { key: "date", label: "Ngày", mono: true },
+    { key: "itemsText", label: "Mặt hàng" },
+    { key: "statusHtml", label: "Tình trạng", html: true },
+  ];
+  const tableRows = rows.map((r) => ({ ...r, idHtml: `<button class="k7-row-link" type="button" ${locked ? "disabled" : ""}>${esc(r.id)}</button>`, statusHtml: ds24Badge(r.status || "Chờ nhận", r.status ? "Info" : "Neutral") }));
+  const mobileRow = (r) => bj02RecordCard({ title: r.id, supporting1: esc(r.supplier), supporting2: esc(r.itemsText), summary: `${r.count} mặt hàng`, timestamp: r.date, status: r.status, attr: `${rowAttr(r)}${locked ? " disabled" : ""}` });
+  const list = k7Table({ columns, rows: tableRows, mobileRow, caption: "Chứng từ chờ nhận", rowAttr });
+  const noResult = `<div class="document-filter-empty" data-bj02-document-filter-empty ${visible ? "hidden" : ""}>${k1Empty({ title: "Không có kết quả phù hợp", description: "Thử mã chứng từ, nhà cung cấp hoặc sản phẩm khác." })}</div>`;
+  const notice = state === "SOURCE_VERSION_STALE"
+    ? k1Stale({ title: "Chứng từ nguồn đã đổi", description: "Lượng còn được phép nhận vừa thay đổi. Mở phiên bản hiện hành để đối chiếu.", actionAttr: 'data-bj02-action="reload"' })
+    : bj02StateNotice(state);
+  return appShell({ title, body: `${notice}${search}${list}${noResult}${quick}`, back: false, extraClass: "k7-wide" });
+}
+
+/* ---------- SCR-008 Thông tin nhập hàng nhanh ---------- */
+
+function bj02EvidenceZone(locked) {
+  const refs = bj02EvidenceRefs();
+  const files = refs.length ? `<ul class="bj02-files" aria-label="Tệp đã chọn">${refs.map((x) => `<li>${icon("fileText", "icon--sm")}<span>${esc(x.name)}</span><button class="button button--tertiary" type="button" data-bj02-evidence-remove="${escapeAttribute(x.id)}" aria-label="Xoá ${escapeAttribute(x.name)}" ${locked ? "disabled" : ""}>Xoá</button></li>`).join("")}</ul>` : "";
+  const pick = `<label class="button button--secondary bj02-pick-file${locked ? " is-disabled" : ""}"><input data-bj02-evidence-file type="file" multiple ${locked ? "disabled" : ""}>Chọn tệp</label>`;
+  const camera = `<button class="button button--secondary" type="button" data-bj02-evidence-camera ${locked ? "disabled" : ""}>Chụp ảnh</button>`;
+  return `<div class="form-field bj02-evidence" data-ds-component="VFileDropZone" data-figma-node="522:7507"><label>Chứng từ giao nhận <span class="required">*</span></label><div class="bj02-evidence__zone">${icon("cloudUpload", "icon--24")}<span class="bj02-evidence__copy"><strong>${refs.length ? "Đã chọn chứng từ" : "Phiếu giao hàng hoặc biên bản bàn giao"}</strong><small class="k7-web-only">Kéo tệp vào đây hoặc Chọn tệp</small><small class="k7-mobile-only">Chụp ảnh phiếu giao hoặc chọn tệp có sẵn</small></span><div class="k7-mobile-only"><div class="bj02-evidence__actions">${camera}${pick}</div></div><div class="k7-web-only"><div class="bj02-evidence__actions">${pick}</div></div></div>${files}</div>`;
+}
+function bj02OwnershipCheck(locked) {
+  const on = bj02OwnershipReady();
+  return `<button class="bj02-check${on ? " is-checked" : ""}" type="button" role="checkbox" aria-checked="${on}" data-bj02-ownership ${locked ? "disabled" : ""}><span class="bj02-check__box" aria-hidden="true">${on ? icon("check", "icon--sm") : ""}</span><span class="bj02-check__copy"><strong>Tôi xác nhận hàng này thuộc sở hữu của cửa hàng</strong><small>Hệ thống lưu người xác nhận, thời điểm và chứng từ giao nhận.</small></span></button>`;
+}
+function bj02QuickBlockedReason() {
+  if (!bj02SupplierValid()) return "Chọn nhà cung cấp trong danh sách.";
+  if (!bj02EvidenceRefs().length) return "Thêm chứng từ giao nhận";
+  if (!bj02OwnershipReady()) return "Tick xác nhận quyền sở hữu";
+  return "";
+}
+function render008BJ02(state) {
+  const title = "Nhập hàng nhanh";
+  if (state === "PERMISSION_DENIED") return appShell({ title, body: bj02Denied("nhập hàng nhanh"), centered: true, extraClass: "k7-wide" });
+  const locked = state === "LOCKED", hasError = state === "VALIDATION_ERROR";
+  const supplierValid = bj02SupplierValid();
+  const supplierValue = supplierValid ? bj02Header.supplier : "Chọn nhà cung cấp";
+  const body = `${bj02StateNotice(state === "VALIDATION_ERROR" ? "" : state)}<div class="form-stack quick-source-form bj02-quick-grid">
+      <div class="form-field supplier-field${locked ? " is-disabled" : ""}" data-ds-component="VSelect" data-figma-node="522:7291"><label>Nhà cung cấp <span class="required">*</span></label><button class="bj02-vselect-trigger${supplierValid ? " is-filled" : ""}${hasError && !supplierValid ? " is-error" : ""}" data-bj02-open-supplier-sheet type="button" ${locked ? "disabled" : ""}><span>${esc(supplierValue)}</span>${icon("chevronDown", "icon--sm")}</button>${hasError && !supplierValid ? '<span class="field-error" data-bj02-supplier-error>Chọn nhà cung cấp trong danh sách.</span>' : '<span class="field-error" data-bj02-supplier-error hidden>Chọn nhà cung cấp trong danh sách.</span>'}</div>
+      <div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186" data-ds-prop-state="Filled"><label>Kho và ngày nhận</label><span class="input-shell is-readonly"><input value="${escapeAttribute(`${BJ02_CONTEXT.warehouse.name} · ${bj02ReceiptDate()}`)}" disabled aria-disabled="true" aria-label="Kho và ngày nhận"/></span></div>
+      ${bj02EvidenceZone(locked)}
+      ${bj02OwnershipCheck(locked)}
+    </div>${bj02SupplierSelectSheet(locked)}`;
+  const reason = locked ? "" : bj02QuickBlockedReason();
+  const disabled = locked || Boolean(reason) || !BJ02_CONTEXT.capabilities.assertOwnership;
+  return appShell({ title, body, actions: bj02Footer("Tiếp tục", "data-bj02-quick-continue", disabled, reason), extraClass: "k7-wide" });
+}
+
+/* ---------- SCR-009 Hàng thực nhận ---------- */
+
+function receiptLineList() {
+  const q = ioNormalizeSearch(lineSearchQuery);
+  const web = viewport === "web";
+  return `<section class="ds24-list-stack receipt-line-list" data-composed-from="DS v2 / List Row">${bj02Lines.map((line) => {
+    const text = `${line.name} ${line.sku || ""} ${productById(line.productId)?.barcode || ""}`.toLowerCase();
+    return bj02LineRow(line, `data-bj02-line-id="${line.id}" data-bj02-line-search-text="${escapeAttribute(text)}"${web && line.id === bj02WebLineId ? ' aria-current="true"' : ""}${q && !text.includes(q) ? " hidden" : ""}`);
+  }).join("")}</section><div data-bj02-line-filter-empty hidden>${k1Empty({ title: "Không có kết quả phù hợp", description: "Thử tên hoặc mã mặt hàng khác." })}</div>`;
 }
 function quickOverviewProductSearch() {
   if (flowMode !== "quick") return "";
@@ -739,7 +633,8 @@ function quickOverviewProductSearch() {
   }).join("");
   const pendingProduct = productById(quickOverviewPendingProductId);
   const uomPicker = pendingProduct ? `<section class="quick-overview-uom-picker" data-ds-role="uom-selection-composition" data-composed-from="DS v2 / List Row"><div class="quick-overview-uom-copy"><div><strong data-ds-component="VText">${escapeAttribute(pendingProduct.name)}</strong><span data-ds-component="VText" data-ds-prop-variant="VTextVariant.bodySmall">${escapeAttribute(pendingProduct.sku)}</span></div><button class="inline-edit" data-bj02-action="change-overview-product" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.link" type="button">Đổi</button></div><div class="quick-uom-choice-group" role="radiogroup" aria-label="Đơn vị nhập"><span class="quick-uom-label">Đơn vị nhập <span class="required">*</span></span>${(pendingProduct.uoms || []).map((uom) => { const duplicate = duplicateQuickLine(pendingProduct.id, uom.id); return `<button class="quick-uom-choice" data-bj02-overview-uom-choice="${uom.id}" data-ds-component="DS v2 / List Row" data-figma-node="525:519" data-ds-prop-type="Selection" data-ds-prop-density="Default" data-ds-prop-state="Default" type="button" role="radio" aria-checked="false"><span class="quick-uom-choice-copy"><strong>${escapeAttribute(uom.label)}</strong>${duplicate ? '<small>Đã có trong lần nhận</small>' : ''}</span><span class="bj02-radio-control" aria-hidden="true"></span></button>`; }).join("")}</div></section>` : "";
-  return `<section class="quick-overview-add" data-ds-role="product-search-composition" data-composed-from="VSearchBar,DS v2 / List Row"><div class="quick-overview-search-wrap"><div class="search-box quick-overview-search" data-ds-component="VSearchBar" data-figma-node="522:7245" data-ds-profile="search.standard" data-ds-prop-hint-text="Tìm tên, mã sản phẩm hoặc mã vạch"><span class="search-leading">${icon("search", "icon--sm")}</span><input data-bj02-overview-product-search value="${escapeAttribute(quickOverviewProductQuery)}" placeholder="Tìm tên, mã sản phẩm hoặc mã vạch" aria-label="Tìm sản phẩm" aria-expanded="${quickOverviewProductMenuOpen}"/><span></span></div><div class="combobox-menu quick-overview-product-menu ${quickOverviewProductMenuOpen ? "is-open" : ""}" data-bj02-overview-product-menu role="listbox" ${quickOverviewProductMenuOpen ? "" : "hidden"}>${options}<div class="combobox-empty" data-bj02-overview-product-empty hidden>Sản phẩm chưa có trong danh mục. Hãy bổ sung sản phẩm trước khi quay lại nhận hàng.</div></div></div>${uomPicker}</section>`;
+  const scan = `<button type="button" class="ds24-search__action" data-bj02-action="scan-open" aria-label="Quét mã vạch">${icon("scan", "icon--sm")}</button>`;
+  return `<section class="quick-overview-add" data-ds-role="product-search-composition" data-composed-from="VSearchBar,DS v2 / List Row"><div class="quick-overview-search-wrap"><div class="search-box quick-overview-search" data-ds-component="VSearchBar" data-figma-node="522:7245" data-ds-profile="search.standard" data-ds-prop-hint-text="Tìm tên, mã mặt hàng hoặc mã vạch"><span class="search-leading">${icon("search", "icon--sm")}</span><input data-bj02-overview-product-search value="${escapeAttribute(quickOverviewProductQuery)}" placeholder="Tìm tên, mã mặt hàng hoặc mã vạch" aria-label="Tìm mặt hàng" aria-expanded="${quickOverviewProductMenuOpen}"/>${scan}</div><div class="combobox-menu quick-overview-product-menu ${quickOverviewProductMenuOpen ? "is-open" : ""}" data-bj02-overview-product-menu role="listbox" ${quickOverviewProductMenuOpen ? "" : "hidden"}>${options}<div class="combobox-empty" data-bj02-overview-product-empty hidden>Sản phẩm chưa có trong danh mục. Hãy bổ sung sản phẩm trước khi quay lại nhận hàng.</div></div></div>${uomPicker}</section>`;
 }
 function filterQuickOverviewProductOptions(query) {
   const normalized = String(query || "").trim().toLowerCase();
@@ -751,6 +646,9 @@ function filterQuickOverviewProductOptions(query) {
   });
   const empty = document.querySelector("[data-bj02-overview-product-empty]");
   if (empty) empty.hidden = visible !== 0;
+}
+function duplicateQuickLine(productId, uomId, excludingId = null) {
+  return bj02Lines.find((line) => line.id !== excludingId && line.productId === productId && line.uomId === uomId) || null;
 }
 function addQuickOverviewLine(productId, uomId) {
   const product = productById(productId);
@@ -791,26 +689,73 @@ function chooseQuickOverviewUom(uomId) {
   if (!quickOverviewPendingProductId || !uomId) return;
   return addQuickOverviewLine(quickOverviewPendingProductId, uomId);
 }
-function render009BJ02(state) {
-  // chữ của v392, gộp ở Giai đoạn 2
-  const __html = (() => {
-  const entrySubtitle = entryMode === "document-context" ? `Từ chứng từ ${selectedDocumentId}` : null;
-  if (state === "PERMISSION_DENIED") return appShell({ title: "Hàng thực nhận", subtitle: entrySubtitle, body: deniedBody(), centered: true });
-  if (state === "EMPTY") return appShell({ title: "Hàng thực nhận", subtitle: entrySubtitle, body: `<div class="empty-state" data-ds-component="VEmptyState"><div class="icon-box" data-ds-component="VEmptyMedia">${icon("package", "icon--empty-media")}</div><h3 data-ds-component="VEmptyTitle">Không có sản phẩm cần nhận</h3><p data-ds-component="VEmptyDescription">Không có dòng hàng phù hợp trong lần nhận hiện tại.</p></div>`, centered: true });
-  const locked = ["LOCKED", "READ_ONLY"].includes(state);
-  const empty = flowMode === "quick" && bj02Lines.length === 0 && !quickOverviewPendingProductId ? `<div class="empty-state receipt-lines-empty" data-ds-component="VEmptyState"><div class="icon-box" data-ds-component="VEmptyMedia">${icon("package", "icon--empty-media")}</div><h3 data-ds-component="VEmptyTitle">Chưa có sản phẩm trong lần nhận</h3><p data-ds-component="VEmptyDescription">Tìm sản phẩm ở trên để thêm. Sản phẩm phải có sẵn trong danh mục.</p></div>` : receiptLineCards();
-  const body = `
-    ${stateBanner(state)}
-    ${bj02ReceiptContext()}
-    ${quickOverviewDuplicateLineId ? `${vBanner("warning", "Sản phẩm và đơn vị này đã có", "Dòng hàng hiện có được giữ nguyên để tránh ghi trùng trong cùng lần nhận.")}<button class="button button--secondary button--full" data-bj02-action="open-existing-overview-line" data-bj02-line-id="${quickOverviewDuplicateLineId}" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" type="button">Mở dòng hàng hiện có</button>` : ""}
-    ${flowMode === "quick" && !locked ? quickOverviewProductSearch() : ""}
-    ${empty}`;
-  const reviewDisabled = locked || !allReceiptLinesHandled();
-  return appShell({ title: "Hàng thực nhận", subtitle: entrySubtitle, body, actions: primaryFooter("Rà soát", 'data-next="SCR-010"', reviewDisabled), backAction: entryMode === "document-context" ? "exit-receipt-document-context" : "" });
-  })();
-  return String(__html).replaceAll('sản phẩm','mặt hàng');
+// Quét (hoặc gõ đúng mã vạch / SKU) một mặt hàng: theo chứng từ mở thẳng dòng đó; nhập nhanh thêm dòng.
+function bj02ScanProduct(productId) {
+  const product = productById(productId);
+  if (!product) return;
+  if (flowMode === "quick") return selectQuickOverviewProduct(product.id);
+  const line = bj02Lines.find((item) => item.productId === product.id);
+  if (!line) return showToast(`Không có ${product.name} trong chứng từ này`, "warning");
+  lineSearchQuery = "";
+  return beginLineEditor(line.id);
 }
-function beginLineEditor(lineId = null) {
+function bj02ExactProduct(text) {
+  const v = String(text || "").trim().toLowerCase();
+  if (!v) return null;
+  const matches = bj02Lines.filter((line) => { const p = productById(line.productId); return p && (String(p.barcode).toLowerCase() === v || String(p.sku).toLowerCase() === v); });
+  return matches.length === 1 ? matches[0] : null;
+}
+function filterLineRows(query) {
+  lineSearchQuery = query;
+  const normalized = ioNormalizeSearch(query);
+  let visible = 0;
+  document.querySelectorAll("[data-bj02-line-search-text]").forEach((row) => {
+    const show = !normalized || row.dataset.bj02LineSearchText.includes(normalized);
+    row.hidden = !show;
+    if (show) visible += 1;
+  });
+  const empty = document.querySelector("[data-bj02-line-filter-empty]");
+  if (empty) empty.hidden = visible > 0;
+}
+// Khung web: 009 và 084 là một màn hai cột — trái ngữ cảnh + danh sách mặt hàng, phải editor của dòng đang chọn.
+// Dòng chọn mặc định = dòng chưa xử lý đầu tiên; đổi dòng thì nháp dòng cũ được giữ như nút quay lại của 084.
+function bj02WebEnsureEditor() {
+  if (!bj02Lines.length) return;
+  let id = bj02WebLineId;
+  if (!bj02Lines.some((line) => line.id === id)) id = (bj02Lines.find((line) => !lineHandled(line)) || bj02Lines[0]).id;
+  bj02WebLineId = id;
+  if (activeReceiptLineId !== id || !lineEditorDraft) bj02LoadLineEditor(id);
+}
+function render009BJ02(state, opts = {}) {
+  const entrySubtitle = entryMode === "document-context" ? `Từ chứng từ ${selectedDocumentId}` : null;
+  const title = "Hàng thực nhận";
+  const wide = "k7-wide";
+  if (state === "PERMISSION_DENIED") return appShell({ title, subtitle: entrySubtitle, body: bj02Denied("nhận hàng"), centered: true, extraClass: wide });
+  if (state === "EMPTY") return appShell({ title, subtitle: entrySubtitle, body: `<div class="empty-state" data-ds-component="VEmptyState"><div class="icon-box" data-ds-component="VEmptyMedia">${icon("package", "icon--empty-media")}</div><h3 data-ds-component="VEmptyTitle">Không có mặt hàng cần nhận</h3><p data-ds-component="VEmptyDescription">Không có dòng hàng phù hợp trong lần nhận hiện tại.</p></div>`, centered: true, extraClass: wide });
+  const locked = ["LOCKED", "READ_ONLY"].includes(state);
+  const quick = flowMode === "quick";
+  const web = viewport === "web";
+  if (web) bj02WebEnsureEditor();
+  const empty = quick && bj02Lines.length === 0 && !quickOverviewPendingProductId ? `<div class="empty-state receipt-lines-empty" data-ds-component="VEmptyState"><div class="icon-box" data-ds-component="VEmptyMedia">${icon("package", "icon--empty-media")}</div><h3 data-ds-component="VEmptyTitle">Chưa có mặt hàng trong lần nhận</h3><p data-ds-component="VEmptyDescription">Tìm mặt hàng ở trên để thêm. Sản phẩm phải có sẵn trong danh mục.</p></div>` : receiptLineList();
+  const scan = `<button type="button" class="ds24-search__action" data-bj02-action="scan-open" aria-label="Quét mã vạch">${icon("scan", "icon--sm")}</button>`;
+  const search = quick ? (locked ? "" : quickOverviewProductSearch()) : ds24Search(lineSearchQuery, 'data-bj02-line-search', 'Tìm mặt hàng hoặc quét mã vạch', locked ? "" : scan);
+  const unhandled = bj02Lines.filter((line) => !lineHandled(line)).length;
+  const reason = !bj02Lines.length ? "Thêm ít nhất một mặt hàng" : unhandled ? `Còn ${unhandled} mặt hàng chưa xử lý` : "";
+  const main = `${bj02StateNotice(state)}${bj02ContextRow(quick && !locked ? { label: "Sửa", attr: 'data-next="SCR-008"' } : null)}${bj02Progress()}${quickOverviewDuplicateLineId ? `${vBanner("warning", "Sản phẩm và đơn vị này đã có", "Dòng hàng hiện có được giữ nguyên để tránh ghi trùng trong cùng lần nhận.")}<button class="button button--secondary button--full" data-bj02-action="open-existing-overview-line" data-bj02-line-id="${quickOverviewDuplicateLineId}" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" type="button">Mở dòng hàng hiện có</button>` : ""}${search}${empty}${bj02ScanSheet()}`;
+  let body = main;
+  if (web && lineEditorDraft && bj02Lines.length) {
+    const editor = bj02LineEditorBody(opts.editorState || "READY");
+    const save = editor.duplicate || editor.locked ? "" : bj02EditorSaveRow(editor.invalid, editor.reason);
+    body = `<div class="bj02-linesplit">${k7Split({ main, aside: `${ac310SectionTitle("Chi tiết hàng thực nhận")}${editor.body}${save}`, asideWebOnly: true })}</div>${editor.duplicate ? "" : bj02ConfirmSheet()}`;
+  }
+  const disabled = locked || !allReceiptLinesHandled();
+  return appShell({ title, subtitle: entrySubtitle, body, actions: bj02Footer("Rà soát", 'data-next="SCR-010"', disabled, locked ? "" : reason), backAction: entryMode === "document-context" ? "exit-receipt-document-context" : "", extraClass: wide });
+}
+
+/* ---------- SCR-084 Chi tiết hàng thực nhận ---------- */
+
+// Nạp nháp của một dòng vào editor (không đổi màn). iPhone: beginLineEditor rồi sang SCR-084; web: editor nằm ngay ở SCR-009.
+function bj02LoadLineEditor(lineId = null) {
   activeReceiptLineId = lineId;
   lineEditorDirty = false;
   lineEditorReadOnly = ["LOCKED", "READ_ONLY"].includes(stateByScreen["SCR-009"]);
@@ -821,18 +766,22 @@ function beginLineEditor(lineId = null) {
     lineEditorDraft = hydrateReceiptLine({ id: `QUICK-${Date.now()}`, productId: null, uomId: null, uom: null, trackingPolicy: null, expiryRequired: false, remainingReceivableQty: null, lots: [] });
   }
   if (lineEditorDraft?.trackingPolicy === "LOT" && !lineEditorDraft.lots.length) lineEditorDraft.lots = [emptyLot()];
+  // Một lô mở một lúc: lô đầu chưa đủ thông tin (hoặc lô duy nhất) mở sẵn.
   activeLotDraftId = lineEditorDraft?.lots?.[0]?.id || null;
-  const lineTotalsNow = lineTotals(lineEditorDraft || {});
-  lineClassificationExpanded = Boolean(lineTotalsNow.quarantine || lineTotalsNow.damaged || lineTotalsNow.rejected);
   const firstLot = lineEditorDraft?.lots?.find((lot) => lot.id === activeLotDraftId);
-  const firstLotTotals = firstLot ? lotDraftTotals(firstLot) : null;
-  lotClassificationExpanded = Boolean(firstLotTotals && (firstLotTotals.quarantine || firstLotTotals.damaged || firstLotTotals.rejected));
   lotManufactureExpanded = Boolean(firstLot?.manufactureDate);
   lineProductMenuOpen = !existing && flowMode === "quick";
-  navigate("SCR-084");
 }
-function duplicateQuickLine(productId, uomId, excludingId = null) {
-  return bj02Lines.find((line) => line.id !== excludingId && line.productId === productId && line.uomId === uomId) || null;
+const bj02EditorShown = () => bj02EditorForce || activeScreenId === "SCR-084" || (activeScreenId === "SCR-009" && viewport === "web");
+function beginLineEditor(lineId = null) {
+  if (viewport === "web" && lineId) {
+    if (lineId === activeReceiptLineId && lineEditorDraft && activeScreenId === "SCR-009") { bj02WebLineId = lineId; return; }
+    if (lineEditorDraft && activeReceiptLineId && activeReceiptLineId !== lineId && !lineEditorIsReadOnly() && bj02EditorShown()) persistLineEditorDraft(false);
+    bj02LoadLineEditor(lineId); bj02WebLineId = lineId;
+    return navigate("SCR-009");
+  }
+  bj02LoadLineEditor(lineId);
+  navigate("SCR-084");
 }
 function lineEditorIsReadOnly() { return lineEditorReadOnly || stateByScreen["SCR-084"] === "READ_ONLY"; }
 function renderLineProductPicker() {
@@ -852,7 +801,7 @@ function renderLineProductPicker() {
   const needsUomChoice = !locked && isNewQuickLine && uoms.length > 1 && !lineEditorDraft.uomId;
   const identityMeta = [selectedProduct.sku, lineEditorDraft.uom || null].filter(Boolean).join(" · ");
   const contextLabel = flowMode === "document" && lineEditorDraft.remainingReceivableQty != null
-    ? `Còn ${lineEditorDraft.remainingReceivableQty} ${lineEditorDraft.uom || ""}`.trim()
+    ? `Còn chờ nhận ${lineEditorDraft.remainingReceivableQty} ${lineEditorDraft.uom || ""}`.trim()
     : needsUomChoice ? "Chọn đơn vị" : "Đã chọn";
   const identityRow = ds24ContextStatusRow({
     title:selectedProduct.name,
@@ -866,112 +815,128 @@ function renderLineProductPicker() {
   const uomControl = needsUomChoice ? `<div class="form-field line-uom-picker" data-ds-component="VSelect" data-figma-node="522:7291" data-ds-prop-state="Default"><label>Đơn vị nhập <span class="required">*</span></label><span class="bj02-native-select-shell"><select data-bj02-line-uom-select aria-label="Đơn vị nhập"><option value="">Chọn đơn vị</option>${uoms.map((uom) => `<option value="${uom.id}">${uom.label}</option>`).join("")}</select>${icon("chevronDown","icon--sm")}</span></div>` : "";
   return `${identity}${uomControl}`;
 }
-function exceptionQuantitiesEditor(target, totals, locked = false) {
-  const fields = [
-    { key: "accepted", label: "Đạt", value: totals.accepted || 0 },
-    { key: "quarantine", label: "Cách ly", value: totals.quarantine || 0 },
-    { key: "damaged", label: "Hỏng", value: totals.damaged || 0 },
-    { key: "rejected", label: "Từ chối", value: totals.rejected || 0 },
-  ];
-  const unit = lineEditorDraft?.uom || "";
-  return `<div class="exception-quantities classification-quantities" data-ds-role="quantity-input-composition" data-composed-from="VTextField input anatomy,VNumericKeypadSheet"><div class="bj02-quantity-input-stack">${fields.map((field) => `<div class="bj02-quantity-input-row"><span class="bj02-quantity-input-label">${field.label}</span><button class="bj02-quantity-input-trigger" data-bj02-quantity-target="${target}" data-bj02-quantity-key="${field.key}" ${target === "lot" && activeLotDraftId ? `data-bj02-quantity-lot-id="${activeLotDraftId}"` : ""} type="button" ${locked ? "disabled" : ""} aria-label="Nhập ${field.label.toLowerCase()}: ${field.value} ${unit}"><span class="bj02-quantity-input-value">${field.value}</span><span class="bj02-quantity-input-unit">${unit}</span></button></div>`).join("")}</div></div>`;
+// "Đạt" là ô số lớn nhập thẳng; Cách ly / Hỏng / Từ chối là ba ô nhỏ trên một hàng dưới nhãn "Hàng không đạt".
+function bj02QtyInput(key, label, value, unit, locked, large) {
+  return `<label class="bj02-qty${large ? " bj02-qty--main" : ""}"><span class="bj02-qty__label">${esc(label)}</span><span class="bj02-qty__box"><input type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" data-bj02-qty="${key}" value="${value > 0 ? value : ""}" placeholder="0" aria-label="${escapeAttribute(label)}" ${locked ? "disabled" : ""}><em class="bj02-qty__unit" aria-hidden="true">${esc(unit)}</em></span></label>`;
 }
-function documentSourceContextHtml() {
-  if (flowMode !== "document" || lineEditorDraft?.remainingReceivableQty == null) return "";
-  return bj02KeyValueRow("Còn chờ nhận", `${lineEditorDraft.remainingReceivableQty} ${lineEditorDraft.uom}`);
+function exceptionQuantitiesEditor(totals, locked = false) {
+  const unit = lineEditorDraft?.uom || "";
+  return `<div class="bj02-qty-editor" data-ds-role="quantity-input-composition" data-composed-from="VNumberField">${bj02QtyInput("accepted", "Đạt", totals.accepted || 0, unit, locked, true)}<fieldset class="bj02-qty-bad"><legend>Hàng không đạt</legend><div class="bj02-qty-bad__row">${bj02QtyInput("quarantine", "Cách ly", totals.quarantine || 0, unit, locked, false)}${bj02QtyInput("damaged", "Hỏng", totals.damaged || 0, unit, locked, false)}${bj02QtyInput("rejected", "Từ chối", totals.rejected || 0, unit, locked, false)}</div></fieldset></div>`;
 }
 function lineTotalSummaryHtml(line) {
   const t = lineTotals(line);
   const value = flowMode === "document" && line.remainingReceivableQty != null ? `${t.totalReceived} / ${line.remainingReceivableQty} ${line.uom}` : `${t.totalReceived} ${line.uom || ""}`.trim();
-  return bj02KeyValueRow("Tổng kiểm nhận", value, true, "bj02-derived-total");
+  return bj02KeyValueRow("Tổng kiểm nhận", value, true, "bj02-derived-total", "data-bj02-total");
+}
+function bj02FillButton() {
+  const d = lineEditorDraft;
+  if (flowMode !== "document" || d?.remainingReceivableQty == null || lineEditorIsReadOnly()) return "";
+  return `<button class="button button--secondary bj02-fill-button" type="button" data-bj02-action="fill-remaining" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary">Nhận đủ ${d.remainingReceivableQty} ${esc(d.uom)}</button>`;
 }
 function renderNonLotLineEditor() {
   const t = lineTotals(lineEditorDraft);
   const locked = lineEditorIsReadOnly();
-  return `<section class="line-entry-section">${documentSourceContextHtml()}<div class="section-label section-label--first"><span>Phân loại số lượng</span></div>${exceptionQuantitiesEditor("line", t, locked)}${lineTotalSummaryHtml(lineEditorDraft)}<div class="editor-feedback" data-bj02-quantity-feedback>${quantityFeedback(t)}</div><div class="line-result-summary" data-bj02-line-result ${t.totalReceived ? "" : "hidden"}><span>Kết quả</span><strong>${classificationText(lineEditorDraft)}</strong></div><div class="editor-feedback document-variance-feedback" data-bj02-document-variance>${documentVarianceFeedback(lineEditorDraft)}</div></section>`;
+  return `<section class="line-entry-section">${bj02FillButton()}${exceptionQuantitiesEditor(t, locked)}${lineTotalSummaryHtml(lineEditorDraft)}<div class="editor-feedback document-variance-feedback" data-bj02-document-variance>${documentVarianceFeedback(lineEditorDraft)}</div></section>`;
 }
-function lotDraftTotals(lot) {
-  const accepted = Math.max(0, Number(lot?.accepted) || 0);
-  const quarantine = Math.max(0, Number(lot?.quarantine) || 0);
-  const damaged = Math.max(0, Number(lot?.damaged) || 0);
-  const rejected = Math.max(0, Number(lot?.rejected) || 0);
-  return { totalReceived: accepted + quarantine + damaged + rejected, accepted, quarantine, damaged, rejected };
+function bj02DateField(label, field, value, { required = false, hint = "", locked = false } = {}) {
+  const parsed = bj02ExpiryParse(value);
+  const invalid = Boolean(String(value || "").trim()) && !parsed.valid;
+  const errorText = field === "expiry" ? "Hạn dùng chưa đúng dạng" : "Ngày sản xuất chưa đúng dạng";
+  return `<div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186"><label>${label}${required ? ' <span class="required">*</span>' : ""}</label><span class="input-shell bj02-date-shell"><span class="bj02-date-leading">${icon("calendar", "icon--sm")}</span><input data-bj02-lot-field="${field}" value="${escapeAttribute(value)}" placeholder="dd/mm/yyyy" autocomplete="off" aria-label="${escapeAttribute(label)}" ${invalid ? 'aria-invalid="true"' : ""} ${locked ? "disabled" : ""}/></span><small class="field-error" data-bj02-date-error="${field}" role="alert" ${invalid ? "" : "hidden"}>${errorText}</small>${hint ? `<small class="field-help" data-bj02-date-help="${field}" ${invalid ? "hidden" : ""}>${hint}</small>` : ""}</div>`;
 }
 function renderLotCompact(lot, index, expanded = false) {
   const t = lotDraftTotals(lot);
-  const label = lot.code || `Lô ${index + 1}`;
-  const detail = t.totalReceived ? `${t.totalReceived} ${lineEditorDraft.uom} · ${t.accepted} đạt${t.quarantine ? ` · ${t.quarantine} cách ly` : ""}${t.damaged ? ` · ${t.damaged} hỏng` : ""}${t.rejected ? ` · ${t.rejected} từ chối` : ""}` : "Chưa hoàn tất";
   const canRemove = (lineEditorDraft.lots || []).length > 1;
-  return `<section class="lot-accordion-item ${expanded ? "is-expanded" : ""}" data-bj02-lot-item="${lot.id}"><div class="lot-accordion-header"><button class="lot-accordion-toggle" data-bj02-action="toggle-lot" data-bj02-lot-id="${lot.id}" data-ds-component="VSection" data-composed-from="VText,DS v2 / Icon Button" type="button" aria-expanded="${expanded}"><span class="lot-accordion-copy"><strong>${label}</strong><span>${detail}</span></span><span class="lot-accordion-chevron ${expanded ? "is-expanded" : ""}">${icon("chevronDown", "icon--sm")}</span></button></div>${expanded ? renderActiveLotEditor(lot, index, canRemove) : ""}</section>`;
+  const label = [lot.code || `Lô ${index + 1}`, lot.expiry ? `HSD ${lot.expiry}` : "", t.totalReceived ? `${t.totalReceived} ${lineEditorDraft.uom}` : "Chưa hoàn tất"].filter(Boolean).join(" · ");
+  return `<section class="lot-accordion-item bj02-lot ${expanded ? "is-expanded" : ""}" data-bj02-lot-item="${lot.id}"><div class="lot-accordion-header"><button class="lot-accordion-toggle" data-bj02-action="toggle-lot" data-bj02-lot-id="${lot.id}" data-ds-component="VSection" data-composed-from="VText,DS v2 / Icon Button" type="button" aria-expanded="${expanded}"><span class="lot-accordion-copy"><strong>${esc(label)}</strong></span><span class="lot-accordion-chevron ${expanded ? "is-expanded" : ""}">${icon("chevronDown", "icon--sm")}</span></button></div>${expanded ? renderActiveLotEditor(lot, canRemove) : ""}</section>`;
 }
-function renderActiveLotEditor(lot,index,canRemove=false) {
-
-    const t=lotDraftTotals(lot), expiryRequired=Boolean(lineEditorDraft.expiryRequired), locked=lineEditorIsReadOnly(), disabled=locked?'disabled':'';
-    lot.expiryPrecision ||= 'DAY'; lot.manufacturePrecision ||= 'DAY';
-    const precisionOptions=(value)=>['DAY','MONTH','YEAR'].map((p)=>`<option value="${p}" ${p===value?'selected':''}>${p==='DAY'?'Ngày / tháng / năm':p==='MONTH'?'Tháng / năm':'Năm'}</option>`).join('');
-    const expiryPlaceholder=lot.expiryPrecision==='MONTH'?'mm/yyyy':lot.expiryPrecision==='YEAR'?'yyyy':'dd/mm/yyyy';
-    const manufacturePlaceholder=lot.manufacturePrecision==='MONTH'?'mm/yyyy':lot.manufacturePrecision==='YEAR'?'yyyy':'dd/mm/yyyy';
-    return `<div class="active-lot-editor v392-lot-editor" data-ds-role="lot-editor-composition" data-composed-from="VTextField,VSelect,VButton"><div class="form-stack lot-fields-compact">
-      <div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186"><label>Mã lô <span class="required">*</span></label><span class="input-shell"><input data-bj02-lot-field="code" value="${escapeAttribute(lot.code)}" placeholder="Nhập mã trên bao bì" ${disabled}/></span></div>
-      <div class="v392-date-precision"><div class="form-field" data-ds-component="VSelect" data-figma-node="522:7291"><label>Cách ghi hạn dùng</label><span class="bj02-native-select-shell"><select data-v392-lot-precision="expiryPrecision" ${disabled}>${precisionOptions(lot.expiryPrecision)}</select>${icon('chevronDown','icon--sm')}</span></div><div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186"><label>Hạn dùng ${expiryRequired?'<span class="required">*</span>':''}</label><span class="input-shell bj02-date-shell"><span class="bj02-date-leading">${icon('calendar','icon--sm')}</span><input data-bj02-lot-field="expiry" value="${escapeAttribute(lot.expiry)}" placeholder="${expiryPlaceholder}" inputmode="numeric" ${disabled}/></span><small>Nhập đúng định dạng trên bao bì.</small></div></div>
-      ${lotManufactureExpanded||lot.manufactureDate?`<div class="v392-date-precision"><div class="form-field" data-ds-component="VSelect" data-figma-node="522:7291"><label>Cách ghi ngày sản xuất</label><span class="bj02-native-select-shell"><select data-v392-lot-precision="manufacturePrecision" ${disabled}>${precisionOptions(lot.manufacturePrecision)}</select>${icon('chevronDown','icon--sm')}</span></div><div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186"><label>Ngày sản xuất</label><span class="input-shell bj02-date-shell"><span class="bj02-date-leading">${icon('calendar','icon--sm')}</span><input data-bj02-lot-field="manufactureDate" value="${escapeAttribute(lot.manufactureDate)}" placeholder="${manufacturePlaceholder}" inputmode="numeric" ${disabled}/></span></div></div>`:(!locked?`<button class="button button--tertiary lot-extra-action" data-bj02-action="show-manufacture-date" data-ds-component="VButton" type="button">Thêm ngày sản xuất</button>`:'')}
-      <div class="section-label"><span>Phân loại số lượng</span></div>${exceptionQuantitiesEditor('lot',t,locked)}${bj02KeyValueRow('Tổng kiểm nhận',`${t.totalReceived} ${lineEditorDraft.uom||''}`,true,'bj02-derived-total')}${t.rejected>0?`<p class="v392-rejected-helper">${t.rejected} ${esc(lineEditorDraft.uom)} từ chối · không vào tồn</p>`:''}<div class="editor-feedback" data-bj02-quantity-feedback>${quantityFeedback(t)}</div><div class="editor-feedback" data-bj02-lot-identity-feedback>${lotIdentityFeedback(lot)}</div>${canRemove&&!locked?`<button class="button button--tertiary lot-delete-action-inline" data-bj02-action="remove-editor-lot" data-bj02-lot-id="${lot.id}" data-ds-component="VButton" type="button">Xóa lô</button>`:''}
+function renderActiveLotEditor(lot, canRemove = false) {
+  const t = lotDraftTotals(lot), expiryRequired = Boolean(lineEditorDraft.expiryRequired), locked = lineEditorIsReadOnly();
+  const manufacture = lotManufactureExpanded || lot.manufactureDate
+    ? bj02DateField("Ngày sản xuất", "manufactureDate", lot.manufactureDate, { locked })
+    : (!locked ? `<button class="button button--tertiary lot-extra-action" data-bj02-action="show-manufacture-date" data-ds-component="VButton" type="button">Thêm ngày sản xuất</button>` : "");
+  return `<div class="active-lot-editor bj02-lot-editor" data-ds-role="lot-editor-composition" data-composed-from="VTextField,VButton"><div class="form-stack lot-fields-compact">
+      <div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186"><label>Mã lô <span class="required">*</span></label><span class="input-shell"><input data-bj02-lot-field="code" value="${escapeAttribute(lot.code)}" placeholder="Nhập mã trên bao bì" autocomplete="off" aria-label="Mã lô" ${locked ? "disabled" : ""}/></span></div>
+      ${bj02DateField("Hạn dùng", "expiry", lot.expiry, { required: expiryRequired, hint: "Ghi như trên bao bì: ngày/tháng/năm, tháng/năm hoặc năm", locked })}
+      ${manufacture}
+      ${exceptionQuantitiesEditor(t, locked)}<div class="editor-feedback" data-bj02-lot-identity-feedback>${lotIdentityFeedback(lot)}</div>${canRemove && !locked ? `<button class="button button--tertiary lot-delete-action-inline" data-bj02-action="remove-editor-lot" data-bj02-lot-id="${lot.id}" data-ds-component="VButton" type="button">Xóa lô</button>` : ""}
     </div></div>`;
-  
 }
 function renderLotLineEditor() {
   if (!lineEditorDraft.lots.length) lineEditorDraft.lots = [emptyLot()];
   const locked = lineEditorIsReadOnly();
   const rows = lineEditorDraft.lots.map((lot, index) => renderLotCompact(lot, index, lot.id === activeLotDraftId)).join("");
-  return `<section class="lot-line-editor"><div class="section-label section-label--first lot-section-heading"><span>Các lô thực nhận</span>${flowMode === "document" && lineEditorDraft.remainingReceivableQty != null ? `<small>Còn chờ nhận <strong>${lineEditorDraft.remainingReceivableQty} ${lineEditorDraft.uom}</strong></small>` : ""}</div><div class="lot-accordion-list">${rows}</div>${!locked ? `<button class="button button--secondary button--full add-lot-button" data-bj02-action="add-editor-lot" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" data-ds-prop-size="VButtonSize.small" type="button">Thêm lô khác</button>` : ""}${lineTotalSummaryHtml(lineEditorDraft)}<div class="editor-feedback document-variance-feedback" data-bj02-document-variance>${documentVarianceFeedback(lineEditorDraft)}</div></section>`;
+  return `<section class="lot-line-editor">${bj02FillButton()}<div class="section-label section-label--first lot-section-heading"><span>Các lô thực nhận</span></div><div class="lot-accordion-list">${rows}</div>${!locked ? `<button class="button button--secondary button--full add-lot-button" data-bj02-action="add-editor-lot" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" data-ds-prop-size="VButtonSize.small" type="button">Thêm lô khác</button>` : ""}${lineTotalSummaryHtml(lineEditorDraft)}<div class="editor-feedback document-variance-feedback" data-bj02-document-variance>${documentVarianceFeedback(lineEditorDraft)}</div></section>`;
+}
+// Câu đầu tiên còn thiếu để bấm "Xong"; rỗng khi hợp lệ (hoặc chưa có gì để nhập).
+function lineEditorInvalidReason() {
+  const d = lineEditorDraft;
+  if (!d?.productId || !d?.uomId) return "";
+  if (flowMode === "quick" && duplicateQuickLine(d.productId, d.uomId, activeReceiptLineId)) return "";
+  if (d.trackingPolicy === "LOT") {
+    const lots = d.lots || [];
+    if (!lots.length) return "Nhập mã lô";
+    for (const lot of lots) {
+      if (!String(lot.code || "").trim()) return "Nhập mã lô";
+      if (duplicateLotDraft(lot.id, lot.code)) return "Lô này đã được thêm";
+      const expiry = String(lot.expiry || "").trim(), manufacture = String(lot.manufactureDate || "").trim();
+      if (d.expiryRequired && !expiry) return "Nhập hạn dùng";
+      if (expiry && !bj02ExpiryParse(expiry).valid) return "Hạn dùng chưa đúng dạng";
+      if (manufacture && !bj02ExpiryParse(manufacture).valid) return "Ngày sản xuất chưa đúng dạng";
+      if (lotDraftTotals(lot).totalReceived <= 0) return "Nhập ít nhất một phân loại số lượng để tiếp tục.";
+    }
+    return "";
+  }
+  return lineTotals(d).totalReceived > 0 ? "" : "Nhập ít nhất một phân loại số lượng để tiếp tục.";
 }
 function lineEditorValid() {
-  const __bj02BaseValid = (() => {
-
   if (!lineEditorDraft?.productId || !lineEditorDraft?.uomId) return false;
-  const duplicate = flowMode === "quick" ? duplicateQuickLine(lineEditorDraft.productId, lineEditorDraft.uomId, activeReceiptLineId) : null;
-  if (duplicate) return false;
-  if (lineEditorDraft.trackingPolicy === "LOT") {
-    const lots = lineEditorDraft.lots || [];
-    if (!lots.length) return false;
-    return lots.every((lot) => {
-      const totals = lotDraftTotals(lot);
-      return lot.code.trim() && (!lineEditorDraft.expiryRequired || lot.expiry.trim()) && totals.totalReceived > 0 && !duplicateLotDraft(lot.id, lot.code);
-    });
-  }
-  return lineTotals(lineEditorDraft).totalReceived > 0;
-
-  })();
-  if (!__bj02BaseValid) return false;
-  if (lineEditorDraft?.trackingPolicy === 'LOT') return (lineEditorDraft.lots || []).every((lot) => !lineEditorDraft.expiryRequired || bj02ValidPrecisionValue(lot.expiry, lot.expiryPrecision || 'DAY'));
-  return true;
+  if (flowMode === "quick" && duplicateQuickLine(lineEditorDraft.productId, lineEditorDraft.uomId, activeReceiptLineId)) return false;
+  return lineEditorInvalidReason() === "";
 }
-function render084BJ02(state) {
-  ensureBj02ReviewFixture();
-  if (state === "PERMISSION_DENIED") return appShell({ title: "Chi tiết hàng thực nhận", body: deniedBody(), centered: true });
-  if (!lineEditorDraft) return appShell({ title: "Chi tiết hàng thực nhận", body: `<div class="empty-state" data-ds-component="VEmptyState"><h3 data-ds-component="VEmptyTitle">Chưa chọn sản phẩm</h3><p data-ds-component="VEmptyDescription">Quay lại Hàng thực nhận để chọn sản phẩm cần xử lý.</p></div>` });
+// Thân editor của một dòng (SCR-084 trên iPhone, cột phải của SCR-009 trên web). Nút "Xong": chân màn iPhone / hàng nút trong cột phải web.
+function bj02LineEditorBody(state) {
   const locked = lineEditorIsReadOnly();
   const product = productById(lineEditorDraft.productId);
   const duplicate = product && lineEditorDraft.uomId && flowMode === "quick" ? duplicateQuickLine(lineEditorDraft.productId, lineEditorDraft.uomId, activeReceiptLineId) : null;
   const productPicker = renderLineProductPicker();
   const duplicateNotice = duplicate ? `${vBanner("warning", "Sản phẩm và đơn vị này đã có", "Mở dòng hàng hiện có để tiếp tục, tránh ghi trùng trong cùng lần nhận.")}<button class="button button--secondary button--full" data-bj02-action="open-duplicate-line" data-bj02-line-id="${duplicate.id}" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" type="button">Mở sản phẩm đã có</button>` : "";
-  const readOnlyNotice = locked && state !== "READ_ONLY" ? vBanner("info", "Chế độ chỉ xem", "Bạn có thể xem chi tiết nhưng không thể thay đổi lần nhận này.") : stateBanner(state);
-  if (duplicate) return appShell({ title: "Chi tiết hàng thực nhận", body: `${readOnlyNotice}${productPicker}${duplicateNotice}`, actions: "" });
+  const readOnlyNotice = locked && state !== "READ_ONLY" ? k1Locked({ title: "Chế độ chỉ xem", description: "Bạn có thể xem chi tiết nhưng không thể thay đổi lần nhận này." }) : bj02StateNotice(state);
+  if (duplicate) return { body: `${readOnlyNotice}${productPicker}${duplicateNotice}`, duplicate: true, locked };
   const editor = product && lineEditorDraft.uomId ? (lineEditorDraft.trackingPolicy === "LOT" ? renderLotLineEditor() : renderNonLotLineEditor()) : "";
   const notReceived = flowMode === "document" && lineEditorDraft.remainingReceivableQty != null && !locked ? `<button class="button button--tertiary bj02-danger-link-action not-received-action" data-bj02-action="not-received" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.link" data-ds-prop-tone="VComponentTone.danger" type="button">Chưa nhận lần này</button>` : "";
   const removeQuickLine = flowMode === "quick" && activeReceiptLineId && !locked ? `<button class="button button--tertiary bj02-danger-link-action remove-line-action" data-bj02-action="remove-quick-line" data-bj02-line-id="${activeReceiptLineId}" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.link" data-ds-prop-tone="VComponentTone.danger" type="button">Xóa khỏi lần nhận</button>` : "";
-  const body = `${readOnlyNotice}${productPicker}${editor}${notReceived}${removeQuickLine}${bj02NumericKeypadOverlay()}`;
-  return appShell({ title: "Chi tiết hàng thực nhận", body, actions: locked ? "" : primaryFooter("Xong", 'data-bj02-action="save-line"', !lineEditorValid()) });
+  return { body: `${readOnlyNotice}${productPicker}${editor}${notReceived}${removeQuickLine}`, duplicate: false, locked, invalid: !lineEditorValid(), reason: lineEditorInvalidReason() };
+}
+function bj02EditorSaveRow(invalid, reason) {
+  return `<div class="bj02-editor-actions"><p class="bj02-footer-reason" data-bj02-editor-reason${invalid && reason ? "" : " hidden"}>${esc(invalid ? reason : "")}</p><button class="button button--primary" type="button" data-bj02-action="save-line" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium"${invalid ? " disabled" : ""}>Xong</button></div>`;
+}
+function render084BJ02(state) {
+  ensureBj02ReviewFixture();
+  const title = "Chi tiết hàng thực nhận";
+  if (state === "PERMISSION_DENIED") return appShell({ title, body: bj02Denied("nhận hàng"), centered: true, extraClass: "k7-wide" });
+  // Web: không có màn riêng, là SCR-009 với dòng đang sửa được chọn.
+  if (viewport === "web") return render009BJ02(stateByScreen["SCR-009"], { editorState: state });
+  if (!lineEditorDraft) return appShell({ title, body: `<div class="empty-state" data-ds-component="VEmptyState"><h3 data-ds-component="VEmptyTitle">Chưa chọn sản phẩm</h3><p data-ds-component="VEmptyDescription">Quay lại Hàng thực nhận để chọn sản phẩm cần xử lý.</p></div>` });
+  const parts = bj02LineEditorBody(state);
+  if (parts.duplicate) return appShell({ title, body: parts.body, actions: "" });
+  return appShell({ title, body: `${parts.body}${bj02ConfirmSheet()}`, actions: parts.locked ? "" : bj02Footer("Xong", 'data-bj02-action="save-line"', parts.invalid, parts.reason) });
 }
 function syncEditorDraftFromDom() {
-  if (activeScreenId !== "SCR-084" || !lineEditorDraft) return;
-  document.querySelectorAll("[data-bj02-line-qty]").forEach((input) => { lineEditorDraft[input.dataset.bj02LineQty] = Math.max(0, Number(input.value) || 0); });
-  const lt=lineTotals(lineEditorDraft); lineEditorDraft.totalReceived=lt.totalReceived;
-  const activeLot = lineEditorDraft.lots?.find((lot) => lot.id === activeLotDraftId);
-  if (activeLot) {
-    document.querySelectorAll("[data-bj02-lot-qty]").forEach((input) => { activeLot[input.dataset.bj02LotQty] = Math.max(0, Number(input.value) || 0); });
-    document.querySelectorAll("[data-bj02-lot-field]").forEach((input) => { activeLot[input.dataset.bj02LotField] = input.value.trim(); });
-    activeLot.totalReceived=lotDraftTotals(activeLot).totalReceived;
+  if (!bj02EditorShown() || !lineEditorDraft) return;
+  const isLot = lineEditorDraft.trackingPolicy === "LOT";
+  const lot = isLot ? lineEditorDraft.lots?.find((item) => item.id === activeLotDraftId) : null;
+  const target = isLot ? lot : lineEditorDraft;
+  if (target) document.querySelectorAll("[data-bj02-qty]").forEach((input) => { target[input.dataset.bj02Qty] = Math.max(0, parseInt(String(input.value).replace(/\D/g, ""), 10) || 0); });
+  lineEditorDraft.totalReceived = lineTotals(lineEditorDraft).totalReceived;
+  if (lot) {
+    document.querySelectorAll("[data-bj02-lot-field]").forEach((input) => {
+      const field = input.dataset.bj02LotField;
+      lot[field] = input.value.trim();
+      if (field === "expiry") { const p = bj02ExpiryParse(lot.expiry); if (p.valid) lot.expiryPrecision = p.precision; }
+      if (field === "manufactureDate") { const p = bj02ExpiryParse(lot.manufactureDate); if (p.valid) lot.manufacturePrecision = p.precision; }
+    });
+    lot.totalReceived = lotDraftTotals(lot).totalReceived;
   }
 }
 function persistLineEditorDraft(markCompleted) {
@@ -985,7 +950,7 @@ function persistLineEditorDraft(markCompleted) {
 }
 function selectLineProduct(productId) {
   const product = productById(productId); if (!product || !lineEditorDraft) return;
-  lineEditorDraft.productId = product.id; lineEditorDraft.name = product.name; lineEditorDraft.sku = product.sku;
+  lineEditorDraft.productId = product.id; lineEditorDraft.name = product.name; lineEditorDraft.sku = product.sku; lineEditorDraft.productRef = product.productRef ?? null;
   lineEditorDraft.trackingPolicy = product.trackingPolicy; lineEditorDraft.expiryRequired = product.expiryRequired; lineEditorDraft.priceBasisSnapshot = cloneBj02(product.priceBasisSnapshot || null);
   if (product.uoms.length === 1) { lineEditorDraft.uomId = product.uoms[0].id; lineEditorDraft.uom = product.uoms[0].label; }
   else { lineEditorDraft.uomId = null; lineEditorDraft.uom = null; }
@@ -1000,13 +965,32 @@ function chooseLineUom(uomId) {
   const uom = product.uoms.find((item) => item.id === uomId); if (!uom) { lineEditorDraft.uomId = null; lineEditorDraft.uom = null; } else { lineEditorDraft.uomId = uom.id; lineEditorDraft.uom = uom.label; }
   renderAppScreen();
 }
+// "Nhận đủ": Đạt = lượng còn chờ nhận (theo lô: lô đang mở, trừ phần các lô khác và hàng không đạt đã nhập). Vẫn phải bấm "Xong".
+function bj02FillRemaining() {
+  syncEditorDraftFromDom();
+  const d = lineEditorDraft;
+  if (!d || d.remainingReceivableQty == null) return;
+  const remaining = bj02SourceRemaining(d);
+  if (d.trackingPolicy === "LOT") {
+    const lot = d.lots.find((item) => item.id === activeLotDraftId) || d.lots[0];
+    if (!lot) return;
+    const others = d.lots.filter((item) => item !== lot).reduce((n, item) => n + lotDraftTotals(item).accepted + lotDraftTotals(item).quarantine + lotDraftTotals(item).damaged, 0);
+    lot.accepted = Math.max(0, remaining - others - (Number(lot.quarantine) || 0) - (Number(lot.damaged) || 0));
+    lot.totalReceived = lotDraftTotals(lot).totalReceived;
+    activeLotDraftId = lot.id;
+  } else {
+    d.accepted = Math.max(0, remaining - (Number(d.quarantine) || 0) - (Number(d.damaged) || 0));
+  }
+  lineEditorDraft.totalReceived = lineTotals(lineEditorDraft).totalReceived;
+  lineEditorDirty = true;
+  renderAppScreen();
+}
 function addEditorLot() {
   syncEditorDraftFromDom();
   lineEditorDirty = true;
   const lot = emptyLot();
   lineEditorDraft.lots.push(lot);
   activeLotDraftId = lot.id;
-  lotClassificationExpanded = false;
   lotManufactureExpanded = false;
   renderAppScreen();
 }
@@ -1020,27 +1004,8 @@ function removeEditorLotNow(lotId) {
   if (index < 0) return;
   lineEditorDraft.lots.splice(index, 1);
   if (activeLotDraftId === lotId) activeLotDraftId = lineEditorDraft.lots[Math.min(index, lineEditorDraft.lots.length - 1)]?.id || null;
-  pendingRemoveLotId = null;
+  bj02Confirm = null;
   renderAppScreen();
-}
-function openRemoveLotDialog(lotId) {
-  const lot = lineEditorDraft?.lots?.find((item) => item.id === lotId);
-  if (!lot || lineEditorDraft.lots.length <= 1) return;
-  if (!lotHasData(lot)) return removeEditorLotNow(lotId);
-  pendingRemoveLotId = lotId;
-  const screen = document.getElementById("app-screen");
-  screen.querySelector('.confirm-backdrop[data-dialog-kind="remove-lot"]')?.remove();
-  screen.insertAdjacentHTML("beforeend", `<div class="confirm-backdrop" data-dialog-kind="remove-lot" data-ds-launcher="DS v2 / Confirmation Sheet"><section class="confirm-dialog" data-ds-component="DS v2 / Confirmation Sheet" data-figma-node="550:1058" data-ds-prop-content="Plain" data-ds-prop-title="Xóa lô này?" data-ds-prop-cancel-label="Giữ lô" data-ds-prop-action-label="Xóa lô" data-ds-prop-is-destructive="true" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><h3>Xóa lô này?</h3><p>Số lượng và thông tin đã nhập cho lô sẽ bị xóa khỏi dòng hàng.</p><div class="confirm-dialog-actions"><button class="button button--secondary" data-bj02-action="close-remove-lot" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.tertiary" type="button">Giữ lô</button><button class="button button--primary" data-bj02-action="confirm-remove-lot" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-tone="VComponentTone.danger" type="button">Xóa lô</button></div></section></div>`);
-}
-function closeRemoveLotDialog() {
-  document.querySelector('.confirm-backdrop[data-dialog-kind="remove-lot"]')?.remove();
-  pendingRemoveLotId = null;
-}
-function confirmRemoveLot() {
-  const lotId = pendingRemoveLotId;
-  document.querySelector('.confirm-backdrop[data-dialog-kind="remove-lot"]')?.remove();
-  pendingRemoveLotId = null;
-  if (lotId) removeEditorLotNow(lotId);
 }
 function lineHasData(line) {
   if (!line) return false;
@@ -1051,83 +1016,78 @@ function removeQuickLineNow(lineId) {
   if (flowMode !== "quick") return;
   bj02Lines = bj02Lines.filter((line) => line.id !== lineId);
   if (activeReceiptLineId === lineId) { activeReceiptLineId = null; lineEditorDraft = null; activeLotDraftId = null; }
-  pendingRemoveLineId = null;
+  if (bj02WebLineId === lineId) bj02WebLineId = null;
+  bj02Confirm = null;
   navigate("SCR-009");
-}
-function openRemoveQuickLineDialog(lineId) {
-  const line = bj02Lines.find((item) => item.id === lineId);
-  if (!line || flowMode !== "quick") return;
-  if (!lineHasData(line)) return removeQuickLineNow(lineId);
-  pendingRemoveLineId = lineId;
-  const screen = document.getElementById("app-screen");
-  screen.insertAdjacentHTML("beforeend", `<div class="confirm-backdrop" data-dialog-kind="remove-line" data-ds-launcher="DS v2 / Confirmation Sheet"><section class="confirm-dialog" data-ds-component="DS v2 / Confirmation Sheet" data-figma-node="550:1058" data-ds-prop-content="Plain" data-ds-prop-title="Xóa sản phẩm khỏi lần nhận?" data-ds-prop-cancel-label="Giữ lại" data-ds-prop-action-label="Xóa" data-ds-prop-is-destructive="true" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><h3>Xóa khỏi lần nhận?</h3><p>Toàn bộ số lượng và thông tin lô của dòng hàng này sẽ bị xóa.</p><div class="confirm-dialog-actions"><button class="button button--secondary" data-bj02-action="close-remove-line" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.tertiary" type="button">Giữ lại</button><button class="button button--primary" data-bj02-action="confirm-remove-line" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-tone="VComponentTone.danger" type="button">Xóa</button></div></section></div>`);
-}
-function closeRemoveQuickLineDialog() {
-  document.querySelector('.confirm-backdrop[data-dialog-kind="remove-line"]')?.remove();
-  pendingRemoveLineId = null;
-}
-function confirmRemoveQuickLine() {
-  const lineId = pendingRemoveLineId;
-  document.querySelector('.confirm-backdrop[data-dialog-kind="remove-line"]')?.remove();
-  pendingRemoveLineId = null;
-  if (lineId) removeQuickLineNow(lineId);
-}
-function updateBj02EditorLiveFeedback() {
-  if (activeScreenId !== "SCR-084" || !lineEditorDraft) return;
-  const saveButton = document.querySelector('[data-bj02-action="save-line"]');
-  if (saveButton) saveButton.disabled = !lineEditorValid();
-  const activeLot = lineEditorDraft.lots?.find((lot) => lot.id === activeLotDraftId);
-  const targetTotals = activeLot ? lotDraftTotals(activeLot) : lineTotals(lineEditorDraft);
-  const quantityTarget = document.querySelector("[data-bj02-quantity-feedback]");
-  if (quantityTarget) quantityTarget.innerHTML = quantityFeedback(targetTotals);
-  const lotTarget = document.querySelector("[data-bj02-lot-identity-feedback]");
-  if (lotTarget) lotTarget.innerHTML = activeLot ? lotIdentityFeedback(activeLot) : "";
-  const varianceTarget = document.querySelector("[data-bj02-document-variance]");
-  if (varianceTarget) varianceTarget.innerHTML = documentVarianceFeedback(lineEditorDraft);
-  const totalSummary = document.querySelector("[data-bj02-editor-total-summary] strong");
-  if (totalSummary) {
-    const t = lineTotals(lineEditorDraft);
-    totalSummary.textContent = flowMode === "document" && lineEditorDraft.remainingReceivableQty != null ? `${t.totalReceived} / ${lineEditorDraft.remainingReceivableQty} ${lineEditorDraft.uom}` : `${t.totalReceived} ${lineEditorDraft.uom || ""}`.trim();
-  }
-  const activeLotSummary = document.querySelector("[data-bj02-lot-total-summary] strong");
-  if (activeLotSummary && activeLot) activeLotSummary.textContent = `${lotDraftTotals(activeLot).totalReceived} ${lineEditorDraft.uom || ""}`.trim();
-  const result = document.querySelector("[data-bj02-line-result]");
-  if (result) {
-    const t = lineTotals(lineEditorDraft);
-    result.hidden = t.totalReceived <= 0;
-    const strong = result.querySelector("strong");
-    if (strong) strong.textContent = classificationText(lineEditorDraft);
-  }
-}
-function saveEditorLine() {
-  syncEditorDraftFromDom();
-  if (!lineEditorValid()) return showToast("Kiểm tra thông tin còn thiếu trước khi hoàn tất.", "warning");
-  persistLineEditorDraft(true); lineEditorDirty = false; showToast("Đã cập nhật hàng thực nhận"); navigate("SCR-009");
 }
 function markLineNotReceived() {
   if (!lineEditorDraft || flowMode !== "document") return;
   lineEditorDraft.status = "NOT_RECEIVED"; lineEditorDraft.accepted = 0; lineEditorDraft.totalReceived = 0; lineEditorDraft.quarantine = 0; lineEditorDraft.damaged = 0; lineEditorDraft.rejected = 0; lineEditorDraft.lots = [];
   const idx = bj02Lines.findIndex((line) => line.id === activeReceiptLineId); if (idx >= 0) bj02Lines[idx] = cloneBj02(lineEditorDraft);
+  bj02Confirm = null;
+  if (viewport === "web") return bj02WebAfterLine();
   navigate("SCR-009");
 }
-function requestMarkLineNotReceived() {
-  if (!lineEditorDraft || flowMode !== "document") return;
-  syncEditorDraftFromDom();
-  if (!lineHasData(lineEditorDraft)) return markLineNotReceived();
-  const screen = document.getElementById("app-screen");
-  screen.querySelector('.confirm-backdrop[data-dialog-kind="not-received"]')?.remove();
-  screen.insertAdjacentHTML("beforeend", `<div class="confirm-backdrop" data-dialog-kind="not-received" data-ds-launcher="DS v2 / Confirmation Sheet"><section class="confirm-dialog" data-ds-component="DS v2 / Confirmation Sheet" data-figma-node="550:1058" data-ds-prop-content="Plain" data-ds-prop-title="Đánh dấu chưa nhận lần này?" data-ds-prop-cancel-label="Giữ dữ liệu" data-ds-prop-action-label="Chưa nhận lần này" data-ds-prop-is-destructive="true" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><h3>Đánh dấu chưa nhận lần này?</h3><p>Số lượng và thông tin lô đã nhập cho dòng hàng này sẽ được xóa. Phần còn lại trên chứng từ vẫn được giữ.</p><div class="confirm-dialog-actions"><button class="button button--secondary" data-bj02-action="close-not-received" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.tertiary" type="button">Giữ dữ liệu</button><button class="button button--primary" data-bj02-action="confirm-not-received" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-tone="VComponentTone.danger" type="button">Chưa nhận lần này</button></div></section></div>`);
-}
-function closeNotReceivedDialog() { document.querySelector('.confirm-backdrop[data-dialog-kind="not-received"]')?.remove(); }
 function filterLineProductOptions(query) {
   const menu=document.querySelector("[data-bj02-product-menu]"); if(!menu) return;
   const q=query.trim().toLowerCase(); let visible=0;
   menu.querySelectorAll("[data-bj02-product-option]").forEach((option)=>{ const match=!q || (option.dataset.bj02ProductSearchText || "").includes(q); option.hidden=!match; if(match) visible+=1; });
   const empty=menu.querySelector("[data-bj02-product-empty]"); if(empty) empty.hidden=visible>0;
 }
+// Gõ số / mã lô / hạn dùng không dựng lại màn (giữ con trỏ): chỉ cập nhật chỗ cần đổi.
+function updateBj02EditorLiveFeedback() {
+  if (!bj02EditorShown() || !lineEditorDraft) return;
+  const valid = lineEditorValid();
+  const saveButton = document.querySelector('[data-bj02-action="save-line"]');
+  if (saveButton) saveButton.disabled = !valid;
+  const reasonLine = document.querySelector("[data-bj02-editor-reason], [data-bj02-reason]");
+  if (reasonLine) { const reason = valid ? "" : lineEditorInvalidReason(); reasonLine.textContent = reason; reasonLine.hidden = !reason; }
+  const activeLot = lineEditorDraft.lots?.find((lot) => lot.id === activeLotDraftId);
+  const lotTarget = document.querySelector("[data-bj02-lot-identity-feedback]");
+  if (lotTarget) lotTarget.innerHTML = activeLot ? lotIdentityFeedback(activeLot) : "";
+  const varianceTarget = document.querySelector("[data-bj02-document-variance]");
+  if (varianceTarget) varianceTarget.innerHTML = documentVarianceFeedback(lineEditorDraft);
+  const totalSummary = document.querySelector("[data-bj02-total]");
+  if (totalSummary) {
+    const t = lineTotals(lineEditorDraft);
+    totalSummary.textContent = flowMode === "document" && lineEditorDraft.remainingReceivableQty != null ? `${t.totalReceived} / ${lineEditorDraft.remainingReceivableQty} ${lineEditorDraft.uom}` : `${t.totalReceived} ${lineEditorDraft.uom || ""}`.trim();
+  }
+  ["expiry", "manufactureDate"].forEach((field) => {
+    const input = document.querySelector(`[data-bj02-lot-field="${field}"]`);
+    if (!input) return;
+    const invalid = Boolean(input.value.trim()) && !bj02ExpiryParse(input.value).valid;
+    const error = document.querySelector(`[data-bj02-date-error="${field}"]`), help = document.querySelector(`[data-bj02-date-help="${field}"]`);
+    if (error) error.hidden = !invalid;
+    if (help) help.hidden = invalid;
+    if (invalid) input.setAttribute("aria-invalid", "true"); else input.removeAttribute("aria-invalid");
+  });
+  const compact = document.querySelector(".bj02-lot.is-expanded .lot-accordion-copy strong");
+  if (compact && activeLot) {
+    const index = lineEditorDraft.lots.indexOf(activeLot), t = lotDraftTotals(activeLot);
+    compact.textContent = [activeLot.code || `Lô ${index + 1}`, activeLot.expiry ? `HSD ${activeLot.expiry}` : "", t.totalReceived ? `${t.totalReceived} ${lineEditorDraft.uom}` : "Chưa hoàn tất"].filter(Boolean).join(" · ");
+  }
+}
+function saveEditorLine() {
+  syncEditorDraftFromDom();
+  if (!lineEditorValid()) return showToast("Kiểm tra thông tin còn thiếu trước khi hoàn tất.", "warning");
+  persistLineEditorDraft(true); lineEditorDirty = false; showToast("Đã cập nhật hàng thực nhận");
+  if (viewport === "web") return bj02WebAfterLine();
+  navigate("SCR-009");
+}
+// Web: sau khi lưu / đánh dấu chưa nhận một dòng, ở lại SCR-009 và chọn dòng chưa xử lý kế tiếp (hết thì giữ dòng vừa lưu).
+function bj02WebAfterLine() {
+  const index = bj02Lines.findIndex((line) => line.id === activeReceiptLineId);
+  const next = bj02Lines.slice(index + 1).find((line) => !lineHandled(line)) || bj02Lines.find((line) => !lineHandled(line));
+  bj02WebLineId = next ? next.id : activeReceiptLineId;
+  if (bj02WebLineId) bj02LoadLineEditor(bj02WebLineId);
+  navigate("SCR-009");
+}
+
+/* ---------- SCR-008 → nhà cung cấp ---------- */
+
 function filterDocumentCards(query) {
   documentSearchQuery = query;
-  const normalized = query.trim().toLowerCase();
+  const normalized = ioNormalizeSearch(query);
   let visible = 0;
   document.querySelectorAll("[data-bj02-document-search-text]").forEach((card) => {
     const match = !normalized || (card.dataset.bj02DocumentSearchText || "").includes(normalized);
@@ -1154,59 +1114,231 @@ function selectSupplier(supplierId) {
     bj02Header.evidence = ''; bj02Header.evidenceRefs = []; bj02Header.ownershipAssertion = null;
     bj02Lines.forEach((line) => { line.priceBasisVerified = false; });
   }
-
   const supplier = supplierCatalog.find((item) => item.id === supplierId); if (!supplier) return;
   bj02Header.supplierId = supplier.id; bj02Header.supplier = supplier.name; supplierMenuOpen = false; supplierSearchQuery = ""; supplierValidationVisible = false; renderAppScreen();
   if (changed) showToast('Đã đổi nhà cung cấp; cần kiểm tra lại chứng từ và quyền sở hữu.', 'info');
 }
-let executionTimer = null;
-function startAutoExecution() {
-  window.clearTimeout(executionTimer);
-  stateByScreen["SCR-012"] = "PROCESSING";
-  navigate("SCR-012");
-  executionTimer = window.setTimeout(() => {
-    if (activeScreenId !== "SCR-012" || stateByScreen["SCR-012"] !== "PROCESSING") return;
-    stateByScreen["SCR-012"] = "VALUATION_PENDING_RESULT";
-    render();
-  }, 1400);
+
+/* ---------- SCR-010 Rà soát nhận hàng ---------- */
+
+// "Cần chú ý": vượt chứng từ, hàng không đạt, chưa nhận, nhập nhanh.
+function bj02AttentionRows() {
+  const rows = [];
+  bj02Lines.filter(bj02LineOver).forEach((line) => {
+    const b = lineTotals(line).physicalIncrease, a = bj02SourceRemaining(line);
+    rows.push(["Vượt chứng từ", `${line.name} ${b} / ${a} ${line.uom} (+${b - a})`]);
+  });
+  bj02Lines.filter((line) => line.status === "COMPLETED").forEach((line) => {
+    const t = lineTotals(line);
+    const parts = [t.quarantine ? `${t.quarantine} cách ly` : "", t.damaged ? `${t.damaged} hỏng` : "", t.rejected ? `${t.rejected} từ chối` : ""].filter(Boolean);
+    if (parts.length) rows.push(["Hàng không đạt", `${line.name} ${parts.join(" · ")}`]);
+  });
+  bj02Lines.filter((line) => line.status === "NOT_RECEIVED").forEach((line) => rows.push(["Chưa nhận lần này", line.name]));
+  if (flowMode === "quick") rows.push(["Nhập nhanh", "chưa có chứng từ mua", "info"]);
+  return rows;
 }
-function openRejectSheet() {
-  const screen = document.getElementById("app-screen");
-  if (screen.querySelector(".sheet-backdrop")) return;
-  screen.insertAdjacentHTML("beforeend", `
-    <div class="sheet-backdrop" data-action="close-reject" data-ds-launcher="showVBottomSheet" data-ds-launcher-prop-is-dismissible="true" data-ds-launcher-prop-enable-drag="true">
-      <section class="bottom-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" data-ds-profile="approval.reject" data-ds-prop-title="Từ chối yêu cầu" data-ds-prop-tone="VComponentTone.danger" data-ds-prop-max-height-fraction="0.95" role="dialog" aria-modal="true" aria-labelledby="reject-title" onclick="event.stopPropagation()">
-        <div class="sheet-handle" data-ds-internal="VBottomSheet.handle"></div>
-        <div class="sheet-title" data-ds-internal="VBottomSheet.title"><h3 id="reject-title">Từ chối yêu cầu</h3></div>
-        <div class="sheet-divider" data-ds-internal="VBottomSheet.divider"></div>
-        <div class="sheet-safe-area" data-ds-internal="showVBottomSheet.SafeArea">
-          <div class="sheet-content">
-            <div class="form-field" data-ds-component="VTextarea" data-figma-node="522:7212" data-ds-prop-label="Lý do từ chối" data-ds-prop-is-required="true" data-ds-prop-min-lines="3" data-ds-prop-max-lines="5"><label for="reject-reason">Lý do từ chối <span class="required">*</span></label><span class="input-shell input-shell--textarea"><textarea id="reject-reason" data-reject-reason rows="4" placeholder="Nêu lý do để người lập hiểu và xử lý"></textarea></span></div>
-            <div class="sheet-actions"><button class="button button--secondary" data-action="close-reject" data-ds-component="VButton" data-ds-prop-label="Hủy" data-ds-prop-variant="VButtonVariant.secondary" data-ds-prop-size="VButtonSize.medium" type="button">Hủy</button><button class="button button--primary" data-action="confirm-reject" data-ds-component="VButton" data-ds-prop-label="Xác nhận từ chối" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium" data-ds-prop-tone="VComponentTone.danger" type="button" disabled>Xác nhận từ chối</button></div>
-          </div>
-        </div>
-      </section>
-    </div>`);
-  screen.querySelector("[data-reject-reason]")?.focus();
+// Khung web, SCR-010: bảng "Hàng thực nhận" bên trái, khối tóm tắt + nút xác nhận bên phải (như SCR-015 của BJ-03).
+function bj02ReviewRows() {
+  return bj02Lines.map((line) => {
+    const handled = lineHandled(line), quick = flowMode === "quick" || line.remainingReceivableQty == null;
+    const received = line.status === "NOT_RECEIVED" ? 0 : lineTotals(line).physicalIncrease;
+    return {
+      line, product: `<strong>${esc(line.name)}</strong><small>${esc(line.sku || "")}</small>`,
+      expected: quick ? "—" : `${bj02SourceRemaining(line)} ${line.uom}`, received: handled ? `${received} ${line.uom}` : "—",
+      lots: bj02LotCell(line), status: bj02IssueBadge(line) || '<span class="k7-muted">—</span>',
+    };
+  });
 }
-function closeRejectSheet() { document.querySelector(".sheet-backdrop")?.remove(); }
-function confirmReject() {
-  const reason = document.querySelector("[data-reject-reason]")?.value.trim() || "";
-  if (!reason) return;
-  approvalRejectReason = reason;
-  closeRejectSheet();
-  stateByScreen["SCR-011"] = "APPROVAL_ALREADY_DECIDED";
-  render();
+function bj02ReviewSummary(label, disabled) {
+  const quick = flowMode === "quick";
+  const facts = [["Chứng từ", quick ? "Nhập nhanh" : selectedDocumentId], ["Nhà cung cấp", currentReceiptSupplier()], ["Kho nhận", BJ02_CONTEXT.warehouse.name], ["Ngày nhận", bj02ReceiptDate()], ["Mặt hàng", `${bj02ReviewProductCount()} mặt hàng`]];
+  return `${ac310InfoSurface("Tóm tắt", facts)}<button class="button button--primary bj02-cta" type="button" data-action="submit" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium"${disabled ? " disabled" : ""}>${esc(label)}</button>`;
+}
+function render010BJ02(state) {
+  ensureBj02ReviewFixture();
+  const title = "Rà soát nhận hàng";
+  const wide = "k7-wide";
+  if (state === "PERMISSION_DENIED") return appShell({ title, body: bj02Denied("rà soát nhận hàng"), centered: true, extraClass: wide });
+  if (state === "PENDING_APPROVAL") {
+    const quick = flowMode === "quick";
+    const facts = [[quick ? "Nhập nhanh" : "Chứng từ", quick ? currentReceiptSupplier() : `${selectedDocumentId} · ${currentReceiptSupplier()}`], ["Mặt hàng", `${bj02ReviewProductCount()} mặt hàng`]];
+    return appShell({ title, body: `<div class="k3-column">${k2Pending({ approver: "chủ cửa hàng", sentAt: BJ02_CONTEXT.submitted.submittedAt, facts })}</div>`, actions: k4Footer([{ label: "Về Kho", attr: bj02Exit(), primary: true }]), back: false, extraClass: wide });
+  }
+  if (state === "REJECTED") {
+    const reason = approvalRejectReason || "Cần kiểm tra lại số liệu trước khi gửi lại.";
+    return appShell({ title, body: `<div class="k3-column">${vBanner("error", "Yêu cầu bị từ chối", `${esc(bj02RejectedBy)} · ${esc(BJ02_CONTEXT.submitted.rejectedAt)}`)}${ac310InfoSurface("Yêu cầu", [["Lý do", reason]])}</div>`, actions: k4Footer([{ label: "Nhận lại", attr: 'data-bj02-action="redo"', primary: true }]), back: false, extraClass: wide });
+  }
+  const requiresApproval = bj02RequiresApproval(), noLines = bj02Lines.length === 0, incomplete = !noLines && !allReceiptLinesHandled();
+  const quickZero = flowMode === "quick" && bj02AcceptedPhysicalTotal() === 0;
+  const disabled = noLines || incomplete || quickZero || (flowMode === "quick" && !bj02OwnershipReady());
+  const notice = state === "VALIDATION_ERROR" ? stateBanner(state) : "";
+  const zeroNotice = quickZero ? vBanner("error", "Chưa có hàng vào tồn", "Nhập hàng nhanh chỉ gửi được khi Đạt + Cách ly + Hỏng lớn hơn 0.") : "";
+  const readiness = noLines
+    ? `<div class="empty-state bj02-review-empty" data-ds-component="VEmptyState"><div class="icon-box">${icon("package", "icon--empty-media")}</div><h3>Chưa có hàng để rà soát</h3><p>Thêm và hoàn tất hàng thực nhận trước khi tiếp tục.</p></div>`
+    : incomplete ? vBanner("warning", "Còn mặt hàng chưa hoàn tất", "Quay lại Hàng thực nhận để hoàn tất từng mặt hàng.") : "";
+  const label = requiresApproval ? "Gửi phê duyệt" : "Xác nhận nhận hàng";
+  const web = viewport === "web";
+  let content;
+  if (noLines) content = readiness;
+  else {
+    const attention = incomplete ? "" : k2Attention(bj02AttentionRows());
+    const edit = flowMode === "quick" ? { label: "Sửa", attr: 'data-next="SCR-008"' } : { label: "Đổi chứng từ", attr: 'data-bj02-action="change-source"' };
+    const heading = ac310SectionTitle("Hàng thực nhận", `${bj02ReviewProductCount()} mặt hàng · ${bj02Lines.length} dòng`);
+    const lines = web
+      ? k7Table({ columns: [{ key: "product", label: "Mặt hàng", html: true }, { key: "expected", label: "Theo chứng từ", align: "end", mono: true }, { key: "received", label: "Thực nhận", align: "end", mono: true }, { key: "lots", label: "Lô", html: true }, { key: "status", label: "Tình trạng", html: true }], rows: bj02ReviewRows(), caption: "Hàng thực nhận", mobileRow: (r) => bj02LineRow(r.line, `data-bj02-review-line="${r.line.id}"`), rowAttr: (r) => `data-bj02-review-line="${r.line.id}" tabindex="0"` })
+      : `<section class="ds24-list-stack receipt-line-list bj02-review-lines" data-composed-from="DS v2 / List Row">${bj02Lines.map((line) => bj02LineRow(line, `data-bj02-review-line="${line.id}"`)).join("")}</section>`;
+    content = `${readiness}${attention}${heading}${lines}${ac310SectionTitle("Thông tin lần nhận")}${bj02ContextRow(edit)}`;
+  }
+  const overlays = `${bj02ReviewDetailSheet()}${bj02ConfirmSheet()}`;
+  if (web && !noLines) return appShell({ title, body: `<div class="bj02-review">${notice}${zeroNotice}${k7Split({ main: content, aside: bj02ReviewSummary(label, disabled), wideMain: true, asideWebOnly: true })}</div>${overlays}`, extraClass: wide });
+  const footer = primaryFooter(label, 'data-action="submit"', disabled);
+  return appShell({ title, body: `${notice}${zeroNotice}${content}${overlays}`, actions: footer, extraClass: wide });
 }
 
-if (window.__VET45_PROTOTYPE__) {
-  window.__VET45_PROTOTYPE__.scenarios = [...new Set([...(window.__VET45_PROTOTYPE__.scenarios || []), 'bj02-quick-receipt-no-draft', 'bj02-quick-approval-no-price-basis', 'bj02-design-state-cleanup'])];
-  window.__VET45_PROTOTYPE__.bj02QuickReceipt = { draftPersistence: false, firstPersistedState: 'PENDING_APPROVAL', receiptIdCreatedOnSuccessfulSubmit: true, priceFxRequiredAtBj02Submit: false, designStateRegistryClean: true };
+/* ---------- SCR-011 Phê duyệt yêu cầu nhận hàng ---------- */
+
+function bj02LotCell(line) {
+  if (line.trackingPolicy !== "LOT") return '<span class="k7-muted">—</span>';
+  const lots = (line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0);
+  return lots.length ? lots.map((lot) => `<div>${esc(lot.code || "—")}${lot.expiry ? `<small>${esc(lot.expiry)}</small>` : ""}</div>`).join("") : '<span class="k7-muted">—</span>';
+}
+function bj02ApprovalRows() {
+  return bj02Lines.map((line) => {
+    const received = lineTotals(line).physicalIncrease, quick = flowMode === "quick" || line.remainingReceivableQty == null;
+    const diff = quick ? null : received - bj02SourceRemaining(line);
+    const issue = bj02ReviewIssue(line);
+    return {
+      product: `<strong>${esc(line.name)}</strong><small>${esc(line.sku || "")}</small>`, lots: bj02LotCell(line),
+      expected: quick ? "—" : `${bj02SourceRemaining(line)} ${line.uom}`, received: `${received} ${line.uom}`,
+      diff: diff == null ? "—" : `${diff > 0 ? "+" : diff < 0 ? "−" : ""}${Math.abs(diff)} ${line.uom}`, over: diff > 0,
+      status: issue ? ds24Badge(issue.label, { warning: "Warning", error: "Danger", info: "Info" }[issue.tone] || "Neutral") : ds24Badge("Đã xong", "Success"), line,
+    };
+  });
+}
+function render011BJ02(state) {
+  ensureBj02ReviewFixture();
+  const title = "Phê duyệt yêu cầu nhận hàng";
+  const shell = (opts) => appShell({ title, extraClass: "k7-wide", ...opts });
+  if (state === "PERMISSION_DENIED") return shell({ body: bj02Denied("duyệt nhận hàng", "Chỉ chủ cửa hàng mới duyệt được. Nhờ họ cấp quyền rồi quay lại."), centered: true, backAction: "exit-approval" });
+  if (!bj02Lines.length) return shell({ body: `<div class="empty-state" data-ds-component="VEmptyState"><h3>Không có yêu cầu để duyệt</h3><p>Yêu cầu chỉ xuất hiện sau khi người lập gửi hồ sơ hợp lệ.</p></div>`, centered: true, backAction: "exit-approval" });
+  const quick = flowMode === "quick", supplier = currentReceiptSupplier();
+  if (state === "REJECTED_DONE") {
+    return k4Result({ screenTitle: title, kind: "warning", title: "Đã từ chối nhận hàng", description: "Người lập sẽ thấy lý do và có thể nhận lại. Tồn kho không thay đổi.", facts: [["Lý do", esc(approvalRejectReason)], ["Người gửi", esc(BJ02_CONTEXT.submitted.maker)]], next: [{ label: "Về danh sách", attr: 'data-action="exit-approval"', primary: true }] });
+  }
+  const notice = ["SELF_APPROVAL_NOT_ALLOWED", "APPROVAL_ALREADY_DECIDED", "VALIDATION_ERROR"].includes(state) ? bj02ApprovalStateNotice(state) : "";
+  if (state === "APPROVAL_ALREADY_DECIDED") return shell({ body: `${notice}${approvalRejectReason ? vBanner("error", "Đã từ chối", esc(approvalRejectReason)) : ""}`, actions: k4Footer([{ label: "Về danh sách", attr: 'data-action="exit-approval"', primary: true }]), backAction: "exit-approval" });
+  const attention = [];
+  bj02Lines.filter(bj02LineOver).forEach((line) => { const b = lineTotals(line).physicalIncrease, a = bj02SourceRemaining(line); attention.push([`${line.name}:`, `chứng từ ${a} · thực nhận ${b} ${line.uom} (+${b - a})`]); });
+  if (quick) attention.push(["Nhập nhanh", "chưa có chứng từ mua", "info"]);
+  bj02Lines.filter((line) => line.status === "COMPLETED").forEach((line) => {
+    const t = lineTotals(line);
+    const parts = [t.quarantine ? `${t.quarantine} cách ly` : "", t.damaged ? `${t.damaged} hỏng` : "", t.rejected ? `${t.rejected} từ chối` : ""].filter(Boolean);
+    if (parts.length) attention.push(["Hàng không đạt", `${line.name} ${parts.join(" · ")}`, "info"]);
+  });
+  const risk = receiptRiskValue();
+  const riskRow = quick ? null : ["Tổng giá trị rủi ro", BJ02_CONTEXT.capabilities.viewApprovalRiskTotal && state !== "FINANCIAL_MASKED" ? `${risk.toLocaleString("vi-VN")} đ` : "Không có quyền xem"];
+  const facts = [["Nhà cung cấp", supplier], ["Kho nhận", BJ02_CONTEXT.warehouse.name], ["Ngày nhận", bj02ReceiptDate()]];
+  if (quick) facts.push(["Quyền sở hữu", bj02OwnershipReady() ? "Đã xác nhận" : "Chưa xác nhận"]);
+  if (riskRow) facts.push(riskRow);
+  const evidenceAction = `<button class="button button--secondary button--full bj02-evidence-preview" data-bj02-action="open-evidence" type="button" data-ds-component="VButton">${icon("fileText", "icon--sm")} Xem chứng từ giao nhận</button>`;
+  const decision = k2Decision({ question: quick ? `Duyệt nhập hàng nhanh của ${supplier}?` : `Duyệt nhận hàng ${selectedDocumentId} của ${supplier}?`, maker: BJ02_CONTEXT.submitted.maker, sentAt: BJ02_CONTEXT.submitted.submittedAt, attention, facts, detail: evidenceAction });
+  const columns = [
+    { key: "product", label: "Sản phẩm", html: true }, { key: "lots", label: "Lô / HSD", html: true },
+    { key: "expected", label: "Theo chứng từ", align: "end", mono: true }, { key: "received", label: "Thực nhận", align: "end", mono: true },
+    { key: "diff", label: "Chênh lệch", align: "end", mono: true, cls: (r) => (r.over ? "k7-cell--warn" : "") }, { key: "status", label: "Tình trạng", html: true },
+  ];
+  const table = k7Table({ columns, rows: bj02ApprovalRows(), mobileRow: (r) => bj02ReadOnlyLine(r.line), caption: "Hàng thực nhận" });
+  const body = `${notice}<div class="bj02-approval">${k7Split({ main: decision, aside: `${ac310SectionTitle("Hàng thực nhận", `${bj02ReviewProductCount()} mặt hàng · ${bj02Lines.length} dòng`)}${table}` })}</div>${bj02ReviewDetailSheet()}${bj02EvidenceSheet()}${k2RejectSheet({ open: bj02RejectOpen, title: "Từ chối yêu cầu", reason: approvalRejectReason, reasonAttr: "data-bj02-reject-reason", confirmAttr: 'data-bj02-action="confirm-reject"', closeAttr: 'data-bj02-action="close-reject"' })}`;
+  const disabled = ["SELF_APPROVAL_NOT_ALLOWED", "PROCESSING"].includes(state);
+  const off = disabled ? " disabled" : "";
+  const footer = ac310ApprovalFooter(`data-bj02-action="open-reject"${off}`, `data-bj02-action="approve"${off}`);
+  return shell({ body, actions: footer, backAction: "exit-approval" });
+}
+function bj02ApprovalStateNotice(state) {
+  if (state === "SELF_APPROVAL_NOT_ALLOWED") return vBanner("error", "Không được tự phê duyệt", "Người lập không thể đồng thời là người quyết định yêu cầu này.");
+  if (state === "APPROVAL_ALREADY_DECIDED") return k1Locked({ title: "Yêu cầu đã có quyết định", description: "Quyết định hợp lệ đầu tiên có hiệu lực; các thao tác quyết định đã được khóa." });
+  return stateBanner(state);
 }
 
+/* ---------- SCR-012 Kết quả nhận hàng ---------- */
+
+function bj02LotCount() {
+  return bj02Lines.reduce((n, line) => n + (line.trackingPolicy === "LOT" ? (line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0).length : 0), 0);
+}
+// Quy số lượng dòng về ĐVT tồn của BJ-01 để cộng vào tồn.
+function bj02ToStockUom(line, qty, stockUom) {
+  const product = productById(line.productId);
+  const ratio = Number(line.conversionRatioSnapshot ?? product?.uoms?.find((u) => u.id === line.uomId)?.conversionRatio ?? 1) || 1;
+  const stockRatio = Number(product?.uoms?.find((u) => u.label === stockUom)?.conversionRatio) || ratio;
+  return Math.round(qty * ratio / stockRatio);
+}
+function bj02StockLines() {
+  return bj02Lines.filter((line) => line.productRef).map((line) => {
+    const stockUom = typeof bj01ProductById === "function" ? bj01ProductById(line.productRef)?.stockUom : line.uom;
+    const conv = (n) => bj02ToStockUom(line, n, stockUom);
+    const t = lineTotals(line);
+    return { productRef: line.productRef, accepted: conv(t.accepted), quarantine: conv(t.quarantine), damaged: conv(t.damaged),
+      lots: line.trackingPolicy === "LOT" ? (line.lots || []).map((lot) => { const lt = lotDraftTotals(lot); return { code: lot.code, expiry: lot.expiry, expiryPrecision: lot.expiryPrecision, accepted: conv(lt.accepted), quarantine: conv(lt.quarantine), damaged: conv(lt.damaged) }; }) : [] };
+  });
+}
+// Hệ thống ghi nhận xong: ghi mốc cho BJ-03 và cộng tồn vào BJ-01, một lần mỗi phiếu.
+function bj02Commit(seq) {
+  const ref = flowMode === "quick" ? BJ02_CONTEXT.submitted.receiptRef : selectedDocumentId;
+  bj02LastCommitted = { ref, mode: flowMode, lines: cloneBj02(bj02Lines) };
+  if (bj02AppliedRefs.has(seq)) return;
+  bj02AppliedRefs.add(seq);
+  if (typeof bj01ApplyReceipt === "function") bj01ApplyReceipt(bj02StockLines(), ref);
+}
+function render012BJ02(state) {
+  ensureBj02ReviewFixture();
+  const title = "Kết quả nhận hàng";
+  if (state === "PERMISSION_DENIED") return appShell({ title, body: bj02Denied("xem kết quả nhận hàng"), centered: true });
+  if (state === "PROCESSING") return appShell({ title, body: `<div class="loading-state" data-ds-component="VLoading"><span class="v-loading-spinner"></span><strong>Đang ghi nhận hàng</strong><p>Hệ thống đang xử lý. Bạn không cần thực hiện lại.</p></div>` });
+  if (["UNKNOWN", "COMMIT_UNKNOWN"].includes(state)) return render013BJ02("PROCESSING_OR_UNKNOWN");
+  if (state === "REJECTED_EXECUTION") return k4Result({ screenTitle: title, kind: "warning", title: "Chưa ghi nhận hàng", description: "Yêu cầu bị chặn trước khi tồn kho thay đổi.", facts: [["Tác động tồn kho", "Không có"]], next: [{ label: "Quay lại rà soát", attr: 'data-next="SCR-010"', primary: true }] });
+  const mode = bj02LastCommitted?.mode ?? flowMode, owner = bj02IsApprover();
+  const physical = bj02AcceptedPhysicalTotal(), zeroImpact = physical === 0;
+  const stocked = bj02Lines.filter((line) => bj02AcceptedPhysical(line) > 0).length, lots = bj02LotCount();
+  const facts = [["Phiếu nhận", BJ02_CONTEXT.submitted.receiptRef], ["Chứng từ", mode === "quick" ? "Nhập nhanh" : (bj02LastCommitted?.ref || selectedDocumentId)], ["Nhà cung cấp", esc(currentReceiptSupplier())], ["Người nhận", esc(BJ02_CONTEXT.submitted.maker)]];
+  if (bj02Approver) facts.push(["Người duyệt", bj02Approver.name]); else if (bj02RequiresApproval()) facts.push(["Người duyệt", "Chủ cửa hàng"]);
+  if (!zeroImpact) facts.push(["Vào tồn", `${stocked} mặt hàng${lots ? ` · ${lots} lô` : ""}`]);
+  if (owner && !zeroImpact) facts.push(["Giá trị", "Chờ xác lập"]);
+  const next = owner
+    ? [{ label: "Nhận tiếp", attr: 'data-bj02-action="receive-more"' }, { label: "Xác lập giá trị", attr: 'data-bj02-action="go-valuation"', primary: true, disabled: zeroImpact }]
+    : [{ label: "Xem tồn kho", attr: 'data-bj02-action="see-inventory"' }, { label: "Nhận tiếp", attr: 'data-bj02-action="receive-more"', primary: true }];
+  const detail = `<button class="inline-edit bj02-lines-link" type="button" data-bj02-action="open-lines" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.link">Xem ${bj02Lines.length} dòng hàng</button>`;
+  return k4Result({ screenTitle: title, title: zeroImpact ? "Đã ghi nhận kết quả lần nhận" : "Đã ghi nhận hàng", description: zeroImpact ? "Không có hàng vào tồn vật lý trong lần nhận này." : `Đã tăng tồn vật lý theo ${bj02Lines.length} dòng hàng được xử lý.`, facts, next, button: detail + bj02LinesSheet() });
+}
+
+/* ---------- SCR-013 Đối soát nhận hàng (phục hồi ngắn) ---------- */
+
+function render013BJ02(state) {
+  const title = "Đối soát nhận hàng";
+  if (state === "LOADING") return appShell({ title, subtitle: "Tự mở khi kết quả lần nhận chưa xác định", body: k1Loading({ blocks: ["heading", "card", "row", "row"] }) });
+  if (state === "PERMISSION_DENIED") return appShell({ title, subtitle: "Tự mở khi kết quả lần nhận chưa xác định", body: bj02Denied("xem đối soát nhận hàng"), centered: true });
+  if (state === "EMPTY") return appShell({ title, subtitle: "Tự mở khi kết quả lần nhận chưa xác định", body: `<div class="empty-state" data-ds-component="VEmptyState"><h3>Chưa có kết quả mới</h3><p>Hệ thống vẫn đang theo dõi lần nhận này. Bạn không cần tạo lại thao tác.</p></div>`, centered: true });
+  const ev = BJ02_CONTEXT.recoveryEvidence;
+  const item = (tone, ico, head, desc, meta) => `<div class="timeline-item ${tone === "warning" ? "is-warning" : ""}" data-ds-component="DS v2 / Timeline Item" data-figma-node="525:587"><span class="timeline-marker" data-ds-component="VIconBox" data-ds-prop-tone="VComponentTone.${tone}">${icon(ico, "icon--sm")}</span><div class="timeline-content"><strong>${head}</strong><span>${desc}</span><small>${meta}</small></div></div>`;
+  if (state === "TERMINAL") {
+    const timeline = item("neutral", "fileText", "Hồ sơ nhận đã được khóa", BJ02_CONTEXT.submitted.receiptRef, `${ev.submitted.at} · ${ev.submitted.actor}`) + item("success", "check", "Kết quả ghi nhận đã được xác lập", "Kết quả của lần nhận hiện tại", ev.operationResult.at) + item("success", "package", "Biến động tồn kho đã được ghi", `${bj02Lines.length} dòng hàng · mốc sổ ${ev.inventoryMovement.ledgerSequence}`, ev.inventoryMovement.at);
+    return appShell({ title, subtitle: "Tự mở khi kết quả lần nhận chưa xác định", body: `${vBanner("success", "Đã xác lập kết quả", "Kết quả cuối cùng đã có; hệ thống sẽ đưa bạn về màn kết quả.")}<div class="as-of"><span>Lần kiểm tra gần nhất</span><strong class="mono">${ev.checkedAt}</strong></div><section class="timeline-card" data-ds-component="VSection"><div class="timeline">${timeline}</div></section>` });
+  }
+  let timeline = item("neutral", "fileText", "Hồ sơ nhận đã được khóa", BJ02_CONTEXT.submitted.receiptRef, `${ev.submitted.at} · ${ev.submitted.actor}`);
+  if ((flowMode === "quick" || bj02RequiresApproval()) && ev.approval.proven) timeline += item("success", "shield", "Yêu cầu đã được duyệt", `Người duyệt: ${ev.approval.actor}`, ev.approval.at);
+  timeline += item("warning", "clock", "Đang xác lập kết quả cuối cùng", "Kết quả của lần nhận hiện tại", "Đang tiếp tục kiểm tra");
+  timeline += item("warning", "clock", "Đang kiểm tra biến động tồn kho", "Chưa có bằng chứng xác nhận biến động tồn kho đã được ghi", "Không cần tạo lần nhận mới");
+  const detail = `${state === "STALE" ? stateBanner("STALE") : ""}<div class="as-of"><span>Lần kiểm tra gần nhất</span><strong class="mono">${ev.checkedAt}</strong></div><section class="timeline-card" data-ds-component="VSection"><div class="timeline">${timeline}</div></section><button class="button button--secondary manual-refresh" data-action="refresh" type="button">${icon("rotate", "icon--sm")} Làm mới</button>`;
+  const ref = flowMode === "quick" ? "Nhập nhanh" : selectedDocumentId;
+  return k3Unknown({ title, operation: "Nhận hàng", scope: `${ref} · ${bj02Lines.length} dòng`, ref: BJ02_CONTEXT.submitted.receiptRef, sentAt: BJ02_CONTEXT.submitted.submittedAt, sourceFlow: "UIF-02", exitAttr: bj02Exit(), detail });
+}
+
+/* ---------- Đăng ký màn, lối vào cũ ---------- */
+
+// SCR-006 (chọn cách nhận) đã gộp vào SCR-007: link cũ mở 007 ở trạng thái mặc định.
+screenAliases["UIF-02"] = Object.assign(screenAliases["UIF-02"] || {}, { "SCR-006": "SCR-007" });
+{ const a = screenAliases[activeFlowId]?.[activeScreenId]; if (Array.isArray(a)) { activeFlowId = a[0]; activeScreenId = a[1]; } else if (a) activeScreenId = a; }
 
 Object.assign(renderers, {
-  "SCR-006": render006BJ02,
   "SCR-007": render007BJ02,
   "SCR-008": render008BJ02,
   "SCR-009": render009BJ02,
@@ -1217,26 +1349,68 @@ Object.assign(renderers, {
   "SCR-013": render013BJ02,
 });
 
-document.addEventListener("click", (event) => {
-  const a = event.target.closest("[data-v350-action]");
-  if (!a || a.disabled) return;
-  const k = a.dataset.v350Action;
-  if (k !== "bj02-verify-unknown" && k !== "bj02-handoff-unknown") return;
-  event.preventDefault();
-  event.stopPropagation();
-  if (k === "bj02-verify-unknown") {
-    stateByScreen["SCR-013"] = "PROCESSING_OR_UNKNOWN";
-    return navigate("SCR-013");
+if (window.__VET45_PROTOTYPE__) {
+  window.__VET45_PROTOTYPE__.scenarios = [...new Set([...(window.__VET45_PROTOTYPE__.scenarios || []), 'bj02-quick-receipt-no-draft', 'bj02-quick-approval-no-price-basis', 'bj02-design-state-cleanup'])];
+  window.__VET45_PROTOTYPE__.bj02QuickReceipt = { draftPersistence: false, firstPersistedState: 'PENDING_APPROVAL', receiptIdCreatedOnSuccessfulSubmit: true, priceFxRequiredAtBj02Submit: false, designStateRegistryClean: true };
+}
+
+/* ---------- Xử lý sự kiện ---------- */
+
+// Ghi nhận do hệ thống: PROCESSING rồi kết quả (một lần mỗi phiếu: ghi mốc cho BJ-03, cộng tồn vào BJ-01).
+let executionTimer = null;
+function startAutoExecution() {
+  window.clearTimeout(executionTimer);
+  const seq = ++bj02CommitSeq;
+  stateByScreen["SCR-012"] = "PROCESSING";
+  navigate("SCR-012");
+  executionTimer = window.setTimeout(() => {
+    if (activeFlowId !== "UIF-02" || activeScreenId !== "SCR-012" || stateByScreen["SCR-012"] !== "PROCESSING") return;
+    bj02Commit(seq);
+    stateByScreen["SCR-012"] = "VALUATION_PENDING_RESULT";
+    syncReviewUrl();
+    render();
+  }, 1400);
+}
+// Đóng sheet / hộp thoại đang mở; trả true nếu có gì để đóng.
+function bj02CloseOverlays() {
+  const open = supplierMenuOpen || bj02ScanOpen || bj02RejectOpen || bj02LinesSheetOpen || bj02Confirm || bj02ReviewOpenLineId || BJ02_CONTEXT.evidenceSheetOpen;
+  supplierMenuOpen = false; supplierSearchQuery = ""; bj02ScanOpen = false; bj02RejectOpen = false; bj02LinesSheetOpen = false;
+  bj02Confirm = null; bj02ReviewOpenLineId = null; BJ02_CONTEXT.evidenceSheetOpen = false;
+  return Boolean(open);
+}
+function bj02StartNew(mode) {
+  bj02PendingSubmitted = false;
+  if (mode !== flowMode) flowMode = mode;
+  resetBj02Receipt(mode); bj02ResetFlowStates();
+}
+
+// Web: rời SCR-009 sang Rà soát thì giữ phần đang sửa dở của dòng đang chọn (màn còn trên DOM lúc móc chạy).
+onScreenEnter["UIF-02:SCR-010"] = () => { bj02CloseOverlays(); if (viewport === "web" && activeScreenId === "SCR-009" && lineEditorDirty && lineEditorDraft && !lineEditorIsReadOnly()) persistLineEditorDraft(false); };
+
+// Đổi khung giữa chừng: SCR-084 trên web là SCR-009; về iPhone thì giữ nháp dòng đang sửa (DOM còn của khung cũ).
+onViewportChange.push((vp) => {
+  if (activeFlowId !== "UIF-02") return;
+  if (vp === "web" && activeScreenId === "SCR-084") {
+    if (activeReceiptLineId) bj02WebLineId = activeReceiptLineId;
+    activeScreenId = "SCR-009"; syncReviewUrl();
+  } else if (vp === "mobile" && activeScreenId === "SCR-009" && lineEditorDirty && lineEditorDraft && !lineEditorIsReadOnly()) {
+    bj02EditorForce = true;
+    try { persistLineEditorDraft(false); } finally { bj02EditorForce = false; }
+    lineEditorDirty = false;
   }
-  return bj17HandoffUnknown({
-    sourceFlow: "UIF-02",
-    operation: "Nhận hàng",
-    scope: "Yêu cầu nhận hàng hiện tại",
-    evidence: "INSUFFICIENT",
-  });
-}, true);
+});
+
+// Vào màn nào cũng đóng sheet / hộp thoại còn mở của màn trước.
+["SCR-007", "SCR-008", "SCR-009", "SCR-084", "SCR-011", "SCR-012", "SCR-013"].forEach((id) => { onScreenEnter[`UIF-02:${id}`] = () => { bj02CloseOverlays(); }; });
 
 onPrevious["UIF-02"] = () => {
+  if (activeScreenId === "SCR-008") return navigate("SCR-007");
+  // Web: SCR-084 chỉ là SCR-009 với một dòng được chọn; rời màn thì giữ nháp dòng đang sửa như nút quay lại của 084.
+  if (viewport === "web" && ["SCR-009", "SCR-084"].includes(activeScreenId)) {
+    if (lineEditorDraft && !lineEditorIsReadOnly()) persistLineEditorDraft(false);
+    lineEditorReadOnly = false; lineEditorDirty = false;
+    return navigate(flowMode === "quick" ? "SCR-008" : "SCR-007");
+  }
   if (activeScreenId === "SCR-009") return navigate(flowMode === "quick" ? "SCR-008" : "SCR-007");
   if (activeScreenId === "SCR-084") {
     if (!lineEditorIsReadOnly()) persistLineEditorDraft(false);
@@ -1244,91 +1418,175 @@ onPrevious["UIF-02"] = () => {
     lineEditorDirty = false;
     return navigate("SCR-009");
   }
+  if (activeScreenId === "SCR-010") return navigate("SCR-009");
 };
 
-document.addEventListener('click', (event) => {
-    if (activeFlowId !== "UIF-02") return;
-    const quick=event.target.closest('[data-v392-quick-continue]');
-    if(quick){
-      event.preventDefault(); 
-      const supplierValid=supplierCatalog.some((x)=>x.id===bj02Header.supplierId&&x.name===bj02Header.supplier.trim());
-      if(!supplierValid||!bj02EvidenceRefs().length||!BJ02_CONTEXT.capabilities.assertOwnership) return;
-      bj02MakeOwnershipAssertion(); return navigate('SCR-009');
-    }
-    if(event.target.closest('[data-v392-open-evidence]')){event.preventDefault();BJ02_CONTEXT.evidenceSheetOpen=true;return renderAppScreen();}
-    if(event.target.closest('[data-v392-close-evidence]')){event.preventDefault();BJ02_CONTEXT.evidenceSheetOpen=false;return renderAppScreen();}
-    if(event.target.closest('[data-v392-preview-file]')){event.preventDefault();return showToast('Đã mở bản xem trước chứng từ trong chế độ prototype.','info');}
-    if(event.target.closest('[data-v392-change-source]')){event.preventDefault();BJ02_CONTEXT.changeSourceConfirmOpen=true;return renderAppScreen();}
-    if(event.target.closest('[data-v392-cancel-source-change]')){event.preventDefault();BJ02_CONTEXT.changeSourceConfirmOpen=false;return renderAppScreen();}
-    if(event.target.closest('[data-v392-confirm-source-change]')){event.preventDefault();BJ02_CONTEXT.changeSourceConfirmOpen=false;resetBj02Receipt('document');return navigate('SCR-007');}
-  }, true);
+document.addEventListener("keydown", (event) => {
+  if (activeFlowId !== "UIF-02" || event.key !== "Escape") return;
+  if (bj02CloseOverlays()) { event.preventDefault(); renderAppScreen(); }
+}, true);
+
+document.addEventListener("keydown", (event) => {
+  if (activeFlowId !== "UIF-02" || (event.key !== "Enter" && event.key !== " ")) return;
+  const row = event.target.closest?.("tr[data-bj02-review-line]");
+  if (!row) return;
+  event.preventDefault(); row.click();
+});
 
 document.addEventListener("click", (event) => {
   if (activeFlowId !== "UIF-02") return;
-  const documentCard = event.target.closest("[data-bj02-document-id]");
-  if (documentCard) {
-    event.preventDefault(); selectedDocumentId = documentCard.dataset.bj02DocumentId; flowMode = "document"; resetBj02Receipt("document"); return navigate("SCR-009");
+  // Phần tử nền (backdrop) chỉ nhận chạm vào chính nó, không nhận chạm vào nội dung sheet bên trong.
+  const hit = (selector) => {
+    const el = event.target.closest(selector);
+    if (!el) return null;
+    if (el.matches(".sheet-backdrop,.confirm-backdrop,.bj02-select-backdrop") && event.target !== el) return null;
+    return el;
+  };
+  const documentCard = hit("[data-bj02-document-id]");
+  if (documentCard && !documentCard.disabled) {
+    event.preventDefault(); selectedDocumentId = documentCard.dataset.bj02DocumentId; bj02StartNew("document"); return navigate("SCR-009");
   }
-  const flowButton = event.target.closest("[data-flow]");
+  const flowButton = hit("[data-flow]");
   if (flowButton) {
-    event.preventDefault();
-    event.stopPropagation();
-    const nextFlow = flowButton.dataset.flow;
-    if (nextFlow !== flowMode) {
-      flowMode = nextFlow;
-      resetBj02Receipt(flowMode);
-    }
+    event.preventDefault(); event.stopPropagation();
+    if (flowButton.disabled) return;
+    bj02StartNew(flowButton.dataset.flow === "quick" ? "quick" : "document");
     syncReviewUrl();
-    if (flowButton.dataset.next) return navigate(flowButton.dataset.next);
     return navigate(flowMode === "quick" ? "SCR-008" : "SCR-007");
   }
-  if (event.target.matches("[data-bj02-supplier-backdrop]")) { event.preventDefault(); supplierMenuOpen=false; supplierSearchQuery=""; return renderAppScreen(); }
-  const supplierTrigger = event.target.closest("[data-bj02-open-supplier-sheet]");
-  if (supplierTrigger) { event.preventDefault(); supplierMenuOpen=true; supplierSearchQuery=""; return renderAppScreen(); }
-  const quantityTrigger = event.target.closest("[data-bj02-quantity-target]");
-  if (quantityTrigger) { event.preventDefault(); return openBj02NumericPad(quantityTrigger.dataset.bj02QuantityTarget, quantityTrigger.dataset.bj02QuantityKey, quantityTrigger.dataset.bj02QuantityLotId || null); }
-  const numericKey = event.target.closest("[data-bj02-numeric-key]");
-  if (numericKey) { event.preventDefault(); return updateBj02NumericPad(numericKey.dataset.bj02NumericKey); }
-  const lineCard = event.target.closest("[data-bj02-line-id]");
+  if (event.target.matches("[data-bj02-supplier-backdrop]")) { event.preventDefault(); supplierMenuOpen = false; supplierSearchQuery = ""; return renderAppScreen(); }
+  if (hit("[data-bj02-open-supplier-sheet]")) { event.preventDefault(); supplierMenuOpen = true; supplierSearchQuery = ""; return renderAppScreen(); }
+  const quickContinue = hit("[data-bj02-quick-continue]");
+  if (quickContinue) {
+    event.preventDefault();
+    if (quickContinue.disabled || bj02QuickBlockedReason() || !BJ02_CONTEXT.capabilities.assertOwnership) return;
+    return navigate("SCR-009");
+  }
+  if (hit("[data-bj02-evidence-camera]")) {
+    event.preventDefault();
+    bj02Header.evidenceRefs = [...bj02EvidenceRefs(), { id: `EV-CAM-${++bj02CameraShots}`, name: `Anh-phieu-giao-${bj02CameraShots}.jpg`, type: "DELIVERY_DOCUMENT" }];
+    bj02Header.evidence = bj02Header.evidenceRefs[0].name; bj02RefreshOwnership();
+    return renderAppScreen();
+  }
+  const evidenceRemove = hit("[data-bj02-evidence-remove]");
+  if (evidenceRemove) {
+    event.preventDefault();
+    bj02Header.evidenceRefs = bj02EvidenceRefs().filter((x) => x.id !== evidenceRemove.dataset.bj02EvidenceRemove);
+    bj02Header.evidence = bj02Header.evidenceRefs[0]?.name || ""; bj02RefreshOwnership();
+    return renderAppScreen();
+  }
+  const ownership = hit("[data-bj02-ownership]");
+  if (ownership) {
+    event.preventDefault();
+    if (ownership.disabled) return;
+    if (bj02OwnershipReady()) bj02Header.ownershipAssertion = null; else bj02MakeOwnershipAssertion();
+    return renderAppScreen();
+  }
+  const scanSample = hit("[data-bj02-scan-sample]");
+  if (scanSample) { event.preventDefault(); bj02ScanOpen = false; return bj02ScanProduct(scanSample.dataset.bj02ScanSample); }
+  const lineCard = hit("[data-bj02-line-id]");
   if (lineCard && !event.target.closest("[data-bj02-action]")) { event.preventDefault(); return beginLineEditor(lineCard.dataset.bj02LineId); }
-  const supplierOption = event.target.closest("[data-bj02-supplier-option]");
+  const supplierOption = hit("[data-bj02-supplier-option]");
   if (supplierOption) { event.preventDefault(); return selectSupplier(supplierOption.dataset.bj02SupplierOption); }
-  const overviewProductOption = event.target.closest("[data-bj02-overview-product-option]");
+  const overviewProductOption = hit("[data-bj02-overview-product-option]");
   if (overviewProductOption) { event.preventDefault(); return selectQuickOverviewProduct(overviewProductOption.dataset.bj02OverviewProductOption); }
-  const overviewUomChoice = event.target.closest("[data-bj02-overview-uom-choice]");
+  const overviewUomChoice = hit("[data-bj02-overview-uom-choice]");
   if (overviewUomChoice) { event.preventDefault(); return chooseQuickOverviewUom(overviewUomChoice.dataset.bj02OverviewUomChoice); }
-  const lineUomChoice = event.target.closest("[data-bj02-line-uom-choice]");
-  if (lineUomChoice) { event.preventDefault(); if (lineEditorIsReadOnly()) return; return chooseLineUom(lineUomChoice.dataset.bj02LineUomChoice); }
-  const productOption = event.target.closest("[data-bj02-product-option]");
+  const productOption = hit("[data-bj02-product-option]");
   if (productOption) { event.preventDefault(); if (lineEditorIsReadOnly()) return; return selectLineProduct(productOption.dataset.bj02ProductOption); }
-  const reviewLine = event.target.closest("[data-bj02-review-line]");
+  const reviewLine = hit("[data-bj02-review-line]");
   if (reviewLine) { event.preventDefault(); bj02ReviewOpenLineId = reviewLine.dataset.bj02ReviewLine; return renderAppScreen(); }
-  const reviewClose = event.target.closest("[data-bj02-review-close]");
-  if (reviewClose) { event.preventDefault(); bj02ReviewOpenLineId = null; return renderAppScreen(); }
-  const actionButton = event.target.closest("[data-bj02-action]");
-  if (!actionButton) return;
+  if (hit("[data-bj02-review-close]")) { event.preventDefault(); bj02ReviewOpenLineId = null; return renderAppScreen(); }
+  const actionButton = hit("[data-bj02-action]");
+  if (actionButton) {
+    event.preventDefault(); event.stopPropagation();
+    if (actionButton.disabled) return;
+    const action = actionButton.dataset.bj02Action;
+    const lotId = actionButton.dataset.bj02LotId;
+    switch (action) {
+      case "reload": stateByScreen[activeScreenId] = "READY"; syncReviewUrl(); return renderAppScreen();
+      case "scan-open": bj02ScanOpen = true; return renderAppScreen();
+      case "scan-close": bj02ScanOpen = false; return renderAppScreen();
+      case "change-overview-product": quickOverviewPendingProductId = null; quickOverviewProductQuery = ""; quickOverviewProductMenuOpen = false; return renderAppScreen();
+      case "change-new-line-product": lineEditorDirty = true; lineEditorDraft.productId = null; lineEditorDraft.uomId = null; lineEditorDraft.uom = null; lineEditorDraft.lots = []; lineProductMenuOpen = true; return renderAppScreen();
+      case "fill-remaining": return bj02FillRemaining();
+      case "show-manufacture-date": syncEditorDraftFromDom(); lotManufactureExpanded = true; return renderAppScreen();
+      case "add-editor-lot": return addEditorLot();
+      case "toggle-lot": syncEditorDraftFromDom(); activeLotDraftId = activeLotDraftId === lotId ? null : lotId; lotManufactureExpanded = Boolean(lineEditorDraft.lots.find((lot) => lot.id === activeLotDraftId)?.manufactureDate); return renderAppScreen();
+      case "open-existing-lot": syncEditorDraftFromDom(); activeLotDraftId = lotId; lotManufactureExpanded = Boolean(lineEditorDraft.lots.find((lot) => lot.id === activeLotDraftId)?.manufactureDate); return renderAppScreen();
+      case "remove-editor-lot": {
+        syncEditorDraftFromDom();
+        const lot = lineEditorDraft?.lots?.find((item) => item.id === lotId);
+        if (!lot || lineEditorDraft.lots.length <= 1) return;
+        if (!lotHasData(lot)) return removeEditorLotNow(lotId);
+        bj02Confirm = { kind: "remove-lot", id: lotId }; return renderAppScreen();
+      }
+      case "remove-quick-line": {
+        syncEditorDraftFromDom();
+        const line = bj02Lines.find((item) => item.id === actionButton.dataset.bj02LineId);
+        if (!line || flowMode !== "quick") return;
+        if (!lineHasData(line)) return removeQuickLineNow(line.id);
+        bj02Confirm = { kind: "remove-line", id: line.id }; return renderAppScreen();
+      }
+      case "not-received": {
+        if (!lineEditorDraft || flowMode !== "document") return;
+        syncEditorDraftFromDom();
+        if (!lineHasData(lineEditorDraft)) return markLineNotReceived();
+        bj02Confirm = { kind: "not-received" }; return renderAppScreen();
+      }
+      case "change-source": bj02Confirm = { kind: "change-source" }; return renderAppScreen();
+      case "confirm-close": bj02Confirm = null; return renderAppScreen();
+      case "confirm-ok": {
+        const confirm = bj02Confirm; bj02Confirm = null;
+        if (confirm?.kind === "remove-lot") return removeEditorLotNow(confirm.id);
+        if (confirm?.kind === "remove-line") return removeQuickLineNow(confirm.id);
+        if (confirm?.kind === "not-received") return markLineNotReceived();
+        if (confirm?.kind === "change-source") { bj02StartNew("document"); return navigate("SCR-007"); }
+        return renderAppScreen();
+      }
+      case "save-line": return saveEditorLine();
+      case "open-duplicate-line": return beginLineEditor(actionButton.dataset.bj02LineId);
+      case "open-existing-overview-line": quickOverviewDuplicateLineId = null; return beginLineEditor(actionButton.dataset.bj02LineId);
+      case "approve": bj02Approver = { name: "Chủ cửa hàng" }; bj02PendingSubmitted = false; return startAutoExecution();
+      case "open-reject": bj02RejectOpen = true; approvalRejectReason = ""; return renderAppScreen();
+      case "close-reject": bj02RejectOpen = false; approvalRejectReason = ""; return renderAppScreen();
+      case "confirm-reject":
+        if (!approvalRejectReason.trim()) return;
+        bj02RejectOpen = false; bj02PendingSubmitted = false; stateByScreen["SCR-011"] = "REJECTED_DONE"; stateByScreen["SCR-010"] = "REJECTED"; bj02RejectedBy = "Chủ cửa hàng"; syncReviewUrl(); return renderAppScreen();
+      case "open-evidence": BJ02_CONTEXT.evidenceSheetOpen = true; return renderAppScreen();
+      case "close-evidence": BJ02_CONTEXT.evidenceSheetOpen = false; return renderAppScreen();
+      case "preview-file": return showToast("Đã mở bản xem trước chứng từ trong chế độ prototype.", "info");
+      case "redo": bj02StartNew(flowMode); return navigate("SCR-007");
+      case "open-lines": bj02LinesSheetOpen = true; return renderAppScreen();
+      case "close-lines": bj02LinesSheetOpen = false; return renderAppScreen();
+      case "receive-more": selectedDocumentId = "PN-260816-04"; bj02StartNew("document"); return navigate("SCR-007");
+      case "see-inventory": activeFlowId = "UIF-01"; activeScreenId = "SCR-001"; stateByScreen["SCR-001"] = "READY"; syncReviewUrl(); return render();
+      case "go-valuation":
+        return val03OpenForReceipt(bj02LastCommitted?.ref || selectedDocumentId);
+    }
+    return;
+  }
+  const actionEl = event.target.closest("[data-action]");
+  if (!actionEl) return;
+  const action = actionEl.dataset.action;
+  if (!["exit-flow", "exit-approval", "exit-receipt-document-context", "submit", "refresh"].includes(action)) return;
   event.preventDefault(); event.stopPropagation();
-  const action = actionButton.dataset.bj02Action;
-  if (action === "numeric-cancel") return closeBj02NumericPad();
-  if (action === "change-overview-product") { quickOverviewPendingProductId=null; quickOverviewProductQuery=""; quickOverviewProductMenuOpen=false; return renderAppScreen(); }
-  if (action === "numeric-save") return saveBj02NumericPad();
-  if (action === "change-new-line-product") { lineEditorDirty=true; lineEditorDraft.productId=null; lineEditorDraft.uomId=null; lineEditorDraft.uom=null; lineEditorDraft.lots=[]; lineProductMenuOpen=true; return renderAppScreen(); }
-  if (action === "show-manufacture-date") { syncEditorDraftFromDom(); lotManufactureExpanded=true; return renderAppScreen(); }
-  if (action === "add-editor-lot") return addEditorLot();
-  if (action === "toggle-lot") { syncEditorDraftFromDom(); const lotId=actionButton.dataset.bj02LotId; activeLotDraftId = activeLotDraftId === lotId ? null : lotId; lotClassificationExpanded=false; lotManufactureExpanded=Boolean(lineEditorDraft.lots.find((lot)=>lot.id===activeLotDraftId)?.manufactureDate); return renderAppScreen(); }
-  if (action === "remove-editor-lot") { syncEditorDraftFromDom(); return openRemoveLotDialog(actionButton.dataset.bj02LotId); }
-  if (action === "close-remove-lot") return closeRemoveLotDialog();
-  if (action === "confirm-remove-lot") return confirmRemoveLot();
-  if (action === "open-existing-lot") { syncEditorDraftFromDom(); activeLotDraftId=actionButton.dataset.bj02LotId; lotClassificationExpanded=false; lotManufactureExpanded=Boolean(lineEditorDraft.lots.find((lot)=>lot.id===activeLotDraftId)?.manufactureDate); return renderAppScreen(); }
-  if (action === "remove-quick-line") { syncEditorDraftFromDom(); return openRemoveQuickLineDialog(actionButton.dataset.bj02LineId); }
-  if (action === "close-remove-line") return closeRemoveQuickLineDialog();
-  if (action === "confirm-remove-line") return confirmRemoveQuickLine();
-  if (action === "save-line") return saveEditorLine();
-  if (action === "not-received") return requestMarkLineNotReceived();
-  if (action === "close-not-received") return closeNotReceivedDialog();
-  if (action === "confirm-not-received") { closeNotReceivedDialog(); return markLineNotReceived(); }
-  if (action === "open-duplicate-line") return beginLineEditor(actionButton.dataset.bj02LineId);
-  if (action === "open-existing-overview-line") { quickOverviewDuplicateLineId=null; return beginLineEditor(actionButton.dataset.bj02LineId); }
+  if (actionEl.disabled) return;
+  if (action === "exit-flow") { selectedDocumentId = "PN-260816-04"; bj02StartNew("document"); return navigate("SCR-007"); }
+  if (action === "exit-approval") return showToast("Quay về danh sách việc cần duyệt của người phê duyệt", "info");
+  if (action === "exit-receipt-document-context") return showToast(`Quay về chứng từ ${selectedDocumentId}`, "info");
+  if (action === "submit") {
+    if (bj02RequiresApproval()) {
+      bj02Approver = null; bj02PendingSubmitted = true;
+      stateByScreen["SCR-010"] = "PENDING_APPROVAL";
+      stateByScreen["SCR-011"] = "READY";
+      syncReviewUrl(); render();
+      return;
+    }
+    bj02Approver = null;
+    return startAutoExecution();
+  }
+  if (action === "refresh") return showToast("Đã làm mới kết quả nhận hàng", "info");
 }, true);
 
 document.addEventListener("focusin", (event) => {
@@ -1355,9 +1613,8 @@ document.addEventListener("focusout", (event) => {
   if (activeFlowId !== "UIF-02") return;
   if (!event.target.matches("[data-bj02-supplier-search]")) return;
   supplierValidationVisible = true;
-  const valid = supplierCatalog.some((supplier) => supplier.id === bj02Header.supplierId && supplier.name === bj02Header.supplier.trim());
   const error = document.querySelector("[data-bj02-supplier-error]");
-  if (error) error.hidden = valid;
+  if (error) error.hidden = bj02SupplierValid();
 });
 
 document.addEventListener("pointerdown", (event) => {
@@ -1381,84 +1638,53 @@ document.addEventListener("change", (event) => {
   if (activeFlowId !== "UIF-02") return;
   if (event.target.matches("[data-bj02-evidence-file]")) {
     const files = [...(event.target.files || [])];
-    bj02Header.evidenceRefs = files.map((f, i) => ({ id: `EV-${Date.now()}-${i + 1}`, name: f.name, type: 'DELIVERY_DOCUMENT' }));
-    bj02Header.evidence = bj02Header.evidenceRefs[0]?.name || '';
-    bj02Header.ownershipAssertion = null;
+    if (!files.length) return;
+    bj02Header.evidenceRefs = [...bj02EvidenceRefs(), ...files.map((f, i) => ({ id: `EV-${Date.now()}-${i + 1}`, name: f.name, type: "DELIVERY_DOCUMENT" }))];
+    bj02Header.evidence = bj02Header.evidenceRefs[0]?.name || "";
+    bj02RefreshOwnership();
     return renderAppScreen();
   }
-  if (event.target.matches("[data-v392-lot-precision]") && lineEditorDraft) {
-    const lot = lineEditorDraft.lots?.find((x) => x.id === activeLotDraftId);
-    if (lot) { lot[event.target.dataset.v392LotPrecision] = event.target.value; lineEditorDirty = true; }
-  }
   if (event.target.matches("[data-bj02-line-uom-select]")) { if (lineEditorIsReadOnly() || !event.target.value) return; return chooseLineUom(event.target.value); }
-  if (event.target.matches("[data-bj02-uom]")) { if (lineEditorIsReadOnly()) return; return chooseLineUom(event.target.value); }
 });
-
 
 document.addEventListener("input", (event) => {
   if (activeFlowId !== "UIF-02") return;
-  if (event.target.matches("[data-bj02-overview-product-search]")) {
-    quickOverviewProductQuery = event.target.value;
+  const t = event.target;
+  if (t.matches("[data-bj02-overview-product-search]")) {
+    quickOverviewProductQuery = t.value;
     quickOverviewProductMenuOpen = true;
-    const menu=document.querySelector("[data-bj02-overview-product-menu]");
-    if(menu){menu.hidden=false;menu.classList.add("is-open");}
-    event.target.setAttribute("aria-expanded","true");
-    filterQuickOverviewProductOptions(event.target.value);
+    const menu = document.querySelector("[data-bj02-overview-product-menu]");
+    if (menu) { menu.hidden = false; menu.classList.add("is-open"); }
+    t.setAttribute("aria-expanded", "true");
+    filterQuickOverviewProductOptions(t.value);
     return;
   }
-  if (event.target.matches("[data-bj02-document-search]")) { filterDocumentCards(event.target.value); return; }
-  if (event.target.matches("[data-bj02-supplier-search]")) { filterSupplierOptions(event.target.value); return; }
-  if (event.target.matches("[data-bj02-header]")) {
-    bj02Header[event.target.dataset.bj02Header] = event.target.value;
-    if (event.target.matches("[data-bj02-supplier-search]")) { bj02Header.supplierId = null; supplierMenuOpen = true; supplierValidationVisible = false; filterSupplierOptions(event.target.value); const err=document.querySelector("[data-bj02-supplier-error]"); if(err) err.hidden=true; }
-    const continueButton = document.querySelector('[data-next="SCR-009"]');
-    if (continueButton && activeScreenId === "SCR-008") {
-      const supplierValid = supplierCatalog.some((supplier) => supplier.id === bj02Header.supplierId && supplier.name === bj02Header.supplier.trim());
-      continueButton.disabled = !(supplierValid && quickReceiptDateValid(bj02Header.businessDate) && bj02Header.evidence.trim());
-    }
+  if (t.matches("[data-bj02-document-search]")) { filterDocumentCards(t.value); return; }
+  if (t.matches("[data-bj02-line-search]")) {
+    filterLineRows(t.value);
+    const exact = bj02ExactProduct(t.value);
+    if (exact) { lineSearchQuery = ""; return beginLineEditor(exact.id); }
     return;
   }
-  if (event.target.matches("[data-bj02-product-search]")) { filterLineProductOptions(event.target.value); return; }
-  if (event.target.matches("[data-bj02-lot-field]")) {
+  if (t.matches("[data-bj02-supplier-search]")) { filterSupplierOptions(t.value); return; }
+  if (t.matches("[data-bj02-product-search]")) { filterLineProductOptions(t.value); return; }
+  if (t.matches("[data-bj02-qty]")) {
+    const digits = t.value.replace(/\D/g, "");
+    if (digits !== t.value) t.value = digits;
     lineEditorDirty = true;
     syncEditorDraftFromDom();
     updateBj02EditorLiveFeedback();
     return;
   }
-});
-
-document.addEventListener("input", (event) => {
-  if (activeFlowId !== "UIF-02") return;
-  if (event.target.matches("[data-reject-reason]")) {
-    const confirm = document.querySelector('[data-action="confirm-reject"]');
-    if (confirm) confirm.disabled = event.target.value.trim().length === 0;
+  if (t.matches("[data-bj02-lot-field]")) {
+    lineEditorDirty = true;
+    syncEditorDraftFromDom();
+    updateBj02EditorLiveFeedback();
+    return;
+  }
+  if (t.matches("[data-bj02-reject-reason]")) {
+    approvalRejectReason = t.value;
+    const confirm = document.querySelector('[data-bj02-action="confirm-reject"]');
+    if (confirm) confirm.disabled = !approvalRejectReason.trim();
   }
 });
-
-document.addEventListener("click", (event) => {
-  if (activeFlowId !== "UIF-02") return;
-  const actionButton = event.target.closest("[data-action]");
-  if (!actionButton) return;
-  const action = actionButton.dataset.action;
-  if (!["close-reject","exit-flow","exit-approval","exit-receipt-document-context","submit","approve","open-reject","confirm-reject","refresh","handoff"].includes(action)) return;
-  event.preventDefault();
-  event.stopPropagation();
-  if (action === "close-reject") return closeRejectSheet();
-  if (action === "exit-flow") { flowMode = "document"; selectedDocumentId = "PN-260816-04"; resetBj02Receipt("document"); return navigate("SCR-006"); }
-  if (action === "exit-approval") return showToast("Quay về danh sách việc cần duyệt của người phê duyệt", "info");
-  if (action === "exit-receipt-document-context") return showToast(`Quay về chứng từ ${selectedDocumentId}`, "info");
-  if (action === "submit") {
-    if (bj02RequiresApproval()) {
-      stateByScreen["SCR-010"] = "PENDING_APPROVAL";
-      stateByScreen["SCR-011"] = "READY";
-      render();
-      return;
-    }
-    return startAutoExecution();
-  }
-  if (action === "approve") return startAutoExecution();
-  if (action === "open-reject") return openRejectSheet();
-  if (action === "confirm-reject") return confirmReject();
-  if (action === "refresh") return showToast("Đã làm mới kết quả nhận hàng", "info");
-  if (action === "handoff") return showToast("Đã chuẩn bị bàn giao xử lý tiếp theo", "info");
-}, false);

@@ -190,11 +190,10 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 | Screen | Vai trò trong UC |
 |---|---|
 | `SCR-014` | Danh sách công việc chờ xác lập giá trị. |
-| `SCR-015` | Xác lập căn cứ và cấu thành giá trị; Nhập nhanh có thể thêm căn cứ trực tiếp bằng biểu mẫu trong Bottom Sheet. |
-| `SCR-017` | Rà soát chỉ đọc trước khi xác nhận ghi nhận. |
+| `SCR-015` | Xác lập căn cứ và cấu thành giá trị; Nhập nhanh có thể thêm căn cứ trực tiếp bằng biểu mẫu trong Bottom Sheet; xác nhận cuối là sheet "Ghi giá trị nhập ban đầu?" ngay trên màn này. |
 | `SCR-019` | Kết quả có hiệu lực; chưa tạo giá vốn chính thức. |
 
-`SCR-016` đã retire; chi tiết nguồn và căn cứ là section hoặc contextual sheet của `SCR-015/017`. UI không cho người dùng tự chia quantity tùy ý và không cho Theme 7 tự resolve conflict thương mại thuộc Theme 10.
+`SCR-016` và `SCR-017` đã retire (v5.9.0): chi tiết nguồn và căn cứ là sheet "Cách tính" của `SCR-015`; rà soát cuối là sheet xác nhận của `SCR-015`. "Kế toán kho" trong UC này là chủ cửa hàng khi cửa hàng nhỏ không có kế toán riêng (BJ-03 mục 2). UI không cho người dùng tự chia quantity tùy ý và không cho Theme 7 tự resolve conflict thương mại thuộc Theme 10.
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

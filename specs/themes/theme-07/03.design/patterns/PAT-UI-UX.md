@@ -54,7 +54,7 @@ flowchart TD
 
 Áp dụng [`../prototype/contracts/design-system-profile.md`](../design-system/design-system-profile.md). Flutter Design System ZIP là semantic/API authority; Vercel là visual authority vì được project xác nhận render trực tiếp từ cùng Flutter DS. HTML không phải Design System thứ hai.
 
-Các nguyên tắc bắt buộc: mobile-first; rõ ràng hơn thông minh; theo luồng công việc; một hành động chính; tiết lộ tăng dần; phòng ngừa trước khi sửa; trạng thái và số liệu phải trung thực.
+Các nguyên tắc bắt buộc: iPhone và web đều là thiết bị chính (mỗi màn đủ hai bố cục, [LUONG-UNG-DUNG 1.1](../../../../../docs/02-yeu-cau/LUONG-UNG-DUNG.md)); rõ ràng hơn thông minh; theo luồng công việc; một hành động chính; tiết lộ tăng dần; phòng ngừa trước khi sửa; trạng thái và số liệu phải trung thực.
 
 ### 4. Kiến trúc thông tin
 

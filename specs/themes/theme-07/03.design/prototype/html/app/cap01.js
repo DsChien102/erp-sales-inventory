@@ -1,6 +1,6 @@
 /* CAP-01 — Chính sách tồn & cận hạn (CAP-01). Màn: SCR-062 Ngưỡng tồn, SCR-063 Cận hạn, SCR-065 Kết quả (chỉ khi chưa rõ / bị từ chối).
  *
- * Thiết kế lại (T7-P CAP-01, 2026-10-21, v5.7.0): 062 là bảng sản phẩm sửa tại dòng (web chính) hoặc một sản phẩm
+ * Thiết kế lại (T7-P CAP-01, 2026-10-21, v5.7.0): 062 là bảng sản phẩm sửa tại dòng (web) hoặc một sản phẩm (iPhone)
  * (vào từ BJ-01); 063 là mặc định + sản phẩm có chính sách riêng; SCR-064 Rà soát thành sheet tác động trong 062;
  * lưu thành công ở lại màn + toast. Sửa CAP-01: sửa thẳng file này.
  * Dùng chung từ app/core.js: appShell, ds24ListRow, ds24Badge, ds24DotBadge, ds24InfoRow, vBanner, primaryFooter, esc,

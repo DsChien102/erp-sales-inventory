@@ -151,7 +151,7 @@ UC kết thúc theo một trong hai kết quả:
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-006` | Chọn Phiếu nhận hàng nhanh; chưa tạo phiếu nhận hàng. |
+| `SCR-007` | Dòng "Hàng đến chưa có chứng từ" chọn Phiếu nhận hàng nhanh; chưa tạo phiếu nhận hàng. |
 | `SCR-008` | Nhập header/evidence trong phiên UI; không persist draft. |
 | `SCR-009` | Quản lý danh sách Product+UOM trong phiên UI; không persist draft. |
 | `SCR-084` | Chỉnh một Product+UOM/LOT trong phiên UI; không persist draft. |

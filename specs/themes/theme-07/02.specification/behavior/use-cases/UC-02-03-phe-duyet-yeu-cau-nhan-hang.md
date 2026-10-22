@@ -14,7 +14,7 @@ ui_flow: UIF-02
 
 ## 1. Mục tiêu và kết quả nghiệp vụ
 
-Ra quyết định phê duyệt độc lập cho phiếu nhận hàng nhanh và các phiếu nhận hàng theo chứng từ có accepted physical vượt tolerance/ngưỡng của source theo ApprovalPolicy.
+Ra quyết định phê duyệt độc lập với người lập (**ngoại lệ**: cửa hàng chỉ có một chủ cửa hàng `is_owner`; chủ lập phiếu vẫn gửi duyệt rồi tự duyệt ở bước này, như phiếu của nhân viên — không có đường ghi nhận thẳng; lịch sử ghi người duyệt là “Chủ cửa hàng”) cho phiếu nhận hàng nhanh và các phiếu nhận hàng theo chứng từ có accepted physical vượt tolerance/ngưỡng của source theo ApprovalPolicy.
 
 **Kết quả cần đạt:** Yêu cầu được duyệt sang `READY` hoặc bị từ chối có lý do; không tạo movement trong UC phê duyệt.
 
@@ -34,7 +34,7 @@ Không tự ghi hàng vào tồn và không sửa payload nhận hàng đã khó
 
 ## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Tác nhân chính:** Người có quyền phê duyệt phù hợp, khác người lập. Với phiếu nhận hàng nhanh, eligibility/cấp được resolve theo policy phiếu nhận hàng nhanh không phụ thuộc price/FX tại BJ02.
+- **Tác nhân chính:** Người duyệt là `is_owner` hoặc có vai trò `store_owner`, khác người lập; **ngoại lệ** `is_owner` lập thì vẫn gửi duyệt rồi tự duyệt được (cửa hàng chỉ có một chủ). Với phiếu nhận hàng nhanh, eligibility/cấp được resolve theo policy phiếu nhận hàng nhanh không phụ thuộc price/FX tại BJ02.
 - **Thẩm quyền:** Chỉ tác nhân có quyền phê duyệt đúng policy và phạm vi mới được ra quyết định; quyết định không thay thế bước thực thi nghiệp vụ phía sau.
 - **Sự kiện khởi phát:** Hồ sơ phiếu nhận hàng nhanh đã gửi hoặc hồ sơ nhận theo chứng từ có accepted physical vượt tolerance/ngưỡng cần duyệt.
 - **Điều kiện trước:** Hồ sơ/case đúng version đang ở trạng thái chờ quyết định; tác nhân có quyền phê duyệt theo policy và đọc được snapshot/evidence làm căn cứ.
@@ -93,7 +93,7 @@ Không tự ghi hàng vào tồn và không sửa payload nhận hàng đã khó
 | Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
 |---|---|---|---|
 | BR-01 | Route vào bước duyệt | Phiếu nhận hàng nhanh luôn phải có quyết định duyệt theo policy phiếu nhận hàng nhanh và không cần price/FX basis để vào UC này; nhận theo chứng từ chỉ vào UC này khi cumulative accepted physical quantity vượt tolerance/ngưỡng của source theo ApprovalPolicy. | `T7-DR-027`, `T7-DR-022`, `T7-DR-116`, `T7-DR-078`, `T7-DR-080` |
-| BR-02 | Người duyệt phải còn quyền | Người duyệt phải còn quyền, phạm vi kho và cấp phù hợp tại thời điểm quyết định, đồng thời khác người lập.| Decision / DOM-IC / BC nguồn |
+| BR-02 | Người duyệt phải còn quyền | Người duyệt phải còn quyền, phạm vi kho và cấp phù hợp tại thời điểm quyết định, đồng thời khác người lập, trừ ngoại lệ `is_owner` lập thì vẫn gửi duyệt rồi tự duyệt được (cửa hàng chỉ có một chủ).| Decision / DOM-IC / BC nguồn |
 | BR-03 | Quyết định đầu tiên commit hợp lệ thắng | Quyết định đầu tiên commit hợp lệ thắng; yêu cầu sau không ghi đè.| Decision / DOM-IC / BC nguồn |
 | BR-04 | Phê duyệt chỉ cho phép thực thi | Phê duyệt chỉ cho phép thực thi, không giữ hàng và không tạo movement; các guard phải được kiểm tra lại khi ghi tồn.| Decision / DOM-IC / BC nguồn |
 | BR-05 | Từ chối phải có lý do và không tạo | Từ chối phải có lý do và không tạo tác động tồn kho.| Decision / DOM-IC / BC nguồn |

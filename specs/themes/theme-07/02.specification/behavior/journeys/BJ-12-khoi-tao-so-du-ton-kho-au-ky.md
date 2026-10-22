@@ -26,7 +26,7 @@ Khởi tạo **số lượng, trạng thái, lô/hạn dùng và giá trị tồ
 
 | Tác nhân | Trách nhiệm | Phạm vi thẩm quyền |
 |---|---|---|
-| Quản trị triển khai, kế toán kho và người duyệt | Nạp, kiểm tra, duyệt và commit số dư đầu kỳ trước khi inventory được kích hoạt. | Không cho giao dịch vận hành chen vào trước activation; maker/approver theo policy: người duyệt là `is_owner` hoặc vai trò `store_owner`, khác người lập — **ngoại lệ** `is_owner` lập thì tự duyệt được. |
+| Quản trị triển khai, kế toán kho và người duyệt | Nạp, kiểm tra, duyệt và commit số dư đầu kỳ trước khi inventory được kích hoạt. | Không cho giao dịch vận hành chen vào trước activation; maker/approver theo policy: người duyệt là `is_owner` hoặc vai trò `store_owner`, khác người lập — **ngoại lệ** `is_owner` lập thì vẫn gửi duyệt rồi tự duyệt được (cửa hàng chỉ có một chủ). |
 
 ## 3. Sơ đồ hành trình nghiệp vụ
 
@@ -44,7 +44,7 @@ flowchart TD
 | UC — Tên | Mục tiêu | Tác nhân | Đầu vào / Bắt đầu khi | Kết quả | Tiếp tục |
 |---|---|---|---|---|---|
 | [UC-12-01](../use-cases/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md) — Nạp và kiểm tra batch đầu kỳ | Batch hợp lệ hoặc có danh sách lỗi đầy đủ; Prepared batch có version/hash, chưa ghi ledger. | Quản trị triển khai, kế toán kho và người duyệt | Có file nguồn, cut-off và control totals | Batch hợp lệ hoặc có danh sách lỗi đầy đủ; Prepared batch có version/hash, chưa ghi ledger. | UC-12-02 |
-| [UC-12-02](../use-cases/UC-12-02-ra-soat-va-duyet-batch.md) — Rà soát và duyệt batch | Batch được duyệt hoặc từ chối; Approval decision độc lập với người lập (trừ ngoại lệ `is_owner` tự duyệt). | Quản trị triển khai, kế toán kho và người duyệt | Có prepared batch hợp lệ | Batch được duyệt hoặc từ chối; Approval decision độc lập với người lập (trừ ngoại lệ `is_owner` tự duyệt). | UC-12-03 |
+| [UC-12-02](../use-cases/UC-12-02-ra-soat-va-duyet-batch.md) — Rà soát và duyệt batch | Batch được duyệt hoặc từ chối; Approval decision độc lập với người lập (trừ ngoại lệ `is_owner` lập thì vẫn gửi duyệt rồi tự duyệt). | Quản trị triển khai, kế toán kho và người duyệt | Có prepared batch hợp lệ | Batch được duyệt hoặc từ chối; Approval decision độc lập với người lập (trừ ngoại lệ `is_owner` lập thì vẫn gửi duyệt rồi tự duyệt). | UC-12-03 |
 | [UC-12-03](../use-cases/UC-12-03-commit-va-kich-hoat-ton-kho.md) — Commit và kích hoạt tồn kho | Toàn bộ batch hoàn tất và inventory được mở; hoặc không có gì commit; Opening evidence và activation result. | Quản trị triển khai, kế toán kho và người duyệt | Có đúng version/hash đã duyệt | Toàn bộ batch hoàn tất và inventory được mở; hoặc không có gì commit; Opening evidence và activation result. | Kết thúc / theo nhánh trên sơ đồ |
 
 ## 5. Bàn giao và ranh giới liên quan

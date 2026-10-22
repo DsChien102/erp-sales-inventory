@@ -3,7 +3,7 @@
 > Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21 — mục 0.10) | Plan C–E ✅ (viết cùng brief; **rà lại theo code sau khi BJ-03 xong**) | Làm ⬜ | Review ⬜
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 2 "Nhập hàng"**, BJ thứ ba (cuối chặng). Làm **sau** [BJ-02](T7-P-bj02-nhan-hang.md) và [BJ-03](T7-P-bj03-gia-nhap.md).
 > Dùng lại K1, K3, K4, K7 (không cần cột chọn của `k7Table` — phạm vi do nguồn cố định). **Không dùng K2:** UC-13-01 không có bước duyệt, chỉ Owner ghi (sửa T7-P mục 9, trước ghi "K2, K3, K4").
-> Thiết bị chính: **web** (Owner, T7-P mục 2); iPhone dùng được đủ việc.
+> Thiết bị: **cả iPhone và web đều là thiết bị chính** (sửa 2026-10-22, T7-P mục 2). Bố cục iPhone thiết kế và kiểm như web, không chỉ "dùng được".
 > Hết plan này = **hết chặng 2**: kịch bản `SC_journey_2` (mục 3.6) đi một mạch Home Kho → nhận hàng → duyệt → xác lập giá → điều chỉnh giá trị → về Home.
 > Ước lượng: **~1,25 ngày, 2 commit** (C + D + `SC_journey_2`; E). Người làm: bạn. Review: phiên plan / review.
 
@@ -62,7 +62,7 @@ Hub → Giá trị kho → "Điều chỉnh giá trị hàng nhập" → 085 (b�
 4. Web: `k7Table` — Nguồn · Loại · Đối tác · Số tiền · Sản phẩm ("{n}") · Tình trạng.
 5. `EMPTY` → `k1Empty({ title:"Không có khoản điều chỉnh nào" (mới), description:"Khoản phát sinh sau khi đã xác lập giá sẽ hiện ở đây." (mới) })`; `FILTER_EMPTY` → `k1Empty` + "Xem tất cả"; `LOADING` → `k1Loading`; `PERMISSION_DENIED` / `FINANCIAL_MASKED` / vai `staff` → `k1Denied({ what:"Bạn chưa có quyền điều chỉnh giá trị" (mới), next:"Chỉ chủ cửa hàng xem và ghi điều chỉnh giá trị." (mới) })`.
 
-*SCR-086 Phân bổ điều chỉnh giá trị* (web chính, K7)
+*SCR-086 Phân bổ điều chỉnh giá trị* (K7)
 
 6. `k7Split`. **Trái:** thẻ nguồn (tên nguồn, loại · đối tác, liên kết "Xem chứng từ" **(mới)** mở tên tệp bằng chứng `evidence`); "Giá trị điều chỉnh" số lớn có dấu (giữ); "Cách phân bổ" (giữ): một phương pháp → **một dòng chỉ đọc** "Theo giá trị nhập ban đầu" + câu mô tả (giữ); nhiều phương pháp → `dsChoiceRow` từng phương pháp kèm mô tả; "Kỳ ghi nhận" (giữ) **gộp banner + khối thành một dòng**: kỳ gốc khoá → "Ghi vào kỳ {kỳ mở} · kỳ gốc {kỳ gốc} đã khoá" **(mới)**; kỳ gốc mở → "Ghi vào kỳ {kỳ}" **(mới)**.
 7. **Phải:** một bảng duy nhất "Kết quả phân bổ" (giữ) — Sản phẩm · Phiếu nhận · Lô · Số lượng · "Giá trị nhập" **(mới, thay "Căn cứ phân bổ")** · "Tỷ trọng" **(mới)** · "Phân bổ" **(mới)**; dòng cuối "Tổng phân bổ" (giữ) = giá trị điều chỉnh. Bỏ khối "Phạm vi áp dụng"; chú thích dưới bảng "Phạm vi do nguồn xác định, không bỏ bớt sản phẩm được." **(mới)** (thay nhãn "Theo nguồn xác định").

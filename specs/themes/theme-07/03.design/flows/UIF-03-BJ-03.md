@@ -1,137 +1,91 @@
 ---
 id: UIF-03
-type: ui-flow-contract
+type: ui-flow
 theme: theme-07
-title: "Xác lập giá trị ban đầu của hàng nhận"
-owner: BA/UX
+bj: BJ-03
+title: "Xác lập giá trị nhập ban đầu"
 status: IN_REVIEW
-version: v4.2.0
-source_baseline: v4.1.0
-business_journey: BJ-03
-canonical: true
-parity: DESIGN_HTML_PARITY_VALIDATED
+prototype: "app/bj03.js"
+updated: 2026-10-22
 ---
-# UIF-03 — Xác lập giá trị ban đầu của hàng nhận
+# UIF-03 — Xác lập giá trị nhập ban đầu
 
-## 1. Mục đích và phạm vi
+## 1. Việc thật
 
-Mô tả cách kế toán xác lập giá trị ban đầu cho hàng đã nhận, từ danh sách hàng chờ xử lý đến rà soát và kết quả xác nhận.
+Hàng vừa nhận xong đã vào tồn nhưng chưa có giá. Chủ cửa hàng (cửa hàng không có kế toán riêng — "kế toán kho" trong đặc tả là chủ cửa hàng) ghi một lần: hàng giá bao nhiêu một đơn vị, lấy từ đâu, tổng bao nhiêu; để tồn có giá trị và giá vốn được tính lại sau đó. Thường 1–5 sản phẩm một phiếu, đa số đủ căn cứ; thỉnh thoảng giá đơn mua và xác nhận của nhà cung cấp lệch nhau, phải thống nhất ở Mua hàng trước. Nhận theo chứng từ: giá đã có ở chứng từ mua, chỉ xem và xác nhận. Nhập nhanh (chưa có chứng từ): chủ tự nhập giá bằng VND kèm nguồn và lý do.
 
-- **Hành trình nghiệp vụ:** [BJ-03 — Xác lập giá trị ban đầu của hàng nhận](../../02.specification/behavior/journeys/BJ-03-xac-lap-gia-tri-ban-dau-cua-hang-nhan.md)
-- **Trường hợp sử dụng liên quan:**
-  - [UC-03-01 — Xác lập giá trị nhập ban đầu](../../02.specification/behavior/use-cases/UC-03-01-xac-lap-gia-tri-nhap-ban-dau.md)
+Thiết bị: iPhone và web đều là thiết bị chính (chủ có thể gom vài phiếu cuối tuần ở máy tính, hoặc ghi ngay trên iPhone).
 
-**Ranh giới:** UIF chỉ mô tả cách người dùng đi qua các màn hình, điều kiện chuyển bước và cách xử lý khi không thể tiếp tục. Quy tắc nghiệp vụ vẫn lấy từ BJ/UC/Behavioral Contract; nội dung và thành phần của từng màn hình vẫn lấy từ Screen Contract.
+- BJ: [BJ-03 — Xác lập giá trị ban đầu của hàng nhận](../../02.specification/behavior/journeys/BJ-03-xac-lap-gia-tri-ban-dau-cua-hang-nhan.md)
+- UC: [UC-03-01](../../02.specification/behavior/use-cases/UC-03-01-xac-lap-gia-tri-nhap-ban-dau.md)
 
-## 2. Người dùng bắt đầu và kết thúc ở đâu
+## 2. Lối vào và lối ra
 
-| Cách vào luồng | Màn hình | Người thực hiện | Đi từ đâu |
-|---|---|---|---|
-| Vào từ chức năng | `SCR-014` | Kế toán hoặc người có quyền tài chính | Giá trị & giá vốn > Hàng chờ xác lập giá trị |
-| Mở từ ngữ cảnh liên quan | `SCR-015` | Kế toán hoặc người có quyền tài chính | Phiếu nhận cần xác lập giá trị |
+| Hướng | Từ / đến | Điều kiện |
+|---|---|---|
+| Vào | BJ-02 SCR-012 → "Xác lập giá trị" | Chủ cửa hàng, vừa nhận hàng → SCR-015 đúng phiếu vừa nhận; nút quay lại về SCR-012 |
+| Vào | Home Kho → Quản lý kho → Giá trị kho → "Hàng chờ xác lập giá trị" | Chủ cửa hàng → SCR-014 |
+| Vào (chỉ prototype) | `entry=receipt-task` | SCR-015 phiếu mặc định |
+| Vào (chỉ prototype) | `entry=staff` | SCR-014 với vai nhân viên: thấy "Bạn chưa có quyền xác lập giá trị" |
+| Ra | BJ-14 | "Cập nhật giá vốn" ở kết quả (mở màn hiện có; BJ-14 thiết kế lại ở chặng 6) |
+| Ra | BJ-13 | Chi phí / khoản phát sinh đến sau khi đã ghi → điều chỉnh giá trị |
+| Ra | BJ-17 | Chưa rõ kết quả → "Chuyển sang xác minh" |
+| Ra | Home Kho | "Về Kho" (không có quyền, bị từ chối, chưa rõ kết quả) |
 
-Luồng kết thúc khi người dùng đã nhận được kết quả cuối cùng hoặc công việc được chuyển rõ sang một hành trình khác. Trạng thái `UNKNOWN` không được coi là thành công; phải tiếp tục xác minh với đúng thao tác gốc.
+SCR-016, SCR-017, SCR-018 đã bỏ: link cũ mở SCR-015 (016, 017) hoặc BJ-13 (018) — xem [RETIRED](../screens/RETIRED.md). Home Kho không có dòng "Cần chú ý" riêng cho luồng này (Home dùng chung với nhân viên).
 
-## 3. Luồng màn hình
+## 3. Sơ đồ luồng
 
 ```mermaid
 flowchart TD
-    BEGIN(["Bắt đầu"])
-    SCR_014["SCR-014 — Hàng chờ xác lập giá trị"]
-    CONTEXT["Mở từ ngữ cảnh liên quan"]
-    SCR_015["SCR-015 — Xác lập giá trị nhập ban đầu"]
-    SCR_017["SCR-017 — Rà soát giá trị nhập ban đầu"]
-    SCR_019["SCR-019 — Kết quả xác lập giá trị"]
-    END(["Kết thúc"])
-    BJ_17["BJ-17 — Phục hồi chưa xác định (`UNKNOWN`)"]
-    BEGIN --> SCR_014
-    CONTEXT --> SCR_015
-    SCR_014 -->|"Mở công việc"| SCR_015
-    SCR_015 -->|"Rà soát"| SCR_017
-    SCR_017 -->|"Quay lại chỉnh căn cứ"| SCR_015
-    SCR_017 -->|"Xác nhận giá trị"| SCR_019
-    SCR_019 -->|"đã hoàn tất (`COMPLETED`)"| END
-    SCR_019 -->|"chưa xác định (`UNKNOWN`)"| BJ_17
+    S012["BJ-02 SCR-012 Kết quả nhận hàng"] -->|"Xác lập giá trị"| S015
+    HUB["Home Kho · Giá trị kho"] --> S014["SCR-014 Hàng chờ xác lập giá trị"]
+    S014 -->|"Mở phiếu"| S015["SCR-015 Xác lập giá trị nhập ban đầu"]
+    S015 -->|"Nhập giá (nhập nhanh)"| SHEET["Sheet Thêm căn cứ giá"]
+    SHEET -->|"Lưu căn cứ"| S015
+    S015 -->|"Ghi giá trị ({n})"| CONFIRM["Sheet xác nhận"]
+    CONFIRM -->|"Xác nhận giá trị"| S019["SCR-019 Kết quả xác lập giá trị"]
+    CONFIRM -.->|"Căn cứ đã đổi"| S015
+    S019 -->|"Tiếp tục xử lý (còn hàng chờ)"| S015
+    S019 -->|"Về danh sách (hết hàng chờ)"| S014
+    S019 -->|"Cập nhật giá vốn"| BJ14["BJ-14 Cập nhật giá vốn"]
+    S019 -.->|"Chưa rõ kết quả"| BJ17["BJ-17 Xác minh"]
 ```
 
-`SCR-016` đã được hợp nhất và không còn là một bước riêng. Căn cứ và nguồn gốc số liệu nằm ngay trong `SCR-015`; thao tác nhập nhanh mở trên cùng màn hình và không tạo bước điều hướng riêng.
+Một đường chính: mở phiếu → ghi một lần (dòng đủ căn cứ đã tick sẵn) → kết quả. Không có bước duyệt (UC-03-01 không có người duyệt) và không có màn rà soát riêng.
 
-> Sơ đồ trên để đọc nhanh. Phần “Các bước chuyển màn hình” giải thích điều kiện và cách xử lý; phần “Truy vết kỹ thuật” giữ các mã phục vụ Dev/QA/Harness.
+## 4. Chuyển màn
 
-## 4. Các bước chuyển màn hình
+| Từ | Hành động | Đến | Ghi chú |
+|---|---|---|---|
+| SCR-012 (BJ-02) | "Xác lập giá trị" | SCR-015 | Phiếu vừa nhận; số lượng, lô theo hàng thực nhận; dòng đủ căn cứ tick sẵn |
+| SCR-014 | Mở phiếu | SCR-015 | Phiếu "Cần đối chiếu" / "Chờ căn cứ" vẫn mở được để xem lý do |
+| SCR-015 | "Cách tính" | Sheet "Cách tính" | Chỉ đọc |
+| SCR-015 | "Nhập giá" → "Lưu căn cứ" | SCR-015 | Nhập nhanh; chưa ghi sổ, dòng thành "Đủ căn cứ" và được tick |
+| SCR-015 | "Ghi giá trị ({n})" | Sheet xác nhận | Bật khi có ít nhất một sản phẩm đủ căn cứ được chọn |
+| Sheet xác nhận | "Xác nhận giá trị" | SCR-019 | Căn cứ chưa đổi kể từ lúc mở sheet |
+| Sheet xác nhận | "Xác nhận giá trị" khi căn cứ đã đổi | SCR-015 `SOURCE_CHANGED` | Từ chối cả lệnh; banner "Căn cứ đã thay đổi" + "Kiểm tra lại"; tick giữ nguyên |
+| SCR-019 | "Tiếp tục xử lý" / "Về danh sách" | SCR-015 / SCR-014 | Còn hàng chờ / hết |
+| SCR-019 | "Cập nhật giá vốn" | BJ-14 | Sản phẩm + kỳ cần cập nhật |
+| SCR-019 `UNKNOWN` | "Chuyển sang xác minh" | BJ-17 | Đúng lần xử lý này, không gửi lại lệnh |
+| SCR-015 | Quay lại | SCR-012 (vào từ nhận hàng) / SCR-014 | — |
 
-| Bước | Từ đâu | Người dùng / hệ thống làm gì | Điều kiện cần | Đi đến | Nếu không thể tiếp tục |
-|---|---|---|---|---|---|
-| `UIF-03-T01` | Bắt đầu | Có công việc xác lập giá trị | Có quyền xem giá trị | `SCR-014` — Hàng chờ xác lập giá trị | — |
-| `UIF-03-T02` | Mở từ ngữ cảnh liên quan | Mở đúng goods receipt hoặc công việc | xác định đúng tổ chức và goods receipt | `SCR-015` — Xác lập giá trị nhập ban đầu | Dữ liệu đã thay đổi → xác định lại |
-| `UIF-03-T03` | `SCR-014` — Hàng chờ xác lập giá trị | Mở công việc | Mặt hàng trên goods receipt vẫn đang chờ xác lập giá trị | `SCR-015` — Xác lập giá trị nhập ban đầu | Công việc vẫn mở được để xem lý do đang bị chặn |
-| `UIF-03-T04` | `SCR-015` — Xác lập giá trị nhập ban đầu | Chuyển sang rà soát khi có ít nhất một mặt hàng đủ điều kiện xử lý | Nguồn dữ liệu còn hợp lệ và không còn vướng mắc về chứng từ mua trong phạm vi đang xử lý | `SCR-017` — Rà soát giá trị nhập ban đầu | Thiếu căn cứ hoặc còn vướng mắc → ở lại SCR-015 |
-| `UIF-03-T05` | `SCR-017` — Rà soát giá trị nhập ban đầu | Quay lại chỉnh căn cứ | Chưa ghi nhận chính thức | `SCR-015` — Xác lập giá trị nhập ban đầu | Giữ bản nháp khi an toàn |
-| `UIF-03-T06` | `SCR-017` — Rà soát giá trị nhập ban đầu | Xác nhận giá trị nhập ban đầu | Kết quả xem trước và phiên bản nguồn dữ liệu còn hợp lệ | `SCR-019` — Kết quả xác lập giá trị | Nếu bị từ chối (`REJECTED`), không ghi thay đổi giá trị |
-| `UIF-03-T07` | `SCR-019` — Kết quả xác lập giá trị | đã hoàn tất (`COMPLETED`) | — | Kết thúc | Sản phẩm và kỳ liên quan có thể được đánh dấu cần tính lại cho BJ-14 |
-| `UIF-03-T08` | `SCR-019` — Kết quả xác lập giá trị | chưa xác định (`UNKNOWN`) | Giữ mã thao tác gốc | BJ-17 — hành trình liên quan | Không xác nhận lại khi chưa biết kết quả lần trước |
+## 5. Khuôn dùng chung áp dụng
 
-## 5. Các tình huống cần chú ý
+K1 trạng thái chung (đang tải, không có quyền, khoá "Phiếu này đã được xác lập giá trị", dữ liệu cũ, rỗng); K3 kết quả chưa rõ (SCR-019 `UNKNOWN`); K4 kết quả xong (SCR-019); K7 bố cục web (SCR-014 bảng, SCR-015 bảng có ô tick + khối "Tóm tắt"); thanh chọn `dsSegmented` ("Cách hiểu giá").
 
-Các quy tắc chung về quyền, quay lại, dữ liệu thay đổi và chống ghi nhận lặp vẫn lấy từ UC/Behavioral Contract/Screen Contract. UIF chỉ nhắc lại những điểm ảnh hưởng trực tiếp đến cách đi qua màn hình.
+## 6. Liên kết với BJ khác
 
-- Theo chứng từ: Nếu có vướng mắc về chứng từ mua thuộc Theme 10, chỉ cho xem và chuyển xử lý; không cho tự chọn giá để bỏ qua vướng mắc.
-- Nhập nhanh: mở bảng nhập nhanh ngay trên `SCR-015`; đóng bảng vẫn ở cùng màn hình và không tạo bước điều hướng mới.
-- Khi nguồn dữ liệu thay đổi (`SOURCE_CHANGED`), phải làm mới và rà soát lại trước khi xác nhận.
-- Nếu kết quả chưa xác định (`UNKNOWN`), không thực hiện lại bằng một thao tác mới. Hệ thống giữ nguyên mã thao tác gốc để xác minh; khi chưa đủ bằng chứng, chuyển sang `BJ-17`.
-- Dữ liệu tài chính chỉ hiển thị cho người có quyền phù hợp. UIF mô tả luồng người dùng; cách che dữ liệu chi tiết được quy định tại Screen Contract. Contract thực thi thuộc work slice lúc review để implement.
-- Các màn hình đã hợp nhất hoặc chỉ dùng cho tương thích không được xem là một bước điều hướng độc lập của luồng hiện hành.
-
-## 6. Màn hình và Trường hợp sử dụng liên quan
-
-| Trường hợp sử dụng | Màn hình sử dụng |
-|---|---|
-| [UC-03-01](../../02.specification/behavior/use-cases/UC-03-01-xac-lap-gia-tri-nhap-ban-dau.md) | `SCR-014`, `SCR-015`, `SCR-017`, `SCR-019` |
-
-### Màn hình dùng trong luồng
-
-| Màn hình | Tên | Vai trò trong luồng |
+| Sang / từ BJ | Ở màn | Cách |
 |---|---|---|
-| [SCR-014](../screens/SCR-014.md) | Hàng chờ xác lập giá trị | Danh sách công việc |
-| [SCR-015](../screens/SCR-015.md) | Xác lập giá trị nhập ban đầu | Căn cứ và thành phần giá trị; mở bảng nhập nhanh khi cần |
-| [SCR-017](../screens/SCR-017.md) | Rà soát giá trị nhập ban đầu | Rà soát cuối trước khi xác nhận |
-| [SCR-019](../screens/SCR-019.md) | Kết quả xác lập giá trị | Kết quả chính thức |
+| Từ BJ-02 | SCR-012 | "Xác lập giá trị" mở đúng phiếu vừa nhận (chặng 2: nhận hàng → xác lập giá → điều chỉnh giá trị) |
+| Sang BJ-14 | SCR-019 | "Cập nhật giá vốn": ghi xong chỉ đánh dấu sản phẩm + kỳ cần cập nhật, không tạo giá vốn chính thức |
+| Sang BJ-13 | — | Fact đến sau khi đã ghi (chi phí mua bổ sung…) dùng điều chỉnh giá trị; không sửa trực tiếp |
+| Sang BJ-11 | — | Nhập sai số lượng / hàng → sửa tồn |
+| Sang BJ-17 | SCR-019 | "Chuyển sang xác minh" |
 
-### Màn hình đã được hợp nhất hoặc ngừng dùng
+Nguồn mua (PO, hoá đơn, xác nhận nhà cung cấp) thuộc Theme 10, chỉ đọc: mâu thuẫn thương mại không được chọn tuỳ ý một giá — quay về Mua hàng. Fixture chung chặng 2: Nobivac DHPPi (SP-000184), Oxytetracycline LA (SP-000147), phiếu PN-260816-04 — cùng bộ với BJ-01, BJ-02, BJ-13.
 
-- `SCR-016` — đã hợp nhất vào `SCR-015`.
-- `SCR-018` — không thuộc active UIF-03; màn hình cũ được thay bởi BJ13 `SCR-085`.
+## 7. Truy vết
 
-## 7. Truy vết kỹ thuật
-
-> Phần này dành cho Dev/QA/Harness. Các mã kỹ thuật được giữ nguyên để Dev/QA/Harness đối chiếu tự động.
-
-| Transition | From | To | Loại | Action | UC / BC |
-|---|---|---|---|---|---|
-| `UIF-03-T01` | `BEGIN` | `SCR-014` | `NAVIGATION` | `—` | UC-03-01 |
-| `UIF-03-T02` | `CONTEXT` | `SCR-015` | `NAVIGATION` | `—` | UC-03-01 |
-| `UIF-03-T03` | `SCR-014` | `SCR-015` | `NAVIGATION` | `—` | UC-03-01 |
-| `UIF-03-T04` | `SCR-015` | `SCR-017` | `NAVIGATION` | `—` | UC-03-01 / BF-05 |
-| `UIF-03-T05` | `SCR-017` | `SCR-015` | `NAVIGATION` | `—` | UC-03-01 |
-| `UIF-03-T06` | `SCR-017` | `SCR-019` | `MUTATION` | `ACT-03-CONFIRM-COST` | UC-03-01 / BC-IV-01 |
-| `UIF-03-T07` | `SCR-019` | `END` | `TERMINAL` | `—` | UC-03-01 |
-| `UIF-03-T08` | `SCR-019` | `BJ-17` | `HANDOFF` | `—` | UC-03-01 → BJ-17 |
-
-## 8. Kiểm tra tính đầy đủ và liên kết
-
-- [x] Tất cả Trường hợp sử dụng liên quan đều được liên kết từ UIF.
-- [x] Mỗi màn hình đang dùng trong luồng có Screen Contract tương ứng.
-- [x] Các bước do hệ thống thực hiện không bị mô tả thành thao tác của người dùng.
-- [x] Nếu có phê duyệt hoặc chuyển vai trò, người gửi và người nhận có điểm vào riêng.
-- [x] Trạng thái kết thúc và trường hợp `UNKNOWN` có hướng xử lý rõ khi áp dụng.
-- [x] Bảng đọc chính và bảng truy vết kỹ thuật dùng cùng một tập transition ID; không đổi topology hoặc hành vi.
-- [x] Liên kết BJ ↔ UIF ↔ UC/SCR dùng đường dẫn tương đối và mở đúng tài liệu đích.
-
-**Trạng thái đối chiếu thiết kế:** `DESIGN_HTML_PARITY_VALIDATED` — UIF đã được viết lại theo Plain BA Language; cấu trúc luồng, ID, mã Action, liên kết UC/BC và trạng thái đối chiếu của v4.1.0 được giữ nguyên. HTML và Screen Contract không thay đổi trong lượt này.
-
-### Liên kết
-
-- [Business Journey](../../02.specification/behavior/journeys/BJ-03-xac-lap-gia-tri-ban-dau-cua-hang-nhan.md)
-- [Business Journey Map](../../02.specification/behavior/journeys/00-business-journey-map.md)
-- [Use Case Map](../../02.specification/behavior/use-cases/00-use-case-map.md)
-- [Prototype manifest](../prototype/README.md)
+BJ-03 · UC-03-01 · [SCR-014](../screens/SCR-014.md), [SCR-015](../screens/SCR-015.md), [SCR-019](../screens/SCR-019.md) (SCR-016, SCR-017, SCR-018 đã bỏ: [RETIRED](../screens/RETIRED.md)) · hành động `ACT-03-CONFIRM-COST` (BC-IV-01, API-C-20) · golden: `SC_bj03_from_receipt`, `SC_bj03_direct`, `SC_bj03_list`, `SC_bj03_confirm`, `SC_bj03_untick`, `SC_bj03_stale`, `SC_bj03_result`, `SC_bj03_staff`, `SC_bj03_unknown`.

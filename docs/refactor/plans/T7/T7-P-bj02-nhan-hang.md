@@ -1,9 +1,9 @@
 # T7-P · BJ-02 Nhận hàng mua — thiết kế lại (bước B–E)
 
-> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21 — mục 0.10) | Plan C–E ✅ (viết cùng brief) | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21 — mục 0.10) | Plan C–E ✅ (viết cùng brief) | Làm ✅ 2026-10-22 (v5.8.0, chưa commit) | Review ⬜
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 2 "Nhập hàng"**, BJ đầu tiên của chặng. Làm **sau khi chặng 1 xong hẳn** (R5 `/impeccable audit` và commit của [CAP-01](T7-P-cap01-chinh-sach-ton.md#10-review)). Sau BJ-02 là [BJ-03](T7-P-bj03-gia-nhap.md) rồi [BJ-13](T7-P-bj13-dieu-chinh-gia-tri.md) (hết chặng, `SC_journey_2`).
 > Dùng lại K1–K4, K7 (dựng ở BJ-12), không dựng khuôn mới. Kèm **bước C0 — fixture chung của chặng 2** (mục 3): BJ-03, BJ-13 đọc lại cùng sản phẩm, cùng phiếu nhận.
-> Thiết bị chính: **iPhone** cho lập phiếu (007, 008, 009, 084, 010); **web** cho duyệt và kết quả (011, 012, 013) — T7-P mục 2.
+> Thiết bị: **cả iPhone và web đều là thiết bị chính** (sửa 2026-10-22, T7-P mục 2). Plan viết khi còn chia "iPhone cho lập phiếu (007, 008, 009, 084, 010); web cho duyệt và kết quả (011, 012, 013)" — bố cục web của lập phiếu bù ở [plan hotfix T7-HF1](T7-HF1-hai-thiet-bi.md); review kiểm phần này.
 > Ước lượng: **~2,75 ngày, 3 commit** (C0 + C1 fixture và lập phiếu; C2 duyệt, kết quả, Hub, BJ-01; E tài liệu). Người làm: bạn. Review: phiên plan / review.
 
 Đường dẫn tính từ `specs/themes/theme-07/03.design/prototype/html/` nếu không ghi khác. Câu trong ngoặc kép là chữ hiển thị, chép nguyên văn; **(mới)** = chữ mới, vào T7-P mục 13 ở bước E.
@@ -69,7 +69,7 @@ Chưa rõ:        012 → 013 Đối soát (phục hồi ngắn, khung K3) ─v�
 
 1. Bỏ 006; `screenAliases["UIF-02"]["SCR-006"] = "SCR-007"`; bước E chuyển 006 vào `RETIRED.md` ("Gộp vào SCR-007", "Bỏ từ v5.8.0"). Link cũ mở 007 ở trạng thái mặc định (cách (b) của R4 chặng 1).
 
-*SCR-007 Nhận hàng* (iPhone chính)
+*SCR-007 Nhận hàng*
 
 2. Tiêu đề **"Nhận hàng"** (chữ của 006). Ô tìm "Tìm chứng từ, nhà cung cấp hoặc sản phẩm" **(mới)** — tìm cả theo tên / mã sản phẩm trong chứng từ.
 3. Thẻ chứng từ: mã · NCC · ngày; dòng hàng "Nobivac DHPPi, Oxytetracycline LA" (tối đa 2 tên + "+{n}" **(mới)**); badge "Đã nhận một phần" (giữ).
@@ -113,7 +113,7 @@ Chưa rõ:        012 → 013 Đối soát (phục hồi ngắn, khung K3) ─v�
 22. Bỏ `APPROVER_CONFIGURATION_MISSING` (vấn đề 7) và `FINANCIAL_MASKED` (010 không có số tiền) — alias về `READY`; ghi ở SCR-010 bước E.
 23. **`REJECTED` (mới, phía người lập):** banner lỗi "Yêu cầu bị từ chối" **(mới)** + "{người} · {lúc}" + "Lý do" (chữ BJ-12); nút "Nhận lại" **(mới)** → 007 (nhập nhanh không có nháp nên nhập lại; theo chứng từ thì lượng còn chờ nhận vẫn như cũ).
 
-*SCR-011 Phê duyệt yêu cầu nhận hàng* (web chính, K2 + K7)
+*SCR-011 Phê duyệt yêu cầu nhận hàng* (K2 + K7)
 
 24. `k7Split`: **trái** `k2Decision({ question:"Duyệt nhận hàng {chứng từ} của {NCC}?" (mới) — nhập nhanh: "Duyệt nhập hàng nhanh của {NCC}?" (mới), maker, sentAt, attention, facts })` — `attention`: từng dòng vượt "{tên}: chứng từ {a} · thực nhận {b} {ĐVT} (+{c})" (**áp T7-P mục 13 dòng 02 · SCR-011**), "Nhập nhanh — chưa có chứng từ mua" (`info`), hàng không đạt (`info`); `facts`: Nhà cung cấp · Kho nhận · Ngày nhận · "Tổng giá trị rủi ro" (chỉ Owner thấy số; tone thường); nút "Xem chứng từ giao nhận" (giữ). **Phải** `k7Table`: Sản phẩm · Lô / HSD · Theo chứng từ · Thực nhận · Chênh lệch · Tình trạng; iPhone thành danh sách thẻ.
 25. Chân "Từ chối" | "Duyệt" (giữ). "Từ chối" dùng `k2RejectSheet` (thay sheet riêng của BJ-02; chữ giữ "Từ chối yêu cầu", "Lý do từ chối", "Xác nhận từ chối").
@@ -299,7 +299,7 @@ Sửa kịch bản `SC_bj02_*` hiện có theo selector mới (`SC_bj02_choose` 
 | `SC_bj02_unknown` | `R + 'SCR-012&state=UNKNOWN'` | thấy 013 K3 → "Làm mới" → "Chuyển sang xác minh" |
 | `SC_bj02_from_bj01` | `?uif=UIF-01&screen=SCR-003` (sản phẩm Oxy) | "Nhận hàng" → 007, ô tìm "Oxytetracycline LA", còn PN-260816-04 |
 
-`WEB_SCENARIOS` thêm `SC_bj02_approve`, `SC_bj02_reject`, `SC_bj02_owner_self` (màn web chính).
+`WEB_SCENARIOS` thêm `SC_bj02_approve`, `SC_bj02_reject`, `SC_bj02_owner_self` (màn duyệt).
 
 ## 6. Bước D — kiểm
 
@@ -329,7 +329,7 @@ Trước mỗi commit: `detect_changes()` của GitNexus nếu công cụ có tr
 
 - Chuyển nguồn "Chờ duyệt" của nhận hàng khỏi `hub.js` (mục 5.4); ba phiếu chờ duyệt khác nhau thật.
 - Quét mã chứng từ / phiếu giao; nhận nhiều chứng từ một lần; in tem lô.
-- Tối ưu web cho lập phiếu (chỉ cần không vỡ, đủ hành động).
+- ~~Tối ưu web cho lập phiếu~~ — bỏ khỏi "Không làm" 2026-10-22 (cả hai là thiết bị chính); làm ở [plan hotfix T7-HF1](T7-HF1-hai-thiet-bi.md) — đã sửa ở T7-HF1 (5.9.1).
 - Sửa `PENDING_RECEIPTS` thành dữ liệu sinh từ phiếu đã gửi trong phiên.
 
 ## 10. Rủi ro
@@ -344,7 +344,22 @@ Trước mỗi commit: `detect_changes()` của GitNexus nếu công cụ có tr
 
 ## 11. Ghi chú khi làm
 
-(Điền khi làm: ca golden khác, lệch plan, chữ ngoài brief, kết quả audit.)
+**Làm xong 2026-10-22 (v5.8.0), chưa commit** — cả ba bước C0–E trong một lượt; chưa chia 3 commit (xem mục 8).
+
+- **Golden khác so mốc `tools/.golden-chang1*`:** mobile 1440 → 1510 ca, web 603 → 636 ca. Khác có chủ đích: `UIF-02_*` (ca `SCR-006_*` mất, `SCR-010_REJECTED` mới, `SCR-010_APPROVER_CONFIGURATION_MISSING` / `FINANCIAL_MASKED` mất), `SC_bj02_*`, `SC_entry_UIF-02_*`, `SC_quick_UIF-02_*`, `SC_entry_flow_02`, `SC_bj01_receive`, `SC_bj01_out`, `SC_pending_*`, `SC_pending_review_to_hub`, `SC_ws_movement_0_2_item`, `SC_mode_1_bj`. Mọi ca khác chỉ khác dòng `@url` (màn mặc định UIF-02: SCR-006 → SCR-007). Web: chỉ ca UIF-02. `UIF-12_*` khớp. 0 lỗi JS. Mốc mới `tools/.golden-bj02-after`, `tools/.golden-bj02-web-after`.
+- **Lệch plan (đều nhỏ):**
+  1. `bj02Footer` (dòng lý do ngay trên nút) là hàm mới trong `bj02.js`, bọc `primaryFooter`; chưa đưa vào `shared-patterns.js` vì chỉ BJ-02 dùng.
+  2. Hộp xác nhận xoá lô / xoá dòng / chưa nhận / đổi chứng từ chuyển từ chèn DOM sang biến `bj02Confirm` (nhận focus, Esc đóng) — plan 5.1 chỉ nêu sheet từ chối.
+  3. Gõ số / mã lô / hạn dùng **không dựng lại màn** (cập nhật tại chỗ qua `updateBj02EditorLiveFeedback`) nên không cần lưu `selectionStart` như plan 4.3 ghi.
+  4. `k7Table` thêm tham số `rowAttr`; `k4Result` thêm `button`; `k2Attention` tách ra như plan. Thêm CSS web cho UIF-02 (chân màn 402px → 100%, bảng duyệt 9fr / 13fr + cuộn ngang) vì CSS cũ của UIF-02 cố định bề rộng iPhone.
+  5. `bj02AppliedRefs` giữ số thứ tự lần ghi nhận (không phải mã chứng từ) để "Nhận tiếp" rồi nhận lại vẫn cộng tồn.
+  6. Hub: bỏ `addPendingReviewExit` (010 chờ duyệt dùng `k4Footer` "Về Kho" của K2); `SC_pending_review_to_hub` bấm `[data-theme-sidebar-route="inventory"]`.
+  7. `SC_bj02_from_bj01` đặt ngưỡng Oxytetracycline LA trước (nếu không sản phẩm không "Tồn thấp" nên không có nút "Nhận hàng"); `SC_bj02_doc_full` làm như vậy để thấy "Tồn thấp" → hết sau khi nhận.
+  8. Đường Owner chỉ vào được bằng `entry=owner` (mọi lối vào từ Hub đặt vai nhân viên / người duyệt), như UIF-12.
+- **Chữ ngoài brief** (đã ghi T7-P mục 13): "Không có chứng từ đang chờ nhận" / "Hàng đến mà chưa có chứng từ mua thì nhập hàng nhanh." (EMPTY 007), "Chờ nhận" (bảng web), "Kho và ngày nhận", "Thêm ít nhất một mặt hàng", "Ngày sản xuất chưa đúng dạng", "Không có {tên} trong chứng từ này", tiêu đề sheet "Hàng thực nhận".
+- **Audit (bước D3, chặn commit E):** đo bằng Chrome headless qua CDP (script tạm ở scratchpad, không vào repo) trên 27 màn / trạng thái × hai khung (007, 008 + sheet NCC, 009 + sheet quét, 084 lô / không lô / hộp xác nhận, 010 thường / vượt / sheet tự duyệt / chi tiết / chờ duyệt / bị từ chối, 011 + sheet từ chối / chứng từ / kết quả từ chối, 012 Owner / nhân viên / sheet dòng / chặn, 013): tương phản 0 lỗi; vùng chạm ≥ 44 (sửa liên kết "Sửa" 009 từ 26 px); 0 nút / ô thiếu tên; Esc đóng 3/3 sheet, focus vào hộp thoại khi mở. Chưa chạy `/impeccable audit` dạng skill — đo bằng bộ đo riêng như R5 chặng 1.
+- **Đổi sau khi làm — chủ cửa hàng cũng gửi duyệt (2026-10-22, người dùng chốt):** mỗi cửa hàng chỉ có một chủ; chủ lập phiếu vẫn bấm "Gửi phê duyệt" rồi tự vào Home → Chờ duyệt → SCR-011 bấm "Duyệt" một lần nữa để kiểm lại, y như phiếu của nhân viên. **Thay** mục 0.4 mục 21 hàng 3 ("Ghi nhận nhận hàng" + `k2SelfCommitSheet`), 0.1 ("Owner tự nhận thì ghi nhận luôn"), SCR-012 "Chủ cửa hàng (tự duyệt)" → "Chủ cửa hàng". Đã bỏ khỏi `bj02.js`: sheet tự duyệt, `bj02IsOwner`, `open-self` / `confirm-self`; kịch bản `SC_bj02_owner_self` → `SC_bj02_owner_flow` (Hub: Nhận hàng → Gửi phê duyệt → Về Kho → Chờ duyệt → Duyệt → Xác lập giá trị). Hub: dòng "Chờ duyệt" đầu tiên mở đúng phiếu vừa gửi trong phiên (`bj02PendingSubmitted`) thay vì nạp lại fixture. Vấn đề vai Hub không còn: mọi người lập đều đi cùng một đường. **BJ-12 và dòng "mọi BJ theo K2" ở T7-P mục 13 vẫn ghi tự duyệt một bước (ghi nhận số dư đầu kỳ) — cần người dùng chốt có đổi theo không.**
+- **Còn lại cho phiên review:** (a) ba commit theo mục 8 (`detect_changes()` của GitNexus không có trong phiên — prototype HTML tĩnh không lập chỉ mục, như H1 / chặng 1); (b) ~~BJ-03 lệch fixture~~ đã nối 2026-10-22: `val03OpenForReceipt(ref)` + fixture R1 khớp phiếu BJ-02 làm sớm trong `bj03.js` (plan BJ-03 mục 3.1 mục 1 và 3.2 mục 1); phần thiết kế lại 014 / 015 và fixture BJ-13 vẫn ở plan của chúng; (c) `styles/screens.css` còn nhiều luật `.bj02-*` / `v392` / `v470` không còn dùng (bàn phím số, `bj02-record-*` vẫn dùng) — để gói dọn CSS Giai đoạn 3.
 
 ## 12. Chữ trên màn
 
@@ -361,4 +376,9 @@ Trước mỗi commit: `detect_changes()` của GitNexus nếu công cụ có tr
 
 ## 13. Review
 
-(Phiên review điền.)
+**2026-10-22 — gộp vào review [T7-HF1 mục 8](T7-HF1-hai-thiet-bi.md#8-review-2026-10-22-phiên-review--gộp-review-bj-02-bj-03), chạy trên bản 5.9.1.**
+- Tiêu chí D chạy lại: golden 0 lỗi JS, `node --check` đạt; mọi `SC_bj02_*` chạy được ở hai khung; ảnh 007 / 009 / 084 / 008 / 010 / 011 / 012 / 013 đã xem. Audit tương phản / vùng chạm của người làm (mục 11) **không** chạy lại; chỉ thử bàn phím và sheet ở các chỗ HF1 đổi.
+- Không có lỗi chặn riêng của BJ-02. Sheet quét ở 009 web (không thành hộp thoại, không đóng khi quét đúng dòng đang chọn) chỉ ghi lại — tính năng quét chưa làm, có thể hoãn (HF1 mục 8, ghi chú quét).
+- Đặc tả khớp quyết định "chủ cửa hàng cũng gửi duyệt" (UC-02-03, SCR-012, T7-P mục 13). Hai chỗ cũ trong plan này: mục 11 câu "BJ-12 … cần người dùng chốt" đã xong (T7-P mục 13 dòng 12 · SCR-071 / UC-12-02 đã áp); mục 0.4 mục 21 hàng 3 và mục 12 dòng 010 ("Ghi nhận nhận hàng", "Ghi nhận nhận hàng?", "Bạn là chủ cửa hàng nên…") là chữ đã bỏ — gạch đi khi ghi lại.
+- Còn mở (không chặn): CSS chết `.bj02-*` / `v392` / `v470` (mục 11 c) — để gói dọn CSS.
+- Trạng thái: ✅ về phần BJ-02; commit cùng lượt với HF1 sau khi sửa HF1 lỗi 1–2.

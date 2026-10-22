@@ -87,7 +87,7 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 |---|---|---|---|
 | BR-01 | Trạng thái nguồn | Chỉ hàng không bán được và thuộc tenant mới được tiêu hủy; hàng sellable phải qua BJ-09 trước| Decision / DOM-IO / BC nguồn |
 | BR-02 | Mốc giảm tồn | Phê duyệt chưa làm giảm physical; chỉ completion assertion hợp lệ mới cho phép ghi giảm| Decision / DOM-IO / BC nguồn |
-| BR-03 | Maker–checker | Người lập không tự duyệt; cấp duyệt suy ra từ trị tuyệt đối lượng × căn cứ giá| Decision / DOM-IO / BC nguồn |
+| BR-03 | Maker–checker | Người lập không tự duyệt (trừ chủ cửa hàng `is_owner`: vẫn gửi duyệt rồi tự duyệt); cấp duyệt suy ra từ trị tuyệt đối lượng × căn cứ giá| Decision / DOM-IO / BC nguồn |
 | BR-04 | Thiếu căn cứ giá | Không gửi duyệt khi thiếu cả official cost và giá nguồn; giữ nháp để bổ sung, không gán rủi ro không xác định| Decision / DOM-IO / BC nguồn |
 | BR-05 | Giá trị | Giảm theo official cost có hiệu lực tại thời điểm hoàn tất; không suy ra giá riêng theo kho/lô| Decision / DOM-IO / BC nguồn |
 | BR-06 | Số lượng thực xử lý | Nếu khác lượng được duyệt, chỉ cho phép trong phạm vi policy; vượt phạm vi phải quay lại lập/duyệt yêu cầu mới| Decision / DOM-IO / BC nguồn |

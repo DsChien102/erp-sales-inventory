@@ -1983,7 +1983,7 @@ Không còn blocker: "Sản phẩm đã sẵn sàng vận hành."
 
 - Mọi nút có nhãn chữ; nhãn trạng thái có chữ, không chỉ dựa vào màu.
 - Ô tiền và ô số mở bàn phím số; tiền hiển thị phân cách hàng nghìn và hậu tố "đ".
-- Màn rộng (tablet / web): danh sách và PCC tối đa một cột nội dung ~720 px.
+- Hai thiết bị đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md), sửa 2026-10-22): mỗi màn có bố cục iPhone và bố cục web thiết kế đủ như nhau — web không phải cột iPhone đặt giữa hay kéo giãn. Web dùng bố cục chung: danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet thành hộp thoại, đi được bằng bàn phím; bố cục từng màn chốt trong plan của theme.
 
 ---
 

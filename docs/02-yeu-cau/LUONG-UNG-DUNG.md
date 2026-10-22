@@ -1,7 +1,7 @@
 # Luồng ứng dụng sau khi gộp app
 
-> Phiên bản 1.3 · 2026-10-20 · Bổ sung cho [TH-01](TH-01-to-chuc-va-nguoi-dung.md) mục 1.2, 2.3 và [PLAN](../refactor/PLAN.md) P2, P3.
-> v1.3: thiết bị ưu tiên iPhone + web, khung web thanh bên (mục 1.1). v1.2: bỏ Platform Admin (3-E). v1.1 đã bỏ khu `/admin`.
+> Phiên bản 1.4 · 2026-10-22 · Bổ sung cho [TH-01](TH-01-to-chuc-va-nguoi-dung.md) mục 1.2, 2.3 và [PLAN](../refactor/PLAN.md) P2, P3.
+> v1.4: iPhone và web **đều là thiết bị chính** ở mọi màn (mục 1.1; bỏ bảng thiết bị chính theo phần). v1.3: thiết bị ưu tiên iPhone + web, khung web thanh bên (mục 1.1). v1.2: bỏ Platform Admin (3-E). v1.1 đã bỏ khu `/admin`.
 > Tài liệu này mô tả **đường đi giữa các màn**. Nội dung từng màn vẫn lấy theo TH-01…TH-08. Luồng đăng ký / xác minh / gửi lại mail: [LUONG-DANG-KY-XAC-MINH-EMAIL](LUONG-DANG-KY-XAC-MINH-EMAIL.md).
 
 ## 1. Tổng quan
@@ -51,18 +51,7 @@ flowchart LR
 
 Bố cục theo **bề rộng**; mật độ điều khiển theo **cách thao tác** (`VDensity`: `comfortable` cho cảm ứng, `compact` cho chuột / bàn phím trên web), không suy từ bề rộng.
 
-**Thiết bị chính theo màn:** mỗi màn thiết kế trước cho thiết bị chính; thiết bị kia phải làm được đủ việc (không vỡ bố cục, không mất hành động), chưa cần tối ưu.
-
-| Phần | Thiết bị chính |
-|---|---|
-| Đăng nhập, đăng ký, lời mời; Trang chủ | Cả hai |
-| TH-01 quản trị tổ chức (hồ sơ tổ chức, người dùng, vai trò, nhật ký) | Web |
-| TH-02 sản phẩm, TH-03 đối tác, TH-04 chính sách giá | Web (tra nhanh trên iPhone phải dùng được) |
-| TH-05 bán hàng | **Cả hai ngang nhau** (quầy có máy tính bán trên web, không có thì iPhone) |
-| TH-07 kho | Theo màn: việc tại kho → iPhone; duyệt, giá trị, giá vốn, báo cáo → web ([T7-P mục 2](../refactor/plans/T7/T7-P-thiet-ke-lai-luong.md)) |
-| TH-08 hoá đơn điện tử | Web |
-
-Plan / spec của từng theme có thể chỉnh bảng này cho từng màn, ghi lý do.
+**Cả hai là thiết bị chính (sửa 2026-10-22):** iPhone và web ngang nhau ở **mọi màn, mọi phần của app** — mỗi màn thiết kế và tối ưu đủ cho cả hai (bố cục, mật độ, cách nhập liệu); không có thiết bị phụ chỉ cần "không vỡ, đủ hành động". Ai thường dùng ở đâu (nhân viên cầm iPhone tại kho / quầy, Owner hay ngồi máy tính) chỉ là bối cảnh để chọn bố cục, không dùng để xếp thiết bị nào xuống hàng phụ. Bản 2026-10-20 xếp "thiết bị chính" theo phần (TH-01 web, TH-07 theo màn…) là hiểu sai — bỏ.
 
 **Bố cục web chung:** danh sách – chi tiết hai cột (không đổi trang khi chọn); bảng thay danh sách thẻ khi nhiều cột số; sheet dưới thành hộp thoại hoặc bảng bên; đi được hết bằng bàn phím (Tab, Enter, Esc). **Nhập liệu:** quét mã = camera trên iPhone, máy quét USB (gõ như bàn phím) trên web; chọn tệp = nút trên iPhone, thêm kéo thả trên web.
 

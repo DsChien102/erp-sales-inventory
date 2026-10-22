@@ -105,7 +105,7 @@ Không sửa count evidence, không chỉnh value basis tại màn duyệt, khô
 
 | Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
 |---|---|---|---|
-| BR-01 | Người đếm không tự duyệt | Mọi actor góp count evidence trong snapshot hiện hành phải bị loại khỏi approver eligible. | `T7-DR-175` |
+| BR-01 | Người đếm không tự duyệt | Mọi actor góp count evidence trong snapshot hiện hành phải bị loại khỏi approver eligible — **trừ** chủ cửa hàng (`is_owner`, mỗi cửa hàng chỉ có một): chủ đếm thì vẫn gửi duyệt rồi tự duyệt. | `T7-DR-175` |
 | BR-02 | Approval bind exact snapshot | ApprovalCase bind session/scope/cutoff/latest round/variance/value basis/policy; bất kỳ phần nào đổi đều làm case stale. | `T7-DR-175/177` |
 | BR-03 | Recount tạo lineage mới | `REQUEST_RECOUNT` không sửa evidence/approval cũ; tạo successor recount/case lineage. | `T7-DR-174/175` |
 | BR-04 | Risk không net thừa thiếu | Risk được tính bằng tổng trị tuyệt đối line amount của final variance basis. | `T7-DR-177` |

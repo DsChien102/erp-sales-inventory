@@ -15,7 +15,7 @@ updated: 2026-10-21
 - Nhân viên, giữa lúc có khách: "Còn bao nhiêu? Bán được bao nhiêu?" — tìm nhanh một sản phẩm, nhìn một con số.
 - Chủ cửa hàng, đầu ngày hoặc trước khi đặt hàng: "Cái gì hết hoặc sắp hết? Lô nào cận hạn, hết hạn?" — lọc theo vấn đề rồi làm việc tiếp: nhập thêm (BJ-02) hoặc xử lý lô (BJ-09).
 
-Dùng nhiều lần mỗi ngày. Thiết bị chính: iPhone; web dùng được (cột giữa khung).
+Dùng nhiều lần mỗi ngày. Thiết bị: iPhone và web đều là thiết bị chính. Web là danh sách – chi tiết (SCR-001), iPhone là danh sách thẻ rồi sang SCR-003.
 
 - BJ: [BJ-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../../02.specification/behavior/journeys/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md)
 - UC: [UC-01-01](../../02.specification/behavior/use-cases/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md), [UC-01-02](../../02.specification/behavior/use-cases/UC-01-02-xem-ton-va-kha-dung.md), [UC-01-03](../../02.specification/behavior/use-cases/UC-01-03-xem-trace-summary.md), [UC-01-04](../../02.specification/behavior/use-cases/UC-01-04-xem-ton-thap-va-luong-goi-y.md), [UC-01-05](../../02.specification/behavior/use-cases/UC-01-05-xem-hang-can-han-va-het-han.md)

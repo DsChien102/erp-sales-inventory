@@ -1,9 +1,11 @@
 # T7-P · BJ-12 Khởi tạo tồn đầu kỳ — thiết kế lại (bước B–E)
 
 > Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21) | Plan C–E ✅ | Làm ✅ (2026-10-21, prototype v5.5.0, chưa commit) | Review ✅ 2026-10-22 (đạt; R1–R5 xong, v5.7.2 — [plan CAP-01 mục 10](T7-P-cap01-chinh-sach-ton.md#10-review))
+
+> **Đổi 2026-10-22 (người dùng chốt, áp cho mọi BJ):** mỗi cửa hàng chỉ có một chủ; chủ lập cũng **gửi duyệt rồi tự vào màn duyệt bấm "Duyệt"** một lần nữa — bỏ nhánh ghi nhận thẳng ("Ghi nhận số dư đầu kỳ" + sheet `k2SelfCommitSheet`, "Chủ cửa hàng (tự duyệt)") đã dựng ở brief / v5.5.0. Phần mô tả nhánh đó trong plan này là lịch sử. Code: `bj12.js` bỏ `cf12SelfOpen` / `cf12IsOwner` / `open-self`; `shared-patterns.js` bỏ `k2SelfCommitSheet`; `SC_bj12_owner` và `SC_journey_1` đi qua Chờ duyệt (v5.8.0).
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 1 "Mở kho"**, BJ đầu tiên của Giai đoạn 2. Làm sau [gói H1](T7-P-thiet-ke-lai-luong.md#143-gói-h1--khung-web-cho-harness) (khung web, ✅).
 > **Dựng 5 khuôn dùng chung** (T7-P mục 5): K1 trạng thái chung, K2 lập → duyệt → kết quả (cả nhánh Owner tự duyệt), K3 kết quả chưa rõ, K4 kết quả xong, K7 bố cục web. Các BJ sau dùng lại, không dựng lại.
-> Thiết bị chính: **web** (Owner ngồi máy tính); iPhone phải làm được đủ việc (T7-P mục 2).
+> Thiết bị: **cả iPhone và web đều là thiết bị chính** (sửa 2026-10-22, T7-P mục 2). Plan viết khi còn "web chính, iPhone dùng được"; rà lại 2026-10-22: **đạt cả hai khung**; lỗi nhỏ còn lại sửa ở [plan hotfix T7-HF1](T7-HF1-hai-thiet-bi.md).
 > Ước lượng: **~3 ngày, 3 commit** (C1 khuôn + Hub; C2 màn BJ-12; E tài liệu). Người làm: bạn. Review: phiên plan / review.
 
 Đường dẫn tính từ `specs/themes/theme-07/03.design/prototype/html/` nếu không ghi khác. Câu trong ngoặc kép là chữ hiển thị, chép nguyên văn. Chữ mới / đổi chữ có đánh dấu **(mới)** và vào T7-P mục 13 ở bước E.

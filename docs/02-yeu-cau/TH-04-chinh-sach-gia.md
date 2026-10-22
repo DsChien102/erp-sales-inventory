@@ -946,7 +946,8 @@ Rỗng: "Chưa có lịch sử thay đổi"; lọc không ra: "Không tìm thấ
 
 - Badge trạng thái và cảnh báo có chữ, không chỉ màu.
 - Ô giá mở bàn phím số, hiện phân cách hàng nghìn.
-- Màn rộng: PR-09 hỗ trợ kéo thả file; nội dung một cột tối đa ~720 px.
+- PR-09 trên web hỗ trợ kéo thả file.
+- Hai thiết bị đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md), sửa 2026-10-22): mỗi màn có bố cục iPhone và bố cục web thiết kế đủ như nhau — web không phải cột iPhone đặt giữa hay kéo giãn. Web dùng bố cục chung: danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet thành hộp thoại, đi được bằng bàn phím; bố cục từng màn chốt trong plan của theme.
 
 ---
 

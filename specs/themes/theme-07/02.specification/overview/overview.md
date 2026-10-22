@@ -105,7 +105,7 @@ Capability chưa thuộc Phase 1 không xuất hiện dưới dạng màn hình 
 | Actor | Mục tiêu chính | Giới hạn |
 |---|---|---|
 | Nhân viên bán hàng/POS | Xem khả dụng, checkout trực tuyến | Không xem dữ liệu tài chính nếu thiếu quyền |
-| Nhân viên xử lý đơn | Giữ, lấy hàng, bàn giao | Không tự duyệt operation do mình lập |
+| Nhân viên xử lý đơn | Giữ, lấy hàng, bàn giao | Không tự duyệt operation do mình lập (chủ cửa hàng là ngoại lệ: vẫn gửi duyệt rồi tự duyệt) |
 | Thủ kho | Nhận, quét lô, kiểm kê, trả/tiêu hủy | Chỉ thao tác trong kho được cấp |
 | Kế toán | Xác lập giá trị nhập ban đầu, ghi điều chỉnh giá trị, xem value ledger, tính và công bố giá vốn | Không sửa nguồn thương mại và không công bố giá bán |
 | Người phê duyệt | Duyệt operation theo mức rủi ro | Quyền và scope được kiểm lại tại thời điểm quyết định |

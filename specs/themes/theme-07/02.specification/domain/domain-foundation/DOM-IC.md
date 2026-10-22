@@ -125,7 +125,7 @@ stateDiagram-v2
 | Mã | Quy tắc |
 |---|---|
 | `INV-IC-01` | Mọi action **PHẢI** recheck functional permission và warehouse scope tại thời điểm thực hiện. |
-| `INV-IC-02` | Maker/checker **KHÔNG ĐƯỢC** tự duyệt hồ sơ của chính mình khi policy yêu cầu độc lập actor. |
+| `INV-IC-02` | Maker/checker **KHÔNG ĐƯỢC** tự duyệt hồ sơ của chính mình khi policy yêu cầu độc lập actor — **ngoại lệ:** chủ cửa hàng (`is_owner`, mỗi cửa hàng chỉ có một) vẫn phải gửi duyệt rồi tự duyệt ở bước duyệt, không có đường ghi nhận thẳng. |
 | `INV-IC-03` | Risk/threshold **PHẢI** được tính từ snapshot nghiệp vụ có nguồn; policy chỉ quyết định route/cấp/người duyệt, không được làm thay mutation của Domain nguồn. |
 | `INV-IC-04` | Stock count **PHẢI** khóa predicate + materialized keys tại cut-off và bảo vệ cả key mới có thể phát sinh trong phạm vi đã khóa. |
 | `INV-IC-05` | Mỗi count/recount **PHẢI** tạo submission bất biến; recount không overwrite first count. |

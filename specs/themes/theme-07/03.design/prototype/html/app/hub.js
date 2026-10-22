@@ -21,7 +21,7 @@ const ThemeApp = (() => {
   let directEntryScreen = null;
 
   const FLOW_LABELS = {
-    'UIF-01': 'Tồn kho', 'UIF-02': 'Nhận hàng mua', 'UIF-03': 'Xác nhận giá nhập', 'UIF-04': 'Giữ hàng theo đơn bán',
+    'UIF-01': 'Tồn kho', 'UIF-02': 'Nhận hàng mua', 'UIF-03': 'Xác lập giá trị nhập ban đầu', 'UIF-04': 'Giữ hàng theo đơn bán',
     'UIF-05': 'Lấy hàng & bàn giao', 'UIF-06': 'Hàng khách trả', 'UIF-07': 'Trả nhà cung cấp', 'UIF-08': 'Kiểm kê kho',
     'UIF-09': 'Tình trạng hàng', 'UIF-10': 'Tiêu hủy hàng', 'UIF-11': 'Hủy & sửa sai nghiệp vụ', 'UIF-12': 'Khởi tạo tồn đầu kỳ',
     'UIF-13': 'Chi phí mua bổ sung', 'UIF-14': 'Giá vốn', 'UIF-15': 'Báo cáo tồn & thẻ kho', 'UIF-16': 'Đối soát sai lệch',
@@ -47,7 +47,7 @@ const ThemeApp = (() => {
       { flow: 'UIF-16', title: 'Đối soát sai lệch', subtitle: 'Điều tra khi số liệu giữa các nguồn không khớp', icon: 'search' },
     ] },
     valuation: { title: 'Giá trị kho', subtitle: 'Giá nhập, chi phí mua và giá vốn', icon: 'layers', items: [
-      { flow: 'UIF-03', title: 'Giá trị hàng nhập', subtitle: 'Xác nhận giá trị ban đầu của hàng đã nhận', icon: 'checkCircle' },
+      { flow: 'UIF-03', title: 'Hàng chờ xác lập giá trị', subtitle: 'Ghi giá nhập cho hàng đã nhận', icon: 'checkCircle' },
       { flow: 'UIF-13', title: 'Chi phí mua bổ sung', subtitle: 'Ghi nhận chi phí phát sinh đến muộn', icon: 'fileText' },
       { flow: 'UIF-14', title: 'Giá vốn', subtitle: 'Tính, rà soát và công bố giá vốn', icon: 'layers' },
     ] },
@@ -62,8 +62,9 @@ const ThemeApp = (() => {
 
   const ORG_NAME = 'VET45 Demo';
 
+  // Ba dòng của prototype mở cùng một fixture ở SCR-011 (phiếu của Minh Dũng, Nguyễn Văn An gửi 09:41).
   const PENDING_RECEIPTS = [
-    { id: 'REC-260916-01', supplier: 'Minh Dũng', meta: 'Kho trung tâm · 1 mặt hàng · Nguyễn Văn An gửi 09:41' },
+    { id: 'REC-260916-04', supplier: 'Minh Dũng', meta: 'Kho trung tâm · 2 mặt hàng · Nguyễn Văn An gửi 09:41' },
     { id: 'REC-260916-02', supplier: 'An Việt', meta: 'Kho trung tâm · 2 mặt hàng · Lê Thu Hà gửi 08:55' },
     { id: 'REC-260916-03', supplier: 'Minh Phát', meta: 'Kho trung tâm · 4 mặt hàng · Trần Minh gửi 08:20' },
   ];
@@ -75,12 +76,16 @@ const ThemeApp = (() => {
     id: 'UIF-02',
     label: 'nhận hàng',
     // Kho chưa kích hoạt thì chưa nhận hàng được → không có phiếu nhận hàng chờ duyệt.
-    rows: () => (!inventoryActivated ? [] : PENDING_RECEIPTS.map((item) => ({
-      title: item.supplier,
-      subtitle: item.meta,
-      icon: 'cloudUpload',
-      attrs: `data-theme-entry-flow="UIF-02" data-t380-target-screen="SCR-011" data-t380-context="bj02-pending-approval" data-v464-pending-receipt="${item.id}"`,
-    }))),
+    // Phiếu vừa gửi trong phiên (bj02PendingSubmitted) thay dòng đầu: mở đúng phiếu đó, không nạp lại fixture.
+    rows: () => (!inventoryActivated ? [] : PENDING_RECEIPTS.map((item, index) => {
+      const mine = index === 0 && typeof bj02PendingSubmitted !== 'undefined' && bj02PendingSubmitted;
+      return {
+        title: mine ? (currentReceiptSupplier() || 'Nhập nhanh') : item.supplier,
+        subtitle: mine ? `Kho trung tâm · ${bj02Lines.length} mặt hàng · ${BJ02_CONTEXT.submitted.maker} gửi 09:41` : item.meta,
+        icon: 'cloudUpload',
+        attrs: `data-theme-entry-flow="UIF-02" data-t380-target-screen="SCR-011" data-t380-context="${mine ? 'bj02-submitted-approval' : 'bj02-pending-approval'}" data-v464-pending-receipt="${item.id}" data-theme-entry-actor="approver"`,
+      };
+    })),
   });
   const pendingRows = () => pendingSources.flatMap((src) => src.rows().map((row) => ({ ...row, source: src })));
   function pendingSummary() {
@@ -203,6 +208,8 @@ const ThemeApp = (() => {
       <div class="t462-workspace-list ds24-list-stack">${['inventory', 'movement', 'control', 'valuation', 'history'].map(workspaceRow).join('')}</div>
     </section>`;
     const setup = `<section class="t462-section" data-ds-component="VSection">${ds24ListRow({ title: 'Thiết lập kho', subtitle: 'Tồn đầu kỳ và chính sách ít dùng', leading: 'inbox', attrs: 'data-t462-workspace="setup"', theme: 'Theme7WarehouseCandidateSetup', extraClass: 't462-workspace-row' })}</section>`;
+    // Web: thanh bên đã chỉ chỗ nên không có nút quay lại; dưới nút nhanh chia hai cột (trái: banner chưa kích hoạt + "Cần chú ý", phải: "Quản lý kho" + "Thiết lập kho"). iPhone giữ một cột.
+    if (viewport === 'web') return shell({ title: 'Kho', back: false, extraClass: 't462-warehouse-hub', body: `${search}${quick}<div class="t462-columns"><div class="t462-column">${notActivated}${attention}</div><div class="t462-column">${workspaces}${setup}</div></div>` });
     return shell({ title: 'Kho', back: true, backAttr: 'data-theme-app-back', extraClass: 't462-warehouse-hub', body: `${search}${notActivated}${quick}${attention}${workspaces}${setup}` });
   }
 
@@ -233,8 +240,7 @@ const ThemeApp = (() => {
     else app.innerHTML = renderWorkspace(hubView);
   }
 
-  // Sau khi dựng một màn luồng: nút quay lại ở màn vào luồng / màn mở thẳng về Kho, khoá quay lại sau khi đã gửi duyệt,
-  // và (mọi chế độ) SCR-010 đang chờ duyệt có "Về Kho".
+  // Sau khi dựng một màn luồng: nút quay lại ở màn vào luồng / màn mở thẳng về Kho, khoá quay lại sau khi đã gửi duyệt.
   function afterFlowRender() {
     const bar = document.querySelector('#app-screen .app-appbar');
     if (inThemeFlow() && bar) {
@@ -247,7 +253,6 @@ const ThemeApp = (() => {
         bar.classList.remove('has-back'); bar.classList.add('no-back'); bar.setAttribute('data-ds-prop-show-back-button', 'false');
       }
     }
-    addPendingReviewExit();
   }
 
   function setBack(bar, attr, label) {
@@ -260,25 +265,6 @@ const ThemeApp = (() => {
     [...back.attributes].forEach((a) => { if (a.name.startsWith('data-') && a.name !== 'data-ds-internal') back.removeAttribute(a.name); });
     back.setAttribute(attr, '');
     back.setAttribute('aria-label', label);
-  }
-
-  function addPendingReviewExit() {
-    if (activeFlowId !== 'UIF-02' || activeScreenId !== 'SCR-010' || stateByScreen['SCR-010'] !== 'PENDING_APPROVAL') return;
-    const scaffold = document.querySelector('#app-screen .v-page-scaffold');
-    if (!scaffold) return;
-    if (!scaffold.querySelector('[data-v464-action="to-warehouse"]')) {
-      scaffold.insertAdjacentHTML('beforeend', `<footer class="app-actions figma-sticky-footer t464-pending-footer" data-ds-component="DS v2 / Sticky Footer" data-ds-prop-layout="Single"><button class="button button--primary button--full" type="button" data-v464-action="to-warehouse" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium">Về Kho</button></footer>`);
-    }
-    let back = scaffold.querySelector('.app-back-button');
-    if (!back) {
-      const bar = scaffold.querySelector('.app-appbar');
-      if (bar) {
-        bar.classList.remove('no-back'); bar.classList.add('has-back');
-        bar.insertAdjacentHTML('afterbegin', `<button class="app-icon-button app-back-button" type="button" aria-label="Quay về Kho" data-v464-action="to-warehouse" data-ds-internal="VAppBar.leading">${icon('chevronLeft', 'icon--24')}</button>`);
-        back = bar.querySelector('.app-back-button');
-      }
-    }
-    if (back) { back.setAttribute('data-v464-action', 'to-warehouse'); back.setAttribute('aria-label', 'Quay về Kho'); }
   }
 
   // ---------------------------------------------------------------- harness (sidebar, inspector, URL)
@@ -378,18 +364,26 @@ const ThemeApp = (() => {
       flowMode = 'document';
       selectedDocumentId = 'PN-260816-04';
       if (typeof resetBj02Receipt === 'function') resetBj02Receipt('document');
+      // Nobivac DHPPi 121 hộp (theo lô, vượt chứng từ +1), Oxytetracycline LA 24 chai (không theo lô).
       bj02Lines = bj02Lines.map((line, index) => {
         const qty = index === 0 ? 121 : 24;
-        return { ...line, status: 'COMPLETED', accepted: 0, totalReceived: qty, quarantine: 0, damaged: 0, rejected: 0, lots: [{ id: `V464-LOT-${index + 1}`, code: index === 0 ? 'NOB-2608-A' : 'AMX-2608-B', expiry: index === 0 ? '31/08/2027' : '31/03/2028', expiryPrecision: 'DAY', manufactureDate: '', manufacturePrecision: 'DAY', accepted: qty, totalReceived: qty, quarantine: 0, damaged: 0, rejected: 0 }] };
+        const lots = line.trackingPolicy === 'LOT' ? [{ id: `V464-LOT-${index + 1}`, code: 'DH2508', expiry: '31/08/2027', expiryPrecision: 'DAY', manufactureDate: '', manufacturePrecision: 'DAY', accepted: qty, totalReceived: qty, quarantine: 0, damaged: 0, rejected: 0 }] : [];
+        return { ...line, status: 'COMPLETED', accepted: line.trackingPolicy === 'LOT' ? 0 : qty, totalReceived: qty, quarantine: 0, damaged: 0, rejected: 0, lots };
       });
       bj02Header = { ...bj02Header, businessDate: '2026-09-16' };
-      stateByScreen['SCR-010'] = 'PENDING_APPROVAL'; stateByScreen['SCR-011'] = 'READY'; approvalRejectReason = '';
+      stateByScreen['SCR-010'] = 'PENDING_APPROVAL'; stateByScreen['SCR-011'] = 'READY'; stateByScreen['SCR-012'] = 'COMPLETED'; approvalRejectReason = '';
     }
+  }
+
+  function applyDirectContextMine(context) {
+    if (context !== 'bj02-submitted-approval') return false;
+    stateByScreen['SCR-010'] = 'PENDING_APPROVAL'; stateByScreen['SCR-011'] = 'READY'; stateByScreen['SCR-012'] = 'COMPLETED'; approvalRejectReason = '';
+    return true;
   }
 
   function openDirect(target, context, receiptId) {
     directEntryScreen = target;
-    applyDirectContext(context, receiptId);
+    if (!applyDirectContextMine(context)) applyDirectContext(context, receiptId);
     activeScreenId = target;
     syncReviewUrl(); render();
   }
@@ -402,9 +396,6 @@ const ThemeApp = (() => {
 
     const modeBtn = t.closest('button[data-workbench-mode]');
     if (modeBtn) { stop(); return setMode(modeBtn.dataset.workbenchMode); }
-
-    const toHub = t.closest('[data-v464-action="to-warehouse"]');
-    if (toHub) { stop(); directEntryScreen = null; return go('inventory', 'home'); }
 
     if (t.closest('[data-action="exit-approval"]') && activeFlowId === 'UIF-02' && activeScreenId === 'SCR-011' && inTheme()) { stop(); directEntryScreen = null; return go('inventory', 'pending-approvals'); }
 

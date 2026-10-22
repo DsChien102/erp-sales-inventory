@@ -32,7 +32,7 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 | Module entry reviewed | Screen | Product meaning |
 |---|---|---|
 | Tồn kho | `SCR-001` | Tra cứu tồn/khả dụng |
-| Nhận hàng | `SCR-006` | Chọn cách nhận hàng; document context có thể deep-link vào goods receipt flow |
+| Nhận hàng | `SCR-007` | Chứng từ chờ nhận + dòng "Hàng đến chưa có chứng từ" (nhập nhanh); document context có thể deep-link vào goods receipt flow |
 | Hàng chờ xác nhận giá nhập | `SCR-014` (UIF03) | Work queue của Inventory Valuation |
 | Chi phí mua bổ sung | `SCR-085` (UIF13) | Late-cost source work queue |
 | Giá vốn | `SCR-072` (UIF14) | Cost run worklist |
@@ -72,7 +72,7 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 
 **Module entry**
 
-- [`SCR-006` — Chọn cách nhận hàng](../screens/SCR-006.md) — BJ02.
+- [`SCR-007` — Nhận hàng](../screens/SCR-007.md) — BJ02 (SCR-006 đã gộp vào).
 - [`SCR-025` — Đơn cần lấy hàng](../screens/SCR-025.md) — BJ05.
 - [`SCR-030` — Yêu cầu khách trả](../screens/SCR-030.md) — BJ06 maker queue.
 - [`SCR-036` — Hàng cần xử lý](../screens/SCR-036.md) — UIF07 mode là supplier-return queue.
@@ -118,8 +118,8 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 
 - [`SCR-014` — Hàng chờ xác nhận giá nhập](../screens/SCR-014.md) — module entry.
 - [`SCR-015` — Chọn hàng cần xác nhận giá](../screens/SCR-015.md) — contextual/in-flow scope.
-- `SCR-016` — historical/migration identity; provenance/conflict là contextual `VBottomSheet` trên SCR-015/SCR-017. (xem [`RETIRED.md`](../screens/RETIRED.md))
-- [`SCR-017` — Rà soát xác nhận giá](../screens/SCR-017.md) — final direct-valuation commit.
+- `SCR-016` — historical/migration identity; cách tính là sheet "Cách tính" trên SCR-015. (xem [`RETIRED.md`](../screens/RETIRED.md))
+- `SCR-017` — đã gộp vào SCR-015: xác nhận cuối là sheet "Ghi giá trị nhập ban đầu?" (xem [`RETIRED.md`](../screens/RETIRED.md)).
 - [`SCR-019` — Kết quả xác nhận giá](../screens/SCR-019.md) — result/finality.
 
 **BJ13 — Chi phí mua bổ sung (v1.4.5 dedicated flow)**

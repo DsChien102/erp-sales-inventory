@@ -12,7 +12,7 @@ KB-KGV-007-nhan-hang-mua-va-xu-ly-chenh-lech-giao-nhan,know-how,BA,FROZEN,01.kno
 KB-KGV-008-hang-da-nhan-nhung-chua-chot-gia,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-008-hang-da-nhan-nhung-chua-chot-gia.md,02d56422541bcc79111062acab313e88d05cbf4ee73303e4451fa8084b8cf497,13523,theme-07,hang-da-nhan-nhung-chua-chot-gia,v3.12.0
 KB-KGV-009-giu-hang-va-xu-ly-don-khong-du-ton-kha-dung,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-009-giu-hang-va-xu-ly-don-khong-du-ton-kha-dung.md,23c8adda3051a405a364951cc4efa89a1e4ec0b943817c7d065d822b8134e135,4011,theme-07,giu-hang-va-xu-ly-don-khong-du-ton-kha-dung,v3.10.1
 KB-KGV-010-chon-hang-de-xuat-va-thoi-diem-hoan-tat-xuat-ban,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-010-chon-hang-de-xuat-va-thoi-diem-hoan-tat-xuat-ban.md,f2150987c4cac8e70d8ec6b29be9277b3f52aaf6c845fcbb82304bb726545afd,8477,theme-07,chon-hang-de-xuat-va-thoi-diem-hoan-tat-xuat-ban,v3.10.1
-KB-KGV-011-kiem-ke-hang-ton-kho-tu-khoa,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-011-kiem-ke-hang-ton-kho-tu-khoa-pham-vi-den-dieu-chinh-chenh-lech.md,1a71c2dc57adce707b4173fab78c6b189b057f2b1c797173c87b7d7a468a8473,6250,theme-07,kiem-ke-hang-ton-kho-tu-khoa-pham-vi-den-dieu-chinh-chenh-lech,v3.10.1
+KB-KGV-011-kiem-ke-hang-ton-kho-tu-khoa,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-011-kiem-ke-hang-ton-kho-tu-khoa-pham-vi-den-dieu-chinh-chenh-lech.md,258da09a7a86ae22060334907f660b8d42b7cab905c0a857680764bb9660fd1b,6371,theme-07,kiem-ke-hang-ton-kho-tu-khoa-pham-vi-den-dieu-chinh-chenh-lech,v3.10.1
 KB-KGV-012-hang-khach-tra-tu-tiep-nhan-den-phan-loai,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-012-hang-khach-tra-tu-tiep-nhan-den-phan-loai.md,86258c23a8edf264f369091f76570cfdd5630c6a2533304d0c7ee7a515bf2dbd,9798,theme-07,hang-khach-tra-tu-tiep-nhan-den-phan-loai,v3.10.1
 KB-KGV-013-tra-hang-cho-nha-cung-cap,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-013-tra-hang-cho-nha-cung-cap.md,57d93e82a1193bb7a927245bed0b6c7203c5a7bd1b701263e65e76495439daa4,7992,theme-07,tra-hang-cho-nha-cung-cap,v3.10.1
 KB-KGV-014-hang-can-han-het-han-hu-hong-va-tieu-huy,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-014-hang-can-han-het-han-hu-hong-va-tieu-huy.md,3154fc9bace827364a660c46b70890aaccd227616fbbbed70e38a086d2caacaa,8771,theme-07,hang-can-han-het-han-hu-hong-va-tieu-huy,v3.10.1
@@ -22,7 +22,7 @@ KB-KGV-017-cong-bo-don-gia-ton-kho-va-ghi-nhan-gia-von-xuat-ban,know-how,BA,FROZ
 KB-KGV-018-doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-018-doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky.md,7f20cb09b58f444e0597f6f222a5b32fc3ace81ff9808bdd8fee29187ee96e7c,7564,theme-07,doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky,v3.12.0
 KB-KGV-019,know-how,,ACTIVE,01.knowledge/know-how/KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-tri-hang-nhap.md,925b6351c528d173c0bee8d8077dddc51cd84a098d0e45f9373da5ed704d724b,6766,theme-07,Các thành phần hình thành giá trị hàng nhập,v3.12.0
 KB-KGV-020-dinh-gia-hang-tra-tieu-huy-va-chenh-lech-thua-thieu,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-020-dinh-gia-hang-tra-tieu-huy-va-chenh-lech-thua-thieu.md,229c86ea675ae7c63aa9d03629d6a536a9c254ea397b316c3dc3ddebcdf1ee96,10014,theme-07,dinh-gia-hang-tra-tieu-huy-va-chenh-lech-thua-thieu,v3.10.1
-KB-KGV-021-sua-sai-ton-kho-khong-sua-lich-su,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-021-sua-sai-ton-kho-khong-sua-lich-su.md,662f21aeea4e55c5f58e05b972c2521a2f7befbd2018d9a181064bab848dce67,13042,theme-07,sua-sai-ton-kho-khong-sua-lich-su,v3.10.1
+KB-KGV-021-sua-sai-ton-kho-khong-sua-lich-su,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-021-sua-sai-ton-kho-khong-sua-lich-su.md,d2c79b854af680f4b30fc1c3cbdf077cd6b27963766419a5ddd22e05107ba971,13196,theme-07,sua-sai-ton-kho-khong-sua-lich-su,v3.10.1
 KB-KGV-022-chuan-bi-du-lieu-so-du-ton-kho-dau-ky,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-022-chuan-bi-du-lieu-so-du-ton-kho-dau-ky.md,000aaaae5ce1758ee2c3c4e5c96ad8b1de4f7c5aef00417ab42c7c64a1ed0fdf,9537,theme-07,chuan-bi-du-lieu-so-du-ton-kho-dau-ky,v3.10.1
 KB-KGV-023-xac-nhan-so-du-dau-ky-chuyen-doi-chinh-thuc-va-doi-soat-migration,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-023-xac-nhan-so-du-dau-ky-chuyen-doi-chinh-thuc-va-doi-soat-migration.md,aa7cbad402555f8e537e86c7183caa23e6015a73ebe7e0d8434409dd59fe72ae,10025,theme-07,xac-nhan-so-du-dau-ky-chuyen-doi-chinh-thuc-va-doi-soat-migration,v3.10.1
 KB-KGV-024-chinh-sach-quan-ly-hang-thong-thuong-theo-lo-hoac-theo-serial,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-024-chinh-sach-quan-ly-hang-thong-thuong-theo-lo-hoac-theo-serial.md,f908025284079dd8bdbdd99031327eb7a0b75d2180da2e73dc70d752f66b033c,8104,theme-07,chinh-sach-quan-ly-hang-thong-thuong-theo-lo-hoac-theo-serial,v3.10.1
@@ -97,7 +97,7 @@ SBC-COM-05,behavioral-contract,BA,FROZEN,02.specification/behavior/behavioral-co
 SBC-COM-06,behavioral-contract,BA,FROZEN,02.specification/behavior/behavioral-contracts/SBC-COM-06.md,c76cdf2b3424aa4bda1b261cbe75f2f1c7ab88cb84f39f9178ca418ad9b7ca4d,1886,theme-07,Vòng đời sản phẩm,v3.10.1
 BJ-MAP,business-journey-map,BA,IN_REVIEW,02.specification/behavior/journeys/00-business-journey-map.md,9365566a679e4f580ea5bb193c818bd8a891d8c13eee35f99614a3f08fd97141,44088,theme-07,Business Journey Map — Theme 07,v4.1.0
 BJ-01,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md,7b3a19ab5c7cdfe7402db3370c3a8ccbe8c2ad391dee7165dcf75eed052f2a1a,7553,theme-07,"Theo dõi tồn, khả dụng và chỉ báo vận hành",v4.0.0
-BJ-02,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-02-nhan-hang-mua.md,b96bc6fa66bd7c89daf682bf174ea80076ad847ff3ded62da97035e756095fb5,12043,theme-07,Nhận hàng mua,v4.0.0
+BJ-02,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-02-nhan-hang-mua.md,7ce1a08c5377848898c077c2f7c1b7d52217b63133604c9376ae92d0e90e05a7,12280,theme-07,Nhận hàng mua,v4.0.0
 BJ-03,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-03-xac-lap-gia-tri-ban-dau-cua-hang-nhan.md,4bed354e63128cf913af3fdc4a6c0f5f17e62f80f2eb0520485c1e99f7c4c403,7005,theme-07,Xác lập giá trị ban đầu của hàng nhận,v4.6.0
 BJ-04,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-04-quan-ly-vong-oi-giu-hang.md,fd59d7d77c7a16448cd05a3ac6b3020a88daef0aeaca963cbd1009515c9105f3,6173,theme-07,Quản lý vòng đời giữ hàng,v4.0.0
 BJ-05,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-05-lay-hang-va-ban-giao-on.md,5457666e3f25fa3ab1efe2a7dd8cc533a837861d39909aef4495782a1e1291fc,7207,theme-07,Lấy hàng và bàn giao đơn,v4.0.0
@@ -107,24 +107,24 @@ BJ-08,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-08-kie
 BJ-09,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-09-quan-ly-trang-thai-hang.md,7e8c25533ec2f65a35c44522c19177d35667265fef57fb63dad8f622c9499f0e,6596,theme-07,Quản lý trạng thái hàng,v4.0.0
 BJ-10,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-10-tieu-huy-hang.md,18963109ddab7e9fa8dc4dd5d9e746d3cd575e43f372a2fe1adcae4663fa659f,6493,theme-07,Tiêu hủy hàng,v4.0.0
 BJ-11,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-11-huy-va-sua-sai-nghiep-vu-kho.md,1cf1c9292cc0b4ac1251f634ce42cfb7fddd81254c9145c795e8685b778447d0,7063,theme-07,Hủy và sửa sai nghiệp vụ kho,v4.0.0
-BJ-12,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-12-khoi-tao-so-du-ton-kho-au-ky.md,a0f633bd3a3609e5ce9dc1bbfc8e8a691c03167cab72b408874d94b4109d7d3a,6757,theme-07,Khởi tạo số dư tồn kho đầu kỳ,v4.0.0
+BJ-12,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-12-khoi-tao-so-du-ton-kho-au-ky.md,2d378d4d4671ce1d545205d7e474682fe36f4e668e096a5cb001031275f515d1,6893,theme-07,Khởi tạo số dư tồn kho đầu kỳ,v4.0.0
 BJ-13,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-13-dieu-chinh-gia-tri-hang-nhap.md,fab453ffcfeaef2c2782b40d441c98e27f10140427368314cb682239037db16b,6324,theme-07,Điều chỉnh giá trị hàng nhập,v4.6.0
 BJ-14,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-14-tinh-va-cong-bo-gia-von.md,66a03c0a290c6fbc60357c3505ea2f45595bf610b8a5978b1c1969d1bac1b4c9,6934,theme-07,Tính và công bố giá vốn,v4.6.0
 BJ-15,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-15-tra-cuu-bao-cao-ton-va-the-kho.md,87e53913eb935d331a2c49d7d3b1850679907aa03ea9c7d041eeb33a119da065,6435,theme-07,Tra cứu báo cáo tồn và thẻ kho,v4.0.0
 BJ-16,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-16-ieu-tra-va-oi-soat-sai-lech.md,9a860ffe21a96cf677a5c08c5a61515533c5f4d7511bcaf27405838d258f56c9,7156,theme-07,Điều tra và đối soát sai lệch,v4.0.0
 BJ-17,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-17-phuc-hoi-nghiep-vu-co-ket-qua-chua-xac-inh.md,d6209c99ef043d0c32cf67acd9b7caec43613c164c6042652dafda73666c0838,6935,theme-07,Phục hồi nghiệp vụ có kết quả chưa xác định,v4.0.0
-UC-MAP,use-case-map,BA,IN_REVIEW,02.specification/behavior/use-cases/00-use-case-map.md,6ba1d98e061920431f75868eaa3e04f7e85deb169052258dd529ef4ec0b1a62b,21937,theme-07,Use Case Map — Theme 07,v4.6.0
+UC-MAP,use-case-map,BA,IN_REVIEW,02.specification/behavior/use-cases/00-use-case-map.md,2f7c2403b3b5d6771d65800fc81facb64fe282d0629dee60a0ff3b5edd584ec7,21915,theme-07,Use Case Map — Theme 07,v4.6.0
 UC-01-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md,244e4358bc143afae3a3488e87ba67a29e642871ef67bd1ecf83da72575fdba8,9617,theme-07,Xác định ngữ cảnh và sản phẩm,v4.0.0
 UC-01-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-01-02-xem-ton-va-kha-dung.md,387658e764b712789ace5ec8c8a59062189dcee38078932dff5fd901aafb1aec,9578,theme-07,Xem tồn và khả dụng,v4.0.0
 UC-01-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-01-03-xem-trace-summary.md,ccf9de3b14a64963a65086d8959849394ba911eff77d785abf7a46feaa6f26e7,8779,theme-07,Xem trace summary,v4.0.0
 UC-01-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-01-04-xem-ton-thap-va-luong-goi-y.md,80543ef0065f5b26bfe32414c57af53906acc34dea9d9a3ddc32e59a3e26b3be,9644,theme-07,Xem tồn thấp và lượng gợi ý,v4.0.0
 UC-01-05,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-01-05-xem-hang-can-han-va-het-han.md,88592ae8fa5c320ed50726fed709a356107c5f3d5f46ca1e4a5081a4fc9f7b9c,9768,theme-07,Xem hàng cận hạn và hết hạn,v4.0.0
-UC-02-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-01-chuan-bi-nhan-theo-chung-tu.md,acb4ae6afa1f0f7ec38155b2710de186136850a59c9e0eef957b06c2091bb320,15126,theme-07,Chuẩn bị nhận theo chứng từ,v4.0.0
-UC-02-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md,d31a8c851e425ac1e3e138c1d598998153d578263f3ee2c0b822da26e11cf5d3,15787,theme-07,Chuẩn bị nhập hàng nhanh,v4.6.7
-UC-02-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md,05159cb0bb2a594801a0c60290709530d888bc33fa5c9ef00febdd1757e7c64f,12454,theme-07,Phê duyệt yêu cầu nhận hàng,v4.6.7
+UC-02-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-01-chuan-bi-nhan-theo-chung-tu.md,a489728633dc48aa02a0ebb1b6c467488ea132cab519e93ee0083e12ba107322,14942,theme-07,Chuẩn bị nhận theo chứng từ,v4.0.0
+UC-02-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md,3416534794d5101c6d7593332b2acc8faf3f588842683c01afe121fa596e71d1,15831,theme-07,Chuẩn bị nhập hàng nhanh,v4.6.7
+UC-02-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md,f56e569ecbc8caca676f9821db0fbde3db18339643578fb414d07e01a4a60345,13038,theme-07,Phê duyệt yêu cầu nhận hàng,v4.6.7
 UC-02-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md,fe0b0324be2c092b5f4e6b0dd31e175e59041897efdcb88bd03546796f5615d6,11564,theme-07,Ghi nhận hàng vào tồn vật lý,v4.0.0
 UC-02-05,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md,6f8bd25320614bf4ced467792e5281ff928b5f5065da4565618bcdb0ce4b7795,8459,theme-07,Truy vấn và phục hồi ngắn kết quả nhận hàng,v4.0.0
-UC-03-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-03-01-xac-lap-gia-tri-nhap-ban-dau.md,084f5a712eca64d0794f9d82878e5264c07ed5dec5172e8902653c89079c60a5,19222,theme-07,Xác lập giá trị nhập ban đầu,v4.6.1
+UC-03-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-03-01-xac-lap-gia-tri-nhap-ban-dau.md,c44653341f7a12e5a4dde193cf3301983699a86306bfb97872bf11f80ee81b1d,19417,theme-07,Xác lập giá trị nhập ban đầu,v4.6.1
 UC-04-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-01-tao-reservation.md,8a4c932e3bb3544a24dd49b6eae433877ffe637903975b735f090868f1d8dbfb,9402,theme-07,Tạo reservation,v4.0.0
 UC-04-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-02-dieu-chinh-reservation.md,29c01fa2a9bbaef2d427775f65fbca314c5d49a17bf4db28612c449381b7a066,9170,theme-07,Điều chỉnh reservation,v4.0.0
 UC-04-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-03-ket-thuc-va-giai-phong.md,beb089e100c5911d796c5113c10df4ea4de8829e9f017b8425e02c3928ff262d,8545,theme-07,Kết thúc và giải phóng,v4.0.0
@@ -145,23 +145,23 @@ UC-07-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-07-04-ghi-
 UC-08-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-01-mo-va-khoa-pham-vi.md,4dee22c3b68ceb4f42258e4b029dbc4e3430b6e75558f1b7ea3e5492c98eaa79,9971,theme-07,Mở và khóa phạm vi,v4.0.0
 UC-08-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-02-ghi-nhan-lan-dem-mu.md,dda6b241d78325e16472d9e401ccc32790c89d885032b72b0e596ca306434cbf,9760,theme-07,Ghi nhận lần đếm mù,v4.0.0
 UC-08-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md,1164f43e87f9419d7c4da31c6ec58297a8ab5b590dfee019b7de8ac73e69f287,9531,theme-07,Đếm lại và hoàn thiện căn cứ,v4.0.0
-UC-08-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-04-duyet-va-dieu-chinh.md,7d5a127da27a0a60e343233d9aa1bad5c723b2caa6a5f404c98dca56866134e1,10533,theme-07,Duyệt và điều chỉnh,v4.0.0
+UC-08-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-04-duyet-va-dieu-chinh.md,a2927e561287320636446e1d6882cccabf70c6667991faad5825b607a03f74c7,10671,theme-07,Duyệt và điều chỉnh,v4.0.0
 UC-08-05,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-05-huy-phien-kiem-ke.md,7f2e8961f83bf44d1a213a35159d03172314029bed475c9d52ea7d2349852240,8276,theme-07,Hủy phiên kiểm kê,v4.0.0
 UC-09-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-09-01-chuan-bi-thay-doi-trang-thai.md,393bebe9f72f926aa96d2104ac283724edeaa6ef104694309d402505b52f47c5,11583,theme-07,Chuẩn bị thay đổi trạng thái,v4.0.0
 UC-09-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-09-02-phe-duyet-thay-doi-trang-thai.md,f6b95f529c9e59b55c677a5db73bc5b61fb8152733178e7f36868fec8bff68b3,10660,theme-07,Phê duyệt thay đổi trạng thái,v4.0.0
 UC-09-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-09-03-xac-dinh-hang-het-han.md,e9a00acb4153a0f664e830b97d4ba320f9493c8c9853b364ac47f2ae50e67a24,10150,theme-07,Xác định hàng hết hạn,v4.0.0
 UC-09-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-09-04-ghi-state-movement.md,e1d2ad0b0683bdf2ea482236c6cf664e5f529cc2e48127caf6f34cde053e5893,10603,theme-07,Ghi state movement,v4.0.0
-UC-10-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md,e2319f7e6eab2be32d1699e84ef26fcc63de8bb4acedf97dace3b3cf7eac896b,11479,theme-07,Chuẩn bị yêu cầu tiêu hủy,v4.0.0
-UC-10-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-10-02-phe-duyet-tieu-huy.md,47a74980fcfe183d4f285577d73e16045312a6fe089842f61a21099b5c309108,10288,theme-07,Phê duyệt tiêu hủy,v4.0.0
-UC-10-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-10-03-xac-nhan-da-tieu-huy.md,61681ab7917e341692c5ad1b0f6840456a5543530b41af43144524811de9b1c2,10242,theme-07,Xác nhận đã tiêu hủy,v4.0.0
-UC-10-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-10-04-ghi-giam-hang-tieu-huy.md,f579a74af6b94d1b397543d6bd49935545702fc73da22b11a5ef7dba0907b80c,10049,theme-07,Ghi giảm hàng tiêu hủy,v4.0.0
+UC-10-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md,b6933b94d30c5ee013d03d4493570b87689f368760ceb71f7007103990330584,11556,theme-07,Chuẩn bị yêu cầu tiêu hủy,v4.0.0
+UC-10-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-10-02-phe-duyet-tieu-huy.md,034223a6645b332836c2fc3eed6279d12708bb24ad51e42b625123f7beb24fa9,10365,theme-07,Phê duyệt tiêu hủy,v4.0.0
+UC-10-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-10-03-xac-nhan-da-tieu-huy.md,63d517205404303fa3777d93207124fb4420589c3452d4b45c0f3c35f39dbf4b,10319,theme-07,Xác nhận đã tiêu hủy,v4.0.0
+UC-10-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-10-04-ghi-giam-hang-tieu-huy.md,76f33c6e77a35cac8df1174889acc2acf2e1d471494151636041f3486e654226,10126,theme-07,Ghi giảm hàng tiêu hủy,v4.0.0
 UC-11-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-11-01-xac-dinh-duong-xu-ly.md,754c807278636c4cfc486d6af2759c6cde67f470cbd25d82ba0f39c299b23036,10215,theme-07,Xác định đường xử lý,v4.0.0
 UC-11-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-11-02-huy-operation-chua-thuc-thi.md,aff6924d174f9ce75e0916c96a0c91d12e356e577356d334b8298927702e01bb,10219,theme-07,Hủy operation chưa thực thi,v4.0.0
 UC-11-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-11-03-chuan-bi-phuong-an-correction.md,8697eb524fcc66c4acae402d28dc97d9806cb4601f7404bc7c6a1f98281e90ac,11594,theme-07,Chuẩn bị phương án correction,v4.0.0
 UC-11-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-11-04-phe-duyet-correction.md,420aa477f660c3b8e69360d476cfeb7e83e80ed951496403684da53ecddf64c7,10527,theme-07,Phê duyệt correction,v4.0.0
 UC-11-05,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-11-05-ghi-correction-chain.md,412601a7f198a9136ef8b200ad148409ae75feb5dbd76056552b717d4d0c8af7,10358,theme-07,Ghi correction chain,v4.0.0
 UC-12-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md,b96e9c41be4f73ad7938c60fdf03ae1a80bb0f4bd2ca2d750d2de115b77e6edf,11609,theme-07,Nạp và kiểm tra batch đầu kỳ,v4.0.0
-UC-12-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-12-02-ra-soat-va-duyet-batch.md,86748ea18e46c6db777830b940e8f20ffa55bc8b86ac96eb9054f6ce54ca50ad,11270,theme-07,Rà soát và duyệt batch,v4.0.0
+UC-12-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-12-02-ra-soat-va-duyet-batch.md,6cab559cea61704e8fbf562146e66d350fd7432deefbbc2ce50c48f6ad26fd17,11308,theme-07,Rà soát và duyệt batch,v4.0.0
 UC-12-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-12-03-commit-va-kich-hoat-ton-kho.md,8a32fe7ea0ae45ca8ebe87456698cec21ab63b8026016305a641dce1113c7e9b,10533,theme-07,Commit và kích hoạt tồn kho,v4.0.0
 UC-13-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-13-01-ghi-nhan-dieu-chinh-gia-tri-hang-nhap.md,a4ddb46feff00d8b65433511953fa67a73bf1347d1b19ccd0ec2198aa92cbfdd,14594,theme-07,Ghi nhận điều chỉnh giá trị hàng nhập,v4.6.0
 UC-14-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-14-01-tinh-va-ra-soat-gia-von.md,2439bb5d5d474f1bfb61ba12523504af7aece568ccb0148bb7895c2e908d5002,11663,theme-07,Tính và rà soát giá vốn,v4.6.1
@@ -195,7 +195,7 @@ AGG-IV-02,aggregate,SA,IN_REVIEW,02.specification/domain/aggregates/AGG-IV-02-Co
 AGG-IV-03,aggregate,SA,IN_REVIEW,02.specification/domain/aggregates/AGG-IV-03-OfficialCostVersion.md,b2d1bb2cf469c3aaee39710ffe66297ea096068e3c8b2ea0ce5c48b45a8df203,1401,theme-07,OfficialCostVersion Aggregate,v3.12.0
 AGG-IV-04,aggregate,SA,IN_REVIEW,02.specification/domain/aggregates/AGG-IV-04-ValuationAdjustmentBatch.md,b7cb020cb66bff6cf425ad5c8a31d01f50980634567cec78e7814fc603adc05f,1507,theme-07,ValuationAdjustmentBatch Aggregate,v3.12.0
 DOM-COM,domain-foundation,BA/SA,FROZEN,02.specification/domain/domain-foundation/DOM-COM.md,3e69988ba2c828d9572262198f58b755afa36e9d9acfe68c5552549deec12160,7452,theme-07,Nền tảng Domain dùng chung,v3.12.0
-DOM-IC,domain-foundation,BA/SA,FROZEN,02.specification/domain/domain-foundation/DOM-IC.md,d1b09aaab0c90634ac9af05f4bacc8df215a68146ba955c7294e53096105d212,9187,theme-07,Inventory Control,v3.12.0
+DOM-IC,domain-foundation,BA/SA,FROZEN,02.specification/domain/domain-foundation/DOM-IC.md,79dace4a7c74b3dc067c208482b675358b444c9226ef5312711738b6ef04d50b,9382,theme-07,Inventory Control,v3.12.0
 ,domain-foundation,BA/SA,DRAFT,02.specification/domain/domain-foundation/DOM-IO.md,e4f78308a2f12fed99dc1f4eb99d56ce97b9e0cb54b38e21044e8924f9f828f7,29241,theme-07,Inventory Operations,v3.10.1
 DOM-IV,domain-foundation,BA/SA,FROZEN,02.specification/domain/domain-foundation/DOM-IV.md,f845c533ae8ea73c92e9b54f6b88e3f2b3118a02bfa12b02f6589bb62ba4d597,11830,theme-07,Inventory Valuation,v3.12.0
 ENT-IC-01,business-entity,BA/SA,FROZEN,02.specification/domain/entities/ENT-IC-01-ApprovalPolicy.md,0642a4e9ba5f50efda5c43c76224357b74454ba212a11792ad6bc7c157250ed0,3548,theme-07,ApprovalPolicy,v3.12.0
@@ -243,12 +243,12 @@ PRJ-08,read-model,SA,DRAFT,02.specification/domain/read-models/PRJ-08-LowStockVi
 PRJ-09,read-model,SA,DRAFT,02.specification/domain/read-models/PRJ-09-TrustAndReconciliationView.md,b74373fa4e12bc28444be87e0254e4bbbc3dbe709294bde980aaafc3edab9554,2591,theme-07,TrustAndReconciliationView,v3.10.1
 PRJ-10,read-model,SA,DRAFT,02.specification/domain/read-models/PRJ-10-MarginComparisonView.md,a628f52c1b4e88e77a971cbc7e209fafb4f7e6223b5dbfa8a261853f0702ef80,3003,theme-07,MarginComparisonView,v3.10.1
 PRJ-IO-01,projection,BA/SA,DRAFT,02.specification/domain/read-models/PRJ-IO-01-TransactionalBalance.md,3786ba27d5934a1a673c995cc2704392b2d7fd632a7769e663cca5b26446dc0a,2865,theme-07,TransactionalBalance,v3.10.1
-OVERVIEW,theme-overview,BA,FROZEN,02.specification/overview/overview.md,7dc5cbec3669527d3a3ecd99cfc180cdc3e908daeb4b1f7b8a450db71f0d74f5,18230,theme-07,Theme 07 — Kho & Giá vốn,v3.12.0
+OVERVIEW,theme-overview,BA,FROZEN,02.specification/overview/overview.md,ac0b7313e0dc688889ea6dea971f777c2f037c332d8311fe37b1a217a996e327,18307,theme-07,Theme 07 — Kho & Giá vốn,v3.12.0
 DS-PROFILE,design-system-profile,BA,FROZEN,03.design/design-system/design-system-profile.md,2e0c42ff9cb007af418abc858e085bd43f69faebd271f562ae5ea3ac312a7285,4389,theme-07,Theme 07 Design System Profile,v3.13.0
 ,,,,03.design/design-system/ds-gap-register.md,d7f068096e5bc8aaa9b000fab254f7e997f296249242e22d5cd720dcdf855101,5030,,,
-UIF-01,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-01-BJ-01.md,33f7cb12030b8507d324fcc45eb594461044bf01d47b95bbd6a2914020527606,6065,theme-07,"Theo dõi tồn, khả dụng và chỉ báo vận hành",v4.1.0
-UIF-02,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-02-BJ-02.md,3bf9466e87e27e956c0726c1b706ce0e4e2d8aa7c7282a57ef9142ab35796677,17596,theme-07,Nhận hàng mua,v4.6.5
-UIF-03,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-03-BJ-03.md,797acd207ccce20fb3bf5bdbbe5f37095c3cf92748795ace9f9cb1f7c678ab16,10420,theme-07,Xác lập giá trị ban đầu của hàng nhận,v4.1.0
+UIF-01,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-01-BJ-01.md,15e3d072fa84b435562854c9f29e2a1c0e19b77fb909ddc390234c6b4794a7c0,6149,theme-07,"Theo dõi tồn, khả dụng và chỉ báo vận hành",v4.1.0
+UIF-02,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-02-BJ-02.md,9d8ed4a64e0be1204e6831aa02b8938c38c48f69acbc80cfa80fc826fba8f2cf,8712,theme-07,Nhận hàng mua,v4.6.5
+UIF-03,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-03-BJ-03.md,168531d1d3344e912205ce8ee520a9da9b6f4c09f8e2aba358e3fbfbc12504b4,6997,theme-07,Xác lập giá trị ban đầu của hàng nhận,v4.1.0
 UIF-04,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-04-BJ-04.md,1278afbfd9c900887006ec0134c7553eb5c3c9cf5de48b0f581bf6bb7108fb6e,8287,theme-07,Quản lý vòng đời giữ hàng,v4.1.0
 UIF-05,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-05-BJ-05.md,771e4405a8867d8b133fd4481b56b88897e5b6a1948dd6079c4fae4e67e4a936,10957,theme-07,Lấy hàng và bàn giao đơn,v4.1.0
 UIF-06,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-06-BJ-06.md,f2c80208480e45ca30fafb124168a65a7de449c8c670534abff70951e3af6127,12023,theme-07,Tiếp nhận và phân loại hàng khách trả,v4.1.0
@@ -257,22 +257,22 @@ UIF-08,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-08-BJ-08.md,84c64ccf
 UIF-09,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-09-BJ-09.md,ec88cd04bb34fb436e3c82d5c0c6c6f2683016e582188465e9e1d960d7410c3d,12155,theme-07,Quản lý trạng thái hàng,v4.1.0
 UIF-10,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-10-BJ-10.md,621541dbaf934e3e98e120babec9d26c3f77acea6c83c50b0384312bf8e119e6,11957,theme-07,Tiêu hủy hàng,v4.1.0
 UIF-11,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-11-BJ-11.md,7078be94ad7c5398441d1dee04646a1c66f720f3210d7998c560bac79c53f8c3,12943,theme-07,Hủy và sửa sai nghiệp vụ kho,v4.1.0
-UIF-12,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-12-BJ-12.md,f1c22b1590a5332d8ea9d417d5d7f14a6373d56a01077a4451c19e24866c1cbb,7219,theme-07,Khởi tạo số dư tồn kho đầu kỳ,v4.1.0
+UIF-12,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-12-BJ-12.md,bfd3fdb54d2aa4c5b4dc8a9ca6152db5dbe4e286be67ebb1caff610f2b16629f,6558,theme-07,Khởi tạo số dư tồn kho đầu kỳ,v4.1.0
 UIF-13,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-13-BJ-13.md,c3d10f9488c807637c855f673834cf19e848c6bcda7396692ed9bb723c74fa52,3875,theme-07,Điều chỉnh giá trị hàng nhập,v4.5.2
 UIF-14,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-14-BJ-14.md,29ab14356ab890e00b40fc05e9e5147ae9b5ec308860e0e51bfa7f38538da6ca,11551,theme-07,Tính và công bố giá vốn,v4.1.0
 UIF-15,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-15-BJ-15.md,2a95f79f26be42654ef9c678ffa12b180263fad89dbc967db7622fdd178a9a02,9533,theme-07,Tra cứu báo cáo tồn và thẻ kho,v4.1.0
 UIF-16,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-16-BJ-16.md,bba1e89b517c567657835d0619bbedf84cfa3bdefe3b0756333c4563ee3102dc,11541,theme-07,Điều tra và đối soát sai lệch,v4.1.0
 UIF-17,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-17-BJ-17.md,2a05ae427a8da4ecf60ce595f02ba94be3c1e007801d4f419833d0934ab043aa,11222,theme-07,Phục hồi nghiệp vụ có kết quả chưa xác định,v4.1.0
 ,,,,03.design/flows/_TEMPLATE.md,326f3b34434b5bc9b217fbb078ceba8a783552fd8b64b55a383ff9fae2cd7a1e,765,,,
-PAT-NAV,design-pattern,BA,FROZEN,03.design/patterns/PAT-NAV.md,5f5d7650e21a54483d12839f317d8ecb61c3714e1f1d71bec26aa1ef68893296,9297,theme-07,Navigation areas,v3.10.1
-PAT-UI-UX,design-pattern,BA,FROZEN,03.design/patterns/PAT-UI-UX.md,15470417f13b098d2bd06712614af5a5d6dcf2a0e4b721d56e7d542e558970e1,8072,theme-07,UI/UX policy & patterns,v3.13.0
+PAT-NAV,design-pattern,BA,FROZEN,03.design/patterns/PAT-NAV.md,5d7f06cc829d34b21d7e42f464c4f4cf0b2ae42e6135714c4769d9605d1e6f32,9397,theme-07,Navigation areas,v3.10.1
+PAT-UI-UX,design-pattern,BA,FROZEN,03.design/patterns/PAT-UI-UX.md,902a704fbc2ac06eedf2b42aebc0860c887b561fc31aa0a87c5348cff7db9661,8211,theme-07,UI/UX policy & patterns,v3.13.0
 PROTOTYPE,prototype-manifest,BA,FROZEN,03.design/prototype/README.md,177595ac7ed97aee2a1fb32b6a438a5420530b29ae816a8f8c743abfc6891fe7,1342,theme-07,Theme 07 mobile prototype mapping,v4.6.6
-,,,,03.design/prototype/html/CHANGELOG.md,b7bd15ab99778d287558c88f00680e63b80899f45b68d39ccb2b41b3452fa1da,38284,,,
+,,,,03.design/prototype/html/CHANGELOG.md,454239efd078f19f6dda1521ce71268646b169dad914aeaa60f56c7c056e13c8,56472,,,
 ,,,,03.design/prototype/html/DS-CONFORMANCE.md,4ff31e594e50f993667e179b699c1b0fe166eabc65c6f95c1ebca19e0312e3bd,10470,,,
-,,,,03.design/prototype/html/README.md,e2ef19defc1c79b26c2cbc656cfc8f65ba2e913aee702317568c22ee447ec678,2808,,,
-,,,,03.design/prototype/html/app/bj01.js,831983b11cf710b139f7c480e43d412eaf6b5776f1b83f72335a876207394d4f,22788,,,
-,,,,03.design/prototype/html/app/bj02.js,7ace6775ebb611921974fc1d3bb1385f6eea6799ebd6a97ec45456fe14db6e2f,122450,,,
-,,,,03.design/prototype/html/app/bj03.js,23e72e9764de7db62f4293a07b76bdb9de649582e1f56d93a46096ba26a19050,66206,,,
+,,,,03.design/prototype/html/README.md,f3f5ccec0485a6655349cba950d2c70a16f6331d6a483945295c348896aeb0f7,2980,,,
+,,,,03.design/prototype/html/app/bj01.js,8c6231879ac2ffe8c6d1de5f4b479747027f3a28f89afde17538e3ed3a00ee56,29290,,,
+,,,,03.design/prototype/html/app/bj02.js,fbbfd16fe02a503f4073618cd0c864873fdbb5d7ea98c70980204a3b3ffc8140,131834,,,
+,,,,03.design/prototype/html/app/bj03.js,05dfb605c90dba2d546c5dd0ccc0774ef4de6852f069e511d49b59636bb59a30,70230,,,
 ,,,,03.design/prototype/html/app/bj04.js,04ddf3c439bfc5600a1c3d9170f8d71a21995189221d049081ecec87642adfa8,5750,,,
 ,,,,03.design/prototype/html/app/bj05.js,7446bfb4d1fa54f16c8bb3d7dea2a8103ff2c7bf49abb4397fbbcb9dd9b2fd28,43321,,,
 ,,,,03.design/prototype/html/app/bj06.js,8711af76b6101f61457144896d795ea3309a95af9d80513c2704a333adc4629b,60716,,,
@@ -281,51 +281,51 @@ PROTOTYPE,prototype-manifest,BA,FROZEN,03.design/prototype/README.md,177595ac7ed
 ,,,,03.design/prototype/html/app/bj09.js,c9e64e040bc381c97d23da3f2d519827e187a4de7097491ba2e1c6553ee0addf,32934,,,
 ,,,,03.design/prototype/html/app/bj10.js,13eef257a219bf806a216d40285ec25aace42719133e52ed5835f2123460efe8,17761,,,
 ,,,,03.design/prototype/html/app/bj11.js,2882adcb315c62cff8a3c058eafa50d4378b8dfcecdf02a64b016f634f58a1e9,25089,,,
-,,,,03.design/prototype/html/app/bj12.js,7d114aa7117119485d4c0613abe836a369d1fc0fd35952c67bad03232508d840,35365,,,
+,,,,03.design/prototype/html/app/bj12.js,3712cdd5d75612393f1e7c858a87fe3a1753933f3b9219fadc9eb88ef72bb5d4,34088,,,
 ,,,,03.design/prototype/html/app/bj13.js,47c6d32d3236fe6991a623f45bc3d14c34b362fbd0b606bf8970dd92d3509ee8,39770,,,
 ,,,,03.design/prototype/html/app/bj14.js,ca4e10f5cd6c897e77fd833c68a7d5a0834328334503b75c7de4ff06a69370d3,28908,,,
 ,,,,03.design/prototype/html/app/bj15.js,150a78d6e569d72eeef0f8e6017479d2a4796971dd5b7b7a41ccece34f00d4ea,33228,,,
 ,,,,03.design/prototype/html/app/bj16.js,08ad797242b2d45262769beb784afc891c72a4f3cf2fe7c8a3e208fcd5f388d2,19939,,,
 ,,,,03.design/prototype/html/app/bj17.js,43704286acf5871fb5e4b8772ea3592e808cbac098e441c4ea99a34b2ce9792a,13473,,,
-,,,,03.design/prototype/html/app/cap01.js,d2423439452ea004847c2d248907a1486fcb4dcc91b97317d8027cf289ccaa4e,28756,,,
-,,,,03.design/prototype/html/app/core.js,e94605baadb82438452601e9b8a561b168d1da3af3dbd1b552b216392cbf5979,55806,,,
-,,,,03.design/prototype/html/app/hub.js,b546da198301a0e9239266125e5adfa24a3ea22d431588e125ede5d00d818fb7,33855,,,
+,,,,03.design/prototype/html/app/cap01.js,0e1d4cebb0f263d05ff8632e0fc80a17be724d0a1c45be9e87560ff07c180658,28758,,,
+,,,,03.design/prototype/html/app/core.js,74359d5c26276990934124a7b03055d4a2843688a677017ac211794b2c2e248f,56037,,,
+,,,,03.design/prototype/html/app/hub.js,67251095c0fe98c7f1a3a2cc1f0b0834153d024103fc033a53351d0ff861d6d3,33827,,,
 ,,,,03.design/prototype/html/app/shared-control.js,8b47f6c0679fbcc387e652d63b284253fc6d5724a0ef964fefeda3440b4161d3,11826,,,
-,,,,03.design/prototype/html/app/shared-patterns.js,1a182aa85e2f5981ed4836be77f776000e29a201689d566508c477dd7563e94c,13899,,,
-,,,,03.design/prototype/html/app/shared-valuation.js,d2da6b62bb66b70b7f47df6002d7b43334ea2cd55e3998781bf5246f1c5280d3,11107,,,
-,,,,03.design/prototype/html/data/workbench-data.js,3ce9a1d7292be13176d1225966b7c08cc863b0c415fe0fceecbe59875824de5a,216744,,,
-,,,,03.design/prototype/html/data/workbench-data.json,9f9c2a0fd949de7dc54219e6e5fe966080b55247f6b55f35266a912bb3691b18,216715,,,
+,,,,03.design/prototype/html/app/shared-patterns.js,d4fd57eba3060739c6d81fc2ad0e006fd0d0f803b96a42469245cbfbfd9f43dd,14957,,,
+,,,,03.design/prototype/html/app/shared-valuation.js,d23151aa6c573a66a362982387ba900011bbdf27a62f7d6f8af54e82b11a93e7,9864,,,
+,,,,03.design/prototype/html/data/workbench-data.js,2ee23a449f25424c59e5f8aa818055492686ad5a1dcb4c1ac47efaa89198dab8,216952,,,
+,,,,03.design/prototype/html/data/workbench-data.json,6ac417ec3fa2e44604faa71985b64d82c57a5a197ca762e1ab414614d5dffbc4,216923,,,
 ,,,,03.design/prototype/html/harness/figma-ds-map.js,77a9c8a0ac95689d404784be31abd69b22b452f80b75ac1d34098b6ac66d06e1,38410,,,
 ,,,,03.design/prototype/html/harness/workbench.css,e98d1f7988116ad92b22d5561ecff9d1030a813f703b81160610a4aef9dddd12,10175,,,
-,,,,03.design/prototype/html/harness/workbench.js,14440512b03d979b401ff536c84e8be5bb73e656b6d62e09d396e08be9d96cb2,27571,,,
-,,,,03.design/prototype/html/index.html,8a1fc1608d70180856befc2c270330297c4e0e6afb6f3a4714c34ce04b7c4812,6551,,,
-,,,,03.design/prototype/html/manifest.json,a4d2cb9207732ccb6fec0d298efdadd3024bc8c3306ef8262511c39196984c60,1495,,,
+,,,,03.design/prototype/html/harness/workbench.js,6fd38aab331be63acb0e8f2f6f74f0d3eee158c9a080d981052fb13352d43f6b,27784,,,
+,,,,03.design/prototype/html/index.html,ac0bda7170d82c93b9273d2f30f3956b87dae017e4eed6ff7c5e90023f4ce796,6549,,,
+,,,,03.design/prototype/html/manifest.json,eff72007f8c8c9bba5c46000ec3a92fd05607a7877217ba43591063d8dee42be,1495,,,
 ,,,,03.design/prototype/html/prototype.manifest.json,84e287af0ed09bfbdfaf524d39a6ee6729d343e7804208089e36d13b176af855,10908,,,
-,,,,03.design/prototype/html/styles/components.css,f5cf5e59f662e3cb1f4995946826a35c426757b90230b9f1f6b14e19e4f18276,128329,,,
-,,,,03.design/prototype/html/styles/screens.css,4a3e09e8dce915372e8414533bedfece7a967904ee3058719b562e245389889a,279173,,,
+,,,,03.design/prototype/html/styles/components.css,0737aa7e495020644c4c244a84ea4ba2104b1983e844f99dbc1f062cdba3411a,153837,,,
+,,,,03.design/prototype/html/styles/screens.css,a815fff56e73af6205b5593d39e2814f85e03d5cf8c423cce1b079d6ffa5b891,279815,,,
 ,,,,03.design/prototype/html/styles/tokens.css,ddac51d4aecdaa7c96101ee4a2400cdcce731d94b2566ac2985e199b619de437,5895,,,
 ,,,,03.design/prototype/html/tools/.gitignore,176c2d854707b0b1ef85cefa42a1b751b61a9ca85e13661b5a11b2481583e515,27,,,
-,,,,03.design/prototype/html/tools/golden.mjs,9bb4faadee2fa736adce0e50c20c5bc22a0f6ebbde55493a44fe05f740c4cc39,69666,,,
+,,,,03.design/prototype/html/tools/golden.mjs,ea64c929d57f662fa26b7c9acebb3896ae4f1db915e3dd55778dda2b248173dc,76511,,,
 ,,,,03.design/prototype/html/tools/sync-registry.py,7841c00aa2582bb3a5ecaa797c062b9758fcb3cfb163558fe0a28b1e8c086d82,2745,,,
-,,,,03.design/screens/INDEX.md,c810be0d7b4436818ed98c6eed0a62d48104456e28eaea380491ec2a07262b2e,7827,,,
-,,,,03.design/screens/RETIRED.md,99be61e372384195827dfef9fceb345641faeb70d926fa6d1df6d0ba2cb01fc0,1683,,,
-SCR-001,screen-contract,BA,FROZEN,03.design/screens/SCR-001.md,240c37da23133facacf53788416e4fe12d22bff9bb2c63db9b2619552e51f2de,6638,theme-07,Tồn kho,v3.10.1
+,,,,03.design/screens/INDEX.md,813934f65abe13f28144df8f06f39da3b3cf3bf81ce08783e97bec5958a7da21,7790,,,
+,,,,03.design/screens/RETIRED.md,ec44ecef315fff926331da53cda7ffca1c9fd89d1bd7cf0c5d5ebd49f5393efa,2176,,,
+SCR-001,screen-contract,BA,FROZEN,03.design/screens/SCR-001.md,4b85632cd5eb4ced35b9ccb3e9114252eb0807df90db05c74c149937fbed60bf,7147,theme-07,Tồn kho,v3.10.1
 SCR-002,screen-contract,BA,FROZEN,03.design/screens/SCR-002.md,4a68989e285c76375b2aac62f3df60491d949917c1eb07ade6da715e653ebc98,2241,theme-07,Kết quả khả dụng — MERGED,v3.10.1
-SCR-003,screen-contract,BA,FROZEN,03.design/screens/SCR-003.md,2ef7fe85e45cf365aec24ee07dc5644ac4fab1bde2c61cf819322a8349fb6e44,8790,theme-07,Chi tiết tồn kho,v3.10.1
+SCR-003,screen-contract,BA,FROZEN,03.design/screens/SCR-003.md,3803cc7db0af7c881c2320393df0a58e815bcfb185707afa4e615426628f70c9,9096,theme-07,Chi tiết tồn kho,v3.10.1
 SCR-004,screen-contract,BA,FROZEN,03.design/screens/SCR-004.md,c4a60f91147be71ed37455f6b349a1fe9e9aea39bfa0e3965a54e58ad713a243,2530,theme-07,Chi tiết lô — OVERLAY COMPATIBILITY,v3.10.1
 SCR-005,screen-contract,BA,FROZEN,03.design/screens/SCR-005.md,078e6f20100a884aaf4eb1a14ace2de3d0dbebc26f2e5e56af3b16be85801bdf,2230,theme-07,Nguồn số liệu — OVERLAY COMPATIBILITY,v3.10.1
 SCR-006,screen-contract,BA,FROZEN,03.design/screens/SCR-006.md,3ce4a1003cba249cd1915a566d8b3846c20fe6a7d058c620b94b716e71e28ed3,3618,theme-07,Chọn cách nhận hàng,v3.10.1
-SCR-007,screen-contract,BA,FROZEN,03.design/screens/SCR-007.md,6fec587946a6a581d4c6fe2aaf2cdea6c169bf42051be099a87684fa6c27e544,3942,theme-07,Chứng từ chờ nhận,v3.10.1
-SCR-008,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-008.md,1ff96d9a7502581b03c2eadda7265e9b0776435aaa8b03b9f4ca691e12bfacb7,2456,theme-07,Thông tin nhập hàng nhanh,v4.6.6
-SCR-009,screen-contract,BA,FROZEN,03.design/screens/SCR-009.md,68c733fd97f9de536245b8fe722392883a2514c33506cb2614d019014c22913b,7473,theme-07,Hàng thực nhận,v3.10.1
-SCR-010,screen-contract,BA,FROZEN,03.design/screens/SCR-010.md,cdcb75e5c66da8d8cec69acbc0560e2ee023ae1a2f7a6b6bbc1a9099b393897a,7288,theme-07,Rà soát và gửi xử lý,v3.10.1
-SCR-011,screen-contract,BA,FROZEN,03.design/screens/SCR-011.md,5cf5b46af31957f8c11aac88b6a60b80dd8f3dae793659cb25aee55c230cc618,6157,theme-07,Phê duyệt yêu cầu nhận hàng,v3.10.1
-SCR-012,screen-contract,BA,FROZEN,03.design/screens/SCR-012.md,9f38c583764fbdab491df1842d300d0a7b877dafa0e274b2b2cf1bc9d574f0cf,3737,theme-07,Kết quả nhận hàng,v3.10.1
-SCR-013,screen-contract,BA,FROZEN,03.design/screens/SCR-013.md,d83bc0de18096c60570a875318dd9895fb8f711dfdb205b3d13529446c4eb494,4044,theme-07,Đối soát kết quả nhận hàng,v3.10.1
-SCR-014,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-014.md,17ce2487f0062873e01c421a5f3620b818bf8654823450b69ac85cad9b68acbd,2845,theme-07,Hàng chờ xác lập giá trị,v4.3.0
-SCR-015,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-015.md,6b13cb567af129985e75aad4190bc5dc444cc7922d2b7563716a7ff166493ff6,3702,theme-07,Xác lập giá trị nhập ban đầu,v4.6.1
+SCR-007,screen-contract,BA,FROZEN,03.design/screens/SCR-007.md,c36c2a5baa4f1d79c95ef87f6df7a21e62c80c4f35e5fe3aa369ea67936e90be,5528,theme-07,Chứng từ chờ nhận,v3.10.1
+SCR-008,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-008.md,e0f20b5ff5702b448b93915b60c42700fa1a8634377e14762e22066076624cfd,4724,theme-07,Thông tin nhập hàng nhanh,v4.6.6
+SCR-009,screen-contract,BA,FROZEN,03.design/screens/SCR-009.md,33c2064d55b4790fd424bf11d5bbe59361eb5cdedf2cdedabdc67e707e64f3b5,5337,theme-07,Hàng thực nhận,v3.10.1
+SCR-010,screen-contract,BA,FROZEN,03.design/screens/SCR-010.md,696a0ffd1729b5d6c732b594922874f14de42079cda30f0b2db1b9a40917484f,6178,theme-07,Rà soát và gửi xử lý,v3.10.1
+SCR-011,screen-contract,BA,FROZEN,03.design/screens/SCR-011.md,913db45d34099cee36ba9eaa3cee84e0427cb54047eabeedfed90184bd313f48,5605,theme-07,Phê duyệt yêu cầu nhận hàng,v3.10.1
+SCR-012,screen-contract,BA,FROZEN,03.design/screens/SCR-012.md,56e068cc765c269bdf905005809f4d24f4c0e5189f33449faf23a888776d0ecd,4827,theme-07,Kết quả nhận hàng,v3.10.1
+SCR-013,screen-contract,BA,FROZEN,03.design/screens/SCR-013.md,63b6a221f0efec9add4d9a6d5f1288f22a76c2fa6b3c24dcf6f2a74d9c153a46,3865,theme-07,Đối soát kết quả nhận hàng,v3.10.1
+SCR-014,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-014.md,133a6c892698a70aaa5e53a41d0501565ab55c3ad2ce10257fd91c9ad1913d8c,4759,theme-07,Hàng chờ xác lập giá trị,v4.3.0
+SCR-015,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-015.md,db452a366c5f78a5a9a6534660d0620577791426a6b24d0aab4ec7d49fde0a64,12115,theme-07,Xác lập giá trị nhập ban đầu,v4.6.1
 SCR-017,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-017.md,1a45babfbe68318e5d7b1b732480aa12d6025ea44ac14716e369598d58eb451d,1418,theme-07,Rà soát giá trị nhập ban đầu,v4.6.0
-SCR-019,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-019.md,75078b488b116e68485002633fcc976d5adc8ae99a2bedcbe8fecb2e9f4b74fb,1134,theme-07,Kết quả xác lập giá trị,v4.6.0
+SCR-019,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-019.md,d8518842e0c16aeb43e715d3d612259ec2625f35dfcb9a90884c61088c31cd35,5186,theme-07,Kết quả xác lập giá trị,v4.6.0
 SCR-020,screen-contract,BA,FROZEN,03.design/screens/SCR-020.md,474ba913a33056fc780e6b86e4e87422d4bc1aedabbbab36b9859a3c2ece855e,5717,theme-07,Đơn cần giữ hàng,v3.10.1
 SCR-021,screen-contract,BA,FROZEN,03.design/screens/SCR-021.md,7960b9903ad513ef5a1efaf2af58851e9ac0300dd5929d8ea6e6c1a35a01700d,4748,theme-07,Giữ hàng theo đơn,v3.10.1
 SCR-022,screen-contract,BA,FROZEN,03.design/screens/SCR-022.md,440aa90f307448dcd92f4c1f1597a2b4107676998962dd249f8cf2c57101c248,6209,theme-07,Rà soát giữ hàng,v3.10.1
@@ -357,7 +357,7 @@ SCR-047,screen-contract,BA,FROZEN,03.design/screens/SCR-047.md,b0f27d48ef7372e19
 SCR-048,screen-contract,BA,FROZEN,03.design/screens/SCR-048.md,65c7d15c191311a06a1f26f58c6d7084966bb394364d53ce4dde15aa4fa4088f,5646,theme-07,Nghiệp vụ cần kiểm soát,v3.10.1
 SCR-049,screen-contract,BA,FROZEN,03.design/screens/SCR-049.md,d07185ee70bab130f5861246d7678bc0cd1da4db5d98668f4c6637022b75d7d9,6387,theme-07,Chi tiết nghiệp vụ kho,v3.10.1
 SCR-050,screen-contract,BA,FROZEN,03.design/screens/SCR-050.md,1920a1b21da602d8162ddcbd725ed6d912cf0d980578538766f0845d8acc6016,6062,theme-07,Nội dung sửa sai,v3.10.1
-SCR-051,screen-contract,BA,FROZEN,03.design/screens/SCR-051.md,12a5dec3b20e03b284d69fd4d99bfc5f3fd61233b05a02adcfaeb9a3a6e82aa6,5958,theme-07,Duyệt sửa sai,v3.10.1
+SCR-051,screen-contract,BA,FROZEN,03.design/screens/SCR-051.md,3bc022c5e628bcad96a70d919c7c72bbc9a83d9929a0a5f92ef7b1ed6183f47d,6112,theme-07,Duyệt sửa sai,v3.10.1
 SCR-052,screen-contract,BA,FROZEN,03.design/screens/SCR-052.md,b85040b6690c6f6e43366701338b5f7f723bc55102e317b6244ac213e1840e66,6335,theme-07,Hủy hoặc chọn cách sửa,v3.10.1
 SCR-053,screen-contract,BA,FROZEN,03.design/screens/SCR-053.md,d389050d45e7f283c12230c399a1343a769371d65053ee0af6064b70fdd975d6,6509,theme-07,Kết quả sửa sai,v3.10.1
 SCR-054,screen-contract,BA,FROZEN,03.design/screens/SCR-054.md,d3b2e3fc02cd8ca45111b5d96e93d64fd0fcded9cfdc1bb748b3085a0888b6ab,3330,theme-07,Tra cứu thẻ kho / Thiết lập báo cáo tồn,v3.10.1
@@ -368,16 +368,16 @@ SCR-058,screen-contract,BA,FROZEN,03.design/screens/SCR-058.md,2d7c4aa65cca4423a
 SCR-059,screen-contract,BA,FROZEN,03.design/screens/SCR-059.md,30d1f1a6159efe23999a239aa63311c40573cb2a9256acb25bd3c2346864f66e,2852,theme-07,Kết quả xuất báo cáo,v3.10.1
 SCR-060,screen-contract,BA,FROZEN,03.design/screens/SCR-060.md,06a79114acd1a3bf7682a236d8e147504d718e67c83cc757de9255bab7516454,6543,theme-07,Chỉ báo tồn kho,v3.10.1
 SCR-061,screen-contract,BA,FROZEN,03.design/screens/SCR-061.md,b67d48fe3175b419371a01d3ccd7d461f20ea61a0d6cd949aa53a12c3dca6bf2,7389,theme-07,Chi tiết chỉ báo sản phẩm,v3.10.1
-SCR-062,screen-contract,BA,FROZEN,03.design/screens/SCR-062.md,7f84728d8499180df78c35e2bd34d6414bf87dd79f92f7b5ed168339ce41db35,11185,theme-07,Cấu hình chính sách tồn,v3.10.1
-SCR-063,screen-contract,BA,FROZEN,03.design/screens/SCR-063.md,0f050e9be9474e2b9df7d92b990d246e74fd16c3dc60008c729d9e1da4ce8b1a,6569,theme-07,Cấu hình hàng cận hạn,v3.10.1
+SCR-062,screen-contract,BA,FROZEN,03.design/screens/SCR-062.md,0138981602b1c520e2005dd0a8ba2eda8ed19ab2f7dc99fcb2d550a5d8830aaf,11178,theme-07,Cấu hình chính sách tồn,v3.10.1
+SCR-063,screen-contract,BA,FROZEN,03.design/screens/SCR-063.md,73938594fe440cac4f90a8cb61d09294358979491d93853bcee1e2df40d0e2cc,6758,theme-07,Cấu hình hàng cận hạn,v3.10.1
 SCR-064,screen-contract,BA,FROZEN,03.design/screens/SCR-064.md,9f89b0a3a824bae3ea98bade2cb752f380a68901d6a51261fafe21487dc74905,2151,theme-07,Rà soát chính sách,v3.10.1
 SCR-065,screen-contract,BA,FROZEN,03.design/screens/SCR-065.md,21462680a4468cb7199e816b931117a3f847c63aa2c7c5ede37dcc5e3b647824,3531,theme-07,Kết quả cập nhật,v3.10.1
 SCR-066,screen-contract,BA,FROZEN,03.design/screens/SCR-066.md,0a6d55fe53309e4600ebde0afa782b9ffd6a0c533bd811b491a960d78b141b05,6315,theme-07,Khởi tạo tồn kho,v3.10.1
-SCR-067,screen-contract,BA,FROZEN,03.design/screens/SCR-067.md,b00ecb12a127b6d3670edf63b86e09af6ca9b91bb0bf8dfe887d1c05ee6f8b05,4488,theme-07,Dữ liệu tồn kho đầu kỳ,v3.10.1
-SCR-068,screen-contract,BA,FROZEN,03.design/screens/SCR-068.md,2e340cb5f7335c65ec0a5164cdee77b9ead7ac292089a175b1feb368bed6763a,6294,theme-07,Kết quả kiểm tra dữ liệu,v3.10.1
+SCR-067,screen-contract,BA,FROZEN,03.design/screens/SCR-067.md,afea3367442112d04b3d6e4058a1cd17ebc5a36b2cb05a8cee47d6b714819c1c,4513,theme-07,Dữ liệu tồn kho đầu kỳ,v3.10.1
+SCR-068,screen-contract,BA,FROZEN,03.design/screens/SCR-068.md,e29db0f5a746184b8dbd7585c843853c4a692694b5d53b6d0ca67b6c95d500b4,5594,theme-07,Kết quả kiểm tra dữ liệu,v3.10.1
 SCR-069,screen-contract,BA,FROZEN,03.design/screens/SCR-069.md,e02daa32137b851fc64b4bfd3170173475ad843cc199b4bf54d4e0558cddf88b,2926,theme-07,Rà soát số dư đầu kỳ,v3.10.1
-SCR-070,screen-contract,BA,FROZEN,03.design/screens/SCR-070.md,72e0b0d27f7a25516157a4483d3f1b4db7fc442dd100d3727b6d13f09afbf88c,5196,theme-07,Duyệt số dư đầu kỳ,v3.10.1
-SCR-071,screen-contract,BA,FROZEN,03.design/screens/SCR-071.md,496a92863688c991d72a3609473c60e47aedf2e591089e7d5d81490c0ca8be65,4541,theme-07,Kết quả khởi tạo tồn kho,v3.10.1
+SCR-070,screen-contract,BA,FROZEN,03.design/screens/SCR-070.md,1587c9147617e766592eea6db0f9334e678c6c9d397d5396f558318d660bdadd,5275,theme-07,Duyệt số dư đầu kỳ,v3.10.1
+SCR-071,screen-contract,BA,FROZEN,03.design/screens/SCR-071.md,47cd6e8bd981822131292badebad22daabf769c379604f02cfb8cba6025a69eb,4478,theme-07,Kết quả khởi tạo tồn kho,v3.10.1
 SCR-072,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-072.md,f98dde6cb234a47c637cc5bd102d61b1d3485bf924cf76c2a5db672b86ac2d71,1656,theme-07,Công việc giá vốn,v4.3.0
 SCR-074,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-074.md,49bd32893d4e33b3ab919df3c985e134b06954b95c730388dfac07c6bcb3e0ed,2507,theme-07,Tính và rà soát giá vốn,v4.6.1
 SCR-077,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-077.md,525e1f38ae98cccb8919bcf4c50b87d443662e34053cf454b34c15dd9f7d9a03,1065,theme-07,Kết quả công bố giá vốn,v4.6.0
@@ -387,13 +387,13 @@ SCR-080,screen-contract,BA,FROZEN,03.design/screens/SCR-080.md,b937e4f5b009782c0
 SCR-081,screen-contract,BA,FROZEN,03.design/screens/SCR-081.md,51e474957eb5aef4e52232d5cb60f660b73560f796a8ffb662fcc92f03d942ec,5209,theme-07,Đang khôi phục số liệu,v3.10.1
 SCR-082,screen-contract,BA,FROZEN,03.design/screens/SCR-082.md,9ade91236d2d9bc4d876f4b03a8c3188913c8e08ed5b2ead8b23b222bc2e4320,5691,theme-07,Rà soát kết quả,v3.10.1
 SCR-083,screen-contract,BA,FROZEN,03.design/screens/SCR-083.md,2dfde8e8f193f5944036d31043f4b1415973953d5608a4a17f8c3dcffb760507,6336,theme-07,Kết quả xử lý,v3.10.1
-SCR-084,screen-contract,BA,FROZEN,03.design/screens/SCR-084.md,a7aa4b70342b4a1c81392fa9ac66d197b1fe5088fd16a06ecd1b93c5beaf46f5,6042,theme-07,Chi tiết hàng thực nhận,v3.10.1
+SCR-084,screen-contract,BA,FROZEN,03.design/screens/SCR-084.md,d1c96ce440c6619629b51d5bd0c126be146aed41711526e894985104ff570cbb,5777,theme-07,Chi tiết hàng thực nhận,v3.10.1
 SCR-085,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-085.md,9b3adb919924484569c9ff696d1d98ec67a8811af46a19a910ed3fec16fac9f3,1524,theme-07,Điều chỉnh giá trị hàng nhập,v4.3.0
 SCR-086,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-086.md,bbc13477a4822d76a74fb8b013281347458d09caa91e326723d474f1a500cd03,2841,theme-07,Phân bổ điều chỉnh giá trị,v4.6.1
 SCR-089,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-089.md,9a0112b1061e4063c34360c14957430016c128a5edfc2a70b64f1ef7bbe8c349,972,theme-07,Kết quả điều chỉnh giá trị,v4.6.0
-SCR-090,screen-contract,BA,FROZEN,03.design/screens/SCR-090.md,8be210aafbf967093238ebecc39361f299a5c248f2dcbed68b565be59fb66057,4806,theme-07,Kho,v4.6.7
+SCR-090,screen-contract,BA,FROZEN,03.design/screens/SCR-090.md,cc08bc6c4c4ef6b276758cbead1c61eb41785346e7862ab3db90f057b4ebab6a,5254,theme-07,Kho,v4.6.7
 SCR-091,screen-contract,BA,FROZEN,03.design/screens/SCR-091.md,3f57fd1f408465b68a92bbf70d77d78094095d36c9ed0e360caa540f4a099e1e,1288,theme-07,Tồn kho,v4.6.4
-SCR-092,screen-contract,BA,FROZEN,03.design/screens/SCR-092.md,af2e09582da85d62ab109ab5acca6210168ac074e194da707bd6f5c7a8a9566b,1259,theme-07,"Nhập, xuất & hoàn trả",v4.6.4
+SCR-092,screen-contract,BA,FROZEN,03.design/screens/SCR-092.md,3020a527ab9d4dc93f6e495e7d422eadf45b8e93480b4b7bac68062f88a7d412,1259,theme-07,"Nhập, xuất & hoàn trả",v4.6.4
 SCR-093,screen-contract,BA,FROZEN,03.design/screens/SCR-093.md,23a30d75614943c17107e0773ac1ebbe987b5af5c36b91cbe85c198da93f17b3,1555,theme-07,Kiểm kê & xử lý,v4.6.4
 SCR-094,screen-contract,BA,FROZEN,03.design/screens/SCR-094.md,27adb4c42528e1d1e2a6999ed8c76d9362f9f852f2271f0a5716f0b68e204ef0,1342,theme-07,Giá trị kho,v4.6.4
 SCR-095,screen-contract,BA,FROZEN,03.design/screens/SCR-095.md,2665ab74a5fd43bba9fc21e4109bb08b12ca3ab9f4299502a70cd955fb192211,1099,theme-07,Báo cáo & lịch sử,v4.6.4
@@ -446,7 +446,7 @@ EVD-BJ02-QUICK-RECEIPT-NO-DRAFT-v4.6.6,evidence,QA/Harness,CURRENT,06.evidence/E
 ,,,,09.generated/registries/design/runtime-state-registry-v3.7.0.json,35036647f1b60055a9a95ea8c76d356c18b48121598d58ef8e50633d7248948d,24867,,,
 ,,,,09.generated/registries/design/runtime-state-registry-v4.6.8.json,d122d54d0c51d843891916ae38c2ca1c7a8513435dfcb584ed4916541201888e,28089,,,
 ,,,,09.generated/registries/design/screen-registry.json,b7639c805fe76399938cf0a34710dc937de1b4736a4b8c56abd0c314af027c14,384813,,,
-,,,,09.generated/registries/design/screen-registry.md,8211373297bc13b0b2c53d1e98701f9e4f46a8fb92b095cb1d923dbf43ebf818,11523,,,
+,,,,09.generated/registries/design/screen-registry.md,3ede61c1a4a33885fac423c7310355a531dfc68852ed782cf62c3343c7e47e80,11523,,,
 ,,,,09.generated/registries/design/ui-flow-registry.json,e0119d122d05335cfdf46bb89c55760a112eef70baf93b5f08372c20f00f6fce,34640,,,
 ,,,,09.generated/registries/structure-path-migration-v3.11.0.json,79339887eee9120e1812d95500c9894f59f02dea0d1b1e287d1c9494395baf17,476354,,,
 T07-README,theme-readme,BA/SA,FROZEN,README.md,ee00a1dc8fb328a560074e7ecce2d82ba8c50a62a63be2f477a555f47df00305,11539,theme-07,Theme 07 — Kho & Giá vốn,v4.6.6

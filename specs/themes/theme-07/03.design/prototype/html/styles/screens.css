@@ -7272,3 +7272,15 @@ body[data-active-uif="UIF-01"] .figma-calibrated-shell .ds24-chip-scroll > .ds24
 /* BJ-01 SCR-003: dòng ngưỡng của sản phẩm đã cấu hình (sau review chặng 1). */
 .bj01-stock-hero__policy { display: flex; align-items: center; justify-content: space-between; gap: var(--vet45-v2-space-3); padding-top: var(--vet45-v2-space-3); border-top: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); font: 400 13px/20px Inter, sans-serif; color: var(--vet45-v2-text-secondary); }
 .bj01-stock-hero__note + .bj01-stock-hero__policy { padding-top: 0; border-top: 0; }
+
+
+/* Home Kho web: ô tìm tối đa 720px, bốn nút nhanh một hàng thấp, dưới chia hai cột. iPhone giữ nguyên (hub.js chỉ dựng .t462-columns ở khung web). */
+.device-preview.is-web .t462-search-wrap { max-width: 720px; }
+
+.device-preview.is-web .t462-quick-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.device-preview.is-web .t462-quick-action { min-height: 88px; }
+
+.t462-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--vet45-v2-space-6); align-items: start; }
+
+.t462-column { min-width: 0; display: flex; flex-direction: column; gap: var(--vet45-v2-space-4); }

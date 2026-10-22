@@ -5,7 +5,6 @@
       "bj": "BJ-02",
       "name": "Nhận hàng mua",
       "screens": [
-        "SCR-006",
         "SCR-007",
         "SCR-008",
         "SCR-009",
@@ -16,7 +15,7 @@
         "SCR-013"
       ],
       "entry": [
-        "SCR-006"
+        "SCR-007"
       ],
       "terminals": [
         "SCR-012",
@@ -29,7 +28,7 @@
         "UC-02-04",
         "UC-02-05"
       ],
-      "intent": "Nhận hàng nhiều sản phẩm theo chứng từ hoặc nhập hàng nhanh; Quick tìm Product trên Hàng thực nhận, UOM nhiều lựa chọn hiển thị trực tiếp, chọn đủ Product+UOM mở ngay Chi tiết hàng thực nhận; nhập nhanh luôn cần phê duyệt.",
+      "intent": "Nhận hàng nhiều sản phẩm theo chứng từ (nhân viên lập trên iPhone) hoặc nhập hàng nhanh khi hàng đến chưa có chứng từ; vượt chứng từ và nhập nhanh luôn cần chủ cửa hàng duyệt trên web, chủ cửa hàng tự nhận thì tự duyệt. Một ô tìm cho cả tìm mặt hàng và quét mã vạch; Đạt nhập thẳng, hạn dùng một ô.",
       "patterns": [
         "WHOLE_CARD_NAV",
         "RECEIPT_HEADER",
@@ -43,7 +42,7 @@
         {
           "id": "module",
           "type": "MODULE_ENTRY",
-          "screen": "SCR-006",
+          "screen": "SCR-007",
           "actor": "Warehouse receiver",
           "from": "Inventory > Nhận hàng"
         },
@@ -141,7 +140,6 @@
       "screens": [
         "SCR-014",
         "SCR-015",
-        "SCR-017",
         "SCR-019"
       ],
       "entry": [
@@ -1274,7 +1272,7 @@
     {
       "id": "SCR-006",
       "short": "006",
-      "name": "Chọn cách nhận hàng",
+      "name": "Chọn cách nhận hàng (đã gộp vào SCR-007)",
       "surface": "choice",
       "bj": [
         "BJ-02"
@@ -1283,7 +1281,7 @@
         "UC-02-01",
         "UC-02-02"
       ],
-      "purpose": "Chọn lối vào nhận hàng. Nhập hàng nhanh chỉ xuất hiện khi người dùng có capability phù hợp; blocker tạm thời dùng Navigation Row disabled kèm lý do.",
+      "purpose": "Đã gộp vào SCR-007 từ v5.8.0: link cũ mở Nhận hàng ở trạng thái mặc định.",
       "actors": [
         "Thủ kho"
       ],
@@ -1340,7 +1338,7 @@
     {
       "id": "SCR-007",
       "short": "007",
-      "name": "Chứng từ chờ nhận",
+      "name": "Nhận hàng",
       "surface": "list",
       "bj": [
         "BJ-02"
@@ -1348,7 +1346,7 @@
       "uc": [
         "UC-02-01"
       ],
-      "purpose": "Tìm và chọn chứng từ nguồn cần nhận; mỗi dòng dùng source_line_id/version và remaining_receivable_qty do source domain cung cấp, không tự suy ra phần còn được nhận.",
+      "purpose": "Chọn chứng từ nguồn cần nhận (tìm theo chứng từ, nhà cung cấp hoặc sản phẩm) hoặc nhập hàng nhanh khi hàng đến chưa có chứng từ; mỗi dòng dùng source_line_id/version và remaining_receivable_qty do source domain cung cấp, không tự suy ra phần còn được nhận.",
       "actors": [
         "Thủ kho"
       ],
@@ -1718,7 +1716,7 @@
     {
       "id": "SCR-010",
       "short": "010",
-      "name": "Rà soát và gửi xử lý",
+      "name": "Rà soát nhận hàng",
       "surface": "review",
       "bj": [
         "BJ-02"
@@ -1728,7 +1726,7 @@
         "UC-02-02",
         "UC-02-03"
       ],
-      "purpose": "Rà soát lần nhận trước khi khóa revision; khi đã gửi phê duyệt thì chỉ xem và quay về Kho, không mở lại editor.",
+      "purpose": "Rà soát lần nhận, ngoại lệ nổi lên đầu; người lập gửi duyệt, chủ cửa hàng tự ghi nhận; khi đã gửi phê duyệt thì chỉ xem và về Kho, bị từ chối thì nhận lại.",
       "actors": [
         "Thủ kho"
       ],
@@ -1738,8 +1736,7 @@
         "APPROVAL_REQUIRED",
         "PERMISSION_DENIED",
         "PENDING_APPROVAL",
-        "APPROVER_CONFIGURATION_MISSING",
-        "FINANCIAL_MASKED"
+        "REJECTED"
       ],
       "defaultState": "READY",
       "fields": [],
@@ -2245,7 +2242,7 @@
     {
       "id": "SCR-017",
       "short": "017",
-      "name": "Rà soát giá trị nhập ban đầu",
+      "name": "Rà soát giá trị nhập ban đầu (đã gộp vào SCR-015)",
       "surface": "review",
       "bj": [
         "BJ-03"
@@ -2253,7 +2250,7 @@
       "uc": [
         "UC-03-01"
       ],
-      "purpose": "Summary review trước commit: receipt, tổng giá trị và danh sách sản phẩm compact; breakdown chỉ mở khi cần.",
+      "purpose": "Đã gộp vào SCR-015 từ v5.9.0: link cũ mở Xác lập giá trị nhập ban đầu ở trạng thái mặc định; rà soát là sheet xác nhận trong SCR-015.",
       "actors": [
         "Kế toán"
       ],

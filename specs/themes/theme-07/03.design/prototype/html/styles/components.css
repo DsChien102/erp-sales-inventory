@@ -3327,10 +3327,6 @@ input.ds24-field__control { outline: none; }
 
 .k2-attention .ac310-surface__head h2 { color: var(--vet45-v2-text-warning); }
 
-.k2-attention__row { display: grid; grid-template-columns: 20px minmax(0, auto) minmax(0, 1fr); align-items: center; gap: var(--vet45-v2-space-2); }
-
-.k2-attention__row > strong { text-align: right; }
-
 .k2-attention__icon { color: var(--vet45-v2-icon-warning); }
 
 .k7-chips { flex-wrap: wrap; overflow: visible; }
@@ -3488,6 +3484,20 @@ input.ds24-field__control { outline: none; }
 
 .device-preview.is-web .k7-wide .bottom-sheet { width: 480px; max-width: calc(100% - 48px); border-radius: var(--vet45-v2-radius-sheet); }
 
+/* ds24Sheet (sheet lô / nguồn / quét của BJ-01, sheet của BJ-02) trên web: hộp thoại giữa khung như .bottom-sheet (T7-HF1).
+   Độ đặc hiệu cao hơn luật iPhone body[data-active-uif="UIF-01"] .ds24-sheet (screens.css, rộng 402px). */
+.device-preview.is-web .k7-wide .ds24-sheet { position: relative; inset: auto; width: 480px; max-width: calc(100% - 48px); max-height: calc(100% - 48px); padding: var(--vet45-v2-space-5); align-items: stretch; border-radius: var(--vet45-v2-radius-sheet); }
+.device-preview.is-web .k7-wide .ds24-sheet > .ds24-sheet__handle { display: none; }
+.device-preview.is-web .k7-wide .ds24-sheet > h3,
+.device-preview.is-web .k7-wide .ds24-sheet__body { width: auto; }
+/* Khối con trong hộp thoại theo bề rộng hộp thoại, bỏ bề rộng cố định iPhone (370 / 338 / 286px).
+   Dòng thông tin và chữ banner phải !important vì luật iPhone của chúng có !important
+   (.figma-calibrated-shell [data-ds-component="DS v2 / Info Row"], .figma-calibrated-shell .v-banner .v-banner-copy,
+   body[data-active-uif="UIF-01"] .ds24-key-value-stack / -row ở screens.css). */
+.device-preview.is-web .k7-wide .ds24-sheet .ds24-availability--supporting { width: 100%; max-width: none; }
+.device-preview.is-web .k7-wide .ds24-sheet :is(.ds24-key-value-stack, .ds24-key-value-row, .ds24-info-stack, .ds24-info-row) { width: 100% !important; max-width: none !important; }
+.device-preview.is-web .k7-wide .ds24-sheet .v-banner-copy { width: auto; max-width: none !important; flex: 1 1 auto; }
+
 .device-preview.is-web .k7-wide .cf12-file-drop { width: 100% !important; }
 
 .v-banner.k7-banner--line { min-height: 0 !important; height: auto !important; align-items: center; }
@@ -3505,6 +3515,13 @@ input.ds24-field__control { outline: none; }
 .k2-attention .k2-attention__row > span { font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
 
 .k2-attention__row { display: grid; grid-template-columns: 20px auto minmax(0, 1fr); align-items: start; gap: var(--vet45-v2-space-2); padding: var(--vet45-v2-space-2) var(--vet45-v2-space-4); }
+
+/* T7-HF1: iPhone xếp nhãn (chữ phụ) trên giá trị, icon bên trái cả khối; web giữ nhãn | giá trị một hàng. */
+.device-preview:not(.is-web) .k2-attention__row { grid-template-columns: 20px minmax(0, 1fr); column-gap: var(--vet45-v2-space-2); row-gap: 0; }
+
+.device-preview:not(.is-web) .k2-attention__row > .k2-attention__icon { grid-column: 1; grid-row: 1 / span 2; margin-top: 2px; }
+
+.device-preview:not(.is-web) .k2-attention .k2-attention__row > :is(span, strong) { grid-column: 2; min-width: 0; text-align: left; overflow-wrap: anywhere; }
 
 .k2-attention .ac310-key-value-stack { display: flex; flex-direction: column; }
 
@@ -3619,3 +3636,367 @@ html body .figma-calibrated-shell .v-banner.k7-banner--line.k7-banner--line { he
 
 /* Hộp thoại nhận focus khi mở (core.js syncDialogFocus): bản thân hộp thoại không cần vòng focus. */
 [role="dialog"][tabindex="-1"]:focus { outline: none; }
+
+/* ===== BJ-02 thiết kế lại (v5.8.0): tiến độ, ô số, tệp chứng từ, ô tick, dòng lý do ===== */
+.bj02-progress-block { display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); }
+
+.bj02-progress { height: 6px; border-radius: var(--vet45-v2-radius-pill); background: var(--vet45-v2-surface-subtle); overflow: hidden; }
+
+.bj02-progress > span { display: block; height: 100%; border-radius: inherit; background: var(--vet45-v2-action-primary-default); }
+
+.bj02-progress-block > small { font: 500 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj02-footer-stack { display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); width: 100%; min-width: 0; }
+
+.bj02-footer-stack > .button { width: 100%; }
+
+.bj02-footer-reason { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); text-align: center; }
+
+.bj02-footer-reason[hidden] { display: none; }
+
+button.inline-edit.bj02-context-edit { min-width: 44px; min-height: 44px; padding-inline: var(--vet45-v2-space-2); }
+
+.bj02-line-qty { font: 600 14px/20px Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--vet45-v2-text-primary); }
+
+.bj02-lines-link { align-self: center; min-height: 44px; }
+
+.bj02-fill-button { width: 100%; }
+
+/* Ô số: Đạt lớn, ba ô "Hàng không đạt" nhỏ trên một hàng */
+.bj02-qty-editor { display: flex; flex-direction: column; gap: var(--vet45-v2-space-4); }
+
+.bj02-qty { display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); min-width: 0; }
+
+.bj02-qty__label { font: 600 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj02-qty__box { display: flex; align-items: center; gap: var(--vet45-v2-space-2); min-height: 44px; padding: 0 var(--vet45-v2-space-3); border: 1px solid var(--vet45-v2-border-input); border-radius: var(--vet45-v2-radius-input); background: var(--vet45-v2-surface-default); box-sizing: border-box; }
+
+.bj02-qty__box:focus-within { border-color: var(--vet45-v2-border-brand); outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: 0; }
+
+.bj02-qty__box input { flex: 1 1 auto; min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; padding: 0; font: 600 16px/24px Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--vet45-v2-text-primary); }
+
+.bj02-qty__box input::placeholder { color: var(--vet45-v2-text-muted); font-weight: 400; }
+
+.bj02-qty__unit { flex: 0 0 auto; font: 400 13px/20px Inter, system-ui, sans-serif; font-style: normal; color: var(--vet45-v2-text-secondary); }
+
+.bj02-qty--main .bj02-qty__box { min-height: 56px; }
+
+.bj02-qty--main .bj02-qty__box input { font-size: 24px; line-height: 32px; }
+
+.bj02-qty-bad { margin: 0; padding: 0; border: 0; min-width: 0; }
+
+.bj02-qty-bad > legend { padding: 0; margin-bottom: var(--vet45-v2-space-2); font: 600 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj02-qty-bad__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--vet45-v2-space-2); }
+
+.bj02-qty-bad .bj02-qty__label { font-weight: 400; }
+
+.bj02-qty-bad .bj02-qty__unit { display: none; }
+
+.bj02-lot-editor .bj02-qty-editor { margin-top: var(--vet45-v2-space-2); }
+
+/* Chứng từ giao nhận (008): iPhone hai nút, web vùng kéo thả; danh sách tệp có "Xoá" */
+.bj02-evidence__zone { display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); padding: var(--vet45-v2-space-4); border: 1px dashed var(--vet45-v2-border-strong); border-radius: var(--vet45-v2-radius-card); background: var(--vet45-v2-surface-default); box-sizing: border-box; }
+
+.bj02-evidence__zone .file-drop-copy { display: flex; flex-direction: column; gap: 2px; }
+
+.bj02-evidence__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--vet45-v2-space-2); }
+
+.device-preview.is-web .bj02-evidence__actions { grid-template-columns: max-content; }
+
+.bj02-pick-file { position: relative; cursor: pointer; overflow: hidden; }
+
+.bj02-pick-file input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+.bj02-pick-file.is-disabled { opacity: var(--vet45-v2-opacity-disabled); pointer-events: none; }
+
+.bj02-files { list-style: none; margin: var(--vet45-v2-space-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); }
+
+.bj02-files > li { display: flex; align-items: center; gap: var(--vet45-v2-space-2); min-height: 44px; padding: 0 var(--vet45-v2-space-3); border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-input); background: var(--vet45-v2-surface-default); }
+
+.bj02-files > li > span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 400 14px/20px Inter, system-ui, sans-serif; }
+
+.bj02-files .button { min-height: 44px; }
+
+/* Ô tick xác nhận quyền sở hữu (008) */
+.bj02-check { display: flex; align-items: flex-start; gap: var(--vet45-v2-space-3); width: 100%; min-height: 44px; padding: var(--vet45-v2-space-3); border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-card); background: var(--vet45-v2-surface-default); text-align: left; cursor: pointer; box-sizing: border-box; }
+
+.bj02-check:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: 2px; }
+
+.bj02-check:disabled { opacity: var(--vet45-v2-opacity-disabled); cursor: default; }
+
+.bj02-check__box { flex: 0 0 24px; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--vet45-v2-border-strong); border-radius: var(--vet45-v2-radius-2); background: var(--vet45-v2-surface-default); color: var(--vet45-v2-action-on-primary); box-sizing: border-box; }
+
+.bj02-check.is-checked { border-color: var(--vet45-v2-border-brand); background: var(--vet45-v2-surface-brand); }
+
+.bj02-check.is-checked .bj02-check__box { border-color: var(--vet45-v2-action-primary-default); background: var(--vet45-v2-action-primary-default); }
+
+.bj02-check__copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.bj02-check__copy strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+
+.bj02-check__copy small { font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+/* 007: bảng web, nút nhập nhanh trên đầu bảng */
+.k7-row-link { padding: 0; border: 0; background: transparent; font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-brand); text-align: left; cursor: pointer; }
+
+.k7-row-link:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: 2px; }
+
+.device-preview.is-web .k7-table tr[data-bj02-document-id] { cursor: pointer; }
+
+.device-preview.is-web .bj02-quick-button { margin-bottom: var(--vet45-v2-space-3); }
+
+/* Dòng hàng 009 / 010: số mono + badge gọn, đủ chiều cao để số không dính mép trên */
+body[data-active-uif="UIF-02"] .ds24-stock-row { min-height: 72px; padding-block: var(--vet45-v2-space-2); }
+
+body[data-active-uif="UIF-02"] .ds24-stock-row .ds24-badge { min-height: 24px; padding: 0 var(--vet45-v2-space-2); font-size: 12px; line-height: 16px; }
+
+.bj02-evidence__copy { display: flex; flex-direction: column; gap: 2px; }
+
+.bj02-evidence__copy strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+
+.bj02-evidence__copy small { font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+/* Khung web của UIF-02: bỏ chiều rộng cố định 402px của chân màn; bảng duyệt có cột rộng hơn */
+.device-preview.is-web .k7-wide.figma-calibrated-shell > .app-actions { width: 100% !important; max-width: none !important; height: auto !important; min-height: 0 !important; box-sizing: border-box; }
+
+.device-preview.is-web .bj02-approval .k7-split { grid-template-columns: minmax(0, 9fr) minmax(0, 13fr); }
+
+.device-preview.is-web .bj02-approval .k7-table-wrap { overflow-x: auto; }
+
+.device-preview.is-web .bj02-approval .k7-table :is(th, td) { padding-inline: 6px; }
+
+.device-preview.is-web .bj02-approval .k7-table th { font-size: 12px; }
+
+.device-preview.is-web .bj02-approval .k7-table td:last-child { white-space: nowrap; }
+
+body[data-active-uif="UIF-02"] .form-field > small.field-error { color: var(--vet45-v2-text-danger); }
+
+/* ---------- BJ-03 (v5.9.0): ô tick trong bảng, thẻ sản phẩm iPhone, sheet căn cứ / cách tính / xác nhận ---------- */
+.k7-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.k7-table th.k7-col-check, .k7-table td.k7-col-check { width: 52px; padding-inline: 4px; text-align: center; }
+
+.k7-check { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+
+.k7-check:disabled { cursor: default; }
+
+.k7-check:focus-visible, .bj03-card__main:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: 2px; }
+
+.k7-check__box { flex: 0 0 24px; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--vet45-v2-border-strong); border-radius: var(--vet45-v2-radius-2); background: var(--vet45-v2-surface-default); color: var(--vet45-v2-action-on-primary); box-sizing: border-box; }
+
+.k7-check__box.is-checked { border-color: var(--vet45-v2-action-primary-default); background: var(--vet45-v2-action-primary-default); }
+
+.k7-check__box.is-disabled { opacity: var(--vet45-v2-opacity-disabled); }
+
+.k7-table tbody tr.is-selected td { background: var(--vet45-v2-surface-brand); }
+
+/* Bảng rộng bên trái, khối tóm tắt hẹp bên phải; iPhone không hiện khối phải (dải tổng nằm ở chân). */
+.k7-split__aside--web { display: none; }
+
+.device-preview.is-web .k7-split__aside--web { display: flex; }
+
+.device-preview.is-web .k7-split.k7-split--wide-main { grid-template-columns: minmax(0, 1fr) 320px; }
+
+.bj03-link { min-height: 44px; padding-inline: 4px; }
+
+.device-preview.is-web .bj03-link { min-height: 24px; padding-inline: 0; }
+
+.bj03-add { min-height: 44px; min-width: 96px; }
+
+.k7-table .bj03-add { min-height: 32px; min-width: 0; padding-inline: var(--vet45-v2-space-3); }
+
+.bj03-list .k7-table-list > .ds24-list-row { border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-card); background: var(--vet45-v2-surface-default); }
+
+.bj03-trail { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+.bj03-trail small { color: var(--vet45-v2-text-secondary); font: 400 12px/16px Inter, system-ui, sans-serif; }
+
+.bj03-card { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); padding: var(--vet45-v2-space-3); border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-card); background: var(--vet45-v2-surface-default); box-sizing: border-box; }
+
+.bj03-card.is-selected { border-color: var(--vet45-v2-border-brand); background: var(--vet45-v2-surface-brand); }
+
+.bj03-card__main { display: flex; align-items: flex-start; gap: var(--vet45-v2-space-3); width: 100%; min-height: 44px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+
+.bj03-card__main:disabled { cursor: default; }
+
+.bj03-card__copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.bj03-card__copy strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+
+.bj03-card__copy small, .bj03-card__status small { font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj03-card__figures { display: grid; grid-template-columns: 1fr 1fr; gap: var(--vet45-v2-space-3); margin: 0; }
+
+.bj03-card__figures dt { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj03-card__figures dd { margin: 0; font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+
+.bj03-card__status { display: flex; flex-direction: column; align-items: flex-start; gap: var(--vet45-v2-space-1); }
+
+.bj03-footer-stack { display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); width: 100%; min-width: 0; }
+
+.bj03-footer-stack > .button, .bj03-cta { width: 100%; }
+
+.bj03-total-strip { margin: 0; font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); text-align: center; }
+
+.bj03-reason { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); text-align: center; }
+
+.bj03-sheet { max-height: min(88%, 760px); display: flex; flex-direction: column; }
+
+.bj03-sheet .sheet-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); }
+
+.bj03-sheet .sheet-actions { flex: 0 0 auto; margin: 0; padding: var(--vet45-v2-space-3) var(--vet45-v2-space-4) calc(var(--vet45-v2-space-4) + env(safe-area-inset-bottom)); border-top: 1px solid var(--vet45-v2-border-default); }
+
+.bj03-sheet .bj03-sheet-actions--single { grid-template-columns: 1fr; }
+
+/* screens.css làm mờ mọi nút :disabled của UIF-03: thẻ / ô tick chỉ mờ phần hộp tick, chữ giữ rõ. */
+body[data-active-uif="UIF-03"] :is(.bj03-card__main, .k7-check):disabled { opacity: 1; }
+
+.bj03-sheet-intro, .bj03-note { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj03-form { display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); }
+
+.bj03-lines { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); font: 400 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+
+.bj03-money { color: var(--vet45-v2-text-primary); font: 600 14px/20px Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+
+/* Thanh chọn trong sheet căn cứ: chữ mục đang chọn dùng màu chữ thương hiệu (đủ 4,5:1 trên nền trắng). */
+body[data-active-uif="UIF-03"] .ds-segment.is-selected { color: var(--vet45-v2-text-brand); }
+
+.device-preview.is-web .k7-wide .app-actions.k7-mobile-only { display: none !important; }
+
+.bj03-context { width: 100%; }
+
+.bj03-context > .ds24-list-row { width: 100%; max-width: none; box-sizing: border-box; }
+
+.bj03-facts { margin: 0; display: flex; flex-direction: column; }
+
+.bj03-facts > div { display: flex; align-items: baseline; justify-content: space-between; gap: var(--vet45-v2-space-3); padding: var(--vet45-v2-space-2) var(--vet45-v2-space-3); border-bottom: 1px solid var(--vet45-v2-border-default); }
+
+.bj03-facts > div:last-child { border-bottom: 0; }
+
+.bj03-facts dt { flex: 0 0 auto; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj03-facts dd { min-width: 0; margin: 0; font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); text-align: right; overflow-wrap: anywhere; }
+
+.bj03-facts .is-strong dd { font-size: 16px; }
+
+.bj03-sheet > .sheet-content > .bj03-facts { border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-card); }
+
+
+/* ===== T7-HF1 · đủ bố cục iPhone và web (5.9.1) ===== */
+
+/* K3: kết quả và detail cùng một cột; iPhone như cũ (lớp bọc không sinh hộp), web tối đa 720px giữa khung. */
+.k3-column { display: contents; }
+
+.device-preview.is-web .k7-wide .k3-column { display: flex; flex-direction: column; gap: var(--vet45-v2-space-4); width: 100%; max-width: 720px; margin: 0 auto; }
+
+.device-preview.is-web .k7-wide .k3-column .io-result { max-width: none; }
+
+/* Luật thẻ số liệu của khung Figma ép 370 / 338px bằng !important (có :has) và nằm trong screens.css (nạp sau): tăng độ đặc hiệu, đè cùng loại. */
+.device-preview.is-web .v-page-scaffold.k7-wide .k3-column .review-card.io-read-card, .device-preview.is-web .v-page-scaffold.k7-wide .k3-column .review-card.io-read-card > .review-card-body, .device-preview.is-web .v-page-scaffold.k7-wide .k3-column .review-card.io-read-card > .review-card-body > .io-meta-row { width: 100% !important; max-width: none !important; box-sizing: border-box; }
+
+/* BJ-01 (SCR-001 danh sách – chi tiết, SCR-003 hai cột). Lớp bọc chi tiết không sinh hộp trên iPhone. */
+.bj01-detail, .bj01-detail__summary, .bj01-detail__more { display: contents; }
+
+.device-preview.is-web .bj01-detail { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--vet45-v2-space-6); align-items: start; }
+
+.device-preview.is-web .bj01-detail__summary, .device-preview.is-web .bj01-detail__more { display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); min-width: 0; }
+
+.device-preview.is-web .k7-split__aside > .bj01-detail { display: flex; flex-direction: column; align-items: stretch; gap: var(--vet45-v2-space-4); }
+
+.device-preview.is-web .bj01-list-detail .k7-split { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+
+body[data-active-uif="UIF-01"] .device-preview.is-web .k7-wide :is(.ds24-search-header, .ds24-search, .ds24-section, .ds24-list-stack, .ds24-list-row, .ds24-availability, .ds24-key-value-stack, .ds24-key-value-row, .ds24-info-stack, .ds24-info-row) { width: 100%; box-sizing: border-box; }
+
+body[data-active-uif="UIF-01"] .device-preview.is-web .k7-wide .ds24-search-header { margin: 0; padding-inline: 0; }
+
+.k7-table tbody tr[data-bj01-product] { cursor: pointer; }
+
+.k7-table tbody tr[data-bj01-product]:hover td { background: var(--vet45-v2-surface-subtle); }
+
+.k7-table tbody tr[data-bj01-product].is-selected:hover td { background: var(--vet45-v2-surface-brand); }
+
+.k7-table tbody tr[data-bj01-product]:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: -2px; }
+
+/* Luật dùng chung cho UIF-01/02/04/05/08 ép hàng danh sách 370px và hàng khoá–giá trị 338px bằng !important (screens.css ~1807–2230):
+   khung web của BJ-01 cần bề rộng theo cột nên đè lại bằng !important cùng loại, chỉ trong màn BJ-01. */
+body[data-active-uif="UIF-01"] .device-preview.is-web .k7-wide.figma-calibrated-shell [data-ds-component="DS v2 / List Row"] { width: 100% !important; max-width: none !important; }
+
+body[data-active-uif="UIF-01"] .device-preview.is-web .k7-wide.figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] { width: 100% !important; max-width: none !important; margin: 0 !important; }
+
+/* BJ-02 chân màn có dòng lý do (SCR-008, 009, 084): web một hàng — lý do bên trái, nút bên phải rộng theo chữ. */
+.device-preview.is-web .k7-wide .bj02-footer-stack { flex-direction: row; align-items: center; justify-content: flex-end; gap: var(--vet45-v2-space-3); width: 100%; }
+
+.device-preview.is-web .k7-wide .bj02-footer-stack > .bj02-footer-reason { margin-right: auto; text-align: left; }
+
+.device-preview.is-web .k7-wide .bj02-footer-stack > .button { width: auto; min-width: 160px; flex: 0 0 auto; }
+
+/* SCR-008 web: trái "Nhà cung cấp", "Kho và ngày nhận", ô xác nhận sở hữu; phải "Chứng từ giao nhận". Các ô UIF-02 cố định 370px nên nới theo cột. */
+.device-preview.is-web .k7-wide .bj02-quick-grid { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--vet45-v2-space-6); row-gap: var(--vet45-v2-space-4); align-items: start; }
+
+.device-preview.is-web .k7-wide .bj02-quick-grid > * { grid-column: 1; }
+
+.device-preview.is-web .k7-wide .bj02-quick-grid > .bj02-evidence { grid-column: 2; grid-row: 1 / span 3; }
+
+.device-preview.is-web .k7-wide .bj02-quick-grid :is(.form-field, .form-field > label, .input-shell, .bj02-evidence__zone, .bj02-check) { width: 100%; box-sizing: border-box; }
+
+.device-preview.is-web .k7-wide .bj02-quick-grid :is(.bj02-vselect-trigger, .bj02-native-select-shell) { width: 100% !important; box-sizing: border-box; }
+
+/* SCR-009 + 084 web: danh sách mặt hàng bên trái, editor của dòng đang chọn bên phải. Luật UIF-02 ép 370 / 338px (một số bằng !important cho List Row). */
+.device-preview.is-web .k7-wide .bj02-linesplit .k7-split :is(.ac310-section-title, .lot-accordion-item, .lot-accordion-header, .lot-accordion-toggle, .lot-accordion-list, .lot-line-editor, .line-entry-section, .active-lot-editor, .form-stack, .form-field, .form-field > label, .input-shell, .bj02-qty-editor, .bj02-qty, .bj02-qty__label, .bj02-qty__box, .bj02-qty-bad, .bj02-qty-bad__row, .bj02-key-value-row, .field-help, .quick-overview-search, .combobox-anchor, .combobox-menu, .ds24-search-header, .ds24-search, .ds24-list-stack, .ds24-stock-row, .bj02-fill-button, .add-lot-button, [data-ds-component="DS v2 / List Row"], [data-ds-role="lot-editor-composition"], [data-ds-role="quantity-input-composition"]) { width: 100% !important; max-width: none !important; box-sizing: border-box; }
+
+.device-preview.is-web .bj02-linesplit .ds24-search-header { margin: 0; padding-inline: 0; }
+
+.device-preview.is-web .bj02-linesplit .receipt-line-list .ds24-stock-row[aria-current="true"] { border-color: var(--vet45-v2-border-brand); background: var(--vet45-v2-surface-brand); }
+
+.device-preview.is-web .bj02-linesplit .k7-split__aside { gap: var(--vet45-v2-space-3); }
+
+.bj02-editor-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--vet45-v2-space-3); padding-top: var(--vet45-v2-space-2); }
+
+.bj02-editor-actions > .bj02-footer-reason { margin-right: auto; text-align: left; }
+
+.bj02-editor-actions > .button { width: auto; min-width: 160px; flex: 0 0 auto; }
+
+/* SCR-010 web: bảng "Hàng thực nhận" + khối tóm tắt có nút xác nhận. */
+.device-preview.is-web .k7-wide .bj02-review :is(.ac310-section-title, .bj02-context-row, .ds24-list-row, .ds24-info-row, .ac310-info-rows, [data-ds-component="DS v2 / List Row"]) { width: 100% !important; max-width: none !important; box-sizing: border-box; }
+
+.device-preview.is-web .bj02-review .k7-table tr[data-bj02-review-line] { cursor: pointer; }
+
+.device-preview.is-web .bj02-review .k7-table tr[data-bj02-review-line]:hover td { background: var(--vet45-v2-surface-subtle); }
+
+.device-preview.is-web .bj02-review .k7-table tr[data-bj02-review-line]:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: -2px; }
+
+.bj02-cta { width: 100%; }
+
+/* SCR-011 dòng thu gọn (iPhone): số "121 / 120" không gãy; dòng phụ (mã · ĐVT · lô) được xuống 2 dòng thay vì cắt "…".
+   Luật Compact 370 × 52 của UIF-02 dùng !important nên đè cùng loại, chỉ cho dòng chỉ đọc. */
+.bj02-line-qty { white-space: nowrap; }
+
+.bj02-readonly-line .ds24-list-row__trailing { flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: var(--vet45-v2-space-1); }
+
+body[data-active-uif="UIF-02"] .v-page-scaffold.figma-calibrated-shell .bj02-readonly-line[data-ds-component="DS v2 / List Row"] { height: auto !important; min-height: 52px !important; max-height: none !important; padding-block: var(--vet45-v2-space-2) !important; overflow: visible !important; }
+
+body[data-active-uif="UIF-02"] .v-page-scaffold.figma-calibrated-shell .bj02-readonly-line .ds24-list-row__copy { min-width: 0; }
+
+body[data-active-uif="UIF-02"] .v-page-scaffold.figma-calibrated-shell .bj02-readonly-line .ds24-list-row__copy small { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal !important; overflow: hidden !important; text-overflow: clip !important; }
+
+/* CAP-01 SCR-063 web: ô số ngày mặc định ~200px (số 2 chữ số); "Thêm sản phẩm" rộng theo chữ, căn trái. */
+.device-preview.is-web .k7-wide .cap-narrow .k7-edit:has([data-cap-expiry-days]) { max-width: 200px; }
+
+.device-preview.is-web .k7-wide [data-cap-override-add] { width: auto; min-width: 160px; justify-self: start; align-self: flex-start; }
+
+/* BJ-03 SCR-015 web: cột "Tình trạng" đủ rộng để dòng căn cứ không gãy 4–5 dòng. */
+.k7-table td.bj03-col-status { min-width: 240px; }
+
+/* SCR-015: cột "Tình trạng" 240px + ô tick + bốn cột số cần ~700px; cột chính chỉ ~650px nên thu đệm ô và khối tóm tắt (288px) cho vừa, không cuộn ngang. */
+body[data-active-uif="UIF-03"] .device-preview.is-web .k7-split.k7-split--wide-main { grid-template-columns: minmax(0, 1fr) 288px; }
+
+body[data-active-uif="UIF-03"] .device-preview.is-web .k7-split--wide-main .k7-table :is(th, td):not(.k7-col-check) { padding-inline: var(--vet45-v2-space-2); }
+
+.k7-table tbody tr[data-bj01-lot] { cursor: pointer; }
+
+.k7-table tbody tr[data-bj01-lot]:hover td { background: var(--vet45-v2-surface-subtle); }
+
+.k7-table tbody tr[data-bj01-lot]:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: -2px; }

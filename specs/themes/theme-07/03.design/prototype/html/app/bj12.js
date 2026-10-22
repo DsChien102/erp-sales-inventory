@@ -12,10 +12,8 @@ let cf12ControlValue = "386240000";
 let cf12RejectOpen = false;
 let cf12RejectReason = "";
 let cf12RejectBy = "";
-let cf12SelfOpen = false;
 let cf12ColumnsOpen = false;
 let cf12Filter = "all";
-let cf12ApprovedBy = "";
 const cf12Maker = "Nguyễn An";
 const cf12SentAt = "07/09/2026 · 10:32";
 const cf12Ref = "OB-2026-0001";
@@ -52,7 +50,6 @@ const cf12Columns = [
 ];
 
 const cf12CutoffValid = () => /^\d{4}-\d{2}-\d{2}$/.test(cf12Cutoff);
-const cf12IsOwner = () => currentActor() === "owner";
 const cf12Exit = () => k1ExitAttr("SCR-066");
 
 function cf12ReviewCard(){
@@ -109,9 +106,6 @@ function cf12ColumnsSheet(){
   if(!cf12ColumnsOpen)return "";
   const close='data-cf12-action="close-columns"';
   return `<div class="sheet-backdrop k7-mobile-only" ${close}><section class="bottom-sheet cf12-columns-sheet" role="dialog" aria-modal="true" aria-label="Tệp cần có các cột" onclick="event.stopPropagation()" data-ds-component="VBottomSheet" data-figma-node="4695:6353"><div class="sheet-handle"></div><div class="sheet-title"><h3>Tệp cần có các cột</h3></div><div class="sheet-divider"></div><div class="sheet-content">${cf12ColumnsList()}<div class="sheet-actions">${cfSecondary("Đóng",close)}</div></div></section></div>`;
-}
-function cf12SelfSheet(){
-  return k2SelfCommitSheet({open:cf12SelfOpen,title:"Ghi nhận số dư đầu kỳ",facts:[["Ngày chốt",cfDateVN(cf12Cutoff)],["Sản phẩm",`${cfNumber(cf12Summary.products)} sản phẩm`],["Tổng số lượng",cfNumber(cf12Summary.parsedQty)],["Tổng giá trị",cfMoney(cf12Summary.parsedValue)]],warning:"Chỉ ghi nhận một lần. Sai sau này phải sửa bằng điều chỉnh.",confirmLabel:"Ghi nhận",confirmAttr:'data-cf12-action="confirm-self"',closeAttr:'data-cf12-action="close-self"'});
 }
 function cf12RejectSheet(){
   return k2RejectSheet({open:cf12RejectOpen,title:"Từ chối số dư đầu kỳ",reason:cf12RejectReason,reasonAttr:"data-cf12-reject-reason",confirmAttr:'data-v350-action="cf12-confirm-reject"',closeAttr:'data-cf12-action="close-reject"'});
@@ -181,8 +175,8 @@ function render068BJ12(state){
   }
   if(state==="READY"){
     const summary=`<section class="ac310-surface cf12-ready-summary" data-layout-pattern="Grouped surface"><div class="ac310-surface__head"><h2>Số dư sẽ ghi nhận</h2></div><div class="ac310-info-rows">${cf12SummaryRows().map((r)=>ds24InfoRow(r[0],r[1],r[2]?"ac310-info-row--emphasis":"")).join("")}</div><div class="cf12-match">${icon("checkCircle","icon--sm")}<strong>Khớp số kiểm soát</strong></div></section>`;
-    const actions=cf12IsOwner()?primaryFooter("Ghi nhận số dư đầu kỳ",'data-cf12-action="open-self"'):primaryFooter("Gửi phê duyệt",'data-v350-action="cf12-send-approval"');
-    return cf12Out(cf12Shell({title,body:`${vBanner("success","Dữ liệu đã qua kiểm tra","","k7-banner--line")}${k7Split({main:summary,aside:cf12LinesBlock()})}${cf12IsOwner()?cf12SelfSheet():""}`,actions}));
+    const actions=primaryFooter("Gửi phê duyệt",'data-v350-action="cf12-send-approval"');
+    return cf12Out(cf12Shell({title,body:`${vBanner("success","Dữ liệu đã qua kiểm tra","","k7-banner--line")}${k7Split({main:summary,aside:cf12LinesBlock()})}`,actions}));
   }
   if(state==="PERMISSION_DENIED") return cf12Out(cf12Shell({title,body:k1Denied({what:"xem kết quả kiểm tra",next:"Chỉ chủ cửa hàng hoặc người được giao mới xem được kết quả kiểm tra tồn đầu kỳ. Nhờ họ cấp quyền rồi quay lại.",exitAttr:cf12Exit()}),centered:true}));
   if(state==="CONFLICT") return cf12Out(cf12Shell({title,body:cf12Narrow(`${k1Stale({title:"Nguồn dữ liệu đã thay đổi",description:"Kết quả kiểm tra cũ không còn hiệu lực. Chọn lại tệp hoặc tải lại phạm vi.",actionAttr:'data-cf12-action="reload"'})}${cf12ReviewCard()}`),actions:primaryFooter("Quay lại dữ liệu",'data-cf12-action="back-file"')}));
@@ -217,14 +211,13 @@ function render071BJ12(state){
   if(state==="PERMISSION_DENIED") return cf12Out(cf12Shell({title,body:k1Denied({what:"xem kết quả này",next:"Chỉ chủ cửa hàng hoặc người được giao mới xem được kết quả khởi tạo tồn kho. Nhờ họ cấp quyền rồi quay lại.",exitAttr:cf12Exit()}),centered:true,back:false}));
   if(state==="PROCESSING") return cf12Out(cf12Shell({title,body:cf12Narrow(`${loadingBody()}${vBanner("info","Đang ghi nhận và đối soát","Hệ thống đang xử lý số dư được duyệt. Không cần thực hiện thêm thao tác.")}`),centered:true,back:false}));
   if(state==="REJECTED_EXECUTION") return cf12Out(k4Result({screenTitle:title,kind:"warning",title:"Chưa khởi tạo tồn kho",description:"Yêu cầu không được thực hiện. Không có số dư đầu kỳ nào được ghi nhận.",facts:[["Ngày chốt số dư",cfDateVN(cf12Cutoff)],["Tác động tồn kho","Không có"],["Lý do","Dữ liệu nguồn đã thay đổi trước khi ghi nhận"]],next:[{label:"Tiếp tục chuẩn bị",attr:'data-cf12-action="continue-prepare"',primary:true}]}));
-  return cf12Out(k4Result({screenTitle:title,title:"Đã khởi tạo tồn kho đầu kỳ",description:"Số dư đã được ghi nhận nguyên khối và đối soát thành công. Mọi sửa sai tiếp theo đi qua nghiệp vụ điều chỉnh có kiểm soát.",facts:[["Ngày chốt số dư",cfDateVN(cf12Cutoff)],["Sản phẩm",`${cfNumber(cf12Summary.products)} sản phẩm`],["Tổng số lượng",cfNumber(cf12Summary.parsedQty)],["Tổng giá trị",cfMoney(cf12Summary.parsedValue)],["Đối soát","Đã khớp"],["Người duyệt",cf12ApprovedBy==="owner"?"Chủ cửa hàng (tự duyệt)":"Chủ cửa hàng"]],next:[{label:"Đặt ngưỡng tồn",attr:'data-cf12-action="go-policy"'},{label:"Xem tồn kho",attr:'data-cf12-action="see-inventory"',primary:true}]}));
+  return cf12Out(k4Result({screenTitle:title,title:"Đã khởi tạo tồn kho đầu kỳ",description:"Số dư đã được ghi nhận nguyên khối và đối soát thành công. Mọi sửa sai tiếp theo đi qua nghiệp vụ điều chỉnh có kiểm soát.",facts:[["Ngày chốt số dư",cfDateVN(cf12Cutoff)],["Sản phẩm",`${cfNumber(cf12Summary.products)} sản phẩm`],["Tổng số lượng",cfNumber(cf12Summary.parsedQty)],["Tổng giá trị",cfMoney(cf12Summary.parsedValue)],["Đối soát","Đã khớp"],["Người duyệt","Chủ cửa hàng"]],next:[{label:"Đặt ngưỡng tồn",attr:'data-cf12-action="go-policy"'},{label:"Xem tồn kho",attr:'data-cf12-action="see-inventory"',primary:true}]}));
 }
 
 /* ---------- Xử lý sự kiện ---------- */
 
-// Ghi nhận do hệ thống: PROCESSING rồi COMPLETED. Dùng chung cho đường người duyệt và đường Owner tự duyệt.
-function cf12Commit(by){
-  cf12ApprovedBy=by;cf12SelfOpen=false;
+// Ghi nhận do hệ thống sau khi người duyệt (chủ cửa hàng, kể cả khi chính họ lập) bấm "Duyệt": PROCESSING rồi COMPLETED.
+function cf12Commit(){
   stateByScreen["SCR-071"]="PROCESSING";navigate("SCR-071");
   setTimeout(()=>{
     if(activeFlowId==="UIF-12"&&activeScreenId==="SCR-071"&&stateByScreen["SCR-071"]==="PROCESSING"){
@@ -234,7 +227,7 @@ function cf12Commit(by){
     }
   },420);
 }
-function cf12CloseSheets(){const open=cf12RejectOpen||cf12SelfOpen||cf12ColumnsOpen;cf12RejectOpen=false;cf12SelfOpen=false;cf12ColumnsOpen=false;return open;}
+function cf12CloseSheets(){const open=cf12RejectOpen||cf12ColumnsOpen;cf12RejectOpen=false;cf12ColumnsOpen=false;return open;}
 
 document.addEventListener("input",(event)=>{
   if(activeFlowId!=="UIF-12") return;
@@ -272,7 +265,7 @@ document.addEventListener("click",(event)=>{
       if(k==="cf12-approve"){
         if(!["approver","owner"].includes(currentActor())){stateByScreen["SCR-070"]="SELF_APPROVAL_NOT_ALLOWED";syncReviewUrl();return renderAppScreen();}
         if(!bj12Cf12ApprovalHash||bj12Cf12ApprovalHash!==bj12Hash()){stateByScreen["SCR-070"]="VALIDATION_ERROR";syncReviewUrl();return renderAppScreen();}
-        return cf12Commit("approver");
+        return cf12Commit();
       }
       if(k==="cf12-confirm-reject"){
         if(!["approver","owner"].includes(currentActor())){stateByScreen["SCR-070"]="SELF_APPROVAL_NOT_ALLOWED";syncReviewUrl();return renderAppScreen();}
@@ -295,12 +288,6 @@ document.addEventListener("click",(event)=>{
     if(k==="fix-rejected"){stateByScreen["SCR-067"]="READY";return navigate("SCR-067");}
     if(k==="open-reject"){cf12RejectOpen=true;cf12RejectReason="";return renderAppScreen();}
     if(k==="close-reject"){cf12RejectOpen=false;cf12RejectReason="";return renderAppScreen();}
-    if(k==="open-self"){cf12SelfOpen=true;return renderAppScreen();}
-    if(k==="close-self"){cf12SelfOpen=false;return renderAppScreen();}
-    if(k==="confirm-self"){
-      if(!bj12ControlMatches()){cf12SelfOpen=false;stateByScreen["SCR-068"]="CONTROL_TOTAL_MISMATCH";return navigate("SCR-068");}
-      bj12Cf12ApprovalHash=bj12Hash();return cf12Commit("owner");
-    }
     if(k==="result-home"){return navigate("SCR-066");}
     if(k==="see-inventory"){activeFlowId="UIF-01";activeScreenId="SCR-001";stateByScreen["SCR-001"]="READY";syncReviewUrl();return render();}
     if(k==="go-policy"){return capOpenForTable("UIF-12","SCR-071");}

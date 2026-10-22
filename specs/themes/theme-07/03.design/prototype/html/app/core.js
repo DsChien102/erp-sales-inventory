@@ -28,7 +28,7 @@ const FIGMA_TEMPLATE_NODES = {
 };
 const FIGMA_TEMPLATE_BY_FLOW_SCREEN = {
   "UIF-01":{"SCR-001":"Mobile / Root List","SCR-003":"Mobile / Detail"},
-  "UIF-02":{"SCR-006":"Mobile / Nested List","SCR-007":"Mobile / Nested List","SCR-008":"Mobile / Form","SCR-009":"Mobile / Nested List","SCR-084":"Mobile / Form","SCR-010":"Mobile / Detail","SCR-011":"Mobile / Detail","SCR-012":"Mobile / Detail","SCR-013":"Mobile / Detail"},
+  "UIF-02":{"SCR-007":"Mobile / Nested List","SCR-008":"Mobile / Form","SCR-009":"Mobile / Nested List","SCR-084":"Mobile / Form","SCR-010":"Mobile / Detail","SCR-011":"Mobile / Detail","SCR-012":"Mobile / Detail","SCR-013":"Mobile / Detail"},
   "UIF-03":{"SCR-014":"Mobile / Root List","SCR-015":"Mobile / Form","SCR-017":"Mobile / Detail","SCR-019":"Mobile / Detail"},
   "UIF-04":{"SCR-021":"Mobile / Detail"},
   "UIF-05":{"SCR-025":"Mobile / Root List","SCR-026":"Mobile / Detail","SCR-027":"Mobile / Form","SCR-028":"Mobile / Detail","SCR-029":"Mobile / Detail"},
@@ -61,10 +61,10 @@ const entryMode = initialParams.get("entry") || "module";
 // Giữ màn retired (vd. SCR-018/088) dù không còn trong flow.screens — bj*.js screenAliases đổi trước hub render().
 const requestedScreen = initialParams.get("screen");
 let activeScreenId = (() => {
-  if (!requestedScreen) return initialFlow?.screens[0] || "SCR-006";
+  if (!requestedScreen) return initialFlow?.screens[0] || "SCR-007";
   if (initialFlow?.screens.includes(requestedScreen)) return requestedScreen;
   if (screens.some((s) => s.id === requestedScreen)) return requestedScreen;
-  return initialFlow?.screens[0] || "SCR-006";
+  return initialFlow?.screens[0] || "SCR-007";
 })();
 let viewport = initialParams.get("viewport") === "web" ? "web" : "mobile";
 let flowMode = initialParams.get("flow") === "quick" ? "quick" : "document";
@@ -75,8 +75,9 @@ const entryTargets = {
   "UIF-02": {
     "document-context": { screen: "SCR-009", flowMode: "document" },
     "approver": { screen: "SCR-011" },
+    "owner": { screen: "SCR-007" },
   },
-  "UIF-03": { "receipt-task": { screen: "SCR-015" } },
+  "UIF-03": { "receipt-task": { screen: "SCR-015" }, "staff": { screen: "SCR-014" } },
   "UIF-04": { "order-context": { screen: "SCR-021" } },
   "UIF-05": { "order-task": { screen: "SCR-026" } },
   "UIF-06": { "return-task": { screen: "SCR-031" }, "approver": { screen: "SCR-034" } },
@@ -521,6 +522,9 @@ function syncReviewUrl() {
 
 // Móc chạy khi điều hướng vào một màn (khoá "UIF-NN:SCR-NNN"), thay cho việc bọc navigate.
 const onScreenEnter = {};
+
+// Móc chạy khi người xem đổi khung iPhone / web (harness gọi, rồi dựng lại màn): chuẩn hoá trạng thái màn có bố cục riêng theo khung.
+const onViewportChange = [];
 
 // Móc nút quay lại (data-back) theo luồng, thay cho nhánh của từng BJ trong previousScreen.
 const onPrevious = {};
