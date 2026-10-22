@@ -1,8 +1,8 @@
 {
-  "version": "5.4.0",
-  "parent": "5.3.1",
-  "status": "T7_P_H1_WEB_FRAME",
-  "scope": "T7-P H1: harness có khung Web 1280×800 (thanh bên giả) cạnh Mobile 402×874; golden chụp được cả hai khung; không đổi màn.",
+  "version": "5.7.2",
+  "parent": "5.4.0",
+  "status": "T7_P_BJ12_REDESIGN",
+  "scope": "T7-P BJ-12: thiết kế lại luồng khởi tạo tồn đầu kỳ (SCR-066/067/068/070/071, SCR-069 gộp vào 068); dựng khuôn K1–K4, K7 ở app/shared-patterns.js; Home Kho có khối \"Kho chưa kích hoạt\" và \"Chờ duyệt\".",
   "flows": 18,
   "screens": 89,
   "canonicalActiveScreens": 73,
@@ -10,7 +10,7 @@
   "structure": {
     "html": "index.html",
     "styles": ["styles/tokens.css", "styles/components.css", "harness/workbench.css", "styles/screens.css"],
-    "scripts": ["data/workbench-data.js", "app/core.js", "harness/figma-ds-map.js", "harness/workbench.js", "app/shared-control.js", "app/shared-valuation.js", "app/bj01.js…bj17.js", "app/cap01.js", "app/hub.js"],
+    "scripts": ["data/workbench-data.js", "app/core.js", "harness/figma-ds-map.js", "harness/workbench.js", "app/shared-control.js", "app/shared-valuation.js", "app/shared-patterns.js", "app/bj01.js…bj17.js", "app/cap01.js", "app/hub.js"],
     "golden": "tools/golden.mjs"
   },
   "authority": {

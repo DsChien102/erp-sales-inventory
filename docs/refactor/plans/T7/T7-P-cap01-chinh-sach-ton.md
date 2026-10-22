@@ -1,6 +1,6 @@
 # T7-P · CAP-01 Chính sách tồn & cận hạn — thiết kế lại (bước B–E) + `SC_journey_1`
 
-> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21) | Plan C–E ✅ | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21) | Plan C–E ✅ | Làm ✅ 2026-10-21 (v5.7.0, chưa commit) | Review ✅ 2026-10-22 (đạt; R1–R5 xong, v5.7.2)
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 1 "Mở kho"**, BJ thứ ba (cuối chặng). Làm **sau** [BJ-12](T7-P-bj12-ton-dau-ky.md) (dựng K1–K4, K7) và [BJ-01](T7-P-bj01-ton-kho.md). Dùng lại khuôn, không dựng khuôn mới.
 > Thiết bị chính: **web** (Owner đặt ngưỡng cho nhiều sản phẩm một lượt); sửa lẻ một sản phẩm từ chi tiết tồn chạy tốt trên iPhone.
 > Hết plan này = **hết chặng 1**: kịch bản `SC_journey_1` (mục 4.5) đi một mạch Home Kho chưa kích hoạt → khởi tạo → xem tồn → đặt ngưỡng → thấy chỉ báo đổi.
@@ -224,7 +224,22 @@ Chạy ở cả hai khung (`DEVICE=web` thêm `SC_journey_1@web`: bật cho riê
 
 ## 8. Ghi chú khi làm
 
-(Bạn ghi lệch plan, ca golden khác ngoài dự kiến.)
+(2026-10-21, phiên làm.) Mốc `tools/.golden-chang1` (1440 ca) / `.golden-chang1-web` (603 ca) chụp lại sau chỉnh CSS cuối; so với `.golden-bj01-after` / `.golden-bj01-web-after`: 0 lỗi JS ở cả hai khung.
+
+**Ca golden khác (so mốc sau BJ-01):**
+- Dự kiến (brief 0.8): `CAP-01_SCR-062/063/065_*` (SCR-064 mất 4 ca), `SC_cap01_*` → `SC_cap_*`, `SC_journey_1`.
+- **Ngoài dự kiến 0.8:** BJ-01 SCR-003 của **Amox 500 / Enrofloxacin 10% / Tylosin 20%** cũng khác (liên kết "Sửa ngưỡng" trong khối cảnh báo, theo 3.4 "ở chỗ hiện ngưỡng"; Nobivac — sản phẩm mặc định — không đổi nên `UIF-01_SCR-003_*` khớp): `SC_bj01_list_5`, `SC_bj01_out_1`, `SC_bj01_receive_1`, `SC_bj01_scan_2`, `SC_bj01_stale_2`, `SC_bj01_theme_2` (Oxy), `SC_bj01_tylo_*`, `SC_bj01_expired_*`.
+- Đi qua CAP-01: `SC_bj12_owner_10_policy`, `SC_ws_inventory_2_2_item`, `SC_ws_setup_1_2_item`.
+- Web: chỉ `CAP-01_*`, `SC_cap_*`, `SC_journey_1@web` khác.
+
+**Lệch plan / chọn thêm:**
+1. `WEB_SCENARIOS` ở `golden.mjs` không chỉ `SC_journey_1` mà thêm `SC_cap_table`, `SC_cap_expiry`, `SC_cap_single`, `SC_cap_staff`, `SC_cap_hub` — bảng sửa tại dòng là web chính nên cần ảnh web.
+2. Chữ ngoài brief (đã ghi mục 13): "Bình thường", "Số ngày cận hạn phải lớn hơn 0.", "Không còn sản phẩm nào chưa có ngưỡng" / "Mọi sản phẩm đã có ngưỡng cảnh báo." / "Xem tất cả", "Chưa có sản phẩm nào có chính sách riêng.", "Mọi sản phẩm theo lô đều đã có chính sách riêng."; lỗi dòng dùng một câu "Mục tiêu phải lớn hơn hoặc bằng ngưỡng." cho cả thiếu một ô / ngưỡng âm / xoá hết ô của sản phẩm đã có ngưỡng.
+3. Sheet dùng khuôn `bottom-sheet` của BJ-12 (web: hộp thoại giữa màn), không dùng `ds24Sheet` (CSS của `ds24Sheet` khoá theo UIF-01).
+4. Nút quay lại: vào từ BJ-01 / BJ-12 → về đó (`capReturnFlow`); vào từ Hub → về Hub Kho (`previousScreen`); chế độ BJ → về Tồn kho như cũ. Vào CAP-01 từ Hub luôn mở bảng, bỏ nháp cũ.
+5. 063: ô ngày và hành động của dòng riêng sửa tại dòng (brief chỉ nói bảng / danh sách); "Thêm sản phẩm" lấy số ngày và hành động của mặc định hiện tại. "Lưu thay đổi" chỉ tắt khi có lỗi (không tắt khi chưa sửa).
+6. Chưa chạy `/impeccable audit`: kiểm bằng ảnh + DOM — ô số có `aria-label="… — {tên}"`, thẻ lựa chọn là `button` (`role="radio"`, `aria-checked`), hộp thoại `role="dialog"`, ô ≥ 44 trên iPhone (40 ở web). Con trỏ giữ khi gõ (kiểm bằng thử `focus` + `input`). Cần bạn / phiên review xem thêm bằng mắt.
+7. Đã chạy `python3 tools/sync-registry.py`. Chưa chạy `detect_changes` của GitNexus (công cụ MCP không có trong phiên này); chưa commit.
 
 ## 9. Chữ trên màn
 
@@ -243,4 +258,56 @@ Chạy ở cả hai khung (`DEVICE=web` thêm `SC_journey_1@web`: bật cho riê
 
 ## 10. Review
 
-(Phiên review điền sau khi bạn báo xong.)
+**Review chặng 1 (BJ-12 + BJ-01 + CAP-01):** (2026-10-21, phiên review) — **đạt có điều kiện**, **đạt hẳn 2026-10-22 sau R5** (xem "R5 xong" cuối mục); R1–R4 và góp ý 1, 2, 4, 5, 6, 9, 10, 12 (+ ghi chú 3) **đã sửa ở phiên review theo yêu cầu người dùng** → prototype **v5.7.1** (xem "Đã sửa" cuối mục). Còn lại trước commit: **R5** (`/impeccable audit`). Chưa commit. Review của BJ-12 và BJ-01 trỏ về đây.
+
+| Kiểm (chạy lại) | Kết quả |
+|---|---|
+| `node --check app/*.js harness/*.js` | Sạch |
+| Golden mobile | 1440 ca, 0 lỗi JS; "Khớp hoàn toàn" với `tools/.golden-chang1` |
+| Golden web | 603 ca, 0 lỗi JS; "Khớp hoàn toàn" với `tools/.golden-chang1-web` |
+| Bấm thử ngoài golden (Chrome không giao diện) | Tìm ra R1–R4 và góp ý 5–7 dưới đây; 0 lỗi JS |
+| Đặc tả | UC-12-02 / BJ-12 / 00-use-case-map: ngoại lệ `is_owner` tự duyệt ghi đúng quyết định 2026-10-20 |
+| Ảnh | 068 / 070 / 062 web, 068 iPhone, 063 iPhone, `SC_journey_1_0`: bố cục K7 đúng brief, bảng / danh sách đổi đúng khung |
+
+Lệch plan đã ghi trong ghi chú (BJ-12 mục 10: 1–9; BJ-01 mục 10: 1–9; CAP-01 mục 8: 1–7): **chấp nhận**. BJ-01 lệch 5 (CSS BJ-01 chưa gom về một khối): chấp nhận, để gói dọn CSS riêng ở Giai đoạn 3. `/impeccable audit` chưa chạy ở cả ba BJ → thành bước **R5** dưới đây (chạy trước commit). `detect_changes()` không chạy: chấp nhận như H1 (prototype HTML tĩnh, không phải code được lập chỉ mục).
+
+**Cần sửa (chặn commit):**
+
+- **R1. CAP-01 lưu hai ô trống thành ngưỡng 0 / 0.** Mở Oxytetracycline LA (chưa có ngưỡng) → "Đặt ngưỡng tồn" → để trống cả hai ô → "Lưu" vẫn bật; bấm thì sản phẩm thành `threshold:0, target:0, CONFIGURED`, toast "Đã lưu chính sách", dòng xem trước còn ghi "Sau khi lưu: Không có cảnh báo". Cùng lỗi ở sheet sửa trên iPhone (062 bảng). Nguyên nhân: `capRowError` (`app/cap01.js:44`) trả rỗng khi cả hai ô trống và sản phẩm chưa cấu hình (đúng cho **bảng**, vì dòng đó không "đã sửa"), nhưng `data-cap-save-single` dùng cùng hàm rồi `capApplyValues` đổi `""` thành `0`. Sửa: ở chế độ một sản phẩm / sheet, hai ô trống = chưa nhập → nút "Lưu" tắt và không hiện dòng "Sau khi lưu"; không đổi luật của bảng.
+- **R2. Home Kho "chưa kích hoạt" vẫn có việc của kho đang chạy.** Ảnh `SC_journey_1_0` (bước đầu của demo): dưới khối "Kho chưa kích hoạt" vẫn có "Chờ duyệt · 3 nhận hàng", "Lô sắp hết hạn · 3 lô", "Sai lệch cần đối soát", "Nghiệp vụ chưa xác định kết quả" — mâu thuẫn với câu "Nhập số tồn hiện có một lần để bắt đầu nhận…". Sửa trong `app/hub.js`: khi `!inventoryActivated`, nguồn nhận hàng trả `[]` và bỏ ba dòng cố định; "Cần chú ý" chỉ còn hiện khi có nguồn có dòng (vd. số dư đầu kỳ chờ duyệt), không có thì bỏ cả mục. Golden được khác: `HUB_home_not_activated*`, `SC_hub_not_activated_*`, `SC_bj12_owner_0/1`, `SC_bj12_pending_list_0…`, `SC_journey_1_0`.
+- **R3. Sản phẩm đã có ngưỡng nhưng bình thường không xem / sửa được ngưỡng ở SCR-003.** Brief 0.4 mục 13: "Sản phẩm đã có ngưỡng: trong thẻ số / dòng ngưỡng, liên kết 'Sửa ngưỡng'". Bản làm chỉ đặt "Sửa ngưỡng" trong khối cảnh báo Hết hàng / Tồn thấp, nên Nobivac DHPPi (ngưỡng 30, mục tiêu 80) không hiện ngưỡng ở đâu và không có lối sửa. Sửa trong `bj01StockHero` (`app/bj01.js`): sản phẩm `CONFIGURED` có thêm một dòng cuối thẻ số "Ngưỡng {n} · Mục tiêu {m} {ĐVT}" + liên kết "Sửa ngưỡng" (`data-bj01-set-threshold`); bỏ liên kết trong khối cảnh báo để mỗi màn chỉ một chỗ. Chữ "Ngưỡng {n} · Mục tiêu {m} {ĐVT}" là chữ của danh sách 062 trên iPhone, không mới. Golden được khác: mọi ca SCR-003 của sản phẩm đã có ngưỡng (`UIF-01_SCR-003_*`, `SC_bj01_*` qua chi tiết). Ghi vào T7-P mục 13 dòng "01 · SCR-003 · Đặt / Sửa ngưỡng".
+- **R4. Alias màn đã bỏ không mang trạng thái — lệch Screen Contract.** `SCR-068.md` dòng 46 ghi map trạng thái của SCR-069 cũ (`PENDING_APPROVAL` → SCR-066 `PENDING_APPROVAL`; `CONFLICT`, `VALIDATION_ERROR` → 068 `CONFLICT`…), brief CAP-01 0.4 ghi `APPROVAL_REQUIRED` của 064 → chế độ chỉ xem; prototype mở **068 / 062 `READY`** cho mọi trạng thái (`?uif=UIF-12&screen=SCR-069&state=PENDING_APPROVAL` → 068 READY). Chọn một: (a) làm map trong hai khối alias (`bj12.js:312`, `cap01.js:284`) — đổi cả màn và trạng thái; hoặc (b) sửa `SCR-068.md` / `SCR-062.md` thành "link cũ mở màn mới ở trạng thái mặc định". Đề xuất (b): link cũ chỉ có trong harness, không đáng thêm mã.
+
+**Góp ý nhỏ (không chặn, sửa khi tiện):**
+
+1. **Nhân viên trên iPhone (062):** dòng danh sách vẫn có mũi tên nhưng chạm không làm gì (`cap01.js:346` thoát im lặng). Khi chỉ xem dùng `type:"Status"` (không mũi tên). BJ-01 SCR-003 cũng hiện "Đặt ngưỡng tồn" / "Sửa ngưỡng" cho `staff` — ẩn khi `currentActor()==="staff"`.
+2. **Esc không đóng sheet CAP-01** (BJ-12 đóng được). Thêm `keydown` Escape như `bj12.js:253`, đóng `capSaveOpen` / `capSheetProductId` / `capAddOpen`.
+3. **Rời 062 khi còn nháp:** nút quay lại đi luôn, không hỏi; nháp nằm ngầm và mất khi vào lại từ Hub. Prototype để vậy được; ghi vào SCR-062 mục trạng thái cho Flutter: có nháp mà rời màn → hộp thoại "Bỏ thay đổi?" (chữ chờ duyệt ở mục 13).
+4. **062 web:** ô chữ (Sản phẩm, ĐVT, Khả dụng) căn trên còn ô nhập căn giữa → hàng lệch; `.k7-table td { vertical-align: middle }`.
+5. **Sheet trên web** (hộp thoại giữa màn) vẫn có thanh kéo và đáy trống ~40px: ẩn `.sheet-handle` và bỏ đệm đáy trong `.device-preview.is-web`.
+6. **070 "Cần chú ý":** "Sau khi duyệt — Kho bắt đầu hoạt động" mang icon cảnh báo; đây là thông tin → icon `info`, chỉ "Không bán được" giữ cảnh báo.
+7. **Chip có số hai cách:** BJ-01 dùng `ds24Chip(…, count)` (số tách `<span>`, số 0 → `is-empty`), `k7FilterChips` nhét số vào chữ và tự thêm `k7-chip--zero`. Gộp: `k7FilterChips` gọi `ds24Chip(key, label, selected, attrName, count)`; bỏ `k7-chip--zero`.
+8. **068 lệch số kiểm soát:** "Chọn lại tệp" và "Sửa số kiểm soát" cùng `back-file`. Nút chính nên mở 067 và đặt focus vào ô "Tổng số lượng kiểm soát".
+9. **063 iPhone:** ô chọn hành động của dòng riêng không có mũi tên, trông như ô chữ — dùng `cfSelect` (có `chevronDown`).
+10. **Đường nhân viên lập BJ-12 không đi được trong chế độ Toàn Theme 7** (mọi lối vào Hub đặt vai `owner`; `SC_bj12_pending_list` phải gọi `setActor('module')`). Chấp nhận cho prototype; ghi một dòng trong UIF-12 mục lối vào.
+11. **Fixture hành trình:** tệp đầu kỳ có Enrofloxacin 3 chai "Hư hỏng" nhưng BJ-01 ngay sau khởi tạo ghi tồn vật lý 0; nguồn "Nguồn và thời điểm cập nhật" vẫn là "Nhận hàng PN-…" thay vì số dư đầu kỳ. Không chặn; gộp fixture khi làm chặng 2 (BJ-02 đọc cùng sản phẩm).
+12. **Registry:** `09.generated/registries/design/screen-registry.md` dòng 70 còn `SCR-064 … RENDERED_v3.6.0` (SCR-069 đã `RETIRED_v5.5.0`); `data/workbench-data.js` hành động `ACT-12-CONFIGURE` còn `SCR-064` trong `screen_ids`. Sửa nguồn rồi chạy lại `sync-registry.py`.
+
+- **R5. `/impeccable audit` cho cả chặng 1 (chặn commit).** Máy chủ `python3 -m http.server 8765 --bind 127.0.0.1` trong `html/`; chạy `/impeccable audit` phạm vi Hub Kho (cả `activation=pending`), UIF-12 (066–071), UIF-01 (001, 003 + sheet lô / quét / nguồn), CAP-01 (062 bảng + một sản phẩm, 063, 065), ở **cả hai khung** (`viewport=web`). Đạt khi: chữ ≥ 4,5:1 (chữ lớn / icon ≥ 3:1), vùng chạm ≥ 44 × 44 ở khung iPhone, mọi nút icon và ô số có `aria-label`, đi được bằng bàn phím trên web (Tab qua chip lọc và ô bảng, Enter mở sheet, Esc đóng sheet ở cả BJ-12 và CAP-01, focus về nút đã mở sheet). Lỗi tìm được: sửa ngay nếu nằm trong `shared-patterns.js` / màn của chặng 1; còn lại ghi thành dòng trong mục này. Xong: golden so `tools/.golden-chang1*`, chụp lại mốc nếu có sửa, CHANGELOG `[5.7.2]` nếu có sửa.
+
+**Đã sửa (2026-10-21, phiên review, v5.7.1):** R1 (`capSingleEmpty` / `capSingleBlocked` ở `cap01.js`), R2 (`hub.js`: kho chưa kích hoạt chỉ còn "Chờ duyệt" của nguồn có dòng), R3 (`bj01StockHero` dòng "Ngưỡng {n} · Mục tiêu {m} {ĐVT}" + "Sửa ngưỡng"; bỏ liên kết trong khối cảnh báo; ẩn với `staff`), R4 theo cách (b) — SCR-068 / SCR-062 / UIF-12 ghi "link cũ mở màn mới ở trạng thái mặc định". Góp ý 1, 2, 4, 5 (hộp thoại web: luật `!important` đè luật sheet iPhone — trước đó cả `width: 480px` cũ của K7 cũng không ăn), 6 (`k2Decision` nhận tone thứ ba `"info"`), 9, 10 (UIF-12 mục lối vào), 12; ghi chú 3 vào SCR-062 cho Flutter. **Chưa làm:** 7 (gộp hai cách chip có số — đổi hình chip ở BJ-12 / CAP-01, để làm cùng chip BJ-15 ở chặng 6), 8 (focus ô số kiểm soát), 11 (fixture — gộp ở chặng 2). Kiểm: `node --check` sạch; golden 1440 / 603 ca, 0 lỗi JS, chỉ ca nêu ở CHANGELOG `[5.7.1]` khác mốc cũ; bộ bấm thử của review chạy lại: R1–R4, Esc, nhân viên đều đạt. Mốc `tools/.golden-chang1*` đã chụp lại (v5.7.1); `sync-registry.py` đã chạy.
+
+**R5 xong (2026-10-22, phiên review, v5.7.2):** đo bằng Chrome headless qua CDP (script tạm ở scratchpad, không vào repo) trên 30 màn / trạng thái ở mỗi khung, gồm sheet tự duyệt / từ chối (BJ-12), sheet lưu (CAP-01), sheet lô / nguồn / quét (BJ-01).
+
+| Tiêu chí | Kết quả |
+|---|---|
+| Tương phản chữ ≥ 4,5:1 (lớn ≥ 3:1) | 0 lỗi ở cả hai khung (bộ đo thử với chữ #bbb → 1,8:1, có bắt) |
+| Vùng chạm ≥ 44 × 44 (iPhone) | Đạt. Chip lọc BJ-01 cao 34px nhưng `::after` mở rộng 5px mỗi phía = 44px |
+| Nhãn nút icon / ô số / ô nhập | Thiếu: ô "Lý do từ chối" → **đã sửa** (`icTextarea` có `aria-label`); `ds24Sheet` thêm `aria-label` = tiêu đề |
+| Esc đóng sheet | BJ-12, CAP-01 đạt; **BJ-01 không đóng → đã sửa** (`bj01.js` keydown) |
+| Focus vào sheet khi mở / về nút đã mở khi đóng | **Không có → đã sửa** chung ở khung: `syncDialogFocus()` cuối `renderAppScreen` (`core.js`), hộp thoại `tabindex="-1"` không vòng focus. Đo lại: 5/5 sheet đạt ở web; iPhone 4/5 (CAP-01 062: nút lưu của bảng ẩn trên iPhone — không phải đường dùng thật) |
+| Tab trên web | Có vòng focus ở thanh chọn, chip, dòng danh sách; ô số bảng có viền `:focus-within` |
+
+Golden mobile 1440 / web 603 ca **khớp hoàn toàn** `tools/.golden-chang1*` → không chụp lại mốc; 0 lỗi JS; `node --check` sạch; CHANGELOG `[5.7.2]`; `sync-registry.py` đã chạy. Ngoài phạm vi (ghi lại): BJ-02 sheet từ chối chèn DOM ngoài `renderAppScreen` nên chưa có focus tự động — làm ở chặng 2 (plan BJ-02 mục 5.1). **Chặng 1 xong review; còn commit.**
+
+Commit theo thứ tự trong ba plan (BJ-12 3 commit → BJ-01 2 → CAP-01 2) hoặc gộp theo chặng — cây làm việc đang chung; phần sửa v5.7.1 đi cùng commit CAP-01 (C+D).

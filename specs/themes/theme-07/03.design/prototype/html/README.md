@@ -19,7 +19,7 @@ html/
   index.html
   styles/           tokens.css, components.css, screens.css
   app/              core.js (khung), hub.js, bj01.js…bj17.js, cap01.js,
-                    shared-control.js, shared-valuation.js
+                    shared-control.js, shared-valuation.js, shared-patterns.js
   harness/          workbench.js, workbench.css, figma-ds-map.js
   data/             workbench-data.js, workbench-data.json
   tools/golden.mjs  capture | compare | usage
@@ -41,9 +41,9 @@ node tools/golden.mjs compare tools/.golden-phase1 tools/.golden-now
 node tools/golden.mjs usage tools/.usage-now   # CSS unused + JS uncovered
 FULL=1 node tools/golden.mjs capture tools/.full-now  # ảnh toàn trang (harness)
 
-# Khung Web 1280×800 (không chụp kịch bản SC_*; tên ca thêm @web)
+# Khung Web 1280×800 (chỉ chụp nhóm màn × trạng thái + kịch bản trong WEB_SCENARIOS của golden.mjs; tên ca thêm @web)
 DEVICE=web node tools/golden.mjs capture tools/.golden-web-now
 node tools/golden.mjs compare tools/.golden-web-base tools/.golden-web-now
 ```
 
-Mốc `tools/.golden-phase1` (1348 ca) = trạng thái hết Giai đoạn 1 sau A12, khớp mọi mốc trước Giai đoạn 1. Mốc `tools/.golden-web-base` (555 ca, `DEVICE=web`) = khung web sau H1, mốc cho BJ-12. Thư mục `.golden*/`, `.full*/`, `.usage*/` không vào git — chụp lại mốc trên máy mới bằng `capture` ở một commit đã biết đúng.
+Mốc `tools/.golden-phase1` (1348 ca) = trạng thái hết Giai đoạn 1 sau A12, khớp mọi mốc trước Giai đoạn 1. Mốc `tools/.golden-web-base` (555 ca, `DEVICE=web`) = khung web sau H1, mốc cho BJ-12. Thư mục `.golden*/`, `.full*/`, `.usage*/` không vào git — chụp lại mốc trên máy mới bằng `capture` ở một commit đã biết đúng. Mốc `tools/.golden-chang1` / `tools/.golden-chang1-web` = hết chặng 1 "Mở kho" (sau CAP-01, v5.7.0), mốc cho chặng 2.

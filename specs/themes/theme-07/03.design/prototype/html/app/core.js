@@ -1,4 +1,4 @@
-/* VET45 Theme 7 prototype — khung runtime (T7-P A11–A12, H1, v5.4.0).
+/* VET45 Theme 7 prototype — khung runtime (T7-P A11–A12, BJ-12, v5.5.0).
  *
  * Chỉ còn khung sản phẩm:
  *   - Trạng thái + routing lối vào (`entryTargets` / `applyEntry` / `onEntry` / `currentActor`)
@@ -44,7 +44,7 @@ const FIGMA_TEMPLATE_BY_FLOW_SCREEN = {
   "UIF-15":{"SCR-054":"Mobile / Form","SCR-055":"Mobile / Detail","SCR-056":"Mobile / Detail","SCR-057":"Mobile / Detail","SCR-058":"Mobile / Detail","SCR-059":"Mobile / Detail"},
   "UIF-16":{"SCR-078":"Mobile / Root List","SCR-079":"Mobile / Detail","SCR-080":"Mobile / Form","SCR-081":"Mobile / Detail","SCR-082":"Mobile / Detail","SCR-083":"Mobile / Detail"},
   "UIF-17":{"SCR-078":"Mobile / Root List","SCR-079":"Mobile / Detail","SCR-080":"Mobile / Form","SCR-082":"Mobile / Detail","SCR-083":"Mobile / Detail"},
-  "CAP-01":{"SCR-062":"Mobile / Form","SCR-063":"Mobile / Form","SCR-064":"Mobile / Detail","SCR-065":"Mobile / Detail"}
+  "CAP-01":{"SCR-062":"Mobile / Form","SCR-063":"Mobile / Form","SCR-065":"Mobile / Detail"}
 };
 function figmaScreenTemplate(){ return FIGMA_TEMPLATE_BY_FLOW_SCREEN[activeFlowId]?.[activeScreenId] || null; }
 const screens = HARNESS.screens;
@@ -98,11 +98,12 @@ const entryTargets = {
     "approver": { screen: "SCR-051", state: "READY" },
     "operation-context": { screen: "SCR-049", state: "CORRECTABLE" },
   },
-  "UIF-12": { "approver": { screen: "SCR-070", state: "READY" } },
+  "UIF-12": { "approver": { screen: "SCR-070", state: "READY" }, "owner": { screen: "SCR-066", state: "READY" } },
   "UIF-13": { "source-task": { screen: "SCR-086" } },
   "UIF-14": { "dirty-scope": { screen: "SCR-073", state: "READY" } },
   "UIF-16": { "case-context": { screen: "SCR-079" } },
   "UIF-17": { "unknown-context": { screen: "SCR-079" } },
+  "CAP-01": { "staff": { screen: "SCR-062", state: "READY" } },
 };
 const onEntry = {};
 let actorMode = entryMode;
@@ -176,6 +177,7 @@ const icons = {
   inbox: '<path d="M4 4h16v16H4z"/><path d="M4 14h4l2 3h4l2-3h4"/>',
   listCheck: '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
   more: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+  scan: '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 7v10"/><path d="M12 7v10"/><path d="M16 7v10"/>',
 };
 
 const dsIconMap = {
@@ -184,7 +186,7 @@ const dsIconMap = {
   filter: "VIcons.tune", warehouse: "VIcons.warehouse", calendar: "VIcons.calendar", save: "VIcons.save", package: "VIcons.inventory",
   layers: "VIcons.inventory", check: "VIcons.check", checkCircle: "VIcons.success", xCircle: "VIcons.error", close: "VIcons.close",
   shield: "VIcons.shield", user: "VIcons.person", clock: "VIcons.clock", rotate: "VIcons.refresh", lock: "VIcons.lock", inbox: "VIcons.inbox",
-  listCheck: "VIcons.checkList", more: "VIcons.moreHoriz", history: "VIcons.history", edit: "VIcons.edit"
+  listCheck: "VIcons.checkList", more: "VIcons.moreHoriz", history: "VIcons.history", edit: "VIcons.edit", scan: "VIcons.barcodeScanner"
 };
 function icon(name, className = "") {
   const semantic = dsIconMap[name] || "VIcons.info";
@@ -217,7 +219,7 @@ function statusBar() {
 }
 
 
-function appShell({ title, subtitle = null, body, actions = "", centered = false, back = true, backAction = "" }) {
+function appShell({ title, subtitle = null, body, actions = "", centered = false, back = true, backAction = "", extraClass = "" }) {
   const hasSubtitle = Boolean(subtitle);
   const baseFigmaTemplate = FIGMA_MIGRATED_FLOWS.has(activeFlowId) ? figmaScreenTemplate() : null;
   // Mobile / State is reserved for actual full-content empty/error/permission/blocked/no-result surfaces.
@@ -226,7 +228,7 @@ function appShell({ title, subtitle = null, body, actions = "", centered = false
   const figmaTemplate = isFullContentState ? "Mobile / State" : baseFigmaTemplate;
   const shellAttrs = `data-ds-component="VPageScaffold" data-ds-profile="screen.shell.standard" data-ds-prop-title="${escapeAttribute(title)}" data-ds-prop-subtitle="${subtitle == null ? 'null' : escapeAttribute(subtitle)}" data-ds-prop-show-back-button="${back}" data-ds-prop-center-title="false" data-ds-prop-actions="null"${figmaTemplate ? ` data-figma-template="${figmaTemplate}" data-figma-template-node="${FIGMA_TEMPLATE_NODES[figmaTemplate]}" data-figma-migrated="true"` : ''}`;
   return `
-    <div class="v-page-scaffold ${figmaTemplate ? 'figma-calibrated-shell' : ''}" data-mobile-product data-product-app data-inspectable="true" ${shellAttrs}>
+    <div class="v-page-scaffold ${figmaTemplate ? 'figma-calibrated-shell' : ''} ${extraClass}" data-mobile-product data-product-app data-inspectable="true" ${shellAttrs}>
       ${statusBar()}
       <header class="app-header">
         <div class="app-appbar ${back ? 'has-back' : 'no-back'} ${hasSubtitle ? 'has-subtitle' : ''}" data-ds-component="VAppBar" data-ds-prop-center-title="false" data-ds-prop-actions="null" data-ds-prop-show-back-button="${back}">
@@ -351,11 +353,13 @@ function ds24DotBadge(label,tone="Neutral") {
   const t=String(tone).toLowerCase();
   return `<span class="ds24-badge ds24-badge--${t} ds24-badge--dot" data-ds-component="VBadge" data-ds-prop-style="Soft" data-ds-prop-tone="${tone}">${esc(label)}</span>`;
 }
-function ds24Chip(key,label,selected,attrName) {
-  return `<button class="ds24-chip${selected?' is-selected':''}" type="button" ${attrName}="${escapeAttribute(key)}" data-ds-component="VChip" data-figma-node="522:7449" data-ds-prop-state="Default" data-ds-prop-tone="${selected?'Brand':'Neutral'}">${esc(label)}</button>`;
+function ds24Chip(key,label,selected,attrName,count=null) {
+  const countHtml=count==null?"":`<span class="ds24-chip__count">${esc(count)}</span>`;
+  return `<button class="ds24-chip${selected?' is-selected':''}${count===0?' is-empty':''}" type="button" ${attrName}="${escapeAttribute(key)}" data-ds-component="VChip" data-figma-node="522:7449" data-ds-prop-state="Default" data-ds-prop-tone="${selected?'Brand':'Neutral'}">${esc(label)}${countHtml}</button>`;
 }
-function ds24Search(value,attrs,placeholder="Tìm kiếm") {
-  return `<div class="ds24-search-header" data-ds-component="DS v2 / Search & Filter Header" data-figma-node="547:2306" data-ds-prop-layout="Search"><label class="ds24-search" data-ds-component="VSearchBar" data-figma-node="522:7245" data-ds-prop-state="Default">${icon("search")}<input ${attrs} value="${escapeAttribute(value)}" placeholder="${escapeAttribute(placeholder)}" aria-label="${escapeAttribute(placeholder)}"></label></div>`;
+// trailingAction: nút cuối ô tìm (vd. quét mã vạch), chuỗi HTML đã dựng sẵn.
+function ds24Search(value,attrs,placeholder="Tìm kiếm",trailingAction="") {
+  return `<div class="ds24-search-header" data-ds-component="DS v2 / Search & Filter Header" data-figma-node="547:2306" data-ds-prop-layout="Search"><label class="ds24-search" data-ds-component="VSearchBar" data-figma-node="522:7245" data-ds-prop-state="Default">${icon("search")}<input ${attrs} value="${escapeAttribute(value)}" placeholder="${escapeAttribute(placeholder)}" aria-label="${escapeAttribute(placeholder)}">${trailingAction}</label></div>`;
 }
 function ds24ListRow({title,subtitle="",trailing="",leading="package",attrs="",type="Navigation",theme="",state="Default",density="Default",interactive=null,disabled=false,extraClass=""}) {
   const isInteractive=interactive==null ? type!=="Status" : Boolean(interactive);
@@ -366,6 +370,10 @@ function ds24ListRow({title,subtitle="",trailing="",leading="package",attrs="",t
   const hasLeading=Boolean(leading);
   const leadingHtml=hasLeading?icon(leading,"ds24-list-row__leading"):"";
   return `<${tag} class="ds24-list-row${hasLeading?'':' ds24-list-row--no-leading'}${extraClass?` ${extraClass}`:''}"${buttonType} ${attrs}${disabledAttrs} data-ds-component="DS v2 / List Row" data-figma-node="525:519" data-ds-prop-type="${type}" data-ds-prop-state="${effectiveState}" data-ds-prop-density="${density}" data-ds-prop-leading="${hasLeading?'Visible':'Hidden'}" ${theme?`data-theme-component="${theme}"`:''}>${leadingHtml}<span class="ds24-list-row__copy"><strong>${esc(title)}</strong><small>${esc(subtitle)}</small></span><span class="ds24-list-row__trailing">${trailing}${type==="Navigation"?icon("chevronRight","icon--sm"):''}</span></${tag}>`;
+}
+// VStockRow: List Row không icon đầu, cột phải hai tầng (số lượng mono + badge tình trạng), chevron.
+function ds24StockRow({title,subtitle="",quantity,badge="",attrs=""}) {
+  return `<button class="ds24-list-row ds24-list-row--no-leading ds24-stock-row" type="button" ${attrs} data-ds-component="VStockRow" data-ds-prop-type="Navigation"><span class="ds24-list-row__copy"><strong>${esc(title)}</strong><small>${esc(subtitle)}</small></span><span class="ds24-stock-row__value"><strong class="ds24-stock-row__qty">${esc(quantity)}</strong>${badge}</span>${icon("chevronRight","icon--sm")}</button>`;
 }
 function ds24ContextStatusRow({title,subtitle="",label,tone="Neutral",leading="package",attrs=""}) {
   return ds24ListRow({title,subtitle,trailing:ds24Badge(label,tone),leading,attrs,type:"Status",density:"Compact",state:"Default",interactive:false});
@@ -392,7 +400,7 @@ function ds24EmptyState(filtered=true) {
 }
 
 function ds24Sheet({title,body,attrs=""}) {
-  return `<div class="sheet-backdrop ds24-overlay" ${attrs}><section class="ds24-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" data-ds-prop-show-title="true" data-ds-prop-title="${escapeAttribute(title)}" role="dialog" aria-modal="true"><div class="ds24-sheet__handle" data-ds-internal="VBottomSheet.handle"></div><h3 class="vet45-text-style-4" data-ds-internal="VBottomSheet.title">${esc(title)}</h3><div class="ds24-sheet__body" data-ds-internal="VBottomSheet.content">${body}</div></section></div>`;
+  return `<div class="sheet-backdrop ds24-overlay" ${attrs}><section class="ds24-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" data-ds-prop-show-title="true" data-ds-prop-title="${escapeAttribute(title)}" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}"><div class="ds24-sheet__handle" data-ds-internal="VBottomSheet.handle"></div><h3 class="vet45-text-style-4" data-ds-internal="VBottomSheet.title">${esc(title)}</h3><div class="ds24-sheet__body" data-ds-internal="VBottomSheet.content">${body}</div></section></div>`;
 }
 
 
@@ -461,6 +469,32 @@ function renderAppScreen() {
   if (typeof ThemeApp !== "undefined" && ThemeApp.isRoot()) return ThemeApp.renderRoot();
   document.getElementById("app-screen").innerHTML = rendererFor(activeFlowId, activeScreenId)(stateByScreen[activeScreenId]);
   if (typeof ThemeApp !== "undefined") ThemeApp.afterFlowRender();
+  syncDialogFocus();
+}
+
+// Sheet / hộp thoại (role="dialog"): mở thì đưa focus vào hộp thoại, đóng thì trả focus về nút đã mở.
+// Màn dựng lại sau mỗi lần bấm nên nút mở được nhớ bằng thuộc tính data-* của nó, không bằng phần tử.
+let dialogOpenerSelector = null, dialogWasOpen = false, dialogRestorePending = false;
+document.addEventListener("click", (event) => {
+  dialogRestorePending = false;
+  const opener = event.target.closest("#app-screen button, #app-screen [role='button']");
+  if (!opener || opener.closest('[role="dialog"]')) return;
+  const attrs = [...opener.attributes].filter((a) => a.name.startsWith("data-") && !/^data-(ds|figma|composed|layout)/.test(a.name));
+  dialogOpenerSelector = attrs.length ? attrs.map((a) => `[${a.name}="${CSS.escape(a.value)}"]`).join("") : null;
+}, true);
+function syncDialogFocus() {
+  const screen = document.getElementById("app-screen");
+  const dialog = screen.querySelector('[role="dialog"]');
+  if (dialog) {
+    if (!dialog.contains(document.activeElement)) { if (!dialog.hasAttribute("tabindex")) dialog.setAttribute("tabindex", "-1"); dialog.focus({ preventScroll: true }); }
+    dialogWasOpen = true;
+    return;
+  }
+  // Một thao tác có thể dựng lại màn hai lần (vd. Esc rồi render chung): còn chờ trả focus cho tới lần bấm sau.
+  if (dialogWasOpen) dialogRestorePending = true;
+  dialogWasOpen = false;
+  const lost = document.activeElement === document.body || !screen.contains(document.activeElement);
+  if (dialogRestorePending && dialogOpenerSelector && lost) screen.querySelector(dialogOpenerSelector)?.focus({ preventScroll: true });
 }
 
 function render() {

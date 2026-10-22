@@ -667,7 +667,6 @@
         "SCR-066",
         "SCR-067",
         "SCR-068",
-        "SCR-069",
         "SCR-070",
         "SCR-071"
       ],
@@ -850,7 +849,6 @@
       "screens": [
         "SCR-062",
         "SCR-063",
-        "SCR-064",
         "SCR-065"
       ],
       "entry": [
@@ -7674,7 +7672,7 @@
         "CAP-01"
       ],
       "uc": [],
-      "purpose": "Thiết lập target ≥ threshold ≥ 0 và nguồn default/override.",
+      "purpose": "Đặt ngưỡng cảnh báo và mức tồn mục tiêu theo từng sản phẩm (mục tiêu ≥ ngưỡng ≥ 0): sửa tại dòng trên web, sửa một sản phẩm từ chi tiết tồn.",
       "actors": [
         "Chủ cửa hàng"
       ],
@@ -7715,7 +7713,6 @@
           "screen_ids": [
             "SCR-062",
             "SCR-063",
-            "SCR-064",
             "SCR-065"
           ],
           "evidence_level": "STATIC_VALIDATED_DERIVED"
@@ -7763,7 +7760,7 @@
         "CAP-01"
       ],
       "uc": [],
-      "purpose": "Thiết lập số ngày và WARN/BLOCK_SALE.",
+      "purpose": "Đặt số ngày cận hạn và hành động (cảnh báo / chặn bán) mặc định, cùng sản phẩm có chính sách riêng.",
       "actors": [
         "Chủ cửa hàng"
       ],
@@ -7804,7 +7801,6 @@
           "screen_ids": [
             "SCR-062",
             "SCR-063",
-            "SCR-064",
             "SCR-065"
           ],
           "evidence_level": "STATIC_VALIDATED_DERIVED"
@@ -7890,7 +7886,6 @@
           "screen_ids": [
             "SCR-062",
             "SCR-063",
-            "SCR-064",
             "SCR-065"
           ],
           "evidence_level": "STATIC_VALIDATED_DERIVED"
@@ -7931,7 +7926,7 @@
         "CAP-01"
       ],
       "uc": [],
-      "purpose": "Hiển thị policy version và chỉ báo được tính lại.",
+      "purpose": "Chỉ còn khi chưa rõ kết quả hoặc bị từ chối; lưu thành công hiện toast ngay tại màn chính sách.",
       "actors": [
         "Chủ cửa hàng"
       ],
@@ -7971,7 +7966,6 @@
           "screen_ids": [
             "SCR-062",
             "SCR-063",
-            "SCR-064",
             "SCR-065"
           ],
           "evidence_level": "STATIC_VALIDATED_DERIVED"

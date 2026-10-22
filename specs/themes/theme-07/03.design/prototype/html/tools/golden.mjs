@@ -85,6 +85,7 @@ for (const f of wb.flows) for (const fl of f.id === 'UIF-02' ? ['document', 'qui
   groups.push({ url: `?uif=${f.id}&screen=${f.screens[0]}${fl ? '&flow=' + fl : ''}`, cases: cases.filter((c) => c.name.includes(filter)) });
 }
 groups.push({ url: '?mode=theme&app=inventory', cases: [{ name: 'HUB_home' }].filter((c) => c.name.includes(filter)) });
+groups.push({ url: '?mode=theme&app=inventory&activation=pending', cases: [{ name: 'HUB_home_not_activated' }].filter((c) => c.name.includes(filter)) });
 
 // Interaction scenarios (theme mode / Hub Kho): one fresh page per scenario, capture after every step.
 const click = (sel, i = 0) => `(()=>{const el=document.querySelectorAll(${JSON.stringify(sel)})[${i}];if(el)el.click();return !!el})()`;
@@ -94,6 +95,8 @@ const typeIn = (sel, value) => `(()=>{const i=document.querySelector(${JSON.stri
 const pick = (sel, value) => `(()=>{const i=document.querySelector(${JSON.stringify(sel)});if(!i)return false;i.value=${JSON.stringify(value)};i.dispatchEvent(new Event('change',{bubbles:true}));return true})()`;
 const wait = (ms) => `new Promise((r)=>setTimeout(()=>r(true),${ms}))`;
 const T = '?mode=theme&app=';
+// DEVICE=web chỉ chạy các kịch bản có ý nghĩa ở khung web (còn lại cố định theo iPhone).
+const WEB_SCENARIOS = ['SC_journey_1', 'SC_cap_table', 'SC_cap_expiry', 'SC_cap_single', 'SC_cap_staff', 'SC_cap_hub'];
 const SCENARIOS = [
   { name: 'SC_more', url: T + 'more', steps: [['kho', click('[data-theme-app-route="inventory"]')], ['back', back]] },
   { name: 'SC_hub_back', url: T + 'inventory', steps: [['back', back], ['nav-more', click('#app-screen [data-theme-sidebar-route="more"]')]] },
@@ -112,6 +115,14 @@ const SCENARIOS = [
   { name: 'SC_bj01_stale', url: '?uif=UIF-01&screen=SCR-001&state=STALE', steps: [['refresh', click('[data-bj01-refresh]')], ['product', click('[data-bj01-product="INV-ENRO"]')]] },
   { name: 'SC_bj01_context', url: '?uif=UIF-01&screen=SCR-003&entry=product-context', steps: [['back', click('#app-screen .app-back-button')]] },
   { name: 'SC_bj01_theme', url: '?mode=theme&app=inventory', steps: [['quick', click('[data-t462-quick="UIF-01"]')], ['product', click('[data-bj01-product="INV-OXY"]')], ['back', click('#app-screen .app-back-button')], ['back-hub', click('#app-screen .app-back-button')]] },
+  { name: 'SC_bj01_scan', url: '?uif=UIF-01&screen=SCR-001', steps: [['scan', click('[data-bj01-scan]')], ['sample', click('[data-bj01-scan-sample]')]] },
+  { name: 'SC_bj01_scan_close', url: '?uif=UIF-01&screen=SCR-001', steps: [['scan', click('[data-bj01-scan]')], ['close', click('.ds24-overlay[data-bj01-scan-close]')]] },
+  { name: 'SC_bj01_receive', url: '?uif=UIF-01&screen=SCR-001', steps: [['product', click('[data-bj01-product="INV-AMX"]')], ['receive', click('[data-bj01-receive]')]] },
+  { name: 'SC_bj01_out', url: '?uif=UIF-01&screen=SCR-001', steps: [['product', click('[data-bj01-product="INV-ENRO"]')], ['receive', click('[data-bj01-receive]')]] },
+  { name: 'SC_bj01_expired', url: '?uif=UIF-01&screen=SCR-001', steps: [['product', click('[data-bj01-product="INV-TYLO"]')], ['dispose', click('[data-bj01-dispose-lot]')]] },
+  { name: 'SC_bj01_expired_sheet', url: '?uif=UIF-01&screen=SCR-001', steps: [['product', click('[data-bj01-product="INV-TYLO"]')], ['lot', click('[data-bj01-lot="TY2408"]')], ['dispose', click('.ds24-sheet [data-bj01-dispose-lot]')]] },
+  { name: 'SC_bj01_denied', url: '?mode=theme&app=flow&uif=UIF-01&screen=SCR-001&state=PERMISSION_DENIED', steps: [['exit', click('#app-screen [data-theme-sidebar-route="inventory"]')]] },
+  { name: 'SC_bj01_barcode_type', url: '?uif=UIF-01&screen=SCR-001', steps: [['type', typeIn('[data-bj01-search]', '8938500004068')]] },
   { name: 'SC_pending_review_to_hub', url: '?mode=theme&app=flow&uif=UIF-02&screen=SCR-010&state=PENDING_APPROVAL', steps: [['to-hub', click('[data-v464-action="to-warehouse"]')]] },
   // BJ-04 Giữ hàng (UIF-04) · BJ-05 Lấy hàng & bàn giao (UIF-05) — T7-P A1
   { name: 'SC_bj04', url: '?uif=UIF-04&screen=SCR-021', steps: [['back', click('#app-screen .app-back-button')]] },
@@ -137,18 +148,25 @@ const SCENARIOS = [
       { name: 'SC_bj06_approver_entry', url: '?uif=UIF-06&entry=approver', steps: [['case', click('[data-io06-approval-case]')]] },
     ];
   })(),
-  // CAP-01 Chính sách tồn & cận hạn — T7-P A3
+  // CAP-01 Chính sách tồn & cận hạn — thiết kế lại (v5.7.0)
   ...(() => {
     const C = '?uif=CAP-01&screen=';
+    const thr = (id) => `[data-cap-threshold="${id}"]`, tgt = (id) => `[data-cap-target="${id}"]`;
     return [
-      { name: 'SC_cap01_stock', url: C + 'SCR-062', steps: [['threshold-high', typeIn('[data-v360-cap-threshold]', '100')], ['review-invalid', click('[data-v360-action="cap-review-stock"]')], ['threshold-ok', typeIn('[data-v360-cap-threshold]', '40')], ['source', pick('[data-v360-cap-stock-source]', 'TENANT_DEFAULT')], ['review', click('[data-v360-action="cap-review-stock"]')], ['edit', click('[data-v360-action="cap-edit"]')], ['review-again', click('[data-v360-action="cap-review-stock"]')], ['save', click('[data-v360-action="cap-save"]')], ['exit', click('[data-v360-action="cap-exit"]')]] },
-      { name: 'SC_cap01_expiry', url: C + 'SCR-063', steps: [['days-zero', typeIn('[data-v360-cap-expiry-days]', '0')], ['review-invalid', click('[data-v360-action="cap-review-expiry"]')], ['days-ok', typeIn('[data-v360-cap-expiry-days]', '60')], ['action', pick('[data-v360-cap-expiry-action]', 'BLOCK_SALE')], ['review', click('[data-v360-action="cap-review-expiry"]')], ['back', back], ['review-again', click('[data-v360-action="cap-review-expiry"]')], ['save', click('[data-v360-action="cap-save"]')]] },
-      { name: 'SC_cap01_back', url: C + 'SCR-062', steps: [['back', back]] },
-      { name: 'SC_cap01_locked', url: C + 'SCR-062&state=LOCKED', steps: [['exit', click('[data-v360-action="cap-exit"]')]] },
-      { name: 'SC_cap01_review_invalid', url: C + 'SCR-064&state=VALIDATION_ERROR', steps: [['edit', click('[data-v360-action="cap-edit"]')]] },
-      { name: 'SC_cap01_unknown', url: C + 'SCR-065&state=UNKNOWN', steps: [['close', click('.app-actions [data-v360-action]')]] },
+      { name: 'SC_cap_table', url: C + 'SCR-062', steps: [['threshold', typeIn(thr('INV-OXY'), '30')], ['target-low', typeIn(tgt('INV-OXY'), '20')], ['target-ok', typeIn(tgt('INV-OXY'), '60')], ['amox', typeIn(thr('INV-AMX'), '60')], ['open-save', click('[data-cap-open-save]')], ['cancel', click('[data-cap-sheet-close]')], ['discard', click('[data-cap-discard]')], ['redo', typeIn(thr('INV-OXY'), '30')], ['redo-target', typeIn(tgt('INV-OXY'), '60')], ['open-save2', click('[data-cap-open-save]')], ['save', click('[data-cap-save]')], ['filter-unset', click('[data-cap-filter="UNSET"]')], ['filter-all', click('[data-cap-filter="ALL"]')]] },
+      { name: 'SC_cap_mobile_sheet', url: C + 'SCR-062', steps: [['row', click('[data-cap-edit-row="INV-OXY"]')], ['threshold', typeIn('[data-cap-s-threshold]', '30')], ['target-low', typeIn('[data-cap-s-target]', '20')], ['target-ok', typeIn('[data-cap-s-target]', '60')], ['save', click('[data-cap-save-single]')], ['row2', click('[data-cap-edit-row="INV-NOB"]')], ['close', click('[data-cap-sheet-backdrop]')]] },
+      { name: 'SC_cap_single', url: '?uif=UIF-01&screen=SCR-001', steps: [['product', click('[data-bj01-product="INV-OXY"]')], ['set', click('[data-bj01-set-threshold]')], ['threshold', typeIn('[data-cap-s-threshold]', '30')], ['target-low', typeIn('[data-cap-s-target]', '20')], ['target-ok', typeIn('[data-cap-s-target]', '60')], ['save', click('[data-cap-save-single]')], ['edit', click('[data-bj01-set-threshold]')], ['back', back]] },
+      { name: 'SC_cap_expiry', url: C + 'SCR-063', steps: [['days-zero', typeIn('[data-cap-expiry-days]', '0')], ['days-ok', typeIn('[data-cap-expiry-days]', '60')], ['block', click('[data-cap-expiry-action="BLOCK_SALE"]')], ['add', click('[data-cap-override-add]')], ['pick', click('[data-cap-override-pick="INV-NOB"]')], ['ovr-days', typeIn('[data-cap-ovr-days="INV-NOB"]', '45')], ['ovr-action', pick('[data-cap-ovr-action="INV-NOB"]', 'WARN')], ['remove', click('[data-cap-override-remove="INV-TYLO"]')], ['save', click('[data-cap-save-expiry]')], ['tab', click('[data-cap-tab="SCR-062"]')]] },
+      { name: 'SC_cap_staff', url: '?uif=CAP-01&entry=staff', steps: [['tab', click('[data-cap-tab="SCR-063"]')], ['back', back]] },
+      { name: 'SC_cap_locked', url: C + 'SCR-062&state=LOCKED', steps: [['tab', click('[data-cap-tab="SCR-063"]')]] },
+      { name: 'SC_cap_conflict', url: C + 'SCR-062&state=CONFLICT', steps: [['reload', click('[data-cap-reload]')]] },
+      { name: 'SC_cap_unknown', url: C + 'SCR-065&state=UNKNOWN', steps: [['handoff', click('[data-v350-action="handoff-unknown"]')]] },
+      { name: 'SC_cap_rejected', url: C + 'SCR-065&state=REJECTED_EXECUTION', steps: [['back-to-policy', click('[data-cap-tab="SCR-062"]')]] },
+      { name: 'SC_cap_hub', url: T + 'inventory', steps: [['setup', click('[data-t462-workspace="setup"]')], ['entry', click('[data-theme-entry-flow="CAP-01"]')], ['tab', click('[data-cap-tab="SCR-063"]')], ['back', back]] },
     ];
   })(),
+  // Chặng 1 "Mở kho": khởi tạo → xem tồn → đặt ngưỡng → thấy chỉ báo đổi (bước 0–9 ở plan CAP-01 mục 3.5)
+  { name: 'SC_journey_1', url: T + 'inventory&activation=pending&entry=owner', steps: [['init', click('[data-theme-entry-flow="UIF-12"][data-theme-entry-actor="owner"]')], ['start', click('[data-cf12-action="start"]')], ['check', click('[data-v350-action="cf12-check"]')], ['record', click('[data-cf12-action="open-self"]')], ['confirm', click('[data-cf12-action="confirm-self"]')], ['wait', wait(500)], ['inventory', click('[data-cf12-action="see-inventory"]')], ['product', click('[data-bj01-product="INV-OXY"]')], ['set', click('[data-bj01-set-threshold]')], ['threshold', typeIn('[data-cap-s-threshold]', '30')], ['target', typeIn('[data-cap-s-target]', '60')], ['save', click('[data-cap-save-single]')], ['home', `(()=>{const sb=document.querySelector('#app-screen [data-theme-sidebar-route="inventory"]');if(sb){sb.click();return true}for(let i=0;i<2;i++)document.querySelector('#app-screen .app-back-button')?.click();return true})()`]] },
   // BJ-02 Nhận hàng mua (UIF-02) — T7-P A4
   ...(() => {
     const R = '?uif=UIF-02&screen=';
@@ -229,13 +247,17 @@ const SCENARIOS = [
   { name: 'SC_bj11_self_approve', url: '?uif=UIF-11&screen=SCR-051', steps: [['approve', click('[data-v350-action="cr11-approve"]')], ['exit', click('[data-v360-action="fallback-exit"]')]] },
   { name: 'SC_bj11_decided', url: '?uif=UIF-11&screen=SCR-051&state=APPROVAL_ALREADY_DECIDED', steps: [['result', click('[data-v350-action="cr11-approval-result"]')]] },
   { name: 'SC_bj11_context', url: '?uif=UIF-11&entry=operation-context', steps: [['back', back]] },
-  { name: 'SC_bj12_prepare', url: '?uif=UIF-12&screen=SCR-066', steps: [['start', click('[data-cf12-action="start"]')], ['file', click('[data-cf12-action="choose-file"]')], ['clear-qty', typeIn('[data-cf12-control-qty]', '')], ['check-err', click('[data-v350-action="cf12-check"]')], ['qty', typeIn('[data-cf12-control-qty]', '4820')], ['check', click('[data-v350-action="cf12-check"]')], ['review', click('[data-cf12-action="review"]')], ['send', click('[data-v350-action="cf12-send-approval"]')]] },
+  { name: 'SC_bj12_prepare', url: '?uif=UIF-12&screen=SCR-066', steps: [['start', click('[data-cf12-action="start"]')], ['file', click('[data-cf12-action="choose-file"]')], ['clear-qty', typeIn('[data-cf12-control-qty]', '')], ['check-err', click('[data-v350-action="cf12-check"]')], ['qty', typeIn('[data-cf12-control-qty]', '4820')], ['check', click('[data-v350-action="cf12-check"]')], ['send', click('[data-v350-action="cf12-send-approval"]')]] },
   { name: 'SC_bj12_mismatch', url: '?uif=UIF-12&screen=SCR-067', steps: [['qty', typeIn('[data-cf12-control-qty]', '4800')], ['check', click('[data-v350-action="cf12-check"]')], ['back', click('[data-cf12-action="back-file"]')]] },
   { name: 'SC_bj12_failed', url: '?uif=UIF-12&screen=SCR-068&state=VALIDATION_FAILED', steps: [['back', click('[data-cf12-action="back-file"]')]] },
-  { name: 'SC_bj12_approve', url: '?uif=UIF-12&screen=SCR-067', steps: [['check', click('[data-v350-action="cf12-check"]')], ['review', click('[data-cf12-action="review"]')], ['send', click('[data-v350-action="cf12-send-approval"]')], ['approver', `window.__VET45_QA__.applyEntry('UIF-12','approver')`], ['approve', click('[data-v350-action="cf12-approve"]')], ['wait', wait(500)], ['inventory', click('[data-cf12-action="see-inventory"]')]] },
+  { name: 'SC_bj12_approve', url: '?uif=UIF-12&screen=SCR-067', steps: [['check', click('[data-v350-action="cf12-check"]')], ['send', click('[data-v350-action="cf12-send-approval"]')], ['approver', `window.__VET45_QA__.applyEntry('UIF-12','approver')`], ['approve', click('[data-v350-action="cf12-approve"]')], ['wait', wait(500)], ['inventory', click('[data-cf12-action="see-inventory"]')]] },
   { name: 'SC_bj12_stale', url: '?uif=UIF-12&entry=approver', steps: [['approve', click('[data-v350-action="cf12-approve"]')]] },
   { name: 'SC_bj12_self', url: '?uif=UIF-12&screen=SCR-070', steps: [['approve', click('[data-v350-action="cf12-approve"]')], ['exit', click('[data-v360-action="fallback-exit"]')]] },
   { name: 'SC_bj12_reject', url: '?uif=UIF-12&entry=approver', steps: [['open', click('[data-cf12-action="open-reject"]')], ['close', click('[data-cf12-action="close-reject"]')], ['open2', click('[data-cf12-action="open-reject"]')], ['reason', typeIn('[data-cf12-reject-reason]', 'Sai nhóm vaccine')], ['confirm', click('[data-v350-action="cf12-confirm-reject"]')], ['exit', click('[data-v360-action="fallback-exit"]')], ['fix', click('[data-cf12-action="fix-rejected"]')]] },
+  { name: 'SC_bj12_owner', url: T + 'inventory&activation=pending', steps: [['entry', click('[data-theme-entry-flow="UIF-12"][data-theme-entry-actor="owner"]')], ['start', click('[data-cf12-action="start"]')], ['check', click('[data-v350-action="cf12-check"]')], ['filter', click('[data-cf12-filter="nonSellable"]')], ['open-self', click('[data-cf12-action="open-self"]')], ['close-self', click('[data-cf12-action="close-self"]')], ['open-self2', click('[data-cf12-action="open-self"]')], ['confirm', click('[data-cf12-action="confirm-self"]')], ['wait', wait(500)], ['policy', click('[data-cf12-action="go-policy"]')]] },
+  { name: 'SC_bj12_template', url: '?uif=UIF-12&screen=SCR-066', steps: [['template', click('[data-cf12-action="template"]')], ['start', click('[data-cf12-action="start"]')], ['template2', click('[data-cf12-action="template"]')], ['columns', click('[data-cf12-action="open-columns"]')], ['close-columns', click('[data-cf12-action="close-columns"]')]] },
+  { name: 'SC_hub_not_activated', url: T + 'inventory&activation=pending', steps: [['quick-disabled', click('[data-t462-quick="UIF-02"]')], ['entry', click('[data-theme-entry-flow="UIF-12"][data-theme-entry-actor="owner"]')], ['back', back]] },
+  { name: 'SC_bj12_pending_list', url: T + 'inventory&activation=pending', steps: [['entry', click('[data-theme-entry-flow="UIF-12"][data-theme-entry-actor="owner"]')], ['start', click('[data-cf12-action="start"]')], ['check', click('[data-v350-action="cf12-check"]')], ['as-staff', `(()=>{window.__VET45_QA__.setActor('module');renderAppScreen();return true})()`], ['send', click('[data-v350-action="cf12-send-approval"]')], ['to-hub', click('[data-theme-sidebar-route="inventory"]')], ['list', click('[data-v464-pending-approvals]')], ['row', click('[data-t380-target-screen="SCR-070"]')], ['approve', click('[data-v350-action="cf12-approve"]')], ['wait', wait(500)], ['result-hub', click('[data-cf12-action="see-inventory"]')]] },
   { name: 'SC_bj12_unknown', url: '?uif=UIF-12&screen=SCR-071&state=UNKNOWN', steps: [['handoff', click('[data-v350-action="handoff-unknown"]')]] },
   // BJ-15 — T7-P A9
   { name: 'SC_bj15_inventory', url: '?uif=UIF-15&screen=SCR-054', steps: [['query', click('[data-cf15-action="query"]')], ['sheet', click('[data-cf15-product-row="P-AMX"]')], ['stock', click('[data-cf15-action="product-stock-card"]')], ['mv', click('[data-cf15-movement="MV-AMX-01"]')], ['source', click('[data-cf15-action="source"]')], ['b1', back], ['b2', back]] },
@@ -295,7 +317,7 @@ const SCENARIOS = [
       'UIF-09': ['product-context', 'approver'],
       'UIF-10': ['product-context', 'approver', 'completion-operator'],
       'UIF-11': ['approver', 'operation-context'],
-      'UIF-12': ['approver'],
+      'UIF-12': ['approver', 'owner'],
       'UIF-13': ['source-task'],
       'UIF-14': ['dirty-scope'],
       'UIF-16': ['case-context'],
@@ -312,7 +334,7 @@ const SCENARIOS = [
     ];
   })(),
 ];
-if (!WEB) for (const sc of SCENARIOS) groups.push({ url: sc.url, cases: [{ name: `${sc.name}_0` }, ...sc.steps.map(([n, act], i) => ({ name: `${sc.name}_${i + 1}_${n}`, act }))].filter((c) => c.name.includes(filter)) });
+for (const sc of SCENARIOS) if (!WEB || WEB_SCENARIOS.includes(sc.name)) groups.push({ url: sc.url, cases: [{ name: `${sc.name}_0` }, ...sc.steps.map(([n, act], i) => ({ name: `${sc.name}_${i + 1}_${n}`, act }))].filter((c) => c.name.includes(filter)) });
 if (WEB) for (const g of groups) { g.url += '&viewport=web'; g.cases = g.cases.map((c) => ({ ...c, name: c.name + '@web' })); }
 const todo = groups.filter((g) => g.cases.length);
 mkdirSync(a, { recursive: true });

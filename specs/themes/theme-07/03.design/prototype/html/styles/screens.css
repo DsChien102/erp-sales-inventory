@@ -392,26 +392,6 @@ body[data-active-uif="UIF-01"] .ds24-key-value-row > strong {
   font-weight: 400;
   letter-spacing: 0;
 }
-body[data-active-uif="UIF-01"] .ds24-key-value-row--emphasis {
-  padding: 0 var(--vet45-v2-space-3);
-  border-radius: var(--vet45-v2-radius-3);
-  background: var(--vet45-v2-surface-brand);
-}
-body[data-active-uif="UIF-01"] .ds24-key-value-row--emphasis > span {
-  color: var(--vet45-v2-text-primary);
-  font-family: Inter, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 600;
-}
-body[data-active-uif="UIF-01"] .ds24-key-value-row--emphasis > strong {
-  color: var(--vet45-v2-text-brand);
-  font-family: Inter, sans-serif;
-  font-size: 16px;
-  line-height: 22px;
-  font-weight: 600;
-}
-
 /* Info Row 525:351 current live master: concise metadata, 338x44, justify-between, gap 0. */
 body[data-active-uif="UIF-01"] .ds24-info-stack {
   width: 338px;
@@ -725,26 +705,6 @@ body[data-active-uif="UIF-01"] .ds24-key-value-row > strong {
   color:var(--vet45-v2-text-primary)!important;
   text-align:right!important;
 }
-body[data-active-uif="UIF-01"] .ds24-key-value-row--emphasis {
-  padding:0 12px!important;
-  border-radius:8px!important;
-  background:var(--vet45-v2-surface-brand)!important;
-}
-body[data-active-uif="UIF-01"] .ds24-key-value-row--emphasis > span {
-  font-family:"Inter",system-ui,sans-serif!important;
-  font-size:14px!important;
-  line-height:20px!important;
-  font-weight:600!important;
-  color:var(--vet45-v2-text-primary)!important;
-}
-body[data-active-uif="UIF-01"] .ds24-key-value-row--emphasis > strong {
-  font-family:"Inter",system-ui,sans-serif!important;
-  font-size:16px!important;
-  line-height:22px!important;
-  font-weight:600!important;
-  color:var(--vet45-v2-text-brand)!important;
-}
-
 /* --------------------------------------------------------------------------
    BJ02 — page shell and exact action region.
    Sticky Footer 549:256 / 549:877 = 402x92, pt12, pb24, px16, 44px buttons.
@@ -6057,7 +6017,6 @@ body:is(
 
 body .ds24-list-row[hidden],
 .io-product-row[hidden],
-[data-bj01-product-row][hidden],
 [data-io05-row][hidden],
 [data-io06-row][hidden],
 [data-io07-row][hidden] { display: none !important; }
@@ -6411,8 +6370,6 @@ body[data-active-uif="UIF-09"] .figma-calibrated-shell .v364-radio-option:focus-
 }
 
 .sheet-actions.t381-single-business-action{grid-template-columns:1fr!important;}
-
-.bj01-eligibility-reasons{margin-top:8px;border-top:1px solid #e5e8eb;padding-top:4px}
 
 .bj01-config-note{margin:8px 0 0}
 
@@ -7249,3 +7206,69 @@ body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"],[data-active-uif="
 #app-screen .t7-app-bottom-nav > button.is-active {
   color: var(--vet45-v2-text-brand) !important;
 }
+
+/* ===== BJ-01 Tồn kho (app/bj01.js) ===== */
+.bj01-stock-hero {
+  width: 100%;
+  padding: var(--vet45-v2-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vet45-v2-space-3);
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);
+  border-radius: var(--vet45-v2-radius-4);
+  background: var(--vet45-v2-surface-default);
+  box-sizing: border-box;
+}
+
+.bj01-stock-hero__main { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--vet45-v2-space-1) var(--vet45-v2-space-3); }
+
+.bj01-stock-hero__main > span { grid-column: 1 / -1; font: 400 13px/20px Inter, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj01-stock-hero__main > strong {
+  font-family: var(--vet45-v2-font-mono);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+  color: var(--vet45-v2-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.bj01-stock-hero__stats { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--vet45-v2-space-3); }
+
+.bj01-stock-hero__stats > div { min-width: 0; }
+
+.bj01-stock-hero__stats dt { font: 400 12px/16px Inter, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj01-stock-hero__stats dd { margin: var(--vet45-v2-space-1) 0 0; font-family: var(--vet45-v2-font-mono); font-size: 14px; line-height: 20px; font-weight: 600; color: var(--vet45-v2-text-primary); font-variant-numeric: tabular-nums; }
+
+.bj01-stock-hero__note { margin: 0; padding-top: var(--vet45-v2-space-3); border-top: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); font: 400 13px/20px Inter, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj01-attention { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
+
+.bj01-attention__hint { margin: 0; font: 600 14px/20px Inter, sans-serif; color: var(--vet45-v2-text-primary); }
+
+.bj01-scan-frame {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--vet45-v2-border-strong);
+  border-radius: var(--vet45-v2-radius-4);
+  color: var(--vet45-v2-icon-secondary);
+  box-sizing: border-box;
+}
+
+.bj01-scan-frame .icon { width: 48px; height: 48px; }
+
+.bj01-stock-hero__main > strong { grid-column: 1; grid-row: 2; }
+
+.bj01-stock-hero__main > .ds24-badge { grid-column: 2; grid-row: 2; width: auto; justify-self: end; }
+
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .ds24-chip-scroll { gap: 6px !important; }
+
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .ds24-chip-scroll > .ds24-chip { padding-inline: 10px !important; }
+
+/* BJ-01 SCR-003: dòng ngưỡng của sản phẩm đã cấu hình (sau review chặng 1). */
+.bj01-stock-hero__policy { display: flex; align-items: center; justify-content: space-between; gap: var(--vet45-v2-space-3); padding-top: var(--vet45-v2-space-3); border-top: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); font: 400 13px/20px Inter, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj01-stock-hero__note + .bj01-stock-hero__policy { padding-top: 0; border-top: 0; }

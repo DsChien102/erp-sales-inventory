@@ -1,6 +1,6 @@
 # T7-P · BJ-12 Khởi tạo tồn đầu kỳ — thiết kế lại (bước B–E)
 
-> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21) | Plan C–E ✅ | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21) | Plan C–E ✅ | Làm ✅ (2026-10-21, prototype v5.5.0, chưa commit) | Review ✅ 2026-10-22 (đạt; R1–R5 xong, v5.7.2 — [plan CAP-01 mục 10](T7-P-cap01-chinh-sach-ton.md#10-review))
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 1 "Mở kho"**, BJ đầu tiên của Giai đoạn 2. Làm sau [gói H1](T7-P-thiet-ke-lai-luong.md#143-gói-h1--khung-web-cho-harness) (khung web, ✅).
 > **Dựng 5 khuôn dùng chung** (T7-P mục 5): K1 trạng thái chung, K2 lập → duyệt → kết quả (cả nhánh Owner tự duyệt), K3 kết quả chưa rõ, K4 kết quả xong, K7 bố cục web. Các BJ sau dùng lại, không dựng lại.
 > Thiết bị chính: **web** (Owner ngồi máy tính); iPhone phải làm được đủ việc (T7-P mục 2).
@@ -320,8 +320,26 @@ Sửa `app/bj12.js`. Mọi màn BJ-12 gọi `appShell({ …, extraClass: "k7-wid
 
 ## 10. Ghi chú khi làm
 
-(Bạn ghi lệch plan, vấn đề phát sinh, ca golden khác ngoài dự kiến.)
+**Kết quả D (2026-10-21):** mobile 1376 ca / web 551 ca, 0 lỗi JS. So mốc: mobile `.golden-bj12-base` khớp `.golden-phase1` (1348 ca) và web `.golden-bj12-web-base` khớp `.golden-web-base` (555 ca) trước khi sửa. Mốc mới: `tools/.golden-bj12-after`, `tools/.golden-bj12-web-after`.
+
+**Ca golden khác ngoài dự kiến ở mục 0.9 (mobile):** mọi kịch bản đi qua Home Kho đều khác vì dòng "Cần chú ý" đổi chữ "Nhận hàng chờ phê duyệt / 3 lần nhận đang chờ xử lý" → "Chờ duyệt / 3 nhận hàng": `SC_ws_*`, `SC_pending*`, `SC_quick_*`, `SC_search`, `SC_sidebar`, `SC_more`, `SC_mode`, `SC_hub_back`, `SC_bj01_theme`, cộng `SC_entry_state_12`. Đã kiểm vùng khác: chỉ dòng đó (hoặc nhiễu viền khung ~2.000 điểm ảnh, cùng loại mốc `HUB_home`); `SC_pending_1_list` / `_3_exit` khác ở tiêu đề "Chờ duyệt"; `SC_ws_setup_0_2_item` khác vì mở UIF-12 (SCR-066 mới). Web: chỉ `UIF-12_*@web` và `HUB_home@web`. Kịch bản `SC_bj12_*` khác vì bỏ bước `review` (màn gộp).
+
+**Lệch plan / quyết định khi làm:**
+1. **Nút "Kiểm tra dữ liệu" chỉ tắt khi chưa có tệp** (không tắt khi thiếu ô số). Lý do: nút tắt không nói được thiếu gì, và `VALIDATION_ERROR` (lỗi tại ô) không bao giờ vào được nếu nút tắt. Thiếu ô → bấm → lỗi hiện tại ô.
+2. **Fixture lệch số kiểm soát đặt lúc dựng màn** (`cf12EnsureMismatchFixture` trong `render068BJ12`), không ở `onScreenEnter["UIF-12:SCR-068"]`: mở thẳng trạng thái từ harness / golden không đi qua `navigate`, nên móc `onScreenEnter` không chạy.
+3. **Hậu tố tiền là "₫"** (helper `cfMoney` / `VMoneyField` sẵn có), không phải "đ" như chữ trong brief.
+4. **Mở thẳng `VALIDATION_ERROR` khi dữ liệu đã đủ:** ô giá trị hiện trống kèm lỗi "Nhập tổng giá trị theo sổ" để thấy được lỗi tại ô (chỉ để hiển thị, không đổi dữ liệu).
+5. **`k3Unknown` có thêm tham số `facts`** (dòng "Tồn kho …" chèn trước "Trạng thái"); thêm `k4Footer` (chân hai nút dùng chung K3 / K4).
+6. **Lối vào Hub luôn đặt vai** (`data-theme-entry-actor`, mặc định `module`): "Khởi tạo tồn kho" và dòng Thiết lập kho → `owner`; mục "Số dư đầu kỳ" trong Chờ duyệt → `approver`. `entry=owner` mở BJ-12 ở nhánh Owner trong chế độ BJ.
+7. **Chữ thêm ngoài mục 9** (đã vào T7-P mục 13): tiêu đề "Cần quyết" ở 070, "Dòng sẽ vào kho" trên bảng dòng, sheet Owner có thêm dòng "Ngày chốt" (4 dòng thay vì 3), banner 067 "Điền các ô được đánh dấu trước khi kiểm tra.", "Lý do" ở `REJECTED_EXECUTION` 071 ("Dữ liệu nguồn đã thay đổi trước khi ghi nhận"), câu K1 "Bạn chưa có quyền …".
+8. Thêm: Esc đóng mọi sheet; lỗi tại ô tự biến mất khi ô có giá trị; `aria-label` cho 3 ô của 067.
+9. SCR-069 vẫn còn trong danh sách `screens` của `workbench-data` (để alias hoạt động với URL cũ), chỉ bỏ khỏi `flows[UIF-12].screens`.
+
+**Chưa làm / cần biết:**
+- `/impeccable audit` chưa chạy; thay bằng kiểm tay: 0 lỗi JS; Tab / Enter / Esc dùng nút và `keydown` chuẩn (Esc đóng sheet đã thử); vùng chạm mobile đo 42px ở khung thu 0,955 = 44px thật; tương phản dùng token sẵn có của DS (chưa đo từng cặp).
+- Công cụ GitNexus (`impact`, `detect_changes`) không có trong phiên này nên chưa chạy; blast radius đã kiểm bằng golden (mọi ca ngoài UIF-12 / Hub không đổi).
+- Chưa commit (3 commit trong mục 7 chờ người dùng yêu cầu). Tài liệu bước E đã làm: CHANGELOG 5.5.0, 5 Screen Contract, RETIRED, INDEX, flow UIF-12, UC-12-02 / BJ-12 / SCR-070 (ngoại lệ `is_owner`), T7-P mục 5 / 6 / 13 / 14, registry.
 
 ## 11. Review
 
-(Phiên review điền sau khi bạn báo xong.)
+(2026-10-21, phiên review) — review chung cả chặng 1 (R1–R4 đã sửa ở v5.7.1; còn R5 `/impeccable audit` trước commit): [plan CAP-01 mục 10](T7-P-cap01-chinh-sach-ton.md#10-review). Lệch 1–9 chấp nhận. Phần của BJ-12: **R2** (Home chưa kích hoạt), **R4** (alias SCR-069 không mang trạng thái); góp ý 5, 6, 8, 10.

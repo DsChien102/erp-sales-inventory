@@ -67,12 +67,12 @@
 | `SCR-061` | Chi tiết chỉ báo sản phẩm | detail | BJ-01 | UC-01-04, UC-01-05 | BUSINESS_JOURNEY | MERGED_INTO_SCR-003 |
 | `SCR-062` | Cấu hình chính sách tồn | form | — | — | BUSINESS_JOURNEY | RENDERED_v3.6.0 |
 | `SCR-063` | Cấu hình hàng cận hạn | form | — | — | BUSINESS_JOURNEY | RENDERED_v3.6.0 |
-| `SCR-064` | Rà soát chính sách | review | — | — | BUSINESS_JOURNEY | RENDERED_v3.6.0 |
+| `SCR-064` | Rà soát chính sách — Đã thay bằng sheet tác động (SCR-062) | review | — | — | HISTORICAL_MIGRATION | RETIRED_v5.7.0 |
 | `SCR-065` | Kết quả cập nhật | result | — | — | BUSINESS_JOURNEY | RENDERED_v3.6.0 |
 | `SCR-066` | Khởi tạo tồn kho | status / entry | BJ-12 | UC-12-01 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-067` | Dữ liệu tồn kho đầu kỳ | form | BJ-12 | UC-12-01 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-068` | Kết quả kiểm tra dữ liệu | validation result | BJ-12 | UC-12-01 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
-| `SCR-069` | Rà soát số dư đầu kỳ | review | BJ-12 | UC-12-02 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
+| `SCR-069` | Rà soát số dư đầu kỳ — Đã hợp nhất | review | BJ-12 | — | HISTORICAL_MIGRATION | RETIRED_v5.5.0 |
 | `SCR-070` | Duyệt số dư đầu kỳ | approval review | BJ-12 | UC-12-02, UC-12-03 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-071` | Kết quả khởi tạo tồn kho | result | BJ-12 | UC-12-03 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-072` | Công việc giá vốn | list | BJ-14 | UC-14-01, UC-14-04 | BUSINESS_JOURNEY | UIUX_HARDENED_v4.3.0 |

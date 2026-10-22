@@ -15,6 +15,8 @@ const ThemeApp = (() => {
   let route = qs.get('app') || (mode === 'theme' ? 'more' : null);
   if (!['more', 'inventory', 'flow'].includes(route)) route = mode === 'theme' ? 'more' : null;
   let hubView = qs.get('hubView') || 'home';
+  // Kho đã kích hoạt chưa (BJ-12 khởi tạo tồn đầu kỳ). ?activation=pending mở Home ở trạng thái chưa kích hoạt.
+  let inventoryActivated = qs.get('activation') !== 'pending';
   // Màn được mở thẳng từ Hub (vd. phiếu chờ duyệt → SCR-011): nút quay lại của màn đó về Hub.
   let directEntryScreen = null;
 
@@ -53,7 +55,7 @@ const ThemeApp = (() => {
       { flow: 'UIF-15', title: 'Báo cáo tồn & thẻ kho', subtitle: 'Xem tồn tại thời điểm và lịch sử biến động', icon: 'history' },
     ] },
     setup: { title: 'Thiết lập kho', subtitle: 'Các việc thiết lập ít dùng', icon: 'inbox', items: [
-      { flow: 'UIF-12', title: 'Khởi tạo tồn đầu kỳ', subtitle: 'Thiết lập số dư tồn kho ban đầu', icon: 'inbox' },
+      { flow: 'UIF-12', title: 'Khởi tạo tồn đầu kỳ', subtitle: 'Thiết lập số dư tồn kho ban đầu', icon: 'inbox', actor: 'owner' },
       { flow: 'CAP-01', title: 'Chính sách tồn & cận hạn', subtitle: 'Thiết lập ngưỡng tồn và chính sách cảnh báo', icon: 'shield' },
     ] },
   };
@@ -65,6 +67,26 @@ const ThemeApp = (() => {
     { id: 'REC-260916-02', supplier: 'An Việt', meta: 'Kho trung tâm · 2 mặt hàng · Lê Thu Hà gửi 08:55' },
     { id: 'REC-260916-03', supplier: 'Minh Phát', meta: 'Kho trung tâm · 4 mặt hàng · Trần Minh gửi 08:20' },
   ];
+
+  // Nguồn "Chờ duyệt" (K2): mỗi BJ đăng ký { id, label, rows() } vào mảng toàn cục trước khi hub.js nạp; rows() rỗng = không có việc chờ.
+  // Nhận hàng đứng đầu để dòng phụ đọc "3 nhận hàng · 1 số dư đầu kỳ".
+  const pendingSources = (window.__T7_PENDING_SOURCES__ = window.__T7_PENDING_SOURCES__ || []);
+  pendingSources.unshift({
+    id: 'UIF-02',
+    label: 'nhận hàng',
+    // Kho chưa kích hoạt thì chưa nhận hàng được → không có phiếu nhận hàng chờ duyệt.
+    rows: () => (!inventoryActivated ? [] : PENDING_RECEIPTS.map((item) => ({
+      title: item.supplier,
+      subtitle: item.meta,
+      icon: 'cloudUpload',
+      attrs: `data-theme-entry-flow="UIF-02" data-t380-target-screen="SCR-011" data-t380-context="bj02-pending-approval" data-v464-pending-receipt="${item.id}"`,
+    }))),
+  });
+  const pendingRows = () => pendingSources.flatMap((src) => src.rows().map((row) => ({ ...row, source: src })));
+  function pendingSummary() {
+    const parts = pendingSources.map((src) => ({ n: src.rows().length, label: src.label })).filter((p) => p.n > 0);
+    return { total: parts.reduce((sum, p) => sum + p.n, 0), text: parts.map((p) => `${p.n} ${p.label}`).join(' · ') };
+  }
 
   const inTheme = () => mode === 'theme';
   const isRoot = () => inTheme() && route !== 'flow';
@@ -139,8 +161,8 @@ const ThemeApp = (() => {
     return `<div class="t462-section-heading"><h2 data-ds-component="VText" data-ds-prop-style="Label/Default">${esc(title)}</h2>${meta ? `<span>${esc(meta)}</span>` : ''}</div>`;
   }
 
-  function quickAction({ label, iconName, flow }) {
-    return `<button class="t462-quick-action" type="button" data-theme-entry-flow="${flow}" data-t462-quick="${flow}" data-ds-component="VQuickActionButton" data-ds-prop-state="Default"><span class="t462-quick-action__icon">${icon(iconName, 'icon--sm')}</span><span class="t462-quick-action__label">${esc(label)}</span></button>`;
+  function quickAction({ label, iconName, flow, disabled = false }) {
+    return `<button class="t462-quick-action" type="button" data-theme-entry-flow="${flow}" data-t462-quick="${flow}" data-ds-component="VQuickActionButton" data-ds-prop-state="${disabled ? 'Disabled' : 'Default'}"${disabled ? ' disabled aria-disabled="true"' : ''}><span class="t462-quick-action__icon">${icon(iconName, 'icon--sm')}</span><span class="t462-quick-action__label">${esc(label)}</span></button>`;
   }
 
   // Dòng "Cần chú ý": tone theo nghĩa (chờ duyệt = việc cần làm → info; còn lại = cảnh báo, xem CSS), có chevron vì dòng mở một danh sách.
@@ -156,43 +178,51 @@ const ThemeApp = (() => {
 
   function renderHubHome() {
     const search = `<div class="t462-search-wrap">${ds24Search('', 'data-t462-inventory-search', 'Tìm sản phẩm, SKU hoặc quét mã')}</div>`;
+    const off = !inventoryActivated;
+    const notActivated = off
+      ? `<section class="t462-section t462-not-activated" data-ds-component="VSection">${vBanner('info', 'Kho chưa kích hoạt', 'Nhập số tồn hiện có một lần để bắt đầu nhận, bán và kiểm kê hàng.')}<button class="button button--primary t462-not-activated__action" type="button" data-theme-entry-flow="UIF-12" data-theme-entry-actor="owner" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium">Khởi tạo tồn kho</button></section>`
+      : '';
     const quick = `<section class="t462-section t462-section--quick" data-ds-component="VSection"><div class="t462-quick-grid">
-      ${quickAction({ label: 'Nhận hàng', iconName: 'cloudUpload', flow: 'UIF-02' })}
-      ${quickAction({ label: 'Lấy hàng', iconName: 'package', flow: 'UIF-05' })}
-      ${quickAction({ label: 'Kiểm kê', iconName: 'listCheck', flow: 'UIF-08' })}
-      ${quickAction({ label: 'Tra cứu tồn', iconName: 'search', flow: 'UIF-01' })}
+      ${quickAction({ label: 'Nhận hàng', iconName: 'cloudUpload', flow: 'UIF-02', disabled: off })}
+      ${quickAction({ label: 'Lấy hàng', iconName: 'package', flow: 'UIF-05', disabled: off })}
+      ${quickAction({ label: 'Kiểm kê', iconName: 'listCheck', flow: 'UIF-08', disabled: off })}
+      ${quickAction({ label: 'Tra cứu tồn', iconName: 'search', flow: 'UIF-01', disabled: off })}
     </div></section>`;
-    const attention = `<section class="t462-section" data-ds-component="VSection">${heading('Cần chú ý')}
-      <div class="t462-attention-list">
-        ${attentionRow({ title: 'Nhận hàng chờ phê duyệt', subtitle: '3 lần nhận đang chờ xử lý', count: '3', iconName: 'clock', attrs: 'data-v464-pending-approvals' })}
+    const pending = pendingSummary();
+    const pendingRow = pending.total > 0 ? attentionRow({ title: 'Chờ duyệt', subtitle: pending.text, count: String(pending.total), iconName: 'clock', attrs: 'data-v464-pending-approvals' }) : '';
+    // Kho chưa kích hoạt: chưa có tồn nên không có lô / sai lệch / nghiệp vụ; chỉ còn việc chờ duyệt (vd. số dư đầu kỳ), không có thì bỏ cả mục.
+    const operating = off ? '' : `
         ${attentionRow({ title: 'Lô sắp hết hạn', subtitle: 'Cần kiểm tra trước khi bán hoặc xuất', count: '3 lô', flow: 'UIF-09', iconName: 'shield' })}
         ${attentionRow({ title: 'Sai lệch cần đối soát', subtitle: 'Tồn kho đang có chênh lệch cần xác minh', count: '1', flow: 'UIF-16', iconName: 'search' })}
-        ${attentionRow({ title: 'Nghiệp vụ chưa xác định kết quả', subtitle: 'Cần xác minh trước khi thao tác tiếp', count: '1', flow: 'UIF-17', iconName: 'rotate' })}
+        ${attentionRow({ title: 'Nghiệp vụ chưa xác định kết quả', subtitle: 'Cần xác minh trước khi thao tác tiếp', count: '1', flow: 'UIF-17', iconName: 'rotate' })}`;
+    const attention = !pendingRow && !operating ? '' : `<section class="t462-section" data-ds-component="VSection">${heading('Cần chú ý')}
+      <div class="t462-attention-list">
+        ${pendingRow}${operating}
       </div></section>`;
     const workspaces = `<section class="t462-section" data-ds-component="VSection">${heading('Quản lý kho')}
       <div class="t462-workspace-list ds24-list-stack">${['inventory', 'movement', 'control', 'valuation', 'history'].map(workspaceRow).join('')}</div>
     </section>`;
     const setup = `<section class="t462-section" data-ds-component="VSection">${ds24ListRow({ title: 'Thiết lập kho', subtitle: 'Tồn đầu kỳ và chính sách ít dùng', leading: 'inbox', attrs: 'data-t462-workspace="setup"', theme: 'Theme7WarehouseCandidateSetup', extraClass: 't462-workspace-row' })}</section>`;
-    return shell({ title: 'Kho', back: true, backAttr: 'data-theme-app-back', extraClass: 't462-warehouse-hub', body: `${search}${quick}${attention}${workspaces}${setup}` });
+    return shell({ title: 'Kho', back: true, backAttr: 'data-theme-app-back', extraClass: 't462-warehouse-hub', body: `${search}${notActivated}${quick}${attention}${workspaces}${setup}` });
   }
 
   function renderWorkspace(id) {
     const w = WORKSPACES[id] || WORKSPACES.inventory;
-    const rows = w.items.map((item) => ds24ListRow({ title: item.title, subtitle: item.subtitle, leading: item.icon, attrs: `data-theme-entry-flow="${item.flow}"`, theme: 'Theme7WarehouseCandidateCapability', extraClass: 't462-capability-row' })).join('');
+    const rows = w.items.map((item) => ds24ListRow({ title: item.title, subtitle: item.subtitle, leading: item.icon, attrs: `data-theme-entry-flow="${item.flow}"${item.actor ? ` data-theme-entry-actor="${item.actor}"` : ''}`, theme: 'Theme7WarehouseCandidateCapability', extraClass: 't462-capability-row' })).join('');
     return shell({ title: w.title, back: true, backAttr: 'data-t462-workspace-back', extraClass: 't462-workspace-screen', body: `<section class="t462-section t462-section--workspace-list" data-ds-component="VSection"><div class="t462-sublist ds24-list-stack">${rows}</div></section>` });
   }
 
   function renderPendingApprovals() {
-    const rows = PENDING_RECEIPTS.map((item) => ds24ListRow({
-      title: item.supplier,
-      subtitle: item.meta,
-      leading: 'cloudUpload',
+    const rows = pendingRows().map((item) => ds24ListRow({
+      title: item.title,
+      subtitle: item.subtitle,
+      leading: item.icon || 'inbox',
       trailing: ds24Badge('Chờ duyệt', 'Warning'),
-      attrs: `data-theme-entry-flow="UIF-02" data-t380-target-screen="SCR-011" data-t380-context="bj02-pending-approval" data-v464-pending-receipt="${item.id}"`,
+      attrs: item.attrs,
       theme: 'Theme7PendingReceiptApproval',
       extraClass: 't462-capability-row t464-pending-receipt-row',
     })).join('');
-    return shell({ title: 'Nhận hàng chờ phê duyệt', back: true, backAttr: 'data-t462-workspace-back', extraClass: 't462-workspace-screen', body: `<section class="t462-section t462-section--workspace-list" data-ds-component="VSection">${heading('Đang chờ xử lý', '3 lần nhận')}<div class="t462-sublist ds24-list-stack">${rows}</div></section>` });
+    return shell({ title: 'Chờ duyệt', back: true, backAttr: 'data-t462-workspace-back', extraClass: 't462-workspace-screen', body: `<section class="t462-section t462-section--workspace-list" data-ds-component="VSection">${heading('Đang chờ xử lý', pendingSummary().text)}<div class="t462-sublist ds24-list-stack">${rows}</div></section>` });
   }
 
   function renderRoot() {
@@ -211,7 +241,7 @@ const ThemeApp = (() => {
       if (activeScreenId === activeFlow().screens[0]) setBack(bar, 'data-theme-app-back-to-inventory', 'Quay về Kho');
       if (directEntryScreen && activeScreenId === directEntryScreen) setBack(bar, 'data-t380-back-home', 'Quay về Kho');
       const st = stateByScreen[activeScreenId];
-      const submitted = st === 'PENDING_APPROVAL' && ['SCR-010', 'SCR-038', 'SCR-040', 'SCR-069'].includes(activeScreenId);
+      const submitted = st === 'PENDING_APPROVAL' && ['SCR-010', 'SCR-038', 'SCR-040'].includes(activeScreenId);
       if (submitted) {
         bar.querySelector('.app-back-button')?.remove();
         bar.classList.remove('has-back'); bar.classList.add('no-back'); bar.setAttribute('data-ds-prop-show-back-button', 'false');
@@ -400,6 +430,8 @@ const ThemeApp = (() => {
       directEntryScreen = null;
       const flow = flowCatalog.find((f) => f.id === entry.dataset.themeEntryFlow);
       if (!flow) return;
+      // Vai khi vào luồng: mặc định "module"; lối vào gắn data-theme-entry-actor (vd. Owner khởi tạo kho, người duyệt từ "Chờ duyệt") đặt vai riêng.
+      window.__VET45_QA__.setActor(entry.dataset.themeEntryActor || 'module');
       activeFlowId = flow.id;
       activeScreenId = flow.screens[0];
       route = 'flow';
@@ -419,6 +451,7 @@ const ThemeApp = (() => {
   return {
     isRoot, inTheme, renderRoot, renderWebSidebar, afterFlowRender, renderFlowSelector, renderNavigation, renderRootInspector, afterFlowInspector, decorateUrl,
     updateModeTabs, installModeTabs,
+    setActivated(value) { inventoryActivated = Boolean(value); },
     handlePrevious() {
       if (inThemeFlow() && activeScreenId === activeFlow().screens[0]) { go('inventory'); return true; }
       return false;

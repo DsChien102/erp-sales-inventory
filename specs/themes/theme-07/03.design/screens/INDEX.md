@@ -4,11 +4,11 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 
 | Màn | Tên | BJ | Trạng thái file | Trong prototype |
 |---|---|---|---|---|
-| SCR-001 | Tồn kho | BJ-01 | FROZEN | Có |
+| SCR-001 | Tồn kho | BJ-01 | IN_REVIEW | Có |
 | SCR-002 | Kết quả khả dụng — MERGED | BJ-01 | FROZEN | Không — đã gộp vào SCR-001 (dòng sản phẩm hiện khả dụng) |
-| SCR-003 | Chi tiết tồn kho | BJ-01 | FROZEN | Có |
-| SCR-004 | Chi tiết lô — OVERLAY COMPATIBILITY | BJ-01, BJ-05 | FROZEN | Có, là sheet lô trong SCR-003 |
-| SCR-005 | Nguồn số liệu — OVERLAY COMPATIBILITY | BJ-15 | FROZEN | Có, là sheet "Nguồn và thời điểm cập nhật" trong SCR-003 |
+| SCR-003 | Chi tiết tồn kho | BJ-01 | IN_REVIEW | Có |
+| SCR-004 | Chi tiết lô — OVERLAY COMPATIBILITY | BJ-01, BJ-05 | FROZEN | Sheet lô trong SCR-003 |
+| SCR-005 | Nguồn số liệu — OVERLAY COMPATIBILITY | BJ-15 | FROZEN | Sheet "Nguồn và thời điểm cập nhật" trong SCR-003 |
 | SCR-006 | Chọn cách nhận hàng | BJ-02 | FROZEN | Có |
 | SCR-007 | Chứng từ chờ nhận | BJ-02 | FROZEN | Có |
 | SCR-008 | Thông tin nhập hàng nhanh | BJ-02 | IN_REVIEW | Có |
@@ -65,16 +65,16 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-059 | Kết quả xuất báo cáo | BJ-15 | FROZEN | Có |
 | SCR-060 | Chỉ báo tồn kho | BJ-01 | FROZEN | Chưa dựng — chỉ báo nằm ở bộ lọc SCR-001 |
 | SCR-061 | Chi tiết chỉ báo sản phẩm | BJ-01 | FROZEN | Chưa dựng — chỉ báo nằm ở SCR-003 |
-| SCR-062 | Cấu hình chính sách tồn | CAP-01 | FROZEN | Có |
-| SCR-063 | Cấu hình hàng cận hạn | CAP-01 | FROZEN | Có |
-| SCR-064 | Rà soát chính sách | CAP-01 | FROZEN | Có |
-| SCR-065 | Kết quả cập nhật | CAP-01 | FROZEN | Có |
-| SCR-066 | Khởi tạo tồn kho | BJ-12 | FROZEN | Có |
-| SCR-067 | Dữ liệu tồn kho đầu kỳ | BJ-12 | FROZEN | Có |
-| SCR-068 | Kết quả kiểm tra dữ liệu | BJ-12 | FROZEN | Có |
-| SCR-069 | Rà soát số dư đầu kỳ | BJ-12 | FROZEN | Có |
-| SCR-070 | Duyệt số dư đầu kỳ | BJ-12 | FROZEN | Có |
-| SCR-071 | Kết quả khởi tạo tồn kho | BJ-12 | FROZEN | Có |
+| SCR-062 | Ngưỡng tồn (Chính sách tồn & cận hạn) | CAP-01 | IN_REVIEW | Có |
+| SCR-063 | Cận hạn (Chính sách tồn & cận hạn) | CAP-01 | IN_REVIEW | Có |
+| SCR-064 | Rà soát chính sách — đã thay bằng sheet tác động | — | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-065 | Kết quả cập nhật chính sách (chưa rõ / bị từ chối) | CAP-01 | IN_REVIEW | Có |
+| SCR-066 | Khởi tạo tồn kho | BJ-12 | IN_REVIEW | Có |
+| SCR-067 | Dữ liệu tồn kho đầu kỳ | BJ-12 | IN_REVIEW | Có |
+| SCR-068 | Kết quả kiểm tra dữ liệu (gồm rà soát) | BJ-12 | IN_REVIEW | Có |
+| SCR-069 | Rà soát số dư đầu kỳ — đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-070 | Duyệt số dư đầu kỳ | BJ-12 | IN_REVIEW | Có |
+| SCR-071 | Kết quả khởi tạo tồn kho | BJ-12 | IN_REVIEW | Có |
 | SCR-072 | Công việc giá vốn | BJ-14 | IN_REVIEW | Có |
 | SCR-073 | Thiết lập lần tính — Đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-074 | Tính và rà soát giá vốn | BJ-14 | IN_REVIEW | Có |

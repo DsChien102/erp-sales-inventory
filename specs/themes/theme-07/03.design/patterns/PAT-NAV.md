@@ -151,14 +151,14 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 
 #### NAV-06 — Thiết lập và khởi tạo
 
-- [`SCR-062` — Cấu hình chính sách tồn](../screens/SCR-062.md)
-- [`SCR-063` — Cấu hình hàng cận hạn](../screens/SCR-063.md)
-- [`SCR-064` — Rà soát chính sách](../screens/SCR-064.md)
-- [`SCR-065` — Kết quả cập nhật](../screens/SCR-065.md)
+- [`SCR-062` — Ngưỡng tồn](../screens/SCR-062.md)
+- [`SCR-063` — Cận hạn](../screens/SCR-063.md)
+- [`SCR-064` — Rà soát chính sách](../screens/RETIRED.md) — đã thành sheet tác động trong SCR-062.
+- [`SCR-065` — Kết quả cập nhật chính sách](../screens/SCR-065.md)
 - [`SCR-066` — Các batch số dư đầu kỳ](../screens/SCR-066.md)
 - [`SCR-067` — Nạp file và thiết lập cut-off](../screens/SCR-067.md)
 - [`SCR-068` — Kiểm tra dữ liệu](../screens/SCR-068.md)
-- [`SCR-069` — Rà soát và gửi duyệt](../screens/SCR-069.md)
+- [`SCR-069` — Rà soát và gửi duyệt](../screens/RETIRED.md) — đã gộp vào SCR-068.
 - [`SCR-070` — Xác nhận kích hoạt](../screens/SCR-070.md)
 - [`SCR-071` — Báo cáo kích hoạt](../screens/SCR-071.md)
 

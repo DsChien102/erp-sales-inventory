@@ -1,6 +1,6 @@
-# T7-P — Thiết kế lại Theme 7 trên prototype (plan tổng thể)
+z# T7-P — Thiết kế lại Theme 7 trên prototype (plan tổng thể)
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (2026-10-16, bản chi tiết) · Giai đoạn 2 sắp lại theo chặng hành trình 📝 (2026-10-20, chờ duyệt — mục 8.2) | Làm 🔄 | Review 🔄
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (2026-10-16, bản chi tiết) · Giai đoạn 2 sắp lại theo chặng hành trình 📝 (2026-10-20, chờ duyệt — mục 8.2) · Chặng 2 (BJ-02 → BJ-03 → BJ-13): plan + brief ✅ (duyệt 2026-10-21, theo đề xuất) | Làm 🔄 | Review 🔄
 > Thuộc [PLAN.md](../../PLAN.md) mục "Theme 7". Làm sau [T7-P0](T7-P0-don-prototype.md) (✅).
 > Phạm vi: prototype `specs/themes/theme-07/03.design/prototype/html` và tài liệu thiết kế `specs/themes/theme-07/03.design` (Screen Contract, UIF, pattern). Code Flutter làm theo prototype đã chốt (giai đoạn 5).
 > **Thiết bị (chốt 2026-10-20, cho cả app):** iPhone + web trên máy tính, khung web thanh bên — xem [LUONG-UNG-DUNG mục 1.1](../../../02-yeu-cau/LUONG-UNG-DUNG.md) và [PLAN mục Thiết bị](../../PLAN.md). Màn nào của Theme 7 thiết kế cho thiết bị nào: mục 2.
@@ -40,12 +40,12 @@
 
 ## 2. Đã chốt
 
-| Giữ nguyên | Được thiết kế lại |
-|---|---|
-| Nghiệp vụ trong BJ / UC: quy tắc, trạng thái nghiệp vụ, ai được làm gì, người duyệt = `is_owner` hoặc role `store_owner`, khác người lập — **trừ `is_owner` lập thì tự duyệt được** (chốt 2026-10-20; sửa đặc tả ở mục 13) | Luồng giữa các màn, lối vào, điều hướng |
-| Chuỗi chữ của spec. Đổi chữ = đề xuất sửa Screen Contract (mục 13), không sửa thẳng trên UI khi chưa duyệt | Bố cục màn, thứ tự khối, mật độ, gom / tách / bỏ màn |
-| Token DESIGN.md, thành phần `vet45_design_system`; được thêm thành phần mới (mục 6) | Screen Contract, UIF: chỉ là tham khảo |
-| **Home Kho = bản candidate** (SCR-090): tìm kiếm → 4 nút nhanh → Cần chú ý → Quản lý kho (5 khu) → Thiết lập kho | Chi tiết bên trong Home candidate |
+| Giữ nguyên                                                                                                                                                                                                                     | Được thiết kế lại                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| Nghiệp vụ trong BJ / UC: quy tắc, trạng thái nghiệp vụ, ai được làm gì, người duyệt = `is_owner` hoặc role `store_owner`, khác người lập — **trừ** `is_owner` **lập thì tự duyệt được** (chốt 2026-10-20; sửa đặc tả ở mục 13) | Luồng giữa các màn, lối vào, điều hướng              |
+| Chuỗi chữ của spec. Đổi chữ = đề xuất sửa Screen Contract (mục 13), không sửa thẳng trên UI khi chưa duyệt                                                                                                                     | Bố cục màn, thứ tự khối, mật độ, gom / tách / bỏ màn |
+| Token DESIGN.md, thành phần `vet45_design_system`; được thêm thành phần mới (mục 6)                                                                                                                                            | Screen Contract, UIF: chỉ là tham khảo               |
+| **Home Kho = bản candidate** (SCR-090): tìm kiếm → 4 nút nhanh → Cần chú ý → Quản lý kho (5 khu) → Thiết lập kho                                                                                                               | Chi tiết bên trong Home candidate                    |
 
 **Người dùng:** cửa hàng có **Owner + 1–3 nhân viên**. Nhân viên lập phiếu (nhận hàng, kiểm kê, đổi tình trạng, tiêu hủy…); **Owner duyệt và là người duy nhất xem tiền**. Nhân viên dùng iPhone ngay tại kho / quầy giữa lúc bán hàng (mode Operate); Owner duyệt và làm việc giá trị chủ yếu trên web ở máy tính.
 
@@ -111,10 +111,10 @@ Checklist cho mỗi gói (rút từ BJ-01, đã làm 2026-10-16):
 
 1. **Kịch bản golden trước:** thêm kịch bản thao tác của các BJ trong gói (lọc, mở chi tiết, sheet, gửi, duyệt, quay lại, vào từ Hub) vào `tools/golden.mjs`; chụp `.golden-base` **trước khi** đụng code; chụp hai lần phải khớp.
 2. **Bản đồ:** liệt kê màn của gói và các lớp đang định nghĩa / bọc / sửa chúng (bảng mục 8.1 là điểm bắt đầu; đầu mỗi `app/bjNN.js` đã ghi lớp định nghĩa màn).
-3. **Chuyển sang `app/bjNN.js`:** fixture, biến trạng thái, hàm dựng **cuối cùng** của từng màn, helper riêng, xử lý sự kiện (click / input / change / keydown / focusin) đang nằm trong `core.js`. Helper dùng chung giữa nhiều BJ → `app/shared-<cụm>.js` (vd. `shared-valuation.js`, `shared-control.js`), nạp trước các `bjNN.js` của cụm. Đường cũ / màn retired: đăng ký `screenAliases` (móc trong `navigate` gốc, A5) thay wrapper `navigate` từng lớp.
+3. **Chuyển sang** `app/bjNN.js`**:** fixture, biến trạng thái, hàm dựng **cuối cùng** của từng màn, helper riêng, xử lý sự kiện (click / input / change / keydown / focusin) đang nằm trong `core.js`. Helper dùng chung giữa nhiều BJ → `app/shared-<cụm>.js` (vd. `shared-valuation.js`, `shared-control.js`), nạp trước các `bjNN.js` của cụm. Đường cũ / màn retired: đăng ký `screenAliases` (móc trong `navigate` gốc, A5) thay wrapper `navigate` từng lớp.
 4. **Màn bị định nghĩa nhiều lần:** lấy bản thắng (bản gán sau cùng), gộp các `.replace()` / phần bọc của wrapper vào chuỗi gốc, xoá bản bị đè. Hàm toàn cục bị gán lại (vd. `io05ApplyHandover = function…`) → giữ **một** định nghĩa: bản cuối.
 5. **Bước sửa sau dựng:** đo HTML "trần" (gọi thẳng `renderers[...]`) với HTML qua chuỗi legacy cho mọi trạng thái; khác ở đâu thì gộp vào hàm dựng. Các bước dùng chung hay gặp: `ensureRepresentativeFixture` / `ensureStableExitAffordance` (`v360`), `normalizeDualFooters` (`v361`), `cleanupDismissibleSheets`, `polishCrossThemeCopy`, `applyGroupedSurfaceRule` (`v440`), tone / badge của `v470`, `v471`.
-6. **Wrapper `navigate` / toast:** nhánh của BJ trong wrapper `navigate` (`v350`, `v430`, `v460`, `v461`) và dòng của BJ trong bảng toast của `v360` → chuyển vào xử lý sự kiện của BJ (gọi `showToast` ngay sau `render()`, không hẹn giờ).
+6. **Wrapper** `navigate` **/ toast:** nhánh của BJ trong wrapper `navigate` (`v350`, `v430`, `v460`, `v461`) và dòng của BJ trong bảng toast của `v360` → chuyển vào xử lý sự kiện của BJ (gọi `showToast` ngay sau `render()`, không hẹn giờ).
 7. **Đăng ký:** `Object.assign(renderers, …)`; `ownedFlows.add("UIF-NN")`; xoá mục của màn khỏi literal `const renderers = {…}` trong `core.js`; xoá phần của BJ trong mọi lớp legacy.
 8. **Kiểm:** golden toàn bộ **khớp hoàn toàn**; bộ bấm thử 0 lỗi JS; `node --check app/*.js`.
 9. **Ghi:** CHANGELOG (mục "Giai đoạn 1 — gói …"), đầu `app/bjNN.js` (đã viết lại sạch), tiến độ mục 14, `python3 tools/sync-registry.py`.
@@ -126,8 +126,8 @@ Checklist cho mỗi gói (rút từ BJ-01, đã làm 2026-10-16):
 - Toast hẹn giờ 30 ms của `v360` chạy từ pha capture; khi chuyển vào handler của BJ phải gọi ngay sau `render()`.
 - Helper của BJ được BJ khác gọi (vd. `bj01Empty` dùng ở BJ-08): giữ tên, ghi chú ở đầu file; gom về `core.js` ở gói A11.
 - Lần render đầu chạy trước khi `bjNN.js` nạp: không sao, `hub.js` gọi `render()` sau cùng.
-- **Không gọi `render()` / `renderAppScreen()` lúc nạp trong `core.js`** (A7): helper chuyển sang file nạp sau (`shared-control.js`…) sẽ `ReferenceError` ở cấp cao nhất và dừng nạp `core.js` giữa chừng — hỏng mọi luồng, không chỉ BJ đang tách.
-- **Chú thích `load-time render removed` phải đúng là lúc nạp** (A8): hàm chạy lúc bấm (`crSwitchFlow`, hẹn giờ duyệt) **giữ** `render()` — A7 xoá nhầm hai chỗ đó.
+- **Không gọi** `render()` **/** `renderAppScreen()` **lúc nạp trong** `core.js` (A7): helper chuyển sang file nạp sau (`shared-control.js`…) sẽ `ReferenceError` ở cấp cao nhất và dừng nạp `core.js` giữa chừng — hỏng mọi luồng, không chỉ BJ đang tách.
+- **Chú thích** `load-time render removed` **phải đúng là lúc nạp** (A8): hàm chạy lúc bấm (`crSwitchFlow`, hẹn giờ duyệt) **giữ** `render()` — A7 xoá nhầm hai chỗ đó.
 - **Kiểm listener của BJ còn đủ trước khi tách** (A5/A8): A5 làm mất khối Correction & Recovery (UIF-11/16/17); A8 chặng 0 đặt lại vào `core.js` (phần UIF-16/17 chờ A10 chuyển).
 - **Cơ chế dùng chung nằm trong IIFE** (`v350`): chuyển hẳn ra file sở hữu và nối bằng móc (`onUnknownHandoff`), không gọi chéo vào biến cục bộ (A10).
 
@@ -140,7 +140,7 @@ Plan: [T7-P-A11-don-khung.md](T7-P-A11-don-khung.md). Phạm vi chốt 2026-10-1
 3. Routing lối vào + actor gộp một bảng `entryTargets` / `applyEntry` / `currentActor()`; mọi API QA `__VET45_V350__` / `__V360__` / `__V3101__` / `__BJ10__`… → **một** `window.__VET45_QA__` (BJ tự đăng ký). Giữ tên thuộc tính `data-v350-action` / `data-v360-action` (đổi ở Giai đoạn 2).
 4. Helper dùng chéo: `bj01Empty` → `ds24EmptyState`; bản trùng `icCard…icApprovalButtons` (`core.js` + `bj09.js`) → `shared-control.js`.
 5. Tách harness → `harness/workbench.js` / `figma-ds-map.js` / `workbench.css`; `renderFlowInspector` **giữ nguyên chữ** (golden đọc inspector).
-6. CSS chỉ phần an toàn: xoá luật không dùng (chế độ `golden.mjs usage`), gồm `.cr-*` / `.ac310-*` chết. **Gom CSS theo BJ và bỏ `!important` dời sang bước C của từng BJ** (mục 4.4).
+6. CSS chỉ phần an toàn: xoá luật không dùng (chế độ `golden.mjs usage`), gồm `.cr-*` / `.ac310-*` chết. **Gom CSS theo BJ và bỏ** `!important` **dời sang bước C của từng BJ** (mục 4.4).
 7. Xoá mã chết JS còn lại (độ phủ + `grep`), file tạm của các gói trước. Kiểm: golden khớp hoàn toàn (trừ mục 2); bấm thử 0 lỗi JS.
 
 ### 4.2b Giai đoạn 2 — theo chặng hành trình, mỗi BJ đi B → E
@@ -195,15 +195,27 @@ Bạn duyệt bằng cách đồng ý cả brief hoặc chỉ ra điểm bỏ / 
 
 Mỗi khuôn được dựng lần đầu ở một BJ, mô tả ở đây khi dựng xong, các BJ sau dùng lại (không dựng lại).
 
-| # | Khuôn | Dựng ở | Dùng lại ở |
-|---|---|---|---|
-| K1 | **Trạng thái chung:** không có quyền, đang tải, rỗng, rỗng sau lọc, dữ liệu cũ, bị khoá | BJ-12 | tất cả |
-| K2 | **Lập → duyệt → kết quả:** người lập gửi; danh sách "Chờ duyệt" (Home → Cần chú ý); màn duyệt (thứ cần quyết đầu tiên, ngoại lệ nổi bật, Duyệt / Từ chối có lý do); người lập thấy trạng thái chờ, khoá sửa; kết quả. **`is_owner` lập thì tự duyệt** (mục 2): không qua chờ duyệt, rà soát → "Ghi nhận" → kết quả; lịch sử ghi tự duyệt — cách thể hiện chốt ở brief BJ-12 | BJ-12 (cả hai nhánh: nhân viên lập → Owner duyệt SCR-070; Owner lập tự duyệt) | 02, 06, 08, 09, 10, 11, 13, 14, CAP-01 |
-| K3 | **Kết quả chưa rõ → xác minh:** không coi là thất bại; mã tham chiếu + giờ; điều gì an toàn; một nút xác minh; lối ra; BJ-17 là màn xác minh chung | BJ-12 | mọi BJ có ghi dữ liệu |
-| K4 | **Kết quả xong:** tóm tắt (ai, lúc nào, bao nhiêu), bước tiếp hợp lý (xem tồn, làm tiếp, về Kho), không lặp danh sách dài | BJ-12 | mọi BJ có màn kết quả |
-| K5 | **Chọn hàng → xử lý → bàn giao:** danh sách hàng đủ điều kiện, chọn lô / lượng, xác nhận, bàn giao | BJ-09 (màn dùng chung 036 / 037 / 041, dựng chung cho cả ba luồng, **không mượn tên màn của BJ-07**) | 07, 10 |
-| K6 | **Danh sách công việc:** danh sách phiếu / phiên với trạng thái, lọc theo trạng thái, mở tiếp đúng bước đang dở | BJ-05 (nếu brief BJ-12 cần danh sách lần khởi tạo thì dựng ở BJ-12) | 06, 07, 08, 11, 12, 14, 16 |
-| K7 | **Bố cục web:** danh sách – chi tiết hai cột (chọn bên trái, xem / duyệt bên phải, không đổi trang); bảng thay danh sách thẻ khi có nhiều cột số; footer hành động thành thanh nút bên phải; sheet thành hộp thoại / bảng bên. Dưới bề rộng ngưỡng tự về bố cục iPhone | BJ-12 (web chính: bảng lỗi tệp, màn duyệt SCR-070) | mọi màn web chính (mục 2) |
+| #   | Khuôn                                                                                                                                                                                                                                                                                                                                                                       | Dựng ở                                                                                               | Dùng lại ở                             |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| K1  | **Trạng thái chung:** không có quyền, đang tải, rỗng, rỗng sau lọc, dữ liệu cũ, bị khoá                                                                                                                                                                                                                                                                                     | BJ-12                                                                                                | tất cả (đã dùng ở BJ-12, BJ-01)        |
+| K2  | **Lập → duyệt → kết quả:** người lập gửi; danh sách "Chờ duyệt" (Home → Cần chú ý); màn duyệt (thứ cần quyết đầu tiên, ngoại lệ nổi bật, Duyệt / Từ chối có lý do); người lập thấy trạng thái chờ, khoá sửa; kết quả. `is_owner` **lập thì tự duyệt** (mục 2): không qua chờ duyệt, rà soát → "Ghi nhận" → kết quả; lịch sử ghi tự duyệt — cách thể hiện chốt ở brief BJ-12 | BJ-12 (cả hai nhánh: nhân viên lập → Owner duyệt SCR-070; Owner lập tự duyệt)                        | 02, 06, 08, 09, 10, 11, 13, 14, CAP-01 |
+| K3  | **Kết quả chưa rõ → xác minh:** không coi là thất bại; mã tham chiếu + giờ; điều gì an toàn; một nút xác minh; lối ra; BJ-17 là màn xác minh chung                                                                                                                                                                                                                          | BJ-12                                                                                                | mọi BJ có ghi dữ liệu                  |
+| K4  | **Kết quả xong:** tóm tắt (ai, lúc nào, bao nhiêu), bước tiếp hợp lý (xem tồn, làm tiếp, về Kho), không lặp danh sách dài                                                                                                                                                                                                                                                   | BJ-12                                                                                                | mọi BJ có màn kết quả                  |
+| K5  | **Chọn hàng → xử lý → bàn giao:** danh sách hàng đủ điều kiện, chọn lô / lượng, xác nhận, bàn giao                                                                                                                                                                                                                                                                          | BJ-09 (màn dùng chung 036 / 037 / 041, dựng chung cho cả ba luồng, **không mượn tên màn của BJ-07**) | 07, 10                                 |
+| K6  | **Danh sách công việc:** danh sách phiếu / phiên với trạng thái, lọc theo trạng thái, mở tiếp đúng bước đang dở                                                                                                                                                                                                                                                             | BJ-05 (nếu brief BJ-12 cần danh sách lần khởi tạo thì dựng ở BJ-12)                                  | 06, 07, 08, 11, 12, 14, 16             |
+| K7  | **Bố cục web:** danh sách – chi tiết hai cột (chọn bên trái, xem / duyệt bên phải, không đổi trang); bảng thay danh sách thẻ khi có nhiều cột số; footer hành động thành thanh nút bên phải; sheet thành hộp thoại / bảng bên. Dưới bề rộng ngưỡng tự về bố cục iPhone                                                                                                      | BJ-12 (web chính: bảng lỗi tệp, màn duyệt SCR-070)                                                   | mọi màn web chính (mục 2)              |
+
+**Đã dựng ở BJ-12 (2026-10-21, prototype v5.5.0,** `app/shared-patterns.js`**; các BJ sau gọi lại, không dựng lại):**
+
+| Khuôn | Hàm | Dùng thế nào |
+|---|---|---|
+| K1 | `k1Loading({ blocks })`, `k1Denied({ what, next, exitAttr })`, `k1Stale({ title, description, actionLabel, actionAttr })`, `k1Locked`, `k1Empty` (bảng lọc rỗng), `k1ExitAttr(firstScreen)` | Khung xương theo bố cục ("heading" / "card" / "row" / "search"); không có quyền = tiêu đề "Bạn chưa có quyền …" + câu làm gì tiếp + "Về Kho"; dữ liệu cũ = banner + "Tải lại"; "Về Kho" về Hub khi ở chế độ Toàn Theme 7, về màn đầu luồng khi ở chế độ BJ |
+| K2 | `k2Pending`, `k2Decision`, `k2RejectSheet`, `k2SelfCommitSheet`; nguồn `window.__T7_PENDING_SOURCES__` | Người lập sau khi gửi: "Chờ {ai} duyệt · gửi {lúc}" + dữ liệu đã khoá. Màn duyệt: câu hỏi → người gửi → "Cần chú ý" → số liệu → chi tiết (bảng). Từ chối bắt buộc lý do. Owner tự lập: sheet xác nhận "Chỉ ghi nhận một lần…" rồi ghi nhận ngay. Mỗi BJ đăng ký nguồn `{ id, label, rows() }` để Home hiện "Chờ duyệt" ("3 nhận hàng · 1 số dư đầu kỳ") và danh sách chờ duyệt; dòng gắn `data-theme-entry-actor="approver"` để vào đúng vai |
+| K3 | `k3Unknown({ operation, scope, ref, sentAt, safe, sourceFlow, exitAttr, facts })` | "Kết quả chưa xác định": nghiệp vụ, phạm vi, mã tham chiếu, thời điểm gửi, điều an toàn, "Về Kho" \| "Chuyển sang xác minh" (BJ-17) |
+| K4 | `k4Result({ screenTitle, kind, title, description, facts, next })` | Kết quả: tóm tắt ai / lúc nào / bao nhiêu; chân phụ \| chính |
+| K7 | `k7Split`, `k7Table`, `k7FilterChips`, `k7EditCell({ value, attr, unit, error, label, disabled })` (dựng ở CAP-01: ô số sửa tại dòng, hậu tố đơn vị, lỗi dưới ô, `aria-label`); lớp `k7-wide` qua `appShell({ extraClass })` | Web: hai cột 5fr / 7fr; bảng thay danh sách thẻ (hàm trả cả hai, CSS chọn theo khung); chân là thanh nút bên phải; sheet thành hộp thoại giữa. Dưới khung web tự về một cột iPhone |
+
+Thành phần dùng chung dựng ở CAP-01 (2026-10-21, v5.7.0, `app/shared-patterns.js` + `components.css`): `dsSegmented({ items, value, attr })` (thanh chọn hai / ba mục, `VSegmentedControl`) và `dsChoiceRow({ title, subtitle, selected, attrs })` (thẻ lựa chọn lớn có nút tròn) — chép giá trị từ `.cf-segmented` (BJ-15) và `io06SelectionRow` (BJ-06), **chưa sửa** hai BJ đó (chuyển sang khi tới lượt, chặng 3 / 6). `k4Footer` nhận thêm `disabled` cho từng nút.
 
 Quy tắc chung cho mọi khuôn: một hành động chính mỗi trạng thái; footer hai nút (Phụ | Chính); `VBanner` chỉ cho ngoại lệ / cảnh báo / chặn; thành công cùng màn dùng toast; tiền chỉ Owner thấy (`FINANCIAL_MASKED` = không có số trong DOM).
 
@@ -214,8 +226,16 @@ Thêm khi phát sinh ở bước B; dựng trong `styles/components.css` (protot
 | Thành phần | Phát sinh ở | Mô tả | Trạng thái |
 |---|---|---|---|
 | `ds24DotBadge` / `.ds24-badge--dot` | BJ-01 (bước A) | VBadge có chấm: đặc = cảnh báo, rỗng = nguy hiểm | ✅ prototype |
-| `VStockRow` | BJ-01 (đề xuất) | List Row có cột phải hai tầng: số lượng mono + badge | ⬜ |
-| Nút quét mã vạch trong `VSearchBar` | BJ-01 (đề xuất) | Hành động cuối ô tìm | ⬜ |
+| `VStockRow` | BJ-01 | List Row có cột phải hai tầng: số lượng mono + badge | ✅ prototype |
+| Nút quét mã vạch trong `VSearchBar` | BJ-01 | Hành động cuối ô tìm | ✅ prototype |
+| `VChip` có số đếm | BJ-01 | Chip lọc kèm số; số 0 mờ, vẫn bấm được | ✅ prototype |
+| Bảng dữ liệu web (`k7Table`; Flutter có sẵn `VTable`) | BJ-12 | Bảng có tiêu đề cố định, số mono căn phải; trên iPhone thành danh sách thẻ | ✅ prototype |
+| Vùng kéo thả tệp trên web (`VFileDropZone` mở rộng) | BJ-12 | Thêm dòng "Kéo tệp vào đây hoặc Chọn tệp", chỉ web | ✅ prototype |
+| Dải số một hàng (`cf12Strip`, biến thể ngang của `ac310SummaryMetrics`) | BJ-12 | "82 dòng đọc được · 79 hợp lệ · 3 cần sửa" | ✅ prototype |
+| `VMoneyField` trạng thái lỗi | BJ-12 | Viền + dòng lỗi dưới ô (`cfField(…, error)`) | ✅ prototype |
+| Ô số sửa tại dòng (`k7EditCell`; Flutter dùng `VNumberField` trong `VTable`) | CAP-01 | Ô số có hậu tố đơn vị, lỗi dưới ô, `aria-label`; chạm ≥ 44 trên iPhone | ✅ prototype |
+| `VSegmentedControl` (`dsSegmented`, lớp `.ds-segmented`) | CAP-01 | Thanh chọn hai / ba mục; mục chọn nổi nền trắng | ✅ prototype |
+| Thẻ lựa chọn lớn (`dsChoiceRow`, lớp `.ds-choice-row` / `.ds-radio`) | CAP-01 | List Row chọn một có tiêu đề + mô tả + nút tròn | ✅ prototype |
 
 ## 7. Dọn tài liệu `03.design`
 
@@ -249,15 +269,15 @@ Bản đồ lớp cũ đo ngày 2026-10-16 trên `app/core.js`. "Lớp" = khối
 |---|---|---|---|---|---|---|---|
 | A0 | BJ-01 | 001, 003 (+004) | `bj01` | — | 0 | ✅ | Làm ở phiên review 2026-10-16 |
 | A1 | **BJ-04, BJ-05** | 021; 025–029 | `io04`, `io05` | `app.js`; `v350` (gán lại `io05ApplyHandover`, `io05VisibleOrders`; xác minh UNKNOWN); `v393` (SCR-029 UNKNOWN, gán lại `io05VisibleOrders`); `v396` (`render021IO04`); `v360` (toast "Đã cập nhật lô lấy hàng") | 0 | ✅ | Móc `onScreenEnter` (khoá `UIF-NN:SCR-NNN`) thay wrapper `navigate` — các gói sau dùng lại |
-| A2 | **BJ-06** | 030–035 | `io06` | `app.js`; `v350`; `v394` (SCR-032…035, bọc `renderFlowScreen` đổi tiêu đề SCR-031, gán lại 18 hàm `io06*`, listener `window` capture chặn trước listener chung); `legacy-cross-theme-copy` (SCR-031); `v360` (2 toast, đang chết) | 1 | ✅ | Móc `onPrevious` (theo luồng) thay nhánh trong `previousScreen` — các gói sau dùng lại |
+| A2 | **BJ-06** | 030–035 | `io06` | `app.js`; `v350`; `v394` (SCR-032…035, bọc `renderFlowScreen` đổi tiêu đề SCR-031, gán lại 18 hàm `io06`*, listener `window` capture chặn trước listener chung); `legacy-cross-theme-copy` (SCR-031); `v360` (2 toast, đang chết) | 1 | ✅ | Móc `onPrevious` (theo luồng) thay nhánh trong `previousScreen` — các gói sau dùng lại |
 | A3 | **CAP-01** | 062–065 | `cap` | `v360` (toàn bộ CAP-01, phần CAP-01 của `renderFlowInspector`) | 0 | 0,5 | |
 | A4 | **BJ-02** | 006–013, 084 | `bj02` | `app.js`; `v350` (011, 012, 013); `v360` (`ensureBj02ReviewFixture`, toast); `v392` (cả 9 màn, gán lại 11 hàm + bọc 2); `v460` / `v461` (SCR-008); `v466`–`v468`; `v470` (tone "rủi ro"); `v471`; `legacy-sheet-cleanup`; `legacy-cross-theme-copy` (SCR-012); `hub.js` (`addPendingReviewExit` — để lại `hub.js`, xem plan A4 mục 2.5) | 4 | 2 | 58 trạng thái, demo chính; cụm "nhập nhanh đời đầu" đang chết, xoá ở A4 |
 | A5 | **BJ-03, BJ-13, BJ-14** | 014–019; 085–089; 072–077 | `val03`, `val13`, `val14` | `app.js`; `v313`; `v430` (bọc `navigate`); `v460` / `v461` (bọc `navigate`, gán lại `val14CreateRun`); `v397`; `v398`; `v399`; `v350`; `v360` (3 fixture); `v431` | 10 | 3 | Helper chung → `app/shared-valuation.js` |
-| A6 | **BJ-07, BJ-09, BJ-10** | 036, 037, 039, 041; 038, 056; 040 | `io07`, `ic09`, `ic10` | `app.js`; `v310`; `v350`; `v395` (gán lại 8 hàm `io07*`); `v3101`; `v351` (056); `v360` (041, toast); `legacy-cross-theme-copy` (038) | 12 | 3 | Màn dùng chung (036 / 037 / 041; 056 với BJ-15) dựng **theo luồng** qua móc `flowRenderers` (plan A6, khác hướng ban đầu "dựng ở `bj07.js`"); 056 của BJ-09 tạm rơi về chuỗi BJ-15 tới A9 |
-| A7 | **BJ-08** | 042–047 | `ic08`, `ac310`, `ac321` | `app.js`; `v310`; `v320`; `v340` (gán lại `ac310CountGroup`, `ac310RecountGroup`); `v350` (gán lại `ic08ConfirmationSheet`, `ic08QuantityTrigger`); `v3100`; `v360`; `legacy-sheet-cleanup` | 6 | 2 | Helper `ac310*` / `ac321*` dùng chung cụm kiểm soát → `app/shared-control.js` (dựng ở gói này); bỏ mọi `render()` lúc nạp trong `core.js` (plan A7 mục 4.1) |
+| A6 | **BJ-07, BJ-09, BJ-10** | 036, 037, 039, 041; 038, 056; 040 | `io07`, `ic09`, `ic10` | `app.js`; `v310`; `v350`; `v395` (gán lại 8 hàm `io07`*); `v3101`; `v351` (056); `v360` (041, toast); `legacy-cross-theme-copy` (038) | 12 | 3 | Màn dùng chung (036 / 037 / 041; 056 với BJ-15) dựng **theo luồng** qua móc `flowRenderers` (plan A6, khác hướng ban đầu "dựng ở `bj07.js`"); 056 của BJ-09 tạm rơi về chuỗi BJ-15 tới A9 |
+| A7 | **BJ-08** | 042–047 | `ic08`, `ac310`, `ac321` | `app.js`; `v310`; `v320`; `v340` (gán lại `ac310CountGroup`, `ac310RecountGroup`); `v350` (gán lại `ic08ConfirmationSheet`, `ic08QuantityTrigger`); `v3100`; `v360`; `legacy-sheet-cleanup` | 6 | 2 | Helper `ac310`* / `ac321*` dùng chung cụm kiểm soát → `app/shared-control.js` (dựng ở gói này); bỏ mọi `render()` lúc nạp trong `core.js` (plan A7 mục 4.1) |
 | A8 | **BJ-11, BJ-12** | 048–053; 066–071 | `cr11`, `cf12` | `app.js`; `v310`; `v350`; `v360` (toast) | 5 | 2,5 | Dùng `shared-control.js`. Chặng 0 khôi phục listener UIF-11/16/17 (mất từ A5) và `render()` trong `crSwitchFlow` / hẹn giờ duyệt (A7 xoá nhầm) — plan [A8](T7-P-A8-bj11-bj12.md) mục 2.6 |
-| A9 | **BJ-15** | 054, 055, 057, 058, 059 (+056 từ A6) | `cf15` | `app.js`; `v310`; `v320` (cả khối); `v350` (seed `cf15Movements` lúc nạp, gán lại `cf15InventoryResult`, `cf15StockCardResult`, bọc 055 / 058); `v351` (cả khối); `legacy-sheet-cleanup` (cả khối) | 4 | 1,5 | Plan [A9](T7-P-A9-bj15.md). SCR-056 BJ-09 không có `movement` tự dựng trong `bj09.js` (tránh đệ quy qua `flowScreen`); `cf*` + `ac310ProductRow` → `shared-control.js` |
-| A10 | **BJ-16, BJ-17** | 078–083 | `cr16`, `cr17` | `app.js`; `v310` (phần còn lại → xoá cả khối); `v350` (seed `cr16/17Cases` lúc nạp, `.replace` 079–082, `handoff-unknown` + `bj02-*`); `legacy-cross-theme-copy` (cả khối) | 9 | 2 | Plan [A10](T7-P-A10-bj16-bj17.md). Một bộ màn, hai luồng qua `flowRenderers`, `bj17.js` gọi lại helper `bj16.js`. Cơ chế K3 (`handoff-unknown`) → `bj17.js` + móc `onUnknownHandoff` cho UIF-05/06/07. `ac310ProductRow` / `cf*` đã ở `shared-control.js` (A9). Xong A10 = mọi luồng đã sở hữu |
+| A9 | **BJ-15** | 054, 055, 057, 058, 059 (+056 từ A6) | `cf15` | `app.js`; `v310`; `v320` (cả khối); `v350` (seed `cf15Movements` lúc nạp, gán lại `cf15InventoryResult`, `cf15StockCardResult`, bọc 055 / 058); `v351` (cả khối); `legacy-sheet-cleanup` (cả khối) | 4 | 1,5 | Plan [A9](T7-P-A9-bj15.md). SCR-056 BJ-09 không có `movement` tự dựng trong `bj09.js` (tránh đệ quy qua `flowScreen`); `cf`* + `ac310ProductRow` → `shared-control.js` |
+| A10 | **BJ-16, BJ-17** | 078–083 | `cr16`, `cr17` | `app.js`; `v310` (phần còn lại → xoá cả khối); `v350` (seed `cr16/17Cases` lúc nạp, `.replace` 079–082, `handoff-unknown` + `bj02-`*); `legacy-cross-theme-copy` (cả khối) | 9 | 2 | Plan [A10](T7-P-A10-bj16-bj17.md). Một bộ màn, hai luồng qua `flowRenderers`, `bj17.js` gọi lại helper `bj16.js`. Cơ chế K3 (`handoff-unknown`) → `bj17.js` + móc `onUnknownHandoff` cho UIF-05/06/07. `ac310ProductRow` / `cf*` đã ở `shared-control.js` (A9). Xong A10 = mọi luồng đã sở hữu |
 | A11 | **Dọn khung** | — | — | `v350`, `v360`, `v361`, `v362`–`v364`, `v440`, `v450`, `v470`; harness trong `core.js` / `components.css`; CSS không dùng | — | 3 | Plan [A11](T7-P-A11-don-khung.md). `v440` / `simplifyNormalBanners` vẫn chạy trên luồng đã sở hữu (bọc `render`) — đo trước. Một API `__VET45_QA__`. CSS chỉ xoá luật không dùng; gom theo BJ dời Giai đoạn 2 |
 | | **Cộng** | | | | | **~21** | |
 
@@ -274,12 +294,12 @@ Thứ tự theo **vòng đời một cửa hàng** dùng Kho, lấy từ quan h�
 | 0 | Dọn tài liệu 7.1 | — | | ✅ | Khuôn Screen Contract / UIF | |
 | 0 | Gói H1 — khung web cho harness (✅ [plan](#143-gói-h1--khung-web-cho-harness), mục 14.3) | — | | ✅ 2026-10-21 (review ✅) | — | Golden chụp được khung iPhone và khung web; điều kiện để làm BJ-12 (web chính) |
 | 1 | **Mở kho** — Owner khởi tạo kho một lần, xem tồn, đặt ngưỡng (web chính) | **BJ-12** Tồn đầu kỳ (3) → **BJ-01** Tồn & khả dụng (1) → **CAP-01** Chính sách tồn & cận hạn (1) | 12 · 64 | 5 | K1, K2, K3, K4, K7 (ở BJ-12) | `SC_journey_1`: tải tệp đầu kỳ → sửa lỗi → duyệt / tự duyệt → tồn kích hoạt → xem tồn → đặt ngưỡng |
-| 2 | **Nhập hàng** — NCC giao hàng, nhân viên nhận, Owner duyệt và chốt giá (vài lần / tuần) | **BJ-02** Nhận hàng mua (2,5) → **BJ-03** Giá trị nhập ban đầu (1,5) → **BJ-13** Điều chỉnh giá trị hàng nhập (1) | 16 · 95 | 5 | — (dùng K1–K4, K7) | `SC_journey_2`: nhận hàng → duyệt → xác lập giá → điều chỉnh giá trị |
+| 2 | **Nhập hàng** — NCC giao hàng, nhân viên nhận, Owner duyệt và chốt giá (vài lần / tuần) | **BJ-02** Nhận hàng mua (2,75) → **BJ-03** Giá trị nhập ban đầu (1,5) → **BJ-13** Điều chỉnh giá trị hàng nhập (1,25) | 16 · 95 | 5,5 | — (dùng K1–K4, K7; fixture chung chặng 2 ở BJ-02 C0) | `SC_journey_2`: nhận hàng → duyệt → xác lập giá → điều chỉnh giá trị |
 | 3 | **Bán và giao** — đơn bán giữ hàng, nhân viên lấy và bàn giao, khách trả lại (hằng ngày) | **BJ-04** Giữ hàng → **BJ-05** Lấy & bàn giao (1,5 cả hai) → **BJ-06** Hàng khách trả (1,5) | 12 · 64 | 3 | K6 (ở BJ-05) | `SC_journey_3`: đơn → giữ → lấy → bàn giao → khách trả → phân loại |
 | 4 | **Hàng có vấn đề** — lô hết hạn / hỏng / trả lại NCC / tiêu hủy | **BJ-09** Tình trạng hàng (2) → **BJ-07** Trả NCC (1) → **BJ-10** Tiêu hủy (1) | 13 · 86 | 4 | K5 (ở BJ-09) | `SC_journey_4`: lô hết hạn → đổi tình trạng → trả NCC / tiêu hủy |
 | 5 | **Kiểm kê và sửa sai** — kiểm kê định kỳ, sửa nghiệp vụ sai, đối soát sai lệch, kết quả chưa rõ | **BJ-08** Kiểm kê (2) → **BJ-11** Hủy & sửa sai (1,5) → **BJ-16 / 17** Đối soát / kết quả chưa rõ (2) | 18 · 108 | 5,5 | — | `SC_journey_5`: kiểm kê → chênh lệch → duyệt → phát hiện sai → sửa sai → đối soát |
-| 6 | **Chốt kỳ** — Owner tính giá vốn, xem báo cáo và thẻ kho (cuối kỳ, web chính) | **BJ-14** Giá vốn (1,5) → **BJ-15** Báo cáo & thẻ kho (1,5) | 9 · 49 | 3 | — | `SC_journey_6` + `SC_demo_*` (mục 10) |
-| | **Cộng** | | | **~26,5** | | |
+| 6 | **Chốt kỳ** — Owner tính giá vốn, xem báo cáo và thẻ kho (cuối kỳ, web chính) | **BJ-14** Giá vốn (1,5) → **BJ-15** Báo cáo & thẻ kho (1,5) | 9 · 49 | 3 | — | `SC_journey_6` + `SC_demo_`* (mục 10) |
+| | **Cộng** | | | **~27** | | |
 
 - **Vì sao chặng 1 lên đầu:** chưa khởi tạo tồn đầu kỳ thì kho chưa kích hoạt (`INVENTORY_NOT_ACTIVATED`), mọi BJ khác chưa dùng được; BJ-01 đọc kết quả của BJ-12; ngưỡng tồn (CAP-01) hiện trong BJ-01. Chặng 1 dựng 5 / 7 khuôn nên nặng nhất (BJ-12 ~3 ngày); các chặng sau nhanh hơn.
 - **Trong chặng 4:** BJ-09 trước vì nó quyết hàng đi đâu (spec: BJ-09 → BJ-07 "RTV candidate", BJ-09 → BJ-10 "Disposal candidate"); vì vậy màn dùng chung 036 / 037 / 041 và K5 dựng ở BJ-09.
@@ -298,7 +318,6 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 #### BJ-12 Khởi tạo tồn đầu kỳ (UIF-12)
 
 - **Plan:** [T7-P-bj12-ton-dau-ky.md](T7-P-bj12-ton-dau-ky.md) (brief mục 0 đã duyệt 2026-10-21; bước C–E).
-
 - **Màn:** 066 Khởi tạo tồn kho (8), 067 Dữ liệu đầu kỳ (5), 068 Kết quả kiểm tra (6), 069 Rà soát (5), 070 Duyệt (5), 071 Kết quả (7).
 - **Hướng sơ bộ:** trình hướng dẫn 3 bước (tải tệp → sửa lỗi → gửi duyệt) có tiến trình; lỗi tệp liệt kê theo dòng (bảng trên web), sửa được ngay; web chính: kéo thả tệp + nút chọn tệp; trên iPhone chỉ nút chọn tệp.
 - **Khuôn:** **dựng K1, K2, K3, K4, K7** (BJ đầu tiên của Giai đoạn 2; web chính: bảng lỗi tệp, màn duyệt SCR-070). K2 dựng đủ hai nhánh: nhân viên lập → Owner duyệt; `is_owner` lập → tự duyệt (mục 2) — brief BJ-12 chốt cách thể hiện, các BJ sau dùng lại.
@@ -307,7 +326,6 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 #### BJ-01 Theo dõi tồn & khả dụng (UIF-01)
 
 - **Plan:** [T7-P-bj01-ton-kho.md](T7-P-bj01-ton-kho.md) (brief duyệt 2026-10-16; rà lại theo code 2026-10-21).
-
 - **Ai, khi nào:** nhân viên khi có khách hỏi; Owner đầu ngày / trước khi đặt hàng.
 - **Màn:** SCR-001 Tồn kho (6 trạng thái), SCR-003 Chi tiết tồn kho (4); SCR-004 = sheet lô của 003.
 - **Lối vào / ra:** Home → "Tra cứu tồn" / ô tìm / Quản lý kho → Tồn kho; ra: chi tiết → thẻ kho (BJ-15), nhận hàng (BJ-02), xử lý lô (BJ-09).
@@ -318,7 +336,6 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 #### CAP-01 Chính sách tồn & cận hạn
 
 - **Plan:** [T7-P-cap01-chinh-sach-ton.md](T7-P-cap01-chinh-sach-ton.md) (brief mục 0 đã duyệt 2026-10-21; bước C–E; `SC_journey_1` hết chặng 1).
-
 - **Màn:** 062 Chính sách tồn (5), 063 Hàng cận hạn (5), 064 Rà soát (4), 065 Kết quả (4).
 - **Hướng sơ bộ:** đặt ngưỡng ngay trong chi tiết sản phẩm (BJ-01, khi "Chưa có ngưỡng tồn"); màn thiết lập chung cho mặc định cửa hàng.
 - **Khuôn:** K2 (nếu cần duyệt), K4.
@@ -328,6 +345,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-02 Nhận hàng mua (UIF-02)
 
+- **Plan:** [T7-P-bj02-nhan-hang.md](T7-P-bj02-nhan-hang.md) (brief mục 0 duyệt 2026-10-21 theo đề xuất ở 0.10; bước C0 = fixture chung chặng 2). Hướng dưới đây là bản trước brief.
 - **Ai, khi nào:** nhân viên khi NCC giao hàng (vài lần / tuần); Owner duyệt khi vượt chứng từ hoặc nhập nhanh.
 - **Màn:** 006 Chọn cách nhận (5), 007 Chứng từ chờ nhận (7), 008 Thông tin nhập nhanh (5), 009 Hàng thực nhận (7), 084 Chi tiết hàng thực nhận (6), 010 Rà soát (7), 011 Phê duyệt (7), 012 Kết quả (7), 013 Đối soát kết quả (7).
 - **Vấn đề đã biết:** hai chế độ (theo chứng từ / nhập nhanh) chỉ phân biệt bằng một dòng phụ; SCR-008 "kéo tệp" trên điện thoại, "Xác nhận quyền sở hữu" là tiêu đề không có ô tick; người duyệt không thấy lượng theo chứng từ cạnh lượng thực nhận; SCR-012 hoàn tất sơ sài, không có bước tiếp; SCR-012 UNKNOWN vừa vòng quay vừa nút; fixture SCR-009 thiếu nhà cung cấp.
@@ -339,6 +357,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-03 Xác lập giá trị nhập ban đầu (UIF-03)
 
+- **Plan:** [T7-P-bj03-gia-nhap.md](T7-P-bj03-gia-nhap.md) (brief mục 0 duyệt 2026-10-21 theo đề xuất ở 0.10; rà lại theo code sau BJ-02).
 - **Ai, khi nào:** Owner, sau mỗi lần nhận hàng (hàng nhận chưa có giá).
 - **Màn:** 014 Hàng chờ xác lập (6), 015 Xác lập (7), 017 Rà soát (3), 019 Kết quả (5).
 - **Vấn đề đã biết:** SCR-015 nút chính tắt không nói lý do; "0 đ/hộp"; khoảng cách không đều; thuật ngữ "Xác lập giá trị nhập ban đầu".
@@ -348,9 +367,10 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-13 Điều chỉnh giá trị hàng nhập (UIF-13)
 
+- **Plan:** [T7-P-bj13-dieu-chinh-gia-tri.md](T7-P-bj13-dieu-chinh-gia-tri.md) (brief mục 0 duyệt 2026-10-21 theo đề xuất ở 0.10; `SC_journey_2` hết chặng 2).
 - **Màn:** 085 Danh sách (6), 086 Phân bổ (5), 089 Kết quả (5); 087 / 088 đã retired.
-- **Hướng sơ bộ:** nhập một khoản điều chỉnh, chọn cách phân bổ, xem trước số mỗi sản phẩm nhận; chỉ Owner.
-- **Khuôn:** K2, K3, K4.
+- **Hướng sơ bộ:** ~~nhập một khoản điều chỉnh~~ (sai spec: khoản đến từ nguồn, Owner không tự gõ — brief BJ-13 0.1); mở khoản từ nguồn, xem cách phân bổ, xem trước số mỗi sản phẩm nhận; chỉ Owner.
+- **Khuôn:** K1, K3, K4, K7 — **không K2** (UC-13-01 không có bước duyệt).
 - **Tài liệu bước E:** SCR-085, 086, 089, UIF-13.
 
 ### Chặng 3 — Bán và giao
@@ -481,13 +501,24 @@ Hết chặng 6: kịch bản golden `SC_demo_*` đi đúng các bước trên (
 
 ## 13. Đề xuất sửa đặc tả và thành phần mới (điền dần)
 
-| BJ | Màn | Loại (luồng / chữ / trạng thái / thành phần) | Đề xuất | Đã duyệt |
-|---|---|---|---|---|
-| 02 | SCR-011 | trạng thái | Dòng "Vượt chứng từ" hiện lượng theo chứng từ cạnh lượng thực nhận | ⬜ |
-| 01 | SCR-001 | thành phần | `VStockRow`: List Row có cột phải hai tầng (số khả dụng mono + badge tình trạng) | ⬜ |
-| 01 | SCR-001 | chữ / thành phần | Nút "Quét mã vạch" trong ô tìm | ⬜ |
-| 01 | SCR-003 | luồng / chữ | Tiêu đề = tên sản phẩm; "Gợi ý nhập thêm …" + "Nhận hàng" → BJ-02; "Xử lý lô hết hạn" → BJ-09 | ⬜ |
-| mọi BJ theo K2 | SCR-011, 034, 038, 040, 046, 051, 070 … | nghiệp vụ | **Người duyệt = `is_owner` hoặc role `store_owner`** (kiểm thẳng ở RPC duyệt / ghi nhận, không thêm quyền `inventory.approve`; `hasPermission` hiện cho mọi thành viên có role — TH-01 BR-52 — nên không dùng được). **Chỉ `is_owner` được tự duyệt phiếu mình lập**; role `store_owner` không phải `is_owner` vẫn cần `is_owner` duyệt; vi phạm → `SELF_APPROVAL_NOT_ALLOWED`. "Owner" trong spec Theme 7 = `is_owner`. Sửa `T7-DR-081` (vế "không phải người lập") và `T7-DR-078` (hoàn nguyên "tuân thủ maker–checker"); UC / BC / SCR / UIF đang có `SELF_APPROVAL_NOT_ALLOWED` hoặc "không tự duyệt" (BJ-02, 06, 08, 09, 10, 11, 12; `ENT-IC-02`, glossary, KB-KGV-011 / 021 / 031). Từng BJ áp ở bước E, rà toàn bộ ở 7.3 | ✅ 2026-10-20 (người dùng) |
+| BJ             | Màn                                     | Loại (luồng / chữ / trạng thái / thành phần) | Đề xuất                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Đã duyệt                                                    |
+| -------------- | --------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 02             | SCR-011                                 | trạng thái                                   | Dòng "Vượt chứng từ" hiện lượng theo chứng từ cạnh lượng thực nhận                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | ⬜                                                           |
+| 01             | SCR-001                                 | thành phần                                   | `VStockRow`: List Row có cột phải hai tầng (số khả dụng mono + badge tình trạng)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | ✅                                                           |
+| 01             | SCR-001                                 | chữ / thành phần                             | Nút "Quét mã vạch" trong ô tìm                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | ✅                                                           |
+| 01             | SCR-003                                 | luồng / chữ                                  | Tiêu đề = tên sản phẩm; "Gợi ý nhập thêm …" + "Nhận hàng" → BJ-02; "Xử lý lô hết hạn" → BJ-09                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | ✅                                                           |
+| 01             | SCR-001, 003                            | chữ / thành phần                             | Chữ mới: sheet "Quét mã vạch" / "Đưa mã vạch vào khung"; banner "Có lô hết hạn" / "Lô {mã} · {SL} {ĐVT} không đủ điều kiện bán."; chip lọc kèm số; không có quyền: "Bạn chưa có quyền xem tồn kho" / "Bạn chưa được cấp quyền xem tồn kho. Liên hệ chủ cửa hàng nếu cần." / "Về Kho"                                                                                                                                                                                                                                                                                                                                                                                                                                                    | ✅                                                           |
+| mọi BJ theo K2 | SCR-011, 034, 038, 040, 046, 051, 070 … | nghiệp vụ                                    | **Người duyệt =** `is_owner` **hoặc role** `store_owner` (kiểm thẳng ở RPC duyệt / ghi nhận, không thêm quyền `inventory.approve`; `hasPermission` hiện cho mọi thành viên có role — TH-01 BR-52 — nên không dùng được). **Chỉ** `is_owner` **được tự duyệt phiếu mình lập**; role `store_owner` không phải `is_owner` vẫn cần `is_owner` duyệt; vi phạm → `SELF_APPROVAL_NOT_ALLOWED`. "Owner" trong spec Theme 7 = `is_owner`. Sửa `T7-DR-081` (vế "không phải người lập") và `T7-DR-078` (hoàn nguyên "tuân thủ maker–checker"); UC / BC / SCR / UIF đang có `SELF_APPROVAL_NOT_ALLOWED` hoặc "không tự duyệt" (BJ-02, 06, 08, 09, 10, 11, 12; `ENT-IC-02`, glossary, KB-KGV-011 / 021 / 031). Từng BJ áp ở bước E, rà toàn bộ ở 7.3 | ✅ 2026-10-20 (người dùng)                                   |
+| 12             | SCR-066                                 | luồng / chữ                                  | Home Kho khi kho chưa kích hoạt: khối "Kho chưa kích hoạt" + "Khởi tạo tồn kho", 4 nút nhanh tắt; "Nhận hàng chờ phê duyệt" → **"Chờ duyệt"** (gom mọi BJ, "3 nhận hàng · 1 số dư đầu kỳ"). 066: "Cần chuẩn bị", "Tải tệp mẫu", lý do + người từ chối, "Tiếp tục chuẩn bị", "Đặt ngưỡng tồn"; chưa rõ kết quả: "Mã tham chiếu", "Thời điểm gửi", "Tồn kho: Chưa mở cho đến khi xác minh xong", "Không nạp lại tệp hay gửi lại."                                                                                                                                                                                                                                                                                                         | ✅ brief 2026-10-21; áp ở prototype v5.5.0                   |
+| 12             | SCR-067                                 | chữ / thành phần                             | "Kéo tệp vào đây hoặc Chọn tệp" (web), "Tệp cần có các cột", "Xem các cột cần có" (iPhone), lỗi tại ô ("Chọn tệp số dư", "Chọn ngày chốt số dư", "Nhập tổng số lượng theo sổ", "Nhập tổng giá trị theo sổ"), banner "Điền các ô được đánh dấu trước khi kiểm tra."                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | ✅ brief; áp v5.5.0                                          |
+| 12             | SCR-068 / SCR-069                       | luồng / chữ                                  | **Gộp SCR-069 vào SCR-068** (069 → RETIRED, "Bỏ từ v5.5.0"). 068: "{a} dòng đọc được · {b} hợp lệ · {c} cần sửa", cột "Cách sửa" (kèm cách sửa từng lỗi), cột "Theo tệp / Theo sổ / Chênh lệch", "Số dư sẽ ghi nhận", "Khớp số kiểm soát", "Dòng sẽ vào kho", chip "Tất cả / Bán được / Không bán được", "Hiện {n} / {m} dòng", "Ghi nhận số dư đầu kỳ" (Owner) + sheet "Chỉ ghi nhận một lần. Sai sau này phải sửa bằng điều chỉnh." / "Huỷ" / "Ghi nhận"                                                                                                                                                                                                                                                                              | ✅ brief; áp v5.5.0                                          |
+| 12             | SCR-070                                 | chữ / trạng thái                             | "Cần quyết", "Duyệt số dư đầu kỳ của {kho}, chốt {ngày}?", "{người} gửi {thời điểm}", "Cần chú ý", "Không bán được: {n} dòng (cách ly / hư hỏng)", "Sau khi duyệt: Kho bắt đầu hoạt động", bảng "Dòng sẽ vào kho" (UC-12-02 BF-01); `SELF_APPROVAL_NOT_ALLOWED` chỉ khi người lập không phải `is_owner`                                                                                                                                                                                                                                                                                                                                                                                                                                 | ✅ brief; áp v5.5.0                                          |
+| 12             | SCR-071                                 | chữ                                          | "Người duyệt: Chủ cửa hàng (tự duyệt)"; "Đặt ngưỡng tồn" → CAP-01; `REJECTED_EXECUTION` có "Lý do" + "Tiếp tục chuẩn bị" (chữ "Lý do" của 071: đề xuất của người làm, chưa có trong brief)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | ✅ brief; áp v5.5.0                                          |
+| 12             | UC-12-02, BJ-12, SCR-070                | nghiệp vụ                                    | Phần BJ-12 của dòng "mọi BJ theo K2" ở trên: ghi ngoại lệ `is_owner` tự duyệt vào UC-12-02 (BF-02, kết quả), BJ-12 (mục 2), SCR-070 mục 6; người duyệt khác = `is_owner` hoặc `store_owner`. `T7-DR-081` / `T7-DR-078` sửa ở 7.3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | ✅ áp ở bước E BJ-12 (2026-10-21)                            |
+| CAP-01         | SCR-062                                 | luồng / chữ / thành phần                     | Ngưỡng tồn theo từng sản phẩm: bảng sửa tại dòng (web) / danh sách + sheet sửa (iPhone) / một sản phẩm (từ BJ-01); thanh chọn "Ngưỡng tồn | Cận hạn"; "Huỷ thay đổi", "Lưu thay đổi ({n})"; sheet tác động "Lưu {n} thay đổi?", "{tên}: {cũ} → {ngưỡng} / {mục tiêu} {ĐVT}", "chưa có", "Tồn thấp: {a} → {b} sản phẩm"; toast "Đã lưu chính sách · Lần {N}"; "Sau khi lưu: {chỉ báo}" / "Sau khi lưu: Không có cảnh báo"; lỗi "Mục tiêu phải lớn hơn hoặc bằng ngưỡng."; bỏ ô "Nguồn áp dụng" (OP-01); **chữ ngoài brief:** badge "Bình thường", lọc rỗng "Không còn sản phẩm nào chưa có ngưỡng" / "Mọi sản phẩm đã có ngưỡng cảnh báo." / "Xem tất cả"                                                                                | ✅ brief; áp v5.7.0 (chữ ngoài brief: đề xuất của người làm) |
+| CAP-01         | SCR-063                                 | luồng / chữ                                  | "Mặc định cho mọi sản phẩm", thẻ "Cảnh báo" / "Chặn bán" kèm mô tả, "Sản phẩm có chính sách riêng", "Dùng mặc định", "Thêm sản phẩm"; **chữ ngoài brief:** "Số ngày cận hạn phải lớn hơn 0.", "Chưa có sản phẩm nào có chính sách riêng.", "Mọi sản phẩm theo lô đều đã có chính sách riêng."                                                                                                                                                                                                                                                                                                                                                                                                                                           | ✅ brief; áp v5.7.0                                          |
+| CAP-01         | SCR-064 / SCR-065                       | luồng / trạng thái                           | **SCR-064 → RETIRED** ("Bỏ từ v5.7.0", thay bằng sheet tác động trong 062); bỏ `APPROVAL_REQUIRED` (không có luồng duyệt, nhân viên chỉ xem: "Chỉ chủ cửa hàng thay đổi được chính sách." / "Bạn có thể xem các mức hiện tại."); 065 chỉ còn `UNKNOWN` / `REJECTED_EXECUTION` ("Chưa cập nhật chính sách", "Quay lại chính sách") / `PERMISSION_DENIED`                                                                                                                                                                                                                                                                                                                                                                                 | ✅ brief; áp v5.7.0                                          |
+| 01             | SCR-003                                 | luồng / chữ                                  | "Đặt ngưỡng tồn" (sản phẩm chưa có ngưỡng) và "Sửa ngưỡng" (Hết hàng / Tồn thấp, trong khối cảnh báo) → CAP-01 SCR-062 một sản phẩm, lưu xong về SCR-003                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | ✅ brief; áp v5.7.0                                          |
 
 ## 14. Tiến độ
 
@@ -518,7 +549,7 @@ Rà trên working tree sau A11 (chưa commit; HEAD `4c7020013`), từng plan ghi
 |---|---|
 | `node --check app/*.js harness/*.js` | Sạch |
 | Golden toàn bộ (1348 ca) | 0 lỗi JS; khớp hoàn toàn `tools/.golden-a11-base` / `-final` — nhưng hai mốc này chụp **sau** khi A11 mất CSS, nên không chứng minh được "giao diện không đổi" |
-| So với mốc trước Giai đoạn 1 (`tools/.golden-base` 911 ca, `tools/.golden-a5-base` 960 ca, chung tên) | **Chữ khớp 100%.** Hình: mọi ca lệch 4 góc khung thiết bị (A11); 23 ca trạng thái lệch thật — 5 do A8, 18 do A11 (+ các ca `SC_*` đi qua cùng màn) |
+| So với mốc trước Giai đoạn 1 (`tools/.golden-base` 911 ca, `tools/.golden-a5-base` 960 ca, chung tên) | **Chữ khớp 100%.** Hình: mọi ca lệch 4 góc khung thiết bị (A11); 23 ca trạng thái lệch thật — 5 do A8, 18 do A11 (+ các ca `SC_`* đi qua cùng màn) |
 | So với `.golden-a10` (186 ca, ngay sau A10) | Chỉ lệch các ca do A11 → A1–A10 sạch về hình trừ A8 |
 | Sau A12 (2026-10-19) | Mốc `tools/.golden-phase1`: **0 khác biệt** (chữ + hình) với `.golden-a5-base`, `.golden-base`, `.golden-a10`, `.golden-a8-check` trên mọi ca chung tên; 0 lỗi JS; bấm thử các luồng đã sửa 0 lỗi |
 | Mốc gốc trước A1 | **Không còn** (`tools/.golden-base` bị chụp lại sau A4, 15:32 17/10); git không giữ được vì prototype T7-P0 chưa từng commit đủ (xem R6) |
@@ -537,23 +568,24 @@ Rà trên working tree sau A11 (chưa commit; HEAD `4c7020013`), từng plan ghi
 
 **R0. Mốc.** Đổi tên `tools/.golden-a11-final` → `tools/.golden-a12-pre` (trạng thái hiện tại). Mốc đích để so: `tools/.golden-a5-base` (960 ca, trước A5), `tools/.golden-base` (911 ca, sau A4), `.golden-a10` (186 ca, sau A10), `tools/.golden-a8-check` (110 ca). Đích của A12: so với **cả bốn** mốc (chỉ trên ca chung tên) → `Khớp hoàn toàn`, chấp nhận duy nhất: (a) ca nháy con trỏ ≤ 30 điểm ảnh ở ô tìm / ô nhập (`SC_attention_UIF-09_1_open`, `UIF-02_SCR-009_VALIDATION_ERROR_quick`, `SC_bj16_denied_1_exit`, `SC_bj17_committed_0`, `UIF-11_SCR-048_READY`, `UIF-13_SCR-085_FINANCIAL_MASKED`); (b) khác biệt có chủ đích đã ghi CHANGELOG (handoff UNKNOWN của A8 chặng 0 — chỉ khác `.golden-a7-after`, không khác bốn mốc trên).
 
-**R1. CSS mất ở A11 (chặn).** ✅ 2026-10-19 (phiên review) — góc khung: luật `.device-preview` bị đảo thứ tự (bản bo 32px thắng bản 34px) + một bản sao bo 32px trong `screens.css`; đặt lại thứ tự `styles.css` gốc (base → is-wide → v0.2.3 34px → khung chuẩn 402×874 → `:not(.is-wide)`), xoá bản sao. Khối "Review cards" chèn lại đúng chỗ. Không cần bước 3: `UIF-13_SCR-089_*` cũng hết lệch. Kết quả: **0 khác biệt** với cả bốn mốc R0. Hướng gốc:
+**R1. CSS mất ở A11 (chặn).** ✅ 2026-10-19 (phiên review) — góc khung: luật `.device-preview` bị đảo thứ tự (bản bo 32px thắng bản 34px) + một bản sao bo 32px trong `screens.css`; đặt lại thứ tự `styles.css` gốc (base → is-wide → v0.2.3 34px → khung chuẩn 402×874 → `:not(.is-wide)`), xoá bản sao. Khối "Review cards" chèn lại đúng chỗ. Không cần bước 3: `UIF-13_SCR-089_`* cũng hết lệch. Kết quả: **0 khác biệt** với cả bốn mốc R0. Hướng gốc:
 
 1. *Góc khung thiết bị* (mọi ca): so một ảnh bất kỳ (`CAP-01_SCR-062_READY.png`) giữa `.golden-a10` và bản chụp mới — chỉ khác 4 góc 45×45. Tìm luật `.device-preview` / `#review-stage` / nền sân khấu (bo góc 32 vs 34px, viền 8px, `box-shadow`, màu nền sau góc) đã đổi khi tách `harness/workbench.css`; đối chiếu bản legacy trong git (`git show HEAD:specs/themes/theme-07/03.design/prototype/html/workbench.css`, `…/styles.css`, `…/v281-device-frame-correction.css`) và trả lại đúng giá trị + thứ tự. Làm bước này **trước** để `compare` không còn lệch ở mọi ca.
 2. *Khối "Review cards"*: chèn vào `styles/components.css` ngay sau dòng `.approval-actions > :last-child { min-height:52px; }` (≈ dòng 1139, đúng vị trí trong chuỗi luật cũ), bản gốc ở `git show HEAD:specs/themes/theme-07/03.design/prototype/html/styles.css` dòng 2111–2117:
    ```css
-   /* Review cards composed from VCardHeader/VCardContent-like anatomy */
-   .review-card-header { min-height:auto; padding:var(--v-space-4) var(--v-space-4) var(--v-space-2); border-bottom:0; background:var(--v-color-surface); }
-   .review-card-header strong { font-size:14px; line-height:19px; font-weight:600; }
-   .review-card-body { gap:var(--v-space-2); padding:0 var(--v-space-4) var(--v-space-4); }
-   .review-line { grid-template-columns:minmax(100px,.8fr) minmax(0,1.2fr); gap:var(--v-space-3); }
-   .review-line > span { color:var(--v-color-text-secondary); font-size:13px; line-height:20px; }
-   .review-line > strong { color:var(--v-color-text-primary); font-size:13px; line-height:20px; font-weight:600; }
+    /* Review cards composed from VCardHeader/VCardContent-like anatomy */
+    .review-card-header { min-height:auto; padding:var(--v-space-4) var(--v-space-4) var(--v-space-2); border-bottom:0; background:var(--v-color-surface); }
+    .review-card-header strong { font-size:14px; line-height:19px; font-weight:600; }
+    .review-card-body { gap:var(--v-space-2); padding:0 var(--v-space-4) var(--v-space-4); }
+    .review-line { grid-template-columns:minmax(100px,.8fr) minmax(0,1.2fr); gap:var(--v-space-3); }
+    .review-line > span { color:var(--v-color-text-secondary); font-size:13px; line-height:20px; }
+    .review-line > strong { color:var(--v-color-text-primary); font-size:13px; line-height:20px; font-weight:600; }
    ```
-   Đổi biến `--v-*` sang `--vet45-v2-*` theo cách T7-P0 đã đổi các dòng ngay trên (`.app-actions` dùng `--vet45-v2-space-3`, `--vet45-v2-surface-default`; tra `styles/tokens.css` cho `text-secondary` / `text-primary`).
+
+    Đổi biến `--v-*` sang `--vet45-v2-*` theo cách T7-P0 đã đổi các dòng ngay trên (`.app-actions` dùng `--vet45-v2-space-3`, `--vet45-v2-surface-default`; tra `styles/tokens.css` cho `text-secondary` / `text-primary`).
 3. Chụp `tools/.golden-a12-r1`, so với bốn mốc R0. Còn ca lệch hình (dự kiến `UIF-13_SCR-089_*` nếu chưa hết) → mở ảnh hai bên, tìm phần tử lệch, tìm luật legacy trong git cho phần tử đó mà `styles/*` không còn **và** không có trong `tools/.usage-a11-6/_css-deletable.txt` → trả lại đúng chỗ. Lặp tới khi chỉ còn 5 ca của R2.
 
-**R2. Footer duyệt và dòng "Điều chỉnh" của A8 (chặn).** ✅ 2026-10-19 (phiên review, theo yêu cầu người dùng) — 5 ca khớp `tools/.golden-a5-base`; so với trước khi sửa chỉ khác các ca SCR-050 / 051 / 070 (+ `SC_bj11_*` / `SC_bj12_*` / `SC_entry_UIF-11/12_approver` đi qua), chữ không đổi, 0 lỗi JS.
+**R2. Footer duyệt và dòng "Điều chỉnh" của A8 (chặn).** ✅ 2026-10-19 (phiên review, theo yêu cầu người dùng) — 5 ca khớp `tools/.golden-a5-base`; so với trước khi sửa chỉ khác các ca SCR-050 / 051 / 070 (+ `SC_bj11_`* / `SC_bj12_*` / `SC_entry_UIF-11/12_approver` đi qua), chữ không đổi, 0 lỗi JS.
 
 1. `shared-control.js` `ac310ApprovalFooter`: viết sẵn kết quả của `normalizeDualFooters` (`v361`) như `bj02.js` (SCR-011) / `cap01.js` (SCR-064) đã làm — footer thêm lớp `v361-dual-footer v361-dual-footer--danger`, `data-ds-prop-layout="Dual" data-ds-prop-tone="Danger"`; nút "Từ chối" (đứng trước nút chính) thêm `data-ds-prop-tone="VComponentTone.danger" data-ds-profile="button.destructiveSecondary"`. Nguồn chuẩn: `git show HEAD:specs/themes/theme-07/03.design/prototype/html/v361-footer-action-correction.js`. Dùng ở `bj11.js` (SCR-051) và `bj12.js` (SCR-070).
 2. `bj11.js` `bj11KeyValueSurface`: dòng có cờ nhấn mạnh (`r[2]`) dựng bằng `ds24KeyValueRow(label, value, true)` (lớp `ds24-key-value-row--emphasis`, `data-ds-prop-state="Emphasis"`) như trước A8; chỉ thêm `v470-kv--attention` nếu mốc gốc có (mở `UIF-11_SCR-051_READY.png` trong `tools/.golden-a5-base`: "Điều chỉnh −2 hộp" đậm đen, không màu cảnh báo). Giữ dấu trừ U+2212 (mốc gốc SCR-051 có `−2`; SCR-050 có `-2` — đối chiếu `.txt`).
@@ -565,13 +597,13 @@ Rà trên working tree sau A11 (chưa commit; HEAD `4c7020013`), từng plan ghi
 node -e 'const fs=require("fs");for(const f of fs.readdirSync("app")){const s=fs.readFileSync("app/"+f,"utf8"),m={};for(const r of s.matchAll(/(?:^|[\s;{}(])function\s+([A-Za-z0-9_$]+)\s*\(|(?:^|[\s;{}])([A-Za-z0-9_$]+)\s*=\s*function\b/gm)){const n=r[1]||r[2];m[n]=(m[n]||0)+1}const d=Object.keys(m).filter(k=>m[k]>1);if(d.length)console.log(f,d.join(" "))}'
 ```
 
-**R4. Chú thích.** ✅ 2026-10-19. `core.js`: xoá dòng 13 `/* ===== app.js ===== */`, các dòng `// v1.7.0 …`, `// v1.8.0 …` (2 chỗ), `/* flowScreen assigns after framework */`; dòng 7 bỏ `simplifyNormalBanners`. Đầu `bj01.js` / `bj04.js`: sửa câu cụt "… màn dựng"; `bj05/06/07.js`: bỏ thụt `  */`; `cap01.js`: bỏ "Còn ở core.js (gỡ dần ở A11): fallback-exit". `bj10.js`: bỏ lớp chuyển tiếp `render0xxBJ10`.
+**R4. Chú thích.** ✅ 2026-10-19. `core.js`: xoá dòng 13 `/* ===== app.js ===== */`, các dòng `// v1.7.0 …`, `// v1.8.0 …` (2 chỗ), `/* flowScreen assigns after framework */`; dòng 7 bỏ `simplifyNormalBanners`. Đầu `bj01.js` / `bj04.js`: sửa câu cụt "… màn dựng"; `bj05/06/07.js`: bỏ thụt   `*/`; `cap01.js`: bỏ "Còn ở core.js (gỡ dần ở A11): fallback-exit". `bj10.js`: bỏ lớp chuyển tiếp `render0xxBJ10`.
 
-**R5. Công cụ và thư mục mốc.** ✅ 2026-10-19 — mốc `tools/.golden-phase1` (1348 ca, 0 lỗi JS, 0 khác biệt với bốn mốc gốc) chụp **trước** khi xoá 32 thư mục mốc tạm; README prototype trỏ mốc mới. `tools/golden.mjs`: bỏ nhánh `||window.__VET45_V350__` / `__VET45_V3101__`. Sau khi A12 đạt: chụp mốc Giai đoạn 2 `tools/.golden-phase1`; xoá mọi `tools/.golden-a*`, `tools/.golden-{base,check,sc-a,sc-b,bj02-sc}`, `tools/.full-*`, `tools/.usage-*`, và `.golden-*` ở gốc `html/`. `tools/.gitignore` thêm `.full*/` và `.usage*/`.
+**R5. Công cụ và thư mục mốc.** ✅ 2026-10-19 — mốc `tools/.golden-phase1` (1348 ca, 0 lỗi JS, 0 khác biệt với bốn mốc gốc) chụp **trước** khi xoá 32 thư mục mốc tạm; README prototype trỏ mốc mới. `tools/golden.mjs`: bỏ nhánh `||window.__VET45_V350__` / `__VET45_V3101__`. Sau khi A12 đạt: chụp mốc Giai đoạn 2 `tools/.golden-phase1`; xoá mọi `tools/.golden-a`*, `tools/.golden-{base,check,sc-a,sc-b,bj02-sc}`, `tools/.full-*`, `tools/.usage-*`, và `.golden-*` ở gốc `html/`. `tools/.gitignore` thêm `.full*/` và `.usage*/`.
 
 **R6. Ghi lại và commit.** ✅ 2026-10-19 — CHANGELOG `[5.3.1]`, `manifest.json` / badge 5.3.1, `sync-registry.py`; commit theo yêu cầu người dùng. CHANGELOG `[5.3.1] — T7-P A12: sửa sau review Giai đoạn 1` (R1 CSS trả lại, R2 footer / dòng nhấn mạnh, R3 một định nghĩa); sửa mục 5.3.0 bỏ `simplifyNormalBanners` khỏi danh sách khung. `manifest.json` 5.3.1; `python3 tools/sync-registry.py`. **Commit gồm cả cấu trúc T7-P0 + A11 chưa từng commit**: 214 file legacy đã xoá, `styles/`, `harness/`, `data/`, `index.html` — kiểm bằng `git stash -u && git status` không còn gì rồi mở `index.html` từ một bản `git worktree` sạch. `detect_changes()` trước commit. Commit: `refactor(prototype): T7-P A11+A12 — framework cleanup, harness split, post-review fixes`.
 
-**R7. Tách lại cụm giá trị theo BJ (A5).** ✅ 2026-10-19 (phiên review, theo yêu cầu người dùng) — helper giao diện của hai khối → `VAL_UI_430` / `VAL_UI_461` trong `shared-valuation.js` (giữ nguyên thân; 5 helper chỉ BJ-03 dùng ở lại `bj03.js`); phần dựng + listener tách thành khối riêng theo BJ: `bj03.js` dựng SCR-014/015/016/017/019, `bj13.js` SCR-085…089, `bj14.js` SCR-072…077. Xoá mã chết lộ ra: nhánh listener `data-v430-val14-*` (không màn nào phát, tham chiếu biến không tồn tại), `VALUATION_FLOWS`, `SCREEN_ALIAS`, `if(typeof renderers==='undefined')`, `val03Commit = val03Commit430` lặp. Gộp nốt định nghĩa trùng dạng bí danh mà đoạn đếm R3 bỏ sót: `val03EvidenceState` / `Source` / `GroupSelectedQty` / `Calc`, `val03Commit` (bản `v397` chết), `val13SelectedTargets` / `Preview` / `PreviewHashOf` / `CanOpenAllocation` / `CanPreview`. Golden 1348 ca khớp hoàn toàn bản sau R3; 0 lỗi JS. Mô tả lúc phát hiện (giữ để đối chiếu): Phát hiện khi làm R3: `bj03.js` chứa khối `v430` dựng SCR-014 (BJ-03) **và SCR-085 (BJ-13)** + listener `data-v430-val14-*` (BJ-14); `bj14.js` chứa khối `v461` dựng SCR-015/017/019 (BJ-03), **SCR-086/089 (BJ-13)** và SCR-072/074/077 (BJ-14); `bj13.js` chỉ có fixture + helper. Mục tiêu A5 "BJ-NN → `app/bjNN.js`" chưa đạt. Hướng: chuyển hàm dựng + listener theo màn về đúng file (helper cục bộ dùng chung của `v430` / `v461` → `shared-valuation.js`), golden khớp hoàn toàn. Ước lượng ~0,5–1 ngày. Có thể dời sang bước C của Đợt giá trị ở Giai đoạn 2 (khi BJ-03/13/14 được viết lại) nếu chấp nhận.
+**R7. Tách lại cụm giá trị theo BJ (A5).** ✅ 2026-10-19 (phiên review, theo yêu cầu người dùng) — helper giao diện của hai khối → `VAL_UI_430` / `VAL_UI_461` trong `shared-valuation.js` (giữ nguyên thân; 5 helper chỉ BJ-03 dùng ở lại `bj03.js`); phần dựng + listener tách thành khối riêng theo BJ: `bj03.js` dựng SCR-014/015/016/017/019, `bj13.js` SCR-085…089, `bj14.js` SCR-072…077. Xoá mã chết lộ ra: nhánh listener `data-v430-val14-`* (không màn nào phát, tham chiếu biến không tồn tại), `VALUATION_FLOWS`, `SCREEN_ALIAS`, `if(typeof renderers==='undefined')`, `val03Commit = val03Commit430` lặp. Gộp nốt định nghĩa trùng dạng bí danh mà đoạn đếm R3 bỏ sót: `val03EvidenceState` / `Source` / `GroupSelectedQty` / `Calc`, `val03Commit` (bản `v397` chết), `val13SelectedTargets` / `Preview` / `PreviewHashOf` / `CanOpenAllocation` / `CanPreview`. Golden 1348 ca khớp hoàn toàn bản sau R3; 0 lỗi JS. Mô tả lúc phát hiện (giữ để đối chiếu): Phát hiện khi làm R3: `bj03.js` chứa khối `v430` dựng SCR-014 (BJ-03) **và SCR-085 (BJ-13)** + listener `data-v430-val14-`* (BJ-14); `bj14.js` chứa khối `v461` dựng SCR-015/017/019 (BJ-03), **SCR-086/089 (BJ-13)** và SCR-072/074/077 (BJ-14); `bj13.js` chỉ có fixture + helper. Mục tiêu A5 "BJ-NN → `app/bjNN.js`" chưa đạt. Hướng: chuyển hàm dựng + listener theo màn về đúng file (helper cục bộ dùng chung của `v430` / `v461` → `shared-valuation.js`), golden khớp hoàn toàn. Ước lượng ~0,5–1 ngày. Có thể dời sang bước C của Đợt giá trị ở Giai đoạn 2 (khi BJ-03/13/14 được viết lại) nếu chấp nhận.
 
 Xong A12: plan tổng mục 14 đổi Review A5 / A6 / A8 / A11 sang ✅ và ghi "Hết Giai đoạn 1".
 
@@ -585,49 +617,54 @@ Chuẩn bị Giai đoạn 2. Plan ✅ (duyệt 2026-10-21) | Làm ✅ 2026-10-21
 
 **Hiện trạng (đo 2026-10-20).**
 
-| Mục | Hiện trạng |
-|---|---|
-| Nút chọn khung | `index.html` dòng ~57: chỉ một nút `data-viewport="mobile"` "Mobile · 402 × 874" |
-| Biến khung | `app/core.js:69` `let viewport = initialParams.get("viewport") === "wide" ? "wide" : "mobile"`; `syncReviewUrl()` (`core.js:476`) ghi `viewport` lên URL; `harness/workbench.js:406–418` đổi lớp `device-preview is-${viewport}` |
-| Chế độ `is-wide` cũ | Không còn nút bật, golden không dùng; còn **25 chỗ** (`grep -n "is-wide" app/*.js styles/*.css harness/*`): luật `.device-preview.is-wide …` trong `styles/components.css` (dòng ~90, 163–183, 910–929, 943, 969, 1213–1214) và **6 luật `:not(.is-wide)`** định khung iPhone 418×890 (`components.css:110`, `:2733`; `screens.css:2797`, `:2892`, `:3392`, `:3398`); `workbench.js:430` |
-| Thu khung cho vừa sân khấu | `fitReviewDeviceToViewport()` (`workbench.js:426`) chỉ tính cho khung iPhone (418 × 890) |
-| Khung app | `app/hub.js:75` `bottomNav()` dựng thanh dưới 5 tab trong `shell()`; màn của luồng (BJ) dựng thẳng vào `#app-screen`, có `statusBar` iOS |
-| Golden | `tools/golden.mjs`: nhóm ca theo luồng (dòng ~81–84: `?uif=…&screen=…`), `HUB_home`, kịch bản `SC_*` (dòng ~312); cửa sổ chụp 1600 × 1100 (`setDeviceMetricsOverride`, dòng ~405, ~501); ảnh = vùng `#device-preview` |
-| Khai báo | `workbench.js:449` `window.__VET45_PROTOTYPE__`: `productKind: "mobile_app"`, `devicePresets` chỉ `iphone-402`; phiên bản 5.3.1 ở `workbench.js:451`, `manifest.json`, badge `index.html:28` |
+| Mục                        | Hiện trạng                                                                                                                                                                                                                                                                                                                                                                               |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nút chọn khung             | `index.html` dòng ~57: chỉ một nút `data-viewport="mobile"` "Mobile · 402 × 874"                                                                                                                                                                                                                                                                                                         |
+| Biến khung                 | `app/core.js:69` `let viewport = initialParams.get("viewport") === "wide" ? "wide" : "mobile"`; `syncReviewUrl()` (`core.js:476`) ghi `viewport` lên URL; `harness/workbench.js:406–418` đổi lớp `device-preview is-${viewport}`                                                                                                                                                         |
+| Chế độ `is-wide` cũ        | Không còn nút bật, golden không dùng; còn **25 chỗ** (`grep -n "is-wide" app/*.js styles/*.css harness/`*): luật `.device-preview.is-wide …` trong `styles/components.css` (dòng ~90, 163–183, 910–929, 943, 969, 1213–1214) và **6 luật** `:not(.is-wide)` định khung iPhone 418×890 (`components.css:110`, `:2733`; `screens.css:2797`, `:2892`, `:3392`, `:3398`); `workbench.js:430` |
+| Thu khung cho vừa sân khấu | `fitReviewDeviceToViewport()` (`workbench.js:426`) chỉ tính cho khung iPhone (418 × 890)                                                                                                                                                                                                                                                                                                 |
+| Khung app                  | `app/hub.js:75` `bottomNav()` dựng thanh dưới 5 tab trong `shell()`; màn của luồng (BJ) dựng thẳng vào `#app-screen`, có `statusBar` iOS                                                                                                                                                                                                                                                 |
+| Golden                     | `tools/golden.mjs`: nhóm ca theo luồng (dòng ~81–84: `?uif=…&screen=…`), `HUB_home`, kịch bản `SC_*` (dòng ~312); cửa sổ chụp 1600 × 1100 (`setDeviceMetricsOverride`, dòng ~405, ~501); ảnh = vùng `#device-preview`                                                                                                                                                                    |
+| Khai báo                   | `workbench.js:449` `window.__VET45_PROTOTYPE__`: `productKind: "mobile_app"`, `devicePresets` chỉ `iphone-402`; phiên bản 5.3.1 ở `workbench.js:451`, `manifest.json`, badge `index.html:28`                                                                                                                                                                                             |
 
 **H0. Mốc.** Chụp `node tools/golden.mjs capture tools/.golden-h1-base`; so với `tools/.golden-phase1` phải "Khớp hoàn toàn (1348 ca)". Không chụp lại mốc này giữa gói.
 
-**H1. Dọn `is-wide` (không đổi hình).**
+**H1. Dọn** `is-wide` **(không đổi hình).**
+
 1. `styles/components.css`, `styles/screens.css`: xoá mọi luật có selector `.device-preview.is-wide` (kể cả trong `@media`); đổi 6 luật `.device-preview:not(.is-wide)` thành `.device-preview.is-mobile` (giữ nguyên thân luật và vị trí). Sửa chú thích `components.css:76` cho khớp (bỏ "is-wide").
 2. `app/core.js:69` → `let viewport = initialParams.get("viewport") === "web" ? "web" : "mobile";` (URL cũ `viewport=wide` rơi về mobile).
 3. `harness/workbench.js:430`: bỏ điều kiện `is-wide` (H5 viết lại hàm).
 4. Kiểm: `grep -rn "is-wide" app styles harness index.html` rỗng; golden mobile khớp hoàn toàn `.golden-h1-base`.
 
 **H2. Nút và khai báo.**
+
 1. `index.html`: thêm `<button class="viewport-button" data-viewport="web" type="button">Web · 1280 × 800</button>` sau nút Mobile.
 2. `workbench.js` `__VET45_PROTOTYPE__`: `productKind: "app"`; `devicePresets` thêm `{ id: "web-1280", kind: "web", width: 1280, height: 800 }`.
 3. Bấm nút đổi khung và tải lại trang với `&viewport=web` → vào đúng khung.
 
 **H3. Khung web (CSS).** Trong `styles/components.css`, ngay sau khối khung iPhone (sau luật `.device-preview.is-mobile` đầu tiên, dòng ~110), thêm khối `/* Khung web 1280×800 (H1) */`:
+
 - `.device-preview.is-web`: `width:1280px; height:800px; min-height:800px; border:1px solid var(--vet45-v2-neutral-300); border-radius:8px;` (không viền dày 8px như iPhone), `display:grid; grid-template-columns:240px minmax(0,1fr);`, nền `--vet45-v2-neutral-100`.
 - `.device-preview.is-web > .app-screen`: cuộn trong vùng của nó; nội dung con căn giữa, `max-width:1120px`.
 - `.device-preview.is-web .app-statusbar { display:none; }`, `.device-preview.is-web .t7-app-bottom-nav { display:none; }` (thanh bên thay thanh dưới).
 - Mọi giá trị dùng token `--vet45-v2-*`; tra `styles/tokens.css`, không gõ tay màu.
 
-**H4. Thanh bên giả (`hub.js`).**
+**H4. Thanh bên giả (**`hub.js`**).**
+
 1. `index.html`: trong `#device-preview`, trước `#app-screen`, thêm `<nav id="web-sidebar" class="t7-web-sidebar" aria-label="Điều hướng chính" hidden></nav>`; CSS: chỉ hiện khi `.device-preview.is-web` (`.device-preview:not(.is-web) .t7-web-sidebar { display:none }`).
 2. `app/hub.js`: thêm `webSidebar()` dựng một lần khi nạp và mỗi khi `render()` (giống `bottomNav()`), chữ lấy đúng của app (W-1 mục 3.3):
    - đầu: tên tổ chức trong fixture của Hub;
    - 5 mục chính "Trang chủ · Đơn hàng · Sản phẩm · Đối tác · Thêm" (chỉ "Thêm" bật, `data-theme-sidebar-route="more"` như `bottomNav()`);
    - mục con của "Thêm": "Kho" (đang chọn; bấm → Home Kho bằng `data-theme-sidebar-route="inventory"`, cùng route cột trái của harness dùng ở `hub.js:247`; handler sẵn có ở `hub.js:367`), "Giá riêng / Nhớ giá", "Người dùng & vai trò", "Tài khoản của tôi", "Thiết lập" (tắt);
    - cuối: "Đăng xuất" (tắt).
-   Mục chọn tô `--vet45-v2-primary-*` như tab đang chọn của thanh dưới; mục tắt mờ như `bottomNav()`; `aria-current="page"` ở "Kho".
+    Mục chọn tô `--vet45-v2-primary-*` như tab đang chọn của thanh dưới; mục tắt mờ như `bottomNav()`; `aria-current="page"` ở "Kho".
 3. Không sửa file `bjNN.js` nào.
 
 **H5. Thu khung cho vừa sân khấu.** `fitReviewDeviceToViewport()`: khung iPhone giữ nguyên công thức (`890` / `418`); khung web: `scale = min(1, availableHeight / 802, availableWidth / 1282)`. Cửa sổ `≤ 840` giữ scale 1 như cũ.
 
 **H6. Golden hai khung.** `tools/golden.mjs`:
-1. Biến môi trường `DEVICE` (`mobile` mặc định, hoặc `web`). Với `web`: mọi URL nhóm thêm `&viewport=web`; tên ca thêm hậu tố `@web`; `setDeviceMetricsOverride` cửa sổ **2400 × 1300** để khung web không bị thu (scale 1); chỉ chụp nhóm màn × trạng thái + `HUB_home`, **bỏ kịch bản `SC_*`** (thêm dần khi BJ có bản web).
+
+1. Biến môi trường `DEVICE` (`mobile` mặc định, hoặc `web`). Với `web`: mọi URL nhóm thêm `&viewport=web`; tên ca thêm hậu tố `@web`; `setDeviceMetricsOverride` cửa sổ **2400 × 1300** để khung web không bị thu (scale 1); chỉ chụp nhóm màn × trạng thái + `HUB_home`, **bỏ kịch bản** `SC_`* (thêm dần khi BJ có bản web).
 2. `DEVICE` để trống → hành vi như cũ, tên ca không đổi (mốc cũ còn so được).
 3. `README.md` (html): thêm `DEVICE=web node tools/golden.mjs capture tools/.golden-web-now` và cách so.
 4. Kiểm: `DEVICE=web … capture tools/.golden-web-base` chạy hết, 0 lỗi JS, ảnh 1280 × 800 (+ viền); mobile `capture tools/.golden-now` → `compare tools/.golden-h1-base tools/.golden-now` "Khớp hoàn toàn". Mốc `tools/.golden-web-base` là mốc web cho BJ-12 (mục 4.5).
@@ -673,6 +710,7 @@ Chuẩn bị Giai đoạn 2. Plan ✅ (duyệt 2026-10-21) | Làm ✅ 2026-10-21
 Lệch 1–6 trong ghi chú: chấp nhận. Lệch 1 (màn BJ giữ cột 402px ở giữa khung web, `!important` để thắng luật theo UIF) đúng tinh thần "màn chưa thiết kế lại hiện bố cục iPhone"; bước C của từng BJ bỏ luật này cho màn của mình khi dựng K7.
 
 Góp ý nhỏ (không chặn, sửa khi tiện):
+
 1. `index.html`: thuộc tính `hidden` trên `#web-sidebar` không có tác dụng (`.t7-web-sidebar { display:flex }` thắng); việc ẩn do luật `.device-preview:not(.is-web) .t7-web-sidebar` làm. Bỏ `hidden` cho khỏi hiểu nhầm.
 2. `components.css` khối `.t7-web-sidebar`: hai chỗ `font: … Inter, system-ui, sans-serif` → dùng `var(--vet45-v2-font-sans)`.
 3. `prototype.manifest.json` còn `5.0.0` / `mobile_app` (ngoài H7) — để mục 7.3 (chốt đặc tả) cập nhật.
@@ -683,14 +721,14 @@ Góp ý nhỏ (không chặn, sửa khi tiện):
 |---|---|---|---|---|
 | Dọn tài liệu 7.1 ([plan](T7-P-doc-don-tai-lieu.md)) | — | ✅ `684a2f7b6`, `fc93c752e` | ✅ review 2026-10-20 | — |
 | Gói H1 — khung web cho harness, chuẩn bị trước BJ-12 · ✅ [plan](#143-gói-h1--khung-web-cho-harness) (mục 14.3) | — | ✅ 2026-10-21 | ✅ review 2026-10-21 | ✅ |
-| **Chặng 1 — Mở kho** (làm theo thứ tự BJ-12 → BJ-01 → CAP-01) | | | | `SC_journey_1` ⬜ — [plan CAP-01 mục 3.5](T7-P-cap01-chinh-sach-ton.md) |
-| BJ-12 ([plan](T7-P-bj12-ton-dau-ky.md)) | ✅ duyệt 2026-10-21 | ⬜ | ⬜ | ⬜ |
-| BJ-01 ([plan](T7-P-bj01-ton-kho.md), rà lại 2026-10-21) | ✅ duyệt 2026-10-16 | ⬜ | ⬜ | ⬜ |
-| CAP-01 ([plan](T7-P-cap01-chinh-sach-ton.md)) | ✅ duyệt 2026-10-21 | ⬜ | ⬜ | ⬜ |
+| **Chặng 1 — Mở kho** (làm theo thứ tự BJ-12 → BJ-01 → CAP-01) | | | | `SC_journey_1` ✅ 2026-10-22 — review đạt; R1–R4 (v5.7.1) + R5 audit (v5.7.2) xong, chưa commit ([plan CAP-01 mục 10](T7-P-cap01-chinh-sach-ton.md#10-review)) — [plan CAP-01 mục 3.5](T7-P-cap01-chinh-sach-ton.md) |
+| BJ-12 ([plan](T7-P-bj12-ton-dau-ky.md)) | ✅ duyệt 2026-10-21 | ✅ 2026-10-21 (v5.5.0) | ✅ 2026-10-21 (ghi chú mục 10 của plan) | ✅ 2026-10-22 — R1–R4 (v5.7.1) + R5 audit (v5.7.2) |
+| BJ-01 ([plan](T7-P-bj01-ton-kho.md), rà lại 2026-10-21) | ✅ duyệt 2026-10-16 | ✅ 2026-10-21 (v5.6.0) | ✅ 2026-10-21 (ghi chú mục 10 của plan) | ✅ 2026-10-22 — R1–R4 (v5.7.1) + R5 audit (v5.7.2) |
+| CAP-01 ([plan](T7-P-cap01-chinh-sach-ton.md)) | ✅ duyệt 2026-10-21 | ✅ 2026-10-21 (v5.7.0) | ✅ 2026-10-21 (ghi chú mục 8 của plan) | ✅ 2026-10-22 — R1–R4 (v5.7.1) + R5 audit (v5.7.2) |
 | **Chặng 2 — Nhập hàng** | | | | `SC_journey_2` ⬜ |
-| BJ-02 | ⬜ | ⬜ | ⬜ | ⬜ |
-| BJ-03 | ⬜ | ⬜ | ⬜ | ⬜ |
-| BJ-13 | ⬜ | ⬜ | ⬜ | ⬜ |
+| BJ-02 ([plan](T7-P-bj02-nhan-hang.md)) | ✅ duyệt 2026-10-21 | ⬜ | ⬜ | ⬜ |
+| BJ-03 ([plan](T7-P-bj03-gia-nhap.md)) | ✅ duyệt 2026-10-21 | ⬜ | ⬜ | ⬜ |
+| BJ-13 ([plan](T7-P-bj13-dieu-chinh-gia-tri.md)) | ✅ duyệt 2026-10-21 | ⬜ | ⬜ | ⬜ |
 | **Chặng 3 — Bán và giao** | | | | `SC_journey_3` ⬜ |
 | BJ-04 / 05 | ⬜ | ⬜ | ⬜ | ⬜ |
 | BJ-06 | ⬜ | ⬜ | ⬜ | ⬜ |

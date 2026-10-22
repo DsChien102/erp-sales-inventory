@@ -65,7 +65,7 @@ function renderFlowInspector() {
     "UIF-15":"v3.2.0 · BJ15 báo cáo/thẻ kho + DS aligned",
     "UIF-16":"v3.2.0 · BJ16 đối soát sai lệch + evidence",
     "UIF-17":"v3.2.0 · BJ17 xác minh kết quả + recovery",
-    "CAP-01":"v3.6.0 · Figma DS primitives · HTML Theme 7 design"
+    "CAP-01":"v5.7.0 · CAP-01 thiết kế lại"
   })[activeFlowId] || "Calibrated shell · structural migration pending";
   document.getElementById("traceability").innerHTML=`<div class="trace-row"><span>BJ / UIF</span><strong>${f.bj} · ${f.id}</strong></div><div class="trace-row"><span>UC</span><strong>${(screen.uc||[]).join(" · ")||"—"}</strong></div><div class="trace-row"><span>Purpose</span><strong>${screen.purpose||"—"}</strong></div><div class="trace-row"><span>Action</span><strong>${actions}</strong></div><div class="trace-row"><span>Figma DS</span><strong>${figmaMigrationLabel}</strong></div><div class="trace-row"><span>DS annotations</span><strong>VPageScaffold → VAppBar · ${(screen.components||[]).join(" · ")}</strong></div><div class="trace-row"><span>Composition</span><strong>${screen.themeComposition||"—"}</strong></div>`;
   document.getElementById("design-rationale").textContent=f.intent || screen.purpose;
@@ -452,7 +452,7 @@ requestAnimationFrame(fitReviewDeviceToViewport);
 
 window.__VET45_PROTOTYPE__ = {
   productKind: "app",
-  version: "5.4.0",
+  version: "5.7.2",
   defaultViewport: { width: 402, height: 874 },
   offline: true,
   uiFlows: flowCatalog.map((f) => f.id),

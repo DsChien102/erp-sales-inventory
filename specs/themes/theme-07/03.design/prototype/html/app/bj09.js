@@ -12,7 +12,8 @@ const ic09Items=[
   {id:"amox",name:"Amox 500",code:"SP-00128",lot:"L2407-A",qty:18,uom:"hộp",state:"SELLABLE",label:"Bán được",expiry:"30/11/2026"},
   {id:"găng",name:"Găng tay M",code:"SP-00410",lot:"L2405-M",qty:6,uom:"hộp",state:"QUARANTINE",label:"Cách ly",expiry:"—"},
   {id:"vitc",name:"Vitamin C",code:"SP-00231",lot:"L2310-C",qty:4,uom:"hộp",state:"EXPIRED",label:"Hết hạn",expiry:"31/08/2026"},
-  {id:"dungthu",name:"Dầu sát khuẩn",code:"SP-00606",lot:"L2406-T",qty:2,uom:"chai",state:"DEMO",label:"Dùng thử",expiry:"31/12/2027"}
+  {id:"dungthu",name:"Dầu sát khuẩn",code:"SP-00606",lot:"L2406-T",qty:2,uom:"chai",state:"DEMO",label:"Dùng thử",expiry:"31/12/2027"},
+  {id:"tylo",name:"Tylosin 20%",code:"SP-000122",lot:"TY2408",qty:11,uom:"lọ",state:"EXPIRED",label:"Hết hạn",expiry:"31/07/2026"}
 ];
 function icChoice(value,label,detail,checked=false){return `<label class="v364-radio-option" data-ds-component="VRadio" data-figma-node="522:7410" data-ds-prop-state="${checked?'On':'Off'}"><input type="radio" name="ic-state" value="${escapeAttribute(value)}" data-ic09-destination ${checked?'checked':''}><span class="v364-radio-control" aria-hidden="true"></span><span class="v364-radio-copy"><strong>${esc(label)}</strong>${detail?`<small>${esc(detail)}</small>`:''}</span></label>`;}
 function ic09StatusTone(s){return s==="EXPIRED"||s==="DAMAGED"?"danger":s==="QUARANTINE"?"warning":s==="DEMO"?"info":"success";}

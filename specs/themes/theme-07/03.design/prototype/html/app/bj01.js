@@ -28,6 +28,7 @@ let bj01SelectedProductId = "INV-NOB";
 let bj01SelectedLotCode = "DH2507";
 let bj01LotOpen = false;
 let bj01ProvenanceOpen = false;
+let bj01ScanOpen = false;
 let bj01QueryAsOf = "09:42 · 27/08/2026";
 let bj01RefreshSequence = ["09:47 · 27/08/2026", "09:51 · 27/08/2026"];
 let bj01RefreshIndex = 0;
@@ -59,7 +60,7 @@ const BJ01_STOCK_TONE = {OUT:"Danger",EXPIRED:"Danger",LOW:"Warning",NEAR:"Warni
 function bj01RowSubtitle(p) {
   const issue=bj01PrimaryAttention(p);
   const inCaption=issue && !BJ01_STOCK_TONE[issue.key];
-  return `${p.available} ${p.stockUom} khả dụng${inCaption ? ` · ${issue.label}` : ""}`;
+  return inCaption ? `${p.code} · ${issue.label}` : p.code;
 }
 function bj01RowBadge(p) {
   const issue=bj01PrimaryAttention(p);
@@ -67,33 +68,70 @@ function bj01RowBadge(p) {
 }
 
 
+// Thứ tự mức gấp ở "Tất cả": Hết hàng → có lô hết hạn → Tồn thấp → có lô cận hạn → bình thường → chưa có ngưỡng.
+const BJ01_URGENCY = ["OUT","EXPIRED","LOW","NEAR"];
+function bj01UrgencyRank(p) {
+  const keys=bj01Indicators(p).map((x)=>x.key);
+  const i=BJ01_URGENCY.findIndex((k)=>keys.includes(k));
+  if(i>=0) return i;
+  return keys.includes("NOT_CONFIGURED") ? BJ01_URGENCY.length+1 : BJ01_URGENCY.length;
+}
+function bj01FilterCount(key) { return key==="ALL" ? bj01Products.length : bj01Products.filter((p)=>bj01Indicators(p).some((x)=>x.key===key)).length; }
+// HSD gần nhất trước: DAY dd/mm/yyyy, MONTH mm/yyyy (cuối tháng), YEAR yyyy (31/12); không có → cuối danh sách.
+function bj01ExpirySortKey(lot) {
+  const parts=String(lot.expiryDisplay||"").split("/").map(Number);
+  if(lot.expiryPrecision==="DAY" && parts.length===3) return new Date(parts[2],parts[1]-1,parts[0]).getTime();
+  if(lot.expiryPrecision==="MONTH" && parts.length===2) return new Date(parts[1],parts[0],0).getTime();
+  if(lot.expiryPrecision==="YEAR" && parts.length===1 && parts[0]) return new Date(parts[0],11,31).getTime();
+  return Infinity;
+}
+
 // ---- Thành phần màn
 function bj01Context() { return `<p class="ds24-context vet45-text-style-7" data-ds-component="VText" data-ds-prop-style="Body/Small">Kho trung tâm · Dữ liệu đến ${esc(bj01AsOf()).replace(" · ", ", ")}</p>`; }
 function bj01SearchAndFilters() {
   const filters=[['ALL','Tất cả'],['OUT','Hết hàng'],['LOW','Tồn thấp'],['NEAR','Cận hạn'],['EXPIRED','Hết hạn']];
-  return `${ds24Search(bj01Query,'data-bj01-search','Tên, mã sản phẩm hoặc mã vạch')}<div class="ds24-chip-scroll" aria-label="Lọc tồn kho" data-composed-from="VChip">${filters.map(([k,l])=>ds24Chip(k,l,bj01Filter===k,'data-bj01-filter')).join('')}</div>`;
+  const scan=`<button type="button" class="ds24-search__action" data-bj01-scan aria-label="Quét mã vạch">${icon("scan","icon--sm")}</button>`;
+  return `${ds24Search(bj01Query,'data-bj01-search','Tên, mã sản phẩm hoặc mã vạch',scan)}<div class="ds24-chip-scroll" aria-label="Lọc tồn kho" data-composed-from="VChip">${filters.map(([k,l])=>ds24Chip(k,l,bj01Filter===k,'data-bj01-filter',bj01FilterCount(k))).join('')}</div>`;
 }
 function bj01Empty(filtered=true){ return ds24EmptyState(filtered); }
-function bj01AvailabilityRows(p,{showAvailable=true}={}) {
+// Đặt / sửa ngưỡng tồn: chủ cửa hàng (CAP-01 chỉ cho nhân viên xem).
+const bj01CanSetThreshold=()=>currentActor()!=="staff";
+function bj01StockHero(p) {
   const unit=esc(p.stockUom);
-  const reasons=(p.eligibilityBreakdown||[]).filter((x)=>Number(x.quantity)>0);
-  const reasonRows=reasons.length?`<div class="bj01-eligibility-reasons" data-composed-from="DS v2 / Key-value Row">${reasons.map((x)=>ds24KeyValueRow(x.reason,`${x.quantity} ${unit}`)).join('')}</div>`:"";
-  return `<section class="ds24-availability${showAvailable?'':' ds24-availability--supporting'}" data-composed-from="DS v2 / Key-value Row">${showAvailable?ds24KeyValueRow('Khả dụng',`${p.available} ${unit}`,true):''}<div class="ds24-key-value-stack">${ds24KeyValueRow('Tồn vật lý',`${p.physical} ${unit}`)}${ds24KeyValueRow('Đủ điều kiện bán',`${p.eligible} ${unit}`)}${ds24KeyValueRow('Đã giữ',`${p.reserved} ${unit}`)}</div>${reasons.length?`${ds24SectionTitle('Không đủ điều kiện bán')}${reasonRows}`:''}</section>`;
+  const issue=bj01Indicators(p).find((x)=>x.key==="OUT")||bj01Indicators(p).find((x)=>x.key==="LOW");
+  const badge=issue?ds24DotBadge(issue.label,BJ01_STOCK_TONE[issue.key]):"";
+  const reasons=(p.eligibilityBreakdown||[]).filter((x)=>Number(x.quantity)>0).map((x)=>`${x.reason} ${x.quantity} ${p.stockUom}`);
+  const stat=(label,value)=>`<div><dt>${esc(label)}</dt><dd>${esc(value)} ${unit}</dd></div>`;
+  // Ngưỡng của sản phẩm đã cấu hình: một dòng cuối thẻ + "Sửa ngưỡng" (CAP-01); nhân viên chỉ thấy số.
+  const policy=p.monitoringConfigStatus!=="NOT_CONFIGURED"&&p.threshold!=null?`<div class="bj01-stock-hero__policy"><span>Ngưỡng ${esc(p.threshold)} · Mục tiêu ${esc(p.target)} ${unit}</span>${bj01CanSetThreshold()?`<button class="cap-link-button" data-bj01-set-threshold type="button">Sửa ngưỡng</button>`:""}</div>`:"";
+  return `<section class="bj01-stock-hero" data-composed-from="VCard,DS v2 / Key-value Row"><div class="bj01-stock-hero__main"><span>Khả dụng</span><strong>${esc(p.available)} ${unit}</strong>${badge}</div><dl class="bj01-stock-hero__stats">${stat("Tồn vật lý",p.physical)}${stat("Đủ điều kiện bán",p.eligible)}${stat("Đã giữ",p.reserved)}</dl>${reasons.length?`<p class="bj01-stock-hero__note">Không đủ điều kiện bán: ${esc(reasons.join(" · "))}</p>`:""}${policy}</section>`;
 }
 function bj01LotQuantityRows(lot,p) {
   const unit=esc(p.stockUom);
   return `<section class="ds24-availability ds24-availability--supporting" data-composed-from="DS v2 / Key-value Row"><div class="ds24-key-value-stack">${ds24KeyValueRow('Tồn vật lý',`${lot.physical} ${unit}`)}${ds24KeyValueRow('Đủ điều kiện bán',`${lot.eligible} ${unit}`)}</div></section>`;
 }
-function bj01AttentionBanner(p) {
-  const item=bj01Indicators(p).find((x)=>x.key==="OUT") || bj01Indicators(p).find((x)=>x.key==="LOW");
-  if(!item) return "";
-  if(item.key==="OUT") {
-    const desc=p.target!=null?`Khả dụng 0 ${esc(p.stockUom)}. Gợi ý bổ sung: ${Math.max(0,p.target-p.available)} ${esc(p.stockUom)} để đạt mức mục tiêu ${p.target} ${esc(p.stockUom)}.`:`Khả dụng 0 ${esc(p.stockUom)}${p.threshold!=null?` · Ngưỡng ${p.threshold} ${esc(p.stockUom)}.`:''}`;
-    return vBanner("error","Hết hàng",desc);
+function bj01Attention(p) {
+  const unit=esc(p.stockUom);
+  const inds=bj01Indicators(p);
+  const item=inds.find((x)=>x.key==="OUT")||inds.find((x)=>x.key==="LOW");
+  let html="";
+  if(item) {
+    const desc=item.key==="OUT"
+      ? `Khả dụng 0 ${unit}${p.threshold!=null?` · Ngưỡng ${p.threshold} ${unit}.`:'.'}`
+      : `Khả dụng ${p.available} ${unit}${p.threshold!=null?` · Ngưỡng ${p.threshold} ${unit}.`:'.'}`;
+    const hint=p.target!=null&&p.target>p.available?`<p class="bj01-attention__hint">Gợi ý nhập thêm ${p.target-p.available} ${unit} (mục tiêu ${p.target} ${unit})</p>`:"";
+    html+=`<div class="bj01-attention">${vBanner(item.key==="OUT"?"error":"warning",item.label,desc)}${hint}<button class="ds24-button ds24-button--secondary" data-bj01-receive type="button" data-ds-component="VButton" data-figma-node="521:529">Nhận hàng</button></div>`;
   }
-  const parts=[`Khả dụng ${p.available} ${esc(p.stockUom)}${p.threshold!=null?` · Ngưỡng ${p.threshold} ${esc(p.stockUom)}.`:''}`];
-  if(p.target!=null&&p.target>p.available) parts.push(`Gợi ý bổ sung: ${p.target-p.available} ${esc(p.stockUom)} để đạt mức mục tiêu ${p.target} ${esc(p.stockUom)}.`);
-  return vBanner("warning","Tồn thấp",parts.join(' '));
+  const expired=(p.lots||[]).filter((l)=>l.expiryIndicator==="EXPIRED");
+  if(expired.length) {
+    const qty=expired.reduce((sum,l)=>sum+Number(l.physical||0),0);
+    html+=`<div class="bj01-attention">${vBanner("error","Có lô hết hạn",`Lô ${esc(expired.map((l)=>l.code).join(" · "))} · ${qty} ${unit} không đủ điều kiện bán.`)}<button class="ds24-button ds24-button--secondary" data-bj01-dispose-lot="${escapeAttribute(expired[0].code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Xử lý lô hết hạn</button></div>`;
+  }
+  return html;
+}
+function bj01ScanSheet() {
+  if(!bj01ScanOpen) return "";
+  return ds24Sheet({title:"Quét mã vạch",attrs:"data-bj01-scan-close",body:`<div class="bj01-scan-frame" aria-hidden="true">${icon("scan")}</div><p class="ds24-context vet45-text-style-7">Đưa mã vạch vào khung</p><button class="ds24-button ds24-button--secondary" data-bj01-scan-sample="INV-AMX" type="button" data-ds-component="VButton" data-figma-node="521:529">Quét thử: Amox 500</button>`});
 }
 function bj01LotSheet(p) {
   if(!bj01LotOpen) return ""; const lot=(p.lots||[]).find((x)=>x.code===bj01SelectedLotCode)||p.lots?.[0]; if(!lot)return "";
@@ -101,7 +139,8 @@ function bj01LotSheet(p) {
   if(lot.expiryIndicator==='EXPIRED') status=vBanner('error','Hết hạn','Lượng của lô này không đủ điều kiện bán.');
   else if(lot.expiryIndicator==='NEAR_EXPIRY'&&lot.nearExpiryAction==='BLOCK_SALE') status=vBanner('warning','Cận hạn · Đã chặn bán','Lượng của lô này không tính vào khả dụng theo chính sách hiện tại.');
   else if(lot.expiryIndicator==='NEAR_EXPIRY') status=vBanner('warning','Cận hạn',`${lot.daysToExpiry!=null?`Còn ${lot.daysToExpiry} ngày · `:''}vẫn đủ điều kiện bán theo chính sách hiện tại.`);
-  return ds24Sheet({title:`Lô ${lot.code}`,attrs:'data-bj01-close-lot',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · HSD ${esc(lot.expiryDisplay)}</p>${bj01LotQuantityRows(lot,p)}${status}`});
+  const dispose=lot.expiryIndicator==='EXPIRED'?`<button class="ds24-button ds24-button--secondary" data-bj01-dispose-lot="${escapeAttribute(lot.code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Xử lý lô hết hạn</button>`:'';
+  return ds24Sheet({title:`Lô ${lot.code}`,attrs:'data-bj01-close-lot',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · HSD ${esc(lot.expiryDisplay)}</p>${bj01LotQuantityRows(lot,p)}${status}${dispose}`});
 }
 function bj01ProvenanceSheet(p) {
   if(!bj01ProvenanceOpen)return "";
@@ -112,42 +151,69 @@ function bj01ProvenanceSheet(p) {
 }
 
 // ---- Màn
+function bj01Stale(withDate) {
+  return k1Stale({title:"Dữ liệu có thể đã cũ",description:withDate?`Dữ liệu đến ${bj01AsOf()}. Hãy làm mới trước khi sử dụng.`:"Hãy làm mới trước khi sử dụng.",actionLabel:"Làm mới",actionAttr:"data-bj01-refresh"});
+}
 function render001BJ01(state) {
-  if(state==="PERMISSION_DENIED") return appShell({title:"Tồn kho",body:deniedBody(),centered:true,back:false});
-  if(state==="LOADING") return appShell({title:"Tồn kho",body:bj01Context()+loadingBody(),back:false});
-  const stale=state==="STALE"?`${vBanner("warning","Dữ liệu có thể đã cũ","Hãy làm mới trước khi sử dụng.")}<button class="ds24-button ds24-button--secondary ds24-inline-action" data-bj01-refresh type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('rotate','icon--sm')}Làm mới</button>`:"";
-  const visible=state==="EMPTY"||state==="FILTER_EMPTY"?[]:bj01Products.filter((p)=>bj01MatchesFilter(p)&&bj01MatchesSearch(p));
+  if(state==="PERMISSION_DENIED") return appShell({title:"Tồn kho",body:k1Denied({what:"xem tồn kho",next:"Bạn chưa được cấp quyền xem tồn kho. Liên hệ chủ cửa hàng nếu cần.",exitAttr:k1ExitAttr("SCR-001")}),centered:true,back:false});
+  if(state==="LOADING") return appShell({title:"Tồn kho",body:bj01Context()+k1Loading({blocks:["search","row","row","row","row"]}),back:false});
+  const stale=state==="STALE"?bj01Stale(false):"";
+  let visible=state==="EMPTY"||state==="FILTER_EMPTY"?[]:bj01Products.filter((p)=>bj01MatchesFilter(p)&&bj01MatchesSearch(p));
+  if(bj01Filter==="ALL") visible=visible.map((p,i)=>({p,i,r:bj01UrgencyRank(p)})).sort((x,y)=>x.r-y.r||x.i-y.i).map((x)=>x.p);
   const empty=state==="EMPTY"?bj01Empty(false):(!visible.length?bj01Empty(true):"");
-  const rows=visible.map((p)=>ds24ListRow({title:`${p.name} · ${p.code}`,subtitle:bj01RowSubtitle(p),trailing:bj01RowBadge(p),attrs:`data-bj01-product="${p.id}" data-bj01-search-text="${escapeAttribute(bj01SearchText(p))}"`,})).join('');
-  const body=`${bj01Context()}${stale}${bj01SearchAndFilters()}${rows?`<section class="ds24-list-stack" data-composed-from="DS v2 / List Row">${rows}</section>`:''}${empty}`;
+  const rows=visible.map((p)=>ds24StockRow({title:p.name,subtitle:bj01RowSubtitle(p),quantity:`${p.available} ${p.stockUom}`,badge:bj01RowBadge(p),attrs:`data-bj01-product="${p.id}" data-bj01-search-text="${escapeAttribute(bj01SearchText(p))}"`})).join('');
+  const body=`${bj01Context()}${stale}${bj01SearchAndFilters()}${rows?`<section class="ds24-list-stack" data-composed-from="DS v2 / List Row">${rows}</section>`:''}${empty}${bj01ScanSheet()}`;
   return appShell({title:"Tồn kho",body,back:false});
 }
 function render003BJ01(state) {
-  const entrySubtitle=entryMode==="product-context"?"Từ ngữ cảnh sản phẩm · Kho trung tâm":null;
   const entryBack=entryMode==="product-context"?"exit-inventory-product-context":"";
-  if(state==="PERMISSION_DENIED") return appShell({title:"Chi tiết tồn kho",subtitle:entrySubtitle,body:deniedBody(),centered:true,back:true,backAction:entryBack});
-  if(state==="LOADING") return appShell({title:"Chi tiết tồn kho",subtitle:entrySubtitle,body:loadingBody(),back:true,backAction:entryBack});
+  if(state==="PERMISSION_DENIED") return appShell({title:"Chi tiết tồn kho",body:k1Denied({what:"xem tồn kho",next:"Bạn chưa được cấp quyền xem tồn kho. Liên hệ chủ cửa hàng nếu cần.",exitAttr:k1ExitAttr("SCR-001")}),centered:true,back:true,backAction:entryBack});
   const p=bj01ProductById(bj01SelectedProductId);
-  const stale=state==="STALE"?`${vBanner("warning","Dữ liệu có thể đã cũ",`Dữ liệu đến ${esc(bj01AsOf())}. Hãy làm mới trước khi sử dụng.`)}<button class="ds24-button ds24-button--secondary ds24-inline-action" data-bj01-refresh type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('rotate','icon--sm')}Làm mới</button>`:"";
-  const productContext=ds24ListRow({title:p.name,subtitle:`${p.code} · ${p.stockUom}`,leading:'package',type:'Status',interactive:false,density:'Compact',attrs:'data-ds-role="inventory-product-summary"'});
-  const configNote=p.monitoringConfigStatus==='NOT_CONFIGURED'?`<p class="ds24-context bj01-config-note" data-ds-component="VText">Chưa cấu hình ngưỡng tồn; chưa thể xác định trạng thái tồn thấp/bình thường.</p>`:"";
-  let body=`${bj01Context()}${stale}${productContext}${bj01AvailabilityRows(p)}${configNote}${bj01AttentionBanner(p)}`;
+  const title=p.name, subtitle=`${p.code} · ${p.stockUom}`;
+  if(state==="LOADING") return appShell({title,subtitle,body:bj01Context()+k1Loading({blocks:["card","row","row","row"]}),back:true,backAction:entryBack});
+  const stale=state==="STALE"?bj01Stale(true):"";
+  const configNote=p.monitoringConfigStatus==='NOT_CONFIGURED'?`<p class="ds24-context bj01-config-note" data-ds-component="VText">Chưa cấu hình ngưỡng tồn; chưa thể xác định trạng thái tồn thấp/bình thường.</p>${bj01CanSetThreshold()?`<button class="ds24-button ds24-button--secondary" data-bj01-set-threshold type="button" data-ds-component="VButton" data-figma-node="521:529">Đặt ngưỡng tồn</button>`:""}`:"";
+  let body=`${bj01Context()}${stale}${bj01StockHero(p)}${bj01Attention(p)}${configNote}`;
   if(p.tracking==='LOT') {
-    const lots=p.lots.map((lot)=>{const badge=lot.expiryIndicator==='NEAR_EXPIRY'?ds24DotBadge('Cận hạn','Warning'):lot.expiryIndicator==='EXPIRED'?ds24DotBadge('Hết hạn','Danger'):'';return ds24ListRow({title:`Lô ${lot.code}`,subtitle:`HSD ${lot.expiryDisplay} · Tồn ${lot.physical} ${p.stockUom}`,trailing:badge,leading:null,attrs:`data-bj01-lot="${escapeAttribute(lot.code)}"`,});}).join('');
+    const sorted=[...p.lots].sort((x,y)=>bj01ExpirySortKey(x)-bj01ExpirySortKey(y));
+    const lots=sorted.map((lot)=>{const badge=lot.expiryIndicator==='NEAR_EXPIRY'?ds24DotBadge('Cận hạn','Warning'):lot.expiryIndicator==='EXPIRED'?ds24DotBadge('Hết hạn','Danger'):'';return ds24ListRow({title:`Lô ${lot.code}`,subtitle:`HSD ${lot.expiryDisplay} · Tồn ${lot.physical} ${p.stockUom}`,trailing:badge,leading:null,attrs:`data-bj01-lot="${escapeAttribute(lot.code)}"`,});}).join('');
     body+=`<section class="ds24-section">${ds24SectionTitle('Lô và hạn dùng',`${p.lots.length} lô`)}<div class="ds24-list-stack">${lots}</div></section>`;
   }
   body+=`<section class="ds24-section">${ds24ListRow({title:'Nguồn và thời điểm cập nhật',subtitle:'Xem nguồn số liệu và lịch sử',leading:'history',attrs:'data-bj01-provenance',})}</section>${bj01LotSheet(p)}${bj01ProvenanceSheet(p)}`;
-  return appShell({title:"Chi tiết tồn kho",subtitle:entrySubtitle,body,back:true,backAction:entryBack});
+  return appShell({title,subtitle,body,back:true,backAction:entryBack});
 }
 function render004BJ01(state) { bj01LotOpen=true; return render003BJ01(state==="PERMISSION_DENIED"?state:state==="LOADING"?state:"READY"); }
 
 Object.assign(renderers, { "SCR-001": render001BJ01, "SCR-003": render003BJ01, "SCR-004": render004BJ01 });
 
 // ---- Sự kiện
+// Esc đóng sheet đang mở (lô, nguồn, quét) — như BJ-12 / CAP-01.
+document.addEventListener("keydown", (event) => {
+  if (activeFlowId !== "UIF-01" || event.key !== "Escape" || !(bj01LotOpen || bj01ProvenanceOpen || bj01ScanOpen)) return;
+  event.preventDefault(); bj01LotOpen = false; bj01ProvenanceOpen = false; bj01ScanOpen = false; renderAppScreen();
+}, true);
 document.addEventListener("click", (event) => {
   if (activeFlowId === "UIF-01") {
     const product = event.target.closest("[data-bj01-product]");
     if (product) { bj01SelectedProductId=product.dataset.bj01Product; bj01LotOpen=false; bj01ProvenanceOpen=false; return navigate("SCR-003"); }
+    if (event.target.closest("[data-bj01-scan]")) { bj01ScanOpen=true; return renderAppScreen(); }
+    if (event.target.matches("[data-bj01-scan-close]")) { bj01ScanOpen=false; return renderAppScreen(); }
+    const sample = event.target.closest("[data-bj01-scan-sample]");
+    if (sample) { bj01ScanOpen=false; bj01SelectedProductId=sample.dataset.bj01ScanSample; bj01LotOpen=false; bj01ProvenanceOpen=false; return navigate("SCR-003"); }
+    if (event.target.closest("[data-bj01-set-threshold]")) { bj01LotOpen=false; bj01ProvenanceOpen=false; return capOpenForProduct(bj01SelectedProductId); }
+    if (event.target.closest("[data-bj01-receive]")) {
+      bj01LotOpen=false; bj01ProvenanceOpen=false;
+      activeFlowId="UIF-02"; flowMode="quick"; resetBj02Receipt("quick");
+      activeScreenId="SCR-008"; stateByScreen["SCR-008"]="READY";
+      syncReviewUrl(); return render();
+    }
+    const dispose = event.target.closest("[data-bj01-dispose-lot]");
+    if (dispose) {
+      bj01LotOpen=false; bj01ProvenanceOpen=false;
+      activeFlowId="UIF-09"; ic09Filter="EXPIRED"; ic09Query=dispose.dataset.bj01DisposeLot;
+      activeScreenId="SCR-036"; stateByScreen["SCR-036"]="READY";
+      syncReviewUrl(); return render();
+    }
     const lot = event.target.closest("[data-bj01-lot]");
     if (lot) { bj01SelectedLotCode=lot.dataset.bj01Lot; bj01LotOpen=true; bj01ProvenanceOpen=false; return renderAppScreen(); }
     const filter = event.target.closest("[data-bj01-filter]");

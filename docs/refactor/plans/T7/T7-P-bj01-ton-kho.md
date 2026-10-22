@@ -1,6 +1,6 @@
 # T7-P · BJ-01 Tồn kho & khả dụng — dựng thiết kế mới (bước C–E)
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (rà lại theo code sau Giai đoạn 1 + H1 + plan BJ-12: 2026-10-21) | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (rà lại theo code sau Giai đoạn 1 + H1 + plan BJ-12: 2026-10-21) | Làm ✅ 2026-10-21 (v5.6.0, chưa commit) | Review ✅ 2026-10-22 (đạt; R1–R5 xong, v5.7.2 — [plan CAP-01 mục 10](T7-P-cap01-chinh-sach-ton.md#10-review))
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md). Brief đã duyệt 2026-10-16: mục 0 của plan này. Bước A đã xong (`app/bj01.js`).
 > Ước lượng: **~1–1,5 ngày, 2 commit** (C+D; E). Làm **sau** [dọn tài liệu 7.1](T7-P-doc-don-tai-lieu.md) (bước E dùng khuôn ở đó) **và sau BJ-12** — 2026-10-20 Giai đoạn 2 sắp theo chặng hành trình, BJ-01 là BJ thứ hai của chặng 1 "Mở kho" ([T7-P mục 8.2](T7-P-thiet-ke-lai-luong.md)); K1 dựng ở BJ-12 (`app/shared-patterns.js`), plan này dùng lại. Thiết bị chính: **iPhone**; web phải dùng được (T7-P mục 2). Phiên bản đích **5.6.0** (BJ-12 = 5.5.0, CAP-01 = 5.7.0).
 > Người làm: bạn. Review: phiên plan / review.
@@ -300,8 +300,22 @@ Trước mỗi commit chạy `detect_changes()` theo CLAUDE.md (thay đổi ch�
 
 ## 10. Ghi chú khi làm
 
-(Bạn ghi lệch plan, vấn đề phát sinh, ảnh cần hỏi.)
+Làm 2026-10-21. Golden: mobile `.golden-bj01-after` (1399 ca), web `.golden-bj01-web-after` (551 ca), 0 lỗi JS. Mốc `.golden-bj01-base` mobile khớp hoàn toàn `.golden-bj12-after`; mốc web lệch mốc BJ-12 ở 2 ca nhiễu (`UIF-06_SCR-033_READY@web` 47 điểm, `UIF-07_SCR-037_EXPIRED@web` 33 điểm), không thuộc BJ-01.
+
+**Lệch plan**
+
+1. **Tiêu đề không có quyền:** plan mục 3.5 / 9 ghi `what:"Không có quyền xem tồn kho"`, nhưng `k1Denied` tự ghép "Bạn chưa có quyền {what}" → "Bạn chưa có quyền Không có quyền…". Dùng `what:"xem tồn kho"` → tiêu đề "Bạn chưa có quyền xem tồn kho" (cùng kiểu BJ-12). Mô tả và nút "Về Kho" đúng plan. Đã ghi chữ này vào SCR-001 / 003 mục 8 và T7-P mục 13.
+2. **Chip "Tồn thấp" = 2, không phải 1:** brief tính theo dữ liệu cũ; dữ liệu hiện tại có Amox 500 và Tylosin 20% đều tồn thấp. Số chip đếm đúng theo chỉ báo.
+3. **Chip vẫn cuộn ngang:** khung chip bị khoá 370px bởi luật chung (`body[data-active-uif] .figma-calibrated-shell .ds24-chip-scroll`). Thu khoảng cách + đệm chip BJ-01 (6px / 10px) để thấy ~4,5 chip; "Hết hạn" cần cuộn. Chữ không còn bị cắt. Muốn thấy đủ 5 chip không cuộn thì phải đổi chung khung chip (ngoài phạm vi).
+4. **Nút quét mô phỏng:** thêm `.ds24-search__action` có margin âm để vùng chạm 44 × 44 nằm trong ô tìm 44 cao.
+5. **Dọn CSS (mục 3.6) chưa làm hết:** đã xoá luật chỉ riêng BJ-01 và không khớp phần tử nào (`.bj01-product-row*`, `.bj01-list-empty`, `.bj01-eligibility-reasons`, `.ds24-key-value-row--emphasis` của UIF-01, `[data-bj01-product-row][hidden]`). **Không** chuyển luật còn dùng (≈110 luật `UIF-01` / `bj01-` trong `screens.css`, nhiều luật `!important`, một số dùng chung `:is(UIF-01, UIF-02, …)`) vào khối cuối: đổi thứ tự luật có nguy cơ vỡ BJ khác, làm riêng một gói dọn CSS sau. Còn 8 luật `UIF-01` / `bj01-` đo là không dùng nhưng nằm trong `:is()` chung với BJ khác — giữ.
+6. **Tên file đo CSS:** `golden.mjs usage` ghi `_css-unused.txt` (plan ghi `_css-deletable.txt`). Chạy với filter `bj01` mới gồm cả kịch bản `SC_bj01_*` (filter `UIF-01` chỉ chạy 14 ca trạng thái).
+7. **Ca golden đổi ngoài danh sách plan (đều đi qua SCR-001 hoặc SCR-036):** `SC_ws_inventory_0_2_item`, `SC_cap01_*`, `SC_bj12_approve_6`, `SC_bj12_pending_list_11`, `SC_entry_state_01_0` (kết thúc ở Tồn kho); `SC_attention_UIF-09`, `SC_bj09_flow_*`, `SC_ws_control_1_2`, `SC_ws_inventory_1_2` (dòng Tylosin thêm vào BJ-09).
+8. **`detect_changes()` (CLAUDE.md):** công cụ GitNexus MCP không có trong phiên này nên chưa chạy; thay đổi chỉ ở prototype HTML / tài liệu, không đụng symbol Flutter.
+9. **Chưa commit:** theo thứ tự mục 6 plan (2 commit) khi bạn yêu cầu; cây làm việc còn chung với thay đổi BJ-12 chưa commit.
+
+**Ảnh nên xem:** `UIF-01_SCR-001_READY`, `UIF-01_SCR-003_READY`, `SC_bj01_list_5_product`, `SC_bj01_tylo_1_product`, `SC_bj01_scan_1_scan`, `UIF-01_SCR-001_PERMISSION_DENIED`, `UIF-01_SCR-003_LOADING` trong `tools/.golden-bj01-after`.
 
 ## 11. Review
 
-(Phiên review điền sau khi bạn báo xong.)
+(2026-10-21, phiên review) — review chung cả chặng 1 (R1–R4 đã sửa ở v5.7.1; còn R5 `/impeccable audit` trước commit): [plan CAP-01 mục 10](T7-P-cap01-chinh-sach-ton.md#10-review). Lệch 1–9 chấp nhận (lệch 5: dọn CSS để gói riêng ở Giai đoạn 3). Phần của BJ-01: **R3** (ngưỡng của sản phẩm bình thường không xem / sửa được ở SCR-003); góp ý 1, 7, 11.

@@ -1,5 +1,63 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.7.2] — R5: `/impeccable audit` chặng 1 (Hub, BJ-12, BJ-01, CAP-01)
+
+Đo bằng Chrome headless ở cả hai khung (Hub cả `activation=pending`; 066 / 067 / 068 / 070 / 071 nhiều trạng thái; 001, 003 + sheet lô / nguồn / quét; 062 bảng + một sản phẩm + sheet lưu + chỉ xem; 063; 065): tương phản chữ ≥ 4,5:1 (chữ lớn ≥ 3:1) — **0 lỗi** (bộ đo đã thử với chữ #bbb → 1,8:1 bị bắt); vùng chạm iPhone — chip lọc BJ-01 cao 34px nhưng `::after` mở rộng 5px mỗi phía (= 44px), **đạt**; ô số / nút icon có nhãn; ô số bảng web có viền focus (`:focus-within`). Golden mobile 1440 ca / web 603 ca **khớp hoàn toàn** `tools/.golden-chang1*` (sửa chỉ đổi hành vi, không đổi hình); 0 lỗi JS. Mốc không cần chụp lại.
+
+- **Focus hộp thoại (`core.js` `syncDialogFocus`, gọi cuối `renderAppScreen`):** sheet / hộp thoại `role="dialog"` mở thì focus vào hộp thoại (`tabindex="-1"`, không vòng focus — `components.css`); đóng (Esc, Huỷ, nền) thì focus về nút đã mở, nhớ bằng thuộc tính `data-*` của nút vì màn dựng lại. Áp cho mọi BJ dùng `renderAppScreen`.
+- **Esc đóng sheet BJ-01** (`bj01.js`): sheet lô, nguồn, quét (BJ-12 / CAP-01 đã có).
+- **Nhãn:** ô "Lý do từ chối" (`icTextarea`, `shared-control.js`) có `aria-label`; `ds24Sheet` (`core.js`) có `aria-label` = tiêu đề.
+- **Không lỗi / ngoài phạm vi:** khung iPhone CAP-01 062 — nút "Lưu thay đổi (n)" của bảng ẩn (iPhone sửa bằng sheet từng dòng) nên không có ca trả focus về nút đó; BJ-02 sheet từ chối chèn DOM ngoài `renderAppScreen` → chưa có focus tự động (thiết kế lại ở chặng 2, plan BJ-02 mục 5.1 dùng `k2RejectSheet`).
+
+## [5.7.1] — Sửa sau review chặng 1 (BJ-12, BJ-01, CAP-01)
+
+Golden mobile / web so `tools/.golden-chang1*` (v5.7.0): khác có chủ đích — `HUB_home_not_activated`, `SC_hub_not_activated_*`, `SC_bj12_owner_0`, `SC_bj12_pending_list_*`, `SC_journey_1_*` (R2); `UIF-01_SCR-003_*`, `SC_bj01_*` qua chi tiết, `SC_entry_UIF-01_product-context_0`, `SC_entry_state_*` (R3); `SC_cap_single_*`, `SC_cap_mobile_sheet_1` (R1); `CAP-01_SCR-062/063_*`, `SC_cap_*` (chỉ xem, ô chọn, bảng căn giữa, hộp thoại web); `UIF-12_SCR-070_READY` và kịch bản qua 070 (`SC_bj12_approve/reject/self/stale`, `SC_entry_UIF-12_approver_0`). `UIF-06_SCR-033_READY@web` 47 điểm = nhiễu đã biết. 0 lỗi JS ở cả hai khung. Mốc `tools/.golden-chang1*` chụp lại.
+
+- **R1 (`cap01.js`):** một sản phẩm / sheet sửa trên iPhone: hai ô trống thì "Lưu" tắt, không có dòng "Sau khi lưu" (trước: lưu thành ngưỡng 0 / 0).
+- **R2 (`hub.js`):** Kho chưa kích hoạt: "Cần chú ý" bỏ nhận hàng chờ duyệt, lô sắp hết hạn, sai lệch, nghiệp vụ chưa rõ; chỉ còn "Chờ duyệt" của số dư đầu kỳ khi có, không có thì bỏ cả mục.
+- **R3 (`bj01.js`):** SCR-003 sản phẩm đã có ngưỡng: dòng cuối thẻ số "Ngưỡng {n} · Mục tiêu {m} {ĐVT}" + "Sửa ngưỡng" (bỏ liên kết trong khối cảnh báo). Nhân viên (`staff`) không thấy "Đặt ngưỡng tồn" / "Sửa ngưỡng".
+- **R4 (tài liệu):** link cũ SCR-069 / SCR-064 mở màn mới ở trạng thái mặc định — ghi rõ ở SCR-068, SCR-062, UIF-12.
+- **Góp ý nhỏ:** CAP-01 chỉ xem trên iPhone dùng dòng trạng thái (không mũi tên); Esc đóng sheet CAP-01; bảng có ô sửa căn giữa theo ô nhập; hộp thoại giữa màn trên web (`k7-wide`) rộng 480px, bo bốn góc, không thanh kéo, không đáy thừa; ô chọn hành động 063 có mũi tên; 070 "Sau khi duyệt" dùng icon thông tin (`k2Decision` nhận tone thứ ba của dòng); `workbench-data` bỏ SCR-064 khỏi `screen_ids` của `ACT-12-CONFIGURE`; `screen-registry.md` SCR-064 → `RETIRED_v5.7.0`.
+
+## [5.7.0] — T7-P CAP-01: thiết kế lại Chính sách tồn & cận hạn; hết chặng 1 (`SC_journey_1`)
+
+Golden mobile so `tools/.golden-bj01-after`, web so `tools/.golden-bj01-web-after`. Khác có chủ đích: `CAP-01_*` (SCR-064 mất), `SC_cap_*` (thay `SC_cap01_*`), `SC_journey_1`, `SC_ws_inventory_2_2_item` / `SC_ws_setup_1_2_item` (mở CAP-01), `SC_bj12_owner_10_policy` (nút "Đặt ngưỡng tồn"), và ca BJ-01 SCR-003 của sản phẩm có nút mới — Oxytetracycline LA ("Đặt ngưỡng tồn") và Amox 500 / Enrofloxacin 10% / Tylosin 20% ("Sửa ngưỡng" trong khối cảnh báo): `SC_bj01_list_5`, `SC_bj01_out_1`, `SC_bj01_receive_1`, `SC_bj01_scan_2`, `SC_bj01_stale_2`, `SC_bj01_theme_2`, `SC_bj01_tylo_*`, `SC_bj01_expired_*`. Ca khác khớp mốc; 0 lỗi JS ở cả hai khung. Mốc mới (chặng 2): `tools/.golden-chang1`, `tools/.golden-chang1-web`.
+
+- **SCR-062 (`cap01.js`, viết lại):** bảng sản phẩm sửa tại dòng (web): Sản phẩm · ĐVT · Khả dụng · Ngưỡng cảnh báo · Mức tồn mục tiêu · Chỉ báo (tính lại theo giá trị đang gõ), lọc "Tất cả / Chưa có ngưỡng", chấm dòng đã sửa, lỗi "Mục tiêu phải lớn hơn hoặc bằng ngưỡng." dưới ô, chân "Huỷ thay đổi" | "Lưu thay đổi (n)". Lưu bảng → sheet tác động ("Lưu n thay đổi?", đổi từng sản phẩm, "Tồn thấp: a → b sản phẩm") → toast "Đã lưu chính sách · Lần N", ở lại màn. iPhone: danh sách + sheet sửa hai ô, lưu thẳng. Một sản phẩm (vào từ BJ-01): tiêu đề = tên sản phẩm, phụ đề "Ngưỡng tồn", "Khả dụng …", "Sau khi lưu: …", "Lưu" → về SCR-003.
+- **SCR-063:** "Mặc định cho mọi sản phẩm" (số ngày + hai thẻ lựa chọn "Cảnh báo" / "Chặn bán") và "Sản phẩm có chính sách riêng" (bảng web / thẻ iPhone: số ngày, hành động, "Dùng mặc định"; "Thêm sản phẩm" chỉ liệt kê sản phẩm theo lô). Thanh chọn "Ngưỡng tồn | Cận hạn" chung với 062; bỏ ô "Nguồn áp dụng" và khối "Phạm vi".
+- **SCR-064 Rà soát:** bỏ — thành sheet tác động trong 062 (`screenAliases["CAP-01"]`, bỏ khỏi `workbench-data`). **SCR-065:** chỉ còn `UNKNOWN` (K3) / `REJECTED_EXECUTION` (K4) / `PERMISSION_DENIED` (K1); `COMPLETED` (đường cũ) mở 062 + toast.
+- **Quyền:** `is_owner` / `store_owner` sửa; `entry=staff` (`entryTargets["CAP-01"].staff`) chỉ xem — banner K1 "Chỉ chủ cửa hàng thay đổi được chính sách.", ô khoá, không chân. Không có luồng duyệt.
+- **Thành phần dùng chung (`shared-patterns.js`, `components.css`):** `k7EditCell` (ô số có hậu tố đơn vị, lỗi dưới ô, `aria-label`), `dsSegmented` (`.ds-segmented`, chép giá trị `.cf-segmented` của BJ-15 — chưa sửa BJ-15), `dsChoiceRow` (`.ds-choice-row` / `.ds-radio`, chép từ `io06SelectionRow` của BJ-06 — chưa sửa BJ-06); `k4Footer` nhận `disabled` cho từng nút.
+- **Nối BJ:** BJ-01 SCR-003 — sản phẩm chưa có ngưỡng: nút "Đặt ngưỡng tồn" (`data-bj01-set-threshold` → `capOpenForProduct`); sản phẩm Tồn thấp / Hết hàng: liên kết "Sửa ngưỡng" trong khối cảnh báo. BJ-12 SCR-071 "Đặt ngưỡng tồn" → `capOpenForTable("UIF-12", "SCR-071")`. Ngưỡng ghi thẳng vào `bj01Products` (BJ-01 chỉ đọc giá trị mới; số tồn không đổi).
+- **Chữ mới ngoài plan (cần vào T7-P mục 13):** "Bình thường" (badge chỉ báo khi không có cảnh báo), "Số ngày cận hạn phải lớn hơn 0.", "Không còn sản phẩm nào chưa có ngưỡng" / "Mọi sản phẩm đã có ngưỡng cảnh báo." / "Xem tất cả" (lọc rỗng), "Chưa có sản phẩm nào có chính sách riêng.", "Mọi sản phẩm theo lô đều đã có chính sách riêng.", "Thêm sản phẩm" (sheet).
+- **Không làm:** tính lại chỉ báo cận hạn của lô khi đổi số ngày (fixture lô BJ-01 giữ nguyên).
+- **Golden:** thay `SC_cap01_*` bằng `SC_cap_table`, `SC_cap_mobile_sheet`, `SC_cap_single`, `SC_cap_expiry`, `SC_cap_staff`, `SC_cap_locked`, `SC_cap_conflict`, `SC_cap_unknown`, `SC_cap_rejected`, `SC_cap_hub`; thêm `SC_journey_1`; `WEB_SCENARIOS` (`SC_journey_1`, `SC_cap_table`, `SC_cap_expiry`, `SC_cap_single`, `SC_cap_staff`, `SC_cap_hub`) chạy được ở `DEVICE=web`.
+- Badge harness `v5.7.0 · CAP-01 thiết kế lại · hết chặng 1`.
+
+## [5.6.0] — T7-P BJ-01: thiết kế lại Tồn kho & khả dụng
+
+Golden mobile so `tools/.golden-bj01-base` (khớp hoàn toàn `.golden-bj12-after`), web so `.golden-bj01-web-base` (khớp `.golden-bj12-web-after` trừ 2 ca nhiễu 47 / 33 điểm ảnh ở `UIF-06_SCR-033_READY@web`, `UIF-07_SCR-037_EXPIRED@web`). Khác có chủ đích: `UIF-01_*`, `SC_bj01_*`, `SC_search_*`, `SC_quick_UIF-01_*`, `SC_entry_*` (UIF-01), các ca đi qua SCR-001 (`SC_ws_inventory_0_*`, `SC_cap01_*`, `SC_bj12_*` kết thúc ở Tồn kho) và `UIF-09_SCR-036_*` (+ các kịch bản dừng ở SCR-036: dòng Tylosin thêm vào BJ-09). 0 lỗi JS.
+
+- **SCR-001 (`bj01.js`):** ô tìm có nút quét mã vạch (sheet "Quét mã vạch" mô phỏng); chip lọc kèm số (số 0 mờ); ở "Tất cả" sắp theo mức gấp Hết hàng → hết hạn → Tồn thấp → cận hạn → bình thường → chưa có ngưỡng; dòng sản phẩm = `VStockRow` (tên, mã, số khả dụng mono + badge).
+- **SCR-003:** tiêu đề = tên sản phẩm, phụ đề `{mã} · {ĐVT}`; bỏ thẻ sản phẩm riêng; một thẻ số chính (`bj01StockHero`); cảnh báo ngay dưới kèm "Gợi ý nhập thêm … (mục tiêu …)" + "Nhận hàng" (→ BJ-02 nhập nhanh) và banner "Có lô hết hạn" + "Xử lý lô hết hạn" (→ BJ-09 lọc đúng lô; sheet lô cũng có nút); lô sắp theo HSD gần nhất.
+- **Trạng thái:** dùng K1 của BJ-12 (`k1Loading` khung xương đúng bố cục, `k1Stale` + "Làm mới", `k1Denied` + "Về Kho"; không có dữ liệu sản phẩm trong DOM khi không có quyền).
+- **Thành phần dùng chung (`core.js`):** `VStockRow` (`ds24StockRow`), `ds24Chip(…, count)`, `ds24Search(…, trailingAction)`, icon `scan`.
+- **BJ-09 (`bj09.js`):** fixture thêm lô TY2408 Tylosin 20% (hết hạn) để "Xử lý lô hết hạn" có đích.
+- **CSS:** khối thành phần mới ở cuối `components.css`, khối "BJ-01 Tồn kho" ở cuối `screens.css`; xoá luật cũ không còn khớp phần tử nào (`.bj01-product-row`, `.bj01-list-empty`, `.bj01-eligibility-reasons`, `.ds24-key-value-row--emphasis` của UIF-01).
+- **Golden:** thêm `SC_bj01_scan`, `SC_bj01_scan_close`, `SC_bj01_receive`, `SC_bj01_out`, `SC_bj01_expired`, `SC_bj01_expired_sheet`, `SC_bj01_denied`, `SC_bj01_barcode_type`.
+- Badge harness `v5.6.0 · BJ-01 thiết kế lại`.
+
+## [5.5.0] — T7-P BJ-12: thiết kế lại khởi tạo tồn đầu kỳ; dựng khuôn K1–K4, K7
+
+Golden mobile so `tools/.golden-bj12-base` (khớp hoàn toàn `.golden-phase1`), web so `.golden-bj12-web-base` (khớp hoàn toàn `.golden-web-base`): chỉ khác ở `UIF-12_*`, `SC_bj12_*`, `SC_entry_UIF-12_*`, `HUB_home`, các kịch bản đi qua Home Kho (dòng "Chờ duyệt"), `SC_entry_state_12`; 0 lỗi JS. Mốc sau: `tools/.golden-bj12-after` (1376 ca), `tools/.golden-bj12-web-after` (551 ca).
+
+- **K1–K4, K7 (`app/shared-patterns.js`, mới):** `k1Loading` / `k1Denied` / `k1Stale` / `k1Locked` / `k1Empty` / `k1ExitAttr`; `k2Pending` / `k2Decision` / `k2RejectSheet` / `k2SelfCommitSheet`; `k3Unknown`; `k4Result` (+ `k4Footer`); `k7Split` / `k7Table` / `k7FilterChips`. CSS khối "Khuôn K1–K4, K7" cuối `components.css`: lớp `k7-wide` (màn thoát cột iPhone 402px, tối đa 1120px), bảng chỉ hiện ở khung web, danh sách thẻ chỉ ở khung mobile.
+- **Khung:** `appShell({ extraClass })`; `entryTargets["UIF-12"].owner`; `cfField(…, error)` (ô lỗi: viền + dòng lỗi dưới ô, mặc định rỗng).
+- **Home Kho (`hub.js`):** `?activation=pending` / `ThemeApp.setActivated()` — Kho chưa kích hoạt hiện khối "Kho chưa kích hoạt" + "Khởi tạo tồn kho", 4 nút nhanh tắt. "Nhận hàng chờ phê duyệt" → "Chờ duyệt": nguồn đăng ký qua `window.__T7_PENDING_SOURCES__` (`{ id, label, rows() }`), dòng phụ "3 nhận hàng · 1 số dư đầu kỳ"; lối vào thêm `data-theme-entry-actor` (đặt vai khi vào luồng; mặc định về `module`).
+- **BJ-12 (`bj12.js`):** SCR-069 gộp vào SCR-068 (`screenAliases`; bỏ khỏi `workbench-data`). 066: "Cần chuẩn bị" + "Tải tệp mẫu", lý do từ chối, chờ duyệt (K2), kết quả (K4 / K3). 067: hai cột web (vùng kéo thả + cột cần có), sheet "Xem các cột cần có" trên iPhone, ô tiền có phân cách nghìn, lỗi tại ô. 068: dải số, bảng lỗi có "Cách sửa", đối chiếu Theo tệp · Theo sổ · Chênh lệch (fixture lệch thật 4.830 / 4.820), khi đạt có "Số dư sẽ ghi nhận" + bảng dòng lọc được; chủ cửa hàng "Ghi nhận số dư đầu kỳ" → sheet → ghi nhận ngay (tự duyệt), nhân viên "Gửi phê duyệt". 070: "Cần quyết" (câu hỏi, người gửi, cần chú ý, số liệu) + bảng dòng; từ chối bằng sheet có lý do. 071: tóm tắt có "Người duyệt", "Đặt ngưỡng tồn" → CAP-01, `setActivated(true)`. Esc đóng sheet.
+- **Golden:** bỏ bước `review`; thêm `SC_bj12_owner`, `SC_bj12_template`, `SC_hub_not_activated`, `SC_bj12_pending_list`, `SC_entry_UIF-12_owner`, nhóm `HUB_home_not_activated`.
+- Badge harness `v5.5.0 · BJ-12 thiết kế lại`.
+
 ## [5.4.0] — T7-P H1: harness khung web 1280×800
 
 Không đổi màn nào: golden mobile khớp hoàn toàn `tools/.golden-phase1` (1348 ca), 0 lỗi JS.
