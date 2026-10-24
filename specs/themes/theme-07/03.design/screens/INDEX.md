@@ -23,21 +23,21 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-018 | Ghi chi phí mua bổ sung — Đã thay thế | BJ-13 | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-019 | Kết quả xác lập giá trị | BJ-03 | IN_REVIEW | Có |
 | SCR-020 | Đơn cần giữ hàng | BJ-04 | FROZEN | Chưa dựng (BJ-04 hiện chỉ có SCR-021) |
-| SCR-021 | Giữ hàng theo đơn | BJ-04 | FROZEN | Có |
+| SCR-021 | Giữ hàng theo đơn | BJ-04 | IN_REVIEW | Có |
 | SCR-022 | Rà soát giữ hàng | BJ-04 | FROZEN | Chưa dựng (BJ-04 hiện chỉ có SCR-021) |
 | SCR-023 | Giải phóng hoặc phân bổ lại | BJ-04 | FROZEN | Chưa dựng (BJ-04 hiện chỉ có SCR-021) |
 | SCR-024 | Kết quả reservation | BJ-04 | FROZEN | Chưa dựng (BJ-04 hiện chỉ có SCR-021) |
-| SCR-025 | Đơn cần lấy hàng | BJ-05 | FROZEN | Có |
-| SCR-026 | Hàng cần lấy | BJ-05 | FROZEN | Có |
-| SCR-027 | Chi tiết lấy hàng | BJ-05 | FROZEN | Có |
-| SCR-028 | Rà soát bàn giao | BJ-05 | FROZEN | Có |
-| SCR-029 | Kết quả bàn giao | BJ-05 | FROZEN | Có |
-| SCR-030 | Hàng khách trả | BJ-06 | FROZEN | Có |
-| SCR-031 | Hàng khách trả | BJ-06 | FROZEN | Có |
-| SCR-032 | Chi tiết hàng trả | BJ-06 | FROZEN | Có |
-| SCR-033 | Phân loại hàng trả | BJ-06 | FROZEN | Có |
-| SCR-034 | Ngoại lệ lô cần duyệt | BJ-06 | FROZEN | Có |
-| SCR-035 | Kết quả hàng trả | BJ-06 | FROZEN | Có |
+| SCR-025 | Đơn cần lấy hàng | BJ-05 | IN_REVIEW | Có |
+| SCR-026 | Hàng cần lấy | BJ-05 | IN_REVIEW | Có |
+| SCR-027 | Chi tiết lấy hàng — Đã gộp vào SCR-026 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-028 | Rà soát bàn giao | BJ-05 | IN_REVIEW | Có |
+| SCR-029 | Kết quả bàn giao | BJ-05 | IN_REVIEW | Có |
+| SCR-030 | Hàng khách trả | BJ-06 | IN_REVIEW | Có |
+| SCR-031 | Kiểm hàng khách trả | BJ-06 | IN_REVIEW | Có |
+| SCR-032 | Chi tiết hàng trả | BJ-06 | IN_REVIEW | Có |
+| SCR-033 | Phân loại hàng trả | BJ-06 | IN_REVIEW | Có |
+| SCR-034 | Ngoại lệ lô cần duyệt | BJ-06 | IN_REVIEW | Có |
+| SCR-035 | Kết quả hàng trả | BJ-06 | IN_REVIEW | Có |
 | SCR-036 | Hàng cần xử lý | BJ-07, BJ-09, BJ-10 | FROZEN | Có |
 | SCR-037 | Chi tiết hàng và bằng chứng | BJ-07, BJ-09, BJ-10 | FROZEN | Có |
 | SCR-038 | Chuyển trạng thái | BJ-09 | FROZEN | Có |

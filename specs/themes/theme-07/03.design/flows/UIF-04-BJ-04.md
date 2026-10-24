@@ -5,11 +5,11 @@ theme: theme-07
 title: "Quản lý vòng đời giữ hàng"
 owner: BA/UX
 status: IN_REVIEW
-version: v4.2.0
-source_baseline: v4.1.0
+version: v5.11.0
+source_baseline: v4.2.0
 business_journey: BJ-04
 canonical: true
-parity: ALIGNED_TO_CURRENT_SCREEN_CONTRACTS
+parity: REDESIGNED_v5.11.0
 ---
 # UIF-04 — Quản lý vòng đời giữ hàng
 
@@ -31,6 +31,7 @@ Mô tả cách người dùng xem tình trạng giữ hàng ngay trong ngữ c�
 | Cách vào luồng | Màn hình | Người thực hiện | Đi từ đâu |
 |---|---|---|---|
 | Chỉ mở trong ngữ cảnh liên quan | `SCR-021` | Người có quyền xem đơn và kho | Chi tiết đơn > Tình trạng giữ hàng |
+| Mở từ lúc lấy hàng | `SCR-021` | Nhân viên kho | `SCR-026` (UIF-05) > "Xem giữ hàng" |
 
 Luồng kết thúc khi người dùng đã nhận được kết quả cuối cùng hoặc công việc được chuyển rõ sang một hành trình khác.
 
@@ -41,10 +42,13 @@ flowchart TD
     BEGIN(["Bắt đầu"])
     SCR_021["SCR-021 — Giữ hàng theo đơn"]
     SYSTEM_SOURCE["Nguồn nghiệp vụ cập nhật"]
+    PICK["SCR-026 — Hàng cần lấy (UIF-05)"]
     END(["Kết thúc"])
     BEGIN -->|"Mở Tình trạng giữ hàng từ đơn"| SCR_021
     SCR_021 -->|"Làm mới trạng thái giữ hàng từ nguồn"| SCR_021
     SYSTEM_SOURCE -->|"Nghiệp vụ nguồn tạo, điều chỉnh hoặc giải phóng giữ hàng"| SCR_021
+    PICK -->|"Xem giữ hàng"| SCR_021
+    SCR_021 -->|"Lấy hàng / quay lại"| PICK
     SCR_021 -->|"Đóng hoặc quay lại đơn nguồn"| END
 ```
 
@@ -58,7 +62,9 @@ flowchart TD
 | `UIF-04-T01` | Bắt đầu | Mở Tình trạng giữ hàng từ ngữ cảnh đơn | Có quyền xem đơn và tồn kho | `SCR-021` — Giữ hàng theo đơn | Màn hình chỉ phản ánh trạng thái; không thực hiện thay đổi giữ hàng tại đây |
 | `UIF-04-T02` | `SCR-021` — Giữ hàng theo đơn | Làm mới trạng thái giữ hàng từ nguồn | Có quyền xem | `SCR-021` — Giữ hàng theo đơn | Nguồn dữ liệu đã thay đổi → giữ ngữ cảnh và làm mới |
 | `UIF-04-T03` | Nguồn nghiệp vụ cập nhật | Nghiệp vụ nguồn tạo, điều chỉnh hoặc giải phóng giữ hàng | Trạng thái chính thức do nghiệp vụ nguồn cung cấp | `SCR-021` — Giữ hàng theo đơn | Màn hình chỉ phản ánh trạng thái chính thức |
-| `UIF-04-T04` | `SCR-021` — Giữ hàng theo đơn | Đóng hoặc quay lại đơn nguồn | — | Kết thúc | — |
+| `UIF-04-T04` | `SCR-021` — Giữ hàng theo đơn | Đóng hoặc quay lại đơn nguồn | Mở từ ngữ cảnh đơn | Kết thúc | — |
+| `UIF-04-T05` | `SCR-026` (UIF-05) | Xem giữ hàng của đơn đang lấy | — | `SCR-021` | — |
+| `UIF-04-T06` | `SCR-021` — Giữ hàng theo đơn | "Lấy hàng" (đơn "Cần lấy" / "Chờ bàn giao") hoặc quay lại | Đơn có trong hàng đợi lấy hàng | `SCR-026` (UIF-05) | Đơn không còn trong hàng đợi → không có nút "Lấy hàng" |
 
 ## 5. Các tình huống cần chú ý
 
@@ -99,6 +105,8 @@ Các quy tắc chung về quyền, quay lại, dữ liệu thay đổi và chố
 | `UIF-04-T02` | `SCR-021` | `SCR-021` | `QUERY` | `—` | UC-04-01…UC-04-04 / BC-IO-03, BC-IO-06 |
 | `UIF-04-T03` | `SYSTEM_SOURCE` | `SCR-021` | `SYSTEM` | `—` | UC-04-01…UC-04-04 |
 | `UIF-04-T04` | `SCR-021` | `END` | `TERMINAL` | `—` | BJ-04 |
+| `UIF-04-T05` | `SCR-026` | `SCR-021` | `NAVIGATION` | `—` | UC-04-04 |
+| `UIF-04-T06` | `SCR-021` | `SCR-026` | `NAVIGATION` | `—` | UC-04-04 |
 
 ## 8. Kiểm tra tính đầy đủ và liên kết
 
@@ -110,7 +118,7 @@ Các quy tắc chung về quyền, quay lại, dữ liệu thay đổi và chố
 - [x] Bảng đọc chính và bảng truy vết kỹ thuật dùng cùng một tập transition ID; không đổi topology hoặc hành vi.
 - [x] Liên kết BJ ↔ UIF ↔ UC/SCR dùng đường dẫn tương đối và mở đúng tài liệu đích.
 
-**Trạng thái đối chiếu thiết kế:** `ALIGNED_TO_CURRENT_SCREEN_CONTRACTS` — UIF đã được viết lại theo Plain BA Language; cấu trúc luồng, ID, mã Action, liên kết UC/BC và trạng thái đối chiếu của v4.1.0 được giữ nguyên. HTML và Screen Contract không thay đổi trong lượt này.
+**Trạng thái đối chiếu thiết kế:** `REDESIGNED_v5.11.0` — thêm lối vào từ SCR-026 ("Xem giữ hàng") và lối ra "Lấy hàng" (hết ngõ cụt); màn vẫn chỉ xem, không có thao tác thay đổi giữ hàng. Transition T01…T04 giữ nguyên.
 
 ### Liên kết
 

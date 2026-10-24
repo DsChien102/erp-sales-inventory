@@ -81,7 +81,7 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 
 - BJ02: `SCR-007`, `SCR-008`, `SCR-009`, `SCR-084`, `SCR-010`. `SCR-009` có thể là contextual deep-link khi Purchase document đã biết.
 - BJ04: [`SCR-021` — Giữ hàng theo đơn](../screens/SCR-021.md) là **CONTEXTUAL_ONLY từ đơn bán**, read-only projection.
-- BJ05: `SCR-026`, `SCR-027`, `SCR-028`.
+- BJ05: `SCR-026`, `SCR-028`.
 - BJ06 maker: `SCR-031`, `SCR-032`, `SCR-033`.
 - BJ07: `SCR-037`, `SCR-039`; `SCR-038` không thuộc active UIF07.
 - Inventory audit/control operational surfaces `SCR-038`, `SCR-040`, `SCR-042`–`SCR-047` giữ context theo UIF tương ứng.

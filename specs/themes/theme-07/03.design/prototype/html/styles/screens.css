@@ -1543,12 +1543,11 @@ body[data-active-uif="UIF-04"] .figma-calibrated-shell .body-stack {
   padding-top: var(--vet45-v2-space-4);
 }
 
-body[data-active-uif="UIF-04"] .bj04-context {
+body[data-active-uif="UIF-04"] .bj04-context-line {
   width: 370px;
-  display: flex;
-  flex-direction: column;
-  padding: 0 var(--vet45-v2-space-4);
-  box-sizing: border-box;
+  margin: 0;
+  color: var(--vet45-v2-text-secondary);
+  font: 400 13px/20px Inter, system-ui, sans-serif;
 }
 
 body[data-active-uif="UIF-04"] .bj04-section {
@@ -1558,12 +1557,6 @@ body[data-active-uif="UIF-04"] .bj04-section {
   gap: var(--vet45-v2-space-2);
 }
 
-body[data-active-uif="UIF-04"] .bj04-list-stack {
-  width: 370px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--vet45-v2-space-2);
-}
 
 /* ===== v270-bj05-ds-fidelity.css ===== */
 /*
@@ -2926,383 +2919,33 @@ body[data-active-uif="UIF-05"] .bj05-lot-sheet__cta {
 }
 
 /* UIF06 root fidelity. */
-body[data-active-uif="UIF-06"] .app-shell,
-body[data-active-uif="UIF-06"] .app-screen {
-  font-family: var(--vet45-v2-font-sans) !important;
-}
-body[data-active-uif="UIF-06"] .app-content {
-  overflow-x: hidden !important;
-}
-body[data-active-uif="UIF-06"] .body-stack {
-  gap: 12px !important;
-  min-width: 0 !important;
-}
-body[data-active-uif="UIF-06"] .body-stack > * {
-  min-width: 0 !important;
-}
 
 /* Queue: exact DS search/chip/list rhythm. */
-body[data-active-uif="UIF-06"] .io06-chip-scroll {
-  width: 370px !important;
-  display: flex !important;
-  gap: 8px !important;
-  overflow-x: auto !important;
-  scrollbar-width: none;
-}
 
-body[data-active-uif="UIF-06"] .io06-queue,
-body[data-active-uif="UIF-06"] .io06-return-list,
-body[data-active-uif="UIF-06"] .ds24-list-stack {
-  width: 370px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-}
-body[data-active-uif="UIF-06"] .ds24-list-row {
-  width: 370px !important;
-  min-width: 370px !important;
-  max-width: 370px !important;
-  height: 76px !important;
-  min-height: 76px !important;
-  max-height: 76px !important;
-  padding: 0 24px 0 16px !important;
-  gap: 12px !important;
-  border-radius: var(--vet45-v2-radius-4) !important;
-  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
-  background: var(--vet45-v2-surface-default) !important;
-  overflow: hidden !important;
-}
-body[data-active-uif="UIF-06"] .ds24-list-row[data-ds-prop-state="Disabled"] {
-  opacity: var(--vet45-v2-opacity-disabled) !important;
-}
-body[data-active-uif="UIF-06"] .ds24-list-row__leading {
-  flex: 0 0 20px !important;
-  width: 20px !important;
-  height: 20px !important;
-}
-body[data-active-uif="UIF-06"] .ds24-list-row__copy {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
-  text-align: left !important;
-}
-body[data-active-uif="UIF-06"] .ds24-list-row__copy strong {
-  font-family: var(--vet45-v2-font-sans) !important;
-  font-size: 14px !important;
-  line-height: 20px !important;
-  font-weight: 600 !important;
-  color: var(--vet45-v2-text-primary) !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-body[data-active-uif="UIF-06"] .ds24-list-row__copy small {
-  font-family: var(--vet45-v2-font-sans) !important;
-  font-size: 13px !important;
-  line-height: 20px !important;
-  font-weight: 400 !important;
-  color: var(--vet45-v2-text-secondary) !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-body[data-active-uif="UIF-06"] .ds24-list-row__trailing {
-  flex: 0 0 auto !important;
-  min-width: 20px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 8px !important;
-}
-body[data-active-uif="UIF-06"] .io06-row-trailing {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-end !important;
-  gap: 4px !important;
-  max-width: 112px !important;
-}
-body[data-active-uif="UIF-06"] .io06-row-trailing > strong {
-  font-size: 13px !important;
-  line-height: 20px !important;
-  font-weight: 600 !important;
-  white-space: nowrap !important;
-}
-body[data-active-uif="UIF-06"] .io06-row-trailing .ds24-badge {
-  max-width: 112px !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
 
 /* Compact identity row uses exact Compact Status geometry. */
-body[data-active-uif="UIF-06"] .ds24-list-row[data-ds-prop-density="Compact"] {
-  height: 52px !important;
-  min-height: 52px !important;
-  max-height: 52px !important;
-  padding: 4px 16px !important;
-  gap: 8px !important;
-  border-radius: var(--vet45-v2-radius-3) !important;
-}
-body[data-active-uif="UIF-06"] .ds24-list-row[data-ds-prop-density="Compact"] .ds24-list-row__copy { gap:0 !important; }
 
 /* Mature info composition: a single grouped surface, rows remain transparent primitives. */
-body[data-active-uif="UIF-06"] .ds24-info-group {
-  width: 370px !important;
-  height: auto !important;
-  min-height: 0 !important;
-  padding: 12px 14px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
-  border-radius: var(--vet45-v2-radius-4) !important;
-  background: var(--vet45-v2-surface-default) !important;
-  overflow: hidden !important;
-}
-body[data-active-uif="UIF-06"] .ds24-info-group__title {
-  margin: 0 !important;
-  font-size: 16px !important;
-  line-height: 22px !important;
-  font-weight: 600 !important;
-  color: var(--vet45-v2-text-primary) !important;
-}
-body[data-active-uif="UIF-06"] .ds24-info-group__rows {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0 !important;
-}
-body[data-active-uif="UIF-06"] .ds24-info-row {
-  width: 340px !important;
-  height: 44px !important;
-  min-height: 44px !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 16px !important;
-  background: transparent !important;
-}
-body[data-active-uif="UIF-06"] .ds24-info-row > span {
-  min-width: 0 !important;
-  font-size: 13px !important;
-  line-height: 20px !important;
-  font-weight: 400 !important;
-  color: var(--vet45-v2-text-secondary) !important;
-}
-body[data-active-uif="UIF-06"] .ds24-info-row > strong {
-  max-width: 210px !important;
-  min-width: 0 !important;
-  font-size: 14px !important;
-  line-height: 20px !important;
-  font-weight: 600 !important;
-  color: var(--vet45-v2-text-primary) !important;
-  text-align: right !important;
-  overflow-wrap: anywhere !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-section {
-  width: 370px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-}
-body[data-active-uif="UIF-06"] .ds24-section-title {
-  width: 370px !important;
-  min-height: 24px !important;
-  margin: 0 !important;
-}
-body[data-active-uif="UIF-06"] .io06-note {
-  width: 370px !important;
-  margin: 0 !important;
-  color: var(--vet45-v2-text-secondary) !important;
-  font-size: 12px !important;
-  line-height: 18px !important;
-  font-weight: 400 !important;
-}
 
 /* Canonical field and textarea anatomy. */
-body[data-active-uif="UIF-06"] .io06-field {
-  width: 370px !important;
-  min-height: 96px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  margin: 0 !important;
-}
-body[data-active-uif="UIF-06"] .io06-field__label {
-  font-size: 14px !important;
-  line-height: 20px !important;
-  font-weight: 600 !important;
-  color: var(--vet45-v2-text-primary) !important;
-}
-body[data-active-uif="UIF-06"] .io06-field__control {
-  width: 370px !important;
-  height: 44px !important;
-  min-height: 44px !important;
-  display: flex !important;
-  align-items: center !important;
-  padding: 0 16px !important;
-  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
-  border-radius: var(--vet45-v2-radius-3) !important;
-  background: var(--vet45-v2-surface-default) !important;
-}
-body[data-active-uif="UIF-06"] .io06-field__control input {
-  width: 100% !important;
-  height: 42px !important;
-  border: 0 !important;
-  outline: 0 !important;
-  padding: 0 !important;
-  background: transparent !important;
-  color: var(--vet45-v2-text-primary) !important;
-  font: 400 14px/22px var(--vet45-v2-font-sans) !important;
-}
-body[data-active-uif="UIF-06"] .io06-field__helper {
-  font-size: 12px !important;
-  line-height: 16px !important;
-  font-weight: 500 !important;
-  letter-spacing: .1px !important;
-  color: var(--vet45-v2-text-secondary) !important;
-}
-body[data-active-uif="UIF-06"] .io06-textarea {
-  width: 370px !important;
-  min-height: 140px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  margin: 0 !important;
-}
-body[data-active-uif="UIF-06"] .io06-textarea__control {
-  width: 370px !important;
-  height: 88px !important;
-  min-height: 88px !important;
-  padding: 12px 16px !important;
-  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
-  border-radius: var(--vet45-v2-radius-3) !important;
-  background: var(--vet45-v2-surface-default) !important;
-  color: var(--vet45-v2-text-primary) !important;
-  resize: none !important;
-  font: 400 14px/22px var(--vet45-v2-font-sans) !important;
-}
 
 /* Selection rows preserve List Row default geometry and use radio as the control. */
-body[data-active-uif="UIF-06"] .io06-selection-list {
-  width: 370px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-}
-body[data-active-uif="UIF-06"] .io06-selection-row.is-selected {
-  border-color: var(--vet45-v2-border-brand) !important;
-  background: var(--vet45-v2-surface-brand) !important;
-}
-body[data-active-uif="UIF-06"] .io06-radio {
-  width: 20px !important;
-  height: 20px !important;
-  border-radius: 50% !important;
-  border: 2px solid var(--vet45-v2-border-strong) !important;
-  background: var(--vet45-v2-surface-default) !important;
-  position: relative !important;
-}
-body[data-active-uif="UIF-06"] .io06-radio.is-selected { border: 6px solid var(--vet45-v2-action-primary-default) !important; }
 
-body[data-active-uif="UIF-06"] .io06-file-field {
-  width: 370px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-}
-body[data-active-uif="UIF-06"] .io06-file-control {
-  width: 370px !important;
-  min-height: 64px !important;
-  padding: 10px 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
-  border-radius: var(--vet45-v2-radius-3) !important;
-  background: var(--vet45-v2-surface-default) !important;
-  position: relative !important;
-}
-body[data-active-uif="UIF-06"] .io06-file-control > span {
-  min-width: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-body[data-active-uif="UIF-06"] .io06-file-control strong { font-size:14px!important;line-height:20px!important;font-weight:600!important; }
-body[data-active-uif="UIF-06"] .io06-file-control small { font-size:12px!important;line-height:16px!important;color:var(--vet45-v2-text-secondary)!important; }
-body[data-active-uif="UIF-06"] .io06-file-control input { position:absolute!important;inset:0!important;opacity:0!important;cursor:pointer!important; }
 
 /* Canonical VBottomSheet shell for BJ06: hug until max-height, then content scrolls. */
-body[data-active-uif="UIF-06"] .io06-sheet-backdrop,
-body[data-active-uif="UIF-06"] .sheet-backdrop:has(.io06-bottom-sheet) {
-  display:flex!important;
-  align-items:flex-end!important;
-  overflow:hidden!important;
-  background:var(--vet45-v2-surface-overlay)!important;
-}
-body[data-active-uif="UIF-06"] .io06-bottom-sheet[data-ds-component="VBottomSheet"] {
-  width:402px!important;
-  height:max-content!important;
-  min-height:0!important;
-  max-height:calc(100% - 16px)!important;
-  padding:12px 16px 44px!important;
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:stretch!important;
-  gap:12px!important;
-  border:0!important;
-  border-radius:20px 20px 0 0!important;
-  background:var(--vet45-v2-surface-default)!important;
-  overflow:hidden!important;
-}
-body[data-active-uif="UIF-06"] .io06-bottom-sheet > .sheet-handle {
-  width:48px!important;height:4px!important;min-height:4px!important;flex:0 0 4px!important;margin:0 auto!important;border-radius:var(--vet45-v2-radius-pill)!important;background:var(--vet45-v2-border-strong)!important;
-}
-body[data-active-uif="UIF-06"] .io06-bottom-sheet > .sheet-title { width:370px!important;margin:0!important;padding:0!important;flex:0 0 auto!important; }
-body[data-active-uif="UIF-06"] .io06-bottom-sheet > .sheet-title h3 { margin:0!important;font-size:18px!important;line-height:24px!important;font-weight:600!important;letter-spacing:-.2px!important;color:var(--vet45-v2-text-primary)!important; }
-body[data-active-uif="UIF-06"] .io06-sheet-content {
-  width:370px!important;
-  min-height:0!important;
-  height:auto!important;
-  flex:0 1 auto!important;
-  padding:0!important;
-  margin:0!important;
-  display:flex!important;
-  flex-direction:column!important;
-  gap:12px!important;
-  overflow-y:auto!important;
-  overscroll-behavior:contain!important;
-}
-body[data-active-uif="UIF-06"] .io06-sheet-intro { margin:0!important;font-size:13px!important;line-height:20px!important;color:var(--vet45-v2-text-secondary)!important; }
-body[data-active-uif="UIF-06"] .io06-sheet-actions { width:370px!important;display:grid!important;grid-template-columns:1fr 1.3fr!important;gap:8px!important;margin:0!important; }
-body[data-active-uif="UIF-06"] .io06-sheet-actions .button { height:44px!important;min-height:44px!important; }
-body[data-active-uif="UIF-06"] .io06-class-fields { display:flex!important;flex-direction:column!important;gap:8px!important; }
 
 /* Results and approval evidence: one semantic surface, no card soup. */
-body[data-active-uif="UIF-06"] .io06-result-groups { width:370px!important;display:flex!important;flex-direction:column!important;gap:8px!important; }
-body[data-active-uif="UIF-06"] .io06-result-group { width:370px!important;padding:12px 14px!important;border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default)!important;border-radius:var(--vet45-v2-radius-4)!important;background:var(--vet45-v2-surface-default)!important;overflow:hidden!important; }
 
-body[data-active-uif="UIF-06"] .io06-result-rows { display:flex!important;flex-direction:column!important;gap:0!important; }
-body[data-active-uif="UIF-06"] .io06-evidence-card { width:370px!important;border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default)!important;border-radius:var(--vet45-v2-radius-4)!important;overflow:hidden!important;background:var(--vet45-v2-surface-default)!important; }
-body[data-active-uif="UIF-06"] .io06-evidence-card img { width:100%!important;max-height:180px!important;object-fit:cover!important;display:block!important; }
-body[data-active-uif="UIF-06"] .io06-evidence-card span { display:block!important;padding:8px 12px!important;font-size:12px!important;line-height:16px!important;color:var(--vet45-v2-text-secondary)!important; }
 
 /* Never let legacy typography leak into migrated BJ06. */
 body[data-active-uif="UIF-06"] :is(button,input,textarea,select,label,p,span,strong,small,h1,h2,h3,h4) { font-family:var(--vet45-v2-font-sans)!important; }
-body[data-active-uif="UIF-06"] img, body[data-active-uif="UIF-06"] svg { max-width:100%; }
 @media (min-width: 841px) {
   html, body { height: 100vh !important; overflow: hidden !important; }
   .review-app { height: 100vh !important; min-height: 0 !important; overflow: hidden !important; }
   .review-layout { height: calc(100vh - 76px) !important; min-height: 0 !important; overflow: hidden !important; }
   .review-stage { min-height: 0 !important; overflow: hidden !important; }
 }
-body[data-active-uif="UIF-06"] .ds24-section-title {
-  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;
-}
-body[data-active-uif="UIF-06"] .ds24-section-title h2 { min-width:0!important;flex:1 1 auto!important; }
-body[data-active-uif="UIF-06"] .ds24-section-title > span { flex:0 0 auto!important;white-space:nowrap!important; }
 
 /* --- figma calibrated (A11; bản sao .device-preview bo 32px ở đây đã xoá ở A12 R1 — khung nằm ở components.css) --- */
 
@@ -3489,44 +3132,11 @@ body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet__save {
   margin: 0 !important;
 }
 
-body[data-active-uif="UIF-06"] [data-layout-role="return-request-context"],
-body[data-active-uif="UIF-06"] [data-layout-role="classification-request-context"] {
-  width: 370px !important;
-  height: 52px !important;
-  min-height: 52px !important;
-  max-height: 52px !important;
-  padding: 4px 16px !important;
-  border-radius: var(--vet45-v2-radius-3) !important;
-}
 
-body[data-active-uif="UIF-06"] [data-layout-role="return-request-context"] .ds24-list-row__copy,
-body[data-active-uif="UIF-06"] [data-layout-role="classification-request-context"] .ds24-list-row__copy {
-  gap: 0 !important;
-  min-width: 0 !important;
-}
 
-body[data-active-uif="UIF-06"] [data-layout-role="return-request-context"] .ds24-list-row__copy small,
-body[data-active-uif="UIF-06"] [data-layout-role="classification-request-context"] .ds24-list-row__copy small {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
 
-body[data-active-uif="UIF-06"] [data-layout-role="return-request-context"] .ds24-badge,
-body[data-active-uif="UIF-06"] [data-layout-role="classification-request-context"] .ds24-badge {
-  max-width: 104px !important;
-  white-space: nowrap !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-classification-sheet .io06-field:not(:has(.io06-field__helper)) {
-  min-height: 72px !important;
-  height: 72px !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-classification-sheet .ds24-key-value-row {
-  width: 370px !important;
-  min-height: 44px !important;
-}
 
 body[data-active-uif="UIF-07"] .figma-calibrated-shell .app-content {
   overflow-x: hidden !important;
@@ -4237,40 +3847,9 @@ body[data-active-uif="UIF-05"] .bj05-handover-allocation {
   padding: 8px 0 12px !important;
 }
 
-body[data-active-uif="UIF-06"] .io06-result-group {
-  width: 370px !important;
-  padding: 12px 16px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
-  border-radius: var(--vet45-v2-radius-4) !important;
-  background: var(--vet45-v2-surface-default) !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result-group > [data-layout-role="io06-result-product-summary"] {
-  width: 338px !important;
-  min-width: 338px !important;
-  max-width: 338px !important;
-  margin: 0 !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result-rows {
-  width: 338px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0 !important;
-  margin: 0 !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result-rows .ds24-info-row {
-  width: 338px !important;
-  min-width: 338px !important;
-  max-width: 338px !important;
-  margin: 0 !important;
-}
 
 body[data-active-uif="UIF-05"] .bj05-handover-allocation > .ds24-key-value-row {
   width: 338px !important;
@@ -4490,80 +4069,15 @@ body[data-active-uif="UIF-05"] .bj05-handover-allocation .ds24-field__control {
   max-width: 338px !important;
 }
 
-body[data-active-uif="UIF-06"] .io06-result-groups {
-  width: 370px !important;
-  max-width: 370px !important;
-  gap: 0 !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result-group {
-  width: 370px !important;
-  max-width: 370px !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  gap: 8px !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  overflow: visible !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result-group > [data-layout-role="io06-result-product-summary"] {
-  width: 370px !important;
-  min-width: 370px !important;
-  max-width: 370px !important;
-  margin: 0 !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result-rows {
-  width: 338px !important;
-  max-width: 338px !important;
-  min-width: 338px !important;
-  margin: 0 16px !important;
-  padding: 0 !important;
-  gap: 0 !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result-rows .ds24-info-row {
-  width: 338px !important;
-  min-width: 338px !important;
-  max-width: 338px !important;
-  height: 44px !important;
-  min-height: 44px !important;
-  margin: 0 !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result-rows .ds24-info-row + .ds24-info-row {
-  border-top: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result {
-  justify-items: stretch !important;
-  text-align: left !important;
-  padding-top: 0 !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result > .result-hero {
-  justify-items: center !important;
-  text-align: center !important;
-  padding-top: var(--vet45-v2-space-2) !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result .ds24-section-title {
-  width: 370px !important;
-  max-width: 370px !important;
-  text-align: left !important;
-}
 
-body[data-active-uif="UIF-06"] .io06-result .ds24-section-title > h2 {
-  margin: 0 !important;
-  font-family: var(--vet45-v2-font-sans) !important;
-  font-size: 16px !important;
-  line-height: 22px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0 !important;
-  color: var(--vet45-v2-text-primary) !important;
-}
 
 body[data-active-uif="UIF-07"] .io07-grouped-collection {
   padding: 0 !important;
@@ -6438,10 +5952,6 @@ body[data-active-uif="UIF-02"] .active-lot-editor .v392-date-precision .input-sh
 
 .v395-verification-sheet .io07-verification-content{display:flex;flex-direction:column;gap:12px}
 
-.v396-reservation-section{margin-top:16px}
-
-.v396-reservation-row[data-lifecycle="CONSUMED"]{opacity:.82}
-
 #app-screen .valuation-evidence-group[data-valuation-basis],
 #app-screen .valuation-product-group[data-valuation-basis]{min-width:0}
 
@@ -7284,3 +6794,179 @@ body[data-active-uif="UIF-01"] .figma-calibrated-shell .ds24-chip-scroll > .ds24
 .t462-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--vet45-v2-space-6); align-items: start; }
 
 .t462-column { min-width: 0; display: flex; flex-direction: column; gap: var(--vet45-v2-space-4); }
+
+/* ===== v5.11.0 — BJ-04 / BJ-05 thiết kế lại (K6, gộp SCR-027 vào SCR-026) ===== */
+
+/* 026 iPhone: mỗi mặt hàng một đầu nhóm, mỗi lô phân bổ một dòng (chạm dòng = sửa lượng, nút bên phải = "Lấy đủ") */
+body[data-active-uif="UIF-05"] .bj05-lot-head {
+  min-height: 44px;
+  padding: var(--vet45-v2-space-2) var(--vet45-v2-space-1) 0;
+  border: 0;
+  background: transparent;
+}
+/* Luật khung Figma ép hàng Default 76px bằng !important; dòng lô lấy một phần (badge + "Lấy đủ") cao hơn nên cao theo nội dung. */
+body[data-active-uif="UIF-05"] .figma-calibrated-shell .bj05-lot.ds24-list-row[data-ds-prop-density="Default"] {
+  height: auto !important;
+  max-height: none !important;
+  padding-block: var(--vet45-v2-space-2) !important;
+}
+body[data-active-uif="UIF-05"] .bj05-lot {
+  height: auto;
+  min-height: 68px;
+  padding: var(--vet45-v2-space-2) var(--vet45-v2-space-3) var(--vet45-v2-space-2) var(--vet45-v2-space-4);
+  gap: var(--vet45-v2-space-2);
+}
+body[data-active-uif="UIF-05"] .bj05-lot__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  border: 0;
+  border-radius: var(--vet45-v2-radius-3);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+body[data-active-uif="UIF-05"] button.bj05-lot__main { cursor: pointer; }
+body[data-active-uif="UIF-05"] .bj05-lot__main:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: 2px; }
+body[data-active-uif="UIF-05"] .bj05-lot__action {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--vet45-v2-space-1);
+}
+body[data-active-uif="UIF-05"] .bj05-lot__progress {
+  color: var(--vet45-v2-text-secondary);
+  font: 500 12px/16px Inter, system-ui, sans-serif;
+}
+body[data-active-uif="UIF-05"] .bj05-lot__banner { width: 100%; box-sizing: border-box; }
+body[data-active-uif="UIF-05"] .bj05-small-button { width: auto; min-width: 44px; min-height: 44px; padding-inline: var(--vet45-v2-space-4); white-space: normal; }
+body[data-active-uif="UIF-05"] .bj05-context-row {
+  width: 370px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vet45-v2-space-3);
+  color: var(--vet45-v2-text-secondary);
+  font: 400 13px/20px Inter, system-ui, sans-serif;
+}
+body[data-active-uif="UIF-05"] .bj05-link { min-height: 44px; padding-inline: var(--vet45-v2-space-1); white-space: nowrap; }
+body[data-active-uif="UIF-05"] .bj05-progress { width: 370px; }
+body[data-active-uif="UIF-05"] .bj05-handover-card {
+  width: 370px;
+  padding: var(--vet45-v2-space-3) var(--vet45-v2-space-4);
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);
+  border-radius: var(--vet45-v2-radius-4);
+  background: var(--vet45-v2-surface-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vet45-v2-space-2);
+  box-sizing: border-box;
+}
+body[data-active-uif="UIF-05"] .bj05-selection-list { gap: var(--vet45-v2-space-2); }
+
+/* Web: thoát cột iPhone 370px */
+.device-preview.is-web .k7-wide :is(.bj05-section, .bj05-business-note, .bj05-summary, .bj05-context-row, .bj05-progress, .bj05-handover-card, .bj04-section, .bj04-context-line) { width: 100%; }
+.device-preview.is-web .k7-wide .bj05-row-actions { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--vet45-v2-space-2) var(--vet45-v2-space-3); max-width: 220px; }
+.device-preview.is-web .k7-wide .bj05-small-button { min-height: 40px; white-space: nowrap; }
+.device-preview.is-web .k7-wide .bj05-link { min-height: 40px; }
+.device-preview.is-web .k7-wide .bj05-handover .k7-table td .k7-edit { max-width: 200px; }
+.device-preview.is-web .k7-wide .bj05-pick .k7-split.k7-split--wide-main { grid-template-columns: minmax(0, 1fr) 240px; }
+.device-preview.is-web .k7-wide .bj05-pick .k7-table-wrap { overflow-x: auto; }
+.device-preview.is-web .k7-wide .bj05-pick .k7-table :is(th, td) { padding-inline: var(--vet45-v2-space-2); }
+.device-preview.is-web .k7-wide .bj05-summary .ds24-key-value-row { width: 100%; box-sizing: border-box; }
+.device-preview.is-web .k7-wide .bj05-pick .k7-table td .k7-edit { min-width: 104px; }
+.device-preview.is-web .k7-wide .bj05-handover .k7-split__main { grid-column: 1; grid-row: 1; }
+.device-preview.is-web .k7-wide .bj05-handover .k7-split__aside { grid-column: 2; grid-row: 1; }
+.bj05-lot-stack { display: flex; flex-direction: column; align-items: flex-end; gap: var(--vet45-v2-space-1); }
+.k6-list .k7-table td { vertical-align: middle; }
+body[data-active-uif="UIF-05"] .bj05-handover-card > .ds24-list-row { min-height: 44px; padding-inline: 0; border: 0; background: transparent; }
+body[data-active-uif="UIF-05"] .bj05-handover-card > :is(.ds24-key-value-row, .ds24-field) { width: 100%; max-width: none; margin: 0; box-sizing: border-box; }
+body:is([data-active-uif="UIF-04"], [data-active-uif="UIF-05"]) .v-page-scaffold.figma-calibrated-shell :is(.k6-list, .bj04-section) .ds24-list-row__copy small { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+
+/* ===== v5.12.0 — BJ-06 thiết kế lại (K6 / K2 / K7, hai mốc nhận vào + phân loại) ===== */
+
+/* Đầu màn hai mốc: "Bước n/2" + thanh tiến độ mảnh (dùng .bj02-progress). */
+.bj06-head { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
+.bj06-step { margin: 0; font: 600 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj06-section { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
+.bj06-note { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj06-link { min-height: 44px; padding-inline: var(--vet45-v2-space-1); }
+.bj06-receipt, .bj06-classify { display: flex; flex-direction: column; gap: var(--vet45-v2-space-4); width: 100%; }
+
+/* Dòng hàng iPhone: lượng + nhãn bên phải; chữ phụ được xuống dòng (không cắt "Thuộc combo · Không theo lô …"). */
+.bj06-row-trailing { display: flex; flex-direction: column; align-items: flex-end; gap: var(--vet45-v2-space-1); }
+.bj06-row-qty { font: 600 13px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--vet45-v2-text-primary); white-space: nowrap; }
+body[data-active-uif="UIF-06"] .figma-calibrated-shell .bj06-line-row { height: auto !important; min-height: 68px !important; max-height: none !important; }
+body[data-active-uif="UIF-06"] .figma-calibrated-shell .bj06-line-row .ds24-list-row__copy { overflow: visible !important; }
+body[data-active-uif="UIF-06"] .figma-calibrated-shell .bj06-line-row .ds24-list-row__copy > small { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+body[data-active-uif="UIF-06"] .figma-calibrated-shell .bj06-line-row .ds24-list-row__trailing { max-width: 50% !important; }
+body[data-active-uif="UIF-06"] .k6-list .ds24-list-row__copy > small { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+
+/* Chi tiết một dòng (032 iPhone, cột phải của 031 web). */
+.bj06-detail { display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); min-width: 0; }
+.bj06-qty { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
+.bj06-fill-button { width: 100%; min-height: 44px; }
+.bj06-inline-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--vet45-v2-space-3); padding-top: var(--vet45-v2-space-2); }
+.bj06-inline-actions > .bj02-footer-reason { margin-right: auto; text-align: left; }
+.bj06-inline-actions > .button { width: auto; min-width: 160px; }
+.bj06-evidence-preview, .bj06-evidence-card { display: flex; flex-direction: column; border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-4); overflow: hidden; background: var(--vet45-v2-surface-default); }
+.bj06-evidence-preview { margin-top: var(--vet45-v2-space-2); }
+.bj06-evidence-preview img, .bj06-evidence-card img { display: block; width: 100%; max-height: 240px; object-fit: cover; }
+.bj06-evidence-preview span, .bj06-evidence-card span { padding: var(--vet45-v2-space-2) var(--vet45-v2-space-3); font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj06-evidence-card--empty { flex-direction: row; align-items: center; gap: var(--vet45-v2-space-2); padding: var(--vet45-v2-space-3); color: var(--vet45-v2-text-secondary); }
+.bj06-evidence-card--empty span { padding: 0; }
+.bj06-evidence .bj02-pick-file { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+
+/* Phân loại: sheet iPhone (bốn lựa chọn + chia nhiều loại) và bảng web. */
+.bj06-sheet-backdrop { align-items: flex-end; }
+.bj06-sheet-content { display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); max-height: 70vh; overflow-y: auto; }
+.bj06-sheet-intro { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj06-class-fields { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
+.bj06-sheet-actions { display: grid; grid-template-columns: 1fr 1.3fr; gap: var(--vet45-v2-space-2); }
+.bj06-sheet-actions:has(> :only-child) { grid-template-columns: 1fr; }
+.bj06-sheet-actions .button { min-height: 44px; }
+.bj06-expired-note { font: 500 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj06-class-hint { display: block; min-height: 16px; font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj06-class-hint:empty { display: none; }
+.bj06-classify .k7-table td .k7-edit { max-width: 104px; margin-left: auto; }
+
+/* Kết quả theo sản phẩm và lô (sheet "Xem n dòng hàng"). */
+.bj06-result-groups { display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); width: 100%; }
+.bj06-result-group { display: flex; flex-direction: column; border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-4); overflow: hidden; }
+.bj06-result-rows { display: flex; flex-direction: column; padding: 0 var(--vet45-v2-space-4) var(--vet45-v2-space-2); }
+
+/* Web: 031 + 032 một trang hai cột (bảng | chi tiết dòng đang chọn); bỏ cột iPhone 370px. */
+.device-preview.is-web .k7-wide .bj06-receipt .k7-split { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+.device-preview.is-web .k7-wide .bj06-receipt .k7-table :is(th, td) { padding-inline: var(--vet45-v2-space-2); }
+.device-preview.is-web .k7-wide .bj06-receipt .k7-table td { vertical-align: middle; }
+.device-preview.is-web .k7-wide .bj06-line-link { display: flex; flex-direction: column; gap: 2px; font-weight: 400; color: var(--vet45-v2-text-primary); }
+.device-preview.is-web .k7-wide .bj06-line-link strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-brand); }
+.device-preview.is-web .k7-wide .bj06-line-link small { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.device-preview.is-web .k7-wide .bj06-receipt .k7-table tbody tr[data-io06-line] { cursor: pointer; }
+.device-preview.is-web .k7-wide .bj06-detail :is(.ds24-info-group, .ds24-info-row, .ds24-field, .ds24-list-row, .v-banner, .bj06-evidence, .ds-choice-list, .bj06-section) { width: 100%; max-width: none; box-sizing: border-box; }
+.device-preview.is-web .k7-wide .bj06-fill-button { width: auto; min-height: 40px; align-self: flex-start; }
+.device-preview.is-web .k7-wide .bj06-classify .k7-table-wrap { overflow-x: auto; }
+.device-preview.is-web .k7-wide .bj06-classify .k7-table :is(th, td) { padding-inline: var(--vet45-v2-space-2); }
+.device-preview.is-web .k7-wide .bj06-classify .ds-segmented { min-width: 300px; }
+.device-preview.is-web .k7-wide .bj06-classify .ds-segment { white-space: nowrap; padding-inline: var(--vet45-v2-space-2); }
+.device-preview.is-web .k7-wide .bj06-result-groups { width: 100%; }
+.device-preview.is-web .k7-wide .k7-split__aside .bj06-evidence-card { width: 100%; }
+.bj06-nowrap { white-space: nowrap; }
+.bj06-detail .ds24-info-group__title, .bj06-sheet .ds24-info-group__title { margin: 0; font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+.bj06-detail .ds24-section-title h2, .bj06-section .ds24-section-title h2 { font: 600 14px/20px Inter, system-ui, sans-serif; }
+body[data-active-uif="UIF-06"] .ds24-key-value-row { display: flex; align-items: center; justify-content: space-between; gap: var(--vet45-v2-space-3); min-height: 32px; }
+body[data-active-uif="UIF-06"] .ds24-key-value-row > strong { font-family: Inter, system-ui, sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* Sheet iPhone: vừa nội dung, cuộn bên trong khi dài (không tràn khỏi khung điện thoại). */
+body[data-active-uif="UIF-06"] .bj06-sheet { display: flex; flex-direction: column; max-height: calc(100% - 48px); min-height: 0; }
+body[data-active-uif="UIF-06"] .bj06-sheet > .sheet-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; max-height: none; }
+body[data-active-uif="UIF-06"] .bj06-sheet > .bj06-sheet-actions { flex: 0 0 auto; padding: var(--vet45-v2-space-3) var(--vet45-v2-space-4) var(--vet45-v2-space-4); border-top: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); }
+body[data-active-uif="UIF-06"] .bj06-sheet .ds-choice-row { height: auto !important; min-height: 60px !important; max-height: none !important; }
+.bj06-result-group > .ds24-list-row { border: 0; border-bottom: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); border-radius: 0; background: transparent; }
+.bj06-result-group .ds24-info-row { min-height: 36px; }
+.device-preview.is-web .k7-wide .bj06-classify .ds-segment { min-height: 40px; }

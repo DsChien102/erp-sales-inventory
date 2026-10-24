@@ -1650,8 +1650,8 @@
       "theme": "theme-07",
       "title": "Xử lý ngoại lệ truy vết",
       "source_baseline": "v4.0.0",
-      "sha256": "06039195f584342ca756b03e2a7615751e9e5d9f8b09bef60e59448a11c2f6b6",
-      "size": 11136
+      "sha256": "0bf964126a0ae8bac216141de8a2911c30370f1ea65f1cfbedaaacb7dc1143f3",
+      "size": 11536
     },
     {
       "path": "02.specification/behavior/use-cases/UC-06-03-ghi-nhan-hang-khach-tra.md",
@@ -3018,8 +3018,8 @@
       "theme": "theme-07",
       "title": "Quản lý vòng đời giữ hàng",
       "source_baseline": "v4.1.0",
-      "sha256": "1278afbfd9c900887006ec0134c7553eb5c3c9cf5de48b0f581bf6bb7108fb6e",
-      "size": 8287
+      "sha256": "5d4956d714a92ff5424eefc15c308b77cd4cf5adb7a7e8bd46c6c6dcc2aa7a8f",
+      "size": 9001
     },
     {
       "path": "03.design/flows/UIF-05-BJ-05.md",
@@ -3030,8 +3030,8 @@
       "theme": "theme-07",
       "title": "Lấy hàng và bàn giao đơn",
       "source_baseline": "v4.1.0",
-      "sha256": "771e4405a8867d8b133fd4481b56b88897e5b6a1948dd6079c4fae4e67e4a936",
-      "size": 10957
+      "sha256": "35c106b7c028ae9d8a7761f3c4f388e9f07db32ebc7a4b2753f12ab1b9318f45",
+      "size": 11716
     },
     {
       "path": "03.design/flows/UIF-06-BJ-06.md",
@@ -3042,8 +3042,8 @@
       "theme": "theme-07",
       "title": "Tiếp nhận và phân loại hàng khách trả",
       "source_baseline": "v4.1.0",
-      "sha256": "f2c80208480e45ca30fafb124168a65a7de449c8c670534abff70951e3af6127",
-      "size": 12023
+      "sha256": "e7aebc664bb4d8ac68980d4747842d1adce4f115672687f9b32f2c606e408767",
+      "size": 13094
     },
     {
       "path": "03.design/flows/UIF-07-BJ-07.md",
@@ -3126,8 +3126,8 @@
       "theme": "theme-07",
       "title": "Điều chỉnh giá trị hàng nhập",
       "source_baseline": "v4.5.2",
-      "sha256": "c3d10f9488c807637c855f673834cf19e848c6bcda7396692ed9bb723c74fa52",
-      "size": 3875
+      "sha256": "c68222d41d1b62a0e14667f91632af28101565500a3281998fb69e3ea010797d",
+      "size": 6822
     },
     {
       "path": "03.design/flows/UIF-14-BJ-14.md",
@@ -3198,8 +3198,8 @@
       "theme": "theme-07",
       "title": "Navigation areas",
       "source_baseline": "v3.10.1",
-      "sha256": "5d7f06cc829d34b21d7e42f464c4f4cf0b2ae42e6135714c4769d9605d1e6f32",
-      "size": 9397
+      "sha256": "85c793e53a9adbf91f066a096cb0c9945fc5d1863fb89271c46415199a32d251",
+      "size": 9386
     },
     {
       "path": "03.design/patterns/PAT-UI-UX.md",
@@ -3234,8 +3234,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "454239efd078f19f6dda1521ce71268646b169dad914aeaa60f56c7c056e13c8",
-      "size": 56472
+      "sha256": "29c50e026db450805cab5079827e9b41d4649554d36a5c09234694307c91f269",
+      "size": 77622
     },
     {
       "path": "03.design/prototype/html/DS-CONFORMANCE.md",
@@ -3282,8 +3282,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "fbbfd16fe02a503f4073618cd0c864873fdbb5d7ea98c70980204a3b3ffc8140",
-      "size": 131834
+      "sha256": "0b446e9234381e44cc9f38e4a9e926b8ff806aa182dd529df4f6f4b3b1acc54e",
+      "size": 131609
     },
     {
       "path": "03.design/prototype/html/app/bj03.js",
@@ -3294,8 +3294,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "05dfb605c90dba2d546c5dd0ccc0774ef4de6852f069e511d49b59636bb59a30",
-      "size": 70230
+      "sha256": "046bad3de99c588c5871dee8b06890e7e58f770d4c15066b40b0268bec851f73",
+      "size": 70375
     },
     {
       "path": "03.design/prototype/html/app/bj04.js",
@@ -3306,8 +3306,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "04ddf3c439bfc5600a1c3d9170f8d71a21995189221d049081ecec87642adfa8",
-      "size": 5750
+      "sha256": "fe6e2354f837e71ffe587fe4952910e78e940ced308de7e0b15c3de3639249a5",
+      "size": 10166
     },
     {
       "path": "03.design/prototype/html/app/bj05.js",
@@ -3318,8 +3318,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "7446bfb4d1fa54f16c8bb3d7dea2a8103ff2c7bf49abb4397fbbcb9dd9b2fd28",
-      "size": 43321
+      "sha256": "c21cbeb930632894cedc415b4c4d8b654ffeed164b11d108902eb69b9ce7e396",
+      "size": 56173
     },
     {
       "path": "03.design/prototype/html/app/bj06.js",
@@ -3330,8 +3330,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "8711af76b6101f61457144896d795ea3309a95af9d80513c2704a333adc4629b",
-      "size": 60716
+      "sha256": "3ba06efdde9dd05f285f847da871fe64c92f64efb113cee8a5aacacbd1abcaee",
+      "size": 85581
     },
     {
       "path": "03.design/prototype/html/app/bj07.js",
@@ -3414,8 +3414,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "47c6d32d3236fe6991a623f45bc3d14c34b362fbd0b606bf8970dd92d3509ee8",
-      "size": 39770
+      "sha256": "3fd7f78a626e5c20a6ce234cb2981e5b8be19977f16d077885bf293eccf7b705",
+      "size": 42099
     },
     {
       "path": "03.design/prototype/html/app/bj14.js",
@@ -3486,8 +3486,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "74359d5c26276990934124a7b03055d4a2843688a677017ac211794b2c2e248f",
-      "size": 56037
+      "sha256": "24b9485e6e98693f32a45fcde6722a22ec2efe0240057499249c83554b7b00b3",
+      "size": 56043
     },
     {
       "path": "03.design/prototype/html/app/hub.js",
@@ -3498,8 +3498,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "67251095c0fe98c7f1a3a2cc1f0b0834153d024103fc033a53351d0ff861d6d3",
-      "size": 33827
+      "sha256": "661644035f1a0ff10b835f44801a079b89e48cb6cb53a576d8d983e13cf902ad",
+      "size": 35327
     },
     {
       "path": "03.design/prototype/html/app/shared-control.js",
@@ -3522,8 +3522,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "d4fd57eba3060739c6d81fc2ad0e006fd0d0f803b96a42469245cbfbfd9f43dd",
-      "size": 14957
+      "sha256": "3e9714ed0955adc58ff737d21fab608569899b4b2f22a66dcebfe35f6e68542f",
+      "size": 17609
     },
     {
       "path": "03.design/prototype/html/app/shared-valuation.js",
@@ -3534,8 +3534,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "d23151aa6c573a66a362982387ba900011bbdf27a62f7d6f8af54e82b11a93e7",
-      "size": 9864
+      "sha256": "1211297139f02f8273bf46351f7885c5322bd7ebd4235522fc835eb05eefba18",
+      "size": 5948
     },
     {
       "path": "03.design/prototype/html/data/workbench-data.js",
@@ -3546,8 +3546,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "2ee23a449f25424c59e5f8aa818055492686ad5a1dcb4c1ac47efaa89198dab8",
-      "size": 216952
+      "sha256": "77c902677ce7c19ace2f320b18c31f978a3ec4d78591c5c1722e476f386c1266",
+      "size": 216777
     },
     {
       "path": "03.design/prototype/html/data/workbench-data.json",
@@ -3558,8 +3558,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "6ac417ec3fa2e44604faa71985b64d82c57a5a197ca762e1ab414614d5dffbc4",
-      "size": 216923
+      "sha256": "17cee1e340cef97831a72c92d8dc9186ac7b09ef353fceb6e0f4498a671a018a",
+      "size": 216748
     },
     {
       "path": "03.design/prototype/html/harness/figma-ds-map.js",
@@ -3594,8 +3594,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "6fd38aab331be63acb0e8f2f6f74f0d3eee158c9a080d981052fb13352d43f6b",
-      "size": 27784
+      "sha256": "d79d6379cb66c37f21e4cd48324a5ec2697cdc7ae6532a484ba6ab58ef469a99",
+      "size": 27756
     },
     {
       "path": "03.design/prototype/html/index.html",
@@ -3606,8 +3606,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "ac0bda7170d82c93b9273d2f30f3956b87dae017e4eed6ff7c5e90023f4ce796",
-      "size": 6549
+      "sha256": "27609fc5469c20e144c2f21e6c4e409bd88f99491a8f64709f9c78972d239dc0",
+      "size": 6541
     },
     {
       "path": "03.design/prototype/html/manifest.json",
@@ -3618,8 +3618,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "eff72007f8c8c9bba5c46000ec3a92fd05607a7877217ba43591063d8dee42be",
-      "size": 1495
+      "sha256": "36d493c70b41e5c4a70aeee1e40c9a20170c7a23a14ee13dc21c15ccd2ebdd66",
+      "size": 1477
     },
     {
       "path": "03.design/prototype/html/prototype.manifest.json",
@@ -3642,8 +3642,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "0737aa7e495020644c4c244a84ea4ba2104b1983e844f99dbc1f062cdba3411a",
-      "size": 153837
+      "sha256": "e364cd021379020656570fadb1bc8b1fe40382c861dc4a37969eb1a37aa5e9f2",
+      "size": 165127
     },
     {
       "path": "03.design/prototype/html/styles/screens.css",
@@ -3654,8 +3654,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "a815fff56e73af6205b5593d39e2814f85e03d5cf8c423cce1b079d6ffa5b891",
-      "size": 279815
+      "sha256": "5092175e7c79ed9e7a3561f8a0b43559d12c0a4ac56fa9e12556fa3922fd6653",
+      "size": 274447
     },
     {
       "path": "03.design/prototype/html/styles/tokens.css",
@@ -3690,8 +3690,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "ea64c929d57f662fa26b7c9acebb3896ae4f1db915e3dd55778dda2b248173dc",
-      "size": 76511
+      "sha256": "59ac7a8440f1010b36c9472f357a7cd0543e73959e39b415c8bb50734e33f12b",
+      "size": 87480
     },
     {
       "path": "03.design/prototype/html/tools/sync-registry.py",
@@ -3714,8 +3714,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "813934f65abe13f28144df8f06f39da3b3cf3bf81ce08783e97bec5958a7da21",
-      "size": 7790
+      "sha256": "1d053f78e98102960347950bc8d01bcd385b67bcb21c8bab734235a1a0c20604",
+      "size": 7880
     },
     {
       "path": "03.design/screens/RETIRED.md",
@@ -3726,8 +3726,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "ec44ecef315fff926331da53cda7ffca1c9fd89d1bd7cf0c5d5ebd49f5393efa",
-      "size": 2176
+      "sha256": "a764456bbc670542f5a182f3da69e1d9a181b4a0b60a361a5bab791d2883964c",
+      "size": 2522
     },
     {
       "path": "03.design/screens/SCR-001.md",
@@ -3954,8 +3954,8 @@
       "theme": "theme-07",
       "title": "Giữ hàng theo đơn",
       "source_baseline": "v3.10.1",
-      "sha256": "7960b9903ad513ef5a1efaf2af58851e9ac0300dd5929d8ea6e6c1a35a01700d",
-      "size": 4748
+      "sha256": "eaea5e7b61e48579042d33d115130cae72889461d7730e0bf782222a67d7a136",
+      "size": 4916
     },
     {
       "path": "03.design/screens/SCR-022.md",
@@ -4002,8 +4002,8 @@
       "theme": "theme-07",
       "title": "Đơn cần lấy hàng",
       "source_baseline": "v3.10.1",
-      "sha256": "14039654359eaf7355e729325c33f27391858ebbe7f1ac7c00d427325f03f76d",
-      "size": 3840
+      "sha256": "3b478548c744a3d406467a640d78e6208d788af807cc3082d05a9a0855acb4cf",
+      "size": 4845
     },
     {
       "path": "03.design/screens/SCR-026.md",
@@ -4014,8 +4014,8 @@
       "theme": "theme-07",
       "title": "Hàng cần lấy",
       "source_baseline": "v3.10.1",
-      "sha256": "43ed5b1f36d9b93583be9ce22fcde471ba41f148d9d727b38447e29cb8cd5787",
-      "size": 3333
+      "sha256": "055938146b051da5189118427b52f43b86e567643ecc0f67b5fb84c41eca048c",
+      "size": 7127
     },
     {
       "path": "03.design/screens/SCR-027.md",
@@ -4038,8 +4038,8 @@
       "theme": "theme-07",
       "title": "Rà soát bàn giao",
       "source_baseline": "v3.10.1",
-      "sha256": "e1b525e5bbfb6d3ab912c38e8f23f11f7d7a1511f511e79c1c0cbd2bacaf2365",
-      "size": 3777
+      "sha256": "c324acb908c0a51866de8b69a8937db746d3769f2357d2466345d4fe1d6eae9c",
+      "size": 4633
     },
     {
       "path": "03.design/screens/SCR-029.md",
@@ -4050,8 +4050,8 @@
       "theme": "theme-07",
       "title": "Kết quả bàn giao",
       "source_baseline": "v3.10.1",
-      "sha256": "d98984b18408e969fcb32285b428f9414d7b6def114d04419328fd62905a9b2e",
-      "size": 2356
+      "sha256": "03add102bc4349aee157781faaefb75d7f1b0aa5c69ed0cef31660953d31b002",
+      "size": 4431
     },
     {
       "path": "03.design/screens/SCR-030.md",
@@ -4062,8 +4062,8 @@
       "theme": "theme-07",
       "title": "Hàng khách trả",
       "source_baseline": "v3.10.1",
-      "sha256": "eeba400e18546d8e5209ddc1f352f3eaa7beb15ff4371ccfc65feb63b647fe97",
-      "size": 2577
+      "sha256": "16588de5940f2885662d45bebcb07e1937cb69a295b82104d470e91ce002d224",
+      "size": 4656
     },
     {
       "path": "03.design/screens/SCR-031.md",
@@ -4074,8 +4074,8 @@
       "theme": "theme-07",
       "title": "Hàng khách trả",
       "source_baseline": "v3.10.1",
-      "sha256": "4a24f0040b01e4403d30ecdb0c924891443368c03ebd24bb86836a7df46e599a",
-      "size": 4108
+      "sha256": "ef2b06c8dab6febef31086c95b38ef63c4cab3abbf2c5cdabb693daf41819cc6",
+      "size": 6545
     },
     {
       "path": "03.design/screens/SCR-032.md",
@@ -4086,8 +4086,8 @@
       "theme": "theme-07",
       "title": "Chi tiết hàng trả",
       "source_baseline": "v3.10.1",
-      "sha256": "bdabd23851633087de3b701bfba9b219f9ae9c79903c744cff6b628aff9561d7",
-      "size": 2867
+      "sha256": "ea5ca987b3ec68adea2a553696c3c76609c746c5e66716068b1e24959ce7aede",
+      "size": 5257
     },
     {
       "path": "03.design/screens/SCR-033.md",
@@ -4098,8 +4098,8 @@
       "theme": "theme-07",
       "title": "Phân loại hàng trả",
       "source_baseline": "v3.10.1",
-      "sha256": "30a54f856c0601dfce4b07341745ac6cf78424a7860c57b1f8853f0213cc3db4",
-      "size": 3014
+      "sha256": "e656122d59c90c3a60c85daf8584f78ec2fcca66474b68e47b1ba96c7ee7900e",
+      "size": 4556
     },
     {
       "path": "03.design/screens/SCR-034.md",
@@ -4110,8 +4110,8 @@
       "theme": "theme-07",
       "title": "Ngoại lệ lô cần duyệt",
       "source_baseline": "v3.10.1",
-      "sha256": "59ff3fecf6135516070c467c606695c2502cdd41c0b06def5776f69450c27a40",
-      "size": 3501
+      "sha256": "8ad4183b7b2e2faee00fb055d5a6375696b02a76b50fc3d4b3de5abe85246370",
+      "size": 5023
     },
     {
       "path": "03.design/screens/SCR-035.md",
@@ -4122,8 +4122,8 @@
       "theme": "theme-07",
       "title": "Kết quả hàng trả",
       "source_baseline": "v3.10.1",
-      "sha256": "8ae821b2c21490a66df587a2c3641baaf30fdabfb465305ff38e543cb61f5268",
-      "size": 3763
+      "sha256": "932cb18a0b74b290f3ee57ef56bfc5bdaaca91f243b48936d0716bcf61c81b92",
+      "size": 4438
     },
     {
       "path": "03.design/screens/SCR-036.md",
@@ -4686,8 +4686,8 @@
       "theme": "theme-07",
       "title": "Điều chỉnh giá trị hàng nhập",
       "source_baseline": "v4.3.0",
-      "sha256": "9b3adb919924484569c9ff696d1d98ec67a8811af46a19a910ed3fec16fac9f3",
-      "size": 1524
+      "sha256": "5b9a75daf9dafd87b3a277359127ca2dd26932081efa6156dfb6daba36290e67",
+      "size": 5745
     },
     {
       "path": "03.design/screens/SCR-086.md",
@@ -4698,8 +4698,8 @@
       "theme": "theme-07",
       "title": "Phân bổ điều chỉnh giá trị",
       "source_baseline": "v4.6.1",
-      "sha256": "bbc13477a4822d76a74fb8b013281347458d09caa91e326723d474f1a500cd03",
-      "size": 2841
+      "sha256": "dcf406f20c05ff6b07236097d98fc484456bc10c8ac4fba3051e9faaa4c199a3",
+      "size": 9650
     },
     {
       "path": "03.design/screens/SCR-089.md",
@@ -4710,8 +4710,8 @@
       "theme": "theme-07",
       "title": "Kết quả điều chỉnh giá trị",
       "source_baseline": "v4.6.0",
-      "sha256": "9a0112b1061e4063c34360c14957430016c128a5edfc2a70b64f1ef7bbe8c349",
-      "size": 972
+      "sha256": "a3eaa4dfc43839aaebfc428ade0cbef278d4dbdda4dc79e1a328bacdc5f95e45",
+      "size": 5183
     },
     {
       "path": "03.design/screens/SCR-090.md",

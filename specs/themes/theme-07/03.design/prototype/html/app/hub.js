@@ -24,7 +24,7 @@ const ThemeApp = (() => {
     'UIF-01': 'Tồn kho', 'UIF-02': 'Nhận hàng mua', 'UIF-03': 'Xác lập giá trị nhập ban đầu', 'UIF-04': 'Giữ hàng theo đơn bán',
     'UIF-05': 'Lấy hàng & bàn giao', 'UIF-06': 'Hàng khách trả', 'UIF-07': 'Trả nhà cung cấp', 'UIF-08': 'Kiểm kê kho',
     'UIF-09': 'Tình trạng hàng', 'UIF-10': 'Tiêu hủy hàng', 'UIF-11': 'Hủy & sửa sai nghiệp vụ', 'UIF-12': 'Khởi tạo tồn đầu kỳ',
-    'UIF-13': 'Chi phí mua bổ sung', 'UIF-14': 'Giá vốn', 'UIF-15': 'Báo cáo tồn & thẻ kho', 'UIF-16': 'Đối soát sai lệch',
+    'UIF-13': 'Điều chỉnh giá trị hàng nhập', 'UIF-14': 'Giá vốn', 'UIF-15': 'Báo cáo tồn & thẻ kho', 'UIF-16': 'Đối soát sai lệch',
     'UIF-17': 'Xác minh kết quả', 'CAP-01': 'Chính sách tồn & cận hạn',
   };
 
@@ -48,7 +48,7 @@ const ThemeApp = (() => {
     ] },
     valuation: { title: 'Giá trị kho', subtitle: 'Giá nhập, chi phí mua và giá vốn', icon: 'layers', items: [
       { flow: 'UIF-03', title: 'Hàng chờ xác lập giá trị', subtitle: 'Ghi giá nhập cho hàng đã nhận', icon: 'checkCircle' },
-      { flow: 'UIF-13', title: 'Chi phí mua bổ sung', subtitle: 'Ghi nhận chi phí phát sinh đến muộn', icon: 'fileText' },
+      { flow: 'UIF-13', title: 'Điều chỉnh giá trị hàng nhập', subtitle: 'Chi phí, chiết khấu phát sinh sau khi đã xác lập giá', icon: 'fileText' },
       { flow: 'UIF-14', title: 'Giá vốn', subtitle: 'Tính, rà soát và công bố giá vốn', icon: 'layers' },
     ] },
     history: { title: 'Báo cáo & lịch sử', subtitle: 'Thẻ kho, biến động và số liệu tra cứu', icon: 'history', items: [
@@ -69,7 +69,7 @@ const ThemeApp = (() => {
     { id: 'REC-260916-03', supplier: 'Minh Phát', meta: 'Kho trung tâm · 4 mặt hàng · Trần Minh gửi 08:20' },
   ];
 
-  // Nguồn "Chờ duyệt" (K2): mỗi BJ đăng ký { id, label, rows() } vào mảng toàn cục trước khi hub.js nạp; rows() rỗng = không có việc chờ.
+  // Nguồn "Chờ duyệt" (K2): mỗi BJ đăng ký { id, label, rows(), needsActivation? } vào mảng toàn cục trước khi hub.js nạp; rows() rỗng = không có việc chờ.
   // Nhận hàng đứng đầu để dòng phụ đọc "3 nhận hàng · 1 số dư đầu kỳ".
   const pendingSources = (window.__T7_PENDING_SOURCES__ = window.__T7_PENDING_SOURCES__ || []);
   pendingSources.unshift({
@@ -87,9 +87,11 @@ const ThemeApp = (() => {
       };
     })),
   });
-  const pendingRows = () => pendingSources.flatMap((src) => src.rows().map((row) => ({ ...row, source: src })));
+  // Nguồn gắn needsActivation (vd. hàng khách trả) chỉ có việc chờ khi kho đã kích hoạt; nguồn khác (vd. số dư đầu kỳ) vẫn hiện trước đó.
+  const rowsOf = (src) => (src.needsActivation && !inventoryActivated ? [] : src.rows());
+  const pendingRows = () => pendingSources.flatMap((src) => rowsOf(src).map((row) => ({ ...row, source: src })));
   function pendingSummary() {
-    const parts = pendingSources.map((src) => ({ n: src.rows().length, label: src.label })).filter((p) => p.n > 0);
+    const parts = pendingSources.map((src) => ({ n: rowsOf(src).length, label: src.label })).filter((p) => p.n > 0);
     return { total: parts.reduce((sum, p) => sum + p.n, 0), text: parts.map((p) => `${p.n} ${p.label}`).join(' · ') };
   }
 
@@ -244,8 +246,10 @@ const ThemeApp = (() => {
   function afterFlowRender() {
     const bar = document.querySelector('#app-screen .app-appbar');
     if (inThemeFlow() && bar) {
-      if (activeScreenId === activeFlow().screens[0]) setBack(bar, 'data-theme-app-back-to-inventory', 'Quay về Kho');
-      if (directEntryScreen && activeScreenId === directEntryScreen) setBack(bar, 'data-t380-back-home', 'Quay về Kho');
+      // Màn mở từ màn khác trong luồng (vd. BJ-04 từ "Xem giữ hàng" ở BJ-05) tự đánh dấu data-keep-back để quay lại đúng nơi vừa đi.
+      const keepBack = Boolean(bar.querySelector('.app-back-button[data-keep-back]'));
+      if (!keepBack && activeScreenId === activeFlow().screens[0]) setBack(bar, 'data-theme-app-back-to-inventory', 'Quay về Kho');
+      if (!keepBack && directEntryScreen && activeScreenId === directEntryScreen) setBack(bar, 'data-t380-back-home', 'Quay về Kho');
       const st = stateByScreen[activeScreenId];
       const submitted = st === 'PENDING_APPROVAL' && ['SCR-010', 'SCR-038', 'SCR-040'].includes(activeScreenId);
       if (submitted) {
@@ -381,9 +385,14 @@ const ThemeApp = (() => {
     return true;
   }
 
+  // Móc ngữ cảnh do từng BJ đăng ký: window.__T7_DIRECT_CONTEXTS__["tiền tố"] = (giá trị) => void; context có dạng "tiền tố:giá trị".
+  // Có móc thì chỉ móc chạy; không có thì nhánh BJ-02 như cũ.
   function openDirect(target, context, receiptId) {
     directEntryScreen = target;
-    if (!applyDirectContextMine(context)) applyDirectContext(context, receiptId);
+    const sep = String(context).indexOf(':');
+    const hook = sep > 0 ? (window.__T7_DIRECT_CONTEXTS__ || {})[context.slice(0, sep)] : null;
+    if (hook) hook(context.slice(sep + 1));
+    else if (!applyDirectContextMine(context)) applyDirectContext(context, receiptId);
     activeScreenId = target;
     syncReviewUrl(); render();
   }
@@ -403,13 +412,17 @@ const ThemeApp = (() => {
 
     if (!inTheme()) return;
 
+    // Kết quả duyệt của BJ khác BJ-02 (vd. BJ-06): nút gắn data-theme-exit-to-pending về danh sách "Chờ duyệt".
+    if (inThemeFlow() && t.closest('[data-theme-exit-to-pending]')) { stop(); directEntryScreen = null; return go('inventory', 'pending-approvals'); }
+
     if (atHub() && t.closest('[data-v464-pending-approvals]')) { stop(); return go('inventory', 'pending-approvals'); }
     const ws = atHub() && t.closest('[data-t462-workspace]');
     if (ws) { stop(); return go('inventory', ws.dataset.t462Workspace); }
     if (atHub() && t.closest('[data-t462-workspace-back]')) { stop(); return go('inventory', 'home'); }
 
+    // Thanh bên "Kho" và nút "Về Kho" (k1ExitAttr) mở Home Kho, không mở lại màn con của Hub đã xem trước đó (vd. "Chờ duyệt").
     const sidebarRoute = t.closest('[data-theme-sidebar-route]');
-    if (sidebarRoute) { stop(); return go(sidebarRoute.dataset.themeSidebarRoute); }
+    if (sidebarRoute) { stop(); return go(sidebarRoute.dataset.themeSidebarRoute, 'home'); }
     const appRoute = t.closest('[data-theme-app-route]');
     if (appRoute) { stop(); return go(appRoute.dataset.themeAppRoute); }
     if (t.closest('[data-theme-app-back]')) { stop(); return go('more'); }

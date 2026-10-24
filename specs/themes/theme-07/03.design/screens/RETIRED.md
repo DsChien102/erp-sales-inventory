@@ -15,3 +15,4 @@ ID giữ để tra cứu và chuyển hướng liên kết cũ; không dùng l�
 | SCR-064 | Rà soát chính sách | v5.7.0 | SCR-062 | Thay bằng sheet tác động "Lưu {n} thay đổi?" trong SCR-062 (hiện khi bấm "Lưu thay đổi"); `APPROVAL_REQUIRED` bỏ vì CAP-01 không có luồng duyệt — nhân viên chỉ xem |
 | SCR-006 | Chọn cách nhận hàng | v5.8.0 | SCR-007 | Gộp vào SCR-007: danh sách chứng từ chờ nhận + dòng "Hàng đến chưa có chứng từ" (nhập nhanh); link cũ mở SCR-007 ở trạng thái mặc định |
 | SCR-017 | Rà soát giá trị nhập ban đầu | v5.9.0 | SCR-015 | Thay bằng sheet xác nhận "Ghi giá trị nhập ban đầu?" trong SCR-015 (hiện khi bấm "Ghi giá trị ({n})"); link cũ mở SCR-015 ở trạng thái mặc định |
+| SCR-027 | Chi tiết lấy hàng | v5.11.0 | SCR-026 | Gộp vào SCR-026: mỗi lô một dòng ngay trên "Hàng cần lấy", "Lấy đủ" một chạm; sheet "Đã lấy" / "Chọn lô thay thế" chỉ mở khi lấy thiếu hoặc đổi lô, lưu ngay (bỏ "Lưu lượng đã lấy"); link cũ mở SCR-026 của đơn hiện tại |

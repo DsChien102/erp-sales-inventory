@@ -1,4 +1,4 @@
-/* shared-valuation.js — helpers dùng chung cụm giá trị BJ-03 / 13 / 14 (T7-P A5; VAL_UI_430 / VAL_UI_461 từ A12 R7). BJ-03 (v5.9.0) không còn dùng VAL_UI_*; BJ-13 / BJ-14 còn. */
+/* shared-valuation.js — helpers dùng chung cụm giá trị BJ-03 / 13 / 14 (T7-P A5; VAL_UI_461 từ A12 R7). BJ-03 (v5.9.0) không dùng VAL_UI_461; BJ-13 (v5.10.0) chỉ dùng money / signed / pct; BJ-14 dùng cả bộ. VAL_UI_430 bỏ ở v5.10.0 (không còn chỗ dùng). */
 function valuationDsTone(tone){const t=String(tone||"Neutral").toLowerCase();return ({success:"Success",warning:"Warning",danger:"Danger",error:"Danger",info:"Info",neutral:"Neutral",brand:"Brand"})[t]||"Neutral";}
 function valuationProductHeader({name,code,uom,status="",tone="Neutral",value="",meta=""}){
   const trailing=value?`<span class="valuation-product-value"><small>Giá trị</small><strong>${esc(value)}</strong></span>`:(status?ds24Badge(status,valuationDsTone(tone)):"");
@@ -9,25 +9,7 @@ function valuationReadOnlyChild({title,subtitle,trailing=""}){
   return `<div class="valuation-readonly-child" data-composed-from="VText"><span class="valuation-child-branch" aria-hidden="true"></span><span class="valuation-child-copy"><strong>${esc(title)}</strong><small>${esc(subtitle)}</small></span>${trailing?`<span class="valuation-child-trailing">${trailing}</span>`:""}</div>`;
 }
 
-/* Helper giao diện bản v430 (màn danh sách SCR-014 / 016 / 085) — dùng chung BJ-03 / BJ-13. Giữ nguyên thân, khác bản v461. */
-const VAL_UI_430=(()=>{
-  const money=n=>`${Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
-  const signed=n=>`${Number(n||0)>0?'+ ':Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
-  const row=args=>ds24ListRow({...args,density:args.density||'Compact'});
-  const heading=(title,meta='')=>ds24SectionTitle(title,meta);
-  const button=(label,attrs,kind='primary',disabled=false)=>`<button type="button" class="button button--${kind}" ${attrs} data-ds-component="VButton" data-figma-node="521:529" ${disabled?'disabled':''}>${esc(label)}</button>`;
-  const flatRows=(title,rows,extra='')=>`<section class="v430-flat ${extra}" data-composed-from="DS v2 / Info Row,DS v2 / Key-value Row">${title?heading(title):''}<div class="v430-flat__rows">${rows}</div></section>`;
-  const keyRows=(rows,extra='')=>`<div class="v430-key-stack ${extra}" data-composed-from="DS v2 / Key-value Row">${rows}</div>`;
-  const contextRow=(title,subtitle,badge='',tone='Neutral')=>row({title,subtitle,trailing:badge?ds24Badge(badge,tone):'',leading:null,type:'Status',interactive:false});
-  const textField=(label,attrs,value='',helper='',required=false)=>`<label class="v430-field" data-ds-component="VTextField" data-figma-node="522:7186"><span>${esc(label)}${required?' <b>*</b>':''}</span><input class="v430-control" ${attrs} value="${escapeAttribute(value)}"/>${helper?`<small>${esc(helper)}</small>`:''}<small class="v430-field-error" hidden></small></label>`;
-  const moneyField=(label,attrs,value='',helper='',required=false)=>`<label class="v430-field" data-ds-component="VMoneyField" data-figma-node="522:7322"><span>${esc(label)}${required?' <b>*</b>':''}</span><div class="v430-money"><input class="v430-control" inputmode="decimal" type="number" ${attrs} value="${escapeAttribute(value)}"/><span>đ</span></div>${helper?`<small>${esc(helper)}</small>`:''}<small class="v430-field-error" hidden></small></label>`;
-  const textareaField=(label,attrs,value='',helper='',required=false)=>`<label class="v430-field" data-ds-component="VTextarea" data-figma-node="522:7212"><span>${esc(label)}${required?' <b>*</b>':''}</span><textarea class="v430-control v430-textarea" rows="3" ${attrs}>${esc(value)}</textarea>${helper?`<small>${esc(helper)}</small>`:''}<small class="v430-field-error" hidden></small></label>`;
-  const selectField=(label,attrs,options)=>`<label class="v430-field" data-ds-component="VSelect" data-figma-node="522:7291"><span>${esc(label)}</span><select class="v430-control" ${attrs}>${options}</select></label>`;
-  const formSheet=({title,intro,body,saveLabel='Lưu',saveAttr,closeAttr})=>`<div class="v430-overlay" data-v430-overlay><div class="v430-overlay__backdrop" ${closeAttr}></div><section class="v430-form-sheet" data-ds-component="DS v2 / Form Sheet" data-figma-node="1353:6355" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}"><div class="v430-sheet-handle-area"><div class="v430-sheet-handle"></div></div><header class="v430-sheet-header"><h2>${esc(title)}</h2><button type="button" class="v430-sheet-close" ${closeAttr} aria-label="Đóng" data-ds-component="DS v2 / Icon Button" data-figma-node="4431:10317">${icon('close','icon--sm')}</button></header>${intro?`<p class="v430-sheet-intro">${esc(intro)}</p>`:''}<div class="v430-form-sheet__body">${body}</div><footer class="v430-sheet-footer" data-ds-component="DS v2 / Sticky Footer" data-figma-node="549:927" data-ds-prop-layout="Single"><button type="button" class="button button--primary" ${saveAttr} data-ds-component="VButton" data-figma-node="521:529">${esc(saveLabel)}</button></footer></section></div>`;
-  return {money, signed, row, heading, button, flatRows, keyRows, contextRow, textField, moneyField, textareaField, selectField, formSheet};
-})();
-
-/* Helper giao diện bản v461 (SCR-015…019, 086 / 089, 072…077) — dùng chung BJ-03 / BJ-13 / BJ-14. */
+/* Helper giao diện bản v461 (SCR-072…077; BJ-13 dùng money / signed / pct). */
 const VAL_UI_461=(()=>{
   const money=n=>`${Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
   const signed=n=>`${Number(n||0)>0?'+ ':Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;

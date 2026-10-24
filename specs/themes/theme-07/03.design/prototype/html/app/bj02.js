@@ -155,7 +155,7 @@ function bj02StateNotice(state) {
 }
 // Chân màn có dòng lý do ngay trên nút (hiện khi nút tắt).
 function bj02Footer(label, attr, disabled = false, reason = "") {
-  return primaryFooter(label, attr, disabled).replace("<button", `<div class="bj02-footer-stack"><p class="bj02-footer-reason" data-bj02-reason${disabled && reason ? "" : " hidden"}>${esc(disabled ? reason : "")}</p><button`).replace("</button></footer>", "</button></div></footer>");
+  return k4ReasonFooter({ label, attr, disabled, reason });
 }
 
 /* ---------- Số liệu và quy tắc (không đổi) ---------- */

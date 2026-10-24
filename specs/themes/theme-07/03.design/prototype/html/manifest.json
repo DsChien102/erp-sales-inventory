@@ -1,8 +1,8 @@
 {
-  "version": "5.9.1",
+  "version": "5.12.1",
   "parent": "5.4.0",
-  "status": "T7_P_BJ12_REDESIGN",
-  "scope": "T7-P BJ-12: thiết kế lại luồng khởi tạo tồn đầu kỳ (SCR-066/067/068/070/071, SCR-069 gộp vào 068); dựng khuôn K1–K4, K7 ở app/shared-patterns.js; Home Kho có khối \"Kho chưa kích hoạt\" và \"Chờ duyệt\".",
+  "status": "T7_P_BJ04_BJ05_REDESIGN",
+  "scope": "T7-P BJ-04 / BJ-05: thiết kế lại luồng giữ hàng (SCR-021) và lấy hàng - bàn giao (SCR-025/026/028/029, SCR-027 gộp vào 026); dựng khuôn K6 (k6TaskList) và k4ReasonFooter ở app/shared-patterns.js.",
   "flows": 18,
   "screens": 89,
   "canonicalActiveScreens": 73,

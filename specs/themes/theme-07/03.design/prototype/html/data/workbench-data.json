@@ -276,7 +276,6 @@
       "screens": [
         "SCR-025",
         "SCR-026",
-        "SCR-027",
         "SCR-028",
         "SCR-029"
       ],
@@ -2978,7 +2977,7 @@
     {
       "id": "SCR-027",
       "short": "027",
-      "name": "Chi tiết lấy hàng",
+      "name": "Chi tiết lấy hàng (đã gộp vào SCR-026)",
       "surface": "form",
       "bj": [
         "BJ-05"
@@ -2987,16 +2986,14 @@
         "UC-05-02",
         "UC-05-04"
       ],
-      "purpose": "Xác nhận picked quantity theo allocation. Alternative LOT dùng lot_pickable_quantity tại snapshot server; đổi/stale LOT sau khi đã pick bắt buộc physical-correction assertion trước khi pick evidence mới hợp lệ.",
+      "purpose": "Đã gộp vào SCR-026 từ v5.11.0: mỗi lô một dòng ngay trên Hàng cần lấy, \"Lấy đủ\" một chạm; sheet sửa lượng / đổi lô mở từ dòng lô. Link cũ mở Hàng cần lấy của đơn hiện tại.",
       "actors": [
         "Nhân viên xử lý đơn"
       ],
       "states": [
-        "READY",
-        "STALE_RECOVERED",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
       "fields": [
         [
           "Sản phẩm",
@@ -3018,15 +3015,7 @@
       "cards": [],
       "notice": "Không badge hóa raw quantity. Alternative LOT không preselect; HSD giữ precision DAY/MONTH/YEAR. Nhập picked mới không tự clear physical correction.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
-      "actions": [
-        {
-          "id": "ACT-06-SAVE-PICK",
-          "label": "Xong",
-          "bc": "BC-IO-15",
-          "api": "API-C-24",
-          "tone": "primary"
-        }
-      ],
+      "actions": [],
       "traceActions": [],
       "components": [
         "VPageScaffold",
@@ -3043,9 +3032,7 @@
         "VButton"
       ],
       "themeComposition": "Product identity → Key-value remaining fact → LOT allocation sections → canonical Bottom Sheet override/correction",
-      "uifs": [
-        "UIF-05"
-      ],
+      "uifs": [],
       "mode": null,
       "dataRows": [
         {
@@ -3068,7 +3055,8 @@
           "example": "Trả old LOT + lấy lại new LOT + actor/time/status",
           "ownership": "USER_ASSERTED_AUDITED"
         }
-      ]
+      ],
+      "prototype_status": "RETIRED_v5.11.0"
     },
     {
       "id": "SCR-028",

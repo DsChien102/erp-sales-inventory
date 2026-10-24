@@ -2,7 +2,7 @@
  *
  * Thiết kế lại (T7-P BJ-03, 2026-10-22, v5.9.0): một khối dựng cho 014 / 015 / 019. 015 là bảng sản phẩm có ô tick
  * (web, K7; iPhone là danh sách thẻ) + sheet "Thêm căn cứ giá" (nhập nhanh, chỉ VND) + sheet "Cách tính" + sheet xác nhận (thay SCR-017).
- * Sửa BJ-03: sửa thẳng file này. Helper `VAL_UI_430` / `VAL_UI_461` ở shared-valuation.js còn BJ-13 / BJ-14 dùng.
+ * Sửa BJ-03: sửa thẳng file này. Helper `VAL_UI_461` ở shared-valuation.js còn BJ-13 / BJ-14 dùng.
  * Helper val03* bị gán trong khối chuẩn hoá v397 (khai báo `let` một lần ở đầu file).
  * Dùng từ khuôn: k1Loading, k1Denied, k1Empty, k1Locked, k1ExitAttr (K1); k3Unknown (K3); k4Result, k4Footer (K4);
  * k7Table (cột chọn `select`), k7Split, k7FilterChips (K7); dsSegmented.
@@ -638,7 +638,8 @@ const VAL03_SAMPLE_RESULT = {
     if (hit("[data-bj03-recheck]")) { take(); stateByScreen["SCR-015"] = "READY"; syncReviewUrl(); return renderAppScreen(); }
     // 019
     if (hit("[data-bj03-result-detail]")) { take(); val03Ui.resultOpen = true; return renderAppScreen(); }
-    if (hit("[data-bj03-result-back]")) { take(); val03ResetUi(); stateByScreen["SCR-015"] = "READY"; return navigate("SCR-015"); }
+    // Đã ghi xong: quay lại từ 015 về danh sách chờ xác lập (014), không về kết quả nhận hàng của BJ-02 nữa.
+    if (hit("[data-bj03-result-back]")) { take(); val03ResetUi(); val03ReturnTo = null; stateByScreen["SCR-015"] = "READY"; return navigate("SCR-015"); }
     if (hit("[data-bj03-result-list]")) { take(); val03ResetUi(); val03Query = ""; val03Filter = "ALL"; val03ReturnTo = null; stateByScreen["SCR-014"] = "READY"; return navigate("SCR-014"); }
     if (hit("[data-bj03-go-cost]")) { take(); val03ResetUi(); return applyEntry("UIF-14", "dirty-scope", true); }
   }, true);

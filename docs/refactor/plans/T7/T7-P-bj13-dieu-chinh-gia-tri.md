@@ -1,6 +1,6 @@
 # T7-P · BJ-13 Điều chỉnh giá trị hàng nhập — thiết kế lại (bước B–E) + `SC_journey_2`
 
-> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21 — mục 0.10) | Plan C–E ✅ (viết cùng brief; **rà lại theo code sau khi BJ-03 xong**) | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-21 — mục 0.10) | Plan C–E ✅ (viết cùng brief; **rà lại theo code sau khi BJ-03 xong**) | Làm ✅ 2026-10-24 (v5.10.0, chưa commit — ghi chú mục 8) | Review ⬜
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 2 "Nhập hàng"**, BJ thứ ba (cuối chặng). Làm **sau** [BJ-02](T7-P-bj02-nhan-hang.md) và [BJ-03](T7-P-bj03-gia-nhap.md).
 > Dùng lại K1, K3, K4, K7 (không cần cột chọn của `k7Table` — phạm vi do nguồn cố định). **Không dùng K2:** UC-13-01 không có bước duyệt, chỉ Owner ghi (sửa T7-P mục 9, trước ghi "K2, K3, K4").
 > Thiết bị: **cả iPhone và web đều là thiết bị chính** (sửa 2026-10-22, T7-P mục 2). Bố cục iPhone thiết kế và kiểm như web, không chỉ "dùng được".
@@ -240,7 +240,46 @@ Chạy ở cả hai khung (`SC_journey_2@web` qua `WEB_SCENARIOS`). Nếu bướ
 
 ## 8. Ghi chú khi làm
 
-(Điền khi làm.)
+Làm 2026-10-24 (v5.10.0). **Chưa commit** (như BJ-02 / BJ-03): để phiên review xem trước; hai commit C+D / E làm sau review.
+
+**Mốc (mục 2).** `tools/.golden-bj03-after` đã cũ (T7-HF1 v5.9.1 sau BJ-03 đổi bố cục web và K3) → chụp mốc mới ở HEAD `f7add9749`: `tools/.golden-bj13-base` (1560 ca) / `tools/.golden-bj13-web-base` (721), 0 lỗi JS; so `.golden-hf1-new` chỉ khác nhiễu BJ-15 đã biết và ca `SC_hf1_bj01_select` thêm sau review HF1.
+
+**GitNexus.** Chỉ mục cũ (4c70200) báo `render086BJ13` "CRITICAL" do trùng tên mơ hồ; dựng lại chỉ mục (`analyze --force`, ở f7add97): mọi ký hiệu sửa đều **LOW** — `render085BJ13` / `render086BJ13` (1 nơi gọi: bọc SCR-088, đã bỏ) / `val13ApplySourceUpdate` / `val13Tasks` / `VAL_UI_430` 0 nơi gọi ngoài BJ-13; `val03ReturnTo` LOW; `go` (hub) LOW. `analyze` ghi lại số ký hiệu trong `CLAUDE.md` / `AGENTS.md` — đã trả lại, không thuộc đợt này.
+
+**Kết quả D.** Mobile 1560 → 1607, web 721 → 762, 0 lỗi JS. Ca khác đúng danh sách 0.8: `UIF-13_*`, `SC_bj13_*`, `SC_entry_UIF-13_source-task`, `SC_ws_valuation_*`, `SC_journey_2`; thêm `SC_bj03_retired` (SCR-018 là alias sang SCR-085 mới — đúng ý). `UIF-14_*` **khớp**. Mọi trạng thái 0.5 cho thân `.txt` khác nhau ở cả hai khung, trừ 085 `PERMISSION_DENIED` = `FINANCIAL_MASKED` (cùng `k1Denied` theo brief, như BJ-03). Mốc chặng 3: `tools/.golden-chang2` / `tools/.golden-chang2-web`.
+
+**Lệch / thêm so với plan.**
+
+1. **Mục 3.1 điểm 5:** BJ-14 không đọc đích của BJ-13 (`grep` không thấy `val13` / `LC13` trong `bj14.js`) → đổi đích LC13-001 an toàn, golden `UIF-14_*` khớp.
+2. **Mục 3.4 điểm 2:** `VAL_UI_430` hết chỗ dùng → đã xoá. `VAL_UI_461` giữ (BJ-13 dùng `money` / `signed` / `pct`, BJ-14 dùng cả bộ).
+3. **Số phân bổ VC-8842:** Nobivac **+ 853.706 đ** (71,1%), Vaccine Canine X + 346.294 đ (dư làm tròn vào đích cuối theo thứ tự ổn định).
+4. **`VALIDATION_ERROR`:** bỏ cả cột "Tỷ trọng" (không chỉ "Phân bổ") và dòng tổng — không có phương pháp hợp lệ thì tỷ trọng không có nghĩa. Lý do khi nút tắt dùng lại "Chưa có phương pháp phân bổ hợp lệ".
+5. **"Xem chứng từ":** hiện tên tệp (`evidence`) cạnh liên kết; bấm → toast dùng lại chữ BJ-02 "Đã mở bản xem trước chứng từ trong chế độ prototype." (không thêm chữ mới).
+6. **Chi tiết phân bổ ở 089:** sheet (như BJ-03 019) tiêu đề "Kết quả phân bổ" (chữ giữ) + "Đóng" (chữ BJ-03), thay `<details>`.
+7. **Sheet xác nhận** giữ thêm dòng "Cách phân bổ" (chữ cũ; câu dẫn của sheet có nói "cách phân bổ").
+8. **Mã tham chiếu `UNKNOWN`:** mã lô điều chỉnh `LC13-ADJ-{seq}-1`; thời điểm gửi cố định "10:20 · 16/09/2026" (fixture).
+9. **Nhiều phương pháp:** fixture không có khoản nào hai phương pháp hợp lệ → kiểm bằng tay (thêm `FIXTURE_QTY` + chỉ số lượng lúc chạy): `dsChoiceRow` hiện, chọn đổi bảng (+ 901.863 / + 298.137), focus giữ ở lựa chọn; mô tả xuống dòng. Chưa có golden cho nhánh này.
+10. **Kịch bản thêm:** `SC_bj13_result` (sheet chi tiết → "Cập nhật giá vốn"), ngoài danh sách 0.8.
+11. **Fixture còn lệch (ngoài phạm vi, để phiên review quyết):** đích LC13-004 "Bơm tiêm 5ml" (PN-260902-07) **chưa xác lập giá** ở BJ-03 (R4 G6 không có căn cứ) — theo quy tắc 0.1 không thể là đích. Giữ để `SC_bj13_decrease` có hai sản phẩm; nếu sửa: đổi đích hoặc cho R4 G6 căn cứ.
+
+**Audit (`/impeccable audit`, bước D3 + D4).** Đo bằng Chrome headless CDP trong `#app-screen`, 9 ca × 2 khung (085; 086 một phương pháp, đang chờ, `VALIDATION_ERROR`, sheet, khoản giảm; 089 `COMPLETED`, `UNKNOWN`, sheet chi tiết):
+
+- Chữ ≥ 4,5:1: 0 lỗi (số tiền `text-success` #2F7A3A / `text-danger` #B53232 trên trắng, badge, "Chờ quy đổi").
+- Vùng chạm iPhone ≥ 44 × 44: 0 lỗi. Web: liên kết 24px / nút 40px là mật độ web đã chốt.
+- Tên truy cập: 0 nút thiếu; "Xem chứng từ" có `aria-label` kèm tên tệp.
+- Bàn phím web: Tab qua chip → dòng bảng (nút tên nguồn) → Enter mở 086; Tab "Xem chứng từ" → "Ghi điều chỉnh" → Enter mở hộp thoại (focus vào hộp thoại); Esc / "Quay lại" đóng, focus về "Ghi điều chỉnh". **Sửa:** Tab từ "Xác nhận" thoát ra nút nền khi hộp thoại `aria-modal` còn mở → thêm bẫy focus cho sheet BJ-13 (Tab / Shift+Tab đi vòng). Các sheet BJ khác (BJ-03…) cùng thiếu — ghi ở mục "ngoài phạm vi" dưới.
+- Lỗi hiển thị sửa trong đợt: dòng 085 iPhone cắt mã chứng từ ("VC-8…") do luật Compact 370 × 52 `!important` → cho tiêu đề / phụ xuống 2 dòng; banner `VALIDATION_ERROR` cắt dòng thứ 3 (banner Default bị ép 96px) → cao theo chữ cho UIF-13; mô tả phương pháp bị "…" → xuống dòng; khối "Cách phân bổ" / "Kỳ ghi nhận" thụt 16px thừa.
+- Detector (`impeccable detect`): chỉ báo chữ của bộ kiểm (danh sách màn 10px, chữ thanh bên mờ #9aa3ad) — ngoài khung app, không thuộc BJ-13.
+
+**Audit đường `SC_journey_2` (D4) — chuyển màn giữa ba BJ, nút quay lại, thanh bên web.**
+
+- ✅ **Sửa (trong phạm vi):** thanh bên "Kho" / nút "Về Kho" về lại màn con Hub đã xem trước (sau bước "Chờ duyệt", bấm "Kho" ra danh sách "Chờ duyệt" chứ không phải Home) — `hub.js` nay mở Home Kho (`go(route, 'home')`). `SC_journey_1` không đổi golden (bước "home" của nó dùng nút quay lại).
+- ✅ **Sửa (BJ-03):** iPhone, sau khi ghi giá ở 019: "Tiếp tục xử lý" → 015 → quay lại về **SCR-012 của BJ-02** (không nút quay lại, không "Về Kho") — ngõ cụt. "Tiếp tục xử lý" nay xoá `val03ReturnTo` (như "Về danh sách" vốn làm) → quay lại về 014 → Hub.
+- ⚠️ **Ngoài phạm vi, đề xuất cho review:** (a) iPhone trong chế độ Toàn Theme 7 không có thanh dưới trong luồng; màn kết quả K4 (019, 089…) không có nút quay lại nên về Home phải đi vòng ("Tiếp tục xử lý" → quay lại ×3 ở 019; "Về công việc điều chỉnh" → quay lại ×2 ở 089). Bước "home" của `SC_journey_2` iPhone đi đúng đường đó. Nên chốt chung cho K4: thanh dưới trong luồng, hoặc lối "Về Kho" ở K4 khi ở Toàn Theme 7. (b) Quay lại từ màn đầu của luồng về đúng màn con Hub đã mở (vd. Giá trị kho) — đúng ý; nhưng nếu vào luồng không qua Hub (BJ-03 mở từ SCR-012) thì về màn con Hub cũ ("Chờ duyệt"). (c) Bẫy focus cho sheet: nên đưa vào `core.js` (`syncDialogFocus`) cho mọi BJ thay vì từng BJ.
+
+**Chạy lại.** `node --check app/*.js harness/*.js` đạt; `SC_journey_2` 0 lỗi ở cả hai khung, bước 0 / 11 / 12 / 13 đúng bảng 3.6 (Home Kho "Chờ duyệt"; 085 VC-8842 "+ 1.200.000 đ"; 086 Nobivac "9.885.700 đ", tổng "+ 1.200.000 đ"; 089 "Đã ghi điều chỉnh giá trị hàng nhập"), về Home cuối đường.
+
+**Bước E.** CHANGELOG 5.10.0; phiên bản 5.10.0 (`manifest.json`, `harness/workbench.js`, badge `index.html`, nhãn inspector UIF-13); SCR-085 / 086 / 089 và UIF-13 viết lại theo `_TEMPLATE.md`; T7-P mục 13 (chữ mới), mục 14 (BJ-13 ✅, `SC_journey_2` ✅). T7-P mục 9 BJ-13 đã đúng từ lúc duyệt brief (khuôn K1, K3, K4, K7; bỏ hướng "nhập một khoản") — không sửa thêm. `INDEX.md` 085–089: tên và trạng thái không đổi, không sửa. `sync-registry.py` đã chạy.
 
 ## 9. Chữ trên màn
 

@@ -7,7 +7,8 @@
  *   K1 trạng thái chung      k1Loading, k1Denied, k1Stale, k1Locked, k1Empty, k1ExitAttr
  *   K2 lập → duyệt → kết quả k2Pending, k2Attention, k2Decision, k2RejectSheet
  *   K3 kết quả chưa rõ       k3Unknown
- *   K4 kết quả xong          k4Result
+ *   K4 kết quả xong          k4Result, k4ReasonFooter (chân có dòng lý do khi nút tắt)
+ *   K6 danh sách công việc   k6TaskList (tìm + chip có số + bảng / danh sách; BJ quyết bước mở tiếp qua rowAttr)
  *   K7 bố cục web            k7Split, k7Table (cột chọn `select`), k7Check, k7FilterChips, k7EditCell (lớp k7-wide gắn qua appShell({ extraClass }))
  *   Thành phần dùng chung    dsSegmented (VSegmentedControl), dsChoiceRow (thẻ lựa chọn lớn có nút tròn) — dựng ở CAP-01
  */
@@ -84,15 +85,21 @@ function k4Footer(buttons) {
   return `<footer class="app-actions${calibrated ? " figma-sticky-footer" : ""}${dual ? " is-split ac310-two-actions" : ""}" data-ds-component="DS v2 / Sticky Footer" data-ds-prop-layout="${dual ? "Dual" : "Single"}" data-ds-prop-tone="Default">${buttons.map(btn).join("")}</footer>`;
 }
 
+// Chân một nút có dòng lý do ngay trên nút (hiện khi nút tắt). BJ-02 / BJ-05 dùng.
+function k4ReasonFooter({ label, attr, disabled = false, reason = "" }) {
+  return primaryFooter(label, attr, disabled).replace("<button", `<div class="bj02-footer-stack"><p class="bj02-footer-reason" data-bj02-reason${disabled && reason ? "" : " hidden"}>${esc(disabled ? reason : "")}</p><button`).replace("</button></footer>", "</button></div></footer>");
+}
+
 /* ---------- K3 — kết quả chưa rõ ---------- */
 
 // title: tiêu đề màn (BJ-02 giữ "Đối soát nhận hàng"); detail: HTML chèn sau bảng số liệu (dòng thời gian bằng chứng…).
 // Kết quả và detail cùng một cột (.k3-column): iPhone như cũ, web tối đa 720px giữa khung.
-function k3Unknown({ operation, scope, ref, sentAt, safe, sourceFlow, exitAttr, facts = [], title = "Xác minh kết quả", detail = "" }) {
+// handoff: { operation, scope } — giá trị gửi sang BJ-17 khi khác chữ hiển thị (vd. mã nghiệp vụ thay cho nhãn); bỏ trống = dùng operation / scope.
+function k3Unknown({ operation, scope, ref, sentAt, safe, sourceFlow, exitAttr, facts = [], title = "Xác minh kết quả", detail = "", handoff = {} }) {
   const rows = [["Nghiệp vụ", operation], ["Phạm vi", scope], ["Mã tham chiếu", ref], ["Thời điểm gửi", sentAt], ...facts, ["Trạng thái", "Chưa kết luận"]];
   const body = `<div class="k3-column">${ioResult("Kết quả chưa xác định", `Không gửi lại thao tác. Chuyển đúng lần xử lý này sang xác minh kết quả.${safe ? ` ${safe}` : ""}`, rows, "warning")}${detail}</div>`;
-  const handoff = `data-v350-action="handoff-unknown" data-source-flow="${escapeAttribute(sourceFlow)}" data-operation="${escapeAttribute(operation)}" data-scope="${escapeAttribute(scope)}"`;
-  return appShell({ title, body, actions: k4Footer([{ label: "Về Kho", attr: exitAttr }, { label: "Chuyển sang xác minh", attr: handoff, primary: true }]), centered: true, back: false, extraClass: "k7-wide" });
+  const handoffAttr = `data-v350-action="handoff-unknown" data-source-flow="${escapeAttribute(sourceFlow)}" data-operation="${escapeAttribute(handoff.operation ?? operation)}" data-scope="${escapeAttribute(handoff.scope ?? scope)}"`;
+  return appShell({ title, body, actions: k4Footer([{ label: "Về Kho", attr: exitAttr }, { label: "Chuyển sang xác minh", attr: handoffAttr, primary: true }]), centered: true, back: false, extraClass: "k7-wide" });
 }
 
 /* ---------- K4 — kết quả xong ---------- */
@@ -101,6 +108,23 @@ function k3Unknown({ operation, scope, ref, sentAt, safe, sourceFlow, exitAttr, 
 // button: HTML đặt sau bảng số liệu (vd. liên kết "Xem {n} dòng hàng").
 function k4Result({ screenTitle = "Kết quả", kind = "success", title, description, facts = [], next = [], button = "" }) {
   return appShell({ title: screenTitle, body: ioResult(title, description, facts, kind, button), actions: next.length ? k4Footer(next) : "", centered: true, back: false, extraClass: "k7-wide" });
+}
+
+/* ---------- K6 — danh sách công việc ---------- */
+
+// Thân màn danh sách việc: ô tìm → chip có số → bảng (web) / danh sách (iPhone) → khối "không tìm thấy".
+// search: { value, attr, placeholder }; filters: { items: [[key, label, count]], selected, attrName }.
+// rows: mảng đã lọc, mỗi dòng có status { label, tone } và disabled (dòng chỉ xem: aria-disabled, không mở).
+// rowAttr(r): thuộc tính mở bước tiếp của dòng — BJ quyết bước đích, K6 không biết màn nào.
+// empty: k1Empty khi không có việc nào (total = 0); filterEmpty: k1Empty khi lọc / tìm ra rỗng, luôn dựng sẵn (ẩn) để ô tìm lọc tại chỗ.
+// filterEmptyAttr: tên thuộc tính đánh dấu khối rỗng (vd. `data-io05-filter-empty`).
+function k6TaskList({ search, filters, columns, rows, total = rows.length, mobileRow, rowAttr, empty, filterEmpty, filterEmptyAttr }) {
+  const head = `${ds24Search(search.value, search.attr, search.placeholder)}${k7FilterChips(filters)}`;
+  if (!total) return `${head}${k1Empty(empty)}`;
+  const attrOf = (r) => `${rowAttr(r)}${r.disabled ? ' aria-disabled="true"' : ""}`;
+  const defaultRow = (r) => ds24ListRow({ title: r.title, subtitle: r.subtitle, trailing: ds24Badge(r.status.label, r.status.tone), attrs: rowAttr(r), type: "Navigation", state: r.disabled ? "Disabled" : "Default", disabled: r.disabled });
+  const table = rows.length ? k7Table({ columns, rows, mobileRow: mobileRow || defaultRow, caption: search.placeholder, rowAttr: attrOf }) : "";
+  return `${head}<section class="k6-list" data-composed-from="DS v2 / List Row,VBadge,VTable">${table}</section><div ${filterEmptyAttr} ${rows.length ? "hidden" : ""}>${k1Empty(filterEmpty)}</div>`;
 }
 
 /* ---------- K7 — bố cục web ---------- */

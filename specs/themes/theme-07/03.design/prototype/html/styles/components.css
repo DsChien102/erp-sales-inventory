@@ -2379,11 +2379,8 @@ body[data-active-uif="UIF-03"] .io-result .io-read-card{width:100%;text-align:le
 
 .io-object-kicker{display:block;font-size:10px!important;line-height:14px!important;font-weight:600!important;letter-spacing:.04em;text-transform:uppercase;color:var(--vet45-v2-text-secondary)!important}
 
-body[data-active-uif="UIF-06"] .io06-return-list{display:grid}
 
-body[data-active-uif="UIF-06"] .io06-result-groups{display:grid;gap:10px;width:100%;text-align:left}
 
-body[data-active-uif="UIF-06"] .io06-result-group{border:1px solid var(--vet45-v2-border-default);border-radius:12px;overflow:hidden;background:var(--vet45-v2-surface-default);width:100%}
 
 body[data-active-uif="UIF-07"] .io07-product-group{border-radius:12px}
 
@@ -4000,3 +3997,142 @@ body[data-active-uif="UIF-03"] .device-preview.is-web .k7-split--wide-main .k7-t
 .k7-table tbody tr[data-bj01-lot]:hover td { background: var(--vet45-v2-surface-subtle); }
 
 .k7-table tbody tr[data-bj01-lot]:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: -2px; }
+
+/* ===== BJ-13 (v5.10.0): danh sách nguồn, phân bổ hai cột, sheet xác nhận ===== */
+/* Số tiền có dấu: "+" / "−" luôn có, màu chỉ là tín hiệu phụ (xanh tăng, đỏ giảm; cả hai ≥ 4,5:1 trên nền trắng). */
+.bj13-amount { color: var(--vet45-v2-text-primary); font: 600 14px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.bj13-amount--up { color: var(--vet45-v2-text-success); }
+
+.bj13-amount--down { color: var(--vet45-v2-text-danger); }
+
+.bj13-amount--pending { color: var(--vet45-v2-text-secondary); font-family: Inter, system-ui, sans-serif; font-weight: 400; }
+
+.bj13-amount--lg { font-size: 20px; line-height: 28px; }
+
+.bj13-trail { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+.bj13-list .k7-table-list > .ds24-list-row { border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-card); background: var(--vet45-v2-surface-default); }
+
+/* Dòng 085 (iPhone): tên nguồn có mã chứng từ — được xuống dòng thay vì cắt "…". Luật Compact 370 × 52 của UIF-03/13/14 (screens.css) dùng !important nên đè cùng loại, chỉ trong danh sách này. */
+body[data-active-uif="UIF-13"] .v-page-scaffold.figma-calibrated-shell .bj13-list .ds24-list-row[data-ds-prop-density="Compact"] { height: auto !important; min-height: 64px !important; max-height: none !important; padding-block: var(--vet45-v2-space-2) !important; }
+
+body[data-active-uif="UIF-13"] .v-page-scaffold.figma-calibrated-shell .bj13-list .ds24-list-row[data-ds-prop-density="Compact"] .ds24-list-row__copy { min-width: 0; }
+
+body[data-active-uif="UIF-13"] .v-page-scaffold.figma-calibrated-shell .bj13-list .ds24-list-row[data-ds-prop-density="Compact"] .ds24-list-row__copy :is(strong, small) { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal !important; overflow: hidden !important; text-overflow: clip !important; }
+
+.bj13-list .ds24-list-row__trailing { flex: 0 0 auto; }
+
+/* Banner của BJ-13 (lỗi phương pháp phân bổ: mô tả 3 dòng trên iPhone): cao theo chữ. Luật Figma chung ép banner Default 96px bằng !important. */
+body[data-active-uif="UIF-13"] .figma-calibrated-shell .v-banner[data-ds-component="VBanner"][data-ds-prop-density="Default"] { height: auto !important; max-height: none !important; }
+
+.device-preview.is-web .k7-table tr[data-bj13-task] { cursor: pointer; }
+
+.device-preview.is-web .k7-table tr[data-bj13-task]:hover td { background: var(--vet45-v2-surface-subtle); }
+
+.bj13-source { width: 100%; display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); padding: var(--vet45-v2-space-3) var(--vet45-v2-space-4); box-sizing: border-box; }
+
+.bj13-source__copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.bj13-source__copy strong { font: 600 15px/22px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+
+.bj13-source__copy small, .bj13-source__file small { font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj13-source__file { display: flex; align-items: center; justify-content: space-between; gap: var(--vet45-v2-space-3); }
+
+.bj13-link { min-height: 44px; padding-inline: 4px; }
+
+.device-preview.is-web .bj13-link { min-height: 24px; padding-inline: 0; }
+
+.bj13-value { display: flex; align-items: baseline; justify-content: space-between; gap: var(--vet45-v2-space-3); padding-top: var(--vet45-v2-space-2); border-top: 1px solid var(--vet45-v2-border-default); }
+
+.bj13-value > span:first-child { font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj13-surface { width: 100%; box-sizing: border-box; }
+
+.bj13-surface__body { display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); }
+
+.bj13-surface__body strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+
+.bj13-surface__body p { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj13-surface__body > p:only-child { color: var(--vet45-v2-text-primary); font-size: 14px; }
+
+.bj13-choices { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
+
+/* Nhiều phương pháp: mô tả là lý do chọn — xuống dòng, không cắt "…" (luật List Row của khung Figma cố định chiều cao một dòng). */
+body[data-active-uif="UIF-13"] .figma-calibrated-shell .bj13-choices .ds24-list-row { width: 100% !important; max-width: none !important; height: auto !important; min-height: 64px !important; max-height: none !important; padding-block: var(--vet45-v2-space-3) !important; }
+
+body[data-active-uif="UIF-13"] .figma-calibrated-shell .bj13-choices .ds24-list-row__copy small { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+
+.bj13-allocation { width: 100%; display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
+
+.bj13-card { display: flex; flex-direction: column; gap: 2px; padding: var(--vet45-v2-space-3); border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-card); background: var(--vet45-v2-surface-default); }
+
+.bj13-card__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--vet45-v2-space-3); }
+
+.bj13-card__head strong:first-child { min-width: 0; font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+
+.bj13-card small { font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj13-money { color: var(--vet45-v2-text-primary); font: 600 14px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.bj13-total { display: flex; align-items: baseline; justify-content: space-between; gap: var(--vet45-v2-space-3); padding: var(--vet45-v2-space-3); border: 1px solid var(--vet45-v2-border-brand); border-radius: var(--vet45-v2-radius-card); background: var(--vet45-v2-surface-brand); }
+
+.bj13-total span { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+
+.bj13-total strong { font: 700 16px/24px var(--vet45-v2-font-mono); color: var(--vet45-v2-text-primary); font-variant-numeric: tabular-nums; }
+
+.k7-table tr.bj13-total-row td { background: var(--vet45-v2-surface-subtle); font-weight: 600; }
+
+/* Web: trái hẹp (nguồn, cách phân bổ, kỳ), phải rộng (bảng 7 cột) — thu đệm ô để không cuộn ngang. */
+.device-preview.is-web .bj13-split .k7-split { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); }
+
+.device-preview.is-web .bj13-split .k7-table :is(th, td) { padding-inline: var(--vet45-v2-space-2); }
+
+.device-preview.is-web .bj13-split .k7-table td small { white-space: nowrap; }
+
+/* Chân 086 khi nút tắt: lý do trên nút (iPhone), bên trái nút (web). */
+.bj13-footer-stack { display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); width: 100%; min-width: 0; }
+
+.bj13-footer-stack > .button { width: 100%; }
+
+.bj13-reason { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); text-align: center; }
+
+.device-preview.is-web .k7-wide .bj13-footer-stack { flex-direction: row; align-items: center; justify-content: flex-end; gap: var(--vet45-v2-space-3); }
+
+.device-preview.is-web .k7-wide .bj13-footer-stack > .bj13-reason { margin-right: auto; text-align: left; }
+
+.device-preview.is-web .k7-wide .bj13-footer-stack > .button { width: auto; min-width: 160px; flex: 0 0 auto; }
+
+/* Sheet xác nhận / chi tiết (khuôn BJ-12 / BJ-03): nút cố định ở chân khi nội dung cuộn. */
+.bj13-sheet { max-height: min(88%, 760px); display: flex; flex-direction: column; }
+
+.bj13-sheet .sheet-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); }
+
+.bj13-sheet .sheet-actions { flex: 0 0 auto; margin: 0; padding: var(--vet45-v2-space-3) var(--vet45-v2-space-4) calc(var(--vet45-v2-space-4) + env(safe-area-inset-bottom)); border-top: 1px solid var(--vet45-v2-border-default); }
+
+.bj13-sheet .bj13-sheet-actions--single { grid-template-columns: 1fr; }
+
+.bj13-note { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj13-facts { margin: 0; display: flex; flex-direction: column; border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-card); }
+
+.bj13-facts > div { display: flex; align-items: baseline; justify-content: space-between; gap: var(--vet45-v2-space-3); padding: var(--vet45-v2-space-2) var(--vet45-v2-space-3); border-bottom: 1px solid var(--vet45-v2-border-default); }
+
+.bj13-facts > div:last-child { border-bottom: 0; }
+
+.bj13-facts dt { flex: 0 0 auto; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+
+.bj13-facts dd { min-width: 0; margin: 0; font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); text-align: right; overflow-wrap: anywhere; }
+
+.bj13-facts .is-strong dd { font-size: 16px; }
+
+/* K6 — danh sách công việc: dòng bảng mở được; dòng chỉ xem (aria-disabled) không mở */
+.k6-list { width: 100%; }
+.device-preview.is-web .k6-list .k7-table tbody tr:not([aria-disabled="true"]) { cursor: pointer; }
+.device-preview.is-web .k6-list .k7-table tbody tr:not([aria-disabled="true"]):hover td { background: var(--vet45-v2-surface-subtle); }
+.k6-list .k7-table tbody tr[aria-disabled="true"] td { color: var(--vet45-v2-text-secondary); }
+.k7-row-link:disabled { color: var(--vet45-v2-text-secondary); cursor: default; }
+.device-preview.is-web .k7-wide .k7-split__aside :is(.ds24-key-value-row, .ds24-info-row) { width: 100% !important; max-width: none !important; box-sizing: border-box; }
+.device-preview.is-web .k7-wide .k7-split__aside .ds24-key-value-row > strong:not(.ds24-key-value-row--emphasis *) { font-family: Inter, system-ui, sans-serif; }
