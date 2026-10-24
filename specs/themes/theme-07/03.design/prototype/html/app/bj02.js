@@ -909,7 +909,7 @@ function bj02LineEditorBody(state) {
   return { body: `${readOnlyNotice}${productPicker}${editor}${notReceived}${removeQuickLine}`, duplicate: false, locked, invalid: !lineEditorValid(), reason: lineEditorInvalidReason() };
 }
 function bj02EditorSaveRow(invalid, reason) {
-  return `<div class="bj02-editor-actions"><p class="bj02-footer-reason" data-bj02-editor-reason${invalid && reason ? "" : " hidden"}>${esc(invalid ? reason : "")}</p><button class="button button--primary" type="button" data-bj02-action="save-line" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium"${invalid ? " disabled" : ""}>Xong</button></div>`;
+  return `<div class="bj02-editor-actions"><p class="k4-reason-footer__reason" data-bj02-editor-reason${invalid && reason ? "" : " hidden"}>${esc(invalid ? reason : "")}</p><button class="button button--primary" type="button" data-bj02-action="save-line" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium"${invalid ? " disabled" : ""}>Xong</button></div>`;
 }
 function render084BJ02(state) {
   ensureBj02ReviewFixture();
@@ -1040,7 +1040,7 @@ function updateBj02EditorLiveFeedback() {
   const valid = lineEditorValid();
   const saveButton = document.querySelector('[data-bj02-action="save-line"]');
   if (saveButton) saveButton.disabled = !valid;
-  const reasonLine = document.querySelector("[data-bj02-editor-reason], [data-bj02-reason]");
+  const reasonLine = document.querySelector("[data-bj02-editor-reason], [data-k4-reason]");
   if (reasonLine) { const reason = valid ? "" : lineEditorInvalidReason(); reasonLine.textContent = reason; reasonLine.hidden = !reason; }
   const activeLot = lineEditorDraft.lots?.find((lot) => lot.id === activeLotDraftId);
   const lotTarget = document.querySelector("[data-bj02-lot-identity-feedback]");

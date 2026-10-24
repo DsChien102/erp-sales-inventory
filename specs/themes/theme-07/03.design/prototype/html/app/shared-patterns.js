@@ -85,9 +85,9 @@ function k4Footer(buttons) {
   return `<footer class="app-actions${calibrated ? " figma-sticky-footer" : ""}${dual ? " is-split ac310-two-actions" : ""}" data-ds-component="DS v2 / Sticky Footer" data-ds-prop-layout="${dual ? "Dual" : "Single"}" data-ds-prop-tone="Default">${buttons.map(btn).join("")}</footer>`;
 }
 
-// Chân một nút có dòng lý do ngay trên nút (hiện khi nút tắt). BJ-02 / BJ-05 dùng.
+// Chân một nút có dòng lý do ngay trên nút (hiện khi nút tắt). BJ-02 / BJ-05 / BJ-06 dùng; BJ đổi chữ lý do qua [data-k4-reason].
 function k4ReasonFooter({ label, attr, disabled = false, reason = "" }) {
-  return primaryFooter(label, attr, disabled).replace("<button", `<div class="bj02-footer-stack"><p class="bj02-footer-reason" data-bj02-reason${disabled && reason ? "" : " hidden"}>${esc(disabled ? reason : "")}</p><button`).replace("</button></footer>", "</button></div></footer>");
+  return primaryFooter(label, attr, disabled).replace("<button", `<div class="k4-reason-footer"><p class="k4-reason-footer__reason" data-k4-reason${disabled && reason ? "" : " hidden"}>${esc(disabled ? reason : "")}</p><button`).replace("</button></footer>", "</button></div></footer>");
 }
 
 /* ---------- K3 — kết quả chưa rõ ---------- */
@@ -122,6 +122,7 @@ function k6TaskList({ search, filters, columns, rows, total = rows.length, mobil
   const head = `${ds24Search(search.value, search.attr, search.placeholder)}${k7FilterChips(filters)}`;
   if (!total) return `${head}${k1Empty(empty)}`;
   const attrOf = (r) => `${rowAttr(r)}${r.disabled ? ' aria-disabled="true"' : ""}`;
+  // Dòng iPhone: ds24ListRow({ disabled }) tự gắn aria-disabled, nên chỉ truyền rowAttr (attrOf sẽ gắn trùng).
   const defaultRow = (r) => ds24ListRow({ title: r.title, subtitle: r.subtitle, trailing: ds24Badge(r.status.label, r.status.tone), attrs: rowAttr(r), type: "Navigation", state: r.disabled ? "Disabled" : "Default", disabled: r.disabled });
   const table = rows.length ? k7Table({ columns, rows, mobileRow: mobileRow || defaultRow, caption: search.placeholder, rowAttr: attrOf }) : "";
   return `${head}<section class="k6-list" data-composed-from="DS v2 / List Row,VBadge,VTable">${table}</section><div ${filterEmptyAttr} ${rows.length ? "hidden" : ""}>${k1Empty(filterEmpty)}</div>`;

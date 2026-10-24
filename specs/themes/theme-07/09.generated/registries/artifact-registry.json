@@ -3234,8 +3234,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "29c50e026db450805cab5079827e9b41d4649554d36a5c09234694307c91f269",
-      "size": 77622
+      "sha256": "40a29d9de536a242c01c226959a0ef4c82867cdd72f25995763e8b2c567ef45f",
+      "size": 79644
     },
     {
       "path": "03.design/prototype/html/DS-CONFORMANCE.md",
@@ -3282,8 +3282,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "0b446e9234381e44cc9f38e4a9e926b8ff806aa182dd529df4f6f4b3b1acc54e",
-      "size": 131609
+      "sha256": "59e2b0142420cb5452ae1f88ade72771b84bc7edfc819544a748cee390b3cd4f",
+      "size": 131613
     },
     {
       "path": "03.design/prototype/html/app/bj03.js",
@@ -3330,8 +3330,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "3ba06efdde9dd05f285f847da871fe64c92f64efb113cee8a5aacacbd1abcaee",
-      "size": 85581
+      "sha256": "e3245e8fac150002dc6f343bcbeca9581d6ee1c02496bd95ab5d981f1b71ed54",
+      "size": 85583
     },
     {
       "path": "03.design/prototype/html/app/bj07.js",
@@ -3522,8 +3522,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "3e9714ed0955adc58ff737d21fab608569899b4b2f22a66dcebfe35f6e68542f",
-      "size": 17609
+      "sha256": "2e138fa123059ee2226b84df458d95a34a18a782dd17bfda142267b2cf741499",
+      "size": 17792
     },
     {
       "path": "03.design/prototype/html/app/shared-valuation.js",
@@ -3594,7 +3594,7 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "d79d6379cb66c37f21e4cd48324a5ec2697cdc7ae6532a484ba6ab58ef469a99",
+      "sha256": "f5d5b27cb28ae43b0d04842207d78b91c901afab796d834024c933494afd35f9",
       "size": 27756
     },
     {
@@ -3606,8 +3606,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "27609fc5469c20e144c2f21e6c4e409bd88f99491a8f64709f9c78972d239dc0",
-      "size": 6541
+      "sha256": "2a2c8314ab7ef81c2351896cc3e3bc4de1601ee7534bb90c64aa335889294abb",
+      "size": 6549
     },
     {
       "path": "03.design/prototype/html/manifest.json",
@@ -3618,7 +3618,7 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "36d493c70b41e5c4a70aeee1e40c9a20170c7a23a14ee13dc21c15ccd2ebdd66",
+      "sha256": "886e707cd933902c21c7aa03648d51be35b7e886415336a381024e7ec4ca37f3",
       "size": 1477
     },
     {
@@ -3642,8 +3642,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "e364cd021379020656570fadb1bc8b1fe40382c861dc4a37969eb1a37aa5e9f2",
-      "size": 165127
+      "sha256": "31f9e8b05345ce16a23a98bdb26a034db779afa8c1db385f2a23914b7b3967d7",
+      "size": 165382
     },
     {
       "path": "03.design/prototype/html/styles/screens.css",
@@ -3654,8 +3654,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "5092175e7c79ed9e7a3561f8a0b43559d12c0a4ac56fa9e12556fa3922fd6653",
-      "size": 274447
+      "sha256": "39caabd5fda0c28f050119077811168e715bdfc64b6480de76111423456e57c8",
+      "size": 275409
     },
     {
       "path": "03.design/prototype/html/styles/tokens.css",

@@ -1,5 +1,16 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.12.2] — Góp ý nhỏ của review chặng 3
+
+Golden mobile so `tools/.golden-chang3` (v5.12.1, 1708 ca → 1708), web so `tools/.golden-chang3-web` (844 → 844). 0 lỗi JS. Khác có chủ đích: mobile chỉ ca 028 (`UIF-05_SCR-028_*`, bước 028 của `SC_bj05_*`, `SC_bj04_after_handover_1`, `SC_journey_3_6`); web chỉ ca có khối "Tóm tắt" hoặc 031 / 032 của UIF-04 / 05 / 06 (`UIF-04_SCR-021_READY`, `UIF-05_SCR-026_*`, `UIF-05_SCR-028_*`, `UIF-06_SCR-031_READY`, `UIF-06_SCR-032_*`, các bước tương ứng của `SC_bj0[456]_*`, `SC_journey_3`). Mốc `tools/.golden-chang3*` chụp lại.
+
+- **Web 031 / 032:** thanh "Xong" / "Lưu ngoại lệ" của cột phải dính đáy vùng cuộn (`position: sticky`), thấy ngay ở 1280 × 800.
+- **Khối "Tóm tắt" web:** giá trị chữ ("Đại lý An Phú", "Kho chính") dùng Inter thay mono — luật khung Figma của UIF-01/02/04/05/08 ép mono bằng `!important`, luật K7 đè cùng loại.
+- **`k4ReasonFooter`:** lớp / nhãn dùng chung đổi tên `bj02-footer-stack` → `k4-reason-footer`, `bj02-footer-reason` → `k4-reason-footer__reason`, `data-bj02-reason` → `data-k4-reason` (BJ-02 / BJ-05 / BJ-06; HTML khác tên lớp, ảnh không đổi).
+- **`k6TaskList`:** ghi chú vì sao dòng iPhone truyền `rowAttr` (không `attrOf`) — `ds24ListRow({ disabled })` đã tự gắn `aria-disabled`; không đổi mã.
+- **Audit dọc `SC_journey_3`** (Chrome không giao diện, 29 bước gồm 021 ↔ 026 quay lại, sheet từ chối, về Home bằng thanh bên / nút quay lại; cả hai khung): tương phản chữ, vùng chạm iPhone ≥ 44 × 44, tên nút, `alt` ảnh, tràn ngang. Lỗi tìm được và đã sửa: **028 iPhone** — dòng sản phẩm trong thẻ bị luật khung Figma ép 370px + đệm 16px nên tràn 17px, dòng "Giao lần này" thụt 12px khác dòng dưới. Sau sửa: 0 lỗi ở cả hai khung, 0 lỗi JS.
+- Badge harness `v5.12.2 · góp ý review chặng 3`.
+
 ## [5.12.1] — Review chặng 3 (R1–R3)
 
 Golden mobile so `tools/.golden-chang3` (1708 ca → 1708), web so `tools/.golden-chang3-web` (844 → 844). 0 lỗi JS. Khác có chủ đích: ca có 026 iPhone (`UIF-05_SCR-026_*`, `SC_bj05_*`, `SC_bj04_from_pick`, `SC_entry_UIF-05_order-task`, `SC_journey_3`), ca có 031 iPhone (`UIF-06_SCR-031_*`, `SC_bj06_*`, `SC_entry_UIF-06_return-task`, `SC_journey_3`), 029 / 035 `UNKNOWN` (cả hai khung, kèm `SC_bj05_unknown`, `SC_bj06_unknown`, `SC_bj17_from_bj05_0`). Mốc `tools/.golden-chang3*` chụp lại.

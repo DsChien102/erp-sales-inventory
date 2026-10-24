@@ -6887,6 +6887,9 @@ body[data-active-uif="UIF-05"] .bj05-selection-list { gap: var(--vet45-v2-space-
 .k6-list .k7-table td { vertical-align: middle; }
 body[data-active-uif="UIF-05"] .bj05-handover-card > .ds24-list-row { min-height: 44px; padding-inline: 0; border: 0; background: transparent; }
 body[data-active-uif="UIF-05"] .bj05-handover-card > :is(.ds24-key-value-row, .ds24-field) { width: 100%; max-width: none; margin: 0; box-sizing: border-box; }
+/* 028 iPhone (audit SC_journey_3): luật khung Figma ép List Row 370px + đệm 16px bằng !important nên dòng sản phẩm trong thẻ tràn 17px; dòng "Giao lần này" (emphasis) thụt 12px khác dòng dưới. */
+body[data-active-uif="UIF-05"] .figma-calibrated-shell .bj05-handover-card > .ds24-list-row[data-ds-component] { width: 100% !important; max-width: none !important; padding-inline: 0 !important; }
+body[data-active-uif="UIF-05"] .figma-calibrated-shell .bj05-summary .ds24-key-value-row--emphasis[data-ds-component] { padding-inline: 0 !important; }
 body:is([data-active-uif="UIF-04"], [data-active-uif="UIF-05"]) .v-page-scaffold.figma-calibrated-shell :is(.k6-list, .bj04-section) .ds24-list-row__copy small { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
 
 /* ===== v5.12.0 — BJ-06 thiết kế lại (K6 / K2 / K7, hai mốc nhận vào + phân loại) ===== */
@@ -6913,8 +6916,10 @@ body[data-active-uif="UIF-06"] .k6-list .ds24-list-row__copy > small { white-spa
 .bj06-qty { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
 .bj06-fill-button { width: 100%; min-height: 44px; }
 .bj06-inline-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--vet45-v2-space-3); padding-top: var(--vet45-v2-space-2); }
-.bj06-inline-actions > .bj02-footer-reason { margin-right: auto; text-align: left; }
+.bj06-inline-actions > .k4-reason-footer__reason { margin-right: auto; text-align: left; }
 .bj06-inline-actions > .button { width: auto; min-width: 160px; }
+/* Web 031: chi tiết dòng dài hơn màn 800px nên thanh "Xong" dính đáy vùng cuộn, không phải cuộn mới thấy. */
+.device-preview.is-web .k7-wide .bj06-receipt .bj06-inline-actions { position: sticky; bottom: 0; z-index: 1; padding-block: var(--vet45-v2-space-3); background: var(--vet45-v2-surface-canvas); border-top: 1px solid var(--vet45-v2-border-default); }
 .bj06-evidence-preview, .bj06-evidence-card { display: flex; flex-direction: column; border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-4); overflow: hidden; background: var(--vet45-v2-surface-default); }
 .bj06-evidence-preview { margin-top: var(--vet45-v2-space-2); }
 .bj06-evidence-preview img, .bj06-evidence-card img { display: block; width: 100%; max-height: 240px; object-fit: cover; }

@@ -3643,13 +3643,13 @@ html body .figma-calibrated-shell .v-banner.k7-banner--line.k7-banner--line { he
 
 .bj02-progress-block > small { font: 500 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
 
-.bj02-footer-stack { display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); width: 100%; min-width: 0; }
+.k4-reason-footer { display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); width: 100%; min-width: 0; }
 
-.bj02-footer-stack > .button { width: 100%; }
+.k4-reason-footer > .button { width: 100%; }
 
-.bj02-footer-reason { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); text-align: center; }
+.k4-reason-footer__reason { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); text-align: center; }
 
-.bj02-footer-reason[hidden] { display: none; }
+.k4-reason-footer__reason[hidden] { display: none; }
 
 button.inline-edit.bj02-context-edit { min-width: 44px; min-height: 44px; padding-inline: var(--vet45-v2-space-2); }
 
@@ -3924,11 +3924,11 @@ body[data-active-uif="UIF-01"] .device-preview.is-web .k7-wide.figma-calibrated-
 body[data-active-uif="UIF-01"] .device-preview.is-web .k7-wide.figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] { width: 100% !important; max-width: none !important; margin: 0 !important; }
 
 /* BJ-02 chân màn có dòng lý do (SCR-008, 009, 084): web một hàng — lý do bên trái, nút bên phải rộng theo chữ. */
-.device-preview.is-web .k7-wide .bj02-footer-stack { flex-direction: row; align-items: center; justify-content: flex-end; gap: var(--vet45-v2-space-3); width: 100%; }
+.device-preview.is-web .k7-wide .k4-reason-footer { flex-direction: row; align-items: center; justify-content: flex-end; gap: var(--vet45-v2-space-3); width: 100%; }
 
-.device-preview.is-web .k7-wide .bj02-footer-stack > .bj02-footer-reason { margin-right: auto; text-align: left; }
+.device-preview.is-web .k7-wide .k4-reason-footer > .k4-reason-footer__reason { margin-right: auto; text-align: left; }
 
-.device-preview.is-web .k7-wide .bj02-footer-stack > .button { width: auto; min-width: 160px; flex: 0 0 auto; }
+.device-preview.is-web .k7-wide .k4-reason-footer > .button { width: auto; min-width: 160px; flex: 0 0 auto; }
 
 /* SCR-008 web: trái "Nhà cung cấp", "Kho và ngày nhận", ô xác nhận sở hữu; phải "Chứng từ giao nhận". Các ô UIF-02 cố định 370px nên nới theo cột. */
 .device-preview.is-web .k7-wide .bj02-quick-grid { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--vet45-v2-space-6); row-gap: var(--vet45-v2-space-4); align-items: start; }
@@ -3952,7 +3952,7 @@ body[data-active-uif="UIF-01"] .device-preview.is-web .k7-wide.figma-calibrated-
 
 .bj02-editor-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--vet45-v2-space-3); padding-top: var(--vet45-v2-space-2); }
 
-.bj02-editor-actions > .bj02-footer-reason { margin-right: auto; text-align: left; }
+.bj02-editor-actions > .k4-reason-footer__reason { margin-right: auto; text-align: left; }
 
 .bj02-editor-actions > .button { width: auto; min-width: 160px; flex: 0 0 auto; }
 
@@ -4135,4 +4135,5 @@ body[data-active-uif="UIF-13"] .figma-calibrated-shell .bj13-choices .ds24-list-
 .k6-list .k7-table tbody tr[aria-disabled="true"] td { color: var(--vet45-v2-text-secondary); }
 .k7-row-link:disabled { color: var(--vet45-v2-text-secondary); cursor: default; }
 .device-preview.is-web .k7-wide .k7-split__aside :is(.ds24-key-value-row, .ds24-info-row) { width: 100% !important; max-width: none !important; box-sizing: border-box; }
-.device-preview.is-web .k7-wide .k7-split__aside .ds24-key-value-row > strong:not(.ds24-key-value-row--emphasis *) { font-family: Inter, system-ui, sans-serif; }
+/* Khối "Tóm tắt" web: giá trị là chữ (khách, kho…) nên dùng Inter; luật khung Figma của UIF-01/02/04/05/08 ép mono bằng !important nên phải đè cùng loại. */
+.device-preview.is-web .k7-wide .k7-split__aside .ds24-key-value-row > strong:not(.ds24-key-value-row--emphasis *) { font-family: Inter, system-ui, sans-serif !important; font-variant-numeric: tabular-nums; }

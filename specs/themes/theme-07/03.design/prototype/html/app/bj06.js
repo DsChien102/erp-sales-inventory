@@ -379,7 +379,7 @@ function bj06LotExtraHtml(line,readOnly){
 }
 function bj06InlineAction(line){
   const act=bj06LineActionKey(line),blk=bj06LineBlock(line);
-  return `<div class="bj06-inline-actions k7-web-only"><p class="bj02-footer-reason" data-bj06-reason ${blk.blocked&&blk.reason?"":"hidden"}>${esc(blk.blocked?blk.reason:"")}</p><button class="button button--primary" type="button" data-io06-action="${act.key}" data-ds-component="VButton" ${blk.blocked?"disabled":""}>${act.label}</button></div>`;
+  return `<div class="bj06-inline-actions k7-web-only"><p class="k4-reason-footer__reason" data-bj06-reason ${blk.blocked&&blk.reason?"":"hidden"}>${esc(blk.blocked?blk.reason:"")}</p><button class="button button--primary" type="button" data-io06-action="${act.key}" data-ds-component="VButton" ${blk.blocked?"disabled":""}>${act.label}</button></div>`;
 }
 // Chi tiết một dòng (thân SCR-032): iPhone là cả màn, web là cột phải của SCR-031. blocker: banner trạng thái (iPhone).
 function bj06LineDetail(line,{blocker="",web=false,frozen=false}={}){
@@ -668,14 +668,14 @@ function bj06RefreshDetail({lotExtra=false}={}){
   document.querySelectorAll('[data-io06-action="save-return-line"],[data-io06-action="save-return-exception"]').forEach(b=>{b.disabled=blk.blocked;});
   const reasonText=blk.blocked?blk.reason:"";
   document.querySelectorAll("[data-bj06-reason]").forEach(p=>{p.textContent=reasonText;p.hidden=!reasonText;});
-  if(activeScreenId==="SCR-032"&&viewport!=="web")document.querySelectorAll(".app-actions [data-bj02-reason]").forEach(p=>{p.textContent=reasonText;p.hidden=!reasonText;});
+  if(activeScreenId==="SCR-032"&&viewport!=="web")document.querySelectorAll(".app-actions [data-k4-reason]").forEach(p=>{p.textContent=reasonText;p.hidden=!reasonText;});
 }
 // Phân loại ở bảng web / sheet iPhone: nút "Xong" / "Hoàn tất", gợi ý còn thiếu.
 function bj06RefreshClassify(line){
   document.querySelectorAll(`[data-io06-class-hint="${CSS.escape(line.id)}"]`).forEach(el=>{el.textContent=bj06ClassHint(line);});
   const done=io06AllClassValid(),open=io06CurrentLines().filter(l=>!io06ClassValid(l)).length;
   const btn=document.querySelector('[data-io06-action="confirm-classification"]');if(btn)btn.disabled=!done;
-  document.querySelectorAll(".app-actions [data-bj02-reason]").forEach(p=>{p.textContent=open>0?`Còn ${open} dòng chưa phân loại`:"";p.hidden=open<=0;});
+  document.querySelectorAll(".app-actions [data-k4-reason]").forEach(p=>{p.textContent=open>0?`Còn ${open} dòng chưa phân loại`:"";p.hidden=open<=0;});
 }
 function bj06RefreshDraft(){
   const line=io06ActiveLine(),draft=io06ClassificationDraftFor(line);if(!line||!draft)return;
