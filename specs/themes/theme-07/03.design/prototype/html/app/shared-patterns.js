@@ -58,9 +58,10 @@ function k2Pending({ approver, sentAt, facts = [] }) {
 
 // Khối "Cần chú ý" (người duyệt và người lập ở rà soát dùng chung).
 // attention: [[nhãn, giá trị, tone]] — tone "warning" (mặc định) hoặc "info" cho dòng chỉ để biết (vd. "Sau khi duyệt").
-function k2Attention(attention = []) {
+// title "" = khối thông tin không tiêu đề, nền thường (vd. "Sau khi đổi" của BJ-09 — không báo động khi chỉ có dòng info).
+function k2Attention(attention = [], { title = "Cần chú ý" } = {}) {
   return attention.length
-    ? `<section class="ac310-surface k2-attention" data-layout-pattern="Grouped surface" ><div class="ac310-surface__head"><h2>Cần chú ý</h2></div><div class="ac310-key-value-stack">${attention.map(([label, value, tone = "warning"]) => `<div class="k2-attention__row">${icon(tone === "info" ? "info" : "alert", `icon--sm k2-attention__icon k2-attention__icon--${tone}`)}<span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div></section>`
+    ? `<section class="ac310-surface k2-attention${title ? "" : " k2-attention--plain"}" data-layout-pattern="Grouped surface" >${title ? `<div class="ac310-surface__head"><h2>${esc(title)}</h2></div>` : ""}<div class="ac310-key-value-stack">${attention.map(([label, value, tone = "warning"]) => `<div class="k2-attention__row">${icon(tone === "info" ? "info" : "alert", `icon--sm k2-attention__icon k2-attention__icon--${tone}`)}<span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div></section>`
     : "";
 }
 
@@ -86,8 +87,8 @@ function k4Footer(buttons) {
 }
 
 // Chân một nút có dòng lý do ngay trên nút (hiện khi nút tắt). BJ-02 / BJ-05 / BJ-06 dùng; BJ đổi chữ lý do qua [data-k4-reason].
-function k4ReasonFooter({ label, attr, disabled = false, reason = "" }) {
-  return primaryFooter(label, attr, disabled).replace("<button", `<div class="k4-reason-footer"><p class="k4-reason-footer__reason" data-k4-reason${disabled && reason ? "" : " hidden"}>${esc(disabled ? reason : "")}</p><button`).replace("</button></footer>", "</button></div></footer>");
+function k4ReasonFooter({ label, attr, disabled = false, reason = "", tone = "primary" }) {
+  return primaryFooter(label, attr, disabled, tone).replace("<button", `<div class="k4-reason-footer"><p class="k4-reason-footer__reason" data-k4-reason${disabled && reason ? "" : " hidden"}>${esc(disabled ? reason : "")}</p><button`).replace("</button></footer>", "</button></div></footer>");
 }
 
 /* ---------- K3 — kết quả chưa rõ ---------- */

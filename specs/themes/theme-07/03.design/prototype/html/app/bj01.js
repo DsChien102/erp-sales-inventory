@@ -147,13 +147,17 @@ function bj01ScanSheet() {
   if(!bj01ScanOpen) return "";
   return ds24Sheet({title:"Quét mã vạch",attrs:"data-bj01-scan-close",body:`<div class="bj01-scan-frame" aria-hidden="true">${icon("scan")}</div><p class="ds24-context vet45-text-style-7">Đưa mã vạch vào khung</p><button class="ds24-button ds24-button--secondary" data-bj01-scan-sample="INV-AMX" type="button" data-ds-component="VButton" data-figma-node="521:529">Quét thử: Amox 500</button>`});
 }
+// Lô của BJ-01 có trong fixture "Hàng có vấn đề" (t7Lots) thì đổi tình trạng / xử lý hết hạn được ở BJ-09.
+function bj01T7Lot(p, lotCode) { return typeof t7Lots !== "undefined" ? t7Lots.find((l) => l.code === p.code && l.lot === lotCode) : null; }
 function bj01LotSheet(p) {
   if(!bj01LotOpen) return ""; const lot=(p.lots||[]).find((x)=>x.code===bj01SelectedLotCode)||p.lots?.[0]; if(!lot)return "";
   let status="";
   if(lot.expiryIndicator==='EXPIRED') status=vBanner('error','Hết hạn','Lượng của lô này không đủ điều kiện bán.');
   else if(lot.expiryIndicator==='NEAR_EXPIRY'&&lot.nearExpiryAction==='BLOCK_SALE') status=vBanner('warning','Cận hạn · Đã chặn bán','Lượng của lô này không tính vào khả dụng theo chính sách hiện tại.');
   else if(lot.expiryIndicator==='NEAR_EXPIRY') status=vBanner('warning','Cận hạn',`${lot.daysToExpiry!=null?`Còn ${lot.daysToExpiry} ngày · `:''}vẫn đủ điều kiện bán theo chính sách hiện tại.`);
-  const dispose=lot.expiryIndicator==='EXPIRED'?`<button class="ds24-button ds24-button--secondary" data-bj01-dispose-lot="${escapeAttribute(lot.code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Xử lý lô hết hạn</button>`:'';
+  const t7 = bj01T7Lot(p, lot.code);
+  const dispose=lot.expiryIndicator==='EXPIRED'?`<button class="ds24-button ds24-button--secondary" data-bj01-dispose-lot="${escapeAttribute(lot.code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Xử lý lô hết hạn</button>`
+    :t7&&t7.state==='SELLABLE'?`<button class="ds24-button ds24-button--secondary" data-bj01-change-state="${escapeAttribute(lot.code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Đổi tình trạng</button>`:'';
   return ds24Sheet({title:`Lô ${lot.code}`,attrs:'data-bj01-close-lot',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · HSD ${esc(lot.expiryDisplay)}</p>${bj01LotQuantityRows(lot,p)}${status}${dispose}`});
 }
 function bj01ProvenanceSheet(p) {
@@ -297,9 +301,18 @@ document.addEventListener("click", (event) => {
     const dispose = event.target.closest("[data-bj01-dispose-lot]");
     if (dispose) {
       bj01LotOpen=false; bj01ProvenanceOpen=false;
-      activeFlowId="UIF-09"; ic09Filter="EXPIRED"; ic09Query=dispose.dataset.bj01DisposeLot;
-      activeScreenId="SCR-036"; stateByScreen["SCR-036"]="READY";
+      const t7 = bj01T7Lot(bj01ProductById(bj01SelectedProductId), dispose.dataset.bj01DisposeLot);
+      if (t7) return k5ShowLot(t7.id, "SCR-037");
+      activeFlowId="UIF-09"; activeScreenId="SCR-036"; stateByScreen["SCR-036"]="READY";
       syncReviewUrl(); return render();
+    }
+    const change = event.target.closest("[data-bj01-change-state]");
+    if (change) {
+      const t7 = bj01T7Lot(bj01ProductById(bj01SelectedProductId), change.dataset.bj01ChangeState);
+      bj01LotOpen=false; bj01ProvenanceOpen=false;
+      if (!t7) return renderAppScreen();
+      k5SelectedLotId = t7.id; bj09ResetDraft(); bj09SetState("SCR-038", "READY"); bj09ReturnTo = "SCR-038";
+      activeFlowId="UIF-09"; activeScreenId="SCR-038"; syncReviewUrl(); return render();
     }
     const lot = event.target.closest("[data-bj01-lot]");
     if (lot) { bj01SelectedLotCode=lot.dataset.bj01Lot; bj01LotOpen=true; bj01ProvenanceOpen=false; return renderAppScreen(); }

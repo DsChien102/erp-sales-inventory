@@ -56,10 +56,10 @@ function renderFlowInspector() {
     "UIF-04":"v5.11.0 · BJ-04 thiết kế lại",
     "UIF-05":"v5.11.0 · BJ-05 thiết kế lại",
     "UIF-06":"v5.12.0 · BJ-06 thiết kế lại",
-    "UIF-07":"v3.0.1 · BJ07 danh sách gọn + phân cấp sản phẩm/lô",
+    "UIF-07":"v5.14.0 · BJ-07 thiết kế lại",
     "UIF-08":"v3.2.0 · BJ08 kiểm kê + DS aligned",
-    "UIF-09":"v3.2.0 · BJ09 tình trạng hàng + audit history",
-    "UIF-10":"v3.2.0 · BJ10 tiêu hủy + controlled completion",
+    "UIF-09":"v5.13.0 · BJ-09 thiết kế lại · K5",
+    "UIF-10":"v5.15.0 · BJ-10 thiết kế lại",
     "UIF-11":"v3.2.0 · BJ11 hủy/sửa sai + DS aligned",
     "UIF-12":"v3.2.0 · BJ12 số dư đầu kỳ + control foundation",
     "UIF-15":"v3.2.0 · BJ15 báo cáo/thẻ kho + DS aligned",
@@ -455,7 +455,7 @@ requestAnimationFrame(fitReviewDeviceToViewport);
 
 window.__VET45_PROTOTYPE__ = {
   productKind: "app",
-  version: "5.12.2",
+  version: "5.15.1",
   defaultViewport: { width: 402, height: 874 },
   offline: true,
   uiFlows: flowCatalog.map((f) => f.id),

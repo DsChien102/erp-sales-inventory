@@ -31,7 +31,6 @@ const ThemeApp = (() => {
   const WORKSPACES = {
     inventory: { title: 'Tồn kho', subtitle: 'Số lượng, khả dụng, lô và tình trạng hàng', icon: 'warehouse', items: [
       { flow: 'UIF-01', title: 'Tồn kho & khả dụng', subtitle: 'Tra cứu sản phẩm, số lượng, lô và khả dụng', icon: 'warehouse' },
-      { flow: 'UIF-09', title: 'Tình trạng hàng', subtitle: 'Xem và xử lý trạng thái của sản phẩm hoặc lô', icon: 'shield' },
       { flow: 'CAP-01', title: 'Chính sách tồn & cận hạn', subtitle: 'Thiết lập ngưỡng tồn và chính sách cận hạn', icon: 'shield' },
     ] },
     movement: { title: 'Nhập, xuất & hoàn trả', subtitle: 'Hàng đi vào, đi ra và quay lại kho', icon: 'package', items: [
@@ -198,8 +197,9 @@ const ThemeApp = (() => {
     const pending = pendingSummary();
     const pendingRow = pending.total > 0 ? attentionRow({ title: 'Chờ duyệt', subtitle: pending.text, count: String(pending.total), iconName: 'clock', attrs: 'data-v464-pending-approvals' }) : '';
     // Kho chưa kích hoạt: chưa có tồn nên không có lô / sai lệch / nghiệp vụ; chỉ còn việc chờ duyệt (vd. số dư đầu kỳ), không có thì bỏ cả mục.
+    const problem = off || typeof k5AttentionSummary !== 'function' ? null : k5AttentionSummary();
     const operating = off ? '' : `
-        ${attentionRow({ title: 'Lô sắp hết hạn', subtitle: 'Cần kiểm tra trước khi bán hoặc xuất', count: '3 lô', flow: 'UIF-09', iconName: 'shield' })}
+        ${problem ? attentionRow({ title: 'Hàng cần xử lý', subtitle: problem.text, count: String(problem.count), flow: 'UIF-09', iconName: 'shield', attrs: 'data-k5-entry-filter="OPEN"' }) : ''}
         ${attentionRow({ title: 'Sai lệch cần đối soát', subtitle: 'Tồn kho đang có chênh lệch cần xác minh', count: '1', flow: 'UIF-16', iconName: 'search' })}
         ${attentionRow({ title: 'Nghiệp vụ chưa xác định kết quả', subtitle: 'Cần xác minh trước khi thao tác tiếp', count: '1', flow: 'UIF-17', iconName: 'rotate' })}`;
     const attention = !pendingRow && !operating ? '' : `<section class="t462-section" data-ds-component="VSection">${heading('Cần chú ý')}
@@ -434,6 +434,8 @@ const ThemeApp = (() => {
       directEntryScreen = null;
       const flow = flowCatalog.find((f) => f.id === entry.dataset.themeEntryFlow);
       if (!flow) return;
+      // Vào danh sách chung "Hàng cần xử lý" (K5): chip theo lối vào.
+      if (typeof k5SetEntryFilter === 'function') k5SetEntryFilter(flow.id, entry.dataset.k5EntryFilter);
       // Vai khi vào luồng: mặc định "module"; lối vào gắn data-theme-entry-actor (vd. Owner khởi tạo kho, người duyệt từ "Chờ duyệt") đặt vai riêng.
       window.__VET45_QA__.setActor(entry.dataset.themeEntryActor || 'module');
       activeFlowId = flow.id;

@@ -96,7 +96,7 @@ const pick = (sel, value) => `(()=>{const i=document.querySelector(${JSON.string
 const wait = (ms) => `new Promise((r)=>setTimeout(()=>r(true),${ms}))`;
 const T = '?mode=theme&app=';
 // DEVICE=web chỉ chạy các kịch bản có ý nghĩa ở khung web (còn lại cố định theo iPhone).
-const WEB_SCENARIOS = ['SC_journey_1', 'SC_cap_table', 'SC_cap_expiry', 'SC_cap_single', 'SC_cap_staff', 'SC_cap_hub', 'SC_bj02_documents', 'SC_bj02_quick', 'SC_bj02_approve', 'SC_bj02_reject', 'SC_bj02_owner_flow', 'SC_bj03_from_receipt', 'SC_bj03_direct', 'SC_bj03_list', 'SC_bj01_list', 'SC_bj01_detail', 'SC_bj01_theme', 'SC_bj13_flow', 'SC_bj13_decrease', 'SC_journey_2', 'SC_bj05_quick_pick', 'SC_bj05_ready_handover', 'SC_bj05_override', 'SC_bj04_from_pick', 'SC_bj05_theme', 'SC_bj06_full', 'SC_bj06_exception_submit', 'SC_bj06_split', 'SC_bj06_owner_approve', 'SC_journey_3'];
+const WEB_SCENARIOS = ['SC_k5_list', 'SC_bj09_quarantine_to_damaged', 'SC_bj09_approve', 'SC_bj09_from_bj01', 'SC_k5_hub_rtv', 'SC_journey_1', 'SC_cap_table', 'SC_cap_expiry', 'SC_cap_single', 'SC_cap_staff', 'SC_cap_hub', 'SC_bj02_documents', 'SC_bj02_quick', 'SC_bj02_approve', 'SC_bj02_reject', 'SC_bj02_owner_flow', 'SC_bj03_from_receipt', 'SC_bj03_direct', 'SC_bj03_list', 'SC_bj01_list', 'SC_bj01_detail', 'SC_bj01_theme', 'SC_bj13_flow', 'SC_bj13_decrease', 'SC_journey_2', 'SC_bj05_quick_pick', 'SC_bj05_ready_handover', 'SC_bj05_override', 'SC_bj04_from_pick', 'SC_bj05_theme', 'SC_bj06_full', 'SC_bj06_exception_submit', 'SC_bj06_split', 'SC_bj06_owner_approve', 'SC_journey_3', 'SC_bj07_verify', 'SC_bj07_quick_verify', 'SC_bj07_split_source', 'SC_bj07_mismatch_wait', 'SC_bj07_handover', 'SC_bj07_next_request', 'SC_bj10_flow', 'SC_bj10_price_missing', 'SC_bj10_approve', 'SC_bj10_reject', 'SC_bj10_complete', 'SC_bj10_from_list', 'SC_bj10_qty_over', 'SC_bj10_owner_self', 'SC_journey_4'];
 const SCENARIOS = [
   { name: 'SC_more', url: T + 'more', steps: [['kho', click('[data-theme-app-route="inventory"]')], ['back', back]] },
   { name: 'SC_hub_back', url: T + 'inventory', steps: [['back', back], ['nav-more', click('#app-screen [data-theme-sidebar-route="more"]')]] },
@@ -106,7 +106,7 @@ const SCENARIOS = [
   ...['UIF-02', 'UIF-05', 'UIF-08', 'UIF-01'].map((q) => ({ name: `SC_quick_${q}`, url: T + 'inventory', steps: [['enter', click(`[data-t462-quick="${q}"]`)], ['back', back]] })),
   { name: 'SC_pending', url: T + 'inventory', steps: [['list', click('[data-v464-pending-approvals]')], ['receipt', click('[data-v464-pending-receipt]', 1)], ['exit', click('#app-screen .app-back-button')], ['home', back]] },
   ...['UIF-09', 'UIF-16', 'UIF-17'].map((f) => ({ name: `SC_attention_${f}`, url: T + 'inventory', steps: [['open', click(`[data-t462-attention="${f}"]`)], ['back', back]] })),
-  ...Object.entries({ inventory: 3, movement: 4, control: 4, valuation: 3, history: 1, setup: 2 }).flatMap(([ws, n]) => Array.from({ length: n }, (_, i) => ({ name: `SC_ws_${ws}_${i}`, url: T + 'inventory', steps: [['ws', click(`[data-t462-workspace="${ws}"]`)], ['item', click('#app-screen [data-theme-entry-flow]', i)], ['back', back], ['home', back]] }))),
+  ...Object.entries({ inventory: 2, movement: 4, control: 4, valuation: 3, history: 1, setup: 2 }).flatMap(([ws, n]) => Array.from({ length: n }, (_, i) => ({ name: `SC_ws_${ws}_${i}`, url: T + 'inventory', steps: [['ws', click(`[data-t462-workspace="${ws}"]`)], ['item', click('#app-screen [data-theme-entry-flow]', i)], ['back', back], ['home', back]] }))),
   // BJ-01 Tồn kho (UIF-01)
   { name: 'SC_bj01_list', url: '?uif=UIF-01&screen=SCR-001', steps: [['filter-low', click('[data-bj01-filter="LOW"]')], ['filter-near', click('[data-bj01-filter="NEAR"]')], ['filter-all', click('[data-bj01-filter="ALL"]')], ['search', `(()=>{const i=document.querySelector('[data-bj01-search]');i.value='amox';i.dispatchEvent(new Event('input',{bubbles:true}));return true})()`], ['product', click('[data-bj01-product="INV-AMX"]')]] },
   { name: 'SC_bj01_filter_empty', url: '?uif=UIF-01&screen=SCR-001', steps: [['search', `(()=>{const i=document.querySelector('[data-bj01-search]');i.value='zzz';i.dispatchEvent(new Event('input',{bubbles:true}));return true})()`], ['filter', click('[data-bj01-filter="OUT"]')], ['clear', click('[data-bj01-clear]')]] },
@@ -188,6 +188,52 @@ const SCENARIOS = [
         ['classify-all', chain(...[['RET-L1A', 'SELLABLE'], ['RET-L1B', 'SELLABLE'], ['RET-L2', 'QUARANTINE'], ['RET-L3', 'SELLABLE']].flatMap(([id, mode]) => WEB ? [`[data-io06-class-line="${id}"][data-io06-class-mode="${mode}"]`] : [`[data-io06-class-line="${id}"]:not([data-io06-class-mode])`, `[role="dialog"] [data-io06-class-mode="${mode}"]`]))], ['finish', io('confirm-classification')],
         ['home-2', home('[data-io06-action="result-to-return-queue"]')], ['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-06"][data-t380-target-screen="SCR-034"]')], ['approve', io('approve-exception')],
         ['home-end', home('[data-io06-action="exit-approval-detail"]')]] },
+    ];
+  })(),
+  // BJ-07 Trả nhà cung cấp (UIF-07) + BJ-10 Tiêu hủy (UIF-10) — T7-P chặng 4 (v5.14.0 / v5.15.0); SC_journey_4 = hết chặng 4
+  ...(() => {
+    const S7 = '?uif=UIF-07&screen=', S10 = '?uif=UIF-10&screen=', S9 = '?uif=UIF-09&screen=';
+    const k5chip = (k) => click(`[data-k5-filter="${k}"]`);
+    const k5row = (key) => click(`[data-k5-row="${key}"]`);
+    const k5act = (k) => click(`[data-k5-action="${k}"]`);
+    const io7 = (k) => click(`[data-io07-action="${k}"]`);
+    const quick = (id) => click(`[data-io07-verify-quick="${id}"]`);
+    const b10 = (k) => click(`[data-bj10-action="${k}"]`);
+    const ev09 = `(()=>window.__VET45_QA__.setK5Evidence('bj09'))()`;
+    const ev10 = `(()=>window.__VET45_QA__.setK5Evidence('bj10'))()`;
+    const ev10c = `(()=>window.__VET45_QA__.setK5Evidence('bj10c'))()`;
+    const home = (...exits) => `(()=>{const sb=document.querySelector('#web-sidebar:not([hidden]) [data-theme-sidebar-route="inventory"]');if(sb){sb.click();return true}${exits.map((e) => `document.querySelector(${JSON.stringify(e)})?.click();`).join('')}for(let i=0;i<3&&!document.querySelector('[data-t462-workspace]');i++)document.querySelector('#app-screen .app-back-button')?.click();return !!document.querySelector('[data-t462-workspace]')})()`;
+    const toList = '[data-k5-action="to-list"]';
+    const sendDisposal = [['qty', click('[data-bj10-qty-fill]')], ['method', click('[data-bj10-method="SELF"]')], ['evidence', ev10], ['submit', b10('submit')]];
+    return [
+      { name: 'SC_bj07_verify', url: S7 + 'SCR-036', steps: [['request', k5row('req:RTV-260827-02')], ['alloc', click('[data-io07-allocation="RTV-A2"]')], ['wrong-lot', typeIn('[data-io07-scan-lot]', 'DH2509')], ['mismatch', io7('mark-mismatch')], ['select-lot', click('[data-io07-action="select-mismatch"][data-io07-mismatch-type="LOT"]')], ['close', io7('close-mismatch')]] },
+      { name: 'SC_bj07_quick_verify', url: S7 + 'SCR-036', steps: [['request', k5row('req:RTV-260827-02')], ['dh2511', quick('RTV-A2')], ['ty2511', quick('RTV-A3')], ['gloves', quick('RTV-A4')]] },
+      { name: 'SC_bj07_split_source', url: S7 + 'SCR-036', steps: [['request', k5row('req:RTV-260827-02')], ['alloc', click('[data-io07-allocation="RTV-A1"]')], ['sellable', typeIn('[data-io07-source-slice="SELLABLE"]', '2')], ['damaged', typeIn('[data-io07-source-slice="DAMAGED"]', '2')], ['verify', io7('confirm-allocation')]] },
+      { name: 'SC_bj07_mismatch_wait', url: S7 + 'SCR-036', steps: [['request', k5row('req:RTV-260827-02')], ['alloc', click('[data-io07-allocation="RTV-A2"]')], ['mismatch', io7('mark-mismatch')], ['type', click('[data-io07-action="select-mismatch"][data-io07-mismatch-type="QUANTITY"]')], ['qty', typeIn('[data-io07-mismatch-qty]', '1')], ['send', io7('record-mismatch-observation')], ['back', back], ['waiting', k5chip('WAITING')]] },
+      { name: 'SC_bj07_handover', url: S7 + 'SCR-036', steps: [['request', k5row('req:RTV-260903-03')], ['verify', quick('RTV-A7')], ['review', io7('review-handover')], ['back', back], ['review2', io7('review-handover')], ['confirm', io7('confirm-handover')], ['to-list', k5act('to-list')]] },
+      { name: 'SC_bj07_next_request', url: S7 + 'SCR-036', steps: [['request', k5row('req:RTV-260903-03')], ['verify', quick('RTV-A7')], ['review', io7('review-handover')], ['carrier', click('[data-io07-recipient="CARRIER"]')], ['confirm', io7('confirm-handover')], ['detail', click('[data-io07-result-detail]')], ['close', click('[data-io07-sheet-close]')], ['next', click('[data-io07-next-request]')]] },
+      { name: 'SC_bj07_source_changed', url: S7 + 'SCR-039&state=SOURCE_CHANGED', steps: [['back-prep', io7('back-to-preparation')]] },
+      { name: 'SC_bj10_flow', url: S10 + 'SCR-036', steps: [['item', k5row('lot:tylo-ty2408')], ['request', k5act('request-disposal')], ...sendDisposal] },
+      // Dầu sát khuẩn (không có giá vốn) đang có yêu cầu đổi tình trạng chờ duyệt nên 037 không có nút "Đề nghị tiêu hủy": đi thẳng bằng lối vào "request" như nút đó.
+      { name: 'SC_bj10_price_missing', url: S10 + 'SCR-036', steps: [['select', `(()=>{k5SelectedLotId='oil-demo';return true})()`], ['request', `(()=>{bj10StartDraft();applyEntry('UIF-10','request',true);return true})()`], ['back', back]] },
+      { name: 'SC_bj10_approve', url: '?uif=UIF-10&entry=approver', steps: [['seed', `(()=>{window.__VET45_QA__.seedBJ10Pending();return true})()`], ['approve', b10('approve')]] },
+      { name: 'SC_bj10_reject', url: '?uif=UIF-10&entry=approver', steps: [['seed', `(()=>{window.__VET45_QA__.seedBJ10Pending();return true})()`], ['open', b10('reject-open')], ['reason', typeIn('[data-bj10-reject-reason]', 'Thiếu ảnh hiện trạng')], ['confirm', b10('reject-confirm')]] },
+      { name: 'SC_bj10_complete', url: '?uif=UIF-10&entry=completion-operator', steps: [['to-completion', b10('to-completion')], ['fill', click('[data-bj10-actual-fill]')], ['proof', ev10c], ['complete', b10('complete')]] },
+      { name: 'SC_bj10_from_list', url: S10 + 'SCR-036', steps: [['disposal', k5chip('DISPOSAL')], ['row', k5row('lot:glove-nitrile')], ['to-completion', b10('to-completion')]] },
+      { name: 'SC_bj10_qty_over', url: S10 + 'SCR-040&state=COMPLETION', steps: [['over', typeIn('[data-bj10-actual]', '5')], ['fix', typeIn('[data-bj10-actual]', '3')], ['proof', ev10c], ['complete', b10('complete')]] },
+      { name: 'SC_bj10_owner_self', url: T + 'inventory&entry=owner', steps: [['ws', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-09"]')], ['actor', `(()=>{window.__VET45_QA__.setActor('owner');return true})()`], ['item', k5row('lot:tylo-ty2408')], ['request', k5act('request-disposal')], ...sendDisposal, ['to-list', k5act('to-list')], ['home', home()], ['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-10"][data-t380-target-screen="SCR-040"]')], ['approve', b10('approve')], ['to-completion', b10('to-completion')], ['fill', click('[data-bj10-actual-fill]')], ['proof', ev10c], ['complete', b10('complete')]] },
+      // Hết chặng 4 "Hàng có vấn đề" (plan BJ-07 + BJ-10 mục 6.4): Home → cách ly → hỏng (duyệt) → tiêu hủy (duyệt) → xác nhận → trả nhà cung cấp → Home.
+      { name: 'SC_journey_4', url: T + 'inventory', steps: [
+        ['attention', click('[data-t462-attention="UIF-09"]')], ['amox', k5row('lot:amox-am2505')],
+        ['change', k5act('change-state')], ['damaged', click('[data-bj09-destination="DAMAGED"]')], ['fill', click('[data-bj09-qty-fill]')], ['reason', typeIn('[data-bj09-reason]', 'Bao bì rách, không còn dùng được')], ['photo', ev09], ['send', click('[data-bj09-action="submit"]')],
+        ['home-1', home(toList)], ['pending', click('[data-v464-pending-approvals]')], ['case-1', click('[data-theme-entry-flow="UIF-09"][data-t380-target-screen="SCR-038"]', 1)], ['approve-1', click('[data-bj09-action="approve"]')],
+        ['dispose', k5act('request-disposal')],
+        ['qty', click('[data-bj10-qty-fill]')], ['method', click('[data-bj10-method="HIRE"]')], ['photo-2', ev10], ['send-2', b10('submit')],
+        ['home-2', home(toList)], ['pending-2', click('[data-v464-pending-approvals]')], ['case-2', click('[data-theme-entry-flow="UIF-10"][data-t380-target-screen="SCR-040"]')], ['approve-2', b10('approve')],
+        ['complete', b10('to-completion')], ['actual', click('[data-bj10-actual-fill]')], ['proof', ev10c], ['confirm', b10('complete')],
+        ['to-list', k5act('to-list')], ['rtv-chip', k5chip('RTV')], ['rtv', k5row('req:RTV-260903-03')],
+        ['verify', quick('RTV-A7')], ['review', io7('review-handover')], ['carrier', click('[data-io07-recipient="CARRIER"]')], ['handover', io7('confirm-handover')],
+        ['home-end', home(toList)]] },
     ];
   })(),
   // CAP-01 Chính sách tồn & cận hạn — thiết kế lại (v5.7.0)
@@ -288,18 +334,28 @@ const SCENARIOS = [
   })(),
   // BJ-07 / 09 / 10 — T7-P A6
   ...(() => {
-    const seed09Approver = `(()=>{window.__VET45_QA__?.buildBasis?.()||window.__VET45_QA__?.ic09BuildBasis?.();stateByScreen['SCR-038']='APPROVAL_REVIEW';renderAppScreen();return true})()`;
+    const S9 = '?uif=UIF-09&screen=';
+    const k5chip = (k) => click(`[data-k5-filter="${k}"]`);
+    const k5row = (key) => click(`[data-k5-row="${key}"]`);
+    const k5act = (k) => click(`[data-k5-action="${k}"]`);
+    const evidence09 = `(()=>window.__VET45_QA__.setK5Evidence('bj09'))()`;
+    const home9 = (...exits) => `(()=>{const sb=document.querySelector('#web-sidebar:not([hidden]) [data-theme-sidebar-route="inventory"]');if(sb){sb.click();return true}${exits.map((e) => `document.querySelector(${JSON.stringify(e)})?.click();`).join('')}for(let i=0;i<3&&!document.querySelector('[data-t462-workspace]');i++)document.querySelector('#app-screen .app-back-button')?.click();return !!document.querySelector('[data-t462-workspace]')})()`;
+    const toDamaged = [['change', k5act('change-state')], ['dest', click('[data-bj09-destination="DAMAGED"]')], ['qty', click('[data-bj09-qty-fill]')], ['reason', typeIn('[data-bj09-reason]', 'Bao bì rách, không còn dùng được')], ['evidence', evidence09], ['submit', click('[data-bj09-action="submit"]')]];
+    const approveFromHome = [['to-list', k5act('to-list')], ['home', home9()], ['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-09"][data-t380-target-screen="SCR-038"]', 1)], ['approve', click('[data-bj09-action="approve"]')], ['disposal', k5act('request-disposal')]];
     return [
-      { name: 'SC_bj07_list', url: '?uif=UIF-07&screen=SCR-036', steps: [['filter-actionable', click('[data-io07-filter="ACTIONABLE"]')], ['filter-waiting', click('[data-io07-filter="WAITING"]')], ['filter-all', click('[data-io07-filter="ALL"]')], ['search', typeIn('[data-io07-search]', 'Minh')], ['clear-search', typeIn('[data-io07-search]', '')], ['request', click('[data-io07-request="RTV-260827-02"]')]] },
-      { name: 'SC_bj07_verify', url: '?uif=UIF-07&screen=SCR-036', steps: [['request', click('[data-io07-request="RTV-260827-02"]')], ['alloc1', click('[data-io07-allocation="RTV-A1"]')], ['scan', typeIn('[data-io07-scan-lot]', 'DH2507')], ['confirm1', click('[data-io07-action="confirm-allocation"]')], ['alloc2', click('[data-io07-allocation="RTV-A2"]')], ['mismatch', click('[data-io07-action="mark-mismatch"]')], ['select-mismatch', click('[data-io07-action="select-mismatch"]')], ['close-mismatch', click('[data-io07-action="close-mismatch"]')]] },
-      { name: 'SC_bj07_handover', url: '?uif=UIF-07&screen=SCR-037', steps: [['review', click('[data-io07-action="review-handover"]')], ['back-prep', click('[data-io07-action="back-to-preparation"]')], ['review2', click('[data-io07-action="review-handover"]')], ['confirm', click('[data-io07-action="confirm-handover"]')], ['to-queue', click('[data-io07-action="result-to-rtv-queue"]')]] },
-      { name: 'SC_bj07_source_changed', url: '?uif=UIF-07&screen=SCR-039&state=SOURCE_CHANGED', steps: [['back-prep', click('[data-io07-action="back-to-preparation"]')]] },
-      { name: 'SC_bj09_flow', url: '?uif=UIF-09&screen=SCR-036', steps: [['filter-sellable', click('[data-ic09-filter="SELLABLE"]')], ['filter-all', click('[data-ic09-filter="ALL"]')], ['search', typeIn('[data-ic09-search]', 'Amox')], ['clear-search', typeIn('[data-ic09-search]', '')], ['item', click('[data-ic09-item="amox"]')], ['change', click('[data-ic09-action="change"]')], ['dest', click('[data-v3101-destination][value="QUARANTINE"]')], ['qty', typeIn('[data-v3101-qty]', '1')], ['reason', typeIn('[data-v3101-reason]', 'Bao bì móp')], ['submit', click('[data-v3101-action="submit"]')]] },
-      { name: 'SC_bj09_approve', url: '?uif=UIF-09&entry=approver', steps: [['seed', seed09Approver], ['open-reject', click('[data-v3101-action="reject-open"]')], ['reason', typeIn('[data-v3101-reject-reason]', 'Thiếu bằng chứng')], ['close-reject', click('[data-v3101-action="reject-close"]')], ['approve', click('[data-v3101-action="approve"]')]] },
+      { name: 'SC_bj07_list', url: '?uif=UIF-07&screen=SCR-036', steps: [['filter-rtv', k5chip('RTV')], ['filter-waiting', k5chip('WAITING')], ['filter-all', k5chip('ALL')], ['search', typeIn('[data-k5-search]', 'Minh')], ['clear-search', typeIn('[data-k5-search]', '')], ['request', k5row('req:RTV-260827-02')]] },
+      { name: 'SC_bj09_flow', url: S9 + 'SCR-036', steps: [['filter-open', k5chip('OPEN')], ['filter-all', k5chip('ALL')], ['search', typeIn('[data-k5-search]', 'Amox')], ['clear-search', typeIn('[data-k5-search]', '')], ['item', k5row('lot:amox-am2505')], ...toDamaged] },
+      { name: 'SC_bj09_approve', url: '?uif=UIF-09&entry=approver', steps: [['open-reject', click('[data-bj09-action="reject-open"]')], ['reason', typeIn('[data-bj09-reject-reason]', 'Thiếu bằng chứng')], ['close-reject', click('[data-bj09-action="reject-close"]')], ['approve', click('[data-bj09-action="approve"]')]] },
+      { name: 'SC_bj09_reject', url: '?uif=UIF-09&entry=approver', steps: [['open-reject', click('[data-bj09-action="reject-open"]')], ['reason', typeIn('[data-bj09-reject-reason]', 'Thiếu ảnh bằng chứng')], ['confirm', click('[data-bj09-action="reject-confirm"]')]] },
+      { name: 'SC_k5_list', url: S9 + 'SCR-036', steps: [['open', k5chip('OPEN')], ['rtv', k5chip('RTV')], ['disposal', k5chip('DISPOSAL')], ['waiting', k5chip('WAITING')], ['all', k5chip('ALL')], ['search', typeIn('[data-k5-search]', 'TY2408')], ['clear', typeIn('[data-k5-search]', '')], ['lot', k5row('lot:tylo-ty2408')]] },
+      { name: 'SC_k5_filter_empty', url: S9 + 'SCR-036', steps: [['search', typeIn('[data-k5-search]', 'zzz')], ['clear', k5act('clear-filter')]] },
+      { name: 'SC_bj09_quarantine_to_damaged', url: T + 'inventory', steps: [['ws', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-09"]')], ['item', k5row('lot:amox-am2505')], ...toDamaged, ...approveFromHome] },
+      { name: 'SC_bj09_owner_self', url: T + 'inventory&entry=owner', steps: [['ws', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-09"]')], ['actor', `(()=>{window.__VET45_QA__.setActor('owner');return true})()`], ['item', k5row('lot:amox-am2505')], ...toDamaged, ...approveFromHome] },
+      { name: 'SC_bj09_no_approval', url: S9 + 'SCR-036', steps: [['item', k5row('lot:amox-am2505')], ['change', k5act('change-state')], ['dest', click('[data-bj09-destination="DEMO"]')], ['qty', typeIn('[data-bj09-qty]', '1')], ['reason', typeIn('[data-bj09-reason]', 'Dùng làm hàng trưng bày')], ['submit', click('[data-bj09-action="submit"]')], ['to-list', k5act('to-list')]] },
+      { name: 'SC_bj09_from_bj01', url: '?uif=UIF-01&screen=SCR-001', steps: [['product', click('[data-bj01-product="INV-NOB"]')], ['lot', click('[data-bj01-lot="DH2507"]')], ['change', click('.ds24-sheet [data-bj01-change-state]')], ['dest', click('[data-bj09-destination="QUARANTINE"]')], ['qty', click('[data-bj09-qty-fill]')], ['back', click('#app-screen .app-back-button')]] },
+      { name: 'SC_bj09_expired_to_disposal', url: '?uif=UIF-01&screen=SCR-001', steps: [['product', click('[data-bj01-product="INV-TYLO"]')], ['dispose', click('[data-bj01-dispose-lot]')], ['disposal', k5act('request-disposal')]] },
+      { name: 'SC_k5_hub_rtv', url: T + 'inventory', steps: [['ws-movement', click('[data-t462-workspace="movement"]')], ['rtv', click('#app-screen [data-theme-entry-flow="UIF-07"]')], ['home', home9()], ['ws-control', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-09"]')]] },
       { name: 'SC_bj09_movement', url: '?uif=UIF-09&screen=SCR-056', steps: [] },
-      { name: 'SC_bj10_flow', url: '?uif=UIF-10&screen=SCR-036', steps: [['item', click('[data-ic10-item="amox-l2407"]')], ['request', click('[data-ic10-action="request"]')], ['qty', typeIn('[data-v350-ic10-qty]', '6')], ['reason', typeIn('[data-v350-ic10-reason]', 'Hàng không còn đủ điều kiện')], ['evidence', typeIn('[data-v350-ic10-evidence]', 'Ảnh hiện trạng')], ['submit', click('[data-v350-action="ic10-submit"]')]] },
-      { name: 'SC_bj10_approve', url: '?uif=UIF-10&entry=approver', steps: [['approve', click('[data-v350-action="ic10-approve"]')]] },
-      { name: 'SC_bj10_complete', url: '?uif=UIF-10&entry=completion-operator', steps: [['actual', typeIn('[data-v350-ic10-actual]', '6')], ['proof', typeIn('[data-v350-ic10-proof]', 'bien-ban.jpg')], ['complete', click('[data-v350-action="ic10-complete"]')]] },
     ];
   })(),
   // BJ-08 Kiểm kê — T7-P A7
@@ -595,7 +651,7 @@ if (mode === 'usage') {
   process.exit(0);
 }
 
-async function worker(n, queue, errors) {
+async function worker(n, queue, errors, auditLog) {
   const port = 9400 + n;
   const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${path.join(a, '.chrome' + n)}`, '--hide-scrollbars', '--force-device-scale-factor=1', 'about:blank'], { stdio: 'ignore' });
   let list; for (let i = 0; i < 100 && !list; i++) { try { list = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json(); } catch { await sleep(100); } }
@@ -623,6 +679,8 @@ async function worker(n, queue, errors) {
       if (c.act) await evalv(`Promise.resolve(${c.act}).then(()=>${frames})`);
       const v = await evalv(`(()=>{const d=document.querySelector('#device-preview')?.getBoundingClientRect();const s=document.querySelector('#app-screen');if(!d||!s)return null;return {x:d.x,y:d.y,w:d.width,h:d.height,t:s.innerText+'\\n@inspector '+['current-screen-id','current-screen-name','workbench-title','traceability'].map(i=>document.getElementById(i)?.innerText||'').join(' | ')+'\\n@url '+location.search}})()`);
       if (!v) { errors.push(`no preview for ${c.name}`); continue; }
+      // AUDIT_JS=<tệp biểu thức JS>: chạy kiểm dọc sau mỗi bước (tương phản, vùng chạm, tràn ngang…), ghi vào _audit.json.
+      if (process.env.AUDIT_JS) auditLog.push({ name: c.name, ...(await evalv(readFileSync(process.env.AUDIT_JS, 'utf8'))) });
       const shot = FULL
         ? await send('Page.captureScreenshot', { format: 'png' })
         : await send('Page.captureScreenshot', { format: 'png', clip: { x: v.x, y: v.y, width: Math.max(1, v.w), height: Math.max(1, v.h), scale: 1 } });
@@ -632,8 +690,9 @@ async function worker(n, queue, errors) {
   }
   ws.close(); chrome.kill();
 }
-const t0 = Date.now(); const errors = []; const queue = [...todo];
-await Promise.all(Array.from({ length: Math.min(WORKERS, todo.length) }, (_, n) => worker(n, queue, errors)));
+const t0 = Date.now(); const errors = []; const auditLog = []; const queue = [...todo];
+await Promise.all(Array.from({ length: Math.min(WORKERS, todo.length) }, (_, n) => worker(n, queue, errors, auditLog)));
+if (process.env.AUDIT_JS) writeFileSync(path.join(a, '_audit.json'), JSON.stringify(auditLog, null, 1));
 writeFileSync(path.join(a, '_errors.json'), JSON.stringify(errors, null, 1));
 await sleep(300);
 for (const d of readdirSync(a)) if (d.startsWith('.chrome')) rmSync(path.join(a, d), { recursive: true, force: true });

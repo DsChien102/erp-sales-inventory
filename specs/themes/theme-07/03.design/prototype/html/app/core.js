@@ -89,11 +89,14 @@ const entryTargets = {
   "UIF-09": {
     "product-context": { screen: "SCR-037", state: "READY" },
     "approver": { screen: "SCR-038", state: "APPROVAL_REVIEW" },
+    "request-view": { screen: "SCR-038", state: "PENDING_APPROVAL" },
   },
   "UIF-10": {
     "product-context": { screen: "SCR-037", state: "READY" },
+    "request": { screen: "SCR-040", state: "READY" },
     "approver": { screen: "SCR-040", state: "APPROVAL_REVIEW" },
-    "completion-operator": { screen: "SCR-040", state: "COMPLETION" },
+    "completion-operator": { screen: "SCR-040", state: "APPROVED_PENDING_DISPOSAL" },
+    "request-view": { screen: "SCR-040" },
   },
   "UIF-11": {
     "approver": { screen: "SCR-051", state: "READY" },

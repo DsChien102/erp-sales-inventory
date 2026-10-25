@@ -3798,7 +3798,7 @@ window.VET45_HARNESS_DATA = {
     {
       "id": "SCR-036",
       "short": "036",
-      "name": "Hàng chờ trả nhà cung cấp",
+      "name": "Hàng cần xử lý",
       "surface": "list",
       "bj": [
         "BJ-07",
@@ -3811,7 +3811,7 @@ window.VET45_HARNESS_DATA = {
         "UC-09-03",
         "UC-10-01"
       ],
-      "purpose": "UIF-07: tìm công việc trả nhà cung cấp trong một collection thống nhất; mọi request dùng Navigation / Default, request đang chờ dùng state Disabled và không tương tác. UIF-09/UIF-10 giữ context riêng.",
+      "purpose": "K5: một danh sách chung cho UIF-07 / 09 / 10 — hàng không bán được (hết hạn, hỏng, cách ly, dùng thử), yêu cầu trả nhà cung cấp, hàng chờ tiêu hủy; lọc theo việc bằng chip có số, mở đúng bước đang dở.",
       "actors": [
         "Thủ kho",
         "Người phê duyệt"
@@ -3821,8 +3821,7 @@ window.VET45_HARNESS_DATA = {
         "LOADING",
         "EMPTY",
         "FILTER_EMPTY",
-        "PERMISSION_DENIED",
-        "EXPIRED"
+        "PERMISSION_DENIED"
       ],
       "defaultState": "READY",
       "fields": [],
@@ -3838,7 +3837,7 @@ window.VET45_HARNESS_DATA = {
           "2 hộp"
         ]
       ],
-      "notice": "UIF-07 v2.9.3: Tất cả mặc định; Search + VChip; một flat list dùng cùng Navigation / Default anatomy. Cần chuẩn bị/Sẵn sàng/Cần kiểm lại/Chờ cập nhật chỉ là badge/state; waiting dùng Disabled.",
+      "notice": "K5 + K6: chip \"Tất cả · Cần xử lý · Trả nhà cung cấp · Tiêu hủy · Đang chờ\"; hàng \"Bán được\" không vào danh sách; dòng chờ duyệt mở được, chỉ đọc.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
       "traceActions": [],
@@ -3903,11 +3902,12 @@ window.VET45_HARNESS_DATA = {
       ],
       "states": [
         "READY",
+        "SOURCE_UPDATED",
+        "WAITING",
         "LOADING",
         "EXPIRED",
         "LOCKED",
-        "PERMISSION_DENIED",
-        "FINANCIAL_RESTRICTED"
+        "PERMISSION_DENIED"
       ],
       "defaultState": "READY",
       "fields": [
@@ -4324,6 +4324,7 @@ window.VET45_HARNESS_DATA = {
         "COMPLETED",
         "PENDING_APPROVAL",
         "REJECTED_EXECUTION",
+        "REJECTED",
         "UNKNOWN",
         "EXPIRED",
         "PERMISSION_DENIED"

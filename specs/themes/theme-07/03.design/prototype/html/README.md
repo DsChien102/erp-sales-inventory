@@ -19,7 +19,7 @@ html/
   index.html
   styles/           tokens.css, components.css, screens.css
   app/              core.js (khung), hub.js, bj01.js…bj17.js, cap01.js,
-                    shared-control.js, shared-valuation.js, shared-patterns.js
+                    shared-control.js, shared-valuation.js, shared-patterns.js, shared-problem.js
   harness/          workbench.js, workbench.css, figma-ds-map.js
   data/             workbench-data.js, workbench-data.json
   tools/golden.mjs  capture | compare | usage
@@ -40,6 +40,7 @@ node tools/golden.mjs capture tools/.golden-now
 node tools/golden.mjs compare tools/.golden-phase1 tools/.golden-now
 node tools/golden.mjs usage tools/.usage-now   # CSS unused + JS uncovered
 FULL=1 node tools/golden.mjs capture tools/.full-now  # ảnh toàn trang (harness)
+AUDIT_JS=<tệp biểu thức JS> node tools/golden.mjs capture tools/.audit-now SC_journey_4  # chạy kiểm sau mỗi bước, ghi _audit.json
 
 # Khung Web 1280×800 (chỉ chụp nhóm màn × trạng thái + kịch bản trong WEB_SCENARIOS của golden.mjs; tên ca thêm @web)
 DEVICE=web node tools/golden.mjs capture tools/.golden-web-now

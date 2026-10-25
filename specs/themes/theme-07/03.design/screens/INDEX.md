@@ -38,12 +38,12 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-033 | Phân loại hàng trả | BJ-06 | IN_REVIEW | Có |
 | SCR-034 | Ngoại lệ lô cần duyệt | BJ-06 | IN_REVIEW | Có |
 | SCR-035 | Kết quả hàng trả | BJ-06 | IN_REVIEW | Có |
-| SCR-036 | Hàng cần xử lý | BJ-07, BJ-09, BJ-10 | FROZEN | Có |
-| SCR-037 | Chi tiết hàng và bằng chứng | BJ-07, BJ-09, BJ-10 | FROZEN | Có |
-| SCR-038 | Chuyển trạng thái | BJ-09 | FROZEN | Có |
-| SCR-039 | Bàn giao trả nhà cung cấp | BJ-07 | FROZEN | Có |
-| SCR-040 | Xác nhận tiêu hủy | BJ-10 | FROZEN | Có |
-| SCR-041 | Kết quả xử lý | BJ-07, BJ-09, BJ-10 | FROZEN | Có |
+| SCR-036 | Hàng cần xử lý | BJ-07, BJ-09, BJ-10 | IN_REVIEW | Có |
+| SCR-037 | Chi tiết hàng | BJ-07, BJ-09, BJ-10 | IN_REVIEW | Có |
+| SCR-038 | Đổi tình trạng | BJ-09 | IN_REVIEW | Có |
+| SCR-039 | Bàn giao trả nhà cung cấp | BJ-07 | IN_REVIEW | Có |
+| SCR-040 | Yêu cầu tiêu hủy | BJ-10 | IN_REVIEW | Có |
+| SCR-041 | Kết quả xử lý | BJ-07, BJ-09, BJ-10 | IN_REVIEW | Có |
 | SCR-042 | Phiên kiểm kê | BJ-08 | FROZEN | Có |
 | SCR-043 | Chọn phạm vi và mở phiên | BJ-08 | FROZEN | Có |
 | SCR-044 | Đếm mù | BJ-08 | FROZEN | Có |

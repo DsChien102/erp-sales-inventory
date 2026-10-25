@@ -7,7 +7,7 @@
   "merge_source": "v3.13.0",
   "merge_source_parent": "v3.12.0",
   "registry_policy": "Actual package tree only; user-pruned files are not restored. Metadata is preserved from existing entries where available.",
-  "artifact_count": 451,
+  "artifact_count": 452,
   "artifacts": [
     {
       "path": "01.knowledge/decisions/decision-register.md",
@@ -3054,8 +3054,8 @@
       "theme": "theme-07",
       "title": "Thực hiện trả hàng cho nhà cung cấp",
       "source_baseline": "v4.1.0",
-      "sha256": "98bff3eb07456d6fd3402d18a9b7695f7c69b6cb3e2f5494e1f20fe4c57f98a9",
-      "size": 10758
+      "sha256": "302bb45b49c3d37505afc47a257e828a3f97e31cc51864bc3f59462f205c9382",
+      "size": 12634
     },
     {
       "path": "03.design/flows/UIF-08-BJ-08.md",
@@ -3078,8 +3078,8 @@
       "theme": "theme-07",
       "title": "Quản lý trạng thái hàng",
       "source_baseline": "v4.1.0",
-      "sha256": "ec88cd04bb34fb436e3c82d5c0c6c6f2683016e582188465e9e1d960d7410c3d",
-      "size": 12155
+      "sha256": "ee432d88ca52db1faafd4dbe2f57c0906d2a271ceb2fd96bcc04af37c00448c2",
+      "size": 13399
     },
     {
       "path": "03.design/flows/UIF-10-BJ-10.md",
@@ -3090,8 +3090,8 @@
       "theme": "theme-07",
       "title": "Tiêu hủy hàng",
       "source_baseline": "v4.1.0",
-      "sha256": "621541dbaf934e3e98e120babec9d26c3f77acea6c83c50b0384312bf8e119e6",
-      "size": 11957
+      "sha256": "a5b502e667949ac53c8a88831bae266e98da5c4abff05dff166e7cb7798d7ddf",
+      "size": 13626
     },
     {
       "path": "03.design/flows/UIF-11-BJ-11.md",
@@ -3234,8 +3234,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "40a29d9de536a242c01c226959a0ef4c82867cdd72f25995763e8b2c567ef45f",
-      "size": 79644
+      "sha256": "20591f8929b557715283cc846c1556bfcab3fff985d8f041754b5892ac79f5e7",
+      "size": 95276
     },
     {
       "path": "03.design/prototype/html/DS-CONFORMANCE.md",
@@ -3258,8 +3258,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "f3f5ccec0485a6655349cba950d2c70a16f6331d6a483945295c348896aeb0f7",
-      "size": 2980
+      "sha256": "00e561fc3a680ee2fe725c0ca5ce19f23396b3583bad9014f859205cb0160e88",
+      "size": 3145
     },
     {
       "path": "03.design/prototype/html/app/bj01.js",
@@ -3270,8 +3270,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "8c6231879ac2ffe8c6d1de5f4b479747027f3a28f89afde17538e3ed3a00ee56",
-      "size": 29290
+      "sha256": "ef2c11a288987e400d693586b2ae886817e19c13183f72bdfd77f58c46402d6a",
+      "size": 30406
     },
     {
       "path": "03.design/prototype/html/app/bj02.js",
@@ -3342,8 +3342,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "06abf9b14971ac184b52d963015bd3d065960b8d706e981dcaf3d8f51ca2b985",
-      "size": 45189
+      "sha256": "1b42c8822c4fb8d373d935fcbf8036a82f9f41b7df02e1fa08e8c9113744cd69",
+      "size": 52764
     },
     {
       "path": "03.design/prototype/html/app/bj08.js",
@@ -3366,8 +3366,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "c9e64e040bc381c97d23da3f2d519827e187a4de7097491ba2e1c6553ee0addf",
-      "size": 32934
+      "sha256": "09b987fef062d844db13001ef5e7f66ba4688bdaae9e27bd1006ced318a20022",
+      "size": 37697
     },
     {
       "path": "03.design/prototype/html/app/bj10.js",
@@ -3378,8 +3378,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "13eef257a219bf806a216d40285ec25aace42719133e52ed5835f2123460efe8",
-      "size": 17761
+      "sha256": "101917bd40e73e487ce79435b78d42ca1ffb295af68aad53b14ff4830e64e92c",
+      "size": 31000
     },
     {
       "path": "03.design/prototype/html/app/bj11.js",
@@ -3486,8 +3486,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "24b9485e6e98693f32a45fcde6722a22ec2efe0240057499249c83554b7b00b3",
-      "size": 56043
+      "sha256": "1c51d150dcb854b85f5c3d0bebff08eade0fb31683f3ad1d5b33a44ea94f01bb",
+      "size": 56225
     },
     {
       "path": "03.design/prototype/html/app/hub.js",
@@ -3498,8 +3498,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "661644035f1a0ff10b835f44801a079b89e48cb6cb53a576d8d983e13cf902ad",
-      "size": 35327
+      "sha256": "a7fdefa3b136d7ecffb3c65653ed662dce32558fbf9e29bfb1523c41aa175425",
+      "size": 35496
     },
     {
       "path": "03.design/prototype/html/app/shared-control.js",
@@ -3522,8 +3522,20 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "2e138fa123059ee2226b84df458d95a34a18a782dd17bfda142267b2cf741499",
-      "size": 17792
+      "sha256": "502193b5aa80bc9a064bf3d17af0b559ea15ac5d815f3f569761670e24b6d9b7",
+      "size": 17816
+    },
+    {
+      "path": "03.design/prototype/html/app/shared-problem.js",
+      "id": "",
+      "type": "",
+      "owner": "",
+      "status": "",
+      "theme": "",
+      "title": "",
+      "source_baseline": "",
+      "sha256": "77584819cb92ef2faf37920298ecac14d6cad0023afc0a18bb09731cea308f7d",
+      "size": 19432
     },
     {
       "path": "03.design/prototype/html/app/shared-valuation.js",
@@ -3546,8 +3558,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "77c902677ce7c19ace2f320b18c31f978a3ec4d78591c5c1722e476f386c1266",
-      "size": 216777
+      "sha256": "476c9c60491dc4761022c9204ed60e097a975a9a37d473cc6540ca190c985bce",
+      "size": 216772
     },
     {
       "path": "03.design/prototype/html/data/workbench-data.json",
@@ -3558,8 +3570,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "17cee1e340cef97831a72c92d8dc9186ac7b09ef353fceb6e0f4498a671a018a",
-      "size": 216748
+      "sha256": "66159622dba03625d8a2227c953d43054cfb3d2c8891a959c2c477510f6ea1c9",
+      "size": 216743
     },
     {
       "path": "03.design/prototype/html/harness/figma-ds-map.js",
@@ -3594,8 +3606,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "f5d5b27cb28ae43b0d04842207d78b91c901afab796d834024c933494afd35f9",
-      "size": 27756
+      "sha256": "05eb02a3a7773945224cb85acfe663dc0c5d701caecba48955f91c70bbc1f9b9",
+      "size": 27705
     },
     {
       "path": "03.design/prototype/html/index.html",
@@ -3606,8 +3618,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "2a2c8314ab7ef81c2351896cc3e3bc4de1601ee7534bb90c64aa335889294abb",
-      "size": 6549
+      "sha256": "e9e98036a2c569820cbd9e4dd72c9b225142abfbc2bb58a345bbbcc6bde65a85",
+      "size": 6626
     },
     {
       "path": "03.design/prototype/html/manifest.json",
@@ -3618,8 +3630,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "886e707cd933902c21c7aa03648d51be35b7e886415336a381024e7ec4ca37f3",
-      "size": 1477
+      "sha256": "69c192f477f8b43c1988d4763807d6b7a95bac955d39d1a4622d452a0e1bdd74",
+      "size": 1510
     },
     {
       "path": "03.design/prototype/html/prototype.manifest.json",
@@ -3642,8 +3654,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "31f9e8b05345ce16a23a98bdb26a034db779afa8c1db385f2a23914b7b3967d7",
-      "size": 165382
+      "sha256": "d03e6a527daea0f15e3bb73d7f856ca36de800be80105aa35c8a421d0d053ffd",
+      "size": 165683
     },
     {
       "path": "03.design/prototype/html/styles/screens.css",
@@ -3654,8 +3666,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "39caabd5fda0c28f050119077811168e715bdfc64b6480de76111423456e57c8",
-      "size": 275409
+      "sha256": "cc2b049e51d6ab5063cd6b39adb0862869f561f015e8a3b3738b6d8534b35630",
+      "size": 243566
     },
     {
       "path": "03.design/prototype/html/styles/tokens.css",
@@ -3690,8 +3702,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "59ac7a8440f1010b36c9472f357a7cd0543e73959e39b415c8bb50734e33f12b",
-      "size": 87480
+      "sha256": "0f9522cbd6735add933651a3160a88d6f2a4c87e11312d7373e28b81fd070249",
+      "size": 97668
     },
     {
       "path": "03.design/prototype/html/tools/sync-registry.py",
@@ -3714,8 +3726,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "1d053f78e98102960347950bc8d01bcd385b67bcb21c8bab734235a1a0c20604",
-      "size": 7880
+      "sha256": "5c2a09d294f255a34381d400b901137f11a1157907027ffae40b506fafd6bf5d",
+      "size": 7876
     },
     {
       "path": "03.design/screens/RETIRED.md",
@@ -4134,8 +4146,8 @@
       "theme": "theme-07",
       "title": "Hàng cần xử lý",
       "source_baseline": "v3.10.1",
-      "sha256": "d1cf210c1eaa2b42e9a4fc849e0a2d95dcf0e0b02716ad91ff2fd56f8b616ab5",
-      "size": 10075
+      "sha256": "245cb9c1503c65a01531e14e3e7313a37ad5e05d13b4c9044cb493503d066694",
+      "size": 7267
     },
     {
       "path": "03.design/screens/SCR-037.md",
@@ -4146,8 +4158,8 @@
       "theme": "theme-07",
       "title": "Chi tiết hàng và bằng chứng",
       "source_baseline": "v3.10.1",
-      "sha256": "a0c68a3ae9bb4df2c674f6e5b6feea37692b6e87b5f82129b07035d6271ab987",
-      "size": 13518
+      "sha256": "e9fcf5c8076fa3ea1f9ea7440714e0e54316842b76c7a6f2777679589ab9ac98",
+      "size": 13224
     },
     {
       "path": "03.design/screens/SCR-038.md",
@@ -4158,8 +4170,8 @@
       "theme": "theme-07",
       "title": "Chuyển trạng thái",
       "source_baseline": "v4.0.0",
-      "sha256": "bbec3d5ad88a450b7afc8bb3eb6612a29d708bd56fbf696bee82471bd329f4ab",
-      "size": 11619
+      "sha256": "2e0b697f35695ebfcb6d3c41eb94661be225fcb6f631be180b26f7e9ff1a1d46",
+      "size": 7329
     },
     {
       "path": "03.design/screens/SCR-039.md",
@@ -4170,8 +4182,8 @@
       "theme": "theme-07",
       "title": "Bàn giao trả nhà cung cấp",
       "source_baseline": "v3.10.1",
-      "sha256": "79cdec66831164ad9893c4b3ab4384625a850b720f3837faf7614f323f5c9b35",
-      "size": 4775
+      "sha256": "7846888ab950e26debef0c1369036f2de1201bf48148090897dec2a23feed303",
+      "size": 5223
     },
     {
       "path": "03.design/screens/SCR-040.md",
@@ -4182,8 +4194,8 @@
       "theme": "theme-07",
       "title": "Xác nhận tiêu hủy",
       "source_baseline": "v3.10.1",
-      "sha256": "c2536a87025724494231ea0aca8ef9760730f156cc5ef1f95facfb8e3fea1728",
-      "size": 9393
+      "sha256": "adf2e581cef22aa68a079e8ba90a04444e9932464033548b3fe6903ceefb4292",
+      "size": 11272
     },
     {
       "path": "03.design/screens/SCR-041.md",
@@ -4194,8 +4206,8 @@
       "theme": "theme-07",
       "title": "Kết quả xử lý",
       "source_baseline": "v3.10.1",
-      "sha256": "0e8d55b549e8f58fddc159b36b0086bc6a3d3472dd0e46b082d256fb46fdcf45",
-      "size": 12125
+      "sha256": "55c01aa669811f0ad69d88e2e94753de6a46136a4a463aab99557362963d9df9",
+      "size": 11297
     },
     {
       "path": "03.design/screens/SCR-042.md",
@@ -4374,8 +4386,8 @@
       "theme": "theme-07",
       "title": "Chi tiết biến động tồn kho",
       "source_baseline": "v3.10.1",
-      "sha256": "0ef22c1f0194a47dc9c7a870f061f8f01fce3a4ae03394b1f1f816be0dc5256d",
-      "size": 2605
+      "sha256": "78c6e0166c89fd62e41e7d3f6d54724a1961ec936616fe9ddca72cdf35fd2ec8",
+      "size": 2903
     },
     {
       "path": "03.design/screens/SCR-057.md",

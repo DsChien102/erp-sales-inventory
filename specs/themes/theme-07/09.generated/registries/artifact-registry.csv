@@ -252,10 +252,10 @@ UIF-03,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-03-BJ-03.md,168531d1
 UIF-04,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-04-BJ-04.md,5d4956d714a92ff5424eefc15c308b77cd4cf5adb7a7e8bd46c6c6dcc2aa7a8f,9001,theme-07,Quản lý vòng đời giữ hàng,v4.1.0
 UIF-05,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-05-BJ-05.md,35c106b7c028ae9d8a7761f3c4f388e9f07db32ebc7a4b2753f12ab1b9318f45,11716,theme-07,Lấy hàng và bàn giao đơn,v4.1.0
 UIF-06,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-06-BJ-06.md,e7aebc664bb4d8ac68980d4747842d1adce4f115672687f9b32f2c606e408767,13094,theme-07,Tiếp nhận và phân loại hàng khách trả,v4.1.0
-UIF-07,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-07-BJ-07.md,98bff3eb07456d6fd3402d18a9b7695f7c69b6cb3e2f5494e1f20fe4c57f98a9,10758,theme-07,Thực hiện trả hàng cho nhà cung cấp,v4.1.0
+UIF-07,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-07-BJ-07.md,302bb45b49c3d37505afc47a257e828a3f97e31cc51864bc3f59462f205c9382,12634,theme-07,Thực hiện trả hàng cho nhà cung cấp,v4.1.0
 UIF-08,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-08-BJ-08.md,84c64ccf29bbc780db39d0c1337b976f355bce2dc386dba994236b1ee2bd4740,12396,theme-07,Kiểm kê và điều chỉnh chênh lệch,v4.1.0
-UIF-09,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-09-BJ-09.md,ec88cd04bb34fb436e3c82d5c0c6c6f2683016e582188465e9e1d960d7410c3d,12155,theme-07,Quản lý trạng thái hàng,v4.1.0
-UIF-10,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-10-BJ-10.md,621541dbaf934e3e98e120babec9d26c3f77acea6c83c50b0384312bf8e119e6,11957,theme-07,Tiêu hủy hàng,v4.1.0
+UIF-09,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-09-BJ-09.md,ee432d88ca52db1faafd4dbe2f57c0906d2a271ceb2fd96bcc04af37c00448c2,13399,theme-07,Quản lý trạng thái hàng,v4.1.0
+UIF-10,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-10-BJ-10.md,a5b502e667949ac53c8a88831bae266e98da5c4abff05dff166e7cb7798d7ddf,13626,theme-07,Tiêu hủy hàng,v4.1.0
 UIF-11,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-11-BJ-11.md,7078be94ad7c5398441d1dee04646a1c66f720f3210d7998c560bac79c53f8c3,12943,theme-07,Hủy và sửa sai nghiệp vụ kho,v4.1.0
 UIF-12,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-12-BJ-12.md,bfd3fdb54d2aa4c5b4dc8a9ca6152db5dbe4e286be67ebb1caff610f2b16629f,6558,theme-07,Khởi tạo số dư tồn kho đầu kỳ,v4.1.0
 UIF-13,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-13-BJ-13.md,c68222d41d1b62a0e14667f91632af28101565500a3281998fb69e3ea010797d,6822,theme-07,Điều chỉnh giá trị hàng nhập,v4.5.2
@@ -267,19 +267,19 @@ UIF-17,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-17-BJ-17.md,2a05ae42
 PAT-NAV,design-pattern,BA,FROZEN,03.design/patterns/PAT-NAV.md,85c793e53a9adbf91f066a096cb0c9945fc5d1863fb89271c46415199a32d251,9386,theme-07,Navigation areas,v3.10.1
 PAT-UI-UX,design-pattern,BA,FROZEN,03.design/patterns/PAT-UI-UX.md,902a704fbc2ac06eedf2b42aebc0860c887b561fc31aa0a87c5348cff7db9661,8211,theme-07,UI/UX policy & patterns,v3.13.0
 PROTOTYPE,prototype-manifest,BA,FROZEN,03.design/prototype/README.md,177595ac7ed97aee2a1fb32b6a438a5420530b29ae816a8f8c743abfc6891fe7,1342,theme-07,Theme 07 mobile prototype mapping,v4.6.6
-,,,,03.design/prototype/html/CHANGELOG.md,40a29d9de536a242c01c226959a0ef4c82867cdd72f25995763e8b2c567ef45f,79644,,,
+,,,,03.design/prototype/html/CHANGELOG.md,20591f8929b557715283cc846c1556bfcab3fff985d8f041754b5892ac79f5e7,95276,,,
 ,,,,03.design/prototype/html/DS-CONFORMANCE.md,4ff31e594e50f993667e179b699c1b0fe166eabc65c6f95c1ebca19e0312e3bd,10470,,,
-,,,,03.design/prototype/html/README.md,f3f5ccec0485a6655349cba950d2c70a16f6331d6a483945295c348896aeb0f7,2980,,,
-,,,,03.design/prototype/html/app/bj01.js,8c6231879ac2ffe8c6d1de5f4b479747027f3a28f89afde17538e3ed3a00ee56,29290,,,
+,,,,03.design/prototype/html/README.md,00e561fc3a680ee2fe725c0ca5ce19f23396b3583bad9014f859205cb0160e88,3145,,,
+,,,,03.design/prototype/html/app/bj01.js,ef2c11a288987e400d693586b2ae886817e19c13183f72bdfd77f58c46402d6a,30406,,,
 ,,,,03.design/prototype/html/app/bj02.js,59e2b0142420cb5452ae1f88ade72771b84bc7edfc819544a748cee390b3cd4f,131613,,,
 ,,,,03.design/prototype/html/app/bj03.js,046bad3de99c588c5871dee8b06890e7e58f770d4c15066b40b0268bec851f73,70375,,,
 ,,,,03.design/prototype/html/app/bj04.js,fe6e2354f837e71ffe587fe4952910e78e940ced308de7e0b15c3de3639249a5,10166,,,
 ,,,,03.design/prototype/html/app/bj05.js,c21cbeb930632894cedc415b4c4d8b654ffeed164b11d108902eb69b9ce7e396,56173,,,
 ,,,,03.design/prototype/html/app/bj06.js,e3245e8fac150002dc6f343bcbeca9581d6ee1c02496bd95ab5d981f1b71ed54,85583,,,
-,,,,03.design/prototype/html/app/bj07.js,06abf9b14971ac184b52d963015bd3d065960b8d706e981dcaf3d8f51ca2b985,45189,,,
+,,,,03.design/prototype/html/app/bj07.js,1b42c8822c4fb8d373d935fcbf8036a82f9f41b7df02e1fa08e8c9113744cd69,52764,,,
 ,,,,03.design/prototype/html/app/bj08.js,f4351839a33c84d1dd69591a17ab3f9ee703abb796d713288175062dfc2753af,35111,,,
-,,,,03.design/prototype/html/app/bj09.js,c9e64e040bc381c97d23da3f2d519827e187a4de7097491ba2e1c6553ee0addf,32934,,,
-,,,,03.design/prototype/html/app/bj10.js,13eef257a219bf806a216d40285ec25aace42719133e52ed5835f2123460efe8,17761,,,
+,,,,03.design/prototype/html/app/bj09.js,09b987fef062d844db13001ef5e7f66ba4688bdaae9e27bd1006ced318a20022,37697,,,
+,,,,03.design/prototype/html/app/bj10.js,101917bd40e73e487ce79435b78d42ca1ffb295af68aad53b14ff4830e64e92c,31000,,,
 ,,,,03.design/prototype/html/app/bj11.js,2882adcb315c62cff8a3c058eafa50d4378b8dfcecdf02a64b016f634f58a1e9,25089,,,
 ,,,,03.design/prototype/html/app/bj12.js,3712cdd5d75612393f1e7c858a87fe3a1753933f3b9219fadc9eb88ef72bb5d4,34088,,,
 ,,,,03.design/prototype/html/app/bj13.js,3fd7f78a626e5c20a6ce234cb2981e5b8be19977f16d077885bf293eccf7b705,42099,,,
@@ -288,26 +288,27 @@ PROTOTYPE,prototype-manifest,BA,FROZEN,03.design/prototype/README.md,177595ac7ed
 ,,,,03.design/prototype/html/app/bj16.js,08ad797242b2d45262769beb784afc891c72a4f3cf2fe7c8a3e208fcd5f388d2,19939,,,
 ,,,,03.design/prototype/html/app/bj17.js,43704286acf5871fb5e4b8772ea3592e808cbac098e441c4ea99a34b2ce9792a,13473,,,
 ,,,,03.design/prototype/html/app/cap01.js,0e1d4cebb0f263d05ff8632e0fc80a17be724d0a1c45be9e87560ff07c180658,28758,,,
-,,,,03.design/prototype/html/app/core.js,24b9485e6e98693f32a45fcde6722a22ec2efe0240057499249c83554b7b00b3,56043,,,
-,,,,03.design/prototype/html/app/hub.js,661644035f1a0ff10b835f44801a079b89e48cb6cb53a576d8d983e13cf902ad,35327,,,
+,,,,03.design/prototype/html/app/core.js,1c51d150dcb854b85f5c3d0bebff08eade0fb31683f3ad1d5b33a44ea94f01bb,56225,,,
+,,,,03.design/prototype/html/app/hub.js,a7fdefa3b136d7ecffb3c65653ed662dce32558fbf9e29bfb1523c41aa175425,35496,,,
 ,,,,03.design/prototype/html/app/shared-control.js,8b47f6c0679fbcc387e652d63b284253fc6d5724a0ef964fefeda3440b4161d3,11826,,,
-,,,,03.design/prototype/html/app/shared-patterns.js,2e138fa123059ee2226b84df458d95a34a18a782dd17bfda142267b2cf741499,17792,,,
+,,,,03.design/prototype/html/app/shared-patterns.js,502193b5aa80bc9a064bf3d17af0b559ea15ac5d815f3f569761670e24b6d9b7,17816,,,
+,,,,03.design/prototype/html/app/shared-problem.js,77584819cb92ef2faf37920298ecac14d6cad0023afc0a18bb09731cea308f7d,19432,,,
 ,,,,03.design/prototype/html/app/shared-valuation.js,1211297139f02f8273bf46351f7885c5322bd7ebd4235522fc835eb05eefba18,5948,,,
-,,,,03.design/prototype/html/data/workbench-data.js,77c902677ce7c19ace2f320b18c31f978a3ec4d78591c5c1722e476f386c1266,216777,,,
-,,,,03.design/prototype/html/data/workbench-data.json,17cee1e340cef97831a72c92d8dc9186ac7b09ef353fceb6e0f4498a671a018a,216748,,,
+,,,,03.design/prototype/html/data/workbench-data.js,476c9c60491dc4761022c9204ed60e097a975a9a37d473cc6540ca190c985bce,216772,,,
+,,,,03.design/prototype/html/data/workbench-data.json,66159622dba03625d8a2227c953d43054cfb3d2c8891a959c2c477510f6ea1c9,216743,,,
 ,,,,03.design/prototype/html/harness/figma-ds-map.js,77a9c8a0ac95689d404784be31abd69b22b452f80b75ac1d34098b6ac66d06e1,38410,,,
 ,,,,03.design/prototype/html/harness/workbench.css,e98d1f7988116ad92b22d5561ecff9d1030a813f703b81160610a4aef9dddd12,10175,,,
-,,,,03.design/prototype/html/harness/workbench.js,f5d5b27cb28ae43b0d04842207d78b91c901afab796d834024c933494afd35f9,27756,,,
-,,,,03.design/prototype/html/index.html,2a2c8314ab7ef81c2351896cc3e3bc4de1601ee7534bb90c64aa335889294abb,6549,,,
-,,,,03.design/prototype/html/manifest.json,886e707cd933902c21c7aa03648d51be35b7e886415336a381024e7ec4ca37f3,1477,,,
+,,,,03.design/prototype/html/harness/workbench.js,05eb02a3a7773945224cb85acfe663dc0c5d701caecba48955f91c70bbc1f9b9,27705,,,
+,,,,03.design/prototype/html/index.html,e9e98036a2c569820cbd9e4dd72c9b225142abfbc2bb58a345bbbcc6bde65a85,6626,,,
+,,,,03.design/prototype/html/manifest.json,69c192f477f8b43c1988d4763807d6b7a95bac955d39d1a4622d452a0e1bdd74,1510,,,
 ,,,,03.design/prototype/html/prototype.manifest.json,84e287af0ed09bfbdfaf524d39a6ee6729d343e7804208089e36d13b176af855,10908,,,
-,,,,03.design/prototype/html/styles/components.css,31f9e8b05345ce16a23a98bdb26a034db779afa8c1db385f2a23914b7b3967d7,165382,,,
-,,,,03.design/prototype/html/styles/screens.css,39caabd5fda0c28f050119077811168e715bdfc64b6480de76111423456e57c8,275409,,,
+,,,,03.design/prototype/html/styles/components.css,d03e6a527daea0f15e3bb73d7f856ca36de800be80105aa35c8a421d0d053ffd,165683,,,
+,,,,03.design/prototype/html/styles/screens.css,cc2b049e51d6ab5063cd6b39adb0862869f561f015e8a3b3738b6d8534b35630,243566,,,
 ,,,,03.design/prototype/html/styles/tokens.css,ddac51d4aecdaa7c96101ee4a2400cdcce731d94b2566ac2985e199b619de437,5895,,,
 ,,,,03.design/prototype/html/tools/.gitignore,176c2d854707b0b1ef85cefa42a1b751b61a9ca85e13661b5a11b2481583e515,27,,,
-,,,,03.design/prototype/html/tools/golden.mjs,59ac7a8440f1010b36c9472f357a7cd0543e73959e39b415c8bb50734e33f12b,87480,,,
+,,,,03.design/prototype/html/tools/golden.mjs,0f9522cbd6735add933651a3160a88d6f2a4c87e11312d7373e28b81fd070249,97668,,,
 ,,,,03.design/prototype/html/tools/sync-registry.py,7841c00aa2582bb3a5ecaa797c062b9758fcb3cfb163558fe0a28b1e8c086d82,2745,,,
-,,,,03.design/screens/INDEX.md,1d053f78e98102960347950bc8d01bcd385b67bcb21c8bab734235a1a0c20604,7880,,,
+,,,,03.design/screens/INDEX.md,5c2a09d294f255a34381d400b901137f11a1157907027ffae40b506fafd6bf5d,7876,,,
 ,,,,03.design/screens/RETIRED.md,a764456bbc670542f5a182f3da69e1d9a181b4a0b60a361a5bab791d2883964c,2522,,,
 SCR-001,screen-contract,BA,FROZEN,03.design/screens/SCR-001.md,4b85632cd5eb4ced35b9ccb3e9114252eb0807df90db05c74c149937fbed60bf,7147,theme-07,Tồn kho,v3.10.1
 SCR-002,screen-contract,BA,FROZEN,03.design/screens/SCR-002.md,4a68989e285c76375b2aac62f3df60491d949917c1eb07ade6da715e653ebc98,2241,theme-07,Kết quả khả dụng — MERGED,v3.10.1
@@ -342,12 +343,12 @@ SCR-032,screen-contract,BA,FROZEN,03.design/screens/SCR-032.md,ea5ca987b3ec68ade
 SCR-033,screen-contract,BA,FROZEN,03.design/screens/SCR-033.md,e656122d59c90c3a60c85daf8584f78ec2fcca66474b68e47b1ba96c7ee7900e,4556,theme-07,Phân loại hàng trả,v3.10.1
 SCR-034,screen-contract,BA,FROZEN,03.design/screens/SCR-034.md,8ad4183b7b2e2faee00fb055d5a6375696b02a76b50fc3d4b3de5abe85246370,5023,theme-07,Ngoại lệ lô cần duyệt,v3.10.1
 SCR-035,screen-contract,BA,FROZEN,03.design/screens/SCR-035.md,932cb18a0b74b290f3ee57ef56bfc5bdaaca91f243b48936d0716bcf61c81b92,4438,theme-07,Kết quả hàng trả,v3.10.1
-SCR-036,screen-contract,BA,FROZEN,03.design/screens/SCR-036.md,d1cf210c1eaa2b42e9a4fc849e0a2d95dcf0e0b02716ad91ff2fd56f8b616ab5,10075,theme-07,Hàng cần xử lý,v3.10.1
-SCR-037,screen-contract,BA,FROZEN,03.design/screens/SCR-037.md,a0c68a3ae9bb4df2c674f6e5b6feea37692b6e87b5f82129b07035d6271ab987,13518,theme-07,Chi tiết hàng và bằng chứng,v3.10.1
-SCR-038,screen-contract,BA,FROZEN,03.design/screens/SCR-038.md,bbec3d5ad88a450b7afc8bb3eb6612a29d708bd56fbf696bee82471bd329f4ab,11619,theme-07,Chuyển trạng thái,v4.0.0
-SCR-039,screen-contract,BA,FROZEN,03.design/screens/SCR-039.md,79cdec66831164ad9893c4b3ab4384625a850b720f3837faf7614f323f5c9b35,4775,theme-07,Bàn giao trả nhà cung cấp,v3.10.1
-SCR-040,screen-contract,BA,FROZEN,03.design/screens/SCR-040.md,c2536a87025724494231ea0aca8ef9760730f156cc5ef1f95facfb8e3fea1728,9393,theme-07,Xác nhận tiêu hủy,v3.10.1
-SCR-041,screen-contract,BA,FROZEN,03.design/screens/SCR-041.md,0e8d55b549e8f58fddc159b36b0086bc6a3d3472dd0e46b082d256fb46fdcf45,12125,theme-07,Kết quả xử lý,v3.10.1
+SCR-036,screen-contract,BA,FROZEN,03.design/screens/SCR-036.md,245cb9c1503c65a01531e14e3e7313a37ad5e05d13b4c9044cb493503d066694,7267,theme-07,Hàng cần xử lý,v3.10.1
+SCR-037,screen-contract,BA,FROZEN,03.design/screens/SCR-037.md,e9fcf5c8076fa3ea1f9ea7440714e0e54316842b76c7a6f2777679589ab9ac98,13224,theme-07,Chi tiết hàng và bằng chứng,v3.10.1
+SCR-038,screen-contract,BA,FROZEN,03.design/screens/SCR-038.md,2e0b697f35695ebfcb6d3c41eb94661be225fcb6f631be180b26f7e9ff1a1d46,7329,theme-07,Chuyển trạng thái,v4.0.0
+SCR-039,screen-contract,BA,FROZEN,03.design/screens/SCR-039.md,7846888ab950e26debef0c1369036f2de1201bf48148090897dec2a23feed303,5223,theme-07,Bàn giao trả nhà cung cấp,v3.10.1
+SCR-040,screen-contract,BA,FROZEN,03.design/screens/SCR-040.md,adf2e581cef22aa68a079e8ba90a04444e9932464033548b3fe6903ceefb4292,11272,theme-07,Xác nhận tiêu hủy,v3.10.1
+SCR-041,screen-contract,BA,FROZEN,03.design/screens/SCR-041.md,55c01aa669811f0ad69d88e2e94753de6a46136a4a463aab99557362963d9df9,11297,theme-07,Kết quả xử lý,v3.10.1
 SCR-042,screen-contract,BA,FROZEN,03.design/screens/SCR-042.md,503039f625a92b172e708563815b019099f477a0733f21803dd7907cdca6626c,2251,theme-07,Phiên kiểm kê,v3.10.1
 SCR-043,screen-contract,BA,FROZEN,03.design/screens/SCR-043.md,d097382f30e9a74c5f1967e978981a241398c5f56c315c2bf8455421753f22f9,2705,theme-07,Chọn phạm vi và mở phiên,v3.10.1
 SCR-044,screen-contract,BA,FROZEN,03.design/screens/SCR-044.md,3445ce21404217bdde7339894572903b0bed9f44ccedccb0f198c4764711f775,3285,theme-07,Đếm mù,v3.10.1
@@ -362,7 +363,7 @@ SCR-052,screen-contract,BA,FROZEN,03.design/screens/SCR-052.md,b85040b6690c6f6e4
 SCR-053,screen-contract,BA,FROZEN,03.design/screens/SCR-053.md,d389050d45e7f283c12230c399a1343a769371d65053ee0af6064b70fdd975d6,6509,theme-07,Kết quả sửa sai,v3.10.1
 SCR-054,screen-contract,BA,FROZEN,03.design/screens/SCR-054.md,d3b2e3fc02cd8ca45111b5d96e93d64fd0fcded9cfdc1bb748b3085a0888b6ab,3330,theme-07,Tra cứu thẻ kho / Thiết lập báo cáo tồn,v3.10.1
 SCR-055,screen-contract,BA,FROZEN,03.design/screens/SCR-055.md,8f5756897127213348a25b9379ee2f849495c982906f556f3c79745039664952,3183,theme-07,Báo cáo tồn / Thẻ kho,v3.10.1
-SCR-056,screen-contract,BA,FROZEN,03.design/screens/SCR-056.md,0ef22c1f0194a47dc9c7a870f061f8f01fce3a4ae03394b1f1f816be0dc5256d,2605,theme-07,Chi tiết biến động tồn kho,v3.10.1
+SCR-056,screen-contract,BA,FROZEN,03.design/screens/SCR-056.md,78c6e0166c89fd62e41e7d3f6d54724a1961ec936616fe9ddca72cdf35fd2ec8,2903,theme-07,Chi tiết biến động tồn kho,v3.10.1
 SCR-057,screen-contract,BA,FROZEN,03.design/screens/SCR-057.md,82c99a06712d286e347b4be1bc570b6b551c56b8cace1456b2f4a17ebfee6ddb,2601,theme-07,Nguồn biến động,v3.10.1
 SCR-058,screen-contract,BA,FROZEN,03.design/screens/SCR-058.md,2d7c4aa65cca4423a060160cd49e131fdb54afa35b671ac29fe7068c0cdff8ec,3170,theme-07,Xuất báo cáo,v3.10.1
 SCR-059,screen-contract,BA,FROZEN,03.design/screens/SCR-059.md,30d1f1a6159efe23999a239aa63311c40573cb2a9256acb25bd3c2346864f66e,2852,theme-07,Kết quả xuất báo cáo,v3.10.1

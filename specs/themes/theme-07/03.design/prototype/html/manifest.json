@@ -1,8 +1,8 @@
 {
-  "version": "5.12.2",
+  "version": "5.15.1",
   "parent": "5.4.0",
-  "status": "T7_P_BJ04_BJ05_REDESIGN",
-  "scope": "T7-P BJ-04 / BJ-05: thiết kế lại luồng giữ hàng (SCR-021) và lấy hàng - bàn giao (SCR-025/026/028/029, SCR-027 gộp vào 026); dựng khuôn K6 (k6TaskList) và k4ReasonFooter ở app/shared-patterns.js.",
+  "status": "T7_P_BJ09_REDESIGN",
+  "scope": "T7-P BJ-09: thiết kế lại đổi tình trạng hàng (SCR-038, SCR-041, SCR-056) và dựng khuôn K5 \"Hàng có vấn đề\" (danh sách chung SCR-036 cho UIF-07 / 09 / 10, chi tiết hàng SCR-037) ở app/shared-problem.js.",
   "flows": 18,
   "screens": 89,
   "canonicalActiveScreens": 73,
@@ -10,7 +10,7 @@
   "structure": {
     "html": "index.html",
     "styles": ["styles/tokens.css", "styles/components.css", "harness/workbench.css", "styles/screens.css"],
-    "scripts": ["data/workbench-data.js", "app/core.js", "harness/figma-ds-map.js", "harness/workbench.js", "app/shared-control.js", "app/shared-valuation.js", "app/shared-patterns.js", "app/bj01.js…bj17.js", "app/cap01.js", "app/hub.js"],
+    "scripts": ["data/workbench-data.js", "app/core.js", "harness/figma-ds-map.js", "harness/workbench.js", "app/shared-control.js", "app/shared-valuation.js", "app/shared-patterns.js", "app/shared-problem.js", "app/bj01.js…bj17.js", "app/cap01.js", "app/hub.js"],
     "golden": "tools/golden.mjs"
   },
   "authority": {
