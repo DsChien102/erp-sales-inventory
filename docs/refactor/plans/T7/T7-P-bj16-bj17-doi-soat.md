@@ -1,6 +1,6 @@
 # T7-P · BJ-16 Đối soát sai lệch + BJ-17 Kết quả chưa rõ — thiết kế lại (bước B–E) + `SC_journey_5`
 
-> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-25 — mục 0.10, mọi điểm theo đề xuất) | Plan C–E ✅ (rà lại theo code BJ-11 khi làm) | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-25 — mục 0.10, mọi điểm theo đề xuất) | Plan C–E ✅ (rà lại theo code BJ-11 khi làm) | Làm ✅ 2026-10-25 (v5.18.0, chưa commit) | Review ✅ (2026-10-25: đạt sau R1–R3, v5.18.1 — mục 14)
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 5 "Kiểm kê và sửa sai"**, BJ thứ ba và thứ tư (một plan như gói A10 — một bộ màn 078–083, hai luồng). Làm **sau** [BJ-11](T7-P-bj11-sua-sai.md) (hồ sơ "Cần sửa phiếu gốc" mở màn sửa sai của BJ-11 và nhận lại kết quả).
 > Dùng lại K1, **K3** (BJ-17 là đích của mọi K3), K4, K6, K7. **Không K2** (đối soát / xác minh không có bước duyệt trong spec). Không khuôn mới.
 > Thiết bị: **cả iPhone và web đều là thiết bị chính** (T7-P mục 2). Ở cửa hàng nhỏ người đối soát là **chủ cửa hàng** (hoặc nhân viên được giao); thường làm ở máy tính khi Home báo "Cần chú ý", có khi trên iPhone.
@@ -204,8 +204,8 @@ Theo bảng phân vai sản phẩm chặng 5 ([BJ-08 mục 3](T7-P-bj08-kiem-ke.
 
 | Hồ sơ | Hiện tại | Sau |
 |---|---|---|
-| REC-260907-03 · PROJECTION | Nobivac DH2507 · 118 / 118 / 116 | giữ sản phẩm (**Nobivac DHPPi · SP-000184 · DH2507**): Phiếu gốc 118 · Sổ kho 118 · Số trên app 116 hộp (lệch −2); khoá; "Kiểm soát tự động"; mở "16/09/2026 06:00" — câu chuyện `SC_journey_5` |
-| REC-260907-04 · CORRECTION | Amox 500 · L2407-A · IO-260904-021 | **Amox 500 · SP-000066**: Phiếu gốc PN-260904-08 20 hộp · Hoá đơn NCC 18 hộp · Sổ kho 20 hộp; khoá; "Hoá đơn nhà cung cấp"; `correctionOperationId: "IO-260904-021"`, `invoiceQty: 18` (BJ-11 điền sẵn số đúng) — câu chuyện `SC_journey_5` |
+| REC-260907-03 · PROJECTION | Nobivac DH2507 · 118 / 118 / 116 | giữ sản phẩm (**Nobivac DHPPi · SP-000184 · DH2507**): Sổ kho 70 · Số trên app 68 hộp (lệch −2) — *sửa ở review R2, bản đầu ghi 118 / 116 theo fixture BJ-15 cũ*; khoá; "Kiểm soát tự động"; mở "16/09/2026 06:00" — câu chuyện `SC_journey_5` |
+| REC-260907-04 · CORRECTION | Amox 500 · L2407-A · IO-260904-021 | **Amox 500 · SP-000066**: Phiếu gốc PN-260904-08 20 hộp · Hoá đơn NCC 18 hộp · Sổ kho 46 hộp (tồn Amox, khớp BJ-08 / BJ-11; sau sửa 44 — *review R2*); khoá; "Hoá đơn nhà cung cấp"; `correctionOperationId: "IO-260904-021"`, `invoiceQty: 18` (BJ-11 điền sẵn số đúng) — câu chuyện `SC_journey_5` |
 | REC-260907-05 · NO_REAL | Găng tay M | **Găng tay khám Nitrile · SP-000271**: Báo cáo lúc 07:00 8 hộp · Sổ kho 10 · Số trên app 10 (nhận hàng PN-260916-03 ghi lúc 07:20); không khoá; "Báo cáo cuối ngày" |
 | REC-260907-06 · LEDGER | Kho trung tâm · SP-00606 | **Dầu sát khuẩn · SP-00606 · L2406-T**: Phiếu gốc "Có chứng từ" · Sổ kho "Không nhất quán"; khoá; "Kiểm soát tự động" |
 | REC-260907-07 · SOURCE | PN-260906-12 | giữ PN-260906-12 (**Tylosin 20% · TY2511**); không khoá; "Mua hàng" |
@@ -315,7 +315,22 @@ Kiểm: 0 lỗi JS, mỗi bước đổi màn đúng; nút quay lại / thanh b�
 
 ## 9. Ghi chú khi làm
 
-(Người làm điền: mốc, kết quả GitNexus, kết quả D, audit, lệch so với plan.)
+**Làm xong 2026-10-25, một lượt, chưa commit (để phiên review xem trước; cây làm việc còn thay đổi BJ-08 / BJ-11 chưa commit nên không tách 4 commit).** Phiên bản 5.18.0.
+
+- **Mốc:** `tools/.golden-bj11-after` (1959 ca) / `-web-after` (1073 ca). Chụp lại ở HEAD làm việc = khớp, không cần `.golden-bj16-base`. Sau khi làm: mobile **2016 ca**, web **1134 ca**, 0 lỗi JS; hết chặng 5 = `tools/.golden-chang5` / `-web` (cùng `.golden-bj16-after` / `-web-after`).
+- **GitNexus:** công cụ MCP (`impact`, `detect_changes`) **không có trong phiên làm việc này** nên không chạy được. Thay bằng `grep` mọi nơi gọi: `bj17HandoffUnknown` chỉ gọi từ trình nghe `handoff-unknown` (bj17.js) — chữ ký giữ nguyên, chỉ thêm đọc `bj17SourceEvidence`; `crSwitchFlow` giữ nguyên; `renderHubHome` chỉ đổi khối "Cần chú ý". Rủi ro `bj17HandoffUnknown` (HIGH theo dự kiến) được kiểm bằng golden: bước 0 của mọi `SC_bj0x_unknown` khớp mốc, chỉ từ bước "Chuyển sang xác minh" trở đi khác. **Cần chạy `detect_changes()` ở phiên có GitNexus trước khi commit.**
+- **Kết quả D:** so mốc — chỉ các ca ở 0.8 khác (đã đối chiếu: ca ngoài BJ-16 / 17 chỉ khác vùng dòng Home "Cần chú ý" hoặc màn BJ-17 sau K3). Kiểm dọc (`AUDIT_JS`: tương phản ≥ 4,5:1, vùng chạm ≥ 44 × 44 ở iPhone, tràn ngang, chữ kỹ thuật bị cấm) trên 078…083, Home, mọi kịch bản `SC_bj16_*`, `SC_bj17_*`, `SC_recon_*`, `SC_journey_5`: **0 vi phạm** ở cả hai khung (mobile 1566 ca, web 675 ca). `node --check app/*.js harness/*.js tools/golden.mjs` đạt.
+- **Audit `/impeccable audit` (2026-10-25):** đã chạy trên UIF-16 + UIF-17 (078, 079, 081, 082, 083, Home), cả hai khung. `impeccable detect` 0 phát hiện trong `bj16.js`, `bj17.js` và khối `v5.18.0` của `screens.css` (các ghi chú còn lại là dòng cũ). Kiểm dọc 0 vi phạm. Bàn phím (CDP, cả hai khung): Tab đi ô tìm → chip → dòng; web Enter trên `<tr>` mở hồ sơ; sheet `role="dialog"` `aria-modal="true"`, focus vào "Quay lại" khi mở, Tab / Shift+Tab xoay vòng trong sheet, Esc đóng và trả focus về đúng nút "Cập nhật số trên app". Phát hiện và xử lý: **P2** chip thiếu `aria-pressed` → đã thêm ở `ds24Chip` (khuôn dùng chung); **P2** iPhone phụ đề dòng danh sách bị cắt "…" mất mã hồ sơ → đã cho xuống dòng (tối đa 3 dòng, gạch nối không ngắt); mốc chặng 5 chụp lại sau sửa. Còn lại: **P3** `<tr data-recon-row>` focus được nhưng chưa có `role` / tên rõ ràng; **P3** UIF-16 / 17 còn trong luật chung `[data-active-uif]` có `!important` và độ rộng 370px của UIF-08…17. Chưa chụp bộ ảnh mục 7.5; chưa thử cử chỉ cảm ứng (không có cử chỉ tuỳ biến, chỉ dải chip cuộn ngang sẵn có).
+- **Lệch so với plan:**
+  1. Thêm hai trạng thái 079 `LOCKED` và `CONFLICT` vào bộ chọn (plan chỉ ghi `SC_bj16_locked` mở bằng `state=…`); hồ sơ REC-260907-08 (khoá) và REC-260907-09 ("Chưa rõ nguyên nhân", `UNKNOWN_EVIDENCE` / `INSUFFICIENT_EVIDENCE` của UIF-16) là hồ sơ `LINKED`, chỉ dựng trạng thái, không hiện ở danh sách và không vào số Home.
+  2. Hồ sơ đã gửi (`WAITING`) mở lại ở 079 hiện banner "Đã gửi bộ phận hỗ trợ" / "Đã chuyển cho Mua hàng" và không còn nút (plan không nói); thêm biến thể PROJECTION sau khi cập nhật: "Đã cập nhật số trên app · chờ kiểm lại" + "Kiểm lại" (để quay lại từ 082 vẫn đúng).
+  3. `k2Pending` thêm tham số `subject` (để ra "Chờ chủ cửa hàng duyệt sửa sai · gửi …"); `k4ReasonFooter` thêm `note` (dòng "Đóng xong, … mở khoá." luôn hiện khi nút bật). Cả hai mặc định không đổi — ca BJ khác không đổi.
+  4. BJ-11: duyệt từ Home "Chờ duyệt" (`bj11-approval`) đặt `cr11ReturnCase = r.caseId` — nếu không, "Về hồ sơ đối soát" biến mất sau khi duyệt qua Home (bước 8 của `SC_journey_5`).
+  5. Bảng so sánh dùng `crCompare` (khối riêng `.cr-compare__rows`) thay `ac310KeyValueSurface` vì luật cũ ép số sang chữ đơn cách; 081 / 082 / web "Hồ sơ" dùng cùng khối.
+  6. Dọn CSS hẹp hơn plan: chỉ xoá luật chết của UIF-16 / 17 (`.cr-evidence*`, `.cr-case-list`, `.io-product-*` / `.cr-fact-card` gắn UIF-16 / 17, `.ac321-chip-wrap`, `.ac310-progress*`); UIF-16 / 17 **còn trong** danh sách chung `[data-active-uif=…]` của UIF-08…17 (ellipsis dòng, chip, hàng Compact) vì danh sách K6 của BJ-16 / 17 dùng chung luật đó với BJ-08 / 11; luật cột 402px không còn ảnh hưởng (web dùng `k7-wide`, đã xem ảnh).
+  7. `data-v350-action="handoff-unknown"` giữ (đợt dọn cuối Giai đoạn 2). `crFactCard` giữ (BJ-12 / 15 còn dùng).
+  8. `SC_bj17_sheet_conflict` mở sheet "Làm tiếp" của UNKNOWN-02 (khác `SC_bj17_plan_conflict` dùng "Xác nhận" của UNKNOWN-01) để hai ca không trùng.
+- **Chưa làm / để review:** `detect_changes()` của GitNexus; ảnh gửi mục 7.5; mở lại hồ sơ đã đóng khi có bằng chứng mới (mục 11, không làm).
 
 ## 10. Thứ tự commit
 
@@ -358,4 +373,39 @@ Nếu làm một lượt thì để chưa commit cho phiên review xem trước.
 
 ## 14. Review
 
-(Phiên review điền.)
+**Review chặng 5 (BJ-08 + BJ-11 + BJ-16 / 17):** (2026-10-25, phiên review) — **đạt có điều kiện**, **đạt hẳn sau R1–R3** (v5.18.1, xem "Đã sửa" cuối mục). Review của BJ-08 / BJ-11 trỏ về đây.
+
+| Kiểm (chạy lại) | Kết quả |
+|---|---|
+| `node --check app/*.js harness/*.js tools/golden.mjs` | Sạch |
+| Golden mobile / web chụp lại (tuần tự) | 2016 / 1134 ca, 0 lỗi JS; **"Khớp hoàn toàn"** với `tools/.golden-chang5` / `-web` (mốc tái lập được) |
+| `.golden-bj08-base` → `.golden-chang5` | 1062 / 476 khác biệt. Ngoài UIF-08 / 11 / 16 / 17 còn 153 ca (Home, `SC_ws_*`, `SC_journey_1…4`, `SC_bj0x_owner_*`…): `diff` thân `.txt` **chỉ** khác "Chờ duyệt" (+ "1 kiểm kê", "1 sửa sai", số +2, hai dòng `KK-260915-02` / `PN-260901-07`), dòng "Cần chú ý" mới ("Hồ sơ cần kiểm tra" "5 sai lệch · 3 chưa rõ kết quả" thay hai dòng cũ) và màn BJ-17 sau K3 của BJ khác. Đúng 0.8 của ba plan. (`.golden-chang4` không dùng làm mốc được: chụp trước R1–R3 chặng 4.) |
+| Đếm mù / tiền | `UIF-08_SCR-044_*` và bước 8–11 của `SC_journey_5` không có "Theo sổ / Chênh lệch / Thiếu / Thừa"; bước nhân viên (046 chờ duyệt, 050 / 053 sửa sai) không có "… đ"; bước chủ duyệt (047) có "−110.000 đ" |
+| Tài liệu bước E | SCR-042…051, 053, 078, 079, 081…083: `IN_REVIEW`, không còn đoạn `### vX.Y`; SCR-052 / 080 → `RETIRED.md` + `INDEX.md`; liên kết UC / PROC / PAT-NAV tới hai tệp đã xoá đã sửa (sớm hơn 7.3, chấp nhận — tránh liên kết gãy); CHANGELOG `[5.16.0]`…`[5.18.0]`, phiên bản 5.18.0 ở manifest / harness / badge |
+| Registry | `sync-registry.py` chạy lại: không đổi gì. Còn hai dòng trỏ tệp đã xoá — góp ý 6 |
+| GitNexus (CLI `node .gitnexus/run.cjs … --repo erp-sales-inventory`) | `impact bj17HandoffUnknown` upstream: **LOW** (1 — trình nghe trong `bj17.js`; dự kiến HIGH ở mục 2 không đúng vì K3 gọi qua `data-v350-action`, không gọi hàm). `detect-changes`: 53 tệp, 455 symbol (phần lớn tiêu đề tài liệu), **0 quy trình, rủi ro thấp** — thay cho bước "chưa chạy" ở mục 9 |
+| Ảnh | `SC_journey_5` bước 9, 13, 24, 26, 32, 33 (iPhone), 22, 36 (`@web`); `UIF-08_SCR-046_READY@web`, `UIF-11_SCR-050_READY@web` |
+
+Lệch plan ở ghi chú (BJ-08 mục 10, BJ-11 mục 9, plan này mục 9): **chấp nhận**, trừ hai điểm thành R2 / R3 dưới đây (fixture và câu `DEPENDENCY_BLOCKED` mà người làm đã ghi là lệch).
+
+**Cần sửa (chặn commit):**
+
+- **R1. BJ-17 mở hồ sơ thứ hai cho cùng một thao tác.** BJ-11 049 phiếu `TH-260906-02` (`IO-260906-031`, "Đang xác minh") → "Chuyển sang xác minh" tạo `REC-11-IO260906031` "Chưa biết đã ghi hay chưa", trong khi `REC-UNKNOWN-01` của **cùng thao tác** nói "Tiêu hủy đã ghi vào kho" (`SC_bj11_unknown_2_handoff`, `SC_bj17_from_bj11_1_handoff`); 078 sau đó có hai hồ sơ kết luận ngược nhau. Trái UC-16 BR-01 (tín hiệu mới gắn vào hồ sơ đang mở) và UC-17 BR-02 (tra bằng đúng mã thao tác). Nguyên nhân: `bj17RecoveryCase` tìm theo `operation` **và** `sourceFlow` (`REC-UNKNOWN-01` có `sourceFlow: "UIF-17"`). Sửa: (a) tìm theo `operation` thôi, có thì mở hồ sơ đó (giữ `evidence`); (b) 053 `UNKNOWN` ("Ghi sửa sai") gửi `operation` = mã yêu cầu `r.id`, không phải `op.id` của phiếu gốc (nếu không, (a) sẽ gộp lần ghi sửa sai vào phiếu nhận); (c) `BJ17_KIND["UIF-11"]` "Sửa sai" thay "Phiếu kho" (dòng so sánh hiện "Phiếu kho: Chưa rõ"). Golden đổi: `SC_bj11_unknown_2`, `SC_bj17_from_bj11_1`, `UIF-11_SCR-053_UNKNOWN` (bước chuyển).
+- **R2. Số tồn của fixture chung chặng 5 lệch nhau trong cùng `SC_journey_5`.** Nobivac DH2507 là **70 hộp** ở BJ-01 / chặng 4 / BJ-08 nhưng hồ sơ REC-260907-03 ghi "Sổ kho 118 · Số trên app 116" (bước 36). Amox 500: 050 ghi "Tồn Amox 500: 46 → 44 hộp" (bước 26) nhưng 079 ngay trước ghi "Sổ kho 20 hộp" (bước 24) và 082 sau khi sửa "Sổ kho 18 · Số trên app 18" (bước 33). "Sổ kho" ở 079 / 082 đang là số của **phiếu**, không phải tồn — người xem demo thấy hai số tồn khác nhau cho cùng sản phẩm. Lỗi gốc ở bảng fixture mục 3 (phiên review viết). Sửa: REC-03 so sánh "Sổ kho 70 · Số trên app 68 · lệch −2" (bỏ dòng "Phiếu gốc 118" — hồ sơ số trên app không có phiếu gốc riêng; câu kết luận giữ); REC-04 `ledger: 46` — so sánh "Phiếu gốc 20 · lệch +2" · "Hoá đơn nhà cung cấp 18" · "Sổ kho 46 hộp"; sau sửa 079 "Sổ kho 44", 082 "Sổ kho 44 · Số trên app 44 · Chênh lệch 0" (`book = ledger − (source − invoice)`). `MISMATCH_REMAINS` dùng cùng nguồn số (hiện `ledger − 1` = 19 ở hồ sơ sửa phiếu).
+- **R3. Câu `DEPENDENCY_BLOCKED` của BJ-11 nói sai sự thật.** "Sau phiếu này đã bán 3 lọ; sửa bây giờ làm tồn âm" — với fixture (tồn TY2511 3, sửa 5 → 3) tồn sau sửa là 1, không âm (BJ-11 mục 9 đã ghi). UC-11 BR-04 có hai lý do chặn (tồn âm **hoặc** có nghiệp vụ phía sau phụ thuộc); fixture này là lý do thứ hai. Sửa chữ: **"Sau phiếu này đã bán 3 lọ; các phiếu bán đó dựa trên số đã nhận. Xử lý nghiệp vụ đó trước." (mới)** — ghi T7-P mục 13 (thay chữ ở dòng BJ-11 SCR-050); SCR-050 cập nhật bảng chữ.
+
+**Góp ý nhỏ (không chặn):**
+
+1. **079 web:** "Kết luận" + "So sánh" (nội dung chính) nằm cột hẹp 5fr, khối "Hồ sơ" ba dòng chiếm cột rộng 7fr (`SC_journey_5_36_rec-03@web`) — dùng `k7Split({ wideMain: true })` như 046 / 051.
+2. **Tiêu đề "Kết luận" luôn màu cảnh báo**, kể cả câu thông tin ("Phiếu sửa sai … đã ghi", "Không có lệch thật", BJ-17 "đã ghi vào kho") — `SC_journey_5_32_back-case`. Tone tiêu đề theo tone câu, hoặc `.k2-attention--plain` khi `tone: "info"` (bài học R2 chặng 4).
+3. **044 iPhone:** phụ đề dòng gãy giữa tên tình trạng "Bán / được" (`SC_journey_5_9_ty2511`) — nối tên tình trạng bằng NBSP trong `bj08LineSub` (như R3c chặng 4).
+4. **Xác lập ở BJ-17 không trả kết quả về BJ nguồn:** sau bước 45 (`REC-UNKNOWN-01` "Đã xác lập"), BJ-11 048 vẫn "Tiêu hủy TH-260906-02 · Đang xác minh"; BJ-05 / 06 / 07 / 10 cũng không mở khoá. Cần móc ngược `onUnknownResolved[sourceFlow]` đối xứng `onUnknownHandoff` — ghi T7-P mục 13, làm ở đợt dọn cuối Giai đoạn 2 (cùng đổi nhãn `handoff-unknown`).
+5. **`bj17ConfirmSheet`** dựng `resolutionRecord` từ chính `c` rồi so với `c` — phép kiểm luôn đúng (kiểm thật là `planEvidenceVersion` trong `crConfirmSheet`). Bỏ phép kiểm thừa, hoặc chụp bản ghi lúc mở sheet rồi so lúc bấm.
+6. **Registry** còn dòng `SCR-052` / `SCR-080` trỏ tệp đã xoá (`sync-registry.py` chỉ bỏ đường dẫn mất trong `prototype/`); các màn RETIRED ở 7.1 đã không còn trong registry — xoá hai dòng (sửa tay, hoặc cho script bỏ mọi đường dẫn không tồn tại).
+7. **"Kho trung tâm"** còn ở phạm vi `REC-UNKNOWN-03` ("1 phiếu · Kho trung tâm", 078) và phạm vi K3 của BJ-08 (`handoff.scope`) — app một kho, BJ-08 đã bỏ hàng "Kho".
+8. **044:** gõ số xong dòng vẫn nằm dưới chip "Chưa đếm" tới lần dựng sau (chủ đích, giữ focus) — chấp nhận; nếu thấy rối khi demo thì ẩn dòng khi rời ô (`blur`), không dựng lại cả màn.
+9. P3 audit còn mở (mục 9: `<tr data-recon-row>` chưa có `role` / tên; UIF-16 / 17 còn trong luật chung có `!important`) và toast `toast-close` 20 × 20 — đợt dọn chung cuối Giai đoạn 2.
+
+**Đã sửa (2026-10-25, phiên review theo yêu cầu người dùng, v5.18.1) — review đạt:** R1 (`bj17RecoveryCase` tra theo mã thao tác; BJ-11 053 `UNKNOWN` gửi `r.id`; `BJ17_KIND["UIF-11"]` "Sửa sai"), R2 (`crBook(c)`; REC-03 70 / 68, bỏ dòng "Phiếu gốc"; REC-04 `ledger: 46` → 44 sau sửa; SCR-079 thêm câu "Sổ kho là tồn của cả phạm vi"; bảng mục 3 sửa), R3 (chữ mới ở `bj11.js`, SCR-050, T7-P mục 13). Kiểm: `node --check` sạch; golden 2016 / 1134 ca, 0 lỗi JS, chỉ các ca nêu ở CHANGELOG `[5.18.1]` khác mốc (94 / 46, đều thuộc UIF-11 / 16 / 17); chữ các bước 24, 32, 33, 36 của `SC_journey_5`, `SC_bj11_unknown_2`, `UIF-11_SCR-050_DEPENDENCY_BLOCKED`, `UIF-16_SCR-082_MISMATCH_REMAINS` đã đọc lại. GitNexus `impact` (upstream): `bj17RecoveryCase` LOW (1: `bj17HandoffUnknown`), `render082BJ16` / `render050BJ11` / `render053BJ11` LOW (0), `cr16RouteView` / `bj16InitialCases` chưa có trong chỉ mục. Mốc `tools/.golden-chang5*` chụp lại (v5.18.1). **Nguồn số 118 của Nobivac là fixture BJ-15** (`bj15.js` "P-NOB" 118, lô N2407-01…) — chặng 6 đổi theo DH2507 = 70 (ghi T7-P mục 9 BJ-15). Góp ý 1–9 để lại.
+
+**Phạm vi commit:** cây làm việc chỉ có chặng 5 (v5.16.0 → v5.18.1). Sau R1–R3: không tách được theo commit của ba plan (một lượt, tệp dùng chung) → một commit BJ-08, một BJ-11, một BJ-16 / 17 nếu tách theo tệp được; không thì một commit chặng 5. Chạy lại `detect-changes` trước commit (CLAUDE.md); chụp lại mốc `tools/.golden-chang5*` sau R1–R3.

@@ -1,151 +1,153 @@
-/* BJ-17 — Phục hồi nghiệp vụ có kết quả chưa xác định (UIF-17). Màn: SCR-078, 079, 080, 082, 083.
+/* BJ-17 — Phục hồi nghiệp vụ có kết quả chưa xác định (UIF-17). Màn: SCR-078 (danh sách chung ở bj16.js), 079, 083.
  *
- * Đã viết lại sạch (T7-P gói A10, 2026-10-19). Màn đăng ký qua flowRenderers / renderers; gọi lại helper bj16* lúc chạy.
- * Cơ chế K3 handoff-unknown + bj17RecoveryCase ở đây; khoá nguồn qua móc onUnknownHandoff (bj05/06/07 đăng ký).
- * Chữ "Lần xử lý" viết thẳng (trước đây legacy-cross-theme-copy).
+ * Thiết kế lại T7-P chặng 5 (v5.18.0): hồ sơ nói thẳng thao tác đã ghi vào kho hay chưa ("Xác nhận đã hoàn tất" / "Làm tiếp thao tác" / "Gửi bộ phận hỗ trợ"),
+ * xác nhận bằng sheet ở 079 rồi sang 083 thẳng (SCR-080 và SCR-082 không còn ở luồng này). Không tạo thao tác mới, không ghi lại lần hai (resolutionRecord).
+ * Cơ chế K3 handoff-unknown + bj17RecoveryCase ở đây; khoá nguồn qua móc onUnknownHandoff (bj05/06/07/09/10 đăng ký).
+ * Phần chung (khung, danh sách, sheet, seed) dùng hàm cr* của bj16.js.
  */
 
-let cr17Filter="ALL";
-let cr17SelectedId="REC-UNKNOWN-01";
-let cr17ResolutionMode="";
-const cr17Cases=[
-  {id:"REC-UNKNOWN-01",operation:"IO-260906-031",title:"Có bằng chứng đã phát sinh tác động",scope:"Vitamin C · Lô L2310-C · 5 hộp",evidence:"COMMITTED",severity:"Ưu tiên cao",tone:"warning",owner:"Kiểm soát kho",evidenceVersion:1,planEvidenceVersion:null,resolutionRecord:null,sourceFlow:"UIF-17"},
-  {id:"REC-UNKNOWN-02",operation:"IO-260906-044",title:"Chưa phát hiện tác động tồn kho",scope:"Amox 500 · Lô L2407-A · 2 hộp",evidence:"NO_COMMIT",severity:"Cần xử lý",tone:"info",owner:"Kiểm soát kho",evidenceVersion:1,planEvidenceVersion:null,resolutionRecord:null,sourceFlow:"UIF-17"},
-  {id:"REC-UNKNOWN-03",operation:"IO-260906-052",title:"Chưa đủ bằng chứng kết luận",scope:"Kho trung tâm · 1 lần xử lý",evidence:"INSUFFICIENT",severity:"Cần chuyên sâu",tone:"warning",owner:"Vận hành nền tảng",evidenceVersion:1,planEvidenceVersion:null,resolutionRecord:null,sourceFlow:"UIF-17"}
-];
-function cr17Current(){return cr17Cases.find(x=>x.id===cr17SelectedId)||cr17Cases[0];}
-function cr079StateFor17(c){return c.evidence==="COMMITTED"?"UNKNOWN_EVIDENCE":c.evidence==="NO_COMMIT"?"UNKNOWN_EVIDENCE":"INSUFFICIENT_EVIDENCE";}
+const BJ17_DONE_AT = "17/09/2026 21:10";
+const BJ17_OPENED_AT = "17/09/2026 09:30";
+// Bằng chứng mặc định cho ca K3 của BJ nguồn: BJ-05 cho thấy nhánh "chưa ghi → làm tiếp"; còn lại "chưa đủ bằng chứng".
+const bj17SourceEvidence = { "UIF-05": "NO_COMMIT" };
+const BJ17_KIND = { "UIF-02": "Nhận hàng", "UIF-03": "Xác lập giá trị", "UIF-05": "Bàn giao hàng", "UIF-06": "Nhận hàng khách trả", "UIF-07": "Trả nhà cung cấp", "UIF-08": "Điều chỉnh kiểm kê", "UIF-09": "Đổi tình trạng", "UIF-10": "Tiêu hủy", "UIF-11": "Sửa sai", "UIF-12": "Khởi tạo tồn", "UIF-13": "Điều chỉnh giá trị", "UIF-16": "Chuyển hồ sơ", "CAP-01": "Chính sách tồn" };
+const BJ17_SOURCE = { "UIF-02": "Nhận hàng", "UIF-03": "Xác lập giá trị nhập", "UIF-05": "Lấy hàng & bàn giao", "UIF-06": "Hàng khách trả", "UIF-07": "Trả nhà cung cấp", "UIF-08": "Kiểm kê kho", "UIF-09": "Tình trạng hàng", "UIF-10": "Tiêu hủy hàng", "UIF-11": "Hủy & sửa sai", "UIF-12": "Khởi tạo tồn đầu kỳ", "UIF-13": "Điều chỉnh giá trị hàng nhập", "UIF-16": "Đối soát sai lệch", "CAP-01": "Chính sách tồn" };
 
-const bj17Num=(v)=>Number(v??0);
-const bj17Same=(a,b)=>String(a??"")===String(b??"");
+/* ---------- Fixture ---------- */
 
-function bj17EvidenceRows(c){
-  if(c.evidence==="COMMITTED")return [["Yêu cầu","Đã được tiếp nhận"],["Tác động tồn kho","Đã tìm thấy đúng phạm vi"],["Nghiệp vụ nguồn","Vẫn đang chờ kết quả"]];
-  if(c.evidence==="NO_COMMIT")return [["Yêu cầu","Đã được tiếp nhận"],["Tác động tồn kho","Chưa phát hiện"],["Tác động dở dang","Không phát hiện"]];
-  return [["Yêu cầu","Đã được tiếp nhận"],["Tác động tồn kho","Chưa đủ bằng chứng"],["Bằng chứng còn thiếu","Kết quả ghi nhận cuối cùng"]];
+function bj17InitialCases() {
+  const base = { sourceFlow: "UIF-17", fixture: true, evidenceVersion: 1, planEvidenceVersion: null, resolutionRecord: null, status: "OPEN", result: "", closedAt: "", handedTo: "", sentAt: "" };
+  return [
+    { ...base, id: "REC-UNKNOWN-01", operation: "IO-260906-031", kind: "Tiêu hủy", doc: "TH-260906-02", scope: "Găng tay khám Nitrile · 5 hộp", evidence: "COMMITTED", signal: "Tiêu hủy — chưa rõ kết quả", openedAt: "17/09/2026 07:05" },
+    { ...base, id: "REC-UNKNOWN-02", operation: "IO-260906-044", kind: "Bàn giao hàng", doc: "SO-260827-21", scope: "Nobivac DHPPi · 2 hộp", evidence: "NO_COMMIT", signal: "Bàn giao — chưa rõ kết quả", openedAt: "17/09/2026 07:40" },
+    { ...base, id: "REC-UNKNOWN-03", operation: "IO-260906-052", kind: "Nhận hàng", doc: "PN-260906-15", scope: "1 phiếu · Kho trung tâm", evidence: "INSUFFICIENT", signal: "Nhận hàng — chưa rõ kết quả", openedAt: "17/09/2026 08:10" },
+  ];
 }
 
-function bj17RecoveryCase({sourceFlow,operation,scope,title,evidence="INSUFFICIENT",owner="Kiểm soát kho"}={}){
-  const op=operation||`${sourceFlow}-UNKNOWN`;
-  let c=cr17Cases.find(x=>x.operation===op&&x.sourceFlow===sourceFlow);
-  if(!c){
-    c={
-      id:`REC-${String(sourceFlow||"").replace("UIF-","")}-${String(op).replace(/[^A-Za-z0-9]/g,"").slice(-12)}`,
-      operation:op,
-      title:title||"Cần xác minh kết quả nghiệp vụ",
-      scope:scope||"Phạm vi của lần xử lý hiện tại",
-      evidence,
-      severity:evidence==="INSUFFICIENT"?"Cần chuyên sâu":"Cần xử lý",
-      tone:evidence==="INSUFFICIENT"?"warning":"info",
-      owner,
-      sourceFlow,
-      evidenceVersion:1,
-      protected:true,
-      planEvidenceVersion:null,
-      resolutionRecord:null
+const cr17Cases = bj17InitialCases();
+let cr17SelectedId = "REC-UNKNOWN-01";
+const bj17Num = (v) => Number(v ?? 0);
+const bj17Same = (a, b) => String(a ?? "") === String(b ?? "");
+function cr17Current() { return cr17Cases.find((x) => x.id === cr17SelectedId) || cr17Cases[0]; }
+function cr17Status(c) { return c.status === "CLOSED" || c.status === "LINKED" ? c.status : c.status === "WAITING" ? "WAITING" : "OPEN"; }
+
+// Mỗi loại hồ sơ nói gì (plan 0.4 điểm 8, ba dòng cuối): trả cùng dạng với cr16RouteView.
+function cr17RouteView(c) {
+  const nm = c.kind, act = (key) => `data-bj17-action="${key}"`;
+  const write = { COMMITTED: "Đã có", NO_COMMIT: "Chưa có", INSUFFICIENT: "Chưa rõ" }[c.evidence];
+  const third = { COMMITTED: "Vẫn đang chờ kết quả", NO_COMMIT: "Chưa có phần ghi dở", INSUFFICIENT: "Chưa rõ" }[c.evidence];
+  const compare = [["Yêu cầu", "Đã được tiếp nhận"], ["Ghi vào kho", write], [nm, third]];
+  const handed = c.status === "WAITING" ? { tone: "info", title: "Đã gửi bộ phận hỗ trợ", desc: "Hệ thống chưa đoán kết quả. Phạm vi tiếp tục được bảo vệ và người có trách nhiệm đã nhận hồ sơ." } : null;
+  if (c.evidence === "COMMITTED") return { conclusion: `${nm} đã ghi vào kho`, sentence: "Thao tác đã ghi vào kho. Chỉ cần xác nhận kết quả; không ghi lại lần hai.", tone: "info", compare, primary: { label: "Xác nhận đã hoàn tất", attr: act("confirm-done") } };
+  if (c.evidence === "NO_COMMIT") return { conclusion: `${nm} chưa ghi vào kho`, sentence: "Thao tác chưa ghi vào kho và không có phần ghi dở. Có thể làm tiếp đúng thao tác này.", tone: "info", compare, primary: { label: "Làm tiếp thao tác", attr: act("continue") } };
+  const v = { conclusion: "Chưa biết đã ghi hay chưa", sentence: "Chưa biết thao tác đã ghi vào kho hay chưa. Giữ nguyên, không làm lại; cần bộ phận hỗ trợ kiểm tra.", tone: "warning", compare, primary: { label: "Gửi bộ phận hỗ trợ", attr: act("escalate") } };
+  return handed ? { ...v, primary: null, banner: handed } : v;
+}
+
+/* ---------- K3 của các BJ khác ---------- */
+
+function bj17RecoveryCase({ sourceFlow, operation, scope, evidence = "INSUFFICIENT" } = {}) {
+  const op = operation || `${sourceFlow}-UNKNOWN`;
+  // Một thao tác một hồ sơ (UC-16 BR-01, UC-17 BR-02): tra theo đúng mã thao tác, không theo luồng đã chuyển sang.
+  let c = cr17Cases.find((x) => x.operation === op);
+  if (!c) {
+    const kind = BJ17_KIND[sourceFlow] || "Thao tác";
+    c = {
+      id: `REC-${String(sourceFlow || "").replace("UIF-", "")}-${String(op).replace(/[^A-Za-z0-9]/g, "").slice(-12)}`,
+      operation: op, kind, doc: op, scope: scope || "Phạm vi của lần xử lý hiện tại", evidence, signal: `${kind} — chưa rõ kết quả`, openedAt: BJ17_OPENED_AT,
+      sourceFlow, evidenceVersion: 1, planEvidenceVersion: null, resolutionRecord: null, status: "OPEN", result: "", closedAt: "", handedTo: "", sentAt: "",
     };
     cr17Cases.unshift(c);
   }
   return c;
 }
-function bj17HandoffUnknown(meta){
+function bj17HandoffUnknown(meta) {
   onUnknownHandoff[meta.sourceFlow]?.();
-  const c=bj17RecoveryCase(meta);
-  cr17SelectedId=c.id;
-  cr17ResolutionMode="";
-  stateByScreen["SCR-079"]=c.evidence==="INSUFFICIENT"?"INSUFFICIENT_EVIDENCE":"UNKNOWN_EVIDENCE";
-  return crSwitchFlow("UIF-17","SCR-079",stateByScreen["SCR-079"]);
+  const c = bj17RecoveryCase({ ...meta, evidence: meta.evidence || bj17SourceEvidence[meta.sourceFlow] || "INSUFFICIENT" });
+  cr17SelectedId = c.id; crSheet = null;
+  const state = cr079StateFor17(c);
+  crSetState("SCR-079", state);
+  return crSwitchFlow("UIF-17", "SCR-079", state);
 }
 
-function render078BJ17(state){return render078Shared(true,state);}
+/* ---------- SCR-079 · Bằng chứng kết quả (BJ-17) ---------- */
 
-function render079BJ17(state){
-  if(state==="PERMISSION_DENIED")return bj16Denied("Bằng chứng & kết luận",{centered:true});
-  if(state==="LOADING")return bj16Loading("Bằng chứng & kết luận");
-  const c=cr17Current(),actual=state==="READY"?cr079StateFor17(c):state;
-  if(actual==="INSUFFICIENT_EVIDENCE")return ac310Return(appShell({title:"Bằng chứng kết quả",body:`${vBanner("warning","Chưa đủ bằng chứng để kết luận","Nghiệp vụ vẫn chưa xác định và phạm vi tiếp tục được bảo vệ.")}${ac310RecordRow({title:c.operation,subtitle:c.scope,badge:c.severity,tone:c.tone,status:true,leading:null})}${ac310InfoSurface("Hồ sơ",[["Người xử lý",c.owner],["Định danh nghiệp vụ","Giữ nguyên"]])}${bj16EvidenceSurface(bj17EvidenceRows(c))}`,actions:primaryFooter("Xem trạng thái xử lý",'data-cr17-action="show-escalated"')}));
-  const committed=c.evidence==="COMMITTED";
-  const banner=committed?vBanner("info","Đã tìm thấy tác động của nghiệp vụ","Bước tiếp theo chỉ xác lập kết quả; không ghi lại tác động lần hai."):vBanner("info","Chưa phát hiện tác động tồn kho","Có thể tiếp tục đúng lần xử lý này, giữ nguyên định danh và nội dung đã xác nhận.");
-  return ac310Return(appShell({title:"Bằng chứng kết quả",body:`${banner}${ac310RecordRow({title:c.operation,subtitle:c.scope,badge:c.severity,tone:c.tone,status:true,leading:null})}${ac310InfoSurface("Hồ sơ",[["Người xử lý",c.owner],["Định danh nghiệp vụ","Giữ nguyên"]])}${bj16EvidenceSurface(bj17EvidenceRows(c))}`,actions:primaryFooter(committed?"Xem phương án xác lập":"Xem phương án tiếp tục",'data-cr17-action="open-plan"')}));
+function render079BJ17(state) {
+  crSeed("UIF-17", "SCR-079", state);
+  const title = "Bằng chứng kết quả";
+  if (state === "PERMISSION_DENIED") return crDenied(title);
+  if (state === "LOADING") return crLoading(title);
+  const c = cr17Current(), v = cr17RouteView(c), subtitle = `${c.id} · ${c.scope}`;
+  const stale = state === "CONFLICT" ? k1Stale({ title: "Kết luận đã thay đổi", description: "Có bằng chứng mới. Xem lại kết luận trước khi làm tiếp.", actionLabel: "Tải lại", actionAttr: 'data-bj17-action="reload"' }) : "";
+  const note = `<p class="ac310-note">Không tạo thao tác mới, không ghi lại lần hai.</p>`;
+  const main = `${stale}${crConclusion(v)}${crCompare(v.compare)}${note}`;
+  return crShell({ title, subtitle, body: `${k7Split({ main, aside: crAside(c), asideWebOnly: true })}${stale ? "" : crSheetHtml(c)}`, actions: v.primary && !stale ? primaryFooter(v.primary.label, v.primary.attr) : "" });
 }
 
-function render080BJ17(state){
-  if(state==="PERMISSION_DENIED")return bj16Denied("Phương án xử lý",{centered:true});
-  if(state==="LOCKED")return ac310SanitizeMarkup(appShell({title:"Phương án xử lý",body:vBanner("warning","Phạm vi đang do hồ sơ khác bảo vệ","Không xử lý song song cùng phạm vi. Mở hồ sơ đang bảo vệ để tiếp tục.")}));
-  if(state==="CONFLICT")return ac310SanitizeMarkup(appShell({title:"Phương án xử lý",body:vBanner("warning","Kết luận đã thay đổi","Bằng chứng mới làm thay đổi phương án. Quay lại bước bằng chứng để rà soát.")}));
-  const c=cr17Current();
-  if(c.evidence==="INSUFFICIENT"||state==="INSUFFICIENT_EVIDENCE")return ac310Return(appShell({title:"Phương án xử lý",body:`${vBanner("warning","Chưa có phương án xử lý an toàn","Giữ trạng thái chưa xác định và bảo vệ phạm vi cho tới khi có thêm bằng chứng.")}${ac310InfoSurface("Phạm vi xử lý",[["Nghiệp vụ",c.operation,true],["Người xử lý",c.owner],["Lần xử lý","Giữ nguyên"]])}`,actions:primaryFooter("Xem trạng thái xử lý",'data-v350-action="cr17-show-escalated"')}));
-  const committed=c.evidence==="COMMITTED",title=committed?"Xác lập đã hoàn tất":"Tiếp tục lần xử lý này";
-  return ac310Return(appShell({title:"Phương án xử lý",body:`${vBanner("info",title,committed?"Dùng tác động đã tồn tại để xác lập kết quả; không ghi lại biến động lần hai.":"Tiếp tục cùng định danh sau khi đã xác nhận chưa có tác động bán phần.")}${ac310InfoSurface("Phạm vi",[["Nghiệp vụ",c.operation,true],["Phạm vi",c.scope],["Lần xử lý","Giữ nguyên"]])}${ac310InfoSurface("Không thực hiện",[["Tạo nghiệp vụ mới","Không"],["Tự hoàn nguyên","Không"],["Đổi nội dung đã xác nhận","Không"]])}`,actions:primaryFooter(title,'data-v350-action="cr17-execute-plan"')}));
+/* ---------- SCR-083 · Kết quả xác minh (BJ-17) ---------- */
+
+function bj17Complete(c, mode) {
+  c.result = mode;
+  c.resolutionRecord = { operationId: c.operation, scope: c.scope, evidenceVersion: c.evidenceVersion, newOperationCreated: false, duplicateEffect: false, mode };
+  c.status = "CLOSED"; c.closedAt = BJ17_DONE_AT;
 }
-
-function render082BJ17(state){
-  if(state==="PERMISSION_DENIED")return bj16Denied("Rà soát kết quả",{centered:true});
-  const c=cr17Current(),committed=(cr17ResolutionMode||c.evidence)==="COMMITTED",continued=(cr17ResolutionMode||"")==="CONTINUED";
-  const rows=committed?[["Nghiệp vụ",c.operation,true],["Kết quả","Đã hoàn tất"],["Tác động tồn kho","Giữ tác động đã có"],["Lần xử lý","Không thay đổi"]]:[["Nghiệp vụ",c.operation,true],["Kết quả",continued?"Đã hoàn tất":"Đã có kết quả mới"],["Lần xử lý","Không thay đổi"],["Nghiệp vụ mới","Không tạo"]];
-  return ac310Return(appShell({title:"Rà soát kết quả",body:`${vBanner("info","Kết quả đã được xác lập","Hệ thống giữ đúng nghiệp vụ ban đầu và không tạo tác động trùng.")}${ac310InfoSurface("Kết quả cuối",rows)}`,actions:primaryFooter("Hoàn tất xác minh",'data-v350-action="cr17-finish-review"')}));
-}
-
-function render083BJ17(state){
-  if(state==="PERMISSION_DENIED")return ac310SanitizeMarkup(appShell({title:"Kết quả xử lý",body:deniedBody(),centered:true,back:false,actions:primaryFooter("Về danh sách",'data-v360-action="fallback-exit" data-v360-target="SCR-078"')}));
-  if(state==="PROCESSING")return ac310SanitizeMarkup(appShell({title:"Kết quả xử lý",body:loadingBody(),centered:true,back:false}));
-  const c=cr17Current();
-  if(state==="UNKNOWN"||state==="ESCALATED")return ac310SanitizeMarkup(appShell({title:"Kết quả xác minh",body:ioResult("Chưa xác định — đã chuyển xử lý","Hệ thống chưa đoán kết quả. Phạm vi tiếp tục được bảo vệ và người có trách nhiệm đã nhận hồ sơ.",[["Nghiệp vụ",c.operation],["Người xử lý",c.owner],["Phạm vi","Tiếp tục được bảo vệ"]],"warning"),actions:primaryFooter("Về danh sách xác minh",'data-cr17-action="to-list"'),centered:true,back:false}));
-  return ac310SanitizeMarkup(appShell({title:"Kết quả xác minh",body:ioResult("Đã xác lập kết quả nghiệp vụ","Kết quả chính thức đã được ghi cho đúng nghiệp vụ; không tạo nghiệp vụ mới hoặc ghi tác động trùng.",[["Nghiệp vụ",c.operation],["Lần xử lý","Giữ nguyên"],["Trạng thái","Đã hoàn tất"]]),actions:primaryFooter("Về danh sách xác minh",'data-cr17-action="to-list"'),centered:true,back:false}));
-}
-
-flowRenderers["UIF-17"]={
-  "SCR-078":render078BJ17,
-  "SCR-079":render079BJ17,
-  "SCR-080":render080BJ17,
-  "SCR-082":render082BJ17,
-  "SCR-083":render083BJ17
-};
-
-document.addEventListener("input",(event)=>{
-  if(activeFlowId!=="UIF-17")return;
-  if(event.target.matches("[data-cr-control-search]")){crControlQuery=event.target.value;return renderAppScreen();}
-},true);
-
-document.addEventListener("click",(event)=>{
-  if(activeFlowId==="UIF-17"){
-    const f=event.target.closest("[data-cr17-filter]");if(f){event.preventDefault();cr17Filter=f.dataset.cr17Filter;return renderAppScreen();}
-    const row=event.target.closest("[data-cr-case]");if(row){event.preventDefault();cr17SelectedId=row.dataset.crCase;stateByScreen["SCR-079"]=cr079StateFor17(cr17Current());return navigate("SCR-079");}
-    const a17=event.target.closest("[data-cr17-action]");if(a17&&!a17.disabled){event.preventDefault();const k=a17.dataset.cr17Action;
-      if(k==="open-plan"){const c=cr17Current();c.planEvidenceVersion=c.evidenceVersion;c.resolutionRecord=null;stateByScreen["SCR-080"]=c.evidence==="INSUFFICIENT"?"INSUFFICIENT_EVIDENCE":"READY";return navigate("SCR-080");}
-      if(k==="show-escalated"){stateByScreen["SCR-083"]="ESCALATED";return navigate("SCR-083");}
-      if(k==="to-list"){crControlQuery="";cr17ResolutionMode="";stateByScreen["SCR-078"]="READY";return navigate("SCR-078");}
-    }
-    const a=event.target.closest("[data-v350-action]");if(a&&!a.disabled){
-      const k=a.dataset.v350Action;
-      if(String(k||"").startsWith("cr17-")){
-        event.preventDefault();event.stopPropagation();
-        if(k==="cr17-execute-plan"){
-          const c=cr17Current();if(!c.planEvidenceVersion)c.planEvidenceVersion=c.evidenceVersion;
-          if(bj17Num(c.planEvidenceVersion)!==bj17Num(c.evidenceVersion)){stateByScreen["SCR-080"]="CONFLICT";return renderAppScreen();}
-          cr17ResolutionMode=c.evidence==="COMMITTED"?"COMMITTED":"CONTINUED";
-          c.resolutionRecord={operationId:c.operation,scope:c.scope,evidenceVersion:c.evidenceVersion,newOperationCreated:false,duplicateEffect:false,mode:cr17ResolutionMode};
-          stateByScreen["SCR-082"]="READY";return navigate("SCR-082");
-        }
-        if(k==="cr17-finish-review"){
-          const c=cr17Current(),r=c.resolutionRecord;if(!r||!bj17Same(r.operationId,c.operation)||!bj17Same(r.scope,c.scope)||bj17Num(r.evidenceVersion)!==bj17Num(c.evidenceVersion)||r.newOperationCreated||r.duplicateEffect){stateByScreen["SCR-080"]="CONFLICT";return navigate("SCR-080");}
-          stateByScreen["SCR-083"]="COMPLETED";return navigate("SCR-083");
-        }
-        if(k==="cr17-show-escalated"){stateByScreen["SCR-083"]="ESCALATED";return navigate("SCR-083");}
-      }
-    }
+function render083BJ17(state) {
+  crSeed("UIF-17", "SCR-083", state);
+  const title = "Kết quả xác minh", c = cr17Current(), listAttr = 'data-bj17-action="to-list"';
+  if (state === "PERMISSION_DENIED") return crDenied(title);
+  if (state === "PROCESSING") return crLoading(title, ["heading", "card", "row"]);
+  if (state === "UNKNOWN") {
+    return k3Unknown({ title, operation: "Chuyển hồ sơ", scope: `${c.kind} ${c.doc}`, ref: c.id, sentAt: BJ16_SENT_AT, sourceFlow: "UIF-17", exitAttr: crExit().attr, handoff: { operation: c.operation, scope: c.scope } });
   }
-},true);
+  if (state === "ESCALATED") {
+    const facts = [["Nghiệp vụ", `${c.kind} ${c.doc}`], ["Người nhận", CR_SUPPORT], ["Phạm vi", "Tiếp tục được bảo vệ"], ["Gửi lúc", c.sentAt || BJ16_SENT_AT]];
+    return k4Result({ screenTitle: title, kind: "warning", title: "Chưa xác định — đã chuyển xử lý", description: "Hệ thống chưa đoán kết quả. Phạm vi tiếp tục được bảo vệ và người có trách nhiệm đã nhận hồ sơ.", facts, next: crResultNext(listAttr) });
+  }
+  const facts = [["Nghiệp vụ", `${c.kind} ${c.doc}`], ["Kết quả", c.result === "CONTINUED" ? "Đã làm tiếp, đã ghi" : "Đã hoàn tất"], ...(c.sourceFlow !== "UIF-17" ? [["Từ", BJ17_SOURCE[c.sourceFlow] || c.sourceFlow]] : [])];
+  return k4Result({ screenTitle: title, title: "Đã xác lập kết quả nghiệp vụ", description: "Kết quả chính thức đã được ghi cho đúng nghiệp vụ; không tạo nghiệp vụ mới hoặc ghi tác động trùng.", facts, next: crResultNext(listAttr) });
+}
+
+flowRenderers["UIF-17"] = Object.assign(flowRenderers["UIF-17"] || {}, {
+  "SCR-078": render078Recon,
+  "SCR-079": render079BJ17,
+  "SCR-083": render083BJ17,
+});
+
+/* ---------- Sự kiện ---------- */
+
+// Xác nhận trong sheet của 079: kiểm resolutionRecord (không tạo thao tác mới, không ghi trùng) rồi sang 083.
+function bj17ConfirmSheet(kind, c) {
+  const mode = kind === "confirm-done" ? "COMMITTED" : "CONTINUED";
+  c.resolutionRecord = { operationId: c.operation, scope: c.scope, evidenceVersion: c.evidenceVersion, newOperationCreated: false, duplicateEffect: false, mode };
+  const r = c.resolutionRecord;
+  if (!bj17Same(r.operationId, c.operation) || !bj17Same(r.scope, c.scope) || bj17Num(r.evidenceVersion) !== bj17Num(c.evidenceVersion) || r.newOperationCreated || r.duplicateEffect) return crStale();
+  bj17Complete(c, mode);
+  return crGo("UIF-17", "SCR-083", "COMPLETED");
+}
+
+document.addEventListener("click", (event) => {
+  if (activeFlowId !== "UIF-17") return;
+  const a = event.target.closest?.("[data-bj17-action]"); if (!a || a.disabled) return;
+  event.preventDefault(); event.stopPropagation();
+  const k = a.dataset.bj17Action, c = cr17Current();
+  if (k === "confirm-done") return crOpenSheet("confirm-done", '[data-bj17-action="confirm-done"]');
+  if (k === "continue") return crOpenSheet("continue", '[data-bj17-action="continue"]');
+  if (k === "escalate") { crHand(c, CR_SUPPORT); return crGo("UIF-17", "SCR-083", "ESCALATED"); }
+  if (k === "to-list") return crToList();
+  if (k === "reload") return crReload();
+}, true);
 
 /* handoff-unknown: mọi luồng (nút nằm ở màn BJ khác) — không kiểm activeFlowId */
-document.addEventListener("click",(event)=>{
-  const a=event.target.closest('[data-v350-action="handoff-unknown"]');if(!a||a.disabled)return;
-  event.preventDefault();event.stopPropagation();
-  return bj17HandoffUnknown({sourceFlow:a.dataset.sourceFlow,operation:a.dataset.operation,scope:a.dataset.scope,evidence:"INSUFFICIENT"});
-},true);
+document.addEventListener("click", (event) => {
+  const a = event.target.closest('[data-v350-action="handoff-unknown"]'); if (!a || a.disabled) return;
+  event.preventDefault(); event.stopPropagation();
+  return bj17HandoffUnknown({ sourceFlow: a.dataset.sourceFlow, operation: a.dataset.operation, scope: a.dataset.scope });
+}, true);
 
+onEntry["UIF-17:unknown-context"] = () => crSetState("SCR-079", cr079StateFor17(cr17Current()));
+if (activeFlowId === "UIF-17" && !requestedScreen && onEntry[`UIF-17:${entryMode}`]) onEntry[`UIF-17:${entryMode}`]();
 
 Object.assign(window.__VET45_QA__, {
-  bumpCR17Evidence(){const c=cr17Current();c.evidenceVersion=Number(c.evidenceVersion||0)+1;return c.evidenceVersion;},
-  getBJ17(){const c=cr17Current();return {id:c.id,operation:c.operation,evidenceVersion:c.evidenceVersion,record:c.resolutionRecord};}
+  bumpCR17Evidence() { const c = cr17Current(); c.evidenceVersion = Number(c.evidenceVersion || 0) + 1; return c.evidenceVersion; },
+  getBJ17() { const c = cr17Current(); return { id: c.id, operation: c.operation, evidenceVersion: c.evidenceVersion, record: c.resolutionRecord }; },
 });

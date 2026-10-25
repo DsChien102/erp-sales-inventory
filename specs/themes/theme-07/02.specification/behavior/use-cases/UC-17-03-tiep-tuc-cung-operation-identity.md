@@ -114,8 +114,6 @@ Không tạo business effect mới để “bù” cho kết quả chưa rõ; ch
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-080` | Trình bày evidence/finality và hành động phục hồi an toàn cho “Tiếp tục cùng operation identity”; giữ cùng operation identity. |
-| `SCR-082` | Trình bày evidence/finality và hành động phục hồi an toàn cho “Tiếp tục cùng operation identity”; giữ cùng operation identity. |
 | `SCR-083` | Trình bày evidence/finality và hành động phục hồi an toàn cho “Tiếp tục cùng operation identity”; giữ cùng operation identity. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)

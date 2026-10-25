@@ -1,6 +1,6 @@
 # T7-P · BJ-11 Hủy & sửa sai — thiết kế lại (bước B–E)
 
-> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-25 — mục 0.10, mọi điểm theo đề xuất) | Plan C–E ✅ (rà lại theo code BJ-08 khi làm) | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-25 — mục 0.10, mọi điểm theo đề xuất) | Plan C–E ✅ (rà lại theo code BJ-08 khi làm) | Làm ✅ 2026-10-25 (v5.17.0, chưa commit — để phiên review xem trước) | Review ✅ (2026-10-25: đạt sau R1–R3, v5.18.1 — mục 14)
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 5 "Kiểm kê và sửa sai"**, BJ thứ hai. Làm **sau** [BJ-08](T7-P-bj08-kiem-ke.md) (dùng fixture chung chặng 5 ở mục 3 của plan đó). BJ sau: [BJ-16 + BJ-17](T7-P-bj16-bj17-doi-soat.md) — hồ sơ "Cần sửa nghiệp vụ nguồn" mở thẳng màn sửa sai của plan này.
 > Dùng lại K1, **K2** (sửa sai cần chủ cửa hàng duyệt — UC-11-04), K3, K4, K6, K7. Không khuôn mới.
 > Thiết bị: **cả iPhone và web đều là thiết bị chính** (T7-P mục 2). Người lập (thường người đã ghi sai, hoặc chủ cửa hàng khi đối soát) làm trên iPhone hoặc máy tính; chủ cửa hàng duyệt ở cả hai.
@@ -267,7 +267,28 @@ Sửa: `SC_bj11_list` (chip mới, tìm "PN-260904"), `SC_bj11_correct` (IO-2609
 
 ## 9. Ghi chú khi làm
 
-(Người làm điền: mốc, kết quả GitNexus, kết quả D, audit, lệch so với plan.)
+**Mốc.** Dùng `tools/.golden-bj08-after` (mobile 1926 ca) / `.golden-bj08-web-after` (web 1051 ca): BJ-08 chưa commit nên HEAD làm việc chính là bản đã chụp mốc, không chụp base riêng. Sau khi làm: `tools/.golden-bj11-after` (**1959 ca**) / `.golden-bj11-web-after` (**1073 ca**), 0 lỗi JS ở cả hai khung. `golden.mjs` chạy tuần tự (mobile rồi web).
+
+**GitNexus (`impact` upstream, repo `erp-sales-inventory` — CLI cần `--repo erp-sales-inventory`).** `render048BJ11`…`render053BJ11`: 0 hàm gọi — LOW. `cr11StateFor`: 1 (nội bộ `bj11.js`) — LOW. `cr11Current`: 5 (nội bộ `bj11.js`, giữ chữ ký) — MEDIUM, chỉ trong file. `crSwitchFlow`: 2 (`bj16.js`, `bj11.js`) — LOW, không sửa. Listener `cr16-correction-handoff` (`bj16.js`): sửa một dòng, đổi `crSwitchFlow(... "SCR-049")` thành `applyEntry("UIF-11", "correction-from-case")`. `detect_changes()` cuối: 27 tệp, 228 symbol (phần lớn tài liệu), 0 quy trình bị ảnh hưởng, rủi ro thấp.
+
+**Kết quả D.**
+1. So mốc: mobile 433 / web 188 dòng khác — **chỉ** `UIF-11_SCR-048…053_*` (ca `UIF-11_SCR-052_*` bỏ khỏi danh sách), `SC_bj11_*`, `SC_entry_UIF-11_*`, `SC_bj16_correction` (bước 2: mở thẳng SCR-050), `SC_ws_control_2_*` (Hub → "Hủy & sửa sai nghiệp vụ"), chữ inspector "v5.17.0 · BJ-11 thiết kế lại", và mọi ca có Home Kho / "Chờ duyệt" (đã đối chiếu từng dòng chữ khác của các ca ngoài UIF-11: chỉ "… · 1 sửa sai", số "Chờ duyệt" +1, dòng `Nhận hàng PN-260901-07 · Dầu sát khuẩn` / `6 → 4 chai · Nguyễn Văn An gửi 15/09/2026 16:45`, nhãn inspector).
+2. Bấm thử: toàn bộ `SC_bj11_*` (18 kịch bản mobile; 5 web) 0 lỗi JS; `node --check app/*.js harness/*.js tools/golden.mjs` đạt. Kiểm thêm bằng CDP: hồ sơ BJ-16 `REC-260907-04` → mở sửa sai (Số đúng 18 điền sẵn) → gửi → chủ duyệt → "Về hồ sơ đối soát" → 079 với `correctionDone = true`, `cr11ReturnCase` được xoá; nút quay lại ở 050 về đúng hồ sơ.
+3. **Tiền:** chỉ các bước vai chủ cửa hàng của `SC_bj11_owner_self` có "… đ" trong chữ (050 "Giá trị: −84.000 đ", 051, 053 "Giá trị"); mọi ca nhân viên (050, 051 `SELF_APPROVAL_NOT_ALLOWED`, 053 `PENDING_APPROVAL`) không có số tiền trong chữ và không trong HTML; 051 của `SS-260915-01` (Dầu sát khuẩn, không giá vốn) không có dòng "Giá trị" kể cả vai người duyệt.
+4. **Audit (`/impeccable audit` phạm vi UIF-11)** — chạy bằng biểu thức kiểm dọc `AUDIT_JS` (tương phản chữ ≥ 4,5 : 1 — 3 : 1 cho chữ lớn —, vùng chạm ≥ 44 × 44 ở iPhone / ≥ 40 ở web, tràn ngang, thành phần không tên) trên **mọi** ca `UIF-11_*` (37 mobile / 34 web) và `SC_bj11_*` (84 / 25), gồm sheet hủy, sheet từ chối, vào từ BJ-16: **0 lỗi tương phản, vùng chạm, tràn ngang, thành phần không tên** (ngoài phạm vi, như BJ-10: nút đóng toast "Đã gửi yêu cầu sửa sai" 20 × 20 là thành phần dùng chung). Bàn phím (CDP, web): Tab đi ô tìm → 4 chip → 6 dòng bảng (dòng `<tr>` có `tabindex="0"`, Enter / Space mở); Enter ở "Hủy yêu cầu" mở sheet và đưa focus vào ô lý do, Tab chỉ đi vòng trong sheet, Esc đóng và **trả focus về nút đã mở** (cả sheet từ chối); mũi tên đổi "Cách sửa" và chuyển focus. Web không còn cột 402 px (`k7-wide`); iPhone không bảng ép nhỏ, số và ĐVT không gãy dòng (mã phiếu dùng gạch nối không ngắt). Lỗi trong phạm vi đã sửa ngay (xem dưới); ngoài phạm vi: `bj08Visible` ở BJ-08 cũng dựa `offsetParent` nên có thể cùng lỗi focus / Tab trap với sheet `position: fixed` (chưa kiểm — ghi cho review BJ-08).
+5. Ảnh gửi review: `tools/.golden-bj11-after` / `-web-after` — `UIF-11_SCR-048_READY`, `UIF-11_SCR-049_CORRECTABLE` / `BLOCKED_PHYSICAL_HANDOVER`, `SC_bj11_cancel_3_reason` (sheet hủy), `SC_bj11_owner_self_7_reason` (050 đủ ô, vai chủ) và `UIF-11_SCR-050_READY@web`, `SC_bj11_from_case_2_submit` + `SC_bj11_from_case_3_to-case`, `UIF-11_SCR-053_REJECTED`, `SC_bj11_from_home_*` (Home "Chờ duyệt" hai khung).
+
+**Lệch so với plan / quyết định khi làm.**
+- **Sửa khi audit:** mã phiếu bị cắt "…" / gãy ở dấu "-" trên dòng iPhone → cho tiêu đề và phụ đề dòng wrap, tiêu đề dùng gạch nối không ngắt (U+2011, chỉ ở dòng iPhone); "Sau khi sửa" là khối thường (không nền cảnh báo của `k2Attention`); lỗi ô lý do có viền / chữ đỏ; `bj11Visible` dùng `getClientRects()` vì sheet là `position: fixed`; thêm Enter / Space cho dòng `<tr>`; mũi tên cho `dsChoiceRow`.
+- **`t7ShowMoney()` / `t7FmtMoney()`** đặt ở `app/shared-patterns.js` (mục 2.1); `bj08ShowMoney` gọi lại — sửa một dòng ở `bj08.js` (chưa commit, cùng đợt).
+- **Fixture:** tồn hiện tại lấy theo fixture BJ-08 (Amox 500 = 46, Dầu sát khuẩn = 2, Tylosin TY2511 = 3). `DEPENDENCY_BLOCKED` của Tylosin theo đúng chữ plan ("đã bán 3 lọ … làm tồn âm") dù phép tính tồn không âm — chữ là chuỗi chuẩn của plan, fixture chỉ cần "có nghiệp vụ phụ thuộc". Phiếu đã sửa xong vẫn "Có thể sửa" (số đã ghi mới = số sau sửa; "Sửa sai trước đó" hiện mã bản ghi).
+- **K3 từ 049 / 053:** BJ-17 mở hồ sơ mới `REC-11-…` (như BJ-05 / 06 / 07 / 10) thay vì `REC-UNKNOWN-01` có sẵn — hồ sơ mẫu đó có `sourceFlow: "UIF-17"` nên không khớp; trước đây BJ-11 tự đặt `cr17SelectedId`. Plan [BJ-16 + BJ-17](T7-P-bj16-bj17-doi-soat.md) chỉnh fixture cho khớp (đã ghi ở mục 3 bảng).
+- **051 cho người không phải chủ:** banner "Bạn không thể tự duyệt yêu cầu này" + "Chủ cửa hàng sẽ duyệt yêu cầu bạn lập." (người lập) hoặc "Chỉ chủ cửa hàng duyệt yêu cầu sửa sai." (người khác) — như BJ-08. `VALIDATION_ERROR` = sheet từ chối mở sẵn, ô lý do trống, lỗi "Nhập lý do từ chối". `SOURCE_VERSION_STALE` / `CONFLICT` ở 050 chỉ hiện khối K1 + nút (không dựng lại biểu mẫu bên dưới).
+- **Chuyển trạng thái `UNKNOWN` ở danh sách:** dòng "Đang xác minh" mở 049 `UNKNOWN` (K3) như 0.4 điểm 5; không có trạng thái "đã hủy" trong plan — thêm badge "Đã hủy" (Neutral) và 049 `TERMINAL` cho phiếu vừa hủy.
+- **Chữ mới ngoài mục 13** (đã ghi thêm một dòng vào T7-P mục 13): loại phiếu "Đổi tình trạng"; "Ghi vào kho" "Chưa xác định"; "Không có yêu cầu sửa sai" / "Mở lại từ danh sách chờ duyệt."; "Chỉ chủ cửa hàng duyệt yêu cầu sửa sai."; "Nhập lý do từ chối"; "Lý do được lưu trong lịch sử kiểm soát.".
+- **CSS:** bỏ luật `.io-product-*`, `.cr-fact-card`, `.cr-choice` riêng UIF-11 ở `components.css`; **giữ** `.io-read-card` / `.io-meta-row` cho UIF-11 (K4 `ioResult` còn dùng) và các danh sách chung UIF-08…17 ở `screens.css`; `.ac310-radio-*` còn `ac310-mode-row` (BJ-15) dùng nên giữ. Không có luật cột 402 px riêng của UIF-11: khung web thoát cột nhờ `k7-wide`.
+- **Không làm (như mục 11):** nhánh 079 "Đã sửa phiếu gốc"; lối "Sửa sai" từ SCR-056; plan BJ-16 + BJ-17 đổi chữ nút "Mở yêu cầu sửa sai" → "Sửa phiếu gốc" (nút vẫn chữ cũ ở bản này).
+- **Đã thêm ngoài danh sách kịch bản mục 6:** `SC_bj11_case_back` (BJ-16 → 050 → quay lại hồ sơ), `SC_entry_UIF-11_correction-from-case`.
 
 ## 10. Thứ tự commit
 
@@ -306,4 +327,4 @@ Nếu làm một lượt thì để chưa commit cho phiên review xem trước.
 
 ## 14. Review
 
-(Phiên review điền.)
+Review chặng 5 (2026-10-25): **đạt sau R1–R3** (v5.18.1) — xem [plan BJ-16 + BJ-17 mục 14](T7-P-bj16-bj17-doi-soat.md#14-review). Phần của BJ-11: **R1** (b, c — 053 `UNKNOWN` gửi mã yêu cầu; nhãn "Sửa sai" ở BJ-17), **R2** (050 "Tồn Amox 500: 46 → 44" đúng; 079 / 082 phải theo), **R3** (câu `DEPENDENCY_BLOCKED`); góp ý 4 (phiếu nguồn vẫn "Đang xác minh" sau khi BJ-17 xác lập).

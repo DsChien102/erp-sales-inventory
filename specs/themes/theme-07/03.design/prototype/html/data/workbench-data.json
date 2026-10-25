@@ -626,7 +626,6 @@
       "screens": [
         "SCR-048",
         "SCR-049",
-        "SCR-052",
         "SCR-050",
         "SCR-053",
         "SCR-051"
@@ -634,6 +633,7 @@
       "entry": [
         "SCR-048",
         "SCR-049",
+        "SCR-050",
         "SCR-051"
       ],
       "terminals": [
@@ -779,7 +779,6 @@
       "screens": [
         "SCR-078",
         "SCR-079",
-        "SCR-080",
         "SCR-081",
         "SCR-082",
         "SCR-083"
@@ -813,8 +812,6 @@
       "screens": [
         "SCR-078",
         "SCR-079",
-        "SCR-080",
-        "SCR-082",
         "SCR-083"
       ],
       "entry": [
@@ -4416,7 +4413,6 @@
         "LOADING",
         "EMPTY",
         "FILTER_EMPTY",
-        "PENDING_APPROVAL",
         "PERMISSION_DENIED"
       ],
       "defaultState": "READY",
@@ -4883,7 +4879,7 @@
     {
       "id": "SCR-048",
       "short": "048",
-      "name": "Nghiệp vụ cần kiểm soát",
+      "name": "Hủy & sửa sai",
       "surface": "list",
       "bj": [
         "BJ-11"
@@ -4891,7 +4887,7 @@
       "uc": [
         "UC-11-01"
       ],
-      "purpose": "Tìm nghiệp vụ có thể hủy, sửa sai hoặc đang cần xác minh kết quả.",
+      "purpose": "Tìm phiếu kho sai theo mã phiếu hoặc sản phẩm; biết ngay hủy được, sửa được hay đang chờ.",
       "actors": [
         "Người phụ trách kho",
         "Người có quyền xem"
@@ -4962,7 +4958,7 @@
     {
       "id": "SCR-049",
       "short": "049",
-      "name": "Chi tiết nghiệp vụ kho",
+      "name": "Chi tiết phiếu kho",
       "surface": "timeline",
       "bj": [
         "BJ-11"
@@ -4985,7 +4981,8 @@
         "CANCELABLE",
         "CORRECTABLE",
         "BLOCKED_PHYSICAL_HANDOVER",
-        "TERMINAL"
+        "TERMINAL",
+        "PENDING_APPROVAL"
       ],
       "defaultState": "CORRECTABLE",
       "fields": [],
@@ -5035,7 +5032,7 @@
     {
       "id": "SCR-050",
       "short": "050",
-      "name": "Nội dung sửa sai",
+      "name": "Sửa sai",
       "surface": "form",
       "bj": [
         "BJ-11"
@@ -5044,7 +5041,7 @@
         "UC-11-03",
         "UC-11-04"
       ],
-      "purpose": "Nhập một lần số đúng và lý do; hệ thống tự suy ra phần điều chỉnh và tự lưu draft an toàn.",
+      "purpose": "Một màn: chọn cách sửa, nhập số đúng và lý do; thấy tồn (và tiền với chủ cửa hàng) sau khi sửa.",
       "actors": [
         "Người lập sửa sai"
       ],
@@ -5053,7 +5050,9 @@
         "VALIDATION_ERROR",
         "CONFLICT",
         "PERMISSION_DENIED",
-        "SOURCE_VERSION_STALE"
+        "SOURCE_VERSION_STALE",
+        "DEPENDENCY_BLOCKED",
+        "PERIOD_POLICY_VIOLATION"
       ],
       "defaultState": "READY",
       "fields": [
@@ -5214,7 +5213,7 @@
     {
       "id": "SCR-052",
       "short": "052",
-      "name": "Hủy hoặc chọn cách sửa",
+      "name": "Hủy hoặc chọn cách sửa (đã gộp vào SCR-050 và SCR-049)",
       "surface": "form",
       "bj": [
         "BJ-11"
@@ -5223,19 +5222,14 @@
         "UC-11-02",
         "UC-11-03"
       ],
-      "purpose": "Thực hiện đúng một mental task: xác nhận hủy trước execution hoặc chọn strategy correction cho operation đã hoàn tất.",
+      "purpose": "Đã gộp từ v5.17.0: chọn cách sửa và nhập số đúng nằm ở SCR-050; hủy yêu cầu là sheet có lý do ở SCR-049. Link cũ mở màn sửa sai.",
       "actors": [
         "Người phụ trách kho"
       ],
       "states": [
-        "CANCEL_UNEXECUTED",
-        "CORRECTION_ROUTE",
-        "VALIDATION_ERROR",
-        "DEPENDENCY_BLOCKED",
-        "PERIOD_POLICY_VIOLATION",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "CORRECTION_ROUTE",
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
       "fields": [
         [
           "Operation gốc",
@@ -5253,15 +5247,7 @@
       "cards": [],
       "notice": "",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
-      "actions": [
-        {
-          "id": "ACT-10-CANCEL",
-          "label": "Hủy yêu cầu",
-          "bc": "BC-IO-12",
-          "api": "API-C-12",
-          "tone": "danger"
-        }
-      ],
+      "actions": [],
       "traceActions": [
         "ACT-10-CORRECT"
       ],
@@ -5275,9 +5261,7 @@
         "VButton"
       ],
       "themeComposition": "Theme7CorrectionRoute",
-      "uifs": [
-        "UIF-11"
-      ],
+      "uifs": [],
       "mode": {
         "modes": {
           "CANCEL_UNEXECUTED": "CANCEL_CONFIRMATION",
@@ -5301,7 +5285,8 @@
           "example": "Sai lượng nhận",
           "ownership": "USER_INPUT_SERVER_VALIDATED"
         }
-      ]
+      ],
+      "prototype_status": "RETIRED_v5.17.0"
     },
     {
       "id": "SCR-053",
@@ -6886,7 +6871,7 @@
         "UC-16-01",
         "UC-17-01"
       ],
-      "purpose": "Triage hồ sơ sai lệch hoặc operation UNKNOWN theo mức độ, phạm vi và trạng thái xử lý.",
+      "purpose": "Một danh sách chung cho hồ sơ sai lệch và thao tác chưa rõ kết quả; chip có số \"Tất cả · Sai lệch · Chưa rõ kết quả · Đang chờ\", mỗi dòng mở đúng hồ sơ.",
       "actors": [
         "Người phụ trách kiểm soát kho",
         "Người có quyền xem"
@@ -6896,27 +6881,25 @@
         "LOADING",
         "EMPTY",
         "FILTER_EMPTY",
-        "PERMISSION_DENIED",
-        "INVESTIGATING",
-        "ESCALATED"
+        "PERMISSION_DENIED"
       ],
       "defaultState": "READY",
       "fields": [],
       "cards": [
         [
-          "REC-260907-03",
-          "Số liệu hiển thị lệch sổ kho",
-          "Cần xử lý"
+          "Số trên app lệch sổ kho",
+          "Nobivac DHPPi · Lô DH2507 · REC-260907-03",
+          "Cần làm"
         ],
         [
-          "REC-260907-04",
-          "Cần sửa nghiệp vụ nguồn",
-          "Đang chờ"
+          "Phiếu nhận ghi khác hoá đơn",
+          "Amox 500 · SP-000066 · REC-260907-04",
+          "Cần làm"
         ],
         [
-          "REC-UNKNOWN-01",
-          "Kết quả nghiệp vụ chưa xác định",
-          "Ưu tiên cao"
+          "Tiêu hủy đã ghi vào kho",
+          "Găng tay khám Nitrile · 5 hộp · REC-UNKNOWN-01",
+          "Cần làm"
         ]
       ],
       "notice": "",
@@ -6943,17 +6926,17 @@
           "UIF-16": "RECON_CASES",
           "UIF-17": "UNKNOWN_CASES"
         },
-        "note": "Shared list; Product copy/filter adapts to journey context."
+        "note": "Một danh sách; chip và ô tìm là trạng thái chung, lối vào quyết định chip (Home: Tất cả; Hub: Sai lệch)."
       },
       "dataRows": [
         {
-          "label": "REC-260907-03",
-          "example": "Số liệu hiển thị lệch sổ kho · Cần xử lý",
+          "label": "Số trên app lệch sổ kho",
+          "example": "Nobivac DHPPi · Lô DH2507 · REC-260907-03 · Cần làm",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         },
         {
-          "label": "REC-UNKNOWN-01",
-          "example": "Kết quả nghiệp vụ chưa xác định · Ưu tiên cao",
+          "label": "Tiêu hủy đã ghi vào kho",
+          "example": "Găng tay khám Nitrile · 5 hộp · REC-UNKNOWN-01 · Cần làm",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         }
       ]
@@ -6973,7 +6956,7 @@
         "UC-17-01",
         "UC-17-04"
       ],
-      "purpose": "Cho người xử lý hiểu sai lệch thực tế và route tiếp theo bằng evidence nghiệp vụ, không biến log kỹ thuật thành UI.",
+      "purpose": "Nói bằng một câu hồ sơ này lệch gì, bao nhiêu, hàng nào đang tạm khoá và một việc tiếp theo; xác nhận bằng sheet ngay tại màn này.",
       "actors": [
         "Người phụ trách kiểm soát kho"
       ],
@@ -6987,25 +6970,27 @@
         "CORRECTION_REQUIRED",
         "UNKNOWN_EVIDENCE",
         "LEDGER_INTEGRITY_RISK",
-        "NO_REAL_DIFFERENCE"
+        "NO_REAL_DIFFERENCE",
+        "LOCKED",
+        "CONFLICT"
       ],
       "defaultState": "PROJECTION_MISMATCH",
       "fields": [],
       "cards": [
         [
-          "Nguồn nghiệp vụ",
+          "Phiếu gốc",
           "118 hộp",
-          "Đã xác nhận"
+          ""
         ],
         [
           "Sổ kho",
           "118 hộp",
-          "Khớp nguồn"
+          ""
         ],
         [
-          "Số liệu hiển thị",
+          "Số trên app",
           "116 hộp",
-          "Lệch −2"
+          "lệch −2 hộp"
         ]
       ],
       "notice": "",
@@ -7034,18 +7019,23 @@
       },
       "dataRows": [
         {
-          "label": "Nguồn nghiệp vụ",
-          "example": "118 hộp · đã xác nhận",
+          "label": "Kết luận",
+          "example": "Số trên app lệch 2 hộp so với sổ kho. Sổ kho đúng; chỉ cần cập nhật số trên app.",
+          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+        },
+        {
+          "label": "Phiếu gốc",
+          "example": "118 hộp",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         },
         {
           "label": "Sổ kho",
-          "example": "118 hộp · khớp nguồn",
+          "example": "118 hộp",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         },
         {
-          "label": "Số liệu hiển thị",
-          "example": "116 hộp · lệch −2",
+          "label": "Số trên app",
+          "example": "116 hộp · lệch −2 hộp",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         }
       ]
@@ -7053,7 +7043,7 @@
     {
       "id": "SCR-080",
       "short": "080",
-      "name": "Phương án xử lý",
+      "name": "Phương án xử lý (đã gộp vào sheet xác nhận ở SCR-079)",
       "surface": "form",
       "bj": [
         "BJ-16",
@@ -7065,42 +7055,19 @@
         "UC-17-02",
         "UC-17-03"
       ],
-      "purpose": "Hiển thị phương án authoritative bằng ngôn ngữ người dùng; không bắt chọn replay/rebuild/source kỹ thuật.",
+      "purpose": "Đã gộp từ v5.18.0: xác nhận cập nhật số trên app / đóng hồ sơ / xác nhận đã hoàn tất / làm tiếp thao tác là sheet ở SCR-079. Link cũ mở bằng chứng của hồ sơ.",
       "actors": [
         "Người phụ trách kiểm soát kho"
       ],
       "states": [
-        "READY",
-        "LOCKED",
-        "PERMISSION_DENIED",
-        "CONFLICT",
-        "INSUFFICIENT_EVIDENCE"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
       "fields": [],
-      "cards": [
-        [
-          "Phạm vi",
-          "Nobivac DHPPi · Lô DH2507",
-          "Đang được bảo vệ"
-        ],
-        [
-          "Phương án",
-          "Khôi phục số liệu hiển thị",
-          "Không sửa sổ kho"
-        ]
-      ],
+      "cards": [],
       "notice": "",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
-      "actions": [
-        {
-          "id": "ACT-15-RECONCILE",
-          "label": "Thực hiện phương án",
-          "bc": "BC-IC-05",
-          "api": "API-C-18",
-          "tone": "primary"
-        }
-      ],
+      "actions": [],
       "traceActions": [],
       "components": [
         "VSection",
@@ -7111,10 +7078,7 @@
         "VButton"
       ],
       "themeComposition": "Theme7ControlledRecoveryPlan",
-      "uifs": [
-        "UIF-16",
-        "UIF-17"
-      ],
+      "uifs": [],
       "mode": {
         "modes": {
           "UIF-16": "PROJECTION_RECOVERY",
@@ -7122,23 +7086,13 @@
         },
         "note": "System recommends only a contract-valid path; no raw technical action selector."
       },
-      "dataRows": [
-        {
-          "label": "Phạm vi",
-          "example": "Nobivac DHPPi · Lô DH2507",
-          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
-        },
-        {
-          "label": "Phương án",
-          "example": "Khôi phục số liệu hiển thị / Xác lập đã hoàn tất / Tiếp tục lần xử lý này",
-          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
-        }
-      ]
+      "dataRows": [],
+      "prototype_status": "RETIRED_v5.18.0"
     },
     {
       "id": "SCR-081",
       "short": "081",
-      "name": "Đang khôi phục số liệu",
+      "name": "Đang cập nhật số trên app",
       "surface": "detail",
       "bj": [
         "BJ-16"
@@ -7146,29 +7100,28 @@
       "uc": [
         "UC-16-03"
       ],
-      "purpose": "Thông báo tiến độ business-level trong khi hệ thống khôi phục dữ liệu dẫn xuất; không lộ run/hash/event count.",
+      "purpose": "Báo đang cập nhật số trên app theo sổ kho; xong tự sang kiểm lại. Không thanh tiến độ giả.",
       "actors": [
         "Người phụ trách kiểm soát kho"
       ],
       "states": [
         "REBUILDING",
-        "READY",
         "PERMISSION_DENIED",
         "CONFLICT",
         "VALIDATION_FAILED"
       ],
-      "defaultState": "READY",
+      "defaultState": "REBUILDING",
       "fields": [],
       "cards": [
         [
           "Phạm vi",
           "Nobivac DHPPi · Lô DH2507",
-          "Đang xử lý"
+          "Đang cập nhật"
         ],
         [
           "Sổ kho",
           "Không thay đổi",
-          "Nguồn đối chiếu đã xác nhận"
+          ""
         ]
       ],
       "notice": "",
@@ -7215,7 +7168,7 @@
         "UC-17-02",
         "UC-17-03"
       ],
-      "purpose": "So sánh kết quả nghiệp vụ có ý nghĩa trước khi đóng case/mở khóa; không hiển thị hash kỹ thuật.",
+      "purpose": "Kiểm lại số trên app đã khớp sổ kho chưa trước khi đóng hồ sơ và mở khoá.",
       "actors": [
         "Người phụ trách kiểm soát kho"
       ],
@@ -7230,10 +7183,10 @@
         [
           "Sổ kho",
           "118 hộp",
-          "Nguồn đã xác nhận"
+          ""
         ],
         [
-          "Số liệu hiển thị",
+          "Số trên app",
           "118 hộp",
           "Đã khớp"
         ],
@@ -7248,7 +7201,7 @@
       "actions": [
         {
           "id": "ACT-15-RECONCILE",
-          "label": "Đóng hồ sơ & mở khóa",
+          "label": "Đóng hồ sơ",
           "bc": "BC-IC-05",
           "api": "API-C-18",
           "tone": "primary"
@@ -7265,8 +7218,7 @@
       ],
       "themeComposition": "Theme7ReconciliationReview",
       "uifs": [
-        "UIF-16",
-        "UIF-17"
+        "UIF-16"
       ],
       "mode": {
         "modes": {
@@ -7282,7 +7234,7 @@
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         },
         {
-          "label": "Số liệu hiển thị",
+          "label": "Số trên app",
           "example": "118 hộp · đã khớp",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         },
@@ -7308,20 +7260,19 @@
         "UC-17-03",
         "UC-17-04"
       ],
-      "purpose": "Hiển thị authoritative resolution hoặc controlled escalation; không có mutation CTA và không cho blind retry.",
+      "purpose": "Kết quả đóng hồ sơ, hoặc đã gửi bộ phận hỗ trợ / chuyển cho Mua hàng; không có nút làm lại mù.",
       "actors": [
         "Người phụ trách kiểm soát kho",
         "Người có quyền xem"
       ],
       "states": [
         "PROCESSING",
-        "RESOLVED",
         "COMPLETED",
         "UNKNOWN",
         "ESCALATED",
         "PERMISSION_DENIED"
       ],
-      "defaultState": "RESOLVED",
+      "defaultState": "COMPLETED",
       "fields": [
         [
           "Hồ sơ",

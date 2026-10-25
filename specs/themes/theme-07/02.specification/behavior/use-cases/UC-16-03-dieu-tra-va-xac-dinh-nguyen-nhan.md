@@ -122,7 +122,6 @@ Không thay đổi fact nguồn trong quá trình điều tra. UC chỉ so sánh
 | Screen | Vai trò trong UC |
 |---|---|
 | `SCR-079` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Điều tra và xác định nguyên nhân”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
-| `SCR-080` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Điều tra và xác định nguyên nhân”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

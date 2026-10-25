@@ -37,13 +37,13 @@ const FIGMA_TEMPLATE_BY_FLOW_SCREEN = {
   "UIF-08":{"SCR-042":"Mobile / Nested List","SCR-043":"Mobile / Form","SCR-044":"Mobile / Form","SCR-045":"Mobile / Form","SCR-046":"Mobile / Detail","SCR-047":"Mobile / Detail"},
   "UIF-09":{"SCR-036":"Mobile / Root List","SCR-037":"Mobile / Detail","SCR-038":"Mobile / Form","SCR-041":"Mobile / Detail","SCR-056":"Mobile / Detail"},
   "UIF-10":{"SCR-036":"Mobile / Root List","SCR-037":"Mobile / Detail","SCR-040":"Mobile / Form","SCR-041":"Mobile / Detail"},
-  "UIF-11":{"SCR-048":"Mobile / Root List","SCR-049":"Mobile / Detail","SCR-052":"Mobile / Form","SCR-050":"Mobile / Form","SCR-053":"Mobile / Detail","SCR-051":"Mobile / Detail"},
+  "UIF-11":{"SCR-048":"Mobile / Root List","SCR-049":"Mobile / Detail","SCR-050":"Mobile / Form","SCR-053":"Mobile / Detail","SCR-051":"Mobile / Detail"},
   "UIF-12":{"SCR-066":"Mobile / Detail","SCR-067":"Mobile / Form","SCR-068":"Mobile / Detail","SCR-069":"Mobile / Detail","SCR-070":"Mobile / Detail","SCR-071":"Mobile / Detail"},
   "UIF-13":{"SCR-085":"Mobile / Root List","SCR-086":"Mobile / Form","SCR-087":"Mobile / Form","SCR-088":"Mobile / Detail","SCR-089":"Mobile / Detail"},
   "UIF-14":{"SCR-072":"Mobile / Root List","SCR-073":"Mobile / Form","SCR-074":"Mobile / Detail","SCR-076":"Mobile / Detail","SCR-077":"Mobile / Detail"},
   "UIF-15":{"SCR-054":"Mobile / Form","SCR-055":"Mobile / Detail","SCR-056":"Mobile / Detail","SCR-057":"Mobile / Detail","SCR-058":"Mobile / Detail","SCR-059":"Mobile / Detail"},
-  "UIF-16":{"SCR-078":"Mobile / Root List","SCR-079":"Mobile / Detail","SCR-080":"Mobile / Form","SCR-081":"Mobile / Detail","SCR-082":"Mobile / Detail","SCR-083":"Mobile / Detail"},
-  "UIF-17":{"SCR-078":"Mobile / Root List","SCR-079":"Mobile / Detail","SCR-080":"Mobile / Form","SCR-082":"Mobile / Detail","SCR-083":"Mobile / Detail"},
+  "UIF-16":{"SCR-078":"Mobile / Root List","SCR-079":"Mobile / Detail","SCR-081":"Mobile / Detail","SCR-082":"Mobile / Detail","SCR-083":"Mobile / Detail"},
+  "UIF-17":{"SCR-078":"Mobile / Root List","SCR-079":"Mobile / Detail","SCR-083":"Mobile / Detail"},
   "CAP-01":{"SCR-062":"Mobile / Form","SCR-063":"Mobile / Form","SCR-065":"Mobile / Detail"}
 };
 function figmaScreenTemplate(){ return FIGMA_TEMPLATE_BY_FLOW_SCREEN[activeFlowId]?.[activeScreenId] || null; }
@@ -101,6 +101,7 @@ const entryTargets = {
   "UIF-11": {
     "approver": { screen: "SCR-051", state: "READY" },
     "operation-context": { screen: "SCR-049", state: "CORRECTABLE" },
+    "correction-from-case": { screen: "SCR-050", state: "READY" },
   },
   "UIF-12": { "approver": { screen: "SCR-070", state: "READY" }, "owner": { screen: "SCR-066", state: "READY" } },
   "UIF-13": { "source-task": { screen: "SCR-086" }, "staff": { screen: "SCR-085" } },
@@ -359,7 +360,7 @@ function ds24DotBadge(label,tone="Neutral") {
 }
 function ds24Chip(key,label,selected,attrName,count=null) {
   const countHtml=count==null?"":`<span class="ds24-chip__count">${esc(count)}</span>`;
-  return `<button class="ds24-chip${selected?' is-selected':''}${count===0?' is-empty':''}" type="button" ${attrName}="${escapeAttribute(key)}" data-ds-component="VChip" data-figma-node="522:7449" data-ds-prop-state="Default" data-ds-prop-tone="${selected?'Brand':'Neutral'}">${esc(label)}${countHtml}</button>`;
+  return `<button class="ds24-chip${selected?' is-selected':''}${count===0?' is-empty':''}" type="button" aria-pressed="${selected?'true':'false'}" ${attrName}="${escapeAttribute(key)}" data-ds-component="VChip" data-figma-node="522:7449" data-ds-prop-state="Default" data-ds-prop-tone="${selected?'Brand':'Neutral'}">${esc(label)}${countHtml}</button>`;
 }
 // trailingAction: nút cuối ô tìm (vd. quét mã vạch), chuỗi HTML đã dựng sẵn.
 function ds24Search(value,attrs,placeholder="Tìm kiếm",trailingAction="") {

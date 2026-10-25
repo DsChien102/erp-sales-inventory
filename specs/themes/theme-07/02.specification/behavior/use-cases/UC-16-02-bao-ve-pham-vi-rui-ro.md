@@ -115,7 +115,6 @@ Không tự sửa sai lệch bằng cách thay số dư. UC chỉ áp dụng bi�
 | Screen | Vai trò trong UC |
 |---|---|
 | `SCR-079` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Bảo vệ phạm vi rủi ro”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
-| `SCR-080` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Bảo vệ phạm vi rủi ro”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

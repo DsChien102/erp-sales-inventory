@@ -13,6 +13,16 @@
  *   Thành phần dùng chung    dsSegmented (VSegmentedControl), dsChoiceRow (thẻ lựa chọn lớn có nút tròn) — dựng ở CAP-01
  */
 
+/* ---------- Tiền: ai xem được ---------- */
+
+// Chủ cửa hàng và người duyệt thấy tiền; nhân viên không (chuỗi tiền không được nằm trong DOM). BJ-08 / BJ-11 dùng.
+function t7ShowMoney() { return ["approver", "owner"].includes(currentActor()); }
+// signed: kèm dấu "+" / "−" (dấu trừ Unicode, không phải gạch nối).
+function t7FmtMoney(n, signed = false) {
+  const abs = `${Math.round(Math.abs(n)).toLocaleString("vi-VN")} đ`;
+  return signed ? `${n < 0 ? "−" : n > 0 ? "+" : ""}${abs}` : abs;
+}
+
 /* ---------- K1 — trạng thái chung ---------- */
 
 // Lối "Về Kho": trong chế độ Toàn Theme 7 về Hub Kho; chế độ BJ về màn đầu của luồng.
@@ -52,8 +62,9 @@ function k1Empty({ title, description, actionLabel = "", actionAttr = "" }) {
 /* ---------- K2 — lập → duyệt → kết quả ---------- */
 
 // Người lập, sau khi gửi: banner + ai duyệt, gửi lúc nào + số liệu đã khoá.
-function k2Pending({ approver, sentAt, facts = [] }) {
-  return `${vBanner("info", "Đang chờ duyệt", `Chờ ${esc(approver)} duyệt · gửi ${esc(sentAt)}`)}${facts.length ? ac310InfoSurface("Yêu cầu", facts) : ""}<p class="ac310-note k2-lock-note">Dữ liệu đã khoá. Tồn kho chưa thay đổi.</p>`;
+// subject: danh từ sau "duyệt" (vd. "sửa sai" → "Chờ chủ cửa hàng duyệt sửa sai · gửi …"); mặc định rỗng.
+function k2Pending({ approver, sentAt, facts = [], subject = "" }) {
+  return `${vBanner("info", "Đang chờ duyệt", `Chờ ${esc(approver)} duyệt${subject ? ` ${esc(subject)}` : ""} · gửi ${esc(sentAt)}`)}${facts.length ? ac310InfoSurface("Yêu cầu", facts) : ""}<p class="ac310-note k2-lock-note">Dữ liệu đã khoá. Tồn kho chưa thay đổi.</p>`;
 }
 
 // Khối "Cần chú ý" (người duyệt và người lập ở rà soát dùng chung).
@@ -71,9 +82,14 @@ function k2Decision({ question, maker, sentAt, attention = [], facts = [], detai
 }
 
 // Sheet từ chối bắt buộc lý do (giữ chữ của sheet từ chối BJ-12 cũ).
-function k2RejectSheet({ open, title, reason, reasonAttr, confirmAttr, closeAttr }) {
+// Tuỳ chọn cho sheet xác nhận khác (BJ-08): description (câu mô tả dưới tiêu đề), reasonLabel / placeholder / closeLabel / confirmLabel,
+// withReason: false = sheet không có ô lý do (nút xác nhận luôn bấm được), tone "danger" = nút xác nhận nguy hiểm.
+function k2RejectSheet({ open, title, reason, reasonAttr, confirmAttr, closeAttr, description = "", reasonLabel = "Lý do từ chối", placeholder = "Nhập nội dung người lập cần sửa", closeLabel = "Hủy", confirmLabel = "Xác nhận từ chối", withReason = true, tone = "primary" }) {
   if (!open) return "";
-  return `<div class="sheet-backdrop" ${closeAttr}><section class="bottom-sheet k2-reject-sheet" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}" onclick="event.stopPropagation()" data-ds-component="VBottomSheet" data-figma-node="4695:6353"><div class="sheet-handle"></div><div class="sheet-title"><h3>${esc(title)}</h3></div><div class="sheet-divider"></div><div class="sheet-content">${icTextarea("Lý do từ chối", reason, reasonAttr, "Nhập nội dung người lập cần sửa")}<div class="sheet-actions">${cfSecondary("Hủy", closeAttr)}<button class="button button--primary" type="button" ${confirmAttr} data-ds-component="VButton" ${String(reason || "").trim() ? "" : "disabled"}>Xác nhận từ chối</button></div></div></section></div>`;
+  const desc = description ? `<p class="k2-reject-sheet__desc">${esc(description)}</p>` : "";
+  const field = withReason ? icTextarea(reasonLabel, reason, reasonAttr, placeholder) : "";
+  const disabled = withReason && !String(reason || "").trim() ? "disabled" : "";
+  return `<div class="sheet-backdrop" ${closeAttr}><section class="bottom-sheet k2-reject-sheet" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}" onclick="event.stopPropagation()" data-ds-component="VBottomSheet" data-figma-node="4695:6353"><div class="sheet-handle"></div><div class="sheet-title"><h3>${esc(title)}</h3></div><div class="sheet-divider"></div><div class="sheet-content">${desc}${field}<div class="sheet-actions">${cfSecondary(closeLabel, closeAttr)}<button class="button button--${tone === "danger" ? "danger" : "primary"}" type="button" ${confirmAttr} data-ds-component="VButton" ${disabled}>${esc(confirmLabel)}</button></div></div></section></div>`;
 }
 
 /* ---------- Chân màn dùng chung K3 / K4 ---------- */
@@ -87,8 +103,10 @@ function k4Footer(buttons) {
 }
 
 // Chân một nút có dòng lý do ngay trên nút (hiện khi nút tắt). BJ-02 / BJ-05 / BJ-06 dùng; BJ đổi chữ lý do qua [data-k4-reason].
-function k4ReasonFooter({ label, attr, disabled = false, reason = "", tone = "primary" }) {
-  return primaryFooter(label, attr, disabled, tone).replace("<button", `<div class="k4-reason-footer"><p class="k4-reason-footer__reason" data-k4-reason${disabled && reason ? "" : " hidden"}>${esc(disabled ? reason : "")}</p><button`).replace("</button></footer>", "</button></div></footer>");
+// note: dòng mô tả luôn hiện trên nút khi nút bật (vd. BJ-16 "Đóng xong, … mở khoá."); nút tắt thì dòng lý do thay thế.
+function k4ReasonFooter({ label, attr, disabled = false, reason = "", tone = "primary", note = "" }) {
+  const line = disabled ? reason : note;
+  return primaryFooter(label, attr, disabled, tone).replace("<button", `<div class="k4-reason-footer"><p class="k4-reason-footer__reason" data-k4-reason${line ? "" : " hidden"}>${esc(line)}</p><button`).replace("</button></footer>", "</button></div></footer>");
 }
 
 /* ---------- K3 — kết quả chưa rõ ---------- */

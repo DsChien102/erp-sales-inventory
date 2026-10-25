@@ -44,18 +44,18 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-039 | Bàn giao trả nhà cung cấp | BJ-07 | IN_REVIEW | Có |
 | SCR-040 | Yêu cầu tiêu hủy | BJ-10 | IN_REVIEW | Có |
 | SCR-041 | Kết quả xử lý | BJ-07, BJ-09, BJ-10 | IN_REVIEW | Có |
-| SCR-042 | Phiên kiểm kê | BJ-08 | FROZEN | Có |
-| SCR-043 | Chọn phạm vi và mở phiên | BJ-08 | FROZEN | Có |
-| SCR-044 | Đếm mù | BJ-08 | FROZEN | Có |
-| SCR-045 | Chênh lệch và đếm lại | BJ-08 | FROZEN | Có |
-| SCR-046 | Duyệt kết quả kiểm kê | BJ-08 | FROZEN | Có |
-| SCR-047 | Kết quả kiểm kê | BJ-08 | FROZEN | Có |
-| SCR-048 | Nghiệp vụ cần kiểm soát | BJ-11 | FROZEN | Có |
-| SCR-049 | Chi tiết nghiệp vụ kho | BJ-11 | FROZEN | Có |
-| SCR-050 | Nội dung sửa sai | BJ-11 | FROZEN | Có |
-| SCR-051 | Duyệt sửa sai | BJ-11 | FROZEN | Có |
-| SCR-052 | Hủy hoặc chọn cách sửa | BJ-11 | FROZEN | Có |
-| SCR-053 | Kết quả sửa sai | BJ-11 | FROZEN | Có |
+| SCR-042 | Kiểm kê kho | BJ-08 | IN_REVIEW | Có |
+| SCR-043 | Tạo phiên kiểm kê | BJ-08 | IN_REVIEW | Có |
+| SCR-044 | Đếm mù | BJ-08 | IN_REVIEW | Có |
+| SCR-045 | Chênh lệch và đếm lại | BJ-08 | IN_REVIEW | Có |
+| SCR-046 | Duyệt kết quả kiểm kê | BJ-08 | IN_REVIEW | Có |
+| SCR-047 | Kết quả kiểm kê | BJ-08 | IN_REVIEW | Có |
+| SCR-048 | Hủy & sửa sai | BJ-11 | IN_REVIEW | Có |
+| SCR-049 | Chi tiết phiếu kho | BJ-11 | IN_REVIEW | Có |
+| SCR-050 | Sửa sai | BJ-11 | IN_REVIEW | Có |
+| SCR-051 | Duyệt sửa sai | BJ-11 | IN_REVIEW | Có |
+| SCR-052 | Hủy hoặc chọn cách sửa — Đã gộp vào SCR-050 và SCR-049 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-053 | Kết quả sửa sai | BJ-11 | IN_REVIEW | Có |
 | SCR-054 | Tra cứu thẻ kho / Thiết lập báo cáo tồn | BJ-15 | FROZEN | Có |
 | SCR-055 | Báo cáo tồn / Thẻ kho | BJ-15 | FROZEN | Có |
 | SCR-056 | Chi tiết biến động tồn kho | BJ-09, BJ-15 | FROZEN | Có |
@@ -80,12 +80,12 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-075 | Blocker và adjustment — Đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-076 | Rà soát công bố — Đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-077 | Kết quả công bố giá vốn | BJ-14 | IN_REVIEW | Có |
-| SCR-078 | Hồ sơ cần kiểm tra | BJ-16, BJ-17 | FROZEN | Có |
-| SCR-079 | Bằng chứng & kết luận | BJ-16, BJ-17 | FROZEN | Có |
-| SCR-080 | Phương án xử lý | BJ-16, BJ-17 | FROZEN | Có |
-| SCR-081 | Đang khôi phục số liệu | BJ-16 | FROZEN | Có |
-| SCR-082 | Rà soát kết quả | BJ-16, BJ-17 | FROZEN | Có |
-| SCR-083 | Kết quả xử lý | BJ-16, BJ-17 | FROZEN | Có |
+| SCR-078 | Hồ sơ cần kiểm tra | BJ-16, BJ-17 | IN_REVIEW | Có |
+| SCR-079 | Bằng chứng & kết luận | BJ-16, BJ-17 | IN_REVIEW | Có |
+| SCR-080 | Phương án xử lý — Đã gộp vào sheet xác nhận ở SCR-079 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-081 | Đang cập nhật số trên app | BJ-16 | IN_REVIEW | Có |
+| SCR-082 | Rà soát kết quả | BJ-16 | IN_REVIEW | Có |
+| SCR-083 | Kết quả xử lý | BJ-16, BJ-17 | IN_REVIEW | Có |
 | SCR-084 | Chi tiết hàng thực nhận | BJ-02 | IN_REVIEW | Có |
 | SCR-085 | Điều chỉnh giá trị hàng nhập | BJ-13 | IN_REVIEW | Có |
 | SCR-086 | Phân bổ điều chỉnh giá trị | BJ-13 | IN_REVIEW | Có |

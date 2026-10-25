@@ -2,7 +2,7 @@
  * A7: ac310Tone / CleanText / SanitizeMarkup / Return / InfoSurface / RecordRow.
  * A8: SectionTitle / KeyValueSurface / ListSurface / RadioSurface / Audit* / SummaryMetrics / Field / ApprovalFooter.
  * A9: cfMoney…cfSecondary, ac310ProductRow.
- * A10: crFactCard, ac321CanonicalChips.
+ * A10: crFactCard.
  * A11: icCard/icField/icTextarea/icHeaderRows/icSecondary/icApprovalButtons.
  */
 function ac310Tone(tone="Neutral") {
@@ -111,7 +111,6 @@ function cfSummaryGrid(items){return `<div class="cf-summary-grid">${items.map((
 function cfSecondary(label,attr,tone="neutral"){return `<button class="button button--secondary cf-secondary" type="button" ${attr} data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" data-ds-prop-size="VButtonSize.medium" data-ds-prop-tone="VComponentTone.${tone}">${label}</button>`;}
 
 function crFactCard(title,rows,badge="",tone="info"){const calibrated=FIGMA_MIGRATED_FLOWS.has(activeFlowId);return `<section class="review-card cr-fact-card" data-ds-component="${calibrated?'VSection':'VCard'}" ${calibrated?'data-composed-from="VText,VBadge,DS v2 / Info Row"':'data-ds-profile="card.readOnly"'}><div class="review-card-header"><strong data-ds-component="VText">${title}</strong>${badge?vBadge(badge,tone):""}</div><div class="review-card-body">${rows.map(r=>ioMetaRow(r[0],r[1],!!r[2])).join("")}</div></section>`;}
-function ac321CanonicalChips(active,items,attr){return `<div class="ac321-chip-wrap" data-composed-from="VChip" aria-label="Bộ lọc">${items.map(([key,label])=>ds24Chip(key,label,active===key,attr)).join('')}</div>`;}
 
 /* ic* — shared Inventory Control helpers (was duplicated in core.js + bj09.js; T7-P A11). */
 function icCard(title,body){const calibrated=FIGMA_MIGRATED_FLOWS.has(activeFlowId);return `<section class="review-card" data-ds-component="${calibrated?'VSection':'VCard'}" ${calibrated?'data-composed-from="VText,DS v2 / Info Row,VTextField"':'data-ds-profile="card.readOnly"'}><div class="review-card-header"><strong>${title}</strong></div><div class="review-card-body">${body}</div></section>`;}

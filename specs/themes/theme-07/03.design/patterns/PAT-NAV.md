@@ -103,14 +103,14 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 - [`SCR-049` — Chi tiết operation](../screens/SCR-049.md)
 - [`SCR-050` — Nháp và gửi operation](../screens/SCR-050.md)
 - [`SCR-051` — Quyết định phê duyệt](../screens/SCR-051.md)
-- [`SCR-052` — Hủy hoặc sửa sai](../screens/SCR-052.md)
+- [`SCR-052` — Hủy hoặc sửa sai](../screens/RETIRED.md) — đã gộp vào SCR-050 và SCR-049.
 - [`SCR-053` — Kết quả kiểm soát operation](../screens/SCR-053.md)
-- [`SCR-078` — Hồ sơ cần đối soát](../screens/SCR-078.md)
-- [`SCR-079` — Bằng chứng đối soát](../screens/SCR-079.md)
-- [`SCR-080` — Chọn hành động phục hồi](../screens/SCR-080.md)
-- [`SCR-081` — Tiến độ dựng lại](../screens/SCR-081.md)
+- [`SCR-078` — Hồ sơ cần kiểm tra](../screens/SCR-078.md)
+- [`SCR-079` — Bằng chứng & kết luận](../screens/SCR-079.md)
+- [`SCR-080` — Phương án xử lý](../screens/RETIRED.md) — đã gộp vào sheet xác nhận ở SCR-079.
+- [`SCR-081` — Đang cập nhật số trên app](../screens/SCR-081.md)
 - [`SCR-082` — Rà soát kết quả](../screens/SCR-082.md)
-- [`SCR-083` — Kết quả đối soát](../screens/SCR-083.md)
+- [`SCR-083` — Kết quả xử lý](../screens/SCR-083.md)
 
 #### NAV-04 — Giá trị và giá vốn
 

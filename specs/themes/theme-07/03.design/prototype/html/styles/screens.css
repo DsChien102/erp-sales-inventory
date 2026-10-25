@@ -1797,7 +1797,7 @@ body[data-active-uif="UIF-05"] [data-io05-search-text][hidden] {
    not; Selection owns its selection control. These guards deliberately outrank
    the generic 44px touch-target rule that previously collapsed button rows.
    -------------------------------------------------------------------------- */
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Default"] {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Default"] {
   box-sizing: border-box !important;
   width: 370px !important;
   max-width: 370px !important;
@@ -1809,7 +1809,7 @@ body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="
   border-radius: var(--vet45-v2-radius-4) !important;
 }
 
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] {
   box-sizing: border-box !important;
   width: 370px !important;
   max-width: 370px !important;
@@ -1818,7 +1818,7 @@ body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="
   max-height: 52px !important;
 }
 
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-type="Navigation"] .ds24-list-row__trailing > .icon:last-child {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-type="Navigation"] .ds24-list-row__trailing > .icon:last-child {
   display: block !important;
 }
 
@@ -1827,7 +1827,7 @@ body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="
    rows are composed inside the established 370px information surface used by
    mature VET45 screens, with 16px inset and 12px outer radius.
    -------------------------------------------------------------------------- */
-body:is([data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell .ds24-info-group {
+body:is([data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell .ds24-info-group {
   box-sizing: border-box !important;
   width: 370px !important;
   max-width: 370px !important;
@@ -1841,7 +1841,7 @@ body:is([data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="
   background: var(--vet45-v2-surface-default) !important;
   box-shadow: none !important;
 }
-body:is([data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell .ds24-info-group__title {
+body:is([data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell .ds24-info-group__title {
   width: 338px !important;
   margin: 0 !important;
   color: var(--vet45-v2-text-primary) !important;
@@ -1850,13 +1850,13 @@ body:is([data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="
   line-height: 22px !important;
   font-weight: 600 !important;
 }
-body:is([data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell .ds24-info-group__rows {
+body:is([data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell .ds24-info-group__rows {
   width: 338px !important;
   display: flex !important;
   flex-direction: column !important;
   gap: var(--vet45-v2-space-2) !important;
 }
-body:is([data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell .ds24-info-group--untitled {
+body:is([data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell .ds24-info-group--untitled {
   gap: 0 !important;
 }
 
@@ -1887,7 +1887,7 @@ body[data-active-uif="UIF-02"] .figma-calibrated-shell :is(.bj02-context-section
    Key-value Row 525:358 — canonical Default and Emphasis geometry/typography.
    Applied to current migrated Product UIFs so BJ05 cannot drift from BJ01/BJ02.
    -------------------------------------------------------------------------- */
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] {
   box-sizing: border-box !important;
   width: 338px !important;
   max-width: 338px !important;
@@ -1905,7 +1905,7 @@ body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="
   background: transparent !important;
   box-shadow: none !important;
 }
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] > span {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] > span {
   flex: 0 0 auto !important;
   min-width: 0 !important;
   margin: 0 !important;
@@ -1916,7 +1916,7 @@ body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="
   font-weight: 400 !important;
   white-space: nowrap !important;
 }
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] > strong {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] > strong {
   flex: 0 0 auto !important;
   min-width: 0 !important;
   margin: 0 0 0 auto !important;
@@ -1928,22 +1928,22 @@ body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="
   text-align: right !important;
   white-space: nowrap !important;
 }
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"],
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell .ds24-key-value-row--emphasis {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"],
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell .ds24-key-value-row--emphasis {
   padding: 0 var(--vet45-v2-space-3) !important;
   border-radius: var(--vet45-v2-radius-3) !important;
   background: var(--vet45-v2-surface-brand) !important;
 }
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > span,
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell .ds24-key-value-row--emphasis > span {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > span,
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell .ds24-key-value-row--emphasis > span {
   color: var(--vet45-v2-text-primary) !important;
   font-family: "Inter", system-ui, sans-serif !important;
   font-size: 14px !important;
   line-height: 20px !important;
   font-weight: 600 !important;
 }
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > strong,
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell .ds24-key-value-row--emphasis > strong {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > strong,
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell .ds24-key-value-row--emphasis > strong {
   color: var(--vet45-v2-text-brand) !important;
   font-family: "Inter", system-ui, sans-serif !important;
   font-size: 16px !important;
@@ -2065,8 +2065,7 @@ body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="
    pattern: transparent 338x44 rows grouped by a 370px white information surface.
    This is a composition rule, not a new component. */
 
-.figma-calibrated-shell .review-card.io-read-card:has(> .review-card-body > [data-ds-component="DS v2 / Info Row"] ~ [data-ds-component="DS v2 / Info Row"]) > .review-card-body,
-.figma-calibrated-shell .review-card.cr-evidence:has(> .review-card-body > [data-ds-component="DS v2 / Info Row"] ~ [data-ds-component="DS v2 / Info Row"]) > .review-card-body {
+.figma-calibrated-shell .review-card.io-read-card:has(> .review-card-body > [data-ds-component="DS v2 / Info Row"] ~ [data-ds-component="DS v2 / Info Row"]) > .review-card-body {
   box-sizing: border-box !important;
   width: 370px !important;
   padding: var(--vet45-v2-space-4) !important;
@@ -2218,7 +2217,7 @@ body[data-active-uif="UIF-05"] .bj05-handover-product {
 
 /* Canonical Compact List Row from live Figma: 370x52, p4/16, gap8, radius8.
    v2.7.2 inherited Default-row padding/radius into Compact rows. */
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] {
   box-sizing: border-box !important;
   width: 370px !important;
   max-width: 370px !important;
@@ -2230,13 +2229,13 @@ body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="
   border-radius: var(--vet45-v2-radius-3) !important;
   overflow: clip !important;
 }
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] .ds24-list-row__copy {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] .ds24-list-row__copy {
   gap: var(--vet45-v2-space-0) !important;
 }
 
 /* Disabled is a state, never a different row type. Keep geometry/chevron identical
    to the surrounding Navigation collection and apply the DS parent opacity. */
-body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-08"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-state="Disabled"] {
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-state="Disabled"] {
   opacity: var(--vet45-v2-opacity-disabled) !important;
   cursor: default !important;
   pointer-events: none !important;
@@ -3964,17 +3963,6 @@ body:is(
 
 .ac310-two-actions > .button { flex:1 1 0; min-width:0; }
 
-.ac310-progress {
-  box-sizing:border-box;
-  width:370px;
-  height:8px;
-  overflow:hidden;
-  border-radius:999px;
-  background:var(--vet45-v2-surface-subtle);
-}
-
-.ac310-progress__bar { height:100%; border-radius:999px; background:var(--vet45-v2-action-primary-default); }
-
 .ac310-validation-list .ds24-list-row__trailing { max-width:36% !important; }
 
 .ac310-sheet,
@@ -3999,7 +3987,6 @@ body:is(
   .ac310-file-drop,
   .ac310-metrics,
   .ac310-note,
-  .ac310-progress,
   .ac310-product-control-list,
   .ac310-product-control-group,
   .ac310-date-grid {
@@ -4085,82 +4072,16 @@ body:is([data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="
   -webkit-overflow-scrolling:touch;
 }
 
-.ac321-chip-wrap {
-  box-sizing: border-box;
-  width: 370px;
-  max-width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--vet45-v2-space-2);
-  padding: 0;
-  overflow: visible;
-}
 
-.ac321-chip-wrap .ds24-chip { flex: 0 0 auto; }
 
-body[data-active-uif="UIF-08"] .ac321-product-input-group {
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  background: var(--vet45-v2-surface-default);
-}
 
-body[data-active-uif="UIF-08"] .ac321-product-input-group + .ac321-product-input-group {
-  border-top: 1px solid var(--vet45-v2-border-default);
-}
 
-body[data-active-uif="UIF-08"] .ac321-product-input-group > .ds24-list-row {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  height: 56px !important;
-  min-height: 56px !important;
-  padding: 6px 16px !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: var(--vet45-v2-surface-subtle) !important;
-}
 
-body[data-active-uif="UIF-08"] .ac321-product-facts {
-  width: auto;
-  margin: 0 16px;
-  padding: 4px 0;
-  display: flex;
-  flex-direction: column;
-}
 
-body[data-active-uif="UIF-08"] .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] {
-  box-sizing: border-box !important;
-  width: 100% !important;
-  max-width: none !important;
-  min-height: 36px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-}
 
-body[data-active-uif="UIF-08"] .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] + [data-ds-component="DS v2 / Key-value Row"] {
-  border-top: 1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
-}
 
-body[data-active-uif="UIF-08"] .ac321-product-field {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 8px 16px 12px;
-}
-
-body[data-active-uif="UIF-08"] .ac321-product-field .ds24-field { gap: 6px; }
-
-body[data-active-uif="UIF-08"] .ac321-product-field .ds24-field__control { min-height: 44px; }
 
 @media (max-width: 401px) {
-  .ac321-chip-wrap,
-  .ac321-list-meta,
-  body[data-active-uif="UIF-08"] .ac321-count-collection,
   body[data-active-uif="UIF-07"] .io07-grouped-collection { width: 100% !important; max-width: 100% !important; }
 }
 
@@ -4190,79 +4111,14 @@ body:is(
   max-width: 100% !important;
 }
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-input-group,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-group {
-  width: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: var(--vet45-v2-space-2) !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-input-group + .ac321-product-input-group,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-group + .ac310-product-control-group {
-  padding-top: 0 !important;
-  border-top: 0 !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-input-group > .ds24-list-row,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-group > .ds24-list-row {
-  box-sizing: border-box !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  min-height: 64px !important;
-  height: auto !important;
-  margin: 0 !important;
-  padding: 10px 12px !important;
-  border: 1px solid var(--vet45-v2-border-default) !important;
-  border-radius: var(--vet45-v2-radius-4) !important;
-  background: var(--vet45-v2-surface-default) !important;
-  box-shadow: none !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts {
-  width: 100% !important;
-  box-sizing: border-box !important;
-  margin: 0 !important;
-  padding: 0 12px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0 !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] {
-  min-height: 32px !important;
-  height: 32px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] + [data-ds-component="DS v2 / Key-value Row"] {
-  border-top: 0 !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent {
-  box-sizing: border-box !important;
-  width: 100% !important;
-  margin: 0 !important;
-  padding: 0 12px !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field .ds24-field,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ds24-field {
-  width: 100% !important;
-  gap: 6px !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field .ds24-field__control,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ds24-field__control {
-  min-height: 44px !important;
-}
 
 body:is(
   [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
@@ -4293,8 +4149,6 @@ body:is(
 }
 
 @media (max-width: 401px) {
-  body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-count-collection,
-  body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-list,
   body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection { width:100% !important; max-width:100% !important; }
 }
 
@@ -4315,94 +4169,15 @@ body:is(
   overflow:visible !important;
 }
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell :is(.ac310-product-control-group,.ac321-product-input-group) {
-  box-sizing:border-box !important;
-  width:370px !important;
-  max-width:100% !important;
-  margin:0 !important;
-  padding:0 0 12px !important;
-  display:flex !important;
-  flex-direction:column !important;
-  gap:0 !important;
-  border:1px solid var(--vet45-v2-border-default) !important;
-  border-radius:12px !important;
-  background:var(--vet45-v2-surface-default) !important;
-  overflow:hidden !important;
-  box-shadow:none !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell :is(.ac310-product-control-group,.ac321-product-input-group) + :is(.ac310-product-control-group,.ac321-product-input-group) {
-  padding-top:0 !important;
-  border-top:1px solid var(--vet45-v2-border-default) !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell :is(.ac310-product-control-group,.ac321-product-input-group) > .ds24-list-row {
-  box-sizing:border-box !important;
-  width:100% !important;
-  max-width:none !important;
-  min-height:60px !important;
-  margin:0 !important;
-  padding:10px 12px !important;
-  border:0 !important;
-  border-bottom:1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
-  border-radius:0 !important;
-  background:transparent !important;
-  box-shadow:none !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts {
-  box-sizing:border-box !important;
-  width:100% !important;
-  margin:0 !important;
-  padding:12px 16px 0 !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-surface,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts {
-  border:0 !important;
-  border-radius:0 !important;
-  background:transparent !important;
-  box-shadow:none !important;
-  padding:0 !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-key-value-stack,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts {
-  width:100% !important;
-  max-width:100% !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"],
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] {
-  box-sizing:border-box !important;
-  width:100% !important;
-  max-width:100% !important;
-  min-height:40px !important;
-  height:40px !important;
-  margin:0 !important;
-  padding:0 !important;
-  border:0 !important;
-  border-radius:0 !important;
-  background:transparent !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"] + [data-ds-component="DS v2 / Key-value Row"],
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] + [data-ds-component="DS v2 / Key-value Row"] {
-  border-top:1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ds24-field,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field .ds24-field {
-  width:100% !important;
-  gap:6px !important;
-}
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ds24-field__control,
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field .ds24-field__control {
-  min-height:44px !important;
-}
 
 body:is([data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],[data-active-uif="UIF-11"],[data-active-uif="UIF-12"],[data-active-uif="UIF-15"],[data-active-uif="UIF-16"],[data-active-uif="UIF-17"])
 .figma-calibrated-shell .body-stack > .ac310-product-row:has(+ .ac310-surface) {
@@ -4418,7 +4193,6 @@ body:is([data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="
 
 @media (max-width:401px){
   .figma-calibrated-shell :is(.ds24-chip-scroll,.io07-chip-scroll,.bj05-chip-scroll),
-  body[data-active-uif="UIF-08"] .figma-calibrated-shell :is(.ac310-product-control-list,.ac310-product-control-group,.ac340-review-list,.ac340-review-group),
   body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection {width:100% !important;max-width:100% !important;}
 }
 
@@ -4447,13 +4221,10 @@ body .ds24-list-row[hidden],
 [data-io06-row][hidden],
 [data-io07-row][hidden] { display: none !important; }
 
-.ac321-chip-wrap,
 .io-chip-row,
 .io07-chip-scroll { overflow: visible; }
 
-.ac321-chip-wrap { display:flex; flex-wrap:wrap; gap:8px; }
-
-.ac321-chip-wrap > *, .io-chip-row > * { flex:0 0 auto; max-width:100%; }
+.io-chip-row > * { flex:0 0 auto; max-width:100%; }
 
 .ds24-info-row strong,
 .review-card-body strong,
@@ -4474,12 +4245,12 @@ body .ds24-list-row[hidden],
   background: transparent !important;
 }
 
-.figma-calibrated-shell :is(.io-list-card,.val03-work-list,.val13-list,.val14-run-list,.generic-card-list,.cf-movement-list,.cr-case-list) {
+.figma-calibrated-shell :is(.io-list-card,.val03-work-list,.val13-list,.val14-run-list,.generic-card-list,.cf-movement-list) {
   background: transparent !important;
   box-shadow: none !important;
 }
 
-body[data-active-uif] .figma-calibrated-shell :is(.ds24-chip-scroll,.io06-chip-scroll,.io07-chip-scroll,.bj05-chip-scroll,.ac321-chip-wrap) {
+body[data-active-uif] .figma-calibrated-shell :is(.ds24-chip-scroll,.io06-chip-scroll,.io07-chip-scroll,.bj05-chip-scroll) {
   box-sizing: border-box !important;
   width: 370px !important;
   max-width: 100% !important;
@@ -4500,7 +4271,7 @@ body[data-active-uif] .figma-calibrated-shell :is(.ds24-chip-scroll,.io06-chip-s
   background: transparent !important;
 }
 
-body[data-active-uif] .figma-calibrated-shell :is(.ds24-chip-scroll,.io06-chip-scroll,.io07-chip-scroll,.bj05-chip-scroll,.ac321-chip-wrap) > .ds24-chip {
+body[data-active-uif] .figma-calibrated-shell :is(.ds24-chip-scroll,.io06-chip-scroll,.io07-chip-scroll,.bj05-chip-scroll) > .ds24-chip {
   flex: 0 0 auto !important;
   max-width: none !important;
   white-space: nowrap !important;
@@ -4569,9 +4340,6 @@ body[data-active-uif] .figma-calibrated-shell :is(.ds24-chip-scroll,.io06-chip-s
 .io-chip-strip > *,
 .ac310-chip-strip > * { flex: 0 0 auto !important; }
 
-body[data-active-uif="UIF-08"] .v-page-scaffold:has(.sheet-backdrop .ds24-confirmation) > .app-actions {
-  visibility: hidden !important;
-}
 
 .figma-calibrated-shell > .app-actions.v361-dual-footer,
 .app-actions.v361-dual-footer {
@@ -4605,14 +4373,6 @@ body[data-active-uif="UIF-08"] .v-page-scaffold:has(.sheet-backdrop .ds24-confir
   background: var(--vet45-v2-surface-default) !important;
 }
 
-body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac320-session-list {
-  width: 370px;
-  max-width: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--vet45-v2-space-3);
-  background: transparent;
-}
 
 body[data-active-uif="UIF-15"] .figma-calibrated-shell .io-list-card > .io-product-list {
   width: 100%;
@@ -5075,20 +4835,6 @@ body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"],[data-active-uif="
   margin:0!important;
   font:400 13px/20px "Inter",system-ui,sans-serif!important;
 }
-
-.ac310-progress-block{
-  box-sizing:border-box;
-  width:370px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.ac310-progress-block>.ac310-progress{width:370px;height:8px;flex:0 0 8px;}
-
-.ac310-progress-block>strong{margin:0;color:var(--vet45-v2-text-primary);font:600 14px/20px "Inter",system-ui,sans-serif;}
-
-.ac310-progress-block>small{margin:0;color:var(--vet45-v2-text-secondary);font:400 13px/20px "Inter",system-ui,sans-serif;}
 
 .v460-task{margin:0 0 12px;}
 
@@ -5868,3 +5614,78 @@ body[data-active-uif="UIF-10"] .ds24-key-value-row > strong { font-family: Inter
 .v395-source-slice-control { grid-template-columns: minmax(0, 1fr) auto; }
 .v395-source-slice-control .ds24-field__control { min-width: 0; }
 .device-preview.is-web .k7-wide :is(.io07-verification-sheet, .v395-mismatch-sheet) { max-height: calc(100% - 48px); overflow-y: auto; }
+
+/* ===== v5.16.0 — BJ-08 thiết kế lại (kiểm kê) ===== */
+.bj08-lead { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj08-form, .bj08-count { display: flex; flex-direction: column; gap: var(--vet45-v2-space-4); width: 100%; min-width: 0; }
+.bj08-form .bj06-section { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
+.bj08-scope-pick { justify-content: space-between; align-items: center; width: 100%; min-height: 44px; }
+.bj08-scope-pick > em { font-style: normal; font-weight: 600; color: var(--vet45-v2-text-brand); }
+.bj08-scope-items h3 { margin: 0 0 var(--vet45-v2-space-2); font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+.bj08-scope-items ul { margin: 0; padding-left: var(--vet45-v2-space-5); font: 400 13px/22px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+.bj08-scope-items__more { list-style: none; margin-left: calc(-1 * var(--vet45-v2-space-5)); color: var(--vet45-v2-text-secondary); }
+.bj08-progress { width: 100%; }
+.bj08-line { display: grid; grid-template-columns: minmax(0, 1fr) 132px; align-items: center; column-gap: var(--vet45-v2-space-3); row-gap: var(--vet45-v2-space-2); padding: var(--vet45-v2-space-3) var(--vet45-v2-space-4); border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-card); background: var(--vet45-v2-surface-default); box-sizing: border-box; }
+.bj08-line[hidden], .k7-table tr[hidden] { display: none; }
+.bj08-line--recount { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+.bj08-line__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+.bj08-line__copy > strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); overflow-wrap: anywhere; }
+.bj08-line__copy > small { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj08-line__copy > .ds24-badge { margin-top: var(--vet45-v2-space-1); }
+.bj08-line__field { min-width: 0; }
+.bj08-line__state { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); }
+.bj08-recount-field { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: var(--vet45-v2-space-2); }
+.bj08-recount-field > .k7-edit { flex: 1 1 auto; min-width: 0; }
+.bj08-recount-cell { display: flex; align-items: flex-start; justify-content: flex-end; gap: var(--vet45-v2-space-2); }
+.bj08-same { flex: 0 0 auto; width: auto; min-width: 44px; min-height: 44px; padding-inline: var(--vet45-v2-space-3); white-space: nowrap; }
+.bj08-add { align-self: flex-start; }
+.bj08-link { align-self: flex-start; min-height: 44px; display: inline-flex; align-items: center; }
+.bj08-cancel-link { align-self: flex-start; min-height: 44px; padding: 0 var(--vet45-v2-space-2); border: 0; background: transparent; color: var(--vet45-v2-text-danger); font: 600 14px/20px Inter, system-ui, sans-serif; cursor: pointer; }
+.bj08-cancel-link:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: 2px; }
+.bj08-money { font: 500 12px/16px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--vet45-v2-text-primary); }
+.bj08-review-row .ds24-list-row__trailing { flex-direction: column; align-items: flex-end; gap: var(--vet45-v2-space-1); }
+.k2-reject-sheet__desc { margin: 0 0 var(--vet45-v2-space-3); font: 400 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.device-preview.is-web .k7-wide :is(.bj08-form, .bj08-count) :is(.form-field, .ds-choice-list, .bj06-section, .k2-attention, .ds24-list-row, .v-banner, .cf12-strip, .bj08-progress) { width: 100%; max-width: none; box-sizing: border-box; }
+.device-preview.is-web .bj08-line { display: none; }
+.device-preview.is-web .k7-table td .bj08-recount-cell .k7-edit { margin-left: 0; }
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .v-banner[data-ds-component="VBanner"] { height: auto !important; min-height: 0 !important; max-height: none !important; }
+
+/* ===== v5.17.0 — BJ-11 thiết kế lại (hủy & sửa sai) ===== */
+.bj11-form { display: flex; flex-direction: column; gap: var(--vet45-v2-space-4); width: 100%; min-width: 0; }
+.bj11-form .bj06-section { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
+.bj11-hint { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+/* "Sau khi sửa" chỉ là thông tin: khối thường, không nền cảnh báo. */
+.bj11-after .k2-attention { border-color: var(--vet45-v2-border-default); background: var(--vet45-v2-surface-default); }
+.bj11-after .k2-attention .ac310-surface__head h2 { color: var(--vet45-v2-text-primary); }
+.device-preview.is-web .bj11-after--inline { display: none; }
+.device-preview.is-web .k7-wide .bj11-form :is(.form-field, .k5-qty, .ds-choice-list, .bj06-section, .k2-attention, .ds24-list-row, .v-banner) { width: 100%; max-width: none; box-sizing: border-box; }
+/* Danh sách phiếu: mã phiếu là thứ người dùng tìm theo, không cắt bằng dấu "…". */
+body[data-active-uif="UIF-11"] .v-page-scaffold.figma-calibrated-shell :is(.k6-list, .ds-choice-row) .ds24-list-row__copy > :is(strong, small) { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+body[data-active-uif="UIF-11"] .figma-calibrated-shell .v-banner[data-ds-component="VBanner"] { height: auto !important; min-height: 0 !important; max-height: none !important; }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-bj11-row] { cursor: pointer; }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-bj11-row]:hover td { background: var(--vet45-v2-surface-subtle); }
+.k7-table tbody tr[data-bj11-row]:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: -2px; }
+.bj11-form .field-error { margin: 0; font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-danger); }
+.bj11-form .bj11-field--error textarea { border-color: var(--vet45-v2-border-danger, currentColor); }
+
+/* ===== v5.18.0 — BJ-16 / BJ-17 thiết kế lại (hồ sơ cần kiểm tra) ===== */
+.cr-item { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cr-item > strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
+.cr-item > small { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.cr-compare__rows { display: flex; flex-direction: column; }
+.cr-compare .ds24-key-value-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--vet45-v2-space-3); min-height: 0; padding: var(--vet45-v2-space-2) 0; border-bottom: 1px solid var(--vet45-v2-border-default); background: transparent; }
+.cr-compare .ds24-key-value-row:last-child { border-bottom: 0; }
+.cr-compare .ds24-key-value-row > span { flex: 0 1 45%; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.cr-compare .ds24-key-value-row > strong { flex: 1 1 0; min-width: 0; text-align: right; overflow-wrap: anywhere; font: 600 14px/20px Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--vet45-v2-text-primary); }
+.cr-compare .ds24-key-value-row > strong[data-cr-diff] { color: var(--vet45-v2-text-warning); }
+.cr-lock { display: flex; align-items: flex-start; gap: var(--vet45-v2-space-2); margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.cr-lock .icon { flex: none; margin-top: 2px; color: var(--vet45-v2-icon-warning); }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-recon-row] { cursor: pointer; }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-recon-row]:hover td { background: var(--vet45-v2-surface-subtle); }
+.k7-table tbody tr[data-recon-row]:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: -2px; }
+.device-preview.is-web .k7-wide :is(.cr-compare, .k2-attention, .cr-lock, .v-banner, .k1-stale-action) { width: 100%; max-width: none; box-sizing: border-box; }
+/* Danh sách "Hồ sơ cần kiểm tra" (iPhone): phụ đề xuống dòng (tối đa 2 dòng) để mã hồ sơ cuối dòng không bị cắt. */
+body:is([data-active-uif="UIF-16"],[data-active-uif="UIF-17"]) .figma-calibrated-shell .k6-list .ds24-list-row .ds24-list-row__copy > :is(strong, small) {
+  display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 3; white-space: normal !important; overflow: hidden !important; text-overflow: clip !important;
+}
+body:is([data-active-uif="UIF-16"],[data-active-uif="UIF-17"]) .figma-calibrated-shell .k6-list .ds24-list-row { height: auto !important; max-height: none !important; min-height: 64px !important; padding-block: var(--vet45-v2-space-2) !important; }

@@ -57,14 +57,14 @@ function renderFlowInspector() {
     "UIF-05":"v5.11.0 · BJ-05 thiết kế lại",
     "UIF-06":"v5.12.0 · BJ-06 thiết kế lại",
     "UIF-07":"v5.14.0 · BJ-07 thiết kế lại",
-    "UIF-08":"v3.2.0 · BJ08 kiểm kê + DS aligned",
+    "UIF-08":"v5.16.0 · BJ-08 thiết kế lại",
     "UIF-09":"v5.13.0 · BJ-09 thiết kế lại · K5",
     "UIF-10":"v5.15.0 · BJ-10 thiết kế lại",
-    "UIF-11":"v3.2.0 · BJ11 hủy/sửa sai + DS aligned",
+    "UIF-11":"v5.17.0 · BJ-11 thiết kế lại",
     "UIF-12":"v3.2.0 · BJ12 số dư đầu kỳ + control foundation",
     "UIF-15":"v3.2.0 · BJ15 báo cáo/thẻ kho + DS aligned",
-    "UIF-16":"v3.2.0 · BJ16 đối soát sai lệch + evidence",
-    "UIF-17":"v3.2.0 · BJ17 xác minh kết quả + recovery",
+    "UIF-16":"v5.18.0 · BJ-16 thiết kế lại",
+    "UIF-17":"v5.18.0 · BJ-17 thiết kế lại",
     "CAP-01":"v5.7.0 · CAP-01 thiết kế lại"
   })[activeFlowId] || "Calibrated shell · structural migration pending";
   document.getElementById("traceability").innerHTML=`<div class="trace-row"><span>BJ / UIF</span><strong>${f.bj} · ${f.id}</strong></div><div class="trace-row"><span>UC</span><strong>${(screen.uc||[]).join(" · ")||"—"}</strong></div><div class="trace-row"><span>Purpose</span><strong>${screen.purpose||"—"}</strong></div><div class="trace-row"><span>Action</span><strong>${actions}</strong></div><div class="trace-row"><span>Figma DS</span><strong>${figmaMigrationLabel}</strong></div><div class="trace-row"><span>DS annotations</span><strong>VPageScaffold → VAppBar · ${(screen.components||[]).join(" · ")}</strong></div><div class="trace-row"><span>Composition</span><strong>${screen.themeComposition||"—"}</strong></div>`;
@@ -455,7 +455,7 @@ requestAnimationFrame(fitReviewDeviceToViewport);
 
 window.__VET45_PROTOTYPE__ = {
   productKind: "app",
-  version: "5.15.1",
+  version: "5.18.1",
   defaultViewport: { width: 402, height: 874 },
   offline: true,
   uiFlows: flowCatalog.map((f) => f.id),

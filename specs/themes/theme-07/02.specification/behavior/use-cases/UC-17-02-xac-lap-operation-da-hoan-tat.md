@@ -116,8 +116,6 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-080` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Xác lập operation đã hoàn tất”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
-| `SCR-082` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Xác lập operation đã hoàn tất”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
 | `SCR-083` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Xác lập operation đã hoàn tất”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)

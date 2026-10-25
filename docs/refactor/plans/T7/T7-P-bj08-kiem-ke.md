@@ -1,6 +1,6 @@
 # T7-P · BJ-08 Kiểm kê — thiết kế lại (bước B–E) + fixture chung chặng 5
 
-> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-25 — mục 0.10, mọi điểm theo đề xuất) | Plan C–E ✅ (rà lại theo code chặng 4 khi làm) | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Brief ✅ (duyệt 2026-10-25 — mục 0.10, mọi điểm theo đề xuất) | Plan C–E ✅ (rà lại theo code chặng 4 khi làm) | Làm ✅ 2026-10-25 (v5.16.0, chưa commit — để phiên review xem trước) | Review ✅ (2026-10-25: đạt sau R1–R3, v5.18.1 — mục 14)
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 8.2 **chặng 5 "Kiểm kê và sửa sai"**, BJ thứ nhất. Làm **sau** chặng 4 (`SC_journey_4`, plan [BJ-07 + BJ-10](T7-P-bj07-bj10-tra-ncc-tieu-huy.md)). BJ sau: [BJ-11](T7-P-bj11-sua-sai.md), rồi [BJ-16 + BJ-17](T7-P-bj16-bj17-doi-soat.md) (cuối chặng, có `SC_journey_5`).
 > Dùng lại K1, **K2** (điều chỉnh chênh lệch cần chủ cửa hàng duyệt — UC-08-04), K3, K4, **K6** (danh sách phiên), K7. Không khuôn mới. Kèm **bước C0 — fixture chung chặng 5** (mục 3).
 > Thiết bị: **cả iPhone và web đều là thiết bị chính** (T7-P mục 2). Nhân viên đếm tại kệ bằng iPhone (quét mã → gõ số) hoặc đếm ra giấy rồi gõ ở máy tính (gõ số → Enter → dòng sau); chủ cửa hàng duyệt lúc ở máy tính hoặc iPhone.
@@ -298,7 +298,30 @@ Như các chặng trước: nếu làm một lượt thì để chưa commit cho
 
 ## 10. Ghi chú khi làm
 
-(Người làm điền: mốc, kết quả GitNexus, kết quả D, audit, lệch so với plan.)
+**Mốc.** Chặng 4 đã review (v5.15.1). `tools/.golden-chang4` **không** khớp HEAD (review chặng 4 đổi 97 / 40 ca có chủ đích), nên chụp lại ở HEAD làm mốc: `tools/.golden-bj08-base` (mobile 1882 ca) / `.golden-bj08-web-base` (web 1020 ca), chụp từ bản sao `git archive HEAD` chạy cổng 8766. Sau khi làm: `tools/.golden-bj08-after` (**1926 ca**) / `.golden-bj08-web-after` (**1051 ca**), 0 lỗi JS ở cả hai khung. **Lưu ý:** `golden.mjs` dùng cổng Chrome cố định 9400+n (và 9500+n cho `usage`) — không chạy hai lần chụp cùng lúc (lần đầu chụp mốc song song với chụp thử đã lẫn kết quả; phải chụp lại tuần tự).
+
+**GitNexus (`impact` upstream, repo `erp-sales-inventory`).** `render042BJ08`, `render046BJ08`: 0 hàm gọi — LOW. `ic08NumericSheet` (7, nội bộ bj08.js), `bj08ConfirmSheet` (5, nội bộ) — LOW, đã xoá. `renderHubHome` (1), `pendingSummary` (3) — LOW, không sửa (nguồn "kiểm kê" đăng ký qua `__T7_PENDING_SOURCES__`). `k2RejectSheet` (3 nơi gọi: BJ-06 / 09 / 10 / 12) — LOW, chỉ **thêm** tham số tuỳ chọn, mặc định cho đúng HTML cũ (ca BJ khác không đổi). `detect_changes()` cuối: 23 tệp, 0 quy trình bị ảnh hưởng, rủi ro thấp.
+
+**Kết quả D.**
+1. So mốc: mobile 440 / web 185 dòng khác — **chỉ** `UIF-08_SCR-042…047_*`, `SC_bj08_*`, `SC_entry_UIF-08_*`, `SC_quick_UIF-08`, `SC_banner_046` (046 mở bằng vai nhân viên → "Không thể tự duyệt"; không nằm trong danh sách 0.8 nhưng là hệ quả trực tiếp), chữ inspector "v5.16.0 · BJ-08 thiết kế lại", và mọi ca có Home Kho / "Chờ duyệt" (đã đối chiếu từng dòng chữ khác của các ca ngoài UIF-08: chỉ "… · 1 kiểm kê · …", số "Chờ duyệt" +1, dòng `KK-260915-02 · Nhóm vật tư` / "1 mặt hàng lệch · Nguyễn Văn An gửi 15/09/2026 17:40"). Không ca BJ khác nào đổi chữ hay ảnh (CSS cũng không làm đổi điểm ảnh ca khác).
+2. Bấm thử: toàn bộ `SC_bj08_*` (17 kịch bản mobile; 6 kịch bản web) 0 lỗi JS; `node --check app/*.js harness/*.js tools/golden.mjs` đạt.
+3. **Đếm mù:** HTML 044 (cả hai khung, `BLIND_COUNT` / `VALIDATION_ERROR`, phiên "Thuốc kháng sinh" và "Toàn kho") không có số sổ trong chữ lẫn thuộc tính `data-*` / `aria-*` (chỉ trùng `cx` / `cy` của biểu tượng SVG); không có chữ "Theo sổ / Chênh lệch / Thiếu / Thừa". Vai nhân viên ở 046 `PENDING_APPROVAL` / 047 `COMPLETED`: không có "đ" nào trong HTML; vai `approver`: có.
+4. **Audit (`/impeccable audit` phạm vi UIF-08)** — chạy bằng biểu thức kiểm dọc `AUDIT_JS` (tương phản chữ ≥ 4,5 : 1 — 3 : 1 cho chữ lớn —, vùng chạm ≥ 44 × 44 ở iPhone / ≥ 40 ở web, tràn ngang, thành phần không tên) trên **mọi** ca `UIF-08_*` (38 mobile / 33 web) và `SC_bj08_*` (99 / 32), gồm cả sheet mở (nộp, hủy, yêu cầu đếm lại, chọn phạm vi, thêm hàng thực tế, quét, mặt hàng khớp): **không có lỗi tương phản, vùng chạm, tràn ngang** trong phạm vi BJ-08 (nút chữ "Hủy phiên", "Vẫn {n}", ô số, chip, `dsChoiceRow`, nút quét đều ≥ 44). Hai việc đã sửa: ô "Lý do kiểm kê" và "Người đếm" thiếu tên truy cập (thêm `aria-label`); banner dài ở 045 / 043 bị cắt do chiều cao cố định (`.v-banner` auto cao ở UIF-08). Kiểm bằng phím: Enter đi dọc ô số (chưa đếm trước), Enter ở ô tìm → ô đầu; sheet: focus vào hộp thoại, Esc đóng và trả focus về nút đã mở, Tab không thoát hộp thoại. **Ngoài phạm vi, ghi lại:** nút đóng của toast dùng chung (`toast-close`) cao 20 × 20 — không thuộc BJ-08, không sửa ở đây.
+5. Ảnh gửi review: các ảnh nêu ở mục 7.5 nằm trong `tools/.golden-bj08-after` / `-web-after` (`UIF-08_SCR-042_READY`, `SC_bj08_create_*`, `SC_bj08_blind_*`, `SC_bj08_recount_*`, `UIF-08_SCR-046_READY`, `SC_bj08_approve_*`, `SC_bj08_from_home_*`).
+
+**Lệch so với plan / quyết định khi làm.**
+- **Fixture "Toàn kho" có 9 mặt hàng, không phải 38** (`t7Lots` + BJ-01 chỉ có chừng đó sản phẩm / lô): `KK-260916-01` hiện "Đã đếm 4/9" (mục 3 điểm 1 đã cho phép "để số thật"). Phạm vi thuộc nhóm: "Thuốc kháng sinh" (Oxytetracycline LA, Tylosin TY2511, TY2408), "Nhóm vật tư" (Găng tay Nitrile, Dầu sát khuẩn), "Nhóm vaccine" (Nobivac DH2507 / DH2509); Amox 500 (không lô và AM2505) chỉ nằm trong "Toàn kho". `unitCost` đặt ngay trong `BJ08_CATALOG` (Oxytetracycline LA 55.000 đ — không thêm vào `t7Lots` vì BJ-09 / 10 tách / ghi giảm theo lô ở đó); Tylosin 85.000, Găng tay 65.000, Amox 42.000, Nobivac 118.000 khớp chặng 4 / BJ-01; Dầu sát khuẩn không có.
+- **`CONFLICT` ở 043** chỉ bắt khi trùng đúng loại + tên phạm vi với một phiên đang đếm / chờ duyệt (vd. chọn "Toàn kho" khi `KK-260916-01` đang đếm), để kịch bản "Thuốc kháng sinh" mở được dù có phiên "Toàn kho" đang đếm.
+- **046:** dòng "Sau khi duyệt — Tồn kho ghi theo số đếm lại, phạm vi mở khoá" đặt trong khối "Cần chú ý" (dòng thông tin, như BJ-10), **không** ở `facts` như điểm 26 — chữ dài làm hàng nhãn–giá trị bị tràn. "Số lần đếm lại" = số vòng đếm lại đã nộp.
+- **045 từ vòng 3:** nhãn "Đếm đầu" / "Vẫn {b}" lấy số đếm **gần nhất** của dòng (vòng đầu = lần đếm đầu); không đổi chữ thành "Đếm trước".
+- **Tên sự kiện** theo `data-bj08-action` thống nhất: `add-open`, `scan-open`, `matched-open`, `scope-open`, `dialog-close` (thay `review-close`, `scope-close`), `confirm-review` (thay `review-confirm`).
+- **Sheet "Thêm hàng thực tế":** ô tìm lọc tại chỗ, chưa có nút quét riêng (chỉ hai sản phẩm mẫu, đã có quét ở màn 044). Sheet "Quét mã vạch" dùng chữ của BJ-01 ("Đưa mã vạch vào khung", "Quét thử: {tên}"); quét không thấy → toast "Không có trong phạm vi kiểm kê".
+- **Chữ mới ngoài mục 13** (đã ghi thêm một dòng vào T7-P mục 13): "Đã đếm hết các mặt hàng." · "Mặt hàng khớp" (sheet) · "Khớp" · "Không tìm thấy sản phẩm / Thử mã, tên hoặc bộ lọc khác." (044) · "Không tìm thấy phạm vi" · "Không còn sản phẩm để thêm" · "Chỉ chủ cửa hàng duyệt kết quả kiểm kê." · "Không có phiên kiểm kê / Mở lại từ danh sách phiên kiểm kê." · "Tải lại để xem bước hiện hành của phiên." · "Chưa chọn tình trạng" · `UNKNOWN` mã tham chiếu "ADJ-{mã phiên}".
+- **047 `CANCELLED`:** số liệu "Phiên · Phạm vi · Lý do · Thời điểm" (bỏ "Điều chỉnh: Không tạo" và "Khóa phạm vi: Đã mở" vì mô tả đã nói).
+- **`UIF-08_SCR-046_READY`** mở bằng `entry=approver` (nhóm golden riêng — mục 5.2); `UIF-08_SCR-046_APPROVAL_REVIEW` không có trong bộ chọn nên chỉ ca `SC_banner_046` dùng.
+- **CSS:** `components.css` / `screens.css` — gỡ luật chỉ của UIF-08 và UIF-08 khỏi các danh sách chỉ có UIF-01 / 02 / 04 / 05 (hình học dòng 370 px); giữ UIF-08 trong các danh sách dùng chung với UIF-09…17 (copy / chip / banner của khung đã thiết kế lại). Xoá `.ds24-keypad*`, `.ds24-session-*`, `.ds24-quantity-trigger` (không BJ nào còn dùng). Còn lại ngoài phạm vi: `ac321CanonicalChips` / `.ac321-chip-wrap` dùng ở BJ-11 / 16.
+- **Không làm (như mục 11):** không thêm lối BJ-08 → BJ-11; khoá phạm vi kiểm kê chưa nối sang BJ-01 / BJ-09 (037 `LOCKED` đã có chữ).
+
 
 ## 11. Không làm
 
@@ -331,4 +354,4 @@ Như các chặng trước: nếu làm một lượt thì để chưa commit cho
 
 ## 14. Review
 
-(Phiên review điền.)
+Review chặng 5 (2026-10-25): **đạt sau R1–R3** (v5.18.1) — xem [plan BJ-16 + BJ-17 mục 14](T7-P-bj16-bj17-doi-soat.md#14-review). Phần của BJ-08: không có điểm chặn riêng (R2 dùng số tồn BJ-08 làm chuẩn); góp ý 3 (044 "Bán / được" gãy dòng), 7 ("Kho trung tâm" trong phạm vi K3), 8 (dòng đã đếm vẫn dưới chip "Chưa đếm"). Ghi chú mục 10 về `bj08Visible` (`offsetParent`): không lỗi — phần tử **trong** sheet `position: fixed` vẫn có `offsetParent`; kiểm bàn phím ở mục 10 đã đạt.

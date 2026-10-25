@@ -109,7 +109,7 @@ Theo guard/precondition của các step source.
 
 | Thuộc tính | Nội dung |
 |---|---|
-| Màn hình liên quan | [SCR-078](../03.design/screens/SCR-078.md); [SCR-080](../03.design/screens/SCR-080.md) |
+| Màn hình liên quan | [SCR-078](../03.design/screens/SCR-078.md); [SCR-079](../03.design/screens/SCR-079.md) |
 | Quy tắc sở hữu | Có thể dùng chung màn hình với UC khác. UI Contract được viết một lần theo bề mặt; file này chỉ sở hữu hành vi và lát nghiệm thu của UC. |
 | Các trạng thái của màn hình | READY, LOADING/PROCESSING, VALIDATION_ERROR, PERMISSION_DENIED, CONFLICT/STALE và trạng thái kết quả tương ứng. Chỉ khai state thật sự có ý nghĩa với màn hình. |
 | Hành động | Mỗi CTA mutation liên kết đúng một Action ID → UC/BC → API; action không đủ quyền không xuất hiện. |
@@ -189,7 +189,7 @@ Câu hỏi mở: ma trận hiện thực BC từng nằm ở FND-TECH-01 chưa �
 
 | Thuộc tính | Nội dung |
 |---|---|
-| Màn hình liên quan | [SCR-079](../03.design/screens/SCR-079.md); [SCR-080](../03.design/screens/SCR-080.md) |
+| Màn hình liên quan | [SCR-079](../03.design/screens/SCR-079.md); [SCR-081](../03.design/screens/SCR-081.md) |
 | Quy tắc sở hữu | Không sở hữu màn hình riêng. UI của UC gọi hiển thị trạng thái tiến trình/kết quả và giữ cùng operation identity. |
 | Các trạng thái của màn hình | READY, LOADING/PROCESSING, VALIDATION_ERROR, PERMISSION_DENIED, CONFLICT/STALE và trạng thái kết quả tương ứng. Chỉ khai state thật sự có ý nghĩa với màn hình. |
 | Hành động | Mỗi CTA mutation liên kết đúng một Action ID → UC/BC → API; action không đủ quyền không xuất hiện. |
