@@ -2,15 +2,16 @@
 """Đồng bộ phần prototype trong specs/themes/theme-07/09.generated sau khi sửa prototype.
 
 Chạy từ bất kỳ đâu: python3 tools/sync-registry.py
-- artifact-registry.csv / .json: bỏ dòng của file prototype đã xoá, cập nhật sha256 + size, thêm file mới.
+- artifact-registry.csv / .json: bỏ dòng của file prototype và file màn (screens/) đã xoá, cập nhật sha256 + size, thêm file mới.
 - package-checksums.sha256: tạo lại (giữ danh sách file ngoài prototype, thay toàn bộ phần prototype).
-Bỏ qua tools/.golden*.
+Màn đã bỏ (03.design/screens/SCR-NNN.md đã xoá, chuyển sang RETIRED.md) cũng bị bỏ khỏi registry. Bỏ qua tools/.golden*.
 """
 import csv, hashlib, io, json, os
 
 THEME = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
 os.chdir(THEME)
 PROTO = '03.design/prototype/'
+GONE = (PROTO, '03.design/screens/')   # đường dẫn không còn tệp thì bỏ khỏi registry
 
 
 def sha(p):
@@ -29,7 +30,7 @@ hdr, body = rows[0], rows[1:]
 pi, si, zi = hdr.index('path'), hdr.index('sha256'), hdr.index('size')
 kept, seen = [], set()
 for r in body:
-    if r[pi].startswith(PROTO) and not os.path.exists(r[pi]):
+    if r[pi].startswith(GONE) and not os.path.exists(r[pi]):
         continue
     if os.path.exists(r[pi]):
         r[si], r[zi] = sha(r[pi]), str(os.path.getsize(r[pi]))
@@ -50,7 +51,7 @@ open(reg + '.csv', 'w').write(out.getvalue())
 d = json.load(open(reg + '.json'))
 arts, seen = [], set()
 for a in d['artifacts']:
-    if a['path'].startswith(PROTO) and not os.path.exists(a['path']):
+    if a['path'].startswith(GONE) and not os.path.exists(a['path']):
         continue
     if os.path.exists(a['path']):
         a['sha256'], a['size'] = sha(a['path']), os.path.getsize(a['path'])

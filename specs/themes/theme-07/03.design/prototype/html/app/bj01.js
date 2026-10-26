@@ -14,13 +14,13 @@ const bj01Products = [
     { code:"DH2507", expiryDisplay:"30/11/2026", expiryPrecision:"DAY", physical:70, eligible:70, stockState:"SELLABLE", expiryIndicator:"NONE", nearExpiryAction:null },
     { code:"DH2509", expiryDisplay:"15/09/2026", expiryPrecision:"DAY", physical:50, eligible:48, stockState:"SELLABLE", expiryIndicator:"NEAR_EXPIRY", nearExpiryAction:"WARN", daysToExpiry:19 },
   ]},
-  { id:"INV-AMX", name:"Amox 500", code:"SP-000066", barcode:"8938500004068", stockUom:"hộp", tracking:"NONE", physical:48, eligible:47, reserved:5, available:42, threshold:50, target:80, monitoringConfigStatus:"CONFIGURED", eligibilityBreakdown:[{reason:"Cách ly",quantity:1}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260825-02",delta:48}, reservationSummary:{quantity:5,source:"SO-260827-18"}, lots:[] },
+  { id:"INV-AMX", name:"Amox 500", code:"SP-000066", barcode:"8938500004068", stockUom:"hộp", tracking:"NONE", physical:48, eligible:46, reserved:5, available:41, threshold:50, target:80, monitoringConfigStatus:"CONFIGURED", eligibilityBreakdown:[{reason:"Cách ly",quantity:2}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260825-02",delta:48}, reservationSummary:{quantity:5,source:"SO-260827-18"}, lots:[] },
   { id:"INV-ENRO", name:"Enrofloxacin 10%", code:"SP-000091", barcode:"8938500005096", stockUom:"chai", tracking:"NONE", physical:0, eligible:0, reserved:0, available:0, threshold:10, target:30, monitoringConfigStatus:"CONFIGURED", eligibilityBreakdown:[], latestPhysicalMovement:{label:"Xuất bán",source:"SO-260826-11",delta:-6}, reservationSummary:{quantity:0,source:null}, lots:[] },
-  { id:"INV-TYLO", name:"Tylosin 20%", code:"SP-000122", barcode:"8938500006123", stockUom:"lọ", tracking:"LOT", physical:18, eligible:7, reserved:3, available:4, threshold:8, target:24, monitoringConfigStatus:"CONFIGURED", eligibilityBreakdown:[{reason:"Hết hạn",quantity:11}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260701-07",delta:18}, reservationSummary:{quantity:3,source:"SO-260826-09"}, lots:[
+  { id:"INV-TYLO", name:"Tylosin 20%", code:"SP-000122", barcode:"8938500006123", stockUom:"lọ", tracking:"LOT", physical:14, eligible:3, reserved:1, available:2, threshold:8, target:24, monitoringConfigStatus:"CONFIGURED", eligibilityBreakdown:[{reason:"Hết hạn",quantity:11}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260701-07",delta:18}, reservationSummary:{quantity:1,source:"SO-260826-09"}, lots:[
     { code:"TY2408", expiryDisplay:"31/07/2026", expiryPrecision:"DAY", physical:11, eligible:0, stockState:"EXPIRED", expiryIndicator:"EXPIRED", nearExpiryAction:null },
-    { code:"TY2511", expiryDisplay:"11/2027", expiryPrecision:"MONTH", physical:7, eligible:7, stockState:"SELLABLE", expiryIndicator:"NONE", nearExpiryAction:null },
+    { code:"TY2511", expiryDisplay:"11/2027", expiryPrecision:"MONTH", physical:3, eligible:3, stockState:"SELLABLE", expiryIndicator:"NONE", nearExpiryAction:null },
   ]},
-  { id:"INV-OXY", name:"Oxytetracycline LA", code:"SP-000147", barcode:"8938500007144", stockUom:"chai", tracking:"NONE", physical:31, eligible:30, reserved:4, available:26, threshold:null, target:null, monitoringConfigStatus:"NOT_CONFIGURED", eligibilityBreakdown:[{reason:"Cách ly",quantity:1}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260824-05",delta:31}, reservationSummary:{quantity:4,source:"SO-260827-03"}, lots:[] },
+  { id:"INV-OXY", name:"Oxytetracycline LA", code:"SP-000147", barcode:"8938500007144", stockUom:"chai", tracking:"NONE", physical:12, eligible:11, reserved:4, available:7, threshold:null, target:null, monitoringConfigStatus:"NOT_CONFIGURED", eligibilityBreakdown:[{reason:"Cách ly",quantity:1}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260824-05",delta:31}, reservationSummary:{quantity:4,source:"SO-260827-03"}, lots:[] },
 ];
 let bj01Filter = "ALL";
 let bj01Query = "";
@@ -324,7 +324,7 @@ document.addEventListener("click", (event) => {
     if (event.target.matches("[data-bj01-close-lot]") || event.target.closest("button[data-bj01-close-lot]")) { bj01LotOpen=false; return renderAppScreen(); }
     if (event.target.closest("[data-bj01-refresh]")) { bj01QueryAsOf=bj01RefreshSequence[Math.min(bj01RefreshIndex,bj01RefreshSequence.length-1)]; bj01RefreshIndex=Math.min(bj01RefreshIndex+1,bj01RefreshSequence.length-1); stateByScreen[activeScreenId]="READY"; render(); return showToast("Đã cập nhật tồn kho","success"); }
     if (event.target.closest("[data-bj01-handoff]")) {
-      bj01ProvenanceOpen=false; bj01LotOpen=false; activeFlowId="UIF-15"; activeScreenId="SCR-054"; syncReviewUrl(); return render();
+      bj01ProvenanceOpen=false; bj01LotOpen=false; return bj15OpenCard({product:bj01SelectedProductId,entry:"bj01"});
     }
   }
   const exit = event.target.closest('[data-action="exit-inventory-product-context"]');

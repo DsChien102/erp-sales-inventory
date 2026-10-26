@@ -1,4 +1,4 @@
-/* shared-valuation.js — helpers dùng chung cụm giá trị BJ-03 / 13 / 14 (T7-P A5; VAL_UI_461 từ A12 R7). BJ-03 (v5.9.0) không dùng VAL_UI_461; BJ-13 (v5.10.0) chỉ dùng money / signed / pct; BJ-14 dùng cả bộ. VAL_UI_430 bỏ ở v5.10.0 (không còn chỗ dùng). */
+/* shared-valuation.js — helpers dùng chung cụm giá trị BJ-03 / 13 (T7-P A5). VAL_UI_461 chỉ còn money / signed / pct cho BJ-13; BJ-14 (v5.19.0) tự dựng không qua helper này. */
 function valuationDsTone(tone){const t=String(tone||"Neutral").toLowerCase();return ({success:"Success",warning:"Warning",danger:"Danger",error:"Danger",info:"Info",neutral:"Neutral",brand:"Brand"})[t]||"Neutral";}
 function valuationProductHeader({name,code,uom,status="",tone="Neutral",value="",meta=""}){
   const trailing=value?`<span class="valuation-product-value"><small>Giá trị</small><strong>${esc(value)}</strong></span>`:(status?ds24Badge(status,valuationDsTone(tone)):"");
@@ -9,22 +9,10 @@ function valuationReadOnlyChild({title,subtitle,trailing=""}){
   return `<div class="valuation-readonly-child" data-composed-from="VText"><span class="valuation-child-branch" aria-hidden="true"></span><span class="valuation-child-copy"><strong>${esc(title)}</strong><small>${esc(subtitle)}</small></span>${trailing?`<span class="valuation-child-trailing">${trailing}</span>`:""}</div>`;
 }
 
-/* Helper giao diện bản v461 (SCR-072…077; BJ-13 dùng money / signed / pct). */
+/* Định dạng tiền có dấu cho BJ-13 (BJ-03 và BJ-14 dùng t7FmtMoney / hàm riêng; bộ dựng giao diện cũ của bản v461 bỏ ở v5.19.0). */
 const VAL_UI_461=(()=>{
   const money=n=>`${Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
   const signed=n=>`${Number(n||0)>0?'+ ':Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
   const pct=n=>`${(Number(n||0)*100).toLocaleString('vi-VN',{maximumFractionDigits:1})}%`;
-  const row=args=>ds24ListRow({...args,density:args.density||'Compact'});
-  const heading=(t,m='')=>ds24SectionTitle(t,m);
-  const flat=(title,rows,extra='')=>`<section class="v430-flat v460-flat ${extra}" data-composed-from="DS v2 / Info Row,DS v2 / Key-value Row">${title?heading(title):''}<div class="v430-flat__rows">${rows}</div></section>`;
-  const keys=(rows,extra='')=>`<div class="v430-key-stack v460-key-stack ${extra}" data-composed-from="DS v2 / Key-value Row">${rows}</div>`;
-  const context=(title,subtitle,badge='',tone='Neutral')=>row({title,subtitle,trailing:badge?ds24Badge(badge,tone):'',leading:null,type:'Status',interactive:false});
-  const button=(label,attrs,kind='primary',disabled=false)=>`<button type="button" class="button button--${kind}" ${attrs} data-ds-component="VButton" data-figma-node="521:529" ${disabled?'disabled':''}>${esc(label)}</button>`;
-  const linkButton=(label,attrs)=>`<button type="button" class="v430-link" ${attrs} data-ds-component="DS v2 / Link">${esc(label)}</button>`;
-  const textField=(label,attrs,value='',helper='',required=false)=>`<label class="v430-field" data-ds-component="VTextField" data-figma-node="522:7186"><span>${esc(label)}${required?' <b>*</b>':''}</span><input class="v430-control" ${attrs} value="${escapeAttribute(value)}"/>${helper?`<small>${esc(helper)}</small>`:''}<small class="v430-field-error" hidden></small></label>`;
-  const textarea=(label,attrs,value='',helper='',required=false)=>`<label class="v430-field" data-ds-component="VTextarea" data-figma-node="522:7212"><span>${esc(label)}${required?' <b>*</b>':''}</span><textarea class="v430-control v430-textarea" rows="3" ${attrs}>${esc(value)}</textarea>${helper?`<small>${esc(helper)}</small>`:''}<small class="v430-field-error" hidden></small></label>`;
-  const selectField=(label,attrs,options)=>`<label class="v430-field" data-ds-component="VSelect" data-figma-node="522:7291"><span>${esc(label)}</span><select class="v430-control" ${attrs}>${options}</select></label>`;
-  const formSheet=({title,intro,body,saveLabel='Lưu',saveAttr,closeAttr})=>`<div class="v430-overlay" data-v461-overlay><div class="v430-overlay__backdrop" ${closeAttr}></div><section class="v430-form-sheet" data-ds-component="DS v2 / Form Sheet" data-figma-node="1353:6355" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}"><div class="v430-sheet-handle-area"><div class="v430-sheet-handle"></div></div><header class="v430-sheet-header"><h2>${esc(title)}</h2><button type="button" class="v430-sheet-close" ${closeAttr} aria-label="Đóng" data-ds-component="DS v2 / Icon Button" data-figma-node="4431:10317">${icon('close','icon--sm')}</button></header>${intro?`<p class="v430-sheet-intro">${esc(intro)}</p>`:''}<div class="v430-form-sheet__body">${body}</div><footer class="v430-sheet-footer" data-ds-component="DS v2 / Sticky Footer" data-figma-node="549:927"><button type="button" class="button button--primary" ${saveAttr} data-ds-component="VButton">${esc(saveLabel)}</button></footer></section></div>`;
-  const confirmSheet=({title,desc,body,confirmLabel,confirmAttr,closeAttr})=>`<div class="sheet-backdrop ds24-overlay v430-confirm-overlay"><div class="v430-confirm-backdrop" ${closeAttr}></div><section class="ds24-confirmation v430-confirmation" data-ds-component="DS v2 / Confirmation Sheet" data-figma-node="550:1058" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}"><div class="ds24-confirmation__handle"></div><h3 class="vet45-text-style-4">${esc(title)}</h3><p class="vet45-text-style-6">${esc(desc)}</p>${body}<div class="ds24-confirmation__actions"><button type="button" class="ds24-button ds24-button--secondary" ${closeAttr} data-ds-component="VButton">Quay lại</button><button type="button" class="ds24-button ds24-button--primary" ${confirmAttr} data-ds-component="VButton">${esc(confirmLabel)}</button></div></section></div>`;
-  return {money, signed, pct, row, heading, flat, keys, context, button, linkButton, textField, textarea, selectField, formSheet, confirmSheet};
+  return {money, signed, pct};
 })();

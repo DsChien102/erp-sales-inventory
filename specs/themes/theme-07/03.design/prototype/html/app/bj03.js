@@ -2,7 +2,7 @@
  *
  * Thiết kế lại (T7-P BJ-03, 2026-10-22, v5.9.0): một khối dựng cho 014 / 015 / 019. 015 là bảng sản phẩm có ô tick
  * (web, K7; iPhone là danh sách thẻ) + sheet "Thêm căn cứ giá" (nhập nhanh, chỉ VND) + sheet "Cách tính" + sheet xác nhận (thay SCR-017).
- * Sửa BJ-03: sửa thẳng file này. Helper `VAL_UI_461` ở shared-valuation.js còn BJ-13 / BJ-14 dùng.
+ * Sửa BJ-03: sửa thẳng file này. Helper `VAL_UI_461` ở shared-valuation.js chỉ còn BJ-13 dùng (money / signed / pct).
  * Helper val03* bị gán trong khối chuẩn hoá v397 (khai báo `let` một lần ở đầu file).
  * Dùng từ khuôn: k1Loading, k1Denied, k1Empty, k1Locked, k1ExitAttr (K1); k3Unknown (K3); k4Result, k4Footer (K4);
  * k7Table (cột chọn `select`), k7Split, k7FilterChips (K7); dsSegmented.
@@ -706,3 +706,8 @@ let val03ReturnTo=null; // { flow, screen } khi mở từ BJ-02: nút quay lại
     const list=activeFlow()?.screens||[]; const idx=list.indexOf(activeScreenId); if(idx>0) return navigate(list[idx-1]);
   };
 })();
+
+// Dòng hàng còn chờ xác lập giá của một sản phẩm (BJ-14 đọc để biết sản phẩm chưa có giá nhập thì chưa tính được giá vốn).
+function val03PendingLines(code) {
+  return val03Receipts.flatMap((r) => r.groups.filter((g) => g.code === code && (g.slices || []).some((s) => Number(s.pendingQty) > 0)).map((g) => ({ receipt: r.receipt, name: g.name })));
+}

@@ -48,7 +48,7 @@ const ThemeApp = (() => {
     valuation: { title: 'Giá trị kho', subtitle: 'Giá nhập, chi phí mua và giá vốn', icon: 'layers', items: [
       { flow: 'UIF-03', title: 'Hàng chờ xác lập giá trị', subtitle: 'Ghi giá nhập cho hàng đã nhận', icon: 'checkCircle' },
       { flow: 'UIF-13', title: 'Điều chỉnh giá trị hàng nhập', subtitle: 'Chi phí, chiết khấu phát sinh sau khi đã xác lập giá', icon: 'fileText' },
-      { flow: 'UIF-14', title: 'Giá vốn', subtitle: 'Tính, rà soát và công bố giá vốn', icon: 'layers' },
+      { flow: 'UIF-14', title: 'Giá vốn', subtitle: 'Tính, rà soát và công bố giá vốn', icon: 'layers', actor: 'owner' },
     ] },
     history: { title: 'Báo cáo & lịch sử', subtitle: 'Thẻ kho, biến động và số liệu tra cứu', icon: 'history', items: [
       { flow: 'UIF-15', title: 'Báo cáo tồn & thẻ kho', subtitle: 'Xem tồn tại thời điểm và lịch sử biến động', icon: 'history' },

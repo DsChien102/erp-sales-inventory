@@ -142,12 +142,10 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 
 #### NAV-05 — Báo cáo và truy vết
 
-- [`SCR-054` — Tra cứu thẻ kho](../screens/SCR-054.md)
-- [`SCR-055` — Danh sách biến động](../screens/SCR-055.md)
-- [`SCR-056` — Chi tiết movement](../screens/SCR-056.md)
-- [`SCR-057` — Dòng thời gian nguồn](../screens/SCR-057.md)
-- [`SCR-058` — Rà soát bản xuất](../screens/SCR-058.md)
+- [`SCR-055` — Báo cáo nhập – xuất – tồn / Thẻ kho](../screens/SCR-055.md)
+- [`SCR-056` — Chi tiết biến động](../screens/SCR-056.md)
 - [`SCR-059` — Kết quả xuất báo cáo](../screens/SCR-059.md)
+- `SCR-054` / `SCR-057` / `SCR-058` retired khỏi UIF15 (v5.20.0). (xem [`RETIRED.md`](../screens/RETIRED.md))
 
 #### NAV-06 — Thiết lập và khởi tạo
 

@@ -56,12 +56,12 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-051 | Duyệt sửa sai | BJ-11 | IN_REVIEW | Có |
 | SCR-052 | Hủy hoặc chọn cách sửa — Đã gộp vào SCR-050 và SCR-049 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-053 | Kết quả sửa sai | BJ-11 | IN_REVIEW | Có |
-| SCR-054 | Tra cứu thẻ kho / Thiết lập báo cáo tồn | BJ-15 | FROZEN | Có |
-| SCR-055 | Báo cáo tồn / Thẻ kho | BJ-15 | FROZEN | Có |
-| SCR-056 | Chi tiết biến động tồn kho | BJ-09, BJ-15 | FROZEN | Có |
-| SCR-057 | Nguồn biến động | BJ-15 | FROZEN | Có |
-| SCR-058 | Xuất báo cáo | BJ-15 | FROZEN | Có |
-| SCR-059 | Kết quả xuất báo cáo | BJ-15 | FROZEN | Có |
+| SCR-054 | Tra cứu thẻ kho — Đã bỏ (mọi lối vào mở thẳng SCR-055) | — | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-055 | Báo cáo nhập – xuất – tồn / Thẻ kho | BJ-15 | IN_REVIEW | Có |
+| SCR-056 | Chi tiết biến động | BJ-09, BJ-15 | IN_REVIEW | Có |
+| SCR-057 | Nguồn biến động — Đã gộp vào SCR-056 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-058 | Xuất báo cáo — Đã gộp vào sheet ở SCR-055 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-059 | Kết quả xuất báo cáo | BJ-15 | IN_REVIEW | Có |
 | SCR-060 | Chỉ báo tồn kho | BJ-01 | FROZEN | Chưa dựng — chỉ báo nằm ở bộ lọc SCR-001 |
 | SCR-061 | Chi tiết chỉ báo sản phẩm | BJ-01 | FROZEN | Chưa dựng — chỉ báo nằm ở SCR-003 |
 | SCR-062 | Ngưỡng tồn (Chính sách tồn & cận hạn) | CAP-01 | IN_REVIEW | Có |
@@ -74,9 +74,9 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-069 | Rà soát số dư đầu kỳ — đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-070 | Duyệt số dư đầu kỳ | BJ-12 | IN_REVIEW | Có |
 | SCR-071 | Kết quả khởi tạo tồn kho | BJ-12 | IN_REVIEW | Có |
-| SCR-072 | Công việc giá vốn | BJ-14 | IN_REVIEW | Có |
+| SCR-072 | Giá vốn | BJ-14 | IN_REVIEW | Có |
 | SCR-073 | Thiết lập lần tính — Đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
-| SCR-074 | Tính và rà soát giá vốn | BJ-14 | IN_REVIEW | Có |
+| SCR-074 | Chốt kỳ / Cập nhật giá vốn {kỳ} | BJ-14 | IN_REVIEW | Có |
 | SCR-075 | Blocker và adjustment — Đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-076 | Rà soát công bố — Đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-077 | Kết quả công bố giá vốn | BJ-14 | IN_REVIEW | Có |

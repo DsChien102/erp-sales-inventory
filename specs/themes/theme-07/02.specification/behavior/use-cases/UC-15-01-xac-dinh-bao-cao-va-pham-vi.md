@@ -109,7 +109,7 @@ Không tự sửa dữ liệu để khớp báo cáo và chưa xuất file. UC c
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-054` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xác định báo cáo và phạm vi”; không tạo mutation. |
+| `SCR-055` | Thanh lọc (kỳ, cách hiểu ngày, mốc dữ liệu) của báo cáo / thẻ kho; trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xác định báo cáo và phạm vi”; không tạo mutation. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

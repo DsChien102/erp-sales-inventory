@@ -111,7 +111,7 @@ Không sửa movement lịch sử hoặc tự đối soát chênh lệch. UC ch�
 |---|---|
 | `SCR-055` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem thẻ kho và lịch sử”; không tạo mutation. |
 | `SCR-056` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem thẻ kho và lịch sử”; không tạo mutation. |
-| `SCR-057` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem thẻ kho và lịch sử”; không tạo mutation. |
+| `SCR-056` | Khối "Nguồn" (dòng thời gian nguồn nghiệp vụ) của chi tiết biến động; trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem thẻ kho và lịch sử”; không tạo mutation. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

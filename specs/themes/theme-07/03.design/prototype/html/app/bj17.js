@@ -10,8 +10,8 @@ const BJ17_DONE_AT = "17/09/2026 21:10";
 const BJ17_OPENED_AT = "17/09/2026 09:30";
 // Bằng chứng mặc định cho ca K3 của BJ nguồn: BJ-05 cho thấy nhánh "chưa ghi → làm tiếp"; còn lại "chưa đủ bằng chứng".
 const bj17SourceEvidence = { "UIF-05": "NO_COMMIT" };
-const BJ17_KIND = { "UIF-02": "Nhận hàng", "UIF-03": "Xác lập giá trị", "UIF-05": "Bàn giao hàng", "UIF-06": "Nhận hàng khách trả", "UIF-07": "Trả nhà cung cấp", "UIF-08": "Điều chỉnh kiểm kê", "UIF-09": "Đổi tình trạng", "UIF-10": "Tiêu hủy", "UIF-11": "Sửa sai", "UIF-12": "Khởi tạo tồn", "UIF-13": "Điều chỉnh giá trị", "UIF-16": "Chuyển hồ sơ", "CAP-01": "Chính sách tồn" };
-const BJ17_SOURCE = { "UIF-02": "Nhận hàng", "UIF-03": "Xác lập giá trị nhập", "UIF-05": "Lấy hàng & bàn giao", "UIF-06": "Hàng khách trả", "UIF-07": "Trả nhà cung cấp", "UIF-08": "Kiểm kê kho", "UIF-09": "Tình trạng hàng", "UIF-10": "Tiêu hủy hàng", "UIF-11": "Hủy & sửa sai", "UIF-12": "Khởi tạo tồn đầu kỳ", "UIF-13": "Điều chỉnh giá trị hàng nhập", "UIF-16": "Đối soát sai lệch", "CAP-01": "Chính sách tồn" };
+const BJ17_KIND = { "UIF-02": "Nhận hàng", "UIF-03": "Xác lập giá trị", "UIF-05": "Bàn giao hàng", "UIF-06": "Nhận hàng khách trả", "UIF-07": "Trả nhà cung cấp", "UIF-08": "Điều chỉnh kiểm kê", "UIF-09": "Đổi tình trạng", "UIF-10": "Tiêu hủy", "UIF-11": "Sửa sai", "UIF-12": "Khởi tạo tồn", "UIF-13": "Điều chỉnh giá trị", "UIF-14": "Công bố giá vốn", "UIF-16": "Chuyển hồ sơ", "CAP-01": "Chính sách tồn" };
+const BJ17_SOURCE = { "UIF-02": "Nhận hàng", "UIF-03": "Xác lập giá trị nhập", "UIF-05": "Lấy hàng & bàn giao", "UIF-06": "Hàng khách trả", "UIF-07": "Trả nhà cung cấp", "UIF-08": "Kiểm kê kho", "UIF-09": "Tình trạng hàng", "UIF-10": "Tiêu hủy hàng", "UIF-11": "Hủy & sửa sai", "UIF-12": "Khởi tạo tồn đầu kỳ", "UIF-13": "Điều chỉnh giá trị hàng nhập", "UIF-14": "Giá vốn", "UIF-16": "Đối soát sai lệch", "CAP-01": "Chính sách tồn" };
 
 /* ---------- Fixture ---------- */
 

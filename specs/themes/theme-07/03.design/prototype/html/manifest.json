@@ -1,8 +1,8 @@
 {
-  "version": "5.18.1",
+  "version": "5.20.1",
   "parent": "5.4.0",
-  "status": "T7_P_BJ08_REDESIGN",
-  "scope": "T7-P BJ-08: thiết kế lại kiểm kê (SCR-042…047: danh sách phiên K6, tạo phiên, đếm mù ô số tại dòng, đếm lại \"Vẫn {n}\", duyệt K2 có tiền cho chủ cửa hàng, kết quả K4 / K3) và fixture chung chặng 5; \"Chờ duyệt\" của Home Kho có nguồn \"kiểm kê\".",
+  "status": "T7_P_BJ14_REDESIGN",
+  "scope": "T7-P BJ-14: thiết kế lại giá vốn (SCR-072 K6 \"Giá vốn\", SCR-074 một câu chuyện việc chặn → kết quả → thay đổi sẽ ghi → theo sản phẩm → phương pháp, SCR-077 K4 / K3); chỉ chủ cửa hàng vào được; việc chặn đọc từ BJ-03 / BJ-11 / BJ-16; số tồn BJ-01 khớp sổ chặng 5.",
   "flows": 18,
   "screens": 89,
   "canonicalActiveScreens": 73,

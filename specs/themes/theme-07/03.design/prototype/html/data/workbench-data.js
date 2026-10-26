@@ -708,7 +708,7 @@ window.VET45_HARNESS_DATA = {
         "UC-14-01",
         "UC-14-04"
       ],
-      "intent": "Công việc giá vốn theo nhu cầu thực tế: cập nhật trong kỳ hoặc chốt kỳ; phương pháp áp dụng lấy từ chính sách tenant và chỉ đọc.",
+      "intent": "Chủ cửa hàng chốt giá vốn mỗi kỳ hoặc cập nhật trong kỳ: việc chặn đọc từ dữ liệu thật và dẫn tới nơi xử lý; phương pháp lấy từ chính sách cửa hàng và chỉ đọc; công bố chỉ ghi phần chênh lệch.",
       "patterns": [
         "COST_WORK_QUEUE",
         "DIRTY_SCOPE_SYSTEM_DERIVED",
@@ -725,14 +725,14 @@ window.VET45_HARNESS_DATA = {
           "id": "module",
           "type": "MODULE_ENTRY",
           "screen": "SCR-072",
-          "actor": "Kế toán",
-          "from": "Giá trị & giá vốn > Công việc giá vốn"
+          "actor": "Chủ cửa hàng",
+          "from": "Giá trị kho > Giá vốn"
         },
         {
           "id": "dirty-scope",
           "type": "CONTEXTUAL_DEEP_LINK",
           "screen": "SCR-074",
-          "actor": "Kế toán",
+          "actor": "Chủ cửa hàng",
           "from": "Phạm vi cần cập nhật giá vốn"
         }
       ]
@@ -740,21 +740,17 @@ window.VET45_HARNESS_DATA = {
     {
       "id": "UIF-15",
       "bj": "BJ-15",
-      "name": "Tra cứu báo cáo tồn và thẻ kho",
+      "name": "Báo cáo nhập – xuất – tồn và thẻ kho",
       "screens": [
-        "SCR-054",
         "SCR-055",
         "SCR-056",
-        "SCR-057",
-        "SCR-058",
         "SCR-059"
       ],
       "entry": [
-        "SCR-054"
+        "SCR-055"
       ],
       "terminals": [
         "SCR-055",
-        "SCR-057",
         "SCR-059"
       ],
       "uc": [
@@ -763,10 +759,9 @@ window.VET45_HARNESS_DATA = {
         "UC-15-03",
         "UC-15-04"
       ],
-      "intent": "Tra cứu báo cáo tồn và thẻ kho bằng read-only query; giữ date semantics/as-of/permission và business-readable trace, không sửa ledger.",
+      "intent": "Chủ cửa hàng xem báo cáo nhập – xuất – tồn theo kỳ và mọi người tra thẻ kho một sản phẩm: vào thẳng số liệu, rõ cách hiểu ngày và mốc dữ liệu, tiền chỉ chủ thấy; chỉ đọc, thấy sai thì sang sửa sai (BJ-11).",
       "patterns": [
         "SHARED_SCREEN_CONTEXT_MODE",
-        "REPORT_SCOPE_QUERY",
         "AS_OF_FRESHNESS",
         "BUSINESS_EVIDENCE_TIMELINE",
         "EXPORT_REVIEW"
@@ -5375,7 +5370,7 @@ window.VET45_HARNESS_DATA = {
     {
       "id": "SCR-054",
       "short": "054",
-      "name": "Tra cứu thẻ kho",
+      "name": "Tra cứu thẻ kho (đã bỏ — mọi lối vào mở thẳng SCR-055)",
       "surface": "form",
       "bj": [
         "BJ-01",
@@ -5385,35 +5380,18 @@ window.VET45_HARNESS_DATA = {
         "UC-01-01",
         "UC-15-01"
       ],
-      "purpose": "Chọn sản phẩm, lô, trạng thái và khoảng thời gian.",
+      "purpose": "Đã bỏ từ v5.20.0: báo cáo và thẻ kho mở thẳng với kỳ mặc định; kỳ và cách hiểu ngày nằm ở thanh lọc SCR-055. Link cũ mở SCR-055.",
       "actors": [
         "Thủ kho",
         "Kế toán"
       ],
       "states": [
-        "READY",
-        "VALIDATION_ERROR",
-        "CONFLICT",
-        "LOCKED",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
-      "fields": [
-        [
-          "Sản phẩm",
-          "Nobivac DHPPi"
-        ],
-        [
-          "Lô",
-          "Tất cả"
-        ],
-        [
-          "Khoảng ngày",
-          "01/08–17/08/2026"
-        ]
-      ],
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
+      "fields": [],
       "cards": [],
-      "notice": "",
+      "notice": "Đã bỏ từ v5.20.0: báo cáo và thẻ kho mở thẳng với kỳ mặc định; kỳ và cách hiểu ngày nằm ở thanh lọc SCR-055. Link cũ mở SCR-055.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
       "traceActions": [],
@@ -5432,39 +5410,15 @@ window.VET45_HARNESS_DATA = {
         "VBanner"
       ],
       "themeComposition": "Theme7FormSurface",
-      "uifs": [
-        "UIF-01",
-        "UIF-15"
-      ],
-      "mode": {
-        "modes": {
-          "UIF-01": "STOCK_CARD_QUERY",
-          "UIF-15": "REPORT_SCOPE_QUERY"
-        },
-        "note": "UIF15 renders report type + explicit date semantics; known context is prefilled."
-      },
-      "dataRows": [
-        {
-          "label": "Sản phẩm",
-          "example": "Nobivac DHPPi",
-          "ownership": "PREFILLED_OR_USER_SELECTION"
-        },
-        {
-          "label": "Lô",
-          "example": "Tất cả",
-          "ownership": "PREFILLED_OR_USER_INPUT_REQUIRES_UC_VALIDATION"
-        },
-        {
-          "label": "Khoảng ngày",
-          "example": "01/08–17/08/2026",
-          "ownership": "PREFILLED_OR_USER_SELECTION"
-        }
-      ]
+      "uifs": [],
+      "mode": null,
+      "dataRows": [],
+      "prototype_status": "RETIRED_v5.20.0"
     },
     {
       "id": "SCR-055",
       "short": "055",
-      "name": "Danh sách biến động",
+      "name": "Báo cáo nhập – xuất – tồn / Thẻ kho",
       "surface": "list",
       "bj": [
         "BJ-15",
@@ -5475,10 +5429,10 @@ window.VET45_HARNESS_DATA = {
         "UC-15-03",
         "UC-01-03"
       ],
-      "purpose": "Xem delta và running balance theo ngày ghi nhận/nghiệp vụ.",
+      "purpose": "Hai chế độ của một màn: báo cáo nhập – xuất – tồn theo kỳ (đầu kỳ, nhập, xuất, cuối kỳ, giá trị cuối kỳ cho chủ) và thẻ kho một sản phẩm (từng biến động, tồn sau mỗi dòng, lọc theo lô). Thanh lọc: kỳ, ngày nghiệp vụ / ngày ghi nhận, mốc dữ liệu.",
       "actors": [
-        "Thủ kho",
-        "Kế toán"
+        "Chủ cửa hàng",
+        "Thủ kho"
       ],
       "states": [
         "READY",
@@ -5496,14 +5450,14 @@ window.VET45_HARNESS_DATA = {
       "fields": [],
       "cards": [
         [
-          "17/08 · Nhận hàng",
-          "PN-260816-04",
-          "+118"
+          "Báo cáo nhập – xuất – tồn",
+          "Đầu kỳ · Nhập · Xuất · Cuối kỳ",
+          "Tháng 09/2026"
         ],
         [
-          "17/08 · Giữ hàng",
-          "SO-260817-08",
-          "−12 khả dụng"
+          "Thẻ kho",
+          "Nhận hàng PN-260904-08",
+          "+20"
         ]
       ],
       "notice": "",
@@ -5537,14 +5491,14 @@ window.VET45_HARNESS_DATA = {
       },
       "dataRows": [
         {
-          "label": "17/08 · Nhận hàng",
-          "example": "PN-260816-04 · +118",
+          "label": "Cuối kỳ",
+          "example": "120 hộp",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         },
         {
-          "label": "17/08 · Giữ hàng",
-          "example": "SO-260817-08 · −12 khả dụng",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+          "label": "Giá trị cuối kỳ",
+          "example": "chỉ chủ cửa hàng",
+          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
         }
       ]
     },
@@ -5639,7 +5593,7 @@ window.VET45_HARNESS_DATA = {
     {
       "id": "SCR-057",
       "short": "057",
-      "name": "Dòng thời gian nguồn",
+      "name": "Dòng thời gian nguồn (đã gộp vào SCR-056)",
       "surface": "timeline",
       "bj": [
         "BJ-01",
@@ -5649,38 +5603,18 @@ window.VET45_HARNESS_DATA = {
         "UC-01-03",
         "UC-15-03"
       ],
-      "purpose": "Truy từ chứng từ nguồn đến operation, movement và event.",
+      "purpose": "Đã gộp từ v5.20.0: khối \"Nguồn\" của SCR-056 (dòng thời gian ba bước). Link cũ mở SCR-056.",
       "actors": [
         "Thủ kho",
         "Kế toán"
       ],
       "states": [
-        "READY",
-        "LOADING",
-        "EMPTY",
-        "STALE",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
       "fields": [],
-      "cards": [
-        [
-          "Source",
-          "PN-260816-04 · v3",
-          "08:10"
-        ],
-        [
-          "Operation",
-          "IO-260817-002",
-          "08:20"
-        ],
-        [
-          "Movement",
-          "MOV-260817-002",
-          "08:20"
-        ]
-      ],
-      "notice": "",
+      "cards": [],
+      "notice": "Đã gộp từ v5.20.0: khối \"Nguồn\" của SCR-056 (dòng thời gian ba bước). Link cũ mở SCR-056.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
       "traceActions": [],
@@ -5693,39 +5627,15 @@ window.VET45_HARNESS_DATA = {
         "VSkeleton"
       ],
       "themeComposition": "Theme7EvidenceTimeline",
-      "uifs": [
-        "UIF-01",
-        "UIF-15"
-      ],
-      "mode": {
-        "modes": {
-          "UIF-01": "SOURCE_TRACE",
-          "UIF-15": "BUSINESS_SOURCE_TRACE"
-        },
-        "note": "UIF15 renders business evidence timeline; technical pipeline stays Inspect/audit."
-      },
-      "dataRows": [
-        {
-          "label": "Source",
-          "example": "PN-260816-04 · v3 · 08:10",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-        },
-        {
-          "label": "Operation",
-          "example": "IO-260817-002 · 08:20",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-        },
-        {
-          "label": "Movement",
-          "example": "MOV-260817-002 · 08:20",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-        }
-      ]
+      "uifs": [],
+      "mode": null,
+      "dataRows": [],
+      "prototype_status": "RETIRED_v5.20.0"
     },
     {
       "id": "SCR-058",
       "short": "058",
-      "name": "Xuất báo cáo",
+      "name": "Xuất báo cáo (đã gộp vào sheet ở SCR-055)",
       "surface": "review",
       "bj": [
         "BJ-15"
@@ -5733,45 +5643,20 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-15-04"
       ],
-      "purpose": "Xác nhận đúng phạm vi/as-of/permission của kết quả trước khi tạo file.",
+      "purpose": "Đã gộp từ v5.20.0: sheet \"Xuất báo cáo\" ở SCR-055. Link cũ mở SCR-055 kèm sheet.",
       "actors": [
         "Thủ kho",
         "Kế toán"
       ],
       "states": [
-        "READY",
-        "VALIDATION_ERROR",
-        "PERMISSION_DENIED",
-        "EXPORT_RUNNING",
-        "STALE"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
-      "fields": [
-        [
-          "Loại báo cáo",
-          "Báo cáo tồn kho"
-        ],
-        [
-          "Dữ liệu đến",
-          "11:00 · 07/09/2026"
-        ],
-        [
-          "Định dạng",
-          "CSV"
-        ]
-      ],
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
+      "fields": [],
       "cards": [],
-      "notice": "",
+      "notice": "Đã gộp từ v5.20.0: sheet \"Xuất báo cáo\" ở SCR-055. Link cũ mở SCR-055 kèm sheet.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
-      "actions": [
-        {
-          "id": "ACT-11-EXPORT",
-          "label": "Xuất báo cáo",
-          "bc": "BC-IO-01",
-          "api": "API-Q-06",
-          "tone": "primary"
-        }
-      ],
+      "actions": [],
       "traceActions": [],
       "components": [
         "VSection",
@@ -5783,27 +5668,10 @@ window.VET45_HARNESS_DATA = {
         "VLoading"
       ],
       "themeComposition": "Theme7ReviewSurface",
-      "uifs": [
-        "UIF-15"
-      ],
+      "uifs": [],
       "mode": null,
-      "dataRows": [
-        {
-          "label": "Loại báo cáo",
-          "example": "Báo cáo tồn kho",
-          "ownership": "PREFILLED_OR_USER_SELECTION"
-        },
-        {
-          "label": "Dữ liệu đến",
-          "example": "11:00 · 07/09/2026",
-          "ownership": "SYSTEM_DERIVED_READ_ONLY"
-        },
-        {
-          "label": "Định dạng",
-          "example": "CSV",
-          "ownership": "SERVER_ALLOWED_READ_ONLY_WHEN_SINGLE_OPTION"
-        }
-      ]
+      "dataRows": [],
+      "prototype_status": "RETIRED_v5.20.0"
     },
     {
       "id": "SCR-059",
@@ -5831,16 +5699,16 @@ window.VET45_HARNESS_DATA = {
       "defaultState": "COMPLETED",
       "fields": [
         [
-          "Tên file",
-          "ton-kho-07092026.csv"
+          "Tệp",
+          "bao-cao-nhap-xuat-ton-092026.csv"
         ],
         [
-          "Số dòng",
-          "36"
+          "Số liệu đến",
+          "17/09/2026 · 21:30"
         ],
         [
-          "Dữ liệu đến",
-          "11:00 · 07/09/2026"
+          "Giá trị tài chính",
+          "Có"
         ]
       ],
       "cards": [],
@@ -5867,19 +5735,14 @@ window.VET45_HARNESS_DATA = {
       "mode": null,
       "dataRows": [
         {
-          "label": "Tên file",
-          "example": "ton-kho-07092026.csv",
+          "label": "Tệp",
+          "example": "bao-cao-nhap-xuat-ton-092026.csv",
           "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
         },
         {
-          "label": "Số dòng",
-          "example": "36",
-          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
-        },
-        {
-          "label": "Dữ liệu đến",
-          "example": "11:00 · 07/09/2026",
-          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+          "label": "Số liệu đến",
+          "example": "17/09/2026 · 21:30",
+          "ownership": "SYSTEM_DERIVED_READ_ONLY"
         }
       ]
     },
@@ -6541,7 +6404,7 @@ window.VET45_HARNESS_DATA = {
     {
       "id": "SCR-072",
       "short": "072",
-      "name": "Công việc giá vốn",
+      "name": "Giá vốn",
       "surface": "list",
       "bj": [
         "BJ-14"
@@ -6550,12 +6413,13 @@ window.VET45_HARNESS_DATA = {
         "UC-14-01",
         "UC-14-04"
       ],
-      "purpose": "Danh sách công việc giá vốn theo nhu cầu thực tế: cập nhật trong kỳ, chốt kỳ hoặc việc đang bị chặn.",
+      "purpose": "Giá vốn theo K6: chip \"Cần làm\" / \"Đã công bố\"; mỗi dòng là một lần tính (chốt kỳ hoặc cập nhật trong kỳ) và mở đúng bước của lần tính đó.",
       "actors": [
-        "Kế toán"
+        "Chủ cửa hàng"
       ],
       "states": [
         "READY",
+        "NEEDS_PERIOD_CLOSE",
         "LOADING",
         "EMPTY",
         "PERMISSION_DENIED"
@@ -6636,7 +6500,7 @@ window.VET45_HARNESS_DATA = {
     {
       "id": "SCR-074",
       "short": "074",
-      "name": "Tính và rà soát giá vốn",
+      "name": "Giá vốn theo kỳ",
       "surface": "dashboard",
       "bj": [
         "BJ-14"
@@ -6645,18 +6509,19 @@ window.VET45_HARNESS_DATA = {
         "UC-14-01",
         "UC-14-04"
       ],
-      "purpose": "Một bề mặt cho setup/tính/blocker/review/công bố; phương pháp và period-close scope đọc từ tenant policy. Kết quả tổng và signed delta được tách rõ.",
+      "purpose": "Một màn cho mọi trạng thái của lần tính, khối theo thứ tự: việc chặn → kết quả → thay đổi sẽ ghi → theo sản phẩm → phương pháp. Việc chặn đọc từ BJ-03 / BJ-11 / BJ-16 và có nút sang nơi xử lý.",
       "actors": [
-        "Kế toán"
+        "Chủ cửa hàng"
       ],
       "states": [
-        "CALCULATING",
+        "NOT_CALCULATED",
         "BLOCKED",
+        "CALCULATING",
         "READY_FOR_REVIEW",
         "INPUT_CHANGED",
         "PERMISSION_DENIED"
       ],
-      "defaultState": "READY",
+      "defaultState": "READY_FOR_REVIEW",
       "fields": [],
       "cards": [],
       "notice": "",
@@ -6779,12 +6644,13 @@ window.VET45_HARNESS_DATA = {
       ],
       "purpose": "Kết quả publication: kỳ, phương pháp, số sản phẩm, hiệu lực và đúng hai signed delta đã ghi.",
       "actors": [
-        "Kế toán"
+        "Chủ cửa hàng"
       ],
       "states": [
         "COMPLETED",
         "REJECTED_EXECUTION",
         "UNKNOWN",
+        "PROCESSING",
         "PERMISSION_DENIED"
       ],
       "defaultState": "COMPLETED",

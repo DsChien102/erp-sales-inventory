@@ -132,18 +132,18 @@ function k4Result({ screenTitle = "Kết quả", kind = "success", title, descri
 /* ---------- K6 — danh sách công việc ---------- */
 
 // Thân màn danh sách việc: ô tìm → chip có số → bảng (web) / danh sách (iPhone) → khối "không tìm thấy".
-// search: { value, attr, placeholder }; filters: { items: [[key, label, count]], selected, attrName }.
+// search: { value, attr, placeholder }, hoặc null khi danh sách chỉ vài dòng (BJ-14: không ô tìm; caption thay cho placeholder); filters: { items: [[key, label, count]], selected, attrName }, hoặc null khi không có chip (BJ-15 báo cáo: chỉ ô tìm).
 // rows: mảng đã lọc, mỗi dòng có status { label, tone } và disabled (dòng chỉ xem: aria-disabled, không mở).
 // rowAttr(r): thuộc tính mở bước tiếp của dòng — BJ quyết bước đích, K6 không biết màn nào.
 // empty: k1Empty khi không có việc nào (total = 0); filterEmpty: k1Empty khi lọc / tìm ra rỗng, luôn dựng sẵn (ẩn) để ô tìm lọc tại chỗ.
 // filterEmptyAttr: tên thuộc tính đánh dấu khối rỗng (vd. `data-io05-filter-empty`).
-function k6TaskList({ search, filters, columns, rows, total = rows.length, mobileRow, rowAttr, empty, filterEmpty, filterEmptyAttr }) {
-  const head = `${ds24Search(search.value, search.attr, search.placeholder)}${k7FilterChips(filters)}`;
+function k6TaskList({ search, filters, columns, rows, total = rows.length, mobileRow, rowAttr, empty, filterEmpty, filterEmptyAttr, caption = "" }) {
+  const head = `${search ? ds24Search(search.value, search.attr, search.placeholder) : ""}${filters ? k7FilterChips(filters) : ""}`;
   if (!total) return `${head}${k1Empty(empty)}`;
   const attrOf = (r) => `${rowAttr(r)}${r.disabled ? ' aria-disabled="true"' : ""}`;
   // Dòng iPhone: ds24ListRow({ disabled }) tự gắn aria-disabled, nên chỉ truyền rowAttr (attrOf sẽ gắn trùng).
   const defaultRow = (r) => ds24ListRow({ title: r.title, subtitle: r.subtitle, trailing: ds24Badge(r.status.label, r.status.tone), attrs: rowAttr(r), type: "Navigation", state: r.disabled ? "Disabled" : "Default", disabled: r.disabled });
-  const table = rows.length ? k7Table({ columns, rows, mobileRow: mobileRow || defaultRow, caption: search.placeholder, rowAttr: attrOf }) : "";
+  const table = rows.length ? k7Table({ columns, rows, mobileRow: mobileRow || defaultRow, caption: search ? search.placeholder : caption, rowAttr: attrOf }) : "";
   return `${head}<section class="k6-list" data-composed-from="DS v2 / List Row,VBadge,VTable">${table}</section><div ${filterEmptyAttr} ${rows.length ? "hidden" : ""}>${k1Empty(filterEmpty)}</div>`;
 }
 

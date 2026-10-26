@@ -109,7 +109,7 @@ Không tạo một nguồn dữ liệu mới khác với báo cáo đang xem. UC
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-058` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xuất báo cáo”; không tạo mutation. |
+| `SCR-055` | Sheet "Xuất báo cáo" (phạm vi, mốc dữ liệu, quyền); trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xuất báo cáo”; không tạo mutation. |
 | `SCR-059` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xuất báo cáo”; không tạo mutation. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
