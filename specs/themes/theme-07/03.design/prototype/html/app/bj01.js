@@ -12,7 +12,7 @@
 const bj01Products = [
   { id:"INV-NOB", name:"Nobivac DHPPi", code:"SP-000184", barcode:"8938500001012", stockUom:"hộp", tracking:"LOT", physical:120, eligible:118, reserved:12, available:106, threshold:30, target:80, monitoringConfigStatus:"CONFIGURED", eligibilityBreakdown:[{reason:"Cách ly",quantity:2}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260816-04",delta:118}, reservationSummary:{quantity:12,source:"SO-260827-21"}, lots:[
     { code:"DH2507", expiryDisplay:"30/11/2026", expiryPrecision:"DAY", physical:70, eligible:70, stockState:"SELLABLE", expiryIndicator:"NONE", nearExpiryAction:null },
-    { code:"DH2509", expiryDisplay:"15/09/2026", expiryPrecision:"DAY", physical:50, eligible:48, stockState:"SELLABLE", expiryIndicator:"NEAR_EXPIRY", nearExpiryAction:"WARN", daysToExpiry:19 },
+    { code:"DH2509", expiryDisplay:"30/09/2026", expiryPrecision:"DAY", physical:50, eligible:48, stockState:"SELLABLE", expiryIndicator:"NEAR_EXPIRY", nearExpiryAction:"WARN", daysToExpiry:13 },
   ]},
   { id:"INV-AMX", name:"Amox 500", code:"SP-000066", barcode:"8938500004068", stockUom:"hộp", tracking:"NONE", physical:48, eligible:46, reserved:5, available:41, threshold:50, target:80, monitoringConfigStatus:"CONFIGURED", eligibilityBreakdown:[{reason:"Cách ly",quantity:2}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260825-02",delta:48}, reservationSummary:{quantity:5,source:"SO-260827-18"}, lots:[] },
   { id:"INV-ENRO", name:"Enrofloxacin 10%", code:"SP-000091", barcode:"8938500005096", stockUom:"chai", tracking:"NONE", physical:0, eligible:0, reserved:0, available:0, threshold:10, target:30, monitoringConfigStatus:"CONFIGURED", eligibilityBreakdown:[], latestPhysicalMovement:{label:"Xuất bán",source:"SO-260826-11",delta:-6}, reservationSummary:{quantity:0,source:null}, lots:[] },
@@ -165,14 +165,14 @@ function bj01LotSheet(p) {
 function bj01LatestMovement(p) {
   if (typeof BJ15_MOVES === "undefined") return p.latestPhysicalMovement||{};
   const last = BJ15_MOVES.filter((m) => m.productId === p.id && m.delta !== 0).sort((a, b) => (a.rKey < b.rKey ? -1 : a.rKey > b.rKey ? 1 : a.seq - b.seq)).pop();
-  return last ? { label: last.kind, source: last.doc, delta: last.delta } : (p.latestPhysicalMovement||{});
+  return last ? { label: last.kind, source: last.doc, delta: last.delta, receipt: last.sourceFlow === "UIF-02" && last.kind === "Nhận hàng" } : (p.latestPhysicalMovement||{});
 }
 function bj01ProvenanceSheet(p) {
   if(!bj01ProvenanceOpen)return "";
   const mv=bj01LatestMovement(p); const rs=p.reservationSummary||{};
   const movementValue=mv.source?`${mv.source} · ${Number(mv.delta)>0?'+':''}${mv.delta} ${p.stockUom}`:'Chưa có biến động';
   const reservationValue=Number(rs.quantity)>0?`${rs.quantity} ${p.stockUom}${rs.source?` · ${rs.source}`:''}`:`0 ${p.stockUom}`;
-  return ds24Sheet({title:'Nguồn và thời điểm cập nhật',attrs:'data-bj01-close-provenance',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · Kho trung tâm</p><div class="ds24-info-stack">${ds24InfoRow('Dữ liệu đến',bj01AsOf())}${ds24InfoRow(mv.label?`${mv.label} gần nhất`:'Biến động gần nhất',movementValue)}${ds24InfoRow('Đang giữ',reservationValue)}</div><button class="ds24-button ds24-button--secondary" data-bj01-handoff type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('history','icon--sm')}Xem thẻ kho và lịch sử</button>`});
+  return ds24Sheet({title:'Nguồn và thời điểm cập nhật',attrs:'data-bj01-close-provenance',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · Kho trung tâm</p><div class="ds24-info-stack">${ds24InfoRow('Dữ liệu đến',bj01AsOf())}${ds24InfoRow(mv.label?`${mv.label} gần nhất`:'Biến động gần nhất',movementValue)}${mv.receipt?`<button class="k7-row-link" type="button" data-bj01-open-receipt="${escapeAttribute(mv.source)}">Mở phiếu nhận ${esc(mv.source)}</button>`:''}${ds24InfoRow('Đang giữ',reservationValue)}</div><button class="ds24-button ds24-button--secondary" data-bj01-handoff type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('history','icon--sm')}Xem thẻ kho và lịch sử</button>`});
 }
 
 // ---- Màn
@@ -239,13 +239,13 @@ Object.assign(renderers, { "SCR-001": render001BJ01, "SCR-003": render003BJ01, "
 
 // Nhận hàng xong (BJ-02): ghi vào sổ chung (t7Ledger), tồn BJ-01 và thẻ kho BJ-15 cùng đổi. lines: [{ productRef, accepted, quarantine, damaged, lots:[{ code, expiry, expiryPrecision, accepted, quarantine, damaged }] }]
 // đã quy về ĐVT tồn của sản phẩm. Đạt vào khả dụng; Đạt + Cách ly + Hỏng vào tồn vật lý.
-function bj01ApplyReceipt(lines, ref, note = "") {
+function bj01ApplyReceipt(lines, ref, note = "", businessIso = "") {
   lines.forEach((line) => {
     const p = bj01Products.find((x) => x.id === line.productRef);
     if (!p) return;
     const parts = p.tracking === "LOT" && line.lots?.length ? line.lots : [{ code: "", ...line }];
     parts.forEach((part) => [["Bán được", part.accepted], ["Cách ly", part.quarantine], ["Hỏng", part.damaged]].forEach(([state, qty]) => {
-      if (qty > 0) t7Ledger.post({ key: `UIF-02:${ref}:${p.id}:${part.code}:${state}`, productId: p.id, lot: part.code, kind: "Nhận hàng", doc: ref, delta: qty, state, sourceFlow: "UIF-02", note, at: { expiry: part.expiry } });
+      if (qty > 0) t7Ledger.post({ key: `UIF-02:${ref}:${p.id}:${part.code}:${state}`, productId: p.id, lot: part.code, kind: "Nhận hàng", doc: ref, delta: qty, state, sourceFlow: "UIF-02", note, businessIso, at: { expiry: part.expiry } });
     }));
   });
 }
@@ -309,6 +309,8 @@ document.addEventListener("click", (event) => {
     const filter = event.target.closest("[data-bj01-filter]");
     if (filter) { bj01Filter=filter.dataset.bj01Filter; stateByScreen["SCR-001"]="READY"; return render(); }
     if (event.target.closest("[data-bj01-clear]")) { bj01Query=""; bj01Filter="ALL"; stateByScreen["SCR-001"]="READY"; return render(); }
+    const receipt = event.target.closest("[data-bj01-open-receipt]");
+    if (receipt) { bj01ProvenanceOpen=false; bj01LotOpen=false; return bj02OpenRecorded(receipt.dataset.bj01OpenReceipt, { flow: "UIF-01", screen: "SCR-003" }); }
     if (event.target.closest("[data-bj01-provenance]")) { bj01ProvenanceOpen=true; bj01LotOpen=false; return renderAppScreen(); }
     if (event.target.matches("[data-bj01-close-provenance]") || event.target.closest("button[data-bj01-close-provenance]")) { bj01ProvenanceOpen=false; return renderAppScreen(); }
     if (event.target.matches("[data-bj01-close-lot]") || event.target.closest("button[data-bj01-close-lot]")) { bj01LotOpen=false; return renderAppScreen(); }

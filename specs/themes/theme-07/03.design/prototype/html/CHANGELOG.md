@@ -1,5 +1,29 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.26.0] — Giai đoạn 3 · G3-6 critique gốc mới và sửa theo critique
+
+Critique toàn theme (`/impeccable critique`, hai khung): **29/40** ở cả iPhone và web, gốc 24/40; 0 P0, 1 P1. Lưu ở `.impeccable/critique/2026-10-26T07-12-45Z__…index-html-050831a4.md`. Golden so `tools/.golden-g3-5` (2241 / 1350 ca): 0 lỗi JS ở cả hai khung; dò ngõ cụt 0 / 498 mỗi khung. Mốc sau gói: `tools/.golden-g3-6` / `-web`.
+
+- **P1 dữ liệu một nguồn:** lô Nobivac DH2509 có một hạn dùng **30/09/2026** (còn 13 ngày) ở BJ-01 / 05 / 06 / 12 — trước đó BJ-01 / 12 ghi 15/09/2026 (đã quá hạn so với mốc 17/09 mà vẫn "cận hạn") còn BJ-05 / 06 ghi 09/2027; dòng nhận hàng của BJ-02 ghi ngày nghiệp vụ theo ngày nhận của phiếu (16/09), ghi nhận 17/09.
+- **Chân iPhone:** chữ nút dài (> 17 ký tự) thì chân chia đôi xếp dọc, nút chính ở trên, chân cao 136px (hết "Chuyển sang xác minh", "Về công việc điều chỉnh" gãy hai dòng); mã nguồn BJ-13 dùng gạch nối không ngắt ("VC‑8842" không gãy); dòng phụ kiểm kê giữ "Không theo lô" / "Bán được" nguyên khối.
+- **Web:** hàng nhãn — giá trị rộng bằng khung chứa (không còn 338px của iPhone), BJ-14 bỏ đường kẻ đôi của hàng nhấn và căn giữa dọc, giá trị dài ở cột tóm tắt xuống dòng; bảng đếm hàng (BJ-08) tối đa 820px; 079 web (`wideMain`); cột "Tình trạng" của 015 còn 200px.
+- **Màn kết quả:** `kind: "warning"` (từ chối, chưa ghi, hết hiệu lực) dùng dấu cảnh báo thay đồng hồ; đồng hồ giữ cho **chờ / chưa rõ kết quả** (`kind: "pending"`: K3 và "đã chuyển xử lý"). K2 "Cần chú ý" / "Kết luận" chỉ có dòng thông tin thì nền và tiêu đề trung tính (`k2-attention--info`); nhãn K2 bỏ dấu hai chấm cuối.
+- **Mã sản phẩm:** "Vaccine Canine X" `SP-00421` → `SP-000421` (6 chữ số như mọi mã khác; BJ-03 / BJ-13).
+- **Góp ý nhỏ của plan:** 068 "Sửa số kiểm soát" về 067 và focus ô "Tổng số lượng kiểm soát"; BJ-07 nút xám "Đúng hàng" thành "Chọn phần hàng" (mở dòng để chọn phần hàng).
+- **Không làm / không thấy:** chữ 9–10px do detector báo là luật CSS bị luật khác đè (đo lúc chạy trên mọi ca iPhone: không có chữ nào dưới 11px ngoài thanh trạng thái) nên không sửa; 037 "Việc tiếp theo" / badge lặp, 041 thiếu Lô / Số lượng, 044 dòng đã đếm dưới chip "Chưa đếm", 008 web thứ tự Tab: không phát hiện ở critique này (kiểm lại ở G3-7). `/impeccable polish` theo từng chặng: không chạy riêng — các chi tiết polish nằm trong danh sách trên.
+- Badge harness `v5.26.0 · Giai đoạn 3 · G3-6 sửa theo critique`.
+
+## [5.25.0] — Giai đoạn 3 · G3-5 luồng không ngõ cụt, Home Kho đủ lối vào
+
+Golden so `tools/.golden-g3-4` (iPhone 2183 → 2241 ca, web 1292 → 1350): 0 lỗi JS ở cả hai khung. Ca khác: màn kết quả K4 ở chế độ Toàn Theme 7 trên iPhone (thêm thanh 5 tab), `UIF-10_SCR-041_PENDING_APPROVAL` / `_EXPIRED`, và các kịch bản mới `SC_home_all`, `SC_g3_cost_return`, `SC_g3_receipt_recorded`, `SC_g3_receipt_from_bj01`. Mốc sau gói: `tools/.golden-g3-5` / `-web`.
+
+- **Công cụ dò ngõ cụt:** `node tools/golden.mjs deadends <thư mục>` (thêm `DEVICE=web` cho khung web) mở mọi màn × trạng thái ở chế độ Toàn Theme 7 và báo màn không có lối ra bật được (nút quay lại, nút chân, nút / liên kết trong màn, thanh tab hoặc thanh bên); trạng thái lỗi / từ chối / chưa rõ kết quả phải có lối ra đặt tên; `LOADING` / `PROCESSING` bỏ qua. Lần đầu tìm ra **2 ngõ cụt thật**: `UIF-10 SCR-041` ở `PENDING_APPROVAL` và `EXPIRED` dựng màn rỗng (skeleton mãi) — nay có nội dung và nút "Về hàng cần xử lý". Sau sửa: 0 ngõ cụt ở cả hai khung (498 ca mỗi khung).
+- **K4 iPhone Toàn Theme 7:** màn kết quả (`k4Result`, lớp `k4-result`) hiện thanh 5 tab của app (`hub.js afterFlowRender`); chế độ BJ và khung web giữ nguyên.
+- **Phiếu nhận đã ghi:** `SCR-011` thêm trạng thái chỉ đọc `RECORDED` (`bj02OpenRecorded`, `render011Recorded`): tiêu đề "Phiếu nhận {mã}", phụ "{NCC} · Đã ghi {ngày}", bảng "Theo chứng từ · Thực nhận · Chênh lệch · Tình trạng", không chân duyệt; dòng lấy từ sổ kho theo mã phiếu nhận / chứng từ. Mở từ thẻ kho (056 "Mở phiếu gốc" cho dòng Nhận hàng của BJ-02) và từ sheet nguồn của BJ-01 ("Mở phiếu nhận {mã}" khi biến động gần nhất là nhận hàng); nút quay lại về đúng nơi đã mở.
+- **"Về giá vốn":** từ việc chặn ở BJ-14 074 sang BJ-03 / BJ-11 / BJ-16 (`bj14ReturnRunId`), màn kết quả của BJ đó có "Về giá vốn" mở lại 074 của lần tính (lần kế tiếp nếu đã sinh); BJ-11 ưu tiên "Về hồ sơ đối soát" khi vào từ BJ-16. Rời sang Home thì quên.
+- **Home Kho rà soát:** 4 nút nhanh, 3 dòng "Cần chú ý" và 5 khu "Quản lý kho" + "Thiết lập kho" đã khớp bảng T7-P mục 2 (số trong "Cần chú ý" đọc từ nguồn nên không gõ cứng); không cần sửa. Thêm `SC_home_all` (mọi lối vào trực tiếp mở đúng luồng và về lại Home, hai khung); khu "Quản lý kho" đã có `SC_ws_*`.
+- Badge harness `v5.25.0 · Giai đoạn 3 · G3-5 không ngõ cụt`.
+
 ## [5.24.0] — Giai đoạn 3 · G3-4 sổ kho chung và số liệu một nguồn
 
 Golden so `tools/.golden-g3-3` (iPhone 2175 → 2183 ca, web 1291 → 1292): 0 lỗi JS ở cả hai khung. Ca khác (đã đối chiếu `.txt`, mọi dòng khác thuộc các nhóm dưới đây): mốc "Dữ liệu đến" của BJ-01; Home "Cần chú ý" và danh sách Hàng cần xử lý (thêm Vitamin ADE); hồ sơ BJ-17 (bỏ "Kho trung tâm"); BJ-12 (bớt dòng mẫu); BJ-15 Amox (nhập muộn, tồn theo ghi nhận); thẻ kho Oxytetracycline / Nobivac và báo cáo của `SC_demo` (nay có số của bước 3 – 6); sheet nguồn của BJ-01. Mốc sau gói: `tools/.golden-g3-4` / `-web`.

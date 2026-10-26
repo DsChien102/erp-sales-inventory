@@ -27,7 +27,7 @@ const t7Ledger = (() => {
   // Một biến động: delta = đổi tồn vật lý; eligibleDelta = phần vào / ra khả dụng (mặc định: bằng delta nếu tình trạng "Bán được", ngược lại 0);
   // reservedDelta = đổi số đang giữ cho đơn (bàn giao đơn đã giữ thì giảm theo); notEligible = [{ reason, quantity }] đổi phần không bán được
   // (mặc định: phần delta không vào khả dụng, ghi theo tình trạng). key: khoá chống ghi hai lần cùng một thao tác.
-  function post({ key = "", productId, lot = "", kind, doc, delta, state = "Bán được", eligibleDelta, reservedDelta = 0, notEligible, sourceFlow = "", opId = "", actor, note = "", at }) {
+  function post({ key = "", productId, lot = "", kind, doc, delta, state = "Bán được", eligibleDelta, reservedDelta = 0, notEligible, sourceFlow = "", opId = "", actor, note = "", at, businessIso = "" }) {
     if (key && posted.has(key)) return null;
     const p = productOf(productId);
     if (!p) return null;
@@ -52,14 +52,14 @@ const t7Ledger = (() => {
       if (l) { l.physical += delta; l.eligible += dEligible; if (l.physical <= 0) p.lots.splice(p.lots.indexOf(l), 1); }
       else if (delta > 0) p.lots.push({ code: lot, expiryDisplay: at?.expiry || "", expiryPrecision: "DAY", physical: delta, eligible: dEligible, stockState: "SELLABLE", expiryIndicator: "NONE", nearExpiryAction: null });
     }
-    const n = posted.size;
+    const n = posted.size, bIso = /^\d{4}-\d{2}-\d{2}$/.test(businessIso) ? businessIso : "";
     const hh = "20", mm = String(40 + (n % 19)).padStart(2, "0");
     const dm = BJ15_TODAY.slice(8, 10) + "/" + BJ15_TODAY.slice(5, 7);
     let id = `${doc}/${p.code}`, k = 1;
     while (BJ15_MOVES.some((m) => m.id === id)) id = `${doc}/${p.code}~${++k}`;
     BJ15_MOVES.push({
       id, seq: BJ15_MOVES.length, productId: p.id, lot: p.tracking === "LOT" ? lot : "", kind, doc, actor: actor || BJ15_AN, delta, state, sourceFlow, opId, note,
-      business: `${dm}/2026`, recorded: `${dm}/2026 · ${hh}:${mm}`, bIso: BJ15_TODAY, rIso: BJ15_TODAY, rKey: `${BJ15_TODAY} ${hh}:${mm}`,
+      business: bIso ? `${bIso.slice(8, 10)}/${bIso.slice(5, 7)}/${bIso.slice(0, 4)}` : `${dm}/2026`, recorded: `${dm}/2026 · ${hh}:${mm}`, bIso: bIso || BJ15_TODAY, rIso: BJ15_TODAY, rKey: `${BJ15_TODAY} ${hh}:${mm}`,
     });
     check(p);
     return id;

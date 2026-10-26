@@ -364,7 +364,7 @@ function render053BJ11(state) {
   }
   const money = bj11Money(bj11Value(op, r.from, r.to));
   const facts = [source, ["Bản ghi sửa sai", r.recordId || "—"], ["Điều chỉnh", bj11Signed((r.to - r.from) * (op.sign || 1), op.uom)], ...(money ? [["Giá trị", money]] : []), ["Người duyệt", r.approver || BJ11_OWNER], ["Ghi nhận lúc", r.decidedAt || BJ11_DECIDED_AT]];
-  return k4Result({ screenTitle: title, title: "Đã hoàn tất sửa sai", description: "Nghiệp vụ gốc được giữ nguyên; bản ghi sửa sai mới đã ghi phần điều chỉnh và liên kết đầy đủ.", facts, next: [toList, toCase ? { ...toCase, primary: true } : { label: "Xem tồn kho", attr: 'data-bj11-action="to-stock"', primary: true }] });
+  return k4Result({ screenTitle: title, title: "Đã hoàn tất sửa sai", description: "Nghiệp vụ gốc được giữ nguyên; bản ghi sửa sai mới đã ghi phần điều chỉnh và liên kết đầy đủ.", facts, next: [toList, toCase ? { ...toCase, primary: true } : bj14ReturnAction() ? { ...bj14ReturnAction(), primary: true } : { label: "Xem tồn kho", attr: 'data-bj11-action="to-stock"', primary: true }] });
 }
 
 /* ---------- Sự kiện ---------- */

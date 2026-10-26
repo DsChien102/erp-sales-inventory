@@ -4238,7 +4238,7 @@ body[data-active-uif="UIF-14"] .figma-calibrated-shell .k6-list .ds24-list-row {
 .device-preview.is-web .bj14-method__compare, .device-preview.is-web .bj14-more { width: auto; align-self: flex-start; }
 .device-preview.is-web .bj14-more { display: none; }
 /* Hàng "nhãn — số tiền": nhãn bên trái, số căn phải (mono, không gãy dòng); các hàng liền nhau ngăn bằng đường mảnh. */
-body[data-active-uif="UIF-14"] .ds24-key-value-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--vet45-v2-space-3); min-height: 44px; padding: var(--vet45-v2-space-2) 0; box-sizing: border-box; }
+body[data-active-uif="UIF-14"] .ds24-key-value-row { display: flex; align-items: center; justify-content: space-between; gap: var(--vet45-v2-space-3); min-height: 44px; padding: var(--vet45-v2-space-2) 0; box-sizing: border-box; }
 body[data-active-uif="UIF-14"] :is(.ac310-key-value-stack, .bj14-sheet-facts) > .ds24-key-value-row + .ds24-key-value-row { border-top: 1px solid var(--vet45-v2-border-default); }
 body[data-active-uif="UIF-14"] .ds24-key-value-row > span { flex: 0 1 55%; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
 body[data-active-uif="UIF-14"] .ds24-key-value-row > strong { flex: 1 1 0; min-width: 0; text-align: right; font: 600 14px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--vet45-v2-text-primary); }
@@ -4306,3 +4306,18 @@ body[data-active-uif="UIF-15"] .ds24-list-row:focus-visible { outline: 2px solid
 .bj15-strip .cf12-strip__item { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
 .bj15-strip .cf12-strip__item strong { font: 600 16px/22px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--vet45-v2-text-primary); }
 body[data-active-uif="UIF-15"] .ds24-key-value-row > strong.bj15-text { font: 600 14px/20px Inter, system-ui, sans-serif; white-space: normal; overflow-wrap: anywhere; }
+
+/* Web: hàng nhãn — giá trị rộng bằng khung chứa (338px là bề rộng iPhone); BJ-14 bỏ đường kẻ đôi của hàng nhấn. */
+/* !important: đè luật khung Figma (.figma-calibrated-shell … { width: 338px !important }) */
+.device-preview.is-web .figma-calibrated-shell .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"],
+.device-preview.is-web .figma-calibrated-shell .ac310-info-rows > .ds24-info-row { width: 100% !important; max-width: none !important; }
+body[data-active-uif="UIF-14"] #app-screen .ds24-key-value-row--emphasis { box-shadow: none; }
+
+/* Web, đếm hàng (BJ-08): bảng giữ bề rộng đọc được để ô "Đếm được" không cách xa sản phẩm. */
+.device-preview.is-web .bj08-count .k7-table-wrap { max-width: 820px; }
+
+/* Chân iPhone xếp dọc (chữ nút dài): hai nút 44px + khoảng cách cần cao hơn chân một hàng 92px. */
+.device-preview:not(.is-web) .app-actions.figma-sticky-footer.is-stacked { height: auto; min-height: 136px; }
+
+/* Web, cột tóm tắt hẹp: giá trị dài (thời điểm chốt) được xuống dòng thay vì tràn khỏi thẻ. */
+body[data-active-uif="UIF-14"] .device-preview.is-web .k7-split__aside .ds24-key-value-row > strong { white-space: normal; overflow-wrap: anywhere; }

@@ -22,8 +22,8 @@ const cf12Summary = { rows: 82, products: 36, parsedQty: 4820, parsedValue: 3862
 // 9 dòng mẫu của tệp 82 dòng (số tồn khớp BJ-01; Enrofloxacin đã hết ở BJ-01 nên không có dòng mẫu); 4 sản phẩm trùng bj01Products (tên / mã / ĐVT / lô) để hành trình chặng 1 liền mạch.
 const cf12Lines = [
   { row: 2, sku: "SP-000184", name: "Nobivac DHPPi", uom: "hộp", state: "Bán được", lot: "DH2507", expiry: "30/11/2026", qty: 70, unitCost: 118000 },
-  { row: 3, sku: "SP-000184", name: "Nobivac DHPPi", uom: "hộp", state: "Bán được", lot: "DH2509", expiry: "15/09/2026", qty: 48, unitCost: 118000 },
-  { row: 4, sku: "SP-000184", name: "Nobivac DHPPi", uom: "hộp", state: "Cách ly", lot: "DH2509", expiry: "15/09/2026", qty: 2, unitCost: 118000 },
+  { row: 3, sku: "SP-000184", name: "Nobivac DHPPi", uom: "hộp", state: "Bán được", lot: "DH2509", expiry: "30/09/2026", qty: 48, unitCost: 118000 },
+  { row: 4, sku: "SP-000184", name: "Nobivac DHPPi", uom: "hộp", state: "Cách ly", lot: "DH2509", expiry: "30/09/2026", qty: 2, unitCost: 118000 },
   { row: 5, sku: "SP-000066", name: "Amox 500", uom: "hộp", state: "Bán được", lot: "", expiry: "", qty: 47, unitCost: 86000 },
   { row: 6, sku: "SP-000066", name: "Amox 500", uom: "hộp", state: "Cách ly", lot: "", expiry: "", qty: 1, unitCost: 86000 },
   { row: 8, sku: "SP-000122", name: "Tylosin 20%", uom: "lọ", state: "Bán được", lot: "TY2511", expiry: "11/2027", qty: 7, unitCost: 72000 },
@@ -164,7 +164,7 @@ function render068BJ12(state){
     const rows=[{label:"Tổng số lượng",file:cfNumber(cf12Summary.parsedQty),ledger:cfNumber(cf12ControlQty),diff:cf12Signed(dq),off:dq!==0},{label:"Tổng giá trị",file:cfMoney(cf12Summary.parsedValue),ledger:cfMoney(cf12ControlValue),diff:`${dv>0?"+":dv<0?"−":""}${cfMoney(Math.abs(dv))}`,off:dv!==0}];
     const warn=(r)=>r.off?"k7-cell--warn":"";
     const table=k7Table({columns:[{key:"label",label:"Chỉ tiêu"},{key:"file",label:"Theo tệp",align:"end",mono:true},{key:"ledger",label:"Theo sổ",align:"end",mono:true},{key:"diff",label:"Chênh lệch",align:"end",mono:true,cls:warn}],rows,mobileRow:(r)=>crFactCard(r.label,[["Theo tệp",r.file,true],["Theo sổ",r.ledger,true],["Chênh lệch",r.diff,r.off]]),caption:"Đối chiếu số kiểm soát"});
-    const footer=k4Footer([{label:"Chọn lại tệp",attr:'data-cf12-action="back-file"'},{label:"Sửa số kiểm soát",attr:'data-cf12-action="back-file"',primary:true}]);
+    const footer=k4Footer([{label:"Chọn lại tệp",attr:'data-cf12-action="back-file"'},{label:"Sửa số kiểm soát",attr:'data-cf12-action="back-control"',primary:true}]);
     return cf12Out(cf12Shell({title,body:cf12Narrow(`${vBanner("warning","Số kiểm soát không khớp","Không gửi phê duyệt cho đến khi tệp chi tiết khớp nguồn kiểm soát độc lập.")}${table}`,"mid"),actions:footer}));
   }
   if(state==="VALIDATION_FAILED"){
@@ -283,6 +283,8 @@ document.addEventListener("click",(event)=>{
     if(k==="open-columns"){cf12ColumnsOpen=true;return renderAppScreen();}
     if(k==="close-columns"){cf12ColumnsOpen=false;return renderAppScreen();}
     if(k==="back-file"){stateByScreen["SCR-067"]="READY";return navigate("SCR-067");}
+    // "Sửa số kiểm soát": về 067 và đặt con trỏ vào ô "Tổng số lượng kiểm soát" (số cần sửa), không phải đầu trang.
+    if(k==="back-control"){stateByScreen["SCR-067"]="READY";navigate("SCR-067");return requestAnimationFrame(()=>document.querySelector("[data-cf12-control-qty]")?.focus());}
     if(k==="reload"){if(activeScreenId==="SCR-067"){stateByScreen["SCR-067"]="READY";return renderAppScreen();}stateByScreen["SCR-067"]="READY";return navigate("SCR-067");}
     if(k==="fix-rejected"){stateByScreen["SCR-067"]="READY";return navigate("SCR-067");}
     if(k==="open-reject"){cf12RejectOpen=true;cf12RejectReason="";return renderAppScreen();}

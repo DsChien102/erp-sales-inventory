@@ -72,7 +72,7 @@ function k2Pending({ approver, sentAt, facts = [], subject = "" }) {
 // title "" = khối thông tin không tiêu đề, nền thường (vd. "Sau khi đổi" của BJ-09 — không báo động khi chỉ có dòng info).
 function k2Attention(attention = [], { title = "Cần chú ý" } = {}) {
   return attention.length
-    ? `<section class="ac310-surface k2-attention${title ? "" : " k2-attention--plain"}" data-layout-pattern="Grouped surface" >${title ? `<div class="ac310-surface__head"><h2>${esc(title)}</h2></div>` : ""}<div class="ac310-key-value-stack">${attention.map(([label, value, tone = "warning"]) => `<div class="k2-attention__row">${icon(tone === "info" ? "info" : "alert", `icon--sm k2-attention__icon k2-attention__icon--${tone}`)}<span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div></section>`
+    ? `<section class="ac310-surface k2-attention${title ? "" : " k2-attention--plain"}${attention.every((a) => a[2] === "info") ? " k2-attention--info" : ""}" data-layout-pattern="Grouped surface" >${title ? `<div class="ac310-surface__head"><h2>${esc(title)}</h2></div>` : ""}<div class="ac310-key-value-stack">${attention.map(([rawLabel, value, tone = "warning"], i, all, label = String(rawLabel).replace(/:$/, "")) => `<div class="k2-attention__row">${icon(tone === "info" ? "info" : "alert", `icon--sm k2-attention__icon k2-attention__icon--${tone}`)}<span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div></section>`
     : "";
 }
 
@@ -99,7 +99,9 @@ function k4Footer(buttons) {
   const calibrated = FIGMA_MIGRATED_FLOWS.has(activeFlowId);
   const btn = (b) => `<button class="button button--${b.primary ? "primary" : "secondary"}" type="button" ${b.attr}${b.disabled ? " disabled" : ""} data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.${b.primary ? "primary" : "secondary"}" data-ds-prop-size="VButtonSize.medium">${esc(b.label)}</button>`;
   const dual = buttons.length > 1;
-  return `<footer class="app-actions${calibrated ? " figma-sticky-footer" : ""}${dual ? " is-split ac310-two-actions" : ""}" data-ds-component="DS v2 / Sticky Footer" data-ds-prop-layout="${dual ? "Dual" : "Single"}" data-ds-prop-tone="Default">${buttons.map(btn).join("")}</footer>`;
+  // Chữ nút dài (> 17 ký tự) không vừa nửa chân iPhone: xếp dọc, nút chính ở trên (web giữ hàng ngang).
+  const stacked = dual && buttons.some((b) => b.label.length > 17);
+  return `<footer class="app-actions${calibrated ? " figma-sticky-footer" : ""}${dual ? " is-split ac310-two-actions" : ""}${stacked ? " is-stacked" : ""}" data-ds-component="DS v2 / Sticky Footer" data-ds-prop-layout="${dual ? "Dual" : "Single"}" data-ds-prop-tone="Default">${buttons.map(btn).join("")}</footer>`;
 }
 
 // Chân một nút có dòng lý do ngay trên nút (hiện khi nút tắt). BJ-02 / BJ-05 / BJ-06 dùng; BJ đổi chữ lý do qua [data-k4-reason].
@@ -116,7 +118,7 @@ function k4ReasonFooter({ label, attr, disabled = false, reason = "", tone = "pr
 // handoff: { operation, scope } — giá trị gửi sang BJ-17 khi khác chữ hiển thị (vd. mã nghiệp vụ thay cho nhãn); bỏ trống = dùng operation / scope.
 function k3Unknown({ operation, scope, ref, sentAt, safe, sourceFlow, exitAttr, facts = [], title = "Xác minh kết quả", detail = "", handoff = {} }) {
   const rows = [["Nghiệp vụ", operation], ["Phạm vi", scope], ["Mã tham chiếu", ref], ["Thời điểm gửi", sentAt], ...facts, ["Trạng thái", "Chưa kết luận"]];
-  const body = `<div class="k3-column">${ioResult("Kết quả chưa xác định", `Không gửi lại thao tác. Chuyển đúng lần xử lý này sang xác minh kết quả.${safe ? ` ${safe}` : ""}`, rows, "warning")}${detail}</div>`;
+  const body = `<div class="k3-column">${ioResult("Kết quả chưa xác định", `Không gửi lại thao tác. Chuyển đúng lần xử lý này sang xác minh kết quả.${safe ? ` ${safe}` : ""}`, rows, "pending")}${detail}</div>`;
   const handoffAttr = `data-k3-action="handoff" data-source-flow="${escapeAttribute(sourceFlow)}" data-operation="${escapeAttribute(handoff.operation ?? operation)}" data-scope="${escapeAttribute(handoff.scope ?? scope)}"`;
   return appShell({ title, body, actions: k4Footer([{ label: "Về Kho", attr: exitAttr }, { label: "Chuyển sang xác minh", attr: handoffAttr, primary: true }]), centered: true, back: false, extraClass: "k7-wide" });
 }
@@ -126,7 +128,7 @@ function k3Unknown({ operation, scope, ref, sentAt, safe, sourceFlow, exitAttr, 
 // next: [{ label, attr, primary }] — phụ | chính.
 // button: HTML đặt sau bảng số liệu (vd. liên kết "Xem {n} dòng hàng").
 function k4Result({ screenTitle = "Kết quả", kind = "success", title, description, facts = [], next = [], button = "" }) {
-  return appShell({ title: screenTitle, body: ioResult(title, description, facts, kind, button), actions: next.length ? k4Footer(next) : "", centered: true, back: false, extraClass: "k7-wide" });
+  return appShell({ title: screenTitle, body: ioResult(title, description, facts, kind, button), actions: next.length ? k4Footer(next) : "", centered: true, back: false, extraClass: "k7-wide k4-result" });
 }
 
 /* ---------- K6 — danh sách công việc ---------- */

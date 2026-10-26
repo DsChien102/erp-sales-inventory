@@ -78,7 +78,8 @@ function bj08Session(id = bj08SelectedId) { return bj08Sessions.find((s) => s.id
 function bj08LotText(l) { return l.lot ? `Lô ${l.lot}` : "Không theo lô"; }
 function bj08LineName(l) { return `${l.name}${l.lot ? ` · Lô ${l.lot}` : ""}`; }
 function bj08StateLabel(l) { return l.state ? t7LotStateLabel(l.state) : "Chưa chọn tình trạng"; }
-function bj08LineSub(l) { return `${l.code} · ${bj08LotText(l)} · ${bj08StateLabel(l)}`; }
+// Cụm "Không theo lô" / "Bán được" giữ nguyên một khối (NBSP) để dòng phụ ngắt giữa các cụm, không ngắt giữa chữ.
+function bj08LineSub(l) { return [l.code, bj08LotText(l), bj08StateLabel(l)].map((x) => x.replace(/ /g, "\u00a0")).join(" · "); }
 
 /* ---------- Phạm vi ---------- */
 

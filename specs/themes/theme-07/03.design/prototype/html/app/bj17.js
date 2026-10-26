@@ -84,7 +84,7 @@ function render079BJ17(state) {
   const stale = state === "CONFLICT" ? k1Stale({ title: "Kết luận đã thay đổi", description: "Có bằng chứng mới. Xem lại kết luận trước khi làm tiếp.", actionLabel: "Tải lại", actionAttr: 'data-bj17-action="reload"' }) : "";
   const note = `<p class="ac310-note">Không tạo thao tác mới, không ghi lại lần hai.</p>`;
   const main = `${stale}${crConclusion(v)}${crCompare(v.compare)}${note}`;
-  return crShell({ title, subtitle, body: `${k7Split({ main, aside: crAside(c), asideWebOnly: true })}${stale ? "" : crSheetHtml(c)}`, actions: v.primary && !stale ? primaryFooter(v.primary.label, v.primary.attr) : "" });
+  return crShell({ title, subtitle, body: `${k7Split({ main, aside: crAside(c), wideMain: true, asideWebOnly: true })}${stale ? "" : crSheetHtml(c)}`, actions: v.primary && !stale ? primaryFooter(v.primary.label, v.primary.attr) : "" });
 }
 
 /* ---------- SCR-083 · Kết quả xác minh (BJ-17) ---------- */
@@ -106,7 +106,7 @@ function render083BJ17(state) {
   }
   if (state === "ESCALATED") {
     const facts = [["Nghiệp vụ", `${c.kind} ${c.doc}`], ["Người nhận", CR_SUPPORT], ["Phạm vi", "Tiếp tục được bảo vệ"], ["Gửi lúc", c.sentAt || BJ16_SENT_AT]];
-    return k4Result({ screenTitle: title, kind: "warning", title: "Chưa xác định — đã chuyển xử lý", description: "Hệ thống chưa đoán kết quả. Phạm vi tiếp tục được bảo vệ và người có trách nhiệm đã nhận hồ sơ.", facts, next: crResultNext(listAttr) });
+    return k4Result({ screenTitle: title, kind: "pending", title: "Chưa xác định — đã chuyển xử lý", description: "Hệ thống chưa đoán kết quả. Phạm vi tiếp tục được bảo vệ và người có trách nhiệm đã nhận hồ sơ.", facts, next: crResultNext(listAttr) });
   }
   const facts = [["Nghiệp vụ", `${c.kind} ${c.doc}`], ["Kết quả", c.result === "CONTINUED" ? "Đã làm tiếp, đã ghi" : "Đã hoàn tất"], ...(c.sourceFlow !== "UIF-17" ? [["Từ", BJ17_SOURCE[c.sourceFlow] || c.sourceFlow]] : [])];
   // Vào từ màn K3 của BJ khác: bước tiếp là mở lại đúng thao tác ở BJ đó (đã được onUnknownResolved cập nhật).

@@ -15,11 +15,11 @@ const io05Orders=[
     {id:"PK-21-01",name:"Nobivac DHPPi",code:"SP-000184",uom:"hộp",baseUom:"hộp",conversionToBase:1,conversionVersion:"UOM-SP000184-v2",quantityStep:1,requestedQty:20,deliveredQty:0,allocations:[
       {id:"AL-21-01",allocatedQty:4,allocatedBaseQty:4,pickedQty:4,consumedQty:0,suggestedLot:"DH2507",lot:"DH2507",overrideReason:"",physicalCorrection:null,eligibleLots:[
         {code:"DH2507",expiryDisplay:"30/11/2026",expiryPrecision:"DAY",pickableQty:4,asOf:"27/08/2026 09:41",snapshotVersion:"LOT-Q-v12",recommended:true},
-        {code:"DH2509",expiryDisplay:"09/2027",expiryPrecision:"MONTH",pickableQty:18,asOf:"27/08/2026 09:41",snapshotVersion:"LOT-Q-v12",recommended:false},
+        {code:"DH2509",expiryDisplay:"30/09/2026",expiryPrecision:"DAY",pickableQty:18,asOf:"27/08/2026 09:41",snapshotVersion:"LOT-Q-v12",recommended:false},
         {code:"DH2511",expiryDisplay:"2027",expiryPrecision:"YEAR",pickableQty:22,asOf:"27/08/2026 09:41",snapshotVersion:"LOT-Q-v12",recommended:false}
       ]},
       {id:"AL-21-02",allocatedQty:16,allocatedBaseQty:16,pickedQty:8,consumedQty:0,suggestedLot:"DH2509",lot:"DH2509",overrideReason:"",physicalCorrection:null,eligibleLots:[
-        {code:"DH2509",expiryDisplay:"09/2027",expiryPrecision:"MONTH",pickableQty:18,asOf:"27/08/2026 09:41",snapshotVersion:"LOT-Q-v12",recommended:true},
+        {code:"DH2509",expiryDisplay:"30/09/2026",expiryPrecision:"DAY",pickableQty:18,asOf:"27/08/2026 09:41",snapshotVersion:"LOT-Q-v12",recommended:true},
         {code:"DH2511",expiryDisplay:"2027",expiryPrecision:"YEAR",pickableQty:22,asOf:"27/08/2026 09:41",snapshotVersion:"LOT-Q-v12",recommended:false}
       ]}
     ]},

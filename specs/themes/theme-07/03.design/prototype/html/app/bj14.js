@@ -391,7 +391,7 @@ function bj14Focus(selector) {
   return el || null;
 }
 function bj14Go(screenId, state) { bj14Ui.sheet = null; bj14SetState(screenId, state); return navigate(screenId); }
-function bj14ToList() { bj14Draft = null; return bj14Go("SCR-072", "READY"); }
+function bj14ToList() { bj14Draft = null; bj14ReturnRunId = ""; return bj14Go("SCR-072", "READY"); }
 // Sau mỗi bước làm đổi trạng thái lần tính, nhãn trạng thái ở bộ chọn đi theo.
 function bj14Sync(run) { bj14SetState("SCR-074", BJ14_STATE[run.status] || run.status); }
 function bj14OpenRun(id) {
@@ -435,6 +435,22 @@ function bj14Publish() {
   bj14Commit(run);
   return bj14Go("SCR-077", "COMPLETED");
 }
+// Việc chặn xử lý ở BJ khác (BJ-03 / 11 / 16): nhớ lần tính để màn kết quả của BJ đó có "Về giá vốn" (lần kế tiếp nếu lần này đã bị thay).
+let bj14ReturnRunId = "";
+const bj14ReturnAction = () => (bj14ReturnRunId ? { label: "Về giá vốn", attr: "data-bj14-back-to-cost" } : null);
+function bj14BackToCost() {
+  let run = bj14Find(bj14ReturnRunId); bj14ReturnRunId = "";
+  if (!run) return;
+  for (let n = bj14Runs.find((x) => x.supersedes === run.id); n; n = bj14Runs.find((x) => x.supersedes === run.id)) run = n;
+  bj14SelectedId = run.id; bj14Draft = null;
+  if (run.status === "PUBLISHED") { bj14Known("SCR-077", "COMPLETED"); return crSwitchFlow("UIF-14", "SCR-077", "COMPLETED"); }
+  const state = BJ14_STATE[run.status] || "READY";
+  bj14Known("SCR-074", state); return crSwitchFlow("UIF-14", "SCR-074", state);
+}
+document.addEventListener("click", (event) => {
+  if (!event.target.closest?.("[data-bj14-back-to-cost]")) return;
+  event.preventDefault(); event.stopPropagation(); bj14BackToCost();
+}, true);
 function bj14ToCorrection(id) {
   const direct = window.__T7_DIRECT_CONTEXTS__?.["bj11-approval"]; if (!direct) return;
   direct(id);
@@ -486,9 +502,9 @@ document.addEventListener("click", (event) => {
   if (k === "publish") return bj14Publish();
   if (k === "to-list") return bj14ToList();
   if (k === "to-report") return bj15OpenReport({ period: bj14Current().period, entry: "bj14" });
-  if (k === "to-valuation") return crSwitchFlow("UIF-03", "SCR-014", "READY");
-  if (k === "to-correction") return bj14ToCorrection(ref);
-  if (k === "to-case") return bj14ToCase(ref);
+  if (k === "to-valuation") { bj14ReturnRunId = bj14Current().id; return crSwitchFlow("UIF-03", "SCR-014", "READY"); }
+  if (k === "to-correction") { bj14ReturnRunId = bj14Current().id; return bj14ToCorrection(ref); }
+  if (k === "to-case") { bj14ReturnRunId = bj14Current().id; return bj14ToCase(ref); }
 }, true);
 
 // Đi giữa các màn bằng navigate (kể cả nút quay lại) là đi trong luồng: trạng thái hiện tại là "đã biết", không dựng lại fixture.

@@ -359,8 +359,10 @@ function io07LotAction(group, a, readOnly) {
   if (a.physicalMismatch) return ds24Badge("Không khớp", "Danger");
   if (a.verified && !a.affectedByChange) return ds24Badge("Đã kiểm", "Success");
   if (readOnly) return "";
+  // Dòng còn phải chọn phần hàng thì nút mở dòng đó để chọn (không còn nút "Đúng hàng" xám).
+  if (io07NeedsSlices(a)) return io07SmallButton("Chọn phần hàng", `data-io07-allocation="${io07Attr(a.id)}" aria-label="${io07Attr(`Chọn phần hàng ${io07LabelOf(group, a)} ${group.name}`)}"`);
   const label = `Đúng hàng ${io07LabelOf(group, a)} ${group.name}`;
-  return io07SmallButton("Đúng hàng", `data-io07-verify-quick="${io07Attr(a.id)}" aria-label="${io07Attr(label)}"`, io07NeedsSlices(a));
+  return io07SmallButton("Đúng hàng", `data-io07-verify-quick="${io07Attr(a.id)}" aria-label="${io07Attr(label)}"`);
 }
 function io07MobileLotRow(r, readOnly) {
   const { group, allocation: a } = r;

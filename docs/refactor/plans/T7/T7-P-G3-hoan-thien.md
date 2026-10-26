@@ -226,6 +226,19 @@ Lý do thứ tự: **G3-1 trước** vì là gói duy nhất được golden b�
 - **Golden:** 0 lỗi JS hai khung (2183 / 1292 ca); mọi dòng chữ khác đã gom nhóm (mốc dữ liệu BJ-01, Home / K5 có Vitamin ADE, BJ-17 scope, BJ-12 dòng mẫu, BJ-15 Amox, demo thẻ kho); mốc `tools/.golden-g3-4` / `-web`.
 - **GitNexus:** `impact` chạy sau khi sửa: `bj15Ledger` MEDIUM (9, người gọi đều trong BJ-15 và ledger), `bj01ApplyReceipt` LOW (3).
 
+### G3-5 (5.25.0, 2026-10-26) — làm xong, chưa commit
+
+- **Đã làm:** công cụ `golden.mjs deadends` (tìm ra 2 ngõ cụt thật ở BJ-10 041, đã sửa; 0 ngõ cụt hai khung); K4 iPhone Toàn Theme 7 hiện thanh 5 tab (Q3); SCR-011 `RECORDED` + "Mở phiếu gốc" cho dòng Nhận hàng (Q2) và liên kết ở sheet nguồn BJ-01; "Về giá vốn" ở kết quả BJ-03 / 11 / 16; rà Home Kho (đã khớp bảng, không sửa) + `SC_home_all`. Chi tiết ở CHANGELOG `[5.25.0]`.
+- **Chữ mới (mục 13):** SCR-011 `RECORDED`: "Phiếu nhận {mã}" · "{NCC} · Đã ghi {ngày}" (có thể bỏ phần NCC khi chưa biết); BJ-01 sheet nguồn: "Mở phiếu nhận {mã}"; BJ-10 041 `PENDING_APPROVAL` dùng K2 sẵn có, `EXPIRED`: "Đề nghị tiêu hủy đã hết hiệu lực" · "Không có tác động tồn kho. Tạo đề nghị mới nếu vẫn cần tiêu hủy."
+- **Hạn chế:** công cụ dò ngõ cụt chỉ kiểm có lối ra bật được (không kiểm lối đó dẫn đúng nơi); "Theo chứng từ" của `RECORDED` chỉ có số riêng cho lần nhận vừa ghi (còn lại bằng thực nhận). Home Kho: số trong "Cần chú ý" đã đọc từ nguồn, nhưng `pendingSummary` vẫn gồm ba phiếu chờ duyệt mẫu cố định.
+
+### G3-6 (5.26.0, 2026-10-26) — làm xong, chưa commit
+
+- **Critique gốc mới:** `.impeccable/critique/2026-10-26T07-12-45Z__…index-html-050831a4.md` — **29/40 cả hai khung** (iPhone 29, web 29; gốc 24). Heuristic: 1 → 3 / 3, 2 → 3 / 3, 3 → 3 / 3, 4 → 3 / 3, 5 → 3 / 3, 6 → 3 / 3, 7 → 2 / 3, 8 → 3 / 2, 9 → 3 / 3, 10 → 3 / 3. 0 P0, 1 P1 (dữ liệu mẫu mâu thuẫn), 4 P2. Phương pháp: một ngữ cảnh (A: xem 28 ảnh golden hai khung; B: `impeccable detect`, sau A); không dùng sub-agent.
+- **Bản gốc P0 / P1 / P2:** màu tiền / tồn ✅, màn duyệt chôn quyết định ✅, hai Home / Kho dưới "Thêm" ✅, ngõ cụt ✅, chữ chuyên môn còn nhẹ.
+- **Đã sửa:** tất cả P1 / P2 và các góp ý nhỏ nêu ở CHANGELOG `[5.26.0]`. Chưa đạt 32/40 → G3-7 đo lại sau khi sửa.
+- **Còn lại, chuyển sang G3-7 hoặc Giai đoạn 4:** BJ-13 / K3 lặp câu (#30); 0.2 #17 (044 dòng đã đếm dưới chip) chỉ khi critique nêu — chưa nêu; chữ chuyên môn nhẹ ("Đếm mù", "Căn cứ").
+
 ## 10. Không làm
 
 - Chốt đặc tả (Giai đoạn 4): áp các dòng ⬜ "chốt đặc tả 7.3" của T7-P mục 13 vào UC / BJ / PROC; đổi trạng thái tệp khỏi `IN_REVIEW`.

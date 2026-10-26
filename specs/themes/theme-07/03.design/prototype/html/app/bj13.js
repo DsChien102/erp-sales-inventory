@@ -18,10 +18,10 @@
 const val13Tasks = [
   {id:"LC13-001",sourceRef:"Hóa đơn vận chuyển VC-8842 · dòng 1",sourceVersion:2,evidence:"VC-8842.pdf",supplier:"Vận tải An Phát",component:"Chi phí vận chuyển",sourceAmount:1200000,currency:"VND",normalizedAmount:1200000,fxLabel:"VND",ageDays:4,status:"ACTIONABLE",waitingOwner:"",originalPeriod:"08/2026",postingPeriod:"09/2026",periodReason:"Kỳ gốc đã khóa; ghi điều chỉnh ở kỳ mở hiện tại",policyVersion:"ALC-POL-v5",allowedMethods:[{id:"FIXTURE_VALUE",label:"Theo giá trị nhập ban đầu"}],selectedMethod:"FIXTURE_VALUE",targets:[
     {id:"LC13-T1",receipt:"PN-260816-04",lineId:"ROL-401",product:"Nobivac DHPPi",code:"SP-000184",uom:"hộp",lot:"DH2507",qty:121,receivedValue:9885700,selected:true},
-    {id:"LC13-T3",receipt:"PN-260821-03",lineId:"ROL-512",product:"Vaccine Canine X",code:"SP-00421",uom:"lọ",lot:"CX2608",qty:40,receivedValue:4010000,selected:true}
+    {id:"LC13-T3",receipt:"PN-260821-03",lineId:"ROL-512",product:"Vaccine Canine X",code:"SP-000421",uom:"lọ",lot:"CX2608",qty:40,receivedValue:4010000,selected:true}
   ]},
   {id:"LC13-002",sourceRef:"Phí bảo hiểm INS-2609-17 · dòng 2",sourceVersion:1,evidence:"INS-2609-17.pdf",supplier:"Bảo hiểm Minh Thành",component:"Phí bảo hiểm hàng mua",sourceAmount:250,currency:"USD",normalizedAmount:6125000,fxRate:24500,fxLabel:"Tỷ giá kế toán 24.500 VND/USD",ageDays:2,status:"ACTIONABLE",waitingOwner:"",originalPeriod:"09/2026",postingPeriod:"09/2026",periodReason:"Kỳ gốc đang mở",policyVersion:"ALC-POL-v5",allowedMethods:[{id:"FIXTURE_VALUE",label:"Theo giá trị nhập ban đầu"}],selectedMethod:"FIXTURE_VALUE",targets:[
-    {id:"LC13-T4",receipt:"PN-260901-03",lineId:"ROL-601",product:"Vaccine Canine X",code:"SP-00421",uom:"lọ",lot:"CX2609",qty:10,receivedValue:1002450,selected:true},
+    {id:"LC13-T4",receipt:"PN-260901-03",lineId:"ROL-601",product:"Vaccine Canine X",code:"SP-000421",uom:"lọ",lot:"CX2609",qty:10,receivedValue:1002450,selected:true},
     {id:"LC13-T5",receipt:"PN-260901-08",lineId:"ROL-633",product:"Doxycycline 100mg",code:"SP-00611",uom:"hộp",lot:null,qty:60,receivedValue:7200000,selected:true}
   ]},
   {id:"LC13-003",sourceRef:"Hóa đơn vận chuyển VC-8890 · dòng 1",sourceVersion:1,evidence:"VC-8890.pdf",supplier:"Logistics Đông Dương",component:"Chi phí vận chuyển",sourceAmount:180,currency:"USD",normalizedAmount:null,fxLabel:"",ageDays:6,status:"WAITING",waitingOwner:"Chờ nguồn hoàn tất quy đổi giá trị",originalPeriod:"08/2026",postingPeriod:"",periodReason:"",policyVersion:"",allowedMethods:[],selectedMethod:"",targets:[]},
@@ -194,7 +194,7 @@ function val13ResetUi() { val13Ui = val13UiDefaults(); }
   const isOwner = () => currentActor() !== "staff";
   const blocked = (state) => !isOwner() || state === "PERMISSION_DENIED" || state === "FINANCIAL_MASKED";
   const denied = (title, back) => shell({ title, body: k1Denied({ what: "điều chỉnh giá trị", next: "Chỉ chủ cửa hàng xem và ghi điều chỉnh giá trị.", exitAttr: k1ExitAttr("SCR-085") }), centered: true, back });
-  const sourceTitle = (t) => String(t.sourceRef || "").replace(/ · dòng \d+$/, "");
+  const sourceTitle = (t) => String(t.sourceRef || "").replace(/ · dòng \d+$/, "").replace(/(?<=[A-Za-z0-9])-(?=[A-Za-z0-9])/g, "\u2011");
   // Số tiền có dấu (+ / −) và màu tăng / giảm; nguồn chưa quy đổi sang VND thì "Chờ quy đổi".
   const amountHtml = (n, extra = "") => (n == null ? `<span class="bj13-amount bj13-amount--pending${extra}">Chờ quy đổi</span>` : `<span class="bj13-amount${Number(n) < 0 ? " bj13-amount--down" : " bj13-amount--up"}${extra}">${esc(signed(n))}</span>`);
   const statusBadge = (t) => (t.status === "WAITING" ? ds24Badge("Đang chờ", "Neutral") : ds24Badge("Có thể xử lý", "Success"));

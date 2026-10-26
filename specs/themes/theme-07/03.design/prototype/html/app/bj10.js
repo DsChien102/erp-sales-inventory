@@ -253,6 +253,9 @@ function render041BJ10(state) {
   if (state === "REJECTED_EXECUTION") {
     return k4Result({ screenTitle: title, kind: "warning", title: "Chưa ghi giảm", description: "Không có tác động tồn kho mới. Xem lại yêu cầu hiện hành trước khi tiếp tục.", facts: [["Đề nghị", req?.id || "—"], ["Tồn vật lý", "Không thay đổi"]], next: [toList] });
   }
+  // Mở thẳng 041 khi chưa có kết quả (đề nghị đang chờ duyệt / đã hết hiệu lực): nói rõ tình trạng và cho lối về danh sách, không để màn rỗng.
+  if (state === "PENDING_APPROVAL") return bj10Shell({ title, body: `<div class="k3-column">${k2Pending({ approver: "chủ cửa hàng", sentAt: BJ10_SENT_AT, facts: [["Đề nghị", req?.id || "—"], ["Sản phẩm", scope]] })}</div>`, actions: k4Footer([toList]), back: false });
+  if (state === "EXPIRED") return k4Result({ screenTitle: title, kind: "warning", title: "Đề nghị tiêu hủy đã hết hiệu lực", description: "Không có tác động tồn kho. Tạo đề nghị mới nếu vẫn cần tiêu hủy.", facts: [["Đề nghị", req?.id || "—"], ["Sản phẩm", lot.name || "—"]], next: [toList] });
   const r = bj10Result;
   if (!r) return bj10Shell({ title, body: k1Loading({ blocks: ["heading", "card", "row"] }), centered: true, back: false });
   const facts = [["Sản phẩm", r.name], ["Lô", r.lot || "Không theo lô"], ["Đã tiêu hủy", t7Qty(r.actual, r.uom)], ["Còn lại ở lô", t7Qty(r.remaining, r.uom)], ["Người xác nhận", r.by], ["Xác nhận lúc", r.at], ...(bj10CanSeeMoney() && r.hasCost ? [["Giá trị ghi giảm", bj10Money(r.value)]] : [])];

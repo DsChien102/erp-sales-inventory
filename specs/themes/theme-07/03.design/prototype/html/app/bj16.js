@@ -250,7 +250,7 @@ function render079BJ16(state) {
   const pending = v.pending ? k2Pending({ approver: "chủ cửa hàng", sentAt: v.pending.sentAt, subject: "sửa sai" }) : "";
   const lock = c.locked ? crLockLine(c) : "";
   const main = `${stale}${crConclusion(v)}${pending}${crCompare(v.compare)}${lock}`;
-  return crShell({ title, subtitle, body: `${k7Split({ main, aside: crAside(c), asideWebOnly: true })}${stale ? "" : crSheetHtml(c)}`, actions: v.primary && !stale ? primaryFooter(v.primary.label, v.primary.attr) : "" });
+  return crShell({ title, subtitle, body: `${k7Split({ main, aside: crAside(c), wideMain: true, asideWebOnly: true })}${stale ? "" : crSheetHtml(c)}`, actions: v.primary && !stale ? primaryFooter(v.primary.label, v.primary.attr) : "" });
 }
 
 /* ---------- SCR-081 · Đang cập nhật số trên app ---------- */
@@ -304,7 +304,7 @@ function render083BJ16(state) {
     return k4Result({ screenTitle: title, kind: "warning", title: toPurchase ? "Đã chuyển cho Mua hàng" : "Đã gửi bộ phận hỗ trợ", description: toPurchase ? `Hồ sơ chờ Mua hàng kiểm lại phiếu ${c.docCode}; Kho không tự sửa.` : "Hồ sơ vẫn mở; phạm vi rủi ro tiếp tục được bảo vệ cho tới khi có bằng chứng mới.", facts, next: crResultNext(listAttr) });
   }
   const facts = [["Hồ sơ", c.id], ["Kết luận", c.conclusion], ["Đã làm", c.done || "Không cần làm gì"], ...(c.locked ? [["Phạm vi", "Đã mở khóa"]] : []), ["Đóng lúc", c.closedAt || BJ16_CLOSED_AT]];
-  return k4Result({ screenTitle: title, title: "Đã xử lý sai lệch", description: "Hồ sơ được đóng bằng bằng chứng và phạm vi liên quan đã được mở khóa.", facts, next: crResultNext(listAttr) });
+  return k4Result({ screenTitle: title, title: "Đã xử lý sai lệch", description: "Hồ sơ được đóng bằng bằng chứng và phạm vi liên quan đã được mở khóa.", facts, next: bj14ReturnAction() ? [{ ...crExit() }, { ...bj14ReturnAction(), primary: true }] : crResultNext(listAttr) });
 }
 
 flowRenderers["UIF-16"] = Object.assign(flowRenderers["UIF-16"] || {}, {

@@ -245,6 +245,9 @@ const ThemeApp = (() => {
 
   // Sau khi dựng một màn luồng: nút quay lại ở màn vào luồng / màn mở thẳng về Kho, khoá quay lại sau khi đã gửi duyệt.
   function afterFlowRender() {
+    // Màn kết quả (K4) ở chế độ Toàn Theme 7: thao tác đã xong nên hiện thanh 5 tab của app để về Home mà không đi vòng (khung web dùng thanh bên).
+    const shell = document.querySelector('#app-screen .v-page-scaffold.k4-result');
+    if (inThemeFlow() && shell && !shell.querySelector('.t7-app-bottom-nav')) shell.insertAdjacentHTML('beforeend', bottomNav());
     const bar = document.querySelector('#app-screen .app-appbar');
     if (inThemeFlow() && bar) {
       // Màn mở từ màn khác trong luồng (vd. BJ-04 từ "Xem giữ hàng" ở BJ-05) tự đánh dấu data-keep-back để quay lại đúng nơi vừa đi.
@@ -343,6 +346,7 @@ const ThemeApp = (() => {
   // ---------------------------------------------------------------- điều hướng
 
   function go(nextRoute, nextHubView = hubView) {
+    if (typeof bj14ReturnRunId !== 'undefined') bj14ReturnRunId = '';
     mode = 'theme'; route = nextRoute; hubView = nextHubView;
     syncReviewUrl(); render();
   }

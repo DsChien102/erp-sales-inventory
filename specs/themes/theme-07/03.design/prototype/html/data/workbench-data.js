@@ -1816,7 +1816,8 @@ window.VET45_HARNESS_DATA = {
         "PERMISSION_DENIED",
         "SELF_APPROVAL_NOT_ALLOWED",
         "APPROVAL_ALREADY_DECIDED",
-        "FINANCIAL_MASKED"
+        "FINANCIAL_MASKED",
+        "RECORDED"
       ],
       "defaultState": "READY",
       "fields": [

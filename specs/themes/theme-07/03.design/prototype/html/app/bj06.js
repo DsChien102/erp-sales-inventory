@@ -48,7 +48,7 @@ const BJ06_ACTOR_NAME="Nguyễn Văn An";
 const BJ06_NOW_ISO='2026-09-16T08:00:00.000Z';
 const BJ06_LOTS={
   DH2507:{lotId:'LOT-DH2507',version:6,expiryDate:'2026-11-30',manufactureDate:'2025-07-01'},
-  DH2509:{lotId:'LOT-DH2509',version:4,expiryDate:'2027-09-30',manufactureDate:'2025-09-01'},
+  DH2509:{lotId:'LOT-DH2509',version:4,expiryDate:'2026-09-30',manufactureDate:'2025-09-01'},
   DH2408:{lotId:'LOT-DH2408',version:9,expiryDate:'2026-08-31',manufactureDate:'2024-08-01'},
   AM2505:{lotId:'LOT-AM2505',version:5,expiryDate:'2027-05-31',manufactureDate:'2025-05-02'}
 };

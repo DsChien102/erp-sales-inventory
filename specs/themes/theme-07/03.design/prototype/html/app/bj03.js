@@ -30,7 +30,7 @@ const val03Receipts = [
     {id:"VAL03-G3",name:"Găng tay khám Nitrile",code:"SP-00310",uom:"hộp",tracking:"NONE",officialCostStatus:"EXISTS",officialCostVnd:135000,sources:[],selectedSource:"",reason:"",slices:[{id:"VAL03-S5",scopeKey:"ROL-405|NOLOT|SELLABLE",scopeVersion:1,lineId:"ROL-405",lot:null,physicalState:"SELLABLE",stateLabel:"Đủ điều kiện bán",pendingQty:50,selected:false,selectedQty:50,partialOpen:false,availabilityDelta:50,availabilityNote:"Sẽ tăng khả dụng"}]}
   ]},
   {id:"VAL03-R3",receipt:"PN-260901-03",entryType:"QUICK",supplier:"Phương Nam",warehouse:"Kho chính",receivedAt:"01/09/2026",sourceVersion:2,ageDays:3,waitingOwner:"",groups:[
-    {id:"VAL03-G4",name:"Vaccine Canine X",code:"SP-00421",uom:"lọ",tracking:"LOT",officialCostStatus:"NONE",sources:[
+    {id:"VAL03-G4",name:"Vaccine Canine X",code:"SP-000421",uom:"lọ",tracking:"LOT",officialCostStatus:"NONE",sources:[
       {id:"SUP",label:"Xác nhận nhà cung cấp 01/09",version:"v2",unitPrice:4.1,currency:"USD",fxRate:24450,fxLabel:"FX authoritative",unitLineDiscount:0,unitDocDiscount:0,unitKnownCost:0,unitNonDeductibleVat:0,provenance:["Giá mua · Xác nhận NCC 01/09","FX authoritative · provenance kỹ thuật"]}
     ],selectedSource:"SUP",reason:"",slices:[{id:"VAL03-S6",scopeKey:"ROL-406|LOT-CX2609|SELLABLE",scopeVersion:1,lineId:"ROL-406",lot:"CX2609",physicalState:"SELLABLE",stateLabel:"Đủ điều kiện bán",pendingQty:10,selected:false,selectedQty:10,partialOpen:false,availabilityDelta:10,availabilityNote:"Sẽ tăng khả dụng"}]}
   ]},
@@ -473,7 +473,7 @@ const VAL03_SAMPLE_RESULT = {
     const facts = [["Phiếu nhận", esc(res.receipt)], ["Sản phẩm đã xác lập", `${count}`], ["Tổng giá trị đã ghi", esc(money(res.totalValue))], ["Giá vốn", "Cần cập nhật"], ["Người ghi", ACTOR], ["Lúc", esc(res.committedAt || COMMITTED_AT)]];
     if (remaining) facts.push(["Còn chờ giá trị", `${remaining} sản phẩm`]);
     const detail = count ? `<button class="k7-row-link bj03-link bj03-detail-link" type="button" data-bj03-result-detail>Xem chi tiết ${count} sản phẩm</button>${resultDetailSheet(res)}` : "";
-    const next = [{ label: "Cập nhật giá vốn", attr: "data-bj03-go-cost" }, remaining ? { label: "Tiếp tục xử lý", attr: "data-bj03-result-back", primary: true } : { label: "Về danh sách", attr: "data-bj03-result-list", primary: true }];
+    const next = [bj14ReturnAction() || { label: "Cập nhật giá vốn", attr: "data-bj03-go-cost" }, remaining ? { label: "Tiếp tục xử lý", attr: "data-bj03-result-back", primary: true } : { label: "Về danh sách", attr: "data-bj03-result-list", primary: true }];
     return k4Result({ screenTitle: title, title: "Đã ghi giá trị nhập ban đầu", description: "Giá trị đã được ghi cho đúng phạm vi; sản phẩm liên quan cần cập nhật giá vốn.", facts, next, button: detail });
   }
 

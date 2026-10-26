@@ -67,8 +67,8 @@ if (mode === 'compare') {
   process.exit(diff.length ? 1 : 0);
 }
 
-if (mode !== 'capture' && mode !== 'usage' && mode !== 'important') {
-  console.error('Dùng: node tools/golden.mjs capture <dir> [filter] | compare <dirA> <dirB> | usage <dir>');
+if (mode !== 'capture' && mode !== 'usage' && mode !== 'important' && mode !== 'deadends') {
+  console.error('Dùng: node tools/golden.mjs capture <dir> [filter] | compare <dirA> <dirB> | usage <dir> | deadends <dir>');
   process.exit(2);
 }
 const FULL = process.env.FULL === '1';
@@ -79,20 +79,24 @@ const wb = JSON.parse(readFileSync(dataFile, 'utf8'));
 const states = new Map(wb.screens.map((s) => [s.id, s.states || []]));
 // One page load per group (UIF + flow); screens/states switch in-page.
 const groups = [];
+const DEADENDS = mode === 'deadends';
 for (const f of wb.flows) for (const fl of f.id === 'UIF-02' ? ['document', 'quick'] : [null]) {
   const cases = [];
   for (const id of f.screens) for (const st of states.get(id) || []) cases.push({ name: `${f.id}_${id}_${st}${fl ? '_' + fl : ''}`, screen: id, state: st });
-  groups.push({ url: `?uif=${f.id}&screen=${f.screens[0]}${fl ? '&flow=' + fl : ''}`, cases: cases.filter((c) => c.name.includes(filter)) });
+  // deadends: cùng ca, nhưng mở ở chế độ Toàn Theme 7 (đủ thanh tab / thanh bên của app) — vai chủ cửa hàng để vào được BJ-14 / 15.
+  const url = DEADENDS ? `?mode=theme&app=flow&uif=${f.id}&screen=${f.screens[0]}${fl ? '&flow=' + fl : ''}${['UIF-14', 'UIF-15'].includes(f.id) ? '&entry=owner' : ''}` : `?uif=${f.id}&screen=${f.screens[0]}${fl ? '&flow=' + fl : ''}`;
+  groups.push({ url, cases: cases.filter((c) => c.name.includes(filter)) });
 }
-groups.push({ url: '?mode=theme&app=inventory', cases: [{ name: 'HUB_home' }].filter((c) => c.name.includes(filter)) });
-groups.push({ url: '?mode=theme&app=inventory&activation=pending', cases: [{ name: 'HUB_home_not_activated' }].filter((c) => c.name.includes(filter)) });
+if (DEADENDS) groups.push({ url: '?mode=theme&app=inventory', cases: [] });
+if (!DEADENDS) groups.push({ url: '?mode=theme&app=inventory', cases: [{ name: 'HUB_home' }].filter((c) => c.name.includes(filter)) });
+if (!DEADENDS) groups.push({ url: '?mode=theme&app=inventory&activation=pending', cases: [{ name: 'HUB_home_not_activated' }].filter((c) => c.name.includes(filter)) });
 // SCR-046 READY là màn của người duyệt: mở bằng vai approver (nhân viên mở cùng màn thấy "Không thể tự duyệt").
 { const g8 = groups.find((g) => g.url.startsWith('?uif=UIF-08')); const i = g8 ? g8.cases.findIndex((c) => c.name === 'UIF-08_SCR-046_READY') : -1; if (i >= 0) groups.push({ url: '?uif=UIF-08&screen=SCR-046&entry=approver', cases: g8.cases.splice(i, 1) }); }
 
 // UIF-14 chỉ chủ cửa hàng vào được: mở bằng vai owner (vai mặc định thấy K1 "Bạn chưa có quyền xem giá vốn"; ca nhân viên riêng là SC_bj14_staff).
-{ const g14 = groups.find((g) => g.url.startsWith('?uif=UIF-14')); if (g14) g14.url += '&entry=owner'; }
+if (!DEADENDS) { const g14 = groups.find((g) => g.url.startsWith('?uif=UIF-14')); if (g14) g14.url += '&entry=owner'; }
 // UIF-15: giá trị cuối kỳ chỉ chủ cửa hàng thấy — mở bằng vai owner (ca nhân viên: trạng thái FINANCIAL_RESTRICTED và SC_bj15_staff).
-{ const g15 = groups.find((g) => g.url.startsWith('?uif=UIF-15')); if (g15) g15.url += '&entry=owner'; }
+if (!DEADENDS) { const g15 = groups.find((g) => g.url.startsWith('?uif=UIF-15')); if (g15) g15.url += '&entry=owner'; }
 
 // SCR-051 READY / VALIDATION_ERROR là màn của người duyệt: mở bằng vai approver (nhân viên mở cùng màn thấy "Bạn không thể tự duyệt").
 { const g11 = groups.find((g) => g.url.startsWith('?uif=UIF-11')); const mv = g11 ? g11.cases.filter((c) => /^UIF-11_SCR-051_(READY|VALIDATION_ERROR)$/.test(c.name)) : []; if (mv.length) { g11.cases = g11.cases.filter((c) => !mv.includes(c)); groups.push({ url: '?uif=UIF-11&screen=SCR-051&entry=approver', cases: mv }); } }
@@ -106,7 +110,7 @@ const pick = (sel, value) => `(()=>{const i=document.querySelector(${JSON.string
 const wait = (ms) => `new Promise((r)=>setTimeout(()=>r(true),${ms}))`;
 const T = '?mode=theme&app=';
 // DEVICE=web chỉ chạy các kịch bản có ý nghĩa ở khung web (còn lại cố định theo iPhone).
-const WEB_SCENARIOS = ['SC_g3_unknown_back_bj05', 'SC_g3_unknown_back_bj11', 'SC_k5_list', 'SC_bj09_quarantine_to_damaged', 'SC_bj09_approve', 'SC_bj09_from_bj01', 'SC_k5_hub_rtv', 'SC_journey_1', 'SC_cap_table', 'SC_cap_expiry', 'SC_cap_single', 'SC_cap_staff', 'SC_cap_hub', 'SC_bj02_documents', 'SC_bj02_quick', 'SC_bj02_approve', 'SC_bj02_reject', 'SC_bj02_owner_flow', 'SC_bj03_from_receipt', 'SC_bj03_direct', 'SC_bj03_list', 'SC_bj01_list', 'SC_bj01_detail', 'SC_bj01_theme', 'SC_bj13_flow', 'SC_bj13_decrease', 'SC_journey_2', 'SC_bj05_quick_pick', 'SC_bj05_ready_handover', 'SC_bj05_override', 'SC_bj04_from_pick', 'SC_bj05_theme', 'SC_bj06_full', 'SC_bj06_exception_submit', 'SC_bj06_split', 'SC_bj06_owner_approve', 'SC_journey_3', 'SC_bj07_verify', 'SC_bj07_quick_verify', 'SC_bj07_split_source', 'SC_bj07_mismatch_wait', 'SC_bj07_handover', 'SC_bj07_next_request', 'SC_bj10_flow', 'SC_bj10_price_missing', 'SC_bj10_approve', 'SC_bj10_reject', 'SC_bj10_complete', 'SC_bj10_from_list', 'SC_bj10_qty_over', 'SC_bj10_owner_self', 'SC_journey_4', 'SC_bj08_list', 'SC_bj08_create', 'SC_bj08_blind', 'SC_bj08_recount', 'SC_bj08_approve', 'SC_bj08_from_home', 'SC_bj11_list', 'SC_bj11_correct', 'SC_bj11_approve', 'SC_bj11_from_home', 'SC_bj11_from_case', 'SC_recon_list', 'SC_bj16_recovery', 'SC_bj16_correction_return', 'SC_bj17_committed', 'SC_journey_5', 'SC_bj14_flow', 'SC_bj14_dirty', 'SC_bj14_blocked', 'SC_bj15_report', 'SC_bj15_lot', 'SC_bj15_from_bj01', 'SC_bj15_export', 'SC_journey_6', 'SC_demo'];
+const WEB_SCENARIOS = ['SC_home_all', 'SC_g3_cost_return', 'SC_g3_receipt_recorded', 'SC_g3_receipt_from_bj01', 'SC_g3_unknown_back_bj05', 'SC_g3_unknown_back_bj11', 'SC_k5_list', 'SC_bj09_quarantine_to_damaged', 'SC_bj09_approve', 'SC_bj09_from_bj01', 'SC_k5_hub_rtv', 'SC_journey_1', 'SC_cap_table', 'SC_cap_expiry', 'SC_cap_single', 'SC_cap_staff', 'SC_cap_hub', 'SC_bj02_documents', 'SC_bj02_quick', 'SC_bj02_approve', 'SC_bj02_reject', 'SC_bj02_owner_flow', 'SC_bj03_from_receipt', 'SC_bj03_direct', 'SC_bj03_list', 'SC_bj01_list', 'SC_bj01_detail', 'SC_bj01_theme', 'SC_bj13_flow', 'SC_bj13_decrease', 'SC_journey_2', 'SC_bj05_quick_pick', 'SC_bj05_ready_handover', 'SC_bj05_override', 'SC_bj04_from_pick', 'SC_bj05_theme', 'SC_bj06_full', 'SC_bj06_exception_submit', 'SC_bj06_split', 'SC_bj06_owner_approve', 'SC_journey_3', 'SC_bj07_verify', 'SC_bj07_quick_verify', 'SC_bj07_split_source', 'SC_bj07_mismatch_wait', 'SC_bj07_handover', 'SC_bj07_next_request', 'SC_bj10_flow', 'SC_bj10_price_missing', 'SC_bj10_approve', 'SC_bj10_reject', 'SC_bj10_complete', 'SC_bj10_from_list', 'SC_bj10_qty_over', 'SC_bj10_owner_self', 'SC_journey_4', 'SC_bj08_list', 'SC_bj08_create', 'SC_bj08_blind', 'SC_bj08_recount', 'SC_bj08_approve', 'SC_bj08_from_home', 'SC_bj11_list', 'SC_bj11_correct', 'SC_bj11_approve', 'SC_bj11_from_home', 'SC_bj11_from_case', 'SC_recon_list', 'SC_bj16_recovery', 'SC_bj16_correction_return', 'SC_bj17_committed', 'SC_journey_5', 'SC_bj14_flow', 'SC_bj14_dirty', 'SC_bj14_blocked', 'SC_bj15_report', 'SC_bj15_lot', 'SC_bj15_from_bj01', 'SC_bj15_export', 'SC_journey_6', 'SC_demo'];
 const SCENARIOS = [
   { name: 'SC_more', url: T + 'more', steps: [['kho', click('[data-theme-app-route="inventory"]')], ['back', back]] },
   { name: 'SC_hub_back', url: T + 'inventory', steps: [['back', back], ['nav-more', click('#app-screen [data-theme-sidebar-route="more"]')]] },
@@ -644,8 +648,21 @@ const SCENARIOS = [
     // Sổ kho sống (G3-4): sau mọi bước ghi kho của tám bước, cuối kỳ thẻ kho = tồn BJ-01 ở cả năm sản phẩm.
     ['9-check-ledger', `(()=>{const bad=bj01Products.filter((p)=>bj15Ledger(p.id,{from:BJ15_DATA_START,to:BJ15_TODAY}).closing!==p.physical||p.available!==Math.max(0,p.eligible-p.reserved));if(bad.length)setTimeout(()=>{throw new Error('SC_demo: sổ kho lệch tồn BJ-01 ở '+bad.map((p)=>p.name).join(', '))},0);return true})()`],
   ] });
+  // G3-5: việc chặn của BJ-14 xử lý ở BJ-16 xong thì "Về giá vốn" mở lại lần tính; phiếu nhận đã ghi (SCR-011 RECORDED) mở từ thẻ kho và từ BJ-01.
+  { const O14 = '?uif=UIF-14&screen=SCR-074&state=BLOCKED&entry=owner', a16 = (k) => click(`[data-bj16-action="${k}"]`), a11 = (k) => click(`[data-bj11-action="${k}"]`), actorSet = (who) => `(()=>{window.__VET45_QA__.setActor('${who}');return true})()`, why = 'Hóa đơn nhà cung cấp ghi 18 hộp';
+    SCENARIOS.push({ name: 'SC_g3_cost_return', url: O14, steps: [['open-case', a14('to-case')], ['fix', a16('fix-source')], ['reason', typeIn('[data-bj11-reason]', why)], ['send', a11('submit')], ['to-case', a11('to-case')], ['actor', actorSet('approver')], ['view', a16('view-correction')], ['approve', a11('approve')], ['back-case', a11('to-case')], ['recheck', a16('recheck')], ['close', a16('close-case')], ['to-cost', click('[data-bj14-back-to-cost]')], ['check-074', assertAt('UIF-14', 'SCR-074', 'Về giá vốn')]] });
+    SCENARIOS.push({ name: 'SC_g3_receipt_recorded', url: '?uif=UIF-15&screen=SCR-055&entry=owner', steps: [['nob', prod('INV-NOB')], ['lot', lot('DH2507')], ['mv', mv('PN-260903-02/SP-000184')], ['open-receipt', a15('open-source')], ['check-011', assertAt('UIF-02', 'SCR-011', 'Phiếu nhận đã ghi')], ['back', back], ['check-056', assertAt('UIF-15', 'SCR-056', 'chi tiết biến động')]] });
+    SCENARIOS.push({ name: 'SC_g3_receipt_from_bj01', url: '?uif=UIF-01&screen=SCR-001', steps: [['receive', `(()=>{t7Ledger.post({key:'g3:rec',productId:'INV-OXY',kind:'Nhận hàng',doc:'REC-260917-01',delta:3,sourceFlow:'UIF-02'});return true})()`], ['product', click('[data-bj01-product="INV-OXY"]')], ['provenance', click('[data-bj01-provenance]')], ['open-receipt', click('[data-bj01-open-receipt]')], ['check-011', assertAt('UIF-02', 'SCR-011', 'Phiếu nhận đã ghi')], ['back', back], ['check-003', assertAt('UIF-01', 'SCR-003', 'Chi tiết tồn kho')]] }); }
+  // SC_home_all (G3-5): mọi lối vào trực tiếp của Home Kho (4 nút nhanh, 3 dòng "Cần chú ý") mở đúng luồng và về lại Home, hai khung. Khu "Quản lý kho" đã có SC_ws_*.
+  const assertFlow = (flow, label) => `(()=>{if(activeFlowId!=='${flow}')setTimeout(()=>{throw new Error(${JSON.stringify(`đi sai luồng: ${label} (cần ${flow})`)}+' — đang ở '+activeFlowId)},0);return true})()`;
+  const homeAll = [['quick', '[data-t462-quick="UIF-02"]', 'UIF-02'], ['quick', '[data-t462-quick="UIF-05"]', 'UIF-05'], ['quick', '[data-t462-quick="UIF-08"]', 'UIF-08'], ['quick', '[data-t462-quick="UIF-01"]', 'UIF-01'],
+    ['attention', '[data-t462-attention="UIF-09"]', 'UIF-09'], ['attention', '[data-t462-attention="UIF-16"]', 'UIF-16']];
+  SCENARIOS.push({ name: 'SC_home_all', url: T + 'inventory', steps: [
+    ...homeAll.flatMap(([kind, sel, flow], i) => [[`${i}-${kind}-${flow}`, click(sel)], [`${i}-check-${flow}`, assertFlow(flow, sel)], [`${i}-home`, home()], [`${i}-check-home`, `(()=>{if(!document.querySelector('[data-t462-workspace]'))setTimeout(()=>{throw new Error('không về Home Kho sau ${flow}')},0);return true})()`]]),
+    ['pending', click('[data-v464-pending-approvals]')], ['check-pending', `(()=>{if(!document.querySelector('[data-v464-pending-receipt]'))setTimeout(()=>{throw new Error('Chờ duyệt không mở danh sách')},0);return true})()`], ['home-end', home()],
+  ] });
 }
-for (const sc of SCENARIOS) if (sc.webOnly ? WEB : (!WEB || WEB_SCENARIOS.includes(sc.name))) groups.push({ url: sc.url, cases: [{ name: `${sc.name}_0` }, ...sc.steps.map(([n, act], i) => ({ name: `${sc.name}_${i + 1}_${n}`, act }))].filter((c) => c.name.includes(filter)) });
+for (const sc of SCENARIOS) if (!DEADENDS && (sc.webOnly ? WEB : (!WEB || WEB_SCENARIOS.includes(sc.name)))) groups.push({ url: sc.url, cases: [{ name: `${sc.name}_0` }, ...sc.steps.map(([n, act], i) => ({ name: `${sc.name}_${i + 1}_${n}`, act }))].filter((c) => c.name.includes(filter)) });
 if (WEB) for (const g of groups) { g.url += '&viewport=web'; g.cases = g.cases.map((c) => ({ ...c, name: c.name + '@web' })); }
 const todo = groups.filter((g) => g.cases.length);
 mkdirSync(a, { recursive: true });
@@ -858,6 +875,8 @@ async function worker(n, queue, errors, auditLog) {
       if (c.act) await evalv(`Promise.resolve(${c.act}).then(()=>${frames})`);
       const v = await evalv(`(()=>{const d=document.querySelector('#device-preview')?.getBoundingClientRect();const s=document.querySelector('#app-screen');if(!d||!s)return null;return {x:d.x,y:d.y,w:d.width,h:d.height,t:s.innerText+'\\n@inspector '+['current-screen-id','current-screen-name','workbench-title','traceability'].map(i=>document.getElementById(i)?.innerText||'').join(' | ')+'\\n@url '+location.search}})()`);
       if (!v) { errors.push(`no preview for ${c.name}`); continue; }
+      // deadends: không chụp ảnh, chỉ hỏi "màn này có lối ra không".
+      if (DEADENDS) { const why = await evalv(deadendJs(c.state || '')); if (why) deadends.push(`${c.name}: ${why}`); continue; }
       // Tiền luôn dùng NBSP trước "đ" (t7FmtMoney): dấu cách thường thì "đ" có thể rớt xuống dòng riêng.
       if (/\d đ(?![\p{L}])/u.test(v.t)) errors.push(`${c.name}: tiền dùng dấu cách thường trước "đ"`);
       // AUDIT_JS=<tệp biểu thức JS>: chạy kiểm dọc sau mỗi bước (tương phản, vùng chạm, tràn ngang…), ghi vào _audit.json.
@@ -871,10 +890,26 @@ async function worker(n, queue, errors, auditLog) {
   }
   ws.close(); chrome.kill();
 }
+const deadends = [];
+// Công cụ dò ngõ cụt (G3-5): màn / trạng thái mở thẳng ở chế độ Toàn Theme 7 phải có ít nhất một lối ra bật được: nút quay lại, nút chân, nút / liên kết trong màn,
+// thanh tab (iPhone) hoặc thanh bên (web). Trạng thái lỗi / từ chối / chưa rõ kết quả phải có lối ra đặt tên (nút quay lại hoặc nút có chữ). LOADING / PROCESSING là chuyển tiếp nên bỏ qua.
+const deadendJs = (state) => `(()=>{
+  const st=${JSON.stringify(state)}; if(/^(LOADING|PROCESSING|REBUILDING|COMMIT_PROCESSING)$/.test(st)) return '';
+  const scr=document.querySelector('#app-screen'); if(!scr) return 'không có màn';
+  const vis=(el)=>el.getClientRects().length>0;
+  const on=(sel)=>[...scr.querySelectorAll(sel)].filter((el)=>!el.disabled&&el.getAttribute('aria-disabled')!=='true'&&vis(el)&&!el.closest('.toast'));
+  const named=[...on('.app-back-button'),...on('.app-actions button'),...on('button, a[href]')].filter((el)=>el.classList.contains('app-back-button')||(el.textContent||'').trim().length>0||el.getAttribute('aria-label'));
+  const tabs=on('.t7-app-bottom-nav button').length>0, side=!![...document.querySelectorAll('#web-sidebar:not([hidden]) button')].find(vis);
+  if(!named.length&&!tabs&&!side) return 'không có lối ra bật được';
+  if(/DENIED|ERROR|UNKNOWN|STALE|CONFLICT|REJECTED|BLOCKED|LOCKED|FAILED|MASKED|RESTRICTED|EXPIRED|OFFLINE/.test(st)&&!named.length) return 'trạng thái lỗi không có lối ra đặt tên';
+  return '';
+})()`;
 const t0 = Date.now(); const errors = []; const auditLog = []; const queue = [...todo];
 await Promise.all(Array.from({ length: Math.min(WORKERS, todo.length) }, (_, n) => worker(n, queue, errors, auditLog)));
 if (process.env.AUDIT_JS) writeFileSync(path.join(a, '_audit.json'), JSON.stringify(auditLog, null, 1));
 writeFileSync(path.join(a, '_errors.json'), JSON.stringify(errors, null, 1));
+if (DEADENDS) writeFileSync(path.join(a, '_deadends.txt'), deadends.sort().join('\n') + (deadends.length ? '\n' : ''));
 await sleep(300);
 for (const d of readdirSync(a)) if (d.startsWith('.chrome')) rmSync(path.join(a, d), { recursive: true, force: true });
+if (DEADENDS) { console.log(`Dò ngõ cụt ${todo.reduce((s, g) => s + g.cases.length, 0)} ca: ${deadends.length} ngõ cụt, lỗi JS: ${errors.length}\n${deadends.slice(0, 80).join('\n')}`); process.exit(deadends.length || errors.length ? 1 : 0); }
 console.log(`Đã chụp ${todo.reduce((s, g) => s + g.cases.length, 0)} ca trong ${((Date.now() - t0) / 1000).toFixed(1)} giây, lỗi JS: ${errors.length}`);

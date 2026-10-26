@@ -372,10 +372,11 @@ function render055BJ15(state) {
 
 /* ---------- SCR-056 · {loại} {chứng từ} (gộp nguồn nghiệp vụ) ---------- */
 
-// Nguồn mở được từ chứng từ: phiếu BJ-11 (chi tiết phiếu) và đơn của BJ-05 (chi tiết đơn). Nhận hàng BJ-02 chưa có màn xem chứng từ đã nhận.
+// Nguồn mở được từ chứng từ: phiếu BJ-11 (chi tiết phiếu), đơn của BJ-05 (chi tiết đơn) và phiếu nhận BJ-02 (SCR-011 RECORDED, chỉ đọc).
 function bj15SourceOf(m) {
   if (typeof cr11Operations !== "undefined" && m.opId && cr11Operations.some((o) => o.id === m.opId)) return "UIF-11";
   if (m.sourceFlow === "UIF-05" && typeof io05Orders !== "undefined" && io05Orders.some((o) => o.id === m.doc)) return "UIF-05";
+  if (m.sourceFlow === "UIF-02" && m.kind === "Nhận hàng") return "UIF-02";
   return null;
 }
 function bj15CanCorrect(m) {
@@ -496,6 +497,7 @@ function bj15OpenSource() {
     return crSwitchFlow("UIF-11", "SCR-049");
   }
   if (kind === "UIF-05") { io05SelectedOrderId = m.doc; return applyEntry("UIF-05", "order-task", true); }
+  if (kind === "UIF-02") return bj02OpenRecorded(m.doc, { flow: "UIF-15", screen: "SCR-056" });
 }
 function bj15Correct() {
   const m = cf15Movement(); if (!bj15CanCorrect(m)) return;

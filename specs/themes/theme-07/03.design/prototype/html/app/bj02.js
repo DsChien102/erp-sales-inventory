@@ -1215,7 +1215,46 @@ function bj02ApprovalRows() {
     };
   });
 }
+/* ---------- SCR-011 · Phiếu nhận đã ghi (RECORDED, chỉ đọc) ----------
+ * Cùng bảng "Theo chứng từ · Thực nhận · Chênh lệch" của màn duyệt, không chân duyệt. Mở từ thẻ kho BJ-15 (056 "Mở phiếu gốc") và từ sheet nguồn của BJ-01;
+ * dòng lấy từ sổ kho (BJ15_MOVES) theo mã phiếu nhận / chứng từ, "Theo chứng từ" lấy từ lần nhận vừa ghi nếu có (không có thì bằng thực nhận). */
+let bj02Recorded = { ref: "PN-260816-04", back: null }; // back: { flow, screen } nơi đã mở màn này
+function bj02OpenRecorded(ref, back) { bj02Recorded = { ref, back }; return crSwitchFlow("UIF-02", "SCR-011", "RECORDED"); }
+function bj02RecordedRows(ref) {
+  const moves = BJ15_MOVES.filter((m) => m.doc === ref && m.sourceFlow === "UIF-02" && m.delta > 0);
+  const justNow = typeof bj02LastCommitted !== "undefined" && bj02LastCommitted && BJ02_CONTEXT.submitted.receiptRef === ref ? bj02LastCommitted.lines : [];
+  const groups = new Map();
+  moves.forEach((m) => {
+    const k = `${m.productId}|${m.lot}`, g = groups.get(k) || { productId: m.productId, lot: m.lot, received: 0, states: new Set(), recorded: m.recorded };
+    g.received += m.delta; g.states.add(m.state); groups.set(k, g);
+  });
+  return [...groups.values()].map((g) => {
+    const p = bj01ProductById(g.productId);
+    const lines = justNow.filter((l) => l.productRef === g.productId && l.remainingReceivableQty != null);
+    const expected = lines.length ? lines.reduce((a, l) => a + bj02SourceRemaining(l), 0) : g.received;
+    const diff = g.received - expected;
+    return { p, lot: g.lot, expected, received: g.received, diff, states: [...g.states], recorded: g.recorded };
+  });
+}
+function render011Recorded() {
+  const ref = bj02Recorded.ref, rows = bj02RecordedRows(ref), title = `Phiếu nhận ${ref}`;
+  const supplier = documentReceiptCatalog[ref]?.supplier || (BJ02_CONTEXT.submitted.receiptRef === ref ? currentReceiptSupplier() : "");
+  const date = rows[0]?.recorded.split(" · ")[0] || "";
+  const subtitle = `${supplier ? `${supplier} · ` : ""}Đã ghi ${date}`;
+  const fmt = (r, n) => `${n} ${r.p.stockUom}`, signed = (r) => (r.diff ? `${r.diff > 0 ? "+" : "−"}${Math.abs(r.diff)} ${r.p.stockUom}` : "0");
+  const tone = (s) => (s === "Bán được" ? "Success" : "Warning");
+  const view = rows.map((r) => ({ ...r, product: `<strong>${esc(r.p.name)}</strong><small>${esc(r.p.code)}</small>`, lots: r.p.tracking === "LOT" && r.lot ? `Lô ${esc(r.lot)}` : "Không theo lô", expectedText: fmt(r, r.expected), receivedText: fmt(r, r.received), diffText: signed(r), status: r.states.map((s) => ds24Badge(s, tone(s))).join(" ") }));
+  const columns = [
+    { key: "product", label: "Sản phẩm", html: true }, { key: "lots", label: "Lô", html: true },
+    { key: "expectedText", label: "Theo chứng từ", align: "end", mono: true }, { key: "receivedText", label: "Thực nhận", align: "end", mono: true },
+    { key: "diffText", label: "Chênh lệch", align: "end", mono: true, cls: (r) => (r.diff > 0 ? "k7-cell--warn" : "") }, { key: "status", label: "Tình trạng", html: true },
+  ];
+  const mobileRow = (r) => ds24ListRow({ title: r.p.name, subtitle: `${r.lots.replace(/<[^>]+>/g, "")} · Theo chứng từ ${r.expectedText}`, trailing: `<strong>${esc(r.receivedText)}</strong>`, leading: null, type: "Status" });
+  const body = rows.length ? `${ac310SectionTitle("Hàng thực nhận", `${rows.length} dòng`)}${k7Table({ columns, rows: view, mobileRow, caption: "Hàng thực nhận" })}` : k1Empty({ title: "Không có dòng nhận hàng", description: "Phiếu này chưa có dòng nào trong sổ kho.", action: null });
+  return appShell({ title, subtitle, body, extraClass: "k7-wide" });
+}
 function render011BJ02(state) {
+  if (state === "RECORDED") return render011Recorded();
   ensureBj02ReviewFixture();
   const title = "Phê duyệt yêu cầu nhận hàng";
   const shell = (opts) => appShell({ title, extraClass: "k7-wide", ...opts });
@@ -1288,7 +1327,7 @@ function bj02Commit(seq) {
   if (bj02AppliedRefs.has(seq)) return;
   bj02AppliedRefs.add(seq);
   // Sổ kho ghi theo phiếu nhận (REC-…); chứng từ nguồn (PN-…) ở ghi chú — chứng từ cũ có thể đã nhận một lần trước đó.
-  if (typeof bj01ApplyReceipt === "function") bj01ApplyReceipt(bj02StockLines(), BJ02_CONTEXT.submitted.receiptRef, flowMode === "quick" ? "Nhập nhanh" : `Chứng từ ${ref}`);
+  if (typeof bj01ApplyReceipt === "function") bj01ApplyReceipt(bj02StockLines(), BJ02_CONTEXT.submitted.receiptRef, flowMode === "quick" ? "Nhập nhanh" : `Chứng từ ${ref}`, bj02Header.businessDate || BJ02_CONTEXT.tenantBusinessDate);
 }
 function render012BJ02(state) {
   ensureBj02ReviewFixture();
@@ -1405,6 +1444,7 @@ onViewportChange.push((vp) => {
 ["SCR-007", "SCR-008", "SCR-009", "SCR-084", "SCR-011", "SCR-012", "SCR-013"].forEach((id) => { onScreenEnter[`UIF-02:${id}`] = () => { bj02CloseOverlays(); }; });
 
 onPrevious["UIF-02"] = () => {
+  if (activeScreenId === "SCR-011" && stateByScreen["SCR-011"] === "RECORDED") { const b = bj02Recorded.back; return b ? crSwitchFlow(b.flow, b.screen, "READY") : navigate("SCR-007"); }
   if (activeScreenId === "SCR-008") return navigate("SCR-007");
   // Web: SCR-084 chỉ là SCR-009 với một dòng được chọn; rời màn thì giữ nháp dòng đang sửa như nút quay lại của 084.
   if (viewport === "web" && ["SCR-009", "SCR-084"].includes(activeScreenId)) {
