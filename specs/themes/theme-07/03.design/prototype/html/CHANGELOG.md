@@ -1,5 +1,54 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.24.0] — Giai đoạn 3 · G3-4 sổ kho chung và số liệu một nguồn
+
+Golden so `tools/.golden-g3-3` (iPhone 2175 → 2183 ca, web 1291 → 1292): 0 lỗi JS ở cả hai khung. Ca khác (đã đối chiếu `.txt`, mọi dòng khác thuộc các nhóm dưới đây): mốc "Dữ liệu đến" của BJ-01; Home "Cần chú ý" và danh sách Hàng cần xử lý (thêm Vitamin ADE); hồ sơ BJ-17 (bỏ "Kho trung tâm"); BJ-12 (bớt dòng mẫu); BJ-15 Amox (nhập muộn, tồn theo ghi nhận); thẻ kho Oxytetracycline / Nobivac và báo cáo của `SC_demo` (nay có số của bước 3 – 6); sheet nguồn của BJ-01. Mốc sau gói: `tools/.golden-g3-4` / `-web`.
+
+- **`t7Ledger` (`app/shared-ledger.js`, nạp sau `bj01.js`):** `post({ key, productId, lot, kind, doc, delta, state, eligibleDelta, reservedDelta, notEligible, … })` ghi một biến động vào `BJ15_MOVES` (thẻ kho) và cộng vào `bj01Products` (tồn vật lý, khả dụng, đang giữ, phần không bán được, lô), rồi kiểm cuối kỳ thẻ kho = tồn BJ-01 của sản phẩm (sai → lỗi ở lượt sau, golden đếm vào "lỗi JS"). `key` chống ghi hai lần; phần không bán được BJ-01 không có đủ thì lấy từ khả dụng (fixture BJ-07 dựng riêng). `__VET45_QA__.resetLedger` / `checkLedger`.
+- **Thao tác ghi sổ (đúng lúc ghi nhận):** BJ-02 duyệt nhận hàng (`bj02Commit` → `bj01ApplyReceipt`; ghi theo phiếu nhận `REC-…`, chứng từ ở ghi chú), BJ-05 bàn giao, BJ-06 hoàn tất phân loại hàng khách trả, BJ-07 bàn giao trả nhà cung cấp (theo từng tình trạng), BJ-08 duyệt điều chỉnh kiểm kê, BJ-09 đổi tình trạng (chỉ chuyển khả dụng ↔ không bán được), BJ-10 xác nhận tiêu hủy, BJ-11 duyệt sửa sai. Hàng không có ở BJ-01 (Găng tay, Dầu sát khuẩn, Vitamin ADE, Băng cuộn…) bỏ qua.
+- **Không có `reset()` gắn vào các `…Restore()`:** BJ-01 trước đây cũng không reset (nhận hàng đã cộng dồn suốt trang); mỗi kịch bản golden nạp lại trang nên bắt đầu từ sổ gốc. Chưa dựng: đảo biến động khi từ chối / hủy, nhiều kho.
+- **`SC_demo`:** thêm bước `9-check-ledger` (cuối kỳ thẻ kho = tồn BJ-01 ở cả 5 sản phẩm, khả dụng = khả dụng − đang giữ); thẻ kho Oxytetracycline cuối demo hiện "Nhận hàng REC-260916-04 +24" và "Điều chỉnh kiểm kê KK-260917-01 −2".
+- **056 "Trước / Sau" và cột "Tồn":** luôn theo thứ tự ghi nhận (`bj15Balances`, `bj15Ledger.rows[].balance`), kể cả khi đọc theo ngày nghiệp vụ. Thêm một dòng lệch ngày: Amox `PN-260904-08` ghi nhận muộn 07/09 09:00 ("Nhập muộn: ghi nhận sau Đổi tình trạng ST-260906-04").
+- **BJ-01:** "Dữ liệu đến" 21:30 · 17/09/2026 (cùng mốc sổ kho; "Làm mới" 21:34 / 21:38), sheet "Nguồn và thời điểm cập nhật" đọc biến động gần nhất từ sổ kho; giữ hàng Nobivac ghi theo SO-260827-21 (BJ-04 / 05).
+- **Fixture:** bỏ dòng mẫu Enrofloxacin "Hư hỏng 3 chai" khỏi tệp đầu kỳ BJ-12 (BJ-01 ghi tồn 0); thêm lô hỏng Vitamin ADE 2 chai không có giá vốn → "Cần xác lập giá trị" (PRICE_BASIS_REQUIRED) đi tới được bằng luồng thật (`SC_g3_price_basis`); bỏ "Kho trung tâm" khỏi phạm vi hồ sơ REC-UNKNOWN-03.
+- **Chưa làm:** Amox vẫn không theo lô ở BJ-01 trong khi BJ-06 (RET-L2) / BJ-08 / BJ-09 còn lô AM2505 — đổi BJ-06 làm gãy các bước của `SC_journey_3`; sổ ghi theo sản phẩm nên số liệu cuối kỳ không bị lệch. Số giữ hàng Nobivac (12) chưa khớp tổng đơn của BJ-04 (20).
+- Badge harness `v5.24.0 · Giai đoạn 3 · G3-4 sổ kho chung`.
+
+## [5.23.0] — Giai đoạn 3 · G3-3 kết quả chưa rõ và đường quay lại
+
+Golden so `tools/.golden-g3-2` (iPhone 2164 → 2175 ca, web 1280 → 1291): chỉ khác ở ca mới `SC_g3_unknown_back_bj05` / `_bj11` (hai khung) và bước cuối của `SC_bj17_from_bj05` (nút "Mở …"); 0 lỗi JS. Mốc sau gói: `tools/.golden-g3-3` / `-web`.
+
+- **Nhãn:** hết `data-v3xx` trong `app/`, `tools/golden.mjs`: `data-v350-action="handoff-unknown"` → `data-k3-action="handoff"`; `data-v360-action="fallback-exit"` + `data-v360-target` → `data-k1-action="exit"` + `data-k1-target`; `data-v350-action="cf12-*"` → `data-bj12-action="cf12-*"`; `data-v395-source-feedback` → `data-bj07-source-feedback`.
+- **`onUnknownResolved[luồng]({ operationId, outcome })`** (`core.js`), đối xứng `onUnknownHandoff`: `bj17Complete` gọi cho BJ nguồn khi hồ sơ "Đã xác lập". Đã đăng ký cho BJ-05 (đơn về "Cần tiếp tục" / "Cần bàn giao", mở khoá), BJ-06, BJ-07, BJ-09, BJ-10, BJ-11 (thao tác "Tiêu hủy TH-260906-02" hết "Đang xác minh" → "Đã ghi"; màn chi tiết "Đã ghi vào kho"). Các BJ còn lại (02, 03, 08, 12, 13, 14, CAP-01) không khoá thao tác ở nguồn nên không cần hook. Hiện chỉ có `outcome: "RECORDED"` đi tới được (cả "Xác nhận đã hoàn tất" và "Làm tiếp thao tác" đều kết thúc bằng đã ghi); `NOT_RECORDED` đã được các BJ hỗ trợ sẵn.
+- **BJ-17 → BJ nguồn:** màn 083 "Đã xác lập" có nút chính **"Mở {nghiệp vụ} {mã}"** khi vào từ K3 của BJ khác (mở danh sách BJ nguồn, BJ-05 mở 026).
+- **`bj17ConfirmSheet`:** bản ghi lấy từ lúc mở sheet (`crOpenSheet` chụp `planRecord` = thao tác + phạm vi + phiên bản bằng chứng), so với hồ sơ lúc bấm; khác → "Kết luận đã thay đổi". Trước đó phép kiểm so bản ghi với chính nó.
+- **`cr11Return = { kind: "case" | "movement", id } | null`** thay `cr11ReturnCase` / `cr11ReturnMovement` (`bj11.js`, `bj15.js`, `bj16.js`).
+- **Chưa làm / ghi chú:** hồ sơ có sẵn `REC-UNKNOWN-01 / 02 / 03` mở trực tiếp từ BJ-16 vẫn không có nguồn (`sourceFlow = UIF-17`) nên không có "Mở …"; chỉ vào qua K3 mới có. Chỉ BJ-05 và BJ-11 có đường xác lập tới được (bằng chứng `NO_COMMIT` / `COMMITTED`); BJ-06 / 07 / 09 / 10 mặc định `INSUFFICIENT` chỉ có "Gửi bộ phận hỗ trợ".
+- Badge harness `v5.23.0 · Giai đoạn 3 · G3-3 kết quả chưa rõ`.
+
+## [5.22.0] — Giai đoạn 3 · G3-2 khung dùng chung
+
+Golden so `tools/.golden-g3-1-base` (iPhone 2164 ca, web 1280 ca), 0 lỗi JS. Ảnh khác ở: dải chip có số (khoảng cách số – chữ, BJ-01 / BJ-12 / CAP-01 / BJ-15 / K6 và các màn lọc K5) và chữ trong ảnh chip nay có dấu cách trước số; chữ tiền đổi dấu cách thường sang NBSP (ảnh giống hệt, chỉ khác văn bản). Mốc sau gói: `tools/.golden-g3-2` / `-web`.
+
+- **Hộp thoại một chỗ:** `core.js` có một listener `keydown` (pha capture) và bảng `onDialogClose[luồng]`: Esc gọi hàm đóng của luồng (trả `true` khi có gì để đóng), Tab / Shift+Tab đi vòng trong `#app-screen [role="dialog"]`. Xoá 11 bẫy Tab và 16 listener Esc riêng ở BJ-01…16 và CAP-01.
+- **Trả focus về dòng bảng:** nút mở nằm trong dòng (`.k7-row-open`) được nhớ theo dòng, nên đóng sheet lô / nguồn ở BJ-01 web trả focus về nút dòng thay vì `BODY` (HF1 mục 8 điểm 4).
+- **Dòng bảng web:** `k7Table` có tham số `rowOpen`; ô đầu là nút `.k7-row-open` nhận Tab / Enter, tên = chữ trong ô. `<tr>` không còn `tabindex`; bỏ các listener "Enter trên `<tr>`" của BJ-01 / 02 / 11 / 14 / 15 / 16. Dòng đang chọn của BJ-01 dùng `aria-current="true"` (bỏ `aria-selected`).
+- **Chip có số một cách:** `k7FilterChips` gọi `ds24Chip(…, count)`; bỏ `k7-chip--zero`. Số tách `<span class="ds24-chip__count">`, số 0 chuyển chữ phụ.
+- **Tiền:** NBSP đã nằm trong `t7FmtMoney`; bỏ `bj14Money`, `bj15Money`; BJ-02 / 03 / 08 / 10 / 13 và `shared-valuation.js` dùng NBSP. `golden.mjs` kiểm mọi ca: chuỗi `<số> đ` dùng dấu cách thường thì tính vào "lỗi JS".
+- **Toast:** vùng chạm nút đóng 44 × 44 (icon vẫn 20) bằng `::after`. Toast đã nằm trên chân màn (đo thực tế, không che nút chân), giữ nguyên.
+- **Chưa làm:** đổi vùng ảnh BJ-02 (008) / BJ-06 sang `k5Evidence` (`bj06EvidenceZone` còn). BJ-06 tạo mã / băm / phiên bản ảnh và có chế độ chỉ đọc riêng, `k5Evidence` chưa có; chuyển sang gói sau.
+- Badge harness `v5.22.0 · Giai đoạn 3 · G3-2 khung dùng chung`.
+
+## [5.21.0] — Giai đoạn 3 · G3-1 dọn CSS và mã chết (giao diện không đổi)
+
+Golden mobile so `tools/.golden-g3-1-base` (2164 ca → 2164) và web so `tools/.golden-g3-1-web-base` (1280 → 1280): **khớp hoàn toàn**, 0 lỗi JS. Mốc sau gói: `tools/.golden-g3-1` / `-web`.
+
+- **CSS không dùng:** xoá 469 luật không khớp phần tử nào ở bất kỳ ca nào (`golden.mjs usage`, hai khung; bỏ qua luật có `:hover` / `:focus` / `:active` / `::placeholder` và khối `@media`). `screens.css` 5.583 → 4.264 dòng, `components.css` 3.905 → 3.239 dòng.
+- **`!important`:** 1.632 → **84 khai báo** ở 55 luật. Công cụ mới `golden.mjs important` (+ `tools/css-important.mjs apply`) thử bỏ từng cờ trong trình duyệt, **cộng dồn**, so computed style toàn cây DOM với trạng thái gốc trên mọi ca hai khung. Mỗi luật còn lại có chú thích `/* !important: … */` nêu lý do (đè luật khung Figma, bố cục web K7, workbench, giảm chuyển động).
+- **Mã chết:** `bj03.js` bỏ `val03ScopeGroupsHtml`, `val03CalculationGroupsHtml`, `val03EvidenceSheet`, `val03ReviewGroupsHtml`, `val03ResultGroupsHtml`, `componentsHtml`, `tokenStale`, `val03ScopeLabel`, `val03SelectedGroupCount`, biến `val03EvidenceSheetOpen/Mode`; `bj15Report` bỏ tham số, `bj15ExportStart` bỏ giá trị trả về thừa.
+- **Chưa làm (so với plan G3-1):** gom luật CSS theo từng BJ và bỏ hết tên `vNNN` trong chú thích đầu khối. Thử gom tự động làm đổi ảnh BJ-02 / BJ-12 vì một số khai báo vốn thua trong thứ tự cũ; hoãn, ghi ở plan mục 9. `!important` còn 84 (mục tiêu Q4 ≤ 60 chưa đạt).
+- Badge harness `v5.21.0 · Giai đoạn 3 · G3-1 dọn CSS`.
+
 ## [5.20.1] — Review chặng 6 (R1)
 
 Golden mobile so `tools/.golden-chang6` (2164 ca → 2164), web so `tools/.golden-chang6-web` (1280 → 1280): **khớp hoàn toàn**, 0 lỗi JS. Mốc `tools/.golden-chang6*` chụp lại (nội dung không đổi). Số đổi chỉ hiện sau khi `COST-2609-U1` được tính (xử lý hết việc chặn → "Tính lại"), golden không đi tới bước đó.

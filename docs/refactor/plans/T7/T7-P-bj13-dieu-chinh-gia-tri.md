@@ -293,4 +293,22 @@ Làm 2026-10-24 (v5.10.0). **Chưa commit** (như BJ-02 / BJ-03): để phiên r
 
 ## 10. Review
 
-(Phiên review điền.)
+(2026-10-26, G3-0, đợt "review bù" chạy cùng phiên làm G3-1 / G3-2 theo yêu cầu người dùng; chạy trên mã v5.22.0 — BJ-13 không đổi từ 5.10.0 trừ NBSP trước "đ" ở G3-2) — **đạt**. Không có lỗi chặn; năm góp ý nhỏ, đã đưa vào bảng 0.2 của [plan G3](T7-P-G3-hoan-thien.md).
+
+| Kiểm | Kết quả |
+|---|---|
+| `node --check app/*.js harness/*.js tools/golden.mjs` | Sạch |
+| Golden `UIF-13_*`, `SC_bj13_*`, `SC_entry_UIF-13_*`, `SC_journey_2` hai khung | 0 lỗi JS (iPhone 2164, web 1280 ca) |
+| `SC_journey_2` đối chiếu bảng 3.6 (28 bước iPhone) | Bước 0 Home "Cần chú ý · Chờ duyệt"; 5 "Vượt chứng từ … 121 / 120 hộp (+1)"; 12 "Đang chờ duyệt"; 17 "Đã ghi nhận hàng"; 19 Nobivac 9.885.700 đ, Oxytetracycline LA "Cần đối chiếu"; 20 "Đã ghi giá trị nhập ban đầu"; 24 VC-8842 "+ 1.200.000 đ", Nobivac "+ 853.706 đ" (71,1%) / Vaccine Canine X "+ 346.294 đ" (28,9%), tổng "+ 1.200.000 đ"; 25 sheet "Ghi điều chỉnh giá trị?"; 26 "Đã ghi điều chỉnh giá trị hàng nhập"; 27 về Home. Đúng bảng |
+| Tiền chỉ chủ cửa hàng | `SC_bj13_staff` và mọi ca `UIF-13_*` `PERMISSION_DENIED` / `FINANCIAL_MASKED` (5 iPhone, 4 web): không có "<số> đ" / "₫" trong phần hiển thị |
+| Tài liệu bước E | `SCR-085 / 086 / 089` và `UIF-13`: `IN_REVIEW`, không có đoạn `### vX.Y`; `SCR-087 / 088` ở `RETIRED` trong `INDEX.md`; không còn liên kết tới tệp đã xoá |
+| Ảnh | 085 / 086 / 089 và sheet xác nhận, hai khung: số tiền có "+" / "−" và màu (xanh / đỏ) — không chỉ màu; chip, bảng, sheet đúng khuôn K7 / K4. Web 086 hai cột (nguồn / bảng phân bổ), chân "Ghi điều chỉnh" |
+
+**Góp ý nhỏ (không chặn):**
+
+1. **K3 lặp câu.** `UIF-13_SCR-089_UNKNOWN`: "Không gửi lại thao tác. Chuyển đúng lần xử lý này sang xác minh kết quả. Không ghi lại điều chỉnh. Chuyển đúng thao tác này sang xác minh." — `k3Unknown` đã có câu "Chuyển đúng lần xử lý này…", chữ `safe` của spec lại thêm một câu cùng ý. Ở Giai đoạn 4 rút `safe` của BJ-13 còn "Không ghi lại điều chỉnh." (sửa chữ spec của SCR-089, không sửa ở code).
+2. **Mã sản phẩm lệch định dạng.** "Vaccine Canine X" có mã `SP-00421` (5 chữ số) ở `bj03.js:33` và `bj13.js` (LC13-T3 / T4); mọi mã khác 6 chữ số (`SP-000184`). Sản phẩm này cũng không có trong BJ-01 (5 sản phẩm). Sửa `SP-000421` kèm fixture ở G3-4.
+3. **iPhone 085: tên nguồn gãy ở dấu gạch nối** ("Hóa đơn vận chuyển VC-" / "8842", "CK-" / "2609-06"). Dùng dấu gạch nối không ngắt (U+2011) hoặc `white-space: nowrap` cho mã — làm ở G3-6.
+4. **iPhone 089: nút chính "Về công việc điều chỉnh" gãy hai dòng** trong ô chia đôi chân. Rút chữ hoặc xếp chân dọc khi chữ dài — G3-6 (chỉ giữ nếu critique nêu).
+5. **Home sau `SC_journey_2` không đổi** ("3 nhận hàng" vẫn còn sau khi duyệt ở bước 16–17) vì hàng chờ duyệt còn tĩnh — xử lý ở G3-4 (Q1, sổ sống).
+

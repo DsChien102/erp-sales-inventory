@@ -18,6 +18,8 @@ const t7Lots = [
   { id: "tylo-ty2408", name: "Tylosin 20%", code: "SP-000122", lot: "TY2408", expiry: "31/07/2026", qty: 11, uom: "lọ", state: "EXPIRED", source: "", unitCost: 85000 },
   { id: "amox-am2505", name: "Amox 500", code: "SP-000066", lot: "AM2505", expiry: "31/05/2027", qty: 2, uom: "hộp", state: "QUARANTINE", source: "Từ hàng khách trả RET-260827-03", unitCost: 42000 },
   { id: "glove-nitrile", name: "Găng tay khám Nitrile", code: "SP-000271", lot: "", expiry: "", qty: 3, uom: "hộp", state: "DAMAGED", source: "Từ nhận hàng PN-260905-02", unitCost: 65000 },
+  // Hỏng, chưa có giá vốn, chưa có việc đang chạy: tiêu hủy từ danh sách gặp "Cần xác lập giá trị" (PRICE_BASIS_REQUIRED) bằng luồng thật.
+  { id: "vitamin-ade", name: "Vitamin ADE", code: "SP-000099", lot: "", expiry: "", qty: 2, uom: "chai", state: "DAMAGED", source: "Từ nhận hàng PN-260909-04" },
   { id: "oil-demo", name: "Dầu sát khuẩn", code: "SP-00606", lot: "L2406-T", expiry: "31/12/2027", qty: 2, uom: "chai", state: "DEMO", source: "" },
   { id: "nob-dh2507", name: "Nobivac DHPPi", code: "SP-000184", lot: "DH2507", expiry: "30/11/2026", qty: 70, uom: "hộp", state: "SELLABLE", source: "" },
 ];

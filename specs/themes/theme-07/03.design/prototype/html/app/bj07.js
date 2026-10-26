@@ -3,7 +3,7 @@
  * Thiết kế lại T7-P chặng 4 (v5.14.0): kiểm hàng một chạm ("Đúng hàng" ngay trên dòng), sheet chỉ khi cần nhập lô thực tế /
  * chia phần hàng / báo không khớp; 039 nói giao cho ai; 041 là K4 / K3. Danh sách yêu cầu trả là dòng của K5 (SCR-036 chung).
  * Dùng từ khuôn: K1, K3, K4 (k4Result, k4ReasonFooter), K7 (k7Split, k7Table), dsSegmented, ds24Sheet.
- * Handoff UNKNOWN: onUnknownHandoff["UIF-07"]; nút handoff-unknown do k3Unknown dựng → bj17.js.
+ * Handoff UNKNOWN: onUnknownHandoff["UIF-07"]; nút `data-k3-action="handoff"` do k3Unknown dựng → bj17.js.
  * Trạng thái đặt từ ngoài (bộ chọn golden) dựng lại yêu cầu từ bản gốc: xem io07Seed.
  */
 
@@ -166,6 +166,11 @@ function io07LinesOf(req) {
 function io07CreateResult(req) {
   const op = req.operationId || `IO-RTV-${String(req.id).replace(/^RTV-/, "")}`; req.operationId = op;
   const lines = io07LinesOf(req);
+  // Bàn giao cho nhà cung cấp là lúc tồn vật lý giảm, theo từng tình trạng của phần hàng trả: ghi vào sổ chung.
+  lines.forEach((l) => (l.sourceSlices || []).forEach((sl) => {
+    const state = t7Ledger.STATE_LABEL[sl.state];
+    if (state && sl.qty > 0) t7Ledger.post({ key: `UIF-07:${req.id}:${l.sourceAllocationId || l.groupId}:${sl.state}`, productId: l.code, lot: l.lot, kind: "Trả nhà cung cấp", doc: req.id, delta: -sl.qty, state, sourceFlow: "UIF-07", opId: op });
+  }));
   const evidence = { handoverEvidenceId: `HE-${op}`, operationId: op, sourceType: "SUPPLIER_RETURN", sourceDocumentId: req.source, sourceVersion: req.sourceVersion, sourceContext: { sourceRequestId: req.sourceRequestId, inventoryRequestId: req.id }, warehouseId: req.warehouseId, actorId: IO07_ACTOR.id, actor: IO07_ACTOR.name, recipient: io07Recipient, confirmedAt: IO07_CONFIRMED_AT, lineEvidence: lines.map((l) => ({ sourceLineId: l.sourceLineId, sourceAllocationId: l.sourceAllocationId, productCode: l.code, uom: l.uom, lot: l.lot, quantity: l.qty, sourceSlices: l.sourceSlices })) };
   evidence.evidenceHash = io07StableHash(evidence);
   io07LastResult = { operationId: op, requestId: req.id, sourceRequestId: req.sourceRequestId, supplier: req.supplier, source: req.source, sourceVersion: req.sourceVersion, warehouse: req.warehouse, actorId: IO07_ACTOR.id, actor: IO07_ACTOR.name, recipient: io07Recipient, confirmedAt: IO07_CONFIRMED_AT, lines, handoverEvidence: evidence };
@@ -274,7 +279,7 @@ function io07SliceInputs(group, a) {
   if (candidates.length <= 1) return "";
   const current = new Map((a.sourceSlices || []).map((s) => [s.state, io07Num(s.qty)]));
   const fields = candidates.map((c) => `<label class="ds24-field v395-source-slice-field" data-ds-component="VNumberField"><span class="vet45-text-style-8">${esc(IO07_STOCK_LABELS[c.state] || c.state)}</span><div class="v395-source-slice-control"><input class="ds24-field__control vet45-text-style-6" type="number" min="0" max="${c.available}" step="1" inputmode="decimal" value="${io07Attr(current.get(c.state) || "")}" data-io07-source-slice="${io07Attr(c.state)}" aria-label="${io07Attr(`${IO07_STOCK_LABELS[c.state] || c.state} — số ${group.uom} trả`)}"><small class="vet45-text-style-11">Tối đa ${c.available} ${esc(group.uom)}</small></div></label>`).join("");
-  return `<section class="v395-source-slices" data-composed-from="VNumberField,DS v2 / Key-value Row">${ds24SectionTitle("Trả từ phần hàng nào", `${io07SliceTotal(a)}/${a.qty} ${group.uom}`)}<p class="vet45-text-style-11 v395-source-help">Lô này có hàng ở nhiều tình trạng. Ghi số lượng trả từ từng phần.</p>${fields}<div data-v395-source-feedback>${io07SliceFeedback(group, a)}</div></section>`;
+  return `<section class="v395-source-slices" data-composed-from="VNumberField,DS v2 / Key-value Row">${ds24SectionTitle("Trả từ phần hàng nào", `${io07SliceTotal(a)}/${a.qty} ${group.uom}`)}<p class="vet45-text-style-11 v395-source-help">Lô này có hàng ở nhiều tình trạng. Ghi số lượng trả từ từng phần.</p>${fields}<div data-bj07-source-feedback>${io07SliceFeedback(group, a)}</div></section>`;
 }
 function io07SliceFeedback(group, a) { return io07SlicesResolved(a) ? "" : vBanner("warning", `Cần chia đủ ${t7Qty(a.qty, group.uom)}`, "", ""); }
 function io07ScanMatches(group, a) {
@@ -464,7 +469,7 @@ function io07SyncVerifyButton() {
   const found = io07ActiveFound(); if (!found) return;
   const { group, allocation: a } = found;
   const b = document.querySelector('[data-io07-action="confirm-allocation"]'); if (b) b.disabled = io07VerifyDisabled(group, a);
-  const fb = document.querySelector("[data-v395-source-feedback]"); if (fb) fb.innerHTML = io07SliceFeedback(group, a);
+  const fb = document.querySelector("[data-bj07-source-feedback]"); if (fb) fb.innerHTML = io07SliceFeedback(group, a);
   const t = document.querySelector(".v395-source-slices .ds24-section-title span"); if (t) t.textContent = `${io07SliceTotal(a)}/${a.qty} ${group.uom}`;
 }
 function io07SyncMismatchButton() { const b = document.querySelector('[data-io07-action="record-mismatch-observation"]'); if (b) b.disabled = !io07MismatchValid(); }
@@ -492,17 +497,11 @@ document.addEventListener("input", (event) => {
   if (t.matches("[data-io07-mismatch-note]")) { io07MismatchNote = t.value; return io07SyncMismatchButton(); }
 }, true);
 
-// Sheet / hộp thoại là modal: Esc đóng, Tab chỉ đi vòng trong hộp thoại.
-window.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-07" || !(io07VerifySheetOpen || io07MismatchOpen || io07ResultSheetOpen)) return;
-  if (event.key === "Escape") { event.preventDefault(); if (io07MismatchOpen) { io07MismatchOpen = false; io07MismatchType = ""; } else { io07VerifySheetOpen = false; io07ScanLot = ""; io07ResultSheetOpen = false; } return renderAppScreen(); }
-  const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-  if (!dialog) return;
-  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, [tabindex]:not([tabindex='-1'])")].filter((el) => el.offsetParent !== null);
-  if (!items.length) return;
-  const first = items[0], last = items[items.length - 1], at = document.activeElement;
-  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-}, true);
+onDialogClose["UIF-07"] = () => {
+  if (!(io07VerifySheetOpen || io07MismatchOpen || io07ResultSheetOpen)) return false;
+  if (io07MismatchOpen) { io07MismatchOpen = false; io07MismatchType = ""; } else { io07VerifySheetOpen = false; io07ScanLot = ""; io07ResultSheetOpen = false; }
+  renderAppScreen(); return true;
+};
 
 document.addEventListener("click", (event) => {
   if (activeFlowId !== "UIF-07") return;
@@ -563,6 +562,13 @@ onEntry["UIF-07:return-task"] = () => { io07ResetUi(); io07SetState("SCR-037", i
 onUnknownHandoff["UIF-07"] = () => {
   const r = io07Current();
   if (r) { r.unknownLocked = true; r.queue = "WAITING"; r.lifecycle = "Đang xác minh kết quả"; }
+};
+onUnknownResolved["UIF-07"] = ({ operationId, outcome }) => {
+  const r = io07Requests.find((x) => x.operationId === operationId) || io07Requests.find((x) => x.unknownLocked) || io07Current();
+  if (!r) return;
+  r.unknownLocked = false;
+  if (outcome === "RECORDED") { r.completed = true; r.closed = true; r.queue = "CLOSED"; r.lifecycle = "Đã bàn giao"; io07Selected = r.id; }
+  else { r.queue = "ACTIONABLE"; r.lifecycle = "Cần làm lại"; }
 };
 
 flowRenderers["UIF-07"] = Object.assign(flowRenderers["UIF-07"] || {}, {

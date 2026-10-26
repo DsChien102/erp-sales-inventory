@@ -1,5 +1,5 @@
 {
-  "version": "5.20.1",
+  "version": "5.24.0",
   "parent": "5.4.0",
   "status": "T7_P_BJ14_REDESIGN",
   "scope": "T7-P BJ-14: thiết kế lại giá vốn (SCR-072 K6 \"Giá vốn\", SCR-074 một câu chuyện việc chặn → kết quả → thay đổi sẽ ghi → theo sản phẩm → phương pháp, SCR-077 K4 / K3); chỉ chủ cửa hàng vào được; việc chặn đọc từ BJ-03 / BJ-11 / BJ-16; số tồn BJ-01 khớp sổ chặng 5.",
@@ -10,7 +10,7 @@
   "structure": {
     "html": "index.html",
     "styles": ["styles/tokens.css", "styles/components.css", "harness/workbench.css", "styles/screens.css"],
-    "scripts": ["data/workbench-data.js", "app/core.js", "harness/figma-ds-map.js", "harness/workbench.js", "app/shared-control.js", "app/shared-valuation.js", "app/shared-patterns.js", "app/shared-problem.js", "app/bj01.js…bj17.js", "app/cap01.js", "app/hub.js"],
+    "scripts": ["data/workbench-data.js", "app/core.js", "harness/figma-ds-map.js", "harness/workbench.js", "app/shared-control.js", "app/shared-valuation.js", "app/shared-patterns.js", "app/shared-problem.js", "app/bj01.js", "app/shared-ledger.js", "app/bj02.js…bj17.js", "app/cap01.js", "app/hub.js"],
     "golden": "tools/golden.mjs"
   },
   "authority": {

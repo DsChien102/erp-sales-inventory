@@ -10,7 +10,7 @@
 
 // ---- Fixture và trạng thái màn
 const bj01Products = [
-  { id:"INV-NOB", name:"Nobivac DHPPi", code:"SP-000184", barcode:"8938500001012", stockUom:"hộp", tracking:"LOT", physical:120, eligible:118, reserved:12, available:106, threshold:30, target:80, monitoringConfigStatus:"CONFIGURED", eligibilityBreakdown:[{reason:"Cách ly",quantity:2}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260816-04",delta:118}, reservationSummary:{quantity:12,source:"SO-260817-08"}, lots:[
+  { id:"INV-NOB", name:"Nobivac DHPPi", code:"SP-000184", barcode:"8938500001012", stockUom:"hộp", tracking:"LOT", physical:120, eligible:118, reserved:12, available:106, threshold:30, target:80, monitoringConfigStatus:"CONFIGURED", eligibilityBreakdown:[{reason:"Cách ly",quantity:2}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260816-04",delta:118}, reservationSummary:{quantity:12,source:"SO-260827-21"}, lots:[
     { code:"DH2507", expiryDisplay:"30/11/2026", expiryPrecision:"DAY", physical:70, eligible:70, stockState:"SELLABLE", expiryIndicator:"NONE", nearExpiryAction:null },
     { code:"DH2509", expiryDisplay:"15/09/2026", expiryPrecision:"DAY", physical:50, eligible:48, stockState:"SELLABLE", expiryIndicator:"NEAR_EXPIRY", nearExpiryAction:"WARN", daysToExpiry:19 },
   ]},
@@ -30,8 +30,9 @@ let bj01SelectedLotCode = "DH2507";
 let bj01LotOpen = false;
 let bj01ProvenanceOpen = false;
 let bj01ScanOpen = false;
-let bj01QueryAsOf = "09:42 · 27/08/2026";
-let bj01RefreshSequence = ["09:47 · 27/08/2026", "09:51 · 27/08/2026"];
+// Mốc dữ liệu = mốc của sổ kho BJ-15 (BJ15_AS_OF); "Làm mới" nhích thêm vài phút.
+let bj01QueryAsOf = "21:30 · 17/09/2026";
+let bj01RefreshSequence = ["21:34 · 17/09/2026", "21:38 · 17/09/2026"];
 let bj01RefreshIndex = 0;
 
 // ---- Chỉ báo
@@ -160,9 +161,15 @@ function bj01LotSheet(p) {
     :t7&&t7.state==='SELLABLE'?`<button class="ds24-button ds24-button--secondary" data-bj01-change-state="${escapeAttribute(lot.code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Đổi tình trạng</button>`:'';
   return ds24Sheet({title:`Lô ${lot.code}`,attrs:'data-bj01-close-lot',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · HSD ${esc(lot.expiryDisplay)}</p>${bj01LotQuantityRows(lot,p)}${status}${dispose}`});
 }
+// Biến động vật lý gần nhất đọc từ sổ kho (BJ-15); chưa nạp sổ thì dùng số liệu mẫu của sản phẩm.
+function bj01LatestMovement(p) {
+  if (typeof BJ15_MOVES === "undefined") return p.latestPhysicalMovement||{};
+  const last = BJ15_MOVES.filter((m) => m.productId === p.id && m.delta !== 0).sort((a, b) => (a.rKey < b.rKey ? -1 : a.rKey > b.rKey ? 1 : a.seq - b.seq)).pop();
+  return last ? { label: last.kind, source: last.doc, delta: last.delta } : (p.latestPhysicalMovement||{});
+}
 function bj01ProvenanceSheet(p) {
   if(!bj01ProvenanceOpen)return "";
-  const mv=p.latestPhysicalMovement||{}; const rs=p.reservationSummary||{};
+  const mv=bj01LatestMovement(p); const rs=p.reservationSummary||{};
   const movementValue=mv.source?`${mv.source} · ${Number(mv.delta)>0?'+':''}${mv.delta} ${p.stockUom}`:'Chưa có biến động';
   const reservationValue=Number(rs.quantity)>0?`${rs.quantity} ${p.stockUom}${rs.source?` · ${rs.source}`:''}`:`0 ${p.stockUom}`;
   return ds24Sheet({title:'Nguồn và thời điểm cập nhật',attrs:'data-bj01-close-provenance',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · Kho trung tâm</p><div class="ds24-info-stack">${ds24InfoRow('Dữ liệu đến',bj01AsOf())}${ds24InfoRow(mv.label?`${mv.label} gần nhất`:'Biến động gần nhất',movementValue)}${ds24InfoRow('Đang giữ',reservationValue)}</div><button class="ds24-button ds24-button--secondary" data-bj01-handoff type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('history','icon--sm')}Xem thẻ kho và lịch sử</button>`});
@@ -185,7 +192,7 @@ function bj01DetailBody(p) {
       ? k7Table({columns:[{key:"code",label:"Lô",html:true},{key:"expiry",label:"HSD",mono:true},{key:"physical",label:"Tồn",align:"end",mono:true},{key:"badge",label:"Tình trạng",html:true}],caption:"Lô và hạn dùng",
           rows:sorted.map((lot)=>({code:`<strong>Lô ${esc(lot.code)}</strong>`,expiry:lot.expiryDisplay,physical:`${lot.physical} ${p.stockUom}`,badge:lotBadge(lot),lot})),
           mobileRow:(r)=>ds24ListRow({title:`Lô ${r.lot.code}`,subtitle:`HSD ${r.lot.expiryDisplay} · Tồn ${r.lot.physical} ${p.stockUom}`,trailing:r.badge,leading:null,attrs:`data-bj01-lot="${escapeAttribute(r.lot.code)}"`}),
-          rowAttr:(r)=>`data-bj01-lot="${escapeAttribute(r.lot.code)}" tabindex="0"`})
+          rowAttr:(r)=>`data-bj01-lot="${escapeAttribute(r.lot.code)}"`,rowOpen:true})
       : `<div class="ds24-list-stack">${sorted.map((lot)=>ds24ListRow({title:`Lô ${lot.code}`,subtitle:`HSD ${lot.expiryDisplay} · Tồn ${lot.physical} ${p.stockUom}`,trailing:lotBadge(lot),leading:null,attrs:`data-bj01-lot="${escapeAttribute(lot.code)}"`,})).join('')}</div>`;
     more+=`<section class="ds24-section">${ds24SectionTitle('Lô và hạn dùng',`${p.lots.length} lô`)}${lots}</section>`;
   }
@@ -208,7 +215,7 @@ function render001BJ01(state) {
     bj01SelectedProductId=selected.id;
     const table=k7Table({columns:BJ01_COLUMNS,rows:visible.map(bj01TableRow),caption:"Tồn kho",
       mobileRow:(r)=>ds24StockRow({title:r.name,subtitle:r.code,quantity:r.available,badge:r.badge,attrs:rowAttrs(bj01ProductById(r.id))}),
-      rowAttr:(r)=>`${rowAttrs(bj01ProductById(r.id))} tabindex="0" aria-selected="${r.id===selected.id}"${r.id===selected.id?' class="is-selected"':""}`});
+      rowAttr:(r)=>`${rowAttrs(bj01ProductById(r.id))}${r.id===selected.id?' aria-current="true" class="is-selected"':""}`,rowOpen:true});
     const main=`${bj01Context()}${stale}${bj01SearchAndFilters()}${table}${bj01ScanSheet()}${bj01LotSheet(selected)}${bj01ProvenanceSheet(selected)}`;
     return appShell({title:"Tồn kho",body:`<div class="bj01-list-detail">${k7Split({main,aside:bj01DetailBody(selected),asideWebOnly:true})}</div>`,back:false,extraClass:wide});
   }
@@ -230,27 +237,16 @@ function render004BJ01(state) { bj01LotOpen=true; return render003BJ01(state==="
 
 Object.assign(renderers, { "SCR-001": render001BJ01, "SCR-003": render003BJ01, "SCR-004": render004BJ01 });
 
-// Nhận hàng xong (BJ-02): cộng vào tồn của sản phẩm cùng mã. lines: [{ productRef, accepted, quarantine, damaged, lots:[{ code, expiry, expiryPrecision, accepted, quarantine, damaged }] }]
+// Nhận hàng xong (BJ-02): ghi vào sổ chung (t7Ledger), tồn BJ-01 và thẻ kho BJ-15 cùng đổi. lines: [{ productRef, accepted, quarantine, damaged, lots:[{ code, expiry, expiryPrecision, accepted, quarantine, damaged }] }]
 // đã quy về ĐVT tồn của sản phẩm. Đạt vào khả dụng; Đạt + Cách ly + Hỏng vào tồn vật lý.
-function bj01ApplyReceipt(lines, ref) {
+function bj01ApplyReceipt(lines, ref, note = "") {
   lines.forEach((line) => {
     const p = bj01Products.find((x) => x.id === line.productRef);
     if (!p) return;
-    const physical = line.accepted + line.quarantine + line.damaged;
-    if (physical <= 0) return;
-    p.physical += physical; p.eligible += line.accepted; p.available += line.accepted;
-    p.latestPhysicalMovement = { label:"Nhận hàng", source:ref, delta:physical };
-    [["Cách ly", line.quarantine], ["Hỏng", line.damaged]].filter(([, q]) => q > 0).forEach(([reason, q]) => {
-      const row = (p.eligibilityBreakdown||(p.eligibilityBreakdown=[])).find((x) => x.reason === reason);
-      if (row) row.quantity += q; else p.eligibilityBreakdown.push({ reason, quantity:q });
-    });
-    if (p.tracking === "LOT") (line.lots||[]).forEach((lot) => {
-      const lotPhysical = lot.accepted + lot.quarantine + lot.damaged;
-      if (lotPhysical <= 0) return;
-      const existing = p.lots.find((x) => x.code === lot.code);
-      if (existing) { existing.physical += lotPhysical; existing.eligible += lot.accepted; }
-      else p.lots.push({ code:lot.code, expiryDisplay:lot.expiry, expiryPrecision:lot.expiryPrecision||"DAY", physical:lotPhysical, eligible:lot.accepted, stockState:"SELLABLE", expiryIndicator:"NONE", nearExpiryAction:null });
-    });
+    const parts = p.tracking === "LOT" && line.lots?.length ? line.lots : [{ code: "", ...line }];
+    parts.forEach((part) => [["Bán được", part.accepted], ["Cách ly", part.quarantine], ["Hỏng", part.damaged]].forEach(([state, qty]) => {
+      if (qty > 0) t7Ledger.post({ key: `UIF-02:${ref}:${p.id}:${part.code}:${state}`, productId: p.id, lot: part.code, kind: "Nhận hàng", doc: ref, delta: qty, state, sourceFlow: "UIF-02", note, at: { expiry: part.expiry } });
+    }));
   });
 }
 
@@ -259,19 +255,13 @@ function bj01ApplyReceipt(lines, ref) {
 function bj01SelectWebProduct(id) {
   bj01WebSelectedId=id; bj01SelectedProductId=id;
   renderAppScreen();
-  document.querySelector(`tr[data-bj01-product="${CSS.escape(id)}"]`)?.focus({ preventScroll: true });
+  document.querySelector(`tr[data-bj01-product="${CSS.escape(id)}"] .k7-row-open`)?.focus({ preventScroll: true });
 }
-document.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-01" || (event.key !== "Enter" && event.key !== " ")) return;
-  const row = event.target.closest?.("tr[data-bj01-product], tr[data-bj01-lot]");
-  if (!row) return;
-  event.preventDefault(); row.click();
-});
-// Esc đóng sheet đang mở (lô, nguồn, quét) — như BJ-12 / CAP-01.
-document.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-01" || event.key !== "Escape" || !(bj01LotOpen || bj01ProvenanceOpen || bj01ScanOpen)) return;
-  event.preventDefault(); bj01LotOpen = false; bj01ProvenanceOpen = false; bj01ScanOpen = false; renderAppScreen();
-}, true);
+// Esc đóng sheet đang mở (lô, nguồn, quét): core.js lo Esc và vòng Tab.
+onDialogClose["UIF-01"] = () => {
+  if (!(bj01LotOpen || bj01ProvenanceOpen || bj01ScanOpen)) return false;
+  bj01LotOpen = false; bj01ProvenanceOpen = false; bj01ScanOpen = false; renderAppScreen(); return true;
+};
 document.addEventListener("click", (event) => {
   if (activeFlowId === "UIF-01") {
     const product = event.target.closest("[data-bj01-product]");

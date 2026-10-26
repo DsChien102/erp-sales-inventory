@@ -5,7 +5,7 @@
  * Dùng từ khuôn (shared-patterns.js): k1Loading, k1Denied, k1Empty, k1Stale, k1ExitAttr (K1); k3Unknown (K3); k4Result,
  * k4ReasonFooter (K4); k6TaskList (K6, dựng ở đây); k7Split, k7Table, k7EditCell (K7); dsSegmented, dsChoiceRow.
  * Dùng chung từ app/core.js: appShell, ds24*, vBanner, esc, escapeAttribute, navigate, renderAppScreen, showToast, onScreenEnter.
- * Handoff UNKNOWN: đăng ký onUnknownHandoff["UIF-05"]; nút data-v350-action="handoff-unknown" do k3Unknown dựng → bj17.js.
+ * Handoff UNKNOWN: đăng ký onUnknownHandoff["UIF-05"]; nút data-k3-action="handoff" do k3Unknown dựng → bj17.js.
  * Trạng thái đặt từ bộ kiểm (đổi trạng thái màn) dựng lại đơn từ bản gốc: xem io05Seed.
  */
 
@@ -143,6 +143,8 @@ function io05ApplyHandover(){
     detail.push({product:line.name,code:line.code,uom:line.uom,lot:allocation.lot,qty:q});
     handoverLines.push({allocationId:allocation.id,productId:line.code,uom:line.uom,baseUom:line.baseUom,sourceQty:q,actualBaseQty:q*Number(line.conversionToBase||1),lot:allocation.lot,conversionVersion:line.conversionVersion});
     allocation.consumedQty=Number(allocation.consumedQty||0)+q; line.deliveredQty=Number(line.deliveredQty||0)+q;
+    // Bàn giao là lúc tồn vật lý giảm (và bỏ phần đang giữ cho đơn): ghi vào sổ chung.
+    t7Ledger.post({ key: `UIF-05:${order.id}:${(order.handoverCount||0)+1}:${allocation.id}`, productId: line.code, lot: allocation.lot, kind: "Bàn giao hàng", doc: order.id, delta: -q, eligibleDelta: -q, reservedDelta: -q, sourceFlow: "UIF-05", opId: order.operationId });
   });
   const remaining=io05OrderRemainingTotal(order); const full=remaining<=0; const confirmedAt="16/09/2026 13:08";
   const evidence={handoverId:`HO-${order.id}-${String((order.handoverCount||0)+1).padStart(2,'0')}`,operationId:order.operationId,sourceId:order.id,sourceVersion:(order.sourceVersion??order.fulfillmentVersion),warehouse:order.warehouse,actorId:IO05_ACTOR.id,actorName:IO05_ACTOR.name,recipient:io05Recipient,confirmedAt,allocationSetId:order.allocationSetId,allocationVersion:order.allocationVersion,lines:handoverLines,evidenceHash:`sha256:${order.id}:${order.allocationVersion}:${handoverLines.length}`};
@@ -423,6 +425,13 @@ onUnknownHandoff["UIF-05"] = () => {
   const o = io05CurrentOrder();
   if (o) o.unknownLocked = true;
 };
+onUnknownResolved["UIF-05"] = ({ operationId, outcome }) => {
+  const o = io05Orders.find((x) => x.operationId === operationId || x.verificationOperationId === operationId) || io05Orders.find((x) => x.unknownLocked) || io05CurrentOrder();
+  if (!o) return;
+  o.unknownLocked = false; o.verificationOperationId = "";
+  // Lần bàn giao chưa rõ là một phần của đơn: đã ghi → đơn còn phần chưa giao; chưa ghi → vẫn phải bàn giao lại.
+  o.queue = "ACTIONABLE"; o.status = outcome === "RECORDED" ? "Cần tiếp tục" : "Cần bàn giao"; io05SelectedOrderId = o.id;
+};
 
 function updateIO05HandoverValidation(input){
   const id=input.dataset.io05HandoverAllocation;io05HandoverByAllocation[id]=Math.max(0,Number(input.value)||0);
@@ -458,17 +467,11 @@ document.addEventListener("input", (event) => {
   if (event.target.matches("[data-io05-pick-draft]")) { io05PickDraft = event.target.value; const a = io05CurrentAllocation(); const b = document.querySelector('[data-io05-action="update-pick-allocation"]'); if (b) b.disabled = io05PickDraft === "" || Number(io05PickDraft) < 0 || Number(io05PickDraft) > io05AllocationNeed(a); return; }
 });
 
-// Sheet / hộp thoại là modal: Esc đóng, Tab chỉ đi vòng trong hộp thoại.
-window.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-05" || !(io05OverrideOpen || io05PickEditorOpen || io05ResultSheetOpen)) return;
-  if (event.key === "Escape") { event.preventDefault(); if (io05OverrideOpen) io05OverrideOpen = false; else { io05PickEditorOpen = false; io05PickDraft = ""; io05ResultSheetOpen = false; } return renderAppScreen(); }
-  const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-  if (!dialog) return;
-  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, [tabindex]:not([tabindex='-1'])")];
-  if (!items.length) return;
-  const first = items[0], last = items[items.length - 1], at = document.activeElement;
-  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-}, true);
+onDialogClose["UIF-05"] = () => {
+  if (!(io05OverrideOpen || io05PickEditorOpen || io05ResultSheetOpen)) return false;
+  if (io05OverrideOpen) io05OverrideOpen = false; else { io05PickEditorOpen = false; io05PickDraft = ""; io05ResultSheetOpen = false; }
+  renderAppScreen(); return true;
+};
 
 document.addEventListener("click", (event) => {
   if (activeFlowId !== "UIF-05") return;

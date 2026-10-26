@@ -361,7 +361,7 @@ function ds24DotBadge(label,tone="Neutral") {
   return `<span class="ds24-badge ds24-badge--${t} ds24-badge--dot" data-ds-component="VBadge" data-ds-prop-style="Soft" data-ds-prop-tone="${tone}">${esc(label)}</span>`;
 }
 function ds24Chip(key,label,selected,attrName,count=null) {
-  const countHtml=count==null?"":`<span class="ds24-chip__count">${esc(count)}</span>`;
+  const countHtml=count==null?"":` <span class="ds24-chip__count">${esc(count)}</span>`;
   return `<button class="ds24-chip${selected?' is-selected':''}${count===0?' is-empty':''}" type="button" aria-pressed="${selected?'true':'false'}" ${attrName}="${escapeAttribute(key)}" data-ds-component="VChip" data-figma-node="522:7449" data-ds-prop-state="Default" data-ds-prop-tone="${selected?'Brand':'Neutral'}">${esc(label)}${countHtml}</button>`;
 }
 // trailingAction: nút cuối ô tìm (vd. quét mã vạch), chuỗi HTML đã dựng sẵn.
@@ -486,8 +486,10 @@ document.addEventListener("click", (event) => {
   dialogRestorePending = false;
   const opener = event.target.closest("#app-screen button, #app-screen [role='button']");
   if (!opener || opener.closest('[role="dialog"]')) return;
-  const attrs = [...opener.attributes].filter((a) => a.name.startsWith("data-") && !/^data-(ds|figma|composed|layout)/.test(a.name));
-  dialogOpenerSelector = attrs.length ? attrs.map((a) => `[${a.name}="${CSS.escape(a.value)}"]`).join("") : null;
+  const dataAttrs = (el) => [...el.attributes].filter((a) => a.name.startsWith("data-") && !/^data-(ds|figma|composed|layout)/.test(a.name)).map((a) => `[${a.name}="${CSS.escape(a.value)}"]`).join("");
+  // Nút mở ở ô đầu của dòng bảng (k7-row-open) không mang data-*: nhớ theo dòng chứa nó.
+  const row = opener.classList.contains("k7-row-open") ? opener.closest("tr") : null;
+  dialogOpenerSelector = (row ? dataAttrs(row) && `tr${dataAttrs(row)} .k7-row-open` : dataAttrs(opener)) || null;
 }, true);
 function syncDialogFocus() {
   const screen = document.getElementById("app-screen");
@@ -503,6 +505,20 @@ function syncDialogFocus() {
   const lost = document.activeElement === document.body || !screen.contains(document.activeElement);
   if (dialogRestorePending && dialogOpenerSelector && lost) screen.querySelector(dialogOpenerSelector)?.focus({ preventScroll: true });
 }
+
+// Esc đóng sheet / hộp thoại: mỗi luồng đăng ký hàm đóng của mình (trả true nếu có gì để đóng và đã tự dựng lại màn).
+// Tab / Shift+Tab chỉ đi vòng trong hộp thoại đang mở.
+const onDialogClose = {};
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") { if (onDialogClose[activeFlowId]?.()) event.preventDefault(); return; }
+  if (event.key !== "Tab") return;
+  const dialog = document.querySelector('#app-screen [role="dialog"]');
+  if (!dialog) return;
+  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, select, [tabindex]:not([tabindex='-1'])")].filter((el) => el.offsetParent !== null);
+  if (!items.length) return;
+  const first = items[0], last = items[items.length - 1], at = document.activeElement;
+  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
+}, true);
 
 function render() {
   renderFlowSelector();
@@ -537,6 +553,8 @@ const onPrevious = {};
 
 // Móc khoá nguồn khi handoff UNKNOWN (UIF-05/06/07 đăng ký; bj17HandoffUnknown gọi).
 const onUnknownHandoff = {};
+// Móc đối xứng: BJ-17 gọi khi hồ sơ "Đã xác lập" với { operationId, outcome: "RECORDED" | "NOT_RECORDED" } — BJ nguồn mở khoá và đổi trạng thái thao tác.
+const onUnknownResolved = {};
 
 // Đường cũ của luồng: navigate(màn cũ) → màn mới (cùng luồng), hoặc → [luồng khác, màn].
 const screenAliases = {};
@@ -599,14 +617,14 @@ document.addEventListener("click", (event) => {
   if (action === "close-toast") { actionButton.closest(".toast")?.remove(); return; }
 });
 
-// Lối ra dự phòng — màn gắn data-v360-action="fallback-exit".
+// Lối ra dự phòng — màn gắn data-k1-action="exit".
 document.addEventListener("click", (event) => {
-  const action = event.target.closest("[data-v360-action]");
+  const action = event.target.closest("[data-k1-action]");
   if (!action || action.disabled) return;
-  if (action.dataset.v360Action === "fallback-exit") {
+  if (action.dataset.k1Action === "exit") {
     event.preventDefault();
     event.stopPropagation();
-    const target = action.dataset.v360Target;
+    const target = action.dataset.k1Target;
     if (target) return navigate(target);
   }
 }, true);

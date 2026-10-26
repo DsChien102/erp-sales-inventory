@@ -8,7 +8,7 @@
  * Từ khuôn: k1Locked, k1Stale, k1Denied, k1ExitAttr, k1Empty (K1); k3Unknown (K3); k4Result, k4Footer (K4);
  * k7Table, k7FilterChips, k7EditCell (K7); dsSegmented, dsChoiceRow. Từ BJ-01: bj01Products, bj01Indicators, BJ01_STOCK_TONE.
  * Ngưỡng tồn ghi thẳng vào bj01Products (BJ-01 chỉ đọc giá trị mới); không làm đổi số tồn.
- * Lối ra dự phòng `data-v360-action="fallback-exit"` do khung (core.js) xử lý.
+ * Lối ra dự phòng `data-k1-action="exit"` do khung (core.js) xử lý.
  */
 
 const CAP_TITLE = "Chính sách tồn & cận hạn";
@@ -320,11 +320,11 @@ document.addEventListener("change", (event) => {
   if (sel) { const o = capExpiryDraft.overrides.find((x) => x.productId === sel.dataset.capOvrAction); if (o) o.action = sel.value; return renderAppScreen(); }
 }, true);
 
-// Esc đóng sheet đang mở (như BJ-12).
-document.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "CAP-01" || event.key !== "Escape" || !(capSaveOpen || capSheetProductId || capAddOpen)) return;
-  event.preventDefault(); capSaveOpen = false; capSheetProductId = null; capAddOpen = false; renderAppScreen();
-}, true);
+// Esc đóng sheet đang mở: core.js lo Esc và vòng Tab.
+onDialogClose["CAP-01"] = () => {
+  if (!(capSaveOpen || capSheetProductId || capAddOpen)) return false;
+  capSaveOpen = false; capSheetProductId = null; capAddOpen = false; renderAppScreen(); return true;
+};
 
 document.addEventListener("click", (event) => {
   if (activeFlowId !== "CAP-01") return;

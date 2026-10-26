@@ -11,8 +11,8 @@ function valuationReadOnlyChild({title,subtitle,trailing=""}){
 
 /* Định dạng tiền có dấu cho BJ-13 (BJ-03 và BJ-14 dùng t7FmtMoney / hàm riêng; bộ dựng giao diện cũ của bản v461 bỏ ở v5.19.0). */
 const VAL_UI_461=(()=>{
-  const money=n=>`${Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
-  const signed=n=>`${Number(n||0)>0?'+ ':Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
+  const money=n=>`${Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
+  const signed=n=>`${Number(n||0)>0?'+ ':Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
   const pct=n=>`${(Number(n||0)*100).toLocaleString('vi-VN',{maximumFractionDigits:1})}%`;
   return {money, signed, pct};
 })();

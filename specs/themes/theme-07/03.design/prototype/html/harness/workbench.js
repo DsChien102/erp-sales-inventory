@@ -455,7 +455,7 @@ requestAnimationFrame(fitReviewDeviceToViewport);
 
 window.__VET45_PROTOTYPE__ = {
   productKind: "app",
-  version: "5.20.1",
+  version: "5.24.0",
   defaultViewport: { width: 402, height: 874 },
   offline: true,
   uiFlows: flowCatalog.map((f) => f.id),

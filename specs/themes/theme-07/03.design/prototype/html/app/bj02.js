@@ -1185,7 +1185,7 @@ function render010BJ02(state) {
     const edit = flowMode === "quick" ? { label: "Sửa", attr: 'data-next="SCR-008"' } : { label: "Đổi chứng từ", attr: 'data-bj02-action="change-source"' };
     const heading = ac310SectionTitle("Hàng thực nhận", `${bj02ReviewProductCount()} mặt hàng · ${bj02Lines.length} dòng`);
     const lines = web
-      ? k7Table({ columns: [{ key: "product", label: "Mặt hàng", html: true }, { key: "expected", label: "Theo chứng từ", align: "end", mono: true }, { key: "received", label: "Thực nhận", align: "end", mono: true }, { key: "lots", label: "Lô", html: true }, { key: "status", label: "Tình trạng", html: true }], rows: bj02ReviewRows(), caption: "Hàng thực nhận", mobileRow: (r) => bj02LineRow(r.line, `data-bj02-review-line="${r.line.id}"`), rowAttr: (r) => `data-bj02-review-line="${r.line.id}" tabindex="0"` })
+      ? k7Table({ columns: [{ key: "product", label: "Mặt hàng", html: true }, { key: "expected", label: "Theo chứng từ", align: "end", mono: true }, { key: "received", label: "Thực nhận", align: "end", mono: true }, { key: "lots", label: "Lô", html: true }, { key: "status", label: "Tình trạng", html: true }], rows: bj02ReviewRows(), caption: "Hàng thực nhận", mobileRow: (r) => bj02LineRow(r.line, `data-bj02-review-line="${r.line.id}"`), rowAttr: (r) => `data-bj02-review-line="${r.line.id}"`, rowOpen: true })
       : `<section class="ds24-list-stack receipt-line-list bj02-review-lines" data-composed-from="DS v2 / List Row">${bj02Lines.map((line) => bj02LineRow(line, `data-bj02-review-line="${line.id}"`)).join("")}</section>`;
     content = `${readiness}${attention}${heading}${lines}${ac310SectionTitle("Thông tin lần nhận")}${bj02ContextRow(edit)}`;
   }
@@ -1236,7 +1236,7 @@ function render011BJ02(state) {
     if (parts.length) attention.push(["Hàng không đạt", `${line.name} ${parts.join(" · ")}`, "info"]);
   });
   const risk = receiptRiskValue();
-  const riskRow = quick ? null : ["Tổng giá trị rủi ro", BJ02_CONTEXT.capabilities.viewApprovalRiskTotal && state !== "FINANCIAL_MASKED" ? `${risk.toLocaleString("vi-VN")} đ` : "Không có quyền xem"];
+  const riskRow = quick ? null : ["Tổng giá trị rủi ro", BJ02_CONTEXT.capabilities.viewApprovalRiskTotal && state !== "FINANCIAL_MASKED" ? t7FmtMoney(risk) : "Không có quyền xem"];
   const facts = [["Nhà cung cấp", supplier], ["Kho nhận", BJ02_CONTEXT.warehouse.name], ["Ngày nhận", bj02ReceiptDate()]];
   if (quick) facts.push(["Quyền sở hữu", bj02OwnershipReady() ? "Đã xác nhận" : "Chưa xác nhận"]);
   if (riskRow) facts.push(riskRow);
@@ -1287,7 +1287,8 @@ function bj02Commit(seq) {
   bj02LastCommitted = { ref, mode: flowMode, lines: cloneBj02(bj02Lines) };
   if (bj02AppliedRefs.has(seq)) return;
   bj02AppliedRefs.add(seq);
-  if (typeof bj01ApplyReceipt === "function") bj01ApplyReceipt(bj02StockLines(), ref);
+  // Sổ kho ghi theo phiếu nhận (REC-…); chứng từ nguồn (PN-…) ở ghi chú — chứng từ cũ có thể đã nhận một lần trước đó.
+  if (typeof bj01ApplyReceipt === "function") bj01ApplyReceipt(bj02StockLines(), BJ02_CONTEXT.submitted.receiptRef, flowMode === "quick" ? "Nhập nhanh" : `Chứng từ ${ref}`);
 }
 function render012BJ02(state) {
   ensureBj02ReviewFixture();
@@ -1421,17 +1422,10 @@ onPrevious["UIF-02"] = () => {
   if (activeScreenId === "SCR-010") return navigate("SCR-009");
 };
 
-document.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-02" || event.key !== "Escape") return;
-  if (bj02CloseOverlays()) { event.preventDefault(); renderAppScreen(); }
-}, true);
-
-document.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-02" || (event.key !== "Enter" && event.key !== " ")) return;
-  const row = event.target.closest?.("tr[data-bj02-review-line]");
-  if (!row) return;
-  event.preventDefault(); row.click();
-});
+onDialogClose["UIF-02"] = () => {
+  if (!bj02CloseOverlays()) return false;
+  renderAppScreen(); return true;
+};
 
 document.addEventListener("click", (event) => {
   if (activeFlowId !== "UIF-02") return;

@@ -211,7 +211,8 @@ function render078Recon(state) {
     search: { value: crQuery, attr: "data-recon-search", placeholder: "Tìm hồ sơ, sản phẩm hoặc mã phiếu" },
     filters: { items, selected: crListFilter, attrName: "data-recon-filter" },
     columns, rows, total: all.length,
-    rowAttr: (r) => `data-recon-row="${crAttr(r.key)}" data-recon-search-text="${crAttr(r.searchText)}" tabindex="0"`,
+    rowAttr: (r) => `data-recon-row="${crAttr(r.key)}" data-recon-search-text="${crAttr(r.searchText)}"`,
+    rowOpen: true,
     empty: { title: "Không có hồ sơ cần kiểm tra", description: "Danh sách sẽ cập nhật khi có tín hiệu cần kiểm tra." },
     filterEmpty: { title: "Không có hồ sơ phù hợp", description: "Thử đổi bộ lọc hoặc từ khóa tìm kiếm.", actionLabel: "Xem tất cả", actionAttr: 'data-recon-action="clear-filter"' },
     filterEmptyAttr: "data-recon-filter-empty",
@@ -342,14 +343,14 @@ function crToCase() { return crGo(activeFlowId, "SCR-079", crStateFor(activeFlow
 // Sheet là hộp thoại modal: mở thì focus vào nút đầu, đóng thì trả focus về nút đã mở.
 function crOpenSheet(kind, opener) {
   const c = crCase(); crSheet = kind; crSheetOpener = opener;
-  c.planEvidenceVersion = c.evidenceVersion;
+  c.planEvidenceVersion = c.evidenceVersion; c.planRecord = { operationId: c.operation, scope: c.scope };
   renderAppScreen();
   requestAnimationFrame(() => crFocus('#app-screen [role="dialog"] button'));
 }
 function crCloseSheet() { const back = crSheetOpener; crSheet = null; crRerender(back); }
 // Bằng chứng đổi giữa lúc mở sheet và lúc bấm: đóng sheet, 079 báo "Kết luận đã thay đổi".
 function crStale() { crSheet = null; crSetState("SCR-079", "CONFLICT"); return renderAppScreen(); }
-function crReload() { const c = crCase(); c.planEvidenceVersion = null; crSetState("SCR-079", crStateFor(activeFlowId)); return renderAppScreen(); }
+function crReload() { const c = crCase(); c.planEvidenceVersion = null; c.planRecord = null; crSetState("SCR-079", crStateFor(activeFlowId)); return renderAppScreen(); }
 
 function crConfirmSheet() {
   const kind = crSheet, c = crCase();
@@ -383,7 +384,7 @@ function bj16Close(c) {
 }
 function bj16ViewCorrection(c) {
   const r = cr16Pending(c); if (!r) return;
-  cr11SelectedRequestId = r.id; cr11SelectedId = r.opId; cr11ReturnCase = c.id; bj11ResetUi();
+  cr11SelectedRequestId = r.id; cr11SelectedId = r.opId; cr11Return = { kind: "case", id: c.id }; bj11ResetUi();
   const screen = bj11CanDecide() ? "SCR-051" : "SCR-053", st = bj11CanDecide() ? "READY" : "PENDING_APPROVAL";
   bj11SetState(screen, st);
   return crSwitchFlow("UIF-11", screen, st);
@@ -396,23 +397,10 @@ document.addEventListener("input", (event) => {
   crQuery = event.target.value; ioFilterRows("recon", crQuery);
 }, true);
 
-document.addEventListener("keydown", (event) => {
-  if (!CR_FLOWS.includes(activeFlowId)) return;
-  // Dòng của bảng (khung web) là <tr>: Enter / Space mở như bấm chuột.
-  if ((event.key === "Enter" || event.key === " ") && event.target.matches?.("tr[data-recon-row]")) { event.preventDefault(); event.target.click(); }
-}, true);
-
-// Sheet là modal: Esc đóng, Tab chỉ đi vòng trong hộp thoại.
-window.addEventListener("keydown", (event) => {
-  if (!CR_FLOWS.includes(activeFlowId) || !crSheet) return;
-  if (event.key === "Escape") { event.preventDefault(); return crCloseSheet(); }
-  const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-  if (!dialog) return;
-  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, select, [tabindex]:not([tabindex='-1'])")].filter(crVisible);
-  if (!items.length) return;
-  const first = items[0], last = items[items.length - 1], at = document.activeElement;
-  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-}, true);
+CR_FLOWS.forEach((id) => { onDialogClose[id] = () => {
+  if (!crSheet) return false;
+  crCloseSheet(); return true;
+}; });
 
 document.addEventListener("click", (event) => {
   if (!CR_FLOWS.includes(activeFlowId)) return;
@@ -435,7 +423,7 @@ document.addEventListener("click", (event) => {
   const k = a.dataset.bj16Action, c = cr16Current();
   if (k === "recover") return crOpenSheet("update", '[data-bj16-action="recover"]');
   if (k === "close") return crOpenSheet("close", '[data-bj16-action="close"]');
-  if (k === "fix-source") { if (!c.correctionOperationId) return; cr11SelectedId = c.correctionOperationId; cr11ReturnCase = c.id; return applyEntry("UIF-11", "correction-from-case", true); }
+  if (k === "fix-source") { if (!c.correctionOperationId) return; cr11SelectedId = c.correctionOperationId; cr11Return = { kind: "case", id: c.id }; return applyEntry("UIF-11", "correction-from-case", true); }
   if (k === "view-correction") return bj16ViewCorrection(c);
   if (k === "recheck") { c.planEvidenceVersion = c.evidenceVersion; c.recoveryEvidenceVersion = null; return crGo("UIF-16", "SCR-082", "READY"); }
   if (k === "escalate") return bj16Escalate(c, CR_SUPPORT);

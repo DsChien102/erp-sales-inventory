@@ -2,7 +2,7 @@
  *
  * Thiết kế lại T7-P chặng 5 (v5.18.0): hồ sơ nói thẳng thao tác đã ghi vào kho hay chưa ("Xác nhận đã hoàn tất" / "Làm tiếp thao tác" / "Gửi bộ phận hỗ trợ"),
  * xác nhận bằng sheet ở 079 rồi sang 083 thẳng (SCR-080 và SCR-082 không còn ở luồng này). Không tạo thao tác mới, không ghi lại lần hai (resolutionRecord).
- * Cơ chế K3 handoff-unknown + bj17RecoveryCase ở đây; khoá nguồn qua móc onUnknownHandoff (bj05/06/07/09/10 đăng ký).
+ * Cơ chế K3 handoff (`data-k3-action="handoff"`) + bj17RecoveryCase ở đây; khoá nguồn qua móc onUnknownHandoff (bj05/06/07/09/10 đăng ký).
  * Phần chung (khung, danh sách, sheet, seed) dùng hàm cr* của bj16.js.
  */
 
@@ -10,6 +10,8 @@ const BJ17_DONE_AT = "17/09/2026 21:10";
 const BJ17_OPENED_AT = "17/09/2026 09:30";
 // Bằng chứng mặc định cho ca K3 của BJ nguồn: BJ-05 cho thấy nhánh "chưa ghi → làm tiếp"; còn lại "chưa đủ bằng chứng".
 const bj17SourceEvidence = { "UIF-05": "NO_COMMIT" };
+// Màn của BJ nguồn mở lại sau khi xác lập (không có = màn đầu của luồng).
+const BJ17_OPEN_SCREEN = { "UIF-05": "SCR-026" };
 const BJ17_KIND = { "UIF-02": "Nhận hàng", "UIF-03": "Xác lập giá trị", "UIF-05": "Bàn giao hàng", "UIF-06": "Nhận hàng khách trả", "UIF-07": "Trả nhà cung cấp", "UIF-08": "Điều chỉnh kiểm kê", "UIF-09": "Đổi tình trạng", "UIF-10": "Tiêu hủy", "UIF-11": "Sửa sai", "UIF-12": "Khởi tạo tồn", "UIF-13": "Điều chỉnh giá trị", "UIF-14": "Công bố giá vốn", "UIF-16": "Chuyển hồ sơ", "CAP-01": "Chính sách tồn" };
 const BJ17_SOURCE = { "UIF-02": "Nhận hàng", "UIF-03": "Xác lập giá trị nhập", "UIF-05": "Lấy hàng & bàn giao", "UIF-06": "Hàng khách trả", "UIF-07": "Trả nhà cung cấp", "UIF-08": "Kiểm kê kho", "UIF-09": "Tình trạng hàng", "UIF-10": "Tiêu hủy hàng", "UIF-11": "Hủy & sửa sai", "UIF-12": "Khởi tạo tồn đầu kỳ", "UIF-13": "Điều chỉnh giá trị hàng nhập", "UIF-14": "Giá vốn", "UIF-16": "Đối soát sai lệch", "CAP-01": "Chính sách tồn" };
 
@@ -20,7 +22,7 @@ function bj17InitialCases() {
   return [
     { ...base, id: "REC-UNKNOWN-01", operation: "IO-260906-031", kind: "Tiêu hủy", doc: "TH-260906-02", scope: "Găng tay khám Nitrile · 5 hộp", evidence: "COMMITTED", signal: "Tiêu hủy — chưa rõ kết quả", openedAt: "17/09/2026 07:05" },
     { ...base, id: "REC-UNKNOWN-02", operation: "IO-260906-044", kind: "Bàn giao hàng", doc: "SO-260827-21", scope: "Nobivac DHPPi · 2 hộp", evidence: "NO_COMMIT", signal: "Bàn giao — chưa rõ kết quả", openedAt: "17/09/2026 07:40" },
-    { ...base, id: "REC-UNKNOWN-03", operation: "IO-260906-052", kind: "Nhận hàng", doc: "PN-260906-15", scope: "1 phiếu · Kho trung tâm", evidence: "INSUFFICIENT", signal: "Nhận hàng — chưa rõ kết quả", openedAt: "17/09/2026 08:10" },
+    { ...base, id: "REC-UNKNOWN-03", operation: "IO-260906-052", kind: "Nhận hàng", doc: "PN-260906-15", scope: "1 phiếu nhận hàng", evidence: "INSUFFICIENT", signal: "Nhận hàng — chưa rõ kết quả", openedAt: "17/09/2026 08:10" },
   ];
 }
 
@@ -64,6 +66,7 @@ function bj17RecoveryCase({ sourceFlow, operation, scope, evidence = "INSUFFICIE
 function bj17HandoffUnknown(meta) {
   onUnknownHandoff[meta.sourceFlow]?.();
   const c = bj17RecoveryCase({ ...meta, evidence: meta.evidence || bj17SourceEvidence[meta.sourceFlow] || "INSUFFICIENT" });
+  if (meta.sourceFlow !== "UIF-17") c.sourceFlow = meta.sourceFlow;
   cr17SelectedId = c.id; crSheet = null;
   const state = cr079StateFor17(c);
   crSetState("SCR-079", state);
@@ -88,6 +91,8 @@ function render079BJ17(state) {
 
 function bj17Complete(c, mode) {
   c.result = mode;
+  // Cả "Xác nhận đã hoàn tất" và "Làm tiếp thao tác" kết thúc bằng thao tác đã ghi; NOT_RECORDED chưa có lối nào dẫn tới (BJ nguồn đã hỗ trợ sẵn).
+  if (c.sourceFlow !== "UIF-17") onUnknownResolved[c.sourceFlow]?.({ operationId: c.operation, outcome: "RECORDED" });
   c.resolutionRecord = { operationId: c.operation, scope: c.scope, evidenceVersion: c.evidenceVersion, newOperationCreated: false, duplicateEffect: false, mode };
   c.status = "CLOSED"; c.closedAt = BJ17_DONE_AT;
 }
@@ -104,7 +109,9 @@ function render083BJ17(state) {
     return k4Result({ screenTitle: title, kind: "warning", title: "Chưa xác định — đã chuyển xử lý", description: "Hệ thống chưa đoán kết quả. Phạm vi tiếp tục được bảo vệ và người có trách nhiệm đã nhận hồ sơ.", facts, next: crResultNext(listAttr) });
   }
   const facts = [["Nghiệp vụ", `${c.kind} ${c.doc}`], ["Kết quả", c.result === "CONTINUED" ? "Đã làm tiếp, đã ghi" : "Đã hoàn tất"], ...(c.sourceFlow !== "UIF-17" ? [["Từ", BJ17_SOURCE[c.sourceFlow] || c.sourceFlow]] : [])];
-  return k4Result({ screenTitle: title, title: "Đã xác lập kết quả nghiệp vụ", description: "Kết quả chính thức đã được ghi cho đúng nghiệp vụ; không tạo nghiệp vụ mới hoặc ghi tác động trùng.", facts, next: crResultNext(listAttr) });
+  // Vào từ màn K3 của BJ khác: bước tiếp là mở lại đúng thao tác ở BJ đó (đã được onUnknownResolved cập nhật).
+  const next = c.sourceFlow !== "UIF-17" ? [{ ...crExit() }, { label: `Mở ${c.kind} ${c.doc}`, attr: 'data-bj17-action="open-source"', primary: true }] : crResultNext(listAttr);
+  return k4Result({ screenTitle: title, title: "Đã xác lập kết quả nghiệp vụ", description: "Kết quả chính thức đã được ghi cho đúng nghiệp vụ; không tạo nghiệp vụ mới hoặc ghi tác động trùng.", facts, next });
 }
 
 flowRenderers["UIF-17"] = Object.assign(flowRenderers["UIF-17"] || {}, {
@@ -118,9 +125,11 @@ flowRenderers["UIF-17"] = Object.assign(flowRenderers["UIF-17"] || {}, {
 // Xác nhận trong sheet của 079: kiểm resolutionRecord (không tạo thao tác mới, không ghi trùng) rồi sang 083.
 function bj17ConfirmSheet(kind, c) {
   const mode = kind === "confirm-done" ? "COMMITTED" : "CONTINUED";
-  c.resolutionRecord = { operationId: c.operation, scope: c.scope, evidenceVersion: c.evidenceVersion, newOperationCreated: false, duplicateEffect: false, mode };
-  const r = c.resolutionRecord;
+  // Bản ghi lấy từ lúc mở sheet (crOpenSheet chụp operation / scope / bằng chứng), so với hồ sơ lúc bấm: khác → 079 báo "Kết luận đã thay đổi".
+  const plan = c.planRecord || { operationId: c.operation, scope: c.scope };
+  const r = { operationId: plan.operationId, scope: plan.scope, evidenceVersion: c.planEvidenceVersion, newOperationCreated: false, duplicateEffect: false, mode };
   if (!bj17Same(r.operationId, c.operation) || !bj17Same(r.scope, c.scope) || bj17Num(r.evidenceVersion) !== bj17Num(c.evidenceVersion) || r.newOperationCreated || r.duplicateEffect) return crStale();
+  c.resolutionRecord = r;
   bj17Complete(c, mode);
   return crGo("UIF-17", "SCR-083", "COMPLETED");
 }
@@ -134,12 +143,13 @@ document.addEventListener("click", (event) => {
   if (k === "continue") return crOpenSheet("continue", '[data-bj17-action="continue"]');
   if (k === "escalate") { crHand(c, CR_SUPPORT); return crGo("UIF-17", "SCR-083", "ESCALATED"); }
   if (k === "to-list") return crToList();
+  if (k === "open-source") return crSwitchFlow(c.sourceFlow, BJ17_OPEN_SCREEN[c.sourceFlow] || flowCatalog.find((f) => f.id === c.sourceFlow).screens[0], "READY");
   if (k === "reload") return crReload();
 }, true);
 
-/* handoff-unknown: mọi luồng (nút nằm ở màn BJ khác) — không kiểm activeFlowId */
+/* K3 handoff: mọi luồng (nút nằm ở màn BJ khác) — không kiểm activeFlowId */
 document.addEventListener("click", (event) => {
-  const a = event.target.closest('[data-v350-action="handoff-unknown"]'); if (!a || a.disabled) return;
+  const a = event.target.closest('[data-k3-action="handoff"]'); if (!a || a.disabled) return;
   event.preventDefault(); event.stopPropagation();
   return bj17HandoffUnknown({ sourceFlow: a.dataset.sourceFlow, operation: a.dataset.operation, scope: a.dataset.scope });
 }, true);

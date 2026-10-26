@@ -21,7 +21,7 @@ const BJ11_STRATEGIES = [
 ];
 const BJ11_STATUS = {
   CANCEL: ["Có thể hủy", "Info"], CORRECT: ["Có thể sửa", "Info"], PENDING: ["Chờ duyệt sửa sai", "Warning"],
-  UNKNOWN: ["Đang xác minh", "Warning"], HANDOVER: ["Đã giao khách", "Warning"], CANCELLED: ["Đã hủy", "Neutral"],
+  UNKNOWN: ["Đang xác minh", "Warning"], RECORDED: ["Đã ghi", "Success"], HANDOVER: ["Đã giao khách", "Warning"], CANCELLED: ["Đã hủy", "Neutral"],
 };
 const BJ11_FILTERS = {
   ALL: () => true,
@@ -54,8 +54,8 @@ let cr11Filter = "ALL";
 let cr11Query = "";
 let cr11SelectedId = "IO-260904-021";
 let cr11SelectedRequestId = "SS-260915-01";
-let cr11ReturnCase = "";          // mã hồ sơ BJ-16 đã mở màn sửa sai này ("" = không từ hồ sơ)
-let cr11ReturnMovement = "";      // mã biến động ở thẻ kho (BJ-15 SCR-056) đã mở màn sửa sai này ("" = không từ thẻ kho)
+let cr11Return = null;            // nơi đã mở màn sửa sai này: { kind: "case", id: mã hồ sơ BJ-16 } | { kind: "movement", id: mã biến động thẻ kho BJ-15 } | null (không từ nơi nào)
+const cr11ReturnId = (kind) => (cr11Return?.kind === kind ? cr11Return.id : "");
 let bj11Draft = { strategy: "DELTA", qty: "", reason: "" };
 let bj11NoPeriod = false;         // PERIOD_POLICY_VIOLATION: không có kỳ mở
 let bj11Dialog = null;            // "cancel" | "reject"
@@ -80,6 +80,7 @@ function cr11StateFor(op) {
   if (bj11PendingFor(op)) return "PENDING_APPROVAL";
   if (op.route === "CANCEL") return "CANCELABLE";
   if (op.route === "UNKNOWN") return "UNKNOWN";
+  if (op.route === "RECORDED") return "RECORDED";
   if (op.route === "HANDOVER") return "BLOCKED_PHYSICAL_HANDOVER";
   return "CORRECTABLE";
 }
@@ -110,7 +111,7 @@ function bj11Restore() {
   cr11Operations.splice(0, cr11Operations.length, ...bj11InitialOps());
   cr11Requests.splice(0, cr11Requests.length, ...bj11InitialRequests());
   cr11Seq = 1; cr11RecordSeq = 1; cr11Filter = "ALL"; cr11Query = ""; cr11SelectedId = "IO-260904-021"; cr11SelectedRequestId = "SS-260915-01";
-  cr11ReturnCase = ""; cr11ReturnMovement = ""; bj11NoPeriod = false; bj11ResetUi(); bj11ResetDraft(cr11Current());
+  cr11Return = null; bj11NoPeriod = false; bj11ResetUi(); bj11ResetDraft(cr11Current());
 }
 const bj11Expected = {};
 function bj11SetState(screenId, state) { stateByScreen[screenId] = state; bj11Expected[screenId] = state; }
@@ -118,7 +119,7 @@ function bj11Op(id) { return cr11Operations.find((o) => o.id === id); }
 
 // Hệ thống: tạo yêu cầu, duyệt, từ chối, hủy.
 function bj11Submit(op, d) {
-  const r = { id: `SS-260917-${String(cr11Seq++).padStart(2, "0")}`, opId: op.id, strategy: d.strategy, from: bj11Base(op), to: bj11Num(d.qty), reason: d.reason.trim(), by: bj11ActorName(), sentAt: BJ11_SENT_AT, status: "PENDING", caseId: cr11ReturnCase, movementId: cr11ReturnMovement };
+  const r = { id: `SS-260917-${String(cr11Seq++).padStart(2, "0")}`, opId: op.id, strategy: d.strategy, from: bj11Base(op), to: bj11Num(d.qty), reason: d.reason.trim(), by: bj11ActorName(), sentAt: BJ11_SENT_AT, status: "PENDING", caseId: cr11ReturnId("case"), movementId: cr11ReturnId("movement") };
   cr11Requests.unshift(r); cr11SelectedRequestId = r.id;
   return r;
 }
@@ -128,6 +129,8 @@ function bj11Approve(r) {
   if (op.dependency && r.to < r.from) return "BLOCKED";
   r.status = "COMPLETED"; r.recordId = `IO-260917-${String(cr11RecordSeq++).padStart(3, "0")}`; r.decidedAt = BJ11_DECIDED_AT; r.approver = BJ11_OWNER;
   op.correctedQty = r.to; op.stock = (op.stock ?? 0) + (r.to - r.from) * (op.sign || 1); op.corrections.push({ code: r.recordId, date: BJ11_TODAY });
+  // Sửa sai là phiếu liên kết ghi thêm phần chênh vào kho: ghi vào sổ chung (phiếu của hàng không có ở BJ-01 thì bỏ qua).
+  if (r.to !== r.from && op.sign) t7Ledger.post({ key: `UIF-11:${r.id}`, productId: op.product, lot: op.lot, kind: "Sửa sai", doc: r.id, delta: (r.to - r.from) * op.sign, sourceFlow: "UIF-11", opId: op.id, note: `Sửa ${op.type} ${op.docCode}` });
   return "COMPLETED";
 }
 function bj11Reject(r, reason) { r.status = "REJECTED"; r.rejectReason = reason; r.decidedAt = BJ11_DECIDED_AT; }
@@ -203,7 +206,8 @@ function render048BJ11(state) {
     search: { value: cr11Query, attr: "data-bj11-search", placeholder: "Tìm mã phiếu hoặc sản phẩm" },
     filters: { items, selected: cr11Filter, attrName: "data-bj11-filter" },
     columns, rows, total: all.length,
-    rowAttr: (r) => `data-bj11-row="${bj11Attr(r.id)}" data-bj11-search-text="${bj11Attr(r.searchText)}" tabindex="0"`,
+    rowAttr: (r) => `data-bj11-row="${bj11Attr(r.id)}" data-bj11-search-text="${bj11Attr(r.searchText)}"`,
+    rowOpen: true,
     empty: { title: "Chưa có nghiệp vụ cần kiểm soát", description: "Các nghiệp vụ đủ điều kiện sẽ xuất hiện tại đây." },
     filterEmpty: { title: "Không có nghiệp vụ phù hợp", description: "Thử đổi bộ lọc hoặc từ khóa tìm kiếm.", actionLabel: "Xem tất cả", actionAttr: 'data-bj11-action="clear-filter"' },
     filterEmptyAttr: "data-bj11-filter-empty",
@@ -220,6 +224,7 @@ function bj11NextBlock(op, kind) {
   if (kind === "CANCELABLE") return { block: section(note("Nghiệp vụ chưa thực thi nên có thể hủy mà không tạo biến động tồn kho.")), actions: primaryFooter("Hủy yêu cầu", 'data-bj11-action="cancel-open"', false, "danger") };
   if (kind === "CORRECTABLE") return { block: section(note("Phiếu đã ghi vào kho nên không sửa thẳng. Sửa sai sẽ ghi thêm một phiếu liên kết; phiếu này giữ nguyên.")), actions: primaryFooter("Sửa sai", 'data-bj11-action="correct"') };
   if (kind === "BLOCKED_PHYSICAL_HANDOVER") return { block: section(vBanner("warning", "Hàng đã được bàn giao thực tế", "Khách trả hàng phải qua nghiệp vụ Hàng khách trả; không xử lý bằng sửa sai.")), actions: primaryFooter("Mở hàng khách trả", 'data-bj11-action="to-return"') };
+  if (kind === "RECORDED") return { block: section(vBanner("info", "Đã ghi vào kho", "Kết quả đã được xác minh; không cần sửa.")), actions: "" };
   if (kind === "TERMINAL") return { block: section(vBanner("info", "Không còn tác động cần sửa", "Nghiệp vụ đã dừng trước khi thực thi.")), actions: "" };
   const r = bj11PendingFor(op);
   return { block: section(k2Pending({ approver: "chủ cửa hàng", sentAt: r ? r.sentAt : BJ11_SENT_AT })), actions: primaryFooter("Xem yêu cầu", 'data-bj11-action="view-request"') };
@@ -334,7 +339,7 @@ function render051BJ11(state) {
 /* ---------- SCR-053 · Kết quả sửa sai (K4 / K3) ---------- */
 
 // Lối về nơi đã mở màn sửa sai: hồ sơ đối soát (BJ-16) hoặc thẻ kho (BJ-15); không từ đâu thì null.
-function bj11BackToCase() { return cr11ReturnCase ? { label: "Về hồ sơ đối soát", attr: 'data-bj11-action="to-case"' } : cr11ReturnMovement ? { label: "Về thẻ kho", attr: 'data-bj11-action="to-movement"' } : null; }
+function bj11BackToCase() { return cr11ReturnId("case") ? { label: "Về hồ sơ đối soát", attr: 'data-bj11-action="to-case"' } : cr11ReturnId("movement") ? { label: "Về thẻ kho", attr: 'data-bj11-action="to-movement"' } : null; }
 function render053BJ11(state) {
   if (activeFlowId !== "UIF-11") return renderGeneric(screens.find((s) => s.id === "SCR-053"), state);
   const title = "Kết quả sửa sai";
@@ -378,12 +383,12 @@ function bj11Focus(selector) {
   return el || null;
 }
 function bj11Go(screenId, state) { bj11ResetUi(); bj11SetState(screenId, state); return navigate(screenId); }
-function bj11ToListNav() { cr11ReturnCase = ""; cr11ReturnMovement = ""; return bj11Go("SCR-048", "READY"); }
+function bj11ToListNav() { cr11Return = null; return bj11Go("SCR-048", "READY"); }
 function bj11OpenDetail(op) { cr11SelectedId = op.id; return bj11Go("SCR-049", cr11StateFor(op)); }
 // Một dòng ở danh sách mở đúng bước: yêu cầu đang chờ → chủ cửa hàng duyệt (051), người khác xem (053); còn lại chi tiết.
 function bj11OpenRow(id) {
   const op = bj11Op(id); if (!op) return;
-  cr11SelectedId = id; cr11ReturnCase = ""; cr11ReturnMovement = "";
+  cr11SelectedId = id; cr11Return = null;
   const pending = bj11PendingFor(op);
   if (pending) { cr11SelectedRequestId = pending.id; return bj11CanDecide() ? bj11Go("SCR-051", "READY") : bj11Go("SCR-053", "PENDING_APPROVAL"); }
   return bj11OpenDetail(op);
@@ -464,21 +469,12 @@ document.addEventListener("keydown", (event) => {
     bj11Draft.strategy = keys[(keys.indexOf(t.dataset.bj11Strategy) + step + keys.length) % keys.length];
     return bj11Rerender(`[data-bj11-strategy="${bj11Draft.strategy}"]`);
   }
-  // Dòng của bảng (khung web) là <tr>: Enter / Space mở như bấm chuột.
-  if ((event.key === "Enter" || event.key === " ") && t.matches?.("tr[data-bj11-row]")) { event.preventDefault(); t.click(); }
 }, true);
 
-// Sheet là modal: Esc đóng, Tab chỉ đi vòng trong hộp thoại.
-window.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-11" || !bj11Dialog) return;
-  if (event.key === "Escape") { event.preventDefault(); return bj11CloseDialog(); }
-  const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-  if (!dialog) return;
-  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, select, [tabindex]:not([tabindex='-1'])")].filter(bj11Visible);
-  if (!items.length) return;
-  const first = items[0], last = items[items.length - 1], at = document.activeElement;
-  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-}, true);
+onDialogClose["UIF-11"] = () => {
+  if (!(bj11Dialog)) return false;
+  bj11CloseDialog(); return true;
+};
 
 document.addEventListener("click", (event) => {
   if (activeFlowId !== "UIF-11") return;
@@ -515,13 +511,13 @@ document.addEventListener("click", (event) => {
   if (k === "to-return") return crSwitchFlow("UIF-06", "SCR-030", "READY");
   if (k === "to-stock") return crSwitchFlow("UIF-01", "SCR-001", "READY");
   if (k === "to-case") {
-    const c = cr16Cases.find((x) => x.id === cr11ReturnCase), r = cr11Request();
+    const c = cr16Cases.find((x) => x.id === cr11ReturnId("case")), r = cr11Request();
     if (!c) return bj11ToListNav();
     if (r && r.status === "COMPLETED") c.correctionDone = true;
-    cr16SelectedId = c.id; cr11ReturnCase = "";
+    cr16SelectedId = c.id; cr11Return = null;
     return crSwitchFlow("UIF-16", "SCR-079", "CORRECTION_REQUIRED");
   }
-  if (k === "to-movement") { cr11ReturnMovement = ""; return crSwitchFlow("UIF-15", "SCR-056", "READY"); }
+  if (k === "to-movement") { cr11Return = null; return crSwitchFlow("UIF-15", "SCR-056", "READY"); }
 }, true);
 
 // Đi giữa các màn bằng navigate (kể cả nút quay lại) là đi trong luồng: trạng thái hiện tại là "đã biết", không dựng lại fixture.
@@ -531,8 +527,8 @@ onPrevious["UIF-11"] = () => {
   if (activeScreenId === "SCR-048") return;
   bj11Dialog = null;
   if (activeScreenId === "SCR-050") {
-    if (cr11ReturnCase) { const id = cr11ReturnCase; cr11ReturnCase = ""; cr16SelectedId = id; return crSwitchFlow("UIF-16", "SCR-079", "CORRECTION_REQUIRED"); }
-    if (cr11ReturnMovement) { cr11ReturnMovement = ""; return crSwitchFlow("UIF-15", "SCR-056", "READY"); }
+    if (cr11ReturnId("case")) { const id = cr11ReturnId("case"); cr11Return = null; cr16SelectedId = id; return crSwitchFlow("UIF-16", "SCR-079", "CORRECTION_REQUIRED"); }
+    if (cr11ReturnId("movement")) { cr11Return = null; return crSwitchFlow("UIF-15", "SCR-056", "READY"); }
     return bj11OpenDetail(cr11Current());
   }
   return bj11ToListNav();
@@ -541,18 +537,22 @@ onPrevious["UIF-11"] = () => {
 /* ---------- Lối vào ---------- */
 
 onEntry["UIF-11:approver"] = () => { cr11SelectedRequestId = "SS-260915-01"; bj11ResetUi(); bj11SetState("SCR-051", "READY"); };
-onEntry["UIF-11:operation-context"] = () => { cr11SelectedId = "IO-260904-021"; cr11ReturnCase = ""; cr11ReturnMovement = ""; bj11ResetUi(); bj11SetState("SCR-049", "CORRECTABLE"); };
+onUnknownResolved["UIF-11"] = ({ operationId, outcome }) => {
+  const op = cr11Operations.find((o) => o.id === operationId);
+  if (op && op.route === "UNKNOWN") op.route = outcome === "RECORDED" ? "RECORDED" : "CANCEL";
+  // BJ-17 mở lại danh sách bằng crSwitchFlow (không qua onScreenEnter): đánh dấu 048 đã dựng để bj11Seed không dựng lại từ bản gốc.
+  Object.keys(bj11Expected).forEach((k) => delete bj11Expected[k]); bj11Expected["SCR-048"] = "READY";
+};
+onEntry["UIF-11:operation-context"] = () => { cr11SelectedId = "IO-260904-021"; cr11Return = null; bj11ResetUi(); bj11SetState("SCR-049", "CORRECTABLE"); };
 // Từ hồ sơ đối soát (BJ-16): mở thẳng màn sửa sai của đúng phiếu, "Số đúng" điền sẵn theo chứng từ, lý do trống.
 onEntry["UIF-11:correction-from-case"] = () => {
-  if (!cr11ReturnCase) { cr11SelectedId = "IO-260904-021"; cr11ReturnCase = "REC-260907-04"; }
-  cr11ReturnMovement = "";
+  if (!cr11ReturnId("case")) { cr11SelectedId = "IO-260904-021"; cr11Return = { kind: "case", id: "REC-260907-04" }; }
   const op = cr11Current(); bj11ResetUi();
   if (bj11PendingFor(op)) return bj11SetState("SCR-050", "CONFLICT");
   bj11ResetDraft(op, true); bj11SetState("SCR-050", "READY");
 };
 // Từ thẻ kho (BJ-15 SCR-056 "Sửa sai"): mở thẳng màn sửa sai của đúng phiếu, "Số đúng" trống; quay lại về chi tiết biến động.
 onEntry["UIF-11:correction-from-movement"] = () => {
-  cr11ReturnCase = "";
   const op = cr11Current(); bj11ResetUi();
   if (bj11PendingFor(op)) return bj11SetState("SCR-050", "CONFLICT");
   bj11ResetDraft(op); bj11SetState("SCR-050", "READY");
@@ -596,5 +596,5 @@ Object.assign(renderers, {
 });
 (window.__T7_DIRECT_CONTEXTS__ ||= {})["bj11-approval"] = (id) => {
   const r = cr11Request(id); if (!r) return;
-  cr11SelectedRequestId = id; cr11SelectedId = r.opId; cr11ReturnCase = r.caseId || ""; cr11ReturnMovement = r.movementId || ""; bj11ResetUi(); bj11SetState("SCR-051", "READY");
+  cr11SelectedRequestId = id; cr11SelectedId = r.opId; cr11Return = r.caseId ? { kind: "case", id: r.caseId } : r.movementId ? { kind: "movement", id: r.movementId } : null; bj11ResetUi(); bj11SetState("SCR-051", "READY");
 };

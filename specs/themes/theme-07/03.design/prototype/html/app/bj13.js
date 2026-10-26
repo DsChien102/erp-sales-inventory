@@ -32,7 +32,7 @@ const val13Tasks = [
 ];
 let val13SelectedTaskId="LC13-001", val13Query="", val13Filter="ALL", val13ReviewSourceVersion=null, val13PreviewHash=null, val13LastSourceChange=null, val13LastResult=null, val13OperationSeq=1;
 function val13Current(){return val13Tasks.find(t=>t.id===val13SelectedTaskId)||val13Tasks[0];}
-function val13FmtMoney(value){const n=Number(value||0);return `${new Intl.NumberFormat('vi-VN').format(n)} đ`;}
+function val13FmtMoney(value){const n=Number(value||0);return `${new Intl.NumberFormat('vi-VN').format(n)} đ`;}
 // Helper BJ-13 — một định nghĩa duy nhất, gán trong khối v398 bên dưới (cần biến cục bộ của khối).
 let val13SelectedTargets, val13Preview, val13PreviewHashOf, val13CanOpenAllocation, val13CanPreview, val13ResetTaskDraft, val13SyncFromValuation, val13Commit, val13Result, val13ApplySourceUpdate;
 
@@ -42,7 +42,7 @@ let val13SelectedTargets, val13Preview, val13PreviewHashOf, val13CanOpenAllocati
 (()=>{
 if(typeof val13Tasks==='undefined') return;
 
-const fmtMoney=(n)=>`${Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
+const fmtMoney=(n)=>`${Number(n||0)<0?'− ':''}${Math.abs(Math.round(Number(n)||0)).toLocaleString('vi-VN')} đ`;
 const stable=(v)=>{
   const s=typeof v==='string'?v:JSON.stringify(v,Object.keys(v||{}).sort());
   let h=2166136261>>>0; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}
@@ -379,19 +379,10 @@ function val13ResetUi() { val13Ui = val13UiDefaults(); }
     if (activeFlowId !== "UIF-13" || !event.target.matches?.("[data-bj13-search]")) return;
     val13Query = event.target.value; renderKeepFocus("[data-bj13-search]");
   }, true);
-  window.addEventListener("keydown", (event) => {
-    if (activeFlowId !== "UIF-13" || !(val13Ui.confirmOpen || val13Ui.resultOpen)) return;
-    if (event.key === "Escape") { event.preventDefault(); val13ResetUi(); renderAppScreen(); return; }
-    // Sheet là hộp thoại modal: Tab / Shift+Tab chỉ đi vòng trong sheet.
-    const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-    if (!dialog) return;
-    const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, [tabindex]:not([tabindex='-1'])")];
-    if (!items.length) return;
-    const first = items[0], last = items[items.length - 1], at = document.activeElement;
-    if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) {
-      event.preventDefault(); (event.shiftKey ? last : first).focus();
-    }
-  }, true);
+  onDialogClose["UIF-13"] = () => {
+    if (!(val13Ui.confirmOpen || val13Ui.resultOpen)) return false;
+    val13ResetUi(); renderAppScreen(); return true;
+  };
   // Nghe ở document (sau trình nhớ nút mở hộp thoại của core.js) để Esc / đóng trả focus về đúng nút.
   document.addEventListener("click", (event) => {
     if (activeFlowId !== "UIF-13") return;

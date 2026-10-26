@@ -8,7 +8,7 @@
  * Dùng chung từ app/core.js: appShell, ds24*, vBanner, esc, escapeAttribute, navigate, renderAppScreen, onScreenEnter, onPrevious.
  * 031 + 032 trên web là MỘT trang hai cột (bảng dòng hàng | chi tiết dòng đang chọn): render032BJ06 ở khung web dựng như 031.
  * Nguồn "Chờ duyệt" của Home Kho (K2): đăng ký ở cuối file; lối vào trực tiếp ca chờ qua window.__T7_DIRECT_CONTEXTS__["bj06-approval"].
- * Handoff UNKNOWN: đăng ký onUnknownHandoff["UIF-06"]; nút data-v350-action="handoff-unknown" do k3Unknown dựng → bj17.js.
+ * Handoff UNKNOWN: đăng ký onUnknownHandoff["UIF-06"]; nút data-k3-action="handoff" do k3Unknown dựng → bj17.js.
  * Trạng thái đặt từ bộ kiểm (đổi trạng thái màn) dựng lại fixture từ bản gốc rồi chuẩn bị đúng yêu cầu cho trạng thái đó: xem io06Seed.
  */
 
@@ -183,6 +183,14 @@ function bj06CommitReceipt(req){
   io06LinesForRequest(req.id).forEach((l)=>{l.receivedAgainstAuthorization=Number(l.qty||0);l.remainingAuthorized=Math.max(0,Number(l.authorizedQuantity||0)-l.receivedAgainstAuthorization);l.classMode=null;l.classification={...bj06BlankClass(),expired:bj06IsExpired(l)?Number(l.qty||0):0};});
 }
 // Chỉ dùng khi mở thẳng ảnh trạng thái: yêu cầu đã nhận đủ lượng được phép theo đúng lô đã giao.
+// Phân loại xong là lúc hàng khách trả vào tồn theo từng tình trạng: ghi vào sổ chung (sản phẩm không có ở BJ-01 thì bỏ qua).
+function bj06PostReturn(req,line){
+  const c=line.classification||bj06BlankClass();
+  [["Bán được","sellable"],["Cách ly","quarantine"],["Hỏng","damaged"],["Hết hạn","expired"]].forEach(([state,key])=>{
+    const qty=Number(c[key]||0);
+    if(qty>0)t7Ledger.post({key:`UIF-06:${req.id}:${line.id}:${state}`,productId:line.code,lot:line.actualLot||line.expectedLot||"",kind:"Nhận hàng khách trả",doc:req.id,delta:qty,state,sourceFlow:"UIF-06",opId:req.operationId});
+  });
+}
 function bj06SeedReceived(reqId){
   const req=io06Requests.find(r=>r.id===reqId);if(!req||req.receiptCommitted)return;
   io06LinesForRequest(reqId).forEach((l)=>{l.qty=bj06LineMax(l);l.actualLot=l.tracking==='LOT'?l.expectedLot:null;l.actualLotMode=l.tracking==='LOT'?'EXPECTED':'';l.verified=true;if(l.actualLot)bj06ResolveLot(l);});
@@ -648,6 +656,13 @@ onUnknownHandoff["UIF-06"] = () => {
   const r = io06CurrentRequest();
   if (r) { r.unknownLocked = true; io06RefreshRequestState(r); }
 };
+onUnknownResolved["UIF-06"] = ({ operationId, outcome }) => {
+  const r = io06Requests.find((x) => x.operationId === operationId) || io06Requests.find((x) => x.unknownLocked) || io06CurrentRequest();
+  if (!r) return;
+  r.unknownLocked = false;
+  if (outcome === "RECORDED") r.receiptCommitted = true;
+  io06RefreshRequestState(r);
+};
 
 /* ---------- Sự kiện ---------- */
 
@@ -720,17 +735,11 @@ document.addEventListener("change", (event) => {
   }
 });
 
-// Sheet / hộp thoại là modal: Esc đóng, Tab chỉ đi vòng trong hộp thoại.
-window.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-06" || !(io06RejectOpen || io06ClassificationOpen || io06ResultSheetOpen)) return;
-  if (event.key === "Escape") { event.preventDefault(); io06RejectOpen = false; io06ClassificationOpen = false; io06ClassificationDraft = null; io06ResultSheetOpen = false; return renderAppScreen(); }
-  const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-  if (!dialog) return;
-  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, [tabindex]:not([tabindex='-1'])")].filter((el) => el.offsetParent !== null);
-  if (!items.length) return;
-  const first = items[0], last = items[items.length - 1], at = document.activeElement;
-  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-}, true);
+onDialogClose["UIF-06"] = () => {
+  if (!(io06RejectOpen || io06ClassificationOpen || io06ResultSheetOpen)) return false;
+  io06RejectOpen = false; io06ClassificationOpen = false; io06ClassificationDraft = null; io06ResultSheetOpen = false;
+  renderAppScreen(); return true;
+};
 
 function bj06CanDecide() { return ["approver", "owner"].includes(currentActor()); }
 
@@ -803,7 +812,7 @@ document.addEventListener("click", (event) => {
   if (k === "commit-receipt") { const req = io06CurrentRequest(); if (!io06ReceiptReady(req)) return; bj06CommitReceipt(req); io06SetState("SCR-035", "RECEIVED_PENDING_CLASSIFICATION"); return navigate("SCR-035"); }
   if (k === "close-classification-item") { const line = io06ActiveLine(), draft = io06ClassificationDraftFor(line); if (!line || !io06DraftValid(line, draft)) return; line.classification = { sellable: Number(draft.sellable || 0), quarantine: Number(draft.quarantine || 0), damaged: Number(draft.damaged || 0), expired: 0 }; line.classMode = "SPLIT"; io06ClassificationOpen = false; io06ClassificationDraft = null; return bj06Rerender(`[data-io06-class-line="${CSS.escape(line.id)}"]`); }
   if (k === "cancel-classification-item") { io06ClassificationOpen = false; io06ClassificationDraft = null; return renderAppScreen(); }
-  if (k === "confirm-classification") { if (!io06AllClassValid()) return; const req = io06CurrentRequest(); io06CurrentLines().forEach((l) => { l.classification = io06EffClass(l); }); req.classified = true; req.classifiedAt = bj06IsoNow(); req.closed = true; req.status = "Đã phân loại"; req.queue = "CLOSED"; io06SetState("SCR-035", "COMPLETED"); return navigate("SCR-035"); }
+  if (k === "confirm-classification") { if (!io06AllClassValid()) return; const req = io06CurrentRequest(); io06CurrentLines().forEach((l) => { l.classification = io06EffClass(l); bj06PostReturn(req, l); }); req.classified = true; req.classifiedAt = bj06IsoNow(); req.closed = true; req.status = "Đã phân loại"; req.queue = "CLOSED"; io06SetState("SCR-035", "COMPLETED"); return navigate("SCR-035"); }
   if (k === "approve-exception") {
     if (!bj06CanDecide()) { io06SetState("SCR-034", "SELF_APPROVAL_NOT_ALLOWED"); return renderAppScreen(); }
     const c = io06SelectedApprovalCase(); if (!c || c.status !== "PENDING") return; c.status = "APPROVED"; c.decisionReason = ""; io06AfterApprovalDecision(c); io06SetState("SCR-034", "APPROVED"); return renderAppScreen();

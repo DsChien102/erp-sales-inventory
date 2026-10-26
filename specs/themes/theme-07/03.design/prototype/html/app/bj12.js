@@ -19,14 +19,13 @@ const cf12SentAt = "07/09/2026 · 10:32";
 const cf12Ref = "OB-2026-0001";
 const cf12Summary = { rows: 82, products: 36, parsedQty: 4820, parsedValue: 386240000, sellableRows: 74, nonSellableRows: 8 };
 
-// 10 dòng mẫu của tệp 82 dòng; 5 sản phẩm trùng bj01Products (tên / mã / ĐVT / lô) để hành trình chặng 1 liền mạch.
+// 9 dòng mẫu của tệp 82 dòng (số tồn khớp BJ-01; Enrofloxacin đã hết ở BJ-01 nên không có dòng mẫu); 4 sản phẩm trùng bj01Products (tên / mã / ĐVT / lô) để hành trình chặng 1 liền mạch.
 const cf12Lines = [
   { row: 2, sku: "SP-000184", name: "Nobivac DHPPi", uom: "hộp", state: "Bán được", lot: "DH2507", expiry: "30/11/2026", qty: 70, unitCost: 118000 },
   { row: 3, sku: "SP-000184", name: "Nobivac DHPPi", uom: "hộp", state: "Bán được", lot: "DH2509", expiry: "15/09/2026", qty: 48, unitCost: 118000 },
   { row: 4, sku: "SP-000184", name: "Nobivac DHPPi", uom: "hộp", state: "Cách ly", lot: "DH2509", expiry: "15/09/2026", qty: 2, unitCost: 118000 },
   { row: 5, sku: "SP-000066", name: "Amox 500", uom: "hộp", state: "Bán được", lot: "", expiry: "", qty: 47, unitCost: 86000 },
   { row: 6, sku: "SP-000066", name: "Amox 500", uom: "hộp", state: "Cách ly", lot: "", expiry: "", qty: 1, unitCost: 86000 },
-  { row: 7, sku: "SP-000091", name: "Enrofloxacin 10%", uom: "chai", state: "Hư hỏng", lot: "", expiry: "", qty: 3, unitCost: 54000 },
   { row: 8, sku: "SP-000122", name: "Tylosin 20%", uom: "lọ", state: "Bán được", lot: "TY2511", expiry: "11/2027", qty: 7, unitCost: 72000 },
   { row: 9, sku: "SP-000122", name: "Tylosin 20%", uom: "lọ", state: "Cách ly", lot: "TY2408", expiry: "31/07/2026", qty: 11, unitCost: 72000 },
   { row: 10, sku: "SP-000147", name: "Oxytetracycline LA", uom: "chai", state: "Bán được", lot: "", expiry: "", qty: 30, unitCost: 95000 },
@@ -67,7 +66,7 @@ function bj12ApprovalHash(){return [cf12FileName,cf12Cutoff,cf12ControlQty,cf12C
 function bj12Hash(){return bj12ApprovalHash();}
 function bj12ControlMatches(){return Number(cf12ControlQty)===Number(cf12Summary.parsedQty)&&Number(cf12ControlValue)===Number(cf12Summary.parsedValue);}
 let bj12Cf12ApprovalHash=null;
-function bj12ExitList(){return primaryFooter("Về danh sách",'data-v360-action="fallback-exit" data-v360-target="SCR-066"');}
+function bj12ExitList(){return primaryFooter("Về danh sách",'data-k1-action="exit" data-k1-target="SCR-066"');}
 // Mở thẳng trạng thái lệch số kiểm soát: fixture phải có chênh lệch thật (4.830 so với 4.820), không phải 0.
 function cf12EnsureMismatchFixture(){if(bj12ControlMatches())cf12ControlQty=String(cf12Summary.parsedQty+10);}
 function cf12Signed(n){return `${n>0?"+":n<0?"−":""}${cfNumber(Math.abs(n))}`;}
@@ -108,7 +107,7 @@ function cf12ColumnsSheet(){
   return `<div class="sheet-backdrop k7-mobile-only" ${close}><section class="bottom-sheet cf12-columns-sheet" role="dialog" aria-modal="true" aria-label="Tệp cần có các cột" onclick="event.stopPropagation()" data-ds-component="VBottomSheet" data-figma-node="4695:6353"><div class="sheet-handle"></div><div class="sheet-title"><h3>Tệp cần có các cột</h3></div><div class="sheet-divider"></div><div class="sheet-content">${cf12ColumnsList()}<div class="sheet-actions">${cfSecondary("Đóng",close)}</div></div></section></div>`;
 }
 function cf12RejectSheet(){
-  return k2RejectSheet({open:cf12RejectOpen,title:"Từ chối số dư đầu kỳ",reason:cf12RejectReason,reasonAttr:"data-cf12-reject-reason",confirmAttr:'data-v350-action="cf12-confirm-reject"',closeAttr:'data-cf12-action="close-reject"'});
+  return k2RejectSheet({open:cf12RejectOpen,title:"Từ chối số dư đầu kỳ",reason:cf12RejectReason,reasonAttr:"data-cf12-reject-reason",confirmAttr:'data-bj12-action="cf12-confirm-reject"',closeAttr:'data-cf12-action="close-reject"'});
 }
 
 /* ---------- SCR-066 Khởi tạo tồn kho ---------- */
@@ -147,7 +146,7 @@ function render067BJ12(state){
     const fileError=err.file?`<small class="field-error" role="alert">${err.file}</small>`:"";
     const main=`${banner}${bj12FileDrop("Tệp số dư đầu kỳ",cf12FileName,'data-cf12-action="choose-file"')}${fileError}<button class="button button--secondary cf12-template" type="button" data-cf12-action="template" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" data-ds-prop-size="VButtonSize.medium">Tải tệp mẫu</button><button class="button button--secondary k7-mobile-only" type="button" data-cf12-action="open-columns" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" data-ds-prop-size="VButtonSize.medium">Xem các cột cần có</button><div class="ac310-form-stack">${cfField("Ngày chốt số dư",cf12Cutoff,'data-cf12-cutoff aria-label="Ngày chốt số dư"',"date","Ngày nghiệp vụ mà số dư đầu kỳ có hiệu lực.",err.cutoff)}${cfField("Tổng số lượng kiểm soát",cf12ControlQty,'data-cf12-control-qty aria-label="Tổng số lượng kiểm soát"',"number","Nhập từ nguồn kiểm soát độc lập.",err.qty)}${cfField("Tổng giá trị kiểm soát",valueShown,'data-cf12-control-value aria-label="Tổng giá trị kiểm soát"',"money","Giá trị tồn kho đầu kỳ theo nguồn kiểm soát.",err.value)}</div>`;
     const body=`${k7Split({main,aside:`<div class="k7-web-only">${cf12ColumnsAside()}</div>`})}${cf12ColumnsSheet()}`;
-    return cf12Out(cf12Shell({title,body,actions:primaryFooter("Kiểm tra dữ liệu",'data-v350-action="cf12-check"',!cf12FileName)}));
+    return cf12Out(cf12Shell({title,body,actions:primaryFooter("Kiểm tra dữ liệu",'data-bj12-action="cf12-check"',!cf12FileName)}));
   }
   if(state==="PERMISSION_DENIED") return cf12Out(cf12Shell({title,body:k1Denied({what:"khởi tạo tồn kho",next:"Chỉ chủ cửa hàng hoặc người được giao mới nhập được dữ liệu tồn đầu kỳ. Nhờ họ cấp quyền rồi quay lại.",exitAttr:cf12Exit()}),centered:true}));
   if(state==="LOCKED") return cf12Out(cf12Shell({title,body:cf12Narrow(`${k1Locked({title:"Dữ liệu đang được xử lý",description:"Tệp nguồn và số kiểm soát hiện chỉ đọc cho đến khi xử lý xong."})}${cf12ReviewCard()}`)}));
@@ -175,7 +174,7 @@ function render068BJ12(state){
   }
   if(state==="READY"){
     const summary=`<section class="ac310-surface cf12-ready-summary" data-layout-pattern="Grouped surface"><div class="ac310-surface__head"><h2>Số dư sẽ ghi nhận</h2></div><div class="ac310-info-rows">${cf12SummaryRows().map((r)=>ds24InfoRow(r[0],r[1],r[2]?"ac310-info-row--emphasis":"")).join("")}</div><div class="cf12-match">${icon("checkCircle","icon--sm")}<strong>Khớp số kiểm soát</strong></div></section>`;
-    const actions=primaryFooter("Gửi phê duyệt",'data-v350-action="cf12-send-approval"');
+    const actions=primaryFooter("Gửi phê duyệt",'data-bj12-action="cf12-send-approval"');
     return cf12Out(cf12Shell({title,body:`${vBanner("success","Dữ liệu đã qua kiểm tra","","k7-banner--line")}${k7Split({main:summary,aside:cf12LinesBlock()})}`,actions}));
   }
   if(state==="PERMISSION_DENIED") return cf12Out(cf12Shell({title,body:k1Denied({what:"xem kết quả kiểm tra",next:"Chỉ chủ cửa hàng hoặc người được giao mới xem được kết quả kiểm tra tồn đầu kỳ. Nhờ họ cấp quyền rồi quay lại.",exitAttr:cf12Exit()}),centered:true}));
@@ -194,7 +193,7 @@ function render070BJ12(state){
   if(state==="READY"){
     const facts=[["Ngày chốt",cfDateVN(cf12Cutoff),true],["Sản phẩm",`${cfNumber(cf12Summary.products)} sản phẩm`],["Dòng dữ liệu",`${cfNumber(cf12Summary.rows)} dòng`],["Tổng số lượng",cfNumber(cf12Summary.parsedQty)],["Tổng giá trị",cfMoney(cf12Summary.parsedValue),true],["Đối chiếu số kiểm soát","Khớp số kiểm soát ✓"]];
     const decision=k2Decision({question:`Duyệt số dư đầu kỳ của Kho trung tâm, chốt ${cfDateVN(cf12Cutoff)}?`,maker:cf12Maker,sentAt:cf12SentAt,attention:[["Không bán được",`${cfNumber(cf12Summary.nonSellableRows)} dòng (cách ly / hư hỏng)`],["Sau khi duyệt","Kho bắt đầu hoạt động","info"]],facts});
-    return cf12Out(cf12Shell({title,body:`${k7Split({main:decision,aside:cf12LinesBlock()})}${cf12RejectSheet()}`,actions:ac310ApprovalFooter('data-cf12-action="open-reject"','data-v350-action="cf12-approve"'),back:false}));
+    return cf12Out(cf12Shell({title,body:`${k7Split({main:decision,aside:cf12LinesBlock()})}${cf12RejectSheet()}`,actions:ac310ApprovalFooter('data-cf12-action="open-reject"','data-bj12-action="cf12-approve"'),back:false}));
   }
   if(state==="PERMISSION_DENIED") return cf12Out(cf12Shell({title,body:k1Denied({what:"duyệt số dư đầu kỳ",next:"Chỉ chủ cửa hàng hoặc người được giao quyền duyệt mới quyết định được. Nhờ họ cấp quyền rồi quay lại.",exitAttr:cf12Exit()}),centered:true,back:false}));
   if(state==="SELF_APPROVAL_NOT_ALLOWED") return cf12Out(cf12Shell({title,body:cf12Narrow(`${vBanner("warning","Không thể tự duyệt","Người chuẩn bị số dư đầu kỳ không được đồng thời là người quyết định.")}${cf12ReviewCard()}`),actions:bj12ExitList(),back:false}));
@@ -239,20 +238,20 @@ document.addEventListener("input",(event)=>{
   if(t.matches("[data-cf12-control-value]")){cf12ControlValue=String(t.value||"").replace(/[^0-9]/g,"");t.value=cfMoneyInput(cf12ControlValue);clearError();return;}
   if(t.matches("[data-cf12-reject-reason]")){
     cf12RejectReason=t.value;
-    const b=document.querySelector('[data-v350-action="cf12-confirm-reject"]'); if(b)b.disabled=!cf12RejectReason.trim();
+    const b=document.querySelector('[data-bj12-action="cf12-confirm-reject"]'); if(b)b.disabled=!cf12RejectReason.trim();
     return;
   }
 },true);
-document.addEventListener("keydown",(event)=>{
-  if(activeFlowId!=="UIF-12"||event.key!=="Escape") return;
-  if(cf12CloseSheets()){event.preventDefault();renderAppScreen();}
-},true);
+onDialogClose["UIF-12"]=()=>{
+  if(!cf12CloseSheets()) return false;
+  renderAppScreen(); return true;
+};
 document.addEventListener("click",(event)=>{
   if(activeFlowId!=="UIF-12") return;
-  // data-v350-action trước — nút confirm-reject nằm trong backdrop close-reject
-  const v=event.target.closest("[data-v350-action]");
+  // data-bj12-action trước — nút confirm-reject nằm trong backdrop close-reject
+  const v=event.target.closest("[data-bj12-action]");
   if(v&&!v.disabled){
-    const k=v.dataset.v350Action;
+    const k=v.dataset.bj12Action;
     if(["cf12-check","cf12-send-approval","cf12-approve","cf12-confirm-reject"].includes(k)){
       event.preventDefault();event.stopPropagation();
       if(k==="cf12-check"){

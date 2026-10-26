@@ -70,7 +70,7 @@ const bj08Attr = (v) => escapeAttribute(String(v ?? ""));
 function bj08CanDecide() { return ["approver", "owner"].includes(currentActor()); }
 function bj08ShowMoney() { return t7ShowMoney(); }
 function bj08ActorName() { return bj08CanDecide() ? BJ08_OWNER : BJ08_STAFF; }
-function bj08FmtAbs(n) { return `${Math.round(Math.abs(n)).toLocaleString("vi-VN")} đ`; }
+function bj08FmtAbs(n) { return t7FmtMoney(Math.abs(n)); }
 function bj08FmtSigned(n) { return `${n < 0 ? "−" : n > 0 ? "+" : ""}${bj08FmtAbs(n)}`; }
 // Mọi chuỗi tiền dựng qua hàm này: người không xem được tiền nhận chuỗi rỗng (không có phần tử nào mang số tiền trong DOM).
 function bj08Money(n, abs = false) { if (!bj08ShowMoney() || n == null) return ""; return abs ? bj08FmtAbs(n) : bj08FmtSigned(n); }
@@ -183,6 +183,11 @@ function bj08CommitRecount(s) {
 }
 function bj08ApproveSession(s) {
   const t = bj08Totals(s);
+  // Duyệt điều chỉnh là lúc tồn đổi: ghi từng dòng lệch vào sổ chung (hàng không có ở BJ-01 thì bỏ qua).
+  bj08Variance(s).forEach((x) => {
+    const state = t7Ledger.STATE_LABEL[x.line.state];
+    if (state) t7Ledger.post({ key: `UIF-08:${s.id}:${x.line.key}`, productId: x.line.code, lot: x.line.lot, kind: "Điều chỉnh kiểm kê", doc: s.id, delta: x.variance, state, sourceFlow: "UIF-08" });
+  });
   bj08Finish(s, { type: "ADJUSTED", lines: t.lines, short: t.short, over: t.over, net: t.net, hasMoney: t.hasMoney, approver: BJ08_OWNER, committedAt: BJ08_APPROVED_AT });
 }
 function bj08RequestRecount(s, reason) { s.reviews.push({ reason, at: BJ08_APPROVED_AT }); s.status = "RECOUNT"; s.recounts = {}; }
@@ -668,17 +673,11 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && t.matches?.("[data-bj08-find]")) { event.preventDefault(); const first = [...document.querySelectorAll("[data-bj08-count]")].find((el) => bj08Visible(el) && !el.closest("[hidden]")); return first?.focus(); }
 }, true);
 
-// Sheet / hộp thoại là modal: Esc đóng, Tab chỉ đi vòng trong hộp thoại.
-window.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-08" || !bj08Dialog) return;
-  if (event.key === "Escape") { event.preventDefault(); bj08Dialog = null; return renderAppScreen(); }
-  const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-  if (!dialog) return;
-  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, select, [tabindex]:not([tabindex='-1'])")].filter(bj08Visible);
-  if (!items.length) return;
-  const first = items[0], last = items[items.length - 1], at = document.activeElement;
-  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-}, true);
+onDialogClose["UIF-08"] = () => {
+  if (!(bj08Dialog)) return false;
+  bj08Dialog = null;
+  renderAppScreen(); return true;
+};
 
 function bj08Create() {
   bj08Draft = bj08NewDraft(); bj08ConflictId = "";

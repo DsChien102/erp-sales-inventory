@@ -3,7 +3,7 @@
  * Thiết kế lại (T7-P BJ-03, 2026-10-22, v5.9.0): một khối dựng cho 014 / 015 / 019. 015 là bảng sản phẩm có ô tick
  * (web, K7; iPhone là danh sách thẻ) + sheet "Thêm căn cứ giá" (nhập nhanh, chỉ VND) + sheet "Cách tính" + sheet xác nhận (thay SCR-017).
  * Sửa BJ-03: sửa thẳng file này. Helper `VAL_UI_461` ở shared-valuation.js chỉ còn BJ-13 dùng (money / signed / pct).
- * Helper val03* bị gán trong khối chuẩn hoá v397 (khai báo `let` một lần ở đầu file).
+ * Helper val03* bị gán trong khối chuẩn hoá (khai báo `let` một lần ở đầu file).
  * Dùng từ khuôn: k1Loading, k1Denied, k1Empty, k1Locked, k1ExitAttr (K1); k3Unknown (K3); k4Result, k4Footer (K4);
  * k7Table (cột chọn `select`), k7Split, k7FilterChips (K7); dsSegmented.
  *
@@ -39,16 +39,14 @@ const val03Receipts = [
     {id:"VAL03-G6",name:"Bơm tiêm 5ml",code:"SP-00511",uom:"hộp",tracking:"NONE",officialCostStatus:"EXISTS",sources:[],selectedSource:"",reason:"",slices:[{id:"VAL03-S8",scopeKey:"ROL-408|NOLOT|SELLABLE",scopeVersion:1,lineId:"ROL-408",lot:null,physicalState:"SELLABLE",stateLabel:"Đủ điều kiện bán",pendingQty:8,selected:false,selectedQty:8,partialOpen:false,availabilityDelta:8,availabilityNote:"Sẽ tăng khả dụng"}]}
   ]}
 ];
-let val03SelectedReceiptId="VAL03-R1", val03Query="", val03Filter="ALL", val03ReviewSourceVersion=null, val03LastResult=null, val03LastSourceChange=null, val03OperationSeq=1, val03EvidenceSheetOpen=false, val03EvidenceSheetMode="scope";
+let val03SelectedReceiptId="VAL03-R1", val03Query="", val03Filter="ALL", val03ReviewSourceVersion=null, val03LastResult=null, val03LastSourceChange=null, val03OperationSeq=1;
 function val03Current(){return val03Receipts.find(r=>r.id===val03SelectedReceiptId)||val03Receipts[0];}
 function val03PendingSlices(r=val03Current()){return r.groups.flatMap(g=>g.slices.map(s=>({group:g,slice:s}))).filter(x=>x.slice.pendingQty>0);}
-// Helper BJ-03 — một định nghĩa duy nhất, gán trong khối v397 bên dưới (cần biến cục bộ của khối).
-let val03EvidenceState, val03Source, val03GroupSelectedQty, val03Calc, val03ActionablePairs, val03WaitingPairs, val03ReceiptState, val03HasSelectedConflict, val03ScopeReady, val03SourceDetail, val03SourcePriceText, val03TotalValue, val03ApplySourceUpdate, val03Commit, val03ScopeGroupsHtml, val03CalculationGroupsHtml, val03EvidenceSheet, val03ReviewGroupsHtml, val03ResultGroupsHtml, val03UnitActual, val03GroupAmount;
+// Helper BJ-03 — một định nghĩa duy nhất, gán trong khối chuẩn hoá bên dưới (cần biến cục bộ của khối).
+let val03EvidenceState, val03Source, val03GroupSelectedQty, val03Calc, val03ActionablePairs, val03WaitingPairs, val03ReceiptState, val03HasSelectedConflict, val03ScopeReady, val03SourceDetail, val03SourcePriceText, val03TotalValue, val03ApplySourceUpdate, val03Commit, val03UnitActual, val03GroupAmount;
 function val03SelectedSlices(r=val03Current()){return val03PendingSlices(r).filter(x=>x.slice.selected&&Number(x.slice.selectedQty)>0);}
 function val03GroupReady(group){if(val03GroupSelectedQty(group)<=0)return true;const st=val03EvidenceState(group);if(st==="MISSING")return false;if(st==="CONFLICT"&&(!group.selectedSource||!group.reason.trim()))return false;return Boolean(val03Source(group));}
-function val03FmtMoney(n){return `${Math.round(Number(n)||0).toLocaleString("vi-VN")} đ`;}
-function val03ScopeLabel(g,s){return g.tracking==="LOT"?`Lô ${s.lot}`:"Không theo lô";}
-function val03SelectedGroupCount(r=val03Current()){return r.groups.filter(g=>val03GroupSelectedQty(g)>0).length;}
+function val03FmtMoney(n){return t7FmtMoney(Number(n)||0);}
 function val03FilterMatch(r){const st=val03ReceiptState(r);return val03Filter==="ALL"||(val03Filter==="READY"?st==="READY":st!=="READY");}
 function val03ReceiptBadge(r){const st=val03ReceiptState(r);return st==="WAITING"?["Chờ căn cứ","neutral"]:st==="CONFLICT"?["Cần đối chiếu","warning"]:["Có thể xử lý","success"];}
 function val03SelectedAvailability(g,s){const q=Math.min(Number(s.selectedQty)||0,s.pendingQty);const ratio=s.pendingQty?Math.min(1,q/s.pendingQty):0;return Math.round((s.availabilityDelta||0)*ratio*1000)/1000;}
@@ -57,7 +55,7 @@ function val03ResultSnapshot(){return val03LastResult||{receipt:val03Current().r
 
 // ============================================================================
 
-/* chuẩn hoá fixture + helper thắng (v397) */
+/* chuẩn hoá fixture + helper thắng */
 (()=>{
 const fmt=(n)=>`${Math.round(Number(n)||0).toLocaleString('vi-VN')} đ`;
 const stableHash=(parts)=>`sha256-fixture-${String(parts).replace(/[^a-zA-Z0-9]+/g,'-').toLowerCase()}`;
@@ -145,15 +143,6 @@ function currentTokenMap(r=val03Current()){
   }
   return out;
 }
-function tokenStale(r=val03Current()){
-  if(!reviewTokens) return false;
-  const now=currentTokenMap(r);
-  for(const [gid,t] of Object.entries(reviewTokens)){
-    const n=now[gid]; if(!n||n.basisKey!==t.basisKey||n.basisVersion!==t.basisVersion||n.basisHash!==t.basisHash) return true;
-    for(const s of t.scopes){const x=n.scopes.find(a=>a.id===s.id); if(!x||x.scopeVersion!==s.scopeVersion) return true;}
-  }
-  return false;
-}
 function duplicateBasisMeta(r,g){
   const dup=r.groups.filter(x=>x.code===g.code&&x.uom===g.uom&&x.slices.some(s=>s.pendingQty>0));
   return dup.length>1?`${g.basisDisplayLabel} · ${g.receiptItemRef}`:'';
@@ -199,60 +188,6 @@ val03ApplySourceUpdate=function(groupId,newPrice){
   return true;
 };
 
-
-val03ScopeGroupsHtml=function(r){
-  const content=r.groups.filter(g=>g.slices.some(s=>s.pendingQty>0)).map(g=>{
-    const st=basisState(g),badge=st==='MISSING'?['Chờ căn cứ','Neutral']:st==='CONFLICT'?['Cần đối chiếu','Warning']:['Đủ căn cứ','Success'];
-    const rows=g.slices.filter(s=>s.pendingQty>0).map(s=>{
-      const disabled=st==='MISSING',qty=Math.min(Number(s.selectedQty)||0,s.pendingQty),partial=s.selected?`<div class="val03-partial-controls"><button class="val03-partial-link" type="button" data-val03-partial="${s.id}" data-ds-component="DS v2 / Link" data-figma-node="4431:10396">${s.partialOpen?'Dùng toàn bộ':'Xác nhận một phần'}</button>${s.partialOpen?`<label class="val03-qty" data-ds-component="VTextField" data-figma-node="522:7186"><span>Số lượng lần này</span><input type="number" min="1" max="${s.pendingQty}" value="${qty}" data-val03-qty="${s.id}"/><small>Tối đa ${s.pendingQty} ${esc(g.uom)}</small></label>`:''}</div>`:'';
-      return `<div class="valuation-child-item val03-scope-item${s.selected?' is-selected':''}${disabled?' is-disabled':''}"><button type="button" class="valuation-child-row val03-check" data-val03-slice="${s.id}" aria-pressed="${s.selected}" ${disabled?'disabled aria-disabled="true"':''} data-composed-from="VCheckbox,VText"><span class="valuation-child-branch" aria-hidden="true"></span><span class="valuation-selection-control val03-check-mark" aria-hidden="true" data-ds-component="VCheckbox" data-ds-prop-state="${disabled?'Disabled':s.selected?'Checked':'Unchecked'}">${s.selected?icon('check','icon--xs'):''}</span><span class="valuation-child-copy"><strong>${esc(val03ScopeLabel(g,s))}</strong><small>${esc(s.stateLabel)} · Chờ giá ${s.pendingQty} ${esc(g.uom)}</small></span></button>${partial}</div>`;
-    }).join('');
-    return `<div class="valuation-product-group" data-valuation-basis="${escapeAttribute(g.valuationBasisKey)}">${valuationProductHeader({name:g.name,code:g.code,uom:g.uom,status:badge[0],tone:badge[1],meta:duplicateBasisMeta(r,g)})}<div class="valuation-child-list">${rows}</div></div>`;
-  }).join('');
-  return ds24GroupedCollection(content,'valuation-product-collection val03-product-collection','DS v2 / Icon,VBadge,VCheckbox,VText,VTextField');
-};
-
-function componentsHtml(b){
-  if(!b?.components?.length)return '';
-  return `<div class="valuation-provenance" data-composed-from="VText"><strong>Thành phần của căn cứ</strong>${b.components.map(x=>`<p>${esc(`${x.label} · ${x.source}${x.version?` ${x.version}`:''}`)}</p>`).join('')}</div>`;
-}
-val03CalculationGroupsHtml=function(r){
-  return r.groups.filter(g=>selectedQty(g)>0).map(g=>{
-    const st=basisState(g); let basisUI='';
-    if(st==='CONFLICT'){
-      basisUI=`${vBanner('warning','Căn cứ giá đang mâu thuẫn','Chọn một căn cứ giá hoàn chỉnh có thẩm quyền và ghi lý do.')}<div class="valuation-source-list" data-composed-from="DS v2 / List Row,VRadio">${g.sources.map(b=>`<button type="button" class="val03-source-option ${g.selectedSource===b.id?'is-selected':''}" data-val03-source="${g.id}" data-val03-source-id="${b.id}" aria-pressed="${g.selectedSource===b.id}" data-ds-component="DS v2 / List Row"><span class="valuation-radio-control" aria-hidden="true"><span></span></span><span><strong>${esc(b.label)}</strong><small>${esc(val03SourcePriceText(b,g.uom))}</small></span></button>`).join('')}</div><label class="val03-reason" data-ds-component="VTextarea"><span>Lý do chọn căn cứ <b>*</b></span><textarea rows="3" data-val03-reason="${g.id}" placeholder="Nêu căn cứ để truy vết">${esc(g.reason||'')}</textarea></label>`;
-    }else if(st==='MISSING') basisUI=vBanner('warning','Chưa đủ căn cứ','Phần này đang chờ căn cứ giá có thẩm quyền; không nhập giá tạm để đi tiếp.');
-    else{ensureSingleBasis(g);const b=chosenBasis(g);basisUI=`${ds24InfoGroup('Căn cứ giá',ds24InfoRow('Căn cứ',b.label),'valuation-info-group valuation-info-group--wrap')}${componentsHtml(b)}`;}
-    const c=calc(g),b=c?.src;
-    const breakdown=c?`<div class="valuation-kv-stack" data-composed-from="DS v2 / Key-value Row">${ds24KeyValueRow('Giá nguồn quy đổi',`${fmt(c.baseVnd)}/${g.uom}`)}${b.unitLineDiscount?ds24KeyValueRow('Chiết khấu dòng',`− ${fmt(b.unitLineDiscount)}/${g.uom}`):''}${b.unitDocDiscount?ds24KeyValueRow('Chiết khấu phiếu',`− ${fmt(b.unitDocDiscount)}/${g.uom}`):''}${b.unitKnownCost?ds24KeyValueRow('Chi phí mua đã có',`+ ${fmt(b.unitKnownCost)}/${g.uom}`):''}${b.unitNonDeductibleVat?ds24KeyValueRow('Thuế không khấu trừ',`+ ${fmt(b.unitNonDeductibleVat)}/${g.uom}`):''}${ds24KeyValueRow('Giá nhập thực tế',`${fmt(c.unitActual)}/${g.uom}`,true)}${g.baseUom!==g.uom?ds24KeyValueRow(`Quy đổi ${g.baseUom}`,`${fmt(c.normalizedBaseCost)}/${g.baseUom}`):''}${ds24KeyValueRow('Giá trị lần này',fmt(c.value),true)}</div>`:'';
-    return `<section class="valuation-evidence-group" data-valuation-basis="${escapeAttribute(g.valuationBasisKey)}">${valuationProductHeader({name:g.name,code:g.code,uom:g.uom,meta:duplicateBasisMeta(r,g)})}<div class="valuation-evidence-body">${basisUI}${breakdown}</div></section>`;
-  }).join('');
-};
-val03EvidenceSheet=function(r=val03Current()){
-  if(!val03EvidenceSheetOpen)return '';
-  const invalid=!val03ScopeReady(r),title=val03HasSelectedConflict(r)?'Đối chiếu căn cứ giá':'Căn cứ giá và cách tính';
-  const feedback=val03LastSourceChange?vBanner('warning','Căn cứ giá vừa thay đổi',`${val03LastSourceChange.name}: ${val03LastSourceChange.from} → ${val03LastSourceChange.to}`):bootstrapConflict(r)?vBanner('error','Không thể khởi tạo nhiều đơn giá khác nhau','Sản phẩm chưa có đơn giá chính thức; hãy xác nhận một căn cứ chuẩn hóa trước.'):invalid&&val03HasSelectedConflict(r)?vBanner('error','Cần hoàn tất căn cứ giá','Chọn căn cứ có thẩm quyền và ghi lý do cho phần đang mâu thuẫn.'):'';
-  const body=val03CalculationGroupsHtml(r)||ioEmpty('Chưa có phạm vi để xem căn cứ','Chọn ít nhất một phạm vi hàng trước khi xem căn cứ giá và cách tính.');
-  return `<div class="sheet-backdrop valuation-sheet-backdrop" data-val03-action="close-evidence-sheet"><section class="bottom-sheet val03-evidence-sheet valuation-evidence-sheet" data-ds-component="VBottomSheet" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}" onclick="event.stopPropagation()"><div class="sheet-handle"></div><div class="sheet-title"><h3>${esc(title)}</h3></div><div class="sheet-divider"></div><div class="sheet-content">${feedback}${body}<div class="sheet-actions"><button class="button button--primary" type="button" data-val03-action="close-evidence-sheet" ${val03HasSelectedConflict(r)&&!val03ScopeReady(r)?'disabled':''} data-ds-component="VButton">${val03HasSelectedConflict(r)?'Xong':'Đóng'}</button></div></div></section></div>`;
-};
-
-val03ReviewGroupsHtml=function(r){
-  const content=r.groups.filter(g=>selectedQty(g)>0).map(g=>{
-    const c=calc(g),facts=`<div class="valuation-product-facts" data-composed-from="DS v2 / Key-value Row">${ds24KeyValueRow('Giá nhập thực tế',c?`${fmt(c.unitActual)}/${g.uom}`:'—')}${g.baseUom!==g.uom&&c?ds24KeyValueRow(`Quy đổi ${g.baseUom}`,`${fmt(c.normalizedBaseCost)}/${g.baseUom}`):''}${ds24KeyValueRow('Căn cứ giá',val03SourceDetail(g))}${g.officialCostStatus==='NONE'&&c?ds24KeyValueRow('Đơn giá chính thức khởi tạo',`${fmt(c.normalizedBaseCost)}/${g.baseUom}`):''}</div>`;
-    const slices=g.slices.filter(s=>s.selected&&s.pendingQty>0).map(s=>{const q=Math.min(Number(s.selectedQty)||0,s.pendingQty),ad=val03SelectedAvailability(g,s),effect=ad>0?`+${ad} ${g.uom}`:s.availabilityNote;return valuationReadOnlyChild({title:val03ScopeLabel(g,s),subtitle:`${s.stateLabel} · ${q} ${g.uom}`,trailing:`<span class="valuation-child-value"><small>Khả dụng</small><strong>${esc(effect)}</strong></span>`});}).join('');
-    return `<div class="valuation-product-group" data-valuation-basis="${escapeAttribute(g.valuationBasisKey)}">${valuationProductHeader({name:g.name,code:g.code,uom:g.uom,value:c?fmt(c.value):'—',meta:duplicateBasisMeta(r,g)})}${facts}<div class="valuation-child-list">${slices}</div></div>`;
-  }).join('');
-  return ds24GroupedCollection(content,'valuation-product-collection valuation-review-collection','DS v2 / Icon,DS v2 / Key-value Row,VText');
-};
-val03ResultGroupsHtml=function(res){
-  const content=(res.groups||[]).map(g=>{
-    const boot=g.officialCostBootstrapStatus==='INITIALIZED'?`Đã khởi tạo · ${fmt(g.normalizedBaseCost)}/${g.baseUom}`:g.officialCostBootstrapStatus==='ALREADY_INITIALIZED'?'Đã có trước đó · không ghi đè':'';
-    const facts=`<div class="valuation-product-facts" data-composed-from="DS v2 / Key-value Row">${ds24KeyValueRow('Giá nhập thực tế',`${fmt(g.unitActual)}/${g.uom}`)}${g.baseUom!==g.uom?ds24KeyValueRow(`Quy đổi ${g.baseUom}`,`${fmt(g.normalizedBaseCost)}/${g.baseUom}`):''}${boot?ds24KeyValueRow('Đơn giá chính thức',boot):''}</div>`;
-    const slices=g.slices.map(s=>valuationReadOnlyChild({title:s.lot?`Lô ${s.lot}`:'Không theo lô',subtitle:`${s.state} · ${s.qty} ${g.uom} · ${fmt(s.value)}`,trailing:`<span class="valuation-child-value"><small>Khả dụng</small><strong>${esc(s.availabilityDelta>0?`+${s.availabilityDelta} ${g.uom}`:s.availabilityNote)}</strong></span>`})).join('');
-    return `<div class="valuation-product-group">${valuationProductHeader({name:g.name,code:g.code,uom:g.uom,value:fmt(g.value),meta:g.receiptItemRef})}${facts}<div class="valuation-child-list">${slices}</div></div>`;
-  }).join('');
-  return ds24GroupedCollection(content,'valuation-product-collection valuation-result-collection','DS v2 / Icon,DS v2 / Key-value Row,VText');
-};
 
 })();
 
@@ -433,7 +368,7 @@ const VAL03_SAMPLE_RESULT = {
     const g = val03Ui.basisGroup && r.groups.find((x) => x.id === val03Ui.basisGroup);
     if (!g) return "";
     const d = val03Ui.basisDraft || newDraft(r), errs = val03Ui.basisShowErrors ? basisErrors(d) : {};
-    const hint = g.officialCostVnd ? `Giá vốn hiện tại: ${Math.round(g.officialCostVnd).toLocaleString("vi-VN")} đ/${g.uom}` : "";
+    const hint = g.officialCostVnd ? `Giá vốn hiện tại: ${t7FmtMoney(g.officialCostVnd)}/${g.uom}` : "";
     const taxField = d.taxMode === "EXCLUDED" ? field({ label: "Thuế trên căn cứ", key: "tax", value: d.tax, attrs: 'inputmode="decimal" type="number" min="0" step="1"', suffix: "đ", aria: "Thuế trên căn cứ (đ)" }) : "";
     const body = `<div class="bj03-form">${field({ label: "Đơn giá mua", key: "price", value: d.price, helper: hint, required: true, error: errs.price, attrs: 'inputmode="decimal" type="number" min="0" step="1"', suffix: `đ/${g.uom}`, aria: `Đơn giá mua (đ/${g.uom})` })}`
       + `<div class="v430-field" role="group" aria-label="Cách hiểu giá"><span>Cách hiểu giá <b>*</b></span>${dsSegmented({ items: [["INCLUDED", "Đã gồm thuế"], ["EXCLUDED", "Chưa gồm thuế"]], value: d.taxMode, attr: "data-bj03-tax-mode", label: "Cách hiểu giá" })}</div>`
@@ -592,12 +527,11 @@ const VAL03_SAMPLE_RESULT = {
       const err = t.closest("label")?.querySelector("[data-bj03-error]"); if (err) { err.hidden = true; err.textContent = ""; }
     }
   }, true);
-  window.addEventListener("keydown", (event) => {
-    if (activeFlowId !== "UIF-03" || event.key !== "Escape") return;
+  onDialogClose["UIF-03"] = () => {
     const u = val03Ui;
-    if (!(u.basisGroup || u.confirmOpen || u.breakdownGroup || u.resultOpen)) return;
-    event.preventDefault(); closeSheets(); renderAppScreen();
-  }, true);
+    if (!(u.basisGroup || u.confirmOpen || u.breakdownGroup || u.resultOpen)) return false;
+    closeSheets(); renderAppScreen(); return true;
+  };
   // Nghe ở document (sau trình nhớ nút mở hộp thoại của core.js) để Esc / đóng trả focus về đúng nút.
   document.addEventListener("click", (event) => {
     if (activeFlowId !== "UIF-03") return;

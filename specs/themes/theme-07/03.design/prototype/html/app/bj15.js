@@ -49,7 +49,7 @@ const BJ15_RAW = [
   ["INV-OXY", "", "Xuất bán", "SO-260902-19", "02/09", "02/09 13:15", BJ15_BINH, -3, "Bán được", "UIF-11", "IO-260902-005"],
   ["INV-NOB", "DH2507", "Nhận hàng", "PN-260903-02", "03/09", "03/09 09:30", BJ15_BINH, 10, "Bán được", "UIF-02"],
   ["INV-TYLO", "TY2511", "Nhận hàng", "PN-260903-05", "03/09", "04/09 08:40", BJ15_AN, 5, "Bán được", "UIF-11", "IO-260903-017"],
-  ["INV-AMX", "", "Nhận hàng", "PN-260904-08", "04/09", "04/09 16:22", BJ15_AN, 20, "Bán được", "UIF-11", "IO-260904-021"],
+  ["INV-AMX", "", "Nhận hàng", "PN-260904-08", "04/09", "07/09 09:00", BJ15_AN, 20, "Bán được", "UIF-11", "IO-260904-021", "Nhập muộn: ghi nhận sau Đổi tình trạng ST-260906-04"],
   ["INV-NOB", "DH2509", "Xuất bán", "SO-260905-07", "05/09", "05/09 11:05", BJ15_AN, -10, "Bán được", "UIF-05"],
   ["INV-TYLO", "TY2511", "Xuất bán", "SO-260905-11", "05/09", "05/09 15:20", BJ15_BINH, -3, "Bán được", "UIF-05"],
   ["INV-AMX", "", "Đổi tình trạng", "ST-260906-04", "06/09", "06/09 14:05", BJ15_AN, 0, "Cách ly", "UIF-11", "IO-260906-022", "2 hộp chuyển sang Cách ly"],
@@ -84,7 +84,6 @@ const bj15Attr = (v) => escapeAttribute(String(v ?? ""));
 const bj15Number = (n) => cfNumber(n);
 const bj15Signed = (n) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${cfNumber(Math.abs(n))}`;
 // NBSP giữa số và "đ" để số tiền không gãy dòng.
-const bj15Money = (n, signed = false) => t7FmtMoney(n, signed).replace(" đ", " đ");
 const bj15ShowMoney = (state) => t7ShowMoney() && state !== "FINANCIAL_RESTRICTED";
 const bj15Dmy = (iso) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
 const bj15Dm = (iso) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
@@ -137,18 +136,20 @@ function bj15Ledger(productId, { from = BJ15_PERIOD_THIS.from, to = BJ15_PERIOD_
   const dateOf = (m) => (dateMode === "RECORDED" ? m.rIso : m.bIso);
   let opening = bj15BaseOf(productId, lot);
   rows.forEach((m) => { if (dateOf(m) < from) opening += m.delta; });
-  let balance = opening, inQty = 0, outQty = 0;
+  // Tồn sau từng dòng luôn theo thứ tự GHI NHẬN (số dư kho thật chỉ theo thứ tự đó), kể cả khi đang đọc theo ngày nghiệp vụ.
+  let run = bj15BaseOf(productId, lot); const after = {};
+  bj15Sorted(rows, "RECORDED").forEach((m) => { run += m.delta; after[m.id] = run; });
+  let inQty = 0, outQty = 0;
   const inRange = rows.filter((m) => dateOf(m) >= from && dateOf(m) <= to).map((m) => {
-    balance += m.delta;
     if (m.delta > 0) inQty += m.delta; else outQty -= m.delta;
-    return { ...m, balance };
+    return { ...m, balance: after[m.id] };
   });
-  return { opening, inQty, outQty, closing: balance, rows: inRange };
+  return { opening, inQty, outQty, closing: opening + inQty - outQty, rows: inRange };
 }
-// Tồn trước / sau của từng biến động theo toàn bộ lịch sử của sản phẩm (cho 056).
-function bj15Balances(productId, dateMode) {
+// Tồn trước / sau của từng biến động theo toàn bộ lịch sử của sản phẩm (cho 056), luôn theo thứ tự ghi nhận (dateMode không đổi kết quả).
+function bj15Balances(productId) {
   const out = {}; let balance = bj15BaseOf(productId, "ALL");
-  bj15Sorted(BJ15_MOVES.filter((m) => m.productId === productId), dateMode).forEach((m) => { out[m.id] = { before: balance, after: balance + m.delta }; balance += m.delta; });
+  bj15Sorted(BJ15_MOVES.filter((m) => m.productId === productId), "RECORDED").forEach((m) => { out[m.id] = { before: balance, after: balance + m.delta }; balance += m.delta; });
   return out;
 }
 function bj15Period() { return { from: cf15Period.from, to: cf15Period.to, dateMode: cf15DateMode }; }
@@ -174,7 +175,7 @@ function bj15Check() {
 }
 bj15Check();
 
-function bj15Report(state) {
+function bj15Report() {
   const q = cf15Query.trim().toLocaleLowerCase("vi");
   return bj01Products.filter((p) => !q || `${p.name} ${p.code}`.toLocaleLowerCase("vi").includes(q)).map((p) => {
     const l = bj15Ledger(p.id, bj15Period());
@@ -246,7 +247,7 @@ function bj15ReportMobileRow(r) {
   return ds24ListRow({ title: r.name, subtitle: `Đầu ${bj15Number(r.opening)} · Nhập ${bj15Number(r.inQty)} · Xuất ${bj15Number(r.outQty)}`, trailing: `<span class="bj15-end">${esc(t7Qty(bj15Number(r.closing), r.uom))}</span>`, leading: null, attrs: `data-bj15-product="${bj15Attr(r.id)}"` });
 }
 function bj15ReportBody(state) {
-  const money = bj15ShowMoney(state), rows = bj15Report(state);
+  const money = bj15ShowMoney(state), rows = bj15Report();
   const showAvail = cf15Period.to >= BJ15_TODAY;
   const search = { value: cf15Query, attr: "data-bj15-search", placeholder: "Tìm sản phẩm" };
   const columns = [
@@ -258,16 +259,17 @@ function bj15ReportBody(state) {
     ...(showAvail ? [{ key: "avail", label: "Khả dụng", align: "end", mono: true }] : []),
     ...(money ? [{ key: "valueText", label: "Giá trị cuối kỳ", align: "end", mono: true }] : []),
   ];
-  const view = rows.map((r) => ({ ...r, product: `<strong>${esc(r.name)}</strong><small>${esc(r.code)} · ${esc(r.uom)}</small>`, opening: bj15Number(r.opening), inQty: bj15Number(r.inQty), outQty: bj15Number(r.outQty), closing: bj15Number(r.closing), avail: bj15Number(r.available), valueText: money ? bj15Money(r.value) : "" }));
+  const view = rows.map((r) => ({ ...r, product: `<strong>${esc(r.name)}</strong><small>${esc(r.code)} · ${esc(r.uom)}</small>`, opening: bj15Number(r.opening), inQty: bj15Number(r.inQty), outQty: bj15Number(r.outQty), closing: bj15Number(r.closing), avail: bj15Number(r.available), valueText: money ? t7FmtMoney(r.value) : "" }));
   const total = rows.reduce((a, r) => a + r.value, 0);
   const list = k6TaskList({
     search, filters: null, columns, rows: view, total: rows.length || 1, mobileRow: (r) => bj15ReportMobileRow(rows.find((x) => x.id === r.id)),
-    rowAttr: (r) => `data-bj15-product="${bj15Attr(r.id)}" tabindex="0"`,
+    rowAttr: (r) => `data-bj15-product="${bj15Attr(r.id)}"`,
+    rowOpen: true,
     empty: { title: "Không có biến động trong kỳ", description: "Đổi khoảng ngày hoặc sản phẩm để xem dữ liệu khác." },
     filterEmpty: { title: "Không có biến động trong kỳ", description: "Đổi khoảng ngày hoặc sản phẩm để xem dữ liệu khác.", actionLabel: "Xem tất cả", actionAttr: 'data-bj15-action="clear-filter"' },
     filterEmptyAttr: "data-bj15-filter-empty", caption: "Báo cáo nhập – xuất – tồn",
   });
-  const totalLine = money ? `<p class="bj15-total" data-ds-component="VText">Tổng giá trị cuối kỳ <strong>${esc(bj15Money(total))}</strong></p>` : "";
+  const totalLine = money ? `<p class="bj15-total" data-ds-component="VText">Tổng giá trị cuối kỳ <strong>${esc(t7FmtMoney(total))}</strong></p>` : "";
   const note = `<p class="bj15-note">Không cộng các số lượng khác đơn vị thành một tổng giả.</p>`;
   return { rows, html: rows.length ? `${list}${totalLine}${note}` : `${ds24Search(cf15Query, "data-bj15-search", "Tìm sản phẩm")}${bj15Empty("FILTER_EMPTY")}` };
 }
@@ -312,7 +314,7 @@ function bj15CardBody(state) {
   const l = bj15Ledger(p.id, { ...bj15Period(), lot: cf15Lot });
   const chips = bj15LotChips(p);
   const strip = bj15Strip(l);
-  const value = money ? `<p class="bj15-total" data-ds-component="VText">Giá trị cuối kỳ <strong>${esc(bj15Money(l.closing * bj15UnitCost(p.code)))}</strong></p>` : "";
+  const value = money ? `<p class="bj15-total" data-ds-component="VText">Giá trị cuối kỳ <strong>${esc(t7FmtMoney(l.closing * bj15UnitCost(p.code)))}</strong></p>` : "";
   if (!l.rows.length) return { empty: true, html: `${chips}${strip}${value}${bj15Empty(state)}` };
   const { lotCol, rows } = bj15CardRows(p, l);
   const dateLabel = cf15DateLabel();
@@ -321,7 +323,7 @@ function bj15CardBody(state) {
     ...(lotCol ? [{ key: "lot", label: "Lô" }] : []),
     { key: "inQty", label: "Nhập", align: "end", mono: true }, { key: "outQty", label: "Xuất", align: "end", mono: true }, { key: "stock", label: "Tồn", align: "end", mono: true },
   ].map((c) => ({ ...c, cls: (r) => (r.edge ? "bj15-edge" : "") }));
-  const table = k7Table({ columns, rows, mobileRow: (r) => bj15CardMobileRow(r, p), caption: `Thẻ kho ${p.name}`, rowAttr: (r) => (r.edge ? 'class="bj15-edge-row"' : `data-bj15-movement="${bj15Attr(r.id)}" tabindex="0"`) });
+  const table = k7Table({ columns, rows, mobileRow: (r) => bj15CardMobileRow(r, p), caption: `Thẻ kho ${p.name}`, rowAttr: (r) => (r.edge ? 'class="bj15-edge-row"' : `data-bj15-movement="${bj15Attr(r.id)}"`), rowOpen: (r) => !r.edge });
   return { empty: false, html: `${chips}${strip}${value}${table}` };
 }
 
@@ -396,11 +398,11 @@ function render056BJ15(state) {
   const head = { title: esc(`${m.kind} ${m.doc}`), subtitle: esc(`${p.name}${p.tracking === "LOT" && m.lot ? ` · Lô ${m.lot}` : ""}`), back: true, backAction: back };
   if (state === "LOADING") return bj15Shell({ ...head, title: esc(title), subtitle: null, body: k1Loading({ blocks: ["heading", "card", "card"] }) });
   if (state === "CONFLICT") return bj15Shell({ ...head, body: k1Stale({ title: "Nguồn nghiệp vụ vừa thay đổi", description: "Tải lại dữ liệu trước khi dựa vào chi tiết đang xem.", actionLabel: "Tải lại", actionAttr: 'data-bj15-action="reload-movement"' }) });
-  const bal = bj15Balances(p.id, cf15DateMode)[m.id], u = p.stockUom;
+  const bal = bj15Balances(p.id)[m.id], u = p.stockUom;
   const locked = state === "LOCKED" ? k1Locked({ title: "Dữ liệu đang ở chế độ chỉ đọc", description: "Bạn có thể xem nguồn và truy vết; màn này không thay đổi dữ liệu." }) : "";
   const quantity = bj15Facts("Số lượng", [["Trước", t7Qty(bj15Number(bal.before), u)], ["Biến động", m.delta === 0 ? t7Qty(0, u) : `${bj15Signed(m.delta)} ${u}`], ["Sau", t7Qty(bj15Number(bal.after), u)], ...(p.tracking === "LOT" && m.lot ? [["Lô", m.lot]] : []), ["Tình trạng", m.state, true]]);
   const who = bj15Facts("Thời gian và người thực hiện", [["Ngày nghiệp vụ", m.business], ["Ngày ghi nhận", m.recorded], ["Người thực hiện", m.actor, true]]);
-  const value = money ? bj15Facts("Giá trị", [["Tác động", bj15Money(m.delta * bj15UnitCost(p.code), true)]]) : "";
+  const value = money ? bj15Facts("Giá trị", [["Tác động", t7FmtMoney(m.delta * bj15UnitCost(p.code), true)]]) : "";
   const buttons = [];
   if (state !== "LOCKED" && bj15SourceOf(m)) buttons.push({ label: "Mở phiếu gốc", attr: 'data-bj15-action="open-source"' });
   if (state !== "LOCKED" && bj15CanCorrect(m)) buttons.push({ label: "Sửa sai", attr: 'data-bj15-action="correct"', primary: true });
@@ -464,13 +466,12 @@ function bj15ApplyCustom() {
   return bj15SetPeriod({ from, to });
 }
 function bj15ExportStart() {
-  const p = cf15Period; clearTimeout(bj15Timer);
+  clearTimeout(bj15Timer);
   const stale = stateByScreen["SCR-055"] === "STALE";
   bj15Ui.sheet = null;
   if (stale) return bj15Go("SCR-059", "SOURCE_STALE");
   bj15Go("SCR-059", "PROCESSING");
   bj15Timer = setTimeout(() => bj15FinishExport(), BJ15_EXPORT_MS);
-  return p;
 }
 function bj15FinishExport() {
   clearTimeout(bj15Timer);
@@ -490,7 +491,7 @@ function bj15CardBack() {
 function bj15OpenSource() {
   const m = cf15Movement(), kind = bj15SourceOf(m);
   if (kind === "UIF-11") {
-    cr11SelectedId = m.opId; cr11ReturnCase = ""; cr11ReturnMovement = ""; bj11ResetUi();
+    cr11SelectedId = m.opId; cr11Return = null; bj11ResetUi();
     bj11SetState("SCR-049", cr11StateFor(cr11Current()));
     return crSwitchFlow("UIF-11", "SCR-049");
   }
@@ -498,28 +499,14 @@ function bj15OpenSource() {
 }
 function bj15Correct() {
   const m = cf15Movement(); if (!bj15CanCorrect(m)) return;
-  cr11SelectedId = m.opId; cr11ReturnMovement = m.id; cr11ReturnCase = "";
+  cr11SelectedId = m.opId; cr11Return = { kind: "movement", id: m.id };
   return applyEntry("UIF-11", "correction-from-movement", true);
 }
 
-document.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-15") return;
-  const t = event.target;
-  // Dòng của bảng (khung web) là <tr>: Enter / Space mở như bấm chuột.
-  if ((event.key === "Enter" || event.key === " ") && t.matches?.("tr[data-bj15-product], tr[data-bj15-movement]")) { event.preventDefault(); t.click(); }
-}, true);
-
-// Sheet là modal: Esc đóng, Tab chỉ đi vòng trong hộp thoại.
-window.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-15" || !bj15Ui.sheet) return;
-  if (event.key === "Escape") { event.preventDefault(); return bj15CloseSheet(); }
-  const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-  if (!dialog) return;
-  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, select, [tabindex]:not([tabindex='-1'])")].filter(bj15Visible);
-  if (!items.length) return;
-  const first = items[0], last = items[items.length - 1], at = document.activeElement;
-  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-}, true);
+onDialogClose["UIF-15"] = () => {
+  if (!(bj15Ui.sheet)) return false;
+  bj15CloseSheet(); return true;
+};
 
 // Gõ trong ô tìm: dựng lại bảng và giữ con trỏ (không dựng giữa lúc đang gõ bằng bộ gõ tiếng Việt).
 function bj15OnSearch(input) {

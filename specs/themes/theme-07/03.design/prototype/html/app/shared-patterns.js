@@ -17,9 +17,9 @@
 
 // Chủ cửa hàng và người duyệt thấy tiền; nhân viên không (chuỗi tiền không được nằm trong DOM). BJ-08 / BJ-11 dùng.
 function t7ShowMoney() { return ["approver", "owner"].includes(currentActor()); }
-// signed: kèm dấu "+" / "−" (dấu trừ Unicode, không phải gạch nối).
+// Giữa số và "đ" là NBSP để "đ" không rớt xuống dòng riêng. signed: kèm dấu "+" / "−" (dấu trừ Unicode, không phải gạch nối).
 function t7FmtMoney(n, signed = false) {
-  const abs = `${Math.round(Math.abs(n)).toLocaleString("vi-VN")} đ`;
+  const abs = `${Math.round(Math.abs(n)).toLocaleString("vi-VN")} đ`;
   return signed ? `${n < 0 ? "−" : n > 0 ? "+" : ""}${abs}` : abs;
 }
 
@@ -28,7 +28,7 @@ function t7FmtMoney(n, signed = false) {
 // Lối "Về Kho": trong chế độ Toàn Theme 7 về Hub Kho; chế độ BJ về màn đầu của luồng.
 function k1ExitAttr(firstScreen) {
   const inTheme = typeof ThemeApp !== "undefined" && ThemeApp.inTheme();
-  return inTheme ? 'data-theme-sidebar-route="inventory"' : `data-v360-action="fallback-exit" data-v360-target="${escapeAttribute(firstScreen)}"`;
+  return inTheme ? 'data-theme-sidebar-route="inventory"' : `data-k1-action="exit" data-k1-target="${escapeAttribute(firstScreen)}"`;
 }
 
 // Khung xương theo bố cục màn. Kiểu khối: "heading" | "card" | "row" | "search" | "text".
@@ -117,7 +117,7 @@ function k4ReasonFooter({ label, attr, disabled = false, reason = "", tone = "pr
 function k3Unknown({ operation, scope, ref, sentAt, safe, sourceFlow, exitAttr, facts = [], title = "Xác minh kết quả", detail = "", handoff = {} }) {
   const rows = [["Nghiệp vụ", operation], ["Phạm vi", scope], ["Mã tham chiếu", ref], ["Thời điểm gửi", sentAt], ...facts, ["Trạng thái", "Chưa kết luận"]];
   const body = `<div class="k3-column">${ioResult("Kết quả chưa xác định", `Không gửi lại thao tác. Chuyển đúng lần xử lý này sang xác minh kết quả.${safe ? ` ${safe}` : ""}`, rows, "warning")}${detail}</div>`;
-  const handoffAttr = `data-v350-action="handoff-unknown" data-source-flow="${escapeAttribute(sourceFlow)}" data-operation="${escapeAttribute(handoff.operation ?? operation)}" data-scope="${escapeAttribute(handoff.scope ?? scope)}"`;
+  const handoffAttr = `data-k3-action="handoff" data-source-flow="${escapeAttribute(sourceFlow)}" data-operation="${escapeAttribute(handoff.operation ?? operation)}" data-scope="${escapeAttribute(handoff.scope ?? scope)}"`;
   return appShell({ title, body, actions: k4Footer([{ label: "Về Kho", attr: exitAttr }, { label: "Chuyển sang xác minh", attr: handoffAttr, primary: true }]), centered: true, back: false, extraClass: "k7-wide" });
 }
 
@@ -165,22 +165,24 @@ function k7Check({ attr, checked = false, disabled = false, label }) {
 // Trả CẢ HAI dạng: bảng (khung web) và danh sách (khung mobile); đổi khung không dựng lại nên CSS ẩn / hiện.
 // columns: [{ key, label, align: "start" | "end", mono, html, cls(row) }]; empty: tham số k1Empty khi không còn dòng.
 // rowAttr(r): thuộc tính thêm cho <tr> (vd. dòng bấm được); mặc định không có.
+// rowOpen: true hoặc (r) => bool — ô đầu của dòng bấm được là nút `.k7-row-open` (nhận Tab / Enter, tên = chữ trong ô); <tr> không có tabindex.
 // select(r): { attr, checked, disabled, label } → thêm cột ô tick đầu bảng; bỏ trống thì HTML như cũ. Danh sách mobile tự dựng ô tick trong mobileRow.
-function k7Table({ columns, rows, mobileRow, caption = "", footer = "", empty = null, rowAttr = null, select = null, selectLabel = "Chọn" }) {
+function k7Table({ columns, rows, mobileRow, caption = "", footer = "", empty = null, rowAttr = null, rowOpen = false, select = null, selectLabel = "Chọn" }) {
   if (!rows.length && empty) return k1Empty(empty);
   const head = (select ? `<th scope="col" class="k7-col-check"><span class="k7-sr">${esc(selectLabel)}</span></th>` : "") + columns.map((c) => `<th scope="col" class="k7-col-${c.align || "start"}">${esc(c.label)}</th>`).join("");
-  const cell = (c, r) => `<td class="k7-col-${c.align || "start"}${c.mono ? " k7-mono" : ""}${c.cls ? ` ${c.cls(r) || ""}` : ""}">${c.html ? r[c.key] : esc(r[c.key] ?? "")}</td>`;
-  const body = rows.map((r) => `<tr${rowAttr ? ` ${rowAttr(r)}` : ""}>${select ? `<td class="k7-col-check">${k7Check(select(r))}</td>` : ""}${columns.map((c) => cell(c, r)).join("")}</tr>`).join("");
+  const opens = (r) => (typeof rowOpen === "function" ? rowOpen(r) : rowOpen);
+  const cell = (c, r, i) => {
+    const text = c.html ? r[c.key] : esc(r[c.key] ?? "");
+    return `<td class="k7-col-${c.align || "start"}${c.mono ? " k7-mono" : ""}${c.cls ? ` ${c.cls(r) || ""}` : ""}">${i === 0 && opens(r) ? `<button type="button" class="k7-row-open">${text}</button>` : text}</td>`;
+  };
+  const body = rows.map((r) => `<tr${rowAttr ? ` ${rowAttr(r)}` : ""}>${select ? `<td class="k7-col-check">${k7Check(select(r))}</td>` : ""}${columns.map((c, i) => cell(c, r, i)).join("")}</tr>`).join("");
   const foot = footer ? `<p class="k7-table__footer">${esc(footer)}</p>` : "";
   return `<div class="k7-table-wrap"><table class="k7-table" data-ds-component="VTable">${caption ? `<caption>${esc(caption)}</caption>` : ""}<thead><tr>${head}</tr></thead><tbody>${body}</tbody></table><div class="k7-table-list">${rows.map((r) => mobileRow(r)).join("")}</div>${foot}</div>`;
 }
 
 // items: [[key, label, count]] — chip có số: "Tất cả 82"; số 0 thì mờ (đổi sang chữ phụ, vẫn đủ tương phản).
 function k7FilterChips({ items, selected, attrName }) {
-  return `<div class="ds24-chip-scroll k7-chips" role="group" aria-label="Lọc dòng" data-composed-from="VChip">${items.map(([key, label, count]) => {
-    const chip = ds24Chip(key, count == null ? label : `${label} ${count}`, selected === key, attrName);
-    return count === 0 ? chip.replace('class="ds24-chip', 'class="ds24-chip k7-chip--zero') : chip;
-  }).join("")}</div>`;
+  return `<div class="ds24-chip-scroll k7-chips" role="group" aria-label="Lọc dòng" data-composed-from="VChip">${items.map(([key, label, count]) => ds24Chip(key, label, selected === key, attrName, count)).join("")}</div>`;
 }
 
 

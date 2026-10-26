@@ -26,7 +26,7 @@ const bj10Attr = (v) => escapeAttribute(String(v ?? ""));
 function bj10CanDecide() { return ["approver", "owner"].includes(currentActor()); }
 function bj10CanSeeMoney() { return ["approver", "owner"].includes(currentActor()); }
 function bj10MakerName() { return currentActor() === "owner" ? BJ10_OWNER : BJ10_STAFF; }
-function bj10Money(n) { return `${Math.round(n).toLocaleString("vi-VN")} đ`; }
+function bj10Money(n) { return t7FmtMoney(n); }
 function bj10Display(lot) { return lot.lot ? `Lô ${lot.lot}` : "Không theo lô"; }
 function bj10MethodLabel(key) { return (BJ10_METHODS.find(([k]) => k === key) || ["", "—"])[1]; }
 function bj10Request(id = bj10SelectedId) { return bj10Requests.find((r) => r.id === id) || null; }
@@ -105,6 +105,8 @@ function bj10Complete(req, actual, proof) {
   let rem = actual; for (const sl of slices) { if (rem <= 0) break; const take = Math.min(rem, sl.qty); sl.qty -= take; rem -= take; }
   req.status = "COMPLETED"; req.actual = actual; req.proof = proof?.evidence || null; req.completedBy = currentActor() === "owner" || currentActor() === "approver" ? BJ10_OWNER : BJ10_STAFF; req.completedAt = BJ10_COMPLETED_AT;
   bj10Result = { requestId: req.id, name: lot.name, lot: lot.lot, uom: lot.uom, actual, remaining: lot.qty, value, by: req.completedBy, at: req.completedAt, hasCost: Boolean(lot.unitCost) };
+  // Tiêu hủy xong là lúc tồn vật lý giảm: ghi vào sổ chung (phần hàng này vốn không nằm trong khả dụng nếu không phải "Bán được").
+  if (t7Ledger.STATE_LABEL[lot.state]) t7Ledger.post({ key: `UIF-10:${req.id}`, productId: lot.code, lot: lot.lot, kind: "Tiêu hủy", doc: req.id, delta: -actual, state: t7Ledger.STATE_LABEL[lot.state], sourceFlow: "UIF-10", opId: req.id });
   if (lot.qty <= 0) t7Lots.splice(t7Lots.indexOf(lot), 1);
   return true;
 }
@@ -302,17 +304,11 @@ document.addEventListener("input", (event) => {
   if (t.matches("[data-bj10-reject-reason]")) { bj10RejectReason = t.value; const b = document.querySelector('[data-bj10-action="reject-confirm"]'); if (b) b.disabled = !bj10RejectReason.trim(); }
 }, true);
 
-// Sheet từ chối là modal: Esc đóng, Tab chỉ đi vòng trong hộp thoại.
-window.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-10" || !bj10RejectOpen) return;
-  if (event.key === "Escape") { event.preventDefault(); bj10RejectOpen = false; return renderAppScreen(); }
-  const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-  if (!dialog) return;
-  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, [tabindex]:not([tabindex='-1'])")].filter((el) => el.offsetParent !== null);
-  if (!items.length) return;
-  const first = items[0], last = items[items.length - 1], at = document.activeElement;
-  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-}, true);
+onDialogClose["UIF-10"] = () => {
+  if (!(bj10RejectOpen)) return false;
+  bj10RejectOpen = false;
+  renderAppScreen(); return true;
+};
 
 function bj10Submit() {
   const lot = t7Lot(k5SelectedLotId);
@@ -377,6 +373,7 @@ bj10Restore();
 if (activeFlowId === "UIF-10" && !requestedScreen && onEntry[`UIF-10:${entryMode}`]) onEntry[`UIF-10:${entryMode}`]();
 
 onUnknownHandoff["UIF-10"] = () => { const r = bj10Request(); if (r) r.status = "UNKNOWN"; };
+onUnknownResolved["UIF-10"] = ({ outcome }) => { const r = bj10Requests.find((x) => x.status === "UNKNOWN"); if (r) r.status = outcome === "RECORDED" ? "COMPLETED" : "APPROVED"; };
 
 Object.assign(window.__VET45_QA__, {
   // Đề nghị chờ duyệt mẫu (Tylosin TY2408, 11 lọ) cho kịch bản duyệt / từ chối từ lối vào ?entry=approver.

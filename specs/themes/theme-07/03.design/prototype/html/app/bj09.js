@@ -33,6 +33,7 @@ const BJ09_SOURCE = {
   "tylo-ty2408": { slices: [{ balanceId: "BAL-TYLO-C", version: 3, valuationState: "VALUATION_CONFIRMED", qty: 11 }], reservationBefore: 0 },
   "amox-am2505": { slices: [{ balanceId: "BAL-AMOX-C", version: 7, valuationState: "VALUATION_CONFIRMED", qty: 2 }], reservationBefore: 0 },
   "glove-nitrile": { slices: [{ balanceId: "BAL-GLOVE-C", version: 3, valuationState: "VALUATION_CONFIRMED", qty: 3 }], reservationBefore: 0 },
+  "vitamin-ade": { slices: [{ balanceId: "BAL-VITADE-C", version: 2, valuationState: "VALUATION_CONFIRMED", qty: 2 }], reservationBefore: 0 },
   "oil-demo": { slices: [{ balanceId: "BAL-DEMO-C", version: 5, valuationState: "VALUATION_CONFIRMED", qty: 2 }], reservationBefore: 0 },
   "nob-dh2507": { slices: [{ balanceId: "BAL-NOB-C", version: 6, valuationState: "VALUATION_CONFIRMED", qty: 70 }], reservationBefore: 12 },
 };
@@ -136,6 +137,13 @@ function bj09Commit(basis, approver) {
   let rem = basis.quantity; for (const sl of src.slices) { if (rem <= 0) break; const take = Math.min(rem, sl.qty); sl.qty -= take; rem -= take; }
   src.reservationBefore = basis.reservationImpact.after;
   bj09Movement = { id: `MOV-STATE-${String(bj09Seq++).padStart(3, "0")}`, lotId: movedLotId, product: basis.product, lot: basis.lot, from: basis.from, to: basis.to, quantity: basis.quantity, uom: basis.uom, remainingSource: originalQty - basis.quantity, reservationImpact: basis.reservationImpact, approver, recordedAt: BJ09_RECORDED_AT };
+  // Đổi tình trạng không đổi tồn vật lý, chỉ chuyển phần khả dụng / không bán được: ghi vào sổ chung.
+  const L = t7Ledger.STATE_LABEL, q = basis.quantity;
+  if (L[basis.from] && L[basis.to]) {
+    t7Ledger.post({ key: `UIF-09:${bj09Movement.id}`, productId: x.code, lot: x.lot, kind: "Đổi tình trạng", doc: bj09Movement.id, delta: 0, state: L[basis.to], sourceFlow: "UIF-09", note: `${q} ${basis.uom} chuyển sang ${L[basis.to]}`,
+      eligibleDelta: (basis.to === "SELLABLE" ? q : 0) - (basis.from === "SELLABLE" ? q : 0),
+      notEligible: [...(basis.from !== "SELLABLE" ? [{ reason: L[basis.from], quantity: -q }] : []), ...(basis.to !== "SELLABLE" ? [{ reason: L[basis.to], quantity: q }] : [])] });
+  }
   bj09SetState("SCR-041", "COMPLETED");
   return true;
 }
@@ -367,17 +375,11 @@ document.addEventListener("input", (event) => {
   if (t.matches("[data-bj09-reject-reason]")) { bj09RejectReason = t.value; const b = document.querySelector('[data-bj09-action="reject-confirm"]'); if (b) b.disabled = !bj09RejectReason.trim(); }
 }, true);
 
-// Sheet từ chối là modal: Esc đóng, Tab chỉ đi vòng trong hộp thoại.
-window.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-09" || !bj09RejectOpen) return;
-  if (event.key === "Escape") { event.preventDefault(); bj09RejectOpen = false; return renderAppScreen(); }
-  const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-  if (!dialog) return;
-  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, [tabindex]:not([tabindex='-1'])")].filter((el) => el.offsetParent !== null);
-  if (!items.length) return;
-  const first = items[0], last = items[items.length - 1], at = document.activeElement;
-  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-}, true);
+onDialogClose["UIF-09"] = () => {
+  if (!(bj09RejectOpen)) return false;
+  bj09RejectOpen = false;
+  renderAppScreen(); return true;
+};
 
 function bj09Submit() {
   const lot = bj09Lot();
@@ -453,6 +455,7 @@ onPrevious["UIF-09"] = () => {
   if (idx > 0) return navigate(list[idx - 1]);
 };
 onUnknownHandoff["UIF-09"] = () => { const r = bj09Request(); if (r) r.status = "UNKNOWN"; };
+onUnknownResolved["UIF-09"] = ({ outcome }) => { const r = bj09Requests.find((x) => x.status === "UNKNOWN"); if (r) r.status = outcome === "RECORDED" ? "APPROVED" : "PENDING"; };
 
 /* ---------- Nguồn dòng cho K5 và "Chờ duyệt" (K2) ---------- */
 

@@ -78,8 +78,7 @@ const bj14Expected = {};
 
 const bj14Attr = (v) => escapeAttribute(String(v ?? ""));
 // NBSP giữa số và "đ" để số tiền không gãy dòng; dấu "+" / "−" dính số.
-function bj14Money(n, signed = false) { return t7FmtMoney(n, signed).replace(" đ", " đ"); }
-function bj14Unit(cost, uom) { return `${bj14Money(cost)}/${uom}`; }
+function bj14Unit(cost, uom) { return `${t7FmtMoney(cost)}/${uom}`; }
 function bj14CanView() { return ["owner", "approver"].includes(currentActor()); }
 
 /* ---------- Tính tiền: mọi tổng cộng từ dòng sản phẩm ---------- */
@@ -244,7 +243,7 @@ function bj14Method(alt = false) { return BJ14_METHODS[alt ? BJ14_OTHER_METHOD :
 function bj14ListRows() { return bj14Runs.filter((r) => !bj14Superseded(r)); }
 function bj14RowView(run) {
   const m = bj14StatusMeta(run);
-  return { id: run.id, title: bj14Title(run), subtitle: m.sub, status: { label: m.label, tone: m.tone }, period: run.period, scope: run.scopeLabel, adj: bj14HasResult(run) ? bj14Money(bj14Totals(run).net, true) : "—", statusHtml: ds24Badge(m.label, m.tone) };
+  return { id: run.id, title: bj14Title(run), subtitle: m.sub, status: { label: m.label, tone: m.tone }, period: run.period, scope: run.scopeLabel, adj: bj14HasResult(run) ? t7FmtMoney(bj14Totals(run).net, true) : "—", statusHtml: ds24Badge(m.label, m.tone) };
 }
 function render072BJ14(state) {
   if (activeFlowId !== "UIF-14") return renderGeneric(screens.find((s) => s.id === "SCR-072"), state);
@@ -260,7 +259,8 @@ function render072BJ14(state) {
     search: null, caption: "Công việc giá vốn",
     filters: { items: [["TODO", "Cần làm", todo.length], ["DONE", "Đã công bố", done.length]], selected: bj14Filter, attrName: "data-bj14-filter" },
     columns, rows, total: all.length,
-    rowAttr: (r) => `data-bj14-row="${bj14Attr(r.id)}" tabindex="0"`,
+    rowAttr: (r) => `data-bj14-row="${bj14Attr(r.id)}"`,
+    rowOpen: true,
     empty: { title: "Không có công việc giá vốn", description: "Chưa có phạm vi cần cập nhật hoặc chốt kỳ." },
     filterEmpty: { title: bj14Filter === "DONE" ? "Chưa có kỳ nào được công bố" : "Không còn việc cần làm", description: "Chọn mục khác để xem thêm.", actionLabel: "Xem tất cả", actionAttr: 'data-bj14-action="clear-filter"' },
     filterEmptyAttr: "data-bj14-filter-empty",
@@ -284,24 +284,24 @@ function bj14ProductRows(run) {
 }
 function bj14ProductMobileRow(r) {
   const c = bj14CostOf(r);
-  const sub = r.changed ? `${bj14Money(r.oldCost)} → ${bj14Unit(c, r.uom)}` : `Giữ ${bj14Unit(r.oldCost, r.uom)}`;
-  const trailing = r.changed ? `<strong class="bj14-diff">${esc(bj14Money(r.diff, true))}</strong>` : ds24Badge("Không đổi", "Neutral");
+  const sub = r.changed ? `${t7FmtMoney(r.oldCost)} → ${bj14Unit(c, r.uom)}` : `Giữ ${bj14Unit(r.oldCost, r.uom)}`;
+  const trailing = r.changed ? `<strong class="bj14-diff">${esc(t7FmtMoney(r.diff, true))}</strong>` : ds24Badge("Không đổi", "Neutral");
   return ds24ListRow({ title: r.name, subtitle: sub, trailing, leading: null, type: "Status", density: "Compact", interactive: false });
 }
 function bj14ProductsBlock(run) {
-  const rows = bj14ProductRows(run).map((r) => ({ ...r, product: `<strong>${esc(r.name)}</strong><small>${esc(r.code)}</small>`, oldText: bj14Unit(r.oldCost, r.uom), newText: r.changed ? bj14Unit(bj14CostOf(r), r.uom) : "—", diffHtml: r.changed ? esc(bj14Money(r.diff, true)) : ds24Badge("Không đổi", "Neutral") }));
+  const rows = bj14ProductRows(run).map((r) => ({ ...r, product: `<strong>${esc(r.name)}</strong><small>${esc(r.code)}</small>`, oldText: bj14Unit(r.oldCost, r.uom), newText: r.changed ? bj14Unit(bj14CostOf(r), r.uom) : "—", diffHtml: r.changed ? esc(t7FmtMoney(r.diff, true)) : ds24Badge("Không đổi", "Neutral") }));
   const columns = [{ key: "product", label: "Sản phẩm", html: true }, { key: "oldText", label: "Giá vốn cũ", align: "end", mono: true }, { key: "newText", label: "Giá vốn mới", align: "end", mono: true }, { key: "diffHtml", label: "Chênh lệch", align: "end", mono: true, html: true }];
   const table = k7Table({ columns, rows, mobileRow: (r) => (rows.indexOf(r) >= 3 ? "" : bj14ProductMobileRow(r)), caption: "Theo sản phẩm" });
   const more = `<button type="button" class="button button--secondary bj14-more" data-bj14-action="products-open" data-ds-component="VButton">${esc(`Xem ${rows.length} sản phẩm`)}</button>`;
   return `<section class="bj14-products">${ds24SectionTitle("Theo sản phẩm")}${table}${more}</section>`;
 }
 function bj14ResultMain(run, t) {
-  const metrics = ac310SummaryMetrics([["Giá trị tồn cuối", bj14Money(t.end)], ["Giá vốn xuất", bj14Money(t.cogs)]]);
-  const writes = `<section class="bj14-writes">${ds24SectionTitle("Thay đổi sẽ ghi khi công bố")}<p class="bj14-note">Chỉ phần chênh lệch dưới đây được ghi; chứng từ lịch sử không bị sửa.</p>${ac310KeyValueSurface("", [["Điều chỉnh giá vốn xuất", bj14Money(t.cogsAdj, true), true], ["Điều chỉnh giá trị tồn", bj14Money(t.endAdj, true), true]])}</section>`;
+  const metrics = ac310SummaryMetrics([["Giá trị tồn cuối", t7FmtMoney(t.end)], ["Giá vốn xuất", t7FmtMoney(t.cogs)]]);
+  const writes = `<section class="bj14-writes">${ds24SectionTitle("Thay đổi sẽ ghi khi công bố")}<p class="bj14-note">Chỉ phần chênh lệch dưới đây được ghi; chứng từ lịch sử không bị sửa.</p>${ac310KeyValueSurface("", [["Điều chỉnh giá vốn xuất", t7FmtMoney(t.cogsAdj, true), true], ["Điều chỉnh giá trị tồn", t7FmtMoney(t.endAdj, true), true]])}</section>`;
   return `${metrics}${writes}${bj14ProductsBlock(run)}${bj14MethodBlock(run, true)}`;
 }
 function bj14Summary(run, t) {
-  return ac310KeyValueSurface("Tóm tắt", [["Kỳ", run.period], ["Phạm vi", run.scopeLabel], ["Thời điểm chốt", run.cutoff], ["Phương pháp", BJ14_POLICY.label], ["Điều chỉnh giá vốn xuất", bj14Money(t.cogsAdj, true), true], ["Điều chỉnh giá trị tồn", bj14Money(t.endAdj, true), true]]);
+  return ac310KeyValueSurface("Tóm tắt", [["Kỳ", run.period], ["Phạm vi", run.scopeLabel], ["Thời điểm chốt", run.cutoff], ["Phương pháp", BJ14_POLICY.label], ["Điều chỉnh giá vốn xuất", t7FmtMoney(t.cogsAdj, true), true], ["Điều chỉnh giá trị tồn", t7FmtMoney(t.endAdj, true), true]]);
 }
 function bj14ScopeChoice(draft) {
   const scopes = BJ14_POLICY.periodCloseScopes || [];
@@ -323,7 +323,7 @@ function bj14BlockedBody(run) {
   return { body: `${banner}${list}${bj14MethodBlock(run, false)}`, actions: k4ReasonFooter({ label: "Tính lại", attr: 'data-bj14-action="recalculate"', disabled: k > 0, reason: `Còn ${k} việc cần xử lý` }) };
 }
 function bj14PublishSheet(run, t) {
-  const facts = `<div class="bj14-sheet-facts">${ds24InfoRow("Kỳ ghi nhận", run.period)}${ds24InfoRow("Phạm vi", run.scopeLabel)}${ds24InfoRow("Phương pháp", BJ14_POLICY.label)}${ds24KeyValueRow("Điều chỉnh giá vốn xuất", bj14Money(t.cogsAdj, true), true)}${ds24KeyValueRow("Điều chỉnh giá trị tồn", bj14Money(t.endAdj, true), true)}</div>`;
+  const facts = `<div class="bj14-sheet-facts">${ds24InfoRow("Kỳ ghi nhận", run.period)}${ds24InfoRow("Phạm vi", run.scopeLabel)}${ds24InfoRow("Phương pháp", BJ14_POLICY.label)}${ds24KeyValueRow("Điều chỉnh giá vốn xuất", t7FmtMoney(t.cogsAdj, true), true)}${ds24KeyValueRow("Điều chỉnh giá trị tồn", t7FmtMoney(t.endAdj, true), true)}</div>`;
   const sheet = k2RejectSheet({ open: true, title: "Công bố giá vốn?", description: "Kết quả đã rà soát sẽ có hiệu lực. Hệ thống chỉ ghi phần chênh lệch, không sửa chứng từ lịch sử.", withReason: false, closeAttr: 'data-bj14-action="dialog-close"', closeLabel: "Quay lại", confirmAttr: 'data-bj14-action="publish"', confirmLabel: "Công bố giá vốn" });
   return sheet.replace('<div class="sheet-actions">', `${facts}<div class="sheet-actions">`);
 }
@@ -332,7 +332,7 @@ function bj14InfoSheet(title, body) {
 }
 function bj14CompareSheet(run) {
   const t = bj14Totals(run, true), [label] = bj14Method(true);
-  return bj14InfoSheet(`Đối chiếu theo ${label}`, `<p class="bj14-note">Chỉ để đối chiếu; không dùng để công bố.</p>${ac310KeyValueSurface("", [["Giá trị tồn cuối", bj14Money(t.end)], ["Giá vốn xuất", bj14Money(t.cogs)]])}`);
+  return bj14InfoSheet(`Đối chiếu theo ${label}`, `<p class="bj14-note">Chỉ để đối chiếu; không dùng để công bố.</p>${ac310KeyValueSurface("", [["Giá trị tồn cuối", t7FmtMoney(t.end)], ["Giá vốn xuất", t7FmtMoney(t.cogs)]])}`);
 }
 function bj14ProductsSheet(run) {
   return bj14InfoSheet("Theo sản phẩm", ds24GroupedCollection(bj14ProductRows(run).map(bj14ProductMobileRow).join(""), "bj14-products-sheet"));
@@ -371,7 +371,7 @@ function render077BJ14(state) {
   if (state === "UNKNOWN") return k3Unknown({ operation: "Công bố giá vốn", scope: bj14Title(run), ref: run.id, sentAt: BJ14_AT, sourceFlow: "UIF-14", exitAttr: k1ExitAttr("SCR-072"), handoff: { operation: run.id, scope: bj14Title(run) } });
   if (state === "REJECTED_EXECUTION") return k4Result({ screenTitle: title, kind: "warning", title: "Chưa công bố giá vốn", description: "Không có điều chỉnh hoặc phiên bản giá vốn mới.", facts: [["Kỳ ghi nhận", run.period]], next: [{ ...toList, primary: true }] });
   const t = bj14Totals(run);
-  const facts = [["Kỳ ghi nhận", run.period], ["Phương pháp", BJ14_POLICY.label], ["Sản phẩm có giá vốn mới", String(t.changed)], ["Điều chỉnh giá vốn xuất", bj14Money(t.cogsAdj, true)], ["Điều chỉnh giá trị tồn", bj14Money(t.endAdj, true)], ["Công bố lúc", run.publishedAt || BJ14_AT]];
+  const facts = [["Kỳ ghi nhận", run.period], ["Phương pháp", BJ14_POLICY.label], ["Sản phẩm có giá vốn mới", String(t.changed)], ["Điều chỉnh giá vốn xuất", t7FmtMoney(t.cogsAdj, true)], ["Điều chỉnh giá trị tồn", t7FmtMoney(t.endAdj, true)], ["Công bố lúc", run.publishedAt || BJ14_AT]];
   return k4Result({ screenTitle: title, title: `Đã công bố giá vốn ${run.period}`, description: "Phần chênh lệch đã được ghi và giá vốn chính thức mới đã có hiệu lực.", facts, next: [toList, { label: "Xem báo cáo tồn", attr: 'data-bj14-action="to-report"', primary: true }] });
 }
 
@@ -449,8 +449,6 @@ function bj14ToCase(id) {
 document.addEventListener("keydown", (event) => {
   if (activeFlowId !== "UIF-14") return;
   const t = event.target;
-  // Dòng của bảng (khung web) là <tr>: Enter / Space mở như bấm chuột.
-  if ((event.key === "Enter" || event.key === " ") && t.matches?.("tr[data-bj14-row]")) { event.preventDefault(); t.click(); }
   // Thẻ chọn phạm vi là nhóm radio: mũi tên đổi lựa chọn và chuyển focus.
   if (/^Arrow(Down|Right|Up|Left)$/.test(event.key) && t.matches?.("[data-bj14-scope]") && bj14Draft) {
     event.preventDefault();
@@ -460,17 +458,10 @@ document.addEventListener("keydown", (event) => {
   }
 }, true);
 
-// Sheet là modal: Esc đóng, Tab chỉ đi vòng trong hộp thoại.
-window.addEventListener("keydown", (event) => {
-  if (activeFlowId !== "UIF-14" || !bj14Ui.sheet) return;
-  if (event.key === "Escape") { event.preventDefault(); return bj14CloseSheet(); }
-  const dialog = event.key === "Tab" && document.querySelector('#app-screen [role="dialog"]');
-  if (!dialog) return;
-  const items = [...dialog.querySelectorAll("button:not([disabled]), [href], input, textarea, select, [tabindex]:not([tabindex='-1'])")].filter(bj14Visible);
-  if (!items.length) return;
-  const first = items[0], last = items[items.length - 1], at = document.activeElement;
-  if (event.shiftKey ? (at === first || !dialog.contains(at) || at === dialog) : (at === last || !dialog.contains(at))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-}, true);
+onDialogClose["UIF-14"] = () => {
+  if (!(bj14Ui.sheet)) return false;
+  bj14CloseSheet(); return true;
+};
 
 document.addEventListener("click", (event) => {
   if (activeFlowId !== "UIF-14") return;
