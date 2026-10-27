@@ -4,13 +4,13 @@ Mỗi **plan** trong bảng Plan của từng phase ở [PLAN.md](../PLAN.md) (m
 
 ```text
 plans/
-  P1/1.1-cau-truc-core.md
-  P1/1-A-app-exception-feature-mau.md
+  P2/2-B6-ui-ux-auth.md
+  T7/T7-1-ton-kho-bj01.md
   P2/2-B1-dang-ky-cua-hang.md
   ...
 ```
 
-Tên file: `<mã plan>-<tên ngắn không dấu>.md`. Đầu file ghi các việc chi tiết mà plan gồm (cột "Gồm việc").
+Tên file: `<mã plan>-<tên ngắn không dấu>.md`. Plan đã làm + review xong thì xoá (còn trong lịch sử git); dòng của nó ở PLAN.md giữ trạng thái, cột file ghi "— (đã xoá)". Đầu file ghi các việc chi tiết mà plan gồm (cột "Gồm việc").
 
 ## Mẫu
 

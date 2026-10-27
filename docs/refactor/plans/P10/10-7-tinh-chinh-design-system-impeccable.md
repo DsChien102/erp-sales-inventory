@@ -3,7 +3,7 @@
 > Phase: P10 · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
 > Độc lập với phase nghiệp vụ; chỉ đụng `packages/vet45_design_system` (và app khi một task đổi API công khai).
 > Nguồn: hỏi đáp về lệnh `/impeccable` (2026-10-19).
-> Tài liệu liên quan: [DESIGN.md](../../../../DESIGN.md), [PRODUCT.md](../../../../PRODUCT.md), README `packages/vet45_design_system` (quy tắc example catalog, version), các plan trước: [10-4](10-4-tuong-phan-mau-thanh-dieu-huong.md), [10-5](10-5-tuong-phan-tone-va-vien-o-nhap.md), [10-6](10-6-vung-cham-nhan-inset-chuyen-dong.md).
+> Tài liệu liên quan: [DESIGN.md](../../../../DESIGN.md), [PRODUCT.md](../../../../PRODUCT.md), README `packages/vet45_design_system` (quy tắc example catalog, version), các plan trước: 10-4, 10-5, 10-6.
 
 ## 1. Mục tiêu
 

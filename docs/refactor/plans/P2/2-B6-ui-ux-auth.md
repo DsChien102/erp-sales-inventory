@@ -3,7 +3,7 @@
 > Phase: P2 · Trạng thái: Plan ✅ (duyệt 2026-10-13) | Làm ⬜ | Review ⬜
 > **Làm sau khi 2-B5 commit** (2-B5 đang sửa `invitation_token_page.dart`, `invitation_acceptance_cubit.dart` — chưa commit lúc viết plan).
 > Nguồn: `/impeccable audit apps/erp/lib/features/auth` (2026-10-13, đọc mã nguồn + đối chiếu TH-01 mục 5.2–5.6, 5.12). Điểm: **13/20** (Tiếp cận 2 · Hiệu năng 3 · Theme 3 · Chuẩn nền tảng 2 · Thích ứng 3).
-> Tài liệu liên quan: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) mục 4 (FR / chuỗi chuẩn), 5.2 ID-01, 5.3 ID-02, 5.4, 5.6 ID-06/07, 5.12; BR-65; [10-5](../P10/10-5-tuong-phan-tone-va-vien-o-nhap.md), [10-6](../P10/10-6-vung-cham-nhan-inset-chuyen-dong.md) (sửa phía design system, độc lập với plan này).
+> Tài liệu liên quan: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) mục 4 (FR / chuỗi chuẩn), 5.2 ID-01, 5.3 ID-02, 5.4, 5.6 ID-06/07, 5.12; BR-65; 10-5, 10-6 (sửa phía design system, độc lập với plan này).
 
 ## 1. Mục tiêu
 

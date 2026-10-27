@@ -3,7 +3,7 @@
 > Phase: P2 · Trạng thái: Plan ✅ (duyệt 2026-10-13) | Làm ⬜ | Review ⬜
 > Độc lập với [2-B6](2-B6-ui-ux-auth.md) (khác file; cùng sửa design system ở file khác nhau). Làm trước hay sau đều được; ai làm sau thì bump version sau.
 > Nguồn: `/impeccable audit apps/erp/lib/features/iam` (2026-10-13; đọc mã nguồn 11.470 dòng presentation + đối chiếu TH-01 mục 4 EP-06, 5.7–5.10, 5.12, BR-21). Điểm: **13/20** (Tiếp cận 2 · Hiệu năng 3 · Theme 3 · Chuẩn nền tảng 2 · Thích ứng 3).
-> Tài liệu liên quan: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) US-06.1, US-06.2 (FR-01…06), 5.8 ID-14…18, BR-21; [10-6](../P10/10-6-vung-cham-nhan-inset-chuyen-dong.md) (vùng chạm), [DESIGN.md](../../../../DESIGN.md).
+> Tài liệu liên quan: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) US-06.1, US-06.2 (FR-01…06), 5.8 ID-14…18, BR-21; 10-6 (vùng chạm), [DESIGN.md](../../../../DESIGN.md).
 
 ## 1. Mục tiêu
 

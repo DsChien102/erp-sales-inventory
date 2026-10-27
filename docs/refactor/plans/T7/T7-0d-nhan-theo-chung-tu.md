@@ -1,7 +1,7 @@
 # T7-0d — Nhận hàng theo chứng từ (SCR-007 + chế độ chứng từ của SCR-009, 084, 010, 011, 012)
 
 > Theme: Theme 7 Inventory · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
-> Thuộc [PLAN.md](../../PLAN.md) mục "Theme 7. Inventory" (đợt 0). Ước lượng: **~2,5 ngày, 2 PR**. Làm sau [T7-0c](T7-0c-trang-thai-chung-va-doi-soat.md) (✅, commit `49967966e`).
+> Thuộc [PLAN.md](../../PLAN.md) mục "Theme 7. Inventory" (đợt 0). Ước lượng: **~2,5 ngày, 2 PR**. Làm sau T7-0c (✅, commit `49967966e`).
 > Đối chiếu: UC-02-01 (BR-01…BR-09, EF-A, EF-B), Screen Contract SCR-006, 007, 009, 084, 010, 011, 012; câu chữ từ prototype v4.6.8 (`index.html?uif=UIF-02&flow=document&screen=…&state=…` và `v392-bj02-semantic-hardening.js`, trích 2026-10-15).
 
 Đường dẫn tính từ `apps/erp/lib/features/inventory/` nếu không ghi khác. Viết tắt: `VButton('X')` = `VButton(label: 'X', …)`. Câu trong ngoặc kép là câu hiển thị, chép nguyên văn.

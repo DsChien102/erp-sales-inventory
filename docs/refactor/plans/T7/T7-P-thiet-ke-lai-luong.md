@@ -1,8 +1,9 @@
 # T7-P — Thiết kế lại Theme 7 trên prototype (plan tổng thể)
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (2026-10-16, bản chi tiết) · **Giai đoạn 1 ✅** (2026-10-19) · **Giai đoạn 2 ✅** (2026-10-26, v5.20.1 — đủ 6 chặng, `SC_journey_1…6` + `SC_demo` 0 lỗi; mục 14) · Chặng 1 ✅ · Chặng 2 ✅ · Chặng 3 ✅ · Chặng 4 ✅ ([BJ-09](T7-P-bj09-tinh-trang-hang.md), [BJ-07 + BJ-10](T7-P-bj07-bj10-tra-ncc-tieu-huy.md)) · Chặng 5 ✅ (review R1–R3, v5.18.1 — [BJ-08](T7-P-bj08-kiem-ke.md), [BJ-11](T7-P-bj11-sua-sai.md), [BJ-16 + BJ-17](T7-P-bj16-bj17-doi-soat.md)) · Chặng 6 ✅ (review R1, v5.20.1 — [BJ-14](T7-P-bj14-gia-von.md), [BJ-15](T7-P-bj15-bao-cao-the-kho.md)) · **Giai đoạn 3 ✅** (2026-10-27, v5.26.1 — [plan](T7-P-G3-hoan-thien.md), [G3-7](T7-P-G3-7-do-cuoi.md)) · **T7-P đóng hẳn** (2026-10-27, người dùng chốt) — tiếp: PLAN.md T7-G4 (chốt đặc tả), T7-G5 (Flutter)
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (2026-10-16, bản chi tiết) · **Giai đoạn 1 ✅** (2026-10-19) · **Giai đoạn 2 ✅** (2026-10-26, v5.20.1 — đủ 6 chặng, `SC_journey_1…6` + `SC_demo` 0 lỗi; mục 14) · Chặng 1 ✅ · Chặng 2 ✅ · Chặng 3 ✅ · Chặng 4 ✅ (BJ-09, BJ-07 + BJ-10) · Chặng 5 ✅ (review R1–R3, v5.18.1 — BJ-08, BJ-11, BJ-16 + BJ-17) · Chặng 6 ✅ (review R1, v5.20.1 — BJ-14, BJ-15) · **Giai đoạn 3 ✅** (2026-10-27, v5.26.1 — plan (đã xoá), G3-7 (đã xoá)) · **T7-P đóng hẳn** (2026-10-27, người dùng chốt) — tiếp: PLAN.md T7-G4 (chốt đặc tả), T7-G5 (Flutter)
 > **Đã đóng:** không mở thêm gói / giai đoạn trong plan này. Lỗi prototype phát hiện sau đó sửa **theo yêu cầu từng lần** của người dùng (sửa thẳng vào tệp sở hữu, ghi CHANGELOG prototype với phiên bản vá `5.26.x`), không ghi tiến độ vào đây. Mục 6 và mục 13 giữ nguyên làm đầu vào của T7-G4 / T7-G5; review các gói Giai đoạn 3 nằm ở T7-G5.
-> Thuộc [PLAN.md](../../PLAN.md) mục "Theme 7". Làm sau [T7-P0](T7-P0-don-prototype.md) (✅).
+> Plan con đã làm + review xong được xoá ngày 2026-10-27 (nội dung còn trong lịch sử git, commit `e4958a896` trở về trước); tên tệp nhắc trong tài liệu này giữ lại để tra.
+> Thuộc [PLAN.md](../../PLAN.md) mục "Theme 7". Làm sau T7-P0 (✅).
 > Phạm vi: **chỉ prototype** — `specs/themes/theme-07/03.design/prototype/html` và tài liệu thiết kế đi kèm từng BJ (Screen Contract, UIF viết lại ở bước E). Plan này hết ở Giai đoạn 3. Chốt đặc tả (Giai đoạn 4) và code Flutter (Giai đoạn 5) nằm ở PLAN.md: **T7-G4**, **T7-G5**; mục 6 và mục 13 của plan này là đầu vào của hai việc đó.
 > **Thiết bị (chốt 2026-10-20, cho cả app):** iPhone + web trên máy tính, khung web thanh bên — xem [LUONG-UNG-DUNG mục 1.1](../../../02-yeu-cau/LUONG-UNG-DUNG.md) và [PLAN mục Thiết bị](../../PLAN.md). **Cả hai là thiết bị chính ở mọi màn** (sửa 2026-10-22): mục 2.
 > **Hai giai đoạn (chốt 2026-10-16):** Giai đoạn 1 viết lại code sạch cho cả 17 BJ + CAP-01 (giao diện không đổi, golden phải khớp); Giai đoạn 2 mới thiết kế lại từng BJ.
@@ -50,7 +51,7 @@
 
 **Người dùng:** cửa hàng có **Owner + 1–3 nhân viên**. Nhân viên lập phiếu (nhận hàng, kiểm kê, đổi tình trạng, tiêu hủy…); **Owner duyệt và là người duy nhất xem tiền**. Nhân viên dùng iPhone ngay tại kho / quầy giữa lúc bán hàng (mode Operate); Owner duyệt và làm việc giá trị lúc ở máy tính, lúc trên iPhone — cả hai phải làm trọn vẹn như nhau.
 
-**Cả hai là thiết bị chính (sửa 2026-10-22).** iPhone và web ngang nhau ở **mọi màn** của Theme 7: mỗi màn có bố cục iPhone và bố cục web (K7) được thiết kế, dựng, kiểm và audit như nhau; không có bên nào chỉ cần "không vỡ, đủ hành động". Bối cảnh ở đoạn trên (nhân viên tại kho, Owner ngồi bàn) chỉ giúp chọn bố cục cho từng bên. Bản 2026-10-20 chia "thiết bị chính theo màn" (việc tại kho → iPhone; duyệt, giá trị, giá vốn, báo cáo → web) là hiểu sai — bỏ; màn đã làm theo bản cũ mà chưa đủ hai bố cục sửa ở plan hotfix riêng [T7-HF1](T7-HF1-hai-thiet-bi.md), không thuộc plan này.
+**Cả hai là thiết bị chính (sửa 2026-10-22).** iPhone và web ngang nhau ở **mọi màn** của Theme 7: mỗi màn có bố cục iPhone và bố cục web (K7) được thiết kế, dựng, kiểm và audit như nhau; không có bên nào chỉ cần "không vỡ, đủ hành động". Bối cảnh ở đoạn trên (nhân viên tại kho, Owner ngồi bàn) chỉ giúp chọn bố cục cho từng bên. Bản 2026-10-20 chia "thiết bị chính theo màn" (việc tại kho → iPhone; duyệt, giá trị, giá vốn, báo cáo → web) là hiểu sai — bỏ; màn đã làm theo bản cũ mà chưa đủ hai bố cục sửa ở plan hotfix riêng T7-HF1, không thuộc plan này.
 
 Nhập liệu khác nhau theo thiết bị: quét mã vạch = camera trên iPhone, máy quét USB (gõ như bàn phím vào ô tìm) trên web; chọn tệp = nút trên iPhone, kéo thả được trên web; bàn phím số trên iPhone, gõ phím + Tab / Enter trên web.
 
@@ -129,7 +130,7 @@ Checklist cho mỗi gói (rút từ BJ-01, đã làm 2026-10-16):
 
 ### 4.2 Giai đoạn 1 — gói A11: dọn khung (sau khi mọi gói xong)
 
-Plan: [T7-P-A11-don-khung.md](T7-P-A11-don-khung.md). Phạm vi chốt 2026-10-19:
+Plan: T7-P-A11-don-khung.md (đã xoá). Phạm vi chốt 2026-10-19:
 
 1. `core.js` chỉ còn khung: xoá `renderFlowScreen`, `ownedFlows`, mọi khối `vNNN` (`v350`, `v360`, `v361`, `v362`–`v364`, `v440`, `v450`, `v470`); `renderAppScreen` = màn gốc theme → `ThemeApp`, còn lại → `rendererFor(...)` + `ThemeApp.afterFlowRender()`.
 2. Bước sau dựng **còn sống dù mọi luồng đã sở hữu** (bọc `render` / `MutationObserver`): `simplifyNormalBanners` → gộp vào hàm dựng BJ-08 / BJ-10 (khác biệt có chủ đích, ghi CHANGELOG); `v440` grouped surface → đo trước, 0 tác động thì xoá, còn thì giữ làm **một** bước dựng chung có tên trong khung.
@@ -266,7 +267,7 @@ Thêm khi phát sinh ở bước B; dựng trong `styles/components.css` (protot
 
 Hiện trạng (đo 2026-10-16): 96 Screen Contract nhưng prototype dùng 73 màn; 36 file có đoạn chèn `### vX.Y — …` giữa nội dung (SCR-041: 11 đoạn); hai hệ đánh số chồng nhau (khung `## 1…10` + số cũ `### 1…9`); 7 file `RETIRED` chỉ vài dòng; 9 màn `FROZEN` không có trong prototype (002, 004, 005, 020, 022–024, 060, 061); Hub 090–096 có trong `hub.js` nhưng không trong danh sách luồng; Screen Contract `FROZEN` còn UIF `IN_REVIEW`; mốc phiên bản rải v3.10.1 → v4.6.7; `prototype/README.md` 13 KB chủ yếu là lịch sử.
 
-### 7.1 Trước Giai đoạn 2 (~0,5 ngày, trước bước C của BJ đầu tiên) — plan: [T7-P-doc-don-tai-lieu.md](T7-P-doc-don-tai-lieu.md)
+### 7.1 Trước Giai đoạn 2 (~0,5 ngày, trước bước C của BJ đầu tiên) — plan: T7-P-doc-don-tai-lieu.md (đã xoá)
 
 1. **Khuôn Screen Contract mới** (`03.design/screens/_TEMPLATE.md`): Mục đích → Lối vào / lối ra → Thứ bậc thông tin → Bảng trạng thái (trạng thái · hiện gì · làm được gì · lối ra) → Hành động → Quyền và che tài chính → Thành phần DS → Bảng chữ → Truy vết (BJ / UC / UIF). Không có mục lịch sử (git + CHANGELOG giữ).
 2. **Khuôn UIF mới** (`03.design/flows/_TEMPLATE.md`): Việc thật → Lối vào / ra → Sơ đồ luồng (Mermaid, khớp prototype) → Bảng chuyển màn → Khuôn dùng chung áp dụng → Liên kết BJ khác.
@@ -300,10 +301,10 @@ Bản đồ lớp cũ đo ngày 2026-10-16 trên `app/core.js`. "Lớp" = khối
 | A5 | **BJ-03, BJ-13, BJ-14** | 014–019; 085–089; 072–077 | `val03`, `val13`, `val14` | `app.js`; `v313`; `v430` (bọc `navigate`); `v460` / `v461` (bọc `navigate`, gán lại `val14CreateRun`); `v397`; `v398`; `v399`; `v350`; `v360` (3 fixture); `v431` | 10 | 3 | Helper chung → `app/shared-valuation.js` |
 | A6 | **BJ-07, BJ-09, BJ-10** | 036, 037, 039, 041; 038, 056; 040 | `io07`, `ic09`, `ic10` | `app.js`; `v310`; `v350`; `v395` (gán lại 8 hàm `io07`*); `v3101`; `v351` (056); `v360` (041, toast); `legacy-cross-theme-copy` (038) | 12 | 3 | Màn dùng chung (036 / 037 / 041; 056 với BJ-15) dựng **theo luồng** qua móc `flowRenderers` (plan A6, khác hướng ban đầu "dựng ở `bj07.js`"); 056 của BJ-09 tạm rơi về chuỗi BJ-15 tới A9 |
 | A7 | **BJ-08** | 042–047 | `ic08`, `ac310`, `ac321` | `app.js`; `v310`; `v320`; `v340` (gán lại `ac310CountGroup`, `ac310RecountGroup`); `v350` (gán lại `ic08ConfirmationSheet`, `ic08QuantityTrigger`); `v3100`; `v360`; `legacy-sheet-cleanup` | 6 | 2 | Helper `ac310`* / `ac321`* dùng chung cụm kiểm soát → `app/shared-control.js` (dựng ở gói này); bỏ mọi `render()` lúc nạp trong `core.js` (plan A7 mục 4.1) |
-| A8 | **BJ-11, BJ-12** | 048–053; 066–071 | `cr11`, `cf12` | `app.js`; `v310`; `v350`; `v360` (toast) | 5 | 2,5 | Dùng `shared-control.js`. Chặng 0 khôi phục listener UIF-11/16/17 (mất từ A5) và `render()` trong `crSwitchFlow` / hẹn giờ duyệt (A7 xoá nhầm) — plan [A8](T7-P-A8-bj11-bj12.md) mục 2.6 |
-| A9 | **BJ-15** | 054, 055, 057, 058, 059 (+056 từ A6) | `cf15` | `app.js`; `v310`; `v320` (cả khối); `v350` (seed `cf15Movements` lúc nạp, gán lại `cf15InventoryResult`, `cf15StockCardResult`, bọc 055 / 058); `v351` (cả khối); `legacy-sheet-cleanup` (cả khối) | 4 | 1,5 | Plan [A9](T7-P-A9-bj15.md). SCR-056 BJ-09 không có `movement` tự dựng trong `bj09.js` (tránh đệ quy qua `flowScreen`); `cf`* + `ac310ProductRow` → `shared-control.js` |
-| A10 | **BJ-16, BJ-17** | 078–083 | `cr16`, `cr17` | `app.js`; `v310` (phần còn lại → xoá cả khối); `v350` (seed `cr16/17Cases` lúc nạp, `.replace` 079–082, `handoff-unknown` + `bj02-`*); `legacy-cross-theme-copy` (cả khối) | 9 | 2 | Plan [A10](T7-P-A10-bj16-bj17.md). Một bộ màn, hai luồng qua `flowRenderers`, `bj17.js` gọi lại helper `bj16.js`. Cơ chế K3 (`handoff-unknown`) → `bj17.js` + móc `onUnknownHandoff` cho UIF-05/06/07. `ac310ProductRow` / `cf`* đã ở `shared-control.js` (A9). Xong A10 = mọi luồng đã sở hữu |
-| A11 | **Dọn khung** | — | — | `v350`, `v360`, `v361`, `v362`–`v364`, `v440`, `v450`, `v470`; harness trong `core.js` / `components.css`; CSS không dùng | — | 3 | Plan [A11](T7-P-A11-don-khung.md). `v440` / `simplifyNormalBanners` vẫn chạy trên luồng đã sở hữu (bọc `render`) — đo trước. Một API `__VET45_QA__`. CSS chỉ xoá luật không dùng; gom theo BJ dời Giai đoạn 2 |
+| A8 | **BJ-11, BJ-12** | 048–053; 066–071 | `cr11`, `cf12` | `app.js`; `v310`; `v350`; `v360` (toast) | 5 | 2,5 | Dùng `shared-control.js`. Chặng 0 khôi phục listener UIF-11/16/17 (mất từ A5) và `render()` trong `crSwitchFlow` / hẹn giờ duyệt (A7 xoá nhầm) — plan A8 mục 2.6 |
+| A9 | **BJ-15** | 054, 055, 057, 058, 059 (+056 từ A6) | `cf15` | `app.js`; `v310`; `v320` (cả khối); `v350` (seed `cf15Movements` lúc nạp, gán lại `cf15InventoryResult`, `cf15StockCardResult`, bọc 055 / 058); `v351` (cả khối); `legacy-sheet-cleanup` (cả khối) | 4 | 1,5 | Plan A9. SCR-056 BJ-09 không có `movement` tự dựng trong `bj09.js` (tránh đệ quy qua `flowScreen`); `cf`* + `ac310ProductRow` → `shared-control.js` |
+| A10 | **BJ-16, BJ-17** | 078–083 | `cr16`, `cr17` | `app.js`; `v310` (phần còn lại → xoá cả khối); `v350` (seed `cr16/17Cases` lúc nạp, `.replace` 079–082, `handoff-unknown` + `bj02-`*); `legacy-cross-theme-copy` (cả khối) | 9 | 2 | Plan A10. Một bộ màn, hai luồng qua `flowRenderers`, `bj17.js` gọi lại helper `bj16.js`. Cơ chế K3 (`handoff-unknown`) → `bj17.js` + móc `onUnknownHandoff` cho UIF-05/06/07. `ac310ProductRow` / `cf`* đã ở `shared-control.js` (A9). Xong A10 = mọi luồng đã sở hữu |
+| A11 | **Dọn khung** | — | — | `v350`, `v360`, `v361`, `v362`–`v364`, `v440`, `v450`, `v470`; harness trong `core.js` / `components.css`; CSS không dùng | — | 3 | Plan A11. `v440` / `simplifyNormalBanners` vẫn chạy trên luồng đã sở hữu (bọc `render`) — đo trước. Một API `__VET45_QA__`. CSS chỉ xoá luật không dùng; gom theo BJ dời Giai đoạn 2 |
 | | **Cộng** | | | | | **~21** | |
 
 Thứ tự gợi ý: A1 → A2 → A3 (gói nhỏ, ít lớp chồng, để quen cách làm) → A4 (BJ-02, demo chính) → A5 (cụm giá trị) → A6 → A7 (dựng `shared-control.js`) → A8 → A9 → A10 → A11. Plan gói `T7-P-A<n>-*.md` được viết ngay trước khi bạn làm gói đó.
@@ -329,7 +330,7 @@ Thứ tự theo **vòng đời một cửa hàng** dùng Kho, lấy từ quan h�
 - **Vì sao chặng 1 lên đầu:** chưa khởi tạo tồn đầu kỳ thì kho chưa kích hoạt (`INVENTORY_NOT_ACTIVATED`), mọi BJ khác chưa dùng được; BJ-01 đọc kết quả của BJ-12; ngưỡng tồn (CAP-01) hiện trong BJ-01. Chặng 1 dựng 5 / 7 khuôn nên nặng nhất (BJ-12 ~3 ngày); các chặng sau nhanh hơn.
 - **Trong chặng 4:** BJ-09 trước vì nó quyết hàng đi đâu (spec: BJ-09 → BJ-07 "RTV candidate", BJ-09 → BJ-10 "Disposal candidate"); vì vậy màn dùng chung 036 / 037 / 041 và K5 dựng ở BJ-09.
 - **Home Kho:** mỗi chặng nối lối vào của mình (mốc "hết chặng", mục 4.2b); Giai đoạn 3 chỉ rà lại toàn bộ.
-- **Plan đã viết:** plan BJ-01 ([T7-P-bj01-ton-kho.md](T7-P-bj01-ton-kho.md), brief đã duyệt 2026-10-16) giữ, nay làm **sau BJ-12**; khi rà lại theo code sau Giai đoạn 1, đổi phần "dựng K1" thành dùng K1 đã dựng ở BJ-12. Plan dọn tài liệu đã xong (mục 14).
+- **Plan đã viết:** plan BJ-01 (T7-P-bj01-ton-kho.md (đã xoá), brief đã duyệt 2026-10-16) giữ, nay làm **sau BJ-12**; khi rà lại theo code sau Giai đoạn 1, đổi phần "dựng K1" thành dùng K1 đã dựng ở BJ-12. Plan dọn tài liệu đã xong (mục 14).
 - Ước lượng chưa gồm phần web (mục 12, ~+4–5 ngày — đo khi còn chia thiết bị chính / phụ; nay cả hai là chính nên cao hơn, ước lượng lại ở brief từng BJ).
 
 ---
@@ -342,7 +343,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-12 Khởi tạo tồn đầu kỳ (UIF-12)
 
-- **Plan:** [T7-P-bj12-ton-dau-ky.md](T7-P-bj12-ton-dau-ky.md) (brief mục 0 đã duyệt 2026-10-21; bước C–E).
+- **Plan:** T7-P-bj12-ton-dau-ky.md (đã xoá) (brief mục 0 đã duyệt 2026-10-21; bước C–E).
 - **Màn:** 066 Khởi tạo tồn kho (8), 067 Dữ liệu đầu kỳ (5), 068 Kết quả kiểm tra (6), 069 Rà soát (5), 070 Duyệt (5), 071 Kết quả (7).
 - **Hướng sơ bộ:** trình hướng dẫn 3 bước (tải tệp → sửa lỗi → gửi duyệt) có tiến trình; lỗi tệp liệt kê theo dòng (bảng trên web), sửa được ngay; web: kéo thả tệp + nút chọn tệp; iPhone: nút chọn tệp.
 - **Khuôn:** **dựng K1, K2, K3, K4, K7** (BJ đầu tiên của Giai đoạn 2; bảng lỗi tệp, màn duyệt SCR-070). K2: một đường cho mọi người lập (gửi → Owner duyệt); `is_owner` lập cũng gửi rồi tự duyệt ở màn duyệt (mục 2, làm rõ 2026-10-22; trước đó brief BJ-12 dựng nhánh ghi nhận thẳng, đã bỏ ở v5.8.0) — các BJ sau dùng lại.
@@ -350,17 +351,17 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-01 Theo dõi tồn & khả dụng (UIF-01)
 
-- **Plan:** [T7-P-bj01-ton-kho.md](T7-P-bj01-ton-kho.md) (brief duyệt 2026-10-16; rà lại theo code 2026-10-21).
+- **Plan:** T7-P-bj01-ton-kho.md (đã xoá) (brief duyệt 2026-10-16; rà lại theo code 2026-10-21).
 - **Ai, khi nào:** nhân viên khi có khách hỏi; Owner đầu ngày / trước khi đặt hàng.
 - **Màn:** SCR-001 Tồn kho (6 trạng thái), SCR-003 Chi tiết tồn kho (4); SCR-004 = sheet lô của 003.
 - **Lối vào / ra:** Home → "Tra cứu tồn" / ô tìm / Quản lý kho → Tồn kho; ra: chi tiết → thẻ kho (BJ-15), nhận hàng (BJ-02), xử lý lô (BJ-09).
-- **Vấn đề đã biết và hướng:** xem brief trong [T7-P-bj01-ton-kho.md](T7-P-bj01-ton-kho.md).
+- **Vấn đề đã biết và hướng:** xem brief trong T7-P-bj01-ton-kho.md (đã xoá).
 - **Khuôn:** K1 (dựng ở BJ-12).
 - **Tài liệu bước E:** SCR-001, SCR-003 (+ ghi chú 002, 004, 005, 060, 061 trong INDEX), UIF-01.
 
 #### CAP-01 Chính sách tồn & cận hạn
 
-- **Plan:** [T7-P-cap01-chinh-sach-ton.md](T7-P-cap01-chinh-sach-ton.md) (brief mục 0 đã duyệt 2026-10-21; bước C–E; `SC_journey_1` hết chặng 1).
+- **Plan:** T7-P-cap01-chinh-sach-ton.md (đã xoá) (brief mục 0 đã duyệt 2026-10-21; bước C–E; `SC_journey_1` hết chặng 1).
 - **Màn:** 062 Chính sách tồn (5), 063 Hàng cận hạn (5), 064 Rà soát (4), 065 Kết quả (4).
 - **Hướng sơ bộ:** đặt ngưỡng ngay trong chi tiết sản phẩm (BJ-01, khi "Chưa có ngưỡng tồn"); màn thiết lập chung cho mặc định cửa hàng.
 - **Khuôn:** K2 (nếu cần duyệt), K4.
@@ -370,7 +371,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-02 Nhận hàng mua (UIF-02)
 
-- **Plan:** [T7-P-bj02-nhan-hang.md](T7-P-bj02-nhan-hang.md) (brief mục 0 duyệt 2026-10-21 theo đề xuất ở 0.10; bước C0 = fixture chung chặng 2). Hướng dưới đây là bản trước brief.
+- **Plan:** T7-P-bj02-nhan-hang.md (đã xoá) (brief mục 0 duyệt 2026-10-21 theo đề xuất ở 0.10; bước C0 = fixture chung chặng 2). Hướng dưới đây là bản trước brief.
 - **Ai, khi nào:** nhân viên khi NCC giao hàng (vài lần / tuần); Owner duyệt khi vượt chứng từ hoặc nhập nhanh.
 - **Màn:** 006 Chọn cách nhận (5), 007 Chứng từ chờ nhận (7), 008 Thông tin nhập nhanh (5), 009 Hàng thực nhận (7), 084 Chi tiết hàng thực nhận (6), 010 Rà soát (7), 011 Phê duyệt (7), 012 Kết quả (7), 013 Đối soát kết quả (7).
 - **Vấn đề đã biết:** hai chế độ (theo chứng từ / nhập nhanh) chỉ phân biệt bằng một dòng phụ; SCR-008 "kéo tệp" trên điện thoại, "Xác nhận quyền sở hữu" là tiêu đề không có ô tick; người duyệt không thấy lượng theo chứng từ cạnh lượng thực nhận; SCR-012 hoàn tất sơ sài, không có bước tiếp; SCR-012 UNKNOWN vừa vòng quay vừa nút; fixture SCR-009 thiếu nhà cung cấp.
@@ -382,7 +383,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-03 Xác lập giá trị nhập ban đầu (UIF-03)
 
-- **Plan:** [T7-P-bj03-gia-nhap.md](T7-P-bj03-gia-nhap.md) (brief mục 0 duyệt 2026-10-21 theo đề xuất ở 0.10; rà lại theo code sau BJ-02).
+- **Plan:** T7-P-bj03-gia-nhap.md (đã xoá) (brief mục 0 duyệt 2026-10-21 theo đề xuất ở 0.10; rà lại theo code sau BJ-02).
 - **Ai, khi nào:** Owner, sau mỗi lần nhận hàng (hàng nhận chưa có giá).
 - **Màn:** 014 Hàng chờ xác lập (6), 015 Xác lập (7), 017 Rà soát (3), 019 Kết quả (5).
 - **Vấn đề đã biết:** SCR-015 nút chính tắt không nói lý do; "0 đ/hộp"; khoảng cách không đều; thuật ngữ "Xác lập giá trị nhập ban đầu".
@@ -392,7 +393,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-13 Điều chỉnh giá trị hàng nhập (UIF-13)
 
-- **Plan:** [T7-P-bj13-dieu-chinh-gia-tri.md](T7-P-bj13-dieu-chinh-gia-tri.md) (brief mục 0 duyệt 2026-10-21 theo đề xuất ở 0.10; `SC_journey_2` hết chặng 2).
+- **Plan:** T7-P-bj13-dieu-chinh-gia-tri.md (đã xoá) (brief mục 0 duyệt 2026-10-21 theo đề xuất ở 0.10; `SC_journey_2` hết chặng 2).
 - **Màn:** 085 Danh sách (6), 086 Phân bổ (5), 089 Kết quả (5); 087 / 088 đã retired.
 - **Hướng sơ bộ:** ~~nhập một khoản điều chỉnh~~ (sai spec: khoản đến từ nguồn, Owner không tự gõ — brief BJ-13 0.1); mở khoản từ nguồn, xem cách phân bổ, xem trước số mỗi sản phẩm nhận; chỉ Owner.
 - **Khuôn:** K1, K3, K4, K7 — **không K2** (UC-13-01 không có bước duyệt).
@@ -402,7 +403,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-04 Giữ hàng (UIF-04) và BJ-05 Lấy hàng & bàn giao (UIF-05)
 
-- **Plan:** [T7-P-bj04-bj05-lay-hang.md](T7-P-bj04-bj05-lay-hang.md) (brief mục 0 duyệt 2026-10-24 theo đề xuất ở 0.10; bước C0 = fixture chung chặng 3; dựng K6). Hướng dưới đây là bản trước brief.
+- **Plan:** T7-P-bj04-bj05-lay-hang.md (đã xoá) (brief mục 0 duyệt 2026-10-24 theo đề xuất ở 0.10; bước C0 = fixture chung chặng 3; dựng K6). Hướng dưới đây là bản trước brief.
 - **Ai, khi nào:** nhân viên soạn hàng theo đơn sỉ / online; giữ hàng do hệ thống, chỉ xem trong đơn.
 - **Màn:** 021 Giữ hàng theo đơn (3); 025 Đơn cần lấy (5), 026 Hàng cần lấy (5), 027 Chi tiết lấy hàng (3), 028 Rà soát bàn giao (5), 029 Kết quả bàn giao (5).
 - **Hướng sơ bộ:** danh sách đơn theo K6 (đang lấy / chờ bàn giao); lấy hàng theo lô FEFO gợi ý sẵn, đánh dấu từng dòng; thiếu hàng xử lý ngay trên dòng; bàn giao một bước khi đủ.
@@ -412,7 +413,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-06 Hàng khách trả (UIF-06)
 
-- **Plan:** [T7-P-bj06-hang-khach-tra.md](T7-P-bj06-hang-khach-tra.md) (brief mục 0 duyệt 2026-10-24 theo đề xuất ở 0.10; `SC_journey_3` hết chặng 3; rà lại theo code sau BJ-04 / 05). Hướng dưới đây là bản trước brief.
+- **Plan:** T7-P-bj06-hang-khach-tra.md (đã xoá) (brief mục 0 duyệt 2026-10-24 theo đề xuất ở 0.10; `SC_journey_3` hết chặng 3; rà lại theo code sau BJ-04 / 05). Hướng dưới đây là bản trước brief.
 - **Màn:** 030 Danh sách (5), 031 Chi tiết (8), 032 Chi tiết hàng trả (8), 033 Phân loại (7), 034 Ngoại lệ lô cần duyệt (5), 035 Kết quả (5).
 - **Vấn đề đã biết:** 030 và 031 cùng tiêu đề "Hàng khách trả" (lớp vá đổi tạm thành "Kiểm hàng khách trả").
 - **Hướng sơ bộ:** hai mốc rõ ràng (nhận vào → phân loại); phân loại bằng lựa chọn lớn (bán lại được / cách ly / hỏng / hết hạn); ngoại lệ lô theo K2.
@@ -423,7 +424,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-09 Tình trạng hàng (UIF-09)
 
-- **Plan:** [T7-P-bj09-tinh-trang-hang.md](T7-P-bj09-tinh-trang-hang.md) (brief mục 0 duyệt 2026-10-25 theo đề xuất ở 0.10; bước C0 = fixture chung chặng 4; dựng K5 = danh sách chung "Hàng cần xử lý" + chi tiết lô dùng chung BJ-09 / BJ-10). Hướng dưới đây là bản trước brief.
+- **Plan:** T7-P-bj09-tinh-trang-hang.md (đã xoá) (brief mục 0 duyệt 2026-10-25 theo đề xuất ở 0.10; bước C0 = fixture chung chặng 4; dựng K5 = danh sách chung "Hàng cần xử lý" + chi tiết lô dùng chung BJ-09 / BJ-10). Hướng dưới đây là bản trước brief.
 - **Màn:** dùng chung 036 / 037 / 041 + 038 Chuyển trạng thái (8), 056 Chi tiết movement (6).
 - **Vấn đề đã biết:** màn vào là SCR-036 **"Hàng chờ trả nhà cung cấp"** (tên của BJ-07).
 - **Lối vào (chốt 2026-10-20):** **một danh sách chung** "Hàng cần xử lý" (SCR-036) cho cả ba việc của chặng 4 — đổi tình trạng (BJ-09), trả NCC (BJ-07), tiêu hủy (BJ-10) — lọc theo việc, đặt ở khu Kiểm kê & xử lý; vẫn vào thẳng được từ một lô có vấn đề (BJ-01 "Xử lý lô hết hạn", Home "Lô sắp hết hạn") và mở đúng việc. Không làm danh sách riêng cho từng BJ.
@@ -433,7 +434,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-07 Trả nhà cung cấp (UIF-07)
 
-- **Plan:** [T7-P-bj07-bj10-tra-ncc-tieu-huy.md](T7-P-bj07-bj10-tra-ncc-tieu-huy.md) (chung với BJ-10; brief mục 0 duyệt 2026-10-25 theo đề xuất ở 0.10; rà lại theo code BJ-09 khi làm). Hướng dưới đây là bản trước brief.
+- **Plan:** T7-P-bj07-bj10-tra-ncc-tieu-huy.md (đã xoá) (chung với BJ-10; brief mục 0 duyệt 2026-10-25 theo đề xuất ở 0.10; rà lại theo code BJ-09 khi làm). Hướng dưới đây là bản trước brief.
 - **Màn:** 036 Hàng chờ trả NCC (6), 037 Chuẩn bị hàng trả (6), 039 Bàn giao (5), 041 Kết quả (7).
 - **Hướng sơ bộ:** vào từ danh sách chung "Hàng cần xử lý" (lọc "Trả nhà cung cấp") hoặc từ lô; dùng K5 dựng ở BJ-09 (chọn hàng → xử lý → bàn giao); thêm bước bàn giao cho nhà cung cấp (SCR-039).
 - **Khuôn thực dùng ✅ v5.14.0:** K5 (dòng yêu cầu trả của danh sách chung), K1, K3, K4 (`k4Result`, `k4ReasonFooter`), K7 (`k7Split`, `k7Table`), `dsSegmented` ("Giao cho"); thanh tiến độ mảnh BJ-02. Không khuôn mới.
@@ -441,7 +442,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-10 Tiêu hủy (UIF-10)
 
-- **Plan:** [T7-P-bj07-bj10-tra-ncc-tieu-huy.md](T7-P-bj07-bj10-tra-ncc-tieu-huy.md) (chung với BJ-07; `SC_journey_4` hết chặng 4). Hướng dưới đây là bản trước brief.
+- **Plan:** T7-P-bj07-bj10-tra-ncc-tieu-huy.md (đã xoá) (chung với BJ-07; `SC_journey_4` hết chặng 4). Hướng dưới đây là bản trước brief.
 - **Màn:** dùng chung 036 / 037 / 041 + 040 Yêu cầu tiêu hủy (10 trạng thái).
 - **Vấn đề đã biết:** cùng vấn đề tên màn vào như BJ-09; SCR-040 gánh 10 trạng thái (lập, duyệt, chờ tiêu hủy, xác nhận hoàn tất) trong một màn.
 - **Hướng sơ bộ:** vào từ danh sách chung "Hàng cần xử lý" (lọc "Tiêu hủy") hoặc đi tiếp từ BJ-09 (hàng hỏng / hết hạn); tách rõ "đề nghị" → "duyệt" → "xác nhận đã tiêu hủy" (K2 + một bước xác nhận có ảnh bằng chứng).
@@ -452,7 +453,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-08 Kiểm kê (UIF-08)
 
-- **Plan:** [T7-P-bj08-kiem-ke.md](T7-P-bj08-kiem-ke.md) (brief mục 0 duyệt 2026-10-25 theo đề xuất ở 0.10; bước C0 = fixture chung chặng 5, phân vai mỗi sản phẩm một câu chuyện để BJ-08 / 11 / 16 không sửa chồng). Hướng dưới đây là bản trước brief.
+- **Plan:** T7-P-bj08-kiem-ke.md (đã xoá) (brief mục 0 duyệt 2026-10-25 theo đề xuất ở 0.10; bước C0 = fixture chung chặng 5, phân vai mỗi sản phẩm một câu chuyện để BJ-08 / 11 / 16 không sửa chồng). Hướng dưới đây là bản trước brief.
 - **Màn:** 042 Danh sách phiên (6), 043 Tạo phiên (5), 044 Đếm mù (5), 045 Chênh lệch và đếm lại (6), 046 Duyệt điều chỉnh (6), 047 Kết quả (6).
 - **Vấn đề đã biết:** SCR-044 "Hủy phiên" đặt ngang hàng cạnh "Nộp kết quả đếm"; đếm phải gõ bàn phím từng dòng, không quét mã, không +/−.
 - **Hướng sơ bộ:** đếm mù tối ưu một tay (quét mã → bàn phím số → dòng kế tiếp); huỷ phiên chuyển vào menu của phiên; chênh lệch nổi bật bằng màu cảnh báo (đã có); duyệt theo K2.
@@ -462,7 +463,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-11 Hủy & sửa sai (UIF-11)
 
-- **Plan:** [T7-P-bj11-sua-sai.md](T7-P-bj11-sua-sai.md) (brief mục 0 duyệt 2026-10-25 theo đề xuất ở 0.10; gộp SCR-052 vào SCR-050, hủy thành sheet ở 049; lối vào từ thẻ kho để chặng 6). Hướng dưới đây là bản trước brief.
+- **Plan:** T7-P-bj11-sua-sai.md (đã xoá) (brief mục 0 duyệt 2026-10-25 theo đề xuất ở 0.10; gộp SCR-052 vào SCR-050, hủy thành sheet ở 049; lối vào từ thẻ kho để chặng 6). Hướng dưới đây là bản trước brief.
 - **Màn:** 048 Nghiệp vụ cần kiểm soát (5), 049 Chi tiết nghiệp vụ (8), 052 Hủy hoặc chọn cách sửa (6), 050 Nội dung sửa sai (5), 051 Duyệt (5), 053 Kết quả (8).
 - **Hướng sơ bộ:** vào từ chính phiếu bị sai (chi tiết nghiệp vụ, thẻ kho), không chủ yếu từ menu; một màn giải thích "huỷ được hay phải sửa" bằng lời thường; duyệt theo K2.
 - **Khuôn:** K1, K2, K3, K4, K6, K7 (+ `dsChoiceRow`, `k7EditCell`).
@@ -471,7 +472,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-16 Đối soát sai lệch và BJ-17 Kết quả chưa rõ (UIF-16, UIF-17)
 
-- **Plan:** [T7-P-bj16-bj17-doi-soat.md](T7-P-bj16-bj17-doi-soat.md) (brief mục 0 duyệt 2026-10-25 theo đề xuất ở 0.10; một danh sách "Hồ sơ cần kiểm tra" cho hai luồng, Home một dòng, bỏ SCR-080; `SC_journey_5` hết chặng 5). Hướng dưới đây là bản trước brief; phần "Đã dựng" là kết quả.
+- **Plan:** T7-P-bj16-bj17-doi-soat.md (đã xoá) (brief mục 0 duyệt 2026-10-25 theo đề xuất ở 0.10; một danh sách "Hồ sơ cần kiểm tra" cho hai luồng, Home một dòng, bỏ SCR-080; `SC_journey_5` hết chặng 5). Hướng dưới đây là bản trước brief; phần "Đã dựng" là kết quả.
 - **Màn:** 078 Hồ sơ cần kiểm tra (7), 079 Bằng chứng & kết luận (10), 080 Phương án xử lý (5), 081 Đang khôi phục số liệu (5), 082 Rà soát kết quả (3), 083 Kết quả xử lý (6); BJ-17 dùng 078 / 079 / 080 / 082 / 083.
 - **Vấn đề đã biết:** thuật ngữ kỹ thuật ("Số liệu hiển thị / Sổ kho / Nguồn nghiệp vụ / Bảo vệ phạm vi").
 - **Hướng sơ bộ:** viết lại bằng lời Owner ("Số trên app lệch 2 hộp so với sổ; sổ vẫn đúng"); một bộ màn, hai lối vào (sai lệch / kết quả chưa rõ); kết luận → hành động cụ thể (khôi phục số / chuyển sửa sai BJ-11).
@@ -483,7 +484,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-14 Tính và công bố giá vốn (UIF-14)
 
-- **Plan:** [T7-P-bj14-gia-von.md](T7-P-bj14-gia-von.md) (brief mục 0 duyệt 2026-10-26 theo đề xuất ở 0.10: thứ tự khối một câu chuyện, việc chặn đọc dữ liệu BJ-03 / 11 / 16 có nút sang nơi xử lý, fixture theo cửa hàng chặng 1–5). Hướng dưới đây là bản trước brief.
+- **Plan:** T7-P-bj14-gia-von.md (đã xoá) (brief mục 0 duyệt 2026-10-26 theo đề xuất ở 0.10: thứ tự khối một câu chuyện, việc chặn đọc dữ liệu BJ-03 / 11 / 16 có nút sang nơi xử lý, fixture theo cửa hàng chặng 1–5). Hướng dưới đây là bản trước brief.
 - **Màn:** 072 Công việc giá vốn (4), 074 Tính và rà soát (5), 077 Kết quả (4); 073 / 075 / 076 đã retired.
 - **Vấn đề đã biết:** thuật ngữ "Bình quân liên hoàn / cuối kỳ" không giải thích; màu tiền đã sửa (bước colorize).
 - **Hướng sơ bộ:** một màn "chốt kỳ" kể theo thứ tự: kỳ nào → việc gì còn chặn → kết quả tính → phần chênh lệch sẽ ghi → Công bố; giải thích phương pháp bằng một dòng.
@@ -493,7 +494,7 @@ Sắp theo chặng (mục 8.2). Hướng dưới đây là **giả thuyết đ�
 
 #### BJ-15 Báo cáo tồn và thẻ kho (UIF-15)
 
-- **Plan:** [T7-P-bj15-bao-cao-the-kho.md](T7-P-bj15-bao-cao-the-kho.md) (brief mục 0 duyệt 2026-10-26 theo đề xuất ở 0.10: bỏ 054 / 057 / 058, báo cáo nhập – xuất – tồn, thẻ kho theo lô, 056 → BJ-11 "Sửa sai", đối chiếu số BJ-01 với chặng 5; `SC_journey_6` + `SC_demo` — hết Giai đoạn 2). Hướng dưới đây là bản trước brief.
+- **Plan:** T7-P-bj15-bao-cao-the-kho.md (đã xoá) (brief mục 0 duyệt 2026-10-26 theo đề xuất ở 0.10: bỏ 054 / 057 / 058, báo cáo nhập – xuất – tồn, thẻ kho theo lô, 056 → BJ-11 "Sửa sai", đối chiếu số BJ-01 với chặng 5; `SC_journey_6` + `SC_demo` — hết Giai đoạn 2). Hướng dưới đây là bản trước brief.
 - **Màn:** 054 Tra cứu thẻ kho (5), 055 Danh sách biến động (10), 056 Chi tiết movement (6), 057 Dòng thời gian nguồn (5), 058 Xuất báo cáo (5), 059 Kết quả xuất (5).
 - **Hướng sơ bộ:** vào từ một sản phẩm (BJ-01) là đường chính; bộ lọc thời gian gọn; ngày ghi nhận / ngày nghiệp vụ là một công tắc; xuất báo cáo là hành động phụ.
 - **Khuôn:** K1, K4, K6, K7 (+ `dsSegmented`, `cf12Strip`).
@@ -523,7 +524,7 @@ Hết chặng 6: kịch bản golden `SC_demo` ✅ (v5.20.0) đi đúng các bư
 
 | Giai đoạn | Việc | Ai | Ước lượng |
 |---|---|---|---|
-| 3. Hoàn thiện | Critique lại toàn theme (≥ 32/40); `/impeccable polish`; Home Kho nối đủ lối vào — plan: [T7-P-G3-hoan-thien.md](T7-P-G3-hoan-thien.md) (✅ duyệt 2026-10-26 theo đề xuất Q1–Q5; 8 gói G3-0…G3-7) · ✅ 2026-10-27 (v5.26.1) | Bạn, theo plan; phiên review review | ~8–9 ngày (ước lượng lại ở plan) |
+| 3. Hoàn thiện | Critique lại toàn theme (≥ 32/40); `/impeccable polish`; Home Kho nối đủ lối vào — plan: T7-P-G3-hoan-thien.md (đã xoá) (✅ duyệt 2026-10-26 theo đề xuất Q1–Q5; 8 gói G3-0…G3-7) · ✅ 2026-10-27 (v5.26.1) | Bạn, theo plan; phiên review review | ~8–9 ngày (ước lượng lại ở plan) |
 
 Giai đoạn 4 (chốt đặc tả: mục 7.3, áp mục 13, registry) và Giai đoạn 5 (nối sang Flutter) **không thuộc plan này** — xem [PLAN.md](../../PLAN.md) dòng **T7-G4**, **T7-G5**.
 
@@ -679,17 +680,17 @@ Giai đoạn 4 (chốt đặc tả: mục 7.3, áp mục 13, registry) và Giai 
 | Gói | BJ | Plan | Làm | Review |
 |---|---|---|---|---|
 | A0 | BJ-01 | — | ✅ 2026-10-16 (phiên review) | ✅ |
-| A1 | BJ-04, BJ-05 | ✅ [plan](T7-P-A1-bj04-bj05.md) | ✅ | ✅ |
-| A2 | BJ-06 | ✅ [plan](T7-P-A2-bj06.md) | ✅ | ✅ |
-| A3 | CAP-01 | ✅ [plan](T7-P-A3-cap01.md) | ✅ | ✅ |
-| A4 | BJ-02 | ✅ [plan](T7-P-A4-bj02.md) | ✅ | ✅ |
-| A5 | BJ-03, BJ-13, BJ-14 | ✅ [plan](T7-P-A5-gia-tri.md) | ✅ | ✅ |
-| A6 | BJ-07, BJ-09, BJ-10 | ✅ [plan](T7-P-A6-bj07-bj09-bj10.md) | ✅ | ✅ |
-| A7 | BJ-08 | ✅ [plan](T7-P-A7-bj08.md) | ✅ | ✅ |
-| A8 | BJ-11, BJ-12 | ✅ [plan](T7-P-A8-bj11-bj12.md) | ✅ | ✅ |
-| A9 | BJ-15 | ✅ [plan](T7-P-A9-bj15.md) | ✅ | ✅ |
-| A10 | BJ-16, BJ-17 | ✅ [plan](T7-P-A10-bj16-bj17.md) | ✅ | ✅ |
-| A11 | Dọn khung | ✅ [plan](T7-P-A11-don-khung.md) | ✅ | ✅ |
+| A1 | BJ-04, BJ-05 | ✅ plan (đã xoá) | ✅ | ✅ |
+| A2 | BJ-06 | ✅ plan (đã xoá) | ✅ | ✅ |
+| A3 | CAP-01 | ✅ plan (đã xoá) | ✅ | ✅ |
+| A4 | BJ-02 | ✅ plan (đã xoá) | ✅ | ✅ |
+| A5 | BJ-03, BJ-13, BJ-14 | ✅ plan (đã xoá) | ✅ | ✅ |
+| A6 | BJ-07, BJ-09, BJ-10 | ✅ plan (đã xoá) | ✅ | ✅ |
+| A7 | BJ-08 | ✅ plan (đã xoá) | ✅ | ✅ |
+| A8 | BJ-11, BJ-12 | ✅ plan (đã xoá) | ✅ | ✅ |
+| A9 | BJ-15 | ✅ plan (đã xoá) | ✅ | ✅ |
+| A10 | BJ-16, BJ-17 | ✅ plan (đã xoá) | ✅ | ✅ |
+| A11 | Dọn khung | ✅ plan (đã xoá) | ✅ | ✅ |
 
 ### 14.1 Review Giai đoạn 1 (2026-10-19)
 
@@ -871,30 +872,30 @@ Góp ý nhỏ (không chặn, sửa khi tiện):
 
 | Việc                                                                                                           | B. Brief           | C. Dựng                    | D. Kiểm                                             | E. Ghi lại                                                                                                                                                                                                                                |
 | -------------------------------------------------------------------------------------------------------------- | ------------------ | -------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dọn tài liệu 7.1 ([plan](T7-P-doc-don-tai-lieu.md))                                                            | —                  | ✅ `684a2f7b6`, `fc93c752e` | ✅ review 2026-10-20                                 | —                                                                                                                                                                                                                                         |
+| Dọn tài liệu 7.1 (plan (đã xoá))                                                            | —                  | ✅ `684a2f7b6`, `fc93c752e` | ✅ review 2026-10-20                                 | —                                                                                                                                                                                                                                         |
 | Gói H1 — khung web cho harness, chuẩn bị trước BJ-12 · ✅ [plan](#143-gói-h1--khung-web-cho-harness) (mục 14.3) | —                  | ✅ 2026-10-21               | ✅ review 2026-10-21                                 | ✅                                                                                                                                                                                                                                         |
-| **Chặng 1 — Mở kho** (làm theo thứ tự BJ-12 → BJ-01 → CAP-01)                                                  |                    |                            |                                                     | `SC_journey_1` ✅ 2026-10-22 — review đạt; R1–R4 (v5.7.1) + R5 audit (v5.7.2) xong, chưa commit ([plan CAP-01 mục 10](T7-P-cap01-chinh-sach-ton.md#10-review)) — [plan CAP-01 mục 3.5](T7-P-cap01-chinh-sach-ton.md)                       |
-| BJ-12 ([plan](T7-P-bj12-ton-dau-ky.md))                                                                        | ✅ duyệt 2026-10-21 | ✅ 2026-10-21 (v5.5.0)      | ✅ 2026-10-21 (ghi chú mục 10 của plan)              | ✅ 2026-10-22 — R1–R4 (v5.7.1) + R5 audit (v5.7.2)                                                                                                                                                                                         |
-| BJ-01 ([plan](T7-P-bj01-ton-kho.md), rà lại 2026-10-21)                                                        | ✅ duyệt 2026-10-16 | ✅ 2026-10-21 (v5.6.0)      | ✅ 2026-10-21 (ghi chú mục 10 của plan)              | ✅ 2026-10-22 — R1–R4 (v5.7.1) + R5 audit (v5.7.2)                                                                                                                                                                                         |
-| CAP-01 ([plan](T7-P-cap01-chinh-sach-ton.md))                                                                  | ✅ duyệt 2026-10-21 | ✅ 2026-10-21 (v5.7.0)      | ✅ 2026-10-21 (ghi chú mục 8 của plan)               | ✅ 2026-10-22 — R1–R4 (v5.7.1) + R5 audit (v5.7.2)                                                                                                                                                                                         |
-| **Chặng 2 — Nhập hàng**                                                                                        |                    |                            |                                                     | `SC_journey_2` ✅ 2026-10-24 — 0 lỗi ở cả hai khung (v5.10.0); review ✅ 2026-10-26 (G3-0) — [plan BJ-13 mục 3.6](T7-P-bj13-dieu-chinh-gia-tri.md)                                                                                            |
-| BJ-02 ([plan](T7-P-bj02-nhan-hang.md))                                                                         | ✅ duyệt 2026-10-21 | ✅ 2026-10-22 (v5.8.0)      | ✅ 2026-10-22 (ghi chú mục 11 của plan; chưa review) | ✅ 2026-10-22                                                                                                                                                                                                                              |
-| BJ-03 ([plan](T7-P-bj03-gia-nhap.md))                                                                          | ✅ duyệt 2026-10-21 | ✅ 2026-10-22 (v5.9.0)      | ✅ 2026-10-22 (ghi chú mục 8 của plan; chưa review)  | ✅ 2026-10-22                                                                                                                                                                                                                              |
-| BJ-13 ([plan](T7-P-bj13-dieu-chinh-gia-tri.md))                                                                | ✅ duyệt 2026-10-21 | ✅ 2026-10-24 (v5.10.0)     | ✅ 2026-10-24 (ghi chú mục 8 của plan); review ✅ 2026-10-26 (G3-0, đạt)  | ✅ 2026-10-24                                                                                                                                                                                                                              |
-| **Chặng 3 — Bán và giao**                                                                                      |                    |                            |                                                     | `SC_journey_3` ✅ 2026-10-24 — 0 lỗi ở cả hai khung (v5.12.0, chưa commit); review **đạt** 2026-10-25 sau R1–R3 (v5.12.1) ([plan BJ-06 mục 12](T7-P-bj06-hang-khach-tra.md#12-review)) — [plan BJ-06 mục 5.4](T7-P-bj06-hang-khach-tra.md) |
-| BJ-04 / 05 ([plan](T7-P-bj04-bj05-lay-hang.md))                                                                | ✅ duyệt 2026-10-24 | ✅ 2026-10-24 (v5.11.0)     | ✅ 2026-10-24 (ghi chú mục 11 của plan; chưa review) | ✅ 2026-10-24                                                                                                                                                                                                                              |
-| BJ-06 ([plan](T7-P-bj06-hang-khach-tra.md))                                                                    | ✅ duyệt 2026-10-24 | ✅ 2026-10-24 (v5.12.0)     | ✅ 2026-10-24 (ghi chú mục 8 của plan; chưa review)  | ✅ 2026-10-24                                                                                                                                                                                                                              |
-| **Chặng 4 — Hàng có vấn đề**                                                                                   |                    |                            |                                                     | `SC_journey_4` ✅ 2026-10-26 — 0 lỗi ở cả hai khung (v5.15.0, chưa commit); review **đạt** 2026-10-25 sau R1–R3 (v5.15.1) ([plan BJ-07 + BJ-10 mục 14](T7-P-bj07-bj10-tra-ncc-tieu-huy.md#14-review)) — [plan BJ-07 + BJ-10 mục 6.4](T7-P-bj07-bj10-tra-ncc-tieu-huy.md)                                                                                                                                                      |
-| BJ-09 ([plan](T7-P-bj09-tinh-trang-hang.md))                                                                   | ✅ duyệt 2026-10-25     | ✅ 2026-10-25 (v5.13.0)| ✅ 2026-10-25 (ghi chú mục 9 của plan; chưa review)  | ✅ 2026-10-25                                                                                                                                                                                                                              |
-| BJ-07 ([plan](T7-P-bj07-bj10-tra-ncc-tieu-huy.md))                                                             | ✅ duyệt 2026-10-25     | ✅ 2026-10-26 (v5.14.0)                     | ✅ 2026-10-26 (ghi chú mục 9 của plan; chưa review)                                                   | ✅ 2026-10-26                                                                                                                                                                                                                                         |
-| BJ-10 ([plan](T7-P-bj07-bj10-tra-ncc-tieu-huy.md))                                                             | ✅ duyệt 2026-10-25     | ✅ 2026-10-26 (v5.15.0)                     | ✅ 2026-10-26 (ghi chú mục 9 của plan; chưa review)                                                   | ✅ 2026-10-26                                                                                                                                                                                                                                         |
-| **Chặng 5 — Kiểm kê và sửa sai**                                                                               |                    |                            |                                                     | `SC_journey_5` ✅ 2026-10-25 — 0 lỗi ở cả hai khung (v5.18.0, chưa commit; mốc `tools/.golden-chang5` / `-web`); review **đạt** 2026-10-25 sau R1–R3 (v5.18.1) ([plan BJ-16 + BJ-17 mục 14](T7-P-bj16-bj17-doi-soat.md#14-review)) — [plan BJ-16 + BJ-17 mục 6.4](T7-P-bj16-bj17-doi-soat.md)                                                                                                                                                              |
-| BJ-08 ([plan](T7-P-bj08-kiem-ke.md))                                                                           | ✅ duyệt 2026-10-25 | ✅ 2026-10-25 (v5.16.0)     | ✅ 2026-10-25 (ghi chú mục 10 của plan; chưa review) | ✅ 2026-10-25                                                                                                                                                                                                                                        |
-| BJ-11 ([plan](T7-P-bj11-sua-sai.md))                                                                           | ✅ duyệt 2026-10-25 | ✅ 2026-10-25 (v5.17.0)     | ✅ 2026-10-25 (ghi chú mục 9 của plan; chưa review)  | ✅ 2026-10-25                                                                                                                                                                                                                                        |
-| BJ-16 / 17 ([plan](T7-P-bj16-bj17-doi-soat.md))                                                                | ✅ duyệt 2026-10-25 | ✅ 2026-10-25 (v5.18.0)                          | ✅ 2026-10-25 (ghi chú mục 9 của plan; chưa review)                                                   | ✅ 2026-10-25                                                                                                                                                                                                                                         |
-| **Chặng 6 — Chốt kỳ** |  |  |  | `SC_journey_6` ✅ 2026-10-26 — 0 lỗi ở cả hai khung (v5.20.0; mốc `tools/.golden-chang6` / `-web`, chụp lại sau R1 ở v5.20.1); `SC_demo` ✅ — **hết Giai đoạn 2** ([plan BJ-15 mục 6.4–6.5](T7-P-bj15-bao-cao-the-kho.md)); **review ✅ 2026-10-26** (đạt sau R1, v5.20.1 — [plan BJ-15 mục 14](T7-P-bj15-bao-cao-the-kho.md)) |
-| BJ-14                                                                                                          | ✅ duyệt 2026-10-26 ([plan](T7-P-bj14-gia-von.md)) | ✅ 2026-10-26 (v5.19.0)     | ✅ 2026-10-26 (ghi chú mục 9 của plan; review ✅ 2026-10-26, R1 v5.20.1) | ✅ 2026-10-26                                                                                                                                                                                                                                         |
-| BJ-15 | ✅ duyệt 2026-10-26 ([plan](T7-P-bj15-bao-cao-the-kho.md)) | ✅ 2026-10-26 (v5.20.0) | ✅ 2026-10-26 (ghi chú mục 9 của plan; review ✅ 2026-10-26) | ✅ 2026-10-26 |
+| **Chặng 1 — Mở kho** (làm theo thứ tự BJ-12 → BJ-01 → CAP-01)                                                  |                    |                            |                                                     | `SC_journey_1` ✅ 2026-10-22 — review đạt; R1–R4 (v5.7.1) + R5 audit (v5.7.2) xong, chưa commit (plan CAP-01 mục 10 (đã xoá)) — plan CAP-01 mục 3.5 (đã xoá)                       |
+| BJ-12 (plan (đã xoá))                                                                        | ✅ duyệt 2026-10-21 | ✅ 2026-10-21 (v5.5.0)      | ✅ 2026-10-21 (ghi chú mục 10 của plan)              | ✅ 2026-10-22 — R1–R4 (v5.7.1) + R5 audit (v5.7.2)                                                                                                                                                                                         |
+| BJ-01 (plan (đã xoá), rà lại 2026-10-21)                                                        | ✅ duyệt 2026-10-16 | ✅ 2026-10-21 (v5.6.0)      | ✅ 2026-10-21 (ghi chú mục 10 của plan)              | ✅ 2026-10-22 — R1–R4 (v5.7.1) + R5 audit (v5.7.2)                                                                                                                                                                                         |
+| CAP-01 (plan (đã xoá))                                                                  | ✅ duyệt 2026-10-21 | ✅ 2026-10-21 (v5.7.0)      | ✅ 2026-10-21 (ghi chú mục 8 của plan)               | ✅ 2026-10-22 — R1–R4 (v5.7.1) + R5 audit (v5.7.2)                                                                                                                                                                                         |
+| **Chặng 2 — Nhập hàng**                                                                                        |                    |                            |                                                     | `SC_journey_2` ✅ 2026-10-24 — 0 lỗi ở cả hai khung (v5.10.0); review ✅ 2026-10-26 (G3-0) — plan BJ-13 mục 3.6 (đã xoá)                                                                                            |
+| BJ-02 (plan (đã xoá))                                                                         | ✅ duyệt 2026-10-21 | ✅ 2026-10-22 (v5.8.0)      | ✅ 2026-10-22 (ghi chú mục 11 của plan; chưa review) | ✅ 2026-10-22                                                                                                                                                                                                                              |
+| BJ-03 (plan (đã xoá))                                                                          | ✅ duyệt 2026-10-21 | ✅ 2026-10-22 (v5.9.0)      | ✅ 2026-10-22 (ghi chú mục 8 của plan; chưa review)  | ✅ 2026-10-22                                                                                                                                                                                                                              |
+| BJ-13 (plan (đã xoá))                                                                | ✅ duyệt 2026-10-21 | ✅ 2026-10-24 (v5.10.0)     | ✅ 2026-10-24 (ghi chú mục 8 của plan); review ✅ 2026-10-26 (G3-0, đạt)  | ✅ 2026-10-24                                                                                                                                                                                                                              |
+| **Chặng 3 — Bán và giao**                                                                                      |                    |                            |                                                     | `SC_journey_3` ✅ 2026-10-24 — 0 lỗi ở cả hai khung (v5.12.0, chưa commit); review **đạt** 2026-10-25 sau R1–R3 (v5.12.1) (plan BJ-06 mục 12 (đã xoá)) — plan BJ-06 mục 5.4 (đã xoá) |
+| BJ-04 / 05 (plan (đã xoá))                                                                | ✅ duyệt 2026-10-24 | ✅ 2026-10-24 (v5.11.0)     | ✅ 2026-10-24 (ghi chú mục 11 của plan; chưa review) | ✅ 2026-10-24                                                                                                                                                                                                                              |
+| BJ-06 (plan (đã xoá))                                                                    | ✅ duyệt 2026-10-24 | ✅ 2026-10-24 (v5.12.0)     | ✅ 2026-10-24 (ghi chú mục 8 của plan; chưa review)  | ✅ 2026-10-24                                                                                                                                                                                                                              |
+| **Chặng 4 — Hàng có vấn đề**                                                                                   |                    |                            |                                                     | `SC_journey_4` ✅ 2026-10-26 — 0 lỗi ở cả hai khung (v5.15.0, chưa commit); review **đạt** 2026-10-25 sau R1–R3 (v5.15.1) (plan BJ-07 + BJ-10 mục 14 (đã xoá)) — plan BJ-07 + BJ-10 mục 6.4 (đã xoá)                                                                                                                                                      |
+| BJ-09 (plan (đã xoá))                                                                   | ✅ duyệt 2026-10-25     | ✅ 2026-10-25 (v5.13.0)| ✅ 2026-10-25 (ghi chú mục 9 của plan; chưa review)  | ✅ 2026-10-25                                                                                                                                                                                                                              |
+| BJ-07 (plan (đã xoá))                                                             | ✅ duyệt 2026-10-25     | ✅ 2026-10-26 (v5.14.0)                     | ✅ 2026-10-26 (ghi chú mục 9 của plan; chưa review)                                                   | ✅ 2026-10-26                                                                                                                                                                                                                                         |
+| BJ-10 (plan (đã xoá))                                                             | ✅ duyệt 2026-10-25     | ✅ 2026-10-26 (v5.15.0)                     | ✅ 2026-10-26 (ghi chú mục 9 của plan; chưa review)                                                   | ✅ 2026-10-26                                                                                                                                                                                                                                         |
+| **Chặng 5 — Kiểm kê và sửa sai**                                                                               |                    |                            |                                                     | `SC_journey_5` ✅ 2026-10-25 — 0 lỗi ở cả hai khung (v5.18.0, chưa commit; mốc `tools/.golden-chang5` / `-web`); review **đạt** 2026-10-25 sau R1–R3 (v5.18.1) (plan BJ-16 + BJ-17 mục 14 (đã xoá)) — plan BJ-16 + BJ-17 mục 6.4 (đã xoá)                                                                                                                                                              |
+| BJ-08 (plan (đã xoá))                                                                           | ✅ duyệt 2026-10-25 | ✅ 2026-10-25 (v5.16.0)     | ✅ 2026-10-25 (ghi chú mục 10 của plan; chưa review) | ✅ 2026-10-25                                                                                                                                                                                                                                        |
+| BJ-11 (plan (đã xoá))                                                                           | ✅ duyệt 2026-10-25 | ✅ 2026-10-25 (v5.17.0)     | ✅ 2026-10-25 (ghi chú mục 9 của plan; chưa review)  | ✅ 2026-10-25                                                                                                                                                                                                                                        |
+| BJ-16 / 17 (plan (đã xoá))                                                                | ✅ duyệt 2026-10-25 | ✅ 2026-10-25 (v5.18.0)                          | ✅ 2026-10-25 (ghi chú mục 9 của plan; chưa review)                                                   | ✅ 2026-10-25                                                                                                                                                                                                                                         |
+| **Chặng 6 — Chốt kỳ** |  |  |  | `SC_journey_6` ✅ 2026-10-26 — 0 lỗi ở cả hai khung (v5.20.0; mốc `tools/.golden-chang6` / `-web`, chụp lại sau R1 ở v5.20.1); `SC_demo` ✅ — **hết Giai đoạn 2** (plan BJ-15 mục 6.4–6.5 (đã xoá)); **review ✅ 2026-10-26** (đạt sau R1, v5.20.1 — plan BJ-15 mục 14 (đã xoá)) |
+| BJ-14                                                                                                          | ✅ duyệt 2026-10-26 (plan (đã xoá)) | ✅ 2026-10-26 (v5.19.0)     | ✅ 2026-10-26 (ghi chú mục 9 của plan; review ✅ 2026-10-26, R1 v5.20.1) | ✅ 2026-10-26                                                                                                                                                                                                                                         |
+| BJ-15 | ✅ duyệt 2026-10-26 (plan (đã xoá)) | ✅ 2026-10-26 (v5.20.0) | ✅ 2026-10-26 (ghi chú mục 9 của plan; review ✅ 2026-10-26) | ✅ 2026-10-26 |
 
 ### Giai đoạn 3 — hoàn thiện
 
@@ -907,7 +908,7 @@ Góp ý nhỏ (không chặn, sửa khi tiện):
 | G3-4 | ✅ một phần | v5.24.0 | Lô Amox, giữ hàng Nobivac, fixture BJ-07 → T7-G5. Review: chuyển T7-G5 |
 | G3-5 | ✅ | v5.25.0 | Review: chuyển T7-G5 |
 | G3-6 | ✅ | v5.26.0 | Critique 29/40. Review: chuyển T7-G5 |
-| G3-7 | ✅ 2026-10-27 | v5.26.1 | Critique 31/40 cả hai khung, audit toàn theme, ngõ cụt 0 — [plan](T7-P-G3-7-do-cuoi.md). Review: chuyển T7-G5 |
+| G3-7 | ✅ 2026-10-27 | v5.26.1 | Critique 31/40 cả hai khung, audit toàn theme, ngõ cụt 0 — plan (đã xoá). Review: chuyển T7-G5 |
 
 ## 15. Câu hỏi còn mở
 
