@@ -5,6 +5,13 @@
 > Nguồn: `/impeccable audit apps/erp/lib/features/auth` (2026-10-13, đọc mã nguồn + đối chiếu TH-01 mục 5.2–5.6, 5.12). Điểm: **13/20** (Tiếp cận 2 · Hiệu năng 3 · Theme 3 · Chuẩn nền tảng 2 · Thích ứng 3).
 > Tài liệu liên quan: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) mục 4 (FR / chuỗi chuẩn), 5.2 ID-01, 5.3 ID-02, 5.4, 5.6 ID-06/07, 5.12; BR-65; 10-5, 10-6 (sửa phía design system, độc lập với plan này).
 
+> **Rà lại theo code 2026-10-27 (phiên plan / review): plan vẫn đúng, giao làm được.**
+> - 2-B5 đã commit (`67fb54ea7`) → bỏ điều kiện "làm sau khi 2-B5 commit".
+> - 15 vấn đề A–O **còn nguyên** trong code (đã grep từng mục). Số dòng lệch vài dòng: `signup_page.dart:157` (`Icons.chevron_left`), `invitation_token_entry_form.dart:52`, `invitation_registration_form.dart:139`; tìm theo nội dung, đừng tin số dòng.
+> - Design system đang ở `1.7.0`, `[Unreleased]` đã có mục của 10-7.2 (`VPageScaffold.contentMaxWidth`, hairline…). Ghi thay đổi của plan này **vào cùng `[Unreleased]`**, không mở mục mới; bump `--minor` một lần khi phát hành.
+> - **Web:** từ 2026-10-22 web là thiết bị chính. Plan này sửa UI chung (iPhone và web dùng cùng widget); **bố cục web từng màn để W-2**. Không bỏ giới hạn bề ngang 450–500 của màn auth; không đụng khung điều hướng (W-1).
+
+
 ## 1. Mục tiêu
 
 Các màn auth — phần đầu tiên của kịch bản demo — **khớp wireframe TH-01**, báo lỗi đúng chỗ, không có ngõ cụt, dùng được với VoiceOver / TalkBack và **tự điền mật khẩu / mã** của iOS và Android. Không đổi luồng, không đổi chuỗi đã chốt trong TH-01; chỉ đổi cách trình bày và hành vi UI.

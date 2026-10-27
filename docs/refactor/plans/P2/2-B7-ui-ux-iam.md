@@ -5,6 +5,14 @@
 > Nguồn: `/impeccable audit apps/erp/lib/features/iam` (2026-10-13; đọc mã nguồn 11.470 dòng presentation + đối chiếu TH-01 mục 4 EP-06, 5.7–5.10, 5.12, BR-21). Điểm: **13/20** (Tiếp cận 2 · Hiệu năng 3 · Theme 3 · Chuẩn nền tảng 2 · Thích ứng 3).
 > Tài liệu liên quan: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) US-06.1, US-06.2 (FR-01…06), 5.8 ID-14…18, BR-21; 10-6 (vùng chạm), [DESIGN.md](../../../../DESIGN.md).
 
+> **Rà lại theo code 2026-10-27 (phiên plan / review): plan vẫn đúng, giao làm được.**
+> - Vấn đề A–T **còn nguyên** (đã grep): MST `TextInputType.number` (`organization_legal_profile_form_page.dart:377`), `_TabButton` (`organization_users_body.dart:247`), file chết `organization_users_widgets.dart`, 0 `Semantics`, không `PopScope`, DS còn "Xoá" (`v_chip.dart:163`, `v_numeric_keypad_grid.dart:116`). Số dòng có lệch; tìm theo nội dung.
+> - **`VChip` đã có tham số `selected` bị `@Deprecated` ("dùng `tone: primary`")** — Q4 thêm tham số **mới `isSelected`**: đặt cả tone primary lẫn `Semantics(selected: true)`; không dùng lại `selected` cũ.
+> - TH-01 **chưa sửa** theo Q1 (FR-01 US-06.2 vẫn có "Họ và tên đệm", "Tên", "Số điện thoại") và Q6 (chuỗi "Bỏ thay đổi?") — hai việc tài liệu này vẫn thuộc plan.
+> - Design system: ghi vào `[Unreleased]` đang có của 10-7.2 (cùng 2-B6), bump `--minor` một lần.
+> - **Web:** như 2-B6 — sửa UI chung; bố cục web (danh sách – chi tiết, bảng) để W-2.
+
+
 ## 1. Mục tiêu
 
 Khu quản trị tổ chức (Owner dùng để demo "mời nhân viên") **khớp TH-01**, không có ô nhập chặn nghiệp vụ, dùng component design system thay cho bản tự dựng, và dùng được với VoiceOver / TalkBack. Không đổi luồng, RPC hay chuỗi đã chốt (trừ khi Q1 chọn khác).
