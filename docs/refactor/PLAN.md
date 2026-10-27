@@ -38,23 +38,25 @@ Web cho app (W-1 khung, W-2 Theme 1): hoãn, sau Theme 7 prototype; W-1 trước
 Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… là mã cũ, tra theo bảng này.
 
 
+**Ước lượng sửa 2026-10-27** theo tốc độ thật (nhanh hơn bản ước cũ khoảng 3–4 lần: T7-P Giai đoạn 2 ước 24 ngày, làm ~6 ngày; Giai đoạn 3 ước 8–9 ngày, làm ~2 ngày). Phạm vi giữ đủ. Hạn đồ án **2026-12-02**. Mục đã xong giữ số cũ.
+
 | Mục | Nội dung | Ước lượng | Phụ thuộc | Lý do thứ tự |
 |---|---|---|---|---|
 | Chuẩn bị | Chuẩn bị branch, commit việc dở, chụp checklist | 0,5 ngày | — | |
 | Nền core | Dựng `core/` + mẫu feature | 2 ngày | Chuẩn bị | |
-| Theme 1 | Auth, đăng ký cửa hàng, IAM | 5 ngày | Nền core | |
+| Theme 1 | Auth, đăng ký cửa hàng, IAM | 5 ngày (còn ~1–1,5: 2-B6, 2-B7) | Nền core | |
 | Theme 1 (tiếp) | Làm gọn IAM: bỏ `modules/iam`, `apps/admin`, worker, luồng onboarding cũ, Platform Admin | 3 ngày | Theme 1 | Làm nối tiếp IAM khi còn nhớ ngữ cảnh |
-| — | **Đợt kiểm IAM** (đóng Theme 1) | 1 ngày | Theme 1 (tiếp) | `db reset --linked` → kịch bản SQL → Vault → `functions deploy send-email` → bật xác minh email → kiểm tay TH-01 9.3 → tick CHECKLIST |
-| Web cho app | Khung web thanh bên (W-1) + Theme 1 trên web (W-2) | ~4 ngày | Theme 1 | Chốt thiết bị 2026-10-20. **Hoãn** sau Theme 7 prototype; W-1 phải xong trước màn Flutter web đầu tiên |
-| Theme 3 | Partner (+ dọn module, 3 module rỗng) | 2,5 ngày | Theme 1 | Nhỏ; Theme 7 (nhà cung cấp), Theme 4, Theme 5 cần nó |
-| Theme 2 | Catalog + tồn kho cơ bản (+ dọn module, 5-C chạy sau Theme 7) | 5,5 ngày | Theme 1 | Lớn; Theme 7, Theme 4, Theme 5 cần nó |
-| Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 73 màn) | ~40 ngày UI + backend (chưa ước lượng) | UI: — (làm song song); backend: Theme 2, Theme 3 | Thay tồn kho cơ bản của Theme 2; có sổ kho thật trước khi refactor Sales. Trong theme: **UI trước** (fixture), backend sau |
-| Theme 4 | Pricing (+ dọn module) | 2,5 ngày | Theme 3, Theme 2 | Sales cần giá |
-| Theme 5 | Sales (+ dọn module, nối kho 8-D) | 6,5 ngày + 8-D | Theme 3, 2, 7, 4 | Nối sổ kho Theme 7 ngay khi refactor (xuất kho khi checkout, huỷ, trả hàng, khả dụng) |
-| Theme 8 | E-invoice (+ dọn module cuối, `vet45_misa`, package module) | 8,5 ngày | Theme 5 | Khu HĐĐT trên đơn (7.3) gắn vào màn chi tiết đơn **đã refactor** ở Theme 5; hạ tầng Edge Function + `pg_cron` giống 2-B2 |
-| Dọn dẹp | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 2 ngày | Nền core → Theme 8 | |
-| Báo cáo | Tài liệu, sơ đồ cho báo cáo | 2 ngày | Dọn dẹp | |
-| | **Tổng (không gồm Theme 7)** | **~42 ngày làm việc** (Theme 7: ~40 ngày UI + backend chưa ước lượng) | | |
+| — | **Đợt kiểm IAM** (đóng Theme 1) | 0,5 ngày | Theme 1 (tiếp) | `db reset --linked` → kịch bản SQL → Vault → `functions deploy send-email` → bật xác minh email → kiểm tay TH-01 9.3 → tick CHECKLIST |
+| Web cho app | Khung web thanh bên (W-1) + Theme 1 trên web (W-2) | ~1,5 ngày | Theme 1 | Chốt thiết bị 2026-10-20. **Hoãn** sau Theme 7 prototype; W-1 phải xong trước màn Flutter web đầu tiên |
+| Theme 3 | Partner (+ dọn module, 3 module rỗng) | 1 ngày | Theme 1 | Nhỏ; Theme 7 (nhà cung cấp), Theme 4, Theme 5 cần nó |
+| Theme 2 | Catalog + tồn kho cơ bản (+ dọn module, 5-C chạy sau Theme 7) | 2 ngày | Theme 1 | Lớn; Theme 7, Theme 4, Theme 5 cần nó |
+| Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 73 màn) | ~12 ngày UI + ~4 ngày backend | UI: — (làm song song); backend: Theme 2, Theme 3 | Thay tồn kho cơ bản của Theme 2; có sổ kho thật trước khi refactor Sales. Trong theme: **UI trước** (fixture), backend sau |
+| Theme 4 | Pricing (+ dọn module) | 1 ngày | Theme 3, Theme 2 | Sales cần giá |
+| Theme 5 | Sales (+ dọn module, nối kho 8-D) | 3 ngày (gồm 8-D) | Theme 3, 2, 7, 4 | Nối sổ kho Theme 7 ngay khi refactor (xuất kho khi checkout, huỷ, trả hàng, khả dụng) |
+| Theme 8 | E-invoice (+ dọn module cuối, `vet45_misa`, package module) | 3 ngày | Theme 5 | Khu HĐĐT trên đơn (7.3) gắn vào màn chi tiết đơn **đã refactor** ở Theme 5; hạ tầng Edge Function + `pg_cron` giống 2-B2 |
+| Dọn dẹp | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 1 ngày | Nền core → Theme 8 | |
+| Báo cáo | Tài liệu, sơ đồ cho báo cáo, kịch bản demo, tập bảo vệ | 3 ngày | Dọn dẹp | |
+| | **Tổng phần còn lại** (từ 2026-10-27) | **~33 ngày** (Theme 7 ~16) — hạn đồ án **2026-12-02** (~36 ngày lịch) | | |
 
 Ước lượng tính cho 1 người. Sales và Catalog lớn nhất, nên chia nhỏ PR.
 
@@ -362,7 +364,7 @@ Chi tiết từng việc:
 
 
 
-## Web cho app (W) (~4 ngày)
+## Web cho app (W) (~1,5 ngày)
 
 **Trạng thái:** ⬜ **Hoãn** (2026-10-20, người dùng): làm Theme 7 trước (prototype T7-P, gồm khung web trên prototype), rồi mới quay lại từng theme đã làm; người dùng lướt lại tài liệu một lượt trước khi giao. W-1 đã có plan (📝, chưa duyệt) — phải xong **trước khi code Flutter màn web đầu tiên** (Theme 7 **T7-G5** hoặc theme đầu tiên quay lại). W-2 chưa viết, viết khi quay lại Theme 1 (rà cùng 2-B6 / 2-B7).
 
@@ -386,7 +388,7 @@ Chi tiết từng việc:
 
 ---
 
-## Theme 3. Partner (2 ngày)
+## Theme 3. Partner (1 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
@@ -418,7 +420,7 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-13): xem [TH-03 mục 9.2](../
 
 
 
-## Theme 2. Catalog + tồn kho cơ bản (5 ngày)
+## Theme 2. Catalog + tồn kho cơ bản (2 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
@@ -462,7 +464,7 @@ Các sửa lỗi kèm theo từng PR: xem [TH-02 mục 9.2](../02-yeu-cau/TH-02-
 
 **Trạng thái:** 🔄 UI BJ-02, BJ-03 đã code trước khi có plan (chưa commit, review ở T7-0); T7-1 đã có plan; backend chưa lập plan
 
-> Theme 7 gồm UI và backend. Làm **UI trước** (màn hình, trạng thái, điều hướng, test; plan `T7-0…T7-16`, ~40 ngày) trên fixture, làm song song từ bây giờ; **backend làm trọn một lượt ngay sau Theme 2** (chốt 2026-10-14), plan mã `T7-B1…` chưa lập, khi lập thì thêm vào bảng Plan của mục này; riêng phần nối với bán hàng (xuất kho khi checkout, huỷ, hàng trả, BJ-04/05/06) làm ở **8-D** của Theme 5. Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) v4.6.8 (17 BJ + CAP-01, FROZEN) và prototype `03.design/prototype/html`; đặc tả giữ nguyên v1 đầy đủ theo quyết định 2026-10-07 ([TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ). Phạm vi: **73 màn active / 421 trạng thái** (đếm mỗi màn một lần).
+> Theme 7 gồm UI và backend. Làm **UI trước** (màn hình, trạng thái, điều hướng, test; plan `T7-0…T7-16`, ~12 ngày) trên fixture, làm song song từ bây giờ; **backend làm trọn một lượt ngay sau Theme 2** (chốt 2026-10-14), plan mã `T7-B1…` chưa lập, khi lập thì thêm vào bảng Plan của mục này; riêng phần nối với bán hàng (xuất kho khi checkout, huỷ, hàng trả, BJ-04/05/06) làm ở **8-D** của Theme 5. Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) v4.6.8 (17 BJ + CAP-01, FROZEN) và prototype `03.design/prototype/html`; đặc tả giữ nguyên v1 đầy đủ theo quyết định 2026-10-07 ([TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ). Phạm vi: **73 màn active / 421 trạng thái** (đếm mỗi màn một lần).
 
 
 |                       |                                                                                                                                                                                      |
@@ -575,7 +577,7 @@ Các sửa lỗi kèm theo từng PR: xem [TH-02 mục 9.2](../02-yeu-cau/TH-02-
 
 ---
 
-## Theme 4. Pricing (2 ngày)
+## Theme 4. Pricing (1 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
@@ -607,7 +609,7 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 
 
 
-## Theme 5. Sales (6 ngày, phần lớn nhất)
+## Theme 5. Sales (3 ngày, gồm 8-D)
 
 **Trạng thái:** ⬜ Chưa làm
 
@@ -645,7 +647,7 @@ Chi tiết từng việc:
 
 
 
-## Theme 8. E-invoice (8 ngày)
+## Theme 8. E-invoice (3 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
@@ -679,7 +681,7 @@ Chi tiết từng việc:
 
 
 
-## Dọn dẹp (3 ngày)
+## Dọn dẹp (1 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
@@ -703,7 +705,7 @@ Chi tiết từng việc:
 
 ---
 
-## Hoàn thiện cho báo cáo đồ án (2 ngày)
+## Hoàn thiện cho báo cáo đồ án (3 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
@@ -763,7 +765,7 @@ Chi tiết từng việc:
 | Theme 7 | Mỗi BJ tự dựng lại row / sheet khiến UI lệch nhau | Bảng "Dùng lại"; Review kiểm trùng lặp trước khi ✅ |
 | Theme 7 | UI trên fixture che lỗi hợp đồng dữ liệu (kiểu số, null, phân trang) | Repository giữ chữ ký như RPC; model theo `PRJ-*` / `ENT-*`; plan backend rà lại model trước khi nối |
 | Theme 7 | 421 trạng thái → test phình | Bảng "trạng thái → test" ở T7-0 / T7-16; test theo bảng, không viết tay từng cái |
-| Theme 7 | Theme 7 lớn (UI ~40 ngày + backend) mà đứng trước Theme 4, 5, 8 → luồng demo bán hàng + HĐĐT bị đẩy lùi | Theo dõi tiến độ Theme 7 sát; nếu trễ thì chốt lại phạm vi trước khi vào Theme 4 |
+| Theme 7 | Theme 7 lớn (UI ~12 ngày + backend ~4) mà đứng trước Theme 4, 5, 8 → luồng demo bán hàng + HĐĐT bị đẩy lùi | Theo dõi tiến độ Theme 7 sát; nếu trễ thì chốt lại phạm vi trước khi vào Theme 4 |
 | Mọi theme | Thêm bố cục web làm mỗi theme dài thêm (~10–20% phần UI; cao hơn từ 2026-10-22 vì không còn thiết bị phụ) | Không cắt bằng cách hạ một thiết bị xuống phụ. Dùng lại khuôn bố cục web chung (K7 của Theme 7) thay vì dựng lại từng theme; ước lượng lại trong plan từng theme |
 | Theme 5 | Mất rule nghiệp vụ khi bỏ Aggregate | Bước 5 của công thức: port rule thành hàm thuần và giữ test cũ |
 | Theme 5 | Từ lúc sổ kho Theme 7 chạy tới khi Theme 5 nối kho (8-D), Sales cũ vẫn đọc tồn cơ bản không còn cập nhật | Chỉ ảnh hưởng Dev (Prod chưa chạy); 8-D chuyển sang khả dụng của Theme 7 |
