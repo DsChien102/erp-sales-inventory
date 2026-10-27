@@ -39,7 +39,8 @@ Nguyên tắc vàng: **đổi cách tổ chức code, không đổi hành vi ng�
 
 ### 2.3 Ngoài phạm vi (không làm trong đợt refactor)
 
-- Tính năng mới của TH-06 (công nợ đầy đủ), TH-07 (kiểm kê, giá vốn), TH-09, TH-10 (báo cáo), TH-11, TH-12.
+- Tính năng mới của TH-07 (kiểm kê, giá vốn), TH-09, TH-10 (báo cáo), TH-11, TH-12.
+- TH-06: phần **phải trả nhà cung cấp**. (Phải thu khách hàng + cấn trừ đưa vào phạm vi ngày 2026-10-27 — PLAN.md Theme 6; tích hợp AI cũng đưa vào — PLAN.md mục "Tích hợp AI".)
 - Thiết kế lại UI/UX. Màn hình giữ nguyên, chỉ đổi phần logic/data phía sau. Ngoại lệ: sửa lỗi khả năng tiếp cận (tương phản màu, nhãn/semantics thanh dưới — plan 10-4) không tính là thiết kế lại.
 - Đổi nhà cung cấp hoá đơn điện tử hoặc đổi backend khỏi Supabase.
 

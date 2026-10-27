@@ -6,7 +6,7 @@
 ## Tổng quan
 
 ```text
-Chuẩn bị ─▶ Nền core/ ─▶ Theme 1 IAM ─▶ Theme 1 làm gọn IAM ─▶ Đợt kiểm IAM ─▶ Theme 3 Partner ─▶ Theme 2 Catalog ─▶ Theme 7 Kho & Giá vốn ─▶ Theme 4 Pricing ─▶ Theme 5 Sales ─▶ Theme 8 E-invoice ─▶ Dọn dẹp ─▶ Báo cáo
+Chuẩn bị ─▶ Nền core/ ─▶ Theme 1 IAM ─▶ Theme 1 làm gọn IAM ─▶ Đợt kiểm IAM ─▶ Theme 3 Partner ─▶ Theme 2 Catalog ─▶ Theme 7 Kho & Giá vốn ─▶ Theme 4 Pricing ─▶ Theme 5 Sales ─▶ Theme 6 Công nợ ─▶ Theme 8 E-invoice ─▶ Dọn dẹp ─▶ Tích hợp AI ─▶ Báo cáo
 
 Theme 7 — UI: làm song song từ bây giờ trên dữ liệu giả, không chờ mục nào
 Web cho app (W-1 khung, W-2 Theme 1): hoãn, sau Theme 7 prototype; W-1 trước màn Flutter web đầu tiên
@@ -30,8 +30,10 @@ Web cho app (W-1 khung, W-2 Theme 1): hoãn, sau Theme 7 prototype; W-1 trước
 | Theme 7 (Kho & Giá vốn)              | —      | `T7-*` · `plans/T7`                    |
 | Theme 4 (TH-04 Chính sách giá)       | P6     | `6-*` · `plans/P6`                     |
 | Theme 5 (TH-05 Bán hàng)             | P8     | `8-*` · `plans/P8`                     |
+| Theme 6 (TH-06 Công nợ phải thu)     | —      | `T6-*` · `plans/T6`                    |
 | Theme 8 (TH-08 Hoá đơn điện tử)      | P7     | `7-*` · `plans/P7`                     |
 | Dọn dẹp                              | P9     | `9-*` · `plans/P9`                     |
+| Tích hợp AI                          | —      | `AI-*` · `plans/AI`                    |
 | Báo cáo                              | P10    | `10-*` · `plans/P10`                   |
 
 
@@ -53,10 +55,12 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 | Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 73 màn) | ~12 ngày UI + ~4 ngày backend | UI: — (làm song song); backend: Theme 2, Theme 3 | Thay tồn kho cơ bản của Theme 2; có sổ kho thật trước khi refactor Sales. Trong theme: **UI trước** (fixture), backend sau |
 | Theme 4 | Pricing (+ dọn module) | 1 ngày | Theme 3, Theme 2 | Sales cần giá |
 | Theme 5 | Sales (+ dọn module, nối kho 8-D) | 3 ngày (gồm 8-D) | Theme 3, 2, 7, 4 | Nối sổ kho Theme 7 ngay khi refactor (xuất kho khi checkout, huỷ, trả hàng, khả dụng) |
+| Theme 6 | **Công nợ phải thu khách hàng** (từ đơn bán) + thu tiền + cấn trừ; không có phải trả nhà cung cấp | ~4,5 ngày | Theme 5, Theme 3 | Phải thu đi ra từ công nợ đơn của Theme 5 |
 | Theme 8 | E-invoice (+ dọn module cuối, `vet45_misa`, package module) | 3 ngày | Theme 5 | Khu HĐĐT trên đơn (7.3) gắn vào màn chi tiết đơn **đã refactor** ở Theme 5; hạ tầng Edge Function + `pg_cron` giống 2-B2 |
 | Dọn dẹp | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 1 ngày | Nền core → Theme 8 | |
-| Báo cáo | Tài liệu, sơ đồ cho báo cáo, kịch bản demo, tập bảo vệ | 3 ngày | Dọn dẹp | |
-| | **Tổng phần còn lại** (từ 2026-10-27) | **~33 ngày** (Theme 7 ~16) — hạn đồ án **2026-12-02** (~36 ngày lịch) | | |
+| Tích hợp AI | Một tính năng AI trong app (giảng viên yêu cầu "tích hợp AI vào app", chưa có đề xuất cụ thể — chọn ở AI-0) | ~3 ngày | Dọn dẹp (cần dữ liệu thật của các theme) | Người dùng chốt làm **cuối cùng** (2026-10-27) |
+| Báo cáo | Tài liệu, sơ đồ cho báo cáo, kịch bản demo, tập bảo vệ | 3 ngày | Tích hợp AI | |
+| | **Tổng phần còn lại** (từ 2026-10-27) | **~40,5 ngày** (Theme 7 ~16, Theme 6 ~4,5, AI ~3) — hạn đồ án **2026-12-02** (~36 ngày lịch): **hụt ~4–5 ngày** so với tốc độ đang tính | | |
 
 Ước lượng tính cho 1 người. Sales và Catalog lớn nhất, nên chia nhỏ PR.
 
@@ -647,6 +651,22 @@ Chi tiết từng việc:
 
 
 
+## Theme 6. Công nợ phải thu (~4,5 ngày)
+
+**Trạng thái:** ⬜ Chưa làm. Chưa có tài liệu yêu cầu TH-06 trong `docs/02-yeu-cau`; SCOPE.md mục 2.3 trước đây để TH-06 ngoài phạm vi, nay đưa vào (chốt 2026-10-27).
+
+**Phạm vi (chốt 2026-10-27):** chỉ **phải thu khách hàng**, sinh từ phần còn phải thu của đơn bán (công nợ đơn ở TH-05); **có cấn trừ**. **Không** có phải trả nhà cung cấp.
+
+| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
+| ---- | -------- | -------- | ---- | --- | ------ |
+| **T6-0** | Viết `docs/02-yeu-cau/TH-06-cong-no.md` (độ sâu như TH-07 v1: US / AC / EC / Gherkin / màn): công nợ theo khách, thu tiền, phân bổ vào đơn, cấn trừ, quyền, chữ trên màn. Đầu vào: bản nháp BA `specs/themes/theme-06` v2.1.3 (knowledge, 6 journey, aggregate; bị xoá ở commit `5db3c62d9`, đọc bằng `git show 5db3c62d9^:specs/themes/theme-06/…`) — chỉ lấy phần phải thu + cấn trừ | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| **T6-1** | DB: công nợ theo khách lấy từ công nợ đơn TH-05; phiếu thu + phân bổ vào từng đơn (cũ trước); cấn trừ (tiền khách trả dư / hoàn tiền / trả hàng cấn vào nợ đơn khác); RPC + test | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
+| **T6-2** | UI (iPhone + web): danh sách khách còn nợ, chi tiết công nợ một khách (đơn còn nợ, lịch sử thu / cấn trừ), ghi nhận thu tiền, cấn trừ; lối vào từ Đối tác và từ chi tiết đơn; `/impeccable audit` | ~2 ngày | ⬜ | ⬜ | ⬜ |
+
+**Xong khi:** bán nợ → thu một phần → thu đủ; khách trả dư / trả hàng → cấn trừ vào đơn còn nợ; số còn phải thu của khách = tổng công nợ các đơn sau mỗi bước; kịch bản đầu–cuối của TH-06 chạy qua trên cả iPhone và web.
+
+---
+
 ## Theme 8. E-invoice (3 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
@@ -705,6 +725,20 @@ Chi tiết từng việc:
 
 ---
 
+## Tích hợp AI (~3 ngày)
+
+**Trạng thái:** ⬜ Chưa làm. Giảng viên phụ trách yêu cầu "tích hợp AI vào app"; chưa có đề xuất cụ thể. Làm **cuối cùng**, sau Dọn dẹp (chốt 2026-10-27), để AI dùng dữ liệu thật của các theme đã xong.
+
+| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
+| ---- | -------- | -------- | ---- | --- | ------ |
+| **AI-0** | Chọn tính năng AI (người dùng duyệt) và viết yêu cầu ngắn: việc người dùng làm được, dữ liệu AI được đọc, quyền, giới hạn, chữ trên màn. Ứng viên: trợ lý hỏi đáp tiếng Việt về số liệu cửa hàng (tồn, doanh thu, công nợ) chỉ đọc theo quyền; gợi ý nhập hàng; đọc ảnh chứng từ nhận hàng | ~0,5 ngày | ⬜ | ⬜ | ⬜ |
+| **AI-1** | Backend: Edge Function gọi Claude API (khoá trong secrets, không nằm trong app); công cụ chỉ đọc gọi RPC theo tổ chức và quyền của người hỏi; giới hạn số lần gọi, ghi nhật ký | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
+| **AI-2** | UI (iPhone + web): lối vào, khung hỏi đáp / kết quả, trạng thái đang trả lời, lỗi, không có quyền; `/impeccable audit` | ~1 ngày | ⬜ | ⬜ | ⬜ |
+
+**Xong khi:** tính năng chọn ở AI-0 chạy được từ đầu đến cuối trong app (iPhone + web), chỉ dùng dữ liệu của tổ chức và theo quyền người dùng; có một kịch bản demo cho hội đồng.
+
+---
+
 ## Hoàn thiện cho báo cáo đồ án (3 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
@@ -749,8 +783,10 @@ Chi tiết từng việc:
 | Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*`. 2026-10-16: chốt **sửa prototype trước (T7-P), rồi mới code Flutter**; T7-0d, T7-1 tạm dừng, rà lại theo prototype mới trước khi giao |
 | Theme 4 | ⬜ | | |
 | Theme 5 | ⬜ | | |
+| Theme 6 | ⬜ | | Mới thêm 2026-10-27: phải thu + cấn trừ |
 | Theme 8 | ⬜ | | |
 | Dọn dẹp | ⬜ | | |
+| Tích hợp AI | ⬜ | | Mới thêm 2026-10-27: giảng viên yêu cầu; làm cuối cùng |
 | Báo cáo | ⬜ | | |
 
 ## Rủi ro theo mục
