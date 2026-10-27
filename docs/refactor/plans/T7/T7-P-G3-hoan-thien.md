@@ -1,7 +1,7 @@
 # T7-P · Giai đoạn 3 — Hoàn thiện prototype Theme 7
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (duyệt 2026-10-26 — mục 0.4, mọi điểm theo đề xuất) | Làm ⬜ | Review ⬜
-> Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 11, Giai đoạn 3. Làm **sau** Giai đoạn 2 (✅ commit `534156bef`, prototype v5.20.1). Xong plan này mới sang Giai đoạn 4 (chốt đặc tả, mục 7.3) và Giai đoạn 5 (Flutter).
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (duyệt 2026-10-26 — mục 0.4, mọi điểm theo đề xuất) | Làm ✅ (2026-10-27, v5.26.1) | Review: chuyển T7-G5
+> Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 11, Giai đoạn 3. Làm **sau** Giai đoạn 2 (✅ commit `534156bef`, prototype v5.20.1). Xong plan này mới sang Giai đoạn 4 (chốt đặc tả) và Giai đoạn 5 (Flutter) — PLAN.md **T7-G4**, **T7-G5**.
 > Thiết bị: **cả iPhone và web đều là thiết bị chính** ở mọi màn (T7-P mục 2). Mọi bước kiểm chạy cả hai khung.
 > Ước lượng: **~8–9 ngày, 8 gói, mỗi gói một commit** (T7-P mục 11 ghi 2–3 ngày là ước lượng trước khi biết khối góp ý dồn lại từ chặng 1–6; xem mục 0.2). Người làm: bạn. Review: phiên plan / review, sau mỗi gói.
 
@@ -62,16 +62,16 @@ Gom từ mục Review của các plan chặng và T7-P mục 11 "Đầu vào cho
 
 ### 0.3 Thứ tự gói và lý do
 
-| Gói | Việc | Đổi giao diện? | Ước lượng |
-|---|---|---|---|
-| **G3-0** | Review bù BJ-13 + `SC_journey_2`; chụp mốc nền Giai đoạn 3 | Không | ✅ 2026-10-26 (đạt, 4 góp ý nhỏ → bảng 0.2 #30–33) |
-| **G3-1** | Dọn CSS và mã chết | **Không** — golden phải khớp hoàn toàn | 2 ngày |
-| **G3-2** | Khung dùng chung: sheet / focus, toast, dòng bảng, chip có số, tiền, vùng ảnh | Có, nhỏ, có liệt kê | 1,5 ngày |
-| **G3-3** | Kết quả chưa rõ (K3 → BJ-17 → BJ nguồn) và các đường quay lại | Có (BJ nguồn sau xác lập) | 0,75 ngày |
-| **G3-4** | Dữ liệu một nguồn: sổ kho, fixture lệch | Có (số) | 1,5 ngày (theo Q1) |
-| **G3-5** | Luồng và Home Kho: không ngõ cụt; công cụ dò ngõ cụt | Có | 1 ngày |
-| **G3-6** | Critique gốc mới → sửa P0 / P1 / P2 + góp ý nhỏ còn lại → `/impeccable polish` | Có | 1,5 ngày |
-| **G3-7** | Critique lại + `/impeccable audit` toàn theme + audit dọc `SC_demo` → ghi lại | Không (trừ lỗi audit) | 0,75 ngày |
+| Gói | Việc | Đổi giao diện? | Ước lượng | Làm |
+|---|---|---|---|---|
+| **G3-0** | Review bù BJ-13 + `SC_journey_2`; chụp mốc nền Giai đoạn 3 | Không | ✅ 2026-10-26 (đạt, 4 góp ý nhỏ → bảng 0.2 #30–33) | ✅ |
+| **G3-1** | Dọn CSS và mã chết | **Không** — golden phải khớp hoàn toàn | 2 ngày | ✅ một phần — phần còn lại chuyển T7-G5 (v5.21.0) |
+| **G3-2** | Khung dùng chung: sheet / focus, toast, dòng bảng, chip có số, tiền, vùng ảnh | Có, nhỏ, có liệt kê | 1,5 ngày | ✅ một phần — phần còn lại chuyển T7-G5 (v5.22.0) |
+| **G3-3** | Kết quả chưa rõ (K3 → BJ-17 → BJ nguồn) và các đường quay lại | Có (BJ nguồn sau xác lập) | 0,75 ngày | ✅ (v5.23.0) |
+| **G3-4** | Dữ liệu một nguồn: sổ kho, fixture lệch | Có (số) | 1,5 ngày (theo Q1) | ✅ một phần — phần còn lại chuyển T7-G5 (v5.24.0) |
+| **G3-5** | Luồng và Home Kho: không ngõ cụt; công cụ dò ngõ cụt | Có | 1 ngày | ✅ (v5.25.0) |
+| **G3-6** | Critique gốc mới → sửa P0 / P1 / P2 + góp ý nhỏ còn lại → `/impeccable polish` | Có | 1,5 ngày | ✅ 29/40 (v5.26.0) |
+| **G3-7** | Critique lại + `/impeccable audit` toàn theme + audit dọc `SC_demo` → ghi lại | Không (trừ lỗi audit) | 0,75 ngày | ✅ 31/40 (v5.26.1) |
 
 Lý do thứ tự: **G3-1 trước** vì là gói duy nhất được golden bảo vệ trọn vẹn (giao diện không đổi) — làm sau khi đã đổi giao diện thì mất lưới an toàn. G3-2 / 3 / 4 là nền mà critique sẽ chấm lại (sửa trước để critique G3-6 không nêu lại chính các lỗi đã biết). Critique chạy ở **đầu G3-6** (không phải đầu plan) để điểm phản ánh bản đã dọn, và việc sửa theo critique đi thẳng sau đó. G3-7 đo kết quả cuối.
 
@@ -183,6 +183,10 @@ Lý do thứ tự: **G3-1 trước** vì là gói duy nhất được golden b�
 
 ## G3-7 — Đo cuối và ghi lại
 
+> **Plan chi tiết:** [T7-P-G3-7-do-cuoi.md](T7-P-G3-7-do-cuoi.md) (viết cho phiên không có ngữ cảnh). Các bước dưới đây là tóm tắt; khi lệch nhau, làm theo plan chi tiết.
+
+> **Chốt 2026-10-26 (người dùng):** xong G3-7 là đóng Giai đoạn 3 và T7-P. Việc còn dở của G3-1…G3-4 (gom CSS / `!important`, vùng ảnh BJ-02 / 06, lô Amox, giữ hàng Nobivac, fixture BJ-07) và review các gói (mục 14) **không chặn**, chuyển sang [PLAN.md](../../PLAN.md) dòng **T7-G5**. Bước 5 "Ghi lại" ghi các việc này là "chuyển T7-G5", không ghi "còn thiếu".
+
 1. **Critique lại** (như G3-6 bước 1): đạt khi **cả hai khung ≥ 32/40, 0 P0 / P1**. Chưa đạt → sửa và chạy lại (tối đa hai vòng, rồi báo người dùng).
 2. **`/impeccable audit` toàn theme**, hai khung, mọi màn / trạng thái mở thẳng + mọi sheet: chữ ≥ 4,5:1 (chữ lớn / icon ≥ 3:1); vùng chạm ≥ 44 × 44 ở iPhone (đo cả chip BJ-01, nút "Sửa ngưỡng" CAP-01 — 0.2 #28); mọi nút icon / ô nhập có tên; web: Tab đi hết, Enter mở, Esc đóng, focus về nút đã mở; không tràn ngang; không cột 402 px trên web. 0 lỗi là đạt.
 3. **Audit dọc `SC_demo`** và `SC_home_all`, mọi bước, hai khung (bài học chặng 3): như trên + nút quay lại về đúng màn, toast không che nút chân, số tồn giống nhau giữa các BJ ở cùng thời điểm (theo Q1).
@@ -239,6 +243,17 @@ Lý do thứ tự: **G3-1 trước** vì là gói duy nhất được golden b�
 - **Đã sửa:** tất cả P1 / P2 và các góp ý nhỏ nêu ở CHANGELOG `[5.26.0]`. Chưa đạt 32/40 → G3-7 đo lại sau khi sửa.
 - **Còn lại, chuyển sang G3-7 hoặc Giai đoạn 4:** BJ-13 / K3 lặp câu (#30); 0.2 #17 (044 dòng đã đếm dưới chip) chỉ khi critique nêu — chưa nêu; chữ chuyên môn nhẹ ("Đếm mù", "Căn cứ").
 
+### G3-7 (5.26.1, 2026-10-27) — làm xong, hết Giai đoạn 3
+
+Plan chi tiết: [T7-P-G3-7-do-cuoi.md](T7-P-G3-7-do-cuoi.md) (Phần 1 Antigravity: đo + sửa audit; Phần 2 Claude Code: critique, sửa, ghi lại). Ghi đủ ở mục D của plan đó.
+
+- **Critique** (một ngữ cảnh, cùng 10 heuristic, 17 nhóm ảnh cố định hai khung — danh sách ở plan G3-7 mục D): lần 1 **29 / 29**, 1 P1 (Home "Chờ duyệt" là số mẫu cố định); lần 2 sau sửa **30 / 31**; lần 3 sau U4 **31 / 31**, 0 P0 / P1. Lên: H1 3 → 4 (hai khung), H7 iPhone 2 → 3, H8 web 2 → 3. **Chưa đạt 32**; người dùng chốt 2026-10-27 đóng G3-7 ở 31. Tệp: `.impeccable/critique/2026-10-27T02-17-04Z…`, `…02-35-15Z…`, `…02-42-19Z…`.
+- **Audit toàn theme** (`tools/audit.js`, lần đầu chạy toàn theme): trước iPhone 10 tương phản / 11 vùng chạm, web 7 / 65; sau iPhone 9 / 10, web 6 / 42; 0 tràn, 0 thiếu tên. Lỗi còn lại **không phải lỗi**: tương phản 3,85 đều là nút `disabled` (WCAG 1.4.3 miễn); chip, nút đóng toast, `cap-link-button` (web 84×40) có vùng chạm `::after` mà `getBoundingClientRect` không tính; `k7-row-open` / `k7-row-link` là nút / liên kết trong ô bảng web, cả dòng ≥ 40px nhận bấm.
+- **Bàn phím:** hộp thoại mở thẳng đi vòng Tab / Shift+Tab, Esc đóng; trả focus 5 / 5 sheet (BJ-01, 08, 11, 15, 17). **Ngõ cụt** 0 / 498 mỗi khung. `SC_demo` / `SC_home_all`: quay lại đúng màn, toast không che chân, sổ kho khớp.
+- **Đã sửa:** Phần 1 — chữ đang xử lý SCR-012, "Xóa lô", ô chọn đoạn web 40px, ô tick bảng web. Phần 2 — "Chờ duyệt" sống (P1), "Lấy đủ tất cả" ở 026 (U4, người dùng duyệt), BJ-03 bỏ số lượng lặp ở dòng lô, BJ-14 / 15 hàng nhãn — giá trị, K4 khoảng mô tả – thẻ, 041 `REJECTED` + Lô / Số lượng, 044 lọc lại khi rời ô, BJ-17 phụ đề theo nghiệp vụ, `cap-link-button` vùng chạm.
+- **Bốn mục kiểm lại của G3-6:** 041 hết; 044 hết; 008 web Tab không phải lỗi (theo thứ tự hàng); 037 còn → đề xuất (T7-P mục 13).
+- **Không làm (đề xuất, chờ duyệt ở T7-G4 / T7-G5):** U5 K4 "Tồn kho đã đổi"; gộp "Tóm tắt" với thẻ thông tin ở 011 / 074 web; badge dưới tiêu đề ở danh sách K6 iPhone (048); tiền mono / sans thống nhất; 037 "Việc tiếp theo" / badge; "Đếm mù" / "Căn cứ". U7 trợ giúp tìm được → T7-G5.
+
 ## 10. Không làm
 
 - Chốt đặc tả (Giai đoạn 4): áp các dòng ⬜ "chốt đặc tả 7.3" của T7-P mục 13 vào UC / BJ / PROC; đổi trạng thái tệp khỏi `IN_REVIEW`.
@@ -272,6 +287,9 @@ G3-0 (nếu có sửa: `[5.20.2]`) → G3-1 → G3-2 → G3-3 → G3-4 → G3-5 
 | BJ-17 kết quả xác lập | "Mở {nghiệp vụ} {mã}" |
 | BJ-03 / 11 / 16 kết quả (vào từ BJ-14) | "Về giá vốn" (chữ đã có ở SCR-077) |
 | BJ-11 049 `RECORDED` (thao tác chưa rõ đã được xác lập) | "Đã ghi vào kho" · "Kết quả đã được xác minh; không cần sửa." · badge "Đã ghi" |
+| BJ-01 sheet "Nguồn và thời điểm cập nhật" (G3-5) | "Mở phiếu nhận {mã}" |
+| BJ-10 041 `EXPIRED` (G3-5) | "Đề nghị tiêu hủy đã hết hiệu lực" · "Không có tác động tồn kho. Tạo đề nghị mới nếu vẫn cần tiêu hủy." |
+| BJ-05 026 (G3-7, U4) | "Lấy đủ tất cả" (khi còn ≥ 2 lô chưa lấy đủ) |
 
 ## 14. Review
 

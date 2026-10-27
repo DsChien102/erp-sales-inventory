@@ -80,7 +80,11 @@ function render079BJ17(state) {
   const title = "Bằng chứng kết quả";
   if (state === "PERMISSION_DENIED") return crDenied(title);
   if (state === "LOADING") return crLoading(title);
-  const c = cr17Current(), v = cr17RouteView(c), subtitle = `${c.id} · ${c.scope}`;
+  // Phụ đề gọi hồ sơ theo nghiệp vụ nguồn ("Tiêu hủy TH-260906-02"), không theo mã hồ sơ nội bộ REC-UNKNOWN-0x.
+  // Hồ sơ do K3 chuyển sang có doc là tên thao tác ("Cập nhật chính sách tồn") → không ghép thêm tên loại.
+  const c = cr17Current(), v = cr17RouteView(c);
+  const what = String(c.doc).toLocaleLowerCase("vi").includes(String(c.kind).toLocaleLowerCase("vi")) ? c.doc : `${c.kind} ${c.doc}`;
+  const subtitle = `${what} · ${c.scope}`;
   const stale = state === "CONFLICT" ? k1Stale({ title: "Kết luận đã thay đổi", description: "Có bằng chứng mới. Xem lại kết luận trước khi làm tiếp.", actionLabel: "Tải lại", actionAttr: 'data-bj17-action="reload"' }) : "";
   const note = `<p class="ac310-note">Không tạo thao tác mới, không ghi lại lần hai.</p>`;
   const main = `${stale}${crConclusion(v)}${crCompare(v.compare)}${note}`;

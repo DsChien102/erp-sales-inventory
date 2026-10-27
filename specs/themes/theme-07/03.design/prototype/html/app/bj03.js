@@ -239,7 +239,12 @@ const VAL03_SAMPLE_RESULT = {
   const selectedGroups = (r = val03Current()) => pendingGroups(r).filter((g) => groupState(r, g) === "READY" && (g.slices || []).some((s) => s.selected && Number(s.pendingQty || 0) > 0));
   // Dòng đủ căn cứ được tick sẵn một lần khi mở phiếu (cũng khi vào thẳng SCR-015); bỏ tick rồi thì giữ.
   const tickReady = (r) => { if (r.ticked) return; r.ticked = true; pendingGroups(r).forEach((g) => selectGroup(g, val03EvidenceState(g) === "READY")); };
-  const lotLines = (g) => (g.tracking === "LOT" ? (g.slices || []).filter((s) => s.pendingQty > 0).map((s) => `Lô ${s.lot} · ${s.pendingQty} ${g.uom}${s.physicalState === "SELLABLE" ? "" : ` · ${s.stateLabel}`}`) : []);
+  // Một lô bán được chứa đủ cả dòng → chỉ ghi mã lô (số lượng đã có ở dòng / cột "Số lượng").
+  const lotLines = (g) => {
+    if (g.tracking !== "LOT") return [];
+    const slices = (g.slices || []).filter((s) => s.pendingQty > 0);
+    return slices.map((s) => (slices.length === 1 && s.physicalState === "SELLABLE" ? `Lô ${s.lot}` : `Lô ${s.lot} · ${s.pendingQty} ${g.uom}${s.physicalState === "SELLABLE" ? "" : ` · ${s.stateLabel}`}`));
+  };
   const selectedTotal = (r) => selectedGroups(r).reduce((n, g) => n + Number(val03Calc(g)?.value || 0), 0);
   const denied = (title, back) => shell({ title, body: k1Denied({ what: "xác lập giá trị", next: "Chỉ chủ cửa hàng xem và ghi giá nhập.", exitAttr: k1ExitAttr("SCR-014") }), centered: true, back });
   const blocked = (state) => !isOwner() || state === "PERMISSION_DENIED" || state === "FINANCIAL_MASKED";

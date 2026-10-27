@@ -248,7 +248,7 @@ function render041BJ10(state) {
     return k3Unknown({ operation: "Tiêu hủy hàng", scope, ref: req?.id || "TH-260917-01", sentAt: BJ10_COMPLETED_AT, sourceFlow: "UIF-10", exitAttr: k1ExitAttr("SCR-036"), handoff: { operation: req?.id || "TH-260917-01", scope } });
   }
   if (state === "REJECTED") {
-    return k4Result({ screenTitle: title, kind: "warning", title: "Đã từ chối đề nghị tiêu hủy", description: `Lý do: ${req?.decisionReason || "—"}. Tồn kho không thay đổi.`, facts: [["Đề nghị", req?.id || "—"], ["Sản phẩm", lot.name]], next: [toList] });
+    return k4Result({ screenTitle: title, kind: "warning", title: "Đã từ chối đề nghị tiêu hủy", description: `Lý do: ${req?.decisionReason || "—"}. Tồn kho không thay đổi.`, facts: [["Đề nghị", req?.id || "—"], ["Sản phẩm", lot.name], ["Lô", lot.lot || "Không theo lô"], ...(req ? [["Số lượng", t7Qty(req.qty, req.uom)]] : [])], next: [toList] });
   }
   if (state === "REJECTED_EXECUTION") {
     return k4Result({ screenTitle: title, kind: "warning", title: "Chưa ghi giảm", description: "Không có tác động tồn kho mới. Xem lại yêu cầu hiện hành trước khi tiếp tục.", facts: [["Đề nghị", req?.id || "—"], ["Tồn vật lý", "Không thay đổi"]], next: [toList] });

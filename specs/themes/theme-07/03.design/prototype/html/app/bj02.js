@@ -93,6 +93,8 @@ let bj02RejectOpen = false;
 let bj02LinesSheetOpen = false;
 let bj02Confirm = null; // { kind: "remove-lot" | "remove-line" | "not-received", id }
 let bj02PendingSubmitted = false; // phiếu của chính phiên này đang chờ duyệt: Hub mở đúng phiếu đó ở "Chờ duyệt"
+let bj02ReviewReceiptId = null; // phiếu chờ duyệt đang mở từ "Chờ duyệt" (Hub đặt)
+const bj02DecidedReceipts = new Set(); // phiếu đã duyệt / từ chối: rời "Chờ duyệt" của Home Kho
 let bj02Approver = null; // null (không cần duyệt) | { name }
 let bj02LastCommitted = null; // { ref, mode, lines } — BJ-03 đọc biến này
 const bj02AppliedRefs = new Set(); // số thứ tự lần ghi nhận đã cộng vào tồn BJ-01 (một lần mỗi phiếu)
@@ -1581,12 +1583,12 @@ document.addEventListener("click", (event) => {
       case "save-line": return saveEditorLine();
       case "open-duplicate-line": return beginLineEditor(actionButton.dataset.bj02LineId);
       case "open-existing-overview-line": quickOverviewDuplicateLineId = null; return beginLineEditor(actionButton.dataset.bj02LineId);
-      case "approve": bj02Approver = { name: "Chủ cửa hàng" }; bj02PendingSubmitted = false; return startAutoExecution();
+      case "approve": bj02Approver = { name: "Chủ cửa hàng" }; bj02PendingSubmitted = false; if (bj02ReviewReceiptId) bj02DecidedReceipts.add(bj02ReviewReceiptId); return startAutoExecution();
       case "open-reject": bj02RejectOpen = true; approvalRejectReason = ""; return renderAppScreen();
       case "close-reject": bj02RejectOpen = false; approvalRejectReason = ""; return renderAppScreen();
       case "confirm-reject":
         if (!approvalRejectReason.trim()) return;
-        bj02RejectOpen = false; bj02PendingSubmitted = false; stateByScreen["SCR-011"] = "REJECTED_DONE"; stateByScreen["SCR-010"] = "REJECTED"; bj02RejectedBy = "Chủ cửa hàng"; syncReviewUrl(); return renderAppScreen();
+        bj02RejectOpen = false; bj02PendingSubmitted = false; if (bj02ReviewReceiptId) bj02DecidedReceipts.add(bj02ReviewReceiptId); stateByScreen["SCR-011"] = "REJECTED_DONE"; stateByScreen["SCR-010"] = "REJECTED"; bj02RejectedBy = "Chủ cửa hàng"; syncReviewUrl(); return renderAppScreen();
       case "open-evidence": BJ02_CONTEXT.evidenceSheetOpen = true; return renderAppScreen();
       case "close-evidence": BJ02_CONTEXT.evidenceSheetOpen = false; return renderAppScreen();
       case "preview-file": return showToast("Đã mở bản xem trước chứng từ trong chế độ prototype.", "info");

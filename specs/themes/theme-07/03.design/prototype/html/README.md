@@ -41,6 +41,7 @@ node tools/golden.mjs compare tools/.golden-phase1 tools/.golden-now
 node tools/golden.mjs usage tools/.usage-now   # CSS unused + JS uncovered
 FULL=1 node tools/golden.mjs capture tools/.full-now  # ảnh toàn trang (harness)
 AUDIT_JS=<tệp biểu thức JS> node tools/golden.mjs capture tools/.audit-now SC_journey_4  # chạy kiểm sau mỗi bước, ghi _audit.json
+AUDIT_JS=tools/audit.js node tools/golden.mjs capture tools/.audit-now   # audit toàn theme (tools/audit.js)
 
 # Khung Web 1280×800 (chỉ chụp nhóm màn × trạng thái + kịch bản trong WEB_SCENARIOS của golden.mjs; tên ca thêm @web)
 DEVICE=web node tools/golden.mjs capture tools/.golden-web-now

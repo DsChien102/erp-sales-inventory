@@ -1,5 +1,19 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.26.1] — Giai đoạn 3 · G3-7 đo cuối, hết Giai đoạn 3
+
+Critique toàn theme (`/impeccable critique`, hai khung, cùng 10 heuristic): **iPhone 29 → 31, web 29 → 31** (gốc 24, G3-6 29); 0 P0 / P1 (lần đo đầu có 1 P1: "Chờ duyệt" là số mẫu cố định). Lưu ở `.impeccable/critique/2026-10-27T02-17-04Z…` (lần 1, 29 / 29), `…02-35-15Z…` (lần 2, 30 / 31), `…02-42-19Z…` (lần 3, 31 / 31). Mục tiêu 32 chưa đạt; người dùng chốt đóng G3-7 ở 31. Audit toàn theme lần đầu (`tools/audit.js`, mọi ca màn × trạng thái và mọi bước kịch bản): trước sửa iPhone 10 tương phản / 11 vùng chạm, web 7 / 65; sau sửa iPhone 9 / 10, web 6 / 42 — số còn lại không phải lỗi (nút `disabled`; chip, nút đóng toast, "Sửa ngưỡng" / "Dùng mặc định" có vùng chạm `::after`; liên kết nội dòng bảng web, dòng bảng nhận bấm) — 0 tràn ngang, 0 thiếu tên. Bàn phím (`tools/keys.js`): hộp thoại đi vòng Tab / Shift+Tab, Esc đóng; 5 / 5 sheet trả focus về nút đã mở. Dò ngõ cụt 0 / 498 mỗi khung, lỗi JS 0. Mốc sau gói: `tools/.golden-g3` / `-web`.
+
+- **Công cụ:** `tools/audit.js` (tương phản, vùng chạm iPhone 44 / web 40, thiếu tên, tràn ngang, `tr[tabindex]`) và `tools/keys.js` (Tab / Shift+Tab / Esc trong hộp thoại) chạy qua `AUDIT_JS`; `tools/.gitignore` loại `.audit*/`, `.keys*/`, `.deadends*/`.
+- **Sửa theo audit:** chữ "Hệ thống đang xử lý…" (SCR-012) đậm hơn (4,44 → > 7:1); nút "Xóa lô" BJ-02 rộng 44px; ô chọn đoạn web cao 40px; ô tick bảng web 44px; "Sửa ngưỡng" / "Dùng mặc định" web vùng chạm 84×40 bằng `::after`.
+- **"Chờ duyệt" sống:** phiếu nhận đã duyệt / từ chối rời danh sách "Chờ duyệt" và số ở Home Kho (`bj02DecidedReceipts`); cuối `SC_demo` Home "6 · 2 nhận hàng …" thay "7 · 3 …".
+- **Lấy đủ tất cả (026, mới):** khi còn ≥ 2 lô chưa lấy đủ, một nút lấy đủ mọi lô (trừ lô đang chờ điều chỉnh hàng đang cầm), focus sang "Rà soát bàn giao".
+- **Bớt lặp / gãy:** BJ-03 dòng lô chỉ ghi "Lô {mã}" khi một lô chứa đủ dòng (bỏ "· 121 hộp" lặp cột "Số lượng"); 015 web tên sản phẩm một dòng; BJ-14 / BJ-15 hàng nhãn — giá trị theo bề rộng giá trị (hết "Toàn bộ sản / phẩm" ở Tóm tắt 074 web, hết ngày ghi nhận tràn lề ở 056 iPhone); K4 các BJ còn lại cách mô tả và thẻ 12px.
+- **Kiểm lại từ G3-6:** 041 `REJECTED` thêm "Lô", "Số lượng"; 044 rời ô đếm (sang ô khác / ra ngoài) thì lọc lại nên dòng đã đếm rời "Chưa đếm" — đang gõ thì dòng giữ chỗ; 008 web thứ tự Tab theo hàng (Nhà cung cấp → Chọn tệp → ô xác nhận) — không phải lỗi; 037 "Việc tiếp theo" / badge lặp — còn, ghi đề xuất.
+- **BJ-17 079:** phụ đề gọi hồ sơ theo nghiệp vụ nguồn ("Tiêu hủy TH-260906-02 · …") thay mã hồ sơ nội bộ `REC-UNKNOWN-0x` / `REC-xx-…`.
+- **Chuyển T7-G5:** gom CSS / bỏ `!important`; vùng ảnh BJ-02 / 06 sang `k5Evidence`; lô Amox; giữ hàng Nobivac; fixture BJ-07; review các gói G3; trợ giúp tìm được (U7). Đề xuất chờ duyệt (T7-P mục 13): K4 "Tồn kho đã đổi" (U5), gộp "Tóm tắt" với thẻ thông tin ở 011 / 074 web, badge dưới tiêu đề ở danh sách K6 iPhone (048), 037 "Việc tiếp theo" / badge, chữ "Đếm mù" / "Căn cứ" (U6).
+- Badge harness `v5.26.1 · Giai đoạn 3 ✅ · G3-7 đo cuối`.
+
 ## [5.26.0] — Giai đoạn 3 · G3-6 critique gốc mới và sửa theo critique
 
 Critique toàn theme (`/impeccable critique`, hai khung): **29/40** ở cả iPhone và web, gốc 24/40; 0 P0, 1 P1. Lưu ở `.impeccable/critique/2026-10-26T07-12-45Z__…index-html-050831a4.md`. Golden so `tools/.golden-g3-5` (2241 / 1350 ca): 0 lỗi JS ở cả hai khung; dò ngõ cụt 0 / 498 mỗi khung. Mốc sau gói: `tools/.golden-g3-6` / `-web`.

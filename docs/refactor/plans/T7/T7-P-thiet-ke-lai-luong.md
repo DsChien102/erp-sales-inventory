@@ -1,11 +1,11 @@
 # T7-P — Thiết kế lại Theme 7 trên prototype (plan tổng thể)
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (2026-10-16, bản chi tiết) · **Giai đoạn 1 ✅** (2026-10-19) · **Giai đoạn 2 ✅** (2026-10-26, v5.20.1 — đủ 6 chặng, `SC_journey_1…6` + `SC_demo` 0 lỗi; mục 14) · Chặng 1 ✅ · Chặng 2 ✅ · Chặng 3 ✅ · Chặng 4 ✅ ([BJ-09](T7-P-bj09-tinh-trang-hang.md), [BJ-07 + BJ-10](T7-P-bj07-bj10-tra-ncc-tieu-huy.md)) · Chặng 5 ✅ (review R1–R3, v5.18.1 — [BJ-08](T7-P-bj08-kiem-ke.md), [BJ-11](T7-P-bj11-sua-sai.md), [BJ-16 + BJ-17](T7-P-bj16-bj17-doi-soat.md)) · Chặng 6 ✅ (review R1, v5.20.1 — [BJ-14](T7-P-bj14-gia-von.md), [BJ-15](T7-P-bj15-bao-cao-the-kho.md)) · Tiếp: Giai đoạn 3 hoàn thiện — [plan](T7-P-G3-hoan-thien.md) ✅ duyệt 2026-10-26 (mục 11)
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (2026-10-16, bản chi tiết) · **Giai đoạn 1 ✅** (2026-10-19) · **Giai đoạn 2 ✅** (2026-10-26, v5.20.1 — đủ 6 chặng, `SC_journey_1…6` + `SC_demo` 0 lỗi; mục 14) · Chặng 1 ✅ · Chặng 2 ✅ · Chặng 3 ✅ · Chặng 4 ✅ ([BJ-09](T7-P-bj09-tinh-trang-hang.md), [BJ-07 + BJ-10](T7-P-bj07-bj10-tra-ncc-tieu-huy.md)) · Chặng 5 ✅ (review R1–R3, v5.18.1 — [BJ-08](T7-P-bj08-kiem-ke.md), [BJ-11](T7-P-bj11-sua-sai.md), [BJ-16 + BJ-17](T7-P-bj16-bj17-doi-soat.md)) · Chặng 6 ✅ (review R1, v5.20.1 — [BJ-14](T7-P-bj14-gia-von.md), [BJ-15](T7-P-bj15-bao-cao-the-kho.md)) · **Giai đoạn 3 ✅** (2026-10-27, v5.26.1 — [plan](T7-P-G3-hoan-thien.md), [G3-7](T7-P-G3-7-do-cuoi.md)) · **T7-P đóng** — tiếp: PLAN.md T7-G4 (chốt đặc tả), T7-G5 (Flutter)
 > Thuộc [PLAN.md](../../PLAN.md) mục "Theme 7". Làm sau [T7-P0](T7-P0-don-prototype.md) (✅).
-> Phạm vi: prototype `specs/themes/theme-07/03.design/prototype/html` và tài liệu thiết kế `specs/themes/theme-07/03.design` (Screen Contract, UIF, pattern). Code Flutter làm theo prototype đã chốt (giai đoạn 5).
+> Phạm vi: **chỉ prototype** — `specs/themes/theme-07/03.design/prototype/html` và tài liệu thiết kế đi kèm từng BJ (Screen Contract, UIF viết lại ở bước E). Plan này hết ở Giai đoạn 3. Chốt đặc tả (Giai đoạn 4) và code Flutter (Giai đoạn 5) nằm ở PLAN.md: **T7-G4**, **T7-G5**; mục 6 và mục 13 của plan này là đầu vào của hai việc đó.
 > **Thiết bị (chốt 2026-10-20, cho cả app):** iPhone + web trên máy tính, khung web thanh bên — xem [LUONG-UNG-DUNG mục 1.1](../../../02-yeu-cau/LUONG-UNG-DUNG.md) và [PLAN mục Thiết bị](../../PLAN.md). **Cả hai là thiết bị chính ở mọi màn** (sửa 2026-10-22): mục 2.
 > **Hai giai đoạn (chốt 2026-10-16):** Giai đoạn 1 viết lại code sạch cho cả 17 BJ + CAP-01 (giao diện không đổi, golden phải khớp); Giai đoạn 2 mới thiết kế lại từng BJ.
-> Ước lượng thô: Giai đoạn 1 **~20 ngày**; Giai đoạn 2 **~24 ngày**; hoàn thiện + chốt đặc tả ~4–5 ngày.
+> Ước lượng thô: Giai đoạn 1 **~20 ngày**; Giai đoạn 2 **~24 ngày**; Giai đoạn 3 hoàn thiện ~8–9 ngày (plan G3).
 
 ## Mục lục
 
@@ -29,14 +29,14 @@
 
 ## 1. Mục tiêu và tiêu chí xong
 
-| # | Mục tiêu | Đo bằng |
-|---|---|---|
-| 1 | Mỗi BJ có luồng thiết kế lại từ việc thật của Owner / nhân viên, không chép lại Screen Contract cũ | Brief bước B được duyệt cho đủ 17 BJ + CAP-01 |
-| 2 | Prototype là nguồn hình ảnh và hành vi duy nhất cho Flutter | Mỗi màn một hàm dựng trong `app/bjNN.js`; `app/core.js` chỉ còn khung; không lớp vá |
-| 3 | Chất lượng giao diện | Critique toàn theme **≥ 32/40** (gốc 24/40), 0 vấn đề P0 / P1; `audit` từng BJ không còn lỗi tương phản / vùng chạm |
-| 4 | Không ngõ cụt | Mọi trạng thái có lối ra; mọi màn mở được từ Home Kho hoặc từ màn trước trong luồng; bộ bấm thử 0 lỗi JS |
-| 5 | Đặc tả khớp prototype | Screen Contract / UIF viết lại theo khuôn mới (mục 7), không còn đoạn `### vX.Y` |
-| 6 | Demo đi một mạch | Kịch bản golden `SC_demo_*` (mục 10) chạy hết, không lỗi |
+| # | Mục tiêu | Đo bằng | Kết quả (Giai đoạn 3) |
+|---|---|---|---|
+| 1 | Mỗi BJ có luồng thiết kế lại từ việc thật của Owner / nhân viên, không chép lại Screen Contract cũ | Brief bước B được duyệt cho đủ 17 BJ + CAP-01 | ✅ brief 17 BJ + CAP-01 đã duyệt (mục 14) |
+| 2 | Prototype là nguồn hình ảnh và hành vi duy nhất cho Flutter | Mỗi màn một hàm dựng trong `app/bjNN.js`; `app/core.js` chỉ còn khung; không lớp vá | ✅ JS; CSS còn `!important` 55 luật, chưa gom theo BJ — chuyển T7-G5 |
+| 3 | Chất lượng giao diện | Critique toàn theme **≥ 32/40** (gốc 24/40), 0 vấn đề P0 / P1; `audit` từng BJ không còn lỗi tương phản / vùng chạm | ⚠️ critique **31/40** cả hai khung (chưa đạt 32; người dùng chốt đóng ở mức này 2026-10-27), 0 P0 / P1; audit toàn theme ✅ (lỗi còn lại đều có lý do — plan G3-7 mục D) |
+| 4 | Không ngõ cụt | Mọi trạng thái có lối ra; mọi màn mở được từ Home Kho hoặc từ màn trước trong luồng; bộ bấm thử 0 lỗi JS | ✅ dò ngõ cụt 0 / 498 mỗi khung |
+| 5 | Đặc tả khớp prototype | Screen Contract / UIF viết lại theo khuôn mới (mục 7), không còn đoạn `### vX.Y` | ✅ `grep "^### v[0-9]"` ở `screens` / `flows` = rỗng; chốt `FROZEN` ở T7-G4 |
+| 6 | Demo đi một mạch | Kịch bản golden `SC_demo_*` (mục 10) chạy hết, không lỗi | ✅ `SC_demo` 0 lỗi, sổ kho sống |
 
 ## 2. Đã chốt
 
@@ -68,7 +68,7 @@ Nhập liệu khác nhau theo thiết bị: quét mã vạch = camera trên iPho
 | Quản lý kho → Báo cáo & lịch sử | 15 | Lớp thứ hai |
 | Thiết lập kho | 12, CAP-01 | Sâu |
 
-## 3. Hiện trạng (2026-10-16)
+## 3. Hiện trạng (2026-10-16; cập nhật cuối Giai đoạn 3)
 
 | Hạng mục | Trạng thái |
 |---|---|
@@ -79,6 +79,7 @@ Nhập liệu khác nhau theo thiết bị: quét mã vạch = camera trên iPho
 | Dọn prototype (T7-P0) | ✅ khung chung (`app/core.js`), chế độ theme + Hub (`app/hub.js`), một bộ token |
 | BJ-01 bước A | ✅ `app/bj01.js` (gói A0 của Giai đoạn 1) |
 | Công cụ | `tools/golden.mjs capture / compare` (714 ca, ~17 giây); bộ bấm thử dò lỗi JS; `tools/sync-registry.py` |
+| Cuối Giai đoạn 3 (v5.26.1) | Critique iPhone 31/40, web 31/40 (`.impeccable/critique/2026-10-27T02-42-19Z__…index-html-050831a4.md`); audit toàn theme 0 lỗi chưa giải thích (còn 9 / 10 iPhone, 6 / 42 web, đều có lý do); golden 2241 / 1350 ca; dò ngõ cụt 0 |
 
 ---
 
@@ -234,7 +235,7 @@ Quy tắc chung cho mọi khuôn: một hành động chính mỗi trạng thái
 
 ## 6. Thành phần DS mới
 
-Thêm khi phát sinh ở bước B; dựng trong `styles/components.css` (prototype) và đưa vào `vet45_design_system` ở giai đoạn 5.
+Thêm khi phát sinh ở bước B; dựng trong `styles/components.css` (prototype) và đưa vào `vet45_design_system` ở Giai đoạn 5 (PLAN.md **T7-G5**).
 
 | Thành phần | Phát sinh ở | Mô tả | Trạng thái |
 |---|---|---|---|
@@ -276,7 +277,7 @@ Hiện trạng (đo 2026-10-16): 96 Screen Contract nhưng prototype dùng 73 m�
 
 Viết lại Screen Contract của các màn trong BJ và UIF của BJ theo khuôn 7.1.
 
-### 7.3 Chốt đặc tả (sau Giai đoạn 2)
+### 7.3 Chốt đặc tả (sau Giai đoạn 3) — làm ở [PLAN.md](../../PLAN.md) **T7-G4**, ngoài plan này
 
 Rà toàn bộ, chốt `FROZEN` đồng loạt với mốc phiên bản mới; pattern `PAT-UI-UX` / `PAT-NAV` cập nhật theo các khuôn ở mục 5; registry.
 
@@ -521,9 +522,9 @@ Hết chặng 6: kịch bản golden `SC_demo` ✅ (v5.20.0) đi đúng các bư
 
 | Giai đoạn | Việc | Ai | Ước lượng |
 |---|---|---|---|
-| 3. Hoàn thiện | Critique lại toàn theme (≥ 32/40); `/impeccable polish`; Home Kho nối đủ lối vào — plan: [T7-P-G3-hoan-thien.md](T7-P-G3-hoan-thien.md) (✅ duyệt 2026-10-26 theo đề xuất Q1–Q5; 8 gói G3-0…G3-7) | Bạn, theo plan; phiên review review | ~8–9 ngày (ước lượng lại ở plan) |
-| 4. Chốt đặc tả | Mục 7.3; áp mục 13; registry | Phiên review viết, bạn duyệt | 1–2 ngày |
-| 5. Nối sang Flutter | Rà plan T7-0d, T7-1, T7-0e… theo prototype mới; sửa phần BJ-02 / 03 đã code; T7-15 dựng Home candidate; thành phần mục 6 vào `vet45_design_system` | Phiên review viết plan, bạn code | theo từng plan |
+| 3. Hoàn thiện | Critique lại toàn theme (≥ 32/40); `/impeccable polish`; Home Kho nối đủ lối vào — plan: [T7-P-G3-hoan-thien.md](T7-P-G3-hoan-thien.md) (✅ duyệt 2026-10-26 theo đề xuất Q1–Q5; 8 gói G3-0…G3-7) · ✅ 2026-10-27 (v5.26.1) | Bạn, theo plan; phiên review review | ~8–9 ngày (ước lượng lại ở plan) |
+
+Giai đoạn 4 (chốt đặc tả: mục 7.3, áp mục 13, registry) và Giai đoạn 5 (nối sang Flutter) **không thuộc plan này** — xem [PLAN.md](../../PLAN.md) dòng **T7-G4**, **T7-G5**.
 
 ### Đầu vào cho Giai đoạn 3 (góp ý còn mở của chặng 1–6, ghi 2026-10-26)
 
@@ -547,7 +548,7 @@ Hết chặng 6: kịch bản golden `SC_demo` ✅ (v5.20.0) đi đúng các bư
 | Khuôn dùng chung dựng ở chặng 1 (BJ-12) chưa đủ tổng quát — BJ-12 là việc một lần, khác nhịp hằng ngày của BJ-02 / 05 | Mô tả khuôn ở mục 5 ngay khi dựng; brief BJ-12 nêu rõ phần nào của khuôn phải hợp cho BJ-02 (lập trên iPhone, duyệt trên web); chặng 2 được phép chỉnh khuôn (ghi CHANGELOG, chạy lại golden BJ đã làm) |
 | Đổi chữ vượt đặc tả | Mọi chữ mới vào mục 13, chỉ áp khi duyệt |
 | Prototype đi xa hơn backend làm được | Bước B giữ nguyên quy tắc nghiệp vụ; điểm nào cần backend mới ghi rõ trong brief |
-| Phần BJ-02 / 03 đã code Flutter phải làm lại | Chấp nhận; giai đoạn 5 lập plan sửa riêng |
+| Phần BJ-02 / 03 đã code Flutter phải làm lại | Chấp nhận; T7-G5 (PLAN.md) lập plan sửa riêng |
 
 ## 13. Đề xuất sửa đặc tả và thành phần mới (điền dần)
 
@@ -596,7 +597,7 @@ Hết chặng 6: kịch bản golden `SC_demo` ✅ (v5.20.0) đi đúng các bư
 | 13             | SCR-089                                 | luồng / chữ                                  | K4; "Cập nhật giá vốn" (→ BJ-14, chữ BJ-03); "Xem chi tiết phân bổ ({n})" mở sheet "Kết quả phân bổ" + "Đóng"; `UNKNOWN` theo K3 với "Không ghi lại điều chỉnh. Chuyển đúng thao tác này sang xác minh." (bỏ "adjustment") | ✅ 2026-10-24 (v5.10.0) |
 | 13             | mọi màn                                 | chữ / quyền                                  | Không có quyền: "Bạn chưa có quyền điều chỉnh giá trị" / "Chỉ chủ cửa hàng xem và ghi điều chỉnh giá trị." (cả `FINANCIAL_MASKED`) | ✅ 2026-10-24 (v5.10.0) |
 | 13             | UC-13-01                                | nghiệp vụ                                    | Ghi rõ "Kế toán" = chủ cửa hàng khi không có kế toán riêng (như UC-03-01); mục 8 bỏ SCR-087 / 088. Không đổi quy tắc | ⬜ (chốt đặc tả 7.3) |
-| 13 / 03 / mọi K4 | SCR-019, 089, Hub                     | luồng                                        | iPhone Toàn Theme 7: màn kết quả K4 không có lối về Home ngoài đi vòng (không thanh dưới trong luồng) — đề xuất thanh dưới trong luồng hoặc "Về Kho" ở K4; bẫy focus cho mọi sheet đưa vào `core.js` (ghi chú mục 8 plan BJ-13) | ⬜ đề xuất |
+| 13 / 03 / mọi K4 | SCR-019, 089, Hub                     | luồng                                        | iPhone Toàn Theme 7: màn kết quả K4 không có lối về Home ngoài đi vòng (không thanh dưới trong luồng) — đề xuất thanh dưới trong luồng hoặc "Về Kho" ở K4; bẫy focus cho mọi sheet đưa vào `core.js` (ghi chú mục 8 plan BJ-13) | ✅ 2026-10-26 (v5.25.0, G3-5 Q3: K4 iPhone Toàn Theme 7 có thanh 5 tab; bẫy focus chung ở core.js từ G3-2) |
 | 14 | SCR-072 | luồng / chữ | **K6 không ô tìm**: tiêu đề "Giá vốn" · phụ "Chính sách: {phương pháp}"; chip có số "Cần làm" · "Đã công bố"; dòng "Chốt kỳ {kỳ}" / "Cập nhật giá vốn {kỳ}" · "{n} sản phẩm · đã tính, chờ công bố" / "{n} sản phẩm · {nguyên nhân}" / "{k} việc cần xử lý" / "Công bố {ngày}"; badge "Cần xử lý" (thay "Bị chặn"); web bảng Lần tính · Kỳ · Phạm vi · "Chênh lệch sẽ ghi" · Tình trạng; chân "Chốt kỳ {kỳ}" chỉ khi có kỳ chưa chốt (bỏ nút thường trực) | ✅ 2026-10-26 (v5.19.0) |
 | 14 | SCR-074 | luồng / chữ | Một màn: tiêu đề "{Chốt kỳ / Cập nhật giá vốn} {kỳ}"; khối thứ tự việc chặn → kết quả → thay đổi sẽ ghi → "Theo sản phẩm" ("Giá vốn cũ" · "Giá vốn mới", "Xem {n} sản phẩm") → "Phương pháp" một câu giải thích + "Theo chính sách của cửa hàng; không đổi theo lần tính."; "Sản phẩm cần tính lại" + nguyên nhân "Xác lập giá nhập {mã}" / "Điều chỉnh giá trị {mã}" / "Sửa sai {mã}"; banner "Chưa công bố được" / "Xử lý {k} việc dưới đây rồi tính lại." / "Đã xử lý hết việc chặn"; nút "Mở yêu cầu sửa sai", "Mở hồ sơ", "Mở hàng chờ xác lập giá trị"; "Tính lại" + "Còn {k} việc cần xử lý" / "Chọn phạm vi"; **bỏ** "Đang chờ: {bộ phận}"; trạng thái thêm `NOT_CALCULATED` | ✅ 2026-10-26 (v5.19.0) |
 | 14 | SCR-077 | luồng / chữ | "Đã công bố giá vốn {kỳ}"; "Công bố lúc" (thay "Hiệu lực"); bỏ "Sản phẩm đã đối soát"; "Về giá vốn" (thay "Về công việc giá vốn") + **"Xem báo cáo tồn"** (→ BJ-15); `UNKNOWN` theo K3 "Công bố giá vốn" (`BJ17_KIND["UIF-14"]`) | ✅ 2026-10-26 (v5.19.0) |
@@ -655,6 +656,20 @@ Hết chặng 6: kịch bản golden `SC_demo` ✅ (v5.20.0) đi đúng các bư
 | 15 | SCR-058 / SCR-059 | luồng / chữ | **Bỏ SCR-058** (→ RETIRED): sheet **"Xuất tệp"** → "Xuất báo cáo" ở 055 (+ ô **"Kèm giá trị"** chỉ chủ; "Nội dung" "Thẻ kho {sản phẩm}"); 059 K4, bước tiếp **"Về báo cáo"**; `PERMISSION_DENIED` "Bạn chưa có quyền xuất báo cáo kho" | ✅ 2026-10-26 (v5.20.0) |
 | 11 | SCR-050 / SCR-053 | luồng / chữ | Lối vào từ thẻ kho (entry `correction-from-movement`, "Số đúng" trống); nút **"Về thẻ kho"** ở 053 (K4 / K2 chờ duyệt) và nút quay lại 050 về SCR-056; yêu cầu nhớ `movementId` (như `caseId`) | ✅ 2026-10-26 (v5.20.0) |
 | 15 | UC-15-01 / 03 / 04, `use-case-map`, PAT-NAV, SCR-095 | tài liệu | Mục "màn sử dụng": SCR-054 → SCR-055, SCR-057 → SCR-056, SCR-058 → SCR-055; không đổi quy tắc | ✅ 2026-10-26 (v5.20.0) |
+| 02 | SCR-011 | trạng thái / chữ | Trạng thái chỉ đọc **`RECORDED`**: "Phiếu nhận {chứng từ}" · "{NCC} · Đã ghi {ngày}"; mở từ 056 "Mở phiếu gốc" và sheet nguồn SCR-003 (G3-5) | ✅ 2026-10-26 (plan G3 ✅ duyệt, v5.25.0) |
+| 17 | SCR-083 | luồng / chữ | Kết quả xác lập: "Mở {nghiệp vụ} {mã}" về màn của thao tác nguồn (G3-3) | ✅ 2026-10-26 (plan G3 ✅ duyệt, v5.23.0) |
+| 03 / 11 / 16 | màn kết quả (vào từ BJ-14) | luồng / chữ | "Về giá vốn" (chữ đã có ở SCR-077) mở lại 074 (G3-5) | ✅ 2026-10-26 (plan G3 ✅ duyệt, v5.25.0) |
+| 11 | SCR-049 | trạng thái / chữ | `RECORDED`: "Đã ghi vào kho" · "Kết quả đã được xác minh; không cần sửa." · badge "Đã ghi" (G3-3) | ✅ 2026-10-26 (plan G3 ✅ duyệt, v5.23.0) |
+| 01 | SCR-003 | chữ | Sheet "Nguồn và thời điểm cập nhật": "Mở phiếu nhận {mã}" khi biến động gần nhất là nhận hàng (G3-5) | ✅ 2026-10-26 (plan G3 ✅ duyệt, v5.25.0) |
+| 10 | SCR-041 | trạng thái / chữ | `EXPIRED`: "Đề nghị tiêu hủy đã hết hiệu lực" · "Không có tác động tồn kho. Tạo đề nghị mới nếu vẫn cần tiêu hủy." (G3-5); `REJECTED` thêm "Lô", "Số lượng" (G3-7) | ✅ 2026-10-26 (plan G3 ✅ duyệt, v5.25.0 / v5.26.1) |
+| 05 | SCR-026 | luồng / chữ | **"Lấy đủ tất cả"** (mới, G3-7 U4): khi còn ≥ 2 lô chưa lấy đủ, lấy đủ mọi lô trừ lô đang chờ điều chỉnh hàng đang cầm | ✅ 2026-10-27 (người dùng duyệt U4, v5.26.1) |
+| 17 | SCR-079 | chữ | Phụ đề "{nghiệp vụ} {mã} · {phạm vi}" thay mã hồ sơ nội bộ `REC-UNKNOWN-0x` (G3-7 U6; mã không phải chữ spec) | ✅ 2026-10-27 (plan G3-7 B2 U6, v5.26.1) |
+| mọi K4 | SCR-012 / 029 / 047 / … | thành phần | **U5:** K4 nhận hàng / kiểm kê thêm một dòng "Tồn kho đã đổi: {sản phẩm} {trước} → {sau}" (mới) làm điểm nhấn demo | ⬜ đề xuất (G3-7) |
+| 02 / 14 | SCR-011 / SCR-074 (web) | bố cục | "Tóm tắt" lặp thẻ chính (011: chứng từ, NCC, kho, ngày hai lần; 074: hai dòng điều chỉnh hai lần) — gộp, giữ một bên; "Đổi chứng từ" chuyển vào "Tóm tắt" | ⬜ đề xuất (G3-7) |
+| 11 / K6 | SCR-048 (iPhone) | bố cục | Dòng K6 iPhone: badge xuống dưới tiêu đề khi tiêu đề "{loại} {mã}" gãy hai dòng | ⬜ đề xuất (G3-7) |
+| mọi BJ | thẻ số liệu / "Tóm tắt" | thành phần | Số tiền một kiểu chữ (mono như bảng) ở thẻ số liệu và "Tóm tắt" (046, 074, 015 đang Inter) | ⬜ đề xuất (G3-7) |
+| 09 / 10 | SCR-037 | chữ / thành phần | Tiêu đề "Việc tiếp theo" khi chỉ có một ghi chú (không có việc) → bỏ tiêu đề hoặc đổi chữ; badge "Cách ly" lặp "{n} {ĐVT} Cách ly" ở thẻ lô | ⬜ đề xuất (G3-7) |
+| 08 / 03 | SCR-044, SCR-015 | chữ | "Đếm mù", "Căn cứ" là chữ chuyên môn (critique H2) — cân nhắc "Đếm không xem số sổ", "Nguồn giá" | ⬜ đề xuất (G3-7 U6) |
 
 ## 14. Tiến độ
 
@@ -879,6 +894,19 @@ Góp ý nhỏ (không chặn, sửa khi tiện):
 | **Chặng 6 — Chốt kỳ** |  |  |  | `SC_journey_6` ✅ 2026-10-26 — 0 lỗi ở cả hai khung (v5.20.0; mốc `tools/.golden-chang6` / `-web`, chụp lại sau R1 ở v5.20.1); `SC_demo` ✅ — **hết Giai đoạn 2** ([plan BJ-15 mục 6.4–6.5](T7-P-bj15-bao-cao-the-kho.md)); **review ✅ 2026-10-26** (đạt sau R1, v5.20.1 — [plan BJ-15 mục 14](T7-P-bj15-bao-cao-the-kho.md)) |
 | BJ-14                                                                                                          | ✅ duyệt 2026-10-26 ([plan](T7-P-bj14-gia-von.md)) | ✅ 2026-10-26 (v5.19.0)     | ✅ 2026-10-26 (ghi chú mục 9 của plan; review ✅ 2026-10-26, R1 v5.20.1) | ✅ 2026-10-26                                                                                                                                                                                                                                         |
 | BJ-15 | ✅ duyệt 2026-10-26 ([plan](T7-P-bj15-bao-cao-the-kho.md)) | ✅ 2026-10-26 (v5.20.0) | ✅ 2026-10-26 (ghi chú mục 9 của plan; review ✅ 2026-10-26) | ✅ 2026-10-26 |
+
+### Giai đoạn 3 — hoàn thiện
+
+| Gói | Làm | Phiên bản | Ghi chú |
+|---|---|---|---|
+| G3-0 | ✅ 2026-10-26 | — | Review bù BJ-13 đạt; mốc nền. Review: chuyển T7-G5 |
+| G3-1 | ✅ một phần | v5.21.0 | Gom CSS / bỏ `!important` → T7-G5. Review: chuyển T7-G5 |
+| G3-2 | ✅ một phần | v5.22.0 | Vùng ảnh BJ-02 / 06 sang `k5Evidence` → T7-G5. Review: chuyển T7-G5 |
+| G3-3 | ✅ | v5.23.0 | Review: chuyển T7-G5 |
+| G3-4 | ✅ một phần | v5.24.0 | Lô Amox, giữ hàng Nobivac, fixture BJ-07 → T7-G5. Review: chuyển T7-G5 |
+| G3-5 | ✅ | v5.25.0 | Review: chuyển T7-G5 |
+| G3-6 | ✅ | v5.26.0 | Critique 29/40. Review: chuyển T7-G5 |
+| G3-7 | ✅ 2026-10-27 | v5.26.1 | Critique 31/40 cả hai khung, audit toàn theme, ngõ cụt 0 — [plan](T7-P-G3-7-do-cuoi.md). Review: chuyển T7-G5 |
 
 ## 15. Câu hỏi còn mở
 

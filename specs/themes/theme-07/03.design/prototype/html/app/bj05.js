@@ -129,6 +129,9 @@ function io05PickFull(allocationId){
   const hit=io05FindAllocation(allocationId); if(!hit||io05CorrectionPending(hit.allocation))return false;
   const a=hit.allocation; a.pickedQty=Number(a.consumedQty||0)+io05AllocationNeed(a); io05HandoverByAllocation[a.id]=io05AllocationRemainingPicked(a); return true;
 }
+// "Lấy đủ tất cả" (G3-7 U4): lấy đủ mọi lô còn thiếu, bỏ qua lô đang chờ điều chỉnh hàng đang cầm.
+function io05PickableAllocations(order=io05CurrentOrder()){return io05AllAllocations(order).filter(({allocation:a})=>!io05CorrectionPending(a)&&io05AllocationRemainingPicked(a)<io05AllocationNeed(a));}
+function io05PickAllFull(){const ids=io05PickableAllocations().map(({allocation})=>allocation.id);ids.forEach(io05PickFull);return ids.length>0;}
 function io05ApplyHandover(){
   const order=io05CurrentOrder();
   if (!order || Number(order.reviewSourceVersion ?? 0) !== Number(order.sourceVersion ?? 0)) {
@@ -326,7 +329,8 @@ function render026BJ05(state){
   const table=k7Table({columns,rows:lotRows,mobileRow:(r)=>io05MobileLotRow(r,readOnly),caption:"Hàng cần lấy theo lô",rowAttr:(r)=>r.allocation?`data-io05-lot-row="${escapeAttribute(r.allocation.id)}"`:`data-io05-done-row="${escapeAttribute(r.line.id)}"`});
   const webCorrections=readOnly?"":io05AllAllocations(order).filter(({allocation})=>io05CorrectionPending(allocation)).map(({line,allocation})=>vBanner("warning","Cần điều chỉnh hàng đang cầm",esc(io05CorrectionText(line,allocation)),"k7-web-only k7-banner--line")).join("");
   const note=`<p class="bj05-business-note" data-ds-component="VText">Tồn vật lý chỉ giảm khi xác nhận bàn giao.</p>`;
-  const main=`${notices}${verifying||waiting?"":bj05Progress(done,active.length)}${context}${webCorrections}${table}${note}`;
+  const bulk=readOnly||io05PickableAllocations(order).length<2?"":`<div class="bj05-bulk">${bj05Button("Lấy đủ tất cả",'data-io05-action="pick-all-full"')}</div>`;
+  const main=`${notices}${verifying||waiting?"":bj05Progress(done,active.length)}${context}${bulk}${webCorrections}${table}${note}`;
   const body=`<div class="bj05-pick">${k7Split({main,aside:bj05Facts(order,{withLink:true}),wideMain:true,asideWebOnly:true})}</div>${bj05PickEditorSheet(io05FindAllocation(io05ActiveAllocationId)?.line,io05CurrentAllocation())}${bj05OverrideSheet(io05FindAllocation(io05ActiveAllocationId)?.line,io05CurrentAllocation())}`;
   const actions=readOnly?"":k4ReasonFooter({label:"Rà soát bàn giao",attr:'data-io05-action="review-handover"',disabled:!io05CanReview(),reason:io05ReviewReason()});
   return bj05Shell({title,subtitle,body,actions});
@@ -503,6 +507,7 @@ document.addEventListener("click", (event) => {
   const k = a.dataset.io05Action;
   if (k === "clear-filter") { io05QueueFilter = "ALL"; io05Query = ""; if (stateByScreen["SCR-025"] === "FILTER_EMPTY") io05SetState("SCR-025", "READY"); return renderAppScreen(); }
   if (k === "review-handover") { if (!io05CanReview()) return; io05ResetHandover(); io05Recipient = "COUNTER"; io05SetState("SCR-028", io05CurrentOrder().partialHandoverAllowed ? "PARTIAL_ALLOWED" : "READY"); return navigate("SCR-028"); }
+  if (k === "pick-all-full") { if (io05PickAllFull()) io05Rerender('[data-io05-action="review-handover"]'); return; }
   if (k === "update-pick-allocation") { const al = io05CurrentAllocation(); if (!al || io05PickDraft === "" || Number(io05PickDraft) < 0 || Number(io05PickDraft) > io05AllocationNeed(al)) return; const id = al.id; al.pickedQty = Number(al.consumedQty || 0) + Number(io05PickDraft); io05HandoverByAllocation[al.id] = io05AllocationRemainingPicked(al); io05PickEditorOpen = false; io05PickDraft = ""; return io05Rerender(`[data-io05-pick-allocation="${CSS.escape(id)}"]`); }
   if (k === "close-lot-override") { io05OverrideOpen = false; return renderAppScreen(); }
   if (k === "confirm-lot-override") { if (!io05OverrideReason.trim() || !io05OverrideLot) return; const allocation = io05CurrentAllocation(); if (allocation && Number(allocation.consumedQty || 0) <= 0) { const oldLot = allocation.lot, oldPicked = io05AllocationRemainingPicked(allocation); allocation.lot = io05OverrideLot; allocation.overrideReason = io05OverrideReason; if (oldPicked > 0) { allocation.pickedQty = Number(allocation.consumedQty || 0); allocation.physicalCorrection = { kind: "MANUAL", status: "PENDING", oldLot, returnQty: oldPicked, newLot: io05OverrideLot, repickQty: oldPicked, actor: null, confirmedAt: null }; } io05HandoverByAllocation[allocation.id] = 0; const order = io05CurrentOrder(); order.allocationVersion = Number(order.allocationVersion || 0) + 1; } io05OverrideOpen = false; renderAppScreen(); return showToast("Đã cập nhật lô lấy hàng", "success"); }

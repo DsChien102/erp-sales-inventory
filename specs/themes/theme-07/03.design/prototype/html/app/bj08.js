@@ -666,6 +666,20 @@ document.addEventListener("change", (event) => {
   if (event.target.matches("[data-bj08-counter]")) { bj08Draft.counter = event.target.value; }
 }, true);
 
+// Chip "Chưa đếm": khi đang gõ thì dòng giữ chỗ (không nhảy); rời ô sang ô đếm khác / ra ngoài thì lọc lại để dòng vừa đếm rời danh sách.
+// Rời sang nút (chân, "Thêm hàng thực tế") thì không dựng lại, để cú bấm không mất.
+document.addEventListener("focusout", (event) => {
+  if (activeFlowId !== "UIF-08" || bj08CountFilter !== "TODO") return;
+  const t = event.target;
+  if (!t.matches?.("[data-bj08-count]")) return;
+  const s = bj08Session();
+  if (!s || !bj08Filled(s.counts[t.dataset.bj08Count])) return;
+  const next = event.relatedTarget;
+  if (next && !next.matches?.("[data-bj08-count]")) return;
+  const sel = next ? `[data-bj08-count="${CSS.escape(next.dataset.bj08Count)}"]` : "";
+  requestAnimationFrame(() => { if (activeFlowId === "UIF-08" && activeScreenId === "SCR-044") bj08Rerender(sel); });
+}, true);
+
 document.addEventListener("keydown", (event) => {
   if (activeFlowId !== "UIF-08") return;
   const t = event.target;

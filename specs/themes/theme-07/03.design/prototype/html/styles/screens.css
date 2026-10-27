@@ -3951,6 +3951,10 @@ body[data-active-uif="UIF-05"] .bj05-lot__progress {
 }
 body[data-active-uif="UIF-05"] .bj05-lot__banner { width: 100%; box-sizing: border-box; }
 body[data-active-uif="UIF-05"] .bj05-small-button { width: auto; min-width: 44px; min-height: 44px; padding-inline: var(--vet45-v2-space-4); white-space: normal; }
+/* 026: "Lấy đủ tất cả" cạnh phải, trên danh sách lô (cùng bề rộng với dòng ngữ cảnh). */
+body[data-active-uif="UIF-05"] .bj05-bulk { width: 370px; display: flex; justify-content: flex-end; }
+.device-preview.is-web .k7-wide .bj05-bulk { width: 100%; }
+
 body[data-active-uif="UIF-05"] .bj05-context-row {
   width: 370px;
   min-height: 44px;
@@ -4240,8 +4244,8 @@ body[data-active-uif="UIF-14"] .figma-calibrated-shell .k6-list .ds24-list-row {
 /* Hàng "nhãn — số tiền": nhãn bên trái, số căn phải (mono, không gãy dòng); các hàng liền nhau ngăn bằng đường mảnh. */
 body[data-active-uif="UIF-14"] .ds24-key-value-row { display: flex; align-items: center; justify-content: space-between; gap: var(--vet45-v2-space-3); min-height: 44px; padding: var(--vet45-v2-space-2) 0; box-sizing: border-box; }
 body[data-active-uif="UIF-14"] :is(.ac310-key-value-stack, .bj14-sheet-facts) > .ds24-key-value-row + .ds24-key-value-row { border-top: 1px solid var(--vet45-v2-border-default); }
-body[data-active-uif="UIF-14"] .ds24-key-value-row > span { flex: 0 1 55%; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
-body[data-active-uif="UIF-14"] .ds24-key-value-row > strong { flex: 1 1 0; min-width: 0; text-align: right; font: 600 14px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--vet45-v2-text-primary); }
+body[data-active-uif="UIF-14"] .ds24-key-value-row > span { flex: 1 1 0; min-width: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+body[data-active-uif="UIF-14"] .ds24-key-value-row > strong { flex: 0 1 auto; min-width: 0; text-align: right; font: 600 14px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--vet45-v2-text-primary); }
 /* Kết quả công bố (K4): nhãn dài vẫn xếp ngang như các hàng khác, để cả khối đọc cùng một kiểu. */
 body[data-active-uif="UIF-14"] .figma-calibrated-shell .io-meta-detail { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: var(--vet45-v2-space-3); }
 body[data-active-uif="UIF-14"] .figma-calibrated-shell .io-meta-detail > span:first-child { flex: 0 1 auto; }
@@ -4295,8 +4299,8 @@ body[data-active-uif="UIF-15"] .sheet-actions:has(> :only-child) { grid-template
 /* Hàng "nhãn — giá trị": nhãn bên trái, số căn phải (mono, không gãy dòng); các hàng liền nhau ngăn bằng đường mảnh. */
 body[data-active-uif="UIF-15"] .ds24-key-value-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--vet45-v2-space-3); min-height: 44px; padding: var(--vet45-v2-space-2) 0; box-sizing: border-box; }
 body[data-active-uif="UIF-15"] :is(.ac310-key-value-stack, .bj15-sheet-facts) > .ds24-key-value-row + .ds24-key-value-row { border-top: 1px solid var(--vet45-v2-border-default); }
-body[data-active-uif="UIF-15"] .ds24-key-value-row > span { flex: 0 1 55%; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
-body[data-active-uif="UIF-15"] .ds24-key-value-row > strong { flex: 1 1 0; min-width: 0; text-align: right; font: 600 14px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--vet45-v2-text-primary); }
+body[data-active-uif="UIF-15"] .ds24-key-value-row > span { flex: 1 1 0; min-width: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+body[data-active-uif="UIF-15"] .ds24-key-value-row > strong { flex: 0 1 auto; min-width: 0; text-align: right; font: 600 14px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--vet45-v2-text-primary); }
 /* Vòng focus bàn phím cho chip, dòng danh sách, nút kỳ / xuất và dòng chọn (DS chưa có vòng focus cho chip / dòng). */
 body[data-active-uif="UIF-15"] :is(.ds24-chip, .ds-segment, .bj15-period, .bj15-export, .bj15-check-row):focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: 2px; }
 body[data-active-uif="UIF-15"] .ds24-list-row:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: -2px; }

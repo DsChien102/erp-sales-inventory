@@ -76,8 +76,9 @@ const ThemeApp = (() => {
     label: 'nhận hàng',
     // Kho chưa kích hoạt thì chưa nhận hàng được → không có phiếu nhận hàng chờ duyệt.
     // Phiếu vừa gửi trong phiên (bj02PendingSubmitted) thay dòng đầu: mở đúng phiếu đó, không nạp lại fixture.
-    rows: () => (!inventoryActivated ? [] : PENDING_RECEIPTS.map((item, index) => {
-      const mine = index === 0 && typeof bj02PendingSubmitted !== 'undefined' && bj02PendingSubmitted;
+    // Phiếu đã duyệt / từ chối (bj02DecidedReceipts) rời danh sách → số "Chờ duyệt" giảm theo.
+    rows: () => (!inventoryActivated ? [] : PENDING_RECEIPTS.filter((item) => !bj02DecidedReceipts.has(item.id)).map((item) => {
+      const mine = item.id === PENDING_RECEIPTS[0].id && typeof bj02PendingSubmitted !== 'undefined' && bj02PendingSubmitted;
       return {
         title: mine ? (currentReceiptSupplier() || 'Nhập nhanh') : item.supplier,
         subtitle: mine ? `Kho trung tâm · ${bj02Lines.length} mặt hàng · ${BJ02_CONTEXT.submitted.maker} gửi 09:41` : item.meta,
@@ -370,6 +371,7 @@ const ThemeApp = (() => {
   // Ngữ cảnh khi mở thẳng một màn từ Hub (giữ từ lớp v3.8 / v4.6.4).
   function applyDirectContext(context, receiptId) {
     if (context === 'bj02-pending-approval' && receiptId) {
+      bj02ReviewReceiptId = receiptId;
       flowMode = 'document';
       selectedDocumentId = 'PN-260816-04';
       if (typeof resetBj02Receipt === 'function') resetBj02Receipt('document');
@@ -386,6 +388,7 @@ const ThemeApp = (() => {
 
   function applyDirectContextMine(context) {
     if (context !== 'bj02-submitted-approval') return false;
+    bj02ReviewReceiptId = PENDING_RECEIPTS[0].id;
     stateByScreen['SCR-010'] = 'PENDING_APPROVAL'; stateByScreen['SCR-011'] = 'READY'; stateByScreen['SCR-012'] = 'COMPLETED'; approvalRejectReason = '';
     return true;
   }

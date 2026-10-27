@@ -164,6 +164,8 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 
 Xem mục 4 và Screen Contracts.
 
+**Màn kết quả (K4, `RESULT`) và thanh điều hướng của app** (prototype v5.25.0, G3-5): ở chế độ Toàn Theme 7 trên **iPhone**, màn kết quả hiện thanh 5 tab của app (Trang chủ · Đơn hàng · Sản phẩm · Đối tác · Thêm) để luôn có lối về ngoài các nút ở chân; các màn khác trong luồng không có thanh dưới. Chế độ xem từng BJ và khung **web** giữ như cũ (web luôn có thanh bên).
+
 ## 6. Phần được phép thay đổi
 
 Chỉ dữ liệu/copy/variant được nguồn và DS cho phép.

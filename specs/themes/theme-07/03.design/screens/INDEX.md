@@ -13,7 +13,7 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-008 | Nhập hàng nhanh | BJ-02 | IN_REVIEW | Có |
 | SCR-009 | Hàng thực nhận | BJ-02 | IN_REVIEW | Có |
 | SCR-010 | Rà soát nhận hàng | BJ-02 | IN_REVIEW | Có |
-| SCR-011 | Phê duyệt yêu cầu nhận hàng | BJ-02 | IN_REVIEW | Có |
+| SCR-011 | Phê duyệt yêu cầu nhận hàng | BJ-02 | IN_REVIEW | Có — thêm trạng thái chỉ đọc `RECORDED` (phiếu nhận đã ghi; mở từ SCR-056 / SCR-003) |
 | SCR-012 | Kết quả nhận hàng | BJ-02 | IN_REVIEW | Có |
 | SCR-013 | Đối soát nhận hàng | BJ-02 | IN_REVIEW | Có |
 | SCR-014 | Hàng chờ xác lập giá trị | BJ-03 | IN_REVIEW | Có |
