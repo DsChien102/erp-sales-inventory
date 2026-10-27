@@ -727,13 +727,16 @@ Chi tiết từng việc:
 
 ## Tích hợp AI (~3 ngày)
 
-**Trạng thái:** ⬜ Chưa làm. Giảng viên phụ trách yêu cầu "tích hợp AI vào app"; chưa có đề xuất cụ thể. Làm **cuối cùng**, sau Dọn dẹp (chốt 2026-10-27), để AI dùng dữ liệu thật của các theme đã xong.
+**Trạng thái:** ⬜ Chưa làm. Giảng viên phụ trách yêu cầu "tích hợp AI vào app". Làm **cuối cùng**, sau Dọn dẹp, để AI dùng dữ liệu thật của các theme đã xong.
+
+**Đã chốt (2026-10-27, người dùng; chờ giáo viên hướng dẫn góp ý — tài liệu đề xuất: https://claude.ai/artifact/MsAVBd694N3asXw7FufM1y):** tính năng chính = trợ lý **"Hỏi VET45"** hỏi đáp số liệu cửa hàng bằng tiếng Việt, chỉ đọc, theo quyền người hỏi; tuỳ chọn = đọc ảnh phiếu giao hàng điền sẵn phiếu nhận (AI-3). Model: **Gemini API, hạn mức miễn phí** (khoá tạo ở Google AI Studio, chỉ nằm trong secrets Edge Function); phần gọi model tách một lớp riêng để đổi nhà cung cấp được.
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 | ---- | -------- | -------- | ---- | --- | ------ |
-| **AI-0** | Chọn tính năng AI (người dùng duyệt) và viết yêu cầu ngắn: việc người dùng làm được, dữ liệu AI được đọc, quyền, giới hạn, chữ trên màn. Ứng viên: trợ lý hỏi đáp tiếng Việt về số liệu cửa hàng (tồn, doanh thu, công nợ) chỉ đọc theo quyền; gợi ý nhập hàng; đọc ảnh chứng từ nhận hàng | ~0,5 ngày | ⬜ | ⬜ | ⬜ |
-| **AI-1** | Backend: Edge Function gọi Claude API (khoá trong secrets, không nằm trong app); công cụ chỉ đọc gọi RPC theo tổ chức và quyền của người hỏi; giới hạn số lần gọi, ghi nhật ký | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
-| **AI-2** | UI (iPhone + web): lối vào, khung hỏi đáp / kết quả, trạng thái đang trả lời, lỗi, không có quyền; `/impeccable audit` | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| **AI-0** | Yêu cầu ngắn cho "Hỏi VET45": danh sách câu hỏi phải trả lời được, 5–7 công cụ chỉ đọc (tồn + lô cận hạn, doanh thu theo khoảng ngày, đơn theo khách, công nợ phải thu, thẻ kho), chữ trên màn, quyền, giới hạn; áp góp ý của giáo viên | ~0,5 ngày | ⬜ | ⬜ | ⬜ |
+| **AI-1** | Backend: Edge Function `ai-assistant` gọi Gemini API (function calling); công cụ gọi RPC sẵn có bằng JWT của người hỏi (RLS + quyền tự áp); nhật ký (người hỏi, công cụ, token), giới hạn số câu mỗi tổ chức mỗi ngày | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
+| **AI-2** | UI (iPhone + web): màn "Hỏi VET45", lối vào từ Home; câu trả lời + bảng dựng từ kết quả công cụ + nút mở màn; đang trả lời, lỗi, hết lượt, không có quyền; `/impeccable audit` | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| **AI-3** | (Tuỳ chọn, chỉ khi AI-0…2 xong sớm) Đọc ảnh phiếu giao hàng ở BJ-02: Gemini trả dòng sản phẩm / lô / HSD / số lượng có cấu trúc → điền sẵn phiếu nhận, người nhận kiểm lại rồi lưu | ~2,5 ngày | ⬜ | ⬜ | ⬜ |
 
 **Xong khi:** tính năng chọn ở AI-0 chạy được từ đầu đến cuối trong app (iPhone + web), chỉ dùng dữ liệu của tổ chức và theo quyền người dùng; có một kịch bản demo cho hội đồng.
 
