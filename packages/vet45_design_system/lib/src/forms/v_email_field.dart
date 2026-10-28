@@ -25,13 +25,16 @@ class VEmailField extends StatefulWidget {
     this.suffixIconConstraints,
     this.suffixText,
     this.enabled,
+    this.autofillHints = const [AutofillHints.email],
     this.onChanged,
-    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
+    this.isRequired = false,
     this.inputFormatters,
     this.textStyle,
     this.textAlign = TextAlign.start,
     this.autofocus = false,
     this.focusNode,
+    this.textInputAction,
     this.onSubmitted,
     this.border = true,
     this.debounceDuration = VDuration.normal,
@@ -63,6 +66,7 @@ class VEmailField extends StatefulWidget {
   final BoxConstraints? suffixIconConstraints;
   final String? suffixText;
   final bool? enabled;
+  final Iterable<String>? autofillHints;
   final ValueChanged<String>? onChanged;
   @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
@@ -71,6 +75,7 @@ class VEmailField extends StatefulWidget {
   final TextAlign textAlign;
   final bool autofocus;
   final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
   final bool border;
   final Duration debounceDuration;
@@ -81,6 +86,7 @@ class VEmailField extends StatefulWidget {
   final int maxLength;
   final String? minLengthEmailMessage;
   final String? maxLengthEmailMessage;
+
   /// Local invalid override. Null inherits [VField.invalid].
   final bool? invalid;
   final VComponentTone tone;
@@ -135,14 +141,17 @@ class _VEmailFieldState extends State<VEmailField> {
         helperText: widget.helperText,
         // ignore: deprecated_member_use_from_same_package
         errorText: widget.errorText ?? _internalError,
-        prefixIcon:
-            widget.prefixIcon != null ? vInspectorShow(widget.prefixIcon!) : null,
-        suffixIcon:
-            widget.suffixIcon != null ? vInspectorShow(widget.suffixIcon!) : null,
+        prefixIcon: widget.prefixIcon != null
+            ? vInspectorShow(widget.prefixIcon!)
+            : null,
+        suffixIcon: widget.suffixIcon != null
+            ? vInspectorShow(widget.suffixIcon!)
+            : null,
         suffixIconConstraints: widget.suffixIconConstraints,
         suffixText: widget.suffixText,
         enabled: widget.enabled,
         keyboardType: TextInputType.emailAddress,
+        autofillHints: widget.autofillHints,
         onChanged: _handleChanged,
         // ignore: deprecated_member_use_from_same_package
         isRequired: widget.isRequired,
@@ -154,6 +163,7 @@ class _VEmailFieldState extends State<VEmailField> {
         textAlign: widget.textAlign,
         autofocus: widget.autofocus,
         focusNode: widget.focusNode,
+        textInputAction: widget.textInputAction,
         onSubmitted: widget.onSubmitted,
         border: widget.border,
         invalid: widget.invalid,

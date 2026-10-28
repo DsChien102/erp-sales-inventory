@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:erp/core/validation/tax_code_input_formatter.dart';
 import 'package:erp/core/validation/tax_code.dart';
 import 'package:erp/features/iam/data/models/tenant_profile.dart';
 import 'package:erp/features/iam/data/organization_repository.dart';
@@ -63,14 +64,20 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
   late final TextEditingController _legalNameController;
   late final TextEditingController _taxCodeController;
   late final TextEditingController _addressController;
-  late final Future<List<VnAdministrativeUnit>> _unitsFuture =
-      VnAdministrativeUnitsLoader.load();
+  late final Future<List<VnAdministrativeUnit>> _unitsFuture = VnAdministrativeUnitsLoader.load();
 
   String? _selectedEntityType;
   String? _selectedProvinceCode;
   String? _selectedCommuneCode;
   bool _seeded = false;
+  bool _seeding = false;
   bool _showingDuplicateSheet = false;
+  String? _baselineEntityType;
+  String? _baselineLegalName;
+  String? _baselineTaxCode;
+  String? _baselineAddress;
+  String? _baselineProvinceCode;
+  String? _baselineCommuneCode;
 
   String? _entityTypeError;
   String? _legalNameError;
@@ -82,10 +89,24 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
     _legalNameController = TextEditingController();
     _taxCodeController = TextEditingController();
     _addressController = TextEditingController();
+    for (final controller in [
+      _legalNameController,
+      _taxCodeController,
+      _addressController,
+    ]) {
+      controller.addListener(_onFieldChanged);
+    }
   }
 
   @override
   void dispose() {
+    for (final controller in [
+      _legalNameController,
+      _taxCodeController,
+      _addressController,
+    ]) {
+      controller.removeListener(_onFieldChanged);
+    }
     _legalNameController.dispose();
     _taxCodeController.dispose();
     _addressController.dispose();
@@ -98,6 +119,7 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
 
   void _seedFromState(OrganizationProfileState state) {
     if (_seeded || state.tenant == null) return;
+    _seeding = true;
     final legal = state.tenant!.legalProfile;
     if (legal != null) {
       final ui = OrganizationProfileUiMapper.fromLegal(legal);
@@ -107,8 +129,43 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
       _addressController.text = ui.registeredAddress;
       _selectedProvinceCode = ui.provinceCode;
       _selectedCommuneCode = ui.communeCode;
+      _baselineEntityType = ui.entityType;
+      _baselineLegalName = ui.legalName;
+      _baselineTaxCode = ui.taxCode;
+      _baselineAddress = ui.registeredAddress;
+      _baselineProvinceCode = ui.provinceCode;
+      _baselineCommuneCode = ui.communeCode;
     }
     _seeded = true;
+    _seeding = false;
+  }
+
+  bool get _hasChanges {
+    if (!_seeded) return false;
+    return _selectedEntityType != _baselineEntityType ||
+        _legalNameController.text.trim() != _baselineLegalName?.trim() ||
+        _taxCodeController.text.trim() != _baselineTaxCode?.trim() ||
+        _addressController.text.trim() != _baselineAddress?.trim() ||
+        _selectedProvinceCode != _baselineProvinceCode ||
+        _selectedCommuneCode != _baselineCommuneCode;
+  }
+
+  void _onFieldChanged() {
+    if (mounted && !_seeding) setState(() {});
+  }
+
+  void _confirmDiscard() {
+    showVConfirmDialog(
+      context: context,
+      title: 'Bỏ thay đổi?',
+      message: 'Các thay đổi chưa lưu sẽ bị mất.',
+      cancelLabel: 'Tiếp tục sửa',
+      actionLabel: 'Bỏ thay đổi',
+      isDestructive: true,
+      onAction: () {
+        if (mounted) Navigator.of(context).pop();
+      },
+    );
   }
 
   bool _validateLocal() {
@@ -217,13 +274,9 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
     if (state.failure != null) {
       VToast.show(
         context,
-        title: state.failure!.requiresReload
-            ? 'Dữ liệu đã thay đổi'
-            : 'Không lưu được',
+        title: state.failure!.requiresReload ? 'Dữ liệu đã thay đổi' : 'Không lưu được',
         message: state.failure!.message,
-        type: state.failure!.requiresReload
-            ? VToastType.warning
-            : VToastType.danger,
+        type: state.failure!.requiresReload ? VToastType.warning : VToastType.danger,
       );
       cubit.clearFeedback();
       return;
@@ -250,8 +303,7 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
         final isEdit = _isEdit(state);
         final title = isEdit ? 'Chỉnh hồ sơ pháp lý' : 'Thêm hồ sơ pháp lý';
 
-        if (state.status == IamLoadStatus.loading ||
-            state.status == IamLoadStatus.initial) {
+        if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
           return VPageScaffold(
             title: title,
             body: const Center(child: VLoading(size: 40)),
@@ -271,149 +323,157 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
         }
 
         final colors = context.vColors;
-        return VPageScaffold(
-          title: title,
-          bottomBar: Padding(
-            padding: const EdgeInsets.all(VSpacing.screenMobile),
-            child: Row(
+        return PopScope(
+          canPop: !_hasChanges || state.isSubmittingLegal,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop && _hasChanges) _confirmDiscard();
+          },
+          child: VPageScaffold(
+            title: title,
+            bottomBar: Padding(
+              padding: const EdgeInsets.all(VSpacing.screenMobile),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: VButton(
+                      label: 'Hủy',
+                      variant: VButtonVariant.secondary,
+                      fullWidth: true,
+                      onPressed: state.isSubmittingLegal
+                          ? null
+                          : () => Navigator.of(context).maybePop(),
+                    ),
+                  ),
+                  const VGap.horizontalSm(),
+                  Expanded(
+                    child: VButton(
+                      label: 'Lưu hồ sơ',
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.success,
+                      fullWidth: true,
+                      isLoading: state.isSubmittingLegal,
+                      onPressed: state.isSubmittingLegal ? null : () => _save(context),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            body: ListView(
+              padding: const EdgeInsets.all(VSpacing.screenMobile),
               children: [
-                Expanded(
-                  child: VButton(
-                    label: 'Hủy',
-                    variant: VButtonVariant.secondary,
-                    fullWidth: true,
-                    onPressed: state.isSubmittingLegal
-                        ? null
-                        : () => Navigator.of(context).pop(),
+                VText(
+                  'Thay đổi hiện tại không làm thay đổi chứng từ lịch sử.',
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
+                ),
+                const VGap.md(),
+                VField(
+                  invalid: _entityTypeError != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Loại chủ thể'),
+                      VSelect<String>(
+                        hintText: 'Chọn loại chủ thể',
+                        value: _selectedEntityType,
+                        tone: _entityTypeError != null
+                            ? VComponentTone.danger
+                            : VComponentTone.neutral,
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'ENTERPRISE',
+                            child: VText('Doanh nghiệp'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'HOUSEHOLD_BUSINESS',
+                            child: VText('Hộ kinh doanh'),
+                          ),
+                        ],
+                        onChanged: (val) {
+                          setState(() {
+                            _selectedEntityType = val;
+                            _entityTypeError = null;
+                          });
+                        },
+                      ),
+                      if (_entityTypeError != null) VFieldError(_entityTypeError!),
+                    ],
                   ),
                 ),
-                const VGap.horizontalSm(),
-                Expanded(
-                  child: VButton(
-                    label: 'Lưu hồ sơ',
-                    variant: VButtonVariant.primary,
-                    tone: VComponentTone.success,
-                    fullWidth: true,
-                    isLoading: state.isSubmittingLegal,
-                    onPressed:
-                        state.isSubmittingLegal ? null : () => _save(context),
+                const VGap.md(),
+                VField(
+                  invalid: _legalNameError != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Tên pháp lý', isRequired: true),
+                      VTextField(
+                        hintText: 'Nhập tên pháp lý',
+                        controller: _legalNameController,
+                        tone: _legalNameError != null
+                            ? VComponentTone.danger
+                            : VComponentTone.neutral,
+                      ),
+                      if (_legalNameError != null) VFieldError(_legalNameError!),
+                    ],
                   ),
                 ),
+                const VGap.md(),
+                VField(
+                  invalid: _taxCodeError != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Mã số thuế', isRequired: true),
+                      VTextField(
+                        hintText: 'Nhập mã số thuế',
+                        controller: _taxCodeController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [TaxCodeInputFormatter()],
+                        tone: _taxCodeError != null
+                            ? VComponentTone.danger
+                            : VComponentTone.neutral,
+                      ),
+                      if (_taxCodeError != null)
+                        VFieldError(_taxCodeError!)
+                      else
+                        const VFieldDescription(
+                          '10 hoặc 12 chữ số; chi nhánh nhập đủ 13 số, dấu gạch tự thêm.',
+                        ),
+                    ],
+                  ),
+                ),
+                const VGap.md(),
+                VField(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Địa chỉ đăng ký'),
+                      VTextField(
+                        hintText: 'Nhập địa chỉ đăng ký',
+                        controller: _addressController,
+                      ),
+                    ],
+                  ),
+                ),
+                const VGap.md(),
+                AdministrativeUnitsFormSection(
+                  unitsFuture: _unitsFuture,
+                  selectedProvinceCode: _selectedProvinceCode,
+                  selectedCommuneCode: _selectedCommuneCode,
+                  onProvinceChanged: (code) {
+                    setState(() {
+                      _selectedProvinceCode = code;
+                      _selectedCommuneCode = null;
+                    });
+                  },
+                  onCommuneChanged: (code) {
+                    setState(() => _selectedCommuneCode = code);
+                  },
+                ),
+                const VGap.md(),
               ],
             ),
-          ),
-          body: ListView(
-            padding: const EdgeInsets.all(VSpacing.screenMobile),
-            children: [
-              VText(
-                'Thay đổi hiện tại không làm thay đổi chứng từ lịch sử.',
-                variant: VTextVariant.bodySmall,
-                color: colors.textSecondary,
-              ),
-              const VGap.md(),
-              VField(
-                invalid: _entityTypeError != null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const VFieldLabel('Loại chủ thể'),
-                    VSelect<String>(
-                      hintText: 'Chọn loại chủ thể',
-                      value: _selectedEntityType,
-                      tone: _entityTypeError != null
-                          ? VComponentTone.danger
-                          : VComponentTone.neutral,
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'ENTERPRISE',
-                          child: VText('Doanh nghiệp'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'HOUSEHOLD_BUSINESS',
-                          child: VText('Hộ kinh doanh'),
-                        ),
-                      ],
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedEntityType = val;
-                          _entityTypeError = null;
-                        });
-                      },
-                    ),
-                    if (_entityTypeError != null)
-                      VFieldError(_entityTypeError!),
-                  ],
-                ),
-              ),
-              const VGap.md(),
-              VField(
-                invalid: _legalNameError != null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const VFieldLabel('Tên pháp lý', isRequired: true),
-                    VTextField(
-                      hintText: 'Nhập tên pháp lý',
-                      controller: _legalNameController,
-                      tone: _legalNameError != null
-                          ? VComponentTone.danger
-                          : VComponentTone.neutral,
-                    ),
-                    if (_legalNameError != null)
-                      VFieldError(_legalNameError!),
-                  ],
-                ),
-              ),
-              const VGap.md(),
-              VField(
-                invalid: _taxCodeError != null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const VFieldLabel('Mã số thuế', isRequired: true),
-                    VTextField(
-                      hintText: 'Nhập mã số thuế',
-                      controller: _taxCodeController,
-                      keyboardType: TextInputType.number,
-                      tone: _taxCodeError != null
-                          ? VComponentTone.danger
-                          : VComponentTone.neutral,
-                    ),
-                    if (_taxCodeError != null)
-                      VFieldError(_taxCodeError!),
-                  ],
-                ),
-              ),
-              const VGap.md(),
-              VField(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const VFieldLabel('Địa chỉ đăng ký'),
-                    VTextField(
-                      hintText: 'Nhập địa chỉ đăng ký',
-                      controller: _addressController,
-                    ),
-                  ],
-                ),
-              ),
-              const VGap.md(),
-              AdministrativeUnitsFormSection(
-                unitsFuture: _unitsFuture,
-                selectedProvinceCode: _selectedProvinceCode,
-                selectedCommuneCode: _selectedCommuneCode,
-                onProvinceChanged: (code) {
-                  setState(() {
-                    _selectedProvinceCode = code;
-                    _selectedCommuneCode = null;
-                  });
-                },
-                onCommuneChanged: (code) {
-                  setState(() => _selectedCommuneCode = code);
-                },
-              ),
-              const VGap.md(),
-            ],
           ),
         );
       },

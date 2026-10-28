@@ -61,10 +61,13 @@ class OrganizationPreviewRoleChangePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: VText(
-                        member.name,
-                        variant: VTextVariant.headingH4,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      child: Semantics(
+                        header: true,
+                        child: VText(
+                          member.name,
+                          variant: VTextVariant.headingH4,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
                       ),
                     ),
                     VBadge(
@@ -100,10 +103,13 @@ class OrganizationPreviewRoleChangePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                VText(
-                  'Thay đổi vai trò',
-                  variant: VTextVariant.headingH4,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                Semantics(
+                  header: true,
+                  child: VText(
+                    'Thay đổi vai trò',
+                    variant: VTextVariant.headingH4,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
                 const VGap.md(),
                 Row(

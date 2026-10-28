@@ -26,11 +26,11 @@ void main() {
       );
     }
 
-    testWidgets('keys are named buttons; ⌫ reads "Xoá", "." reads "Dấu thập phân"', (tester) async {
+    testWidgets('keys are named buttons; ⌫ reads "Xóa", "." reads "Dấu thập phân"', (tester) async {
       final handle = tester.ensureSemantics();
       await pump(tester);
 
-      for (final label in ['1', '5', '0', 'Xoá', 'Dấu thập phân']) {
+      for (final label in ['1', '5', '0', 'Xóa', 'Dấu thập phân']) {
         final node = tester.getSemantics(find.bySemanticsLabel(label));
         expect(node.label, label);
         expect(node.flagsCollection.isButton, isTrue);
@@ -47,7 +47,7 @@ void main() {
 
       tester.semantics.tap(find.semantics.byLabel('5'));
       tester.semantics.tap(find.semantics.byLabel('Dấu thập phân'));
-      tester.semantics.tap(find.semantics.byLabel('Xoá'));
+      tester.semantics.tap(find.semantics.byLabel('Xóa'));
 
       expect(keys, ['5', '.']);
       expect(backspaces, 1);
@@ -61,7 +61,7 @@ void main() {
       expect(find.bySemanticsLabel('Dấu thập phân'), findsNothing);
       // 9 digit keys + 0 + backspace; the blank bottom-left key is skipped.
       var buttons = 0;
-      for (final label in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'Xoá']) {
+      for (final label in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'Xóa']) {
         expect(find.bySemanticsLabel(label), findsOneWidget);
         buttons++;
       }

@@ -146,10 +146,13 @@ class _OrganizationSelectRolePageState extends State<OrganizationSelectRolePage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: VText(
-                          member.name,
-                          variant: VTextVariant.headingH4,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        child: Semantics(
+                          header: true,
+                          child: VText(
+                            member.name,
+                            variant: VTextVariant.headingH4,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
                         ),
                       ),
                       VBadge(
@@ -180,10 +183,13 @@ class _OrganizationSelectRolePageState extends State<OrganizationSelectRolePage>
             const VGap.md(),
 
             // Section Title
-            VText(
-              'Chọn vai trò mới',
-              variant: VTextVariant.headingH4,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+            Semantics(
+              header: true,
+              child: VText(
+                'Chọn vai trò mới',
+                variant: VTextVariant.headingH4,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
             ),
             const VGap.xs(),
             VText(

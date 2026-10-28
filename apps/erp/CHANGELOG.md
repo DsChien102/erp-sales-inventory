@@ -12,12 +12,17 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 ## [Unreleased]
 
 ### Added
+- Khung web và điều hướng đa nền tảng (W-1): thanh điều hướng bên trái (`VSideNavigation`) khi màn hình desktop ≥ 1024; thanh dưới (`ErpBottomNavigation`) cho mobile < 1024.
+- 5 tab có URL riêng biệt (`/`, `/orders`, `/products/items`, `/partner`, `/more`) thông qua `StatefulShellRoute.indexedStack`.
+- Mật độ giao diện `erpDensityMode`: tự động áp dụng `compact` cho web dùng chuột/bàn phím và `comfortable` cho web cảm ứng/mobile app.
+- Mở thẳng màn chi tiết qua URL tự khởi tạo phiên cửa hàng (`StoreShell` bootstrap).
 - Đăng ký cửa hàng mới: wizard tài khoản → cửa hàng → mã OTP 6 số, màn xác minh email khi đăng nhập chưa xác nhận, và màn không thuộc tổ chức nào.
 - Thêm `OrderEInvoiceSection` và `OrderEInvoiceCubit` trong sales presentation, tích hợp luồng phát hành lại hóa đơn điện tử khi thất bại (retry issuance) qua `IModuleMediator` và `IExecutionContext`.
 - SG-08 / SG02-R01: chi tiết đơn hàng mở bề mặt e-invoice thật (`OrderEInvoiceSection`) thay sheet placeholder.
 - SG-06 / SG02-R02: màn kết quả bán hàng mở cùng `OrderEInvoiceSection` thay sheet placeholder.
 
 ### Changed
+- Tab giữ trạng thái cuộn và bộ lọc khi chuyển đổi qua lại giữa các tab (nhờ `StatefulShellRoute`).
 - Tab Thêm không còn nhóm Quản trị nền tảng. Không còn màn tổ chức tạm ngừng / đã đóng hay tài khoản bị tạm ngừng. Mọi tổ chức đều chọn được.
 - Hub Người dùng & vai trò bỏ mục «Quyền sở hữu» và màn mức sẵn sàng. Mục Vai trò mở danh mục vai trò thật, không còn đếm «N quyền».
 - Đổi vai trò bỏ «Quyền được thêm / bị gỡ»: vai trò chỉ là nhãn công việc.

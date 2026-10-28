@@ -113,7 +113,7 @@ class _Key extends StatelessWidget {
       button: true,
       enabled: onTap != null,
       label: switch (label) {
-        '⌫' => 'Xoá',
+        '⌫' => 'Xóa',
         '.' => 'Dấu thập phân',
         _ => label,
       },

@@ -55,12 +55,15 @@ class _MembershipLifecycleConfirmSheetState
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            widget.title,
-            variant: VTextVariant.headingH3,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: widget.titleDanger ? colors.danger : colors.textPrimary,
+          Semantics(
+            header: true,
+            child: VText(
+              widget.title,
+              variant: VTextVariant.headingH3,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: widget.titleDanger ? colors.danger : colors.textPrimary,
+              ),
             ),
           ),
           const VGap.xs(),

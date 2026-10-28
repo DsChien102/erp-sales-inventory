@@ -1,3 +1,5 @@
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/semantics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,10 +18,12 @@ void main() {
 
     BoxDecoration decorationOf(WidgetTester tester) {
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(VChip),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(VChip),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       return container.decoration! as BoxDecoration;
     }
@@ -37,8 +41,7 @@ void main() {
       expect(labelColorOf(tester, 'Neutral'), colors.textPrimary);
     });
 
-    testWidgets('primary tone uses surfaceBrand, textBrand and borderBrand',
-        (tester) async {
+    testWidgets('primary tone uses surfaceBrand, textBrand and borderBrand', (tester) async {
       await tester.pumpWidget(
         wrap(const VChip(label: 'Primary', tone: VComponentTone.primary)),
       );
@@ -49,8 +52,7 @@ void main() {
       expect(labelColorOf(tester, 'Primary'), colors.textBrand);
     });
 
-    testWidgets('semantic tones border with their own foreground color',
-        (tester) async {
+    testWidgets('semantic tones border with their own foreground color', (tester) async {
       await tester.pumpWidget(
         wrap(const VChip(label: 'Danger', tone: VComponentTone.danger)),
       );
@@ -143,8 +145,7 @@ void main() {
       expect(decorationOf(tester).color, colors.dangerBg);
     });
 
-    testWidgets('disabled chip is dimmed and does not fire onTap',
-        (tester) async {
+    testWidgets('disabled chip is dimmed and does not fire onTap', (tester) async {
       var taps = 0;
       await tester.pumpWidget(
         wrap(
@@ -162,10 +163,8 @@ void main() {
       expect(taps, 0);
     });
 
-    testWidgets('icon and remove control never exceed the label line height',
-        (tester) async {
-      final lineHeight =
-          VTypography.bodySmall.fontSize! * VTypography.bodySmall.height!;
+    testWidgets('icon and remove control never exceed the label line height', (tester) async {
+      final lineHeight = VTypography.bodySmall.fontSize! * VTypography.bodySmall.height!;
 
       await tester.pumpWidget(
         wrap(
@@ -179,8 +178,7 @@ void main() {
 
       final labelHeight = tester.getSize(find.text('Tag')).height;
       for (final icon in find.byType(VIcon).evaluate()) {
-        expect(tester.getSize(find.byWidget(icon.widget)).height,
-            lessThanOrEqualTo(labelHeight));
+        expect(tester.getSize(find.byWidget(icon.widget)).height, lessThanOrEqualTo(labelHeight));
       }
       expect(labelHeight, lineHeight);
     });
@@ -211,14 +209,11 @@ void main() {
     group('touch target', () {
       Widget host(Widget chip) => wrap(Align(alignment: Alignment.topLeft, child: chip));
 
-      testWidgets('onRemove: layout box is 44 high, drawn chip keeps its size',
-          (tester) async {
+      testWidgets('onRemove: layout box is 44 high, drawn chip keeps its size', (tester) async {
         await tester.pumpWidget(host(VChip(label: 'Tag', onRemove: () {})));
         final chipBox = tester.getSize(find.byType(VChip));
         final drawn = tester.getSize(
-          find
-              .descendant(of: find.byType(VChip), matching: find.byType(Container))
-              .first,
+          find.descendant(of: find.byType(VChip), matching: find.byType(Container)).first,
         );
 
         expect(chipBox.height, VSpacing.minTouchTarget);
@@ -233,8 +228,51 @@ void main() {
         );
       });
 
-      testWidgets('tail 44×44 region calls onRemove, rest calls onTap',
-          (tester) async {
+      testWidgets('onTap chip has a 44px touch target', (tester) async {
+        await tester.pumpWidget(host(VChip(label: 'Tag', onTap: () {})));
+        expect(
+          tester.getSize(find.byType(VChip)).height,
+          VSpacing.minTouchTarget,
+        );
+      });
+
+      testWidgets('onTap: drawn chip keeps its size', (tester) async {
+        await tester.pumpWidget(host(const VChip(label: 'Tag')));
+        final staticHeight = tester.getSize(find.byType(VChip)).height;
+
+        await tester.pumpWidget(host(VChip(label: 'Tag', onTap: () {})));
+        final drawn = tester.getSize(
+          find.descendant(of: find.byType(VChip), matching: find.byType(Container)).first,
+        );
+
+        expect(drawn.height, staticHeight);
+        expect(drawn.height, lessThan(44));
+      });
+
+      testWidgets('onTap: does not expand width when width is >= 44', (tester) async {
+        await tester.pumpWidget(host(const VChip(label: 'Tag with a long label')));
+        final staticWidth = tester.getSize(find.byType(VChip)).width;
+        expect(staticWidth, greaterThanOrEqualTo(44));
+
+        await tester.pumpWidget(host(VChip(label: 'Tag with a long label', onTap: () {})));
+        final tapWidth = tester.getSize(find.byType(VChip)).width;
+        expect(tapWidth, staticWidth);
+      });
+
+      testWidgets('onTap: tapping near top and bottom edge of 44 frame triggers onTap', (tester) async {
+        var taps = 0;
+        await tester.pumpWidget(host(VChip(label: 'Tag', onTap: () => taps++)));
+
+        final r = tester.getRect(find.byType(VChip));
+        await tester.tapAt(Offset(r.center.dx, r.top + 2));
+        await tester.pump();
+        await tester.tapAt(Offset(r.center.dx, r.bottom - 2));
+        await tester.pump();
+
+        expect(taps, 2);
+      });
+
+      testWidgets('tail 44×44 region calls onRemove, rest calls onTap', (tester) async {
         var taps = 0;
         var removed = 0;
         await tester.pumpWidget(
@@ -272,10 +310,21 @@ void main() {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(VChip(label: 'Tag', onRemove: () {})));
 
-        final node = tester.getSemantics(find.bySemanticsLabel('Xoá Tag'));
-        expect(node.label, 'Xoá Tag');
+        final node = tester.getSemantics(find.bySemanticsLabel('Xóa Tag'));
+        expect(node.label, 'Xóa Tag');
         expect(node.flagsCollection.isButton, isTrue);
         expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+        handle.dispose();
+      });
+
+      testWidgets('isSelected is exposed through semantics', (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(VChip(label: 'Tag', isSelected: true, onTap: () {})),
+        );
+
+        final node = tester.getSemantics(find.byType(VChip));
+        expect(node.flagsCollection.isSelected, Tristate.isTrue);
         handle.dispose();
       });
 

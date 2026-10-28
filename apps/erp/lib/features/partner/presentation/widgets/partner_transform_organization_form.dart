@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/core/validation/tax_code_input_formatter.dart';
 
 import 'partner_transform_field.dart';
 
@@ -133,11 +133,8 @@ class PartnerTransformOrganizationForm extends StatelessWidget {
           label: 'MST',
           initialValue: taxCode,
           hintText: 'Nhập MST (10 số, 12 số hoặc 10-3 số)',
-          keyboardType: const TextInputType.numberWithOptions(signed: true),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9-]')),
-            LengthLimitingTextInputFormatter(14),
-          ],
+          keyboardType: TextInputType.number,
+          inputFormatters: [TaxCodeInputFormatter()],
           errorText: errors['taxCode'],
           onChanged: onTaxCodeChanged,
         ),

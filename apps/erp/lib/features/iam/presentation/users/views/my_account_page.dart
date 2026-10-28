@@ -312,9 +312,12 @@ class _MyAccountBodyState extends State<_MyAccountBody> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    VText(
-                      'Không tải được hồ sơ',
-                      variant: VTextVariant.headingH4,
+                    Semantics(
+                      header: true,
+                      child: VText(
+                        'Không tải được hồ sơ',
+                        variant: VTextVariant.headingH4,
+                      ),
                     ),
                     const VGap.sm(),
                     VText(
@@ -421,11 +424,14 @@ class _MyAccountScaffold extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      VText(
-                        data.hasName ? data.fullName : '(chưa có tên)',
-                        variant: VTextVariant.headingH4,
-                        color: data.hasName ? null : colors.textMuted,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      Semantics(
+                        header: true,
+                        child: VText(
+                          data.hasName ? data.fullName : '(chưa có tên)',
+                          variant: VTextVariant.headingH4,
+                          color: data.hasName ? null : colors.textMuted,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
                       ),
                       const VGap.xs(),
                       VText(
@@ -453,10 +459,13 @@ class _MyAccountScaffold extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                VText(
-                  'Thông tin cá nhân',
-                  variant: VTextVariant.headingH4,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                Semantics(
+                  header: true,
+                  child: VText(
+                    'Thông tin cá nhân',
+                    variant: VTextVariant.headingH4,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
                 const VGap.md(),
                 _buildInfoRow(context, 'Họ và tên đệm', data.lastName),

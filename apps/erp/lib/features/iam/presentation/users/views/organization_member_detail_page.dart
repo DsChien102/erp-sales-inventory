@@ -113,9 +113,12 @@ class _MemberDetailView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const VText(
-                      'Không tải được thành viên',
-                      variant: VTextVariant.headingH4,
+                    Semantics(
+                      header: true,
+                      child: const VText(
+                        'Không tải được thành viên',
+                        variant: VTextVariant.headingH4,
+                      ),
                     ),
                     const VGap.sm(),
                     VText(

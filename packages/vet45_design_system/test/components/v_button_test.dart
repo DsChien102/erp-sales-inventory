@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -45,6 +46,62 @@ void main() {
       await tester.tap(find.text('Disabled link'));
       await tester.pump();
       expect(pressed, 0);
+    });
+
+    testWidgets('link keeps a minimum touch target', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          VButton(
+            label: 'Link',
+            variant: VButtonVariant.link,
+            onPressed: () {},
+          ),
+        ),
+      );
+
+      expect(
+        tester.getSize(find.byType(VButton)).height,
+        greaterThanOrEqualTo(44),
+      );
+      expect(
+        tester.getSize(find.byType(VButton)).width,
+        greaterThanOrEqualTo(44),
+      );
+      expect(tester.getSize(find.text('Link')).height, lessThan(44));
+    });
+
+    testWidgets('link exposes tap action to semantics when enabled and omits when disabled', (tester) async {
+      final handle = tester.ensureSemantics();
+      var taps = 0;
+
+      await tester.pumpWidget(
+        wrap(
+          VButton(
+            label: 'Link',
+            variant: VButtonVariant.link,
+            onPressed: () => taps++,
+          ),
+        ),
+      );
+
+      tester.semantics.tap(find.semantics.byLabel('Link'));
+      await tester.pump();
+      expect(taps, 1);
+
+      await tester.pumpWidget(
+        wrap(
+          const VButton(
+            label: 'Link',
+            variant: VButtonVariant.link,
+            onPressed: null,
+          ),
+        ),
+      );
+
+      final node = tester.getSemantics(find.text('Link'));
+      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
+
+      handle.dispose();
     });
 
     testWidgets('leading and trailing VIcons render', (tester) async {
@@ -106,12 +163,7 @@ void main() {
   group('VButton.icon', () {
     testWidgets('renders VIcon without label', (tester) async {
       await tester.pumpWidget(
-        wrap(
-          VButton.icon(
-            icon: VIcons.add,
-            onPressed: () {},
-          ),
-        ),
+        wrap(VButton.icon(icon: VIcons.add, onPressed: () {})),
       );
 
       expect(find.byType(VIcon), findsOneWidget);

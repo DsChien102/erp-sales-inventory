@@ -60,9 +60,14 @@ import '../../features/auth/presentation/pages/no_organization_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/pages/verify_email_page.dart';
 
-// Dashboard
-import '../../features/dashboard/presentation/dashboard_page.dart';
-import '../../features/dashboard/presentation/models/dashboard_navigation.dart';
+// Dashboard & Shell
+import '../../features/dashboard/presentation/erp_tab_scaffold.dart';
+import '../../features/dashboard/presentation/home_tab_page.dart';
+import '../../features/dashboard/presentation/store_shell.dart';
+import '../../features/more/presentation/pages/more_page.dart';
+import '../../features/sales/presentation/pages/sales_order_list_page.dart';
+import '../../features/catalog/presentation/pages/product_catalog_tab_page.dart';
+import '../../features/partner/presentation/pages/partner_list_page.dart';
 
 // Catalog
 import '../../features/catalog/presentation/pages/product_guided_create_page.dart';
@@ -111,6 +116,7 @@ import '../../features/pricing/presentation/pages/pricing_pick_unit_page.dart';
 import '../di/injection.dart';
 import '../errors/app_exception.dart';
 import '../session/session_controller.dart';
+import '../session/session_state.dart';
 import 'route_guard.dart';
 import 'session_refresh.dart';
 
@@ -166,9 +172,7 @@ final appRouter = GoRouter(
       name: 'verify_email',
       builder: (context, state) {
         final extra = state.extra;
-        final email = extra is String
-            ? extra
-            : state.uri.queryParameters['email'] ?? '';
+        final email = extra is String ? extra : state.uri.queryParameters['email'] ?? '';
         return VerifyEmailPage(
           email: email,
           auth: getIt<AuthRepository>(),
@@ -192,14 +196,66 @@ final appRouter = GoRouter(
         session: getIt<SessionController>(),
       ),
     ),
-    GoRoute(
-      path: '/',
-      name: 'dashboard',
-      builder: (context, state) {
-        final tab = state.extra as DashboardTab? ?? DashboardTab.home;
-        return DashboardPage(initialTab: tab);
-      },
-    ),
+    ShellRoute(
+      builder: (context, state, child) => StoreShell(child: child),
+      routes: [
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return ErpTabScaffold(navigationShell: navigationShell);
+          },
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/',
+                  name: 'dashboard',
+                  builder: (context, state) => const HomeTabPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: SalesNav.ordersList,
+                  name: SalesNav.ordersListName,
+                  builder: (context, state) => const SalesOrderListPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/products/items',
+                  name: 'products.items',
+                  builder: (context, state) => const ProductCatalogTabPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/partner',
+                  name: 'partner.list',
+                  builder: (context, state) => const PartnerListPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/more',
+                  name: 'more',
+                  builder: (context, state) => BlocBuilder<SessionController, SessionState>(
+                    builder: (context, session) => Scaffold(
+                      appBar: const VAppBar(title: 'Thêm', showBackButton: false),
+                      body: MorePage(tenantBlocked: session.isBlocked),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
     GoRoute(
       path: '/inventory',
       name: 'inventory',
@@ -335,6 +391,7 @@ final appRouter = GoRouter(
         return OrganizationUsersPage(
           members: getIt<MemberRepository>(),
           invitations: getIt<InvitationRepository>(),
+          canInvite: _hasTenantPermission(IamPermissions.memberInvite),
         );
       },
     ),
@@ -644,23 +701,8 @@ final appRouter = GoRouter(
         );
       },
     ),
-    GoRoute(
-      path: '/products/items',
-      name: 'products.items',
-      builder: (context, state) => const DashboardPage(initialTab: DashboardTab.products),
-    ),
-    GoRoute(
-      path: SalesNav.ordersList,
-      name: SalesNav.ordersListName,
-      builder: (context, state) => const DashboardPage(initialTab: DashboardTab.orders),
-    ),
     // Sales typed routes: ShellRoute(drafts+compose) + remaining /sales/* ($appRoutes).
     ...$appRoutes,
-    GoRoute(
-      path: '/partner',
-      name: 'partner.list',
-      builder: (context, state) => const DashboardPage(initialTab: DashboardTab.partners),
-    ),
     GoRoute(
       path: '/partner/new',
       name: 'partner.new',
@@ -1067,13 +1109,15 @@ final appRouter = GoRouter(
         return PricingFormPage(initialRule: rule);
       },
     ),
-    GoRoute(
-      path: '/pricing/:ruleId/history',
-      name: 'pricing.history',
-      builder: (context, state) {
-        final ruleId = state.pathParameters['ruleId']!;
-        return PricingHistoryPage(ruleId: ruleId);
-      },
+        GoRoute(
+          path: '/pricing/:ruleId/history',
+          name: 'pricing.history',
+          builder: (context, state) {
+            final ruleId = state.pathParameters['ruleId']!;
+            return PricingHistoryPage(ruleId: ruleId);
+          },
+        ),
+      ],
     ),
   ],
 );

@@ -53,5 +53,39 @@ void main() {
       );
       expect(find.byTooltip('Quay lại'), findsNothing);
     });
+
+    testWidgets('back button respects PopScope and does not pop when canPop is false', (tester) async {
+      final calls = <bool>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => PopScope(
+                      canPop: false,
+                      onPopInvokedWithResult: (didPop, _) => calls.add(didPop),
+                      child: const Scaffold(appBar: VAppBar(title: 'X')),
+                    ),
+                  ),
+                ),
+                child: const Text('Mở'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Mở'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('X'), findsOneWidget);
+      await tester.tap(find.byTooltip('Quay lại'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('X'), findsOneWidget);
+      expect(calls, equals([false]));
+    });
   });
 }

@@ -61,11 +61,13 @@ class VInput extends StatefulWidget {
     this.readOnly = false,
     this.showCursor,
     this.keyboardType,
+    this.autofillHints,
     this.onChanged,
     this.inputFormatters,
     this.textStyle,
     this.textAlign = TextAlign.start,
     this.autofocus = false,
+    this.textInputAction,
     this.onSubmitted,
     this.onTap,
     this.onTapOutside,
@@ -93,11 +95,13 @@ class VInput extends StatefulWidget {
   final bool readOnly;
   final bool? showCursor;
   final TextInputType? keyboardType;
+  final Iterable<String>? autofillHints;
   final ValueChanged<String>? onChanged;
   final List<TextInputFormatter>? inputFormatters;
   final TextStyle? textStyle;
   final TextAlign textAlign;
   final bool autofocus;
+  final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
 
   /// Called when the user taps this field (also when already focused).
@@ -190,7 +194,8 @@ class _VInputState extends State<VInput> {
   void _handleFocusChange() {
     if (!mounted) return;
     // Focus can change mid-build (autofocus, route push); defer the rebuild.
-    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         if (mounted) setState(() {});
       });
@@ -218,7 +223,10 @@ class _VInputState extends State<VInput> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
+    final isEnabled = VComponentScope.resolveEnabled(
+      context,
+      local: widget.enabled,
+    );
     final isInvalid = VField.resolveInvalid(context, local: widget.invalid);
     final useDanger = isInvalid || widget.tone == VComponentTone.danger;
     final borderWidth = VBorders.widthFor(widget.emphasis);
@@ -240,9 +248,7 @@ class _VInputState extends State<VInput> {
 
     final baseTextStyle =
         widget.textStyle ??
-        VTypography.bodyDefault.copyWith(
-          color: colors.textPrimary,
-        );
+        VTypography.bodyDefault.copyWith(color: colors.textPrimary);
 
     final prefix = widget.prefix;
     final suffix = widget.suffix;
@@ -261,9 +267,11 @@ class _VInputState extends State<VInput> {
       showCursor: widget.showCursor,
       obscureText: widget.obscureText,
       keyboardType: widget.keyboardType,
+      autofillHints: widget.autofillHints,
       onChanged: widget.onChanged,
       autofocus: widget.autofocus,
       focusNode: _focusNode,
+      textInputAction: widget.textInputAction,
       maxLines: maxLines,
       minLines: minLines,
       inputFormatters: widget.inputFormatters,
@@ -271,12 +279,14 @@ class _VInputState extends State<VInput> {
       onSubmitted: widget.onSubmitted,
       onTap: widget.onTap,
       cursorColor: useDanger ? colors.danger : colors.primary,
-      style: isInvalid ? baseTextStyle.copyWith(color: colors.danger) : baseTextStyle,
+      style: isInvalid
+          ? baseTextStyle.copyWith(color: colors.danger)
+          : baseTextStyle,
       groupId: widget.groupId ?? EditableText,
       onTapOutside: widget.onTapOutside ?? _rememberOutsidePointerDown,
       onTapUpOutside: widget.onTapUpOutside ?? _unfocusOnOutsideTapUp,
       decoration: InputDecoration(
-        isCollapsed: true,
+        isCollapsed: !(widget.lockControlHeight && isSingleLine),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
@@ -289,7 +299,16 @@ class _VInputState extends State<VInput> {
         hintStyle: baseTextStyle.copyWith(
           color: widget.hintColor ?? colors.textMuted,
         ),
-        contentPadding: EdgeInsets.zero,
+        contentPadding: widget.lockControlHeight && isSingleLine
+            ? EdgeInsets.symmetric(
+                vertical: math.max(
+                  0.0,
+                  (context.vDensity.controlHeightMedium -
+                          ((baseTextStyle.fontSize ?? 14.0) * (baseTextStyle.height ?? 1.4))) /
+                      2,
+                ),
+              )
+            : EdgeInsets.zero,
         isDense: true,
       ),
     );
@@ -322,7 +341,9 @@ class _VInputState extends State<VInput> {
       decoration: BoxDecoration(
         color: widget.fillColor ?? colors.surface,
         borderRadius: BorderRadius.circular(VRadius.input),
-        border: widget.border ? Border.all(color: borderColor, width: borderWidth) : null,
+        border: widget.border
+            ? Border.all(color: borderColor, width: borderWidth)
+            : null,
       ),
       child: field,
     );

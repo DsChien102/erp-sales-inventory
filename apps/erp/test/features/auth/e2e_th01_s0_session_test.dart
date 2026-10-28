@@ -1,5 +1,6 @@
 import 'package:erp/features/auth/presentation/pages/login_page.dart';
-import 'package:erp/features/dashboard/presentation/dashboard_page.dart';
+import 'package:erp/features/dashboard/presentation/home_tab_page.dart';
+import 'package:erp/features/dashboard/presentation/store_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -54,9 +55,10 @@ void main() {
           ),
           GoRoute(
             path: '/',
-            builder: (context, state) => DashboardPage(
+            builder: (context, state) => StoreShell(
               repository: tenants,
               autoBootstrap: true,
+              child: const HomeTabPage(),
             ),
           ),
         ],

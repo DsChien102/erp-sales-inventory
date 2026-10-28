@@ -9,6 +9,8 @@ final class OrganizationInviteMemberState {
     this.email = '',
     this.roleOptions = const [],
     this.selectedRoleId,
+    this.emailError,
+    this.roleError,
     this.isSubmitting = false,
     this.createdInvitation,
     this.failure,
@@ -19,6 +21,8 @@ final class OrganizationInviteMemberState {
   final String email;
   final List<InvitationRoleOption> roleOptions;
   final String? selectedRoleId;
+  final String? emailError;
+  final String? roleError;
   final bool isSubmitting;
   final InvitationDetailDto? createdInvitation;
   final IamUiFailure? failure;
@@ -40,6 +44,8 @@ final class OrganizationInviteMemberState {
     String? email,
     List<InvitationRoleOption>? roleOptions,
     String? selectedRoleId,
+    String? emailError,
+    String? roleError,
     bool? isSubmitting,
     InvitationDetailDto? createdInvitation,
     IamUiFailure? failure,
@@ -47,16 +53,19 @@ final class OrganizationInviteMemberState {
     bool clearSelectedRole = false,
     bool clearCreated = false,
     bool clearFailure = false,
+    bool clearEmailError = false,
+    bool clearRoleError = false,
+    bool clearFieldErrors = false,
   }) {
     return OrganizationInviteMemberState(
       status: status ?? this.status,
       email: email ?? this.email,
       roleOptions: roleOptions ?? this.roleOptions,
-      selectedRoleId:
-          clearSelectedRole ? null : (selectedRoleId ?? this.selectedRoleId),
+      selectedRoleId: clearSelectedRole ? null : (selectedRoleId ?? this.selectedRoleId),
+      emailError: clearFieldErrors || clearEmailError ? null : (emailError ?? this.emailError),
+      roleError: clearFieldErrors || clearRoleError ? null : (roleError ?? this.roleError),
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      createdInvitation:
-          clearCreated ? null : (createdInvitation ?? this.createdInvitation),
+      createdInvitation: clearCreated ? null : (createdInvitation ?? this.createdInvitation),
       failure: clearFailure ? null : (failure ?? this.failure),
       deliveryWarning: deliveryWarning ?? this.deliveryWarning,
     );

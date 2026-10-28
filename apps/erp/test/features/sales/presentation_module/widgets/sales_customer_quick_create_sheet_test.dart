@@ -176,6 +176,38 @@ void main() {
     expect(find.text('Nguyen Van B', skipOffstage: false), findsOneWidget);
     expect(find.text('0988123456', skipOffstage: false), findsOneWidget);
   });
+
+  testWidgets('tax code field formats 13-digit and sets number keyboard', (tester) async {
+    await _pumpHost(
+      tester,
+      onOpen: (context) async {
+        await SalesCustomerQuickCreateSheet.show(
+          context,
+          checkDuplicate: (_) async => null,
+          createCustomer: (draft, {required confirmDuplicate}) async => const SalesCustomerSelection(
+            isWalkIn: false,
+            partnerId: 'p1',
+            displayName: 'Test',
+          ),
+        );
+      },
+    );
+
+    await tester.tap(find.byKey(const Key('open_sheet')));
+    await tester.pumpAndSettle();
+
+    final taxFieldFinder = find.byWidgetPredicate(
+      (w) => w is TextField && w.decoration?.hintText == 'Ví dụ: 0101234567',
+    );
+    expect(taxFieldFinder, findsOneWidget);
+    final taxField = tester.widget<TextField>(taxFieldFinder);
+    expect(taxField.keyboardType, TextInputType.number);
+
+    await tester.enterText(taxFieldFinder, '0123456789001');
+    await tester.pumpAndSettle();
+
+    expect(find.text('0123456789-001'), findsOneWidget);
+  });
 }
 
 Future<void> _tapSubmit(WidgetTester tester) async {

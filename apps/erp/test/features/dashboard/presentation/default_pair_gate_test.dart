@@ -1,6 +1,8 @@
 import 'dart:async';
 
-import 'package:erp/features/dashboard/presentation/dashboard_page.dart';
+import 'package:erp/features/dashboard/presentation/erp_tab_scaffold.dart';
+import 'package:erp/features/dashboard/presentation/home_tab_page.dart';
+import 'package:erp/features/dashboard/presentation/store_shell.dart';
 import 'package:erp/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:erp/features/dashboard/presentation/widgets/erp_bottom_navigation.dart';
 import 'package:erp/core/session/models/tenant_context.dart';
@@ -104,10 +106,8 @@ Widget _app(IInventoryModule inventoryModule) {
   final router = GoRouter(
     initialLocation: '/',
     routes: [
-      GoRoute(
-        path: '/',
-        name: 'dashboard',
-        builder: (context, state) => DashboardPage(
+      ShellRoute(
+        builder: (context, state, child) => StoreShell(
           autoBootstrap: false,
           repository: FakeSessionRepository(scenario: FakeIamScenario.tenantsMulti),
           inventoryModule: inventoryModule,
@@ -120,7 +120,25 @@ Widget _app(IInventoryModule inventoryModule) {
               tenantName: 'Thú y Minh Phát',
             ),
           ),
+          child: child,
         ),
+        routes: [
+          StatefulShellRoute.indexedStack(
+            builder: (context, state, navigationShell) =>
+                ErpTabScaffold(navigationShell: navigationShell),
+            branches: [
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: '/',
+                    name: 'dashboard',
+                    builder: (context, state) => const HomeTabPage(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );

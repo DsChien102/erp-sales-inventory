@@ -2,12 +2,28 @@ import '../data/models/signup_input.dart';
 
 enum SignupStep { account, store, verify }
 
+enum SignupField {
+  familyName,
+  givenName,
+  email,
+  phone,
+  password,
+  confirmPassword,
+  storeName,
+  storePhone,
+  province,
+  commune,
+  address,
+  contactEmail,
+}
+
 final class SignupState {
   const SignupState({
     this.step = SignupStep.account,
     this.account,
     this.store,
     this.submitting = false,
+    this.fieldErrors = const {},
     this.failure,
     this.emailExists = false,
     this.completed = false,
@@ -21,6 +37,7 @@ final class SignupState {
   final SignupAccountInput? account;
   final SignupStoreInput? store;
   final bool submitting;
+  final Map<SignupField, String> fieldErrors;
   final String? failure;
   final bool emailExists;
 
@@ -38,6 +55,7 @@ final class SignupState {
     SignupAccountInput? account,
     SignupStoreInput? store,
     bool? submitting,
+    Map<SignupField, String>? fieldErrors,
     String? failure,
     bool? emailExists,
     bool? completed,
@@ -52,13 +70,15 @@ final class SignupState {
       account: account ?? this.account,
       store: store ?? this.store,
       submitting: submitting ?? this.submitting,
+      fieldErrors: fieldErrors ?? this.fieldErrors,
       failure: clearFailure ? null : (failure ?? this.failure),
       emailExists: emailExists ?? this.emailExists,
       completed: completed ?? this.completed,
       tenantName: tenantName ?? this.tenantName,
       nameDiffers: nameDiffers ?? this.nameDiffers,
       passwordSyncFailed: passwordSyncFailed ?? this.passwordSyncFailed,
-      verifyCooldownSeconds: verifyCooldownSeconds ?? this.verifyCooldownSeconds,
+      verifyCooldownSeconds:
+          verifyCooldownSeconds ?? this.verifyCooldownSeconds,
     );
   }
 }

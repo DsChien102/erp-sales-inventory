@@ -1,17 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:erp/core/iam/iam_codes.dart';
+import 'package:vet45_design_system/design_system.dart';
 
 import '../../../core/session/session_controller.dart';
 import '../data/invitation_repository.dart';
 import 'iam_load_status.dart';
-import 'iam_ui_failure.dart';
 import 'iam_ui_failure_mapper.dart';
 import 'idempotency_key_factory.dart';
 import 'invitation_role_options.dart';
 import 'organization_invite_member_state.dart';
 
-final class OrganizationInviteMemberCubit
-    extends Cubit<OrganizationInviteMemberState> {
+final class OrganizationInviteMemberCubit extends Cubit<OrganizationInviteMemberState> {
   OrganizationInviteMemberCubit({
     required SessionController session,
     required InvitationRepository invitations,
@@ -74,6 +73,7 @@ final class OrganizationInviteMemberCubit
         email: value,
         clearFailure: true,
         clearCreated: true,
+        clearEmailError: true,
         deliveryWarning: false,
       ),
     );
@@ -90,6 +90,7 @@ final class OrganizationInviteMemberCubit
         selectedRoleId: roleId,
         clearFailure: true,
         clearCreated: true,
+        clearRoleError: true,
         deliveryWarning: false,
       ),
     );
@@ -100,13 +101,18 @@ final class OrganizationInviteMemberCubit
 
     final email = state.email.trim();
     final roleId = state.selectedRoleId;
-    if (email.isEmpty || !email.contains('@') || roleId == null) {
+    final emailError = email.isEmpty
+        ? 'Vui lòng nhập email và chọn vai trò.'
+        : (!VEmailValidator.isValid(email) ? 'Email không hợp lệ' : null);
+    final roleError = roleId == null && email.isNotEmpty
+        ? 'Vui lòng nhập email và chọn vai trò.'
+        : null;
+    if (emailError != null || roleError != null) {
       emit(
         state.copyWith(
-          failure: const IamUiFailure(
-            code: IamBlockedCodes.validationError,
-            message: 'Vui lòng nhập email và chọn vai trò.',
-          ),
+          emailError: emailError,
+          roleError: roleError,
+          clearFailure: true,
         ),
       );
       return;
@@ -118,6 +124,7 @@ final class OrganizationInviteMemberCubit
         clearFailure: true,
         clearCreated: true,
         deliveryWarning: false,
+        clearFieldErrors: true,
       ),
     );
 
@@ -127,7 +134,7 @@ final class OrganizationInviteMemberCubit
       final key = _ensureIdempotencyKey(payload);
       final created = await _invitations.create(
         email: email,
-        roleCode: roleId,
+        roleCode: roleId!,
         idempotencyKey: key,
       );
       if (isClosed) return;
@@ -141,10 +148,18 @@ final class OrganizationInviteMemberCubit
       );
     } catch (error) {
       if (isClosed) return;
+      final mapped = IamUiFailureMapper.from(error);
+      final isEmailConflict = {
+        IamBlockedCodes.duplicateMembership,
+        IamBlockedCodes.membershipInactive,
+        IamBlockedCodes.invitationPendingExists,
+      }.contains(mapped.code);
       emit(
         state.copyWith(
           isSubmitting: false,
-          failure: IamUiFailureMapper.from(error),
+          emailError: isEmailConflict ? mapped.message : null,
+          failure: isEmailConflict ? null : mapped,
+          clearFailure: isEmailConflict,
         ),
       );
     }

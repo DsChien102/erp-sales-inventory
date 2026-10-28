@@ -19,10 +19,13 @@ Future<void> showMyAccountActionsBottomSheet({
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            'Thao tác tài khoản',
-            variant: VTextVariant.headingH3,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+          Semantics(
+            header: true,
+            child: VText(
+              'Thao tác tài khoản',
+              variant: VTextVariant.headingH3,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
           ),
           const VGap.md(),
           VCard(

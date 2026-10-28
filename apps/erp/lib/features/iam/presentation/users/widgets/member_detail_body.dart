@@ -41,12 +41,15 @@ class MemberDetailBody extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    VText(
-                      'Thông tin thành viên',
-                      variant: VTextVariant.headingH4,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: colors.textPrimary,
+                    Semantics(
+                      header: true,
+                      child: VText(
+                        'Thông tin thành viên',
+                        variant: VTextVariant.headingH4,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: colors.textPrimary,
+                        ),
                       ),
                     ),
                     VBadge(
@@ -101,12 +104,15 @@ class MemberDetailBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              VText(
-                'Trạng thái truy cập',
-                variant: VTextVariant.headingH4,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: colors.textPrimary,
+              Semantics(
+                header: true,
+                child: VText(
+                  'Trạng thái truy cập',
+                  variant: VTextVariant.headingH4,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: colors.textPrimary,
+                  ),
                 ),
               ),
               const VGap.md(),

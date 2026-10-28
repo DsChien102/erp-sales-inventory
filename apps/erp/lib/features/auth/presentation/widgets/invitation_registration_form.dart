@@ -135,8 +135,9 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
       leading: widget.onBack == null
           ? null
           : IconButton(
+              tooltip: 'Quay lại',
               icon: VIcon(
-                icon: VIcons.arrowLeft,
+                icon: VIcons.chevronLeft,
                 color: context.vColors.textPrimary,
               ),
               onPressed: isSubmitting ? null : widget.onBack,
@@ -150,163 +151,183 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
         child: SingleChildScrollView(
           child: VPagePadding(
             horizontal: VSpacing.screenMobile,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VGap.lg(),
-                VBanner(
-                  status: VBannerStatus.success,
-                  title: 'Mã lời mời hợp lệ',
-                  description:
-                      'Kích hoạt tài khoản để tiếp nhận lời mời và vào '
-                      '${inspection.tenantName}.',
-                ),
-                const VGap.xl(),
-
-                // Field 1: Họ và tên đệm
-                VField(
-                  invalid: _familyNameError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Họ và tên đệm', isRequired: true),
-                      VTextField(
-                        key: const Key('invitation_register_family_name'),
-                        controller: _familyNameController,
-                        hintText: 'Nhập họ và tên đệm',
-                        enabled: !isSubmitting,
-                        onChanged: (_) {
-                          if (_familyNameError != null) {
-                            setState(() => _familyNameError = null);
-                          }
-                        },
-                      ),
-                      if (_familyNameError != null) VFieldError(_familyNameError!),
-                    ],
+            child: AutofillGroup(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const VGap.lg(),
+                  VBanner(
+                    status: VBannerStatus.success,
+                    title: 'Mã lời mời hợp lệ',
+                    description:
+                        'Kích hoạt tài khoản để tiếp nhận lời mời và vào '
+                        '${inspection.tenantName}.',
                   ),
-                ),
-                const VGap.md(),
+                  const VGap.xl(),
 
-                // Field 2: Tên
-                VField(
-                  invalid: _givenNameError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Tên', isRequired: true),
-                      VTextField(
-                        key: const Key('invitation_register_given_name'),
-                        controller: _givenNameController,
-                        hintText: 'Nhập tên',
-                        enabled: !isSubmitting,
-                        onChanged: (_) {
-                          if (_givenNameError != null) {
-                            setState(() => _givenNameError = null);
-                          }
-                        },
-                      ),
-                      if (_givenNameError != null) VFieldError(_givenNameError!),
-                    ],
+                  // Field 1: Họ và tên đệm
+                  VField(
+                    invalid: _familyNameError != null,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const VFieldLabel('Họ và tên đệm', isRequired: true),
+                        VTextField(
+                          key: const Key('invitation_register_family_name'),
+                          controller: _familyNameController,
+                          hintText: 'Nhập họ và tên đệm',
+                          enabled: !isSubmitting,
+                          autofillHints: const [AutofillHints.familyName],
+                          textInputAction: TextInputAction.next,
+                          onChanged: (_) {
+                            if (_familyNameError != null) {
+                              setState(() => _familyNameError = null);
+                            }
+                          },
+                        ),
+                        if (_familyNameError != null) VFieldError(_familyNameError!),
+                      ],
+                    ),
                   ),
-                ),
-                const VGap.md(),
+                  const VGap.md(),
 
-                // Field 3: Email (khoá theo lời mời)
-                VField(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Email'),
-                      VEmailField(
-                        key: const Key('invitation_locked_email'),
-                        controller: _emailController,
-                        enabled: false,
-                      ),
-                    ],
+                  // Field 2: Tên
+                  VField(
+                    invalid: _givenNameError != null,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const VFieldLabel('Tên', isRequired: true),
+                        VTextField(
+                          key: const Key('invitation_register_given_name'),
+                          controller: _givenNameController,
+                          hintText: 'Nhập tên',
+                          enabled: !isSubmitting,
+                          autofillHints: const [AutofillHints.givenName],
+                          textInputAction: TextInputAction.next,
+                          onChanged: (_) {
+                            if (_givenNameError != null) {
+                              setState(() => _givenNameError = null);
+                            }
+                          },
+                        ),
+                        if (_givenNameError != null) VFieldError(_givenNameError!),
+                      ],
+                    ),
                   ),
-                ),
-                const VGap.md(),
+                  const VGap.md(),
 
-                // Field 4: Số điện thoại
-                VField(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Số điện thoại'),
-                      VPhoneField(
-                        key: const Key('invitation_register_phone'),
-                        controller: _phoneController,
-                        hintText: 'Nhập số điện thoại',
-                        validateOnChanged: false,
-                        enabled: !isSubmitting,
-                        onChanged: (_) {
-                          if (_phoneError != null) {
-                            setState(() => _phoneError = null);
-                          }
-                        },
-                      ),
-                      if (_phoneError != null) VFieldError(_phoneError!),
-                    ],
+                  // Field 3: Email (khoá theo lời mời)
+                  VField(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const VFieldLabel('Email'),
+                        VEmailField(
+                          key: const Key('invitation_locked_email'),
+                          controller: _emailController,
+                          enabled: false,
+                          autofillHints: const [AutofillHints.email],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const VGap.md(),
+                  const VGap.md(),
 
-                // Field 5: Mật khẩu
-                VField(
-                  invalid: _passwordError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Mật khẩu', isRequired: true),
-                      VPasswordField(
-                        key: const Key('invitation_register_password'),
-                        controller: _passwordController,
-                        hintText: 'Nhập mật khẩu',
-                        minLength: PasswordPolicy.minLength,
-                        validateOnChanged: false,
-                        enabled: !isSubmitting,
-                        onChanged: (_) {
-                          if (_passwordError != null) {
-                            setState(() => _passwordError = null);
-                          }
-                        },
-                      ),
-                      if (_passwordError != null)
-                        VFieldError(_passwordError!)
-                      else
-                        const VFieldDescription(PasswordPolicy.requirementText),
-                    ],
+                  // Field 4: Số điện thoại
+                  VField(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const VFieldLabel('Số điện thoại'),
+                        VPhoneField(
+                          key: const Key('invitation_register_phone'),
+                          controller: _phoneController,
+                          hintText: 'Nhập số điện thoại',
+                          validateOnChanged: false,
+                          enabled: !isSubmitting,
+                          autofillHints: const [AutofillHints.telephoneNumber],
+                          textInputAction: TextInputAction.next,
+                          onChanged: (_) {
+                            if (_phoneError != null) {
+                              setState(() => _phoneError = null);
+                            }
+                          },
+                        ),
+                        if (_phoneError != null) VFieldError(_phoneError!),
+                      ],
+                    ),
                   ),
-                ),
-                const VGap.md(),
+                  const VGap.md(),
 
-                // Field 6: Xác nhận mật khẩu
-                VField(
-                  invalid: _confirmPasswordError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Xác nhận mật khẩu', isRequired: true),
-                      VPasswordField(
-                        key: const Key('invitation_register_confirm_password'),
-                        controller: _confirmPasswordController,
-                        hintText: 'Nhập lại mật khẩu',
-                        minLength: 1,
-                        validateOnChanged: false,
-                        enabled: !isSubmitting,
-                        onChanged: (_) {
-                          if (_confirmPasswordError != null) {
-                            setState(() => _confirmPasswordError = null);
-                          }
-                        },
-                        onSubmitted: (_) => _submit(),
-                      ),
-                      if (_confirmPasswordError != null) VFieldError(_confirmPasswordError!),
-                    ],
+                  // Field 5: Mật khẩu
+                  VField(
+                    invalid: _passwordError != null,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const VFieldLabel('Mật khẩu', isRequired: true),
+                        VPasswordField(
+                          key: const Key('invitation_register_password'),
+                          controller: _passwordController,
+                          hintText: 'Nhập mật khẩu',
+                          minLength: PasswordPolicy.minLength,
+                          validateOnChanged: false,
+                          enabled: !isSubmitting,
+                          autofillHints: const [AutofillHints.newPassword],
+                          textInputAction: TextInputAction.next,
+                          onChanged: (_) {
+                            if (_passwordError != null) {
+                              setState(() => _passwordError = null);
+                            }
+                          },
+                        ),
+                        if (_passwordError != null)
+                          VFieldError(_passwordError!)
+                        else
+                          const VFieldDescription(
+                            PasswordPolicy.requirementText,
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                const VGap.xl(),
-              ],
+                  const VGap.md(),
+
+                  // Field 6: Xác nhận mật khẩu
+                  VField(
+                    invalid: _confirmPasswordError != null,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const VFieldLabel(
+                          'Xác nhận mật khẩu',
+                          isRequired: true,
+                        ),
+                        VPasswordField(
+                          key: const Key(
+                            'invitation_register_confirm_password',
+                          ),
+                          controller: _confirmPasswordController,
+                          hintText: 'Nhập lại mật khẩu',
+                          minLength: 1,
+                          validateOnChanged: false,
+                          enabled: !isSubmitting,
+                          autofillHints: const [AutofillHints.newPassword],
+                          textInputAction: TextInputAction.done,
+                          onChanged: (_) {
+                            if (_confirmPasswordError != null) {
+                              setState(() => _confirmPasswordError = null);
+                            }
+                          },
+                          onSubmitted: (_) => _submit(),
+                        ),
+                        if (_confirmPasswordError != null) VFieldError(_confirmPasswordError!),
+                      ],
+                    ),
+                  ),
+                  const VGap.xl(),
+                ],
+              ),
             ),
           ),
         ),

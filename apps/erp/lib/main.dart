@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import 'core/config/app_logging.dart';
+import 'core/config/density.dart';
 import 'core/config/env.dart';
 import 'core/config/env_banner.dart';
 import 'core/di/injection.dart';
@@ -33,13 +34,14 @@ class ErpApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final density = erpDensityMode();
     return QueryClientProvider(
       client: getIt<QueryClient>(),
       child: MaterialApp.router(
         title: Env.appTitle,
         debugShowCheckedModeBanner: false,
-        theme: VTheme.lightTheme,
-        darkTheme: VTheme.darkTheme,
+        theme: VTheme.lightThemeForDensity(density),
+        darkTheme: VTheme.darkThemeForDensity(density),
         themeMode: ThemeMode.light,
         routerConfig: appRouter,
         builder: (context, child) => EnvBanner(

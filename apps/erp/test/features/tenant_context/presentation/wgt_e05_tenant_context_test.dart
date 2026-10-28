@@ -1,12 +1,12 @@
-import 'package:erp/features/dashboard/presentation/dashboard_page.dart';
-import 'package:erp/features/dashboard/presentation/models/dashboard_navigation.dart';
+import 'package:erp/features/dashboard/presentation/home_tab_page.dart';
+import 'package:erp/features/dashboard/presentation/store_shell.dart';
 import 'package:erp/features/dashboard/presentation/widgets/dashboard_header.dart';
+import 'package:erp/features/dashboard/presentation/widgets/tenant_ready_gate.dart';
 import 'package:erp/features/sales/presentation/pages/sales_order_list_page.dart';
 import 'package:erp/core/session/models/accessible_tenant.dart';
 import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_state.dart';
-import 'package:erp/features/iam/logic/iam_role_label_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -48,9 +48,10 @@ void main() {
       routes: [
         GoRoute(
           path: '/',
-          builder: (context, state) => DashboardPage(
+          builder: (context, state) => StoreShell(
             repository: repository,
             autoBootstrap: true,
+            child: const TenantReadyGate(child: HomeTabPage()),
           ),
         ),
       ],
@@ -386,15 +387,15 @@ void main() {
         routes: [
           GoRoute(
             path: '/',
-            builder: (context, state) => DashboardPage(
+            builder: (context, state) => StoreShell(
               repository: FakeSessionRepository(),
               autoBootstrap: false,
-              initialTab: DashboardTab.orders,
               initialState: const SessionState(
                 userDisplayName: '',
                 status: TenantLoadStatus.blocked,
                 emptyStateType: OrganizationEmptyStateType.noAuthorizedOrganizations,
               ),
+              child: const TenantReadyGate(child: HomeTabPage()),
             ),
           ),
         ],

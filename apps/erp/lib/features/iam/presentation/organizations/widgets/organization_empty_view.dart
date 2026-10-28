@@ -30,7 +30,6 @@ class OrganizationEmptyView extends StatelessWidget {
     final Color? titleColor;
     final String description;
     String actionLabel;
-    final Color actionTextColor;
 
     switch (type) {
       case OrganizationEmptyStateType.inaccessible:
@@ -43,7 +42,6 @@ class OrganizationEmptyView extends StatelessWidget {
         description =
             'Bạn chưa được cấp quyền truy cập tổ chức nào. Hãy kiểm tra lời mời hoặc liên hệ Chủ cửa hàng.';
         actionLabel = 'Kiểm tra lại';
-        actionTextColor = colors.primary;
         break;
 
       case OrganizationEmptyStateType.noOrganizations:
@@ -54,7 +52,6 @@ class OrganizationEmptyView extends StatelessWidget {
         titleColor = null;
         description = 'Khởi tạo tổ chức đầu tiên để bắt đầu quản lý tổ chức trên nền tảng.';
         actionLabel = 'Khởi tạo tổ chức';
-        actionTextColor = colors.primary;
         break;
 
       case OrganizationEmptyStateType.noResults:
@@ -65,7 +62,6 @@ class OrganizationEmptyView extends StatelessWidget {
         titleColor = null;
         description = 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.';
         actionLabel = 'Xóa bộ lọc';
-        actionTextColor = colors.primary;
         break;
 
       case OrganizationEmptyStateType.loadError:
@@ -76,7 +72,6 @@ class OrganizationEmptyView extends StatelessWidget {
         titleColor = colors.danger;
         description = 'Đã xảy ra lỗi khi tải danh sách tổ chức. Vui lòng thử lại.';
         actionLabel = 'Thử lại';
-        actionTextColor = colors.danger;
         break;
 
       case OrganizationEmptyStateType.unauthorized:
@@ -87,7 +82,6 @@ class OrganizationEmptyView extends StatelessWidget {
         titleColor = null;
         description = 'Liên hệ chủ cửa hàng để được cấp quyền quản lý tổ chức nền tảng.';
         actionLabel = 'Quay lại';
-        actionTextColor = colors.primary;
         break;
     }
 
@@ -129,12 +123,15 @@ class OrganizationEmptyView extends StatelessWidget {
                 ),
               ),
               isCompact ? const VGap.sm() : const VGap.md(),
-              VText(
-                title,
-                variant: VTextVariant.headingH3,
-                color: titleColor ?? colors.textPrimary,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-                textAlign: TextAlign.center,
+              Semantics(
+                header: true,
+                child: VText(
+                  title,
+                  variant: VTextVariant.headingH3,
+                  color: titleColor ?? colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  textAlign: TextAlign.center,
+                ),
               ),
               const VGap.xs(),
               VText(
@@ -144,17 +141,10 @@ class OrganizationEmptyView extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               isCompact ? const VGap.sm() : const VGap.md(),
-              GestureDetector(
-                onTap: onAction,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: VText(
-                    actionLabel,
-                    variant: VTextVariant.bodyDefault,
-                    color: actionTextColor,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
+              VButton(
+                label: actionLabel,
+                variant: VButtonVariant.link,
+                onPressed: onAction,
               ),
             ],
           ),

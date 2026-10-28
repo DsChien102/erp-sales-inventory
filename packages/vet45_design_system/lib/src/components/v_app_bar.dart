@@ -76,19 +76,17 @@ class VAppBar extends StatelessWidget implements PreferredSizeWidget {
     final Widget? resolvedLeading = leading != null
         ? vInspectorShow(leading!)
         : (showBackButton && Navigator.of(context).canPop()
-            ? IconButton(
-                tooltip: 'Quay lại',
-                icon: VIcon(
-                  icon: VIcons.chevronLeft,
-                  color: dynamicColors.textPrimary,
-                ),
-                onPressed: () => Navigator.of(context).pop(),
-              )
-            : null);
+              ? IconButton(
+                  tooltip: 'Quay lại',
+                  icon: VIcon(
+                    icon: VIcons.chevronLeft,
+                    color: dynamicColors.textPrimary,
+                  ),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                )
+              : null);
 
-    final List<Widget>? resolvedActions = actions
-        ?.map((action) => vInspectorShow(action))
-        .toList();
+    final List<Widget>? resolvedActions = actions?.map((action) => vInspectorShow(action)).toList();
 
     return vInspectorHide(
       AppBar(

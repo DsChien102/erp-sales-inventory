@@ -23,10 +23,13 @@ class ConfirmSwitchOrganizationBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            'Chuyển sang $targetOrganizationName?',
-            variant: VTextVariant.headingH3,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+          Semantics(
+            header: true,
+            child: VText(
+              'Chuyển sang $targetOrganizationName?',
+              variant: VTextVariant.headingH3,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
           ),
           const VGap.sm(),
           VText(

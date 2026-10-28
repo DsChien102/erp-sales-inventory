@@ -20,6 +20,26 @@ void main() {
   }
 
   group('VCard shell', () {
+    testWidgets('onTap exposes a button semantics role', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(VCard(onTap: () {}, child: const Text('body'))),
+      );
+
+      final node = tester.getSemantics(find.text('body'));
+      expect(node.flagsCollection.isButton, isTrue);
+      handle.dispose();
+    });
+
+    testWidgets('without onTap does not expose a button role', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(wrap(const VCard(child: Text('body'))));
+
+      final node = tester.getSemantics(find.text('body'));
+      expect(node.flagsCollection.isButton, isFalse);
+      handle.dispose();
+    });
+
     testWidgets('default has no boxShadow', (tester) async {
       await tester.pumpWidget(wrap(const VCard(child: Text('body'))));
       expect(cardDecoration(tester)!.boxShadow, isNull);

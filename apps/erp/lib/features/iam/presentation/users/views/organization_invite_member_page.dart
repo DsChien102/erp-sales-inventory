@@ -47,8 +47,7 @@ class OrganizationInviteMemberPage extends StatelessWidget {
         session: session!,
         invitations: repository,
         roleOptionsSource:
-            roleOptionsSource ??
-            IamModuleInvitationRoleOptionsSource(invitations: repository),
+            roleOptionsSource ?? IamModuleInvitationRoleOptionsSource(invitations: repository),
         keyFactory: keyFactory ?? const UuidIdempotencyKeyFactory(),
       )..loadRoleOptions(),
       child: const _InviteMemberView(),
@@ -125,8 +124,7 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    return BlocConsumer<OrganizationInviteMemberCubit,
-        OrganizationInviteMemberState>(
+    return BlocConsumer<OrganizationInviteMemberCubit, OrganizationInviteMemberState>(
       listenWhen: (p, c) => p.email != c.email,
       listener: (context, state) {
         if (_emailController.text != state.email) {
@@ -137,16 +135,14 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
         }
       },
       builder: (context, state) {
-        if (state.status == IamLoadStatus.loading ||
-            state.status == IamLoadStatus.initial) {
+        if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
           return const VPageScaffold(
             title: 'Mời thành viên',
             body: Center(child: VLoading(size: 40)),
           );
         }
 
-        if ((state.status == IamLoadStatus.failure ||
-                state.status == IamLoadStatus.success) &&
+        if ((state.status == IamLoadStatus.failure || state.status == IamLoadStatus.success) &&
             state.roleOptions.isEmpty) {
           return VPageScaffold(
             title: 'Mời thành viên',
@@ -156,11 +152,14 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    VText(
-                      state.status == IamLoadStatus.failure
-                          ? 'Không tải được danh sách vai trò'
-                          : 'Chưa có vai trò để mời',
-                      variant: VTextVariant.headingH4,
+                    Semantics(
+                      header: true,
+                      child: VText(
+                        state.status == IamLoadStatus.failure
+                            ? 'Không tải được danh sách vai trò'
+                            : 'Chưa có vai trò để mời',
+                        variant: VTextVariant.headingH4,
+                      ),
                     ),
                     const VGap.sm(),
                     VText(
@@ -172,9 +171,8 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
                     const VGap.lg(),
                     VButton(
                       label: 'Thử lại',
-                      onPressed: () => context
-                          .read<OrganizationInviteMemberCubit>()
-                          .loadRoleOptions(),
+                      onPressed: () =>
+                          context.read<OrganizationInviteMemberCubit>().loadRoleOptions(),
                     ),
                   ],
                 ),
@@ -183,9 +181,7 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
           );
         }
 
-        final canSubmit = state.email.trim().isNotEmpty &&
-            state.selectedRoleId != null &&
-            !state.isSubmitting;
+        final canSubmit = !state.isSubmitting;
 
         return VPageScaffold(
           title: 'Mời thành viên',
@@ -198,9 +194,7 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
                     label: 'Hủy',
                     variant: VButtonVariant.secondary,
                     fullWidth: true,
-                    onPressed: state.isSubmitting
-                        ? null
-                        : () => Navigator.of(context).pop(),
+                    onPressed: state.isSubmitting ? null : () => Navigator.of(context).maybePop(),
                   ),
                 ),
                 const VGap.horizontalSm(),
@@ -229,30 +223,28 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
                 ),
                 const VGap.md(),
                 VField(
+                  invalid: state.emailError != null,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const VFieldLabel('Email', isRequired: true),
-                      VTextField(
+                      VEmailField(
                         hintText: 'nhanvien@minhphat.vn',
                         controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: context
-                            .read<OrganizationInviteMemberCubit>()
-                            .emailChanged,
+                        validateOnChanged: false,
+                        onChanged: context.read<OrganizationInviteMemberCubit>().emailChanged,
                       ),
-                      const VFieldDescription(
-                        'Người nhận phải đăng nhập đúng email.',
-                      ),
+                      if (state.emailError != null) VFieldError(state.emailError!),
                     ],
                   ),
                 ),
                 const VGap.md(),
                 VField(
+                  invalid: state.roleError != null,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const VFieldLabel('Vai trò ban đầu'),
+                      const VFieldLabel('Vai trò ban đầu', isRequired: true),
                       VSelect<String>(
                         hintText: 'Chọn vai trò',
                         value: state.selectedRoleId,
@@ -265,20 +257,18 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
                         ],
                         onChanged: (val) {
                           if (val != null) {
-                            context
-                                .read<OrganizationInviteMemberCubit>()
-                                .roleSelected(val);
+                            context.read<OrganizationInviteMemberCubit>().roleSelected(val);
                           }
                         },
                       ),
+                      if (state.roleError != null)
+                        VFieldError(state.roleError!)
+                      else
+                        const VFieldDescription(
+                          'Vai trò có thể thay đổi sau khi tham gia.',
+                        ),
                     ],
                   ),
-                ),
-                const VGap.xs(),
-                VText(
-                  'Vai trò có thể thay đổi sau khi tham gia.',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
                 ),
               ],
             ),

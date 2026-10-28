@@ -98,14 +98,17 @@ class _OrganizationRolesView extends StatelessWidget {
                             ),
                           ),
                           const VGap.md(),
-                          VText(
-                            'Không thể tải danh sách vai trò',
-                            variant: VTextVariant.headingH3,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: colors.danger,
+                          Semantics(
+                            header: true,
+                            child: VText(
+                              'Không thể tải danh sách vai trò',
+                              variant: VTextVariant.headingH3,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: colors.danger,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                           const VGap.xs(),
                           VText(
@@ -115,16 +118,11 @@ class _OrganizationRolesView extends StatelessWidget {
                             textAlign: TextAlign.center,
                           ),
                           const VGap.md(),
-                          GestureDetector(
-                            onTap: () => context.read<RolesCubit>().load(),
-                            child: VText(
-                              'Thử lại',
-                              variant: VTextVariant.bodyDefault,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: colors.danger,
-                              ),
-                            ),
+                          VButton(
+                            label: 'Thử lại',
+                            variant: VButtonVariant.link,
+                            tone: VComponentTone.danger,
+                            onPressed: () => context.read<RolesCubit>().load(),
                           ),
                         ],
                       ),
@@ -134,10 +132,13 @@ class _OrganizationRolesView extends StatelessWidget {
               : ListView(
                   padding: const EdgeInsets.all(VSpacing.screenMobile),
                   children: [
-                    VText(
-                      'Vai trò hệ thống',
-                      variant: VTextVariant.headingH4,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    Semantics(
+                      header: true,
+                      child: VText(
+                        'Vai trò hệ thống',
+                        variant: VTextVariant.headingH4,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
                     ),
                     const VGap.xs(),
                     VText(

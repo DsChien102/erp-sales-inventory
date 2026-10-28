@@ -10,9 +10,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
-          home: const Scaffold(
-            body: VTextField(hintText: 'Nhập'),
-          ),
+          home: const Scaffold(body: VTextField(hintText: 'Nhập')),
         ),
       );
 
@@ -29,10 +27,7 @@ void main() {
         MaterialApp(
           theme: VTheme.lightTheme,
           home: Scaffold(
-            body: VTextField(
-              controller: controller,
-              suffixText: 'đ',
-            ),
+            body: VTextField(controller: controller, suffixText: 'đ'),
           ),
         ),
       );
@@ -42,7 +37,29 @@ void main() {
       expect(controller.text, '1000');
     });
 
-    testWidgets('VInput accepts prefix and suffix widgets inside padding', (tester) async {
+    testWidgets('passes autofill hints and text input action to TextField', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: const Scaffold(
+            body: VTextField(
+              autofillHints: [AutofillHints.email],
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+        ),
+      );
+
+      final textField = tester.widget<TextField>(find.byType(TextField));
+      expect(textField.autofillHints, [AutofillHints.email]);
+      expect(textField.textInputAction, TextInputAction.next);
+    });
+
+    testWidgets('VInput accepts prefix and suffix widgets inside padding', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,

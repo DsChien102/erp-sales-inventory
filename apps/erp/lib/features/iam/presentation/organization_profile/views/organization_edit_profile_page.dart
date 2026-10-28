@@ -62,6 +62,13 @@ class _EditProfileViewState extends State<_EditProfileView> {
   String? _selectedProvinceCode;
   String? _selectedCommuneCode;
   bool _seeded = false;
+  bool _seeding = false;
+  String? _baselineName;
+  String? _baselinePhone;
+  String? _baselineEmail;
+  String? _baselineAddress;
+  String? _baselineProvinceCode;
+  String? _baselineCommuneCode;
 
   String? _nameError;
   String? _phoneError;
@@ -75,10 +82,26 @@ class _EditProfileViewState extends State<_EditProfileView> {
     _phoneController = TextEditingController();
     _emailController = TextEditingController();
     _addressController = TextEditingController();
+    for (final controller in [
+      _nameController,
+      _phoneController,
+      _emailController,
+      _addressController,
+    ]) {
+      controller.addListener(_onFieldChanged);
+    }
   }
 
   @override
   void dispose() {
+    for (final controller in [
+      _nameController,
+      _phoneController,
+      _emailController,
+      _addressController,
+    ]) {
+      controller.removeListener(_onFieldChanged);
+    }
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
@@ -88,17 +111,51 @@ class _EditProfileViewState extends State<_EditProfileView> {
 
   void _seedFromState(OrganizationProfileState state) {
     if (_seeded || state.tenant == null) return;
+    _seeding = true;
     final profile = OrganizationProfileUiMapper.fromTenant(state.tenant!);
     _nameController.text = profile.name;
     final rawPhone = profile.phone;
-    _phoneController.text = rawPhone.startsWith('+84')
-        ? '0${rawPhone.substring(3)}'
-        : rawPhone;
+    _phoneController.text = rawPhone.startsWith('+84') ? '0${rawPhone.substring(3)}' : rawPhone;
     _emailController.text = profile.email;
     _addressController.text = profile.address;
     _selectedProvinceCode = profile.provinceCode;
     _selectedCommuneCode = profile.communeCode;
+    _baselineName = profile.name;
+    _baselinePhone = _phoneController.text;
+    _baselineEmail = profile.email;
+    _baselineAddress = profile.address;
+    _baselineProvinceCode = profile.provinceCode;
+    _baselineCommuneCode = profile.communeCode;
     _seeded = true;
+    _seeding = false;
+  }
+
+  bool get _hasChanges {
+    if (!_seeded) return false;
+    return _nameController.text.trim() != _baselineName?.trim() ||
+        _phoneController.text.trim() != _baselinePhone?.trim() ||
+        _emailController.text.trim() != _baselineEmail?.trim() ||
+        _addressController.text.trim() != _baselineAddress?.trim() ||
+        _selectedProvinceCode != _baselineProvinceCode ||
+        _selectedCommuneCode != _baselineCommuneCode;
+  }
+
+  void _onFieldChanged() {
+    if (mounted && !_seeding) setState(() {});
+  }
+
+  void _confirmDiscard() {
+    showVConfirmDialog(
+      context: context,
+      title: 'Bỏ thay đổi?',
+      message: 'Các thay đổi chưa lưu sẽ bị mất.',
+      cancelLabel: 'Tiếp tục sửa',
+      actionLabel: 'Bỏ thay đổi',
+      isDestructive: true,
+      onAction: () {
+        if (mounted) Navigator.of(context).pop();
+      },
+    );
   }
 
   /// Client-side validation — chỉ chạy khi bấm "Lưu thay đổi".
@@ -193,132 +250,140 @@ class _EditProfileViewState extends State<_EditProfileView> {
         }
 
         final colors = context.vColors;
-        return VPageScaffold(
-          title: 'Chỉnh thông tin tổ chức',
-          bottomBar: Padding(
-            padding: const EdgeInsets.all(VSpacing.screenMobile),
-            child: Row(
+        return PopScope(
+          canPop: !_hasChanges || state.isSubmittingProfile,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop && _hasChanges) _confirmDiscard();
+          },
+          child: VPageScaffold(
+            title: 'Chỉnh thông tin tổ chức',
+            bottomBar: Padding(
+              padding: const EdgeInsets.all(VSpacing.screenMobile),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: VButton(
+                      label: 'Hủy',
+                      variant: VButtonVariant.secondary,
+                      fullWidth: true,
+                      onPressed: state.isSubmittingProfile
+                          ? null
+                          : () => Navigator.of(context).maybePop(),
+                    ),
+                  ),
+                  const VGap.horizontalSm(),
+                  Expanded(
+                    child: VButton(
+                      label: 'Lưu thay đổi',
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.success,
+                      fullWidth: true,
+                      isLoading: state.isSubmittingProfile,
+                      onPressed: state.isSubmittingProfile ? null : () => _save(context),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            body: ListView(
+              padding: const EdgeInsets.all(VSpacing.screenMobile),
               children: [
-                Expanded(
-                  child: VButton(
-                    label: 'Hủy',
-                    variant: VButtonVariant.secondary,
-                    fullWidth: true,
-                    onPressed: state.isSubmittingProfile ? null : () => Navigator.of(context).pop(),
+                VText(
+                  'Thông tin liên hệ này độc lập với hồ sơ pháp lý và chứng từ đã phát hành.',
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
+                ),
+                const VGap.md(),
+                VField(
+                  invalid: _nameError != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Tên tổ chức', isRequired: true),
+                      VTextField(
+                        controller: _nameController,
+                        onChanged: (_) {
+                          if (_nameError != null) setState(() => _nameError = null);
+                        },
+                      ),
+                      if (_nameError != null)
+                        VFieldError(_nameError!)
+                      else
+                        const VFieldDescription('Tên hiển thị.'),
+                    ],
                   ),
                 ),
-                const VGap.horizontalSm(),
-                Expanded(
-                  child: VButton(
-                    label: 'Lưu thay đổi',
-                    variant: VButtonVariant.primary,
-                    tone: VComponentTone.success,
-                    fullWidth: true,
-                    isLoading: state.isSubmittingProfile,
-                    onPressed: state.isSubmittingProfile ? null : () => _save(context),
+                const VGap.md(),
+                VField(
+                  invalid: _phoneError != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Số điện thoại', isRequired: true),
+                      VPhoneField(
+                        isRequired: true,
+                        controller: _phoneController,
+                        validateOnChanged: false,
+                        onChanged: (_) {
+                          if (_phoneError != null) setState(() => _phoneError = null);
+                        },
+                      ),
+                      if (_phoneError != null) VFieldError(_phoneError!),
+                    ],
                   ),
+                ),
+                const VGap.md(),
+                VField(
+                  invalid: _emailError != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Email liên hệ', isRequired: true),
+                      VEmailField(
+                        controller: _emailController,
+                        validateOnChanged: false,
+                        onChanged: (_) {
+                          if (_emailError != null) setState(() => _emailError = null);
+                        },
+                      ),
+                      if (_emailError != null) VFieldError(_emailError!),
+                    ],
+                  ),
+                ),
+                const VGap.md(),
+                VField(
+                  invalid: _addressError != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Địa chỉ liên hệ', isRequired: true),
+                      VTextField(
+                        controller: _addressController,
+                        onChanged: (_) {
+                          if (_addressError != null) setState(() => _addressError = null);
+                        },
+                      ),
+                      if (_addressError != null) VFieldError(_addressError!),
+                    ],
+                  ),
+                ),
+                const VGap.md(),
+                AdministrativeUnitsFormSection(
+                  unitsFuture: _unitsFuture,
+                  selectedProvinceCode: _selectedProvinceCode,
+                  selectedCommuneCode: _selectedCommuneCode,
+                  onProvinceChanged: (code) {
+                    setState(() {
+                      _selectedProvinceCode = code;
+                      _selectedCommuneCode = null;
+                    });
+                  },
+                  onCommuneChanged: (code) {
+                    setState(() => _selectedCommuneCode = code);
+                  },
                 ),
               ],
             ),
-          ),
-          body: ListView(
-            padding: const EdgeInsets.all(VSpacing.screenMobile),
-            children: [
-              VText(
-                'Thông tin liên hệ này độc lập với hồ sơ pháp lý và chứng từ đã phát hành.',
-                variant: VTextVariant.bodySmall,
-                color: colors.textSecondary,
-              ),
-              const VGap.md(),
-              VField(
-                invalid: _nameError != null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const VFieldLabel('Tên tổ chức', isRequired: true),
-                    VTextField(
-                      controller: _nameController,
-                      onChanged: (_) {
-                        if (_nameError != null) setState(() => _nameError = null);
-                      },
-                    ),
-                    if (_nameError != null)
-                      VFieldError(_nameError!)
-                    else
-                      const VFieldDescription('Tên hiển thị.'),
-                  ],
-                ),
-              ),
-              const VGap.md(),
-              VField(
-                invalid: _phoneError != null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const VFieldLabel('Số điện thoại', isRequired: true),
-                    VPhoneField(
-                      isRequired: true,
-                      controller: _phoneController,
-                      validateOnChanged: false,
-                      onChanged: (_) {
-                        if (_phoneError != null) setState(() => _phoneError = null);
-                      },
-                    ),
-                    if (_phoneError != null) VFieldError(_phoneError!),
-                  ],
-                ),
-              ),
-              const VGap.md(),
-              VField(
-                invalid: _emailError != null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const VFieldLabel('Email liên hệ', isRequired: true),
-                    VEmailField(
-                      controller: _emailController,
-                      validateOnChanged: false,
-                      onChanged: (_) {
-                        if (_emailError != null) setState(() => _emailError = null);
-                      },
-                    ),
-                    if (_emailError != null) VFieldError(_emailError!),
-                  ],
-                ),
-              ),
-              const VGap.md(),
-              VField(
-                invalid: _addressError != null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const VFieldLabel('Địa chỉ liên hệ', isRequired: true),
-                    VTextField(
-                      controller: _addressController,
-                      onChanged: (_) {
-                        if (_addressError != null) setState(() => _addressError = null);
-                      },
-                    ),
-                    if (_addressError != null) VFieldError(_addressError!),
-                  ],
-                ),
-              ),
-              const VGap.md(),
-              AdministrativeUnitsFormSection(
-                unitsFuture: _unitsFuture,
-                selectedProvinceCode: _selectedProvinceCode,
-                selectedCommuneCode: _selectedCommuneCode,
-                onProvinceChanged: (code) {
-                  setState(() {
-                    _selectedProvinceCode = code;
-                    _selectedCommuneCode = null;
-                  });
-                },
-                onCommuneChanged: (code) {
-                  setState(() => _selectedCommuneCode = code);
-                },
-              ),
-            ],
           ),
         );
       },

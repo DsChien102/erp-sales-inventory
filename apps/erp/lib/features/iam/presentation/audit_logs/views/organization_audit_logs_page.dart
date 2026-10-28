@@ -198,6 +198,7 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
           state.filters.fromLocal,
           state.filters.toLocal,
         );
+        final isFilterActive = state.filters.result != null || days != 30;
         final subtitleText = state.failure?.code == IamBlockedCodes.permissionDenied
             ? 'Chưa được cấp quyền'
             : state.status == IamLoadStatus.failure
@@ -211,6 +212,7 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
             subtitle: subtitleText,
             showBackButton: true,
             leading: IconButton(
+              tooltip: 'Quay lại',
               icon: VIcon(
                 icon: VIcons.chevronLeft,
                 color: colors.textPrimary,
@@ -242,25 +244,34 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
                       ),
                     ),
                     const SizedBox(width: VSpacing.space2),
-                    InkWell(
-                      onTap: () => _openFilterBottomSheet(context, state),
-                      borderRadius: BorderRadius.circular(VRadius.input),
-                      child: Container(
-                        height: 44,
-                        width: 44,
-                        decoration: BoxDecoration(
-                          color: colors.surface,
-                          borderRadius: BorderRadius.circular(VRadius.input),
-                          border: VBorders.all(colors.borderDefault),
-                        ),
-                        child: Center(
-                          child: VIcon(
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        IconButton(
+                          tooltip: isFilterActive ? 'Bộ lọc (đang áp dụng)' : 'Bộ lọc',
+                          icon: VIcon(
                             icon: VIcons.tune,
                             size: 20,
                             color: colors.textPrimary,
                           ),
+                          onPressed: () => _openFilterBottomSheet(context, state),
                         ),
-                      ),
+                        if (isFilterActive)
+                          Positioned(
+                            top: 6,
+                            right: 6,
+                            child: ExcludeSemantics(
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: colors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),

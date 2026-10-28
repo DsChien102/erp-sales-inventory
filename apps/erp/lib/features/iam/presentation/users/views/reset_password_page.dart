@@ -365,9 +365,12 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    VText(
-                      'Không gửi được mã',
-                      variant: VTextVariant.headingH4,
+                    Semantics(
+                      header: true,
+                      child: VText(
+                        'Không gửi được mã',
+                        variant: VTextVariant.headingH4,
+                      ),
                     ),
                     const VGap.sm(),
                     VText(

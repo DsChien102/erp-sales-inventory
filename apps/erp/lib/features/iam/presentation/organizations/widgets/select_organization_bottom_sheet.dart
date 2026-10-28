@@ -106,10 +106,13 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            'Chọn tổ chức',
-            variant: VTextVariant.headingH3,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+          Semantics(
+            header: true,
+            child: VText(
+              'Chọn tổ chức',
+              variant: VTextVariant.headingH3,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
           ),
           const VGap.md(),
           VSearchBar(
@@ -210,7 +213,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: isCurrent ? colors.success.withValues(alpha: 0.1) : colors.surfaceAlt,
+              color: isCurrent ? colors.successBg : colors.surfaceAlt,
               borderRadius: BorderRadius.circular(VRadius.card),
             ),
             child: Center(

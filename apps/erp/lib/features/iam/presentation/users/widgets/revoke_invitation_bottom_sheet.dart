@@ -73,12 +73,15 @@ class _RevokeInvitationSheetBodyState extends State<_RevokeInvitationSheetBody> 
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            'Thu hồi lời mời?',
-            variant: VTextVariant.headingH3,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: colors.danger,
+          Semantics(
+            header: true,
+            child: VText(
+              'Thu hồi lời mời?',
+              variant: VTextVariant.headingH3,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: colors.danger,
+              ),
             ),
           ),
           const VGap.xs(),

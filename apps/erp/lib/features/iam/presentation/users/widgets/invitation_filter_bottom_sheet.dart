@@ -171,12 +171,15 @@ class _InvitationFilterBottomSheetState extends State<InvitationFilterBottomShee
             ),
           ),
           const VGap.md(),
-          VText(
-            'Bộ lọc lời mời',
-            variant: VTextVariant.headingH3,
-            style: TextStyle(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w700,
+          Semantics(
+            header: true,
+            child: VText(
+              'Bộ lọc lời mời',
+              variant: VTextVariant.headingH3,
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           const VGap.md(),

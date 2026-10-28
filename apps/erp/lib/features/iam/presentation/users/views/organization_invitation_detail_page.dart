@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import '../../shared/iam_action_tile.dart';
+
 import '../../../data/invitation_repository.dart';
 import '../../shared/iam_load_status.dart';
 import '../../shared/idempotency_key_factory.dart';
@@ -59,8 +61,7 @@ class _InvitationDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<OrganizationInvitationDetailCubit,
-        OrganizationInvitationDetailState>(
+    return BlocConsumer<OrganizationInvitationDetailCubit, OrganizationInvitationDetailState>(
       listenWhen: (previous, current) =>
           previous.failure != current.failure ||
           previous.successMessage != current.successMessage ||
@@ -70,17 +71,11 @@ class _InvitationDetailView extends StatelessWidget {
         if (failure != null) {
           VToast.show(
             context,
-            title: failure.requiresReload
-                ? 'Dữ liệu đã thay đổi'
-                : 'Không thực hiện được',
+            title: failure.requiresReload ? 'Dữ liệu đã thay đổi' : 'Không thực hiện được',
             message: failure.message,
-            type: failure.requiresReload
-                ? VToastType.warning
-                : VToastType.danger,
+            type: failure.requiresReload ? VToastType.warning : VToastType.danger,
           );
-          context
-              .read<OrganizationInvitationDetailCubit>()
-              .clearFeedback();
+          context.read<OrganizationInvitationDetailCubit>().clearFeedback();
           return;
         }
         final message = state.successMessage;
@@ -89,26 +84,20 @@ class _InvitationDetailView extends StatelessWidget {
             context,
             title: state.deliveryWarning ? 'Cảnh báo gửi email' : 'Thành công',
             message: message,
-            type: state.deliveryWarning
-                ? VToastType.warning
-                : VToastType.success,
+            type: state.deliveryWarning ? VToastType.warning : VToastType.success,
           );
-          context
-              .read<OrganizationInvitationDetailCubit>()
-              .clearFeedback();
+          context.read<OrganizationInvitationDetailCubit>().clearFeedback();
         }
       },
       builder: (context, state) {
-        if (state.status == IamLoadStatus.loading ||
-            state.status == IamLoadStatus.initial) {
+        if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
           return const VPageScaffold(
             title: 'Chi tiết lời mời',
             body: Center(child: VLoading(size: 40)),
           );
         }
 
-        if (state.status == IamLoadStatus.failure ||
-            state.invitation == null) {
+        if (state.status == IamLoadStatus.failure || state.invitation == null) {
           final colors = context.vColors;
           return VPageScaffold(
             title: 'Chi tiết lời mời',
@@ -118,9 +107,12 @@ class _InvitationDetailView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const VText(
-                      'Không tải được lời mời',
-                      variant: VTextVariant.headingH4,
+                    Semantics(
+                      header: true,
+                      child: const VText(
+                        'Không tải được lời mời',
+                        variant: VTextVariant.headingH4,
+                      ),
                     ),
                     const VGap.sm(),
                     VText(
@@ -132,9 +124,7 @@ class _InvitationDetailView extends StatelessWidget {
                     const VGap.lg(),
                     VButton(
                       label: 'Thử lại',
-                      onPressed: () => context
-                          .read<OrganizationInvitationDetailCubit>()
-                          .load(),
+                      onPressed: () => context.read<OrganizationInvitationDetailCubit>().load(),
                     ),
                   ],
                 ),
@@ -175,11 +165,14 @@ class _InvitationDetailView extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: VText(
-                            invitation.email,
-                            variant: VTextVariant.headingH4,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
+                          child: Semantics(
+                            header: true,
+                            child: VText(
+                              invitation.email,
+                              variant: VTextVariant.headingH4,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
@@ -235,9 +228,7 @@ class _InvitationDetailView extends StatelessWidget {
                       tone: VComponentTone.primary,
                       fullWidth: true,
                       isLoading: state.isSubmitting,
-                      onPressed: state.isSubmitting
-                          ? null
-                          : () => _showActionBottomSheet(context),
+                      onPressed: state.isSubmitting ? null : () => _showActionBottomSheet(context),
                     ),
                   ),
                 )
@@ -257,7 +248,7 @@ class _InvitationDetailView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _ActionItem(
+            IamActionTile(
               icon: VIcons.refresh,
               title: 'Gửi lại lời mời',
               subtitle: 'Gửi lại email đến người nhận',
@@ -267,7 +258,7 @@ class _InvitationDetailView extends StatelessWidget {
               },
             ),
             const VGap.sm(),
-            _ActionItem(
+            IamActionTile(
               icon: VIcons.delete,
               title: 'Thu hồi lời mời',
               subtitle: 'Người nhận không thể tiếp tục tham gia',
@@ -292,8 +283,7 @@ class _InvitationDetailView extends StatelessWidget {
       context: context,
       onRevoke: (reason) async {
         await cubit.revoke(reason: reason);
-        return cubit.state.failure == null &&
-            cubit.state.invitation?.status == 'revoked';
+        return cubit.state.failure == null && cubit.state.invitation?.status == 'revoked';
       },
     );
     if (revoked == true && context.mounted) {
@@ -303,74 +293,5 @@ class _InvitationDetailView extends StatelessWidget {
         // Widget tests / no GoRouter.
       }
     }
-  }
-}
-
-class _ActionItem extends StatelessWidget {
-  const _ActionItem({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-    this.isDanger = false,
-  });
-
-  final VIcons icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-  final bool isDanger;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final bgColor = isDanger ? colors.dangerBg : colors.surface;
-    final borderColor = isDanger ? colors.danger : colors.borderDefault;
-    final iconColor = isDanger ? colors.danger : colors.textPrimary;
-    final titleColor = isDanger ? colors.danger : colors.textPrimary;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(VSpacing.space4),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(VRadius.card),
-          border: Border.all(color: borderColor),
-        ),
-        child: Row(
-          children: [
-            VIcon(icon: icon, size: 22, color: iconColor),
-            const VGap.horizontalMd(),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VText(
-                    title,
-                    variant: VTextVariant.bodyDefault,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: titleColor,
-                    ),
-                  ),
-                  const VGap.xs(),
-                  VText(
-                    subtitle,
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
-                ],
-              ),
-            ),
-            VIcon(
-              icon: VIcons.chevronRight,
-              size: 20,
-              color: isDanger ? colors.danger : colors.textSecondary,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

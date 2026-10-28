@@ -38,6 +38,7 @@ class VChip extends StatelessWidget {
     this.tone,
     @Deprecated('Use tone instead. Will be removed in a future release.') this.emphasis,
     @Deprecated('Use tone: VComponentTone.primary when the chip is selected.') this.selected,
+    this.isSelected,
     this.onTap,
     this.onRemove,
     this.icon,
@@ -53,6 +54,9 @@ class VChip extends StatelessWidget {
 
   @Deprecated('Use tone: VComponentTone.primary when the chip is selected.')
   final bool? selected;
+
+  /// Reports selection to assistive technologies without changing appearance.
+  final bool? isSelected;
 
   /// When null (and [onRemove] is null), chip is non-interactive.
   final VoidCallback? onTap;
@@ -160,7 +164,7 @@ class VChip extends StatelessWidget {
                 container: true,
                 button: true,
                 enabled: isEnabled,
-                label: 'Xoá $label',
+                label: 'Xóa $label',
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: isEnabled ? onRemove : null,
@@ -187,6 +191,7 @@ class VChip extends StatelessWidget {
     return vInspectorHide(
       Semantics(
         button: onTap != null,
+        selected: isSelected,
         enabled: isEnabled,
         label: semanticsLabel,
         child: Material(
@@ -196,7 +201,19 @@ class VChip extends StatelessWidget {
             highlightColor: Colors.transparent,
             onTap: isEnabled && onTap != null ? onTap : null,
             borderRadius: BorderRadius.circular(VRadius.r16),
-            child: chipBody,
+            child: onTap != null
+                ? ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: VSpacing.minTouchTarget,
+                    ),
+                    child: Align(
+                      alignment: Alignment.center,
+                      widthFactor: 1,
+                      heightFactor: 1,
+                      child: chipBody,
+                    ),
+                  )
+                : chipBody,
           ),
         ),
       ),

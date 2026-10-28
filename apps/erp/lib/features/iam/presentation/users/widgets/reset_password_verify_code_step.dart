@@ -40,10 +40,13 @@ class ResetPasswordVerifyCodeStep extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              VText(
-                'Xác minh email',
-                variant: VTextVariant.headingH4,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+              Semantics(
+                header: true,
+                child: VText(
+                  'Xác minh email',
+                  variant: VTextVariant.headingH4,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
               const VGap.xs(),
               VText(

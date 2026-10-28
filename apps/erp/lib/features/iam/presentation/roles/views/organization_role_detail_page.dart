@@ -99,10 +99,13 @@ class _RoleDetailBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                VText(
-                  role.title,
-                  variant: VTextVariant.headingH4,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                Semantics(
+                  header: true,
+                  child: VText(
+                    role.title,
+                    variant: VTextVariant.headingH4,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
                 const VGap.xs(),
                 VText(
@@ -120,10 +123,13 @@ class _RoleDetailBody extends StatelessWidget {
             ),
           ),
           const VGap.md(),
-          VText(
-            'Thành viên đang giữ vai trò',
-            variant: VTextVariant.headingH4,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+          Semantics(
+            header: true,
+            child: VText(
+              'Thành viên đang giữ vai trò',
+              variant: VTextVariant.headingH4,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
           ),
           const VGap.sm(),
           if (role.memberNames.isEmpty)

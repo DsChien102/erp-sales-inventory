@@ -1,4 +1,6 @@
-import 'package:erp/features/dashboard/presentation/dashboard_page.dart';
+import 'package:erp/features/dashboard/presentation/home_tab_page.dart';
+import 'package:erp/features/dashboard/presentation/store_shell.dart';
+import 'package:erp/features/dashboard/presentation/widgets/tenant_ready_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -38,9 +40,10 @@ void main() {
       routes: [
         GoRoute(
           path: '/',
-          builder: (context, state) => DashboardPage(
+          builder: (context, state) => StoreShell(
             repository: repository,
             autoBootstrap: true,
+            child: const TenantReadyGate(child: HomeTabPage()),
           ),
         ),
       ],

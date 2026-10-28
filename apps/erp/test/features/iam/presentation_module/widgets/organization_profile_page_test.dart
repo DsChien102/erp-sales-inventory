@@ -52,4 +52,22 @@ void main() {
 
     expect(find.text('Thao tác'), findsNothing);
   });
+
+  testWidgets('section headings expose header semantics', (tester) async {
+    final handle = tester.ensureSemantics();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationProfilePage(
+          organizationRepository: ScriptedOrganizationRepository(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final node = tester.getSemantics(find.text('Thông tin tổ chức'));
+    expect(node.flagsCollection.isHeader, isTrue);
+
+    handle.dispose();
+  });
 }

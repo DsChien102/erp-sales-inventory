@@ -32,12 +32,15 @@ class TaxCodeDuplicateWarningBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            'Mã số thuế đã được ghi nhận',
-            variant: VTextVariant.headingH3,
-            style: TextStyle(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w700,
+          Semantics(
+            header: true,
+            child: VText(
+              'Mã số thuế đã được ghi nhận',
+              variant: VTextVariant.headingH3,
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           const VGap.xs(),

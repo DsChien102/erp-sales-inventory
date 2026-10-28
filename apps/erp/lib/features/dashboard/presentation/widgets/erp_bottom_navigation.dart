@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 enum ErpTab {
   home(
     label: 'Trang chủ',
     icon: Icons.home_outlined,
-    routePath: '/dashboard/home',
+    routePath: '/',
     enabled: true,
   ),
   orders(
@@ -30,7 +29,7 @@ enum ErpTab {
   more(
     label: 'Thêm',
     icon: Icons.more_horiz_rounded,
-    routePath: '/dashboard/more',
+    routePath: '/more',
     enabled: true,
   );
 
@@ -46,11 +45,22 @@ enum ErpTab {
   final String routePath;
   final bool enabled;
 
-  static ErpTab fromPath(String path) {
-    for (final tab in ErpTab.values.reversed) {
-      if (path.startsWith(tab.routePath)) {
-        return tab;
-      }
+  static ErpTab fromLocation(String location) {
+    if (location == '/') return ErpTab.home;
+    if (location.startsWith('/orders') || location.startsWith('/sales')) {
+      return ErpTab.orders;
+    }
+    if (location.startsWith('/products')) {
+      return ErpTab.products;
+    }
+    if (location.startsWith('/partner')) {
+      return ErpTab.partners;
+    }
+    if (location.startsWith('/more') ||
+        location.startsWith('/inventory') ||
+        location.startsWith('/warehouse') ||
+        location.startsWith('/pricing')) {
+      return ErpTab.more;
     }
     return ErpTab.home;
   }
@@ -59,38 +69,18 @@ enum ErpTab {
 class ErpBottomNavigation extends StatelessWidget {
   const ErpBottomNavigation({
     super.key,
-    this.selectedIndex = 0,
-    this.onItemSelected,
+    required this.currentIndex,
+    required this.onTap,
   });
 
-  final int selectedIndex;
-  final ValueChanged<int>? onItemSelected;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
 
   @override
   Widget build(BuildContext context) {
-    final location = GoRouterState.of(context).matchedLocation;
-
-    final int index;
-    if (location == '/' || onItemSelected != null) {
-      index = selectedIndex;
-    } else {
-      index = ErpTab.fromPath(location).index;
-    }
-
     return VBottomNavigationBar(
-      currentIndex: index,
-      onTap: (index) {
-        final targetTab = ErpTab.values[index];
-        if (!targetTab.enabled) return;
-
-        if (onItemSelected != null) {
-          onItemSelected!(index);
-          return;
-        }
-        final currentTab = ErpTab.fromPath(location);
-        if (targetTab == currentTab) return;
-        context.go(targetTab.routePath);
-      },
+      currentIndex: currentIndex,
+      onTap: onTap,
       items: ErpTab.values
           .map(
             (tab) => VBottomNavigationItem(

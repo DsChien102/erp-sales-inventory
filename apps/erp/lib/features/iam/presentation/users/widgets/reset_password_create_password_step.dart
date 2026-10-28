@@ -29,10 +29,13 @@ class ResetPasswordCreatePasswordStep extends StatelessWidget {
         vertical: VSpacing.space4,
       ),
       children: [
-        VText(
-          'Tạo mật khẩu mới',
-          variant: VTextVariant.headingH3,
-          style: const TextStyle(fontWeight: FontWeight.w700),
+        Semantics(
+          header: true,
+          child: VText(
+            'Tạo mật khẩu mới',
+            variant: VTextVariant.headingH3,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
         ),
         const VGap.md(),
         VField(
@@ -74,10 +77,13 @@ class ResetPasswordCreatePasswordStep extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              VText(
-                'Quy tắc mật khẩu',
-                variant: VTextVariant.headingH4,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+              Semantics(
+                header: true,
+                child: VText(
+                  'Quy tắc mật khẩu',
+                  variant: VTextVariant.headingH4,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
               const VGap.xs(),
               VText(

@@ -29,6 +29,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   double _progressValue = 0.4;
   int _currentStepIndex = 1;
   int _navIndex = 0;
+  (int, int?) _sideNavSelected = (0, null);
   bool _centerTitle = false;
   int _segmentIndex = 0;
   int _orderLineQty = 1;
@@ -1625,6 +1626,80 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
               ),
             ],
             onTap: (i) => setState(() => _navIndex = i),
+          ),
+        ),
+        PreviewSection(
+          title: 'VSideNavigation',
+          description:
+              'Thanh bên máy tính / web (bề rộng 240, 5 mục chính, mục con của Thêm, header, footer).',
+          child: SizedBox(
+            height: 480,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                VSideNavigation(
+                  selected: _sideNavSelected,
+                  header: const Padding(
+                    padding: EdgeInsets.all(VSpacing.space3),
+                    child: Text(
+                      'Tổ chức Demo',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  footer: const Text('Đăng xuất'),
+                  items: const [
+                    VSideNavigationItem(
+                      icon: Icon(Icons.home_outlined),
+                      label: 'Trang chủ',
+                    ),
+                    VSideNavigationItem(
+                      icon: Icon(Icons.receipt_long_outlined),
+                      label: 'Đơn hàng',
+                    ),
+                    VSideNavigationItem(
+                      icon: Icon(Icons.inventory_2_outlined),
+                      label: 'Sản phẩm',
+                    ),
+                    VSideNavigationItem(
+                      icon: Icon(Icons.people_outline_rounded),
+                      label: 'Đối tác',
+                    ),
+                    VSideNavigationItem(
+                      icon: Icon(Icons.more_horiz_rounded),
+                      label: 'Thêm',
+                      children: [
+                        VSideNavigationItem(
+                          label: 'Kho',
+                        ),
+                        VSideNavigationItem(
+                          label: 'Giá riêng / Nhớ giá',
+                        ),
+                        VSideNavigationItem(
+                          label: 'Người dùng & vai trò',
+                        ),
+                        VSideNavigationItem(
+                          label: 'Tài khoản của tôi',
+                        ),
+                        VSideNavigationItem(
+                          label: 'Thiết lập',
+                        ),
+                      ],
+                    ),
+                  ],
+                  onSelect: (item, child) {
+                    setState(() => _sideNavSelected = (item, child));
+                  },
+                ),
+                const SizedBox(width: VSpacing.space4),
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      'Đang chọn: mục ${_sideNavSelected.$1}, mục con ${_sideNavSelected.$2}',
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         PreviewSection(

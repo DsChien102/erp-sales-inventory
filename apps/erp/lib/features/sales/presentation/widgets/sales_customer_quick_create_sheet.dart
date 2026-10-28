@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:erp/core/validation/tax_code_input_formatter.dart';
 
 import '../models/shared/sales_customer_selection.dart';
 import '../support/sales_external_lookups.dart';
@@ -417,6 +418,8 @@ class _QuickCreateCustomerSheetState extends State<_QuickCreateCustomerSheet> {
                           VTextField(
                             controller: _taxCodeController,
                             hintText: 'Ví dụ: 0101234567',
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [TaxCodeInputFormatter()],
                           ),
                           const VFieldDescription('Không bắt buộc'),
                         ],

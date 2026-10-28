@@ -124,12 +124,15 @@ class _MemberFilterBottomSheetState extends State<MemberFilterBottomSheet> {
             ),
           ),
           const VGap.md(),
-          VText(
-            'Bộ lọc thành viên',
-            variant: VTextVariant.headingH3,
-            style: TextStyle(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w700,
+          Semantics(
+            header: true,
+            child: VText(
+              'Bộ lọc thành viên',
+              variant: VTextVariant.headingH3,
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           const VGap.md(),

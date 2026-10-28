@@ -8,7 +8,7 @@ class UsersEmptyState extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.actionText,
-    required this.onAction,
+    this.onAction,
     this.iconBgColor,
     this.iconColor,
     this.titleColor,
@@ -19,7 +19,7 @@ class UsersEmptyState extends StatelessWidget {
   final String title;
   final String subtitle;
   final String actionText;
-  final VoidCallback onAction;
+  final VoidCallback? onAction;
   final Color? iconBgColor;
   final Color? iconColor;
   final Color? titleColor;
@@ -43,12 +43,15 @@ class UsersEmptyState extends StatelessWidget {
             borderRadius: VRadius.r12,
           ),
           const VGap.md(),
-          VText(
-            title,
-            variant: VTextVariant.headingH4,
-            color: titleColor,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+          Semantics(
+            header: true,
+            child: VText(
+              title,
+              variant: VTextVariant.headingH4,
+              color: titleColor,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
           ),
           const VGap.sm(),
           VText(
@@ -57,13 +60,15 @@ class UsersEmptyState extends StatelessWidget {
             color: colors.textSecondary,
             textAlign: TextAlign.center,
           ),
-          const VGap.lg(),
-          VButton(
-            label: actionText,
-            variant: VButtonVariant.primary,
-            tone: isDanger ? VComponentTone.danger : VComponentTone.primary,
-            onPressed: onAction,
-          ),
+          if (onAction != null) ...[
+            const VGap.lg(),
+            VButton(
+              label: actionText,
+              variant: VButtonVariant.primary,
+              tone: isDanger ? VComponentTone.danger : VComponentTone.primary,
+              onPressed: onAction,
+            ),
+          ],
         ],
       ),
     );

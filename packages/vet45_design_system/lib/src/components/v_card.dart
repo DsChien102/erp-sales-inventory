@@ -163,14 +163,18 @@ class VCard extends StatelessWidget {
               ),
               child: Material(
                 color: Colors.transparent,
-                child: InkWell(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  onTap: isEnabled ? onTap : null,
-                  borderRadius: BorderRadius.circular(resolvedRadius),
-                  child: Padding(
-                    padding: padding ?? const EdgeInsets.all(_kCardInset),
-                    child: vInspectorShow(child),
+                child: Semantics(
+                  button: onTap != null,
+                  enabled: isEnabled,
+                  child: InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    onTap: isEnabled ? onTap : null,
+                    borderRadius: BorderRadius.circular(resolvedRadius),
+                    child: Padding(
+                      padding: padding ?? const EdgeInsets.all(_kCardInset),
+                      child: vInspectorShow(child),
+                    ),
                   ),
                 ),
               ),

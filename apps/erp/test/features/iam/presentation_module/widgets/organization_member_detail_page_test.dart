@@ -170,4 +170,22 @@ void main() {
     expect(find.text('Đã thay đổi vai trò thành công.'), findsOneWidget);
     await cubit.close();
   });
+
+  testWidgets('accessibility guidelines: tap target size and labeled tap target', (tester) async {
+    final handle = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await pumpPage(
+      tester,
+      scenario: FakeIamScenario.memberDeactivateOk,
+    );
+
+    await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+    await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+
+    handle.dispose();
+  });
 }

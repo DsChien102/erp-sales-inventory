@@ -76,12 +76,15 @@ class _AuditLogFilterBottomSheetState extends State<AuditLogFilterBottomSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          VText(
-            'Bộ lọc nhật ký nền tảng',
-            variant: VTextVariant.headingH3,
-            style: TextStyle(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w700,
+          Semantics(
+            header: true,
+            child: VText(
+              'Bộ lọc nhật ký nền tảng',
+              variant: VTextVariant.headingH3,
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           const VGap.md(),

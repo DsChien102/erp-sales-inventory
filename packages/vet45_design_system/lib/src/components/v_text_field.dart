@@ -42,6 +42,7 @@ class VTextField extends StatefulWidget {
   final bool? enabled;
   final bool obscureText;
   final TextInputType? keyboardType;
+  final Iterable<String>? autofillHints;
   final ValueChanged<String>? onChanged;
   @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
@@ -50,6 +51,7 @@ class VTextField extends StatefulWidget {
   final TextAlign textAlign;
   final bool autofocus;
   final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
 
   /// When false, field has no outline ([InputBorder.none]). Default true.
@@ -81,13 +83,16 @@ class VTextField extends StatefulWidget {
     this.enabled,
     this.obscureText = false,
     this.keyboardType,
+    this.autofillHints,
     this.onChanged,
-    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
+    this.isRequired = false,
     this.inputFormatters,
     this.textStyle,
     this.textAlign = TextAlign.start,
     this.autofocus = false,
     this.focusNode,
+    this.textInputAction,
     this.onSubmitted,
     this.border = true,
     this.isDense = false,
@@ -145,7 +150,10 @@ class _VTextFieldState extends State<VTextField> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
+    final isEnabled = VComponentScope.resolveEnabled(
+      context,
+      local: widget.enabled,
+    );
     // ignore: deprecated_member_use_from_same_package
     final legacyError = widget.errorText;
     // ignore: deprecated_member_use_from_same_package
@@ -180,11 +188,13 @@ class _VTextFieldState extends State<VTextField> {
       enabled: widget.enabled,
       obscureText: widget.obscureText,
       keyboardType: widget.keyboardType,
+      autofillHints: widget.autofillHints,
       onChanged: widget.onChanged,
       inputFormatters: widget.inputFormatters,
       textStyle: widget.textStyle,
       textAlign: widget.textAlign,
       autofocus: widget.autofocus,
+      textInputAction: widget.textInputAction,
       onSubmitted: widget.onSubmitted,
       border: widget.border,
       padding: widget.isDense ? VInput.densePadding : VInput.defaultPadding,
@@ -201,7 +211,10 @@ class _VTextFieldState extends State<VTextField> {
     );
 
     final useShell =
-        legacyLabel != null || legacyHelper != null || legacyError != null || legacyRequired;
+        legacyLabel != null ||
+        legacyHelper != null ||
+        legacyError != null ||
+        legacyRequired;
 
     final body = useShell
         ? vFieldShell(
@@ -217,7 +230,11 @@ class _VTextFieldState extends State<VTextField> {
       Semantics(
         textField: true,
         enabled: isEnabled,
-        label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Text field',
+        label:
+            widget.semanticLabel ??
+            legacyLabel ??
+            widget.hintText ??
+            'Text field',
         child: vDisabledOpacity(enabled: isEnabled, child: body),
       ),
     );

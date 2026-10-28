@@ -1,5 +1,6 @@
 // harness:allow-design-system-bypass — login shell không dùng VAppBar (branded form, không phải page ERP chuẩn)
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -83,6 +84,7 @@ class _LoginViewState extends State<_LoginView> {
 
   String? _emailError;
   String? _passwordError;
+  String? _formError;
 
   /// Giữ bề ngang trong khoảng breakpoint mobile trên mọi thiết bị.
   static const _mobileLayoutWidth = VResponsiveValue<double>(
@@ -137,6 +139,7 @@ class _LoginViewState extends State<_LoginView> {
     final loginCubit = context.read<LoginCubit>();
     if (loginCubit.state.isSubmitting) return;
     if (!_validateFields()) return;
+    setState(() => _formError = null);
     loginCubit.submit(
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -149,12 +152,6 @@ class _LoginViewState extends State<_LoginView> {
       setState(() {
         _emailError = 'Vui lòng nhập email trước khi đặt lại mật khẩu';
       });
-      VToast.show(
-        context,
-        title: 'Chưa nhập email',
-        message: 'Vui lòng nhập email để đặt lại mật khẩu.',
-        type: VToastType.danger,
-      );
       return;
     }
 
@@ -205,17 +202,14 @@ class _LoginViewState extends State<_LoginView> {
             setState(() {
               _emailError = failure.message;
               _passwordError = null;
+              _formError = null;
             });
             return;
           }
-          VToast.show(
-            context,
-            title: 'Đăng nhập thất bại',
-            message: failure.message,
-            type: VToastType.danger,
-          );
+          setState(() => _formError = failure.message);
         }
         if (state.status == LoginStatus.success && state.session?.isAuthenticated == true) {
+          TextInput.finishAutofillContext();
           context.go('/');
         }
       },
@@ -242,35 +236,25 @@ class _LoginViewState extends State<_LoginView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const VGap.xxl(),
-                          Container(
-                            width: 80,
-                            height: 80,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  dynamicColors.primary,
-                                  dynamicColors.primaryFocus,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(VRadius.r12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: dynamicColors.surfaceBrand,
-                                  blurRadius: 18,
-                                  offset: const Offset(0, 10),
+                          ExcludeSemantics(
+                            child: Container(
+                              width: 80,
+                              height: 80,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: dynamicColors.primary,
+                                borderRadius: BorderRadius.circular(
+                                  VRadius.r12,
                                 ),
-                              ],
-                            ),
-                            child: VText(
-                              'V45',
-                              variant: VTextVariant.headingH3,
-                              color: dynamicColors.surface,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 0,
+                              ),
+                              child: VText(
+                                'V45',
+                                variant: VTextVariant.headingH3,
+                                color: dynamicColors.surface,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0,
+                                ),
                               ),
                             ),
                           ),
@@ -307,46 +291,76 @@ class _LoginViewState extends State<_LoginView> {
                             ),
                             const VGap.lg(),
                           ],
-                          VField(
-                            invalid: _emailError != null,
+                          AutofillGroup(
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                const VFieldLabel('Email'),
-                                VEmailField(
-                                  controller: _emailController,
-                                  hintText: 'Nhập email',
-                                  validateOnChanged: false,
-                                  onChanged: (_) {
-                                    if (_emailError != null) {
-                                      setState(() => _emailError = null);
-                                    }
-                                  },
+                                VField(
+                                  invalid: _emailError != null,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const VFieldLabel('Email'),
+                                      VEmailField(
+                                        controller: _emailController,
+                                        hintText: 'Nhập email',
+                                        validateOnChanged: false,
+                                        autofillHints: const [
+                                          AutofillHints.username,
+                                          AutofillHints.email,
+                                        ],
+                                        textInputAction: TextInputAction.next,
+                                        onChanged: (_) {
+                                          if (_emailError != null || _formError != null) {
+                                            setState(() {
+                                              _emailError = null;
+                                              _formError = null;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                      if (_emailError != null) VFieldError(_emailError!),
+                                    ],
+                                  ),
                                 ),
-                                if (_emailError != null) VFieldError(_emailError!),
-                              ],
-                            ),
-                          ),
-                          const VGap.md(),
-                          VField(
-                            invalid: _passwordError != null,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const VFieldLabel('Mật khẩu'),
-                                VPasswordField(
-                                  controller: _passwordController,
-                                  hintText: 'Nhập mật khẩu',
-                                  minLength: 1,
-                                  validateOnChanged: false,
-                                  onChanged: (_) {
-                                    if (_passwordError != null) {
-                                      setState(() => _passwordError = null);
-                                    }
-                                  },
-                                  onSubmitted: (_) => _submit(),
+                                const VGap.md(),
+                                VField(
+                                  invalid: _passwordError != null,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const VFieldLabel('Mật khẩu'),
+                                      VPasswordField(
+                                        controller: _passwordController,
+                                        hintText: 'Nhập mật khẩu',
+                                        minLength: 1,
+                                        validateOnChanged: false,
+                                        autofillHints: const [
+                                          AutofillHints.password,
+                                        ],
+                                        textInputAction: TextInputAction.done,
+                                        onChanged: (_) {
+                                          if (_passwordError != null || _formError != null) {
+                                            setState(() {
+                                              _passwordError = null;
+                                              _formError = null;
+                                            });
+                                          }
+                                        },
+                                        onSubmitted: (_) => _submit(),
+                                      ),
+                                      if (_passwordError != null) VFieldError(_passwordError!),
+                                    ],
+                                  ),
                                 ),
-                                if (_passwordError != null) VFieldError(_passwordError!),
+                                if (_formError != null) ...[
+                                  const VGap.md(),
+                                  VBanner(
+                                    status: VBannerStatus.error,
+                                    title: 'Đăng nhập thất bại',
+                                    description: _formError!,
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -384,7 +398,7 @@ class _LoginViewState extends State<_LoginView> {
                           VButton(
                             label: 'Kích hoạt tài khoản',
                             variant: VButtonVariant.link,
-                            onPressed: () => context.push('/invitation'),
+                            onPressed: isSubmitting ? null : () => context.push('/invitation'),
                           ),
                           const Spacer(),
                           Padding(

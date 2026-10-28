@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../../support/fake_iam_backend.dart';
@@ -293,4 +294,160 @@ void main() {
       await cubit.close();
     },
   );
+
+  testWidgets('invite button presence depends on canInvite', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = FakeIamBackend(scenario: FakeIamScenario.membersSearchOk);
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(module),
+      invitations: FakeInvitationRepository(module),
+      searchDebounce: Duration.zero,
+    );
+
+    // canInvite: true
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: OrganizationUsersPage(cubit: cubit, canInvite: true),
+      ),
+    );
+    await cubit.loadInitial();
+    await tester.pumpAndSettle();
+
+    final inviteButton = find.byKey(const Key('users_invite'));
+    expect(inviteButton, findsOneWidget);
+    expect(tester.widget<IconButton>(inviteButton).tooltip, 'Mời thành viên');
+
+    // Switch to invitations tab
+    await tester.tap(find.text('Lời mời'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('users_invite')), findsOneWidget);
+    await cubit.close();
+
+    // canInvite: false
+    final cubit2 = OrganizationUsersCubit(
+      members: FakeMemberRepository(module),
+      invitations: FakeInvitationRepository(module),
+      searchDebounce: Duration.zero,
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: OrganizationUsersPage(cubit: cubit2, canInvite: false),
+      ),
+    );
+    await cubit2.loadInitial();
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('users_invite')), findsNothing);
+    expect(find.widgetWithText(VButton, 'Mời thành viên'), findsNothing);
+    await cubit2.close();
+  });
+
+  testWidgets('tab and chip semantics show isSelected', (tester) async {
+    final handle = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = FakeIamBackend(scenario: FakeIamScenario.membersSearchOk);
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(module),
+      invitations: FakeInvitationRepository(module),
+      searchDebounce: Duration.zero,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: OrganizationUsersPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadInitial();
+    await tester.pumpAndSettle();
+
+    // Tab "Thành viên" is selected by default
+    final memberTabNode = tester.getSemantics(find.text('Thành viên'));
+    expect(memberTabNode.hasFlag(SemanticsFlag.isSelected), isTrue);
+
+    // Tap "Hoạt động" chip
+    await tester.tap(find.widgetWithText(VChip, 'Hoạt động'));
+    await tester.pumpAndSettle();
+
+    final activeChipNode = tester.getSemantics(find.widgetWithText(VChip, 'Hoạt động'));
+    expect(activeChipNode.hasFlag(SemanticsFlag.isSelected), isTrue);
+
+    await cubit.close();
+    handle.dispose();
+  });
+
+  testWidgets('filter button tooltip changes to (đang áp dụng) when filter is active', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = FakeIamBackend(scenario: FakeIamScenario.membersSearchOk);
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(module),
+      invitations: FakeInvitationRepository(module),
+      searchDebounce: Duration.zero,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: OrganizationUsersPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadInitial();
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('Bộ lọc'), findsOneWidget);
+    expect(find.byTooltip('Bộ lọc (đang áp dụng)'), findsNothing);
+
+    // Tap "Hoạt động" chip to apply filter
+    await tester.tap(find.widgetWithText(VChip, 'Hoạt động'));
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('Bộ lọc'), findsNothing);
+    expect(find.byTooltip('Bộ lọc (đang áp dụng)'), findsOneWidget);
+
+    await cubit.close();
+  });
+
+  testWidgets('accessibility guidelines: tap target size and labeled tap target', (tester) async {
+    final handle = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = FakeIamBackend(scenario: FakeIamScenario.membersSearchOk);
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(module),
+      invitations: FakeInvitationRepository(module),
+      searchDebounce: Duration.zero,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: OrganizationUsersPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadInitial();
+    await tester.pumpAndSettle();
+
+    await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+    await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+
+    await cubit.close();
+    handle.dispose();
+  });
 }

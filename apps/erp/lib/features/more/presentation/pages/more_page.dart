@@ -4,10 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/errors/app_exception.dart';
 import '../../../../core/session/session_controller.dart';
 import '../bloc/iam_feature_access_cubit.dart';
 import '../bloc/iam_feature_access_state.dart';
+import '../more_entries.dart';
+import '../more_logout.dart';
 
 class MorePage extends StatelessWidget {
   const MorePage({
@@ -21,62 +22,33 @@ class MorePage extends StatelessWidget {
   final IamFeatureAccessCubit? accessCubit;
   final bool tenantBlocked;
 
-  Future<void> _logout(BuildContext context) async {
-    try {
-      final result = await getIt<SessionController>().signOut();
-      if (!context.mounted) return;
-      if (!result.localCleared) {
-        VToast.show(
-          context,
-          title: 'Đăng xuất thất bại',
-          message: 'Không thể đóng phiên trên máy.',
-          type: VToastType.danger,
-        );
-        return;
-      }
-      if (!result.remoteSucceeded) {
-        VToast.show(
-          context,
-          title: 'Cảnh báo',
-          message: 'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
-          type: VToastType.warning,
-        );
-      }
-      context.go('/login');
-    } on AppException catch (error) {
-      if (!context.mounted) return;
-      VToast.show(
-        context,
-        title: 'Đăng xuất thất bại',
-        message: error.userMessage(),
-        type: VToastType.danger,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (accessCubit != null) {
       return BlocProvider.value(
         value: accessCubit!,
         child: _MoreView(
-          onLogout: _logout,
+          onLogout: signOutAndGoToLogin,
           tenantBlocked: tenantBlocked,
         ),
       );
     }
 
     return BlocProvider(
-      create: (_) {
+      create: (ctx) {
+        final resolvedSession = session ??
+            (getIt.isRegistered<SessionController>()
+                ? getIt<SessionController>()
+                : ctx.read<SessionController>());
         final cubit = IamFeatureAccessCubit(
-          session: session ?? getIt<SessionController>(),
+          session: resolvedSession,
         );
         // Tổ chức bị chặn: mọi RPC theo tổ chức đều bị từ chối → không gọi.
         if (!tenantBlocked) cubit.load();
         return cubit;
       },
       child: _MoreView(
-        onLogout: _logout,
+        onLogout: signOutAndGoToLogin,
         tenantBlocked: tenantBlocked,
       ),
     );
@@ -97,64 +69,22 @@ class _MoreView extends StatelessWidget {
     return BlocBuilder<IamFeatureAccessCubit, IamFeatureAccessState>(
       builder: (context, access) {
         final blocked = tenantBlocked;
+        final isOwner = access.canOpenIamHub;
         final menuItems = <Widget>[
-          const _MoreMenuItem(
-            icon: VIcons.people,
-            title: 'Khách hàng & NCC',
-            subtitle: 'Quản lý khách hàng & nhà cung cấp',
-            enabled: false,
-          ),
-          const _MoreMenuItem(
-            icon: VIcons.download,
-            title: 'Đơn nhập',
-            subtitle: 'Nhập kho từ nhà cung cấp',
-            enabled: false,
-          ),
-          _MoreMenuItem(
-            icon: VIcons.warehouse,
-            title: 'Kho',
-            subtitle: 'Tồn kho, phiếu nhập, điều chỉnh',
-            enabled: !blocked,
-            onTap: blocked ? null : () => context.push('/inventory'),
-          ),
-          const _MoreMenuItem(
-            icon: VIcons.chart,
-            title: 'Báo cáo',
-            subtitle: 'Doanh thu, tồn kho, công nợ',
-            enabled: false,
-          ),
-          _MoreMenuItem(
-            icon: VIcons.tag,
-            title: 'Giá riêng / Nhớ giá',
-            subtitle: 'Giá riêng theo khách hàng & nhớ giá bán',
-            onTap: blocked ? null : () => context.push('/pricing'),
-          ),
-          if (access.canOpenIamHub || blocked)
-            _MoreMenuItem(
-              icon: VIcons.people,
-              title: 'Người dùng & vai trò',
-              subtitle: 'Quản lý thành viên và quyền truy cập',
-              onTap: blocked ? null : () => context.push('/more/users-and-roles'),
-            ),
-          _MoreMenuItem(
-            icon: VIcons.person,
-            title: 'Tài khoản của tôi',
-            subtitle: 'Xem và chỉnh sửa thông tin cá nhân',
-            onTap: () => context.push('/more/my-account'),
-          ),
-          _MoreMenuItem(
-            icon: VIcons.settings,
-            title: 'Thiết lập',
-            subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',
-            onTap: blocked ? null : () => context.push('/more/settings'),
-          ),
-          _MoreMenuItem(
-            icon: VIcons.logout,
-            title: 'Đăng xuất',
-            subtitle: 'Thoát khỏi tài khoản hiện tại',
-            isDestructive: true,
-            onTap: () => onLogout(context),
-          ),
+          for (final entry in kMoreEntries)
+            if (entry.isVisible(isOwner: isOwner, isBlocked: blocked))
+              _MoreMenuItem(
+                icon: entry.icon,
+                title: entry.title,
+                subtitle: entry.subtitle,
+                enabled: entry.enabled && (!entry.needsActiveTenant || !blocked),
+                isDestructive: entry.isDestructive,
+                onTap: entry.isDestructive
+                    ? () => onLogout(context)
+                    : (entry.isInteractive(isBlocked: blocked)
+                        ? () => context.push(entry.route!)
+                        : null),
+              ),
         ];
 
         return ListView.separated(

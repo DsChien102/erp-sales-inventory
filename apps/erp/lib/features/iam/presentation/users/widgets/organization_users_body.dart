@@ -13,11 +13,13 @@ import 'member_list_section.dart';
 class OrganizationUsersBody extends StatefulWidget {
   const OrganizationUsersBody({
     super.key,
+    required this.canInvite,
     required this.onMemberTap,
     required this.onInvitationTap,
     required this.onInviteTap,
   });
 
+  final bool canInvite;
   final ValueChanged<MemberUiModel> onMemberTap;
   final ValueChanged<InvitationUiModel> onInvitationTap;
   final VoidCallback onInviteTap;
@@ -83,8 +85,7 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
         isScrollControlled: true,
         backgroundColor: context.vColors.surface,
         shape: const RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
         ),
         builder: (_) => MemberFilterBottomSheet(
           initialCriteria: currentCriteria,
@@ -110,23 +111,16 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
         isScrollControlled: true,
         backgroundColor: context.vColors.surface,
         shape: const RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
         ),
         builder: (_) => InvitationFilterBottomSheet(
           initialCriteria: currentCriteria,
           onApply: (criteria) {
             cubit.applyInvitationCriteria(
               status: _invitationChipToWire(criteria.status),
-              sendResult: criteria.sendResult == 'Tất cả'
-                  ? null
-                  : criteria.sendResult,
-              timeRange: criteria.timeRange == 'Tất cả'
-                  ? null
-                  : criteria.timeRange,
-              customDateRange: criteria.timeRange == 'Tùy chọn'
-                  ? criteria.customDateRange
-                  : null,
+              sendResult: criteria.sendResult == 'Tất cả' ? null : criteria.sendResult,
+              timeRange: criteria.timeRange == 'Tất cả' ? null : criteria.timeRange,
+              customDateRange: criteria.timeRange == 'Tùy chọn' ? criteria.customDateRange : null,
             );
           },
         ),
@@ -180,13 +174,12 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
             : _invitationWireToChip(state.invitationFilter);
         final isFilterActive = isMemberTab
             ? (state.memberFilter != null ||
-                (state.memberRoleFilter != null &&
-                    state.memberRoleFilter != 'Tất cả') ||
-                (state.memberSort != null && state.memberSort != 'Tất cả'))
+                  (state.memberRoleFilter != null && state.memberRoleFilter != 'Tất cả') ||
+                  (state.memberSort != null && state.memberSort != 'Tất cả'))
             : (state.invitationFilter != null ||
-                state.invitationSendResultFilter != null ||
-                state.invitationTimeRangeFilter != null ||
-                state.invitationCustomDateRange != null);
+                  state.invitationSendResultFilter != null ||
+                  state.invitationTimeRangeFilter != null ||
+                  state.invitationCustomDateRange != null);
 
         return GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -211,62 +204,55 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                           ),
                         ),
                         const VGap.horizontalSm(),
-                        Container(
-                          height: 44,
-                          width: 44,
-                          decoration: BoxDecoration(
-                            color: isFilterActive
-                                ? colors.primary.withValues(alpha: 0.1)
-                                : colors.surface,
-                            border: Border.all(
-                              color: isFilterActive
-                                  ? colors.primary
-                                  : colors.borderDefault,
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            IconButton(
+                              tooltip: isFilterActive ? 'Bộ lọc (đang áp dụng)' : 'Bộ lọc',
+                              icon: VIcon(
+                                icon: VIcons.tune,
+                                size: 20,
+                                color: colors.textPrimary,
+                              ),
+                              onPressed: () => _openFilterBottomSheet(context),
                             ),
-                            borderRadius: BorderRadius.circular(VRadius.button),
-                          ),
-                          child: IconButton(
-                            icon: VIcon(
-                              icon: VIcons.tune,
-                              size: 20,
-                              color: isFilterActive
-                                  ? colors.primary
-                                  : colors.textPrimary,
-                            ),
-                            onPressed: () => _openFilterBottomSheet(context),
-                          ),
+                            if (isFilterActive)
+                              Positioned(
+                                top: 6,
+                                right: 6,
+                                child: ExcludeSemantics(
+                                  child: Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: colors.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  Container(
-                    color: colors.surface,
-                    child: Row(
+                  VTabs(
+                    key: const Key('users_tabs'),
+                    selectedIndex: isMemberTab ? 0 : 1,
+                    semanticLabel: 'Người dùng',
+                    onTabSelected: (index) {
+                      final tab = index == 0
+                          ? OrganizationUsersTab.members
+                          : OrganizationUsersTab.invitations;
+                      context.read<OrganizationUsersCubit>().selectTab(tab);
+                      _searchController.text = index == 0
+                          ? state.memberSearch
+                          : state.invitationSearch;
+                    },
+                    child: const VTabsList(
                       children: [
-                        Expanded(
-                          child: _TabButton(
-                            label: 'Thành viên',
-                            isActive: isMemberTab,
-                            onTap: () {
-                              context
-                                  .read<OrganizationUsersCubit>()
-                                  .selectTab(OrganizationUsersTab.members);
-                              _searchController.text = state.memberSearch;
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: _TabButton(
-                            label: 'Lời mời',
-                            isActive: !isMemberTab,
-                            onTap: () {
-                              context
-                                  .read<OrganizationUsersCubit>()
-                                  .selectTab(OrganizationUsersTab.invitations);
-                              _searchController.text = state.invitationSearch;
-                            },
-                          ),
-                        ),
+                        VTabsTrigger(label: 'Thành viên'),
+                        VTabsTrigger(label: 'Lời mời'),
                       ],
                     ),
                   ),
@@ -285,15 +271,14 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                                 'Tạm ngừng',
                               ]) ...[
                                 if (label != 'Tất cả') const VGap.horizontalSm(),
-                                _FilterChip(
+                                VChip(
                                   label: label,
-                                  selected: selectedChip == label,
-                                  onSelected: () {
-                                    context
-                                        .read<OrganizationUsersCubit>()
-                                        .setMemberFilter(
-                                          _memberChipToWire(label),
-                                        );
+                                  tone: selectedChip == label ? VComponentTone.primary : null,
+                                  isSelected: selectedChip == label,
+                                  onTap: () {
+                                    context.read<OrganizationUsersCubit>().setMemberFilter(
+                                      _memberChipToWire(label),
+                                    );
                                   },
                                 ),
                               ],
@@ -305,15 +290,14 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                                 'Hết hạn',
                               ]) ...[
                                 if (label != 'Tất cả') const VGap.horizontalSm(),
-                                _FilterChip(
+                                VChip(
                                   label: label,
-                                  selected: selectedChip == label,
-                                  onSelected: () {
-                                    context
-                                        .read<OrganizationUsersCubit>()
-                                        .setInvitationFilter(
-                                          _invitationChipToWire(label),
-                                        );
+                                  tone: selectedChip == label ? VComponentTone.primary : null,
+                                  isSelected: selectedChip == label,
+                                  onTap: () {
+                                    context.read<OrganizationUsersCubit>().setInvitationFilter(
+                                      _invitationChipToWire(label),
+                                    );
                                   },
                                 ),
                               ],
@@ -323,11 +307,13 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                   Expanded(
                     child: isMemberTab
                         ? MemberListSection(
+                            canInvite: widget.canInvite,
                             onMemberTap: widget.onMemberTap,
                             onInviteTap: widget.onInviteTap,
                             onClearFilters: _clearFilters,
                           )
                         : InvitationListSection(
+                            canInvite: widget.canInvite,
                             onInvitationTap: widget.onInvitationTap,
                             onInviteTap: widget.onInviteTap,
                             onClearFilters: _clearFilters,
@@ -335,101 +321,10 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                   ),
                 ],
               ),
-              if (!isMemberTab)
-                Positioned(
-                  right: VSpacing.screenMobile,
-                  bottom:
-                      MediaQuery.of(context).padding.bottom + VSpacing.space4,
-                  child: Material(
-                    color: Colors.transparent,
-                    elevation: 4,
-                    shape: const CircleBorder(),
-                    child: InkWell(
-                      onTap: widget.onInviteTap,
-                      customBorder: const CircleBorder(),
-                      child: Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: colors.success,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: VIcon(
-                            icon: VIcons.add,
-                            size: 26,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
             ],
           ),
         );
       },
-    );
-  }
-}
-
-class _TabButton extends StatelessWidget {
-  const _TabButton({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.vColors;
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: VSpacing.space3),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isActive ? colors.primary : Colors.transparent,
-              width: 2,
-            ),
-          ),
-        ),
-        child: VText(
-          label,
-          variant: VTextVariant.bodyDefault,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-            color: isActive ? colors.primary : colors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return VChip(
-      label: label,
-      tone: selected ? VComponentTone.primary : null,
-      onTap: onSelected,
     );
   }
 }

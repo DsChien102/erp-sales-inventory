@@ -29,19 +29,23 @@ class VPasswordField extends StatefulWidget {
     this.suffixIconConstraints,
     this.suffixText,
     this.enabled,
+    this.autofillHints = const [AutofillHints.password],
     this.onChanged,
-    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
+    this.isRequired = false,
     this.inputFormatters,
     this.textStyle,
     this.textAlign = TextAlign.start,
     this.autofocus = false,
     this.focusNode,
+    this.textInputAction,
     this.onSubmitted,
     this.border = true,
     this.debounceDuration = VDuration.normal,
     this.validateOnChanged = true,
     this.initiallyObscured = true,
-    this.requiredPasswordMessage = VPasswordValidator.defaultRequiredPasswordMessage,
+    this.requiredPasswordMessage =
+        VPasswordValidator.defaultRequiredPasswordMessage,
     this.minLength = VPasswordValidator.defaultMinLength,
     this.maxLength = VPasswordValidator.defaultMaxLength,
     this.minLengthPasswordMessage,
@@ -67,6 +71,7 @@ class VPasswordField extends StatefulWidget {
   final BoxConstraints? suffixIconConstraints;
   final String? suffixText;
   final bool? enabled;
+  final Iterable<String>? autofillHints;
   final ValueChanged<String>? onChanged;
   @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
@@ -75,6 +80,7 @@ class VPasswordField extends StatefulWidget {
   final TextAlign textAlign;
   final bool autofocus;
   final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
   final bool border;
   final Duration debounceDuration;
@@ -85,6 +91,7 @@ class VPasswordField extends StatefulWidget {
   final int maxLength;
   final String? minLengthPasswordMessage;
   final String? maxLengthPasswordMessage;
+
   /// Local invalid override. Null inherits [VField.invalid].
   final bool? invalid;
   final VComponentTone tone;
@@ -139,7 +146,10 @@ class _VPasswordFieldState extends State<VPasswordField> {
 
   Widget? get _resolvedSuffixIcon {
     if (widget.suffixIcon != null) return vInspectorShow(widget.suffixIcon!);
-    final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
+    final isEnabled = VComponentScope.resolveEnabled(
+      context,
+      local: widget.enabled,
+    );
     return IconButton(
       onPressed: isEnabled ? _toggleObscured : null,
       icon: VIcon(
@@ -167,14 +177,16 @@ class _VPasswordFieldState extends State<VPasswordField> {
         helperText: widget.helperText,
         // ignore: deprecated_member_use_from_same_package
         errorText: widget.errorText ?? _internalError,
-        prefixIcon:
-            widget.prefixIcon != null ? vInspectorShow(widget.prefixIcon!) : null,
+        prefixIcon: widget.prefixIcon != null
+            ? vInspectorShow(widget.prefixIcon!)
+            : null,
         suffixIcon: _resolvedSuffixIcon,
         suffixIconConstraints: widget.suffixIconConstraints,
         suffixText: widget.suffixText,
         enabled: widget.enabled,
         obscureText: _obscured,
         keyboardType: TextInputType.visiblePassword,
+        autofillHints: widget.autofillHints,
         onChanged: _handleChanged,
         // ignore: deprecated_member_use_from_same_package
         isRequired: widget.isRequired,
@@ -186,6 +198,7 @@ class _VPasswordFieldState extends State<VPasswordField> {
         textAlign: widget.textAlign,
         autofocus: widget.autofocus,
         focusNode: widget.focusNode,
+        textInputAction: widget.textInputAction,
         onSubmitted: widget.onSubmitted,
         border: widget.border,
         invalid: widget.invalid,

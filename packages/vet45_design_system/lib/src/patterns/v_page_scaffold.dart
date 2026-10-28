@@ -12,7 +12,7 @@ import 'v_responsive.dart';
 ///
 /// Phone first: below the tablet breakpoint the body and bottom bar run
 /// edge to edge, exactly as before. From the tablet breakpoint up they sit in a
-/// centered single column ([defaultContentMaxWidth]) so a counter tablet does
+/// centered single column ([defaultContentMaxWidth]) so a wide window does
 /// not get a stretched phone page; the app bar and the page background still
 /// span the window. The column's gutter, not [VPagePadding], is what changes
 /// with width: the inset inside the column stays [VSpacing.screenMobile].
@@ -37,7 +37,7 @@ class VPageScaffold extends StatelessWidget {
   });
 
   /// Single-column task pages: full width on phones, 640 on tablet, 720 on
-  /// desktop-width windows (landscape counter tablets, web).
+  /// desktop-width windows (cửa sổ rộng, web trên máy tính).
   static const VResponsiveValue<double> defaultContentMaxWidth = VResponsiveValue(
     mobile: double.infinity,
     tablet: 640,

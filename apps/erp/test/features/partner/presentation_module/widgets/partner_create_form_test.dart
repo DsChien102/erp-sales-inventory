@@ -228,7 +228,9 @@ void main() {
     expect(personCubit.state.personTitle, 'Giáo sư');
   });
 
-  testWidgets('person phone fields reject invalid characters and accept digits with spaces', (tester) async {
+  testWidgets('person phone fields reject invalid characters and accept digits with spaces', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildForm(type: PartnerType.person));
     await tester.tap(find.byKey(const Key('role_customer')));
     await tester.tap(find.byKey(const Key('btn_next')));
@@ -251,52 +253,58 @@ void main() {
     );
     await tester.pump();
 
-    final nextState = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>().state;
+    final nextState = tester
+        .element(find.byType(PartnerCreateForm))
+        .read<PartnerCreateCubit>()
+        .state;
     expect(nextState.phone, '090 123 4567');
     expect(nextState.secondaryPhone, '088 345 6789');
   });
 
-  testWidgets('organization and contact phone fields reject invalid characters and accept digits with spaces', (
-    tester,
-  ) async {
-    await tester.pumpWidget(buildForm(type: PartnerType.organization));
-    await tester.tap(find.byKey(const Key('role_customer')));
-    await tester.tap(find.byKey(const Key('btn_next')));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'organization and contact phone fields reject invalid characters and accept digits with spaces',
+    (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildForm(type: PartnerType.organization));
+      await tester.tap(find.byKey(const Key('role_customer')));
+      await tester.tap(find.byKey(const Key('btn_next')));
+      await tester.pumpAndSettle();
 
-    // Invalid characters are rejected entirely by VPhoneField formatter
-    await tester.enterText(find.byKey(const Key('input_phone')), '02a8-12');
-    final cubit = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>();
-    expect(cubit.state.phone, '');
+      // Invalid characters are rejected entirely by VPhoneField formatter
+      await tester.enterText(find.byKey(const Key('input_phone')), '02a8-12');
+      final cubit = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>();
+      expect(cubit.state.phone, '');
 
-    await tester.enterText(find.byKey(const Key('input_phone')), '028 123 4567');
+      await tester.enterText(find.byKey(const Key('input_phone')), '028 123 4567');
 
-    cubit.setPrimaryContactEnabled(true);
-    cubit.setActiveSection(PartnerCreateSection.primaryContact);
-    await tester.pump();
-    await tester.enterText(
-      find.byKey(const Key('input_primary_contact_phone')),
-      '09a0 12',
-    );
-    expect(cubit.state.primaryContactPhone, '');
+      cubit.setPrimaryContactEnabled(true);
+      cubit.setActiveSection(PartnerCreateSection.primaryContact);
+      await tester.pump();
+      await tester.enterText(
+        find.byKey(const Key('input_primary_contact_phone')),
+        '09a0 12',
+      );
+      expect(cubit.state.primaryContactPhone, '');
 
-    await tester.enterText(
-      find.byKey(const Key('input_primary_contact_phone')),
-      '090 123 4567',
-    );
-    await tester.enterText(
-      find.byKey(const Key('input_primary_contact_secondary_phone')),
-      '088 345 6789',
-    );
-    await tester.pump();
+      await tester.enterText(
+        find.byKey(const Key('input_primary_contact_phone')),
+        '090 123 4567',
+      );
+      await tester.enterText(
+        find.byKey(const Key('input_primary_contact_secondary_phone')),
+        '088 345 6789',
+      );
+      await tester.pump();
 
-    final state = cubit.state;
-    expect(state.phone, '028 123 4567');
-    expect(state.primaryContactPhone, '090 123 4567');
-    expect(state.primaryContactSecondaryPhone, '088 345 6789');
-  });
+      final state = cubit.state;
+      expect(state.phone, '028 123 4567');
+      expect(state.primaryContactPhone, '090 123 4567');
+      expect(state.primaryContactSecondaryPhone, '088 345 6789');
+    },
+  );
 
-  testWidgets('tax code accepts digits and dash only', (tester) async {
+  testWidgets('tax code keeps digits only and adds the branch dash', (tester) async {
     await tester.pumpWidget(buildForm(type: PartnerType.organization));
     final cubit = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>();
     cubit.setActiveSection(PartnerCreateSection.invoice);
@@ -308,7 +316,15 @@ void main() {
     );
     await tester.pump();
 
-    expect(cubit.state.taxCode, '01012-3456');
+    expect(cubit.state.taxCode, '010123456');
+
+    await tester.enterText(
+      find.byKey(const Key('input_tax_code')),
+      '0123456789001',
+    );
+    await tester.pump();
+
+    expect(cubit.state.taxCode, '0123456789-001');
   });
 
   testWidgets('wgt_e01_u02_fr04_01: invalid submit opens inline errors', (

@@ -76,6 +76,7 @@ export 'src/components/v_combobox_content.dart';
 export 'src/components/v_combobox_list.dart';
 export 'src/components/v_combobox_item.dart';
 export 'src/components/v_bottom_navigation_bar.dart';
+export 'src/components/v_side_navigation.dart';
 export 'src/components/v_modal.dart';
 export 'src/components/v_bottom_sheet.dart';
 export 'src/components/v_app_bar.dart';

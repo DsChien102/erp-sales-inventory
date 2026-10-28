@@ -111,6 +111,7 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
           () async {
             final confirmed = await showInvitationConfirmBottomSheet(
               context: context,
+              inspection: inspection,
             );
             if (!context.mounted) return;
             if (confirmed == true) {
@@ -128,12 +129,8 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
 
         final failure = state.failure;
         if (failure == null) return;
-        // Inspect-time failures keep the user on the entry screen and surface
-        // a code-specific toast so they can fix and re-enter the code.
+        // Inspect-time failures stay on the entry screen and render inline.
         if (state.step == InvitationAcceptanceStep.tokenEntry) {
-          final (message, type) = _entryFailureToast(failure.code);
-          VToast.show(context, title: message, message: '', type: type);
-          context.read<InvitationAcceptanceCubit>().clearFeedback();
           return;
         }
         // Never toast raw token / password — mapper messages only.
@@ -190,30 +187,15 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
     }
   }
 
-  /// Code → (toast message, tone) for inspect-time failures on the entry
-  /// screen. Wording mirrors the activation-code design.
-  static (String, VToastType) _entryFailureToast(String code) {
+  /// Code → inline message for inspect-time failures on the entry screen.
+  static String _entryFailureMessage(String code) {
     return switch (code) {
-      IamBlockedCodes.invitationTokenInvalid => (
-        'Mã lời mời không hợp lệ. Kiểm tra và nhập lại.',
-        VToastType.danger,
-      ),
-      IamBlockedCodes.invitationExpired => (
+      IamBlockedCodes.invitationTokenInvalid => 'Mã lời mời không hợp lệ. Kiểm tra và nhập lại.',
+      IamBlockedCodes.invitationExpired =>
         'Mã lời mời đã hết hạn. Liên hệ người gửi để nhận mã mới.',
-        VToastType.warning,
-      ),
-      IamBlockedCodes.invitationRevoked => (
-        'Lời mời đã bị thu hồi và không thể tiếp nhận.',
-        VToastType.warning,
-      ),
-      IamBlockedCodes.invitationAlreadyUsed => (
-        'Lời mời đã được sử dụng và không thể tiếp nhận.',
-        VToastType.warning,
-      ),
-      _ => (
-        'Không thể xác thực mã. Kiểm tra kết nối và thử lại.',
-        VToastType.danger,
-      ),
+      IamBlockedCodes.invitationRevoked => 'Lời mời đã bị thu hồi và không thể tiếp nhận.',
+      IamBlockedCodes.invitationAlreadyUsed => 'Lời mời đã được sử dụng và không thể tiếp nhận.',
+      _ => 'Không thể xác thực mã. Kiểm tra kết nối và thử lại.',
     };
   }
 
@@ -234,12 +216,17 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
         return InvitationTokenEntryForm(
           isSubmitting: state.step == InvitationAcceptanceStep.inspecting || state.isSubmitting,
           onInspect: cubit.inspect,
+          errorMessage: state.step == InvitationAcceptanceStep.tokenEntry && state.failure != null
+              ? _entryFailureMessage(state.failure!.code)
+              : null,
+          onEditing: state.failure == null ? null : cubit.clearFeedback,
         );
       case InvitationAcceptanceStep.newAccountRegistration:
         if (!_confirmedNewAccount) {
           return InvitationTokenEntryForm(
             isSubmitting: state.isSubmitting,
             onInspect: cubit.inspect,
+            onEditing: state.failure == null ? null : cubit.clearFeedback,
           );
         }
         return const InvitationRegistrationPage();

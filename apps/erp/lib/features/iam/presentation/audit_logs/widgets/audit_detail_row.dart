@@ -123,10 +123,11 @@ class AuditCopyButton extends StatelessWidget {
         size: 18,
         color: colors.textSecondary,
       ),
-      padding: const EdgeInsets.only(left: VSpacing.space2),
-      constraints: const BoxConstraints(),
-      visualDensity: VisualDensity.compact,
-      splashRadius: 18,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints.tightFor(
+        width: VSpacing.minTouchTarget,
+        height: VSpacing.minTouchTarget,
+      ),
       tooltip: tooltip,
       onPressed: () async {
         await Clipboard.setData(ClipboardData(text: value));

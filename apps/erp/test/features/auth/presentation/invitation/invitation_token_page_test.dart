@@ -91,6 +91,9 @@ void main() {
 
       expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
       expect(find.text('Mã lời mời hợp lệ.'), findsOneWidget);
+      expect(find.text('Mậu Hiên'), findsOneWidget);
+      expect(find.text('Nhân viên bán hàng'), findsOneWidget);
+      expect(find.text('invitee@example.com'), findsOneWidget);
       expect(
         find.byKey(const Key('invitation_confirm_sheet_accept')),
         findsOneWidget,
@@ -101,6 +104,62 @@ void main() {
       );
     },
   );
+
+  testWidgets('expired invitation shows inline error and can be retried', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: InvitationPageHarness(scenario: FakeIamScenario.acceptExpired).page,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('invitation_token_submit')), findsOneWidget);
+    await _enterInvitationCode(tester, 'TOKENEXP');
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Mã lời mời đã hết hạn'), findsOneWidget);
+    expect(find.byType(VToast), findsNothing);
+    expect(find.byKey(const Key('invitation_token_submit')), findsOneWidget);
+  });
+
+  testWidgets('closing confirmation sheet leaves the continue action available', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: InvitationPageHarness(
+          scenario: FakeIamScenario.inspectExistingAccount,
+        ).page,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _enterInvitationCode(tester, 'K7P29XQM');
+    await tester.pumpAndSettle();
+    expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
+
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('invitation_token_submit')));
+    await tester.pumpAndSettle();
+    expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
+  });
 
   testWidgets(
     'existing account confirm sheet accept executes accept and navigates to login with prefilledEmail',

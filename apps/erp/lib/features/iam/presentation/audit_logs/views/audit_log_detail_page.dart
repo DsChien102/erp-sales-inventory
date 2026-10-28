@@ -87,16 +87,20 @@ class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
               backgroundColor: colors.surface,
               elevation: 0,
               leading: IconButton(
+                tooltip: 'Quay lại',
                 icon: VIcon(
                   icon: VIcons.chevronLeft,
                   color: colors.textPrimary,
                 ),
                 onPressed: widget.onBackPressed ?? () => Navigator.of(context).maybePop(),
               ),
-              title: const VText(
-                'Chi tiết hoạt động',
-                variant: VTextVariant.headingH4,
-                style: TextStyle(fontWeight: FontWeight.w700),
+              title: Semantics(
+                header: true,
+                child: const VText(
+                  'Chi tiết hoạt động',
+                  variant: VTextVariant.headingH4,
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
             ),
             body: const Center(child: VLoading(size: 40)),
@@ -110,16 +114,20 @@ class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
               backgroundColor: colors.surface,
               elevation: 0,
               leading: IconButton(
+                tooltip: 'Quay lại',
                 icon: VIcon(
                   icon: VIcons.chevronLeft,
                   color: colors.textPrimary,
                 ),
                 onPressed: widget.onBackPressed ?? () => Navigator.of(context).maybePop(),
               ),
-              title: const VText(
-                'Chi tiết hoạt động',
-                variant: VTextVariant.headingH4,
-                style: TextStyle(fontWeight: FontWeight.w700),
+              title: Semantics(
+                header: true,
+                child: const VText(
+                  'Chi tiết hoạt động',
+                  variant: VTextVariant.headingH4,
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
             ),
             body: Center(
@@ -128,9 +136,12 @@ class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const VText(
-                      'Không tìm thấy hoạt động',
-                      variant: VTextVariant.headingH4,
+                    Semantics(
+                      header: true,
+                      child: const VText(
+                        'Không tìm thấy hoạt động',
+                        variant: VTextVariant.headingH4,
+                      ),
                     ),
                     const VGap.sm(),
                     VText(

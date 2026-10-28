@@ -434,10 +434,7 @@ class VButton extends StatelessWidget {
         button: true,
         enabled: isEnabled,
         label: semanticsLabel,
-        child: vDisabledOpacity(
-          enabled: isEnabled,
-          child: buttonWidget,
-        ),
+        child: vDisabledOpacity(enabled: isEnabled, child: buttonWidget),
       ),
     );
   }
@@ -562,8 +559,10 @@ final class _VButtonLinkState extends State<_VButtonLink> {
       button: true,
       enabled: widget.isEnabled,
       label: widget.semanticLabel ?? widget.label,
-      child: vDisabledOpacity(
-        enabled: widget.isEnabled,
+      onTap: widget.isEnabled ? widget.onPressed : null,
+      child: ExcludeSemantics(
+        child: vDisabledOpacity(
+          enabled: widget.isEnabled,
         child: FocusableActionDetector(
           enabled: widget.isEnabled,
           mouseCursor: widget.isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
@@ -585,19 +584,27 @@ final class _VButtonLinkState extends State<_VButtonLink> {
           },
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
+            excludeFromSemantics: true,
             onTapDown: widget.isEnabled ? (_) => _setPressed(true) : null,
             onTapUp: widget.isEnabled ? (_) => _setPressed(false) : null,
             onTapCancel: widget.isEnabled ? () => _setPressed(false) : null,
             onTap: widget.isEnabled ? widget.onPressed : null,
-            child: Align(
-              alignment: Alignment.center,
-              widthFactor: widget.expandText ? null : 1,
-              heightFactor: 1,
-              child: content,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: VSpacing.minTouchTarget,
+                minHeight: VSpacing.minTouchTarget,
+              ),
+              child: Align(
+                alignment: Alignment.center,
+                widthFactor: widget.expandText ? null : 1,
+                heightFactor: 1,
+                child: content,
+              ),
             ),
           ),
         ),
       ),
+    ),
     );
   }
 }

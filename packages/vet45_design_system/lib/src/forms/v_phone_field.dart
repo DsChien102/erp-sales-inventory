@@ -25,6 +25,8 @@ class VPhoneField extends StatefulWidget {
     this.enabled = true,
     this.focusNode,
     this.autofocus = false,
+    this.autofillHints = const [AutofillHints.telephoneNumber],
+    this.textInputAction,
     this.onChanged,
     this.onSubmitted,
     this.validateOnChanged = true,
@@ -50,6 +52,8 @@ class VPhoneField extends StatefulWidget {
   final bool enabled;
   final FocusNode? focusNode;
   final bool autofocus;
+  final Iterable<String>? autofillHints;
+  final TextInputAction? textInputAction;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final bool validateOnChanged;
@@ -70,7 +74,10 @@ class VPhoneField extends StatefulWidget {
 
 class _VPhoneFieldState extends State<VPhoneField> {
   static final _invalidCharacters = RegExp(r'[^0-9 ]');
-  static final _formatter = TextInputFormatter.withFunction((oldValue, newValue) {
+  static final _formatter = TextInputFormatter.withFunction((
+    oldValue,
+    newValue,
+  ) {
     return _invalidCharacters.hasMatch(newValue.text) ? oldValue : newValue;
   });
 
@@ -90,7 +97,9 @@ class _VPhoneFieldState extends State<VPhoneField> {
   @override
   void initState() {
     super.initState();
-    _controller = widget.controller ?? TextEditingController(text: widget.initialValue ?? '');
+    _controller =
+        widget.controller ??
+        TextEditingController(text: widget.initialValue ?? '');
     _lastText = _controller.text;
     _controller.addListener(_textChanged);
     if (widget.validateOnChanged && _lastText.isNotEmpty) {
@@ -121,14 +130,17 @@ class _VPhoneFieldState extends State<VPhoneField> {
       final previousValue = _controller.value;
       _controller.removeListener(_textChanged);
       if (oldWidget.controller == null) _controller.dispose();
-      _controller = widget.controller ??
+      _controller =
+          widget.controller ??
           (widget.initialValue != null
               ? TextEditingController(text: widget.initialValue!)
               : TextEditingController.fromValue(previousValue));
       _lastText = _controller.text;
       _controller.addListener(_textChanged);
       _hasValidated = _hasValidated || _lastText.isNotEmpty;
-      _internalError = widget.validateOnChanged && _hasValidated ? _validate() : null;
+      _internalError = widget.validateOnChanged && _hasValidated
+          ? _validate()
+          : null;
     } else if (widget.controller == null) {
       if (oldWidget.initialValue != widget.initialValue &&
           widget.initialValue != _controller.text) {
@@ -148,7 +160,9 @@ class _VPhoneFieldState extends State<VPhoneField> {
         oldWidget.requiredMessage != widget.requiredMessage ||
         oldWidget.invalidMessage != widget.invalidMessage) {
       _timer?.cancel();
-      _internalError = widget.validateOnChanged && _hasValidated ? _validate() : null;
+      _internalError = widget.validateOnChanged && _hasValidated
+          ? _validate()
+          : null;
     }
   }
 
@@ -172,7 +186,8 @@ class _VPhoneFieldState extends State<VPhoneField> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.label != null) VFieldLabel(widget.label!, isRequired: widget.isRequired),
+            if (widget.label != null)
+              VFieldLabel(widget.label!, isRequired: widget.isRequired),
             VTextField(
               controller: _controller,
               hintText: widget.hintText,
@@ -181,6 +196,8 @@ class _VPhoneFieldState extends State<VPhoneField> {
               autofocus: widget.autofocus,
               semanticLabel: widget.semanticLabel ?? widget.label,
               keyboardType: TextInputType.phone,
+              autofillHints: widget.autofillHints,
+              textInputAction: widget.textInputAction,
               inputFormatters: [_formatter],
               onChanged: widget.onChanged,
               onSubmitted: widget.onSubmitted,

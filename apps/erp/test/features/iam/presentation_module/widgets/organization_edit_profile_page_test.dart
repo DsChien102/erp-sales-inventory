@@ -65,6 +65,102 @@ void main() {
 
     await cubit.close();
   });
+
+  group('PopScope discard confirmation in OrganizationEditProfilePage', () {
+    Future<void> pumpForm(WidgetTester tester, OrganizationProfileCubit cubit) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => OrganizationEditProfilePage(cubit: cubit),
+                  ),
+                ),
+                child: const Text('Mở form'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Mở form'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('unmodified form pops directly on back without dialog', (tester) async {
+      final cubit = OrganizationProfileCubit(
+        organizationRepository: ScriptedOrganizationRepository(),
+      );
+      await cubit.load();
+
+      await pumpForm(tester, cubit);
+      expect(find.text('Chỉnh thông tin tổ chức'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Quay lại'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Bỏ thay đổi?'), findsNothing);
+      expect(find.text('Chỉnh thông tin tổ chức'), findsNothing);
+      await cubit.close();
+    });
+
+    testWidgets('modified form asks confirmation on back, can keep editing or discard', (tester) async {
+      final cubit = OrganizationProfileCubit(
+        organizationRepository: ScriptedOrganizationRepository(),
+      );
+      await cubit.load();
+
+      await pumpForm(tester, cubit);
+
+      await tester.enterText(find.byType(TextField).first, 'Mậu Hiên Thay Đổi');
+      await tester.pumpAndSettle();
+
+      // Tap back button
+      await tester.tap(find.byTooltip('Quay lại'));
+      await tester.pumpAndSettle();
+      expect(find.text('Bỏ thay đổi?'), findsOneWidget);
+
+      // Tap 'Tiếp tục sửa'
+      await tester.tap(find.text('Tiếp tục sửa'));
+      await tester.pumpAndSettle();
+      expect(find.text('Bỏ thay đổi?'), findsNothing);
+      expect(find.text('Chỉnh thông tin tổ chức'), findsOneWidget);
+      expect(find.text('Mậu Hiên Thay Đổi'), findsOneWidget);
+
+      // Tap back button again and discard
+      await tester.tap(find.byTooltip('Quay lại'));
+      await tester.pumpAndSettle();
+      expect(find.text('Bỏ thay đổi?'), findsOneWidget);
+      await tester.tap(find.text('Bỏ thay đổi'));
+      await tester.pumpAndSettle();
+      expect(find.text('Chỉnh thông tin tổ chức'), findsNothing);
+      await cubit.close();
+    });
+
+    testWidgets('modified form asks confirmation on cancel button', (tester) async {
+      final cubit = OrganizationProfileCubit(
+        organizationRepository: ScriptedOrganizationRepository(),
+      );
+      await cubit.load();
+
+      await pumpForm(tester, cubit);
+
+      await tester.enterText(find.byType(TextField).first, 'Mậu Hiên Thay Đổi');
+      await tester.pumpAndSettle();
+
+      // Tap 'Hủy' button
+      await tester.tap(find.widgetWithText(VButton, 'Hủy'));
+      await tester.pumpAndSettle();
+      expect(find.text('Bỏ thay đổi?'), findsOneWidget);
+
+      await tester.tap(find.text('Bỏ thay đổi'));
+      await tester.pumpAndSettle();
+      expect(find.text('Chỉnh thông tin tổ chức'), findsNothing);
+      await cubit.close();
+    });
+  });
 }
 
 Finder _fieldLabel(String text, {bool isRequired = false}) {

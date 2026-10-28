@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/core/validation/tax_code_input_formatter.dart';
 
 import '../bloc/partner_create_cubit.dart';
 import 'partner_outlined_field.dart';
@@ -33,11 +33,8 @@ class PartnerInvoiceSection extends StatelessWidget {
             initialValue: state.taxCode,
             isRequired: isOrganization,
             errorText: state.errors['taxCode'],
-            keyboardType: const TextInputType.numberWithOptions(signed: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[0-9-]')),
-              LengthLimitingTextInputFormatter(14),
-            ],
+            keyboardType: TextInputType.number,
+            inputFormatters: [TaxCodeInputFormatter()],
             onChanged: cubit.updateTaxCode,
           ),
           const SizedBox(height: VSpacing.space2),

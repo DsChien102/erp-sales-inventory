@@ -31,10 +31,13 @@ class VerifyEmailPage extends StatelessWidget {
           padding: const EdgeInsets.all(VSpacing.screenMobile),
           children: [
             const VGap.xl(),
-            VText(
-              'Xác minh email để tiếp tục',
-              variant: VTextVariant.headingH3,
-              color: colors.textPrimary,
+            Semantics(
+              header: true,
+              child: VText(
+                'Xác minh email để tiếp tục',
+                variant: VTextVariant.headingH3,
+                color: colors.textPrimary,
+              ),
             ),
             const VGap.lg(),
             VerifyEmailView(

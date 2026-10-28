@@ -9,7 +9,6 @@ import '../../../iam/data/models/password_reset_result.dart';
 import '../../data/auth_repository.dart';
 import '../../logic/verify_email_cubit.dart';
 import '../../logic/verify_email_state.dart';
-import 'otp_code_field.dart';
 import 'resend_countdown.dart';
 
 class VerifyEmailView extends StatefulWidget {
@@ -46,13 +45,12 @@ class VerifyEmailView extends StatefulWidget {
 
 class _VerifyEmailViewState extends State<VerifyEmailView> {
   late final VerifyEmailCubit _cubit;
-  late final TextEditingController _code;
+  String _code = '';
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _code = TextEditingController();
     _cubit = VerifyEmailCubit(
       auth: widget.auth,
       session: widget.session,
@@ -68,7 +66,6 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   void dispose() {
     _timer?.cancel();
-    _code.dispose();
     _cubit.close();
     super.dispose();
   }
@@ -76,12 +73,14 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final prompt = widget.prompt ??
+    final prompt =
+        widget.prompt ??
         'Mã xác minh gồm 6 chữ số đã được gửi tới ${maskEmail(widget.email)}.';
     return BlocConsumer<VerifyEmailCubit, VerifyEmailState>(
       bloc: _cubit,
       listenWhen: (previous, current) => !previous.verified && current.verified,
-      listener: (context, state) => widget.onVerified?.call(state.verifiedUserId ?? ''),
+      listener: (context, state) =>
+          widget.onVerified?.call(state.verifiedUserId ?? ''),
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -92,14 +91,28 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               color: colors.textSecondary,
             ),
             const VGap.lg(),
-            OtpCodeField(
-              controller: _code,
-              enabled: !state.submitting,
+            VField(
+              invalid: state.failure != null,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const VFieldLabel('Mã xác minh', isRequired: true),
+                  KeyedSubtree(
+                    key: const Key('otp_code_field'),
+                    child: VVerificationCodeField(
+                      length: 6,
+                      charset: VVerificationCodeCharset.numeric,
+                      autofocus: true,
+                      enabled: !state.submitting,
+                      semanticLabel: 'Mã xác minh 6 chữ số',
+                      onChanged: (value) => _code = value,
+                      onCompleted: (value) => _cubit.verify(value),
+                    ),
+                  ),
+                  if (state.failure != null) VFieldError(state.failure!),
+                ],
+              ),
             ),
-            if (state.failure != null) ...[
-              const VGap.sm(),
-              VFieldError(state.failure!),
-            ],
             const VGap.md(),
             ResendCountdown(
               remaining: state.remaining,
@@ -111,7 +124,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               label: 'Xác minh',
               isLoading: state.submitting,
               fullWidth: true,
-              onPressed: state.submitting ? null : () => _cubit.verify(_code.text),
+              onPressed: state.submitting ? null : () => _cubit.verify(_code),
             ),
           ],
         );

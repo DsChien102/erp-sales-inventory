@@ -11,10 +11,14 @@ class InvitationTokenEntryForm extends StatefulWidget {
     super.key,
     required this.isSubmitting,
     required this.onInspect,
+    this.errorMessage,
+    this.onEditing,
   });
 
   final bool isSubmitting;
   final ValueChanged<String> onInspect;
+  final String? errorMessage;
+  final VoidCallback? onEditing;
 
   @override
   State<InvitationTokenEntryForm> createState() => _InvitationTokenEntryFormState();
@@ -48,10 +52,8 @@ class _InvitationTokenEntryFormState extends State<InvitationTokenEntryForm> {
     return VPageScaffold(
       title: 'Kích hoạt tài khoản',
       leading: IconButton(
-        icon: VIcon(
-          icon: VIcons.arrowLeft,
-          color: colors.textPrimary,
-        ),
+        tooltip: 'Quay lại',
+        icon: VIcon(icon: VIcons.chevronLeft, color: colors.textPrimary),
         onPressed: isSubmitting ? null : () => context.go('/login'),
       ),
       body: VContentWidth(
@@ -76,7 +78,7 @@ class _InvitationTokenEntryFormState extends State<InvitationTokenEntryForm> {
                 ),
                 const VGap.xl(),
                 VField(
-                  invalid: _error != null,
+                  invalid: _error != null || widget.errorMessage != null,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -93,12 +95,13 @@ class _InvitationTokenEntryFormState extends State<InvitationTokenEntryForm> {
                               _token = value;
                               if (_error != null) _error = null;
                             });
+                            widget.onEditing?.call();
                           },
                           onCompleted: (_) => _submit(),
                         ),
                       ),
-                      if (_error != null)
-                        VFieldError(_error!)
+                      if (_error != null || widget.errorMessage != null)
+                        VFieldError(_error ?? widget.errorMessage!)
                       else
                         const VFieldDescription(
                           'Mã không phân biệt chữ hoa và chữ thường.',
@@ -109,6 +112,16 @@ class _InvitationTokenEntryFormState extends State<InvitationTokenEntryForm> {
               ],
             ),
           ),
+        ),
+      ),
+      bottomBar: Padding(
+        padding: const EdgeInsets.all(VSpacing.space4),
+        child: VButton(
+          key: const Key('invitation_token_submit'),
+          label: 'Tiếp tục',
+          fullWidth: true,
+          isLoading: isSubmitting,
+          onPressed: isSubmitting ? null : _submit,
         ),
       ),
     );

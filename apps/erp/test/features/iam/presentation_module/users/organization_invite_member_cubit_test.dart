@@ -1,12 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:erp/core/iam/iam_codes.dart';
 import '../../support/fake_iam_backend.dart';
 import '../../support/iam_test_session.dart';
 import 'package:erp/features/iam/presentation.dart';
 import '../../support/iam_fixtures.dart';
 
-final class FakeInvitationRoleOptionsSource
-    implements InvitationRoleOptionsSource {
+final class FakeInvitationRoleOptionsSource implements InvitationRoleOptionsSource {
   FakeInvitationRoleOptionsSource(this.options);
 
   final List<InvitationRoleOption> options;
@@ -22,8 +20,7 @@ final class FakeInvitationRoleOptionsSource
 }
 
 void main() {
-  test('submit sends CreateInvitationCommand with exact roleId and key',
-      () async {
+  test('submit sends CreateInvitationCommand with exact roleId and key', () async {
     final module = FakeIamBackend(scenario: FakeIamScenario.inviteOk);
     final cubit = OrganizationInviteMemberCubit(
       session: testSessionController(),
@@ -66,7 +63,9 @@ void main() {
   test('delivery failed is create success with warning', () async {
     final cubit = OrganizationInviteMemberCubit(
       session: testSessionController(),
-      invitations: FakeInvitationRepository(FakeIamBackend(scenario: FakeIamScenario.inviteDeliveryFailed)),
+      invitations: FakeInvitationRepository(
+        FakeIamBackend(scenario: FakeIamScenario.inviteDeliveryFailed),
+      ),
       roleOptionsSource: FakeInvitationRoleOptionsSource(
         const [InvitationRoleOption(roleId: 'role-staff', label: 'Nhân viên')],
       ),
@@ -85,9 +84,11 @@ void main() {
   test('conflict keeps form without created invitation', () async {
     final cubit = OrganizationInviteMemberCubit(
       session: testSessionController(),
-      invitations: FakeInvitationRepository(FakeIamBackend(
-        scenario: FakeIamScenario.inviteDuplicateMembership,
-      )),
+      invitations: FakeInvitationRepository(
+        FakeIamBackend(
+          scenario: FakeIamScenario.inviteDuplicateMembership,
+        ),
+      ),
       roleOptionsSource: FakeInvitationRoleOptionsSource(
         const [InvitationRoleOption(roleId: 'role-staff', label: 'Nhân viên')],
       ),
@@ -98,7 +99,8 @@ void main() {
     cubit.roleSelected('role-staff');
     await cubit.submit();
     expect(cubit.state.createdInvitation, isNull);
-    expect(cubit.state.failure?.code, IamBlockedCodes.duplicateMembership);
+    expect(cubit.state.failure, isNull);
+    expect(cubit.state.emailError, 'Thành viên đã tồn tại trong tổ chức.');
     expect(cubit.state.email.trim(), 'staff@example.com');
     await cubit.close();
   });

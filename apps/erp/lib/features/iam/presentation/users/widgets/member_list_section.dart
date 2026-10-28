@@ -13,12 +13,14 @@ import 'users_empty_state.dart';
 class MemberListSection extends StatelessWidget {
   const MemberListSection({
     super.key,
+    this.canInvite = true,
     required this.onMemberTap,
     required this.onInviteTap,
     required this.onClearFilters,
   });
 
   final ValueChanged<MemberUiModel> onMemberTap;
+  final bool canInvite;
   final VoidCallback onInviteTap;
   final VoidCallback onClearFilters;
 
@@ -36,8 +38,7 @@ class MemberListSection extends StatelessWidget {
       builder: (context, state) {
         final colors = context.vColors;
         final cubit = context.read<OrganizationUsersCubit>();
-        final isFiltered =
-            state.memberSearch.trim().isNotEmpty || state.memberFilter != null;
+        final isFiltered = state.memberSearch.trim().isNotEmpty || state.memberFilter != null;
 
         if (state.memberStatus == IamLoadStatus.loading ||
             state.memberStatus == IamLoadStatus.initial) {
@@ -45,22 +46,19 @@ class MemberListSection extends StatelessWidget {
         }
 
         if (state.memberStatus == IamLoadStatus.failure) {
-          final isForbidden =
-              state.memberFailure?.code == IamBlockedCodes.permissionDenied;
+          final isForbidden = state.memberFailure?.code == IamBlockedCodes.permissionDenied;
           return UsersEmptyScroll(
             onRefresh: cubit.refreshActiveTab,
             child: UsersEmptyState(
               icon: isForbidden ? VIcons.shield : VIcons.close,
               iconBgColor: isForbidden ? colors.warningBg : colors.dangerBg,
               iconColor: isForbidden ? colors.warning : colors.danger,
-              title: isForbidden
-                  ? 'Bạn không có quyền quản lý'
-                  : 'Không thể tải danh sách',
+              title: isForbidden ? 'Bạn không có quyền quản lý' : 'Không thể tải danh sách',
               titleColor: isForbidden ? null : colors.danger,
               subtitle: isForbidden
                   ? 'Liên hệ Chủ tổ chức hoặc Quản trị viên để được cấp quyền phù hợp.'
                   : (state.memberFailure?.message ??
-                      'Đã xảy ra lỗi khi tải thành viên. Vui lòng thử lại.'),
+                        'Đã xảy ra lỗi khi tải thành viên. Vui lòng thử lại.'),
               actionText: isForbidden ? 'Quay lại' : 'Thử lại',
               actionColor: isForbidden ? colors.success : colors.danger,
               onAction: isForbidden
@@ -81,8 +79,7 @@ class MemberListSection extends StatelessWidget {
               child: UsersEmptyState(
                 icon: VIcons.search,
                 title: 'Không tìm thấy kết quả',
-                subtitle:
-                    'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.',
+                subtitle: 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.',
                 actionText: 'Xóa bộ lọc',
                 onAction: onClearFilters,
               ),
@@ -95,7 +92,7 @@ class MemberListSection extends StatelessWidget {
               title: 'Chưa có thành viên khác',
               subtitle: 'Mời thêm người dùng để cùng vận hành tổ chức.',
               actionText: 'Mời thành viên',
-              onAction: onInviteTap,
+              onAction: canInvite ? onInviteTap : null,
             ),
           );
         }
@@ -104,8 +101,7 @@ class MemberListSection extends StatelessWidget {
           onRefresh: cubit.refreshActiveTab,
           child: NotificationListener<ScrollNotification>(
             onNotification: (notification) {
-              if (notification.metrics.pixels >=
-                      notification.metrics.maxScrollExtent - 120 &&
+              if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 120 &&
                   state.hasMoreMembers &&
                   !state.loadingMoreMembers) {
                 cubit.loadNextMembersPage();
@@ -120,8 +116,7 @@ class MemberListSection extends StatelessWidget {
                 top: VSpacing.space2,
                 bottom: VSpacing.space8,
               ),
-              itemCount:
-                  state.members.length + (state.loadingMoreMembers ? 1 : 0),
+              itemCount: state.members.length + (state.loadingMoreMembers ? 1 : 0),
               separatorBuilder: (_, _) => const VGap.sm(),
               itemBuilder: (context, index) {
                 if (index >= state.members.length) {

@@ -288,6 +288,14 @@
       "description": "5 tab có icon 24px và nhãn; tab chọn màu xanh, kẻ Hairline phía trên.",
       "html": "<nav class=\"ds-bnav\"><button class=\"ds-bnav-item is-active\" aria-current=\"page\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z\"/></svg><span>Trang chủ</span></button><button class=\"ds-bnav-item\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M6 2h12v20l-3-2-3 2-3-2-3 2z\"/></svg><span>Đơn hàng</span></button><button class=\"ds-bnav-item\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8\"/></svg><span>Sản phẩm</span></button></nav>",
       "css": ".ds-bnav { display: flex; padding: 4px 0 34px; background: #fff; border-top: 1px solid #E5E8EB; } .ds-bnav-item { flex: 1; min-height: 48px; display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; background: none; border: none; color: #4A535E; cursor: pointer; } .ds-bnav-item.is-active { color: #2F7A3A; } .ds-bnav-item:focus-visible { outline: 2px solid #B8DFBD; outline-offset: -2px; } .ds-bnav-item span { font: 600 11px/14px Inter, sans-serif; }"
+    },
+    {
+      "name": "Side Navigation",
+      "kind": "nav",
+      "refersTo": "side-nav",
+      "description": "Thanh bên 240px cho web rộng (≥1024px), viền phải Hairline, mục chọn nền Leaf Wash chữ xanh.",
+      "html": "<nav class=\"ds-snav\"><div class=\"ds-snav-item is-active\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z\"/></svg><span>Trang chủ</span></div><div class=\"ds-snav-item\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M6 2h12v20l-3-2-3 2-3-2-3 2z\"/></svg><span>Đơn hàng</span></div></nav>",
+      "css": ".ds-snav { width: 240px; padding: 12px; background: #fff; border-right: 1px solid #E5E8EB; } .ds-snav-item { min-height: 44px; display: flex; align-items: center; gap: 12px; padding: 4px 12px; border-radius: 8px; color: #4A535E; font: 500 14px/20px Inter, sans-serif; cursor: pointer; } .ds-snav-item.is-active { background: #E8F6EC; color: #2F7A3A; font-weight: 600; } .ds-snav-item:focus-visible { outline: 2px solid #2F7A3A; outline-offset: -2px; }"
     }
   ],
   "narrative": {

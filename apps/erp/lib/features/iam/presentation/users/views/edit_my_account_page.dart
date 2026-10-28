@@ -60,6 +60,8 @@ class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
   late final TextEditingController _phoneNumberController;
   late final TextEditingController _emailController;
   String? _phoneErrorText;
+  String? _lastNameErrorText;
+  String? _firstNameErrorText;
 
   @override
   void initState() {
@@ -85,19 +87,20 @@ class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
         _phoneNumberController.text.trim() != widget.data.phoneNumber.trim();
   }
 
-  bool get _isValid {
-    return _hasChanges &&
-        _firstNameController.text.trim().isNotEmpty &&
-        _lastNameController.text.trim().isNotEmpty;
-  }
-
   void _handleSave() {
+    final lastNameError = _lastNameController.text.trim().isEmpty
+        ? 'Vui lòng nhập họ và tên đệm'
+        : null;
+    final firstNameError = _firstNameController.text.trim().isEmpty ? 'Vui lòng nhập tên' : null;
     final phoneError = VPhoneValidator.validate(_phoneNumberController.text, isRequired: false);
-    if (phoneError != null) {
-      setState(() => _phoneErrorText = phoneError);
+    if (phoneError != null || lastNameError != null || firstNameError != null) {
+      setState(() {
+        _phoneErrorText = phoneError;
+        _lastNameErrorText = lastNameError;
+        _firstNameErrorText = firstNameError;
+      });
       return;
     }
-    if (!_isValid) return;
     Navigator.of(context).pop(
       MyAccountUiModel(
         firstName: _firstNameController.text.trim(),
@@ -119,17 +122,17 @@ class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
       phoneNumberController: _phoneNumberController,
       emailController: _emailController,
       phoneErrorText: _phoneErrorText,
+      lastNameErrorText: _lastNameErrorText,
+      firstNameErrorText: _firstNameErrorText,
+      hasChanges: _hasChanges,
       isSaving: false,
-      isValid: _isValid,
-      onChanged: () {
-        if (_phoneErrorText != null) {
-          setState(() => _phoneErrorText = null);
-        } else {
-          setState(() {});
-        }
-      },
+      onChanged: () => setState(() {
+        _phoneErrorText = null;
+        if (_lastNameController.text.trim().isNotEmpty) _lastNameErrorText = null;
+        if (_firstNameController.text.trim().isNotEmpty) _firstNameErrorText = null;
+      }),
       onSave: _handleSave,
-      onCancel: () => Navigator.of(context).pop(),
+      onCancel: () => Navigator.of(context).maybePop(),
     );
   }
 }
@@ -151,6 +154,8 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
   String? _baselinePhone;
   String? _avatarUrl;
   String? _phoneErrorText;
+  String? _lastNameErrorText;
+  String? _firstNameErrorText;
   bool _controllersSeeded = false;
 
   @override
@@ -191,19 +196,20 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
         _phoneNumberController.text.trim() != _baselinePhone!.trim();
   }
 
-  bool get _isValid {
-    return _hasChanges &&
-        _firstNameController.text.trim().isNotEmpty &&
-        _lastNameController.text.trim().isNotEmpty;
-  }
-
   Future<void> _handleSave() async {
+    final lastNameError = _lastNameController.text.trim().isEmpty
+        ? 'Vui lòng nhập họ và tên đệm'
+        : null;
+    final firstNameError = _firstNameController.text.trim().isEmpty ? 'Vui lòng nhập tên' : null;
     final phoneError = VPhoneValidator.validate(_phoneNumberController.text, isRequired: false);
-    if (phoneError != null) {
-      setState(() => _phoneErrorText = phoneError);
+    if (phoneError != null || lastNameError != null || firstNameError != null) {
+      setState(() {
+        _phoneErrorText = phoneError;
+        _lastNameErrorText = lastNameError;
+        _firstNameErrorText = firstNameError;
+      });
       return;
     }
-    if (!_isValid) return;
     final cubit = context.read<MyAccountEditCubit>();
     final ok = await cubit.save(
       firstName: _firstNameController.text.trim(),
@@ -255,9 +261,12 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    VText(
-                      'Không tải được hồ sơ',
-                      variant: VTextVariant.headingH4,
+                    Semantics(
+                      header: true,
+                      child: VText(
+                        'Không tải được hồ sơ',
+                        variant: VTextVariant.headingH4,
+                      ),
                     ),
                     const VGap.sm(),
                     VText(
@@ -288,17 +297,17 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
           phoneNumberController: _phoneNumberController,
           emailController: _emailController,
           phoneErrorText: _phoneErrorText,
+          lastNameErrorText: _lastNameErrorText,
+          firstNameErrorText: _firstNameErrorText,
+          hasChanges: _hasChanges,
           isSaving: state.isSubmitting,
-          isValid: _isValid,
-          onChanged: () {
-            if (_phoneErrorText != null) {
-              setState(() => _phoneErrorText = null);
-            } else {
-              setState(() {});
-            }
-          },
+          onChanged: () => setState(() {
+            _phoneErrorText = null;
+            if (_lastNameController.text.trim().isNotEmpty) _lastNameErrorText = null;
+            if (_firstNameController.text.trim().isNotEmpty) _firstNameErrorText = null;
+          }),
           onSave: _handleSave,
-          onCancel: () => Navigator.of(context).pop(),
+          onCancel: () => Navigator.of(context).maybePop(),
         );
       },
     );
@@ -313,8 +322,10 @@ class _EditFormScaffold extends StatelessWidget {
     required this.phoneNumberController,
     required this.emailController,
     this.phoneErrorText,
+    required this.lastNameErrorText,
+    required this.firstNameErrorText,
+    required this.hasChanges,
     required this.isSaving,
-    required this.isValid,
     required this.onChanged,
     required this.onSave,
     required this.onCancel,
@@ -326,8 +337,10 @@ class _EditFormScaffold extends StatelessWidget {
   final TextEditingController phoneNumberController;
   final TextEditingController emailController;
   final String? phoneErrorText;
+  final String? lastNameErrorText;
+  final String? firstNameErrorText;
+  final bool hasChanges;
   final bool isSaving;
-  final bool isValid;
   final VoidCallback onChanged;
   final VoidCallback onSave;
   final VoidCallback onCancel;
@@ -336,140 +349,169 @@ class _EditFormScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    return VPageScaffold(
-      title: 'Chỉnh sửa thông tin',
-      body: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: VSpacing.screenMobile,
-          vertical: VSpacing.space4,
+    return PopScope(
+      canPop: !hasChanges || isSaving,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && hasChanges) {
+          showVConfirmDialog(
+            context: context,
+            title: 'Bỏ thay đổi?',
+            message: 'Các thay đổi chưa lưu sẽ bị mất.',
+            cancelLabel: 'Tiếp tục sửa',
+            actionLabel: 'Bỏ thay đổi',
+            isDestructive: true,
+            onAction: () {
+              if (context.mounted) Navigator.of(context).pop();
+            },
+          );
+        }
+      },
+      child: VPageScaffold(
+        title: 'Chỉnh sửa thông tin',
+        body: ListView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: VSpacing.screenMobile,
+            vertical: VSpacing.space4,
+          ),
+          children: [
+            VCard(
+              padding: const EdgeInsets.all(VSpacing.space4),
+              child: Row(
+                children: [
+                  VAvatar(
+                    name: fullName,
+                    size: 48,
+                  ),
+                  const VGap.horizontalSm(),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Semantics(
+                          header: true,
+                          child: VText(
+                            'Ảnh đại diện',
+                            variant: VTextVariant.headingH4,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        const VGap.xs(),
+                        VText(
+                          'Chạm để thay hoặc xóa ảnh',
+                          variant: VTextVariant.bodySmall,
+                          color: colors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                  VIcon(
+                    icon: VIcons.chevronRight,
+                    size: 20,
+                    color: colors.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+            const VGap.lg(),
+            VField(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const VFieldLabel('Họ và tên đệm', isRequired: true),
+                  VField(
+                    invalid: lastNameErrorText != null,
+                    child: VTextField(
+                      hintText: 'Nhập họ và tên đệm',
+                      controller: lastNameController,
+                      onChanged: (_) => onChanged(),
+                    ),
+                  ),
+                  if (lastNameErrorText != null) VFieldError(lastNameErrorText!),
+                ],
+              ),
+            ),
+            const VGap.md(),
+            VField(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const VFieldLabel('Tên', isRequired: true),
+                  VField(
+                    invalid: firstNameErrorText != null,
+                    child: VTextField(
+                      hintText: 'Nhập tên',
+                      controller: firstNameController,
+                      onChanged: (_) => onChanged(),
+                    ),
+                  ),
+                  if (firstNameErrorText != null) VFieldError(firstNameErrorText!),
+                ],
+              ),
+            ),
+            const VGap.md(),
+            VField(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const VFieldLabel('Số điện thoại'),
+                  VPhoneField(
+                    hintText: 'Nhập số điện thoại',
+                    controller: phoneNumberController,
+                    validateOnChanged: false,
+                    onChanged: (_) => onChanged(),
+                  ),
+                  if (phoneErrorText != null) VFieldError(phoneErrorText!),
+                ],
+              ),
+            ),
+            const VGap.md(),
+            VField(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const VFieldLabel('Email đăng nhập'),
+                  VTextField(
+                    controller: emailController,
+                    enabled: false,
+                  ),
+                ],
+              ),
+            ),
+            const VGap.xl(),
+          ],
         ),
-        children: [
-          VCard(
-            padding: const EdgeInsets.all(VSpacing.space4),
+        bottomBar: Container(
+          padding: const EdgeInsets.all(VSpacing.screenMobile),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            border: Border(
+              top: BorderSide(color: colors.borderDefault),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
             child: Row(
               children: [
-                VAvatar(
-                  name: fullName,
-                  size: 48,
+                Expanded(
+                  child: VButton(
+                    label: 'Hủy',
+                    variant: VButtonVariant.secondary,
+                    fullWidth: true,
+                    onPressed: isSaving ? null : onCancel,
+                  ),
                 ),
                 const VGap.horizontalSm(),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      VText(
-                        'Ảnh đại diện',
-                        variant: VTextVariant.headingH4,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      const VGap.xs(),
-                      VText(
-                        'Chạm để thay hoặc xóa ảnh',
-                        variant: VTextVariant.bodySmall,
-                        color: colors.textSecondary,
-                      ),
-                    ],
+                  child: VButton(
+                    label: isSaving ? 'Đang lưu...' : 'Lưu thay đổi',
+                    variant: VButtonVariant.primary,
+                    tone: VComponentTone.primary,
+                    fullWidth: true,
+                    onPressed: hasChanges && !isSaving ? onSave : null,
                   ),
                 ),
-                VIcon(
-                  icon: VIcons.chevronRight,
-                  size: 20,
-                  color: colors.textSecondary,
-                ),
               ],
             ),
-          ),
-          const VGap.lg(),
-          VField(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VFieldLabel('Họ và tên đệm', isRequired: true),
-                VTextField(
-                  hintText: 'Nhập họ và tên đệm',
-                  controller: lastNameController,
-                  onChanged: (_) => onChanged(),
-                ),
-              ],
-            ),
-          ),
-          const VGap.md(),
-          VField(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VFieldLabel('Tên', isRequired: true),
-                VTextField(
-                  hintText: 'Nhập tên',
-                  controller: firstNameController,
-                  onChanged: (_) => onChanged(),
-                ),
-              ],
-            ),
-          ),
-          const VGap.md(),
-          VField(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VFieldLabel('Số điện thoại'),
-                VPhoneField(
-                  hintText: 'Nhập số điện thoại',
-                  controller: phoneNumberController,
-                  validateOnChanged: false,
-                  onChanged: (_) => onChanged(),
-                ),
-                if (phoneErrorText != null) VFieldError(phoneErrorText!),
-              ],
-            ),
-          ),
-          const VGap.md(),
-          VField(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VFieldLabel('Email đăng nhập'),
-                VTextField(
-                  controller: emailController,
-                  enabled: false,
-                ),
-              ],
-            ),
-          ),
-          const VGap.xl(),
-        ],
-      ),
-      bottomBar: Container(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          border: Border(
-            top: BorderSide(color: colors.borderDefault),
-          ),
-        ),
-        child: SafeArea(
-          top: false,
-          child: Row(
-            children: [
-              Expanded(
-                child: VButton(
-                  label: 'Hủy',
-                  variant: VButtonVariant.secondary,
-                  fullWidth: true,
-                  onPressed: isSaving ? null : onCancel,
-                ),
-              ),
-              const VGap.horizontalSm(),
-              Expanded(
-                child: VButton(
-                  label: isSaving ? 'Đang lưu...' : 'Lưu thay đổi',
-                  variant: VButtonVariant.primary,
-                  tone: VComponentTone.primary,
-                  fullWidth: true,
-                  onPressed: isValid && !isSaving ? onSave : null,
-                ),
-              ),
-            ],
           ),
         ),
       ),

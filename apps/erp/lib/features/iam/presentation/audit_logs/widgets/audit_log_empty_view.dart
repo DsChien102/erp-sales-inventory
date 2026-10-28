@@ -31,7 +31,6 @@ class AuditLogEmptyView extends StatelessWidget {
     final Color? titleColor;
     final String description;
     final String actionLabel;
-    final Color actionTextColor;
 
     switch (type) {
       case AuditLogEmptyStateType.noAuditLogs:
@@ -40,10 +39,8 @@ class AuditLogEmptyView extends StatelessWidget {
         iconColor = colors.textSecondary;
         title = 'Chưa có hoạt động quản trị';
         titleColor = null;
-        description =
-            'Các thay đổi người dùng, vai trò và thiết lập sẽ được ghi lại tại đây.';
+        description = 'Các thay đổi người dùng, vai trò và thiết lập sẽ được ghi lại tại đây.';
         actionLabel = 'Tải lại';
-        actionTextColor = colors.success;
         break;
 
       case AuditLogEmptyStateType.noResults:
@@ -54,7 +51,6 @@ class AuditLogEmptyView extends StatelessWidget {
         titleColor = null;
         description = 'Thử thay đổi từ khóa hoặc bộ lọc đang áp dụng.';
         actionLabel = 'Xóa bộ lọc';
-        actionTextColor = colors.success;
         break;
 
       case AuditLogEmptyStateType.loadError:
@@ -65,7 +61,6 @@ class AuditLogEmptyView extends StatelessWidget {
         titleColor = colors.danger;
         description = 'Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.';
         actionLabel = 'Thử lại';
-        actionTextColor = colors.danger;
         break;
 
       case AuditLogEmptyStateType.unauthorized:
@@ -74,10 +69,8 @@ class AuditLogEmptyView extends StatelessWidget {
         iconColor = colors.warning;
         title = 'Bạn không có quyền xem lịch sử quản trị';
         titleColor = null;
-        description =
-            'Liên hệ Chủ sở hữu hoặc người có quyền quản trị để được cấp quyền.';
+        description = 'Liên hệ Chủ sở hữu hoặc người có quyền quản trị để được cấp quyền.';
         actionLabel = 'Quay lại';
-        actionTextColor = colors.success;
         break;
     }
 
@@ -108,12 +101,15 @@ class AuditLogEmptyView extends StatelessWidget {
                 ),
               ),
               const VGap.md(),
-              VText(
-                title,
-                variant: VTextVariant.headingH3,
-                color: titleColor ?? colors.textPrimary,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-                textAlign: TextAlign.center,
+              Semantics(
+                header: true,
+                child: VText(
+                  title,
+                  variant: VTextVariant.headingH3,
+                  color: titleColor ?? colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  textAlign: TextAlign.center,
+                ),
               ),
               const VGap.sm(),
               VText(
@@ -123,17 +119,10 @@ class AuditLogEmptyView extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const VGap.md(),
-              GestureDetector(
-                onTap: onAction,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: VText(
-                    actionLabel,
-                    variant: VTextVariant.bodyDefault,
-                    color: actionTextColor,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
+              VButton(
+                label: actionLabel,
+                variant: VButtonVariant.link,
+                onPressed: onAction,
               ),
             ],
           ),

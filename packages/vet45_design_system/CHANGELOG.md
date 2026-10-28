@@ -15,11 +15,15 @@ changelogs when relevant.
 
 ### Added
 
+- `VSideNavigation` / `VSideNavigationItem`: thanh điều hướng bên trái cho màn hình rộng (desktop ≥ 1024), hỗ trợ một cấp mục con luôn mở, vùng chạm ≥ 44pt, semantics selected, focus viền bàn phím rõ ràng, token màu chuẩn Design System.
+- `VChip.isSelected` exposes chip selection to semantics.
 - `VPageScaffold.contentMaxWidth` (+ `defaultContentMaxWidth`, `fullWidth`): từ breakpoint tablet, body và `bottomBar` nằm trong một cột giữa (640 tablet / 720 desktop); điện thoại giữ nguyên full-width. FAB bám mép cột. Trang tự chia pane truyền `VPageScaffold.fullWidth`.
 - `VPageScaffold` chừa inset ngang an toàn (tai thỏ / đảo động) cho body khi xoay ngang.
+- `VInput`, `VTextField`, `VEmailField`, `VPasswordField` và `VPhoneField` nhận `autofillHints` / `textInputAction`; các field form có mặc định autofill phù hợp.
 
 ### Changed
 
+- `VAppBar` uses `Navigator.maybePop()` for its default back action.
 - 10-7.2 layout: `VSpacing.hairline` (1px) replaces the misnamed `space0` (deprecated); `VSection` keeps an 8px gap before the trailing action and centers a lone title on it; `VPageScaffold.bottomBar` uses a hairline top border instead of `elevation: 8`.
 
 ### Removed
@@ -29,6 +33,10 @@ changelogs when relevant.
 - `VComboboxFooter`: bỏ. Truyền thẳng widget vào `VComboboxContent.footer`; cần controller thì `vComboboxOf(context)` trong `Builder`. Khoảng cách trên footer do panel đảm nhiệm.
 
 ### Fixed
+
+- `VChip(onTap)` keeps its drawn pill compact while exposing a 44px touch target; `VCard(onTap)` exposes button semantics. Remove/keypad labels use "Xóa".
+- `VButton` dạng link có vùng chạm tối thiểu 44x44 mà không làm đổi kích thước chữ.
+- `VInput` một dòng khoá chiều cao: vùng chạm / semantics của ô nhập bằng cả chiều cao ô (≥ 44); vị trí chữ không đổi.
 
 ### Internal
 

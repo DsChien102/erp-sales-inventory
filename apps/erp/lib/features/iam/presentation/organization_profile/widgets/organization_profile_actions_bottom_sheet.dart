@@ -32,12 +32,15 @@ class OrganizationProfileActionsBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            'Thao tác hồ sơ',
-            variant: VTextVariant.headingH3,
-            style: TextStyle(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w700,
+          Semantics(
+            header: true,
+            child: VText(
+              'Thao tác hồ sơ',
+              variant: VTextVariant.headingH3,
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           const VGap.md(),

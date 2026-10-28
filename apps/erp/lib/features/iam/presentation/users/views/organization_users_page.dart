@@ -20,18 +20,20 @@ class OrganizationUsersPage extends StatelessWidget {
     this.members,
     this.invitations,
     this.cubit,
+    this.canInvite = true,
   });
 
   final MemberRepository? members;
   final InvitationRepository? invitations;
   final OrganizationUsersCubit? cubit;
+  final bool canInvite;
 
   @override
   Widget build(BuildContext context) {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: const _OrganizationUsersView(),
+        child: _OrganizationUsersView(canInvite: canInvite),
       );
     }
     assert(
@@ -43,13 +45,15 @@ class OrganizationUsersPage extends StatelessWidget {
         members: members!,
         invitations: invitations!,
       )..loadInitial(),
-      child: const _OrganizationUsersView(),
+      child: _OrganizationUsersView(canInvite: canInvite),
     );
   }
 }
 
 class _OrganizationUsersView extends StatelessWidget {
-  const _OrganizationUsersView();
+  const _OrganizationUsersView({required this.canInvite});
+
+  final bool canInvite;
 
   String _subtitle(OrganizationUsersState state) {
     final isMember = state.activeTab == OrganizationUsersTab.members;
@@ -135,7 +139,21 @@ class _OrganizationUsersView extends StatelessWidget {
         return VPageScaffold(
           title: 'Người dùng',
           subtitle: _subtitle(state),
+          actions: canInvite
+              ? [
+                  IconButton(
+                    key: const Key('users_invite'),
+                    tooltip: 'Mời thành viên',
+                    icon: VIcon(
+                      icon: VIcons.add,
+                      color: context.vColors.textPrimary,
+                    ),
+                    onPressed: () => _navigateInvite(context),
+                  ),
+                ]
+              : null,
           body: OrganizationUsersBody(
+            canInvite: canInvite,
             onMemberTap: (m) => _openMember(context, m),
             onInvitationTap: (i) => _openInvitation(context, i),
             onInviteTap: () => _navigateInvite(context),

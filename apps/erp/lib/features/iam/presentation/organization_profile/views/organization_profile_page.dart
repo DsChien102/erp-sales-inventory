@@ -117,9 +117,12 @@ class _OrganizationProfileView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const VText(
-                      'Không tải được hồ sơ',
-                      variant: VTextVariant.headingH4,
+                    Semantics(
+                      header: true,
+                      child: const VText(
+                        'Không tải được hồ sơ',
+                        variant: VTextVariant.headingH4,
+                      ),
                     ),
                     const VGap.sm(),
                     VText(
@@ -191,12 +194,15 @@ class _OrganizationProfileView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          VText(
-                            profile.name,
-                            variant: VTextVariant.headingH4,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: colors.textPrimary,
+                          Semantics(
+                            header: true,
+                            child: VText(
+                              profile.name,
+                              variant: VTextVariant.headingH4,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: colors.textPrimary,
+                              ),
                             ),
                           ),
                         ],
@@ -212,12 +218,15 @@ class _OrganizationProfileView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    VText(
-                      'Thông tin tổ chức',
-                      variant: VTextVariant.headingH4,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: colors.textPrimary,
+                    Semantics(
+                      header: true,
+                      child: VText(
+                        'Thông tin tổ chức',
+                        variant: VTextVariant.headingH4,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: colors.textPrimary,
+                        ),
                       ),
                     ),
                     const VGap.md(),
@@ -238,12 +247,15 @@ class _OrganizationProfileView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    VText(
-                      'Hồ sơ pháp lý',
-                      variant: VTextVariant.headingH4,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: colors.textPrimary,
+                    Semantics(
+                      header: true,
+                      child: VText(
+                        'Hồ sơ pháp lý',
+                        variant: VTextVariant.headingH4,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: colors.textPrimary,
+                        ),
                       ),
                     ),
                     const VGap.md(),

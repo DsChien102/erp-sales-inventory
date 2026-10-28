@@ -60,7 +60,7 @@ void main() {
     await cubit.close();
   });
 
-  testWidgets('empty email disables submit path with validation toast', (
+  testWidgets('empty email submits and shows inline validation', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(800, 1600);
@@ -86,7 +86,83 @@ void main() {
     final send = tester.widget<VButton>(
       find.widgetWithText(VButton, 'Gửi lời mời'),
     );
-    expect(send.onPressed, isNull);
+    expect(send.onPressed, isNotNull);
+    await tester.tap(find.widgetWithText(VButton, 'Gửi lời mời'));
+    await tester.pump();
+    expect(find.text('Vui lòng nhập email và chọn vai trò.'), findsOneWidget);
+
+    await cubit.close();
+  });
+
+  testWidgets('invalid email shows inline error under email field without toast', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final cubit = OrganizationInviteMemberCubit(
+      session: testSessionController(),
+      invitations: FakeInvitationRepository(FakeIamBackend(scenario: FakeIamScenario.inviteOk)),
+      roleOptionsSource: _FakeRoles(),
+      keyFactory: FakeIdempotencyKeyFactory(),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationInviteMemberPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadRoleOptions();
+    await tester.pumpAndSettle();
+
+    // Verify helper text exists
+    expect(
+      find.textContaining('Người nhận phải đăng nhập đúng email.'),
+      findsOneWidget,
+    );
+
+    // Enter invalid email 'abc'
+    await tester.enterText(find.byType(TextField), 'abc');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(VButton, 'Gửi lời mời'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Email không hợp lệ'), findsOneWidget);
+    expect(find.byType(VToast), findsNothing);
+
+    await cubit.close();
+  });
+
+  testWidgets('backend DUPLICATE_MEMBERSHIP shows inline error without toast', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final cubit = OrganizationInviteMemberCubit(
+      session: testSessionController(),
+      invitations: FakeInvitationRepository(FakeIamBackend(
+        scenario: FakeIamScenario.inviteDuplicateMembership,
+      )),
+      roleOptionsSource: _FakeRoles(),
+      keyFactory: FakeIdempotencyKeyFactory(),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationInviteMemberPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadRoleOptions();
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'existing@example.com');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(VButton, 'Gửi lời mời'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Thành viên đã tồn tại trong tổ chức.'), findsOneWidget);
+    expect(find.byType(VToast), findsNothing);
 
     await cubit.close();
   });

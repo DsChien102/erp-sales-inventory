@@ -4,7 +4,6 @@ import 'package:erp/features/iam/data/member_repository.dart';
 import 'package:erp/features/iam/data/models/cursor_page.dart';
 import 'package:erp/features/iam/data/models/tenant_invitation.dart';
 import 'package:erp/features/iam/data/models/tenant_member.dart';
-import 'package:erp/features/iam/logic/roles_cubit.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -100,7 +99,32 @@ void main() {
 
     expect(find.text('4 vai trò hệ thống'), findsOneWidget);
   });
+
+  testWidgets('accessibility guidelines: tap target size and labeled tap target', (
+    WidgetTester tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final cubit = await _loadedCubit();
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(home: OrganizationRolesPage(cubit: cubit)),
+    );
+    await tester.pumpAndSettle();
+
+    await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+    await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+
+    handle.dispose();
+  });
 }
+
 
 Future<RolesCubit> _loadedCubit() async {
   final cubit = RolesCubit(

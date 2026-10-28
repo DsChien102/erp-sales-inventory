@@ -157,6 +157,16 @@ components:
     height: "50px"
   bottom-nav-active:
     textColor: "{colors.clinic-leaf-green}"
+  side-nav:
+    backgroundColor: "{colors.counter-white}"
+    textColor: "{colors.ink-secondary}"
+    typography: "{typography.body}"
+    width: "240px"
+    borderRight: "{colors.hairline}"
+  side-nav-active:
+    backgroundColor: "{colors.leaf-wash}"
+    textColor: "{colors.clinic-leaf-green}"
+    indicatorColor: "{colors.clinic-leaf-green}"
   app-bar:
     backgroundColor: "{colors.counter-white}"
     textColor: "{colors.ink}"
@@ -286,7 +296,7 @@ Tiết chế và rõ ràng: một nút đặc màu xanh, còn lại là viền h
 
 ### Chips
 - **Style:** nền wash theo tone, viền 1px cùng tone, chữ Body Small, bo tròn hẳn; đệm ngang 12px.
-- **State:** có thể kèm icon trước và nút xoá phía sau. Chip có nút xoá: phần vẽ giữ nguyên, khung bố cục cao 44px, vùng chạm xoá 44×44 ở đuôi chip, đọc "Xoá <nhãn>".
+- **State:** có thể kèm icon trước và nút xóa phía sau. Chip tương tác giữ phần vẽ compact, khung chạm tối thiểu 44px và semantics báo nút/trạng thái đã chọn; vùng chạm xóa 44×44 ở đuôi chip, đọc "Xóa <nhãn>".
 
 ### Badges
 - **Style:** bo tròn hẳn, có thể kèm chấm 8px; chữ Caption (nhỏ) hoặc Body Small.
@@ -297,6 +307,7 @@ Tiết chế và rõ ràng: một nút đặc màu xanh, còn lại là viền h
 - **Background:** tone quyết định nền và viền: trung tính là trắng + Hairline Strong; thương hiệu là Leaf Wash + Leaf Border; success / warning / danger / info dùng wash + màu tone.
 - **Shadow Strategy:** emphasis quyết định bóng: medium dùng e1, strong dùng e2; mặc định không bóng.
 - **Internal Padding:** 16px. Thẻ có các phần header, title, icon, action, content, footer.
+- **Interactive:** `VCard(onTap)` là một nút semantics; phần nội dung thẻ vẫn là nhãn của nút.
 
 ### Inputs / Fields
 - **Style:** nền trắng, viền Input Border 1px, bo 8px, đệm 8 × 12px, chữ Body màu Ink, placeholder Ink Muted. Nút trong ô (ẩn / hiện mật khẩu…) có vùng chạm 44×44, icon 24px.
@@ -308,6 +319,7 @@ Tiết chế và rõ ràng: một nút đặc màu xanh, còn lại là viền h
 ### Navigation
 - **App bar:** nền trắng, không bóng, đường kẻ Hairline 1px phía dưới; tiêu đề cỡ Title (18px) weight 700 màu Ink; nút quay lại là chevron trái, đọc "Quay lại".
 - **Thanh dưới:** nền trắng, đường kẻ Hairline phía trên, đệm trên 4px, ô tab cao tối thiểu 48px, đệm dưới bằng trọn inset của thanh Home / thanh cử chỉ (tối thiểu 12px); mỗi tab có icon 24px và nhãn Label Small bên dưới (cách 4px, 1 dòng, cỡ chữ phóng tối đa ×1.3); tab đang chọn màu Clinic Leaf Green, tab khác Ink Secondary; không có hiệu ứng splash. Mỗi tab là một nút semantics mang tên tab và trạng thái đã chọn.
+- **Thanh bên (Web / màn rộng ≥ 1024px):** bề rộng 240px cố định, nền trắng, viền phải Hairline 1px; phần đầu (header) chứa selector tổ chức, phần thân là danh sách cuộn các mục chính và mục con (một cấp, luôn mở); mỗi mục cao tối thiểu 44px, bo góc 8px (R8), đệm ngang 12px (mục con thụt vào 44px khi không có icon); mục đang chọn tô nền Leaf Wash (`surfaceBrand`), chữ và icon màu Clinic Leaf Green (`primary` / `textBrand`); mục phụ khi đang chọn nhánh tô nền Leaf Wash 50% alpha; hover nền xám nhạt (`surfaceHover`); focus bàn phím qua phím Tab có viền xanh 2px nhìn thấy rõ, kích hoạt bằng Enter hoặc Space; mục bị vô hiệu hoá mờ 40% (`vDisabledOpacity`); hỗ trợ semantics nút và trạng thái đã chọn. Phần cuối (footer) có viền trên Hairline 1px, chứa nút Đăng xuất.
 
 ## Do's and Don'ts
 
@@ -319,6 +331,7 @@ Tiết chế và rõ ràng: một nút đặc màu xanh, còn lại là viền h
 - **Do** dùng biến thể JetBrains Mono khi số tiền hoặc số lượng cần căn cột.
 - **Do** làm mờ 40% để biểu thị trạng thái vô hiệu.
 - **Do** cho mọi tab và nút chỉ có icon một nhãn đọc được (chữ hiển thị hoặc semantics label); hành động ẩn sau thao tác vuốt phải có `semanticActions`.
+- **Do** dùng chấm hình học kèm nhãn "đang áp dụng" cho nút lọc; không chỉ đổi màu để báo trạng thái.
 - **Do** tôn trọng Giảm chuyển động (`MediaQuery.disableAnimations`): skeleton đứng yên, thao tác vuốt mở / đóng tức thì.
 - **Do** cho web đi được bằng bàn phím: Tab qua mọi control theo thứ tự đọc, vòng focus nhìn thấy, Enter / Space kích hoạt, Esc đóng hộp thoại và sheet; mọi hành động vuốt có nút hoặc menu thay thế dùng chuột.
 

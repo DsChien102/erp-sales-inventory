@@ -39,5 +39,47 @@ void main() {
       expect(find.text('Đã loại'), findsOneWidget);
       expect(find.text('Tạm ngừng'), findsNothing);
     });
+
+    testWidgets('isOwner true shows Chủ sở hữu badge, isOwner false hides it', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: const Scaffold(
+            body: MemberCard(
+              member: MemberUiModel(
+                id: 'mem-1',
+                name: 'Nguyen Van A',
+                email: 'a@example.com',
+                role: 'accountant',
+                status: MemberStatus.active,
+                isOwner: true,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(VBadge, 'Chủ sở hữu'), findsOneWidget);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: const Scaffold(
+            body: MemberCard(
+              member: MemberUiModel(
+                id: 'mem-2',
+                name: 'Nguyen Van B',
+                email: 'b@example.com',
+                role: 'staff',
+                status: MemberStatus.active,
+                isOwner: false,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(VBadge, 'Chủ sở hữu'), findsNothing);
+    });
   });
 }

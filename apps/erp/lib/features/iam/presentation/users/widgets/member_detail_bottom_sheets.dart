@@ -3,81 +3,6 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../models/user_ui_model.dart';
 
-/// Helper Option Card dùng trong Bottom Sheet thao tác thành viên.
-class MemberDetailOptionItem extends StatelessWidget {
-  final VIcons icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-  final bool isDanger;
-
-  const MemberDetailOptionItem({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-    this.isDanger = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.vColors;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(VRadius.card),
-      child: Container(
-        padding: const EdgeInsets.all(VSpacing.space4),
-        decoration: BoxDecoration(
-          color: isDanger ? colors.dangerBg : colors.surface,
-          border: Border.all(
-            color: isDanger ? colors.danger : colors.borderDefault,
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(VRadius.card),
-        ),
-        child: Row(
-          children: [
-            VIcon(
-              icon: icon,
-              size: 24,
-              color: isDanger ? colors.danger : colors.textPrimary,
-            ),
-            const VGap.horizontalMd(),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VText(
-                    title,
-                    variant: VTextVariant.bodyDefault,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: isDanger ? colors.danger : colors.textPrimary,
-                    ),
-                  ),
-                  const VGap.xs(),
-                  VText(
-                    subtitle,
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
-                ],
-              ),
-            ),
-            VIcon(
-              icon: VIcons.chevronRight,
-              size: 20,
-              color: isDanger ? colors.danger : colors.textSecondary,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 /// Helper hiển thị confirm bottom sheet đổi vai trò.
 void showChangeRoleConfirmBottomSheet({
   required BuildContext context,
@@ -100,10 +25,13 @@ void showChangeRoleConfirmBottomSheet({
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            'Đổi vai trò của ${member.name}?',
-            variant: VTextVariant.headingH3,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+          Semantics(
+            header: true,
+            child: VText(
+              'Đổi vai trò của ${member.name}?',
+              variant: VTextVariant.headingH3,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
           ),
           const VGap.xs(),
           VText(
@@ -176,12 +104,15 @@ void showSuspendConfirmBottomSheet({
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            'Tạm ngừng thành viên?',
-            variant: VTextVariant.headingH3,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: colors.danger,
+          Semantics(
+            header: true,
+            child: VText(
+              'Tạm ngừng thành viên?',
+              variant: VTextVariant.headingH3,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: colors.danger,
+              ),
             ),
           ),
           const VGap.xs(),
@@ -255,12 +186,15 @@ void showReactivateConfirmBottomSheet({
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            'Kích hoạt lại thành viên?',
-            variant: VTextVariant.headingH3,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: colors.textPrimary,
+          Semantics(
+            header: true,
+            child: VText(
+              'Kích hoạt lại thành viên?',
+              variant: VTextVariant.headingH3,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: colors.textPrimary,
+              ),
             ),
           ),
           const VGap.xs(),
@@ -334,12 +268,15 @@ void showRemoveConfirmBottomSheet({
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VText(
-            'Loại thành viên khỏi tổ chức?',
-            variant: VTextVariant.headingH3,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: colors.danger,
+          Semantics(
+            header: true,
+            child: VText(
+              'Loại thành viên khỏi tổ chức?',
+              variant: VTextVariant.headingH3,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: colors.danger,
+              ),
             ),
           ),
           const VGap.xs(),

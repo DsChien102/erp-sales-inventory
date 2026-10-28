@@ -40,12 +40,15 @@ class InvitationOutcomeView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        VText(
-          title,
-          variant: VTextVariant.headingH3,
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: colors.textPrimary,
+        Semantics(
+          header: true,
+          child: VText(
+            title,
+            variant: VTextVariant.headingH3,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: colors.textPrimary,
+            ),
           ),
         ),
         const VGap.sm(),

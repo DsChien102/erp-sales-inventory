@@ -1,10 +1,42 @@
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/auth/logic/verify_email_cubit.dart';
+import 'package:erp/features/auth/presentation/widgets/verify_email_view.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
 
 import '../support/scripted_auth.dart';
 
 void main() {
+  testWidgets('entering six OTP digits verifies exactly once', (tester) async {
+    final auth = ScriptedAuthRepository();
+    final session = loginSession();
+    addTearDown(session.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: Scaffold(
+          body: VerifyEmailView(
+            email: 'lan@example.com',
+            auth: auth,
+            session: session,
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final field = find.descendant(
+      of: find.byKey(const Key('otp_code_field')),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(field, '123456');
+    await tester.pumpAndSettle();
+
+    expect(auth.otpCodes, ['123456']);
+  });
+
   test('a wrong code shows the OTP message', () async {
     final auth = ScriptedAuthRepository()..verifyError = const AppException('OTP_INVALID');
     final session = loginSession();

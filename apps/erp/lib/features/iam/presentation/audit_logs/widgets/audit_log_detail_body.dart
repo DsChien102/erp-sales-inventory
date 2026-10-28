@@ -62,6 +62,7 @@ class AuditLogDetailBody extends StatelessWidget {
         scrolledUnderElevation: 0,
         centerTitle: false,
         leading: IconButton(
+          tooltip: 'Quay lại',
           icon: VIcon(
             icon: VIcons.chevronLeft,
             color: colors.textPrimary,
@@ -69,10 +70,13 @@ class AuditLogDetailBody extends StatelessWidget {
           onPressed: onBackPressed ?? () => Navigator.of(context).maybePop(),
         ),
         titleSpacing: 0,
-        title: const VText(
-          'Chi tiết hoạt động',
-          variant: VTextVariant.headingH4,
-          style: TextStyle(fontWeight: FontWeight.w700),
+        title: Semantics(
+          header: true,
+          child: const VText(
+            'Chi tiết hoạt động',
+            variant: VTextVariant.headingH4,
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
         ),
       ),
       body: SingleChildScrollView(
