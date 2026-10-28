@@ -766,7 +766,7 @@ Chuẩn bị Giai đoạn 2. Plan ✅ (duyệt 2026-10-21) | Làm ✅ 2026-10-21
 
 Đường dẫn tính từ `specs/themes/theme-07/03.design/prototype/html/`. Server: `python3 -m http.server 8765 --bind 127.0.0.1 &`.
 
-**Mục tiêu.** Harness có thêm khung **Web · 1280 × 800** cạnh khung **Mobile · 402 × 874**: cửa sổ máy tính có thanh bên trái của app (đúng khung đã chốt ở [LUONG-UNG-DUNG 1.1](../../../02-yeu-cau/LUONG-UNG-DUNG.md) và [W-1](../W/W-1-khung-web.md) mục 3.3), nội dung giữa rộng tối đa 1120px. Golden chụp được cả hai khung. **Không đổi màn nào**: màn chưa thiết kế lại cho web hiện bố cục iPhone trong vùng nội dung; mọi ca iPhone hiện có phải **khớp hoàn toàn** `tools/.golden-phase1`.
+**Mục tiêu.** Harness có thêm khung **Web · 1280 × 800** cạnh khung **Mobile · 402 × 874**: cửa sổ máy tính có thanh bên trái của app (đúng khung đã chốt ở [LUONG-UNG-DUNG 1.1](../../../02-yeu-cau/LUONG-UNG-DUNG.md) và W-1 (plan đã xoá, commit `6529acd82`) mục 3.3), nội dung giữa rộng tối đa 1120px. Golden chụp được cả hai khung. **Không đổi màn nào**: màn chưa thiết kế lại cho web hiện bố cục iPhone trong vùng nội dung; mọi ca iPhone hiện có phải **khớp hoàn toàn** `tools/.golden-phase1`.
 
 **Hiện trạng (đo 2026-10-20).**
 

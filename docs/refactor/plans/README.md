@@ -4,7 +4,7 @@ Mỗi **plan** trong bảng Plan của từng phase ở [PLAN.md](../PLAN.md) (m
 
 ```text
 plans/
-  P2/2-B6-ui-ux-auth.md
+  W/W-2-theme1-web.md
   T7/T7-1-ton-kho-bj01.md
   P2/2-B1-dang-ky-cua-hang.md
   ...
