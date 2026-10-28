@@ -1,9 +1,10 @@
 # 10-7 — Tinh chỉnh `vet45_design_system` từng mảng bằng impeccable
 
-> Phase: P10 · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P10 · Trạng thái: Plan ✅ | Làm ✅ | Review ✅ — *còn task "Cuối" (polish + document + bump version)*
 > Độc lập với phase nghiệp vụ; chỉ đụng `packages/vet45_design_system` (và app khi một task đổi API công khai).
 > Nguồn: hỏi đáp về lệnh `/impeccable` (2026-10-19).
 > Tài liệu liên quan: [DESIGN.md](../../../../DESIGN.md), [PRODUCT.md](../../../../PRODUCT.md), README `packages/vet45_design_system` (quy tắc example catalog, version), các plan trước: 10-4, 10-5, 10-6.
+> Ghi chú phạm vi: vùng chạm link và tham số tự điền được thực hiện trong plan 2-B6, không lặp lại ở phase này.
 
 ## 1. Mục tiêu
 

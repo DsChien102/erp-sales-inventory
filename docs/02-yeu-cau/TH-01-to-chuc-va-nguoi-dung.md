@@ -6,6 +6,7 @@
 > - 🔧 = code hiện tại **sai**, phải sửa khi refactor.
 >
 > **Phiên bản:** 4.0 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> - **2026-10-27:** 2-B7: bỏ họ tên / SĐT khỏi form mời (FR-01), lỗi mời dưới ô + nút Gửi luôn bật (FR-06), hộp thoại bỏ thay đổi, ô MST tự chèn gạch
 > **Thay thế:** bản 3.0 (2026-10-06, cùng phạm vi, ít chi tiết hơn), bản 2.0 (luồng cũ qua 2 app), `Theme 1_ Tổ chức & người dùng.md` (v1), `docs/themes/TH-01-organization-users/`.
 > **Nguồn đối chiếu:**
 > - DB: schema `iam`, migration `20260811*` (vòng đời, mời, đặt lại mật khẩu, chuẩn hoá vai trò Owner), `20260820*`, `20260826003`, `20260916005`–`006`, `20261009*` (đăng ký, email).
@@ -204,7 +205,7 @@ Số BR giữ từ bản 3.0.
 
 | Mã | Quy tắc |
 |---|---|
-| BR-40 | Lời mời gồm email, vai trò ban đầu, và tuỳ chọn họ tên, SĐT. Mã 8 ký tự, hạn 7 ngày; DB chỉ lưu `token_hash` |
+| BR-40 | Lời mời gồm email và vai trò ban đầu ở app hiện tại; họ tên, SĐT là dữ liệu tuỳ chọn của luồng kích hoạt nhưng **chưa dùng ở app**. Mã 8 ký tự, hạn 7 ngày; DB chỉ lưu `token_hash` |
 | BR-41 | Gửi lại → mã mới, mã cũ vô hiệu. Chỉ lời mời `pending` gửi lại / thu hồi được |
 | BR-42 | Chấp nhận phải bằng đúng email được mời (`INVITATION_EMAIL_MISMATCH`) |
 | BR-43 | Tổ chức không chặn chấp nhận lời mời vì trạng thái tổ chức. Chấp nhận vẫn kiểm email, hạn lời mời và membership |
@@ -716,12 +717,12 @@ Scenario: SC-01 — MST trùng tổ chức khác
 
 **Yêu cầu chức năng**
 
-- FR-01: "Mời thành viên": "Email" *, "Họ và tên đệm", "Tên", "Số điện thoại", "Vai trò ban đầu" * ("Chọn vai trò"; "Vai trò có thể thay đổi sau khi tham gia."); ghi chú "Người nhận phải đăng nhập đúng email. Lời mời sẽ hết hạn sau 7 ngày."
+- FR-01: "Mời thành viên": "Email" *, "Vai trò ban đầu" * ("Chọn vai trò"; "Vai trò có thể thay đổi sau khi tham gia."); họ tên và SĐT chưa dùng ở form mời hiện tại; ghi chú "Người nhận phải đăng nhập đúng email. Lời mời sẽ hết hạn sau 7 ngày."
 - FR-02: Vai trò từ `list_assignable_invitation_roles`: mọi vai trò đang dùng — Chủ cửa hàng, Kế toán, Nhân viên bán hàng, Thủ kho (BR-36).
 - FR-03: "Gửi lời mời" ("Đang gửi...") → `create_tenant_invitation` → 🆕 tạo `email_jobs` → "Đã tạo lời mời — Đã gửi lời mời thành công."
 - FR-04: Email gửi lỗi → "Email chưa gửi được. Bạn có thể gửi lại từ chi tiết lời mời."
 - FR-05: Không tải được vai trò → "Không tải được danh sách vai trò" + "Thử lại"; 🔧 bỏ câu kỹ thuật "Kiểm tra catalog iam.role_definitions trên DB rồi thử lại." (KI-14).
-- FR-06: Kiểm: "Vui lòng nhập email và chọn vai trò."
+- FR-06: Nút "Gửi lời mời" luôn bật khi không gửi; thiếu email hoặc vai trò → "Vui lòng nhập email và chọn vai trò." dưới trường liên quan; email sai định dạng → "Email không hợp lệ"; email đã là thành viên hoặc đã có lời mời chờ → thông điệp lỗi dưới ô Email.
 
 **Quy tắc:** BR-40, BR-46, BR-47.
 
@@ -1015,6 +1016,9 @@ ID-09 chỉ còn hai trường hợp, cùng câu với màn chưa thuộc tổ c
 └──────────────────────────────────┘
 ```
 
+**Màn hồ sơ pháp lý (ID-13):**
+- Ô "Mã số thuế": mô tả ô "10 hoặc 12 chữ số; chi nhánh nhập đủ 13 số, dấu gạch tự thêm." và "Bàn phím số; dấu gạch tự chèn khi đủ 13 chữ số (BR-21)."
+
 ### 5.8 ID-14 … ID-18 — Người dùng
 
 ```text
@@ -1084,6 +1088,7 @@ Không còn màn quản trị nền tảng. Khung cũ (C1–C7) chỉ để đ�
 - Ô mã 6 số / 8 ký tự hỗ trợ dán cả mã; bàn phím số cho mã 6 số.
 - Mật khẩu có nút hiện / ẩn.
 - Nhãn trạng thái có chữ, không chỉ màu.
+- Rời form có thay đổi chưa lưu (sửa tài khoản, sửa hồ sơ tổ chức, hồ sơ pháp lý): hộp thoại "Bỏ thay đổi?" — "Các thay đổi chưa lưu sẽ bị mất." — nút "Tiếp tục sửa" / "Bỏ thay đổi" (đỏ). Lưu thành công rời trang không hỏi.
 - Hai thiết bị đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md), sửa 2026-10-22): mỗi màn có bố cục iPhone và bố cục web thiết kế đủ như nhau — web không phải cột iPhone đặt giữa hay kéo giãn. Web dùng bố cục chung: danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet thành hộp thoại, đi được bằng bàn phím; bố cục từng màn chốt trong plan của theme.
 
 ---

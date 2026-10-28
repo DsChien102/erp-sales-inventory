@@ -1,6 +1,6 @@
 # 2-B5 — Nhận lời mời bằng một mã (bỏ mã 6 số cho nhân viên mới)
 
-> Phase: P2 · Bước (b) sửa · Trạng thái: Plan ✅ | Làm ✅ (chưa commit) | Review 🔄 (code đạt 2026-10-12; chờ deploy + kiểm tay)
+> Phase: P2 · Bước (b) sửa · Trạng thái: Plan ✅ | Làm ✅ (chưa commit) | Review 🔄 (code đạt 2026-10-12; `invitation-signup` đã deploy Dev 2026-10-12 — kiểm `functions list` 2026-10-28; chờ kiểm tay)
 > Quyết định 2026-10-12: nhân viên **chưa có tài khoản** chỉ nhập **mã lời mời 8 ký tự**. Mã đó được gửi tới đúng email được mời nên đã chứng minh chủ email; không bắt nhập thêm mã xác minh 6 số.
 > Làm **trước** kiểm tay kịch bản 3 của đợt kiểm IAM (TH-01 9.3).
 > Tài liệu liên quan: [LUONG-DANG-KY-XAC-MINH-EMAIL](../../../02-yeu-cau/LUONG-DANG-KY-XAC-MINH-EMAIL.md) mục 1, 3; TH-01 EP-03 (ID-06, ID-07); [2-B1](2-B1-dang-ky-cua-hang.md), [2-B2](2-B2-email-edge-function.md) (mẫu Edge Function).

@@ -1,6 +1,6 @@
 # 2-B6 — Hoàn thiện UI/UX các màn auth (đăng nhập, đăng ký, xác minh email, lời mời)
 
-> Phase: P2 · Trạng thái: Plan ✅ (duyệt 2026-10-13) | Làm ⬜ | Review ⬜
+> Phase: P2 · Trạng thái: Plan ✅ (duyệt 2026-10-13; bổ sung 2026-10-27) | Làm ✅ | Review ✅ R3 2026-10-27 — *còn kiểm tay iPhone + web (mục "Còn chờ kiểm tay")*
 > **Làm sau khi 2-B5 commit** (2-B5 đang sửa `invitation_token_page.dart`, `invitation_acceptance_cubit.dart` — chưa commit lúc viết plan).
 > Nguồn: `/impeccable audit apps/erp/lib/features/auth` (2026-10-13, đọc mã nguồn + đối chiếu TH-01 mục 5.2–5.6, 5.12). Điểm: **13/20** (Tiếp cận 2 · Hiệu năng 3 · Theme 3 · Chuẩn nền tảng 2 · Thích ứng 3).
 > Tài liệu liên quan: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) mục 4 (FR / chuỗi chuẩn), 5.2 ID-01, 5.3 ID-02, 5.4, 5.6 ID-06/07, 5.12; BR-65; 10-5, 10-6 (sửa phía design system, độc lập với plan này).
@@ -85,6 +85,7 @@ Các màn auth — phần đầu tiên của kịch bản demo — **khớp wire
 | `widgets/invitation_token_entry_form.dart` | sửa | `bottomBar` "Tiếp tục"; tham số `errorMessage` hiện dưới ô mã; nút quay lại thống nhất (B, I, E) |
 | `logic/signup_state.dart`, `logic/signup_cubit.dart` | sửa | Lỗi theo trường (`Map<SignupField, String> fieldErrors`) + `failure` chung; kiểm đúng thứ tự hiển thị (C) |
 | `pages/signup_page.dart` | sửa | Lỗi từng trường, `*`, quy tắc mật khẩu, `VSteps`, `VPhoneField`, `AutofillGroup`, nút quay lại (C, E, F, J) |
+| `apps/erp/lib/core/widgets/address/administrative_units_form_section.dart` | sửa | *(bổ sung 2026-10-27)* Nhận `provinceError` / `communeError`, hiện lỗi dưới đúng ô Tỉnh / Xã (C) — ô Tỉnh / Xã không đi qua `_field` của trang đăng ký |
 | `pages/login_page.dart` | sửa | Lỗi dưới form, `AutofillGroup`, logo `ExcludeSemantics`, bỏ toast trùng, khoá link khi gửi (F, H, L, M, O) |
 | `widgets/invitation_registration_form.dart` | sửa | `AutofillGroup` + hints; nút quay lại thống nhất (E, F) |
 | `widgets/verify_email_view.dart` | sửa | Dùng `VVerificationCodeField` (G) |
@@ -194,6 +195,7 @@ final String? failure;                       // lỗi chung (máy chủ, S-08)
 
 - `_validateAccount` / `_validateStore` trả `Map<SignupField, String>` gồm **mọi** lỗi, giữ nguyên chuỗi FR-03 (`'Vui lòng nhập họ và tên đệm'`, `'Email không hợp lệ'`, `'Mật khẩu phải có ít nhất 8 ký tự'`, `'Mật khẩu xác nhận không khớp'`, `'Số điện thoại phải có 9–11 chữ số'`, …).
 - Bước 2 kiểm theo thứ tự hiển thị: tên cửa hàng → SĐT → tỉnh → xã → địa chỉ.
+- *(Bổ sung 2026-10-27)* **Mỗi khoá trong `fieldErrors` phải có chỗ hiện trên màn.** Tỉnh / Xã do `AdministrativeUnitsFormSection` dựng, không qua `_field` ⇒ thêm vào section hai tham số `String? provinceError`, `String? communeError`; trong section, mỗi ô bọc `VField(invalid: error != null)` + `VFieldError(error)` dưới ô. Trang đăng ký truyền `state.fieldErrors[SignupField.province]` / `[SignupField.commune]`. Tham số mặc định `null` ⇒ các nơi khác dùng section không đổi. `isRequired` cho nhãn Tỉnh / Xã nếu section hỗ trợ (`*` theo wireframe 5.3).
 - `failure` chỉ còn cho lỗi từ máy chủ; "Email đã được đăng ký" giữ nhánh `emailExists` như cũ.
 - Hàm mới `clearFieldError(SignupField f)` gọi từ `onChanged` của từng ô.
 
@@ -316,4 +318,87 @@ IconButton(
 
 ## Review
 
-_(Claude ghi sau khi bạn làm xong.)_
+### Review tự động 2026-10-27
+
+- Đã mở rộng `VInput` → `VTextField` → `VEmailField` / `VPasswordField` / `VPhoneField` với `autofillHints` và `textInputAction`; link `VButton` có vùng chạm tối thiểu 44 × 44.
+- Đã chuyển `SignupState` sang `fieldErrors`, kiểm tra toàn bộ lỗi nhập liệu và hiển thị lỗi dưới đúng trường; thêm `VSteps`, `AutofillGroup`, banner lỗi máy chủ và `VPhoneField` cho đăng ký.
+- Đã sửa login: lỗi máy chủ nằm dưới form, bỏ toast trùng, autofill, logo loại khỏi semantics, link kích hoạt có tooltip và bị khóa khi đang gửi.
+- Đã sửa lời mời: sheet hiện tổ chức / vai trò / email, mã lỗi hiển thị inline với nút `Tiếp tục`, OTP dùng `VVerificationCodeField`, trang không có tổ chức cuộn được và có heading semantics.
+- Đã xóa `otp_code_field.dart`, thêm regression test vùng chạm/autofill, bump `vet45_design_system` lên `1.8.0`.
+- Kiểm tra đạt: `dart analyze lib/features/auth test/features/auth` sạch; `flutter test test/features/auth` **78 test pass**; test design system **35 test pass**; `dart analyze packages/vet45_design_system/lib` sạch.
+
+### Còn chờ kiểm tay
+
+- iPhone: Keychain/autofill, mật khẩu mạnh, mã OTP tự điền, cỡ chữ lớn và xoay ngang.
+- Chrome web cửa sổ rộng/hẹp: tab bàn phím, focus, lỗi không tràn và vùng chạm.
+- VoiceOver/TalkBack: tên nút, heading rotor, trạng thái lỗi và sheet xác nhận lời mời.
+
+### Review R1 2026-10-27 (phiên plan / review) — ❌ chưa đạt
+
+Đã kiểm: đọc toàn bộ diff; `flutter test test/features/auth` 78 pass; `dart analyze` không lỗi mới. `flutter test` cả app 61 hỏng (catalog, pricing, tenant_admin, my_account) — **có sẵn ở HEAD** (chạy 4 tệp trên worktree HEAD đều hỏng), không do 2-B6.
+
+Đạt: sheet xác nhận đủ 3 dòng + `MergeSemantics`; nút "Tiếp tục" ghim đáy, đóng sheet → bấm lại mở lại sheet; lỗi kiểm mã hiện dưới ô, không toast; ô mã 6 số `VVerificationCodeField`; banner lỗi đăng nhập dưới form, bỏ toast trùng; logo phẳng + `ExcludeSemantics`; link "Kích hoạt tài khoản" khoá khi gửi; `/no-organization` cuộn được + header; link `VButton` 44; tham số autofill DS.
+
+**Phải sửa (theo thứ tự ưu tiên):**
+
+| # | Mức | Vấn đề | Vị trí | Sửa |
+|---|---|---|---|---|
+| R1-1 | P1 | **Lỗi Tỉnh / Xã không hiện.** `_storeErrors` ghi `fieldErrors[province/commune]` nhưng hai ô do `AdministrativeUnitsFormSection` dựng, không qua `_field`, section không nhận lỗi ⇒ bấm "Tạo cửa hàng" khi chưa chọn tỉnh: không có chữ nào, không ô nào đỏ (trước 2-B6 còn dòng lỗi chung). Lỗ hổng của plan — đã bổ sung mục 4 + 5.4 | `signup_page.dart` `_storeStep`; `core/widgets/address/administrative_units_form_section.dart` | Theo 5.4 (bổ sung): `provinceError` / `communeError` |
+| R1-2 | P1 | Chưa cuộn tới trường lỗi đầu tiên (Q2). Banner lỗi máy chủ ở đầu `ListView` cũng không thấy khi đang ở cuối bước 2 | `signup_page.dart` | `GlobalKey` cho từng trường (theo thứ tự hiển thị); sau `continueToStore` / `createStore` có lỗi → `Scrollable.ensureVisible` trường lỗi đầu tiên; lỗi máy chủ → cuộn lên đầu (về banner) |
+| R1-3 | P2 | Không gọi `TextInput.finishAutofillContext()` khi đăng nhập thành công ⇒ iOS không hỏi lưu mật khẩu (5.5) | `login_page.dart` listener nhánh `LoginStatus.success` | Gọi trước `context.go('/')`; chỉ ở nhánh success (Rủi ro mục 7). Cân nhắc cùng ở đăng ký khi tạo tài khoản xong |
+| R1-4 | P2 | Nút quay lại 2 màn lời mời vẫn `VIcons.arrowLeft` (E yêu cầu thống nhất `VIcons.chevronLeft` như `VAppBar`) | `invitation_token_entry_form.dart`, `invitation_registration_form.dart` | Đổi icon (giữ `tooltip`, logic) |
+| R1-5 | P2 | Thiếu `Semantics(header: true)` ở 2 tiêu đề (N) | `pages/verify_email_page.dart` ("Xác minh email để tiếp tục"), `widgets/invitation_outcome_view.dart` (title) | Bọc như `no_organization_page` |
+| R1-6 | P2 | Ô cuối mỗi bước đăng ký `done` nhưng không `onSubmitted` (5.4) | `signup_page.dart`: "Nhập lại mật khẩu" → `_continue`; "Email liên hệ" → `_createStore` (chặn khi `submitting`) | Thêm `onSubmitted` |
+| R1-7 | P2 | `_formError` không xoá khi gửi lại ⇒ banner cũ còn trong lúc đang gửi (5.5) | `login_page.dart` `_submit` | `setState(() => _formError = null)` trước `loginCubit.submit` |
+| R1-8 | P2 | Thiếu test 6.1 — chỉ có `signup_*` được sửa | `test/features/auth/...` | Thêm: **login** (lỗi mạng → `VBanner`, không `VToast`; quên mật khẩu khi trống → không toast; logo không trong semantics); **invitation_token_page** (có `invitation_token_submit`; `INVITATION_EXPIRED` → chữ dưới ô, không toast; đóng sheet → "Tiếp tục" mở lại; sheet hiện tổ chức / vai trò / email); **verify email** (nhập đủ 6 số → `verify` gọi đúng 1 lần); **no_organization** (320×568, `textScaler` 2.0, không overflow); **signup** (bước 2 trống → hiện lỗi Tỉnh và Xã — chặn tái phát R1-1); `meetsGuideline(labeledTapTargetGuideline)` + `iOSTapTargetGuideline` cho các màn auth |
+| R1-9 | P2 | `v_button_test` "link keeps a minimum touch target": `isNot(Size(44, 44))` trên kích thước chữ luôn đúng, không kiểm gì; `find.byType(GestureDetector).last` mong manh | `packages/vet45_design_system/test/components/v_button_test.dart` | Bỏ dòng `isNot`; đo bằng `tester.getSize(find.byType(VButton))` (cao ≥ 44, rộng ≥ 44) và kiểm chữ vẫn cao như cũ (< 44) |
+| R1-10 | P3 | `pubspec.yaml` đã `1.8.0` nhưng CHANGELOG vẫn `[Unreleased]` — trái điều chốt ở đầu plan (bump một lần khi phát hành). Mục autofill nằm ở *Changed*, 5.9 ghi *Added* | `packages/vet45_design_system/pubspec.yaml`, `CHANGELOG.md` | Trả `version` về `1.7.0`; chuyển dòng autofill sang `### Added` |
+| R1-11 | P3 | Chưa ghi chú chéo ở 10-6 (5.9.2) | `docs/refactor/plans/P10/10-6-…` | Thêm "vùng chạm link và tham số tự điền làm ở 2-B6" |
+| R1-12 | P3 | Diff phình vì định dạng lại cả tệp về độ rộng 80 (vd. `v_button.dart` 54 dòng đổi, thay đổi thật ~12) — khó review, dễ xung đột với 2-B7 / 10-x | các tệp DS + auth | Không bắt buộc. Nếu còn kịp: chỉ giữ dòng thay đổi thật, đừng chạy format cả tệp |
+| R1-13 | P3 | Code thừa: nhánh `newAccountRegistration` truyền `errorMessage` với điều kiện `step == tokenEntry` (luôn sai); nhánh `submitting` truyền `errorMessage: null` | `invitation_token_page.dart` `_buildBody` | Bỏ hai chỗ |
+
+Sửa xong: chạy lại `flutter test test/features/auth` + test DS, `dart analyze`, ghi kết quả dưới đây và báo phiên review (R2). Kiểm tay (mục "Còn chờ kiểm tay" ở trên) chỉ làm sau khi R2 đạt.
+
+### Review R2 2026-10-27 (phiên plan / review) — ❌ 4 mục phải sửa (R2-1…R2-4)
+
+Đã kiểm: `dart analyze` (auth, address, test auth, DS) sạch; `flutter test test/features/auth` **85 pass**; test DS 418 pass, 1 hỏng `v_overlay_menu_shell_test` (shadow token) — tệp này và `VOverlayMenuShell` không đổi trong 2-B6, không do plan này.
+
+R1 đã đạt: R1-1 (lỗi Tỉnh / Xã hiện dưới ô, test chặn tái phát), R1-3, R1-4, R1-5, R1-6, R1-7, R1-9, R1-10, R1-11 (ghi ở 10-7 vì 10-6 đã xoá — được), R1-13; R1-8 phần lớn; R1-12 đã bớt ở `login_page`, `v_button` (không bắt buộc).
+
+**Phải sửa:**
+
+| # | Mức | Vấn đề | Vị trí | Sửa |
+|---|---|---|---|---|
+| R2-1 | P2 | **Màn nhảy khi đang gõ (lỗi do R1-2).** `listenWhen` bắt mọi lần `fieldErrors` đổi, kể cả `clearFieldError` lúc gõ ⇒ có lỗi ở Họ và Email, gõ ký tự đầu vào ô Họ → lỗi Họ được xoá → listener cuộn tới ô Email trong khi bàn phím vẫn ở ô Họ. Tương tự khi còn `failure`: mỗi lần xoá lỗi trường lại cuộn về banner | `signup_page.dart` `listenWhen` / listener (~128-152) | Chỉ cuộn **sau khi bấm nút**: trong `_continue` và `_createStore`, sau khi gọi cubit, `addPostFrameCallback` → cuộn tới trường lỗi đầu tiên (nếu `fieldErrors` không rỗng). Lỗi máy chủ: trong listener chỉ khi `previous.failure != current.failure && current.failure != null` → cuộn về `_bannerKey`. Bỏ điều kiện `previous.fieldErrors != current.fieldErrors` khỏi `listenWhen`; bỏ `orElse` (không cần khi đã kiểm rỗng). Thêm test: bước 1 trống → bấm Tiếp tục → gõ vào ô Họ → vị trí cuộn không đổi |
+
+**Cũng sửa luôn (người dùng chốt 2026-10-27: làm ngay, không để sau):**
+
+| # | Mức | Vấn đề | Vị trí | Sửa |
+|---|---|---|---|---|
+| R2-2 | P3 | Ô Tỉnh / Xã có lỗi nhưng không viền đỏ; nhãn không có `*` và khác kiểu nhãn các ô khác (`VText` đậm tự dựng thay vì `VFieldLabel`) | `apps/erp/lib/core/widgets/address/administrative_units_form_section.dart`; `signup_page.dart` | **Chốt: đổi sang `VFieldLabel`** (người dùng chọn 2026-10-27). (a) `SearchDropdownField`: thêm `final bool isRequired` (mặc định `false`); thay `VText(label, …)` + `const VGap.sm()` bằng `VFieldLabel(label, isRequired: isRequired)` — `VFieldLabel` đã tự có `VGap.sm` phía dưới, **bỏ** `VGap.sm` cũ để khoảng cách không gấp đôi. (b) `AdministrativeUnitsFormSection`: thêm `final bool isRequired` (mặc định `false`), truyền xuống cả 2 `SearchDropdownField`. (c) `_AdministrativeUnitTouchField`: màu viền = `colors.danger` khi `VField.resolveInvalid(context, local: null)` đúng và `enabled`; còn lại giữ như cũ. (d) `signup_page.dart`: `AdministrativeUnitsFormSection(isRequired: true, …)`. Hai form IAM (`organization_edit_profile_page.dart:307`, `organization_legal_profile_form_page.dart:401`) **không truyền** `isRequired`, không truyền lỗi ⇒ chỉ đổi kiểu nhãn sang `VFieldLabel` (chủ đích, cho thống nhất) — mở 2 màn đó xem lại một lượt. Test: `signup_page_test` bước 2 trống → nhãn Tỉnh / Xã có `*`; `_AdministrativeUnitTouchField` của Tỉnh có viền `danger` |
+| R2-3 | P3 | Test 6.1 còn thiếu 2 ý | `test/features/auth/presentation/pages/login_page_test.dart` | (a) Logo: `find.bySemanticsLabel('V45')` → `findsNothing` (bật `tester.ensureSemantics()`). (b) Thêm `await expectLater(tester, meetsGuideline(labeledTapTargetGuideline))` vào test "auth links satisfy …"; đổi kiểm iOS sang `await expectLater(tester, meetsGuideline(iOSTapTargetGuideline))` cho thống nhất. Nếu `labeledTapTargetGuideline` báo lỗi một nút → sửa nút (thêm nhãn / tooltip), không bỏ kiểm |
+| R2-4 | P3 | CHANGELOG mất dòng trống trước `### Removed` | `packages/vet45_design_system/CHANGELOG.md` | Thêm lại một dòng trống sau mục cuối của `### Changed` |
+
+Sửa xong: `dart analyze` (auth, `core/widgets/address`, `features/iam`, DS), `flutter test test/features/auth test/features/iam` + test DS; **ghi kết quả ngay dưới mục này** (số test, có lỗi gì) rồi báo review R3.
+
+### Kết quả kỹ thuật sau sửa R2
+
+- Đã sửa R2-1: chỉ cuộn sau thao tác submit; thêm regression test xác nhận gõ lại không tự nhảy màn.
+- Đã sửa R2-2: nhãn Tỉnh/Xã dùng `VFieldLabel`, có dấu `*` ở signup và viền danger khi invalid; thêm widget regression test với dữ liệu địa giới giả.
+- Đã sửa R2-3: test logo không xuất hiện trong semantics, nhãn/tooltip auth và hai accessibility guideline.
+- Đã sửa R2-4: thêm dòng trống trước `### Removed` trong CHANGELOG.
+- `flutter test test/features/auth test/features/iam`: **301 test pass**.
+- `flutter test` trong design system: **418 test, 1 fail** tại `v_overlay_menu_shell_test.dart` (shadow token `Offset(0, 2)` so với `Offset(0, 1)`); file/test và `VOverlayMenuShell` không thuộc thay đổi R2.
+- `dart analyze`: không có lỗi mới; còn một `info` deprecated có sẵn tại `features/iam/presentation/users/widgets/revoke_invitation_bottom_sheet.dart`.
+
+### Review R3 2026-10-27 (phiên plan / review) — ✅ tự động đạt
+
+Đã kiểm lại trên code: `dart analyze` (auth, `core/widgets/address`, `features/iam`, test auth) chỉ còn 1 `info` có sẵn; `flutter test test/features/auth test/features/iam` **301 pass**. Lỗi DS `v_overlay_menu_shell_test` ngoài phạm vi (như R2).
+
+- R2-1 ✅ `listenWhen` bỏ `fieldErrors`; cuộn tới trường lỗi đầu trong `_scheduleScrollToFirstError` sau `_continue` / `_createStore` (thứ tự `SignupField.values` khớp thứ tự hiển thị); lỗi máy chủ chỉ cuộn khi `failure` mới xuất hiện. Có test "typing … does not move the scroll position".
+- R2-2 ✅ `SearchDropdownField` / `AdministrativeUnitsFormSection` có `isRequired` (mặc định `false`), nhãn `VFieldLabel`, bỏ `VGap.sm` thừa; viền `danger` theo `VField.resolveInvalid`; đăng ký truyền `isRequired: true`; 2 form IAM không đổi tham số. Có test nhãn `*` + viền.
+- R2-3 ✅ logo không trong semantics; `labeledTapTargetGuideline` + `iOSTapTargetGuideline` qua `meetsGuideline`.
+- R2-4 ✅ CHANGELOG đúng dòng trống.
+
+**Còn lại trước khi đóng:** kiểm tay theo mục "Còn chờ kiểm tay" + 6.2, **thêm**: mở `Hồ sơ tổ chức → Sửa` và `Hồ sơ pháp lý` xem nhãn Tỉnh / Xã kiểu mới (`VFieldLabel`) không lệch bố cục. Kiểm tay đạt → Review ✅, rồi `detect_changes()` trước commit.
+

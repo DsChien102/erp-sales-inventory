@@ -86,7 +86,17 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 
 Một việc chỉ tính **xong** khi Review ✅. Ghi commit/PR vào bảng [Theo dõi tiến độ](#theo-dõi-tiến-độ).
 
-Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `📝 [plan](plans/T7/T7-1-ton-kho-bj01.md)`; plan đã làm + review xong thì xoá tệp, ô ghi `✅ plan (đã xoá)`.
+Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `📝 [plan](plans/T7/T7-1-ton-kho-bj01.md)`; plan đã làm + review xong thì xoá tệp, ô ghi `✅ plan (đã xoá)` (nội dung tra lại trong lịch sử git, vd. `git show c0faec9e2^:<đường dẫn>`). Tiến độ theo dõi trong bảng của từng Theme.
+
+### Plan xoá / tách / thay code cũ: test giữ hành vi trước (chốt 2026-10-28)
+
+Lý do: 2-B6 R1 (lỗi Tỉnh / Xã) và W-1 R1 (`DashboardPage._buildBody`, `MorePage(tenantBlocked:)`) đều là plan bỏ một cơ chế cũ mà sót việc nó đang làm ⇒ lỗi P1, sửa lại cả plan lẫn code.
+
+Áp cho mọi plan có bước **xoá, tách, gộp hoặc thay** một widget / page / cubit / route đang chạy:
+
+1. **Plan có bảng "Đang làm gì"** cho từng thứ bị xoá / tách: đọc hết thân của nó, mỗi dòng một nhánh / guard / tham số truyền xuống / side effect, cột "Sau khi sửa nằm ở đâu" và cột "Test giữ hành vi". Không dòng nào được để trống cột thứ hai.
+2. **Bước 0 của phiên code:** viết test cho từng dòng của bảng **trên code cũ**, chạy xanh, ghi tên test vào mục Kết quả — rồi mới sửa. Test này phải còn xanh sau khi sửa (được đổi cách dựng widget trong test, không đổi điều kiện kiểm).
+3. Phiên review đối chiếu bảng với code cũ (`git show HEAD:<tệp>`) trước khi duyệt plan, và kiểm bước 0 có đủ test trước khi đọc diff.
 
 ### Quy tắc dọn module (chốt 2026-10-11)
 
@@ -125,45 +135,7 @@ Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** 
 2. Review kiểm cả hai: iPhone (simulator) và Chrome cửa sổ rộng + hẹp; trên web đi được bằng bàn phím.
 3. Bố cục theo bề rộng; mật độ (`VDensity`) theo cách thao tác (`compact` khi dùng chuột), không suy từ bề rộng.
 
-### Danh sách plan
-
-> Plan con đã làm + review xong được xoá ngày 2026-10-27 (nội dung còn trong lịch sử git, commit `e4958a896` trở về trước); tên tệp nhắc trong tài liệu này giữ lại để tra.
-
-
-| Việc                                                                     | File plan                                                                                                | Plan | Làm | Review |
-| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | ---- | --- | ------ |
-| 1.1 Cấu trúc thư mục `core/`                                             | — (đã xoá)                                           | ✅    | ✅   | ✅      |
-| 1-A `AppException`, `SupabaseRpc`, feature mẫu, kiểm import              | — (đã xoá)                   | ✅    | ✅   | ✅      |
-| 1-B `SessionController` + router guard                                   | — (đã xoá)                     | ✅    | ✅   | ✅      |
-| 2-A1 IAM: tài khoản, hồ sơ tổ chức, đặt lại mật khẩu                     | — (đã xoá)                         | ✅    | ✅   | ✅      |
-| 2-A2 IAM: thành viên, lời mời, vai trò, nhật ký                          | — (đã xoá)       | ✅    | ✅   | ✅      |
-| 2-A3 Phiên, đăng nhập, nhận lời mời                                      | — (đã xoá)                     | ✅    | ✅   | ✅      |
-| 2-B1 Đăng ký cửa hàng, xác minh email, định tuyến                        | [plans/P2/2-B1-dang-ky-cua-hang.md](plans/P2/2-B1-dang-ky-cua-hang.md)                                   | ✅    | ✅   | 🔄     |
-| 2-B2 Email qua Edge Function                                             | [plans/P2/2-B2-email-edge-function.md](plans/P2/2-B2-email-edge-function.md)                             | ✅    | ✅   | 🔄     |
-| 2-B3 Sửa KI của IAM, bỏ readiness                                        | — (đã xoá)                                               | ✅    | ✅   | ✅      |
-| 2-B4 Hoàn thiện IAM sau rà soát                                          | — (đã xoá)                                       | ✅    | ✅   | ✅      |
-| 2-B5 Nhận lời mời bằng một mã                                            | [plans/P2/2-B5-loi-moi-mot-ma.md](plans/P2/2-B5-loi-moi-mot-ma.md)                                       | ✅    | ✅   | 🔄     |
-| 2-B6 Hoàn thiện UI/UX màn auth                                           | [plans/P2/2-B6-ui-ux-auth.md](plans/P2/2-B6-ui-ux-auth.md)                                               | ✅    | ⬜   | ⬜      |
-| 2-B7 Hoàn thiện UI/UX màn IAM                                            | [plans/P2/2-B7-ui-ux-iam.md](plans/P2/2-B7-ui-ux-iam.md)                                                 | ✅    | ⬜   | ⬜      |
-| 3-A Quản trị tổ chức (app)                                               | — (đã xoá)                                     | ✅    | ✅   | ✅      |
-| 3-C App bỏ phụ thuộc IAM cũ                                              | — (đã xoá)                           | ✅    | ✅   | ✅      |
-| 3-D Xoá modules/iam, apps/admin, worker                                  | — (đã xoá)                                                 | ✅    | ✅   | ✅      |
-| 3-B DB: KI-08, dọn luồng cũ, KI-03                                       | — (đã xoá)                             | ✅    | ✅   | ✅      |
-| 3-E Bỏ Platform Admin, trạng thái tổ chức / tài khoản                    | — (đã xoá)                                   | ✅    | ✅   | ✅      |
-| 10-4 Tương phản màu, nhãn thanh dưới                                     | — (đã xoá)   | ✅    | ✅   | ✅      |
-| 10-5 Tương phản tone, chữ phụ, viền ô nhập                               | — (đã xoá)     | ✅    | ✅   | ✅      |
-| 10-6 Vùng chạm, nhãn, inset thanh dưới, giảm chuyển động                 | — (đã xoá) | ✅    | ✅   | ✅      |
-| 10-7 Tinh chỉnh design system từng mảng bằng impeccable (10 task)         | [plans/P10/10-7-tinh-chinh-design-system-impeccable.md](plans/P10/10-7-tinh-chinh-design-system-impeccable.md) | 📝    | ⬜   | ⬜      |
-| W-1 Khung web: thanh bên, tab có URL, density | [plans/W/W-1-khung-web.md](plans/W/W-1-khung-web.md) | 📝 | ⬜ | ⬜ |
-| T7-0 Rà soát BJ-02/03: sửa lỗi dữ liệu và luồng phê duyệt | — (đã xoá) | ✅ | ✅   | ✅ |
-| T7-0b Nhập hàng nhanh đúng spec (SCR-006…012) | — (đã xoá) | ✅ | ✅ | ✅ |
-| T7-0c Sửa còn lại T7-0b, trạng thái chung, SCR-013 | — (đã xoá) | ✅ | ✅ | ✅ |
-| T7-0d Nhận hàng theo chứng từ (SCR-007 + chế độ chứng từ) | [plans/T7/T7-0d-nhan-theo-chung-tu.md](plans/T7/T7-0d-nhan-theo-chung-tu.md) | 📝 | ⬜ | ⬜ |
-| T7-1 BJ-01 Tồn kho & khả dụng                                            | [plans/T7/T7-1-ton-kho-bj01.md](plans/T7/T7-1-ton-kho-bj01.md)                                           | 📝   | ⬜   | ⬜      |
-
-
 ---
-
 
 
 ## Cách chuyển MỘT feature (công thức dùng cho Theme 1–5, 8)
@@ -277,13 +249,13 @@ Chi tiết từng việc:
 | **2-A1** | (a) IAM: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, quên mật khẩu                                                                                                                                                                                                                                                                                                                          | 2B.6 (một phần)                                | ✅ plan (đã xoá)          | ✅   | ✅                                                                   |
 | **2-A2** | (a) IAM: thành viên, vai trò, lời mời (quản trị), nhật ký quản trị, hub "Người dùng & vai trò"                                                                                                                                                                                                                                                                                                   | 2B.6 (phần còn lại)                            | ✅ plan (đã xoá) | ✅   | ✅                                                                   |
 | **2-A3** | (a) Phiên & đăng nhập: `SessionController` gọi RPC trực tiếp (`get_tenant_context`, `list_accessible_tenants`, `switch_tenant_context`, `user_preferences`) và tự cập nhật `IamSession`; `LoginCubit`, đăng xuất, nhập mã lời mời `/invitation` (`InvitationAcceptanceCubit`); xử lý 2 góp ý review 1-B (`core` import `features`, reset state khi đổi người dùng)                               | 2B.5, 1-B góp ý                                | ✅ plan (đã xoá)        | ✅   | ✅                                                                   |
-| **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý; thêm nhánh guard "chưa xác minh", "không có tổ chức", chọn tổ chức hoạt động đầu tiên                                                                                                                                                                        | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ✅ [plan](plans/P2/2-B1-dang-ky-cua-hang.md)               | ✅   | 🔄 DB ✅; chờ bật xác minh email + kiểm tay                          |
-| **2-B2** | (b) Email qua Edge Function `send-email`: `iam.email_jobs`, `enqueue_outbox_message` chuyển email sang job, `pg_net` + `pg_cron`, Resend                                                                                                                                                                                                                                                         | 2A.4                                           | ✅ [plan](plans/P2/2-B2-email-edge-function.md)            | ✅   | 🔄 SQL ✅, `send-email` đã deploy; chờ Vault + gửi mail lời mời thật |
+| **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý; thêm nhánh guard "chưa xác minh", "không có tổ chức", chọn tổ chức hoạt động đầu tiên                                                                                                                                                                        | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ✅ [plan](plans/P2/2-B1-dang-ky-cua-hang.md)               | ✅   | 🔄 DB ✅, xác minh email đã bật (2026-10-28); chờ kiểm tay |
+| **2-B2** | (b) Email qua Edge Function `send-email`: `iam.email_jobs`, `enqueue_outbox_message` chuyển email sang job, `pg_net` + `pg_cron`, Resend                                                                                                                                                                                                                                                         | 2A.4                                           | ✅ [plan](plans/P2/2-B2-email-edge-function.md)            | ✅   | 🔄 SQL ✅, `send-email` đã deploy, Vault ✅ (2026-10-28); chờ gửi mail lời mời thật |
 | **2-B3** | (b) Sửa KI của TH-01: KI-02 (`accept_invitation` kích hoạt lại thành viên đã loại), KI-06, KI-10…KI-14, phần app của KI-05 (bỏ readiness cửa hàng). KI-03 và KI-05 DB/platform dời P3                                                                                                                                                                                                            | TH-01 mục 9.2                                  | ✅ plan (đã xoá)                     | ✅   | ✅                                                                   |
 | **2-B4** | (b) Hoàn thiện sau rà soát TH-01: mất quyền khi đang dùng → tải lại phiên; đổi mật khẩu xong đăng xuất; câu lời mời tổ chức tạm ngừng; đăng ký lại cùng email (A3); đếm ngược gửi lại (A4)                                                                                                                                                                                                       | Rà soát 2026-10-10                             | ✅ plan (đã xoá)                 | ✅   | ✅                                                                   |
-| **2-B5** | (b) Nhân viên chưa có tài khoản chỉ nhập mã lời mời 8 ký tự (bỏ mã 6 số): Edge Function `invitation-signup` tạo tài khoản đã xác minh + nhận lời mời                                                                                                                                                                                                                                             | Quyết định 2026-10-12                          | ✅ [plan](plans/P2/2-B5-loi-moi-mot-ma.md)                 | ✅   | 🔄 code đạt; chờ deploy `invitation-signup` + kiểm tay              |
-| **2-B6** | (b) Hoàn thiện UI/UX màn auth theo audit impeccable: sheet xác nhận lời mời đủ Tổ chức / Vai trò / Email, nút "Tiếp tục" ở nhập mã lời mời, lỗi đăng ký theo từng trường, lỗi đăng nhập dưới form, tự điền (Keychain / Autofill / mã 6 số), ô mã 6 số dùng `VVerificationCodeField`, nhãn nút quay lại, vùng chạm link. Làm sau khi 2-B5 commit                                                  | Audit 2026-10-13                               | ✅ [plan](plans/P2/2-B6-ui-ux-auth.md)                     | ⬜   | ⬜                                                                   |
-| **2-B7** | (b) Hoàn thiện UI/UX màn IAM theo audit impeccable: bàn phím MST nhập được dấu gạch (BR-21), nút mời `+` trên app bar, nhãn "Chủ sở hữu" ở thẻ thành viên, lỗi mời thành viên dưới ô Email, chặn rời form khi chưa lưu, nhãn / vùng chạm (nút lọc, quay lại, "Thử lại", sao chép), tab và chip có trạng thái chọn; `VChip(onTap)` 44 + `VCard(onTap)` là nút; gộp 3 thẻ hành động, xoá file chết | Audit 2026-10-13                               | ✅ [plan](plans/P2/2-B7-ui-ux-iam.md)                      | ⬜   | ⬜                                                                   |
+| **2-B5** | (b) Nhân viên chưa có tài khoản chỉ nhập mã lời mời 8 ký tự (bỏ mã 6 số): Edge Function `invitation-signup` tạo tài khoản đã xác minh + nhận lời mời                                                                                                                                                                                                                                             | Quyết định 2026-10-12                          | ✅ [plan](plans/P2/2-B5-loi-moi-mot-ma.md)                 | ✅   | 🔄 code đạt; `invitation-signup` đã deploy (2026-10-12); chờ kiểm tay |
+| **2-B6** | (b) Hoàn thiện UI/UX màn auth theo audit impeccable: sheet xác nhận lời mời đủ Tổ chức / Vai trò / Email, nút "Tiếp tục" ở nhập mã lời mời, lỗi đăng ký theo từng trường, lỗi đăng nhập dưới form, tự điền (Keychain / Autofill / mã 6 số), ô mã 6 số dùng `VVerificationCodeField`, nhãn nút quay lại, vùng chạm link. Làm sau khi 2-B5 commit                                                  | Audit 2026-10-13                               | ✅ [plan](plans/P2/2-B6-ui-ux-auth.md)                     | ✅   | ✅ R3 — còn kiểm tay iPhone + web, VoiceOver / TalkBack; chưa commit (plan mục "Còn chờ kiểm tay") |
+| **2-B7** | (b) Hoàn thiện UI/UX màn IAM theo audit impeccable: bàn phím MST nhập được dấu gạch (BR-21), nút mời `+` trên app bar, nhãn "Chủ sở hữu" ở thẻ thành viên, lỗi mời thành viên dưới ô Email, chặn rời form khi chưa lưu, nhãn / vùng chạm (nút lọc, quay lại, "Thử lại", sao chép), tab và chip có trạng thái chọn; `VChip(onTap)` 44 + `VCard(onTap)` là nút; gộp 3 thẻ hành động, xoá file chết | Audit 2026-10-13 | ✅ [plan](plans/P2/2-B7-ui-ux-iam.md) | ✅   | ✅ R3 — R3-1 xong 2026-10-28; kiểm tay (R3-2 `VInput` + mục 6.2) gộp vào lượt test Theme 1 |
 
 
 Chi tiết từng việc:
@@ -372,12 +344,12 @@ Chi tiết từng việc:
 
 ## Web cho app (W) (~1,5 ngày)
 
-**Trạng thái:** ⬜ **Hoãn** (2026-10-20, người dùng): làm Theme 7 trước (prototype T7-P, gồm khung web trên prototype), rồi mới quay lại từng theme đã làm; người dùng lướt lại tài liệu một lượt trước khi giao. W-1 đã có plan (📝, chưa duyệt) — phải xong **trước khi code Flutter màn web đầu tiên** (Theme 7 **T7-G5** hoặc theme đầu tiên quay lại). W-2 chưa viết, viết khi quay lại Theme 1 (rà cùng 2-B6 / 2-B7).
+**Trạng thái:** 🔄 (2026-10-28; trước đó hoãn 2026-10-20, người dùng): làm Theme 7 trước (prototype T7-P, gồm khung web trên prototype), rồi mới quay lại từng theme đã làm; người dùng lướt lại tài liệu một lượt trước khi giao. W-1 phải xong **trước khi code Flutter màn web đầu tiên** (Theme 7 **T7-G5** hoặc theme đầu tiên quay lại). **2026-10-28:** W-1 ✅ (R2); W-2 plan đã duyệt.
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
-| **W-1** | Khung web: thanh bên trái 5 mục (+ mục con của "Thêm"), ngưỡng bề rộng chuyển thanh dưới ↔ thanh bên, `VDensity.compact` khi thao tác chuột, vùng nội dung giới hạn bề rộng; 5 tab thành `StatefulShellRoute` có URL (~2 ngày) | W.1–W.4 | 📝 [plan](plans/W/W-1-khung-web.md) | ⬜ | ⬜ |
-| **W-2** | Theme 1 trên web: màn công khai (đăng nhập, đăng ký, xác minh, lời mời) căn giữa cột hẹp; quản trị tổ chức / người dùng / vai trò / nhật ký dạng danh sách – chi tiết hoặc bảng. Gộp hoặc làm ngay sau 2-B6 / 2-B7 (UI/UX auth, IAM — chưa làm) để không sửa một màn hai lần | W.5, W.6 | ⬜ | ⬜ | ⬜ |
+| **W-1** | Khung web: thanh bên trái 5 mục (+ mục con của "Thêm"), ngưỡng bề rộng chuyển thanh dưới ↔ thanh bên, `VDensity.compact` khi thao tác chuột, vùng nội dung giới hạn bề rộng; 5 tab thành `StatefulShellRoute` có URL (~2 ngày) | W.1–W.4 | ✅ [plan](plans/W/W-1-khung-web.md) duyệt 2026-10-28 | ✅ | ✅ R2 (2 góp ý P3 không chặn; kiểm tay người dùng tự làm; chưa commit) |
+| **W-2** | Theme 1 trên web: màn công khai (đăng nhập, đăng ký, xác minh, lời mời) căn giữa cột hẹp; quản trị tổ chức / người dùng / vai trò / nhật ký dạng danh sách – chi tiết hoặc bảng. Gộp hoặc làm ngay sau 2-B6 / 2-B7 (UI/UX auth, IAM — chưa làm) để không sửa một màn hai lần | W.5, W.6 | ✅ [plan](plans/W/W-2-theme1-web.md) duyệt 2026-10-28; rà theo "test giữ hành vi trước" cùng ngày (bổ sung 4 chỗ sót + bảng H1–H13 + bước 0; Q7 sheet lọc iPhone đổi theo DS) | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
@@ -756,6 +728,7 @@ Chi tiết từng việc:
 | **10-4** | Tương phản màu xanh chủ đạo, nhãn + semantics thanh dưới (độc lập, làm lúc nào cũng được) | 10.7 | ✅ plan (đã xoá) | ✅ | ✅ |
 | **10-5** | Tương phản tone trạng thái, chữ phụ, viền ô nhập (độc lập) | 10.8 | ✅ plan (đã xoá) | ✅ | ✅ |
 | **10-6** | Vùng chạm, nhãn trình đọc màn hình, inset thanh dưới, giảm chuyển động (độc lập) | 10.9 | ✅ plan (đã xoá) | ✅ | ✅ |
+| **10-7** | Tinh chỉnh `vet45_design_system` từng mảng bằng impeccable (10 task, độc lập) | — | ✅ [plan](plans/P10/10-7-tinh-chinh-design-system-impeccable.md) | ✅ | ✅ — còn task "Cuối": `polish` + `document` (DESIGN.md), bump version DS (đang `1.7.0`) |
 
 Chi tiết từng việc:
 
@@ -781,8 +754,8 @@ Chi tiết từng việc:
 | Nền core | ✅ | Merge `7c455c6a7` (branch `refactor/p1-core`) | 1.1 `16bcfe263`; 1-A `d8f4e9ca8`, `8550b3561`; 1-B `3a48c19b5`, `373002481`. Còn kiểm tay + tick CHECKLIST |
 | Theme 1 | 🔄 | — | Code xong 2-A1…2-B4. 2-B3 ✅ (2026-10-12). Còn 2-B1 (bật xác minh email + kiểm tay), 2-B2 (Vault + gửi mail thật; `send-email` đã deploy) |
 | Theme 1 (tiếp) | ✅ | — | 3-A…3-E ✅ (2026-10-12). 4 kịch bản SQL IAM đạt trên Dev sau `db reset --linked` |
-| Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS ✅, secrets Edge Function ✅, SMTP Auth ✅, `db reset --linked` ✅, 4 kịch bản SQL ✅, `send-email` đã deploy ✅. Còn: Vault → bật Confirm email + mẫu mã 6 số → kiểm tay TH-01 9.3 kịch bản 1–4 → tick CHECKLIST |
-| Web cho app | ⬜ hoãn | | Mở 2026-10-20 (chốt thiết bị iPhone + web); W-1 có plan 📝; làm sau Theme 7 prototype |
+| Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS ✅, secrets Edge Function ✅, SMTP Auth ✅, `db reset --linked` ✅, 4 kịch bản SQL ✅, `send-email` đã deploy ✅. 2026-10-28: Vault ✅, `invitation-signup` đã deploy (12/10) ✅. Confirm email + mẫu mã 6 số + rate limit ✅. Còn: kiểm tay TH-01 9.3 kịch bản 1–4 → tick CHECKLIST |
+| Web cho app | 🔄 | | Mở 2026-10-20 (chốt thiết bị iPhone + web). 2026-10-28: W-1 ✅ (R2; test app 1524 pass / 61 fail có sẵn; DS 435 / 1 có sẵn), chưa commit; W-2 plan đã duyệt + rà theo quy tắc "test giữ hành vi trước", giao làm được |
 | Theme 3 | ⬜ | | |
 | Theme 2 | ⬜ | | |
 | Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*`. 2026-10-16: chốt **sửa prototype trước (T7-P), rồi mới code Flutter**; T7-0d, T7-1 tạm dừng, rà lại theo prototype mới trước khi giao |

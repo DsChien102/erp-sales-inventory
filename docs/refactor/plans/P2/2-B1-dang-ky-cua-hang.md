@@ -1,6 +1,6 @@
 # 2-B1 — Đăng ký cửa hàng mới, xác minh email, định tuyến sau đăng nhập
 
-> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄 (DB ✅ 2026-10-12; chờ kiểm tay trên app)
+> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄 (DB ✅ 2026-10-12; Confirm email + mẫu mã 6 số + rate limit 30 + SMTP Resend đã bật trên Dev — người dùng xác nhận 2026-10-28; chờ kiểm tay trên app)
 > Gồm việc: 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) 2.2, 2.3, BR-01…BR-14, BR-62…BR-65; EP-01 (US-01.1…01.5), US-02.1, US-02.2, US-02.4, US-05.4; màn 5.2, 5.3, 5.4; kiểm thử 9.3 (kịch bản 1, 2)
 

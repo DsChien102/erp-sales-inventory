@@ -64,73 +64,77 @@
 
 ### `apps/erp` (61)
 
+> **Cập nhật 2026-10-28** (trước khi đóng Theme 1, sau 2-B6 / 2-B7 / W-1; `flutter test --no-pub` cả app: 1524 đạt / 61 lỗi). So với danh sách 2026-10-07: **thêm** `product_measurement_units_e2e_test` `e2e_e04_u02_fr01_01b`, `e2e_e04_u02_fr01_03` (hỏng sẵn ở HEAD, phát hiện ở review 2-B7 R3); **bỏ** 2 test IAM nay đã đạt (`production_boundary_test` "presentation.dart does not export Fake* or testing paths", `platform_onboarding_step_owner_test` "renders warning VBanner…"). Danh sách dưới là bản hiện hành.
+
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_catalog_tab_page_test.dart: e2e_e01_u01_fr01_01: keyword search returns matching products
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_config_e2e_test.dart: e2e_e03_u01_fr02_01: create and edit custom field group
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_config_e2e_test.dart: e2e_e03_u01_fr03_01: reorder groups updates visual order
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_values_e2e_test.dart: e2e_e03_u02_fr01_01: PCC shows custom field group cards
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_config_e2e_test.dart: e2e_e03_u01_fr04_02: single select field requires at least one option
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_manual_base_price_e2e_test.dart: e2e_e06_u01_fr01_01: PCC shows manual base price card with amount
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_config_e2e_test.dart: e2e_e03_u01_fr05_01: configure field attributes and show chips
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_fields_search_e2e_test.dart: e2e_e03_u03_fr02_01: keyword search via searchable custom fields
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_config_e2e_test.dart: e2e_e03_u01_fr06_01: reorder fields within group
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_values_e2e_test.dart: e2e_e03_u02_fr01_01: PCC shows custom field group cards
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_values_e2e_test.dart: e2e_e03_u02_fr02_01: save text custom field value and refresh PCC
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_values_e2e_test.dart: e2e_e03_u02_fr02_02: invalid number value shows field-level error
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_values_e2e_test.dart: e2e_e03_u02_fr03_01: optional field saves while required sibling empty
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_field_values_e2e_test.dart: e2e_e03_u02_fr03_02: filling required custom field clears readiness blocker
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: e2e_e04_u01_fr01_01_create_new: set new base unit from checklist
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_guided_create_page_test.dart: initial stock uses Design System integer field
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: e2e_e04_u01_fr03_01: base unit search dropdown only shows on match
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: e2e_e04_u01_fr01_02_duplicate: cannot create duplicate base unit
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: EPIC-04 / US-02 — Đơn vị quy đổi e2e_e04_u02_fr01_01: add new conversion unit on product with base unit
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: EPIC-04 / US-02 — Đơn vị quy đổi e2e_e04_u02_fr01_04: duplicate conversion unit name shows error
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.dart: e2e_e05_u01_fr01_01: PCC shows basic stock card with quantity
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.dart: e2e_e05_u01_fr03_01: zero stock is configured not missing
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_custom_fields_search_e2e_test.dart: e2e_e03_u03_fr02_01: keyword search via searchable custom fields
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_discovery_e2e_test.dart: e2e_e01_u01_fr01_01: search products by keyword
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_discovery_e2e_test.dart: e2e_e01_u02_fr01_01: list to PCC shows operational cards
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_guided_create_e2e_test.dart: e2e_e02_u02_fr01_01: guided create with initial stock and base cost
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.dart: e2e_e05_u02_fr02_01: adjust existing stock with reason
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_guided_create_e2e_test.dart: e2e_e02_u02_fr03_01: skip price band defers setup and shows blocker
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_readiness_e2e_test.dart: e2e_e02_u03_fr02_04: failed create stays on guided create form
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_readiness_e2e_test.dart: e2e_e02_u03_fr01_05: ready to sell product shows success badge without banner
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_guided_create_page_test.dart: initial stock uses Design System integer field
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_manual_base_price_e2e_test.dart: e2e_e06_u01_fr01_01: PCC shows manual base price card with amount
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: EPIC-04 / US-02 — Đơn vị quy đổi e2e_e04_u02_fr01_01: add new conversion unit on product with base unit
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: EPIC-04 / US-02 — Đơn vị quy đổi e2e_e04_u02_fr01_01b: conversion unit search dropdown only shows on match
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: EPIC-04 / US-02 — Đơn vị quy đổi e2e_e04_u02_fr01_03: invalid conversion rate keeps add form open
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: EPIC-04 / US-02 — Đơn vị quy đổi e2e_e04_u02_fr01_04: duplicate conversion unit name shows error
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: e2e_e04_u01_fr01_01_create_new: set new base unit from checklist
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: e2e_e04_u01_fr01_02_duplicate: cannot create duplicate base unit
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: e2e_e04_u01_fr03_01: base unit search dropdown only shows on match
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr01_01: valid profile edit refreshes PCC
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_catalog_tab_page_test.dart: e2e_e01_u01_fr01_01: keyword search returns matching products
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr01_02: blank name shows field validation error
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr01_03: duplicate SKU shows field error
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr03_01: duplicate barcode includes inactive product
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr02_01: PCC opens images maintenance gallery
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr02_01: editor shows store rule price suggestion
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_soft_delete_e2e_test.dart: e2e_e07_u03_fr01_01: eligible product can be soft-deleted
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr02_02: cannot suggest without base price
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr02_02: removing primary promotes remaining image
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_discovery_e2e_test.dart: e2e_e01_u01_fr01_01: search products by keyword
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr02_03: inactive store rule disables save
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr03_01: apply store rule saves price band
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr02_03: deleting all images shows zero on PCC
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr03_02: overwrite confirm dialog before applying rule
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_discovery_e2e_test.dart: e2e_e01_u02_fr01_01: list to PCC shows operational cards
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr04_01: PCC shows custom override label
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_soft_delete_e2e_test.dart: e2e_e07_u03_fr02_01: deleted product is excluded from default list
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr03_01: duplicate barcode includes inactive product
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr04_01: deleting images adds readiness blocker on incomplete product
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_readiness_e2e_test.dart: e2e_e02_u03_fr01_05: ready to sell product shows success badge without banner
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_readiness_e2e_test.dart: e2e_e02_u03_fr02_04: failed create stays on guided create form
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_soft_delete_e2e_test.dart: e2e_e07_u03_fr01_01: eligible product can be soft-deleted
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_soft_delete_e2e_test.dart: e2e_e07_u03_fr02_01: deleted product is excluded from default list
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_soft_delete_e2e_test.dart: e2e_e07_u03_fr02_03: deleted filter shows deleted product label
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_soft_delete_e2e_test.dart: e2e_e07_u03_fr04_01: deleted PCC preserves operational data
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/tenant_admin/e2e_e02_u01_u03_u07_test.dart: e2e_e02_u07_fr01_01: audit list/search → activation forensic detail
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/iam/presentation_module/production_boundary_test.dart: presentation.dart does not export Fake* or testing paths
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/iam/presentation_module/widgets/platform_onboarding_step_owner_test.dart: renders warning VBanner when isNewOwner and hasDuplicateEmail is true
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.dart: e2e_e05_u01_fr01_01: PCC shows basic stock card with quantity
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.dart: e2e_e05_u01_fr03_01: zero stock is configured not missing
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.dart: e2e_e05_u02_fr02_01: adjust existing stock with reason
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr02_01: editor shows store rule price suggestion
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr02_02: cannot suggest without base price
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr02_03: inactive store rule disables save
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr03_01: apply store rule saves price band
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr03_02: overwrite confirm dialog before applying rule
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr04_01: PCC shows custom override label
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/my_account/presentation/e2e_e06_u01_fr01_01_my_account_test.dart: e2e_e06_u02_fr01_01: edit profile save
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_form_e2e_test.dart: e2e_e02_u04 — create (S1) e2e_e02_u04_fr01_05: dirty back shows leave confirmation then stay
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_import_history_e2e_test.dart: e2e_e02_u05 — import (S8) back from preview confirms and cancels the current batch
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_import_history_e2e_test.dart: e2e_e02_u05 — import (S8) canceling the save dialog does not show an error toast
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_import_history_e2e_test.dart: e2e_e02_u05 — import (S8) downloads the backend template through the file service
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u03 — PricingDetailPage (S3) wgt_e02_u03_fr01_01 — chi tiết + CTA Thao tác primary
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u04 — PricingFormPage create (S1) SC-06 — dirty Hủy mở leave confirmation (VConfirmDialog)
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_import_history_e2e_test.dart: e2e_e02_u05 — import (S8) downloads the backend template through the file service
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_import_history_e2e_test.dart: e2e_e02_u05 — import (S8) canceling the save dialog does not show an error toast
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u04 — PricingFormPage create (S1) SC-06 — dirty back mở leave confirmation
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u04 — PricingFormPage create (S1) SC-06 — dirty system back (maybePop) mở leave confirmation
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_import_history_e2e_test.dart: e2e_e02_u05 — import (S8) back from preview confirms and cancels the current batch
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u05 — PricingImportPage (S8) wgt_e02_u05_fr01_01 — wizard import bước chọn file
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_form_e2e_test.dart: e2e_e02_u04 — create (S1) e2e_e02_u04_fr01_05: dirty back shows leave confirmation then stay
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u06 — PricingFormPage edit (S5) SC-06 — dirty Hủy trên form sửa mở leave confirmation
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u07 — PriceRuleDisableSheet (S6) wgt_e02_u07_fr01_01 — sheet tắt giá riêng
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/my_account/presentation/e2e_e06_u01_fr01_01_my_account_test.dart: e2e_e06_u02_fr01_01: edit profile save
+- /Users/macbook/Documents/Đồ án/apps/erp/test/features/tenant_admin/e2e_e02_u01_u03_u07_test.dart: e2e_e02_u07_fr01_01: audit list/search → activation forensic detail
 
 ### `tools/vet45_env` (1)
 
 - test/config_init_test.dart: init requires profile id and scaffolds from target aggregate
 
 ### `packages/vet45_design_system` (2)
+
+> **Cập nhật 2026-10-28:** chỉ còn hỏng test đầu (`uses bottom-weighted design-system shadow token`); `panel renders DecoratedBox with boxShadow` đã đạt. DS: 435 đạt / 1 lỗi.
 
 - /Users/macbook/Documents/Đồ án/packages/vet45_design_system/test/v_overlay_menu_shell_test.dart: VOverlayMenuShell uses bottom-weighted design-system shadow token
 - /Users/macbook/Documents/Đồ án/packages/vet45_design_system/test/v_overlay_menu_shell_test.dart: VOverlayMenuShell.panel renders DecoratedBox with boxShadow

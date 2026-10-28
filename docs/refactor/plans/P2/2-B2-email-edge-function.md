@@ -1,6 +1,6 @@
 # 2-B2 — Gửi email qua Edge Function `send-email`
 
-> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄 (SQL ✅ 2026-10-12; chờ Vault + deploy + gửi thật)
+> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄 (SQL ✅ 2026-10-12; `send-email` deploy ✅; Vault ✅ 2026-10-28 — đủ `project_url`, `email_webhook_secret`; chờ gửi mail lời mời thật khi kiểm tay)
 > Gồm việc: 2A.4 (TH-01 KI-07)
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) 6.3, BR-40, BR-41, BR-46, BR-64, BR-66; US-06.2, US-06.3, US-02.3
 
