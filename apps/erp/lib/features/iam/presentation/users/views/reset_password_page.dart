@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:erp/core/validation/password_policy.dart';
 import 'package:erp/features/auth/data/auth_repository.dart';
+import 'package:erp/features/auth/presentation/auth_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -183,6 +184,7 @@ class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
     return Stack(
       children: [
         VPageScaffold(
+          contentMaxWidth: authMaxWidth,
           title: 'Đặt lại mật khẩu',
           body: _currentStep == PasswordResetStep.verifyCode
               ? ResetPasswordVerifyCodeStep(
@@ -349,6 +351,7 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
       builder: (context, state) {
         if (state.step == PasswordResetStep.initial && state.isSubmitting) {
           return const VPageScaffold(
+            contentMaxWidth: authMaxWidth,
             title: 'Đặt lại mật khẩu',
             body: Center(child: VLoading(size: 40)),
           );
@@ -358,6 +361,7 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
             state.failure != null &&
             state.request == null) {
           return VPageScaffold(
+            contentMaxWidth: authMaxWidth,
             title: 'Đặt lại mật khẩu',
             body: Center(
               child: Padding(
@@ -398,6 +402,7 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
         return Stack(
           children: [
             VPageScaffold(
+              contentMaxWidth: authMaxWidth,
               title: 'Đặt lại mật khẩu',
               body: state.step == PasswordResetStep.createNewPassword
                   ? ResetPasswordCreatePasswordStep(

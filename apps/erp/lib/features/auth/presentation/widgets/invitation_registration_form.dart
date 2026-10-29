@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/core/validation/password_policy.dart';
 
 import '../../data/models/invitation_token_inspection.dart';
+import '../auth_layout.dart';
 
 /// ID-D-02 — Trang Kích hoạt tài khoản cho người được mời chưa có tài khoản.
 ///
@@ -131,6 +132,7 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
     final isSubmitting = widget.isSubmitting;
 
     return VPageScaffold(
+      contentMaxWidth: authMaxWidth,
       title: 'Kích hoạt tài khoản',
       leading: widget.onBack == null
           ? null
@@ -142,13 +144,7 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
               ),
               onPressed: isSubmitting ? null : widget.onBack,
             ),
-      body: VContentWidth(
-        maxWidth: const VResponsiveValue<double>(
-          mobile: 500,
-          tablet: 500,
-          desktop: 500,
-        ),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
           child: VPagePadding(
             horizontal: VSpacing.screenMobile,
             child: AutofillGroup(
@@ -331,7 +327,6 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
             ),
           ),
         ),
-      ),
       bottomBar: Padding(
         padding: const EdgeInsets.all(VSpacing.space4),
         child: VButton(

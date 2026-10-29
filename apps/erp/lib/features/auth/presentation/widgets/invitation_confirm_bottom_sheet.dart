@@ -10,7 +10,7 @@ Future<bool?> showInvitationConfirmBottomSheet({
   required BuildContext context,
   required InvitationTokenInspection inspection,
 }) {
-  return showVBottomSheet<bool>(
+  return showVAdaptiveSheet<bool>(
     context: context,
     child: _InvitationConfirmSheetContent(inspection: inspection),
   );

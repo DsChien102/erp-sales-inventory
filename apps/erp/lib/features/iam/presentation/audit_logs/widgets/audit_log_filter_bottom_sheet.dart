@@ -63,32 +63,17 @@ class _AuditLogFilterBottomSheetState extends State<AuditLogFilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-
     return Padding(
       padding: const EdgeInsets.only(
         left: VSpacing.space4,
         right: VSpacing.space4,
-        top: VSpacing.space2,
+        top: VSpacing.space4,
         bottom: VSpacing.space6,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Semantics(
-            header: true,
-            child: VText(
-              'Bộ lọc nhật ký nền tảng',
-              variant: VTextVariant.headingH3,
-              style: TextStyle(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const VGap.md(),
-
           // Nhóm 1: Thời gian
           const _FilterSectionTitle(title: 'Thời gian'),
           const SizedBox(height: 8),

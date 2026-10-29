@@ -14,6 +14,7 @@ class MemberListSection extends StatelessWidget {
   const MemberListSection({
     super.key,
     this.canInvite = true,
+    this.selectedId,
     required this.onMemberTap,
     required this.onInviteTap,
     required this.onClearFilters,
@@ -21,6 +22,7 @@ class MemberListSection extends StatelessWidget {
 
   final ValueChanged<MemberUiModel> onMemberTap;
   final bool canInvite;
+  final String? selectedId;
   final VoidCallback onInviteTap;
   final VoidCallback onClearFilters;
 
@@ -128,6 +130,7 @@ class MemberListSection extends StatelessWidget {
                 final member = state.members[index];
                 return MemberCard(
                   member: member,
+                  isSelected: member.id == selectedId,
                   onTap: () => onMemberTap(member),
                 );
               },

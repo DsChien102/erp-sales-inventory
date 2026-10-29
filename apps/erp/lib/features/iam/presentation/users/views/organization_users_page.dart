@@ -21,19 +21,21 @@ class OrganizationUsersPage extends StatelessWidget {
     this.invitations,
     this.cubit,
     this.canInvite = true,
+    this.selectedId,
   });
 
   final MemberRepository? members;
   final InvitationRepository? invitations;
   final OrganizationUsersCubit? cubit;
   final bool canInvite;
+  final String? selectedId;
 
   @override
   Widget build(BuildContext context) {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: _OrganizationUsersView(canInvite: canInvite),
+        child: _OrganizationUsersView(canInvite: canInvite, selectedId: selectedId),
       );
     }
     assert(
@@ -45,15 +47,19 @@ class OrganizationUsersPage extends StatelessWidget {
         members: members!,
         invitations: invitations!,
       )..loadInitial(),
-      child: _OrganizationUsersView(canInvite: canInvite),
+      child: _OrganizationUsersView(canInvite: canInvite, selectedId: selectedId),
     );
   }
 }
 
 class _OrganizationUsersView extends StatelessWidget {
-  const _OrganizationUsersView({required this.canInvite});
+  const _OrganizationUsersView({
+    required this.canInvite,
+    this.selectedId,
+  });
 
   final bool canInvite;
+  final String? selectedId;
 
   String _subtitle(OrganizationUsersState state) {
     final isMember = state.activeTab == OrganizationUsersTab.members;
@@ -96,6 +102,11 @@ class _OrganizationUsersView extends StatelessWidget {
   }
 
   Future<void> _openMember(BuildContext context, MemberUiModel member) async {
+    final isSplit = VListDetailLayout.isSplitOf(context);
+    if (isSplit) {
+      context.go('/more/users/members/${member.id}');
+      return;
+    }
     try {
       await context.push('/more/users/members/${member.id}');
       // A lifecycle action (suspend / reactivate / remove) inside the detail
@@ -113,6 +124,11 @@ class _OrganizationUsersView extends StatelessWidget {
     BuildContext context,
     InvitationUiModel invitation,
   ) async {
+    final isSplit = VListDetailLayout.isSplitOf(context);
+    if (isSplit) {
+      context.go('/more/users/invitations/${invitation.id}');
+      return;
+    }
     dynamic result;
     try {
       result = await context.push(
@@ -154,6 +170,7 @@ class _OrganizationUsersView extends StatelessWidget {
               : null,
           body: OrganizationUsersBody(
             canInvite: canInvite,
+            selectedId: selectedId,
             onMemberTap: (m) => _openMember(context, m),
             onInvitationTap: (i) => _openInvitation(context, i),
             onInviteTap: () => _navigateInvite(context),

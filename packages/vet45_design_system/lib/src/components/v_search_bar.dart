@@ -161,6 +161,7 @@ class _VSearchBarState extends State<VSearchBar> {
       focusNode: _focusNode,
       hintText: widget.hintText,
       prefix: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           VIcon(icon: VIcons.search, color: iconColor, size: 20),
           const VGap(VSpacing.hairline, axis: .horizontal),

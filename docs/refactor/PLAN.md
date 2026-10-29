@@ -349,7 +349,7 @@ Chi tiết từng việc:
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
 | **W-1** | Khung web: thanh bên trái 5 mục (+ mục con của "Thêm"), ngưỡng bề rộng chuyển thanh dưới ↔ thanh bên, `VDensity.compact` khi thao tác chuột, vùng nội dung giới hạn bề rộng; 5 tab thành `StatefulShellRoute` có URL (~2 ngày) | W.1–W.4 | ✅ plan (đã xoá) | ✅ | ✅ R2 (2 góp ý P3 không chặn; kiểm tay người dùng tự làm; chưa commit) |
-| **W-2** | Theme 1 trên web: màn công khai (đăng nhập, đăng ký, xác minh, lời mời) căn giữa cột hẹp; quản trị tổ chức / người dùng / vai trò / nhật ký dạng danh sách – chi tiết hoặc bảng. Gộp hoặc làm ngay sau 2-B6 / 2-B7 (UI/UX auth, IAM — chưa làm) để không sửa một màn hai lần | W.5, W.6 | ✅ [plan](plans/W/W-2-theme1-web.md) duyệt 2026-10-28; rà theo "test giữ hành vi trước" cùng ngày (bổ sung 4 chỗ sót + bảng H1–H13 + bước 0; Q7 sheet lọc iPhone đổi theo DS) | ⬜ | ⬜ |
+| **W-2** | Theme 1 trên web: màn công khai (đăng nhập, đăng ký, xác minh, lời mời) căn giữa cột hẹp; quản trị tổ chức / người dùng / vai trò / nhật ký dạng danh sách – chi tiết hoặc bảng. Gộp hoặc làm ngay sau 2-B6 / 2-B7 (UI/UX auth, IAM — chưa làm) để không sửa một màn hai lần | W.5, W.6 | ✅ [plan](plans/W/W-2-theme1-web.md) duyệt 2026-10-28; rà theo "test giữ hành vi trước" cùng ngày (bổ sung 4 chỗ sót + bảng H1–H13 + bước 0; Q7 sheet lọc iPhone đổi theo DS) | ✅ | ✅ R4 2026-10-29 (2 góp ý P3 không chặn; còn kiểm tay 6.2 — người dùng; chưa commit) |
 
 Chi tiết từng việc:
 
@@ -755,7 +755,7 @@ Chi tiết từng việc:
 | Theme 1 | 🔄 | — | Code xong 2-A1…2-B4. 2-B3 ✅ (2026-10-12). Còn 2-B1 (bật xác minh email + kiểm tay), 2-B2 (Vault + gửi mail thật; `send-email` đã deploy) |
 | Theme 1 (tiếp) | ✅ | — | 3-A…3-E ✅ (2026-10-12). 4 kịch bản SQL IAM đạt trên Dev sau `db reset --linked` |
 | Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS ✅, secrets Edge Function ✅, SMTP Auth ✅, `db reset --linked` ✅, 4 kịch bản SQL ✅, `send-email` đã deploy ✅. 2026-10-28: Vault ✅, `invitation-signup` đã deploy (12/10) ✅. Confirm email + mẫu mã 6 số + rate limit ✅. Còn: kiểm tay TH-01 9.3 kịch bản 1–4 → tick CHECKLIST |
-| Web cho app | 🔄 | | Mở 2026-10-20 (chốt thiết bị iPhone + web). 2026-10-28: W-1 ✅ (R2; test app 1524 pass / 61 fail có sẵn; DS 435 / 1 có sẵn), chưa commit; W-2 plan đã duyệt + rà theo quy tắc "test giữ hành vi trước", giao làm được |
+| Web cho app | 🔄 | | Mở 2026-10-20 (chốt thiết bị iPhone + web). 2026-10-28: W-1 ✅ (R2; test app 1524 pass / 61 fail có sẵn; DS 435 / 1 có sẵn), chưa commit; W-2 plan đã duyệt + rà theo quy tắc "test giữ hành vi trước"; 2026-10-29: W-2 ✅ R4 (test app 1555 pass / 61 fail có sẵn; DS 447 / 1 có sẵn; audit 15/20), chưa commit; còn kiểm tay 6.2 |
 | Theme 3 | ⬜ | | |
 | Theme 2 | ⬜ | | |
 | Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*`. 2026-10-16: chốt **sửa prototype trước (T7-P), rồi mới code Flutter**; T7-0d, T7-1 tạm dừng, rà lại theo prototype mới trước khi giao |

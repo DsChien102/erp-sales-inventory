@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../bloc/organization_users_cubit.dart';
@@ -14,12 +15,14 @@ class OrganizationUsersBody extends StatefulWidget {
   const OrganizationUsersBody({
     super.key,
     required this.canInvite,
+    this.selectedId,
     required this.onMemberTap,
     required this.onInvitationTap,
     required this.onInviteTap,
   });
 
   final bool canInvite;
+  final String? selectedId;
   final ValueChanged<MemberUiModel> onMemberTap;
   final ValueChanged<InvitationUiModel> onInvitationTap;
   final VoidCallback onInviteTap;
@@ -80,14 +83,10 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
         sort: cubit.state.memberSort ?? 'Tất cả',
       );
 
-      await showModalBottomSheet<void>(
+      await showVAdaptiveSheet<void>(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: context.vColors.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
-        ),
-        builder: (_) => MemberFilterBottomSheet(
+        title: 'Bộ lọc thành viên',
+        child: MemberFilterBottomSheet(
           initialCriteria: currentCriteria,
           onApply: (criteria) {
             cubit.applyMemberCriteria(
@@ -106,14 +105,10 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
         customDateRange: cubit.state.invitationCustomDateRange,
       );
 
-      await showModalBottomSheet<void>(
+      await showVAdaptiveSheet<void>(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: context.vColors.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
-        ),
-        builder: (_) => InvitationFilterBottomSheet(
+        title: 'Bộ lọc lời mời',
+        child: InvitationFilterBottomSheet(
           initialCriteria: currentCriteria,
           onApply: (criteria) {
             cubit.applyInvitationCriteria(
@@ -248,6 +243,9 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                       _searchController.text = index == 0
                           ? state.memberSearch
                           : state.invitationSearch;
+                      if (VListDetailLayout.isSplitOf(context)) {
+                        context.go('/more/users');
+                      }
                     },
                     child: const VTabsList(
                       children: [
@@ -262,8 +260,10 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                       horizontal: VSpacing.screenMobile,
                       vertical: VSpacing.space3,
                     ),
-                    child: Row(
-                      children: isMemberTab
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: isMemberTab
                           ? [
                               for (final label in const [
                                 'Tất cả',
@@ -302,18 +302,21 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                                 ),
                               ],
                             ],
+                      ),
                     ),
                   ),
                   Expanded(
                     child: isMemberTab
                         ? MemberListSection(
                             canInvite: widget.canInvite,
+                            selectedId: widget.selectedId,
                             onMemberTap: widget.onMemberTap,
                             onInviteTap: widget.onInviteTap,
                             onClearFilters: _clearFilters,
                           )
                         : InvitationListSection(
                             canInvite: widget.canInvite,
+                            selectedId: widget.selectedId,
                             onInvitationTap: widget.onInvitationTap,
                             onInviteTap: widget.onInviteTap,
                             onClearFilters: _clearFilters,

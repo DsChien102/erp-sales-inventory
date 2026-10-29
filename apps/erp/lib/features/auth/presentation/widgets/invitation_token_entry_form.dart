@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import '../auth_layout.dart';
+
 /// ID-D-01 — Trang Nhập mã lời mời.
 ///
 /// Layout giữ nguyên thiết kế gốc (app bar + banner + bottom bar). Ô nhập
@@ -50,67 +52,61 @@ class _InvitationTokenEntryFormState extends State<InvitationTokenEntryForm> {
     final isSubmitting = widget.isSubmitting;
 
     return VPageScaffold(
+      contentMaxWidth: authMaxWidth,
       title: 'Kích hoạt tài khoản',
       leading: IconButton(
         tooltip: 'Quay lại',
         icon: VIcon(icon: VIcons.chevronLeft, color: colors.textPrimary),
         onPressed: isSubmitting ? null : () => context.go('/login'),
       ),
-      body: VContentWidth(
-        maxWidth: const VResponsiveValue<double>(
-          mobile: 500,
-          tablet: 500,
-          desktop: 500,
-        ),
-        child: SingleChildScrollView(
-          child: VPagePadding(
-            horizontal: VSpacing.screenMobile,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VGap.lg(),
-                const VBanner(
-                  status: VBannerStatus.info,
-                  title: 'Nhập mã lời mời',
-                  description:
-                      'Sao chép mã được gửi tới email của bạn rồi dán vào '
-                      'trường bên dưới.',
-                ),
-                const VGap.xl(),
-                VField(
-                  invalid: _error != null || widget.errorMessage != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Mã lời mời', isRequired: true),
-                      KeyedSubtree(
-                        key: const Key('invitation_token_input'),
-                        child: VVerificationCodeField(
-                          length: 8,
-                          charset: VVerificationCodeCharset.alphanumeric,
-                          autofocus: true,
-                          enabled: !isSubmitting,
-                          onChanged: (value) {
-                            setState(() {
-                              _token = value;
-                              if (_error != null) _error = null;
-                            });
-                            widget.onEditing?.call();
-                          },
-                          onCompleted: (_) => _submit(),
-                        ),
+      body: SingleChildScrollView(
+        child: VPagePadding(
+          horizontal: VSpacing.screenMobile,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VGap.lg(),
+              const VBanner(
+                status: VBannerStatus.info,
+                title: 'Nhập mã lời mời',
+                description:
+                    'Sao chép mã được gửi tới email của bạn rồi dán vào '
+                    'trường bên dưới.',
+              ),
+              const VGap.xl(),
+              VField(
+                invalid: _error != null || widget.errorMessage != null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VFieldLabel('Mã lời mời', isRequired: true),
+                    KeyedSubtree(
+                      key: const Key('invitation_token_input'),
+                      child: VVerificationCodeField(
+                        length: 8,
+                        charset: VVerificationCodeCharset.alphanumeric,
+                        autofocus: true,
+                        enabled: !isSubmitting,
+                        onChanged: (value) {
+                          setState(() {
+                            _token = value;
+                            if (_error != null) _error = null;
+                          });
+                          widget.onEditing?.call();
+                        },
+                        onCompleted: (_) => _submit(),
                       ),
-                      if (_error != null || widget.errorMessage != null)
-                        VFieldError(_error ?? widget.errorMessage!)
-                      else
-                        const VFieldDescription(
-                          'Mã không phân biệt chữ hoa và chữ thường.',
-                        ),
-                    ],
-                  ),
+                    ),
+                    if (_error != null || widget.errorMessage != null)
+                      VFieldError(_error ?? widget.errorMessage!)
+                    else
+                      const VFieldDescription(
+                        'Mã không phân biệt chữ hoa và chữ thường.',
+                      ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

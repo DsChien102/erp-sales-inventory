@@ -6,7 +6,7 @@ Future<bool?> showRevokeInvitationBottomSheet({
   required BuildContext context,
   required Future<bool> Function(String reason) onRevoke,
 }) {
-  return showVBottomSheet<bool>(
+  return showVAdaptiveSheet<bool>(
     context: context,
     child: _RevokeInvitationSheetBody(onRevoke: onRevoke),
   );

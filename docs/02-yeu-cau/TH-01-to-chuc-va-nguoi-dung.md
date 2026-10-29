@@ -6,6 +6,7 @@
 > - 🔧 = code hiện tại **sai**, phải sửa khi refactor.
 >
 > **Phiên bản:** 4.0 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> - **2026-10-28:** W-2: Theme 1 trên web — cột hẹp màn công khai, danh sách – chi tiết, sheet thành hộp thoại
 > - **2026-10-27:** 2-B7: bỏ họ tên / SĐT khỏi form mời (FR-01), lỗi mời dưới ô + nút Gửi luôn bật (FR-06), hộp thoại bỏ thay đổi, ô MST tự chèn gạch
 > **Thay thế:** bản 3.0 (2026-10-06, cùng phạm vi, ít chi tiết hơn), bản 2.0 (luồng cũ qua 2 app), `Theme 1_ Tổ chức & người dùng.md` (v1), `docs/themes/TH-01-organization-users/`.
 > **Nguồn đối chiếu:**
@@ -1090,6 +1091,15 @@ Không còn màn quản trị nền tảng. Khung cũ (C1–C7) chỉ để đ�
 - Nhãn trạng thái có chữ, không chỉ màu.
 - Rời form có thay đổi chưa lưu (sửa tài khoản, sửa hồ sơ tổ chức, hồ sơ pháp lý): hộp thoại "Bỏ thay đổi?" — "Các thay đổi chưa lưu sẽ bị mất." — nút "Tiếp tục sửa" / "Bỏ thay đổi" (đỏ). Lưu thành công rời trang không hỏi.
 - Hai thiết bị đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md), sửa 2026-10-22): mỗi màn có bố cục iPhone và bố cục web thiết kế đủ như nhau — web không phải cột iPhone đặt giữa hay kéo giãn. Web dùng bố cục chung: danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet thành hộp thoại, đi được bằng bàn phím; bố cục từng màn chốt trong plan của theme.
+- **Bố cục web & Chuỗi chung (W-2):**
+  - Màn hình công khai / xác thực co lại tối đa 480px trên tablet/desktop, căn trên giữa.
+  - Phân khu Người dùng, Vai trò, Lịch sử quản trị chuyển sang bố cục 2 cột (danh sách bên trái 360px, chi tiết bên phải) khi bề rộng khả dụng ≥ 840px (tương đương màn hình có thanh bên ≥ 1080px).
+  - Khi chưa chọn mục chi tiết trên giao diện 2 cột, hiển thị trạng thái rỗng hướng dẫn với các chuỗi chuẩn:
+    - Người dùng: *"Chọn một thành viên hoặc lời mời để xem chi tiết."*
+    - Vai trò: *"Chọn một vai trò để xem chi tiết."*
+    - Vai trò không tồn tại (nhánh đã tải xong nhưng không khớp mã vai trò): *"Không tìm thấy vai trò"*
+    - Lịch sử quản trị: *"Chọn một mục lịch sử để xem chi tiết."*
+  - Bottom sheet tự động chuyển thành hộp thoại căn giữa khi màn hình rộng (≥ 1024px), có nút đóng với tooltip: *"Đóng"*.
 
 ---
 

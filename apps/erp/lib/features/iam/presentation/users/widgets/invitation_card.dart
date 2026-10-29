@@ -6,11 +6,13 @@ import '../models/user_ui_model.dart';
 class InvitationCard extends StatelessWidget {
   final InvitationUiModel invitation;
   final VoidCallback? onTap;
+  final bool? isSelected;
 
   const InvitationCard({
     super.key,
     required this.invitation,
     this.onTap,
+    this.isSelected,
   });
 
   @override
@@ -28,6 +30,7 @@ class InvitationCard extends StatelessWidget {
     };
 
     return VCard(
+      isSelected: isSelected,
       onTap: onTap,
       padding: const EdgeInsets.all(VSpacing.space4),
       child: Row(

@@ -4,6 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/session/session_controller.dart';
+import '../auth_layout.dart';
 
 class NoOrganizationPage extends StatelessWidget {
   const NoOrganizationPage({super.key, this.session});
@@ -17,7 +18,10 @@ class NoOrganizationPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.surface,
       body: SafeArea(
-        child: LayoutBuilder(
+        child: VContentWidth(
+          maxWidth: authMaxWidth,
+          alignment: Alignment.topCenter,
+          child: LayoutBuilder(
           builder: (context, constraints) => SingleChildScrollView(
             padding: const EdgeInsets.all(VSpacing.screenMobile),
             child: ConstrainedBox(
@@ -67,6 +71,7 @@ class NoOrganizationPage extends StatelessWidget {
               ),
             ),
           ),
+        ),
         ),
       ),
     );

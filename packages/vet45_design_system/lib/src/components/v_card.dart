@@ -102,6 +102,10 @@ class VCard extends StatelessWidget {
   final Border? border;
   final double? borderRadius;
 
+  /// Khi [true], nền đổi thành [VColorScheme.surfaceBrand], viền thành [VColorScheme.borderBrand],
+  /// và gán Semantics(selected: true). Khi [false] và có [onTap], gán Semantics(selected: false).
+  final bool? isSelected;
+
   const VCard({
     super.key,
     required this.child,
@@ -114,6 +118,7 @@ class VCard extends StatelessWidget {
     this.backgroundColor,
     this.border,
     this.borderRadius,
+    this.isSelected,
   });
 
   (Color background, Color borderColor) _toneColors(VColorScheme colors) {
@@ -147,6 +152,20 @@ class VCard extends StatelessWidget {
     final (toneBg, toneBorder) = _toneColors(dynamicColors);
     final resolvedRadius = borderRadius ?? VRadius.card;
 
+    final Color resolvedBg;
+    final Color resolvedBorderColor;
+    if (isSelected == true) {
+      resolvedBg = backgroundColor ?? dynamicColors.surfaceBrand;
+      resolvedBorderColor = dynamicColors.borderBrand;
+    } else {
+      resolvedBg = backgroundColor ?? toneBg;
+      resolvedBorderColor = toneBorder;
+    }
+
+    final bool? semanticsSelected = isSelected == true
+        ? true
+        : (isSelected == false && onTap != null ? false : null);
+
     return vInspectorHide(
       _VCardAncestry(
         child: VComponentScope(
@@ -156,9 +175,9 @@ class VCard extends StatelessWidget {
             enabled: isEnabled,
             child: Container(
               decoration: BoxDecoration(
-                color: backgroundColor ?? toneBg,
+                color: resolvedBg,
                 borderRadius: BorderRadius.circular(resolvedRadius),
-                border: border ?? VBorders.all(toneBorder),
+                border: border ?? VBorders.all(resolvedBorderColor),
                 boxShadow: _resolveShadow(),
               ),
               child: Material(
@@ -166,6 +185,7 @@ class VCard extends StatelessWidget {
                 child: Semantics(
                   button: onTap != null,
                   enabled: isEnabled,
+                  selected: semanticsSelected,
                   child: InkWell(
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,

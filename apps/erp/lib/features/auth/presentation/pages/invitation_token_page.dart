@@ -15,6 +15,7 @@ import '../../logic/invitation_acceptance_state.dart';
 import '../widgets/invitation_confirm_bottom_sheet.dart';
 import '../widgets/invitation_outcome_view.dart';
 import '../widgets/invitation_token_entry_form.dart';
+import '../auth_layout.dart';
 import 'invitation_registration_page.dart';
 
 class InvitationTokenPage extends StatelessWidget {
@@ -65,12 +66,6 @@ class _InvitationTokenView extends StatefulWidget {
 
 class _InvitationTokenViewState extends State<_InvitationTokenView> {
   bool _confirmedNewAccount = false;
-
-  static const _mobileLayoutWidth = VResponsiveValue<double>(
-    mobile: 500,
-    tablet: 500,
-    desktop: 500,
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +151,8 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
           backgroundColor: colors.surface,
           body: SafeArea(
             child: VContentWidth(
-              maxWidth: _mobileLayoutWidth,
+              maxWidth: authMaxWidth,
+              alignment: Alignment.topCenter,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(VSpacing.screenMobile),
                 child: _body(context, state),

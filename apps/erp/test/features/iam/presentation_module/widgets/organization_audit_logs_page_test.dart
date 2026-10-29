@@ -155,10 +155,17 @@ void main() {
 
     final recording = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
 
+    final navKey = GlobalKey<NavigatorState>();
     await tester.pumpWidget(
       MaterialApp(
+        navigatorKey: navKey,
         theme: VTheme.lightTheme,
-        home: OrganizationAuditLogsPage(
+        home: const Scaffold(body: Text('Previous Page')),
+      ),
+    );
+    navKey.currentState!.push(
+      MaterialPageRoute(
+        builder: (_) => OrganizationAuditLogsPage(
           auditLogs: FakeAuditLogRepository(recording),
           clockLocal: () => DateTime(2026, 7, 31),
         ),

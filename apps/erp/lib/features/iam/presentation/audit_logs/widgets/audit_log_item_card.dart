@@ -7,11 +7,13 @@ import '../models/audit_log_ui_model.dart';
 class AuditLogItemCard extends StatelessWidget {
   final AuditLogItemUiModel log;
   final VoidCallback? onTap;
+  final bool? isSelected;
 
   const AuditLogItemCard({
     super.key,
     required this.log,
     this.onTap,
+    this.isSelected,
   });
 
   String _formatTimestamp(DateTime dt) {
@@ -33,6 +35,7 @@ class AuditLogItemCard extends StatelessWidget {
     final Color iconColor = log.icon == VIcons.info ? colors.info : colors.textPrimary;
 
     return VCard(
+      isSelected: isSelected,
       onTap: onTap,
       backgroundColor: colors.surface,
       padding: const EdgeInsets.all(VSpacing.space4),

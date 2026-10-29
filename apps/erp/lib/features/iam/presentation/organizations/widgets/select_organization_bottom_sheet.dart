@@ -270,7 +270,7 @@ Future<AccessibleTenant?> showSelectOrganizationBottomSheet({
   VoidCallback? onEmptyAction,
   Future<List<AccessibleTenant>?> Function()? onRetryLoad,
 }) async {
-  final selectedOrg = await showVBottomSheet<AccessibleTenant>(
+  final selectedOrg = await showVAdaptiveSheet<AccessibleTenant>(
     context: context,
     child: SelectOrganizationBottomSheet(
       organizations: organizations ?? const [],

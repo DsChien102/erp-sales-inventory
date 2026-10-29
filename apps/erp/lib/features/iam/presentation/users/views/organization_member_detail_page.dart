@@ -25,18 +25,20 @@ class OrganizationMemberDetailPage extends StatelessWidget {
     required this.membershipId,
     this.members,
     this.cubit,
+    this.onMutated,
   });
 
   final String membershipId;
   final MemberRepository? members;
   final OrganizationMemberDetailCubit? cubit;
+  final VoidCallback? onMutated;
 
   @override
   Widget build(BuildContext context) {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: const _MemberDetailView(),
+        child: _MemberDetailView(onMutated: onMutated),
       );
     }
     assert(
@@ -48,13 +50,15 @@ class OrganizationMemberDetailPage extends StatelessWidget {
         membershipId: membershipId,
         members: members!,
       )..load(),
-      child: const _MemberDetailView(),
+      child: _MemberDetailView(onMutated: onMutated),
     );
   }
 }
 
 class _MemberDetailView extends StatelessWidget {
-  const _MemberDetailView();
+  const _MemberDetailView({this.onMutated});
+
+  final VoidCallback? onMutated;
 
   @override
   Widget build(BuildContext context) {
@@ -91,15 +95,19 @@ class _MemberDetailView extends StatelessWidget {
             message: '',
             type: VToastType.success,
           );
+          if (VListDetailLayout.isSplitOf(context)) onMutated?.call();
           context.read<OrganizationMemberDetailCubit>().clearFeedback();
         }
       },
       builder: (context, state) {
+        final isSplit = VListDetailLayout.isSplitOf(context);
+
         if (state.status == IamLoadStatus.loading ||
             state.status == IamLoadStatus.initial) {
-          return const VPageScaffold(
+          return VPageScaffold(
             title: 'Chi tiết thành viên',
-            body: Center(child: VLoading(size: 40)),
+            showBackButton: !isSplit,
+            body: const Center(child: VLoading(size: 40)),
           );
         }
 
@@ -107,6 +115,7 @@ class _MemberDetailView extends StatelessWidget {
           final colors = context.vColors;
           return VPageScaffold(
             title: 'Chi tiết thành viên',
+            showBackButton: !isSplit,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(VSpacing.screenMobile),
@@ -144,6 +153,7 @@ class _MemberDetailView extends StatelessWidget {
         final member = MemberUiMapper.fromDetail(state.member!);
         return VPageScaffold(
           title: 'Chi tiết thành viên',
+          showBackButton: !isSplit,
           bottomBar: state.hasLifecycleActions
               ? Padding(
                   padding: const EdgeInsets.all(VSpacing.screenMobile),

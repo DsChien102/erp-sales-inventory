@@ -54,6 +54,8 @@ class AuditLogDetailBody extends StatelessWidget {
     final isActorLegacy = log.actorDisplayOrigin == TenantAuditDisplayOrigin.current;
     final isSubjectLegacy = log.subjectDisplayOrigin == TenantAuditDisplayOrigin.current;
 
+    final isSplit = VListDetailLayout.isSplitOf(context);
+
     return Scaffold(
       backgroundColor: colors.surfaceAlt,
       appBar: AppBar(
@@ -61,15 +63,18 @@ class AuditLogDetailBody extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        leading: IconButton(
-          tooltip: 'Quay lại',
-          icon: VIcon(
-            icon: VIcons.chevronLeft,
-            color: colors.textPrimary,
-          ),
-          onPressed: onBackPressed ?? () => Navigator.of(context).maybePop(),
-        ),
-        titleSpacing: 0,
+        automaticallyImplyLeading: false,
+        leading: isSplit
+            ? null
+            : IconButton(
+                tooltip: 'Quay lại',
+                icon: VIcon(
+                  icon: VIcons.chevronLeft,
+                  color: colors.textPrimary,
+                ),
+                onPressed: onBackPressed ?? () => Navigator.of(context).maybePop(),
+              ),
+        titleSpacing: isSplit ? VSpacing.space4 : 0,
         title: Semantics(
           header: true,
           child: const VText(

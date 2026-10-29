@@ -79,6 +79,8 @@ class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
     final colors = context.vColors;
     return BlocBuilder<TenantAuditLogsCubit, TenantAuditLogsState>(
       builder: (context, state) {
+        final isSplit = VListDetailLayout.isSplitOf(context);
+
         if (state.detailStatus == IamLoadStatus.loading ||
             state.detailStatus == IamLoadStatus.initial) {
           return Scaffold(
@@ -86,14 +88,18 @@ class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
             appBar: AppBar(
               backgroundColor: colors.surface,
               elevation: 0,
-              leading: IconButton(
-                tooltip: 'Quay lại',
-                icon: VIcon(
-                  icon: VIcons.chevronLeft,
-                  color: colors.textPrimary,
-                ),
-                onPressed: widget.onBackPressed ?? () => Navigator.of(context).maybePop(),
-              ),
+              automaticallyImplyLeading: false,
+              leading: isSplit
+                  ? null
+                  : IconButton(
+                      tooltip: 'Quay lại',
+                      icon: VIcon(
+                        icon: VIcons.chevronLeft,
+                        color: colors.textPrimary,
+                      ),
+                      onPressed: widget.onBackPressed ?? () => Navigator.of(context).maybePop(),
+                    ),
+              titleSpacing: isSplit ? VSpacing.space4 : 0,
               title: Semantics(
                 header: true,
                 child: const VText(
@@ -113,14 +119,18 @@ class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
             appBar: AppBar(
               backgroundColor: colors.surface,
               elevation: 0,
-              leading: IconButton(
-                tooltip: 'Quay lại',
-                icon: VIcon(
-                  icon: VIcons.chevronLeft,
-                  color: colors.textPrimary,
-                ),
-                onPressed: widget.onBackPressed ?? () => Navigator.of(context).maybePop(),
-              ),
+              automaticallyImplyLeading: false,
+              leading: isSplit
+                  ? null
+                  : IconButton(
+                      tooltip: 'Quay lại',
+                      icon: VIcon(
+                        icon: VIcons.chevronLeft,
+                        color: colors.textPrimary,
+                      ),
+                      onPressed: widget.onBackPressed ?? () => Navigator.of(context).maybePop(),
+                    ),
+              titleSpacing: isSplit ? VSpacing.space4 : 0,
               title: Semantics(
                 header: true,
                 child: const VText(

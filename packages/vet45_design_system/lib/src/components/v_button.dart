@@ -525,10 +525,11 @@ final class _VButtonLinkState extends State<_VButtonLink> {
       style: labelStyle,
       textAlign: widget.textAlign,
       maxLines: 1,
-      overflow: widget.expandText ? TextOverflow.ellipsis : null,
+      overflow: TextOverflow.ellipsis,
     );
 
-    final Widget textSlot = widget.expandText ? Expanded(child: labelText) : labelText;
+    final Widget textSlot =
+        widget.expandText ? Expanded(child: labelText) : Flexible(child: labelText);
 
     final content = Row(
       mainAxisSize: widget.expandText ? MainAxisSize.max : MainAxisSize.min,

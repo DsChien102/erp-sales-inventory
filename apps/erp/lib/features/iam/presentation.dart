@@ -83,3 +83,6 @@ export 'presentation/users/widgets/member_filter_bottom_sheet.dart';
 export 'presentation/roles/models/role_ui_model.dart';
 export 'presentation/roles/views/organization_roles_page.dart';
 export 'presentation/roles/views/organization_role_detail_page.dart';
+export 'presentation/users/users_area_shell.dart';
+export 'presentation/roles/roles_area_shell.dart';
+export 'presentation/audit_logs/audit_area_shell.dart';

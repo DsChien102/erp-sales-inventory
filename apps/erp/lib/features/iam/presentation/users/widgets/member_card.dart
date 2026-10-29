@@ -6,11 +6,13 @@ import '../models/user_ui_model.dart';
 class MemberCard extends StatelessWidget {
   final MemberUiModel member;
   final VoidCallback? onTap;
+  final bool? isSelected;
 
   const MemberCard({
     super.key,
     required this.member,
     this.onTap,
+    this.isSelected,
   });
 
   @override
@@ -25,6 +27,7 @@ class MemberCard extends StatelessWidget {
     };
 
     return VCard(
+      isSelected: isSelected,
       onTap: onTap,
       padding: const EdgeInsets.all(VSpacing.space4),
       child: Row(
@@ -40,24 +43,23 @@ class MemberCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: VSpacing.space2,
+                  runSpacing: VSpacing.space1,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Flexible(
-                      child: VText(
-                        member.name,
-                        variant: VTextVariant.bodyDefault,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
+                    VText(
+                      member.name,
+                      variant: VTextVariant.bodyDefault,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    if (member.isOwner) ...[
-                      const VGap.horizontalXs(),
+                    if (member.isOwner)
                       const VBadge(
                         label: 'Chủ sở hữu',
                         tone: VComponentTone.primary,
                         variant: VBadgeVariant.soft,
                         isSmall: true,
                       ),
-                    ],
                   ],
                 ),
                 const VGap.xs(),

@@ -21,8 +21,7 @@ void main() {
       ),
     );
 
-    // Verify title & sections
-    expect(find.text('Bộ lọc nhật ký nền tảng'), findsOneWidget);
+    // Verify sections
     expect(find.text('Thời gian'), findsOneWidget);
     expect(find.text('Kết quả'), findsOneWidget);
     expect(find.text('Loại chủ thể'), findsOneWidget);

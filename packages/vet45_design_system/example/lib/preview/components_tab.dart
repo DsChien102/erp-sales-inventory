@@ -1183,6 +1183,17 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 ),
               ),
               PreviewStateRow(
+                label: 'Selected (isSelected: true)',
+                child: SizedBox(
+                  width: 240,
+                  child: VCard(
+                    isSelected: true,
+                    onTap: () {},
+                    child: const Text('Thẻ đang chọn (isSelected: true)'),
+                  ),
+                ),
+              ),
+              PreviewStateRow(
                 label: 'Tones',
                 child: PreviewStateWrap(
                   children: [
@@ -1542,6 +1553,81 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     ),
                   );
                 },
+              ),
+              const SizedBox(height: VSpacing.space2),
+              VButton(
+                label: 'showVAdaptiveSheet (Sheet / Dialog)',
+                variant: VButtonVariant.secondary,
+                onPressed: () {
+                  showVAdaptiveSheet(
+                    context: context,
+                    title: 'Hộp thoại / Sheet tương thích',
+                    child: Padding(
+                      padding: const EdgeInsets.all(VSpacing.space4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Trên web desktop (≥ 1024) hiển thị Dialog giữa màn (480px, tối đa 85% chiều cao); trên mobile là bottom sheet.',
+                          ),
+                          const SizedBox(height: VSpacing.space3),
+                          VButton(
+                            label: 'Đóng',
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VListDetailLayout',
+          description:
+              'Hai cột danh sách – chi tiết khi bề rộng layout ≥ minSplitWidth (mặc định 840); '
+              'hẹp hơn chỉ dựng [detail]. Đọc VListDetailLayout.isSplitOf(context).',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Khung 2 cột (minSplitWidth: 500 demo)',
+                child: SizedBox(
+                  height: 200,
+                  child: VListDetailLayout(
+                    minSplitWidth: 500,
+                    listWidth: 180,
+                    list: Container(
+                      color: VColorScheme.light.surfaceAlt,
+                      padding: const EdgeInsets.all(VSpacing.space2),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Danh sách (trái)', style: TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: VSpacing.space2),
+                          VCard(
+                            isSelected: true,
+                            child: const Text('Mục 1 (chọn)'),
+                          ),
+                          const SizedBox(height: VSpacing.space1),
+                          const VCard(child: Text('Mục 2')),
+                        ],
+                      ),
+                    ),
+                    detail: Container(
+                      padding: const EdgeInsets.all(VSpacing.space3),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Chi tiết (phải)', style: TextStyle(fontWeight: FontWeight.bold)),
+                          SizedBox(height: VSpacing.space2),
+                          Text('Nội dung chi tiết của mục 1.'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

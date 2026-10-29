@@ -1,3 +1,4 @@
+import 'dart:ui' show Tristate;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -162,6 +163,50 @@ void main() {
         ),
       );
       expect(cardDecoration(tester)!.boxShadow, VShadows.e1);
+    });
+
+    testWidgets('isSelected true uses surfaceBrand, borderBrand and sets semantics selected', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(
+          VCard(
+            isSelected: true,
+            onTap: () {},
+            child: const Text('item'),
+          ),
+        ),
+      );
+
+      final decoration = cardDecoration(tester)!;
+      expect(decoration.color, VColorScheme.light.surfaceBrand);
+      final border = decoration.border! as Border;
+      expect(border.top.color, VColorScheme.light.borderBrand);
+
+      final node = tester.getSemantics(find.text('item'));
+      expect(node.flagsCollection.isSelected, Tristate.isTrue);
+      handle.dispose();
+    });
+
+    testWidgets('isSelected false does not apply brand background and sets semantics selected false', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(
+          VCard(
+            isSelected: false,
+            onTap: () {},
+            child: const Text('item'),
+          ),
+        ),
+      );
+
+      final decoration = cardDecoration(tester)!;
+      expect(decoration.color, isNot(VColorScheme.light.surfaceBrand));
+      final border = decoration.border! as Border;
+      expect(border.top.color, VColorScheme.light.borderStrong);
+
+      final node = tester.getSemantics(find.text('item'));
+      expect(node.flagsCollection.isSelected, Tristate.isFalse);
+      handle.dispose();
     });
 
     testWidgets('explicit backgroundColor overrides tone', (tester) async {

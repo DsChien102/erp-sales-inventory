@@ -30,18 +30,20 @@ class OrganizationAuditLogsPage extends StatelessWidget {
     this.auditLogs,
     this.cubit,
     this.clockLocal,
+    this.selectedId,
   });
 
   final AuditLogRepository? auditLogs;
   final TenantAuditLogsCubit? cubit;
   final DateTime Function()? clockLocal;
+  final String? selectedId;
 
   @override
   Widget build(BuildContext context) {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: const _AuditLogsView(),
+        child: _AuditLogsView(selectedId: selectedId),
       );
     }
     assert(
@@ -53,13 +55,15 @@ class OrganizationAuditLogsPage extends StatelessWidget {
         auditLogs: auditLogs!,
         clockLocal: clockLocal,
       )..search(),
-      child: const _AuditLogsView(),
+      child: _AuditLogsView(selectedId: selectedId),
     );
   }
 }
 
 class _AuditLogsView extends StatefulWidget {
-  const _AuditLogsView();
+  const _AuditLogsView({this.selectedId});
+
+  final String? selectedId;
 
   @override
   State<_AuditLogsView> createState() => _AuditLogsViewState();
@@ -98,6 +102,11 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
   }
 
   Future<void> _openDetail(String auditLogId) async {
+    final isSplit = VListDetailLayout.isSplitOf(context);
+    if (isSplit) {
+      context.go('/more/audit-logs/$auditLogId');
+      return;
+    }
     try {
       await context.push('/more/audit-logs/$auditLogId');
     } catch (_) {
@@ -135,14 +144,10 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
     TenantAuditLogsState state,
   ) async {
     final cubit = context.read<TenantAuditLogsCubit>();
-    await showModalBottomSheet<void>(
+    await showVAdaptiveSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: context.vColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
-      ),
-      builder: (_) => AuditLogFilterBottomSheet(
+      title: 'Bộ lọc nhật ký nền tảng',
+      child: AuditLogFilterBottomSheet(
         initialCriteria: AuditLogFilterCriteria(
           status: state.filters.result != null
               ? (switch (state.filters.result!) {
@@ -211,14 +216,16 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
             title: 'Lịch sử quản trị',
             subtitle: subtitleText,
             showBackButton: true,
-            leading: IconButton(
-              tooltip: 'Quay lại',
-              icon: VIcon(
-                icon: VIcons.chevronLeft,
-                color: colors.textPrimary,
-              ),
-              onPressed: () => Navigator.of(context).maybePop(),
-            ),
+            leading: VAppBar.poppableNavigator(context) != null
+                ? IconButton(
+                    tooltip: 'Quay lại',
+                    icon: VIcon(
+                      icon: VIcons.chevronLeft,
+                      color: colors.textPrimary,
+                    ),
+                    onPressed: () => VAppBar.popNearest(context),
+                  )
+                : null,
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,6 +371,7 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
         final log = TenantAuditUiMapper.fromSummary(summary);
         return AuditLogItemCard(
           log: log,
+          isSelected: summary.auditLogId == widget.selectedId,
           onTap: () => _openDetail(summary.auditLogId),
         );
       },

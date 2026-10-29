@@ -13,6 +13,7 @@ import '../../data/models/signup_input.dart';
 import '../../logic/signup_cubit.dart';
 import '../../logic/signup_state.dart';
 import '../widgets/verify_email_view.dart';
+import '../auth_layout.dart';
 
 class SignupPage extends StatelessWidget {
   const SignupPage({super.key, this.auth, this.session, this.cubit});
@@ -213,29 +214,33 @@ class _SignupViewState extends State<_SignupView> {
             ),
           ),
           body: SafeArea(
-            child: ListView(
-              padding: const EdgeInsets.all(VSpacing.screenMobile),
-              children: [
-                VSteps(
-                  steps: const [
-                    VStepItem(title: 'Tài khoản'),
-                    VStepItem(title: 'Cửa hàng'),
-                    VStepItem(title: 'Xác minh email'),
-                  ],
-                  currentStep: state.step.index,
-                  semanticLabel: _stepLabels[state.step.index],
-                ),
-                const VGap.lg(),
-                if (state.failure != null && !state.emailExists) ...[
-                  VBanner(
-                    key: _bannerKey,
-                    status: VBannerStatus.error,
-                    title: state.failure!,
+            child: VContentWidth(
+              maxWidth: authMaxWidth,
+              alignment: Alignment.topCenter,
+              child: ListView(
+                padding: const EdgeInsets.all(VSpacing.screenMobile),
+                children: [
+                  VSteps(
+                    steps: const [
+                      VStepItem(title: 'Tài khoản'),
+                      VStepItem(title: 'Cửa hàng'),
+                      VStepItem(title: 'Xác minh email'),
+                    ],
+                    currentStep: state.step.index,
+                    semanticLabel: _stepLabels[state.step.index],
                   ),
-                  const VGap.md(),
+                  const VGap.lg(),
+                  if (state.failure != null && !state.emailExists) ...[
+                    VBanner(
+                      key: _bannerKey,
+                      status: VBannerStatus.error,
+                      title: state.failure!,
+                    ),
+                    const VGap.md(),
+                  ],
+                  if (state.emailExists) _emailExists(context) else _step(context, state),
                 ],
-                if (state.emailExists) _emailExists(context) else _step(context, state),
-              ],
+              ),
             ),
           ),
         );

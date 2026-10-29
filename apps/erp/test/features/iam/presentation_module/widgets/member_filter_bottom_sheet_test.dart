@@ -20,8 +20,7 @@ void main() {
       ),
     );
 
-    // Verify title & sections
-    expect(find.text('Bộ lọc thành viên'), findsOneWidget);
+    // Verify sections
     expect(find.text('Trạng thái'), findsOneWidget);
     expect(find.text('Vai trò'), findsOneWidget);
     expect(find.text('Sắp xếp'), findsOneWidget);

@@ -41,6 +41,7 @@ export 'src/patterns/v_responsive.dart';
 export 'src/patterns/v_responsive_visibility.dart';
 export 'src/patterns/v_content_width.dart';
 export 'src/patterns/v_responsive_grid.dart';
+export 'src/patterns/v_list_detail_layout.dart';
 
 // Primitives
 export 'src/primitives/v_badge.dart';
@@ -79,6 +80,7 @@ export 'src/components/v_bottom_navigation_bar.dart';
 export 'src/components/v_side_navigation.dart';
 export 'src/components/v_modal.dart';
 export 'src/components/v_bottom_sheet.dart';
+export 'src/components/v_adaptive_sheet.dart';
 export 'src/components/v_app_bar.dart';
 export 'src/components/v_table.dart';
 export 'src/components/v_loading.dart';

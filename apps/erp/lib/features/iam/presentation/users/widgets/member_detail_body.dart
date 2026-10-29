@@ -41,17 +41,20 @@ class MemberDetailBody extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Semantics(
-                      header: true,
-                      child: VText(
-                        'Thông tin thành viên',
-                        variant: VTextVariant.headingH4,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: colors.textPrimary,
+                    Expanded(
+                      child: Semantics(
+                        header: true,
+                        child: VText(
+                          'Thông tin thành viên',
+                          variant: VTextVariant.headingH4,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: colors.textPrimary,
+                          ),
                         ),
                       ),
                     ),
+                    const SizedBox(width: VSpacing.space2),
                     VBadge(
                       label: badgeLabel,
                       tone: badgeTone,

@@ -234,37 +234,39 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
     final state = cubit.state;
     if (state.duplicateWarning != null && !_showingDuplicateSheet) {
       _showingDuplicateSheet = true;
-      await showVBottomSheet<void>(
+      await showVAdaptiveSheet<void>(
         context: context,
-        child: TaxCodeDuplicateWarningBottomSheet(
-          message: state.duplicateWarning!.message,
-          onSaveAnyway: () async {
-            final confirmed = await cubit.confirmDuplicateLegal();
-            if (!context.mounted) return;
-            _showingDuplicateSheet = false;
-            if (confirmed) {
-              VToast.show(
-                context,
-                title: cubit.state.successMessage ?? 'Đã lưu hồ sơ pháp lý.',
-                message: '',
-                type: VToastType.success,
-              );
-              cubit.clearFeedback();
-              Navigator.of(context).pop(true);
-            } else if (cubit.state.failure != null) {
-              VToast.show(
-                context,
-                title: 'Không lưu được',
-                message: cubit.state.failure!.message,
-                type: VToastType.danger,
-              );
-              cubit.clearFeedback();
-            }
-          },
-          onReview: () {
-            _showingDuplicateSheet = false;
-            cubit.dismissDuplicateWarning();
-          },
+        child: Builder(
+          builder: (sheetContext) => TaxCodeDuplicateWarningBottomSheet(
+            message: state.duplicateWarning!.message,
+            onSaveAnyway: () async {
+              final confirmed = await cubit.confirmDuplicateLegal();
+              if (!context.mounted) return;
+              _showingDuplicateSheet = false;
+              if (confirmed) {
+                VToast.show(
+                  context,
+                  title: cubit.state.successMessage ?? 'Đã lưu hồ sơ pháp lý.',
+                  message: '',
+                  type: VToastType.success,
+                );
+                cubit.clearFeedback();
+                Navigator.of(sheetContext).pop(true);
+              } else if (cubit.state.failure != null) {
+                VToast.show(
+                  context,
+                  title: 'Không lưu được',
+                  message: cubit.state.failure!.message,
+                  type: VToastType.danger,
+                );
+                cubit.clearFeedback();
+              }
+            },
+            onReview: () {
+              _showingDuplicateSheet = false;
+              cubit.dismissDuplicateWarning();
+            },
+          ),
         ),
       );
       _showingDuplicateSheet = false;

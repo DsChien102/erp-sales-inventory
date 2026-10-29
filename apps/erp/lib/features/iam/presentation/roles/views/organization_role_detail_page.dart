@@ -66,15 +66,25 @@ class _LoadedRoleDetail extends StatelessWidget {
           }
         }
         if (role != null) return _RoleDetailBody(role: role);
+        final isSplit = VListDetailLayout.isSplitOf(context);
         if (state.status == IamLoadStatus.failure) {
-          return const VPageScaffold(
+          return VPageScaffold(
             title: 'Chi tiết vai trò',
-            body: Center(child: Text(rolesLoadErrorMessage)),
+            showBackButton: !isSplit,
+            body: const Center(child: Text(rolesLoadErrorMessage)),
           );
         }
-        return const VPageScaffold(
+        if (state.status == IamLoadStatus.success) {
+          return VPageScaffold(
+            title: 'Chi tiết vai trò',
+            showBackButton: !isSplit,
+            body: const Center(child: Text('Không tìm thấy vai trò')),
+          );
+        }
+        return VPageScaffold(
           title: 'Chi tiết vai trò',
-          body: Center(child: CircularProgressIndicator()),
+          showBackButton: !isSplit,
+          body: const Center(child: VLoading(size: 40)),
         );
       },
     );
@@ -89,8 +99,10 @@ class _RoleDetailBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final isSplit = VListDetailLayout.isSplitOf(context);
     return VPageScaffold(
       title: 'Chi tiết vai trò',
+      showBackButton: !isSplit,
       body: ListView(
         padding: const EdgeInsets.all(VSpacing.screenMobile),
         children: [

@@ -8,7 +8,7 @@ Future<bool?> showRemoveMembershipBottomSheet({
   required BuildContext context,
   required Future<bool> Function() onConfirm,
 }) {
-  return showVBottomSheet<bool>(
+  return showVAdaptiveSheet<bool>(
     context: context,
     child: MembershipLifecycleConfirmSheet(
       title: 'Loại thành viên khỏi tổ chức?',

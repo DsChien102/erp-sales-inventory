@@ -23,6 +23,7 @@ class OrganizationInvitationDetailPage extends StatelessWidget {
     this.keyFactory,
     this.clock,
     this.cubit,
+    this.onMutated,
   });
 
   final String invitationId;
@@ -30,13 +31,14 @@ class OrganizationInvitationDetailPage extends StatelessWidget {
   final IdempotencyKeyFactory? keyFactory;
   final DateTime Function()? clock;
   final OrganizationInvitationDetailCubit? cubit;
+  final VoidCallback? onMutated;
 
   @override
   Widget build(BuildContext context) {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: _InvitationDetailView(clock: clock),
+        child: _InvitationDetailView(clock: clock, onMutated: onMutated),
       );
     }
     assert(
@@ -49,15 +51,19 @@ class OrganizationInvitationDetailPage extends StatelessWidget {
         invitations: invitations!,
         keyFactory: keyFactory ?? const UuidIdempotencyKeyFactory(),
       )..load(),
-      child: _InvitationDetailView(clock: clock),
+      child: _InvitationDetailView(clock: clock, onMutated: onMutated),
     );
   }
 }
 
 class _InvitationDetailView extends StatelessWidget {
-  const _InvitationDetailView({this.clock});
+  const _InvitationDetailView({
+    this.clock,
+    this.onMutated,
+  });
 
   final DateTime Function()? clock;
+  final VoidCallback? onMutated;
 
   @override
   Widget build(BuildContext context) {
@@ -86,14 +92,18 @@ class _InvitationDetailView extends StatelessWidget {
             message: message,
             type: state.deliveryWarning ? VToastType.warning : VToastType.success,
           );
+          if (VListDetailLayout.isSplitOf(context)) onMutated?.call();
           context.read<OrganizationInvitationDetailCubit>().clearFeedback();
         }
       },
       builder: (context, state) {
+        final isSplit = VListDetailLayout.isSplitOf(context);
+
         if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
-          return const VPageScaffold(
+          return VPageScaffold(
             title: 'Chi tiết lời mời',
-            body: Center(child: VLoading(size: 40)),
+            showBackButton: !isSplit,
+            body: const Center(child: VLoading(size: 40)),
           );
         }
 
@@ -101,6 +111,7 @@ class _InvitationDetailView extends StatelessWidget {
           final colors = context.vColors;
           return VPageScaffold(
             title: 'Chi tiết lời mời',
+            showBackButton: !isSplit,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(VSpacing.screenMobile),
@@ -151,6 +162,7 @@ class _InvitationDetailView extends StatelessWidget {
 
         return VPageScaffold(
           title: 'Chi tiết lời mời',
+          showBackButton: !isSplit,
           body: ListView(
             padding: const EdgeInsets.symmetric(
               horizontal: VSpacing.screenMobile,
@@ -240,36 +252,38 @@ class _InvitationDetailView extends StatelessWidget {
 
   void _showActionBottomSheet(BuildContext context) {
     final cubit = context.read<OrganizationInvitationDetailCubit>();
-    showVBottomSheet(
+    showVAdaptiveSheet(
       context: context,
       title: 'Thao tác lời mời',
-      child: Padding(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IamActionTile(
-              icon: VIcons.refresh,
-              title: 'Gửi lại lời mời',
-              subtitle: 'Gửi lại email đến người nhận',
-              onTap: () async {
-                Navigator.of(context).pop();
-                await cubit.resend();
-              },
-            ),
-            const VGap.sm(),
-            IamActionTile(
-              icon: VIcons.delete,
-              title: 'Thu hồi lời mời',
-              subtitle: 'Người nhận không thể tiếp tục tham gia',
-              isDanger: true,
-              onTap: () {
-                Navigator.of(context).pop();
-                _openRevokeSheet(context, cubit);
-              },
-            ),
-            const VGap.md(),
-          ],
+      child: Builder(
+        builder: (sheetContext) => Padding(
+          padding: const EdgeInsets.all(VSpacing.screenMobile),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IamActionTile(
+                icon: VIcons.refresh,
+                title: 'Gửi lại lời mời',
+                subtitle: 'Gửi lại email đến người nhận',
+                onTap: () async {
+                  Navigator.of(sheetContext).pop();
+                  await cubit.resend();
+                },
+              ),
+              const VGap.sm(),
+              IamActionTile(
+                icon: VIcons.delete,
+                title: 'Thu hồi lời mời',
+                subtitle: 'Người nhận không thể tiếp tục tham gia',
+                isDanger: true,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _openRevokeSheet(context, cubit);
+                },
+              ),
+              const VGap.md(),
+            ],
+          ),
         ),
       ),
     );
@@ -287,6 +301,17 @@ class _InvitationDetailView extends StatelessWidget {
       },
     );
     if (revoked == true && context.mounted) {
+      if (VListDetailLayout.isSplitOf(context)) {
+        VToast.show(
+          context,
+          title: 'Đã thu hồi lời mời.',
+          message: '',
+          type: VToastType.success,
+        );
+        onMutated?.call();
+        context.go('/more/users');
+        return;
+      }
       try {
         context.pop(true);
       } catch (_) {

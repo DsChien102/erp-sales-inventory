@@ -321,6 +321,19 @@ Tiết chế và rõ ràng: một nút đặc màu xanh, còn lại là viền h
 - **Thanh dưới:** nền trắng, đường kẻ Hairline phía trên, đệm trên 4px, ô tab cao tối thiểu 48px, đệm dưới bằng trọn inset của thanh Home / thanh cử chỉ (tối thiểu 12px); mỗi tab có icon 24px và nhãn Label Small bên dưới (cách 4px, 1 dòng, cỡ chữ phóng tối đa ×1.3); tab đang chọn màu Clinic Leaf Green, tab khác Ink Secondary; không có hiệu ứng splash. Mỗi tab là một nút semantics mang tên tab và trạng thái đã chọn.
 - **Thanh bên (Web / màn rộng ≥ 1024px):** bề rộng 240px cố định, nền trắng, viền phải Hairline 1px; phần đầu (header) chứa selector tổ chức, phần thân là danh sách cuộn các mục chính và mục con (một cấp, luôn mở); mỗi mục cao tối thiểu 44px, bo góc 8px (R8), đệm ngang 12px (mục con thụt vào 44px khi không có icon); mục đang chọn tô nền Leaf Wash (`surfaceBrand`), chữ và icon màu Clinic Leaf Green (`primary` / `textBrand`); mục phụ khi đang chọn nhánh tô nền Leaf Wash 50% alpha; hover nền xám nhạt (`surfaceHover`); focus bàn phím qua phím Tab có viền xanh 2px nhìn thấy rõ, kích hoạt bằng Enter hoặc Space; mục bị vô hiệu hoá mờ 40% (`vDisabledOpacity`); hỗ trợ semantics nút và trạng thái đã chọn. Phần cuối (footer) có viền trên Hairline 1px, chứa nút Đăng xuất.
 
+### List-Detail Layout (Danh sách – chi tiết hai cột)
+- **Breakpoint chia cột:** kích hoạt khi bề rộng layout ≥ 840px (`VListDetailLayout`), tương đương màn hình ≥ 1080px khi có thanh bên 240px. Dưới ngưỡng này, bố cục hiển thị một cột tuần tự theo điều hướng.
+- **Cột danh sách (trái):** cố định 360px (`listWidth: 360`), cuộn độc lập; chứa danh sách tóm tắt (thành viên, vai trò, lịch sử).
+- **Cột chi tiết (phải):** chiếm toàn bộ không gian còn lại (`Expanded`), cuộn độc lập; hiển thị form xem/sửa chi tiết. Khi chưa chọn mục nào, hiển thị `VEmptyState` với thông điệp hướng dẫn.
+- **Đường phân cách:** `VDivider(axis: Axis.vertical)` 1px, màu `borderDefault`.
+- **Trạng thái đang chọn:** thẻ tóm tắt ở cột trái dùng `VCard(isSelected: true)`, tô nền `surfaceBrand` (Leaf Wash) và viền `borderBrand` (Leaf Border), gán nhãn semantics `selected: true`.
+
+### Adaptive Sheet / Dialog (Hộp thoại thích ứng)
+- **Hành vi thích ứng:** `showVAdaptiveSheet` tự động mở bottom sheet (`VBottomSheet`) khi màn hình hẹp (< 1024px) và mở hộp thoại căn giữa (`VSheetDialog`) khi màn hình rộng (≥ 1024px, tức `VBreakpoints.desktop`).
+- **Kích thước hộp thoại:** `VSheetDialog` có chiều rộng tối đa 480px, chiều cao tối đa 85% chiều cao màn hình; bo góc 16px (`VRadius.r16`).
+- **Thanh tiêu đề hộp thoại:** khi có tiêu đề (`title != null`), hiển thị tiêu đề `headingH3` bên trái, nút đóng hình dấu X bên phải (`Semantics(label: 'Đóng')`) và đường kẻ ngang Hairline bên dưới; khi không có tiêu đề (`title == null`), không hiển thị thanh tiêu đề và đường kẻ, nút đóng được đặt ở góc trên bên phải.
+- **Thao tác đóng:** hỗ trợ đóng khi nhấn phím Escape, nhấn vùng ngoài hộp thoại (barrier dismissible), hoặc bấm nút đóng.
+
 ## Do's and Don'ts
 
 ### Do:

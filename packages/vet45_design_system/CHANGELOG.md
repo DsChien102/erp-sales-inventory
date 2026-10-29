@@ -15,6 +15,10 @@ changelogs when relevant.
 
 ### Added
 
+- `VListDetailLayout`: layout 2 cột danh sách – chi tiết khi bề rộng ≥ `minSplitWidth` (mặc định 840), hẹp hơn chỉ hiển thị chi tiết; hỗ trợ `isSplitOf(context)`.
+- `VCard.isSelected`: hỗ trợ trạng thái được chọn (`surfaceBrand` + `borderBrand` và `Semantics(selected: true)`).
+- `showVAdaptiveSheet` / `VSheetDialog`: bottom sheet tự động chuyển thành hộp thoại trên desktop (≥ 1024).
+- `VAppBar.popNearest`: pop navigator gần nhất pop được.
 - `VSideNavigation` / `VSideNavigationItem`: thanh điều hướng bên trái cho màn hình rộng (desktop ≥ 1024), hỗ trợ một cấp mục con luôn mở, vùng chạm ≥ 44pt, semantics selected, focus viền bàn phím rõ ràng, token màu chuẩn Design System.
 - `VChip.isSelected` exposes chip selection to semantics.
 - `VPageScaffold.contentMaxWidth` (+ `defaultContentMaxWidth`, `fullWidth`): từ breakpoint tablet, body và `bottomBar` nằm trong một cột giữa (640 tablet / 720 desktop); điện thoại giữ nguyên full-width. FAB bám mép cột. Trang tự chia pane truyền `VPageScaffold.fullWidth`.
@@ -34,6 +38,8 @@ changelogs when relevant.
 
 ### Fixed
 
+- `VListDetailLayout`: toast không còn hiện ở cả hai cột.
+- `VAppBar`: nút ← hiện ở trang đầu của navigator lồng (`ShellRoute`), pop navigator gần nhất pop được.
 - `VChip(onTap)` keeps its drawn pill compact while exposing a 44px touch target; `VCard(onTap)` exposes button semantics. Remove/keypad labels use "Xóa".
 - `VButton` dạng link có vùng chạm tối thiểu 44x44 mà không làm đổi kích thước chữ.
 - `VInput` một dòng khoá chiều cao: vùng chạm / semantics của ô nhập bằng cả chiều cao ô (≥ 44); vị trí chữ không đổi.

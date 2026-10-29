@@ -153,37 +153,13 @@ class _InvitationFilterBottomSheetState extends State<InvitationFilterBottomShee
       padding: const EdgeInsets.only(
         left: VSpacing.space4,
         right: VSpacing.space4,
-        top: VSpacing.space2,
+        top: VSpacing.space4,
         bottom: VSpacing.space6,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colors.borderDefault,
-                borderRadius: BorderRadius.circular(VRadius.pill),
-              ),
-            ),
-          ),
-          const VGap.md(),
-          Semantics(
-            header: true,
-            child: VText(
-              'Bộ lọc lời mời',
-              variant: VTextVariant.headingH3,
-              style: TextStyle(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const VGap.md(),
-
           // Section 1: Trạng thái
           const _FilterSectionTitle(title: 'Trạng thái'),
           const VGap.xs(),

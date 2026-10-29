@@ -19,18 +19,20 @@ class OrganizationRolesPage extends StatelessWidget {
     this.invitations,
     this.members,
     this.cubit,
+    this.selectedId,
   });
 
   final InvitationRepository? invitations;
   final MemberRepository? members;
   final RolesCubit? cubit;
+  final String? selectedId;
 
   @override
   Widget build(BuildContext context) {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: const _OrganizationRolesView(),
+        child: _OrganizationRolesView(selectedId: selectedId),
       );
     }
     return BlocProvider(
@@ -38,15 +40,22 @@ class OrganizationRolesPage extends StatelessWidget {
         invitations: invitations ?? getIt<InvitationRepository>(),
         members: members ?? getIt<MemberRepository>(),
       )..load(),
-      child: const _OrganizationRolesView(),
+      child: _OrganizationRolesView(selectedId: selectedId),
     );
   }
 }
 
 class _OrganizationRolesView extends StatelessWidget {
-  const _OrganizationRolesView();
+  const _OrganizationRolesView({this.selectedId});
+
+  final String? selectedId;
 
   Future<void> _openDetail(BuildContext context, RoleUiModel role) async {
+    final isSplit = VListDetailLayout.isSplitOf(context);
+    if (isSplit) {
+      context.go('/more/roles/${role.id}', extra: role);
+      return;
+    }
     try {
       await context.push('/more/roles/${role.id}', extra: role);
     } catch (_) {
@@ -150,57 +159,50 @@ class _OrganizationRolesView extends StatelessWidget {
                     ...roles.map(
                       (role) => Padding(
                         padding: const EdgeInsets.only(bottom: VSpacing.space3),
-                        child: InkWell(
+                        child: VCard(
+                          isSelected: role.id == selectedId,
                           onTap: () => _openDetail(context, role),
-                          borderRadius: BorderRadius.circular(VRadius.card),
-                          child: Container(
-                            padding: const EdgeInsets.all(VSpacing.space4),
-                            decoration: BoxDecoration(
-                              color: colors.surface,
-                              border: Border.all(color: colors.borderDefault),
-                              borderRadius: BorderRadius.circular(VRadius.card),
-                            ),
-                            child: Row(
-                              children: [
+                          padding: const EdgeInsets.all(VSpacing.space4),
+                          child: Row(
+                            children: [
+                              VIcon(
+                                icon: VIcons.person,
+                                size: 24,
+                                color: colors.textPrimary,
+                              ),
+                              const VGap.horizontalMd(),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    VText(
+                                      role.title,
+                                      variant: VTextVariant.bodyDefault,
+                                      style: const TextStyle(fontWeight: FontWeight.w700),
+                                    ),
+                                    const VGap.xs(),
+                                    VText(
+                                      role.description,
+                                      variant: VTextVariant.bodySmall,
+                                      color: colors.textSecondary,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (role.isCurrent)
+                                const VBadge(
+                                  label: 'Đang dùng',
+                                  tone: VComponentTone.success,
+                                  variant: VBadgeVariant.soft,
+                                  isSmall: true,
+                                )
+                              else
                                 VIcon(
-                                  icon: VIcons.person,
-                                  size: 24,
-                                  color: colors.textPrimary,
+                                  icon: VIcons.chevronRight,
+                                  size: 20,
+                                  color: colors.textSecondary,
                                 ),
-                                const VGap.horizontalMd(),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      VText(
-                                        role.title,
-                                        variant: VTextVariant.bodyDefault,
-                                        style: const TextStyle(fontWeight: FontWeight.w700),
-                                      ),
-                                      const VGap.xs(),
-                                      VText(
-                                        role.description,
-                                        variant: VTextVariant.bodySmall,
-                                        color: colors.textSecondary,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (role.isCurrent)
-                                  const VBadge(
-                                    label: 'Đang dùng',
-                                    tone: VComponentTone.success,
-                                    variant: VBadgeVariant.soft,
-                                    isSmall: true,
-                                  )
-                                else
-                                  VIcon(
-                                    icon: VIcons.chevronRight,
-                                    size: 20,
-                                    color: colors.textSecondary,
-                                  ),
-                              ],
-                            ),
+                            ],
                           ),
                         ),
                       ),

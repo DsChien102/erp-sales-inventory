@@ -11,6 +11,7 @@ import '../../../../core/session/session_controller.dart';
 import '../../data/auth_repository.dart';
 import '../../logic/login_cubit.dart';
 import '../../logic/login_state.dart';
+import '../auth_layout.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({
@@ -85,13 +86,6 @@ class _LoginViewState extends State<_LoginView> {
   String? _emailError;
   String? _passwordError;
   String? _formError;
-
-  /// Giữ bề ngang trong khoảng breakpoint mobile trên mọi thiết bị.
-  static const _mobileLayoutWidth = VResponsiveValue<double>(
-    mobile: 450,
-    tablet: 450,
-    desktop: 450,
-  );
 
   @override
   void initState() {
@@ -220,7 +214,8 @@ class _LoginViewState extends State<_LoginView> {
           backgroundColor: dynamicColors.surface,
           body: SafeArea(
             child: VContentWidth(
-              maxWidth: _mobileLayoutWidth,
+              maxWidth: authMaxWidth,
+              alignment: Alignment.topCenter,
               child: SingleChildScrollView(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(

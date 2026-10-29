@@ -6,62 +6,64 @@ Future<void> showLogoutConfirmationBottomSheet({
   required BuildContext context,
   required VoidCallback onConfirm,
 }) {
-  return showVBottomSheet<void>(
+  return showVAdaptiveSheet<void>(
     context: context,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: VSpacing.screenMobile,
-        vertical: VSpacing.space4,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Semantics(
-            header: true,
-            child: VText(
-              'Đăng xuất khỏi VET45?',
-              variant: VTextVariant.headingH3,
-              color: context.vColors.danger,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+    child: Builder(
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: VSpacing.screenMobile,
+          vertical: VSpacing.space4,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(
+              header: true,
+              child: VText(
+                'Đăng xuất khỏi VET45?',
+                variant: VTextVariant.headingH3,
+                color: context.vColors.danger,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
             ),
-          ),
-          const VGap.xs(),
-          VText(
-            'Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng ứng dụng.',
-            variant: VTextVariant.bodySmall,
-            color: context.vColors.textSecondary,
-          ),
-          const VGap.xl(),
-          Row(
-            children: [
-              Expanded(
-                child: VButton(
-                  label: 'Quay lại',
-                  variant: VButtonVariant.secondary,
-                  size: VButtonSize.large,
-                  fullWidth: true,
-                  onPressed: () => Navigator.of(context).pop(),
+            const VGap.xs(),
+            VText(
+              'Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng ứng dụng.',
+              variant: VTextVariant.bodySmall,
+              color: context.vColors.textSecondary,
+            ),
+            const VGap.xl(),
+            Row(
+              children: [
+                Expanded(
+                  child: VButton(
+                    label: 'Quay lại',
+                    variant: VButtonVariant.secondary,
+                    size: VButtonSize.large,
+                    fullWidth: true,
+                    onPressed: () => Navigator.of(sheetContext).pop(),
+                  ),
                 ),
-              ),
-              const VGap.horizontalSm(),
-              Expanded(
-                child: VButton(
-                  label: 'Đăng xuất',
-                  variant: VButtonVariant.primary,
-                  tone: VComponentTone.danger,
-                  size: VButtonSize.large,
-                  fullWidth: true,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    onConfirm();
-                  },
+                const VGap.horizontalSm(),
+                Expanded(
+                  child: VButton(
+                    label: 'Đăng xuất',
+                    variant: VButtonVariant.primary,
+                    tone: VComponentTone.danger,
+                    size: VButtonSize.large,
+                    fullWidth: true,
+                    onPressed: () {
+                      Navigator.of(sheetContext).pop();
+                      onConfirm();
+                    },
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const VGap.md(),
-        ],
+              ],
+            ),
+            const VGap.md(),
+          ],
+        ),
       ),
     ),
   );

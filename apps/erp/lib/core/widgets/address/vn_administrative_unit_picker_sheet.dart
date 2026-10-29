@@ -16,7 +16,7 @@ Future<VnAdministrativeUnitSelection?> showVnAdministrativeUnitPickerSheet({
   String? initialCommuneCode,
   int initialTab = 0,
 }) {
-  return showVBottomSheet<VnAdministrativeUnitSelection>(
+  return showVAdaptiveSheet<VnAdministrativeUnitSelection>(
     context: context,
     child: VnAdministrativeUnitPickerSheet(
       units: units,

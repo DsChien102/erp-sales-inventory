@@ -379,63 +379,12 @@ final appRouter = GoRouter(
       ),
     ),
     GoRoute(
-      path: '/more/users',
-      name: 'more.users',
-      builder: (context, state) {
-        if (!_hasTenantPermission(IamPermissions.memberView)) {
-          return _permissionDeniedScaffold(
-            context,
-            message: 'Bạn không có quyền xem thành viên',
-          );
-        }
-        return OrganizationUsersPage(
-          members: getIt<MemberRepository>(),
-          invitations: getIt<InvitationRepository>(),
-          canInvite: _hasTenantPermission(IamPermissions.memberInvite),
-        );
-      },
-    ),
-    GoRoute(
       path: '/more/users/invite',
       name: 'more.users.invite',
       builder: (context, state) => OrganizationInviteMemberPage(
         session: getIt<SessionController>(),
         invitations: getIt<InvitationRepository>(),
       ),
-    ),
-    GoRoute(
-      path: '/more/users/invitations/:invitationId',
-      name: 'more.users.invitation-detail',
-      builder: (context, state) {
-        final invitationId = state.pathParameters['invitationId'];
-        if (invitationId == null || invitationId.isEmpty) {
-          return _permissionDeniedScaffold(
-            context,
-            message: 'Thiếu mã lời mời',
-          );
-        }
-        return OrganizationInvitationDetailPage(
-          invitationId: invitationId,
-          invitations: getIt<InvitationRepository>(),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/more/users/members/:membershipId',
-      name: 'more.users.member-detail',
-      builder: (context, state) {
-        final membershipId = state.pathParameters['membershipId'];
-        if (membershipId == null || membershipId.isEmpty) {
-          return _permissionDeniedScaffold(
-            context,
-            message: 'Thiếu mã thành viên',
-          );
-        }
-        return OrganizationMemberDetailPage(
-          membershipId: membershipId,
-          members: getIt<MemberRepository>(),
-        );
-      },
     ),
     GoRoute(
       path: '/more/users/invitation-detail',
@@ -455,83 +404,225 @@ final appRouter = GoRouter(
       name: 'more.users.preview-role-change',
       redirect: (context, state) => '/more/users-and-roles',
     ),
-    GoRoute(
-      path: '/more/roles',
-      name: 'more.roles',
-      builder: (context, state) {
-        if (!getIt<SessionController>().isOwner) {
+    ShellRoute(
+      builder: (context, state, child) {
+        if (!_hasTenantPermission(IamPermissions.memberView)) {
           return _permissionDeniedScaffold(
             context,
-            message: 'Bạn không có quyền xem vai trò',
+            message: 'Bạn không có quyền xem thành viên',
           );
         }
-        return OrganizationRolesPage(
-          invitations: getIt<InvitationRepository>(),
-          members: getIt<MemberRepository>(),
+        final selectedId = state.pathParameters['membershipId'] ??
+            state.pathParameters['invitationId'];
+        return UsersAreaShell(
+          selectedId: selectedId,
+          canInvite: _hasTenantPermission(IamPermissions.memberInvite),
+          child: child,
         );
       },
+      routes: [
+        GoRoute(
+          path: '/more/users',
+          name: 'more.users',
+          builder: (context, state) {
+            if (VListDetailLayout.isSplitOf(context)) {
+              return Scaffold(
+                backgroundColor: context.vColors.surfaceAlt,
+                body: const Center(
+                  child: VEmptyState(
+                    child: VEmptyHeader(
+                      children: [
+                        VEmptyMedia(icon: VIcons.info),
+                        VEmptyTitle('Chọn một thành viên hoặc lời mời để xem chi tiết.'),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+            return OrganizationUsersPage(
+              cubit: context.read<OrganizationUsersCubit>(),
+              canInvite: _hasTenantPermission(IamPermissions.memberInvite),
+            );
+          },
+          routes: [
+            GoRoute(
+              path: 'invitations/:invitationId',
+              name: 'more.users.invitation-detail',
+              builder: (context, state) {
+                final invitationId = state.pathParameters['invitationId'];
+                if (invitationId == null || invitationId.isEmpty) {
+                  return _permissionDeniedScaffold(
+                    context,
+                    message: 'Thiếu mã lời mời',
+                  );
+                }
+                return OrganizationInvitationDetailPage(
+                  invitationId: invitationId,
+                  invitations: getIt<InvitationRepository>(),
+                  onMutated: () =>
+                      context.read<OrganizationUsersCubit>().refreshActiveTab(),
+                );
+              },
+            ),
+            GoRoute(
+              path: 'members/:membershipId',
+              name: 'more.users.member-detail',
+              builder: (context, state) {
+                final membershipId = state.pathParameters['membershipId'];
+                if (membershipId == null || membershipId.isEmpty) {
+                  return _permissionDeniedScaffold(
+                    context,
+                    message: 'Thiếu mã thành viên',
+                  );
+                }
+                return OrganizationMemberDetailPage(
+                  membershipId: membershipId,
+                  members: getIt<MemberRepository>(),
+                  onMutated: () =>
+                      context.read<OrganizationUsersCubit>().refreshActiveTab(),
+                );
+              },
+            ),
+          ],
+        ),
+      ],
     ),
     GoRoute(
       path: '/more/roles/detail',
       name: 'more.roles.detail',
       redirect: (context, state) => '/more/roles',
     ),
-    GoRoute(
-      path: '/more/roles/:code',
-      name: 'more.roles.code',
-      builder: (context, state) {
+    ShellRoute(
+      builder: (context, state, child) {
         if (!getIt<SessionController>().isOwner) {
           return _permissionDeniedScaffold(
             context,
             message: 'Bạn không có quyền xem vai trò',
           );
         }
-        final extra = state.extra;
-        if (extra is RoleUiModel) {
-          return OrganizationRoleDetailPage(role: extra);
-        }
-        return OrganizationRoleDetailPage(
-          code: state.pathParameters['code'],
-          invitations: getIt<InvitationRepository>(),
-          members: getIt<MemberRepository>(),
+        final selectedId = state.pathParameters['code'];
+        return RolesAreaShell(
+          selectedId: selectedId,
+          child: child,
         );
       },
+      routes: [
+        GoRoute(
+          path: '/more/roles',
+          name: 'more.roles',
+          builder: (context, state) {
+            if (VListDetailLayout.isSplitOf(context)) {
+              return Scaffold(
+                backgroundColor: context.vColors.surfaceAlt,
+                body: const Center(
+                  child: VEmptyState(
+                    child: VEmptyHeader(
+                      children: [
+                        VEmptyMedia(icon: VIcons.info),
+                        VEmptyTitle('Chọn một vai trò để xem chi tiết.'),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+            return OrganizationRolesPage(
+              cubit: context.read<RolesCubit>(),
+            );
+          },
+          routes: [
+            GoRoute(
+              path: ':code',
+              name: 'more.roles.code',
+              builder: (context, state) {
+                if (!getIt<SessionController>().isOwner) {
+                  return _permissionDeniedScaffold(
+                    context,
+                    message: 'Bạn không có quyền xem vai trò',
+                  );
+                }
+                final extra = state.extra;
+                if (extra is RoleUiModel) {
+                  return OrganizationRoleDetailPage(role: extra);
+                }
+                return OrganizationRoleDetailPage(
+                  code: state.pathParameters['code'],
+                  invitations: getIt<InvitationRepository>(),
+                  members: getIt<MemberRepository>(),
+                  cubit: context.read<RolesCubit>(),
+                );
+              },
+            ),
+          ],
+        ),
+      ],
     ),
     GoRoute(
-      path: '/more/audit-logs',
-      name: 'more.audit-logs',
-      builder: (context, state) {
+      path: '/more/audit-logs/detail',
+      redirect: (context, state) => '/more/audit-logs',
+    ),
+    ShellRoute(
+      builder: (context, state, child) {
         if (!_hasTenantPermission(IamPermissions.tenantAuditView)) {
           return _permissionDeniedScaffold(
             context,
             message: 'Bạn không có quyền xem lịch sử quản trị',
           );
         }
-        return OrganizationAuditLogsPage(
-          auditLogs: getIt<AuditLogRepository>(),
+        final selectedId = state.pathParameters['auditLogId'];
+        return AuditAreaShell(
+          selectedId: selectedId,
+          child: child,
         );
       },
-    ),
-    GoRoute(
-      path: '/more/audit-logs/detail',
-      redirect: (context, state) => '/more/audit-logs',
-    ),
-    GoRoute(
-      path: '/more/audit-logs/:auditLogId',
-      name: 'more.audit-logs.detail',
-      builder: (context, state) {
-        final auditLogId = state.pathParameters['auditLogId'];
-        if (auditLogId == null || auditLogId.isEmpty || auditLogId == 'detail') {
-          return _permissionDeniedScaffold(
-            context,
-            message: 'Thiếu mã nhật ký',
-          );
-        }
-        return AuditLogDetailPage(
-          auditLogId: auditLogId,
-          auditLogs: getIt<AuditLogRepository>(),
-        );
-      },
+      routes: [
+        GoRoute(
+          path: '/more/audit-logs',
+          name: 'more.audit-logs',
+          builder: (context, state) {
+            if (VListDetailLayout.isSplitOf(context)) {
+              return Scaffold(
+                backgroundColor: context.vColors.surfaceAlt,
+                body: const Center(
+                  child: VEmptyState(
+                    child: VEmptyHeader(
+                      children: [
+                        VEmptyMedia(icon: VIcons.info),
+                        VEmptyTitle('Chọn một mục lịch sử để xem chi tiết.'),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+            return OrganizationAuditLogsPage(
+              cubit: context.read<TenantAuditLogsCubit>(),
+            );
+          },
+          routes: [
+            GoRoute(
+              path: ':auditLogId',
+              name: 'more.audit-logs.detail',
+              builder: (context, state) {
+                final auditLogId = state.pathParameters['auditLogId'];
+                if (auditLogId == null ||
+                    auditLogId.isEmpty ||
+                    auditLogId == 'detail') {
+                  return _permissionDeniedScaffold(
+                    context,
+                    message: 'Thiếu mã nhật ký',
+                  );
+                }
+                return AuditLogDetailPage(
+                  auditLogId: auditLogId,
+                  auditLogs: getIt<AuditLogRepository>(),
+                );
+              },
+            ),
+          ],
+        ),
+      ],
     ),
     GoRoute(
       path: '/more/my-account',
@@ -1130,15 +1221,17 @@ Widget _permissionDeniedScaffold(
   BuildContext context, {
   required String message,
 }) {
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (!context.mounted) return;
-    VToast.show(
-      context,
-      title: 'Không có quyền',
-      message: message,
-      type: VToastType.danger,
-    );
-    context.go('/');
-  });
-  return const Scaffold(body: SizedBox.shrink());
+  return Scaffold(
+    appBar: const VAppBar(title: 'Không có quyền', showBackButton: true),
+    body: Center(
+      child: VEmptyState(
+        child: VEmptyHeader(
+          children: [
+            const VEmptyMedia(icon: VIcons.error),
+            VEmptyTitle(message),
+          ],
+        ),
+      ),
+    ),
+  );
 }

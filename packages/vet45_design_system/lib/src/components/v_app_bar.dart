@@ -69,20 +69,40 @@ class VAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.centerTitle = false,
   });
 
+  /// Navigator gần nhất pop được, đi ngược lên các navigator lồng (ShellRoute).
+  static NavigatorState? poppableNavigator(BuildContext context) {
+    var nav = Navigator.maybeOf(context);
+    while (nav != null) {
+      if (nav.canPop()) return nav;
+      nav = nav.context.findAncestorStateOfType<NavigatorState>();
+    }
+    return null;
+  }
+
+  /// Pop navigator gần nhất pop được (hỗ trợ navigator lồng như ShellRoute).
+  static Future<bool> popNearest(BuildContext context) async {
+    final nav = poppableNavigator(context);
+    if (nav != null) {
+      return nav.maybePop();
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
+    final poppableNav = showBackButton && leading == null ? poppableNavigator(context) : null;
 
     final Widget? resolvedLeading = leading != null
         ? vInspectorShow(leading!)
-        : (showBackButton && Navigator.of(context).canPop()
+        : (poppableNav != null
               ? IconButton(
                   tooltip: 'Quay lại',
                   icon: VIcon(
                     icon: VIcons.chevronLeft,
                     color: dynamicColors.textPrimary,
                   ),
-                  onPressed: () => Navigator.of(context).maybePop(),
+                  onPressed: () => poppableNav.maybePop(),
                 )
               : null);
 
@@ -90,6 +110,9 @@ class VAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return vInspectorHide(
       AppBar(
+        // Nút ← do VAppBar tự lo (poppableNavigator); không để AppBar tự thêm
+        // BackButton Material khi showBackButton: false mà route vẫn pop được.
+        automaticallyImplyLeading: false,
         backgroundColor: dynamicColors.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-13T18:00:00Z",
+  "generatedAt": "2026-10-28T16:08:25Z",
   "title": "Design System: VET45",
   "extensions": {
     "colorMeta": {
@@ -229,6 +229,11 @@
       {
         "name": "desktop",
         "value": "1024px"
+      },
+      {
+        "name": "list-detail-split",
+        "value": "840px",
+        "purpose": "Bề rộng của chính vùng danh sách – chi tiết (không phải cửa sổ); có thanh bên 240px ⇒ cửa sổ ≈ 1080px mới chia 2 cột."
       }
     ]
   },
@@ -296,6 +301,22 @@
       "description": "Thanh bên 240px cho web rộng (≥1024px), viền phải Hairline, mục chọn nền Leaf Wash chữ xanh.",
       "html": "<nav class=\"ds-snav\"><div class=\"ds-snav-item is-active\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z\"/></svg><span>Trang chủ</span></div><div class=\"ds-snav-item\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M6 2h12v20l-3-2-3 2-3-2-3 2z\"/></svg><span>Đơn hàng</span></div></nav>",
       "css": ".ds-snav { width: 240px; padding: 12px; background: #fff; border-right: 1px solid #E5E8EB; } .ds-snav-item { min-height: 44px; display: flex; align-items: center; gap: 12px; padding: 4px 12px; border-radius: 8px; color: #4A535E; font: 500 14px/20px Inter, sans-serif; cursor: pointer; } .ds-snav-item.is-active { background: #E8F6EC; color: #2F7A3A; font-weight: 600; } .ds-snav-item:focus-visible { outline: 2px solid #2F7A3A; outline-offset: -2px; }"
+    },
+    {
+      "name": "Selected Card",
+      "kind": "card",
+      "refersTo": "card-brand",
+      "description": "Thẻ đang chọn ở cột danh sách của bố cục danh sách – chi tiết: nền Leaf Wash, viền Leaf Border; thẻ khác giữ kiểu Card thường.",
+      "html": "<div class=\"ds-list\"><button class=\"ds-sel-card\" aria-pressed=\"true\"><span class=\"ds-sel-title\">Lan Le</span><span class=\"ds-sel-sub\">lan@gmail.com · Chủ cửa hàng</span></button><button class=\"ds-sel-card ds-sel-card--idle\" aria-pressed=\"false\"><span class=\"ds-sel-title\">Hoa Tran</span><span class=\"ds-sel-sub\">hoa@example.com · Nhân viên bán hàng</span></button></div>",
+      "css": ".ds-list { display: grid; gap: 8px; width: 328px; } .ds-sel-card { display: grid; gap: 4px; text-align: left; background: #E8F6EC; border: 1px solid #B8DFBD; border-radius: 12px; padding: 16px; cursor: pointer; transition: background 0.15s; } .ds-sel-card--idle { background: #fff; border-color: #D0D5DA; } .ds-sel-card--idle:hover { background: #F8FAFB; } .ds-sel-card:focus-visible { outline: 2px solid #2F7A3A; outline-offset: 2px; } .ds-sel-title { font: 600 14px/20px Inter, sans-serif; color: #0E1116; } .ds-sel-sub { font: 500 13px/20px Inter, sans-serif; color: #4A535E; }"
+    },
+    {
+      "name": "Sheet Dialog",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Bottom sheet trở thành hộp thoại giữa màn khi cửa sổ ≥ 1024px: rộng tối đa 480px, cao tối đa 85%, bo 16px, tiêu đề + nút ✕ \"Đóng\" + đường kẻ Hairline; không có tiêu đề thì chỉ nút ✕ ở góc.",
+      "html": "<div class=\"ds-dialog\" role=\"dialog\" aria-labelledby=\"ds-dlg-t\"><div class=\"ds-dialog-head\"><h3 id=\"ds-dlg-t\">Bộ lọc thành viên</h3><button class=\"ds-dialog-close\" title=\"Đóng\" aria-label=\"Đóng\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/></svg></button></div><div class=\"ds-dialog-body\"><div class=\"ds-dialog-label\">Trạng thái</div><div class=\"ds-dialog-chips\"><span class=\"ds-dialog-chip ds-dialog-chip--on\">Tất cả</span><span class=\"ds-dialog-chip\">Hoạt động</span><span class=\"ds-dialog-chip\">Tạm ngừng</span></div></div></div>",
+      "css": ".ds-dialog { width: 448px; max-width: 480px; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(14,17,22,0.18); overflow: hidden; } .ds-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 8px 16px; border-bottom: 1px solid #E5E8EB; } .ds-dialog-head h3 { margin: 0; font: 700 18px/26px Inter, sans-serif; letter-spacing: -0.2px; color: #0E1116; } .ds-dialog-close { width: 44px; height: 44px; display: grid; place-items: center; background: none; border: 0; border-radius: 8px; color: #0E1116; cursor: pointer; } .ds-dialog-close:hover { background: #F6F8F9; } .ds-dialog-close:focus-visible { outline: 2px solid #2F7A3A; } .ds-dialog-body { padding: 16px; } .ds-dialog-label { font: 600 14px/20px Inter, sans-serif; color: #0E1116; margin-bottom: 8px; } .ds-dialog-chips { display: flex; gap: 8px; flex-wrap: wrap; } .ds-dialog-chip { font: 500 13px/20px Inter, sans-serif; padding: 6px 16px; border: 1px solid #E5E8EB; border-radius: 999px; color: #0E1116; } .ds-dialog-chip--on { background: #E8F6EC; border-color: #B8DFBD; color: #26612F; }"
     }
   ],
   "narrative": {
@@ -325,19 +346,29 @@
         "section": "colors"
       },
       {
+        "name": "The 4.5 Floor Rule",
+        "body": "Mọi chữ và icon mang màu ở theme sáng đạt 4.5:1 trên nền nó đặt lên (cả nền wash của chính tone đó); ranh giới control đạt 3:1. `test/theme/v_color_scheme_contrast_test.dart` khoá quy tắc này — đổi màu thì test phải còn xanh.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Figures Rule",
+        "body": "Mọi vai trò Inter bật `tnum`: chữ số cùng bề rộng, nên số tiền và số lượng tự thẳng cột ở bất kỳ style nào.",
+        "section": "typography"
+      },
+      {
         "name": "The Mono for Money Rule",
-        "body": "Khi số tiền, số lượng hoặc mã cần căn thẳng cột (bảng, danh sách dòng hàng), dùng biến thể JetBrains Mono cùng vai trò thay vì Inter.",
+        "body": "Khi cả chuỗi (mã, SKU, số tiền kèm ký hiệu) cần căn thẳng cột theo từng ký tự (bảng, danh sách dòng hàng), dùng biến thể JetBrains Mono cùng vai trò thay vì Inter. Bản mono có cùng chiều cao dòng với bản Inter.",
+        "section": "typography"
+      },
+      {
+        "name": "The Stacked Marks Rule",
+        "body": "Dấu chồng tiếng Việt (Ẫ, Ỗ, Ặ) cao hơn ascender của Inter. Từ Title trở lên, chiều cao dòng ≥ 1.43 × cỡ chữ để dấu không bị cắt hay đè lên dòng trên; không hạ line-height của token. `test/tokens/v_typography_test.dart` vẽ chữ thật để khoá quy tắc này.",
         "section": "typography"
       },
       {
         "name": "The Hairline First Rule",
         "body": "Muốn tách hai vùng, dùng viền 1px hoặc đổi nền trước. Bóng đổ chỉ dành cho thứ thật sự nổi lên trên trang (menu, sheet, modal) hoặc thẻ được đặt emphasis.",
         "section": "elevation"
-      },
-      {
-        "name": "The 4.5 Floor Rule",
-        "body": "Mọi chữ và icon mang màu ở theme sáng đạt 4.5:1 trên nền nó đặt lên (cả nền wash của chính tone đó); ranh giới control đạt 3:1. `test/theme/v_color_scheme_contrast_test.dart` khoá quy tắc này — đổi màu thì test phải còn xanh.",
-        "section": "colors"
       }
     ],
     "dos": [
@@ -348,7 +379,9 @@
       "Do dùng biến thể JetBrains Mono khi số tiền hoặc số lượng cần căn cột.",
       "Do làm mờ 40% để biểu thị trạng thái vô hiệu.",
       "Do cho mọi tab và nút chỉ có icon một nhãn đọc được (chữ hiển thị hoặc semantics label); hành động ẩn sau thao tác vuốt phải có `semanticActions`.",
-      "Do tôn trọng Giảm chuyển động (`MediaQuery.disableAnimations`): skeleton đứng yên, thao tác vuốt mở / đóng tức thì."
+      "Do dùng chấm hình học kèm nhãn \"đang áp dụng\" cho nút lọc; không chỉ đổi màu để báo trạng thái.",
+      "Do tôn trọng Giảm chuyển động (`MediaQuery.disableAnimations`): skeleton đứng yên, thao tác vuốt mở / đóng tức thì.",
+      "Do cho web đi được bằng bàn phím: Tab qua mọi control theo thứ tự đọc, vòng focus nhìn thấy, Enter / Space kích hoạt, Esc đóng hộp thoại và sheet; mọi hành động vuốt có nút hoặc menu thay thế dùng chuột."
     ],
     "donts": [
       "Don't dùng `VColors.*` trực tiếp trong component, app hoặc module.",

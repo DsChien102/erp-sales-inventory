@@ -74,7 +74,7 @@ class _OrganizationProfileView extends StatelessWidget {
     BuildContext context,
     OrganizationProfileUiModel profile,
   ) {
-    showVBottomSheet(
+    showVAdaptiveSheet(
       context: context,
       child: OrganizationProfileActionsBottomSheet(
         hasLegalProfile: profile.hasLegalProfile,

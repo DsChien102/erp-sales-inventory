@@ -68,7 +68,7 @@ Future<bool?> showConfirmSwitchOrganizationBottomSheet({
   required BuildContext context,
   required String targetOrganizationName,
 }) {
-  return showVBottomSheet<bool>(
+  return showVAdaptiveSheet<bool>(
     context: context,
     child: ConfirmSwitchOrganizationBottomSheet(
       targetOrganizationName: targetOrganizationName,
