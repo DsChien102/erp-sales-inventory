@@ -9,3 +9,12 @@ const String taxCodeFormatMessage =
 String normalizeTaxCode(String raw) => raw.trim();
 
 bool isValidTaxCode(String raw) => _taxCodeFormat.hasMatch(normalizeTaxCode(raw));
+
+/// Ô MST nhập tay (partner): bỏ mọi khoảng trắng; gõ liền 13 số thì thành `10 số-3 số`.
+String compactTaxCodeInput(String raw) {
+  final compact = raw.replaceAll(RegExp(r'\s'), '');
+  if (RegExp(r'^\d{13}$').hasMatch(compact)) {
+    return '${compact.substring(0, 10)}-${compact.substring(10)}';
+  }
+  return compact;
+}

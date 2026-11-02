@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 class PartnerContactFormPage extends StatefulWidget {
   const PartnerContactFormPage({
@@ -12,15 +12,13 @@ class PartnerContactFormPage extends StatefulWidget {
     required this.partnerId,
     this.contactId,
     this.contact,
-    required this.partnerModule,
-    required this.executionContext,
+    required this.repository,
   });
 
   final String partnerId;
   final String? contactId;
   final PartnerContactDto? contact;
-  final IPartnerModule partnerModule;
-  final IExecutionContext executionContext;
+  final PartnerRepository repository;
 
   @override
   State<PartnerContactFormPage> createState() => _PartnerContactFormPageState();
@@ -41,8 +39,7 @@ class _PartnerContactFormPageState extends State<PartnerContactFormPage> {
   void initState() {
     super.initState();
     _cubit = PartnerContactFormCubit(
-      partnerModule: widget.partnerModule,
-      executionContext: widget.executionContext,
+      repository: widget.repository,
     );
 
     if (widget.contactId != null) {

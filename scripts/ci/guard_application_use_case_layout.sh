@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Enforce application layer use_case subfolder layout for guarded aggregates.
-# Golden reference: modules/partner/application/lib/src/partner/commands/create_partner/
+# Golden reference: modules/catalog/application/lib/src/product/commands/create_product/
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -44,8 +44,6 @@ guarded_areas=(
   "modules/catalog/application/lib/src/product_change_history"
   "modules/catalog/application/lib/src/custom_field"
   "modules/catalog/application/lib/src/product_custom_field_value"
-  "modules/partner/application/lib/src/partner"
-  "modules/partner/application/lib/src/partner_history"
   "modules/einvoice/application/lib/src/configuration"
   "modules/einvoice/application/lib/src/issuance"
   "modules/einvoice/application/lib/src/electronic_invoice"
@@ -111,7 +109,7 @@ done
 
 if [[ "$failed" -ne 0 ]]; then
   echo "Fix: modules/<module>/application/lib/src/<aggregate>/commands/<use_case>/ or queries/<use_case>/"
-  echo "See modules/partner/application/lib/src/partner/commands/create_partner/"
+  echo "See modules/catalog/application/lib/src/product/commands/create_product/"
   exit 1
 fi
 

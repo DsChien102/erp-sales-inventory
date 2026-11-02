@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
-import '../bloc/partner_create_form_validator.dart';
+import '../../logic/partner_create_form_validator.dart';
 import 'partner_transform_blocking_banner.dart';
 import 'partner_transform_organization_form.dart';
 import 'partner_transform_primary_contact_card.dart';
@@ -254,7 +253,7 @@ class _TransformActions extends StatelessWidget {
           Expanded(
             child: VButton(
               key: const Key('transform_cancel'),
-              label: 'Bỏ qua',
+              label: 'Huỷ',
               variant: VButtonVariant.secondary,
               foregroundColor: context.vColors.success,
               onPressed: onCancel,

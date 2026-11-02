@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/testing.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import '../../support/fake_partner_repository.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/presentation.dart';
 import 'package:erp/features/partner/presentation/data/vn_administrative_units_loader.dart';
 import 'package:erp/features/partner/presentation/widgets/partner_delivery_section.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
   setUpAll(() async {
@@ -20,8 +19,7 @@ void main() {
       home: BlocProvider(
         create: (_) => PartnerCreateCubit(
           partnerType: PartnerType.person,
-          partnerModule: FakePartnerModule(),
-          executionContext: FakeExecutionContext(),
+          repository: FakePartnerRepository(),
         ),
         child: const Scaffold(
           body: SingleChildScrollView(
@@ -49,8 +47,7 @@ void main() {
     await tester.runAsync(VnAdministrativeUnitsLoader.load);
     await tester.pumpAndSettle();
 
-    final cubit =
-        tester.element(find.byType(PartnerDeliverySection)).read<PartnerCreateCubit>();
+    final cubit = tester.element(find.byType(PartnerDeliverySection)).read<PartnerCreateCubit>();
     cubit.updateDeliveryProvince('Thành phố Hà Nội');
     await tester.pump();
     await tester.pump();
@@ -67,8 +64,7 @@ void main() {
         home: BlocProvider(
           create: (_) => PartnerCreateCubit(
             partnerType: PartnerType.person,
-            partnerModule: FakePartnerModule(),
-            executionContext: FakeExecutionContext(),
+            repository: FakePartnerRepository(),
           )..updateDeliveryProvince('Thành phố Hà Nội'),
           child: const Scaffold(
             body: SingleChildScrollView(
@@ -102,13 +98,13 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: BlocProvider(
-          create: (_) => PartnerCreateCubit(
-            partnerType: PartnerType.person,
-            partnerModule: FakePartnerModule(),
-            executionContext: FakeExecutionContext(),
-          )
-            ..updateDeliveryProvince('Thành phố Hà Nội')
-            ..updateDeliveryCommune('Xã Hát Môn'),
+          create: (_) =>
+              PartnerCreateCubit(
+                  partnerType: PartnerType.person,
+                  repository: FakePartnerRepository(),
+                )
+                ..updateDeliveryProvince('Thành phố Hà Nội')
+                ..updateDeliveryCommune('Xã Hát Môn'),
           child: const Scaffold(
             body: SingleChildScrollView(
               child: PartnerDeliverySection(),

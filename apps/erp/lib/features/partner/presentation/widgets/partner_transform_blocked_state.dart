@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
 /// Blocked outcomes for transform flow (ready to map from command failures).
 enum PartnerTransformBlockedKind {
@@ -11,8 +11,8 @@ enum PartnerTransformBlockedKind {
 /// Maps application blocked codes used by transform command failures.
 PartnerTransformBlockedKind? partnerTransformBlockedKindFromCode(String code) {
   return switch (code) {
-    PartnerBlockedCodes.noPermission => PartnerTransformBlockedKind.noPermission,
-    PartnerBlockedCodes.stateChanged => PartnerTransformBlockedKind.staleData,
+    PartnerErrorCodes.noPermission => PartnerTransformBlockedKind.noPermission,
+    PartnerErrorCodes.stateChanged => PartnerTransformBlockedKind.staleData,
     _ => null,
   };
 }

@@ -1,3 +1,5 @@
+import 'package:erp/features/partner/logic/partner_permissions.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -6,11 +8,8 @@ import 'package:erp/core/session/session_controller.dart';
 import '../../../../core/session/fake_session_repository.dart';
 import 'package:erp/core/session/session_store.dart';
 import 'package:erp/core/session/models/session_principal.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_application/testing.dart';
-import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import '../../support/fake_partner_repository.dart';
 import 'package:erp/features/partner/presentation/pages/partner_create_page.dart';
 import 'package:erp/features/partner/presentation/pages/partner_list_page.dart';
 
@@ -22,7 +21,7 @@ void main() {
   });
 
   Widget buildTestableWidget({
-    required FakePartnerModule partnerModule,
+    required FakePartnerRepository partnerModule,
     required List<String> permissions,
     // INTERIM: any member (role != null) has full feature access. Pass
     // role: null to simulate a non-member (feature screens are locked).
@@ -42,8 +41,7 @@ void main() {
     }
 
     getIt
-      ..registerSingleton<IExecutionContext>(FakeExecutionContext())
-      ..registerSingleton<IPartnerModule>(partnerModule)
+      ..registerSingleton<PartnerRepository>(partnerModule)
       ..registerSingleton<SessionController>(
         SessionController(repository: FakeSessionRepository(), store: session),
       );
@@ -61,8 +59,7 @@ void main() {
             final partnerType = state.extra as PartnerType;
             return PartnerCreatePage(
               partnerType: partnerType,
-              partnerModule: partnerModule,
-              executionContext: getIt<IExecutionContext>(),
+              repository: partnerModule,
               onCreated: (partnerId) => context.pop(partnerId),
               onOpenExisting: (_) {},
             );
@@ -77,7 +74,7 @@ void main() {
   testWidgets('wgt_e01_u02_fr01_02: FAB opens create action sheet', (tester) async {
     await tester.pumpWidget(
       buildTestableWidget(
-        partnerModule: FakePartnerModule(scenario: FakePartnerScenario.searchEmpty),
+        partnerModule: FakePartnerRepository(scenario: FakePartnerScenario.searchEmpty),
         permissions: const [
           PartnerPermissions.view,
           PartnerPermissions.create,
@@ -104,7 +101,7 @@ void main() {
     // feature access, so the partner screen shows the locked state.
     await tester.pumpWidget(
       buildTestableWidget(
-        partnerModule: FakePartnerModule(scenario: FakePartnerScenario.searchEmpty),
+        partnerModule: FakePartnerRepository(scenario: FakePartnerScenario.searchEmpty),
         role: null,
         permissions: const [],
       ),
@@ -120,7 +117,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       buildTestableWidget(
-        partnerModule: FakePartnerModule(scenario: FakePartnerScenario.searchEmpty),
+        partnerModule: FakePartnerRepository(scenario: FakePartnerScenario.searchEmpty),
         permissions: const [
           PartnerPermissions.view,
           PartnerPermissions.create,

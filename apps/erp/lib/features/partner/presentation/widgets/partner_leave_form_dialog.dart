@@ -5,7 +5,7 @@ Future<void> showPartnerLeaveFormDialog({
   required BuildContext context,
   required VoidCallback onLeave,
 }) {
-  return showVBottomSheet<void>(
+  return showVAdaptiveSheet<void>(
     context: context,
     title: 'Rời khỏi màn hình?',
     child: _PartnerLeaveFormSheet(onLeave: onLeave),

@@ -17,7 +17,7 @@ Future<PartnerDeleteBlockedResult> showPartnerDeleteBlockedSheet(
   BuildContext context, {
   bool showDeactivateAction = true,
 }) async {
-  final result = await showVBottomSheet<PartnerDeleteBlockedResult>(
+  final result = await showVAdaptiveSheet<PartnerDeleteBlockedResult>(
     context: context,
     child: PartnerDeleteBlockedSheet(
       showDeactivateAction: showDeactivateAction,

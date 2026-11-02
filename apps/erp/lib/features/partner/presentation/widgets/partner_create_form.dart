@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
-import '../bloc/partner_create_cubit.dart';
-import '../bloc/partner_create_state.dart';
+import '../../logic/partner_create_cubit.dart';
+import '../../logic/partner_create_state.dart';
 import 'partner_delivery_section.dart';
 import 'partner_duplicate_sheet.dart';
 import 'partner_form_section.dart';

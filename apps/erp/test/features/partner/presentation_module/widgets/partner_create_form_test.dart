@@ -4,26 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_application/testing.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import '../../support/fake_partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/scripted_partner_repository.dart';
 
-final class _DelayedPartnerModule implements IPartnerModule {
-  final duplicateCompleter = Completer<List<PartnerDuplicateMatchDto>>();
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    return const CreatePartnerResult(partnerId: 'p-delayed') as TResult;
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    return await duplicateCompleter.future as TResult;
-  }
-}
+/// Repository mà `checkDuplicates` chờ [duplicateCompleter] — dùng để giữ form ở trạng thái submitting.
+ScriptedPartnerRepository _delayedRepository(
+  Completer<List<PartnerDuplicateMatchDto>> duplicateCompleter,
+) => ScriptedPartnerRepository(
+  onCall: (method, _) async {
+    if (method == 'checkDuplicates') return duplicateCompleter.future;
+    return const CreatePartnerResult(partnerId: 'p-delayed');
+  },
+);
 
 void main() {
   Widget buildForm({
@@ -35,8 +29,7 @@ void main() {
       home: BlocProvider(
         create: (_) => PartnerCreateCubit(
           partnerType: type,
-          partnerModule: FakePartnerModule(scenario: scenario),
-          executionContext: FakeExecutionContext(),
+          repository: FakePartnerRepository(scenario: scenario),
         ),
         child: Scaffold(
           body: PartnerCreateForm(
@@ -480,14 +473,13 @@ void main() {
   });
 
   testWidgets('submitting disables and loads the primary action', (tester) async {
-    final module = _DelayedPartnerModule();
+    final duplicateCompleter = Completer<List<PartnerDuplicateMatchDto>>();
     await tester.pumpWidget(
       MaterialApp(
         home: BlocProvider(
           create: (_) => PartnerCreateCubit(
             partnerType: PartnerType.person,
-            partnerModule: module,
-            executionContext: FakeExecutionContext(),
+            repository: _delayedRepository(duplicateCompleter),
           ),
           child: Scaffold(
             body: PartnerCreateForm(
@@ -509,7 +501,7 @@ void main() {
     expect(button.isLoading, isTrue);
     expect(button.onPressed, isNull);
 
-    module.duplicateCompleter.complete(const []);
+    duplicateCompleter.complete(const []);
     await tester.pumpAndSettle();
   });
 

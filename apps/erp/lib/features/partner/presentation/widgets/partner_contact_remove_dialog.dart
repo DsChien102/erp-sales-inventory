@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 Future<bool?> showPartnerContactRemoveDialog(BuildContext context) {
-  return showVBottomSheet<bool>(
+  return showVAdaptiveSheet<bool>(
     context: context,
     child: const PartnerContactRemoveDialog(),
   );

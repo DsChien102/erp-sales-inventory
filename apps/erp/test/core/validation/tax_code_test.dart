@@ -24,6 +24,12 @@ void main() {
       expect(isValidTaxCode('0101234567 001'), isFalse);
     });
 
+    test('compactTaxCodeInput bỏ khoảng trắng và gắn gạch cho 13 số liền', () {
+      expect(compactTaxCodeInput('0101234567 001'), '0101234567-001');
+      expect(compactTaxCodeInput(' 0101 2345 67 '), '0101234567');
+      expect(compactTaxCodeInput(''), '');
+    });
+
     test('message names the three accepted formats', () {
       expect(
         taxCodeFormatMessage,

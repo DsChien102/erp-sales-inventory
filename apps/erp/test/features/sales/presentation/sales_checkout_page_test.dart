@@ -15,8 +15,9 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../../iam/support/iam_test_session.dart';
 import '../../iam/support/scripted_iam_repositories.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
+import '../../partner/support/scripted_partner_repository.dart';
 import 'package:vet45_pricing_application/application.dart' as pricing;
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
@@ -56,7 +57,9 @@ void main() {
       const _TestExecutionContext(),
     );
     GetIt.instance.registerSingleton<SessionController>(session);
-    GetIt.instance.registerSingleton<IPartnerModule>(_SalesFlowPartnerModule());
+    GetIt.instance.registerSingleton<PartnerRepository>(
+      ScriptedPartnerRepository(onCall: _salesFlowPartnerScript),
+    );
     GetIt.instance.registerSingleton<ICatalogModule>(catalogModule);
     GetIt.instance.registerSingleton<pricing.IPricingModule>(pricingModule);
 
@@ -833,50 +836,40 @@ final class _RecordingPricingModule implements pricing.IPricingModule {
   }
 }
 
-final class _SalesFlowPartnerModule implements IPartnerModule {
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    throw StateError('Unexpected command $command');
+Object? _salesFlowPartnerScript(String method, Map<String, Object?> args) {
+  if (method == 'search') {
+    return const PartnerSearchResultDto(
+      items: [
+        PartnerListItemDto(
+          partnerId: 'partner-backend',
+          displayName: 'Backend Customer',
+          partnerType: PartnerType.person,
+          status: PartnerStatus.active,
+          roles: [PartnerRoleType.customer],
+          phone: '0988123456',
+        ),
+      ],
+      page: 1,
+      limit: 40,
+      total: 1,
+    );
   }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is SearchPartnersQuery) {
-      return const PartnerSearchResultDto(
-            items: [
-              PartnerListItemDto(
-                partnerId: 'partner-backend',
-                displayName: 'Backend Customer',
-                partnerType: PartnerType.person,
-                status: PartnerStatus.active,
-                roles: [PartnerRoleType.customer],
-                phone: '0988123456',
-              ),
-            ],
-            page: 1,
-            limit: 40,
-            total: 1,
-          )
-          as TResult;
-    }
-    if (query is GetPartnerDetailQuery) {
-      return const PartnerDetailDto(
-            partnerId: 'partner-backend',
-            partnerType: PartnerType.person,
-            status: PartnerStatus.active,
-            displayName: 'Backend Customer',
-            roles: [PartnerRoleType.customer],
-            availableActions: [],
-            expectedVersion: 1,
-            personProfile: PersonProfileDto(
-              fullName: 'Backend Customer',
-              phone: '0988123456',
-            ),
-          )
-          as TResult;
-    }
-    throw StateError('Unexpected query $query');
+  if (method == 'getDetail') {
+    return const PartnerDetailDto(
+      partnerId: 'partner-backend',
+      partnerType: PartnerType.person,
+      status: PartnerStatus.active,
+      displayName: 'Backend Customer',
+      roles: [PartnerRoleType.customer],
+      availableActions: [],
+      expectedVersion: 1,
+      personProfile: PersonProfileDto(
+        fullName: 'Backend Customer',
+        phone: '0988123456',
+      ),
+    );
   }
+  throw StateError('Unexpected partner call $method');
 }
 
 const _liveUnit = SellableProductUnitDto(

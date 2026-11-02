@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
 class PartnerListItemTile extends StatelessWidget {
   const PartnerListItemTile({
     super.key,
     required this.item,
     required this.onTap,
+    this.isSelected = false,
   });
 
   final PartnerListItemDto item;
   final VoidCallback onTap;
+  final bool isSelected;
 
   String _formatDate(DateTime date) => VDateTime.date(date);
 
@@ -21,6 +22,7 @@ class PartnerListItemTile extends StatelessWidget {
 
     return VCard(
       onTap: onTap,
+      isSelected: isSelected ? true : null,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: VSpacing.space3,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import 'dashboard/main.dart' as dashboard show DashboardPreviewHomeScreen;
-import 'partner/main.dart' as partner show PartnerPreviewHomeScreen;
 import 'sales/main.dart' as sales show SalesPreviewHomeScreen;
 
 void main() {
@@ -48,15 +47,6 @@ class _CatalogHome extends StatelessWidget {
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) => const sales.SalesPreviewHomeScreen(),
-              ),
-            ),
-          ),
-          ListTile(
-            title: const Text('Partner'),
-            subtitle: const Text('List / detail / create / sheets'),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const partner.PartnerPreviewHomeScreen(),
               ),
             ),
           ),

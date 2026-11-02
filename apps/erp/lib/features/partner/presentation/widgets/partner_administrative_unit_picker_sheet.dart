@@ -16,7 +16,7 @@ Future<PartnerAdministrativeUnitSelection?> showPartnerAdministrativeUnitPickerS
   String? initialCommuneName,
   int initialTab = 0,
 }) {
-  return showVBottomSheet<PartnerAdministrativeUnitSelection>(
+  return showVAdaptiveSheet<PartnerAdministrativeUnitSelection>(
     context: context,
     child: PartnerAdministrativeUnitPickerSheet(
       units: units,

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
+import 'package:erp/features/partner/logic/partner_error_messages.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 /// Soft-delete flow outcome for the detail page.
 enum PartnerSoftDeleteFlowResult {
@@ -17,19 +17,12 @@ enum PartnerSoftDeleteFlowResult {
 /// Eligibility check + soft-delete confirmation → [PartnerStatusCubit.softDelete].
 Future<PartnerSoftDeleteFlowResult> runPartnerDetailSoftDeleteFlow({
   required BuildContext context,
-  required IPartnerModule partnerModule,
-  required IExecutionContext executionContext,
+  required PartnerRepository repository,
   required PartnerStatusCubit statusCubit,
   required PartnerDetailDto dto,
 }) async {
   try {
-    final tenantId = await executionContext.requireTenantId();
-    final eligibility = await partnerModule.executeQueryAsync<DeleteEligibilityDto>(
-      CheckDeleteEligibilityQuery(
-        tenantId: tenantId,
-        partnerId: dto.partnerId,
-      ),
-    );
+    final eligibility = await repository.checkDeleteEligibility(dto.partnerId);
     if (!context.mounted) return PartnerSoftDeleteFlowResult.done;
     if (!eligibility.eligible) {
       final canDeactivate =
@@ -44,23 +37,16 @@ Future<PartnerSoftDeleteFlowResult> runPartnerDetailSoftDeleteFlow({
       }
       return PartnerSoftDeleteFlowResult.done;
     }
-  } on PartnerBlockedException catch (error) {
+  } catch (error) {
     if (!context.mounted) return PartnerSoftDeleteFlowResult.done;
     VToast.show(
       context,
       title: 'Không thành công',
-      message: error.code == PartnerBlockedCodes.noPermission
-          ? 'Bạn không có quyền xóa hồ sơ.'
-          : (error.message ?? 'Không kiểm tra được điều kiện xóa.'),
-      type: VToastType.danger,
-    );
-    return PartnerSoftDeleteFlowResult.done;
-  } catch (_) {
-    if (!context.mounted) return PartnerSoftDeleteFlowResult.done;
-    VToast.show(
-      context,
-      title: 'Không thành công',
-      message: 'Không kiểm tra được điều kiện xóa. Vui lòng thử lại.',
+      message: partnerErrorMessage(
+        error,
+        fallback: 'Không kiểm tra được điều kiện xóa. Vui lòng thử lại.',
+        noPermission: 'Bạn không có quyền xóa hồ sơ.',
+      ),
       type: VToastType.danger,
     );
     return PartnerSoftDeleteFlowResult.done;

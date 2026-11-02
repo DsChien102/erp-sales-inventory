@@ -7,7 +7,7 @@ Future<String?> showPartnerDeactivateConfirmationSheet(
   BuildContext context, {
   String? primaryContactOrganizationName,
 }) {
-  return showVBottomSheet<String>(
+  return showVAdaptiveSheet<String>(
     context: context,
     child: PartnerDeactivateConfirmationSheet(
       primaryContactOrganizationName: primaryContactOrganizationName,

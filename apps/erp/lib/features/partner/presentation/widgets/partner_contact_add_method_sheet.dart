@@ -6,7 +6,7 @@ enum AddContactMethod { createNew, selectExisting }
 Future<AddContactMethod?> showPartnerContactAddMethodSheet(
   BuildContext context,
 ) {
-  return showVBottomSheet<AddContactMethod>(
+  return showVAdaptiveSheet<AddContactMethod>(
     context: context,
     child: const PartnerContactAddMethodSheet(),
   );

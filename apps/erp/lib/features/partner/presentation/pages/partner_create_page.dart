@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 /// Shared create / edit page for partner profile (SG-02).
 class PartnerCreatePage extends StatelessWidget {
   const PartnerCreatePage({
     super.key,
     required this.partnerType,
-    required this.partnerModule,
-    required this.executionContext,
+    required this.repository,
     required this.onCreated,
     required this.onOpenExisting,
   }) : partnerId = null,
@@ -21,8 +19,7 @@ class PartnerCreatePage extends StatelessWidget {
   const PartnerCreatePage.edit({
     super.key,
     required this.partnerId,
-    required this.partnerModule,
-    required this.executionContext,
+    required this.repository,
     required this.onUpdated,
     required this.onOpenExisting,
   }) : partnerType = PartnerType.person,
@@ -30,8 +27,7 @@ class PartnerCreatePage extends StatelessWidget {
 
   final PartnerType partnerType;
   final String? partnerId;
-  final IPartnerModule partnerModule;
-  final IExecutionContext executionContext;
+  final PartnerRepository repository;
   final ValueChanged<String>? onCreated;
   final ValueChanged<String>? onUpdated;
   final ValueChanged<String> onOpenExisting;
@@ -45,14 +41,12 @@ class PartnerCreatePage extends StatelessWidget {
         if (_isEdit) {
           return PartnerCreateCubit.edit(
             partnerId: partnerId!,
-            partnerModule: partnerModule,
-            executionContext: executionContext,
+            repository: repository,
           )..loadForEdit();
         }
         return PartnerCreateCubit(
           partnerType: partnerType,
-          partnerModule: partnerModule,
-          executionContext: executionContext,
+          repository: repository,
         );
       },
       child: _PartnerFormView(

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/presentation.dart';
 
 void main() {
@@ -272,5 +271,21 @@ void main() {
     expect(find.text('Hộ kinh doanh'), findsOneWidget);
     expect(find.text('Hộ kinh doanh An Phát'), findsOneWidget);
     expect(find.text('0909 111 222'), findsOneWidget);
+  });
+
+  testWidgets('G8 (KI-13): step one cancel button is labelled "Huỷ"', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildSubject());
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('transform_cancel')),
+        matching: find.text('Huỷ'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Bỏ qua'), findsNothing);
   });
 }

@@ -1,14 +1,14 @@
 import '../models/shared/sales_customer_selection.dart';
 import '../models/shared/sales_sellable_product_vm.dart';
 
-/// Lookup KH — implement ở ERP bằng [IPartnerModule], không import Partner vào
+/// Lookup KH — implement ở ERP bằng `PartnerRepository`, không import Partner vào
 /// `sales_presentation`.
 typedef SalesCustomerSearchFn =
     Future<List<SalesCustomerListItemVm>> Function(
       String query,
     );
 
-/// Exact Partner resolve by persisted id — ERP implements with [GetPartnerDetailQuery].
+/// Exact Partner resolve by persisted id — ERP implements with `PartnerRepository.getDetail`.
 typedef SalesCustomerResolveFn = Future<SalesCustomerSelection> Function(String partnerId);
 
 enum SalesQuickCustomerType { person, organization }

@@ -68,7 +68,7 @@ Trên giao diện, module có tên **KH & NCC**. Trong code và tài liệu, kh�
 - Chuyển cá nhân thành tổ chức (3 bước).
 - Ngừng hoạt động / kích hoạt lại, có lý do tuỳ chọn; xoá mềm có kiểm tra điều kiện.
 - Lịch sử thao tác, hiện khác biệt từng trường.
-- Bảng lịch sử giao dịch theo đối tác, 🔧 ghi tự động từ đơn bán (dùng cho điều kiện xoá; chưa có màn xem).
+- Bảng lịch sử giao dịch theo đối tác, ghi tự động từ đơn bán (dùng cho điều kiện xoá; chưa có màn xem).
 - Cung cấp khách hàng cho TH-04 và TH-05, kể cả tạo nhanh khách khi bán.
 
 ### 1.5 Ngoài phạm vi theme
@@ -88,7 +88,7 @@ Trên giao diện, module có tên **KH & NCC**. Trong code và tài liệu, kh�
 |---|---|---|
 | Nhân viên bán hàng | Thành viên đang hoạt động | Tìm, tạo nhanh khách, xem hồ sơ |
 | Chủ cửa hàng / quản lý | Owner hoặc thành viên | Mọi thao tác, gồm ngừng, xoá, chuyển đổi |
-| Hệ thống (DB) | RPC, 🔧 trigger trên đơn bán | Ghi lịch sử thao tác, lịch sử giao dịch |
+| Hệ thống (DB) | RPC, trigger trên đơn bán | Ghi lịch sử thao tác, lịch sử giao dịch |
 | TH-04, TH-05, TH-08 | Theme dùng dữ liệu | Tìm khách, snapshot khách, thông tin hoá đơn |
 
 **Mọi thành viên làm được mọi thao tác partner** ([7.2](#72-phân-quyền)).
@@ -99,7 +99,7 @@ Trên giao diện, module có tên **KH & NCC**. Trong code và tài liệu, kh�
 |---|---|---|
 | TH-01 Tổ chức & IAM | — | `tenant_id`, người dùng, `iam.has_permission` |
 | TH-04 Chính sách giá | Khách (`customer`, `active`) cho giá riêng; `_get_customer_snapshot_for_pricing` | — |
-| TH-05 Bán hàng | Tìm khách, tạo nhanh khách, snapshot khách | 🔧 Đơn bán ghi lịch sử giao dịch (KI-02) |
+| TH-05 Bán hàng | Tìm khách, tạo nhanh khách, snapshot khách | Đơn bán ghi lịch sử giao dịch (trigger, US-07.2) |
 | TH-08 HĐĐT | Thông tin người mua (MST, tên / địa chỉ / email hoá đơn) | — |
 | Theme 6, 7 | Nhà cung cấp, khách cho công nợ / nhập hàng | Sau này ghi thêm loại giao dịch vào lịch sử |
 
@@ -196,7 +196,7 @@ Số BR giữ nguyên từ bản 2.1.
 | Mã | Quy tắc | Ở đâu |
 |---|---|---|
 | BR-16 | Chỉ tổ chức có người liên hệ. Người liên hệ là Partner cá nhân; một cặp (tổ chức, cá nhân) là duy nhất; không tự liên kết với chính mình | PK + CHECK `organization_contacts` |
-| BR-17 | Thêm người liên hệ theo 2 cách. **Tạo mới:** họ tên và SĐT bắt buộc; app bắt chọn vai trò liên hệ. **Chọn có sẵn:** danh sách cá nhân đang hoạt động, bỏ những người đã liên kết, cho chọn nhiều. 🔧 Server phải kiểm tra người được chọn là hồ sơ cá nhân, thuộc tổ chức và chưa xoá, kể cả khi không đặt làm người chính (hiện chỉ app kiểm) | `add_organization_contact`, `partner_contact_select_list` |
+| BR-17 | Thêm người liên hệ theo 2 cách. **Tạo mới:** họ tên và SĐT bắt buộc; app bắt chọn vai trò liên hệ. **Chọn có sẵn:** danh sách cá nhân đang hoạt động, bỏ những người đã liên kết, cho chọn nhiều. Server kiểm tra người được chọn là hồ sơ cá nhân, cùng tổ chức (tenant) và chưa xoá, kể cả khi không đặt làm người chính | `add_organization_contact`, `partner_contact_select_list` |
 | BR-18 | Vai trò liên hệ ở DB là chữ tự do. App có sẵn các giá trị: Chủ đại lý, Quản lý kinh doanh, Nhân viên mua hàng, Kế toán, Phụ trách công nợ, Giao nhận, Khác | `partner_contact_form` |
 | BR-19 | Mỗi tổ chức có **tối đa 1 người liên hệ chính**. Đặt người mới làm chính thì bỏ cờ của người cũ; app hỏi xác nhận "Đổi người liên hệ chính?". Cá nhân không `active` không được làm người chính | `add/update_organization_contact` |
 | BR-20 | "Gỡ khỏi tổ chức" chỉ xoá liên kết, **không xoá** hồ sơ cá nhân | `remove_organization_contact` |
@@ -220,7 +220,7 @@ Số BR giữ nguyên từ bản 2.1.
 |---|---|---|
 | BR-29 | Chỉ `active` mới ngừng hoạt động được; chỉ `inactive` mới kích hoạt lại được. Sai trạng thái thì báo `INVALID_STATUS`. Lý do không bắt buộc, được lưu vào lịch sử thao tác | `deactivate/reactivate_partner` |
 | BR-30 | Xoá mềm áp dụng cho `active` và `inactive`; trạng thái chuyển thành `deleted`. Không khôi phục được | `soft_delete_partner` |
-| BR-31 | Bị chặn xoá khi: (a) cá nhân đang là người liên hệ chính của tổ chức chưa xoá → `PRIMARY_CONTACT_OF_ORGANIZATION`; (b) đối tác **đã có đơn bán** (có dòng trong `partner_history_views`) → `HAS_TRANSACTIONS`, app gợi ý "Ngừng hoạt động". 🔧 Hiện bảng lịch sử luôn rỗng nên (b) không bao giờ chặn; phải sửa theo KI-02 | `check_delete_eligibility`, `soft_delete_partner` |
+| BR-31 | Bị chặn xoá khi: (a) cá nhân đang là người liên hệ chính của tổ chức chưa xoá → `PRIMARY_CONTACT_OF_ORGANIZATION`; (b) đối tác **đã có đơn bán** (có dòng trong `partner_history_views`) → `HAS_TRANSACTIONS`, app gợi ý "Ngừng hoạt động". Bảng lịch sử được ghi bằng trigger đơn bán (US-07.2) | `check_delete_eligibility`, `soft_delete_partner` |
 | BR-32 | App gọi `check_delete_eligibility` trước, đủ điều kiện mới mở hộp xác nhận xoá | `partner_detail_soft_delete_flow` |
 
 **Danh sách và tìm kiếm**
@@ -229,9 +229,9 @@ Số BR giữ nguyên từ bản 2.1.
 |---|---|---|
 | BR-33 | Mặc định không lọc trạng thái: hiện cả `active` và `inactive`, hồ sơ `inactive` ghim xuống cuối. Hồ sơ `deleted` không bao giờ hiện; app không có bộ lọc "Đã xoá" | `search_partners` |
 | BR-34 | Danh sách KH & NCC chỉ hiện đối tác có **ít nhất 1 vai trò** (`p_role = 'any'`). Vì vậy cá nhân chỉ làm người liên hệ (BR-03) không hiện trong danh sách | `partner_list_cubit` |
-| BR-35 | Tìm kiếm **không phân biệt hoa thường và 🔧 không phân biệt dấu** (dùng `unaccent` như catalog và pricing; hiện code còn phân biệt dấu), trên các trường: tên, tên thường gọi, tên viết tắt, SĐT, email, MST. Từ khoá có `@` thì chỉ tìm theo email. Tổ chức cũng được trả về nếu một người liên hệ đang hoạt động của nó khớp tên, danh xưng, SĐT, SĐT phụ hoặc email | `20260715001_partner_list_search_behavior` |
+| BR-35 | Tìm kiếm **không phân biệt hoa thường và không phân biệt dấu** (dùng `catalog.unaccent_immutable` như catalog và pricing), trên các trường: tên, tên thường gọi, tên viết tắt, SĐT, email, MST. Từ khoá có `@` thì chỉ tìm theo email. Tổ chức cũng được trả về nếu một người liên hệ đang hoạt động của nó khớp tên, danh xưng, SĐT, SĐT phụ hoặc email | `20260715001_partner_list_search_behavior` |
 | BR-36 | Lọc nhanh (theo vai trò): Tất cả / Khách hàng / Nhà cung cấp / KH & NCC (có cả hai). Bộ lọc đầy đủ gồm: loại hồ sơ; vai trò (KH, NCC, KH & NCC = có cả hai); trạng thái; thời điểm cập nhật trong 7 hoặc 30 ngày gần đây | `partner_filter_bottom_sheet` |
-| BR-37 | Sắp xếp: cập nhật gần nhất (mặc định), cập nhật cũ nhất, tên A-Z, tên Z-A. 🔧 Bỏ hai lựa chọn "Vai trò giao dịch A-Z/Z-A" (hiện có trên UI nhưng server không hỗ trợ). Mỗi trang 20 dòng; server cho tối đa 100 | `search_partners` |
+| BR-37 | Sắp xếp: cập nhật gần nhất (mặc định), cập nhật cũ nhất, tên A-Z, tên Z-A. Không có sắp xếp theo vai trò giao dịch. Mỗi trang 20 dòng; server cho tối đa 100 | `search_partners` |
 
 **Lịch sử thao tác và snapshot**
 
@@ -253,7 +253,7 @@ Số BR giữ nguyên từ bản 2.1.
 | BR-43 | Ô chọn khách ở TH-05 / TH-04 chỉ trả hồ sơ `active` có vai trò `customer`; chưa gõ từ khoá thì chỉ gợi ý khách cập nhật trong 30 ngày | `search_partners(p_role='customer', p_status='active', p_updated_within_days=30)` |
 | BR-44 | Tạo nhanh khách từ màn bán hàng đi qua cùng kiểm trùng (BR-15) và `create_partner` với vai trò `customer` | `sales_partner_customer_lookup` |
 | BR-45 | Hoàn tất đơn / tính giá với khách không còn `active` hoặc không có vai trò `customer` → `CUSTOMER_INVALID` (TH-05 KI-03) | `_get_customer_snapshot_for_pricing` |
-| BR-46 | Thông điệp UI không giả định vai trò hay giới tính: dùng "Hồ sơ này", "Bạn" (🔧 KI-11) | app |
+| BR-46 | Thông điệp UI không giả định vai trò hay giới tính: dùng "Hồ sơ này", "Bạn" | app |
 
 ---
 
@@ -284,7 +284,7 @@ erDiagram
 | `partner_roles` | PK (`partner_id`, `role`), `is_active` | Hiện luôn ghi `is_active = true` |
 | `organization_contacts` | PK (`organization_partner_id`, `person_partner_id`), `contact_role`, `is_primary`, `note`, audit | Cá nhân bị `on delete restrict` |
 | `partner_action_logs` | `action_type`, `actor_user_id`, `reason`, `before_state`, `after_state`, `created_at` | |
-| `partner_history_views` | `role`, `transaction_type` (`sales_order`, `inventory_inbound`, `accounting_receivable`, `accounting_payable`), `source_module`, `source_id`, `reference_code`, `transaction_date`, `status`, `amount`, `currency`, `can_open_source` | Duy nhất theo (`tenant_id`, `source_module`, `source_id`). 🔧 Ghi bằng trigger trên `sales.sales_orders` (chỉ dùng `sales_order`; các loại khác dự phòng) |
+| `partner_history_views` | `role`, `transaction_type` (`sales_order`, `inventory_inbound`, `accounting_receivable`, `accounting_payable`), `source_module`, `source_id`, `reference_code`, `transaction_date`, `status`, `amount`, `currency`, `can_open_source` | Duy nhất theo (`tenant_id`, `source_module`, `source_id`). Ghi bằng trigger trên `sales.sales_orders` (chỉ dùng `sales_order`; các loại khác dự phòng) |
 
 View đọc: `v_partner_list`, `v_partner_detail`, `v_partner_history`, đều `security_invoker`.
 RLS: thành viên của tổ chức (`partner._tenant_member`) được **đọc**. Không có policy ghi; mọi thao tác ghi đi qua RPC.
@@ -302,7 +302,7 @@ RLS: thành viên của tổ chức (`partner._tenant_member`) được **đọc
 | I-05 | Không có 2 Partner chưa xoá trong cùng tổ chức trùng SĐT chính, email hoặc MST, trừ khi tạo trước khi có quy tắc BR-15 |
 | I-06 | `display_name` = `full_name` (cá nhân) hoặc `organization_name` (tổ chức) |
 | I-07 | Mỗi lần `version` tăng có đúng 1 dòng `partner_action_logs` (trừ thao tác người liên hệ ghi `update` trên tổ chức) |
-| I-08 | 🔧 Mỗi đơn bán có `customer_partner_id` có đúng 1 dòng `partner_history_views` (`source_module = sales`, `source_id = order_id`), `status` khớp trạng thái đơn |
+| I-08 | Mỗi đơn bán có `customer_partner_id` có đúng 1 dòng `partner_history_views` (`source_module = sales`, `source_id = order_id`), `status` khớp trạng thái đơn |
 
 ---
 
@@ -318,7 +318,7 @@ RLS: thành viên của tổ chức (`partner._tenant_member`) được **đọc
 | EP-04 | Người liên hệ | US-04.1 Xem danh sách liên hệ; US-04.2 Tạo người liên hệ mới; US-04.3 Chọn cá nhân có sẵn; US-04.4 Sửa liên hệ; US-04.5 Đặt làm chính; US-04.6 Gỡ khỏi tổ chức | PT-08, PT-09, PT-10 |
 | EP-05 | Chuyển cá nhân thành tổ chức | US-05.1 Nhập thông tin tổ chức; US-05.2 Xem trước; US-05.3 Xác nhận | PT-11 |
 | EP-06 | Trạng thái & xoá | US-06.1 Ngừng hoạt động; US-06.2 Kích hoạt lại; US-06.3 Xoá hồ sơ | PT-07 (sheet) |
-| EP-07 | Lịch sử | US-07.1 Lịch sử thao tác; US-07.2 🔧 Ghi lịch sử giao dịch từ đơn bán | PT-12 |
+| EP-07 | Lịch sử | US-07.1 Lịch sử thao tác; US-07.2 Ghi lịch sử giao dịch từ đơn bán | PT-12 |
 
 ```text
 Danh sách (PT-01) ──[+]──▶ Action sheet ──▶ Tạo cá nhân / Tạo tổ chức (PT-05) ──lưu──▶ Hồ sơ (PT-07)
@@ -371,7 +371,7 @@ Hồ sơ ─┬─ Chỉnh sửa (PT-05)
 **Yêu cầu chức năng**
 
 - FR-01: Ô "Tìm tên, SĐT, email, MST..." (debounce), nút "Xóa tìm kiếm".
-- FR-02: Tìm theo chuỗi con, không phân biệt hoa thường, 🔧 không phân biệt dấu (KI-07) trên: tên hiển thị, tên thường gọi, tên viết tắt, SĐT, email, MST.
+- FR-02: Tìm theo chuỗi con, không phân biệt hoa thường, không phân biệt dấu trên: tên hiển thị, tên thường gọi, tên viết tắt, SĐT, email, MST.
 - FR-03: Từ khoá có `@` → chỉ tìm theo email.
 - FR-04: Tổ chức cũng khớp khi một người liên hệ **đang hoạt động** của nó khớp tên, danh xưng, SĐT, SĐT phụ hoặc email.
 
@@ -379,7 +379,7 @@ Hồ sơ ─┬─ Chỉnh sửa (PT-05)
 
 **Tiêu chí nghiệm thu**
 
-- AC-01: 🔧 "an binh" tìm thấy "Đại lý An Bình".
+- AC-01: "an binh" tìm thấy "Đại lý An Bình".
 - AC-02: "0912" tìm thấy mọi hồ sơ có SĐT chứa "0912".
 - AC-03: Gõ tên người liên hệ "Lan" → tổ chức có liên hệ Lan đang hoạt động xuất hiện.
 - AC-04: Không có kết quả → "Không tìm thấy kết quả — Thử kiểm tra lại từ khóa "`<từ khoá>`" hoặc bộ lọc." + "Xóa từ khóa".
@@ -419,7 +419,7 @@ Scenario: SC-02 — Tìm qua người liên hệ
 
 #### US-01.4 — Sắp xếp
 
-- FR-01: Sheet "Sắp xếp": "Cập nhật gần nhất" (mặc định), "Cập nhật cũ nhất", "Tên A-Z", "Tên Z-A". 🔧 Bỏ "Vai trò giao dịch A-Z / Z-A" (KI-03).
+- FR-01: Sheet "Sắp xếp": "Cập nhật gần nhất" (mặc định), "Cập nhật cũ nhất", "Tên A-Z", "Tên Z-A".
 - AC-01: Mọi lựa chọn vẫn ghim `inactive` xuống cuối.
 
 ---
@@ -583,7 +583,7 @@ Scenario: SC-02 — Trùng MST khi sửa
 - FR-01: App bar "Hồ sơ KH & NCC". Header: tên, nhãn loại, vai trò, trạng thái.
 - FR-02: Banner "Ngừng hoạt động" nếu `inactive`: "KH & NCC này sẽ không được chọn cho giao dịch mới."
 - FR-03: Thẻ theo thứ tự: Thông tin cá nhân / tổ chức; Người liên hệ (chỉ tổ chức); Hóa đơn / thuế; Địa chỉ giao hàng; Ghi chú; Thông tin hệ thống (người tạo / sửa, thời điểm, link "Lịch sử thao tác"). Trường trống hiện "Chưa có".
-- FR-04: 🔧 Bỏ thẻ "Lịch sử gần đây — Tính năng đang phát triển" (KI-10).
+- FR-04: Không có thẻ "Lịch sử gần đây".
 - FR-05: Thẻ Người liên hệ: tối đa vài người, người chính có nhãn "Chính", người ngừng hoạt động có nhãn; "Thêm người liên hệ", "Xem tất cả (n)"; rỗng "Chưa có người liên hệ.".
 - FR-06: Thanh dưới: "Chỉnh sửa" và "Thao tác".
 
@@ -657,7 +657,7 @@ Scenario: SC-02 — Trùng MST khi sửa
 - FR-01: PT-10 "Chọn từ cá nhân": ô "Tìm kiếm tên, SĐT, email"; danh sách cá nhân `active`, bỏ những người đã liên kết; chọn nhiều; nút "Chọn (`<n>`)".
 - FR-02: Rỗng → "Không tìm thấy cá nhân nào."
 - FR-03: Xác nhận → gọi `add_organization_contact` cho từng người (không đặt làm chính).
-- AC-01: 🔧 Gọi RPC với `person_partner_id` là tổ chức, khác tenant hoặc đã xoá → `VALIDATION_ERROR` / `NOT_FOUND`, kể cả khi không đặt làm chính (KI-05).
+- AC-01: Gọi RPC với `person_partner_id` là tổ chức hoặc khác tenant → `VALIDATION_ERROR`; đã xoá → `INVALID_STATUS`; kể cả khi không đặt làm chính. Đặt người `inactive` làm chính → `INVALID_STATUS`.
 - AC-02: Không tự liên kết tổ chức với chính nó.
 
 #### US-04.4 — Sửa liên hệ
@@ -712,7 +712,7 @@ Scenario: SC-02 — Gỡ không xoá hồ sơ
 - FR-02: Form "Thông tin tổ chức (mới)": "Loại tổ chức" *, "Tên tổ chức" *, "Tên viết tắt", "Tên quốc tế", "SĐT tổ chức" *, "Email tổ chức", "Mã số thuế".
 - FR-03: Kiểm: "Vui lòng chọn loại tổ chức", "Vui lòng nhập tên tổ chức", SĐT, email, MST theo BR-06; trùng → thông điệp theo trường ("Số điện thoại đã tồn tại trên hồ sơ khác.", "Email đã tồn tại trên hồ sơ khác.", "MST đã tồn tại trên hồ sơ khác.", "Tên tổ chức đã tồn tại trên hồ sơ khác.").
 - FR-04: Còn lỗi → banner "Không thể chuyển đổi khi thiếu thông tin bắt buộc hoặc dữ liệu bị trùng."
-- FR-05: Nút "Tiếp"; nút 🔧 "Huỷ" (hiện ghi "Bỏ qua" nhưng là thoát, KI-13).
+- FR-05: Nút "Tiếp"; nút "Huỷ" (thoát).
 - FR-06: Cá nhân đang là người chính của tổ chức khác → sheet "Không thể chuyển thành tổ chức — Hồ sơ này đang là người liên hệ chính của "`<tổ chức>`". Hãy đổi người liên hệ chính của tổ chức trước khi thực hiện chuyển đổi." ("Xem tổ chức" / "Đóng").
 
 **Quy tắc:** BR-25…BR-28.
@@ -801,7 +801,7 @@ Scenario: SC-02 — Bị chặn vì là người liên hệ chính nơi khác
 
 **Tiêu chí nghiệm thu**
 
-- AC-01: 🔧 Khách đã có ≥ 1 đơn bán (kể cả đơn đã huỷ) → không xoá được (KI-02).
+- AC-01: Khách đã có ≥ 1 đơn bán (kể cả đơn đã huỷ) → không xoá được (KI-02).
 - AC-02: Khách chỉ có nháp hoặc giá riêng → xoá được; nháp bị chặn khi hoàn tất.
 - AC-03: Sau xoá, SĐT / MST của hồ sơ dùng lại được cho hồ sơ mới (BR-13 bỏ qua `deleted`).
 
@@ -837,14 +837,15 @@ Scenario: SC-02 — Khách chưa có giao dịch
 
 - AC-01: Đổi vai trò từ KH sang KH & NCC → "Vai trò: Thêm mới: Nhà cung cấp".
 
-#### US-07.2 — Ghi lịch sử giao dịch từ đơn bán 🔧
+#### US-07.2 — Ghi lịch sử giao dịch từ đơn bán
 
-**Bối cảnh.** Điều kiện "không xoá khách đã có đơn" (BR-31) cần bảng `partner_history_views` có dữ liệu. Hiện handler ghi là stub nên bảng luôn rỗng.
+**Bối cảnh.** Điều kiện "không xoá khách đã có đơn" (BR-31) cần bảng `partner_history_views` có dữ liệu. Trigger `trg_sales_orders_partner_history` (hàm `partner._trg_sales_order_partner_history`, migration `20261101001`) ghi bảng này; migration cũng bù các đơn có sẵn.
 
 **Yêu cầu chức năng**
 
 - FR-01: Trigger trên `sales.sales_orders`: khi tạo đơn có `customer_partner_id` → `upsert_partner_history` (vai trò `customer`, loại `sales_order`, `source_module = sales`, `source_id = order_id`, mã đơn, ngày, trạng thái, tổng tiền, `VND`).
-- FR-02: Khi đơn đổi trạng thái (huỷ, thanh toán) → cập nhật `status`.
+- FR-02: Khi đơn đổi trạng thái (huỷ) → cập nhật `status` (= `lifecycle_status`), cùng một dòng. Đổi khách của đơn → dòng chuyển sang khách mới; bỏ khách (Khách lẻ) → xoá dòng. Trạng thái **thanh toán** chưa có cột trên `sales_orders`: Theme 6 cập nhật khi có.
+- FR-02b: `transaction_date = completed_at`, `amount = payable_amount_minor`, `can_open_source = false`. Khách không thuộc tenant của đơn → `NOT_FOUND`, câu lệnh ghi đơn bị huỷ (không nuốt dữ liệu sai).
 - FR-03: Không có màn xem (mục 8); RPC `get_partner_history` giữ lại.
 
 **Tiêu chí nghiệm thu**
@@ -1150,7 +1151,7 @@ Page ─▶ Cubit ─▶ IPartnerModule.executeCommandAsync/QueryAsync ─▶ Ha
 | TH-05 ghi nợ | Đơn còn nợ phải có khách (`WALK_IN_RECEIVABLE_NOT_ALLOWED`) |
 | TH-04 giá riêng, xem trước giá | `_get_customer_snapshot_for_pricing`; khách sai → `CUSTOMER_INVALID` |
 | TH-08 HĐĐT | `get_einvoice_buyer_profile`, `get_einvoice_recipient_snapshot` — còn ở `_drafts/016`, `_drafts/023`, đưa vào migration cùng TH-08 |
-| 🔧 `sales.sales_orders` | Trigger gọi `upsert_partner_history` (KI-02) |
+| `sales.sales_orders` | Trigger gọi `upsert_partner_history` (US-07.2) |
 
 ### 6.4 Mã lỗi và thông điệp app
 
@@ -1162,8 +1163,8 @@ Page ─▶ Cubit ─▶ IPartnerModule.executeCommandAsync/QueryAsync ─▶ Ha
 | `NOT_FOUND` | không có / đã xoá | "Không tìm thấy hồ sơ." |
 | `INVALID_STATUS` | trạng thái không cho phép | "Trạng thái hồ sơ không cho phép thao tác này." (xoá: "Trạng thái hồ sơ không cho phép xóa.") |
 | `STATE_CHANGED` | version lệch | "Hồ sơ đã được cập nhật bởi người khác. Vui lòng tải lại." |
-| `HAS_TRANSACTIONS` | đã có giao dịch | sheet "Không thể xóa hồ sơ"; toast: 🔧 "Hồ sơ đã phát sinh giao dịch nên không thể xóa. Bạn có thể ngừng hoạt động." (hiện "Anh có thể…", KI-11) |
-| `PRIMARY_CONTACT_OF_ORGANIZATION` | là người chính | sheet chặn xoá / chuyển đổi; 🔧 "Hồ sơ này đang là người liên hệ chính của …" (hiện "Khách hàng này…", KI-11) |
+| `HAS_TRANSACTIONS` | đã có giao dịch | sheet "Không thể xóa hồ sơ"; toast: "Hồ sơ đã phát sinh giao dịch nên không thể xóa. Bạn có thể ngừng hoạt động." |
+| `PRIMARY_CONTACT_OF_ORGANIZATION` | là người chính | sheet chặn xoá / chuyển đổi; "Hồ sơ này đang là người liên hệ chính của …" |
 | khác | lỗi không xác định | "Không thể lưu dữ liệu. Vui lòng thử lại." / "Không thể … Vui lòng thử lại." theo thao tác |
 
 ---
@@ -1184,18 +1185,18 @@ Số KI giữ từ bản 2.1 (KI-01 đã đóng trước đó).
 
 | Mã | Vấn đề | Quyết định | Phase |
 |---|---|---|---|
-| KI-02 | `partner_history_views` không bao giờ được ghi (handler stub), nên khách đã có đơn vẫn xoá được | **Sửa:** trigger trên `sales.sales_orders` (US-07.2); xoá handler stub. BR-31 chạy đúng | P4 (trigger), kiểm lại ở P8 |
-| KI-03 | Sắp xếp "Vai trò giao dịch A-Z / Z-A" có trên UI nhưng server không hỗ trợ | **Bỏ** hai lựa chọn (BR-37) | P4 |
+| KI-02 | `partner_history_views` không bao giờ được ghi (handler stub), nên khách đã có đơn vẫn xoá được | **Đã sửa (4-B):** trigger trên `sales.sales_orders` (US-07.2); handler stub xoá cùng module ở 4-C. BR-31 chạy đúng | P4 (trigger), kiểm lại ở P8 |
+| KI-03 | Sắp xếp "Vai trò giao dịch A-Z / Z-A" có trên UI nhưng server không hỗ trợ | **Đã sửa (4-B):** bỏ hai lựa chọn (BR-37) | P4 |
 | KI-04 | Cảnh báo trùng: DB chỉ cảnh báo, app chặn | **Giữ hành vi app** làm quy tắc chính thức (BR-15) | — |
-| KI-05 | Server không kiểm người liên hệ có sẵn khi không đặt làm người chính | **Sửa** (BR-17, US-04.3 AC-01). Kiểm trùng người liên hệ mới giữ ở app | P4 |
+| KI-05 | Server không kiểm người liên hệ có sẵn khi không đặt làm người chính | **Đã sửa (4-B)** (BR-17, US-04.3 AC-01). Kiểm trùng người liên hệ mới giữ ở app | P4 |
 | KI-06 | Cá nhân chỉ làm người liên hệ không hiện trong danh sách; không có "Xem hồ sơ cá nhân" | **Giữ nguyên** (BR-34, BR-42); sửa hồ sơ của họ qua PT-09 | — |
-| KI-07 | Tìm kiếm phân biệt dấu | **Sửa**: `unaccent` như catalog (BR-35) | P4 |
+| KI-07 | Tìm kiếm phân biệt dấu | **Đã sửa (4-B)**: `unaccent` như catalog (BR-35) | P4 |
 | KI-08 | `company_address` có trong DB nhưng form không có ô | **Giữ nguyên**: cột không dùng | — |
-| KI-09 | Code chết `PartnerDetailView`, `PartnerDetailOverviewTab` (tab Tổng quan / Lịch sử / Tài liệu) | **Xoá** | P4 |
-| KI-10 | Hồ sơ có thẻ "Lịch sử gần đây — Tính năng đang phát triển" | **Bỏ** thẻ (US-03.1 FR-04) | P4 |
-| KI-11 | Thông điệp giả định vai trò / giới tính: "Khách hàng này đang là người liên hệ chính…" (cả với NCC), "Anh có thể ngừng hoạt động" | **Sửa** theo BR-46 | P4 |
+| KI-09 | Code chết `PartnerDetailView`, `PartnerDetailOverviewTab` (tab Tổng quan / Lịch sử / Tài liệu) | **Đã sửa (4-B)**: đã xoá | P4 |
+| KI-10 | Hồ sơ có thẻ "Lịch sử gần đây — Tính năng đang phát triển" | **Đã sửa (4-B)**: bỏ thẻ (US-03.1 FR-04) | P4 |
+| KI-11 | Thông điệp giả định vai trò / giới tính: "Khách hàng này đang là người liên hệ chính…" (cả với NCC), "Anh có thể ngừng hoạt động" | **Đã sửa (4-B)** theo BR-46 | P4 |
 | KI-12 | Chuyển đổi: địa chỉ giao hàng và ghi chú chỉ còn ở người liên hệ mới, tổ chức bị trống | **Giữ nguyên** (quyết định 2026-10-07): dữ liệu cá nhân đi theo người liên hệ; người dùng bổ sung cho tổ chức bằng Chỉnh sửa (BR-26) | — |
-| KI-13 | Bước 1 chuyển đổi có nút "Bỏ qua" nhưng thực chất là thoát | **Sửa** nhãn thành "Huỷ" | P4 |
+| KI-13 | Bước 1 chuyển đổi có nút "Bỏ qua" nhưng thực chất là thoát | **Đã sửa (4-B)**: nhãn "Huỷ" | P4 |
 | KI-14 | Định dạng SĐT / email / MST chỉ kiểm ở app | **Giữ nguyên** (BR-06); MST gộp vào `core/validation/tax_code.dart` | P4 |
 | KI-15 | `search_partners(p_status='deleted')` trả cả hồ sơ đã xoá nếu gọi thẳng | **Giữ nguyên**: app không gửi; không có màn hồ sơ đã xoá | — |
 | KI-16 | Bản 2.1 ghi lọc nhanh có "Tổ chức"; code là "KH & NCC" | **Đã sửa tài liệu** (BR-36) | — |
@@ -1263,17 +1264,17 @@ Các việc 4.1–4.3 của [PLAN P4](../refactor/PLAN.md) (repository, rule MST
 | 2 | Tạo tổ chức kèm người liên hệ chính → thêm người thứ hai từ cá nhân có sẵn → đổi người chính → gỡ người cũ | Luôn ≤ 1 người chính; hồ sơ cá nhân bị gỡ vẫn còn |
 | 3 | Tạo trùng SĐT / MST (tạo, sửa, người liên hệ, chuyển đổi) | Luôn bị chặn ở "Trùng khớp hoàn toàn" |
 | 4 | Chuyển cá nhân có giá riêng và đơn bán thành tổ chức | `partner_id` giữ; giá riêng và đơn còn gắn; người liên hệ chính mới mang địa chỉ giao hàng / ghi chú cũ; tổ chức để trống các mục này |
-| 5 | Bán 1 đơn cho khách → thử xoá → ngừng hoạt động → thử chọn ở màn bán hàng | 🔧 `HAS_TRANSACTIONS`; sau ngừng không chọn được; nháp có khách đó bị `CUSTOMER_INVALID` |
+| 5 | Bán 1 đơn cho khách → thử xoá → ngừng hoạt động → thử chọn ở màn bán hàng | `HAS_TRANSACTIONS`; sau ngừng không chọn được; nháp có khách đó bị `CUSTOMER_INVALID` |
 
 **SQL / RPC test**
 
 - `create_partner` không vai trò → `VALIDATION_ERROR`; trùng SĐT không xác nhận → `DUPLICATE_WARNING`.
 - `update_partner` version cũ → `STATE_CHANGED`; hồ sơ `deleted` → `INVALID_STATUS`.
-- 🔧 `add_organization_contact` với `person_partner_id` là tổ chức / tenant khác / đã xoá → bị từ chối, kể cả khi không đặt chính.
+- `add_organization_contact` với `person_partner_id` là tổ chức / tenant khác / đã xoá → bị từ chối, kể cả khi không đặt chính.
 - Đặt người `inactive` làm chính → `INVALID_STATUS`; `deactivate_partner` người chính → mất cờ ở mọi tổ chức.
 - `transform_to_organization` khi là người chính nơi khác → `PRIMARY_CONTACT_OF_ORGANIZATION`; hồ sơ đã là tổ chức → `INVALID_STATUS`.
-- 🔧 Trigger: tạo đơn có khách → 1 dòng lịch sử; huỷ đơn → `status` cập nhật; đơn Khách lẻ → không ghi.
-- 🔧 `search_partners('an binh')` thấy "An Bình"; từ khoá có `@` chỉ khớp email.
+- Trigger: tạo đơn có khách → 1 dòng lịch sử; huỷ đơn → `status` cập nhật; đơn Khách lẻ → không ghi.
+- `search_partners('an binh')` thấy "An Bình"; từ khoá có `@` chỉ khớp email.
 - `search_partners(p_updated_within_days=15)` → `VALIDATION_ERROR`.
 
 **Widget / cubit test**

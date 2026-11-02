@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/partner_detail_add_contact_flow.dart';
 import '../widgets/partner_detail_soft_delete_flow.dart';
@@ -14,17 +13,20 @@ class PartnerDetailPage extends StatefulWidget {
   const PartnerDetailPage({
     super.key,
     required this.partnerId,
-    required this.partnerModule,
-    required this.executionContext,
+    required this.repository,
     this.showCreateSuccessToast = false,
     this.showTransformSuccessToast = false,
+    this.onMutated,
   });
 
   final String partnerId;
-  final IPartnerModule partnerModule;
-  final IExecutionContext executionContext;
+  final PartnerRepository repository;
   final bool showCreateSuccessToast;
   final bool showTransformSuccessToast;
+
+  /// Gọi sau mỗi thao tác đổi dữ liệu đang hiện ở danh sách (sửa, chuyển đổi,
+  /// ngừng / kích hoạt, xoá). Ở web 2 cột, route dùng nó để tải lại danh sách.
+  final VoidCallback? onMutated;
 
   @override
   State<PartnerDetailPage> createState() => _PartnerDetailPageState();
@@ -38,12 +40,10 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
   void initState() {
     super.initState();
     _cubit = PartnerDetailCubit(
-      partnerModule: widget.partnerModule,
-      executionContext: widget.executionContext,
+      repository: widget.repository,
     )..loadDetail(widget.partnerId);
     _statusCubit = PartnerStatusCubit(
-      partnerModule: widget.partnerModule,
-      executionContext: widget.executionContext,
+      repository: widget.repository,
     );
 
     if (widget.showCreateSuccessToast || widget.showTransformSuccessToast) {
@@ -65,9 +65,19 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     super.dispose();
   }
 
+  /// Nút "Quay lại" của trạng thái lỗi: web 2 cột về `/partner` (ô phải trống).
+  void _goBackToList() {
+    if (VListDetailLayout.isSplitOf(context)) {
+      context.go('/partner');
+    } else {
+      context.pop();
+    }
+  }
+
   Future<void> _openEdit(String partnerId) async {
     final updated = await context.push<bool>('/partner/$partnerId/edit');
     if (updated != true || !mounted) return;
+    widget.onMutated?.call();
     await _cubit.loadDetail(widget.partnerId);
     if (!mounted) return;
     showPartnerUpdateSuccessToast(context);
@@ -76,6 +86,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
   Future<void> _openContacts(String partnerId) async {
     await context.push('/partner/$partnerId/contacts');
     if (!mounted) return;
+    widget.onMutated?.call();
     await _cubit.loadDetail(widget.partnerId);
   }
 
@@ -98,10 +109,12 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     runPartnerDetailAddContactFlow(
       context: context,
       partnerId: widget.partnerId,
-      partnerModule: widget.partnerModule,
-      executionContext: widget.executionContext,
+      repository: widget.repository,
       excludePersonPartnerIds: excludePersonPartnerIds,
-      onReload: () => _cubit.loadDetail(widget.partnerId),
+      onReload: () {
+        widget.onMutated?.call();
+        return _cubit.loadDetail(widget.partnerId);
+      },
     );
   }
 
@@ -140,8 +153,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
         if (!context.mounted) return;
         final deleteResult = await runPartnerDetailSoftDeleteFlow(
           context: context,
-          partnerModule: widget.partnerModule,
-          executionContext: widget.executionContext,
+          repository: widget.repository,
           statusCubit: _statusCubit,
           dto: dto,
         );
@@ -169,6 +181,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       extra: dto,
     );
     if (transformed == true && context.mounted) {
+      widget.onMutated?.call();
       await _cubit.loadDetail(dto.partnerId);
       if (!context.mounted) return;
       showPartnerTransformSuccessToast(context);
@@ -193,6 +206,15 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
         action != PartnerTransformPrimaryContactBlockedAction.viewOrganization) {
       return;
     }
+    await _openOrganization(context, organizationId);
+  }
+
+  /// Mở hồ sơ tổ chức: web 2 cột đổi cột phải (`go`), hẹp thì đẩy lên như cũ.
+  Future<void> _openOrganization(BuildContext context, String organizationId) async {
+    if (VListDetailLayout.isSplitOf(context)) {
+      context.go('/partner/$organizationId');
+      return;
+    }
     await context.push('/partner/$organizationId');
   }
 
@@ -208,7 +230,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       organizationName: dto.primaryContactOrganizationName ?? 'một tổ chức',
     );
     if (context.mounted && action == PartnerDeletePrimaryContactBlockedAction.viewOrganization) {
-      await context.push('/partner/$organizationId');
+      await _openOrganization(context, organizationId);
     }
     return true;
   }
@@ -220,10 +242,14 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     if (state.status == PartnerStatusSubmitStatus.success) {
       if (state.successMessage == PartnerStatusCubit.softDeleteSuccessMessage) {
         _statusCubit.clearFeedback();
-        if (context.canPop()) {
-          context.pop(true);
+        // Hồ sơ nằm trong tab (4-W Q1) nên mở thẳng URL vẫn có danh sách bên dưới;
+        // không còn ai chờ kết quả `pop(true)` để hiện toast. Hồ sơ tự báo toast +
+        // tải lại danh sách rồi quay về.
+        showPartnerSoftDeleteSuccessToast(context);
+        widget.onMutated?.call();
+        if (!VListDetailLayout.isSplitOf(context) && context.canPop()) {
+          context.pop();
         } else {
-          showPartnerSoftDeleteSuccessToast(context);
           context.go('/partner');
         }
         return;
@@ -234,6 +260,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
         showPartnerReactivateSuccessToast(context);
       }
       _statusCubit.clearFeedback();
+      widget.onMutated?.call();
       _cubit.loadDetail(widget.partnerId);
       return;
     }
@@ -263,6 +290,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
         child: VPageScaffold(
           key: const Key('wgt_e01_u04_fr01_01'),
           title: 'Hồ sơ KH & NCC',
+          showBackButton: !VListDetailLayout.isSplitOf(context),
           body: BlocBuilder<PartnerDetailCubit, PartnerDetailState>(
             builder: (context, state) {
               if (state is PartnerDetailLoading || state is PartnerDetailInitial) {
@@ -277,7 +305,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                       title: 'Không có quyền xem hồ sơ',
                       description: 'Bạn không có quyền truy cập hồ sơ\nKhách hàng & Nhà cung cấp.',
                       actionLabel: 'Quay lại',
-                      onActionPressed: () => context.pop(),
+                      onActionPressed: _goBackToList,
                     ),
                   );
                 }
@@ -292,7 +320,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                           ? 'Người liên hệ chỉ quản lý trong hồ sơ tổ chức.\nKhông mở như hồ sơ cá nhân độc lập.'
                           : 'Hồ sơ có thể đã bị xóa hoặc không tồn tại\nhoặc bạn không có quyền xem.',
                       actionLabel: 'Quay lại',
-                      onActionPressed: () => context.pop(),
+                      onActionPressed: _goBackToList,
                     ),
                   );
                 }
@@ -392,9 +420,6 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                               const VGap.sm(),
 
                               PartnerDetailNoteCard(dto: dto),
-                              const VGap.sm(),
-
-                              const PartnerDetailHistoryCard(),
                               const VGap.sm(),
 
                               PartnerDetailSystemCard(

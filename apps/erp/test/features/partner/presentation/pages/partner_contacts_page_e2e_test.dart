@@ -1,6 +1,8 @@
 import 'package:erp/features/partner/presentation/pages/partner_contacts_page.dart';
 import 'package:erp/features/partner/presentation/pages/partner_contact_form_page.dart';
 import 'package:erp/features/partner/presentation/pages/partner_contact_select_page.dart';
+import 'package:erp/features/partner/logic/partner_permissions.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -9,11 +11,8 @@ import 'package:erp/core/session/session_controller.dart';
 import '../../../../core/session/fake_session_repository.dart';
 import 'package:erp/core/session/session_store.dart';
 import 'package:erp/core/session/models/session_principal.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_application/testing.dart';
-import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import '../../support/fake_partner_repository.dart';
 
 void main() {
   final getIt = GetIt.instance;
@@ -27,7 +26,7 @@ void main() {
   });
 
   Widget buildRouter({
-    required FakePartnerModule partnerModule,
+    required FakePartnerRepository partnerModule,
     required List<String> permissions,
     String initialLocation = '/partner/p-org-1/contacts',
   }) {
@@ -43,8 +42,7 @@ void main() {
       );
 
     getIt
-      ..registerSingleton<IExecutionContext>(FakeExecutionContext())
-      ..registerSingleton<IPartnerModule>(partnerModule)
+      ..registerSingleton<PartnerRepository>(partnerModule)
       ..registerSingleton<SessionController>(
         SessionController(repository: FakeSessionRepository(), store: session),
       );
@@ -58,8 +56,7 @@ void main() {
             final partnerId = state.pathParameters['partnerId']!;
             return PartnerContactsPage(
               partnerId: partnerId,
-              partnerModule: partnerModule,
-              executionContext: getIt<IExecutionContext>(),
+              repository: partnerModule,
             );
           },
         ),
@@ -71,8 +68,7 @@ void main() {
             return PartnerContactFormPage(
               partnerId: partnerId,
               contact: contact,
-              partnerModule: partnerModule,
-              executionContext: getIt<IExecutionContext>(),
+              repository: partnerModule,
             );
           },
         ),
@@ -82,8 +78,7 @@ void main() {
             final partnerId = state.pathParameters['partnerId']!;
             return PartnerContactSelectPage(
               partnerId: partnerId,
-              partnerModule: partnerModule,
-              executionContext: getIt<IExecutionContext>(),
+              repository: partnerModule,
             );
           },
         ),
@@ -97,8 +92,7 @@ void main() {
               partnerId: partnerId,
               contactId: contactId,
               contact: contact,
-              partnerModule: partnerModule,
-              executionContext: getIt<IExecutionContext>(),
+              repository: partnerModule,
             );
           },
         ),
@@ -111,7 +105,7 @@ void main() {
   testWidgets(
     'e2e_e01_u05: loads contacts, triggers add contact flow (create new)',
     (tester) async {
-      final partnerModule = FakePartnerModule(
+      final partnerModule = FakePartnerRepository(
         scenario: FakePartnerScenario.detailOrganizationWithContacts,
       );
 
@@ -170,7 +164,7 @@ void main() {
   testWidgets(
     'e2e_e01_u05: taps contact row, triggers actions (remove contact)',
     (tester) async {
-      final partnerModule = FakePartnerModule(
+      final partnerModule = FakePartnerRepository(
         scenario: FakePartnerScenario.detailOrganizationWithContacts,
       );
 

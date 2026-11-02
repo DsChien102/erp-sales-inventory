@@ -4,7 +4,7 @@ import 'package:vet45_pricing_application/application.dart';
 
 import 'price_rule_history_shared.dart';
 
-/// Cột label cố định — khớp pattern PartnerDetailInfoRow (+ chỗ icon).
+/// Cột label cố định — khớp pattern hàng thông tin hồ sơ đối tác (+ chỗ icon).
 const double kPriceRuleDetailLabelWidth = 128;
 
 /// Section card: title + divider trong [VCard], padding thoáng đẹp như design.

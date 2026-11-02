@@ -2,30 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 class PartnerTransformPage extends StatelessWidget {
   const PartnerTransformPage({
     super.key,
     required this.partner,
-    required this.partnerModule,
-    required this.executionContext,
+    required this.repository,
     this.initialBlocked,
   });
 
   final PartnerDetailDto partner;
-  final IPartnerModule partnerModule;
-  final IExecutionContext executionContext;
+  final PartnerRepository repository;
   final PartnerTransformBlockedKind? initialBlocked;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => PartnerTransformCubit(
-        partnerModule: partnerModule,
-        executionContext: executionContext,
+        repository: repository,
       ),
       child: _PartnerTransformView(
         partner: partner,

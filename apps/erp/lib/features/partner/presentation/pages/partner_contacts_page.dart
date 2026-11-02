@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/partner_contacts_error_body.dart';
 import '../widgets/partner_contacts_loaded_body.dart';
@@ -13,13 +13,11 @@ class PartnerContactsPage extends StatefulWidget {
   const PartnerContactsPage({
     super.key,
     required this.partnerId,
-    required this.partnerModule,
-    required this.executionContext,
+    required this.repository,
   });
 
   final String partnerId;
-  final IPartnerModule partnerModule;
-  final IExecutionContext executionContext;
+  final PartnerRepository repository;
 
   @override
   State<PartnerContactsPage> createState() => _PartnerContactsPageState();
@@ -32,8 +30,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
   void initState() {
     super.initState();
     _cubit = PartnerContactsCubit(
-      partnerModule: widget.partnerModule,
-      executionContext: widget.executionContext,
+      repository: widget.repository,
     )..loadContacts(widget.partnerId);
   }
 
@@ -41,6 +38,12 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
   void dispose() {
     _cubit.close();
     super.dispose();
+  }
+
+  /// Thao tác vừa rồi lỗi: toast lỗi do [BlocListener] hiện, không hiện toast thành công.
+  bool get _lastActionFailed {
+    final state = _cubit.state;
+    return state is PartnerContactsLoaded && state.actionError != null;
   }
 
   Future<void> _openContactForm({
@@ -88,7 +91,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
           return map['personPartnerId'] as String;
         }).toList();
         await _cubit.addExistingContacts(ids);
-        if (!mounted) return;
+        if (!mounted || _lastActionFailed) return;
         VToast.show(
           context,
           title: 'Thành công',
@@ -135,7 +138,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
     );
     if (confirmed != true || !mounted) return;
     await _cubit.setPrimaryContact(contact.personPartnerId);
-    if (!mounted) return;
+    if (!mounted || _lastActionFailed) return;
     VToast.show(
       context,
       title: 'Thành công',
@@ -148,7 +151,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
     final confirmed = await showPartnerContactRemoveDialog(context);
     if (confirmed != true || !mounted) return;
     await _cubit.removeContact(contact.personPartnerId);
-    if (!mounted) return;
+    if (!mounted || _lastActionFailed) return;
     VToast.show(
       context,
       title: 'Thành công',
@@ -161,52 +164,66 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cubit,
-      child: VPageScaffold(
-        title: 'Người liên hệ',
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: VIcon(icon: VIcons.moreHoriz, color: context.vColors.textPrimary),
-            onPressed: () {},
+      child: BlocListener<PartnerContactsCubit, PartnerContactsState>(
+        listenWhen: (prev, curr) =>
+            curr is PartnerContactsLoaded &&
+            curr.actionError != null &&
+            curr.actionError != (prev is PartnerContactsLoaded ? prev.actionError : null),
+        listener: (context, state) {
+          VToast.show(
+            context,
+            title: 'Không thành công',
+            message: (state as PartnerContactsLoaded).actionError!,
+            type: VToastType.danger,
+          );
+        },
+        child: VPageScaffold(
+          title: 'Người liên hệ',
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: VIcon(icon: VIcons.moreHoriz, color: context.vColors.textPrimary),
+              onPressed: () {},
+            ),
+          ],
+          floatingActionButton: BlocBuilder<PartnerContactsCubit, PartnerContactsState>(
+            builder: (context, state) {
+              if (state is PartnerContactsLoaded) {
+                return VFloatingActionButton(
+                  key: const Key('btn_add_contact_fab'),
+                  onTap: _showAddMethodSheet,
+                  icon: VIcons.add,
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
-        ],
-        floatingActionButton: BlocBuilder<PartnerContactsCubit, PartnerContactsState>(
-          builder: (context, state) {
-            if (state is PartnerContactsLoaded) {
-              return VFloatingActionButton(
-                key: const Key('btn_add_contact_fab'),
-                onTap: _showAddMethodSheet,
-                icon: VIcons.add,
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-        body: BlocBuilder<PartnerContactsCubit, PartnerContactsState>(
-          builder: (context, state) {
-            if (state is PartnerContactsLoading || state is PartnerContactsInitial) {
-              return const Center(child: CircularProgressIndicator());
-            }
+          body: BlocBuilder<PartnerContactsCubit, PartnerContactsState>(
+            builder: (context, state) {
+              if (state is PartnerContactsLoading || state is PartnerContactsInitial) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            if (state is PartnerContactsError) {
-              return PartnerContactsErrorBody(
-                isNoPermission: state.isNoPermission,
-                message: state.message,
-              );
-            }
+              if (state is PartnerContactsError) {
+                return PartnerContactsErrorBody(
+                  isNoPermission: state.isNoPermission,
+                  message: state.message,
+                );
+              }
 
-            if (state is PartnerContactsLoaded) {
-              return PartnerContactsLoadedBody(
-                organization: state.organization,
-                filteredContacts: state.filteredContacts,
-                onSearch: _cubit.searchContacts,
-                onAddContact: _showAddMethodSheet,
-                onContactTap: _showActionSheet,
-              );
-            }
+              if (state is PartnerContactsLoaded) {
+                return PartnerContactsLoadedBody(
+                  organization: state.organization,
+                  filteredContacts: state.filteredContacts,
+                  onSearch: _cubit.searchContacts,
+                  onAddContact: _showAddMethodSheet,
+                  onContactTap: _showActionSheet,
+                );
+              }
 
-            return const SizedBox();
-          },
+              return const SizedBox();
+            },
+          ),
         ),
       ),
     );

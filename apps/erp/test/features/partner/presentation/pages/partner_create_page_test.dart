@@ -2,9 +2,8 @@ import 'package:erp/features/partner/presentation/pages/partner_create_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/testing.dart';
-import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/fake_partner_repository.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
 void main() {
   testWidgets('wgt_e01_u02_fr07_01: success shows toast and hands off id', (
@@ -15,10 +14,9 @@ void main() {
       MaterialApp(
         home: PartnerCreatePage(
           partnerType: PartnerType.person,
-          partnerModule: FakePartnerModule(
+          repository: FakePartnerRepository(
             scenario: FakePartnerScenario.createPersonOk,
           ),
-          executionContext: FakeExecutionContext(),
           onCreated: (id) => createdId = id,
           onOpenExisting: (_) {},
         ),
@@ -51,10 +49,9 @@ void main() {
       MaterialApp(
         home: PartnerCreatePage(
           partnerType: PartnerType.organization,
-          partnerModule: FakePartnerModule(
+          repository: FakePartnerRepository(
             scenario: FakePartnerScenario.createOrganizationOk,
           ),
-          executionContext: FakeExecutionContext(),
           onCreated: (id) => createdId = id,
           onOpenExisting: (_) {},
         ),
@@ -87,10 +84,9 @@ void main() {
       MaterialApp(
         home: PartnerCreatePage.edit(
           partnerId: 'p-1',
-          partnerModule: FakePartnerModule(
+          repository: FakePartnerRepository(
             scenario: FakePartnerScenario.detailPersonActive,
           ),
-          executionContext: FakeExecutionContext(),
           onUpdated: (id) => updatedId = id,
           onOpenExisting: (_) {},
         ),
@@ -130,8 +126,7 @@ void main() {
           onGenerateRoute: (_) => MaterialPageRoute<void>(
             builder: (_) => PartnerCreatePage(
               partnerType: PartnerType.person,
-              partnerModule: FakePartnerModule(),
-              executionContext: FakeExecutionContext(),
+              repository: FakePartnerRepository(),
               onCreated: (_) {},
               onOpenExisting: (_) {},
             ),

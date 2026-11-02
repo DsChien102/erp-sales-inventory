@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
 enum PartnerDetailAction { transform, toggleStatus, delete }
 
@@ -9,7 +8,7 @@ Future<PartnerDetailAction?> showPartnerDetailActionSheet(
   BuildContext context, {
   required PartnerDetailDto dto,
 }) {
-  return showVBottomSheet<PartnerDetailAction>(
+  return showVAdaptiveSheet<PartnerDetailAction>(
     context: context,
     child: PartnerDetailActionSheet(dto: dto),
   );

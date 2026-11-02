@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
 Future<void> showPartnerDuplicateSheet({
   required BuildContext context,
@@ -11,7 +10,7 @@ Future<void> showPartnerDuplicateSheet({
   required VoidCallback onOpenExisting,
   VoidCallback? onContinue,
 }) {
-  return showVBottomSheet<void>(
+  return showVAdaptiveSheet<void>(
     context: context,
     child: PartnerDuplicateSheet(
       level: level,

@@ -5,8 +5,7 @@ import 'package:erp/core/iam/iam_codes.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
 import 'package:erp/features/catalog/presentation.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
@@ -68,6 +67,10 @@ import '../../features/more/presentation/pages/more_page.dart';
 import '../../features/sales/presentation/pages/sales_order_list_page.dart';
 import '../../features/catalog/presentation/pages/product_catalog_tab_page.dart';
 import '../../features/partner/presentation/pages/partner_list_page.dart';
+import '../../features/partner/presentation/partner_area_shell.dart';
+import '../../features/partner/presentation/widgets/partner_no_permission_view.dart';
+import '../../features/partner/logic/partner_list_cubit.dart';
+import '../../features/partner/logic/partner_permissions.dart';
 
 // Catalog
 import '../../features/catalog/presentation/pages/product_guided_create_page.dart';
@@ -196,6 +199,133 @@ final appRouter = GoRouter(
         session: getIt<SessionController>(),
       ),
     ),
+    // KH & NCC: các route cụ thể khai báo TRƯỚC ShellRoute(StoreShell) để khớp
+    // trước `/partner/:partnerId` (route con của tab, xem nhánh KH & NCC bên dưới).
+    GoRoute(
+      path: '/partner/new',
+      name: 'partner.new',
+      builder: (context, state) {
+        final partnerType = state.extra as PartnerType? ?? PartnerType.person;
+        return PartnerCreatePage(
+          partnerType: partnerType,
+          repository: getIt<PartnerRepository>(),
+          onCreated: (partnerId) {
+            if (context.mounted) {
+              // Return id to PartnerListPage so it can refresh before handoff.
+              context.pop(partnerId);
+            }
+          },
+          onOpenExisting: (partnerId) {
+            if (context.mounted) {
+              context.pushReplacement('/partner/$partnerId');
+            }
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/edit',
+      name: 'partner.edit',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        return PartnerCreatePage.edit(
+          partnerId: partnerId,
+          repository: getIt<PartnerRepository>(),
+          onUpdated: (id) {
+            if (context.mounted) {
+              context.pop(true);
+            }
+          },
+          onOpenExisting: (existingId) {
+            if (context.mounted) {
+              context.pushReplacement('/partner/$existingId');
+            }
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/transform',
+      name: 'partner.transform',
+      // Thiếu `extra` (vd. Forward/Back của trình duyệt) → về hồ sơ. Dùng
+      // redirect thay vì `go` trong builder để không dựng hai bản nhánh tab
+      // cùng lúc (Duplicate GlobalKey).
+      redirect: (context, state) => state.extra is PartnerDetailDto
+          ? null
+          : '/partner/${state.pathParameters['partnerId']}',
+      builder: (context, state) {
+        final partner = state.extra as PartnerDetailDto;
+        return PartnerTransformPage(
+          partner: partner,
+          repository: getIt<PartnerRepository>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/history',
+      name: 'partner.history',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final partnerName = state.extra as String? ?? 'Đối tác';
+        return PartnerChangeHistoryPage(
+          partnerId: partnerId,
+          partnerName: partnerName,
+          repository: getIt<PartnerRepository>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts',
+      name: 'partner.contacts',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        return PartnerContactsPage(
+          partnerId: partnerId,
+          repository: getIt<PartnerRepository>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts/new',
+      name: 'partner.contacts.new',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final contact = state.extra as PartnerContactDto?;
+        return PartnerContactFormPage(
+          partnerId: partnerId,
+          contact: contact,
+          repository: getIt<PartnerRepository>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts/select',
+      name: 'partner.contacts.select',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final excludeIds = state.extra as List<String>? ?? const [];
+        return PartnerContactSelectPage(
+          partnerId: partnerId,
+          repository: getIt<PartnerRepository>(),
+          excludePersonPartnerIds: excludeIds,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts/:contactId/edit',
+      name: 'partner.contacts.edit',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final contactId = state.pathParameters['contactId']!;
+        final contact = state.extra as PartnerContactDto?;
+        return PartnerContactFormPage(
+          partnerId: partnerId,
+          contactId: contactId,
+          contact: contact,
+          repository: getIt<PartnerRepository>(),
+        );
+      },
+    ),
     ShellRoute(
       builder: (context, state, child) => StoreShell(child: child),
       routes: [
@@ -233,10 +363,64 @@ final appRouter = GoRouter(
             ),
             StatefulShellBranch(
               routes: [
-                GoRoute(
-                  path: '/partner',
-                  name: 'partner.list',
-                  builder: (context, state) => const PartnerListPage(),
+                ShellRoute(
+                  builder: (context, state, child) {
+                    if (!_hasTenantPermission(PartnerPermissions.view)) {
+                      return const PartnerNoPermissionView();
+                    }
+                    return PartnerAreaShell(
+                      selectedId: state.pathParameters['partnerId'],
+                      child: child,
+                    );
+                  },
+                  routes: [
+                    GoRoute(
+                      path: '/partner',
+                      name: 'partner.list',
+                      builder: (context, state) {
+                        if (VListDetailLayout.isSplitOf(context)) {
+                          return Scaffold(
+                            backgroundColor: context.vColors.surfaceAlt,
+                            body: const Center(
+                              child: VEmptyState(
+                                child: VEmptyHeader(
+                                  children: [
+                                    VEmptyMedia(icon: VIcons.info),
+                                    VEmptyTitle('Chọn một KH & NCC để xem chi tiết.'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return PartnerListPage(
+                          cubit: context.read<PartnerListCubit>(),
+                        );
+                      },
+                      routes: [
+                        GoRoute(
+                          path: ':partnerId',
+                          name: 'partner.detail',
+                          builder: (context, state) {
+                            final partnerId = state.pathParameters['partnerId']!;
+                            final showCreateSuccessToast =
+                                state.uri.queryParameters['created'] == '1';
+                            final showTransformSuccessToast =
+                                state.uri.queryParameters['transformed'] == '1';
+                            final listCubit = context.read<PartnerListCubit>();
+                            return PartnerDetailPage(
+                              key: ValueKey(partnerId),
+                              partnerId: partnerId,
+                              repository: getIt<PartnerRepository>(),
+                              showCreateSuccessToast: showCreateSuccessToast,
+                              showTransformSuccessToast: showTransformSuccessToast,
+                              onMutated: () => listCubit.fetchPartners(isRefresh: true),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -794,158 +978,6 @@ final appRouter = GoRouter(
     ),
     // Sales typed routes: ShellRoute(drafts+compose) + remaining /sales/* ($appRoutes).
     ...$appRoutes,
-    GoRoute(
-      path: '/partner/new',
-      name: 'partner.new',
-      builder: (context, state) {
-        final partnerType = state.extra as PartnerType? ?? PartnerType.person;
-        return PartnerCreatePage(
-          partnerType: partnerType,
-          partnerModule: getIt<IPartnerModule>(),
-          executionContext: getIt<IExecutionContext>(),
-          onCreated: (partnerId) {
-            if (context.mounted) {
-              // Return id to PartnerListPage so it can refresh before handoff.
-              context.pop(partnerId);
-            }
-          },
-          onOpenExisting: (partnerId) {
-            if (context.mounted) {
-              context.pushReplacement('/partner/$partnerId');
-            }
-          },
-        );
-      },
-    ),
-    GoRoute(
-      path: '/partner/:partnerId/edit',
-      name: 'partner.edit',
-      builder: (context, state) {
-        final partnerId = state.pathParameters['partnerId']!;
-        return PartnerCreatePage.edit(
-          partnerId: partnerId,
-          partnerModule: getIt<IPartnerModule>(),
-          executionContext: getIt<IExecutionContext>(),
-          onUpdated: (id) {
-            if (context.mounted) {
-              context.pop(true);
-            }
-          },
-          onOpenExisting: (existingId) {
-            if (context.mounted) {
-              context.pushReplacement('/partner/$existingId');
-            }
-          },
-        );
-      },
-    ),
-    GoRoute(
-      path: '/partner/:partnerId/transform',
-      name: 'partner.transform',
-      builder: (context, state) {
-        final partnerId = state.pathParameters['partnerId']!;
-        final partner = state.extra as PartnerDetailDto?;
-        if (partner == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) context.go('/partner/$partnerId');
-          });
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        return PartnerTransformPage(
-          partner: partner,
-          partnerModule: getIt<IPartnerModule>(),
-          executionContext: getIt<IExecutionContext>(),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/partner/:partnerId',
-      name: 'partner.detail',
-      builder: (context, state) {
-        final partnerId = state.pathParameters['partnerId']!;
-        final showCreateSuccessToast = state.uri.queryParameters['created'] == '1';
-        final showTransformSuccessToast = state.uri.queryParameters['transformed'] == '1';
-        return PartnerDetailPage(
-          partnerId: partnerId,
-          partnerModule: getIt<IPartnerModule>(),
-          executionContext: getIt<IExecutionContext>(),
-          showCreateSuccessToast: showCreateSuccessToast,
-          showTransformSuccessToast: showTransformSuccessToast,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/partner/:partnerId/history',
-      name: 'partner.history',
-      builder: (context, state) {
-        final partnerId = state.pathParameters['partnerId']!;
-        final partnerName = state.extra as String? ?? 'Đối tác';
-        return PartnerChangeHistoryPage(
-          partnerId: partnerId,
-          partnerName: partnerName,
-          repository: getIt<PartnerRepository>(),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/partner/:partnerId/contacts',
-      name: 'partner.contacts',
-      builder: (context, state) {
-        final partnerId = state.pathParameters['partnerId']!;
-        return PartnerContactsPage(
-          partnerId: partnerId,
-          partnerModule: getIt<IPartnerModule>(),
-          executionContext: getIt<IExecutionContext>(),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/partner/:partnerId/contacts/new',
-      name: 'partner.contacts.new',
-      builder: (context, state) {
-        final partnerId = state.pathParameters['partnerId']!;
-        final contact = state.extra as PartnerContactDto?;
-        return PartnerContactFormPage(
-          partnerId: partnerId,
-          contact: contact,
-          partnerModule: getIt<IPartnerModule>(),
-          executionContext: getIt<IExecutionContext>(),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/partner/:partnerId/contacts/select',
-      name: 'partner.contacts.select',
-      builder: (context, state) {
-        final partnerId = state.pathParameters['partnerId']!;
-        final excludeIds = state.extra as List<String>? ?? const [];
-        return PartnerContactSelectPage(
-          partnerId: partnerId,
-          partnerModule: getIt<IPartnerModule>(),
-          executionContext: getIt<IExecutionContext>(),
-          excludePersonPartnerIds: excludeIds,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/partner/:partnerId/contacts/:contactId/edit',
-      name: 'partner.contacts.edit',
-      builder: (context, state) {
-        final partnerId = state.pathParameters['partnerId']!;
-        final contactId = state.pathParameters['contactId']!;
-        final contact = state.extra as PartnerContactDto?;
-        return PartnerContactFormPage(
-          partnerId: partnerId,
-          contactId: contactId,
-          contact: contact,
-          partnerModule: getIt<IPartnerModule>(),
-          executionContext: getIt<IExecutionContext>(),
-        );
-      },
-    ),
-
     GoRoute(
       path: '/products/items/new',
       name: 'products.items.new',

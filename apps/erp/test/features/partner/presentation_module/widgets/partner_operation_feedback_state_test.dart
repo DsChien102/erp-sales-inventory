@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/presentation.dart';
 
 void main() {
@@ -63,19 +63,19 @@ void main() {
 
   test('maps blocked codes to feedback kinds', () {
     expect(
-      partnerOperationFeedbackKindFromCode(PartnerBlockedCodes.noPermission),
+      partnerOperationFeedbackKindFromCode(PartnerErrorCodes.noPermission),
       PartnerOperationFeedbackKind.noPermission,
     );
     expect(
-      partnerOperationFeedbackKindFromCode(PartnerBlockedCodes.stateChanged),
+      partnerOperationFeedbackKindFromCode(PartnerErrorCodes.stateChanged),
       PartnerOperationFeedbackKind.sourceChanged,
     );
     expect(
-      partnerOperationFeedbackKindFromCode(PartnerBlockedCodes.systemError),
+      partnerOperationFeedbackKindFromCode(PartnerErrorCodes.systemError),
       PartnerOperationFeedbackKind.error,
     );
     expect(
-      partnerOperationFeedbackKindFromCode(PartnerBlockedCodes.hasTransactions),
+      partnerOperationFeedbackKindFromCode(PartnerErrorCodes.hasTransactions),
       isNull,
     );
   });

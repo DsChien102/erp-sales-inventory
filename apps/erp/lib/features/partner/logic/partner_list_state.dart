@@ -1,0 +1,121 @@
+import 'package:equatable/equatable.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+
+enum PartnerRoleFilter { customer, supplier, both }
+
+enum PartnerUpdatedTimeFilter {
+  last7Days(7),
+  last30Days(30);
+
+  const PartnerUpdatedTimeFilter(this.days);
+
+  final int days;
+}
+
+enum PartnerSortOption {
+  updatedAtDesc,
+  updatedAtAsc,
+  nameAsc,
+  nameDesc,
+}
+
+sealed class PartnerListState extends Equatable {
+  const PartnerListState({
+    this.query,
+    this.partnerType,
+    this.roleFilter,
+    this.status,
+    this.updatedTimeFilter,
+    this.sortOption = PartnerSortOption.updatedAtDesc,
+  });
+
+  final String? query;
+  final PartnerType? partnerType;
+  final PartnerRoleFilter? roleFilter;
+  final PartnerStatus? status;
+  final PartnerUpdatedTimeFilter? updatedTimeFilter;
+  final PartnerSortOption sortOption;
+
+  @override
+  List<Object?> get props => [
+    query,
+    partnerType,
+    roleFilter,
+    status,
+    updatedTimeFilter,
+    sortOption,
+  ];
+}
+
+final class PartnerListInitial extends PartnerListState {
+  const PartnerListInitial();
+}
+
+final class PartnerListLoading extends PartnerListState {
+  const PartnerListLoading({
+    required this.items,
+    this.isFirstLoad = true,
+    super.query,
+    super.partnerType,
+    super.roleFilter,
+    super.status,
+    super.updatedTimeFilter,
+    super.sortOption = PartnerSortOption.updatedAtDesc,
+  });
+
+  final List<PartnerListItemDto> items;
+  final bool isFirstLoad;
+
+  @override
+  List<Object?> get props => [
+    items,
+    isFirstLoad,
+    ...super.props,
+  ];
+}
+
+final class PartnerListLoaded extends PartnerListState {
+  const PartnerListLoaded({
+    required this.items,
+    required this.total,
+    required this.hasReachedMax,
+    super.query,
+    super.partnerType,
+    super.roleFilter,
+    super.status,
+    super.updatedTimeFilter,
+    super.sortOption = PartnerSortOption.updatedAtDesc,
+  });
+
+  final List<PartnerListItemDto> items;
+  final int total;
+  final bool hasReachedMax;
+
+  @override
+  List<Object?> get props => [
+    items,
+    total,
+    hasReachedMax,
+    ...super.props,
+  ];
+}
+
+final class PartnerListError extends PartnerListState {
+  const PartnerListError(
+    this.message, {
+    super.query,
+    super.partnerType,
+    super.roleFilter,
+    super.status,
+    super.updatedTimeFilter,
+    super.sortOption = PartnerSortOption.updatedAtDesc,
+  });
+
+  final String message;
+
+  @override
+  List<Object?> get props => [
+    message,
+    ...super.props,
+  ];
+}

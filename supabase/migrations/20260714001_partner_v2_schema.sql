@@ -402,5 +402,3 @@ grant select on table partner.partner_history_views to authenticated;
 
 -- Notes:
 -- - Depends on iam.memberships + iam.has_permission (iam_foundation migration).
--- - partner.outbox_messages installed via platform.install_module_messaging('partner')
---   or partner_v2_outbox.sql fallback helper.

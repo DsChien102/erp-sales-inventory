@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
-import '../bloc/partner_list_state.dart';
+import '../../logic/partner_list_state.dart';
 
 class PartnerActiveFilters extends StatelessWidget {
   const PartnerActiveFilters({

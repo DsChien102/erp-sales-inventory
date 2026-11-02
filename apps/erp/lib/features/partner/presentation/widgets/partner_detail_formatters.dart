@@ -1,6 +1,5 @@
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
 abstract final class PartnerDetailFormatters {
   static String roleBadgeLabel(List<PartnerRoleType> roles) {

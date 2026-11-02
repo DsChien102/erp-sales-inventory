@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../bloc/partner_create_cubit.dart';
+import '../../logic/partner_create_cubit.dart';
 import '../data/vn_administrative_unit.dart';
 import '../data/vn_administrative_units_loader.dart';
 import 'partner_administrative_unit_picker_sheet.dart';

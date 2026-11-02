@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/core/validation/tax_code_input_formatter.dart';
 
 import 'partner_transform_field.dart';

@@ -597,17 +597,6 @@ begin
     partner._partner_snapshot(v_partner_id)
   );
 
-  perform partner.enqueue_outbox_message(
-    p_tenant_id,
-    'partner.partner.created',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'partner_id', v_partner_id,
-      'partner_type', v_partner_type::text,
-      'display_name', v_display_name
-    )
-  );
-
   return query select v_partner_id, v_warnings;
 end;
 $$;
@@ -727,16 +716,6 @@ begin
     partner._partner_snapshot(p_partner_id)
   );
 
-  perform partner.enqueue_outbox_message(
-    p_tenant_id,
-    'partner.partner.profile_updated',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'partner_id', p_partner_id,
-      'display_name', v_display_name
-    )
-  );
-
   return query select p_partner_id, v_partner.version, v_warnings;
 end;
 $$;
@@ -815,7 +794,7 @@ begin
     );
   end if;
 
-  if p_is_primary and p_person_partner_id is not null then
+  if p_person_partner_id is not null then
     select * into v_person
     from partner.partners p
     where p.partner_id = p_person_partner_id
@@ -827,7 +806,13 @@ begin
         'contact person partner required'
       );
     end if;
-    if v_person.status <> 'active' then
+    if v_person.status = 'deleted' then
+      perform partner._raise_partner_error(
+        'INVALID_STATUS',
+        'deleted contact cannot be linked'
+      );
+    end if;
+    if p_is_primary and v_person.status <> 'active' then
       perform partner._raise_partner_error(
         'INVALID_STATUS',
         'inactive contact cannot be primary'
@@ -872,17 +857,6 @@ begin
     null,
     v_before,
     partner._partner_snapshot(p_organization_partner_id)
-  );
-
-  perform partner.enqueue_outbox_message(
-    p_tenant_id,
-    'partner.partner.contact_changed',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'partner_id', p_organization_partner_id,
-      'person_partner_id', v_person_id,
-      'change', 'added'
-    )
   );
 
   return query select p_organization_partner_id, v_person_id;
@@ -1030,17 +1004,6 @@ begin
     v_before,
     partner._partner_snapshot(p_organization_partner_id)
   );
-
-  perform partner.enqueue_outbox_message(
-    p_tenant_id,
-    'partner.partner.contact_changed',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'partner_id', p_organization_partner_id,
-      'person_partner_id', p_person_partner_id,
-      'change', 'updated'
-    )
-  );
 end;
 $$;
 
@@ -1095,17 +1058,6 @@ begin
     null,
     v_before,
     partner._partner_snapshot(p_organization_partner_id)
-  );
-
-  perform partner.enqueue_outbox_message(
-    p_tenant_id,
-    'partner.partner.contact_changed',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'partner_id', p_organization_partner_id,
-      'person_partner_id', p_person_partner_id,
-      'change', 'removed'
-    )
   );
 end;
 $$;
@@ -1298,16 +1250,6 @@ begin
     partner._partner_snapshot(p_partner_id)
   );
 
-  perform partner.enqueue_outbox_message(
-    p_tenant_id,
-    'partner.partner.transformed',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'partner_id', p_partner_id,
-      'contact_person_partner_id', v_contact_person_id
-    )
-  );
-
   return query select p_partner_id, v_warnings;
 end;
 $$;
@@ -1382,16 +1324,6 @@ begin
     partner._partner_snapshot(p_partner_id)
   );
 
-  perform partner.enqueue_outbox_message(
-    p_tenant_id,
-    'partner.partner.deactivated',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'partner_id', p_partner_id,
-      'reason', p_reason
-    )
-  );
-
   return query select p_partner_id, 'inactive'::text, v_partner.version;
 end;
 $$;
@@ -1453,16 +1385,6 @@ begin
     p_reason,
     v_before,
     partner._partner_snapshot(p_partner_id)
-  );
-
-  perform partner.enqueue_outbox_message(
-    p_tenant_id,
-    'partner.partner.reactivated',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'partner_id', p_partner_id,
-      'reason', p_reason
-    )
   );
 
   return query select p_partner_id, 'active'::text, v_partner.version;
@@ -1564,16 +1486,6 @@ begin
     p_reason,
     v_before,
     partner._partner_snapshot(p_partner_id)
-  );
-
-  perform partner.enqueue_outbox_message(
-    p_tenant_id,
-    'partner.partner.soft_deleted',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'partner_id', p_partner_id,
-      'reason', p_reason
-    )
   );
 
   return query select p_partner_id, 'deleted'::text, v_partner.version;

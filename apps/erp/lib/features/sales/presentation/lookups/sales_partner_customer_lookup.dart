@@ -1,8 +1,8 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/sales/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 /// Map Partner search → Sales customer picker VMs (apps/erp boundary).
 abstract final class SalesPartnerCustomerLookup {
@@ -43,15 +43,7 @@ abstract final class SalesPartnerCustomerLookup {
       );
     }
     try {
-      final partnerModule = di<IPartnerModule>();
-      final executionContext = di<IExecutionContext>();
-      final tenantId = await executionContext.requireTenantId();
-      final detail = await partnerModule.executeQueryAsync(
-        GetPartnerDetailQuery(
-          tenantId: tenantId,
-          partnerId: trimmed,
-        ),
-      );
+      final detail = await di<PartnerRepository>().getDetail(trimmed);
       if (detail.status != PartnerStatus.active) {
         throw const SalesExternalOperationException(
           'Khách hàng không còn hoạt động.',
@@ -76,20 +68,13 @@ abstract final class SalesPartnerCustomerLookup {
     GetIt di,
     String query,
   ) async {
-    final partnerModule = di<IPartnerModule>();
-    final executionContext = di<IExecutionContext>();
-    final tenantId = await executionContext.requireTenantId();
-
-    final result = await partnerModule.executeQueryAsync(
-      SearchPartnersQuery(
-        tenantId: tenantId,
-        query: query.trim().isEmpty ? null : query.trim(),
-        role: PartnerRoleType.customer,
-        status: PartnerStatus.active,
-        updatedWithinDays: query.trim().isEmpty ? 30 : null,
-        page: 1,
-        limit: 40,
-      ),
+    final result = await di<PartnerRepository>().search(
+      query: query.trim().isEmpty ? null : query.trim(),
+      role: PartnerRoleType.customer,
+      status: PartnerStatus.active,
+      updatedWithinDays: query.trim().isEmpty ? 30 : null,
+      page: 1,
+      limit: 40,
     );
 
     return result.items.map(_mapItem).toList(growable: false);
@@ -99,26 +84,15 @@ abstract final class SalesPartnerCustomerLookup {
     GetIt di,
     SalesQuickCustomerDraft draft,
   ) async {
-    final partnerModule = di<IPartnerModule>();
-    final executionContext = di<IExecutionContext>();
-    final tenantId = await executionContext.requireTenantId();
-
-    final matches = await partnerModule.executeQueryAsync(
-      CheckDuplicatePartnersQuery(
-        tenantId: tenantId,
-        phone: _nullable(_digitsOnly(draft.phone)),
-        taxCode: _nullable(_digitsOnly(draft.taxCode ?? '')),
-        name: _nullable(draft.displayName),
-      ),
+    final repository = di<PartnerRepository>();
+    final matches = await repository.checkDuplicates(
+      phone: _nullable(_digitsOnly(draft.phone)),
+      taxCode: _nullable(_digitsOnly(draft.taxCode ?? '')),
+      name: _nullable(draft.displayName),
     );
     if (matches.isEmpty) return null;
 
-    final detail = await partnerModule.executeQueryAsync(
-      GetPartnerDetailQuery(
-        tenantId: tenantId,
-        partnerId: matches.first.partnerId,
-      ),
-    );
+    final detail = await repository.getDetail(matches.first.partnerId);
     return _mapDetail(detail);
   }
 
@@ -127,38 +101,26 @@ abstract final class SalesPartnerCustomerLookup {
     SalesQuickCustomerDraft draft, {
     required bool confirmDuplicate,
   }) async {
-    final partnerModule = di<IPartnerModule>();
-    final executionContext = di<IExecutionContext>();
-    final tenantId = await executionContext.requireTenantId();
-    final actorId = await executionContext.requireUserId();
+    final repository = di<PartnerRepository>();
 
     try {
-      final result = await partnerModule.executeCommandAsync(
-        CreatePartnerCommand(
-          tenantId: tenantId,
-          actorId: actorId,
-          partnerType: draft.type == SalesQuickCustomerType.person
-              ? PartnerType.person
-              : PartnerType.organization,
-          roles: const [PartnerRoleType.customer],
-          personProfile: draft.type == SalesQuickCustomerType.person ? _personProfile(draft) : null,
-          organizationProfile: draft.type == SalesQuickCustomerType.organization
-              ? _organizationProfile(draft)
-              : null,
-          confirmDuplicate: confirmDuplicate,
-        ),
+      final result = await repository.create(
+        partnerType: draft.type == SalesQuickCustomerType.person
+            ? PartnerType.person
+            : PartnerType.organization,
+        roles: const [PartnerRoleType.customer],
+        personProfile: draft.type == SalesQuickCustomerType.person ? _personProfile(draft) : null,
+        organizationProfile: draft.type == SalesQuickCustomerType.organization
+            ? _organizationProfile(draft)
+            : null,
+        confirmDuplicate: confirmDuplicate,
       );
 
-      final detail = await partnerModule.executeQueryAsync(
-        GetPartnerDetailQuery(
-          tenantId: tenantId,
-          partnerId: result.partnerId,
-        ),
-      );
+      final detail = await repository.getDetail(result.partnerId);
       return _mapDetail(detail).toSelection();
     } on SalesCustomerOperationException {
       rethrow;
-    } on PartnerBlockedException catch (error) {
+    } on AppException catch (error) {
       throw SalesCustomerOperationException(_mapBlocked(error));
     } catch (_) {
       throw const SalesCustomerOperationException(
@@ -240,10 +202,10 @@ abstract final class SalesPartnerCustomerLookup {
     return trimmed.isEmpty ? null : trimmed;
   }
 
-  static String _mapBlocked(PartnerBlockedException error) {
+  static String _mapBlocked(AppException error) {
     return switch (error.code) {
-      PartnerBlockedCodes.noPermission => 'Bạn chưa có quyền tạo khách hàng.',
-      PartnerBlockedCodes.duplicateWarning =>
+      PartnerErrorCodes.noPermission => 'Bạn chưa có quyền tạo khách hàng.',
+      PartnerErrorCodes.duplicateWarning =>
         'Khách hàng có thể đã tồn tại. Vui lòng kiểm tra lại.',
       _ => 'Không thể kết nối để tạo khách hàng. Vui lòng thử lại.',
     };

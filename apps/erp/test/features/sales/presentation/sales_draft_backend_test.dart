@@ -5,8 +5,9 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
+import '../../partner/support/scripted_partner_repository.dart';
 import 'package:vet45_pricing_application/application.dart' as pricing;
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
@@ -18,19 +19,26 @@ import 'package:erp/features/sales/presentation/orchestration/sales_draft_payloa
 
 void main() {
   late GetIt di;
-  late _RecordingPartnerModule partner;
+  late ScriptedPartnerRepository partner;
+  late PartnerDetailDto partnerDetail;
   late _RecordingCatalogModule catalog;
   late _RecordingPricingModule pricingModule;
   late _RecordingSalesModule sales;
 
   setUp(() {
     di = GetIt.asNewInstance();
-    partner = _RecordingPartnerModule();
+    partnerDetail = _activeDetail;
+    partner = ScriptedPartnerRepository(
+      onCall: (method, _) {
+        if (method == 'getDetail') return partnerDetail;
+        throw StateError('Unexpected partner call $method');
+      },
+    );
     catalog = _RecordingCatalogModule();
     pricingModule = _RecordingPricingModule();
     sales = _RecordingSalesModule();
     di
-      ..registerSingleton<IPartnerModule>(partner)
+      ..registerSingleton<PartnerRepository>(partner)
       ..registerSingleton<ICatalogModule>(catalog)
       ..registerSingleton<pricing.IPricingModule>(pricingModule)
       ..registerSingleton<ISalesModule>(sales)
@@ -41,18 +49,16 @@ void main() {
   });
 
   group('SalesPartnerCustomerLookup.resolve', () {
-    test('uses exact GetPartnerDetailQuery and rejects inactive partners', () async {
+    test('uses exact getDetail and rejects inactive partners', () async {
       final selection = await SalesPartnerCustomerLookup.bindResolve(di)(
         'partner-1',
       );
-      expect(partner.queries.single, isA<GetPartnerDetailQuery>());
-      final query = partner.queries.single as GetPartnerDetailQuery;
-      expect(query.partnerId, 'partner-1');
-      expect(query.tenantId, 'tenant-1');
+      expect(partner.invocations.single.method, 'getDetail');
+      expect(partner.invocations.single.args['partnerId'], 'partner-1');
       expect(selection.partnerId, 'partner-1');
       expect(selection.isWalkIn, isFalse);
 
-      partner.detail = _inactiveDetail;
+      partnerDetail = _inactiveDetail;
       await expectLater(
         SalesPartnerCustomerLookup.bindResolve(di)('partner-1'),
         throwsA(isA<SalesExternalOperationException>()),
@@ -146,7 +152,7 @@ void main() {
         ),
       );
 
-      expect(partner.queries.whereType<GetPartnerDetailQuery>(), hasLength(1));
+      expect(partner.callsOf('getDetail'), hasLength(1));
       expect(
         catalog.queries.whereType<ResolveSellableProductsQuery>(),
         hasLength(1),
@@ -188,7 +194,7 @@ void main() {
         ),
       );
 
-      expect(partner.queries, isEmpty);
+      expect(partner.invocations, isEmpty);
       final command = sales.commands.single as SaveSalesOrderDraftCommand;
       expect(command.customer, isNull);
     });
@@ -216,7 +222,7 @@ void main() {
     });
 
     test('missing or inactive customer prevents Sales mutation', () async {
-      partner.detail = _inactiveDetail;
+      partnerDetail = _inactiveDetail;
       catalog.productsById[_product.productId] = _product;
 
       await expectLater(
@@ -371,7 +377,7 @@ void main() {
         savedAt: _savedDraft.savedAt,
         savedByActorId: _savedDraft.savedByActorId,
       );
-      partner.detail = _inactiveDetail;
+      partnerDetail = _inactiveDetail;
       catalog.productsById[_product.productId] = _blockedProduct;
       pricingModule.preview = _pricingPreviewChanged;
 
@@ -717,8 +723,7 @@ const _inactiveDetail = PartnerDetailDto(
   expectedVersion: 1,
 );
 
-final class _RecordingPartnerModule implements IPartnerModule {
-  PartnerDetailDto detail = const PartnerDetailDto(
+const _activeDetail = PartnerDetailDto(
     partnerId: 'partner-1',
     partnerType: PartnerType.person,
     status: PartnerStatus.active,
@@ -731,24 +736,6 @@ final class _RecordingPartnerModule implements IPartnerModule {
       phone: '0988123456',
     ),
   );
-
-  final List<Object> queries = [];
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    final raw = query as Object;
-    if (raw is GetPartnerDetailQuery) {
-      return detail as TResult;
-    }
-    throw StateError('Unexpected partner query $query');
-  }
-}
 
 final class _RecordingCatalogModule implements ICatalogModule {
   final Map<String, SellableProductDto> productsById = {};

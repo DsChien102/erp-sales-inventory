@@ -8,6 +8,8 @@
 
 > **Sau 3-D (2026-10-11):** 4 package IAM, `apps/admin` và `apps/messaging_worker` đã xoá — các hàng tương ứng dưới đây chỉ còn giá trị lịch sử. `tools/vet45_env` giữ nguyên 107 đạt / **1 lỗi có sẵn** (`config_init_test`: `ExampleGenerator` ghi `auth.env` khi `writeEnvCopies`, test kỳ vọng không có); `apps/erp` 1.494 đạt / 59 lỗi, đều nằm trong danh sách dưới đây.
 
+> **Sau 4-C (2026-11-02, review 4-C R1):** đã xoá `modules/partner/{domain,application,infrastructure}`, `modules/{accounting,costing,dashboard}` (không có test), `packages/vet45_resend`; bỏ các hàng tương ứng trong bảng và mục lỗi `modules/partner/infrastructure` (test `alternate_name` chuyển sang `apps/erp/test/features/partner/data/partner_search_sql_contract_test.dart`, nay xanh). `apps/erp` 1.705 đạt / 61 lỗi, đều trong danh sách `apps/erp` dưới đây. `modules/einvoice/application` 217 / 1 (như baseline). `modules/einvoice/infrastructure` **378 đạt / 60 lỗi**: 2 lỗi baseline (`goi1_configuration` nay lỗi cả tệp lúc nạp) + các test `*_sql_contract` / bundle đọc `supabase/migrations/_drafts/0xx_einvoice_*.sql` (`PathNotFoundException`, "draft SQL must exist", kéo theo `LateInitializationError` ở `tearDownAll`) vì 23 draft đã promote thành `20261031001…023` ngày 2026-10-31 (không do 4-C). Các test này cần trỏ sang migration chính thức (lượt promote / Theme 8, PLAN 7.1); tới lúc đó coi 60 lỗi này là có sẵn.
+
 | Package | Loại | Đạt | Lỗi |
 |---|---|---|---|
 | `apps/messaging_worker` | dart | 45 | 0 |
@@ -19,7 +21,6 @@
 | `packages/vet45_annotations` | dart | 8 | 0 |
 | `packages/vet45_generator` | dart | 20 | 0 |
 | `packages/vet45_misa` | dart | 80 | 0 |
-| `packages/vet45_resend` | dart | 4 | 0 |
 | `packages/vet45_design_system` | flutter | 288 | **2** |
 | `packages/vet45_async_query` | dart | 17 | 0 |
 | `modules/iam/integration_events` | dart | 3 | 0 |
@@ -30,8 +31,6 @@
 | `modules/pricing/application` | dart | 183 | 0 |
 | `modules/pricing/infrastructure` | dart | 150 | **50** |
 | `modules/pricing/domain` | dart | 53 | **1** |
-| `modules/partner/infrastructure` | dart | 42 | **1** |
-| `modules/partner/domain` | dart | 9 | 0 |
 | `modules/sales/domain` | dart | 47 | 0 |
 | `modules/catalog/application` | dart | 350 | 0 |
 | `modules/catalog/infrastructure` | dart | 120 | **4** |
@@ -42,7 +41,6 @@
 | `modules/einvoice/domain` | dart | 116 | 0 |
 | `modules/einvoice/presentation` | flutter | 79 | 0 |
 | `modules/partner/integration_events` | dart | 2 | 0 |
-| `modules/partner/application` | dart | 27 | 0 |
 | `packages/vet45_shared/testing` | dart | 6 | 0 |
 | `packages/vet45_shared/application` | dart | 5 | 0 |
 | `packages/vet45_shared/infrastructure` | dart | 22 | 0 |
@@ -219,10 +217,6 @@
 ### `modules/pricing/domain` (1)
 
 - test/customer_price_rule/customer_price_rule_test.dart: Money rejects zero or negative amount
-
-### `modules/partner/infrastructure` (1)
-
-- test/partner_alternate_name_search_sql_contract_test.dart: partner search SQL matches profile alternate names in both predicates
 
 ### `modules/catalog/infrastructure` (4)
 

@@ -1,6 +1,8 @@
 import 'package:erp/features/partner/presentation/pages/partner_detail_page.dart';
 import 'package:erp/features/partner/presentation/pages/partner_list_page.dart';
 import 'package:erp/features/partner/presentation/pages/partner_transform_page.dart';
+import 'package:erp/features/partner/logic/partner_permissions.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -9,12 +11,10 @@ import 'package:erp/core/session/session_controller.dart';
 import '../../../../core/session/fake_session_repository.dart';
 import 'package:erp/core/session/session_store.dart';
 import 'package:erp/core/session/models/session_principal.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_application/testing.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import '../../support/fake_partner_repository.dart';
+import '../../support/scripted_partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
   final getIt = GetIt.instance;
@@ -28,7 +28,7 @@ void main() {
   });
 
   Widget buildRouter({
-    required FakePartnerModule partnerModule,
+    required PartnerRepository partnerModule,
     required List<String> permissions,
     String initialLocation = '/',
   }) {
@@ -44,8 +44,7 @@ void main() {
       );
 
     getIt
-      ..registerSingleton<IExecutionContext>(FakeExecutionContext())
-      ..registerSingleton<IPartnerModule>(partnerModule)
+      ..registerSingleton<PartnerRepository>(partnerModule)
       ..registerSingleton<SessionController>(
         SessionController(repository: FakeSessionRepository(), store: session),
       );
@@ -61,8 +60,7 @@ void main() {
           path: '/partner/:partnerId/transform',
           builder: (context, state) => PartnerTransformPage(
             partner: state.extra! as PartnerDetailDto,
-            partnerModule: partnerModule,
-            executionContext: getIt<IExecutionContext>(),
+            repository: partnerModule,
           ),
         ),
         GoRoute(
@@ -72,8 +70,7 @@ void main() {
             final showTransformSuccessToast = state.uri.queryParameters['transformed'] == '1';
             return PartnerDetailPage(
               partnerId: partnerId,
-              partnerModule: partnerModule,
-              executionContext: getIt<IExecutionContext>(),
+              repository: partnerModule,
               showTransformSuccessToast: showTransformSuccessToast,
             );
           },
@@ -89,7 +86,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.detailPersonActive,
           ),
           permissions: const [
@@ -160,7 +157,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.searchEmpty,
           ),
           permissions: const [PartnerPermissions.detailView],
@@ -181,7 +178,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.detailPersonPrimaryContact,
           ),
           permissions: const [
@@ -224,7 +221,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.detailPersonPrimaryContact,
           ),
           permissions: const [
@@ -283,10 +280,9 @@ void main() {
         MaterialApp(
           home: PartnerTransformPage(
             partner: partner,
-            partnerModule: FakePartnerModule(
+            repository: FakePartnerRepository(
               scenario: FakePartnerScenario.transformPermissionDenied,
             ),
-            executionContext: FakeExecutionContext(),
           ),
         ),
       );
@@ -345,10 +341,9 @@ void main() {
         MaterialApp(
           home: PartnerTransformPage(
             partner: partner,
-            partnerModule: FakePartnerModule(
+            repository: FakePartnerRepository(
               scenario: FakePartnerScenario.transformDupWarning,
             ),
-            executionContext: FakeExecutionContext(),
           ),
         ),
       );
@@ -397,7 +392,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.defaultMixed,
           ),
           permissions: const [
@@ -461,7 +456,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.detailOrganizationWithContacts,
           ),
           permissions: const [
@@ -512,7 +507,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.detailDeleted,
           ),
           permissions: const [
@@ -528,4 +523,126 @@ void main() {
       expect(find.text('Nguyễn Văn A'), findsNothing);
     },
   );
+
+  testWidgets(
+    'G6 (KI-10): loaded profile has no "Lịch sử gần đây" card, keeps system card',
+    (tester) async {
+      await tester.pumpWidget(
+        buildRouter(
+          partnerModule: FakePartnerRepository(
+            scenario: FakePartnerScenario.detailPersonActive,
+          ),
+          permissions: const [
+            PartnerPermissions.view,
+            PartnerPermissions.detailView,
+          ],
+          initialLocation: '/partner/p-person-1',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nguyễn Văn A'), findsWidgets);
+      expect(find.text('Lịch sử gần đây'), findsNothing);
+      expect(find.text('Tính năng đang phát triển'), findsNothing);
+      expect(find.byType(PartnerDetailSystemCard), findsOneWidget);
+    },
+  );
+
+  group('PT-07 banner thiếu thông tin theo loại hồ sơ (TH-03 9.3)', () {
+    const permissions = [PartnerPermissions.view, PartnerPermissions.detailView];
+
+    Future<void> open(WidgetTester tester, PartnerDetailDto dto) async {
+      await tester.pumpWidget(
+        buildRouter(
+          partnerModule: ScriptedPartnerRepository(onCall: (_, _) => dto),
+          permissions: permissions,
+          initialLocation: '/partner/${dto.partnerId}',
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('cá nhân thiếu MST và địa chỉ hóa đơn → "Thiếu MST và địa chỉ hóa đơn."', (
+      tester,
+    ) async {
+      await open(
+        tester,
+        PartnerDetailDto(
+          partnerId: 'p-1',
+          partnerType: PartnerType.person,
+          status: PartnerStatus.active,
+          displayName: 'Nguyễn Văn A',
+          roles: const [PartnerRoleType.customer],
+          availableActions: const [],
+          expectedVersion: 1,
+          personProfile: const PersonProfileDto(fullName: 'Nguyễn Văn A', phone: '0901234567'),
+        ),
+      );
+
+      expect(find.text('Hồ sơ còn thiếu thông tin'), findsOneWidget);
+      expect(find.textContaining('Thiếu MST và địa chỉ hóa đơn.'), findsOneWidget);
+    });
+
+    testWidgets('tổ chức thiếu MST, tên và địa chỉ hóa đơn → liệt kê đủ 3 mục', (tester) async {
+      await open(
+        tester,
+        PartnerDetailDto(
+          partnerId: 'p-2',
+          partnerType: PartnerType.organization,
+          status: PartnerStatus.active,
+          displayName: 'Công ty ABC',
+          roles: const [PartnerRoleType.customer],
+          availableActions: const [],
+          expectedVersion: 1,
+          organizationProfile: const OrganizationProfileDto(
+            organizationType: OrganizationType.company,
+            organizationName: 'Công ty ABC',
+            phone: '0901234567',
+          ),
+        ),
+      );
+
+      expect(find.text('Hồ sơ còn thiếu thông tin'), findsOneWidget);
+      expect(
+        find.textContaining('Thiếu MST, tên xuất hóa đơn và địa chỉ hóa đơn.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('hồ sơ đủ thông tin → không có banner', (tester) async {
+      await tester.pumpWidget(
+        buildRouter(
+          partnerModule: FakePartnerRepository(
+            scenario: FakePartnerScenario.detailPersonActive,
+          ),
+          permissions: permissions,
+          initialLocation: '/partner/p-person-1',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hồ sơ còn thiếu thông tin'), findsNothing);
+    });
+
+    testWidgets('chỉ là người liên hệ (không vai trò) → "Không phải hồ sơ đối tác"', (
+      tester,
+    ) async {
+      await open(
+        tester,
+        PartnerDetailDto(
+          partnerId: 'p-3',
+          partnerType: PartnerType.person,
+          status: PartnerStatus.active,
+          displayName: 'Trần Thị B',
+          roles: const [],
+          availableActions: const [],
+          expectedVersion: 1,
+          personProfile: const PersonProfileDto(fullName: 'Trần Thị B', phone: '0907654321'),
+        ),
+      );
+
+      expect(find.text('Không phải hồ sơ đối tác'), findsOneWidget);
+      expect(find.text('Hồ sơ còn thiếu thông tin'), findsNothing);
+    });
+  });
 }

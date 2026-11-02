@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../bloc/partner_list_state.dart';
+import '../../logic/partner_list_state.dart';
 
 class PartnerSortBottomSheet extends StatefulWidget {
   const PartnerSortBottomSheet({
@@ -15,7 +15,7 @@ class PartnerSortBottomSheet extends StatefulWidget {
     BuildContext context, {
     required PartnerSortOption initialSort,
   }) {
-    return showVBottomSheet<PartnerSortOption>(
+    return showVAdaptiveSheet<PartnerSortOption>(
       context: context,
       child: PartnerSortBottomSheet(initialSort: initialSort),
     );
@@ -44,14 +44,6 @@ class _PartnerSortBottomSheetState extends State<PartnerSortBottomSheet> {
     VChoiceOption(
       value: PartnerSortOption.nameDesc,
       label: 'Tên Z-A',
-    ),
-    VChoiceOption(
-      value: PartnerSortOption.roleAsc,
-      label: 'Vai trò giao dịch A-Z',
-    ),
-    VChoiceOption(
-      value: PartnerSortOption.roleDesc,
-      label: 'Vai trò giao dịch Z-A',
     ),
   ];
 

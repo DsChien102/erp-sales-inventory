@@ -218,6 +218,7 @@ partner:
   _profile_phone: 20260714001_partner_v2_schema.sql
   _raise_partner_error: 20260714001_partner_v2_schema.sql
   _tenant_member: 20260714001_partner_v2_schema.sql
+  _trg_sales_order_partner_history: 20261101001_partner_sales_order_history_trigger.sql
   _upsert_roles: 20260714004_partner_v2_write_rpc.sql
   _validate_roles: 20260714004_partner_v2_write_rpc.sql
   add_organization_contact: 20260714004_partner_v2_write_rpc.sql
@@ -225,7 +226,6 @@ partner:
   check_duplicate: 20260714003_partner_v2_read.sql
   create_partner: 20260714004_partner_v2_write_rpc.sql
   deactivate_partner: 20260714004_partner_v2_write_rpc.sql
-  enqueue_outbox_message: 20260714002_partner_v2_outbox.sql
   get_partner_action_logs: 20260721001_partner_get_partner_action_logs_states.sql
   get_partner_detail: 20260714003_partner_v2_read.sql
   get_partner_history: 20260714003_partner_v2_read.sql
@@ -388,7 +388,6 @@ bootstrap_grandfathered:
   - 20260713001_catalog_patch_price_band_vat_effective.sql
   - 20260713002_catalog_patch_base_price_vat.sql
   - 20260714001_partner_v2_schema.sql
-  - 20260714002_partner_v2_outbox.sql
   - 20260714003_partner_v2_read.sql
   - 20260714004_partner_v2_write_rpc.sql
   - 20260714005_catalog_patch_product_typeahead_search.sql

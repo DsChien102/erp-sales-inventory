@@ -7,8 +7,9 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
+import '../partner/support/scripted_partner_repository.dart';
 import 'package:vet45_pricing_application/application.dart' as pricing;
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_sales_application/testing.dart';
@@ -53,8 +54,8 @@ void main() {
     GetIt.instance.registerSingleton<IExecutionContext>(
       const TestExecutionContext(),
     );
-    GetIt.instance.registerSingleton<IPartnerModule>(
-      _SalesFlowPartnerModule(),
+    GetIt.instance.registerSingleton<PartnerRepository>(
+      ScriptedPartnerRepository(onCall: _salesFlowPartnerScript),
     );
     GetIt.instance.registerSingleton<ICatalogModule>(catalogModule);
     GetIt.instance.registerSingleton<SessionController>(
@@ -1123,86 +1124,73 @@ Widget _draftsApp() {
   );
 }
 
-final class _SalesFlowPartnerModule implements IPartnerModule {
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    if (command is CreatePartnerCommand) {
-      return const CreatePartnerResult(partnerId: 'partner-created') as TResult;
-    }
-    throw StateError('Unexpected command $command');
+Object? _salesFlowPartnerScript(String method, Map<String, Object?> args) {
+  if (method == 'create') {
+    return const CreatePartnerResult(partnerId: 'partner-created');
   }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is SearchPartnersQuery) {
-      return const PartnerSearchResultDto(
-            items: [
-              PartnerListItemDto(
-                partnerId: 'partner-backend',
-                displayName: 'Backend Customer',
-                partnerType: PartnerType.person,
-                status: PartnerStatus.active,
-                roles: [PartnerRoleType.customer],
-                phone: '0988123456',
-              ),
-              PartnerListItemDto(
-                partnerId: 'partner-org-no-tax',
-                displayName: 'Công ty Minh Phát',
-                partnerType: PartnerType.organization,
-                status: PartnerStatus.active,
-                roles: [PartnerRoleType.customer],
-                phone: '02473088868',
-                taxCode: null,
-              ),
-            ],
-            page: 1,
-            limit: 40,
-            total: 2,
-          )
-          as TResult;
-    }
-    if (query is CheckDuplicatePartnersQuery) {
-      return const <PartnerDuplicateMatchDto>[] as TResult;
-    }
-    if (query is GetPartnerDetailQuery) {
-      final detailQuery = query as GetPartnerDetailQuery;
-      if (detailQuery.partnerId == 'partner-org-no-tax') {
-        return const PartnerDetailDto(
-              partnerId: 'partner-org-no-tax',
-              partnerType: PartnerType.organization,
-              status: PartnerStatus.active,
-              displayName: 'Công ty Minh Phát',
-              roles: [PartnerRoleType.customer],
-              availableActions: [],
-              expectedVersion: 1,
-              organizationProfile: OrganizationProfileDto(
-                organizationType: OrganizationType.company,
-                organizationName: 'Công ty Minh Phát',
-                phone: '02473088868',
-                taxCode: null,
-              ),
-            )
-            as TResult;
-      }
-      return PartnerDetailDto(
-            partnerId: detailQuery.partnerId,
-            partnerType: PartnerType.person,
-            status: PartnerStatus.active,
-            displayName: detailQuery.partnerId == 'partner-created'
-                ? 'Created Customer'
-                : 'Backend Customer',
-            roles: const [PartnerRoleType.customer],
-            availableActions: const [],
-            expectedVersion: 1,
-            personProfile: const PersonProfileDto(
-              fullName: 'Created Customer',
-              phone: '0988123456',
-            ),
-          )
-          as TResult;
-    }
-    throw StateError('Unexpected query $query');
+  if (method == 'search') {
+    return const PartnerSearchResultDto(
+      items: [
+        PartnerListItemDto(
+          partnerId: 'partner-backend',
+          displayName: 'Backend Customer',
+          partnerType: PartnerType.person,
+          status: PartnerStatus.active,
+          roles: [PartnerRoleType.customer],
+          phone: '0988123456',
+        ),
+        PartnerListItemDto(
+          partnerId: 'partner-org-no-tax',
+          displayName: 'Công ty Minh Phát',
+          partnerType: PartnerType.organization,
+          status: PartnerStatus.active,
+          roles: [PartnerRoleType.customer],
+          phone: '02473088868',
+          taxCode: null,
+        ),
+      ],
+      page: 1,
+      limit: 40,
+      total: 2,
+    );
   }
+  if (method == 'checkDuplicates') {
+    return const <PartnerDuplicateMatchDto>[];
+  }
+  if (method == 'getDetail') {
+    final partnerId = args['partnerId'] as String;
+    if (partnerId == 'partner-org-no-tax') {
+      return const PartnerDetailDto(
+        partnerId: 'partner-org-no-tax',
+        partnerType: PartnerType.organization,
+        status: PartnerStatus.active,
+        displayName: 'Công ty Minh Phát',
+        roles: [PartnerRoleType.customer],
+        availableActions: [],
+        expectedVersion: 1,
+        organizationProfile: OrganizationProfileDto(
+          organizationType: OrganizationType.company,
+          organizationName: 'Công ty Minh Phát',
+          phone: '02473088868',
+          taxCode: null,
+        ),
+      );
+    }
+    return PartnerDetailDto(
+      partnerId: partnerId,
+      partnerType: PartnerType.person,
+      status: PartnerStatus.active,
+      displayName: partnerId == 'partner-created' ? 'Created Customer' : 'Backend Customer',
+      roles: const [PartnerRoleType.customer],
+      availableActions: const [],
+      expectedVersion: 1,
+      personProfile: const PersonProfileDto(
+        fullName: 'Created Customer',
+        phone: '0988123456',
+      ),
+    );
+  }
+  throw StateError('Unexpected partner call $method');
 }
 
 final class _SalesFlowCatalogModule implements ICatalogModule {

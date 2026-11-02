@@ -7,7 +7,7 @@ Future<PartnerDeletePrimaryContactBlockedAction?> showPartnerDeletePrimaryContac
   BuildContext context, {
   required String organizationName,
 }) {
-  return showVBottomSheet<PartnerDeletePrimaryContactBlockedAction>(
+  return showVAdaptiveSheet<PartnerDeletePrimaryContactBlockedAction>(
     context: context,
     child: PartnerDeletePrimaryContactBlockedSheet(
       organizationName: organizationName,
@@ -59,7 +59,7 @@ class PartnerDeletePrimaryContactBlockedSheet extends StatelessWidget {
             ),
             const VGap.sm(),
             VText(
-              'Khách hàng này đang là người liên hệ chính của “$organizationName”. '
+              'Hồ sơ này đang là người liên hệ chính của “$organizationName”. '
               'Hãy đổi hoặc gỡ người liên hệ chính trước khi xóa hồ sơ.',
               variant: VTextVariant.bodyDefault,
               color: colors.textSecondary,

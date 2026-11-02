@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 
 import '../widgets/pricing_selectable_entity_card.dart';
 
@@ -62,18 +61,13 @@ class _PricingPickCustomerPageState extends State<PricingPickCustomerPage> {
       _errorMessage = null;
     });
     try {
-      final executionContext = GetIt.instance<IExecutionContext>();
-      final tenantId = await executionContext.requireTenantId();
       final query = _searchController.text.trim();
-      final result = await GetIt.instance<IPartnerModule>().executeQueryAsync(
-        SearchPartnersQuery(
-          tenantId: tenantId,
-          query: query.isEmpty ? null : query,
-          role: PartnerRoleType.customer,
-          requireAnyRole: true,
-          status: PartnerStatus.active,
-          limit: 30,
-        ),
+      final result = await GetIt.instance<PartnerRepository>().search(
+        query: query.isEmpty ? null : query,
+        role: PartnerRoleType.customer,
+        requireAnyRole: true,
+        status: PartnerStatus.active,
+        limit: 30,
       );
       if (!mounted) return;
       setState(() {

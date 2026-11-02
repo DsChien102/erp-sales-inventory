@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
+import 'package:erp/features/partner/logic/partner_error_messages.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 /// Opens SG-04 add-contact entry from partner detail and reloads on success.
 Future<void> runPartnerDetailAddContactFlow({
   required BuildContext context,
   required String partnerId,
-  required IPartnerModule partnerModule,
-  required IExecutionContext executionContext,
+  required PartnerRepository repository,
   required Future<void> Function() onReload,
   List<String> excludePersonPartnerIds = const [],
 }) async {
@@ -47,17 +46,29 @@ Future<void> runPartnerDetailAddContactFlow({
       }).toList();
       if (ids.isEmpty) return;
 
-      final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
-      for (final personPartnerId in ids) {
-        await partnerModule.executeCommandAsync(
-          AddOrganizationContactCommand(
-            tenantId: tenantId,
-            actorId: actorId,
+      try {
+        for (final personPartnerId in ids) {
+          await repository.addContact(
             organizationPartnerId: partnerId,
             personPartnerId: personPartnerId,
+          );
+        }
+      } on Object catch (e) {
+        if (!context.mounted) return;
+        // Một phần có thể đã thêm: tải lại để màn khớp server.
+        await onReload();
+        if (!context.mounted) return;
+        VToast.show(
+          context,
+          title: 'Không thành công',
+          message: partnerErrorMessage(
+            e,
+            fallback: 'Không thể thêm người liên hệ. Vui lòng thử lại.',
+            noPermission: 'Bạn không có quyền quản lý người liên hệ.',
           ),
+          type: VToastType.danger,
         );
+        return;
       }
 
       if (!context.mounted) return;

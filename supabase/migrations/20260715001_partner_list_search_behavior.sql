@@ -35,6 +35,7 @@ declare
   v_limit integer := least(greatest(coalesce(p_limit, 20), 1), 100);
   v_offset integer := (greatest(coalesce(p_page, 1), 1) - 1) * v_limit;
   v_query text := nullif(btrim(coalesce(p_query, '')), '');
+  v_query_plain text := catalog.unaccent_immutable(nullif(btrim(coalesce(p_query, '')), ''));
   v_email_only boolean := v_query is not null and position('@' in v_query) > 0;
   v_total bigint;
 begin
@@ -80,17 +81,17 @@ begin
       v_query is null
       or (
         v_email_only
-        and coalesce(v.email, '') ilike '%' || v_query || '%'
+        and catalog.unaccent_immutable(coalesce(v.email, '')) ilike '%' || v_query_plain || '%'
       )
       or (
         not v_email_only
         and (
-          v.display_name ilike '%' || v_query || '%'
-          or coalesce(v.nickname, '') ilike '%' || v_query || '%'
-          or coalesce(v.short_name, '') ilike '%' || v_query || '%'
-          or coalesce(v.phone, '') ilike '%' || v_query || '%'
-          or coalesce(v.email, '') ilike '%' || v_query || '%'
-          or coalesce(v.tax_code, '') ilike '%' || v_query || '%'
+          catalog.unaccent_immutable(v.display_name) ilike '%' || v_query_plain || '%'
+          or catalog.unaccent_immutable(coalesce(v.nickname, '')) ilike '%' || v_query_plain || '%'
+          or catalog.unaccent_immutable(coalesce(v.short_name, '')) ilike '%' || v_query_plain || '%'
+          or catalog.unaccent_immutable(coalesce(v.phone, '')) ilike '%' || v_query_plain || '%'
+          or catalog.unaccent_immutable(coalesce(v.email, '')) ilike '%' || v_query_plain || '%'
+          or catalog.unaccent_immutable(coalesce(v.tax_code, '')) ilike '%' || v_query_plain || '%'
         )
       )
       or (
@@ -111,18 +112,18 @@ begin
             and (
               (
                 v_email_only
-                and coalesce(cpp.email, '') ilike '%' || v_query || '%'
+                and catalog.unaccent_immutable(coalesce(cpp.email, '')) ilike '%' || v_query_plain || '%'
               )
               or (
                 not v_email_only
                 and (
-                  cp.display_name ilike '%' || v_query || '%'
-                  or coalesce(cpp.full_name, '') ilike '%' || v_query || '%'
-                  or coalesce(cpp.nickname, '') ilike '%' || v_query || '%'
-                  or coalesce(cpp.title, '') ilike '%' || v_query || '%'
-                  or coalesce(cpp.phone, '') ilike '%' || v_query || '%'
-                  or coalesce(cpp.phone2, '') ilike '%' || v_query || '%'
-                  or coalesce(cpp.email, '') ilike '%' || v_query || '%'
+                  catalog.unaccent_immutable(cp.display_name) ilike '%' || v_query_plain || '%'
+                  or catalog.unaccent_immutable(coalesce(cpp.full_name, '')) ilike '%' || v_query_plain || '%'
+                  or catalog.unaccent_immutable(coalesce(cpp.nickname, '')) ilike '%' || v_query_plain || '%'
+                  or catalog.unaccent_immutable(coalesce(cpp.title, '')) ilike '%' || v_query_plain || '%'
+                  or catalog.unaccent_immutable(coalesce(cpp.phone, '')) ilike '%' || v_query_plain || '%'
+                  or catalog.unaccent_immutable(coalesce(cpp.phone2, '')) ilike '%' || v_query_plain || '%'
+                  or catalog.unaccent_immutable(coalesce(cpp.email, '')) ilike '%' || v_query_plain || '%'
                 )
               )
             )
@@ -169,17 +170,17 @@ begin
             v_query is null
             or (
               v_email_only
-              and coalesce(v.email, '') ilike '%' || v_query || '%'
+              and catalog.unaccent_immutable(coalesce(v.email, '')) ilike '%' || v_query_plain || '%'
             )
             or (
               not v_email_only
               and (
-                v.display_name ilike '%' || v_query || '%'
-                or coalesce(v.nickname, '') ilike '%' || v_query || '%'
-                or coalesce(v.short_name, '') ilike '%' || v_query || '%'
-                or coalesce(v.phone, '') ilike '%' || v_query || '%'
-                or coalesce(v.email, '') ilike '%' || v_query || '%'
-                or coalesce(v.tax_code, '') ilike '%' || v_query || '%'
+                catalog.unaccent_immutable(v.display_name) ilike '%' || v_query_plain || '%'
+                or catalog.unaccent_immutable(coalesce(v.nickname, '')) ilike '%' || v_query_plain || '%'
+                or catalog.unaccent_immutable(coalesce(v.short_name, '')) ilike '%' || v_query_plain || '%'
+                or catalog.unaccent_immutable(coalesce(v.phone, '')) ilike '%' || v_query_plain || '%'
+                or catalog.unaccent_immutable(coalesce(v.email, '')) ilike '%' || v_query_plain || '%'
+                or catalog.unaccent_immutable(coalesce(v.tax_code, '')) ilike '%' || v_query_plain || '%'
               )
             )
             or (
@@ -200,18 +201,18 @@ begin
                   and (
                     (
                       v_email_only
-                      and coalesce(cpp.email, '') ilike '%' || v_query || '%'
+                      and catalog.unaccent_immutable(coalesce(cpp.email, '')) ilike '%' || v_query_plain || '%'
                     )
                     or (
                       not v_email_only
                       and (
-                        cp.display_name ilike '%' || v_query || '%'
-                        or coalesce(cpp.full_name, '') ilike '%' || v_query || '%'
-                        or coalesce(cpp.nickname, '') ilike '%' || v_query || '%'
-                        or coalesce(cpp.title, '') ilike '%' || v_query || '%'
-                        or coalesce(cpp.phone, '') ilike '%' || v_query || '%'
-                        or coalesce(cpp.phone2, '') ilike '%' || v_query || '%'
-                        or coalesce(cpp.email, '') ilike '%' || v_query || '%'
+                        catalog.unaccent_immutable(cp.display_name) ilike '%' || v_query_plain || '%'
+                        or catalog.unaccent_immutable(coalesce(cpp.full_name, '')) ilike '%' || v_query_plain || '%'
+                        or catalog.unaccent_immutable(coalesce(cpp.nickname, '')) ilike '%' || v_query_plain || '%'
+                        or catalog.unaccent_immutable(coalesce(cpp.title, '')) ilike '%' || v_query_plain || '%'
+                        or catalog.unaccent_immutable(coalesce(cpp.phone, '')) ilike '%' || v_query_plain || '%'
+                        or catalog.unaccent_immutable(coalesce(cpp.phone2, '')) ilike '%' || v_query_plain || '%'
+                        or catalog.unaccent_immutable(coalesce(cpp.email, '')) ilike '%' || v_query_plain || '%'
                       )
                     )
                   )

@@ -6,7 +6,7 @@ Future<bool?> showPartnerContactChangePrimaryDialog(
   required String currentPrimaryName,
   required String newPrimaryName,
 }) {
-  return showVBottomSheet<bool>(
+  return showVAdaptiveSheet<bool>(
     context: context,
     child: PartnerContactChangePrimaryDialog(
       currentPrimaryName: currentPrimaryName,

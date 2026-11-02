@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
 /// D-10 feedback kinds — no permission / stale data / generic error.
 enum PartnerOperationFeedbackKind {
@@ -9,12 +9,12 @@ enum PartnerOperationFeedbackKind {
   error,
 }
 
-/// Maps common [PartnerBlockedCodes] to a D-10 feedback kind.
+/// Maps common [PartnerErrorCodes] to a D-10 feedback kind.
 PartnerOperationFeedbackKind? partnerOperationFeedbackKindFromCode(String code) {
   return switch (code) {
-    PartnerBlockedCodes.noPermission => PartnerOperationFeedbackKind.noPermission,
-    PartnerBlockedCodes.stateChanged => PartnerOperationFeedbackKind.sourceChanged,
-    PartnerBlockedCodes.systemError => PartnerOperationFeedbackKind.error,
+    PartnerErrorCodes.noPermission => PartnerOperationFeedbackKind.noPermission,
+    PartnerErrorCodes.stateChanged => PartnerOperationFeedbackKind.sourceChanged,
+    PartnerErrorCodes.systemError => PartnerOperationFeedbackKind.error,
     _ => null,
   };
 }

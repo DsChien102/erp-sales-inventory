@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/presentation.dart';
 
 void main() {
@@ -57,15 +57,15 @@ void main() {
 
   test('maps blocked codes for later command wiring', () {
     expect(
-      partnerTransformBlockedKindFromCode(PartnerBlockedCodes.noPermission),
+      partnerTransformBlockedKindFromCode(PartnerErrorCodes.noPermission),
       PartnerTransformBlockedKind.noPermission,
     );
     expect(
-      partnerTransformBlockedKindFromCode(PartnerBlockedCodes.stateChanged),
+      partnerTransformBlockedKindFromCode(PartnerErrorCodes.stateChanged),
       PartnerTransformBlockedKind.staleData,
     );
     expect(
-      partnerTransformBlockedKindFromCode(PartnerBlockedCodes.validationError),
+      partnerTransformBlockedKindFromCode(PartnerErrorCodes.validationError),
       isNull,
     );
   });

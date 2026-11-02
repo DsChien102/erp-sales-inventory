@@ -3,7 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 /// Returns `true` if confirmed; `null` if cancelled.
 Future<bool?> showPartnerReactivateConfirmationSheet(BuildContext context) {
-  return showVBottomSheet<bool>(
+  return showVAdaptiveSheet<bool>(
     context: context,
     child: const PartnerReactivateConfirmationSheet(),
   );

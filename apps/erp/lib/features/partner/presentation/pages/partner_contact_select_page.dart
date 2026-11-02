@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 class PartnerContactSelectPage extends StatelessWidget {
   const PartnerContactSelectPage({
     super.key,
     required this.partnerId,
-    required this.partnerModule,
-    required this.executionContext,
+    required this.repository,
     this.excludePersonPartnerIds = const [],
   });
 
   final String partnerId;
-  final IPartnerModule partnerModule;
-  final IExecutionContext executionContext;
+  final PartnerRepository repository;
   final List<String> excludePersonPartnerIds;
 
   @override
@@ -24,8 +21,7 @@ class PartnerContactSelectPage extends StatelessWidget {
     return VPageScaffold(
       title: 'Chọn từ cá nhân',
       body: PartnerContactSelectList(
-        partnerModule: partnerModule,
-        executionContext: executionContext,
+        repository: repository,
         excludePersonPartnerIds: excludePersonPartnerIds,
         onSelect: (selectedContacts) {
           context.pop(selectedContacts);

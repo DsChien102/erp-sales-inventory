@@ -1,22 +1,20 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
+import 'package:erp/features/partner/logic/partner_error_messages.dart';
 
 class PartnerContactSelectList extends StatefulWidget {
   const PartnerContactSelectList({
     super.key,
-    required this.partnerModule,
-    required this.executionContext,
+    required this.repository,
     required this.onSelect,
     required this.onCancel,
     this.excludePersonPartnerIds = const [],
   });
 
-  final IPartnerModule partnerModule;
-  final IExecutionContext executionContext;
+  final PartnerRepository repository;
   final void Function(List<Map<String, dynamic>> selectedContacts) onSelect;
   final VoidCallback onCancel;
   final List<String> excludePersonPartnerIds;
@@ -63,16 +61,12 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
     });
 
     try {
-      final tenantId = await widget.executionContext.requireTenantId();
-      final result = await widget.partnerModule.executeQueryAsync(
-        SearchPartnersQuery(
-          tenantId: tenantId,
-          query: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
-          partnerType: PartnerType.person,
-          status: PartnerStatus.active,
-          limit: 30,
-          page: 1,
-        ),
+      final result = await widget.repository.search(
+        query: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
+        partnerType: PartnerType.person,
+        status: PartnerStatus.active,
+        limit: 30,
+        page: 1,
       );
       if (mounted) {
         setState(() {
@@ -88,7 +82,10 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = e.toString();
+          _errorMessage = partnerErrorMessage(
+            e,
+            fallback: 'Không tải được danh sách cá nhân. Vui lòng thử lại.',
+          );
         });
       }
     }
@@ -178,7 +175,7 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
         child: Padding(
           padding: const EdgeInsets.all(VSpacing.space4),
           child: VText(
-            'Lỗi: $_errorMessage',
+            _errorMessage!,
             variant: VTextVariant.bodyDefault,
             color: colors.danger,
             textAlign: TextAlign.center,

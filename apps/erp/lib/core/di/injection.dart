@@ -6,8 +6,6 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_infrastructure/infrastructure.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_infrastructure/infrastructure.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_infrastructure/infrastructure.dart';
 import 'package:vet45_sales_application/application.dart';
@@ -25,6 +23,7 @@ import '../../features/iam/data/organization_repository.dart';
 import '../../features/inventory/data/goods_receipt_repository.dart';
 import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
+import '../errors/app_exception.dart';
 import '../router/session_refresh.dart';
 import '../session/session_contracts.dart';
 import '../session/session_controller.dart';
@@ -107,6 +106,8 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
       () => PartnerRepository(
         rpc: getIt<SupabaseRpc>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
+        actorId: () async =>
+            sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
       ),
     )
     ..registerLazySingleton<AccountRepository>(
@@ -160,15 +161,6 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
 
   getIt.registerSingleton<ICatalogModule>(catalogModule);
-
-  final partnerModule = PartnerStartup.initialize(
-    supabase: supabaseModule.client,
-    loggerFactory: getIt<ILoggerFactory>(),
-    permissionChecker: permissionChecker,
-    tenantAccessChecker: tenantAccessChecker,
-  );
-
-  getIt.registerSingleton<IPartnerModule>(partnerModule);
 
   final pricingModule = PricingStartup.initialize(
     supabase: supabaseModule.client,

@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
+import 'package:erp/features/partner/logic/partner_permissions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/partner_list_body.dart';
 import '../widgets/partner_list_header_row.dart';
+import '../widgets/partner_no_permission_view.dart';
 
 class PartnerListPage extends StatefulWidget {
-  const PartnerListPage({super.key});
+  const PartnerListPage({super.key, this.cubit, this.selectedId});
+
+  /// Cubit do [PartnerAreaShell] cấp (4-W). Có thì trang dùng nó và không đóng;
+  /// không có thì trang tự tạo và tự đóng như trước.
+  final PartnerListCubit? cubit;
+
+  /// Hồ sơ đang mở ở cột phải (web rộng); dòng tương ứng được đánh dấu chọn.
+  final String? selectedId;
 
   @override
   State<PartnerListPage> createState() => _PartnerListPageState();
@@ -22,22 +30,25 @@ class PartnerListPage extends StatefulWidget {
 class _PartnerListPageState extends State<PartnerListPage> {
   final ScrollController _scrollController = ScrollController();
   late final PartnerListCubit _cubit;
+  late final bool _ownsCubit;
   int? _lastTotal;
 
   @override
   void initState() {
     super.initState();
-    _cubit = PartnerListCubit(
-      partnerModule: GetIt.instance<IPartnerModule>(),
-      executionContext: GetIt.instance<IExecutionContext>(),
-    )..fetchPartners();
+    _ownsCubit = widget.cubit == null;
+    _cubit =
+        widget.cubit ??
+        (PartnerListCubit(
+          repository: GetIt.instance<PartnerRepository>(),
+        )..fetchPartners());
     _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _cubit.close();
+    if (_ownsCubit) _cubit.close();
     super.dispose();
   }
 
@@ -65,6 +76,11 @@ class _PartnerListPageState extends State<PartnerListPage> {
 
     if (createdPartnerId != null) {
       // Detail page shows VToast via ?created=1; refresh again after handoff.
+      if (VListDetailLayout.isSplitOf(context)) {
+        // Web rộng: hồ sơ mở ở cột phải; hồ sơ tự báo thay đổi qua onMutated.
+        context.go('/partner/$createdPartnerId?created=1');
+        return;
+      }
       await context.push('/partner/$createdPartnerId?created=1');
       if (mounted) {
         await _cubit.fetchPartners(isRefresh: true);
@@ -73,14 +89,13 @@ class _PartnerListPageState extends State<PartnerListPage> {
   }
 
   Future<void> _openPartnerDetail(String partnerId) async {
-    final deleted = await context.push<bool>('/partner/$partnerId');
-    if (!mounted) return;
-    // Refresh after detail (edit / status / soft-delete / transform).
-    await _cubit.fetchPartners(isRefresh: true);
-    if (!mounted) return;
-    if (deleted == true) {
-      showPartnerSoftDeleteSuccessToast(context);
+    if (VListDetailLayout.isSplitOf(context)) {
+      context.go('/partner/$partnerId');
+      return;
     }
+    // Hồ sơ tự báo thay đổi (sửa / ngừng / kích hoạt / chuyển đổi / xoá) qua
+    // `onMutated` của route, nên danh sách không cần chờ kết quả trả về.
+    await context.push<void>('/partner/$partnerId');
   }
 
   Future<void> _openFilterSheet(PartnerListState state) async {
@@ -120,31 +135,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
     final colors = context.vColors;
     final canView = GetIt.instance<SessionController>().hasPermission(PartnerPermissions.view);
 
-    if (!canView) {
-      return VPageScaffold(
-        key: const Key('wgt_e01_u02_fr01_02'),
-        title: 'KH & NCC',
-        showBackButton: false,
-        body: const Center(
-          child: VEmptyState(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                VEmptyHeader(
-                  children: [
-                    VEmptyMedia(icon: VIcons.lock),
-                    VEmptyTitle('Bạn không có quyền xem\nKH & NCC'),
-                    VEmptyDescription(
-                      'Liên hệ quản trị viên để được cấp quyền.',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
+    if (!canView) return const PartnerNoPermissionView();
 
     return BlocProvider.value(
       value: _cubit,
@@ -217,6 +208,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
                     onClearQuery: () => _cubit.searchByKeyword(''),
                     onCreate: _openCreateFlow,
                     onTapPartner: _openPartnerDetail,
+                    selectedId: widget.selectedId,
                   ),
                 ),
               ],

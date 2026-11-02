@@ -1,5 +1,7 @@
 import 'package:erp/features/partner/presentation/pages/partner_detail_page.dart';
 import 'package:erp/features/partner/presentation/pages/partner_list_page.dart';
+import 'package:erp/features/partner/logic/partner_permissions.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -8,9 +10,7 @@ import 'package:erp/core/session/session_controller.dart';
 import '../../../../core/session/fake_session_repository.dart';
 import 'package:erp/core/session/session_store.dart';
 import 'package:erp/core/session/models/session_principal.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_application/testing.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import '../../support/fake_partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
@@ -27,7 +27,7 @@ void main() {
   });
 
   Widget buildRouter({
-    required FakePartnerModule partnerModule,
+    required FakePartnerRepository partnerModule,
     required List<String> permissions,
     String initialLocation = '/partner/p-person-1',
   }) {
@@ -46,7 +46,7 @@ void main() {
       ..registerSingleton<IExecutionContext>(
         FakeExecutionContext(tenantId: 'tenant-1', userId: 'user-1'),
       )
-      ..registerSingleton<IPartnerModule>(partnerModule)
+      ..registerSingleton<PartnerRepository>(partnerModule)
       ..registerSingleton<SessionController>(
         SessionController(repository: FakeSessionRepository(), store: session),
       );
@@ -68,8 +68,7 @@ void main() {
             final partnerId = state.pathParameters['partnerId']!;
             return PartnerDetailPage(
               partnerId: partnerId,
-              partnerModule: partnerModule,
-              executionContext: getIt<IExecutionContext>(),
+              repository: partnerModule,
             );
           },
         ),
@@ -88,7 +87,7 @@ void main() {
   testWidgets(
     'e2e_e02_u01_fr01_01: deactivate shows inactive banner on detail',
     (tester) async {
-      final module = FakePartnerModule(
+      final module = FakePartnerRepository(
         scenario: FakePartnerScenario.detailPersonActive,
       );
 
@@ -121,18 +120,11 @@ void main() {
   testWidgets(
     'e2e_e02_u01_fr03_01: reactivate restores active status',
     (tester) async {
-      final module = FakePartnerModule(
+      final module = FakePartnerRepository(
         scenario: FakePartnerScenario.detailPersonActive,
       );
       // Seed inactive via deactivate command path used by fake overrides.
-      await module.executeCommandAsync(
-        DeactivatePartnerCommand(
-          tenantId: 'tenant-1',
-          actorId: 'user-1',
-          partnerId: 'p-person-1',
-          expectedVersion: 1,
-        ),
-      );
+      await module.deactivate('p-person-1', expectedVersion: 1);
 
       await tester.pumpWidget(
         buildRouter(
@@ -162,7 +154,7 @@ void main() {
   testWidgets(
     'e2e_e02_u02_fr01_01: soft delete pops to list after confirm',
     (tester) async {
-      final module = FakePartnerModule(
+      final module = FakePartnerRepository(
         scenario: FakePartnerScenario.detailPersonActive,
       );
 
@@ -194,7 +186,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.softDeleteNotEligible,
           ),
           permissions: statusPermissions,

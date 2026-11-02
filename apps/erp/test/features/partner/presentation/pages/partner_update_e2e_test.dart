@@ -1,5 +1,7 @@
 import 'package:erp/features/partner/presentation/pages/partner_create_page.dart';
 import 'package:erp/features/partner/presentation/pages/partner_detail_page.dart';
+import 'package:erp/features/partner/logic/partner_permissions.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -9,11 +11,7 @@ import 'package:erp/core/session/session_controller.dart';
 import '../../../../core/session/fake_session_repository.dart';
 import 'package:erp/core/session/session_store.dart';
 import 'package:erp/core/session/models/session_principal.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_application/testing.dart';
-import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/fake_partner_repository.dart';
 
 void main() {
   final getIt = GetIt.instance;
@@ -27,7 +25,7 @@ void main() {
   });
 
   Widget buildRouter({
-    required FakePartnerModule partnerModule,
+    required FakePartnerRepository partnerModule,
     required List<String> permissions,
     String initialLocation = '/partner/p-1',
   }) {
@@ -43,8 +41,7 @@ void main() {
       );
 
     getIt
-      ..registerSingleton<IExecutionContext>(FakeExecutionContext())
-      ..registerSingleton<IPartnerModule>(partnerModule)
+      ..registerSingleton<PartnerRepository>(partnerModule)
       ..registerSingleton<SessionController>(
         SessionController(repository: FakeSessionRepository(), store: session),
       );
@@ -58,8 +55,7 @@ void main() {
             final partnerId = state.pathParameters['partnerId']!;
             return PartnerCreatePage.edit(
               partnerId: partnerId,
-              partnerModule: partnerModule,
-              executionContext: getIt<IExecutionContext>(),
+              repository: partnerModule,
               onUpdated: (_) {
                 if (context.mounted) context.pop(true);
               },
@@ -73,8 +69,7 @@ void main() {
             final partnerId = state.pathParameters['partnerId']!;
             return PartnerDetailPage(
               partnerId: partnerId,
-              partnerModule: partnerModule,
-              executionContext: getIt<IExecutionContext>(),
+              repository: partnerModule,
             );
           },
         ),
@@ -89,7 +84,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.detailPersonActive,
           ),
           permissions: const [
@@ -145,7 +140,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.detailOrganizationWithContacts,
           ),
           permissions: const [
@@ -177,7 +172,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         buildRouter(
-          partnerModule: FakePartnerModule(
+          partnerModule: FakePartnerRepository(
             scenario: FakePartnerScenario.detailDeleted,
           ),
           permissions: const [

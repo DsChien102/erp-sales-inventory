@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../bloc/partner_status_cubit.dart';
+import '../../logic/partner_status_cubit.dart';
 
 /// Success toast after creating a partner (D-10 / VD-09 / UI-13).
 void showPartnerCreateSuccessToast(BuildContext context) {

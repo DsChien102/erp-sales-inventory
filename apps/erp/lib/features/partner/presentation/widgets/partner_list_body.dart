@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/presentation.dart';
 
 /// List / loading / error / empty body for partner list page.
@@ -15,6 +15,7 @@ class PartnerListBody extends StatelessWidget {
     required this.onClearQuery,
     required this.onCreate,
     required this.onTapPartner,
+    this.selectedId,
   });
 
   /// Viewport-friendly skeleton count for first load / refresh (option B).
@@ -27,6 +28,9 @@ class PartnerListBody extends StatelessWidget {
   final VoidCallback onClearQuery;
   final VoidCallback onCreate;
   final ValueChanged<String> onTapPartner;
+
+  /// Hồ sơ đang mở ở cột phải (web rộng); null khi không có.
+  final String? selectedId;
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +205,7 @@ class PartnerListBody extends StatelessWidget {
                 final item = items[index];
                 return PartnerListItemTile(
                   item: item,
+                  isSelected: item.partnerId == selectedId,
                   onTap: () => onTapPartner(item.partnerId),
                 );
               },

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
 
-import '../bloc/partner_list_state.dart';
+import '../../logic/partner_list_state.dart';
 
 class PartnerFilterBottomSheet extends StatefulWidget {
   const PartnerFilterBottomSheet({
@@ -25,7 +25,7 @@ class PartnerFilterBottomSheet extends StatefulWidget {
     PartnerStatus? status,
     PartnerUpdatedTimeFilter? updatedTimeFilter,
   }) {
-    return showVBottomSheet<Map<String, dynamic>>(
+    return showVAdaptiveSheet<Map<String, dynamic>>(
       context: context,
       child: PartnerFilterBottomSheet(
         initialRole: role,

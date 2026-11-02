@@ -4,7 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 /// Returns `null` if cancelled; otherwise the optional reason (may be empty).
 Future<String?> showPartnerSoftDeleteConfirmationSheet(BuildContext context) {
-  return showVBottomSheet<String>(
+  return showVAdaptiveSheet<String>(
     context: context,
     child: const PartnerSoftDeleteConfirmationSheet(),
   );

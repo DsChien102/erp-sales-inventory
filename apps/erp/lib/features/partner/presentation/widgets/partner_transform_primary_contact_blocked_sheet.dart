@@ -7,7 +7,7 @@ Future<PartnerTransformPrimaryContactBlockedAction?> showPartnerTransformPrimary
   BuildContext context, {
   required String organizationName,
 }) {
-  return showVBottomSheet<PartnerTransformPrimaryContactBlockedAction>(
+  return showVAdaptiveSheet<PartnerTransformPrimaryContactBlockedAction>(
     context: context,
     child: PartnerTransformPrimaryContactBlockedSheet(
       organizationName: organizationName,
@@ -59,7 +59,7 @@ class PartnerTransformPrimaryContactBlockedSheet extends StatelessWidget {
             ),
             const VGap.sm(),
             VText(
-              'Khách hàng này đang là người liên hệ chính của “$organizationName”. '
+              'Hồ sơ này đang là người liên hệ chính của “$organizationName”. '
               'Hãy đổi người liên hệ chính của tổ chức trước khi thực hiện chuyển đổi.',
               variant: VTextVariant.bodyDefault,
               color: colors.textSecondary,
