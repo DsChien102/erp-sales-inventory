@@ -124,3 +124,8 @@ Chỉ các file `.sql` nằm trực tiếp trong `_drafts/` thuộc chuỗi acti
 không apply, bundle hoặc promote các file trong đó.
 
 Chuỗi IAM active hiện tại: *(trống)*.
+
+**E-invoice (đã promote 2026-10-31):** draft `001`…`023` → migration
+`20261031001`…`20261031023` + `REGISTRY.yaml`. Chuỗi HĐĐT active trống.
+Còn lại trong `_drafts/`: `inventory_default_pair.sql` (chưa promote).
+KI-02 / KI-04 / KI-06 (sửa thân RPC) chưa làm trong lượt promote này.
