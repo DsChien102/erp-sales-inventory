@@ -1,6 +1,6 @@
 # 2-B5 — Nhận lời mời bằng một mã (bỏ mã 6 số cho nhân viên mới)
 
-> Phase: P2 · Bước (b) sửa · Trạng thái: Plan ✅ | Làm ✅ (chưa commit) | Review 🔄 (code đạt 2026-10-12; `invitation-signup` đã deploy Dev 2026-10-12 — kiểm `functions list` 2026-10-28; chờ kiểm tay)
+> Phase: P2 · Bước (b) sửa · Trạng thái: Plan ✅ | Làm ✅ (commit `67fb54ea7`) | Review 🔄 (code đạt 2026-10-12; `invitation-signup` đã deploy Dev 2026-10-12 — kiểm `functions list` 2026-10-28; chờ kiểm tay)
 > Quyết định 2026-10-12: nhân viên **chưa có tài khoản** chỉ nhập **mã lời mời 8 ký tự**. Mã đó được gửi tới đúng email được mời nên đã chứng minh chủ email; không bắt nhập thêm mã xác minh 6 số.
 > Làm **trước** kiểm tay kịch bản 3 của đợt kiểm IAM (TH-01 9.3).
 > Tài liệu liên quan: [LUONG-DANG-KY-XAC-MINH-EMAIL](../../../02-yeu-cau/LUONG-DANG-KY-XAC-MINH-EMAIL.md) mục 1, 3; TH-01 EP-03 (ID-06, ID-07); [2-B1](2-B1-dang-ky-cua-hang.md), [2-B2](2-B2-email-edge-function.md) (mẫu Edge Function).
@@ -152,7 +152,7 @@ Khác plan, theo thứ tự quan trọng:
 7. Thêm ngoài plan: `test/features/auth/data/invitation_acceptance_repository_test.dart` (ánh xạ mã lỗi function → `AppException`, lỗi mạng). Xoá `ScriptedAccountRepository` trùng tên ở `auth/support/scripted_auth.dart` (không còn ai dùng).
 8. Biết trước: nếu function chạy xong nhưng phản hồi không về app (mất mạng), bấm lại sẽ ra "Lời mời đã được sử dụng…" dù tài khoản đã tạo; người dùng đăng nhập bằng mật khẩu vừa đặt. Không xử lý thêm.
 
-**Chưa làm (cần bạn):** `supabase functions deploy invitation-signup --project-ref pzlsjedtsntkarkivhve` và các mục kiểm tay còn ☐ ở mục 5. Chưa commit.
+**Chưa làm (cần bạn):** ~~`supabase functions deploy invitation-signup --project-ref pzlsjedtsntkarkivhve`~~ (đã deploy 2026-10-12) và các mục kiểm tay còn ☐ ở mục 5. ~~Chưa commit.~~ (commit `67fb54ea7`)
 
 ### Review
 
@@ -170,4 +170,4 @@ Khác plan, theo thứ tự quan trọng:
 - Góp ý (không chặn):
   1. **Mất phản hồi sau khi đã nhận lời mời** (mạng rớt đúng lúc function trả về): bấm lại → `inspect_invitation_token` báo `INVITATION_ALREADY_USED` → người dùng thấy "Lời mời đã được sử dụng" dù đã là thành viên. Đăng nhập bình thường vẫn vào được cửa hàng, nên chỉ là câu chữ gây hoang mang. Có thể để thông điệp của mã này gợi ý "Nếu bạn vừa tạo tài khoản, hãy đăng nhập".
   2. `normalizeToken` chỉ `trim().toUpperCase()` rồi đòi đúng 8 ký tự, còn DB (`_invitation_token_hash`) bỏ mọi ký tự không phải chữ / số. Form của app đã chặn đúng 8 ký tự `[0-9A-Z]` nên chưa gây lỗi; nếu sau này cho dán mã kiểu `K7P2-9XQM` thì nên bỏ ký tự lạ trong `normalizeToken` cho khớp DB.
-- Việc còn lại để đóng: `supabase functions deploy invitation-signup --project-ref pzlsjedtsntkarkivhve`; kiểm tay mục 5 (Owner mời → nhập mã 8 ký tự → đặt mật khẩu → không có mã 6 số → đăng nhập vào đúng cửa hàng; mã đã dùng; email đã có tài khoản).
+- Việc còn lại để đóng: ~~`supabase functions deploy invitation-signup --project-ref pzlsjedtsntkarkivhve`~~ (đã deploy 2026-10-12); kiểm tay mục 5 (Owner mời → nhập mã 8 ký tự → đặt mật khẩu → không có mã 6 số → đăng nhập vào đúng cửa hàng; mã đã dùng; email đã có tài khoản).

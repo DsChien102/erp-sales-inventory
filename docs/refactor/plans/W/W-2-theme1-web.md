@@ -1,6 +1,6 @@
 # W-2 — Theme 1 trên web: màn công khai cột hẹp, danh sách – chi tiết, sheet thành hộp thoại
 
-> Phase: Web cho app (W) · Trạng thái: Plan ✅ (viết + duyệt 2026-10-28; bổ sung cùng ngày sau rà theo quy tắc "test giữ hành vi trước") | Làm ✅ (đã hoàn thành sửa R4) | Review ✅ R4 2026-10-29 (mục 9 R4; còn kiểm tay 6.2)
+> Phase: Web cho app (W) · Trạng thái: Plan ✅ (viết + duyệt 2026-10-28; bổ sung cùng ngày sau rà theo quy tắc "test giữ hành vi trước") | Làm ✅ (đã hoàn thành sửa R4) | Review ✅ R4 2026-10-29 (mục 9 R4; còn kiểm tay 6.2) · Commit `1bd9268af`
 > Gồm việc: W.5, W.6 ([PLAN mục "Web cho app"](../../PLAN.md)). Ước lượng **~1,5 ngày, 3 nhóm việc** (mục 5). **Không tự commit** — người dùng commit.
 > **Làm sau W-1** (W-1 — plan đã xoá, `git show 6529acd82:docs/refactor/plans/W/W-1-khung-web.md`: `StoreShell`, thanh bên, tab có URL). Làm chồng lên 2-B6 / 2-B7 / W-1 nếu các plan đó chưa commit: không revert, không format lại tệp của chúng.
 > Tài liệu liên quan: [LUONG-UNG-DUNG 1.1](../../../02-yeu-cau/LUONG-UNG-DUNG.md) (bố cục web chung), [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md), 2-B6, 2-B7 (plan đã xoá, tra `git show 6529acd82:docs/refactor/plans/P2/…`), prototype Theme 7 khuôn K7 (`specs/themes/theme-07/03.design/prototype/html/app/shared-patterns.js` `k7Split`).
