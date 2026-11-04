@@ -1579,6 +1579,63 @@ void main() {
           ),
         );
       });
+
+      test('H1 stock-1: set_basic_stock_quantity_base params (single call)', () async {
+        await repository.setBasicStock(productId: productId, quantity: 30);
+        expect(rpc.calls.single.schema, 'catalog');
+        expect(rpc.calls.single.rpc, 'set_basic_stock_quantity_base');
+        expect(rpc.calls.single.isCall, isTrue);
+        expect(rpc.calls.single.params, {
+          'p_tenant_id': tenantId,
+          'p_product_id': productId,
+          'p_mode': 'basic',
+          'p_basic_stock_quantity_base': 30,
+        });
+      });
+
+      test('H1 stock-2: adjust_basic_stock params (single call, reason + expected)', () async {
+        await repository.adjustBasicStock(
+          productId: productId,
+          newQuantity: 47,
+          reason: 'Hao hụt - vỡ 3 chai',
+          expectedQuantity: 50,
+        );
+        expect(rpc.calls.single.rpc, 'adjust_basic_stock');
+        expect(rpc.calls.single.params, {
+          'p_tenant_id': tenantId,
+          'p_product_id': productId,
+          'p_new_quantity': 47,
+          'p_reason': 'Hao hụt - vỡ 3 chai',
+          'p_expected_quantity': 50,
+        });
+      });
+
+      test('H1 stock-3: adjust without reason/expected sends nulls', () async {
+        await repository.adjustBasicStock(productId: productId, newQuantity: 0);
+        expect(rpc.calls.single.params!['p_reason'], isNull);
+        expect(rpc.calls.single.params!['p_expected_quantity'], isNull);
+        expect(rpc.calls.single.params!.containsKey('p_expected_quantity'), isTrue);
+      });
+
+      test('H1 stock-4: negative quantity rejected before RPC', () async {
+        await expectLater(
+          repository.setBasicStock(productId: productId, quantity: -1),
+          throwsA(isA<AppException>().having((e) => e.code, 'code', AppErrorCode.validation)),
+        );
+        await expectLater(
+          repository.adjustBasicStock(productId: productId, newQuantity: -1),
+          throwsA(isA<AppException>().having((e) => e.code, 'code', AppErrorCode.validation)),
+        );
+        expect(rpc.calls, isEmpty);
+      });
+
+      test('H1 stock-5: stale_stock_quantity → STALE_STOCK_QUANTITY', () async {
+        rpc.errorToThrow = const AppException(AppErrorCode.unknown, serverMessage: 'stale_stock_quantity');
+        await expectLater(
+          repository.adjustBasicStock(productId: productId, newQuantity: 1, expectedQuantity: 2),
+          throwsA(isA<AppException>().having((e) => e.code, 'code', CatalogErrorCodes.staleStockQuantity)),
+        );
+      });
     });
   });
 }

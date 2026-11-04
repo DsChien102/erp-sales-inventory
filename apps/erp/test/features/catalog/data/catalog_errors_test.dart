@@ -468,6 +468,16 @@ void main() {
         final err = classify('actor mismatch: tenant_id');
         expect(err.code, AppErrorCode.noPermission);
       });
+
+      test('invalid_stock_quantity', () {
+        final err = classify('invalid_stock_quantity');
+        expect(err.code, CatalogErrorCodes.invalidStockQuantity);
+      });
+
+      test('product_not_found (underscore)', () {
+        final err = classify('product_not_found');
+        expect(err.code, CatalogErrorCodes.productNotFound);
+      });
     });
   });
 }

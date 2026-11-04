@@ -376,7 +376,7 @@ void checkManualBasePrice(double basePrice) {
   if (basePrice < 0) {
     throw const AppException(
       AppErrorCode.validation,
-      serverMessage: 'Giá vốn cơ sở không được âm.',
+      serverMessage: 'Giá cơ sở không được âm.',
     );
   }
 }
@@ -551,4 +551,23 @@ void checkPriceBandSnapshotRequest(List<ProductPriceBandSnapshotRequest> items) 
     }
   }
 }
+
+void checkSetBasicStock(int quantity) {
+  if (quantity < 0) {
+    throw const AppException(
+      AppErrorCode.validation,
+      serverMessage: 'Số lượng tồn kho ban đầu không được âm.',
+    );
+  }
+}
+
+void checkAdjustBasicStock(int newQuantity) {
+  if (newQuantity < 0) {
+    throw const AppException(
+      AppErrorCode.validation,
+      serverMessage: 'Số lượng tồn kho không được âm.',
+    );
+  }
+}
+
 

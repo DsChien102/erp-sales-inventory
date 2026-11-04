@@ -55,6 +55,7 @@ String catalogErrorMessage(
     CatalogErrorCodes.inactiveProductUnit => 'Đơn vị bán đang không hoạt động.',
     CatalogErrorCodes.staleStockQuantity =>
       'Tồn kho hiện tại đã thay đổi. Vui lòng tải lại dữ liệu trước khi điều chỉnh.',
+    CatalogErrorCodes.invalidStockQuantity => 'Tồn kho phải là số nguyên không âm.',
     CatalogErrorCodes.floorGreaterThanList => 'Giá sàn không được lớn hơn giá niêm yết.',
     CatalogErrorCodes.staleBasePrice => 'Giá cơ sở vừa thay đổi. Vui lòng tải lại.',
     CatalogErrorCodes.missingBasePrice => 'Sản phẩm chưa có giá cơ sở.',

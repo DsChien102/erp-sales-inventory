@@ -28,6 +28,7 @@ abstract final class CatalogErrorCodes {
   static const customFieldNotFound = 'CUSTOM_FIELD_NOT_FOUND';
   static const customFieldTypeChangeBlocked = 'CUSTOM_FIELD_TYPE_CHANGE_BLOCKED';
   static const staleStockQuantity = 'STALE_STOCK_QUANTITY';
+  static const invalidStockQuantity = 'INVALID_STOCK_QUANTITY';
   static const staleProductVersion = 'STALE_PRODUCT_VERSION'; // details: {'expected': int, 'current': int}
   static const statusWarningsRequireAck = 'BUSINESS_STATUS_WARNINGS_REQUIRE_ACK'; // details: {'warnings': [{code, message}]}
   static const productDeleteBlocked = 'PRODUCT_DELETE_BLOCKED'; // serverMessage: phần sau tiền tố
@@ -258,6 +259,14 @@ AppException catalogException(AppException error) {
     );
   }
 
+  if (lower.contains('invalid_stock_quantity')) {
+    return AppException(
+      CatalogErrorCodes.invalidStockQuantity,
+      serverMessage: m,
+      cause: error.cause,
+    );
+  }
+
   if (lower.contains('stale_product_version')) {
     final versions = _extractExpectedCurrent(m);
     return AppException(
@@ -319,7 +328,7 @@ AppException catalogException(AppException error) {
     );
   }
 
-  if (lower.contains('product not found')) {
+  if (lower.contains('product not found') || lower.contains('product_not_found')) {
     return AppException(
       CatalogErrorCodes.productNotFound,
       serverMessage: 'Product not found',

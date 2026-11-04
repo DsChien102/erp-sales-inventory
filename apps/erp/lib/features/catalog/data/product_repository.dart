@@ -768,6 +768,51 @@ class ProductRepository {
       return CatalogSalesLookupParser.resolutionsFromPayload(result);
     });
   }
+
+  /// 21. Set basic stock quantity for product (TH-02 5.8, SP-10).
+  Future<void> setBasicStock({
+    required String productId,
+    required int quantity,
+  }) async {
+    checkSetBasicStock(quantity);
+    final tid = await _tenantId();
+    return _guard(() async {
+      await _rpc.call(
+        'catalog',
+        'set_basic_stock_quantity_base',
+        params: {
+          'p_tenant_id': tid,
+          'p_product_id': productId,
+          'p_mode': 'basic',
+          'p_basic_stock_quantity_base': quantity,
+        },
+      );
+    });
+  }
+
+  /// 22. Adjust basic stock quantity for product (TH-02 5.8, SP-10).
+  Future<void> adjustBasicStock({
+    required String productId,
+    required int newQuantity,
+    String? reason,
+    int? expectedQuantity,
+  }) async {
+    checkAdjustBasicStock(newQuantity);
+    final tid = await _tenantId();
+    return _guard(() async {
+      await _rpc.call(
+        'catalog',
+        'adjust_basic_stock',
+        params: {
+          'p_tenant_id': tid,
+          'p_product_id': productId,
+          'p_new_quantity': newQuantity,
+          'p_reason': reason,
+          'p_expected_quantity': expectedQuantity,
+        },
+      );
+    });
+  }
 }
 
 String? _optionalText(String? value) {

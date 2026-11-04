@@ -195,6 +195,13 @@ void main() {
         );
       });
 
+      test('invalidStockQuantity', () {
+        expect(
+          catalogErrorMessage(const AppException(CatalogErrorCodes.invalidStockQuantity)),
+          'Tồn kho phải là số nguyên không âm.',
+        );
+      });
+
       test('floorGreaterThanList', () {
         expect(
           catalogErrorMessage(const AppException(CatalogErrorCodes.floorGreaterThanList)),

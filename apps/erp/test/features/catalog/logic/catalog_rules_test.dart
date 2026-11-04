@@ -2336,7 +2336,7 @@ void main() {
                   .having(
                     (e) => e.serverMessage,
                     'serverMessage',
-                    'Giá vốn cơ sở không được âm.',
+                    'Giá cơ sở không được âm.',
                   ),
             ),
           );
@@ -2802,6 +2802,50 @@ void main() {
             ]),
             returnsNormally,
           );
+        });
+      });
+
+      group('checkSetBasicStock', () {
+        test('fails when quantity < 0', () {
+          expect(
+            () => app_rules.checkSetBasicStock(-1),
+            throwsA(
+              isA<AppException>()
+                  .having((e) => e.code, 'code', AppErrorCode.validation)
+                  .having(
+                    (e) => e.serverMessage,
+                    'serverMessage',
+                    'Số lượng tồn kho ban đầu không được âm.',
+                  ),
+            ),
+          );
+        });
+
+        test('passes when quantity >= 0', () {
+          expect(() => app_rules.checkSetBasicStock(0), returnsNormally);
+          expect(() => app_rules.checkSetBasicStock(10), returnsNormally);
+        });
+      });
+
+      group('checkAdjustBasicStock', () {
+        test('fails when newQuantity < 0', () {
+          expect(
+            () => app_rules.checkAdjustBasicStock(-1),
+            throwsA(
+              isA<AppException>()
+                  .having((e) => e.code, 'code', AppErrorCode.validation)
+                  .having(
+                    (e) => e.serverMessage,
+                    'serverMessage',
+                    'Số lượng tồn kho không được âm.',
+                  ),
+            ),
+          );
+        });
+
+        test('passes when newQuantity >= 0', () {
+          expect(() => app_rules.checkAdjustBasicStock(0), returnsNormally);
+          expect(() => app_rules.checkAdjustBasicStock(10), returnsNormally);
         });
       });
     });
