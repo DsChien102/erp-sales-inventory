@@ -1,7 +1,7 @@
 # 5-C — Chuyển SP-10 sang `ProductRepository` + dọn sạch module catalog, inventory
 
 > Theme 2 (mã cũ P5) · Bước (dọn) theo "Quy tắc dọn module (chốt 2026-10-11)" của PLAN.md
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-04) | Làm ✅ | Review ❌ R1 2026-11-04 (4 việc cần sửa)
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-04) | Làm ✅ | Review ✅ R2 2026-11-04
 > Làm **sau** 5-A1 … 5-W (đã xong). **Không chờ Theme 7** nữa (Q1).
 > Tài liệu: PLAN.md mục Theme 2 dòng 5-C, "Quy tắc dọn module", "Quy tắc migration", "Plan xoá / tách / thay code cũ"; TH-02 US-05.1, US-05.2, 5.8 SP-10, 6.4, KI-04, KI-07; mẫu đã làm: [4-C](../P4/4-C-don-module-partner.md) (lịch sử git).
 
@@ -555,3 +555,7 @@ Nhập ban đầu cũ ném khi `command.mode != 'basic'`. Method mới không c�
 - **T3:** 2 test lỗi không có tên trong `TEST-BASELINE.md`: `e2e_e02_u01_fr01_01: duplicate SKU opens existing product in PCC`, `e2e_e07_u04_fr02_01: product change history can be viewed from PCC`. Cả hai đều lỗi ở tiêu đề PCC (không tìm thấy tên sản phẩm), không dính SP-10, tổng vẫn là 59. Phiên review lượt đạt sẽ cập nhật `TEST-BASELINE.md` (như 4-C) và đối chiếu lại tên.
 
 **Việc của người dùng (không thuộc phiên code):** `supabase db reset` local + `supabase/tests/catalog_th02.sql`; kiểm `catalog` / `inventory` không còn `outbox_messages`, `inbox_messages`, `internal_commands`; **cần reset Dev**.
+
+### R2 — 2026-11-04 — ✅ ĐẠT (người dùng review)
+
+R1-1 … R1-4, T1, T2 đã sửa (commit `a98165d64`). `TEST-BASELINE.md` cập nhật mục "Sau 5-C" (2 lỗi mới ngoài mốc, không do 5-C, ghi ⚠️ ở đó).
