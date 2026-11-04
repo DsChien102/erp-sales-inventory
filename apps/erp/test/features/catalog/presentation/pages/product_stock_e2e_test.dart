@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
@@ -392,5 +394,114 @@ void main() {
       expect(find.text('Kiểm kê'), findsNothing);
       expect(find.text('Chưa thiết lập'), findsOneWidget);
     });
+
+    testWidgets('sp10_from_checklist_args_shows_form', (tester) async {
+      await setUpErpCatalogE2E();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ProductStockAdjustmentPage(
+            args: ProductStockAdjustmentRouteArgs(product: _product1()),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('input_stock_quantity')), findsOneWidget);
+      expect(find.text('Tồn ban đầu (Hộp)'), findsOneWidget);
+    });
+
+    testWidgets('sp10_stale_shows_64_message', (tester) async {
+      await setUpErpCatalogE2E(scenario: FakeCatalogScenario.pccReadyToSell);
+      await tester.pumpWidget(_buildPccRouter(_product1()));
+      await tester.pumpAndSettle();
+
+      await tapEditStock(tester);
+      final backend = (getIt<ProductRepository>() as FakeProductRepository).backend;
+      final p = backend.products.firstWhere((prod) => prod.id == 'product-1');
+      p.stockQty = 140;
+
+      await tester.enterText(find.byKey(const Key('input_stock_quantity')), '100');
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('btn_stock_save')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(
+        find.text('Tồn kho hiện tại đã thay đổi. Vui lòng tải lại dữ liệu trước khi điều chỉnh.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('sp10_footer_ki04', (tester) async {
+      await setUpErpCatalogE2E(scenario: FakeCatalogScenario.pccReadyToSell);
+      await tester.pumpWidget(_buildPccRouter(_product1()));
+      await tester.pumpAndSettle();
+
+      await tapEditStock(tester);
+      final footerFinder = find.text('Thay đổi sẽ ghi vào Lịch sử thay đổi.');
+      await tester.scrollUntilVisible(
+        footerFinder,
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
+      expect(footerFinder, findsOneWidget);
+      expect(find.textContaining('Growth'), findsNothing);
+    });
+
+    testWidgets('sp10_save_disabled_while_loading', (tester) async {
+      await setUpErpCatalogE2E(scenario: FakeCatalogScenario.pccReadyToSell);
+      final backend = (getIt<ProductRepository>() as FakeProductRepository).backend;
+      final blockingRepo = _BlockingProductRepository(backend: backend);
+      final completer = Completer<void>();
+      blockingRepo.completer = completer;
+      getIt.unregister<ProductRepository>();
+      getIt.registerSingleton<ProductRepository>(blockingRepo);
+
+      await tester.pumpWidget(_buildPccRouter(_product1()));
+      await tester.pumpAndSettle();
+
+      await tapEditStock(tester);
+      await tester.enterText(find.byKey(const Key('input_stock_quantity')), '120');
+      await tester.pump();
+
+      await tester.tap(find.byKey(const Key('btn_stock_save')));
+      await tester.pump(); // Start submission
+
+      final bar = tester.widget<ProductFormBottomBar>(find.byType(ProductFormBottomBar));
+      expect(bar.isLoading, isTrue);
+      expect(bar.onCancel, isNull);
+
+      // Tap save second time
+      await tester.tap(find.byKey(const Key('btn_stock_save')));
+      await tester.pump();
+      expect(blockingRepo.stockCalls.length, 1);
+
+      // Complete submission
+      completer.complete();
+      await tester.pumpAndSettle();
+    });
   });
+}
+
+class _BlockingProductRepository extends FakeProductRepository {
+  _BlockingProductRepository({required super.backend});
+  Completer<void>? completer;
+  final List<String> stockCalls = [];
+
+  @override
+  Future<void> setBasicStock({required String productId, required int quantity}) async {
+    stockCalls.add('setBasicStock');
+    if (completer != null) await completer!.future;
+  }
+
+  @override
+  Future<void> adjustBasicStock({
+    required String productId,
+    required int newQuantity,
+    String? reason,
+    int? expectedQuantity,
+  }) async {
+    stockCalls.add('adjustBasicStock');
+    if (completer != null) await completer!.future;
+  }
 }

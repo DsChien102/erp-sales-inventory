@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
+import 'package:erp/features/catalog/logic/product_stock_adjustment_cubit.dart';
+import 'package:erp/features/catalog/logic/product_stock_adjustment_state.dart';
 import 'package:erp/features/catalog/presentation.dart';
+import 'package:vet45_design_system/design_system.dart';
 
 import '../widgets/dashed_border_container.dart';
 import '../widgets/product_form_bottom_bar.dart';
@@ -23,7 +25,7 @@ class ProductStockAdjustmentRouteArgs {
   });
 }
 
-class ProductStockAdjustmentPage extends StatefulWidget {
+class ProductStockAdjustmentPage extends StatelessWidget {
   const ProductStockAdjustmentPage({
     super.key,
     required this.args,
@@ -32,14 +34,29 @@ class ProductStockAdjustmentPage extends StatefulWidget {
   final ProductStockAdjustmentRouteArgs args;
 
   @override
-  State<ProductStockAdjustmentPage> createState() => _ProductStockAdjustmentPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => ProductStockAdjustmentCubit(
+        productRepository: GetIt.instance<ProductRepository>(),
+      ),
+      child: _ProductStockAdjustmentView(args: args),
+    );
+  }
 }
 
-class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage> {
+class _ProductStockAdjustmentView extends StatefulWidget {
+  const _ProductStockAdjustmentView({required this.args});
+
+  final ProductStockAdjustmentRouteArgs args;
+
+  @override
+  State<_ProductStockAdjustmentView> createState() => _ProductStockAdjustmentViewState();
+}
+
+class _ProductStockAdjustmentViewState extends State<_ProductStockAdjustmentView> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _quantityController;
   late final TextEditingController _noteController;
-  bool _isSubmitting = false;
 
   final List<String> _predefinedReasons = ['Kiểm kê', 'Nhập tay', 'Hao hụt', 'Khác'];
   String? _selectedReason;
@@ -69,228 +86,201 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
     return false;
   }
 
-  Future<void> _submit() async {
+  void _submit(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSubmitting = true);
     final quantity = int.tryParse(_quantityController.text) ?? 0;
-
-    // Combine reason and note if both exist, or just use the one that exists
-    String? finalReason;
-    final note = _noteController.text.trim();
-    if (_selectedReason != null && note.isNotEmpty) {
-      finalReason = '$_selectedReason - $note';
-    } else if (_selectedReason != null) {
-      finalReason = _selectedReason;
-    } else if (note.isNotEmpty) {
-      finalReason = note;
-    }
-
-    try {
-      final catalogModule = GetIt.instance<ICatalogModule>();
-      final executionContext = GetIt.instance<IExecutionContext>();
-      final tenantId = await executionContext.requireTenantId();
-
-      if (_isInitial) {
-        await catalogModule.executeCommandAsync(
-          SetBasicStockQuantityBaseCommand(
-            tenantId: tenantId,
-            productId: widget.args.product.id,
-            quantity: quantity,
-          ),
-        );
-      } else {
-        await catalogModule.executeCommandAsync(
-          AdjustBasicStockCommand(
-            tenantId: tenantId,
-            productId: widget.args.product.id,
-            newQuantity: quantity,
-            reason: finalReason,
-            expectedQuantity: widget.args.currentQuantity,
-          ),
-        );
-      }
-
-      if (mounted) {
-        VToast.show(
-          context,
-          title: 'Thành công',
-          message: _isInitial ? 'Đã nhập tồn kho ban đầu' : 'Đã điều chỉnh tồn kho',
-          type: VToastType.success,
-        );
-        Navigator.of(context).pop(true);
-      }
-    } catch (e) {
-      if (mounted) {
-        VToast.show(
-          context,
-          title: 'Lỗi',
-          message: e.toString(),
-          type: VToastType.danger,
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
-    }
+    context.read<ProductStockAdjustmentCubit>().submit(
+      productId: widget.args.product.id,
+      quantity: quantity,
+      currentQuantity: widget.args.currentQuantity,
+      chip: _selectedReason,
+      note: _noteController.text,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final unitName = widget.args.unitName ?? widget.args.product.baseUnit ?? '';
+    final bool hasBaseUnit = unitName.trim().isNotEmpty;
 
-    final bool hasBaseUnit = widget.args.unitName != null && widget.args.unitName!.isNotEmpty;
+    return BlocConsumer<ProductStockAdjustmentCubit, ProductStockAdjustmentState>(
+      listener: (context, state) {
+        if (state.status == ProductStockAdjustmentStatus.success) {
+          VToast.show(
+            context,
+            title: 'Thành công',
+            message: _isInitial ? 'Đã nhập tồn kho ban đầu' : 'Đã điều chỉnh tồn kho',
+            type: VToastType.success,
+          );
+          Navigator.of(context).pop(true);
+        } else if (state.status == ProductStockAdjustmentStatus.failure) {
+          VToast.show(
+            context,
+            title: 'Lỗi',
+            message: state.errorMessage ?? 'Đã xảy ra lỗi. Vui lòng thử lại.',
+            type: VToastType.danger,
+          );
+        }
+      },
+      builder: (context, state) {
+        final isSubmitting = state.status == ProductStockAdjustmentStatus.loading;
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      behavior: HitTestBehavior.translucent,
-      child: VPageScaffold(
-        key: const Key('wgt_e05_u01_fr01_01'),
-        title: 'Tồn kho',
-        showBackButton: true,
-        subtitle: widget.args.product.name,
-        body: hasBaseUnit
-            ? Form(
-                key: _formKey,
-                child: ListView(
-                  padding: const EdgeInsets.all(VSpacing.space4),
-                  children: [
-                    // Tồn hiện tại (Read-only view)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: dynamicColors.borderDefault),
-                        borderRadius: BorderRadius.circular(VRadius.input),
-                        color: dynamicColors.background,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          VText(
-                            'Tồn hiện tại',
-                            variant: VTextVariant.bodyDefault,
-                            color: dynamicColors.textPrimary,
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.translucent,
+          child: VPageScaffold(
+            key: const Key('wgt_e05_u01_fr01_01'),
+            title: 'Tồn kho',
+            showBackButton: true,
+            subtitle: widget.args.product.name,
+            body: hasBaseUnit
+                ? Form(
+                    key: _formKey,
+                    child: ListView(
+                      padding: const EdgeInsets.all(VSpacing.space4),
+                      children: [
+                        // Tồn hiện tại (Read-only view)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: dynamicColors.borderDefault),
+                            borderRadius: BorderRadius.circular(VRadius.input),
                           ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              VText(
+                                'Tồn kho hiện tại',
+                                variant: VTextVariant.bodySmall,
+                                color: dynamicColors.textSecondary,
+                              ),
+                              const SizedBox(height: 4),
+                              VText(
+                                _isInitial ? 'Chưa thiết lập' : '${widget.args.currentQuantity} $unitName',
+                                variant: VTextVariant.bodyDefault,
+                                color: dynamicColors.textPrimary,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: VSpacing.space6),
+
+                        // Input Tồn thực tế
+                        VText(
+                          _isInitial ? 'Tồn ban đầu ($unitName)' : 'Tồn mới ($unitName)',
+                          variant: VTextVariant.bodyDefault,
+                          color: dynamicColors.textPrimary,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: VSpacing.space2),
+                        VTextFormField(
+                          key: const Key('input_stock_quantity'),
+                          controller: _quantityController,
+                          keyboardType: TextInputType.number,
+                          hintText: 'Nhập số tồn thực tế',
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Vui lòng nhập số tồn thực tế';
+                            }
+                            if (value.contains('.') || value.contains(',')) {
+                              return 'Tồn kho phải là số nguyên';
+                            }
+                            final val = int.tryParse(value);
+                            if (val == null) {
+                              return 'Số lượng không hợp lệ';
+                            }
+                            if (val < 0) {
+                              return 'Tồn kho không được âm';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: VSpacing.space6),
+
+                        // Lý do điều chỉnh (chỉ hiện khi điều chỉnh tồn kho)
+                        if (!_isInitial) ...[
                           VText(
-                            _isInitial ? 'Chưa thiết lập' : '${widget.args.currentQuantity}',
-                            variant: VTextVariant.bodyDefault,
-                            color: dynamicColors.textPrimary,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            'Lý do điều chỉnh (không bắt buộc)',
+                            variant: VTextVariant.bodySmall,
+                            color: dynamicColors.textSecondary,
+                          ),
+                          const SizedBox(height: VSpacing.space2),
+                          Wrap(
+                            spacing: VSpacing.space2,
+                            runSpacing: VSpacing.space2,
+                            children: _predefinedReasons.map((reason) {
+                              final isSelected = _selectedReason == reason;
+                              return ChoiceChip(
+                                label: Text(
+                                  reason,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? dynamicColors.textPrimary
+                                        : dynamicColors.textSecondary,
+                                  ),
+                                ),
+                                selected: isSelected,
+                                onSelected: isSubmitting
+                                    ? null
+                                    : (selected) {
+                                        setState(() {
+                                          _selectedReason = selected ? reason : null;
+                                        });
+                                      },
+                                showCheckmark: false,
+                                selectedColor: dynamicColors.success,
+                                side: BorderSide(
+                                  color: isSelected
+                                      ? dynamicColors.success
+                                      : dynamicColors.borderDefault,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(VRadius.r20),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          const SizedBox(height: VSpacing.space6),
+
+                          // Ghi chú
+                          VText(
+                            'Ghi chú (không bắt buộc)',
+                            variant: VTextVariant.bodySmall,
+                            color: dynamicColors.textSecondary,
+                          ),
+                          const SizedBox(height: VSpacing.space2),
+                          VTextFormField(
+                            controller: _noteController,
+                            maxLines: 4,
+                            maxLength: 500,
+                            enabled: !isSubmitting,
                           ),
                         ],
-                      ),
-                    ),
-                    const SizedBox(height: VSpacing.space6),
 
-                    // Tồn mới
-                    VText(
-                      'Tồn mới ($unitName)',
-                      variant: VTextVariant.bodyDefault,
-                      color: dynamicColors.textPrimary,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                        const SizedBox(height: VSpacing.space6),
+                        VText(
+                          'Thay đổi sẽ ghi vào Lịch sử thay đổi.',
+                          variant: VTextVariant.bodySmall,
+                          color: dynamicColors.textSecondary,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: VSpacing.space2),
-                    VTextFormField(
-                      key: const Key('input_stock_quantity'),
-                      controller: _quantityController,
-                      keyboardType: TextInputType.number,
-                      hintText: 'Nhập số tồn thực tế',
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Vui lòng nhập số tồn thực tế';
-                        }
-                        final raw = value.trim().replaceAll(',', '');
-                        if (raw.contains('.') || raw.contains(',')) {
-                          return 'Tồn kho phải là số nguyên';
-                        }
-                        final qty = int.tryParse(raw);
-                        if (qty == null) {
-                          return 'Số lượng không hợp lệ';
-                        }
-                        if (qty < 0) {
-                          return 'Tồn kho không được âm';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    if (!_isInitial) ...[
-                      const SizedBox(height: VSpacing.space6),
-                      // Lý do
-                      VText(
-                        'Lý do',
-                        variant: VTextVariant.bodySmall,
-                        color: dynamicColors.textSecondary,
-                      ),
-                      const SizedBox(height: VSpacing.space2),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _predefinedReasons.map((reason) {
-                          final isSelected = _selectedReason == reason;
-                          return ChoiceChip(
-                            label: VText(
-                              reason,
-                              variant: VTextVariant.bodyDefault,
-                              color: isSelected ? dynamicColors.surface : dynamicColors.textPrimary,
-                            ),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              setState(() {
-                                _selectedReason = selected ? reason : null;
-                              });
-                            },
-                            showCheckmark: false,
-                            selectedColor: dynamicColors.success,
-                            side: BorderSide(
-                              color: isSelected
-                                  ? dynamicColors.success
-                                  : dynamicColors.borderDefault,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(VRadius.r20),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: VSpacing.space6),
-
-                      // Ghi chú
-                      VText(
-                        'Ghi chú (không bắt buộc)',
-                        variant: VTextVariant.bodySmall,
-                        color: dynamicColors.textSecondary,
-                      ),
-                      const SizedBox(height: VSpacing.space2),
-                      VTextFormField(
-                        controller: _noteController,
-                        maxLines: 4,
-                        maxLength: 500,
-                      ),
-                    ],
-
-                    const SizedBox(height: VSpacing.space6),
-                    VText(
-                      'Thay đổi sẽ ghi vào Lịch sử. Ở Growth, tồn được đọc từ module Kho (read-only).',
-                      variant: VTextVariant.bodySmall,
-                      color: dynamicColors.textSecondary,
-                    ),
-                  ],
-                ),
-              )
-            : _buildMissingBaseUnit(context),
-        bottomBar: hasBaseUnit
-            ? ProductFormBottomBar(
-                onCancel: _isSubmitting ? null : () => context.pop(),
-                saveKey: const Key('btn_stock_save'),
-                isLoading: _isSubmitting,
-                saveEnabled: _hasChanges,
-                onSave: _submit,
-              )
-            : null,
-      ),
+                  )
+                : _buildMissingBaseUnit(context),
+            bottomBar: hasBaseUnit
+                ? ProductFormBottomBar(
+                    onCancel: isSubmitting ? null : () => context.pop(),
+                    saveKey: const Key('btn_stock_save'),
+                    isLoading: isSubmitting,
+                    saveEnabled: _hasChanges && !isSubmitting,
+                    onSave: _hasChanges && !isSubmitting ? () => _submit(context) : null,
+                  )
+                : null,
+          ),
+        );
+      },
     );
   }
 
