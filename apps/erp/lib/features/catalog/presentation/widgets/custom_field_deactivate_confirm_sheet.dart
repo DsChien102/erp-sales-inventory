@@ -5,7 +5,7 @@ class CustomFieldDeactivateConfirmSheet extends StatelessWidget {
   const CustomFieldDeactivateConfirmSheet({super.key});
 
   static Future<bool?> show(BuildContext context) {
-    return showVBottomSheet<bool>(
+    return showVAdaptiveSheet<bool>(
       context: context,
       child: const CustomFieldDeactivateConfirmSheet(),
     );

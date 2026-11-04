@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_domain/domain.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/pricing_selectable_entity_card.dart';
 
@@ -62,17 +61,12 @@ class _PricingPickProductPageState extends State<PricingPickProductPage> {
       _errorMessage = null;
     });
     try {
-      final executionContext = GetIt.instance<IExecutionContext>();
-      final tenantId = await executionContext.requireTenantId();
       final keyword = _searchController.text.trim();
-      final result = await GetIt.instance<ICatalogModule>().executeQueryAsync(
-        SearchProductsQuery(
-          tenantId: tenantId,
-          criteria: ProductSearchCriteria(
-            keyword: keyword.isEmpty ? null : keyword,
-          ),
-          limit: 30,
+      final result = await GetIt.instance<ProductRepository>().search(
+        criteria: ProductSearchCriteria(
+          keyword: keyword.isEmpty ? null : keyword,
         ),
+        limit: 30,
       );
       if (!mounted) return;
       setState(() {

@@ -8,10 +8,10 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/errors/app_exception.dart';
-import 'package:vet45_inventory_application/application.dart';
+import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 
 import '../../core/session/fake_session_repository.dart';
-import '../dashboard/presentation/ready_default_pair_inventory_module.dart';
+import '../dashboard/presentation/fake_default_pair_repository.dart';
 import 'support/scripted_auth.dart';
 
 /// e2e_th01_s0_session — sign-in → session query → dashboard (S0).
@@ -20,8 +20,8 @@ void main() {
 
   setUp(() async {
     await getIt.reset();
-    getIt.registerSingleton<IInventoryModule>(
-      const ReadyDefaultPairInventoryModule(),
+    getIt.registerSingleton<DefaultPairRepository>(
+      FakeDefaultPairRepository(),
     );
   });
 

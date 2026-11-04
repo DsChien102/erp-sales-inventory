@@ -1,7 +1,9 @@
 import 'package:erp/core/di/injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/measurement_unit_repository.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
+import '../../support/fake_catalog_repositories.dart';
 
 import '../../catalog_e2e_harness.dart';
 
@@ -17,8 +19,8 @@ void main() {
   testWidgets('e2e_e02_u01_fr01_01: guided create via ERP DI navigates to PCC', (tester) async {
     await setUpErpCatalogE2E();
 
-    expect(getIt.isRegistered<ICatalogModule>(), isTrue);
-    expect(getIt<ICatalogModule>(), isA<FakeCatalogModule>());
+    expect(getIt.isRegistered<ProductRepository>(), isTrue);
+    expect(getIt<ProductRepository>(), isA<FakeProductRepository>());
 
     await tester.pumpWidget(buildGuidedCreateRouter());
     await tester.pumpAndSettle();
@@ -111,8 +113,8 @@ void main() {
     await tester.enterText(find.byKey(const Key('input_guided_basic_stock_quantity_base')), '150');
     await tester.pump();
 
-    // Open Step 5: Giá vốn cơ sở
-    final step5Finder = find.text('5. Giá vốn cơ sở');
+    // Open Step 5: Giá cơ sở
+    final step5Finder = find.text('5. Giá cơ sở');
     await tester.ensureVisible(step5Finder);
     await tester.tap(step5Finder);
     await tester.pumpAndSettle();
@@ -246,7 +248,7 @@ void main() {
     await tester.enterText(find.byKey(const Key('input_guided_basic_stock_quantity_base')), '150');
     await tester.pump();
 
-    final step5Finder = find.text('5. Giá vốn cơ sở');
+    final step5Finder = find.text('5. Giá cơ sở');
     await tester.ensureVisible(step5Finder);
     await tester.tap(step5Finder);
     await tester.pumpAndSettle();
@@ -272,11 +274,9 @@ void main() {
     tester,
   ) async {
     await setUpErpCatalogE2E();
-    final catalog = getIt<ICatalogModule>() as FakeCatalogModule;
+    final unitRepo = getIt<MeasurementUnitRepository>();
 
-    final unitsBefore = await catalog.executeQueryAsync(
-      ListTenantMeasurementUnitsQuery(tenantId: 'tenant-1', limit: 50),
-    );
+    final unitsBefore = await unitRepo.listTenantUnits(limit: 50);
     expect(unitsBefore.any((unit) => unit.name == 'chai'), isFalse);
 
     await tester.pumpWidget(buildGuidedCreateRouter());
@@ -295,9 +295,7 @@ void main() {
     await tester.tap(find.byKey(const Key('btn_guided_save')));
     await tester.pumpAndSettle();
 
-    final unitsAfter = await catalog.executeQueryAsync(
-      ListTenantMeasurementUnitsQuery(tenantId: 'tenant-1', limit: 50),
-    );
+    final unitsAfter = await unitRepo.listTenantUnits(limit: 50);
     expect(unitsAfter.any((unit) => unit.name == 'chai'), isTrue);
     expect(find.text('Thuoc chai'), findsWidgets);
   });

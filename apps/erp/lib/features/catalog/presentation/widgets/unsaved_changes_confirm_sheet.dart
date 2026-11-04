@@ -7,7 +7,7 @@ class UnsavedChangesConfirmSheet extends StatelessWidget {
 
   /// Trả về `true` nếu người dùng chọn thoát.
   static Future<bool> show(BuildContext context) async {
-    final result = await showVBottomSheet<bool>(
+    final result = await showVAdaptiveSheet<bool>(
       context: context,
       title: 'Thoát mà không lưu?',
       child: const UnsavedChangesConfirmSheet(),

@@ -1,7 +1,8 @@
 import 'package:erp/core/di/injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
+import '../../support/fake_catalog_repositories.dart';
 import 'package:erp/features/catalog/presentation.dart';
 
 import '../../catalog_e2e_harness.dart';
@@ -54,7 +55,7 @@ void main() {
 
   testWidgets('e2e_e07_u01_fr01_01: valid profile edit refreshes PCC', (tester) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.pccReadyToSell);
-    expect(getIt<ICatalogModule>(), isA<FakeCatalogModule>());
+    expect(getIt<ProductRepository>(), isA<FakeProductRepository>());
 
     await _openProductFromDiscovery(tester, 'Amoxicillin 500mg');
     await tapEditProfile(tester);

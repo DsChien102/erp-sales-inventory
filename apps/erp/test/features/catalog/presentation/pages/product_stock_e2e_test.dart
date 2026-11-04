@@ -407,7 +407,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('input_stock_quantity')), findsOneWidget);
-      expect(find.text('Tồn ban đầu (Hộp)'), findsOneWidget);
+      expect(find.text('Tồn mới (Hộp)'), findsOneWidget);
     });
 
     testWidgets('sp10_stale_shows_64_message', (tester) async {
@@ -430,6 +430,35 @@ void main() {
         find.text('Tồn kho hiện tại đã thay đổi. Vui lòng tải lại dữ liệu trước khi điều chỉnh.'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('sp10_labels_match_th02', (tester) async {
+      await setUpErpCatalogE2E(scenario: FakeCatalogScenario.pccReadyToSell);
+      await tester.pumpWidget(_buildPccRouter(_product1()));
+      await tester.pumpAndSettle();
+
+      await tapEditStock(tester);
+      expect(find.text('Tồn hiện tại'), findsOneWidget);
+      expect(find.text('Tồn mới (Hộp)'), findsOneWidget);
+      expect(find.text('Lý do'), findsOneWidget);
+    });
+
+    testWidgets('sp10_rejects_thousand_separator', (tester) async {
+      await setUpErpCatalogE2E(scenario: FakeCatalogScenario.pccReadyToSell);
+      await tester.pumpWidget(_buildPccRouter(_product1()));
+      await tester.pumpAndSettle();
+
+      await tapEditStock(tester);
+      final repo = getIt<ProductRepository>() as FakeProductRepository;
+      await tester.enterText(find.byKey(const Key('input_stock_quantity')), '1,000');
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('btn_stock_save')));
+      await tester.pump();
+
+      expect(find.text('Tồn kho phải là số nguyên'), findsOneWidget);
+      final p = repo.backend.products.firstWhere((prod) => prod.id == 'product-1');
+      expect(p.stockQty, 150);
+      expect(repo.calls, isNot(contains('adjustBasicStock')));
     });
 
     testWidgets('sp10_footer_ki04', (tester) async {

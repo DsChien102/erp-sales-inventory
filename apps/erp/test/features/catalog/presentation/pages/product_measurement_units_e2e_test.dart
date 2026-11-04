@@ -5,7 +5,6 @@ import 'package:erp/features/catalog/presentation/pages/product_readiness_checkl
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/testing.dart';
 import 'package:erp/features/catalog/presentation.dart';
 
 import '../../catalog_e2e_harness.dart';
@@ -40,15 +39,19 @@ void main() {
   });
 
   Widget buildTestRouter() {
+    final sample = _sampleProduct();
     final router = GoRouter(
-      initialLocation: '/products/items/pcc',
+      initialLocation: '/products/items/${sample.id}',
       routes: [
         GoRoute(
-          path: '/products/items/pcc',
-          builder: (context, state) => ProductControlCenterPage(product: _sampleProduct()),
+          path: '/products/items/:productId',
+          builder: (context, state) => ProductControlCenterPage(
+            productId: sample.id,
+            initialProduct: sample,
+          ),
         ),
         GoRoute(
-          path: '/products/items/pcc/checklist',
+          path: '/products/items/:productId/checklist',
           builder: (context, state) {
             final args = state.extra as ProductReadinessChecklistRouteArgs;
             return ProductReadinessChecklistPage(
@@ -58,7 +61,7 @@ void main() {
           },
         ),
         GoRoute(
-          path: '/products/items/pcc/units',
+          path: '/products/items/:productId/measurement-units',
           builder: (context, state) {
             final args = state.extra as ProductMeasurementUnitsRouteArgs;
             return ProductMeasurementUnitsPage(product: args.product);
@@ -380,6 +383,15 @@ void main() {
           .toList();
       expect(nameTexts, isNotEmpty);
       expect(nameTexts.first.style?.decoration, isNot(TextDecoration.lineThrough));
+    });
+
+    testWidgets('g6_base_unit_locked_text', (tester) async {
+      await setUpErpCatalogE2E();
+      await tester.pumpWidget(buildMeasurementUnitsRouter(productWithBaseUnit()));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Đơn vị cơ sở không đổi được sau khi đã đặt.'), findsOneWidget);
+      expect(find.text('Tuỳ chọn. Khi đã có giao dịch, không nên đổi.'), findsNothing);
     });
   });
 }

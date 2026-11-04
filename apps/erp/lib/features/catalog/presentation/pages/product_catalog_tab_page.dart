@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_domain/domain.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import 'product_control_center_page.dart';
 import '../widgets/custom_field_filter_sheet.dart';
@@ -15,7 +14,18 @@ import '../widgets/product_catalog_list_body.dart';
 import '../widgets/product_list_filter.dart';
 
 class ProductCatalogTabPage extends StatefulWidget {
-  const ProductCatalogTabPage({super.key});
+  const ProductCatalogTabPage({
+    super.key,
+    this.cubit,
+    this.selectedId,
+  });
+
+  /// Cubit do [ProductAreaShell] cấp (5-W). Có thì trang dùng nó và không đóng;
+  /// không có thì trang tự tạo và tự đóng như trước.
+  final ProductListCubit? cubit;
+
+  /// Sản phẩm đang mở ở cột phải (web rộng); dòng tương ứng được đánh dấu chọn.
+  final String? selectedId;
 
   @override
   State<ProductCatalogTabPage> createState() => _ProductCatalogTabPageState();
@@ -29,6 +39,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
 
   final ScrollController _scrollController = ScrollController();
   late final ProductListCubit _cubit;
+  late final bool _ownsCubit;
   ProductListFilter _selectedFilter = ProductListFilter.all;
   List<CustomFieldFilterCriteria> _customFieldFilters = [];
   List<CustomFieldFilterOptionDto> _filterOptions = [];
@@ -36,13 +47,13 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
   @override
   void initState() {
     super.initState();
-    _cubit =
-        ProductListCubit(
-          mediator: GetIt.instance<ICatalogModule>(),
-          executionContext: GetIt.instance<IExecutionContext>(),
+    _ownsCubit = widget.cubit == null;
+    _cubit = widget.cubit ??
+        (ProductListCubit(
+          productRepository: GetIt.instance<ProductRepository>(),
         )..fetchProducts(
-          criteria: ProductSearchCriteria(businessStatuses: _catalogListStatuses),
-        );
+            criteria: ProductSearchCriteria(businessStatuses: _catalogListStatuses),
+          ));
 
     _scrollController.addListener(_onScroll);
     _loadFilterOptions();
@@ -51,17 +62,16 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _cubit.close();
+    if (_ownsCubit) {
+      _cubit.close();
+    }
     super.dispose();
   }
 
   Future<void> _loadFilterOptions() async {
     try {
-      final catalogModule = GetIt.instance<ICatalogModule>();
-      final executionContext = GetIt.instance<IExecutionContext>();
-      final tenantId = await executionContext.requireTenantId();
-      final query = ListCustomFieldFilterOptionsQuery(tenantId: tenantId);
-      final options = await catalogModule.executeQueryAsync(query);
+      final productRepository = GetIt.instance<ProductRepository>();
+      final options = await productRepository.listCustomFieldFilterOptions();
       if (mounted) {
         setState(() {
           _filterOptions = options;
@@ -116,13 +126,13 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
           businessStatuses: {ProductBusinessStatus.inactive},
           customFieldFilters: _customFieldFilters,
         );
-      // case ProductListFilter.deleted:
-      //   return ProductSearchCriteria(
-      //     keyword: keyword,
-      //     businessStatuses: {ProductBusinessStatus.softDeleted},
-      //     includeSoftDeleted: true,
-      //     customFieldFilters: _customFieldFilters,
-      //   );
+      case ProductListFilter.deleted:
+        return ProductSearchCriteria(
+          keyword: keyword,
+          businessStatuses: {ProductBusinessStatus.softDeleted},
+          includeSoftDeleted: true,
+          customFieldFilters: _customFieldFilters,
+        );
       default:
         // Stock filters and 'all' — include inactive; UI does local filtering for stock
         return ProductSearchCriteria(
@@ -138,7 +148,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
       await _loadFilterOptions();
     }
     if (!mounted) return;
-    showVBottomSheet(
+    showVAdaptiveSheet(
       context: context,
       title: 'Lọc sản phẩm',
       child: CustomFieldFilterSheet(
@@ -182,9 +192,17 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
   }
 
   void _navigateToProductModel(BuildContext context, ProductListItemModel model) {
+    if (VListDetailLayout.isSplitOf(context)) {
+      if (widget.selectedId == model.id) return;
+      context.go(
+        '/products/items/${model.id}',
+        extra: ProductControlCenterRouteArgs(product: model),
+      );
+      return;
+    }
     context
         .push(
-          '/products/items/pcc',
+          '/products/items/${model.id}',
           extra: ProductControlCenterRouteArgs(product: model),
         )
         .then((_) {
@@ -217,8 +235,17 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
       stockLabel: dto.stockLabel,
     );
 
+    if (VListDetailLayout.isSplitOf(context)) {
+      if (widget.selectedId == dto.id) return;
+      context.go(
+        '/products/items/${dto.id}',
+        extra: ProductControlCenterRouteArgs(product: model),
+      );
+      return;
+    }
+
     await context.push(
-      '/products/items/pcc',
+      '/products/items/${model.id}',
       extra: ProductControlCenterRouteArgs(product: model),
     );
 
@@ -232,7 +259,14 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     if (!context.mounted) return;
     if (createdProduct != null) {
       _cubit.fetchProducts(isRefresh: true);
-      _navigateToProductModel(context, createdProduct);
+      if (VListDetailLayout.isSplitOf(context)) {
+        context.go(
+          '/products/items/${createdProduct.id}',
+          extra: ProductControlCenterRouteArgs(product: createdProduct),
+        );
+      } else {
+        _navigateToProductModel(context, createdProduct);
+      }
     } else {
       _cubit.fetchProducts(isRefresh: true);
     }
@@ -290,6 +324,8 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                       ProductListFilter.inStock: _cubit.inStockCount!,
                     if (_cubit.outOfStockCount != null)
                       ProductListFilter.outOfStock: _cubit.outOfStockCount!,
+                    if (_cubit.deletedCount != null)
+                      ProductListFilter.deleted: _cubit.deletedCount!,
                   },
                   onFilterChanged: _onFilterChanged,
                 ),
@@ -299,6 +335,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                     scrollController: _scrollController,
                     selectedFilter: _selectedFilter,
                     globalTotalCount: _cubit.globalTotalCount,
+                    selectedId: widget.selectedId,
                     onRefresh: () => _cubit.fetchProducts(isRefresh: true),
                     onTapItem: (item) => _navigateToProduct(context, item),
                     onCreateProduct: () => _onCreateProduct(context),

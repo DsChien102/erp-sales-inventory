@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_catalog_domain/domain.dart';
+import '../../data/models.dart';
 import '../utils/resolve_priority_custom_field_group.dart';
 import 'product_measurement_units_page.dart';
 import 'product_stock_adjustment_page.dart';
@@ -73,7 +72,7 @@ class ProductReadinessChecklistPage extends StatelessWidget {
           if (actionId == 'missing_base_unit') {
             context
                 .push(
-                  '/products/items/pcc/measurement-units',
+                  '/products/items/${product.id}/measurement-units',
                   extra: ProductMeasurementUnitsRouteArgs(product: product),
                 )
                 .then(popOnReturn);
@@ -83,7 +82,7 @@ class ProductReadinessChecklistPage extends StatelessWidget {
           if (actionId == 'missing_image') {
             context
                 .push(
-                  '/products/items/pcc/images-maintenance',
+                  '/products/items/${product.id}/images-maintenance',
                   extra: product,
                 )
                 .then(popOnReturn);
@@ -93,7 +92,7 @@ class ProductReadinessChecklistPage extends StatelessWidget {
           if (actionId == 'missing_stock') {
             context
                 .push(
-                  '/products/items/pcc/stock',
+                  '/products/items/${product.id}/stock',
                   extra: ProductStockAdjustmentRouteArgs(product: product),
                 )
                 .then(popOnReturn);
@@ -103,7 +102,7 @@ class ProductReadinessChecklistPage extends StatelessWidget {
           if (actionId == 'missing_price') {
             context
                 .push(
-                  '/products/items/pcc/manual-base-price',
+                  '/products/items/${product.id}/manual-base-price',
                   extra: ProductManualBasePriceRouteArgs(
                     product: product,
                     basePriceCard: ProductBasePriceCardDto(
@@ -120,7 +119,7 @@ class ProductReadinessChecklistPage extends StatelessWidget {
           if (actionId == 'missing_price_band') {
             context
                 .push(
-                  '/products/items/pcc/price-bands',
+                  '/products/items/${product.id}/price-bands',
                   extra: ProductPriceBandsRouteArgs(
                     productId: product.id,
                     productName: product.name,
@@ -143,7 +142,7 @@ class ProductReadinessChecklistPage extends StatelessWidget {
             }
             context
                 .push(
-                  '/products/items/pcc/custom-fields/edit',
+                  '/products/items/${product.id}/custom-fields/edit',
                   extra: ProductCustomFieldGroupEditRouteArgs(
                     productId: product.id,
                     productName: product.name,
@@ -153,13 +152,6 @@ class ProductReadinessChecklistPage extends StatelessWidget {
                 .then(popOnReturn);
             return;
           }
-
-          VToast.show(
-            context,
-            title: 'Thao tác',
-            message: 'Tính năng ($actionId) đang được xây dựng.',
-            type: VToastType.info,
-          );
         },
       ),
     );

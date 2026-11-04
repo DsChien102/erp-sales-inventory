@@ -3,19 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
-import 'package:vet45_shared_application/application.dart';
+import '../../support/catalog_test_registry.dart';
+import '../../support/fake_catalog_scenario.dart';
 
-final class _FakeExecutionContext implements IExecutionContext {
-  @override
-  String get correlationId => 'test-correlation';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'user-1';
-}
 
 void main() {
   final getIt = GetIt.instance;
@@ -25,10 +15,7 @@ void main() {
   });
 
   Widget buildTestWidget({required String scenarioId, String productId = 'product-1'}) {
-    final fakeModule = FakeCatalogModule(scenario: scenarioId);
-
-    getIt.registerSingleton<ICatalogModule>(fakeModule);
-    getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
+    registerFakeCatalog(getIt, scenario: scenarioId);
 
     final router = GoRouter(
       initialLocation: '/change-history',

@@ -21,12 +21,15 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
 import 'package:erp/features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
-import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
 import 'package:erp/features/catalog/presentation.dart';
-
 import 'package:erp/features/catalog/presentation/pages/product_change_history_page.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+
+import 'support/catalog_test_registry.dart';
+import 'support/fake_catalog_scenario.dart';
+export 'support/fake_catalog_scenario.dart';
+export 'support/fake_product_readiness_builder.dart';
+export 'package:erp/features/catalog/data/models.dart' hide ProductChangeHistoryPage;
 
 ProductListItemModel productWithBaseUnit() {
   return const ProductListItemModel(
@@ -49,10 +52,10 @@ ProductListItemModel productWithoutBaseUnit() {
 
 Widget buildMeasurementUnitsRouter(ProductListItemModel product) {
   final router = GoRouter(
-    initialLocation: '/products/items/pcc/units',
+    initialLocation: '/products/items/${product.id}/measurement-units',
     routes: [
       GoRoute(
-        path: '/products/items/pcc/units',
+        path: '/products/items/:productId/measurement-units',
         builder: (context, state) => ProductMeasurementUnitsPage(product: product),
       ),
     ],
@@ -80,17 +83,11 @@ Future<void> setUpErpCatalogE2E({
 }) async {
   await getIt.reset();
   await initDependencies(supabaseModule: SupabaseModule(FakeSupabaseClient()));
-  await getIt.unregister<ICatalogModule>();
-  await getIt.unregister<IExecutionContext>();
+  registerFakeCatalog(getIt, scenario: scenario);
   if (permissionChecker != null && getIt.isRegistered<IPermissionChecker>()) {
     await getIt.unregister<IPermissionChecker>();
     getIt.registerSingleton<IPermissionChecker>(permissionChecker);
   }
-  getIt
-    ..registerSingleton<ICatalogModule>(FakeCatalogModule(scenario: scenario))
-    ..registerSingleton<IExecutionContext>(
-      FakeExecutionContext(tenantId: 'tenant-1', userId: 'user-1'),
-    );
 }
 
 class _GuidedCreateE2ELauncher extends StatefulWidget {
@@ -112,7 +109,7 @@ class _GuidedCreateE2ELauncherState extends State<_GuidedCreateE2ELauncher> {
     if (!mounted) return;
     if (createdProduct != null) {
       context.go(
-        '/products/items/pcc',
+        '/products/items/${createdProduct.id}',
         extra: ProductControlCenterRouteArgs(product: createdProduct),
       );
     }
@@ -135,14 +132,17 @@ Widget buildCatalogPostCreateRouter() {
         builder: (context, state) => const ProductGuidedCreatePage(),
       ),
       GoRoute(
-        path: '/products/items/pcc',
+        path: '/products/items/:productId',
         builder: (context, state) {
           final args = state.extra as ProductControlCenterRouteArgs;
-          return ProductControlCenterPage(product: args.product);
+          return ProductControlCenterPage(
+            productId: args.product.id,
+            initialProduct: args.product,
+          );
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/checklist',
+        path: '/products/items/:productId/checklist',
         builder: (context, state) {
           final args = state.extra as ProductReadinessChecklistRouteArgs;
           return ProductReadinessChecklistPage(
@@ -153,21 +153,21 @@ Widget buildCatalogPostCreateRouter() {
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/units',
+        path: '/products/items/:productId/measurement-units',
         builder: (context, state) {
           final args = state.extra as ProductMeasurementUnitsRouteArgs;
           return ProductMeasurementUnitsPage(product: args.product);
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/stock',
+        path: '/products/items/:productId/stock',
         builder: (context, state) {
           final args = state.extra as ProductStockAdjustmentRouteArgs;
           return ProductStockAdjustmentPage(args: args);
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/manual-base-price',
+        path: '/products/items/:productId/manual-base-price',
         builder: (context, state) {
           final args = state.extra as ProductManualBasePriceRouteArgs;
           return ProductManualBasePricePage(
@@ -177,7 +177,7 @@ Widget buildCatalogPostCreateRouter() {
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/custom-fields/edit',
+        path: '/products/items/:productId/custom-fields/edit',
         builder: (context, state) {
           final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
           return ProductCustomFieldGroupEditPage(args: args);
@@ -205,14 +205,17 @@ Widget buildCatalogDiscoveryRouter() {
         builder: (context, state) => const ProductGuidedCreatePage(),
       ),
       GoRoute(
-        path: '/products/items/pcc',
+        path: '/products/items/:productId',
         builder: (context, state) {
           final args = state.extra as ProductControlCenterRouteArgs;
-          return ProductControlCenterPage(product: args.product);
+          return ProductControlCenterPage(
+            productId: args.product.id,
+            initialProduct: args.product,
+          );
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/checklist',
+        path: '/products/items/:productId/checklist',
         builder: (context, state) {
           final args = state.extra as ProductReadinessChecklistRouteArgs;
           return ProductReadinessChecklistPage(
@@ -223,21 +226,21 @@ Widget buildCatalogDiscoveryRouter() {
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/units',
+        path: '/products/items/:productId/measurement-units',
         builder: (context, state) {
           final args = state.extra as ProductMeasurementUnitsRouteArgs;
           return ProductMeasurementUnitsPage(product: args.product);
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/stock',
+        path: '/products/items/:productId/stock',
         builder: (context, state) {
           final args = state.extra as ProductStockAdjustmentRouteArgs;
           return ProductStockAdjustmentPage(args: args);
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/manual-base-price',
+        path: '/products/items/:productId/manual-base-price',
         builder: (context, state) {
           final args = state.extra as ProductManualBasePriceRouteArgs;
           return ProductManualBasePricePage(
@@ -247,7 +250,7 @@ Widget buildCatalogDiscoveryRouter() {
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/price-bands',
+        path: '/products/items/:productId/price-bands',
         builder: (context, state) {
           final args = state.extra as ProductPriceBandsRouteArgs;
           return ProductPriceBandsPage(
@@ -256,7 +259,7 @@ Widget buildCatalogDiscoveryRouter() {
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/edit-price-band',
+        path: '/products/items/:productId/price-bands/edit',
         builder: (context, state) {
           final args = state.extra as EditProductUnitPriceBandRouteArgs;
           return EditProductUnitPriceBandPage(
@@ -265,28 +268,28 @@ Widget buildCatalogDiscoveryRouter() {
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/profile-maintenance',
+        path: '/products/items/:productId/profile-maintenance',
         builder: (context, state) {
           final product = state.extra as ProductListItemModel;
           return ProductProfileMaintenancePage(product: product);
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/images-maintenance',
+        path: '/products/items/:productId/images-maintenance',
         builder: (context, state) {
           final product = state.extra as ProductListItemModel;
           return ProductImagesMaintenancePage(product: product);
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/custom-fields/edit',
+        path: '/products/items/:productId/custom-fields/edit',
         builder: (context, state) {
           final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
           return ProductCustomFieldGroupEditPage(args: args);
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/change-history',
+        path: '/products/items/:productId/change-history',
         builder: (context, state) {
           final product = state.extra as ProductListItemModel;
           return ProductChangeHistoryPage(
@@ -365,28 +368,31 @@ Future<void> tapEditImages(WidgetTester tester) async {
 
 Widget buildPccMaintenanceRouter(ProductListItemModel product) {
   final router = GoRouter(
-    initialLocation: '/products/items/pcc',
+    initialLocation: '/products/items/${product.id}',
     routes: [
       GoRoute(
-        path: '/products/items/pcc',
-        builder: (context, state) => ProductControlCenterPage(product: product),
+        path: '/products/items/:productId',
+        builder: (context, state) => ProductControlCenterPage(
+          productId: product.id,
+          initialProduct: product,
+        ),
       ),
       GoRoute(
-        path: '/products/items/pcc/profile-maintenance',
+        path: '/products/items/:productId/profile-maintenance',
         builder: (context, state) {
           final maintenanceProduct = state.extra as ProductListItemModel;
           return ProductProfileMaintenancePage(product: maintenanceProduct);
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/images-maintenance',
+        path: '/products/items/:productId/images-maintenance',
         builder: (context, state) {
           final maintenanceProduct = state.extra as ProductListItemModel;
           return ProductImagesMaintenancePage(product: maintenanceProduct);
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/checklist',
+        path: '/products/items/:productId/checklist',
         builder: (context, state) {
           final args = state.extra as ProductReadinessChecklistRouteArgs;
           return ProductReadinessChecklistPage(
@@ -397,14 +403,14 @@ Widget buildPccMaintenanceRouter(ProductListItemModel product) {
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/custom-fields/edit',
+        path: '/products/items/:productId/custom-fields/edit',
         builder: (context, state) {
           final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
           return ProductCustomFieldGroupEditPage(args: args);
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/change-history',
+        path: '/products/items/:productId/change-history',
         builder: (context, state) {
           final historyProduct = state.extra as ProductListItemModel;
           return ProductChangeHistoryPage(
@@ -455,14 +461,17 @@ Future<void> openPriceBandEditor(WidgetTester tester) async {
 
 Widget buildPccPriceBandRouter(ProductListItemModel product) {
   final router = GoRouter(
-    initialLocation: '/products/items/pcc',
+    initialLocation: '/products/items/${product.id}',
     routes: [
       GoRoute(
-        path: '/products/items/pcc',
-        builder: (context, state) => ProductControlCenterPage(product: product),
+        path: '/products/items/:productId',
+        builder: (context, state) => ProductControlCenterPage(
+          productId: product.id,
+          initialProduct: product,
+        ),
       ),
       GoRoute(
-        path: '/products/items/pcc/price-bands',
+        path: '/products/items/:productId/price-bands',
         builder: (context, state) {
           final args = state.extra as ProductPriceBandsRouteArgs;
           return ProductPriceBandsPage(
@@ -471,7 +480,7 @@ Widget buildPccPriceBandRouter(ProductListItemModel product) {
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/edit-price-band',
+        path: '/products/items/:productId/price-bands/edit',
         builder: (context, state) {
           final args = state.extra as EditProductUnitPriceBandRouteArgs;
           return EditProductUnitPriceBandPage(

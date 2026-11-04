@@ -1,7 +1,7 @@
 # 5-C — Chuyển SP-10 sang `ProductRepository` + dọn sạch module catalog, inventory
 
 > Theme 2 (mã cũ P5) · Bước (dọn) theo "Quy tắc dọn module (chốt 2026-10-11)" của PLAN.md
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-04) | Làm ✅ | Review ⬜
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-04) | Làm ✅ | Review ❌ R1 2026-11-04 (4 việc cần sửa)
 > Làm **sau** 5-A1 … 5-W (đã xong). **Không chờ Theme 7** nữa (Q1).
 > Tài liệu: PLAN.md mục Theme 2 dòng 5-C, "Quy tắc dọn module", "Quy tắc migration", "Plan xoá / tách / thay code cũ"; TH-02 US-05.1, US-05.2, 5.8 SP-10, 6.4, KI-04, KI-07; mẫu đã làm: [4-C](../P4/4-C-don-module-partner.md) (lịch sử git).
 
@@ -87,7 +87,7 @@
 | 4 | Điều chỉnh gửi `p_tenant_id`, `p_product_id`, `p_new_quantity`, `p_reason`, `p_expected_quantity = args.currentQuantity` | `ProductRepository.adjustBasicStock` | Task 1 `H1 stock-2`; T0-4 |
 | 5 | Validator: số < 0 → `ValidationException('Số lượng tồn kho ban đầu không được âm.')` / `('Số lượng tồn kho không được âm.')` | `checkSetBasicStock` / `checkAdjustBasicStock` trong `catalog_rules.dart`, cùng câu, `AppErrorCode.validation` | Task 1 rule tests |
 | 6 | Handler đọc facts / control center / units, kiểm đơn vị cơ sở, chế độ, tồn khớp, trả `readinessSummary` (SP-10 bỏ qua kết quả) | **Bỏ** (Q6). Server kiểm chế độ, số, tồn khớp; UI kiểm đơn vị cơ sở | T0-4 (xung đột vẫn bị chặn nhờ server / fake) |
-| 7 | Validator form: rỗng → "Vui lòng nhập số tồn thực tế"; có `.`/`,` → "Tồn kho phải là số nguyên"; không parse → "Số lượng không hợp lệ"; < 0 → "Tồn kho không được âm" | giữ nguyên trong page | `e2e_e05_stock_rejects_fractional_quantity` (có sẵn) + T0-6 |
+| 7 | Validator form: rỗng → "Vui lòng nhập số tồn thực tế"; cũ bỏ `,` rồi mới kiểm ⇒ "1,000" qua form nhưng `_submit` đọc chuỗi gốc ⇒ lưu tồn = 0 (lỗi); có `.` → "Tồn kho phải là số nguyên"; không parse → "Số lượng không hợp lệ"; < 0 → "Tồn kho không được âm" | giữ trong page; có `.`/`,` ⇒ "Tồn kho phải là số nguyên" (**đổi có chủ đích**, sửa lỗi cũ, người dùng chốt 2026-11-04 ở review R1-2) | `e2e_e05_stock_rejects_fractional_quantity` (có sẵn) + T0-6 + `sp10_rejects_thousand_separator` |
 | 8 | `_hasChanges`: có số, hoặc chọn chip, hoặc (điều chỉnh) có ghi chú → bật Lưu | giữ trong page | T0-7 |
 | 9 | Đang gửi: `_isSubmitting` → nút Lưu `isLoading`, nút Huỷ `null` | `state.status == loading` | Task 3 `sp10_save_disabled_while_loading` |
 | 10 | Thành công: toast "Thành công" + "Đã nhập tồn kho ban đầu" / "Đã điều chỉnh tồn kho", `Navigator.pop(true)` (PCC tải lại) | `BlocConsumer.listener` khi `success` | e2e có sẵn (PCC hiện số mới) |
@@ -456,8 +456,102 @@ Nhập ban đầu cũ ném khi `command.mode != 'basic'`. Method mới không c�
   - `scripts/ci/guard_application_use_case_layout.sh`: OK.
   - `verify_schema_lock_sync.dart`: OK.
   - `verify_migration_policy.dart`: OK (0 error, warnings có sẵn).
-  - GitNexus `detect_changes`: 132 files, 283 symbols, 16 affected processes.
+  - GitNexus `detect_changes`: 132 files, 283 symbols, 16 affected processes. (Sai: xem R1-4 bên dưới.)
+
+### Sửa theo review R1 (2026-11-04, Claude làm theo yêu cầu người dùng)
+
+- **R1-1:** `product_stock_adjustment_page.dart:144-169`: ô tồn hiện tại về `Row` như cũ, nhãn "Tồn hiện tại", nền `background`, số đậm, không kèm đơn vị. `:171-173`: "Tồn mới (`$unitName`)" ở cả hai chế độ. `:202-242`: "Lý do", chip `VText` (màu `surface` khi chọn, `textPrimary` khi chưa chọn), `spacing: 8`, khoảng cách `space6` nằm trong `if (!_isInitial)` như cũ. `git diff -w 1b459eb41` phần `build` giờ chỉ còn: `BlocConsumer` / `isSubmitting`, Q5 (`hasBaseUnit`), validator dấu phẩy (R1-2), khoá chip / ghi chú khi đang gửi (`:223`, `:256`), câu chân trang KI-04, nút Lưu / Huỷ theo `isSubmitting`.
+  - **Lệch plan (giữ lại):** khoá chip (`onSelected: isSubmitting ? null : …`) và ô ghi chú (`enabled: !isSubmitting`) khi đang gửi, đi cùng khoá nút Lưu.
+  - Test: `sp10_from_checklist_args_shows_form` về lại `find.text('Tồn mới (Hộp)')` (`product_stock_e2e_test.dart:410`); thêm `sp10_labels_match_th02` (`:435`).
+- **R1-2:** giữ validator mới (`:188`), ghi là đổi có chủ đích ở bảng mục 4 dòng 7. Thêm `sp10_rejects_thousand_separator` (`:446`): "1,000" ⇒ "Tồn kho phải là số nguyên", tồn giữ 150, không gọi `adjustBasicStock`.
+- **R1-3 (commit lẫn việc của plan khác), ghi lại:**
+  - `b8e58744e` `injection.dart`: đăng ký `ProductRepository`, `MeasurementUnitRepository`, `CustomFieldRepository`, `ProductPriceRepository` (5-A1 / 5-A2) và `DefaultPairRepository` (5-A4). Import `features/dashboard/data/default_pair_repository.dart` (chưa có trong git). `catalog_router_harness.dart` import tệp đó và `test/features/dashboard/presentation/fake_default_pair_repository.dart` (chưa có trong git).
+  - `d1f180a46`: `fake_catalog_repositories_test.dart` + 2 tệp khác import `features/catalog/data/models.dart` (chưa có trong git).
+  - `b8e58744e`: nhóm `G9 timezone-independent date format` (3 test) trong `catalog_unit_field_price_rpc_parity_test.dart`; phần sửa `_dateOnly` (`custom_field_repository.dart`) chưa commit.
+  - `b039cce2d`: chặn 8 ảnh trong `20260717005` (5-B G1); phần đi cùng ở `20260709010` chưa commit.
+  - **Đã làm (người dùng chốt 2026-11-04: một commit cho cả Theme 2):** commit `chore(catalog): Theme 2 — commit phần còn lại 5-A2 … 5-W, 5-B + sửa review R1 của 5-C` gồm toàn bộ thay đổi chưa commit của 5-A2, 5-A3, 5-A4, 5-B, 5-W (code, test, migration, `supabase/tests`, plan, TH-01, TH-02) và các sửa R1. **Không** gồm `AGENTS.md`, `CLAUDE.md` (số liệu chỉ mục GitNexus tự sinh).
+- **R1-4:**
+  - Impact (GitNexus, upstream, chạy 2026-11-04 lúc sửa R1):
+
+    | Symbol | Caller trực tiếp | Rủi ro | Ghi chú |
+    |---|---|---|---|
+    | `ProductStockAdjustmentPage` | 3 | LOW | router + test; R1 sửa thân `build` của view con |
+    | `ProductStockAdjustmentCubit` | 2 | LOW | page + test cubit |
+    | `ProductRepository` | 23 | ⚠️ **HIGH** | Task 1 chỉ **thêm** `setBasicStock` / `adjustBasicStock`, không đổi method cũ; 3 lớp `implements` ở sales có `noSuchMethod`. R1 không sửa |
+    | `catalogException` | 4 (4 process) | ⚠️ **HIGH** | Task 1 chỉ **thêm** nhánh `invalid_stock_quantity` và vế `product_not_found`; nhánh cũ không đổi (40 test nhóm `new` của `catalog_errors_test` xanh). R1 không sửa |
+    | `initDependencies` | 1 | LOW | `main` |
+    | `registerFakeCatalog` | 0 (chỉ mục) | LOW | thật ra nhiều test gọi; chỉ mục không theo dõi caller trong `test/` |
+    | `FakeCatalogBackend` | 0 (chỉ mục) | LOW | như trên |
+
+    Lúc viết plan, `ProductStockAdjustmentPage` / `catalogException` ra CRITICAL (mục 3); chỉ mục sau commit ra số trên.
+  - Lệch plan chưa ghi ở lượt làm đầu: chữ / bố cục SP-10 và test `'Tồn ban đầu (Hộp)'` (đã sửa ở R1-1); validator dấu phẩy (R1-2); **bỏ** test `registerFakeCatalog does not register ICatalogModule` (Task 2 Step 1, đúng plan); 4 việc lẫn commit (R1-3).
+  - Số test: `catalog_unit_field_price_rpc_parity_test.dart` trước là **71** (không phải 74). Bỏ 37 test `old` còn 34, cộng 3 test G9 (R1-3) ⇒ 37.
+  - `detect_changes --scope compare --base-ref 1b459eb41` (so cây làm việc, gồm cả 226 thay đổi chưa commit của plan khác): 178 tệp, 690 symbol, 16 process. Riêng commit 5-C (`git diff 1b459eb41 HEAD`): 588 tệp, trong đó 539 tệp thuộc `modules/` bị xoá, 49 tệp ngoài `modules/`.
+- **T1:** `sales_external_lookups.dart:52` đổi chú thích `[ICatalogModule]` → `` `ProductRepository` (catalog) ``.
+- **T2:** TH-02 6.1: sơ đồ đổi thành Page → Cubit → 4 repository → `rpc`; dòng SP-10 ghi "KI-07 đã sửa ở 5-C".
+- **Kiểm:** `cd apps/erp && flutter test`: **2112 đạt / 59 lỗi**; bộ 59 lỗi trùng hệt lượt trước (không lỗi mới, +2 test mới của R1). `flutter test product_stock_e2e_test.dart product_stock_adjustment_cubit_test.dart`: 27 đạt, 3 lỗi = 3 dòng baseline (`TEST-BASELINE.md:106-108`); 14 test hành vi 5-C (T0-1 … T0-8 + 6 test `sp10_*`) xanh. `dart analyze` 3 tệp sửa: 0 error / warning.
 
 ## 9. Review
 
 <!-- Chỉ phiên review ghi -->
+
+### R1 — 2026-11-04 — ❌ CHƯA ĐẠT
+
+| Hạng mục | Kết quả |
+|---|---|
+| Task 1: repository, rule, câu lỗi | ✅ `product_repository.dart:772-815`: đúng 2 RPC, đúng map tham số, rule trước `_tenantId()`, không đọc thêm. `catalog_errors.dart:262` (`invalid_stock_quantity`), `:331` (`product_not_found`) chỉ thêm nhánh, đúng thứ tự với câu `raise` của `20260712003` (`:71`, `:160`, `:170`, `:178`). `catalog_error_messages.dart:58` đúng câu 6.4 |
+| Task 2: fake | ✅ `fake_catalog_backend.dart:2537-2603` ném `AppException` đúng bảng; `movementType` là `String`; `fake_stock_catalog_module.dart` đã xoá; không còn `registerLegacyModule` / `ICatalogModule` trong `test/` |
+| Task 3: cubit | ✅ `product_stock_adjustment_cubit.dart`: `combineStockAdjustmentReason` đúng BR-27; nhập ban đầu bỏ qua chip / ghi chú; `expectedQuantity = currentQuantity`; lỗi qua `catalogErrorMessage` |
+| Task 3: màn SP-10 | ❌ Q5, KI-04, KI-07, khoá Lưu khi đang gửi: ✅. **Lệch plan:** đổi câu chữ + bố cục ngoài plan, trái TH-02 5.8 (R1-1); đổi cách đọc dấu phẩy chưa ghi lại (R1-2) |
+| Task 4: xoá module, DI, workspace, test `old` | ✅ `ls modules` = `einvoice partner pricing sales`; không còn `package:vet45_(catalog\|inventory)_` (chỉ còn chuỗi fixture trong `vet45_generator/test`, như mục 7). Số test sau khi bỏ `old` khớp Kết quả (đếm lại: `catalog_unit_field_price_rpc_parity_test` trước là 71 chứ không phải 74). Nhóm `new` không mất test nào. `catalog_sql_contract_test.dart` 8 test |
+| Task 5: DB | ✅ `20260623000002` chỉ còn 5 schema; 0 `catalog.enqueue_outbox_message`, 0 `v_outbox_payload`, 0 tham chiếu bảng outbox / inbox / internal_commands của `catalog` / `inventory`. **Lẫn việc plan khác** vào commit (R1-3) |
+| Kiểm tổng (review tự chạy) | ✅ `dart analyze lib test`: 0 error, 1 warning có sẵn (`order_einvoice_section_test.dart:32`). `flutter test`: **2110 đạt / 59 lỗi**, không lỗi nào ở SP-10. `apps/erp/example` `dart analyze lib`: 0 error. CI guard: OK. `verify_schema_lock_sync`: OK. `verify_migration_policy`: 0 error, 1 warning của `20261104001` (5-A4) |
+| Commit | ❌ HEAD không tự build được: import tệp chưa có trong git (R1-3) |
+| Kết quả (mục 8) | ❌ Thiếu bảng impact, thiếu ghi lệch plan (R1-4) |
+
+### R1 — việc cần sửa
+
+#### R1-1 — SP-10 đổi câu chữ / bố cục ngoài plan, trái TH-02 5.8
+
+- **Hiện trạng** (`product_stock_adjustment_page.dart`):
+  - `:145-167`: ô tồn hiện tại đổi `Row` → `Column`, nhãn "Tồn hiện tại" → **"Tồn kho hiện tại"**, bỏ nền `dynamicColors.background` và chữ đậm của số.
+  - `:172`: nhập ban đầu hiện **"Tồn ban đầu (…)"**. TH-02 US-05.1 FR-01 và US-05.2 FR-01 đều ghi "Tồn mới (`<đơn vị>`)" cho cả hai chế độ.
+  - `:205`: "Lý do" → **"Lý do điều chỉnh (không bắt buộc)"** (US-05.2 FR-02: "Lý do").
+  - `:216-222`: nhãn chip đổi `VText` → `Text`, màu chữ khi chọn đổi `surface` → `textPrimary` (chữ tối trên nền `success`).
+  - Test `sp10_from_checklist_args_shows_form` (`product_stock_e2e_test.dart:410`) bị sửa thành `'Tồn ban đầu (Hộp)'`, khác plan (`'Tồn mới (Hộp)'`). `find.text('Lý do')` của T0-8 (`:393`) giờ luôn đúng vì chữ đã đổi, nên không còn kiểm được gì.
+- **Sửa:** đưa khối tồn hiện tại, nhãn ô nhập, nhãn "Lý do", chip về đúng như code cũ (`git show 1b459eb41:apps/erp/lib/features/catalog/presentation/pages/product_stock_adjustment_page.dart`, dòng 160-238). Giữ các phần mới đúng plan: `BlocConsumer`, `isSubmitting`, Q5, câu chân trang. Khoá chip / ô ghi chú khi đang gửi (`:225`, `:258`) là thêm ngoài plan nhưng hợp lý (đi cùng khoá Lưu): giữ, ghi vào Kết quả là lệch plan.
+- **Test:** `sp10_from_checklist_args_shows_form` quay về `find.text('Tồn mới (Hộp)')`. Thêm `sp10_labels_match_th02`: mở màn điều chỉnh (`pccReadyToSell`), kiểm `find.text('Tồn hiện tại')`, `find.text('Tồn mới (Hộp)')`, `find.text('Lý do')` đều findsOneWidget.
+
+#### R1-2 — Đổi cách đọc dấu phẩy (người dùng chốt 2026-11-04: giữ bản mới)
+
+- **Hiện trạng:** code cũ bỏ dấu phẩy rồi mới kiểm (`value.trim().replaceAll(',', '')`), nên "1,000" qua được form. Nhưng `_submit` lại đọc chuỗi gốc: `int.tryParse('1,000')` ra `null`, `?? 0` ⇒ **lưu tồn = 0** mà không báo gì. Code mới (`:187`) chặn luôn dấu phẩy: "Tồn kho phải là số nguyên". Bảng mục 4 dòng 7 của plan cũng ghi sai hành vi cũ.
+- **Người dùng chốt:** giữ cách chặn (khớp US-05.1 AC-02). Đây là **đổi có chủ đích (sửa lỗi cũ)**.
+- **Sửa:** ghi vào Kết quả. Sửa dòng 7 bảng mục 4: "cũ: bỏ `,` rồi kiểm ⇒ '1,000' lưu thành 0 (lỗi); mới: có `.`/`,` ⇒ 'Tồn kho phải là số nguyên' (**đổi có chủ đích**, chốt 2026-11-04)".
+- **Test:** `sp10_rejects_thousand_separator`: màn điều chỉnh `product-1` tồn 150, nhập `1,000`, Lưu ⇒ `find.text('Tồn kho phải là số nguyên')` findsOneWidget; `p.stockQty == 150`; repository không bị gọi (`calls` không có `adjustBasicStock`).
+
+#### R1-3 — Commit của 5-C không tự build được và lẫn việc của plan khác
+
+- **Hiện trạng:** cây làm việc còn 226 thay đổi chưa commit (code 5-A2 … 5-W, 5-A4, 5-B). Commit 5-C lại lấy một phần của chúng:
+  - `b8e58744e` `injection.dart` đăng ký 4 repository catalog và `DefaultPairRepository` (5-A1 / 5-A4), import `features/dashboard/data/default_pair_repository.dart`, **tệp chưa có trong git**. `catalog_router_harness.dart` cũng import tệp đó và `test/features/dashboard/presentation/fake_default_pair_repository.dart` (cũng chưa có trong git).
+  - `d1f180a46` `fake_catalog_repositories_test.dart` (và 2 tệp khác) import `features/catalog/data/models.dart`, **chưa có trong git**.
+  - `b8e58744e` thêm nhóm test `G9 timezone-independent date format` (`catalog_unit_field_price_rpc_parity_test.dart`), nhưng phần sửa `_dateOnly` (`custom_field_repository.dart`) vẫn chưa commit ⇒ ở HEAD test này đỏ.
+  - `b039cce2d` thêm chặn 8 ảnh vào `20260717005` (5-B G1), trong khi phần đi cùng ở `20260709010` vẫn chưa commit.
+  - Checkout HEAD (hoặc chạy CI) sẽ không biên dịch được `apps/erp`.
+- **Sửa:** người dùng commit phần còn lại của 5-A2 … 5-W / 5-B (đúng plan của từng phần) để HEAD đủ tệp. Không cần viết lại lịch sử 5-C; ghi vào Kết quả mục nào đã lẫn vào commit nào (4 dòng trên).
+- **Kiểm:** sau khi commit, không tệp nào đã commit còn import tệp chưa có trong git. Cách kiểm: `git worktree add` một bản sạch tại HEAD, `flutter pub get`, `cd apps/erp && dart analyze lib test` ⇒ 0 error.
+
+#### R1-4 — Mục 8 "Kết quả" thiếu bảng impact và thiếu ghi lệch plan
+
+- Global Constraints bắt ghi `impact` từng symbol trước khi sửa. Kết quả chưa có bảng nào. Cần ít nhất: `ProductRepository`, `catalogException`, `ProductStockAdjustmentPage`, `registerFakeCatalog`, `FakeCatalogBackend`, `initDependencies` (số caller trực tiếp, mức rủi ro; ghi cảnh báo CRITICAL như mục 3).
+- Thiếu các lệch plan: R1-1 (chữ / bố cục, test sửa thành `'Tồn ban đầu (Hộp)'`), R1-2, bỏ test `registerFakeCatalog does not register ICatalogModule` (plan Task 2 Step 1 bắt ghi), 4 việc lẫn commit ở R1-3.
+- Số `catalog_unit_field_price_rpc_parity_test` ghi "74 -> 37"; đếm ở `d1f180a46` là 71. Kiểm lại cách đếm rồi sửa.
+- `detect_changes` ghi "132 files, 283 symbols", trùng hệt số dự kiến trong Task 6. Chạy lại sau R1-1 … R1-3, ghi số thật.
+- **Sửa:** bổ sung các mục trên, kèm sửa R1-1, R1-2.
+
+#### Tuỳ chọn (không chặn)
+
+- **T1:** chú thích cũ `sales_external_lookups.dart:52` ("implement ở ERP bằng [ICatalogModule]") nay sai. Đổi thành `ProductRepository`.
+- **T2:** TH-02 `:1997` ("Ngoại lệ: SP-10 … gọi ICatalogModule trực tiếp … (KI-07)") nay đã hết. Sửa câu hoặc ghi "đã sửa ở 5-C".
+- **T3:** 2 test lỗi không có tên trong `TEST-BASELINE.md`: `e2e_e02_u01_fr01_01: duplicate SKU opens existing product in PCC`, `e2e_e07_u04_fr02_01: product change history can be viewed from PCC`. Cả hai đều lỗi ở tiêu đề PCC (không tìm thấy tên sản phẩm), không dính SP-10, tổng vẫn là 59. Phiên review lượt đạt sẽ cập nhật `TEST-BASELINE.md` (như 4-C) và đối chiếu lại tên.
+
+**Việc của người dùng (không thuộc phiên code):** `supabase db reset` local + `supabase/tests/catalog_th02.sql`; kiểm `catalog` / `inventory` không còn `outbox_messages`, `inbox_messages`, `internal_commands`; **cần reset Dev**.

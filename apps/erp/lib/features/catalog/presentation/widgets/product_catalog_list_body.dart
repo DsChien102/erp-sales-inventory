@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_catalog_application/application.dart';
+import '../../data/models.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
@@ -15,6 +15,7 @@ class ProductCatalogListBody extends StatelessWidget {
     required this.onRefresh,
     required this.onTapItem,
     required this.onCreateProduct,
+    this.selectedId,
   });
 
   /// Viewport-friendly skeleton count for first load / refresh (option B).
@@ -26,6 +27,7 @@ class ProductCatalogListBody extends StatelessWidget {
   final Future<void> Function() onRefresh;
   final ValueChanged<ProductListItemDto> onTapItem;
   final Future<void> Function() onCreateProduct;
+  final String? selectedId;
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +137,7 @@ class ProductCatalogListBody extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: VSpacing.sm),
                   child: ProductListItemTile(
                     item: item,
+                    isSelected: selectedId == item.id,
                     onTap: () => onTapItem(item),
                   ),
                 );
@@ -167,7 +170,12 @@ class _ProductCatalogEmptyState extends StatelessWidget {
     final String? actionLabel;
     final Future<void> Function()? onActionPressed;
 
-    if (!hasProducts) {
+    if (selectedFilter == ProductListFilter.deleted) {
+      title = 'Không có sản phẩm đã xóa.';
+      description = null;
+      actionLabel = null;
+      onActionPressed = null;
+    } else if (!hasProducts) {
       title = 'Chưa có sản phẩm nào được tạo';
       description = null;
       actionLabel = 'Tạo sản phẩm';

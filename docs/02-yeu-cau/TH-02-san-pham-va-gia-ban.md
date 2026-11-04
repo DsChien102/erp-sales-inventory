@@ -1992,9 +1992,9 @@ Không còn blocker: "Sản phẩm đã sẵn sàng vận hành."
 ### 6.1 Đường đi hiện tại
 
 ```text
-Page ─▶ Cubit ─▶ ICatalogModule.executeCommand/QueryAsync ─▶ Handler ─▶ Gateway
-     ─▶ supabase.schema('catalog').rpc(...)
-Ngoại lệ: SP-10 (tồn kho) gọi ICatalogModule trực tiếp từ page, không qua cubit (KI-07).
+Page ─▶ Cubit (logic/) ─▶ ProductRepository / MeasurementUnitRepository /
+     CustomFieldRepository / ProductPriceRepository (data/) ─▶ supabase.schema('catalog').rpc(...)
+SP-10 (tồn kho) cũng qua ProductStockAdjustmentCubit ─▶ ProductRepository (KI-07 đã sửa ở 5-C, 2026-11-04).
 Ảnh: request_*_image_upload → upload Storage → gửi storage_key khi lưu.
 ```
 
@@ -2127,6 +2127,7 @@ Thông điệp dưới đây là **chuẩn**. 🔧 Hiện nhiều lỗi hiện t
 | KI-21 | Chế độ `advanced` (tồn từ kho), `costing_module` (giá từ giá vốn), trạng thái `ready_to_receive`, blocker `pending_*` có trong DB nhưng không dùng | **Giữ trong DB, không dùng**; Theme 7 quyết định | P11 |
 | KI-22 | Tạo sản phẩm chọn "Cửa hàng" khi chưa có giá cơ sở thì không tạo khung giá; sửa ở SP-13 thì lưu khung chờ | **Giữ nguyên** (readiness như nhau) | — |
 | KI-23 | Tạo sản phẩm và sửa hồ sơ không hỏi khi thoát có thay đổi | **Giữ nguyên** | — |
+| KI-24 | Giá trị trường bổ sung kiểu ngày bị lưu **lùi 1 ngày** khi chọn ngày mới: `VDatePicker` trả 00:00 giờ máy, `_dateOnly` (`features/catalog/data/custom_field_repository.dart`, chép từ `CustomFieldRpcMapper._dateOnly`) gọi `toUtc()` rồi mới cắt `yyyy-MM-dd` (UTC+7 ⇒ ngày hôm trước). Ngày tải từ server (00:00 UTC) không bị | **Sửa**: lấy năm / tháng / ngày của giá trị, không `toUtc()` (phát hiện khi rà 5-A2, người dùng chốt 2026-11-03) | P5 (5-B) |
 
 ---
 

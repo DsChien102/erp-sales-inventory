@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/catalog/presentation.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 import '../../../../../core/di/injection.dart';
+import '../../../data/custom_field_repository.dart';
+import '../../../data/models.dart';
 
 class CustomFieldGroupsPage extends StatefulWidget {
   const CustomFieldGroupsPage({super.key});
@@ -21,8 +21,7 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
   void initState() {
     super.initState();
     _cubit = CustomFieldConfigCubit(
-      getIt<ICatalogModule>(),
-      getIt<IExecutionContext>(),
+      customFieldRepository: getIt<CustomFieldRepository>(),
     )..loadGroups();
   }
 

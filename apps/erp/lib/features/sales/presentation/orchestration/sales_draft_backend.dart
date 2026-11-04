@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:vet45_pricing_application/application.dart' as pricing;
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
@@ -300,12 +301,9 @@ abstract final class SalesDraftBackend {
       return const _CatalogResolutionOutcome(failed: false, byProductId: {});
     }
     try {
-      final resolutions = await di<ICatalogModule>().executeQueryAsync(
-        ResolveSellableProductsQuery(
-          tenantId: tenantId,
-          storeId: storeId,
-          productIds: requested,
-        ),
+      final resolutions = await di<ProductRepository>().resolveSellable(
+        storeId: storeId,
+        productIds: requested,
       );
       return _CatalogResolutionOutcome(
         failed: false,

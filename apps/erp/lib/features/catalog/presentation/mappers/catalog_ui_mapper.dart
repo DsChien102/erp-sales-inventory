@@ -1,7 +1,6 @@
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_domain/domain.dart';
-import '../bloc/product_guided_create_state.dart';
-import '../models/product_business_status.dart';
+import '../../data/models.dart';
+import '../../logic/product_guided_create_state.dart';
+import '../../logic/store_price_suggestion.dart';
 import '../models/product_list_item_model.dart';
 import '../models/product_readiness_status.dart';
 import '../utils/catalog_currency_formatters.dart';
@@ -129,6 +128,35 @@ class CatalogUiMapper {
       barcode: barcode,
       businessStatus: ProductBusinessStatus.active,
       readinessStatus: ProductReadinessStatus.needsReview,
+    );
+  }
+
+  /// Build or refresh a [ProductListItemModel] from [ProductControlCenterDto].
+  ///
+  /// Used by PCC when loaded by ID on web/desktop so sub-screens and delete dialogs
+  /// receive a consistent [ProductListItemModel] without relying on `extra`.
+  static ProductListItemModel listItemFromControlCenter(
+    ProductControlCenterDto cc, {
+    ProductListItemModel? base,
+  }) {
+    final seed = base ??
+        minimalFromDuplicate(
+          productId: cc.profile.productId,
+          productName: cc.profile.name,
+          sku: cc.profile.sku,
+          barcode: cc.profile.barcode,
+        );
+    return seed.copyWith(
+      name: cc.profile.name,
+      tradeName: cc.profile.tradeName,
+      sku: cc.profile.sku,
+      barcode: cc.profile.barcode,
+      images: cc.profile.images,
+      imageUrl: cc.profile.primaryImageUrl,
+      businessStatus: cc.profile.businessStatus,
+      baseUnit: cc.units.baseUnitName,
+      notes: cc.profile.note,
+      stockQty: cc.stock.quantity,
     );
   }
 }

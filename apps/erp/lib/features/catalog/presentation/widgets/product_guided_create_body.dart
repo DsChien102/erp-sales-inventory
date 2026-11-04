@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../bloc/product_guided_create_cubit.dart';
-import '../bloc/product_guided_create_state.dart';
+import '../../logic/product_guided_create_cubit.dart';
+import '../../logic/product_guided_create_state.dart';
 import 'product_guided_step_base_unit.dart';
 import 'product_guided_step_identification.dart';
 import 'product_guided_step_images.dart';
@@ -84,8 +84,8 @@ class ProductGuidedCreateBody extends StatelessWidget {
                       _buildStep(
                         context: context,
                         stepIndex: 4,
-                        title: '5. Giá vốn cơ sở',
-                        subtitle: 'Thiết lập giá vốn ban đầu',
+                        title: '5. Giá cơ sở',
+                        subtitle: 'Thiết lập giá cơ sở ban đầu',
                         isExpanded: state.activeStepIndex == 4,
                         child: ProductGuidedStepBaseCost(state: state),
                       ),

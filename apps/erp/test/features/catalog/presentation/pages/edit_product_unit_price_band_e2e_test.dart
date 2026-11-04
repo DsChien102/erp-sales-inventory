@@ -1,10 +1,12 @@
+import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_shared_application/application.dart';
+
+import '../../support/catalog_test_registry.dart';
 
 final class _ExecutionContext implements IExecutionContext {
   @override
@@ -22,9 +24,8 @@ void main() {
 
   setUp(() async {
     await getIt.reset();
-    getIt
-      ..registerSingleton<IExecutionContext>(_ExecutionContext())
-      ..registerSingleton<ICatalogModule>(FakeCatalogModule());
+    getIt.registerSingleton<IExecutionContext>(_ExecutionContext());
+    registerFakeCatalog(getIt);
   });
 
   tearDown(() => getIt.reset());
@@ -102,5 +103,32 @@ void main() {
       find.byKey(const Key('btn_price_band_save')),
     );
     expect(saveButton.onPressed, isNotNull);
+  });
+
+  testWidgets('g5_store_rule_help_text', (tester) async {
+    const row = ProductUnitPriceBandRowDto(
+      productUnitId: 'product-4-base',
+      unitName: 'Chai',
+      isBaseUnit: true,
+      isActive: true,
+      isMissing: true,
+      basePrice: 25000,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: EditProductUnitPriceBandPage(
+          args: EditProductUnitPriceBandRouteArgs(
+            row: row,
+            productId: 'product-4',
+            productName: 'Vitamin B Complex',
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tự động áp dụng khung giá cửa hàng.'), findsOneWidget);
+    expect(find.text('Tự động áp dụng khung giá của hàng.'), findsNothing);
   });
 }

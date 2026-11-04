@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_domain/domain.dart';
+import '../../data/models.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 /// Bottom sheet content cho phép chọn option single-select per custom field.
 ///
-/// Được sử dụng bởi [ProductCatalogTabPage] qua [showVBottomSheet].
+/// Được sử dụng bởi [ProductCatalogTabPage] qua [showVAdaptiveSheet].
 class CustomFieldFilterSheet extends StatefulWidget {
   const CustomFieldFilterSheet({
     super.key,

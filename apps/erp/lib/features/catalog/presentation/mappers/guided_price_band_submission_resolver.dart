@@ -1,6 +1,6 @@
-import 'package:vet45_catalog_application/application.dart';
-
-import '../bloc/product_guided_create_state.dart';
+import '../../data/models.dart';
+import '../../logic/product_guided_create_state.dart';
+import '../../logic/store_price_suggestion.dart';
 import '../utils/catalog_currency_formatters.dart';
 
 final class GuidedPriceBandSubmission {

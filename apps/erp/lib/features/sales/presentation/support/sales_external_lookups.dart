@@ -49,7 +49,7 @@ final class SalesExternalOperationException implements Exception {
 
 typedef SalesCustomerOperationException = SalesExternalOperationException;
 
-/// Lookup SP bán được — implement ở ERP bằng [ICatalogModule].
+/// Lookup SP bán được — implement ở ERP bằng `ProductRepository` (catalog).
 typedef SalesProductSearchFn =
     Future<List<SalesSellableProductVm>> Function(
       String query, {

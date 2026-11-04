@@ -1,23 +1,13 @@
+import 'package:erp/features/catalog/presentation.dart';
 import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
+import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:erp/features/catalog/presentation.dart';
-import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
 
-final class _FakeExecutionContext implements IExecutionContext {
-  @override
-  String get correlationId => 'test-correlation';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'user-1';
-}
+import '../../support/catalog_test_registry.dart';
+import '../../support/fake_catalog_scenario.dart';
 
 ProductListItemModel _sampleProduct({
   required String id,
@@ -38,24 +28,28 @@ void main() {
     await getIt.reset();
   });
 
+  tearDown(() async {
+    await getIt.reset();
+  });
+
   Widget buildTestableWidget({
-    required FakeCatalogModule catalogModule,
+    String scenario = FakeCatalogScenario.pccReadyToSell,
     required ProductListItemModel product,
   }) {
-    getIt
-      ..registerSingleton<IExecutionContext>(_FakeExecutionContext())
-      ..registerSingleton<ICatalogModule>(catalogModule)
-      ..registerSingleton<IModuleMediator>(FakeModuleMediator(catalogModule: catalogModule));
+    registerFakeCatalog(getIt, scenario: scenario);
 
     final router = GoRouter(
-      initialLocation: '/products/items/pcc',
+      initialLocation: '/products/items/${product.id}',
       routes: [
         GoRoute(
-          path: '/products/items/pcc',
-          builder: (context, state) => ProductControlCenterPage(product: product),
+          path: '/products/items/:productId',
+          builder: (context, state) => ProductControlCenterPage(
+            productId: state.pathParameters['productId']!,
+            initialProduct: product,
+          ),
         ),
         GoRoute(
-          path: '/products/items/pcc/price-bands',
+          path: '/products/items/:productId/price-bands',
           builder: (context, state) {
             final args = state.extra as ProductPriceBandsRouteArgs;
             return ProductPriceBandsPage(args: args);
@@ -68,14 +62,13 @@ void main() {
   }
 
   testWidgets('clicking price band section navigates to ProductPriceBandsPage', (tester) async {
-    final catalogModule = FakeCatalogModule(scenario: FakeCatalogScenario.pccReadyToSell);
     final product = _sampleProduct(
       id: 'product-1',
       name: 'Amoxicillin 500mg',
     );
 
     await tester.pumpWidget(
-      buildTestableWidget(catalogModule: catalogModule, product: product),
+      buildTestableWidget(scenario: FakeCatalogScenario.pccReadyToSell, product: product),
     );
     await tester.pumpAndSettle();
 
@@ -93,29 +86,26 @@ void main() {
     expect(find.byType(ProductPriceBandsPage), findsOneWidget);
     expect(find.text('Khung giá bán'), findsOneWidget);
   });
-}
 
-class FakeModuleMediator implements IModuleMediator {
-  final FakeCatalogModule catalogModule;
+  testWidgets('g5_price_bands_no_footer_last_row_visible', (tester) async {
+    final product = _sampleProduct(
+      id: 'product-1',
+      name: 'Amoxicillin 500mg',
+    );
 
-  FakeModuleMediator({required this.catalogModule});
+    await tester.pumpWidget(
+      buildTestableWidget(scenario: FakeCatalogScenario.pccReadyToSell, product: product),
+    );
+    await tester.pumpAndSettle();
 
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    throw UnimplementedError();
-  }
+    final priceBandFinder = find.text('Khung giá');
+    await tester.ensureVisible(priceBandFinder.first);
+    await tester.pumpAndSettle();
+    await tester.tap(priceBandFinder.first);
+    await tester.pumpAndSettle();
 
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is ListProductUnitPriceBandsQuery) {
-      final q = query as ListProductUnitPriceBandsQuery;
-      return ProductUnitPriceBandsDto(
-            productId: q.productId,
-            baseUnitName: 'Lọ',
-            rows: [],
-          )
-          as TResult;
-    }
-    throw UnimplementedError();
-  }
+    expect(find.byType(ProductPriceBandsPage), findsOneWidget);
+    expect(find.text('Thay đổi có áp dụng cho cửa hàng và kênh phân phối.'), findsNothing);
+    expect(find.textContaining('Thay đổi có áp dụng cho cửa hàng'), findsNothing);
+  });
 }

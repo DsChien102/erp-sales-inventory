@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/measurement_unit_repository.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_price_repository.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/pricing_selectable_entity_card.dart';
 
@@ -47,32 +48,23 @@ class _PricingPickUnitPageState extends State<PricingPickUnitPage> {
       _errorMessage = null;
     });
     try {
-      final executionContext = GetIt.instance<IExecutionContext>();
-      final tenantId = await executionContext.requireTenantId();
-      final catalog = GetIt.instance<ICatalogModule>();
+      final unitRepo = GetIt.instance<MeasurementUnitRepository>();
+      final priceRepo = GetIt.instance<ProductPriceRepository>();
 
-      final unitsResult = await catalog.executeQueryAsync(
-        ListProductUnitsQuery(
-          tenantId: tenantId,
-          productId: widget.productId,
-        ),
-      );
+      final unitsResult = await unitRepo.listProductUnits(widget.productId);
       final units = unitsResult.units.where((u) => u.isActive).toList();
 
       var priceByUnitId = <String, ProductPriceBandSnapshotItemDto>{};
       if (units.isNotEmpty) {
-        final snapshot = await catalog.executeQueryAsync(
-          GetProductPriceBandSnapshotQuery(
-            tenantId: tenantId,
-            items: units
-                .map(
-                  (u) => ProductPriceBandSnapshotRequest(
-                    productId: widget.productId,
-                    productUnitId: u.id,
-                  ),
-                )
-                .toList(growable: false),
-          ),
+        final snapshot = await priceRepo.getPriceBandSnapshot(
+          units
+              .map(
+                (u) => ProductPriceBandSnapshotRequest(
+                  productId: widget.productId,
+                  productUnitId: u.id,
+                ),
+              )
+              .toList(growable: false),
         );
         priceByUnitId = {
           for (final item in snapshot.items) item.productUnitId: item,

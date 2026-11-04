@@ -18,10 +18,10 @@ import 'package:erp/features/inventory/presentation/pages/receipt_entry_choice_p
 import '../support/fake_iam_backend.dart';
 import '../../auth/support/scripted_auth.dart';
 
-import 'package:vet45_inventory_application/application.dart';
+import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
-import '../../dashboard/presentation/ready_default_pair_inventory_module.dart';
+import '../../dashboard/presentation/fake_default_pair_repository.dart';
 
 base class _CustomSessionStore extends SessionStore {
   _CustomSessionStore({
@@ -50,7 +50,7 @@ void main() {
     await getIt.reset();
     getIt
       ..registerSingleton<IExecutionContext>(FakeExecutionContext(tenantId: 'tenant-test'))
-      ..registerSingleton<IInventoryModule>(const ReadyDefaultPairInventoryModule());
+      ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository());
   });
 
   tearDown(() async {

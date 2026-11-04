@@ -1,13 +1,17 @@
-import 'package:vet45_catalog_domain/domain.dart';
+import '../../data/models/catalog_enums.dart';
 
-export 'package:vet45_catalog_domain/domain.dart' show ProductBusinessStatus;
+export '../../data/models/catalog_enums.dart' show ProductBusinessStatus;
 
 extension ProductBusinessStatusUi on ProductBusinessStatus {
+  bool get isActive => this == ProductBusinessStatus.active;
+  bool get isInactive => this == ProductBusinessStatus.inactive;
+  bool get isSoftDeleted => this == ProductBusinessStatus.softDeleted;
+
   String get label {
-    if (identical(this, ProductBusinessStatus.active) || isActive) {
+    if (this == ProductBusinessStatus.active) {
       return 'Đang KD';
     }
-    if (identical(this, ProductBusinessStatus.inactive) || isInactive) {
+    if (this == ProductBusinessStatus.inactive) {
       return 'Ngừng KD';
     }
     return 'Đã xóa';

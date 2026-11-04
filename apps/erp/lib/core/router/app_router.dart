@@ -3,7 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
+import '../../features/catalog/data/models.dart' hide ProductChangeHistoryPage;
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:vet45_pricing_application/application.dart';
@@ -326,6 +326,157 @@ final appRouter = GoRouter(
         );
       },
     ),
+    // Sản phẩm: các route độc lập / toàn màn khai báo TRƯỚC ShellRoute(StoreShell)
+    GoRoute(
+      path: '/products/items/new',
+      name: 'products.items.new',
+      builder: (context, state) => const ProductGuidedCreatePage(),
+    ),
+    GoRoute(
+      path: '/products/items/:productId/view',
+      name: 'products.items.view',
+      builder: (context, state) {
+        final productId = state.pathParameters['productId']!;
+        final initial = state.extra is ProductListItemModel
+            ? state.extra as ProductListItemModel
+            : null;
+        return ProductControlCenterPage(
+          productId: productId,
+          initialProduct: initial,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/checklist',
+      name: 'products.items.pcc.checklist',
+      redirect: (context, state) => state.extra is ProductReadinessChecklistRouteArgs
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final args = state.extra as ProductReadinessChecklistRouteArgs;
+        return ProductReadinessChecklistPage(
+          readinessView: args.readinessView,
+          product: args.product,
+          customFieldGroupCards: args.customFieldGroupCards,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/measurement-units',
+      name: 'products.items.pcc.measurement-units',
+      redirect: (context, state) => state.extra is ProductMeasurementUnitsRouteArgs
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final args = state.extra as ProductMeasurementUnitsRouteArgs;
+        return ProductMeasurementUnitsPage(product: args.product);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/stock',
+      name: 'products.items.pcc.stock',
+      redirect: (context, state) => state.extra is ProductStockAdjustmentRouteArgs
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final args = state.extra as ProductStockAdjustmentRouteArgs;
+        return ProductStockAdjustmentPage(args: args);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/note',
+      name: 'products.items.pcc.note',
+      redirect: (context, state) => state.extra is ProductNoteEditRouteArgs
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final args = state.extra as ProductNoteEditRouteArgs;
+        return ProductNoteEditPage(args: args);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/manual-base-price',
+      name: 'products.items.pcc.manual-base-price',
+      redirect: (context, state) => state.extra is ProductManualBasePriceRouteArgs
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final args = state.extra as ProductManualBasePriceRouteArgs;
+        return ProductManualBasePricePage(
+          product: args.product,
+          basePriceCard: args.basePriceCard,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/price-bands',
+      name: 'products.items.pcc.price-bands',
+      redirect: (context, state) => state.extra is ProductPriceBandsRouteArgs
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final args = state.extra as ProductPriceBandsRouteArgs;
+        return ProductPriceBandsPage(args: args);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/price-bands/edit',
+      name: 'products.items.pcc.price-bands.edit',
+      redirect: (context, state) => state.extra is EditProductUnitPriceBandRouteArgs
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final args = state.extra as EditProductUnitPriceBandRouteArgs;
+        return EditProductUnitPriceBandPage(args: args);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/custom-fields/edit',
+      name: 'products.items.pcc.custom-fields.edit',
+      redirect: (context, state) => state.extra is ProductCustomFieldGroupEditRouteArgs
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
+        return ProductCustomFieldGroupEditPage(args: args);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/profile-maintenance',
+      name: 'products.items.pcc.profile-maintenance',
+      redirect: (context, state) => state.extra is ProductListItemModel
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final product = state.extra as ProductListItemModel;
+        return ProductProfileMaintenancePage(product: product);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/images-maintenance',
+      name: 'products.items.pcc.images-maintenance',
+      redirect: (context, state) => state.extra is ProductListItemModel
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final product = state.extra as ProductListItemModel;
+        return ProductImagesMaintenancePage(product: product);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/:productId/change-history',
+      name: 'products.items.pcc.change-history',
+      redirect: (context, state) => state.extra is ProductListItemModel
+          ? null
+          : '/products/items/${state.pathParameters['productId']}',
+      builder: (context, state) {
+        final product = state.extra as ProductListItemModel;
+        return ProductChangeHistoryPage(
+          productId: product.id,
+          productName: product.name,
+        );
+      },
+    ),
     ShellRoute(
       builder: (context, state, child) => StoreShell(child: child),
       routes: [
@@ -354,10 +505,61 @@ final appRouter = GoRouter(
             ),
             StatefulShellBranch(
               routes: [
-                GoRoute(
-                  path: '/products/items',
-                  name: 'products.items',
-                  builder: (context, state) => const ProductCatalogTabPage(),
+                ShellRoute(
+                  builder: (context, state, child) {
+                    final productId = state.pathParameters['productId'];
+                    return ProductAreaShell(
+                      selectedId: productId,
+                      child: child,
+                    );
+                  },
+                  routes: [
+                    GoRoute(
+                      path: '/products/items',
+                      name: 'products.items',
+                      builder: (context, state) {
+                        if (VListDetailLayout.isSplitOf(context)) {
+                          return Scaffold(
+                            backgroundColor: context.vColors.surfaceAlt,
+                            body: const Center(
+                              child: VEmptyState(
+                                child: VEmptyHeader(
+                                  children: [
+                                    VEmptyMedia(icon: VIcons.inventory),
+                                    VEmptyTitle('Chọn một sản phẩm để xem chi tiết.'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return ProductCatalogTabPage(
+                          cubit: context.read<ProductListCubit>(),
+                        );
+                      },
+                      routes: [
+                        GoRoute(
+                          path: ':productId',
+                          name: 'products.items.pcc',
+                          builder: (context, state) {
+                            final productId = state.pathParameters['productId']!;
+                            final initial = state.extra is ProductListItemModel
+                                ? state.extra as ProductListItemModel
+                                : (state.extra is ProductControlCenterRouteArgs
+                                    ? (state.extra as ProductControlCenterRouteArgs).product
+                                    : null);
+                            final listCubit = context.read<ProductListCubit>();
+                            return ProductControlCenterPage(
+                              key: ValueKey(productId),
+                              productId: productId,
+                              initialProduct: initial,
+                              onMutated: () => listCubit.fetchProducts(isRefresh: true),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -978,117 +1180,6 @@ final appRouter = GoRouter(
     ),
     // Sales typed routes: ShellRoute(drafts+compose) + remaining /sales/* ($appRoutes).
     ...$appRoutes,
-    GoRoute(
-      path: '/products/items/new',
-      name: 'products.items.new',
-      builder: (context, state) => const ProductGuidedCreatePage(),
-    ),
-    GoRoute(
-      path: '/products/items/pcc',
-      name: 'products.items.pcc',
-      builder: (context, state) {
-        final args = state.extra as ProductControlCenterRouteArgs;
-        return ProductControlCenterPage(product: args.product);
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/checklist',
-      name: 'products.items.pcc.checklist',
-      builder: (context, state) {
-        final args = state.extra as ProductReadinessChecklistRouteArgs;
-        return ProductReadinessChecklistPage(
-          readinessView: args.readinessView,
-          product: args.product,
-          customFieldGroupCards: args.customFieldGroupCards,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/measurement-units',
-      name: 'products.items.pcc.measurement-units',
-      builder: (context, state) {
-        final args = state.extra as ProductMeasurementUnitsRouteArgs;
-        return ProductMeasurementUnitsPage(product: args.product);
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/stock',
-      name: 'products.items.pcc.stock',
-      builder: (context, state) {
-        final args = state.extra as ProductStockAdjustmentRouteArgs;
-        return ProductStockAdjustmentPage(args: args);
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/note',
-      name: 'products.items.pcc.note',
-      builder: (context, state) {
-        final args = state.extra as ProductNoteEditRouteArgs;
-        return ProductNoteEditPage(args: args);
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/manual-base-price',
-      name: 'products.items.pcc.manual-base-price',
-      builder: (context, state) {
-        final args = state.extra as ProductManualBasePriceRouteArgs;
-        return ProductManualBasePricePage(
-          product: args.product,
-          basePriceCard: args.basePriceCard,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/price-bands',
-      name: 'products.items.pcc.price-bands',
-      builder: (context, state) {
-        final args = state.extra as ProductPriceBandsRouteArgs;
-        return ProductPriceBandsPage(args: args);
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/price-bands/edit',
-      name: 'products.items.pcc.price-bands.edit',
-      builder: (context, state) {
-        final args = state.extra as EditProductUnitPriceBandRouteArgs;
-        return EditProductUnitPriceBandPage(args: args);
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/custom-fields/edit',
-      name: 'products.items.pcc.custom-fields.edit',
-      builder: (context, state) {
-        final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
-        return ProductCustomFieldGroupEditPage(args: args);
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/profile-maintenance',
-      name: 'products.items.pcc.profile-maintenance',
-      builder: (context, state) {
-        final product = state.extra as ProductListItemModel;
-        return ProductProfileMaintenancePage(product: product);
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/images-maintenance',
-      name: 'products.items.pcc.images-maintenance',
-      builder: (context, state) {
-        final product = state.extra as ProductListItemModel;
-        return ProductImagesMaintenancePage(product: product);
-      },
-    ),
-    GoRoute(
-      path: '/products/items/pcc/change-history',
-      name: 'products.items.pcc.change-history',
-      builder: (context, state) {
-        final product = state.extra as ProductListItemModel;
-        return ProductChangeHistoryPage(
-          productId: product.id,
-          productName: product.name,
-        );
-      },
-    ),
     GoRoute(
       path: '/more/product-settings',
       name: 'more.product-settings',

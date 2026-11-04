@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import '../../data/models.dart';
 import 'price_band_custom_config_section.dart';
 import 'price_band_manual_section.dart';
 import 'price_band_store_rule_section.dart';
@@ -84,7 +84,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
                   VChoiceOption(
                     value: PriceBandCalculationType.storeRule,
                     label: 'Theo khung giá cửa hàng',
-                    helpText: 'Tự động áp dụng khung giá của hàng.',
+                    helpText: 'Tự động áp dụng khung giá cửa hàng.',
                   ),
                   VChoiceOption(
                     value: PriceBandCalculationType.customConfig,

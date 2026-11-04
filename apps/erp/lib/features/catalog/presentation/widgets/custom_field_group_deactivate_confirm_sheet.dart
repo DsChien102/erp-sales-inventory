@@ -16,7 +16,7 @@ class CustomFieldGroupDeactivateConfirmSheet extends StatelessWidget {
     required int fieldCount,
     required int requiredFieldCount,
   }) {
-    return showVBottomSheet<bool>(
+    return showVAdaptiveSheet<bool>(
       context: context,
       child: CustomFieldGroupDeactivateConfirmSheet(
         fieldCount: fieldCount,

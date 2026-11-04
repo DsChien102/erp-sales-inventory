@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
-import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../bloc/product_change_history_cubit.dart';
-import '../bloc/product_change_history_state.dart';
+import '../../data/product_repository.dart';
+import '../../logic/product_change_history_cubit.dart';
+import '../../logic/product_change_history_state.dart';
 import '../widgets/product_change_history_item.dart';
 
 class ProductChangeHistoryPage extends StatelessWidget {
@@ -24,8 +23,7 @@ class ProductChangeHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ProductChangeHistoryCubit(
-        catalogModule: GetIt.instance<ICatalogModule>(),
-        executionContext: GetIt.instance<IExecutionContext>(),
+        productRepository: GetIt.instance<ProductRepository>(),
       )..loadHistory(productId),
       child: _ProductChangeHistoryView(
         productId: productId,

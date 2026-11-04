@@ -1,7 +1,6 @@
 import 'package:erp/core/di/injection.dart';
+import 'package:erp/features/catalog/data/product_price_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_domain/domain.dart';
 
 import 'catalog_e2e_harness.dart';
 
@@ -15,22 +14,19 @@ void main() {
   });
 
   group('EPIC-06 / US-04 price band snapshot E2E', () {
-    test('e2e_e06_u04_fr01_01: mediator returns list price for selling unit', () async {
+    test('e2e_e06_u04_fr01_01: repository returns list price for selling unit', () async {
       await setUpErpCatalogE2E(
         scenario: FakeCatalogScenario.scnContractE06U04Fr01_01,
       );
-      final catalog = getIt<ICatalogModule>();
+      final priceRepo = getIt<ProductPriceRepository>();
 
-      final result = await catalog.executeQueryAsync(
-        GetProductPriceBandSnapshotQuery(
-          tenantId: 'tenant-1',
-          items: const [
-            ProductPriceBandSnapshotRequest(
-              productId: 'product-5',
-              productUnitId: 'product-5-base',
-            ),
-          ],
-        ),
+      final result = await priceRepo.getPriceBandSnapshot(
+        const [
+          ProductPriceBandSnapshotRequest(
+            productId: 'product-5',
+            productUnitId: 'product-5-base',
+          ),
+        ],
       );
 
       expect(result.items, hasLength(1));
@@ -41,22 +37,19 @@ void main() {
       expect(item.productBusinessStatus, ProductBusinessStatus.inactive);
     });
 
-    test('e2e_e06_u04_fr02_01: mediator returns floor price for threshold check', () async {
+    test('e2e_e06_u04_fr02_01: repository returns floor price for threshold check', () async {
       await setUpErpCatalogE2E(
         scenario: FakeCatalogScenario.scnContractE06U04Fr02_01,
       );
-      final catalog = getIt<ICatalogModule>();
+      final priceRepo = getIt<ProductPriceRepository>();
 
-      final result = await catalog.executeQueryAsync(
-        GetProductPriceBandSnapshotQuery(
-          tenantId: 'tenant-1',
-          items: const [
-            ProductPriceBandSnapshotRequest(
-              productId: 'product-1',
-              productUnitId: 'product-1-base',
-            ),
-          ],
-        ),
+      final result = await priceRepo.getPriceBandSnapshot(
+        const [
+          ProductPriceBandSnapshotRequest(
+            productId: 'product-1',
+            productUnitId: 'product-1-base',
+          ),
+        ],
       );
 
       final item = result.items.single;
@@ -65,22 +58,19 @@ void main() {
       expect(item.listBeforeVat, 120000);
     });
 
-    test('e2e_e06_u04_fr01_03: mediator reports missing list price explicitly', () async {
+    test('e2e_e06_u04_fr01_03: repository reports missing list price explicitly', () async {
       await setUpErpCatalogE2E(
         scenario: FakeCatalogScenario.scnContractE06U04Fr01_03,
       );
-      final catalog = getIt<ICatalogModule>();
+      final priceRepo = getIt<ProductPriceRepository>();
 
-      final result = await catalog.executeQueryAsync(
-        GetProductPriceBandSnapshotQuery(
-          tenantId: 'tenant-1',
-          items: const [
-            ProductPriceBandSnapshotRequest(
-              productId: 'product-9',
-              productUnitId: 'product-9-base',
-            ),
-          ],
-        ),
+      final result = await priceRepo.getPriceBandSnapshot(
+        const [
+          ProductPriceBandSnapshotRequest(
+            productId: 'product-9',
+            productUnitId: 'product-9-base',
+          ),
+        ],
       );
 
       final item = result.items.single;
@@ -92,18 +82,15 @@ void main() {
       await setUpErpCatalogE2E(
         scenario: FakeCatalogScenario.scnContractE06U04Fr01_02,
       );
-      final catalog = getIt<ICatalogModule>();
+      final priceRepo = getIt<ProductPriceRepository>();
 
-      final result = await catalog.executeQueryAsync(
-        GetProductPriceBandSnapshotQuery(
-          tenantId: 'tenant-1',
-          items: const [
-            ProductPriceBandSnapshotRequest(
-              productId: 'product-1',
-              productUnitId: 'product-1-unit-thung',
-            ),
-          ],
-        ),
+      final result = await priceRepo.getPriceBandSnapshot(
+        const [
+          ProductPriceBandSnapshotRequest(
+            productId: 'product-1',
+            productUnitId: 'product-1-unit-thung',
+          ),
+        ],
       );
 
       final item = result.items.single;
@@ -116,19 +103,16 @@ void main() {
       await setUpErpCatalogE2E(
         scenario: FakeCatalogScenario.scnContractE06U04Fr04_01,
       );
-      final catalog = getIt<ICatalogModule>();
+      final priceRepo = getIt<ProductPriceRepository>();
       final before = DateTime.now().toUtc();
 
-      final result = await catalog.executeQueryAsync(
-        GetProductPriceBandSnapshotQuery(
-          tenantId: 'tenant-1',
-          items: const [
-            ProductPriceBandSnapshotRequest(
-              productId: 'product-1',
-              productUnitId: 'product-1-base',
-            ),
-          ],
-        ),
+      final result = await priceRepo.getPriceBandSnapshot(
+        const [
+          ProductPriceBandSnapshotRequest(
+            productId: 'product-1',
+            productUnitId: 'product-1-base',
+          ),
+        ],
       );
 
       final after = DateTime.now().toUtc();
@@ -141,26 +125,23 @@ void main() {
       expect(item.currency, 'VND');
     });
 
-    test('e2e_e06_u04_batch: mediator reads multiple line items in one query', () async {
+    test('e2e_e06_u04_batch: repository reads multiple line items in one query', () async {
       await setUpErpCatalogE2E(
         scenario: FakeCatalogScenario.scnContractE06U04Fr01_01,
       );
-      final catalog = getIt<ICatalogModule>();
+      final priceRepo = getIt<ProductPriceRepository>();
 
-      final result = await catalog.executeQueryAsync(
-        GetProductPriceBandSnapshotQuery(
-          tenantId: 'tenant-1',
-          items: const [
-            ProductPriceBandSnapshotRequest(
-              productId: 'product-5',
-              productUnitId: 'product-5-base',
-            ),
-            ProductPriceBandSnapshotRequest(
-              productId: 'product-1',
-              productUnitId: 'product-1-base',
-            ),
-          ],
-        ),
+      final result = await priceRepo.getPriceBandSnapshot(
+        const [
+          ProductPriceBandSnapshotRequest(
+            productId: 'product-5',
+            productUnitId: 'product-5-base',
+          ),
+          ProductPriceBandSnapshotRequest(
+            productId: 'product-1',
+            productUnitId: 'product-1-base',
+          ),
+        ],
       );
 
       expect(result.items, hasLength(2));

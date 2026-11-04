@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_catalog_application/application.dart';
+import '../../data/models.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
@@ -26,7 +26,7 @@ class ProductRestoreConfirmDialog extends StatelessWidget {
     required ReadinessSummaryDto readinessSummary,
     VoidCallback? onRestored,
   }) async {
-    await showVBottomSheet(
+    await showVAdaptiveSheet(
       context: context,
       title: 'Khôi phục sản phẩm này?',
       child: BlocProvider.value(

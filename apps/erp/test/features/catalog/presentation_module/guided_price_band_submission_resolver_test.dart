@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:erp/features/catalog/presentation/bloc/product_guided_create_state.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/logic/product_guided_create_state.dart';
 import 'package:erp/features/catalog/presentation/mappers/guided_price_band_submission_resolver.dart';
 
 void main() {

@@ -16,7 +16,7 @@ class ProductConversionUnitDeactivateConfirmDialog extends StatelessWidget {
     required String unitName,
     required VoidCallback onConfirm,
   }) {
-    return showVBottomSheet(
+    return showVAdaptiveSheet(
       context: context,
       title: 'Tắt đơn vị này?',
       child: ProductConversionUnitDeactivateConfirmDialog(

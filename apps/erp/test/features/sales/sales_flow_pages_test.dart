@@ -5,7 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/data/partner_repository.dart';
@@ -41,13 +42,13 @@ final class TestExecutionContext implements IExecutionContext {
 }
 
 void main() {
-  late _SalesFlowCatalogModule catalogModule;
+  late _SalesFlowProductRepository catalogModule;
   late _RecordingSalesModule salesModule;
   late _RecordingPricingModule pricingModule;
 
   setUp(() async {
     await GetIt.instance.reset();
-    catalogModule = _SalesFlowCatalogModule();
+    catalogModule = _SalesFlowProductRepository();
     salesModule = _RecordingSalesModule();
     pricingModule = _RecordingPricingModule();
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
@@ -57,7 +58,7 @@ void main() {
     GetIt.instance.registerSingleton<PartnerRepository>(
       ScriptedPartnerRepository(onCall: _salesFlowPartnerScript),
     );
-    GetIt.instance.registerSingleton<ICatalogModule>(catalogModule);
+    GetIt.instance.registerSingleton<ProductRepository>(catalogModule);
     GetIt.instance.registerSingleton<SessionController>(
       testSessionController(
         tenantId: 'tenant-demo',
@@ -107,8 +108,8 @@ void main() {
     expect(
       catalogModule.queries.map((query) => query.runtimeType),
       containsAllInOrder([
-        SearchSellableProductsQuery,
-        ListSellableProductUnitsQuery,
+        _SearchSellableProductsCall,
+        _ListSellableProductUnitsCall,
       ]),
     );
     expect(find.text('Chưa có sản phẩm trong đơn'), findsNothing);
@@ -1193,48 +1194,74 @@ Object? _salesFlowPartnerScript(String method, Map<String, Object?> args) {
   throw StateError('Unexpected partner call $method');
 }
 
-final class _SalesFlowCatalogModule implements ICatalogModule {
-  final List<IQuery<dynamic>> queries = [];
+final class _SearchSellableProductsCall {
+  final String storeId;
+  final String? keyword;
+  const _SearchSellableProductsCall({required this.storeId, this.keyword});
+}
+
+final class _ListSellableProductUnitsCall {
+  final String storeId;
+  final String productId;
+  const _ListSellableProductUnitsCall({required this.storeId, required this.productId});
+}
+
+final class _SalesFlowProductRepository implements ProductRepository {
+  final List<Object> queries = [];
   bool failUnitLookup = false;
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw StateError('Unexpected command $command');
+  Future<List<SellableProductDto>> searchSellable({
+    required String storeId,
+    String? keyword,
+    int? limit,
+    int? offset,
+  }) async {
+    queries.add(_SearchSellableProductsCall(storeId: storeId, keyword: keyword));
+    return const [_liveProduct];
   }
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is SearchSellableProductsQuery) {
-      return const [_liveProduct] as TResult;
-    }
-    if (query is ResolveSellableBarcodeQuery) {
-      return const <SellableProductDto>[] as TResult;
-    }
-    final raw = query as Object;
-    if (raw is ResolveSellableProductsQuery) {
-      return [
-            for (final productId in raw.productIds)
-              if (productId == _liveProduct.productId)
-                SellableProductResolutionDto(
-                  productId: productId,
-                  resolution: SellableProductResolution.sellable,
-                  product: _liveProduct,
-                )
-              else
-                SellableProductResolutionDto(
-                  productId: productId,
-                  resolution: SellableProductResolution.notFound,
-                ),
-          ]
-          as TResult;
-    }
-    if (query is ListSellableProductUnitsQuery) {
-      if (failUnitLookup) throw StateError('catalog down');
-      return const [_liveUnit] as TResult;
-    }
-    throw StateError('Unexpected query $query');
+  Future<List<SellableProductDto>> resolveSellableBarcode({
+    required String storeId,
+    required String barcode,
+  }) async {
+    return const <SellableProductDto>[];
   }
+
+  @override
+  Future<List<SellableProductUnitDto>> listSellableUnits({
+    required String storeId,
+    required String productId,
+  }) async {
+    queries.add(_ListSellableProductUnitsCall(storeId: storeId, productId: productId));
+    if (failUnitLookup) throw StateError('catalog down');
+    return const [_liveUnit];
+  }
+
+  @override
+  Future<List<SellableProductResolutionDto>> resolveSellable({
+    required String storeId,
+    required List<String> productIds,
+  }) async {
+    return [
+      for (final productId in productIds)
+        if (productId == _liveProduct.productId)
+          SellableProductResolutionDto(
+            productId: productId,
+            resolution: SellableProductResolution.sellable,
+            product: _liveProduct,
+          )
+        else
+          SellableProductResolutionDto(
+            productId: productId,
+            resolution: SellableProductResolution.notFound,
+          ),
+    ];
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 final class _RecordingPricingModule implements pricing.IPricingModule {

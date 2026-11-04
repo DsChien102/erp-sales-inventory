@@ -6,10 +6,9 @@ import 'package:erp/features/catalog/presentation/utils/resolve_priority_custom_
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
 
 import '../../catalog_e2e_harness.dart';
 
@@ -37,10 +36,10 @@ Widget _buildChecklistRouter({
   List<CustomFieldGroupCardDto> customFieldGroupCards = const [],
 }) {
   final router = GoRouter(
-    initialLocation: '/products/items/pcc/checklist',
+    initialLocation: '/products/items/${product.id}/checklist',
     routes: [
       GoRoute(
-        path: '/products/items/pcc/checklist',
+        path: '/products/items/:productId/checklist',
         builder: (context, state) => ProductReadinessChecklistPage(
           readinessView: readinessView,
           product: product,
@@ -48,7 +47,7 @@ Widget _buildChecklistRouter({
         ),
       ),
       GoRoute(
-        path: '/products/items/pcc/custom-fields/edit',
+        path: '/products/items/:productId/custom-fields/edit',
         builder: (context, state) {
           final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
           return Scaffold(
@@ -60,7 +59,7 @@ Widget _buildChecklistRouter({
         },
       ),
       GoRoute(
-        path: '/products/items/pcc/stock',
+        path: '/products/items/:productId/stock',
         builder: (context, state) => const Scaffold(
           body: Text('stock-opened', key: Key('stock_opened')),
         ),
@@ -254,14 +253,17 @@ void main() {
 
       final product = productWithBaseUnit();
       final router = GoRouter(
-        initialLocation: '/products/items/pcc',
+        initialLocation: '/products/items/${product.id}',
         routes: [
           GoRoute(
-            path: '/products/items/pcc',
-            builder: (context, state) => ProductControlCenterPage(product: product),
+            path: '/products/items/:productId',
+            builder: (context, state) => ProductControlCenterPage(
+              productId: state.pathParameters['productId']!,
+              initialProduct: product,
+            ),
           ),
           GoRoute(
-            path: '/products/items/pcc/checklist',
+            path: '/products/items/:productId/checklist',
             builder: (context, state) {
               final args = state.extra as ProductReadinessChecklistRouteArgs;
               return ProductReadinessChecklistPage(
@@ -272,7 +274,7 @@ void main() {
             },
           ),
           GoRoute(
-            path: '/products/items/pcc/custom-fields/edit',
+            path: '/products/items/:productId/custom-fields/edit',
             builder: (context, state) {
               final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
               return ProductCustomFieldGroupEditPage(args: args);
@@ -308,10 +310,7 @@ void main() {
       expect(find.textContaining('Cần bổ sung'), findsOneWidget);
       expect(find.text('Sẵn sàng bán'), findsNothing);
 
-      final tenantId = await getIt.get<IExecutionContext>().requireTenantId();
-      final pcc = await getIt.get<ICatalogModule>().executeQueryAsync(
-        GetProductControlCenterQuery(tenantId: tenantId, productId: product.id),
-      );
+      final pcc = await getIt.get<ProductRepository>().getControlCenter(product.id);
       final nextGroupId = resolvePriorityCustomFieldGroupId(pcc.customFieldGroupCards);
       final storageGroup = pcc.customFieldGroupCards.firstWhere(
         (group) => group.name == 'Quy cách & bảo quản',

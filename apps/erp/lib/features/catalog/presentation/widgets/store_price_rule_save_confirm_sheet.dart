@@ -3,7 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 /// Hiển thị bottom sheet cảnh báo khi cập nhật quy tắc giá cửa hàng.
 Future<bool?> showStorePriceRuleSaveConfirmSheet(BuildContext context) {
-  return showVBottomSheet<bool>(
+  return showVAdaptiveSheet<bool>(
     context: context,
     child: const StorePriceRuleSaveConfirmSheet(),
   );

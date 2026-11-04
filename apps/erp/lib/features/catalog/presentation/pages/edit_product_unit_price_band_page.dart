@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
 
+import '../../data/models.dart';
+import '../../data/product_price_repository.dart';
 import '../widgets/price_band_calculation_type_selector.dart';
 import '../widgets/product_form_bottom_bar.dart';
 import '../widgets/price_band_overwrite_dialog.dart';
-import '../widgets/price_band_warning_ack_sheet.dart';
 
 class EditProductUnitPriceBandRouteArgs {
   final ProductUnitPriceBandRowDto row;
@@ -37,8 +36,7 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           EditProductUnitPriceBandCubit(
-            moduleMediator: GetIt.instance<ICatalogModule>(),
-            executionContext: GetIt.instance<IExecutionContext>(),
+            productPriceRepository: GetIt.instance<ProductPriceRepository>(),
             productId: args.productId,
             productUnitId: args.row.productUnitId,
           )..loadInitialData(
@@ -71,21 +69,12 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
               context.read<EditProductUnitPriceBandCubit>().cancelOverwrite();
             }
           } else if (state is EditProductUnitPriceBandLoaded && state.error != null) {
-            if (state.error == 'WARNING_REQUIRE_ACK') {
-              final confirmed = await showPriceBandWarningAckSheet(context);
-              if (confirmed == true && context.mounted) {
-                context.read<EditProductUnitPriceBandCubit>().save(
-                  confirmAcknowledgeWarnings: true,
-                );
-              }
-            } else {
-              VToast.show(
-                context,
-                title: 'Lỗi',
-                message: state.error!,
-                type: VToastType.danger,
-              );
-            }
+            VToast.show(
+              context,
+              title: 'Lỗi',
+              message: state.error!,
+              type: VToastType.danger,
+            );
           }
         },
         builder: (context, state) {
@@ -151,7 +140,7 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VText(
-                'Giá vốn cơ sở',
+                'Giá cơ sở',
                 variant: VTextVariant.bodyDefault,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),

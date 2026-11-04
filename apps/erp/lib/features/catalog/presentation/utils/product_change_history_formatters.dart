@@ -1,4 +1,4 @@
-import 'package:vet45_catalog_application/application.dart';
+import '../../data/models.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 String formatProductChangeHistoryDateTime(DateTime occurredAt) {

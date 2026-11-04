@@ -127,5 +127,5 @@ Chuỗi IAM active hiện tại: *(trống)*.
 
 **E-invoice (đã promote 2026-10-31):** draft `001`…`023` → migration
 `20261031001`…`20261031023` + `REGISTRY.yaml`. Chuỗi HĐĐT active trống.
-Còn lại trong `_drafts/`: `inventory_default_pair.sql` (chưa promote).
+`inventory_default_pair.sql` đã promote ở 5-A4 (`20261104001_inventory_default_pair.sql`). `_drafts/` trống.
 KI-02 / KI-04 / KI-06 (sửa thân RPC) chưa làm trong lượt promote này.

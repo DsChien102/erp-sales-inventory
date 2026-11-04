@@ -5,7 +5,6 @@ import 'package:erp/features/catalog/presentation/widgets/product_control_center
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/testing.dart';
 import 'package:erp/features/catalog/presentation.dart';
 
 import '../../catalog_e2e_harness.dart';
@@ -32,14 +31,17 @@ ProductListItemModel _product8() {
 
 Widget _buildPccRouter(ProductListItemModel product) {
   final router = GoRouter(
-    initialLocation: '/products/items/pcc',
+    initialLocation: '/products/items/${product.id}',
     routes: [
       GoRoute(
-        path: '/products/items/pcc',
-        builder: (context, state) => ProductControlCenterPage(product: product),
+        path: '/products/items/:productId',
+        builder: (context, state) => ProductControlCenterPage(
+          productId: state.pathParameters['productId']!,
+          initialProduct: product,
+        ),
       ),
       GoRoute(
-        path: '/products/items/pcc/manual-base-price',
+        path: '/products/items/:productId/manual-base-price',
         builder: (context, state) {
           final args = state.extra as ProductManualBasePriceRouteArgs;
           return ProductManualBasePricePage(
@@ -112,7 +114,7 @@ void main() {
     await tapEditBasePrice(tester);
 
     expect(find.byKey(const Key('wgt_e06_u01_fr01_01')), findsOneWidget);
-    expect(find.text('Giá vốn cơ sở'), findsOneWidget);
+    expect(find.text('Giá cơ sở'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('input_base_price_amount')), '45000');
     await tester.pump();

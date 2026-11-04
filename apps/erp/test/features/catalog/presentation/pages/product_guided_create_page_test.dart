@@ -1,3 +1,7 @@
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
+import 'package:erp/features/catalog/logic/product_guided_create_cubit.dart';
+import 'package:erp/features/catalog/presentation.dart';
 import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_guided_create_page.dart';
 import 'package:flutter/material.dart';
@@ -5,39 +9,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:erp/features/catalog/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-final class _FakeExecutionContext implements IExecutionContext {
-  @override
-  String get correlationId => 'test-correlation';
+import '../../support/catalog_test_registry.dart';
+import '../../support/fake_catalog_repositories.dart';
+import '../../support/fake_catalog_scenario.dart';
+
+final class _RecordingProductRepository extends FakeProductRepository {
+  _RecordingProductRepository({required super.backend});
+
+  CreateGuidedProductInput? guidedCreateCommand;
 
   @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'user-1';
-}
-
-final class _RecordingCatalogModule implements ICatalogModule {
-  _RecordingCatalogModule() : _delegate = FakeCatalogModule();
-
-  final FakeCatalogModule _delegate;
-  CreateGuidedProductCommand? guidedCreateCommand;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    if (command is CreateGuidedProductCommand) {
-      guidedCreateCommand = command as CreateGuidedProductCommand;
-    }
-    return _delegate.executeCommandAsync(command);
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    return _delegate.executeQueryAsync(query);
+  Future<CreateGuidedProductResult> createGuided(CreateGuidedProductInput input) {
+    guidedCreateCommand = input;
+    return super.createGuided(input);
   }
 }
 
@@ -48,10 +34,19 @@ void main() {
     await getIt.reset();
   });
 
-  Widget buildTestableWidget({required ICatalogModule catalogModule}) {
-    getIt
-      ..registerSingleton<ICatalogModule>(catalogModule)
-      ..registerSingleton<IExecutionContext>(_FakeExecutionContext());
+  tearDown(() async {
+    await getIt.reset();
+  });
+
+  Widget buildTestableWidget({
+    String scenario = FakeCatalogScenario.guidedCreateOk,
+    ProductRepository? repository,
+  }) {
+    registerFakeCatalog(getIt, scenario: scenario);
+    if (repository != null) {
+      getIt.unregister<ProductRepository>();
+      getIt.registerSingleton<ProductRepository>(repository);
+    }
 
     final router = GoRouter(
       initialLocation: '/products/items/new',
@@ -65,10 +60,33 @@ void main() {
               builder: (context, state) => const ProductGuidedCreatePage(),
             ),
             GoRoute(
-              path: 'items/pcc',
+              path: 'items/:productId',
               builder: (context, state) {
-                final args = state.extra as ProductControlCenterRouteArgs;
-                return ProductControlCenterPage(product: args.product);
+                final productId = state.pathParameters['productId']!;
+                final initial = state.extra is ProductListItemModel
+                    ? state.extra as ProductListItemModel
+                    : (state.extra is ProductControlCenterRouteArgs
+                        ? (state.extra as ProductControlCenterRouteArgs).product
+                        : null);
+                return ProductControlCenterPage(
+                  productId: productId,
+                  initialProduct: initial,
+                );
+              },
+            ),
+            GoRoute(
+              path: 'items/:productId/view',
+              builder: (context, state) {
+                final productId = state.pathParameters['productId']!;
+                final initial = state.extra is ProductListItemModel
+                    ? state.extra as ProductListItemModel
+                    : (state.extra is ProductControlCenterRouteArgs
+                        ? (state.extra as ProductControlCenterRouteArgs).product
+                        : null);
+                return ProductControlCenterPage(
+                  productId: productId,
+                  initialProduct: initial,
+                );
               },
             ),
           ],
@@ -96,7 +114,7 @@ void main() {
 
   testWidgets('wgt_e02_u01_fr01_01: guided create page renders', (tester) async {
     await tester.pumpWidget(
-      buildTestableWidget(catalogModule: FakeCatalogModule()),
+      buildTestableWidget(),
     );
     await tester.pumpAndSettle();
 
@@ -107,7 +125,7 @@ void main() {
 
   testWidgets('initial stock uses Design System integer field', (tester) async {
     await tester.pumpWidget(
-      buildTestableWidget(catalogModule: FakeCatalogModule()),
+      buildTestableWidget(),
     );
     await tester.pumpAndSettle();
 
@@ -132,9 +150,7 @@ void main() {
 
   testWidgets('wgt_e02_u01_fr01_01: successful create navigates to PCC', (tester) async {
     await tester.pumpWidget(
-      buildTestableWidget(
-        catalogModule: FakeCatalogModule(scenario: FakeCatalogScenario.guidedCreateOk),
-      ),
+      buildTestableWidget(scenario: FakeCatalogScenario.guidedCreateOk),
     );
     await tester.pumpAndSettle();
 
@@ -146,9 +162,10 @@ void main() {
   });
 
   testWidgets('guided create preserves custom price band configuration', (tester) async {
-    final catalogModule = _RecordingCatalogModule();
+    final backend = registerFakeCatalog(getIt);
+    final recordingRepo = _RecordingProductRepository(backend: backend);
     await tester.pumpWidget(
-      buildTestableWidget(catalogModule: catalogModule),
+      buildTestableWidget(repository: recordingRepo),
     );
     await tester.pumpAndSettle();
 
@@ -167,17 +184,49 @@ void main() {
     await cubit.submit();
     await tester.pumpAndSettle();
 
-    final command = catalogModule.guidedCreateCommand;
+    final command = recordingRepo.guidedCreateCommand;
     expect(command, isNotNull);
     expect(command!.priceBandSourceType, PriceBandSourceType.customConfig);
     expect(command.listMarkupRatio, 0.3);
     expect(command.floorMarkupRatio, 0.1);
   });
 
-  testWidgets('saving without opening price step defaults to store rule', (tester) async {
-    final catalogModule = _RecordingCatalogModule();
+  testWidgets('t93_sp03_manual_price_band_submits', (tester) async {
+    final backend = registerFakeCatalog(getIt);
+    final recordingRepo = _RecordingProductRepository(backend: backend);
     await tester.pumpWidget(
-      buildTestableWidget(catalogModule: catalogModule),
+      buildTestableWidget(repository: recordingRepo),
+    );
+    await tester.pumpAndSettle();
+
+    final pageContext = tester.element(find.byKey(const Key('wgt_e02_u01_fr01_01')));
+    final cubit = BlocProvider.of<ProductGuidedCreateCubit>(pageContext);
+    cubit
+      ..updateName('Thuốc giá thủ công')
+      ..updateBaseUnit('Lọ')
+      ..updateBaseCost('50000')
+      ..updatePricingMethod('manual')
+      ..updateManualListPrice('80000')
+      ..updateManualFloorPrice('60000')
+      ..confirmPriceBandStep();
+    await tester.pump();
+
+    await cubit.submit();
+    await tester.pumpAndSettle();
+
+    final command = recordingRepo.guidedCreateCommand;
+    expect(command, isNotNull);
+    expect(command!.priceBandSourceType, PriceBandSourceType.manual);
+    expect(command.useStorePriceRule, isFalse);
+    expect(command.listBeforeVat, 80000);
+    expect(command.floorBeforeVat, 60000);
+  });
+
+  testWidgets('saving without opening price step defaults to store rule', (tester) async {
+    final backend = registerFakeCatalog(getIt);
+    final recordingRepo = _RecordingProductRepository(backend: backend);
+    await tester.pumpWidget(
+      buildTestableWidget(repository: recordingRepo),
     );
     await tester.pumpAndSettle();
 
@@ -188,16 +237,17 @@ void main() {
     await cubit.submit();
     await tester.pumpAndSettle();
 
-    final command = catalogModule.guidedCreateCommand;
+    final command = recordingRepo.guidedCreateCommand;
     expect(command, isNotNull);
     expect(command!.priceBandSourceType, PriceBandSourceType.ruleBased);
     expect(command.useStorePriceRule, isTrue);
   });
 
   testWidgets('saving a complete custom draft does not require pressing Next', (tester) async {
-    final catalogModule = _RecordingCatalogModule();
+    final backend = registerFakeCatalog(getIt);
+    final recordingRepo = _RecordingProductRepository(backend: backend);
     await tester.pumpWidget(
-      buildTestableWidget(catalogModule: catalogModule),
+      buildTestableWidget(repository: recordingRepo),
     );
     await tester.pumpAndSettle();
 
@@ -214,7 +264,7 @@ void main() {
     await cubit.submit();
     await tester.pumpAndSettle();
 
-    final command = catalogModule.guidedCreateCommand;
+    final command = recordingRepo.guidedCreateCommand;
     expect(command, isNotNull);
     expect(command!.priceBandSourceType, PriceBandSourceType.customConfig);
     expect(command.listMarkupRatio, 0.3);
@@ -222,9 +272,10 @@ void main() {
   });
 
   testWidgets('skipping price draft resets it to store rule', (tester) async {
-    final catalogModule = _RecordingCatalogModule();
+    final backend = registerFakeCatalog(getIt);
+    final recordingRepo = _RecordingProductRepository(backend: backend);
     await tester.pumpWidget(
-      buildTestableWidget(catalogModule: catalogModule),
+      buildTestableWidget(repository: recordingRepo),
     );
     await tester.pumpAndSettle();
 
@@ -246,16 +297,17 @@ void main() {
     await cubit.submit();
     await tester.pumpAndSettle();
 
-    final command = catalogModule.guidedCreateCommand;
+    final command = recordingRepo.guidedCreateCommand;
     expect(command, isNotNull);
     expect(command!.priceBandSourceType, PriceBandSourceType.ruleBased);
     expect(command.useStorePriceRule, isTrue);
   });
 
   testWidgets('incomplete custom draft blocks save and opens price step', (tester) async {
-    final catalogModule = _RecordingCatalogModule();
+    final backend = registerFakeCatalog(getIt);
+    final recordingRepo = _RecordingProductRepository(backend: backend);
     await tester.pumpWidget(
-      buildTestableWidget(catalogModule: catalogModule),
+      buildTestableWidget(repository: recordingRepo),
     );
     await tester.pumpAndSettle();
 
@@ -271,14 +323,14 @@ void main() {
     await cubit.submit();
     await tester.pump();
 
-    expect(catalogModule.guidedCreateCommand, isNull);
+    expect(recordingRepo.guidedCreateCommand, isNull);
     expect(cubit.state.activeStepIndex, 5);
     expect(cubit.state.errorMessage, isNotNull);
   });
 
   testWidgets('wgt_e02_u01_fr01_01: missing name shows validation error', (tester) async {
     await tester.pumpWidget(
-      buildTestableWidget(catalogModule: FakeCatalogModule()),
+      buildTestableWidget(),
     );
     await tester.pumpAndSettle();
 
@@ -295,7 +347,7 @@ void main() {
   testWidgets('wgt_e02_u01_fr01_01: duplicate SKU opens existing product in PCC', (tester) async {
     await tester.pumpWidget(
       buildTestableWidget(
-        catalogModule: FakeCatalogModule(scenario: FakeCatalogScenario.guidedCreateDupSku),
+        scenario: FakeCatalogScenario.guidedCreateDupSku,
       ),
     );
     await tester.pumpAndSettle();

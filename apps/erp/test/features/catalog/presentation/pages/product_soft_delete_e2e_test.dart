@@ -1,7 +1,7 @@
 import 'package:erp/core/di/injection.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/features/catalog/presentation.dart';
 
 import '../../catalog_e2e_harness.dart';
@@ -272,13 +272,7 @@ ProductListItemModel _product7SoftDeleted() {
 }
 
 Future<void> _seedDeletedProduct(String productId) async {
-  await getIt<ICatalogModule>().executeCommandAsync(
-    DeleteProductCommand(
-      tenantId: 'tenant-1',
-      actorId: 'user-1',
-      productId: productId,
-    ),
-  );
+  await getIt<ProductRepository>().delete(productId: productId);
 }
 
 Future<void> _tapDeletedFilter(WidgetTester tester) async {

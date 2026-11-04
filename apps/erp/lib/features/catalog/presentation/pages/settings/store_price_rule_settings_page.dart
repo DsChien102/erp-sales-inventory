@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
+
+import '../../../data/models.dart';
+import '../../../data/product_price_repository.dart';
 
 class StorePriceRuleSettingsPage extends StatelessWidget {
   const StorePriceRuleSettingsPage({super.key});
@@ -14,8 +15,7 @@ class StorePriceRuleSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => StorePriceRuleSettingsCubit(
-        moduleMediator: GetIt.instance<ICatalogModule>(),
-        executionContext: GetIt.instance<IExecutionContext>(),
+        productPriceRepository: GetIt.instance<ProductPriceRepository>(),
       )..loadRule(),
       child: const _StorePriceRuleSettingsBody(),
     );

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_price_repository.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/catalog/presentation.dart';
 
@@ -33,8 +33,7 @@ class ProductManualBasePricePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ProductManualBasePriceCubit(
-        catalogModule: GetIt.instance<ICatalogModule>(),
-        executionContext: GetIt.instance<IExecutionContext>(),
+        productPriceRepository: GetIt.instance<ProductPriceRepository>(),
       ),
       child: _ProductManualBasePriceView(
         product: product,
@@ -59,7 +58,6 @@ class _ProductManualBasePriceView extends StatefulWidget {
 
 class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView> {
   late final TextEditingController _priceController;
-  late final TextEditingController _noteController;
   late final int? _initialAmount;
 
   @override
@@ -70,14 +68,12 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
     _priceController = TextEditingController(
       text: amount == null ? '' : VMoneyValidator.format(amount.round()),
     );
-    _noteController = TextEditingController();
     _priceController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _priceController.dispose();
-    _noteController.dispose();
     super.dispose();
   }
 
@@ -92,7 +88,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
       VToast.show(
         context,
         title: 'Lỗi',
-        message: 'Vui lòng nhập giá vốn mới',
+        message: 'Vui lòng nhập giá cơ sở mới',
         type: VToastType.danger,
       );
       return;
@@ -103,7 +99,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
       VToast.show(
         context,
         title: 'Lỗi',
-        message: 'Giá vốn không hợp lệ',
+        message: 'Giá cơ sở không hợp lệ',
         type: VToastType.danger,
       );
       return;
@@ -141,7 +137,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
           VToast.show(
             context,
             title: 'Thành công',
-            message: 'Đã lưu giá vốn cơ sở',
+            message: 'Đã lưu giá cơ sở',
             type: VToastType.success,
           );
           context.pop();
@@ -157,7 +153,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
       builder: (context, state) {
         return VPageScaffold(
           key: const Key('wgt_e06_u01_fr01_01'),
-          title: 'Giá vốn cơ sở',
+          title: 'Giá cơ sở',
           titleStyle: VTypography.headingH3.copyWith(
             color: dynamicColors.textPrimary,
             fontWeight: FontWeight.bold,
@@ -192,7 +188,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       VText(
-                                        'Giá vốn hiện tại',
+                                        'Giá cơ sở hiện tại',
                                         variant: VTextVariant.bodyDefault,
                                         color: dynamicColors.textSecondary,
                                       ),
@@ -210,7 +206,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                 const SizedBox(height: VSpacing.space4),
 
                                 VText(
-                                  'Giá vốn mới (${widget.basePriceCard.currency == 'VND' ? 'đ' : widget.basePriceCard.currency} / 1 $baseUnitName)',
+                                  'Giá cơ sở mới (${widget.basePriceCard.currency == 'VND' ? 'đ' : widget.basePriceCard.currency} / 1 $baseUnitName)',
                                   variant: VTextVariant.bodySmall,
                                   color: dynamicColors.textSecondary,
                                 ),
@@ -225,22 +221,9 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                 ),
                                 const SizedBox(height: VSpacing.space2),
                                 VText(
-                                  'Giá vốn cơ sở luôn gắn với đơn vị cơ sở của sản phẩm ($baseUnitName).',
+                                  'Giá cơ sở luôn gắn với đơn vị cơ sở của sản phẩm ($baseUnitName).',
                                   variant: VTextVariant.bodySmall,
                                   color: dynamicColors.textSecondary,
-                                ),
-
-                                const SizedBox(height: VSpacing.space4),
-                                VText(
-                                  'Ghi chú',
-                                  variant: VTextVariant.bodySmall,
-                                  color: dynamicColors.textSecondary,
-                                ),
-                                const SizedBox(height: VSpacing.space2),
-                                VTextFormField(
-                                  controller: _noteController,
-                                  hintText: 'Nhập ghi chú...',
-                                  maxLines: 4,
                                 ),
                               ],
                             ),
@@ -265,14 +248,14 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                         ),
                                       ),
                                       const TextSpan(
-                                        text: ' cho sản phẩm trước khi nhập giá vốn cơ sở.',
+                                        text: ' cho sản phẩm trước khi nhập giá cơ sở.',
                                       ),
                                     ],
                                   ),
                                 ),
                                 const SizedBox(height: VSpacing.space2),
                                 VText(
-                                  'Giá vốn cơ sở luôn gắn với đơn vị cơ sở của sản phẩm.',
+                                  'Giá cơ sở luôn gắn với đơn vị cơ sở của sản phẩm.',
                                   variant: VTextVariant.bodySmall,
                                   color: dynamicColors.textSecondary,
                                 ),

@@ -459,6 +459,10 @@ begin
 
   v_images := catalog._normalize_product_maintenance_images(p_images);
 
+  if jsonb_array_length(v_images) > 8 then
+    raise exception 'validation_exception: Chỉ được tải lên tối đa 8 ảnh.';
+  end if;
+
   delete from catalog.product_images pi
   where pi.tenant_id = p_tenant_id
     and pi.product_id = p_product_id;

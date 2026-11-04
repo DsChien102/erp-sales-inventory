@@ -10,7 +10,7 @@ Future<bool?> showPriceBandOverwriteDialog(
   int? existingListAfterVat,
   int? existingFloorAfterVat,
 }) {
-  return showVBottomSheet<bool>(
+  return showVAdaptiveSheet<bool>(
     context: context,
     child: PriceBandOverwriteBottomSheet(
       key: const Key('dlg_price_band_overwrite'),

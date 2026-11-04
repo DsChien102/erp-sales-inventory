@@ -57,7 +57,7 @@ Chỉ có một app (`apps/erp`) và một màn đăng nhập. App `apps/admin` 
 - Khách hàng của VET45 là hộ kinh doanh và doanh nghiệp bán lẻ thuốc thú y nhỏ. Cách tạo tổ chức theo các phần mềm bán hàng phổ biến (KiotViet, Sapo…): **khách tự đăng ký cửa hàng**, xác minh email xong là dùng được ngay.
 - Chủ cửa hàng tự mời nhân viên bằng email; nhân viên tự đặt mật khẩu. Chủ không biết mật khẩu của nhân viên.
 - Hồ sơ pháp lý (MST) chỉ cần khi xuất hoá đơn điện tử, nên không bắt buộc lúc đăng ký.
-- Tổ chức không phải cửa hàng (Store): khi tạo tổ chức, hệ thống tự tạo **một cửa hàng mặc định** (và cặp cửa hàng – kho mặc định cho Theme 7).
+- Tổ chức không phải cửa hàng (Store): khi tạo tổ chức, hệ thống tự tạo **một cửa hàng mặc định**. Cặp cửa hàng – kho mặc định cho Theme 7 **không** tạo cùng tổ chức: tạo lười lần đầu vào app (`StoreShell` gọi `inventory.ensure_default_store_warehouse_pair`).
 
 ### 1.4 Trong phạm vi
 
@@ -99,7 +99,7 @@ Chỉ có một app (`apps/erp`) và một màn đăng nhập. App `apps/admin` 
 |---|---|
 | TH-02 → TH-08 | `tenant_id` hiện hành, người thao tác, vai trò, cửa hàng đang chọn (`active_store_id`); `iam.has_permission` cho mọi RPC nghiệp vụ; tên thành viên cho lịch sử (TH-04 KI-08) |
 | TH-05 Bán hàng | Snapshot cửa hàng, người bán (`get_active_store_context`); phạm vi cửa hàng (`can_access_store`) |
-| Theme 7 Kho | Cửa hàng mặc định và cặp cửa hàng – kho mặc định, tạo cùng tổ chức |
+| Theme 7 Kho | Cửa hàng mặc định tạo cùng tổ chức; cặp cửa hàng – kho mặc định tạo lười lần đầu vào app (`inventory.ensure_default_store_warehouse_pair`) |
 | TH-08 HĐĐT | Hồ sơ pháp lý hiện hành (HĐĐT chụp lại lúc phát hành) |
 
 ---
@@ -166,7 +166,7 @@ Số BR giữ từ bản 3.0.
 | BR-03 | Bước 2 – Cửa hàng: tên cửa hàng, SĐT liên hệ, địa chỉ (tỉnh/thành, phường/xã, chi tiết) bắt buộc. Email liên hệ tự điền bằng email tài khoản; tên hiển thị = tên cửa hàng. **Không hỏi** hồ sơ pháp lý / MST | App, trigger kiểm lại |
 | BR-04 | Bấm "Tạo cửa hàng" gọi `auth.signUp` với metadata `profile` và `signup_tenant`. Tổ chức **chưa** được tạo ở bước này | App |
 | BR-05 | Bước 3: nhập mã 6 số gửi qua email (`verifyOtp`, loại `signup`); có nút gửi lại mã | Supabase Auth |
-| BR-06 | Khi email được xác minh, trigger `iam._on_auth_user_confirmed` chạy **trong cùng transaction**: (1) tạo hồ sơ người dùng `active`; (2) nếu metadata có `signup_tenant` **và** người dùng chưa sở hữu tổ chức nào thì gọi `iam._create_tenant_for_owner`. Hàm này tạo tổ chức `active`, membership Owner (vai trò `store_owner`, `is_owner = true`), cửa hàng mặc định và cặp cửa hàng/kho mặc định; ghi tổ chức chọn gần nhất; ghi audit `iam.tenant.created`; xoá `signup_tenant` khỏi metadata | Trigger |
+| BR-06 | Khi email được xác minh, trigger `iam._on_auth_user_confirmed` chạy **trong cùng transaction**: (1) tạo hồ sơ người dùng `active`; (2) nếu metadata có `signup_tenant` **và** người dùng chưa sở hữu tổ chức nào thì gọi `iam._create_tenant_for_owner`. Hàm này tạo tổ chức `active`, membership Owner (vai trò `store_owner`, `is_owner = true`), cửa hàng mặc định (cặp cửa hàng – kho mặc định **không** tạo ở đây, xem mục 1.7 dòng "Theme 7 Kho"); ghi tổ chức chọn gần nhất; ghi audit `iam.tenant.created`; xoá `signup_tenant` khỏi metadata | Trigger |
 | BR-07 | Mỗi người dùng sở hữu **tối đa 1 tổ chức**. Đăng ký thêm cửa hàng thứ hai không được hỗ trợ | `_create_tenant_for_owner` |
 | BR-08 | Email đã có tài khoản → báo "Email đã được đăng ký", kèm nút Đăng nhập / Quên mật khẩu | App |
 | BR-09 | Bỏ dở ở bước 3 rồi đăng nhập → Supabase báo `email_not_confirmed` → chuyển tới `/verify-email` để nhập mã. Xác minh xong thì tổ chức vẫn được tạo từ metadata đã lưu | App |
@@ -407,7 +407,7 @@ Khác ▸ Tài khoản của tôi ─ Sửa / Đặt lại mật khẩu / Đăng
 
 - FR-01: Bước "3/3 · Xác minh email": "Mã xác minh gồm 6 chữ số đã được gửi tới `<email che>`."; ô 6 số; "Xác minh".
 - FR-02: "Gửi lại mã" (chờ 60 giây, "Gửi lại mã sau 00:ss") → `auth.resend(type: signup)`.
-- FR-03: "Xác minh" → `verifyOtp(type: signup)`. Trigger `_on_auth_user_confirmed` (cùng transaction): tạo hồ sơ người dùng `active`; tạo tổ chức `active`, membership Owner (`store_owner`), cửa hàng mặc định, cặp cửa hàng – kho mặc định; ghi tổ chức chọn gần nhất; audit `iam.tenant.created`; xoá `signup_tenant` khỏi metadata.
+- FR-03: "Xác minh" → `verifyOtp(type: signup)`. Trigger `_on_auth_user_confirmed` (cùng transaction): tạo hồ sơ người dùng `active`; tạo tổ chức `active`, membership Owner (`store_owner`), cửa hàng mặc định; ghi tổ chức chọn gần nhất; audit `iam.tenant.created`; xoá `signup_tenant` khỏi metadata.
 - FR-04: Thành công → vào `/`, toast "Chào mừng đến VET45! Cửa hàng `<tên>` đã sẵn sàng."
 - FR-05: Mã sai / hết hạn → "Mã xác minh không đúng hoặc đã hết hạn."
 
@@ -1277,7 +1277,7 @@ Số KI giữ từ bản 3.0.
 
 **SQL / RPC test**
 
-- Trigger: xác minh email có `signup_tenant` → tạo đủ tổ chức, Owner, cửa hàng, cặp cửa hàng – kho; xác minh lần hai không tạo thêm; người đã là Owner không tạo tổ chức thứ hai.
+- Trigger: xác minh email có `signup_tenant` → tạo đủ tổ chức, Owner, cửa hàng mặc định (chưa có cặp cửa hàng – kho); xác minh lần hai không tạo thêm; người đã là Owner không tạo tổ chức thứ hai.
 - Không có RPC client nào tạo tổ chức (`create_tenant_onboarding` đã xoá).
 - `has_permission`: Owner → true mọi mã; thành viên → false với `tenant.*`, `iam.*`, true với mã khác; thành viên tạm ngừng hoặc đã loại → false.
 - 🔧 `accept_invitation` cho người đã bị loại → kích hoạt lại bản ghi cũ.

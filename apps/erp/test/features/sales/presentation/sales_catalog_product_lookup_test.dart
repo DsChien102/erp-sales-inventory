@@ -1,23 +1,23 @@
 import '../../iam/support/iam_test_session.dart';
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/features/sales/presentation/lookups/sales_catalog_product_lookup.dart';
 
 void main() {
   late GetIt di;
-  late _RecordingCatalogModule catalog;
+  late _RecordingProductRepository catalog;
 
   setUp(() {
     di = GetIt.asNewInstance();
-    catalog = _RecordingCatalogModule();
+    catalog = _RecordingProductRepository();
     di
-      ..registerSingleton<ICatalogModule>(catalog)
-      ..registerSingleton<IExecutionContext>(const _ExecutionContext())
+      ..registerSingleton<ProductRepository>(catalog)
       ..registerSingleton<SessionController>(
         testSessionController(tenantId: 'tenant-1', userId: 'user-1', activeStoreId: 'store-1'),
       );
@@ -31,11 +31,9 @@ void main() {
       limit: 4,
     );
 
-    final query = catalog.lastQuery as SearchSellableProductsQuery;
-    expect(query.tenantId, 'tenant-1');
-    expect(query.storeId, 'store-1');
-    expect(query.keyword, 'thuoc');
-    expect(query.limit, 4);
+    expect(catalog.lastStoreId, 'store-1');
+    expect(catalog.lastKeyword, 'thuoc');
+    expect(catalog.lastLimit, 4);
     expect(result.single.productId, '11111111-1111-1111-1111-111111111111');
     expect(result.single.tradeName, 'Biet duoc A');
     expect(result.single.units.single.productUnitId, '22222222-2222-2222-2222-222222222222');
@@ -47,17 +45,16 @@ void main() {
     catalog.products = const [_product, _product2];
     final matches = await SalesCatalogProductLookup.bindBarcode(di)('8930001');
     expect(matches, hasLength(2));
-    expect(catalog.lastQuery, isA<ResolveSellableBarcodeQuery>());
+    expect(catalog.lastBarcode, '8930001');
 
     catalog.units = const [_unit];
     final resolved = await SalesCatalogProductLookup.bindUnits(di)(matches.first);
-    final query = catalog.lastQuery as ListSellableProductUnitsQuery;
-    expect(query.storeId, 'store-1');
-    expect(query.productId, matches.first.productId);
+    expect(catalog.lastStoreId, 'store-1');
+    expect(catalog.lastProductId, matches.first.productId);
     expect(resolved.units.single.productUnitId, _unit.productUnitId);
   });
 
-  test('catalog failure surfaces the underlying exception message', () async {
+  test('catalog failure surfaces fallback message on generic error', () async {
     catalog.failure = StateError('offline');
 
     await expectLater(
@@ -66,45 +63,77 @@ void main() {
         isA<SalesExternalOperationException>().having(
           (error) => error.message,
           'message',
-          contains('offline'),
+          'Không thể tải sản phẩm. Vui lòng thử lại.',
+        ),
+      ),
+    );
+  });
+
+  test('catalog failure surfaces permission message on noPermission (H18)', () async {
+    catalog.failure = const AppException(AppErrorCode.noPermission);
+
+    await expectLater(
+      SalesCatalogProductLookup.bindSearch(di)('thuoc'),
+      throwsA(
+        isA<SalesExternalOperationException>().having(
+          (error) => error.message,
+          'message',
+          'Bạn không có quyền thực hiện thao tác này.',
         ),
       ),
     );
   });
 }
 
-final class _RecordingCatalogModule implements ICatalogModule {
-  IQuery<dynamic>? lastQuery;
+final class _RecordingProductRepository extends Fake implements ProductRepository {
+  String? lastStoreId;
+  String? lastKeyword;
+  int? lastLimit;
+  String? lastBarcode;
+  String? lastProductId;
+
   List<SellableProductDto> products = const [];
   List<SellableProductUnitDto> units = const [];
   Object? failure;
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    lastQuery = query;
+  Future<List<SellableProductDto>> searchSellable({
+    required String storeId,
+    String? keyword,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    lastStoreId = storeId;
+    lastKeyword = keyword;
+    lastLimit = limit;
     final error = failure;
     if (error != null) throw error;
-    if (query is ListSellableProductUnitsQuery) return units as TResult;
-    return products as TResult;
+    return products;
   }
-}
-
-final class _ExecutionContext implements IExecutionContext {
-  const _ExecutionContext();
 
   @override
-  String get correlationId => 'corr-1';
+  Future<List<SellableProductDto>> resolveSellableBarcode({
+    required String storeId,
+    required String barcode,
+  }) async {
+    lastStoreId = storeId;
+    lastBarcode = barcode;
+    final error = failure;
+    if (error != null) throw error;
+    return products;
+  }
 
   @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'user-1';
+  Future<List<SellableProductUnitDto>> listSellableUnits({
+    required String storeId,
+    required String productId,
+  }) async {
+    lastStoreId = storeId;
+    lastProductId = productId;
+    final error = failure;
+    if (error != null) throw error;
+    return units;
+  }
 }
 
 const _unit = SellableProductUnitDto(

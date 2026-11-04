@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../bloc/product_guided_create_cubit.dart';
-import '../bloc/product_guided_create_state.dart';
+import '../../logic/product_guided_create_cubit.dart';
+import '../../logic/product_guided_create_state.dart';
 import 'product_guided_fields.dart';
 
 class ProductGuidedStepBaseCost extends StatefulWidget {
@@ -60,7 +60,7 @@ class _ProductGuidedStepBaseCostState extends State<ProductGuidedStepBaseCost> {
                 border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
               ),
               child: VText(
-                'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được giá vốn cơ sở.',
+                'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được giá cơ sở.',
                 variant: VTextVariant.bodyDefault,
                 color: dynamicColors.warning,
               ),
@@ -76,19 +76,19 @@ class _ProductGuidedStepBaseCostState extends State<ProductGuidedStepBaseCost> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         VText(
-          'Nhập giá vốn cơ sở của sản phẩm. Giá vốn này dùng làm cơ sở để tính toán biên lợi nhuận và gợi ý giá bán.',
+          'Nhập giá cơ sở của sản phẩm. Giá này dùng để tính gợi ý giá bán.',
           variant: VTextVariant.bodySmall,
           color: dynamicColors.textSecondary,
         ),
         const SizedBox(height: VSpacing.space3),
         ProductGuidedFields.buildLabel(
           context,
-          'Giá vốn cơ sở ${widget.state.baseUnit.isNotEmpty ? "(${widget.state.baseUnit})" : ""}',
+          'Giá cơ sở ${widget.state.baseUnit.isNotEmpty ? "(${widget.state.baseUnit})" : ""}',
         ),
         VMoneyField(
           key: const Key('input_guided_base_cost'),
           controller: _controller,
-          hintText: 'Nhập giá vốn cơ sở',
+          hintText: 'Nhập giá cơ sở',
           suffixText: 'đ',
           textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
           min: 0,

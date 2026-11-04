@@ -16,7 +16,7 @@ class ProductConversionUnitDeleteBlockedDialog extends StatelessWidget {
     required String message,
     required VoidCallback onDeactivate,
   }) {
-    return showVBottomSheet(
+    return showVAdaptiveSheet(
       context: context,
       title: 'Không thể xóa đơn vị',
       child: ProductConversionUnitDeleteBlockedDialog(

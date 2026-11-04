@@ -1,14 +1,15 @@
-import 'package:erp/features/catalog/presentation/bloc/product_custom_field_group_edit_cubit.dart';
-import 'package:erp/features/catalog/presentation/bloc/product_custom_field_group_edit_state.dart';
-import 'package:erp/features/catalog/presentation/widgets/product_form_bottom_bar.dart';
-import 'package:erp/features/catalog/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
+
+import '../../data/custom_field_repository.dart';
+import '../../data/models.dart';
+import '../../logic/product_custom_field_group_edit_cubit.dart';
+import '../../logic/product_custom_field_group_edit_state.dart';
+import '../widgets/custom_fields/product_custom_field_input_widget.dart';
+import '../widgets/product_form_bottom_bar.dart';
 
 class ProductCustomFieldGroupEditRouteArgs {
   const ProductCustomFieldGroupEditRouteArgs({
@@ -34,8 +35,7 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ProductCustomFieldGroupEditCubit(
-        context: GetIt.I<IExecutionContext>(),
-        catalogModule: GetIt.I<ICatalogModule>(),
+        customFieldRepository: GetIt.I<CustomFieldRepository>(),
       )..loadGroup(args.productId, args.groupId),
       child: BlocConsumer<ProductCustomFieldGroupEditCubit, ProductCustomFieldGroupEditState>(
         listener: (context, state) {

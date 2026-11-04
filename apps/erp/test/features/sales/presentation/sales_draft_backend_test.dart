@@ -4,7 +4,8 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/data/partner_repository.dart';
 import '../../partner/support/scripted_partner_repository.dart';
@@ -21,7 +22,7 @@ void main() {
   late GetIt di;
   late ScriptedPartnerRepository partner;
   late PartnerDetailDto partnerDetail;
-  late _RecordingCatalogModule catalog;
+  late _RecordingProductRepository catalog;
   late _RecordingPricingModule pricingModule;
   late _RecordingSalesModule sales;
 
@@ -34,12 +35,12 @@ void main() {
         throw StateError('Unexpected partner call $method');
       },
     );
-    catalog = _RecordingCatalogModule();
+    catalog = _RecordingProductRepository();
     pricingModule = _RecordingPricingModule();
     sales = _RecordingSalesModule();
     di
       ..registerSingleton<PartnerRepository>(partner)
-      ..registerSingleton<ICatalogModule>(catalog)
+      ..registerSingleton<ProductRepository>(catalog)
       ..registerSingleton<pricing.IPricingModule>(pricingModule)
       ..registerSingleton<ISalesModule>(sales)
       ..registerSingleton<IExecutionContext>(const _ExecutionContext())
@@ -154,7 +155,7 @@ void main() {
 
       expect(partner.callsOf('getDetail'), hasLength(1));
       expect(
-        catalog.queries.whereType<ResolveSellableProductsQuery>(),
+        catalog.queries.whereType<_ResolveSellableProductsCall>(),
         hasLength(1),
       );
       expect(
@@ -291,7 +292,7 @@ void main() {
         ),
       );
 
-      final resolveQueries = catalog.queries.whereType<ResolveSellableProductsQuery>().toList();
+      final resolveQueries = catalog.queries.whereType<_ResolveSellableProductsCall>().toList();
       expect(resolveQueries, hasLength(1));
       expect(resolveQueries.single.productIds, [
         _product.productId,
@@ -737,37 +738,31 @@ const _activeDetail = PartnerDetailDto(
     ),
   );
 
-final class _RecordingCatalogModule implements ICatalogModule {
+final class _ResolveSellableProductsCall {
+  final String storeId;
+  final List<String> productIds;
+  const _ResolveSellableProductsCall({
+    required this.storeId,
+    required this.productIds,
+  });
+}
+
+final class _RecordingProductRepository implements ProductRepository {
   final Map<String, SellableProductDto> productsById = {};
   final List<Object> queries = [];
   Object? failure;
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
+  Future<List<SellableProductResolutionDto>> resolveSellable({
+    required String storeId,
+    required List<String> productIds,
+  }) async {
+    queries.add(_ResolveSellableProductsCall(storeId: storeId, productIds: productIds));
     final error = failure;
     if (error != null) throw error;
-    final raw = query as Object;
-    if (raw is ResolveSellableProductsQuery) {
-      return [
-            for (final productId in raw.productIds) _resolve(productId),
-          ]
-          as TResult;
-    }
-    if (raw is SearchSellableProductsQuery) {
-      final match = productsById[raw.keyword.trim()];
-      return (match == null ? const <SellableProductDto>[] : [match]) as TResult;
-    }
-    if (raw is ListSellableProductUnitsQuery) {
-      final match = productsById[raw.productId];
-      return (match?.units ?? const <SellableProductUnitDto>[]) as TResult;
-    }
-    throw StateError('Unexpected catalog query $query');
+    return [
+      for (final productId in productIds) _resolve(productId),
+    ];
   }
 
   SellableProductResolutionDto _resolve(String productId) {
@@ -796,6 +791,9 @@ final class _RecordingCatalogModule implements ICatalogModule {
       product: product,
     );
   }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 final class _RecordingPricingModule implements pricing.IPricingModule {

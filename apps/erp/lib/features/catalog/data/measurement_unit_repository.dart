@@ -6,7 +6,7 @@ import 'catalog_errors.dart';
 import 'models/measurement_unit.dart';
 import 'models/product_inputs.dart';
 
-final class MeasurementUnitRepository {
+class MeasurementUnitRepository {
   MeasurementUnitRepository({
     required SupabaseRpc rpc,
     required Future<String> Function() tenantId,

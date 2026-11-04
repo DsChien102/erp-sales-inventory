@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_catalog_application/application.dart';
+import '../../data/models.dart';
 
 class _VLifecycleBottomSheetContent extends StatelessWidget {
   final String message;
@@ -118,7 +118,7 @@ Future<void> showProductDeactivateBottomSheet({
   required VoidCallback onConfirm,
   List<ProductBusinessStatusWarningDto>? warnings,
 }) {
-  return showVBottomSheet(
+  return showVAdaptiveSheet(
     context: context,
     title: 'Ngừng kinh doanh sản phẩm này?',
     child: _VLifecycleBottomSheetContent(
@@ -137,7 +137,7 @@ Future<void> showProductReactivateBottomSheet({
   required BuildContext context,
   required VoidCallback onConfirm,
 }) {
-  return showVBottomSheet(
+  return showVAdaptiveSheet(
     context: context,
     title: 'Kinh doanh lại sản phẩm này?',
     child: _VLifecycleBottomSheetContent(

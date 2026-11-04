@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_domain/domain.dart';
+import '../../data/models.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../bloc/product_guided_create_cubit.dart';
-import '../bloc/product_guided_create_state.dart';
+import '../../logic/product_guided_create_cubit.dart';
+import '../../logic/product_guided_create_state.dart';
 import 'custom_fields/product_custom_field_input_widget.dart';
 import 'product_guided_fields.dart';
 

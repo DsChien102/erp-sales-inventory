@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/presentation/widgets/tenant_measurement_unit_search_field.dart';
 
 void main() {

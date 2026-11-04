@@ -3,9 +3,9 @@ enum ProductListFilter {
   readyToSell('Sẵn sàng bán'),
   incomplete('Thiếu dữ liệu'),
   inactive('Ngừng KD'),
-  // deleted('Đã xóa'),
   inStock('Còn hàng'),
-  outOfStock('Hết hàng');
+  outOfStock('Hết hàng'),
+  deleted('Đã xóa');
 
   final String label;
   const ProductListFilter(this.label);

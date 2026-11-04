@@ -187,7 +187,7 @@ Trước mỗi symbol sửa: `gitnexus impact` (upstream), ghi vào Kết quả.
 - `setProductUnitPriceBandParams` dùng cú pháp bỏ khoá khi `null` (`'p_floor_price_before_vat': ?floorBeforeVat`). Chép đúng: khoá **vắng** khác khoá `null` với PostgREST (vắng → dùng `default` của hàm).
 - `ProductPriceBandStatus.toWire()` / `StorePriceRuleStatus`: giữ đúng chuỗi.
 - `listProductUnits` của Pricing (`pricing_pick_unit_page`) gọi **không** có `includeInactive` (mặc định `false`) rồi tự lọc `isActive`. Giữ mặc định `false`.
-- `_dateOnly` cũ đổi ngày sang UTC trước khi cắt `yyyy-MM-dd`: ngày chọn lúc 00:00 giờ máy (UTC+7) ra ngày hôm trước. Giữ nguyên ở 5-A2 (parity); nếu là lỗi thì ghi vào Kết quả để 5-B xét, không sửa ở đây.
+- `_dateOnly` cũ đổi ngày sang UTC trước khi cắt `yyyy-MM-dd`: ngày chọn lúc 00:00 giờ máy (UTC+7) ra ngày hôm trước. Giữ nguyên ở 5-A2 (parity). **Người dùng chốt 2026-11-03:** là lỗi, ghi thành TH-02 KI-24, sửa ở 5-B (G9).
 - Trong `catalog_rules.dart` có 3 câu gần giống nhau cho id đơn vị / giá trị trường (`checkCreateGuided` của 5-A1 so với `checkBaseUnitSelection`, `checkUpsertProductValues`): giữ **riêng** từng câu như code cũ, không gộp.
 - `guided_price_band_submission_resolver.dart:19,22` còn nhắc `SetInitialPriceBandCommand` trong chú thích: 5-A3 sửa, 5-A2 không đụng.
 

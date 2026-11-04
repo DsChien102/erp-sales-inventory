@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/catalog/presentation.dart';
 
+import '../../data/product_repository.dart';
+import '../../logic/catalog_error_messages.dart';
 import '../widgets/product_form_bottom_bar.dart';
 
 class ProductNoteEditRouteArgs {
@@ -62,14 +62,7 @@ class _ProductNoteEditPageState extends State<ProductNoteEditPage> {
     setState(() => _isSubmitting = true);
 
     try {
-      final catalogModule = GetIt.instance<ICatalogModule>();
-      final executionContext = GetIt.instance<IExecutionContext>();
-      final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
-
-      final command = UpdateProductProfileCommand(
-        tenantId: tenantId,
-        actorId: actorId,
+      await GetIt.instance<ProductRepository>().updateProfile(
         productId: widget.args.product.id,
         productName: widget.args.product.name,
         commercialName: widget.args.product.tradeName,
@@ -78,8 +71,6 @@ class _ProductNoteEditPageState extends State<ProductNoteEditPage> {
         note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
         expectedVersion: null,
       );
-
-      await catalogModule.executeCommandAsync(command);
 
       if (mounted) {
         VToast.show(
@@ -95,7 +86,7 @@ class _ProductNoteEditPageState extends State<ProductNoteEditPage> {
         VToast.show(
           context,
           title: 'Lỗi',
-          message: e.toString(),
+          message: catalogErrorMessage(e, fallback: 'Không lưu được ghi chú'),
           type: VToastType.danger,
         );
       }

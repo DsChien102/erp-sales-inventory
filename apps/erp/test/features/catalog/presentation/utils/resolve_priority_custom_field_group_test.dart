@@ -1,6 +1,6 @@
 import 'package:erp/features/catalog/presentation/utils/resolve_priority_custom_field_group.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/models.dart';
 
 void main() {
   CustomFieldGroupCardDto group({

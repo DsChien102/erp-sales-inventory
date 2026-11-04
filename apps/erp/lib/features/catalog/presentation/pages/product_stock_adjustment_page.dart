@@ -147,29 +147,30 @@ class _ProductStockAdjustmentViewState extends State<_ProductStockAdjustmentView
                           decoration: BoxDecoration(
                             border: Border.all(color: dynamicColors.borderDefault),
                             borderRadius: BorderRadius.circular(VRadius.input),
+                            color: dynamicColors.background,
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               VText(
-                                'Tồn kho hiện tại',
-                                variant: VTextVariant.bodySmall,
-                                color: dynamicColors.textSecondary,
-                              ),
-                              const SizedBox(height: 4),
-                              VText(
-                                _isInitial ? 'Chưa thiết lập' : '${widget.args.currentQuantity} $unitName',
+                                'Tồn hiện tại',
                                 variant: VTextVariant.bodyDefault,
                                 color: dynamicColors.textPrimary,
+                              ),
+                              VText(
+                                _isInitial ? 'Chưa thiết lập' : '${widget.args.currentQuantity}',
+                                variant: VTextVariant.bodyDefault,
+                                color: dynamicColors.textPrimary,
+                                style: const TextStyle(fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(height: VSpacing.space6),
 
-                        // Input Tồn thực tế
+                        // Tồn mới
                         VText(
-                          _isInitial ? 'Tồn ban đầu ($unitName)' : 'Tồn mới ($unitName)',
+                          'Tồn mới ($unitName)',
                           variant: VTextVariant.bodyDefault,
                           color: dynamicColors.textPrimary,
                           style: const TextStyle(fontWeight: FontWeight.w600),
@@ -197,29 +198,26 @@ class _ProductStockAdjustmentViewState extends State<_ProductStockAdjustmentView
                             return null;
                           },
                         ),
-                        const SizedBox(height: VSpacing.space6),
 
-                        // Lý do điều chỉnh (chỉ hiện khi điều chỉnh tồn kho)
                         if (!_isInitial) ...[
+                          const SizedBox(height: VSpacing.space6),
+                          // Lý do
                           VText(
-                            'Lý do điều chỉnh (không bắt buộc)',
+                            'Lý do',
                             variant: VTextVariant.bodySmall,
                             color: dynamicColors.textSecondary,
                           ),
                           const SizedBox(height: VSpacing.space2),
                           Wrap(
-                            spacing: VSpacing.space2,
-                            runSpacing: VSpacing.space2,
+                            spacing: 8,
+                            runSpacing: 8,
                             children: _predefinedReasons.map((reason) {
                               final isSelected = _selectedReason == reason;
                               return ChoiceChip(
-                                label: Text(
+                                label: VText(
                                   reason,
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? dynamicColors.textPrimary
-                                        : dynamicColors.textSecondary,
-                                  ),
+                                  variant: VTextVariant.bodyDefault,
+                                  color: isSelected ? dynamicColors.surface : dynamicColors.textPrimary,
                                 ),
                                 selected: isSelected,
                                 onSelected: isSubmitting

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_price_repository.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/dashed_border_container.dart';
 import '../widgets/product_form_bottom_bar.dart';
@@ -33,8 +33,7 @@ class ProductPriceBandsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ProductPriceBandsCubit(
-        moduleMediator: GetIt.instance<ICatalogModule>(),
-        executionContext: GetIt.instance<IExecutionContext>(),
+        productPriceRepository: GetIt.instance<ProductPriceRepository>(),
         productId: args.productId,
       )..loadPriceBands(),
       child: BlocBuilder<ProductPriceBandsCubit, ProductPriceBandsState>(
@@ -127,7 +126,7 @@ class ProductPriceBandsPage extends StatelessWidget {
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 24),
-      itemCount: data.rows.length + 2,
+      itemCount: data.rows.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) {
           return Padding(
@@ -137,17 +136,6 @@ class ProductPriceBandsPage extends StatelessWidget {
               variant: VTextVariant.caption,
               color: dynamicColors.textSecondary,
               style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          );
-        }
-
-        if (index == data.rows.length + 1) {
-          return Padding(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: VText(
-              'Thay đổi có áp dụng cho cửa hàng và kênh phân phối.',
-              variant: VTextVariant.bodySmall,
-              color: dynamicColors.textSecondary,
             ),
           );
         }
@@ -224,7 +212,7 @@ class ProductPriceBandsPage extends StatelessWidget {
               InkWell(
                 onTap: () async {
                   final didChange = await context.push<bool>(
-                    '/products/items/pcc/price-bands/edit',
+                    '/products/items/$productId/price-bands/edit',
                     extra: EditProductUnitPriceBandRouteArgs(
                       row: row,
                       productId: productId,

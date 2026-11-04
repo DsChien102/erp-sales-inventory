@@ -3,10 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
+
+import '../../../data/models.dart';
+import '../../../data/product_price_repository.dart';
 
 import '../../widgets/product_form_bottom_bar.dart';
 import '../../widgets/store_price_rule_save_confirm_sheet.dart';
@@ -27,7 +28,6 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
   late final TextEditingController _listMarkupController;
   late final TextEditingController _floorMarkupController;
   late final TextEditingController _basePriceExampleController;
-  late final TextEditingController _noteController;
 
   static const double _defaultExampleBasePrice = 100000;
 
@@ -44,7 +44,6 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
     _basePriceExampleController = TextEditingController(
       text: formatCatalogCurrencyAmount(_defaultExampleBasePrice) ?? '',
     );
-    _noteController = TextEditingController();
   }
 
   @override
@@ -52,7 +51,6 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
     _listMarkupController.dispose();
     _floorMarkupController.dispose();
     _basePriceExampleController.dispose();
-    _noteController.dispose();
     super.dispose();
   }
 
@@ -127,8 +125,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => StorePriceRuleSettingsCubit(
-        moduleMediator: GetIt.instance<ICatalogModule>(),
-        executionContext: GetIt.instance<IExecutionContext>(),
+        productPriceRepository: GetIt.instance<ProductPriceRepository>(),
       ),
       child: BlocConsumer<StorePriceRuleSettingsCubit, StorePriceRuleSettingsState>(
         listener: (context, state) {
@@ -183,8 +180,6 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
                     ),
                     const SizedBox(height: VSpacing.space5),
                     _buildPreviewSection(context),
-                    const SizedBox(height: VSpacing.space5),
-                    _buildNoteSection(context),
                   ],
                 ),
               ),
@@ -436,47 +431,6 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
             color: valueColor,
             fontWeight: FontWeight.w700,
             fontFeatures: [const FontFeature.tabularFigures()],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNoteSection(BuildContext context) {
-    final colors = context.vColors;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        VText(
-          'Ghi chú (tuỳ chọn)',
-          variant: VTextVariant.bodyDefault,
-          color: colors.textPrimary,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: VSpacing.space2),
-        TextField(
-          controller: _noteController,
-          maxLines: 3,
-          style: VTypography.bodyDefault.copyWith(color: colors.textPrimary),
-          decoration: InputDecoration(
-            hintText: 'VD: Điều chỉnh theo chiến lược quý',
-            hintStyle: VTypography.bodyDefault.copyWith(
-              color: colors.textMuted,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(VRadius.r8),
-              borderSide: BorderSide(color: colors.borderDefault),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(VRadius.r8),
-              borderSide: BorderSide(color: colors.borderDefault),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(VRadius.r8),
-              borderSide: BorderSide(color: colors.primary, width: 2),
-            ),
-            contentPadding: const EdgeInsets.all(VSpacing.space3),
           ),
         ),
       ],

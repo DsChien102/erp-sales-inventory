@@ -7,7 +7,7 @@ import 'models/catalog_enums.dart';
 import 'models/price_band.dart';
 import 'models/store_price_rule.dart';
 
-final class ProductPriceRepository {
+class ProductPriceRepository {
   ProductPriceRepository({
     required SupabaseRpc rpc,
     required Future<String> Function() tenantId,

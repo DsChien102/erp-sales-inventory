@@ -11,7 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../../iam/support/iam_test_session.dart';
 import '../../iam/support/scripted_iam_repositories.dart';
@@ -25,7 +26,7 @@ import 'package:vet45_shared_application/application.dart';
 
 void main() {
   late _RecordingSalesModule salesModule;
-  late _SalesFlowCatalogModule catalogModule;
+  late _SalesFlowProductRepository productRepo;
   late _RecordingPricingModule pricingModule;
   late ScriptedAccountRepository accounts;
   late SessionController session;
@@ -35,7 +36,7 @@ void main() {
   setUp(() async {
     await GetIt.instance.reset();
     salesModule = _RecordingSalesModule();
-    catalogModule = _SalesFlowCatalogModule();
+    productRepo = _SalesFlowProductRepository();
     pricingModule = _RecordingPricingModule();
     accounts = ScriptedAccountRepository(
       profile: const MyAccount(
@@ -60,7 +61,7 @@ void main() {
     GetIt.instance.registerSingleton<PartnerRepository>(
       ScriptedPartnerRepository(onCall: _salesFlowPartnerScript),
     );
-    GetIt.instance.registerSingleton<ICatalogModule>(catalogModule);
+    GetIt.instance.registerSingleton<ProductRepository>(productRepo);
     GetIt.instance.registerSingleton<pricing.IPricingModule>(pricingModule);
 
     router = GoRouter(
@@ -790,25 +791,56 @@ SessionController _demoSession({String activeStoreCode = 'HCM-01'}) {
   );
 }
 
-final class _SalesFlowCatalogModule implements ICatalogModule {
+final class _SalesFlowProductRepository implements ProductRepository {
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw StateError('Unexpected command $command');
+  Future<List<SellableProductDto>> searchSellable({
+    required String storeId,
+    String? keyword,
+    int? limit,
+    int? offset,
+  }) async {
+    return const [_liveProduct];
   }
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is SearchSellableProductsQuery) {
-      return const [_liveProduct] as TResult;
-    }
-    if (query is ResolveSellableBarcodeQuery) {
-      return const <SellableProductDto>[] as TResult;
-    }
-    if (query is ListSellableProductUnitsQuery) {
-      return const [_liveUnit] as TResult;
-    }
-    throw StateError('Unexpected query $query');
+  Future<List<SellableProductDto>> resolveSellableBarcode({
+    required String storeId,
+    required String barcode,
+  }) async {
+    return const <SellableProductDto>[];
   }
+
+  @override
+  Future<List<SellableProductUnitDto>> listSellableUnits({
+    required String storeId,
+    required String productId,
+  }) async {
+    return const [_liveUnit];
+  }
+
+  @override
+  Future<List<SellableProductResolutionDto>> resolveSellable({
+    required String storeId,
+    required List<String> productIds,
+  }) async {
+    return [
+      for (final productId in productIds)
+        if (productId == _liveProduct.productId)
+          SellableProductResolutionDto(
+            productId: productId,
+            resolution: SellableProductResolution.sellable,
+            product: _liveProduct,
+          )
+        else
+          SellableProductResolutionDto(
+            productId: productId,
+            resolution: SellableProductResolution.notFound,
+          ),
+    ];
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 final class _RecordingPricingModule implements pricing.IPricingModule {

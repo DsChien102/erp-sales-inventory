@@ -295,6 +295,10 @@ iam:
   verify_password_reset_code: 20260811021_iam_password_reset_operations.sql
   verify_password_reset_code_by_email: 20260811025_iam_password_reset_by_email.sql
 
+inventory:
+  ensure_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
+  get_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
+
 partner:
   _assert_actor: 20260714004_partner_v2_write_rpc.sql
   _duplicate_warnings: 20260714004_partner_v2_write_rpc.sql

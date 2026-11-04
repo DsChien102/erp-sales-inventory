@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_domain/domain.dart';
+import '../../data/models.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
@@ -9,16 +8,19 @@ class ProductListItemTile extends StatelessWidget {
     super.key,
     required this.item,
     required this.onTap,
+    this.isSelected = false,
   });
 
   final ProductListItemDto item;
   final VoidCallback onTap;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
     return VCard(
+      isSelected: isSelected ? true : null,
       onTap: onTap,
       padding: const EdgeInsets.all(VSpacing.space4),
       child: Row(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../bloc/product_guided_create_cubit.dart';
-import '../bloc/product_guided_create_state.dart';
+import '../../logic/product_guided_create_cubit.dart';
+import '../../logic/product_guided_create_state.dart';
 import '../utils/catalog_currency_formatters.dart';
 import 'product_guided_fields.dart';
 
@@ -303,7 +303,7 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                 const SizedBox(width: VSpacing.space2),
                 Expanded(
                   child: VText(
-                    'Giá nhập thủ công sẽ không tự động cập nhật khi giá vốn thay đổi.',
+                    'Giá nhập thủ công sẽ không tự động cập nhật khi giá cơ sở thay đổi.',
                     variant: VTextVariant.bodySmall,
                     color: dynamicColors.warning,
                   ),

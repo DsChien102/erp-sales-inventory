@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
 
+import '../../../data/product_price_repository.dart';
 import '../../widgets/store_price_rule_change_history_entry_card.dart';
 
 class StorePriceRuleChangeHistoryPage extends StatelessWidget {
@@ -16,8 +15,7 @@ class StorePriceRuleChangeHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => StorePriceRuleChangeHistoryCubit(
-        moduleMediator: GetIt.instance<ICatalogModule>(),
-        executionContext: GetIt.instance<IExecutionContext>(),
+        productPriceRepository: GetIt.instance<ProductPriceRepository>(),
       )..load(),
       child: const _ChangeHistoryBody(),
     );

@@ -1,7 +1,6 @@
 import 'package:erp/core/di/injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../../catalog_e2e_harness.dart';

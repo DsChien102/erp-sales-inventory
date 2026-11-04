@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-
-enum ProductImageSource {
-  camera,
-  gallery,
-  file,
-}
+import '../../../logic/product_images_maintenance_cubit.dart';
 
 class ProductImageAddSheet extends StatelessWidget {
   const ProductImageAddSheet({super.key});
 
   static Future<ProductImageSource?> show(BuildContext context) {
-    return showModalBottomSheet<ProductImageSource>(
+    return showVAdaptiveSheet<ProductImageSource>(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => const ProductImageAddSheet(),
+      title: 'Thêm ảnh sản phẩm',
+      child: const ProductImageAddSheet(),
     );
   }
 
@@ -23,59 +17,46 @@ class ProductImageAddSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: dynamicColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              VText(
-                'Thêm ảnh sản phẩm',
-                variant: VTextVariant.headingH4,
-                color: dynamicColors.textPrimary,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: VSpacing.space4),
-              _buildOption(
-                context,
-                icon: Icons.camera_alt,
-                iconColor: dynamicColors.success,
-                title: 'Chụp ảnh',
-                subtitle: 'Dùng camera của thiết bị',
-                onTap: () => Navigator.of(context).pop(ProductImageSource.camera),
-              ),
-              const SizedBox(height: VSpacing.space2),
-              _buildOption(
-                context,
-                icon: Icons.photo_library,
-                iconColor: dynamicColors.primary,
-                title: 'Chọn từ thư viện',
-                subtitle: 'Chọn ảnh đã có trên máy',
-                onTap: () => Navigator.of(context).pop(ProductImageSource.gallery),
-              ),
-              const SizedBox(height: VSpacing.space2),
-              _buildOption(
-                context,
-                icon: Icons.folder,
-                iconColor: dynamicColors.primary,
-                title: 'Chọn tệp',
-                subtitle: 'Tải ảnh từ thư mục',
-                onTap: () => Navigator.of(context).pop(ProductImageSource.file),
-              ),
-              const SizedBox(height: VSpacing.space6),
-              VButton(
-                label: 'Hủy',
-                variant: VButtonVariant.secondary,
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildOption(
+              context,
+              icon: Icons.camera_alt,
+              iconColor: dynamicColors.success,
+              title: 'Chụp ảnh',
+              subtitle: 'Dùng camera của thiết bị',
+              onTap: () => Navigator.of(context).pop(ProductImageSource.camera),
+            ),
+            const SizedBox(height: VSpacing.space2),
+            _buildOption(
+              context,
+              icon: Icons.photo_library,
+              iconColor: dynamicColors.primary,
+              title: 'Chọn từ thư viện',
+              subtitle: 'Chọn ảnh đã có trên máy',
+              onTap: () => Navigator.of(context).pop(ProductImageSource.gallery),
+            ),
+            const SizedBox(height: VSpacing.space2),
+            _buildOption(
+              context,
+              icon: Icons.folder,
+              iconColor: dynamicColors.primary,
+              title: 'Chọn tệp',
+              subtitle: 'Tải ảnh từ thư mục',
+              onTap: () => Navigator.of(context).pop(ProductImageSource.file),
+            ),
+            const SizedBox(height: VSpacing.space6),
+            VButton(
+              label: 'Hủy',
+              variant: VButtonVariant.secondary,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
         ),
       ),
     );

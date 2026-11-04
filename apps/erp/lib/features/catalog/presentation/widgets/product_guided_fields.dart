@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../bloc/product_guided_create_cubit.dart';
+import '../../logic/product_guided_create_cubit.dart';
 
 class ProductGuidedFields {
   static Widget buildLabel(BuildContext context, String label) {

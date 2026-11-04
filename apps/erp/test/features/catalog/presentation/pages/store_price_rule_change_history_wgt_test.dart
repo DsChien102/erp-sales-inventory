@@ -1,20 +1,10 @@
+import 'package:erp/features/catalog/data/product_price_repository.dart';
 import 'package:erp/features/catalog/presentation/pages/settings/store_price_rule_change_history_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
-final class _FakeExecutionContext implements IExecutionContext {
-  @override
-  String get correlationId => 'test-correlation';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'user-1';
-}
+import '../../support/catalog_test_registry.dart';
 
 void main() {
   final getIt = GetIt.instance;
@@ -23,27 +13,24 @@ void main() {
     await getIt.reset();
   });
 
-  testWidgets('wgt_e06_u02_hist_01 shows history from fake module', (tester) async {
-    final fakeModule = FakeCatalogModule();
-    await fakeModule.executeCommandAsync(
-      SetStorePriceRuleCommand(
-        tenantId: 'tenant-1',
-        name: 'Mặc định bán lẻ',
-        listMarkupRatio: 0.12,
-        floorMarkupRatio: 0.10,
-      ),
-    );
-    await fakeModule.executeCommandAsync(
-      SetStorePriceRuleCommand(
-        tenantId: 'tenant-1',
-        name: 'Mặc định bán lẻ',
-        listMarkupRatio: 0.15,
-        floorMarkupRatio: 0.10,
-      ),
-    );
+  tearDown(() async {
+    await getIt.reset();
+  });
 
-    getIt.registerSingleton<ICatalogModule>(fakeModule);
-    getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
+  testWidgets('wgt_e06_u02_hist_01 shows history from fake module', (tester) async {
+    registerFakeCatalog(getIt);
+    final priceRepo = getIt<ProductPriceRepository>();
+
+    await priceRepo.setStorePriceRule(
+      name: 'Mặc định bán lẻ',
+      listMarkupRatio: 0.12,
+      floorMarkupRatio: 0.10,
+    );
+    await priceRepo.setStorePriceRule(
+      name: 'Mặc định bán lẻ',
+      listMarkupRatio: 0.15,
+      floorMarkupRatio: 0.10,
+    );
 
     await tester.pumpWidget(
       const MaterialApp(home: StorePriceRuleChangeHistoryPage()),

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/models.dart';
+import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../pages/product_custom_field_group_edit_page.dart';
 import '../pages/product_manual_base_price_page.dart';
@@ -31,12 +31,14 @@ class ProductControlCenterBody extends StatelessWidget {
     required this.state,
     required this.onDeactivate,
     required this.onReactivate,
+    this.onMutated,
   });
 
   final ProductListItemModel product;
   final ProductControlCenterState state;
   final VoidCallback onDeactivate;
   final VoidCallback onReactivate;
+  final VoidCallback? onMutated;
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +130,7 @@ class ProductControlCenterBody extends StatelessWidget {
                 onEditNote: () => _openNoteEdit(context, controlCenter),
                 onViewChangeHistory: () {
                   context.push(
-                    '/products/items/pcc/change-history',
+                    '/products/items/${product.id}/change-history',
                     extra: product,
                   );
                 },
@@ -143,19 +145,19 @@ class ProductControlCenterBody extends StatelessWidget {
                   ProductDeleteConfirmDialog.show(
                     context,
                     cubit: ProductSoftDeleteCubit(
-                      mediator: GetIt.instance<ICatalogModule>(),
-                      executionContext: GetIt.instance<IExecutionContext>(),
+                      productRepository: GetIt.instance<ProductRepository>(),
                     ),
                     productId: product.id,
                     productName: product.name,
+                    isSplit: VListDetailLayout.isSplitOf(context),
+                    onDeleted: () => onMutated?.call(),
                   );
                 },
                 onRestore: () {
                   ProductRestoreConfirmDialog.show(
                     context,
                     cubit: ProductSoftDeleteCubit(
-                      mediator: GetIt.instance<ICatalogModule>(),
-                      executionContext: GetIt.instance<IExecutionContext>(),
+                      productRepository: GetIt.instance<ProductRepository>(),
                     ),
                     productId: product.id,
                     productName: product.name,
@@ -177,6 +179,7 @@ class ProductControlCenterBody extends StatelessWidget {
 
   void _reload(BuildContext context) {
     context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
+    onMutated?.call();
   }
 
   Future<void> _reloadAfterPush(BuildContext context, Future<void> navigation) async {
@@ -214,7 +217,7 @@ class ProductControlCenterBody extends StatelessWidget {
     await _reloadAfterPush(
       context,
       context.push(
-        '/products/items/pcc/checklist',
+        '/products/items/${product.id}/checklist',
         extra: ProductReadinessChecklistRouteArgs(
           readinessView: readinessView,
           product: updatedProduct,
@@ -231,7 +234,7 @@ class ProductControlCenterBody extends StatelessWidget {
     return _reloadAfterPush(
       context,
       context.push(
-        '/products/items/pcc/profile-maintenance',
+        '/products/items/${product.id}/profile-maintenance',
         extra: _productFromProfile(controlCenter),
       ),
     );
@@ -244,7 +247,7 @@ class ProductControlCenterBody extends StatelessWidget {
     return _reloadAfterPush(
       context,
       context.push(
-        '/products/items/pcc/images-maintenance',
+        '/products/items/${product.id}/images-maintenance',
         extra: _productFromProfile(controlCenter),
       ),
     );
@@ -257,7 +260,7 @@ class ProductControlCenterBody extends StatelessWidget {
     return _reloadAfterPush(
       context,
       context.push(
-        '/products/items/pcc/measurement-units',
+        '/products/items/${product.id}/measurement-units',
         extra: ProductMeasurementUnitsRouteArgs(
           product: product.copyWith(baseUnit: controlCenter.units.baseUnitName),
         ),
@@ -272,7 +275,7 @@ class ProductControlCenterBody extends StatelessWidget {
     if (!controlCenter.stock.canAdjust) return;
 
     final didChange = await context.push<bool>(
-      '/products/items/pcc/stock',
+      '/products/items/${product.id}/stock',
       extra: ProductStockAdjustmentRouteArgs(
         product: product,
         currentQuantity: controlCenter.stock.quantity,
@@ -290,7 +293,7 @@ class ProductControlCenterBody extends StatelessWidget {
     ProductControlCenterDto controlCenter,
   ) async {
     final didChange = await context.push<bool>(
-      '/products/items/pcc/note',
+      '/products/items/${product.id}/note',
       extra: ProductNoteEditRouteArgs(
         product: product,
         currentNote: controlCenter.profile.note,
@@ -308,7 +311,7 @@ class ProductControlCenterBody extends StatelessWidget {
     return _reloadAfterPush(
       context,
       context.push(
-        '/products/items/pcc/manual-base-price',
+        '/products/items/${product.id}/manual-base-price',
         extra: ProductManualBasePriceRouteArgs(
           product: product.copyWith(baseUnit: controlCenter.units.baseUnitName),
           basePriceCard: controlCenter.basePrice,
@@ -321,7 +324,7 @@ class ProductControlCenterBody extends StatelessWidget {
     return _reloadAfterPush(
       context,
       context.push(
-        '/products/items/pcc/price-bands',
+        '/products/items/${product.id}/price-bands',
         extra: ProductPriceBandsRouteArgs(
           productId: product.id,
           productName: product.name,
@@ -337,7 +340,7 @@ class ProductControlCenterBody extends StatelessWidget {
     return _reloadAfterPush(
       context,
       context.push(
-        '/products/items/pcc/custom-fields/edit',
+        '/products/items/${product.id}/custom-fields/edit',
         extra: ProductCustomFieldGroupEditRouteArgs(
           productId: product.id,
           productName: product.name,

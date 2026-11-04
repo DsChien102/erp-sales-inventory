@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../../../../core/di/injection.dart';
-import '../bloc/product_images_maintenance_cubit.dart';
+import '../../data/product_repository.dart';
 import '../widgets/product_form_bottom_bar.dart';
 
 class ProductImagesMaintenancePage extends StatelessWidget {
@@ -22,8 +20,7 @@ class ProductImagesMaintenancePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ProductImagesMaintenanceCubit(
-        catalogModule: getIt<ICatalogModule>(),
-        executionContext: getIt<IExecutionContext>(),
+        productRepository: getIt<ProductRepository>(),
         productId: product.id,
         initialImages: product.images ?? [],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_inventory_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
+
+import '../../../core/errors/app_exception.dart';
+import '../data/default_pair_repository.dart';
 
 enum DefaultPairGateStatus { loading, ready, error }
 
@@ -19,23 +20,21 @@ final class DefaultPairGateState {
 }
 
 final class DefaultPairGateCubit extends Cubit<DefaultPairGateState> {
-  DefaultPairGateCubit({required IInventoryModule inventoryModule})
-    : _inventoryModule = inventoryModule,
+  DefaultPairGateCubit({required DefaultPairRepository repository})
+    : _repository = repository,
       super(const DefaultPairGateState.loading());
 
-  final IInventoryModule _inventoryModule;
+  final DefaultPairRepository _repository;
 
   Future<void> load() async {
     emit(const DefaultPairGateState.loading());
     try {
-      await _inventoryModule.executeQueryAsync(
-        GetDefaultStoreWarehousePairQuery(),
-      );
+      await _repository.get();
       if (isClosed) return;
       emit(const DefaultPairGateState.ready());
-    } on ApplicationException catch (error) {
-      if (error.message != 'DEFAULT_PAIR_MISSING') {
-        _emitError(error.message);
+    } on AppException catch (e) {
+      if (e.code != 'DEFAULT_PAIR_MISSING') {
+        _emitError(e.code);
         return;
       }
       await _ensure();
@@ -46,13 +45,11 @@ final class DefaultPairGateCubit extends Cubit<DefaultPairGateState> {
 
   Future<void> _ensure() async {
     try {
-      await _inventoryModule.executeCommandAsync(
-        EnsureDefaultStoreWarehousePairCommand(),
-      );
+      await _repository.ensure();
       if (isClosed) return;
       emit(const DefaultPairGateState.ready());
-    } on ApplicationException catch (error) {
-      _emitError(error.message);
+    } on AppException catch (e) {
+      _emitError(e.code);
     } catch (error) {
       _emitError('$error');
     }

@@ -1,4 +1,4 @@
-import 'package:vet45_catalog_application/application.dart';
+import '../../data/models.dart';
 
 /// Picks the next custom-field group to open from readiness "Cập nhật trường".
 ///

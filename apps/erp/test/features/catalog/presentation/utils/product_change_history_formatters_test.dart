@@ -1,6 +1,6 @@
 import 'package:erp/features/catalog/presentation/utils/product_change_history_formatters.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/models.dart';
 
 void main() {
   group('formatProductChangeHistoryDateTime', () {

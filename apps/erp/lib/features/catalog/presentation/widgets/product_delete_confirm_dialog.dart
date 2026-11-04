@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_catalog_application/application.dart';
+import '../../data/models.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/catalog/presentation.dart';
@@ -10,19 +10,25 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
     super.key,
     required this.productId,
     required this.productName,
+    this.isSplit = false,
+    this.onDeleted,
   });
 
   final String productId;
   final String productName;
+  final bool isSplit;
+  final VoidCallback? onDeleted;
 
   static Future<void> show(
     BuildContext context, {
     required ProductSoftDeleteCubit cubit,
     required String productId,
     required String productName,
+    bool isSplit = false,
+    VoidCallback? onDeleted,
   }) async {
     cubit.checkEligibility(productId);
-    await showVBottomSheet(
+    await showVAdaptiveSheet(
       context: context,
       title: 'Xoá sản phẩm này?',
       child: BlocProvider.value(
@@ -30,6 +36,8 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
         child: ProductDeleteConfirmDialog(
           productId: productId,
           productName: productName,
+          isSplit: isSplit,
+          onDeleted: onDeleted,
         ),
       ),
     );
@@ -47,10 +55,15 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
             type: VToastType.success,
           );
           Navigator.of(context).pop(); // Đóng bottom sheet
-          if (context.canPop()) {
-            context.pop(true); // Đóng trang chi tiết và trả về true để trigger reload
-          } else {
+          if (isSplit) {
+            onDeleted?.call();
             context.go('/products/items');
+          } else {
+            if (context.canPop()) {
+              context.pop(true); // Đóng trang chi tiết và trả về true để trigger reload
+            } else {
+              context.go('/products/items');
+            }
           }
         } else if (state.status == ProductSoftDeleteStatus.error) {
           VToast.show(

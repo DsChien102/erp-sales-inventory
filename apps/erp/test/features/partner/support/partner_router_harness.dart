@@ -8,12 +8,12 @@ import 'package:erp/features/partner/logic/partner_permissions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_inventory_application/application.dart';
+import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 import '../../auth/support/scripted_auth.dart';
-import '../../dashboard/presentation/ready_default_pair_inventory_module.dart';
+import '../../dashboard/presentation/fake_default_pair_repository.dart';
 import 'fake_partner_repository.dart';
 
 /// Phiên giả chỉ cấp đúng các quyền được truyền vào.
@@ -48,7 +48,7 @@ Future<void> setUpPartnerRouterTest() async {
   await getIt.reset();
   getIt
     ..registerSingleton<IExecutionContext>(FakeExecutionContext(tenantId: 'tenant-test'))
-    ..registerSingleton<IInventoryModule>(const ReadyDefaultPairInventoryModule());
+    ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository());
 }
 
 Future<void> tearDownPartnerRouterTest() async {

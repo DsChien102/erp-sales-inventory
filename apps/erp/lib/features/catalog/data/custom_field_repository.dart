@@ -8,7 +8,7 @@ import 'models/custom_field_filter_option.dart';
 import 'models/product_custom_field_values.dart';
 import 'models/product_inputs.dart';
 
-final class CustomFieldRepository {
+class CustomFieldRepository {
   CustomFieldRepository({
     required SupabaseRpc rpc,
     required Future<String> Function() tenantId,
@@ -27,10 +27,9 @@ final class CustomFieldRepository {
   }
 
   static String _dateOnly(DateTime dateTime) {
-    final utc = dateTime.toUtc();
-    final year = utc.year.toString().padLeft(4, '0');
-    final month = utc.month.toString().padLeft(2, '0');
-    final day = utc.day.toString().padLeft(2, '0');
+    final year = dateTime.year.toString().padLeft(4, '0');
+    final month = dateTime.month.toString().padLeft(2, '0');
+    final day = dateTime.day.toString().padLeft(2, '0');
     return '$year-$month-$day';
   }
 

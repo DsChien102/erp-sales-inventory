@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_inventory_application/application.dart';
 
 import '../../../core/di/injection.dart';
 import '../../../core/session/session_controller.dart';
 import '../../../core/session/session_repository.dart';
 import '../../../core/session/session_state.dart';
 import '../../tenant_context/presentation/tenant_context_selector.dart';
-import 'bloc/default_pair_gate_cubit.dart';
+import '../data/default_pair_repository.dart';
+import '../logic/default_pair_gate_cubit.dart';
 import 'widgets/default_pair_gate_error_view.dart';
 import 'widgets/erp_side_navigation.dart';
 
@@ -27,21 +27,21 @@ class StoreShell extends StatelessWidget {
     super.key,
     required this.child,
     this.repository,
-    this.inventoryModule,
+    this.defaultPairRepository,
     this.autoBootstrap = true,
     this.initialState,
   });
 
   final Widget child;
   final SessionRepository? repository;
-  final IInventoryModule? inventoryModule;
+  final DefaultPairRepository? defaultPairRepository;
   final bool autoBootstrap;
   final SessionState? initialState;
 
   @override
   Widget build(BuildContext context) {
     final shellBody = _StoreShellBody(
-      inventoryModule: inventoryModule,
+      defaultPairRepository: defaultPairRepository,
       child: child,
     );
 
@@ -99,11 +99,11 @@ class _SessionBootstrapState extends State<_SessionBootstrap> {
 class _StoreShellBody extends StatelessWidget {
   const _StoreShellBody({
     required this.child,
-    required this.inventoryModule,
+    required this.defaultPairRepository,
   });
 
   final Widget child;
-  final IInventoryModule? inventoryModule;
+  final DefaultPairRepository? defaultPairRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -115,8 +115,9 @@ class _StoreShellBody extends StatelessWidget {
         return BlocProvider(
           key: ValueKey(state.current?.tenantId),
           create: (_) {
-            final module = inventoryModule ?? getIt<IInventoryModule>();
-            return DefaultPairGateCubit(inventoryModule: module)..load();
+            final repository =
+                defaultPairRepository ?? getIt<DefaultPairRepository>();
+            return DefaultPairGateCubit(repository: repository)..load();
           },
           child: BlocBuilder<DefaultPairGateCubit, DefaultPairGateState>(
             builder: (context, gate) {

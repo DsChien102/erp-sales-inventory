@@ -434,3 +434,4 @@ Directory _findRepoRoot() {
   }
   return current;
 }
+

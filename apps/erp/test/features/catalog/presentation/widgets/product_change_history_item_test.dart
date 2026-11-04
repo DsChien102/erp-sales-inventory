@@ -1,7 +1,7 @@
 import 'package:erp/features/catalog/presentation/widgets/product_change_history_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:erp/features/catalog/data/models.dart';
 
 void main() {
   Widget buildSubject(ProductChangeHistoryEntryDto entry) {
