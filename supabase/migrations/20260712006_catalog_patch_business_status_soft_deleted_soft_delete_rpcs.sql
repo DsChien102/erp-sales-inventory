@@ -240,17 +240,6 @@ begin
   )
   returning id into v_history_id;
 
-  perform catalog.enqueue_outbox_message(
-    p_tenant_id,
-    'catalog.product.deleted',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'product_id', p_product_id,
-      'business_status', v_product.business_status::text,
-      'reason', nullif(btrim(coalesce(p_reason, '')), '')
-    )
-  );
-
   return query
   select *
   from catalog._product_soft_delete_result_row(
@@ -376,17 +365,6 @@ begin
     p_actor_id
   )
   returning id into v_history_id;
-
-  perform catalog.enqueue_outbox_message(
-    p_tenant_id,
-    'catalog.product.restored',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'product_id', p_product_id,
-      'business_status', 'inactive',
-      'reason', nullif(btrim(coalesce(p_reason, '')), '')
-    )
-  );
 
   return query
   select *

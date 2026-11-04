@@ -96,7 +96,6 @@ declare
   v_reference_id text;
   v_base_unit_name text;
   v_image jsonb;
-  v_outbox_payload jsonb;
   v_readiness_status catalog.product_readiness_status;
   v_storage_key text;
   v_slot_id uuid;
@@ -329,19 +328,6 @@ begin
       'barcode', v_barcode
     ),
     p_actor_id
-  );
-
-  v_outbox_payload := jsonb_build_object(
-    'product_id', v_product_id,
-    'reference_id', v_reference_id,
-    'tenant_id', p_tenant_id,
-    'name', btrim(p_name)
-  );
-
-  perform catalog.enqueue_outbox_message(
-    p_tenant_id,
-    'catalog.product.created',
-    v_outbox_payload
   );
 
   return v_product_id;
@@ -624,17 +610,6 @@ begin
     p_actor_id
   )
   returning id into v_history_id;
-
-  perform catalog.enqueue_outbox_message(
-    p_tenant_id,
-    'catalog.product.restored',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'product_id', p_product_id,
-      'business_status', 'inactive',
-      'reason', nullif(btrim(coalesce(p_reason, '')), '')
-    )
-  );
 
   return query
   select *

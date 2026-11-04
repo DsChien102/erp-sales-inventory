@@ -115,18 +115,6 @@ begin
   )
   returning id into v_history_id;
 
-  perform catalog.enqueue_outbox_message(
-    p_tenant_id,
-    'catalog.product.deactivated',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'product_id', p_product_id,
-      'previous_status', v_previous_status,
-      'current_status', v_current_status,
-      'reason', nullif(btrim(coalesce(p_reason, '')), '')
-    )
-  );
-
   return query
   select *
   from catalog._product_business_status_result_row(
@@ -238,18 +226,6 @@ begin
     p_actor_id
   )
   returning id into v_history_id;
-
-  perform catalog.enqueue_outbox_message(
-    p_tenant_id,
-    'catalog.product.reactivated',
-    jsonb_build_object(
-      'tenant_id', p_tenant_id,
-      'product_id', p_product_id,
-      'previous_status', v_previous_status,
-      'current_status', v_current_status,
-      'reason', nullif(btrim(coalesce(p_reason, '')), '')
-    )
-  );
 
   return query
   select *
