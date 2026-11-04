@@ -1,9 +1,5 @@
 import 'package:async_query/async_query.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_inventory_application/application.dart';
-import 'package:vet45_inventory_infrastructure/infrastructure.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_infrastructure/infrastructure.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
 import 'package:vet45_pricing_application/application.dart';
@@ -15,6 +11,12 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/invitation_acceptance_repository.dart';
+import '../../features/catalog/data/custom_field_repository.dart';
+import '../../features/catalog/data/measurement_unit_repository.dart';
+import '../../features/catalog/data/product_price_repository.dart';
+import '../../features/catalog/data/product_repository.dart';
+import '../../features/dashboard/data/default_pair_repository.dart';
+import '../../features/catalog/presentation/services/product_image_display_resolver.dart';
 import '../../features/iam/data/account_repository.dart';
 import '../../features/iam/data/audit_log_repository.dart';
 import '../../features/iam/data/invitation_repository.dart';
@@ -151,16 +153,44 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
         rpc: getIt<SupabaseRpc>(),
         functions: supabaseModule.client.functions,
       ),
+    )
+    ..registerLazySingleton<ProductRepository>(
+      () => ProductRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+        actorId: () async =>
+            sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
+        hasPermission: (code) => getIt<SessionController>().hasPermission(code),
+        signUploadUrl: (key) async => (await supabaseModule.client.storage
+            .from(catalogProductImagesBucket)
+            .createSignedUploadUrl(key))
+            .signedUrl,
+      ),
+    )
+    ..registerLazySingleton<MeasurementUnitRepository>(
+      () => MeasurementUnitRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<CustomFieldRepository>(
+      () => CustomFieldRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<ProductPriceRepository>(
+      () => ProductPriceRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<DefaultPairRepository>(
+      () => DefaultPairRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
     );
-
-  final catalogModule = CatalogStartup.initialize(
-    supabase: supabaseModule.client,
-    loggerFactory: getIt<ILoggerFactory>(),
-    permissionChecker: permissionChecker,
-    tenantAccessChecker: tenantAccessChecker,
-  );
-
-  getIt.registerSingleton<ICatalogModule>(catalogModule);
 
   final pricingModule = PricingStartup.initialize(
     supabase: supabaseModule.client,
@@ -190,13 +220,4 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
 
   getIt.registerSingleton<IEInvoiceModule>(einvoiceRuntime.module);
-
-  final inventoryModule = InventoryStartup.initialize(
-    supabase: supabaseModule.client,
-    loggerFactory: getIt<ILoggerFactory>(),
-    executionContext: executionContext,
-    permissionChecker: permissionChecker,
-    tenantAccessChecker: tenantAccessChecker,
-  );
-  getIt.registerSingleton<IInventoryModule>(inventoryModule);
 }

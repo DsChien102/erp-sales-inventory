@@ -35,14 +35,6 @@ dependency_overrides:
     path: ../../../packages/vet45_adapters
   vet45_annotations:
     path: ../../../packages/vet45_annotations
-  vet45_catalog_application:
-    path: ../../../modules/catalog/application
-  vet45_catalog_domain:
-    path: ../../../modules/catalog/domain
-  vet45_catalog_infrastructure:
-    path: ../../../modules/catalog/infrastructure
-  vet45_catalog_integration_events:
-    path: ../../../modules/catalog/integration_events
   vet45_design_system:
     path: ../../../packages/vet45_design_system
   vet45_einvoice_application:
@@ -55,14 +47,6 @@ dependency_overrides:
     path: ../../../modules/einvoice/integration_events
   vet45_einvoice_presentation:
     path: ../../../modules/einvoice/presentation
-  vet45_inventory_application:
-    path: ../../../modules/inventory/application
-  vet45_inventory_domain:
-    path: ../../../modules/inventory/domain
-  vet45_inventory_infrastructure:
-    path: ../../../modules/inventory/infrastructure
-  vet45_inventory_integration_events:
-    path: ../../../modules/inventory/integration_events
   vet45_lints:
     path: ../../../packages/vet45_lints
   vet45_misa:

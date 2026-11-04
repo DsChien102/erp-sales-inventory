@@ -1,4 +1,0 @@
-enum StockMovementType {
-  initial,
-  adjust,
-}

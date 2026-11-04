@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Enforce application layer use_case subfolder layout for guarded aggregates.
-# Golden reference: modules/catalog/application/lib/src/product/commands/create_product/
+# Golden reference: modules/einvoice/application/lib/src/configuration/commands/connect_provider/
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -34,16 +34,6 @@ check_use_case_dirs() {
 
 # Aggregates that MUST use subfolder layout (no flat *.dart at aggregate root).
 guarded_areas=(
-  "modules/catalog/application/lib/src/product"
-  "modules/catalog/application/lib/src/product_unit"
-  "modules/catalog/application/lib/src/product_stock_profile"
-  "modules/catalog/application/lib/src/product_base_price_profile"
-  "modules/catalog/application/lib/src/product_unit_price_band"
-  "modules/catalog/application/lib/src/store_price_rule"
-  "modules/catalog/application/lib/src/product_readiness"
-  "modules/catalog/application/lib/src/product_change_history"
-  "modules/catalog/application/lib/src/custom_field"
-  "modules/catalog/application/lib/src/product_custom_field_value"
   "modules/einvoice/application/lib/src/configuration"
   "modules/einvoice/application/lib/src/issuance"
   "modules/einvoice/application/lib/src/electronic_invoice"
@@ -109,7 +99,7 @@ done
 
 if [[ "$failed" -ne 0 ]]; then
   echo "Fix: modules/<module>/application/lib/src/<aggregate>/commands/<use_case>/ or queries/<use_case>/"
-  echo "See modules/catalog/application/lib/src/product/commands/create_product/"
+  echo "See modules/einvoice/application/lib/src/configuration/commands/connect_provider/"
   exit 1
 fi
 

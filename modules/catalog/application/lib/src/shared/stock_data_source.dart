@@ -1,4 +1,0 @@
-enum StockDataSource {
-  basicProfile,
-  inventoryModule,
-}

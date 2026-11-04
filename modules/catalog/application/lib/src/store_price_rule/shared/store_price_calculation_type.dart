@@ -1,3 +1,0 @@
-enum StorePriceCalculationType {
-  markup,
-}

@@ -14,13 +14,6 @@ import 'package:erp/features/catalog/data/models/store_price_rule.dart' as app_s
 import 'package:erp/features/catalog/data/product_price_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_domain/domain.dart';
-import 'package:vet45_catalog_infrastructure/src/domain/custom_fields/custom_field_rpc_mapper.dart';
-import 'package:vet45_catalog_infrastructure/src/domain/pricing/product_price_band_rpc_mapper.dart';
-import 'package:vet45_catalog_infrastructure/src/domain/pricing/store_price_rule_change_history_rpc_mapper.dart';
-import 'package:vet45_catalog_infrastructure/src/domain/pricing/store_price_rule_rpc_mapper.dart';
-import 'package:vet45_catalog_infrastructure/src/domain/product/product_rpc_mapper.dart';
 
 const tenantId = 'tenant-123';
 const productId = '11111111-1111-4111-8111-111111111111';
@@ -205,20 +198,6 @@ final _expectedSetProductUnitPriceBandManualWithoutFloorParams = {
   'p_floor_markup_ratio': null,
 };
 
-final _expectedSetProductUnitPriceBandCustomConfigOldParams = {
-  'p_tenant_id': tenantId,
-  'p_product_id': productId,
-  'p_product_unit_id': 'pu-1',
-  'p_list_price_before_vat': 60000,
-  'p_floor_price_before_vat': 55000,
-  'p_list_price_after_vat': 60000,
-  'p_floor_price_after_vat': 55000,
-  'p_source_type': 'customConfig',
-  'p_store_price_rule_id': null,
-  'p_list_markup_ratio': 0.2,
-  'p_floor_markup_ratio': 0.1,
-};
-
 final _expectedSetProductUnitPriceBandCustomConfigNewParams = {
   'p_tenant_id': tenantId,
   'p_product_id': productId,
@@ -266,593 +245,6 @@ final _expectedGetStorePriceRuleChangeHistoryParams = {
 
 void main() {
   group('catalog_unit_field_price_rpc_parity', () {
-    group('old (mappers)', () {
-      test('H1 1: list_tenant_measurement_units params', () {
-        final params = ProductRpcMapper.listTenantUnitsParams(
-          tenantId: tenantId,
-          keyword: 'hộp',
-          limit: 50,
-        );
-        expect(params, _expectedListTenantUnitsParams);
-      });
-
-      test('H1 2: list_product_units params', () {
-        final query = ListProductUnitsQuery(
-          tenantId: tenantId,
-          productId: productId,
-          includeInactive: true,
-        );
-        final params = ProductRpcMapper.listProductUnitsParams(query);
-        expect(params, _expectedListProductUnitsParams);
-      });
-
-      test('H1 3: set_product_base_unit existing params', () {
-        final cmd = SetProductBaseUnitCommand(
-          tenantId: tenantId,
-          productId: productId,
-          selection: const ExistingTenantUnit('unit-existing-1'),
-        );
-        final params = ProductRpcMapper.setProductBaseUnitParams(cmd);
-        expect(params, _expectedSetProductBaseUnitExistingParams);
-      });
-
-      test('H1 4: set_product_base_unit new params', () {
-        final cmd = SetProductBaseUnitCommand(
-          tenantId: tenantId,
-          productId: productId,
-          selection: const NewTenantUnit('Chai'),
-        );
-        final params = ProductRpcMapper.setProductBaseUnitParams(cmd);
-        expect(params, _expectedSetProductBaseUnitNewParams);
-      });
-
-      test('H1 5: add_product_conversion_unit params', () {
-        final cmd = AddProductConversionUnitCommand(
-          tenantId: tenantId,
-          productId: productId,
-          unitName: 'Vỉ 10 viên',
-          conversionRateToBase: 10.0,
-        );
-        final params = ProductRpcMapper.addConversionUnitParams(cmd);
-        expect(params, _expectedAddConversionUnitParams);
-      });
-
-      test('H1 6: deactivate_product_conversion_unit params', () {
-        final cmd = DeactivateProductConversionUnitCommand(
-          tenantId: tenantId,
-          productId: productId,
-          productUnitId: 'pu-1',
-        );
-        final params = ProductRpcMapper.deactivateConversionUnitParams(cmd);
-        expect(params, _expectedDeactivateConversionUnitParams);
-      });
-
-      test('H1 7: reactivate_product_conversion_unit params', () {
-        final cmd = ReactivateProductConversionUnitCommand(
-          tenantId: tenantId,
-          productId: productId,
-          productUnitId: 'pu-1',
-        );
-        final params = ProductRpcMapper.reactivateConversionUnitParams(cmd);
-        expect(params, _expectedReactivateConversionUnitParams);
-      });
-
-      test('H1 8: delete_product_conversion_unit params', () {
-        final cmd = DeleteProductConversionUnitCommand(
-          tenantId: tenantId,
-          productId: productId,
-          productUnitId: 'pu-1',
-        );
-        final params = ProductRpcMapper.deleteConversionUnitParams(cmd);
-        expect(params, _expectedDeleteConversionUnitParams);
-      });
-
-      test('H1 9: list_custom_field_config params', () {
-        final params = CustomFieldRpcMapper.listConfigParams(tenantId: tenantId);
-        expect(params, _expectedListCustomFieldConfigParams);
-      });
-
-      test('H1 10: initialize_custom_field_template params', () {
-        final cmd = InitializeCustomFieldTemplateCommand(tenantId: tenantId);
-        final params = CustomFieldRpcMapper.initializeTemplateParams(command: cmd);
-        expect(params, _expectedInitializeCustomFieldTemplateParams);
-      });
-
-      test('H1 11: upsert_custom_field_group params', () {
-        final cmd = UpsertCustomFieldGroupCommand(
-          tenantId: tenantId,
-          groupId: 'group-1',
-          name: 'Nhóm thuốc',
-          iconKey: 'pill',
-          isActive: true,
-        );
-        final params = CustomFieldRpcMapper.upsertGroupParams(command: cmd);
-        expect(params, _expectedUpsertCustomFieldGroupParams);
-      });
-
-      test('H1 12: reorder_custom_field_groups params', () {
-        final cmd = ReorderCustomFieldGroupsCommand(
-          tenantId: tenantId,
-          orderedGroupIds: const ['g-1', 'g-2'],
-        );
-        final params = CustomFieldRpcMapper.reorderGroupsParams(command: cmd);
-        expect(params, _expectedReorderCustomFieldGroupsParams);
-      });
-
-      test('H1 13: upsert_custom_field params', () {
-        final cmd = UpsertCustomFieldCommand(
-          tenantId: tenantId,
-          groupId: 'group-1',
-          fieldId: 'field-1',
-          name: 'Dạng bào chế',
-          fieldType: CustomFieldType.singleSelect,
-          options: const [
-            CustomFieldSelectOptionDto(
-              optionId: 'opt-1',
-              label: 'Viên nén',
-              sortOrder: 0,
-              isActive: true,
-            ),
-            CustomFieldSelectOptionDto(
-              optionId: 'opt-2',
-              label: 'Siro',
-              sortOrder: 1,
-              isActive: true,
-            ),
-          ],
-          isActive: true,
-        );
-        final params = CustomFieldRpcMapper.upsertFieldParams(command: cmd);
-        expect(params, _expectedUpsertCustomFieldParams);
-      });
-
-      test('H1 14: configure_custom_field_attributes params', () {
-        final cmd = ConfigureCustomFieldAttributesCommand(
-          tenantId: tenantId,
-          fieldId: 'field-1',
-          isRequired: true,
-          isSearchable: true,
-          isFilterable: false,
-          displayOnList: true,
-        );
-        final params = CustomFieldRpcMapper.configureAttributesParams(command: cmd);
-        expect(params, _expectedConfigureCustomFieldAttributesParams);
-      });
-
-      test('H1 15: reorder_custom_fields params', () {
-        final cmd = ReorderCustomFieldsCommand(
-          tenantId: tenantId,
-          groupId: 'group-1',
-          orderedFieldIds: const ['f-1', 'f-2'],
-        );
-        final params = CustomFieldRpcMapper.reorderFieldsParams(command: cmd);
-        expect(params, _expectedReorderCustomFieldsParams);
-      });
-
-      test('H1 16: get_product_custom_field_values params', () {
-        final params = CustomFieldRpcMapper.getProductCustomFieldValuesParams(
-          tenantId: tenantId,
-          productId: productId,
-          includeInactiveValues: true,
-        );
-        expect(params, _expectedGetProductCustomFieldValuesParams);
-      });
-
-      test('H1 17: upsert_product_custom_field_values params', () {
-        final cmd = UpsertCustomFieldValuesCommand(
-          tenantId: tenantId,
-          productId: productId,
-          values: [
-            const ProductCustomFieldValueInput(fieldId: 'f-text', textValue: 'Text val'),
-            const ProductCustomFieldValueInput(fieldId: 'f-num', numberValue: 123.45),
-            ProductCustomFieldValueInput(
-              fieldId: 'f-date',
-              dateValue: DateTime.utc(2026, 11, 3, 23),
-            ),
-            const ProductCustomFieldValueInput(fieldId: 'f-bool', booleanValue: true),
-            const ProductCustomFieldValueInput(fieldId: 'f-opt', optionId: 'opt-1'),
-            const ProductCustomFieldValueInput(fieldId: 'f-empty'),
-          ],
-        );
-        final params = CustomFieldRpcMapper.upsertProductCustomFieldValuesParams(command: cmd);
-        expect(params, _expectedUpsertProductCustomFieldValuesParams);
-        final emptyItem = (params['p_values'] as List).last as Map<String, dynamic>;
-        expect(emptyItem.containsKey('text_value'), isFalse);
-        expect(emptyItem.containsKey('number_value'), isFalse);
-        expect(emptyItem.containsKey('date_value'), isFalse);
-        expect(emptyItem.containsKey('boolean_value'), isFalse);
-        expect(emptyItem.containsKey('option_id'), isFalse);
-      });
-
-      test('H1 18: set_manual_base_price params', () {
-        final profile = ProductBasePriceProfile.manual(
-          basePrice: const BasePrice(amount: 50000.0),
-        );
-        final params = ProductRpcMapper.setManualBasePriceParams(
-          tenantId: tenantId,
-          productId: productId,
-          profile: profile,
-          currency: 'VND',
-        );
-        expect(params, _expectedSetManualBasePriceParams);
-      });
-
-      test('H1 19: list_product_unit_price_bands params', () {
-        final params = ProductPriceBandRpcMapper.listProductUnitPriceBandsParams(
-          tenantId: tenantId,
-          productId: productId,
-        );
-        expect(params, _expectedListProductUnitPriceBandsParams);
-      });
-
-      test('H1 20: get_product_price_band_snapshot params', () {
-        final params = ProductPriceBandRpcMapper.getPriceBandSnapshotParams(
-          tenantId: tenantId,
-          items: const [
-            ProductPriceBandSnapshotRequest(productId: 'p-1', productUnitId: 'u-1'),
-            ProductPriceBandSnapshotRequest(productId: 'p-2', productUnitId: 'u-2'),
-          ],
-        );
-        expect(params, _expectedGetPriceBandSnapshotParams);
-      });
-
-      test('H1 21: set_product_unit_price_band manual with floor params', () {
-        final params = ProductPriceBandRpcMapper.setProductUnitPriceBandParams(
-          tenantId: tenantId,
-          productId: productId,
-          productUnitId: 'pu-1',
-          listBeforeVat: 10000,
-          floorBeforeVat: 8000,
-          listAfterVat: 11000,
-          floorAfterVat: 8800,
-          sourceType: PriceBandSourceType.manual,
-          effectiveFrom: DateTime.utc(2026, 11, 3),
-          effectiveTo: DateTime.utc(2026, 12, 31),
-          status: ProductPriceBandStatus.active,
-        );
-        expect(params, _expectedSetProductUnitPriceBandManualWithFloorParams);
-      });
-
-      test('H1 22: set_product_unit_price_band manual without floor params', () {
-        final params = ProductPriceBandRpcMapper.setProductUnitPriceBandParams(
-          tenantId: tenantId,
-          productId: productId,
-          productUnitId: 'pu-1',
-          listBeforeVat: 10000,
-          listAfterVat: 11000,
-          sourceType: PriceBandSourceType.manual,
-        );
-        expect(params, _expectedSetProductUnitPriceBandManualWithoutFloorParams);
-        expect(params.containsKey('p_floor_price_before_vat'), isFalse);
-        expect(params.containsKey('p_floor_price_after_vat'), isFalse);
-        expect(params.containsKey('p_effective_from'), isFalse);
-        expect(params.containsKey('p_effective_to'), isFalse);
-        expect(params.containsKey('p_status'), isFalse);
-      });
-
-      test('H1 23: set_product_unit_price_band customConfig old params (computed in client)', () {
-        final params = ProductPriceBandRpcMapper.setProductUnitPriceBandParams(
-          tenantId: tenantId,
-          productId: productId,
-          productUnitId: 'pu-1',
-          listBeforeVat: 60000,
-          floorBeforeVat: 55000,
-          listAfterVat: 60000,
-          floorAfterVat: 55000,
-          sourceType: PriceBandSourceType.customConfig,
-          listMarkupRatio: 0.2,
-          floorMarkupRatio: 0.1,
-        );
-        expect(params, _expectedSetProductUnitPriceBandCustomConfigOldParams);
-      });
-
-      test('H1 24: suggest_product_unit_price params', () {
-        final params = StorePriceRuleRpcMapper.suggestProductUnitPriceParams(
-          tenantId: tenantId,
-          productId: productId,
-          productUnitId: 'pu-1',
-        );
-        expect(params, _expectedSuggestProductUnitPriceParams);
-      });
-
-      test('H1 25: apply_store_price_rule params', () {
-        final cmd = ApplyStorePriceRuleCommand(
-          tenantId: tenantId,
-          productId: productId,
-          productUnitId: 'pu-1',
-          storePriceRuleId: null,
-          confirmOverwrite: true,
-          basePriceVersion: 42,
-        );
-        final params = StorePriceRuleRpcMapper.applyStorePriceRuleParams(command: cmd);
-        expect(params, _expectedApplyStorePriceRuleParams);
-      });
-
-      test('H1 26: get_store_price_rule params', () {
-        final params = StorePriceRuleRpcMapper.getStorePriceRuleParams(tenantId: tenantId);
-        expect(params, _expectedGetStorePriceRuleParams);
-      });
-
-      test('H1 27: set_store_price_rule params', () {
-        final params = StorePriceRuleRpcMapper.setStorePriceRuleParams(
-          tenantId: tenantId,
-          name: 'Quy tắc chuẩn',
-          listMarkupRatio: 0.3,
-          floorMarkupRatio: 0.1,
-          status: StorePriceRuleStatus.active,
-        );
-        expect(params, _expectedSetStorePriceRuleParams);
-      });
-
-      test('H1 28: get_store_price_rule_change_history params', () {
-        final params = StorePriceRuleChangeHistoryRpcMapper.params(
-          tenantId: tenantId,
-          limit: 50,
-          offset: 0,
-        );
-        expect(params, _expectedGetStorePriceRuleChangeHistoryParams);
-      });
-
-      // H2: Deserialization
-      test('H2: configViewFromJson parses group and field definitions', () {
-        final json = {
-          'groups': [
-            {
-              'group_id': 'g-1',
-              'name': 'thông tin chung',
-              'icon_key': 'box',
-              'sort_order': 1,
-              'status': 'active',
-              'field_count': 1,
-              'required_field_count': 1,
-              'fields': [
-                {
-                  'field_id': 'f-1',
-                  'group_id': 'g-1',
-                  'name': 'Hoạt chất',
-                  'field_type': 'text',
-                  'options': <Map<String, dynamic>>[],
-                  'is_required': true,
-                  'is_searchable': true,
-                  'is_filterable': false,
-                  'display_on_list': true,
-                  'sort_order': 0,
-                  'status': 'active',
-                  'has_product_values': false,
-                },
-              ],
-            },
-          ],
-        };
-        final dto = CustomFieldRpcMapper.configViewFromJson(json);
-        expect(dto.groups.length, 1);
-        final g = dto.groups.first;
-        expect(g.groupId, 'g-1');
-        expect(g.name, 'Thông tin chung');
-        expect(g.fields.length, 1);
-        expect(g.fields.first.name, 'Hoạt chất');
-        expect(g.fields.first.fieldType, CustomFieldType.text);
-      });
-
-      test('H2: productCustomFieldValuesFromJson parses values', () {
-        final json = {
-          'product_id': productId,
-          'groups': [
-            {
-              'group_id': 'g-1',
-              'name': 'nhóm 1',
-              'icon_key': 'icon',
-              'sort_order': 1,
-              'fields': [
-                {
-                  'field_id': 'f-1',
-                  'group_id': 'g-1',
-                  'name': 'F1',
-                  'field_type': 'text',
-                  'options': <Map<String, dynamic>>[],
-                  'is_required': true,
-                  'is_missing': false,
-                  'sort_order': 0,
-                  'display_value': 'disp',
-                  'text_value': 'txt',
-                  'number_value': 10,
-                  'date_value': '2026-11-03',
-                  'boolean_value': true,
-                  'option_id': 'opt-1',
-                  'is_active': true,
-                },
-              ],
-            },
-          ],
-        };
-        final dto = CustomFieldRpcMapper.productCustomFieldValuesFromJson(json);
-        expect(dto.productId, productId);
-        expect(dto.groups.length, 1);
-        expect(dto.groups.first.name, 'Nhóm 1');
-        expect(dto.groups.first.fields.first.textValue, 'txt');
-        expect(dto.groups.first.fields.first.numberValue, 10.0);
-        expect(dto.groups.first.fields.first.dateValue, DateTime.utc(2026, 11, 3));
-      });
-
-      test('H2: bandsFromRows with and without base_price_amount in first row', () {
-        final rowsWithBasePrice = [
-          {
-            'product_id': productId,
-            'base_unit_name': 'Hộp',
-            'currency': 'VND',
-            'base_price_amount': 50000.0,
-            'product_unit_id': 'pu-1',
-            'unit_name': 'Hộp',
-            'is_base_unit': true,
-            'is_active': true,
-            'list_price_before_vat': 60000,
-            'list_price_after_vat': 66000,
-            'floor_price_before_vat': 55000,
-            'floor_price_after_vat': 60500,
-            'source_type': 'manual',
-            'status': 'active',
-          },
-        ];
-        final dto1 = ProductPriceBandRpcMapper.bandsFromRows(rowsWithBasePrice);
-        expect(dto1.productId, productId);
-        expect(dto1.basePrice, 50000.0);
-        expect(dto1.rows.first.listBeforeVat, 60000);
-
-        final rowsFallbackBasePrice = [
-          {
-            'product_id': productId,
-            'base_unit_name': 'Hộp',
-            'currency': 'VND',
-            'product_unit_id': 'pu-1',
-            'unit_name': 'Hộp',
-            'is_base_unit': true,
-            'is_active': true,
-            'base_price': 40000.0,
-            'list_price_before_vat': 50000,
-            'list_price_after_vat': 55000,
-          },
-        ];
-        final dto2 = ProductPriceBandRpcMapper.bandsFromRows(rowsFallbackBasePrice);
-        expect(dto2.basePrice, 40000.0);
-      });
-
-      test('H2: snapshotFromJson parses snapshot items', () {
-        final json = {
-          'items': [
-            {
-              'product_id': 'p-1',
-              'product_unit_id': 'u-1',
-              'unit_name': 'Hộp',
-              'currency': 'VND',
-              'list_price_before_vat': 10000,
-              'list_price_after_vat': 11000,
-              'floor_price_before_vat': 8000,
-              'floor_price_after_vat': 8800,
-              'is_unit_active': true,
-              'product_business_status': 'active',
-            },
-          ],
-        };
-        final dto = ProductPriceBandRpcMapper.snapshotFromJson(json);
-        expect(dto.items.length, 1);
-        final item = dto.items.first;
-        expect(item.productId, 'p-1');
-        expect(item.listBeforeVat, 10000);
-        expect(item.listBeforeVatMissing, isFalse);
-        expect(item.productBusinessStatus, ProductBusinessStatus.active);
-      });
-
-      test('H2: ruleFromRow parses active and inactive rows, returns null on empty id', () {
-        final activeRow = {
-          'id': 'rule-1',
-          'tenant_id': tenantId,
-          'name': 'Rule standard',
-          'status': 'active',
-          'list_markup_ratio': 0.2,
-          'floor_markup_ratio': 0.1,
-          'updated_at': '2026-11-03T10:00:00Z',
-        };
-        final ruleActive = StorePriceRuleRpcMapper.ruleFromRow(activeRow);
-        expect(ruleActive, isNotNull);
-        expect(ruleActive!.status, StorePriceRuleStatus.active);
-        expect(ruleActive.isActive, isTrue);
-
-        final inactiveRow = {
-          'id': 'rule-1',
-          'tenant_id': tenantId,
-          'name': 'Rule standard',
-          'status': 'inactive',
-          'list_markup_ratio': 0.2,
-          'floor_markup_ratio': 0.1,
-        };
-        final ruleInactive = StorePriceRuleRpcMapper.ruleFromRow(inactiveRow);
-        expect(ruleInactive!.status, StorePriceRuleStatus.inactive);
-        expect(ruleInactive.isActive, isFalse);
-
-        expect(StorePriceRuleRpcMapper.ruleFromRow({}), isNull);
-        expect(StorePriceRuleRpcMapper.ruleFromRow({'id': ''}), isNull);
-      });
-
-      test('H2: suggestionFromRow parses suggestion', () {
-        final row = {
-          'product_id': productId,
-          'product_unit_id': 'pu-1',
-          'unit_name': 'Hộp',
-          'base_price': 50000.0,
-          'currency': 'VND',
-          'suggested_list_price_before_vat': 60000,
-          'suggested_floor_price_before_vat': 55000,
-          'store_price_rule_id': 'r-1',
-          'store_price_rule_name': 'Standard',
-          'base_price_version': 1,
-          'can_suggest': true,
-        };
-        final dto = StorePriceRuleRpcMapper.suggestionFromRow(row);
-        expect(dto.productId, productId);
-        expect(dto.basePrice, 50000.0);
-        expect(dto.suggestedListBeforeVat, 60000);
-        expect(dto.canSuggest, isTrue);
-      });
-
-      test('H2: resultFromJson parses store price rule history', () {
-        final json = {
-          'items': [
-            {
-              'id': 'h-1',
-              'occurred_at': '2026-11-03T10:00:00Z',
-              'actor_display_name': 'Admin',
-              'summary': 'Updated markup',
-              'list_markup_before': 0.2,
-              'list_markup_after': 0.3,
-              'floor_markup_before': 0.1,
-              'floor_markup_after': 0.15,
-              'is_current': true,
-            },
-          ],
-          'total_count': 1,
-        };
-        final dto = StorePriceRuleChangeHistoryRpcMapper.resultFromJson(json);
-        expect(dto.items.length, 1);
-        expect(dto.totalCount, 1);
-        expect(dto.items.first.summary, 'Updated markup');
-      });
-
-      test('H2: productUnitsDtoFromRows parses product units', () {
-        final rows = [
-          {
-            'id': 'pu-1',
-            'name': 'Viên',
-            'conversion_rate_to_base': 1.0,
-            'is_base_unit': true,
-            'is_active': true,
-          },
-          {
-            'id': 'pu-2',
-            'name': 'Hộp',
-            'conversion_rate_to_base': 10.0,
-            'is_base_unit': false,
-            'is_active': true,
-          },
-        ];
-        final dto = ProductRpcMapper.productUnitsDtoFromRows(
-          productId: productId,
-          baseUnitName: 'Viên',
-          rows: rows,
-        );
-        expect(dto.productId, productId);
-        expect(dto.baseUnitName, 'Viên');
-        expect(dto.units.length, 2);
-        expect(dto.units[1].conversionRateToBase, 10.0);
-      });
-
-      test('H2: fieldTypeFromRpc defaults unfamiliar value to text', () {
-        expect(
-          CustomFieldRpcMapper.fieldTypeFromRpc('unfamiliar_type'),
-          CustomFieldType.text,
-        );
-      });
-    });
-
     group('new (repositories)', () {
       late _RecordingRpc rpc;
       late MeasurementUnitRepository unitRepo;
@@ -1398,6 +790,59 @@ void main() {
                   .having((e) => e.serverMessage, 'serverMessage', 'Upsert product custom field values did not return a result.'),
             ),
           );
+        });
+
+        group('G9 timezone-independent date format', () {
+          test('g9_local_midnight_keeps_day', () async {
+            rpc.calls.clear();
+            rpc.nextCallResult = {'success': true};
+            await fieldRepo.upsertProductValues(
+              productId: productId,
+              values: [
+                app_in.ProductCustomFieldValueInput(
+                  fieldId: 'f-date',
+                  dateValue: DateTime(2026, 7, 10),
+                ),
+              ],
+            );
+            final values = rpc.calls.single.params!['p_values'] as List;
+            final dateVal = (values.first as Map)['date_value'];
+            expect(dateVal, '2026-07-10');
+          });
+
+          test('g9_utc_midnight_keeps_day', () async {
+            rpc.calls.clear();
+            rpc.nextCallResult = {'success': true};
+            await fieldRepo.upsertProductValues(
+              productId: productId,
+              values: [
+                app_in.ProductCustomFieldValueInput(
+                  fieldId: 'f-date',
+                  dateValue: DateTime.utc(2026, 7, 10, 0, 0),
+                ),
+              ],
+            );
+            final values = rpc.calls.single.params!['p_values'] as List;
+            final dateVal = (values.first as Map)['date_value'];
+            expect(dateVal, '2026-07-10');
+          });
+
+          test('g9_utc_late_keeps_day', () async {
+            rpc.calls.clear();
+            rpc.nextCallResult = {'success': true};
+            await fieldRepo.upsertProductValues(
+              productId: productId,
+              values: [
+                app_in.ProductCustomFieldValueInput(
+                  fieldId: 'f-date',
+                  dateValue: DateTime.utc(2026, 7, 10, 23, 59),
+                ),
+              ],
+            );
+            final values = rpc.calls.single.params!['p_values'] as List;
+            final dateVal = (values.first as Map)['date_value'];
+            expect(dateVal, '2026-07-10');
+          });
         });
       });
 

@@ -2,21 +2,21 @@
 # Managed by: melos run migrate:generate / schema:adopt
 
 catalog._base32_sha256_prefix:
-  source_path: modules/catalog/infrastructure/supabase/sql/functions/_base32_sha256_prefix.sql
+  source_path: supabase/sql/catalog/functions/_base32_sha256_prefix.sql
   hash: sha256:e53d03e3ad75b3c9af4883ddc825b3e781a511cbb11adae68c64b634ef841d18
   signatures:
     - "catalog._base32_sha256_prefix(p_input bytea, p_length int default 10)"
   last_migration: 20260710001_catalog_product_reference_id.sql
 
 catalog._build_product_search_text:
-  source_path: modules/catalog/infrastructure/supabase/sql/functions/_build_product_search_text.sql
+  source_path: supabase/sql/catalog/functions/_build_product_search_text.sql
   hash: sha256:dded917ce99f011a47621d46090e98dd55b09351ff9283c40aa41b47cc4360b6
   signatures:
     - "catalog._build_product_search_text(p_tenant_id uuid, p_product_id uuid)"
   last_migration: 20260714005_catalog_patch_product_typeahead_search.sql
 
 catalog._normalize_product_sku:
-  source_path: modules/catalog/infrastructure/supabase/sql/functions/_normalize_product_sku.sql
+  source_path: supabase/sql/catalog/functions/_normalize_product_sku.sql
   hash: sha256:4de782dbc79ff55711c230524f99215819c1865839830a617e7e2aa9344fba77
   signatures:
     - "catalog._normalize_product_sku(p_sku text)"

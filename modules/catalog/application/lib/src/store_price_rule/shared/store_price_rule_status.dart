@@ -1,4 +1,0 @@
-enum StorePriceRuleStatus {
-  active,
-  inactive,
-}
