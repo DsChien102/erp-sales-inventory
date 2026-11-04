@@ -6,15 +6,17 @@
 ## Tổng quan
 
 ```text
-Chuẩn bị ─▶ Nền core/ ─▶ Theme 1 IAM ─▶ Theme 1 làm gọn IAM ─▶ Đợt kiểm IAM ─▶ Theme 3 Partner ─▶ Theme 2 Catalog ─▶ Theme 7 Kho & Giá vốn ─▶ Theme 4 Pricing ─▶ Theme 5 Sales ─▶ Theme 6 Công nợ ─▶ Theme 8 E-invoice ─▶ Dọn dẹp ─▶ Tích hợp AI ─▶ Báo cáo
+Chuẩn bị ─▶ Nền core/ ─▶ Theme 1 IAM ─▶ Theme 1 làm gọn IAM ─▶ Đợt kiểm IAM ─▶ Theme 3 Partner ─▶ Theme 2 Catalog ─▶ Theme 4 Pricing ─▶ Theme 5 Sales ─▶ Theme 8 E-invoice ─▶ Theme 7 Kho & Giá vốn ─▶ 8-D nối kho Sales ─▶ Theme 6 Công nợ ─▶ Dọn dẹp ─▶ Tích hợp AI ─▶ Báo cáo
 
-Theme 7 — UI: làm song song từ bây giờ trên dữ liệu giả, không chờ mục nào
+Theme 7 — làm sau Theme 8 (chốt 2026-11-03); việc Theme 7 đã làm trước đó (T7-0…, prototype T7-P) giữ nguyên
 Web cho app (W-1 khung, W-2 Theme 1): hoãn, sau Theme 7 prototype; W-1 trước màn Flutter web đầu tiên
 ```
 
 **Đặt tên theo theme** (2026-10-14): mỗi mục nghiệp vụ mang số theme TH-0x của `docs/02-yeu-cau`; mục không thuộc theme nào (Chuẩn bị, Nền core, Dọn dẹp, Báo cáo) giữ tên riêng. **Thứ tự trong file = thứ tự làm.**
 
-**Thứ tự chốt 2026-10-14:** Theme 7 (Kho & Giá vốn, dựng mới theo spec v1) làm **trọn một lượt ngay sau Theme 2**, vì nó chỉ cần sản phẩm / ĐVT (Theme 2) và nhà cung cấp (Theme 3), và thay luôn tồn kho cơ bản của Theme 2. Theme 5 (Sales) làm sau Theme 7 để nối sổ kho thật một lần (8-D) thay vì refactor xong rồi quay lại. Theme 8 (HĐĐT) làm sau Theme 5, gắn khu HĐĐT vào màn chi tiết đơn đã refactor.
+**Thứ tự chốt lại 2026-11-03 (thay thứ tự 2026-10-14 bên dưới):** chuyển **hết các theme đã có code** sang kiến trúc mới trước (Theme 2 → Theme 4 → Theme 5 → Theme 8), **rồi** mới làm Theme 7. Hệ quả (người dùng chốt): (1) việc nối kho của Sales **8-D** tách khỏi Theme 5, thành mục riêng chạy ngay sau Theme 7; Theme 5 chuyển kiến trúc và giữ tồn cơ bản như hiện tại, sau 8-D thì quay lại sales một lần; (2) Theme 6 (dựng mới) làm sau 8-D; (3) 5-C (dọn module catalog + inventory, chạy sau Theme 7) thành **dọn module cuối**, nên việc xoá hẳn `modules/` và các package chỉ module dùng chuyển từ 7-5 sang 5-C. **Sửa 2026-11-04:** 5-C làm **ngay** (SP-10 chuyển sang `ProductRepository`, không chờ Theme 7) ⇒ 7-5 lại là dọn module cuối: xoá `modules/` + `vet45_adapters`, `vet45_generator` trở về 7-5; `vet45_annotations` xoá ở 9-1 (cùng `vet45_shared`, vì `vet45_shared_application` re-export nó).
+
+**Thứ tự chốt 2026-10-14 (đã thay):** Theme 7 (Kho & Giá vốn, dựng mới theo spec v1) làm **trọn một lượt ngay sau Theme 2**, vì nó chỉ cần sản phẩm / ĐVT (Theme 2) và nhà cung cấp (Theme 3), và thay luôn tồn kho cơ bản của Theme 2. Theme 5 (Sales) làm sau Theme 7 để nối sổ kho thật một lần (8-D) thay vì refactor xong rồi quay lại. Theme 8 (HĐĐT) làm sau Theme 5, gắn khu HĐĐT vào màn chi tiết đơn đã refactor.
 
 **Mã plan và thư mục giữ theo số phase cũ** để không gãy link (vd `2-A1`, `3-E`, `plans/P2`). Bảng tra:
 
@@ -51,13 +53,14 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 | — | **Đợt kiểm IAM** (đóng Theme 1) | 0,5 ngày | Theme 1 (tiếp) | `db reset --linked` → kịch bản SQL → Vault → `functions deploy send-email` → bật xác minh email → kiểm tay TH-01 9.3 → tick CHECKLIST |
 | Web cho app | Khung web thanh bên (W-1) + Theme 1 trên web (W-2) | ~1,5 ngày | Theme 1 | Chốt thiết bị 2026-10-20. **Hoãn** sau Theme 7 prototype; W-1 phải xong trước màn Flutter web đầu tiên |
 | Theme 3 | Partner (+ dọn module, 3 module rỗng) | 1 ngày | Theme 1 | Nhỏ; Theme 7 (nhà cung cấp), Theme 4, Theme 5 cần nó |
-| Theme 2 | Catalog + tồn kho cơ bản (+ dọn module, 5-C chạy sau Theme 7) | 2 ngày | Theme 1 | Lớn; Theme 7, Theme 4, Theme 5 cần nó |
-| Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 73 màn) | ~12 ngày UI + ~4 ngày backend | UI: — (làm song song); backend: Theme 2, Theme 3 | Thay tồn kho cơ bản của Theme 2; có sổ kho thật trước khi refactor Sales. Trong theme: **UI trước** (fixture), backend sau |
+| Theme 2 | Catalog + tồn kho cơ bản (+ dọn module 5-C) | 2 ngày | Theme 1 | Lớn; Theme 7, Theme 4, Theme 5 cần nó |
 | Theme 4 | Pricing (+ dọn module) | 1 ngày | Theme 3, Theme 2 | Sales cần giá |
-| Theme 5 | Sales (+ dọn module, nối kho 8-D) | 3 ngày (gồm 8-D) | Theme 3, 2, 7, 4 | Nối sổ kho Theme 7 ngay khi refactor (xuất kho khi checkout, huỷ, trả hàng, khả dụng) |
+| Theme 5 | Sales (+ dọn module; **8-D tách sau Theme 7**) | ~2,5 ngày | Theme 3, 2, 4 | Chuyển kiến trúc trước Theme 7 (chốt 2026-11-03); giữ tồn cơ bản tới 8-D |
+| Theme 8 | E-invoice (+ dọn module einvoice, `vet45_misa`) | 3 ngày | Theme 5 | Khu HĐĐT trên đơn (7.3) gắn vào màn chi tiết đơn **đã refactor** ở Theme 5; hạ tầng Edge Function + `pg_cron` giống 2-B2 |
+| Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 73 màn) | ~12 ngày UI + ~4 ngày backend | Theme 2, Theme 3; làm sau Theme 8 | Chốt 2026-11-03: chuyển hết theme đã có code trước rồi mới làm Theme 7. Thay tồn kho cơ bản của Theme 2. Trong theme: **UI trước** (fixture), backend sau |
+| 8-D | Nối kho cho Sales: xuất kho khi checkout, hoàn nguyên khi huỷ, nhận hàng trả, khả dụng khi chọn sản phẩm | ~0,5–1 ngày | Theme 7, Theme 5 | Tách khỏi Theme 5 (chốt 2026-11-03); sửa lại sales một lần sau khi có sổ kho |
 | Theme 6 | **Công nợ phải thu khách hàng** (từ đơn bán) + thu tiền + cấn trừ; không có phải trả nhà cung cấp | ~4,5 ngày | Theme 5, Theme 3 | Phải thu đi ra từ công nợ đơn của Theme 5 |
-| Theme 8 | E-invoice (+ dọn module cuối, `vet45_misa`, package module) | 3 ngày | Theme 5 | Khu HĐĐT trên đơn (7.3) gắn vào màn chi tiết đơn **đã refactor** ở Theme 5; hạ tầng Edge Function + `pg_cron` giống 2-B2 |
-| Dọn dẹp | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 1 ngày | Nền core → Theme 8 | |
+| Dọn dẹp | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 1 ngày | Nền core → Theme 6 (sau 5-C, 8-D) | Thứ tự 2026-11-03: theme cuối là Theme 6 |
 | Tích hợp AI | Trợ lý "Hỏi VET45" (Gemini API) hỏi đáp số liệu + dự báo nhập hàng (giảng viên yêu cầu "tích hợp AI vào app") | ~4,5 ngày | Dọn dẹp (cần dữ liệu thật của các theme) | Người dùng chốt làm **cuối cùng** (2026-10-27); trợ lý hỏi đáp + dự báo nhập hàng, Gemini API |
 | Báo cáo | Tài liệu, sơ đồ cho báo cáo, kịch bản demo, tập bảo vệ | 3 ngày | Tích hợp AI | |
 | | **Tổng phần còn lại** (từ 2026-10-27) | **~42 ngày** (Theme 7 ~16, Theme 6 ~4,5, AI ~4,5) — hạn đồ án **2026-12-02** (~36 ngày lịch): **hụt ~6 ngày** so với tốc độ đang tính | | |
@@ -98,6 +101,16 @@ Lý do: 2-B6 R1 (lỗi Tỉnh / Xã) và W-1 R1 (`DashboardPage._buildBody`, `Mo
 2. **Bước 0 của phiên code:** viết test cho từng dòng của bảng **trên code cũ**, chạy xanh, ghi tên test vào mục Kết quả — rồi mới sửa. Test này phải còn xanh sau khi sửa (được đổi cách dựng widget trong test, không đổi điều kiện kiểm).
 3. Phiên review đối chiếu bảng với code cũ (`git show HEAD:<tệp>`) trước khi duyệt plan, và kiểm bước 0 có đủ test trước khi đọc diff.
 
+### Plan chuyển kiến trúc: giữ nghiệp vụ, thấy lỗi thì báo người dùng quyết (chốt 2026-11-03)
+
+Plan chuyển sang kiến trúc mới (module → repository, bước (a) của mỗi Theme) **chỉ đổi cách triển khai**, **giữ nguyên nghiệp vụ**: cùng tham số gửi server, cùng rule đầu vào, cùng câu lỗi, cùng luồng màn hình. Chỉ được đổi hành vi ở chỗ mà người dùng **đã chốt** (một Q trong mục Quyết định của plan, hoặc một KI của tài liệu TH) và chỗ đó phải ghi "đổi có chủ đích" ở bảng "Đang làm gì".
+
+Khi viết hoặc rà plan mà thấy code cũ **có vẻ sai** (lỗi nghiệp vụ, rule không bao giờ chạy tới, câu lỗi sai, dữ liệu lệch múi giờ…):
+
+1. **Không** tự sửa trong plan, cũng không lặng lẽ chép lỗi rồi bỏ qua.
+2. Báo người dùng ngay lúc viết plan: lỗi gì, ở `tệp:dòng`, ảnh hưởng ra sao, các cách xử lý và đề xuất. Người dùng chọn: sửa luôn trong plan này (thành một Q, ghi đổi có chủ đích, có test), để sang plan sửa KI của Theme (vd. 5-B), hoặc giữ nguyên.
+3. Ghi lựa chọn vào plan (mục Quyết định, hoặc mục Rủi ro nếu để sau).
+
 ### Quy tắc dọn module (chốt 2026-10-11)
 
 Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** của nó (4-C, 5-C, 6-C, 7-5, 8-C — giống 3-C / 3-D của IAM), không để dồn tới P9:
@@ -105,7 +118,7 @@ Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** 
 1. App `erp` không còn import `vet45_<module>_*` — kể cả chỗ feature **khác** đang gọi chéo (đo 2026-10-11: `sales/presentation` gọi catalog 2, partner 1, pricing 2, einvoice 20; `pricing/presentation` gọi catalog 2, partner 1; `dashboard/presentation` gọi inventory 2).
 2. Xoá thư mục module + mục workspace / DI / router / test liên quan.
 3. DB của schema đó: bỏ outbox / inbox / RPC / bảng chỉ module cũ dùng — **sửa migration gốc** (quy tắc migration bên dưới).
-4. Ràng buộc thứ tự: `modules/einvoice` phụ thuộc `partner/integration_events` và `sales/integration_events` → 4-C giữ `partner/integration_events`, 8-C giữ `sales/integration_events`, tới 7-5. Theme 8 (einvoice) làm sau cùng nên **7-5 là module cuối**: xoá `modules/` và package `vet45_adapters` / `vet45_annotations` / `vet45_generator` ở 7-5. 5-C (catalog + inventory) chạy **sau Theme 7**, vì màn điều chỉnh tồn và bước nhập tồn khi tạo sản phẩm còn dùng module catalog tới khi Theme 7 thay.
+4. Ràng buộc thứ tự: `modules/einvoice` phụ thuộc `partner/integration_events` và `sales/integration_events` → 4-C giữ `partner/integration_events`, 8-C giữ `sales/integration_events`, tới 7-5. Từ 2026-11-04 5-C làm ngay sau 5-W (SP-10 sang `ProductRepository`), nên **7-5 là module cuối**: xoá `modules/` và `vet45_adapters` / `vet45_generator` ở 7-5; `vet45_annotations` ở 9-1 (`vet45_shared_application` re-export nó). (Bản 2026-11-03: 5-C là module cuối, chạy sau Theme 7 — đã thay.)
 
 
 
@@ -401,18 +414,18 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-13): xem [TH-03 mục 9.2](../
 
 ## Theme 2. Catalog + tồn kho cơ bản (2 ngày)
 
-**Trạng thái:** ✅ plan (2026-11-01) Đã viết và người dùng duyệt 6 plan 5-A1 → 5-A2 → 5-A3 → 5-A4 → 5-B → 5-W (điều kiện: giữ nghiệp vụ cũ, chỉ đổi những chỗ TH-02 KI / người dùng đã chốt); 5-C viết sau Theme 7. Chốt cùng người dùng: chia 5-A **theo lớp** (dữ liệu 5-A1/5-A2, đổi UI một lượt 5-A3) vì các nhóm màn dùng chung kiểu / widget và test e2e đi xuyên mọi màn; bỏ RPC đọc trước / sau và kiểm quyền client, giữ rule đầu vào; chép hết kiểu + fake ở 5-A; SP-10 giữ module tới 5-C, bỏ KI tồn (01, 02, 04–07 phần tồn, 12: Theme 7 thay); bỏ sheet cảnh báo giá ngay ở 5-A3; promote migration nháp cặp cửa hàng–kho ở 5-A4; web: PCC trong tab, màn con có id trên URL, Cài đặt sản phẩm toàn màn cột 720
+**Trạng thái:** ✅ plan (2026-11-01) Đã viết và người dùng duyệt 6 plan 5-A1 → 5-A2 → 5-A3 → 5-A4 → 5-B → 5-W (điều kiện: giữ nghiệp vụ cũ, chỉ đổi những chỗ TH-02 KI / người dùng đã chốt); 5-C viết 2026-11-04 (làm ngay, không chờ Theme 7). Chốt cùng người dùng: chia 5-A **theo lớp** (dữ liệu 5-A1/5-A2, đổi UI một lượt 5-A3) vì các nhóm màn dùng chung kiểu / widget và test e2e đi xuyên mọi màn; bỏ RPC đọc trước / sau và kiểm quyền client, giữ rule đầu vào; chép hết kiểu + fake ở 5-A; SP-10 giữ module tới 5-C, bỏ KI tồn (01, 02, 04–07 phần tồn, 12: Theme 7 thay); bỏ sheet cảnh báo giá ngay ở 5-A3; promote migration nháp cặp cửa hàng–kho ở 5-A4; web: PCC trong tab, màn con có id trên URL, Cài đặt sản phẩm toàn màn cột 720
 
 
 | Plan     | Nội dung | Gồm việc | Plan | Làm | Review |
 | -------- | -------- | -------- | ---- | --- | ------ |
 | **5-A1** | (a) Dữ liệu: model (chép từ module), phân loại lỗi catalog → `AppException` + câu lỗi TH-02 6.4, rule đầu vào, bộ dựng readiness / PCC, `ProductRepository` (kể cả 4 method hàng bán được cho Sales); test parity `old` / `new`. Chưa đổi UI | 5.1 (data) | ✅ [plan](plans/P5/5-A1-catalog-data-san-pham.md) duyệt 2026-11-01; rà lại theo code 2026-11-02 | ✅ 2026-11-03 (đã sửa R1-1 … R1-3, T1 … T4) | ✅ R2 2026-11-03 (đã sửa R1-1, R1-2, R1-3 của R1; thêm T1–T4) |
 | **5-A2** | (a) Dữ liệu: `MeasurementUnitRepository`, `CustomFieldRepository`, `ProductPriceRepository` + model, rule; khung giá `customConfig` để server tự tính; không chép bộ cảnh báo giá | 5.2, 5.3, 5.4 (data) | ✅ [plan](plans/P5/5-A2-catalog-data-don-vi-truong-gia.md) duyệt 2026-11-01; rà lại theo code sau 5-A1 2026-11-03 (Q8 kiểm id) | ✅ 2026-11-03 | ✅ R3 2026-11-03 |
-| **5-A3** | (a) Đổi **toàn bộ** UI catalog + sales + pricing + router + DI sang 4 repository một lượt; 15 cubit → `logic/`; câu lỗi theo 6.4 (KI-07 phần catalog); bỏ sheet "Xác nhận cảnh báo giá" (KI-16 phần sheet); chép `FakeCatalogModule` → `FakeCatalogBackend` + 4 fake repository + `FakeStockCatalogModule`. SP-10 giữ module | 5.1–5.4 (UI) | ✅ [plan](plans/P5/5-A3-catalog-ui-sang-repository.md) duyệt 2026-11-01 | ⬜ | ⬜ |
-| **5-A4** | (a) Promote `_drafts/inventory_default_pair.sql` thành migration mới (DB dựng từ migration hiện thiếu 2 RPC ⇒ cổng chặn cả app) + `DefaultPairGateCubit` sang `DefaultPairRepository`; bỏ `IInventoryModule` khỏi DI | 5.5 | ✅ [plan](plans/P5/5-A4-cap-cua-hang-kho-mac-dinh.md) duyệt 2026-11-01 | ⬜ | ⬜ |
-| **5-B**  | (b) KI-10 (server chặn > 8 ảnh), 13 (chip "Đã xóa"), 14 ("Giá cơ sở"), 15 (bỏ ô ghi chú), 16 (chữ thừa), 17, 18 (code chết checklist) + test SQL / widget TH-02 9.3. Không làm KI tồn (Theme 7 thay), KI-08 (Theme 5) | TH-02 mục 9.2 | ✅ [plan](plans/P5/5-B-sua-ki-th02.md) duyệt 2026-11-01 | ⬜ | ⬜ |
-| **5-W**  | (web) Theme 2 trên web: danh sách – PCC 2 cột trong tab Sản phẩm (PCC là route con `/products/items/:productId`), 11 màn con thành `/products/items/:productId/<x>` toàn màn cột 720, mở từ màn tạo qua route gốc `…/view`; Cài đặt sản phẩm toàn màn; 15 sheet → `showVAdaptiveSheet` | Thiết bị (2026-10-20) | ✅ [plan](plans/P5/5-W-catalog-web.md) duyệt 2026-11-01 | ⬜ | ⬜ |
-| **5-C**  | (dọn) **Dọn sạch module catalog + inventory**: **chạy sau Theme 7** (Theme 7 thay màn điều chỉnh tồn SP-10 + bước nhập tồn khi tạo sản phẩm). Sau 5-A3 / 5-A4 chỉ còn SP-10 (`product_stock_adjustment_page.dart` + `ICatalogModule` trong DI), nhóm `old` của test parity 5-A1 / 5-A2, dòng `vet45_catalog_*` / `vet45_inventory_*` trong `apps/erp/pubspec.yaml`; xoá `modules/catalog`, `modules/inventory`; DB schema `catalog`: bỏ outbox / inbox / RPC cũ không còn dùng (sửa migration gốc). **Giữ** schema `catalog` và `catalog.unaccent_immutable` (`search_partners` dùng từ 4-B), **giữ** schema `inventory` (5-A4, Theme 7 dùng) | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
+| **5-A3** | (a) Đổi **toàn bộ** UI catalog + sales + pricing + router + DI sang 4 repository một lượt; 15 cubit → `logic/`; câu lỗi theo 6.4 (KI-07 phần catalog); bỏ sheet "Xác nhận cảnh báo giá" (KI-16 phần sheet); chép `FakeCatalogModule` → `FakeCatalogBackend` + 4 fake repository + `FakeStockCatalogModule`. SP-10 giữ module | 5.1–5.4 (UI) | ✅ [plan](plans/P5/5-A3-catalog-ui-sang-repository.md) duyệt 2026-11-01; rà lại theo code sau 5-A2 2026-11-03 (Q12–Q14 đổi số, Q15 bỏ `final`) | ✅ 2026-11-03 (đã sửa R1-1…R1-10) | ✅ R3 2026-11-04 |
+| **5-A4** | (a) Promote `_drafts/inventory_default_pair.sql` thành migration mới (DB dựng từ migration hiện thiếu 2 RPC ⇒ cổng chặn cả app) + `DefaultPairGateCubit` sang `DefaultPairRepository`; bỏ `IInventoryModule` khỏi DI | 5.5 | ✅ [plan](plans/P5/5-A4-cap-cua-hang-kho-mac-dinh.md) duyệt 2026-11-01; rà lại theo code + viết lại Task 0–4, duyệt lại 2026-11-04 | ✅ 2026-11-04 (chưa commit) | 🔄 R1 2026-11-04 chưa đạt (code đạt); đã sửa R1-1…R1-3, R1-4 lúc commit |
+| **5-B**  | (b) KI-10 (server chặn > 8 ảnh), 13 (chip "Đã xóa"), 14 ("Giá cơ sở"), 15 (bỏ ô ghi chú), 16 (chữ thừa), 17, 18 (code chết checklist) + test SQL / widget TH-02 9.3. Không làm KI tồn (Theme 7 thay), KI-08 (Theme 5) | TH-02 mục 9.2 | ✅ [plan](plans/P5/5-B-sua-ki-th02.md) duyệt 2026-11-01; rà lại theo code sau 5-A3 2026-11-04 | ✅ 2026-11-04 (chưa commit) | ✅ R3 2026-11-04 (đã sửa R1-1…R1-4, R2-1; còn chạy `catalog_th02.sql` + kiểm tay 7.2 — người dùng) |
+| **5-W**  | (web) Theme 2 trên web: danh sách – PCC 2 cột trong tab Sản phẩm (PCC là route con `/products/items/:productId`), 11 màn con thành `/products/items/:productId/<x>` toàn màn cột 720, mở từ màn tạo qua route gốc `…/view`; Cài đặt sản phẩm toàn màn; 15 sheet → `showVAdaptiveSheet` | Thiết bị (2026-10-20) | ✅ [plan](plans/P5/5-W-catalog-web.md) duyệt 2026-11-01; rà lại theo code sau 5-B 2026-11-04 (thiếu `extra` dùng `redirect`, đổi router test, Task 0–8) | ✅ 2026-11-04 (chưa commit) | ✅ R2 2026-11-04 (còn kiểm tay 6.2) |
+| **5-C**  | (dọn) **SP-10 sang repository + dọn sạch module catalog + inventory** (làm ngay sau 5-W, không chờ Theme 7 — chốt 2026-11-04): SP-10 qua `ProductStockAdjustmentCubit` → `ProductRepository.setBasicStock` / `adjustBasicStock` (KI-07 phần app, KI-04; sửa mở từ checklist); fake / DI / nhóm `old` của test parity bỏ module; xoá `modules/catalog`, `modules/inventory` (3 tệp SQL khai báo → `supabase/sql/catalog/functions/`); DB: bỏ outbox / inbox `catalog`, `inventory` (sửa migration gốc), **giữ** mọi RPC, schema `catalog` (kể cả `unaccent_immutable`), `inventory`. **Không** xoá `modules/`, `vet45_adapters` / `vet45_generator` (7-5), `vet45_annotations` (9-1) | Dọn module (2026-10-11) | ✅ [plan](plans/P5/5-C-don-module-catalog-inventory.md) duyệt 2026-11-04 | ✅ 2026-11-04 | ⬜ |
 
 
 Chi tiết từng việc:
@@ -440,11 +453,116 @@ Các sửa lỗi: [TH-02 mục 9.2](../02-yeu-cau/TH-02-san-pham-va-gia-ban.md#9
 
 
 
+## Theme 4. Pricing (1 ngày)
+
+**Trạng thái:** ⬜ Chưa làm
+
+
+| Plan    | Nội dung                                                                                                                                                                                    | Gồm việc                | Plan | Làm | Review |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---- | --- | ------ |
+| **6-A** | (a) Chuyển pricing (giá riêng, nhập Excel, màn chọn)                                                                                                                                        | 6.1, 6.2, 6.3           | ⬜    | ⬜   | ⬜      |
+| **6-B** | (b) Các sửa KI của TH-04                                                                                                                                                                    | TH-04 mục 9.2           | ⬜    | ⬜   | ⬜      |
+| **6-C** | (dọn) **Dọn sạch module pricing**: app hết `vet45_pricing_*` (kể cả 2 chỗ ở `sales/presentation`); xoá `modules/pricing`; DB schema `pricing`: bỏ RPC cũ không còn dùng (sửa migration gốc) | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
+
+
+Chi tiết từng việc:
+
+9 file gọi module, 5 cubit, 9 màn: danh sách, form, chi tiết, lịch sử, import, các màn chọn (sản phẩm/khách/đơn vị).
+
+
+| #   | Việc                                                                                  |
+| --- | ------------------------------------------------------------------------------------- |
+| 6.1 | `CustomerPriceRuleRepository` (CRUD, tắt/bật, lịch sử, resolve áp dụng)               |
+| 6.2 | `PriceImportRepository` (template, start/confirm/cancel import)                       |
+| 6.3 | Màn chọn sản phẩm/khách dùng lại `ProductRepository` (P5) và `PartnerRepository` (P4) |
+
+
+Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../02-yeu-cau/TH-04-chinh-sach-gia.md#92-chia-pr-của-p6).
+
+**Xong khi:** 9 màn đã tick; import Excel mẫu chạy được từ đầu tới cuối; 5 kịch bản đầu–cuối ở TH-04 mục 9.3 chạy qua.
+
+---
+
+
+
+## Theme 5. Sales (~2,5 ngày; 8-D tách sau Theme 7)
+
+**Trạng thái:** ⬜ Chưa làm
+
+
+| Plan     | Nội dung                                                                                                                                                                                                                                                                                                                                                                                         | Gồm việc                | Plan | Làm | Review |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- | ---- | --- | ------ |
+| **8-A1** | (a) Soạn đơn + nháp                                                                                                                                                                                                                                                                                                                                                                              | 8.1                     | ⬜    | ⬜   | ⬜      |
+| **8-A2** | (a) Checkout + thanh toán                                                                                                                                                                                                                                                                                                                                                                        | 8.2                     | ⬜    | ⬜   | ⬜      |
+| **8-A3** | (a) Tra cứu đơn + phiếu/biên lai                                                                                                                                                                                                                                                                                                                                                                 | 8.3, 8.4                | ⬜    | ⬜   | ⬜      |
+| **8-A4** | (a) Huỷ đơn + đổi/trả                                                                                                                                                                                                                                                                                                                                                                            | 8.5                     | ⬜    | ⬜   | ⬜      |
+| **8-B**  | (b) Các sửa KI của TH-05                                                                                                                                                                                                                                                                                                                                                                         | TH-05 mục 9.2           | ⬜    | ⬜   | ⬜      |
+| **8-C** | (dọn) **Dọn sạch module sales**: app hết `vet45_sales_*` (20 file `sales/presentation` còn gọi einvoice chạy song song tới 7-2); xoá `modules/sales` **trừ `modules/sales/integration_events`** (einvoice còn dùng, xoá ở 7-5); bỏ `CoreExecutionContext` / `CorePermissionChecker` / `CoreTenantAccessChecker` trong `core/session` (chỉ phục vụ module cũ); DB schema `sales`: bỏ outbox / inbox | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
+
+
+Chi tiết từng việc:
+
+20 file gọi module, 13 cubit, khoảng 20 màn. Chia thành 5 PR:
+
+
+| PR  | Nhóm                  | RPC/Query chính                                                                                                                                                                    |
+| --- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 8.1 | Soạn đơn + nháp       | save/update/cancel draft, list drafts, restore; preview pricing (gọi pricing). Sửa `catalog._product_unit_has_sales_transaction_usage` đọc dòng đơn / nháp / đổi trả (TH-02 KI-08) |
+| 8.2 | Checkout + thanh toán | precheck checkout, **finalize_sales_order** (transaction ở DB), record payment/refund, settlement, payment summary                                                                 |
+| 8.3 | Tra cứu đơn           | list/search/detail/timeline, post-sale actions                                                                                                                                     |
+| 8.4 | Phiếu/biên lai        | generate/get receipt, original receipt, printed/shared, slip preview                                                                                                               |
+| 8.5 | Huỷ đơn + đổi/trả     | cancellation (lý do, precheck, confirm); return/exchange (start, preview pricing, update, confirm, complete, cancel)                                                               |
+
+
+**Integration event:** bỏ outbox. Phát hành HĐĐT tự động dùng trigger trên `sales.sales_orders` khi đơn Hoàn tất, ghi việc vào `einvoice.internal_commands` (làm ở 7.5 của Theme 8, sau Theme 5; TH-08 KI-19, KI-20). Không gọi "nhớ giá từ đơn" (ngoài phạm vi, TH-04 KI-02). Trừ/cộng tồn khi bán, huỷ, đổi trả: Theme 5 **giữ tồn cơ bản như hiện tại** (chỉ chuyển kiến trúc); nối sổ kho Theme 7 ở **8-D**, mục riêng sau Theme 7 (chốt 2026-11-03).
+
+**Xong khi:** đủ 6 kịch bản: bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng. Công nợ (còn phải thu của đơn) đúng sau mỗi kịch bản. Tồn kho (tồn cơ bản) đúng như trước khi chuyển kiến trúc sau mỗi kịch bản; tồn theo sổ kho kiểm ở 8-D. Các màn sales trong checklist đều đã tick.
+
+---
+
+
+
+## Theme 8. E-invoice (3 ngày)
+
+**Trạng thái:** ⬜ Chưa làm
+
+
+| Plan    | Nội dung                                                                                                                                                                                                                                                                                                                                                                                     | Gồm việc                | Plan | Làm | Review |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---- | --- | ------ |
+| **7-1** | DB: promote drafts HĐĐT + sửa KI-02, 04, 06                                                                                                                                                                                                                                                                                                                                                  | 7.1                     | ⬜    | ⬜   | ⬜      |
+| **7-2** | Dời toàn bộ UI HĐĐT (thiết lập + trên đơn), gộp bản trùng, `EInvoiceRepository`                                                                                                                                                                                                                                                                                                              | 7.2, 7.3                | ⬜    | ⬜   | ⬜      |
+| **7-3** | Edge Function `einvoice-processor` + client MISA TypeScript                                                                                                                                                                                                                                                                                                                                  | 7.4                     | ⬜    | ⬜   | ⬜      |
+| **7-4** | Kích hoạt: `pg_cron`, `functions.invoke`, trigger thay outbox/inbox                                                                                                                                                                                                                                                                                                                          | 7.5                     | ⬜    | ⬜   | ⬜      |
+| **7-5** | (dọn) **Dọn sạch module einvoice**: app hết `vet45_einvoice_*` (20 file ở `sales/presentation` đã chuyển ở 7-2); xoá `modules/einvoice` (gồm `presentation` + `example`), `packages/vet45_misa` (thay bằng client TypeScript 7-3), `packages/vet45_async_query`, `modules/partner/integration_events` (hết người dùng); `modules/sales/integration_events` (8-C để lại); **là module cuối** (5-C làm trước, 2026-11-04): xoá hẳn `modules/` (kiểm trước: 6-C, 8-C đã xoá `modules/pricing`, `modules/sales`) và `packages/vet45_adapters`, `vet45_generator`; **không** xoá `vet45_annotations` (9-1, `vet45_shared_application` re-export); DB schema `einvoice`: bỏ outbox / inbox, **giữ** `internal_commands` | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
+
+
+Chi tiết từng việc:
+
+Đặc tả: [TH-08](../02-yeu-cau/TH-08-hoa-don-dien-tu.md). Chia PR theo [TH-08 mục 9.2](../02-yeu-cau/TH-08-hoa-don-dien-tu.md#92-chia-pr-của-p7). Quyết định 2026-10-07: **giữ hành vi hiện có** (hàng đợi, đối soát nền, phát hành và gửi tự động, chống trùng) nhưng **bỏ** `apps/messaging_worker`: mọi lệnh gọi MISA chuyển sang Edge Function `einvoice-processor` (TypeScript), kích hoạt bởi app và `pg_cron` mỗi 30 giây (TH-08 KI-20). UI e-invoice hiện tách giữa `modules/einvoice/presentation` và bản sao trong `features/sales` (KI-17).
+
+
+| #   | Việc                                                                                                                                                                                                                                                                                                           |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 7.1 | **DB**: promote 23 file `supabase/migrations/_drafts/001…023` thành migration chính thức; sửa `update_automation_policy` (KI-02), kiểm người mua trong `issue_invoice` / `retry_issuance` / `start_auto_issuance` (KI-04), chép lại trường người mua mỗi lượt (KI-06)                                          |
+| 7.2 | **Thiết lập**: chuyển 4 màn vào `apps/erp/lib/features/einvoice/presentation`; `EInvoiceRepository` (kết nối, mẫu, chính sách, sẵn sàng) gọi RPC `einvoice`; KI-01, 15, 16                                                                                                                                     |
+| 7.3 | **Trên đơn** (Theme 5 đã refactor xong: gắn vào màn chi tiết đơn **mới**): `OrderEInvoiceSection` + 2 cubit dùng repository; gộp các sheet về một chỗ; hỏi lại trạng thái bằng `Timer` trong cubit (bỏ `vet45_async_query`, giữ hành vi); KI-08, 17                                    |
+| 7.4 | **Edge Function** `einvoice-processor`: viết lại client MISA bằng TypeScript (theo `packages/vet45_misa`, chép 80 test sang Deno) và handler cho 9 loại lệnh `internal_commands` (đồng bộ mẫu, xem trước, phát hành + khóa ký hiệu, đối soát, bản chính thức, tải tài liệu, quan sát, gửi email, đối soát gửi) |
+| 7.5 | **Kích hoạt**: `pg_cron` + `pg_net` gọi Edge Function mỗi 30 giây; app gọi `functions.invoke` sau mỗi RPC ghi yêu cầu; trigger khi đơn Hoàn tất và khi hồ sơ khách đổi ghi thẳng `internal_commands` (thay outbox/inbox); `record_issuance_success` tự xếp việc gửi tự động (KI-19, KI-20)                     |
+
+
+**Xong khi:** với worker **đã tắt**: kết nối MISA sandbox → phát hành từ đơn → xem/tải PDF → gửi email → gửi lại → phát hành lại sau lỗi; tự phát hành + tự gửi chạy khi bật, kể cả khi app đã đóng; MISA timeout thì `pg_cron` đối soát ra đúng một hóa đơn (TH-08 mục 9.3).
+
+---
+
+
+
 ## Theme 7. Inventory — Kho & Giá vốn
 
 **Trạng thái:** 🔄 UI BJ-02, BJ-03 đã code trước khi có plan (chưa commit, review ở T7-0); T7-1 đã có plan; backend chưa lập plan
 
-> Theme 7 gồm UI và backend. Làm **UI trước** (màn hình, trạng thái, điều hướng, test; plan `T7-0…T7-16`, ~12 ngày) trên fixture, làm song song từ bây giờ; **backend làm trọn một lượt ngay sau Theme 2** (chốt 2026-10-14), plan mã `T7-B1…` chưa lập, khi lập thì thêm vào bảng Plan của mục này; riêng phần nối với bán hàng (xuất kho khi checkout, huỷ, hàng trả, BJ-04/05/06) làm ở **8-D** của Theme 5. Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) v4.6.8 (17 BJ + CAP-01, FROZEN) và prototype `03.design/prototype/html`; đặc tả giữ nguyên v1 đầy đủ theo quyết định 2026-10-07 ([TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ). Phạm vi: **73 màn active / 421 trạng thái** (đếm mỗi màn một lần).
+> **Thay tồn cơ bản của Theme 2 (chốt 2026-11-04, Q3 của 5-C):** khi BJ-08 (kiểm kê / điều chỉnh) và BJ-12 (tồn đầu kỳ) có màn: xoá SP-10 `product_stock_adjustment_page.dart` (đã chạy qua `ProductRepository` + `ProductStockAdjustmentCubit` từ 5-C) và route `/products/items/:productId/stock`; nút "Sửa" thẻ Tồn kho ở PCC và mục readiness `missing_stock` mở màn Theme 7 tương ứng; bước nhập tồn khi tạo sản phẩm giữ / bỏ theo plan Theme 7. DB tồn cơ bản giữ tới 8-D.
+
+> Theme 7 gồm UI và backend. Làm **UI trước** (màn hình, trạng thái, điều hướng, test; plan `T7-0…T7-16`, ~12 ngày) trên fixture; cả UI lẫn backend làm **sau Theme 8** (chốt 2026-11-03, thay "UI song song, backend ngay sau Theme 2" của 2026-10-14; việc T7 đã làm giữ nguyên), plan mã `T7-B1…` chưa lập, khi lập thì thêm vào bảng Plan của mục này; riêng phần nối với bán hàng (xuất kho khi checkout, huỷ, hàng trả, BJ-04/05/06) làm ở **8-D**, mục ngay sau Theme 7. Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) v4.6.8 (17 BJ + CAP-01, FROZEN) và prototype `03.design/prototype/html`; đặc tả giữ nguyên v1 đầy đủ theo quyết định 2026-10-07 ([TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ). Phạm vi: **73 màn active / 421 trạng thái** (đếm mỗi màn một lần).
 
 
 |                       |                                                                                                                                                                                      |
@@ -557,75 +675,17 @@ Các sửa lỗi: [TH-02 mục 9.2](../02-yeu-cau/TH-02-san-pham-va-gia-ban.md#9
 
 ---
 
-## Theme 4. Pricing (1 ngày)
+## Nối kho cho Sales — 8-D (~0,5–1 ngày)
 
-**Trạng thái:** ⬜ Chưa làm
-
-
-| Plan    | Nội dung                                                                                                                                                                                    | Gồm việc                | Plan | Làm | Review |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---- | --- | ------ |
-| **6-A** | (a) Chuyển pricing (giá riêng, nhập Excel, màn chọn)                                                                                                                                        | 6.1, 6.2, 6.3           | ⬜    | ⬜   | ⬜      |
-| **6-B** | (b) Các sửa KI của TH-04                                                                                                                                                                    | TH-04 mục 9.2           | ⬜    | ⬜   | ⬜      |
-| **6-C** | (dọn) **Dọn sạch module pricing**: app hết `vet45_pricing_*` (kể cả 2 chỗ ở `sales/presentation`); xoá `modules/pricing`; DB schema `pricing`: bỏ RPC cũ không còn dùng (sửa migration gốc) | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
-
-
-Chi tiết từng việc:
-
-9 file gọi module, 5 cubit, 9 màn: danh sách, form, chi tiết, lịch sử, import, các màn chọn (sản phẩm/khách/đơn vị).
-
-
-| #   | Việc                                                                                  |
-| --- | ------------------------------------------------------------------------------------- |
-| 6.1 | `CustomerPriceRuleRepository` (CRUD, tắt/bật, lịch sử, resolve áp dụng)               |
-| 6.2 | `PriceImportRepository` (template, start/confirm/cancel import)                       |
-| 6.3 | Màn chọn sản phẩm/khách dùng lại `ProductRepository` (P5) và `PartnerRepository` (P4) |
-
-
-Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../02-yeu-cau/TH-04-chinh-sach-gia.md#92-chia-pr-của-p6).
-
-**Xong khi:** 9 màn đã tick; import Excel mẫu chạy được từ đầu tới cuối; 5 kịch bản đầu–cuối ở TH-04 mục 9.3 chạy qua.
-
----
-
-
-
-## Theme 5. Sales (3 ngày, gồm 8-D)
-
-**Trạng thái:** ⬜ Chưa làm
-
+**Trạng thái:** ⬜ Chưa làm. Tách khỏi Theme 5, chạy ngay sau Theme 7 (chốt 2026-11-03). Cần Theme 5 đã chuyển kiến trúc và sổ kho Theme 7 đã chạy.
 
 | Plan     | Nội dung                                                                                                                                                                                                                                                                                                                                                                                         | Gồm việc                | Plan | Làm | Review |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- | ---- | --- | ------ |
-| **8-A1** | (a) Soạn đơn + nháp                                                                                                                                                                                                                                                                                                                                                                              | 8.1                     | ⬜    | ⬜   | ⬜      |
-| **8-A2** | (a) Checkout + thanh toán                                                                                                                                                                                                                                                                                                                                                                        | 8.2                     | ⬜    | ⬜   | ⬜      |
-| **8-A3** | (a) Tra cứu đơn + phiếu/biên lai                                                                                                                                                                                                                                                                                                                                                                 | 8.3, 8.4                | ⬜    | ⬜   | ⬜      |
-| **8-A4** | (a) Huỷ đơn + đổi/trả                                                                                                                                                                                                                                                                                                                                                                            | 8.5                     | ⬜    | ⬜   | ⬜      |
-| **8-B**  | (b) Các sửa KI của TH-05                                                                                                                                                                                                                                                                                                                                                                         | TH-05 mục 9.2           | ⬜    | ⬜   | ⬜      |
-| **8-C** | (dọn) **Dọn sạch module sales**: app hết `vet45_sales_*` (20 file `sales/presentation` còn gọi einvoice chạy song song tới 7-2); xoá `modules/sales` **trừ `modules/sales/integration_events`** (einvoice còn dùng, xoá ở 7-5); bỏ `CoreExecutionContext` / `CorePermissionChecker` / `CoreTenantAccessChecker` trong `core/session` (chỉ phục vụ module cũ); DB schema `sales`: bỏ outbox / inbox | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
 | **8-D** | (b) **Nối kho Theme 7**: xuất kho cùng checkout (`BC-IO-04`), hoàn nguyên khi huỷ đơn (`BC-IO-13`), nhận hàng khách trả (`BC-IO-07`), khả dụng khi chọn sản phẩm (`BC-IO-01`, thay tồn cơ bản trong `search_sellable_products`); backend BJ-04 giữ hàng, BJ-05 lấy và bàn giao, BJ-06 hàng khách trả | Thứ tự 2026-10-14 | ⬜ | ⬜ | ⬜ |
 
-
-Chi tiết từng việc:
-
-20 file gọi module, 13 cubit, khoảng 20 màn. Chia thành 5 PR:
-
-
-| PR  | Nhóm                  | RPC/Query chính                                                                                                                                                                    |
-| --- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 8.1 | Soạn đơn + nháp       | save/update/cancel draft, list drafts, restore; preview pricing (gọi pricing). Sửa `catalog._product_unit_has_sales_transaction_usage` đọc dòng đơn / nháp / đổi trả (TH-02 KI-08) |
-| 8.2 | Checkout + thanh toán | precheck checkout, **finalize_sales_order** (transaction ở DB), record payment/refund, settlement, payment summary                                                                 |
-| 8.3 | Tra cứu đơn           | list/search/detail/timeline, post-sale actions                                                                                                                                     |
-| 8.4 | Phiếu/biên lai        | generate/get receipt, original receipt, printed/shared, slip preview                                                                                                               |
-| 8.5 | Huỷ đơn + đổi/trả     | cancellation (lý do, precheck, confirm); return/exchange (start, preview pricing, update, confirm, complete, cancel)                                                               |
-
-
-**Integration event:** bỏ outbox. Phát hành HĐĐT tự động dùng trigger trên `sales.sales_orders` khi đơn Hoàn tất, ghi việc vào `einvoice.internal_commands` (làm ở 7.5 của Theme 8, sau Theme 5; TH-08 KI-19, KI-20). Không gọi "nhớ giá từ đơn" (ngoài phạm vi, TH-04 KI-02). Trừ/cộng tồn khi bán, huỷ, đổi trả nối vào sổ kho Theme 7 ở **8-D** (Theme 7 đã xong trước Theme 5).
-
-**Xong khi:** đủ 6 kịch bản: bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng. Công nợ (còn phải thu của đơn) đúng sau mỗi kịch bản. Tồn kho đúng sau mỗi kịch bản (xuất, hoàn nguyên, nhận hàng trả qua 8-D). Các màn sales trong checklist đều đã tick.
+**Xong khi:** 6 kịch bản của Theme 5 (bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng) cho tồn kho đúng theo sổ kho Theme 7 (xuất, hoàn nguyên, nhận hàng trả); khả dụng khi chọn sản phẩm lấy từ Theme 7.
 
 ---
-
-
 
 ## Theme 6. Công nợ phải thu (~4,5 ngày)
 
@@ -643,47 +703,13 @@ Chi tiết từng việc:
 
 ---
 
-## Theme 8. E-invoice (3 ngày)
-
-**Trạng thái:** ⬜ Chưa làm
-
-
-| Plan    | Nội dung                                                                                                                                                                                                                                                                                                                                                                                     | Gồm việc                | Plan | Làm | Review |
-| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---- | --- | ------ |
-| **7-1** | DB: promote drafts HĐĐT + sửa KI-02, 04, 06                                                                                                                                                                                                                                                                                                                                                  | 7.1                     | ⬜    | ⬜   | ⬜      |
-| **7-2** | Dời toàn bộ UI HĐĐT (thiết lập + trên đơn), gộp bản trùng, `EInvoiceRepository`                                                                                                                                                                                                                                                                                                              | 7.2, 7.3                | ⬜    | ⬜   | ⬜      |
-| **7-3** | Edge Function `einvoice-processor` + client MISA TypeScript                                                                                                                                                                                                                                                                                                                                  | 7.4                     | ⬜    | ⬜   | ⬜      |
-| **7-4** | Kích hoạt: `pg_cron`, `functions.invoke`, trigger thay outbox/inbox                                                                                                                                                                                                                                                                                                                          | 7.5                     | ⬜    | ⬜   | ⬜      |
-| **7-5** | (dọn) **Dọn sạch module einvoice**: app hết `vet45_einvoice_*` (20 file ở `sales/presentation` đã chuyển ở 7-2); xoá `modules/einvoice` (gồm `presentation` + `example`), `packages/vet45_misa` (thay bằng client TypeScript 7-3), `packages/vet45_async_query`, `modules/partner/integration_events` (hết người dùng); `modules/sales/integration_events` (8-C để lại); đây là **module cuối** → thư mục `modules/` trống, xoá hẳn; xoá `packages/vet45_adapters`, `vet45_annotations`, `vet45_generator` (chỉ module dùng); DB schema `einvoice`: bỏ outbox / inbox, **giữ** `internal_commands` | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
-
-
-Chi tiết từng việc:
-
-Đặc tả: [TH-08](../02-yeu-cau/TH-08-hoa-don-dien-tu.md). Chia PR theo [TH-08 mục 9.2](../02-yeu-cau/TH-08-hoa-don-dien-tu.md#92-chia-pr-của-p7). Quyết định 2026-10-07: **giữ hành vi hiện có** (hàng đợi, đối soát nền, phát hành và gửi tự động, chống trùng) nhưng **bỏ** `apps/messaging_worker`: mọi lệnh gọi MISA chuyển sang Edge Function `einvoice-processor` (TypeScript), kích hoạt bởi app và `pg_cron` mỗi 30 giây (TH-08 KI-20). UI e-invoice hiện tách giữa `modules/einvoice/presentation` và bản sao trong `features/sales` (KI-17).
-
-
-| #   | Việc                                                                                                                                                                                                                                                                                                           |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 7.1 | **DB**: promote 23 file `supabase/migrations/_drafts/001…023` thành migration chính thức; sửa `update_automation_policy` (KI-02), kiểm người mua trong `issue_invoice` / `retry_issuance` / `start_auto_issuance` (KI-04), chép lại trường người mua mỗi lượt (KI-06)                                          |
-| 7.2 | **Thiết lập**: chuyển 4 màn vào `apps/erp/lib/features/einvoice/presentation`; `EInvoiceRepository` (kết nối, mẫu, chính sách, sẵn sàng) gọi RPC `einvoice`; KI-01, 15, 16                                                                                                                                     |
-| 7.3 | **Trên đơn** (Theme 5 đã refactor xong: gắn vào màn chi tiết đơn **mới**): `OrderEInvoiceSection` + 2 cubit dùng repository; gộp các sheet về một chỗ; hỏi lại trạng thái bằng `Timer` trong cubit (bỏ `vet45_async_query`, giữ hành vi); KI-08, 17                                    |
-| 7.4 | **Edge Function** `einvoice-processor`: viết lại client MISA bằng TypeScript (theo `packages/vet45_misa`, chép 80 test sang Deno) và handler cho 9 loại lệnh `internal_commands` (đồng bộ mẫu, xem trước, phát hành + khóa ký hiệu, đối soát, bản chính thức, tải tài liệu, quan sát, gửi email, đối soát gửi) |
-| 7.5 | **Kích hoạt**: `pg_cron` + `pg_net` gọi Edge Function mỗi 30 giây; app gọi `functions.invoke` sau mỗi RPC ghi yêu cầu; trigger khi đơn Hoàn tất và khi hồ sơ khách đổi ghi thẳng `internal_commands` (thay outbox/inbox); `record_issuance_success` tự xếp việc gửi tự động (KI-19, KI-20)                     |
-
-
-**Xong khi:** với worker **đã tắt**: kết nối MISA sandbox → phát hành từ đơn → xem/tải PDF → gửi email → gửi lại → phát hành lại sau lỗi; tự phát hành + tự gửi chạy khi bật, kể cả khi app đã đóng; MISA timeout thì `pg_cron` đối soát ra đúng một hóa đơn (TH-08 mục 9.3).
-
----
-
-
-
 ## Dọn dẹp (1 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
-| **9-1** | Dọn code: gộp phần còn dùng của `vet45_shared` vào `core/` rồi xoá; bỏ Melos; gọn `vet45_env` (module / app / package cũ đã xoá ở 3-D, 4-C, 5-C, 6-C, 7-5, 8-C) | 9.1, 9.2, 9.3, 9.6 | ⬜ | ⬜ | ⬜ |
+| **9-1** | Dọn code: gộp phần còn dùng của `vet45_shared` vào `core/` rồi xoá; bỏ Melos; gọn `vet45_env` (module / app / package cũ đã xoá ở 3-D, 4-C, 5-C, 6-C, 7-5, 8-C); xoá `packages/vet45_annotations` cùng `vet45_shared` (chuyển từ 5-C / 7-5, 2026-11-04) | 9.1, 9.2, 9.3, 9.6 | ⬜ | ⬜ | ⬜ |
 | **9-2** | Dọn DB: bỏ outbox/inbox/onboarding, gộp migration baseline | 9.4, 9.5 | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
@@ -759,12 +785,13 @@ Chi tiết từng việc:
 | Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS ✅, secrets Edge Function ✅, SMTP Auth ✅, `db reset --linked` ✅, 4 kịch bản SQL ✅, `send-email` đã deploy ✅. 2026-10-28: Vault ✅, `invitation-signup` đã deploy (12/10) ✅. Confirm email + mẫu mã 6 số + rate limit ✅. Còn: kiểm tay TH-01 9.3 kịch bản 1–4 → tick CHECKLIST |
 | Web cho app | 🔄 | | Mở 2026-10-20 (chốt thiết bị iPhone + web). 2026-10-28: W-1 ✅ (R2; test app 1524 pass / 61 fail có sẵn; DS 435 / 1 có sẵn), commit `72b4cc2dd`; W-2 plan đã duyệt + rà theo quy tắc "test giữ hành vi trước"; 2026-10-29: W-2 ✅ R4 (test app 1555 pass / 61 fail có sẵn; DS 447 / 1 có sẵn; audit 15/20), commit `1bd9268af`; còn kiểm tay W-1 mục 5 + W-2 6.2 |
 | Theme 3 | 🔄 | | 2026-11-02: code 4-A, 4-B, 4-W, 4-C xong, review ✅ cả 4 (4-W R2, các plan còn lại R1), đã commit. **Chỉ còn việc người dùng:** kiểm tay (4-A 7.2, 4-B 7.2, 4-W 6.2); `db reset` local + `supabase/tests/partner_th03.sql` / `iam_*.sql` (4-B, 4-C); reset Dev |
-| Theme 2 | ⬜ | | |
-| Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*`. 2026-10-16: chốt **sửa prototype trước (T7-P), rồi mới code Flutter**; T7-0d, T7-1 tạm dừng, rà lại theo prototype mới trước khi giao |
+| Theme 2 | 🔄 | | Đang làm: 5-A1 ✅, 5-A2 ✅, 5-A3 ✅ |
 | Theme 4 | ⬜ | | |
 | Theme 5 | ⬜ | | |
-| Theme 6 | ⬜ | | Mới thêm 2026-10-27: phải thu + cấn trừ |
 | Theme 8 | ⬜ | | |
+| Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*`. 2026-10-16: chốt **sửa prototype trước (T7-P), rồi mới code Flutter**; T7-0d, T7-1 tạm dừng, rà lại theo prototype mới trước khi giao |
+| 8-D | ⬜ | | Tách khỏi Theme 5 (2026-11-03); sau Theme 7 |
+| Theme 6 | ⬜ | | Mới thêm 2026-10-27: phải thu + cấn trừ |
 | Dọn dẹp | ⬜ | | |
 | Tích hợp AI | ⬜ | | Mới thêm 2026-10-27: giảng viên yêu cầu; làm cuối cùng |
 | Báo cáo | ⬜ | | |
@@ -775,13 +802,14 @@ Chi tiết từng việc:
 |---|---|---|
 | Theme 1 | Trigger trên `auth.users` lỗi làm hỏng việc xác minh email | Test kỹ ở local; trigger bắt lỗi rõ ràng; validate dữ liệu cửa hàng trên client trước khi `signUp` |
 | Theme 1 | Email OTP local khó test | Dùng Inbucket/Mailpit có sẵn trong `supabase start` để đọc mã |
-| Theme 2 / Theme 7 | Giữa 5-A4 và lúc Theme 7 thay màn tồn cơ bản, `modules/catalog` chưa xoá được | 5-C chạy sau Theme 7 (đã ghi ở mục Theme 2) |
+| Theme 2 / Theme 7 | SP-10 (tồn cơ bản) sau 5-C chạy qua `ProductRepository`; `set_basic_stock_quantity_base` không kiểm đơn vị cơ sở (chỉ UI chặn) | Theme 7 thay SP-10 (xem Q3 của 5-C, mục Theme 7) |
 | Theme 7 | Prototype đã dọn T7-P0 (CSS `styles/*`, JS `app/core.js` + stub BJ); vẫn có thể còn lớp vá bên trong `core.js` đến khi tách finer | Đối chiếu **hiển thị cuối cùng** trong `index.html`; dữ liệu và luật lấy từ `app/core.js` / `app/bjNN.js` + Screen Contract |
 | Theme 7 | Số liệu lệch giữa tài liệu prototype (README 82 màn, manifest 73 màn active / 482 render) | Dùng `manifest.json` v4.6.8 + `workbench-data.js`; đếm lại khi spec đổi |
 | Theme 7 | Mỗi BJ tự dựng lại row / sheet khiến UI lệch nhau | Bảng "Dùng lại"; Review kiểm trùng lặp trước khi ✅ |
 | Theme 7 | UI trên fixture che lỗi hợp đồng dữ liệu (kiểu số, null, phân trang) | Repository giữ chữ ký như RPC; model theo `PRJ-*` / `ENT-*`; plan backend rà lại model trước khi nối |
 | Theme 7 | 421 trạng thái → test phình | Bảng "trạng thái → test" ở T7-0 / T7-16; test theo bảng, không viết tay từng cái |
-| Theme 7 | Theme 7 lớn (UI ~12 ngày + backend ~4) mà đứng trước Theme 4, 5, 8 → luồng demo bán hàng + HĐĐT bị đẩy lùi | Theo dõi tiến độ Theme 7 sát; nếu trễ thì chốt lại phạm vi trước khi vào Theme 4 |
+| Theme 7 | Theme 7 lớn (UI ~12 ngày + backend ~4) làm sau Theme 8 (thứ tự 2026-11-03) → dồn về cuối, sát hạn 2026-12-02 | Theo dõi tiến độ sát; chuyển kiến trúc Theme 4 / 5 / 8 không kéo dài quá ước lượng |
+| Theme 5 / 8-D | Sales phải sửa 2 lần: chuyển kiến trúc ở Theme 5, nối sổ kho ở 8-D (đổi so với thứ tự 2026-10-14) | Theme 5 giữ tồn cơ bản đúng như cũ; 8-D chỉ đổi chỗ đọc / ghi tồn, có test giữ hành vi 6 kịch bản |
 | Mọi theme | Thêm bố cục web làm mỗi theme dài thêm (~10–20% phần UI; cao hơn từ 2026-10-22 vì không còn thiết bị phụ) | Không cắt bằng cách hạ một thiết bị xuống phụ. Dùng lại khuôn bố cục web chung (K7 của Theme 7) thay vì dựng lại từng theme; ước lượng lại trong plan từng theme |
 | Theme 5 | Mất rule nghiệp vụ khi bỏ Aggregate | Bước 5 của công thức: port rule thành hàm thuần và giữ test cũ |
 | Theme 5 | Từ lúc sổ kho Theme 7 chạy tới khi Theme 5 nối kho (8-D), Sales cũ vẫn đọc tồn cơ bản không còn cập nhật | Chỉ ảnh hưởng Dev (Prod chưa chạy); 8-D chuyển sang khả dụng của Theme 7 |
