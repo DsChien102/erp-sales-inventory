@@ -1,9 +1,10 @@
 # TH-04 — Chính sách giá (giá riêng theo khách hàng)
 
 > **Vai trò:** **đặc tả chuẩn (source of truth)** cho app sau refactor. Theme đã hoàn thành: **code hiện tại là phạm vi chuẩn**. Mọi quy tắc mặc định = hành vi code hiện tại (SCOPE: giữ 100% chức năng, giữ RPC). Gắn 🔧 = code hiện tại **sai**, phải sửa khi refactor. Làm theo tài liệu, không chép lỗi của code cũ.
-> **Phiên bản:** 3.2 · **Ngày:** 2026-11-06 (3.1: 2026-11-05; 3.0: 2026-10-07) · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> **Phiên bản:** 3.3 · **Ngày:** 2026-11-06 (3.2: 2026-11-06; 3.1: 2026-11-05; 3.0: 2026-10-07) · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
 > **Bản 3.1:** bỏ nhập Excel (EP-04, PR-09, BR-25…BR-33, KI-03, kịch bản 5) và màn "Chọn cách thêm" (PR-03): nút thêm mở thẳng form. Người dùng chốt 2026-11-04 (plan 6-A1 Q9, 6-A2 Q10).
 > **Bản 3.2:** đã sửa theo 6-B (KI-02, 04, 05, 07, 08, 10, 11, 13, 14; KI-15 ở 6-A): bỏ 🔧 ở các mục đó; lọc "Trạng thái" chọn một (Q3); lịch sử bỏ nhóm "Nguồn" (Q6); chữ ký RPC `search_*` / `update_*` mới; `iam._member_display_name`; "Người tắt" / "Cập nhật bởi" là tên thành viên.
+> **Bản 3.3:** đã dọn module pricing và xoá phần nhập Excel, 2 RPC create/update context trong DB ở 6-C.
 > **Thay thế:** bản 2.1 (2026-10-06) và `Theme 4_ Chính sách giá và ưu đãi.md` (v1). Spec v1 có 6 epic; bản này gồm **EP02 (giá riêng)** và thứ tự áp giá khi bán (một phần EP05). Phần còn lại ở [mục 8](#8-ngoài-phạm-vi-so-với-spec-v1).
 > **Nguồn đối chiếu:**
 > - DB: schema `pricing`, migration `20260725001`…`20260725018`, `20260805001/002`, `20260810001`, `20260830003` (áp giá khi bán).
@@ -108,7 +109,7 @@ Giá riêng đến từ 2 cửa: tạo thủ công và "Lưu làm giá riêng" n
 | Nguồn tạo (`source_type`) | App tạo 1 nguồn: `manual` (Tạo thủ công). `excel_import` (Nhập Excel) chỉ còn ở dữ liệu cũ (nhập Excel đã bỏ, mục 8); vẫn hiện nhãn. `sales_order` và `migration` có trong DB nhưng là dự phòng, không luồng nào tạo |
 | Hiệu lực | `effective_from` (bắt buộc), `effective_to` (để trống = không giới hạn). Tính theo **ngày**, không theo giờ |
 | Giá niêm yết / giá sàn | Lấy từ khung giá của TH-02, qua `catalog._get_product_price_band_snapshot_for_pricing` |
-| Lô nhập Excel | `customer_price_rule_imports` + `customer_price_rule_import_rows`. App không dùng (nhập Excel bỏ); 6-C xoá |
+| Lô nhập Excel | Đã xoá ở 6-C (nhập Excel bỏ) |
 | Yêu cầu nhớ giá | `remembered_price_requests`. Bảng dự phòng, app không dùng (mục 8) |
 | Lịch sử | `customer_price_rule_activities`, lưu giá trị trước/sau dạng JSON |
 
@@ -244,8 +245,6 @@ Số BR giữ từ bản 2.1; BR-33…35 (trước đây bỏ trống) dùng cho
 ```mermaid
 erDiagram
     CUSTOMER_PRICE_RULES ||--o{ CUSTOMER_PRICE_RULE_ACTIVITIES : "lịch sử"
-    CUSTOMER_PRICE_RULE_IMPORTS ||--o{ CUSTOMER_PRICE_RULE_IMPORT_ROWS : "dòng"
-    CUSTOMER_PRICE_RULE_IMPORTS |o--o{ CUSTOMER_PRICE_RULES : "source_import_id"
     REMEMBERED_PRICE_REQUESTS |o--o| CUSTOMER_PRICE_RULES : "rule_id"
     PARTNERS ||--o{ CUSTOMER_PRICE_RULES : "customer_id (TH-03)"
     PRODUCT_UNITS ||--o{ CUSTOMER_PRICE_RULES : "product_unit_id (TH-02)"
@@ -257,10 +256,10 @@ Không có khoá ngoại sang `partner` / `catalog`. Tính hợp lệ của tham
 
 | Bảng | Trường chính | Ghi chú |
 |---|---|---|
-| `customer_price_rules` | khoá (`customer_id`, `product_id`, `product_unit_id`); `rule_price_minor`, `currency_code`; `rule_type`, `source_type`, `status`, `review_status`, `price_check_status`; `effective_from/to`; snapshot (tên khách, SĐT, tên/mã/SKU sản phẩm, tên đơn vị, giá niêm yết, giá sàn); `warning_codes`, `blocking_codes`; `disabled_*`, `deleted_at`; truy vết nguồn (`source_import_*`, `source_order_*`, `source_memory_request_id`, `source_sold_at`); `version`, `idempotency_key`, `payload_hash` | Bảng chính |
-| `customer_price_rule_activities` | `activity_type`, `old_value`, `new_value`, `created_by`, `import_id/row_id`, `source_order_*` | Lịch sử |
-| `customer_price_rule_imports` | `template_version`, `original_file_name`, `import_mode`, `status`, các bộ đếm dòng, `file_error_codes`, `version` | Lô nhập. App không dùng; 6-C xoá |
-| `customer_price_rule_import_rows` | giá trị gốc `raw_*`, giá trị đã chuẩn hoá `normalized_*`, snapshot khách/sản phẩm/đơn vị, `row_status`, `action`, `error_codes`, `warning_codes`, `matched_rule_id` | Dòng nhập. App không dùng; 6-C xoá |
+| `customer_price_rules` | khoá (`customer_id`, `product_id`, `product_unit_id`); `rule_price_minor`, `currency_code`; `rule_type`, `source_type`, `status`, `review_status`, `price_check_status`; `effective_from/to`; snapshot (tên khách, SĐT, tên/mã/SKU sản phẩm, tên đơn vị, giá niêm yết, giá sàn); `warning_codes`, `blocking_codes`; `disabled_*`, `deleted_at`; truy vết nguồn (`source_import_*` (không FK, dữ liệu cũ), `source_order_*`, `source_memory_request_id`, `source_sold_at`); `version`, `idempotency_key`, `payload_hash` | Bảng chính |
+| `customer_price_rule_activities` | `activity_type`, `old_value`, `new_value`, `created_by`, `import_id/row_id` (không FK, dữ liệu cũ), `source_order_*` | Lịch sử |
+| `customer_price_rule_imports` | — | Đã xoá ở 6-C (nhập Excel bỏ) |
+| `customer_price_rule_import_rows` | — | Đã xoá ở 6-C (nhập Excel bỏ) |
 | `remembered_price_requests` | id đơn và dòng đơn, khoá, `sold_price_minor`, `sold_at`, `status`, `result_type`, `reason_code`, `rule_id` | Yêu cầu nhớ giá |
 
 Tất cả bảng bật RLS và **thu hồi toàn bộ quyền** (kể cả quyền đọc). Mọi truy cập đi qua RPC `security definer`.
@@ -803,8 +802,7 @@ Rỗng: "Chưa có lịch sử thay đổi"; lọc không ra: "Không tìm thấ
 ### 6.1 Đường đi hiện tại
 
 ```text
-Page ─▶ Cubit ─▶ IPricingModule.executeCommandAsync/QueryAsync ─▶ Handler (+ Validator)
-     ─▶ Gateway ─▶ supabase.schema('pricing').rpc(...)
+Page ─▶ Cubit ─▶ CustomerPriceRuleRepository / SalesPricingRepository ─▶ SupabaseRpc ─▶ schema('pricing').rpc(...)
 ```
 
 ### 6.2 Danh mục RPC (schema `pricing`)
@@ -812,14 +810,14 @@ Page ─▶ Cubit ─▶ IPricingModule.executeCommandAsync/QueryAsync ─▶ Ha
 | Nhóm | RPC | Quyền | Ghi / đọc |
 |---|---|---|---|
 | Danh sách | `search_customer_price_rules(…, p_cursor, p_limit, p_sort, p_updated_within_days)` (12 tham số) | `customer_price_rule.view` (+ `create`, `import` để tính thao tác) | đọc, keyset theo `p_sort`, trả `total_count` |
-| Tạo | `get_customer_price_rule_create_context` | `view`, `create` | đọc; app không gọi từ 6-A (server tự kiểm khi tạo) |
+| Tạo | `get_customer_price_rule_create_context` | `view`, `create` | đã xoá ở 6-C (server tự kiểm khi tạo / sửa) |
 | | `create_customer_price_rule` | `create` (+ `override_floor_price` khi dưới sàn) | ghi, idempotent |
 | Chi tiết | `get_customer_price_rule_detail` | `view` | đọc, kèm `available_actions`, `updated_by_name`, `disabled_by_name` |
-| Sửa | `get_customer_price_rule_update_context` | `view`, `update` | đọc; app không gọi từ 6-A (server tự kiểm khi sửa) |
+| Sửa | `get_customer_price_rule_update_context` | `view`, `update` | đã xoá ở 6-C (server tự kiểm khi tạo / sửa) |
 | | `update_customer_price_rule(…, p_acknowledge_overwrite, p_reason)` (10 tham số) | `update` (+ `override_floor_price`) | ghi, version; `p_reason` ≤ 200 vào lịch sử |
 | Tắt / bật | `disable_customer_price_rule` | `disable` | ghi, version |
 | | `precheck_customer_price_rule_reenable`, `reenable_customer_price_rule` | `reenable` | đọc / ghi, token + version |
-| ~~Nhập~~ | `create_/get_/confirm_/cancel_customer_price_rule_import` — app không gọi (nhập Excel bỏ); 6-C xoá | — | — |
+| ~~Nhập~~ | `create_/get_/confirm_/cancel_customer_price_rule_import` | — | đã xoá ở 6-C |
 | Lịch sử | `get_customer_price_rule_history` | `view_history` | đọc, 50 dòng (tối đa 100) |
 | Bán hàng | `preview_sales_working_state_pricing` | `pricing.sales.preview` | đọc |
 | | `evaluate_sales_manual_price` | `pricing.sales.manual_price.adjust` | đọc |
@@ -832,7 +830,7 @@ Page ─▶ Cubit ─▶ IPricingModule.executeCommandAsync/QueryAsync ─▶ Ha
 |---|---|---|
 | `partner._get_customer_snapshot_for_pricing` | TH-03 | Khách tồn tại, vai trò `customer`, `active`; tên, SĐT |
 | `catalog._get_product_price_band_snapshot_for_pricing` | TH-02 | Sản phẩm / đơn vị bán được; giá niêm yết, giá sàn, tiền tệ |
-| `catalog._resolve_product_unit_for_pricing_import` | TH-02 | Chỉ dùng cho nhập Excel (đã bỏ); 6-C xoá |
+| `catalog._resolve_product_unit_for_pricing_import` | TH-02 | đã xoá ở 6-C |
 | `iam._member_display_name` | TH-01 | Tên thành viên: lịch sử, người tắt, người cập nhật (`20261105001`) |
 
 ### 6.4 Mã lỗi và thông điệp app
@@ -919,7 +917,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 |---|---|
 | `Page → Cubit → IPricingModule → Handler → Gateway → RPC` | `Page → Cubit → CustomerPriceRuleRepository / SalesPricingRepository → RPC` |
 | Màn chọn khách / sản phẩm gọi qua module | Dùng `PartnerRepository` (P4), `ProductRepository` (P5) |
-| Codec `.xlsx` trong `modules/pricing/infrastructure` | Bỏ cùng nhập Excel; 6-C xoá cùng module |
+| Codec `.xlsx` trong `modules/pricing/infrastructure` | Đã xoá cùng module ở 6-C |
 | RPC cần sửa | `preview_sales_working_state_pricing` (KI-04), `search_customer_price_rules` (KI-05, KI-10), `update_customer_price_rule` (KI-07), `get_customer_price_rule_history` (KI-08) |
 | Command nhớ giá, xoá | Không dùng; RPC giữ trong DB |
 | Exclusion constraint, advisory lock, idempotency, các RPC còn lại | **Giữ nguyên** |
