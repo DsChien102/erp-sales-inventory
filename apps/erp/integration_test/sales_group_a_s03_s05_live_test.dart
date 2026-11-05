@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:erp/core/session/session_controller.dart';
-import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:vet45_sales_application/application.dart' as sales;
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -218,13 +218,14 @@ void main() {
         expect(update.version, greaterThanOrEqualTo(create.version!));
         cleanupVersion = update.version!;
       } finally {
-        await di<IPricingModule>().executeCommandAsync(
-          DeleteCustomerPriceRuleCommand(
-            tenantId: _tenantId,
-            actorId: await di<IExecutionContext>().requireUserId(),
-            ruleId: create.ruleId!,
-            expectedVersion: cleanupVersion,
-          ),
+        await di<SupabaseRpc>().call(
+          'pricing',
+          'delete_customer_price_rule',
+          params: <String, dynamic>{
+            'p_tenant_id': _tenantId,
+            'p_rule_id': create.ruleId!,
+            'p_expected_version': cleanupVersion,
+          },
         );
       }
     },
