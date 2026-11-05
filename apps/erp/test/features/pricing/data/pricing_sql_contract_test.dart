@@ -112,6 +112,155 @@ void main() {
       );
     });
   });
+
+  group('removed', () {
+    test('removes import RPCs and helpers', () {
+      final sql = _allMigrationsSql();
+      const removedPricingFunctions = [
+        'create_customer_price_rule_import',
+        'get_customer_price_rule_import',
+        'confirm_customer_price_rule_import',
+        'cancel_customer_price_rule_import',
+        '_import_batch_result',
+        '_import_row_preview',
+        '_evaluate_customer_price_rule_import_row',
+        '_match_customer_price_rule_import_overlap',
+      ];
+
+      for (final fn in removedPricingFunctions) {
+        expect(
+          _definesFn(sql, 'pricing', fn),
+          isFalse,
+          reason: 'Expected pricing.$fn to be removed.',
+        );
+      }
+
+      expect(
+        _definesFn(sql, 'catalog', '_resolve_product_unit_for_pricing_import'),
+        isFalse,
+        reason:
+            'Expected catalog._resolve_product_unit_for_pricing_import to be removed.',
+      );
+    });
+
+    test('removes create/update context RPCs', () {
+      final sql = _allMigrationsSql();
+      expect(
+        _definesFn(sql, 'pricing', 'get_customer_price_rule_create_context'),
+        isFalse,
+        reason: 'get_customer_price_rule_create_context must be removed.',
+      );
+      expect(
+        _definesFn(sql, 'pricing', 'get_customer_price_rule_update_context'),
+        isFalse,
+        reason: 'get_customer_price_rule_update_context must be removed.',
+      );
+    });
+
+    test('removes import tables', () {
+      final sql = _allMigrationsSql();
+      expect(
+        sql.contains('pricing.customer_price_rule_imports'),
+        isFalse,
+        reason: 'Table pricing.customer_price_rule_imports must be removed.',
+      );
+      expect(
+        sql.contains('pricing.customer_price_rule_import_rows'),
+        isFalse,
+        reason: 'Table pricing.customer_price_rule_import_rows must be removed.',
+      );
+    });
+
+    test('trace columns have no FK to import tables', () {
+      final sql = _allMigrationsSql();
+      expect(
+        sql.contains('references pricing.customer_price_rule_import'),
+        isFalse,
+        reason: 'Trace columns must have no FK to import tables.',
+      );
+    });
+
+    test('keeps 4 import trace columns', () {
+      final sql = _allMigrationsSql();
+      expect(
+        RegExp(
+          r'add column if not exists source_import_id uuid[,;]',
+        ).hasMatch(sql),
+        isTrue,
+        reason:
+            'customer_price_rules must have source_import_id uuid without FK',
+      );
+      expect(
+        RegExp(
+          r'add column if not exists source_import_row_id uuid[,;]',
+        ).hasMatch(sql),
+        isTrue,
+        reason:
+            'customer_price_rules must have source_import_row_id uuid without FK',
+      );
+      expect(
+        RegExp(r'add column if not exists import_id uuid[,;]').hasMatch(sql),
+        isTrue,
+        reason:
+            'customer_price_rule_activities must have import_id uuid without FK',
+      );
+      expect(
+        RegExp(
+          r'add column if not exists import_row_id uuid[,;]',
+        ).hasMatch(sql),
+        isTrue,
+        reason:
+            'customer_price_rule_activities must have import_row_id uuid without FK',
+      );
+    });
+
+    test('REGISTRY has no removed functions', () {
+      final repoRoot = _findRepoRoot();
+      final registryFile = File(
+        '${repoRoot.path}/supabase/migrations/REGISTRY.yaml',
+      );
+      expect(registryFile.existsSync(), isTrue);
+      final registry = registryFile.readAsStringSync();
+
+      const removedFunctions = [
+        'create_customer_price_rule_import',
+        'get_customer_price_rule_import',
+        'confirm_customer_price_rule_import',
+        'cancel_customer_price_rule_import',
+        '_import_batch_result',
+        '_import_row_preview',
+        '_evaluate_customer_price_rule_import_row',
+        '_match_customer_price_rule_import_overlap',
+        '_resolve_product_unit_for_pricing_import',
+        'get_customer_price_rule_create_context',
+        'get_customer_price_rule_update_context',
+      ];
+
+      for (final fn in removedFunctions) {
+        expect(
+          registry.contains(fn),
+          isFalse,
+          reason: 'REGISTRY.yaml should not contain $fn',
+        );
+      }
+
+      const removedFiles = [
+        '20260725003_catalog_pricing_import_product_unit_resolver.sql',
+        '20260725013_pricing_customer_price_rule_import_overlap_policy.sql',
+        '20260725016_pricing_customer_price_rule_import_explicit_unit.sql',
+        '20260725017_pricing_customer_price_rule_import_auto_match_upsert.sql',
+        '20260725018_pricing_customer_price_rule_import_price_parse.sql',
+      ];
+
+      for (final file in removedFiles) {
+        expect(
+          registry.contains(file),
+          isFalse,
+          reason: 'REGISTRY.yaml should not contain $file',
+        );
+      }
+    });
+  });
 }
 
 Directory _findRepoRoot() {
