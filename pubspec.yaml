@@ -27,9 +27,6 @@ workspace:
   - modules/einvoice/infrastructure
   - modules/einvoice/integration_events
   - modules/einvoice/presentation
-  - modules/pricing/domain
-  - modules/pricing/application
-  - modules/pricing/infrastructure
   - tools/vet45_env
   - tools/vet45_supabase_migrate
   - packages/vet45_async_query

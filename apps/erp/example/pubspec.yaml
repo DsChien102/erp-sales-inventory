@@ -53,12 +53,6 @@ dependency_overrides:
     path: ../../../packages/vet45_misa
   vet45_partner_integration_events:
     path: ../../../modules/partner/integration_events
-  vet45_pricing_application:
-    path: ../../../modules/pricing/application
-  vet45_pricing_domain:
-    path: ../../../modules/pricing/domain
-  vet45_pricing_infrastructure:
-    path: ../../../modules/pricing/infrastructure
   vet45_sales_application:
     path: ../../../modules/sales/application
   vet45_sales_domain:

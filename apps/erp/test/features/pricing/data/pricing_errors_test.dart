@@ -4,9 +4,6 @@ import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/pricing/data/pricing_errors.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vet45_pricing_application/application.dart' as old_app;
-import 'package:vet45_pricing_infrastructure/src/errors/pricing_error_mapper.dart';
-import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 void main() {
   const stableCodes = [
@@ -45,40 +42,6 @@ void main() {
       expectedCode: PricingErrorCodes.systemError,
     ),
   ];
-
-  group('old (mapPricingRpcError)', () {
-    for (final code in stableCodes) {
-      test('preserves stable code $code', () {
-        final mapped = mapPricingRpcError(
-          RpcException('{"code":"$code","message":"msg","details":{"k":"v"}}'),
-        );
-        expect(mapped.code, code);
-      });
-    }
-
-    for (final c in envelopeCases) {
-      test('maps ${c.name} -> ${c.expectedCode}', () {
-        final mapped = mapPricingRpcError(RpcException(c.message));
-        expect(mapped.code, c.expectedCode);
-        if (c.expectedCode == old_app.PricingBlockedCodes.duplicateActiveRule) {
-          expect(mapped.details['conflictingRuleId'], 'r1');
-          expect(mapped.details['reason'], 'overwriteRequired');
-        }
-      });
-    }
-
-    test('maps non-JSON permission and not-found messages to SYSTEM_ERROR', () {
-      for (final message in const [
-        'permission denied: pricing.sales.preview',
-        'not authenticated',
-        'PERMISSION_DENIED: x',
-        'RESOURCE_NOT_FOUND: x',
-      ]) {
-        final mapped = mapPricingRpcError(RpcException(message));
-        expect(mapped.code, old_app.PricingBlockedCodes.systemError);
-      }
-    });
-  });
 
   group('new (pricingException)', () {
     for (final code in stableCodes) {

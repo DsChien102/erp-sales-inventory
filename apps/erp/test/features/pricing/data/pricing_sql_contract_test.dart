@@ -148,3 +148,4 @@ bool _definesFn(String sql, String schema, String name) {
     caseSensitive: false,
   ).hasMatch(sql);
 }
+
