@@ -5,31 +5,26 @@ import 'package:vet45_design_system/design_system.dart';
 class PriceRuleHistoryFilterState {
   const PriceRuleHistoryFilterState({
     this.activityType = 'Tất cả',
-    this.source = 'Tất cả',
     this.actor = 'Tất cả',
     this.timeRange = 'Tất cả',
   });
 
   final String activityType;
-  final String source;
   final String actor;
   final String timeRange;
 
   bool get isFiltered =>
       activityType != 'Tất cả' ||
-      source != 'Tất cả' ||
       actor != 'Tất cả' ||
       timeRange != 'Tất cả';
 
   PriceRuleHistoryFilterState copyWith({
     String? activityType,
-    String? source,
     String? actor,
     String? timeRange,
   }) {
     return PriceRuleHistoryFilterState(
       activityType: activityType ?? this.activityType,
-      source: source ?? this.source,
       actor: actor ?? this.actor,
       timeRange: timeRange ?? this.timeRange,
     );
@@ -41,17 +36,17 @@ class PriceRuleHistoryFilterSheet extends StatefulWidget {
     super.key,
     required this.initialFilter,
     required this.onApply,
-    this.actorOptions,
+    required this.actorOptions,
   });
 
   final PriceRuleHistoryFilterState initialFilter;
   final ValueChanged<PriceRuleHistoryFilterState> onApply;
-  final List<String>? actorOptions;
+  final List<String> actorOptions;
 
   static Future<PriceRuleHistoryFilterState?> show({
     required BuildContext context,
     required PriceRuleHistoryFilterState initialFilter,
-    List<String>? actorOptions,
+    required List<String> actorOptions,
   }) {
     return showVBottomSheet<PriceRuleHistoryFilterState>(
       context: context,
@@ -72,11 +67,11 @@ class PriceRuleHistoryFilterSheetHost extends StatelessWidget {
   const PriceRuleHistoryFilterSheetHost({
     super.key,
     required this.initialFilter,
-    this.actorOptions,
+    required this.actorOptions,
   });
 
   final PriceRuleHistoryFilterState initialFilter;
-  final List<String>? actorOptions;
+  final List<String> actorOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -138,8 +133,6 @@ class _PriceRuleHistoryFilterSheetState
                   'Sửa giá',
                   'Tắt',
                   'Bật lại',
-                  'Nhập Excel',
-                  'Từ đơn hàng',
                 ],
                 selected: _filter.activityType,
                 onSelected: (val) =>
@@ -147,27 +140,8 @@ class _PriceRuleHistoryFilterSheetState
               ),
               const VGap.md(),
               _FilterGroup(
-                title: 'Nguồn',
-                options: const [
-                  'Tất cả',
-                  'Tạo thủ công',
-                  'Nhập Excel',
-                  'Từ đơn hàng',
-                  'Migration',
-                ],
-                selected: _filter.source,
-                onSelected: (val) =>
-                    setState(() => _filter = _filter.copyWith(source: val)),
-              ),
-              const VGap.md(),
-              _FilterGroup(
                 title: 'Người thực hiện',
-                options: widget.actorOptions ?? const [
-                  'Tất cả',
-                  'Nguyễn Văn A',
-                  'Hệ thống',
-                  'Quản trị viên',
-                ],
+                options: widget.actorOptions,
                 selected: _filter.actor,
                 onSelected: (val) =>
                     setState(() => _filter = _filter.copyWith(actor: val)),
@@ -180,7 +154,6 @@ class _PriceRuleHistoryFilterSheetState
                   '7 ngày gần đây',
                   '30 ngày gần đây',
                   '90 ngày gần đây',
-                  'Tùy chọn',
                 ],
                 selected: _filter.timeRange,
                 onSelected: (val) =>

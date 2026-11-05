@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../cubit/price_rule_form_cubit.dart';
-import '../cubit/price_rule_form_state.dart';
+import '../../logic/price_rule_form_cubit.dart';
+import '../../logic/price_rule_form_state.dart';
 import 'price_rule_form_edit_header.dart';
 import 'price_rule_form_readiness_summary.dart';
 import 'price_rule_price_field.dart';
@@ -385,14 +385,29 @@ class _FormWarnings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
+    final showConflictingBanner =
+        form.hasConflictingRule || form.conflictingRuleId != null;
+
     final widgets = <Widget>[
       if (form.isBelowFloor) const PriceRuleBelowFloorBanner(),
-      if (form.hasConflictingRule)
-        const VBanner(
+      if (showConflictingBanner)
+        VBanner(
           tone: VComponentTone.info,
           title: 'Lưu ý tự động ghi đè giá trùng',
           description:
               'Khoảng thời gian hiệu lực mới bị trùng với giá riêng đang áp dụng khác. Khi lưu, hệ thống sẽ tự động ghi đè giá riêng cũ.',
+          footer:
+              (form.conflictingRuleId != null && onViewConflictingRule != null)
+                  ? GestureDetector(
+                      onTap: () => onViewConflictingRule!(form.conflictingRuleId!),
+                      child: VText(
+                        'Xem giá riêng hiện có >',
+                        variant: VTextVariant.labelSmall,
+                        color: colors.primary,
+                      ),
+                    )
+                  : null,
         ),
     ];
     if (widgets.isEmpty) {

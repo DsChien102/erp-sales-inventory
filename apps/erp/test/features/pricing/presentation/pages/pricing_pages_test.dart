@@ -1,36 +1,23 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/pricing/data/customer_price_rule_repository.dart';
+import 'package:erp/features/pricing/data/models.dart';
+import 'package:erp/features/pricing/data/pricing_errors.dart';
+import 'package:erp/features/pricing/presentation.dart';
+import 'package:erp/features/pricing/presentation/pages/pricing_detail_page.dart';
+import 'package:erp/features/pricing/presentation/pages/pricing_form_page.dart';
+import 'package:erp/features/pricing/presentation/pages/pricing_history_page.dart';
+import 'package:erp/features/pricing/presentation/pages/pricing_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_pricing_application/testing.dart';
-import 'package:erp/features/pricing/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
-import 'package:erp/features/pricing/presentation/pages/pricing_list_page.dart';
-import 'package:erp/features/pricing/presentation/pages/pricing_detail_page.dart';
-import 'package:erp/features/pricing/presentation/pages/pricing_form_page.dart';
-import 'package:erp/features/pricing/presentation/pages/pricing_choose_method_page.dart';
-import 'package:erp/features/pricing/presentation/pages/pricing_import_page.dart';
-import 'package:erp/features/pricing/presentation/pages/pricing_history_page.dart';
-
-class MockExecutionContext extends Mock implements IExecutionContext {}
+import '../../support/fake_customer_price_rule_repository.dart';
+import '../../support/fake_pricing_backend.dart';
+import '../../support/pricing_detail_dto_builder.dart';
 
 void main() {
-  late MockExecutionContext mockExecutionContext;
-
-  setUp(() {
-    mockExecutionContext = MockExecutionContext();
-    when(() => mockExecutionContext.requireTenantId()).thenAnswer((_) async => 'test-tenant-id');
-
-    final getIt = GetIt.instance;
-    if (!getIt.isRegistered<IExecutionContext>()) {
-      getIt.registerSingleton<IExecutionContext>(mockExecutionContext);
-    }
-  });
-
   tearDown(() async {
     await GetIt.instance.reset();
   });
@@ -46,28 +33,33 @@ void main() {
     FakePricingScenario scenario = FakePricingScenario.ruleDetailActive,
     String ruleId = 'rule-1',
   }) {
-    final module = FakePricingModule(scenario: scenario);
-    return module.executeQueryAsync(
-      GetCustomerPriceRuleDetailQuery(
-        tenantId: 'test-tenant-id',
-        ruleId: ruleId,
-        businessDate: DateTime.utc(2026, 7, 16),
-      ),
+    final repo = FakeCustomerPriceRuleRepository(detailScenario: scenario);
+    return repo.getDetail(
+      ruleId: ruleId,
+      businessDate: DateTime.utc(2026, 7, 16),
     );
   }
 
   // ── S2 / US-01 ──
   group('wgt_e02_u01 — PricingListPage (S2)', () {
     testWidgets('wgt_e02_u01_fr01_01 — danh sách + VSearchBar + VCard', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.searchRulesDefault),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          searchScenario: FakePricingScenario.searchRulesDefault,
+        ),
       );
 
       await tester.pumpWidget(createTestWidget(const PricingListPage()));
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('wgt_e02_u01_fr01_01')), findsOneWidget);
-      expect(find.text('Giá riêng / Nhớ giá'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('wgt_e02_u01_fr01_01')),
+          matching: find.text('Giá riêng'),
+        ),
+        findsWidgets,
+      );
       expect(find.byType(VSearchBar), findsOneWidget);
       expect(find.byType(PriceRuleCard), findsWidgets);
       expect(find.byType(VCard), findsWidgets);
@@ -76,22 +68,25 @@ void main() {
     });
 
     testWidgets('wgt_e02_u01_fr02_01 — empty state dùng VIcons', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.searchRulesEmpty),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          searchScenario: FakePricingScenario.searchRulesEmpty,
+        ),
       );
 
       await tester.pumpWidget(createTestWidget(const PricingListPage()));
       await tester.pumpAndSettle();
 
       expect(find.text('Chưa có giá riêng nào'), findsOneWidget);
+      expect(find.text('Tạo giá riêng để bắt đầu.'), findsOneWidget);
       expect(find.byType(VEmptyState), findsOneWidget);
     });
 
     testWidgets(
       'wgt_e02_u01_fr03_01 — offline error uses designed retry state',
       (tester) async {
-        final module = _SystemErrorPricingModule();
-        GetIt.instance.registerSingleton<IPricingModule>(module);
+        final repo = _SystemErrorPricingRepository();
+        GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(repo);
 
         await tester.pumpWidget(createTestWidget(const PricingListPage()));
         await tester.pumpAndSettle();
@@ -111,35 +106,73 @@ void main() {
 
         await tester.tap(find.text('Thử lại'));
         await tester.pumpAndSettle();
-        expect(module.queryCount, 2);
+        expect(repo.queryCount, 2);
       },
     );
-  });
 
-  // ── S4 / US-02 ──
-  group('wgt_e02_u02 — PricingChooseMethodPage (S4)', () {
-    testWidgets('wgt_e02_u02_fr01_01 — chọn phương thức thêm', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.searchRulesDefault),
-      );
+    testWidgets('h2_filter_sheet_chips — sheet co dung cac chip theo quy tac', (tester) async {
+      tester.view.physicalSize = const Size(800, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        createTestWidget(const PricingChooseMethodPage()),
+        createTestWidget(
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => PriceRuleFilterBottomSheet.show(
+                context,
+                initial: PriceRuleAdvancedFilter.empty,
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
       );
+      await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('wgt_e02_u02_fr01_01')), findsOneWidget);
+      expect(find.text('Bộ lọc giá riêng'), findsOneWidget);
+      expect(find.text('Trùng rule'), findsNothing);
+      expect(find.text('Dữ liệu lỗi'), findsNothing);
+      expect(find.text('Từ đơn hàng'), findsNothing);
+      expect(find.text('Migration'), findsNothing);
+      expect(find.text('Tùy chọn'), findsNothing);
+
+      expect(find.text('Nhập Excel'), findsOneWidget);
+      expect(find.text('Dưới giá sàn'), findsOneWidget);
       expect(find.text('Tạo thủ công'), findsOneWidget);
-      expect(find.text('Nhập từ Excel'), findsOneWidget);
-      expect(find.byType(VCard), findsWidgets);
+      expect(find.text('7 ngày gần đây'), findsOneWidget);
+      expect(find.text('30 ngày gần đây'), findsOneWidget);
+    });
+
+    testWidgets('h8_list_title — header shows title and total count', (tester) async {
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          searchScenario: FakePricingScenario.searchRulesDefault,
+        ),
+      );
+
+      await tester.pumpWidget(createTestWidget(const PricingListPage()));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is VPageScaffold && w.title == 'Giá riêng',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('2 giá riêng'), findsOneWidget);
     });
   });
 
   // ── S3 / US-03 ──
   group('wgt_e02_u03 — PricingDetailPage (S3)', () {
     testWidgets('wgt_e02_u03_fr01_01 — chi tiết + CTA Thao tác primary', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.ruleDetailActive),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          detailScenario: FakePricingScenario.ruleDetailActive,
+        ),
       );
 
       await tester.pumpWidget(
@@ -160,8 +193,10 @@ void main() {
   // ── S1 / US-04 ──
   group('wgt_e02_u04 — PricingFormPage create (S1)', () {
     testWidgets('wgt_e02_u04_fr01_01 — form tạo dùng VMoneyField + VSection', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.createRuleOk),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          createScenario: FakePricingScenario.createRuleOk,
+        ),
       );
 
       await tester.pumpWidget(createTestWidget(const PricingFormPage()));
@@ -188,8 +223,10 @@ void main() {
     });
 
     testWidgets('SC-06 — dirty Hủy mở leave confirmation (VConfirmDialog)', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.createRuleOk),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          createScenario: FakePricingScenario.createRuleOk,
+        ),
       );
 
       await tester.pumpWidget(
@@ -217,8 +254,10 @@ void main() {
     });
 
     testWidgets('SC-06 — dirty back mở leave confirmation', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.createRuleOk),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          createScenario: FakePricingScenario.createRuleOk,
+        ),
       );
 
       await tester.pumpWidget(
@@ -245,8 +284,10 @@ void main() {
     });
 
     testWidgets('SC-06 — dirty system back (maybePop) mở leave confirmation', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.createRuleOk),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          createScenario: FakePricingScenario.createRuleOk,
+        ),
       );
 
       await tester.pumpWidget(
@@ -285,8 +326,6 @@ void main() {
       );
       expect(popScope.canPop, isFalse);
 
-      // Swipe/system back → maybePop. Khi doNotPop, maybePop vẫn return true
-      // (request đã handle) nhưng didPop=false → onPopInvoked → leave dialog.
       await Navigator.of(formContext).maybePop();
       await tester.pumpAndSettle();
 
@@ -296,8 +335,10 @@ void main() {
     });
 
     testWidgets('SC-06 — clean Hủy thoát ngay không hỏi', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.createRuleOk),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          createScenario: FakePricingScenario.createRuleOk,
+        ),
       );
 
       await tester.pumpWidget(
@@ -333,27 +374,13 @@ void main() {
     });
   });
 
-  // ── S8 / US-05 ──
-  group('wgt_e02_u05 — PricingImportPage (S8)', () {
-    testWidgets('wgt_e02_u05_fr01_01 — wizard import bước chọn file', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.importTemplateV1),
-      );
-
-      await tester.pumpWidget(createTestWidget(const PricingImportPage()));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('wgt_e02_u05_fr01_01')), findsOneWidget);
-      expect(find.text('Nhập giá riêng'), findsOneWidget);
-      expect(find.byType(PriceRuleImportWizard), findsOneWidget);
-    });
-  });
-
   // ── S5 / US-06 ──
   group('wgt_e02_u06 — PricingFormPage edit (S5)', () {
     testWidgets('wgt_e02_u06_fr01_01 — form sửa với rule sẵn có', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.updateRuleOk),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          updateScenario: FakePricingScenario.updateRuleOk,
+        ),
       );
       final rule = await loadDetail();
 
@@ -370,8 +397,10 @@ void main() {
     });
 
     testWidgets('SC-06 — dirty Hủy trên form sửa mở leave confirmation', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.updateRuleOk),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          updateScenario: FakePricingScenario.updateRuleOk,
+        ),
       );
       final rule = await loadDetail();
 
@@ -403,15 +432,12 @@ void main() {
   // ── S6 / US-07 ──
   group('wgt_e02_u07 — PriceRuleDisableSheet (S6)', () {
     testWidgets('wgt_e02_u07_fr01_01 — sheet tắt giá riêng', (tester) async {
-      final module = FakePricingModule(
-        scenario: FakePricingScenario.disableRuleOk,
+      final repo = FakeCustomerPriceRuleRepository(
+        disableScenario: FakePricingScenario.disableRuleOk,
       );
-      GetIt.instance.registerSingleton<IPricingModule>(module);
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(repo);
       final rule = await loadDetail();
-      final cubit = PriceRuleDetailCubit(
-        pricingModule: module,
-        executionContext: mockExecutionContext,
-      );
+      final cubit = PriceRuleDetailCubit(repository: repo);
 
       await tester.pumpWidget(
         createTestWidget(
@@ -434,17 +460,14 @@ void main() {
   // ── S7 / US-08 ──
   group('wgt_e02_u08 — PriceRuleReenableSheet (S7)', () {
     testWidgets('wgt_e02_u08_fr01_01 — sheet bật lại giá riêng', (tester) async {
-      final module = FakePricingModule(
-        scenario: FakePricingScenario.reenableOk,
+      final repo = FakeCustomerPriceRuleRepository(
+        reenableScenario: FakePricingScenario.reenableOk,
       );
-      GetIt.instance.registerSingleton<IPricingModule>(module);
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(repo);
       final rule = await loadDetail(
         scenario: FakePricingScenario.ruleDetailDisabled,
       );
-      final cubit = PriceRuleDetailCubit(
-        pricingModule: module,
-        executionContext: mockExecutionContext,
-      );
+      final cubit = PriceRuleDetailCubit(repository: repo);
 
       await tester.pumpWidget(
         createTestWidget(
@@ -462,13 +485,103 @@ void main() {
       expect(find.byType(VBanner), findsOneWidget);
       await cubit.close();
     });
+
+    testWidgets('h9_reenable_overwrite_text', (tester) async {
+      final repo = FakeCustomerPriceRuleRepository(
+        reenableScenario: FakePricingScenario.reenableOk,
+      );
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(repo);
+      final rule = await loadDetail(
+        scenario: FakePricingScenario.ruleDetailDisabled,
+      );
+      final cubit = PriceRuleDetailCubit(repository: repo);
+
+      await tester.pumpWidget(
+        createTestWidget(
+          PriceRuleReenableSheet(
+            key: const Key('wgt_e02_u08_fr01_01'),
+            rule: rule,
+            cubit: cubit,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'Bật lại giá riêng này sẽ tự động ghi đè (xoá) giá riêng trùng (nếu có).',
+        ),
+        findsOneWidget,
+      );
+      await cubit.close();
+    });
+
+    testWidgets('t93_reenable_below_floor_checkbox', (tester) async {
+      final repo = FakeCustomerPriceRuleRepository(
+        reenablePrecheckScenario: FakePricingScenario.reenablePrecheckWarning,
+      );
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(repo);
+      final rule = await loadDetail(
+        scenario: FakePricingScenario.ruleDetailDisabled,
+      );
+      final cubit = PriceRuleDetailCubit(repository: repo);
+
+      await tester.pumpWidget(
+        createTestWidget(
+          PriceRuleReenableSheet(
+            key: const Key('wgt_e02_u08_fr01_01'),
+            rule: rule,
+            cubit: cubit,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Tôi xác nhận bật lại giá dưới giá sàn'),
+        findsOneWidget,
+      );
+      final buttonFinder = find.widgetWithText(VButton, 'Bật lại giá riêng');
+      expect(tester.widget<VButton>(buttonFinder).onPressed, isNull);
+
+      await tester.tap(find.text('Tôi xác nhận bật lại giá dưới giá sàn'));
+      await tester.pumpAndSettle();
+
+      expect(tester.widget<VButton>(buttonFinder).onPressed, isNotNull);
+      await cubit.close();
+    });
+  });
+
+  group('wgt_e02_u03 — PriceRuleActionSheet available actions', () {
+    testWidgets('t93_action_sheet_available_actions', (tester) async {
+      final rule = buildPricingDetailDto(
+        availableActions: const [
+          CustomerPriceRuleAvailableActions.edit,
+          CustomerPriceRuleAvailableActions.history,
+        ],
+      );
+
+      await tester.pumpWidget(
+        createTestWidget(
+          PriceRuleActionSheet(rule: rule),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Sửa giá riêng'), findsOneWidget);
+      expect(find.text('Lịch sử áp dụng & thay đổi'), findsOneWidget);
+      expect(find.text('Tắt giá riêng'), findsNothing);
+      expect(find.text('Bật lại giá riêng'), findsNothing);
+    });
   });
 
   // ── S10 / US-10 ──
   group('wgt_e02_u10 — PricingHistoryPage (S10)', () {
     testWidgets('wgt_e02_u10_fr01_01 — timeline lịch sử + search', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.historyMixedSources),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          historyScenario: FakePricingScenario.historyMixedSources,
+        ),
       );
 
       await tester.pumpWidget(
@@ -483,8 +596,10 @@ void main() {
     });
 
     testWidgets('wgt_e02_u10_fr01_02 — no permission state', (tester) async {
-      GetIt.instance.registerSingleton<IPricingModule>(
-        FakePricingModule(scenario: FakePricingScenario.historyDenied),
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        FakeCustomerPriceRuleRepository(
+          historyScenario: FakePricingScenario.historyDenied,
+        ),
       );
 
       await tester.pumpWidget(
@@ -500,17 +615,24 @@ void main() {
   });
 }
 
-final class _SystemErrorPricingModule implements IPricingModule {
+final class _SystemErrorPricingRepository extends FakeCustomerPriceRuleRepository {
   int queryCount = 0;
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+  Future<CustomerPriceRuleSearchResultDto> search({
+    required DateTime businessDate,
+    String? q,
+    CustomerPriceRuleQuickFilter quickFilter = CustomerPriceRuleQuickFilter.all,
+    List<CustomerPriceRuleDerivedStatus> statuses = const [],
+    List<CustomerPriceRuleSourceType> sources = const [],
+    String? customerId,
+    String? productId,
+    String? cursor,
+    int limit = 20,
+    PriceRuleSortOption sort = PriceRuleSortOption.updatedAtDesc,
+    PriceRuleUpdatedWithin? updatedWithin,
+  }) async {
     queryCount++;
-    throw const PricingBlockedException(PricingBlockedCodes.systemError);
-  }
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('Commands are not used by this test.');
+    throw const AppException(PricingErrorCodes.systemError);
   }
 }

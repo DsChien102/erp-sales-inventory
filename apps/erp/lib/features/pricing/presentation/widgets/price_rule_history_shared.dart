@@ -1,7 +1,6 @@
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_pricing_domain/domain.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
+import 'package:erp/features/pricing/data/models.dart';
 
 /// Shared formatters & labels cho SG-06 (D-01…D-08).
 abstract final class PriceRuleHistoryShared {
@@ -99,14 +98,12 @@ abstract final class PriceRuleHistoryShared {
     final newValue = activity.newValue;
     final oldPrice = (oldValue?['rule_price_minor'] as num?)?.toInt();
     final newPrice = (newValue['rule_price_minor'] as num?)?.toInt();
-    final orderId = activity.sourceTrace.orderId;
 
     if (activity.activityType == CustomerPriceRuleActivityType.updated &&
         oldPrice != null &&
         newPrice != null) {
       return 'Giá đổi từ ${formatMoney(oldPrice)} → ${formatMoney(newPrice)}';
     }
-    if (orderId != null) return 'Đơn #$orderId';
     if (activity.reason != null && activity.reason!.isNotEmpty) {
       return 'Lý do: ${activity.reason}';
     }
@@ -128,7 +125,7 @@ abstract final class PriceRuleHistoryShared {
       '90 ngày gần đây' => createdAt.isAfter(
         now.subtract(const Duration(days: 90)),
       ),
-      _ => true, // 'Tùy chọn' — chưa có date picker, giữ tất cả
+      _ => true,
     };
   }
 }

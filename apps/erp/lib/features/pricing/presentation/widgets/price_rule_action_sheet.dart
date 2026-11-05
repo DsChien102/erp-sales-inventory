@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/features/pricing/data/models.dart';
 
 /// Bottom sheet Thao tác từ màn chi tiết (D-08 — SG-02).
 ///

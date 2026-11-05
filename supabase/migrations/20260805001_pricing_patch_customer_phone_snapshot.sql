@@ -74,165 +74,171 @@ update pricing.customer_price_rules r
 set customer_phone_snapshot = partner._profile_phone(r.customer_id)
 where r.customer_phone_snapshot is null;
 
--- 4. Patch pricing._customer_price_rule_result helper to include phone (language sql)
+-- 4. Patch pricing._customer_price_rule_result helper to include phone (language plpgsql)
 create or replace function pricing._customer_price_rule_result(
   p_rule_id uuid,
   p_can_view_floor boolean
 )
 returns jsonb
-language sql
+language plpgsql
 stable
 security definer
 set search_path = ''
 as $$
-  select jsonb_build_object(
-    'rule', jsonb_build_object(
-      'id', r.id,
-      'customer', jsonb_build_object(
-        'customer_id', r.customer_id,
-        'display_name', r.customer_display_name_snapshot,
-        'phone', coalesce(r.customer_phone_snapshot, partner._profile_phone(r.customer_id)),
-        'status', r.customer_status_snapshot
-      ),
-      'product_unit', jsonb_build_object(
-        'product_id', r.product_id,
-        'product_unit_id', r.product_unit_id,
-        'product_name', r.product_name_snapshot,
-        'product_reference_id', r.product_reference_id_snapshot,
-        'sku', r.product_sku_snapshot,
-        'unit_name', r.unit_name_snapshot,
-        'sellable_status', r.sellable_status_snapshot
-      ),
-      'price', jsonb_build_object(
-        'amount_minor', r.rule_price_minor,
-        'currency_code', r.currency_code
-      ),
-      'effective_period', jsonb_build_object(
-        'effective_from', r.effective_from,
-        'effective_to', r.effective_to
-      ),
-      'rule_type', r.rule_type,
-      'source_type', r.source_type,
-      'persisted_status', r.status,
-      'derived_status', case
-        when r.status = 'disabled' then 'disabled'
-        when r.status = 'needs_review'
-          or r.review_status in ('blocked', 'needs_review')
-          or jsonb_array_length(r.blocking_codes) > 0 then 'needs_review'
-        when r.effective_to is not null
-          and r.effective_to < current_date then 'expired'
-        when r.effective_from > current_date then 'not_yet_effective'
-        else 'applying'
-      end,
-      'note', r.note,
-      'disabled_at', r.disabled_at,
-      'disabled_by', r.disabled_by,
-      'disabled_reason', r.disabled_reason,
-      'validation_outcome', jsonb_build_object(
-        'outcome', case r.price_check_status
-          when 'not_checked' then 'notChecked'
-          when 'override_allowed' then 'warning'
-          else 'valid'
+begin
+  return (
+    select jsonb_build_object(
+      'rule', jsonb_build_object(
+        'id', r.id,
+        'customer', jsonb_build_object(
+          'customer_id', r.customer_id,
+          'display_name', r.customer_display_name_snapshot,
+          'phone', coalesce(r.customer_phone_snapshot, partner._profile_phone(r.customer_id)),
+          'status', r.customer_status_snapshot
+        ),
+        'product_unit', jsonb_build_object(
+          'product_id', r.product_id,
+          'product_unit_id', r.product_unit_id,
+          'product_name', r.product_name_snapshot,
+          'product_reference_id', r.product_reference_id_snapshot,
+          'sku', r.product_sku_snapshot,
+          'unit_name', r.unit_name_snapshot,
+          'sellable_status', r.sellable_status_snapshot
+        ),
+        'price', jsonb_build_object(
+          'amount_minor', r.rule_price_minor,
+          'currency_code', r.currency_code
+        ),
+        'effective_period', jsonb_build_object(
+          'effective_from', r.effective_from,
+          'effective_to', r.effective_to
+        ),
+        'rule_type', r.rule_type,
+        'source_type', r.source_type,
+        'persisted_status', r.status,
+        'derived_status', case
+          when r.status = 'disabled' then 'disabled'
+          when r.status = 'needs_review'
+            or r.review_status in ('blocked', 'needs_review')
+            or jsonb_array_length(r.blocking_codes) > 0 then 'needs_review'
+          when r.effective_to is not null
+            and r.effective_to < current_date then 'expired'
+          when r.effective_from > current_date then 'not_yet_effective'
+          else 'applying'
         end,
-        'warning_codes', r.warning_codes,
-        'blocking_codes', r.blocking_codes,
-        'list_price', case
-          when r.list_price_snapshot_minor is null then null
-          else jsonb_build_object(
-            'amount_minor', r.list_price_snapshot_minor,
-            'currency_code', r.currency_code
-          )
-        end,
-        'floor_price', case
-          when p_can_view_floor and r.floor_price_snapshot_minor is not null
-            then jsonb_build_object(
-              'amount_minor', r.floor_price_snapshot_minor,
+        'note', r.note,
+        'disabled_at', r.disabled_at,
+        'disabled_by', r.disabled_by,
+        'disabled_by_name', iam._member_display_name(r.disabled_by),
+        'disabled_reason', r.disabled_reason,
+        'validation_outcome', jsonb_build_object(
+          'outcome', case r.price_check_status
+            when 'not_checked' then 'notChecked'
+            when 'override_allowed' then 'warning'
+            else 'valid'
+          end,
+          'warning_codes', r.warning_codes,
+          'blocking_codes', r.blocking_codes,
+          'list_price', case
+            when r.list_price_snapshot_minor is null then null
+            else jsonb_build_object(
+              'amount_minor', r.list_price_snapshot_minor,
               'currency_code', r.currency_code
             )
-          else null
-        end,
-        'floor_price_hidden',
-          r.floor_price_snapshot_minor is not null and not p_can_view_floor
-      ),
-      'reference_health', jsonb_build_object(
-        'customer_state', 'valid',
-        'product_unit_state', 'valid',
-        'price_band_state', case
-          when r.price_check_status in (
-            'not_checked',
-            'normal',
-            'override_allowed'
-          ) then 'current'
-          else 'unavailable'
-        end,
-        'issue_codes', '[]'::jsonb,
-        'used_stored_price_band_snapshot', false
-      ),
-      'source_trace', jsonb_build_object(
-        'hidden', false,
-        'source_import_id', null,
-        'source_import_row_id', null,
-        'source_order_id', null,
-        'source_order_line_id', null
-      ),
-      'created_by', r.created_by,
-      'created_at', r.created_at,
-      'updated_by', r.updated_by,
-      'updated_at', r.updated_at,
-      'version', r.version,
-      'available_actions', (
-        select coalesce(jsonb_agg(action order by ordinality), '[]'::jsonb)
-        from (
-          select action, ordinality
-          from unnest(
-            array[
-              case
-                when r.status in ('active', 'needs_review', 'disabled')
-                  and iam.has_permission(
+          end,
+          'floor_price', case
+            when p_can_view_floor and r.floor_price_snapshot_minor is not null
+              then jsonb_build_object(
+                'amount_minor', r.floor_price_snapshot_minor,
+                'currency_code', r.currency_code
+              )
+            else null
+          end,
+          'floor_price_hidden',
+            r.floor_price_snapshot_minor is not null and not p_can_view_floor
+        ),
+        'reference_health', jsonb_build_object(
+          'customer_state', 'valid',
+          'product_unit_state', 'valid',
+          'price_band_state', case
+            when r.price_check_status in (
+              'not_checked',
+              'normal',
+              'override_allowed'
+            ) then 'current'
+            else 'unavailable'
+          end,
+          'issue_codes', '[]'::jsonb,
+          'used_stored_price_band_snapshot', false
+        ),
+        'source_trace', jsonb_build_object(
+          'hidden', false,
+          'source_import_id', null,
+          'source_import_row_id', null,
+          'source_order_id', null,
+          'source_order_line_id', null
+        ),
+        'created_by', r.created_by,
+        'created_at', r.created_at,
+        'updated_by', r.updated_by,
+        'updated_by_name', iam._member_display_name(r.updated_by),
+        'updated_at', r.updated_at,
+        'version', r.version,
+        'available_actions', (
+          select coalesce(jsonb_agg(action order by ordinality), '[]'::jsonb)
+          from (
+            select action, ordinality
+            from unnest(
+              array[
+                case
+                  when r.status in ('active', 'needs_review', 'disabled')
+                    and iam.has_permission(
+                      r.tenant_id,
+                      'pricing.customer_price_rule.update'
+                    )
+                  then 'edit'
+                end,
+                case
+                  when r.status in ('active', 'needs_review')
+                    and iam.has_permission(
+                      r.tenant_id,
+                      'pricing.customer_price_rule.disable'
+                    )
+                  then 'disable'
+                end,
+                case
+                  when r.status = 'disabled'
+                    and iam.has_permission(
+                      r.tenant_id,
+                      'pricing.customer_price_rule.reenable'
+                    )
+                  then 'reenable'
+                end,
+                case
+                  when iam.has_permission(
                     r.tenant_id,
-                    'pricing.customer_price_rule.update'
+                    'pricing.customer_price_rule.view_history'
                   )
-                then 'edit'
-              end,
-              case
-                when r.status in ('active', 'needs_review')
-                  and iam.has_permission(
-                    r.tenant_id,
-                    'pricing.customer_price_rule.disable'
-                  )
-                then 'disable'
-              end,
-              case
-                when r.status = 'disabled'
-                  and iam.has_permission(
-                    r.tenant_id,
-                    'pricing.customer_price_rule.reenable'
-                  )
-                then 'reenable'
-              end,
-              case
-                when iam.has_permission(
-                  r.tenant_id,
-                  'pricing.customer_price_rule.view_history'
-                )
-                then 'history'
-              end
-            ]
-          ) with ordinality as t(action, ordinality)
-          where action is not null
-        ) actions
+                  then 'history'
+                end
+              ]
+            ) with ordinality as t(action, ordinality)
+            where action is not null
+          ) actions
+        )
+      ),
+      'warnings', coalesce(
+        (
+          select jsonb_agg(jsonb_build_object('code', warning_code))
+          from jsonb_array_elements_text(r.warning_codes) as warning_code
+        ),
+        '[]'::jsonb
       )
-    ),
-    'warnings', coalesce(
-      (
-        select jsonb_agg(jsonb_build_object('code', warning_code))
-        from jsonb_array_elements_text(r.warning_codes) as warning_code
-      ),
-      '[]'::jsonb
     )
-  )
-  from pricing.customer_price_rules r
-  where r.id = p_rule_id;
+    from pricing.customer_price_rules r
+    where r.id = p_rule_id
+  );
+end;
 $$;
 
 revoke all on function pricing._customer_price_rule_result(uuid, boolean)
@@ -393,14 +399,9 @@ begin
     'pricing.customer_price_rule.view_history'
   );
 
-  v_warning_codes := coalesce(v_rule.warning_codes, '[]'::jsonb);
+  v_warning_codes := coalesce(v_rule.warning_codes, '[]'::jsonb) - 'below_floor_price';
   if v_selected_floor is not null
-    and v_rule.rule_price_minor < v_selected_floor
-    and not exists (
-      select 1
-      from jsonb_array_elements_text(v_warning_codes) as warning_code
-      where warning_code = 'below_floor_price'
-    ) then
+    and v_rule.rule_price_minor < v_selected_floor then
     v_warning_codes := v_warning_codes || jsonb_build_array('below_floor_price');
   end if;
 
@@ -549,7 +550,9 @@ create or replace function pricing.search_customer_price_rules(
   p_customer_id uuid default null,
   p_product_id uuid default null,
   p_cursor text default null,
-  p_limit integer default 20
+  p_limit integer default 20,
+  p_sort text default 'updated_at_desc',
+  p_updated_within_days integer default null
 )
 returns jsonb
 language plpgsql
@@ -562,13 +565,17 @@ declare
   v_q text := nullif(btrim(coalesce(p_q, '')), '');
   v_search_q text;
   v_quick_filter text := coalesce(nullif(btrim(p_quick_filter), ''), 'all');
+  v_sort text := coalesce(nullif(btrim(p_sort), ''), 'updated_at_desc');
   v_cursor jsonb;
-  v_cursor_updated_at timestamptz;
+  v_cursor_ts timestamptz;
+  v_cursor_num bigint;
+  v_cursor_txt text;
   v_cursor_id uuid;
   v_items jsonb := '[]'::jsonb;
   v_has_more boolean := false;
   v_next_cursor_json jsonb;
   v_next_cursor text;
+  v_total_count integer := 0;
   v_available_actions jsonb := '[]'::jsonb;
 begin
   if v_actor_id is null
@@ -602,7 +609,17 @@ begin
       'excel_import',
       'sales_order',
       'migration'
-    ]::text[] is false then
+    ]::text[] is false
+    or v_sort not in (
+      'updated_at_desc',
+      'updated_at_asc',
+      'price_desc',
+      'price_asc',
+      'customer_name_asc',
+      'customer_name_desc',
+      'warnings_first'
+    )
+    or (p_updated_within_days is not null and p_updated_within_days not in (7, 30)) then
     perform pricing._raise_pricing_error(
       'VALIDATION_ERROR',
       'Invalid customer price rule search payload.'
@@ -619,15 +636,37 @@ begin
       v_cursor := p_cursor::jsonb;
 
       if jsonb_typeof(v_cursor) <> 'object'
-        or not v_cursor ? 'updated_at'
+        or v_cursor ->> 'sort' is distinct from v_sort
         or not v_cursor ? 'id'
-        or nullif(v_cursor ->> 'updated_at', '') is null
         or nullif(v_cursor ->> 'id', '') is null then
         raise exception 'invalid cursor';
       end if;
 
-      v_cursor_updated_at := (v_cursor ->> 'updated_at')::timestamptz;
       v_cursor_id := (v_cursor ->> 'id')::uuid;
+
+      if v_sort in ('updated_at_desc', 'updated_at_asc') then
+        if not v_cursor ? 'ts' or nullif(v_cursor ->> 'ts', '') is null then
+          raise exception 'invalid cursor';
+        end if;
+        v_cursor_ts := (v_cursor ->> 'ts')::timestamptz;
+      elsif v_sort in ('price_desc', 'price_asc') then
+        if not v_cursor ? 'num' or nullif(v_cursor ->> 'num', '') is null then
+          raise exception 'invalid cursor';
+        end if;
+        v_cursor_num := (v_cursor ->> 'num')::bigint;
+      elsif v_sort in ('customer_name_asc', 'customer_name_desc') then
+        if not v_cursor ? 'txt' or (v_cursor -> 'txt') is null or (v_cursor ->> 'txt') is null then
+          raise exception 'invalid cursor';
+        end if;
+        v_cursor_txt := v_cursor ->> 'txt';
+      elsif v_sort = 'warnings_first' then
+        if not v_cursor ? 'num' or nullif(v_cursor ->> 'num', '') is null
+          or not v_cursor ? 'ts' or nullif(v_cursor ->> 'ts', '') is null then
+          raise exception 'invalid cursor';
+        end if;
+        v_cursor_num := (v_cursor ->> 'num')::bigint;
+        v_cursor_ts := (v_cursor ->> 'ts')::timestamptz;
+      end if;
     exception
       when others then
         perform pricing._raise_pricing_error(
@@ -638,7 +677,7 @@ begin
     end;
   end if;
 
-  with projected as (
+  with base_rules as (
     select
       r.*,
       case
@@ -651,77 +690,21 @@ begin
           and r.effective_to < p_business_date then 'expired'
         when r.effective_from > p_business_date then 'not_yet_effective'
         else 'applying'
-      end as derived_status
+      end as derived_status,
+      catalog._get_product_price_band_snapshot_for_pricing(
+        p_tenant_id,
+        r.product_id,
+        r.product_unit_id
+      ) as price_band,
+      extensions.unaccent(lower(coalesce(r.customer_display_name_snapshot, ''))) as sort_name
     from pricing.customer_price_rules r
     where r.tenant_id = p_tenant_id
       and r.status <> 'deleted'
       and r.deleted_at is null
   ),
-  filtered as (
-    select r.*
-    from projected r
-    where (
-        v_search_q is null
-        or extensions.unaccent(lower(r.customer_display_name_snapshot))
-          like '%' || v_search_q || '%'
-        or lower(coalesce(r.customer_phone_snapshot, ''))
-          like '%' || v_search_q || '%'
-        or lower(r.customer_id::text) like '%' || v_search_q || '%'
-        or extensions.unaccent(lower(r.product_name_snapshot))
-          like '%' || v_search_q || '%'
-        or lower(r.product_id::text) like '%' || v_search_q || '%'
-        or extensions.unaccent(lower(r.product_reference_id_snapshot))
-          like '%' || v_search_q || '%'
-        or extensions.unaccent(lower(coalesce(r.product_sku_snapshot, '')))
-          like '%' || v_search_q || '%'
-      )
-      and (p_customer_id is null or r.customer_id = p_customer_id)
-      and (p_product_id is null or r.product_id = p_product_id)
-      and (p_sources is null or r.source_type = any(p_sources))
-      and (p_statuses is null or r.derived_status = any(p_statuses))
-      and (
-        v_quick_filter = 'all'
-        or (v_quick_filter = 'applying' and r.derived_status = 'applying')
-        or (
-          v_quick_filter = 'below_floor'
-          and (
-            r.warning_codes ? 'below_floor_price'
-            or (
-              r.floor_price_snapshot_minor is not null
-              and r.rule_price_minor < r.floor_price_snapshot_minor
-            )
-          )
-        )
-      )
-      and (
-        v_cursor_updated_at is null
-        or r.updated_at < v_cursor_updated_at
-        or (
-          r.updated_at = v_cursor_updated_at
-          and r.id < v_cursor_id
-        )
-      )
-  ),
-  page_rows as (
-    select r.*
-    from filtered r
-    order by r.updated_at desc, r.id desc
-    limit p_limit + 1
-  ),
-  enriched as (
-    select
-      r.*,
-      catalog._get_product_price_band_snapshot_for_pricing(
-        p_tenant_id,
-        r.product_id,
-        r.product_unit_id
-      ) as price_band
-    from page_rows r
-  ),
   decorated as (
     select
       r.*,
-      row_number() over (order by r.updated_at desc, r.id desc) as row_number,
       case
         when coalesce((r.price_band ->> 'exists')::boolean, false)
           and coalesce((r.price_band ->> 'minor_units_valid')::boolean, false)
@@ -738,76 +721,170 @@ begin
         then nullif(r.price_band ->> 'floor_price_minor', '')::bigint
         else r.floor_price_snapshot_minor
       end as selected_floor_price_minor
-    from enriched r
+    from base_rules r
+  ),
+  with_warnings as (
+    select
+      d.*,
+      case
+        when d.selected_floor_price_minor is not null
+          and d.rule_price_minor < d.selected_floor_price_minor
+        then (coalesce(d.warning_codes, '[]'::jsonb) - 'below_floor_price') || jsonb_build_array('below_floor_price')
+        else coalesce(d.warning_codes, '[]'::jsonb) - 'below_floor_price'
+      end as effective_warning_codes
+    from decorated d
+  ),
+  with_flags as (
+    select
+      w.*,
+      (jsonb_array_length(w.effective_warning_codes) > 0) as has_warning
+    from with_warnings w
+  ),
+  filtered as (
+    select f.*
+    from with_flags f
+    where (
+        v_search_q is null
+        or f.sort_name like '%' || v_search_q || '%'
+        or lower(coalesce(f.customer_phone_snapshot, '')) like '%' || v_search_q || '%'
+        or lower(f.customer_id::text) like '%' || v_search_q || '%'
+        or extensions.unaccent(lower(f.product_name_snapshot)) like '%' || v_search_q || '%'
+        or lower(f.product_id::text) like '%' || v_search_q || '%'
+        or extensions.unaccent(lower(f.product_reference_id_snapshot)) like '%' || v_search_q || '%'
+        or extensions.unaccent(lower(coalesce(f.product_sku_snapshot, ''))) like '%' || v_search_q || '%'
+      )
+      and (p_customer_id is null or f.customer_id = p_customer_id)
+      and (p_product_id is null or f.product_id = p_product_id)
+      and (p_sources is null or f.source_type = any(p_sources))
+      and (p_statuses is null or f.derived_status = any(p_statuses))
+      and (
+        p_updated_within_days is null
+        or f.updated_at >= statement_timestamp() - make_interval(days => p_updated_within_days)
+      )
+      and (
+        v_quick_filter = 'all'
+        or (v_quick_filter = 'applying' and f.derived_status = 'applying')
+        or (v_quick_filter = 'below_floor' and f.effective_warning_codes ? 'below_floor_price')
+      )
+  ),
+  total_count_cte as (
+    select count(*)::int as cnt from filtered
+  ),
+  after_cursor as (
+    select f.*
+    from filtered f
+    where (
+      v_cursor is null
+      or (v_sort = 'updated_at_desc' and (f.updated_at, f.id) < (v_cursor_ts, v_cursor_id))
+      or (v_sort = 'updated_at_asc' and (f.updated_at, f.id) > (v_cursor_ts, v_cursor_id))
+      or (v_sort = 'price_desc' and (f.rule_price_minor, f.id) < (v_cursor_num, v_cursor_id))
+      or (v_sort = 'price_asc' and (f.rule_price_minor, f.id) > (v_cursor_num, v_cursor_id))
+      or (v_sort = 'customer_name_asc' and (f.sort_name, f.id) > (v_cursor_txt, v_cursor_id))
+      or (v_sort = 'customer_name_desc' and (f.sort_name, f.id) < (v_cursor_txt, v_cursor_id))
+      or (v_sort = 'warnings_first' and (case when f.has_warning then 1 else 0 end, f.updated_at, f.id) < (v_cursor_num, v_cursor_ts, v_cursor_id))
+    )
+  ),
+  ordered as (
+    select
+      a.*,
+      row_number() over (
+        order by
+          case when v_sort = 'updated_at_desc' then a.updated_at end desc,
+          case when v_sort = 'updated_at_asc' then a.updated_at end asc,
+          case when v_sort = 'price_desc' then a.rule_price_minor end desc,
+          case when v_sort = 'price_asc' then a.rule_price_minor end asc,
+          case when v_sort = 'customer_name_asc' then a.sort_name end asc,
+          case when v_sort = 'customer_name_desc' then a.sort_name end desc,
+          case when v_sort = 'warnings_first' then case when a.has_warning then 1 else 0 end end desc,
+          case when v_sort = 'warnings_first' then a.updated_at end desc,
+          case when v_sort in ('updated_at_asc', 'price_asc', 'customer_name_asc') then a.id end asc,
+          a.id desc
+      ) as ordinal
+    from after_cursor a
+  ),
+  page_rows as (
+    select o.*
+    from ordered o
+    where o.ordinal <= p_limit + 1
   ),
   items as (
     select
-      d.*,
+      p.*,
       jsonb_build_object(
-        'id', d.id,
+        'id', p.id,
         'customer', jsonb_build_object(
-          'customer_id', d.customer_id,
-          'display_name', d.customer_display_name_snapshot,
-          'phone', coalesce(d.customer_phone_snapshot, partner._profile_phone(d.customer_id)),
-          'status', d.customer_status_snapshot
+          'customer_id', p.customer_id,
+          'display_name', p.customer_display_name_snapshot,
+          'phone', coalesce(p.customer_phone_snapshot, partner._profile_phone(p.customer_id)),
+          'status', p.customer_status_snapshot
         ),
         'product_unit', jsonb_build_object(
-          'product_id', d.product_id,
-          'product_unit_id', d.product_unit_id,
-          'product_name', d.product_name_snapshot,
-          'product_reference_id', d.product_reference_id_snapshot,
-          'sku', d.product_sku_snapshot,
-          'unit_name', d.unit_name_snapshot,
-          'sellable_status', d.sellable_status_snapshot
+          'product_id', p.product_id,
+          'product_unit_id', p.product_unit_id,
+          'product_name', p.product_name_snapshot,
+          'product_reference_id', p.product_reference_id_snapshot,
+          'sku', p.product_sku_snapshot,
+          'unit_name', p.unit_name_snapshot,
+          'sellable_status', p.sellable_status_snapshot
         ),
         'price', jsonb_build_object(
-          'amount_minor', d.rule_price_minor,
-          'currency_code', d.currency_code
+          'amount_minor', p.rule_price_minor,
+          'currency_code', p.currency_code
         ),
         'effective_period', jsonb_build_object(
-          'effective_from', d.effective_from,
-          'effective_to', d.effective_to
+          'effective_from', p.effective_from,
+          'effective_to', p.effective_to
         ),
-        'rule_type', d.rule_type,
-        'source_type', d.source_type,
-        'persisted_status', d.status,
-        'derived_status', d.derived_status,
+        'rule_type', p.rule_type,
+        'source_type', p.source_type,
+        'persisted_status', p.status,
+        'derived_status', p.derived_status,
         'validation_outcome', jsonb_build_object(
           'outcome', case
-            when jsonb_array_length(d.blocking_codes) > 0 then 'blocked'
-            when jsonb_array_length(d.warning_codes) > 0 then 'warning'
-            when d.price_check_status = 'not_checked' then 'notChecked'
+            when jsonb_array_length(p.blocking_codes) > 0 then 'blocked'
+            when jsonb_array_length(p.effective_warning_codes) > 0 then 'warning'
+            when p.price_check_status = 'not_checked' then 'notChecked'
             else 'valid'
           end,
-          'warning_codes', d.warning_codes,
-          'blocking_codes', d.blocking_codes,
+          'warning_codes', p.effective_warning_codes,
+          'blocking_codes', p.blocking_codes,
           'list_price', case
-            when d.selected_list_price_minor is null then null
+            when p.selected_list_price_minor is null then null
             else jsonb_build_object(
-              'amount_minor', d.selected_list_price_minor,
-              'currency_code', d.currency_code
+              'amount_minor', p.selected_list_price_minor,
+              'currency_code', p.currency_code
             )
           end,
-          'floor_price_hidden', d.selected_floor_price_minor is not null
+          'floor_price_hidden', p.selected_floor_price_minor is not null
         ),
-        'updated_at', d.updated_at
+        'updated_at', p.updated_at
       ) as item
-    from decorated d
+    from page_rows p
   )
   select
     coalesce(
-      jsonb_agg(i.item order by i.updated_at desc, i.id desc)
-        filter (where i.row_number <= p_limit),
+      jsonb_agg(i.item order by i.ordinal asc)
+        filter (where i.ordinal <= p_limit),
       '[]'::jsonb
     ),
     count(*) > p_limit,
     (
       array_agg(
-        jsonb_build_object('updated_at', i.updated_at, 'id', i.id)
-        order by i.updated_at desc, i.id desc
-      ) filter (where i.row_number = p_limit)
-    )[1]
-  into v_items, v_has_more, v_next_cursor_json
+        case
+          when v_sort in ('updated_at_desc', 'updated_at_asc') then
+            jsonb_build_object('sort', v_sort, 'ts', i.updated_at, 'id', i.id)
+          when v_sort in ('price_desc', 'price_asc') then
+            jsonb_build_object('sort', v_sort, 'num', i.rule_price_minor, 'id', i.id)
+          when v_sort in ('customer_name_asc', 'customer_name_desc') then
+            jsonb_build_object('sort', v_sort, 'txt', i.sort_name, 'id', i.id)
+          when v_sort = 'warnings_first' then
+            jsonb_build_object('sort', v_sort, 'num', case when i.has_warning then 1 else 0 end, 'ts', i.updated_at, 'id', i.id)
+        end
+        order by i.ordinal asc
+      ) filter (where i.ordinal = p_limit)
+    )[1],
+    coalesce((select cnt from total_count_cte), 0)
+  into v_items, v_has_more, v_next_cursor_json, v_total_count
   from items i;
 
   if v_has_more then
@@ -834,15 +911,16 @@ begin
     'items', v_items,
     'next_cursor', v_next_cursor,
     'has_more', v_has_more,
+    'total_count', v_total_count,
     'available_actions', v_available_actions
   );
 end;
 $$;
 
 revoke all on function pricing.search_customer_price_rules(
-  uuid, date, text, text, text[], text[], uuid, uuid, text, integer
+  uuid, date, text, text, text[], text[], uuid, uuid, text, integer, text, integer
 ) from public, anon;
 
 grant execute on function pricing.search_customer_price_rules(
-  uuid, date, text, text, text[], text[], uuid, uuid, text, integer
+  uuid, date, text, text, text[], text[], uuid, uuid, text, integer, text, integer
 ) to authenticated, service_role;

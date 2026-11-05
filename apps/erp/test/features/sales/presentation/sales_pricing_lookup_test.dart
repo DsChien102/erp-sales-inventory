@@ -1,32 +1,53 @@
 import '../../iam/support/iam_test_session.dart';
+import '../../pricing/support/fake_customer_price_rule_repository.dart';
+import '../support/recording_sales_pricing_repository.dart';
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/features/pricing/data/customer_price_rule_repository.dart';
+import 'package:erp/features/pricing/data/models.dart';
+import 'package:erp/features/pricing/data/pricing_errors.dart';
+import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
+import 'package:erp/features/sales/presentation.dart';
+import 'package:erp/features/sales/presentation/lookups/sales_pricing_lookup.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_pricing_domain/domain.dart';
 import 'package:vet45_sales_application/application.dart' as sales;
-import 'package:erp/features/sales/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
-
-import 'package:erp/features/sales/presentation/lookups/sales_pricing_lookup.dart';
 
 void main() {
   late GetIt di;
-  late _RecordingPricingModule pricing;
+  late RecordingSalesPricingRepository salesPricing;
+  late _ScriptedCustomerPriceRuleRepository rules;
 
   setUp(() {
     di = GetIt.asNewInstance();
-    pricing = _RecordingPricingModule();
+    salesPricing = RecordingSalesPricingRepository();
+    rules = _ScriptedCustomerPriceRuleRepository();
     di
-      ..registerSingleton<IPricingModule>(pricing)
-      ..registerSingleton<IExecutionContext>(const _ExecutionContext())
+      ..registerSingleton<SalesPricingRepository>(salesPricing)
+      ..registerSingleton<CustomerPriceRuleRepository>(rules)
       ..registerSingleton<SessionController>(
-        testSessionController(tenantId: 'tenant-1', userId: 'user-1', activeStoreId: 'store-1'),
+        testSessionController(
+          tenantId: 'tenant-1',
+          userId: 'user-1',
+          activeStoreId: 'store-1',
+        ),
       );
   });
 
   test('manual evaluation maps owner result without mutation', () async {
-    pricing.manualResult = const SalesManualPriceEvaluationDto(
+    salesPricing.evaluateResponder = ({
+      required storeId,
+      customerId,
+      required productId,
+      required productUnitId,
+      required quantityMicros,
+      required currencyCode,
+      required contextVersion,
+      manualUnitPriceMinor,
+      manualDiscountMinor,
+      manualDiscountBasisPoints,
+      required acknowledgeBelowFloor,
+    }) => const SalesManualPriceEvaluationDto(
       allowed: true,
       requiresAcknowledgement: false,
       normalizedUnitPriceMinor: 90000,
@@ -41,24 +62,24 @@ void main() {
 
     expect(result.allowed, isTrue);
     expect(result.normalizedUnitPrice.amountMinor, 90000);
-    expect(pricing.commands, isEmpty);
-    final query = pricing.queries.single as EvaluateSalesManualPriceQuery;
-    expect(query.tenantId, 'tenant-1');
-    expect(query.storeId, 'store-1');
+    expect(rules.calls, isEmpty);
+    final call = salesPricing.evaluateCalls.single;
+    expect(call.storeId, 'store-1');
   });
 
   test('missing rule creates immediately with stable idempotency key', () async {
-    pricing.resolveResults.addAll([
+    rules.resolveResults.addAll([
       const ResolveApplicableCustomerPriceRuleResultDto(),
     ]);
-    pricing.createdRule = _rule(ruleId: 'rule-created', version: 1);
+    rules.createdRule = _rule(ruleId: 'rule-created', version: 1);
 
     final result = await SalesPricingLookup.bindSavePrivate(di)(_saveRequest);
 
     expect(result.created, isTrue);
-    final command = pricing.commands.single as CreateCustomerPriceRuleCommand;
+    final createCalls = rules.calls.where((c) => c.method == 'create').toList();
+    expect(createCalls, hasLength(1));
     expect(
-      command.idempotencyKey,
+      createCalls.single.args['idempotencyKey'],
       'sales-private-price-v1:tenant-1:store-1:compose-1:line-1:3:'
       'customer-1:product-1:unit-1:VND:90000:2026-08-11',
     );
@@ -77,21 +98,22 @@ void main() {
         version: 4,
       ),
     );
-    pricing.resolveResults.add(existingResult);
+    rules.resolveResults.add(existingResult);
 
     final pending = await SalesPricingLookup.bindSavePrivate(di)(_saveRequest);
     expect(pending.overwriteConfirmationRequired, isTrue);
-    expect(pricing.commands, isEmpty);
+    expect(rules.calls.where((c) => c.method != 'resolveApplicable'), isEmpty);
 
-    pricing.resolveResults.add(existingResult);
-    pricing.updatedRule = _rule(ruleId: 'rule-1', version: 5);
+    rules.resolveResults.add(existingResult);
+    rules.updatedRule = _rule(ruleId: 'rule-1', version: 5);
     final updated = await SalesPricingLookup.bindSavePrivate(di)(
       _saveRequest.copyWith(confirmOverwrite: true),
     );
     expect(updated.created, isFalse);
-    final command = pricing.commands.single as UpdateCustomerPriceRuleCommand;
-    expect(command.ruleId, 'rule-1');
-    expect(command.expectedVersion, 4);
+    final updateCalls = rules.calls.where((c) => c.method == 'update').toList();
+    expect(updateCalls, hasLength(1));
+    expect(updateCalls.single.args['ruleId'], 'rule-1');
+    expect(updateCalls.single.args['expectedVersion'], 4);
   });
 
   test('missing customer fails before any Pricing call', () async {
@@ -101,54 +123,90 @@ void main() {
       ),
       throwsA(isA<SalesExternalOperationException>()),
     );
-    expect(pricing.queries, isEmpty);
-    expect(pricing.commands, isEmpty);
+    expect(salesPricing.previewCalls, isEmpty);
+    expect(salesPricing.evaluateCalls, isEmpty);
+    expect(rules.calls, isEmpty);
   });
 
   test('uncertain create reads back then retries same key only when absent', () async {
-    pricing.resolveResults.addAll([
+    rules.resolveResults.addAll([
       const ResolveApplicableCustomerPriceRuleResultDto(),
       const ResolveApplicableCustomerPriceRuleResultDto(),
     ]);
-    pricing.commandFailures.addAll([true, false]);
-    pricing.createdRule = _rule(ruleId: 'rule-created', version: 1);
+    rules.commandFailures.addAll([true, false]);
+    rules.createdRule = _rule(ruleId: 'rule-created', version: 1);
 
     final result = await SalesPricingLookup.bindSavePrivate(di)(_saveRequest);
 
     expect(result.ruleId, 'rule-created');
-    expect(pricing.commands, hasLength(2));
-    final first = pricing.commands.first as CreateCustomerPriceRuleCommand;
-    final second = pricing.commands.last as CreateCustomerPriceRuleCommand;
-    expect(second.idempotencyKey, first.idempotencyKey);
+    final createCalls = rules.calls.where((c) => c.method == 'create').toList();
+    expect(createCalls, hasLength(2));
+    expect(
+      createCalls.last.args['idempotencyKey'],
+      createCalls.first.args['idempotencyKey'],
+    );
   });
 
   test('uncertain create accepts matching read-back without replay', () async {
-    pricing.resolveResults.addAll([
+    rules.resolveResults.addAll([
       const ResolveApplicableCustomerPriceRuleResultDto(),
       _applicableResult(ruleId: 'rule-recovered', version: 1, price: 90000),
     ]);
-    pricing.commandFailures.add(true);
+    rules.commandFailures.add(true);
 
     final result = await SalesPricingLookup.bindSavePrivate(di)(_saveRequest);
 
     expect(result.ruleId, 'rule-recovered');
-    expect(pricing.commands, hasLength(1));
+    final createCalls = rules.calls.where((c) => c.method == 'create').toList();
+    expect(createCalls, hasLength(1));
   });
 
   test('uncertain update reads back newer accepted state and never replays', () async {
-    pricing.resolveResults.addAll([
+    rules.resolveResults.addAll([
       _applicableResult(ruleId: 'rule-1', version: 4, price: 100000),
       _applicableResult(ruleId: 'rule-1', version: 5, price: 90000),
     ]);
-    pricing.commandFailures.add(true);
+    rules.commandFailures.add(true);
 
     final result = await SalesPricingLookup.bindSavePrivate(di)(
       _saveRequest.copyWith(confirmOverwrite: true),
     );
 
     expect(result.version, 5);
-    expect(pricing.commands, hasLength(1));
-    expect(pricing.commands.single, isA<UpdateCustomerPriceRuleCommand>());
+    final updateCalls = rules.calls.where((c) => c.method == 'update').toList();
+    expect(updateCalls, hasLength(1));
+  });
+
+  test('lookup_error_message_uses_server_text', () async {
+    salesPricing.evaluateResponder = ({
+      required storeId,
+      customerId,
+      required productId,
+      required productUnitId,
+      required quantityMicros,
+      required currencyCode,
+      required contextVersion,
+      manualUnitPriceMinor,
+      manualDiscountMinor,
+      manualDiscountBasisPoints,
+      required acknowledgeBelowFloor,
+    }) {
+      throw const AppException(
+        PricingErrorCodes.belowFloorBlocked,
+        serverMessage: 'Price is below floor.',
+      );
+    };
+
+    await expectLater(
+      SalesPricingLookup.bindEvaluate(di)(_manualRequest),
+      throwsA(
+        isA<SalesExternalOperationException>().having(
+          (e) => e.message,
+          'message',
+          'Giá nhập thấp hơn giá sàn quy định.',
+        ),
+      ),
+    );
   });
 }
 
@@ -183,40 +241,98 @@ final _saveRequest = SalesPrivatePriceSaveRequest(
   confirmOverwrite: false,
 );
 
-final class _RecordingPricingModule implements IPricingModule {
-  final queries = <IQuery<dynamic>>[];
-  final commands = <ICommand<dynamic>>[];
+final class _ScriptedCustomerPriceRuleRepository
+    extends FakeCustomerPriceRuleRepository {
   final resolveResults = <ResolveApplicableCustomerPriceRuleResultDto>[];
-  SalesManualPriceEvaluationDto? manualResult;
   CustomerPriceRuleDetailDto? createdRule;
   CustomerPriceRuleDetailDto? updatedRule;
   final commandFailures = <bool>[];
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is EvaluateSalesManualPriceQuery) return manualResult as TResult;
-    if (query is ResolveApplicableCustomerPriceRuleQuery) {
-      return resolveResults.removeAt(0) as TResult;
-    }
-    throw UnimplementedError('$query');
+  Future<ResolveApplicableCustomerPriceRuleResultDto> resolveApplicable({
+    required String customerId,
+    required String productId,
+    required String productUnitId,
+    required DateTime businessDate,
+  }) async {
+    calls.add(
+      FakePricingCall('resolveApplicable', {
+        'customerId': customerId,
+        'productId': productId,
+        'productUnitId': productUnitId,
+        'businessDate': businessDate,
+      }),
+    );
+    return resolveResults.removeAt(0);
   }
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
+  Future<CreateCustomerPriceRuleResult> create({
+    required String customerId,
+    required String productId,
+    required String productUnitId,
+    required int rulePriceMinor,
+    required String currencyCode,
+    required DateTime effectiveFrom,
+    DateTime? effectiveTo,
+    String? note,
+    required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
+    required String idempotencyKey,
+  }) async {
+    calls.add(
+      FakePricingCall('create', {
+        'customerId': customerId,
+        'productId': productId,
+        'productUnitId': productUnitId,
+        'rulePriceMinor': rulePriceMinor,
+        'currencyCode': currencyCode,
+        'effectiveFrom': effectiveFrom,
+        'effectiveTo': effectiveTo,
+        'note': note,
+        'acknowledgeFloorWarning': acknowledgeFloorWarning,
+        'acknowledgeOverwrite': acknowledgeOverwrite,
+        'idempotencyKey': idempotencyKey,
+      }),
+    );
     if (commandFailures.isNotEmpty && commandFailures.removeAt(0)) {
       throw StateError('transport uncertain');
     }
-    if (command is CreateCustomerPriceRuleCommand) {
-      return CreateCustomerPriceRuleResult(
-            rule: createdRule!,
-            warnings: const [],
-          )
-          as TResult;
+    return CreateCustomerPriceRuleResult(
+      rule: createdRule!,
+      warnings: const [],
+    );
+  }
+
+  @override
+  Future<CustomerPriceRuleDetailDto> update({
+    required String ruleId,
+    required int expectedVersion,
+    required int rulePriceMinor,
+    required DateTime effectiveFrom,
+    DateTime? effectiveTo,
+    String? note,
+    required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
+    String? changeReason,
+  }) async {
+    calls.add(
+      FakePricingCall('update', {
+        'ruleId': ruleId,
+        'expectedVersion': expectedVersion,
+        'rulePriceMinor': rulePriceMinor,
+        'effectiveFrom': effectiveFrom,
+        'effectiveTo': effectiveTo,
+        'note': note,
+        'changeReason': changeReason,
+        'acknowledgeFloorWarning': acknowledgeFloorWarning,
+        'acknowledgeOverwrite': acknowledgeOverwrite,
+      }),
+    );
+    if (commandFailures.isNotEmpty && commandFailures.removeAt(0)) {
+      throw StateError('transport uncertain');
     }
-    if (command is UpdateCustomerPriceRuleCommand) return updatedRule as TResult;
-    throw UnimplementedError('$command');
+    return updatedRule!;
   }
 }
 
@@ -280,14 +396,3 @@ ResolveApplicableCustomerPriceRuleResultDto _applicableResult({
     version: version,
   ),
 );
-
-final class _ExecutionContext implements IExecutionContext {
-  const _ExecutionContext();
-  @override
-  String get correlationId => 'corr-1';
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-  @override
-  Future<String> requireUserId() async => 'user-1';
-}
-

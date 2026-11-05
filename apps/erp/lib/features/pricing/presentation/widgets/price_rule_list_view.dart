@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../cubit/price_rule_list_cubit.dart';
-import '../cubit/price_rule_list_state.dart';
+import '../../logic/price_rule_list_cubit.dart';
+import '../../logic/price_rule_list_state.dart';
 import 'price_rule_card.dart';
 
 class PriceRuleListView extends StatelessWidget {

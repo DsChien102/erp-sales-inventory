@@ -11,7 +11,9 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/data/partner_repository.dart';
 import '../partner/support/scripted_partner_repository.dart';
-import 'package:vet45_pricing_application/application.dart' as pricing;
+import 'package:erp/features/pricing/data/models.dart' as pricing;
+import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
+import 'support/recording_sales_pricing_repository.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_sales_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -44,13 +46,13 @@ final class TestExecutionContext implements IExecutionContext {
 void main() {
   late _SalesFlowProductRepository catalogModule;
   late _RecordingSalesModule salesModule;
-  late _RecordingPricingModule pricingModule;
+  late RecordingSalesPricingRepository pricingModule;
 
   setUp(() async {
     await GetIt.instance.reset();
     catalogModule = _SalesFlowProductRepository();
     salesModule = _RecordingSalesModule();
-    pricingModule = _RecordingPricingModule();
+    pricingModule = RecordingSalesPricingRepository();
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
     GetIt.instance.registerSingleton<IExecutionContext>(
       const TestExecutionContext(),
@@ -66,7 +68,7 @@ void main() {
         activeStoreId: 'store-demo',
       ),
     );
-    GetIt.instance.registerSingleton<pricing.IPricingModule>(pricingModule);
+    GetIt.instance.registerSingleton<SalesPricingRepository>(pricingModule);
   });
 
   tearDown(() async {
@@ -249,7 +251,7 @@ void main() {
   testWidgets('SG-02 save draft dispatches backend persist then resets to a new order', (
     tester,
   ) async {
-    pricingModule.previewFor = (request) => _pricingPreviewFor(request);
+    pricingModule.previewResponder = _pricingPreviewFor;
 
     await tester.pumpWidget(
       _composeApp(),
@@ -285,7 +287,7 @@ void main() {
   testWidgets('SG-02 leave sheet "save and close" saves then returns to the orders list', (
     tester,
   ) async {
-    pricingModule.previewFor = (request) => _pricingPreviewFor(request);
+    pricingModule.previewResponder = _pricingPreviewFor;
     final router = GoRouter(
       initialLocation: '/sales/orders',
       routes: [
@@ -366,7 +368,7 @@ void main() {
       savedAt: draft.savedAt,
       savedByActorId: draft.savedByActorId,
     );
-    pricingModule.previewFor = (request) => _pricingPreviewFor(request);
+    pricingModule.previewResponder = _pricingPreviewFor;
 
     await tester.pumpWidget(
       _composeApp(draftId: 'draft-restore-1'),
@@ -1264,31 +1266,6 @@ final class _SalesFlowProductRepository implements ProductRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-final class _RecordingPricingModule implements pricing.IPricingModule {
-  pricing.SalesWorkingStatePricingPreviewDto Function(
-    pricing.PreviewSalesWorkingStatePricingQuery request,
-  )?
-  previewFor;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw StateError('Unexpected pricing command $command');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    final raw = query as Object;
-    if (raw is pricing.PreviewSalesWorkingStatePricingQuery) {
-      final builder = previewFor;
-      if (builder == null) {
-        throw StateError('Pricing preview not configured');
-      }
-      return builder(raw) as TResult;
-    }
-    throw StateError('Unexpected pricing query $query');
-  }
-}
-
 final class _RecordingSalesModule implements ISalesModule {
   final List<Object> commands = [];
   final List<Object> queries = [];
@@ -1673,15 +1650,20 @@ SalesOrderDraftDto _listDraft({
   );
 }
 
-pricing.SalesWorkingStatePricingPreviewDto _pricingPreviewFor(
-  pricing.PreviewSalesWorkingStatePricingQuery request,
-) {
+pricing.SalesWorkingStatePricingPreviewDto _pricingPreviewFor({
+  required String storeId,
+  String? customerId,
+  required String currencyCode,
+  required int contextVersion,
+  required DateTime effectiveAt,
+  required List<pricing.SalesPricingLineInput> lines,
+}) {
   return pricing.SalesWorkingStatePricingPreviewDto(
-    contextVersion: request.contextVersion,
+    contextVersion: contextVersion,
     previewToken: 'preview-token-live',
-    currencyCode: request.currencyCode,
+    currencyCode: currencyCode,
     lines: [
-      for (final line in request.lines)
+      for (final line in lines)
         pricing.SalesPricingLinePreviewDto(
           localLineId: line.localLineId,
           appliedUnitPriceMinor: 125000,

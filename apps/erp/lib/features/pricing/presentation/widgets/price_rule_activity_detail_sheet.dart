@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_pricing_domain/domain.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
+import 'package:erp/features/pricing/data/models.dart';
 
 import 'price_rule_history_shared.dart';
-import 'price_rule_source_order_detail_sheet.dart';
 
 /// D-05 & D-07 SG-06 — Sheet chi tiết Activity — Diff trước/sau & Mask sensitive data.
 class PriceRuleActivityDetailSheet extends StatelessWidget {
@@ -14,20 +12,17 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
     required this.activity,
     this.hasSensitivePermission = true,
     this.onViewRuleDetail,
-    this.onViewSourceOrder,
   });
 
   final CustomerPriceRuleActivityDto activity;
   final bool hasSensitivePermission;
   final VoidCallback? onViewRuleDetail;
-  final VoidCallback? onViewSourceOrder;
 
   static Future<void> show({
     required BuildContext context,
     required CustomerPriceRuleActivityDto activity,
     bool hasSensitivePermission = true,
     VoidCallback? onViewRuleDetail,
-    VoidCallback? onViewSourceOrder,
   }) {
     return showVBottomSheet(
       context: context,
@@ -37,7 +32,6 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
         activity: activity,
         hasSensitivePermission: hasSensitivePermission,
         onViewRuleDetail: onViewRuleDetail,
-        onViewSourceOrder: onViewSourceOrder,
       ),
     );
   }
@@ -57,8 +51,6 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
 
     final oldFloorDiff = (oldValue?['floor_price_diff_minor'] as num?)?.toInt();
     final newFloorDiff = (newValue['floor_price_diff_minor'] as num?)?.toInt();
-
-    final orderId = activity.sourceTrace.orderId;
 
     return Material(
       color: Colors.transparent,
@@ -203,52 +195,6 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // Nếu có nguồn đơn hàng D-06
-              if (orderId != null) ...[
-                const VGap.md(),
-                VCard(
-                  padding: const EdgeInsets.all(VSpacing.space4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          VText(
-                            'Chứng từ nguồn',
-                            variant: VTextVariant.bodyDefault,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          const VGap.xs(),
-                          VText(
-                            'Đơn hàng $orderId',
-                            variant: VTextVariant.bodySmallMono,
-                            color: colors.primary,
-                          ),
-                        ],
-                      ),
-                      VButton(
-                        label: 'Xem chứng từ',
-                        variant: VButtonVariant.secondary,
-                        onPressed: () {
-                          PriceRuleSourceOrderDetailSheet.show(
-                            context: context,
-                            orderId: orderId,
-                            customerName: 'Khách hàng theo đơn',
-                            orderDate: _formatDateTime(activity.createdAt),
-                            productName: 'Sản phẩm theo đơn',
-                            unitName: 'Hộp',
-                            priceLabel: newPrice != null ? _formatMoney(newPrice) : '—',
-                            staffName: activity.actor.displayName,
-                            onViewSourceOrder: onViewSourceOrder,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
               const VGap.lg(),
 
               if (onViewRuleDetail != null)
@@ -310,7 +256,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
     CustomerPriceRuleSourceType.manual => 'Tạo thủ công',
     CustomerPriceRuleSourceType.excelImport => 'Nhập Excel',
     CustomerPriceRuleSourceType.salesOrder => 'Từ đơn hàng',
-    CustomerPriceRuleSourceType.migration => 'Migration',
+    CustomerPriceRuleSourceType.migration => 'Hệ thống',
   };
 }
 

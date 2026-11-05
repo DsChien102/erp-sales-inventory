@@ -76,8 +76,8 @@ const List<MoreEntry> kMoreEntries = [
   MoreEntry(
     id: 'pricing',
     icon: VIcons.tag,
-    title: 'Giá riêng / Nhớ giá',
-    subtitle: 'Giá riêng theo khách hàng & nhớ giá bán',
+    title: 'Giá riêng',
+    subtitle: 'Giá riêng theo khách hàng',
     route: '/pricing',
     needsActiveTenant: true,
     matchPrefixes: ['/pricing'],

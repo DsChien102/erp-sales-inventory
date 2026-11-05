@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/features/pricing/data/customer_price_rule_repository.dart';
+import 'package:erp/features/pricing/data/models.dart';
 import 'package:erp/features/pricing/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 /// S2 — Danh sách & kiểm soát nhanh (US-01).
 ///
@@ -26,8 +26,7 @@ class _PricingListPageState extends State<PricingListPage> {
   void initState() {
     super.initState();
     _cubit = PriceRuleListCubit(
-      pricingModule: GetIt.instance<IPricingModule>(),
-      executionContext: GetIt.instance<IExecutionContext>(),
+      repository: GetIt.instance<CustomerPriceRuleRepository>(),
     )..fetchRules();
     _scrollController.addListener(_onScroll);
   }
@@ -46,11 +45,11 @@ class _PricingListPageState extends State<PricingListPage> {
   }
 
   Future<void> _openAddFlow(BuildContext context) async {
-    final ruleId = await context.push<String>('/pricing/choose-method');
+    final created = await context.push<CustomerPriceRuleDetailDto>('/pricing/new');
     if (!context.mounted) return;
 
-    if (ruleId != null) {
-      await context.push('/pricing/$ruleId');
+    if (created != null) {
+      await context.push('/pricing/${created.id}');
       if (!context.mounted) return;
     }
     _cubit.refresh();
@@ -70,7 +69,7 @@ class _PricingListPageState extends State<PricingListPage> {
           final isInitialError = state is PriceRuleListError && state.items.isEmpty;
           return VPageScaffold(
             key: const Key('wgt_e02_u01_fr01_01'),
-            title: 'Giá riêng / Nhớ giá',
+            title: 'Giá riêng',
             subtitle: '${state.totalCount} giá riêng',
             centerTitle: false,
             body: isInitialError
@@ -89,7 +88,7 @@ class _PricingListPageState extends State<PricingListPage> {
                       ),
                     ],
                   ),
-            floatingActionButton: (isInitialError || (!state.canCreate && !state.canImport))
+            floatingActionButton: (isInitialError || !state.canCreate)
                 ? null
                 : VFloatingActionButton(
                     icon: VIcons.add,
@@ -156,7 +155,7 @@ class _PriceRuleListBody extends StatelessWidget {
       _ when state.items.isEmpty && state is PriceRuleListLoaded => VEmptyState(
         icon: VIcons.tag,
         title: 'Chưa có giá riêng nào',
-        description: 'Tạo giá riêng hoặc nhập từ Excel để bắt đầu.',
+        description: 'Tạo giá riêng để bắt đầu.',
         actionLabel: state.canCreate ? 'Thêm giá riêng' : null,
         onActionPressed: state.canCreate ? onOpenAdd : null,
       ),

@@ -2,7 +2,8 @@ import 'package:get_it/get_it.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
-import 'package:vet45_pricing_application/application.dart' as pricing;
+import 'package:erp/features/pricing/data/models.dart' as pricing;
+import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -55,7 +56,6 @@ abstract final class SalesDraftBackend {
 
     final pricingOutcome = await _previewPricing(
       di,
-      tenantId: tenantId,
       storeId: storeId,
       customerId: customerSnapshot?.customerId,
       currencyCode: request.currencyCode,
@@ -187,7 +187,6 @@ abstract final class SalesDraftBackend {
 
     final pricingOutcome = await _previewPricing(
       di,
-      tenantId: tenantId,
       storeId: storeId,
       customerId: draft.customer?.customerId,
       currencyCode: draft.total.currencyCode,
@@ -449,7 +448,6 @@ abstract final class SalesDraftBackend {
 
   static Future<_PricingOutcome> _previewPricing(
     GetIt di, {
-    required String tenantId,
     required String storeId,
     required String? customerId,
     required String currencyCode,
@@ -457,27 +455,24 @@ abstract final class SalesDraftBackend {
     required List<SalesComposeLineVm> lines,
   }) async {
     try {
-      final preview = await di<pricing.IPricingModule>().executeQueryAsync(
-        pricing.PreviewSalesWorkingStatePricingQuery(
-          tenantId: tenantId,
-          storeId: storeId,
-          customerId: customerId,
-          currencyCode: currencyCode,
-          contextVersion: contextVersion,
-          effectiveAt: DateTime.now().toUtc(),
-          lines: [
-            for (final line in lines)
-              pricing.SalesPricingLineInput(
-                localLineId: line.identity.lineId,
-                productId: line.identity.productId,
-                productUnitId: line.identity.productUnitId,
-                quantityMicros: line.input.quantity * QuantityDto.scale,
-                manualUnitPriceMinor: line.input.manual.unitPriceMinor,
-                manualDiscountMinor: line.input.manual.discountMinor,
-                manualDiscountBasisPoints: line.input.manual.discountBasisPoints,
-              ),
-          ],
-        ),
+      final preview = await di<SalesPricingRepository>().preview(
+        storeId: storeId,
+        customerId: customerId,
+        currencyCode: currencyCode,
+        contextVersion: contextVersion,
+        effectiveAt: DateTime.now().toUtc(),
+        lines: [
+          for (final line in lines)
+            pricing.SalesPricingLineInput(
+              localLineId: line.identity.lineId,
+              productId: line.identity.productId,
+              productUnitId: line.identity.productUnitId,
+              quantityMicros: line.input.quantity * QuantityDto.scale,
+              manualUnitPriceMinor: line.input.manual.unitPriceMinor,
+              manualDiscountMinor: line.input.manual.discountMinor,
+              manualDiscountBasisPoints: line.input.manual.discountBasisPoints,
+            ),
+        ],
       );
       return _PricingOutcome(
         failed: false,

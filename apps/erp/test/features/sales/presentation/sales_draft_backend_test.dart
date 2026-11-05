@@ -9,7 +9,9 @@ import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/data/partner_repository.dart';
 import '../../partner/support/scripted_partner_repository.dart';
-import 'package:vet45_pricing_application/application.dart' as pricing;
+import '../support/recording_sales_pricing_repository.dart';
+import 'package:erp/features/pricing/data/models.dart' as pricing;
+import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -23,7 +25,7 @@ void main() {
   late ScriptedPartnerRepository partner;
   late PartnerDetailDto partnerDetail;
   late _RecordingProductRepository catalog;
-  late _RecordingPricingModule pricingModule;
+  late RecordingSalesPricingRepository pricingRepo;
   late _RecordingSalesModule sales;
 
   setUp(() {
@@ -36,12 +38,12 @@ void main() {
       },
     );
     catalog = _RecordingProductRepository();
-    pricingModule = _RecordingPricingModule();
+    pricingRepo = RecordingSalesPricingRepository();
     sales = _RecordingSalesModule();
     di
       ..registerSingleton<PartnerRepository>(partner)
       ..registerSingleton<ProductRepository>(catalog)
-      ..registerSingleton<pricing.IPricingModule>(pricingModule)
+      ..registerSingleton<SalesPricingRepository>(pricingRepo)
       ..registerSingleton<ISalesModule>(sales)
       ..registerSingleton<IExecutionContext>(const _ExecutionContext())
       ..registerSingleton<SessionController>(
@@ -135,7 +137,14 @@ void main() {
   group('SalesDraftBackend.persist', () {
     test('save validates store, customer, product/unit, and pricing before Sales save', () async {
       catalog.productsById[_product.productId] = _product;
-      pricingModule.preview = _pricingPreview;
+      pricingRepo.previewResponder = ({
+        required storeId,
+        customerId,
+        required currencyCode,
+        required contextVersion,
+        required effectiveAt,
+        required lines,
+      }) => _pricingPreview;
 
       final result = await SalesDraftBackend.bindPersist(di)(
         SalesDraftPersistRequest(
@@ -159,7 +168,7 @@ void main() {
         hasLength(1),
       );
       expect(
-        pricingModule.queries.whereType<pricing.PreviewSalesWorkingStatePricingQuery>(),
+        pricingRepo.previewCalls,
         hasLength(1),
       );
       expect(sales.commands.single, isA<SaveSalesOrderDraftCommand>());
@@ -183,7 +192,14 @@ void main() {
 
     test('walk-in does not call Partner', () async {
       catalog.productsById[_product.productId] = _product;
-      pricingModule.preview = _pricingPreview;
+      pricingRepo.previewResponder = ({
+        required storeId,
+        customerId,
+        required currencyCode,
+        required contextVersion,
+        required effectiveAt,
+        required lines,
+      }) => _pricingPreview;
 
       await SalesDraftBackend.bindPersist(di)(
         SalesDraftPersistRequest(
@@ -202,7 +218,14 @@ void main() {
 
     test('pricing failure still saves with needsRevalidation=true', () async {
       catalog.productsById[_product.productId] = _product;
-      pricingModule.failure = StateError('pricing down');
+      pricingRepo.previewResponder = ({
+        required storeId,
+        customerId,
+        required currencyCode,
+        required contextVersion,
+        required effectiveAt,
+        required lines,
+      }) => throw StateError('pricing down');
 
       await SalesDraftBackend.bindPersist(di)(
         SalesDraftPersistRequest(
@@ -280,7 +303,14 @@ void main() {
     test('resolves every line with one Catalog call', () async {
       catalog.productsById[_product.productId] = _product;
       catalog.productsById[_secondProduct.productId] = _secondProduct;
-      pricingModule.preview = _pricingPreviewTwoLines;
+      pricingRepo.previewResponder = ({
+        required storeId,
+        customerId,
+        required currencyCode,
+        required contextVersion,
+        required effectiveAt,
+        required lines,
+      }) => _pricingPreviewTwoLines;
 
       await SalesDraftBackend.bindPersist(di)(
         SalesDraftPersistRequest(
@@ -349,7 +379,14 @@ void main() {
 
     test('update forwards current expectedVersion', () async {
       catalog.productsById[_product.productId] = _product;
-      pricingModule.preview = _pricingPreview;
+      pricingRepo.previewResponder = ({
+        required storeId,
+        customerId,
+        required currencyCode,
+        required contextVersion,
+        required effectiveAt,
+        required lines,
+      }) => _pricingPreview;
 
       await SalesDraftBackend.bindPersist(di)(
         SalesDraftPersistRequest(
@@ -380,7 +417,14 @@ void main() {
       );
       partnerDetail = _inactiveDetail;
       catalog.productsById[_product.productId] = _blockedProduct;
-      pricingModule.preview = _pricingPreviewChanged;
+      pricingRepo.previewResponder = ({
+        required storeId,
+        customerId,
+        required currencyCode,
+        required contextVersion,
+        required effectiveAt,
+        required lines,
+      }) => _pricingPreviewChanged;
 
       final result = await SalesDraftBackend.bindRestore(di)('draft-saved-1');
 
@@ -422,7 +466,14 @@ void main() {
       );
       catalog.productsById[_product.productId] = _product;
       catalog.failure = StateError('catalog down');
-      pricingModule.preview = _pricingPreview;
+      pricingRepo.previewResponder = ({
+        required storeId,
+        customerId,
+        required currencyCode,
+        required contextVersion,
+        required effectiveAt,
+        required lines,
+      }) => _pricingPreview;
 
       final result = await SalesDraftBackend.bindRestore(di)('draft-saved-1');
 
@@ -442,7 +493,14 @@ void main() {
         savedAt: _savedDraft.savedAt,
         savedByActorId: _savedDraft.savedByActorId,
       );
-      pricingModule.preview = _pricingPreview;
+      pricingRepo.previewResponder = ({
+        required storeId,
+        customerId,
+        required currencyCode,
+        required contextVersion,
+        required effectiveAt,
+        required lines,
+      }) => _pricingPreview;
 
       final result = await SalesDraftBackend.bindRestore(di)('draft-saved-1');
 
@@ -466,7 +524,14 @@ void main() {
         savedByActorId: _savedDraft.savedByActorId,
       );
       catalog.productsById[_product.productId] = _product;
-      pricingModule.failure = StateError('offline');
+      pricingRepo.previewResponder = ({
+        required storeId,
+        customerId,
+        required currencyCode,
+        required contextVersion,
+        required effectiveAt,
+        required lines,
+      }) => throw StateError('offline');
 
       final result = await SalesDraftBackend.bindRestore(di)('draft-saved-1');
       expect(
@@ -794,29 +859,6 @@ final class _RecordingProductRepository implements ProductRepository {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-final class _RecordingPricingModule implements pricing.IPricingModule {
-  pricing.SalesWorkingStatePricingPreviewDto? preview;
-  Object? failure;
-  final List<Object> queries = [];
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    final error = failure;
-    if (error != null) throw error;
-    final raw = query as Object;
-    if (raw is pricing.PreviewSalesWorkingStatePricingQuery) {
-      return preview as TResult;
-    }
-    throw StateError('Unexpected pricing query $query');
-  }
 }
 
 final class _RecordingSalesModule implements ISalesModule {

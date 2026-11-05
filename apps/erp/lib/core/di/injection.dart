@@ -2,8 +2,6 @@ import 'package:async_query/async_query.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
-import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_pricing_infrastructure/infrastructure.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_sales_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -25,6 +23,8 @@ import '../../features/iam/data/organization_repository.dart';
 import '../../features/inventory/data/goods_receipt_repository.dart';
 import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
+import '../../features/pricing/data/customer_price_rule_repository.dart';
+import '../../features/pricing/data/sales_pricing_repository.dart';
 import '../errors/app_exception.dart';
 import '../router/session_refresh.dart';
 import '../session/session_contracts.dart';
@@ -190,17 +190,19 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
         rpc: getIt<SupabaseRpc>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
       ),
+    )
+    ..registerLazySingleton<CustomerPriceRuleRepository>(
+      () => CustomerPriceRuleRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<SalesPricingRepository>(
+      () => SalesPricingRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
     );
-
-  final pricingModule = PricingStartup.initialize(
-    supabase: supabaseModule.client,
-    loggerFactory: getIt<ILoggerFactory>(),
-    executionContext: executionContext,
-    permissionChecker: permissionChecker,
-    tenantAccessChecker: tenantAccessChecker,
-  );
-
-  getIt.registerSingleton<IPricingModule>(pricingModule);
 
   final salesModule = SalesStartup.initialize(
     supabase: supabaseModule.client,

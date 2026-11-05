@@ -1,9 +1,12 @@
 import 'package:get_it/get_it.dart';
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/session/session_controller.dart';
-import 'package:vet45_pricing_application/application.dart' as pricing;
+import 'package:erp/features/pricing/data/customer_price_rule_repository.dart';
+import 'package:erp/features/pricing/data/models.dart' as pricing;
+import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
+import 'package:erp/features/pricing/logic/pricing_error_messages.dart';
 import 'package:vet45_sales_application/application.dart' as sales;
 import 'package:erp/features/sales/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import 'sales_pricing_ports.dart';
 
@@ -28,29 +31,25 @@ abstract final class SalesPricingLookup {
     SalesPricingPreviewRequest request,
   ) async {
     try {
-      final tenantId = await di<IExecutionContext>().requireTenantId();
       final storeId = await di<SessionController>().requireActiveStoreId();
-      final result = await di<pricing.IPricingModule>().executeQueryAsync(
-        pricing.PreviewSalesWorkingStatePricingQuery(
-          tenantId: tenantId,
-          storeId: storeId,
-          customerId: request.customerId,
-          currencyCode: request.currencyCode,
-          contextVersion: request.contextVersion,
-          effectiveAt: request.effectiveAt,
-          lines: [
-            for (final line in request.lines)
-              pricing.SalesPricingLineInput(
-                localLineId: line.localLineId,
-                productId: line.productId,
-                productUnitId: line.productUnitId,
-                quantityMicros: line.quantityMicros,
-                manualUnitPriceMinor: line.manualUnitPriceMinor,
-                manualDiscountMinor: line.manualDiscountMinor,
-                manualDiscountBasisPoints: line.manualDiscountBasisPoints,
-              ),
-          ],
-        ),
+      final result = await di<SalesPricingRepository>().preview(
+        storeId: storeId,
+        customerId: request.customerId,
+        currencyCode: request.currencyCode,
+        contextVersion: request.contextVersion,
+        effectiveAt: request.effectiveAt,
+        lines: [
+          for (final line in request.lines)
+            pricing.SalesPricingLineInput(
+              localLineId: line.localLineId,
+              productId: line.productId,
+              productUnitId: line.productUnitId,
+              quantityMicros: line.quantityMicros,
+              manualUnitPriceMinor: line.manualUnitPriceMinor,
+              manualDiscountMinor: line.manualDiscountMinor,
+              manualDiscountBasisPoints: line.manualDiscountBasisPoints,
+            ),
+        ],
       );
       return SalesPricingPreviewResult(
         contextVersion: result.contextVersion,
@@ -90,23 +89,19 @@ abstract final class SalesPricingLookup {
     SalesManualPriceRequest request,
   ) async {
     try {
-      final tenantId = await di<IExecutionContext>().requireTenantId();
       final storeId = await di<SessionController>().requireActiveStoreId();
-      final result = await di<pricing.IPricingModule>().executeQueryAsync(
-        pricing.EvaluateSalesManualPriceQuery(
-          tenantId: tenantId,
-          storeId: storeId,
-          customerId: request.customerId,
-          productId: request.productId,
-          productUnitId: request.productUnitId,
-          quantityMicros: request.quantityMicros,
-          currencyCode: request.currencyCode,
-          contextVersion: request.contextVersion,
-          manualUnitPriceMinor: request.manualUnitPriceMinor,
-          manualDiscountMinor: request.manualDiscountMinor,
-          manualDiscountBasisPoints: request.manualDiscountBasisPoints,
-          acknowledgeBelowFloor: request.acknowledgeBelowFloor,
-        ),
+      final result = await di<SalesPricingRepository>().evaluateManualPrice(
+        storeId: storeId,
+        customerId: request.customerId,
+        productId: request.productId,
+        productUnitId: request.productUnitId,
+        quantityMicros: request.quantityMicros,
+        currencyCode: request.currencyCode,
+        contextVersion: request.contextVersion,
+        manualUnitPriceMinor: request.manualUnitPriceMinor,
+        manualDiscountMinor: request.manualDiscountMinor,
+        manualDiscountBasisPoints: request.manualDiscountBasisPoints,
+        acknowledgeBelowFloor: request.acknowledgeBelowFloor,
       );
       return SalesManualPriceEvaluation(
         allowed: result.allowed,
@@ -140,12 +135,11 @@ abstract final class SalesPricingLookup {
       );
     }
     try {
-      final context = di<IExecutionContext>();
-      final tenantId = await context.requireTenantId();
-      final actorId = await context.requireUserId();
-      final storeId = await di<SessionController>().requireActiveStoreId();
-      final module = di<pricing.IPricingModule>();
-      final existing = await _resolve(module, tenantId, request, customerId);
+      final session = di<SessionController>();
+      final tenantId = await session.requireTenantId();
+      final storeId = await session.requireActiveStoreId();
+      final rules = di<CustomerPriceRuleRepository>();
+      final existing = await _resolve(rules, request, customerId);
       if (existing != null && !request.confirmOverwrite) {
         return SalesPrivatePriceSaveResult(
           ruleId: existing.ruleId,
@@ -156,14 +150,7 @@ abstract final class SalesPricingLookup {
         );
       }
       if (existing != null) {
-        return await _update(
-          module,
-          tenantId,
-          actorId,
-          request,
-          customerId,
-          existing,
-        );
+        return await _update(rules, request, customerId, existing);
       }
       final key = [
         'sales-private-price-v1',
@@ -179,14 +166,7 @@ abstract final class SalesPricingLookup {
         request.acceptedUnitPrice.amountMinor,
         _date(request.effectiveFrom),
       ].join(':');
-      return await _create(
-        module,
-        tenantId,
-        actorId,
-        request,
-        customerId,
-        key,
-      );
+      return await _create(rules, request, customerId, key);
     } on SalesExternalOperationException {
       rethrow;
     } on Object catch (error) {
@@ -195,34 +175,26 @@ abstract final class SalesPricingLookup {
   }
 
   static Future<pricing.ApplicableCustomerPriceRuleDto?> _resolve(
-    pricing.IPricingModule module,
-    String tenantId,
+    CustomerPriceRuleRepository rules,
     SalesPrivatePriceSaveRequest request,
     String customerId,
   ) async {
-    final result = await module.executeQueryAsync(
-      pricing.ResolveApplicableCustomerPriceRuleQuery(
-        tenantId: tenantId,
-        customerId: customerId,
-        productId: request.productId,
-        productUnitId: request.productUnitId,
-        businessDate: request.effectiveFrom,
-      ),
+    final result = await rules.resolveApplicable(
+      customerId: customerId,
+      productId: request.productId,
+      productUnitId: request.productUnitId,
+      businessDate: request.effectiveFrom,
     );
     return result.rule;
   }
 
   static Future<SalesPrivatePriceSaveResult> _create(
-    pricing.IPricingModule module,
-    String tenantId,
-    String actorId,
+    CustomerPriceRuleRepository rules,
     SalesPrivatePriceSaveRequest request,
     String customerId,
     String key,
   ) async {
-    final command = pricing.CreateCustomerPriceRuleCommand(
-      tenantId: tenantId,
-      actorId: actorId,
+    Future<pricing.CreateCustomerPriceRuleResult> send() => rules.create(
       customerId: customerId,
       productId: request.productId,
       productUnitId: request.productUnitId,
@@ -233,42 +205,37 @@ abstract final class SalesPricingLookup {
       idempotencyKey: key,
     );
     try {
-      final result = await module.executeCommandAsync(command);
+      final result = await send();
       return _saved(result.rule, created: true);
     } on Object {
-      final recovered = await _resolve(module, tenantId, request, customerId);
+      final recovered = await _resolve(rules, request, customerId);
       if (_matches(recovered, request)) {
         return _savedApplicable(recovered!, created: true);
       }
       if (recovered != null) rethrow;
-      final retried = await module.executeCommandAsync(command);
+      final retried = await send();
       return _saved(retried.rule, created: true);
     }
   }
 
   static Future<SalesPrivatePriceSaveResult> _update(
-    pricing.IPricingModule module,
-    String tenantId,
-    String actorId,
+    CustomerPriceRuleRepository rules,
     SalesPrivatePriceSaveRequest request,
     String customerId,
     pricing.ApplicableCustomerPriceRuleDto existing,
   ) async {
-    final command = pricing.UpdateCustomerPriceRuleCommand(
-      tenantId: tenantId,
-      actorId: actorId,
-      ruleId: existing.ruleId,
-      expectedVersion: existing.version,
-      rulePriceMinor: request.acceptedUnitPrice.amountMinor,
-      effectiveFrom: _calendarDate(request.effectiveFrom),
-      acknowledgeFloorWarning: request.acknowledgeFloorWarning,
-      acknowledgeOverwrite: true,
-    );
     try {
-      final result = await module.executeCommandAsync(command);
+      final result = await rules.update(
+        ruleId: existing.ruleId,
+        expectedVersion: existing.version,
+        rulePriceMinor: request.acceptedUnitPrice.amountMinor,
+        effectiveFrom: _calendarDate(request.effectiveFrom),
+        acknowledgeFloorWarning: request.acknowledgeFloorWarning,
+        acknowledgeOverwrite: true,
+      );
       return _saved(result, created: false);
     } on Object {
-      final recovered = await _resolve(module, tenantId, request, customerId);
+      final recovered = await _resolve(rules, request, customerId);
       if (_matches(recovered, request) && recovered!.version > existing.version) {
         return _savedApplicable(recovered, created: false);
       }
@@ -320,7 +287,7 @@ abstract final class SalesPricingLookup {
 
   static String _date(DateTime value) => _calendarDate(value).toIso8601String().substring(0, 10);
 
-  static String _message(Object error) => error is pricing.PricingBlockedException
-      ? (error.message ?? 'Thao tác giá bị từ chối.')
+  static String _message(Object error) => error is AppException
+      ? pricingErrorMessage(error, fallback: 'Thao tác giá bị từ chối.')
       : 'Không thể kết nối dịch vụ giá. Vui lòng thử lại.';
 }

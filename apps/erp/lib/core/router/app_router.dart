@@ -6,7 +6,7 @@ import 'package:vet45_shared_application/application.dart';
 import '../../features/catalog/data/models.dart' hide ProductChangeHistoryPage;
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
-import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/features/pricing/data/models.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_einvoice_presentation/presentation.dart';
@@ -108,9 +108,7 @@ import '../../features/partner/presentation/pages/partner_change_history_page.da
 // Pricing
 import '../../features/pricing/presentation/pages/pricing_list_page.dart';
 import '../../features/pricing/presentation/pages/pricing_detail_page.dart';
-import '../../features/pricing/presentation/pages/pricing_choose_method_page.dart';
 import '../../features/pricing/presentation/pages/pricing_form_page.dart';
-import '../../features/pricing/presentation/pages/pricing_import_page.dart';
 import '../../features/pricing/presentation/pages/pricing_history_page.dart';
 import '../../features/pricing/presentation/pages/pricing_pick_customer_page.dart';
 import '../../features/pricing/presentation/pages/pricing_pick_product_page.dart';
@@ -1265,19 +1263,9 @@ final appRouter = GoRouter(
       builder: (context, state) => const PricingListPage(),
     ),
     GoRoute(
-      path: '/pricing/choose-method',
-      name: 'pricing.choose-method',
-      builder: (context, state) => const PricingChooseMethodPage(),
-    ),
-    GoRoute(
       path: '/pricing/new',
       name: 'pricing.new',
       builder: (context, state) => const PricingFormPage(),
-    ),
-    GoRoute(
-      path: '/pricing/import',
-      name: 'pricing.import',
-      builder: (context, state) => const PricingImportPage(),
     ),
     // SG-03: pickers — search & chọn trực tiếp, không footer action.
     GoRoute(

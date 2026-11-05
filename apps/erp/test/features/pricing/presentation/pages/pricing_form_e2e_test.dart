@@ -1,11 +1,18 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/pricing/data/customer_price_rule_repository.dart';
+import 'package:erp/features/pricing/data/models.dart';
+import 'package:erp/features/pricing/data/pricing_errors.dart';
+import 'package:erp/features/pricing/presentation.dart';
+import 'package:erp/features/pricing/presentation/pages/pricing_detail_page.dart';
+import 'package:erp/features/pricing/presentation/pages/pricing_form_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/testing.dart';
-import 'package:erp/features/pricing/presentation.dart';
 
 import '../../pricing_e2e_harness.dart';
+import '../../support/pricing_detail_dto_builder.dart';
 
 void main() {
   tearDown(() async {
@@ -136,6 +143,53 @@ void main() {
     );
 
     testWidgets(
+      'form_duplicate_then_confirm_overwrite',
+      (tester) async {
+        final repo = await setUpPricingE2E(
+          createScenario: FakePricingScenario.createRuleDuplicate,
+          detailScenario: FakePricingScenario.ruleDetailActive,
+        );
+        await tester.pumpWidget(
+          buildPricingRouter(initialLocation: '/pricing/new'),
+        );
+        await tester.pumpAndSettle();
+
+        final cubit = tester
+            .element(findByWgtKey('wgt_e02_u04_fr01_01'))
+            .read<PriceRuleFormCubit>();
+
+        cubit
+          ..selectCustomer(
+            customerId: 'customer-1',
+            customerName: 'Khách hàng mẫu',
+          )
+          ..selectProduct(productId: 'product-1', productName: 'Vaccine mẫu')
+          ..selectProductUnit(productUnitId: 'unit-1', productUnitName: 'Lọ')
+          ..updatePrice(150000)
+          ..updateDates(effectiveFrom: DateTime.utc(2026, 7, 16));
+
+        await tester.pump();
+        await cubit.submit();
+        await tester.pumpAndSettle();
+
+        expect(find.text('Tự động ghi đè giá trùng?'), findsOneWidget);
+        repo.createScenario = FakePricingScenario.createRuleOk;
+        await tester.tap(find.widgetWithText(VButton, 'Ghi đè & Lưu'));
+        await tester.pumpAndSettle();
+
+        final creates = repo.calls.where((c) => c.method == 'create').toList();
+        expect(creates, hasLength(2));
+        expect(creates[0].args['acknowledgeOverwrite'], isFalse);
+        expect(creates[1].args['acknowledgeOverwrite'], isTrue);
+        expect(
+          creates[1].args['idempotencyKey'],
+          creates[0].args['idempotencyKey'],
+        );
+        expect(findByWgtKey('wgt_e02_u03_fr01_01'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
       'e2e_e02_u04_fr01_03: create preserves list and parent back stack',
       (tester) async {
         await setUpPricingE2E(
@@ -150,8 +204,6 @@ void main() {
         await tester.tap(find.text('Mở Pricing'));
         await tester.pumpAndSettle();
         await tester.tap(find.byType(VFloatingActionButton));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Tạo thủ công'));
         await tester.pumpAndSettle();
 
         final cubit = tester
@@ -200,7 +252,7 @@ void main() {
     );
 
     testWidgets(
-      'e2e_e02_u04_fr01_04: cancel create returns to choose method',
+      'e2e_e02_u04_fr01_04: cancel create returns to list',
       (tester) async {
         await setUpPricingE2E();
         await tester.pumpWidget(
@@ -212,15 +264,11 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.byType(VFloatingActionButton));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Tạo thủ công'));
-        await tester.pumpAndSettle();
 
         await tester.tap(find.text('Hủy'));
         await tester.pumpAndSettle();
 
-        expect(findByWgtKey('wgt_e02_u02_fr01_01'), findsOneWidget);
-        expect(find.text('Tạo thủ công'), findsOneWidget);
-        expect(find.text('Nhập từ Excel'), findsOneWidget);
+        expect(findByWgtKey('wgt_e02_u01_fr01_01'), findsOneWidget);
       },
     );
 
@@ -316,4 +364,150 @@ void main() {
       },
     );
   });
+
+  group('H6 & H9 — form header & duplicate banner link', () {
+    testWidgets('h6_edit_header_shows_name', (tester) async {
+      await setUpPricingE2E();
+      final initial = buildPricingDetailDto(updatedByName: 'Nguyễn Lan');
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: PricingFormPage(initialRule: initial),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cập nhật bởi: Nguyễn Lan'), findsOneWidget);
+    });
+
+    testWidgets('h9_duplicate_banner_link', (tester) async {
+      await setUpPricingE2E();
+      GetIt.instance.unregister<CustomerPriceRuleRepository>();
+      GetIt.instance.registerSingleton<CustomerPriceRuleRepository>(
+        _DuplicateWithIdRepository(),
+      );
+
+      await tester.pumpWidget(
+        buildPricingRouter(initialLocation: '/pricing/new'),
+      );
+      await tester.pumpAndSettle();
+
+      final cubit = tester
+          .element(findByWgtKey('wgt_e02_u04_fr01_01'))
+          .read<PriceRuleFormCubit>();
+
+      cubit
+        ..selectCustomer(
+          customerId: 'customer-1',
+          customerName: 'Khách hàng mẫu',
+        )
+        ..selectProduct(productId: 'product-1', productName: 'Vaccine mẫu')
+        ..selectProductUnit(productUnitId: 'unit-1', productUnitName: 'Lọ')
+        ..updatePrice(150000)
+        ..updateDates(effectiveFrom: DateTime.utc(2026, 7, 16));
+
+      await tester.pump();
+      await cubit.submit();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tự động ghi đè giá trùng?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(VButton, 'Hủy').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Lưu ý tự động ghi đè giá trùng'), findsOneWidget);
+      expect(find.text('Xem giá riêng hiện có >'), findsOneWidget);
+
+      await tester.tap(find.text('Xem giá riêng hiện có >'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PricingDetailPage), findsOneWidget);
+    });
+
+    testWidgets('h9_no_link_without_id', (tester) async {
+      await setUpPricingE2E();
+      final initial = buildPricingDetailDto();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: PricingFormPage(initialRule: initial),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final cubit = tester
+          .element(findByWgtKey('wgt_e02_u06_fr01_01'))
+          .read<PriceRuleFormCubit>();
+      cubit.updateDates(effectiveFrom: DateTime.utc(2026, 8, 1));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Lưu ý tự động ghi đè giá trùng'), findsOneWidget);
+      expect(find.text('Xem giá riêng hiện có >'), findsNothing);
+    });
+
+    testWidgets('t93_form_below_floor_banner', (tester) async {
+      await setUpPricingE2E();
+      await tester.pumpWidget(
+        buildPricingRouter(initialLocation: '/pricing/new'),
+      );
+      await tester.pumpAndSettle();
+
+      final cubit = tester
+          .element(findByWgtKey('wgt_e02_u04_fr01_01'))
+          .read<PriceRuleFormCubit>();
+
+      cubit
+        ..selectProduct(
+          productId: 'product-1',
+          productName: 'Vaccine mẫu',
+          listPriceMinor: 200000,
+          floorPriceMinor: 100000,
+        )
+        ..updatePrice(80000);
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PriceRuleBelowFloorBanner), findsOneWidget);
+      expect(find.text('Giá riêng thấp hơn giá sàn'), findsOneWidget);
+    });
+  });
+}
+
+final class _DuplicateWithIdRepository extends FakeCustomerPriceRuleRepository {
+  @override
+  Future<CreateCustomerPriceRuleResult> create({
+    required String customerId,
+    required String productId,
+    required String productUnitId,
+    required int rulePriceMinor,
+    required String currencyCode,
+    required DateTime effectiveFrom,
+    DateTime? effectiveTo,
+    String? note,
+    required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
+    required String idempotencyKey,
+  }) async {
+    calls.add(
+      FakePricingCall('create', {
+        'customerId': customerId,
+        'productId': productId,
+        'productUnitId': productUnitId,
+        'rulePriceMinor': rulePriceMinor,
+        'currencyCode': currencyCode,
+        'effectiveFrom': effectiveFrom,
+        'effectiveTo': effectiveTo,
+        'note': note,
+        'acknowledgeFloorWarning': acknowledgeFloorWarning,
+        'acknowledgeOverwrite': acknowledgeOverwrite,
+        'idempotencyKey': idempotencyKey,
+      }),
+    );
+    throw const AppException(
+      PricingErrorCodes.duplicateActiveRule,
+      details: {
+        'conflictingRuleId': 'rule-x',
+        'reason': 'overwriteRequired',
+      },
+    );
+  }
 }

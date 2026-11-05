@@ -1,7 +1,9 @@
 # TH-04 — Chính sách giá (giá riêng theo khách hàng)
 
 > **Vai trò:** **đặc tả chuẩn (source of truth)** cho app sau refactor. Theme đã hoàn thành: **code hiện tại là phạm vi chuẩn**. Mọi quy tắc mặc định = hành vi code hiện tại (SCOPE: giữ 100% chức năng, giữ RPC). Gắn 🔧 = code hiện tại **sai**, phải sửa khi refactor. Làm theo tài liệu, không chép lỗi của code cũ.
-> **Phiên bản:** 3.0 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> **Phiên bản:** 3.2 · **Ngày:** 2026-11-06 (3.1: 2026-11-05; 3.0: 2026-10-07) · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> **Bản 3.1:** bỏ nhập Excel (EP-04, PR-09, BR-25…BR-33, KI-03, kịch bản 5) và màn "Chọn cách thêm" (PR-03): nút thêm mở thẳng form. Người dùng chốt 2026-11-04 (plan 6-A1 Q9, 6-A2 Q10).
+> **Bản 3.2:** đã sửa theo 6-B (KI-02, 04, 05, 07, 08, 10, 11, 13, 14; KI-15 ở 6-A): bỏ 🔧 ở các mục đó; lọc "Trạng thái" chọn một (Q3); lịch sử bỏ nhóm "Nguồn" (Q6); chữ ký RPC `search_*` / `update_*` mới; `iam._member_display_name`; "Người tắt" / "Cập nhật bởi" là tên thành viên.
 > **Thay thế:** bản 2.1 (2026-10-06) và `Theme 4_ Chính sách giá và ưu đãi.md` (v1). Spec v1 có 6 epic; bản này gồm **EP02 (giá riêng)** và thứ tự áp giá khi bán (một phần EP05). Phần còn lại ở [mục 8](#8-ngoài-phạm-vi-so-với-spec-v1).
 > **Nguồn đối chiếu:**
 > - DB: schema `pricing`, migration `20260725001`…`20260725018`, `20260805001/002`, `20260810001`, `20260830003` (áp giá khi bán).
@@ -35,12 +37,12 @@ TH-04 quản lý **giá riêng theo khách hàng**: một mức giá cố địn
 2. **Giá đó có an toàn không**: thấp hơn giá sàn bao nhiêu, có trùng với giá riêng khác không?
 3. **Ai đặt giá, khi nào, sửa gì**?
 
-Giá riêng đến từ 3 cửa: tạo thủ công, nhập từ Excel, và "Lưu làm giá riêng" ngay trên màn bán hàng (TH-05). Nhớ giá tự động từ đơn bán **ngoài phạm vi** (mục 8); RPC và cột dữ liệu giữ lại.
+Giá riêng đến từ 2 cửa: tạo thủ công và "Lưu làm giá riêng" ngay trên màn bán hàng (TH-05). Nhớ giá tự động từ đơn bán **ngoài phạm vi** (mục 8); RPC và cột dữ liệu giữ lại.
 
 ### 1.2 Bối cảnh nghiệp vụ
 
 - Đại lý, trại, phòng khám mua số lượng lớn được thoả thuận giá riêng, thường theo **từng mặt hàng và đơn vị** (giá thùng khác giá chai).
-- Giá thoả thuận có thời hạn (theo quý, theo hợp đồng) và đổi khá thường xuyên; cần sửa hàng loạt bằng Excel.
+- Giá thoả thuận có thời hạn (theo quý, theo hợp đồng) và đổi khá thường xuyên.
 - Nhân viên bán phải thấy ngay giá riêng khi chọn khách, không phải nhớ.
 - Giá riêng có thể thấp hơn giá sàn (khách chiến lược), nhưng phải có xác nhận và dấu vết.
 
@@ -58,12 +60,10 @@ Giá riêng đến từ 3 cửa: tạo thủ công, nhập từ Excel, và "Lưu
 ### 1.4 Trong phạm vi
 
 - Danh sách giá riêng: tìm kiếm bỏ dấu, lọc nhanh, bộ lọc, sắp xếp, phân trang cursor.
-- Chọn cách thêm: tạo thủ công hoặc nhập Excel.
 - Tạo giá riêng thủ công: chọn khách, sản phẩm, đơn vị bán, giá, hiệu lực, ghi chú; kiểm giá sàn và trùng hiệu lực, xác nhận ghi đè.
 - Chi tiết: giá, chênh lệch so với giá niêm yết và giá sàn hiện tại, hiệu lực, nguồn, thông tin tắt, lịch sử gần đây.
 - Sửa giá, hiệu lực, ghi chú (kèm lý do thay đổi).
 - Tắt (có lý do), bật lại (kiểm tra trước rồi xác nhận).
-- Nhập Excel: tải mẫu, chọn file, xem trước từng dòng, chọn cách xử lý trùng, xác nhận, xem kết quả, tải nhật ký.
 - Lịch sử thay đổi của từng giá riêng, có bộ lọc và chi tiết trước / sau.
 - Áp giá khi bán hàng (thứ tự ưu tiên, dùng ở TH-05).
 
@@ -81,7 +81,7 @@ Giá riêng đến từ 3 cửa: tạo thủ công, nhập từ Excel, và "Lưu
 
 | Tác nhân | Mô tả | Thao tác chính |
 |---|---|---|
-| Chủ cửa hàng / quản lý | Owner hoặc thành viên | Thoả thuận giá, nhập Excel, tắt / bật |
+| Chủ cửa hàng / quản lý | Owner hoặc thành viên | Thoả thuận giá, tắt / bật |
 | Nhân viên bán hàng | Thành viên | Xem giá riêng khi bán; "Lưu làm giá riêng" |
 | Hệ thống (DB) | RPC, constraint, advisory lock | Chặn chồng hiệu lực, ghi đè, ghi lịch sử |
 | TH-05 | Theme dùng dữ liệu | `preview_sales_working_state_pricing`, `evaluate_sales_manual_price` |
@@ -95,7 +95,7 @@ Giá riêng đến từ 3 cửa: tạo thủ công, nhập từ Excel, và "Lưu
 | TH-02 Sản phẩm | Sản phẩm / đơn vị bán được, giá niêm yết, giá sàn, tiền tệ (`_get_product_price_band_snapshot_for_pricing`) | — |
 | TH-03 Đối tác | Khách `active` có vai trò `customer`, tên, SĐT (`_get_customer_snapshot_for_pricing`) | — |
 | TH-05 Bán hàng | — | Giá từng dòng theo thứ tự ưu tiên; kiểm giá nhập tay; lưu làm giá riêng |
-| TH-01 IAM | Quyền, tên thành viên (🔧 cho lịch sử, KI-08) | — |
+| TH-01 IAM | Quyền, tên thành viên (lịch sử, người tắt, người cập nhật; `iam._member_display_name`) | — |
 
 ---
 
@@ -105,10 +105,10 @@ Giá riêng đến từ 3 cửa: tạo thủ công, nhập từ Excel, và "Lưu
 | Khái niệm | Định nghĩa |
 |---|---|
 | Giá riêng | Một dòng `customer_price_rules`. Mỗi dòng có `rule_type`: `special_price` (giá riêng) hoặc `remembered_price` (nhớ giá) |
-| Nguồn tạo (`source_type`) | App tạo 2 nguồn: `manual` (Tạo thủ công), `excel_import` (Nhập Excel). `sales_order` và `migration` có trong DB nhưng là dự phòng, không luồng nào tạo |
+| Nguồn tạo (`source_type`) | App tạo 1 nguồn: `manual` (Tạo thủ công). `excel_import` (Nhập Excel) chỉ còn ở dữ liệu cũ (nhập Excel đã bỏ, mục 8); vẫn hiện nhãn. `sales_order` và `migration` có trong DB nhưng là dự phòng, không luồng nào tạo |
 | Hiệu lực | `effective_from` (bắt buộc), `effective_to` (để trống = không giới hạn). Tính theo **ngày**, không theo giờ |
 | Giá niêm yết / giá sàn | Lấy từ khung giá của TH-02, qua `catalog._get_product_price_band_snapshot_for_pricing` |
-| Lô nhập Excel | `customer_price_rule_imports` + `customer_price_rule_import_rows` |
+| Lô nhập Excel | `customer_price_rule_imports` + `customer_price_rule_import_rows`. App không dùng (nhập Excel bỏ); 6-C xoá |
 | Yêu cầu nhớ giá | `remembered_price_requests`. Bảng dự phòng, app không dùng (mục 8) |
 | Lịch sử | `customer_price_rule_activities`, lưu giá trị trước/sau dạng JSON |
 
@@ -145,7 +145,7 @@ So với giá sàn      = giá riêng − giá sàn hiện tại (catalog)      
 "Dưới giá sàn"      ⇔ giá riêng < giá sàn hiện tại
 ```
 
-Chi tiết, form và 🔧 danh sách (KI-10) đều so với **giá hiện tại** của catalog, không so với snapshot lúc lưu.
+Chi tiết, form và danh sách đều so với **giá hiện tại** của catalog, không so với snapshot lúc lưu.
 
 ### 2.4 Thứ tự áp giá khi bán hàng (dùng ở TH-05)
 
@@ -153,7 +153,7 @@ Chi tiết, form và 🔧 danh sách (KI-10) đều so với **giá hiện tại
 
 | Thứ tự | Nguồn | `source_code` | Điều kiện |
 |---|---|---|---|
-| 1 | Giá riêng của khách | `CUSTOMER_PRIVATE_RULE` | Khách hợp lệ (có vai trò `customer`, đang `active`), giá riêng `active`, `review_status ∈ {clear, warning}` 🔧 (hiện chỉ nhận `clear`, nên giá riêng dưới sàn đã được duyệt bị bỏ qua), không có blocker, còn hiệu lực tại thời điểm bán. Nếu có nhiều giá riêng thì lấy giá có `effective_from` mới nhất |
+| 1 | Giá riêng của khách | `CUSTOMER_PRIVATE_RULE` | Khách hợp lệ (có vai trò `customer`, đang `active`), giá riêng `active`, `review_status ∈ {clear, warning}`, không có blocker, còn hiệu lực tại thời điểm bán. Nếu có nhiều giá riêng thì lấy giá có `effective_from` mới nhất |
 | 2 | Giá nhập tay khi bán | `MANUAL` | Đơn giá, số tiền giảm hoặc % giảm do người bán nhập. Thấp hơn giá sàn thì **chỉ cảnh báo** `BELOW_FLOOR`. Chỉ dùng khi dòng hàng **không có giá riêng**: khách có giá riêng thì giá riêng luôn thắng, người bán không sửa giá dòng đó |
 | 3 | Giá niêm yết | `LIST_PRICE` | Lấy từ khung giá (TH-02) |
 | — | Không có giá | `LIST_PRICE_UNAVAILABLE` | Dòng bị chặn |
@@ -165,7 +165,7 @@ Khách không hợp lệ thì dòng bị chặn với `CUSTOMER_INVALID`. Tiền
 
 ### 2.5 Quy tắc nghiệp vụ tổng hợp
 
-Số BR giữ từ bản 2.1; BR-33…35 (trước đây bỏ trống) dùng cho phần bổ sung.
+Số BR giữ từ bản 2.1; BR-33…35 (trước đây bỏ trống) dùng cho phần bổ sung; BR-33 bỏ 2026-11-04 cùng nhập Excel.
 
 **Dữ liệu giá riêng**
 
@@ -176,7 +176,7 @@ Số BR giữ từ bản 2.1; BR-33…35 (trước đây bỏ trống) dùng cho
 | BR-03 | `effective_from` bắt buộc; `effective_to` để trống hoặc phải ≥ `effective_from` | CHECK `customer_price_rules_period_valid` |
 | BR-04 | Khi tạo/sửa, khách hàng phải tồn tại, có vai trò `customer` và đang `active` (TH-03) | `partner._get_customer_snapshot_for_pricing` |
 | BR-05 | Khi tạo/sửa, sản phẩm và đơn vị phải bán được và có khung giá hợp lệ (TH-02) | `catalog._get_product_price_band_snapshot_for_pricing` |
-| BR-06 | Ghi chú và lý do tắt tối đa 500 ký tự. Lý do khi lưu thay đổi tối đa 200 ký tự. 🔧 Lý do thay đổi được lưu vào **dòng lịch sử `updated`**, không ghi vào ghi chú của giá riêng (hiện code ghi đè ghi chú) | CHECK, `price_rule_save_confirm_sheet`, `update_customer_price_rule` |
+| BR-06 | Ghi chú và lý do tắt tối đa 500 ký tự. Lý do khi lưu thay đổi tối đa 200 ký tự. Lý do thay đổi được lưu vào **dòng lịch sử `updated`** (`new_value.reason`), không ghi vào ghi chú của giá riêng | CHECK, `price_rule_save_confirm_sheet`, `update_customer_price_rule` |
 | BR-07 | Tạo mới có `idempotency_key`: gửi lại cùng key và cùng nội dung thì trả về kết quả cũ; cùng key mà nội dung khác thì báo `IDEMPOTENCY_CONFLICT` | `create_customer_price_rule` |
 | BR-08 | Mọi thao tác sửa, tắt, bật lại, xoá đều kiểm `expected_version`; lệch thì báo `STATE_CHANGED` | các RPC ghi |
 
@@ -212,22 +212,11 @@ Số BR giữ từ bản 2.1; BR-33…35 (trước đây bỏ trống) dùng cho
 |---|---|---|
 | BR-20 | Danh sách bỏ qua giá riêng `deleted`. Server sắp xếp mặc định theo cập nhật mới nhất. Phân trang bằng cursor, mặc định 20 dòng | `search_customer_price_rules` |
 | BR-21 | Tìm kiếm **bỏ dấu, không phân biệt hoa thường**, trên: tên khách, SĐT khách, tên sản phẩm, mã sản phẩm (`reference_id`), SKU; ngoài ra khớp theo chuỗi id | như trên |
-| BR-22 | Lọc nhanh: Tất cả / Đang áp dụng / Dưới giá sàn. 🔧 "Dưới giá sàn" so với **giá sàn hiện tại** của catalog, giống màn chi tiết (hiện danh sách so với giá sàn lúc lưu) | như trên |
-| BR-23 | Bộ lọc: trạng thái hiển thị (nhiều lựa chọn), nguồn tạo (Tạo thủ công, Nhập Excel), cảnh báo "Dưới giá sàn", thời gian cập nhật. 🔧 Mọi bộ lọc tính ở **server**. Bỏ cảnh báo "Trùng rule" / "Dữ liệu lỗi" (không có dữ liệu nào sinh ra hai mã này) | `search_customer_price_rules` |
-| BR-24 | Sắp xếp: cập nhật mới/cũ, giá cao/thấp, tên khách A-Z/Z-A, cảnh báo trước. 🔧 Sắp xếp ở **server** trên toàn danh sách (hiện app chỉ sắp trong trang đã tải) | như trên |
+| BR-22 | Lọc nhanh: Tất cả / Đang áp dụng / Dưới giá sàn. "Dưới giá sàn" so với **giá sàn hiện tại** của catalog (khung giá hiện hành; không có thì snapshot), giống màn chi tiết; mã `below_floor_price` đã lưu bị bỏ nếu không còn dưới sàn hiện tại | như trên |
+| BR-23 | Bộ lọc: trạng thái hiển thị (chọn một), nguồn tạo (Tạo thủ công, Nhập Excel), cảnh báo "Dưới giá sàn", thời gian cập nhật (7 / 30 ngày). Mọi bộ lọc tính ở **server**. Không có cảnh báo "Trùng rule" / "Dữ liệu lỗi" | `search_customer_price_rules` |
+| BR-24 | Sắp xếp: cập nhật mới/cũ, giá cao/thấp, tên khách A-Z/Z-A, cảnh báo trước. Sắp xếp ở **server** trên toàn danh sách (`p_sort`), phân trang keyset theo khoá sắp + `id`; tiêu đề hiện tổng số (`total_count`) | như trên |
 
-**Nhập Excel**
-
-| Mã | Quy tắc | Ở đâu |
-|---|---|---|
-| BR-25 | Chỉ nhận `.xlsx`, mẫu `customer_price_rules_v1` (sheet `customer_price_rules` và `instructions`), tối đa **2.000 dòng**; không nhận công thức | `ExcelCustomerPriceRuleImportFileAdapter` |
-| BR-26 | Các cột của file: `rule_id`, `customer_id`, `product_id`, `product_unit_id`, `rule_price`, `effective_from`, `effective_to`, `note`. Khách, sản phẩm và đơn vị nhập bằng **UUID**. 🔧 File mẫu tải về phải kèm 2 sheet tra cứu: **khách hàng** (UUID, tên, SĐT; chỉ khách đang hoạt động có vai trò customer) và **sản phẩm – đơn vị** (UUID sản phẩm, UUID đơn vị, tên, SKU, tên đơn vị; chỉ đơn vị bán được). Hiện file mẫu chỉ có tiêu đề cột | như trên |
-| BR-27 | File được đọc ngay trên app. Server kiểm tra lại từng dòng và lưu thành một lô; lô ở trạng thái `ready_to_import` (hoặc `failed` nếu lỗi cả file) | `create_customer_price_rule_import` |
-| BR-28 | Kiểm tra từng dòng: tham chiếu hợp lệ (`REFERENCE_INVALID`); giá là số nguyên dương, cho phép dấu `,` `.` và khoảng trắng (`INVALID_PRICE`); ngày dạng `YYYY-MM-DD` (`INVALID_DATE`, `INVALID_PERIOD`); ghi chú tối đa 500 ký tự; trống ngày bắt đầu thì lấy ngày nghiệp vụ, kèm cảnh báo `EFFECTIVE_FROM_DEFAULTED` | `_evaluate_customer_price_rule_import_row` |
-| BR-29 | Ba chế độ xử lý khi trùng (chọn ở bước Xác nhận, mặc định **upsert**): **upsert** — dòng không `rule_id` tự dò trùng: không trùng → tạo; trùng đúng 1 → cập nhật giá riêng đó; trùng > 1 → `AMBIGUOUS_OVERLAPPING_RULES`; dòng có `rule_id` → cập nhật. **create_only** — dòng có `rule_id` hoặc trùng giá riêng đang có → lỗi (`IMPORT_MODE_MISMATCH` / `DUPLICATE_ACTIVE_RULE`), chỉ tạo dòng mới. **update_only** — dòng không `rule_id` → `IMPORT_MODE_MISMATCH`. Dòng có `rule_id` mà khoá không khớp → `RULE_KEY_MISMATCH`; `rule_id` sai dạng → `INVALID_RULE_ID` | migration `…017` |
-| BR-30 | Dưới giá sàn: có quyền ghi đè giá sàn thì chỉ cảnh báo; không có quyền thì lỗi | như trên |
-| BR-31 | Xác nhận: phải xác nhận các dòng cảnh báo (nếu có). Dòng lỗi bị bỏ qua, các dòng hợp lệ vẫn được nhập; lô kết thúc ở `completed` hoặc `completed_with_errors`. Lúc xác nhận, từng dòng được kiểm tra lại; dữ liệu đã đổi thì dòng đó thành `STATE_CHANGED`. Gửi lại yêu cầu xác nhận thì trả kết quả cũ | `confirm_customer_price_rule_import` |
-| BR-32 | Có thể huỷ một lô chưa nhập. Tải được file nhật ký `.xlsx` gồm các dòng lỗi và cảnh báo | `cancel_…`, `pricing_import_log_xlsx_builder` |
+**Nhập Excel** — BR-25 … BR-32 **bỏ** cùng EP-04 (2026-11-04, mục 8).
 
 **Lịch sử**
 
@@ -236,14 +225,13 @@ Số BR giữ từ bản 2.1; BR-33…35 (trước đây bỏ trống) dùng cho
 | BR-36 | Loại lịch sử: `created`, `updated`, `disabled`, `reenabled`, `deleted`, `import_created`, `import_updated` (`memory_*` dự phòng). Mỗi dòng có giá trị cũ/mới dạng JSON | CHECK `activity_type` |
 | BR-37 | Không có quyền xem giá sàn thì các trường giá sàn trong snapshot lịch sử bị ẩn | `_customer_price_rule_history_snapshot` |
 | BR-38 | Lọc lịch sử theo loại hoạt động, nguồn, người thực hiện, thời gian (lọc ở app; lịch sử một giá riêng ngắn nên chấp nhận). Phân trang 50 dòng, tối đa 100 | `get_customer_price_rule_history`, `price_rule_history_filter_sheet` |
-| BR-39 | 🔧 Người thực hiện hiển thị bằng **tên thành viên** (lấy từ IAM), không phải 8 ký tự đầu của UUID. Danh sách lọc "Người thực hiện" lấy từ chính lịch sử, không có giá trị mẫu | `get_customer_price_rule_history` |
+| BR-39 | Người thực hiện hiển thị bằng **tên thành viên** (`iam._member_display_name`: họ tên hồ sơ → tên trong metadata → email → "Không rõ"), không phải UUID. Danh sách lọc "Người thực hiện" lấy từ chính lịch sử, không có giá trị mẫu | `get_customer_price_rule_history` |
 
 **Bổ sung (bản 3.0)**
 
 | Mã | Quy tắc | Ở đâu |
 |---|---|---|
-| BR-33 | Đổi chế độ xử lý trùng ở bước Xác nhận → app huỷ lô hiện tại và gửi lại file với chế độ mới; server kiểm lại toàn bộ dòng ("Đang kiểm tra lại...") | `price_rule_import_cubit.setImportMode` |
-| BR-34 | Người dùng gọi tính năng là **"Giá riêng"**. 🔧 Bỏ chữ "Nhớ giá" / "giá nhớ" khỏi tiêu đề menu, màn danh sách, bộ lọc, màn nhập và kết quả nhập (nhớ giá ngoài phạm vi, KI-13) | `more_page`, `pricing_*` |
+| BR-34 | Người dùng gọi tính năng là **"Giá riêng"**; không có chữ "Nhớ giá" / "giá nhớ" ở tiêu đề menu, màn danh sách, bộ lọc (nhớ giá ngoài phạm vi) | `more_page`, `pricing_*` |
 | BR-35 | Màn bán hàng (TH-05 US-01.5) "Lưu làm giá riêng": dùng `resolve_applicable_customer_price_rule` để biết khách đã có giá riêng cho đơn vị đó chưa, rồi gọi `create_/update_customer_price_rule` (nguồn `manual`), cùng quy tắc giá sàn và ghi đè ở BR-09…BR-14 | TH-05 |
 
 
@@ -271,8 +259,8 @@ Không có khoá ngoại sang `partner` / `catalog`. Tính hợp lệ của tham
 |---|---|---|
 | `customer_price_rules` | khoá (`customer_id`, `product_id`, `product_unit_id`); `rule_price_minor`, `currency_code`; `rule_type`, `source_type`, `status`, `review_status`, `price_check_status`; `effective_from/to`; snapshot (tên khách, SĐT, tên/mã/SKU sản phẩm, tên đơn vị, giá niêm yết, giá sàn); `warning_codes`, `blocking_codes`; `disabled_*`, `deleted_at`; truy vết nguồn (`source_import_*`, `source_order_*`, `source_memory_request_id`, `source_sold_at`); `version`, `idempotency_key`, `payload_hash` | Bảng chính |
 | `customer_price_rule_activities` | `activity_type`, `old_value`, `new_value`, `created_by`, `import_id/row_id`, `source_order_*` | Lịch sử |
-| `customer_price_rule_imports` | `template_version`, `original_file_name`, `import_mode`, `status`, các bộ đếm dòng, `file_error_codes`, `version` | Lô nhập |
-| `customer_price_rule_import_rows` | giá trị gốc `raw_*`, giá trị đã chuẩn hoá `normalized_*`, snapshot khách/sản phẩm/đơn vị, `row_status`, `action`, `error_codes`, `warning_codes`, `matched_rule_id` | Dòng nhập |
+| `customer_price_rule_imports` | `template_version`, `original_file_name`, `import_mode`, `status`, các bộ đếm dòng, `file_error_codes`, `version` | Lô nhập. App không dùng; 6-C xoá |
+| `customer_price_rule_import_rows` | giá trị gốc `raw_*`, giá trị đã chuẩn hoá `normalized_*`, snapshot khách/sản phẩm/đơn vị, `row_status`, `action`, `error_codes`, `warning_codes`, `matched_rule_id` | Dòng nhập. App không dùng; 6-C xoá |
 | `remembered_price_requests` | id đơn và dòng đơn, khoá, `sold_price_minor`, `sold_at`, `status`, `result_type`, `reason_code`, `rule_id` | Yêu cầu nhớ giá |
 
 Tất cả bảng bật RLS và **thu hồi toàn bộ quyền** (kể cả quyền đọc). Mọi truy cập đi qua RPC `security definer`.
@@ -299,16 +287,14 @@ Tất cả bảng bật RLS và **thu hồi toàn bộ quyền** (kể cả quy�
 | Epic | Tên | User story | Màn |
 |---|---|---|---|
 | EP-01 | Danh sách & tra cứu | US-01.1 Xem danh sách; US-01.2 Tìm kiếm; US-01.3 Lọc; US-01.4 Sắp xếp | PR-01, PR-02 |
-| EP-02 | Tạo & sửa giá riêng | US-02.1 Chọn cách thêm; US-02.2 Chọn khách, sản phẩm, đơn vị; US-02.3 Nhập giá và xem chênh lệch; US-02.4 Hiệu lực & ghi chú; US-02.5 Xác nhận dưới giá sàn; US-02.6 Ghi đè giá trùng; US-02.7 Lưu tạo mới; US-02.8 Sửa giá riêng | PR-03…PR-07 |
+| EP-02 | Tạo & sửa giá riêng | US-02.1 Mở form thêm; US-02.2 Chọn khách, sản phẩm, đơn vị; US-02.3 Nhập giá và xem chênh lệch; US-02.4 Hiệu lực & ghi chú; US-02.5 Xác nhận dưới giá sàn; US-02.6 Ghi đè giá trùng; US-02.7 Lưu tạo mới; US-02.8 Sửa giá riêng | PR-04…PR-07 |
 | EP-03 | Chi tiết & vòng đời | US-03.1 Xem chi tiết; US-03.2 Tắt; US-03.3 Bật lại | PR-08 |
-| EP-04 | Nhập Excel | US-04.1 Tải file mẫu; US-04.2 Chọn file; US-04.3 Xem trước; US-04.4 Chọn cách xử lý trùng & xác nhận; US-04.5 Kết quả & nhật ký; US-04.6 Huỷ lô | PR-09 |
+| EP-04 | ~~Nhập Excel~~ (bỏ 2026-11-04) | — | — |
 | EP-05 | Lịch sử | US-05.1 Xem lịch sử; US-05.2 Lọc lịch sử; US-05.3 Xem chi tiết một hoạt động | PR-10 |
 | EP-06 | Áp giá khi bán (cho TH-05) | US-06.1 Tính giá dòng; US-06.2 Kiểm giá nhập tay; US-06.3 Lưu làm giá riêng từ màn bán | (TH-05 SG-02, SG-05) |
 
 ```text
-Khác ▸ "Giá riêng" ─▶ Danh sách (PR-01) ──[+]──▶ Chọn cách thêm (PR-03)
-                          │                         ├─ Tạo thủ công ─▶ Form (PR-04) ─▶ Chọn khách / sản phẩm / đơn vị (PR-05/06/07)
-                          │                         └─ Nhập từ Excel ─▶ Wizard (PR-09)
+Khác ▸ "Giá riêng" ─▶ Danh sách (PR-01) ──[+]──▶ Form (PR-04) ─▶ Chọn khách / sản phẩm / đơn vị (PR-05/06/07)
                           └─chạm─▶ Chi tiết (PR-08) ─┬─ Sửa (PR-04)
                                                     ├─ Tắt / Bật lại (sheet)
                                                     └─ Lịch sử (PR-10)
@@ -318,7 +304,7 @@ Khác ▸ "Giá riêng" ─▶ Danh sách (PR-01) ──[+]──▶ Chọn các
 
 ### 4.2 EP-01 — Danh sách & tra cứu
 
-**Điểm vào:** tab Khác ▸ 🔧 "Giá riêng — Giá riêng theo khách hàng" (hiện "Giá riêng / Nhớ giá", KI-13) → `/pricing`.
+**Điểm vào:** tab Khác ▸ "Giá riêng — Giá riêng theo khách hàng" → `/pricing`.
 
 #### US-01.1 — Xem danh sách giá riêng
 
@@ -328,16 +314,16 @@ Khác ▸ "Giá riêng" ─▶ Danh sách (PR-01) ──[+]──▶ Chọn các
 
 **Yêu cầu chức năng**
 
-- FR-01: Tiêu đề 🔧 "Giá riêng" (hiện "Giá riêng / Nhớ giá"), dòng "`<N>` giá riêng".
+- FR-01: Tiêu đề "Giá riêng", dòng "`<N>` giá riêng" (`<N>` = tổng số sau lọc, `total_count` của server).
 - FR-02: Mỗi thẻ: khách hàng (+ SĐT), sản phẩm, "Đơn vị: `<đơn vị>`", "Giá riêng", "Giá niêm yết" (hiện tại từ catalog), "Hiệu lực: `<từ> – <đến | Không giới hạn>`", badge trạng thái (Đang áp dụng / Chưa hiệu lực / Hết hiệu lực / Đã tắt / Cần kiểm tra), nhãn "Dưới giá sàn".
 - FR-03: Không hiện giá riêng `deleted`; mặc định cập nhật mới nhất trước; cursor 20 dòng.
-- FR-04: Nút "Thêm giá riêng" → PR-03.
+- FR-04: Nút "Thêm giá riêng" → PR-04 (form tạo); hiện khi `available_actions` có `create_manual`. Lưu xong → mở chi tiết PR-08; quay về danh sách thì tải lại.
 
 **Quy tắc:** BR-20.
 
 **Tiêu chí nghiệm thu**
 
-- AC-01: Chưa có giá riêng → "Chưa có giá riêng nào — Tạo giá riêng hoặc nhập từ Excel để bắt đầu."
+- AC-01: Chưa có giá riêng → "Chưa có giá riêng nào — Tạo giá riêng để bắt đầu."
 - AC-02: Không có quyền → "Không có quyền truy cập — Bạn không có quyền xem danh sách giá riêng."
 - AC-03: Lỗi → "Không tải được danh sách" + "Thử lại".
 - AC-04: Giá riêng có `effective_from` = ngày mai hiện "Chưa hiệu lực"; `effective_to` = hôm qua hiện "Hết hiệu lực".
@@ -356,22 +342,22 @@ Khác ▸ "Giá riêng" ─▶ Danh sách (PR-01) ──[+]──▶ Chọn các
 **Yêu cầu chức năng**
 
 - FR-01: Chip nhanh: "Tất cả", "Đang áp dụng", "Dưới giá sàn".
-- FR-02: Sheet "Bộ lọc giá riêng" 🔧 (bỏ "/ nhớ giá"): "Trạng thái" (nhiều lựa chọn: Đang áp dụng, Đã tắt, Hết hiệu lực, Cần kiểm tra); "Nguồn tạo" (Tạo thủ công, Nhập Excel); "Cảnh báo" (Dưới giá sàn); "Thời gian cập nhật" (7 / 30 ngày gần đây); "Đặt lại", "Áp dụng"; "Đang chọn `<n>` bộ lọc".
-- FR-03: 🔧 Bỏ "Từ đơn hàng" (nguồn), "Trùng rule", "Dữ liệu lỗi" (cảnh báo) (KI-02, KI-05).
-- FR-04: 🔧 Mọi lọc tính ở server (KI-05); "Dưới giá sàn" so với giá sàn **hiện tại** (KI-10).
+- FR-02: Sheet "Bộ lọc giá riêng": "Trạng thái" (chọn một: Đang áp dụng, Đã tắt, Hết hiệu lực, Cần kiểm tra); "Nguồn tạo" (Tạo thủ công, Nhập Excel); "Cảnh báo" (Dưới giá sàn); "Thời gian cập nhật" (7 / 30 ngày gần đây); "Đặt lại", "Áp dụng"; "Đang chọn `<n>` bộ lọc".
+- FR-03: Không có "Từ đơn hàng", "Migration" (nguồn), "Trùng rule", "Dữ liệu lỗi" (cảnh báo), "Tùy chọn" (thời gian).
+- FR-04: Mọi lọc tính ở server; "Dưới giá sàn" so với giá sàn **hiện tại** (BR-22).
 
 **Quy tắc:** BR-22, BR-23.
 
 **Tiêu chí nghiệm thu**
 
-- AC-01: 🔧 Giá riêng lưu lúc giá sàn 100.000, nay giá sàn tăng lên 120.000, giá riêng 110.000 → có trong lọc "Dưới giá sàn".
-- AC-02: 🔧 Lọc "Đã tắt" trên 60 giá riêng (3 trang) trả đủ mọi giá riêng đã tắt, không chỉ trong trang đã tải.
+- AC-01: Giá riêng lưu lúc giá sàn 100.000, nay giá sàn tăng lên 120.000, giá riêng 110.000 → có trong lọc "Dưới giá sàn".
+- AC-02: Lọc "Đã tắt" trên 60 giá riêng (3 trang) trả đủ mọi giá riêng đã tắt, không chỉ trong trang đã tải.
 
 #### US-01.4 — Sắp xếp
 
 - FR-01: Sheet "Sắp xếp danh sách": "Cập nhật gần nhất", "Cập nhật cũ nhất", "Giá riêng cao → thấp", "Giá riêng thấp → cao", "Tên khách hàng A-Z", "Tên khách hàng Z-A", "Cảnh báo cần xử lý trước"; nút "Áp dụng"; nhãn "Sắp xếp: `<lựa chọn>`".
-- FR-02: 🔧 Sắp xếp ở server trên toàn danh sách (KI-05).
-- AC-01: 🔧 "Giá riêng cao → thấp" với 45 giá riêng: dòng đầu trang 1 là giá cao nhất toàn bộ.
+- FR-02: Sắp xếp ở server trên toàn danh sách (BR-24).
+- AC-01: "Giá riêng cao → thấp" với 45 giá riêng: dòng đầu trang 1 là giá cao nhất toàn bộ.
 
 **Quy tắc:** BR-24.
 
@@ -381,11 +367,11 @@ Khác ▸ "Giá riêng" ─▶ Danh sách (PR-01) ──[+]──▶ Chọn các
 
 **Tổng quan.** Form (PR-04) gồm 3 phần: "Thông tin áp dụng" (khách → sản phẩm → đơn vị bán), "Mức giá áp dụng", "Thời gian hiệu lực". Server kiểm lại mọi điều kiện khi lưu.
 
-#### US-02.1 — Chọn cách thêm
+#### US-02.1 — Mở form thêm
 
-- FR-01: PR-03 "Thêm giá riêng — Bạn muốn tạo giá riêng theo cách nào?": "Tạo thủ công — Nhập thông tin giá riêng cho từng khách hàng."; "Nhập từ Excel — Tạo nhiều giá riêng cùng lúc bằng file Excel mẫu."
-- FR-02: Mỗi lựa chọn hiện theo quyền (`create`, `import`); không có quyền nào → "Không có quyền — Bạn không có quyền tạo hoặc nhập giá riêng."
-- AC-01: Lỗi tải quyền → "Không thể tải quyền thao tác. Vui lòng thử lại." + "Thử lại".
+- FR-01: Nút "Thêm giá riêng" ở PR-01 (nút nổi và nút ở trạng thái trống) mở thẳng PR-04 `/pricing/new`. Màn "Chọn cách thêm" (PR-03) **bỏ** 2026-11-04 cùng nhập Excel.
+- FR-02: Nút chỉ hiện khi danh sách trả `available_actions` có `create_manual`.
+- AC-01: Lưu thành công → mở chi tiết giá riêng vừa tạo; quay về danh sách thì danh sách tải lại.
 
 #### US-02.2 — Chọn khách, sản phẩm, đơn vị bán
 
@@ -399,7 +385,7 @@ Khác ▸ "Giá riêng" ─▶ Danh sách (PR-01) ──[+]──▶ Chọn các
 - FR-02: "Sản phẩm" ("Tìm và chọn sản phẩm...") → PR-06 "Chọn sản phẩm": "Tìm tên sản phẩm..."; mỗi dòng "Đơn vị cơ bản: …", "Giá hiện tại: …đ".
 - FR-03: "Đơn vị bán" ("Chọn đơn vị bán..."; chưa chọn sản phẩm → "Chọn sản phẩm trước") → PR-07 "Chọn đơn vị bán": mỗi đơn vị "Giá hiện tại: … • Giá sàn: …", nhãn "Đơn vị cơ bản".
 - FR-04: Đổi sản phẩm → xoá đơn vị đã chọn.
-- FR-05: Khi **sửa**, ba ô này chỉ đọc (BR-16), hiện ở đầu form kèm "Cập nhật gần nhất — Cập nhật bởi: …".
+- FR-05: Khi **sửa**, ba ô này chỉ đọc (BR-16), hiện ở đầu form kèm "Cập nhật gần nhất — Cập nhật bởi: `<tên thành viên>`" (BR-39).
 
 **Quy tắc:** BR-01, BR-04, BR-05.
 
@@ -423,8 +409,8 @@ Khác ▸ "Giá riêng" ─▶ Danh sách (PR-01) ──[+]──▶ Chọn các
 
 - FR-01: "Từ ngày" (bắt buộc, mặc định hôm nay); "Đến ngày": "Không giới hạn" hoặc "Chọn ngày cụ thể".
 - FR-02: "Ghi chú" tối đa 500 ký tự.
-- FR-03: Bộ khoá + khoảng hiệu lực trùng giá riêng khác → banner "Lưu ý tự động ghi đè giá trùng — Khoảng thời gian hiệu lực mới bị trùng với giá riêng đang áp dụng khác. Khi lưu, hệ thống sẽ tự động ghi đè giá riêng cũ." kèm "Xem giá riêng hiện có >".
-- FR-04: 🔧 Bỏ câu cũ trong banner trùng "…Không thể lưu rule mới; vui lòng điều chỉnh khoảng hiệu lực hoặc đối tượng áp dụng." (mâu thuẫn với ghi đè, KI-14).
+- FR-03: Bộ khoá + khoảng hiệu lực trùng giá riêng khác → banner "Lưu ý tự động ghi đè giá trùng — Khoảng thời gian hiệu lực mới bị trùng với giá riêng đang áp dụng khác. Khi lưu, hệ thống sẽ tự động ghi đè giá riêng cũ." kèm "Xem giá riêng hiện có >" (chỉ khi server trả `conflictingRuleId`, mở chi tiết giá riêng đó). Banner hiện cả ở form tạo sau lỗi trùng.
+- FR-04: Banner trùng không có câu "…Không thể lưu rule mới…" (mâu thuẫn với ghi đè).
 - AC-01: Đến ngày < từ ngày → không lưu được.
 
 **Quy tắc:** BR-03, BR-12, BR-13.
@@ -434,7 +420,7 @@ Khác ▸ "Giá riêng" ─▶ Danh sách (PR-01) ──[+]──▶ Chọn các
 - FR-01: Lưu giá < giá sàn mà chưa xác nhận → server `BELOW_FLOOR_BLOCKED` (`acknowledgementRequired`) → app hỏi xác nhận, gửi lại với `acknowledge_floor_warning = true`.
 - FR-02: Lưu thành công → giá riêng có cảnh báo `below_floor_price`, `review_status = warning`.
 - AC-01: Thiếu quyền `override_floor_price` → `BELOW_FLOOR_BLOCKED` (`overridePermissionRequired`) → "Giá nhập thấp hơn giá sàn quy định."
-- AC-02: 🔧 Giá riêng dưới sàn đã xác nhận vẫn được áp khi bán (KI-04).
+- AC-02: Giá riêng dưới sàn đã xác nhận vẫn được áp khi bán.
 
 **Quy tắc:** BR-09, BR-10.
 
@@ -476,7 +462,7 @@ Scenario: SC-01 — Giá mới từ giữa năm
 - FR-01: "Lưu" ("Đang lưu...") → `create_customer_price_rule` kèm `idempotency_key`.
 - FR-02: Thành công → "Đã tạo giá riêng thành công", mở chi tiết.
 - FR-03: Rời form khi có thay đổi → "Rời khỏi màn hình? — Những thay đổi chưa lưu sẽ bị mất." ("Ở lại chỉnh sửa" / "Rời khỏi").
-- FR-04: Lỗi: `REFERENCE_INVALID` → "Khách hàng hoặc sản phẩm không hợp lệ."; `NO_PERMISSION` → "Bạn không có quyền thực hiện."; khác → "Không thể lưu giá riêng. Vui lòng thử lại."; 🔧 không hiện "Lỗi: `<mã>`" thô (KI-15).
+- FR-04: Lỗi: `REFERENCE_INVALID` → "Khách hàng hoặc sản phẩm không hợp lệ."; `NO_PERMISSION` → "Bạn không có quyền thực hiện."; khác → "Không thể lưu giá riêng. Vui lòng thử lại."; không hiện "Lỗi: `<mã>`" thô.
 
 **Quy tắc:** BR-07.
 
@@ -491,7 +477,7 @@ Scenario: SC-01 — Giá mới từ giữa năm
 
 - FR-01: "Sửa giá riêng" (PR-04 chế độ sửa): chỉ giá, hiệu lực, ghi chú.
 - FR-02: "Lưu" → sheet "Lưu thay đổi? — Bạn có chắc muốn cập nhật giá riêng này?" tóm tắt "Giá riêng:", "Từ ngày:", "Đến ngày:"; "Lý do thay đổi (không bắt buộc)" ("Nhập lý do thay đổi..."); nếu trùng: "Lưu ý tự động ghi đè — Cập nhật thời gian hiệu lực này sẽ tự động ghi đè giá riêng đang áp dụng trùng khoảng thời gian (nếu có)."; "Hủy" / "Lưu thay đổi".
-- FR-03: → `update_customer_price_rule(p_expected_version)`; 🔧 lý do lưu vào lịch sử `updated`, **không** ghi đè ghi chú (KI-07).
+- FR-03: → `update_customer_price_rule(p_expected_version, …, p_reason)`; lý do lưu vào lịch sử `updated`, **không** ghi đè ghi chú (BR-06).
 - FR-04: `STATE_CHANGED` → banner "Dữ liệu đã thay đổi — Giá riêng này vừa được cập nhật bởi người khác. Tải lại để xem phiên bản mới nhất." + "Tải lại".
 - FR-05: Thành công → "Đã cập nhật giá riêng".
 
@@ -500,7 +486,7 @@ Scenario: SC-01 — Giá mới từ giữa năm
 **Tiêu chí nghiệm thu**
 
 - AC-01: Sửa được giá riêng `disabled` (vẫn giữ `disabled`).
-- AC-02: 🔧 Nhập lý do "Theo hợp đồng Q3" → ghi chú giữ nguyên; lịch sử `updated` có "Lý do: Theo hợp đồng Q3".
+- AC-02: Nhập lý do "Theo hợp đồng Q3" → ghi chú giữ nguyên; lịch sử `updated` có "Lý do: Theo hợp đồng Q3".
 
 ---
 
@@ -512,8 +498,8 @@ Scenario: SC-01 — Giá mới từ giữa năm
 
 - FR-01: PR-08 "Chi tiết giá riêng": header badge trạng thái, khách hàng, SĐT, sản phẩm, đơn vị bán.
 - FR-02: "Thông tin giá": "Giá riêng", "Giá niêm yết", "Giá sàn" (hoặc "Ẩn theo quyền"), "Chênh lệch"; dưới sàn → banner "Giá riêng đang thấp hơn giá sàn hiện tại".
-- FR-03: "Hiệu lực & nguồn": "Từ ngày", "Đến ngày" ("Không giới hạn"), "Nguồn tạo" (Tạo thủ công / Nhập Excel); 🔧 bỏ "Từ đơn hàng" (KI-02).
-- FR-04: "Thông tin tắt" (khi đã tắt): banner "Giá riêng đã tắt — Không áp dụng cho đơn hàng mới.", "Người tắt", "Thời gian", "Lý do" ("Không có").
+- FR-03: "Hiệu lực & nguồn": "Từ ngày", "Đến ngày" ("Không giới hạn"), "Nguồn tạo" (Tạo thủ công / Nhập Excel; dữ liệu nguồn `migration` hiện "Hệ thống").
+- FR-04: "Thông tin tắt" (khi đã tắt): banner "Giá riêng đã tắt — Không áp dụng cho đơn hàng mới.", "Người tắt" (tên thành viên, BR-39; không có → "—"), "Thời gian", "Lý do" ("Không có").
 - FR-05: "Lịch sử gần đây" (vài mục) + "Xem tất cả lịch sử".
 - FR-06: Nút "Thao tác" → sheet theo `available_actions`: "Sửa giá riêng", "Tắt giá riêng", "Bật lại giá riêng", "Lịch sử áp dụng & thay đổi"; không có → "Không có thao tác khả dụng".
 
@@ -537,7 +523,7 @@ Scenario: SC-01 — Giá mới từ giữa năm
 **Yêu cầu chức năng**
 
 - FR-01: "Bật lại giá riêng" → `precheck_customer_price_rule_reenable` → nhận `precheck_token`.
-- FR-02: Sheet "Bật lại giá riêng? — Giá riêng sẽ được áp dụng lại nếu còn trong thời gian hiệu lực." hiện "Hiệu lực từ", "Đến ngày"; dưới sàn: "Giá dưới giá sàn — Giá riêng thấp hơn giá sàn hiện tại. Bạn cần xác nhận trước khi bật lại." + ô "Tôi xác nhận bật lại giá dưới giá sàn"; "Lưu ý — Bật lại giá riêng này sẽ tự động tắt giá riêng trùng (nếu có)." 🔧 → "…sẽ tự động **ghi đè (xoá)** giá riêng trùng (nếu có)." (đúng hành vi BR-14, KI-14).
+- FR-02: Sheet "Bật lại giá riêng? — Giá riêng sẽ được áp dụng lại nếu còn trong thời gian hiệu lực." hiện "Hiệu lực từ", "Đến ngày"; dưới sàn: "Giá dưới giá sàn — Giá riêng thấp hơn giá sàn hiện tại. Bạn cần xác nhận trước khi bật lại." + ô "Tôi xác nhận bật lại giá dưới giá sàn"; "Lưu ý — Bật lại giá riêng này sẽ tự động ghi đè (xoá) giá riêng trùng (nếu có)." (BR-14).
 - FR-03: "Giữ đã tắt" / "Bật lại giá riêng" ("Đang bật lại...") → `reenable_customer_price_rule`; "Bật lại giá riêng thành công".
 - FR-04: Không đủ điều kiện → "Không thể bật lại" + lý do:
 
@@ -572,120 +558,9 @@ Scenario: SC-01 — Bật lại giá dưới sàn
 
 ---
 
-### 4.5 EP-04 — Nhập Excel
+### 4.5 EP-04 — Nhập Excel (bỏ)
 
-**Tổng quan.** Wizard PR-09 🔧 "Nhập giá riêng từ Excel" (hiện tiêu đề "Nhập giá nhớ", KI-13), 4 bước: "Chọn file" → "Kiểm tra" → "Xác nhận" → "Kết quả". File đọc trên máy, server kiểm lại từng dòng và lưu thành lô.
-
-#### US-04.1 — Tải file mẫu
-
-- FR-01: "Tải file mẫu nhập giá riêng" → lưu `.xlsx` mẫu `customer_price_rules_v1`; "Đã tải file mẫu".
-- FR-02: 🔧 File mẫu có thêm 2 sheet tra cứu: khách hàng (UUID, tên, SĐT; chỉ khách `active` có vai trò khách) và sản phẩm – đơn vị (UUID sản phẩm, UUID đơn vị, tên, SKU, tên đơn vị; chỉ đơn vị bán được) (KI-03).
-- AC-01: Lỗi → "Không thể tải file mẫu" / "Không thể lưu file mẫu" / "Không có quyền tải file mẫu".
-
-**Quy tắc:** BR-25, BR-26.
-
-#### US-04.2 — Chọn file
-
-- FR-01: "Chọn file từ thiết bị"; trên máy tính "Kéo & thả file vào đây" / "Thả file để nhập".
-- FR-02: "Lưu ý trước khi nhập": "Chỉ nhận file .xlsx đúng mẫu"; "Mỗi dòng là 1 rule: Khách hàng x Sản phẩm x Đơn vị"; 🔧 "Giá nhập phải > 0" (hiện ghi ">= 0", KI-15); "Hệ thống sẽ bỏ qua dòng lỗi".
-- FR-03: Lỗi cả file:
-
-| Lỗi | Thông điệp |
-|---|---|
-| Không phải `.xlsx` | "File không đúng định dạng .xlsx." / "Chỉ chấp nhận file Excel định dạng .xlsx." |
-| Sai tiêu đề cột | "Các cột tiêu đề không đúng file mẫu. Vui lòng dùng file mẫu mới nhất." |
-| Sai phiên bản mẫu | "Phiên bản file mẫu không được hỗ trợ. Vui lòng tải lại file mẫu mới nhất." |
-| Không có sheet dữ liệu | "Không tìm thấy sheet dữ liệu đúng định dạng trong file." |
-| Có công thức | "File có ô công thức. Vui lòng chuyển công thức thành giá trị trước khi nhập." |
-| Quá 2.000 dòng | "File vượt quá số dòng cho phép." |
-| Không có dòng | "File không có dòng dữ liệu để nhập." |
-| File nén hỏng / quá lớn | "File Excel quá lớn hoặc có cấu trúc tệp nén không hợp lệ." |
-| Không đọc được | "Không thể đọc file — Hệ thống không thể truy cập file đã chọn. Vui lòng thử lại." |
-
-- FR-04: "Tiếp tục" → `create_customer_price_rule_import` ("Đang kiểm tra dữ liệu...").
-
-#### US-04.3 — Xem trước
-
-- FR-01: "Hệ thống đã kiểm tra file. Vui lòng xem kết quả."; "Tổng dòng", "Dữ liệu hợp lệ (n)", "Cảnh báo (n)", "Lỗi (n)".
-- FR-02: Từng nhóm: dòng "Dòng `<n>`: `<khách>` · `<sản phẩm>`", đơn vị (Đơn vị cơ sở / Đơn vị quy đổi), giá; chạm → "Chi tiết lỗi" / "Chi tiết cảnh báo" ("Đã hiểu").
-- FR-03: Thông điệp từng dòng:
-
-| Mã | Thông điệp |
-|---|---|
-| `REFERENCE_INVALID` | "Không tìm thấy khách hàng, sản phẩm hoặc đơn vị hợp lệ." |
-| `INVALID_PRICE` | "Giá riêng phải là số nguyên lớn hơn 0." |
-| `INVALID_DATE` | "Ngày hiệu lực không hợp lệ. Hãy dùng định dạng YYYY-MM-DD." |
-| `INVALID_PERIOD` | "Ngày kết thúc phải từ ngày bắt đầu trở đi." |
-| `EFFECTIVE_FROM_DEFAULTED` (cảnh báo) | "Ngày bắt đầu để trống, hệ thống sẽ dùng ngày hiện tại." |
-| Ghi chú dài | "Ghi chú không được vượt quá 500 ký tự." |
-| `INVALID_RULE_ID` | "Mã giá riêng không đúng định dạng." |
-| `RULE_KEY_MISMATCH` | "Khách hàng hoặc sản phẩm không khớp với giá riêng cần cập nhật." |
-| `AMBIGUOUS_OVERLAPPING_RULES` | "Có nhiều rule đang hiệu lực cùng khớp khách hàng, sản phẩm, đơn vị và khoảng thời gian. Hãy thu hẹp khoảng hiệu lực để chỉ khớp một rule." |
-| `DUPLICATE_ACTIVE_RULE` | "Đã tồn tại giá riêng đang hoạt động trùng thời gian." |
-| `IMPORT_MODE_MISMATCH` | "Dòng dữ liệu không phù hợp với chế độ import đã chọn." |
-| Dưới sàn (cảnh báo / lỗi) | "Giá riêng `<giá>` thấp hơn giá sàn `<sàn>`" (+ " và bạn không có quyền ghi đè") |
-| `STATE_CHANGED` (lúc xác nhận) | "Dữ liệu đã thay đổi sau bước kiểm tra. Vui lòng kiểm tra lại file." |
-
-- FR-04: 🔧 Cột tiêu đề "Giá nhỏ" đổi thành "Giá" (KI-15).
-
-**Quy tắc:** BR-27, BR-28, BR-30.
-
-#### US-04.4 — Chọn cách xử lý trùng & xác nhận
-
-**Yêu cầu chức năng**
-
-- FR-01: "Tóm tắt lần nhập": "Tổng dòng trong file", "Hợp lệ", "Cảnh báo", "Lỗi (bỏ qua)".
-- FR-02: "Xử lý khi trùng rule (khách hàng + sản phẩm + đơn vị)":
-
-| Chế độ | Nhãn (🔧 KI-13) | Mô tả |
-|---|---|---|
-| `upsert` (mặc định) | "Cập nhật giá riêng hiện tại" (hiện "Cập nhật giá nhớ hiện tại") | "Cập nhật rule đã khớp; tạo mới nếu chưa có." |
-| `create_only` | "Bỏ qua, giữ nguyên giá hiện tại" | "Không cập nhật rule đang có; chỉ tạo dòng mới." |
-| `update_only` | "Chỉ cập nhật rule đã có" | "Bỏ qua dòng tạo mới; chỉ xử lý dòng khớp rule." |
-
-- FR-03: Đổi chế độ → kiểm lại cả lô (BR-33), "Đang kiểm tra lại...".
-- FR-04: Có dòng cảnh báo → bắt buộc tích "Tôi đã xem xét và muốn giữ các dòng cảnh báo".
-- FR-05: "Nhập (`<n>` dòng)" ("Đang nhập dữ liệu...") → `confirm_customer_price_rule_import`; "Quay lại".
-
-**Quy tắc:** BR-29, BR-31, BR-33.
-
-**Tiêu chí nghiệm thu**
-
-- AC-01: Chế độ `create_only`, dòng trùng giá riêng đang có → dòng lỗi `DUPLICATE_ACTIVE_RULE`, các dòng khác vẫn nhập.
-- AC-02: Chế độ `update_only`, dòng không có `rule_id` → `IMPORT_MODE_MISMATCH`.
-- AC-03: Gửi xác nhận hai lần → kết quả như lần đầu.
-- AC-04: Giá riêng bị đổi giữa lúc kiểm tra và xác nhận → dòng đó `STATE_CHANGED`, dòng khác vẫn nhập.
-
-**Kịch bản**
-
-```gherkin
-Feature: Nhập giá riêng từ Excel
-
-Scenario: SC-01 — Upsert
-  Given khách A đã có giá riêng "sản phẩm X – hộp" 100.000
-  And file có 2 dòng: (A, X, hộp, 95.000) và (A, Y, chai, 40.000), không có rule_id
-  When tôi nhập với chế độ mặc định
-  Then giá riêng (A, X, hộp) thành 95.000
-  And có giá riêng mới (A, Y, chai) 40.000
-  And kết quả "Nhập thành công!" với 2 dòng
-```
-
-#### US-04.5 — Kết quả & nhật ký
-
-- FR-01: "Nhập thành công!" ("Đã nhập `<n>` dòng."); "Nhập một phần — Một số dòng bị bỏ qua hoặc lỗi."; "Nhập thất bại — Không có dòng nào được nhập. Vui lòng kiểm tra lại file."
-- FR-02: "Chi tiết kết quả": Tổng dòng, Đã nhập, Cảnh báo (đã bỏ qua), Lỗi (đã bỏ qua); "Xem chi tiết".
-- FR-03: "Tải nhật ký nhập (.xlsx)" (các dòng lỗi và cảnh báo); "Đã tải nhật ký nhập"; không có → "Không có nhật ký để tải".
-- FR-04: "Hoàn tất" → về danh sách.
-- FR-05: 🔧 "Đã nhập `<n>` dòng giá nhớ." → "Đã nhập `<n>` dòng giá riêng." (KI-13).
-
-#### US-04.6 — Huỷ lô
-
-- FR-01: Quay lại khi lô đang chờ → "Hủy lần nhập? — Lô dữ liệu đang chờ xác nhận sẽ bị hủy. Bạn có chắc muốn quay lại không?" ("Tiếp tục nhập" / "Hủy lần nhập") → `cancel_customer_price_rule_import`.
-- AC-01: Huỷ lỗi → "Không thể hủy lần nhập — Lô dữ liệu vẫn được giữ nguyên. Vui lòng thử lại."
-
-**Quy tắc:** BR-32.
-
----
+**Bỏ 2026-11-04** (người dùng chốt, plan 6-A1 Q9): US-04.1 … US-04.6 không làm. Giá riêng chỉ tạo từ form (EP-02) và "Lưu làm giá riêng" ở màn bán (US-06.3). Giá riêng cũ có nguồn `excel_import` vẫn hiện nhãn "Nhập Excel". Xem mục 8.
 
 ### 4.6 EP-05 — Lịch sử
 
@@ -693,15 +568,15 @@ Scenario: SC-01 — Upsert
 
 - FR-01: PR-10 "Lịch sử giá riêng": timeline; "Mới nhất trước" / "Cũ nhất trước"; "`<n>` kết quả"; ô "Tìm theo hành động, người thực hiện...".
 - FR-02: Mỗi mục: loại ("Tạo giá riêng", "Sửa giá riêng", "Tắt giá riêng", "Bật lại giá riêng", "Xóa giá riêng", "Tạo từ nhập Excel", "Cập nhật từ nhập Excel"), người thực hiện, thời gian, "Giá đổi từ `<cũ>` → `<mới>`" / "Giá áp dụng: …", "Lý do: …".
-- FR-03: 🔧 Người thực hiện là **tên thành viên**, không phải 8 ký tự UUID (KI-08).
+- FR-03: Người thực hiện là **tên thành viên** (BR-39).
 - FR-04: Rỗng → "Chưa có lịch sử thay đổi — Giá riêng này chưa phát sinh hoạt động nào."; không quyền → "Bạn không có quyền xem lịch sử giá riêng".
 
 **Quy tắc:** BR-36, BR-37, BR-39.
 
 #### US-05.2 — Lọc lịch sử
 
-- FR-01: "Bộ lọc lịch sử giá riêng": "Loại hoạt động" (Tạo giá riêng, Sửa giá, Tắt, Bật lại), "Nguồn" (Tạo thủ công, Nhập Excel), "Người thực hiện", "Thời gian" (7 / 30 / 90 ngày gần đây); "Đặt lại", "Áp dụng".
-- FR-02: 🔧 "Người thực hiện" lấy từ chính lịch sử; bỏ giá trị mẫu "Nguyễn Văn A", "Quản trị viên" (KI-08); bỏ nguồn "Từ đơn hàng" (KI-02).
+- FR-01: "Bộ lọc lịch sử giá riêng": "Loại hoạt động" (Tất cả, Tạo giá riêng, Sửa giá, Tắt, Bật lại), "Người thực hiện", "Thời gian" (Tất cả, 7 / 30 / 90 ngày gần đây); "Đặt lại", "Áp dụng". Không có nhóm "Nguồn" (nhãn nguồn của dữ liệu cũ vẫn hiện ở từng mục). Lọc nhanh: "Tất cả", "Sửa giá".
+- FR-02: "Người thực hiện" lấy từ chính lịch sử, không có giá trị mẫu.
 - FR-03: Lọc ở app (BR-38).
 - AC-01: Không có kết quả → "Không tìm thấy lịch sử phù hợp — Thử điều chỉnh bộ lọc hoặc xóa bớt điều kiện lọc." + "Đặt lại bộ lọc".
 
@@ -709,7 +584,7 @@ Scenario: SC-01 — Upsert
 
 - FR-01: Sheet "Chi tiết hoạt động": loại, "Nguồn: …", "So sánh trước / sau" (Trường | Trước | Sau: Giá riêng, Ngày bắt đầu, Ngày kết thúc, Chênh lệch giá sàn…), "Ghi chú / lý do" ("Không có ghi chú"), "Xem chi tiết giá riêng >".
 - FR-02: Trường giá sàn ẩn theo quyền → "Ẩn theo quyền 🔒", ghi "Quyền hạn chế — Bạn không có quyền xem một số dữ liệu nhạy cảm."
-- FR-03: 🔧 Bỏ khối "Chứng từ nguồn đơn hàng" (chỉ dùng cho nhớ giá, đang có tên đơn vị cứng "Hộp", KI-02).
+- FR-03: Không có khối "Chứng từ nguồn" / dòng "Đơn #…" (nhớ giá ngoài phạm vi).
 
 ---
 
@@ -719,7 +594,7 @@ Scenario: SC-01 — Upsert
 
 - FR-01: `preview_sales_working_state_pricing` tính giá mỗi dòng theo thứ tự 2.4; trả `source_code`.
 - FR-02: Màn bán hiện nhãn "★ Giá riêng" cho dòng `CUSTOMER_PRIVATE_RULE` (TH-05 SG-02).
-- AC-01: 🔧 Giá riêng `review_status = warning` (dưới sàn đã xác nhận) được áp (KI-04).
+- AC-01: Giá riêng `review_status = warning` (dưới sàn đã xác nhận) được áp.
 - AC-02: Giá riêng `disabled`, hết hiệu lực hoặc chưa hiệu lực → dùng giá niêm yết.
 - AC-03: Đổi khách trên đơn → giá dòng tính lại.
 
@@ -760,13 +635,13 @@ Scenario: SC-02 — Giá riêng dưới sàn đã xác nhận
 |---|---|---|---|
 | PR-01 | Danh sách giá riêng | `/pricing` | `pricing_list_page` |
 | PR-02 | Bộ lọc / Sắp xếp | (sheet) | `price_rule_filter_bottom_sheet`, `price_rule_sort_bottom_sheet` |
-| PR-03 | Chọn cách thêm | `/pricing/choose-method` | `pricing_choose_method_page` |
+| ~~PR-03~~ | ~~Chọn cách thêm~~ (bỏ 2026-11-04) | — | — |
 | PR-04 | Tạo / sửa giá riêng | `/pricing/new`, `/pricing/:ruleId/edit` | `pricing_form_page` |
 | PR-05 | Chọn khách hàng | `/pricing/pick-customer` | `pricing_pick_customer_page` |
 | PR-06 | Chọn sản phẩm | `/pricing/pick-product` | `pricing_pick_product_page` |
 | PR-07 | Chọn đơn vị bán | `/pricing/pick-unit/:productId` | `pricing_pick_unit_page` |
 | PR-08 | Chi tiết giá riêng | `/pricing/:ruleId` | `pricing_detail_page` |
-| PR-09 | Nhập Excel (wizard) | `/pricing/import` | `pricing_import_page` |
+| ~~PR-09~~ | ~~Nhập Excel~~ (bỏ 2026-11-04) | — | — |
 | PR-10 | Lịch sử giá riêng | `/pricing/:ruleId/history` | `pricing_history_page` |
 
 Quy ước chung: thành công → toast "Thành công" + nội dung; lỗi → toast "Lỗi" + thông điệp ở 6.4.
@@ -784,12 +659,12 @@ Quy ước chung: thành công → toast "Thành công" + nội dung; lỗi → 
 
 | ID | Thành phần | Nội dung | Hành vi |
 |---|---|---|---|
-| PR01-E01 | App bar | 🔧 "Giá riêng"; "`<N>` giá riêng" | — |
+| PR01-E01 | App bar | "Giá riêng"; "`<N>` giá riêng" (tổng số) | — |
 | PR01-E02 | Ô tìm | "Tìm theo khách hàng, SĐT, sản phẩm..." | US-01.2 |
 | PR01-E03 | Chip | Tất cả · Đang áp dụng · Dưới giá sàn | US-01.3 |
 | PR01-E04 | Bộ lọc, sắp xếp | nút; "Sắp xếp: …" | PR-02 |
 | PR01-E05 | Thẻ | khách, SĐT, sản phẩm, đơn vị, giá riêng, giá niêm yết, hiệu lực, badge, "Dưới giá sàn" | → PR-08 |
-| PR01-E06 | Nút thêm | "Thêm giá riêng" | → PR-03 |
+| PR01-E06 | Nút thêm | "Thêm giá riêng" | → PR-04 |
 
 ```text
 ┌──────────────────────────────────┐
@@ -812,11 +687,11 @@ Quy ước chung: thành công → toast "Thành công" + nội dung; lỗi → 
 └──────────────────────────────────┘
 ```
 
-### 5.3 PR-03 … PR-07 — Thêm và form
+### 5.3 PR-04 … PR-07 — Thêm và form
 
 | Trạng thái (PR-04) | Khi nào | Nội dung |
 |---|---|---|
-| F-01 Đang tải ngữ cảnh | mở | skeleton (`get_…_create_context` / `update_context`) |
+| F-01 Đang tải | mở form sửa | skeleton (`get_customer_price_rule_detail`) |
 | F-02 Đang nhập | — | 3 phần |
 | F-03 Dưới giá sàn | giá < sàn | banner "Giá riêng thấp hơn giá sàn" |
 | F-04 Trùng hiệu lực | bộ khoá trùng | banner "Lưu ý tự động ghi đè giá trùng" |
@@ -851,7 +726,6 @@ Quy ước chung: thành công → toast "Thành công" + nội dung; lỗi → 
 
 | Màn | Thành phần | Trạng thái riêng |
 |---|---|---|
-| PR-03 | 2 thẻ chọn cách | không quyền; lỗi tải quyền |
 | PR-05 | ô tìm, danh sách khách (tên, SĐT, nhãn vai trò), "Chọn" | "Không tìm thấy khách hàng"; "Không tải được danh sách khách hàng." |
 | PR-06 | ô tìm, danh sách (tên, "Đơn vị cơ bản", "Giá hiện tại") | "Không tìm thấy sản phẩm" |
 | PR-07 | danh sách đơn vị ("Giá hiện tại • Giá sàn", nhãn "Đơn vị cơ bản") | "Chưa có đơn vị bán" |
@@ -892,35 +766,9 @@ Quy ước chung: thành công → toast "Thành công" + nội dung; lỗi → 
 └──────────────────────────────────┘
 ```
 
-### 5.5 PR-09 — Nhập Excel
+### 5.5 PR-09 — Nhập Excel (bỏ)
 
-| Bước | Trạng thái | Nội dung |
-|---|---|---|
-| 1 Chọn file | I-01 chưa chọn / I-02 file lỗi / I-03 đang kiểm tra | tải mẫu, chọn / kéo thả, lưu ý; lỗi cả file (US-04.2) |
-| 2 Kiểm tra | I-04 có kết quả | bộ đếm, 3 nhóm dòng, chi tiết dòng |
-| 3 Xác nhận | I-05 chờ xác nhận / I-06 đang kiểm tra lại / I-07 đang nhập | tóm tắt, chế độ trùng, tích cảnh báo, "Nhập (n dòng)" |
-| 4 Kết quả | I-08 thành công / một phần / thất bại | bộ đếm, tải nhật ký, "Hoàn tất" |
-
-```text
-┌──────────────────────────────────┐
-│ ←  Nhập giá riêng từ Excel       │
-│ (1)Chọn file (2)Kiểm tra (3)Xác nhận (4)Kết quả│
-├──────────────────────────────────┤
-│ TÓM TẮT LẦN NHẬP                 │
-│ Tổng dòng trong file        120  │
-│ Hợp lệ                      112  │
-│ Cảnh báo                      5  │
-│ Lỗi (bỏ qua)                  3  │
-│ XỬ LÝ KHI TRÙNG RULE             │
-│ (●) Cập nhật giá riêng hiện tại  │
-│ ( ) Bỏ qua, giữ nguyên giá hiện tại│
-│ ( ) Chỉ cập nhật rule đã có      │
-│ [✓] Tôi đã xem xét và muốn giữ   │
-│     các dòng cảnh báo            │
-├──────────────────────────────────┤
-│ [ Quay lại ]   [ Nhập (117 dòng) ]│
-└──────────────────────────────────┘
-```
+**Bỏ 2026-11-04** (người dùng chốt, plan 6-A1 Q9): không còn màn, route `/pricing/import` và mọi widget nhập. Xem mục 8.
 
 ### 5.6 PR-10 — Lịch sử giá riêng
 
@@ -946,7 +794,6 @@ Rỗng: "Chưa có lịch sử thay đổi"; lọc không ra: "Không tìm thấ
 
 - Badge trạng thái và cảnh báo có chữ, không chỉ màu.
 - Ô giá mở bàn phím số, hiện phân cách hàng nghìn.
-- PR-09 trên web hỗ trợ kéo thả file.
 - Hai thiết bị đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md), sửa 2026-10-22): mỗi màn có bố cục iPhone và bố cục web thiết kế đủ như nhau — web không phải cột iPhone đặt giữa hay kéo giãn. Web dùng bố cục chung: danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet thành hộp thoại, đi được bằng bàn phím; bố cục từng màn chốt trong plan của theme.
 
 ---
@@ -958,22 +805,21 @@ Rỗng: "Chưa có lịch sử thay đổi"; lọc không ra: "Không tìm thấ
 ```text
 Page ─▶ Cubit ─▶ IPricingModule.executeCommandAsync/QueryAsync ─▶ Handler (+ Validator)
      ─▶ Gateway ─▶ supabase.schema('pricing').rpc(...)
-Excel: đọc / ghi .xlsx trên máy bằng codec tự viết (customer_price_rule_import_xlsx_codec.dart)
 ```
 
 ### 6.2 Danh mục RPC (schema `pricing`)
 
 | Nhóm | RPC | Quyền | Ghi / đọc |
 |---|---|---|---|
-| Danh sách | `search_customer_price_rules` | `customer_price_rule.view` (+ `create`, `import` để tính thao tác) | đọc, cursor |
-| Tạo | `get_customer_price_rule_create_context` | `view`, `create` | đọc |
+| Danh sách | `search_customer_price_rules(…, p_cursor, p_limit, p_sort, p_updated_within_days)` (12 tham số) | `customer_price_rule.view` (+ `create`, `import` để tính thao tác) | đọc, keyset theo `p_sort`, trả `total_count` |
+| Tạo | `get_customer_price_rule_create_context` | `view`, `create` | đọc; app không gọi từ 6-A (server tự kiểm khi tạo) |
 | | `create_customer_price_rule` | `create` (+ `override_floor_price` khi dưới sàn) | ghi, idempotent |
-| Chi tiết | `get_customer_price_rule_detail` | `view` | đọc, kèm `available_actions` |
-| Sửa | `get_customer_price_rule_update_context` | `view`, `update` | đọc |
-| | `update_customer_price_rule` | `update` (+ `override_floor_price`) | ghi, version |
+| Chi tiết | `get_customer_price_rule_detail` | `view` | đọc, kèm `available_actions`, `updated_by_name`, `disabled_by_name` |
+| Sửa | `get_customer_price_rule_update_context` | `view`, `update` | đọc; app không gọi từ 6-A (server tự kiểm khi sửa) |
+| | `update_customer_price_rule(…, p_acknowledge_overwrite, p_reason)` (10 tham số) | `update` (+ `override_floor_price`) | ghi, version; `p_reason` ≤ 200 vào lịch sử |
 | Tắt / bật | `disable_customer_price_rule` | `disable` | ghi, version |
 | | `precheck_customer_price_rule_reenable`, `reenable_customer_price_rule` | `reenable` | đọc / ghi, token + version |
-| Nhập | `create_customer_price_rule_import`, `get_customer_price_rule_import`, `confirm_customer_price_rule_import`, `cancel_customer_price_rule_import` | `import` | ghi, version |
+| ~~Nhập~~ | `create_/get_/confirm_/cancel_customer_price_rule_import` — app không gọi (nhập Excel bỏ); 6-C xoá | — | — |
 | Lịch sử | `get_customer_price_rule_history` | `view_history` | đọc, 50 dòng (tối đa 100) |
 | Bán hàng | `preview_sales_working_state_pricing` | `pricing.sales.preview` | đọc |
 | | `evaluate_sales_manual_price` | `pricing.sales.manual_price.adjust` | đọc |
@@ -986,8 +832,8 @@ Excel: đọc / ghi .xlsx trên máy bằng codec tự viết (customer_price_ru
 |---|---|---|
 | `partner._get_customer_snapshot_for_pricing` | TH-03 | Khách tồn tại, vai trò `customer`, `active`; tên, SĐT |
 | `catalog._get_product_price_band_snapshot_for_pricing` | TH-02 | Sản phẩm / đơn vị bán được; giá niêm yết, giá sàn, tiền tệ |
-| `catalog._resolve_product_unit_for_pricing_import` | TH-02 | Sản phẩm / đơn vị cho dòng nhập Excel |
-| 🔧 IAM (tên thành viên) | TH-01 | Tên người thực hiện trong lịch sử (KI-08) |
+| `catalog._resolve_product_unit_for_pricing_import` | TH-02 | Chỉ dùng cho nhập Excel (đã bỏ); 6-C xoá |
+| `iam._member_display_name` | TH-01 | Tên thành viên: lịch sử, người tắt, người cập nhật (`20261105001`) |
 
 ### 6.4 Mã lỗi và thông điệp app
 
@@ -1005,7 +851,7 @@ Lỗi trả JSON `{code, message, details}`.
 | `NOT_FOUND` | không tìm thấy | "Mức giá riêng không còn tồn tại." |
 | `IDEMPOTENCY_CONFLICT` | cùng key khác nội dung | "Không thể lưu giá riêng. Vui lòng thử lại." |
 | `SYSTEM_ERROR` | lỗi toàn vẹn | "Đã xảy ra lỗi. Vui lòng thử lại." |
-| khác / không rõ mã | — | 🔧 thông điệp chung theo thao tác, **không** hiện "Lỗi: `<mã>`" / "Đã có lỗi: `<mã>`" (KI-15) |
+| khác / không rõ mã | — | thông điệp chung theo thao tác, **không** hiện "Lỗi: `<mã>`" / "Đã có lỗi: `<mã>`" |
 
 ---
 
@@ -1025,20 +871,20 @@ Số KI giữ từ bản 2.1.
 
 | Mã | Vấn đề | Quyết định | Phase |
 |---|---|---|---|
-| KI-02 | Nhớ giá từ đơn: RPC có, không nơi nào gọi; UI còn nguồn "Từ đơn hàng", khối "Chứng từ nguồn đơn hàng" (tên đơn vị cứng "Hộp") | **Ngoài phạm vi.** Bỏ khỏi bộ lọc, chi tiết, lịch sử. Giữ RPC và cột | P6 |
-| KI-03 | File mẫu Excel chỉ có tiêu đề cột UUID | **Sửa** (BR-26): thêm 2 sheet tra cứu | P6 |
-| KI-04 | Giá riêng dưới sàn đã xác nhận (`review_status = warning`) không được áp khi bán | **Sửa** `preview_sales_working_state_pricing` nhận `clear` và `warning` | P6 |
-| KI-05 | Sắp xếp và một số bộ lọc chạy ở app trên trang đã tải; lọc "Trùng rule" / "Dữ liệu lỗi" không có dữ liệu | **Sửa** (BR-23/24): chuyển vào `search_customer_price_rules`; bỏ hai lọc đó | P6 |
+| KI-02 | Nhớ giá từ đơn: RPC có, không nơi nào gọi; UI còn nguồn "Từ đơn hàng", khối "Chứng từ nguồn đơn hàng" (tên đơn vị cứng "Hộp") | **Ngoài phạm vi.** Bỏ khỏi bộ lọc, chi tiết, lịch sử. Giữ RPC và cột | P6 — **Đã sửa (6-B)** |
+| KI-03 | File mẫu Excel chỉ có tiêu đề cột UUID | **Bỏ** cùng nhập Excel (2026-11-04) | — |
+| KI-04 | Giá riêng dưới sàn đã xác nhận (`review_status = warning`) không được áp khi bán | **Sửa** `preview_sales_working_state_pricing` nhận `clear` và `warning` | P6 — **Đã sửa (6-B)** |
+| KI-05 | Sắp xếp và một số bộ lọc chạy ở app trên trang đã tải; lọc "Trùng rule" / "Dữ liệu lỗi" không có dữ liệu | **Sửa** (BR-23/24): chuyển vào `search_customer_price_rules`; bỏ hai lọc đó | P6 — **Đã sửa (6-B)** |
 | KI-06 | Không có nút xoá; ghi đè xoá cả giá riêng đã tắt | **Giữ nguyên** (BR-14, BR-19) | — |
-| KI-07 | Lý do thay đổi ghi đè ghi chú | **Sửa** (BR-06): thêm tham số lý do cho `update_customer_price_rule`, ghi vào lịch sử | P6 |
-| KI-08 | Người thực hiện hiện 8 ký tự UUID; bộ lọc có dữ liệu mẫu ("Nguyễn Văn A", "Quản trị viên") | **Sửa** (BR-39) | P6 |
+| KI-07 | Lý do thay đổi ghi đè ghi chú | **Sửa** (BR-06): thêm tham số lý do cho `update_customer_price_rule`, ghi vào lịch sử | P6 — **Đã sửa (6-B)** |
+| KI-08 | Người thực hiện hiện 8 ký tự UUID; bộ lọc có dữ liệu mẫu ("Nguyễn Văn A", "Quản trị viên") | **Sửa** (BR-39) | P6 — **Đã sửa (6-B)** |
 | KI-09 | Dòng có giá riêng: giá nhập tay khi bán bị bỏ qua | **Giữ nguyên**; đổi giá qua "Lưu làm giá riêng" (US-06.2) | — |
-| KI-10 | "Dưới giá sàn" ở danh sách so với giá sàn lúc lưu | **Sửa** (BR-22) | P6 |
-| KI-11 | `needs_review`, nguồn `migration` có trong enum nhưng không luồng nào tạo | **Giữ trong DB, ẩn khỏi UI**; "Cần kiểm tra" vẫn hiện nếu dữ liệu có | P6 |
+| KI-10 | "Dưới giá sàn" ở danh sách so với giá sàn lúc lưu | **Sửa** (BR-22) | P6 — **Đã sửa (6-B)** |
+| KI-11 | `needs_review`, nguồn `migration` có trong enum nhưng không luồng nào tạo | **Giữ trong DB, ẩn khỏi UI**; "Cần kiểm tra" vẫn hiện nếu dữ liệu có | P6 — **Đã sửa (6-B)** |
 | KI-12 | Chỉ vào được từ tab Khác | **Giữ nguyên** | — |
-| KI-13 | Tên gọi còn "Nhớ giá" / "giá nhớ": menu "Giá riêng / Nhớ giá — …& nhớ giá bán", tiêu đề danh sách, bộ lọc, màn nhập "Nhập giá nhớ", chế độ "Cập nhật giá nhớ hiện tại", kết quả "…dòng giá nhớ" | **Sửa** thành "Giá riêng" (BR-34) | P6 |
-| KI-14 | Thông điệp mâu thuẫn quy tắc ghi đè: banner trùng "Không thể lưu rule mới…"; sheet bật lại ghi "tự động **tắt** giá riêng trùng" (thực tế là xoá) | **Sửa** câu (US-02.4 FR-04, US-03.3 FR-02) | P6 |
-| KI-15 | Chữ sai / lỗi thô: "Giá nhập phải >= 0" (thực tế > 0), cột "Giá nhỏ", toast "Lỗi: `<mã>`" | **Sửa** | P6 |
+| KI-13 | Tên gọi còn "Nhớ giá" / "giá nhớ": menu "Giá riêng / Nhớ giá — …& nhớ giá bán", tiêu đề danh sách, bộ lọc, màn nhập "Nhập giá nhớ", chế độ "Cập nhật giá nhớ hiện tại", kết quả "…dòng giá nhớ" | **Sửa** thành "Giá riêng" (BR-34); phần màn nhập bỏ cùng EP-04 | P6 — **Đã sửa (6-B)** |
+| KI-14 | Thông điệp mâu thuẫn quy tắc ghi đè: banner trùng "Không thể lưu rule mới…"; sheet bật lại ghi "tự động **tắt** giá riêng trùng" (thực tế là xoá) | **Sửa** câu (US-02.4 FR-04, US-03.3 FR-02) | P6 — **Đã sửa (6-B)** |
+| KI-15 | Chữ sai / lỗi thô: "Giá nhập phải >= 0" (thực tế > 0), cột "Giá nhỏ", toast "Lỗi: `<mã>`" | **Sửa** (toast lỗi thô xong ở 6-A); hai chữ trên màn nhập bỏ cùng EP-04 | P6 — **Đã sửa (6-A)** |
 
 ---
 
@@ -1056,7 +902,8 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 | **US-09** Nhớ giá tự động từ lần bán | Không làm (KI-02); chỉ "Lưu làm giá riêng" chủ động |
 | Giá riêng theo nhóm khách, chi nhánh, kênh | Theo từng khách |
 | Trùng hiệu lực thì **chặn** | Ghi đè có xác nhận (BR-13/14) |
-| Nhập Excel theo mã / tên / SĐT / SKU, tự xác định đơn vị | UUID + sheet tra cứu (BR-26) |
+| Nhập giá riêng từ Excel (v1: theo mã / tên / SĐT / SKU, tự xác định đơn vị) | **Bỏ** 2026-11-04 (EP-04, PR-09, BR-25…BR-33, KI-03); thêm giá riêng bằng form hoặc "Lưu làm giá riêng" |
+| Màn chọn cách thêm (PR-03) | **Bỏ** 2026-11-04; nút thêm mở thẳng form |
 | Lịch sử có mục "Áp dụng trong bán hàng" | Không có |
 | Mở danh sách giá riêng từ hồ sơ khách / sản phẩm | Không có (KI-12) |
 | Xoá thủ công, thao tác hàng loạt | Không có |
@@ -1070,9 +917,9 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 
 | Hiện tại | Sau refactor (P6) |
 |---|---|
-| `Page → Cubit → IPricingModule → Handler → Gateway → RPC` | `Page → Cubit → CustomerPriceRuleRepository / PriceImportRepository → RPC` |
+| `Page → Cubit → IPricingModule → Handler → Gateway → RPC` | `Page → Cubit → CustomerPriceRuleRepository / SalesPricingRepository → RPC` |
 | Màn chọn khách / sản phẩm gọi qua module | Dùng `PartnerRepository` (P4), `ProductRepository` (P5) |
-| Codec `.xlsx` trong `modules/pricing/infrastructure` | Chuyển vào `features/pricing/data/`; thêm 2 sheet tra cứu (KI-03) |
+| Codec `.xlsx` trong `modules/pricing/infrastructure` | Bỏ cùng nhập Excel; 6-C xoá cùng module |
 | RPC cần sửa | `preview_sales_working_state_pricing` (KI-04), `search_customer_price_rules` (KI-05, KI-10), `update_customer_price_rule` (KI-07), `get_customer_price_rule_history` (KI-08) |
 | Command nhớ giá, xoá | Không dùng; RPC giữ trong DB |
 | Exclusion constraint, advisory lock, idempotency, các RPC còn lại | **Giữ nguyên** |
@@ -1084,38 +931,35 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 | 6.1 | Danh sách + lọc + sắp xếp ở server; đổi tên "Giá riêng" | EP-01; KI-05, KI-10, KI-13 |
 | 6.2 | Form tạo / sửa + màn chọn (dùng repository P5, P4); lý do thay đổi vào lịch sử; sửa câu banner, lỗi thô | EP-02; KI-07, KI-14, KI-15 |
 | 6.3 | Chi tiết, tắt, bật lại, lịch sử; tên người thực hiện; bỏ phần nhớ giá | EP-03, EP-05; KI-02, KI-08 |
-| 6.4 | Nhập Excel; sheet tra cứu; sửa chữ | EP-04; KI-03, KI-13, KI-15 |
+| ~~6.4~~ | ~~Nhập Excel; sheet tra cứu~~ (bỏ 2026-11-04) | — |
 | 6.5 | Áp giá khi bán nhận `warning` | EP-06; KI-04 |
 
 ### 9.3 Kiểm thử bắt buộc
 
-**5 kịch bản đầu–cuối (điều kiện xong P6).** Sau mỗi kịch bản chạy các bất biến mục 3.3.
+**4 kịch bản đầu–cuối (điều kiện xong P6).** Sau mỗi kịch bản chạy các bất biến mục 3.3.
 
 | # | Kịch bản | Kỳ vọng chính |
 |---|---|---|
 | 1 | Tạo giá riêng cho khách A → bán cho A | Dòng dùng giá riêng, `CUSTOMER_PRIVATE_RULE` |
-| 2 | Tạo giá riêng dưới sàn có xác nhận → bán | 🔧 Vẫn áp giá riêng (KI-04); danh sách có "Dưới giá sàn" |
+| 2 | Tạo giá riêng dưới sàn có xác nhận → bán | Vẫn áp giá riêng; danh sách có "Dưới giá sàn" |
 | 3 | Tạo giá mới trùng hiệu lực → ghi đè → xem lịch sử giá cũ | Giá cũ `deleted`, lịch sử `AUTO_REPLACED_BY_RULE` |
 | 4 | Tắt → bán (giá niêm yết) → bật lại → bán (giá riêng) | Đúng nguồn giá mỗi lần |
-| 5 | Nhập Excel 3 chế độ trên cùng file có dòng trùng | upsert cập nhật; create_only báo trùng; update_only báo `IMPORT_MODE_MISMATCH` cho dòng không `rule_id` |
 
 **SQL / RPC test**
 
 - `create_customer_price_rule` cùng key hai lần → 1 bản; khác nội dung → `IDEMPOTENCY_CONFLICT`.
 - Hai giá riêng `active` trùng hiệu lực cùng bộ khoá → bị constraint chặn.
 - Dưới sàn không `acknowledge_floor_warning` → `BELOW_FLOOR_BLOCKED`.
-- 🔧 `update_customer_price_rule` có lý do → ghi chú không đổi, lịch sử `updated` có lý do.
+- `update_customer_price_rule` có lý do → ghi chú không đổi, lịch sử `updated` có lý do.
 - `reenable` khi hết hiệu lực → `INVALID_STATUS`.
-- 🔧 `search_customer_price_rules` sắp theo giá / lọc thời gian cập nhật / "Dưới giá sàn" theo giá sàn hiện tại.
-- 🔧 `get_customer_price_rule_history` trả tên thành viên.
-- 🔧 `preview_sales_working_state_pricing` chọn giá riêng `review_status = warning`.
-- Nhập: xác nhận hai lần → cùng kết quả; dòng đổi giữa kiểm tra và xác nhận → `STATE_CHANGED`.
+- `search_customer_price_rules` sắp theo giá / lọc thời gian cập nhật / "Dưới giá sàn" theo giá sàn hiện tại.
+- `get_customer_price_rule_history` trả tên thành viên.
+- `preview_sales_working_state_pricing` chọn giá riêng `review_status = warning`.
 
 **Widget / cubit test**
 
 - PR-04: banner dưới sàn, banner trùng, hộp ghi đè, sheet "Lưu thay đổi?".
 - PR-08: action sheet theo `available_actions`; sheet bật lại với ô xác nhận dưới sàn.
-- PR-09: lỗi cả file; đổi chế độ kiểm lại; bắt buộc tích cảnh báo.
 - PR-10: lọc theo người thực hiện lấy từ dữ liệu thật.
 
 ### 9.4 Giữ nguyên

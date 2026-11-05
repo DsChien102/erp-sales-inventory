@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/features/pricing/data/models.dart';
 
 import 'price_rule_history_shared.dart';
 
@@ -158,7 +158,6 @@ class PriceRuleRecentHistoryItem extends StatelessWidget {
     final oldPrice = (oldValue?['rule_price_minor'] as num?)?.toInt();
     final newPrice = (newValue['rule_price_minor'] as num?)?.toInt();
 
-    final orderId = activity.sourceTrace.orderId;
     final summary = PriceRuleHistoryShared.activitySummary(activity);
 
     return Row(
@@ -236,13 +235,6 @@ class PriceRuleRecentHistoryItem extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
-                )
-              else if (orderId != null)
-                VText(
-                  'Đơn #$orderId',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.primary,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
                 )
               else if (summary != null)
                 VText(

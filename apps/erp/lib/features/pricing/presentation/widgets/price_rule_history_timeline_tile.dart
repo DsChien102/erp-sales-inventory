@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/features/pricing/data/models.dart';
 
 import 'price_rule_activity_detail_sheet.dart';
 import 'price_rule_history_shared.dart';
@@ -29,7 +29,6 @@ class PriceRuleHistoryTimelineTile extends StatelessWidget {
     final oldPrice = (oldValue?['rule_price_minor'] as num?)?.toInt();
     final newPrice = (newValue['rule_price_minor'] as num?)?.toInt();
 
-    final orderId = activity.sourceTrace.orderId;
     final summary = PriceRuleHistoryShared.activitySummary(activity);
 
     return InkWell(
@@ -169,13 +168,6 @@ class PriceRuleHistoryTimelineTile extends StatelessWidget {
                                 ),
                               ),
                             ],
-                          )
-                        else if (orderId != null)
-                          VText(
-                            'Đơn #$orderId',
-                            variant: VTextVariant.bodySmall,
-                            color: colors.primary,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
                           )
                         else
                           VText(

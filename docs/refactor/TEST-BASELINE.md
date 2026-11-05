@@ -10,6 +10,8 @@
 
 > **Sau 4-C (2026-11-02, review 4-C R1):** đã xoá `modules/partner/{domain,application,infrastructure}`, `modules/{accounting,costing,dashboard}` (không có test), `packages/vet45_resend`; bỏ các hàng tương ứng trong bảng và mục lỗi `modules/partner/infrastructure` (test `alternate_name` chuyển sang `apps/erp/test/features/partner/data/partner_search_sql_contract_test.dart`, nay xanh). `apps/erp` 1.705 đạt / 61 lỗi, đều trong danh sách `apps/erp` dưới đây. `modules/einvoice/application` 217 / 1 (như baseline). `modules/einvoice/infrastructure` **378 đạt / 60 lỗi**: 2 lỗi baseline (`goi1_configuration` nay lỗi cả tệp lúc nạp) + các test `*_sql_contract` / bundle đọc `supabase/migrations/_drafts/0xx_einvoice_*.sql` (`PathNotFoundException`, "draft SQL must exist", kéo theo `LateInitializationError` ở `tearDownAll`) vì 23 draft đã promote thành `20261031001…023` ngày 2026-10-31 (không do 4-C). Các test này cần trỏ sang migration chính thức (lượt promote / Theme 8, PLAN 7.1); tới lúc đó coi 60 lỗi này là có sẵn.
 
+> **Sau 5-C (2026-11-04, review 5-C đạt):** đã xoá `modules/catalog/{domain,application,infrastructure,integration_events}`, `modules/inventory/{domain,application,infrastructure,integration_events}`; bỏ các hàng tương ứng trong bảng và mục lỗi `modules/catalog/infrastructure` (8 test xanh của `price_band_sql_contract_test` chuyển sang `apps/erp/test/features/catalog/data/catalog_sql_contract_test.dart`; 4 test đọc `supabase/migrations/_drafts/…` đã bỏ, Q8 của 5-C). `apps/erp` **2.112 đạt / 59 lỗi**: 57 lỗi trong danh sách `apps/erp` dưới đây (4 test `product_measurement_units_e2e_test` nay xanh, đã bỏ khỏi danh sách) + ⚠️ **2 lỗi mới, không có trong mốc**: `product_guided_create_e2e_test.dart: e2e_e02_u01_fr01_01: duplicate SKU opens existing product in PCC` và `product_change_history_e2e_test.dart: e2e_e07_u04_fr02_01: product change history can be viewed from PCC`. Cả hai hỏng ở bước tìm tên sản phẩm trên tiêu đề PCC, không dính SP-10 / 5-C; xuất hiện trong lượt đổi UI Theme 2 (5-A3 … 5-W), cần xem lại — **chưa** coi là lỗi có sẵn.
+
 | Package | Loại | Đạt | Lỗi |
 |---|---|---|---|
 | `apps/messaging_worker` | dart | 45 | 0 |
@@ -27,14 +29,10 @@
 | `modules/iam/application` | dart | 225 | 0 |
 | `modules/iam/infrastructure` | dart | 289 | **21** |
 | `modules/iam/domain` | dart | 40 | 0 |
-| `modules/inventory/application` | dart | 14 | 0 |
 | `modules/pricing/application` | dart | 183 | 0 |
 | `modules/pricing/infrastructure` | dart | 150 | **50** |
 | `modules/pricing/domain` | dart | 53 | **1** |
 | `modules/sales/domain` | dart | 47 | 0 |
-| `modules/catalog/application` | dart | 350 | 0 |
-| `modules/catalog/infrastructure` | dart | 120 | **4** |
-| `modules/catalog/domain` | dart | 68 | 0 |
 | `modules/einvoice/integration_events` | dart | 16 | 0 |
 | `modules/einvoice/application` | dart | 217 | **1** |
 | `modules/einvoice/infrastructure` | dart | 741 | **2** |
@@ -60,7 +58,7 @@
 - /Users/macbook/Documents/Đồ án/apps/admin/test/features/users/presentation/pages/platform_onboarding_page_test.dart: review step displays selected legal entity type correctly
 - /Users/macbook/Documents/Đồ án/apps/admin/test/features/users/presentation/pages/platform_onboarding_page_test.dart: organization step fields are submitted to onboarding command
 
-### `apps/erp` (61)
+### `apps/erp` (57)
 
 > **Cập nhật 2026-10-28** (trước khi đóng Theme 1, sau 2-B6 / 2-B7 / W-1; `flutter test --no-pub` cả app: 1524 đạt / 61 lỗi). So với danh sách 2026-10-07: **thêm** `product_measurement_units_e2e_test` `e2e_e04_u02_fr01_01b`, `e2e_e04_u02_fr01_03` (hỏng sẵn ở HEAD, phát hiện ở review 2-B7 R3); **bỏ** 2 test IAM nay đã đạt (`production_boundary_test` "presentation.dart does not export Fake* or testing paths", `platform_onboarding_step_owner_test` "renders warning VBanner…"). Danh sách dưới là bản hiện hành.
 
@@ -83,11 +81,7 @@
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_guided_create_page_test.dart: initial stock uses Design System integer field
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_manual_base_price_e2e_test.dart: e2e_e06_u01_fr01_01: PCC shows manual base price card with amount
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: EPIC-04 / US-02 — Đơn vị quy đổi e2e_e04_u02_fr01_01: add new conversion unit on product with base unit
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: EPIC-04 / US-02 — Đơn vị quy đổi e2e_e04_u02_fr01_01b: conversion unit search dropdown only shows on match
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: EPIC-04 / US-02 — Đơn vị quy đổi e2e_e04_u02_fr01_03: invalid conversion rate keeps add form open
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: EPIC-04 / US-02 — Đơn vị quy đổi e2e_e04_u02_fr01_04: duplicate conversion unit name shows error
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: e2e_e04_u01_fr01_01_create_new: set new base unit from checklist
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: e2e_e04_u01_fr01_02_duplicate: cannot create duplicate base unit
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_measurement_units_e2e_test.dart: e2e_e04_u01_fr03_01: base unit search dropdown only shows on match
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr01_01: valid profile edit refreshes PCC
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_profile_maintenance_e2e_test.dart: e2e_e07_u01_fr01_02: blank name shows field validation error
@@ -217,13 +211,6 @@
 ### `modules/pricing/domain` (1)
 
 - test/customer_price_rule/customer_price_rule_test.dart: Money rejects zero or negative amount
-
-### `modules/catalog/infrastructure` (4)
-
-- test/catalog_sellable_lookup_by_ids_sql_contract_test.dart: resolve_sellable_products stays fail-closed and answers every requested id
-- test/product_code_reuse_sql_contract_test.dart: SKU and barcode uniqueness excludes soft-deleted products
-- test/catalog_sales_sellable_lookup_sql_contract_test.dart: sellable lookup draft is tenant/store guarded and returns only authoritative facts
-- test/price_band_sql_contract_test.dart: set base unit creates pending ruleBased band when product has none
 
 ### `modules/einvoice/application` (1)
 

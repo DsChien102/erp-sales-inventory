@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/features/pricing/data/models.dart';
 
 import 'price_rule_history_filter_sheet.dart';
 import 'price_rule_history_shared.dart';
@@ -44,7 +44,7 @@ class PriceRuleHistoryView extends StatefulWidget {
   State<PriceRuleHistoryView> createState() => _PriceRuleHistoryViewState();
 }
 
-enum _HistoryQuickFilter { all, priceEdit, fromOrder, excelImport }
+enum _HistoryQuickFilter { all, priceEdit }
 
 class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
   _HistoryQuickFilter _quickFilter = _HistoryQuickFilter.all;
@@ -68,12 +68,6 @@ class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
         _HistoryQuickFilter.priceEdit =>
           item.activityType == CustomerPriceRuleActivityType.updated ||
               item.activityType == CustomerPriceRuleActivityType.created,
-        _HistoryQuickFilter.fromOrder =>
-          item.activityType == CustomerPriceRuleActivityType.memoryCreated ||
-              item.activityType == CustomerPriceRuleActivityType.memoryUpdated,
-        _HistoryQuickFilter.excelImport =>
-          item.activityType == CustomerPriceRuleActivityType.importCreated ||
-              item.activityType == CustomerPriceRuleActivityType.importUpdated,
       };
       if (!matchQuick) return false;
 
@@ -82,10 +76,6 @@ class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
         if (_filterState.activityType != 'Tất cả') {
           final label = PriceRuleHistoryShared.activityLabel(item.activityType);
           if (label != _filterState.activityType) return false;
-        }
-        if (_filterState.source != 'Tất cả') {
-          final srcLabel = PriceRuleHistoryShared.sourceLabel(item.sourceType);
-          if (srcLabel != _filterState.source) return false;
         }
         if (_filterState.actor != 'Tất cả') {
           if (item.actor.displayName != _filterState.actor) return false;
@@ -276,8 +266,6 @@ class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
                   label: switch (entry) {
                     _HistoryQuickFilter.all => 'Tất cả',
                     _HistoryQuickFilter.priceEdit => 'Sửa giá',
-                    _HistoryQuickFilter.fromOrder => 'Từ đơn hàng',
-                    _HistoryQuickFilter.excelImport => 'Nhập Excel',
                   },
                   selected: _quickFilter == entry,
                   onTap: () => setState(() => _quickFilter = entry),

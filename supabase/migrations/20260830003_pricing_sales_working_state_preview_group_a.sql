@@ -195,7 +195,7 @@ begin
         and rule.product_id = v_product_id
         and rule.product_unit_id = v_product_unit_id
         and rule.status = 'active'
-        and rule.review_status = 'clear'
+        and rule.review_status in ('clear', 'warning')
         and jsonb_array_length(rule.blocking_codes) = 0
         and rule.effective_from <= (p_effective_at at time zone 'utc')::date
         and (rule.effective_to is null

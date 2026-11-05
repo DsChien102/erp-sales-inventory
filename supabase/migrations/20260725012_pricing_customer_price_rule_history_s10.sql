@@ -184,7 +184,7 @@ begin
       ) as resolved_reason,
       case
         when r.created_by is null then null
-        else left(r.created_by::text, 8)
+        else iam._member_display_name(r.created_by)
       end as actor_display_name,
       r.created_by is null as is_system_actor,
       pricing._customer_price_rule_history_snapshot(

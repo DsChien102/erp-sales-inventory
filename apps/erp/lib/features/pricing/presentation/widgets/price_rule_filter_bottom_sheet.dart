@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_pricing_domain/domain.dart';
+import 'package:erp/features/pricing/data/models.dart';
 
 import '../models/price_rule_list_filters.dart';
 
-/// D-03 — Bộ lọc nâng cao giá riêng / nhớ giá (SG-01).
+/// D-03 — Bộ lọc nâng cao giá riêng (SG-01).
 class PriceRuleFilterBottomSheet extends StatefulWidget {
   const PriceRuleFilterBottomSheet({super.key, required this.initial});
 
@@ -17,7 +16,7 @@ class PriceRuleFilterBottomSheet extends StatefulWidget {
   }) {
     return showVBottomSheet<PriceRuleAdvancedFilter>(
       context: context,
-      title: 'Bộ lọc giá riêng / nhớ giá',
+      title: 'Bộ lọc giá riêng',
       child: PriceRuleFilterBottomSheet(initial: initial),
     );
   }
@@ -135,26 +134,6 @@ class _PriceRuleFilterBottomSheetState
                       ),
                     ),
                   ),
-                  _chip(
-                    label: 'Trùng rule',
-                    selected: _filter.warning ==
-                        PriceRuleWarningFilter.duplicateRule,
-                    onTap: () => setState(
-                      () => _filter = _filter.copyWith(
-                        warning: PriceRuleWarningFilter.duplicateRule,
-                      ),
-                    ),
-                  ),
-                  _chip(
-                    label: 'Dữ liệu lỗi',
-                    selected:
-                        _filter.warning == PriceRuleWarningFilter.dataError,
-                    onTap: () => setState(
-                      () => _filter = _filter.copyWith(
-                        warning: PriceRuleWarningFilter.dataError,
-                      ),
-                    ),
-                  ),
                 ],
               ),
               const VGap.md(),
@@ -188,26 +167,6 @@ class _PriceRuleFilterBottomSheetState
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
                         source: CustomerPriceRuleSourceType.excelImport,
-                      ),
-                    ),
-                  ),
-                  _chip(
-                    label: 'Từ đơn hàng',
-                    selected: _filter.source ==
-                        CustomerPriceRuleSourceType.salesOrder,
-                    onTap: () => setState(
-                      () => _filter = _filter.copyWith(
-                        source: CustomerPriceRuleSourceType.salesOrder,
-                      ),
-                    ),
-                  ),
-                  _chip(
-                    label: 'Migration',
-                    selected: _filter.source ==
-                        CustomerPriceRuleSourceType.migration,
-                    onTap: () => setState(
-                      () => _filter = _filter.copyWith(
-                        source: CustomerPriceRuleSourceType.migration,
                       ),
                     ),
                   ),
@@ -245,14 +204,6 @@ class _PriceRuleFilterBottomSheetState
                             : PriceRuleUpdatedWithin.last30Days,
                       ),
                     ),
-                  ),
-                  VChip(
-                    label: 'Tùy chọn',
-                    icon: VIcons.calendar,
-                    selected: false,
-                    onTap: () {
-                      // Custom range — placeholder theo design.
-                    },
                   ),
                 ],
               ),

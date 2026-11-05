@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 
-import '../cubit/price_rule_form_state.dart';
+import '../../logic/price_rule_form_state.dart';
 
 /// D-05 SG-03 — Bảng so sánh giá riêng vs giá hiện tại / giá sàn.
 class PriceRuleFormReadinessSummary extends StatelessWidget {

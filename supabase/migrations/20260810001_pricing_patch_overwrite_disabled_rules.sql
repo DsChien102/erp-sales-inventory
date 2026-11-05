@@ -556,6 +556,9 @@ grant execute on function pricing.create_customer_price_rule(
   uuid, uuid, uuid, uuid, uuid, bigint, text, date, text, date, text, boolean, boolean
 ) to authenticated, service_role;
 
+drop function if exists pricing.update_customer_price_rule(uuid, uuid, integer, bigint, date, date, text, boolean);
+drop function if exists pricing.update_customer_price_rule(uuid, uuid, integer, bigint, date, date, text, boolean, boolean);
+
 create or replace function pricing.update_customer_price_rule(
   p_tenant_id uuid,
   p_rule_id uuid,
@@ -565,7 +568,8 @@ create or replace function pricing.update_customer_price_rule(
   p_effective_to date default null,
   p_note text default null,
   p_acknowledge_floor_warning boolean default false,
-  p_acknowledge_overwrite boolean default false
+  p_acknowledge_overwrite boolean default false,
+  p_reason text default null
 )
 returns jsonb
 language plpgsql
@@ -607,7 +611,8 @@ begin
     or p_rule_price_minor <= 0
     or p_effective_from is null
     or (p_effective_to is not null and p_effective_to < p_effective_from)
-    or (p_note is not null and char_length(p_note) > 500) then
+    or (p_note is not null and char_length(p_note) > 500)
+    or (p_reason is not null and char_length(btrim(p_reason)) > 200) then
     perform pricing._raise_pricing_error(
       'VALIDATION_ERROR',
       'Invalid update customer price rule payload.'
@@ -806,6 +811,7 @@ begin
       'effective_from', p_effective_from,
       'effective_to', p_effective_to,
       'note', nullif(btrim(p_note), ''),
+      'reason', nullif(btrim(p_reason), ''),
       'version', v_rule.version + 1,
       'disabled_overlapping_count', v_disabled_count
     ),
@@ -820,8 +826,8 @@ end;
 $$;
 
 revoke all on function pricing.update_customer_price_rule(
-  uuid, uuid, integer, bigint, date, date, text, boolean, boolean
+  uuid, uuid, integer, bigint, date, date, text, boolean, boolean, text
 ) from public, anon;
 grant execute on function pricing.update_customer_price_rule(
-  uuid, uuid, integer, bigint, date, date, text, boolean, boolean
+  uuid, uuid, integer, bigint, date, date, text, boolean, boolean, text
 ) to authenticated, service_role;

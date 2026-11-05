@@ -676,6 +676,8 @@ begin
   v_detail := v_detail || jsonb_build_object(
     'disabled_at', v_rule.disabled_at,
     'disabled_by', v_rule.disabled_by,
+    'disabled_by_name', iam._member_display_name(v_rule.disabled_by),
+    'updated_by_name', iam._member_display_name(v_rule.updated_by),
     'disabled_reason', v_rule.disabled_reason
   );
 

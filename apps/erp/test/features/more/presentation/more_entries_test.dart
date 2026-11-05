@@ -10,7 +10,7 @@ void main() {
       expect(selectedMoreEntry('/warehouse')?.id, 'inventory');
       expect(selectedMoreEntry('/warehouse/receipts/quick/header')?.id, 'inventory');
 
-      // /pricing -> Giá riêng / Nhớ giá
+      // /pricing -> Giá riêng
       expect(selectedMoreEntry('/pricing')?.id, 'pricing');
       expect(selectedMoreEntry('/pricing/custom')?.id, 'pricing');
 

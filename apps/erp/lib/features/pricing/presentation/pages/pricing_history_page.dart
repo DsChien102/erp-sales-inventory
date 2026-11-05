@@ -3,9 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/features/pricing/data/customer_price_rule_repository.dart';
 import 'package:erp/features/pricing/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 /// SG-06 D-02 — Lịch sử áp dụng & thay đổi giá riêng (US-10).
 class PricingHistoryPage extends StatefulWidget {
@@ -25,8 +24,7 @@ class _PricingHistoryPageState extends State<PricingHistoryPage> {
     super.initState();
     _cubit = PriceRuleHistoryCubit(
       ruleId: widget.ruleId,
-      pricingModule: GetIt.instance<IPricingModule>(),
-      executionContext: GetIt.instance<IExecutionContext>(),
+      repository: GetIt.instance<CustomerPriceRuleRepository>(),
     )..fetchHistory();
   }
 

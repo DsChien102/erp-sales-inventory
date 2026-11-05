@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
+import 'package:erp/features/pricing/data/customer_price_rule_repository.dart';
+import 'package:erp/features/pricing/data/models.dart';
+import 'package:erp/features/pricing/data/pricing_errors.dart';
 import 'package:erp/features/pricing/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 /// S1 & S5 — Tạo / Sửa giá riêng (US-03 — SG-03).
 class PricingFormPage extends StatefulWidget {
@@ -34,8 +35,7 @@ class _PricingFormPageState extends State<PricingFormPage> {
     _cubit = PriceRuleFormCubit(
       existingRule: widget.initialRule,
       mode: _isEdit ? PriceRuleFormMode.edit : PriceRuleFormMode.create,
-      pricingModule: getIt<IPricingModule>(),
-      executionContext: getIt<IExecutionContext>(),
+      repository: getIt<CustomerPriceRuleRepository>(),
     );
 
     if (_isEdit) {
@@ -112,7 +112,7 @@ class _PricingFormPageState extends State<PricingFormPage> {
           if (state is PriceRuleFormSuccess) {
             _onSuccess(context, state.rule);
           } else if (state is PriceRuleFormError) {
-            if (state.code == PricingBlockedCodes.duplicateActiveRule) {
+            if (state.code == PricingErrorCodes.duplicateActiveRule) {
               final confirmed = await showPriceRuleOverwriteConfirmDialog(context);
               if (confirmed && context.mounted) {
                 await _cubit.confirmOverwrite();
@@ -195,7 +195,7 @@ class _PricingFormPageState extends State<PricingFormPage> {
                   isEdit: _isEdit,
                   onPriceChanged: _onPriceChanged,
                   lastUpdatedAt: initialRule?.updatedAt,
-                  lastUpdatedBy: initialRule?.updatedBy,
+                  lastUpdatedBy: initialRule?.updatedByName,
                   onViewConflictingRule: (ruleId) {
                     context.push('/pricing/$ruleId');
                   },
@@ -221,16 +221,16 @@ class _PricingFormPageState extends State<PricingFormPage> {
   }
 
   String _mapErrorToMessage(String code) => switch (code) {
-    PricingBlockedCodes.duplicateActiveRule =>
+    PricingErrorCodes.duplicateActiveRule =>
       'Đã tồn tại giá riêng đang hoạt động trùng thời gian. '
           'Vui lòng điều chỉnh khoảng hiệu lực hoặc chọn đối tượng khác.',
-    PricingBlockedCodes.belowFloorBlocked => 'Giá nhập thấp hơn giá sàn quy định.',
-    PricingBlockedCodes.referenceInvalid => 'Khách hàng hoặc sản phẩm không hợp lệ.',
-    PricingBlockedCodes.noPermission => 'Bạn không có quyền thực hiện.',
-    PricingBlockedCodes.stateChanged => 'Dữ liệu đã thay đổi. Vui lòng tải lại.',
-    PricingBlockedCodes.validationError => 'Thông tin nhập không hợp lệ.',
-    PricingBlockedCodes.systemError => 'Không thể lưu giá riêng. Vui lòng thử lại.',
-    _ => 'Lỗi: $code',
+    PricingErrorCodes.belowFloorBlocked => 'Giá nhập thấp hơn giá sàn quy định.',
+    PricingErrorCodes.referenceInvalid => 'Khách hàng hoặc sản phẩm không hợp lệ.',
+    PricingErrorCodes.noPermission => 'Bạn không có quyền thực hiện.',
+    PricingErrorCodes.stateChanged => 'Dữ liệu đã thay đổi. Vui lòng tải lại.',
+    PricingErrorCodes.validationError => 'Thông tin nhập không hợp lệ.',
+    PricingErrorCodes.systemError => 'Không thể lưu giá riêng. Vui lòng thử lại.',
+    _ => 'Không thể lưu giá riêng. Vui lòng thử lại.',
   };
 }
 

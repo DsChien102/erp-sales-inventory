@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_pricing_domain/domain.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
+import 'package:erp/features/pricing/data/models.dart';
 
 import 'price_rule_detail_rows.dart';
 import 'price_rule_history_shared.dart';
@@ -173,7 +172,7 @@ class PriceRuleDetailContent extends StatelessWidget {
                 PriceRuleIconDetailRow(
                   icon: VIcons.person,
                   label: 'Người tắt',
-                  value: rule.disabledBy ?? '—',
+                  value: rule.disabledByName ?? '—',
                 ),
                 PriceRuleIconDetailRow(
                   icon: VIcons.calendar,
@@ -278,6 +277,6 @@ class PriceRuleDetailContent extends StatelessWidget {
     CustomerPriceRuleSourceType.manual => 'Tạo thủ công',
     CustomerPriceRuleSourceType.excelImport => 'Nhập Excel',
     CustomerPriceRuleSourceType.salesOrder => 'Từ đơn hàng',
-    CustomerPriceRuleSourceType.migration => 'Migration',
+    CustomerPriceRuleSourceType.migration => 'Hệ thống',
   };
 }

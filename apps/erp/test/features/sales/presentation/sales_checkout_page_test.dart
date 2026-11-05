@@ -19,7 +19,9 @@ import '../../iam/support/scripted_iam_repositories.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/data/partner_repository.dart';
 import '../../partner/support/scripted_partner_repository.dart';
-import 'package:vet45_pricing_application/application.dart' as pricing;
+import 'package:erp/features/pricing/data/models.dart' as pricing;
+import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
+import '../support/recording_sales_pricing_repository.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -27,7 +29,7 @@ import 'package:vet45_shared_application/application.dart';
 void main() {
   late _RecordingSalesModule salesModule;
   late _SalesFlowProductRepository productRepo;
-  late _RecordingPricingModule pricingModule;
+  late RecordingSalesPricingRepository pricingModule;
   late ScriptedAccountRepository accounts;
   late SessionController session;
   late Object? capturedExtra;
@@ -37,7 +39,9 @@ void main() {
     await GetIt.instance.reset();
     salesModule = _RecordingSalesModule();
     productRepo = _SalesFlowProductRepository();
-    pricingModule = _RecordingPricingModule();
+    pricingModule = RecordingSalesPricingRepository(
+      previewResponder: _pricingPreviewFor,
+    );
     accounts = ScriptedAccountRepository(
       profile: const MyAccount(
         userId: 'user-demo',
@@ -49,7 +53,6 @@ void main() {
       ),
     );
     session = _demoSession();
-    pricingModule.previewFor = _pricingPreviewFor;
     capturedExtra = null;
 
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
@@ -62,7 +65,7 @@ void main() {
       ScriptedPartnerRepository(onCall: _salesFlowPartnerScript),
     );
     GetIt.instance.registerSingleton<ProductRepository>(productRepo);
-    GetIt.instance.registerSingleton<pricing.IPricingModule>(pricingModule);
+    GetIt.instance.registerSingleton<SalesPricingRepository>(pricingModule);
 
     router = GoRouter(
       initialLocation: '/sales/compose',
@@ -712,15 +715,20 @@ CheckoutPrecheckDto _blockedResult({
   );
 }
 
-pricing.SalesWorkingStatePricingPreviewDto _pricingPreviewFor(
-  pricing.PreviewSalesWorkingStatePricingQuery request,
-) {
+pricing.SalesWorkingStatePricingPreviewDto _pricingPreviewFor({
+  required String storeId,
+  String? customerId,
+  required String currencyCode,
+  required int contextVersion,
+  required DateTime effectiveAt,
+  required List<pricing.SalesPricingLineInput> lines,
+}) {
   return pricing.SalesWorkingStatePricingPreviewDto(
-    contextVersion: request.contextVersion,
+    contextVersion: contextVersion,
     previewToken: 'preview-token-live',
-    currencyCode: request.currencyCode,
+    currencyCode: currencyCode,
     lines: [
-      for (final line in request.lines)
+      for (final line in lines)
         pricing.SalesPricingLinePreviewDto(
           localLineId: line.localLineId,
           appliedUnitPriceMinor: 125000,
@@ -841,31 +849,6 @@ final class _SalesFlowProductRepository implements ProductRepository {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-final class _RecordingPricingModule implements pricing.IPricingModule {
-  pricing.SalesWorkingStatePricingPreviewDto Function(
-    pricing.PreviewSalesWorkingStatePricingQuery request,
-  )?
-  previewFor;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw StateError('Unexpected pricing command $command');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    final raw = query as Object;
-    if (raw is pricing.PreviewSalesWorkingStatePricingQuery) {
-      final builder = previewFor;
-      if (builder == null) {
-        throw StateError('Pricing preview not configured');
-      }
-      return builder(raw) as TResult;
-    }
-    throw StateError('Unexpected pricing query $query');
-  }
 }
 
 Object? _salesFlowPartnerScript(String method, Map<String, Object?> args) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/features/pricing/data/models.dart';
 
-import '../cubit/price_rule_detail_cubit.dart';
+import '../../logic/price_rule_detail_cubit.dart';
 
 /// D-03 SG-05 — Bottom sheet Bật lại giá riêng (precheck + confirm).
 class PriceRuleReenableSheet extends StatefulWidget {
@@ -270,7 +270,7 @@ class _PriceRuleReenableSheetState extends State<PriceRuleReenableSheet> {
                   tone: VComponentTone.info,
                   title: 'Lưu ý',
                   description:
-                      'Bật lại giá riêng này sẽ tự động tắt giá riêng trùng (nếu có).',
+                      'Bật lại giá riêng này sẽ tự động ghi đè (xoá) giá riêng trùng (nếu có).',
                 ),
               ],
               const VGap.md(),

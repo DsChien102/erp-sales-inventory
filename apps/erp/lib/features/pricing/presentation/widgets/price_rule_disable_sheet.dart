@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_pricing_application/application.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
+import 'package:erp/features/pricing/data/models.dart';
 
-import '../cubit/price_rule_detail_cubit.dart';
+import '../../logic/price_rule_detail_cubit.dart';
 
 /// D-01 SG-05 — Bottom sheet Tắt giá riêng.
 class PriceRuleDisableSheet extends StatefulWidget {

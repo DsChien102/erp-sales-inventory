@@ -173,7 +173,7 @@ void main() {
 
     final pricingCard = tester.widget<VCard>(
       find.ancestor(
-        of: find.text('Giá riêng / Nhớ giá'),
+        of: find.text('Giá riêng'),
         matching: find.byType(VCard),
       ).first,
     );

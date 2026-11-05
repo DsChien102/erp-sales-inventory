@@ -1,9 +1,7 @@
+import 'package:erp/features/pricing/data/models.dart';
+import 'package:erp/features/pricing/presentation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_pricing_application/testing.dart';
-import 'package:vet45_pricing_domain/domain.dart';
-import 'package:erp/features/pricing/presentation.dart';
 
 import '../../pricing_e2e_harness.dart';
 
@@ -48,6 +46,41 @@ void main() {
         expect(
           result.availableActions,
           contains(CustomerPriceRuleAvailableActions.reenable),
+        );
+      },
+    );
+
+    testWidgets(
+      'disable_error_restores_previous_and_sets_message',
+      (tester) async {
+        await setUpPricingE2E(
+          detailScenario: FakePricingScenario.ruleDetailActive,
+          disableScenario: FakePricingScenario.disableRuleStateChanged,
+          historyScenario: FakePricingScenario.historyEmptyLegacy,
+        );
+
+        await tester.pumpWidget(
+          buildPricingRouter(initialLocation: '/pricing/fake-rule-1'),
+        );
+        await tester.pumpAndSettle();
+
+        final cubit = tester
+            .element(findByWgtKey('wgt_e02_u03_fr01_01'))
+            .read<PriceRuleDetailCubit>();
+        final rule = (cubit.state as PriceRuleDetailLoaded).rule;
+
+        final result = await cubit.disableRule(
+          ruleId: rule.id,
+          expectedVersion: rule.version,
+        );
+        await tester.pumpAndSettle();
+
+        expect(result, isNull);
+        expect(cubit.state, isA<PriceRuleDetailLoaded>());
+        expect((cubit.state as PriceRuleDetailLoaded).rule.id, rule.id);
+        expect(
+          cubit.actionErrorMessage,
+          'Dữ liệu đã thay đổi. Vui lòng tải lại và thử lại.',
         );
       },
     );

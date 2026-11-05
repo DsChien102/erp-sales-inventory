@@ -234,6 +234,7 @@ iam:
   _invoke_send_email: 20261009004_iam_email_dispatch.sql
   _load_invitation_by_token: 20260811020_iam_tenant_invitation_acceptance.sql
   _mask_reset_email: 20260811025_iam_password_reset_by_email.sql
+  _member_display_name: 20261105001_iam_member_display_name.sql
   _membership_detail_json: 20260820004_iam_tenant_member_detail_user_info.sql
   _membership_status_code: 20260811014_iam_tenant_membership_lifecycle.sql
   _mutate_membership_status: 20260811014_iam_tenant_membership_lifecycle.sql

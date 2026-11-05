@@ -425,7 +425,7 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-13): xem [TH-03 mục 9.2](../
 | **5-A4** | (a) Promote `_drafts/inventory_default_pair.sql` thành migration mới (DB dựng từ migration hiện thiếu 2 RPC ⇒ cổng chặn cả app) + `DefaultPairGateCubit` sang `DefaultPairRepository`; bỏ `IInventoryModule` khỏi DI | 5.5 | ✅ [plan](plans/P5/5-A4-cap-cua-hang-kho-mac-dinh.md) duyệt 2026-11-01; rà lại theo code + viết lại Task 0–4, duyệt lại 2026-11-04 | ✅ 2026-11-04 (chưa commit) | 🔄 R1 2026-11-04 chưa đạt (code đạt); đã sửa R1-1…R1-3, R1-4 lúc commit |
 | **5-B**  | (b) KI-10 (server chặn > 8 ảnh), 13 (chip "Đã xóa"), 14 ("Giá cơ sở"), 15 (bỏ ô ghi chú), 16 (chữ thừa), 17, 18 (code chết checklist) + test SQL / widget TH-02 9.3. Không làm KI tồn (Theme 7 thay), KI-08 (Theme 5) | TH-02 mục 9.2 | ✅ [plan](plans/P5/5-B-sua-ki-th02.md) duyệt 2026-11-01; rà lại theo code sau 5-A3 2026-11-04 | ✅ 2026-11-04 (chưa commit) | ✅ R3 2026-11-04 (đã sửa R1-1…R1-4, R2-1; còn chạy `catalog_th02.sql` + kiểm tay 7.2 — người dùng) |
 | **5-W**  | (web) Theme 2 trên web: danh sách – PCC 2 cột trong tab Sản phẩm (PCC là route con `/products/items/:productId`), 11 màn con thành `/products/items/:productId/<x>` toàn màn cột 720, mở từ màn tạo qua route gốc `…/view`; Cài đặt sản phẩm toàn màn; 15 sheet → `showVAdaptiveSheet` | Thiết bị (2026-10-20) | ✅ [plan](plans/P5/5-W-catalog-web.md) duyệt 2026-11-01; rà lại theo code sau 5-B 2026-11-04 (thiếu `extra` dùng `redirect`, đổi router test, Task 0–8) | ✅ 2026-11-04 (chưa commit) | ✅ R2 2026-11-04 (còn kiểm tay 6.2) |
-| **5-C**  | (dọn) **SP-10 sang repository + dọn sạch module catalog + inventory** (làm ngay sau 5-W, không chờ Theme 7 — chốt 2026-11-04): SP-10 qua `ProductStockAdjustmentCubit` → `ProductRepository.setBasicStock` / `adjustBasicStock` (KI-07 phần app, KI-04; sửa mở từ checklist); fake / DI / nhóm `old` của test parity bỏ module; xoá `modules/catalog`, `modules/inventory` (3 tệp SQL khai báo → `supabase/sql/catalog/functions/`); DB: bỏ outbox / inbox `catalog`, `inventory` (sửa migration gốc), **giữ** mọi RPC, schema `catalog` (kể cả `unaccent_immutable`), `inventory`. **Không** xoá `modules/`, `vet45_adapters` / `vet45_generator` (7-5), `vet45_annotations` (9-1) | Dọn module (2026-10-11) | ✅ [plan](plans/P5/5-C-don-module-catalog-inventory.md) duyệt 2026-11-04 | ✅ 2026-11-04 | ❌ R1 2026-11-04 |
+| **5-C**  | (dọn) **SP-10 sang repository + dọn sạch module catalog + inventory** (làm ngay sau 5-W, không chờ Theme 7 — chốt 2026-11-04): SP-10 qua `ProductStockAdjustmentCubit` → `ProductRepository.setBasicStock` / `adjustBasicStock` (KI-07 phần app, KI-04; sửa mở từ checklist); fake / DI / nhóm `old` của test parity bỏ module; xoá `modules/catalog`, `modules/inventory` (3 tệp SQL khai báo → `supabase/sql/catalog/functions/`); DB: bỏ outbox / inbox `catalog`, `inventory` (sửa migration gốc), **giữ** mọi RPC, schema `catalog` (kể cả `unaccent_immutable`), `inventory`. **Không** xoá `modules/`, `vet45_adapters` / `vet45_generator` (7-5), `vet45_annotations` (9-1) | Dọn module (2026-10-11) | ✅ plan (đã xoá) | ✅ 2026-11-04 | ✅ R2 2026-11-04 |
 
 
 Chi tiết từng việc:
@@ -455,31 +455,32 @@ Các sửa lỗi: [TH-02 mục 9.2](../02-yeu-cau/TH-02-san-pham-va-gia-ban.md#9
 
 ## Theme 4. Pricing (1 ngày)
 
-**Trạng thái:** ⬜ Chưa làm
+**Trạng thái:** 📝 plan (2026-11-04) Viết 6-A1, 6-A2; người dùng duyệt 2026-11-04 (kèm các đề xuất "duyệt plan là chốt"). Chốt cùng người dùng: chia 6-A **theo lớp** như Theme 2 (6-A1 dữ liệu, 6-A2 đổi UI một lượt); Sales chuyển ngay trong 6-A (`SalesPricingRepository`); sửa luôn lỗi bật lại mất cờ ghi đè; câu lỗi thô đổi theo TH-04 6.4; **bỏ hẳn nhập Excel** (EP-04, PR-09) và màn "Chọn cách thêm" (PR-03) ngay ở 6-A, DB nhập xoá ở 6-C
 
 
 | Plan    | Nội dung                                                                                                                                                                                    | Gồm việc                | Plan | Làm | Review |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---- | --- | ------ |
-| **6-A** | (a) Chuyển pricing (giá riêng, nhập Excel, màn chọn)                                                                                                                                        | 6.1, 6.2, 6.3           | ⬜    | ⬜   | ⬜      |
-| **6-B** | (b) Các sửa KI của TH-04                                                                                                                                                                    | TH-04 mục 9.2           | ⬜    | ⬜   | ⬜      |
-| **6-C** | (dọn) **Dọn sạch module pricing**: app hết `vet45_pricing_*` (kể cả 2 chỗ ở `sales/presentation`); xoá `modules/pricing`; DB schema `pricing`: bỏ RPC cũ không còn dùng (sửa migration gốc) | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
+| **6-A1** | (a) Dữ liệu: model (chép từ module), phân loại lỗi → `AppException` + câu lỗi TH-04 6.4, rule đầu vào, `CustomerPriceRuleRepository`, `SalesPricingRepository`; test parity `old` / `new`. Bỏ RPC đọc trước (create / update context), sửa bật lại gửi đúng `p_acknowledge_overwrite`. Không làm nhập Excel. Chưa đổi UI | 6.1 (data) | ✅ [plan](plans/P6/6-A1-pricing-data.md) | ✅ 2026-11-04 (đã sửa R1-1, R1-2; chưa commit) | ✅ R2 2026-11-04 (đã sửa R1-1 mã tiền tệ chữ hoa, R1-2 ghi lệch mã lỗi Q7) |
+| **6-A2** | (a) Đổi UI pricing + Sales (`sales_pricing_lookup`, `sales_draft_backend`) + router + DI sang repository một lượt; 4 cubit → `logic/`; xoá màn nhập Excel (PR-09) và màn "Chọn cách thêm" (PR-03: nút thêm mở thẳng form); câu lỗi thô theo 6.4; `FakePricingModule` → `FakeCustomerPriceRuleRepository` + `RecordingSalesPricingRepository` | 6.1 (UI), 6.3 | ✅ [plan](plans/P6/6-A2-pricing-ui-sang-repository.md) | ✅ 2026-11-04 (chưa commit) | ✅ R3 2026-11-05 (đã sửa R1-1 state lịch sử, R1-2 + R2-1 ghi chép; còn kiểm tay 7.2 — người dùng) |
+| **6-B** | (b) Các sửa KI của TH-04 (trừ KI-03: nhập Excel đã bỏ); bỏ lọc nhanh lịch sử "Nhập Excel" cùng KI-02; + 4 lỗi thấy khi viết plan (tên người tắt / cập nhật, tổng số, link banner trùng, chip "Tùy chọn") | TH-04 mục 9.2 | ✅ plan (đã xoá) | ✅ 2026-11-06 (đã sửa R1-1…R1-6 + Task 8; chưa commit) | ✅ R2 2026-11-06 (đã sửa R1-1…R1-6; TH-04 lên 3.2; còn chạy `pricing_th04.sql` + kiểm tay 8.2 — người dùng) |
+| **6-C** | (dọn) **Dọn sạch module pricing**: app hết `vet45_pricing_*` (sales đã chuyển ở 6-A2; nhóm `old` của test parity, `pubspec.yaml`); xoá `modules/pricing`; DB schema `pricing`: bỏ RPC cũ không còn dùng, **xoá phần nhập Excel** (4 RPC `*_customer_price_rule_import`, hàm phụ, bảng lô / dòng nhập, `catalog._resolve_product_unit_for_pricing_import`; kiểm dữ liệu nguồn `excel_import`) + 2 RPC đọc trước `get_customer_price_rule_create_context` / `update_context` (sửa migration gốc); giữ 4 cột truy vết nhập (bỏ FK), giữ `delete_customer_price_rule`, `save_remembered_price_from_order`; live test dọn qua RPC | Dọn module (2026-10-11) | ✅ [plan](plans/P6/6-C-don-module-pricing.md) duyệt 2026-11-06 | ⬜   | ⬜      |
 
 
 Chi tiết từng việc:
 
-9 file gọi module, 5 cubit, 9 màn: danh sách, form, chi tiết, lịch sử, import, các màn chọn (sản phẩm/khách/đơn vị).
+9 file gọi module, 5 cubit, 9 màn: danh sách, form, chi tiết, lịch sử, import, các màn chọn (sản phẩm/khách/đơn vị). Từ 2026-11-04 bỏ màn import và màn chọn cách thêm ⇒ còn 7 màn.
 
 
 | #   | Việc                                                                                  |
 | --- | ------------------------------------------------------------------------------------- |
 | 6.1 | `CustomerPriceRuleRepository` (CRUD, tắt/bật, lịch sử, resolve áp dụng)               |
-| 6.2 | `PriceImportRepository` (template, start/confirm/cancel import)                       |
-| 6.3 | Màn chọn sản phẩm/khách dùng lại `ProductRepository` (P5) và `PartnerRepository` (P4) |
+| 6.2 | ~~`PriceImportRepository` (template, start/confirm/cancel import)~~ — **bỏ** (2026-11-04, người dùng: bỏ nhập Excel) |
+| 6.3 | Màn chọn sản phẩm/khách dùng lại `ProductRepository` (P5) và `PartnerRepository` (P4) — đã xong ở 4-A / 5-A3 (đo 2026-11-04) |
 
 
 Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../02-yeu-cau/TH-04-chinh-sach-gia.md#92-chia-pr-của-p6).
 
-**Xong khi:** 9 màn đã tick; import Excel mẫu chạy được từ đầu tới cuối; 5 kịch bản đầu–cuối ở TH-04 mục 9.3 chạy qua.
+**Xong khi:** 7 màn còn lại đã tick (PR-03, PR-09 bỏ); 4 kịch bản đầu–cuối 1–4 ở TH-04 mục 9.3 chạy qua (kịch bản 5 nhập Excel bỏ).
 
 ---
 
@@ -785,8 +786,8 @@ Chi tiết từng việc:
 | Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS ✅, secrets Edge Function ✅, SMTP Auth ✅, `db reset --linked` ✅, 4 kịch bản SQL ✅, `send-email` đã deploy ✅. 2026-10-28: Vault ✅, `invitation-signup` đã deploy (12/10) ✅. Confirm email + mẫu mã 6 số + rate limit ✅. Còn: kiểm tay TH-01 9.3 kịch bản 1–4 → tick CHECKLIST |
 | Web cho app | 🔄 | | Mở 2026-10-20 (chốt thiết bị iPhone + web). 2026-10-28: W-1 ✅ (R2; test app 1524 pass / 61 fail có sẵn; DS 435 / 1 có sẵn), commit `72b4cc2dd`; W-2 plan đã duyệt + rà theo quy tắc "test giữ hành vi trước"; 2026-10-29: W-2 ✅ R4 (test app 1555 pass / 61 fail có sẵn; DS 447 / 1 có sẵn; audit 15/20), commit `1bd9268af`; còn kiểm tay W-1 mục 5 + W-2 6.2 |
 | Theme 3 | 🔄 | | 2026-11-02: code 4-A, 4-B, 4-W, 4-C xong, review ✅ cả 4 (4-W R2, các plan còn lại R1), đã commit. **Chỉ còn việc người dùng:** kiểm tay (4-A 7.2, 4-B 7.2, 4-W 6.2); `db reset` local + `supabase/tests/partner_th03.sql` / `iam_*.sql` (4-B, 4-C); reset Dev |
-| Theme 2 | 🔄 | | Đang làm: 5-A1 ✅, 5-A2 ✅, 5-A3 ✅ |
-| Theme 4 | ⬜ | | |
+| Theme 2 | 🔄 | | Đang làm: 5-A1 ✅, 5-A2 ✅, 5-A3 ✅; 5-C ✅ (review R2 2026-11-04; còn việc người dùng: `db reset` local + `catalog_th02.sql`, reset Dev) |
+| Theme 4 | 🔄 | | 6-A1, 6-A2, 6-B ✅ (review đạt, chưa commit); tiếp: 6-C dọn module pricing |
 | Theme 5 | ⬜ | | |
 | Theme 8 | ⬜ | | |
 | Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*`. 2026-10-16: chốt **sửa prototype trước (T7-P), rồi mới code Flutter**; T7-0d, T7-1 tạm dừng, rà lại theo prototype mới trước khi giao |
