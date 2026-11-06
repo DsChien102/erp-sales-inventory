@@ -1,7 +1,7 @@
 # 6-C — Dọn sạch module pricing + xoá phần nhập Excel trong DB
 
 > Theme 4 (mã cũ P6) · Bước (dọn) theo "Quy tắc dọn module (chốt 2026-10-11)" của PLAN.md
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-06) | Làm ✅ 2026-11-06 | Review ⬜
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-06) | Làm ✅ 2026-11-06 | Review ✅ R1 2026-11-06
 > Làm **sau** 6-A1, 6-A2, 6-B (đã review đạt, **chưa commit** — Task 0 Step 1).
 > Tài liệu: PLAN.md mục Theme 4 dòng 6-C, "Quy tắc dọn module", "Quy tắc migration", "Plan xoá / tách / thay code cũ"; TH-04 mục 3 (dữ liệu), 6.2, 6.3, 8, BR-19; 6-A1 Q9, 6-A2 Q12; mẫu đã làm: 5-C (`git show d95419d20^:docs/refactor/plans/P5/5-C-don-module-catalog-inventory.md`).
 
@@ -300,3 +300,26 @@ Run: `flutter test test/features/pricing/data/pricing_sql_contract_test.dart` �
 ## 9. Review
 
 <!-- Chỉ phiên review ghi. -->
+
+### R1 — 2026-11-06 — ✅ ĐẠT
+
+| Hạng mục | Kết quả |
+|---|---|
+| Task 0: test hợp đồng `kept` | ✅ `pricing_sql_contract_test.dart`: đủ 4 test, đúng bảng Step 2; `_definesFn`, `_allMigrationsSql` (bỏ `_drafts`) đúng Interfaces |
+| Task 1: live test dọn (RF4) | ✅ map `{'p_tenant_id', 'p_rule_id', 'p_expected_version'}` khớp `PricingDeleteRpcMapper.params` cũ (`git show 10203d6fd^:…/pricing_delete_rpc_mapper.dart`) và chữ ký `pricing.delete_customer_price_rule(uuid, uuid, integer)` (`20260725014:151`). Không còn import `vet45_pricing_*` |
+| Task 2: bỏ nhóm `old`, xoá module | ✅ Nhóm `new` không mất test: parity 25 → 25 `test(`, errors 6 → 6 `test(` (đếm ở `10203d6fd^` và HEAD). 566 dòng xoá ở parity gồm nhóm `old` + 4 lớp fake `_FakePricingRpcSupabase`, `_FakeGoTrueClient`, `_FakePricingQuerySchema`, `_FakePostgrestRpc` chỉ nhóm `old` dùng (HEAD: 0 tham chiếu). `ls modules` = `einvoice partner sales`; 3 pubspec + `pubspec.lock` hết `pricing` |
+| Task 3: DB (RF1, RF2, RF3) | ✅ `20260725010` còn đúng 2 CHECK + 4 cột `uuid` không `references`. 004 / 007 / 810001 mỗi tệp mất đúng 1 hàm (`create or replace function`: 5→4, 2→1, 4→3), chỗ cắt sạch (`create_customer_price_rule` / `update_customer_price_rule` + revoke / grant còn nguyên). `REGISTRY.yaml` −11 owner, −5 tệp. Grep đối tượng đã xoá trong `supabase`, `tools`: chỉ còn tên tệp `010_…import_s8.sql` (header 011, 012, `REGISTRY.yaml:509`, `Intent` của 010) |
+| Task 4: tài liệu | ✅ TH-04 3.3 đúng các dòng Step 1 (mục 3, ERD, 6.1, 6.2, 6.3, codec). PLAN.md cột Làm |
+| Kiểm tổng (review tự chạy) | ✅ `pricing_sql_contract_test` 10/10, parity + errors xanh. `dart analyze lib test integration_test`: 0 error, 1 warning có sẵn (`order_einvoice_section_test.dart:32`, commit `2dce9c023`). `apps/erp/example` `dart analyze lib`: 0 error. `flutter test`: **2.282 đạt / 55 lỗi** = 53 trong mốc + 2 ⚠️ đã ghi ở "Sau 5-C"; 4 test nhập trong mốc không còn. `verify_migration_policy`: 0 error, 3 warning có sẵn. `verify_schema_lock_sync`: OK. `git diff 9c0781bac HEAD -- apps/erp/lib`: 0 tệp |
+| Kết quả (mục 8) | ⚠️ Thiếu ghi (không chặn, review đã kiểm thay — xem dưới) |
+
+**Ghi chép thiếu / lệch ở mục 8** (review đã đo lại, không cần phiên code sửa):
+
+- 8.2 ghi "55 lỗi fail đều nằm trong `TEST-BASELINE.md`": sai một phần. 53 nằm trong mốc; 2 (`product_guided_create_e2e_test` duplicate SKU, `product_change_history_e2e_test`) là 2 lỗi ⚠️ ngoài mốc đã ghi ở "Sau 5-C", không do 6-C.
+- Task 2 Step 2 (số test trước khi bỏ `old`) không ghi. Review đếm: nhóm `new` 25 (parity), 6 `test(` (errors), không đổi.
+- Không có bảng `impact` (Global Constraints). Chỉ tệp test / integration test đổi, `lib` 0 tệp, nên không có symbol app nào bị ảnh hưởng. `detect_changes` không chạy được: index GitNexus vẫn ở `d95419d` (trước 6-C, `analyze` lỗi FTS như 8.3). Cần `analyze` lại (xoá `.gitnexus` cache nếu còn lỗi) trước plan sau.
+- 8.4 thiếu bước Task 3 Step 8 `select count(*) from pricing.customer_price_rules where source_type = 'excel_import'` trên Dev **trước** reset (chỉ để biết có dữ liệu cũ hay không; reset Dev thì mất dữ liệu đó).
+
+**Review cập nhật:** `TEST-BASELINE.md` mục "Sau 6-C" (bỏ 3 hàng module pricing, 2 mục lỗi module, 4 test nhập trong `apps/erp`: 57 → 53); PLAN.md cột Review 6-C, trạng thái Theme 4, bảng theo dõi.
+
+**Việc của người dùng (không thuộc phiên code):** (Dev, trước reset, nếu muốn) đếm `source_type = 'excel_import'`; `supabase db reset` local + `supabase/tests/pricing_th04.sql`; kiểm `information_schema.tables` schema `pricing` không còn `customer_price_rule_imports`, `customer_price_rule_import_rows`; **cần reset Dev**.

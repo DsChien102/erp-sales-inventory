@@ -12,6 +12,8 @@
 
 > **Sau 5-C (2026-11-04, review 5-C đạt):** đã xoá `modules/catalog/{domain,application,infrastructure,integration_events}`, `modules/inventory/{domain,application,infrastructure,integration_events}`; bỏ các hàng tương ứng trong bảng và mục lỗi `modules/catalog/infrastructure` (8 test xanh của `price_band_sql_contract_test` chuyển sang `apps/erp/test/features/catalog/data/catalog_sql_contract_test.dart`; 4 test đọc `supabase/migrations/_drafts/…` đã bỏ, Q8 của 5-C). `apps/erp` **2.112 đạt / 59 lỗi**: 57 lỗi trong danh sách `apps/erp` dưới đây (4 test `product_measurement_units_e2e_test` nay xanh, đã bỏ khỏi danh sách) + ⚠️ **2 lỗi mới, không có trong mốc**: `product_guided_create_e2e_test.dart: e2e_e02_u01_fr01_01: duplicate SKU opens existing product in PCC` và `product_change_history_e2e_test.dart: e2e_e07_u04_fr02_01: product change history can be viewed from PCC`. Cả hai hỏng ở bước tìm tên sản phẩm trên tiêu đề PCC, không dính SP-10 / 5-C; xuất hiện trong lượt đổi UI Theme 2 (5-A3 … 5-W), cần xem lại — **chưa** coi là lỗi có sẵn.
 
+> **Sau 6-C (2026-11-06, review 6-C R1 đạt):** đã xoá `modules/pricing/{domain,application,infrastructure}`; bỏ 3 hàng tương ứng trong bảng và 2 mục lỗi `modules/pricing/infrastructure` (50: test SQL đọc `_drafts/` đã promote, 6-C Q4), `modules/pricing/domain` (1). Bỏ khỏi danh sách `apps/erp` 4 test nhập Excel (`pricing_import_history_e2e_test.dart` ×3, `PricingImportPage (S8)` ×1), đã xoá cùng màn nhập ở 6-A2. Test hợp đồng SQL pricing mới ở `apps/erp/test/features/pricing/data/pricing_sql_contract_test.dart` (10, xanh). `apps/erp` **2.282 đạt / 55 lỗi**: 53 lỗi trong danh sách `apps/erp` dưới đây + 2 lỗi ⚠️ ngoài mốc đã ghi ở mục "Sau 5-C" (`product_guided_create_e2e_test` duplicate SKU, `product_change_history_e2e_test`), không do 6-C. `modules/einvoice/application` 217 / 1 (như baseline).
+
 | Package | Loại | Đạt | Lỗi |
 |---|---|---|---|
 | `apps/messaging_worker` | dart | 45 | 0 |
@@ -29,9 +31,6 @@
 | `modules/iam/application` | dart | 225 | 0 |
 | `modules/iam/infrastructure` | dart | 289 | **21** |
 | `modules/iam/domain` | dart | 40 | 0 |
-| `modules/pricing/application` | dart | 183 | 0 |
-| `modules/pricing/infrastructure` | dart | 150 | **50** |
-| `modules/pricing/domain` | dart | 53 | **1** |
 | `modules/sales/domain` | dart | 47 | 0 |
 | `modules/einvoice/integration_events` | dart | 16 | 0 |
 | `modules/einvoice/application` | dart | 217 | **1** |
@@ -58,7 +57,7 @@
 - /Users/macbook/Documents/Đồ án/apps/admin/test/features/users/presentation/pages/platform_onboarding_page_test.dart: review step displays selected legal entity type correctly
 - /Users/macbook/Documents/Đồ án/apps/admin/test/features/users/presentation/pages/platform_onboarding_page_test.dart: organization step fields are submitted to onboarding command
 
-### `apps/erp` (57)
+### `apps/erp` (53)
 
 > **Cập nhật 2026-10-28** (trước khi đóng Theme 1, sau 2-B6 / 2-B7 / W-1; `flutter test --no-pub` cả app: 1524 đạt / 61 lỗi). So với danh sách 2026-10-07: **thêm** `product_measurement_units_e2e_test` `e2e_e04_u02_fr01_01b`, `e2e_e04_u02_fr01_03` (hỏng sẵn ở HEAD, phát hiện ở review 2-B7 R3); **bỏ** 2 test IAM nay đã đạt (`production_boundary_test` "presentation.dart does not export Fake* or testing paths", `platform_onboarding_step_owner_test` "renders warning VBanner…"). Danh sách dưới là bản hiện hành.
 
@@ -108,14 +107,10 @@
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart: e2e_e06_u02_fr04_01: PCC shows custom override label
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/my_account/presentation/e2e_e06_u01_fr01_01_my_account_test.dart: e2e_e06_u02_fr01_01: edit profile save
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_form_e2e_test.dart: e2e_e02_u04 — create (S1) e2e_e02_u04_fr01_05: dirty back shows leave confirmation then stay
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_import_history_e2e_test.dart: e2e_e02_u05 — import (S8) back from preview confirms and cancels the current batch
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_import_history_e2e_test.dart: e2e_e02_u05 — import (S8) canceling the save dialog does not show an error toast
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_import_history_e2e_test.dart: e2e_e02_u05 — import (S8) downloads the backend template through the file service
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u03 — PricingDetailPage (S3) wgt_e02_u03_fr01_01 — chi tiết + CTA Thao tác primary
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u04 — PricingFormPage create (S1) SC-06 — dirty Hủy mở leave confirmation (VConfirmDialog)
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u04 — PricingFormPage create (S1) SC-06 — dirty back mở leave confirmation
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u04 — PricingFormPage create (S1) SC-06 — dirty system back (maybePop) mở leave confirmation
-- /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u05 — PricingImportPage (S8) wgt_e02_u05_fr01_01 — wizard import bước chọn file
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u06 — PricingFormPage edit (S5) SC-06 — dirty Hủy trên form sửa mở leave confirmation
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u07 — PriceRuleDisableSheet (S6) wgt_e02_u07_fr01_01 — sheet tắt giá riêng
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/tenant_admin/e2e_e02_u01_u03_u07_test.dart: e2e_e02_u07_fr01_01: audit list/search → activation forensic detail
@@ -154,63 +149,6 @@
 - test/iam_active_drafts_sequence_sql_contract_test.dart: no active IAM SQL drafts remain after in-place promote merge
 - test/iam_fix_utc_now_offset_sql_contract_test.dart: (setUpAll)
 - test/sql/iam_active_store_context_contract_test.dart: (setUpAll)
-
-### `modules/pricing/infrastructure` (50)
-
-- test/pricing_sql_contract_test.dart: provider snapshot functions are internal-only
-- test/pricing_sql_contract_test.dart: pricing draft owns atomic create and never reads provider tables
-- test/pricing_sql_contract_test.dart: S1 view permission variable stays inside create-context scope
-- test/pricing_sql_contract_test.dart: S2 search draft has the exact public RPC and access boundary
-- test/pricing_sql_contract_test.dart: S2 search derives statuses with inclusive effective boundaries
-- test/pricing_sql_contract_test.dart: S2 search combines snapshot filters and stable seek pagination
-- test/pricing_sql_contract_test.dart: S2 list redacts floor amount and exposes stable screen actions
-- test/pricing_sql_contract_test.dart: S3 detail draft has the exact public RPC and access boundary
-- test/pricing_sql_contract_test.dart: S3 detail derives status with inclusive boundaries and health codes
-- test/pricing_sql_contract_test.dart: S1 create helper emits S3-compatible health and lifecycle actions
-- test/pricing_sql_contract_test.dart: S1 result helper includes disabled lifecycle audit fields
-- test/pricing_sql_contract_test.dart: S5 update draft exposes exact RPC signatures and grants
-- test/pricing_sql_contract_test.dart: S5 activity constraint accepts rows written by later slices
-- test/pricing_sql_contract_test.dart: S5 authoritative update locks version and suppresses no-op activity
-- test/pricing_sql_contract_test.dart: S5 update uses provider functions without private table reads
-- test/pricing_sql_contract_test.dart: S6 disable draft is atomic, idempotent-before-version, draft-only
-- test/pricing_sql_contract_test.dart: S7 reenable draft defines helper, RPCs, fingerprint, and ordering
-- test/sql/pricing_sales_working_state_preview_contract_test.dart: 003 pricing sales preview draft enforces scope, precedence, and policy
-- test/sql/pricing_customer_price_rule_import_price_parse_contract_test.dart: 018 declares exact touches and remains draft-only
-- test/sql/pricing_customer_price_rule_import_price_parse_contract_test.dart: evaluator parses Excel N.0 VN thousands and rejects fraction
-- test/domain/customer_price_rule_import/excel_customer_price_rule_import_file_adapter_test.dart: parse successes parses sparse rows and native dates from LibreOffice fixture
-- test/sql/pricing_customer_price_rule_lifecycle_br070809_contract_test.dart: 013 import overlap draft blocks duplicate rows without auto-disable
-- test/sql/pricing_customer_price_rule_lifecycle_br070809_contract_test.dart: 014 lifecycle draft adds delete resolve exclusion and deleted_at
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 draft header, dependencies, and Touches match replaced functions
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: no timestamped S9 migration and no REGISTRY edit
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 draft defines remembered_price_requests schema and security
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 draft extends rule type, activity, and source trace columns
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 public RPC uses exact params and save_memory permission
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 save RPC acquires idempotency lock before replay lookup
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 save RPC handles idempotency conflict and anonymous skip
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 save RPC uses shared rule-key lock and provider-only reads
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 save RPC stores deterministic business outcomes
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 helper is internal-only and public RPC is granted to clients
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 detail projection exposes redacted source_memory_request_id
-- test/sql/pricing_remembered_price_from_order_s9_contract_test.dart: S9 save RPC does not swallow technical errors
-- test/sql/pricing_customer_price_rule_import_s8_contract_test.dart: catalog import resolver draft is internal-only provider
-- test/sql/pricing_customer_price_rule_import_s8_contract_test.dart: S8 pricing import draft defines schema, RPCs, and boundaries
-- test/sql/pricing_customer_price_rule_import_s8_contract_test.dart: S8 preview redacts internal floor and matched-rule identifiers
-- test/sql/pricing_customer_price_rule_import_s8_contract_test.dart: S8 cursor is integer Base64URL and maps invalid input to validation
-- test/sql/pricing_customer_price_rule_import_s8_contract_test.dart: S8 confirm performs authoritative rule and activity mutations
-- test/sql/pricing_customer_price_rule_import_s8_contract_test.dart: S8 confirm policy keeps terminal replay before version rejection
-- test/sql/pricing_customer_price_rule_import_s8_contract_test.dart: no timestamped migration was added for S8
-- test/sql/pricing_customer_price_rule_history_s10_contract_test.dart: S10 draft header, dependencies, and Touches match replaced functions
-- test/sql/pricing_customer_price_rule_history_s10_contract_test.dart: no timestamped S10 migration and no REGISTRY edit
-- test/sql/pricing_customer_price_rule_history_s10_contract_test.dart: S10 covering keyset index and public RPC signature
-- test/sql/pricing_customer_price_rule_history_s10_contract_test.dart: S10 checks permission before rule existence
-- test/sql/pricing_customer_price_rule_history_s10_contract_test.dart: S10 cursor decode, tuple predicate, limit+1, and next cursor encoding
-- test/sql/pricing_customer_price_rule_history_s10_contract_test.dart: S10 maps actor fallback, source fallback, reason, and S8/S9 traces
-- test/sql/pricing_customer_price_rule_history_s10_contract_test.dart: S10 floor sanitizer redacts known keys without mutating DB rows
-- test/sql/pricing_customer_price_rule_history_s10_contract_test.dart: S10 helper is internal-only and public RPC is granted
-
-### `modules/pricing/domain` (1)
-
-- test/customer_price_rule/customer_price_rule_test.dart: Money rejects zero or negative amount
 
 ### `modules/einvoice/application` (1)
 
