@@ -22,7 +22,10 @@ import '../../partner/support/scripted_partner_repository.dart';
 import 'package:erp/features/pricing/data/models.dart' as pricing;
 import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
 import '../support/recording_sales_pricing_repository.dart';
+import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'package:vet45_sales_application/application.dart';
+
+import '../support/fake_sales_draft_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -56,6 +59,7 @@ void main() {
     capturedExtra = null;
 
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
+    GetIt.instance.registerSingleton<SalesDraftRepository>(FakeSalesDraftRepository());
     GetIt.instance.registerSingleton<AccountRepository>(accounts);
     GetIt.instance.registerSingleton<IExecutionContext>(
       const _TestExecutionContext(),

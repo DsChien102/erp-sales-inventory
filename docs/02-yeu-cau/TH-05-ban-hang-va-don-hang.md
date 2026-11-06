@@ -2207,6 +2207,8 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | KI-18 | Phương thức mặc định khác nhau: thanh toán = Tiền mặt, quyết toán đổi/trả = Chuyển khoản | **Sửa**: mặc định Tiền mặt ở cả hai | P8 |
 | KI-19 | Chế độ "trả toàn bộ từ yêu cầu huỷ" có trong RPC, app không dùng | **Giữ trong DB, không dùng**; đơn đã thu tiền thì người dùng tự mở đổi/trả | — |
 | KI-20 | Lọc "Hôm nay / 7 ngày / 30 ngày" tính theo giờ thiết bị, mã đơn theo giờ VN | **Giữ nguyên** (thiết bị đặt giờ VN) | — |
+| KI-21 | SG-01 chỉ tải 1 trang 50 nháp, bỏ `has_more` ⇒ nháp thứ 51 trở đi không hiện (US-01.7 EC-02) | **Sửa** ở 8-B: tải thêm khi cuộn theo `next_cursor` (thấy khi viết plan 8-A1, 2026-11-06) | P8 |
+| KI-22 | SG-01 không có "Tạo bởi" cho nháp của người khác: app chỉ tra được tên của chính mình, UUID bị `creatorLabel` loại (US-01.7 FR-02) | **Sửa** ở 8-B (thấy khi viết plan 8-A1, 2026-11-06) | P8 |
 
 ---
 

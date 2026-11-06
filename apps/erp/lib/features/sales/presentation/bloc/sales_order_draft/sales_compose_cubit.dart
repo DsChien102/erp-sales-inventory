@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_sales_application/application.dart';
 
@@ -490,7 +491,7 @@ final class SalesComposeCubit extends Cubit<SalesComposeState> {
       // Updating a server draft that was cancelled, removed or changed
       // elsewhere can never succeed on retry; report it instead of looping.
       if (serverDraftId != null &&
-          error is SalesContractException &&
+          error is AppException &&
           (error.code == 'STALE_DATA' || error.code == 'REFERENCE_UNAVAILABLE')) {
         _emitLoaded(
           save: current.save.copyWith(

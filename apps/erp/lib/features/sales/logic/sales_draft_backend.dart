@@ -1,15 +1,14 @@
-import 'package:get_it/get_it.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/pricing/data/models.dart' as pricing;
 import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
-
-import '../lookups/sales_partner_customer_lookup.dart';
-import 'sales_draft_payload_fingerprint.dart';
+import 'package:erp/features/sales/presentation/lookups/sales_partner_customer_lookup.dart';
+import 'package:erp/features/sales/presentation/orchestration/sales_draft_payload_fingerprint.dart';
+import 'package:get_it/get_it.dart';
+import 'package:vet45_sales_application/application.dart';
 
 /// ERP cross-module draft orchestrator (Catalog + Partner + Pricing → Sales).
 abstract final class SalesDraftBackend {
@@ -33,14 +32,11 @@ abstract final class SalesDraftBackend {
       );
     }
 
-    final tenantId = await di<IExecutionContext>().requireTenantId();
-    final actorId = await di<IExecutionContext>().requireUserId();
     final storeId = await di<SessionController>().requireActiveStoreId();
 
     final customerSnapshot = await _resolveCustomerForPersist(di, request.customer);
     final catalogOutcome = await _resolveProducts(
       di,
-      tenantId: tenantId,
       storeId: storeId,
       productIds: request.lines.map((line) => line.identity.productId),
     );
@@ -87,9 +83,7 @@ abstract final class SalesDraftBackend {
 
     if (request.isUpdate) {
       final draftId = request.draftId!.trim();
-      final command = UpdateSalesOrderDraftCommand(
-        tenantId: tenantId,
-        actorId: actorId,
+      return di<SalesDraftRepository>().update(
         draftId: draftId,
         storeId: storeId,
         customer: customerSnapshot,
@@ -106,12 +100,9 @@ abstract final class SalesDraftBackend {
           payloadHash: fingerprint.payloadHash,
         ),
       );
-      return di<ISalesModule>().executeCommandAsync(command);
     }
 
-    final command = SaveSalesOrderDraftCommand(
-      tenantId: tenantId,
-      actorId: actorId,
+    return di<SalesDraftRepository>().save(
       storeId: storeId,
       customer: customerSnapshot,
       currencyCode: request.currencyCode,
@@ -126,7 +117,6 @@ abstract final class SalesDraftBackend {
         payloadHash: fingerprint.payloadHash,
       ),
     );
-    return di<ISalesModule>().executeCommandAsync(command);
   }
 
   static Future<SalesDraftRestoreResult> _restore(
@@ -140,16 +130,10 @@ abstract final class SalesDraftBackend {
       );
     }
 
-    final tenantId = await di<IExecutionContext>().requireTenantId();
-    final actorId = await di<IExecutionContext>().requireUserId();
     final storeId = await di<SessionController>().requireActiveStoreId();
-    final restore = await di<ISalesModule>().executeQueryAsync(
-      GetSalesOrderDraftForRestoreQuery(
-        tenantId: tenantId,
-        actorId: actorId,
-        draftId: trimmedDraftId,
-        storeId: storeId,
-      ),
+    final restore = await di<SalesDraftRepository>().getForRestore(
+      draftId: trimmedDraftId,
+      storeId: storeId,
     );
     final draft = restore.draft;
     final issues = <SalesDraftRestoreIssue>[];
@@ -162,7 +146,6 @@ abstract final class SalesDraftBackend {
 
     final catalogOutcome = await _resolveProducts(
       di,
-      tenantId: tenantId,
       storeId: storeId,
       productIds: draft.lines.map((line) => line.productId),
     );
@@ -285,7 +268,6 @@ abstract final class SalesDraftBackend {
   /// that stopped being sellable.
   static Future<_CatalogResolutionOutcome> _resolveProducts(
     GetIt di, {
-    required String tenantId,
     required String storeId,
     required Iterable<String> productIds,
   }) async {

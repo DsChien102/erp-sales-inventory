@@ -8,9 +8,9 @@ void main() {
     const files = <String>[
       'apps/erp/lib/features/sales/presentation/pages/sales_order_compose_page.dart',
       'apps/erp/lib/features/sales/presentation/pages/sales_draft_list_page.dart',
-      'apps/erp/lib/features/sales/presentation/orchestration/sales_draft_backend.dart',
+      'apps/erp/lib/features/sales/logic/sales_draft_backend.dart',
       'apps/erp/lib/features/sales/presentation/bloc/sales_order_draft/sales_compose_cubit.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/sales_order_draft/sales_draft_list_cubit.dart',
+      'apps/erp/lib/features/sales/logic/sales_draft_list_cubit.dart',
       'apps/erp/lib/features/sales/presentation/bloc/sales_order_draft/sales_draft_contracts.dart',
       'apps/erp/lib/features/sales/presentation/support/i_sales_active_store_context.dart',
       'apps/erp/lib/features/sales/presentation.dart',

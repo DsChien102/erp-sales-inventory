@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
@@ -304,7 +305,45 @@ void main() {
       expect(cubit.state.saveStatus, SalesComposeSaveStatus.saved);
     });
 
-    test('updating a draft that is no longer active reports draftGone without a toast message', () async {
+    test(
+      'updating a draft that is no longer active reports draftGone without a toast message',
+      () async {
+        var calls = 0;
+        final cubit = _cubit(
+          draftId: 'draft-new',
+          persist: (request) async {
+            calls += 1;
+            if (calls == 1) {
+              return _draftDto(
+                draftId: 'server-draft-1',
+                version: 1,
+                lines: request.lines,
+                customer: request.customer,
+                orderNote: request.orderNote,
+              );
+            }
+            throw const AppException(
+              'STALE_DATA',
+              serverMessage: 'Draft is no longer active.',
+            );
+          },
+        );
+        addTearDown(cubit.close);
+
+        await cubit.hydrate();
+        cubit.addOrIncrementLine(_selection);
+        await _flush();
+        expect(await cubit.saveDraft(), SalesDraftSaveResult.saved);
+
+        cubit.setOrderNote('Sửa sau khi nháp bị xoá');
+        final result = await cubit.saveDraft();
+
+        expect(result, SalesDraftSaveResult.draftGone);
+        expect(cubit.state.saveMessage, isNull);
+      },
+    );
+
+    test('reference_unavailable_reports_draft_gone', () async {
       var calls = 0;
       final cubit = _cubit(
         draftId: 'draft-new',
@@ -319,10 +358,7 @@ void main() {
               orderNote: request.orderNote,
             );
           }
-          throw const SalesContractException(
-            'STALE_DATA',
-            message: 'Draft is no longer active.',
-          );
+          throw const AppException('REFERENCE_UNAVAILABLE');
         },
       );
       addTearDown(cubit.close);
@@ -333,16 +369,14 @@ void main() {
       expect(await cubit.saveDraft(), SalesDraftSaveResult.saved);
 
       cubit.setOrderNote('Sửa sau khi nháp bị xoá');
-      final result = await cubit.saveDraft();
-
-      expect(result, SalesDraftSaveResult.draftGone);
+      expect(await cubit.saveDraft(), SalesDraftSaveResult.draftGone);
       expect(cubit.state.saveMessage, isNull);
     });
 
     test('first save failure stays failed even for a stale-looking error', () async {
       final cubit = _cubit(
         draftId: 'draft-new',
-        persist: (_) async => throw const SalesContractException('STALE_DATA'),
+        persist: (_) async => throw const AppException('STALE_DATA'),
       );
       addTearDown(cubit.close);
 

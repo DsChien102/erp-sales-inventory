@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../bloc/sales_order_draft/sales_draft_list_state.dart';
+import 'package:erp/features/sales/logic/sales_draft_list_state.dart';
 import '../models/sales_order_draft/sales_draft_list_item_vm.dart';
 import 'sales_draft_list_card.dart';
 import 'sales_draft_list_card_skeleton.dart';

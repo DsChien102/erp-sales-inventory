@@ -1,26 +1,29 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/sales_draft_errors.dart';
+import 'package:erp/features/sales/data/sales_draft_repository.dart';
+import 'package:erp/features/sales/logic/sales_draft_error_messages.dart';
+import 'package:erp/features/sales/logic/sales_draft_list_state.dart';
+import 'package:erp/features/sales/presentation/models/sales_order_draft/sales_draft_list_item_vm.dart';
+import 'package:erp/features/sales/presentation/support/i_sales_active_store_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
-
-import '../../models/sales_order_draft/sales_draft_list_item_vm.dart';
-import '../../support/i_sales_active_store_context.dart';
-import 'sales_draft_list_state.dart';
 
 typedef SalesActorNameResolver = Future<String?> Function(String actorId);
 
 final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
   SalesDraftListCubit({
-    required ISalesModule salesModule,
+    required SalesDraftRepository repository,
     required IExecutionContext executionContext,
     required ISalesActiveStoreContext activeStoreContext,
     SalesActorNameResolver? actorNameResolver,
-  }) : _salesModule = salesModule,
+  }) : _repository = repository,
        _executionContext = executionContext,
        _activeStoreContext = activeStoreContext,
        _actorNameResolver = actorNameResolver,
        super(const SalesDraftListInitial());
 
-  final ISalesModule _salesModule;
+  final SalesDraftRepository _repository;
   final IExecutionContext _executionContext;
   final ISalesActiveStoreContext _activeStoreContext;
   final SalesActorNameResolver? _actorNameResolver;
@@ -64,19 +67,11 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
     );
 
     try {
-      final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
       final storeId = await _activeStoreContext.requireActiveStoreId();
       if (isClosed) return;
 
-      final result = await _salesModule.executeQueryAsync(
-        ListSalesOrderDraftsQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          storeId: storeId,
-          pageSize: 50,
-        ),
-      );
+      final result = await _repository.list(storeId: storeId, pageSize: 50);
       if (isClosed) return;
 
       final resolver = _actorNameResolver;
@@ -105,15 +100,20 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
         needsReload: false,
         clearActionMessage: true,
       );
-    } on SalesContractException catch (error) {
+    } on AppException catch (error) {
       if (isClosed) return;
-      if (error.code == 'PERMISSION_DENIED' || error.code == 'DATA_SCOPE_DENIED') {
-        emit(SalesDraftListBlocked(message: error.message ?? error.code));
+      if (error.code == SalesDraftErrorCodes.noPermission ||
+          error.code == SalesDraftErrorCodes.dataScopeDenied) {
+        emit(
+          SalesDraftListBlocked(
+            message: salesDraftErrorMessage(error, fallback: 'Không thể tải danh sách đơn nháp'),
+          ),
+        );
         return;
       }
       emit(
         SalesDraftListError(
-          error.message ?? 'Không thể tải danh sách đơn nháp',
+          'Không thể tải danh sách đơn nháp',
           query: _query,
           totalCount: current.totalCount,
         ),
@@ -192,20 +192,14 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
     );
 
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
       final storeId = await _activeStoreContext.requireActiveStoreId();
       if (isClosed) return false;
 
-      await _salesModule.executeCommandAsync(
-        CancelSalesOrderDraftCommand(
-          tenantId: tenantId,
-          actorId: actorId,
-          draftId: draftId,
-          storeId: storeId,
-          expectedVersion: version,
-          idempotencyKey: 'cancel:$draftId:v$version',
-        ),
+      await _repository.cancel(
+        draftId: draftId,
+        storeId: storeId,
+        expectedVersion: version,
+        idempotencyKey: 'cancel:$draftId:v$version',
       );
       if (isClosed) return false;
 
@@ -218,19 +212,17 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
         clearActionMessage: true,
       );
       return true;
-    } on SalesContractException catch (error) {
+    } on AppException catch (error) {
       if (isClosed) return false;
       _discardingDraftId = null;
-      final stale = error.code == 'STALE_DATA' || error.code == 'STALE_VERSION';
+      final stale = error.code == SalesDraftErrorCodes.staleData || error.code == 'STALE_VERSION';
       _emitFiltered(
         state,
         clearDiscarding: true,
         needsReload: stale,
-        actionMessage:
-            error.message ??
-            (stale
-                ? 'Đơn nháp đã thay đổi. Vui lòng tải lại danh sách.'
-                : 'Không hủy được đơn nháp'),
+        actionMessage: stale
+            ? 'Đơn nháp đã thay đổi. Vui lòng tải lại danh sách.'
+            : salesDraftErrorMessage(error, fallback: 'Không hủy được đơn nháp'),
       );
       return false;
     } catch (_) {

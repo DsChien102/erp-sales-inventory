@@ -1,4 +1,5 @@
 import '../iam/support/iam_test_session.dart';
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +14,8 @@ import 'package:erp/features/partner/data/partner_repository.dart';
 import '../partner/support/scripted_partner_repository.dart';
 import 'package:erp/features/pricing/data/models.dart' as pricing;
 import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
+import 'package:erp/features/sales/data/sales_draft_repository.dart';
+import 'support/fake_sales_draft_repository.dart';
 import 'support/recording_sales_pricing_repository.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_sales_application/testing.dart';
@@ -46,14 +49,17 @@ final class TestExecutionContext implements IExecutionContext {
 void main() {
   late _SalesFlowProductRepository catalogModule;
   late _RecordingSalesModule salesModule;
+  late FakeSalesDraftRepository draftRepo;
   late RecordingSalesPricingRepository pricingModule;
 
   setUp(() async {
     await GetIt.instance.reset();
     catalogModule = _SalesFlowProductRepository();
     salesModule = _RecordingSalesModule();
+    draftRepo = FakeSalesDraftRepository();
     pricingModule = RecordingSalesPricingRepository();
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
+    GetIt.instance.registerSingleton<SalesDraftRepository>(draftRepo);
     GetIt.instance.registerSingleton<IExecutionContext>(
       const TestExecutionContext(),
     );
@@ -270,10 +276,9 @@ void main() {
     await tester.tap(find.byKey(const Key('btn_compose_save_draft')));
     await tester.pumpAndSettle();
 
-    expect(salesModule.commands.whereType<SaveSalesOrderDraftCommand>(), hasLength(1));
-    final save = salesModule.commands.whereType<SaveSalesOrderDraftCommand>().single;
+    expect(draftRepo.saveCalls, hasLength(1));
+    final save = draftRepo.saveCalls.single;
     expect(save.storeId, 'store-demo');
-    expect(save.tenantId, 'tenant-demo');
 
     final cubit = tester
         .element(find.byKey(const Key('wgt_sg02_compose_page')))
@@ -325,14 +330,14 @@ void main() {
     await tester.tap(find.byKey(const Key('btn_compose_leave_save')));
     await tester.pumpAndSettle();
 
-    expect(salesModule.commands.whereType<SaveSalesOrderDraftCommand>(), hasLength(1));
+    expect(draftRepo.saveCalls, hasLength(1));
     expect(find.text('ORDERS_LIST'), findsOneWidget);
     expect(find.byType(SalesDraftListPage), findsNothing);
     expect(find.byKey(const Key('wgt_sg02_compose_page')), findsNothing);
   });
 
   testWidgets('SG-02 draft count queries active store scope', (tester) async {
-    salesModule.listItems = [
+    draftRepo.listItems = [
       _listDraft(draftId: 'draft-a', version: 1),
       _listDraft(draftId: 'draft-b', version: 2),
     ];
@@ -342,10 +347,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final listQueries = salesModule.queries.whereType<ListSalesOrderDraftsQuery>();
+    final listQueries = draftRepo.listCalls;
     expect(listQueries, isNotEmpty);
     expect(listQueries.first.storeId, 'store-demo');
-    expect(listQueries.first.tenantId, 'tenant-demo');
     expect(find.text('Đơn nháp (2)'), findsOneWidget);
   });
 
@@ -363,7 +367,7 @@ void main() {
       productUnitId: 'unit-live',
       productName: 'Thuoc live',
     );
-    salesModule.restoreDto = SalesOrderDraftForRestoreDto(
+    draftRepo.restoreDto = SalesOrderDraftForRestoreDto(
       draft: draft,
       savedAt: draft.savedAt,
       savedByActorId: draft.savedByActorId,
@@ -375,7 +379,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final restoreQueries = salesModule.queries.whereType<GetSalesOrderDraftForRestoreQuery>();
+    final restoreQueries = draftRepo.restoreCalls;
     expect(restoreQueries, hasLength(1));
     expect(restoreQueries.single.draftId, 'draft-restore-1');
     expect(restoreQueries.single.storeId, 'store-demo');
@@ -385,7 +389,7 @@ void main() {
   });
 
   testWidgets('SG-01 cancel success removes draft from list', (tester) async {
-    salesModule.listItems = [
+    draftRepo.listItems = [
       _listDraft(
         draftId: 'draft-cancel-ok',
         version: 2,
@@ -411,8 +415,8 @@ void main() {
     await tester.tap(find.byKey(const Key('btn_delete_draft_confirm')));
     await tester.pumpAndSettle();
 
-    expect(salesModule.commands.whereType<CancelSalesOrderDraftCommand>(), hasLength(1));
-    final cancel = salesModule.commands.whereType<CancelSalesOrderDraftCommand>().single;
+    expect(draftRepo.cancelCalls, hasLength(1));
+    final cancel = draftRepo.cancelCalls.single;
     expect(cancel.draftId, 'draft-cancel-ok');
     expect(cancel.storeId, 'store-demo');
     expect(cancel.expectedVersion, 2);
@@ -420,7 +424,7 @@ void main() {
   });
 
   testWidgets('SG-01 cancel failure retains draft row', (tester) async {
-    salesModule.listItems = [
+    draftRepo.listItems = [
       _listDraft(
         draftId: 'draft-cancel-fail',
         version: 1,
@@ -430,9 +434,9 @@ void main() {
         ),
       ),
     ];
-    salesModule.cancelError = const SalesContractException(
+    draftRepo.cancelError = const AppException(
       'REFERENCE_UNAVAILABLE',
-      message: 'Không hủy được đơn nháp',
+      serverMessage: 'Draft not found.',
     );
 
     await tester.pumpWidget(
@@ -448,7 +452,7 @@ void main() {
     await tester.tap(find.byKey(const Key('btn_delete_draft_confirm')));
     await tester.pumpAndSettle();
 
-    expect(salesModule.commands.whereType<CancelSalesOrderDraftCommand>(), hasLength(1));
+    expect(draftRepo.cancelCalls, hasLength(1));
     expect(find.byKey(const Key('card_sales_draft_draft-cancel-fail')), findsOneWidget);
     final listCubit = tester
         .element(find.byKey(const Key('wgt_e01_u01_page')))
@@ -632,7 +636,7 @@ void main() {
         home: SalesTransactionResultPage(
           args: SalesCheckoutResultArgs(
             storeId: 'store-1',
-result: const CheckoutResultDto(
+            result: const CheckoutResultDto(
               idempotencyKey: 'fake-checkout-attempt',
               salesOrderId: 'order-1',
               salesOrderVersion: 3,
@@ -1269,9 +1273,6 @@ final class _SalesFlowProductRepository implements ProductRepository {
 final class _RecordingSalesModule implements ISalesModule {
   final List<Object> commands = [];
   final List<Object> queries = [];
-  List<SalesOrderDraftDto> listItems = const [];
-  SalesOrderDraftForRestoreDto? restoreDto;
-  Object? cancelError;
   CheckoutPrecheckDto? precheckResult;
 
   // SG-10 cancellation (Group H) configurable fixtures.
@@ -1362,74 +1363,6 @@ final class _RecordingSalesModule implements ISalesModule {
       if (response is Exception) throw response;
       return response as TResult;
     }
-    if (raw is SaveSalesOrderDraftCommand) {
-      final save = raw;
-      return SalesOrderDraftDto(
-            draftId: 'draft-saved-1',
-            version: 1,
-            status: SalesDraftStatus.active,
-            storeId: save.storeId,
-            savedAt: DateTime.utc(2026, 8, 11, 5),
-            savedByActorId: save.actorId,
-            customer: save.customer,
-            orderNote: save.orderNote,
-            pricingPreviewToken: save.pricingPreviewToken,
-            needsRevalidation: save.needsRevalidation,
-            lines: [
-              for (final line in save.lines)
-                SalesOrderDraftLineDto(
-                  lineId: 'line-persisted',
-                  productId: line.productId,
-                  productSku: line.productSku,
-                  productName: line.productName,
-                  productUnitId: line.productUnitId,
-                  unitCode: line.unitCode,
-                  unitName: line.unitName,
-                  quantity: line.quantity,
-                  appliedUnitPrice: line.appliedUnitPrice,
-                  lineTotal: line.lineTotal,
-                  listUnitPrice: line.listUnitPrice,
-                  needsRevalidation: line.needsRevalidation,
-                ),
-            ],
-            total: MoneyDto(
-              amountMinor: save.lines.fold<int>(
-                0,
-                (sum, line) => sum + line.lineTotal.amountMinor,
-              ),
-              currencyCode: save.currencyCode,
-            ),
-          )
-          as TResult;
-    }
-    if (raw is UpdateSalesOrderDraftCommand) {
-      final update = raw;
-      return SalesOrderDraftDto(
-            draftId: update.draftId,
-            version: update.expectedVersion + 1,
-            status: SalesDraftStatus.active,
-            storeId: update.storeId,
-            savedAt: DateTime.utc(2026, 8, 11, 5),
-            savedByActorId: update.actorId,
-            customer: update.customer,
-            orderNote: update.orderNote,
-            pricingPreviewToken: update.pricingPreviewToken,
-            needsRevalidation: update.needsRevalidation,
-            lines: const [],
-            total: MoneyDto(amountMinor: 0, currencyCode: update.currencyCode),
-          )
-          as TResult;
-    }
-    if (raw is CancelSalesOrderDraftCommand) {
-      final error = cancelError;
-      if (error != null) throw error;
-      final cancel = raw;
-      return _listDraft(
-            draftId: cancel.draftId,
-            version: cancel.expectedVersion + 1,
-          )
-          as TResult;
-    }
     final typeName = command.runtimeType.toString();
     if (SalesFakeContractFixtureFactory.supports(typeName)) {
       return SalesFakeContractFixtureFactory.create(typeName) as TResult;
@@ -1441,22 +1374,6 @@ final class _RecordingSalesModule implements ISalesModule {
   Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
     queries.add(query);
     final raw = query as Object;
-    if (raw is ListSalesOrderDraftsQuery) {
-      return PagedSalesOrderDraftListDto(
-            page: OpaqueCursorPageDto<SalesOrderDraftDto>(
-              items: listItems,
-              hasMore: false,
-            ),
-          )
-          as TResult;
-    }
-    if (raw is GetSalesOrderDraftForRestoreQuery) {
-      final restore = restoreDto;
-      if (restore == null) {
-        throw StateError('restoreDto not configured');
-      }
-      return restore as TResult;
-    }
     if (raw is GetSalesOrderDetailQuery) {
       return SalesFakeData.findOrderDetail(raw.salesOrderId) as TResult;
     }

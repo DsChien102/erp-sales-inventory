@@ -25,6 +25,7 @@ import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../../features/pricing/data/customer_price_rule_repository.dart';
 import '../../features/pricing/data/sales_pricing_repository.dart';
+import '../../features/sales/data/sales_draft_repository.dart';
 import '../errors/app_exception.dart';
 import '../router/session_refresh.dart';
 import '../session/session_contracts.dart';
@@ -201,6 +202,14 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
       () => SalesPricingRepository(
         rpc: getIt<SupabaseRpc>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<SalesDraftRepository>(
+      () => SalesDraftRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+        actorId: () async =>
+            sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
       ),
     );
 

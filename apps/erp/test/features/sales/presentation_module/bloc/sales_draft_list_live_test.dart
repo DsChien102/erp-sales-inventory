@@ -1,12 +1,15 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/presentation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
-import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
+
+import '../../support/fake_sales_draft_repository.dart';
 
 void main() {
   group('SalesDraftListCubit live list/cancel', () {
     test('load queries active store and maps server draft fields', () async {
-      final module = _RecordingSalesModule(
+      final fake = _repo(
         listItems: [
           _draft(
             draftId: 'draft-server-1',
@@ -35,16 +38,14 @@ void main() {
           ),
         ],
       );
-      final cubit = _cubit(module);
+      final cubit = _cubit(fake);
       addTearDown(cubit.close);
 
       await cubit.load(isRefresh: true);
 
-      expect(module.queries, hasLength(1));
-      final query = module.queries.single as ListSalesOrderDraftsQuery;
-      expect(query.storeId, 'store-1');
-      expect(query.tenantId, 'tenant-1');
-      expect(query.actorId, 'user-1');
+      expect(fake.listCalls, hasLength(1));
+      expect(fake.listCalls.single.storeId, 'store-1');
+      expect(fake.listCalls.single.pageSize, 50);
 
       final loaded = cubit.state as SalesDraftListLoaded;
       expect(loaded.items, hasLength(2));
@@ -72,7 +73,7 @@ void main() {
     });
 
     test('totalCount ignores scope and keyword filters', () async {
-      final module = _RecordingSalesModule(
+      final fake = _repo(
         listItems: [
           _draft(
             draftId: 'draft-mine',
@@ -100,7 +101,7 @@ void main() {
           ),
         ],
       );
-      final cubit = _cubit(module);
+      final cubit = _cubit(fake);
       addTearDown(cubit.close);
 
       await cubit.load(isRefresh: true);
@@ -119,19 +120,19 @@ void main() {
     });
 
     test('concurrent load calls issue a single query', () async {
-      final module = _RecordingSalesModule(listItems: const []);
-      final cubit = _cubit(module);
+      final fake = _repo(listItems: const []);
+      final cubit = _cubit(fake);
       addTearDown(cubit.close);
 
       await Future.wait([cubit.load(), cubit.load()]);
 
-      expect(module.queries.whereType<ListSalesOrderDraftsQuery>(), hasLength(1));
+      expect(fake.listCalls, hasLength(1));
     });
 
     test(
       'discardDraft sends cancel with version/store/idempotency and removes on success',
       () async {
-        final module = _RecordingSalesModule(
+        final fake = _repo(
           listItems: [
             _draft(
               draftId: 'draft-cancel-ok',
@@ -147,7 +148,7 @@ void main() {
             ),
           ],
         );
-        final cubit = _cubit(module);
+        final cubit = _cubit(fake);
         addTearDown(cubit.close);
 
         await cubit.load(isRefresh: true);
@@ -157,13 +158,11 @@ void main() {
         );
 
         expect(ok, isTrue);
-        expect(module.commands, hasLength(1));
-        final command = module.commands.single as CancelSalesOrderDraftCommand;
+        expect(fake.cancelCalls, hasLength(1));
+        final command = fake.cancelCalls.single;
         expect(command.draftId, 'draft-cancel-ok');
         expect(command.storeId, 'store-1');
         expect(command.expectedVersion, 4);
-        expect(command.tenantId, 'tenant-1');
-        expect(command.actorId, 'user-1');
         expect(command.idempotencyKey, isNotEmpty);
         expect(command.idempotencyKey, contains('draft-cancel-ok'));
 
@@ -175,7 +174,7 @@ void main() {
     );
 
     test('failed cancel retains row and clears in-flight id', () async {
-      final module = _RecordingSalesModule(
+      final fake = _repo(
         listItems: [
           _draft(
             draftId: 'draft-fail',
@@ -187,12 +186,12 @@ void main() {
             totalMinor: 50000,
           ),
         ],
-        cancelError: const SalesContractException(
+        cancelError: const AppException(
           'REFERENCE_UNAVAILABLE',
-          message: 'Không hủy được đơn nháp',
+          serverMessage: 'Draft not found.',
         ),
       );
-      final cubit = _cubit(module);
+      final cubit = _cubit(fake);
       addTearDown(cubit.close);
 
       await cubit.load(isRefresh: true);
@@ -204,11 +203,11 @@ void main() {
       expect(loaded.items.single.draftId, 'draft-fail');
       expect(loaded.needsReload, isFalse);
       expect(loaded.discardingDraftId, isNull);
-      expect(loaded.actionMessage, contains('Không hủy được'));
+      expect(loaded.actionMessage, 'Không hủy được đơn nháp');
     });
 
     test('stale cancel retains row and reports reload-needed', () async {
-      final module = _RecordingSalesModule(
+      final fake = _repo(
         listItems: [
           _draft(
             draftId: 'draft-stale',
@@ -223,12 +222,12 @@ void main() {
             totalMinor: 90000,
           ),
         ],
-        cancelError: const SalesContractException(
+        cancelError: const AppException(
           'STALE_DATA',
-          message: 'Đơn nháp đã thay đổi',
+          serverMessage: 'Draft version has changed.',
         ),
       );
-      final cubit = _cubit(module);
+      final cubit = _cubit(fake);
       addTearDown(cubit.close);
 
       await cubit.load(isRefresh: true);
@@ -240,11 +239,11 @@ void main() {
       expect(loaded.items.single.draftId, 'draft-stale');
       expect(loaded.needsReload, isTrue);
       expect(loaded.discardingDraftId, isNull);
-      expect(loaded.actionMessage, isNotNull);
+      expect(loaded.actionMessage, 'Đơn nháp đã thay đổi. Vui lòng tải lại danh sách.');
     });
 
     test('duplicate discard while in-flight is ignored', () async {
-      final module = _RecordingSalesModule(
+      final fake = _repo(
         listItems: [
           _draft(
             draftId: 'draft-inflight',
@@ -258,7 +257,7 @@ void main() {
         ],
         cancelDelay: const Duration(milliseconds: 40),
       );
-      final cubit = _cubit(module);
+      final cubit = _cubit(fake);
       addTearDown(cubit.close);
 
       await cubit.load(isRefresh: true);
@@ -266,9 +265,97 @@ void main() {
       final second = cubit.discardDraft('draft-inflight', expectedVersion: 1);
       final results = await Future.wait([first, second]);
 
-      expect(module.commands, hasLength(1));
+      expect(fake.cancelCalls, hasLength(1));
       expect(results, containsAll([isTrue, isFalse]));
       expect(results.where((ok) => ok).length, 1);
+    });
+
+    test('cancel_reference_unavailable_no_reload', () async {
+      final fake = _repo(
+        listItems: [_simple('draft-gone')],
+        cancelError: const AppException('REFERENCE_UNAVAILABLE'),
+      );
+      final cubit = _cubit(fake);
+      addTearDown(cubit.close);
+
+      await cubit.load(isRefresh: true);
+      expect(await cubit.discardDraft('draft-gone', expectedVersion: 1), isFalse);
+
+      final loaded = cubit.state as SalesDraftListLoaded;
+      expect(loaded.needsReload, isFalse);
+      expect(loaded.actionMessage, 'Không hủy được đơn nháp');
+    });
+
+    test('cancel_sends_idempotency_key', () async {
+      final fake = _repo(listItems: [_simple('draft-1', version: 3)]);
+      final cubit = _cubit(fake);
+      addTearDown(cubit.close);
+
+      await cubit.load(isRefresh: true);
+      await cubit.discardDraft('draft-1');
+
+      expect(fake.cancelCalls.single.idempotencyKey, 'cancel:draft-1:v3');
+      expect(fake.cancelCalls.single.expectedVersion, 3);
+    });
+
+    test('load_permission_denied_shows_6_4_message', () async {
+      final fake = _repo(listItems: const [], listError: const AppException('NO_PERMISSION'));
+      final cubit = _cubit(fake);
+      addTearDown(cubit.close);
+
+      await cubit.load(isRefresh: true);
+
+      expect(
+        cubit.state,
+        isA<SalesDraftListBlocked>().having(
+          (s) => s.message,
+          'message',
+          'Bạn không có quyền thực hiện thao tác này.',
+        ),
+      );
+    });
+
+    test('load_data_scope_denied_shows_6_4_message', () async {
+      final fake = _repo(
+        listItems: const [],
+        listError: const AppException('DATA_SCOPE_DENIED', serverMessage: 'Store scope denied.'),
+      );
+      final cubit = _cubit(fake);
+      addTearDown(cubit.close);
+
+      await cubit.load(isRefresh: true);
+
+      expect(
+        cubit.state,
+        isA<SalesDraftListBlocked>().having(
+          (s) => s.message,
+          'message',
+          'Cửa hàng hiện tại không còn khả dụng.',
+        ),
+      );
+    });
+
+    test('load_other_error_never_shows_server_message', () async {
+      final fake = _repo(
+        listItems: const [],
+        listError: const AppException(
+          'SYSTEM_ERROR',
+          serverMessage: 'Sales draft operation failed.',
+        ),
+      );
+      final cubit = _cubit(fake);
+      addTearDown(cubit.close);
+
+      await cubit.load(isRefresh: true);
+
+      expect(
+        cubit.state,
+        isA<SalesDraftListError>().having(
+          (s) => s.message,
+          'message',
+          'Không thể tải danh sách đơn nháp',
+        ),
+      );
     });
 
     test('SalesDraftListItemVm.creatorLabel formats name, email, and rejects phone or uuid', () {
@@ -286,15 +373,25 @@ void main() {
 
       expect(base.copyWith(createdByName: 'Nguyễn Văn An').creatorLabel, 'Nguyễn Văn An');
       expect(base.copyWith(createdByName: 'seller@example.com').creatorLabel, 'seller@example.com');
-      expect(base.copyWith(createdByName: '3adba8f1-3fa6-4b2f-893e-5fa321abcdef', isOwnedByMe: true).creatorLabel, isNull);
-      expect(base.copyWith(createdByName: '3adba8f1-3fa6-4b2f-893e-5fa321abcdef', isOwnedByMe: false).creatorLabel, isNull);
+      expect(
+        base
+            .copyWith(createdByName: '3adba8f1-3fa6-4b2f-893e-5fa321abcdef', isOwnedByMe: true)
+            .creatorLabel,
+        isNull,
+      );
+      expect(
+        base
+            .copyWith(createdByName: '3adba8f1-3fa6-4b2f-893e-5fa321abcdef', isOwnedByMe: false)
+            .creatorLabel,
+        isNull,
+      );
       expect(base.copyWith(createdByName: '0981287110', isOwnedByMe: true).creatorLabel, isNull);
       expect(base.copyWith(createdByName: '0981287110', isOwnedByMe: false).creatorLabel, isNull);
       expect(base.copyWith(createdByName: '+84981287110', isOwnedByMe: false).creatorLabel, isNull);
     });
 
     test('SalesDraftListCubit resolves actor name using actorNameResolver', () async {
-      final module = _RecordingSalesModule(
+      final fake = _repo(
         listItems: [
           _draft(
             draftId: 'draft-named',
@@ -318,7 +415,7 @@ void main() {
       );
 
       final cubit = SalesDraftListCubit(
-        salesModule: module,
+        repository: fake,
         executionContext: const _ExecutionContext(),
         activeStoreContext: const _ActiveStoreContext(),
         actorNameResolver: (actorId) async {
@@ -343,9 +440,19 @@ void main() {
   });
 }
 
-SalesDraftListCubit _cubit(_RecordingSalesModule module) {
+SalesOrderDraftDto _simple(String id, {int version = 1}) => _draft(
+  draftId: id,
+  version: version,
+  savedAt: DateTime.utc(2026, 8, 1),
+  savedByActorId: 'user-1',
+  customer: null,
+  lineCount: 1,
+  totalMinor: 10000,
+);
+
+SalesDraftListCubit _cubit(FakeSalesDraftRepository fake) {
   return SalesDraftListCubit(
-    salesModule: module,
+    repository: fake,
     executionContext: const _ExecutionContext(),
     activeStoreContext: const _ActiveStoreContext(),
   );
@@ -392,58 +499,16 @@ SalesOrderDraftDto _draft({
   );
 }
 
-final class _RecordingSalesModule implements ISalesModule {
-  _RecordingSalesModule({
-    required this.listItems,
-    this.cancelError,
-    this.cancelDelay,
-  });
-
-  final List<SalesOrderDraftDto> listItems;
-  final Object? cancelError;
-  final Duration? cancelDelay;
-  final List<Object> queries = <Object>[];
-  final List<Object> commands = <Object>[];
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    final delay = cancelDelay;
-    if (delay != null) {
-      await Future<void>.delayed(delay);
-    }
-    final error = cancelError;
-    if (error != null) {
-      throw error;
-    }
-    final cancel = command as CancelSalesOrderDraftCommand;
-    return _draft(
-          draftId: cancel.draftId,
-          version: cancel.expectedVersion + 1,
-          savedAt: DateTime.utc(2026, 8, 7),
-          savedByActorId: 'user-1',
-          customer: null,
-          lineCount: 0,
-          totalMinor: 0,
-        )
-        as TResult;
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is ListSalesOrderDraftsQuery) {
-      return PagedSalesOrderDraftListDto(
-            page: OpaqueCursorPageDto<SalesOrderDraftDto>(
-              items: listItems,
-              hasMore: false,
-            ),
-          )
-          as TResult;
-    }
-    throw StateError('Unexpected query $query');
-  }
-}
+FakeSalesDraftRepository _repo({
+  required List<SalesOrderDraftDto> listItems,
+  Object? cancelError,
+  Object? listError,
+  Duration? cancelDelay,
+}) => FakeSalesDraftRepository()
+  ..listItems = listItems
+  ..cancelError = cancelError
+  ..listError = listError
+  ..cancelDelay = cancelDelay;
 
 final class _ExecutionContext implements IExecutionContext {
   const _ExecutionContext();

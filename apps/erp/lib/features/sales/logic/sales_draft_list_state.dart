@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../models/sales_order_draft/sales_draft_list_item_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_order_draft/sales_draft_list_item_vm.dart';
 
 enum SalesDraftScopeFilter { mine, all }
 

@@ -1,12 +1,12 @@
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/iam/data/account_repository.dart';
+import 'package:erp/features/sales/data/sales_draft_repository.dart';
+import 'package:erp/features/sales/logic/sales_draft_list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../bloc/sales_order_draft/sales_draft_list_cubit.dart';
 import '../support/i_sales_active_store_context.dart';
 
 /// Giữ một [SalesDraftListCubit] dùng chung cho SG-01 (danh sách nháp) và SG-02
@@ -31,7 +31,7 @@ class _SalesDraftListScopeState extends State<SalesDraftListScope> {
   void initState() {
     super.initState();
     _cubit = SalesDraftListCubit(
-      salesModule: GetIt.instance<ISalesModule>(),
+      repository: GetIt.instance<SalesDraftRepository>(),
       executionContext: GetIt.instance<IExecutionContext>(),
       activeStoreContext: _SalesActiveStoreAdapter(
         GetIt.instance<SessionController>(),
