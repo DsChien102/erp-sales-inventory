@@ -1,55 +1,54 @@
 import 'dart:async';
 
+import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart' as app;
-import 'package:vet45_shared_application/application.dart';
 
-import '../../support/module_backed_sales_repositories.dart';
+import '../../support/fake_sales_order_repository.dart';
+import '../../support/sales_contract_error.dart';
 
 void main() {
   group('SalesOrderListCubit server state', () {
     test('loadInitial binds tenant actor store and cursor null', () async {
-      final module = _RecordingSalesModule();
-      final cubit = _buildCubit(module: module);
+      final repo = _ScriptedOrderRepository();
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
 
-      final query = module.queries.single as app.ListSalesOrdersQuery;
-      expect(query.tenantId, 'tenant-1');
-      expect(query.actorId, 'actor-1');
+      final query = repo.listCalls.single;
       expect(query.filter?.storeId, 'store-1');
       expect(query.cursor, isNull);
     });
 
     test('searchByKeyword sends SearchSalesOrdersQuery and resets cursor', () async {
-      final module = _RecordingSalesModule();
-      final cubit = _buildCubit(module: module);
+      final repo = _ScriptedOrderRepository();
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.searchByKeyword('SO-001');
 
-      final query = module.queries.single as app.SearchSalesOrdersQuery;
+      final query = repo.searchCalls.single;
       expect(query.searchText, 'SO-001');
       expect(query.cursor, isNull);
       expect(query.filter?.storeId, 'store-1');
     });
 
     test('loadMore uses nextCursor and dedupes ids', () async {
-      final module = _RecordingSalesModule(
+      final repo = _ScriptedOrderRepository(
         responses: [
           _OkResp(_ok(items: [_dto('so-1')], hasMore: true, nextCursor: 'c2')),
           _OkResp(_ok(items: [_dto('so-1'), _dto('so-2')], hasMore: false)),
         ],
       );
-      final cubit = _buildCubit(module: module);
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
       await cubit.loadMore();
 
-      final second = module.queries.last as app.ListSalesOrdersQuery;
+      final second = repo.listCalls.last;
       expect(second.cursor, 'c2');
       final state = cubit.state as SalesOrderListLoaded;
       expect(state.items.map((e) => e.salesOrderId).toList(), ['so-1', 'so-2']);
@@ -57,13 +56,13 @@ void main() {
     });
 
     test('loadMore error keeps rows and sets loadMoreError', () async {
-      final module = _RecordingSalesModule(
+      final repo = _ScriptedOrderRepository(
         responses: [
           _OkResp(_ok(items: [_dto('so-1')], hasMore: true, nextCursor: 'c2')),
-          const _Err(app.SalesContractException('TRANSPORT_ERROR', message: 'network down')),
+          _Err(salesContractError('TRANSPORT_ERROR', message: 'network down')),
         ],
       );
-      final cubit = _buildCubit(module: module);
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -76,16 +75,21 @@ void main() {
     });
 
     test('stale response does not override newer generation', () async {
-      final module = _StaleAwareModule();
-      final cubit = _buildCubit(module: module);
+      final listCompleter = Completer<app.PagedSalesOrderListDto>();
+      final searchCompleter = Completer<app.PagedSalesOrderListDto>();
+      final repo = _ScriptedOrderRepository(
+        listBuilder: (_) => listCompleter.future,
+        searchBuilder: () => searchCompleter.future,
+      );
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       final a = cubit.loadInitial();
       final b = cubit.searchByKeyword('new');
 
-      module.searchCompleter.complete(_ok(items: [_dto('so-new')]));
+      searchCompleter.complete(_ok(items: [_dto('so-new')]));
       await b;
-      module.listCompleter.complete(_ok(items: [_dto('so-old')]));
+      listCompleter.complete(_ok(items: [_dto('so-old')]));
       await a;
 
       final state = cubit.state as SalesOrderListLoaded;
@@ -94,8 +98,8 @@ void main() {
     });
 
     test('permission denied maps to blocked state', () async {
-      final module = _PermissionDeniedModule();
-      final cubit = _buildCubit(module: module);
+      final repo = _ScriptedOrderRepository.failing(salesContractError('PERMISSION_DENIED'));
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -111,8 +115,8 @@ void main() {
     });
 
     test('data scope denied maps to blocked state', () async {
-      final module = _ContractErrorModule('DATA_SCOPE_DENIED');
-      final cubit = _buildCubit(module: module);
+      final repo = _ScriptedOrderRepository.failing(salesContractError('DATA_SCOPE_DENIED'));
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -128,8 +132,8 @@ void main() {
     });
 
     test('projection pending maps to generic list error', () async {
-      final module = _ContractErrorModule('PROJECTION_PENDING');
-      final cubit = _buildCubit(module: module);
+      final repo = _ScriptedOrderRepository.failing(salesContractError('PROJECTION_PENDING'));
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -139,8 +143,8 @@ void main() {
     });
 
     test('transport retryable error maps to generic list error', () async {
-      final module = _ContractErrorModule('TRANSPORT_RETRYABLE');
-      final cubit = _buildCubit(module: module);
+      final repo = _ScriptedOrderRepository.failing(salesContractError('TRANSPORT_RETRYABLE'));
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -150,8 +154,8 @@ void main() {
     });
 
     test('load_error_shows_accented_message', () async {
-      final module = _ContractErrorModule('UNKNOWN_ERROR');
-      final cubit = _buildCubit(module: module);
+      final repo = _ScriptedOrderRepository.failing(salesContractError('UNKNOWN_ERROR'));
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -161,13 +165,13 @@ void main() {
     });
 
     test('load_more_error_never_shows_server_message', () async {
-      final module = _RecordingSalesModule(
+      final repo = _ScriptedOrderRepository(
         responses: [
           _OkResp(_ok(items: [_dto('so-1')], hasMore: true, nextCursor: 'c2')),
-          const _Err(app.SalesContractException('UNKNOWN', message: 'raw server explosion')),
+          _Err(salesContractError('UNKNOWN', message: 'raw server explosion')),
         ],
       );
-      final cubit = _buildCubit(module: module);
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -179,8 +183,8 @@ void main() {
     });
 
     test('blocked_on_no_permission', () async {
-      final module = _PermissionDeniedModule();
-      final cubit = _buildCubit(module: module);
+      final repo = _ScriptedOrderRepository.failing(salesContractError('PERMISSION_DENIED'));
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -196,8 +200,8 @@ void main() {
     });
 
     test('blocked_on_data_scope_denied', () async {
-      final module = _ContractErrorModule('DATA_SCOPE_DENIED');
-      final cubit = _buildCubit(module: module);
+      final repo = _ScriptedOrderRepository.failing(salesContractError('DATA_SCOPE_DENIED'));
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -213,28 +217,33 @@ void main() {
     });
 
     test('applyFilters dispatches a new server query, cursor null, carries storeId', () async {
-      final module = _RecordingSalesModule(
+      final repo = _ScriptedOrderRepository(
         responses: [
           _OkResp(_ok(items: [_dto('so-1')])),
           _OkResp(_ok(items: [_dto('so-2')])),
         ],
       );
-      final cubit = _buildCubit(module: module);
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
       await cubit.applyFilters(lifecycleFilter: SalesOrderListLifecycleFilter.completed);
 
-      expect(module.queries, hasLength(2));
-      final query = module.queries.last as app.ListSalesOrdersQuery;
+      expect(repo.listCalls, hasLength(2));
+      final query = repo.listCalls.last;
       expect(query.cursor, isNull);
       expect(query.filter?.storeId, 'store-1');
       expect(query.filter?.lifecycleStatus, app.SalesOrderLifecycleStatus.completed);
     });
 
     test('applyFilters retains previous items and is not a first-load skeleton', () async {
-      final module = _DelayedSecondListModule(first: _ok(items: [_dto('so-1')]));
-      final cubit = _buildCubit(module: module);
+      final second = Completer<app.PagedSalesOrderListDto>();
+      final repo = _ScriptedOrderRepository(
+        listBuilder: (call) => call == 1
+            ? Future.value(_ok(items: [_dto('so-1')]))
+            : second.future,
+      );
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -249,7 +258,7 @@ void main() {
       expect(loading.isFirstLoad, isFalse);
       expect(loading.lifecycleFilter, SalesOrderListLifecycleFilter.completed);
 
-      module.second.complete(_ok(items: [_dto('so-2')]));
+      second.complete(_ok(items: [_dto('so-2')]));
       await pending;
 
       final loaded = cubit.state as SalesOrderListLoaded;
@@ -257,10 +266,10 @@ void main() {
     });
 
     test('empty default scope is distinct from filtered no-result', () async {
-      final module = _RecordingSalesModule(
+      final repo = _ScriptedOrderRepository(
         responses: [_OkResp(_ok()), _OkResp(_ok())],
       );
-      final cubit = _buildCubit(module: module);
+      final cubit = _buildCubit(repo);
       addTearDown(cubit.close);
 
       await cubit.loadInitial();
@@ -278,9 +287,9 @@ void main() {
   });
 }
 
-SalesOrderListCubit _buildCubit({required app.ISalesModule module}) {
+SalesOrderListCubit _buildCubit(SalesOrderRepository repo) {
   return SalesOrderListCubit(
-    repository: ModuleBackedSalesOrderRepository(module),
+    repository: repo,
     activeStoreContext: const _StoreContext('store-1'),
     nowBuilder: () => DateTime.utc(2026, 8, 12),
   );
@@ -335,23 +344,56 @@ final class _Err extends _Resp {
   final Object error;
 }
 
-final class _RecordingSalesModule implements app.ISalesModule {
-  _RecordingSalesModule({List<_Resp>? responses})
+/// Fake đơn hàng cho cubit danh sách: hàng đợi phản hồi, hoặc `listBuilder` / `searchBuilder`
+/// khi test cần trả Future tự điều khiển; cũng ghi `listCalls` / `searchCalls` như fake dùng chung.
+final class _ScriptedOrderRepository extends FakeSalesOrderRepository {
+  _ScriptedOrderRepository({List<_Resp>? responses, this.listBuilder, this.searchBuilder})
     : _responses = responses ?? <_Resp>[_OkResp(_ok())];
 
+  _ScriptedOrderRepository.failing(Object error)
+    : _responses = <_Resp>[],
+      listBuilder = null,
+      searchBuilder = null {
+    listError = error;
+    searchError = error;
+  }
+
   final List<_Resp> _responses;
-  final List<Object> queries = <Object>[];
+  final Future<app.PagedSalesOrderListDto> Function(int call)? listBuilder;
+  final Future<app.PagedSalesOrderListDto> Function()? searchBuilder;
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('list cubit must not execute commands');
+  Future<app.PagedSalesOrderListDto> list({
+    String? cursor,
+    int pageSize = 50,
+    app.SalesOrderListFilterInput? filter,
+  }) async {
+    listCalls.add((cursor: cursor, pageSize: pageSize, filter: filter));
+    final e = listError;
+    if (e != null) throw e;
+    final builder = listBuilder;
+    if (builder != null) return builder(listCalls.length);
+    return _next();
   }
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
+  Future<app.PagedSalesOrderListDto> search({
+    required String searchText,
+    String? cursor,
+    int pageSize = 50,
+    app.SalesOrderListFilterInput? filter,
+  }) async {
+    searchCalls.add((searchText: searchText, cursor: cursor, pageSize: pageSize, filter: filter));
+    final e = searchError;
+    if (e != null) throw e;
+    final builder = searchBuilder;
+    if (builder != null) return builder();
+    return _next();
+  }
+
+  app.PagedSalesOrderListDto _next() {
     final response = _responses.isNotEmpty ? _responses.removeAt(0) : _OkResp(_ok());
-    if (response is _OkResp) return response.value as TResult;
+    if (response is _OkResp) return response.value;
     if (response is _Err) throw response.error;
     throw StateError('Unsupported response');
   }
@@ -367,70 +409,4 @@ final class _StoreContext implements ISalesActiveStoreContext {
 
   @override
   Future<String> requireActiveStoreId() async => storeId;
-}
-
-final class _PermissionDeniedModule implements app.ISalesModule {
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    throw const app.SalesContractException('PERMISSION_DENIED');
-  }
-}
-
-final class _ContractErrorModule implements app.ISalesModule {
-  const _ContractErrorModule(this.code);
-
-  final String code;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    throw app.SalesContractException(code);
-  }
-}
-
-final class _DelayedSecondListModule implements app.ISalesModule {
-  _DelayedSecondListModule({required this.first});
-
-  final app.PagedSalesOrderListDto first;
-  final Completer<app.PagedSalesOrderListDto> second = Completer();
-  int _calls = 0;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    _calls++;
-    if (_calls == 1) return Future<TResult>.value(first as TResult);
-    return second.future as Future<TResult>;
-  }
-}
-
-final class _StaleAwareModule implements app.ISalesModule {
-  final Completer<app.PagedSalesOrderListDto> listCompleter = Completer();
-  final Completer<app.PagedSalesOrderListDto> searchCompleter = Completer();
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    if (query is app.SearchSalesOrdersQuery) {
-      return searchCompleter.future as Future<TResult>;
-    }
-    return listCompleter.future as Future<TResult>;
-  }
 }

@@ -6,19 +6,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../../support/module_backed_sales_repositories.dart';
+import '../../support/fake_return_exchange_repository.dart';
+import '../../support/fake_sales_order_repository.dart';
 
 void main() {
   SalesReturnExchangeDetailCubit build(
-    _RecordingSalesModule module, {
+    _Repos repos, {
     List<String> attemptIds = const ['attempt-1', 'attempt-2'],
   }) {
     final ids = attemptIds.iterator;
     return SalesReturnExchangeDetailCubit(
       orderId: 'order-1',
       returnExchangeId: 'return-1',
-      returnExchangeRepository: ModuleBackedReturnExchangeRepository(module),
-      orderRepository: ModuleBackedSalesOrderRepository(module),
+      returnExchangeRepository: repos.returnExchange,
+      orderRepository: repos.orders,
       executionContext: const _ExecutionContext(),
       attemptFactory: SalesReturnExchangeAttemptFactory(
         newAttemptId: () {
@@ -30,18 +31,15 @@ void main() {
   }
 
   test('load composes detail, order and return summary', () async {
-    final module = _RecordingSalesModule();
-    final cubit = build(module);
+    final repos = _Repos();
+    final cubit = build(repos);
     addTearDown(cubit.close);
 
     await cubit.load();
 
-    expect(module.queries.whereType<GetReturnExchangeDetailQuery>(), hasLength(1));
-    expect(module.queries.whereType<GetSalesOrderDetailQuery>(), hasLength(1));
-    expect(
-      module.queries.whereType<GetSalesOrderReturnSummaryQuery>(),
-      hasLength(1),
-    );
+    expect(repos.returnExchange.detailCalls, hasLength(1));
+    expect(repos.orders.detailCalls, hasLength(1));
+    expect(repos.orders.returnSummaryCalls, hasLength(1));
     expect(cubit.state.status, SalesReturnExchangeDetailStatus.loaded);
     expect(cubit.state.detail?.referenceNumber, 'RE-1');
     expect(cubit.state.orderNumber, 'SO-1');
@@ -50,7 +48,7 @@ void main() {
 
   test('NOT_FOUND and PROJECTION_PENDING map to dedicated statuses', () async {
     final notFound = build(
-      _RecordingSalesModule(
+      _Repos(
         detailError: const AppException('NOT_FOUND'),
       ),
     );
@@ -59,7 +57,7 @@ void main() {
     expect(notFound.state.status, SalesReturnExchangeDetailStatus.notFound);
 
     final pending = build(
-      _RecordingSalesModule(
+      _Repos(
         detailError: const AppException('PROJECTION_PENDING'),
       ),
     );
@@ -70,8 +68,8 @@ void main() {
 
   test('stale generation ignores older load response', () async {
     final gate = Completer<void>();
-    final module = _RecordingSalesModule(detailGate: gate);
-    final cubit = build(module);
+    final repos = _Repos(detailGate: gate);
+    final cubit = build(repos);
     addTearDown(cubit.close);
 
     final first = cubit.load();
@@ -81,7 +79,7 @@ void main() {
     await Future.wait<void>([first, second]);
 
     expect(
-      module.queries.whereType<GetReturnExchangeDetailQuery>().length,
+      repos.returnExchange.detailCalls.length,
       greaterThanOrEqualTo(2),
     );
     expect(cubit.state.status, SalesReturnExchangeDetailStatus.loaded);
@@ -89,7 +87,7 @@ void main() {
 
   test('detail_not_found_screen_error_null', () async {
     final cubit = build(
-      _RecordingSalesModule(
+      _Repos(
         detailError: const AppException('NOT_FOUND', serverMessage: 'Detail not found.'),
       ),
     );
@@ -103,7 +101,7 @@ void main() {
 
   test('detail_unknown_error_fallback', () async {
     final cubit = build(
-      _RecordingSalesModule(
+      _Repos(
         detailError: const AppException('UNKNOWN_CODE', serverMessage: 'Internal server error.'),
       ),
     );
@@ -116,17 +114,17 @@ void main() {
   });
 
   test('refresh_not_found_clears_previous_error', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detailError: const AppException('DEPENDENCY_UNAVAILABLE'),
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
 
     await cubit.load();
     expect(cubit.state.status, SalesReturnExchangeDetailStatus.retryableFailure);
     expect(cubit.state.screenError, isNotNull);
 
-    module.detailError = const AppException('NOT_FOUND');
+    repos.returnExchange.detailError = const AppException('NOT_FOUND');
     await cubit.refresh();
 
     expect(cubit.state.status, SalesReturnExchangeDetailStatus.notFound);
@@ -227,46 +225,21 @@ SalesOrderDetailDto _orderDetail() => SalesOrderDetailDto(
   lines: const [],
 );
 
-final class _RecordingSalesModule implements ISalesModule {
-  _RecordingSalesModule({
-    ReturnExchangeDetailDto? detail,
-    this.detailError,
-    this.detailGate,
-  }) : detail = detail ?? _detail();
+final class _Repos {
+  _Repos({Object? detailError, Completer<void>? detailGate})
+    : returnExchange = FakeReturnExchangeRepository()
+        ..detailResult = _detail()
+        ..detailError = detailError
+        ..detailGate = detailGate,
+      orders = FakeSalesOrderRepository()
+        ..detailResult = _orderDetail()
+        ..returnSummaryResult = SalesOrderReturnSummaryDto(
+          salesOrderId: 'order-1',
+          returns: const [],
+        );
 
-  ReturnExchangeDetailDto detail;
-  Object? detailError;
-  final Completer<void>? detailGate;
-
-  final List<Object> queries = <Object>[];
-  final List<Object> commands = <Object>[];
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is GetReturnExchangeDetailQuery) {
-      final gate = detailGate;
-      if (gate != null) await gate.future;
-      final error = detailError;
-      if (error != null) throw error;
-      return detail as TResult;
-    }
-    if (query is GetSalesOrderDetailQuery) return _orderDetail() as TResult;
-    if (query is GetSalesOrderReturnSummaryQuery) {
-      return SalesOrderReturnSummaryDto(
-            salesOrderId: 'order-1',
-            returns: const [],
-          )
-          as TResult;
-    }
-    throw UnsupportedError('unexpected query ${query.runtimeType}');
-  }
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    throw UnsupportedError('unexpected command ${command.runtimeType}');
-  }
+  final FakeReturnExchangeRepository returnExchange;
+  final FakeSalesOrderRepository orders;
 }
 
 final class _ExecutionContext implements IExecutionContext {

@@ -1,4 +1,8 @@
-import '../../support/module_backed_sales_repositories.dart';
+import '../../support/fake_sales_checkout_repository.dart';
+import '../../support/fake_sales_order_repository.dart';
+import '../../support/fake_sales_payment_repository.dart';
+import '../../support/fake_sales_receipt_repository.dart';
+import '../../support/sales_contract_error.dart';
 import 'package:async_query/async_query.dart';
 import 'package:async_query_flutter/async_query_flutter.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +27,7 @@ import 'package:erp/features/sales/presentation/widgets/sales_transaction_result
 
 void main() {
   testWidgets('shows loading view at initial state', (tester) async {
-    final cubit = _cubit(module: _RecordingSalesModule());
+    final cubit = _cubit(_Repos());
     addTearDown(cubit.close);
 
     await tester.pumpWidget(_host(cubit));
@@ -33,9 +37,7 @@ void main() {
 
   testWidgets('shows failure card when load fails', (tester) async {
     final cubit = _cubit(
-      module: _RecordingSalesModule(
-        attemptResponses: [const _Failure(SalesContractException('PERMISSION_DENIED'))],
-      ),
+      _Repos(attemptResponses: [salesContractError('PERMISSION_DENIED')]),
     );
     addTearDown(cubit.close);
 
@@ -49,9 +51,7 @@ void main() {
 
   testWidgets('keeps success header on partial state', (tester) async {
     final cubit = _cubit(
-      module: _RecordingSalesModule(
-        paymentResponse: const _Failure(SalesContractException('PROJECTION_PENDING')),
-      ),
+      _Repos(paymentError: salesContractError('PROJECTION_PENDING')),
     );
     addTearDown(cubit.close);
 
@@ -67,9 +67,7 @@ void main() {
   });
 
   testWidgets('shows receipt warning banner when receipt operation fails', (tester) async {
-    final cubit = _cubit(
-      module: _RecordingSalesModule(generateResponses: [_Failure(Exception('offline'))]),
-    );
+    final cubit = _cubit(_Repos(generateError: Exception('offline')));
     addTearDown(cubit.close);
 
     await tester.pumpWidget(_host(cubit));
@@ -83,7 +81,7 @@ void main() {
   testWidgets('result screen mounts the live invoice row without a tap', (
     tester,
   ) async {
-    final salesCubit = _cubit(module: _RecordingSalesModule());
+    final salesCubit = _cubit(_Repos());
     final queryClient = QueryClient(
       options: const QueryClientOptions(
         queries: QueryOptionsDefaults(retry: 0, staleTime: Duration.zero),
@@ -119,7 +117,7 @@ void main() {
   testWidgets(
     'th08_e2e_e03_u02_sc01_01 sales result exports PDF from SG-06',
     (tester) async {
-      final salesCubit = _cubit(module: _RecordingSalesModule());
+      final salesCubit = _cubit(_Repos());
       final queryClient = QueryClient(
         options: const QueryClientOptions(
           queries: QueryOptionsDefaults(retry: 0, staleTime: Duration.zero),
@@ -184,7 +182,7 @@ void main() {
   testWidgets(
     'th08_e2e_e04_u02_sc06_01 sales result resend opens history then returns',
     (tester) async {
-      final salesCubit = _cubit(module: _RecordingSalesModule());
+      final salesCubit = _cubit(_Repos());
       final queryClient = QueryClient(
         options: const QueryClientOptions(
           queries: QueryOptionsDefaults(retry: 0, staleTime: Duration.zero),
@@ -285,16 +283,14 @@ Widget _host(
 
 void _noop() {}
 
-SalesTransactionResultCubit _cubit({
-  required _RecordingSalesModule module,
-}) => SalesTransactionResultCubit(
+SalesTransactionResultCubit _cubit(_Repos repos) => SalesTransactionResultCubit(
   storeId: 'store-1',
   idempotencyKey: 'attempt-1',
   salesOrderId: 'order-1',
-  checkoutRepository: ModuleBackedSalesCheckoutRepository(module),
-  orderRepository: ModuleBackedSalesOrderRepository(module),
-  paymentRepository: ModuleBackedSalesPaymentRepository(module),
-  receiptRepository: ModuleBackedSalesReceiptRepository(module),
+  checkoutRepository: repos.checkout,
+  orderRepository: repos.orders,
+  paymentRepository: repos.payments,
+  receiptRepository: repos.receipts,
   recoveryBackoff: const [Duration.zero],
 );
 
@@ -436,57 +432,25 @@ final class _ProjectionEInvoiceMediator implements IModuleMediator {
   }
 }
 
-final class _RecordingSalesModule implements ISalesModule {
-  _RecordingSalesModule({
-    List<Object>? attemptResponses,
-    List<Object>? generateResponses,
-    this.paymentResponse,
-  }) : attemptResponses = attemptResponses ?? [_succeededCheckout()],
-       generateResponses = generateResponses ?? <Object>[];
+final class _Repos {
+  _Repos({List<Object>? attemptResponses, Object? paymentError, Object? generateError})
+    : checkout = FakeSalesCheckoutRepository()
+        ..getResultResults.addAll(attemptResponses ?? [_succeededCheckout()]),
+      orders = FakeSalesOrderRepository()..result = _order(),
+      payments = FakeSalesPaymentRepository()
+        ..summaryResult = _payment()
+        ..summaryError = paymentError,
+      receipts = FakeSalesReceiptRepository()
+        ..generateResult = _receipt()
+        ..generateError = generateError
+        ..getResult = _receipt()
+        ..printedResult = _receipt()
+        ..sharedResult = _receipt();
 
-  final List<Object> attemptResponses;
-  final List<Object> generateResponses;
-  Object? orderResponse;
-  Object? paymentResponse;
-
-  final SalesOrderResultDto order = _order();
-  final SalesOrderPaymentSummaryDto payment = _payment();
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    if (command is GenerateSalesReceiptCommand) {
-      final response = generateResponses.isEmpty ? _receipt() : generateResponses.removeAt(0);
-      if (response is _Failure) throw response.error;
-      return response as TResult;
-    }
-    if (command is RecordSalesReceiptPrintedCommand || command is RecordSalesReceiptSharedCommand) {
-      return _receipt() as TResult;
-    }
-    throw UnsupportedError('Unexpected command $command');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    final Object response;
-    if (query is GetCheckoutResultQuery) {
-      response = attemptResponses.removeAt(0);
-    } else if (query is GetSalesOrderQuery) {
-      response = orderResponse ?? order;
-    } else if (query is GetSalesOrderPaymentSummaryQuery) {
-      response = paymentResponse ?? payment;
-    } else if (query is GetSalesReceiptQuery) {
-      response = _receipt();
-    } else {
-      throw UnsupportedError('Unexpected query $query');
-    }
-    if (response is _Failure) throw response.error;
-    return response as TResult;
-  }
-}
-
-final class _Failure {
-  const _Failure(this.error);
-  final Object error;
+  final FakeSalesCheckoutRepository checkout;
+  final FakeSalesOrderRepository orders;
+  final FakeSalesPaymentRepository payments;
+  final FakeSalesReceiptRepository receipts;
 }
 
 final class _ExecutionContext implements IExecutionContext {

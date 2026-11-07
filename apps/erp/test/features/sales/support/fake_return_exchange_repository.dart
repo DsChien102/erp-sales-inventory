@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:vet45_sales_application/application.dart';
@@ -23,6 +25,9 @@ final class FakeReturnExchangeRepository implements ReturnExchangeRepository {
   final detailResults = <ReturnExchangeDetailDto>[];
   Object? detailError;
   final detailCalls = <String>[];
+
+  /// Nếu đặt, [getDetail] chờ cổng này (sau khi ghi lời gọi, trước khi ném lỗi / trả kết quả).
+  Completer<void>? detailGate;
 
   ReturnExchangeDraftDto? startResult;
   final startResults = <ReturnExchangeDraftDto>[];
@@ -129,6 +134,8 @@ final class FakeReturnExchangeRepository implements ReturnExchangeRepository {
     required String returnExchangeId,
   }) async {
     detailCalls.add(returnExchangeId);
+    final gate = detailGate;
+    if (gate != null) await gate.future;
     final e = detailError;
     if (e != null) throw e;
     if (detailResults.isNotEmpty) return detailResults.removeAt(0);
