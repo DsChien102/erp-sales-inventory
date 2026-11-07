@@ -225,12 +225,29 @@ SalesOrderDetailDto _orderDetail() => SalesOrderDetailDto(
   lines: const [],
 );
 
+/// Fake có cổng chờ trước khi trả chi tiết (test phản hồi cũ bị bỏ qua).
+final class _GatedReturnExchangeRepository extends FakeReturnExchangeRepository {
+  _GatedReturnExchangeRepository(this.gate);
+
+  final Completer<void>? gate;
+
+  @override
+  Future<ReturnExchangeDetailDto> getDetail({required String returnExchangeId}) async {
+    final g = gate;
+    if (g == null) return super.getDetail(returnExchangeId: returnExchangeId);
+    detailCalls.add(returnExchangeId);
+    await g.future;
+    final e = detailError;
+    if (e != null) throw e;
+    return detailResult!;
+  }
+}
+
 final class _Repos {
   _Repos({Object? detailError, Completer<void>? detailGate})
-    : returnExchange = FakeReturnExchangeRepository()
+    : returnExchange = _GatedReturnExchangeRepository(detailGate)
         ..detailResult = _detail()
-        ..detailError = detailError
-        ..detailGate = detailGate,
+        ..detailError = detailError,
       orders = FakeSalesOrderRepository()
         ..detailResult = _orderDetail()
         ..returnSummaryResult = SalesOrderReturnSummaryDto(
@@ -238,7 +255,7 @@ final class _Repos {
           returns: const [],
         );
 
-  final FakeReturnExchangeRepository returnExchange;
+  final _GatedReturnExchangeRepository returnExchange;
   final FakeSalesOrderRepository orders;
 }
 

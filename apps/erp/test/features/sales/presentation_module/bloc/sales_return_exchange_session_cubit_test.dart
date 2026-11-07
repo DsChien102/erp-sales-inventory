@@ -1,22 +1,24 @@
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
 import 'package:vet45_shared_application/application.dart';
 
 import '../../support/fake_return_exchange_repository.dart';
-import '../../support/module_backed_sales_repositories.dart';
+import '../../support/fake_sales_order_repository.dart';
+import '../../support/sales_contract_error.dart';
 
 void main() {
   SalesReturnExchangeSessionCubit build(
-    _RecordingSalesModule module, {
+    _Repos module, {
     List<String> attemptIds = const ['attempt-1', 'attempt-2', 'attempt-3'],
   }) {
     final ids = attemptIds.iterator;
     return SalesReturnExchangeSessionCubit(
       orderId: 'order-1',
-      returnExchangeRepository: ModuleBackedReturnExchangeRepository(module),
-      orderRepository: ModuleBackedSalesOrderRepository(module),
+      returnExchangeRepository: module.returnExchange,
+      orderRepository: module.orders,
       executionContext: const _ExecutionContext(),
       attemptFactory: SalesReturnExchangeAttemptFactory(
         newAttemptId: () {
@@ -33,19 +35,15 @@ void main() {
   }
 
   test('load resolves context and authoritative order/policy/returnable data', () async {
-    final module = _RecordingSalesModule();
+    final module = _Repos();
     final cubit = build(module);
     addTearDown(cubit.close);
 
     await cubit.load();
 
-    expect(module.queries.whereType<GetSalesOrderDetailQuery>(), hasLength(1));
-    expect(module.queries.whereType<PrecheckReturnExchangeQuery>(), hasLength(1));
-    expect(module.queries.whereType<GetReturnableOrderLinesQuery>(), hasLength(1));
-    expect(
-      module.queries.whereType<GetReturnExchangeFormPolicyQuery>(),
-      isEmpty,
-    );
+    expect(module.orders.detailCalls, hasLength(1));
+    expect(module.returnExchange.precheckCalls, hasLength(1));
+    expect(module.returnExchange.returnableCalls, hasLength(1));
     expect(cubit.state.status, SalesReturnExchangeSessionStatus.ready);
     expect(cubit.state.orderNumber, 'SO-2026-00125');
     expect(cubit.state.customerDisplayName, 'Khách A');
@@ -55,7 +53,7 @@ void main() {
   });
 
   test('session_never_emits_catalog_empty', () async {
-    final module = _RecordingSalesModule();
+    final module = _Repos();
     final cubit = build(module);
     addTearDown(cubit.close);
 
@@ -65,7 +63,7 @@ void main() {
   });
 
   test('walk-in order without customer snapshot loads as Khách lẻ', () async {
-    final cubit = build(_RecordingSalesModule(detail: _detail(walkIn: true)));
+    final cubit = build(_Repos(detail: _detail(walkIn: true)));
     addTearDown(cubit.close);
 
     await cubit.load();
@@ -77,7 +75,7 @@ void main() {
 
   test('hides units already fully returned (returnable quantity 0)', () async {
     final cubit = build(
-      _RecordingSalesModule(
+      _Repos(
         returnable: ReturnableOrderLinesDto(
           salesOrderId: 'order-1',
           sourceVersion: 7,
@@ -128,7 +126,7 @@ void main() {
 
   test('blocked precheck disables proceed, empty policy still opens item selection', () async {
     final blocked = build(
-      _RecordingSalesModule(
+      _Repos(
         precheck: ReturnExchangePrecheckDto(
           allowed: false,
           sourceVersion: 7,
@@ -143,11 +141,7 @@ void main() {
     expect(blocked.state.status, SalesReturnExchangeSessionStatus.blocked);
     expect(blocked.state.canProceed, isFalse);
 
-    final empty = build(
-      _RecordingSalesModule(
-        policy: ReturnExchangeFormPolicyDto(reasons: const [], conditions: const []),
-      ),
-    );
+    final empty = build(_Repos());
     addTearDown(empty.close);
     await empty.load();
     expect(empty.state.status, SalesReturnExchangeSessionStatus.ready);
@@ -156,7 +150,7 @@ void main() {
   });
 
   test('quantity clamps to backend micros and zero removes selected return line', () async {
-    final cubit = build(_RecordingSalesModule());
+    final cubit = build(_Repos());
     addTearDown(cubit.close);
     await cubit.load();
 
@@ -170,7 +164,7 @@ void main() {
   });
 
   test('returned line can proceed without temporary reason and condition policy', () async {
-    final cubit = build(_RecordingSalesModule());
+    final cubit = build(_Repos());
     addTearDown(cubit.close);
     await cubit.load();
 
@@ -179,9 +173,7 @@ void main() {
   });
 
   test('save without reason/condition sends start and reaches settlement handoff', () async {
-    final module = _RecordingSalesModule(
-      policy: ReturnExchangeFormPolicyDto(reasons: const [], conditions: const []),
-    );
+    final module = _Repos();
     final cubit = build(module);
     addTearDown(cubit.close);
     await cubit.load();
@@ -190,17 +182,15 @@ void main() {
     final id = await cubit.saveAndGetReturnExchangeId();
 
     expect(id, 'return-1');
-    expect(module.commands, hasLength(1));
-    final start = module.commands.single as StartReturnExchangeCommand;
+    expect(module.returnExchange.commands, hasLength(1));
+    final start = module.returnExchange.commands.single as ReturnExchangeStartRequest;
     expect(start.lines.single.reasonCode, isNull);
     expect(start.lines.single.conditionCode, isNull);
     expect(cubit.state.fieldError, isNull);
   });
 
   test('save without selected return line fails without sending command', () async {
-    final module = _RecordingSalesModule(
-      policy: ReturnExchangeFormPolicyDto(reasons: const [], conditions: const []),
-    );
+    final module = _Repos();
     final cubit = build(module);
     addTearDown(cubit.close);
     await cubit.load();
@@ -208,7 +198,7 @@ void main() {
     final id = await cubit.saveAndGetReturnExchangeId();
 
     expect(id, isNull);
-    expect(module.commands, isEmpty);
+    expect(module.returnExchange.commands, isEmpty);
     expect(
       cubit.state.fieldError,
       'Chọn ít nhất một dòng trả với số lượng hợp lệ.',
@@ -219,7 +209,7 @@ void main() {
   });
 
   test('addExchangeProduct uses the server preview price and tenant context', () async {
-    final module = _RecordingSalesModule(
+    final module = _Repos(
       preview: const ReturnExchangePricingPreviewDto(
         lines: [
           ReturnExchangePricedLineDto(
@@ -246,14 +236,12 @@ void main() {
     );
 
     expect(cubit.state.exchangeEdits.single.unitPrice.amountMinor, 80000);
-    final preview = module.queries.whereType<PreviewReturnExchangePricingQuery>().single;
-    expect(preview.tenantId, 'tenant-1');
-    expect(preview.actorId, 'actor-1');
+    expect(module.returnExchange.previewCalls, hasLength(1));
   });
 
   test('PRICING_BLOCKED does not add the exchange line', () async {
-    final module = _RecordingSalesModule(
-      previewError: const SalesContractException('PRICING_BLOCKED'),
+    final module = _Repos(
+      previewError: salesContractError('PRICING_BLOCKED'),
     );
     final cubit = build(module);
     addTearDown(cubit.close);
@@ -275,7 +263,7 @@ void main() {
   });
 
   test('refreshed exchange price forces a new save instead of reusing the old one', () async {
-    final module = _RecordingSalesModule();
+    final module = _Repos();
     final cubit = build(module);
     addTearDown(cubit.close);
     await prepareReady(cubit);
@@ -290,23 +278,31 @@ void main() {
       ),
     );
     expect(await cubit.saveAndGetReturnExchangeId(), isNotNull);
-    expect(module.commands, hasLength(1));
+    expect(module.returnExchange.commands, hasLength(1));
 
     // Không đổi giá: lưu lại được bỏ qua (dòng không đổi).
     await cubit.refreshExchangePrices();
     expect(await cubit.saveAndGetReturnExchangeId(), isNotNull);
-    expect(module.commands, hasLength(1));
+    expect(module.returnExchange.commands, hasLength(1));
 
     // Giá đổi (vd. sau PRICE_CHANGED ở quyết toán): phải lưu lại với giá mới.
-    module.previewAmountMinor = 1200;
+    module.returnExchange.previewResult = const ReturnExchangePricingPreviewDto(
+      lines: [
+        ReturnExchangePricedLineDto(
+          productUnitId: 'unit-x',
+          unitPrice: MoneyDto(amountMinor: 1200, currencyCode: 'VND'),
+          sourceCode: 'LIST',
+        ),
+      ],
+    );
     await cubit.refreshExchangePrices();
     expect(cubit.state.exchangeEdits.single.unitPrice.amountMinor, 1200);
     expect(await cubit.saveAndGetReturnExchangeId(), isNotNull);
-    expect(module.commands, hasLength(2));
+    expect(module.returnExchange.commands, hasLength(2));
   });
 
   test('network failure while previewing does not claim the price is unknown', () async {
-    final module = _RecordingSalesModule(previewError: Exception('socket closed'));
+    final module = _Repos(previewError: Exception('socket closed'));
     final cubit = build(module);
     addTearDown(cubit.close);
     await cubit.load();
@@ -327,8 +323,8 @@ void main() {
   });
 
   test('PRICE_CHANGED reloads the session and refreshes exchange prices', () async {
-    final module = _RecordingSalesModule(
-      commandErrorsQueue: const [SalesContractException('PRICE_CHANGED')],
+    final module = _Repos(
+      commandErrorsQueue: [salesContractError('PRICE_CHANGED')],
     );
     final cubit = build(module);
     addTearDown(cubit.close);
@@ -343,7 +339,7 @@ void main() {
         unitPrice: MoneyDto(amountMinor: 1000, currencyCode: 'VND'),
       ),
     );
-    final previewBefore = module.queries.whereType<PreviewReturnExchangePricingQuery>().length;
+    final previewBefore = module.returnExchange.previewCalls.length;
 
     expect(await cubit.saveAndGetReturnExchangeId(), isNull);
 
@@ -353,13 +349,13 @@ void main() {
     );
     // load() làm mới giá đúng 1 lần; không gọi lại thêm lần nữa sau load().
     expect(
-      module.queries.whereType<PreviewReturnExchangePricingQuery>().length,
+      module.returnExchange.previewCalls.length,
       previewBefore + 1,
     );
   });
 
   test('exchange selection keeps product and product-unit IDs with catalog labels', () async {
-    final cubit = build(_RecordingSalesModule());
+    final cubit = build(_Repos());
     addTearDown(cubit.close);
     await cubit.load();
 
@@ -386,16 +382,16 @@ void main() {
   test(
     'first proceed starts; later edit updates; unchanged session skips duplicate write',
     () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = build(module);
       addTearDown(cubit.close);
       await prepareReady(cubit);
 
       final first = await cubit.saveAndGetReturnExchangeId();
       expect(first, 'return-1');
-      expect(module.commands, hasLength(1));
-      expect(module.commands.single, isA<StartReturnExchangeCommand>());
-      final start = module.commands.single as StartReturnExchangeCommand;
+      expect(module.returnExchange.commands, hasLength(1));
+      expect(module.returnExchange.commands.single, isA<ReturnExchangeStartRequest>());
+      final start = module.returnExchange.commands.single as ReturnExchangeStartRequest;
       expect(start.expectedVersion, 7);
       expect(start.idempotencyKey, 'return-exchange:start:attempt-1');
       expect(start.lines.single.reasonCode, isNull);
@@ -403,21 +399,21 @@ void main() {
 
       final same = await cubit.saveAndGetReturnExchangeId();
       expect(same, 'return-1');
-      expect(module.commands, hasLength(1));
+      expect(module.returnExchange.commands, hasLength(1));
 
       cubit.setReturnQuantity('line-1', QuantityDto.scale * 2);
       final second = await cubit.saveAndGetReturnExchangeId();
       expect(second, 'return-1');
-      expect(module.commands, hasLength(2));
-      expect(module.commands[1], isA<UpdateReturnExchangeCommand>());
-      final update = module.commands[1] as UpdateReturnExchangeCommand;
+      expect(module.returnExchange.commands, hasLength(2));
+      expect(module.returnExchange.commands[1], isA<ReturnExchangeUpdateRequest>());
+      final update = module.returnExchange.commands[1] as ReturnExchangeUpdateRequest;
       expect(update.expectedVersion, 2);
       expect(update.idempotencyKey, 'return-exchange:update:attempt-2');
     },
   );
 
   test('start command keeps exchange selection snapshots for reference decision', () async {
-    final module = _RecordingSalesModule();
+    final module = _Repos();
     final cubit = build(module);
     addTearDown(cubit.close);
     await prepareReady(cubit);
@@ -435,7 +431,7 @@ void main() {
     final first = await cubit.saveAndGetReturnExchangeId();
 
     expect(first, 'return-1');
-    final start = module.commands.single as StartReturnExchangeCommand;
+    final start = module.returnExchange.commands.single as ReturnExchangeStartRequest;
     final exchangeLine = start.lines.singleWhere(
       (line) => line.kind == ReturnExchangeLineKind.exchangeLine,
     );
@@ -446,11 +442,11 @@ void main() {
   });
 
   test('retryable dependency failure reuses attempt; edit invalidates it', () async {
-    final module = _RecordingSalesModule(
-      commandErrorsQueue: const [
-        SalesContractException('DEPENDENCY_UNAVAILABLE'),
+    final module = _Repos(
+      commandErrorsQueue: [
+        salesContractError('DEPENDENCY_UNAVAILABLE'),
         null,
-        SalesContractException('DEPENDENCY_UNAVAILABLE'),
+        salesContractError('DEPENDENCY_UNAVAILABLE'),
         null,
       ],
     );
@@ -462,30 +458,30 @@ void main() {
     expect(cubit.state.status, SalesReturnExchangeSessionStatus.retryableFailure);
 
     expect(await cubit.saveAndGetReturnExchangeId(), 'return-1');
-    expect(module.commands, hasLength(2));
+    expect(module.returnExchange.commands, hasLength(2));
     expect(
-      (module.commands[0] as StartReturnExchangeCommand).idempotencyKey,
-      (module.commands[1] as StartReturnExchangeCommand).idempotencyKey,
+      (module.returnExchange.commands[0] as ReturnExchangeStartRequest).idempotencyKey,
+      (module.returnExchange.commands[1] as ReturnExchangeStartRequest).idempotencyKey,
     );
 
     cubit.setReturnQuantity('line-1', QuantityDto.scale * 2);
     expect(await cubit.saveAndGetReturnExchangeId(), isNull);
     expect(await cubit.saveAndGetReturnExchangeId(), 'return-1');
-    expect(module.commands, hasLength(4));
+    expect(module.returnExchange.commands, hasLength(4));
     expect(
-      (module.commands[1] as StartReturnExchangeCommand).idempotencyKey,
-      isNot((module.commands[2] as UpdateReturnExchangeCommand).idempotencyKey),
+      (module.returnExchange.commands[1] as ReturnExchangeStartRequest).idempotencyKey,
+      isNot((module.returnExchange.commands[2] as ReturnExchangeUpdateRequest).idempotencyKey),
     );
     expect(
-      (module.commands[2] as UpdateReturnExchangeCommand).idempotencyKey,
-      (module.commands[3] as UpdateReturnExchangeCommand).idempotencyKey,
+      (module.returnExchange.commands[2] as ReturnExchangeUpdateRequest).idempotencyKey,
+      (module.returnExchange.commands[3] as ReturnExchangeUpdateRequest).idempotencyKey,
     );
   });
 
   test('STALE_VERSION and RETURN_QUANTITY_EXCEEDED reload then mark stale', () async {
     for (final code in ['STALE_VERSION', 'RETURN_QUANTITY_EXCEEDED']) {
-      final module = _RecordingSalesModule(
-        commandErrorsQueue: [SalesContractException(code)],
+      final module = _Repos(
+        commandErrorsQueue: [salesContractError(code)],
       );
       final cubit = build(module);
       addTearDown(cubit.close);
@@ -495,7 +491,7 @@ void main() {
       expect(id, isNull, reason: code);
       expect(cubit.state.status, SalesReturnExchangeSessionStatus.stale, reason: code);
       expect(
-        module.queries.whereType<GetReturnableOrderLinesQuery>().length,
+        module.returnExchange.returnableCalls.length,
         greaterThan(1),
         reason: code,
       );
@@ -503,13 +499,13 @@ void main() {
   });
 
   test('discard before start performs no write; after start cancels once', () async {
-    final module = _RecordingSalesModule();
+    final module = _Repos();
     final cubit = build(module);
     addTearDown(cubit.close);
     await prepareReady(cubit);
 
     expect(await cubit.discard(), isTrue);
-    expect(module.commands, isEmpty);
+    expect(module.returnExchange.commands, isEmpty);
     expect(cubit.state.status, SalesReturnExchangeSessionStatus.discarded);
 
     final again = build(module);
@@ -517,14 +513,14 @@ void main() {
     await prepareReady(again);
     await again.saveAndGetReturnExchangeId();
     expect(await again.discard(), isTrue);
-    expect(module.commands.whereType<CancelReturnExchangeCommand>(), hasLength(1));
+    expect(module.returnExchange.cancelCalls, hasLength(1));
     expect(again.state.status, SalesReturnExchangeSessionStatus.discarded);
   });
 
   test('permission and blocked failures never emit ready after save', () async {
     for (final code in ['PERMISSION_DENIED', 'RETURN_EXCHANGE_BLOCKED']) {
-      final module = _RecordingSalesModule(
-        commandErrorsQueue: [SalesContractException(code)],
+      final module = _Repos(
+        commandErrorsQueue: [salesContractError(code)],
       );
       final cubit = build(module);
       addTearDown(cubit.close);
@@ -541,9 +537,9 @@ void main() {
 
   test('session_save_error_fallback', () async {
     const rawMessage = 'column reference "tenant_id" is ambiguous';
-    final module = _RecordingSalesModule(
-      commandErrorsQueue: const [
-        SalesContractException(
+    final module = _Repos(
+      commandErrorsQueue: [
+        salesContractError(
           'DEPENDENCY_UNAVAILABLE',
           message: 'Sales return/exchange operation failed.',
           details: <String, Object?>{'rpcMessage': rawMessage},
@@ -565,7 +561,7 @@ void main() {
     final cubit = SalesReturnExchangeSessionCubit(
       orderId: 'order-1',
       returnExchangeRepository: fakeRepo,
-      orderRepository: ModuleBackedSalesOrderRepository(_RecordingSalesModule()),
+      orderRepository: FakeSalesOrderRepository()..detailResult = _detail(),
       executionContext: const _ExecutionContext(),
       attemptFactory: SalesReturnExchangeAttemptFactory(
         newAttemptId: () => 'attempt-retry-1',
@@ -593,7 +589,7 @@ void main() {
   });
 
   test('session_blockers_localized', () async {
-    final module = _RecordingSalesModule(
+    final module = _Repos(
       precheck: ReturnExchangePrecheckDto(
         allowed: false,
         sourceVersion: 7,
@@ -669,120 +665,76 @@ ReturnableOrderLinesDto _returnable() => ReturnableOrderLinesDto(
   ],
 );
 
-ReturnExchangeFormPolicyDto _policy() => ReturnExchangeFormPolicyDto(
-  reasons: const [
-    ReturnExchangePolicyOptionDto(
-      code: 'DAMAGED',
-      displayName: 'Hỏng',
-      sortOrder: 100,
-    ),
-    ReturnExchangePolicyOptionDto(
-      code: 'WRONG_ITEM',
-      displayName: 'Sai hàng',
-      sortOrder: 200,
-    ),
-  ],
-  conditions: const [
-    ReturnExchangePolicyOptionDto(
-      code: 'OPENED',
-      displayName: 'Đã mở',
-      sortOrder: 100,
-    ),
-    ReturnExchangePolicyOptionDto(
-      code: 'SEALED',
-      displayName: 'Nguyên seal',
-      sortOrder: 200,
-    ),
-  ],
-);
-
-final class _RecordingSalesModule implements ISalesModule {
-  _RecordingSalesModule({
+final class _Repos {
+  _Repos({
     SalesOrderDetailDto? detail,
     ReturnExchangePrecheckDto? precheck,
     ReturnableOrderLinesDto? returnable,
-    ReturnExchangeFormPolicyDto? policy,
     ReturnExchangeDraftDto? draft,
-    this.preview,
-    this.previewError,
-    this.commandErrorsQueue = const <Object?>[],
-  }) : detail = detail ?? _detail(),
-       precheck = precheck ?? _precheck(),
-       returnable = returnable ?? _returnable(),
-       policy = policy ?? _policy(),
-       draft =
-           draft ??
-           ReturnExchangeDraftDto(
-             returnExchangeId: 'return-1',
-             salesOrderId: 'order-1',
-             version: 2,
-             status: ReturnExchangeStatus.draft,
-             lines: const [],
-           );
+    ReturnExchangePricingPreviewDto? preview,
+    Object? previewError,
+    List<Object?> commandErrorsQueue = const <Object?>[],
+  }) {
+    final resolvedDraft =
+        draft ??
+        ReturnExchangeDraftDto(
+          returnExchangeId: 'return-1',
+          salesOrderId: 'order-1',
+          version: 2,
+          status: ReturnExchangeStatus.draft,
+          lines: const [],
+        );
+    returnExchange = _QueuedErrorReturnExchangeRepository(commandErrorsQueue)
+      ..precheckResult = precheck ?? _precheck()
+      ..returnableResult = returnable ?? _returnable()
+      ..previewResult = preview
+      ..previewError = previewError
+      ..startResult = resolvedDraft
+      ..updateResult = resolvedDraft
+      ..cancelResult = ReturnExchangeResultDto(
+        returnExchangeId: resolvedDraft.returnExchangeId,
+        salesOrderId: resolvedDraft.salesOrderId,
+        version: resolvedDraft.version + 1,
+        status: ReturnExchangeStatus.cancelled,
+      );
+    orders = FakeSalesOrderRepository()..detailResult = detail ?? _detail();
+  }
 
-  final SalesOrderDetailDto detail;
-  final ReturnExchangePrecheckDto precheck;
-  final ReturnableOrderLinesDto returnable;
-  final ReturnExchangeFormPolicyDto policy;
-  final ReturnExchangeDraftDto draft;
-  final ReturnExchangePricingPreviewDto? preview;
-  final Object? previewError;
-  final List<Object?> commandErrorsQueue;
-  int _commandCall = 0;
+  late final _QueuedErrorReturnExchangeRepository returnExchange;
+  late final FakeSalesOrderRepository orders;
+}
 
-  /// Giá xem trước mặc định; đổi giữa test để giả lập giá vừa thay đổi.
-  int previewAmountMinor = 1000;
+/// Ghi lệnh ghi (start / update / cancel) theo thứ tự chung và ném lỗi theo hàng đợi lời gọi.
+final class _QueuedErrorReturnExchangeRepository extends FakeReturnExchangeRepository {
+  _QueuedErrorReturnExchangeRepository(this._errors);
 
-  final List<Object> queries = <Object>[];
+  final List<Object?> _errors;
   final List<Object> commands = <Object>[];
 
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is GetSalesOrderDetailQuery) return detail as TResult;
-    if (query is PrecheckReturnExchangeQuery) return precheck as TResult;
-    if (query is GetReturnableOrderLinesQuery) return returnable as TResult;
-    if (query is GetReturnExchangeFormPolicyQuery) return policy as TResult;
-    if (query is PreviewReturnExchangePricingQuery) {
-      final previewQuery = query as PreviewReturnExchangePricingQuery;
-      final error = previewError;
-      if (error != null) throw error;
-      final configured = preview;
-      if (configured != null) return configured as TResult;
-      return ReturnExchangePricingPreviewDto(
-            lines: [
-              for (final line in previewQuery.lines)
-                ReturnExchangePricedLineDto(
-                  productUnitId: line.productUnitId,
-                  unitPrice: MoneyDto(amountMinor: previewAmountMinor, currencyCode: 'VND'),
-                  sourceCode: 'LIST',
-                ),
-            ],
-          )
-          as TResult;
-    }
-    throw UnsupportedError('unexpected query ${query.runtimeType}');
+  Object? _nextError() {
+    final index = commands.length - 1;
+    return index < _errors.length ? _errors[index] : null;
   }
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    final index = _commandCall++;
-    final error = index < commandErrorsQueue.length ? commandErrorsQueue[index] : null;
-    if (error != null) throw error;
-    if (command is StartReturnExchangeCommand || command is UpdateReturnExchangeCommand) {
-      return draft as TResult;
-    }
-    if (command is CancelReturnExchangeCommand) {
-      return ReturnExchangeResultDto(
-            returnExchangeId: draft.returnExchangeId,
-            salesOrderId: draft.salesOrderId,
-            version: draft.version + 1,
-            status: ReturnExchangeStatus.cancelled,
-          )
-          as TResult;
-    }
-    throw UnsupportedError('unexpected command ${command.runtimeType}');
+  Future<ReturnExchangeDraftDto> start(ReturnExchangeStartRequest request) {
+    commands.add(request);
+    startError = _nextError();
+    return super.start(request);
+  }
+
+  @override
+  Future<ReturnExchangeDraftDto> update(ReturnExchangeUpdateRequest request) {
+    commands.add(request);
+    updateError = _nextError();
+    return super.update(request);
+  }
+
+  @override
+  Future<ReturnExchangeResultDto> cancel(ReturnExchangeMutationRequest request) {
+    commands.add(request);
+    cancelError = _nextError();
+    return super.cancel(request);
   }
 }
 

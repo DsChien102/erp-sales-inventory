@@ -1,10 +1,12 @@
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../../support/module_backed_sales_repositories.dart';
+import '../../support/fake_return_exchange_repository.dart';
+import '../../support/fake_sales_order_repository.dart';
 
 void main() {
   const refundPlan = ReturnExchangeSettlementPlanDto(
@@ -101,15 +103,15 @@ void main() {
   }
 
   SalesReturnExchangeSettlementCubit build(
-    _RecordingSalesModule module, {
+    _Repos repos, {
     List<String> attemptIds = const ['attempt-1', 'attempt-2'],
   }) {
     final ids = attemptIds.iterator;
     return SalesReturnExchangeSettlementCubit(
       orderId: 'order-1',
       returnExchangeId: 'return-1',
-      returnExchangeRepository: ModuleBackedReturnExchangeRepository(module),
-      orderRepository: ModuleBackedSalesOrderRepository(module),
+      returnExchangeRepository: repos.returnExchange,
+      orderRepository: repos.orders,
       executionContext: const _ExecutionContext(),
       attemptFactory: SalesReturnExchangeAttemptFactory(
         newAttemptId: () {
@@ -121,17 +123,17 @@ void main() {
   }
 
   test('loadAndEvaluate loads detail before evaluate with source version', () async {
-    final module = _RecordingSalesModule(detail: detail());
-    final cubit = build(module);
+    final repos = _Repos(detail: detail());
+    final cubit = build(repos);
     addTearDown(cubit.close);
 
     await cubit.loadAndEvaluate();
 
-    expect(module.queries, hasLength(3));
-    expect(module.queries[0], isA<GetReturnExchangeDetailQuery>());
-    expect(module.queries[1], isA<GetSalesOrderDetailQuery>());
-    expect(module.queries[2], isA<EvaluateReturnPricingImpactQuery>());
-    final evaluate = module.queries[2] as EvaluateReturnPricingImpactQuery;
+    expect(repos.calls, hasLength(3));
+    expect(repos.calls[0], 'returnExchangeDetail');
+    expect(repos.calls[1], 'orderDetail');
+    expect(repos.calls[2], 'evaluate');
+    final evaluate = repos.returnExchange.evaluateCalls.single;
     expect(evaluate.returnExchangeId, 'return-1');
     expect(evaluate.expectedSourceVersion, 7);
     expect(cubit.state.status, SalesReturnExchangeSettlementStatus.ready);
@@ -150,8 +152,8 @@ void main() {
     );
     expect(initial.paymentMethod, SalesPaymentMethod.cash);
 
-    final module = _RecordingSalesModule(detail: detail(plan: collectPlan));
-    final cubit = build(module);
+    final repos = _Repos(detail: detail(plan: collectPlan));
+    final cubit = build(repos);
     addTearDown(cubit.close);
 
     await cubit.loadAndEvaluate();
@@ -159,12 +161,12 @@ void main() {
   });
 
   test('walk-in collect cannot leave an outstanding balance as debt', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(plan: collectPlan),
       valuation: valuationFor(collectPlan),
       walkIn: true,
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
 
@@ -176,12 +178,12 @@ void main() {
 
     expect(cubit.state.canConfirm, isFalse);
     expect(await cubit.confirm(), isNull);
-    expect(module.commands, isEmpty);
+    expect(repos.returnExchange.confirmCalls, isEmpty);
   });
 
   test('identified customer may defer collect shortfall with a due date', () async {
     final cubit = build(
-      _RecordingSalesModule(
+      _Repos(
         detail: detail(plan: collectPlan),
         valuation: valuationFor(collectPlan),
       ),
@@ -198,7 +200,7 @@ void main() {
 
   test('maps collect and zero plans from backend DTO amounts only', () async {
     final collect = build(
-      _RecordingSalesModule(
+      _Repos(
         detail: detail(plan: collectPlan),
         valuation: valuationFor(collectPlan),
       ),
@@ -210,7 +212,7 @@ void main() {
     expect(collect.state.settlement?.receivableCreateMinor, 200000);
 
     final zero = build(
-      _RecordingSalesModule(
+      _Repos(
         detail: detail(plan: zeroPlan),
         valuation: valuationFor(zeroPlan),
       ),
@@ -240,7 +242,7 @@ void main() {
 
   test('blocked detail or RETURN_EXCHANGE_BLOCKED stays blocked', () async {
     final blockedDetail = build(
-      _RecordingSalesModule(
+      _Repos(
         detail: detail(status: ReturnExchangeStatus.blocked),
       ),
     );
@@ -250,7 +252,7 @@ void main() {
     expect(blockedDetail.state.canConfirm, isFalse);
 
     final blockedEval = build(
-      _RecordingSalesModule(
+      _Repos(
         detail: detail(),
         evaluateError: const AppException(
           'RETURN_EXCHANGE_BLOCKED',
@@ -273,8 +275,8 @@ void main() {
   });
 
   test('confirm dispatches immutable attempt once; double tap is ignored', () async {
-    final module = _RecordingSalesModule(detail: detail());
-    final cubit = build(module);
+    final repos = _Repos(detail: detail());
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
 
@@ -283,8 +285,8 @@ void main() {
     final outcomes = await Future.wait([first, second]);
 
     expect(outcomes.whereType<SalesReturnExchangeResult>(), hasLength(1));
-    expect(module.commands.whereType<ConfirmReturnExchangeCommand>(), hasLength(1));
-    final command = module.commands.single as ConfirmReturnExchangeCommand;
+    expect(repos.returnExchange.confirmCalls, hasLength(1));
+    final command = repos.returnExchange.confirmCalls.single;
     expect(command.expectedVersion, 2);
     expect(command.idempotencyKey, 'return-exchange:confirm:attempt-1');
     expect(cubit.state.status, SalesReturnExchangeSettlementStatus.success);
@@ -292,7 +294,7 @@ void main() {
 
   test('processing result and IMPACT_PENDING navigate as processing', () async {
     final processing = build(
-      _RecordingSalesModule(
+      _Repos(
         detail: detail(),
         confirmResult: const ReturnExchangeResultDto(
           returnExchangeId: 'return-1',
@@ -312,7 +314,7 @@ void main() {
     );
 
     final pending = build(
-      _RecordingSalesModule(
+      _Repos(
         detail: detail(),
         commandErrorsQueue: const [AppException('IMPACT_PENDING')],
       ),
@@ -325,11 +327,11 @@ void main() {
   });
 
   test('PRICE_CHANGED marks settlement stale without evaluating again', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(),
       evaluateError: const AppException('PRICE_CHANGED'),
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
 
     await cubit.loadAndEvaluate();
@@ -339,18 +341,18 @@ void main() {
       cubit.state.screenError,
       'Giá món đổi đã thay đổi. Vui lòng quay lại màn đổi/trả để cập nhật giá.',
     );
-    expect(module.queries.whereType<EvaluateReturnPricingImpactQuery>(), hasLength(1));
+    expect(repos.returnExchange.evaluateCalls, hasLength(1));
   });
 
   test('PRICE_CHANGED on confirm marks stale without evaluating again', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(),
       commandErrorsQueue: const [AppException('PRICE_CHANGED')],
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
-    final evaluationsBefore = module.queries.whereType<EvaluateReturnPricingImpactQuery>().length;
+    final evaluationsBefore = repos.returnExchange.evaluateCalls.length;
 
     expect(await cubit.confirm(), isNull);
 
@@ -360,37 +362,37 @@ void main() {
       'Giá món đổi đã thay đổi. Vui lòng quay lại màn đổi/trả để cập nhật giá.',
     );
     expect(
-      module.queries.whereType<EvaluateReturnPricingImpactQuery>(),
+      repos.returnExchange.evaluateCalls,
       hasLength(evaluationsBefore),
     );
-    expect(module.commands, hasLength(1));
+    expect(repos.returnExchange.confirmCalls, hasLength(1));
   });
 
   test('STALE_VERSION reloads detail then requires new confirmation', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(),
       commandErrorsQueue: const [AppException('STALE_VERSION')],
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
 
     expect(await cubit.confirm(), isNull);
     expect(cubit.state.status, SalesReturnExchangeSettlementStatus.stale);
-    expect(module.queries.whereType<GetReturnExchangeDetailQuery>().length, 2);
-    expect(module.commands, hasLength(1));
+    expect(repos.returnExchange.detailCalls.length, 2);
+    expect(repos.returnExchange.confirmCalls, hasLength(1));
     expect(cubit.state.canConfirm, isTrue);
   });
 
   test('DEPENDENCY_UNAVAILABLE reuses confirm attempt on retry', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(),
       commandErrorsQueue: const [
         AppException('DEPENDENCY_UNAVAILABLE'),
         null,
       ],
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
 
@@ -402,19 +404,19 @@ void main() {
 
     final outcome = await cubit.confirm();
     expect(outcome?.kind, SalesReturnExchangeResultKind.confirmed);
-    expect(module.commands, hasLength(2));
+    expect(repos.returnExchange.confirmCalls, hasLength(2));
     expect(
-      (module.commands[0] as ConfirmReturnExchangeCommand).idempotencyKey,
-      (module.commands[1] as ConfirmReturnExchangeCommand).idempotencyKey,
+      repos.returnExchange.confirmCalls[0].idempotencyKey,
+      repos.returnExchange.confirmCalls[1].idempotencyKey,
     );
   });
 
   test('permission failure is not retryable', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(),
       commandErrorsQueue: const [AppException('NO_PERMISSION')],
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
 
@@ -453,14 +455,14 @@ void main() {
   });
 
   test('confirm_retry_after_system_error_reuses_command_id', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(),
       commandErrorsQueue: const [
         AppException('SYSTEM_ERROR', serverMessage: 'Temporary db error'),
         null,
       ],
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
 
@@ -472,21 +474,21 @@ void main() {
 
     final outcome = await cubit.confirm();
     expect(outcome?.kind, SalesReturnExchangeResultKind.confirmed);
-    expect(module.commands, hasLength(2));
-    final cmd1 = module.commands[0] as ConfirmReturnExchangeCommand;
-    final cmd2 = module.commands[1] as ConfirmReturnExchangeCommand;
-    expect(cmd1.id, cmd2.id);
+    expect(repos.returnExchange.confirmCalls, hasLength(2));
+    final cmd1 = repos.returnExchange.confirmCalls[0];
+    final cmd2 = repos.returnExchange.confirmCalls[1];
+    expect(cmd1.commandId, cmd2.commandId);
     expect(cmd1.idempotencyKey, cmd2.idempotencyKey);
   });
 
   test('settlement_error_fallback', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(),
       commandErrorsQueue: const [
         AppException('UNKNOWN_ERROR_CODE', serverMessage: 'Server blow up'),
       ],
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
 
@@ -499,7 +501,7 @@ void main() {
   });
 
   test('settlement_blocked_reads_details_blockers', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(),
       evaluateError: const AppException(
         'RETURN_EXCHANGE_BLOCKED',
@@ -515,7 +517,7 @@ void main() {
         },
       ),
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
 
@@ -526,14 +528,14 @@ void main() {
   });
 
   test('settlement_blocked_without_details_is_empty', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(),
       evaluateError: const AppException(
         'RETURN_EXCHANGE_BLOCKED',
         serverMessage: 'Blocked',
       ),
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
 
@@ -543,13 +545,13 @@ void main() {
   });
 
   test('confirm_blocked_is_failure', () async {
-    final module = _RecordingSalesModule(
+    final repos = _Repos(
       detail: detail(),
       commandErrorsQueue: const [
         AppException('RETURN_EXCHANGE_BLOCKED', serverMessage: 'Blocked'),
       ],
     );
-    final cubit = build(module);
+    final cubit = build(repos);
     addTearDown(cubit.close);
     await cubit.loadAndEvaluate();
 
@@ -559,86 +561,97 @@ void main() {
   });
 }
 
-final class _RecordingSalesModule implements ISalesModule {
-  _RecordingSalesModule({
-    required this.detail,
+/// Ghi thứ tự lời gọi giữa hai repository (`calls`) và trả lỗi theo hàng đợi cho `confirm`.
+final class _Repos {
+  _Repos({
+    required ReturnExchangeDetailDto detail,
     ReturnExchangeValuationDto? valuation,
-    this.evaluateError,
-    this.confirmResult,
-    this.commandErrorsQueue = const <Object?>[],
-    this.walkIn = false,
-  }) : valuation = valuation ?? detail.valuation;
+    Object? evaluateError,
+    ReturnExchangeResultDto? confirmResult,
+    List<Object?> commandErrorsQueue = const <Object?>[],
+    bool walkIn = false,
+  }) {
+    returnExchange = _OrderedReturnExchangeRepository(calls, commandErrorsQueue)
+      ..detailResult = detail
+      ..evaluateResult = valuation ?? detail.valuation
+      ..evaluateError = evaluateError
+      ..confirmResult = confirmResult;
+    orders = _OrderedOrderRepository(calls)
+      ..detailResult = SalesOrderDetailDto(
+        order: SalesOrderDto(
+          salesOrderId: detail.result.salesOrderId,
+          orderNumber: 'DH-000129',
+          version: 1,
+          lifecycleStatus: SalesOrderLifecycleStatus.completed,
+          lockStatus: SalesOrderLockStatus.unlocked,
+          total: const MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
+        ),
+        committedAt: DateTime.utc(2026, 1, 1),
+        store: const StoreSnapshotDto(
+          storeId: 'store-1',
+          storeCode: 'ST01',
+          displayName: 'Cửa hàng chính',
+        ),
+        seller: const ActorSnapshotDto(
+          actorId: 'seller-1',
+          displayName: 'Nhân viên bán hàng',
+        ),
+        customer: walkIn
+            ? null
+            : const CustomerSnapshotDto(
+                customerId: 'cust-1',
+                displayName: 'Nguyễn Văn An',
+              ),
+        lines: const [],
+      );
+  }
 
-  final ReturnExchangeDetailDto detail;
-  final bool walkIn;
-  final ReturnExchangeValuationDto valuation;
-  final Object? evaluateError;
-  final ReturnExchangeResultDto? confirmResult;
-  final List<Object?> commandErrorsQueue;
-  int _commandCall = 0;
+  final List<String> calls = <String>[];
+  late final FakeReturnExchangeRepository returnExchange;
+  late final FakeSalesOrderRepository orders;
+}
 
-  final List<Object> queries = <Object>[];
-  final List<Object> commands = <Object>[];
+final class _OrderedReturnExchangeRepository extends FakeReturnExchangeRepository {
+  _OrderedReturnExchangeRepository(this._calls, this._confirmErrors);
+
+  final List<String> _calls;
+  final List<Object?> _confirmErrors;
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is GetReturnExchangeDetailQuery) return detail as TResult;
-    if (query is GetSalesOrderDetailQuery) {
-      return SalesOrderDetailDto(
-            order: SalesOrderDto(
-              salesOrderId: detail.result.salesOrderId,
-              orderNumber: 'DH-000129',
-              version: 1,
-              lifecycleStatus: SalesOrderLifecycleStatus.completed,
-              lockStatus: SalesOrderLockStatus.unlocked,
-              total: const MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
-            ),
-            committedAt: DateTime.utc(2026, 1, 1),
-            store: const StoreSnapshotDto(
-              storeId: 'store-1',
-              storeCode: 'ST01',
-              displayName: 'Cửa hàng chính',
-            ),
-            seller: const ActorSnapshotDto(
-              actorId: 'seller-1',
-              displayName: 'Nhân viên bán hàng',
-            ),
-            customer: walkIn
-                ? null
-                : const CustomerSnapshotDto(
-                    customerId: 'cust-1',
-                    displayName: 'Nguyễn Văn An',
-                  ),
-            lines: const [],
-          )
-          as TResult;
-    }
-    if (query is EvaluateReturnPricingImpactQuery) {
-      final error = evaluateError;
-      if (error != null) throw error;
-      return valuation as TResult;
-    }
-    throw UnsupportedError('unexpected query ${query.runtimeType}');
+  Future<ReturnExchangeDetailDto> getDetail({required String returnExchangeId}) {
+    _calls.add('returnExchangeDetail');
+    return super.getDetail(returnExchangeId: returnExchangeId);
   }
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    final index = _commandCall++;
-    final error = index < commandErrorsQueue.length ? commandErrorsQueue[index] : null;
-    if (error != null) throw error;
-    if (command is ConfirmReturnExchangeCommand) {
-      return (confirmResult ??
-              ReturnExchangeResultDto(
-                returnExchangeId: detail.result.returnExchangeId,
-                salesOrderId: detail.result.salesOrderId,
-                version: detail.result.version + 1,
-                status: ReturnExchangeStatus.confirmed,
-              ))
-          as TResult;
-    }
-    throw UnsupportedError('unexpected command ${command.runtimeType}');
+  Future<ReturnExchangeValuationDto> evaluate({
+    required String returnExchangeId,
+    required int expectedSourceVersion,
+  }) {
+    _calls.add('evaluate');
+    return super.evaluate(
+      returnExchangeId: returnExchangeId,
+      expectedSourceVersion: expectedSourceVersion,
+    );
+  }
+
+  @override
+  Future<ReturnExchangeResultDto> confirm(ReturnExchangeConfirmRequest request) {
+    final index = confirmCalls.length;
+    confirmError = index < _confirmErrors.length ? _confirmErrors[index] : null;
+    return super.confirm(request);
+  }
+}
+
+final class _OrderedOrderRepository extends FakeSalesOrderRepository {
+  _OrderedOrderRepository(this._calls);
+
+  final List<String> _calls;
+
+  @override
+  Future<SalesOrderDetailDto> getDetail({required String salesOrderId}) {
+    _calls.add('orderDetail');
+    return super.getDetail(salesOrderId: salesOrderId);
   }
 }
 
