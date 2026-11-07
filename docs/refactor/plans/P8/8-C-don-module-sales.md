@@ -1,7 +1,7 @@
 # 8-C — Dọn sạch module sales
 
 > Theme 5 (mã cũ P8) · Bước (dọn) theo "Quy tắc dọn module (chốt 2026-10-11)" của PLAN.md
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-08) | Làm ⬜ | Review ⬜
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-08) | Làm ✅ 2026-11-08 | Review ⬜
 > Làm **sau** 8-A1…8-A4, 8-B1…8-B3 (đã commit, review đạt).
 > Tài liệu: PLAN.md mục Theme 5 dòng 8-C, "Quy tắc dọn module", "Quy tắc migration", "Plan xoá / tách / thay code cũ", "Plan chuyển kiến trúc: giữ nghiệp vụ"; TH-05 mục 3, 6.1, 6.2, 9.1, BR-36, KI-12…14; 8-A1 (chép kiểu ở 8-C); mẫu đã làm: 6-C (`docs/refactor/plans/P6/6-C-don-module-pricing.md`), 4-C (outbox).
 
@@ -251,7 +251,7 @@ Run: `flutter test test/features/sales/data/sales_sql_contract_test.dart` ⇒ 4 
 
 ### Task 6: Tài liệu + kiểm tổng
 
-- [ ] **Step 1: TH-05 → 3.1** (ngày 2026-11-08; header dòng 4 ghi `3.1 · 2026-11-08`, giữ `3.0` trong một dòng lịch sử nếu tệp có):
+- [x] **Step 1: TH-05 → 3.1** (ngày 2026-11-08; header dòng 4 ghi `3.1 · 2026-11-08`, giữ `3.0` trong một dòng lịch sử nếu tệp có):
   - dòng 8 "Nguồn đối chiếu — App": bỏ "module `modules/sales/`", thêm `apps/erp/lib/features/sales/{data,logic,presentation}`
   - mục 3 `outbox_messages` (dòng 502): "Nhật ký sự kiện của đơn (5 cột `id`, `tenant_id`, `event_type`, `payload`, `occurred_at`), đọc bởi `get_sales_order_timeline` (BR-36) và chống ghi trùng quyết toán. Không còn hàng đợi messaging / người tiêu thụ (8-C); HĐĐT tự động: trigger, TH-08 KI-20."
   - BR-29 cột cuối (dòng 294): "chưa nối (messaging bỏ ở 8-C); sau 7-4: trigger → `einvoice.internal_commands`"
@@ -259,18 +259,18 @@ Run: `flutter test test/features/sales/data/sales_sql_contract_test.dart` ⇒ 4 
   - 6.2: `get_return_exchange_form_policy`, `list_sales_order_cancellation_reasons` ghi "(app không dùng, giữ trong DB)"; dòng `complete_return_exchange` ghi "app không gọi, giữ trong DB"; thêm dòng `audit_sales_review_invariants` — "chỉ đọc, kiểm bất biến; không ai gọi, giữ trong DB"
   - FR-03 (dòng 1239): "Hợp lệ → mở SG-10; lý do nhập dạng chữ, không bắt buộc (KI-12)."
   - 9.1: dòng 1 cột "Sau refactor" thêm "(xong 8-C)"; dòng sự kiện `sales_order_finalized.v1`: "outbox giữ làm nhật ký (8-C); trigger ở 7-4"
-- [ ] **Step 2: PLAN.md**:
+- [x] **Step 2: PLAN.md**:
   - dòng 8-C (503): nội dung ghi đúng Q1, Q5 ("`Core*` dời 7-5", "giữ `sales.outbox_messages` làm nhật ký"); cột Plan `✅ [plan](plans/P8/8-C-don-module-sales.md) duyệt <ngày>`; cột Làm `✅ <ngày>`
   - dòng 7-5 (539): thêm "bỏ `CoreExecutionContext` / `CorePermissionChecker` / `CoreTenantAccessChecker` trong `core/session` (chuyển từ 8-C, 2026-11-08)"; giữ nguyên phần còn lại của dòng
   - dòng trạng thái Theme 5 (491), bảng "Theo dõi tiến độ", dòng 9.1 (722) nếu nhắc `modules/sales`
-- [ ] **Step 3: Kiểm tổng**
+- [x] **Step 3: Kiểm tổng**
   - `grep -rnE "vet45_sales_(domain|application|infrastructure)|ISalesModule|SalesStartup" apps packages tools --include='*.dart' --include='*.yaml'` ⇒ như Task 4 Step 6
   - `ls modules` ⇒ `einvoice partner sales`; `ls modules/sales` ⇒ `integration_events`
   - `cd apps/erp && dart analyze lib test integration_test` ⇒ 0 error, 0 warning mới
   - `cd apps/erp && flutter test` ⇒ không lỗi mới so với `TEST-BASELINE.md`; ghi số
   - `git diff 735ed8704 HEAD --stat -- apps/erp/lib` ⇒ chỉ: 61 tệp mới + `models.dart`, `injection.dart`, các tệp đổi import (`git diff 735ed8704 HEAD -- apps/erp/lib | grep '^[-+]' | grep -v '^[-+]import\|^+++\|^---'` ⇒ chỉ nội dung 62 tệp mới + khối `injection.dart`)
   - `node .gitnexus/run.cjs analyze` + `detect_changes({scope: "compare", base_ref: "735ed8704"})` ⇒ ghi số tệp / symbol; lỗi FTS như 6-C ⇒ ghi lại, xoá cache `.gitnexus` rồi chạy lại
-- [ ] **Step 4: Commit** `docs(refactor): 8-C cập nhật TH-05 3.1, PLAN.md và kết quả plan 8-C`
+- [x] **Step 4: Commit** `docs(refactor): 8-C cập nhật TH-05 3.1, PLAN.md và kết quả plan 8-C`
 
 ## 7. Rủi ro / lưu ý
 
@@ -410,10 +410,10 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 - Step 2 đỏ: `sales_runtime_registration_test.dart` viết lại, (1) `ERP DI source has no sales module` FAIL, (2) `initDependencies registers sales repositories` PASS. Step 3 xanh: 2/2 PASS. `injection.dart` bỏ 2 import `vet45_sales_*`, khối `SalesStartup`, `registerSingleton<ISalesModule>`; chú thích dòng 91 sửa; giữ `executionContext`, `permissionChecker`, `tenantAccessChecker`, khối einvoice (Q5).
 - Step 4: `git status --short modules/sales` sạch trước khi xoá; `git rm -r` + `rm -rf` phần còn lại của `modules/sales/{domain,application,infrastructure}`; `ls modules/sales` ⇒ `integration_events`. Dòng bỏ: `pubspec.yaml:20-22`; `apps/erp/pubspec.yaml:22-24`; `apps/erp/example/pubspec.yaml:17-18, 56-61` (giữ mọi dòng `integration_events`).
 - Step 5 `pub get` ở gốc, `apps/erp`, `apps/erp/example`, `modules/einvoice/presentation/example` ⇒ không lỗi phân giải.
-- Step 6: grep ⇒ chỉ chuỗi cấm trong `group_f_no_demo_contract_test.dart:65`, chuỗi trong test Step 2 (1) và 3 tệp `packages/vet45_generator/test` (chuỗi tên gói trong test sinh mã, không phải phụ thuộc). `dart analyze lib test integration_test` ⇒ 228 issues (đều `info`), 0 error, 0 warning; `example`: 2 issues (`info`), 0 error. `flutter test` (apps/erp) ⇒ +2737 / -55 = 53 + 2 ⚠️ như mốc "Sau 6-C" (số lỗi khớp; danh sách đầy đủ bị cắt bởi reporter nên không đối chiếu từng tên); `flutter test test/features/sales test/core` ⇒ +1185 xanh. einvoice: `application` 217 / 1, `infrastructure` 378 / 60 (như mốc, không lỗi biên dịch mới).
+- Step 6: grep ⇒ chỉ chuỗi cấm trong `group_f_no_demo_contract_test.dart:65`, chuỗi trong test Step 2 (1) và 3 tệp `packages/vet45_generator/test` (chuỗi tên gói trong test sinh mã, không phải phụ thuộc). `dart analyze lib test integration_test` ⇒ 228 issues (đều `info`), 0 error, 0 warning; `example`: 2 issues (`info`), 0 error. `flutter test` (apps/erp) ⇒ +2737 / -55 = 53 + 2 ⚠️ như mốc "Sau 6-C" (số lỗi khớp); `flutter test test/features/sales test/core` ⇒ +1185 xanh. einvoice: `application` 217 / 1, `infrastructure` 378 / 60 (như mốc, không lỗi biên dịch mới).
 - Đối chiếu lỗi theo tên: `flutter test -r json` ⇒ 55 test lỗi; 53 có trong danh sách `apps/erp` của `TEST-BASELINE.md`, 2 là ⚠️ `product_guided_create_e2e_test` (duplicate SKU) và `product_change_history_e2e_test` (mục "Sau 5-C"). Không có tên nào ngoài mốc.
 - `detect_changes` ⇒ 8 tệp, 2 symbol (fake trong test DI), 0 process, risk low.
-- Dọn góp ý nhỏ: `sales_order_detail_page_test.dart` thêm `salesModule.payments.recordCalls` vào danh sách "không lệnh khác" của test huỷ; `sales_checkout_page_test.dart:427` thụt lề; bỏ `depend_on_referenced_packages` ở 21 tệp test sales (`dart analyze` vẫn 0 warning, `flutter test test/features/sales` ⇒ +1088).
+- Dọn góp ý nhỏ (commit `3aca0dad0`): `sales_order_detail_page_test.dart` thêm `salesModule.payments.recordCalls` vào danh sách "không lệnh khác" của test huỷ; `sales_checkout_page_test.dart:427` thụt lề; bỏ `depend_on_referenced_packages` ở 39 tệp test sales (25 dòng riêng + 14 dòng gộp) (`dart analyze` vẫn 0 warning, `flutter test test/features/sales` ⇒ +1088).
 
 ### Task 5
 
@@ -421,8 +421,24 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 - Dòng đổi: `20260623000002_install_module_messaging_modules.sql:4` xoá. `20260830005_sales_rebuild_schema.sql`: `:5` thêm `sales.outbox_messages` vào `Touches`; `:7` bỏ `platform.install_module_messaging(text);`; `:8` thêm dòng 8-C; `:12-24` (thay dòng 11 cũ) `create schema` + `create table` + index + RLS + revoke (trước `grant usage on schema sales`); `:45` chú thích 4 dòng cũ (32-35) thành 1 dòng.
 - Đỏ: `flutter test .../sales_sql_contract_test.dart` ⇒ +6 -3: 5 `kept` PASS; `removed`: `sales no longer installs messaging`, `creates sales.outbox_messages directly`, `creates outbox before any sales function uses it` FAIL. **Lệch plan:** `sales has no inbox, internal commands or queue functions` PASS ngay từ đầu (không đỏ) vì `install_module_messaging` dựng tên hàm bằng SQL động nên chuỗi `sales.inbox_messages` không có sẵn trong tệp; vẫn giữ làm chốt chặn.
 - Xanh: sau sửa ⇒ 9/9 PASS.
-- Grep `install_module_messaging\('sales'\)|sales\.(inbox_messages|internal_commands|enqueue_outbox_message|claim_|complete_*message|receive_integration_event)` trong `supabase` ⇒ rỗng. `REGISTRY.yaml` / `schema.lock.yaml`: không có mục messaging của sales (chỉ khớp tên tệp `20260904001_sales_normalize_outbox_and_commands.sql`, không phải mục messaging).
+- Grep `install_module_messaging\('sales'\)|sales\.(inbox_messages|internal_commands|enqueue_outbox_message|claim_|complete_[a-z_]*message|receive_integration_event)` trong `supabase` ⇒ rỗng. `REGISTRY.yaml` / `schema.lock.yaml`: không có mục messaging của sales (chỉ khớp tên tệp `20260904001_sales_normalize_outbox_and_commands.sql`, không phải mục messaging).
+- `detect_changes` (compare với `7c9f91540~1`, sau `analyze`): 21 tệp, 25 symbol, 0 process, risk low; số này gồm cả commit dọn góp ý Task 4, 5 và tài liệu Task 6 chưa commit lúc đo. Thay đổi của Task 5 chỉ là SQL (2 migration): 0 symbol Dart.
 - `verify_migration_policy` ⇒ 0 error, 3 warning có sẵn (`registry_consistency`: 2 tệp `20261101001`, `20261104001`). `verify_schema_lock_sync` ⇒ `OK (sources match schema.lock.yaml)`.
+
+### Task 6
+
+- Commit dọn góp ý Task 4, 5: `26aa5263a`; commit tài liệu: xem `git log` (`docs(refactor): 8-C cập nhật TH-05 3.1, PLAN.md và kết quả plan 8-C`).
+- Dọn góp ý Task 4, 5 (`26aa5263a`): `sales_sql_contract_test.dart` thêm assert `on sales.outbox_messages (tenant_id, (payload ->> 'salesOrderId'), occurred_at)` trong `creates sales.outbox_messages directly`, thêm dòng trống trước `group('removed'` ⇒ `flutter test` 9/9; bỏ `// ignore_for_file: implementation_imports` ở 12 tệp `test/features/sales/{data,logic}` (không tệp nào còn import `package:*/src/`; `dart analyze` các thư mục `data`, `logic`, `support` ⇒ No issues); `support/sales_contract_fixtures.dart:5-6` chú thích đổi thành "chép từ SalesFakeContractFixtureFactory (module sales cũ, đã xoá ở 8-C)"; sửa Kết quả Task 4, 5 (39 tệp, hash `3aca0dad0`, bỏ mệnh đề không đối chiếu tên, mẫu grep `complete_[a-z_]*message`, dòng `detect_changes` Task 5).
+- Step 1 TH-05 (`docs/02-yeu-cau/TH-05-ban-hang-va-don-hang.md`, đổi theo nội dung; tệp không có dòng lịch sử `3.0`): `:4` `3.1 · 2026-11-08`; `:8` bỏ module `modules/sales/`, thêm `apps/erp/lib/features/sales/{data,logic,presentation}`; `:294` BR-29 cột cuối; `:502` `outbox_messages` (bỏ câu "Người tiêu thụ hiện có: messaging worker…"); `:1239` FR-03; `:2087-2088` 6.1; `:2116-2117` `list_sales_order_cancellation_reasons` tách dòng riêng "(app không dùng, giữ trong DB)"; `:2120-2121` `get_return_exchange_form_policy` tách dòng riêng, cùng ghi chú; `:2128-2130` `complete_return_exchange` tách dòng "app không gọi, giữ trong DB" + dòng mới `audit_sales_review_invariants`; `:2256` 9.1 dòng 1 thêm "(xong 8-C)"; `:2259` dòng `sales_order_finalized.v1`. **Ngoài brief:** `:2143` (6.3, dòng HĐĐT) "hiện: `sales.outbox_messages` → messaging worker" ⇒ "hiện chưa nối: messaging bỏ ở 8-C", vì câu cũ sai sau 8-C. Giữ nguyên các bảng, không thêm mục.
+- Step 2 PLAN.md (`docs/refactor/PLAN.md`): `:503` hàng 8-C ghi lại Q1, Q5 (bỏ câu "bỏ `Core*`… chỉ phục vụ module cũ" và "bỏ outbox / inbox" đã sai), cột Làm `✅ 2026-11-08`, cột Review giữ `⬜`; `:539` hàng 7-5 thêm "bỏ `CoreExecutionContext` / `CorePermissionChecker` / `CoreTenantAccessChecker` trong `core/session` (chuyển từ 8-C, 2026-11-08)" và "trừ `integration_events`" ở phần 6-C, 8-C; `:491` dòng Trạng thái Theme 5 thêm "2026-11-08: 8-C xong (Làm ✅, chờ review)"; `:520` "Integration event: bỏ outbox" ⇒ "bỏ messaging; `sales.outbox_messages` giữ làm nhật ký (8-C)" (ngoài brief, sai sau 8-C); `:793` "Theo dõi tiến độ" Theme 5 từ ⬜ sang 🔄 với ghi chú. Hàng 9.1 (`:722`) đã ghi "8-C sales", không sửa.
+- Step 3:
+  - `grep -rnE "vet45_sales_(domain|application|infrastructure)|ISalesModule|SalesStartup" apps packages tools --include='*.dart' --include='*.yaml'` ⇒ chỉ 2 chuỗi cấm trong `sales_runtime_registration_test.dart:40-41` và chuỗi tên gói trong 2 tệp `packages/vet45_generator/test` (6 dòng); như Task 4 Step 6.
+  - `ls modules` ⇒ `einvoice partner sales`; `ls modules/sales` ⇒ `integration_events`.
+  - `dart analyze lib test integration_test` ⇒ 228 issues (đều `info`), 0 error, 0 warning (bằng Task 4).
+  - `flutter test` (apps/erp, `-r json`) ⇒ +2741 / -55, 0 skip. Đối chiếu theo tên với `TEST-BASELINE.md`: 53 lỗi nằm trong danh sách `apps/erp` (đủ 53, không thiếu), 2 là ⚠️ `product_guided_create_e2e_test` (duplicate SKU) và `product_change_history_e2e_test` (mục "Sau 5-C"). Không lỗi mới. Danh sách: `.superpowers/sdd/8-C-don-module-sales/failed-names.txt`.
+  - `git diff 735ed8704 HEAD --stat -- apps/erp/lib` ⇒ 149 tệp: 64 mới (63 trong `data/models/contracts/` + `data/models.dart`), 85 sửa. Lọc `^[-+]` bỏ `import`: chỉ còn nội dung tệp mới, khối `SalesStartup` / `ISalesModule` và chú thích `injection.dart` (chú thích dòng 89), 4 chú thích đổi chữ (`sales_checkout_repository.dart`, `sales_draft_repository.dart`, `mappers/sales_draft_json.dart`, `mappers/sales_checkout_json.dart`). Không gì khác.
+  - GitNexus: lần `analyze` đầu lỗi (`copyNodeCSVs`/`copyCsvWithRetry`, `lbug-adapter`), chạy lại lần 2 không xoá cache ⇒ thành công (index 3952 tệp, 46631 node, 100608 cạnh, `lastCommit` `26aa5263a`). `detect_changes --scope compare --base-ref 735ed8704` ⇒ 191 tệp, 229 symbol, 0 process, risk low (CLI hỗ trợ compare). Symbol `lib`: `SalesCheckoutJson`, `SalesDraftJson`, `SalesCheckoutRepository`, `SalesDraftRepository` (chỉ chú thích); còn lại là test và tiêu đề tài liệu. Không có bảng `impact`: Task này chỉ sửa chú thích tài liệu và test, không sửa thân symbol Dart nào.
+- Không động `TEST-BASELINE.md`.
 
 ## 9. Review
 

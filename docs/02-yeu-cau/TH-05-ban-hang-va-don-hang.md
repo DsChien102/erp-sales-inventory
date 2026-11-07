@@ -1,11 +1,11 @@
 # TH-05 — Bán hàng & đơn hàng
 
 > **Vai trò:** **đặc tả chuẩn (source of truth)** cho app sau refactor. Theme đã hoàn thành: **code hiện tại là phạm vi chuẩn**. Mọi quy tắc mặc định = hành vi code hiện tại (SCOPE: giữ 100% chức năng, giữ RPC). Gắn 🔧 = code hiện tại **sai**, phải sửa khi refactor. Gắn 🆕 = **chưa có code** nhưng nghiệp vụ bắt buộc, làm trong refactor. Làm theo tài liệu, không chép lỗi của code cũ.
-> **Phiên bản:** 3.0 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> **Phiên bản:** 3.1 · **Ngày:** 2026-11-08 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
 > **Thay thế:** `Theme 5_ Đơn hàng.md` (v1). Tính năng v1 không có trong code được liệt kê ở [mục 8](#8-ngoài-phạm-vi-so-với-spec-v1).
 > **Nguồn đối chiếu:**
 > - DB: `20260830005`…`20260830015`, `20260904001` (schema `sales`); `20260830002`, `20260831001` (tìm sản phẩm bán được); `20260830003` (giá khi bán, TH-04).
-> - App: `apps/erp/lib/features/sales/presentation/` (17 trang, 13 cubit, 229 file); module `modules/sales/`.
+> - App: `apps/erp/lib/features/sales/presentation/` (17 trang, 13 cubit, 229 file); `apps/erp/lib/features/sales/{data,logic,presentation}`.
 >
 > **Cách đọc:** mục 1–3 là mô hình chung và dữ liệu; mục 4 chia theo epic → user story (bối cảnh, FR, BR, AC, EC, kịch bản Gherkin); mục 5 đặc tả từng màn hình (trạng thái, thành phần, phác thảo); mục 6 RPC và thông điệp lỗi; mục 7 phân quyền và vấn đề đã biết; mục 8 ngoài phạm vi; mục 9 kế hoạch refactor và kiểm thử.
 
@@ -291,7 +291,7 @@ Bảng đầy đủ. Các user story ở mục 4 dẫn lại mã này. Mã giữ
 | BR-26 | Kết quả hoàn tất: đơn `completed`, dòng đơn kèm snapshot, settlement, mỗi khoản thu thành 1 giao dịch `collection` nguồn `checkout`; nháp nguồn → `converted`; ghi sự kiện `sales_order_finalized.v1` | finalize |
 | BR-27 | Mất kết nối khi hoàn tất: tra kết quả bằng chính `idempotency_key` (`get_checkout_result`); **không cho thanh toán lại**. Kết quả bị chặn / lỗi cũng được lưu để tra lại | `get_checkout_result` |
 | BR-28 | Sau hoàn tất tạo phiếu bán hàng. Lỗi tạo phiếu không ảnh hưởng đơn; có "Tạo lại phiếu bán hàng" | result page |
-| BR-29 | Sau hoàn tất, phát hành HĐĐT tự động nếu tổ chức bật (TH-08 BR-32) | hiện: outbox; sau refactor: trigger → `einvoice.internal_commands` |
+| BR-29 | Sau hoàn tất, phát hành HĐĐT tự động nếu tổ chức bật (TH-08 BR-32) | chưa nối (messaging bỏ ở 8-C); sau 7-4: trigger → `einvoice.internal_commands` |
 
 **Thu tiền sau bán** 🆕
 
@@ -499,7 +499,7 @@ Không có khoá ngoại sang `catalog`, `partner`, `iam`; tham chiếu được
 
 **`idempotency_records`**: `(tenant_id, command_scope, idempotency_key)` PK, `payload_hash`, `status` (`in_progress` / `succeeded` / `failed`), `result_snapshot`.
 
-**`outbox_messages`**: `event_type`, `payload`. Sự kiện: `sales_order_finalized.v1`, `sales_payment_recorded.v1`, `sales_refund_recorded.v1`, `sales_settlement_changed.v1`, `sales_order_cancellation_confirmed.v1`, `sales_order_cancelled.v1`, `return_exchange_confirmed.v1`, `return_exchange_completed.v1`. Người tiêu thụ hiện có: messaging worker → HĐĐT tự động (TH-08).
+**`outbox_messages`**: Nhật ký sự kiện của đơn (5 cột `id`, `tenant_id`, `event_type`, `payload`, `occurred_at`), đọc bởi `get_sales_order_timeline` (BR-36) và chống ghi trùng quyết toán. Không còn hàng đợi messaging / người tiêu thụ (8-C); HĐĐT tự động: trigger, TH-08 KI-20. Sự kiện: `sales_order_finalized.v1`, `sales_payment_recorded.v1`, `sales_refund_recorded.v1`, `sales_settlement_changed.v1`, `sales_order_cancellation_confirmed.v1`, `sales_order_cancelled.v1`, `return_exchange_confirmed.v1`, `return_exchange_completed.v1`.
 
 ### 3.7 Bất biến kiểm tra được
 
@@ -1236,7 +1236,7 @@ Scenario: SC-02 — Thu quá số nợ
 
 - FR-01: "Thao tác" → "Hủy đơn". Đơn đã thu tiền: mục bị vô hiệu với "Đơn đã có thanh toán, vui lòng đổi/trả".
 - FR-02: Chọn "Hủy đơn" → `precheck_sales_order_cancellation`. Có blocker → hộp thoại "Không thể huỷ đơn" + lý do (bảng 6.4); đơn đã đổi → "Đơn hàng đã thay đổi. Hãy tải lại chi tiết rồi thử lại."
-- FR-03: Hợp lệ → mở SG-10 và tải danh mục lý do (`list_sales_order_cancellation_reasons`).
+- FR-03: Hợp lệ → mở SG-10; lý do nhập dạng chữ, không bắt buộc (KI-12).
 
 **Quy tắc:** BR-40, BR-41.
 
@@ -2084,9 +2084,8 @@ Trạng thái khác: "Đang xử lý đổi/trả", "Phiếu nháp đổi/trả"
 ### 6.1 Đường đi hiện tại
 
 ```text
-Page ─▶ Cubit ─▶ (orchestrator / lookup) ─▶ ISalesModule.executeCommand/QueryAsync
-     ─▶ Handler ─▶ Gateway ─▶ supabase.schema('sales').rpc(...)
-Giá / sản phẩm / khách: lookups gọi IPricingModule, ICatalogModule, IPartnerModule, IIamModule
+Page ─▶ Cubit ─▶ Sales*Repository / ReturnExchangeRepository ─▶ SupabaseRpc ─▶ schema('sales').rpc(...)
+Giá / sản phẩm / khách: lookups SalesPricingRepository, ProductRepository, PartnerRepository
 PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_generator)
 ```
 
@@ -2114,17 +2113,21 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | | `get_sales_receipt`, `get_sales_order_original_receipt` | `sales.receipt.view` | đọc |
 | | `record_sales_receipt_activity` | `sales.receipt.print` / `.share` / `.archive` | ghi |
 | Huỷ | `get_available_post_sale_actions` | `sales.order.view` | đọc |
-| | `precheck_sales_order_cancellation`, `list_sales_order_cancellation_reasons` | `sales.order.cancel` | đọc |
+| | `precheck_sales_order_cancellation` | `sales.order.cancel` | đọc |
+| | `list_sales_order_cancellation_reasons` | `sales.order.cancel` | đọc (app không dùng, giữ trong DB) |
 | | `confirm_sales_order_cancellation` | `sales.order.cancel` | ghi, idempotent, version |
 | | `get_sales_order_cancellation` | `sales.order.view` | đọc |
-| Đổi/trả | `precheck_return_exchange`, `get_returnable_order_lines`, `preview_return_exchange_pricing`, `get_return_exchange_form_policy` | `sales.return_exchange.create` | đọc |
+| Đổi/trả | `precheck_return_exchange`, `get_returnable_order_lines`, `preview_return_exchange_pricing` | `sales.return_exchange.create` | đọc |
+| | `get_return_exchange_form_policy` | `sales.return_exchange.create` | đọc (app không dùng, giữ trong DB) |
 | | `start_return_exchange` | `sales.return_exchange.create` | ghi, idempotent |
 | | `update_return_exchange` | `sales.return_exchange.update` | ghi, version |
 | | `cancel_return_exchange` | `sales.return_exchange.cancel` | ghi |
 | | `evaluate_return_exchange_valuation` | `sales.return_exchange.view` | ghi định giá |
 | | `confirm_return_exchange` | `sales.return_exchange.confirm` | ghi, idempotent, 1 transaction |
 | | `get_return_exchange_detail` | `sales.return_exchange.view` | đọc |
-| | `settle_return_exchange_difference`, `complete_return_exchange` | nội bộ | gọi trong confirm (app không gọi) |
+| | `settle_return_exchange_difference` | nội bộ | gọi trong confirm (app không gọi) |
+| | `complete_return_exchange` | nội bộ | app không gọi, giữ trong DB |
+| Kiểm tra | `audit_sales_review_invariants` | nội bộ | chỉ đọc, kiểm bất biến; không ai gọi, giữ trong DB |
 
 ### 6.3 Phụ thuộc sang module khác
 
@@ -2137,7 +2140,7 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | `pricing.resolve_applicable_customer_price_rule`, `create_/update_customer_price_rule` | TH-04 | Lưu làm giá riêng |
 | `partner.*` (tìm, tạo nhanh, kiểm trùng) | TH-03 | Khách hàng |
 | `iam.get_active_store_context`, hồ sơ người dùng | TH-01 | Snapshot cửa hàng, người bán |
-| Đơn Hoàn tất → `einvoice.internal_commands` (hiện: `sales.outbox_messages` → messaging worker) | TH-08 | HĐĐT tự động |
+| Đơn Hoàn tất → `einvoice.internal_commands` (hiện chưa nối: messaging bỏ ở 8-C) | TH-08 | HĐĐT tự động |
 
 ### 6.4 Mã lỗi và thông điệp app
 
@@ -2250,10 +2253,10 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 
 | Hiện tại | Sau refactor (P8) |
 |---|---|
-| `Page → Cubit → orchestrator → ISalesModule → Handler → Gateway → RPC` | `Page → Cubit → SalesDraftRepository / SalesOrderRepository / SalesPaymentRepository / ReturnExchangeRepository / ReceiptRepository → RPC` |
+| `Page → Cubit → orchestrator → ISalesModule → Handler → Gateway → RPC` | `Page → Cubit → SalesDraftRepository / SalesOrderRepository / SalesPaymentRepository / ReturnExchangeRepository / ReceiptRepository → RPC` (xong 8-C) |
 | Lookups gọi `IPricingModule`, `ICatalogModule`, `IPartnerModule` | Dùng lại `PriceRuleRepository` (P6), `ProductRepository` (P5), `PartnerRepository` (P4) |
 | Rule Aggregate trong `modules/sales/domain` | Hàm thuần (tính tổng, cộng dồn dòng, kiểm vượt tổng, tiền thừa), giữ test cũ |
-| Sự kiện `sales_order_finalized.v1` → messaging worker phát HĐĐT | Trigger trên `sales.sales_orders` khi đơn Hoàn tất ghi việc vào `einvoice.internal_commands`; Edge Function `einvoice-processor` xử lý (TH-08 KI-19, KI-20) |
+| Sự kiện `sales_order_finalized.v1` → messaging worker phát HĐĐT | outbox giữ làm nhật ký (8-C); trigger ở 7-4: trên `sales.sales_orders` khi đơn Hoàn tất ghi việc vào `einvoice.internal_commands`; Edge Function `einvoice-processor` xử lý (TH-08 KI-19, KI-20) |
 | Trigger lịch sử giao dịch đối tác | Trigger trên `sales.sales_orders` gọi `partner.upsert_partner_history` (PLAN 4.3, TH-03 KI-02) |
 
 ### 9.2 Theo PR của P8
