@@ -1,8 +1,8 @@
 
 import 'package:erp/features/sales/data/models.dart';
 
-/// DTO mặc định cho test sales, giá trị chép từ factory fixture của module sales cũ
-/// (`modules/sales/application/lib/src/testing/`), thay cho nó khi module bị xoá.
+/// DTO mặc định cho test sales, giá trị chép từ SalesFakeContractFixtureFactory
+/// (module sales cũ, đã xoá ở 8-C).
 /// Kiểu chưa có ở đây thì thêm cùng giá trị gốc; kiểu lạ ném [UnsupportedError].
 T salesFixture<T>() {
   final Object value = switch (T) {

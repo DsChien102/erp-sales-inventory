@@ -59,10 +59,7 @@ void main() {
       final dataDir = Directory(
         '${repoRoot.path}/apps/erp/lib/features/sales/data',
       );
-      final dartFiles = dataDir
-          .listSync()
-          .whereType<File>()
-          .where((f) => f.path.endsWith('.dart'));
+      final dartFiles = dataDir.listSync().whereType<File>().where((f) => f.path.endsWith('.dart'));
 
       final rpcCalls = <String>{};
       final pattern = RegExp(r"'sales',\s*'([a-z_]+)'", multiLine: true);
@@ -138,12 +135,7 @@ void main() {
       ).allMatches(sql).toList();
       expect(matches.length, greaterThanOrEqualTo(20));
       for (final m in matches) {
-        final cols = m
-            .group(1)!
-            .split(',')
-            .map((c) => c.trim())
-            .where((c) => c.isNotEmpty)
-            .toSet();
+        final cols = m.group(1)!.split(',').map((c) => c.trim()).where((c) => c.isNotEmpty).toSet();
         expect(
           allowed.containsAll(cols),
           isTrue,
@@ -163,6 +155,7 @@ void main() {
       }
     });
   });
+
   group('removed', () {
     test('sales no longer installs messaging', () {
       final repoRoot = _findRepoRoot();
@@ -219,6 +212,12 @@ void main() {
       expect(sql.contains('sales_outbox_messages_order_idx'), isTrue);
       expect(
         sql.contains(
+          "on sales.outbox_messages (tenant_id, (payload ->> 'salesOrderId'), occurred_at)",
+        ),
+        isTrue,
+      );
+      expect(
+        sql.contains(
           'alter table sales.outbox_messages enable row level security',
         ),
         isTrue,
@@ -265,22 +264,19 @@ Directory _findRepoRoot() {
 String _allMigrationsSql() {
   final repoRoot = _findRepoRoot();
   final dir = Directory('${repoRoot.path}/supabase/migrations');
-  final files = dir
-      .listSync()
-      .whereType<File>()
-      .where((f) => f.path.endsWith('.sql') && !f.path.contains('_drafts'))
-      .toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
+  final files =
+      dir
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.sql') && !f.path.contains('_drafts'))
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
   return files.map((f) => f.readAsStringSync()).join('\n');
 }
 
 bool _definesFn(String sql, String schema, String name) {
   return RegExp(
-    r'create\s+(or\s+replace\s+)?function\s+' +
-        schema +
-        r'\.' +
-        name +
-        r'\s*\(',
+    r'create\s+(or\s+replace\s+)?function\s+' + schema + r'\.' + name + r'\s*\(',
     caseSensitive: false,
   ).hasMatch(sql);
 }

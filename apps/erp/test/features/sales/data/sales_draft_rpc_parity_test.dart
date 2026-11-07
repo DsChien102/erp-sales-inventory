@@ -1,5 +1,3 @@
-// ignore_for_file: implementation_imports
-
 import 'dart:convert';
 
 import 'package:erp/core/errors/app_exception.dart';

@@ -1,5 +1,3 @@
-// ignore_for_file: implementation_imports
-
 import 'package:erp/features/sales/data/models/sales_draft_list_page.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/sales/data/models.dart';

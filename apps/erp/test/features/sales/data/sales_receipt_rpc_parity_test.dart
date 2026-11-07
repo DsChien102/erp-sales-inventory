@@ -1,5 +1,3 @@
-// ignore_for_file: implementation_imports
-
 import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import 'package:flutter_test/flutter_test.dart';

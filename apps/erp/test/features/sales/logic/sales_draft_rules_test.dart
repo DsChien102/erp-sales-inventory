@@ -1,5 +1,3 @@
-// ignore_for_file: implementation_imports
-
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/logic/sales_draft_rules.dart';
 import 'package:flutter_test/flutter_test.dart';
