@@ -229,7 +229,7 @@ Trường của query cũ ⇒ trường của bản ghi lời gọi: theo cách 
 
 **Files:** `supabase/migrations/20260623000002_install_module_messaging_modules.sql`, `supabase/migrations/20260830005_sales_rebuild_schema.sql`, `apps/erp/test/features/sales/data/sales_sql_contract_test.dart`.
 
-- [ ] **Step 1: Nhóm `removed` (đỏ)** thêm vào `sales_sql_contract_test.dart`:
+- [x] **Step 1: Nhóm `removed` (đỏ)** thêm vào `sales_sql_contract_test.dart`:
 
 | Tên test | Kiểm |
 |---|---|
@@ -240,14 +240,14 @@ Trường của query cũ ⇒ trường của bản ghi lời gọi: theo cách 
 
 Run: `flutter test test/features/sales/data/sales_sql_contract_test.dart` ⇒ 4 test mới FAIL, 5 `kept` PASS.
 
-- [ ] **Step 2: `20260623000002`**: xoá dòng 4 `select platform.install_module_messaging('sales');`. Không đổi gì khác.
-- [ ] **Step 3: `20260830005`**: dòng 11 thay bằng `create schema if not exists sales;` + `create table` / index / RLS / revoke ở Q1, đặt ngay sau (trước dòng `grant usage on schema sales …`). Header: `-- Touches:` thêm `sales.outbox_messages`; `-- Depends on:` bỏ `platform.install_module_messaging(text);`; thêm dòng `-- 8-C (2026-11-08): bỏ messaging (inbox, internal_commands, hàm hàng đợi); outbox_messages = nhật ký sự kiện của đơn (timeline, chống ghi trùng quyết toán).` Chú thích dòng 32-35 sửa thành 1 dòng: `-- Sales ghi sự kiện vòng đời đơn vào sales.outbox_messages (đọc bởi get_sales_order_timeline); không còn hàng đợi messaging.`
-- [ ] **Step 4: Kiểm**
+- [x] **Step 2: `20260623000002`**: xoá dòng 4 `select platform.install_module_messaging('sales');`. Không đổi gì khác.
+- [x] **Step 3: `20260830005`**: dòng 11 thay bằng `create schema if not exists sales;` + `create table` / index / RLS / revoke ở Q1, đặt ngay sau (trước dòng `grant usage on schema sales …`). Header: `-- Touches:` thêm `sales.outbox_messages`; `-- Depends on:` bỏ `platform.install_module_messaging(text);`; thêm dòng `-- 8-C (2026-11-08): bỏ messaging (inbox, internal_commands, hàm hàng đợi); outbox_messages = nhật ký sự kiện của đơn (timeline, chống ghi trùng quyết toán).` Chú thích dòng 32-35 sửa thành 1 dòng: `-- Sales ghi sự kiện vòng đời đơn vào sales.outbox_messages (đọc bởi get_sales_order_timeline); không còn hàng đợi messaging.`
+- [x] **Step 4: Kiểm**
   - `flutter test test/features/sales/data/sales_sql_contract_test.dart` ⇒ 9/9 PASS
   - `grep -rnE "install_module_messaging\('sales'\)|sales\.(inbox_messages|internal_commands|enqueue_outbox_message|claim_)" supabase` ⇒ rỗng
   - `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart` ⇒ 0 error, đúng 3 warning có sẵn
   - `dart run tools/vet45_supabase_migrate/bin/verify_schema_lock_sync.dart` ⇒ `OK`
-- [ ] **Step 5: Commit** `chore(db): 8-C bỏ messaging schema sales, giữ outbox_messages làm nhật ký sự kiện (sửa migration gốc)`
+- [x] **Step 5: Commit** `chore(db): 8-C bỏ messaging schema sales, giữ outbox_messages làm nhật ký sự kiện (sửa migration gốc)`
 
 ### Task 6: Tài liệu + kiểm tổng
 
@@ -414,6 +414,15 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 - Đối chiếu lỗi theo tên: `flutter test -r json` ⇒ 55 test lỗi; 53 có trong danh sách `apps/erp` của `TEST-BASELINE.md`, 2 là ⚠️ `product_guided_create_e2e_test` (duplicate SKU) và `product_change_history_e2e_test` (mục "Sau 5-C"). Không có tên nào ngoài mốc.
 - `detect_changes` ⇒ 8 tệp, 2 symbol (fake trong test DI), 0 process, risk low.
 - Dọn góp ý nhỏ: `sales_order_detail_page_test.dart` thêm `salesModule.payments.recordCalls` vào danh sách "không lệnh khác" của test huỷ; `sales_checkout_page_test.dart:427` thụt lề; bỏ `depend_on_referenced_packages` ở 21 tệp test sales (`dart analyze` vẫn 0 warning, `flutter test test/features/sales` ⇒ +1088).
+
+### Task 5
+
+- Commit: xem `git log` (`chore(db): 8-C bỏ messaging schema sales, giữ outbox_messages làm nhật ký sự kiện (sửa migration gốc)`).
+- Dòng đổi: `20260623000002_install_module_messaging_modules.sql:4` xoá. `20260830005_sales_rebuild_schema.sql`: `:5` thêm `sales.outbox_messages` vào `Touches`; `:7` bỏ `platform.install_module_messaging(text);`; `:8` thêm dòng 8-C; `:12-24` (thay dòng 11 cũ) `create schema` + `create table` + index + RLS + revoke (trước `grant usage on schema sales`); `:45` chú thích 4 dòng cũ (32-35) thành 1 dòng.
+- Đỏ: `flutter test .../sales_sql_contract_test.dart` ⇒ +6 -3: 5 `kept` PASS; `removed`: `sales no longer installs messaging`, `creates sales.outbox_messages directly`, `creates outbox before any sales function uses it` FAIL. **Lệch plan:** `sales has no inbox, internal commands or queue functions` PASS ngay từ đầu (không đỏ) vì `install_module_messaging` dựng tên hàm bằng SQL động nên chuỗi `sales.inbox_messages` không có sẵn trong tệp; vẫn giữ làm chốt chặn.
+- Xanh: sau sửa ⇒ 9/9 PASS.
+- Grep `install_module_messaging\('sales'\)|sales\.(inbox_messages|internal_commands|enqueue_outbox_message|claim_|complete_*message|receive_integration_event)` trong `supabase` ⇒ rỗng. `REGISTRY.yaml` / `schema.lock.yaml`: không có mục messaging của sales (chỉ khớp tên tệp `20260904001_sales_normalize_outbox_and_commands.sql`, không phải mục messaging).
+- `verify_migration_policy` ⇒ 0 error, 3 warning có sẵn (`registry_consistency`: 2 tệp `20261101001`, `20261104001`). `verify_schema_lock_sync` ⇒ `OK (sources match schema.lock.yaml)`.
 
 ## 9. Review
 

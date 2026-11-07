@@ -163,6 +163,91 @@ void main() {
       }
     });
   });
+  group('removed', () {
+    test('sales no longer installs messaging', () {
+      final repoRoot = _findRepoRoot();
+      final dir = Directory('${repoRoot.path}/supabase/migrations');
+      final offenders = dir
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.sql'))
+          .where(
+            (f) => f.readAsStringSync().contains(
+              "install_module_messaging('sales')",
+            ),
+          )
+          .map((f) => f.path)
+          .toList();
+      expect(offenders, isEmpty);
+    });
+
+    test('sales has no inbox, internal commands or queue functions', () {
+      final sql = _allMigrationsSql();
+      for (final banned in const [
+        'sales.inbox_messages',
+        'sales.internal_commands',
+        'sales.enqueue_outbox_message',
+        'sales.claim_',
+        'sales.receive_integration_event',
+      ]) {
+        expect(sql.contains(banned), isFalse, reason: 'Found $banned');
+      }
+    });
+
+    test('creates sales.outbox_messages directly', () {
+      final repoRoot = _findRepoRoot();
+      final sql = File(
+        '${repoRoot.path}/supabase/migrations/'
+        '20260830005_sales_rebuild_schema.sql',
+      ).readAsStringSync();
+      expect(sql.contains('create schema if not exists sales;'), isTrue);
+      const marker = 'create table if not exists sales.outbox_messages (';
+      final start = sql.indexOf(marker);
+      expect(start, greaterThanOrEqualTo(0));
+      final block = sql.substring(start, sql.indexOf(');', start));
+      for (final part in const [
+        'id uuid primary key',
+        'tenant_id uuid not null',
+        'event_type text not null',
+        'payload jsonb not null',
+        'occurred_at timestamptz not null default now()',
+      ]) {
+        expect(block.contains(part), isTrue, reason: 'Missing $part');
+      }
+      expect(block.contains('processed_at'), isFalse);
+      expect(block.contains('claim_token'), isFalse);
+      expect(sql.contains('sales_outbox_messages_order_idx'), isTrue);
+      expect(
+        sql.contains(
+          'alter table sales.outbox_messages enable row level security',
+        ),
+        isTrue,
+      );
+      expect(
+        sql.contains(
+          'revoke all on sales.outbox_messages from public, anon, authenticated',
+        ),
+        isTrue,
+      );
+    });
+
+    test('creates outbox before any sales function uses it', () {
+      final repoRoot = _findRepoRoot();
+      final sql = File(
+        '${repoRoot.path}/supabase/migrations/'
+        '20260830005_sales_rebuild_schema.sql',
+      ).readAsStringSync();
+      final outbox = sql.indexOf(
+        'create table if not exists sales.outbox_messages',
+      );
+      final idem = sql.indexOf(
+        'create table if not exists sales.idempotency_records',
+      );
+      expect(outbox, greaterThanOrEqualTo(0));
+      expect(idem, greaterThanOrEqualTo(0));
+      expect(outbox, lessThan(idem));
+    });
+  });
 }
 
 Directory _findRepoRoot() {
