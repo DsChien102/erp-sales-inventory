@@ -126,7 +126,7 @@
 **Interfaces:**
 - Produces (Task 5 dùng lại, cùng tệp): `Directory _findRepoRoot()`, `String _allMigrationsSql()` (nối mọi `supabase/migrations/*.sql`, không vào `_drafts/`), `bool _definesFn(String sql, String schema, String name)` — chép nguyên từ `apps/erp/test/features/pricing/data/pricing_sql_contract_test.dart`.
 
-- [ ] **Step 1: Viết nhóm `kept`**
+- [x] **Step 1: Viết nhóm `kept`**
 
 | Tên test | Kiểm |
 |---|---|
@@ -136,9 +136,9 @@
 | `timeline and settlement guard read sales.outbox_messages` | tệp `20260830010_sales_inquiry_receipt_rpcs.sql` chứa `from sales.outbox_messages o`; `20260830006_sales_shared_rpc_helpers.sql` chứa `from sales.outbox_messages` |
 | `outbox writers use only id, tenant_id, event_type, payload` | mọi khớp `RegExp(r'insert into sales\.outbox_messages\s*\(([^)]*)\)')` trong `sql`: tập cột (tách `,`, `trim`) ⊆ `{id, tenant_id, event_type, payload, occurred_at}`; có ≥ 20 khớp; `sql` không chứa `sales.outbox_messages` đi cùng `processed_at` / `claim_token` / `retry_count` (kiểm: không có dòng nào chứa cả `outbox_messages` và một trong 3 tên đó) |
 
-- [ ] **Step 2: Chạy** `cd apps/erp && flutter test test/features/sales/data/sales_sql_contract_test.dart` ⇒ PASS 5/5. Đỏ ⇒ dừng, ghi lại (bảng mục 3 sai).
-- [ ] **Step 3: Đếm test trên code cũ** — với mỗi tệp nhóm A, B, ghi vào Kết quả: số `+N` (lệnh ở Global Constraints) và `grep -c "expect(" <tệp>`. Ghi thêm `cd apps/erp && flutter test test/features/sales 2>&1 | tail -1`.
-- [ ] **Step 4: Commit** `test(sales): 8-C bước 0 — test hợp đồng RPC sales trên migration hiện tại`
+- [x] **Step 2: Chạy** `cd apps/erp && flutter test test/features/sales/data/sales_sql_contract_test.dart` ⇒ PASS 5/5. Đỏ ⇒ dừng, ghi lại (bảng mục 3 sai).
+- [x] **Step 3: Đếm test trên code cũ** — với mỗi tệp nhóm A, B, ghi vào Kết quả: số `+N` (lệnh ở Global Constraints) và `grep -c "expect(" <tệp>`. Ghi thêm `cd apps/erp && flutter test test/features/sales 2>&1 | tail -1`.
+- [x] **Step 4: Commit** `test(sales): 8-C bước 0 — test hợp đồng RPC sales trên migration hiện tại`
 
 ### Task 1: Test nhóm A sang fake repository (Q3)
 
@@ -284,6 +284,51 @@ Run: `flutter test test/features/sales/data/sales_sql_contract_test.dart` ⇒ 4 
 ## 8. Kết quả
 
 <!-- Phiên code ghi ngay sau mỗi task: commit, tệp:dòng, lệch plan, test (trước / sau), impact. Không tự chấm ĐẠT. -->
+
+### Task 0
+
+- Commit: xem `git log -1` (test(sales): 8-C bước 0 — test hợp đồng RPC sales trên migration hiện tại).
+- Tệp: tạo `apps/erp/test/features/sales/data/sales_sql_contract_test.dart` (helper `_findRepoRoot` / `_allMigrationsSql` / `_definesFn` chép từ `pricing_sql_contract_test.dart`). Không đổi code production, không chạm DB.
+- Lệch plan: không. Tệp dở từ lần trước đã kiểm lại đủ 5 test theo bảng Step 1 (35 tên RPC, 6 RPC Q6 + 3 RPC giữ).
+- Test: `sales_sql_contract_test.dart` +5 PASS (5/5); `dart analyze` tệp này sạch. Toàn `test/features/sales`: +1284 xanh (đã gồm 5 test mới; trước Task 0 là 1279). Mọi tệp nhóm A, B xanh trên code cũ.
+- Impact: không sửa symbol Dart trong `lib`, không cần `impact`.
+
+Nhóm A (Task 1), đếm trên code cũ:
+
+| Tệp (trong `test/features/sales/`) | Test | `expect(` |
+|---|---|---|
+| `presentation/sales_checkout_page_test.dart` | +22 | 89 |
+| `presentation_module/bloc/sales_order_detail_cubit_test.dart` | +57 | 269 |
+| `…/sales_order_list_cubit_test.dart` | +16 | 39 |
+| `…/sales_return_exchange_detail_cubit_test.dart` | +6 | 20 |
+| `…/sales_return_exchange_session_cubit_test.dart` | +24 | 116 |
+| `…/sales_return_exchange_settlement_cubit_test.dart` | +20 | 87 |
+| `…/sales_transaction_result_cubit_test.dart` | +28 | 100 |
+| `presentation_module/widgets/sales_transaction_result_body_test.dart` | +7 | 28 |
+| `sales_flow_pages_test.dart` | +28 | 117 |
+| `sales_order_detail_page_test.dart` | +28 | 113 |
+| `sales_return_exchange_detail_page_test.dart` | +2 | 23 |
+| `sales_return_exchange_result_page_test.dart` | +3 | 15 |
+| `sales_return_exchange_slip_preview_page_test.dart` | +2 | 8 |
+| `sales_transaction_result_page_test.dart` | +4 | 11 |
+
+Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
+
+| Tệp (trong `test/features/sales/`) | Test | `expect(` |
+|---|---|---|
+| `data/return_exchange_rpc_parity_test.dart` | +64 | 121 |
+| `data/sales_cancellation_rpc_parity_test.dart` | +19 | 32 |
+| `data/sales_checkout_errors_test.dart` | +33 | 15 |
+| `data/sales_checkout_rpc_parity_test.dart` | +22 | 10 |
+| `data/sales_draft_rpc_parity_test.dart` | +40 | 13 |
+| `data/sales_order_inquiry_rpc_parity_test.dart` | +32 | 35 |
+| `data/sales_order_read_errors_test.dart` | +18 | 10 |
+| `data/sales_payment_rpc_parity_test.dart` | +16 | 15 |
+| `data/sales_receipt_errors_test.dart` | +25 | 12 |
+| `data/sales_receipt_rpc_parity_test.dart` | +17 | 25 |
+| `logic/sales_checkout_rules_test.dart` | +25 | 1 |
+| `logic/sales_draft_rules_test.dart` | +71 | 11 |
+
 
 ## 9. Review
 
