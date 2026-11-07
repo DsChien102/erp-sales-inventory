@@ -424,7 +424,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(checkoutRepo.precheckCalls, isEmpty);
-    expect(checkoutRepo.getResultCalls, isEmpty);
+      expect(checkoutRepo.getResultCalls, isEmpty);
       expect(checkoutRepo.finalizeCalls, isEmpty);
       expect(
         checkoutRouter.routeInformationProvider.value.uri.path,

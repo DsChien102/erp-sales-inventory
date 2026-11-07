@@ -290,6 +290,7 @@ void main() {
     expect(salesModule.cancellations.confirmCalls, hasLength(1));
     expect(
       [
+        ...salesModule.payments.recordCalls,
         ...salesModule.receipts.generateCalls,
         ...salesModule.receipts.printedCalls,
         ...salesModule.receipts.sharedCalls,

@@ -1,4 +1,3 @@
-// ignore_for_file: depend_on_referenced_packages
 
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/return_exchange_errors.dart';

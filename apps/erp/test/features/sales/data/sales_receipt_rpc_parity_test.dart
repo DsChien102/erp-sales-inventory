@@ -1,4 +1,4 @@
-// ignore_for_file: implementation_imports, depend_on_referenced_packages
+// ignore_for_file: implementation_imports
 
 import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';

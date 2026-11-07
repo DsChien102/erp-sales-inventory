@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages, use_null_aware_elements
+// ignore_for_file: use_null_aware_elements
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/sales/data/models.dart';

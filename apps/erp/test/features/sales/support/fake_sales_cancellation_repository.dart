@@ -1,4 +1,3 @@
-// ignore_for_file: depend_on_referenced_packages
 
 import 'package:erp/features/sales/data/models/sales_cancellation_request.dart';
 import 'package:erp/features/sales/data/sales_cancellation_repository.dart';

@@ -1,4 +1,4 @@
-// ignore_for_file: implementation_imports, depend_on_referenced_packages
+// ignore_for_file: implementation_imports
 
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/logic/sales_draft_rules.dart';

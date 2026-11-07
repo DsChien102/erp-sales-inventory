@@ -194,7 +194,7 @@ Trường của query cũ ⇒ trường của bản ghi lời gọi: theo cách 
 - Modify: mọi tệp trong `apps/erp/{lib,test,integration_test}`, `apps/erp/example/lib` còn `import 'package:vet45_sales_application/application.dart'`
 
 **Interfaces:**
-- Produces: `package:erp/features/sales/data/models.dart` export đủ 61 tệp. Mọi tên lớp / enum giữ nguyên ⇒ chỗ dùng không đổi.
+- Produces: `package:erp/features/sales/data/models.dart` export đủ 63 tệp (61 + 2, xem Kết quả Task 3). Mọi tên lớp / enum giữ nguyên ⇒ chỗ dùng không đổi.
 
 - [x] **Step 0: Bỏ test so sánh fixture** (Task 1 Step 2) khỏi `sales_contract_error_test.dart` + import `vet45_sales_application/testing.dart`; ghi tên test đã bỏ vào Kết quả.
 - [x] **Step 1: Chép** 61 tệp (`cp`) từ `modules/sales/application/lib/src/shared/` sang `contracts/`. Viết barrel.
@@ -355,7 +355,7 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 | `…/sales_transaction_result_cubit_test` | 28 / 28 | 100 / 100 |
 
   Toàn `flutter test test/features/sales`: +1300 xanh (1284 của Task 0 + 5 test `salesContractError` + 11 test so fixture). `dart analyze test`: 0 error, 0 warning, 18 info có sẵn (không tệp sales).
-- Assert bỏ (Q3c, `tenantId` / `actorId`; số dòng của tệp cũ): `sales_order_list_cubit_test.dart:20-21`; `sales_return_exchange_session_cubit_test.dart:250-251`; `sales_order_detail_cubit_test.dart:25-26, 193-194, 197-198, 201-202, 205-206, 209-210, 213-214, 527-528`. Assert bỏ (Q3f): `sales_return_exchange_session_cubit_test.dart:45-48` (`GetReturnExchangeFormPolicyQuery` `isEmpty`). Bỏ 20 `expect(` tenantId / actorId (Q3c) + 3 `expect(` khoá idempotency (lệch plan 5) + 1 `expect(` (Q3f) = 24. Thêm 11 `expect(` để giữ độ chặt (lệch plan 1; vòng sửa 1: giao dịch 2, list 3, checkout page 3, order detail page 2). Khớp bảng: list −2+3, session −2, order detail cubit −17, transaction result cubit −3+3 (về 100), checkout page +3, order detail page +2.
+- Assert bỏ (Q3c, `tenantId` / `actorId`; số dòng của tệp cũ): `sales_order_list_cubit_test.dart:20-21`; `sales_return_exchange_session_cubit_test.dart:250-251`; `sales_order_detail_cubit_test.dart:25-26, 193-194, 197-198, 201-202, 205-206, 209-210, 213-214, 527-528`. Assert bỏ (Q3f): `sales_return_exchange_session_cubit_test.dart:45-48` (`GetReturnExchangeFormPolicyQuery` `isEmpty`). Bỏ 20 `expect(` tenantId / actorId (Q3c) + 3 `expect(` khoá idempotency (lệch plan 5) + 1 `expect(` (Q3f) = 24. Thêm 11 `expect(` để giữ độ chặt (lệch plan 1; vòng sửa 1: giao dịch 2, list 3, checkout page 3, order detail page 2). Khớp bảng: list −2+3, session −2, order detail cubit −17, transaction result cubit −2+2 (về 100), checkout page +3, order detail page +2.
 - Lệch plan:
   1. `sales_return_exchange_session_cubit_test`: `.single` ngầm của `PreviewReturnExchangePricingQuery` (dòng 248) thành `expect(previewCalls, hasLength(1))` (thêm 1 `expect(`; thay 2 assert tenant / actor).
   2. Test cần Future treo, hàng đợi lỗi theo lời gọi, thứ tự lời gọi giữa 2 repository (`list`/`search` đếm riêng, settlement, session, order detail) dùng lớp con cục bộ của fake dùng chung (`extends Fake…Repository`) trong tệp test, không sửa fake chung (trừ bỏ `final` ở fake đổi/trả).
@@ -394,7 +394,7 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 
 ### Task 3
 
-- Commit `9a3941d81`.
+- Commit `9a3941d81`; commit sửa sau review `9e4fbada0`.
 - Step 0: `sales_contract_error_test.dart` bỏ nhóm `salesFixture khớp SalesFakeContractFixtureFactory` (11 test: `AvailablePostSaleActionsDto`, `CheckoutResultDto`, `SalesOrderResultDto`, `SalesOrderPaymentSummaryDto`, `SalesOrderSettlementDto`, `SalesPaymentTransactionsDto`, `SalesOrderTimelineDto`, `SalesOrderReturnSummaryDto`, `ReturnExchangeValuationDto`, `ReturnExchangeDetailDto`, `kiểu chưa hỗ trợ ném UnsupportedError`), hàm `_planSig` / `_valuationSig` và import `testing.dart` + `sales_contract_fixtures.dart`; còn 5 test `salesContractError` (`flutter test` ⇒ +5).
 - **Lệch plan: 64 tệp chép ban đầu, không phải 61 (sau chốt còn 63).** Danh sách mục 3 thiếu 3 tệp app dùng nhưng nằm ngoài `src/shared`: `checkout_blocker_codes.dart` (`sales_order/shared`), `sales_order_draft_contract_mapper.dart` (`sales_order_draft/shared`; `SalesDraftJson` dùng `SalesOrderDraftContractMapper`, `SalesOrderDraftReadRow`, `SalesOrderDraftLineReadRow`), và `paged_sales_order_draft_list_dto.dart` (`shared`, mapper kéo theo). Phát hiện vì `dart analyze` báo `Undefined name` sau khi đổi import; chép thêm, import `../../shared/` của mapper đổi sang cùng thư mục. Barrel `data/models.dart` 64 dòng `export` (sau chốt: 63).
 - Step 2: `diff` bỏ dòng `import` cho 64 tệp ⇒ không khác; `grep -h "^import 'package" contracts/*.dart` ⇒ rỗng.
