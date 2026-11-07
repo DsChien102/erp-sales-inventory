@@ -478,7 +478,6 @@ void main() {
       final command = module.receipts.generateCalls.single;
       expect(command.salesOrderId, 'order-1');
       expect(command.expectedVersion, 7);
-      expect(_generateKey(command), 'sales-receipt:tenant-1:order-1:v7');
       expect(cubit.state.receipt.status, SalesReceiptOperationStatus.ready);
       expect(cubit.state.currentReceiptId, 'receipt-1');
     });
@@ -1653,12 +1652,6 @@ final class _Receipts extends FakeSalesReceiptRepository {
     return super.get(receiptId: receiptId, expectedSourceVersion: expectedSourceVersion);
   }
 }
-
-/// Khoá idempotency của lệnh tạo phiếu: `SalesReceiptRepository` thật dựng từ phiên
-/// (`sales_receipt_repository_test.dart:56`); fake chỉ ghi `salesOrderId` + `expectedVersion`,
-/// nên test dựng lại công thức như cầu nối module cũ.
-String _generateKey(({String salesOrderId, int expectedVersion}) call) =>
-    'sales-receipt:tenant-1:${call.salesOrderId}:v${call.expectedVersion}';
 
 app.SalesReceiptDto _receipt() => app.SalesReceiptDto(
   receiptId: 'receipt-1',

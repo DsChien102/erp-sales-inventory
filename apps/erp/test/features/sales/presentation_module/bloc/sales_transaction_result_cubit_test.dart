@@ -237,7 +237,6 @@ void main() {
 
       expect(module.commands.single, isA<({String salesOrderId, int expectedVersion})>());
       final command = module.receipts.generateCalls.single;
-      expect(_generateKey(command), 'sales-receipt:tenant-1:order-1:v4');
       expect(command.expectedVersion, 4);
       expect(cubit.state.receipt.document.receiptNumber, 'PBH-20260812-0129');
       expect(cubit.state.receipt.status, SalesReceiptOperationStatus.ready);
@@ -271,8 +270,7 @@ void main() {
 
       final commands = module.receipts.generateCalls.toList();
       expect(commands, hasLength(2));
-      expect(_generateKey(commands[1]), _generateKey(commands[0]));
-      expect(_generateKey(commands.first), 'sales-receipt:tenant-1:order-1:v4');
+      expect(commands[1], commands[0]);
     });
 
     test(
@@ -669,12 +667,6 @@ final class _ScriptedReceiptRepository extends FakeSalesReceiptRepository {
     return response as SalesReceiptDto;
   }
 }
-
-/// Khoá idempotency của lệnh tạo phiếu: `SalesReceiptRepository` thật dựng từ phiên
-/// (`sales_receipt_repository_test.dart:56`); fake chỉ ghi `salesOrderId` + `expectedVersion`,
-/// nên test dựng lại công thức như cầu nối module cũ.
-String _generateKey(({String salesOrderId, int expectedVersion}) call) =>
-    'sales-receipt:tenant-1:${call.salesOrderId}:v${call.expectedVersion}';
 
 final class _CheckoutRepo implements SalesCheckoutRepository {
   _CheckoutRepo(this.m);

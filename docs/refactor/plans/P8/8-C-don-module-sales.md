@@ -351,8 +351,8 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 | `presentation/sales_checkout_page_test` | 22 / 22 | 89 / 89 |
 | `sales_order_detail_page_test` | 28 / 28 | 113 / 113 |
 | `sales_flow_pages_test` | 28 / 28 | 117 / 117 |
-| `…/sales_order_detail_cubit_test` | 57 / 57 | 269 / 253 |
-| `…/sales_transaction_result_cubit_test` | 28 / 28 | 100 / 100 |
+| `…/sales_order_detail_cubit_test` | 57 / 57 | 269 / 252 |
+| `…/sales_transaction_result_cubit_test` | 28 / 28 | 100 / 98 |
 
   Toàn `flutter test test/features/sales`: +1300 xanh (1284 của Task 0 + 5 test `salesContractError` + 11 test so fixture). `dart analyze test`: 0 error, 0 warning, 18 info có sẵn (không tệp sales).
 - Assert bỏ (Q3c, `tenantId` / `actorId`; số dòng của tệp cũ): `sales_order_list_cubit_test.dart:17-18`; `sales_return_exchange_session_cubit_test.dart:250-251`; `sales_order_detail_cubit_test.dart:25-26, 193-194, 197-198, 201-202, 205-206, 209-210, 213-214, 527-528`. Assert bỏ (Q3f): `sales_return_exchange_session_cubit_test.dart:45-48` (`GetReturnExchangeFormPolicyQuery` `isEmpty`). Tổng 20 `expect(` (Q3c) + 1 `expect(` (Q3f) = 21, trừ 1 `expect(` thêm ở lệch plan 1 ⇒ giảm 20, khớp bảng: list −2, session −2, order detail cubit −16.
@@ -361,7 +361,7 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
   2. Test cần Future treo, hàng đợi lỗi theo lời gọi, thứ tự lời gọi giữa 2 repository (`list`/`search` đếm riêng, settlement, session, order detail) dùng lớp con cục bộ của fake dùng chung (`extends Fake…Repository`) trong tệp test, không sửa fake chung (trừ bỏ `final` ở fake đổi/trả).
   3. `sales_flow_pages_test`: `SalesFakeData.findOrderDetail` (module) thay bằng `_OrderRepo.getDetail` cục bộ dựng cùng đơn cho mã không có trong dữ liệu mẫu (`DH-000129`, `ord_123`, `fake-sales-order`).
   4. `sales_transaction_result_page_test`: tên test bỏ chữ `ISalesModule` / `module`.
-  5. **Cần người dùng chốt (NEEDS_CONTEXT)**: khoá idempotency tạo phiếu `'sales-receipt:tenant-1:order-1:v7'` / `…:v4` do cầu cũ dựng (`module_backed_sales_repositories.dart:250`), repository thật dựng từ phiên (`sales_receipt_repository.dart:37`, đã có test ở `sales_receipt_repository_test.dart:56`); fake chỉ ghi `salesOrderId` + `expectedVersion`. 3 assert (`sales_order_detail_cubit_test.dart:494`, `sales_transaction_result_cubit_test.dart:241, 276`) giữ nguyên chữ, nhưng dựng khoá bằng hàm cục bộ `_generateKey` (tautology). Nếu chốt bỏ như Q3c: xoá 3 `expect(` + 2 hàm `_generateKey`.
+  5. Người dùng chốt bỏ như Q3c: 3 assert khoá idempotency tạo phiếu `'sales-receipt:tenant-1:order-1:v7'` / `…:v4` (`sales_order_detail_cubit_test.dart:494`, `sales_transaction_result_cubit_test.dart:241, 276` của tệp cũ) bị bỏ, vì khoá do cầu cũ dựng từ `'tenant-1'`, repository thật dựng từ phiên (`sales_receipt_repository.dart:37`, có test ở `sales_receipt_repository_test.dart:56`). Assert so 2 khoá bằng nhau giữ, viết thành `expect(commands[1], commands[0])`. Tổng assert bỏ: 23 + 1 (Q3f); `expect(` order detail cubit 269 → 252, transaction result cubit 100 → 98.
 - Impact: chỉ sửa tệp test, không sửa symbol Dart trong `lib`; `detect_changes` lỗi Node như Task 0.
 
 
