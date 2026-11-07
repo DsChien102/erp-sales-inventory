@@ -4,10 +4,6 @@ import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/sales_order_read_errors.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase/supabase.dart';
-import 'package:vet45_sales_application/application.dart';
-import 'package:vet45_sales_infrastructure/src/domain/sales_order/supabase_sales_order_read_gateway.dart';
-import 'package:vet45_sales_infrastructure/src/domain/sales_order_cancellation/supabase_sales_order_cancellation_gateway.dart';
-import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 const _six = [
   'NOT_FOUND',
@@ -20,46 +16,7 @@ const _six = [
 
 String _json(String code) => '{"code":"$code","message":"m"}';
 
-class _OldRpc implements IRpcClient {
-  _OldRpc(this.message);
-  final String message;
-  @override
-  Future<Map<String, dynamic>> call(String procedure, {Map<String, dynamic>? params}) async =>
-      throw RpcException(message);
-  @override
-  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
-}
-
-Future<String> _oldCode(String message) async {
-  try {
-    await SupabaseSalesOrderReadGateway(rpcClient: _OldRpc(message)).getSalesOrder(
-      GetSalesOrderQuery(tenantId: 't', actorId: 'a', salesOrderId: 'o'),
-    );
-  } on SalesContractException catch (e) {
-    return e.code;
-  }
-  return 'none';
-}
-
 void main() {
-  group('old', () {
-    for (final code in _six) {
-      test('keeps $code', () async => expect(await _oldCode(_json(code)), code));
-    }
-    test('STALE_DATA → DEPENDENCY_UNAVAILABLE', () async {
-      expect(await _oldCode(_json('STALE_DATA')), 'DEPENDENCY_UNAVAILABLE');
-    });
-    test('IMPACT_PENDING kept by cancellation gateway', () async {
-      try {
-        await SupabaseSalesOrderCancellationGateway(rpcClient: _OldRpc(_json('IMPACT_PENDING'))).getDetail(
-          GetSalesOrderCancellationQuery(tenantId: 't', actorId: 'a', salesOrderId: 'o'),
-        );
-      } on SalesContractException catch (e) {
-        expect(e.code, 'IMPACT_PENDING');
-      }
-    });
-  });
-
   group('new', () {
     for (final code in _six) {
       final expected = code == 'PERMISSION_DENIED' ? 'NO_PERMISSION' : code;

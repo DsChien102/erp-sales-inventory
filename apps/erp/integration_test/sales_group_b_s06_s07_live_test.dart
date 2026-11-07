@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -37,9 +39,8 @@ void main() {
       await tester.pumpAndSettle();
       final di = GetIt.instance;
       final executionContext = di<IExecutionContext>();
-      final sales = di<ISalesModule>();
+      final sales = di<SalesDraftRepository>();
       final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
       final storeId = await di<SessionController>().requireActiveStoreId();
       expect(tenantId, _tenantId);
       expect(storeId, _storeId);
@@ -153,18 +154,13 @@ void main() {
         final draftId = ownedDraftId;
         if (draftId == null || draftId.isEmpty) return;
         try {
-          await sales.executeCommandAsync(
-            CancelSalesOrderDraftCommand(
-              tenantId: tenantId,
-              actorId: actorId,
-              draftId: draftId,
-              storeId: storeId,
-              expectedVersion: ownedVersion,
-              idempotencyKey: '$idempotencyPrefix:cleanup:v$ownedVersion',
-              payloadHash: '$idempotencyPrefix:cleanup-hash',
-            ),
+          await sales.cancel(
+            draftId: draftId,
+            storeId: storeId,
+            expectedVersion: ownedVersion,
+            idempotencyKey: '$idempotencyPrefix:cleanup:v$ownedVersion',
           );
-        } on SalesContractException catch (error) {
+        } on AppException catch (error) {
           // Already cancelled / converted / missing — do not widen cleanup.
           if (error.code == 'STALE_DATA' || error.code == 'REFERENCE_UNAVAILABLE') {
             return;
@@ -201,16 +197,9 @@ void main() {
         expect(saved.lines.single.productUnitId, _productUnitId);
         expect(saved.lines.single.manualUnitPriceMinor, isNotNull);
 
-        final listed = await sales.executeQueryAsync(
-          ListSalesOrderDraftsQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            storeId: storeId,
-            pageSize: 50,
-          ),
-        );
+        final listed = await sales.list(storeId: storeId, pageSize: 50);
         expect(
-          listed.page.items.any((item) => item.draftId == saved.draftId),
+          listed.items.any((item) => item.draft.draftId == saved.draftId),
           isTrue,
           reason: 'saved draft must appear in active store list',
         );
@@ -242,36 +231,51 @@ void main() {
         final updateHash = '$idempotencyPrefix:update-hash';
         final updateNote = 'Live Group B note updated';
 
-        final updated = await sales.executeCommandAsync(
-          UpdateSalesOrderDraftCommand(
-            tenantId: tenantId,
-            actorId: actorId,
-            draftId: saved.draftId,
-            storeId: storeId,
-            customer: CustomerSnapshotDto(
-              customerId: _customerId,
-              displayName: customerSelection.displayName,
-              phoneNumber: customerSelection.phone,
-            ),
-            currencyCode: 'VND',
-            orderNote: updateNote,
-            pricingPreviewToken: restored.draft.pricingPreviewToken,
-            needsRevalidation: restored.draft.needsRevalidation,
-            lines: updateLines,
-            expectedVersion: restored.draft.version,
-            idempotencyKey: updateKey,
-            payloadHash: updateHash,
+        final updated = await sales.update(
+          draftId: saved.draftId,
+          storeId: storeId,
+          customer: CustomerSnapshotDto(
+            customerId: _customerId,
+            displayName: customerSelection.displayName,
+            phoneNumber: customerSelection.phone,
           ),
+          currencyCode: 'VND',
+          orderNote: updateNote,
+          pricingPreviewToken: restored.draft.pricingPreviewToken,
+          needsRevalidation: restored.draft.needsRevalidation,
+          lines: updateLines,
+          expectedVersion: restored.draft.version,
+          idempotencyKey: updateKey,
+          payloadHash: updateHash,
         );
         ownedVersion = updated.version;
         expect(updated.version, greaterThan(restored.draft.version));
         expect(updated.orderNote, updateNote);
         expect(updated.lines.single.quantity.quantityMicros, 2 * QuantityDto.scale);
 
-        final retried = await sales.executeCommandAsync(
-          UpdateSalesOrderDraftCommand(
-            tenantId: tenantId,
-            actorId: actorId,
+        final retried = await sales.update(
+          draftId: saved.draftId,
+          storeId: storeId,
+          customer: CustomerSnapshotDto(
+            customerId: _customerId,
+            displayName: customerSelection.displayName,
+            phoneNumber: customerSelection.phone,
+          ),
+          currencyCode: 'VND',
+          orderNote: updateNote,
+          pricingPreviewToken: restored.draft.pricingPreviewToken,
+          needsRevalidation: restored.draft.needsRevalidation,
+          lines: updateLines,
+          expectedVersion: restored.draft.version,
+          idempotencyKey: updateKey,
+          payloadHash: updateHash,
+        );
+        expect(retried.version, updated.version);
+        expect(retried.draftId, updated.draftId);
+        ownedVersion = retried.version;
+
+        await expectLater(
+          sales.update(
             draftId: saved.draftId,
             storeId: storeId,
             customer: CustomerSnapshotDto(
@@ -280,43 +284,16 @@ void main() {
               phoneNumber: customerSelection.phone,
             ),
             currencyCode: 'VND',
-            orderNote: updateNote,
+            orderNote: 'stale attempt',
             pricingPreviewToken: restored.draft.pricingPreviewToken,
             needsRevalidation: restored.draft.needsRevalidation,
             lines: updateLines,
             expectedVersion: restored.draft.version,
-            idempotencyKey: updateKey,
-            payloadHash: updateHash,
-          ),
-        );
-        expect(retried.version, updated.version);
-        expect(retried.draftId, updated.draftId);
-        ownedVersion = retried.version;
-
-        await expectLater(
-          sales.executeCommandAsync(
-            UpdateSalesOrderDraftCommand(
-              tenantId: tenantId,
-              actorId: actorId,
-              draftId: saved.draftId,
-              storeId: storeId,
-              customer: CustomerSnapshotDto(
-                customerId: _customerId,
-                displayName: customerSelection.displayName,
-                phoneNumber: customerSelection.phone,
-              ),
-              currencyCode: 'VND',
-              orderNote: 'stale attempt',
-              pricingPreviewToken: restored.draft.pricingPreviewToken,
-              needsRevalidation: restored.draft.needsRevalidation,
-              lines: updateLines,
-              expectedVersion: restored.draft.version,
-              idempotencyKey: '$idempotencyPrefix:stale',
-              payloadHash: '$idempotencyPrefix:stale-hash',
-            ),
+            idempotencyKey: '$idempotencyPrefix:stale',
+            payloadHash: '$idempotencyPrefix:stale-hash',
           ),
           throwsA(
-            isA<SalesContractException>().having(
+            isA<AppException>().having(
               (error) => error.code,
               'code',
               'STALE_DATA',
@@ -324,31 +301,19 @@ void main() {
           ),
         );
 
-        final cancelled = await sales.executeCommandAsync(
-          CancelSalesOrderDraftCommand(
-            tenantId: tenantId,
-            actorId: actorId,
-            draftId: saved.draftId,
-            storeId: storeId,
-            expectedVersion: ownedVersion,
-            idempotencyKey: '$idempotencyPrefix:cancel:v$ownedVersion',
-            payloadHash: '$idempotencyPrefix:cancel-hash',
-          ),
+        final cancelled = await sales.cancel(
+          draftId: saved.draftId,
+          storeId: storeId,
+          expectedVersion: ownedVersion,
+          idempotencyKey: '$idempotencyPrefix:cancel:v$ownedVersion',
         );
         expect(cancelled.status, SalesDraftStatus.cancelled);
         ownedVersion = cancelled.version;
         ownedDraftId = null;
 
-        final afterCancel = await sales.executeQueryAsync(
-          ListSalesOrderDraftsQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            storeId: storeId,
-            pageSize: 50,
-          ),
-        );
+        final afterCancel = await sales.list(storeId: storeId, pageSize: 50);
         expect(
-          afterCancel.page.items.any((item) => item.draftId == saved.draftId),
+          afterCancel.items.any((item) => item.draft.draftId == saved.draftId),
           isFalse,
           reason: 'cancelled draft must leave the active list',
         );

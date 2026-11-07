@@ -5,8 +5,6 @@ import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/sales/data/models/sales_finalize_request.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
-import 'package:vet45_sales_infrastructure/src/domain/sales_order/checkout_precheck_rpc_mapper.dart';
 
 import 'sales_checkout_parity_expectations.dart';
 
@@ -25,93 +23,6 @@ class _RecordingRpc implements SupabaseRpc {
 }
 
 void main() {
-  group('old', () {
-    test('params_precheck', () {
-      final params = CheckoutPrecheckRpcMapper.precheckParams(
-        PrecheckSalesOrderCheckoutQuery(
-          id: checkoutQueryId,
-          tenantId: checkoutTenantId,
-          actorId: checkoutActorId,
-          storeId: checkoutStoreId,
-          customerId: 'customer-1',
-          currencyCode: checkoutCurrencyRaw,
-          paymentDueDate: DateTime(2026, 11, 9, 15),
-          lines: checkoutLines(),
-          paymentIntents: checkoutIntents(),
-          expectedSourceVersion: 4,
-        ),
-      );
-      expect(params, equals(expectedPrecheckParams()));
-    });
-
-    test('params_finalize', () {
-      final params = CheckoutPrecheckRpcMapper.finalizeParams(
-        FinalizeSalesOrderCommand(
-          id: checkoutCommandId,
-          tenantId: checkoutTenantId,
-          actorId: checkoutActorId,
-          storeId: checkoutStoreId,
-          sourceDraftId: 'draft-7',
-          customerId: 'customer-1',
-          currencyCode: checkoutCurrencyRaw,
-          orderNote: ' Giao chiều ',
-          paymentDueDate: DateTime(2026, 11, 9, 15),
-          lines: checkoutLines(),
-          paymentIntents: checkoutIntents(),
-          commercialSnapshot: checkoutSnapshot(),
-          idempotencyKey: 'checkout:attempt-1',
-          payloadHash: 'hash-1',
-          correlationId: 'corr-1',
-          expectedSourceVersion: 4,
-        ),
-      );
-      expect(params, equals(expectedFinalizeParams()));
-    });
-
-    test('params_get_checkout_result', () {
-      final params = CheckoutPrecheckRpcMapper.statusParams(
-        GetCheckoutResultQuery(
-          id: checkoutQueryId,
-          tenantId: checkoutTenantId,
-          actorId: checkoutActorId,
-          storeId: checkoutStoreId,
-          idempotencyKey: 'checkout:attempt-1',
-        ),
-      );
-      expect(params, equals(expectedStatusParams()));
-    });
-
-    test('parse_precheck', () {
-      expectPrecheck(CheckoutPrecheckRpcMapper.precheckFromJson(precheckJson()));
-    });
-
-    for (final status in checkoutStatuses.keys) {
-      test('parse_checkout_result_$status', () {
-        expectCheckoutResult(
-          CheckoutPrecheckRpcMapper.checkoutResultFromJson(checkoutResultJson(status)),
-          status,
-        );
-      });
-    }
-
-    test('parse_rejects_unknown_status', () {
-      expect(
-        () => CheckoutPrecheckRpcMapper.checkoutResultFromJson(checkoutResultJson('weird')),
-        throwsFormatException,
-      );
-    });
-
-    test('parse_rejects_blank_idempotency_key', () {
-      expect(
-        () => CheckoutPrecheckRpcMapper.checkoutResultFromJson({
-          ...checkoutResultJson('succeeded'),
-          'idempotencyKey': ' ',
-        }),
-        throwsFormatException,
-      );
-    });
-  });
-
   group('new', () {
     late _RecordingRpc rpc;
     late SalesCheckoutRepository repo;

@@ -4,9 +4,6 @@ import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
-import 'package:vet45_sales_infrastructure/src/domain/sales_order/sales_order_inquiry_rpc_mapper.dart';
-import 'package:vet45_sales_infrastructure/src/domain/sales_order/sales_order_read_rpc_mapper.dart';
 
 import 'sales_checkout_parity_expectations.dart';
 
@@ -25,74 +22,6 @@ class _RecordingRpc implements SupabaseRpc {
 }
 
 void main() {
-  group('old', () {
-    test('params_summary', () {
-      final params = SalesOrderReadRpcMapper.paymentSummaryParams(
-        GetSalesOrderPaymentSummaryQuery(
-          id: checkoutQueryId,
-          tenantId: checkoutTenantId,
-          actorId: checkoutActorId,
-          salesOrderId: 'order-1',
-          expectedSourceVersion: 7,
-        ),
-      );
-      expect(params, equals(expectedSummaryParams(version: 7)));
-    });
-
-    test('params_settlement', () {
-      final params = SalesOrderInquiryRpcMapper.settlementParams(
-        GetSalesOrderSettlementQuery(
-          id: checkoutQueryId,
-          tenantId: checkoutTenantId,
-          actorId: checkoutActorId,
-          salesOrderId: 'order-1',
-          expectedSourceVersion: 7,
-        ),
-      );
-      expect(params, equals(expectedSettlementParams()));
-    });
-
-    test('params_transactions', () {
-      final params = SalesOrderInquiryRpcMapper.transactionsParams(
-        GetSalesOrderPaymentTransactionsQuery(
-          id: checkoutQueryId,
-          tenantId: checkoutTenantId,
-          actorId: checkoutActorId,
-          salesOrderId: 'order-1',
-          expectedSourceVersion: 7,
-          cursor: 'cur-1',
-          pageSize: 10,
-        ),
-      );
-      expect(params, equals(expectedTransactionsParams()));
-    });
-
-    test('params_get_order', () {
-      final params = SalesOrderReadRpcMapper.getSalesOrderParams(
-        GetSalesOrderQuery(
-          id: checkoutQueryId,
-          tenantId: checkoutTenantId,
-          actorId: checkoutActorId,
-          salesOrderId: 'order-1',
-        ),
-      );
-      expect(params, equals(expectedGetOrderParams()));
-    });
-
-    test('parse_summary', () {
-      expectSummary(SalesOrderReadRpcMapper.paymentSummaryFromJson(summaryJson()));
-    });
-    test('parse_settlement', () {
-      expectSettlement(SalesOrderInquiryRpcMapper.settlementFromJson(settlementJson()));
-    });
-    test('parse_transactions', () {
-      expectTransactions(SalesOrderInquiryRpcMapper.transactionsFromJson(transactionsJson()));
-    });
-    test('parse_order', () {
-      expectOrderResult(SalesOrderReadRpcMapper.salesOrderResultFromJson(orderResultJson()));
-    });
-  });
-
   group('new', () {
     late _RecordingRpc rpc;
     late SalesPaymentRepository payment;

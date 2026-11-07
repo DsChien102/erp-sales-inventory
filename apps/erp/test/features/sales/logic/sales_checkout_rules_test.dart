@@ -77,34 +77,6 @@ void main() {
     paymentIntents: c.intents,
   );
 
-  group('old', () {
-    for (final c in _cases) {
-      test('validator ${c.name}', () async {
-        final command = FinalizeSalesOrderCommand(
-          tenantId: 't',
-          actorId: 'a',
-          storeId: c.storeId,
-          currencyCode: c.currency,
-          lines: c.lines,
-          paymentIntents: c.intents,
-          commercialSnapshot: _snapshot(),
-          idempotencyKey: c.key,
-          payloadHash: c.hash,
-          correlationId: c.corr,
-        );
-        await expectLater(
-          FinalizeSalesOrderCommandValidator().validate(command),
-          throwsA(
-            isA<SalesContractException>()
-                .having((e) => e.code, 'code', 'CONTEXT_INVALID')
-                .having((e) => e.message, 'message', c.message),
-          ),
-        );
-      });
-    }
-    // tenantId / actorId rỗng chỉ có ở old — bỏ, repository không nhận.
-  });
-
   group('new', () {
     test('valid passes', () {
       checkFinalize(
@@ -131,9 +103,3 @@ void main() {
     }
   });
 }
-
-SalesCommercialSnapshotInput _snapshot() => SalesCommercialSnapshotInput(
-  store: StoreSnapshotDto(storeId: 's', storeCode: 'S', displayName: 'S'),
-  seller: ActorSnapshotDto(actorId: 'a', displayName: 'A'),
-  lines: const [],
-);
