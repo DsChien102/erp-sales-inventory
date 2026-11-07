@@ -46,7 +46,6 @@ void main() {
     expect(cubit.state.detail?.referenceNumber, 'RE-1');
     expect(cubit.state.orderNumber, 'SO-1');
     expect(cubit.state.customerDisplayName, 'Khách A');
-    expect(cubit.state.canComplete, isFalse);
   });
 
   test('NOT_FOUND and PROJECTION_PENDING map to dedicated statuses', () async {
@@ -67,64 +66,6 @@ void main() {
     addTearDown(pending.close);
     await pending.load();
     expect(pending.state.status, SalesReturnExchangeDetailStatus.projectionPending);
-  });
-
-  test('completeIfReady does nothing when completionReady is false', () async {
-    final module = _RecordingSalesModule();
-    final cubit = build(module);
-    addTearDown(cubit.close);
-    await cubit.load();
-
-    expect(await cubit.completeIfReady(), isFalse);
-    expect(module.commands, isEmpty);
-  });
-
-  test('completeIfReady dispatches complete attempt then reloads', () async {
-    final module = _RecordingSalesModule(
-      detail: _detail(completionReady: true, version: 4),
-      completeResult: const ReturnExchangeResultDto(
-        returnExchangeId: 'return-1',
-        salesOrderId: 'order-1',
-        version: 5,
-        status: ReturnExchangeStatus.completed,
-      ),
-      reloadDetailAfterComplete: _detail(
-        completionReady: false,
-        version: 5,
-        status: ReturnExchangeStatus.completed,
-      ),
-    );
-    final cubit = build(module);
-    addTearDown(cubit.close);
-    await cubit.load();
-
-    expect(cubit.state.canComplete, isTrue);
-    expect(await cubit.completeIfReady(), isTrue);
-    expect(module.commands.whereType<CompleteReturnExchangeCommand>(), hasLength(1));
-    final command = module.commands.single as CompleteReturnExchangeCommand;
-    expect(command.expectedVersion, 4);
-    expect(command.idempotencyKey, 'return-exchange:complete:attempt-1');
-    expect(cubit.state.detail?.status, ReturnExchangeStatus.completed);
-    expect(
-      cubit.state.orderDetail?.order.lifecycleStatus,
-      SalesOrderLifecycleStatus.completed,
-    );
-  });
-
-  test('IMPACT_PENDING during complete keeps processing without false success', () async {
-    final module = _RecordingSalesModule(
-      detail: _detail(completionReady: true),
-      commandErrorsQueue: const [AppException('IMPACT_PENDING')],
-    );
-    final cubit = build(module);
-    addTearDown(cubit.close);
-    await cubit.load();
-
-    expect(await cubit.completeIfReady(), isFalse);
-    expect(
-      cubit.state.status,
-      SalesReturnExchangeDetailStatus.projectionPending,
-    );
   });
 
   test('stale generation ignores older load response', () async {
@@ -174,44 +115,16 @@ void main() {
     expect(cubit.state.screenError, 'Không tải được chi tiết phiếu.');
   });
 
-  test('detail_complete_error_fallback', () async {
-    final cubit = build(
-      _RecordingSalesModule(
-        detail: _detail(completionReady: true),
-        commandErrorsQueue: const [
-          AppException('UNKNOWN_CODE', serverMessage: 'Cannot complete.'),
-        ],
-      ),
-    );
-    addTearDown(cubit.close);
-
-    await cubit.load();
-    final ok = await cubit.completeIfReady();
-
-    expect(ok, isFalse);
-    expect(cubit.state.status, SalesReturnExchangeDetailStatus.failure);
-    expect(cubit.state.screenError, 'Không hoàn tất được phiếu. Vui lòng thử lại.');
-  });
-
   test('refresh_not_found_clears_previous_error', () async {
     final module = _RecordingSalesModule(
-      detail: _detail(completionReady: true),
-      commandErrorsQueue: const [
-        AppException('UNKNOWN_CODE', serverMessage: 'Cannot complete.'),
-      ],
+      detailError: const AppException('DEPENDENCY_UNAVAILABLE'),
     );
     final cubit = build(module);
     addTearDown(cubit.close);
 
     await cubit.load();
-    final ok = await cubit.completeIfReady();
-
-    expect(ok, isFalse);
-    expect(cubit.state.status, SalesReturnExchangeDetailStatus.failure);
-    expect(
-      cubit.state.screenError,
-      'Không hoàn tất được phiếu. Vui lòng thử lại.',
-    );
+    expect(cubit.state.status, SalesReturnExchangeDetailStatus.retryableFailure);
+    expect(cubit.state.screenError, isNotNull);
 
     module.detailError = const AppException('NOT_FOUND');
     await cubit.refresh();
@@ -318,20 +231,12 @@ final class _RecordingSalesModule implements ISalesModule {
   _RecordingSalesModule({
     ReturnExchangeDetailDto? detail,
     this.detailError,
-    this.completeResult,
-    this.reloadDetailAfterComplete,
-    this.commandErrorsQueue = const <Object?>[],
     this.detailGate,
   }) : detail = detail ?? _detail();
 
   ReturnExchangeDetailDto detail;
   Object? detailError;
-  final ReturnExchangeResultDto? completeResult;
-  final ReturnExchangeDetailDto? reloadDetailAfterComplete;
-  final List<Object?> commandErrorsQueue;
   final Completer<void>? detailGate;
-  int _commandCall = 0;
-  int _detailReads = 0;
 
   final List<Object> queries = <Object>[];
   final List<Object> commands = <Object>[];
@@ -342,12 +247,8 @@ final class _RecordingSalesModule implements ISalesModule {
     if (query is GetReturnExchangeDetailQuery) {
       final gate = detailGate;
       if (gate != null) await gate.future;
-      _detailReads++;
       final error = detailError;
       if (error != null) throw error;
-      if (_detailReads > 1 && reloadDetailAfterComplete != null) {
-        return reloadDetailAfterComplete as TResult;
-      }
       return detail as TResult;
     }
     if (query is GetSalesOrderDetailQuery) return _orderDetail() as TResult;
@@ -364,19 +265,6 @@ final class _RecordingSalesModule implements ISalesModule {
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
     commands.add(command);
-    final index = _commandCall++;
-    final error = index < commandErrorsQueue.length ? commandErrorsQueue[index] : null;
-    if (error != null) throw error;
-    if (command is CompleteReturnExchangeCommand) {
-      return (completeResult ??
-              ReturnExchangeResultDto(
-                returnExchangeId: 'return-1',
-                salesOrderId: 'order-1',
-                version: detail.result.version + 1,
-                status: ReturnExchangeStatus.completed,
-              ))
-          as TResult;
-    }
     throw UnsupportedError('unexpected command ${command.runtimeType}');
   }
 }

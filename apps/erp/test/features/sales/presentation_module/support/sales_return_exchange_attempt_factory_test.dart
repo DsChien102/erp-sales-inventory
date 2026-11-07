@@ -200,7 +200,7 @@ void main() {
       newAttemptId: () => 'attempt-1',
     );
     expect(
-      () => factory.complete(
+      () => factory.discard(
         tenantId: 'tenant-1',
         actorId: 'actor-1',
         returnExchangeId: 'return-1',

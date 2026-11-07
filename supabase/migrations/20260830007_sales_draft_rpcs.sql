@@ -49,6 +49,8 @@ begin
     'currency_code', v_draft.currency_code,
     'saved_at', v_draft.updated_at,
     'saved_by_actor_id', v_draft.updated_by_user_id::text,
+    'created_by_user_id', v_draft.created_by_user_id::text,
+    'created_by_name', iam._member_display_name(v_draft.created_by_user_id),
     'customer', v_draft.customer_snapshot,
     'order_note', v_draft.note,
     'pricing_preview_token', v_draft.pricing_preview_token,
@@ -480,7 +482,9 @@ create or replace function sales.list_sales_order_drafts(
   p_actor_id uuid,
   p_store_id uuid,
   p_cursor text default null,
-  p_page_size integer default 25
+  p_page_size integer default 25,
+  p_search text default null,
+  p_created_by uuid default null
 ) returns jsonb
 language plpgsql
 security definer
@@ -489,12 +493,21 @@ as $$
 declare
   v_limit integer := greatest(1, least(coalesce(p_page_size, 25), 100));
   v_offset integer := coalesce(nullif(p_cursor, '')::integer, 0);
+  v_search text := nullif(btrim(catalog.unaccent_immutable(coalesce(p_search, ''))), '');
   v_ids uuid[];
   v_count integer;
+  v_total_count integer;
   v_items jsonb := '[]'::jsonb;
   v_id uuid;
 begin
   perform sales._assert_sales_actor(p_tenant_id, p_actor_id, p_store_id, 'sales.draft.restore');
+
+  select count(*)::integer
+  into v_total_count
+  from sales.sales_order_drafts
+  where tenant_id = p_tenant_id
+    and store_id = p_store_id
+    and status = 'active';
 
   select array_agg(id order by created_at desc, id desc), count(*)::integer
   into v_ids, v_count
@@ -504,6 +517,11 @@ begin
     where tenant_id = p_tenant_id
       and store_id = p_store_id
       and status = 'active'
+      and (p_created_by is null or created_by_user_id = p_created_by)
+      and (v_search is null
+           or catalog.unaccent_immutable(coalesce(customer_snapshot ->> 'display_name', '')) ilike '%' || v_search || '%'
+           or catalog.unaccent_immutable(coalesce(customer_snapshot ->> 'phone_number', '')) ilike '%' || v_search || '%'
+           or catalog.unaccent_immutable(coalesce(note, '')) ilike '%' || v_search || '%')
     order by created_at desc, id desc
     offset v_offset
     limit v_limit + 1
@@ -521,7 +539,8 @@ begin
     'next_cursor', case
       when coalesce(v_count, 0) > v_limit then (v_offset + v_limit)::text
       else null
-    end
+    end,
+    'total_count', coalesce(v_total_count, 0)
   );
 end;
 $$;
@@ -583,13 +602,13 @@ $$;
 revoke all on function sales.save_sales_order_draft(uuid, uuid, uuid, jsonb, text, jsonb, text, text, text, boolean, text, text, text) from public, anon;
 revoke all on function sales.update_sales_order_draft(uuid, uuid, uuid, uuid, jsonb, text, jsonb, integer, text, text, text, boolean, text, text, text) from public, anon;
 revoke all on function sales.cancel_sales_order_draft(uuid, uuid, uuid, uuid, integer, text, text, text, text) from public, anon;
-revoke all on function sales.list_sales_order_drafts(uuid, uuid, uuid, text, integer) from public, anon;
+revoke all on function sales.list_sales_order_drafts(uuid, uuid, uuid, text, integer, text, uuid) from public, anon;
 revoke all on function sales.get_sales_order_draft_for_restore(uuid, uuid, uuid, uuid, integer) from public, anon;
 
 grant execute on function sales.save_sales_order_draft(uuid, uuid, uuid, jsonb, text, jsonb, text, text, text, boolean, text, text, text) to authenticated;
 grant execute on function sales.update_sales_order_draft(uuid, uuid, uuid, uuid, jsonb, text, jsonb, integer, text, text, text, boolean, text, text, text) to authenticated;
 grant execute on function sales.cancel_sales_order_draft(uuid, uuid, uuid, uuid, integer, text, text, text, text) to authenticated;
-grant execute on function sales.list_sales_order_drafts(uuid, uuid, uuid, text, integer) to authenticated;
+grant execute on function sales.list_sales_order_drafts(uuid, uuid, uuid, text, integer, text, uuid) to authenticated;
 grant execute on function sales.get_sales_order_draft_for_restore(uuid, uuid, uuid, uuid, integer) to authenticated;
 
 revoke all on function sales._draft_payload(uuid, uuid) from public, anon, authenticated;

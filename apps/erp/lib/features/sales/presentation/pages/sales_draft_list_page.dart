@@ -27,6 +27,7 @@ class _SalesDraftListPageState extends State<SalesDraftListPage> {
   void initState() {
     super.initState();
     _cubit = context.read<SalesDraftListCubit>()..load();
+    _tabIndex = _cubit.state.scope == SalesDraftScopeFilter.all ? 1 : 0;
   }
 
   void _openCreateOrder() {
@@ -77,6 +78,7 @@ class _SalesDraftListPageState extends State<SalesDraftListPage> {
       onTapDraft: _openDraft,
       onDiscardDraft: _discardDraft,
       onClearSearch: _cubit.clearSearch,
+      onLoadMore: _cubit.loadMore,
     );
   }
 
@@ -125,7 +127,11 @@ class _SalesDraftListPageState extends State<SalesDraftListPage> {
                   child: VTabs(
                     key: const Key('tabs_sales_draft_scope'),
                     selectedIndex: _tabIndex,
-                    onTabSelected: (index) => setState(() => _tabIndex = index),
+                    onTabSelected: (index) {
+                      setState(() => _tabIndex = index);
+                      final scope = index == 0 ? SalesDraftScopeFilter.mine : SalesDraftScopeFilter.all;
+                      _cubit.setScope(scope);
+                    },
                     tone: VComponentTone.success,
                     semanticLabel: 'Phạm vi đơn nháp',
                     child: Column(

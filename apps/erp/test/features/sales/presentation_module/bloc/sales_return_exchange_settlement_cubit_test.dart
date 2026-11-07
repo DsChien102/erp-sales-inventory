@@ -143,6 +143,21 @@ void main() {
     expect(cubit.state.settlement?.receivableReverseMinor, 150000);
   });
 
+  test('settlement_default_method_cash', () async {
+    const initial = SalesReturnExchangeSettlementState(
+      orderId: 'order-1',
+      returnExchangeId: 'return-1',
+    );
+    expect(initial.paymentMethod, SalesPaymentMethod.cash);
+
+    final module = _RecordingSalesModule(detail: detail(plan: collectPlan));
+    final cubit = build(module);
+    addTearDown(cubit.close);
+
+    await cubit.loadAndEvaluate();
+    expect(cubit.state.paymentMethod, SalesPaymentMethod.cash);
+  });
+
   test('walk-in collect cannot leave an outstanding balance as debt', () async {
     final module = _RecordingSalesModule(
       detail: detail(plan: collectPlan),

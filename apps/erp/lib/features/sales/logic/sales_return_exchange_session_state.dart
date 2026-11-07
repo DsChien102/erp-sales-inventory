@@ -6,7 +6,6 @@ enum SalesReturnExchangeSessionStatus {
   loading,
   ready,
   blocked,
-  catalogEmpty,
   saving,
   stale,
   retryableFailure,
@@ -18,27 +17,17 @@ final class SalesReturnLineEdit extends Equatable {
   const SalesReturnLineEdit({
     required this.salesOrderLineId,
     required this.quantityMicros,
-    this.reasonCode,
-    this.conditionCode,
   });
 
   final String salesOrderLineId;
   final int quantityMicros;
-  final String? reasonCode;
-  final String? conditionCode;
 
   SalesReturnLineEdit copyWith({
     int? quantityMicros,
-    String? reasonCode,
-    String? conditionCode,
-    bool clearReason = false,
-    bool clearCondition = false,
   }) {
     return SalesReturnLineEdit(
       salesOrderLineId: salesOrderLineId,
       quantityMicros: quantityMicros ?? this.quantityMicros,
-      reasonCode: clearReason ? null : (reasonCode ?? this.reasonCode),
-      conditionCode: clearCondition ? null : (conditionCode ?? this.conditionCode),
     );
   }
 
@@ -46,8 +35,6 @@ final class SalesReturnLineEdit extends Equatable {
   List<Object?> get props => [
     salesOrderLineId,
     quantityMicros,
-    reasonCode,
-    conditionCode,
   ];
 }
 
@@ -103,8 +90,6 @@ class SalesReturnExchangeSessionState extends Equatable {
     this.returnExchangeId,
     this.draftVersion,
     this.returnableLines = const <ReturnableOrderLineDto>[],
-    this.reasons = const <ReturnExchangePolicyOptionDto>[],
-    this.conditions = const <ReturnExchangePolicyOptionDto>[],
     this.returnEdits = const <SalesReturnLineEdit>[],
     this.exchangeEdits = const <SalesExchangeLineEdit>[],
     this.blockers = const <SalesBlockerDto>[],
@@ -121,8 +106,6 @@ class SalesReturnExchangeSessionState extends Equatable {
   final String? returnExchangeId;
   final int? draftVersion;
   final List<ReturnableOrderLineDto> returnableLines;
-  final List<ReturnExchangePolicyOptionDto> reasons;
-  final List<ReturnExchangePolicyOptionDto> conditions;
   final List<SalesReturnLineEdit> returnEdits;
   final List<SalesExchangeLineEdit> exchangeEdits;
   final List<SalesBlockerDto> blockers;
@@ -147,8 +130,6 @@ class SalesReturnExchangeSessionState extends Equatable {
     String? returnExchangeId,
     int? draftVersion,
     List<ReturnableOrderLineDto>? returnableLines,
-    List<ReturnExchangePolicyOptionDto>? reasons,
-    List<ReturnExchangePolicyOptionDto>? conditions,
     List<SalesReturnLineEdit>? returnEdits,
     List<SalesExchangeLineEdit>? exchangeEdits,
     List<SalesBlockerDto>? blockers,
@@ -169,8 +150,6 @@ class SalesReturnExchangeSessionState extends Equatable {
       returnExchangeId: clearReturnExchangeId ? null : (returnExchangeId ?? this.returnExchangeId),
       draftVersion: clearDraftVersion ? null : (draftVersion ?? this.draftVersion),
       returnableLines: returnableLines ?? this.returnableLines,
-      reasons: reasons ?? this.reasons,
-      conditions: conditions ?? this.conditions,
       returnEdits: returnEdits ?? this.returnEdits,
       exchangeEdits: exchangeEdits ?? this.exchangeEdits,
       blockers: blockers ?? this.blockers,
@@ -190,8 +169,6 @@ class SalesReturnExchangeSessionState extends Equatable {
     returnExchangeId,
     draftVersion,
     returnableLines,
-    reasons,
-    conditions,
     returnEdits,
     exchangeEdits,
     blockers,

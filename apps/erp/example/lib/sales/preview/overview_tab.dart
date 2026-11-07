@@ -50,7 +50,6 @@ class SalesOverviewTab extends StatelessWidget {
       'SalesCheckoutSummaryCard',
       'SalesCheckoutPaymentMethodSelector',
       'SalesCheckoutReceivableCard',
-      'SalesPaymentQrCard',
       'SalesAmountHighlightRow',
       'showSalesCheckoutFinalizeSheet',
     ],

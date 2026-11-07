@@ -1,3 +1,4 @@
+import 'package:erp/features/sales/data/models/sales_draft_list_page.dart';
 import 'package:vet45_sales_application/application.dart';
 
 /// Dựng tham số RPC + đọc JSON của 5 RPC nháp (chép từ SalesOrderDraftRpcMapper).
@@ -58,23 +59,36 @@ abstract final class SalesDraftJson {
     );
   }
 
-  static PagedSalesOrderDraftListDto page(Map<String, dynamic> json) {
+  static SalesDraftListPage page(Map<String, dynamic> json) {
     final items = json['items'];
     final hasMore = json['has_more'];
     if (hasMore is! bool) {
       throw const FormatException('Expected required boolean field has_more.');
     }
-    return PagedSalesOrderDraftListDto(
-      page: OpaqueCursorPageDto<SalesOrderDraftDto>(
-        items: items is List
-            ? items
-                  .whereType<Map>()
-                  .map((item) => draft(item.cast<String, dynamic>()))
-                  .toList(growable: false)
-            : const [],
-        hasMore: hasMore,
-        nextCursor: json['next_cursor'] as String?,
-      ),
+    final totalCount = json['total_count'];
+    if (totalCount is! int) {
+      throw const FormatException('Expected required integer field total_count.');
+    }
+    final list = <SalesDraftListEntry>[];
+    if (items is List) {
+      for (final item in items) {
+        if (item is Map) {
+          final m = item.cast<String, dynamic>();
+          list.add(
+            SalesDraftListEntry(
+              draft: draft(m),
+              createdByUserId: (m['created_by_user_id'] as String?)?.trim() ?? '',
+              createdByName: (m['created_by_name'] as String?)?.trim(),
+            ),
+          );
+        }
+      }
+    }
+    return SalesDraftListPage(
+      items: List.unmodifiable(list),
+      hasMore: hasMore,
+      totalCount: totalCount,
+      nextCursor: json['next_cursor'] as String?,
     );
   }
 

@@ -21,7 +21,6 @@ class SalesSlipPdfGenerator {
     String? storeName,
     String? storeCode,
     String? customerPhoneNumber,
-    int? existingCustomerDebtMinor,
   }) async {
     final fonts = await _loadFonts();
     final theme = pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold);
@@ -45,7 +44,6 @@ class SalesSlipPdfGenerator {
             storeName: storeName,
             storeCode: storeCode,
             customerPhoneNumber: customerPhoneNumber,
-            existingCustomerDebtMinor: existingCustomerDebtMinor,
             fonts: fonts,
           ),
         ),
@@ -65,7 +63,6 @@ class SalesSlipPdfGenerator {
     String? storeName,
     String? storeCode,
     String? customerPhoneNumber,
-    int? existingCustomerDebtMinor,
   }) async {
     if (type == SalesSlipType.sales) {
       throw UnsupportedError(
@@ -88,7 +85,6 @@ class SalesSlipPdfGenerator {
       storeName: storeName,
       storeCode: storeCode,
       customerPhoneNumber: customerPhoneNumber,
-      existingCustomerDebtMinor: existingCustomerDebtMinor,
     );
   }
 
@@ -146,22 +142,10 @@ class SalesSlipPdfGenerator {
     String? storeName,
     String? storeCode,
     String? customerPhoneNumber,
-    int? existingCustomerDebtMinor,
     required _PdfFonts fonts,
   }) {
     final plan = detail.settlementPlan;
-    final netMinor = plan.netDifferenceMinor;
     final rows = settlementRows(plan);
-    final pendingReceivable = plan.receivableCreateAmountMinor > 0
-        ? plan.receivableCreateAmountMinor
-        : plan.pendingReceivableCreateMinor;
-    final newlyIncurredDebt = pendingReceivable > 0
-        ? pendingReceivable
-        : (netMinor > 0 && plan.processedCollectMinor < netMinor
-              ? netMinor - plan.processedCollectMinor
-              : 0);
-    final existingDebt = existingCustomerDebtMinor ?? 0;
-    final finalDebt = existingDebt + newlyIncurredDebt;
 
     final returnItems = detail.lines
         .where((line) => line.kind == ReturnExchangeLineKind.returnLine)
@@ -257,24 +241,6 @@ class SalesSlipPdfGenerator {
             isBoldLabel: i == 0,
             isBoldValue: i == 0,
             valueColor: i == 0 ? PdfColor.fromHex('#1F7A36') : null,
-          ),
-        ],
-        if (customerDisplayName.trim().isNotEmpty) ...[
-          pw.SizedBox(height: 6),
-          pw.Divider(color: PdfColors.grey300, thickness: 0.5),
-          pw.SizedBox(height: 6),
-          _row(
-            'Công nợ cũ của khách',
-            MoneyFormatter.formatMinor(existingDebt),
-            fonts,
-          ),
-          pw.SizedBox(height: 3),
-          _row(
-            'Tổng công nợ',
-            MoneyFormatter.formatMinor(finalDebt),
-            fonts,
-            isBoldLabel: true,
-            isBoldValue: true,
           ),
         ],
         pw.SizedBox(height: 8),

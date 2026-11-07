@@ -281,30 +281,14 @@ final class SalesReceiptPdfGenerator {
   }
 
   static pw.Widget _buildDebtSection(SalesReceiptDocumentDto document, _PdfFonts fonts) {
-    final existingDebt = document.customer?.existingDebtMinor ?? 0;
     final newDebt = document.outstandingTotal.amountMinor;
-    final totalDebt = existingDebt + newDebt;
 
     return pw.Column(
       children: [
         _row(
-          'Công nợ cũ của khách',
-          MoneyFormatter.formatMinor(existingDebt),
-          fonts,
-        ),
-        pw.SizedBox(height: 3),
-        _row(
           'Công nợ phát sinh từ đơn',
           MoneyFormatter.formatMinor(newDebt),
           fonts,
-        ),
-        pw.SizedBox(height: 3),
-        _row(
-          'Tổng công nợ',
-          MoneyFormatter.formatMinor(totalDebt),
-          fonts,
-          boldLabel: true,
-          boldValue: true,
         ),
       ],
     );

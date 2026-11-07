@@ -7,8 +7,6 @@ final class SalesReturnExchangeSessionVm {
     required this.customerDisplayName,
     required this.sourceOrderVersion,
     required this.returnableLines,
-    required this.reasons,
-    required this.conditions,
     this.returnExchangeId,
     this.draftVersion,
   });
@@ -18,8 +16,6 @@ final class SalesReturnExchangeSessionVm {
   final String customerDisplayName;
   final int sourceOrderVersion;
   final List<ReturnableOrderLineDto> returnableLines;
-  final List<ReturnExchangePolicyOptionDto> reasons;
-  final List<ReturnExchangePolicyOptionDto> conditions;
   final String? returnExchangeId;
   final int? draftVersion;
 }

@@ -156,7 +156,6 @@ abstract final class SalesPreviewFixtures {
     provisionalTotalAmountMinor: 1250000,
     customerName: 'Trần Thu',
     customerPhone: '0903000111',
-    customerDebtMinor: 200000,
     paymentMode: SalesPaymentMode.cash,
     cashPaidMinor: 1000000,
     dueDate: null,

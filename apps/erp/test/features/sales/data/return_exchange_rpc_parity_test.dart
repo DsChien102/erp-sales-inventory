@@ -705,32 +705,6 @@ void main() {
       expect(result.status, ReturnExchangeStatus.confirmed);
     });
 
-    test('params_complete', () async {
-      final rpc = _RecordingRpc()..result = sampleReturnExchangeResultJson(status: 'completed');
-      final repo = ReturnExchangeRepository(
-        rpc: rpc,
-        tenantId: () async => parityTenantId,
-        actorId: () async => parityActorId,
-        newId: () => parityCommandId,
-      );
-      final request = const ReturnExchangeMutationRequest(
-        commandId: parityCommandId,
-        returnExchangeId: parityReturnExchangeId,
-        idempotencyKey: 'return-exchange:complete:$parityCommandId',
-        payloadHash: 'hash-complete-1',
-        correlationId: parityCorrelationId,
-        expectedVersion: 5,
-      );
-      final result = await repo.complete(request);
-      expect(rpc.calls.single.schema, 'sales');
-      expect(rpc.calls.single.fn, 'complete_return_exchange');
-      expect(
-        rpc.calls.single.params,
-        equals(expectedCompleteReturnExchangeParams(payloadHash: 'hash-complete-1')),
-      );
-      expect(result.status, ReturnExchangeStatus.completed);
-    });
-
     test('params_evaluate', () async {
       final rpc = _RecordingRpc()..result = sampleValuationJson();
       final repo = ReturnExchangeRepository(

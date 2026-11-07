@@ -349,24 +349,6 @@ abstract final class ReturnExchangeJson {
     };
   }
 
-  static Map<String, dynamic> completeParams({
-    required ReturnExchangeMutationRequest request,
-    required String tenantId,
-    required String actorId,
-  }) {
-    return <String, dynamic>{
-      'command_id': request.commandId,
-      'tenant_id': tenantId,
-      'actor_id': actorId,
-      'return_exchange_id': request.returnExchangeId,
-      'idempotency_key': request.idempotencyKey,
-      'payload_hash': request.payloadHash,
-      'correlation_id': request.correlationId,
-      'causation_id': null,
-      'expected_version': request.expectedVersion,
-    };
-  }
-
   static Map<String, dynamic> evaluateParams({
     required String queryId,
     required String tenantId,

@@ -251,7 +251,7 @@ void main() {
           pageSize: 10,
         ),
       );
-      expect(params, equals(expectedListParams));
+      expect(params, equals(expectedLegacyListParams));
     });
 
     test('parse_draft', () {

@@ -15,7 +15,6 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
     required this.onViewOrderDetail,
     this.onViewReturnSlipDetail,
     this.onRetry,
-    this.onComplete,
   });
 
   final SalesReturnExchangeDetailState state;
@@ -23,7 +22,6 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
   final VoidCallback onViewOrderDetail;
   final VoidCallback? onViewReturnSlipDetail;
   final VoidCallback? onRetry;
-  final VoidCallback? onComplete;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +57,6 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
         );
       case SalesReturnExchangeDetailStatus.blocked:
       case SalesReturnExchangeDetailStatus.loaded:
-      case SalesReturnExchangeDetailStatus.completing:
         final detail = state.detail;
         if (detail == null) {
           return _message(
@@ -92,20 +89,6 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
                         key: const Key('wgt_sg13_screen_error'),
                         title: state.screenError!,
                         status: VBannerStatus.warning,
-                      ),
-                    ],
-                    if (state.canComplete) ...[
-                      const VGap.md(),
-                      VButton(
-                        key: const Key('btn_sg13_complete'),
-                        label: state.status == SalesReturnExchangeDetailStatus.completing
-                            ? 'Đang hoàn tất...'
-                            : 'Hoàn tất phiếu',
-                        variant: VButtonVariant.primary,
-                        fullWidth: true,
-                        onPressed: state.status == SalesReturnExchangeDetailStatus.completing
-                            ? null
-                            : onComplete,
                       ),
                     ],
                   ],

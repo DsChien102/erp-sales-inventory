@@ -79,10 +79,28 @@ void main() {
     expect(find.text('Thử lại'), findsOneWidget);
     expect(find.textContaining('DT-00018'), findsNothing);
   });
+
+  testWidgets('result_body_has_no_complete_button', (tester) async {
+    salesModule.completionReady = true;
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SalesReturnExchangeResultPage(
+          orderId: 'order-1',
+          returnExchangeId: 'return-1',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('wgt_sg13_return_result_page')), findsOneWidget);
+    expect(find.text('Hoàn tất phiếu'), findsNothing);
+    expect(find.byKey(const Key('btn_sg13_complete')), findsNothing);
+  });
 }
 
 final class _RecordingSalesModule implements ISalesModule {
   Object? detailError;
+  bool completionReady = false;
 
   final List<Object> queries = <Object>[];
 
@@ -92,7 +110,7 @@ final class _RecordingSalesModule implements ISalesModule {
     if (query is GetReturnExchangeDetailQuery) {
       final error = detailError;
       if (error != null) throw error;
-      return _detail() as TResult;
+      return _detail(completionReady: completionReady) as TResult;
     }
     if (query is GetSalesOrderDetailQuery) {
       return SalesOrderDetailDto(
@@ -141,7 +159,7 @@ final class _RecordingSalesModule implements ISalesModule {
   }
 }
 
-ReturnExchangeDetailDto _detail() {
+ReturnExchangeDetailDto _detail({bool completionReady = false}) {
   const plan = ReturnExchangeSettlementPlanDto(
     currencyCode: 'VND',
     netDifferenceMinor: 0,
@@ -181,7 +199,7 @@ ReturnExchangeDetailDto _detail() {
     lines: const [],
     valuation: valuation,
     settlementPlan: plan,
-    completionReady: false,
+    completionReady: completionReady,
   );
 }
 

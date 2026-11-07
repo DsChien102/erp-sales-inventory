@@ -122,7 +122,7 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
           clearScreenError: true,
           clearSettledNow: true,
           clearPaymentDueDate: true,
-          paymentMethod: SalesPaymentMethod.manualBankTransfer,
+          paymentMethod: SalesPaymentMethod.cash,
         ),
       );
     } on AppException catch (error) {

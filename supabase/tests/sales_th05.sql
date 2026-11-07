@@ -168,10 +168,12 @@ declare
   v_ov int;
   v_sv int;
 begin
+  reset role;  -- đọc version bằng quyền chủ (bảng sales bật RLS, không có policy); RPC huỷ vẫn gọi bằng authenticated
   select version into v_ov from sales.sales_orders where tenant_id = p_tenant and id = p_order;
   select version into v_sv from sales.sales_order_settlements
     where tenant_id = p_tenant and sales_order_id = p_order
     order by version desc limit 1;
+  set local role authenticated;
   return sales.confirm_sales_order_cancellation(
     command_id => gen_random_uuid()::text, tenant_id => p_tenant, actor_id => p_actor,
     sales_order_id => p_order, reason_text => 'TH05 test huy',
@@ -263,7 +265,9 @@ begin
     p_tenant_id => v_ta, p_actor_id => v_ua, p_name => 'Thuoc P1 TH05',
     p_reference_id => 'TH05-P1', p_unit_name => 'Hop');
   v_p1 := (v_res ->> 'product_id')::uuid;
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   select id into v_u1 from catalog.product_units where product_id = v_p1 and is_base_unit = true;
+  set local role authenticated;
   perform catalog.set_product_unit_price_band(
     p_tenant_id => v_ta, p_product_id => v_p1, p_product_unit_id => v_u1,
     p_source_type => 'manual',
@@ -274,7 +278,9 @@ begin
     p_tenant_id => v_ta, p_actor_id => v_ua, p_name => 'Thuoc P2 TH05',
     p_reference_id => 'TH05-P2', p_unit_name => 'Hop');
   v_p2 := (v_res ->> 'product_id')::uuid;
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   select id into v_u2 from catalog.product_units where product_id = v_p2 and is_base_unit = true;
+  set local role authenticated;
   perform catalog.set_product_unit_price_band(
     p_tenant_id => v_ta, p_product_id => v_p2, p_product_unit_id => v_u2,
     p_source_type => 'manual',
@@ -282,13 +288,13 @@ begin
     p_floor_price_before_vat => 70000, p_floor_price_after_vat => 70000);
 
   -- Sản phẩm phải bán được; nếu chưa thì bật (giao dịch rollback cuối tệp).
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   if exists (select 1 from catalog.products
              where id in (v_p1, v_p2) and is_ready_to_sell is not true) then
-    reset role;
     update catalog.products set is_ready_to_sell = true where id in (v_p1, v_p2);
-    set local role authenticated;
     raise notice 'sales_th05: is_ready_to_sell phải bật tay cho P1/P2';
   end if;
+  set local role authenticated;
 
   -- Đơn vị quy đổi cho C17–C19 (add_product_conversion_unit trả {unit:{id}} như catalog_th02.sql:288)
   v_res := catalog.add_product_conversion_unit(v_ta, v_p1, 'Thung', 10);
@@ -324,7 +330,9 @@ begin
   if v_r2 ->> 'salesOrderId' is distinct from v_res ->> 'salesOrderId' then
     raise exception 'FAIL: C01 replay returned different order: % vs %', v_res, v_r2;
   end if;
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   select count(*) into v_n from sales.sales_orders where tenant_id = v_ta;
+  set local role authenticated;
   if v_n <> 1 then
     raise exception 'FAIL: C01 expected 1 order, got %', v_n;
   end if;
@@ -350,7 +358,9 @@ begin
     p_idempotency_key => 'c03-draft');
   v_draft_id := (v_draft ->> 'draft_id')::uuid;
   v_draft_ver := (v_draft ->> 'version')::int;
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   select count(*) into v_n from sales.sales_orders where tenant_id = v_ta;
+  set local role authenticated;
   v_res := public._th05_finalize(v_ta, v_ua, v_store, null,
     jsonb_build_array(v_line1), public._th05_pay(100000), null, 'c03-key',
     v_draft_id, v_draft_ver - 1);
@@ -439,8 +449,10 @@ begin
   if v_res ->> 'status' is distinct from 'succeeded' then
     raise exception 'FAIL: C08 expected succeeded, got %', v_res;
   end if;
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   select payment_due_date into v_due from sales.sales_orders
     where id = (v_res ->> 'salesOrderId')::uuid;
+  set local role authenticated;
   if v_due is distinct from v_today then
     raise exception 'FAIL: C08 payment_due_date expected %, got %', v_today, v_due;
   end if;
@@ -499,8 +511,10 @@ begin
     jsonb_build_array(public._th05_line(v_p1, v_u1, 3000000, 100000)),
     public._th05_pay(300000), null, 'c12-key');
   v_order2 := (v_res ->> 'salesOrderId')::uuid;
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   select id into v_orig_line from sales.sales_order_lines
     where tenant_id = v_ta and sales_order_id = v_order2 limit 1;
+  set local role authenticated;
 
   -- C15 trước: ngày hẹn quá khứ bị chặn (phiếu 1, chưa xác nhận được)
   v_ret := sales.start_return_exchange(
@@ -544,7 +558,9 @@ begin
     return_exchange_id => v_ret_id, idempotency_key => 'c14-confirm', payload_hash => 'h',
     correlation_id => gen_random_uuid()::text, expected_version => v_ret_ver,
     payment_settled_now_minor => 0, payment_due_date => v_today + 7);
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   select payment_due_date into v_due from sales.sales_orders where id = v_order2;
+  set local role authenticated;
   if v_due is distinct from v_today + 7 then
     raise exception 'FAIL: C14 payment_due_date expected %, got %', v_today + 7, v_due;
   end if;
@@ -568,8 +584,10 @@ begin
     jsonb_build_array(public._th05_line(v_p1, v_u1, 2000000, 100000)),
     public._th05_pay(200000), null, 'c13-key');
   v_order := (v_res ->> 'salesOrderId')::uuid;
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   select id into v_orig_line from sales.sales_order_lines
     where tenant_id = v_ta and sales_order_id = v_order limit 1;
+  set local role authenticated;
   v_ret := sales.start_return_exchange(
     command_id => gen_random_uuid()::text, tenant_id => v_ta, actor_id => v_ua,
     sales_order_id => v_order, entry_source => 'standard',
@@ -655,9 +673,11 @@ begin
     p_store_id => v_store, p_expected_version => v_draft_ver,
     p_idempotency_key => 'c18-cancel');
   perform catalog.delete_product_conversion_unit(v_ta, v_p1, v_u1_conv2);   -- C18: không ném lỗi
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   if exists (select 1 from catalog.product_units where id = v_u1_conv2) then
     raise exception 'FAIL: C18 conversion unit still exists after delete';
   end if;
+  set local role authenticated;
 
   perform sales.save_sales_order_draft(
     p_tenant_id => v_ta, p_actor_id => v_ua, p_store_id => v_store,
@@ -672,6 +692,132 @@ begin
     if sqlerrm not like '%Đơn vị đã được dùng trong giao dịch%' then
       raise exception 'FAIL: C19 unexpected error [%]', sqlerrm;
     end if;
+  end;
+
+  -- =========================================================================
+  -- D01: list_sales_order_drafts tìm theo tên khách không dấu (G6)
+  -- =========================================================================
+  v_draft := sales.save_sales_order_draft(
+    p_tenant_id => v_ta, p_actor_id => v_ua, p_store_id => v_store,
+    p_customer => jsonb_build_object('customer_id', v_anbinh, 'display_name', 'Đại lý An Bình', 'phone_number', '0911000001'),
+    p_currency_code => 'VND',
+    p_lines => jsonb_build_array(public._th05_draft_line(v_p1, v_u1, 1000000, 100000)),
+    p_idempotency_key => 'd01-draft');
+  v_draft_id := (v_draft ->> 'draft_id')::uuid;
+
+  v_res := sales.list_sales_order_drafts(
+    p_tenant_id => v_ta, p_actor_id => v_ua, p_store_id => v_store,
+    p_search => 'an binh');
+  if not exists (
+    select 1 from jsonb_array_elements(v_res -> 'items') it
+    where (it ->> 'id')::uuid = v_draft_id
+  ) then
+    raise exception 'FAIL: D01 draft not found by unaccent search "an binh", got %', v_res;
+  end if;
+
+  -- =========================================================================
+  -- D02: Lọc theo người tạo p_created_by (G8)
+  -- =========================================================================
+  declare
+    v_ub uuid := gen_random_uuid();
+  begin
+    reset role;
+    insert into auth.users (
+      id, instance_id, aud, role, email,
+      raw_app_meta_data, raw_user_meta_data,
+      email_confirmed_at, created_at, updated_at
+    ) values (
+      v_ub, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated',
+      'ub@th05.test',
+      '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"display_name":"Nhan vien B"}'::jsonb,
+      now(), now(), now()
+    );
+    insert into iam.memberships (
+      tenant_id, user_id, role, is_owner, version, created_at, updated_at
+    ) values (
+      v_ta, v_ub, 'owner', true, 1, now(), now()
+    );
+
+    v_claims := json_build_object('sub', v_ub::text, 'role', 'authenticated')::text;
+    perform set_config('request.jwt.claims', v_claims, true);
+    perform set_config('request.jwt.claim.sub', v_ub::text, true);
+    set local role authenticated;
+
+    -- v_ub tạo 1 đơn nháp
+    v_r2 := sales.save_sales_order_draft(
+      p_tenant_id => v_ta, p_actor_id => v_ub, p_store_id => v_store,
+      p_customer => null, p_currency_code => 'VND',
+      p_lines => jsonb_build_array(public._th05_draft_line(v_p1, v_u1, 1000000, 100000)),
+      p_idempotency_key => 'd02-draft-ub');
+
+    -- Quay lại user v_ua
+    reset role;
+    v_claims := json_build_object('sub', v_ua::text, 'role', 'authenticated')::text;
+    perform set_config('request.jwt.claims', v_claims, true);
+    perform set_config('request.jwt.claim.sub', v_ua::text, true);
+    set local role authenticated;
+
+    -- Gọi với p_created_by => v_ub chỉ ra đơn của v_ub
+    v_res := sales.list_sales_order_drafts(
+      p_tenant_id => v_ta, p_actor_id => v_ua, p_store_id => v_store,
+      p_created_by => v_ub);
+    if exists (
+      select 1 from jsonb_array_elements(v_res -> 'items') it
+      where (it ->> 'created_by_user_id')::uuid <> v_ub
+    ) or jsonb_array_length(v_res -> 'items') = 0 then
+      raise exception 'FAIL: D02 filter p_created_by => v_ub returned wrong items: %', v_res;
+    end if;
+
+    -- Gọi với p_created_by => v_ua chỉ ra đơn của v_ua
+    v_res := sales.list_sales_order_drafts(
+      p_tenant_id => v_ta, p_actor_id => v_ua, p_store_id => v_store,
+      p_created_by => v_ua);
+    if exists (
+      select 1 from jsonb_array_elements(v_res -> 'items') it
+      where (it ->> 'created_by_user_id')::uuid <> v_ua
+    ) or jsonb_array_length(v_res -> 'items') = 0 then
+      raise exception 'FAIL: D02 filter p_created_by => v_ua returned wrong items: %', v_res;
+    end if;
+
+    -- =========================================================================
+    -- D03: created_by_name trong payload không null và không phải UUID (G7)
+    -- =========================================================================
+    v_res := sales.list_sales_order_drafts(
+      p_tenant_id => v_ta, p_actor_id => v_ua, p_store_id => v_store,
+      p_created_by => v_ub);
+    if (v_res -> 'items' -> 0 ->> 'created_by_name') is null
+       or (v_res -> 'items' -> 0 ->> 'created_by_name') = v_ub::text then
+      raise exception 'FAIL: D03 created_by_name is null or uuid: %', v_res -> 'items' -> 0;
+    end if;
+
+    -- =========================================================================
+    -- D04: total_count là tổng số nháp active của store (không lọc bởi search/created_by)
+    -- =========================================================================
+    declare
+      v_store_active_drafts integer;
+      v_res_search jsonb;
+      v_res_creator jsonb;
+    begin
+      reset role;  -- đọc bảng bằng quyền chủ (RLS không policy)
+      select count(*)::integer into v_store_active_drafts
+      from sales.sales_order_drafts
+      where tenant_id = v_ta and store_id = v_store and status = 'active';
+      set local role authenticated;
+
+      v_res_search := sales.list_sales_order_drafts(
+        p_tenant_id => v_ta, p_actor_id => v_ua, p_store_id => v_store,
+        p_search => 'an binh');
+      v_res_creator := sales.list_sales_order_drafts(
+        p_tenant_id => v_ta, p_actor_id => v_ua, p_store_id => v_store,
+        p_created_by => v_ub);
+
+      if (v_res_search ->> 'total_count')::integer is distinct from v_store_active_drafts
+         or (v_res_creator ->> 'total_count')::integer is distinct from v_store_active_drafts then
+        raise exception 'FAIL: D04 total_count not equal to active store drafts (expected %, got search=%, creator=%)',
+          v_store_active_drafts, v_res_search ->> 'total_count', v_res_creator ->> 'total_count';
+      end if;
+    end;
   end;
 
   raise notice 'sales_th05: OK';

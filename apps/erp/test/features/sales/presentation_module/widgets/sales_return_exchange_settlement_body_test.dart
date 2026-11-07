@@ -8,6 +8,39 @@ import 'package:erp/features/sales/presentation.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  testWidgets('settlement_transfer_shows_no_qr', (tester) async {
+    await tester.pumpWidget(
+      _harness(
+        SalesReturnExchangeSettlementState(
+          orderId: 'order-1',
+          returnExchangeId: 'return-1',
+          status: SalesReturnExchangeSettlementStatus.ready,
+          valuation: _collectValuation(),
+          paymentMethod: SalesPaymentMethod.manualBankTransfer,
+        ),
+      ),
+    );
+
+    expect(find.text('QR cửa hàng · ACB'), findsNothing);
+    expect(find.text('Nguyễn Văn A'), findsNothing);
+  });
+
+  testWidgets('settlement_has_no_offset_debt_switch', (tester) async {
+    await tester.pumpWidget(
+      _harness(
+        SalesReturnExchangeSettlementState(
+          orderId: 'order-1',
+          returnExchangeId: 'return-1',
+          status: SalesReturnExchangeSettlementStatus.ready,
+          valuation: _refundWithDebtReductionValuation(),
+        ),
+      ),
+    );
+
+    expect(find.byKey(const Key('sw_sg12_offset_debt')), findsNothing);
+    expect(find.text('Sẽ áp dụng khi có module công nợ.'), findsNothing);
+  });
+
   testWidgets('retryable failure without plan shows the real error', (tester) async {
     await tester.pumpWidget(
       _harness(
@@ -71,7 +104,6 @@ void main() {
     expect(find.text('Tiền mặt'), findsOneWidget);
     expect(find.text('Chuyển khoản'), findsOneWidget);
     expect(find.text('Kết hợp'), findsNothing);
-    expect(find.text('QR cửa hàng · ACB'), findsOneWidget);
     expect(find.text('Công nợ phát sinh'), findsOneWidget);
     expect(find.text('Tóm tắt đổi/trả'), findsOneWidget);
 
@@ -169,35 +201,6 @@ void main() {
       expect(find.byKey(const Key('wgt_sg12_debt_card')), findsNothing);
     },
   );
-
-  testWidgets('offset switch is shown locked with a pending note and cannot change amounts', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      _harness(
-        SalesReturnExchangeSettlementState(
-          orderId: 'order-1',
-          returnExchangeId: 'return-1',
-          status: SalesReturnExchangeSettlementStatus.ready,
-          valuation: _refundWithDebtReductionValuation(),
-        ),
-      ),
-    );
-
-    final toggle = tester.widget<VSwitch>(find.byKey(const Key('sw_sg12_offset_debt')));
-    expect(toggle.value, isFalse);
-    expect(toggle.enabled, isFalse);
-    expect(toggle.onChanged, isNull);
-    expect(find.text('Cấn trừ công nợ hiện tại'), findsOneWidget);
-    expect(find.byKey(const Key('txt_sg12_offset_debt_pending')), findsOneWidget);
-    expect(find.text('Sẽ áp dụng khi có module công nợ.'), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('sw_sg12_offset_debt')));
-    await tester.pumpAndSettle();
-    expect(find.text('100.000đ'), findsWidgets);
-    expect(find.text('300.000đ'), findsOneWidget);
-    expect(find.text('Còn phải hoàn'), findsNothing);
-  });
 
   testWidgets('outstanding balance follows the edited settle-now amount', (tester) async {
     await tester.pumpWidget(

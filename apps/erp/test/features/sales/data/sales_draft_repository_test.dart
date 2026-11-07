@@ -2,6 +2,7 @@
 
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/supabase/supabase_rpc.dart';
+import 'package:erp/features/sales/data/mappers/sales_draft_json.dart';
 import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase/supabase.dart';
@@ -90,5 +91,64 @@ void main() {
     await repo.list(storeId: 's1');
     expect(rpc.calls.single.$3!['p_page_size'], 25);
     expect(rpc.calls.single.$3!['p_cursor'], isNull);
+  });
+
+  test('list_sends_search_and_created_by', () async {
+    rpc.result = samplePageJson();
+    await repo.list(
+      storeId: 's1',
+      pageSize: 25,
+      search: 'an',
+      createdByUserId: 'user-1',
+    );
+    expect(rpc.calls.single.$3!['p_page_size'], 25);
+    expect(rpc.calls.single.$3!['p_search'], 'an');
+    expect(rpc.calls.single.$3!['p_created_by'], 'user-1');
+  });
+
+  test('list_null_filters_keep_keys', () async {
+    rpc.result = samplePageJson();
+    await repo.list(storeId: 's1');
+    expect(rpc.calls.single.$3!.containsKey('p_search'), isTrue);
+    expect(rpc.calls.single.$3!['p_search'], isNull);
+    expect(rpc.calls.single.$3!.containsKey('p_created_by'), isTrue);
+    expect(rpc.calls.single.$3!['p_created_by'], isNull);
+  });
+
+  test('page_reads_created_by_name', () {
+    final jsonWithName = {
+      'items': [sampleDraftJson()..['created_by_name'] = 'Lan'],
+      'has_more': false,
+      'total_count': 1,
+    };
+    final page1 = SalesDraftJson.page(jsonWithName);
+    expect(page1.items.single.createdByName, 'Lan');
+
+    final jsonWithoutName = {
+      'items': [sampleDraftJson()..remove('created_by_name')],
+      'has_more': false,
+      'total_count': 1,
+    };
+    final page2 = SalesDraftJson.page(jsonWithoutName);
+    expect(page2.items.single.createdByName, isNull);
+  });
+
+  test('page_reads_total_count', () {
+    final json = {
+      'items': [sampleDraftJson()],
+      'has_more': false,
+      'total_count': 25,
+    };
+    final page = SalesDraftJson.page(json);
+    expect(page.totalCount, 25);
+
+    expect(
+      () => SalesDraftJson.page({'items': [], 'has_more': false}),
+      throwsA(isA<FormatException>()),
+    );
+    expect(
+      () => SalesDraftJson.page({'items': [], 'has_more': false, 'total_count': 'not-an-int'}),
+      throwsA(isA<FormatException>()),
+    );
   });
 }

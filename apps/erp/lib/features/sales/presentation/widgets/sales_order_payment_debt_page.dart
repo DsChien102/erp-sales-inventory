@@ -50,8 +50,6 @@ class SalesOrderPaymentDebtPage extends StatelessWidget {
                 const VGap(VSpacing.space2),
                 _TransactionListCard(transactions: payment.transactions),
               ],
-              const VGap(VSpacing.space2),
-              _ReceivableEntry(customerName: customerName),
               const VGap(VSpacing.space4),
             ],
           ),
@@ -245,66 +243,6 @@ class _TransactionListCard extends StatelessWidget {
               amountMinor: tx.amountMinor,
               tone: VComponentTone.neutral,
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ReceivableEntry extends StatelessWidget {
-  const _ReceivableEntry({required this.customerName});
-
-  final String customerName;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.vColors;
-
-    return VCard(
-      key: const Key('btn_sg08_view_receivable'),
-      onTap: () {
-        VToast.show(
-          context,
-          title: 'Sổ công nợ',
-          message: 'Đang mở sổ công nợ khách hàng $customerName...',
-          type: VToastType.info,
-        );
-      },
-      backgroundColor: colors.surface,
-      border: Border.all(color: colors.borderDefault),
-      padding: const EdgeInsets.all(VSpacing.space3),
-      child: Row(
-        children: [
-          VIcon(
-            icon: VIcons.banknoteArrowDown,
-            size: 22,
-            color: colors.textPrimary,
-          ),
-          const VGap.horizontalMd(),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VText(
-                  'Xem công nợ',
-                  variant: VTextVariant.bodyDefault,
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const VGap.xs(),
-                VText(
-                  'Mở sổ công nợ của khách hàng',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
-                ),
-              ],
-            ),
-          ),
-          const VGap.horizontalSm(),
-          VIcon(
-            icon: VIcons.chevronRight,
-            size: 20,
-            color: colors.textMuted,
-          ),
         ],
       ),
     );

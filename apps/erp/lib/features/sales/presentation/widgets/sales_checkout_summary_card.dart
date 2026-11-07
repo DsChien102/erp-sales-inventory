@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../models/sales_order/sales_checkout_vm.dart';
-import 'package:erp/core/formatting/money_formatter.dart';
-/// Customer header for the checkout screen: name, phone, and the customer's
-/// existing debt ("Nợ cũ"). The debt badge is hidden for walk-in customers.
+
+/// Customer header for the checkout screen: name and phone.
 class SalesCheckoutSummaryCard extends StatelessWidget {
   const SalesCheckoutSummaryCard({
     super.key,
@@ -46,14 +45,6 @@ class SalesCheckoutSummaryCard extends StatelessWidget {
               ],
             ),
           ),
-          if (!vm.isWalkIn) ...[
-            const VGap.horizontalSm(),
-            VBadge(
-              key: const Key('txt_sg05_customer_debt'),
-              label: 'Nợ cũ ${MoneyFormatter.formatMinor(vm.customerDebtMinor)}',
-              tone: VComponentTone.neutral,
-            ),
-          ],
         ],
       ),
     );

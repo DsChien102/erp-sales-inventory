@@ -1,5 +1,4 @@
 import 'package:erp/core/session/session_controller.dart';
-import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'package:erp/features/sales/logic/sales_draft_list_cubit.dart';
 import 'package:flutter/material.dart';
@@ -36,25 +35,7 @@ class _SalesDraftListScopeState extends State<SalesDraftListScope> {
       activeStoreContext: _SalesActiveStoreAdapter(
         GetIt.instance<SessionController>(),
       ),
-      actorNameResolver: _resolveActorName,
     )..load();
-  }
-
-  static Future<String?> _resolveActorName(String actorId) async {
-    try {
-      final executionContext = GetIt.instance<IExecutionContext>();
-      final myUserId = await executionContext.requireUserId();
-      if (actorId == myUserId) {
-        final profile = await GetIt.instance<AccountRepository>().getMyAccount();
-        final fullName = profile.fullName.trim();
-        if (fullName.isNotEmpty) return fullName;
-        final email = profile.email.trim();
-        if (email.isNotEmpty) return email;
-      }
-      return null;
-    } catch (_) {
-      return null;
-    }
   }
 
   @override

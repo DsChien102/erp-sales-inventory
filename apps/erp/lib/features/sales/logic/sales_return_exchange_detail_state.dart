@@ -10,7 +10,6 @@ enum SalesReturnExchangeDetailStatus {
   projectionPending,
   notFound,
   blocked,
-  completing,
   retryableFailure,
   failure,
 }
@@ -33,11 +32,6 @@ class SalesReturnExchangeDetailState extends Equatable {
   final SalesOrderReturnSummaryDto? returnSummary;
   final String? screenError;
   final SalesReturnExchangeDetailStatus status;
-
-  bool get canComplete =>
-      detail?.completionReady == true &&
-      (status == SalesReturnExchangeDetailStatus.loaded ||
-          status == SalesReturnExchangeDetailStatus.retryableFailure);
 
   String get orderNumber {
     final num = orderDetail?.order.orderNumber;
@@ -63,8 +57,6 @@ class SalesReturnExchangeDetailState extends Equatable {
     final code = orderDetail?.store.storeCode;
     return (code != null && code.isNotEmpty) ? code : '';
   }
-
-  int get existingCustomerDebtMinor => orderDetail?.customer?.existingDebtMinor ?? 0;
 
   SalesReturnExchangeDetailState copyWith({
     SalesReturnExchangeDetailVm? detail,

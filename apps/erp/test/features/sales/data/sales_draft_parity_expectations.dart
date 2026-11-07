@@ -1,5 +1,6 @@
 // ignore_for_file: implementation_imports, depend_on_referenced_packages
 
+import 'package:erp/features/sales/data/models/sales_draft_list_page.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
 
@@ -152,9 +153,23 @@ const expectedListParams = <String, dynamic>{
   'p_store_id': draftParityStoreId,
   'p_cursor': 'cursor-1',
   'p_page_size': 10,
+  'p_search': null,
+  'p_created_by': null,
 };
 
-Map<String, dynamic> sampleDraftJson({String id = 'draft-1'}) => {
+const expectedLegacyListParams = <String, dynamic>{
+  'p_tenant_id': draftParityTenantId,
+  'p_actor_id': draftParityActorId,
+  'p_store_id': draftParityStoreId,
+  'p_cursor': 'cursor-1',
+  'p_page_size': 10,
+};
+
+Map<String, dynamic> sampleDraftJson({
+  String id = 'draft-1',
+  String createdByUserId = 'user-1',
+  String? createdByName = 'Nguyen Van A',
+}) => {
   'draft_id': id,
   'version': 2,
   'status': 'active',
@@ -166,6 +181,8 @@ Map<String, dynamic> sampleDraftJson({String id = 'draft-1'}) => {
   'needs_revalidation': true,
   'saved_at': '2026-08-06T01:00:00.000Z',
   'saved_by_actor_id': 'actor-1',
+  'created_by_user_id': createdByUserId,
+  'created_by_name': createdByName,
   'customer': {
     'customer_id': 'customer-1',
     'display_name': 'Nguyen Van A',
@@ -219,6 +236,7 @@ Map<String, dynamic> sampleRestoreJson() => {
 Map<String, dynamic> samplePageJson() => {
   'items': [sampleDraftJson(), sampleDraftJson(id: 'draft-2')],
   'has_more': true,
+  'total_count': 42,
   'next_cursor': 'cursor-2',
 };
 
@@ -271,6 +289,17 @@ void expectRestore(dynamic dto) {
 }
 
 void expectPage(dynamic dto) {
+  if (dto is SalesDraftListPage) {
+    expect(dto.items, hasLength(2));
+    expectDraft(dto.items[0].draft);
+    expectDraft(dto.items[1].draft, id: 'draft-2');
+    expect(dto.items[0].createdByUserId, 'user-1');
+    expect(dto.items[0].createdByName, 'Nguyen Van A');
+    expect(dto.hasMore, isTrue);
+    expect(dto.totalCount, 42);
+    expect(dto.nextCursor, 'cursor-2');
+    return;
+  }
   expect(dto.page.items, hasLength(2));
   expectDraft(dto.page.items[0]);
   expectDraft(dto.page.items[1], id: 'draft-2');

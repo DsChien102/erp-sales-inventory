@@ -31,7 +31,7 @@ class SalesReturnExchangeSettlementState extends Equatable {
     this.status = SalesReturnExchangeSettlementStatus.initial,
     this.settledNowMinor,
     this.paymentDueDate,
-    this.paymentMethod = SalesPaymentMethod.manualBankTransfer,
+    this.paymentMethod = SalesPaymentMethod.cash,
   });
 
   final String orderId;

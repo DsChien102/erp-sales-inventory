@@ -369,15 +369,8 @@ class _SalesCheckoutPageState extends State<SalesCheckoutPage> {
                           disableLowPercent: vm.isWalkIn,
                           onSelect: attemptBusy ? (_) {} : _cubit.selectPercent,
                         ),
-                      if (vm.paymentMode == SalesPaymentMode.bankTransfer ||
-                          (vm.paymentMode == SalesPaymentMode.mixed && vm.bankPaidMinor > 0)) ...[
-                        const VGap.sm(),
-                        SalesPaymentQrCard(
-                          amountMinor: vm.bankPaidMinor,
-                        ),
-                        const VGap.sm(),
-                      ],
                       if (vm.paymentMode != SalesPaymentMode.cash) ...[
+                        if (vm.paymentMode != SalesPaymentMode.mixed) const VGap.sm(),
                         const VText(
                           'Mã giao dịch',
                           variant: VTextVariant.bodyDefault,

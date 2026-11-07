@@ -551,6 +551,17 @@ void main() {
       expect(find.textContaining('xung đột'), findsWidgets);
       expect(find.byKey(const Key('wgt_sg05_attempt_panel')), findsNothing);
     });
+
+    testWidgets('checkout_transfer_shows_no_qr', (tester) async {
+      await pumpCheckout(tester);
+
+      await _tapVisible(tester, find.text('Chuyển khoản'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('VET45 · ACB'), findsNothing);
+      expect(find.textContaining('1028 6888'), findsNothing);
+      expect(find.byKey(const Key('input_sg05_transaction_code')), findsOneWidget);
+    });
   });
 }
 

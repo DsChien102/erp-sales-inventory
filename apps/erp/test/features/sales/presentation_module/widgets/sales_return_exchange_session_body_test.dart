@@ -8,7 +8,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('SalesReturnExchangeSessionBody', () {
-    testWidgets('renders loading / blocked / catalogEmpty / error keys', (tester) async {
+    testWidgets('renders loading / blocked / error keys', (tester) async {
       await tester.pumpWidget(
         _harness(
           const SalesReturnExchangeSessionState(
@@ -33,16 +33,6 @@ void main() {
       );
       expect(find.byKey(const Key('wgt_sg11_blocked')), findsOneWidget);
       expect(find.text('Blocked reason'), findsOneWidget);
-
-      await tester.pumpWidget(
-        _harness(
-          const SalesReturnExchangeSessionState(
-            orderId: 'order-1',
-            status: SalesReturnExchangeSessionStatus.catalogEmpty,
-          ),
-        ),
-      );
-      expect(find.byKey(const Key('wgt_sg11_catalog_empty')), findsOneWidget);
 
       await tester.pumpWidget(
         _harness(
@@ -193,8 +183,6 @@ Widget _harness(
         state: state,
         onRetry: onRetry,
         onReturnQuantityChanged: onReturnQuantityChanged ?? (id, qty) {},
-        onReturnReasonChanged: (id, code) {},
-        onReturnConditionChanged: (id, code) {},
         onExchangeQuantityChanged: (id, qty) {},
         onAddExchangePressed: () {},
       ),
@@ -224,20 +212,6 @@ SalesReturnExchangeSessionState _readyState() {
         soldQuantity: QuantityDto(quantityMicros: QuantityDto.scale * 2),
         returnableQuantity: QuantityDto(quantityMicros: QuantityDto.scale * 2),
         originalUnitPrice: MoneyDto(amountMinor: 50000, currencyCode: 'VND'),
-      ),
-    ],
-    reasons: [
-      ReturnExchangePolicyOptionDto(
-        code: 'DAMAGED',
-        displayName: 'Hỏng',
-        sortOrder: 100,
-      ),
-    ],
-    conditions: [
-      ReturnExchangePolicyOptionDto(
-        code: 'OPENED',
-        displayName: 'Đã mở',
-        sortOrder: 100,
       ),
     ],
   );

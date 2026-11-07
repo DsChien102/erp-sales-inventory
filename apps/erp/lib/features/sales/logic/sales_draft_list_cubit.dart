@@ -1,4 +1,5 @@
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/models/sales_draft_list_page.dart';
 import 'package:erp/features/sales/data/sales_draft_errors.dart';
 import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'package:erp/features/sales/logic/sales_draft_error_messages.dart';
@@ -6,46 +7,63 @@ import 'package:erp/features/sales/logic/sales_draft_list_state.dart';
 import 'package:erp/features/sales/presentation/models/sales_order_draft/sales_draft_list_item_vm.dart';
 import 'package:erp/features/sales/presentation/support/i_sales_active_store_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
-
-typedef SalesActorNameResolver = Future<String?> Function(String actorId);
 
 final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
   SalesDraftListCubit({
     required SalesDraftRepository repository,
     required IExecutionContext executionContext,
     required ISalesActiveStoreContext activeStoreContext,
-    SalesActorNameResolver? actorNameResolver,
   }) : _repository = repository,
        _executionContext = executionContext,
        _activeStoreContext = activeStoreContext,
-       _actorNameResolver = actorNameResolver,
        super(const SalesDraftListInitial());
 
   final SalesDraftRepository _repository;
   final IExecutionContext _executionContext;
   final ISalesActiveStoreContext _activeStoreContext;
-  final SalesActorNameResolver? _actorNameResolver;
-  final Map<String, String> _actorNamesCache = {};
 
-  List<SalesDraftListItemVm> _allRows = const <SalesDraftListItemVm>[];
   String? _query;
   String? _discardingDraftId;
+  SalesDraftScopeFilter _scope = SalesDraftScopeFilter.mine;
+  int _generation = 0;
   bool _isLoading = false;
+  bool _isLoadingMore = false;
 
-  Future<void> load({bool isRefresh = false}) async {
+  Future<void> setScope(SalesDraftScopeFilter scope) async {
     if (isClosed) return;
-    if (_isLoading) return;
+    if (_scope == scope) return;
+    _scope = scope;
+    await load(isRefresh: true, force: true);
+  }
+
+  Future<void> searchByKeyword(String query) async {
+    if (isClosed) return;
+    final q = query.trim().isEmpty ? null : query.trim();
+    if (q == _query) return;
+    _query = q;
+    await load(isRefresh: true, force: true);
+  }
+
+  Future<void> clearSearch() async {
+    await searchByKeyword('');
+  }
+
+  Future<void> load({bool isRefresh = false, bool force = false}) async {
+    if (isClosed) return;
+    if (_isLoading && !force) return;
     _isLoading = true;
+    final gen = ++_generation;
     try {
-      await _load(isRefresh: isRefresh);
+      await _load(isRefresh: isRefresh, gen: gen);
     } finally {
-      _isLoading = false;
+      if (gen == _generation) {
+        _isLoading = false;
+      }
     }
   }
 
-  Future<void> _load({required bool isRefresh}) async {
+  Future<void> _load({required bool isRefresh, required int gen}) async {
     final current = state;
     final retain = switch (current) {
       SalesDraftListLoaded(:final items) when !isRefresh => items,
@@ -63,50 +81,48 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
         needsReload: false,
         actionMessage: null,
         totalCount: current.totalCount,
+        scope: _scope,
       ),
     );
 
     try {
       final actorId = await _executionContext.requireUserId();
       final storeId = await _activeStoreContext.requireActiveStoreId();
-      if (isClosed) return;
+      if (isClosed || gen != _generation) return;
 
-      final result = await _repository.list(storeId: storeId, pageSize: 50);
-      if (isClosed) return;
-
-      final resolver = _actorNameResolver;
-      if (resolver != null) {
-        final uniqueActorIds = result.page.items
-            .map((d) => d.savedByActorId.trim())
-            .where((id) => id.isNotEmpty && !_actorNamesCache.containsKey(id))
-            .toSet();
-        for (final id in uniqueActorIds) {
-          try {
-            final resolved = await resolver(id);
-            if (resolved != null && resolved.trim().isNotEmpty) {
-              _actorNamesCache[id] = resolved.trim();
-            }
-          } catch (_) {}
-        }
-      }
-
-      _allRows = _mapDrafts(
-        result.page.items,
-        currentUserId: actorId,
-        actorNames: _actorNamesCache,
+      final page = await _repository.list(
+        storeId: storeId,
+        pageSize: 25,
+        search: _query,
+        createdByUserId: _scope == SalesDraftScopeFilter.mine ? actorId : null,
       );
-      _emitFiltered(
-        current,
-        needsReload: false,
-        clearActionMessage: true,
+      if (isClosed || gen != _generation) return;
+
+      final items = _mapEntries(page.items, currentUserId: actorId);
+
+      emit(
+        SalesDraftListLoaded(
+          items: items,
+          isDefaultEmpty: items.isEmpty && _query == null,
+          query: _query,
+          isCreating: current.isCreating,
+          discardingDraftId: _discardingDraftId,
+          needsReload: false,
+          actionMessage: null,
+          totalCount: page.totalCount,
+          scope: _scope,
+          hasMore: page.hasMore,
+          nextCursor: page.nextCursor,
+        ),
       );
     } on AppException catch (error) {
-      if (isClosed) return;
+      if (isClosed || gen != _generation) return;
       if (error.code == SalesDraftErrorCodes.noPermission ||
           error.code == SalesDraftErrorCodes.dataScopeDenied) {
         emit(
           SalesDraftListBlocked(
             message: salesDraftErrorMessage(error, fallback: 'Không thể tải danh sách đơn nháp'),
+            scope: _scope,
           ),
         );
         return;
@@ -116,30 +132,88 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
           'Không thể tải danh sách đơn nháp',
           query: _query,
           totalCount: current.totalCount,
+          scope: _scope,
         ),
       );
     } catch (_) {
-      if (isClosed) return;
+      if (isClosed || gen != _generation) return;
       emit(
         SalesDraftListError(
           'Không thể tải danh sách đơn nháp',
           query: _query,
           totalCount: current.totalCount,
+          scope: _scope,
         ),
       );
     }
   }
 
-  List<SalesDraftListItemVm> _mapDrafts(
-    List<SalesOrderDraftDto> items, {
+  Future<void> loadMore() async {
+    if (isClosed) return;
+    if (_isLoading || _isLoadingMore) return;
+    final current = state;
+    if (current is! SalesDraftListLoaded) return;
+    if (!current.hasMore || current.nextCursor == null) return;
+
+    _isLoadingMore = true;
+    final gen = _generation;
+    emit(current.copyWith(isLoadingMore: true, clearLoadMoreError: true));
+
+    try {
+      final actorId = await _executionContext.requireUserId();
+      final storeId = await _activeStoreContext.requireActiveStoreId();
+      if (isClosed || gen != _generation) return;
+
+      final page = await _repository.list(
+        storeId: storeId,
+        cursor: current.nextCursor,
+        pageSize: 25,
+        search: _query,
+        createdByUserId: _scope == SalesDraftScopeFilter.mine ? actorId : null,
+      );
+      if (isClosed || gen != _generation) return;
+
+      final newItems = _mapEntries(page.items, currentUserId: actorId);
+      final combined = [...current.items, ...newItems];
+
+      emit(
+        current.copyWith(
+          items: combined,
+          hasMore: page.hasMore,
+          nextCursor: page.nextCursor,
+          isLoadingMore: false,
+        ),
+      );
+    } on AppException catch (error) {
+      if (isClosed || gen != _generation) return;
+      emit(
+        current.copyWith(
+          isLoadingMore: false,
+          loadMoreError: salesDraftErrorMessage(error, fallback: 'Không thể tải thêm đơn nháp'),
+        ),
+      );
+    } catch (_) {
+      if (isClosed || gen != _generation) return;
+      emit(
+        current.copyWith(
+          isLoadingMore: false,
+          loadMoreError: 'Không thể tải thêm đơn nháp',
+        ),
+      );
+    } finally {
+      _isLoadingMore = false;
+    }
+  }
+
+  List<SalesDraftListItemVm> _mapEntries(
+    List<SalesDraftListEntry> entries, {
     required String currentUserId,
-    Map<String, String> actorNames = const {},
   }) {
-    return items
-        .map((d) {
+    return entries
+        .map((entry) {
+          final d = entry.draft;
           final customer = d.customer;
-          final isOwnedByMe = d.savedByActorId == currentUserId;
-          final resolvedName = actorNames[d.savedByActorId];
+          final isOwnedByMe = entry.createdByUserId == currentUserId;
           return SalesDraftListItemVm(
             draftId: d.draftId,
             version: d.version,
@@ -153,28 +227,22 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
                 ? SalesDraftUiStatus.needsCheck
                 : SalesDraftUiStatus.composing,
             warningMessage: null,
-            createdByName: resolvedName ?? d.savedByActorId,
+            createdByName: entry.createdByName,
             isOwnedByMe: isOwnedByMe,
           );
         })
         .toList(growable: false);
   }
 
-  Future<void> searchByKeyword(String query) async {
-    _query = query.trim().isEmpty ? null : query.trim();
-    _emitFiltered(state);
-  }
-
-  void clearSearch() {
-    searchByKeyword('');
-  }
-
   Future<bool> discardDraft(String draftId, {int? expectedVersion}) async {
     if (isClosed) return false;
     if (_discardingDraftId != null) return false;
 
+    final current = state;
+    if (current is! SalesDraftListLoaded) return false;
+
     SalesDraftListItemVm? row;
-    for (final item in _allRows) {
+    for (final item in current.items) {
       if (item.draftId == draftId) {
         row = item;
         break;
@@ -184,11 +252,12 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
 
     final version = expectedVersion ?? row.version;
     _discardingDraftId = draftId;
-    _emitFiltered(
-      state,
-      discardingDraftId: draftId,
-      clearActionMessage: true,
-      needsReload: false,
+    emit(
+      current.copyWith(
+        discardingDraftId: draftId,
+        clearActionMessage: true,
+        needsReload: false,
+      ),
     );
 
     try {
@@ -203,81 +272,45 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
       );
       if (isClosed) return false;
 
-      _allRows = _allRows.where((item) => item.draftId != draftId).toList(growable: false);
+      final updated = current.items.where((item) => item.draftId != draftId).toList(growable: false);
       _discardingDraftId = null;
-      _emitFiltered(
-        state,
-        clearDiscarding: true,
-        needsReload: false,
-        clearActionMessage: true,
+      emit(
+        current.copyWith(
+          items: updated,
+          clearDiscarding: true,
+          needsReload: false,
+          clearActionMessage: true,
+          totalCount: (current.totalCount - 1).clamp(0, 1 << 30),
+        ),
       );
       return true;
     } on AppException catch (error) {
       if (isClosed) return false;
       _discardingDraftId = null;
-      final stale = error.code == SalesDraftErrorCodes.staleData || error.code == 'STALE_VERSION';
-      _emitFiltered(
-        state,
-        clearDiscarding: true,
-        needsReload: stale,
-        actionMessage: stale
-            ? 'Đơn nháp đã thay đổi. Vui lòng tải lại danh sách.'
-            : salesDraftErrorMessage(error, fallback: 'Không hủy được đơn nháp'),
+      final stale = error.code == SalesDraftErrorCodes.staleData ||
+                    error.code == 'STALE_VERSION' ||
+                    error.code == SalesDraftErrorCodes.referenceUnavailable;
+      emit(
+        current.copyWith(
+          clearDiscarding: true,
+          needsReload: stale,
+          actionMessage: stale
+              ? 'Đơn nháp đã thay đổi. Vui lòng tải lại danh sách.'
+              : salesDraftErrorMessage(error, fallback: 'Không xóa được đơn nháp'),
+        ),
       );
       return false;
     } catch (_) {
       if (isClosed) return false;
       _discardingDraftId = null;
-      _emitFiltered(
-        state,
-        clearDiscarding: true,
-        needsReload: false,
-        actionMessage: 'Không hủy được đơn nháp',
+      emit(
+        current.copyWith(
+          clearDiscarding: true,
+          needsReload: false,
+          actionMessage: 'Không xóa được đơn nháp',
+        ),
       );
       return false;
     }
-  }
-
-  void _emitFiltered(
-    SalesDraftListState current, {
-    String? discardingDraftId,
-    bool clearDiscarding = false,
-    bool? needsReload,
-    String? actionMessage,
-    bool clearActionMessage = false,
-  }) {
-    var list = _allRows;
-
-    final q = _query?.toLowerCase();
-    if (q != null && q.isNotEmpty) {
-      list = list
-          .where((item) {
-            final text = [
-              item.customerLabel,
-              item.phone ?? '',
-              item.note ?? '',
-              item.draftId,
-            ].join(' ').toLowerCase();
-            return text.contains(q);
-          })
-          .toList(growable: false);
-    }
-
-    final nextDiscarding = clearDiscarding ? null : (discardingDraftId ?? _discardingDraftId);
-    final nextNeedsReload = needsReload ?? current.needsReload;
-    final nextActionMessage = clearActionMessage ? null : (actionMessage ?? current.actionMessage);
-
-    emit(
-      SalesDraftListLoaded(
-        items: list,
-        isDefaultEmpty: _allRows.isEmpty,
-        query: _query,
-        isCreating: current.isCreating,
-        discardingDraftId: nextDiscarding,
-        needsReload: nextNeedsReload,
-        actionMessage: nextActionMessage,
-        totalCount: _allRows.length,
-      ),
-    );
   }
 }

@@ -16,7 +16,6 @@ class SalesSlipPreviewPage extends StatelessWidget {
     this.storeName,
     this.storeCode,
     this.customerPhoneNumber,
-    this.existingCustomerDebtMinor,
   });
 
   final SalesReturnExchangeDetailVm detail;
@@ -25,7 +24,6 @@ class SalesSlipPreviewPage extends StatelessWidget {
   final String? storeName;
   final String? storeCode;
   final String? customerPhoneNumber;
-  final int? existingCustomerDebtMinor;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +64,6 @@ class SalesSlipPreviewPage extends StatelessWidget {
                 storeName: storeName,
                 storeCode: storeCode,
                 customerPhoneNumber: customerPhoneNumber,
-                existingCustomerDebtMinor: existingCustomerDebtMinor,
               );
               if (!context.mounted) return;
               await SalesPdfRunner.share(
@@ -99,7 +96,6 @@ class SalesSlipPreviewPage extends StatelessWidget {
           storeName: storeName,
           storeCode: storeCode,
           customerPhoneNumber: customerPhoneNumber,
-          existingCustomerDebtMinor: existingCustomerDebtMinor,
         ),
         pdfFileName: pdfFileName,
         useActions: false,

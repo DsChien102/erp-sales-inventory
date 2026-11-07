@@ -45,7 +45,7 @@ void main() {
 
       expect(fake.listCalls, hasLength(1));
       expect(fake.listCalls.single.storeId, 'store-1');
-      expect(fake.listCalls.single.pageSize, 50);
+      expect(fake.listCalls.single.pageSize, 25);
 
       final loaded = cubit.state as SalesDraftListLoaded;
       expect(loaded.items, hasLength(2));
@@ -55,7 +55,7 @@ void main() {
       expect(named.customerLabel, 'Nguyễn Văn A');
       expect(named.phone, '0901 111 222');
       expect(named.note, 'Giao chiều');
-      expect(named.createdByName, 'user-1');
+      expect(named.createdByName, isNull);
       expect(named.isOwnedByMe, isTrue);
       expect(named.lineCount, 2);
       expect(named.total.amountMinor, 250000);
@@ -66,7 +66,7 @@ void main() {
       expect(walkIn.customerLabel, 'Khách lẻ');
       expect(walkIn.phone, isNull);
       expect(walkIn.note, isNull);
-      expect(walkIn.createdByName, 'user-2');
+      expect(walkIn.createdByName, isNull);
       expect(walkIn.isOwnedByMe, isFalse);
       expect(walkIn.lineCount, 0);
       expect(walkIn.uiStatus, SalesDraftUiStatus.composing);
@@ -114,7 +114,7 @@ void main() {
       expect((cubit.state as SalesDraftListLoaded).items, hasLength(1));
       expect(cubit.state.totalCount, 2);
 
-      cubit.clearSearch();
+      await cubit.clearSearch();
       await cubit.discardDraft('draft-other', expectedVersion: 1);
       expect(cubit.state.totalCount, 1);
     });
@@ -187,8 +187,8 @@ void main() {
           ),
         ],
         cancelError: const AppException(
-          'REFERENCE_UNAVAILABLE',
-          serverMessage: 'Draft not found.',
+          'SYSTEM_ERROR',
+          serverMessage: 'Server error.',
         ),
       );
       final cubit = _cubit(fake);
@@ -203,7 +203,7 @@ void main() {
       expect(loaded.items.single.draftId, 'draft-fail');
       expect(loaded.needsReload, isFalse);
       expect(loaded.discardingDraftId, isNull);
-      expect(loaded.actionMessage, 'Không hủy được đơn nháp');
+      expect(loaded.actionMessage, 'Không xóa được đơn nháp');
     });
 
     test('stale cancel retains row and reports reload-needed', () async {
@@ -270,7 +270,7 @@ void main() {
       expect(results.where((ok) => ok).length, 1);
     });
 
-    test('cancel_reference_unavailable_no_reload', () async {
+    test('cancel_reference_unavailable_needs_reload', () async {
       final fake = _repo(
         listItems: [_simple('draft-gone')],
         cancelError: const AppException('REFERENCE_UNAVAILABLE'),
@@ -282,8 +282,8 @@ void main() {
       expect(await cubit.discardDraft('draft-gone', expectedVersion: 1), isFalse);
 
       final loaded = cubit.state as SalesDraftListLoaded;
-      expect(loaded.needsReload, isFalse);
-      expect(loaded.actionMessage, 'Không hủy được đơn nháp');
+      expect(loaded.needsReload, isTrue);
+      expect(loaded.actionMessage, 'Đơn nháp đã thay đổi. Vui lòng tải lại danh sách.');
     });
 
     test('cancel_sends_idempotency_key', () async {
@@ -388,54 +388,6 @@ void main() {
       expect(base.copyWith(createdByName: '0981287110', isOwnedByMe: true).creatorLabel, isNull);
       expect(base.copyWith(createdByName: '0981287110', isOwnedByMe: false).creatorLabel, isNull);
       expect(base.copyWith(createdByName: '+84981287110', isOwnedByMe: false).creatorLabel, isNull);
-    });
-
-    test('SalesDraftListCubit resolves actor name using actorNameResolver', () async {
-      final fake = _repo(
-        listItems: [
-          _draft(
-            draftId: 'draft-named',
-            version: 1,
-            savedAt: DateTime.utc(2026, 8, 1),
-            savedByActorId: 'user-1',
-            customer: null,
-            lineCount: 1,
-            totalMinor: 10000,
-          ),
-          _draft(
-            draftId: 'draft-email',
-            version: 1,
-            savedAt: DateTime.utc(2026, 8, 2),
-            savedByActorId: 'user-2',
-            customer: null,
-            lineCount: 1,
-            totalMinor: 10000,
-          ),
-        ],
-      );
-
-      final cubit = SalesDraftListCubit(
-        repository: fake,
-        executionContext: const _ExecutionContext(),
-        activeStoreContext: const _ActiveStoreContext(),
-        actorNameResolver: (actorId) async {
-          if (actorId == 'user-1') return 'Nguyễn Văn An';
-          if (actorId == 'user-2') return 'user2@example.com';
-          return null;
-        },
-      );
-      addTearDown(cubit.close);
-
-      await cubit.load(isRefresh: true);
-      final loaded = cubit.state as SalesDraftListLoaded;
-
-      final item1 = loaded.items.firstWhere((e) => e.draftId == 'draft-named');
-      expect(item1.createdByName, 'Nguyễn Văn An');
-      expect(item1.creatorLabel, 'Nguyễn Văn An');
-
-      final item2 = loaded.items.firstWhere((e) => e.draftId == 'draft-email');
-      expect(item2.createdByName, 'user2@example.com');
-      expect(item2.creatorLabel, 'user2@example.com');
     });
   });
 }

@@ -78,7 +78,6 @@ export 'presentation/support/sales_transaction_result_mapper.dart';
 
 // Widgets
 export 'presentation/widgets/sales_checkout_payment_method_selector.dart';
-export 'presentation/widgets/sales_payment_qr_card.dart';
 export 'presentation/widgets/sales_checkout_summary_card.dart';
 export 'presentation/widgets/sales_checkout_percent_row.dart';
 export 'presentation/widgets/sales_checkout_receivable_card.dart';

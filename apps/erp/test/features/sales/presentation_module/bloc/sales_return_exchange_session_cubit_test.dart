@@ -30,8 +30,6 @@ void main() {
   Future<void> prepareReady(SalesReturnExchangeSessionCubit cubit) async {
     await cubit.load();
     cubit.setReturnQuantity('line-1', QuantityDto.scale);
-    cubit.setReturnReason('line-1', 'DAMAGED');
-    cubit.setReturnCondition('line-1', 'OPENED');
   }
 
   test('load resolves context and authoritative order/policy/returnable data', () async {
@@ -53,9 +51,17 @@ void main() {
     expect(cubit.state.customerDisplayName, 'Khách A');
     expect(cubit.state.sourceOrderVersion, 7);
     expect(cubit.state.returnableLines, hasLength(1));
-    expect(cubit.state.reasons, isEmpty);
-    expect(cubit.state.conditions, isEmpty);
     expect(cubit.state.canProceed, isFalse);
+  });
+
+  test('session_never_emits_catalog_empty', () async {
+    final module = _RecordingSalesModule();
+    final cubit = build(module);
+    addTearDown(cubit.close);
+
+    await cubit.load();
+
+    expect(cubit.state.status, SalesReturnExchangeSessionStatus.ready);
   });
 
   test('walk-in order without customer snapshot loads as Khách lẻ', () async {
@@ -146,8 +152,6 @@ void main() {
     await empty.load();
     expect(empty.state.status, SalesReturnExchangeSessionStatus.ready);
     expect(empty.state.returnableLines, hasLength(1));
-    expect(empty.state.reasons, isEmpty);
-    expect(empty.state.conditions, isEmpty);
     expect(empty.state.canProceed, isFalse);
   });
 
@@ -158,9 +162,6 @@ void main() {
 
     cubit.setReturnQuantity('line-1', QuantityDto.scale * 9);
     expect(cubit.state.returnEdits.single.quantityMicros, QuantityDto.scale * 2);
-
-    cubit.setReturnReason('line-1', 'DAMAGED');
-    cubit.setReturnCondition('line-1', 'OPENED');
     expect(cubit.state.canProceed, isTrue);
 
     cubit.setReturnQuantity('line-1', 0);

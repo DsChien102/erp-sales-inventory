@@ -9,7 +9,6 @@ abstract final class SalesReturnExchangeMapper {
   static SalesReturnExchangeSessionVm toSessionVm({
     required SalesOrderDetailDto order,
     required ReturnableOrderLinesDto returnable,
-    required ReturnExchangeFormPolicyDto policy,
     String? returnExchangeId,
     int? draftVersion,
   }) {
@@ -23,8 +22,6 @@ abstract final class SalesReturnExchangeMapper {
       customerDisplayName: customer.displayName,
       sourceOrderVersion: returnable.sourceVersion,
       returnableLines: returnable.lines,
-      reasons: policy.reasons,
-      conditions: policy.conditions,
       returnExchangeId: returnExchangeId,
       draftVersion: draftVersion,
     );

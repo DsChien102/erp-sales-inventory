@@ -152,21 +152,6 @@ class ReturnExchangeRepository {
     return ReturnExchangeJson.resultFromJson(_asMap(raw));
   });
 
-  Future<ReturnExchangeResultDto> complete(
-    ReturnExchangeMutationRequest request,
-  ) => _guard(() async {
-    final raw = await _rpc.call(
-      'sales',
-      'complete_return_exchange',
-      params: ReturnExchangeJson.completeParams(
-        request: request,
-        tenantId: await _tenantId(),
-        actorId: await _actorId(),
-      ),
-    );
-    return ReturnExchangeJson.resultFromJson(_asMap(raw));
-  });
-
   Future<ReturnExchangeValuationDto> evaluate({
     required String returnExchangeId,
     required int expectedSourceVersion,

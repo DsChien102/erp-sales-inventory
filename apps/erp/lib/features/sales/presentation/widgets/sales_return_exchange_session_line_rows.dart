@@ -12,22 +12,14 @@ class SalesReturnExchangeReturnLineRow extends StatelessWidget {
     super.key,
     required this.line,
     required this.edit,
-    required this.reasons,
-    required this.conditions,
     required this.enabled,
     required this.onQuantityChanged,
-    required this.onReasonChanged,
-    required this.onConditionChanged,
   });
 
   final ReturnableOrderLineDto line;
   final SalesReturnLineEdit? edit;
-  final List<ReturnExchangePolicyOptionDto> reasons;
-  final List<ReturnExchangePolicyOptionDto> conditions;
   final bool enabled;
   final void Function(String salesOrderLineId, int quantityMicros) onQuantityChanged;
-  final void Function(String salesOrderLineId, String reasonCode) onReasonChanged;
-  final void Function(String salesOrderLineId, String conditionCode) onConditionChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -97,8 +89,6 @@ class SalesReturnExchangeReturnLineRow extends StatelessWidget {
               ),
             ],
           ),
-          // Temporarily skip return reason/condition policy selection in the
-          // SG-11 entry flow until the policy setup screen is reintroduced.
         ],
       ),
     );

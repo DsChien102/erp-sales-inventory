@@ -100,7 +100,6 @@ class _SalesReturnExchangeResultPageState extends State<SalesReturnExchangeResul
               onViewOrderDetail: _viewOrderDetail,
               onViewReturnSlipDetail: _viewSlipDetail,
               onRetry: () => _cubit.refresh(),
-              onComplete: () => _cubit.completeIfReady(),
             ),
           );
         },

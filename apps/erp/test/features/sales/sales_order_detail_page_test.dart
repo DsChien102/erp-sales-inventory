@@ -112,7 +112,7 @@ void main() {
     expect(find.byKey(const Key('wgt_sg08_payment_debt_page')), findsOneWidget);
     expect(find.byKey(const Key('wgt_sg08_payment_debt_context')), findsOneWidget);
     expect(find.text('Tình trạng hiện tại'), findsOneWidget);
-    expect(find.text('Xem công nợ'), findsOneWidget);
+    expect(find.text('Xem công nợ'), findsNothing);
     expect(find.byKey(const Key('btn_sg08_history_entry')), findsNothing);
   });
 

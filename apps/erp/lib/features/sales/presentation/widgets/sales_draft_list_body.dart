@@ -20,6 +20,7 @@ class SalesDraftListBody extends StatelessWidget {
     required this.onTapDraft,
     required this.onDiscardDraft,
     this.onClearSearch,
+    this.onLoadMore,
   });
 
   /// Viewport-friendly skeleton count for first load.
@@ -32,6 +33,7 @@ class SalesDraftListBody extends StatelessWidget {
   final ValueChanged<SalesDraftListItemVm> onTapDraft;
   final ValueChanged<SalesDraftListItemVm> onDiscardDraft;
   final VoidCallback? onClearSearch;
+  final VoidCallback? onLoadMore;
 
   @override
   Widget build(BuildContext context) {
@@ -86,14 +88,11 @@ class SalesDraftListBody extends StatelessWidget {
       );
     }
 
-    final allItems = switch (state) {
+    final items = switch (state) {
       SalesDraftListLoaded(:final items) => items,
       SalesDraftListLoading(:final items) => items,
       _ => const <SalesDraftListItemVm>[],
     };
-    final items = displayScope == SalesDraftScopeFilter.mine
-        ? allItems.where((i) => i.isOwnedByMe).toList()
-        : allItems;
     final hasQuery = (state.query ?? '').isNotEmpty;
     final showCreatedBy = displayScope == SalesDraftScopeFilter.all;
 
@@ -113,28 +112,64 @@ class SalesDraftListBody extends StatelessWidget {
       );
     }
 
+    final hasFooter = state.isLoadingMore || state.loadMoreError != null;
+    final itemCount = items.length + (hasFooter ? 1 : 0);
+
     return RefreshIndicator(
       onRefresh: onRefresh,
-      child: ListView.separated(
-        key: Key('list_sales_drafts_${displayScope.name}'),
-        padding: const EdgeInsets.fromLTRB(
-          VSpacing.space4,
-          VSpacing.space4,
-          VSpacing.space4,
-          VSpacing.space10,
-        ),
-        itemCount: items.length,
-        separatorBuilder: (_, _) => const VGap.sm(),
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return SalesDraftListCard(
-            key: Key('card_sales_draft_${item.draftId}'),
-            item: item,
-            showCreatedBy: showCreatedBy,
-            onTap: () => onTapDraft(item),
-            onDiscard: () => onDiscardDraft(item),
-          );
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification.metrics.extentAfter < 300) {
+            if (state.hasMore && !state.isLoadingMore) {
+              onLoadMore?.call();
+            }
+          }
+          return false;
         },
+        child: ListView.separated(
+          key: Key('list_sales_drafts_${displayScope.name}'),
+          padding: const EdgeInsets.fromLTRB(
+            VSpacing.space4,
+            VSpacing.space4,
+            VSpacing.space4,
+            VSpacing.space10,
+          ),
+          itemCount: itemCount,
+          separatorBuilder: (_, _) => const VGap.sm(),
+          itemBuilder: (context, index) {
+            if (index == items.length) {
+              if (state.isLoadingMore) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: VSpacing.space4),
+                  child: Center(child: CircularProgressIndicator.adaptive()),
+                );
+              }
+              if (state.loadMoreError != null) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
+                  child: Center(
+                    child: TextButton.icon(
+                      onPressed: onLoadMore,
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: Text(
+                        '${state.loadMoreError} · Thử lại',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ),
+                );
+              }
+            }
+            final item = items[index];
+            return SalesDraftListCard(
+              key: Key('card_sales_draft_${item.draftId}'),
+              item: item,
+              showCreatedBy: showCreatedBy,
+              onTap: () => onTapDraft(item),
+              onDiscard: () => onDiscardDraft(item),
+            );
+          },
+        ),
       ),
     );
   }

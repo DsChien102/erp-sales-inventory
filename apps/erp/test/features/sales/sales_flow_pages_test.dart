@@ -482,7 +482,10 @@ void main() {
     final listCubit = tester
         .element(find.byKey(const Key('wgt_e01_u01_page')))
         .read<SalesDraftListCubit>();
-    expect(listCubit.state.actionMessage, contains('Không hủy được'));
+    expect(
+      listCubit.state.actionMessage,
+      'Đơn nháp đã thay đổi. Vui lòng tải lại danh sách.',
+    );
   });
 
   testWidgets('SG-05 Checkout Page renders payment options and disabled finalize', (

@@ -26,8 +26,8 @@ abstract final class SalesReturnExchangeSessionDraft {
             quantity: QuantityDto(quantityMicros: edit.quantityMicros),
             originalSalesOrderLineId: lineOf(edit.salesOrderLineId)!.salesOrderLineId,
             sourceExchangeLineId: lineOf(edit.salesOrderLineId)!.sourceExchangeLineId,
-            reasonCode: edit.reasonCode,
-            conditionCode: edit.conditionCode,
+            reasonCode: null,
+            conditionCode: null,
           ),
     ];
     final exchangeLines = [
@@ -90,31 +90,17 @@ abstract final class SalesReturnExchangeSessionDraft {
     required List<SalesReturnLineEdit> currentReturns,
     required List<SalesExchangeLineEdit> currentExchanges,
     required List<ReturnableOrderLineDto> returnableLines,
-    required List<ReturnExchangePolicyOptionDto> reasons,
-    required List<ReturnExchangePolicyOptionDto> conditions,
   }) {
-    final reasonCodes = {for (final r in reasons) r.code.toUpperCase()};
-    final conditionCodes = {for (final c in conditions) c.code.toUpperCase()};
     final returnableById = {
       for (final line in returnableLines) line.unitId: line,
     };
     final nextReturns = <SalesReturnLineEdit>[];
-    String? fieldError;
     for (final edit in currentReturns) {
       final line = returnableById[edit.salesOrderLineId];
       if (line == null) continue;
       var next = edit;
       if (edit.quantityMicros > line.returnableQuantity.quantityMicros) {
         next = next.copyWith(quantityMicros: line.returnableQuantity.quantityMicros);
-      }
-      if (edit.reasonCode != null && !reasonCodes.contains(edit.reasonCode!.toUpperCase())) {
-        next = next.copyWith(clearReason: true);
-        fieldError = 'Lý do trả hàng không còn hiệu lực.';
-      }
-      if (edit.conditionCode != null &&
-          !conditionCodes.contains(edit.conditionCode!.toUpperCase())) {
-        next = next.copyWith(clearCondition: true);
-        fieldError = 'Tình trạng hàng trả không còn hiệu lực.';
       }
       if (next.quantityMicros > 0) {
         nextReturns.add(next);
@@ -123,7 +109,7 @@ abstract final class SalesReturnExchangeSessionDraft {
     return (
       returnEdits: nextReturns,
       exchangeEdits: currentExchanges,
-      fieldError: fieldError,
+      fieldError: null,
     );
   }
 
@@ -158,9 +144,4 @@ abstract final class SalesReturnExchangeSessionDraft {
     }
     return null;
   }
-
-  static bool hasPolicyCode(
-    List<ReturnExchangePolicyOptionDto> options,
-    String code,
-  ) => options.any((o) => o.code.toUpperCase() == code);
 }

@@ -96,7 +96,6 @@ class _SalesReturnExchangeSlipPreviewPageState extends State<SalesReturnExchange
             storeName: state.storeDisplayName,
             storeCode: state.storeCode,
             customerPhoneNumber: state.customerPhone,
-            existingCustomerDebtMinor: state.existingCustomerDebtMinor,
           );
         },
       ),

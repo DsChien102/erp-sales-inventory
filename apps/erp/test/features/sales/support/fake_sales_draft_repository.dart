@@ -1,5 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'package:erp/features/sales/data/models/sales_draft_list_page.dart';
 import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'package:vet45_sales_application/application.dart';
 
@@ -53,10 +54,18 @@ class SalesDraftCancelCall {
 }
 
 class SalesDraftListCall {
-  SalesDraftListCall(this.storeId, this.cursor, this.pageSize);
+  SalesDraftListCall(
+    this.storeId,
+    this.cursor,
+    this.pageSize, {
+    this.search,
+    this.createdByUserId,
+  });
   final String storeId;
   final String? cursor;
   final int pageSize;
+  final String? search;
+  final String? createdByUserId;
 }
 
 class SalesDraftRestoreCall {
@@ -74,6 +83,11 @@ class FakeSalesDraftRepository implements SalesDraftRepository {
   final restoreCalls = <SalesDraftRestoreCall>[];
 
   List<SalesOrderDraftDto> listItems = const [];
+  List<SalesDraftListEntry>? listEntries;
+  bool hasMore = false;
+  int? totalCount;
+  String? nextCursor;
+  SalesDraftListPage Function(SalesDraftListCall call)? onListPage;
   SalesOrderDraftForRestoreDto? restoreDto;
   Object? saveError;
   Object? updateError;
@@ -212,18 +226,57 @@ class FakeSalesDraftRepository implements SalesDraftRepository {
   }
 
   @override
-  Future<PagedSalesOrderDraftListDto> list({
+  Future<SalesDraftListPage> list({
     required String storeId,
     String? cursor,
     int pageSize = 25,
+    String? search,
+    String? createdByUserId,
   }) async {
-    listCalls.add(SalesDraftListCall(storeId, cursor, pageSize));
+    final call = SalesDraftListCall(
+      storeId,
+      cursor,
+      pageSize,
+      search: search,
+      createdByUserId: createdByUserId,
+    );
+    listCalls.add(call);
     final gate = onListGate;
     if (gate != null) await gate();
     final error = listError;
     if (error != null) throw error;
-    return PagedSalesOrderDraftListDto(
-      page: OpaqueCursorPageDto<SalesOrderDraftDto>(items: listItems, hasMore: false),
+    if (onListPage != null) return onListPage!(call);
+    var entries = listEntries ??
+        listItems
+            .map(
+              (d) => SalesDraftListEntry(
+                draft: d,
+                createdByUserId: d.savedByActorId,
+                createdByName: null,
+              ),
+            )
+            .toList();
+    if (search != null && search.trim().isNotEmpty) {
+      final q = search.trim().toLowerCase();
+      entries = entries
+          .where((e) {
+            final d = e.draft;
+            final text = [
+              d.customer?.displayName ?? '',
+              d.customer?.phoneNumber ?? '',
+              d.orderNote ?? '',
+              d.draftId,
+            ].join(' ').toLowerCase();
+            return text.contains(q);
+          })
+          .toList();
+    }
+    final total = totalCount ?? (listEntries?.length ?? listItems.length);
+    return SalesDraftListPage(
+      items: entries,
+      hasMore: hasMore,
+      totalCount: total,
+      nextCursor: nextCursor,
     );
   }
 

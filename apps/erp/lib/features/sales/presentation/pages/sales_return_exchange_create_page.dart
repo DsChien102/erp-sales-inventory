@@ -162,8 +162,6 @@ class _SalesReturnExchangeCreatePageState extends State<SalesReturnExchangeCreat
                 state: state,
                 onRetry: _cubit.load,
                 onReturnQuantityChanged: _cubit.setReturnQuantity,
-                onReturnReasonChanged: _cubit.setReturnReason,
-                onReturnConditionChanged: _cubit.setReturnCondition,
                 onExchangeQuantityChanged: _cubit.setExchangeQuantity,
                 onAddExchangePressed: _openExchangeProductPicker,
               ),

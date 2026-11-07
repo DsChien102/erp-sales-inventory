@@ -6,7 +6,7 @@ import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vet45_sales_application/application.dart';
 
-enum SalesReturnExchangeOperation { start, update, discard, confirm, complete }
+enum SalesReturnExchangeOperation { start, update, discard, confirm }
 
 /// Immutable return/exchange mutation attempt.
 ///
@@ -211,68 +211,6 @@ final class SalesReturnExchangeAttemptFactory {
     );
   }
 
-  SalesReturnExchangeAttempt<ReturnExchangeMutationRequest> complete({
-    required String tenantId,
-    required String actorId,
-    required String returnExchangeId,
-    required int expectedVersion,
-    required String correlationId,
-  }) {
-    return _idOnlyMutation(
-      operation: SalesReturnExchangeOperation.complete,
-      tenantId: tenantId,
-      actorId: actorId,
-      returnExchangeId: returnExchangeId,
-      expectedVersion: expectedVersion,
-      correlationId: correlationId,
-      build: (built, context, trimmedId) => ReturnExchangeMutationRequest(
-        commandId: built.attemptId,
-        returnExchangeId: trimmedId,
-        idempotencyKey: built.idempotencyKey,
-        payloadHash: built.payloadHash,
-        correlationId: context.correlationId,
-        expectedVersion: expectedVersion,
-      ),
-    );
-  }
-
-  SalesReturnExchangeAttempt<TRequest> _idOnlyMutation<TRequest>({
-    required SalesReturnExchangeOperation operation,
-    required String tenantId,
-    required String actorId,
-    required String returnExchangeId,
-    required int expectedVersion,
-    required String correlationId,
-    required TRequest Function(
-      _BuiltAttempt built,
-      _AttemptContext context,
-      String trimmedReturnExchangeId,
-    )
-    build,
-  }) {
-    final context = _requireContext(
-      tenantId: tenantId,
-      actorId: actorId,
-      correlationId: correlationId,
-    );
-    final trimmedReturnExchangeId = returnExchangeId.trim();
-    if (trimmedReturnExchangeId.isEmpty || expectedVersion <= 0) {
-      throw const AppException('CONTEXT_INVALID');
-    }
-    final payload = <String, Object?>{
-      'expectedVersion': expectedVersion,
-      'returnExchangeId': trimmedReturnExchangeId,
-      'tenantId': context.tenantId,
-    };
-    final built = _build(operation: operation, payload: payload);
-    return SalesReturnExchangeAttempt<TRequest>(
-      operation: operation,
-      request: build(built, context, trimmedReturnExchangeId),
-      canonicalPayloadJson: built.canonicalJson,
-      payloadHash: built.payloadHash,
-    );
-  }
-
   _BuiltAttempt _build({
     required SalesReturnExchangeOperation operation,
     required Map<String, Object?> payload,
@@ -285,7 +223,6 @@ final class SalesReturnExchangeAttemptFactory {
       SalesReturnExchangeOperation.update => 'update',
       SalesReturnExchangeOperation.discard => 'discard',
       SalesReturnExchangeOperation.confirm => 'confirm',
-      SalesReturnExchangeOperation.complete => 'complete',
     };
     return _BuiltAttempt(
       attemptId: attemptId,

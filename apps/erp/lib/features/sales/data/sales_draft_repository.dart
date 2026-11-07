@@ -1,5 +1,6 @@
 import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/sales/data/mappers/sales_draft_json.dart';
+import 'package:erp/features/sales/data/models/sales_draft_list_page.dart';
 import 'package:erp/features/sales/data/sales_draft_errors.dart';
 import 'package:erp/features/sales/logic/sales_draft_rules.dart';
 import 'package:vet45_sales_application/application.dart';
@@ -126,10 +127,12 @@ class SalesDraftRepository {
     return SalesDraftJson.draft(_asMap(raw));
   });
 
-  Future<PagedSalesOrderDraftListDto> list({
+  Future<SalesDraftListPage> list({
     required String storeId,
     String? cursor,
     int pageSize = 25,
+    String? search,
+    String? createdByUserId,
   }) => _guard(() async {
     final raw = await _rpc.call(
       'sales',
@@ -140,6 +143,8 @@ class SalesDraftRepository {
         'p_store_id': storeId,
         'p_cursor': cursor,
         'p_page_size': pageSize,
+        'p_search': search,
+        'p_created_by': createdByUserId,
       },
     );
     return SalesDraftJson.page(_asMap(raw));

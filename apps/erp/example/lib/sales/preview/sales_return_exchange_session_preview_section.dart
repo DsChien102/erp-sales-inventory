@@ -9,14 +9,13 @@ class SalesReturnExchangeSessionPreviewSection extends StatelessWidget {
   const SalesReturnExchangeSessionPreviewSection({super.key});
 
   static void _noopQty(String id, int quantityMicros) {}
-  static void _noopCode(String id, String code) {}
 
   @override
   Widget build(BuildContext context) {
     return PreviewSection(
       title: 'SG-11 Return/exchange session body',
       description:
-          'loading / blocked / catalog-empty / filled / error — không demo '
+          'loading / blocked / filled / error — không demo '
           'settlement totals.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -31,8 +30,6 @@ class SalesReturnExchangeSessionPreviewSection extends StatelessWidget {
                   status: SalesReturnExchangeSessionStatus.loading,
                 ),
                 onReturnQuantityChanged: _noopQty,
-                onReturnReasonChanged: _noopCode,
-                onReturnConditionChanged: _noopCode,
                 onExchangeQuantityChanged: _noopQty,
               ),
             ),
@@ -55,26 +52,6 @@ class SalesReturnExchangeSessionPreviewSection extends StatelessWidget {
                 ),
                 onRetry: () {},
                 onReturnQuantityChanged: _noopQty,
-                onReturnReasonChanged: _noopCode,
-                onReturnConditionChanged: _noopCode,
-                onExchangeQuantityChanged: _noopQty,
-              ),
-            ),
-          ),
-          PreviewStateRow(
-            label: 'Catalog empty',
-            child: SizedBox(
-              height: 160,
-              child: SalesReturnExchangeSessionBody(
-                state: const SalesReturnExchangeSessionState(
-                  orderId: 'order-1',
-                  orderNumber: 'SO-001',
-                  status: SalesReturnExchangeSessionStatus.catalogEmpty,
-                ),
-                onRetry: () {},
-                onReturnQuantityChanged: _noopQty,
-                onReturnReasonChanged: _noopCode,
-                onReturnConditionChanged: _noopCode,
                 onExchangeQuantityChanged: _noopQty,
               ),
             ),
@@ -86,8 +63,6 @@ class SalesReturnExchangeSessionPreviewSection extends StatelessWidget {
               child: SalesReturnExchangeSessionBody(
                 state: _filledState(),
                 onReturnQuantityChanged: _noopQty,
-                onReturnReasonChanged: _noopCode,
-                onReturnConditionChanged: _noopCode,
                 onExchangeQuantityChanged: _noopQty,
                 onAddExchangePressed: () {},
               ),
@@ -104,8 +79,6 @@ class SalesReturnExchangeSessionPreviewSection extends StatelessWidget {
                 ),
                 onRetry: () {},
                 onReturnQuantityChanged: _noopQty,
-                onReturnReasonChanged: _noopCode,
-                onReturnConditionChanged: _noopCode,
                 onExchangeQuantityChanged: _noopQty,
                 onAddExchangePressed: () {},
               ),
@@ -143,36 +116,10 @@ class SalesReturnExchangeSessionPreviewSection extends StatelessWidget {
           originalUnitPrice: MoneyDto(amountMinor: 50000, currencyCode: 'VND'),
         ),
       ],
-      reasons: const [
-        ReturnExchangePolicyOptionDto(
-          code: 'DAMAGED',
-          displayName: 'Hỏng',
-          sortOrder: 100,
-        ),
-        ReturnExchangePolicyOptionDto(
-          code: 'WRONG_ITEM',
-          displayName: 'Sai hàng',
-          sortOrder: 200,
-        ),
-      ],
-      conditions: const [
-        ReturnExchangePolicyOptionDto(
-          code: 'OPENED',
-          displayName: 'Đã mở',
-          sortOrder: 100,
-        ),
-        ReturnExchangePolicyOptionDto(
-          code: 'SEALED',
-          displayName: 'Nguyên seal',
-          sortOrder: 200,
-        ),
-      ],
       returnEdits: const [
         SalesReturnLineEdit(
           salesOrderLineId: 'line-1',
           quantityMicros: QuantityDto.scale,
-          reasonCode: 'DAMAGED',
-          conditionCode: 'OPENED',
         ),
       ],
       exchangeEdits: const [

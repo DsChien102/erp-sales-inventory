@@ -825,7 +825,7 @@ Scenario: SC-01 — Lưu và mở lại
 
 **Yêu cầu chức năng**
 
-- FR-01: SG-01 `/sales/drafts`: ô "Tìm theo khách hàng, SĐT, ghi chú"; "Phạm vi đơn nháp": "Đơn của tôi" / "Tất cả đơn nháp"; nút "Tạo đơn mới".
+- FR-01: SG-01 `/sales/drafts`: ô "Tìm theo khách hàng, SĐT, ghi chú"; "Phạm vi đơn nháp": "Đơn của tôi" (nháp do tôi tạo) / "Tất cả đơn nháp"; nút "Tạo đơn mới".
 - FR-02: Thẻ nháp: khách, "<SĐT> · Tạo bởi: <người tạo>", "<N> mặt hàng · <tổng>", thời gian ("Hôm qua"…).
 - FR-03: Chạm thẻ → mở SG-02 với nháp (`get_sales_order_draft_for_restore`).
 - FR-04: Xoá → "Xóa đơn nháp? — Đơn nháp của <khách> sẽ bị xóa và không thể khôi phục." → "Đã xóa đơn nháp". Lỗi → "Không xóa được đơn nháp"; đã đổi → "Đơn nháp đã thay đổi. Vui lòng tải lại danh sách."
@@ -1138,7 +1138,7 @@ Scenario: SC-02 — Nháp bị sửa ở máy khác
 - FR-02: "Từ đơn hàng gốc": tổng gốc, "Đã thanh toán (TM)", "Đã thanh toán (CK)".
 - FR-03: Mỗi phiếu đổi/trả: "Từ phiếu đổi/trả #<số>": "Khách trả thêm" / hoàn / giảm nợ, "Đã thu thêm (TM/CK)".
 - FR-04: "Giao dịch": danh sách thu / hoàn (loại, phương thức, số tiền, thời gian, mã giao dịch).
-- FR-05: 🔧 Bỏ thẻ "Xem công nợ — Mở sổ công nợ của khách hàng" (hiện chỉ hiện toast, không có sổ công nợ — KI-07).
+- FR-05: Bỏ thẻ "Xem công nợ — Mở sổ công nợ của khách hàng" (hiện chỉ hiện toast, không có sổ công nợ — KI-07).
 
 **Quy tắc:** công thức 2.2; BR-30.
 
@@ -1401,9 +1401,9 @@ Scenario: SC-02 — Đơn đã thu tiền
 
 **Yêu cầu chức năng**
 
-- FR-01: **Khách trả thêm** (chênh lệch > 0): "Phương thức thu" (Tiền mặt / Chuyển khoản; mặc định Chuyển khoản — KI-18), "Khách thanh toán ngay" (0 → toàn bộ). Trả thiếu → "Công nợ phát sinh" + "Ngày hẹn thanh toán" (từ hôm nay đến 2 năm), bắt buộc. Trả đủ → "Thu đủ, không phát sinh công nợ." Khách lẻ không được trả thiếu.
+- FR-01: **Khách trả thêm** (chênh lệch > 0): "Phương thức thu" (Tiền mặt / Chuyển khoản; mặc định Tiền mặt), "Khách thanh toán ngay" (0 → toàn bộ). Trả thiếu → "Công nợ phát sinh" + "Ngày hẹn thanh toán" (từ hôm nay đến 2 năm), bắt buộc. Trả đủ → "Thu đủ, không phát sinh công nợ." Khách lẻ không được trả thiếu.
 - FR-02: **Khách được hưởng** (chênh lệch < 0): "Phương thức hoàn"; số hoàn = min(|chênh lệch|, đã thu ròng); phần còn lại "Giảm nợ đơn này" ("Phần khách chưa thanh toán cho hàng trả được trừ khỏi nợ của đơn, không hoàn tiền.").
-- FR-03: 🔧 Bỏ lựa chọn "Cấn trừ công nợ hiện tại" đang bị khoá ("Sẽ áp dụng khi có module công nợ.") và khối QR mẫu ("QR cửa hàng · ACB", "Nguyễn Văn A", "Số tiền trên QR") — KI-08. Chuyển khoản chỉ cần chọn phương thức.
+- FR-03: Bỏ lựa chọn "Cấn trừ công nợ hiện tại" đang bị khoá ("Sẽ áp dụng khi có module công nợ.") và khối QR mẫu ("QR cửa hàng · ACB", "Nguyễn Văn A", "Số tiền trên QR") — KI-08. Chuyển khoản chỉ cần chọn phương thức.
 - FR-04: "Xác nhận đổi/trả" → sheet "Xác nhận đổi/trả?" tóm tắt: "Thu thêm <số> từ khách", "Hoàn <số> cho khách", "ghi nhận công nợ <số>", "ghi giảm công nợ <số>", hoặc "Xác nhận đổi/trả hàng không phát sinh chênh lệch." ("Xác nhận" / "Quay lại").
 - FR-05: Xác nhận → `confirm_return_exchange` kèm version phiếu, số trả ngay, phương thức, ngày hẹn, `idempotency_key`. Nút hiện "Đang xử lý...".
 - FR-06: Thành công → SG-14.
@@ -1447,7 +1447,7 @@ Scenario: SC-02 — Trả hàng của đơn còn nợ
 **Yêu cầu chức năng**
 
 - FR-01: SG-14 "Kết quả đổi/trả": "Đã hoàn tất đổi/trả", "Phiếu #<số>", các dòng: "Thu thêm từ khách", "Hoàn cho khách", "Ghi nợ khách", "Giảm nợ khách", hoặc "Không phát sinh thu hoặc hoàn tiền" / "Không phát sinh công nợ"; nút "Xem phiếu đổi/trả", "Xem chi tiết đơn", "Về trang chủ".
-- FR-02: Trạng thái khác của phiếu (nháp / huỷ / bị chặn / thất bại) hiện nhãn tương ứng; 🔧 bỏ nút "Hoàn tất phiếu" vì xác nhận đã hoàn tất ngay (KI-17).
+- FR-02: Trạng thái khác của phiếu (nháp / huỷ / bị chặn / thất bại) hiện nhãn tương ứng; bỏ nút "Hoàn tất phiếu" vì xác nhận đã hoàn tất ngay (KI-17).
 - FR-03: SG-15 "Chi tiết phiếu đổi/trả": header (số phiếu, trạng thái, "Khách trả thêm" / "Hoàn trả khách"), "Hàng trả", "Hàng đổi", "Tóm tắt đổi/trả" (giá trị hàng trả, giá trị hàng đổi, chênh lệch); "Thao tác" → xem / in / chia sẻ phiếu (SG-16). Thiếu dữ liệu → "Không thể in/chia sẻ khi thiếu chi tiết."
 - FR-04: Phiếu đổi/trả PDF dựng trên máy từ chi tiết phiếu.
 
@@ -2194,22 +2194,23 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | KI-04 | Ngày hẹn thanh toán chỉ app chặn quá khứ | Đã sửa 8-B1 (BR-20: precheck, finalize, confirm đổi/trả) | P8 |
 | KI-05 | Đổi hàng phát sinh nợ: bắt nhập ngày hẹn nhưng không lưu | Đã sửa 8-B1 (BR-51) | P8 |
 | KI-06 | Không có màn thu tiền sau bán (RPC có) | **Làm mới** EP-04 | P8 |
-| KI-07 | Thẻ "Xem công nợ" chỉ hiện toast; "Nợ cũ" ở thanh toán luôn 0 | **Bỏ** cả hai (sổ công nợ thuộc Theme 6) | P8 |
-| KI-08 | Quyết toán đổi/trả có QR mẫu cứng ("QR cửa hàng · ACB", "Nguyễn Văn A") và lựa chọn "Cấn trừ công nợ hiện tại" bị khoá | **Bỏ** | P8 |
+| KI-07 | Thẻ "Xem công nợ" chỉ hiện toast; "Nợ cũ" ở thanh toán luôn 0 | Đã sửa 8-B2: bỏ cả hai | P8 |
+| KI-08 | Quyết toán đổi/trả có QR mẫu cứng ("QR cửa hàng · ACB", "Nguyễn Văn A") và lựa chọn "Cấn trừ công nợ hiện tại" bị khoá | Đã sửa 8-B2: bỏ QR mẫu và lựa chọn cấn trừ công nợ | P8 |
 | KI-09 | Tìm đơn phân biệt dấu | Đã sửa 8-B1 (BR-33: `unaccent`, như TH-03) | P8 |
-| KI-10 | Lý do / tình trạng hàng trả: RPC chính sách trả rỗng, app luôn trống, còn trạng thái "Chưa cấu hình chính sách đổi/trả" | **Ngoài phạm vi**; bỏ code chết | P8 |
+| KI-10 | Lý do / tình trạng hàng trả: RPC chính sách trả rỗng, app luôn trống, còn trạng thái "Chưa cấu hình chính sách đổi/trả" | Đã sửa 8-B2: bỏ code chết lý do / tình trạng | P8 |
 | KI-11 | Nháp không bao giờ `expired` | **Giữ nguyên** (BR-09) | — |
 | KI-12 | Lý do huỷ không bắt buộc, lưu dạng chữ | **Giữ nguyên** | — |
 | KI-13 | `record_sales_refund` (hoàn thủ công) không có UI | **Giữ nguyên**: hoàn tiền chỉ qua đổi/trả | — |
 | KI-14 | `get_order_integration_status` và `impacts` chỉ trả `not_required` | **Giữ trong DB, không dùng**; trạng thái HĐĐT lấy từ TH-08 | — |
 | KI-15 | TH-04 từng ghi `resolve_applicable_customer_price_rule` không dùng | **Đã sửa TH-04** (TH-04 BR-35, US-06.3) | — |
 | KI-16 | PLAN P8 từng ghi gọi "nhớ giá từ đơn" sau checkout | **Đã sửa PLAN** | — |
-| KI-17 | Màn kết quả đổi/trả còn nút "Hoàn tất phiếu" dù xác nhận đã hoàn tất ngay | **Bỏ** nút | P8 |
-| KI-18 | Phương thức mặc định khác nhau: thanh toán = Tiền mặt, quyết toán đổi/trả = Chuyển khoản | **Sửa**: mặc định Tiền mặt ở cả hai | P8 |
+| KI-17 | Màn kết quả đổi/trả còn nút "Hoàn tất phiếu" dù xác nhận đã hoàn tất ngay | Đã sửa 8-B2: bỏ nút | P8 |
+| KI-18 | Phương thức mặc định khác nhau: thanh toán = Tiền mặt, quyết toán đổi/trả = Chuyển khoản | Đã sửa 8-B2: mặc định Tiền mặt ở cả hai | P8 |
 | KI-19 | Chế độ "trả toàn bộ từ yêu cầu huỷ" có trong RPC, app không dùng | **Giữ trong DB, không dùng**; đơn đã thu tiền thì người dùng tự mở đổi/trả | — |
 | KI-20 | Lọc "Hôm nay / 7 ngày / 30 ngày" tính theo giờ thiết bị, mã đơn theo giờ VN | **Giữ nguyên** (thiết bị đặt giờ VN) | — |
-| KI-21 | SG-01 chỉ tải 1 trang 50 nháp, bỏ `has_more` ⇒ nháp thứ 51 trở đi không hiện (US-01.7 EC-02) | **Sửa** ở 8-B: tải thêm khi cuộn theo `next_cursor` (thấy khi viết plan 8-A1, 2026-11-06) | P8 |
-| KI-22 | SG-01 không có "Tạo bởi" cho nháp của người khác: app chỉ tra được tên của chính mình, UUID bị `creatorLabel` loại (US-01.7 FR-02) | **Sửa** ở 8-B (thấy khi viết plan 8-A1, 2026-11-06) | P8 |
+| KI-21 | SG-01 chỉ tải 1 trang 50 nháp, bỏ `has_more` ⇒ nháp thứ 51 trở đi không hiện (US-01.7 EC-02) | Đã sửa 8-B2: tải thêm khi cuộn theo `next_cursor` | P8 |
+| KI-22 | SG-01 không có "Tạo bởi" cho nháp của người khác: app chỉ tra được tên của chính mình, UUID bị `creatorLabel` loại (US-01.7 FR-02) | Đã sửa 8-B2: RPC trả `created_by_name`, app hiển thị đúng | P8 |
+| KI-23 | SG-06 có thẻ QR mẫu cứng ('VET45 · ACB', số tài khoản giả) khi chọn Chuyển khoản / Kết hợp | Đã sửa 8-B2 R1: bỏ thẻ QR mẫu | P8 |
 
 ---
 

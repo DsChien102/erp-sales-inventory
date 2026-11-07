@@ -44,11 +44,6 @@ final class FakeReturnExchangeRepository implements ReturnExchangeRepository {
   Object? confirmError;
   final confirmCalls = <ReturnExchangeConfirmRequest>[];
 
-  ReturnExchangeResultDto? completeResult;
-  final completeResults = <ReturnExchangeResultDto>[];
-  Object? completeError;
-  final completeCalls = <ReturnExchangeMutationRequest>[];
-
   ReturnExchangeValuationDto? evaluateResult;
   final evaluateResults = <ReturnExchangeValuationDto>[];
   Object? evaluateError;
@@ -199,21 +194,6 @@ final class FakeReturnExchangeRepository implements ReturnExchangeRepository {
           salesOrderId: 'order-1',
           version: request.expectedVersion + 1,
           status: ReturnExchangeStatus.confirmed,
-        );
-  }
-
-  @override
-  Future<ReturnExchangeResultDto> complete(ReturnExchangeMutationRequest request) async {
-    completeCalls.add(request);
-    final e = completeError;
-    if (e != null) throw e;
-    if (completeResults.isNotEmpty) return completeResults.removeAt(0);
-    return completeResult ??
-        ReturnExchangeResultDto(
-          returnExchangeId: request.returnExchangeId,
-          salesOrderId: 'order-1',
-          version: (request.expectedVersion ?? 1) + 1,
-          status: ReturnExchangeStatus.completed,
         );
   }
 

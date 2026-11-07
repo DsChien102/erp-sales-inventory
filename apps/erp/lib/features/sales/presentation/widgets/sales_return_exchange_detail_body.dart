@@ -59,7 +59,6 @@ class SalesReturnExchangeDetailBody extends StatelessWidget {
       case SalesReturnExchangeDetailStatus.projectionPending:
       case SalesReturnExchangeDetailStatus.blocked:
       case SalesReturnExchangeDetailStatus.loaded:
-      case SalesReturnExchangeDetailStatus.completing:
         final detail = state.detail;
         if (detail == null) {
           return Padding(

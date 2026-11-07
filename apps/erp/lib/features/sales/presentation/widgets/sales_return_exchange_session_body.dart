@@ -13,8 +13,6 @@ class SalesReturnExchangeSessionBody extends StatelessWidget {
     required this.state,
     this.onRetry,
     required this.onReturnQuantityChanged,
-    required this.onReturnReasonChanged,
-    required this.onReturnConditionChanged,
     required this.onExchangeQuantityChanged,
     this.onAddExchangePressed,
   });
@@ -22,8 +20,6 @@ class SalesReturnExchangeSessionBody extends StatelessWidget {
   final SalesReturnExchangeSessionState state;
   final VoidCallback? onRetry;
   final void Function(String salesOrderLineId, int quantityMicros) onReturnQuantityChanged;
-  final void Function(String salesOrderLineId, String reasonCode) onReturnReasonChanged;
-  final void Function(String salesOrderLineId, String conditionCode) onReturnConditionChanged;
   final void Function(String productUnitId, int quantityMicros) onExchangeQuantityChanged;
   final VoidCallback? onAddExchangePressed;
 
@@ -59,16 +55,6 @@ class SalesReturnExchangeSessionBody extends StatelessWidget {
           messages: state.blockers.map((b) => b.message).toList(),
           onRetry: onRetry,
         );
-      case SalesReturnExchangeSessionStatus.catalogEmpty:
-        return _MessagePanel(
-          key: const Key('wgt_sg11_catalog_empty'),
-          title: 'Chưa cấu hình chính sách đổi/trả',
-          messages: const [
-            'Cửa hàng chưa cấu hình lý do hoặc tình trạng hàng trả. '
-                'Vui lòng liên hệ quản trị viên.',
-          ],
-          onRetry: onRetry,
-        );
       case SalesReturnExchangeSessionStatus.failure:
         if (!_showContent) {
           return _MessagePanel(
@@ -85,8 +71,6 @@ class SalesReturnExchangeSessionBody extends StatelessWidget {
           canAddExchange: _canAddExchange,
           onRetry: onRetry,
           onReturnQuantityChanged: onReturnQuantityChanged,
-          onReturnReasonChanged: onReturnReasonChanged,
-          onReturnConditionChanged: onReturnConditionChanged,
           onExchangeQuantityChanged: onExchangeQuantityChanged,
           onAddExchangePressed: onAddExchangePressed,
         );
@@ -101,8 +85,6 @@ class SalesReturnExchangeSessionBody extends StatelessWidget {
           canAddExchange: _canAddExchange,
           onRetry: onRetry,
           onReturnQuantityChanged: onReturnQuantityChanged,
-          onReturnReasonChanged: onReturnReasonChanged,
-          onReturnConditionChanged: onReturnConditionChanged,
           onExchangeQuantityChanged: onExchangeQuantityChanged,
           onAddExchangePressed: onAddExchangePressed,
         );
@@ -116,8 +98,6 @@ class _SessionContent extends StatelessWidget {
     required this.canAddExchange,
     required this.onRetry,
     required this.onReturnQuantityChanged,
-    required this.onReturnReasonChanged,
-    required this.onReturnConditionChanged,
     required this.onExchangeQuantityChanged,
     required this.onAddExchangePressed,
   });
@@ -126,8 +106,6 @@ class _SessionContent extends StatelessWidget {
   final bool canAddExchange;
   final VoidCallback? onRetry;
   final void Function(String salesOrderLineId, int quantityMicros) onReturnQuantityChanged;
-  final void Function(String salesOrderLineId, String reasonCode) onReturnReasonChanged;
-  final void Function(String salesOrderLineId, String conditionCode) onReturnConditionChanged;
   final void Function(String productUnitId, int quantityMicros) onExchangeQuantityChanged;
   final VoidCallback? onAddExchangePressed;
 
@@ -195,12 +173,8 @@ class _SessionContent extends StatelessWidget {
                   SalesReturnExchangeReturnLineRow(
                     line: state.returnableLines[i],
                     edit: _returnEdit(state.returnableLines[i].unitId),
-                    reasons: state.reasons,
-                    conditions: state.conditions,
                     enabled: editsEnabled,
                     onQuantityChanged: onReturnQuantityChanged,
-                    onReasonChanged: onReturnReasonChanged,
-                    onConditionChanged: onReturnConditionChanged,
                   ),
                 ],
               ],

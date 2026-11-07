@@ -10,7 +10,6 @@ class SalesCheckoutVm extends Equatable {
     this.customerName,
     this.customerPhone,
     this.isWalkIn = false,
-    this.customerDebtMinor = 0,
     this.paymentMode = SalesPaymentMode.cash,
     this.cashPaidMinor = 0,
     this.bankPaidMinor = 0,
@@ -25,7 +24,6 @@ class SalesCheckoutVm extends Equatable {
   final String? customerName;
   final String? customerPhone;
   final bool isWalkIn;
-  final int customerDebtMinor;
   final SalesPaymentMode paymentMode;
   final int cashPaidMinor;
   final int bankPaidMinor;
@@ -61,7 +59,6 @@ class SalesCheckoutVm extends Equatable {
     String? customerName,
     String? customerPhone,
     bool? isWalkIn,
-    int? customerDebtMinor,
     SalesPaymentMode? paymentMode,
     int? cashPaidMinor,
     int? bankPaidMinor,
@@ -79,7 +76,6 @@ class SalesCheckoutVm extends Equatable {
       customerName: customerName ?? this.customerName,
       customerPhone: customerPhone ?? this.customerPhone,
       isWalkIn: isWalkIn ?? this.isWalkIn,
-      customerDebtMinor: customerDebtMinor ?? this.customerDebtMinor,
       paymentMode: paymentMode ?? this.paymentMode,
       cashPaidMinor: cashPaidMinor ?? this.cashPaidMinor,
       bankPaidMinor: bankPaidMinor ?? this.bankPaidMinor,
@@ -97,7 +93,6 @@ class SalesCheckoutVm extends Equatable {
     customerName,
     customerPhone,
     isWalkIn,
-    customerDebtMinor,
     paymentMode,
     cashPaidMinor,
     bankPaidMinor,

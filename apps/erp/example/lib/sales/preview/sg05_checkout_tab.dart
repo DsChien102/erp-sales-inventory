@@ -85,10 +85,6 @@ class SalesSg05CheckoutTab extends StatelessWidget {
           ],
         ),
       ),
-      const PreviewSection(
-        title: 'SalesPaymentQrCard',
-        child: SalesPaymentQrCard(amountMinor: 250000),
-      ),
       PreviewSection(
         title: 'Sheets',
         child: Column(

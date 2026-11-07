@@ -95,8 +95,6 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
         currentReturns: state.returnEdits,
         currentExchanges: state.exchangeEdits,
         returnableLines: returnableUnits,
-        reasons: const [],
-        conditions: const [],
       );
 
       final base = state.copyWith(
@@ -104,8 +102,6 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
         customerDisplayName: customerDisplayName,
         sourceOrderVersion: returnable.sourceVersion,
         returnableLines: returnableUnits,
-        reasons: const [],
-        conditions: const [],
         returnEdits: preserved.returnEdits,
         exchangeEdits: preserved.exchangeEdits,
         blockers: localizeBlockers(precheck.blockers, fallback: 'Không thể đổi/trả.'),
@@ -164,49 +160,6 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
         status: SalesReturnExchangeSessionStatus.ready,
         clearFieldError: true,
         clearScreenError: true,
-      ),
-    );
-  }
-
-  void setReturnReason(String salesOrderLineId, String reasonCode) {
-    _invalidateAttempt();
-    final normalized = reasonCode.trim().toUpperCase();
-    if (!SalesReturnExchangeSessionDraft.hasPolicyCode(state.reasons, normalized)) {
-      return;
-    }
-    final edits = SalesReturnExchangeSessionDraft.upsertReturnEdit(
-      current: state.returnEdits,
-      salesOrderLineId: salesOrderLineId,
-      update: (edit) => edit.copyWith(reasonCode: normalized),
-    );
-    emit(
-      state.copyWith(
-        returnEdits: edits,
-        status: SalesReturnExchangeSessionStatus.ready,
-        clearFieldError: true,
-      ),
-    );
-  }
-
-  void setReturnCondition(String salesOrderLineId, String conditionCode) {
-    _invalidateAttempt();
-    final normalized = conditionCode.trim().toUpperCase();
-    if (!SalesReturnExchangeSessionDraft.hasPolicyCode(
-      state.conditions,
-      normalized,
-    )) {
-      return;
-    }
-    final edits = SalesReturnExchangeSessionDraft.upsertReturnEdit(
-      current: state.returnEdits,
-      salesOrderLineId: salesOrderLineId,
-      update: (edit) => edit.copyWith(conditionCode: normalized),
-    );
-    emit(
-      state.copyWith(
-        returnEdits: edits,
-        status: SalesReturnExchangeSessionStatus.ready,
-        clearFieldError: true,
       ),
     );
   }

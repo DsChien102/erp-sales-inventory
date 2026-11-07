@@ -553,24 +553,6 @@ class ModuleBackedReturnExchangeRepository implements ReturnExchangeRepository {
   );
 
   @override
-  Future<ReturnExchangeResultDto> complete(
-    ReturnExchangeMutationRequest request,
-  ) => _bridge(
-    () => module.executeCommandAsync<ReturnExchangeResultDto>(
-      CompleteReturnExchangeCommand(
-        id: request.commandId,
-        tenantId: 'tenant-1',
-        actorId: 'actor-1',
-        returnExchangeId: request.returnExchangeId,
-        idempotencyKey: request.idempotencyKey,
-        payloadHash: request.payloadHash,
-        correlationId: request.correlationId,
-        expectedVersion: request.expectedVersion ?? 1,
-      ),
-    ),
-  );
-
-  @override
   Future<ReturnExchangeValuationDto> evaluate({
     required String returnExchangeId,
     required int expectedSourceVersion,
