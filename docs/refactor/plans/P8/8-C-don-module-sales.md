@@ -196,15 +196,15 @@ Trường của query cũ ⇒ trường của bản ghi lời gọi: theo cách 
 **Interfaces:**
 - Produces: `package:erp/features/sales/data/models.dart` export đủ 61 tệp. Mọi tên lớp / enum giữ nguyên ⇒ chỗ dùng không đổi.
 
-- [ ] **Step 0: Bỏ test so sánh fixture** (Task 1 Step 2) khỏi `sales_contract_error_test.dart` + import `vet45_sales_application/testing.dart`; ghi tên test đã bỏ vào Kết quả.
-- [ ] **Step 1: Chép** 61 tệp (`cp`) từ `modules/sales/application/lib/src/shared/` sang `contracts/`. Viết barrel.
-- [ ] **Step 2: Kiểm bản chép** — `for f in contracts/*.dart; do diff <(grep -v '^import' modules/…/shared/$f) <(grep -v '^import' contracts/$f); done` ⇒ không khác. `grep -h "^import 'package" contracts/*.dart` ⇒ rỗng (61 tệp chỉ import lẫn nhau — đo 2026-11-08; có import package ⇒ dừng, ghi lại).
-- [ ] **Step 3: Đổi import** — trong 4 cây trên, thay `package:vet45_sales_application/application.dart` bằng `package:erp/features/sales/data/models.dart`, **giữ** prefix (`as app`, `as sales`) nếu có. Bỏ `// ignore_for_file: depend_on_referenced_packages` chỉ khi tệp không còn import package ngoài nào cần nó. Tệp đã import barrel rồi ⇒ bỏ dòng trùng. Tệp nào còn import `vet45_sales_infrastructure` / `testing.dart` / `domain` ngoài `injection.dart`, `sales_runtime_registration_test.dart` ⇒ dừng, ghi lại (Task 1-2 sót).
-- [ ] **Step 4: Kiểm.**
+- [x] **Step 0: Bỏ test so sánh fixture** (Task 1 Step 2) khỏi `sales_contract_error_test.dart` + import `vet45_sales_application/testing.dart`; ghi tên test đã bỏ vào Kết quả.
+- [x] **Step 1: Chép** 61 tệp (`cp`) từ `modules/sales/application/lib/src/shared/` sang `contracts/`. Viết barrel.
+- [x] **Step 2: Kiểm bản chép** — `for f in contracts/*.dart; do diff <(grep -v '^import' modules/…/shared/$f) <(grep -v '^import' contracts/$f); done` ⇒ không khác. `grep -h "^import 'package" contracts/*.dart` ⇒ rỗng (61 tệp chỉ import lẫn nhau — đo 2026-11-08; có import package ⇒ dừng, ghi lại).
+- [x] **Step 3: Đổi import** — trong 4 cây trên, thay `package:vet45_sales_application/application.dart` bằng `package:erp/features/sales/data/models.dart`, **giữ** prefix (`as app`, `as sales`) nếu có. Bỏ `// ignore_for_file: depend_on_referenced_packages` chỉ khi tệp không còn import package ngoài nào cần nó. Tệp đã import barrel rồi ⇒ bỏ dòng trùng. Tệp nào còn import `vet45_sales_infrastructure` / `testing.dart` / `domain` ngoài `injection.dart`, `sales_runtime_registration_test.dart` ⇒ dừng, ghi lại (Task 1-2 sót).
+- [x] **Step 4: Kiểm.**
   - `grep -rln "vet45_sales_" apps/erp --include='*.dart'` ⇒ đúng 2 tệp: `lib/core/di/injection.dart`, `test/core/di/sales_runtime_registration_test.dart`
   - `cd apps/erp && dart analyze lib test integration_test` ⇒ 0 error, 0 warning mới; `cd apps/erp/example && dart analyze lib` ⇒ 0 error
   - `cd apps/erp && flutter test test/features/sales` ⇒ số pass như Task 2 Step 2 + Task 1 Step 5
-- [ ] **Step 5: Commit** `refactor(sales): 8-C chép kiểu DTO sales vào app (data/models.dart), đổi import`
+- [x] **Step 5: Commit** `refactor(sales): 8-C chép kiểu DTO sales vào app (data/models.dart), đổi import`
 
 ### Task 4: Bỏ DI module + xoá module + workspace
 
@@ -388,9 +388,19 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 
 - Live B (`sales_group_b_s06_s07_live_test.dart`): `di<SalesDraftRepository>()`; `update` / `cancel` / `list` cùng dữ liệu, `expectedVersion`, khoá idempotency, `payloadHash` của update giữ; `cancel` repository không nhận `payloadHash` nên bỏ (`cleanup-hash`, `cancel-hash`); `on AppException` (cùng 2 mã), `isA<AppException>()` + `STALE_DATA`; `listed.page.items` ⇒ `listed.items` và `item.draftId` ⇒ `item.draft.draftId` (kiểu `SalesDraftListEntry`). Live C: `di<SalesCheckoutRepository>().precheck(...)`, tên test đổi.
 - Lệch plan: giữ biến `executionContext` + `tenantId` ở cả 2 live test để giữ `expect(tenantId, _tenantId)` (chỉ bỏ `actorId`).
-- Test nhóm `old` mà nhóm `new` cùng tệp không có ca tương ứng (chỉ kiểm hành vi riêng của module, app không có đường tương đương): `params_complete` (RPC `complete_return_exchange`, app không gọi — Q6), `hash_start_fixed`, `hash_confirm_fixed` (`return_exchange_rpc_parity_test`), `hash_cancel_fixed` (`sales_cancellation_rpc_parity_test`): hash payload do factory của module dựng, app không tính hash. Còn lại đều có ca nhóm `new` / `*_errors_test` / `*_repository_test` tương ứng.
+- Test nhóm `old` mà nhóm `new` cùng tệp không có ca tương ứng (chỉ kiểm hành vi riêng của module, app không có đường tương đương): `params_complete` (RPC `complete_return_exchange`, app không gọi — Q6), `hash_start_fixed`, `hash_confirm_fixed` (`return_exchange_rpc_parity_test`), `hash_cancel_fixed` (`sales_cancellation_rpc_parity_test`). `hash_start_fixed` / `hash_confirm_fixed` / `hash_cancel_fixed` trùng `return_exchange_hash_unchanged_start` / `_confirm` (`sales_return_exchange_attempt_factory_test.dart:24,40`) và `cancel_hash_unchanged` (`sales_order_cancellation_attempt_factory_test.dart:8`), cùng đầu vào và giá trị; chỉ `params_complete` không có đường app (Q6).
 - Kiểm: `dart analyze integration_test` ⇒ No issues found; `grep -rnE "ISalesModule|SalesContractException|Command\(|Query\(" integration_test --include='*.dart'` ⇒ rỗng.
 - Impact: chỉ sửa tệp test, không sửa symbol Dart trong `lib`; `node .gitnexus/run.cjs detect_changes --repo erp-sales-inventory` ⇒ "No changes detected" (chạy trước commit, chỉ số chưa phản ánh tệp test mới sửa).
+
+### Task 3
+
+- Commit `9a3941d81`.
+- Step 0: `sales_contract_error_test.dart` bỏ nhóm `salesFixture khớp SalesFakeContractFixtureFactory` (11 test: `AvailablePostSaleActionsDto`, `CheckoutResultDto`, `SalesOrderResultDto`, `SalesOrderPaymentSummaryDto`, `SalesOrderSettlementDto`, `SalesPaymentTransactionsDto`, `SalesOrderTimelineDto`, `SalesOrderReturnSummaryDto`, `ReturnExchangeValuationDto`, `ReturnExchangeDetailDto`, `kiểu chưa hỗ trợ ném UnsupportedError`), hàm `_planSig` / `_valuationSig` và import `testing.dart` + `sales_contract_fixtures.dart`; còn 5 test `salesContractError` (`flutter test` ⇒ +5).
+- **Lệch plan: 64 tệp chép, không phải 61.** Danh sách mục 3 thiếu 3 tệp app dùng nhưng nằm ngoài `src/shared`: `checkout_blocker_codes.dart` (`sales_order/shared`), `sales_order_draft_contract_mapper.dart` (`sales_order_draft/shared`; `SalesDraftJson` dùng `SalesOrderDraftContractMapper`, `SalesOrderDraftReadRow`, `SalesOrderDraftLineReadRow`), và `paged_sales_order_draft_list_dto.dart` (`shared`, mapper kéo theo). Phát hiện vì `dart analyze` báo `Undefined name` sau khi đổi import; chép thêm, import `../../shared/` của mapper đổi sang cùng thư mục. Barrel `data/models.dart` 64 dòng `export`.
+- Step 2: `diff` bỏ dòng `import` cho 64 tệp ⇒ không khác; `grep -h "^import 'package" contracts/*.dart` ⇒ rỗng.
+- Step 3: đổi import (không tính `injection.dart`, `sales_runtime_registration_test.dart` — giữ nguyên cho Task 4, vì còn dùng `ISalesModule`): `lib` 84 tệp, `test` 65, `integration_test` 3, `example/lib` 5. Giữ prefix `as app` / `as sales` và `hide` ở `sg13_return_result_tab.dart`. Không phải `hide` / `show` nào (không trùng tên với `data/models/*.dart`). Không có tệp import trùng barrel.
+- Step 4: `grep -rln "vet45_sales_" apps/erp --include='*.dart'` ⇒ 7 tệp: 2 tệp mong đợi + 5 tệp `lib` chỉ còn tên trong doc comment (`sales_draft_repository`, `sales_checkout_repository`, `mappers/sales_draft_json`, `mappers/sales_checkout_json`, `presentation/lookups/sales_pricing_ports`); không sửa vì ràng buộc `lib` chỉ đổi import. `dart analyze lib test integration_test` ⇒ 228 issues (đều `info`), bằng trước khi sửa, 0 error, 0 warning; `example`: `dart analyze lib` ⇒ 2 issues (`info`, deprecated), 0 error. `flutter test test/features/sales` ⇒ +1088 All passed (trước Step 0 là 1099).
+- Impact: `impact MoneyDto` ⇒ chọn nhầm `MoneyDto` của `pricing_common.dart` (CRITICAL, 1076) không phải kiểu sales; thay đổi chỉ là dòng `import` + tệp chép mới, không sửa thân symbol nào. `detect_changes` ⇒ 157 tệp, 3 symbol (tệp test), 0 process, risk low.
 
 ## 9. Review
 
