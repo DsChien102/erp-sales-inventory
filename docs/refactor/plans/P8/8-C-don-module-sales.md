@@ -180,12 +180,12 @@ Trường của query cũ ⇒ trường của bản ghi lời gọi: theo cách 
 **Interfaces:**
 - Consumes: `SalesDraftRepository.update({required String draftId, required int expectedVersion, required String storeId, …, required String idempotencyKey})`, `.cancel({required String draftId, required String storeId, required int expectedVersion, required String idempotencyKey})`, `.list({required String storeId, String? cursor, int pageSize = 25, String? search, String? createdByUserId})` (`lib/features/sales/data/sales_draft_repository.dart:61-135`); `SalesCheckoutRepository.precheck({required String storeId, String? customerId, required String currencyCode, DateTime? paymentDueDate, required List<CheckoutLineInput> lines, required List<PaymentIntentInput> paymentIntents, int? expectedSourceVersion})` (`sales_checkout_repository.dart:26`). Đọc chữ ký đầy đủ ở tệp trước khi sửa.
 
-- [ ] **Step 1: Bỏ nhóm `old`** ở 12 tệp (dòng ở bảng mục 3 — kiểm lại bằng `grep -n "group('"` trước khi xoá): xoá cả `group`, import module chỉ nhóm đó dùng, helper / lớp fake chỉ nhóm đó dùng (kiểm 0 tham chiếu còn lại). **Không** sửa ca / giá trị nhóm `new` và `*_parity_expectations.dart`.
-- [ ] **Step 2: Chạy** 12 tệp ⇒ PASS; số test **nhóm `new`** mỗi tệp bằng số trước (Task 0 Step 3 trừ số test nhóm `old`, đếm bằng `flutter test <tệp> --plain-name "<tên nhóm new>"`). Ghi vào Kết quả.
-- [ ] **Step 3: Live B.** `di<ISalesModule>()` ⇒ `di<SalesDraftRepository>()`; 3 command / query ⇒ method theo bảng mục 4 dòng 6, giữ dữ liệu, `expectedVersion`, khoá idempotency; `on SalesContractException catch (error)` ⇒ `on AppException catch (error)` (cùng 2 mã); `isA<SalesContractException>()` ⇒ `isA<AppException>()` cùng `code == 'STALE_DATA'`. Bỏ `tenantId` / `actorId` (repository lấy từ phiên) — biến `executionContext` bỏ nếu không còn dùng.
-- [ ] **Step 4: Live C.** `di<ISalesModule>().executeQueryAsync(PrecheckSalesOrderCheckoutQuery(...))` ⇒ `di<SalesCheckoutRepository>().precheck(...)` cùng tham số; `expect` sau đó giữ nguyên. Tên test `'… precheck through ISalesModule …'` ⇒ `'… precheck through SalesCheckoutRepository …'`.
-- [ ] **Step 5: Kiểm.** `cd apps/erp && dart analyze integration_test` ⇒ `No issues found!`; `grep -rnE "ISalesModule|SalesContractException|Command\(|Query\(" integration_test --include='*.dart'` ⇒ không còn kiểu module.
-- [ ] **Step 6: Commit** `test(sales): 8-C bỏ nhóm test old, live test nháp / precheck qua repository`
+- [x] **Step 1: Bỏ nhóm `old`** ở 12 tệp (dòng ở bảng mục 3 — kiểm lại bằng `grep -n "group('"` trước khi xoá): xoá cả `group`, import module chỉ nhóm đó dùng, helper / lớp fake chỉ nhóm đó dùng (kiểm 0 tham chiếu còn lại). **Không** sửa ca / giá trị nhóm `new` và `*_parity_expectations.dart`.
+- [x] **Step 2: Chạy** 12 tệp ⇒ PASS; số test **nhóm `new`** mỗi tệp bằng số trước (Task 0 Step 3 trừ số test nhóm `old`, đếm bằng `flutter test <tệp> --plain-name "<tên nhóm new>"`). Ghi vào Kết quả.
+- [x] **Step 3: Live B.** `di<ISalesModule>()` ⇒ `di<SalesDraftRepository>()`; 3 command / query ⇒ method theo bảng mục 4 dòng 6, giữ dữ liệu, `expectedVersion`, khoá idempotency; `on SalesContractException catch (error)` ⇒ `on AppException catch (error)` (cùng 2 mã); `isA<SalesContractException>()` ⇒ `isA<AppException>()` cùng `code == 'STALE_DATA'`. Bỏ `tenantId` / `actorId` (repository lấy từ phiên) — biến `executionContext` bỏ nếu không còn dùng.
+- [x] **Step 4: Live C.** `di<ISalesModule>().executeQueryAsync(PrecheckSalesOrderCheckoutQuery(...))` ⇒ `di<SalesCheckoutRepository>().precheck(...)` cùng tham số; `expect` sau đó giữ nguyên. Tên test `'… precheck through ISalesModule …'` ⇒ `'… precheck through SalesCheckoutRepository …'`.
+- [x] **Step 5: Kiểm.** `cd apps/erp && dart analyze integration_test` ⇒ `No issues found!`; `grep -rnE "ISalesModule|SalesContractException|Command\(|Query\(" integration_test --include='*.dart'` ⇒ không còn kiểu module.
+- [x] **Step 6: Commit** `test(sales): 8-C bỏ nhóm test old, live test nháp / precheck qua repository`
 
 ### Task 3: Chép kiểu + đổi import (Q2)
 
@@ -365,6 +365,32 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
   6. Vòng sửa 1 (review): thêm lại độ chặt "không lời gọi khác": list cubit (`searchCalls` / `listCalls` isEmpty), checkout page (`getResultCalls` isEmpty), order detail page (`confirmCalls` hasLength 1 + lệnh phiếu / đổi trả isEmpty; `queryCount` thêm `cancellationCalls`, `originalCalls`).
 - Impact: chỉ sửa tệp test, không sửa symbol Dart trong `lib`; `detect_changes` lỗi Node như Task 0.
 
+
+### Task 2
+
+- Commit: `72617487e` (12 tệp nhóm B + 2 live test). `apps/erp/lib` không đổi.
+- Nhóm `old` bỏ ở 12 tệp (kèm `_FakeRpcClient`, `_OldRpc`, `_ThrowingRpc`, `_oldCode`, `_msgOf`, `_snapshot` và import module chỉ nhóm đó dùng; `dart analyze test/features/sales/data test/features/sales/logic` ⇒ No issues found). Không sửa ca / giá trị nhóm `new`, không sửa `*_parity_expectations.dart`. Số test (tổng trước / sau, đếm `flutter test <tệp> | tail -1`; nhóm `new` đếm bằng `--plain-name "new"` hoặc tên nhóm, bằng tổng sau):
+
+| Tệp (trong `test/features/sales/`) | Trước | Test nhóm `old` | Sau (= nhóm `new`) |
+|---|---|---|---|
+| `data/return_exchange_rpc_parity_test` | +64 | 44 | +20 |
+| `data/sales_cancellation_rpc_parity_test` | +19 | 14 | +5 |
+| `data/sales_checkout_errors_test` | +33 | 14 | +19 |
+| `data/sales_checkout_rpc_parity_test` | +22 | 11 | +11 |
+| `data/sales_draft_rpc_parity_test` | +40 | 20 | +20 |
+| `data/sales_order_inquiry_rpc_parity_test` | +32 | 17 | +15 |
+| `data/sales_order_read_errors_test` | +18 | 8 | +10 |
+| `data/sales_payment_rpc_parity_test` | +16 | 8 | +8 |
+| `data/sales_receipt_errors_test` | +25 | 12 | +13 |
+| `data/sales_receipt_rpc_parity_test` | +17 | 9 | +8 |
+| `logic/sales_checkout_rules_test` | +25 | 12 | +13 |
+| `logic/sales_draft_rules_test` | +71 | 32 | +39 |
+
+- Live B (`sales_group_b_s06_s07_live_test.dart`): `di<SalesDraftRepository>()`; `update` / `cancel` / `list` cùng dữ liệu, `expectedVersion`, khoá idempotency, `payloadHash` của update giữ; `cancel` repository không nhận `payloadHash` nên bỏ (`cleanup-hash`, `cancel-hash`); `on AppException` (cùng 2 mã), `isA<AppException>()` + `STALE_DATA`; `listed.page.items` ⇒ `listed.items` và `item.draftId` ⇒ `item.draft.draftId` (kiểu `SalesDraftListEntry`). Live C: `di<SalesCheckoutRepository>().precheck(...)`, tên test đổi.
+- Lệch plan: giữ biến `executionContext` + `tenantId` ở cả 2 live test để giữ `expect(tenantId, _tenantId)` (chỉ bỏ `actorId`).
+- Test nhóm `old` mà nhóm `new` cùng tệp không có ca tương ứng (chỉ kiểm hành vi riêng của module, app không có đường tương đương): `params_complete` (RPC `complete_return_exchange`, app không gọi — Q6), `hash_start_fixed`, `hash_confirm_fixed` (`return_exchange_rpc_parity_test`), `hash_cancel_fixed` (`sales_cancellation_rpc_parity_test`): hash payload do factory của module dựng, app không tính hash. Còn lại đều có ca nhóm `new` / `*_errors_test` / `*_repository_test` tương ứng.
+- Kiểm: `dart analyze integration_test` ⇒ No issues found; `grep -rnE "ISalesModule|SalesContractException|Command\(|Query\(" integration_test --include='*.dart'` ⇒ rỗng.
+- Impact: chỉ sửa tệp test, không sửa symbol Dart trong `lib`; `node .gitnexus/run.cjs detect_changes --repo erp-sales-inventory` ⇒ "No changes detected" (chạy trước commit, chỉ số chưa phản ánh tệp test mới sửa).
 
 ## 9. Review
 
