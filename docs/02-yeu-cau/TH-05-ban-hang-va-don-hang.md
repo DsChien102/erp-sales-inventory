@@ -5,7 +5,7 @@
 > **Thay thế:** `Theme 5_ Đơn hàng.md` (v1). Tính năng v1 không có trong code được liệt kê ở [mục 8](#8-ngoài-phạm-vi-so-với-spec-v1).
 > **Nguồn đối chiếu:**
 > - DB: `20260830005`…`20260830015`, `20260904001` (schema `sales`); `20260830002`, `20260831001` (tìm sản phẩm bán được); `20260830003` (giá khi bán, TH-04).
-> - App: `apps/erp/lib/features/sales/presentation/` (17 trang, 13 cubit, 229 file); `apps/erp/lib/features/sales/{data,logic,presentation}`.
+> - App: `apps/erp/lib/features/sales/{data,logic,presentation}` (presentation: 17 trang, 13 cubit, 229 file).
 >
 > **Cách đọc:** mục 1–3 là mô hình chung và dữ liệu; mục 4 chia theo epic → user story (bối cảnh, FR, BR, AC, EC, kịch bản Gherkin); mục 5 đặc tả từng màn hình (trạng thái, thành phần, phác thảo); mục 6 RPC và thông điệp lỗi; mục 7 phân quyền và vấn đề đã biết; mục 8 ngoài phạm vi; mục 9 kế hoạch refactor và kiểm thử.
 
@@ -2223,7 +2223,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 
 | Nội dung v1 | Thay bằng trong app |
 |---|---|
-| Kiến trúc 4 domain, outbox/inbox, `integration_commands`, `*_impact_request`, retry/đối soát downstream, màn trạng thái tích hợp | Một schema `sales`; bỏ outbox, HĐĐT tự động nhận việc qua trigger (TH-08 KI-20) |
+| Kiến trúc 4 domain, outbox/inbox, `integration_commands`, `*_impact_request`, retry/đối soát downstream, màn trạng thái tích hợp | Một schema `sales`; bỏ hàng đợi messaging (giữ `sales.outbox_messages` làm nhật ký, 8-C); HĐĐT tự động nhận việc qua trigger (TH-08 KI-20) |
 | `CheckoutAttempt` với trạng thái received / validating / processing… | `idempotency_records` + `get_checkout_result` |
 | Ca bán (`sales_shifts`), mở / đóng ca | Không có |
 | Khoá / mở khoá đơn | Không có (`lock_status` luôn `unlocked`) |
@@ -2253,8 +2253,8 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 
 | Hiện tại | Sau refactor (P8) |
 |---|---|
-| `Page → Cubit → orchestrator → ISalesModule → Handler → Gateway → RPC` | `Page → Cubit → SalesDraftRepository / SalesOrderRepository / SalesPaymentRepository / ReturnExchangeRepository / ReceiptRepository → RPC` (xong 8-C) |
-| Lookups gọi `IPricingModule`, `ICatalogModule`, `IPartnerModule` | Dùng lại `PriceRuleRepository` (P6), `ProductRepository` (P5), `PartnerRepository` (P4) |
+| `Page → Cubit → orchestrator → ISalesModule → Handler → Gateway → RPC` | `Page → Cubit → SalesDraftRepository / SalesCheckoutRepository / SalesOrderRepository / SalesPaymentRepository / SalesReceiptRepository / SalesCancellationRepository / ReturnExchangeRepository → RPC` (xong 8-C) |
+| Lookups gọi `IPricingModule`, `ICatalogModule`, `IPartnerModule` | Dùng lại `SalesPricingRepository` (P6), `ProductRepository` (P5), `PartnerRepository` (P4) |
 | Rule Aggregate trong `modules/sales/domain` | Hàm thuần (tính tổng, cộng dồn dòng, kiểm vượt tổng, tiền thừa), giữ test cũ |
 | Sự kiện `sales_order_finalized.v1` → messaging worker phát HĐĐT | outbox giữ làm nhật ký (8-C); trigger ở 7-4: trên `sales.sales_orders` khi đơn Hoàn tất ghi việc vào `einvoice.internal_commands`; Edge Function `einvoice-processor` xử lý (TH-08 KI-19, KI-20) |
 | Trigger lịch sử giao dịch đối tác | Trigger trên `sales.sales_orders` gọi `partner.upsert_partner_history` (PLAN 4.3, TH-03 KI-02) |
