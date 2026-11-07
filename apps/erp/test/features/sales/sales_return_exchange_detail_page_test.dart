@@ -7,22 +7,22 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import 'support/module_backed_sales_repositories.dart';
+import 'support/fake_return_exchange_repository.dart';
+import 'support/fake_sales_order_repository.dart';
 import 'package:erp/features/sales/presentation/pages/sales_return_exchange_detail_page.dart';
 
 void main() {
-  late _RecordingSalesModule salesModule;
-
   setUp(() async {
     await GetIt.instance.reset();
-    salesModule = _RecordingSalesModule();
-    GetIt.instance.registerSingleton<ISalesModule>(salesModule);
-    GetIt.instance.registerSingleton<ReturnExchangeRepository>(
-      ModuleBackedReturnExchangeRepository(salesModule),
-    );
-    GetIt.instance.registerSingleton<SalesOrderRepository>(
-      ModuleBackedSalesOrderRepository(salesModule),
-    );
+    final returnExchange = FakeReturnExchangeRepository()..detailResult = _detail();
+    final orders = FakeSalesOrderRepository()
+      ..detailResult = _orderDetail()
+      ..returnSummaryResult = SalesOrderReturnSummaryDto(
+        salesOrderId: 'order-1',
+        returns: const [],
+      );
+    GetIt.instance.registerSingleton<ReturnExchangeRepository>(returnExchange);
+    GetIt.instance.registerSingleton<SalesOrderRepository>(orders);
     GetIt.instance.registerSingleton<IExecutionContext>(
       const _ExecutionContext(),
     );
@@ -102,55 +102,32 @@ void main() {
   });
 }
 
-final class _RecordingSalesModule implements ISalesModule {
-  final List<Object> queries = <Object>[];
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is GetReturnExchangeDetailQuery) return _detail() as TResult;
-    if (query is GetSalesOrderDetailQuery) {
-      return SalesOrderDetailDto(
-            order: const SalesOrderDto(
-              salesOrderId: 'order-1',
-              orderNumber: 'SO-1',
-              version: 7,
-              lifecycleStatus: SalesOrderLifecycleStatus.completed,
-              lockStatus: SalesOrderLockStatus.unlocked,
-              total: MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
-            ),
-            committedAt: DateTime.utc(2026, 8, 12),
-            store: const StoreSnapshotDto(
-              storeId: 'store-1',
-              storeCode: 'HCM-01',
-              displayName: 'Chi nhánh 1',
-            ),
-            seller: const ActorSnapshotDto(
-              actorId: 'actor-1',
-              displayName: 'Minh',
-            ),
-            customer: const CustomerSnapshotDto(
-              customerId: 'customer-1',
-              displayName: 'Khách A',
-            ),
-            lines: const [],
-          )
-          as TResult;
-    }
-    if (query is GetSalesOrderReturnSummaryQuery) {
-      return SalesOrderReturnSummaryDto(
-            salesOrderId: 'order-1',
-            returns: const [],
-          )
-          as TResult;
-    }
-    throw UnsupportedError('unexpected query ${query.runtimeType}');
-  }
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unexpected command ${command.runtimeType}');
-  }
+SalesOrderDetailDto _orderDetail() {
+  return SalesOrderDetailDto(
+    order: const SalesOrderDto(
+      salesOrderId: 'order-1',
+      orderNumber: 'SO-1',
+      version: 7,
+      lifecycleStatus: SalesOrderLifecycleStatus.completed,
+      lockStatus: SalesOrderLockStatus.unlocked,
+      total: MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
+    ),
+    committedAt: DateTime.utc(2026, 8, 12),
+    store: const StoreSnapshotDto(
+      storeId: 'store-1',
+      storeCode: 'HCM-01',
+      displayName: 'Chi nhánh 1',
+    ),
+    seller: const ActorSnapshotDto(
+      actorId: 'actor-1',
+      displayName: 'Minh',
+    ),
+    customer: const CustomerSnapshotDto(
+      customerId: 'customer-1',
+      displayName: 'Khách A',
+    ),
+    lines: const [],
+  );
 }
 
 ReturnExchangeDetailDto _detail() {

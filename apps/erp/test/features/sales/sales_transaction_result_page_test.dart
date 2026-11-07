@@ -2,7 +2,11 @@ import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';
-import 'support/module_backed_sales_repositories.dart';
+import 'support/fake_sales_checkout_repository.dart';
+import 'support/fake_sales_order_repository.dart';
+import 'support/fake_sales_payment_repository.dart';
+import 'support/fake_sales_receipt_repository.dart';
+import 'support/sales_contract_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -16,19 +20,20 @@ import 'package:erp/features/sales/presentation/pages/sales_result_invalid_entry
 import 'package:erp/features/sales/presentation/pages/sales_transaction_result_page.dart';
 
 void main() {
-  late _GroupEResultSalesModule salesModule;
+  late FakeSalesCheckoutRepository checkout;
+  late FakeSalesOrderRepository orders;
+  late FakeSalesPaymentRepository payments;
 
   setUp(() async {
     await GetIt.instance.reset();
-    salesModule = _GroupEResultSalesModule();
+    checkout = FakeSalesCheckoutRepository();
+    orders = FakeSalesOrderRepository()..result = _orderResult('SO-000129');
+    payments = FakeSalesPaymentRepository()..summaryResult = _paymentSummary();
     GetIt.instance
-      ..registerSingleton<ISalesModule>(salesModule)
-      ..registerSingleton<SalesCheckoutRepository>(
-        ModuleBackedSalesCheckoutRepository(salesModule),
-      )
-      ..registerSingleton<SalesOrderRepository>(ModuleBackedSalesOrderRepository(salesModule))
-      ..registerSingleton<SalesReceiptRepository>(ModuleBackedSalesReceiptRepository(salesModule))
-      ..registerSingleton<SalesPaymentRepository>(ModuleBackedSalesPaymentRepository(salesModule))
+      ..registerSingleton<SalesCheckoutRepository>(checkout)
+      ..registerSingleton<SalesOrderRepository>(orders)
+      ..registerSingleton<SalesReceiptRepository>(FakeSalesReceiptRepository())
+      ..registerSingleton<SalesPaymentRepository>(payments)
       ..registerSingleton<IExecutionContext>(const _TestExecutionContext());
   });
 
@@ -36,7 +41,7 @@ void main() {
     await GetIt.instance.reset();
   });
 
-  testWidgets('loads authoritative result through ISalesModule on init', (tester) async {
+  testWidgets('loads authoritative result through repositories on init', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: SalesTransactionResultPage(args: _successArgs()),
@@ -45,12 +50,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      salesModule.queries.map((query) => query.runtimeType),
-      containsAll([
-        GetCheckoutResultQuery,
-        GetSalesOrderQuery,
-        GetSalesOrderPaymentSummaryQuery,
-      ]),
+      [
+        if (checkout.getResultCalls.isNotEmpty) 'checkoutResult',
+        if (orders.getCalls.isNotEmpty) 'order',
+        if (payments.summaryCalls.isNotEmpty) 'paymentSummary',
+      ],
+      containsAll(['checkoutResult', 'order', 'paymentSummary']),
     );
     expect(find.byKey(const Key('wgt_sg06_result_page')), findsOneWidget);
     expect(find.text('Đã hoàn tất đơn'), findsOneWidget);
@@ -60,7 +65,7 @@ void main() {
   });
 
   testWidgets('shows failure action bar when authoritative load fails', (tester) async {
-    salesModule.attemptError = const SalesContractException('PERMISSION_DENIED');
+    checkout.getResultError = salesContractError('PERMISSION_DENIED');
 
     await tester.pumpWidget(
       MaterialApp(
@@ -108,8 +113,8 @@ void main() {
     expect(find.byKey(const Key('wgt_sg06_invalid_result_entry')), findsOneWidget);
   });
 
-  testWidgets('displays custom order number from fake module data', (tester) async {
-    salesModule.orderNumber = 'SO-CUSTOM-777';
+  testWidgets('displays custom order number from fake repository data', (tester) async {
+    orders.result = _orderResult('SO-CUSTOM-777');
 
     await tester.pumpWidget(
       MaterialApp(
@@ -146,65 +151,36 @@ final class _TestExecutionContext implements IExecutionContext {
   Future<String> requireUserId() async => 'actor-1';
 }
 
-final class _GroupEResultSalesModule implements ISalesModule {
-  final List<Object> queries = [];
-  Object? attemptError;
-  String orderNumber = 'SO-000129';
+SalesOrderResultDto _orderResult(String orderNumber) {
+  return SalesOrderResultDto(
+    order: SalesOrderDto(
+      salesOrderId: 'order-1',
+      orderNumber: orderNumber,
+      version: 3,
+      lifecycleStatus: SalesOrderLifecycleStatus.completed,
+      lockStatus: SalesOrderLockStatus.unlocked,
+      total: const MoneyDto(amountMinor: 4445238, currencyCode: 'VND'),
+    ),
+    committedAt: DateTime.utc(2026, 8, 12, 2, 41),
+    store: const StoreSnapshotDto(
+      storeId: 'store-1',
+      storeCode: 'HCM-01',
+      displayName: 'Chi nhánh Quận 1',
+    ),
+    seller: const ActorSnapshotDto(actorId: 'actor-1', displayName: 'Minh Anh'),
+    customer: const CustomerSnapshotDto(
+      customerId: 'customer-1',
+      displayName: 'Nguyễn Văn An',
+      phoneNumber: '0903456789',
+    ),
+  );
+}
 
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('Unexpected command $command');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    final raw = query as Object;
-    if (raw is GetCheckoutResultQuery) {
-      final error = attemptError;
-      if (error != null) throw error;
-      return CheckoutResultDto(
-            idempotencyKey: raw.idempotencyKey,
-            salesOrderId: 'order-1',
-            salesOrderVersion: 3,
-            status: CheckoutResultStatus.succeeded,
-          )
-          as TResult;
-    }
-    if (raw is GetSalesOrderQuery) {
-      return SalesOrderResultDto(
-            order: SalesOrderDto(
-              salesOrderId: raw.salesOrderId,
-              orderNumber: orderNumber,
-              version: 3,
-              lifecycleStatus: SalesOrderLifecycleStatus.completed,
-              lockStatus: SalesOrderLockStatus.unlocked,
-              total: const MoneyDto(amountMinor: 4445238, currencyCode: 'VND'),
-            ),
-            committedAt: DateTime.utc(2026, 8, 12, 2, 41),
-            store: const StoreSnapshotDto(
-              storeId: 'store-1',
-              storeCode: 'HCM-01',
-              displayName: 'Chi nhánh Quận 1',
-            ),
-            seller: const ActorSnapshotDto(actorId: 'actor-1', displayName: 'Minh Anh'),
-            customer: const CustomerSnapshotDto(
-              customerId: 'customer-1',
-              displayName: 'Nguyễn Văn An',
-              phoneNumber: '0903456789',
-            ),
-          )
-          as TResult;
-    }
-    if (raw is GetSalesOrderPaymentSummaryQuery) {
-      return SalesOrderPaymentSummaryDto(
-            status: SalesSettlementStatus.paid,
-            orderTotal: const MoneyDto(amountMinor: 4445238, currencyCode: 'VND'),
-            paidTotal: const MoneyDto(amountMinor: 4445238, currencyCode: 'VND'),
-            outstandingTotal: const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
-          )
-          as TResult;
-    }
-    throw StateError('Unexpected query $query');
-  }
+SalesOrderPaymentSummaryDto _paymentSummary() {
+  return SalesOrderPaymentSummaryDto(
+    status: SalesSettlementStatus.paid,
+    orderTotal: const MoneyDto(amountMinor: 4445238, currencyCode: 'VND'),
+    paidTotal: const MoneyDto(amountMinor: 4445238, currencyCode: 'VND'),
+    outstandingTotal: const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
+  );
 }
