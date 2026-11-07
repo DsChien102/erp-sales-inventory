@@ -6,7 +6,7 @@ import 'package:erp/features/sales/logic/sales_checkout_rules.dart';
 import 'package:uuid/uuid.dart';
 import 'package:erp/features/sales/data/models.dart';
 
-/// 3 RPC checkout của schema `sales`. Nhận / trả kiểu của `vet45_sales_application` (Q1).
+/// 3 RPC checkout của schema `sales`. Nhận / trả kiểu của `data/models.dart` (Q1).
 class SalesCheckoutRepository {
   SalesCheckoutRepository({
     required SupabaseRpc rpc,

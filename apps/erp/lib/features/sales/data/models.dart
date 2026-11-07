@@ -2,7 +2,6 @@ export 'models/contracts/actor_snapshot_dto.dart';
 export 'models/contracts/available_post_sale_actions_dto.dart';
 export 'models/contracts/cancellation_precheck_dto.dart';
 export 'models/contracts/cancellation_reason_dto.dart';
-export 'models/contracts/checkout_blocker_codes.dart';
 export 'models/contracts/checkout_line_input.dart';
 export 'models/contracts/checkout_monetary_summary_dto.dart';
 export 'models/contracts/checkout_precheck_dto.dart';

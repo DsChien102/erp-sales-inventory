@@ -589,7 +589,7 @@ void main() {
       canFinalize: false,
       blockers: const [
         SalesBlockerDto(
-          code: CheckoutBlockerCodes.receivableDueDateRequired,
+          code: 'RECEIVABLE_DUE_DATE_REQUIRED',
           message: 'Due date required.',
           field: 'dueDate',
         ),

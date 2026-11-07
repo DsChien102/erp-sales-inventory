@@ -329,7 +329,7 @@ void main() {
         result: _blockedResult(
           blockers: const [
             SalesBlockerDto(
-              code: CheckoutBlockerCodes.receivableDueDateRequired,
+              code: 'RECEIVABLE_DUE_DATE_REQUIRED',
               message: 'Due date required.',
               field: 'dueDate',
             ),
@@ -473,7 +473,7 @@ void main() {
         result: _blockedResult(
           blockers: const [
             SalesBlockerDto(
-              code: CheckoutBlockerCodes.receivableDueDateRequired,
+              code: 'RECEIVABLE_DUE_DATE_REQUIRED',
               message: 'Ngày hẹn thanh toán là bắt buộc khi phát sinh công nợ.',
               field: 'dueDate',
             ),
