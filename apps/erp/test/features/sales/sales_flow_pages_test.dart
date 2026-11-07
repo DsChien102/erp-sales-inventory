@@ -4,7 +4,13 @@ import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';
-import 'support/module_backed_sales_repositories.dart';
+import 'support/fake_return_exchange_repository.dart';
+import 'support/fake_sales_cancellation_repository.dart';
+import 'support/fake_sales_checkout_repository.dart';
+import 'support/fake_sales_order_repository.dart';
+import 'support/fake_sales_payment_repository.dart';
+import 'support/fake_sales_receipt_repository.dart';
+import 'support/sales_contract_fixtures.dart';
 import '../iam/support/iam_test_session.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/session/session_controller.dart';
@@ -25,7 +31,6 @@ import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'support/fake_sales_draft_repository.dart';
 import 'support/recording_sales_pricing_repository.dart';
 import 'package:vet45_sales_application/application.dart';
-import 'package:vet45_sales_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
 
@@ -55,35 +60,22 @@ final class TestExecutionContext implements IExecutionContext {
 
 void main() {
   late _SalesFlowProductRepository catalogModule;
-  late _RecordingSalesModule salesModule;
+  late _FlowRepos salesModule;
   late FakeSalesDraftRepository draftRepo;
   late RecordingSalesPricingRepository pricingModule;
 
   setUp(() async {
     await GetIt.instance.reset();
     catalogModule = _SalesFlowProductRepository();
-    salesModule = _RecordingSalesModule();
+    salesModule = _FlowRepos();
     draftRepo = FakeSalesDraftRepository();
     pricingModule = RecordingSalesPricingRepository();
-    GetIt.instance.registerSingleton<ISalesModule>(salesModule);
-    GetIt.instance.registerSingleton<SalesCheckoutRepository>(
-      ModuleBackedSalesCheckoutRepository(salesModule),
-    );
-    GetIt.instance.registerSingleton<SalesOrderRepository>(
-      ModuleBackedSalesOrderRepository(salesModule),
-    );
-    GetIt.instance.registerSingleton<SalesReceiptRepository>(
-      ModuleBackedSalesReceiptRepository(salesModule),
-    );
-    GetIt.instance.registerSingleton<SalesPaymentRepository>(
-      ModuleBackedSalesPaymentRepository(salesModule),
-    );
-    GetIt.instance.registerSingleton<SalesCancellationRepository>(
-      ModuleBackedSalesCancellationRepository(salesModule),
-    );
-    GetIt.instance.registerSingleton<ReturnExchangeRepository>(
-      ModuleBackedReturnExchangeRepository(salesModule),
-    );
+    GetIt.instance.registerSingleton<SalesCheckoutRepository>(salesModule.checkout);
+    GetIt.instance.registerSingleton<SalesOrderRepository>(salesModule.orders);
+    GetIt.instance.registerSingleton<SalesReceiptRepository>(salesModule.receipts);
+    GetIt.instance.registerSingleton<SalesPaymentRepository>(salesModule.payments);
+    GetIt.instance.registerSingleton<SalesCancellationRepository>(salesModule.cancellations);
+    GetIt.instance.registerSingleton<ReturnExchangeRepository>(salesModule.returnExchange);
     GetIt.instance.registerSingleton<SalesDraftRepository>(draftRepo);
     GetIt.instance.registerSingleton<IExecutionContext>(
       const TestExecutionContext(),
@@ -491,7 +483,7 @@ void main() {
   testWidgets('SG-05 Checkout Page renders payment options and disabled finalize', (
     tester,
   ) async {
-    salesModule.precheckResult = CheckoutPrecheckDto(
+    salesModule.checkout.precheckResult = CheckoutPrecheckDto(
       canFinalize: true,
       blockers: const [],
       monetarySummary: const CheckoutMonetarySummaryDto(
@@ -544,7 +536,7 @@ void main() {
   });
 
   testWidgets('SG-05 walk-in disables 0% and 50% quick options', (tester) async {
-    salesModule.precheckResult = CheckoutPrecheckDto(
+    salesModule.checkout.precheckResult = CheckoutPrecheckDto(
       canFinalize: true,
       blockers: const [],
       monetarySummary: const CheckoutMonetarySummaryDto(
@@ -593,7 +585,7 @@ void main() {
   testWidgets('SG-05 RECEIVABLE_DUE_DATE_REQUIRED shows backend blocker message', (
     tester,
   ) async {
-    salesModule.precheckResult = CheckoutPrecheckDto(
+    salesModule.checkout.precheckResult = CheckoutPrecheckDto(
       canFinalize: false,
       blockers: const [
         SalesBlockerDto(
@@ -766,7 +758,7 @@ void main() {
   });
 
   testWidgets('SG-11 blocked precheck hides proceed and shows blockers', (tester) async {
-    salesModule.returnPrecheck = ReturnExchangePrecheckDto(
+    salesModule.returnExchange.precheckResult = ReturnExchangePrecheckDto(
       allowed: false,
       sourceVersion: 1,
       blockers: const [
@@ -786,10 +778,6 @@ void main() {
   testWidgets('SG-11 empty policy still opens return item selection with proceed disabled', (
     tester,
   ) async {
-    salesModule.returnFormPolicy = ReturnExchangeFormPolicyDto(
-      reasons: const [],
-      conditions: const [],
-    );
     await tester.pumpWidget(
       const MaterialApp(home: SalesReturnExchangeCreatePage(orderId: 'ord_123')),
     );
@@ -848,7 +836,7 @@ void main() {
     expect(find.byKey(const Key('wgt_sg12_route_probe')), findsOneWidget);
     expect(find.text('settle:ord_123:return-1'), findsOneWidget);
     expect(
-      salesModule.commands.whereType<StartReturnExchangeCommand>(),
+      salesModule.returnExchange.startCalls,
       hasLength(1),
     );
   });
@@ -877,7 +865,7 @@ void main() {
       settlementPlan: plan,
       sourceOrderVersion: 7,
     );
-    salesModule.returnDetail = ReturnExchangeDetailDto(
+    salesModule.returnExchange.detailResult = ReturnExchangeDetailDto(
       result: const ReturnExchangeResultDto(
         returnExchangeId: 'return-1',
         salesOrderId: 'ord_123',
@@ -895,7 +883,7 @@ void main() {
       settlementPlan: plan,
       completionReady: false,
     );
-    salesModule.returnValuation = valuation;
+    salesModule.returnExchange.evaluateResult = valuation;
 
     await tester.pumpWidget(
       const MaterialApp(
@@ -921,11 +909,11 @@ void main() {
     expect(find.textContaining('Phương thức'), findsOneWidget);
     expect(find.textContaining('Cấn trừ'), findsNothing);
     expect(
-      salesModule.queries.whereType<GetReturnExchangeDetailQuery>(),
+      salesModule.returnExchange.detailCalls,
       hasLength(1),
     );
     expect(
-      salesModule.queries.whereType<EvaluateReturnPricingImpactQuery>(),
+      salesModule.returnExchange.evaluateCalls,
       hasLength(1),
     );
   });
@@ -969,7 +957,7 @@ void main() {
 
       expect(find.byKey(const Key('wgt_sg13_return_result_page')), findsOneWidget);
       expect(
-        salesModule.queries.whereType<GetReturnExchangeDetailQuery>(),
+        salesModule.returnExchange.detailCalls,
         hasLength(1),
       );
 
@@ -1130,7 +1118,7 @@ void main() {
 
       expect(find.byKey(const Key('wgt_sg13_return_detail_page')), findsOneWidget);
       expect(
-        salesModule.queries.whereType<GetReturnExchangeDetailQuery>(),
+        salesModule.returnExchange.detailCalls,
         hasLength(1),
       );
 
@@ -1298,215 +1286,158 @@ final class _SalesFlowProductRepository implements ProductRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-final class _RecordingSalesModule implements ISalesModule {
-  final List<Object> commands = [];
-  final List<Object> queries = [];
-  CheckoutPrecheckDto? precheckResult;
-
-  // SG-10 cancellation (Group H) configurable fixtures.
-  List<CancellationReasonPolicyDto> cancelReasons = const [
-    CancellationReasonPolicyDto(
-      reasonCode: 'DUPLICATE',
-      displayName: 'Nhập trùng đơn',
-      requiresNote: false,
-      sortOrder: 100,
-    ),
-    CancellationReasonPolicyDto(
-      reasonCode: 'OTHER',
-      displayName: 'Khác',
-      requiresNote: true,
-      sortOrder: 900,
-    ),
-  ];
-  CancellationPrecheckDto cancelPrecheck = CancellationPrecheckDto(
-    allowed: true,
-    sourceVersion: 7,
-    sourceSettlementVersion: 3,
-    blockers: const [],
-  );
-  Object cancelConfirmResponse = const SalesOrderCancellationResultDto(
-    cancellationId: 'cancel-1',
-    salesOrderId: 'ord_123',
-    salesOrderVersion: 8,
-    status: SalesOrderCancellationStatus.confirmed,
-  );
-  // SG-11 return/exchange session (Group I) configurable fixtures.
-  ReturnExchangePrecheckDto returnPrecheck = ReturnExchangePrecheckDto(
-    allowed: true,
-    sourceVersion: 1,
-    blockers: const [],
-  );
-  ReturnExchangeFormPolicyDto? returnFormPolicy;
-  ReturnableOrderLinesDto? returnableLines;
-  Object returnStartResponse = ReturnExchangeDraftDto(
-    returnExchangeId: 'return-1',
-    salesOrderId: 'ord_123',
-    version: 2,
-    status: ReturnExchangeStatus.draft,
-    lines: const [],
-  );
-  ReturnExchangeDetailDto? returnDetail;
-  ReturnExchangeValuationDto? returnValuation;
-  Object returnConfirmResponse = const ReturnExchangeResultDto(
-    returnExchangeId: 'return-1',
-    salesOrderId: 'ord_123',
-    version: 3,
-    status: ReturnExchangeStatus.confirmed,
-  );
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    final raw = command as Object;
-    if (raw is ConfirmSalesOrderCancellationCommand) {
-      final response = cancelConfirmResponse;
-      if (response is Exception) throw response;
-      return response as TResult;
-    }
-    if (raw is StartReturnExchangeCommand || raw is UpdateReturnExchangeCommand) {
-      final response = returnStartResponse;
-      if (response is Exception) throw response;
-      return response as TResult;
-    }
-    if (raw is ConfirmReturnExchangeCommand) {
-      return const ReturnExchangeResultDto(
-            returnExchangeId: 'return-1',
-            salesOrderId: 'ord_123',
-            version: 5,
-            status: ReturnExchangeStatus.confirmed,
-          )
-          as TResult;
-    }
-    if (raw is CancelReturnExchangeCommand) {
-      return const ReturnExchangeResultDto(
-            returnExchangeId: 'return-1',
-            salesOrderId: 'ord_123',
-            version: 3,
-            status: ReturnExchangeStatus.cancelled,
-          )
-          as TResult;
-    }
-    if (raw is ConfirmReturnExchangeCommand) {
-      final response = returnConfirmResponse;
-      if (response is Exception) throw response;
-      return response as TResult;
-    }
-    final typeName = command.runtimeType.toString();
-    if (SalesFakeContractFixtureFactory.supports(typeName)) {
-      return SalesFakeContractFixtureFactory.create(typeName) as TResult;
-    }
-    throw StateError('Unexpected sales command $command');
+final class _FlowRepos {
+  _FlowRepos() {
+    checkout = _CheckoutRepo();
+    orders = _OrderRepo()
+      ..result = salesFixture<SalesOrderResultDto>()
+      ..timelineResult = salesFixture<SalesOrderTimelineDto>()
+      ..returnSummaryResult = salesFixture<SalesOrderReturnSummaryDto>()
+      ..actionsResult = salesFixture<AvailablePostSaleActionsDto>();
+    receipts = FakeSalesReceiptRepository();
+    payments = FakeSalesPaymentRepository()
+      ..summaryResult = salesFixture<SalesOrderPaymentSummaryDto>()
+      ..settlementResult = salesFixture<SalesOrderSettlementDto>()
+      ..transactionsResult = salesFixture<SalesPaymentTransactionsDto>();
+    cancellations = FakeSalesCancellationRepository()
+      ..precheckResult = CancellationPrecheckDto(
+        allowed: true,
+        sourceVersion: 7,
+        sourceSettlementVersion: 3,
+        blockers: const [],
+      )
+      ..confirmResult = const SalesOrderCancellationResultDto(
+        cancellationId: 'cancel-1',
+        salesOrderId: 'ord_123',
+        salesOrderVersion: 8,
+        status: SalesOrderCancellationStatus.confirmed,
+      );
+    final draft = ReturnExchangeDraftDto(
+      returnExchangeId: 'return-1',
+      salesOrderId: 'ord_123',
+      version: 2,
+      status: ReturnExchangeStatus.draft,
+      lines: const [],
+    );
+    returnExchange = FakeReturnExchangeRepository()
+      ..precheckResult = ReturnExchangePrecheckDto(
+        allowed: true,
+        sourceVersion: 1,
+        blockers: const [],
+      )
+      ..returnableResult = ReturnableOrderLinesDto(
+        salesOrderId: 'ord_123',
+        sourceVersion: 1,
+        lines: const [
+          ReturnableOrderLineDto(
+            salesOrderLineId: 'line_1',
+            product: ProductSnapshotDto(
+              productId: 'product-1',
+              sku: 'SKU-1',
+              displayName: 'Sản phẩm trả mẫu',
+            ),
+            unit: ProductUnitSnapshotDto(
+              productUnitId: 'unit-1',
+              unitCode: 'BOX',
+              unitName: 'Hộp',
+            ),
+            soldQuantity: QuantityDto(quantityMicros: QuantityDto.scale * 2),
+            returnableQuantity: QuantityDto(
+              quantityMicros: QuantityDto.scale * 2,
+            ),
+            originalUnitPrice: MoneyDto(
+              amountMinor: 50000,
+              currencyCode: 'VND',
+            ),
+          ),
+        ],
+      )
+      ..startResult = draft
+      ..updateResult = draft
+      ..cancelResult = const ReturnExchangeResultDto(
+        returnExchangeId: 'return-1',
+        salesOrderId: 'ord_123',
+        version: 3,
+        status: ReturnExchangeStatus.cancelled,
+      )
+      ..confirmResult = const ReturnExchangeResultDto(
+        returnExchangeId: 'return-1',
+        salesOrderId: 'ord_123',
+        version: 3,
+        status: ReturnExchangeStatus.confirmed,
+      )
+      ..detailResult = salesFixture<ReturnExchangeDetailDto>()
+      ..evaluateResult = salesFixture<ReturnExchangeValuationDto>();
   }
 
+  late final _CheckoutRepo checkout;
+  late final _OrderRepo orders;
+  late final FakeSalesReceiptRepository receipts;
+  late final FakeSalesPaymentRepository payments;
+  late final FakeSalesCancellationRepository cancellations;
+  late final FakeReturnExchangeRepository returnExchange;
+}
+
+/// `getResult` trả kết quả mặc định của fixture (khoá `fake-checkout-attempt`).
+final class _CheckoutRepo extends FakeSalesCheckoutRepository {
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    final raw = query as Object;
-    if (raw is GetSalesOrderDetailQuery) {
-      return SalesFakeData.findOrderDetail(raw.salesOrderId) as TResult;
-    }
-    if (raw is ListSalesOrderCancellationReasonsQuery) {
-      return cancelReasons as TResult;
-    }
-    if (raw is PrecheckSalesOrderCancellationQuery) {
-      return cancelPrecheck as TResult;
-    }
-    if (raw is PrecheckSalesOrderCheckoutQuery) {
-      final result = precheckResult;
-      if (result == null) {
-        throw StateError('precheckResult not configured');
-      }
-      return result as TResult;
-    }
-    if (raw is PrecheckReturnExchangeQuery) {
-      return returnPrecheck as TResult;
-    }
-    if (raw is GetReturnableOrderLinesQuery) {
-      return (returnableLines ??
-              ReturnableOrderLinesDto(
-                salesOrderId: raw.salesOrderId,
-                sourceVersion: returnPrecheck.sourceVersion,
-                lines: const [
-                  ReturnableOrderLineDto(
-                    salesOrderLineId: 'line_1',
-                    product: ProductSnapshotDto(
-                      productId: 'product-1',
-                      sku: 'SKU-1',
-                      displayName: 'Sản phẩm trả mẫu',
-                    ),
-                    unit: ProductUnitSnapshotDto(
-                      productUnitId: 'unit-1',
-                      unitCode: 'BOX',
-                      unitName: 'Hộp',
-                    ),
-                    soldQuantity: QuantityDto(quantityMicros: QuantityDto.scale * 2),
-                    returnableQuantity: QuantityDto(
-                      quantityMicros: QuantityDto.scale * 2,
-                    ),
-                    originalUnitPrice: MoneyDto(
-                      amountMinor: 50000,
-                      currencyCode: 'VND',
-                    ),
-                  ),
-                ],
-              ))
-          as TResult;
-    }
-    if (raw is GetReturnExchangeFormPolicyQuery) {
-      return (returnFormPolicy ??
-              ReturnExchangeFormPolicyDto(
-                reasons: const [
-                  ReturnExchangePolicyOptionDto(
-                    code: 'DAMAGED',
-                    displayName: 'Hỏng',
-                    sortOrder: 100,
-                  ),
-                  ReturnExchangePolicyOptionDto(
-                    code: 'WRONG_ITEM',
-                    displayName: 'Sai hàng',
-                    sortOrder: 200,
-                  ),
-                ],
-                conditions: const [
-                  ReturnExchangePolicyOptionDto(
-                    code: 'OPENED',
-                    displayName: 'Đã mở',
-                    sortOrder: 100,
-                  ),
-                  ReturnExchangePolicyOptionDto(
-                    code: 'SEALED',
-                    displayName: 'Nguyên seal',
-                    sortOrder: 200,
-                  ),
-                ],
-              ))
-          as TResult;
-    }
-    if (raw is GetReturnExchangeDetailQuery) {
-      final detail = returnDetail;
-      if (detail == null) {
-        return SalesFakeContractFixtureFactory.create(
-              'GetReturnExchangeDetailQuery',
-            )
-            as TResult;
-      }
-      return detail as TResult;
-    }
-    if (raw is EvaluateReturnPricingImpactQuery) {
-      final valuation = returnValuation;
-      if (valuation == null) {
-        return SalesFakeContractFixtureFactory.create(
-              'EvaluateReturnPricingImpactQuery',
-            )
-            as TResult;
-      }
-      return valuation as TResult;
-    }
-    final typeName = query.runtimeType.toString();
-    if (SalesFakeContractFixtureFactory.supports(typeName)) {
-      return SalesFakeContractFixtureFactory.create(typeName) as TResult;
-    }
-    throw StateError('Unexpected sales query $query');
+  Future<CheckoutResultDto> getResult({
+    required String storeId,
+    required String idempotencyKey,
+  }) async {
+    getResultCalls.add(SalesGetResultCall(storeId: storeId, idempotencyKey: idempotencyKey));
+    return salesFixture<CheckoutResultDto>();
+  }
+}
+
+/// `getDetail` dựng chi tiết đơn theo mã (đơn không có trong dữ liệu mẫu), như
+/// `SalesFakeData.findOrderDetail` của module cũ.
+final class _OrderRepo extends FakeSalesOrderRepository {
+  @override
+  Future<SalesOrderDetailDto> getDetail({required String salesOrderId}) async {
+    detailCalls.add(salesOrderId);
+    final customer = salesOrderId.contains('001') || salesOrderId.contains('DH-000129')
+        ? const CustomerSnapshotDto(customerId: 'cust-001', displayName: 'Nguyễn Văn An')
+        : const CustomerSnapshotDto(customerId: 'cust-walkin', displayName: 'Khách lẻ');
+    final total = const MoneyDto(amountMinor: 1245000, currencyCode: 'VND');
+    return SalesOrderDetailDto(
+      order: SalesOrderDto(
+        salesOrderId: salesOrderId,
+        orderNumber: salesOrderId.contains('DH') ? salesOrderId : 'DH-000245',
+        version: 1,
+        lifecycleStatus: salesOrderId.contains('cancel') || salesOrderId.contains('d06')
+            ? SalesOrderLifecycleStatus.cancelled
+            : SalesOrderLifecycleStatus.completed,
+        lockStatus: SalesOrderLockStatus.unlocked,
+        total: total,
+      ),
+      committedAt: DateTime.utc(2026, 7, 29, 10, 32),
+      store: const StoreSnapshotDto(
+        storeId: 'store-center',
+        storeCode: 'STORE-001',
+        displayName: 'Cửa hàng Trung tâm',
+      ),
+      seller: const ActorSnapshotDto(actorId: 'actor-1', displayName: 'Minh Anh'),
+      customer: customer,
+      lines: [
+        SalesOrderLineDto(
+          lineId: 'line_1',
+          product: const ProductSnapshotDto(
+            productId: 'prod-001',
+            sku: 'AD3EC-5L',
+            displayName: 'AD3EC 5L (tyx)',
+          ),
+          unit: const ProductUnitSnapshotDto(
+            productUnitId: 'pu-can',
+            unitCode: 'CAN',
+            unitName: 'Can',
+          ),
+          quantity: const QuantityDto(quantityMicros: 1000000),
+          unitPrice: total,
+          lineTotal: total,
+        ),
+      ],
+    );
   }
 }
 
