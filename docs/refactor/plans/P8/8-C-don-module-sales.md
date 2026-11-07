@@ -212,18 +212,18 @@ Trường của query cũ ⇒ trường của bản ghi lời gọi: theo cách 
 - Modify: `apps/erp/lib/core/di/injection.dart:5-6, 269-278`; `apps/erp/test/core/di/sales_runtime_registration_test.dart` (viết lại); `pubspec.yaml:20-22`; `apps/erp/pubspec.yaml:22-24`; `apps/erp/example/pubspec.yaml:17-18, 56-61`
 - Delete: `modules/sales/domain`, `modules/sales/application`, `modules/sales/infrastructure`
 
-- [ ] **Step 1: Impact.** `node .gitnexus/run.cjs impact initDependencies --direction upstream --repo erp-sales-inventory` ⇒ ghi vào Kết quả; HIGH / CRITICAL ⇒ báo người dùng trước khi sửa.
-- [ ] **Step 2: Viết lại `sales_runtime_registration_test.dart` (đỏ).** Giữ `_findRepoRoot`, 2 fake Supabase. Test: (1) `ERP DI source has no sales module`: nguồn `injection.dart` không chứa `SalesStartup`, `ISalesModule`, `vet45_sales_`; (2) `initDependencies registers sales repositories`: sau `initDependencies(...)`, `getIt.isRegistered<T>()` đúng với `SalesDraftRepository`, `SalesCheckoutRepository`, `SalesPaymentRepository`, `SalesOrderRepository`, `SalesReceiptRepository`, `SalesCancellationRepository`, `ReturnExchangeRepository`. Chạy ⇒ (1) FAIL, (2) PASS.
-- [ ] **Step 3: Sửa `injection.dart`**: xoá 2 import `vet45_sales_*` và khối `final salesModule = SalesStartup.initialize(...)` + `getIt.registerSingleton<ISalesModule>(salesModule);`. **Giữ** `executionContext`, `permissionChecker`, `tenantAccessChecker`, khối einvoice (Q5). Sửa chú thích dòng 91 thành `// Ngữ cảnh / quyền cho module einvoice cũ (bỏ ở 7-5), đọc cùng SessionStore.`. Chạy test Step 2 ⇒ 2/2 PASS.
-- [ ] **Step 4: Xoá module.** `git status --short modules/sales` sạch; `git rm -r modules/sales/domain modules/sales/application modules/sales/infrastructure`; `rm -rf` phần không theo dõi còn lại của 3 thư mục đó. Sửa 3 pubspec (giữ mọi dòng `integration_events`).
-- [ ] **Step 5: `pub get`** ở gốc, `apps/erp`, `apps/erp/example`, `modules/einvoice/presentation/example` ⇒ không lỗi phân giải.
-- [ ] **Step 6: Kiểm.**
+- [x] **Step 1: Impact.** `node .gitnexus/run.cjs impact initDependencies --direction upstream --repo erp-sales-inventory` ⇒ ghi vào Kết quả; HIGH / CRITICAL ⇒ báo người dùng trước khi sửa.
+- [x] **Step 2: Viết lại `sales_runtime_registration_test.dart` (đỏ).** Giữ `_findRepoRoot`, 2 fake Supabase. Test: (1) `ERP DI source has no sales module`: nguồn `injection.dart` không chứa `SalesStartup`, `ISalesModule`, `vet45_sales_`; (2) `initDependencies registers sales repositories`: sau `initDependencies(...)`, `getIt.isRegistered<T>()` đúng với `SalesDraftRepository`, `SalesCheckoutRepository`, `SalesPaymentRepository`, `SalesOrderRepository`, `SalesReceiptRepository`, `SalesCancellationRepository`, `ReturnExchangeRepository`. Chạy ⇒ (1) FAIL, (2) PASS.
+- [x] **Step 3: Sửa `injection.dart`**: xoá 2 import `vet45_sales_*` và khối `final salesModule = SalesStartup.initialize(...)` + `getIt.registerSingleton<ISalesModule>(salesModule);`. **Giữ** `executionContext`, `permissionChecker`, `tenantAccessChecker`, khối einvoice (Q5). Sửa chú thích dòng 91 thành `// Ngữ cảnh / quyền cho module einvoice cũ (bỏ ở 7-5), đọc cùng SessionStore.`. Chạy test Step 2 ⇒ 2/2 PASS.
+- [x] **Step 4: Xoá module.** `git status --short modules/sales` sạch; `git rm -r modules/sales/domain modules/sales/application modules/sales/infrastructure`; `rm -rf` phần không theo dõi còn lại của 3 thư mục đó. Sửa 3 pubspec (giữ mọi dòng `integration_events`).
+- [x] **Step 5: `pub get`** ở gốc, `apps/erp`, `apps/erp/example`, `modules/einvoice/presentation/example` ⇒ không lỗi phân giải.
+- [x] **Step 6: Kiểm.**
   - `grep -rnE "vet45_sales_(domain|application|infrastructure)|ISalesModule|SalesStartup|FakeSalesModule|SalesFeShellModule" apps packages tools pubspec.yaml --include='*.dart' --include='*.yaml'` ⇒ chỉ chuỗi cấm trong `group_f_no_demo_contract_test.dart` và chuỗi trong test Step 2 (1)
   - `ls modules/sales` ⇒ `integration_events`
   - `cd apps/erp && dart analyze lib test integration_test` ⇒ 0 error, 0 warning mới; `cd apps/erp/example && dart analyze lib` ⇒ 0 error
   - `cd apps/erp && flutter test` ⇒ không lỗi mới so với `TEST-BASELINE.md` (mốc "Sau 6-C": 53 + 2 ⚠️); ghi số đạt / lỗi
   - `dart test` ở `modules/einvoice/application`, `modules/einvoice/infrastructure` ⇒ không lỗi biên dịch mới (mốc: 217 / 1; 378 / 60)
-- [ ] **Step 7: Commit** `chore(sales): 8-C xoá modules/sales (trừ integration_events), bỏ SalesStartup khỏi DI`
+- [x] **Step 7: Commit** `chore(sales): 8-C xoá modules/sales (trừ integration_events), bỏ SalesStartup khỏi DI`
 
 ### Task 5: DB — bỏ messaging sales, giữ `sales.outbox_messages` (Q1)
 
@@ -402,6 +402,17 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 - Step 4: `grep -rln "vet45_sales_" apps/erp --include='*.dart'` ⇒ 7 tệp: 2 tệp mong đợi + 5 tệp `lib` chỉ còn tên trong doc comment (`sales_draft_repository`, `sales_checkout_repository`, `mappers/sales_draft_json`, `mappers/sales_checkout_json`, `presentation/lookups/sales_pricing_ports`); không sửa vì ràng buộc `lib` chỉ đổi import. `dart analyze lib test integration_test` ⇒ 228 issues (đều `info`), bằng trước khi sửa, 0 error, 0 warning; `example`: `dart analyze lib` ⇒ 2 issues (`info`, deprecated), 0 error. `flutter test test/features/sales` ⇒ +1088 All passed (trước Step 0 là 1099).
 - **Chốt sau review (commit sửa):** giữ `sales_order_draft_contract_mapper.dart` + `paged_sales_order_draft_list_dto.dart` (tổng 63, `SalesDraftJson` cần). Bỏ `checkout_blocker_codes.dart` khỏi `contracts/` + barrel (chỉ test dùng, Q3(d)): `sales_flow_pages_test.dart:592`, `sales_checkout_page_test.dart:332,476` dùng chuỗi `'RECEIVABLE_DUE_DATE_REQUIRED'`. Sửa chú thích nguồn kiểu ở `sales_checkout_repository.dart:9`, `sales_draft_repository.dart:8`, `mappers/sales_draft_json.dart:5`, `mappers/sales_checkout_json.dart:5` ⇒ `data/models.dart`. `grep -rln "vet45_sales_" apps/erp --include='*.dart'` ⇒ `injection.dart`, `sales_runtime_registration_test.dart`, `sales_pricing_ports.dart` (chỉ chú thích). `dart analyze lib test` 0 error, 0 warning; 2 tệp test +28 / +22 không đổi; `flutter test test/features/sales` ⇒ +1088.
 - Impact: `impact MoneyDto` ⇒ chọn nhầm `MoneyDto` của `pricing_common.dart` (CRITICAL, 1076) không phải kiểu sales; thay đổi chỉ là dòng `import` + tệp chép mới, không sửa thân symbol nào. `detect_changes` ⇒ 157 tệp, 3 symbol (tệp test), 0 process, risk low.
+
+### Task 4
+
+- Commit `fd7c6088f` (xoá module + DI + pubspec + test); `chore(sales): 8-C dọn góp ý nhỏ review Task 1, 3` (3 góp ý nhỏ + 3 sửa chữ ở Task 1, 3 của kế hoạch).
+- Step 1 impact: `impact initDependencies --direction upstream` ⇒ CRITICAL (1081 symbol, 864 trực tiếp; đếm gộp mọi nơi gọi hàm cùng tên `build`). Vẫn làm: chỉ bỏ một đăng ký DI không còn ai lấy (`ISalesModule`).
+- Step 2 đỏ: `sales_runtime_registration_test.dart` viết lại, (1) `ERP DI source has no sales module` FAIL, (2) `initDependencies registers sales repositories` PASS. Step 3 xanh: 2/2 PASS. `injection.dart` bỏ 2 import `vet45_sales_*`, khối `SalesStartup`, `registerSingleton<ISalesModule>`; chú thích dòng 91 sửa; giữ `executionContext`, `permissionChecker`, `tenantAccessChecker`, khối einvoice (Q5).
+- Step 4: `git status --short modules/sales` sạch trước khi xoá; `git rm -r` + `rm -rf` phần còn lại của `modules/sales/{domain,application,infrastructure}`; `ls modules/sales` ⇒ `integration_events`. Dòng bỏ: `pubspec.yaml:20-22`; `apps/erp/pubspec.yaml:22-24`; `apps/erp/example/pubspec.yaml:17-18, 56-61` (giữ mọi dòng `integration_events`).
+- Step 5 `pub get` ở gốc, `apps/erp`, `apps/erp/example`, `modules/einvoice/presentation/example` ⇒ không lỗi phân giải.
+- Step 6: grep ⇒ chỉ chuỗi cấm trong `group_f_no_demo_contract_test.dart:65`, chuỗi trong test Step 2 (1) và 3 tệp `packages/vet45_generator/test` (chuỗi tên gói trong test sinh mã, không phải phụ thuộc). `dart analyze lib test integration_test` ⇒ 228 issues (đều `info`), 0 error, 0 warning; `example`: 2 issues (`info`), 0 error. `flutter test` (apps/erp) ⇒ +2737 / -55 = 53 + 2 ⚠️ như mốc "Sau 6-C" (số lỗi khớp; danh sách đầy đủ bị cắt bởi reporter nên không đối chiếu từng tên); `flutter test test/features/sales test/core` ⇒ +1185 xanh. einvoice: `application` 217 / 1, `infrastructure` 378 / 60 (như mốc, không lỗi biên dịch mới).
+- `detect_changes` ⇒ 8 tệp, 2 symbol (fake trong test DI), 0 process, risk low.
+- Dọn góp ý nhỏ: `sales_order_detail_page_test.dart` thêm `salesModule.payments.recordCalls` vào danh sách "không lệnh khác" của test huỷ; `sales_checkout_page_test.dart:427` thụt lề; bỏ `depend_on_referenced_packages` ở 21 tệp test sales (`dart analyze` vẫn 0 warning, `flutter test test/features/sales` ⇒ +1088).
 
 ## 9. Review
 
