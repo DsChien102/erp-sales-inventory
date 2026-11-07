@@ -1,7 +1,10 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
-import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
 import 'package:vet45_shared_application/application.dart';
+
+import '../../support/module_backed_sales_repositories.dart';
 
 void main() {
   const refundPlan = ReturnExchangeSettlementPlanDto(
@@ -105,7 +108,8 @@ void main() {
     return SalesReturnExchangeSettlementCubit(
       orderId: 'order-1',
       returnExchangeId: 'return-1',
-      salesModule: module,
+      returnExchangeRepository: ModuleBackedReturnExchangeRepository(module),
+      orderRepository: ModuleBackedSalesOrderRepository(module),
       executionContext: const _ExecutionContext(),
       attemptFactory: SalesReturnExchangeAttemptFactory(
         newAttemptId: () {
@@ -233,9 +237,9 @@ void main() {
     final blockedEval = build(
       _RecordingSalesModule(
         detail: detail(),
-        evaluateError: const SalesContractException(
+        evaluateError: const AppException(
           'RETURN_EXCHANGE_BLOCKED',
-          message: 'Không đủ điều kiện quyết toán.',
+          serverMessage: 'Không đủ điều kiện quyết toán.',
           details: {
             'blockers': [
               SalesBlockerDto(
@@ -295,7 +299,7 @@ void main() {
     final pending = build(
       _RecordingSalesModule(
         detail: detail(),
-        commandErrorsQueue: const [SalesContractException('IMPACT_PENDING')],
+        commandErrorsQueue: const [AppException('IMPACT_PENDING')],
       ),
     );
     addTearDown(pending.close);
@@ -308,7 +312,7 @@ void main() {
   test('PRICE_CHANGED marks settlement stale without evaluating again', () async {
     final module = _RecordingSalesModule(
       detail: detail(),
-      evaluateError: const SalesContractException('PRICE_CHANGED'),
+      evaluateError: const AppException('PRICE_CHANGED'),
     );
     final cubit = build(module);
     addTearDown(cubit.close);
@@ -326,7 +330,7 @@ void main() {
   test('PRICE_CHANGED on confirm marks stale without evaluating again', () async {
     final module = _RecordingSalesModule(
       detail: detail(),
-      commandErrorsQueue: const [SalesContractException('PRICE_CHANGED')],
+      commandErrorsQueue: const [AppException('PRICE_CHANGED')],
     );
     final cubit = build(module);
     addTearDown(cubit.close);
@@ -350,7 +354,7 @@ void main() {
   test('STALE_VERSION reloads detail then requires new confirmation', () async {
     final module = _RecordingSalesModule(
       detail: detail(),
-      commandErrorsQueue: const [SalesContractException('STALE_VERSION')],
+      commandErrorsQueue: const [AppException('STALE_VERSION')],
     );
     final cubit = build(module);
     addTearDown(cubit.close);
@@ -367,7 +371,7 @@ void main() {
     final module = _RecordingSalesModule(
       detail: detail(),
       commandErrorsQueue: const [
-        SalesContractException('DEPENDENCY_UNAVAILABLE'),
+        AppException('DEPENDENCY_UNAVAILABLE'),
         null,
       ],
     );
@@ -393,7 +397,7 @@ void main() {
   test('permission failure is not retryable', () async {
     final module = _RecordingSalesModule(
       detail: detail(),
-      commandErrorsQueue: const [SalesContractException('PERMISSION_DENIED')],
+      commandErrorsQueue: const [AppException('NO_PERMISSION')],
     );
     final cubit = build(module);
     addTearDown(cubit.close);
@@ -432,6 +436,112 @@ void main() {
     expect(state.effectiveSettlement!.receivableReverseMinor, 300000);
     expect(state.canConfirm, isTrue);
   });
+
+  test('confirm_retry_after_system_error_reuses_command_id', () async {
+    final module = _RecordingSalesModule(
+      detail: detail(),
+      commandErrorsQueue: const [
+        AppException('SYSTEM_ERROR', serverMessage: 'Temporary db error'),
+        null,
+      ],
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+
+    expect(await cubit.confirm(), isNull);
+    expect(
+      cubit.state.status,
+      SalesReturnExchangeSettlementStatus.retryableFailure,
+    );
+
+    final outcome = await cubit.confirm();
+    expect(outcome?.kind, SalesReturnExchangeResultKind.confirmed);
+    expect(module.commands, hasLength(2));
+    final cmd1 = module.commands[0] as ConfirmReturnExchangeCommand;
+    final cmd2 = module.commands[1] as ConfirmReturnExchangeCommand;
+    expect(cmd1.id, cmd2.id);
+    expect(cmd1.idempotencyKey, cmd2.idempotencyKey);
+  });
+
+  test('settlement_error_fallback', () async {
+    final module = _RecordingSalesModule(
+      detail: detail(),
+      commandErrorsQueue: const [
+        AppException('UNKNOWN_ERROR_CODE', serverMessage: 'Server blow up'),
+      ],
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+
+    expect(await cubit.confirm(), isNull);
+    expect(cubit.state.status, SalesReturnExchangeSettlementStatus.failure);
+    expect(
+      cubit.state.screenError,
+      'Không quyết toán được phiếu đổi/trả. Vui lòng thử lại.',
+    );
+  });
+
+  test('settlement_blocked_reads_details_blockers', () async {
+    final module = _RecordingSalesModule(
+      detail: detail(),
+      evaluateError: const AppException(
+        'RETURN_EXCHANGE_BLOCKED',
+        serverMessage: 'Blocked',
+        details: {
+          'blockers': [
+            <String, dynamic>{
+              'code': 'WINDOW_EXPIRED',
+              'message': 'Expired',
+              'field': 'lines',
+            },
+          ],
+        },
+      ),
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+
+    expect(cubit.state.status, SalesReturnExchangeSettlementStatus.blocked);
+    expect(cubit.state.blockers, hasLength(1));
+    expect(cubit.state.blockers.single.code, 'WINDOW_EXPIRED');
+    expect(cubit.state.blockers.single.message, 'Không thể đổi/trả.');
+  });
+
+  test('settlement_blocked_without_details_is_empty', () async {
+    final module = _RecordingSalesModule(
+      detail: detail(),
+      evaluateError: const AppException(
+        'RETURN_EXCHANGE_BLOCKED',
+        serverMessage: 'Blocked',
+      ),
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+
+    expect(cubit.state.status, SalesReturnExchangeSettlementStatus.blocked);
+    expect(cubit.state.blockers, isEmpty);
+    expect(cubit.state.screenError, 'Không thể đổi/trả.');
+  });
+
+  test('confirm_blocked_is_failure', () async {
+    final module = _RecordingSalesModule(
+      detail: detail(),
+      commandErrorsQueue: const [
+        AppException('RETURN_EXCHANGE_BLOCKED', serverMessage: 'Blocked'),
+      ],
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+
+    expect(await cubit.confirm(), isNull);
+    expect(cubit.state.status, SalesReturnExchangeSettlementStatus.failure);
+    expect(cubit.state.screenError, 'Không thể đổi/trả.');
+  });
 }
 
 final class _RecordingSalesModule implements ISalesModule {
@@ -461,32 +571,33 @@ final class _RecordingSalesModule implements ISalesModule {
     if (query is GetReturnExchangeDetailQuery) return detail as TResult;
     if (query is GetSalesOrderDetailQuery) {
       return SalesOrderDetailDto(
-        order: SalesOrderDto(
-          salesOrderId: detail.result.salesOrderId,
-          orderNumber: 'DH-000129',
-          version: 1,
-          lifecycleStatus: SalesOrderLifecycleStatus.completed,
-          lockStatus: SalesOrderLockStatus.unlocked,
-          total: const MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
-        ),
-        committedAt: DateTime.utc(2026, 1, 1),
-        store: const StoreSnapshotDto(
-          storeId: 'store-1',
-          storeCode: 'ST01',
-          displayName: 'Cửa hàng chính',
-        ),
-        seller: const ActorSnapshotDto(
-          actorId: 'seller-1',
-          displayName: 'Nhân viên bán hàng',
-        ),
-        customer: walkIn
-            ? null
-            : const CustomerSnapshotDto(
-                customerId: 'cust-1',
-                displayName: 'Nguyễn Văn An',
-              ),
-        lines: const [],
-      ) as TResult;
+            order: SalesOrderDto(
+              salesOrderId: detail.result.salesOrderId,
+              orderNumber: 'DH-000129',
+              version: 1,
+              lifecycleStatus: SalesOrderLifecycleStatus.completed,
+              lockStatus: SalesOrderLockStatus.unlocked,
+              total: const MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
+            ),
+            committedAt: DateTime.utc(2026, 1, 1),
+            store: const StoreSnapshotDto(
+              storeId: 'store-1',
+              storeCode: 'ST01',
+              displayName: 'Cửa hàng chính',
+            ),
+            seller: const ActorSnapshotDto(
+              actorId: 'seller-1',
+              displayName: 'Nhân viên bán hàng',
+            ),
+            customer: walkIn
+                ? null
+                : const CustomerSnapshotDto(
+                    customerId: 'cust-1',
+                    displayName: 'Nguyễn Văn An',
+                  ),
+            lines: const [],
+          )
+          as TResult;
     }
     if (query is EvaluateReturnPricingImpactQuery) {
       final error = evaluateError;

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_sales_application/application.dart';
 
-import '../bloc/return_exchange_order/sales_return_exchange_settlement_state.dart';
+import 'package:erp/features/sales/logic/sales_return_exchange_settlement_state.dart';
 import '../models/return_exchange_order/sales_return_exchange_settlement_vm.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 
@@ -353,7 +353,9 @@ class _ReadyBodyState extends State<_ReadyBody> {
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               VText(
-                                MoneyFormatter.formatMinor(widget.settlement.receivableReverseMinor),
+                                MoneyFormatter.formatMinor(
+                                  widget.settlement.receivableReverseMinor,
+                                ),
                                 variant: VTextVariant.bodyDefault,
                                 style: const TextStyle(fontWeight: FontWeight.bold),
                               ),

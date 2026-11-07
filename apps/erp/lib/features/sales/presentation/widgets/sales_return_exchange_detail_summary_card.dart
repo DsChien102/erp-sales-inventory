@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../models/return_exchange_order/sales_return_exchange_detail_vm.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
+
 class SalesReturnExchangeDetailSummaryCard extends StatelessWidget {
   const SalesReturnExchangeDetailSummaryCard({
     super.key,
@@ -35,13 +36,19 @@ class SalesReturnExchangeDetailSummaryCard extends StatelessWidget {
           _buildSummaryRow(
             colors,
             label: 'Giá trị hàng trả',
-            amountText: MoneyFormatter.format(amountMinor: valuation.returnValue.amountMinor, currencyCode: valuation.returnValue.currencyCode),
+            amountText: MoneyFormatter.format(
+              amountMinor: valuation.returnValue.amountMinor,
+              currencyCode: valuation.returnValue.currencyCode,
+            ),
           ),
           const VGap.sm(),
           _buildSummaryRow(
             colors,
             label: 'Giá trị hàng đổi',
-            amountText: MoneyFormatter.format(amountMinor: valuation.exchangeValue.amountMinor, currencyCode: valuation.exchangeValue.currencyCode),
+            amountText: MoneyFormatter.format(
+              amountMinor: valuation.exchangeValue.amountMinor,
+              currencyCode: valuation.exchangeValue.currencyCode,
+            ),
           ),
           const VGap.md(),
           VCard(

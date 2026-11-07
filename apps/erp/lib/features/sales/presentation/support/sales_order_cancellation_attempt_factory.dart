@@ -1,20 +1,21 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/models/sales_cancellation_request.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vet45_sales_application/application.dart';
 
 /// An immutable cancellation submit attempt. Retrying the same payload must
 /// reuse the same command id, idempotency key and payload hash; any change to
 /// reason/note/version produces a new attempt.
 final class SalesOrderCancellationAttempt {
   const SalesOrderCancellationAttempt({
-    required this.command,
+    required this.request,
     required this.canonicalPayloadJson,
     required this.payloadHash,
   });
 
-  final ConfirmSalesOrderCancellationCommand command;
+  final SalesOrderCancellationRequest request;
   final String canonicalPayloadJson;
   final String payloadHash;
 }
@@ -44,10 +45,7 @@ final class SalesOrderCancellationAttemptFactory {
         trimmedCorrelationId.isEmpty ||
         expectedOrderVersion <= 0 ||
         expectedSettlementVersion <= 0) {
-      throw const SalesContractException(
-        'CONTEXT_INVALID',
-        message: 'Cancellation attempt requires context and positive versions.',
-      );
+      throw const AppException('CONTEXT_INVALID');
     }
 
     // Blank note maps to "" to match the existing command/RPC contract.
@@ -63,22 +61,18 @@ final class SalesOrderCancellationAttemptFactory {
     final canonicalJson = jsonEncode(_sort(payload));
     final payloadHash = sha256.convert(utf8.encode(canonicalJson)).toString();
     final attemptId = _newAttemptId();
-    final command = ConfirmSalesOrderCancellationCommand(
-      id: attemptId,
-      tenantId: trimmedTenantId,
-      actorId: trimmedActorId,
+    final request = SalesOrderCancellationRequest(
+      commandId: attemptId,
       salesOrderId: trimmedSalesOrderId,
-      reason: CancellationReasonDto(
-        reasonText: normalizedReasonText,
-      ),
+      reasonText: normalizedReasonText,
       idempotencyKey: 'sales-order-cancellation:$attemptId',
       payloadHash: payloadHash,
       correlationId: trimmedCorrelationId,
-      expectedVersion: expectedOrderVersion,
+      expectedOrderVersion: expectedOrderVersion,
       expectedSettlementVersion: expectedSettlementVersion,
     );
     return SalesOrderCancellationAttempt(
-      command: command,
+      request: request,
       canonicalPayloadJson: canonicalJson,
       payloadHash: payloadHash,
     );

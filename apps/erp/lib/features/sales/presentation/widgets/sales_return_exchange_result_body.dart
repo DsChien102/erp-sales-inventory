@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_sales_application/application.dart';
 
-import '../bloc/return_exchange_order/sales_return_exchange_detail_state.dart';
+import 'package:erp/features/sales/logic/sales_return_exchange_detail_state.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'sales_return_result_action_bar.dart';
 
@@ -324,8 +324,7 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
   }
 
   VIcons _statusIcon(ReturnExchangeStatus status) => switch (status) {
-    ReturnExchangeStatus.completed ||
-    ReturnExchangeStatus.confirmed => VIcons.success,
+    ReturnExchangeStatus.completed || ReturnExchangeStatus.confirmed => VIcons.success,
     ReturnExchangeStatus.processing => VIcons.history,
     ReturnExchangeStatus.blocked ||
     ReturnExchangeStatus.failed ||
@@ -334,8 +333,7 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
   };
 
   Color _statusColor(dynamic colors, ReturnExchangeStatus status) => switch (status) {
-    ReturnExchangeStatus.completed ||
-    ReturnExchangeStatus.confirmed => colors.success as Color,
+    ReturnExchangeStatus.completed || ReturnExchangeStatus.confirmed => colors.success as Color,
     _ => colors.warning as Color,
   };
 

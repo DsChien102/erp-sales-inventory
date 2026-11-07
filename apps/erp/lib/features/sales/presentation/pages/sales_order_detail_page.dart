@@ -5,8 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_sales_application/application.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';
@@ -42,7 +43,8 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
       orderRepository: GetIt.instance<SalesOrderRepository>(),
       receiptRepository: GetIt.instance<SalesReceiptRepository>(),
       paymentRepository: GetIt.instance<SalesPaymentRepository>(),
-      salesModule: GetIt.instance<ISalesModule>(),
+      cancellationRepository: GetIt.instance<SalesCancellationRepository>(),
+      returnExchangeRepository: GetIt.instance<ReturnExchangeRepository>(),
       executionContext: GetIt.instance<IExecutionContext>(),
       // Badge HĐĐT là phần bổ trợ: host nào chưa nối module einvoice (widget
       // test, harness) vẫn dựng được trang, badge lùi về `notIssued`.

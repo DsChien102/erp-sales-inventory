@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:vet45_sales_application/application.dart';
 
-import '../../models/return_exchange_order/sales_return_exchange_detail_vm.dart';
+import 'package:erp/features/sales/presentation/models/return_exchange_order/sales_return_exchange_detail_vm.dart';
 
 enum SalesReturnExchangeDetailStatus {
   initial,
@@ -64,8 +64,7 @@ class SalesReturnExchangeDetailState extends Equatable {
     return (code != null && code.isNotEmpty) ? code : '';
   }
 
-  int get existingCustomerDebtMinor =>
-      orderDetail?.customer?.existingDebtMinor ?? 0;
+  int get existingCustomerDebtMinor => orderDetail?.customer?.existingDebtMinor ?? 0;
 
   SalesReturnExchangeDetailState copyWith({
     SalesReturnExchangeDetailVm? detail,

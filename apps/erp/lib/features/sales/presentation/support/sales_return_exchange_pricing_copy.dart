@@ -8,6 +8,6 @@ abstract final class SalesReturnExchangePricingCopy {
   /// đổi/trả (màn đó làm mới giá khi quay về).
   static const priceChangedGoBack =
       'Giá món đổi đã thay đổi. Vui lòng quay lại màn đổi/trả để cập nhật giá.';
-  static const pricingBlocked = 'Không xác định được giá sản phẩm.';
+  static const pricingBlocked = 'Sản phẩm này chưa có giá bán.';
   static const previewFailed = 'Không lấy được giá sản phẩm. Vui lòng thử lại.';
 }

@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:vet45_sales_application/application.dart';
 
-import '../../models/return_exchange_order/sales_return_exchange_settlement_vm.dart';
+import 'package:erp/features/sales/presentation/models/return_exchange_order/sales_return_exchange_settlement_vm.dart';
 
 enum SalesReturnExchangeSettlementStatus {
   initial,

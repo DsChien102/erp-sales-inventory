@@ -1,6 +1,10 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
+import 'package:erp/features/sales/presentation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
-import 'package:erp/features/sales/presentation.dart';
+
+import '../../data/sales_post_sale_parity_expectations.dart';
 
 void main() {
   ReturnExchangeLineInput returnedLine({
@@ -17,6 +21,39 @@ void main() {
     conditionCode: conditionCode,
   );
 
+  test('return_exchange_hash_unchanged_start', () {
+    final factory = SalesReturnExchangeAttemptFactory(
+      newAttemptId: () => parityCommandId,
+    );
+    final attempt = factory.start(
+      tenantId: parityTenantId,
+      actorId: parityActorId,
+      salesOrderId: parityOrderId,
+      entrySource: ReturnExchangeEntrySource.standard,
+      lines: sampleParityLines,
+      expectedVersion: 7,
+      correlationId: parityCorrelationId,
+    );
+    expect(attempt.payloadHash, expectedStartHash);
+  });
+
+  test('return_exchange_hash_unchanged_confirm', () {
+    final factory = SalesReturnExchangeAttemptFactory(
+      newAttemptId: () => parityCommandId,
+    );
+    final attempt = factory.confirm(
+      tenantId: parityTenantId,
+      actorId: parityActorId,
+      returnExchangeId: parityReturnExchangeId,
+      expectedVersion: 4,
+      correlationId: parityCorrelationId,
+      settledNowMinor: 100000,
+      paymentMethod: SalesPaymentMethod.cash,
+      paymentDueDate: DateTime(2026, 11, 20, 23, 30),
+    );
+    expect(attempt.payloadHash, expectedConfirmHash);
+  });
+
   test('UUID becomes command id and return-exchange operation key', () {
     final factory = SalesReturnExchangeAttemptFactory(
       newAttemptId: () => '11111111-1111-4111-8111-111111111111',
@@ -32,17 +69,17 @@ void main() {
       correlationId: ' corr-1 ',
     );
 
-    expect(attempt.command.id, '11111111-1111-4111-8111-111111111111');
+    expect(attempt.request.commandId, '11111111-1111-4111-8111-111111111111');
     expect(
-      attempt.command.idempotencyKey,
+      attempt.request.idempotencyKey,
       'return-exchange:start:11111111-1111-4111-8111-111111111111',
     );
     expect(attempt.payloadHash, matches(RegExp(r'^[0-9a-f]{64}$')));
-    expect(attempt.command.payloadHash, attempt.payloadHash);
-    expect(attempt.command.correlationId, 'corr-1');
-    expect(attempt.command.entrySource, ReturnExchangeEntrySource.standard);
-    expect(attempt.command.lines.single.reasonCode, 'DAMAGED');
-    expect(attempt.command.lines.single.conditionCode, 'OPENED');
+    expect(attempt.request.payloadHash, attempt.payloadHash);
+    expect(attempt.request.correlationId, 'corr-1');
+    expect(attempt.request.entrySource, ReturnExchangeEntrySource.standard);
+    expect(attempt.request.lines.single.reasonCode, 'DAMAGED');
+    expect(attempt.request.lines.single.conditionCode, 'OPENED');
     expect(
       attempt.canonicalPayloadJson,
       contains('"entrySource":"standard"'),
@@ -75,7 +112,7 @@ void main() {
     );
 
     expect(first.payloadHash, second.payloadHash);
-    expect(first.command.idempotencyKey, isNot(second.command.idempotencyKey));
+    expect(first.request.idempotencyKey, isNot(second.request.idempotencyKey));
   });
 
   test('changed quantity/reason/condition/version changes hash', () {
@@ -124,7 +161,7 @@ void main() {
     final factory = SalesReturnExchangeAttemptFactory(
       newAttemptId: () => 'attempt-1',
     );
-    SalesReturnExchangeAttempt<ConfirmReturnExchangeCommand> confirm({
+    SalesReturnExchangeAttempt<ReturnExchangeConfirmRequest> confirm({
       int? settledNowMinor,
       SalesPaymentMethod method = SalesPaymentMethod.cash,
       DateTime? dueDate,
@@ -146,15 +183,15 @@ void main() {
       dueDate: DateTime(2026, 7, 30),
     );
 
-    expect(partial.command.settledNowMinor, 150000);
-    expect(partial.command.paymentMethod, SalesPaymentMethod.manualBankTransfer);
-    expect(partial.command.paymentDueDate, DateTime(2026, 7, 30));
+    expect(partial.request.settledNowMinor, 150000);
+    expect(partial.request.paymentMethod, SalesPaymentMethod.manualBankTransfer);
+    expect(partial.request.paymentDueDate, DateTime(2026, 7, 30));
     // Different payment inputs must produce a distinct idempotent payload.
     expect(full.payloadHash, isNot(partial.payloadHash));
 
     expect(
       () => confirm(settledNowMinor: -1),
-      throwsA(isA<SalesContractException>()),
+      throwsA(isA<AppException>().having((e) => e.code, 'code', 'CONTEXT_INVALID')),
     );
   });
 
@@ -170,7 +207,7 @@ void main() {
         expectedVersion: 5,
         correlationId: '   ',
       ),
-      throwsA(isA<SalesContractException>()),
+      throwsA(isA<AppException>().having((e) => e.code, 'code', 'CONTEXT_INVALID')),
     );
   });
 
@@ -189,8 +226,8 @@ void main() {
       correlationId: 'corr-1',
     );
 
-    expect(attempt.command.lines.single.reasonCode, isNull);
-    expect(attempt.command.lines.single.conditionCode, isNull);
+    expect(attempt.request.lines.single.reasonCode, isNull);
+    expect(attempt.request.lines.single.conditionCode, isNull);
     expect(attempt.canonicalPayloadJson, contains('"reasonCode":null'));
     expect(attempt.canonicalPayloadJson, contains('"conditionCode":null'));
   });

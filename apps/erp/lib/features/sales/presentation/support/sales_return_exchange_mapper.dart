@@ -1,3 +1,4 @@
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:vet45_sales_application/application.dart';
 
 import '../models/return_exchange_order/sales_return_exchange_detail_vm.dart';
@@ -14,10 +15,7 @@ abstract final class SalesReturnExchangeMapper {
   }) {
     final customer = order.customer;
     if (customer == null) {
-      throw const SalesContractException(
-        'DEPENDENCY_UNAVAILABLE',
-        message: 'Sales order customer snapshot is required for return/exchange session.',
-      );
+      throw const AppException('DEPENDENCY_UNAVAILABLE');
     }
     return SalesReturnExchangeSessionVm(
       salesOrderId: order.order.salesOrderId,

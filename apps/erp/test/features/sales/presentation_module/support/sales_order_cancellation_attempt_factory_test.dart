@@ -1,9 +1,27 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/presentation.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../../data/sales_post_sale_parity_expectations.dart';
 
 void main() {
-  test('builds canonical command, key and hash from context and versions', () {
+  test('cancel_hash_unchanged', () {
+    final factory = SalesOrderCancellationAttemptFactory(
+      newAttemptId: () => parityCommandId,
+    );
+    final attempt = factory.create(
+      tenantId: parityTenantId,
+      actorId: parityActorId,
+      salesOrderId: parityOrderId,
+      expectedOrderVersion: 7,
+      expectedSettlementVersion: 3,
+      reasonText: 'Khách yêu cầu huỷ',
+      correlationId: parityCorrelationId,
+    );
+    expect(attempt.payloadHash, expectedCancelHash);
+  });
+
+  test('builds canonical request, key and hash from context and versions', () {
     final factory = SalesOrderCancellationAttemptFactory(
       newAttemptId: () => '11111111-1111-4111-8111-111111111111',
     );
@@ -18,20 +36,18 @@ void main() {
       correlationId: ' corr-1 ',
     );
 
-    expect(attempt.command.id, '11111111-1111-4111-8111-111111111111');
+    expect(attempt.request.commandId, '11111111-1111-4111-8111-111111111111');
     expect(
-      attempt.command.idempotencyKey,
+      attempt.request.idempotencyKey,
       'sales-order-cancellation:11111111-1111-4111-8111-111111111111',
     );
-    expect(attempt.command.tenantId, 'tenant-1');
-    expect(attempt.command.actorId, 'actor-1');
-    expect(attempt.command.salesOrderId, 'order-1');
-    expect(attempt.command.expectedVersion, 7);
-    expect(attempt.command.expectedSettlementVersion, 3);
-    expect(attempt.command.reason.reasonText, 'Khách nhập trùng đơn');
-    expect(attempt.command.correlationId, 'corr-1');
+    expect(attempt.request.salesOrderId, 'order-1');
+    expect(attempt.request.expectedOrderVersion, 7);
+    expect(attempt.request.expectedSettlementVersion, 3);
+    expect(attempt.request.reasonText, 'Khách nhập trùng đơn');
+    expect(attempt.request.correlationId, 'corr-1');
     expect(attempt.payloadHash, matches(RegExp(r'^[0-9a-f]{64}$')));
-    expect(attempt.command.payloadHash, attempt.payloadHash);
+    expect(attempt.request.payloadHash, attempt.payloadHash);
     expect(
       attempt.canonicalPayloadJson,
       '{"expectedOrderVersion":7,"expectedSettlementVersion":3,'
@@ -68,10 +84,10 @@ void main() {
       correlationId: 'corr-1',
     );
 
-    expect(blank.command.reason.reasonText, isEmpty);
+    expect(blank.request.reasonText, isEmpty);
     expect(blank.payloadHash, nullNote.payloadHash);
     // Distinct attempts get distinct idempotency keys even for equal payloads.
-    expect(blank.command.idempotencyKey, isNot(nullNote.command.idempotencyKey));
+    expect(blank.request.idempotencyKey, isNot(nullNote.request.idempotencyKey));
   });
 
   test('changing note or either version changes the hash', () {
@@ -117,9 +133,21 @@ void main() {
       correlationId: correlationId,
     );
 
-    expect(() => call(tenantId: '  '), throwsA(isA<SalesContractException>()));
-    expect(() => call(correlationId: ''), throwsA(isA<SalesContractException>()));
-    expect(() => call(orderVersion: 0), throwsA(isA<SalesContractException>()));
-    expect(() => call(settlementVersion: 0), throwsA(isA<SalesContractException>()));
+    expect(
+      () => call(tenantId: '  '),
+      throwsA(isA<AppException>().having((e) => e.code, 'code', 'CONTEXT_INVALID')),
+    );
+    expect(
+      () => call(correlationId: ''),
+      throwsA(isA<AppException>().having((e) => e.code, 'code', 'CONTEXT_INVALID')),
+    );
+    expect(
+      () => call(orderVersion: 0),
+      throwsA(isA<AppException>().having((e) => e.code, 'code', 'CONTEXT_INVALID')),
+    );
+    expect(
+      () => call(settlementVersion: 0),
+      throwsA(isA<AppException>().having((e) => e.code, 'code', 'CONTEXT_INVALID')),
+    );
   });
 }

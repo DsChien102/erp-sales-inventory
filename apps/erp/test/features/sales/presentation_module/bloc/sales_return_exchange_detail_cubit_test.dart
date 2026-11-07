@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
-import 'package:erp/features/sales/presentation.dart'
-    hide SalesOrderLifecycleStatus;
 import 'package:vet45_shared_application/application.dart';
+
+import '../../support/module_backed_sales_repositories.dart';
 
 void main() {
   SalesReturnExchangeDetailCubit build(
@@ -15,7 +17,8 @@ void main() {
     return SalesReturnExchangeDetailCubit(
       orderId: 'order-1',
       returnExchangeId: 'return-1',
-      salesModule: module,
+      returnExchangeRepository: ModuleBackedReturnExchangeRepository(module),
+      orderRepository: ModuleBackedSalesOrderRepository(module),
       executionContext: const _ExecutionContext(),
       attemptFactory: SalesReturnExchangeAttemptFactory(
         newAttemptId: () {
@@ -49,7 +52,7 @@ void main() {
   test('NOT_FOUND and PROJECTION_PENDING map to dedicated statuses', () async {
     final notFound = build(
       _RecordingSalesModule(
-        detailError: const SalesContractException('NOT_FOUND'),
+        detailError: const AppException('NOT_FOUND'),
       ),
     );
     addTearDown(notFound.close);
@@ -58,7 +61,7 @@ void main() {
 
     final pending = build(
       _RecordingSalesModule(
-        detailError: const SalesContractException('PROJECTION_PENDING'),
+        detailError: const AppException('PROJECTION_PENDING'),
       ),
     );
     addTearDown(pending.close);
@@ -111,7 +114,7 @@ void main() {
   test('IMPACT_PENDING during complete keeps processing without false success', () async {
     final module = _RecordingSalesModule(
       detail: _detail(completionReady: true),
-      commandErrorsQueue: const [SalesContractException('IMPACT_PENDING')],
+      commandErrorsQueue: const [AppException('IMPACT_PENDING')],
     );
     final cubit = build(module);
     addTearDown(cubit.close);
@@ -141,6 +144,81 @@ void main() {
       greaterThanOrEqualTo(2),
     );
     expect(cubit.state.status, SalesReturnExchangeDetailStatus.loaded);
+  });
+
+  test('detail_not_found_screen_error_null', () async {
+    final cubit = build(
+      _RecordingSalesModule(
+        detailError: const AppException('NOT_FOUND', serverMessage: 'Detail not found.'),
+      ),
+    );
+    addTearDown(cubit.close);
+
+    await cubit.load();
+
+    expect(cubit.state.status, SalesReturnExchangeDetailStatus.notFound);
+    expect(cubit.state.screenError, isNull);
+  });
+
+  test('detail_unknown_error_fallback', () async {
+    final cubit = build(
+      _RecordingSalesModule(
+        detailError: const AppException('UNKNOWN_CODE', serverMessage: 'Internal server error.'),
+      ),
+    );
+    addTearDown(cubit.close);
+
+    await cubit.load();
+
+    expect(cubit.state.status, SalesReturnExchangeDetailStatus.failure);
+    expect(cubit.state.screenError, 'Không tải được chi tiết phiếu.');
+  });
+
+  test('detail_complete_error_fallback', () async {
+    final cubit = build(
+      _RecordingSalesModule(
+        detail: _detail(completionReady: true),
+        commandErrorsQueue: const [
+          AppException('UNKNOWN_CODE', serverMessage: 'Cannot complete.'),
+        ],
+      ),
+    );
+    addTearDown(cubit.close);
+
+    await cubit.load();
+    final ok = await cubit.completeIfReady();
+
+    expect(ok, isFalse);
+    expect(cubit.state.status, SalesReturnExchangeDetailStatus.failure);
+    expect(cubit.state.screenError, 'Không hoàn tất được phiếu. Vui lòng thử lại.');
+  });
+
+  test('refresh_not_found_clears_previous_error', () async {
+    final module = _RecordingSalesModule(
+      detail: _detail(completionReady: true),
+      commandErrorsQueue: const [
+        AppException('UNKNOWN_CODE', serverMessage: 'Cannot complete.'),
+      ],
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+
+    await cubit.load();
+    final ok = await cubit.completeIfReady();
+
+    expect(ok, isFalse);
+    expect(cubit.state.status, SalesReturnExchangeDetailStatus.failure);
+    expect(
+      cubit.state.screenError,
+      'Không hoàn tất được phiếu. Vui lòng thử lại.',
+    );
+
+    module.detailError = const AppException('NOT_FOUND');
+    await cubit.refresh();
+
+    expect(cubit.state.status, SalesReturnExchangeDetailStatus.notFound);
+    expect(cubit.state.screenError, isNull);
+    expect(cubit.state.detail, isNull);
   });
 }
 
@@ -184,9 +262,7 @@ ReturnExchangeDetailDto _detail({
     createdAt: DateTime.utc(2026, 8, 13),
     confirmedByActorId: 'actor-1',
     confirmedAt: DateTime.utc(2026, 8, 13, 10),
-    completedAt: status == ReturnExchangeStatus.completed
-        ? DateTime.utc(2026, 8, 13, 11)
-        : null,
+    completedAt: status == ReturnExchangeStatus.completed ? DateTime.utc(2026, 8, 13, 11) : null,
     lines: const [
       ReturnExchangeDetailLineDto(
         lineId: 'line-1',
@@ -249,7 +325,7 @@ final class _RecordingSalesModule implements ISalesModule {
   }) : detail = detail ?? _detail();
 
   ReturnExchangeDetailDto detail;
-  final Object? detailError;
+  Object? detailError;
   final ReturnExchangeResultDto? completeResult;
   final ReturnExchangeDetailDto? reloadDetailAfterComplete;
   final List<Object?> commandErrorsQueue;
@@ -268,7 +344,7 @@ final class _RecordingSalesModule implements ISalesModule {
       if (gate != null) await gate.future;
       _detailReads++;
       final error = detailError;
-      if (error != null && _detailReads == 1) throw error;
+      if (error != null) throw error;
       if (_detailReads > 1 && reloadDetailAfterComplete != null) {
         return reloadDetailAfterComplete as TResult;
       }

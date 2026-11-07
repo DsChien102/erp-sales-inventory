@@ -1,7 +1,11 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
+import 'package:erp/features/sales/data/models/sales_cancellation_request.dart';
 import 'package:erp/features/sales/data/models/sales_finalize_request.dart';
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
@@ -15,9 +19,31 @@ Future<T> _bridge<T>(Future<T> Function() call) async {
   try {
     return await call();
   } on SalesContractException catch (e) {
+    Map<String, dynamic>? details;
+    if (e.details.isNotEmpty) {
+      final rawBlockers = e.details['blockers'];
+      if (rawBlockers is List) {
+        details = <String, dynamic>{
+          'blockers': [
+            for (final b in rawBlockers)
+              if (b is SalesBlockerDto)
+                <String, dynamic>{
+                  'code': b.code,
+                  'message': b.message,
+                  'field': b.field,
+                }
+              else if (b is Map)
+                b.cast<String, dynamic>(),
+          ],
+        };
+      } else {
+        details = Map<String, dynamic>.from(e.details);
+      }
+    }
     throw AppException(
       e.code == 'PERMISSION_DENIED' ? 'NO_PERMISSION' : e.code,
       serverMessage: e.message,
+      details: details,
     );
   }
 }
@@ -343,6 +369,218 @@ class ModuleBackedSalesCheckoutRepository implements SalesCheckoutRepository {
         actorId: 'actor-1',
         idempotencyKey: idempotencyKey,
         storeId: storeId,
+      ),
+    ),
+  );
+}
+
+class ModuleBackedSalesCancellationRepository implements SalesCancellationRepository {
+  ModuleBackedSalesCancellationRepository(this.module);
+  final ISalesModule module;
+
+  @override
+  Future<CancellationPrecheckDto> precheck({
+    required String salesOrderId,
+    required int expectedSourceVersion,
+  }) => _bridge(
+    () => module.executeQueryAsync<CancellationPrecheckDto>(
+      PrecheckSalesOrderCancellationQuery(
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        salesOrderId: salesOrderId,
+        expectedSourceVersion: expectedSourceVersion,
+      ),
+    ),
+  );
+
+  @override
+  Future<SalesOrderCancellationResultDto> confirm(
+    SalesOrderCancellationRequest request,
+  ) => _bridge(
+    () => module.executeCommandAsync<SalesOrderCancellationResultDto>(
+      ConfirmSalesOrderCancellationCommand(
+        id: request.commandId,
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        salesOrderId: request.salesOrderId,
+        reason: CancellationReasonDto(reasonText: request.reasonText),
+        idempotencyKey: request.idempotencyKey,
+        payloadHash: request.payloadHash,
+        correlationId: request.correlationId,
+        expectedVersion: request.expectedOrderVersion,
+        expectedSettlementVersion: request.expectedSettlementVersion,
+      ),
+    ),
+  );
+}
+
+class ModuleBackedReturnExchangeRepository implements ReturnExchangeRepository {
+  ModuleBackedReturnExchangeRepository(this.module);
+  final ISalesModule module;
+
+  @override
+  Future<ReturnExchangePrecheckDto> precheck({
+    required String salesOrderId,
+    int? expectedSourceVersion,
+  }) => _bridge(
+    () => module.executeQueryAsync<ReturnExchangePrecheckDto>(
+      PrecheckReturnExchangeQuery(
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        salesOrderId: salesOrderId,
+        expectedSourceVersion: expectedSourceVersion,
+      ),
+    ),
+  );
+
+  @override
+  Future<ReturnableOrderLinesDto> getReturnableLines({
+    required String salesOrderId,
+  }) => _bridge(
+    () => module.executeQueryAsync<ReturnableOrderLinesDto>(
+      GetReturnableOrderLinesQuery(
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        salesOrderId: salesOrderId,
+      ),
+    ),
+  );
+
+  @override
+  Future<ReturnExchangePricingPreviewDto> previewPricing({
+    required String salesOrderId,
+    required List<ReturnExchangePricingLineInput> lines,
+  }) => _bridge(
+    () => module.executeQueryAsync<ReturnExchangePricingPreviewDto>(
+      PreviewReturnExchangePricingQuery(
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        salesOrderId: salesOrderId,
+        lines: lines,
+      ),
+    ),
+  );
+
+  @override
+  Future<ReturnExchangeDetailDto> getDetail({
+    required String returnExchangeId,
+  }) => _bridge(
+    () => module.executeQueryAsync<ReturnExchangeDetailDto>(
+      GetReturnExchangeDetailQuery(
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        returnExchangeId: returnExchangeId,
+      ),
+    ),
+  );
+
+  @override
+  Future<ReturnExchangeDraftDto> start(
+    ReturnExchangeStartRequest request,
+  ) => _bridge(
+    () => module.executeCommandAsync<ReturnExchangeDraftDto>(
+      StartReturnExchangeCommand(
+        id: request.commandId,
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        salesOrderId: request.salesOrderId,
+        entrySource: request.entrySource,
+        lines: request.lines,
+        idempotencyKey: request.idempotencyKey,
+        payloadHash: request.payloadHash,
+        correlationId: request.correlationId,
+        expectedVersion: request.expectedVersion,
+      ),
+    ),
+  );
+
+  @override
+  Future<ReturnExchangeDraftDto> update(
+    ReturnExchangeUpdateRequest request,
+  ) => _bridge(
+    () => module.executeCommandAsync<ReturnExchangeDraftDto>(
+      UpdateReturnExchangeCommand(
+        id: request.commandId,
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        returnExchangeId: request.returnExchangeId,
+        lines: request.lines,
+        idempotencyKey: request.idempotencyKey,
+        payloadHash: request.payloadHash,
+        correlationId: request.correlationId,
+        expectedVersion: request.expectedVersion,
+      ),
+    ),
+  );
+
+  @override
+  Future<ReturnExchangeResultDto> cancel(
+    ReturnExchangeMutationRequest request,
+  ) => _bridge(
+    () => module.executeCommandAsync<ReturnExchangeResultDto>(
+      CancelReturnExchangeCommand(
+        id: request.commandId,
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        returnExchangeId: request.returnExchangeId,
+        idempotencyKey: request.idempotencyKey,
+        payloadHash: request.payloadHash,
+        correlationId: request.correlationId,
+        expectedVersion: request.expectedVersion,
+      ),
+    ),
+  );
+
+  @override
+  Future<ReturnExchangeResultDto> confirm(
+    ReturnExchangeConfirmRequest request,
+  ) => _bridge(
+    () => module.executeCommandAsync<ReturnExchangeResultDto>(
+      ConfirmReturnExchangeCommand(
+        id: request.commandId,
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        returnExchangeId: request.returnExchangeId,
+        idempotencyKey: request.idempotencyKey,
+        payloadHash: request.payloadHash,
+        correlationId: request.correlationId,
+        expectedVersion: request.expectedVersion,
+        settledNowMinor: request.settledNowMinor,
+        paymentMethod: request.paymentMethod,
+        paymentDueDate: request.paymentDueDate,
+      ),
+    ),
+  );
+
+  @override
+  Future<ReturnExchangeResultDto> complete(
+    ReturnExchangeMutationRequest request,
+  ) => _bridge(
+    () => module.executeCommandAsync<ReturnExchangeResultDto>(
+      CompleteReturnExchangeCommand(
+        id: request.commandId,
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        returnExchangeId: request.returnExchangeId,
+        idempotencyKey: request.idempotencyKey,
+        payloadHash: request.payloadHash,
+        correlationId: request.correlationId,
+        expectedVersion: request.expectedVersion ?? 1,
+      ),
+    ),
+  );
+
+  @override
+  Future<ReturnExchangeValuationDto> evaluate({
+    required String returnExchangeId,
+    required int expectedSourceVersion,
+  }) => _bridge(
+    () => module.executeQueryAsync<ReturnExchangeValuationDto>(
+      EvaluateReturnPricingImpactQuery(
+        tenantId: 'tenant-1',
+        actorId: 'actor-1',
+        returnExchangeId: returnExchangeId,
+        expectedSourceVersion: expectedSourceVersion,
       ),
     ),
   );

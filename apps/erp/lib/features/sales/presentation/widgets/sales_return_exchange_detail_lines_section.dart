@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_sales_application/application.dart';
 
 import 'package:erp/core/formatting/money_formatter.dart';
+
 class SalesReturnExchangeDetailLinesSection extends StatelessWidget {
   const SalesReturnExchangeDetailLinesSection({
     super.key,
@@ -98,7 +99,10 @@ class SalesReturnExchangeDetailLinesSection extends StatelessWidget {
           ),
           const VGap.horizontalSm(),
           VText(
-            MoneyFormatter.format(amountMinor: line.lineTotal.amountMinor, currencyCode: line.lineTotal.currencyCode),
+            MoneyFormatter.format(
+              amountMinor: line.lineTotal.amountMinor,
+              currencyCode: line.lineTotal.currencyCode,
+            ),
             variant: VTextVariant.bodyDefault,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),

@@ -879,7 +879,10 @@ void main() {
           sourceVersion: 7,
           sourceSettlementVersion: 1,
           blockers: const [
-            app.SalesBlockerDto(code: 'HAS_PAYMENT', message: 'Đơn đã thu tiền.'),
+            app.SalesBlockerDto(
+              code: 'PAYMENT_ALREADY_COLLECTED',
+              message: 'Net confirmed collection must be zero before cancellation.',
+            ),
           ],
         ),
       );
@@ -891,7 +894,7 @@ void main() {
 
       final error = await cubit.confirmCancellation(note: '');
 
-      expect(error, 'Đơn đã thu tiền.');
+      expect(error, 'Đơn đã có thanh toán, vui lòng đổi/trả');
       expect(module.commands.whereType<app.ConfirmSalesOrderCancellationCommand>(), isEmpty);
     });
 
@@ -915,7 +918,7 @@ void main() {
 
       final error = await cubit.confirmCancellation(note: '');
 
-      expect(error, 'Không thể huỷ đơn này.');
+      expect(error, 'Huỷ đơn thất bại. Vui lòng thử lại.');
     });
 
     test('requestReturnExchange dispatches PrecheckReturnExchangeQuery', () async {
@@ -943,7 +946,10 @@ void main() {
           sourceVersion: 7,
           sourceSettlementVersion: 1,
           blockers: const [
-            app.SalesBlockerDto(code: 'CANCELLATION_BLOCKED', message: 'Đơn không cho phép hủy.'),
+            app.SalesBlockerDto(
+              code: 'RETURN_EXCHANGE_CONFLICT',
+              message: 'Active return exchange conflict.',
+            ),
           ],
         ),
       );
@@ -956,8 +962,96 @@ void main() {
       final intent = await cubit.requestCancel();
 
       expect(intent, isNull);
-      expect(cubit.state.precheckBlockerMessages, ['Đơn không cho phép hủy.']);
-      expect(cubit.state.postSaleFeedbackMessage, 'Đơn không cho phép hủy.');
+      expect(cubit.state.precheckBlockerMessages, ['Đơn đã có phiếu đổi/trả, không thể hủy.']);
+      expect(cubit.state.postSaleFeedbackMessage, 'Đơn đã có phiếu đổi/trả, không thể hủy.');
+    });
+
+    test('post_sale_cancel_blocked_localized', () async {
+      final module = _RecordingSalesModule(
+        cancellationPrecheck: app.CancellationPrecheckDto(
+          allowed: false,
+          sourceVersion: 7,
+          sourceSettlementVersion: 1,
+          blockers: const [
+            app.SalesBlockerDto(
+              code: 'PAYMENT_ALREADY_COLLECTED',
+              message: 'Net confirmed collection must be zero before cancellation.',
+            ),
+          ],
+        ),
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+      await _drain();
+
+      final intent = await cubit.requestCancel();
+      expect(intent, isNull);
+      expect(cubit.state.postSaleFeedbackMessage, 'Đơn đã có thanh toán, vui lòng đổi/trả');
+    });
+
+    test('post_sale_precheck_error_never_shows_server_message', () async {
+      final module = _RecordingSalesModule(
+        cancellationPrecheckError: const app.SalesContractException(
+          'SYSTEM_ERROR',
+          message: 'Internal DB deadlock',
+        ),
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+      await _drain();
+
+      final intent = await cubit.requestCancel();
+      expect(intent, isNull);
+      expect(
+        cubit.state.postSaleFeedbackMessage,
+        'Không thể kiểm tra điều kiện thao tác. Vui lòng thử lại.',
+      );
+      expect(cubit.state.postSaleFeedbackMessage!.contains('Internal DB'), isFalse);
+    });
+
+    test('confirm_cancellation_blocked_localized', () async {
+      final module = _RecordingSalesModule(
+        cancellationPrecheck: app.CancellationPrecheckDto(
+          allowed: false,
+          sourceVersion: 7,
+          sourceSettlementVersion: 1,
+          blockers: const [
+            app.SalesBlockerDto(
+              code: 'RETURN_EXCHANGE_CONFLICT',
+              message: 'Return exchange active conflict.',
+            ),
+          ],
+        ),
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+      await _drain();
+
+      final error = await cubit.confirmCancellation(note: '');
+      expect(error, 'Đơn đã có phiếu đổi/trả, không thể hủy.');
+    });
+
+    test('confirm_cancellation_error_uses_fallback', () async {
+      final module = _RecordingSalesModule(
+        cancellationConfirmError: const app.SalesContractException(
+          'SYSTEM_ERROR',
+          message: 'Raw server database crash',
+        ),
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+      await _drain();
+
+      final error = await cubit.confirmCancellation(note: '');
+      expect(error, 'Huỷ đơn thất bại. Vui lòng thử lại.');
     });
 
     test('STALE_VERSION on cancel precheck invalidates actions and reloads core', () async {
@@ -1111,7 +1205,8 @@ SalesOrderDetailCubit _buildCubit({
     orderRepository: orderRepository ?? ModuleBackedSalesOrderRepository(module),
     receiptRepository: receiptRepository ?? ModuleBackedSalesReceiptRepository(module),
     paymentRepository: ModuleBackedSalesPaymentRepository(module),
-    salesModule: module,
+    cancellationRepository: ModuleBackedSalesCancellationRepository(module),
+    returnExchangeRepository: ModuleBackedReturnExchangeRepository(module),
     executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
     cancellationAttemptFactory: cancellationAttemptFactory,
   );

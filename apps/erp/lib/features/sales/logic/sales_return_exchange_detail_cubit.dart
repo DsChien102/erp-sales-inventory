@@ -1,16 +1,22 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
+import 'package:erp/features/sales/logic/sales_post_sale_error_messages.dart';
+import 'package:erp/features/sales/presentation/support/sales_return_exchange_attempt_factory.dart';
+import 'package:erp/features/sales/presentation/support/sales_return_exchange_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../../support/sales_return_exchange_attempt_factory.dart';
-import '../../support/sales_return_exchange_mapper.dart';
 import 'sales_return_exchange_detail_state.dart';
 
 class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailState> {
   SalesReturnExchangeDetailCubit({
     required String orderId,
     required String returnExchangeId,
-    required this.salesModule,
+    required this.returnExchangeRepository,
+    required this.orderRepository,
     required this.executionContext,
     SalesReturnExchangeAttemptFactory? attemptFactory,
   }) : _attemptFactory = attemptFactory ?? SalesReturnExchangeAttemptFactory(),
@@ -21,14 +27,15 @@ class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailStat
          ),
        );
 
-  final ISalesModule salesModule;
+  final ReturnExchangeRepository returnExchangeRepository;
+  final SalesOrderRepository orderRepository;
   final IExecutionContext executionContext;
   final SalesReturnExchangeAttemptFactory _attemptFactory;
 
   String? _tenantId;
   String? _actorId;
   String? _correlationId;
-  SalesReturnExchangeAttempt<CompleteReturnExchangeCommand>? _currentAttempt;
+  SalesReturnExchangeAttempt<ReturnExchangeMutationRequest>? _currentAttempt;
   int _loadGeneration = 0;
   bool _completeInFlight = false;
 
@@ -51,47 +58,28 @@ class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailStat
       final actorId = await executionContext.requireUserId();
       final correlationId = executionContext.correlationId;
       if (correlationId.trim().isEmpty) {
-        throw const SalesContractException(
-          'CONTEXT_INVALID',
-          message: 'Correlation id is required.',
-        );
+        throw const AppException('CONTEXT_INVALID');
       }
       _tenantId = tenantId;
       _actorId = actorId;
       _correlationId = correlationId.trim();
 
-      final detailDto = await salesModule.executeQueryAsync<ReturnExchangeDetailDto>(
-        GetReturnExchangeDetailQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          returnExchangeId: state.returnExchangeId,
-        ),
+      final detailDto = await returnExchangeRepository.getDetail(
+        returnExchangeId: state.returnExchangeId,
       );
       if (generation != _loadGeneration || isClosed) return;
 
       final salesOrderId = detailDto.result.salesOrderId;
       SalesOrderDetailDto? orderDetail;
       try {
-        orderDetail = await salesModule.executeQueryAsync<SalesOrderDetailDto>(
-          GetSalesOrderDetailQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: salesOrderId,
-          ),
-        );
+        orderDetail = await orderRepository.getDetail(salesOrderId: salesOrderId);
       } on Object catch (_) {
         orderDetail = null;
       }
 
       SalesOrderReturnSummaryDto? returnSummary;
       try {
-        returnSummary = await salesModule.executeQueryAsync<SalesOrderReturnSummaryDto>(
-          GetSalesOrderReturnSummaryQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: salesOrderId,
-          ),
-        );
+        returnSummary = await orderRepository.getReturnSummary(salesOrderId: salesOrderId);
       } on Object catch (_) {
         returnSummary = null;
       }
@@ -114,15 +102,15 @@ class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailStat
           clearScreenError: true,
         ),
       );
-    } on SalesContractException catch (error) {
+    } on AppException catch (error) {
       if (generation != _loadGeneration || isClosed) return;
       emit(_mapLoadError(error));
-    } catch (error) {
+    } catch (_) {
       if (generation != _loadGeneration || isClosed) return;
       emit(
         state.copyWith(
           status: SalesReturnExchangeDetailStatus.failure,
-          screenError: '$error',
+          screenError: 'Không tải được chi tiết phiếu.',
         ),
       );
     }
@@ -166,9 +154,7 @@ class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailStat
             correlationId: correlationId,
           );
       _currentAttempt = attempt;
-      final result = await salesModule.executeCommandAsync<ReturnExchangeResultDto>(
-        attempt.command,
-      );
+      final result = await returnExchangeRepository.complete(attempt.request);
       _currentAttempt = null;
       _completeInFlight = false;
 
@@ -183,7 +169,7 @@ class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailStat
 
       await refresh();
       return state.detail?.status == ReturnExchangeStatus.completed;
-    } on SalesContractException catch (error) {
+    } on AppException catch (error) {
       _completeInFlight = false;
       if (error.code == 'IMPACT_PENDING') {
         emit(
@@ -197,7 +183,7 @@ class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailStat
         emit(
           state.copyWith(
             status: SalesReturnExchangeDetailStatus.retryableFailure,
-            screenError: _messageFor(error),
+            screenError: _messageForComplete(error),
           ),
         );
         return false;
@@ -206,58 +192,62 @@ class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailStat
       emit(
         state.copyWith(
           status: SalesReturnExchangeDetailStatus.failure,
-          screenError: _messageFor(error),
+          screenError: _messageForComplete(error),
         ),
       );
       return false;
-    } catch (error) {
+    } catch (_) {
       _completeInFlight = false;
       _currentAttempt = null;
       emit(
         state.copyWith(
           status: SalesReturnExchangeDetailStatus.failure,
-          screenError: '$error',
+          screenError: 'Không hoàn tất được phiếu. Vui lòng thử lại.',
         ),
       );
       return false;
     }
   }
 
-  SalesReturnExchangeDetailState _mapLoadError(SalesContractException error) {
+  SalesReturnExchangeDetailState _mapLoadError(AppException error) {
     if (error.code == 'NOT_FOUND') {
       return state.copyWith(
         status: SalesReturnExchangeDetailStatus.notFound,
-        screenError: _messageFor(error),
+        clearScreenError: true,
         clearDetail: true,
       );
     }
     if (error.code == 'PROJECTION_PENDING') {
       return state.copyWith(
         status: SalesReturnExchangeDetailStatus.projectionPending,
-        screenError: _messageFor(error),
+        clearScreenError: true,
       );
     }
-    if (error.code == 'PERMISSION_DENIED') {
-      return state.copyWith(
-        status: SalesReturnExchangeDetailStatus.failure,
-        screenError: _messageFor(error),
-      );
-    }
+    final message = salesPostSaleErrorMessage(
+      error,
+      fallback: 'Không tải được chi tiết phiếu.',
+    );
     if (_isRetryable(error)) {
       return state.copyWith(
         status: SalesReturnExchangeDetailStatus.retryableFailure,
-        screenError: _messageFor(error),
+        screenError: message,
       );
     }
     return state.copyWith(
       status: SalesReturnExchangeDetailStatus.failure,
-      screenError: _messageFor(error),
+      screenError: message,
     );
   }
 
-  bool _isRetryable(SalesContractException error) => error.code == 'DEPENDENCY_UNAVAILABLE';
+  bool _isRetryable(AppException error) =>
+      error.code == 'DEPENDENCY_UNAVAILABLE' ||
+      error.code == 'NETWORK_ERROR' ||
+      error.code == 'SYSTEM_ERROR';
 
-  String _messageFor(SalesContractException error) {
-    return error.message?.trim().isNotEmpty == true ? error.message!.trim() : error.code;
+  String _messageForComplete(Object error) {
+    return salesPostSaleErrorMessage(
+      error,
+      fallback: 'Không hoàn tất được phiếu. Vui lòng thử lại.',
+    );
   }
 }

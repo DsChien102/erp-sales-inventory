@@ -1,18 +1,24 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
+import 'package:erp/features/sales/logic/sales_post_sale_error_messages.dart';
+import 'package:erp/features/sales/presentation/models/return_exchange_order/sales_return_exchange_result.dart';
+import 'package:erp/features/sales/presentation/support/sales_return_exchange_attempt_factory.dart';
+import 'package:erp/features/sales/presentation/support/sales_return_exchange_mapper.dart';
+import 'package:erp/features/sales/presentation/support/sales_return_exchange_pricing_copy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../../models/return_exchange_order/sales_return_exchange_result.dart';
-import '../../support/sales_return_exchange_attempt_factory.dart';
-import '../../support/sales_return_exchange_mapper.dart';
-import '../../support/sales_return_exchange_pricing_copy.dart';
 import 'sales_return_exchange_settlement_state.dart';
 
 class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettlementState> {
   SalesReturnExchangeSettlementCubit({
     required String orderId,
     required String returnExchangeId,
-    required this.salesModule,
+    required this.returnExchangeRepository,
+    required this.orderRepository,
     required this.executionContext,
     SalesReturnExchangeAttemptFactory? attemptFactory,
   }) : _attemptFactory = attemptFactory ?? SalesReturnExchangeAttemptFactory(),
@@ -23,14 +29,15 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
          ),
        );
 
-  final ISalesModule salesModule;
+  final ReturnExchangeRepository returnExchangeRepository;
+  final SalesOrderRepository orderRepository;
   final IExecutionContext executionContext;
   final SalesReturnExchangeAttemptFactory _attemptFactory;
 
   String? _tenantId;
   String? _actorId;
   String? _correlationId;
-  SalesReturnExchangeAttempt<ConfirmReturnExchangeCommand>? _currentAttempt;
+  SalesReturnExchangeAttempt<ReturnExchangeConfirmRequest>? _currentAttempt;
   int _loadGeneration = 0;
   bool _confirmInFlight = false;
 
@@ -48,21 +55,14 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
       final actorId = await executionContext.requireUserId();
       final correlationId = executionContext.correlationId;
       if (correlationId.trim().isEmpty) {
-        throw const SalesContractException(
-          'CONTEXT_INVALID',
-          message: 'Correlation id is required.',
-        );
+        throw const AppException('CONTEXT_INVALID');
       }
       _tenantId = tenantId;
       _actorId = actorId;
       _correlationId = correlationId.trim();
 
-      final detail = await salesModule.executeQueryAsync<ReturnExchangeDetailDto>(
-        GetReturnExchangeDetailQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          returnExchangeId: state.returnExchangeId,
-        ),
+      final detail = await returnExchangeRepository.getDetail(
+        returnExchangeId: state.returnExchangeId,
       );
       if (generation != _loadGeneration || isClosed) return;
 
@@ -83,19 +83,14 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
       final salesOrderId = detail.result.salesOrderId;
       SalesOrderDetailDto? orderDetail;
       try {
-        orderDetail = await salesModule.executeQueryAsync<SalesOrderDetailDto>(
-          GetSalesOrderDetailQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: salesOrderId,
-          ),
-        );
+        orderDetail = await orderRepository.getDetail(salesOrderId: salesOrderId);
       } on Object catch (_) {
         orderDetail = null;
       }
       if (generation != _loadGeneration || isClosed) return;
 
-      final sourceOrderNumber = (orderDetail?.order.orderNumber != null && orderDetail!.order.orderNumber.isNotEmpty)
+      final sourceOrderNumber =
+          (orderDetail?.order.orderNumber != null && orderDetail!.order.orderNumber.isNotEmpty)
           ? orderDetail.order.orderNumber
           : (detail.referenceNumber.isNotEmpty ? detail.referenceNumber : state.orderNumber);
       final customerDisplayName = orderDetail?.customer?.displayName ?? '';
@@ -103,13 +98,9 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
       // rejects walk-in receivables in that case.
       final isWalkIn = orderDetail != null && orderDetail.customer == null;
 
-      final valuation = await salesModule.executeQueryAsync<ReturnExchangeValuationDto>(
-        EvaluateReturnPricingImpactQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          returnExchangeId: state.returnExchangeId,
-          expectedSourceVersion: detail.settlementPlan.sourceOrderVersion,
-        ),
+      final valuation = await returnExchangeRepository.evaluate(
+        returnExchangeId: state.returnExchangeId,
+        expectedSourceVersion: detail.settlementPlan.sourceOrderVersion,
       );
       if (generation != _loadGeneration || isClosed) return;
 
@@ -134,7 +125,7 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
           paymentMethod: SalesPaymentMethod.manualBankTransfer,
         ),
       );
-    } on SalesContractException catch (error) {
+    } on AppException catch (error) {
       if (generation != _loadGeneration || isClosed) return;
       if (error.code == 'PRICE_CHANGED') {
         emit(
@@ -151,7 +142,7 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
           state.copyWith(
             status: SalesReturnExchangeSettlementStatus.blocked,
             blockers: blockers,
-            screenError: _messageFor(error),
+            screenError: 'Không thể đổi/trả.',
             clearSettlement: true,
           ),
         );
@@ -165,12 +156,12 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
           screenError: _messageFor(error),
         ),
       );
-    } catch (error) {
+    } catch (_) {
       if (generation != _loadGeneration || isClosed) return;
       emit(
         state.copyWith(
           status: SalesReturnExchangeSettlementStatus.failure,
-          screenError: '$error',
+          screenError: 'Không quyết toán được phiếu đổi/trả. Vui lòng thử lại.',
         ),
       );
     }
@@ -240,9 +231,7 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
             paymentDueDate: state.paymentDueDate,
           );
       _currentAttempt = attempt;
-      final result = await salesModule.executeCommandAsync<ReturnExchangeResultDto>(
-        attempt.command,
-      );
+      final result = await returnExchangeRepository.confirm(attempt.request);
       _currentAttempt = null;
       _confirmInFlight = false;
 
@@ -267,17 +256,17 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
         version: result.version,
         status: result.status,
       );
-    } on SalesContractException catch (error) {
+    } on AppException catch (error) {
       _confirmInFlight = false;
       return _handleConfirmError(error);
-    } catch (error) {
+    } catch (_) {
       _confirmInFlight = false;
       _currentAttempt = null;
       if (!isClosed) {
         emit(
           state.copyWith(
             status: SalesReturnExchangeSettlementStatus.failure,
-            screenError: '$error',
+            screenError: 'Không quyết toán được phiếu đổi/trả. Vui lòng thử lại.',
           ),
         );
       }
@@ -286,7 +275,7 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
   }
 
   Future<SalesReturnExchangeResult?> _handleConfirmError(
-    SalesContractException error,
+    AppException error,
   ) async {
     if (error.code == 'IMPACT_PENDING') {
       emit(
@@ -342,14 +331,35 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
     return null;
   }
 
-  bool _isRetryable(SalesContractException error) => error.code == 'DEPENDENCY_UNAVAILABLE';
+  bool _isRetryable(AppException error) =>
+      error.code == 'DEPENDENCY_UNAVAILABLE' ||
+      error.code == 'NETWORK_ERROR' ||
+      error.code == 'SYSTEM_ERROR';
 
-  List<SalesBlockerDto> _blockersFrom(SalesContractException error) {
-    final raw = error.details['blockers'];
-    return (raw as List).whereType<SalesBlockerDto>().toList();
+  List<SalesBlockerDto> _blockersFrom(AppException error) {
+    final raw = error.details?['blockers'];
+    if (raw is! List) return const [];
+    final parsed = <SalesBlockerDto>[];
+    for (final item in raw) {
+      if (item is SalesBlockerDto) {
+        parsed.add(item);
+      } else if (item is Map) {
+        parsed.add(
+          SalesBlockerDto(
+            code: item['code'] as String? ?? 'UNKNOWN',
+            message: item['message'] as String? ?? '',
+            field: item['field'] as String?,
+          ),
+        );
+      }
+    }
+    return localizeBlockers(parsed, fallback: 'Không thể đổi/trả.');
   }
 
-  String _messageFor(SalesContractException error) {
-    return error.message?.trim().isNotEmpty == true ? error.message!.trim() : error.code;
+  String _messageFor(Object error) {
+    return salesPostSaleErrorMessage(
+      error,
+      fallback: 'Không quyết toán được phiếu đổi/trả. Vui lòng thử lại.',
+    );
   }
 }

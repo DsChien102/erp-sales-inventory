@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_sales_application/application.dart';
 
-import '../bloc/return_exchange_order/sales_return_exchange_detail_state.dart';
+import 'package:erp/features/sales/logic/sales_return_exchange_detail_state.dart';
 import 'sales_return_exchange_detail_header_card.dart';
 import 'sales_return_exchange_detail_lines_section.dart';
 import 'sales_return_exchange_detail_summary_card.dart';

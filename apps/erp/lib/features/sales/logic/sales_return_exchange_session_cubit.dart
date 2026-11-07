@@ -1,17 +1,23 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
+import 'package:erp/features/sales/logic/sales_post_sale_error_messages.dart';
+import 'package:erp/features/sales/presentation/models/shared/sales_sellable_product_vm.dart';
+import 'package:erp/features/sales/presentation/support/sales_return_exchange_attempt_factory.dart';
+import 'package:erp/features/sales/presentation/support/sales_return_exchange_pricing_copy.dart';
+import 'package:erp/features/sales/presentation/support/sales_return_exchange_session_draft.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../../models/shared/sales_sellable_product_vm.dart';
-import '../../support/sales_return_exchange_attempt_factory.dart';
-import '../../support/sales_return_exchange_pricing_copy.dart';
-import '../../support/sales_return_exchange_session_draft.dart';
 import 'sales_return_exchange_session_state.dart';
 
 class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionState> {
   SalesReturnExchangeSessionCubit({
     required String orderId,
-    required this.salesModule,
+    required this.returnExchangeRepository,
+    required this.orderRepository,
     required this.executionContext,
     SalesReturnExchangeAttemptFactory? attemptFactory,
     ReturnExchangeEntrySource entrySource = ReturnExchangeEntrySource.standard,
@@ -23,7 +29,8 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
          ),
        );
 
-  final ISalesModule salesModule;
+  final ReturnExchangeRepository returnExchangeRepository;
+  final SalesOrderRepository orderRepository;
   final IExecutionContext executionContext;
   final SalesReturnExchangeAttemptFactory _attemptFactory;
 
@@ -49,36 +56,18 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
       final actorId = await executionContext.requireUserId();
       final correlationId = executionContext.correlationId;
       if (correlationId.trim().isEmpty) {
-        throw const SalesContractException(
-          'CONTEXT_INVALID',
-          message: 'Correlation id is required.',
-        );
+        throw const AppException('CONTEXT_INVALID');
       }
       _tenantId = tenantId;
       _actorId = actorId;
       _correlationId = correlationId.trim();
 
-      final detailFuture = salesModule.executeQueryAsync<SalesOrderDetailDto>(
-        GetSalesOrderDetailQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: state.orderId,
-        ),
+      final detailFuture = orderRepository.getDetail(salesOrderId: state.orderId);
+      final precheckFuture = returnExchangeRepository.precheck(salesOrderId: state.orderId);
+      final returnableFuture = returnExchangeRepository.getReturnableLines(
+        salesOrderId: state.orderId,
       );
-      final precheckFuture = salesModule.executeQueryAsync<ReturnExchangePrecheckDto>(
-        PrecheckReturnExchangeQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: state.orderId,
-        ),
-      );
-      final returnableFuture = salesModule.executeQueryAsync<ReturnableOrderLinesDto>(
-        GetReturnableOrderLinesQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: state.orderId,
-        ),
-      );
+
       await Future.wait<Object?>([
         detailFuture,
         precheckFuture,
@@ -119,7 +108,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
         conditions: const [],
         returnEdits: preserved.returnEdits,
         exchangeEdits: preserved.exchangeEdits,
-        blockers: precheck.blockers,
+        blockers: localizeBlockers(precheck.blockers, fallback: 'Không thể đổi/trả.'),
         fieldError: preserved.fieldError,
         clearScreenError: true,
         clearFieldError: preserved.fieldError == null,
@@ -135,7 +124,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
       } on Object {
         // Preview failure keeps the loaded lines. Save and confirm still re-price.
       }
-    } on SalesContractException catch (error) {
+    } on AppException catch (error) {
       if (generation != _loadGeneration || isClosed) return;
       emit(
         state.copyWith(
@@ -226,26 +215,17 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
     _invalidateAttempt();
     final MoneyDto unitPrice;
     try {
-      // Query Sales không tự điền tenant/actor: phải truyền từ executionContext
-      // như các query khác trong cubit (load()). Thiếu → RPC nhận '' → lỗi uuid.
-      final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
-      final preview = await salesModule.executeQueryAsync<ReturnExchangePricingPreviewDto>(
-        PreviewReturnExchangePricingQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: state.orderId,
-          lines: [
-            ReturnExchangePricingLineInput(
-              productId: selection.productId,
-              productUnitId: selection.productUnitId,
-            ),
-          ],
-        ),
+      final preview = await returnExchangeRepository.previewPricing(
+        salesOrderId: state.orderId,
+        lines: [
+          ReturnExchangePricingLineInput(
+            productId: selection.productId,
+            productUnitId: selection.productUnitId,
+          ),
+        ],
       );
       unitPrice = preview.lines.single.unitPrice;
-    } on SalesContractException catch (error) {
-      // PRICING_BLOCKED / DEPENDENCY_UNAVAILABLE… có thông điệp riêng.
+    } on AppException catch (error) {
       if (isClosed) return;
       emit(state.copyWith(screenError: _messageFor(error)));
       return;
@@ -289,21 +269,15 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
 
   Future<void> refreshExchangePrices() async {
     if (state.exchangeEdits.isEmpty) return;
-    final tenantId = await executionContext.requireTenantId();
-    final actorId = await executionContext.requireUserId();
-    final preview = await salesModule.executeQueryAsync<ReturnExchangePricingPreviewDto>(
-      PreviewReturnExchangePricingQuery(
-        tenantId: tenantId,
-        actorId: actorId,
-        salesOrderId: state.orderId,
-        lines: [
-          for (final edit in state.exchangeEdits)
-            ReturnExchangePricingLineInput(
-              productId: edit.productId,
-              productUnitId: edit.productUnitId,
-            ),
-        ],
-      ),
+    final preview = await returnExchangeRepository.previewPricing(
+      salesOrderId: state.orderId,
+      lines: [
+        for (final edit in state.exchangeEdits)
+          ReturnExchangePricingLineInput(
+            productId: edit.productId,
+            productUnitId: edit.productUnitId,
+          ),
+      ],
     );
     if (isClosed) return;
     final byUnit = {for (final line in preview.lines) line.productUnitId: line.unitPrice};
@@ -386,7 +360,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
     try {
       if (state.returnExchangeId == null) {
         final attempt =
-            (_currentAttempt as SalesReturnExchangeAttempt<StartReturnExchangeCommand>?) ??
+            (_currentAttempt as SalesReturnExchangeAttempt<ReturnExchangeStartRequest>?) ??
             _attemptFactory.start(
               tenantId: tenantId,
               actorId: actorId,
@@ -397,9 +371,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
               correlationId: correlationId,
             );
         _currentAttempt = attempt;
-        final draft = await salesModule.executeCommandAsync<ReturnExchangeDraftDto>(
-          attempt.command,
-        );
+        final draft = await returnExchangeRepository.start(attempt.request);
         _lastSavedLines = lines;
         _currentAttempt = null;
         emit(
@@ -414,13 +386,10 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
 
       final draftVersion = state.draftVersion;
       if (draftVersion == null) {
-        throw const SalesContractException(
-          'CONTEXT_INVALID',
-          message: 'Draft version is required for update.',
-        );
+        throw const AppException('CONTEXT_INVALID');
       }
       final attempt =
-          (_currentAttempt as SalesReturnExchangeAttempt<UpdateReturnExchangeCommand>?) ??
+          (_currentAttempt as SalesReturnExchangeAttempt<ReturnExchangeUpdateRequest>?) ??
           _attemptFactory.update(
             tenantId: tenantId,
             actorId: actorId,
@@ -430,9 +399,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
             correlationId: correlationId,
           );
       _currentAttempt = attempt;
-      final draft = await salesModule.executeCommandAsync<ReturnExchangeDraftDto>(
-        attempt.command,
-      );
+      final draft = await returnExchangeRepository.update(attempt.request);
       _lastSavedLines = lines;
       _currentAttempt = null;
       emit(
@@ -443,7 +410,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
         ),
       );
       return draft.returnExchangeId;
-    } on SalesContractException catch (error) {
+    } on AppException catch (error) {
       return _handleSaveError(error);
     }
   }
@@ -475,7 +442,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
     );
     try {
       final attempt =
-          (_currentAttempt as SalesReturnExchangeAttempt<CancelReturnExchangeCommand>?) ??
+          (_currentAttempt as SalesReturnExchangeAttempt<ReturnExchangeMutationRequest>?) ??
           _attemptFactory.discard(
             tenantId: tenantId,
             actorId: actorId,
@@ -484,7 +451,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
             expectedVersion: state.draftVersion,
           );
       _currentAttempt = attempt;
-      await salesModule.executeCommandAsync<ReturnExchangeResultDto>(attempt.command);
+      await returnExchangeRepository.cancel(attempt.request);
       _currentAttempt = null;
       _lastSavedLines = null;
       emit(
@@ -495,7 +462,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
         ),
       );
       return true;
-    } on SalesContractException catch (error) {
+    } on AppException catch (error) {
       emit(
         state.copyWith(
           status: _isRetryable(error)
@@ -508,7 +475,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
     }
   }
 
-  Future<String?> _handleSaveError(SalesContractException error) async {
+  Future<String?> _handleSaveError(AppException error) async {
     if (error.code == 'STALE_VERSION' ||
         error.code == 'RETURN_QUANTITY_EXCEEDED' ||
         error.code == 'PRICE_CHANGED') {
@@ -549,18 +516,19 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
     _lastSavedLines = null;
   }
 
-  bool _isRetryable(SalesContractException error) =>
-      error.code == 'DEPENDENCY_UNAVAILABLE' || error.code == 'IMPACT_PENDING';
+  bool _isRetryable(AppException error) =>
+      error.code == 'DEPENDENCY_UNAVAILABLE' ||
+      error.code == 'IMPACT_PENDING' ||
+      error.code == 'NETWORK_ERROR' ||
+      error.code == 'SYSTEM_ERROR';
 
-  String _messageFor(SalesContractException error) {
-    if (error.code == 'PRICE_CHANGED') return SalesReturnExchangePricingCopy.priceChanged;
-    if (error.code == 'PRICING_BLOCKED') return SalesReturnExchangePricingCopy.pricingBlocked;
-    final rpcMessage = error.details['rpcMessage'];
-    if (error.code == 'DEPENDENCY_UNAVAILABLE' &&
-        rpcMessage is String &&
-        rpcMessage.trim().isNotEmpty) {
-      return rpcMessage.trim();
-    }
-    return error.message?.trim().isNotEmpty == true ? error.message!.trim() : error.code;
+  String _messageFor(Object error) {
+    return salesPostSaleErrorMessage(
+      error,
+      fallback: 'Không lưu được phiếu đổi/trả. Vui lòng thử lại.',
+      overrides: const {
+        'PRICE_CHANGED': SalesReturnExchangePricingCopy.priceChanged,
+      },
+    );
   }
 }

@@ -1,7 +1,11 @@
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
 import 'package:vet45_shared_application/application.dart';
+
+import '../../support/fake_return_exchange_repository.dart';
+import '../../support/module_backed_sales_repositories.dart';
 
 void main() {
   SalesReturnExchangeSessionCubit build(
@@ -11,7 +15,8 @@ void main() {
     final ids = attemptIds.iterator;
     return SalesReturnExchangeSessionCubit(
       orderId: 'order-1',
-      salesModule: module,
+      returnExchangeRepository: ModuleBackedReturnExchangeRepository(module),
+      orderRepository: ModuleBackedSalesOrderRepository(module),
       executionContext: const _ExecutionContext(),
       attemptFactory: SalesReturnExchangeAttemptFactory(
         newAttemptId: () {
@@ -265,7 +270,7 @@ void main() {
     );
 
     expect(cubit.state.exchangeEdits, isEmpty);
-    expect(cubit.state.screenError, 'Không xác định được giá sản phẩm.');
+    expect(cubit.state.screenError, 'Sản phẩm này chưa có giá bán.');
   });
 
   test('refreshed exchange price forces a new save instead of reusing the old one', () async {
@@ -533,7 +538,7 @@ void main() {
     }
   });
 
-  test('dependency fallback exposes raw rpc message for diagnostics', () async {
+  test('session_save_error_fallback', () async {
     const rawMessage = 'column reference "tenant_id" is ambiguous';
     final module = _RecordingSalesModule(
       commandErrorsQueue: const [
@@ -550,7 +555,62 @@ void main() {
 
     expect(await cubit.saveAndGetReturnExchangeId(), isNull);
     expect(cubit.state.status, SalesReturnExchangeSessionStatus.retryableFailure);
-    expect(cubit.state.screenError, rawMessage);
+    expect(cubit.state.screenError, 'Không lưu được phiếu đổi/trả. Vui lòng thử lại.');
+  });
+
+  test('save_retry_after_network_error_reuses_command_id', () async {
+    final fakeRepo = FakeReturnExchangeRepository()
+      ..startError = const AppException('NETWORK_ERROR');
+    final cubit = SalesReturnExchangeSessionCubit(
+      orderId: 'order-1',
+      returnExchangeRepository: fakeRepo,
+      orderRepository: ModuleBackedSalesOrderRepository(_RecordingSalesModule()),
+      executionContext: const _ExecutionContext(),
+      attemptFactory: SalesReturnExchangeAttemptFactory(
+        newAttemptId: () => 'attempt-retry-1',
+      ),
+    );
+    addTearDown(cubit.close);
+
+    await cubit.load();
+    cubit.setReturnQuantity('line-1', QuantityDto.scale);
+
+    final res1 = await cubit.saveAndGetReturnExchangeId();
+    expect(res1, isNull);
+    expect(cubit.state.status, SalesReturnExchangeSessionStatus.retryableFailure);
+    expect(cubit.state.screenError, 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.');
+    expect(fakeRepo.startCalls, hasLength(1));
+
+    // Bấm lại sau khi mạng hồi phục
+    fakeRepo.startError = null;
+    final res2 = await cubit.saveAndGetReturnExchangeId();
+    expect(res2, 'draft-re-1');
+    expect(cubit.state.status, SalesReturnExchangeSessionStatus.ready);
+    expect(fakeRepo.startCalls, hasLength(2));
+    expect(fakeRepo.startCalls[0].commandId, fakeRepo.startCalls[1].commandId);
+    expect(fakeRepo.startCalls[0].idempotencyKey, fakeRepo.startCalls[1].idempotencyKey);
+  });
+
+  test('session_blockers_localized', () async {
+    final module = _RecordingSalesModule(
+      precheck: ReturnExchangePrecheckDto(
+        allowed: false,
+        sourceVersion: 7,
+        blockers: const [
+          SalesBlockerDto(
+            code: 'ORDER_ALREADY_CANCELLED',
+            message: 'Server English: Order was cancelled',
+          ),
+        ],
+      ),
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+
+    await cubit.load();
+    expect(cubit.state.status, SalesReturnExchangeSessionStatus.blocked);
+    expect(cubit.state.blockers.single.message, 'Đơn đã được hủy.');
+    expect(cubit.state.blockers.single.code, 'ORDER_ALREADY_CANCELLED');
   });
 }
 

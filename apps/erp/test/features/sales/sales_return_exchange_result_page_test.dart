@@ -1,3 +1,5 @@
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -5,6 +7,7 @@ import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_sales_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'support/module_backed_sales_repositories.dart';
 import 'package:erp/features/sales/presentation/pages/sales_return_exchange_result_page.dart';
 
 void main() {
@@ -14,6 +17,12 @@ void main() {
     await GetIt.instance.reset();
     salesModule = _RecordingSalesModule();
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
+    GetIt.instance.registerSingleton<ReturnExchangeRepository>(
+      ModuleBackedReturnExchangeRepository(salesModule),
+    );
+    GetIt.instance.registerSingleton<SalesOrderRepository>(
+      ModuleBackedSalesOrderRepository(salesModule),
+    );
     GetIt.instance.registerSingleton<IExecutionContext>(
       const _ExecutionContext(),
     );
@@ -120,7 +129,7 @@ final class _RecordingSalesModule implements ISalesModule {
           )
           as TResult;
     }
-        if (SalesFakeContractFixtureFactory.supports(query.runtimeType.toString())) {
+    if (SalesFakeContractFixtureFactory.supports(query.runtimeType.toString())) {
       return SalesFakeContractFixtureFactory.create(query.runtimeType.toString()) as TResult;
     }
     throw UnsupportedError('unexpected query ${query.runtimeType}');

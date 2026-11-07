@@ -1,3 +1,5 @@
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
@@ -75,6 +77,12 @@ void main() {
     );
     GetIt.instance.registerSingleton<SalesPaymentRepository>(
       ModuleBackedSalesPaymentRepository(salesModule),
+    );
+    GetIt.instance.registerSingleton<SalesCancellationRepository>(
+      ModuleBackedSalesCancellationRepository(salesModule),
+    );
+    GetIt.instance.registerSingleton<ReturnExchangeRepository>(
+      ModuleBackedReturnExchangeRepository(salesModule),
     );
     GetIt.instance.registerSingleton<SalesDraftRepository>(draftRepo);
     GetIt.instance.registerSingleton<IExecutionContext>(
@@ -768,7 +776,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('wgt_sg11_blocked')), findsOneWidget);
-    expect(find.text('Hết hạn đổi/trả.'), findsOneWidget);
+    expect(find.text('Không thể đổi/trả.'), findsOneWidget);
     expect(find.byKey(const Key('btn_sg11_proceed_settle')), findsNothing);
   });
 

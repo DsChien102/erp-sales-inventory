@@ -1,6 +1,6 @@
 import 'package:vet45_sales_application/application.dart';
 
-import '../bloc/return_exchange_order/sales_return_exchange_session_state.dart';
+import 'package:erp/features/sales/logic/sales_return_exchange_session_state.dart';
 
 /// Pure helpers for session draft lines / edit preservation.
 abstract final class SalesReturnExchangeSessionDraft {

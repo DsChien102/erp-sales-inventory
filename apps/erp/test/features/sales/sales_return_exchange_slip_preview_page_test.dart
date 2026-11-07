@@ -1,3 +1,5 @@
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -5,6 +7,7 @@ import 'package:printing/printing.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'support/module_backed_sales_repositories.dart';
 import 'package:erp/features/sales/presentation/pages/sales_return_exchange_slip_preview_page.dart';
 
 void main() {
@@ -14,6 +17,12 @@ void main() {
     await GetIt.instance.reset();
     salesModule = _RecordingSalesModule();
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
+    GetIt.instance.registerSingleton<ReturnExchangeRepository>(
+      ModuleBackedReturnExchangeRepository(salesModule),
+    );
+    GetIt.instance.registerSingleton<SalesOrderRepository>(
+      ModuleBackedSalesOrderRepository(salesModule),
+    );
     GetIt.instance.registerSingleton<IExecutionContext>(
       const _ExecutionContext(),
     );
@@ -111,7 +120,7 @@ final class _RecordingSalesModule implements ISalesModule {
     if (query is GetSalesOrderReturnSummaryQuery) {
       return SalesOrderReturnSummaryDto(salesOrderId: 'order-1', returns: const []) as TResult;
     }
-        throw UnsupportedError('${query.runtimeType}');
+    throw UnsupportedError('${query.runtimeType}');
   }
 
   @override

@@ -1,3 +1,7 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
+import 'package:erp/features/sales/logic/sales_post_sale_error_messages.dart';
 import 'package:erp/features/sales/presentation/models/sales_order/sales_order_actions_vm.dart';
 import 'package:erp/features/sales/presentation/models/sales_order/sales_post_sale_navigation_intent.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_cancellation_attempt_factory.dart';
@@ -11,7 +15,8 @@ import 'sales_order_detail_state.dart';
 final class SalesOrderDetailPostSaleActions {
   SalesOrderDetailPostSaleActions({
     required this.orderId,
-    required this.salesModule,
+    required this.cancellationRepository,
+    required this.returnExchangeRepository,
     required this.executionContext,
     required this.isClosed,
     required this.currentGeneration,
@@ -24,7 +29,8 @@ final class SalesOrderDetailPostSaleActions {
            cancellationAttemptFactory ?? SalesOrderCancellationAttemptFactory();
 
   final String orderId;
-  final ISalesModule salesModule;
+  final SalesCancellationRepository cancellationRepository;
+  final ReturnExchangeRepository returnExchangeRepository;
   final IExecutionContext executionContext;
   final bool Function() isClosed;
   final int Function() currentGeneration;
@@ -49,14 +55,10 @@ final class SalesOrderDetailPostSaleActions {
   Future<SalesPostSaleNavigationIntent?> requestCancel() {
     return _runPrecheck(
       intent: SalesPostSaleNavigationIntent.cancel,
-      execute: (tenantId, actorId, sourceVersion) {
-        return salesModule.executeQueryAsync<CancellationPrecheckDto>(
-          PrecheckSalesOrderCancellationQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: orderId,
-            expectedSourceVersion: sourceVersion,
-          ),
+      execute: (sourceVersion) {
+        return cancellationRepository.precheck(
+          salesOrderId: orderId,
+          expectedSourceVersion: sourceVersion,
         );
       },
       allowedOf: (dto) => dto.allowed,
@@ -68,14 +70,10 @@ final class SalesOrderDetailPostSaleActions {
   Future<SalesPostSaleNavigationIntent?> requestReturnExchange() {
     return _runPrecheck(
       intent: SalesPostSaleNavigationIntent.returnExchange,
-      execute: (tenantId, actorId, sourceVersion) {
-        return salesModule.executeQueryAsync<ReturnExchangePrecheckDto>(
-          PrecheckReturnExchangeQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: orderId,
-            expectedSourceVersion: sourceVersion,
-          ),
+      execute: (sourceVersion) {
+        return returnExchangeRepository.precheck(
+          salesOrderId: orderId,
+          expectedSourceVersion: sourceVersion,
         );
       },
       allowedOf: (dto) => dto.allowed,
@@ -101,13 +99,9 @@ final class SalesOrderDetailPostSaleActions {
         return 'Huỷ đơn thất bại. Vui lòng thử lại.';
       }
 
-      final precheck = await salesModule.executeQueryAsync<CancellationPrecheckDto>(
-        PrecheckSalesOrderCancellationQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: orderId,
-          expectedSourceVersion: snapshot.sourceVersion,
-        ),
+      final precheck = await cancellationRepository.precheck(
+        salesOrderId: orderId,
+        expectedSourceVersion: snapshot.sourceVersion!,
       );
       if (isClosed() || generation != currentGeneration()) {
         return 'Huỷ đơn thất bại. Vui lòng thử lại.';
@@ -115,8 +109,8 @@ final class SalesOrderDetailPostSaleActions {
 
       if (!precheck.allowed) {
         final messages = precheck.blockers
-            .map((blocker) => blocker.message)
-            .where((message) => message.trim().isNotEmpty)
+            .map((blocker) => salesBlockerMessage(blocker, fallback: 'Không thể huỷ đơn.'))
+            .toSet()
             .toList(growable: false);
         return messages.isEmpty ? 'Không thể huỷ đơn.' : messages.join('\n');
       }
@@ -130,9 +124,7 @@ final class SalesOrderDetailPostSaleActions {
         reasonText: trimmedNote,
         correlationId: executionContext.correlationId,
       );
-      final result = await salesModule.executeCommandAsync<SalesOrderCancellationResultDto>(
-        attempt.command,
-      );
+      final result = await cancellationRepository.confirm(attempt.request);
       if (isClosed() || generation != currentGeneration()) {
         return 'Huỷ đơn thất bại. Vui lòng thử lại.';
       }
@@ -149,13 +141,14 @@ final class SalesOrderDetailPostSaleActions {
         case SalesOrderCancellationStatus.cancelled:
           return 'Huỷ đơn chưa hoàn tất.';
       }
-    } on SalesContractException catch (error) {
+    } on AppException catch (error) {
       if (isClosed() || generation != currentGeneration()) {
         return 'Huỷ đơn thất bại. Vui lòng thử lại.';
       }
-      final message = error.message;
-      if (message != null && message.trim().isNotEmpty) return message;
-      return 'Huỷ đơn thất bại. Vui lòng thử lại.';
+      return salesPostSaleErrorMessage(
+        error,
+        fallback: 'Huỷ đơn thất bại. Vui lòng thử lại.',
+      );
     } on Object {
       if (isClosed() || generation != currentGeneration()) {
         return 'Huỷ đơn thất bại. Vui lòng thử lại.';
@@ -166,7 +159,7 @@ final class SalesOrderDetailPostSaleActions {
 
   Future<SalesPostSaleNavigationIntent?> _runPrecheck<T>({
     required SalesPostSaleNavigationIntent intent,
-    required Future<T> Function(String tenantId, String actorId, int sourceVersion) execute,
+    required Future<T> Function(int sourceVersion) execute,
     required bool Function(T dto) allowedOf,
     required List<SalesBlockerDto> Function(T dto) blockersOf,
     required SalesOrderActionsVm Function(SalesOrderActionsVm actions) disableOnPermissionDenied,
@@ -185,17 +178,16 @@ final class SalesOrderDetailPostSaleActions {
     );
 
     try {
-      final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
-      if (isClosed() || generation != currentGeneration()) return null;
-
-      final dto = await execute(tenantId, actorId, sourceVersion);
+      final dto = await execute(sourceVersion);
       if (isClosed() || generation != currentGeneration()) return null;
 
       if (!allowedOf(dto)) {
+        final fallback = intent == SalesPostSaleNavigationIntent.cancel
+            ? 'Không thể huỷ đơn.'
+            : 'Không thể đổi/trả.';
         final messages = blockersOf(dto)
-            .map((blocker) => blocker.message)
-            .where((message) => message.isNotEmpty)
+            .map((blocker) => salesBlockerMessage(blocker, fallback: fallback))
+            .toSet()
             .toList(growable: false);
         final feedback = messages.isEmpty
             ? 'Không thể thực hiện thao tác này trên đơn hàng.'
@@ -229,8 +221,8 @@ final class SalesOrderDetailPostSaleActions {
     Object error, {
     required SalesOrderActionsVm Function(SalesOrderActionsVm actions) disableOnPermissionDenied,
   }) async {
-    final contract = error is SalesContractException ? error : null;
-    if (contract?.code == 'STALE_VERSION') {
+    final code = error is AppException ? error.code : null;
+    if (code == 'STALE_VERSION') {
       emitTransform(
         (state) => state.copyWith(
           actionsStatus: SalesOrderDetailSectionStatus.idle,
@@ -250,7 +242,7 @@ final class SalesOrderDetailPostSaleActions {
       return null;
     }
 
-    if (contract?.code == 'PERMISSION_DENIED' || contract?.code == 'DATA_SCOPE_DENIED') {
+    if (code == 'NO_PERMISSION' || code == 'DATA_SCOPE_DENIED') {
       final current = readState().actions;
       emitTransform((state) {
         final actions = current == null ? null : disableOnPermissionDenied(current);
@@ -264,12 +256,13 @@ final class SalesOrderDetailPostSaleActions {
       return null;
     }
 
-    final message = contract?.message;
+    final message = salesPostSaleErrorMessage(
+      error,
+      fallback: 'Không thể kiểm tra điều kiện thao tác. Vui lòng thử lại.',
+    );
     emitTransform(
       (state) => state.copyWith(
-        postSaleFeedbackMessage: (message != null && message.isNotEmpty)
-            ? message
-            : 'Không thể kiểm tra điều kiện thao tác. Vui lòng thử lại.',
+        postSaleFeedbackMessage: message,
         clearPrecheckBlockerMessages: true,
       ),
     );

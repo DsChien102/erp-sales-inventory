@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_sales_application/application.dart';
 
-import '../bloc/return_exchange_order/sales_return_exchange_session_state.dart';
+import 'package:erp/features/sales/logic/sales_return_exchange_session_state.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'sales_order_line_quantity.dart';
 
@@ -34,7 +34,10 @@ class SalesReturnExchangeReturnLineRow extends StatelessWidget {
     final colors = context.vColors;
     final id = line.unitId;
     final units = (edit?.quantityMicros ?? 0) ~/ QuantityDto.scale;
-    final priceLabel = MoneyFormatter.format(amountMinor: line.originalUnitPrice.amountMinor, currencyCode: line.originalUnitPrice.currencyCode);
+    final priceLabel = MoneyFormatter.format(
+      amountMinor: line.originalUnitPrice.amountMinor,
+      currencyCode: line.originalUnitPrice.currencyCode,
+    );
     final maxUnits = line.returnableQuantity.quantityMicros ~/ QuantityDto.scale;
 
     return Padding(
@@ -119,7 +122,10 @@ class SalesReturnExchangeExchangeLineRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final units = edit.quantityMicros ~/ QuantityDto.scale;
-    final priceLabel = MoneyFormatter.format(amountMinor: edit.unitPrice.amountMinor, currencyCode: edit.unitPrice.currencyCode);
+    final priceLabel = MoneyFormatter.format(
+      amountMinor: edit.unitPrice.amountMinor,
+      currencyCode: edit.unitPrice.currencyCode,
+    );
 
     return Padding(
       padding: const EdgeInsets.all(VSpacing.space2),

@@ -11,12 +11,12 @@ void main() {
     final repoRoot = _findRepoRoot();
     const files = <String>[
       // Cubits / state
-      'apps/erp/lib/features/sales/presentation/bloc/return_exchange_order/sales_return_exchange_session_cubit.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/return_exchange_order/sales_return_exchange_session_state.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/return_exchange_order/sales_return_exchange_settlement_cubit.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/return_exchange_order/sales_return_exchange_settlement_state.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/return_exchange_order/sales_return_exchange_detail_cubit.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/return_exchange_order/sales_return_exchange_detail_state.dart',
+      'apps/erp/lib/features/sales/logic/sales_return_exchange_session_cubit.dart',
+      'apps/erp/lib/features/sales/logic/sales_return_exchange_session_state.dart',
+      'apps/erp/lib/features/sales/logic/sales_return_exchange_settlement_cubit.dart',
+      'apps/erp/lib/features/sales/logic/sales_return_exchange_settlement_state.dart',
+      'apps/erp/lib/features/sales/logic/sales_return_exchange_detail_cubit.dart',
+      'apps/erp/lib/features/sales/logic/sales_return_exchange_detail_state.dart',
       // Support / mappers
       'apps/erp/lib/features/sales/presentation/support/sales_return_exchange_attempt_factory.dart',
       'apps/erp/lib/features/sales/presentation/support/sales_return_exchange_mapper.dart',

@@ -83,7 +83,9 @@ void main() {
     expect(find.text('+760.000đ'), findsWidgets);
   });
 
-  testWidgets('ready zero difference flow renders clean status card without inputs', (tester) async {
+  testWidgets('ready zero difference flow renders clean status card without inputs', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       _harness(
         SalesReturnExchangeSettlementState(
@@ -129,41 +131,48 @@ void main() {
     expect(find.text('Phương thức hoàn'), findsNothing);
   });
 
-  testWidgets('E-10 full return of a partially paid order shows server refund and order debt reduction', (tester) async {
-    await tester.pumpWidget(
-      _harness(
-        SalesReturnExchangeSettlementState(
-          orderId: 'order-1',
-          returnExchangeId: 'return-1',
-          orderNumber: 'DH-000129',
-          customerDisplayName: 'Nguyễn Văn An',
-          status: SalesReturnExchangeSettlementStatus.ready,
-          valuation: _refundWithDebtReductionValuation(),
+  testWidgets(
+    'E-10 full return of a partially paid order shows server refund and order debt reduction',
+    (tester) async {
+      await tester.pumpWidget(
+        _harness(
+          SalesReturnExchangeSettlementState(
+            orderId: 'order-1',
+            returnExchangeId: 'return-1',
+            orderNumber: 'DH-000129',
+            customerDisplayName: 'Nguyễn Văn An',
+            status: SalesReturnExchangeSettlementStatus.ready,
+            valuation: _refundWithDebtReductionValuation(),
+          ),
         ),
-      ),
-    );
+      );
 
-    expect(find.text('Cần hoàn tiền'), findsOneWidget);
-    expect(find.text('100.000đ'), findsWidgets);
-    expect(find.byKey(const Key('wgt_sg12_debt_reduction')), findsOneWidget);
-    expect(find.text('Giảm nợ đơn này'), findsOneWidget);
-    expect(find.text('300.000đ'), findsOneWidget);
-    expect(
-      find.text('Phần khách chưa thanh toán cho hàng trả được trừ khỏi nợ của đơn, không hoàn tiền.'),
-      findsOneWidget,
-    );
-    expect(find.text('Phương thức hoàn'), findsOneWidget);
-    expect(find.text('Tiền mặt'), findsOneWidget);
-    expect(find.text('Chuyển khoản'), findsOneWidget);
-    expect(find.text('Kết hợp'), findsNothing);
-    // Old app-side offset math is gone.
-    expect(find.text('Còn phải hoàn'), findsNothing);
-    expect(find.text('Hoàn tiền trước xử lý'), findsNothing);
-    expect(find.text('Công nợ sau cấn trừ'), findsNothing);
-    expect(find.byKey(const Key('wgt_sg12_debt_card')), findsNothing);
-  });
+      expect(find.text('Cần hoàn tiền'), findsOneWidget);
+      expect(find.text('100.000đ'), findsWidgets);
+      expect(find.byKey(const Key('wgt_sg12_debt_reduction')), findsOneWidget);
+      expect(find.text('Giảm nợ đơn này'), findsOneWidget);
+      expect(find.text('300.000đ'), findsOneWidget);
+      expect(
+        find.text(
+          'Phần khách chưa thanh toán cho hàng trả được trừ khỏi nợ của đơn, không hoàn tiền.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Phương thức hoàn'), findsOneWidget);
+      expect(find.text('Tiền mặt'), findsOneWidget);
+      expect(find.text('Chuyển khoản'), findsOneWidget);
+      expect(find.text('Kết hợp'), findsNothing);
+      // Old app-side offset math is gone.
+      expect(find.text('Còn phải hoàn'), findsNothing);
+      expect(find.text('Hoàn tiền trước xử lý'), findsNothing);
+      expect(find.text('Công nợ sau cấn trừ'), findsNothing);
+      expect(find.byKey(const Key('wgt_sg12_debt_card')), findsNothing);
+    },
+  );
 
-  testWidgets('offset switch is shown locked with a pending note and cannot change amounts', (tester) async {
+  testWidgets('offset switch is shown locked with a pending note and cannot change amounts', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       _harness(
         SalesReturnExchangeSettlementState(
@@ -496,5 +505,3 @@ ReturnExchangeValuationDto _debtReductionOnlyValuation() {
     sourceOrderVersion: 1,
   );
 }
-
-

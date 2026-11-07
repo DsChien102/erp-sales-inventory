@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vet45_sales_application/application.dart';
 
@@ -10,16 +12,16 @@ enum SalesReturnExchangeOperation { start, update, discard, confirm, complete }
 ///
 /// Retrying the same payload must reuse command id / idempotency key / hash.
 /// Input or authoritative version changes invalidate the attempt.
-final class SalesReturnExchangeAttempt<TCommand> {
+final class SalesReturnExchangeAttempt<TRequest> {
   const SalesReturnExchangeAttempt({
     required this.operation,
-    required this.command,
+    required this.request,
     required this.canonicalPayloadJson,
     required this.payloadHash,
   });
 
   final SalesReturnExchangeOperation operation;
-  final TCommand command;
+  final TRequest request;
   final String canonicalPayloadJson;
   final String payloadHash;
 }
@@ -30,7 +32,7 @@ final class SalesReturnExchangeAttemptFactory {
 
   final String Function() _newAttemptId;
 
-  SalesReturnExchangeAttempt<StartReturnExchangeCommand> start({
+  SalesReturnExchangeAttempt<ReturnExchangeStartRequest> start({
     required String tenantId,
     required String actorId,
     required String salesOrderId,
@@ -46,10 +48,7 @@ final class SalesReturnExchangeAttemptFactory {
     );
     final trimmedSalesOrderId = salesOrderId.trim();
     if (trimmedSalesOrderId.isEmpty || expectedVersion <= 0) {
-      throw const SalesContractException(
-        'CONTEXT_INVALID',
-        message: 'Start attempt requires salesOrderId and positive expectedVersion.',
-      );
+      throw const AppException('CONTEXT_INVALID');
     }
     final normalizedLines = _normalizeLines(lines);
     final payload = <String, Object?>{
@@ -60,12 +59,10 @@ final class SalesReturnExchangeAttemptFactory {
       'tenantId': context.tenantId,
     };
     final built = _build(operation: SalesReturnExchangeOperation.start, payload: payload);
-    return SalesReturnExchangeAttempt<StartReturnExchangeCommand>(
+    return SalesReturnExchangeAttempt<ReturnExchangeStartRequest>(
       operation: SalesReturnExchangeOperation.start,
-      command: StartReturnExchangeCommand(
-        id: built.attemptId,
-        tenantId: context.tenantId,
-        actorId: context.actorId,
+      request: ReturnExchangeStartRequest(
+        commandId: built.attemptId,
         salesOrderId: trimmedSalesOrderId,
         entrySource: entrySource,
         lines: _toLineInputs(normalizedLines),
@@ -79,7 +76,7 @@ final class SalesReturnExchangeAttemptFactory {
     );
   }
 
-  SalesReturnExchangeAttempt<UpdateReturnExchangeCommand> update({
+  SalesReturnExchangeAttempt<ReturnExchangeUpdateRequest> update({
     required String tenantId,
     required String actorId,
     required String returnExchangeId,
@@ -94,10 +91,7 @@ final class SalesReturnExchangeAttemptFactory {
     );
     final trimmedReturnExchangeId = returnExchangeId.trim();
     if (trimmedReturnExchangeId.isEmpty || expectedVersion <= 0) {
-      throw const SalesContractException(
-        'CONTEXT_INVALID',
-        message: 'Update attempt requires returnExchangeId and positive expectedVersion.',
-      );
+      throw const AppException('CONTEXT_INVALID');
     }
     final normalizedLines = _normalizeLines(lines);
     final payload = <String, Object?>{
@@ -107,12 +101,10 @@ final class SalesReturnExchangeAttemptFactory {
       'tenantId': context.tenantId,
     };
     final built = _build(operation: SalesReturnExchangeOperation.update, payload: payload);
-    return SalesReturnExchangeAttempt<UpdateReturnExchangeCommand>(
+    return SalesReturnExchangeAttempt<ReturnExchangeUpdateRequest>(
       operation: SalesReturnExchangeOperation.update,
-      command: UpdateReturnExchangeCommand(
-        id: built.attemptId,
-        tenantId: context.tenantId,
-        actorId: context.actorId,
+      request: ReturnExchangeUpdateRequest(
+        commandId: built.attemptId,
         returnExchangeId: trimmedReturnExchangeId,
         lines: _toLineInputs(normalizedLines),
         idempotencyKey: built.idempotencyKey,
@@ -125,7 +117,7 @@ final class SalesReturnExchangeAttemptFactory {
     );
   }
 
-  SalesReturnExchangeAttempt<CancelReturnExchangeCommand> discard({
+  SalesReturnExchangeAttempt<ReturnExchangeMutationRequest> discard({
     required String tenantId,
     required String actorId,
     required String returnExchangeId,
@@ -139,16 +131,10 @@ final class SalesReturnExchangeAttemptFactory {
     );
     final trimmedReturnExchangeId = returnExchangeId.trim();
     if (trimmedReturnExchangeId.isEmpty) {
-      throw const SalesContractException(
-        'CONTEXT_INVALID',
-        message: 'Discard attempt requires returnExchangeId.',
-      );
+      throw const AppException('CONTEXT_INVALID');
     }
     if (expectedVersion != null && expectedVersion <= 0) {
-      throw const SalesContractException(
-        'CONTEXT_INVALID',
-        message: 'Discard expectedVersion must be positive when provided.',
-      );
+      throw const AppException('CONTEXT_INVALID');
     }
     final payload = <String, Object?>{
       'expectedVersion': expectedVersion,
@@ -156,12 +142,10 @@ final class SalesReturnExchangeAttemptFactory {
       'tenantId': context.tenantId,
     };
     final built = _build(operation: SalesReturnExchangeOperation.discard, payload: payload);
-    return SalesReturnExchangeAttempt<CancelReturnExchangeCommand>(
+    return SalesReturnExchangeAttempt<ReturnExchangeMutationRequest>(
       operation: SalesReturnExchangeOperation.discard,
-      command: CancelReturnExchangeCommand(
-        id: built.attemptId,
-        tenantId: context.tenantId,
-        actorId: context.actorId,
+      request: ReturnExchangeMutationRequest(
+        commandId: built.attemptId,
         returnExchangeId: trimmedReturnExchangeId,
         idempotencyKey: built.idempotencyKey,
         payloadHash: built.payloadHash,
@@ -173,7 +157,7 @@ final class SalesReturnExchangeAttemptFactory {
     );
   }
 
-  SalesReturnExchangeAttempt<ConfirmReturnExchangeCommand> confirm({
+  SalesReturnExchangeAttempt<ReturnExchangeConfirmRequest> confirm({
     required String tenantId,
     required String actorId,
     required String returnExchangeId,
@@ -190,23 +174,16 @@ final class SalesReturnExchangeAttemptFactory {
     );
     final trimmedReturnExchangeId = returnExchangeId.trim();
     if (trimmedReturnExchangeId.isEmpty || expectedVersion <= 0) {
-      throw const SalesContractException(
-        'CONTEXT_INVALID',
-        message: 'Attempt requires returnExchangeId and positive expectedVersion.',
-      );
+      throw const AppException('CONTEXT_INVALID');
     }
     if (settledNowMinor != null && settledNowMinor < 0) {
-      throw const SalesContractException(
-        'CONTEXT_INVALID',
-        message: 'settledNowMinor cannot be negative.',
-      );
+      throw const AppException('CONTEXT_INVALID');
     }
     // Payment inputs are part of the hashed payload so a different settle
     // amount / method / due date is a distinct idempotent attempt.
     final dueDate = paymentDueDate == null
         ? null
-        : DateTime(paymentDueDate.year, paymentDueDate.month, paymentDueDate.day)
-              .toIso8601String();
+        : DateTime(paymentDueDate.year, paymentDueDate.month, paymentDueDate.day).toIso8601String();
     final payload = <String, Object?>{
       'expectedVersion': expectedVersion,
       'returnExchangeId': trimmedReturnExchangeId,
@@ -216,12 +193,10 @@ final class SalesReturnExchangeAttemptFactory {
       'paymentDueDate': dueDate,
     };
     final built = _build(operation: SalesReturnExchangeOperation.confirm, payload: payload);
-    return SalesReturnExchangeAttempt<ConfirmReturnExchangeCommand>(
+    return SalesReturnExchangeAttempt<ReturnExchangeConfirmRequest>(
       operation: SalesReturnExchangeOperation.confirm,
-      command: ConfirmReturnExchangeCommand(
-        id: built.attemptId,
-        tenantId: context.tenantId,
-        actorId: context.actorId,
+      request: ReturnExchangeConfirmRequest(
+        commandId: built.attemptId,
         returnExchangeId: trimmedReturnExchangeId,
         idempotencyKey: built.idempotencyKey,
         payloadHash: built.payloadHash,
@@ -236,7 +211,7 @@ final class SalesReturnExchangeAttemptFactory {
     );
   }
 
-  SalesReturnExchangeAttempt<CompleteReturnExchangeCommand> complete({
+  SalesReturnExchangeAttempt<ReturnExchangeMutationRequest> complete({
     required String tenantId,
     required String actorId,
     required String returnExchangeId,
@@ -250,10 +225,8 @@ final class SalesReturnExchangeAttemptFactory {
       returnExchangeId: returnExchangeId,
       expectedVersion: expectedVersion,
       correlationId: correlationId,
-      build: (built, context, trimmedId) => CompleteReturnExchangeCommand(
-        id: built.attemptId,
-        tenantId: context.tenantId,
-        actorId: context.actorId,
+      build: (built, context, trimmedId) => ReturnExchangeMutationRequest(
+        commandId: built.attemptId,
         returnExchangeId: trimmedId,
         idempotencyKey: built.idempotencyKey,
         payloadHash: built.payloadHash,
@@ -263,14 +236,14 @@ final class SalesReturnExchangeAttemptFactory {
     );
   }
 
-  SalesReturnExchangeAttempt<TCommand> _idOnlyMutation<TCommand>({
+  SalesReturnExchangeAttempt<TRequest> _idOnlyMutation<TRequest>({
     required SalesReturnExchangeOperation operation,
     required String tenantId,
     required String actorId,
     required String returnExchangeId,
     required int expectedVersion,
     required String correlationId,
-    required TCommand Function(
+    required TRequest Function(
       _BuiltAttempt built,
       _AttemptContext context,
       String trimmedReturnExchangeId,
@@ -284,10 +257,7 @@ final class SalesReturnExchangeAttemptFactory {
     );
     final trimmedReturnExchangeId = returnExchangeId.trim();
     if (trimmedReturnExchangeId.isEmpty || expectedVersion <= 0) {
-      throw const SalesContractException(
-        'CONTEXT_INVALID',
-        message: 'Attempt requires returnExchangeId and positive expectedVersion.',
-      );
+      throw const AppException('CONTEXT_INVALID');
     }
     final payload = <String, Object?>{
       'expectedVersion': expectedVersion,
@@ -295,9 +265,9 @@ final class SalesReturnExchangeAttemptFactory {
       'tenantId': context.tenantId,
     };
     final built = _build(operation: operation, payload: payload);
-    return SalesReturnExchangeAttempt<TCommand>(
+    return SalesReturnExchangeAttempt<TRequest>(
       operation: operation,
-      command: build(built, context, trimmedReturnExchangeId),
+      request: build(built, context, trimmedReturnExchangeId),
       canonicalPayloadJson: built.canonicalJson,
       payloadHash: built.payloadHash,
     );
@@ -334,10 +304,7 @@ final class SalesReturnExchangeAttemptFactory {
     final trimmedActorId = actorId.trim();
     final trimmedCorrelationId = correlationId.trim();
     if (trimmedTenantId.isEmpty || trimmedActorId.isEmpty || trimmedCorrelationId.isEmpty) {
-      throw const SalesContractException(
-        'CONTEXT_INVALID',
-        message: 'Attempt requires tenant, actor and correlation from execution context.',
-      );
+      throw const AppException('CONTEXT_INVALID');
     }
     return _AttemptContext(
       tenantId: trimmedTenantId,
@@ -390,8 +357,7 @@ final class SalesReturnExchangeAttemptFactory {
         b['originalSalesOrderLineId'] as String? ?? '',
       );
       if (original != 0) return original;
-      final sourceExchange =
-          (a['sourceExchangeLineId'] as String? ?? '').compareTo(
+      final sourceExchange = (a['sourceExchangeLineId'] as String? ?? '').compareTo(
         b['sourceExchangeLineId'] as String? ?? '',
       );
       if (sourceExchange != 0) return sourceExchange;
@@ -403,10 +369,7 @@ final class SalesReturnExchangeAttemptFactory {
       if ((line['productId'] as String).isEmpty ||
           (line['productUnitId'] as String).isEmpty ||
           (line['quantityMicros'] as int) <= 0) {
-        throw const SalesContractException(
-          'CONTEXT_INVALID',
-          message: 'Return/exchange lines require product, unit and positive quantity.',
-        );
+        throw const AppException('CONTEXT_INVALID');
       }
       final kind = line['kind'] as String;
       final reason = line['reasonCode'] as String?;
@@ -417,16 +380,10 @@ final class SalesReturnExchangeAttemptFactory {
       final hasExchange = sourceExchange != null && sourceExchange.isNotEmpty;
       if (kind == 'returnLine') {
         if (hasOriginal == hasExchange) {
-          throw const SalesContractException(
-            'CONTEXT_INVALID',
-            message: 'Return lines require exactly one source: original or exchange.',
-          );
+          throw const AppException('CONTEXT_INVALID');
         }
       } else if (reason != null || condition != null || hasOriginal || hasExchange) {
-        throw const SalesContractException(
-          'CONTEXT_INVALID',
-          message: 'Exchange lines must not carry a return source, reason or condition.',
-        );
+        throw const AppException('CONTEXT_INVALID');
       }
     }
     return normalized;

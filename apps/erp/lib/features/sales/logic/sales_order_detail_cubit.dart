@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';
@@ -28,7 +30,8 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     required this.orderRepository,
     required this.receiptRepository,
     required this.paymentRepository,
-    required this.salesModule,
+    required this.cancellationRepository,
+    required this.returnExchangeRepository,
     required this.executionContext,
     SalesOrderCancellationAttemptFactory? cancellationAttemptFactory,
     IEInvoiceModule? eInvoiceModule,
@@ -56,7 +59,8 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   final SalesOrderRepository orderRepository;
   final SalesReceiptRepository receiptRepository;
   final SalesPaymentRepository paymentRepository;
-  final ISalesModule salesModule;
+  final SalesCancellationRepository cancellationRepository;
+  final ReturnExchangeRepository returnExchangeRepository;
   final IExecutionContext executionContext;
   final SalesOrderCancellationAttemptFactory? _cancellationAttemptFactory;
 
@@ -320,7 +324,8 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   SalesOrderDetailPostSaleActions _postSaleActions() {
     return SalesOrderDetailPostSaleActions(
       orderId: orderId,
-      salesModule: salesModule,
+      cancellationRepository: cancellationRepository,
+      returnExchangeRepository: returnExchangeRepository,
       executionContext: executionContext,
       isClosed: () => isClosed,
       currentGeneration: () => _requestGeneration,

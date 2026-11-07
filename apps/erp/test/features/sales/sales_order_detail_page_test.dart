@@ -1,3 +1,5 @@
+import 'package:erp/features/sales/data/return_exchange_repository.dart';
+import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';
@@ -41,6 +43,12 @@ void main() {
     );
     GetIt.instance.registerSingleton<SalesPaymentRepository>(
       ModuleBackedSalesPaymentRepository(salesModule),
+    );
+    GetIt.instance.registerSingleton<SalesCancellationRepository>(
+      ModuleBackedSalesCancellationRepository(salesModule),
+    );
+    GetIt.instance.registerSingleton<ReturnExchangeRepository>(
+      ModuleBackedReturnExchangeRepository(salesModule),
     );
     GetIt.instance.registerSingleton<IExecutionContext>(
       const TestExecutionContext(),
@@ -508,7 +516,8 @@ void main() {
       orderRepository: ModuleBackedSalesOrderRepository(salesModule),
       receiptRepository: ModuleBackedSalesReceiptRepository(salesModule),
       paymentRepository: ModuleBackedSalesPaymentRepository(salesModule),
-      salesModule: salesModule,
+      cancellationRepository: ModuleBackedSalesCancellationRepository(salesModule),
+      returnExchangeRepository: ModuleBackedReturnExchangeRepository(salesModule),
       executionContext: const TestExecutionContext(),
     );
     await cubit.load();
