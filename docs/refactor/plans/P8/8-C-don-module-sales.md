@@ -344,24 +344,25 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 | `sales_return_exchange_slip_preview_page_test` | 2 / 2 | 8 / 8 |
 | `sales_transaction_result_page_test` | 4 / 4 | 11 / 11 |
 | `…/sales_return_exchange_detail_cubit_test` | 6 / 6 | 20 / 20 |
-| `…/sales_order_list_cubit_test` | 16 / 16 | 39 / 37 |
+| `…/sales_order_list_cubit_test` | 16 / 16 | 39 / 40 |
 | `…/sales_transaction_result_body_test` | 7 / 7 | 28 / 28 |
 | `…/sales_return_exchange_settlement_cubit_test` | 20 / 20 | 87 / 87 |
 | `…/sales_return_exchange_session_cubit_test` | 24 / 24 | 116 / 114 |
-| `presentation/sales_checkout_page_test` | 22 / 22 | 89 / 89 |
-| `sales_order_detail_page_test` | 28 / 28 | 113 / 113 |
+| `presentation/sales_checkout_page_test` | 22 / 22 | 89 / 92 |
+| `sales_order_detail_page_test` | 28 / 28 | 113 / 115 |
 | `sales_flow_pages_test` | 28 / 28 | 117 / 117 |
 | `…/sales_order_detail_cubit_test` | 57 / 57 | 269 / 252 |
-| `…/sales_transaction_result_cubit_test` | 28 / 28 | 100 / 98 |
+| `…/sales_transaction_result_cubit_test` | 28 / 28 | 100 / 100 |
 
   Toàn `flutter test test/features/sales`: +1300 xanh (1284 của Task 0 + 5 test `salesContractError` + 11 test so fixture). `dart analyze test`: 0 error, 0 warning, 18 info có sẵn (không tệp sales).
-- Assert bỏ (Q3c, `tenantId` / `actorId`; số dòng của tệp cũ): `sales_order_list_cubit_test.dart:17-18`; `sales_return_exchange_session_cubit_test.dart:250-251`; `sales_order_detail_cubit_test.dart:25-26, 193-194, 197-198, 201-202, 205-206, 209-210, 213-214, 527-528`. Assert bỏ (Q3f): `sales_return_exchange_session_cubit_test.dart:45-48` (`GetReturnExchangeFormPolicyQuery` `isEmpty`). Tổng 20 `expect(` (Q3c) + 1 `expect(` (Q3f) = 21, trừ 1 `expect(` thêm ở lệch plan 1 ⇒ giảm 20, khớp bảng: list −2, session −2, order detail cubit −16.
+- Assert bỏ (Q3c, `tenantId` / `actorId`; số dòng của tệp cũ): `sales_order_list_cubit_test.dart:20-21`; `sales_return_exchange_session_cubit_test.dart:250-251`; `sales_order_detail_cubit_test.dart:25-26, 193-194, 197-198, 201-202, 205-206, 209-210, 213-214, 527-528`. Assert bỏ (Q3f): `sales_return_exchange_session_cubit_test.dart:45-48` (`GetReturnExchangeFormPolicyQuery` `isEmpty`). Bỏ 20 `expect(` tenantId / actorId (Q3c) + 3 `expect(` khoá idempotency (lệch plan 5) + 1 `expect(` (Q3f) = 24. Thêm 11 `expect(` để giữ độ chặt (lệch plan 1; vòng sửa 1: giao dịch 2, list 3, checkout page 3, order detail page 2). Khớp bảng: list −2+3, session −2, order detail cubit −17, transaction result cubit −3+3 (về 100), checkout page +3, order detail page +2.
 - Lệch plan:
   1. `sales_return_exchange_session_cubit_test`: `.single` ngầm của `PreviewReturnExchangePricingQuery` (dòng 248) thành `expect(previewCalls, hasLength(1))` (thêm 1 `expect(`; thay 2 assert tenant / actor).
   2. Test cần Future treo, hàng đợi lỗi theo lời gọi, thứ tự lời gọi giữa 2 repository (`list`/`search` đếm riêng, settlement, session, order detail) dùng lớp con cục bộ của fake dùng chung (`extends Fake…Repository`) trong tệp test, không sửa fake chung (trừ bỏ `final` ở fake đổi/trả).
   3. `sales_flow_pages_test`: `SalesFakeData.findOrderDetail` (module) thay bằng `_OrderRepo.getDetail` cục bộ dựng cùng đơn cho mã không có trong dữ liệu mẫu (`DH-000129`, `ord_123`, `fake-sales-order`).
   4. `sales_transaction_result_page_test`: tên test bỏ chữ `ISalesModule` / `module`.
-  5. Người dùng chốt bỏ như Q3c: 3 assert khoá idempotency tạo phiếu `'sales-receipt:tenant-1:order-1:v7'` / `…:v4` (`sales_order_detail_cubit_test.dart:494`, `sales_transaction_result_cubit_test.dart:241, 276` của tệp cũ) bị bỏ, vì khoá do cầu cũ dựng từ `'tenant-1'`, repository thật dựng từ phiên (`sales_receipt_repository.dart:37`, có test ở `sales_receipt_repository_test.dart:56`). Assert so 2 khoá bằng nhau giữ, viết thành `expect(commands[1], commands[0])`. Tổng assert bỏ: 23 + 1 (Q3f); `expect(` order detail cubit 269 → 252, transaction result cubit 100 → 98.
+  5. Người dùng chốt bỏ như Q3c: 3 assert khoá idempotency tạo phiếu `'sales-receipt:tenant-1:order-1:v7'` / `…:v4` (`sales_order_detail_cubit_test.dart:494`, `sales_transaction_result_cubit_test.dart:241, 276` của tệp cũ) bị bỏ, vì khoá do cầu cũ dựng từ `'tenant-1'`, repository thật dựng từ phiên (`sales_receipt_repository.dart:37`, có test ở `sales_receipt_repository_test.dart:56`). Assert so 2 khoá bằng nhau giữ, viết thành `expect(commands[1], commands[0])`. Tổng assert bỏ: 23 + 1 (Q3f); `expect(` order detail cubit 269 → 252; transaction result cubit sau vòng sửa 1 về 100 (thêm `salesOrderId` và `commands.first == (salesOrderId: 'order-1', expectedVersion: 4)`).
+  6. Vòng sửa 1 (review): thêm lại độ chặt "không lời gọi khác": list cubit (`searchCalls` / `listCalls` isEmpty), checkout page (`getResultCalls` isEmpty), order detail page (`confirmCalls` hasLength 1 + lệnh phiếu / đổi trả isEmpty; `queryCount` thêm `cancellationCalls`, `originalCalls`).
 - Impact: chỉ sửa tệp test, không sửa symbol Dart trong `lib`; `detect_changes` lỗi Node như Task 0.
 
 

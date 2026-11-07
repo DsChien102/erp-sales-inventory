@@ -237,6 +237,7 @@ void main() {
 
       expect(module.commands.single, isA<({String salesOrderId, int expectedVersion})>());
       final command = module.receipts.generateCalls.single;
+      expect(command.salesOrderId, 'order-1');
       expect(command.expectedVersion, 4);
       expect(cubit.state.receipt.document.receiptNumber, 'PBH-20260812-0129');
       expect(cubit.state.receipt.status, SalesReceiptOperationStatus.ready);
@@ -271,6 +272,7 @@ void main() {
       final commands = module.receipts.generateCalls.toList();
       expect(commands, hasLength(2));
       expect(commands[1], commands[0]);
+      expect(commands.first, (salesOrderId: 'order-1', expectedVersion: 4));
     });
 
     test(

@@ -287,6 +287,19 @@ void main() {
     await tester.tap(find.byKey(const Key('btn_cancel_sheet_confirm')));
     await tester.pumpAndSettle();
 
+    expect(salesModule.cancellations.confirmCalls, hasLength(1));
+    expect(
+      [
+        ...salesModule.receipts.generateCalls,
+        ...salesModule.receipts.printedCalls,
+        ...salesModule.receipts.sharedCalls,
+        ...salesModule.returnExchange.startCalls,
+        ...salesModule.returnExchange.updateCalls,
+        ...salesModule.returnExchange.cancelCalls,
+        ...salesModule.returnExchange.confirmCalls,
+      ],
+      isEmpty,
+    );
     final command = salesModule.cancellations.confirmCalls.single;
 
     expect(command.reasonText, 'Khách đổi ý sau khi đặt');
@@ -826,6 +839,8 @@ final class _DetailRepos {
       orders.timelineCalls.length +
       orders.returnSummaryCalls.length +
       orders.actionsCalls.length +
+      orders.cancellationCalls.length +
+      receipts.originalCalls.length +
       payments.summaryCalls.length +
       payments.settlementCalls.length +
       payments.transactionsCalls.length +

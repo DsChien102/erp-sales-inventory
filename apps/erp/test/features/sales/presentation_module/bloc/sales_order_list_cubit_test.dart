@@ -18,6 +18,7 @@ void main() {
       await cubit.loadInitial();
 
       final query = repo.listCalls.single;
+      expect(repo.searchCalls, isEmpty);
       expect(query.filter?.storeId, 'store-1');
       expect(query.cursor, isNull);
     });
@@ -30,6 +31,7 @@ void main() {
       await cubit.searchByKeyword('SO-001');
 
       final query = repo.searchCalls.single;
+      expect(repo.listCalls, isEmpty);
       expect(query.searchText, 'SO-001');
       expect(query.cursor, isNull);
       expect(query.filter?.storeId, 'store-1');
@@ -230,6 +232,7 @@ void main() {
       await cubit.applyFilters(lifecycleFilter: SalesOrderListLifecycleFilter.completed);
 
       expect(repo.listCalls, hasLength(2));
+      expect(repo.searchCalls, isEmpty);
       final query = repo.listCalls.last;
       expect(query.cursor, isNull);
       expect(query.filter?.storeId, 'store-1');

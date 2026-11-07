@@ -225,6 +225,7 @@ void main() {
   testWidgets('renders provisional totals before explicit checkout checks', (tester) async {
     await pumpCheckout(tester, result: _readyResult(grandTotal: 950000, outstanding: 550000));
     expect(checkoutRepo.precheckCalls, isEmpty);
+    expect(checkoutRepo.getResultCalls, isEmpty);
     await tester.ensureVisible(find.byKey(const Key('txt_sg05_receivable_amount')));
     final receivable = tester.widget<VText>(
       find.byKey(const Key('txt_sg05_receivable_amount')),
@@ -279,6 +280,7 @@ void main() {
     await tester.pump();
 
     expect(checkoutRepo.precheckCalls, isEmpty);
+    expect(checkoutRepo.getResultCalls, isEmpty);
     expect(find.byKey(const Key('wgt_sg05_precheck_panel')), findsNothing);
     expect(find.byKey(const Key('wgt_sg05_precheck_spinner')), findsNothing);
     expect(find.text('Phương thức'), findsOneWidget);
@@ -422,6 +424,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(checkoutRepo.precheckCalls, isEmpty);
+    expect(checkoutRepo.getResultCalls, isEmpty);
       expect(checkoutRepo.finalizeCalls, isEmpty);
       expect(
         checkoutRouter.routeInformationProvider.value.uri.path,
