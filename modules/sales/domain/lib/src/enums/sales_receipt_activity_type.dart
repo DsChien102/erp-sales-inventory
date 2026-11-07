@@ -1,1 +1,0 @@
-enum SalesReceiptActivityType { printed, shared }

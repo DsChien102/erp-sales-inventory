@@ -2,8 +2,6 @@ import 'package:async_query/async_query.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
-import 'package:vet45_sales_application/application.dart';
-import 'package:vet45_sales_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
@@ -88,7 +86,7 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
   sessionRefresh.attach(session);
 
-  // Ngữ cảnh / quyền cho các module nghiệp vụ cũ, đọc cùng SessionStore.
+  // Ngữ cảnh / quyền cho module einvoice cũ (bỏ ở 7-5), đọc cùng SessionStore.
   final executionContext = CoreExecutionContext(store: sessionStore);
   final permissionChecker = CorePermissionChecker(
     store: sessionStore,
@@ -267,15 +265,6 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
             sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
       ),
     );
-
-  final salesModule = SalesStartup.initialize(
-    supabase: supabaseModule.client,
-    loggerFactory: getIt<ILoggerFactory>(),
-    permissionChecker: permissionChecker,
-    tenantAccessChecker: tenantAccessChecker,
-  );
-
-  getIt.registerSingleton<ISalesModule>(salesModule);
 
   final einvoiceRuntime = EinvoiceStartup.initialize(
     supabase: supabaseModule.client,

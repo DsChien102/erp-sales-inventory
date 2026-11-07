@@ -1,1 +1,0 @@
-enum SalesOrderLockStatus { unlocked, locked }

@@ -19,9 +19,6 @@ dependencies:
   pdf: ^3.11.1
   printing: ^5.13.2
   vet45_design_system: ^1.0.0
-  vet45_sales_domain: ^1.0.0
-  vet45_sales_application: ^1.0.0
-  vet45_sales_infrastructure: ^1.0.0
   vet45_einvoice_domain: ^1.0.0
   vet45_einvoice_application: ^1.0.0
   vet45_einvoice_infrastructure: ^1.0.0

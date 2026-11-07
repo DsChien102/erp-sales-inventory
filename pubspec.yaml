@@ -17,9 +17,6 @@ workspace:
   - packages/vet45_shared/domain
   - packages/vet45_shared/infrastructure
   - packages/vet45_shared/testing
-  - modules/sales/domain
-  - modules/sales/application
-  - modules/sales/infrastructure
   - modules/sales/integration_events
   - modules/partner/integration_events
   - modules/einvoice/domain

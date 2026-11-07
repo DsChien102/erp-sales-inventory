@@ -1,1 +1,0 @@
-enum SalesOrderLifecycleStatus { completed, cancelled }
