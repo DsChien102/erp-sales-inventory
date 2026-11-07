@@ -16,15 +16,15 @@ void main() {
       correlationId: 'corr-1',
     );
 
-    expect(envelope.command.id, '11111111-1111-4111-8111-111111111111');
-    expect(envelope.command.idempotencyKey, 'checkout:11111111-1111-4111-8111-111111111111');
-    expect(envelope.command.sourceDraftId, 'draft-7');
-    expect(envelope.command.paymentIntents, hasLength(2));
+    expect(envelope.request.commandId, '11111111-1111-4111-8111-111111111111');
+    expect(envelope.request.idempotencyKey, 'checkout:11111111-1111-4111-8111-111111111111');
+    expect(envelope.request.sourceDraftId, 'draft-7');
+    expect(envelope.request.paymentIntents, hasLength(2));
     expect(envelope.payloadHash, matches(RegExp(r'^[0-9a-f]{64}$')));
-    expect(envelope.command.payloadHash, envelope.payloadHash);
-    expect(envelope.command.orderNote, 'Giao chiều');
-    expect(envelope.command.paymentDueDate, DateTime(2026, 8, 30));
-    expect(envelope.command.commercialSnapshot.store.displayName, 'Chi nhánh Quận 1');
+    expect(envelope.request.payloadHash, envelope.payloadHash);
+    expect(envelope.request.orderNote, 'Giao chiều');
+    expect(envelope.request.paymentDueDate, DateTime(2026, 8, 30));
+    expect(envelope.request.commercialSnapshot.store.displayName, 'Chi nhánh Quận 1');
     expect(envelope.canonicalPayloadJson, contains('commercialSnapshot'));
     expect(envelope.canonicalPayloadJson, contains('"paymentDueDate":"2026-08-30"'));
   });

@@ -1,3 +1,5 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:vet45_sales_application/application.dart';
 
 import '../../models/sales_order/sales_order_actions_vm.dart';
@@ -13,6 +15,7 @@ final class SalesOrderDetailSectionsLoader {
   SalesOrderDetailSectionsLoader({
     required this.orderId,
     required this.salesModule,
+    required this.paymentRepository,
     required this.isClosed,
     required this.currentGeneration,
     required this.currentSourceVersion,
@@ -22,6 +25,7 @@ final class SalesOrderDetailSectionsLoader {
 
   final String orderId;
   final ISalesModule salesModule;
+  final SalesPaymentRepository paymentRepository;
   final bool Function() isClosed;
   final int Function() currentGeneration;
   final int? Function() currentSourceVersion;
@@ -195,33 +199,21 @@ final class SalesOrderDetailSectionsLoader {
 
     await Future.wait<void>([
       runOne(() async {
-        summary = await salesModule.executeQueryAsync<SalesOrderPaymentSummaryDto>(
-          GetSalesOrderPaymentSummaryQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: orderId,
-            expectedSourceVersion: sourceVersion,
-          ),
+        summary = await paymentRepository.getSummary(
+          salesOrderId: orderId,
+          expectedSourceVersion: sourceVersion,
         );
       }),
       runOne(() async {
-        settlement = await salesModule.executeQueryAsync<SalesOrderSettlementDto>(
-          GetSalesOrderSettlementQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: orderId,
-            expectedSourceVersion: sourceVersion,
-          ),
+        settlement = await paymentRepository.getSettlement(
+          salesOrderId: orderId,
+          expectedSourceVersion: sourceVersion,
         );
       }),
       runOne(() async {
-        transactions = await salesModule.executeQueryAsync<SalesPaymentTransactionsDto>(
-          GetSalesOrderPaymentTransactionsQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: orderId,
-            expectedSourceVersion: sourceVersion,
-          ),
+        transactions = await paymentRepository.getTransactions(
+          salesOrderId: orderId,
+          expectedSourceVersion: sourceVersion,
         );
       }),
     ]);
@@ -357,14 +349,10 @@ final class SalesOrderDetailSectionsLoader {
     if (!_stillCurrent(generation, sourceVersion) || isClosed()) return;
 
     try {
-      final page = await salesModule.executeQueryAsync<SalesPaymentTransactionsDto>(
-        GetSalesOrderPaymentTransactionsQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: orderId,
-          expectedSourceVersion: sourceVersion,
-          cursor: cursor,
-        ),
+      final page = await paymentRepository.getTransactions(
+        salesOrderId: orderId,
+        expectedSourceVersion: sourceVersion,
+        cursor: cursor,
       );
       if (!_stillCurrent(generation, sourceVersion) || isClosed()) return;
       emitTransform(
@@ -399,9 +387,15 @@ final class SalesOrderDetailSectionsLoader {
     Object error, {
     required _SectionKind section,
   }) {
+    // Hai kiểu lỗi cùng lúc tới 8-A4: AppException (thanh toán) và
+    // SalesContractException (lịch sử / thao tác / huỷ). AppException không
+    // mang câu thô của server (TH-05 6.4).
     final contract = error is SalesContractException ? error : null;
-    final status = switch (contract?.code) {
-      'PERMISSION_DENIED' || 'DATA_SCOPE_DENIED' => SalesOrderDetailSectionStatus.blocked,
+    final code = error is AppException ? error.code : contract?.code;
+    final status = switch (code) {
+      'PERMISSION_DENIED' ||
+      'NO_PERMISSION' ||
+      'DATA_SCOPE_DENIED' => SalesOrderDetailSectionStatus.blocked,
       'PROJECTION_PENDING' => SalesOrderDetailSectionStatus.projectionPending,
       _ => SalesOrderDetailSectionStatus.error,
     };

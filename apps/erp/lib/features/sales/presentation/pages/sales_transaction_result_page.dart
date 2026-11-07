@@ -4,6 +4,9 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/sales_checkout_repository.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
+import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -36,6 +39,9 @@ class _SalesTransactionResultPageState extends State<SalesTransactionResultPage>
       idempotencyKey: widget.args.idempotencyKey,
       storeId: widget.args.storeId,
       salesOrderId: widget.args.salesOrderId,
+      checkoutRepository: GetIt.instance<SalesCheckoutRepository>(),
+      orderRepository: GetIt.instance<SalesOrderRepository>(),
+      paymentRepository: GetIt.instance<SalesPaymentRepository>(),
       salesModule: salesModule,
       executionContext: executionContext,
     )..load();

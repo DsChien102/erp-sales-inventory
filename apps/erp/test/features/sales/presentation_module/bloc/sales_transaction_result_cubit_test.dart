@@ -1,11 +1,15 @@
 import 'dart:async';
 
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/sales_checkout_repository.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
+import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import 'package:erp/features/sales/presentation/bloc/sales_order/sales_transaction_result_cubit.dart';
-import 'package:erp/features/sales/presentation/bloc/sales_order/sales_transaction_result_state.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
 
 void main() {
   group('SalesTransactionResultCubit', () {
@@ -17,23 +21,8 @@ void main() {
       await cubit.load();
 
       expect(module.commands, isEmpty);
-      expect(module.queries.map((query) => query.runtimeType), [
-        GetCheckoutResultQuery,
-        GetSalesOrderQuery,
-        GetSalesOrderPaymentSummaryQuery,
-      ]);
-      final attempt = module.queries[0] as GetCheckoutResultQuery;
-      final order = module.queries[1] as GetSalesOrderQuery;
-      final payment = module.queries[2] as GetSalesOrderPaymentSummaryQuery;
-      expect(attempt.tenantId, 'tenant-1');
-      expect(attempt.actorId, 'actor-1');
-      expect(order.tenantId, 'tenant-1');
-      expect(order.actorId, 'actor-1');
-      expect(payment.tenantId, 'tenant-1');
-      expect(payment.actorId, 'actor-1');
-      expect(attempt.idempotencyKey, 'attempt-1');
-      expect(order.salesOrderId, 'order-1');
-      expect(payment.salesOrderId, 'order-1');
+      expect(module.reads, ['checkout', 'order', 'payment']);
+      expect(module.readArgs, ['store-1/attempt-1', 'order-1', 'order-1']);
       expect(cubit.state.status, SalesTransactionResultStatus.loaded);
       expect(cubit.state.result!.checkout, same(module.checkout));
       expect(cubit.state.result!.order, same(module.order));
@@ -50,11 +39,8 @@ void main() {
       await cubit.load();
 
       expect(cubit.state.status, SalesTransactionResultStatus.loaded);
-      expect(module.queries.whereType<GetCheckoutResultQuery>(), hasLength(2));
-      expect(module.queries.skip(2).map((query) => query.runtimeType), [
-        GetSalesOrderQuery,
-        GetSalesOrderPaymentSummaryQuery,
-      ]);
+      expect(module.reads.where((r) => r == 'checkout'), hasLength(2));
+      expect(module.reads.skip(2), ['order', 'payment']);
     });
 
     test('maps an ambiguous attempt transport failure into bounded recovery', () async {
@@ -67,14 +53,14 @@ void main() {
       await cubit.load();
 
       expect(cubit.state.status, SalesTransactionResultStatus.loaded);
-      expect(module.queries.whereType<GetCheckoutResultQuery>(), hasLength(2));
+      expect(module.reads.where((r) => r == 'checkout'), hasLength(2));
       expect(module.commands, isEmpty);
     });
 
     test('maps UNCERTAIN_RESULT from the attempt query into bounded recovery', () async {
       final module = _RecordingSalesModule(
         attemptResponses: [
-          const _Failure(SalesContractException('UNCERTAIN_RESULT')),
+          const _Failure(AppException('UNCERTAIN_RESULT')),
           _succeededCheckout(),
         ],
       );
@@ -84,14 +70,14 @@ void main() {
       await cubit.load();
 
       expect(cubit.state.status, SalesTransactionResultStatus.loaded);
-      expect(module.queries.whereType<GetCheckoutResultQuery>(), hasLength(2));
+      expect(module.reads.where((r) => r == 'checkout'), hasLength(2));
       expect(module.commands, isEmpty);
     });
 
     test('fails immediately for a stable initial attempt error without polling', () async {
       final delays = <Duration>[];
       final module = _RecordingSalesModule(
-        attemptResponses: [const _Failure(SalesContractException('PERMISSION_DENIED'))],
+        attemptResponses: [const _Failure(AppException('NO_PERMISSION'))],
       );
       final cubit = _cubit(
         module: module,
@@ -104,7 +90,7 @@ void main() {
 
       expect(cubit.state.status, SalesTransactionResultStatus.failure);
       expect(cubit.state.issues, [SalesTransactionResultIssue.permissionDenied]);
-      expect(module.queries.whereType<GetCheckoutResultQuery>(), hasLength(1));
+      expect(module.reads.where((r) => r == 'checkout'), hasLength(1));
       expect(delays, isEmpty);
     });
 
@@ -113,7 +99,7 @@ void main() {
       final module = _RecordingSalesModule(
         attemptResponses: [
           _uncertainCheckout(),
-          const _Failure(SalesContractException('STALE_VERSION')),
+          const _Failure(AppException('STALE_VERSION')),
         ],
       );
       final cubit = _cubit(
@@ -127,7 +113,7 @@ void main() {
 
       expect(cubit.state.status, SalesTransactionResultStatus.failure);
       expect(cubit.state.issues, [SalesTransactionResultIssue.staleVersion]);
-      expect(module.queries.whereType<GetCheckoutResultQuery>(), hasLength(2));
+      expect(module.reads.where((r) => r == 'checkout'), hasLength(2));
       expect(delays, [const Duration(seconds: 1)]);
     });
 
@@ -145,13 +131,13 @@ void main() {
 
       expect(cubit.state.status, SalesTransactionResultStatus.failure);
       expect(cubit.state.issues, [SalesTransactionResultIssue.uncertainResult]);
-      expect(module.queries.whereType<GetCheckoutResultQuery>(), hasLength(3));
+      expect(module.reads.where((r) => r == 'checkout'), hasLength(3));
     });
 
 
     test('keeps the committed order when payment projection is pending', () async {
       final module = _RecordingSalesModule(
-        paymentResponse: const _Failure(SalesContractException('PROJECTION_PENDING')),
+        paymentResponse: const _Failure(AppException('PROJECTION_PENDING')),
       );
       final cubit = _cubit(module: module);
       addTearDown(cubit.close);
@@ -166,7 +152,7 @@ void main() {
 
     test('fails when the authoritative sales order is not found', () async {
       final module = _RecordingSalesModule(
-        orderResponse: const _Failure(SalesContractException('NOT_FOUND')),
+        orderResponse: const _Failure(AppException('NOT_FOUND')),
       );
       final cubit = _cubit(module: module);
       addTearDown(cubit.close);
@@ -181,7 +167,7 @@ void main() {
     test('retry starts new mediator reads after a secondary failure', () async {
       final module = _RecordingSalesModule(
         attemptResponses: [_succeededCheckout(), _succeededCheckout()],
-        paymentResponse: const _Failure(SalesContractException('PERMISSION_DENIED')),
+        paymentResponse: const _Failure(AppException('NO_PERMISSION')),
       );
       final cubit = _cubit(module: module);
       addTearDown(cubit.close);
@@ -191,8 +177,8 @@ void main() {
       await cubit.retryLoad();
 
       expect(cubit.state.status, SalesTransactionResultStatus.loaded);
-      expect(module.queries.whereType<GetCheckoutResultQuery>(), hasLength(2));
-      expect(module.queries.whereType<GetSalesOrderQuery>(), hasLength(2));
+      expect(module.reads.where((r) => r == 'checkout'), hasLength(2));
+      expect(module.reads.where((r) => r == 'order'), hasLength(2));
       expect(module.commands, isEmpty);
     });
 
@@ -214,7 +200,7 @@ void main() {
 
       expect(cubit.state.status, SalesTransactionResultStatus.loaded);
       expect(cubit.state.result, same(loadedResult));
-      expect(module.queries.whereType<GetCheckoutResultQuery>(), hasLength(2));
+      expect(module.reads.where((r) => r == 'checkout'), hasLength(2));
     });
 
     test('does not emit after close while waiting for recovery delay', () async {
@@ -237,7 +223,7 @@ void main() {
       await subscription.cancel();
 
       expect(statesBeforeClose, isEmpty);
-      expect(module.queries.whereType<GetCheckoutResultQuery>(), hasLength(1));
+      expect(module.reads.where((r) => r == 'checkout'), hasLength(1));
     });
 
     test('generates a receipt and retains its typed document', () async {
@@ -534,6 +520,9 @@ SalesTransactionResultCubit _cubit({
 idempotencyKey: 'attempt-1',
   salesOrderId: 'order-1',
   knownReceiptId: knownReceiptId,
+  checkoutRepository: _CheckoutRepo(module),
+  orderRepository: _OrderRepo(module),
+  paymentRepository: _PaymentRepo(module),
   salesModule: module,
   executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
   recoveryBackoff: recoveryBackoff,
@@ -557,6 +546,19 @@ final class _RecordingSalesModule implements ISalesModule {
 
   final List<Object> commands = <Object>[];
   final List<Object> queries = <Object>[];
+
+  /// Thứ tự ba lần đọc qua repository ('checkout' | 'order' | 'payment').
+  final List<String> reads = <String>[];
+  final List<String> readArgs = <String>[];
+
+  Future<T> read<T>(String kind, String arg, Object? override, Object fallback) async {
+    reads.add(kind);
+    readArgs.add(arg);
+    final Object response = override ?? fallback;
+    if (response is _Failure) throw response.error;
+    if (response is Future<Object>) return await response as T;
+    return response as T;
+  }
   final List<Object> attemptResponses;
   final List<Object> generateResponses;
   final List<Object> printedResponses;
@@ -592,13 +594,7 @@ final class _RecordingSalesModule implements ISalesModule {
   Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
     queries.add(query);
     final Object response;
-    if (query is GetCheckoutResultQuery) {
-      response = attemptResponses.removeAt(0);
-    } else if (query is GetSalesOrderQuery) {
-      response = orderResponse ?? order;
-    } else if (query is GetSalesOrderPaymentSummaryQuery) {
-      response = paymentResponse ?? payment;
-    } else if (query is GetSalesReceiptQuery) {
+    if (query is GetSalesReceiptQuery) {
       response = _receipt();
     } else {
       throw UnsupportedError('Unexpected query $query');
@@ -607,6 +603,49 @@ final class _RecordingSalesModule implements ISalesModule {
     if (response is Future<Object>) return await response as TResult;
     return response as TResult;
   }
+}
+
+final class _CheckoutRepo implements SalesCheckoutRepository {
+  _CheckoutRepo(this.m);
+  final _RecordingSalesModule m;
+
+  @override
+  Future<CheckoutResultDto> getResult({required String storeId, required String idempotencyKey}) =>
+      m.read<CheckoutResultDto>(
+        'checkout',
+        '$storeId/$idempotencyKey',
+        m.attemptResponses.removeAt(0),
+        m.checkout,
+      );
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
+final class _OrderRepo implements SalesOrderRepository {
+  _OrderRepo(this.m);
+  final _RecordingSalesModule m;
+
+  @override
+  Future<SalesOrderResultDto> get({required String salesOrderId}) =>
+      m.read<SalesOrderResultDto>('order', salesOrderId, m.orderResponse, m.order);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
+final class _PaymentRepo implements SalesPaymentRepository {
+  _PaymentRepo(this.m);
+  final _RecordingSalesModule m;
+
+  @override
+  Future<SalesOrderPaymentSummaryDto> getSummary({
+    required String salesOrderId,
+    int? expectedSourceVersion,
+  }) => m.read<SalesOrderPaymentSummaryDto>('payment', salesOrderId, m.paymentResponse, m.payment);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 final class _Failure {

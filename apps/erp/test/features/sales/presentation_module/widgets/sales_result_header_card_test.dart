@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
 
-import 'package:erp/features/sales/presentation/bloc/sales_order/sales_transaction_result_state.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
 import 'package:erp/features/sales/presentation/widgets/sales_result_header_card.dart';
 
 void main() {

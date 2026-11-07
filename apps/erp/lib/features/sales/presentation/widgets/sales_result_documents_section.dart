@@ -7,8 +7,8 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/core/formatting/money_formatter.dart';
 
-import '../bloc/sales_order/sales_transaction_result_cubit.dart';
-import '../bloc/sales_order/sales_transaction_result_state.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
 import '../navigation/sales_typed_routes.dart';
 import '../services/i_invoice_document_exporter.dart';
 import '../services/i_invoice_viewer_launcher.dart';

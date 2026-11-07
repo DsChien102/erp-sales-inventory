@@ -7,7 +7,7 @@ import 'package:erp/features/sales/presentation.dart';
 import '../lookups/sales_catalog_product_lookup.dart';
 import '../lookups/sales_partner_customer_lookup.dart';
 import '../lookups/sales_pricing_lookup.dart';
-import '../orchestration/sales_checkout_orchestrator.dart';
+import 'package:erp/features/sales/logic/sales_checkout_orchestrator.dart';
 import 'package:erp/features/sales/logic/sales_draft_backend.dart';
 import '../orchestration/sales_manual_price_orchestrator.dart';
 

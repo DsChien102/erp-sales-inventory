@@ -1,3 +1,4 @@
+import '../../support/module_backed_sales_repositories.dart';
 import 'package:async_query/async_query.dart';
 import 'package:async_query_flutter/async_query_flutter.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import 'package:vet45_einvoice_presentation/presentation.dart'
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import 'package:erp/features/sales/presentation/bloc/sales_order/sales_transaction_result_cubit.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';
 import 'package:erp/features/sales/presentation/services/i_invoice_document_exporter.dart';
 import 'package:erp/features/sales/presentation/support/order_invoice_delivery_copy.dart';
 import 'package:erp/features/sales/presentation/widgets/einvoice/invoice_documents_action_sheet.dart';
@@ -290,6 +291,9 @@ SalesTransactionResultCubit _cubit({
   storeId: 'store-1',
   idempotencyKey: 'attempt-1',
   salesOrderId: 'order-1',
+  checkoutRepository: ModuleBackedSalesCheckoutRepository(module),
+  orderRepository: ModuleBackedSalesOrderRepository(module),
+  paymentRepository: ModuleBackedSalesPaymentRepository(module),
   salesModule: module,
   executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
   recoveryBackoff: const [Duration.zero],

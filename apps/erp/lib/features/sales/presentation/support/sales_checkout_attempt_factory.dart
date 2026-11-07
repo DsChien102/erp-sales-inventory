@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:erp/features/sales/data/models/sales_finalize_request.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vet45_sales_application/application.dart';
 
@@ -78,10 +79,8 @@ final class SalesCheckoutAttemptFactory {
     };
     final canonicalJson = jsonEncode(_sort(payload));
     final payloadHash = sha256.convert(utf8.encode(canonicalJson)).toString();
-    final command = FinalizeSalesOrderCommand(
-      id: attemptId,
-      tenantId: tenantId.trim(),
-      actorId: actorId.trim(),
+    final request = SalesFinalizeRequest(
+      commandId: attemptId,
       storeId: storeId.trim(),
       sourceDraftId: _trimToNull(args.sourceDraftId),
       customerId: _trimToNull(args.customerId),
@@ -97,7 +96,7 @@ final class SalesCheckoutAttemptFactory {
       expectedSourceVersion: args.expectedSourceVersion,
     );
     return SalesCheckoutAttemptEnvelope(
-      command: command,
+      request: request,
       canonicalPayloadJson: canonicalJson,
       payloadHash: payloadHash,
     );

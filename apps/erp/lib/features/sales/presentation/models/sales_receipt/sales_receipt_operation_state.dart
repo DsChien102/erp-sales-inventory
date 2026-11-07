@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:vet45_sales_application/application.dart';
 
-import '../../bloc/sales_order/sales_transaction_result_issue.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';
 
 enum SalesReceiptOperationStatus {
   idle,

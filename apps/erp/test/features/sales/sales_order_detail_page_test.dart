@@ -1,3 +1,5 @@
+import 'package:erp/features/sales/data/sales_payment_repository.dart';
+import 'support/module_backed_sales_repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -29,6 +31,9 @@ void main() {
     await GetIt.instance.reset();
     salesModule = _DetailSalesModule(detail: _detail());
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
+    GetIt.instance.registerSingleton<SalesPaymentRepository>(
+      ModuleBackedSalesPaymentRepository(salesModule),
+    );
     GetIt.instance.registerSingleton<IExecutionContext>(
       const TestExecutionContext(),
     );
@@ -493,6 +498,7 @@ void main() {
     final cubit = SalesOrderDetailCubit(
       orderId: 'order-1',
       salesModule: salesModule,
+      paymentRepository: ModuleBackedSalesPaymentRepository(salesModule),
       executionContext: const TestExecutionContext(),
     );
     await cubit.load();

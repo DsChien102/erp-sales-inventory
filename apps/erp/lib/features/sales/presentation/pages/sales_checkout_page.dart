@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
@@ -33,7 +34,7 @@ class _SalesCheckoutPageState extends State<SalesCheckoutPage> {
     super.initState();
     _cubit = SalesCheckoutCubit(
       args: widget.args,
-      salesModule: GetIt.instance<ISalesModule>(),
+      repository: GetIt.instance<SalesCheckoutRepository>(),
       executionContext: GetIt.instance<IExecutionContext>(),
       activeStoreContext: _SalesCheckoutActiveStoreAdapter(
         GetIt.instance<SessionController>(),
@@ -117,7 +118,7 @@ class _SalesCheckoutPageState extends State<SalesCheckoutPage> {
     if (result == null || result.salesOrderId.isEmpty) return;
     SalesResultRoute(
       orderId: result.salesOrderId,
-      $extra: SalesCheckoutResultArgs(result: result, storeId: state.attempt!.command.storeId),
+      $extra: SalesCheckoutResultArgs(result: result, storeId: state.attempt!.request.storeId),
     ).go(context);
   }
 

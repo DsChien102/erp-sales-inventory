@@ -1,3 +1,4 @@
+import '../../support/module_backed_sales_repositories.dart';
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -265,9 +266,55 @@ void main() {
       expect(cubit.state.status, SalesOrderDetailStatus.loaded);
       expect(cubit.state.core, isNotNull);
       expect(cubit.state.paymentStatus, SalesOrderDetailSectionStatus.error);
-      expect(cubit.state.paymentErrorMessage, 'pay down');
+      // Q4: không hiện câu thô của server ở khối thanh toán.
+      expect(cubit.state.paymentErrorMessage, isNull);
       expect(cubit.state.historyStatus, SalesOrderDetailSectionStatus.loaded);
       expect(cubit.state.history, isNotNull);
+    });
+
+    test('payment_section_permission_denied_is_blocked', () async {
+      final module = _RecordingSalesModule(
+        settlementError: const app.SalesContractException('PERMISSION_DENIED'),
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+      await _drain();
+
+      expect(cubit.state.paymentStatus, SalesOrderDetailSectionStatus.blocked);
+      expect(cubit.state.payment, isNull);
+      expect(cubit.state.status, SalesOrderDetailStatus.loaded);
+    });
+
+    test('payment_section_projection_pending', () async {
+      final module = _RecordingSalesModule(
+        paymentSummaryError: const app.SalesContractException('PROJECTION_PENDING'),
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+      await _drain();
+
+      expect(cubit.state.paymentStatus, SalesOrderDetailSectionStatus.projectionPending);
+    });
+
+    test('payment_section_error_never_shows_server_message', () async {
+      final module = _RecordingSalesModule(
+        settlementError: const app.SalesContractException(
+          'DEPENDENCY_UNAVAILABLE',
+          message: 'Sales order read failed.',
+        ),
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+      await _drain();
+
+      expect(cubit.state.paymentStatus, SalesOrderDetailSectionStatus.error);
+      expect(cubit.state.paymentErrorMessage, isNull);
     });
 
     test('per-section permission blocked does not clear core', () async {
@@ -967,6 +1014,7 @@ SalesOrderDetailCubit _buildCubit({
   return SalesOrderDetailCubit(
     orderId: 'order-1',
     salesModule: module,
+    paymentRepository: ModuleBackedSalesPaymentRepository(module),
     executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
     cancellationAttemptFactory: cancellationAttemptFactory,
   );

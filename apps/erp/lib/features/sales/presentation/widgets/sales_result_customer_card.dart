@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../bloc/sales_order/sales_transaction_result_state.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
 
 class SalesResultCustomerCard extends StatelessWidget {
   const SalesResultCustomerCard({

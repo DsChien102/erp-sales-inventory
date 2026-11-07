@@ -3,7 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_sales_application/application.dart';
 
 import '../bloc/sales_order/sales_order_detail_cubit.dart';
-import '../bloc/sales_order/sales_transaction_result_issue.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';
 import '../pages/sales_receipt_preview_page.dart';
 import '../widgets/sales_result_receipt_sheet.dart';
 import 'sales_pdf_runner.dart';

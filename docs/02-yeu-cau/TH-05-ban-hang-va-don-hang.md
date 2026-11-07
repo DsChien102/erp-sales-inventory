@@ -2154,7 +2154,7 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | `PRODUCT_NOT_SELLABLE` | sản phẩm ngừng bán | "Sản phẩm đã ngừng bán. Vui lòng quay lại đơn." |
 | `INVALID_QUANTITY` | số lượng cơ sở lẻ | "Số lượng không hợp lệ với đơn vị bán." |
 | `COMMERCIAL_TOTAL_MISMATCH` | giảm giá sai | "Giảm giá không hợp lệ." |
-| `CHECKOUT_BLOCKED` | snapshot lệch, vượt tổng, Khách lẻ nợ, hết số đơn | "Đơn bị chặn khi hoàn tất" + lý do |
+| `CHECKOUT_BLOCKED` | snapshot lệch, vượt tổng, Khách lẻ nợ, hết số đơn | "Đơn chưa đủ điều kiện thanh toán." (lý do cụ thể lấy từ `blockers` của precheck nếu có) |
 | `WALK_IN_RECEIVABLE_NOT_ALLOWED` | Khách lẻ trả thiếu | "Khách lẻ phải thanh toán đủ." |
 | `RECEIVABLE_DUE_DATE_REQUIRED` | thiếu ngày hẹn | "Ngày hẹn thanh toán là bắt buộc khi phát sinh công nợ." |
 | `CHECKOUT_RESULT_NOT_FOUND` | chưa có kết quả | tiếp tục khôi phục; hết lượt → "Chưa xác định được kết quả…" |

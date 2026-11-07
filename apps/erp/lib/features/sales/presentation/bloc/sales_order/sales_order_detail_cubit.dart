@@ -16,12 +16,14 @@ import '../../support/sales_receipt_operation_handler.dart';
 import 'sales_order_detail_post_sale_actions.dart';
 import 'sales_order_detail_sections_loader.dart';
 import 'sales_order_detail_state.dart';
-import 'sales_transaction_result_issue.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';
+import 'package:erp/features/sales/data/sales_payment_repository.dart';
 
 class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   SalesOrderDetailCubit({
     required this.orderId,
     required this.salesModule,
+    required this.paymentRepository,
     required this.executionContext,
     SalesOrderCancellationAttemptFactory? cancellationAttemptFactory,
     IEInvoiceModule? eInvoiceModule,
@@ -48,6 +50,7 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
 
   final String orderId;
   final ISalesModule salesModule;
+  final SalesPaymentRepository paymentRepository;
   final IExecutionContext executionContext;
   final SalesOrderCancellationAttemptFactory? _cancellationAttemptFactory;
 
@@ -334,6 +337,7 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     return SalesOrderDetailSectionsLoader(
       orderId: orderId,
       salesModule: salesModule,
+      paymentRepository: paymentRepository,
       isClosed: () => isClosed,
       currentGeneration: () => _requestGeneration,
       currentSourceVersion: () => state.sourceVersion,

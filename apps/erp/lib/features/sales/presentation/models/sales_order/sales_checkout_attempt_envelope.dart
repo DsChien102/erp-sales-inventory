@@ -1,17 +1,17 @@
 import 'package:equatable/equatable.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models/sales_finalize_request.dart';
 
 final class SalesCheckoutAttemptEnvelope extends Equatable {
   const SalesCheckoutAttemptEnvelope({
-    required this.command,
+    required this.request,
     required this.canonicalPayloadJson,
     required this.payloadHash,
   });
 
-  final FinalizeSalesOrderCommand command;
+  final SalesFinalizeRequest request;
   final String canonicalPayloadJson;
   final String payloadHash;
 
   @override
-  List<Object?> get props => [command.id, canonicalPayloadJson, payloadHash];
+  List<Object?> get props => [request.commandId, canonicalPayloadJson, payloadHash];
 }

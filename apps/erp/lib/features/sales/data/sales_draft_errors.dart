@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/sales_rpc_errors.dart';
 
 abstract final class SalesDraftErrorCodes {
   static const noPermission = 'NO_PERMISSION'; // server PERMISSION_DENIED
@@ -28,38 +27,7 @@ AppException salesDraftException(Object error) {
   if (_stableCodes.contains(appError.code)) {
     return appError;
   }
-  final nested = _unwrapNested(appError.serverMessage);
+  final nested = unwrapNestedSalesRpcError(appError.serverMessage, stableCodes: _stableCodes);
   if (nested != null) return nested;
   return AppException(SalesDraftErrorCodes.systemError, cause: error);
-}
-
-/// Gateway cũ bóc `message` JSON lồng tới 3 lớp (lớp đầu do AppException.from đã đọc).
-AppException? _unwrapNested(String? raw) {
-  var current = raw;
-  for (var depth = 0; depth < 2 && current != null; depth++) {
-    final trimmed = current.trim();
-    if (!trimmed.startsWith('{')) return null;
-    Object? decoded;
-    try {
-      decoded = jsonDecode(trimmed);
-    } on FormatException {
-      return null;
-    }
-    if (decoded is! Map) return null;
-    final code = decoded['code'];
-    final message = decoded['message'];
-    final details = decoded['details'];
-    if (code is String) {
-      final normalized = code == 'PERMISSION_DENIED' ? SalesDraftErrorCodes.noPermission : code;
-      if (_stableCodes.contains(normalized)) {
-        return AppException(
-          normalized,
-          serverMessage: message is String ? message : null,
-          details: details is Map ? Map<String, dynamic>.from(details) : null,
-        );
-      }
-    }
-    current = message is String ? message : null;
-  }
-  return null;
 }

@@ -25,7 +25,10 @@ import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../../features/pricing/data/customer_price_rule_repository.dart';
 import '../../features/pricing/data/sales_pricing_repository.dart';
+import '../../features/sales/data/sales_checkout_repository.dart';
 import '../../features/sales/data/sales_draft_repository.dart';
+import '../../features/sales/data/sales_order_repository.dart';
+import '../../features/sales/data/sales_payment_repository.dart';
 import '../errors/app_exception.dart';
 import '../router/session_refresh.dart';
 import '../session/session_contracts.dart';
@@ -206,6 +209,30 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     )
     ..registerLazySingleton<SalesDraftRepository>(
       () => SalesDraftRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+        actorId: () async =>
+            sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
+      ),
+    )
+    ..registerLazySingleton<SalesCheckoutRepository>(
+      () => SalesCheckoutRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+        actorId: () async =>
+            sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
+      ),
+    )
+    ..registerLazySingleton<SalesPaymentRepository>(
+      () => SalesPaymentRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+        actorId: () async =>
+            sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
+      ),
+    )
+    ..registerLazySingleton<SalesOrderRepository>(
+      () => SalesOrderRepository(
         rpc: getIt<SupabaseRpc>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
         actorId: () async =>

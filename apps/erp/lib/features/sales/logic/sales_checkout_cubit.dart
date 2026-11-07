@@ -1,17 +1,21 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
-import '../../models/sales_order/sales_checkout_draft_args.dart';
-import '../../models/sales_order/sales_checkout_vm.dart';
-import '../../models/sales_order/sales_checkout_attempt_envelope.dart';
-import '../../support/sales_checkout_attempt_factory.dart';
-import '../../support/i_sales_active_store_context.dart';
-import 'sales_checkout_state.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/sales_checkout_errors.dart';
+import 'package:erp/features/sales/data/sales_checkout_repository.dart';
+import 'package:erp/features/sales/logic/sales_checkout_error_messages.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_checkout_draft_args.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_checkout_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_checkout_attempt_envelope.dart';
+import 'package:erp/features/sales/presentation/support/sales_checkout_attempt_factory.dart';
+import 'package:erp/features/sales/presentation/support/i_sales_active_store_context.dart';
+import 'package:erp/features/sales/logic/sales_checkout_state.dart';
 
 class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
   SalesCheckoutCubit({
     required this.args,
-    required this.salesModule,
+    required this.repository,
     required this.executionContext,
     required this.activeStoreContext,
     this.debounceDuration = const Duration(milliseconds: 250),
@@ -41,7 +45,7 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
        );
 
   final SalesCheckoutDraftArgs args;
-  final ISalesModule salesModule;
+  final SalesCheckoutRepository repository;
   final IExecutionContext executionContext;
   final ISalesActiveStoreContext activeStoreContext;
   final Duration debounceDuration;
@@ -223,21 +227,19 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
 
   Future<void> _executeAttempt(SalesCheckoutAttemptEnvelope envelope) async {
     try {
-      final result = await salesModule.executeCommandAsync<CheckoutResultDto>(
-        envelope.command,
-      );
+      final result = await repository.finalize(envelope.request);
       await _classifyResult(result, envelope);
-    } on SalesContractException catch (error) {
-      if (error.code == 'UNCERTAIN_RESULT') {
+    } on AppException catch (error) {
+      if (error.code == SalesCheckoutErrorCodes.uncertainResult) {
         await _recoverAttempt(envelope, automatic: true);
-      } else if (error.code == 'IDEMPOTENCY_CONFLICT') {
+      } else if (error.code == SalesCheckoutErrorCodes.idempotencyConflict) {
         emit(
           state.copyWith(
             attemptStatus: SalesCheckoutAttemptStatus.conflict,
             attemptErrorMessage: 'Yêu cầu hoàn tất xung đột. Vui lòng tải lại đơn.',
           ),
         );
-      } else if (error.code == 'STALE_VERSION') {
+      } else if (error.code == SalesCheckoutErrorCodes.staleVersion) {
         emit(
           state.copyWith(
             status: SalesCheckoutStatus.blocked,
@@ -297,8 +299,7 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
             attemptErrorMessage: 'Không thể hoàn tất đơn.',
           ),
         );
-      case CheckoutResultStatus.processing ||
-          CheckoutResultStatus.uncertain:
+      case CheckoutResultStatus.processing || CheckoutResultStatus.uncertain:
         await _recoverAttempt(envelope, automatic: true);
     }
   }
@@ -317,14 +318,10 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
     for (final interval in intervals) {
       await delay(interval);
       try {
-        final command = envelope.command;
-        final result = await salesModule.executeQueryAsync<CheckoutResultDto>(
-          GetCheckoutResultQuery(
-            tenantId: command.tenantId,
-            actorId: command.actorId,
-            idempotencyKey: command.idempotencyKey,
-            storeId: command.storeId,
-          ),
+        final request = envelope.request;
+        final result = await repository.getResult(
+          storeId: request.storeId,
+          idempotencyKey: request.idempotencyKey,
         );
         if (result.status == CheckoutResultStatus.succeeded) {
           emit(
@@ -340,8 +337,10 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
           await _classifyResult(result, envelope);
           return;
         }
-      } on SalesContractException catch (error) {
-        if (error.code != 'CHECKOUT_RESULT_NOT_FOUND' && error.code != 'DEPENDENCY_UNAVAILABLE') {
+      } on AppException catch (error) {
+        if (error.code != SalesCheckoutErrorCodes.checkoutResultNotFound &&
+            error.code != SalesCheckoutErrorCodes.dependencyUnavailable &&
+            error.code != SalesCheckoutErrorCodes.networkError) {
           emit(
             state.copyWith(
               attemptStatus: SalesCheckoutAttemptStatus.failure,
@@ -361,12 +360,13 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
     );
   }
 
-  String _attemptMessageFor(SalesContractException error) => switch (error.code) {
-    'PERMISSION_DENIED' => 'Bạn không còn quyền hoàn tất đơn.',
-    'DATA_SCOPE_DENIED' => 'Cửa hàng hiện tại không còn khả dụng.',
-    'CONTEXT_INVALID' => 'Ngữ cảnh thanh toán không hợp lệ.',
-    _ => error.message ?? 'Không thể hoàn tất đơn.',
-  };
+  String _attemptMessageFor(AppException error) => salesCheckoutErrorMessage(
+    error,
+    fallback: 'Không thể hoàn tất đơn.',
+    overrides: const {
+      SalesCheckoutErrorCodes.noPermission: 'Bạn không còn quyền hoàn tất đơn.',
+    },
+  );
 
   Future<bool> _runPrecheck({int? forRevision}) async {
     final revision = forRevision ?? state.requestRevision + 1;
@@ -385,23 +385,17 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
     final vm = state.vm;
 
     try {
-      final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
       final storeId = await activeStoreContext.requireActiveStoreId();
-      final result = await salesModule.executeQueryAsync<CheckoutPrecheckDto>(
-        PrecheckSalesOrderCheckoutQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          storeId: storeId,
-          customerId: args.customerId,
-          currencyCode: args.currencyCode,
-          paymentDueDate: vm.dueDate == null
-              ? null
-              : DateTime(vm.dueDate!.year, vm.dueDate!.month, vm.dueDate!.day),
-          lines: args.lines,
-          paymentIntents: _paymentIntents(vm),
-          expectedSourceVersion: args.expectedSourceVersion,
-        ),
+      final result = await repository.precheck(
+        storeId: storeId,
+        customerId: args.customerId,
+        currencyCode: args.currencyCode,
+        paymentDueDate: vm.dueDate == null
+            ? null
+            : DateTime(vm.dueDate!.year, vm.dueDate!.month, vm.dueDate!.day),
+        lines: args.lines,
+        paymentIntents: _paymentIntents(vm),
+        expectedSourceVersion: args.expectedSourceVersion,
       );
 
       if (isClosed || revision != state.requestRevision) return false;
@@ -459,15 +453,17 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
   }
 
   String _messageFor(Object error) {
-    if (error is SalesContractException) {
-      return switch (error.code) {
-        'DEPENDENCY_UNAVAILABLE' => 'Chưa thể kiểm tra điều kiện thanh toán. Vui lòng thử lại.',
-        'CHECKOUT_BLOCKED' => error.message ?? 'Đơn chưa đủ điều kiện thanh toán.',
-        'STALE_VERSION' => 'Dữ liệu đơn đã thay đổi. Vui lòng quay lại kiểm tra.',
-        'PERMISSION_DENIED' => 'Bạn không còn quyền kiểm tra thanh toán.',
-        _ => error.message ?? 'Không thể kiểm tra thanh toán.',
-      };
-    }
-    return 'Không thể kiểm tra thanh toán. Vui lòng thử lại.';
+    const unavailable = 'Chưa thể kiểm tra điều kiện thanh toán. Vui lòng thử lại.';
+    return salesCheckoutErrorMessage(
+      error,
+      fallback: 'Không thể kiểm tra thanh toán. Vui lòng thử lại.',
+      overrides: const {
+        SalesCheckoutErrorCodes.noPermission: 'Bạn không còn quyền kiểm tra thanh toán.',
+        SalesCheckoutErrorCodes.staleVersion:
+            'Dữ liệu đơn đã thay đổi. Vui lòng quay lại kiểm tra.',
+        SalesCheckoutErrorCodes.dependencyUnavailable: unavailable,
+        SalesCheckoutErrorCodes.networkError: unavailable,
+      },
+    );
   }
 }

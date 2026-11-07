@@ -2,7 +2,7 @@ import 'package:uuid/uuid.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../bloc/sales_order/sales_transaction_result_issue.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';
 import '../models/sales_receipt/sales_receipt_device_action.dart';
 import '../models/sales_receipt/sales_receipt_operation_state.dart';
 import 'sales_transaction_result_mapper.dart';

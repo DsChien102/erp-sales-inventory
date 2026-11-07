@@ -1,3 +1,5 @@
+import 'package:erp/features/sales/data/sales_checkout_repository.dart';
+import '../support/module_backed_sales_repositories.dart';
 import 'dart:async';
 
 import 'package:erp/core/session/session_controller.dart';
@@ -59,6 +61,9 @@ void main() {
     capturedExtra = null;
 
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
+    GetIt.instance.registerSingleton<SalesCheckoutRepository>(
+      ModuleBackedSalesCheckoutRepository(salesModule),
+    );
     GetIt.instance.registerSingleton<SalesDraftRepository>(FakeSalesDraftRepository());
     GetIt.instance.registerSingleton<AccountRepository>(accounts);
     GetIt.instance.registerSingleton<IExecutionContext>(
@@ -125,8 +130,7 @@ void main() {
       expect(args.commercialSnapshot.lines.single.unit.productUnitId, 'unit-live');
       expect(args.commercialSnapshot.lines.single.unit.unitName, 'Hop');
       final precheck = salesModule.queries.whereType<PrecheckSalesOrderCheckoutQuery>().single;
-      expect(precheck.tenantId, 'tenant-demo');
-      expect(precheck.actorId, 'user-demo');
+      // tenantId / actorId do repository tự lấy (8-A2 Q8), không còn đi qua orchestrator.
       expect(precheck.storeId, 'store-demo');
       expect(precheck.paymentIntents.single.method, SalesPaymentMethod.cash);
       expect(

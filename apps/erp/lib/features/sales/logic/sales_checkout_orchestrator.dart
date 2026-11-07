@@ -1,6 +1,7 @@
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:erp/features/iam/data/models/my_account.dart';
+import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_sales_application/application.dart';
@@ -13,7 +14,7 @@ abstract final class SalesCheckoutOrchestrator {
         final executionContext = GetIt.instance<IExecutionContext>();
         final session = GetIt.instance<SessionController>();
         final accounts = GetIt.instance<AccountRepository>();
-        final salesModule = GetIt.instance<ISalesModule>();
+        final repository = GetIt.instance<SalesCheckoutRepository>();
         final tenantId = (await executionContext.requireTenantId()).trim();
         final actorId = (await executionContext.requireUserId()).trim();
         final activeStoreId = (await session.requireActiveStoreId()).trim();
@@ -49,25 +50,21 @@ abstract final class SalesCheckoutOrchestrator {
           ),
         );
 
-        final precheck = await salesModule.executeQueryAsync<CheckoutPrecheckDto>(
-          PrecheckSalesOrderCheckoutQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            storeId: activeStoreId,
-            customerId: args.customerId,
-            currencyCode: args.currencyCode,
-            lines: args.lines,
-            paymentIntents: [
-              PaymentIntentInput(
-                method: SalesPaymentMethod.cash,
-                amount: MoneyDto(
-                  amountMinor: args.provisionalTotalAmountMinor,
-                  currencyCode: args.currencyCode,
-                ),
+        final precheck = await repository.precheck(
+          storeId: activeStoreId,
+          customerId: args.customerId,
+          currencyCode: args.currencyCode,
+          lines: args.lines,
+          paymentIntents: [
+            PaymentIntentInput(
+              method: SalesPaymentMethod.cash,
+              amount: MoneyDto(
+                amountMinor: args.provisionalTotalAmountMinor,
+                currencyCode: args.currencyCode,
               ),
-            ],
-            expectedSourceVersion: args.expectedSourceVersion,
-          ),
+            ),
+          ],
+          expectedSourceVersion: args.expectedSourceVersion,
         );
         if (!precheck.canFinalize || precheck.blockers.isNotEmpty) {
           final message = precheck.blockers.isNotEmpty
@@ -78,8 +75,7 @@ abstract final class SalesCheckoutOrchestrator {
         return SalesCheckoutPrepareReady(args);
       } catch (_) {
         return const SalesCheckoutPrepareFailed(
-          message:
-              'Không thể xác thực hoặc kiểm tra điều kiện thanh toán. Vui lòng thử lại.',
+          message: 'Không thể xác thực hoặc kiểm tra điều kiện thanh toán. Vui lòng thử lại.',
         );
       }
     };

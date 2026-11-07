@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:vet45_sales_application/application.dart';
 
-import '../../models/sales_receipt/sales_receipt_operation_state.dart';
-import 'sales_transaction_result_issue.dart';
+import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_operation_state.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';
 
-export '../../models/sales_receipt/sales_receipt_operation_state.dart';
-export 'sales_transaction_result_issue.dart';
+export 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_operation_state.dart';
+export 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';
 
 enum SalesTransactionResultStatus {
   initial,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../bloc/sales_order/sales_transaction_result_state.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
 import 'sales_amount_highlight_row.dart';
 
 class SalesResultPaymentSummaryCard extends StatelessWidget {

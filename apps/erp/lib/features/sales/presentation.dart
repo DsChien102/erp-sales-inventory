@@ -1,8 +1,8 @@
 library;
 
 // BLoC / Cubits
-export 'presentation/bloc/sales_order/sales_checkout_cubit.dart';
-export 'presentation/bloc/sales_order/sales_checkout_state.dart';
+export 'package:erp/features/sales/logic/sales_checkout_cubit.dart';
+export 'package:erp/features/sales/logic/sales_checkout_state.dart';
 export 'presentation/bloc/sales_order_draft/sales_checkout_prepare_result.dart';
 export 'presentation/bloc/sales_order_draft/sales_compose_cubit.dart';
 export 'presentation/bloc/sales_order_draft/sales_compose_state.dart';
@@ -23,8 +23,8 @@ export 'presentation/bloc/return_exchange_order/sales_return_exchange_settlement
 export 'presentation/bloc/return_exchange_order/sales_return_exchange_settlement_state.dart';
 export 'presentation/bloc/return_exchange_order/sales_return_exchange_detail_cubit.dart';
 export 'presentation/bloc/return_exchange_order/sales_return_exchange_detail_state.dart';
-export 'presentation/bloc/sales_order/sales_transaction_result_cubit.dart';
-export 'presentation/bloc/sales_order/sales_transaction_result_state.dart';
+export 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';
+export 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
 
 // ViewModels
 export 'presentation/models/sales_order/sales_checkout_draft_args.dart';
