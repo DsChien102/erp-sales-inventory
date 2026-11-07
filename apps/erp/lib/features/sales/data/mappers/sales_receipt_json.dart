@@ -1,6 +1,6 @@
 // ignore_for_file: use_null_aware_elements
 
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Dựng tham số + đọc JSON cho các RPC phiếu bán hàng của schema `sales`
 /// (chép từ SalesReceiptRpcMapper).

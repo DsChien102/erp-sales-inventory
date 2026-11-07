@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:erp/features/sales/presentation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart' as app;
+import 'package:erp/features/sales/data/models.dart' as app;
 import 'package:vet45_shared_application/application.dart';
 
 import '../../support/fake_return_exchange_repository.dart';

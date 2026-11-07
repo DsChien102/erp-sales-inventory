@@ -4,7 +4,7 @@ import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 abstract final class SalesCheckoutOrchestrator {

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/presentation.dart';
 import '../../support/fake_sales_checkout_repository.dart';

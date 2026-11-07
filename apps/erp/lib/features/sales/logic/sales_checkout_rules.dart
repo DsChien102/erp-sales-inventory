@@ -1,6 +1,6 @@
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/sales_checkout_errors.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Chép điều kiện + câu của FinalizeSalesOrderCommandValidator (bỏ kiểm tenantId / actorId).
 void checkFinalize({

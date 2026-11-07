@@ -3,7 +3,7 @@ import 'package:erp/features/sales/data/mappers/sales_cancellation_json.dart';
 import 'package:erp/features/sales/data/models/sales_cancellation_request.dart';
 import 'package:erp/features/sales/data/sales_cancellation_errors.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Repository xử lý tiền kiểm và huỷ đơn hàng bán (`sales.precheck_sales_order_cancellation`
 /// và `sales.confirm_sales_order_cancellation`).

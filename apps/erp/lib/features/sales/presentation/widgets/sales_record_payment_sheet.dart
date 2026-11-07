@@ -9,7 +9,7 @@ import 'package:erp/features/sales/logic/sales_record_payment_cubit.dart';
 import 'package:erp/features/sales/logic/sales_record_payment_state.dart';
 import 'package:erp/features/sales/presentation/support/i_sales_active_store_context.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 final class _SalesRecordPaymentActiveStoreAdapter implements ISalesActiveStoreContext {

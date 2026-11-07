@@ -1,6 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages
 
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// DTO mặc định cho test sales, giá trị chép từ factory fixture của module sales cũ
 /// (`modules/sales/application/lib/src/testing/`), thay cho nó khi module bị xoá.

@@ -11,7 +11,7 @@ import 'package:erp/features/sales/presentation.dart';
 import 'package:erp/features/sales/presentation/lookups/sales_pricing_lookup.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_sales_application/application.dart' as sales;
+import 'package:erp/features/sales/data/models.dart' as sales;
 
 void main() {
   late GetIt di;

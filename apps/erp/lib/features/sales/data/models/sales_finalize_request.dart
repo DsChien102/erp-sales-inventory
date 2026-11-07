@@ -1,4 +1,4 @@
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Thay FinalizeSalesOrderCommand trong app (không chứa tenantId / actorId).
 final class SalesFinalizeRequest {

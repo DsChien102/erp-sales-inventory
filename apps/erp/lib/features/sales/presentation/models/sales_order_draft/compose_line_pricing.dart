@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import '../shared/sales_pricing_models.dart';
 

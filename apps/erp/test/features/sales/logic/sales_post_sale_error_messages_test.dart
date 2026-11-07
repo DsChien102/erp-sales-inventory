@@ -1,7 +1,7 @@
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/logic/sales_post_sale_error_messages.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 void main() {
   group('salesPostSaleErrorMessage (Table A)', () {

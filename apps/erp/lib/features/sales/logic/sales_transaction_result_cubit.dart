@@ -9,7 +9,7 @@ import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
 import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_device_action.dart';
 import 'package:erp/features/sales/presentation/support/sales_transaction_result_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Loads the S13 result view from authoritative read contracts only.
 final class SalesTransactionResultCubit extends Cubit<SalesTransactionResultState> {

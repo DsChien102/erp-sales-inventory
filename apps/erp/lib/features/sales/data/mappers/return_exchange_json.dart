@@ -1,5 +1,5 @@
 import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 abstract final class ReturnExchangeJson {
   static const _precheckKeys = <String>{'allowed', 'sourceVersion', 'blockers'};

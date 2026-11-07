@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../../support/fake_return_exchange_repository.dart';

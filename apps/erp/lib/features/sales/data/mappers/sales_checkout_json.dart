@@ -1,5 +1,5 @@
 import 'package:erp/features/sales/data/models/sales_finalize_request.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Dựng tham số RPC + đọc JSON của precheck / finalize / get_checkout_result
 /// (chép từ CheckoutPrecheckRpcMapper). Trả DTO của `vet45_sales_application` (Q1).

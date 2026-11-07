@@ -4,7 +4,7 @@ import 'package:erp/features/sales/data/models/sales_record_payment.dart';
 import 'package:erp/features/sales/data/sales_order_read_errors.dart';
 import 'package:erp/features/sales/data/sales_payment_mutation_errors.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// 3 RPC thanh toán của schema `sales` (summary / settlement / transactions).
 class SalesPaymentRepository {

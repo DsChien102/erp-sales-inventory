@@ -1,5 +1,5 @@
 import 'package:erp/core/errors/app_exception.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 const Map<String, String> _errorMessages = {
   'NO_PERMISSION': 'Bạn không có quyền thực hiện thao tác này.',

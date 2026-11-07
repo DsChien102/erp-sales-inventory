@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Presentation row for SG-07. Enriched beyond frozen [SalesOrderDto] until
 /// list-projection CONTRACT is reopened.

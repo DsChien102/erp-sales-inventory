@@ -1,5 +1,5 @@
 import 'package:erp/features/sales/data/models/sales_record_payment.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Dựng tham số + đọc JSON của 3 RPC thanh toán (chép từ SalesOrderReadRpcMapper /
 /// SalesOrderInquiryRpcMapper). Summary dùng khoá `p_*`; settlement / transactions

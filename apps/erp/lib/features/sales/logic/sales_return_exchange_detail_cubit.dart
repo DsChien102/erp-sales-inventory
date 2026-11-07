@@ -5,7 +5,7 @@ import 'package:erp/features/sales/logic/sales_post_sale_error_messages.dart';
 import 'package:erp/features/sales/presentation/support/sales_return_exchange_attempt_factory.dart';
 import 'package:erp/features/sales/presentation/support/sales_return_exchange_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'sales_return_exchange_detail_state.dart';

@@ -3,7 +3,7 @@ import 'package:erp/features/sales/data/mappers/return_exchange_json.dart';
 import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:erp/features/sales/data/return_exchange_errors.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Repository xử lý nghiệp vụ đổi/trả đơn hàng (`sales` schema):
 /// - Tiền kiểm, lấy dòng có thể trả, xem trước giá hàng đổi

@@ -4,7 +4,7 @@ import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/presentation/models/sales_order/sales_order_actions_vm.dart';
 import 'package:erp/features/sales/presentation/models/sales_order/sales_order_history_vm.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_detail_mapper.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import 'sales_order_detail_state.dart';
 

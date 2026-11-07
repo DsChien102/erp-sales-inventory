@@ -3,7 +3,7 @@ import 'package:erp/features/sales/data/mappers/sales_order_get_json.dart';
 import 'package:erp/features/sales/data/mappers/sales_order_inquiry_json.dart';
 import 'package:erp/features/sales/data/sales_order_read_errors.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// RPC đọc đơn của schema `sales` (get / list / search / detail / timeline / returnSummary / availableActions / cancellation).
 class SalesOrderRepository {

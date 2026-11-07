@@ -8,7 +8,7 @@ import 'package:erp/features/sales/presentation.dart';
 import 'package:erp/features/sales/presentation/lookups/sales_partner_customer_lookup.dart';
 import 'package:erp/features/sales/presentation/orchestration/sales_draft_payload_fingerprint.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// ERP cross-module draft orchestrator (Catalog + Partner + Pricing → Sales).
 abstract final class SalesDraftBackend {

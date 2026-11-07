@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 enum SalesReturnExchangeOperation { start, update, discard, confirm }
 

@@ -1,5 +1,5 @@
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_sales_application/application.dart' as app;
+import 'package:erp/features/sales/data/models.dart' as app;
 
 import '../models/sales_order_cancellation/sales_order_cancellation_vm.dart';
 import '../models/sales_order/sales_order_detail_vm.dart';

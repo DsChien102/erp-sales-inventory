@@ -1,5 +1,5 @@
 import 'package:erp/features/sales/data/models/sales_cancellation_request.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 abstract final class SalesCancellationJson {
   static const _precheckKeys = <String>{

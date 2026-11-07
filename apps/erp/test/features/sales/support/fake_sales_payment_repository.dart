@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:erp/features/sales/data/models/sales_record_payment.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 class SalesPaymentCall {
   SalesPaymentCall({

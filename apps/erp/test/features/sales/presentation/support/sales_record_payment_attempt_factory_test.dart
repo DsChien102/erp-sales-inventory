@@ -6,7 +6,7 @@ import 'package:crypto/crypto.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/presentation/support/sales_record_payment_attempt_factory.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 void main() {
   group('SalesRecordPaymentAttemptFactory', () {

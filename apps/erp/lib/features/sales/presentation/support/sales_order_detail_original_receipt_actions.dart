@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import 'package:erp/features/sales/logic/sales_order_detail_cubit.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';

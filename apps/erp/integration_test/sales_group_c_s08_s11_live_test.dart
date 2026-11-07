@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/main.dart' as app;

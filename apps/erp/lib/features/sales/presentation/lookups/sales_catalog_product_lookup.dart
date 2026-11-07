@@ -3,7 +3,7 @@ import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/catalog/logic/catalog_error_messages.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/features/sales/presentation.dart';
 
 /// ERP boundary mapping Catalog-owned sellability into Sales presentation VMs.

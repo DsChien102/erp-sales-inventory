@@ -1,4 +1,4 @@
-import 'package:vet45_sales_application/application.dart' as app;
+import 'package:erp/features/sales/data/models.dart' as app;
 import 'package:erp/features/sales/presentation.dart';
 
 /// Static VMs / DTOs for the Sales presentation example catalog.

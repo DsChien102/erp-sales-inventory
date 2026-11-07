@@ -1,4 +1,4 @@
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import '../bloc/sales_order_draft/sales_compose_state.dart';
 import '../models/sales_order/sales_checkout_draft_args.dart';

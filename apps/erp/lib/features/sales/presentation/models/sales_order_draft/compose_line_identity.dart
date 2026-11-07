@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Identity + catalog anchor cho một dòng compose — không đổi sau khi thêm SP.
 final class ComposeLineIdentity extends Equatable {

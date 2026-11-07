@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_operation_state.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';

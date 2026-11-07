@@ -5,7 +5,7 @@ import 'package:erp/features/pricing/data/customer_price_rule_repository.dart';
 import 'package:erp/features/pricing/data/models.dart' as pricing;
 import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
 import 'package:erp/features/pricing/logic/pricing_error_messages.dart';
-import 'package:vet45_sales_application/application.dart' as sales;
+import 'package:erp/features/sales/data/models.dart' as sales;
 import 'package:erp/features/sales/presentation.dart';
 
 import 'sales_pricing_ports.dart';

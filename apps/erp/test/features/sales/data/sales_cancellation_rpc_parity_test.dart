@@ -7,7 +7,7 @@ import 'package:erp/features/sales/data/mappers/sales_cancellation_json.dart';
 import 'package:erp/features/sales/data/models/sales_cancellation_request.dart';
 import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import 'sales_post_sale_parity_expectations.dart';
 

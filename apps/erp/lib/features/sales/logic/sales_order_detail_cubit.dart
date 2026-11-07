@@ -21,7 +21,7 @@ import 'package:erp/features/sales/presentation/support/sales_order_detail_mappe
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {

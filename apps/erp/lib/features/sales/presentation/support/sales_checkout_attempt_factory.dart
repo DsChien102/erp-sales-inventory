@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:erp/features/sales/data/models/sales_finalize_request.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import '../models/sales_order/sales_checkout_attempt_envelope.dart';
 import '../models/sales_order/sales_checkout_draft_args.dart';

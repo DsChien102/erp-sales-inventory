@@ -4,7 +4,7 @@ import 'package:erp/features/sales/data/models/sales_finalize_request.dart';
 import 'package:erp/features/sales/data/sales_checkout_errors.dart';
 import 'package:erp/features/sales/logic/sales_checkout_rules.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// 3 RPC checkout của schema `sales`. Nhận / trả kiểu của `vet45_sales_application` (Q1).
 class SalesCheckoutRepository {

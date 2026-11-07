@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart' as app;
+import 'package:erp/features/sales/data/models.dart' as app;
 
 import '../../support/fake_sales_order_repository.dart';
 import '../../support/sales_contract_error.dart';

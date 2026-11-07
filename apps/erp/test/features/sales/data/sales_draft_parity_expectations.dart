@@ -2,7 +2,7 @@
 
 import 'package:erp/features/sales/data/models/sales_draft_list_page.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 const draftParityTenantId = 'tenant-1';
 const draftParityActorId = 'user-1';

@@ -1,6 +1,6 @@
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/sales_draft_errors.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 const _walkInCustomerId = 'cust-walk-in';
 

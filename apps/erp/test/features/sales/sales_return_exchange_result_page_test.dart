@@ -3,7 +3,7 @@ import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'support/fake_return_exchange_repository.dart';

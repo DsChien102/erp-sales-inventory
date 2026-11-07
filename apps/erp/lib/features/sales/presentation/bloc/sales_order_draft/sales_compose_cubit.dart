@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import '../../lookups/sales_pricing_ports.dart';
 import '../../models/sales_order_draft/sales_compose_customer_vm.dart';

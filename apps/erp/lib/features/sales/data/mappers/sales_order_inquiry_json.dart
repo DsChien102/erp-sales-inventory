@@ -1,5 +1,5 @@
 import 'package:erp/features/sales/data/mappers/sales_order_get_json.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Dựng tham số + đọc JSON cho các RPC tra cứu đơn của schema `sales`
 /// (chép từ SalesOrderInquiryRpcMapper, PostSaleActionsRpcMapper, SalesOrderCancellationRpcMapper).

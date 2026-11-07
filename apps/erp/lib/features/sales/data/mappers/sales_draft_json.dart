@@ -1,5 +1,5 @@
 import 'package:erp/features/sales/data/models/sales_draft_list_page.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Dựng tham số RPC + đọc JSON của 5 RPC nháp (chép từ SalesOrderDraftRpcMapper).
 /// Trả DTO của `vet45_sales_application` (Q1); 8-C chép kiểu.

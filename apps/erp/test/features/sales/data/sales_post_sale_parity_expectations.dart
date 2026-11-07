@@ -1,6 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages, use_null_aware_elements
 
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 const parityTenantId = 'tenant-1';
 const parityActorId = 'user-1';

@@ -6,7 +6,7 @@ import 'package:erp/features/sales/presentation/models/sales_order/sales_order_s
 import 'package:erp/features/sales/presentation/support/i_sales_active_store_context.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_list_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import 'sales_order_list_state.dart';
 

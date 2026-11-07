@@ -2,7 +2,7 @@
 
 import 'package:erp/features/sales/data/models/sales_draft_list_page.dart';
 import 'package:erp/features/sales/data/sales_draft_repository.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 class SalesDraftSaveCall {
   SalesDraftSaveCall({

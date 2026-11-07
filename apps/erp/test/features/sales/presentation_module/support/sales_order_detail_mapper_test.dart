@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart' as app;
+import 'package:erp/features/sales/data/models.dart' as app;
 import 'package:erp/features/sales/presentation/models/sales_order/sales_order_detail_vm.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_detail_mapper.dart';
 

@@ -2,7 +2,7 @@ import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/sales/data/mappers/sales_receipt_json.dart';
 import 'package:erp/features/sales/data/sales_receipt_errors.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// RPC phiếu bán hàng của schema `sales` (generate / get / getOriginal / recordPrinted / recordShared).
 class SalesReceiptRepository {

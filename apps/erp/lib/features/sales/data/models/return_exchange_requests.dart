@@ -1,4 +1,4 @@
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Yêu cầu khởi tạo phiếu đổi/trả.
 final class ReturnExchangeStartRequest {

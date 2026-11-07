@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/sales_checkout_errors.dart';

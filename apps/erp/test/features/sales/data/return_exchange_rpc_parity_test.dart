@@ -7,7 +7,7 @@ import 'package:erp/features/sales/data/mappers/return_exchange_json.dart';
 import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import 'sales_post_sale_parity_expectations.dart';
 

@@ -1,7 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:erp/core/errors/app_exception.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Lỗi hợp đồng sales như repository thật ném: `PERMISSION_DENIED` → `NO_PERMISSION`,
 /// `details['blockers']` (DTO hoặc map) → danh sách map `{code, message, field}`,

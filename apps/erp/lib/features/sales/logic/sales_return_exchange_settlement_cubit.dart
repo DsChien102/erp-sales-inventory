@@ -8,7 +8,7 @@ import 'package:erp/features/sales/presentation/support/sales_return_exchange_at
 import 'package:erp/features/sales/presentation/support/sales_return_exchange_mapper.dart';
 import 'package:erp/features/sales/presentation/support/sales_return_exchange_pricing_copy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'sales_return_exchange_settlement_state.dart';

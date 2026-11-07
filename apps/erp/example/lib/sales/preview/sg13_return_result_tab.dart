@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_sales_application/application.dart'
+import 'package:erp/features/sales/data/models.dart'
     hide SalesSettlementStatus, SalesOrderLifecycleStatus;
 import 'package:erp/features/sales/presentation.dart'
     hide SalesOrderLifecycleStatus;

@@ -1,4 +1,4 @@
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Dựng tham số + đọc JSON của `get_sales_order` (chép từ SalesOrderReadRpcMapper).
 /// 8-A3 mở rộng cho list / search / detail / timeline.

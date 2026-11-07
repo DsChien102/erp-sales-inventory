@@ -1,6 +1,6 @@
 import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Fake ReturnExchangeRepository dùng cho unit test cubit và view test.
 class FakeReturnExchangeRepository implements ReturnExchangeRepository {

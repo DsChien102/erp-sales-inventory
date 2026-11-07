@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import '../models/sales_order_draft/sales_compose_line_vm.dart';
 import '../models/shared/sales_pricing_models.dart';

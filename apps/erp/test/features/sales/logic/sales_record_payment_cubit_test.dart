@@ -7,7 +7,7 @@ import 'package:erp/features/sales/logic/sales_record_payment_state.dart';
 import 'package:erp/features/sales/presentation/support/i_sales_active_store_context.dart';
 import 'package:erp/features/sales/presentation/support/sales_record_payment_attempt_factory.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../support/fake_sales_payment_repository.dart';

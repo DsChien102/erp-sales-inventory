@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 /// Một đơn vị bán hợp lệ thuộc sản phẩm (Catalog snapshot mirror cho FE shell).
 final class SalesProductUnitVm extends Equatable {

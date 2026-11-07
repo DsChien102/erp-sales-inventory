@@ -1,7 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 class FakeSalesReceiptRepository implements SalesReceiptRepository {
   SalesReceiptDto? generateResult;

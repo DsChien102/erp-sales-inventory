@@ -1,4 +1,4 @@
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/features/sales/presentation.dart';
 
 MoneyDto composeTestMoney(int amountMinor, {String currencyCode = 'VND'}) =>

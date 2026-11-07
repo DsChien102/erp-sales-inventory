@@ -26,7 +26,7 @@ import 'package:erp/features/pricing/data/models.dart' as pricing;
 import 'package:erp/features/pricing/data/sales_pricing_repository.dart';
 import '../support/recording_sales_pricing_repository.dart';
 import 'package:erp/features/sales/data/sales_draft_repository.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import '../support/fake_sales_draft_repository.dart';
 import 'package:erp/features/sales/presentation.dart';

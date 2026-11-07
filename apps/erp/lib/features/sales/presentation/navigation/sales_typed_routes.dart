@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import '../models/sales_order/sales_checkout_draft_args.dart';
 import '../models/sales_order/sales_checkout_result_args.dart';

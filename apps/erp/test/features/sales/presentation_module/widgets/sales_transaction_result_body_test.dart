@@ -14,7 +14,7 @@ import 'package:vet45_einvoice_application/testing.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_einvoice_presentation/presentation.dart'
     hide InvoiceDocumentsActionSheet, PostIssueEInvoiceActionSheet;
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';

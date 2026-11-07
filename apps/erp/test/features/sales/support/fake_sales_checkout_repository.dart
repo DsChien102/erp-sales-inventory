@@ -2,7 +2,7 @@
 
 import 'package:erp/features/sales/data/models/sales_finalize_request.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 class SalesPrecheckCall {
   SalesPrecheckCall({

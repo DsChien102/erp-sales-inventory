@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 import '../models/sales_receipt/sales_receipt_device_action.dart';
 import '../support/sales_receipt_pdf_generator.dart';

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:erp/features/sales/data/models/sales_record_payment.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/data/models.dart';
 
 enum SalesRecordPaymentStatus { editing, submitting, failure, succeeded }
 
