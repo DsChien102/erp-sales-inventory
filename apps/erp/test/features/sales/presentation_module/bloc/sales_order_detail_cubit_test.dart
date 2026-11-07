@@ -1,37 +1,38 @@
 import 'dart:async';
 
-import 'package:erp/features/sales/data/sales_order_repository.dart';
-import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart' as app;
 import 'package:vet45_shared_application/application.dart';
 
-import '../../support/module_backed_sales_repositories.dart';
+import '../../support/fake_return_exchange_repository.dart';
+import '../../support/fake_sales_cancellation_repository.dart';
+import '../../support/fake_sales_order_repository.dart';
+import '../../support/fake_sales_payment_repository.dart';
+import '../../support/fake_sales_receipt_repository.dart';
+import '../../support/sales_contract_error.dart';
 
 void main() {
   group('SalesOrderDetailCubit S16 core', () {
     test('load resolves tenant and actor and dispatches one GetSalesOrderDetailQuery', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
       await cubit.load();
       await _drain();
 
-      final detailQueries = module.queries.whereType<app.GetSalesOrderDetailQuery>();
+      final detailQueries = module.orders.detailCalls;
       expect(detailQueries, hasLength(1));
       final query = detailQueries.single;
-      expect(query.tenantId, 'tenant-1');
-      expect(query.actorId, 'actor-1');
-      expect(query.salesOrderId, 'order-1');
+      expect(query, 'order-1');
       expect(cubit.state.status, SalesOrderDetailStatus.loaded);
       expect(cubit.state.sourceVersion, 7);
       expect(cubit.state.core?.orderId, 'order-1');
     });
 
     test('exposes sourceVersion equal to dto.order.version', () async {
-      final module = _RecordingSalesModule(detail: _detail(version: 11));
+      final module = _Repos(detail: _detail(version: 11));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -43,7 +44,7 @@ void main() {
     });
 
     test('permission denied maps to blocked and does not emit loaded core', () async {
-      final module = _ContractErrorModule('PERMISSION_DENIED');
+      final module = _Repos.failing(salesContractError('PERMISSION_DENIED'));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -55,7 +56,7 @@ void main() {
     });
 
     test('permission denied with null message does not surface raw contract code', () async {
-      final module = _ContractErrorModule('PERMISSION_DENIED');
+      final module = _Repos.failing(salesContractError('PERMISSION_DENIED'));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -67,9 +68,9 @@ void main() {
     });
 
     test('query failure clears sourceVersion and currentReceiptId', () async {
-      final module = _SucceedThenFailModule(
+      final module = _Repos.succeedThenFail(
         detail: _detail(version: 7),
-        error: const app.SalesContractException('PERMISSION_DENIED'),
+        error: salesContractError('PERMISSION_DENIED'),
       );
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
@@ -88,7 +89,7 @@ void main() {
     });
 
     test('data scope denied maps to blocked', () async {
-      final module = _ContractErrorModule('DATA_SCOPE_DENIED');
+      final module = _Repos.failing(salesContractError('DATA_SCOPE_DENIED'));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -99,7 +100,7 @@ void main() {
     });
 
     test('not found maps to notFound', () async {
-      final module = _ContractErrorModule('NOT_FOUND');
+      final module = _Repos.failing(salesContractError('NOT_FOUND'));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -110,7 +111,7 @@ void main() {
     });
 
     test('projection pending maps to retryable pending', () async {
-      final module = _ContractErrorModule('PROJECTION_PENDING');
+      final module = _Repos.failing(salesContractError('PROJECTION_PENDING'));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -121,7 +122,7 @@ void main() {
     });
 
     test('transport error maps to error', () async {
-      final module = _ContractErrorModule('TRANSPORT_ERROR', message: 'network down');
+      final module = _Repos.failing(salesContractError('TRANSPORT_ERROR', message: 'network down'));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -133,7 +134,7 @@ void main() {
     });
 
     test('malformed contract maps to error', () async {
-      final module = _ThrowingModule(const FormatException('malformed detail payload'));
+      final module = _Repos.failing(const FormatException('malformed detail payload'));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -144,7 +145,7 @@ void main() {
     });
 
     test('second refresh generation suppresses first response', () async {
-      final module = _StaleAwareModule();
+      final module = _Repos.stale();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -169,7 +170,7 @@ void main() {
 
   group('SalesOrderDetailCubit S17–S18 sections', () {
     test('after core success dispatches six dependent queries with shared sourceVersion', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -179,39 +180,23 @@ void main() {
       expect(cubit.state.status, SalesOrderDetailStatus.loaded);
       expect(cubit.state.sourceVersion, 7);
 
-      final paymentSummary = module.queries
-          .whereType<app.GetSalesOrderPaymentSummaryQuery>()
-          .single;
-      final settlement = module.queries.whereType<app.GetSalesOrderSettlementQuery>().single;
-      final transactions = module.queries
-          .whereType<app.GetSalesOrderPaymentTransactionsQuery>()
-          .single;
-      final timeline = module.queries.whereType<app.GetSalesOrderTimelineQuery>().single;
-      final returns = module.queries.whereType<app.GetSalesOrderReturnSummaryQuery>().single;
-      final actions = module.queries.whereType<app.GetAvailablePostSaleActionsQuery>().single;
+      final paymentSummary = module.payments.summaryCalls.single;
+      final settlement = module.payments.settlementCalls.single;
+      final transactions = module.payments.transactionsCalls.single;
+      final timeline = module.orders.timelineCalls.single;
+      final returns = module.orders.returnSummaryCalls.single;
+      final actions = module.orders.actionsCalls.single;
 
-      expect(paymentSummary.tenantId, 'tenant-1');
-      expect(paymentSummary.actorId, 'actor-1');
       expect(paymentSummary.salesOrderId, 'order-1');
       expect(paymentSummary.expectedSourceVersion, 7);
-      expect(settlement.tenantId, 'tenant-1');
-      expect(settlement.actorId, 'actor-1');
       expect(settlement.salesOrderId, 'order-1');
       expect(settlement.expectedSourceVersion, 7);
-      expect(transactions.tenantId, 'tenant-1');
-      expect(transactions.actorId, 'actor-1');
       expect(transactions.salesOrderId, 'order-1');
       expect(transactions.expectedSourceVersion, 7);
-      expect(timeline.tenantId, 'tenant-1');
-      expect(timeline.actorId, 'actor-1');
       expect(timeline.salesOrderId, 'order-1');
       expect(timeline.expectedSourceVersion, 7);
-      expect(returns.tenantId, 'tenant-1');
-      expect(returns.actorId, 'actor-1');
       expect(returns.salesOrderId, 'order-1');
       expect(returns.expectedSourceVersion, 7);
-      expect(actions.tenantId, 'tenant-1');
-      expect(actions.actorId, 'actor-1');
       expect(actions.salesOrderId, 'order-1');
       expect(actions.expectedSourceVersion, 7);
 
@@ -228,7 +213,7 @@ void main() {
     });
 
     test('does not await dependents before emitting core loaded', () async {
-      final module = _DeferredSectionsModule();
+      final module = _Repos.deferredSections();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -254,8 +239,8 @@ void main() {
     });
 
     test('partial payment failure keeps core and loads history', () async {
-      final module = _RecordingSalesModule(
-        paymentSummaryError: const app.SalesContractException(
+      final module = _Repos(
+        paymentSummaryError: salesContractError(
           'TRANSPORT_ERROR',
           message: 'pay down',
         ),
@@ -276,8 +261,8 @@ void main() {
     });
 
     test('payment_section_permission_denied_is_blocked', () async {
-      final module = _RecordingSalesModule(
-        settlementError: const app.SalesContractException('PERMISSION_DENIED'),
+      final module = _Repos(
+        settlementError: salesContractError('PERMISSION_DENIED'),
       );
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
@@ -291,8 +276,8 @@ void main() {
     });
 
     test('payment_section_projection_pending', () async {
-      final module = _RecordingSalesModule(
-        paymentSummaryError: const app.SalesContractException('PROJECTION_PENDING'),
+      final module = _Repos(
+        paymentSummaryError: salesContractError('PROJECTION_PENDING'),
       );
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
@@ -304,8 +289,8 @@ void main() {
     });
 
     test('payment_section_error_never_shows_server_message', () async {
-      final module = _RecordingSalesModule(
-        settlementError: const app.SalesContractException(
+      final module = _Repos(
+        settlementError: salesContractError(
           'DEPENDENCY_UNAVAILABLE',
           message: 'Sales order read failed.',
         ),
@@ -321,8 +306,8 @@ void main() {
     });
 
     test('per-section permission blocked does not clear core', () async {
-      final module = _RecordingSalesModule(
-        timelineError: const app.SalesContractException('PERMISSION_DENIED'),
+      final module = _Repos(
+        timelineError: salesContractError('PERMISSION_DENIED'),
       );
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
@@ -337,8 +322,8 @@ void main() {
     });
 
     test('section projection pending is retryable without clearing core', () async {
-      final module = _RecordingSalesModule(
-        settlementError: const app.SalesContractException('PROJECTION_PENDING'),
+      final module = _Repos(
+        settlementError: salesContractError('PROJECTION_PENDING'),
       );
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
@@ -352,8 +337,8 @@ void main() {
     });
 
     test('retryPaymentSection reloads only payment queries', () async {
-      final module = _RecordingSalesModule(
-        paymentSummaryError: const app.SalesContractException(
+      final module = _Repos(
+        paymentSummaryError: salesContractError(
           'TRANSPORT_ERROR',
           message: 'pay down',
         ),
@@ -365,22 +350,24 @@ void main() {
       await _drain();
       expect(cubit.state.paymentStatus, SalesOrderDetailSectionStatus.error);
 
-      module.paymentSummaryError = null;
-      final before = module.queries.length;
+      module.payments.summaryError = null;
+      final beforeSummary = module.payments.summaryCalls.length;
+      final beforeSettlement = module.payments.settlementCalls.length;
+      final beforeTransactions = module.payments.transactionsCalls.length;
+      final beforeTimeline = module.orders.timelineCalls.length;
       await cubit.retryPaymentSection();
       await _drain();
 
-      final newQueries = module.queries.skip(before).toList();
-      expect(newQueries.whereType<app.GetSalesOrderPaymentSummaryQuery>(), hasLength(1));
-      expect(newQueries.whereType<app.GetSalesOrderSettlementQuery>(), hasLength(1));
-      expect(newQueries.whereType<app.GetSalesOrderPaymentTransactionsQuery>(), hasLength(1));
-      expect(newQueries.whereType<app.GetSalesOrderTimelineQuery>(), isEmpty);
+      expect(module.payments.summaryCalls.skip(beforeSummary), hasLength(1));
+      expect(module.payments.settlementCalls.skip(beforeSettlement), hasLength(1));
+      expect(module.payments.transactionsCalls.skip(beforeTransactions), hasLength(1));
+      expect(module.orders.timelineCalls.skip(beforeTimeline), isEmpty);
       expect(cubit.state.paymentStatus, SalesOrderDetailSectionStatus.loaded);
       expect(cubit.state.historyStatus, SalesOrderDetailSectionStatus.loaded);
     });
 
     test('transaction load-more error retains existing rows', () async {
-      final module = _RecordingSalesModule(
+      final module = _Repos(
         transactions: _transactionsPage(
           items: [_cashTx(400000)],
           hasMore: true,
@@ -395,7 +382,7 @@ void main() {
       expect(cubit.state.payment?.transactions, hasLength(1));
       expect(cubit.state.payment?.hasMoreTransactions, isTrue);
 
-      module.transactionsError = const app.SalesContractException(
+      module.payments.transactionsError = salesContractError(
         'TRANSPORT_ERROR',
         message: 'page 2 failed',
       );
@@ -408,7 +395,7 @@ void main() {
     });
 
     test('source-version refresh invalidates dependent section results', () async {
-      final module = _VersionedRefreshModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -418,13 +405,13 @@ void main() {
       expect(cubit.state.payment?.paidCashAmountMinor, 400000);
       expect(cubit.state.history?.timeline.single.title, contains('Xác nhận'));
 
-      module.nextDetail = _detail(version: 8);
-      module.nextPaymentSummary = _paymentSummary(paid: 800000, outstanding: 450000);
-      module.nextTransactions = _transactionsPage(
+      module.orders.detailResult = _detail(version: 8);
+      module.payments.summaryResult = _paymentSummary(paid: 800000, outstanding: 450000);
+      module.payments.transactionsResult = _transactionsPage(
         items: [_cashTx(800000)],
         hasMore: false,
       );
-      module.nextTimeline = _timeline(
+      module.orders.timelineResult = _timeline(
         entries: [
           app.SalesOrderTimelineEntryDto(
             eventId: 'event-2',
@@ -445,16 +432,16 @@ void main() {
       expect(cubit.state.payment?.paidCashAmountMinor, 800000);
       expect(cubit.state.history?.timeline.single.description, 'Thanh toán bổ sung');
 
-      final paymentQueries = module.queries.whereType<app.GetSalesOrderPaymentSummaryQuery>();
+      final paymentQueries = module.payments.summaryCalls;
       expect(paymentQueries.last.expectedSourceVersion, 8);
-      final timelineQueries = module.queries.whereType<app.GetSalesOrderTimelineQuery>();
+      final timelineQueries = module.orders.timelineCalls;
       expect(timelineQueries.last.expectedSourceVersion, 8);
     });
   });
 
   group('SalesOrderDetailCubit S19 receipt', () {
     test('loads known receipt via GetSalesReceiptQuery with source version', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -464,7 +451,7 @@ void main() {
 
       await cubit.ensureReceipt();
 
-      final queries = module.queries.whereType<app.GetSalesReceiptQuery>();
+      final queries = module.receipts.getCalls;
       expect(queries, hasLength(1));
       expect(queries.single.receiptId, 'receipt-1');
       expect(queries.single.expectedSourceVersion, 7);
@@ -476,7 +463,7 @@ void main() {
     });
 
     test('generates receipt with source version and idempotency when no receipt id', () async {
-      final module = _RecordingSalesModule(detail: _detail(currentReceiptId: null));
+      final module = _Repos(detail: _detail(currentReceiptId: null));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -486,18 +473,18 @@ void main() {
 
       await cubit.ensureReceipt();
 
-      expect(module.queries.whereType<app.GetSalesReceiptQuery>(), isEmpty);
-      expect(module.commands.whereType<app.GenerateSalesReceiptCommand>(), hasLength(1));
-      final command = module.commands.whereType<app.GenerateSalesReceiptCommand>().single;
+      expect(module.receipts.getCalls, isEmpty);
+      expect(module.receipts.generateCalls, hasLength(1));
+      final command = module.receipts.generateCalls.single;
       expect(command.salesOrderId, 'order-1');
       expect(command.expectedVersion, 7);
-      expect(command.idempotencyKey, 'sales-receipt:tenant-1:order-1:v7');
+      expect(_generateKey(command), 'sales-receipt:tenant-1:order-1:v7');
       expect(cubit.state.receipt.status, SalesReceiptOperationStatus.ready);
       expect(cubit.state.currentReceiptId, 'receipt-1');
     });
 
     test('viewReceipt returns ready typed receipt for route extra', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -514,7 +501,7 @@ void main() {
     });
 
     test('viewOriginalReceipt reads the as-sold receipt without the stored receipt flow', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
       await cubit.load();
@@ -522,17 +509,15 @@ void main() {
 
       final document = await cubit.viewOriginalReceipt();
 
-      final query = module.queries.whereType<app.GetSalesOrderOriginalReceiptQuery>().single;
-      expect(query.salesOrderId, 'order-1');
-      expect(query.tenantId, 'tenant-1');
-      expect(query.actorId, 'actor-1');
+      final query = module.receipts.originalCalls.single;
+      expect(query, 'order-1');
       expect(document.receiptNumber, _receipt().document.receiptNumber);
-      expect(module.queries.whereType<app.GetSalesReceiptQuery>(), isEmpty);
+      expect(module.receipts.getCalls, isEmpty);
       expect(module.commands, isEmpty);
     });
 
     test('prints on the device before recording receipt activity', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
       final events = <String>[];
@@ -545,12 +530,12 @@ void main() {
       });
 
       expect(events, ['device:PBH-20260812-0129']);
-      expect(module.commands.whereType<app.RecordSalesReceiptPrintedCommand>(), hasLength(1));
+      expect(module.receipts.printedCalls, hasLength(1));
       expect(cubit.state.receipt.status, SalesReceiptOperationStatus.ready);
     });
 
     test('shares on the device before recording receipt activity', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
       final events = <String>[];
@@ -561,11 +546,11 @@ void main() {
       await cubit.shareReceipt((_) async => events.add('device:share'));
 
       expect(events, ['device:share']);
-      expect(module.commands.whereType<app.RecordSalesReceiptSharedCommand>(), hasLength(1));
+      expect(module.receipts.sharedCalls, hasLength(1));
     });
 
     test('device failure sends no audit command and retains receipt', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -574,7 +559,7 @@ void main() {
       await cubit.ensureReceipt();
       await cubit.printReceipt((_) => Future<void>.error(Exception('printer unavailable')));
 
-      expect(module.commands.whereType<app.RecordSalesReceiptPrintedCommand>(), isEmpty);
+      expect(module.receipts.printedCalls, isEmpty);
       expect(cubit.state.receipt.status, SalesReceiptOperationStatus.error);
       expect(cubit.state.receipt.issue, SalesTransactionResultIssue.transportFailure);
       expect(cubit.state.receipt.document.receiptNumber, 'PBH-20260812-0129');
@@ -583,8 +568,8 @@ void main() {
     });
 
     test('audit failure produces activity warning and retains receipt', () async {
-      final module = _RecordingSalesModule(
-        printedResponse: _Failure(Exception('audit unavailable')),
+      final module = _Repos(
+        printedError: Exception('audit unavailable'),
       );
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
@@ -602,8 +587,8 @@ void main() {
     });
 
     test('permission and projection receipt errors stay in receipt section', () async {
-      final permissionModule = _RecordingSalesModule(
-        getReceiptResponse: const _Failure(app.SalesContractException('PERMISSION_DENIED')),
+      final permissionModule = _Repos(
+        getReceiptError: salesContractError('PERMISSION_DENIED'),
       );
       final permissionCubit = _buildCubit(module: permissionModule);
       addTearDown(permissionCubit.close);
@@ -618,9 +603,9 @@ void main() {
       expect(permissionCubit.state.receipt.issue, SalesTransactionResultIssue.permissionDenied);
       expect(permissionCubit.state.receiptStatus, SalesOrderDetailSectionStatus.blocked);
 
-      final projectionModule = _RecordingSalesModule(
+      final projectionModule = _Repos(
         detail: _detail(currentReceiptId: null),
-        generateResponse: const _Failure(app.SalesContractException('PROJECTION_PENDING')),
+        generateError: salesContractError('PROJECTION_PENDING'),
       );
       final projectionCubit = _buildCubit(module: projectionModule);
       addTearDown(projectionCubit.close);
@@ -633,10 +618,8 @@ void main() {
       expect(projectionCubit.state.receipt.issue, SalesTransactionResultIssue.projectionPending);
       expect(projectionCubit.state.receiptStatus, SalesOrderDetailSectionStatus.projectionPending);
 
-      final dependencyModule = _RecordingSalesModule(
-        getReceiptResponse: const _Failure(
-          app.SalesContractException('DEPENDENCY_UNAVAILABLE'),
-        ),
+      final dependencyModule = _Repos(
+        getReceiptError: salesContractError('DEPENDENCY_UNAVAILABLE'),
       );
       final dependencyCubit = _buildCubit(module: dependencyModule);
       addTearDown(dependencyCubit.close);
@@ -654,7 +637,7 @@ void main() {
     });
 
     test('refresh source version invalidates stale receipt', () async {
-      final module = _VersionedRefreshModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -664,7 +647,7 @@ void main() {
       expect(cubit.state.receipt.status, SalesReceiptOperationStatus.ready);
       expect(cubit.state.sourceVersion, 7);
 
-      module.nextDetail = _detail(version: 8, currentReceiptId: 'receipt-2');
+      module.orders.detailResult = _detail(version: 8, currentReceiptId: 'receipt-2');
       await cubit.refresh();
       await _drain();
 
@@ -676,7 +659,7 @@ void main() {
     });
 
     test('refresh drops in-flight receipt so stale result does not land', () async {
-      final module = _DeferredReceiptModule();
+      final module = _Repos.deferredReceipt();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -689,7 +672,7 @@ void main() {
       await module.receiptStarted.future;
       expect(cubit.state.receipt.status, SalesReceiptOperationStatus.generating);
 
-      module.nextDetail = _detail(version: 8, currentReceiptId: 'receipt-2');
+      module.orders.detailResult = _detail(version: 8, currentReceiptId: 'receipt-2');
       await cubit.refresh();
       await _drain();
 
@@ -715,7 +698,7 @@ void main() {
 
   group('SalesOrderDetailCubit S21 post-sale actions', () {
     test('available actions loads with expectedSourceVersion from DTO flags', () async {
-      final module = _RecordingSalesModule(
+      final module = _Repos(
         actions: const app.AvailablePostSaleActionsDto(
           canCancel: false,
           canReturnExchange: true,
@@ -727,7 +710,7 @@ void main() {
       await cubit.load();
       await _drain();
 
-      final query = module.queries.whereType<app.GetAvailablePostSaleActionsQuery>().single;
+      final query = module.orders.actionsCalls.single;
       expect(query.expectedSourceVersion, 7);
       expect(cubit.state.actionsStatus, SalesOrderDetailSectionStatus.loaded);
       expect(cubit.state.actions?.canCancel, isFalse);
@@ -738,7 +721,7 @@ void main() {
     });
 
     test('cancelled core still dispatches available-actions query', () async {
-      final module = _RecordingSalesModule(
+      final module = _Repos(
         detail: _detail(lifecycleStatus: app.SalesOrderLifecycleStatus.cancelled),
         actions: const app.AvailablePostSaleActionsDto(
           canCancel: false,
@@ -752,13 +735,13 @@ void main() {
       await _drain();
 
       expect(cubit.state.core?.isCancelled, isTrue);
-      expect(module.queries.whereType<app.GetAvailablePostSaleActionsQuery>(), hasLength(1));
+      expect(module.orders.actionsCalls, hasLength(1));
       expect(cubit.state.actions?.canCancel, isFalse);
       expect(cubit.state.actions?.canReturnExchange, isFalse);
     });
 
     test('S27 cancelled order loads cancellation section from authoritative detail', () async {
-      final module = _RecordingSalesModule(
+      final module = _Repos(
         detail: _detail(lifecycleStatus: app.SalesOrderLifecycleStatus.cancelled),
       );
       final cubit = _buildCubit(module: module);
@@ -767,7 +750,7 @@ void main() {
       await cubit.load();
       await _drain();
 
-      final query = module.queries.whereType<app.GetSalesOrderCancellationQuery>().single;
+      final query = module.orders.cancellationCalls.single;
       expect(query.expectedSourceVersion, cubit.state.sourceVersion);
       expect(cubit.state.cancellationStatus, SalesOrderDetailSectionStatus.loaded);
       expect(cubit.state.cancellation?.cancellationId, 'cancel-9');
@@ -778,7 +761,7 @@ void main() {
     });
 
     test('S27 non-cancelled order does not query cancellation', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -786,16 +769,16 @@ void main() {
       await _drain();
 
       expect(
-        module.queries.whereType<app.GetSalesOrderCancellationQuery>(),
+        module.orders.cancellationCalls,
         isEmpty,
       );
       expect(cubit.state.cancellationStatus, SalesOrderDetailSectionStatus.idle);
     });
 
     test('S27 NOT_FOUND becomes projection-pending without discarding core', () async {
-      final module = _RecordingSalesModule(
+      final module = _Repos(
         detail: _detail(lifecycleStatus: app.SalesOrderLifecycleStatus.cancelled),
-      )..cancellationDetailError = const app.SalesContractException('NOT_FOUND');
+      )..orders.cancellationError = salesContractError('NOT_FOUND');
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -811,25 +794,25 @@ void main() {
     });
 
     test('requestCancel dispatches PrecheckSalesOrderCancellationQuery', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
       await cubit.load();
       await _drain();
-      final before = module.queries.length;
+      final before = module.cancellations.precheckCalls.length;
 
       final intent = await cubit.requestCancel();
 
       expect(intent, SalesPostSaleNavigationIntent.cancel);
       expect(
-        module.queries.skip(before).whereType<app.PrecheckSalesOrderCancellationQuery>(),
+        module.cancellations.precheckCalls.skip(before),
         hasLength(1),
       );
     });
 
     test('confirmCancellation submits ConfirmSalesOrderCancellationCommand', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(
         module: module,
         cancellationAttemptFactory: SalesOrderCancellationAttemptFactory(
@@ -844,15 +827,15 @@ void main() {
       final error = await cubit.confirmCancellation(note: 'Khách đổi ý');
 
       expect(error, isNull);
-      final command = module.commands.whereType<app.ConfirmSalesOrderCancellationCommand>().single;
+      final command = module.cancellations.confirmCalls.single;
       expect(command.salesOrderId, 'order-1');
-      expect(command.reason.reasonText, 'Khách đổi ý');
-      expect(command.expectedVersion, 7);
+      expect(command.reasonText, 'Khách đổi ý');
+      expect(command.expectedOrderVersion, 7);
       expect(command.expectedSettlementVersion, 1);
     });
 
     test('confirmCancellation accepts an empty reason', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(
         module: module,
         cancellationAttemptFactory: SalesOrderCancellationAttemptFactory(
@@ -867,13 +850,13 @@ void main() {
       final error = await cubit.confirmCancellation(note: '  ');
 
       expect(error, isNull);
-      final command = module.commands.whereType<app.ConfirmSalesOrderCancellationCommand>().single;
+      final command = module.cancellations.confirmCalls.single;
 
-      expect(command.reason.reasonText, '');
+      expect(command.reasonText, '');
     });
 
     test('confirmCancellation returns blocker message when precheck denies', () async {
-      final module = _RecordingSalesModule(
+      final module = _Repos(
         cancellationPrecheck: app.CancellationPrecheckDto(
           allowed: false,
           sourceVersion: 7,
@@ -895,12 +878,12 @@ void main() {
       final error = await cubit.confirmCancellation(note: '');
 
       expect(error, 'Đơn đã có thanh toán, vui lòng đổi/trả');
-      expect(module.commands.whereType<app.ConfirmSalesOrderCancellationCommand>(), isEmpty);
+      expect(module.cancellations.confirmCalls, isEmpty);
     });
 
     test('confirmCancellation returns message when command fails', () async {
-      final module = _RecordingSalesModule(
-        cancellationConfirmError: const app.SalesContractException(
+      final module = _Repos(
+        cancellationConfirmError: salesContractError(
           'CANCELLATION_BLOCKED',
           message: 'Không thể huỷ đơn này.',
         ),
@@ -922,25 +905,25 @@ void main() {
     });
 
     test('requestReturnExchange dispatches PrecheckReturnExchangeQuery', () async {
-      final module = _RecordingSalesModule();
+      final module = _Repos();
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
       await cubit.load();
       await _drain();
-      final before = module.queries.length;
+      final before = module.returnExchange.precheckCalls.length;
 
       final intent = await cubit.requestReturnExchange();
 
       expect(intent, SalesPostSaleNavigationIntent.returnExchange);
       expect(
-        module.queries.skip(before).whereType<app.PrecheckReturnExchangeQuery>(),
+        module.returnExchange.precheckCalls.skip(before),
         hasLength(1),
       );
     });
 
     test('blocked cancel precheck returns no intent and exposes typed messages', () async {
-      final module = _RecordingSalesModule(
+      final module = _Repos(
         cancellationPrecheck: app.CancellationPrecheckDto(
           allowed: false,
           sourceVersion: 7,
@@ -967,7 +950,7 @@ void main() {
     });
 
     test('post_sale_cancel_blocked_localized', () async {
-      final module = _RecordingSalesModule(
+      final module = _Repos(
         cancellationPrecheck: app.CancellationPrecheckDto(
           allowed: false,
           sourceVersion: 7,
@@ -992,8 +975,8 @@ void main() {
     });
 
     test('post_sale_precheck_error_never_shows_server_message', () async {
-      final module = _RecordingSalesModule(
-        cancellationPrecheckError: const app.SalesContractException(
+      final module = _Repos(
+        cancellationPrecheckError: salesContractError(
           'SYSTEM_ERROR',
           message: 'Internal DB deadlock',
         ),
@@ -1014,7 +997,7 @@ void main() {
     });
 
     test('confirm_cancellation_blocked_localized', () async {
-      final module = _RecordingSalesModule(
+      final module = _Repos(
         cancellationPrecheck: app.CancellationPrecheckDto(
           allowed: false,
           sourceVersion: 7,
@@ -1038,8 +1021,8 @@ void main() {
     });
 
     test('confirm_cancellation_error_uses_fallback', () async {
-      final module = _RecordingSalesModule(
-        cancellationConfirmError: const app.SalesContractException(
+      final module = _Repos(
+        cancellationConfirmError: salesContractError(
           'SYSTEM_ERROR',
           message: 'Raw server database crash',
         ),
@@ -1055,22 +1038,22 @@ void main() {
     });
 
     test('STALE_VERSION on cancel precheck invalidates actions and reloads core', () async {
-      final module = _RecordingSalesModule(
-        cancellationPrecheckError: const app.SalesContractException('STALE_VERSION'),
+      final module = _Repos(
+        cancellationPrecheckError: salesContractError('STALE_VERSION'),
       );
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
       await cubit.load();
       await _drain();
-      final detailCallsBefore = module.queries.whereType<app.GetSalesOrderDetailQuery>().length;
+      final detailCallsBefore = module.orders.detailCalls.length;
 
       final intent = await cubit.requestCancel();
       await _drain();
 
       expect(intent, isNull);
       expect(
-        module.queries.whereType<app.GetSalesOrderDetailQuery>().length,
+        module.orders.detailCalls.length,
         greaterThan(detailCallsBefore),
       );
       expect(cubit.state.actionsStatus, SalesOrderDetailSectionStatus.loaded);
@@ -1078,8 +1061,8 @@ void main() {
     });
 
     test('permission denied on cancel precheck disables only cancel action', () async {
-      final module = _RecordingSalesModule(
-        cancellationPrecheckError: const app.SalesContractException('PERMISSION_DENIED'),
+      final module = _Repos(
+        cancellationPrecheckError: salesContractError('PERMISSION_DENIED'),
       );
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
@@ -1100,7 +1083,7 @@ void main() {
 
   group('C12 error copy & state mappings', () {
     test('core_error_never_carries_server_message NOT_FOUND', () async {
-      final module = _ContractErrorModule('NOT_FOUND', message: 'Raw order not found.');
+      final module = _Repos.failing(salesContractError('NOT_FOUND', message: 'Raw order not found.'));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -1111,7 +1094,7 @@ void main() {
     });
 
     test('core_error_never_carries_server_message NO_PERMISSION', () async {
-      final module = _ContractErrorModule('PERMISSION_DENIED', message: 'Raw scope denied.');
+      final module = _Repos.failing(salesContractError('PERMISSION_DENIED', message: 'Raw scope denied.'));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -1122,7 +1105,7 @@ void main() {
     });
 
     test('core_error_never_carries_server_message SYSTEM_ERROR', () async {
-      final module = _ContractErrorModule('SYSTEM_ERROR', message: 'Raw database failure.');
+      final module = _Repos.failing(salesContractError('SYSTEM_ERROR', message: 'Raw database failure.'));
       final cubit = _buildCubit(module: module);
       addTearDown(cubit.close);
 
@@ -1133,8 +1116,8 @@ void main() {
     });
 
     test('history_error_never_carries_server_message', () async {
-      final module = _RecordingSalesModule(
-        timelineError: const app.SalesContractException(
+      final module = _Repos(
+        timelineError: salesContractError(
           'TIMELINE_UNAVAILABLE',
           message: 'Raw timeline error.',
         ),
@@ -1151,8 +1134,8 @@ void main() {
     });
 
     test('actions_error_never_carries_server_message', () async {
-      final module = _RecordingSalesModule(
-        actionsError: const app.SalesContractException(
+      final module = _Repos(
+        actionsError: salesContractError(
           'ACTIONS_UNAVAILABLE',
           message: 'Raw actions error.',
         ),
@@ -1169,9 +1152,9 @@ void main() {
     });
 
     test('cancellation_impact_pending_is_projection_pending', () async {
-      final module = _RecordingSalesModule(
+      final module = _Repos(
         detail: _detail(lifecycleStatus: app.SalesOrderLifecycleStatus.cancelled),
-        cancellationDetailError: const app.SalesContractException(
+        cancellationDetailError: salesContractError(
           'IMPACT_PENDING',
           message: 'Pending cancellation projection',
         ),
@@ -1195,18 +1178,16 @@ Future<void> _drain() async {
 }
 
 SalesOrderDetailCubit _buildCubit({
-  required app.ISalesModule module,
+  required _Repos module,
   SalesOrderCancellationAttemptFactory? cancellationAttemptFactory,
-  SalesOrderRepository? orderRepository,
-  SalesReceiptRepository? receiptRepository,
 }) {
   return SalesOrderDetailCubit(
     orderId: 'order-1',
-    orderRepository: orderRepository ?? ModuleBackedSalesOrderRepository(module),
-    receiptRepository: receiptRepository ?? ModuleBackedSalesReceiptRepository(module),
-    paymentRepository: ModuleBackedSalesPaymentRepository(module),
-    cancellationRepository: ModuleBackedSalesCancellationRepository(module),
-    returnExchangeRepository: ModuleBackedReturnExchangeRepository(module),
+    orderRepository: module.orders,
+    receiptRepository: module.receipts,
+    paymentRepository: module.payments,
+    cancellationRepository: module.cancellations,
+    returnExchangeRepository: module.returnExchange,
     executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
     cancellationAttemptFactory: cancellationAttemptFactory,
   );
@@ -1389,176 +1370,295 @@ app.SalesOrderReturnSummaryDto _returnSummary() {
   );
 }
 
-final class _RecordingSalesModule implements app.ISalesModule {
-  _RecordingSalesModule({
+/// Gom các fake repository; mỗi kịch bản (lỗi, treo, phản hồi cũ) là một hàm dựng.
+final class _Repos {
+  _Repos({
     app.SalesOrderDetailDto? detail,
-    this.paymentSummaryError,
-    this.settlementError,
-    this.timelineError,
-    this.actionsError,
-    this.cancellationDetailError,
-    this.cancellationPrecheckError,
-    this.cancellationConfirmError,
+    Object? paymentSummaryError,
+    Object? settlementError,
+    Object? timelineError,
+    Object? actionsError,
+    Object? cancellationDetailError,
+    Object? cancellationPrecheckError,
+    Object? cancellationConfirmError,
     app.SalesPaymentTransactionsDto? transactions,
     app.AvailablePostSaleActionsDto? actions,
     app.CancellationPrecheckDto? cancellationPrecheck,
     app.ReturnExchangePrecheckDto? returnExchangePrecheck,
     app.SalesOrderCancellationResultDto? cancellationConfirmResult,
-    Object? getReceiptResponse,
-    Object? generateResponse,
-    Object? printedResponse,
-    Object? sharedResponse,
-  }) : transactionsError = null,
-       returnSummaryError = null,
-       returnExchangePrecheckError = null,
-       detail = detail ?? _detail(),
-       transactions =
-           transactions ??
-           _transactionsPage(
-             items: [_cashTx(400000), _bankTx(600000)],
-             hasMore: false,
-           ),
-       actions =
-           actions ??
-           const app.AvailablePostSaleActionsDto(
-             canCancel: true,
-             canReturnExchange: true,
-           ),
-       cancellationPrecheck =
-           cancellationPrecheck ??
-           app.CancellationPrecheckDto(
-             allowed: true,
-             sourceVersion: 7,
-             sourceSettlementVersion: 1,
-             blockers: const [],
-           ),
-       returnExchangePrecheck =
-           returnExchangePrecheck ??
-           app.ReturnExchangePrecheckDto(
-             allowed: true,
-             sourceVersion: 7,
-             blockers: const [],
-           ),
-       cancellationConfirmResult = cancellationConfirmResult ?? _cancellationConfirmResult(),
-       getReceiptResponse = getReceiptResponse ?? _receipt(),
-       generateResponse = generateResponse ?? _receipt(),
-       printedResponse = printedResponse ?? _receipt(),
-       sharedResponse = sharedResponse ?? _receipt();
-
-  app.SalesOrderDetailDto detail;
-  Object? paymentSummaryError;
-  Object? settlementError;
-  Object? transactionsError;
-  Object? timelineError;
-  Object? returnSummaryError;
-  Object? actionsError;
-  Object? cancellationPrecheckError;
-  Object? returnExchangePrecheckError;
-  app.SalesPaymentTransactionsDto transactions;
-  app.AvailablePostSaleActionsDto actions;
-  app.CancellationPrecheckDto cancellationPrecheck;
-  app.ReturnExchangePrecheckDto returnExchangePrecheck;
-  Object getReceiptResponse;
-  Object generateResponse;
-  Object printedResponse;
-  Object sharedResponse;
-  final List<Object> queries = <Object>[];
-  final List<Object> commands = <Object>[];
-  app.SalesOrderCancellationDetailDto cancellationDetail = _cancellationDetail();
-  Object? cancellationDetailError;
-  Object? cancellationConfirmError;
-  app.SalesOrderCancellationResultDto cancellationConfirmResult;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    if (command is app.GenerateSalesReceiptCommand) {
-      return _unwrap(generateResponse);
-    }
-    if (command is app.RecordSalesReceiptPrintedCommand) {
-      return _unwrap(printedResponse);
-    }
-    if (command is app.RecordSalesReceiptSharedCommand) {
-      return _unwrap(sharedResponse);
-    }
-    if (command is app.ConfirmSalesOrderCancellationCommand) {
-      final error = cancellationConfirmError;
-      if (error != null) throw error;
-      return cancellationConfirmResult as TResult;
-    }
-    throw UnsupportedError('unexpected command ${command.runtimeType}');
+    Object? getReceiptError,
+    Object? generateError,
+    Object? printedError,
+    Object? sharedError,
+  }) {
+    orders
+      ..detailResult = detail ?? _detail()
+      ..timelineResult = _timeline()
+      ..timelineError = timelineError
+      ..returnSummaryResult = _returnSummary()
+      ..actionsResult = actions ?? _availableActions()
+      ..actionsError = actionsError
+      ..cancellationResult = _cancellationDetail()
+      ..cancellationError = cancellationDetailError;
+    payments
+      ..summaryResult = _paymentSummary()
+      ..summaryError = paymentSummaryError
+      ..settlementResult = _settlement()
+      ..settlementError = settlementError
+      ..transactionsResult =
+          transactions ??
+          _transactionsPage(items: [_cashTx(400000), _bankTx(600000)], hasMore: false);
+    receipts
+      ..getResult = _receipt()
+      ..getError = getReceiptError
+      ..generateResult = _receipt()
+      ..generateError = generateError
+      ..printedResult = _receipt()
+      ..printedError = printedError
+      ..sharedResult = _receipt()
+      ..sharedError = sharedError
+      ..originalResult = _receipt().document;
+    cancellations
+      ..precheckResult =
+          cancellationPrecheck ??
+          app.CancellationPrecheckDto(
+            allowed: true,
+            sourceVersion: 7,
+            sourceSettlementVersion: 1,
+            blockers: const [],
+          )
+      ..precheckError = cancellationPrecheckError
+      ..confirmResult = cancellationConfirmResult ?? _cancellationConfirmResult()
+      ..confirmError = cancellationConfirmError;
+    returnExchange.precheckResult =
+        returnExchangePrecheck ??
+        app.ReturnExchangePrecheckDto(allowed: true, sourceVersion: 7, blockers: const []);
   }
 
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is app.GetSalesOrderDetailQuery) {
-      return detail as TResult;
-    }
-    if (query is app.GetSalesOrderPaymentSummaryQuery) {
-      final error = paymentSummaryError;
-      if (error != null) throw error;
-      return _paymentSummary() as TResult;
-    }
-    if (query is app.GetSalesOrderSettlementQuery) {
-      final error = settlementError;
-      if (error != null) throw error;
-      return _settlement() as TResult;
-    }
-    if (query is app.GetSalesOrderPaymentTransactionsQuery) {
-      final error = transactionsError;
-      if (error != null) throw error;
-      return transactions as TResult;
-    }
-    if (query is app.GetSalesOrderTimelineQuery) {
-      final error = timelineError;
-      if (error != null) throw error;
-      return _timeline() as TResult;
-    }
-    if (query is app.GetSalesOrderReturnSummaryQuery) {
-      final error = returnSummaryError;
-      if (error != null) throw error;
-      return _returnSummary() as TResult;
-    }
-    if (query is app.GetAvailablePostSaleActionsQuery) {
-      final error = actionsError;
-      if (error != null) throw error;
-      return actions as TResult;
-    }
-    if (query is app.GetSalesOrderCancellationQuery) {
-      final error = cancellationDetailError;
-      if (error != null) throw error;
-      return cancellationDetail as TResult;
-    }
-    if (query is app.PrecheckSalesOrderCancellationQuery) {
-      final error = cancellationPrecheckError;
-      if (error != null) throw error;
-      return cancellationPrecheck as TResult;
-    }
-    if (query is app.PrecheckReturnExchangeQuery) {
-      final error = returnExchangePrecheckError;
-      if (error != null) throw error;
-      return returnExchangePrecheck as TResult;
-    }
-    if (query is app.GetSalesOrderOriginalReceiptQuery) {
-      return _receipt().document as TResult;
-    }
-    if (query is app.GetSalesReceiptQuery) {
-      return _unwrap(getReceiptResponse);
-    }
-    throw UnsupportedError('unexpected query ${query.runtimeType}');
+  /// Mọi lần đọc đều ném [error].
+  factory _Repos.failing(Object error) {
+    final repos = _Repos();
+    repos.orders
+      ..detailError = error
+      ..timelineError = error
+      ..returnSummaryError = error
+      ..actionsError = error
+      ..cancellationError = error;
+    repos.payments
+      ..summaryError = error
+      ..settlementError = error
+      ..transactionsError = error;
+    repos.receipts.getError = error;
+    repos.cancellations.precheckError = error;
+    repos.returnExchange.precheckError = error;
+    return repos;
   }
 
-  TResult _unwrap<TResult>(Object response) {
-    if (response is _Failure) throw response.error;
-    return response as TResult;
+  /// Lần đọc chi tiết đầu thành công, các lần sau ném [error]; các khối còn lại rỗng.
+  factory _Repos.succeedThenFail({
+    required app.SalesOrderDetailDto detail,
+    required Object error,
+  }) {
+    final repos = _Repos()._withEmptySections();
+    var detailCalls = 0;
+    repos.orders.detailHook = () async {
+      detailCalls++;
+      if (detailCalls > 1) throw error;
+      return detail;
+    };
+    return repos;
+  }
+
+  /// Mỗi lần đọc chi tiết trả một Completer riêng ([results]) để test hoàn tất lệch thứ tự.
+  factory _Repos.stale() {
+    final repos = _Repos()._withEmptySections();
+    repos.orders.detailHook = () {
+      final completer = Completer<app.SalesOrderDetailDto>();
+      repos.results.add(completer);
+      if (repos.results.length == 1) repos.firstQueryStarted.complete();
+      if (repos.results.length == 2) repos.secondQueryStarted.complete();
+      return completer.future;
+    };
+    return repos;
+  }
+
+  /// Chi tiết và sáu khối phụ chỉ trả khi test gọi [completeDetail] / [completeAllSections].
+  factory _Repos.deferredSections() {
+    final repos = _Repos();
+    repos.orders.detailHook = () {
+      if (!repos.detailStarted.isCompleted) repos.detailStarted.complete();
+      return repos._detailCompleter.future;
+    };
+    repos.orders.sectionsGate = repos._sectionsGate.future;
+    repos.payments.sectionsGate = repos._sectionsGate.future;
+    return repos;
+  }
+
+  /// Đọc phiếu bán hàng treo tới khi test gọi [completeReceipt].
+  factory _Repos.deferredReceipt() {
+    final repos = _Repos();
+    repos.receipts.getStarted = repos.receiptStarted;
+    repos.receipts.getGate = repos._receiptGate.future;
+    return repos;
+  }
+
+  final _Orders orders = _Orders();
+  final _Payments payments = _Payments();
+  final _Receipts receipts = _Receipts();
+  final FakeSalesCancellationRepository cancellations = FakeSalesCancellationRepository();
+  final FakeReturnExchangeRepository returnExchange = FakeReturnExchangeRepository();
+
+  final List<Completer<app.SalesOrderDetailDto>> results = [];
+  final Completer<void> firstQueryStarted = Completer();
+  final Completer<void> secondQueryStarted = Completer();
+  final Completer<void> detailStarted = Completer();
+  final Completer<void> receiptStarted = Completer();
+  final Completer<app.SalesOrderDetailDto> _detailCompleter = Completer();
+  final Completer<void> _sectionsGate = Completer();
+  final Completer<void> _receiptGate = Completer();
+
+  app.SalesOrderDetailDto get detail => orders.detailResult!;
+
+  /// Các lệnh ghi đã gọi (phiếu bán hàng, huỷ đơn).
+  List<Object> get commands => [
+    ...receipts.generateCalls,
+    ...receipts.printedCalls,
+    ...receipts.sharedCalls,
+    ...cancellations.confirmCalls,
+  ];
+
+  void completeDetail(app.SalesOrderDetailDto dto) => _detailCompleter.complete(dto);
+
+  void completeAllSections() => _sectionsGate.complete();
+
+  void completeReceipt(app.SalesReceiptDto receipt) {
+    if (!_receiptGate.isCompleted) _receiptGate.complete();
+  }
+
+  _Repos _withEmptySections() {
+    payments.transactionsResult = _transactionsPage(items: const [], hasMore: false);
+    orders
+      ..timelineResult = _timeline(entries: const [])
+      ..returnSummaryResult = app.SalesOrderReturnSummaryDto(
+        salesOrderId: 'order-1',
+        returns: const [],
+      );
+    return this;
   }
 }
 
-final class _Failure {
-  const _Failure(this.error);
-  final Object error;
+/// `detailHook` thay kết quả đọc chi tiết; `sectionsGate` giữ các khối phụ tới khi hoàn tất.
+final class _Orders extends FakeSalesOrderRepository {
+  Future<app.SalesOrderDetailDto> Function()? detailHook;
+  Future<void>? sectionsGate;
+
+  @override
+  Future<app.SalesOrderDetailDto> getDetail({required String salesOrderId}) {
+    final hook = detailHook;
+    if (hook == null) return super.getDetail(salesOrderId: salesOrderId);
+    detailCalls.add(salesOrderId);
+    return hook();
+  }
+
+  @override
+  Future<app.SalesOrderTimelineDto> getTimeline({
+    required String salesOrderId,
+    int? expectedSourceVersion,
+  }) async {
+    await sectionsGate;
+    return super.getTimeline(
+      salesOrderId: salesOrderId,
+      expectedSourceVersion: expectedSourceVersion,
+    );
+  }
+
+  @override
+  Future<app.SalesOrderReturnSummaryDto> getReturnSummary({
+    required String salesOrderId,
+    int? expectedSourceVersion,
+  }) async {
+    await sectionsGate;
+    return super.getReturnSummary(
+      salesOrderId: salesOrderId,
+      expectedSourceVersion: expectedSourceVersion,
+    );
+  }
+
+  @override
+  Future<app.AvailablePostSaleActionsDto> getAvailableActions({
+    required String salesOrderId,
+    int? expectedSourceVersion,
+  }) async {
+    await sectionsGate;
+    return super.getAvailableActions(
+      salesOrderId: salesOrderId,
+      expectedSourceVersion: expectedSourceVersion,
+    );
+  }
 }
+
+final class _Payments extends FakeSalesPaymentRepository {
+  Future<void>? sectionsGate;
+
+  @override
+  Future<app.SalesOrderPaymentSummaryDto> getSummary({
+    required String salesOrderId,
+    int? expectedSourceVersion,
+  }) async {
+    await sectionsGate;
+    return super.getSummary(
+      salesOrderId: salesOrderId,
+      expectedSourceVersion: expectedSourceVersion,
+    );
+  }
+
+  @override
+  Future<app.SalesOrderSettlementDto> getSettlement({
+    required String salesOrderId,
+    int? expectedSourceVersion,
+  }) async {
+    await sectionsGate;
+    return super.getSettlement(
+      salesOrderId: salesOrderId,
+      expectedSourceVersion: expectedSourceVersion,
+    );
+  }
+
+  @override
+  Future<app.SalesPaymentTransactionsDto> getTransactions({
+    required String salesOrderId,
+    int? expectedSourceVersion,
+    String? cursor,
+    int pageSize = 25,
+  }) async {
+    await sectionsGate;
+    return super.getTransactions(
+      salesOrderId: salesOrderId,
+      expectedSourceVersion: expectedSourceVersion,
+      cursor: cursor,
+      pageSize: pageSize,
+    );
+  }
+}
+
+final class _Receipts extends FakeSalesReceiptRepository {
+  Completer<void>? getStarted;
+  Future<void>? getGate;
+
+  @override
+  Future<app.SalesReceiptDto> get({required String receiptId, int? expectedSourceVersion}) async {
+    final started = getStarted;
+    if (started != null && !started.isCompleted) started.complete();
+    await getGate;
+    return super.get(receiptId: receiptId, expectedSourceVersion: expectedSourceVersion);
+  }
+}
+
+/// Khoá idempotency của lệnh tạo phiếu: `SalesReceiptRepository` thật dựng từ phiên
+/// (`sales_receipt_repository_test.dart:56`); fake chỉ ghi `salesOrderId` + `expectedVersion`,
+/// nên test dựng lại công thức như cầu nối module cũ.
+String _generateKey(({String salesOrderId, int expectedVersion}) call) =>
+    'sales-receipt:tenant-1:${call.salesOrderId}:v${call.expectedVersion}';
 
 app.SalesReceiptDto _receipt() => app.SalesReceiptDto(
   receiptId: 'receipt-1',
@@ -1585,242 +1685,6 @@ app.SalesReceiptDto _receipt() => app.SalesReceiptDto(
     payments: const <app.PaymentIntentSummaryDto>[],
   ),
 );
-
-final class _DeferredSectionsModule implements app.ISalesModule {
-  final Completer<app.SalesOrderDetailDto> _detail = Completer();
-  final Completer<void> detailStarted = Completer();
-  final Map<Type, Completer<Object>> _sectionCompleters = {
-    app.GetSalesOrderPaymentSummaryQuery: Completer<Object>(),
-    app.GetSalesOrderSettlementQuery: Completer<Object>(),
-    app.GetSalesOrderPaymentTransactionsQuery: Completer<Object>(),
-    app.GetSalesOrderTimelineQuery: Completer<Object>(),
-    app.GetSalesOrderReturnSummaryQuery: Completer<Object>(),
-    app.GetAvailablePostSaleActionsQuery: Completer<Object>(),
-  };
-
-  void completeDetail(app.SalesOrderDetailDto dto) => _detail.complete(dto);
-
-  void completeAllSections() {
-    _sectionCompleters[app.GetSalesOrderPaymentSummaryQuery]!.complete(_paymentSummary());
-    _sectionCompleters[app.GetSalesOrderSettlementQuery]!.complete(_settlement());
-    _sectionCompleters[app.GetSalesOrderPaymentTransactionsQuery]!.complete(
-      _transactionsPage(items: [_cashTx(400000), _bankTx(600000)], hasMore: false),
-    );
-    _sectionCompleters[app.GetSalesOrderTimelineQuery]!.complete(_timeline());
-    _sectionCompleters[app.GetSalesOrderReturnSummaryQuery]!.complete(_returnSummary());
-    _sectionCompleters[app.GetAvailablePostSaleActionsQuery]!.complete(_availableActions());
-  }
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    if (query is app.GetSalesOrderDetailQuery) {
-      if (!detailStarted.isCompleted) detailStarted.complete();
-      return _detail.future as Future<TResult>;
-    }
-    final completer = _sectionCompleters[query.runtimeType];
-    if (completer == null) {
-      throw UnsupportedError('unexpected query ${query.runtimeType}');
-    }
-    return completer.future.then((value) => value as TResult);
-  }
-}
-
-final class _VersionedRefreshModule implements app.ISalesModule {
-  _VersionedRefreshModule();
-
-  app.SalesOrderDetailDto nextDetail = _detail(version: 7);
-  app.SalesOrderPaymentSummaryDto nextPaymentSummary = _paymentSummary();
-  app.SalesPaymentTransactionsDto nextTransactions = _transactionsPage(
-    items: [_cashTx(400000), _bankTx(600000)],
-    hasMore: false,
-  );
-  app.SalesOrderTimelineDto nextTimeline = _timeline();
-  final List<Object> queries = <Object>[];
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is app.GetSalesOrderDetailQuery) return nextDetail as TResult;
-    if (query is app.GetSalesOrderPaymentSummaryQuery) {
-      return nextPaymentSummary as TResult;
-    }
-    if (query is app.GetSalesOrderSettlementQuery) return _settlement() as TResult;
-    if (query is app.GetSalesOrderPaymentTransactionsQuery) {
-      return nextTransactions as TResult;
-    }
-    if (query is app.GetSalesOrderTimelineQuery) return nextTimeline as TResult;
-    if (query is app.GetSalesOrderReturnSummaryQuery) return _returnSummary() as TResult;
-    if (query is app.GetAvailablePostSaleActionsQuery) return _availableActions() as TResult;
-    if (query is app.GetSalesReceiptQuery) return _receipt() as TResult;
-    throw UnsupportedError('unexpected query ${query.runtimeType}');
-  }
-}
-
-final class _DeferredReceiptModule implements app.ISalesModule {
-  app.SalesOrderDetailDto nextDetail = _detail(version: 7);
-  final Completer<app.SalesReceiptDto> _receiptCompleter = Completer();
-  final Completer<void> receiptStarted = Completer();
-
-  void completeReceipt(app.SalesReceiptDto receipt) {
-    if (!_receiptCompleter.isCompleted) {
-      _receiptCompleter.complete(receipt);
-    }
-  }
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is app.GetSalesOrderDetailQuery) return nextDetail as TResult;
-    if (query is app.GetSalesOrderPaymentSummaryQuery) return _paymentSummary() as TResult;
-    if (query is app.GetSalesOrderSettlementQuery) return _settlement() as TResult;
-    if (query is app.GetSalesOrderPaymentTransactionsQuery) {
-      return _transactionsPage(
-            items: [_cashTx(400000), _bankTx(600000)],
-            hasMore: false,
-          )
-          as TResult;
-    }
-    if (query is app.GetSalesOrderTimelineQuery) return _timeline() as TResult;
-    if (query is app.GetSalesOrderReturnSummaryQuery) return _returnSummary() as TResult;
-    if (query is app.GetAvailablePostSaleActionsQuery) return _availableActions() as TResult;
-    if (query is app.GetSalesReceiptQuery) {
-      if (!receiptStarted.isCompleted) receiptStarted.complete();
-      return _receiptCompleter.future as Future<TResult>;
-    }
-    throw UnsupportedError('unexpected query ${query.runtimeType}');
-  }
-}
-
-final class _ContractErrorModule implements app.ISalesModule {
-  const _ContractErrorModule(this.code, {this.message});
-
-  final String code;
-  final String? message;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    throw app.SalesContractException(code, message: message);
-  }
-}
-
-final class _SucceedThenFailModule implements app.ISalesModule {
-  _SucceedThenFailModule({required this.detail, required this.error});
-
-  final app.SalesOrderDetailDto detail;
-  final Object error;
-  int detailCalls = 0;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is app.GetSalesOrderDetailQuery) {
-      detailCalls++;
-      if (detailCalls > 1) throw error;
-      return detail as TResult;
-    }
-    // After first core success, section reads may race; return empty successes.
-    if (query is app.GetSalesOrderPaymentSummaryQuery) return _paymentSummary() as TResult;
-    if (query is app.GetSalesOrderSettlementQuery) return _settlement() as TResult;
-    if (query is app.GetSalesOrderPaymentTransactionsQuery) {
-      return _transactionsPage(items: const [], hasMore: false) as TResult;
-    }
-    if (query is app.GetSalesOrderTimelineQuery) {
-      return _timeline(entries: const []) as TResult;
-    }
-    if (query is app.GetSalesOrderReturnSummaryQuery) {
-      return app.SalesOrderReturnSummaryDto(salesOrderId: 'order-1', returns: const []) as TResult;
-    }
-    if (query is app.GetAvailablePostSaleActionsQuery) {
-      return _availableActions() as TResult;
-    }
-    throw UnsupportedError('unexpected query ${query.runtimeType}');
-  }
-}
-
-final class _ThrowingModule implements app.ISalesModule {
-  const _ThrowingModule(this.error);
-
-  final Object error;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    throw error;
-  }
-}
-
-final class _StaleAwareModule implements app.ISalesModule {
-  final List<Completer<app.SalesOrderDetailDto>> results = [];
-  final Completer<void> firstQueryStarted = Completer();
-  final Completer<void> secondQueryStarted = Completer();
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('unused');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    if (query is! app.GetSalesOrderDetailQuery) {
-      // Ignore section reads for this stale-core scenario.
-      return Future<TResult>.value(_emptySectionResult<TResult>(query));
-    }
-    final completer = Completer<app.SalesOrderDetailDto>();
-    results.add(completer);
-    if (results.length == 1) firstQueryStarted.complete();
-    if (results.length == 2) secondQueryStarted.complete();
-    return completer.future as Future<TResult>;
-  }
-}
-
-T _emptySectionResult<T>(IQuery<T> query) {
-  if (query is app.GetSalesOrderPaymentSummaryQuery) {
-    return _paymentSummary() as T;
-  }
-  if (query is app.GetSalesOrderSettlementQuery) {
-    return _settlement() as T;
-  }
-  if (query is app.GetSalesOrderPaymentTransactionsQuery) {
-    return _transactionsPage(items: const [], hasMore: false) as T;
-  }
-  if (query is app.GetSalesOrderTimelineQuery) {
-    return _timeline(entries: const []) as T;
-  }
-  if (query is app.GetSalesOrderReturnSummaryQuery) {
-    return app.SalesOrderReturnSummaryDto(salesOrderId: 'order-1', returns: const []) as T;
-  }
-  if (query is app.GetAvailablePostSaleActionsQuery) {
-    return _availableActions() as T;
-  }
-  throw UnsupportedError('unexpected query ${query.runtimeType}');
-}
 
 app.AvailablePostSaleActionsDto _availableActions({
   bool canCancel = true,
