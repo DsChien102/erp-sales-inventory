@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-enum SalesOrderSheetAction { returnExchange, cancel }
+enum SalesOrderSheetAction { collectPayment, returnExchange, cancel }
 
 Future<SalesOrderSheetAction?> showSalesOrderActionsSheet(
   BuildContext context, {
+  bool canCollectPayment = false,
   required bool canReturnExchange,
   required bool canCancel,
   String? cancelDisabledReason,
@@ -14,6 +15,7 @@ Future<SalesOrderSheetAction?> showSalesOrderActionsSheet(
     title: 'Thao tác',
     semanticLabel: 'Thao tác',
     child: _SalesOrderActionsSheetBody(
+      canCollectPayment: canCollectPayment,
       canReturnExchange: canReturnExchange,
       canCancel: canCancel,
       cancelDisabledReason: cancelDisabledReason,
@@ -23,11 +25,13 @@ Future<SalesOrderSheetAction?> showSalesOrderActionsSheet(
 
 class _SalesOrderActionsSheetBody extends StatelessWidget {
   const _SalesOrderActionsSheetBody({
+    this.canCollectPayment = false,
     required this.canReturnExchange,
     required this.canCancel,
     this.cancelDisabledReason,
   });
 
+  final bool canCollectPayment;
   final bool canReturnExchange;
   final bool canCancel;
   final String? cancelDisabledReason;
@@ -43,6 +47,16 @@ class _SalesOrderActionsSheetBody extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (canCollectPayment) ...[
+            _ActionOptionTile(
+              key: const Key('btn_order_action_collect_payment'),
+              icon: VIcons.banknoteArrowDown,
+              title: 'Thu tiền',
+              subtitle: 'Ghi nhận khoản khách trả thêm cho đơn',
+              onTap: () => Navigator.of(context).pop(SalesOrderSheetAction.collectPayment),
+            ),
+            const VGap.sm(),
+          ],
           _ActionOptionTile(
             key: const Key('btn_order_action_return'),
             icon: VIcons.history,

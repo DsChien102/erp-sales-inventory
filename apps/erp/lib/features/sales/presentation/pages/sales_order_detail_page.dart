@@ -14,6 +14,7 @@ import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:erp/features/sales/presentation/support/order_einvoice_payable.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_detail_original_receipt_actions.dart';
+import 'package:erp/features/sales/presentation/widgets/sales_record_payment_sheet.dart';
 import 'package:vet45_shared_application/application.dart';
 
 /// SG-08 — Tra cứu chi tiết giao dịch gốc & Lịch sử (EP-03/US-02..07).
@@ -73,8 +74,15 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
       return;
     }
     final hasCollectedPayment = (state.payment?.paidTotalMinor ?? 0) > 0;
+    final canCollectPayment =
+        vm.lifecycleStatus == SalesOrderLifecycleStatus.committed &&
+        state.paymentStatus == SalesOrderDetailSectionStatus.loaded &&
+        state.payment != null &&
+        state.payment!.outstandingMinor > 0;
+
     final action = await showSalesOrderActionsSheet(
       context,
+      canCollectPayment: canCollectPayment,
       canReturnExchange: actions.canReturnExchange,
       canCancel: actions.canCancel && !hasCollectedPayment,
       cancelDisabledReason: hasCollectedPayment ? 'Đơn đã có thanh toán, vui lòng đổi/trả' : null,
@@ -82,6 +90,24 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
     if (!mounted || action == null) return;
 
     switch (action) {
+      case SalesOrderSheetAction.collectPayment:
+        final collectedAmount = await showSalesRecordPaymentSheet(
+          context,
+          salesOrderId: vm.orderId,
+          orderNumber: vm.orderNumber,
+          outstandingMinor: state.payment!.outstandingMinor,
+          dueDateFormatted: state.payment!.dueDateFormatted,
+        );
+        if (!mounted) return;
+        if (collectedAmount != null) {
+          VToast.show(
+            context,
+            title: 'Thu tiền',
+            message: 'Đã ghi nhận ${MoneyFormatter.formatMinor(collectedAmount)}',
+            type: VToastType.success,
+          );
+        }
+        await _cubit.refresh();
       case SalesOrderSheetAction.returnExchange:
         await _navigateAfterPrecheck(_cubit.requestReturnExchange);
       case SalesOrderSheetAction.cancel:

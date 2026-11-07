@@ -820,6 +820,156 @@ begin
     end;
   end;
 
+  -- =========================================================================
+  -- P01..P04: Thu tiền bổ sung SG-11 (8-B3 / KI-06 / EP-04)
+  -- =========================================================================
+  declare
+    v_order_p uuid;
+    v_order_p2 uuid;
+    v_res_p jsonb;
+    v_res_p_replay jsonb;
+    v_tx_id_p text;
+    v_tx_count integer;
+    v_p_settlement_id uuid;
+    v_p_status text;
+    v_p_outstanding bigint;
+  begin
+    -- Tạo đơn nợ: tổng 1.000.000, trả 400.000 -> còn nợ 600.000
+    v_res := public._th05_finalize(v_ta, v_ua, v_store, v_anbinh,
+      jsonb_build_array(public._th05_line(v_p1, v_u1, 10000000, 100000)),
+      public._th05_pay(400000), v_today + 7, 'p-order-key');
+    v_order_p := (v_res ->> 'salesOrderId')::uuid;
+
+    -- P01: Đơn còn 600.000, record_sales_payment 600.000 => payment_status = 'paid',
+    -- outstanding_amount_minor = 0, giao dịch source_context = 'additional_collection' đếm = 1
+    v_res_p := sales.record_sales_payment(
+      p_tenant_id => v_ta,
+      p_actor_id => v_ua,
+      p_store_id => v_store,
+      p_sales_order_id => v_order_p,
+      p_amount_minor => 600000,
+      p_payment_method_code => 'cash',
+      p_idempotency_key => 'p01-idem-key',
+      p_payload_hash => 'p01-hash',
+      p_source_context => 'additional_collection'
+    );
+    v_tx_id_p := v_res_p ->> 'transactionId';
+
+    reset role;
+    v_p_settlement_id := sales._settlement_id_for_order(v_ta, v_order_p);
+    select payment_status, outstanding_amount_minor
+    into v_p_status, v_p_outstanding
+    from sales.sales_order_settlements
+    where tenant_id = v_ta and id = v_p_settlement_id;
+
+    select count(*)::integer into v_tx_count
+    from sales.sales_payment_transactions
+    where tenant_id = v_ta
+      and sales_order_settlement_id = v_p_settlement_id
+      and source_context = 'additional_collection';
+    set local role authenticated;
+
+    if v_p_status is distinct from 'paid'
+       or v_p_outstanding is distinct from 0
+       or v_tx_count is distinct from 1 then
+      raise exception 'FAIL: P01 payment_status=%, outstanding=%, tx_count=% (expected paid, 0, 1)',
+        v_p_status, v_p_outstanding, v_tx_count;
+    end if;
+
+    -- P02: Thu 200.000 của đơn 600.000 => partially_paid, còn 400.000
+    v_res := public._th05_finalize(v_ta, v_ua, v_store, v_anbinh,
+      jsonb_build_array(public._th05_line(v_p1, v_u1, 10000000, 100000)),
+      public._th05_pay(400000), v_today + 7, 'p02-order-key');
+    v_order_p2 := (v_res ->> 'salesOrderId')::uuid;
+
+    v_res_p := sales.record_sales_payment(
+      p_tenant_id => v_ta,
+      p_actor_id => v_ua,
+      p_store_id => v_store,
+      p_sales_order_id => v_order_p2,
+      p_amount_minor => 200000,
+      p_payment_method_code => 'manualBankTransfer',
+      p_idempotency_key => 'p02-idem-key',
+      p_payload_hash => 'p02-hash',
+      p_source_context => 'additional_collection',
+      p_external_reference => 'TXBANK01'
+    );
+
+    reset role;
+    v_p_settlement_id := sales._settlement_id_for_order(v_ta, v_order_p2);
+    select payment_status, outstanding_amount_minor
+    into v_p_status, v_p_outstanding
+    from sales.sales_order_settlements
+    where tenant_id = v_ta and id = v_p_settlement_id;
+    set local role authenticated;
+
+    if v_p_status is distinct from 'partially_paid' or v_p_outstanding is distinct from 400000 then
+      raise exception 'FAIL: P02 expected partially_paid/400000, got status=%, outstanding=%',
+        v_p_status, v_p_outstanding;
+    end if;
+
+    -- P03: Gọi lại cùng p_idempotency_key + p_payload_hash => cùng transactionId, đếm giao dịch không tăng
+    reset role;
+    select count(*)::integer into v_tx_count
+    from sales.sales_payment_transactions
+    where tenant_id = v_ta and sales_order_settlement_id = v_p_settlement_id;
+    set local role authenticated;
+
+    v_res_p_replay := sales.record_sales_payment(
+      p_tenant_id => v_ta,
+      p_actor_id => v_ua,
+      p_store_id => v_store,
+      p_sales_order_id => v_order_p2,
+      p_amount_minor => 200000,
+      p_payment_method_code => 'manualBankTransfer',
+      p_idempotency_key => 'p02-idem-key',
+      p_payload_hash => 'p02-hash',
+      p_source_context => 'additional_collection',
+      p_external_reference => 'TXBANK01'
+    );
+
+    if (v_res_p_replay ->> 'transactionId') is distinct from (v_res_p ->> 'transactionId') then
+      raise exception 'FAIL: P03 replayed transactionId mismatch: % vs %',
+        v_res_p_replay ->> 'transactionId', v_res_p ->> 'transactionId';
+    end if;
+
+    reset role;
+    declare
+      v_tx_count_after integer;
+    begin
+      select count(*)::integer into v_tx_count_after
+      from sales.sales_payment_transactions
+      where tenant_id = v_ta and sales_order_settlement_id = v_p_settlement_id;
+      set local role authenticated;
+
+      if v_tx_count_after is distinct from v_tx_count then
+        raise exception 'FAIL: P03 tx_count increased after replay: before=%, after=%',
+          v_tx_count, v_tx_count_after;
+      end if;
+    end;
+
+    -- P04: Cùng khoá khác hash => IDEMPOTENCY_CONFLICT
+    begin
+      perform sales.record_sales_payment(
+        p_tenant_id => v_ta,
+        p_actor_id => v_ua,
+        p_store_id => v_store,
+        p_sales_order_id => v_order_p2,
+        p_amount_minor => 300000,
+        p_payment_method_code => 'manualBankTransfer',
+        p_idempotency_key => 'p02-idem-key',
+        p_payload_hash => 'p04-different-hash',
+        p_source_context => 'additional_collection'
+      );
+      raise exception 'FAIL: P04 same key different hash should raise IDEMPOTENCY_CONFLICT';
+    exception when others then
+      if sqlerrm like 'FAIL:%' then raise; end if;
+      if sqlerrm not like '%IDEMPOTENCY_CONFLICT%' then
+        raise exception 'FAIL: P04 expected IDEMPOTENCY_CONFLICT, got [%]', sqlerrm;
+      end if;
+    end;
+  end;
+
   raise notice 'sales_th05: OK';
 end;
 $$;

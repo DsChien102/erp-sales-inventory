@@ -78,7 +78,7 @@ Nguyên tắc xuyên suốt: **đơn gốc không bao giờ bị sửa**. Mọi 
 | EP-01 Lập đơn & lưu nháp | Khách lẻ / chọn / tạo nhanh khách; tìm, quét sản phẩm; đơn vị, số lượng; giá tự động; điều chỉnh giá dòng; lưu thành giá riêng; ghi chú; lưu, mở, xoá nháp | Có |
 | EP-02 Thanh toán & hoàn tất | Tiền mặt / chuyển khoản / kết hợp; tiền thừa; công nợ + ngày hẹn; kiểm tra trước; hoàn tất chống trùng; màn kết quả; phiếu bán hàng | Có (🔧 vài chỗ) |
 | EP-03 Tra cứu & theo dõi | Danh sách, tìm kiếm, nhóm nhanh, bộ lọc; chi tiết đơn; thanh toán & công nợ; phiếu đổi/trả của đơn; lịch sử; xem / in / chia sẻ phiếu | Có |
-| EP-04 Thu tiền công nợ của đơn | Thu một khoản cho đơn còn phải thu | 🆕 RPC có, chưa có màn |
+| EP-04 Thu tiền công nợ của đơn | Thu một khoản cho đơn còn phải thu | RPC có, màn SG-11 (8-B3) |
 | EP-05 Huỷ đơn | Kiểm tra điều kiện, xác nhận huỷ có lý do | Có |
 | EP-06 Đổi/trả & quyết toán | Chọn hàng trả, hàng đổi; định giá; kế hoạch quyết toán; xác nhận; kết quả; chi tiết & phiếu đổi/trả | Có |
 
@@ -540,7 +540,7 @@ Dùng làm truy vấn kiểm thử sau mỗi kịch bản:
 | | US-03.4 Xem lịch sử đơn | SG-09c |
 | | US-03.5 Xem các phiếu đổi/trả của đơn | SG-09d |
 | | US-03.6 Xem lại, in lại phiếu bán hàng | SG-16 |
-| EP-04 Thu tiền công nợ 🆕 | US-04.1 Thu tiền cho đơn còn phải thu | SG-11 |
+| EP-04 Thu tiền công nợ | US-04.1 Thu tiền cho đơn còn phải thu | SG-11 |
 | EP-05 Huỷ đơn | US-05.1 Kiểm tra điều kiện huỷ | SG-09, SG-10 |
 | | US-05.2 Xác nhận huỷ đơn | SG-10 |
 | EP-06 Đổi/trả & quyết toán | US-06.1 Bắt đầu đổi/trả từ đơn gốc | SG-12 |
@@ -1114,7 +1114,7 @@ Scenario: SC-02 — Nháp bị sửa ở máy khác
 - FR-05: Khối "Lịch sử — Xem thanh toán và các hoạt động của đơn" → SG-09c.
 - FR-06: Khối "Chứng từ & hóa đơn — Thanh toán, chứng từ và nghiệp vụ sau bán": phiếu bán hàng (US-03.6), HĐĐT ([TH-08](TH-08-hoa-don-dien-tu.md) HD-06: Chưa phát hành / Đang xử lý / Đã phát hành / Phát hành lỗi, phụ đề "Quản lý HĐĐT").
 - FR-07: Đơn đã huỷ: khối "Lý do hủy".
-- FR-08: Nút "Thao tác" → sheet: "Đổi/trả hàng — Chọn hàng khách trả hoặc đổi", "Hủy đơn — Kiểm tra điều kiện và tác động trước khi hủy" (BR-37); 🆕 "Thu tiền" khi còn phải thu (EP-04).
+- FR-08: Nút "Thao tác" → sheet: "Đổi/trả hàng — Chọn hàng khách trả hoặc đổi", "Hủy đơn — Kiểm tra điều kiện và tác động trước khi hủy" (BR-37); "Thu tiền" khi còn phải thu (EP-04).
 - FR-09: Mỗi khối tải riêng: "Đang tải …", lỗi "Không tải được …" + "Thử lại", không quyền "Bạn không có quyền xem …", chưa sẵn sàng "… đang đồng bộ. Thử lại sau." (`PROJECTION_PENDING`).
 - FR-10: Toàn trang: không tìm thấy ("Đơn hàng không tồn tại hoặc đã bị xóa."), không quyền ("Tài khoản của bạn không có quyền xem đơn hàng này."), lỗi ("Không thể tải chi tiết đơn hàng"), đơn đang cập nhật ("Dữ liệu đơn hàng chưa sẵn sàng. Vui lòng thử lại.").
 
@@ -1177,7 +1177,7 @@ Scenario: SC-02 — Nháp bị sửa ở máy khác
 
 ---
 
-### 4.5 EP-04 — Thu tiền công nợ của đơn 🆕
+### 4.5 EP-04 — Thu tiền công nợ của đơn
 
 **Bối cảnh.** Khách nợ quay lại trả tiền. RPC `record_sales_payment` đã có và đã chống trùng, nhưng app chưa có màn nào gọi. PLAN P8 cần kịch bản "bán nợ rồi thu sau", nên phải có màn này. Sổ công nợ theo khách (thu gộp nhiều đơn) thuộc Theme 6, chưa làm.
 
@@ -1479,7 +1479,7 @@ Scenario: SC-02 — Trả hàng của đơn còn nợ
 | SG-09c | Lịch sử | Màn con | từ SG-09 | US-03.4 |
 | SG-09d | Phiếu đổi/trả của đơn | Màn con | từ SG-09 | US-03.5 |
 | SG-10 | Huỷ đơn | Bottom sheet | từ SG-09 | US-05.1, 05.2 |
-| SG-11 | Thu tiền 🆕 | Bottom sheet | từ SG-09 | US-04.1 |
+| SG-11 | Thu tiền | Bottom sheet | từ SG-09 | US-04.1 |
 | SG-12 | Lập phiếu đổi/trả | Màn | `/sales/orders/:orderId/returns/new` | US-06.1…06.4 |
 | SG-13 | Quyết toán đổi/trả | Màn | `…/returns/:id/settle` | US-06.5, 06.6 |
 | SG-14 | Kết quả đổi/trả | Màn | `…/returns/:id/result` | US-06.7 |
@@ -1891,7 +1891,7 @@ Sheet "Thao tác"
 
 Dòng "Tồn kho — Hoàn lại N mặt hàng" chỉ hiện khi Theme 7 đã làm (KI-01). Đang gửi: "Đang hủy...". Bị chặn: hộp thoại "Không thể huỷ đơn" + lý do.
 
-### 5.12 SG-11 — Thu tiền 🆕
+### 5.12 SG-11 — Thu tiền
 
 ```text
 ┌──────────────────────────────────┐
@@ -2193,7 +2193,7 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | KI-03 | Hoàn tất không kiểm khách còn hoạt động | Đã sửa 8-B1 (BR-24) | P8 |
 | KI-04 | Ngày hẹn thanh toán chỉ app chặn quá khứ | Đã sửa 8-B1 (BR-20: precheck, finalize, confirm đổi/trả) | P8 |
 | KI-05 | Đổi hàng phát sinh nợ: bắt nhập ngày hẹn nhưng không lưu | Đã sửa 8-B1 (BR-51) | P8 |
-| KI-06 | Không có màn thu tiền sau bán (RPC có) | **Làm mới** EP-04 | P8 |
+| KI-06 | Không có màn thu tiền sau bán (RPC có) | Đã làm 8-B3 (EP-04, SG-11) | P8 |
 | KI-07 | Thẻ "Xem công nợ" chỉ hiện toast; "Nợ cũ" ở thanh toán luôn 0 | Đã sửa 8-B2: bỏ cả hai | P8 |
 | KI-08 | Quyết toán đổi/trả có QR mẫu cứng ("QR cửa hàng · ACB", "Nguyễn Văn A") và lựa chọn "Cấn trừ công nợ hiện tại" bị khoá | Đã sửa 8-B2: bỏ QR mẫu và lựa chọn cấn trừ công nợ | P8 |
 | KI-09 | Tìm đơn phân biệt dấu | Đã sửa 8-B1 (BR-33: `unaccent`, như TH-03) | P8 |
@@ -2262,7 +2262,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 |---|---|---|
 | 8.1 | Soạn đơn + nháp; bỏ "Nợ cũ" | EP-01, KI-07 |
 | 8.2 | Thanh toán + hoàn tất; sửa `finalize_sales_order`, `precheck_sales_order_checkout` (giá, khách, ngày hẹn) | EP-02, KI-02/03/04 |
-| 8.3 | Tra cứu + chi tiết; `search_sales_orders` bỏ dấu; bỏ "Xem công nợ"; **thêm Thu tiền** | EP-03, EP-04, KI-06/07/09 |
+| 8.3 | Tra cứu + chi tiết; `search_sales_orders` bỏ dấu; bỏ "Xem công nợ"; **thêm Thu tiền** (làm ở 8-B3) | EP-03, EP-04, KI-06/07/09 |
 | 8.4 | Phiếu bán hàng / phiếu đổi trả (PDF, in, chia sẻ) | US-02.6, 03.6, 06.7 |
 | 8.5 | Huỷ + đổi/trả; sửa `confirm_return_exchange` (ngày hẹn); bỏ QR mẫu, nút "Hoàn tất phiếu", code chính sách trống; mặc định Tiền mặt | EP-05, EP-06, KI-05/08/10/17/18 |
 

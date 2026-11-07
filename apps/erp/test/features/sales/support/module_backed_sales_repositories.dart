@@ -4,6 +4,7 @@ import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:erp/features/sales/data/models/sales_cancellation_request.dart';
 import 'package:erp/features/sales/data/models/sales_finalize_request.dart';
+import 'package:erp/features/sales/data/models/sales_record_payment.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
@@ -100,6 +101,16 @@ class ModuleBackedSalesPaymentRepository implements SalesPaymentRepository {
       ),
     ),
   );
+
+  @override
+  Future<SalesRecordPaymentResult> recordPayment(SalesRecordPaymentRequest request) async {
+    return const SalesRecordPaymentResult(
+      transactionId: 'tx-recorded',
+      outstandingMinor: 0,
+      paymentStatus: 'paid',
+      version: 2,
+    );
+  }
 }
 
 class ModuleBackedSalesOrderRepository implements SalesOrderRepository {

@@ -1,8 +1,10 @@
+import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';
+import '../iam/support/iam_test_session.dart';
 import 'support/module_backed_sales_repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -52,6 +54,13 @@ void main() {
     );
     GetIt.instance.registerSingleton<IExecutionContext>(
       const TestExecutionContext(),
+    );
+    GetIt.instance.registerSingleton<SessionController>(
+      testSessionController(
+        tenantId: 'tenant-demo',
+        userId: 'user-demo',
+        activeStoreId: 'store-1',
+      ),
     );
   });
 
@@ -623,6 +632,118 @@ void main() {
       expect(find.text('Tổng đơn'), findsOneWidget);
     },
   );
+
+  testWidgets('SG-08 collect_payment_shown_when_outstanding', (tester) async {
+    salesModule.paidTotalMinor = 650000; // Total 1250000 -> outstanding 600000
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SalesOrderDetailPage(orderId: 'order-1'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('btn_sg08_actions')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('btn_order_action_collect_payment')), findsOneWidget);
+    expect(find.text('Thu tiền'), findsOneWidget);
+    expect(find.text('Ghi nhận khoản khách trả thêm cho đơn'), findsOneWidget);
+  });
+
+  testWidgets('SG-08 collect_payment_hidden_when_paid (AC-04)', (tester) async {
+    salesModule.paidTotalMinor = 1250000; // Outstanding 0
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SalesOrderDetailPage(orderId: 'order-1'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('btn_sg08_actions')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('btn_order_action_collect_payment')), findsNothing);
+  });
+
+  testWidgets('SG-08 collect_payment_hidden_when_cancelled', (tester) async {
+    salesModule.detail = _detail(
+      lifecycleStatus: SalesOrderLifecycleStatus.cancelled,
+    );
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SalesOrderDetailPage(orderId: 'order-1'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Cancelled order hides action bar
+    expect(find.byKey(const Key('btn_sg08_actions')), findsNothing);
+  });
+
+  testWidgets('SG-08 collect_payment_hidden_when_payment_section_failed', (tester) async {
+    salesModule.paymentError = Exception('Payment section network error');
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SalesOrderDetailPage(orderId: 'order-1'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('btn_sg08_actions')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('btn_order_action_collect_payment')), findsNothing);
+  });
+
+  testWidgets('SG-08 success_toasts_and_refreshes', (tester) async {
+    salesModule.paidTotalMinor = 650000; // Outstanding 600000
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SalesOrderDetailPage(orderId: 'order-1'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final queryCountBefore = salesModule.queries.length;
+
+    await tester.tap(find.byKey(const Key('btn_sg08_actions')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('btn_order_action_collect_payment')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Xác nhận thu tiền'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('btn_sg11_confirm')));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Đã ghi nhận 600.000đ'), findsOneWidget);
+    expect(salesModule.queries.length, greaterThan(queryCountBefore));
+  });
+
+  testWidgets('SG-08 closed_without_payment_still_refreshes', (tester) async {
+    salesModule.paidTotalMinor = 650000;
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SalesOrderDetailPage(orderId: 'order-1'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final queryCountBefore = salesModule.queries.length;
+
+    await tester.tap(find.byKey(const Key('btn_sg08_actions')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('btn_order_action_collect_payment')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Quay lại'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Đã ghi nhận'), findsNothing);
+    expect(salesModule.queries.length, greaterThan(queryCountBefore));
+  });
 }
 
 SalesOrderDetailDto _detail({
@@ -684,6 +805,7 @@ final class _DetailSalesModule implements ISalesModule {
   Object? getReceiptError;
   Object? actionsError;
   Object? precheckError;
+  Object? paymentError;
   int paidTotalMinor = 1000000;
   bool cancelAllowed = true;
   bool returnAllowed = true;
@@ -716,6 +838,8 @@ final class _DetailSalesModule implements ISalesModule {
       return detail as TResult;
     }
     if (query is GetSalesOrderPaymentSummaryQuery) {
+      final pe = paymentError;
+      if (pe != null) throw pe;
       final outstandingMinor = detail.order.total.amountMinor - paidTotalMinor;
       return SalesOrderPaymentSummaryDto(
             status: SalesSettlementStatus.partiallyPaid,

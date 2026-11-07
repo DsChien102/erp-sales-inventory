@@ -1,3 +1,4 @@
+import 'package:erp/features/sales/data/models/sales_record_payment.dart';
 import 'package:vet45_sales_application/application.dart';
 
 /// Dựng tham số + đọc JSON của 3 RPC thanh toán (chép từ SalesOrderReadRpcMapper /
@@ -41,6 +42,39 @@ abstract final class SalesPaymentJson {
     'cursor': cursor,
     'page_size': pageSize,
   };
+
+  static Map<String, dynamic> recordParams({
+    required String tenantId,
+    required String actorId,
+    required SalesRecordPaymentRequest request,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_actor_id': actorId,
+      'p_store_id': request.storeId,
+      'p_sales_order_id': request.salesOrderId,
+      'p_amount_minor': request.amountMinor,
+      'p_payment_method_code': switch (request.method) {
+        SalesPaymentMethod.cash => 'cash',
+        SalesPaymentMethod.manualBankTransfer => 'manualBankTransfer',
+      },
+      'p_idempotency_key': request.idempotencyKey,
+      'p_payload_hash': request.payloadHash,
+      'p_source_context': 'additional_collection',
+      'p_payment_method_snapshot': null,
+      'p_external_reference': request.externalReference,
+      'p_correlation_id': request.correlationId,
+    };
+  }
+
+  static SalesRecordPaymentResult recordResultFromJson(Map<String, dynamic> json) {
+    return SalesRecordPaymentResult(
+      transactionId: _string(json, 'transactionId'),
+      outstandingMinor: _int(json['outstandingMinor']),
+      paymentStatus: _string(json, 'paymentStatus'),
+      version: _int(json['version']),
+    );
+  }
 
   static SalesOrderPaymentSummaryDto paymentSummaryFromJson(
     Map<String, dynamic> json,

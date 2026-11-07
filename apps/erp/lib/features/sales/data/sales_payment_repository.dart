@@ -1,6 +1,8 @@
 import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/sales/data/mappers/sales_payment_json.dart';
+import 'package:erp/features/sales/data/models/sales_record_payment.dart';
 import 'package:erp/features/sales/data/sales_order_read_errors.dart';
+import 'package:erp/features/sales/data/sales_payment_mutation_errors.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vet45_sales_application/application.dart';
 
@@ -79,11 +81,33 @@ class SalesPaymentRepository {
     return SalesPaymentJson.transactionsFromJson(_asMap(raw));
   });
 
+  Future<SalesRecordPaymentResult> recordPayment(SalesRecordPaymentRequest request) =>
+      _mutationGuard(() async {
+        final raw = await _rpc.call(
+          'sales',
+          'record_sales_payment',
+          params: SalesPaymentJson.recordParams(
+            tenantId: await _tenantId(),
+            actorId: await _actorId(),
+            request: request,
+          ),
+        );
+        return SalesPaymentJson.recordResultFromJson(_asMap(raw));
+      });
+
   Future<T> _guard<T>(Future<T> Function() fn) async {
     try {
       return await fn();
     } on Object catch (error) {
       throw salesOrderReadException(error);
+    }
+  }
+
+  Future<T> _mutationGuard<T>(Future<T> Function() fn) async {
+    try {
+      return await fn();
+    } on Object catch (error) {
+      throw salesPaymentMutationException(error);
     }
   }
 
