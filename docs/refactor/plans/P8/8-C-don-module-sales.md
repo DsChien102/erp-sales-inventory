@@ -166,12 +166,12 @@
 
 Trường của query cũ ⇒ trường của bản ghi lời gọi: theo cách `ModuleBacked*Repository` truyền (đọc tệp cầu trước khi xoá). Query cũ được module trả lời nhưng app không còn gọi (`ListSalesOrderCancellationReasonsQuery`, `GetReturnExchangeFormPolicyQuery` cùng `CancellationReasonPolicyDto`, `ReturnExchangeFormPolicyDto`, `ReturnExchangePolicyOptionDto` trong `sales_flow_pages_test`, `sales_return_exchange_session_cubit_test`): bỏ cấu hình đó (vd `returnFormPolicy = …` ở `sales_flow_pages_test.dart:789`, `policy:` ở `sales_return_exchange_session_cubit_test.dart:148, 183, 202`, `_policy()` `:672`, `cancelReasons` `sales_flow_pages_test.dart:1307`), **giữ** test và các `expect` khác của nó. Assert duy nhất trên chúng — `module.queries.whereType<GetReturnExchangeFormPolicyQuery>()` `isEmpty` (`sales_return_exchange_session_cubit_test.dart:45-48`) — bỏ (Q3(f)). Assert khác trên chúng ⇒ dừng, ghi lại, hỏi người dùng.
 
-- [ ] **Step 1: `salesContractError` + test.** Test `sales_contract_error_test.dart`: (1) `'PERMISSION_DENIED'` ⇒ `code == 'NO_PERMISSION'`; (2) mã khác giữ nguyên, `serverMessage == message`; (3) `details: {'blockers': [SalesBlockerDto(code: 'X', message: 'm', field: 'f')]}` ⇒ `details == {'blockers': [{'code': 'X', 'message': 'm', 'field': 'f'}]}`; (4) `details: {'k': 1}` ⇒ `{'k': 1}`; (5) `details` rỗng ⇒ `details == null`. Chạy đỏ → viết hàm → xanh.
-- [ ] **Step 2: `sales_contract_fixtures.dart`.** Chép giá trị (không đổi số / chuỗi / ngày). Test nhỏ trong cùng tệp test của Step 1: `salesFixture<T>()` với từng kiểu hỗ trợ trả bằng (`==` hoặc so `toJson`/trường chính) kết quả `SalesFakeContractFixtureFactory.create(<typeName tương ứng>)` — so được vì module còn tới Task 3; **xoá test so sánh này ở Task 3 Step 0** (sau khi đổi import, DTO của app khác kiểu DTO module ⇒ không biên dịch được).
-- [ ] **Step 3: Chuyển từng tệp** (thứ tự ngắn trước: 4 tệp `sales_return_exchange_*_page_test`, `sales_transaction_result_page_test`, `sales_return_exchange_detail_cubit_test`, `sales_order_list_cubit_test`, `sales_transaction_result_body_test`, `sales_return_exchange_settlement_cubit_test`, `sales_transaction_result_cubit_test`, `sales_return_exchange_session_cubit_test`, `sales_checkout_page_test`, `sales_order_detail_page_test`, `sales_order_detail_cubit_test`, `sales_flow_pages_test`). Mỗi tệp: thay lớp module riêng + `ModuleBacked*` bằng fake theo bảng; `SalesContractException(...)` ⇒ `salesContractError(...)`; Q3(c), Q3(d). Sau mỗi tệp chạy nó: số `+N` == số ở Task 0 Step 3, không `-M`; ghi `expect(` trước / sau và từng dòng assert `tenantId` / `actorId` đã bỏ. Commit mỗi 2-4 tệp: `test(sales): 8-C chuyển <tên tệp> sang fake repository`.
-- [ ] **Step 4: Xoá cầu.** `grep -rln "module_backed_sales_repositories\|ModuleBacked\|ISalesModule\|FakeSalesModule\|SalesFakeContractFixtureFactory" apps/erp/test --include='*.dart'` ⇒ chỉ còn `sales_contract_error_test.dart` (test so sánh Step 2, xoá ở Task 3) và `test/core/di/sales_runtime_registration_test.dart`. Xoá `module_backed_sales_repositories.dart`.
-- [ ] **Step 5: Kiểm.** `cd apps/erp && dart analyze test` ⇒ 0 error; `flutter test test/features/sales` ⇒ số pass = Task 0 Step 3 + số test mới Step 1-2, 0 lỗi mới.
-- [ ] **Step 6: Commit** `test(sales): 8-C bỏ cầu module_backed_sales_repositories`
+- [x] **Step 1: `salesContractError` + test.** Test `sales_contract_error_test.dart`: (1) `'PERMISSION_DENIED'` ⇒ `code == 'NO_PERMISSION'`; (2) mã khác giữ nguyên, `serverMessage == message`; (3) `details: {'blockers': [SalesBlockerDto(code: 'X', message: 'm', field: 'f')]}` ⇒ `details == {'blockers': [{'code': 'X', 'message': 'm', 'field': 'f'}]}`; (4) `details: {'k': 1}` ⇒ `{'k': 1}`; (5) `details` rỗng ⇒ `details == null`. Chạy đỏ → viết hàm → xanh.
+- [x] **Step 2: `sales_contract_fixtures.dart`.** Chép giá trị (không đổi số / chuỗi / ngày). Test nhỏ trong cùng tệp test của Step 1: `salesFixture<T>()` với từng kiểu hỗ trợ trả bằng (`==` hoặc so `toJson`/trường chính) kết quả `SalesFakeContractFixtureFactory.create(<typeName tương ứng>)` — so được vì module còn tới Task 3; **xoá test so sánh này ở Task 3 Step 0** (sau khi đổi import, DTO của app khác kiểu DTO module ⇒ không biên dịch được).
+- [x] **Step 3: Chuyển từng tệp** (thứ tự ngắn trước: 4 tệp `sales_return_exchange_*_page_test`, `sales_transaction_result_page_test`, `sales_return_exchange_detail_cubit_test`, `sales_order_list_cubit_test`, `sales_transaction_result_body_test`, `sales_return_exchange_settlement_cubit_test`, `sales_transaction_result_cubit_test`, `sales_return_exchange_session_cubit_test`, `sales_checkout_page_test`, `sales_order_detail_page_test`, `sales_order_detail_cubit_test`, `sales_flow_pages_test`). Mỗi tệp: thay lớp module riêng + `ModuleBacked*` bằng fake theo bảng; `SalesContractException(...)` ⇒ `salesContractError(...)`; Q3(c), Q3(d). Sau mỗi tệp chạy nó: số `+N` == số ở Task 0 Step 3, không `-M`; ghi `expect(` trước / sau và từng dòng assert `tenantId` / `actorId` đã bỏ. Commit mỗi 2-4 tệp: `test(sales): 8-C chuyển <tên tệp> sang fake repository`.
+- [x] **Step 4: Xoá cầu.** `grep -rln "module_backed_sales_repositories\|ModuleBacked\|ISalesModule\|FakeSalesModule\|SalesFakeContractFixtureFactory" apps/erp/test --include='*.dart'` ⇒ chỉ còn `sales_contract_error_test.dart` (test so sánh Step 2, xoá ở Task 3) và `test/core/di/sales_runtime_registration_test.dart`. Xoá `module_backed_sales_repositories.dart`.
+- [x] **Step 5: Kiểm.** `cd apps/erp && dart analyze test` ⇒ 0 error; `flutter test test/features/sales` ⇒ số pass = Task 0 Step 3 + số test mới Step 1-2, 0 lỗi mới.
+- [x] **Step 6: Commit** `test(sales): 8-C bỏ cầu module_backed_sales_repositories`
 
 ### Task 2: Bỏ nhóm `old` + live test sang repository (Q4)
 
@@ -287,7 +287,8 @@ Run: `flutter test test/features/sales/data/sales_sql_contract_test.dart` ⇒ 4 
 
 ### Task 0
 
-- Commit: xem `git log -1` (test(sales): 8-C bước 0 — test hợp đồng RPC sales trên migration hiện tại).
+- Commit: `5afc32c04` (test(sales): 8-C bước 0 — test hợp đồng RPC sales trên migration hiện tại).
+- `node .gitnexus/run.cjs detect_changes` lỗi Node (stack trace trong `LocalBackend.callTool`), không có kết quả.
 - Tệp: tạo `apps/erp/test/features/sales/data/sales_sql_contract_test.dart` (helper `_findRepoRoot` / `_allMigrationsSql` / `_definesFn` chép từ `pricing_sql_contract_test.dart`). Không đổi code production, không chạm DB.
 - Lệch plan: không. Tệp dở từ lần trước đã kiểm lại đủ 5 test theo bảng Step 1 (35 tên RPC, 6 RPC Q6 + 3 RPC giữ).
 - Test: `sales_sql_contract_test.dart` +5 PASS (5/5); `dart analyze` tệp này sạch. Toàn `test/features/sales`: +1284 xanh (đã gồm 5 test mới; trước Task 0 là 1279). Mọi tệp nhóm A, B xanh trên code cũ.
@@ -328,6 +329,40 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 | `data/sales_receipt_rpc_parity_test.dart` | +17 | 25 |
 | `logic/sales_checkout_rules_test.dart` | +25 | 1 |
 | `logic/sales_draft_rules_test.dart` | +71 | 11 |
+
+### Task 1
+
+- Commit: `6e8d857ab` (4 page test + `salesContractError`), `4a1e4e21d` (detail cubit, list cubit, result body), `b299c2141` (settlement, session cubit), `839ed3548` (checkout page, order detail page), `416308b7f` (flow pages + `sales_contract_fixtures.dart`), `17b424992` (order detail cubit, transaction result cubit, xoá cầu).
+- Tệp tạo: `support/sales_contract_error.dart`, `support/sales_contract_error_test.dart` (5 test Step 1 + 11 test so `salesFixture` với `SalesFakeContractFixtureFactory`, xoá nhóm so ở Task 3 Step 0), `support/sales_contract_fixtures.dart` (10 kiểu: `AvailablePostSaleActionsDto`, `CheckoutResultDto`, `SalesOrderResultDto`, `SalesOrderPaymentSummaryDto`, `SalesOrderSettlementDto`, `SalesPaymentTransactionsDto`, `SalesOrderTimelineDto`, `SalesOrderReturnSummaryDto`, `ReturnExchangeDetailDto`, `ReturnExchangeValuationDto` — đúng các kiểu `sales_flow_pages_test` cần; `sales_return_exchange_result_page_test` không cần kiểu nào). Tệp xoá: `support/module_backed_sales_repositories.dart`. `apps/erp/lib` không đổi.
+- Fake dùng chung đổi: chỉ `fake_return_exchange_repository.dart`, `final class` thành `class` (để test kế thừa; không đổi hành vi). Không thêm trường nào.
+- Test (trước / sau, `+N` giữ nguyên, 0 lỗi; `expect(` trước / sau):
+
+| Tệp | `+N` | `expect(` |
+|---|---|---|
+| `sales_return_exchange_detail_page_test` | 2 / 2 | 23 / 23 |
+| `sales_return_exchange_result_page_test` | 3 / 3 | 15 / 15 |
+| `sales_return_exchange_slip_preview_page_test` | 2 / 2 | 8 / 8 |
+| `sales_transaction_result_page_test` | 4 / 4 | 11 / 11 |
+| `…/sales_return_exchange_detail_cubit_test` | 6 / 6 | 20 / 20 |
+| `…/sales_order_list_cubit_test` | 16 / 16 | 39 / 37 |
+| `…/sales_transaction_result_body_test` | 7 / 7 | 28 / 28 |
+| `…/sales_return_exchange_settlement_cubit_test` | 20 / 20 | 87 / 87 |
+| `…/sales_return_exchange_session_cubit_test` | 24 / 24 | 116 / 114 |
+| `presentation/sales_checkout_page_test` | 22 / 22 | 89 / 89 |
+| `sales_order_detail_page_test` | 28 / 28 | 113 / 113 |
+| `sales_flow_pages_test` | 28 / 28 | 117 / 117 |
+| `…/sales_order_detail_cubit_test` | 57 / 57 | 269 / 253 |
+| `…/sales_transaction_result_cubit_test` | 28 / 28 | 100 / 100 |
+
+  Toàn `flutter test test/features/sales`: +1300 xanh (1284 của Task 0 + 5 test `salesContractError` + 11 test so fixture). `dart analyze test`: 0 error, 0 warning, 18 info có sẵn (không tệp sales).
+- Assert bỏ (Q3c, `tenantId` / `actorId`; số dòng của tệp cũ): `sales_order_list_cubit_test.dart:17-18`; `sales_return_exchange_session_cubit_test.dart:250-251`; `sales_order_detail_cubit_test.dart:25-26, 193-194, 197-198, 201-202, 205-206, 209-210, 213-214, 527-528`. Assert bỏ (Q3f): `sales_return_exchange_session_cubit_test.dart:45-48` (`GetReturnExchangeFormPolicyQuery` `isEmpty`). Tổng 20 `expect(` (Q3c) + 1 `expect(` (Q3f) = 21, trừ 1 `expect(` thêm ở lệch plan 1 ⇒ giảm 20, khớp bảng: list −2, session −2, order detail cubit −16.
+- Lệch plan:
+  1. `sales_return_exchange_session_cubit_test`: `.single` ngầm của `PreviewReturnExchangePricingQuery` (dòng 248) thành `expect(previewCalls, hasLength(1))` (thêm 1 `expect(`; thay 2 assert tenant / actor).
+  2. Test cần Future treo, hàng đợi lỗi theo lời gọi, thứ tự lời gọi giữa 2 repository (`list`/`search` đếm riêng, settlement, session, order detail) dùng lớp con cục bộ của fake dùng chung (`extends Fake…Repository`) trong tệp test, không sửa fake chung (trừ bỏ `final` ở fake đổi/trả).
+  3. `sales_flow_pages_test`: `SalesFakeData.findOrderDetail` (module) thay bằng `_OrderRepo.getDetail` cục bộ dựng cùng đơn cho mã không có trong dữ liệu mẫu (`DH-000129`, `ord_123`, `fake-sales-order`).
+  4. `sales_transaction_result_page_test`: tên test bỏ chữ `ISalesModule` / `module`.
+  5. **Cần người dùng chốt (NEEDS_CONTEXT)**: khoá idempotency tạo phiếu `'sales-receipt:tenant-1:order-1:v7'` / `…:v4` do cầu cũ dựng (`module_backed_sales_repositories.dart:250`), repository thật dựng từ phiên (`sales_receipt_repository.dart:37`, đã có test ở `sales_receipt_repository_test.dart:56`); fake chỉ ghi `salesOrderId` + `expectedVersion`. 3 assert (`sales_order_detail_cubit_test.dart:494`, `sales_transaction_result_cubit_test.dart:241, 276`) giữ nguyên chữ, nhưng dựng khoá bằng hàm cục bộ `_generateKey` (tautology). Nếu chốt bỏ như Q3c: xoá 3 `expect(` + 2 hàm `_generateKey`.
+- Impact: chỉ sửa tệp test, không sửa symbol Dart trong `lib`; `detect_changes` lỗi Node như Task 0.
 
 
 ## 9. Review
