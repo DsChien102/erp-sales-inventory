@@ -12,16 +12,16 @@ void main() {
     final repoRoot = _findRepoRoot();
     const files = <String>[
       // Cubits / state
-      'apps/erp/lib/features/sales/presentation/bloc/sales_order/sales_order_list_cubit.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/sales_order/sales_order_list_state.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/sales_order/sales_order_detail_cubit.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/sales_order/sales_order_detail_state.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/sales_order/sales_order_detail_post_sale_actions.dart',
-      'apps/erp/lib/features/sales/presentation/bloc/sales_order/sales_order_detail_sections_loader.dart',
+      'apps/erp/lib/features/sales/logic/sales_order_list_cubit.dart',
+      'apps/erp/lib/features/sales/logic/sales_order_list_state.dart',
+      'apps/erp/lib/features/sales/logic/sales_order_detail_cubit.dart',
+      'apps/erp/lib/features/sales/logic/sales_order_detail_state.dart',
+      'apps/erp/lib/features/sales/logic/sales_order_detail_post_sale_actions.dart',
+      'apps/erp/lib/features/sales/logic/sales_order_detail_sections_loader.dart',
       // Mappers / support
       'apps/erp/lib/features/sales/presentation/support/sales_order_list_mapper.dart',
       'apps/erp/lib/features/sales/presentation/support/sales_order_detail_mapper.dart',
-      'apps/erp/lib/features/sales/presentation/support/sales_receipt_operation_handler.dart',
+      'apps/erp/lib/features/sales/logic/sales_receipt_operation_handler.dart',
       // VMs S15–S21
       'apps/erp/lib/features/sales/presentation/models/sales_order/sales_order_list_item_vm.dart',
       'apps/erp/lib/features/sales/presentation/models/sales_order/sales_order_list_filters.dart',

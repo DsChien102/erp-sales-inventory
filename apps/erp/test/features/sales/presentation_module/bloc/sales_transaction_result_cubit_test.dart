@@ -4,9 +4,12 @@ import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
+import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
+
+import '../../support/module_backed_sales_repositories.dart';
 
 import 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
@@ -133,7 +136,6 @@ void main() {
       expect(cubit.state.issues, [SalesTransactionResultIssue.uncertainResult]);
       expect(module.reads.where((r) => r == 'checkout'), hasLength(3));
     });
-
 
     test('keeps the committed order when payment projection is pending', () async {
       final module = _RecordingSalesModule(
@@ -507,6 +509,32 @@ void main() {
         expect(shareCommands[2].idempotencyKey, isNot(failedShare.idempotencyKey));
       },
     );
+
+    test(
+      'retry_activity_reuses_command_id_and_key verifies retried activity reuses commandId and idempotencyKey',
+      () async {
+        final module = _RecordingSalesModule(
+          printedResponses: [_Failure(Exception('audit network error')), _receipt()],
+        );
+        final cubit = _cubit(module: module);
+        addTearDown(cubit.close);
+
+        await cubit.load();
+        await cubit.ensureReceipt();
+        module.commands.clear();
+
+        await cubit.printReceipt((_) async {});
+        expect(cubit.state.receipt.hasPrintActivityWarning, isTrue);
+
+        await cubit.printReceipt((_) async {});
+        expect(cubit.state.receipt.hasPrintActivityWarning, isFalse);
+
+        final commands = module.commands.whereType<RecordSalesReceiptPrintedCommand>().toList();
+        expect(commands, hasLength(2));
+        expect(commands[1].id, commands[0].id);
+        expect(commands[1].idempotencyKey, commands[0].idempotencyKey);
+      },
+    );
   });
 }
 
@@ -515,16 +543,16 @@ SalesTransactionResultCubit _cubit({
   String? knownReceiptId,
   List<Duration> recoveryBackoff = const [Duration.zero],
   Future<void> Function(Duration)? delay,
+  SalesReceiptRepository? receiptRepository,
 }) => SalesTransactionResultCubit(
   storeId: 'store-1',
-idempotencyKey: 'attempt-1',
+  idempotencyKey: 'attempt-1',
   salesOrderId: 'order-1',
   knownReceiptId: knownReceiptId,
   checkoutRepository: _CheckoutRepo(module),
   orderRepository: _OrderRepo(module),
   paymentRepository: _PaymentRepo(module),
-  salesModule: module,
-  executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
+  receiptRepository: receiptRepository ?? ModuleBackedSalesReceiptRepository(module),
   recoveryBackoff: recoveryBackoff,
   delay: delay,
 );
@@ -559,6 +587,7 @@ final class _RecordingSalesModule implements ISalesModule {
     if (response is Future<Object>) return await response as T;
     return response as T;
   }
+
   final List<Object> attemptResponses;
   final List<Object> generateResponses;
   final List<Object> printedResponses;
@@ -658,22 +687,6 @@ final class _AmbiguousTransportFailure implements Exception {
   const _AmbiguousTransportFailure();
 }
 
-final class _ExecutionContext implements IExecutionContext {
-  const _ExecutionContext(this.tenantId, this.userId);
-
-  final String tenantId;
-  final String userId;
-
-  @override
-  String get correlationId => 'corr-test';
-
-  @override
-  Future<String> requireTenantId() async => tenantId;
-
-  @override
-  Future<String> requireUserId() async => userId;
-}
-
 CheckoutResultDto _succeededCheckout() => const CheckoutResultDto(
   idempotencyKey: 'attempt-1',
   salesOrderId: 'order-1',
@@ -709,7 +722,6 @@ SalesOrderPaymentSummaryDto _payment() => const SalesOrderPaymentSummaryDto(
   paidTotal: MoneyDto(amountMinor: 150000, currencyCode: 'VND'),
   outstandingTotal: MoneyDto(amountMinor: 0, currencyCode: 'VND'),
 );
-
 
 SalesReceiptDto _receipt() => SalesReceiptDto(
   receiptId: 'receipt-1',

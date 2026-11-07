@@ -1,9 +1,9 @@
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_actions_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_post_sale_navigation_intent.dart';
+import 'package:erp/features/sales/presentation/support/sales_order_cancellation_attempt_factory.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../../models/sales_order/sales_order_actions_vm.dart';
-import '../../models/sales_order/sales_post_sale_navigation_intent.dart';
-import '../../support/sales_order_cancellation_attempt_factory.dart';
 import 'sales_order_detail_sections_loader.dart';
 import 'sales_order_detail_state.dart';
 
@@ -39,14 +39,10 @@ final class SalesOrderDetailPostSaleActions {
     final sourceVersion = state.sourceVersion;
     if (state.status != SalesOrderDetailStatus.loaded || sourceVersion == null) return;
     final generation = state.requestGeneration;
-    final tenantId = await executionContext.requireTenantId();
-    final actorId = await executionContext.requireUserId();
     if (isClosed() || generation != currentGeneration()) return;
     await sectionsLoader().loadActions(
       generation: generation,
       sourceVersion: sourceVersion,
-      tenantId: tenantId,
-      actorId: actorId,
     );
   }
 

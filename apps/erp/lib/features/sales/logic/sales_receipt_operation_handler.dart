@@ -1,18 +1,15 @@
-import 'package:uuid/uuid.dart';
-import 'package:vet45_sales_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
-
+import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';
-import '../models/sales_receipt/sales_receipt_device_action.dart';
-import '../models/sales_receipt/sales_receipt_operation_state.dart';
-import 'sales_transaction_result_mapper.dart';
+import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_device_action.dart';
+import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_operation_state.dart';
+import 'package:erp/features/sales/presentation/support/sales_transaction_result_mapper.dart';
+import 'package:uuid/uuid.dart';
 
 /// Shared lazy get/generate/print/share receipt operations (Group E + S19).
 final class SalesReceiptOperationHandler {
   SalesReceiptOperationHandler({
     required this.salesOrderId,
-    required ISalesModule salesModule,
-    required IExecutionContext executionContext,
+    required SalesReceiptRepository repository,
     required int Function() sourceVersion,
     required bool Function() hasSourceVersion,
     required String? Function() knownReceiptId,
@@ -21,8 +18,7 @@ final class SalesReceiptOperationHandler {
     required void Function(SalesReceiptOperationState) emitReceipt,
     required bool Function() isClosed,
     required int Function() currentGeneration,
-  }) : _salesModule = salesModule,
-       _executionContext = executionContext,
+  }) : _repository = repository,
        _sourceVersion = sourceVersion,
        _hasSourceVersion = hasSourceVersion,
        _knownReceiptId = knownReceiptId,
@@ -33,8 +29,7 @@ final class SalesReceiptOperationHandler {
        _currentGeneration = currentGeneration;
 
   final String salesOrderId;
-  final ISalesModule _salesModule;
-  final IExecutionContext _executionContext;
+  final SalesReceiptRepository _repository;
   final int Function() _sourceVersion;
   final bool Function() _hasSourceVersion;
   final String? Function() _knownReceiptId;
@@ -71,28 +66,16 @@ final class SalesReceiptOperationHandler {
     );
 
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
       final knownId = _knownReceiptId();
       final version = _sourceVersion();
       final receipt = knownId == null
-          ? await _salesModule.executeCommandAsync<SalesReceiptDto>(
-              GenerateSalesReceiptCommand(
-                tenantId: tenantId,
-                actorId: actorId,
-                salesOrderId: salesOrderId,
-                idempotencyKey: _generateIdempotencyKey(tenantId, version),
-                correlationId: _executionContext.correlationId,
-                expectedVersion: version,
-              ),
+          ? await _repository.generate(
+              salesOrderId: salesOrderId,
+              expectedVersion: version,
             )
-          : await _salesModule.executeQueryAsync<SalesReceiptDto>(
-              GetSalesReceiptQuery(
-                tenantId: tenantId,
-                actorId: actorId,
-                receiptId: knownId,
-                expectedSourceVersion: version,
-              ),
+          : await _repository.get(
+              receiptId: knownId,
+              expectedSourceVersion: version,
             );
       if (!_isCurrent(generation)) return;
       _setKnownReceiptId(receipt.receiptId);
@@ -210,28 +193,16 @@ final class SalesReceiptOperationHandler {
     final receipt = _readReceipt().value;
     if (receipt == null) return;
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
       final updatedReceipt = switch (activity.kind) {
-        _ReceiptActivityKind.print => await _salesModule.executeCommandAsync<SalesReceiptDto>(
-          RecordSalesReceiptPrintedCommand(
-            id: activity.id,
-            tenantId: tenantId,
-            actorId: actorId,
-            receiptId: activity.receiptId,
-            idempotencyKey: activity.idempotencyKey,
-            correlationId: _executionContext.correlationId,
-          ),
+        _ReceiptActivityKind.print => await _repository.recordPrinted(
+          receiptId: activity.receiptId,
+          commandId: activity.id,
+          idempotencyKey: activity.idempotencyKey,
         ),
-        _ReceiptActivityKind.share => await _salesModule.executeCommandAsync<SalesReceiptDto>(
-          RecordSalesReceiptSharedCommand(
-            id: activity.id,
-            tenantId: tenantId,
-            actorId: actorId,
-            receiptId: activity.receiptId,
-            idempotencyKey: activity.idempotencyKey,
-            correlationId: _executionContext.correlationId,
-          ),
+        _ReceiptActivityKind.share => await _repository.recordShared(
+          receiptId: activity.receiptId,
+          commandId: activity.id,
+          idempotencyKey: activity.idempotencyKey,
         ),
       };
       if (!_isCurrent(generation)) return;
@@ -263,9 +234,6 @@ final class SalesReceiptOperationHandler {
   }
 
   bool _isCurrent(int generation) => !_isClosed() && generation == _currentGeneration();
-
-  String _generateIdempotencyKey(String tenantId, int version) =>
-      'sales-receipt:$tenantId:$salesOrderId:v$version';
 }
 
 enum _ReceiptActivityKind { print, share }

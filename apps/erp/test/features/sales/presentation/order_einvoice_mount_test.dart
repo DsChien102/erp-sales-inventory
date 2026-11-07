@@ -11,7 +11,7 @@ import 'package:vet45_einvoice_application/testing.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_einvoice_presentation/presentation.dart' hide PostIssueEInvoiceActionSheet;
 import 'package:erp/features/sales/presentation/bloc/order_einvoice_cubit.dart';
-import 'package:erp/features/sales/presentation/bloc/sales_order/sales_order_detail_state.dart';
+import 'package:erp/features/sales/logic/sales_order_detail_state.dart';
 import 'package:erp/features/sales/presentation/models/sales_order/sales_order_detail_vm.dart';
 import 'package:erp/features/sales/presentation/services/i_invoice_viewer_launcher.dart';
 import 'package:erp/features/sales/presentation/support/order_einvoice_idempotency_key_factory.dart';

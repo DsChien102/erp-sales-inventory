@@ -1,6 +1,7 @@
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
+import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import 'support/module_backed_sales_repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +27,7 @@ void main() {
         ModuleBackedSalesCheckoutRepository(salesModule),
       )
       ..registerSingleton<SalesOrderRepository>(ModuleBackedSalesOrderRepository(salesModule))
+      ..registerSingleton<SalesReceiptRepository>(ModuleBackedSalesReceiptRepository(salesModule))
       ..registerSingleton<SalesPaymentRepository>(ModuleBackedSalesPaymentRepository(salesModule))
       ..registerSingleton<IExecutionContext>(const _TestExecutionContext());
   });
@@ -93,7 +95,7 @@ void main() {
       '/sales/result/order-1',
       extra: SalesCheckoutResultArgs(
         storeId: 'store-1',
-result: CheckoutResultDto(
+        result: CheckoutResultDto(
           idempotencyKey: 'attempt-1',
           salesOrderId: 'order-2',
           salesOrderVersion: 1,
@@ -123,7 +125,7 @@ result: CheckoutResultDto(
 
 SalesCheckoutResultArgs _successArgs() => SalesCheckoutResultArgs(
   storeId: 'store-1',
-result: CheckoutResultDto(
+  result: CheckoutResultDto(
     idempotencyKey: 'attempt-1',
     salesOrderId: 'order-1',
     salesOrderVersion: 3,
@@ -203,6 +205,6 @@ final class _GroupEResultSalesModule implements ISalesModule {
           )
           as TResult;
     }
-        throw StateError('Unexpected query $query');
+    throw StateError('Unexpected query $query');
   }
 }

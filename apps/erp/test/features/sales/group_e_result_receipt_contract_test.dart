@@ -16,7 +16,7 @@ void main() {
     expect(argsSource, isNot(contains('paymentMethodText')));
   });
 
-  test('Group E ERP result page loads through ISalesModule only', () {
+  test('Group E ERP result page loads through repositories', () {
     final root = _findRepoRoot();
     final page = File(
       '${root.path}/apps/erp/lib/features/sales/presentation/pages/sales_transaction_result_page.dart',
@@ -25,8 +25,7 @@ void main() {
       '${root.path}/apps/erp/lib/features/sales/presentation/pages/sales_checkout_page.dart',
     ).readAsStringSync();
 
-    expect(page, contains('GetIt.instance<ISalesModule>'));
-    expect(page, contains('GetIt.instance<IExecutionContext>'));
+    expect(page, contains('GetIt.instance<SalesReceiptRepository>'));
     expect(page, contains('SalesTransactionResultCubit'));
     expect(page, contains('..load()'));
     expect(page, isNot(contains('loadError')));

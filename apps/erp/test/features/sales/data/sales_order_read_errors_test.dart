@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase/supabase.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_sales_infrastructure/src/domain/sales_order/supabase_sales_order_read_gateway.dart';
+import 'package:vet45_sales_infrastructure/src/domain/sales_order_cancellation/supabase_sales_order_cancellation_gateway.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 const _six = [
@@ -48,6 +49,15 @@ void main() {
     test('STALE_DATA → DEPENDENCY_UNAVAILABLE', () async {
       expect(await _oldCode(_json('STALE_DATA')), 'DEPENDENCY_UNAVAILABLE');
     });
+    test('IMPACT_PENDING kept by cancellation gateway', () async {
+      try {
+        await SupabaseSalesOrderCancellationGateway(rpcClient: _OldRpc(_json('IMPACT_PENDING'))).getDetail(
+          GetSalesOrderCancellationQuery(tenantId: 't', actorId: 'a', salesOrderId: 'o'),
+        );
+      } on SalesContractException catch (e) {
+        expect(e.code, 'IMPACT_PENDING');
+      }
+    });
   });
 
   group('new', () {
@@ -59,6 +69,11 @@ void main() {
         expect(e.serverMessage, 'm');
       });
     }
+    test('keeps IMPACT_PENDING', () {
+      final e = salesOrderReadException(PostgrestException(message: _json('IMPACT_PENDING')));
+      expect(e.code, 'IMPACT_PENDING');
+      expect(e.serverMessage, 'm');
+    });
     test('NETWORK_ERROR stays', () {
       expect(salesOrderReadException(const AppException('NETWORK_ERROR')).code, 'NETWORK_ERROR');
     });

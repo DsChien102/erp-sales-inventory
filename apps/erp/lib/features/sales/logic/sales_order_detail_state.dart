@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_actions_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_detail_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_history_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_order_cancellation/sales_order_cancellation_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_order_settlement/sales_order_payment_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_operation_state.dart';
 import 'package:vet45_einvoice_application/application.dart';
-import '../../models/sales_order/sales_order_actions_vm.dart';
-import '../../models/sales_order_cancellation/sales_order_cancellation_vm.dart';
-import '../../models/sales_order/sales_order_detail_vm.dart';
-import '../../models/sales_order/sales_order_history_vm.dart';
-import '../../models/sales_order_settlement/sales_order_payment_vm.dart';
-import '../../models/sales_receipt/sales_receipt_operation_state.dart';
 
 enum SalesOrderDetailStatus {
   initial,

@@ -1,8 +1,7 @@
 import 'package:equatable/equatable.dart';
-
-import '../../models/sales_order/sales_order_list_filters.dart';
-import '../../models/sales_order/sales_order_list_item_vm.dart';
-import '../../models/sales_order/sales_order_saved_search_preset.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_list_filters.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_list_item_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_saved_search_preset.dart';
 
 sealed class SalesOrderListState extends Equatable {
   const SalesOrderListState({

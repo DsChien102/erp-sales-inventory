@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// substrings) — never a directory sweep, so unrelated groups are not scanned.
 void main() {
   const groupHFiles = <String>[
-    'apps/erp/lib/features/sales/presentation/bloc/sales_order/sales_order_detail_post_sale_actions.dart',
+    'apps/erp/lib/features/sales/logic/sales_order_detail_post_sale_actions.dart',
     'apps/erp/lib/features/sales/presentation/support/sales_order_cancellation_attempt_factory.dart',
     'apps/erp/lib/features/sales/presentation/widgets/sales_order_detail_cancel_reason_card.dart',
   ];

@@ -29,6 +29,7 @@ import '../../features/sales/data/sales_checkout_repository.dart';
 import '../../features/sales/data/sales_draft_repository.dart';
 import '../../features/sales/data/sales_order_repository.dart';
 import '../../features/sales/data/sales_payment_repository.dart';
+import '../../features/sales/data/sales_receipt_repository.dart';
 import '../errors/app_exception.dart';
 import '../router/session_refresh.dart';
 import '../session/session_contracts.dart';
@@ -165,10 +166,11 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
         actorId: () async =>
             sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
         hasPermission: (code) => getIt<SessionController>().hasPermission(code),
-        signUploadUrl: (key) async => (await supabaseModule.client.storage
-            .from(catalogProductImagesBucket)
-            .createSignedUploadUrl(key))
-            .signedUrl,
+        signUploadUrl: (key) async =>
+            (await supabaseModule.client.storage
+                    .from(catalogProductImagesBucket)
+                    .createSignedUploadUrl(key))
+                .signedUrl,
       ),
     )
     ..registerLazySingleton<MeasurementUnitRepository>(
@@ -233,6 +235,14 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     )
     ..registerLazySingleton<SalesOrderRepository>(
       () => SalesOrderRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+        actorId: () async =>
+            sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
+      ),
+    )
+    ..registerLazySingleton<SalesReceiptRepository>(
+      () => SalesReceiptRepository(
         rpc: getIt<SupabaseRpc>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
         actorId: () async =>

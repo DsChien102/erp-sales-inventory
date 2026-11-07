@@ -1,28 +1,26 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_list_filters.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_list_item_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_saved_search_preset.dart';
+import 'package:erp/features/sales/presentation/support/i_sales_active_store_context.dart';
+import 'package:erp/features/sales/presentation/support/sales_order_list_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_sales_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
-import '../../models/sales_order/sales_order_list_filters.dart';
-import '../../models/sales_order/sales_order_list_item_vm.dart';
-import '../../models/sales_order/sales_order_saved_search_preset.dart';
-import '../../support/i_sales_active_store_context.dart';
-import '../../support/sales_order_list_mapper.dart';
 import 'sales_order_list_state.dart';
 
 final class SalesOrderListCubit extends Cubit<SalesOrderListState> {
   SalesOrderListCubit({
-    required ISalesModule salesModule,
-    required IExecutionContext executionContext,
+    required SalesOrderRepository repository,
     required ISalesActiveStoreContext activeStoreContext,
     DateTime? Function()? nowBuilder,
-  }) : _salesModule = salesModule,
-       _executionContext = executionContext,
+  }) : _repository = repository,
        _activeStoreContext = activeStoreContext,
        _nowBuilder = nowBuilder ?? DateTime.now,
        super(const SalesOrderListInitial());
 
-  final ISalesModule _salesModule;
-  final IExecutionContext _executionContext;
+  final SalesOrderRepository _repository;
   final ISalesActiveStoreContext _activeStoreContext;
   final DateTime? Function() _nowBuilder;
 
@@ -92,30 +90,28 @@ final class SalesOrderListCubit extends Cubit<SalesOrderListState> {
     }
 
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
       final storeId = await _activeStoreContext.requireActiveStoreId();
       if (isClosed) return;
       final result = await _executeListQuery(
-        tenantId: tenantId,
-        actorId: actorId,
         storeId: storeId,
         queryText: querySnapshot,
         cursor: null,
       );
       if (isClosed || generation != _requestGeneration) return;
       emit(_toLoadedState(result: result, generation: generation));
-    } catch (error) {
+    } on AppException catch (error) {
       if (isClosed) return;
-      final contractError = _asContractException(error);
-      if (contractError != null &&
-          (contractError.code == 'PERMISSION_DENIED' ||
-              contractError.code == 'DATA_SCOPE_DENIED')) {
-        emit(SalesOrderListBlocked(message: contractError.message ?? contractError.code));
+      if (error.code == 'NO_PERMISSION' || error.code == 'DATA_SCOPE_DENIED') {
+        emit(const SalesOrderListBlocked(message: 'Không có quyền xem đơn hàng'));
         return;
       }
       if (generation == _requestGeneration) {
-        emit(_error('Khong the tai danh sach don hang'));
+        emit(_error('Không thể tải danh sách đơn hàng.'));
+      }
+    } catch (_) {
+      if (isClosed) return;
+      if (generation == _requestGeneration) {
+        emit(_error('Không thể tải danh sách đơn hàng.'));
       }
     }
   }
@@ -197,13 +193,9 @@ final class SalesOrderListCubit extends Cubit<SalesOrderListState> {
     );
 
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
       final storeId = await _activeStoreContext.requireActiveStoreId();
       if (isClosed || generation != _requestGeneration) return;
       final result = await _executeListQuery(
-        tenantId: tenantId,
-        actorId: actorId,
         storeId: storeId,
         queryText: _query,
         cursor: cursor,
@@ -233,18 +225,13 @@ final class SalesOrderListCubit extends Cubit<SalesOrderListState> {
           totalAvailable: result.totalMatching ?? merged.length,
         ),
       );
-    } on SalesContractException catch (error) {
-      if (isClosed || generation != _requestGeneration) return;
-      emit(_withLoadMoreError(current, error.message ?? 'Khong the tai them danh sach don hang'));
     } catch (_) {
       if (isClosed || generation != _requestGeneration) return;
-      emit(_withLoadMoreError(current, 'Khong the tai them danh sach don hang'));
+      emit(_withLoadMoreError(current, 'Không thể tải thêm đơn hàng. Vui lòng thử lại.'));
     }
   }
 
   Future<PagedSalesOrderListDto> _executeListQuery({
-    required String tenantId,
-    required String actorId,
     required String storeId,
     required String? queryText,
     required String? cursor,
@@ -261,31 +248,18 @@ final class SalesOrderListCubit extends Cubit<SalesOrderListState> {
     );
     final q = queryText;
     if (q == null || q.isEmpty) {
-      return _salesModule.executeQueryAsync(
-        ListSalesOrdersQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          cursor: cursor,
-          pageSize: 50,
-          filter: filter,
-        ),
-      );
-    }
-    return _salesModule.executeQueryAsync(
-      SearchSalesOrdersQuery(
-        tenantId: tenantId,
-        actorId: actorId,
-        searchText: q,
+      return _repository.list(
         cursor: cursor,
         pageSize: 50,
         filter: filter,
-      ),
+      );
+    }
+    return _repository.search(
+      searchText: q,
+      cursor: cursor,
+      pageSize: 50,
+      filter: filter,
     );
-  }
-
-  SalesContractException? _asContractException(Object error) {
-    if (error is SalesContractException) return error;
-    return null;
   }
 
   SalesOrderListLoaded _toLoadedState({

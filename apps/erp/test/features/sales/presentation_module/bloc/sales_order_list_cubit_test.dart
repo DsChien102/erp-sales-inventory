@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:erp/features/sales/presentation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart' as app;
-import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
+
+import '../../support/module_backed_sales_repositories.dart';
 
 void main() {
   group('SalesOrderListCubit server state', () {
@@ -69,7 +71,7 @@ void main() {
 
       final state = cubit.state as SalesOrderListLoaded;
       expect(state.items, hasLength(1));
-      expect(state.loadMoreError, contains('network down'));
+      expect(state.loadMoreError, 'Không thể tải thêm đơn hàng. Vui lòng thử lại.');
       expect(state.isLoadingMore, isFalse);
     });
 
@@ -98,7 +100,14 @@ void main() {
 
       await cubit.loadInitial();
 
-      expect(cubit.state, isA<SalesOrderListBlocked>());
+      expect(
+        cubit.state,
+        isA<SalesOrderListBlocked>().having(
+          (s) => s.message,
+          'message',
+          'Không có quyền xem đơn hàng',
+        ),
+      );
     });
 
     test('data scope denied maps to blocked state', () async {
@@ -108,7 +117,14 @@ void main() {
 
       await cubit.loadInitial();
 
-      expect(cubit.state, isA<SalesOrderListBlocked>());
+      expect(
+        cubit.state,
+        isA<SalesOrderListBlocked>().having(
+          (s) => s.message,
+          'message',
+          'Không có quyền xem đơn hàng',
+        ),
+      );
     });
 
     test('projection pending maps to generic list error', () async {
@@ -119,7 +135,7 @@ void main() {
       await cubit.loadInitial();
 
       final state = cubit.state as SalesOrderListError;
-      expect(state.message, 'Khong the tai danh sach don hang');
+      expect(state.message, 'Không thể tải danh sách đơn hàng.');
     });
 
     test('transport retryable error maps to generic list error', () async {
@@ -130,7 +146,70 @@ void main() {
       await cubit.loadInitial();
 
       final state = cubit.state as SalesOrderListError;
-      expect(state.message, 'Khong the tai danh sach don hang');
+      expect(state.message, 'Không thể tải danh sách đơn hàng.');
+    });
+
+    test('load_error_shows_accented_message', () async {
+      final module = _ContractErrorModule('UNKNOWN_ERROR');
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.loadInitial();
+
+      final state = cubit.state as SalesOrderListError;
+      expect(state.message, 'Không thể tải danh sách đơn hàng.');
+    });
+
+    test('load_more_error_never_shows_server_message', () async {
+      final module = _RecordingSalesModule(
+        responses: [
+          _OkResp(_ok(items: [_dto('so-1')], hasMore: true, nextCursor: 'c2')),
+          const _Err(app.SalesContractException('UNKNOWN', message: 'raw server explosion')),
+        ],
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.loadInitial();
+      await cubit.loadMore();
+
+      final state = cubit.state as SalesOrderListLoaded;
+      expect(state.loadMoreError, 'Không thể tải thêm đơn hàng. Vui lòng thử lại.');
+      expect(state.loadMoreError, isNot(contains('server')));
+    });
+
+    test('blocked_on_no_permission', () async {
+      final module = _PermissionDeniedModule();
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.loadInitial();
+
+      expect(
+        cubit.state,
+        isA<SalesOrderListBlocked>().having(
+          (s) => s.message,
+          'message',
+          'Không có quyền xem đơn hàng',
+        ),
+      );
+    });
+
+    test('blocked_on_data_scope_denied', () async {
+      final module = _ContractErrorModule('DATA_SCOPE_DENIED');
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.loadInitial();
+
+      expect(
+        cubit.state,
+        isA<SalesOrderListBlocked>().having(
+          (s) => s.message,
+          'message',
+          'Không có quyền xem đơn hàng',
+        ),
+      );
     });
 
     test('applyFilters dispatches a new server query, cursor null, carries storeId', () async {
@@ -201,8 +280,7 @@ void main() {
 
 SalesOrderListCubit _buildCubit({required app.ISalesModule module}) {
   return SalesOrderListCubit(
-    salesModule: module,
-    executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
+    repository: ModuleBackedSalesOrderRepository(module),
     activeStoreContext: const _StoreContext('store-1'),
     nowBuilder: () => DateTime.utc(2026, 8, 12),
   );
@@ -277,22 +355,6 @@ final class _RecordingSalesModule implements app.ISalesModule {
     if (response is _Err) throw response.error;
     throw StateError('Unsupported response');
   }
-}
-
-final class _ExecutionContext implements IExecutionContext {
-  const _ExecutionContext(this.tenantId, this.userId);
-
-  final String tenantId;
-  final String userId;
-
-  @override
-  String get correlationId => 'corr-test';
-
-  @override
-  Future<String> requireTenantId() async => tenantId;
-
-  @override
-  Future<String> requireUserId() async => userId;
 }
 
 final class _StoreContext implements ISalesActiveStoreContext {

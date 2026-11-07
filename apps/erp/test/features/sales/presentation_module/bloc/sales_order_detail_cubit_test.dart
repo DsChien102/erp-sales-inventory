@@ -1,10 +1,13 @@
-import '../../support/module_backed_sales_repositories.dart';
 import 'dart:async';
 
+import 'package:erp/features/sales/data/sales_order_repository.dart';
+import 'package:erp/features/sales/data/sales_receipt_repository.dart';
+import 'package:erp/features/sales/presentation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart' as app;
-import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
+
+import '../../support/module_backed_sales_repositories.dart';
 
 void main() {
   group('SalesOrderDetailCubit S16 core', () {
@@ -126,7 +129,7 @@ void main() {
 
       expect(cubit.state.status, SalesOrderDetailStatus.error);
       expect(cubit.state.core, isNull);
-      expect(cubit.state.errorMessage, 'network down');
+      expect(cubit.state.errorMessage, isNull);
     });
 
     test('malformed contract maps to error', () async {
@@ -1000,6 +1003,96 @@ void main() {
       expect(cubit.state.core, isNotNull);
     });
   });
+
+  group('C12 error copy & state mappings', () {
+    test('core_error_never_carries_server_message NOT_FOUND', () async {
+      final module = _ContractErrorModule('NOT_FOUND', message: 'Raw order not found.');
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+
+      expect(cubit.state.status, SalesOrderDetailStatus.notFound);
+      expect(cubit.state.errorMessage, isNull);
+    });
+
+    test('core_error_never_carries_server_message NO_PERMISSION', () async {
+      final module = _ContractErrorModule('PERMISSION_DENIED', message: 'Raw scope denied.');
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+
+      expect(cubit.state.status, SalesOrderDetailStatus.blocked);
+      expect(cubit.state.errorMessage, isNull);
+    });
+
+    test('core_error_never_carries_server_message SYSTEM_ERROR', () async {
+      final module = _ContractErrorModule('SYSTEM_ERROR', message: 'Raw database failure.');
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+
+      expect(cubit.state.status, SalesOrderDetailStatus.error);
+      expect(cubit.state.errorMessage, isNull);
+    });
+
+    test('history_error_never_carries_server_message', () async {
+      final module = _RecordingSalesModule(
+        timelineError: const app.SalesContractException(
+          'TIMELINE_UNAVAILABLE',
+          message: 'Raw timeline error.',
+        ),
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+      await _drain();
+
+      expect(cubit.state.status, SalesOrderDetailStatus.loaded);
+      expect(cubit.state.historyStatus, SalesOrderDetailSectionStatus.error);
+      expect(cubit.state.historyErrorMessage, isNull);
+    });
+
+    test('actions_error_never_carries_server_message', () async {
+      final module = _RecordingSalesModule(
+        actionsError: const app.SalesContractException(
+          'ACTIONS_UNAVAILABLE',
+          message: 'Raw actions error.',
+        ),
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+      await _drain();
+
+      expect(cubit.state.status, SalesOrderDetailStatus.loaded);
+      expect(cubit.state.actionsStatus, SalesOrderDetailSectionStatus.error);
+      expect(cubit.state.actionsErrorMessage, isNull);
+    });
+
+    test('cancellation_impact_pending_is_projection_pending', () async {
+      final module = _RecordingSalesModule(
+        detail: _detail(lifecycleStatus: app.SalesOrderLifecycleStatus.cancelled),
+        cancellationDetailError: const app.SalesContractException(
+          'IMPACT_PENDING',
+          message: 'Pending cancellation projection',
+        ),
+      );
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+
+      await cubit.load();
+      await _drain();
+
+      expect(cubit.state.status, SalesOrderDetailStatus.loaded);
+      expect(cubit.state.cancellationStatus, SalesOrderDetailSectionStatus.projectionPending);
+      expect(cubit.state.cancellationErrorMessage, isNull);
+    });
+  });
 }
 
 Future<void> _drain() async {
@@ -1010,11 +1103,15 @@ Future<void> _drain() async {
 SalesOrderDetailCubit _buildCubit({
   required app.ISalesModule module,
   SalesOrderCancellationAttemptFactory? cancellationAttemptFactory,
+  SalesOrderRepository? orderRepository,
+  SalesReceiptRepository? receiptRepository,
 }) {
   return SalesOrderDetailCubit(
     orderId: 'order-1',
-    salesModule: module,
+    orderRepository: orderRepository ?? ModuleBackedSalesOrderRepository(module),
+    receiptRepository: receiptRepository ?? ModuleBackedSalesReceiptRepository(module),
     paymentRepository: ModuleBackedSalesPaymentRepository(module),
+    salesModule: module,
     executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
     cancellationAttemptFactory: cancellationAttemptFactory,
   );
@@ -1203,6 +1300,8 @@ final class _RecordingSalesModule implements app.ISalesModule {
     this.paymentSummaryError,
     this.settlementError,
     this.timelineError,
+    this.actionsError,
+    this.cancellationDetailError,
     this.cancellationPrecheckError,
     this.cancellationConfirmError,
     app.SalesPaymentTransactionsDto? transactions,
@@ -1216,7 +1315,6 @@ final class _RecordingSalesModule implements app.ISalesModule {
     Object? sharedResponse,
   }) : transactionsError = null,
        returnSummaryError = null,
-       actionsError = null,
        returnExchangePrecheckError = null,
        detail = detail ?? _detail(),
        transactions =

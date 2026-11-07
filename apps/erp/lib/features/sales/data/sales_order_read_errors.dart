@@ -7,11 +7,12 @@ const Set<String> _stableCodes = {
   'PROJECTION_PENDING',
   'DATA_SCOPE_DENIED',
   'STALE_VERSION',
+  'IMPACT_PENDING',
   'DEPENDENCY_UNAVAILABLE',
   'NETWORK_ERROR',
 };
 
-/// Q5: 6 mã ổn định của gateway đọc + NETWORK_ERROR → giữ; còn lại SYSTEM_ERROR.
+/// Q5: mã ổn định của gateway đọc đơn / huỷ + NETWORK_ERROR → giữ; còn lại SYSTEM_ERROR.
 AppException salesOrderReadException(Object error) {
   final appError = error is AppException ? error : AppException.from(error);
   if (_stableCodes.contains(appError.code)) return appError;

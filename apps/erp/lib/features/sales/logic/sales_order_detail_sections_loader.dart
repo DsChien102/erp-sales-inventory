@@ -1,10 +1,11 @@
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_actions_vm.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_history_vm.dart';
+import 'package:erp/features/sales/presentation/support/sales_order_detail_mapper.dart';
 import 'package:vet45_sales_application/application.dart';
 
-import '../../models/sales_order/sales_order_actions_vm.dart';
-import '../../models/sales_order/sales_order_history_vm.dart';
-import '../../support/sales_order_detail_mapper.dart';
 import 'sales_order_detail_state.dart';
 
 typedef SalesOrderDetailStateEmitter =
@@ -14,7 +15,7 @@ typedef SalesOrderDetailStateEmitter =
 final class SalesOrderDetailSectionsLoader {
   SalesOrderDetailSectionsLoader({
     required this.orderId,
-    required this.salesModule,
+    required this.orderRepository,
     required this.paymentRepository,
     required this.isClosed,
     required this.currentGeneration,
@@ -24,7 +25,7 @@ final class SalesOrderDetailSectionsLoader {
   });
 
   final String orderId;
-  final ISalesModule salesModule;
+  final SalesOrderRepository orderRepository;
   final SalesPaymentRepository paymentRepository;
   final bool Function() isClosed;
   final int Function() currentGeneration;
@@ -35,36 +36,26 @@ final class SalesOrderDetailSectionsLoader {
   Future<void> loadAll({
     required int generation,
     required int sourceVersion,
-    required String tenantId,
-    required String actorId,
     bool isCancelled = false,
   }) {
     return Future.wait<void>([
       loadPayment(
         generation: generation,
         sourceVersion: sourceVersion,
-        tenantId: tenantId,
-        actorId: actorId,
       ),
       loadHistory(
         generation: generation,
         sourceVersion: sourceVersion,
-        tenantId: tenantId,
-        actorId: actorId,
       ),
       loadActions(
         generation: generation,
         sourceVersion: sourceVersion,
-        tenantId: tenantId,
-        actorId: actorId,
       ),
       // S27: cancellation detail only exists once the order is cancelled.
       if (isCancelled)
         loadCancellation(
           generation: generation,
           sourceVersion: sourceVersion,
-          tenantId: tenantId,
-          actorId: actorId,
         ),
     ]);
   }
@@ -72,8 +63,6 @@ final class SalesOrderDetailSectionsLoader {
   Future<void> loadCancellation({
     required int generation,
     required int sourceVersion,
-    required String tenantId,
-    required String actorId,
   }) async {
     if (!_stillCurrent(generation, sourceVersion)) return;
     emitTransform(
@@ -85,13 +74,9 @@ final class SalesOrderDetailSectionsLoader {
     );
 
     try {
-      final dto = await salesModule.executeQueryAsync<SalesOrderCancellationDetailDto>(
-        GetSalesOrderCancellationQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: orderId,
-          expectedSourceVersion: sourceVersion,
-        ),
+      final dto = await orderRepository.getCancellation(
+        salesOrderId: orderId,
+        expectedSourceVersion: sourceVersion,
       );
       if (!_stillCurrent(generation, sourceVersion) || isClosed()) return;
       emitTransform(
@@ -103,23 +88,20 @@ final class SalesOrderDetailSectionsLoader {
       );
     } catch (error) {
       if (!_stillCurrent(generation, sourceVersion) || isClosed()) return;
-      final contract = error is SalesContractException ? error : null;
+      final code = error is AppException ? error.code : null;
       // A cancelled order whose projection has not yet materialized is pending,
       // not an error; do not discard the already-loaded core detail.
-      final status = switch (contract?.code) {
-        'PERMISSION_DENIED' || 'DATA_SCOPE_DENIED' => SalesOrderDetailSectionStatus.blocked,
+      final status = switch (code) {
+        'NO_PERMISSION' || 'DATA_SCOPE_DENIED' => SalesOrderDetailSectionStatus.blocked,
         'PROJECTION_PENDING' ||
         'NOT_FOUND' ||
         'IMPACT_PENDING' => SalesOrderDetailSectionStatus.projectionPending,
         _ => SalesOrderDetailSectionStatus.error,
       };
-      final message = contract?.message;
-      final hasMessage = message != null && message.isNotEmpty;
       emitTransform(
         (state) => state.copyWith(
           cancellationStatus: status,
-          cancellationErrorMessage: hasMessage ? message : null,
-          clearCancellationErrorMessage: !hasMessage,
+          clearCancellationErrorMessage: true,
           clearCancellation: true,
         ),
       );
@@ -129,8 +111,6 @@ final class SalesOrderDetailSectionsLoader {
   Future<void> loadActions({
     required int generation,
     required int sourceVersion,
-    required String tenantId,
-    required String actorId,
   }) async {
     if (!_stillCurrent(generation, sourceVersion)) return;
     emitTransform(
@@ -144,13 +124,9 @@ final class SalesOrderDetailSectionsLoader {
     );
 
     try {
-      final dto = await salesModule.executeQueryAsync<AvailablePostSaleActionsDto>(
-        GetAvailablePostSaleActionsQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: orderId,
-          expectedSourceVersion: sourceVersion,
-        ),
+      final dto = await orderRepository.getAvailableActions(
+        salesOrderId: orderId,
+        expectedSourceVersion: sourceVersion,
       );
       if (!_stillCurrent(generation, sourceVersion) || isClosed()) return;
       emitTransform(
@@ -172,8 +148,6 @@ final class SalesOrderDetailSectionsLoader {
   Future<void> loadPayment({
     required int generation,
     required int sourceVersion,
-    required String tenantId,
-    required String actorId,
   }) async {
     if (!_stillCurrent(generation, sourceVersion)) return;
     emitTransform(
@@ -248,8 +222,6 @@ final class SalesOrderDetailSectionsLoader {
   Future<void> loadHistory({
     required int generation,
     required int sourceVersion,
-    required String tenantId,
-    required String actorId,
   }) async {
     if (!_stillCurrent(generation, sourceVersion)) return;
     emitTransform(
@@ -276,24 +248,16 @@ final class SalesOrderDetailSectionsLoader {
 
     await Future.wait<void>([
       runOne(() async {
-        timeline = await salesModule.executeQueryAsync<SalesOrderTimelineDto>(
-          GetSalesOrderTimelineQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: orderId,
-            expectedSourceVersion: sourceVersion,
-          ),
+        timeline = await orderRepository.getTimeline(
+          salesOrderId: orderId,
+          expectedSourceVersion: sourceVersion,
         );
         timelineOk = true;
       }),
       runOne(() async {
-        returns = await salesModule.executeQueryAsync<SalesOrderReturnSummaryDto>(
-          GetSalesOrderReturnSummaryQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: orderId,
-            expectedSourceVersion: sourceVersion,
-          ),
+        returns = await orderRepository.getReturnSummary(
+          salesOrderId: orderId,
+          expectedSourceVersion: sourceVersion,
         );
         returnsOk = true;
       }),
@@ -340,8 +304,6 @@ final class SalesOrderDetailSectionsLoader {
   Future<void> loadMoreTransactions({
     required int generation,
     required int sourceVersion,
-    required String tenantId,
-    required String actorId,
   }) async {
     final current = readState().payment;
     final cursor = current?.nextTransactionsCursor;
@@ -387,37 +349,29 @@ final class SalesOrderDetailSectionsLoader {
     Object error, {
     required _SectionKind section,
   }) {
-    // Hai kiểu lỗi cùng lúc tới 8-A4: AppException (thanh toán) và
-    // SalesContractException (lịch sử / thao tác / huỷ). AppException không
-    // mang câu thô của server (TH-05 6.4).
-    final contract = error is SalesContractException ? error : null;
-    final code = error is AppException ? error.code : contract?.code;
+    // S17/S18/S19: lỗi mang mã phân nhánh (NO_PERMISSION/DATA_SCOPE_DENIED -> blocked,
+    // PROJECTION_PENDING -> projectionPending). Mọi section con khi lỗi xoá errorMessage
+    // để UI tự fallback chuỗi chuẩn (TH-05 6.4, Bảng 4.4).
+    final code = error is AppException ? error.code : null;
     final status = switch (code) {
-      'PERMISSION_DENIED' ||
-      'NO_PERMISSION' ||
-      'DATA_SCOPE_DENIED' => SalesOrderDetailSectionStatus.blocked,
+      'NO_PERMISSION' || 'DATA_SCOPE_DENIED' => SalesOrderDetailSectionStatus.blocked,
       'PROJECTION_PENDING' => SalesOrderDetailSectionStatus.projectionPending,
       _ => SalesOrderDetailSectionStatus.error,
     };
-    final message = contract?.message;
-    final hasMessage = message != null && message.isNotEmpty;
     return switch (section) {
       _SectionKind.payment => state.copyWith(
         paymentStatus: status,
-        paymentErrorMessage: hasMessage ? message : null,
-        clearPaymentErrorMessage: !hasMessage,
+        clearPaymentErrorMessage: true,
         clearPayment: status == SalesOrderDetailSectionStatus.blocked,
       ),
       _SectionKind.history => state.copyWith(
         historyStatus: status,
-        historyErrorMessage: hasMessage ? message : null,
-        clearHistoryErrorMessage: !hasMessage,
+        clearHistoryErrorMessage: true,
         clearHistory: status == SalesOrderDetailSectionStatus.blocked,
       ),
       _SectionKind.actions => state.copyWith(
         actionsStatus: status,
-        actionsErrorMessage: hasMessage ? message : null,
-        clearActionsErrorMessage: !hasMessage,
+        clearActionsErrorMessage: true,
         clearActions: status == SalesOrderDetailSectionStatus.blocked,
       ),
     };

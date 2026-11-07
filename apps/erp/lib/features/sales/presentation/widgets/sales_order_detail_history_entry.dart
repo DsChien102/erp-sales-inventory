@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../bloc/sales_order/sales_order_detail_state.dart';
+import 'package:erp/features/sales/logic/sales_order_detail_state.dart';
 import 'sales_entry_row.dart';
 
 /// Entry row for opening the order history sub-page from SG-08 main scroll.

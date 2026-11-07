@@ -1,4 +1,6 @@
+import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
+import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import 'support/module_backed_sales_repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,6 +33,12 @@ void main() {
     await GetIt.instance.reset();
     salesModule = _DetailSalesModule(detail: _detail());
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
+    GetIt.instance.registerSingleton<SalesOrderRepository>(
+      ModuleBackedSalesOrderRepository(salesModule),
+    );
+    GetIt.instance.registerSingleton<SalesReceiptRepository>(
+      ModuleBackedSalesReceiptRepository(salesModule),
+    );
     GetIt.instance.registerSingleton<SalesPaymentRepository>(
       ModuleBackedSalesPaymentRepository(salesModule),
     );
@@ -197,7 +205,7 @@ void main() {
     expect(find.byType(VToast), findsOneWidget);
     final toast = tester.widget<VToast>(find.byType(VToast));
     expect(toast.title, 'Không thể tải thao tác');
-    expect(toast.message, 'Store scope denied.');
+    expect(toast.message, 'Vui lòng thử lại sau.');
     expect(toast.type, VToastType.warning);
   });
 
@@ -497,8 +505,10 @@ void main() {
   testWidgets('SG-10 showSalesOrderCancelSheet renders VBottomSheet cancel dialog', (tester) async {
     final cubit = SalesOrderDetailCubit(
       orderId: 'order-1',
-      salesModule: salesModule,
+      orderRepository: ModuleBackedSalesOrderRepository(salesModule),
+      receiptRepository: ModuleBackedSalesReceiptRepository(salesModule),
       paymentRepository: ModuleBackedSalesPaymentRepository(salesModule),
+      salesModule: salesModule,
       executionContext: const TestExecutionContext(),
     );
     await cubit.load();

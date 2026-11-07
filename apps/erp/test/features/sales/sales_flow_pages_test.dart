@@ -1,6 +1,7 @@
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
+import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import 'support/module_backed_sales_repositories.dart';
 import '../iam/support/iam_test_session.dart';
 import 'package:erp/core/errors/app_exception.dart';
@@ -68,6 +69,9 @@ void main() {
     );
     GetIt.instance.registerSingleton<SalesOrderRepository>(
       ModuleBackedSalesOrderRepository(salesModule),
+    );
+    GetIt.instance.registerSingleton<SalesReceiptRepository>(
+      ModuleBackedSalesReceiptRepository(salesModule),
     );
     GetIt.instance.registerSingleton<SalesPaymentRepository>(
       ModuleBackedSalesPaymentRepository(salesModule),

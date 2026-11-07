@@ -1,16 +1,15 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_sales_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/sales_checkout_errors.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
-
-import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_device_action.dart';
-import 'package:erp/features/sales/presentation/support/sales_receipt_operation_handler.dart';
-import 'package:erp/features/sales/presentation/support/sales_transaction_result_mapper.dart';
+import 'package:erp/features/sales/data/sales_receipt_repository.dart';
+import 'package:erp/features/sales/logic/sales_receipt_operation_handler.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
+import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_device_action.dart';
+import 'package:erp/features/sales/presentation/support/sales_transaction_result_mapper.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vet45_sales_application/application.dart';
 
 /// Loads the S13 result view from authoritative read contracts only.
 final class SalesTransactionResultCubit extends Cubit<SalesTransactionResultState> {
@@ -21,9 +20,7 @@ final class SalesTransactionResultCubit extends Cubit<SalesTransactionResultStat
     required SalesCheckoutRepository checkoutRepository,
     required SalesOrderRepository orderRepository,
     required SalesPaymentRepository paymentRepository,
-    // Chỉ cho biên nhận (phiếu) — còn dùng module tới 8-A3.
-    required ISalesModule salesModule,
-    required IExecutionContext executionContext,
+    required SalesReceiptRepository receiptRepository,
     this.knownReceiptId,
     this.recoveryBackoff = const <Duration>[
       Duration(milliseconds: 250),
@@ -38,8 +35,7 @@ final class SalesTransactionResultCubit extends Cubit<SalesTransactionResultStat
        super(const SalesTransactionResultState()) {
     _receiptOps = SalesReceiptOperationHandler(
       salesOrderId: salesOrderId,
-      salesModule: salesModule,
-      executionContext: executionContext,
+      repository: receiptRepository,
       sourceVersion: () => state.order?.order.version ?? state.checkout?.salesOrderVersion ?? 0,
       hasSourceVersion: () => state.order != null || state.checkout != null,
       knownReceiptId: () => knownReceiptId,

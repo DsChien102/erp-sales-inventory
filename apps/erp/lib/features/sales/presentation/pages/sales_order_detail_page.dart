@@ -7,7 +7,9 @@ import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
+import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:erp/features/sales/presentation/support/order_einvoice_payable.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_detail_original_receipt_actions.dart';
@@ -37,8 +39,10 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
     super.initState();
     _cubit = SalesOrderDetailCubit(
       orderId: widget.orderId,
-      salesModule: GetIt.instance<ISalesModule>(),
+      orderRepository: GetIt.instance<SalesOrderRepository>(),
+      receiptRepository: GetIt.instance<SalesReceiptRepository>(),
       paymentRepository: GetIt.instance<SalesPaymentRepository>(),
+      salesModule: GetIt.instance<ISalesModule>(),
       executionContext: GetIt.instance<IExecutionContext>(),
       // Badge HĐĐT là phần bổ trợ: host nào chưa nối module einvoice (widget
       // test, harness) vẫn dựng được trang, badge lùi về `notIssued`.

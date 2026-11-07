@@ -294,8 +294,7 @@ SalesTransactionResultCubit _cubit({
   checkoutRepository: ModuleBackedSalesCheckoutRepository(module),
   orderRepository: ModuleBackedSalesOrderRepository(module),
   paymentRepository: ModuleBackedSalesPaymentRepository(module),
-  salesModule: module,
-  executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
+  receiptRepository: ModuleBackedSalesReceiptRepository(module),
   recoveryBackoff: const [Duration.zero],
 );
 

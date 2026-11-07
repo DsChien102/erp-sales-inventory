@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../bloc/sales_order/sales_order_detail_state.dart';
+import 'package:erp/features/sales/logic/sales_order_detail_state.dart';
 import '../models/sales_order/sales_order_detail_vm.dart';
 import 'sales_einvoice_entry_card.dart';
 import 'sales_order_detail_history_entry.dart';

@@ -12,10 +12,10 @@ export 'presentation/bloc/shared/sales_customer_picker_cubit.dart';
 export 'presentation/bloc/shared/sales_customer_picker_state.dart';
 export 'logic/sales_draft_list_cubit.dart';
 export 'logic/sales_draft_list_state.dart';
-export 'presentation/bloc/sales_order/sales_order_detail_cubit.dart';
-export 'presentation/bloc/sales_order/sales_order_detail_state.dart';
-export 'presentation/bloc/sales_order/sales_order_list_cubit.dart';
-export 'presentation/bloc/sales_order/sales_order_list_state.dart';
+export 'package:erp/features/sales/logic/sales_order_detail_cubit.dart';
+export 'package:erp/features/sales/logic/sales_order_detail_state.dart';
+export 'package:erp/features/sales/logic/sales_order_list_cubit.dart';
+export 'package:erp/features/sales/logic/sales_order_list_state.dart';
 export 'presentation/bloc/shared/sales_product_picker_state.dart';
 export 'presentation/bloc/return_exchange_order/sales_return_exchange_session_cubit.dart';
 export 'presentation/bloc/return_exchange_order/sales_return_exchange_session_state.dart';
@@ -73,7 +73,7 @@ export 'presentation/support/sales_order_detail_mapper.dart';
 export 'presentation/support/sales_order_list_mapper.dart';
 export 'presentation/support/order_einvoice_error_message.dart';
 export 'presentation/support/sales_pdf_runner.dart';
-export 'presentation/support/sales_receipt_operation_handler.dart';
+export 'package:erp/features/sales/logic/sales_receipt_operation_handler.dart';
 export 'presentation/support/sales_transaction_result_mapper.dart';
 
 // Widgets

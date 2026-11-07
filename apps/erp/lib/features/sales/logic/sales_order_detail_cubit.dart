@@ -1,29 +1,34 @@
 import 'dart:async';
 
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/sales/data/sales_order_repository.dart';
+import 'package:erp/features/sales/data/sales_payment_repository.dart';
+import 'package:erp/features/sales/data/sales_receipt_repository.dart';
+import 'package:erp/features/sales/logic/sales_order_detail_post_sale_actions.dart';
+import 'package:erp/features/sales/logic/sales_order_detail_sections_loader.dart';
+import 'package:erp/features/sales/logic/sales_order_detail_state.dart';
+import 'package:erp/features/sales/logic/sales_receipt_operation_handler.dart';
+import 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';
+import 'package:erp/features/sales/presentation/models/sales_order/sales_order_detail_vm.dart'
+    show SalesEInvoiceStatus;
+import 'package:erp/features/sales/presentation/models/sales_order/sales_post_sale_navigation_intent.dart';
+import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_device_action.dart';
+import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_operation_state.dart';
+import 'package:erp/features/sales/presentation/support/sales_order_cancellation_attempt_factory.dart';
+import 'package:erp/features/sales/presentation/support/sales_order_detail_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../../models/sales_order/sales_order_detail_vm.dart' show SalesEInvoiceStatus;
-import '../../models/sales_receipt/sales_receipt_device_action.dart';
-import '../../models/sales_receipt/sales_receipt_operation_state.dart';
-import '../../models/sales_order/sales_post_sale_navigation_intent.dart';
-import '../../support/sales_order_cancellation_attempt_factory.dart';
-import '../../support/sales_order_detail_mapper.dart';
-import '../../support/sales_receipt_operation_handler.dart';
-import 'sales_order_detail_post_sale_actions.dart';
-import 'sales_order_detail_sections_loader.dart';
-import 'sales_order_detail_state.dart';
-import 'package:erp/features/sales/logic/sales_transaction_result_issue.dart';
-import 'package:erp/features/sales/data/sales_payment_repository.dart';
-
 class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   SalesOrderDetailCubit({
     required this.orderId,
-    required this.salesModule,
+    required this.orderRepository,
+    required this.receiptRepository,
     required this.paymentRepository,
+    required this.salesModule,
     required this.executionContext,
     SalesOrderCancellationAttemptFactory? cancellationAttemptFactory,
     IEInvoiceModule? eInvoiceModule,
@@ -32,8 +37,7 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
        super(const SalesOrderDetailState()) {
     _receiptOps = SalesReceiptOperationHandler(
       salesOrderId: orderId,
-      salesModule: salesModule,
-      executionContext: executionContext,
+      repository: receiptRepository,
       sourceVersion: () => state.sourceVersion ?? 0,
       hasSourceVersion: () => state.sourceVersion != null,
       knownReceiptId: () => state.currentReceiptId,
@@ -49,8 +53,10 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   }
 
   final String orderId;
-  final ISalesModule salesModule;
+  final SalesOrderRepository orderRepository;
+  final SalesReceiptRepository receiptRepository;
   final SalesPaymentRepository paymentRepository;
+  final ISalesModule salesModule;
   final IExecutionContext executionContext;
   final SalesOrderCancellationAttemptFactory? _cancellationAttemptFactory;
 
@@ -60,13 +66,12 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
 
   /// Đọc projection HĐĐT để điền badge và cung cấp dữ liệu cho OrderEInvoiceSection.
   /// Không bao giờ ném: einvoice hỏng thì trang chi tiết đơn vẫn phải mở được.
-  Future<OrderInvoiceProjectionDto?> _loadEInvoiceProjection(
-    String tenantId,
-    String actorId,
-  ) async {
+  Future<OrderInvoiceProjectionDto?> _loadEInvoiceProjection() async {
     final module = _eInvoiceModule;
     if (module == null) return null;
     try {
+      final tenantId = await executionContext.requireTenantId();
+      final actorId = await executionContext.requireUserId();
       final projection = await module.executeQueryAsync(
         GetOrderInvoiceProjectionQuery(
           tenantId: tenantId,
@@ -114,17 +119,8 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
 
   /// As-sold receipt for the «Đơn gốc» tab. Read-only: it has no receipt id,
   /// so print/share of it records no receipt activity.
-  Future<SalesReceiptDocumentDto> viewOriginalReceipt() async {
-    final tenantId = await executionContext.requireTenantId();
-    final actorId = await executionContext.requireUserId();
-    return salesModule.executeQueryAsync<SalesReceiptDocumentDto>(
-      GetSalesOrderOriginalReceiptQuery(
-        tenantId: tenantId,
-        actorId: actorId,
-        salesOrderId: orderId,
-      ),
-    );
-  }
+  Future<SalesReceiptDocumentDto> viewOriginalReceipt() =>
+      receiptRepository.getOriginal(salesOrderId: orderId);
 
   Future<void> printReceipt(SalesReceiptDeviceAction action) => _receiptOps.printReceipt(action);
 
@@ -134,14 +130,10 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     final sourceVersion = state.sourceVersion;
     if (state.status != SalesOrderDetailStatus.loaded || sourceVersion == null) return;
     final generation = state.requestGeneration;
-    final tenantId = await executionContext.requireTenantId();
-    final actorId = await executionContext.requireUserId();
     if (isClosed || generation != _requestGeneration) return;
     await _sectionsLoader().loadPayment(
       generation: generation,
       sourceVersion: sourceVersion,
-      tenantId: tenantId,
-      actorId: actorId,
     );
   }
 
@@ -149,14 +141,10 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     final sourceVersion = state.sourceVersion;
     if (state.status != SalesOrderDetailStatus.loaded || sourceVersion == null) return;
     final generation = state.requestGeneration;
-    final tenantId = await executionContext.requireTenantId();
-    final actorId = await executionContext.requireUserId();
     if (isClosed || generation != _requestGeneration) return;
     await _sectionsLoader().loadHistory(
       generation: generation,
       sourceVersion: sourceVersion,
-      tenantId: tenantId,
-      actorId: actorId,
     );
   }
 
@@ -164,14 +152,10 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     final sourceVersion = state.sourceVersion;
     if (state.status != SalesOrderDetailStatus.loaded || sourceVersion == null) return;
     final generation = state.requestGeneration;
-    final tenantId = await executionContext.requireTenantId();
-    final actorId = await executionContext.requireUserId();
     if (isClosed || generation != _requestGeneration) return;
     await _sectionsLoader().loadCancellation(
       generation: generation,
       sourceVersion: sourceVersion,
-      tenantId: tenantId,
-      actorId: actorId,
     );
   }
 
@@ -190,14 +174,10 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     final sourceVersion = state.sourceVersion;
     if (state.status != SalesOrderDetailStatus.loaded || sourceVersion == null) return;
     final generation = state.requestGeneration;
-    final tenantId = await executionContext.requireTenantId();
-    final actorId = await executionContext.requireUserId();
     if (isClosed || generation != _requestGeneration) return;
     await _sectionsLoader().loadMoreTransactions(
       generation: generation,
       sourceVersion: sourceVersion,
-      tenantId: tenantId,
-      actorId: actorId,
     );
   }
 
@@ -233,20 +213,10 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     );
 
     try {
-      final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
       if (isClosed || generation != _requestGeneration) return;
 
-      // Chạy song song để không thêm độ trễ cho trang chi tiết: hai vòng gọi
-      // chồng lên nhau thay vì nối tiếp.
-      final detailFuture = salesModule.executeQueryAsync<SalesOrderDetailDto>(
-        GetSalesOrderDetailQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: orderId,
-        ),
-      );
-      final eInvoiceFuture = _loadEInvoiceProjection(tenantId, actorId);
+      final detailFuture = orderRepository.getDetail(salesOrderId: orderId);
+      final eInvoiceFuture = _loadEInvoiceProjection();
 
       final dto = await detailFuture;
       final eInvoiceProjection = await eInvoiceFuture;
@@ -294,8 +264,6 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
         _sectionsLoader().loadAll(
           generation: generation,
           sourceVersion: sourceVersion,
-          tenantId: tenantId,
-          actorId: actorId,
           isCancelled: isCancelled,
         ),
       );
@@ -336,7 +304,7 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   SalesOrderDetailSectionsLoader _sectionsLoader() {
     return SalesOrderDetailSectionsLoader(
       orderId: orderId,
-      salesModule: salesModule,
+      orderRepository: orderRepository,
       paymentRepository: paymentRepository,
       isClosed: () => isClosed,
       currentGeneration: () => _requestGeneration,
@@ -368,20 +336,17 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   }
 
   SalesOrderDetailState _failureState(Object error, int generation) {
-    final contract = error is SalesContractException ? error : null;
-    final status = switch (contract?.code) {
-      'PERMISSION_DENIED' || 'DATA_SCOPE_DENIED' => SalesOrderDetailStatus.blocked,
+    final code = error is AppException ? error.code : null;
+    final status = switch (code) {
+      'NO_PERMISSION' || 'DATA_SCOPE_DENIED' => SalesOrderDetailStatus.blocked,
       'NOT_FOUND' => SalesOrderDetailStatus.notFound,
       'PROJECTION_PENDING' => SalesOrderDetailStatus.projectionPending,
       _ => SalesOrderDetailStatus.error,
     };
-    final message = contract?.message;
-    final hasMessage = message != null && message.isNotEmpty;
     return state.copyWith(
       status: status,
       requestGeneration: generation,
-      errorMessage: hasMessage ? message : null,
-      clearErrorMessage: !hasMessage,
+      clearErrorMessage: true,
       clearCore: true,
       clearSourceVersion: true,
       clearCurrentReceiptId: true,

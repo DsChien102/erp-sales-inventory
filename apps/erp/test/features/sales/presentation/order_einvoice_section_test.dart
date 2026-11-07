@@ -29,9 +29,9 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 final class _RecordingExporter implements IInvoiceDocumentExporter {
-  _RecordingExporter({this.result = true});
+  _RecordingExporter();
 
-  final bool result;
+  final bool result = true;
   final List<
     ({
       String filename,
