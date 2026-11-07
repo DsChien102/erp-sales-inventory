@@ -282,11 +282,11 @@ Bảng đầy đủ. Các user story ở mục 4 dẫn lại mã này. Mã giữ
 |---|---|---|
 | BR-18 | Phương thức: Tiền mặt, Chuyển khoản, Kết hợp. Tiền mặt mặc định bằng tổng đơn; khách đưa nhiều hơn → hiện tiền thừa (không ghi nhận). Chuyển khoản có mã giao dịch tuỳ chọn. Mỗi khoản > 0 | checkout |
 | BR-19 | Tổng đã trả không vượt tổng đơn ("Số tiền thanh toán không được vượt quá tổng cần trả") | precheck + finalize |
-| BR-20 | Còn phải thu > 0: Khách lẻ bị chặn (`WALK_IN_RECEIVABLE_NOT_ALLOWED`); khách có hồ sơ phải chọn ngày hẹn (`RECEIVABLE_DUE_DATE_REQUIRED`). 🔧 Server kiểm ngày hẹn ≥ hôm nay (giờ VN) (hiện chỉ app chặn) | precheck + finalize |
+| BR-20 | Còn phải thu > 0: Khách lẻ bị chặn (`WALK_IN_RECEIVABLE_NOT_ALLOWED`); khách có hồ sơ phải chọn ngày hẹn (`RECEIVABLE_DUE_DATE_REQUIRED`). Server kiểm ngày hẹn ≥ hôm nay (giờ VN): `RECEIVABLE_DUE_DATE_INVALID` (precheck, finalize); đổi/trả dùng `RETURN_EXCHANGE_BLOCKED` | precheck + finalize + `confirm_return_exchange` |
 | BR-21 | Bấm "Thanh toán" ở màn soạn: chạy kiểm tra trước (`precheck`) với giả định trả đủ tiền mặt; có blocker → báo, ở lại màn soạn | `SalesCheckoutOrchestrator` |
 | BR-22 | Hoàn tất kiểm lại toàn bộ trên server trong 1 transaction: sản phẩm/đơn vị còn bán được (`PRODUCT_NOT_SELLABLE`), số lượng cơ sở nguyên (`INVALID_QUANTITY`), snapshot khớp dòng (`CHECKOUT_BLOCKED`), giảm giá hợp lệ (`COMMERCIAL_TOTAL_MISMATCH`), nháp nguồn đúng version (`STALE_VERSION`) | `finalize_sales_order` |
-| BR-23 | 🔧 Server tính lại giá: mỗi dòng gửi kèm giá nhập tay (nếu có); server gọi lại `preview_sales_working_state_pricing` và so đơn giá; lệch → `PRICE_CHANGED`, app làm mới giá (hiện server tin đơn giá client) | KI-02 |
-| BR-24 | 🔧 Server kiểm khách còn hoạt động, có vai trò customer (`CUSTOMER_INVALID`) | KI-03 |
+| BR-23 | Server tính lại giá: mỗi dòng gửi kèm giá nhập tay (nếu có); server gọi lại `preview_sales_working_state_pricing` và so đơn giá; lệch → `PRICE_CHANGED`, app làm mới giá (đã có ở `finalize_sales_order`, 20261031017) | KI-02 |
+| BR-24 | Server kiểm khách còn hoạt động, có vai trò customer (`CUSTOMER_INVALID`) | KI-03 |
 | BR-25 | Hoàn tất đơn **chưa** trừ tồn kho. Khi làm Theme 7 (P11), checkout phải xuất kho nguyên tử theo `BC-IO-04` | KI-01 |
 | BR-26 | Kết quả hoàn tất: đơn `completed`, dòng đơn kèm snapshot, settlement, mỗi khoản thu thành 1 giao dịch `collection` nguồn `checkout`; nháp nguồn → `converted`; ghi sự kiện `sales_order_finalized.v1` | finalize |
 | BR-27 | Mất kết nối khi hoàn tất: tra kết quả bằng chính `idempotency_key` (`get_checkout_result`); **không cho thanh toán lại**. Kết quả bị chặn / lỗi cũng được lưu để tra lại | `get_checkout_result` |
@@ -305,7 +305,7 @@ Bảng đầy đủ. Các user story ở mục 4 dẫn lại mã này. Mã giữ
 | Mã | Quy tắc | Ở đâu |
 |---|---|---|
 | BR-32 | Danh sách chỉ có đơn chính thức, mới nhất trước, phân trang cursor 50 dòng, có "Tải thêm". Thẻ: mã đơn, thời gian, khách ("Khách Lẻ" nếu không có), SĐT, tổng, trạng thái đơn, thanh toán, có đổi/trả, HĐĐT | `list_sales_orders` |
-| BR-33 | Tìm theo mã đơn, tên khách, SĐT **trong snapshot** của đơn. 🔧 Bỏ dấu, không phân biệt hoa thường (hiện `ilike` phân biệt dấu) | `search_sales_orders` |
+| BR-33 | Tìm theo mã đơn, tên khách, SĐT **trong snapshot** của đơn. Bỏ dấu, không phân biệt hoa thường (`unaccent_immutable` + `ilike`) | `search_sales_orders` |
 | BR-34 | Nhóm nhanh (kèm đếm): Tất cả / Còn phải thu / Chưa phát hành HĐĐT. Bộ lọc: Thời gian (Tất cả / Hôm nay / 7 ngày / 30 ngày), Trạng thái đơn (Hoàn tất / Đã huỷ), Thanh toán (Đã thanh toán / Còn phải thu / Chưa thu), Sau bán (Có đổi/trả), HĐĐT (Đã / Chưa phát hành). Lọc ở server; "Đặt lại" xoá hết | list cubit, `list_sales_orders` |
 | BR-35 | Chi tiết đơn gồm các khối tải độc lập: thông tin đơn; sản phẩm (bản **Đơn gốc** và **Sau đổi/trả**); thanh toán & công nợ; phiếu đổi/trả; lịch sử; chứng từ & hoá đơn; lý do huỷ (đơn đã huỷ). Khối nào lỗi báo khối đó, có "Thử lại" | `get_sales_order_detail` + RPC con |
 | BR-36 | Lịch sử đơn tổng hợp từ sự kiện của đơn, giao dịch tiền, huỷ, đổi/trả, phiếu; mỗi mục có loại, người làm, thời gian, mới nhất trước | `get_sales_order_timeline` |
@@ -338,7 +338,7 @@ Bảng đầy đủ. Các user story ở mục 4 dẫn lại mã này. Mã giữ
 | BR-48 | Định giá theo công thức 2.2 | `evaluate_return_exchange_valuation` |
 | BR-49 | Kế hoạch quyết toán do server lập theo công thức 2.2. Khách lẻ không được nợ / giảm nợ | như trên + confirm |
 | BR-50 | Màn quyết toán: phương thức thu/hoàn (Tiền mặt / Chuyển khoản), số khách trả ngay (khi khách trả thêm), ngày hẹn cho phần nợ; sheet "Xác nhận đổi/trả?" tóm tắt thu / hoàn / ghi nợ / giảm nợ | settlement page |
-| BR-51 | Xác nhận trong 1 transaction: kiểm lại version đơn, settlement, phiếu, giá; ghi giao dịch thu / hoàn; ghi điều chỉnh nghĩa vụ = chênh lệch; phiếu → `completed`; cập nhật trạng thái trả hàng; `version` đơn + 1. 🔧 Ngày hẹn của phần nợ mới lưu vào `sales_orders.payment_due_date` (hiện bị bỏ) | `confirm_return_exchange`, KI-05 |
+| BR-51 | Xác nhận trong 1 transaction: kiểm lại version đơn, settlement, phiếu, giá; ghi giao dịch thu / hoàn; ghi điều chỉnh nghĩa vụ = chênh lệch; phiếu → `completed`; cập nhật trạng thái trả hàng; `version` đơn + 1. Ngày hẹn của phần nợ mới lưu vào `sales_orders.payment_due_date` | `confirm_return_exchange`, KI-05 |
 | BR-52 | Xác nhận đổi/trả **chưa** ghi tồn kho. Nhận hàng trả / xuất hàng đổi làm ở Theme 7 (`BC-IO-07`, `BC-IO-04`) | KI-01 |
 | BR-53 | Rời màn đổi/trả khi có thay đổi: hỏi "Bỏ thay đổi?"; bỏ thì huỷ phiếu nháp (`cancel_return_exchange`). Không có danh sách phiếu đổi/trả nháp | discard dialog |
 | BR-54 | Phiếu đã xác nhận không sửa, không xoá. Xem chi tiết, in / chia sẻ phiếu đổi/trả (PDF) | `get_return_exchange_detail` |
@@ -639,7 +639,7 @@ Scenario: SC-02 — Rời đơn đã có dữ liệu
 **Trường hợp biên**
 
 - EC-01: Đổi khách đúng lúc đang làm mới giá → kết quả giá cũ bị bỏ, chỉ áp kết quả của khách mới.
-- EC-02: Khách bị ngừng hoạt động sau khi đã chọn → hoàn tất bị chặn `CUSTOMER_INVALID` (🔧 BR-24).
+- EC-02: Khách bị ngừng hoạt động sau khi đã chọn → hoàn tất bị chặn `CUSTOMER_INVALID` (BR-24).
 - EC-03: Đơn có dòng đã "Lưu làm giá riêng" cho khách A, rồi đổi sang khách B → giá dòng tính lại theo B; giá riêng của A không bị xoá.
 
 **Kịch bản**
@@ -936,14 +936,14 @@ Scenario: SC-01 — Tiền mặt có tiền thừa
 - FR-03: Khách lẻ có công nợ → blocker `WALK_IN_RECEIVABLE_NOT_ALLOWED`, chặn hoàn tất.
 - FR-04: Hoàn tất → `payment_due_date` lưu trên đơn; trạng thái `unpaid` (chưa trả gì) hoặc `partially_paid`.
 
-**Quy tắc:** BR-20 (🔧 server kiểm ngày ≥ hôm nay), BR-26.
+**Quy tắc:** BR-20 (server kiểm ngày ≥ hôm nay), BR-26.
 
 **Tiêu chí nghiệm thu**
 
 - AC-01: Khách A, đơn 1.000.000, trả 400.000, hẹn 15/10 → đơn "Thanh toán một phần", còn phải thu 600.000, hẹn 15/10.
 - AC-02: Khách lẻ trả thiếu → không hoàn tất được.
 - AC-03: Có công nợ mà chưa chọn ngày → không hoàn tất được, lỗi "Ngày hẹn thanh toán là bắt buộc khi phát sinh công nợ."
-- AC-04: Gọi RPC trực tiếp với ngày hẹn hôm qua → bị từ chối (🔧).
+- AC-04: Gọi RPC trực tiếp với ngày hẹn hôm qua → bị từ chối.
 
 **Kịch bản**
 
@@ -980,7 +980,7 @@ Scenario: SC-02 — Khách lẻ không được nợ
   - Mất kết nối / `processing` → **khôi phục**: tra `get_checkout_result` bằng cùng key theo lịch lùi dần; vẫn chưa rõ → "Chưa xác định được kết quả. Hãy kiểm tra lại hoặc thử lại cùng yêu cầu." với "Kiểm tra lại" và "Thử lại" (cùng key).
 - FR-04: Trong lúc gửi / khôi phục: khoá mọi nút, không cho đổi khoản thanh toán.
 
-**Quy tắc:** BR-02, BR-03, BR-22, BR-23 🔧, BR-24 🔧, BR-25, BR-26, BR-27.
+**Quy tắc:** BR-02, BR-03, BR-22, BR-23, BR-24, BR-25, BR-26, BR-27.
 
 **Tiêu chí nghiệm thu**
 
@@ -989,7 +989,7 @@ Scenario: SC-02 — Khách lẻ không được nợ
 - AC-03: Hoàn tất từ nháp → nháp thành `converted`; nháp bị máy khác sửa trước đó → `STALE_VERSION`, không tạo đơn.
 - AC-04: Đơn có mã `DH<ngày VN><số thứ tự 4 chữ số>`; đơn thứ 3 trong ngày 06/10/2026 của cửa hàng là `DH202610060003`.
 - AC-05: Tổng trên đơn, dòng, settlement khớp bất biến mục 3.7.
-- AC-06 🔧: Gửi đơn giá khác giá server tính (khi không có giá nhập tay) → `PRICE_CHANGED`, không tạo đơn.
+- AC-06: Gửi đơn giá khác giá server tính (khi không có giá nhập tay) → `PRICE_CHANGED`, không tạo đơn.
 
 **Trường hợp biên**
 
@@ -1088,7 +1088,7 @@ Scenario: SC-02 — Nháp bị sửa ở máy khác
 
 **Tiêu chí nghiệm thu**
 
-- AC-01: Tìm "an binh" thấy đơn của "Đại lý An Bình" (🔧 bỏ dấu).
+- AC-01: Tìm "an binh" thấy đơn của "Đại lý An Bình" (bỏ dấu).
 - AC-02: Tìm theo 4 số cuối SĐT thấy đơn của khách đó.
 - AC-03: Đổi tên khách trong TH-03 sau khi bán → tìm theo tên **cũ** vẫn thấy đơn (tìm trên snapshot).
 - AC-04: "Còn phải thu" chỉ gồm đơn `completed` có `outstanding > 0`.
@@ -1408,13 +1408,13 @@ Scenario: SC-02 — Đơn đã thu tiền
 - FR-05: Xác nhận → `confirm_return_exchange` kèm version phiếu, số trả ngay, phương thức, ngày hẹn, `idempotency_key`. Nút hiện "Đang xử lý...".
 - FR-06: Thành công → SG-14.
 
-**Quy tắc:** BR-02, BR-49, BR-50, BR-51 (🔧 lưu ngày hẹn), BR-52.
+**Quy tắc:** BR-02, BR-49, BR-50, BR-51 (lưu ngày hẹn), BR-52.
 
 **Tiêu chí nghiệm thu**
 
 - AC-01: Đơn 1.000.000 đã trả đủ; trả hàng trị giá 300.000 → hoàn 300.000; đơn: nghĩa vụ 700.000, đã thu ròng 700.000, "Đã thanh toán".
 - AC-02: Đơn 1.000.000 đã trả 400.000; trả hàng 600.000 → hoàn 400.000, giảm nợ 200.000; đơn: nghĩa vụ 400.000, thu ròng 0, còn phải thu 400.000.
-- AC-03: Chênh lệch +30.000, khách trả ngay 10.000, hẹn 20/10 → giao dịch thu 10.000; còn phải thu tăng 20.000; 🔧 `payment_due_date = 20/10`.
+- AC-03: Chênh lệch +30.000, khách trả ngay 10.000, hẹn 20/10 → giao dịch thu 10.000; còn phải thu tăng 20.000; `payment_due_date = 20/10`.
 - AC-04: Khách lẻ, chênh lệch +30.000, trả ngay 0 → không xác nhận được.
 - AC-05: Xác nhận hai lần → 1 phiếu, không trùng giao dịch.
 - AC-06: Sau xác nhận, trạng thái trả hàng của đơn cập nhật; `version` đơn tăng 1.
@@ -2169,7 +2169,8 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | `RETURN_QUANTITY_EXCEEDED` | trả vượt | "Số lượng trả vượt số còn có thể trả." |
 | `PRICE_CHANGED` | giá hàng đổi / giá dòng đổi | "Giá đã thay đổi. Vui lòng quay lại kiểm tra." |
 | `PRICING_BLOCKED` | sản phẩm đổi không có giá | "Sản phẩm này chưa có giá bán." |
-| 🔧 `CUSTOMER_INVALID` | khách ngừng hoạt động | "Khách hàng không còn hoạt động." |
+| `CUSTOMER_INVALID` | khách ngừng hoạt động | "Khách hàng không còn hoạt động." |
+| `RECEIVABLE_DUE_DATE_INVALID` | ngày hẹn trước hôm nay | "Ngày hẹn thanh toán không được trước hôm nay." |
 
 ---
 
@@ -2188,14 +2189,14 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | Mã | Vấn đề | Quyết định | Phase |
 |---|---|---|---|
 | KI-01 | Bán, huỷ, đổi/trả **không đụng tồn kho** | **Làm ở Theme 7** theo spec `specs/themes/theme-07` (`BC-IO-04`, `BC-IO-07`, `BC-IO-13`), không làm trong P8. Xem [TH-07](TH-07-kho.md) | P11 |
-| KI-02 | `finalize_sales_order` tin đơn giá client | **Sửa** theo BR-23 | P8 |
-| KI-03 | Hoàn tất không kiểm khách còn hoạt động | **Sửa** theo BR-24 | P8 |
-| KI-04 | Ngày hẹn thanh toán chỉ app chặn quá khứ | **Sửa** theo BR-20 (precheck, finalize, confirm đổi/trả) | P8 |
-| KI-05 | Đổi hàng phát sinh nợ: bắt nhập ngày hẹn nhưng không lưu | **Sửa** theo BR-51 | P8 |
+| KI-02 | `finalize_sales_order` tin đơn giá client | Đã có ở `finalize` (20261031017); 8-B1 thêm test | P8 |
+| KI-03 | Hoàn tất không kiểm khách còn hoạt động | Đã sửa 8-B1 (BR-24) | P8 |
+| KI-04 | Ngày hẹn thanh toán chỉ app chặn quá khứ | Đã sửa 8-B1 (BR-20: precheck, finalize, confirm đổi/trả) | P8 |
+| KI-05 | Đổi hàng phát sinh nợ: bắt nhập ngày hẹn nhưng không lưu | Đã sửa 8-B1 (BR-51) | P8 |
 | KI-06 | Không có màn thu tiền sau bán (RPC có) | **Làm mới** EP-04 | P8 |
 | KI-07 | Thẻ "Xem công nợ" chỉ hiện toast; "Nợ cũ" ở thanh toán luôn 0 | **Bỏ** cả hai (sổ công nợ thuộc Theme 6) | P8 |
 | KI-08 | Quyết toán đổi/trả có QR mẫu cứng ("QR cửa hàng · ACB", "Nguyễn Văn A") và lựa chọn "Cấn trừ công nợ hiện tại" bị khoá | **Bỏ** | P8 |
-| KI-09 | Tìm đơn phân biệt dấu | **Sửa** theo BR-33 (`unaccent`, như TH-03) | P8 |
+| KI-09 | Tìm đơn phân biệt dấu | Đã sửa 8-B1 (BR-33: `unaccent`, như TH-03) | P8 |
 | KI-10 | Lý do / tình trạng hàng trả: RPC chính sách trả rỗng, app luôn trống, còn trạng thái "Chưa cấu hình chính sách đổi/trả" | **Ngoài phạm vi**; bỏ code chết | P8 |
 | KI-11 | Nháp không bao giờ `expired` | **Giữ nguyên** (BR-09) | — |
 | KI-12 | Lý do huỷ không bắt buộc, lưu dạng chữ | **Giữ nguyên** | — |
@@ -2281,12 +2282,12 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 
 - Hoàn tất cùng `idempotency_key` 2 lần → 1 đơn; khác nội dung → `IDEMPOTENCY_CONFLICT`.
 - Hoàn tất từ nháp version cũ → `STALE_VERSION`, không tạo đơn.
-- 🔧 Đơn giá khác giá server (không nhập tay) → `PRICE_CHANGED`.
-- 🔧 Khách ngừng hoạt động → `CUSTOMER_INVALID`; ngày hẹn quá khứ → bị chặn.
+- Đơn giá khác giá server (không nhập tay) → `PRICE_CHANGED`.
+- Khách ngừng hoạt động → `CUSTOMER_INVALID`; ngày hẹn quá khứ → `RECEIVABLE_DUE_DATE_INVALID`.
 - `record_sales_payment` vượt nợ → `OVERPAYMENT_NOT_ALLOWED`; đơn huỷ → `ORDER_CANCELLED`.
 - Huỷ đơn đã thu → `PAYMENT_ALREADY_COLLECTED`; huỷ đơn có phiếu đổi/trả → `RETURN_EXCHANGE_CONFLICT`.
 - Hai phiếu trả cùng dòng vượt số bán → phiếu sau `RETURN_QUANTITY_EXCEEDED`.
-- 🔧 Đổi hàng có nợ → `payment_due_date` được cập nhật.
+- Đổi hàng có nợ → `payment_due_date` được cập nhật.
 - `search_sales_orders('an binh')` thấy "An Bình".
 
 **Widget / cubit test**

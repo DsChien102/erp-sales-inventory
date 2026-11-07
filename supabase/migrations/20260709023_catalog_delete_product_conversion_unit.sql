@@ -12,14 +12,26 @@ create or replace function catalog._product_unit_has_sales_transaction_usage(
   p_product_unit_id uuid
 )
 returns boolean
-language sql
+language plpgsql
 stable
 security definer
 set search_path = catalog, pg_temp
 as $$
-  -- Foundation MVP: Sales/Purchase modules are not wired yet.
-  -- Replace with cross-module lookup when TH-04 exposes product_unit usage facts.
-  select false;
+begin
+  -- Don vi da dung trong dong don ban, dong doi/tra, hoac dong nhap dang mo (status = 'active').
+  -- plpgsql: ten bang sales.* chi duoc kiem luc chay (schema sales tao o 20260830005, sau file nay).
+  return exists (select 1 from sales.sales_order_lines l
+                 where l.tenant_id = p_tenant_id and l.product_id = p_product_id
+                   and l.product_unit_id = p_product_unit_id)
+      or exists (select 1 from sales.return_exchange_lines l
+                 where l.tenant_id = p_tenant_id and l.product_id = p_product_id
+                   and l.product_unit_id = p_product_unit_id)
+      or exists (select 1 from sales.sales_order_draft_lines l
+                 join sales.sales_order_drafts d
+                   on d.tenant_id = l.tenant_id and d.id = l.sales_order_draft_id
+                 where l.tenant_id = p_tenant_id and l.product_id = p_product_id
+                   and l.product_unit_id = p_product_unit_id and d.status = 'active');
+end;
 $$;
 
 create or replace function catalog._product_conversion_unit_delete_blocked_reason(

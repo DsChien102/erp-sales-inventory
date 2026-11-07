@@ -100,7 +100,7 @@ Cửa hàng thú y bán vài trăm đến vài nghìn mã hàng: thuốc, vắc-
 |---|---|---|
 | TH-01 Tổ chức & IAM | — | `tenant_id`, người dùng, `iam.has_permission` |
 | TH-04 Chính sách giá | Khung giá (giá niêm yết, giá sàn) theo đơn vị làm giá gốc | — |
-| TH-05 Bán hàng | Sản phẩm bán được, đơn vị, tồn hiển thị, barcode, snapshot giá và trường bổ sung | — (🔧 KI-08: đọc dòng đơn để chặn xoá đơn vị) |
+| TH-05 Bán hàng | Sản phẩm bán được, đơn vị, tồn hiển thị, barcode, snapshot giá và trường bổ sung | — (đã sửa 8-B1, KI-08: đọc dòng đơn để chặn xoá đơn vị) |
 | TH-08 HĐĐT | Tên, đơn vị qua snapshot của đơn | — |
 | Theme 7 Kho | Danh mục sản phẩm, đơn vị | Thay tồn cơ bản bằng sổ tồn (BJ-12); giá vốn (KB-KGV-044) |
 
@@ -260,7 +260,7 @@ Số BR giữ ổn định giữa các bản (có khoảng trống để thêm).
 | BR-10 | Mỗi sản phẩm có tối đa 1 đơn vị cơ sở (tỷ lệ = 1). **Đã đặt thì không đổi được** (`Product already has a base unit…`) |
 | BR-11 | Đơn vị quy đổi có tỷ lệ > 0 và không trùng tên với đơn vị **đang hoạt động** khác của cùng sản phẩm; không được trùng tên đơn vị cơ sở |
 | BR-12 | Chưa có đơn vị cơ sở thì không thêm được đơn vị quy đổi, tồn kho, giá cơ sở hay khung giá |
-| BR-13 | Đơn vị quy đổi xoá được **chỉ khi** chưa có khung giá và 🔧 chưa dùng trong dòng đơn bán, dòng nháp, dòng đổi/trả (KI-08). Ngược lại gợi ý "Tắt đơn vị" |
+| BR-13 | Đơn vị quy đổi xoá được **chỉ khi** chưa có khung giá và chưa dùng trong dòng đơn bán, dòng nháp đang mở, dòng đổi/trả (KI-08). Ngược lại gợi ý "Tắt đơn vị" |
 | BR-14 | Đơn vị bị tắt ẩn khỏi lựa chọn khi bán; dữ liệu cũ giữ nguyên; khung giá của nó không còn tính vào readiness. Bật lại thì kiểm trùng tên như BR-11 |
 | BR-15 | Tên đơn vị được chuẩn hoá về **chữ thường**, so trùng không phân biệt dấu cách thừa; tên mới tự thêm vào danh mục đơn vị của tổ chức để gợi ý lần sau |
 | BR-16 | Tên đơn vị không rỗng, không quá dài (`Unit name is too long`) |
@@ -1082,7 +1082,7 @@ Scenario: SC-01 — Thêm hộp 10 viên
 - FR-01: "Xoá đơn vị quy đổi? — Đơn vị "`<tên>`" sẽ bị xóa vĩnh viễn khỏi sản phẩm. Chỉ dùng khi đơn vị chưa có giao dịch hoặc khung giá. Nếu đã phát sinh dữ liệu, hệ thống sẽ gợi ý "Tắt đơn vị" thay vì xóa."
 - FR-02: Bị chặn → hộp "Không thể xóa đơn vị" với lý do từ server và hai nút "Tắt đơn vị", "Đóng".
 - FR-03: Lý do chặn (`product_conversion_unit_delete_blocked`):
-  - "Đơn vị đã được dùng trong giao dịch. Hãy dùng "Tắt đơn vị" để bảo toàn lịch sử." (🔧 KI-08: hiện luôn sai vì hàm kiểm tra là stub)
+  - "Đơn vị đã được dùng trong giao dịch. Hãy dùng "Tắt đơn vị" để bảo toàn lịch sử." (KI-08: đã sửa 8-B1, hàm kiểm tra đọc dòng đơn bán / đổi trả / nháp đang mở)
   - "Đơn vị đã có khung giá bán. Hãy dùng "Tắt đơn vị" để bảo toàn lịch sử."
 
 **Quy tắc:** BR-13.
@@ -2111,7 +2111,7 @@ Thông điệp dưới đây là **chuẩn**. 🔧 Hiện nhiều lỗi hiện t
 | KI-05 | Điều chỉnh về đúng số đang có vẫn ghi biến động chênh lệch 0 | **Sửa**: chặn `stock_unchanged` (BR-26) | P5 |
 | KI-06 | `set_basic_stock_quantity_base` ghi đè tồn không kiểm version | **Sửa**: chỉ khi chưa có hồ sơ tồn, ngược lại `stock_already_initialized` (BR-25) | P5 |
 | KI-07 | SP-10 gọi module từ page, không cubit; nhiều lỗi catalog hiện chuỗi exception thô hoặc tiếng Anh | **Sửa**: cubit + repository; ánh xạ lỗi theo 6.4 | P5 |
-| KI-08 | `_product_unit_has_sales_transaction_usage` là stub luôn `false`: đơn vị đã bán vẫn xoá được nếu chưa có khung giá | **Sửa**: kiểm `sales.sales_order_lines`, `sales.sales_order_draft_lines`, `sales.return_exchange_order_lines` (BR-13) | P8 (cần bảng sales; làm cùng PR 8.1) |
+| KI-08 | `_product_unit_has_sales_transaction_usage` là stub luôn `false`: đơn vị đã bán vẫn xoá được nếu chưa có khung giá | **Sửa**: kiểm `sales.sales_order_lines`, `sales.sales_order_draft_lines`, `sales.return_exchange_lines` (BR-13; nháp chỉ tính khi `status = 'active'`) | Đã sửa 8-B1 |
 | KI-09 | Kiểm tra trước khi xoá sản phẩm chỉ xét tồn | **Giữ nguyên** (BR-51): xoá mềm không mất dữ liệu đơn; nháp bị chặn khi thanh toán. Thay quyết định "Sửa" của bản 2.1 | — |
 | KI-10 | Giới hạn 8 ảnh chỉ kiểm ở app | **Sửa**: `update_product_images` và `create_product` chặn > 8 (BR-04) | P5 |
 | KI-11 | Readiness không xét `business_status` | **Giữ nguyên**: "bán được" = `active` **và** `is_ready_to_sell` | — |

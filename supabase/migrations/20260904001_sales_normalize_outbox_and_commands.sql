@@ -1095,6 +1095,12 @@ begin
         'message', 'Payment due date is required for an outstanding balance.'
       )::text;
     end if;
+    if payment_due_date < (now() at time zone 'Asia/Ho_Chi_Minh')::date then
+      raise exception using message = jsonb_build_object(
+        'code', 'RETURN_EXCHANGE_BLOCKED',
+        'message', 'Payment due date cannot be before today.'
+      )::text;
+    end if;
   end if;
 
   v_entry_source := coalesce(nullif(btrim(v_session.entry_source), ''), 'standard');
@@ -1293,6 +1299,10 @@ begin
   -- de hoa don dien tu va man hinh dang giu version cu biet du lieu da cu.
   update sales.sales_orders
   set version = version + 1,
+      payment_due_date = case
+        when v_collect_debt > 0 then confirm_return_exchange.payment_due_date
+        else payment_due_date
+      end,
       updated_at = now()
   where id = v_order.id
     and tenant_id = v_order.tenant_id;

@@ -303,7 +303,7 @@ begin
   end if;
 
   v_limit := least(greatest(page_size, 1), 100);
-  v_search := nullif(btrim(coalesce(search_text, '')), '');
+  v_search := nullif(btrim(catalog.unaccent_immutable(coalesce(search_text, ''))), '');
 
   return (
     with filtered as (
@@ -441,12 +441,12 @@ begin
         )
         and (
           v_search is null
-          or coalesce(
+          or catalog.unaccent_immutable(coalesce(
             nullif(btrim(o.order_code), ''),
             'SO-' || upper(substr(replace(o.id::text, '-', ''), 1, 12))
-          ) ilike '%' || v_search || '%'
-          or o.sales_context_snapshot -> 'customer' ->> 'displayName' ilike '%' || v_search || '%'
-          or o.sales_context_snapshot -> 'customer' ->> 'phoneNumber' ilike '%' || v_search || '%'
+          )) ilike '%' || v_search || '%'
+          or catalog.unaccent_immutable(o.sales_context_snapshot -> 'customer' ->> 'displayName') ilike '%' || v_search || '%'
+          or catalog.unaccent_immutable(o.sales_context_snapshot -> 'customer' ->> 'phoneNumber') ilike '%' || v_search || '%'
         )
     ),
     page as (

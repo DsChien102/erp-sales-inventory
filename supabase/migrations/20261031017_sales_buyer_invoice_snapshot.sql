@@ -38,6 +38,7 @@ declare
   v_order_id uuid := gen_random_uuid();
   v_settlement_id uuid := gen_random_uuid();
   v_grand_total_minor bigint := 0;
+  v_today date := (now() at time zone 'Asia/Ho_Chi_Minh')::date;
   v_paid_total_minor bigint := 0;
   v_remaining_minor bigint := 0;
   v_line jsonb;
@@ -209,6 +210,19 @@ begin
       raise exception using message = jsonb_build_object(
         'code', 'CONTEXT_INVALID',
         'message', 'Commercial customer buyerType is invalid.'
+      )::text;
+    end if;
+
+    if p_customer_id is not null and not exists (
+      select 1
+      from partner.partners pp
+      join partner.partner_roles pr
+        on pr.partner_id = pp.partner_id and pr.role = 'customer' and pr.is_active
+      where pp.tenant_id = p_tenant_id and pp.partner_id = p_customer_id and pp.status = 'active'
+    ) then
+      raise exception using message = jsonb_build_object(
+        'code', 'CUSTOMER_INVALID',
+        'message', 'Customer is inactive or not a customer.'
       )::text;
     end if;
 
@@ -429,6 +443,12 @@ begin
         'message', 'Ngày hẹn thanh toán là bắt buộc khi phát sinh công nợ.'
       )::text;
     end if;
+    if v_remaining_minor > 0 and p_payment_due_date < v_today then
+      raise exception using message = jsonb_build_object(
+        'code', 'RECEIVABLE_DUE_DATE_INVALID',
+        'message', 'Ngày hẹn thanh toán không được trước hôm nay.'
+      )::text;
+    end if;
 
     v_normalized_commercial_snapshot := jsonb_build_object(
       'store', jsonb_build_object(
@@ -640,7 +660,8 @@ begin
         when v_error_code in (
           'CHECKOUT_BLOCKED', 'STALE_VERSION', 'CONTEXT_INVALID',
           'PRODUCT_NOT_SELLABLE', 'RECEIVABLE_DUE_DATE_REQUIRED',
-          'PRICE_CHANGED', 'PRICING_BLOCKED'
+          'PRICE_CHANGED', 'PRICING_BLOCKED', 'CUSTOMER_INVALID',
+          'RECEIVABLE_DUE_DATE_INVALID'
         ) then 'blocked'
         else 'failed'
       end

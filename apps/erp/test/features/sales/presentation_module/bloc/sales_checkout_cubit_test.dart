@@ -292,6 +292,46 @@ void main() {
       await cubit.close();
     });
 
+    test('blocked_customer_invalid_message', () async {
+      final module = FakeSalesCheckoutRepository(precheckResult: _readyResult())
+        ..finalizeResults.add(
+          const CheckoutResultDto(
+            idempotencyKey: 'k',
+            salesOrderId: '',
+            salesOrderVersion: 0,
+            status: CheckoutResultStatus.blocked,
+            blockedCode: 'CUSTOMER_INVALID',
+          ),
+        );
+      final cubit = _cubit(module: module);
+
+      await cubit.finalizeCheckout();
+
+      expect(cubit.state.attemptStatus, SalesCheckoutAttemptStatus.blocked);
+      expect(cubit.state.attemptErrorMessage, 'Khách hàng không còn hoạt động.');
+      await cubit.close();
+    });
+
+    test('blocked_due_date_invalid_message', () async {
+      final module = FakeSalesCheckoutRepository(precheckResult: _readyResult())
+        ..finalizeResults.add(
+          const CheckoutResultDto(
+            idempotencyKey: 'k',
+            salesOrderId: '',
+            salesOrderVersion: 0,
+            status: CheckoutResultStatus.blocked,
+            blockedCode: 'RECEIVABLE_DUE_DATE_INVALID',
+          ),
+        );
+      final cubit = _cubit(module: module);
+
+      await cubit.finalizeCheckout();
+
+      expect(cubit.state.attemptStatus, SalesCheckoutAttemptStatus.blocked);
+      expect(cubit.state.attemptErrorMessage, 'Ngày hẹn thanh toán không được trước hôm nay.');
+      await cubit.close();
+    });
+
     test('price changed finalize tells the seller to return and refresh', () async {
       final module = FakeSalesCheckoutRepository(precheckResult: _readyResult())
         ..finalizeResults.add(

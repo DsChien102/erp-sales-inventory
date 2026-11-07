@@ -35,6 +35,7 @@ declare
   v_line_index integer := 0;
   v_payment jsonb;
   v_payment_count integer := 0;
+  v_today date := (now() at time zone 'Asia/Ho_Chi_Minh')::date;
 begin
   perform sales._assert_sales_actor(p_tenant_id, p_actor_id, p_store_id, 'sales.checkout.create');
 
@@ -61,6 +62,20 @@ begin
       'code', 'CONTEXT_INVALID',
       'message', 'Currency is required.',
       'field', 'currencyCode'
+    ));
+  end if;
+
+  if p_customer_id is not null and not exists (
+    select 1
+    from partner.partners pp
+    join partner.partner_roles pr
+      on pr.partner_id = pp.partner_id and pr.role = 'customer' and pr.is_active
+    where pp.tenant_id = p_tenant_id and pp.partner_id = p_customer_id and pp.status = 'active'
+  ) then
+    v_blockers := v_blockers || jsonb_build_array(jsonb_build_object(
+      'code', 'CUSTOMER_INVALID',
+      'message', 'Khách hàng không còn hoạt động.',
+      'field', 'customerId'
     ));
   end if;
 
@@ -150,6 +165,12 @@ begin
     v_blockers := v_blockers || jsonb_build_array(jsonb_build_object(
       'code', 'RECEIVABLE_DUE_DATE_REQUIRED',
       'message', 'Ngày hẹn thanh toán là bắt buộc khi phát sinh công nợ.',
+      'field', 'dueDate'
+    ));
+  elsif v_remaining_minor > 0 and p_payment_due_date < v_today then
+    v_blockers := v_blockers || jsonb_build_array(jsonb_build_object(
+      'code', 'RECEIVABLE_DUE_DATE_INVALID',
+      'message', 'Ngày hẹn thanh toán không được trước hôm nay.',
       'field', 'dueDate'
     ));
   end if;
