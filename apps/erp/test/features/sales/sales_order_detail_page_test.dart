@@ -5,7 +5,14 @@ import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import '../iam/support/iam_test_session.dart';
-import 'support/module_backed_sales_repositories.dart';
+import 'package:erp/features/sales/data/models/sales_cancellation_request.dart';
+import 'package:erp/features/sales/data/models/sales_record_payment.dart';
+import 'support/fake_return_exchange_repository.dart';
+import 'support/fake_sales_cancellation_repository.dart';
+import 'support/fake_sales_order_repository.dart';
+import 'support/fake_sales_payment_repository.dart';
+import 'support/fake_sales_receipt_repository.dart';
+import 'support/sales_contract_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -31,27 +38,16 @@ final class TestExecutionContext implements IExecutionContext {
 }
 
 void main() {
-  late _DetailSalesModule salesModule;
+  late _DetailRepos salesModule;
 
   setUp(() async {
     await GetIt.instance.reset();
-    salesModule = _DetailSalesModule(detail: _detail());
-    GetIt.instance.registerSingleton<ISalesModule>(salesModule);
-    GetIt.instance.registerSingleton<SalesOrderRepository>(
-      ModuleBackedSalesOrderRepository(salesModule),
-    );
-    GetIt.instance.registerSingleton<SalesReceiptRepository>(
-      ModuleBackedSalesReceiptRepository(salesModule),
-    );
-    GetIt.instance.registerSingleton<SalesPaymentRepository>(
-      ModuleBackedSalesPaymentRepository(salesModule),
-    );
-    GetIt.instance.registerSingleton<SalesCancellationRepository>(
-      ModuleBackedSalesCancellationRepository(salesModule),
-    );
-    GetIt.instance.registerSingleton<ReturnExchangeRepository>(
-      ModuleBackedReturnExchangeRepository(salesModule),
-    );
+    salesModule = _DetailRepos(detail: _detail());
+    GetIt.instance.registerSingleton<SalesOrderRepository>(salesModule.orders);
+    GetIt.instance.registerSingleton<SalesReceiptRepository>(salesModule.receipts);
+    GetIt.instance.registerSingleton<SalesPaymentRepository>(salesModule.payments);
+    GetIt.instance.registerSingleton<SalesCancellationRepository>(salesModule.cancellations);
+    GetIt.instance.registerSingleton<ReturnExchangeRepository>(salesModule.returnExchange);
     GetIt.instance.registerSingleton<IExecutionContext>(
       const TestExecutionContext(),
     );
@@ -201,7 +197,7 @@ void main() {
   testWidgets('SG-08 actions section error surfaces feedback instead of locked sheet', (
     tester,
   ) async {
-    salesModule.actionsError = const SalesContractException(
+    salesModule.actionsError = salesContractError(
       'DATA_SCOPE_DENIED',
       message: 'Store scope denied.',
     );
@@ -291,9 +287,9 @@ void main() {
     await tester.tap(find.byKey(const Key('btn_cancel_sheet_confirm')));
     await tester.pumpAndSettle();
 
-    final command = salesModule.commands.single as ConfirmSalesOrderCancellationCommand;
+    final command = salesModule.cancellations.confirmCalls.single;
 
-    expect(command.reason.reasonText, 'Khách đổi ý sau khi đặt');
+    expect(command.reasonText, 'Khách đổi ý sau khi đặt');
   });
 
   testWidgets('SG-08 disables cancel action when order has collected payment', (
@@ -331,7 +327,7 @@ void main() {
     expect(find.text('cancel-route'), findsNothing);
     expect(router.state.uri.path, '/sales/orders/order-1');
     expect(
-      salesModule.queries.whereType<PrecheckSalesOrderCancellationQuery>(),
+      salesModule.cancellations.precheckCalls,
       isEmpty,
     );
   });
@@ -384,7 +380,7 @@ void main() {
   testWidgets('SG-08 receipt view failure surfaces VToast and keeps core loaded', (
     tester,
   ) async {
-    salesModule.getReceiptError = const SalesContractException('PERMISSION_DENIED');
+    salesModule.getReceiptError = salesContractError('PERMISSION_DENIED');
 
     await tester.pumpWidget(
       const MaterialApp(
@@ -411,7 +407,7 @@ void main() {
   });
 
   testWidgets('SG-08 blocked status renders blocked instead of spinner', (tester) async {
-    salesModule.error = const SalesContractException('PERMISSION_DENIED');
+    salesModule.error = salesContractError('PERMISSION_DENIED');
     await tester.pumpWidget(
       const MaterialApp(
         home: SalesOrderDetailPage(orderId: 'order-1'),
@@ -430,7 +426,7 @@ void main() {
   });
 
   testWidgets('SG-08 not found status renders not-found instead of spinner', (tester) async {
-    salesModule.error = const SalesContractException('NOT_FOUND');
+    salesModule.error = salesContractError('NOT_FOUND');
     await tester.pumpWidget(
       const MaterialApp(
         home: SalesOrderDetailPage(orderId: 'missing-order'),
@@ -443,7 +439,7 @@ void main() {
   });
 
   testWidgets('SG-08 error status renders error instead of spinner', (tester) async {
-    salesModule.error = const SalesContractException('TRANSPORT_ERROR', message: 'network down');
+    salesModule.error = salesContractError('TRANSPORT_ERROR', message: 'network down');
     await tester.pumpWidget(
       const MaterialApp(
         home: SalesOrderDetailPage(orderId: 'order-1'),
@@ -458,7 +454,7 @@ void main() {
   testWidgets('SG-08 projection pending renders retryable pending instead of spinner', (
     tester,
   ) async {
-    salesModule.error = const SalesContractException('PROJECTION_PENDING');
+    salesModule.error = salesContractError('PROJECTION_PENDING');
     await tester.pumpWidget(
       const MaterialApp(
         home: SalesOrderDetailPage(orderId: 'order-1'),
@@ -522,11 +518,11 @@ void main() {
   testWidgets('SG-10 showSalesOrderCancelSheet renders VBottomSheet cancel dialog', (tester) async {
     final cubit = SalesOrderDetailCubit(
       orderId: 'order-1',
-      orderRepository: ModuleBackedSalesOrderRepository(salesModule),
-      receiptRepository: ModuleBackedSalesReceiptRepository(salesModule),
-      paymentRepository: ModuleBackedSalesPaymentRepository(salesModule),
-      cancellationRepository: ModuleBackedSalesCancellationRepository(salesModule),
-      returnExchangeRepository: ModuleBackedReturnExchangeRepository(salesModule),
+      orderRepository: salesModule.orders,
+      receiptRepository: salesModule.receipts,
+      paymentRepository: salesModule.payments,
+      cancellationRepository: salesModule.cancellations,
+      returnExchangeRepository: salesModule.returnExchange,
       executionContext: const TestExecutionContext(),
     );
     await cubit.load();
@@ -704,7 +700,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final queryCountBefore = salesModule.queries.length;
+    final queryCountBefore = salesModule.queryCount;
 
     await tester.tap(find.byKey(const Key('btn_sg08_actions')));
     await tester.pumpAndSettle();
@@ -718,7 +714,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Đã ghi nhận 600.000đ'), findsOneWidget);
-    expect(salesModule.queries.length, greaterThan(queryCountBefore));
+    expect(salesModule.queryCount, greaterThan(queryCountBefore));
   });
 
   testWidgets('SG-08 closed_without_payment_still_refreshes', (tester) async {
@@ -730,7 +726,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final queryCountBefore = salesModule.queries.length;
+    final queryCountBefore = salesModule.queryCount;
 
     await tester.tap(find.byKey(const Key('btn_sg08_actions')));
     await tester.pumpAndSettle();
@@ -742,7 +738,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Đã ghi nhận'), findsNothing);
-    expect(salesModule.queries.length, greaterThan(queryCountBefore));
+    expect(salesModule.queryCount, greaterThan(queryCountBefore));
   });
 }
 
@@ -797,8 +793,15 @@ SalesOrderDetailDto _detail({
   );
 }
 
-final class _DetailSalesModule implements ISalesModule {
-  _DetailSalesModule({required this.detail});
+/// Dữ liệu đơn thay đổi theo từng test; mỗi fake repository đọc lại trạng thái này khi được gọi.
+final class _DetailRepos {
+  _DetailRepos({required this.detail}) {
+    orders = _OrderRepo(this);
+    payments = _PaymentRepo(this);
+    receipts = _ReceiptRepo(this);
+    cancellations = _CancellationRepo(this);
+    returnExchange = _ReturnExchangeRepo(this);
+  }
 
   SalesOrderDetailDto detail;
   Object? error;
@@ -810,180 +813,219 @@ final class _DetailSalesModule implements ISalesModule {
   bool cancelAllowed = true;
   bool returnAllowed = true;
   List<ReturnExchangeSummaryDto> returns = const [];
-  final List<Object> queries = <Object>[];
-  final List<ICommand<Object?>> commands = <ICommand<Object?>>[];
+
+  late final _OrderRepo orders;
+  late final _PaymentRepo payments;
+  late final _ReceiptRepo receipts;
+  late final _CancellationRepo cancellations;
+  late final _ReturnExchangeRepo returnExchange;
+
+  /// Tổng số lần đọc (query) đã gọi qua mọi repository.
+  int get queryCount =>
+      orders.detailCalls.length +
+      orders.timelineCalls.length +
+      orders.returnSummaryCalls.length +
+      orders.actionsCalls.length +
+      payments.summaryCalls.length +
+      payments.settlementCalls.length +
+      payments.transactionsCalls.length +
+      receipts.getCalls.length +
+      cancellations.precheckCalls.length +
+      returnExchange.precheckCalls.length;
+}
+
+final class _OrderRepo extends FakeSalesOrderRepository {
+  _OrderRepo(this.s);
+  final _DetailRepos s;
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command as ICommand<Object?>);
-    if (command is ConfirmSalesOrderCancellationCommand) {
-      final cancellationCommand = command as ConfirmSalesOrderCancellationCommand;
-      return SalesOrderCancellationResultDto(
-            cancellationId: 'cancel-1',
-            salesOrderId: cancellationCommand.salesOrderId,
-            salesOrderVersion: detail.order.version + 1,
-            status: SalesOrderCancellationStatus.confirmed,
-          )
-          as TResult;
-    }
-    throw UnsupportedError('unexpected command ${command.runtimeType}');
-  }
+  SalesOrderDetailDto? get detailResult => s.detail;
+  @override
+  Object? get detailError => s.error;
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    final failure = error;
-    if (failure != null) throw failure;
-    if (query is GetSalesOrderDetailQuery) {
-      return detail as TResult;
-    }
-    if (query is GetSalesOrderPaymentSummaryQuery) {
-      final pe = paymentError;
-      if (pe != null) throw pe;
-      final outstandingMinor = detail.order.total.amountMinor - paidTotalMinor;
-      return SalesOrderPaymentSummaryDto(
-            status: SalesSettlementStatus.partiallyPaid,
-            orderTotal: detail.order.total,
-            paidTotal: MoneyDto(amountMinor: paidTotalMinor, currencyCode: 'VND'),
-            outstandingTotal: MoneyDto(
-              amountMinor: outstandingMinor > 0 ? outstandingMinor : 0,
-              currencyCode: 'VND',
-            ),
-            dueAt: DateTime.utc(2026, 8, 30),
-          )
-          as TResult;
-    }
-    if (query is GetSalesOrderSettlementQuery) {
-      return SalesOrderSettlementDto(
-            settlementId: 'settlement-1',
-            salesOrderId: detail.order.salesOrderId,
-            version: detail.order.version,
-            status: SalesSettlementStatus.partiallyPaid,
-            orderTotal: detail.order.total,
-            paidTotal: const MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
-            refundedTotal: const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
-            outstanding: const MoneyDto(amountMinor: 250000, currencyCode: 'VND'),
-          )
-          as TResult;
-    }
-    if (query is GetSalesOrderPaymentTransactionsQuery) {
-      return SalesPaymentTransactionsDto(
-            page: OpaqueCursorPageDto<SalesPaymentTransactionDto>(
-              items: [
-                SalesPaymentTransactionDto(
-                  transactionId: 'tx-cash',
-                  method: SalesPaymentMethod.cash,
-                  amount: const MoneyDto(amountMinor: 400000, currencyCode: 'VND'),
-                  status: SalesPaymentStatus.confirmed,
-                  recordedAt: detail.committedAt,
-                ),
-                SalesPaymentTransactionDto(
-                  transactionId: 'tx-bank',
-                  method: SalesPaymentMethod.manualBankTransfer,
-                  amount: const MoneyDto(amountMinor: 600000, currencyCode: 'VND'),
-                  status: SalesPaymentStatus.confirmed,
-                  recordedAt: detail.committedAt,
-                ),
-              ],
-              hasMore: false,
-            ),
-          )
-          as TResult;
-    }
-    if (query is GetSalesOrderTimelineQuery) {
-      return SalesOrderTimelineDto(
-            salesOrderId: detail.order.salesOrderId,
-            entries: [
-              SalesOrderTimelineEntryDto(
-                eventId: 'event-1',
-                eventType: 'sales_order_confirmed',
-                occurredAt: detail.committedAt,
-                sourceVersion: detail.order.version,
-                actor: detail.seller,
-                description: 'Xác nhận đơn hàng',
-                amount: detail.order.total,
-              ),
-            ],
-          )
-          as TResult;
-    }
-    if (query is GetSalesOrderReturnSummaryQuery) {
-      return SalesOrderReturnSummaryDto(
-            salesOrderId: detail.order.salesOrderId,
-            returns: returns,
-          )
-          as TResult;
-    }
-    if (query is GetAvailablePostSaleActionsQuery) {
-      final failure = actionsError;
-      if (failure != null) throw failure;
-      return AvailablePostSaleActionsDto(
-            canCancel: detail.order.lifecycleStatus == SalesOrderLifecycleStatus.completed,
-            canReturnExchange: detail.order.lifecycleStatus == SalesOrderLifecycleStatus.completed,
-          )
-          as TResult;
-    }
-    if (query is PrecheckSalesOrderCancellationQuery) {
-      final failure = precheckError;
-      if (failure != null) throw failure;
-      return CancellationPrecheckDto(
-            allowed: cancelAllowed,
-            sourceVersion: detail.order.version,
-            sourceSettlementVersion: 1,
-            blockers: cancelAllowed
-                ? const []
-                : const [
-                    SalesBlockerDto(
-                      code: 'CANCELLATION_BLOCKED',
-                      message: 'Đơn không cho phép hủy.',
-                    ),
-                  ],
-          )
-          as TResult;
-    }
-    if (query is PrecheckReturnExchangeQuery) {
-      final failure = precheckError;
-      if (failure != null) throw failure;
-      return ReturnExchangePrecheckDto(
-            allowed: returnAllowed,
-            sourceVersion: detail.order.version,
-            blockers: returnAllowed
-                ? const []
-                : const [
-                    SalesBlockerDto(
-                      code: 'RETURN_EXCHANGE_BLOCKED',
-                      message: 'Đơn không cho phép đổi/trả.',
-                    ),
-                  ],
-          )
-          as TResult;
-    }
-    if (query is GetSalesReceiptQuery) {
-      final receiptFailure = getReceiptError;
-      if (receiptFailure != null) throw receiptFailure;
-      return SalesReceiptDto(
-            receiptId: detail.currentReceiptId ?? 'receipt-1',
-            salesOrderId: detail.order.salesOrderId,
-            version: 1,
-            status: SalesReceiptStatus.generated,
-            generatedAt: detail.committedAt,
-            document: SalesReceiptDocumentDto(
-              receiptNumber: 'PBH-20260812-0129',
-              orderNumber: detail.order.orderNumber,
-              soldAt: detail.committedAt,
-              store: detail.store,
-              seller: detail.seller,
-              lines: const <SalesReceiptLineDto>[],
-              subtotal: detail.order.total,
-              discountTotal: const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
-              orderTotal: detail.order.total,
-              paidTotal: const MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
-              outstandingTotal: const MoneyDto(amountMinor: 250000, currencyCode: 'VND'),
-              payments: const <PaymentIntentSummaryDto>[],
-            ),
-          )
-          as TResult;
-    }
-    throw UnsupportedError('unexpected query ${query.runtimeType}');
+  SalesOrderTimelineDto? get timelineResult => SalesOrderTimelineDto(
+    salesOrderId: s.detail.order.salesOrderId,
+    entries: [
+      SalesOrderTimelineEntryDto(
+        eventId: 'event-1',
+        eventType: 'sales_order_confirmed',
+        occurredAt: s.detail.committedAt,
+        sourceVersion: s.detail.order.version,
+        actor: s.detail.seller,
+        description: 'Xác nhận đơn hàng',
+        amount: s.detail.order.total,
+      ),
+    ],
+  );
+  @override
+  Object? get timelineError => s.error;
+
+  @override
+  SalesOrderReturnSummaryDto? get returnSummaryResult => SalesOrderReturnSummaryDto(
+    salesOrderId: s.detail.order.salesOrderId,
+    returns: s.returns,
+  );
+  @override
+  Object? get returnSummaryError => s.error;
+
+  @override
+  AvailablePostSaleActionsDto? get actionsResult => AvailablePostSaleActionsDto(
+    canCancel: s.detail.order.lifecycleStatus == SalesOrderLifecycleStatus.completed,
+    canReturnExchange: s.detail.order.lifecycleStatus == SalesOrderLifecycleStatus.completed,
+  );
+  @override
+  Object? get actionsError => s.error ?? s.actionsError;
+}
+
+final class _PaymentRepo extends FakeSalesPaymentRepository {
+  _PaymentRepo(this.s) {
+    recordResult = const SalesRecordPaymentResult(
+      transactionId: 'tx-recorded',
+      outstandingMinor: 0,
+      paymentStatus: 'paid',
+      version: 2,
+    );
   }
+  final _DetailRepos s;
+
+  @override
+  SalesOrderPaymentSummaryDto? get summaryResult {
+    final outstandingMinor = s.detail.order.total.amountMinor - s.paidTotalMinor;
+    return SalesOrderPaymentSummaryDto(
+      status: SalesSettlementStatus.partiallyPaid,
+      orderTotal: s.detail.order.total,
+      paidTotal: MoneyDto(amountMinor: s.paidTotalMinor, currencyCode: 'VND'),
+      outstandingTotal: MoneyDto(
+        amountMinor: outstandingMinor > 0 ? outstandingMinor : 0,
+        currencyCode: 'VND',
+      ),
+      dueAt: DateTime.utc(2026, 8, 30),
+    );
+  }
+  @override
+  Object? get summaryError => s.error ?? s.paymentError;
+
+  @override
+  SalesOrderSettlementDto? get settlementResult => SalesOrderSettlementDto(
+    settlementId: 'settlement-1',
+    salesOrderId: s.detail.order.salesOrderId,
+    version: s.detail.order.version,
+    status: SalesSettlementStatus.partiallyPaid,
+    orderTotal: s.detail.order.total,
+    paidTotal: const MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
+    refundedTotal: const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
+    outstanding: const MoneyDto(amountMinor: 250000, currencyCode: 'VND'),
+  );
+  @override
+  Object? get settlementError => s.error;
+
+  @override
+  SalesPaymentTransactionsDto? get transactionsResult => SalesPaymentTransactionsDto(
+    page: OpaqueCursorPageDto<SalesPaymentTransactionDto>(
+      items: [
+        SalesPaymentTransactionDto(
+          transactionId: 'tx-cash',
+          method: SalesPaymentMethod.cash,
+          amount: const MoneyDto(amountMinor: 400000, currencyCode: 'VND'),
+          status: SalesPaymentStatus.confirmed,
+          recordedAt: s.detail.committedAt,
+        ),
+        SalesPaymentTransactionDto(
+          transactionId: 'tx-bank',
+          method: SalesPaymentMethod.manualBankTransfer,
+          amount: const MoneyDto(amountMinor: 600000, currencyCode: 'VND'),
+          status: SalesPaymentStatus.confirmed,
+          recordedAt: s.detail.committedAt,
+        ),
+      ],
+      hasMore: false,
+    ),
+  );
+  @override
+  Object? get transactionsError => s.error;
+}
+
+final class _ReceiptRepo extends FakeSalesReceiptRepository {
+  _ReceiptRepo(this.s);
+  final _DetailRepos s;
+
+  @override
+  SalesReceiptDto? get getResult => SalesReceiptDto(
+    receiptId: s.detail.currentReceiptId ?? 'receipt-1',
+    salesOrderId: s.detail.order.salesOrderId,
+    version: 1,
+    status: SalesReceiptStatus.generated,
+    generatedAt: s.detail.committedAt,
+    document: SalesReceiptDocumentDto(
+      receiptNumber: 'PBH-20260812-0129',
+      orderNumber: s.detail.order.orderNumber,
+      soldAt: s.detail.committedAt,
+      store: s.detail.store,
+      seller: s.detail.seller,
+      lines: const <SalesReceiptLineDto>[],
+      subtotal: s.detail.order.total,
+      discountTotal: const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
+      orderTotal: s.detail.order.total,
+      paidTotal: const MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
+      outstandingTotal: const MoneyDto(amountMinor: 250000, currencyCode: 'VND'),
+      payments: const <PaymentIntentSummaryDto>[],
+    ),
+  );
+  @override
+  Object? get getError => s.error ?? s.getReceiptError;
+}
+
+final class _CancellationRepo extends FakeSalesCancellationRepository {
+  _CancellationRepo(this.s);
+  final _DetailRepos s;
+
+  @override
+  CancellationPrecheckDto? get precheckResult => CancellationPrecheckDto(
+    allowed: s.cancelAllowed,
+    sourceVersion: s.detail.order.version,
+    sourceSettlementVersion: 1,
+    blockers: s.cancelAllowed
+        ? const []
+        : const [
+            SalesBlockerDto(
+              code: 'CANCELLATION_BLOCKED',
+              message: 'Đơn không cho phép hủy.',
+            ),
+          ],
+  );
+  @override
+  Object? get precheckError => s.error ?? s.precheckError;
+
+  @override
+  SalesOrderCancellationResultDto? get confirmResult {
+    final SalesOrderCancellationRequest request = confirmCalls.last;
+    return SalesOrderCancellationResultDto(
+      cancellationId: 'cancel-1',
+      salesOrderId: request.salesOrderId,
+      salesOrderVersion: s.detail.order.version + 1,
+      status: SalesOrderCancellationStatus.confirmed,
+    );
+  }
+}
+
+final class _ReturnExchangeRepo extends FakeReturnExchangeRepository {
+  _ReturnExchangeRepo(this.s);
+  final _DetailRepos s;
+
+  @override
+  ReturnExchangePrecheckDto? get precheckResult => ReturnExchangePrecheckDto(
+    allowed: s.returnAllowed,
+    sourceVersion: s.detail.order.version,
+    blockers: s.returnAllowed
+        ? const []
+        : const [
+            SalesBlockerDto(
+              code: 'RETURN_EXCHANGE_BLOCKED',
+              message: 'Đơn không cho phép đổi/trả.',
+            ),
+          ],
+  );
+  @override
+  Object? get precheckError => s.error ?? s.precheckError;
 }

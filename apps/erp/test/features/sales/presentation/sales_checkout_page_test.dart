@@ -1,5 +1,6 @@
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
-import '../support/module_backed_sales_repositories.dart';
+import '../support/fake_sales_checkout_repository.dart';
+import '../support/sales_contract_error.dart';
 import 'dart:async';
 
 import 'package:erp/core/session/session_controller.dart';
@@ -32,7 +33,7 @@ import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
 void main() {
-  late _RecordingSalesModule salesModule;
+  late _CheckoutRepo checkoutRepo;
   late _SalesFlowProductRepository productRepo;
   late RecordingSalesPricingRepository pricingModule;
   late ScriptedAccountRepository accounts;
@@ -42,7 +43,7 @@ void main() {
 
   setUp(() async {
     await GetIt.instance.reset();
-    salesModule = _RecordingSalesModule();
+    checkoutRepo = _CheckoutRepo();
     productRepo = _SalesFlowProductRepository();
     pricingModule = RecordingSalesPricingRepository(
       previewResponder: _pricingPreviewFor,
@@ -60,10 +61,7 @@ void main() {
     session = _demoSession();
     capturedExtra = null;
 
-    GetIt.instance.registerSingleton<ISalesModule>(salesModule);
-    GetIt.instance.registerSingleton<SalesCheckoutRepository>(
-      ModuleBackedSalesCheckoutRepository(salesModule),
-    );
+    GetIt.instance.registerSingleton<SalesCheckoutRepository>(checkoutRepo);
     GetIt.instance.registerSingleton<SalesDraftRepository>(FakeSalesDraftRepository());
     GetIt.instance.registerSingleton<AccountRepository>(accounts);
     GetIt.instance.registerSingleton<IExecutionContext>(
@@ -129,7 +127,7 @@ void main() {
       expect(args.commercialSnapshot.lines.single.product.displayName, 'Thuoc live');
       expect(args.commercialSnapshot.lines.single.unit.productUnitId, 'unit-live');
       expect(args.commercialSnapshot.lines.single.unit.unitName, 'Hop');
-      final precheck = salesModule.queries.whereType<PrecheckSalesOrderCheckoutQuery>().single;
+      final precheck = checkoutRepo.precheckCalls.single;
       // tenantId / actorId do repository tự lấy (8-A2 Q8), không còn đi qua orchestrator.
       expect(precheck.storeId, 'store-demo');
       expect(precheck.paymentIntents.single.method, SalesPaymentMethod.cash);
@@ -226,7 +224,7 @@ void main() {
 
   testWidgets('renders provisional totals before explicit checkout checks', (tester) async {
     await pumpCheckout(tester, result: _readyResult(grandTotal: 950000, outstanding: 550000));
-    expect(salesModule.queries, isEmpty);
+    expect(checkoutRepo.precheckCalls, isEmpty);
     await tester.ensureVisible(find.byKey(const Key('txt_sg05_receivable_amount')));
     final receivable = tester.widget<VText>(
       find.byKey(const Key('txt_sg05_receivable_amount')),
@@ -280,7 +278,7 @@ void main() {
     await pumpCheckout(tester, settle: false);
     await tester.pump();
 
-    expect(salesModule.queries, isEmpty);
+    expect(checkoutRepo.precheckCalls, isEmpty);
     expect(find.byKey(const Key('wgt_sg05_precheck_panel')), findsNothing);
     expect(find.byKey(const Key('wgt_sg05_precheck_spinner')), findsNothing);
     expect(find.text('Phương thức'), findsOneWidget);
@@ -291,7 +289,7 @@ void main() {
   });
 
   testWidgets('DEPENDENCY_UNAVAILABLE failure shows a toast and keeps finalize', (tester) async {
-    salesModule.error = const SalesContractException(
+    checkoutRepo.precheckError = salesContractError(
       'DEPENDENCY_UNAVAILABLE',
       message: 'Pricing dependency unavailable.',
     );
@@ -372,7 +370,7 @@ void main() {
   testWidgets(
     'payment edits do not finalize without confirmation',
     (tester) async {
-      salesModule.result = _readyResult();
+      checkoutRepo.precheckResult = _readyResult();
       final checkoutRouter = GoRouter(
         initialLocation: '/sales/checkout',
         routes: [
@@ -423,8 +421,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(salesModule.queries, isEmpty);
-      expect(salesModule.commands, isEmpty);
+      expect(checkoutRepo.precheckCalls, isEmpty);
+      expect(checkoutRepo.finalizeCalls, isEmpty);
       expect(
         checkoutRouter.routeInformationProvider.value.uri.path,
         '/sales/checkout',
@@ -491,9 +489,8 @@ void main() {
     });
 
     testWidgets('precheck failure shows a toast, not the failure card', (tester) async {
-      GetIt.instance;
-      final module = GetIt.instance<ISalesModule>() as _RecordingSalesModule;
-      module.error = const SalesContractException(
+      final module = GetIt.instance<SalesCheckoutRepository>() as _CheckoutRepo;
+      module.precheckError = salesContractError(
         'DEPENDENCY_UNAVAILABLE',
         message: 'Pricing dependency unavailable.',
       );
@@ -510,7 +507,7 @@ void main() {
 
     testWidgets('finalize button shows loading while precheck is in flight', (tester) async {
       final completer = Completer<CheckoutPrecheckDto>();
-      final module = GetIt.instance<ISalesModule>() as _RecordingSalesModule;
+      final module = GetIt.instance<SalesCheckoutRepository>() as _CheckoutRepo;
       module.resultFuture = completer.future;
       await pumpCheckout(tester);
 
@@ -538,9 +535,9 @@ void main() {
     });
 
     testWidgets('idempotency conflict shows a toast', (tester) async {
-      final module = GetIt.instance<ISalesModule>() as _RecordingSalesModule;
-      module.result = _readyResult();
-      module.commandError = const SalesContractException(
+      final module = GetIt.instance<SalesCheckoutRepository>() as _CheckoutRepo;
+      module.precheckResult = _readyResult();
+      module.finalizeError = salesContractError(
         'IDEMPOTENCY_CONFLICT',
         message: 'Conflict.',
       );
@@ -615,9 +612,8 @@ Future<void> pumpCheckout(
   SalesCheckoutDraftArgs? args,
 }) async {
   if (result != null) {
-    GetIt.instance<ISalesModule>();
-    final module = GetIt.instance<ISalesModule>() as _RecordingSalesModule;
-    module.result = result;
+    final module = GetIt.instance<SalesCheckoutRepository>() as _CheckoutRepo;
+    module.precheckResult = result;
   }
 
   await tester.pumpWidget(
@@ -776,35 +772,32 @@ final class _TestExecutionContext implements IExecutionContext {
   Future<String> requireUserId() async => 'user-demo';
 }
 
-final class _RecordingSalesModule implements ISalesModule {
-  CheckoutPrecheckDto result = _readyResult();
+final class _CheckoutRepo extends FakeSalesCheckoutRepository {
+  _CheckoutRepo() : super(precheckResult: _readyResult());
+
   Future<CheckoutPrecheckDto>? resultFuture;
-  Object? error;
-  Object? commandError;
-  final List<Object> queries = [];
-  final List<Object> commands = [];
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    final thrown = commandError;
-    if (thrown != null) throw thrown;
-    throw UnsupportedError('Group C must not execute commands');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is! PrecheckSalesOrderCheckoutQuery) {
-      throw StateError('Unexpected sales query $query');
-    }
-    final thrown = error;
-    if (thrown != null) throw thrown;
-    final pending = resultFuture;
-    if (pending != null) {
-      return await pending as TResult;
-    }
-    return result as TResult;
+  Future<CheckoutPrecheckDto> precheck({
+    required String storeId,
+    String? customerId,
+    required String currencyCode,
+    DateTime? paymentDueDate,
+    required List<CheckoutLineInput> lines,
+    required List<PaymentIntentInput> paymentIntents,
+    int? expectedSourceVersion,
+  }) async {
+    // Ghi lời gọi và ném `precheckError` như fake gốc, rồi mới chờ kết quả treo (nếu có).
+    final result = await super.precheck(
+      storeId: storeId,
+      customerId: customerId,
+      currencyCode: currencyCode,
+      paymentDueDate: paymentDueDate,
+      lines: lines,
+      paymentIntents: paymentIntents,
+      expectedSourceVersion: expectedSourceVersion,
+    );
+    return resultFuture ?? result;
   }
 }
 
