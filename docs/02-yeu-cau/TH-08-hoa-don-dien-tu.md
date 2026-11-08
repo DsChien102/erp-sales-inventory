@@ -1365,8 +1365,8 @@ Bộ xử lý ghi kết quả bằng RPC service_role ─▶ app hỏi lại (as
 **Sau refactor** 🆕 (KI-20, KI-26, 7-E3)
 
 ```text
-Page ─▶ Cubit ─▶ EInvoiceRepository ─▶ supabase.schema('einvoice').rpc(...)   (ghi yêu cầu + internal_commands)
-                                   └─▶ supabase.functions.invoke('einvoice-processor', {tenant})   (gọi ngay, không chờ kết quả)
+Page ─▶ Cubit ─▶ EInvoiceConfigurationRepository / EInvoiceRepository ─▶ supabase.schema('einvoice').rpc(...)   (ghi yêu cầu + internal_commands)
+                                                                      └─▶ supabase.functions.invoke('einvoice-processor', {tenant})   (gọi ngay, không chờ kết quả)
 Đơn Hoàn tất / Khách đổi version / Hoá đơn mới ─▶ 3 Trigger ─▶ einvoice.internal_commands   (tự động xếp việc)
 pg_cron mỗi 30 giây ─▶ pg_net POST /functions/v1/einvoice-processor   (quét mọi tổ chức có việc đến hạn)
 einvoice-processor (Deno/TypeScript, service_role):
@@ -1548,7 +1548,7 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 
 | Hiện tại | Sau refactor |
 |---|---|
-| Module `modules/einvoice` (domain / application / infrastructure / presentation / integration_events), mediator, CQRS handler | `apps/erp/lib/features/einvoice/`: `data/einvoice_repository.dart` gọi `supabase.schema('einvoice').rpc(...)`; cubit gọi repository |
+| Module `modules/einvoice` (domain / application / infrastructure / presentation / integration_events), mediator, CQRS handler | `apps/erp/lib/features/einvoice/`: `data/einvoice_configuration_repository.dart` và `data/einvoice_repository.dart` gọi `supabase.schema('einvoice').rpc(...)`; cubit gọi repository |
 | UI tách đôi module + bản sao trong `features/sales` (KI-17) | Một chỗ `features/einvoice/presentation`; `features/sales` chỉ nhúng `OrderEInvoiceSection` |
 | `vet45_async_query` (`QueryClient`, `refetchInterval`) để hỏi lại | **Giữ hành vi hỏi lại** (5 giây trên đơn, 2 giây ở kết nối, vòng lặp xem trước / xem / tải) nhưng viết bằng `Timer` trong cubit; bỏ phụ thuộc `async_query` |
 | Bộ xử lý `apps/messaging_worker` (Dart, chạy liên tục, cần hosting) dùng handler trong `modules/einvoice/application` + `packages/vet45_misa` | 🆕 Edge Function `supabase/functions/einvoice-processor` (TypeScript): client MISA + handler phát hành, đối soát, xem, tải, gửi; kích hoạt bởi app và `pg_cron` mỗi 30 giây. Giữ nguyên hàng đợi `internal_commands`, khóa ký hiệu, lịch đối soát, RPC `record_*` (KI-20); khoá ký hiệu không gia hạn (khoá 300 giây > giới hạn 150 giây của Edge Function). Xóa bộ xử lý ở P9 |
