@@ -3,7 +3,7 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: dùng superpowers:subagent-driven-development (khuyên dùng) hoặc superpowers:executing-plans để làm theo từng task. Các bước dùng checkbox (`- [ ]`).
 
 > Theme 8 (mã cũ P7) · Bước (a) chuyển kiến trúc, phần UI **trên đơn** · Gồm việc 7.3 (UI; KI-17) — PLAN.md mục Theme 8
-> Trạng thái: Plan ✅ (duyệt 2026-11-08) | Làm 🔄 (Task 1–4; Task 0, Task 5 chưa) | Review 🔄 R1 CHƯA ĐẠT 2026-11-08
+> Trạng thái: Plan ✅ (duyệt 2026-11-08) | Làm ✅ 2026-11-08 (còn kiểm tay 5.7 — người dùng) | Review ✅ R2 ĐẠT 2026-11-08
 > Trước: 7-A2a (Làm ✅ + Review R2 ✅; 4 trang thiết lập, `FakeEInvoiceConfigurationRepository`, DI `EInvoiceProcessorTrigger` / `EInvoiceConfigurationRepository`). Sau: 7-B2 (KI-01, KI-08, bố cục web), 7-C (xoá module).
 > Tài liệu: [TH-08](../../../02-yeu-cau/TH-08-hoa-don-dien-tu.md) HD-06 … HD-13, 6.4, KI-17, 9.2 PR 7.3; PLAN.md "Cách chuyển MỘT feature", "Plan xoá / tách / thay code cũ", "Plan chuyển kiến trúc: giữ nghiệp vụ…". Mẫu: `plans/P7/7-A2a-einvoice-ui-thiet-lap.md`, `plans/P7/7-A1-einvoice-data.md`.
 
@@ -385,3 +385,26 @@ Ghi chú, không bắt sửa:
 - Ca `poll result after close is dropped` không phát hiện được `emit` sau `close`, vì `refresh` nuốt `StateError`. Guard `isClosed` trong `_applyRefreshSnapshot` vẫn đúng.
 - Ca `result section falls back when repository missing` có thể thêm `expect(find.byKey(const Key('sales_result_einvoice_section')), findsNothing)` như plan ghi.
 - `apps/erp/example/lib/sales/preview/sg06_result_tab.dart` có sửa, dù plan ghi "không đụng example". Sửa này là cần, vì `presentation.dart` của sales đã bỏ export; `dart analyze` của example không có lỗi. Ghi vào mục 9.
+
+### R2 — 2026-11-08: **ĐẠT**
+
+Phạm vi xem: `a26db5628` (Task 3, Task 4, các việc sửa R1). Review tự đo lại mọi số.
+
+| Hạng mục | Kết quả |
+|---|---|
+| R1-1 câu lỗi | ✅ `einvoice_error_messages.dart:25-29` chỉ xét `code` và `blockers`. Lỗi trong test đã đổi sang `AppException`. `einvoice_error_messages_test` có 3 ca chuyển sang, cộng ca `server message mentioning another code does not change the message` |
+| R1-2 test chép từ module | ✅ 4 tệp import tệp app (`presentation/widgets/*`, `support/*`, `data/models.dart`) |
+| R1-3 2 ca đỏ | ✅ xanh |
+| R1-4 B0-1 … B0-3, ca `Timer` | ✅ `order_einvoice_polling_host_test.dart:370,395,413` giữ đúng điều kiện kiểm của Task 0; `retry` của fake đổi sang `processing` (`fake_einvoice_repository.dart:442-454`). `slow poll does not overlap` (`order_einvoice_cubit_test.dart:1546`) dùng `setPollingActive` + `pollInterval: 10ms`; chạy 6 lần, đạt cả 6 |
+| R1-5 service ở `data/` | ✅ `models.dart` chỉ export model; lệch plan đã ghi ở mục 9 |
+| R1-6 test không dựa vào module | ✅ `git grep vet45_einvoice` trong `test/features/einvoice/{presentation,support}` và `test/features/sales` → rỗng |
+| `dart analyze lib test` | ✅ không có error hay warning; info `unnecessary_import` của R1 đã hết |
+| `check_feature_imports` | ✅ dòng `einvoice` / `sales` giống hệt trước 7-A2b (4 dòng R1 của 7-A1, các dòng R2 / R3 có sẵn của sales) |
+| `flutter test test/features/einvoice test/features/sales test/core/di/injection_test.dart` | ✅ 1357 đạt, 10 bỏ qua, 0 đỏ |
+| `flutter test` cả `apps/erp` (5.4) | ✅ 3008 đạt / 55 lỗi = 53 lỗi trong danh sách `TEST-BASELINE.md` + 2 lỗi ⚠️ đã ghi ở mục "Sau 5-C". So từng tên: không có lỗi nào của einvoice / sales |
+| Phạm vi (thay 5.6) | ✅ `git diff --name-only e3f17a988 HEAD` → 74 tệp. Ngoài `features/{einvoice,sales}` và `docs/` chỉ có `core/di/injection.dart`, `main.dart`, `pubspec.yaml`, `injection_test.dart` (Task 4) và `example/.../sg06_result_tab.dart` (đã ghi lệch). Phiên review không chạy được `detect_changes` vì không có công cụ GitNexus |
+| 5.5 tài liệu | ✅ TH-08 KI-17 (`:1510`) đã ghi 7-A2a + 7-A2b; mục 9 đã ghi |
+
+Còn lại (không chặn ĐẠT):
+- Kiểm tay 5.7 (iPhone + web): người dùng làm.
+- Ghi chú: `slow poll does not overlap` chỉ chờ 8ms sau `complete` (plan ghi 15ms). Tick thứ 4 rơi vào khoảng 40ms, nên nếu máy CI chậm thì ca này có thể chập chờn. Nếu thấy đỏ ngẫu nhiên, nâng lên 15–25ms.

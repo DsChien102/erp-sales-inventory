@@ -443,7 +443,7 @@ Feature: Kết nối MISA meInvoice
 - FR-02: Chọn mẫu → thẻ "Thông tin mẫu" hiện "Ký hiệu", "Cấp mã" ("Có mã của cơ quan thuế" …), "Loại hóa đơn".
 - FR-03: Nút "Hủy" / "Lưu". Lưu: chưa chọn mẫu → lỗi "Vui lòng chọn mẫu hóa đơn"; chọn rồi → gọi `set_default_issuance_configuration` với hình thức ký suy từ mẫu (`sign-nosign` cho mẫu máy tính tiền, `sign-hsm` cho mẫu khác).
 - FR-04: Kết quả: thành công → toast "Đã lưu cấu hình phát hành — Mẫu hóa đơn mặc định đã được cập nhật."; mẫu không tương thích → "Mẫu không tương thích — Mẫu hóa đơn không tương thích với cấu hình ký hiện tại."; chưa kết nối → "Chưa kết nối MISA — Cần kết nối MISA trước khi lưu mẫu hóa đơn mặc định."; lỗi khác → "Không lưu được — Có lỗi xảy ra, vui lòng thử lại."
-- FR-05: 🔧 Dòng phụ dưới ô mẫu hiện "Đồng bộ gần nhất: 10:38, 05/08/2026" là **chuỗi cố định**. Sửa: hiện `last_verified_at` của kết nối, hoặc bỏ dòng (KI-01).
+- FR-05: Dòng phụ dưới ô mẫu hiện "Đồng bộ gần nhất: HH:mm, dd/MM/yyyy" theo `last_verified_at` của kết nối (giờ máy); đọc kết nối lỗi hoặc chưa có giờ → không có dòng (KI-01, ✅ 7-B2).
 
 **BR áp dụng:** BR-06, BR-07, BR-08, BR-11.
 
@@ -940,7 +940,7 @@ Feature: Gửi email tự động
 - AC-03: Đã có lần gửi → sheet "Gửi lại hóa đơn điện tử", email gợi ý là email lần gửi gần nhất, có "Xem lịch sử gửi".
 - AC-04: Lần gửi trước đang chạy → nút mờ; gọi thẳng RPC → `OPERATION_IN_PROGRESS` ("Yêu cầu gửi trước đang được xử lý. Vui lòng chờ kết quả.").
 - AC-05: Lần trước `UNKNOWN` → vẫn gửi lại được.
-- AC-06: 🔧 Lần gửi gần nhất lỗi → dòng tóm tắt hiện "Đã gửi gần nhất đến…" dù lần đó không thành công. Sửa: dùng nhãn theo trạng thái lần gần nhất ("Gửi lỗi …", "Đang gửi …") hoặc chỉ lấy lần thành công gần nhất (KI-08).
+- AC-06: Dòng tóm tắt "Đã gửi gần nhất đến…" lấy lần gửi **thành công** gần nhất; chưa có lần thành công thì ẩn dòng (KI-08, ✅ 7-B2).
 
 **EC**
 - EC-01: Email có dấu cách đầu/cuối → được cắt trước khi gửi.
@@ -1132,7 +1132,7 @@ Toast sau thao tác: "Đã kết nối MISA — Kết nối MISA meInvoice thàn
 | Thành phần | Nội dung |
 |---|---|
 | Giới thiệu | "Chọn mẫu hóa đơn và hình thức ký số mặc định khi phát hành hóa đơn điện tử." |
-| Ô "Mẫu hóa đơn" * | Danh sách từ `list_provider_templates`; dòng phụ 🔧 "Đồng bộ gần nhất: …" (KI-01) |
+| Ô "Mẫu hóa đơn" * | Danh sách từ `list_provider_templates`; dòng phụ "Đồng bộ gần nhất: …" (KI-01 ✅) |
 | Thẻ "Thông tin mẫu" | Ký hiệu; Cấp mã; Loại hóa đơn |
 | Thanh dưới | "Hủy" · "Lưu" |
 
@@ -1290,7 +1290,7 @@ Xong → chia sẻ hệ điều hành; lỗi → toast "Hóa đơn điện tử 
 | Ô "Email người nhận" * | gợi ý BR-45 (lần đầu) | email lần gửi gần nhất |
 | Nhãn nguồn | khi có gợi ý | khi có gợi ý |
 | Trợ giúp / lỗi | "Email chỉ áp dụng cho lần gửi này." / "Email không đúng định dạng." | như trái |
-| Dòng tóm tắt | — | "Đã gửi gần nhất đến <email> · <ngày giờ>" 🔧 (KI-08) |
+| Dòng tóm tắt | — | "Đã gửi gần nhất đến <email> · <ngày giờ>" — lần gửi thành công gần nhất, nằm dưới ô email và trên "Xem lịch sử gửi"; không có thì ẩn (KI-08 ✅) |
 | Liên kết | — | "Xem lịch sử gửi" (mờ khi đang gửi) |
 | Nút | "Gửi hóa đơn" · "Hủy" | như trái |
 
@@ -1345,6 +1345,7 @@ Xong → chia sẻ hệ điều hành; lỗi → toast "Hóa đơn điện tử 
 - Trạng thái luôn có chữ (badge, nhãn), không chỉ dựa vào màu; vòng xoay có nhãn trợ năng.
 - Khi tải, chữ của nút / mục **không đổi**, chỉ khóa và thêm vòng xoay.
 - Bàn phím không che nút "Gửi hóa đơn" (sheet cuộn được).
+- Web: HD-01 … HD-05, HD-13 nằm trong cột 720; HD-03, HD-07 … HD-12 là hộp thoại (rộng 480) có tiêu đề + nút "Đóng", Esc đóng; iPhone là bottom sheet có tiêu đề ở header.
 - Hai thiết bị đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md), sửa 2026-10-22): mỗi màn có bố cục iPhone và bố cục web thiết kế đủ như nhau — web không phải cột iPhone đặt giữa hay kéo giãn. Web dùng bố cục chung: danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet thành hộp thoại, đi được bằng bàn phím; bố cục từng màn chốt trong plan của theme. Ý nghĩa, thứ tự và chữ giữ nguyên giữa hai bố cục.
 
 ---
@@ -1491,14 +1492,14 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 
 | Mã | Vấn đề | Quyết định | Phase |
 |---|---|---|---|
-| KI-01 | 🔧 HD-04 hiện "Đồng bộ gần nhất: 10:38, 05/08/2026" là chuỗi cố định (`EInvoiceConfigurationDisplay.lastSyncedLabel`) | Hiện `last_verified_at` của kết nối; không có thì bỏ dòng | P7 PR 7.2 |
+| KI-01 | 🔧 HD-04 hiện "Đồng bộ gần nhất: 10:38, 05/08/2026" là chuỗi cố định (`EInvoiceConfigurationDisplay.lastSyncedLabel`) | Hiện `last_verified_at` của kết nối; không có thì bỏ dòng | ✅ 7-B2 (2026-11-08) |
 | KI-02 | `update_automation_policy` từng không kiểm sẵn sàng khi bật phát hành tự động | Bật **mới** `auto_issue_enabled` khi BR-10 chưa đạt → `CONFIG_NOT_READY`. Tắt luôn được; đang bật sẵn thì lưu được. App map mã này ở 7-A1 | Đã sửa 7-B1 |
 | KI-03 | `get_configuration_readiness` chỉ kiểm kết nối và mẫu, trả tối đa 1 blocker, mã chữ thường (`provider_not_connected`, `template_unavailable`); không kiểm hồ sơ pháp lý (MST được kiểm gián tiếp khi bộ xử lý đăng nhập MISA) | **Giữ nguyên** | — |
 | KI-04 | Server từng không kiểm thông tin người mua khi phát hành: `issue_invoice`, `retry_issuance`, `start_auto_issuance`, `reevaluate_auto_issuance` để khách tổ chức thiếu MST / địa chỉ đi tới MISA rồi mới lỗi. Chỉ UI chặn | Bốn RPC kiểm người mua hiệu lực như evaluator (hàm chung `einvoice._buyer_issuance_blocker`): thiếu → `ISSUANCE_NOT_READY` với `BUYER_*` trong `details.blockers`; tự động → `PENDING_REEVALUATION` (`blocker_code = BUYER_TAX_CODE_REQUIRED` …) để cập nhật hồ sơ khách kích hoạt đánh giá lại | Đã sửa 7-B1 |
 | KI-05 | Spec v1 cho xem trước khi khách tổ chức thiếu MST; code khóa cả xem trước khi người mua thiếu | **Giữ code** | — |
 | KI-06 | Lượt phát hành từng chép trường người mua từ hồ sơ khách vào `buyer_invoice_completions` bằng `coalesce(cũ, mới)`: sửa MST / địa chỉ trong hồ sơ khách sau một lượt lỗi **không** có tác dụng, đơn không bao giờ phát hành được | Khi chưa có hóa đơn, mỗi lượt mới chép lại từ hồ sơ khách hiện hành các trường mà ảnh chụp đơn để trống (ghi đè giá trị đã chép); readiness cũng ưu tiên hồ sơ hiện hành. Không đụng trường của ảnh chụp đơn | Đã sửa 7-B1 |
 | KI-07 | Trường người mua lấy từ **ảnh chụp đơn** (TH-05) sai thì không có cách sửa trong TH-08 | **Giữ nguyên**; sửa dữ liệu khách trên đơn là việc của TH-05 (ngoài phạm vi) | — |
-| KI-08 | 🔧 HD-12 dòng "Đã gửi gần nhất đến …" lấy lần gửi cuối bất kể trạng thái | Lấy lần **thành công** gần nhất; chưa có lần thành công thì ẩn dòng | P7 PR 7.3 |
+| KI-08 | 🔧 HD-12 dòng "Đã gửi gần nhất đến …" lấy lần gửi cuối bất kể trạng thái | Lấy lần **thành công** gần nhất; chưa có lần thành công thì ẩn dòng | ✅ 7-B2 (2026-11-08) |
 | KI-09 | Lịch sử gửi xếp cũ → mới; người gửi chỉ hiện "Người dùng" (spec v1 muốn mới → cũ và tên người gửi) | **Giữ nguyên** | — |
 | KI-10 | Bật "Tự động gửi email" khi MISA không hỗ trợ gửi email vẫn lưu được; bộ xử lý bỏ qua từng hóa đơn | **Giữ nguyên** (MISA hiện luôn hỗ trợ) | — |
 | KI-11 | Đơn chờ phát hành tự động (`PENDING_REEVALUATION`) vì chưa kết nối / chưa có mẫu không tự chạy lại khi thiết lập xong; chỉ cập nhật hồ sơ khách kích hoạt | **Giữ nguyên**; người dùng phát hành tay | — |
@@ -1517,6 +1518,7 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | KI-24 | Bucket `einvoice-documents` không nhận `application/zip` trong khi MISA có thể trả XML nén ZIP ⇒ tải XML lỗi, hết 3 lượt thành `CHECK_REQUIRED` | Thêm `application/zip` vào `allowed_mime_types` (`…011`) | Đã sửa 7-E2b |
 | KI-25 | Việc `reconcile_invoice_delivery` do SQL xếp với payload camelCase (`…014`, `…015`) nhưng dead-letter Dart chỉ đọc `reconciliation_case_id` ⇒ hết 3 lượt thì hồ sơ đối soát gửi kẹt `PENDING`, không `UNRESOLVED`, không cảnh báo | Dead-letter Edge Function đọc cả hai kiểu khoá | Đã sửa 7-E2c |
 | KI-26 | Hoá đơn được ghi ở 2 hàm (`record_issuance_success`, `recover_internal_finalization`); PLAN / TH-08 từng ghi chỉ `record_issuance_success` tự xếp gửi tự động ⇒ hoá đơn ra từ đối soát sẽ không bao giờ gửi tự động | Trigger `after insert on einvoice.electronic_invoices` xếp `einvoice.start_auto_delivery` | Đã sửa 7-E3 |
+| KI-27 | HD-02 / HD-04 hiện giờ UTC (`EInvoiceDateTimeCopy` không gọi `toLocal`) ⇒ lệch 7 giờ ở Việt Nam | Định dạng theo giờ máy | ✅ 7-B2 (2026-11-08) |
 
 ---
 
