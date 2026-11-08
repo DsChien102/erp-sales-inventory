@@ -266,6 +266,7 @@ declare
   v_source record;
   v_provider_connection_id uuid;
   v_settings_tenant_id uuid;
+  v_buyer_blocker text;
   v_issuance_id uuid;
 begin
   if auth.uid() is not null then
@@ -388,6 +389,18 @@ begin
     )::text;
   end if;
 
+  -- KI-04: người mua phải đủ dữ liệu (sau mọi kiểm cũ, sau replay idempotency).
+  v_buyer_blocker := einvoice._buyer_issuance_blocker(
+    p_tenant_id, p_sales_order_id, v_source.buyer_partner_id, v_source.buyer_snapshot
+  );
+  if v_buyer_blocker is not null then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'details', jsonb_build_object(
+        'blockers', jsonb_build_array(v_buyer_blocker)
+      )
+    )::text;
+  end if;
+
   -- 5. Ready: create attempt via helper
   return query
   select * from einvoice._start_issuance_attempt(
@@ -432,6 +445,7 @@ declare
   v_source_version text;
   v_provider_connection_id uuid;
   v_settings_tenant_id uuid;
+  v_buyer_blocker text;
   v_proc_id uuid;
   v_start_res record;
   v_intent jsonb;
@@ -774,6 +788,44 @@ begin
     return;
   end if;
 
+  -- KI-04: người mua phải đủ dữ liệu; thiếu thì chờ đánh giá lại, không tạo lượt.
+  v_buyer_blocker := einvoice._buyer_issuance_blocker(
+    p_tenant_id, p_sales_order_id, v_source.buyer_partner_id, v_source.buyer_snapshot
+  );
+  if v_buyer_blocker is not null then
+    insert into einvoice.auto_issuance_processes (
+      tenant_id,
+      sales_order_id,
+      sales_order_version,
+      buyer_partner_id,
+      trigger_key,
+      provider_idempotency_key,
+      status,
+      blocker_code,
+      last_evaluated_at
+    ) values (
+      p_tenant_id,
+      p_sales_order_id,
+      v_source.source_version,
+      v_source.buyer_partner_id,
+      p_trigger_key,
+      p_idempotency_key,
+      'PENDING_REEVALUATION',
+      v_buyer_blocker,
+      now()
+    )
+    returning id into v_proc_id;
+
+    return query select
+      false as started,
+      false as skipped,
+      v_proc_id as process_id,
+      null::uuid as attempt_id,
+      'PENDING_REEVALUATION'::text as status,
+      v_buyer_blocker::text as reason;
+    return;
+  end if;
+
   -- 5. Ready: create attempt via helper, and record ATTEMPT_STARTED
   v_intent := jsonb_build_object(
     'operation', 'ISSUE_ORIGINAL',
@@ -834,9 +886,9 @@ begin
 end;
 $$;
 
-revoke all on function einvoice.start_auto_issuance(uuid, uuid, varchar, varchar) from public;
+revoke all on function einvoice.start_auto_issuance(uuid, uuid, varchar, varchar) from public, anon, authenticated;
 grant execute on function einvoice.start_auto_issuance(uuid, uuid, varchar, varchar)
-  to authenticated, service_role;
+  to service_role;
 
 -- 5. einvoice.list_open_auto_issuance_processes
 create or replace function einvoice.list_open_auto_issuance_processes(
@@ -862,9 +914,9 @@ begin
 end;
 $$;
 
-revoke all on function einvoice.list_open_auto_issuance_processes(uuid, uuid) from public;
+revoke all on function einvoice.list_open_auto_issuance_processes(uuid, uuid) from public, anon, authenticated;
 grant execute on function einvoice.list_open_auto_issuance_processes(uuid, uuid)
-  to authenticated, service_role;
+  to service_role;
 
 -- 6. einvoice.reevaluate_auto_issuance
 create or replace function einvoice.reevaluate_auto_issuance(
@@ -884,6 +936,7 @@ declare
   v_source record;
   v_provider_connection_id uuid;
   v_settings_tenant_id uuid;
+  v_buyer_blocker text;
   v_intent jsonb;
   v_intent_hash text;
   v_start_res record;
@@ -989,6 +1042,26 @@ begin
     return;
   end if;
 
+  -- KI-04: người mua phải đủ dữ liệu; thiếu thì giữ chờ, cập nhật mã chặn.
+  v_buyer_blocker := einvoice._buyer_issuance_blocker(
+    p_tenant_id, v_proc.sales_order_id, v_source.buyer_partner_id, v_source.buyer_snapshot
+  );
+  if v_buyer_blocker is not null then
+    update einvoice.auto_issuance_processes
+    set blocker_code = v_buyer_blocker,
+        last_evaluated_at = now()
+    where id = v_proc.id;
+
+    return query select
+      false as started,
+      false as skipped,
+      v_proc.id as process_id,
+      null::uuid as attempt_id,
+      'PENDING_REEVALUATION'::text as status,
+      v_buyer_blocker::text as reason;
+    return;
+  end if;
+
   -- Ready: start attempt
   v_intent := jsonb_build_object(
     'operation', 'ISSUE_ORIGINAL',
@@ -1034,9 +1107,9 @@ begin
 end;
 $$;
 
-revoke all on function einvoice.reevaluate_auto_issuance(uuid, uuid, varchar) from public;
+revoke all on function einvoice.reevaluate_auto_issuance(uuid, uuid, varchar) from public, anon, authenticated;
 grant execute on function einvoice.reevaluate_auto_issuance(uuid, uuid, varchar)
-  to authenticated, service_role;
+  to service_role;
 
 -- 7. einvoice.retry_issuance
 create or replace function einvoice.retry_issuance(
@@ -1061,6 +1134,7 @@ declare
   v_source record;
   v_provider_connection_id uuid;
   v_settings_tenant_id uuid;
+  v_buyer_blocker text;
 begin
   if auth.uid() is not null then
     if auth.uid() <> p_actor_id then
@@ -1219,6 +1293,18 @@ begin
     raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
       'details', jsonb_build_object(
         'blockers', jsonb_build_array('NO_ACTIVE_ISSUANCE_PROFILE')
+      )
+    )::text;
+  end if;
+
+  -- KI-04: người mua phải đủ dữ liệu.
+  v_buyer_blocker := einvoice._buyer_issuance_blocker(
+    p_tenant_id, p_sales_order_id, v_source.buyer_partner_id, v_source.buyer_snapshot
+  );
+  if v_buyer_blocker is not null then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'details', jsonb_build_object(
+        'blockers', jsonb_build_array(v_buyer_blocker)
       )
     )::text;
   end if;

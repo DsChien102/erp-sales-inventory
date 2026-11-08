@@ -789,8 +789,8 @@ begin
 end;
 $$;
 
-revoke all on function einvoice.build_canonical_invoice(uuid, uuid, text, jsonb, jsonb) from public, anon;
-grant execute on function einvoice.build_canonical_invoice(uuid, uuid, text, jsonb, jsonb) to authenticated, service_role;
+revoke all on function einvoice.build_canonical_invoice(uuid, uuid, text, jsonb, jsonb) from public, anon, authenticated;
+grant execute on function einvoice.build_canonical_invoice(uuid, uuid, text, jsonb, jsonb) to service_role;
 
 revoke all on function einvoice.get_issuance_readiness(uuid, uuid, uuid) from public, anon;
 grant execute on function einvoice.get_issuance_readiness(uuid, uuid, uuid) to authenticated, service_role;

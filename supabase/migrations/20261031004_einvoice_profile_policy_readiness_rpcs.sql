@@ -226,6 +226,20 @@ begin
     raise exception 'NO_PERMISSION: einvoice.manage_configuration required';
   end if;
 
+  -- KI-02: chỉ chặn khi BẬT MỚI (đang tắt / chưa có dòng, gửi true) mà tổ chức
+  -- chưa sẵn sàng (BR-10). Đang bật sẵn thì vẫn lưu được; tắt luôn được.
+  if coalesce(p_auto_issue_enabled, false)
+     and not coalesce((select ts.auto_issue_enabled from einvoice.tenant_settings ts
+                       where ts.tenant_id = p_tenant_id), false)
+     and not (
+       exists (select 1 from einvoice.provider_connections pc
+               where pc.tenant_id = p_tenant_id and pc.status = 'CONNECTED')
+       and exists (select 1 from einvoice.tenant_settings ts
+                   where ts.tenant_id = p_tenant_id and ts.default_template_id is not null)
+     ) then
+    raise exception 'CONFIG_NOT_READY: automation requires a connected provider and a default template';
+  end if;
+
   insert into einvoice.tenant_settings as ts (
     tenant_id, auto_issue_enabled, auto_send_enabled, policy_version
   ) values (

@@ -2,7 +2,7 @@
 -- Kind: patch
 -- Intent: einvoice_buyer_partner_fallback
 -- Context: TH-08 — readiness và phát hành điền trường người mua còn trống từ hồ sơ xuất hóa đơn
--- Touches: partner.get_einvoice_buyer_profile, einvoice._effective_buyer_snapshot, einvoice.get_issuance_readiness, einvoice._start_issuance_attempt
+-- Touches: partner.get_einvoice_buyer_profile, einvoice._effective_buyer_snapshot, einvoice._buyer_issuance_blocker, einvoice.get_issuance_readiness, einvoice._start_issuance_attempt
 -- Safety: security definer, tenant scoped; get_issuance_readiness stays read-only
 -- Depends on: 006_einvoice_buyer_completion_and_preview_rpcs.sql, 008_einvoice_auto_issuance_and_retry_rpcs.sql, 016_partner_einvoice_recipient_snapshot.sql, 018_sales_einvoice_source_contract.sql
 -- Promoted from _drafts/023_einvoice_buyer_partner_fallback.sql
@@ -42,7 +42,11 @@ revoke all on function partner.get_einvoice_buyer_profile(uuid, uuid)
 grant execute on function partner.get_einvoice_buyer_profile(uuid, uuid)
   to service_role;
 
--- Completion đè snapshot. Trường còn trống lấy từ hồ sơ đối tác khi đơn chưa có hóa đơn.
+-- Đã có hóa đơn: snapshot đơn || completion (không đọc hồ sơ khách).
+-- Chưa có hóa đơn và đơn có khách (KI-06): với buyerLegalName / buyerTaxCode /
+-- buyerAddress, lấy theo thứ tự ảnh chụp đơn (nếu không rỗng) → hồ sơ khách
+-- hiện hành → giá trị đã chép ở completion. buyerEmail: completion đè snapshot.
+-- Đơn không có khách (bán lẻ): giữ snapshot || completion như trước.
 create or replace function einvoice._effective_buyer_snapshot(
   p_tenant_id uuid,
   p_sales_order_id uuid,
@@ -54,23 +58,26 @@ security definer
 set search_path = einvoice, sales, public
 as $$
 declare
+  v_base jsonb := coalesce(p_base_snapshot, '{}'::jsonb);
+  v_completion jsonb;
   v_merged jsonb;
   v_partner_id uuid;
   v_invoice_name text;
   v_tax_code text;
   v_invoice_address text;
+  v_value text;
 begin
-  v_merged := coalesce(p_base_snapshot, '{}'::jsonb) || coalesce((
-    select jsonb_strip_nulls(jsonb_build_object(
-      'buyerLegalName', bc.buyer_name,
-      'buyerTaxCode', bc.buyer_tax_code,
-      'buyerEmail', bc.buyer_email,
-      'buyerAddress', bc.buyer_address
-    ))
-    from einvoice.buyer_invoice_completions bc
-    where bc.tenant_id = p_tenant_id
-      and bc.sales_order_id = p_sales_order_id
-  ), '{}'::jsonb);
+  select jsonb_strip_nulls(jsonb_build_object(
+    'buyerLegalName', bc.buyer_name,
+    'buyerTaxCode', bc.buyer_tax_code,
+    'buyerEmail', bc.buyer_email,
+    'buyerAddress', bc.buyer_address
+  ))
+  into v_completion
+  from einvoice.buyer_invoice_completions bc
+  where bc.tenant_id = p_tenant_id
+    and bc.sales_order_id = p_sales_order_id;
+  v_completion := coalesce(v_completion, '{}'::jsonb);
 
   if exists (
     select 1
@@ -78,7 +85,7 @@ begin
     where ei.tenant_id = p_tenant_id
       and ei.sales_order_id = p_sales_order_id
   ) then
-    return v_merged;
+    return v_base || v_completion;
   end if;
 
   select s.buyer_partner_id
@@ -86,24 +93,35 @@ begin
   from sales.get_einvoice_source_snapshot(p_tenant_id, p_sales_order_id) s;
 
   if v_partner_id is null then
-    return v_merged;
+    return v_base || v_completion;
   end if;
 
   select bp.invoice_name, bp.tax_code, bp.invoice_address
   into v_invoice_name, v_tax_code, v_invoice_address
   from partner.get_einvoice_buyer_profile(p_tenant_id, v_partner_id) bp;
 
-  if nullif(btrim(coalesce(v_merged ->> 'buyerLegalName', '')), '') is null
-     and v_invoice_name is not null then
-    v_merged := v_merged || jsonb_build_object('buyerLegalName', v_invoice_name);
+  v_merged := v_base;
+  if v_completion ? 'buyerEmail' then
+    v_merged := v_merged || jsonb_build_object('buyerEmail', v_completion -> 'buyerEmail');
   end if;
-  if nullif(btrim(coalesce(v_merged ->> 'buyerTaxCode', '')), '') is null
-     and v_tax_code is not null then
-    v_merged := v_merged || jsonb_build_object('buyerTaxCode', v_tax_code);
+
+  if nullif(btrim(coalesce(v_base ->> 'buyerLegalName', '')), '') is null then
+    v_value := coalesce(v_invoice_name, nullif(btrim(v_completion ->> 'buyerLegalName'), ''));
+    if v_value is not null then
+      v_merged := v_merged || jsonb_build_object('buyerLegalName', v_value);
+    end if;
   end if;
-  if nullif(btrim(coalesce(v_merged ->> 'buyerAddress', '')), '') is null
-     and v_invoice_address is not null then
-    v_merged := v_merged || jsonb_build_object('buyerAddress', v_invoice_address);
+  if nullif(btrim(coalesce(v_base ->> 'buyerTaxCode', '')), '') is null then
+    v_value := coalesce(v_tax_code, nullif(btrim(v_completion ->> 'buyerTaxCode'), ''));
+    if v_value is not null then
+      v_merged := v_merged || jsonb_build_object('buyerTaxCode', v_value);
+    end if;
+  end if;
+  if nullif(btrim(coalesce(v_base ->> 'buyerAddress', '')), '') is null then
+    v_value := coalesce(v_invoice_address, nullif(btrim(v_completion ->> 'buyerAddress'), ''));
+    if v_value is not null then
+      v_merged := v_merged || jsonb_build_object('buyerAddress', v_value);
+    end if;
   end if;
 
   return v_merged;
@@ -112,6 +130,57 @@ $$;
 
 revoke all on function einvoice._effective_buyer_snapshot(uuid, uuid, jsonb)
   from public, anon, authenticated;
+
+-- KI-04: server kiểm người mua trước khi tạo lượt phát hành. Trả null khi đủ;
+-- ngược lại mã chặn đầu tiên theo thứ tự của evaluator Dart:
+-- tên rỗng → BUYER_DATA_INCOMPLETE; tổ chức thiếu MST → BUYER_TAX_CODE_REQUIRED;
+-- tổ chức thiếu địa chỉ → BUYER_ADDRESS_REQUIRED. Khách lẻ (không có khách) luôn đủ.
+create or replace function einvoice._buyer_issuance_blocker(
+  p_tenant_id uuid,
+  p_sales_order_id uuid,
+  p_buyer_partner_id uuid,
+  p_buyer_snapshot jsonb
+) returns text
+language plpgsql
+stable
+security definer
+set search_path = einvoice, public
+as $$
+declare
+  v_snapshot jsonb := coalesce(p_buyer_snapshot, '{}'::jsonb);
+  v_type text;
+  v_buyer jsonb;
+begin
+  if p_buyer_partner_id is null then
+    return null;
+  end if;
+
+  v_type := coalesce(v_snapshot ->> 'buyerType', 'individual');
+  if v_type not in ('individual', 'organization') then
+    v_type := 'individual';
+  end if;
+
+  v_buyer := einvoice._effective_buyer_snapshot(p_tenant_id, p_sales_order_id, v_snapshot);
+
+  if nullif(btrim(coalesce(v_buyer ->> 'buyerLegalName', '')), '') is null then
+    return 'BUYER_DATA_INCOMPLETE';
+  end if;
+  if v_type = 'organization' then
+    if nullif(btrim(coalesce(v_buyer ->> 'buyerTaxCode', '')), '') is null then
+      return 'BUYER_TAX_CODE_REQUIRED';
+    end if;
+    if nullif(btrim(coalesce(v_buyer ->> 'buyerAddress', '')), '') is null then
+      return 'BUYER_ADDRESS_REQUIRED';
+    end if;
+  end if;
+  return null;
+end;
+$$;
+
+revoke all on function einvoice._buyer_issuance_blocker(uuid, uuid, uuid, jsonb)
+  from public, anon, authenticated;
+grant execute on function einvoice._buyer_issuance_blocker(uuid, uuid, uuid, jsonb)
+  to service_role;
 
 create or replace function einvoice.get_issuance_readiness(
   p_tenant_id uuid,
@@ -371,9 +440,9 @@ begin
       )
       on conflict (tenant_id, sales_order_id) do update set
         sales_order_version = excluded.sales_order_version,
-        buyer_name = coalesce(bc.buyer_name, excluded.buyer_name),
-        buyer_tax_code = coalesce(bc.buyer_tax_code, excluded.buyer_tax_code),
-        buyer_address = coalesce(bc.buyer_address, excluded.buyer_address),
+        buyer_name = coalesce(excluded.buyer_name, bc.buyer_name),
+        buyer_tax_code = coalesce(excluded.buyer_tax_code, bc.buyer_tax_code),
+        buyer_address = coalesce(excluded.buyer_address, bc.buyer_address),
         completed_by_user_id = excluded.completed_by_user_id,
         completed_at = excluded.completed_at;
 
