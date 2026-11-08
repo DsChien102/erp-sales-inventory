@@ -27,10 +27,7 @@ void main() {
     testWidgets('shows title, summary lines, and actions', (tester) async {
       await tester.pumpWidget(buildSubject(onConfirm: () {}, onCancel: () {}));
 
-      expect(
-        find.text(OrderEInvoiceCopy.issueConfirmationTitle),
-        findsOneWidget,
-      );
+      // Title now lives in the sheet chrome: covered by einvoice_sheets_adaptive_test.
       expect(
         find.text(
           OrderEInvoiceCopy.issueConfirmationSummaryLine1(

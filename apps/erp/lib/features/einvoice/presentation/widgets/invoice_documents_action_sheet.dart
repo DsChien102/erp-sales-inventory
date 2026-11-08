@@ -31,8 +31,10 @@ Future<InvoiceDocumentsAction?> showInvoiceDocumentsActionSheet(
   InvoiceDocumentActionHandler? onSelectPdf,
   InvoiceDocumentActionHandler? onSelectXml,
 }) {
-  return showVBottomSheet<InvoiceDocumentsAction>(
+  return showVAdaptiveSheet<InvoiceDocumentsAction>(
     context: context,
+    title: OrderEInvoicePostIssueCopy.documentsSheetTitle,
+    semanticLabel: OrderEInvoicePostIssueCopy.documentsSheetTitle,
     child: StreamBuilder<InvoiceDocumentsSheetState>(
       initialData: state,
       stream: states,
@@ -101,48 +103,31 @@ class InvoiceDocumentsActionSheet extends StatelessWidget {
 
     return Material(
       color: colors.surface.withValues(alpha: 0),
-      child: SafeArea(
-        top: false,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  VSpacing.space4,
-                  VSpacing.space4,
-                  VSpacing.space4,
-                  VSpacing.space2,
-                ),
-                child: VText(
-                  OrderEInvoicePostIssueCopy.documentsSheetTitle,
-                  variant: VTextVariant.headingH3,
-                  color: colors.textPrimary,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-              EInvoiceActionItem(
-                key: const Key('action_save_pdf'),
-                icon: VIcons.file,
-                title: OrderEInvoicePostIssueCopy.savePdfTitle,
-                supportingText: OrderEInvoicePostIssueCopy.savePdfSupporting,
-                loading: isPdfLoading,
-                enabled: !isXmlLoading,
-                onTap: isBusy ? null : () => unawaited(selectPdf()),
-              ),
-              EInvoiceActionItem(
-                key: const Key('action_save_xml'),
-                icon: VIcons.fileText,
-                title: OrderEInvoicePostIssueCopy.saveXmlTitle,
-                supportingText: OrderEInvoicePostIssueCopy.saveXmlSupporting,
-                loading: isXmlLoading,
-                enabled: !isPdfLoading,
-                onTap: isBusy ? null : () => unawaited(selectXml()),
-              ),
-              const VGap.lg(),
-            ],
-          ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            EInvoiceActionItem(
+              key: const Key('action_save_pdf'),
+              icon: VIcons.file,
+              title: OrderEInvoicePostIssueCopy.savePdfTitle,
+              supportingText: OrderEInvoicePostIssueCopy.savePdfSupporting,
+              loading: isPdfLoading,
+              enabled: !isXmlLoading,
+              onTap: isBusy ? null : () => unawaited(selectPdf()),
+            ),
+            EInvoiceActionItem(
+              key: const Key('action_save_xml'),
+              icon: VIcons.fileText,
+              title: OrderEInvoicePostIssueCopy.saveXmlTitle,
+              supportingText: OrderEInvoicePostIssueCopy.saveXmlSupporting,
+              loading: isXmlLoading,
+              enabled: !isPdfLoading,
+              onTap: isBusy ? null : () => unawaited(selectXml()),
+            ),
+            const VGap.sm(),
+          ],
         ),
       ),
     );

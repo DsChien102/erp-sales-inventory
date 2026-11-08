@@ -46,10 +46,9 @@ class _SigningCaptureRepo extends FakeEInvoiceConfigurationRepository {
 }
 
 class _ConnectionOverrideRepo extends FakeEInvoiceConfigurationRepository {
-  _ConnectionOverrideRepo({this.failure, this.lastCheckedAt});
+  _ConnectionOverrideRepo({this.failure});
 
   final Object? failure;
-  final DateTime? lastCheckedAt;
 
   @override
   Future<ProviderConnectionScreenDto> getConnectionScreen() async {
@@ -63,7 +62,7 @@ class _ConnectionOverrideRepo extends FakeEInvoiceConfigurationRepository {
       connection: ProviderConnectionSummaryDto(
         connectionId: base.connection.connectionId,
         status: base.connection.status,
-        lastCheckedAt: lastCheckedAt,
+        lastCheckedAt: null,
         maskedAccount: base.connection.maskedAccount,
         connectionVersion: base.connection.connectionVersion,
       ),

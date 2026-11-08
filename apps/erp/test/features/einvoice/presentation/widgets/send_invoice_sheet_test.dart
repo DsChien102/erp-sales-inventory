@@ -81,7 +81,6 @@ void main() {
 
       await pumpSheet(tester, cubit: cubit, sheetContext: context);
 
-      expect(find.text(OrderInvoiceDeliveryCopy.sendTitle), findsOneWidget);
       expect(find.text('buyer@example.com'), findsOneWidget);
       expect(find.text(OrderInvoiceDeliveryCopy.recipientHelper), findsOneWidget);
       expect(find.text('Hồ sơ khách hàng'), findsOneWidget);
@@ -222,7 +221,6 @@ void main() {
       await tester.tap(find.byKey(const Key('action_send_invoice')));
       await tester.pumpAndSettle();
 
-      expect(find.text(OrderInvoiceDeliveryCopy.sendTitle), findsOneWidget);
       expect(find.text('buyer@example.com'), findsOneWidget);
       expect(
         tester.widget<VTextField>(find.byKey(const Key('field_recipient_email'))).enabled,

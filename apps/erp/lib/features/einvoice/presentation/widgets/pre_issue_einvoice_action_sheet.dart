@@ -53,8 +53,10 @@ Future<PreIssueAction?> showPreIssueEInvoiceActionSheet(
   Stream<PreIssueSheetState>? states,
   VoidCallback? onPreview,
 }) {
-  return showVBottomSheet<PreIssueAction>(
+  return showVAdaptiveSheet<PreIssueAction>(
     context: context,
+    title: OrderEInvoiceCopy.sheetTitle,
+    semanticLabel: OrderEInvoiceCopy.sheetTitle,
     child: StreamBuilder<PreIssueSheetState>(
       initialData: state,
       stream: states,
@@ -94,89 +96,72 @@ class PreIssueEInvoiceActionSheet extends StatelessWidget {
 
     return Material(
       color: colors.surface.withValues(alpha: 0),
-      child: SafeArea(
-        top: false,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (state.isFailed) ...[
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  VSpacing.space4,
-                  VSpacing.space4,
-                  VSpacing.space4,
-                  VSpacing.space2,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: VSpacing.space4,
+                  vertical: VSpacing.space2,
                 ),
-                child: VText(
-                  OrderEInvoiceCopy.sheetTitle,
-                  variant: VTextVariant.headingH3,
-                  color: colors.textPrimary,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                child: IssuanceFailureBanner(
+                  failureCode: state.failureCode,
+                  lastFailureMessage: state.lastFailureMessage,
                 ),
               ),
-              if (state.isFailed) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: VSpacing.space4,
-                    vertical: VSpacing.space2,
-                  ),
-                  child: IssuanceFailureBanner(
-                    failureCode: state.failureCode,
-                    lastFailureMessage: state.lastFailureMessage,
-                  ),
-                ),
-              ],
-              if (state.isBuyerNotReady) ...[
-                _BuyerNotReadyWarning(
-                  showCorrection: state.showBuyerCorrection,
-                  onCorrect: state.isPreviewLoading
-                      ? null
-                      : () => select(PreIssueAction.correctBuyer),
-                ),
-              ],
-              EInvoiceActionItem(
-                key: const Key('action_issue'),
-                icon: VIcons.receipt,
-                title: OrderEInvoiceCopy.issueTitle,
-                supportingText: state.isBuyerNotReady
-                    ? OrderEInvoiceCopy.issueDisabledSupporting
-                    : OrderEInvoiceCopy.issueSupporting,
-                enabled: isIssueEnabled,
-                onTap: isIssueEnabled ? () => select(PreIssueAction.issue) : null,
-              ),
-              EInvoiceActionItem(
-                key: const Key('action_preview'),
-                icon: VIcons.visibility,
-                title: OrderEInvoiceCopy.previewTitle,
-                supportingText: OrderEInvoiceCopy.previewSupporting,
-                enabled: state.isPreviewEnabled,
-                loading: state.isPreviewLoading,
-                onTap: isPreviewEnabled
-                    ? () {
-                        if (onPreview != null) {
-                          onPreview!();
-                        } else {
-                          select(PreIssueAction.preview);
-                        }
-                      }
-                    : null,
-              ),
-              EInvoiceActionItem(
-                key: const Key('action_send'),
-                icon: VIcons.send,
-                title: OrderEInvoiceCopy.sendTitle,
-                supportingText: OrderEInvoiceCopy.sendSupporting,
-                badge: const VBadge(
-                  label: OrderEInvoiceCopy.deliveryNotSent,
-                  status: VBadgeStatus.draft,
-                  isSmall: true,
-                ),
-                enabled: isSendEnabled,
-              ),
-              const VGap.lg(),
             ],
-          ),
+            if (state.isBuyerNotReady) ...[
+              _BuyerNotReadyWarning(
+                showCorrection: state.showBuyerCorrection,
+                onCorrect: state.isPreviewLoading
+                    ? null
+                    : () => select(PreIssueAction.correctBuyer),
+              ),
+            ],
+            EInvoiceActionItem(
+              key: const Key('action_issue'),
+              icon: VIcons.receipt,
+              title: OrderEInvoiceCopy.issueTitle,
+              supportingText: state.isBuyerNotReady
+                  ? OrderEInvoiceCopy.issueDisabledSupporting
+                  : OrderEInvoiceCopy.issueSupporting,
+              enabled: isIssueEnabled,
+              onTap: isIssueEnabled ? () => select(PreIssueAction.issue) : null,
+            ),
+            EInvoiceActionItem(
+              key: const Key('action_preview'),
+              icon: VIcons.visibility,
+              title: OrderEInvoiceCopy.previewTitle,
+              supportingText: OrderEInvoiceCopy.previewSupporting,
+              enabled: state.isPreviewEnabled,
+              loading: state.isPreviewLoading,
+              onTap: isPreviewEnabled
+                  ? () {
+                      if (onPreview != null) {
+                        onPreview!();
+                      } else {
+                        select(PreIssueAction.preview);
+                      }
+                    }
+                  : null,
+            ),
+            EInvoiceActionItem(
+              key: const Key('action_send'),
+              icon: VIcons.send,
+              title: OrderEInvoiceCopy.sendTitle,
+              supportingText: OrderEInvoiceCopy.sendSupporting,
+              badge: const VBadge(
+                label: OrderEInvoiceCopy.deliveryNotSent,
+                status: VBadgeStatus.draft,
+                isSmall: true,
+              ),
+              enabled: isSendEnabled,
+            ),
+            const VGap.sm(),
+          ],
         ),
       ),
     );

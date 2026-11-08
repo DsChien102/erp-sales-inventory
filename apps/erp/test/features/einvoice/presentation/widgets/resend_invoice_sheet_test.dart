@@ -192,7 +192,6 @@ void main() {
         },
       );
 
-      expect(find.text(OrderInvoiceDeliveryCopy.resendTitle), findsOneWidget);
       expect(find.text('accounting@company.com'), findsWidgets);
       expect(
         find.textContaining('Đã gửi gần nhất đến accounting@company.com'),

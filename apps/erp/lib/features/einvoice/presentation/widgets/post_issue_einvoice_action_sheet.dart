@@ -38,8 +38,10 @@ Future<PostIssueAction?> showPostIssueEInvoiceActionSheet(
   Stream<PostIssueSheetState>? states,
   VoidCallback? onViewOfficial,
 }) {
-  return showVBottomSheet<PostIssueAction>(
+  return showVAdaptiveSheet<PostIssueAction>(
     context: context,
+    title: OrderEInvoicePostIssueCopy.sheetTitle,
+    semanticLabel: OrderEInvoicePostIssueCopy.sheetTitle,
     child: StreamBuilder<PostIssueSheetState>(
       initialData: state,
       stream: states,
@@ -78,58 +80,41 @@ class PostIssueEInvoiceActionSheet extends StatelessWidget {
 
     return Material(
       color: colors.surface.withValues(alpha: 0),
-      child: SafeArea(
-        top: false,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  VSpacing.space4,
-                  VSpacing.space4,
-                  VSpacing.space4,
-                  VSpacing.space2,
-                ),
-                child: VText(
-                  OrderEInvoicePostIssueCopy.sheetTitle,
-                  variant: VTextVariant.headingH3,
-                  color: colors.textPrimary,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-              EInvoiceActionItem(
-                key: const Key('action_view_official'),
-                icon: VIcons.visibility,
-                title: OrderEInvoicePostIssueCopy.viewOfficialTitle,
-                supportingText: OrderEInvoicePostIssueCopy.viewOfficialSupporting,
-                enabled: true,
-                loading: state.isOfficialViewLoading,
-                onTap: state.isOfficialViewLoading ? null : onViewOfficial,
-              ),
-              EInvoiceActionItem(
-                key: const Key('action_documents'),
-                icon: VIcons.fileCheck,
-                title: OrderEInvoicePostIssueCopy.documentsTitle,
-                supportingText: OrderEInvoicePostIssueCopy.documentsSupporting,
-                enabled: isActionsEnabled,
-                onTap: isActionsEnabled ? () => select(PostIssueAction.documents) : null,
-              ),
-              EInvoiceActionItem(
-                key: const Key('action_send'),
-                icon: VIcons.send,
-                title: OrderEInvoicePostIssueCopy.sendTitle,
-                supportingText: state.hasSecondaryAttention
-                    ? OrderEInvoicePostIssueCopy.deliverySecondaryAttention
-                    : OrderEInvoicePostIssueCopy.sendSupporting,
-                badge: _deliveryBadge,
-                enabled: isSendInteractive,
-                onTap: isSendInteractive ? () => select(PostIssueAction.send) : null,
-              ),
-              const VGap.lg(),
-            ],
-          ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            EInvoiceActionItem(
+              key: const Key('action_view_official'),
+              icon: VIcons.visibility,
+              title: OrderEInvoicePostIssueCopy.viewOfficialTitle,
+              supportingText: OrderEInvoicePostIssueCopy.viewOfficialSupporting,
+              enabled: true,
+              loading: state.isOfficialViewLoading,
+              onTap: state.isOfficialViewLoading ? null : onViewOfficial,
+            ),
+            EInvoiceActionItem(
+              key: const Key('action_documents'),
+              icon: VIcons.fileCheck,
+              title: OrderEInvoicePostIssueCopy.documentsTitle,
+              supportingText: OrderEInvoicePostIssueCopy.documentsSupporting,
+              enabled: isActionsEnabled,
+              onTap: isActionsEnabled ? () => select(PostIssueAction.documents) : null,
+            ),
+            EInvoiceActionItem(
+              key: const Key('action_send'),
+              icon: VIcons.send,
+              title: OrderEInvoicePostIssueCopy.sendTitle,
+              supportingText: state.hasSecondaryAttention
+                  ? OrderEInvoicePostIssueCopy.deliverySecondaryAttention
+                  : OrderEInvoicePostIssueCopy.sendSupporting,
+              badge: _deliveryBadge,
+              enabled: isSendInteractive,
+              onTap: isSendInteractive ? () => select(PostIssueAction.send) : null,
+            ),
+            const VGap.sm(),
+          ],
         ),
       ),
     );

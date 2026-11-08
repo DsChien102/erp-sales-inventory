@@ -36,8 +36,10 @@ Future<bool> showIssueInvoiceConfirmationSheet(
   BuildContext context, {
   required IssueInvoiceConfirmationSummary summary,
 }) async {
-  final result = await showVBottomSheet<bool>(
+  final result = await showVAdaptiveSheet<bool>(
     context: context,
+    title: OrderEInvoiceCopy.issueConfirmationTitle,
+    semanticLabel: OrderEInvoiceCopy.issueConfirmationTitle,
     child: IssueInvoiceConfirmationSheet(summary: summary),
   );
   return result ?? false;
@@ -94,55 +96,45 @@ class IssueInvoiceConfirmationSheet extends StatelessWidget {
 
     return Material(
       color: colors.surface.withValues(alpha: 0),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            VSpacing.space4,
-            VSpacing.space4,
-            VSpacing.space4,
-            VSpacing.space4,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              VText(
-                OrderEInvoiceCopy.issueConfirmationTitle,
-                variant: VTextVariant.headingH3,
-                color: colors.textPrimary,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-              const VGap.md(),
-              VText(
-                line1,
-                variant: VTextVariant.bodyDefault,
-                color: colors.textSecondary,
-              ),
-              const VGap.xs(),
-              VText(
-                line2,
-                variant: VTextVariant.bodyDefault,
-                color: colors.textSecondary,
-              ),
-              const VGap.lg(),
-              VButton(
-                key: const Key('action_confirm_issue'),
-                label: OrderEInvoiceCopy.issueConfirmationConfirm,
-                variant: VButtonVariant.primary,
-                fullWidth: true,
-                onPressed: confirm,
-              ),
-              const VGap.sm(),
-              VButton(
-                key: const Key('action_cancel_issue'),
-                label: OrderEInvoiceCopy.issueConfirmationCancel,
-                variant: VButtonVariant.secondary,
-                fullWidth: true,
-                onPressed: cancel,
-              ),
-            ],
-          ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          VSpacing.space4,
+          VSpacing.space3,
+          VSpacing.space4,
+          VSpacing.space4,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            VText(
+              line1,
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
+            ),
+            const VGap.xs(),
+            VText(
+              line2,
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
+            ),
+            const VGap.lg(),
+            VButton(
+              key: const Key('action_confirm_issue'),
+              label: OrderEInvoiceCopy.issueConfirmationConfirm,
+              variant: VButtonVariant.primary,
+              fullWidth: true,
+              onPressed: confirm,
+            ),
+            const VGap.sm(),
+            VButton(
+              key: const Key('action_cancel_issue'),
+              label: OrderEInvoiceCopy.issueConfirmationCancel,
+              variant: VButtonVariant.secondary,
+              fullWidth: true,
+              onPressed: cancel,
+            ),
+          ],
         ),
       ),
     );

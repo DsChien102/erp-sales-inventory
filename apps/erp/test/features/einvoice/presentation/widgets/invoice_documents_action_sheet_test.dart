@@ -69,10 +69,7 @@ void main() {
         ),
       );
 
-      expect(
-        find.text(OrderEInvoicePostIssueCopy.documentsSheetTitle),
-        findsOneWidget,
-      );
+      // Title now lives in the sheet chrome: covered by einvoice_sheets_adaptive_test.
       expect(find.byKey(const Key('action_save_pdf')), findsOneWidget);
       expect(find.byKey(const Key('action_save_xml')), findsOneWidget);
       expect(pdfTapped, isFalse);

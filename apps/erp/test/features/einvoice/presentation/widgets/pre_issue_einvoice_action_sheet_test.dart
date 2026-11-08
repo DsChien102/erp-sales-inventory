@@ -20,7 +20,7 @@ void main() {
     testWidgets('idle state shows all actions', (tester) async {
       await tester.pumpWidget(buildSubject());
 
-      expect(find.text(OrderEInvoiceCopy.sheetTitle), findsOneWidget);
+      // Title now lives in the sheet chrome: covered by einvoice_sheets_adaptive_test.
       expect(find.text(OrderEInvoiceCopy.issueTitle), findsOneWidget);
       expect(find.text(OrderEInvoiceCopy.previewTitle), findsOneWidget);
       expect(find.text(OrderEInvoiceCopy.sendTitle), findsOneWidget);

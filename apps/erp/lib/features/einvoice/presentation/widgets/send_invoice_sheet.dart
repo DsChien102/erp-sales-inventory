@@ -14,8 +14,10 @@ Future<bool?> showOrderInvoiceSendSheet(
   required OrderInvoiceDeliveryCubit cubit,
   required SendInvoiceSheetContextDto sheetContext,
 }) {
-  return showVBottomSheet<bool>(
+  return showVAdaptiveSheet<bool>(
     context: context,
+    title: OrderInvoiceDeliveryCopy.sendTitle,
+    semanticLabel: OrderInvoiceDeliveryCopy.sendTitle,
     child: BlocProvider.value(
       value: cubit,
       child: OrderInvoiceSendSheet(sheetContext: sheetContext),
@@ -97,46 +99,36 @@ class _OrderInvoiceSendSheetState extends State<OrderInvoiceSendSheet> {
       builder: (context, state) {
         return Material(
           color: colors.surface.withValues(alpha: 0),
-          child: SafeArea(
-            top: false,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                VSpacing.space4,
-                VSpacing.space4,
-                VSpacing.space4,
-                VSpacing.space4,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  VText(
-                    OrderInvoiceDeliveryCopy.sendTitle,
-                    variant: VTextVariant.headingH3,
-                    color: colors.textPrimary,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  const VGap.md(),
-                  InvoiceDeliveryRecipientForm(
-                    emailController: _emailController,
-                    primaryLabel: OrderInvoiceDeliveryCopy.sendAction,
-                    isSubmitting: state.isSubmitting,
-                    operationLocked: state.operationLocked,
-                    showValidationError: _showValidationError,
-                    onChanged: _onEmailChanged,
-                    onPrimary: _submit,
-                    onCancel: _cancel,
-                    sourceLabel: source == null
-                        ? null
-                        : VText(
-                            source,
-                            key: const Key('label_suggestion_source'),
-                            variant: VTextVariant.bodySmall,
-                            color: colors.textSecondary,
-                          ),
-                  ),
-                ],
-              ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              VSpacing.space4,
+              VSpacing.space3,
+              VSpacing.space4,
+              VSpacing.space4,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InvoiceDeliveryRecipientForm(
+                  emailController: _emailController,
+                  primaryLabel: OrderInvoiceDeliveryCopy.sendAction,
+                  isSubmitting: state.isSubmitting,
+                  operationLocked: state.operationLocked,
+                  showValidationError: _showValidationError,
+                  onChanged: _onEmailChanged,
+                  onPrimary: _submit,
+                  onCancel: _cancel,
+                  sourceLabel: source == null
+                      ? null
+                      : VText(
+                          source,
+                          key: const Key('label_suggestion_source'),
+                          variant: VTextVariant.bodySmall,
+                          color: colors.textSecondary,
+                        ),
+                ),
+              ],
             ),
           ),
         );
