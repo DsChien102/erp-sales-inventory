@@ -1,7 +1,7 @@
 -- Title: einvoice S3a/S3c — automatic trigger process records + start helper & retry transactions
 -- Kind: cohesive
 -- Intent: einvoice_s3_start_and_retry
--- Touches: einvoice.issuance_attempts, einvoice.auto_issuance_processes, einvoice._start_issuance_attempt, einvoice.issue_invoice, einvoice.start_auto_issuance, einvoice.list_open_auto_issuance_processes, einvoice.reevaluate_auto_issuance, einvoice.retry_issuance
+-- Touches: einvoice.issuance_attempts, einvoice.auto_issuance_processes, einvoice._start_issuance_attempt, einvoice.issue_invoice, einvoice.start_auto_issuance, einvoice.list_open_auto_issuance_processes, einvoice.reevaluate_auto_issuance, einvoice.retry_issuance, einvoice._stable_command_id, einvoice._enqueue_auto_issuance, einvoice._enqueue_auto_issuance_reevaluation, sales.sales_orders.sales_orders_einvoice_auto_issuance, partner.partners.partners_einvoice_auto_issuance_reevaluation
 -- Safety: idempotent DDL, RLS enabled, security definer RPCs, tenant scoped
 -- Depends on: 001_einvoice_configuration_schema.sql, 002_einvoice_install_module_messaging.sql, 005_einvoice_buyer_completion_and_preview_schema.sql, 007_einvoice_issuance_schema_and_publish_rpcs.sql
 -- Promoted from _drafts/008_einvoice_auto_issuance_and_retry_rpcs.sql
@@ -1330,3 +1330,95 @@ $$;
 revoke all on function einvoice.retry_issuance(uuid, uuid, uuid, text, varchar, boolean) from public;
 grant execute on function einvoice.retry_issuance(uuid, uuid, uuid, text, varchar, boolean)
   to authenticated, service_role;
+
+-- ---------------------------------------------------------------------------
+-- 7-E3: Automation Triggers & Stable Command ID (Q1, Q5, Q8)
+-- ---------------------------------------------------------------------------
+
+create or replace function einvoice._stable_command_id(
+  p_raw text
+) returns uuid
+language sql
+immutable
+set search_path = pg_catalog, pg_temp
+as $$
+  select (
+    substr(encode(sha256(p_raw::bytea), 'hex'), 1, 8) || '-' ||
+    substr(encode(sha256(p_raw::bytea), 'hex'), 9, 4) || '-' ||
+    substr(encode(sha256(p_raw::bytea), 'hex'), 13, 4) || '-' ||
+    substr(encode(sha256(p_raw::bytea), 'hex'), 17, 4) || '-' ||
+    substr(encode(sha256(p_raw::bytea), 'hex'), 21, 12)
+  )::uuid;
+$$;
+
+create or replace function einvoice._enqueue_auto_issuance()
+returns trigger
+language plpgsql
+security definer
+set search_path = einvoice, pg_temp
+as $$
+begin
+  perform einvoice.enqueue_internal_command(
+    new.tenant_id,
+    'einvoice.start_auto_issuance',
+    jsonb_build_object(
+      'tenant_id', new.tenant_id,
+      'sales_order_id', new.id,
+      'source_version', new.version::text
+    ),
+    null,
+    einvoice._stable_command_id(new.id::text || '|start_auto_issuance|' || new.version::text)
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists sales_orders_einvoice_auto_issuance on sales.sales_orders;
+create trigger sales_orders_einvoice_auto_issuance
+  after insert on sales.sales_orders
+  for each row
+  when (new.lifecycle_status = 'completed')
+  execute function einvoice._enqueue_auto_issuance();
+
+create or replace function einvoice._enqueue_auto_issuance_reevaluation()
+returns trigger
+language plpgsql
+security definer
+set search_path = einvoice, pg_temp
+as $$
+declare
+  r record;
+begin
+  for r in
+    select id
+    from einvoice.auto_issuance_processes
+    where tenant_id = new.tenant_id
+      and buyer_partner_id = new.partner_id
+      and status = 'PENDING_REEVALUATION'
+  loop
+    perform einvoice.enqueue_internal_command(
+      new.tenant_id,
+      'einvoice.reevaluate_auto_issuance',
+      jsonb_build_object(
+        'tenant_id', new.tenant_id,
+        'process_id', r.id,
+        'source_event_id', 'partner:' || new.partner_id::text || ':' || new.version::text
+      ),
+      null,
+      einvoice._stable_command_id(r.id::text || '|reevaluate_auto_issuance|' || new.version::text)
+    );
+  end loop;
+  return new;
+end;
+$$;
+
+drop trigger if exists partners_einvoice_auto_issuance_reevaluation on partner.partners;
+create trigger partners_einvoice_auto_issuance_reevaluation
+  after update of version on partner.partners
+  for each row
+  when (new.version is distinct from old.version)
+  execute function einvoice._enqueue_auto_issuance_reevaluation();
+
+revoke all on function einvoice._stable_command_id(text) from public, anon, authenticated;
+revoke all on function einvoice._enqueue_auto_issuance() from public, anon, authenticated;
+revoke all on function einvoice._enqueue_auto_issuance_reevaluation() from public, anon, authenticated;

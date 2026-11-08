@@ -15,6 +15,12 @@ import { createFetchOfficialViewHandler } from './issued_invoice/fetch_official_
 import type { IssuedInvoiceDeps } from './issued_invoice/gateways.ts'
 import { createPollProviderObservationHandler } from './issued_invoice/poll_provider_observation.ts'
 import {
+  createStartAutoIssuanceHandler,
+  createReevaluateAutoIssuanceHandler,
+} from './automation/auto_issuance.ts'
+import { createStartAutoDeliveryHandler } from './automation/auto_delivery.ts'
+import type { AutomationDeps } from './automation/gateways.ts'
+import {
   createSyncCapabilitiesHandler,
   SYNC_CAPABILITIES,
   type SyncCapabilitiesDeps,
@@ -27,6 +33,7 @@ export type HandlerDeps = SyncCapabilitiesDeps & {
   }
   issuedInvoice: IssuedInvoiceDeps
   delivery: DeliveryDeps
+  automation: AutomationDeps
 }
 
 export function buildHandlers(
@@ -51,6 +58,15 @@ export function buildHandlers(
     'einvoice.send_invoice_email': createSendInvoiceEmailHandler(deps.delivery),
     'einvoice.reconcile_invoice_delivery': createReconcileInvoiceDeliveryHandler(
       deps.delivery,
+    ),
+    'einvoice.start_auto_issuance': createStartAutoIssuanceHandler(
+      deps.automation,
+    ),
+    'einvoice.reevaluate_auto_issuance': createReevaluateAutoIssuanceHandler(
+      deps.automation,
+    ),
+    'einvoice.start_auto_delivery': createStartAutoDeliveryHandler(
+      deps.automation,
     ),
   }
 }

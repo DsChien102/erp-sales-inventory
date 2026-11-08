@@ -349,6 +349,14 @@ declare
   v_child_count int;
   v_mimes_e46 text[];
   v_bucket_e46 record;
+  v_ke uuid;
+  v_sale_e uuid;
+  v_proc_e record;
+  v_job_e51 record;
+  v_queue_before int;
+  v_queue_after int;
+  v_cmd_row record;
+  v_cmd_cnt int;
 begin
   -- 0) Hai tenant + owner + JWT (như sales_th05.sql)
   insert into auth.users (
@@ -1098,6 +1106,136 @@ begin
   ) then
     raise exception 'FAIL E46: allowed_mime_types missing required types, got %', v_mimes_e46;
   end if;
+
+  -- =========================================================================
+  -- E47–E52 (7-E3): Kích hoạt phía server (trigger, cron, helper)
+  -- =========================================================================
+
+  -- E47: _stable_command_id tính đúng hex SHA-256 ghép 8-4-4-4-12
+  if einvoice._stable_command_id('o1|start_auto_issuance|1') <> 'cea12d30-5532-ca74-2bb8-b1863e8457ca'::uuid then
+    raise exception 'FAIL E47: unexpected _stable_command_id %',
+      einvoice._stable_command_id('o1|start_auto_issuance|1');
+  end if;
+
+  -- E48: đơn v_oa (E10) có đúng 1 dòng start_auto_issuance với id cố định
+  select * into v_cmd_row
+  from einvoice.internal_commands
+  where tenant_id = v_ta
+    and command_type = 'einvoice.start_auto_issuance'
+    and id = einvoice._stable_command_id(v_oa::text || '|start_auto_issuance|1');
+  if v_cmd_row.id is null then
+    raise exception 'FAIL E48: start_auto_issuance command not found for order v_oa';
+  end if;
+  if v_cmd_row.payload <> jsonb_build_object('tenant_id', v_ta, 'sales_order_id', v_oa, 'source_version', '1') then
+    raise exception 'FAIL E48: unexpected payload: %', v_cmd_row.payload;
+  end if;
+
+  -- Ghi lại cùng id ⇒ không sinh dòng mới, payload giữ nguyên
+  perform einvoice.enqueue_internal_command(
+    v_ta, 'einvoice.start_auto_issuance', '{}'::jsonb, null, v_cmd_row.id
+  );
+  select count(*), payload into v_cmd_cnt, v_res
+  from einvoice.internal_commands
+  where id = v_cmd_row.id
+  group by payload;
+  if v_cmd_cnt <> 1 or v_res <> jsonb_build_object('tenant_id', v_ta, 'sales_order_id', v_oa, 'source_version', '1') then
+    raise exception 'FAIL E48: idempotent enqueue failed: count=% payload=%', v_cmd_cnt, v_res;
+  end if;
+
+  -- E49: đối tác đổi version xếp reevaluate_auto_issuance
+  set local role authenticated;
+  v_ke := public._th08_customer(v_ta, v_ua, 'organization', 'Công ty E', null, '5 Lê Lợi');
+  v_sale_e := public._th08_sale(v_ta, v_ua, v_store, v_p1, v_u1, v_ke, 'organization', 'th08-sale-e');
+  reset role;
+  select * into v_proc_e from einvoice.start_auto_issuance(
+    p_tenant_id => v_ta, p_sales_order_id => v_sale_e,
+    p_trigger_key => 't-ke', p_idempotency_key => 'auto-ke');
+  if v_proc_e.status is distinct from 'PENDING_REEVALUATION' then
+    raise exception 'FAIL E49: expected PENDING_REEVALUATION, got %', v_proc_e.status;
+  end if;
+
+  -- (a) update version của v_ke ⇒ thêm 1 dòng reevaluate_auto_issuance
+  select count(*) into v_n from einvoice.internal_commands
+  where tenant_id = v_ta and command_type = 'einvoice.reevaluate_auto_issuance';
+  update partner.partners set version = version + 1 where partner_id = v_ke;
+  select count(*) into v_n2 from einvoice.internal_commands
+  where tenant_id = v_ta and command_type = 'einvoice.reevaluate_auto_issuance';
+  if v_n2 <> v_n + 1 then
+    raise exception 'FAIL E49 (a): expected 1 new reevaluate command, got % (was %)', v_n2, v_n;
+  end if;
+  select * into v_cmd_row from einvoice.internal_commands
+  where tenant_id = v_ta and command_type = 'einvoice.reevaluate_auto_issuance'
+    and payload->>'process_id' = v_proc_e.process_id::text;
+  if v_cmd_row.id is null then
+    raise exception 'FAIL E49 (a): reevaluate command not found for process %', v_proc_e.process_id;
+  end if;
+  if v_cmd_row.payload->>'source_event_id' <> 'partner:' || v_ke::text || ':' || (select version::text from partner.partners where partner_id = v_ke) then
+    raise exception 'FAIL E49 (a): unexpected source_event_id: %', v_cmd_row.payload;
+  end if;
+
+  -- (b) update version của v_ka (không có dòng chờ) ⇒ tổng số việc reevaluate không đổi
+  select count(*) into v_n from einvoice.internal_commands
+  where tenant_id = v_ta and command_type = 'einvoice.reevaluate_auto_issuance';
+  update partner.partners set version = version + 1 where partner_id = v_ka;
+  select count(*) into v_n2 from einvoice.internal_commands
+  where tenant_id = v_ta and command_type = 'einvoice.reevaluate_auto_issuance';
+  if v_n2 <> v_n then
+    raise exception 'FAIL E49 (b): reevaluate count changed for partner without pending process: before=% after=%', v_n, v_n2;
+  end if;
+
+  -- (c) update trường khác (không đổi version) ⇒ không thêm việc
+  update partner.partners set display_name = display_name where partner_id = v_ke;
+  select count(*) into v_n2 from einvoice.internal_commands
+  where tenant_id = v_ta and command_type = 'einvoice.reevaluate_auto_issuance';
+  if v_n2 <> v_n then
+    raise exception 'FAIL E49 (c): reevaluate count changed on non-version update: before=% after=%', v_n, v_n2;
+  end if;
+
+  -- E50: hoá đơn v_inv có đúng 1 dòng start_auto_delivery với id cố định
+  select * into v_cmd_row
+  from einvoice.internal_commands
+  where tenant_id = v_ta
+    and command_type = 'einvoice.start_auto_delivery'
+    and id = einvoice._stable_command_id(v_inv::text || '|start_auto_delivery');
+  if v_cmd_row.id is null then
+    raise exception 'FAIL E50: start_auto_delivery command not found for invoice v_inv';
+  end if;
+  if v_cmd_row.payload->>'electronic_invoice_id' <> v_inv::text then
+    raise exception 'FAIL E50: unexpected electronic_invoice_id: %', v_cmd_row.payload;
+  end if;
+  if v_cmd_row.payload->>'tenant_id' <> v_ta::text then
+    raise exception 'FAIL E50: unexpected tenant_id: %', v_cmd_row.payload;
+  end if;
+
+  -- E51: cron.job có einvoice-processor-tick 30 seconds; gọi _invoke_processor an toàn khi thiếu Vault
+  select * into v_job_e51
+  from cron.job
+  where jobname = 'einvoice-processor-tick';
+  if v_job_e51.jobid is null then
+    raise exception 'FAIL E51: cron job einvoice-processor-tick not found';
+  end if;
+  if v_job_e51.schedule <> '30 seconds' then
+    raise exception 'FAIL E51: expected schedule 30 seconds, got %', v_job_e51.schedule;
+  end if;
+  if v_job_e51.command not like '%einvoice._invoke_processor()%' then
+    raise exception 'FAIL E51: expected command to invoke _invoke_processor(), got %', v_job_e51.command;
+  end if;
+
+  if not exists (select 1 from vault.secrets where name = 'service_role_key') then
+    select count(*) into v_queue_before from net.http_request_queue;
+    perform einvoice._invoke_processor();
+    select count(*) into v_queue_after from net.http_request_queue;
+    if v_queue_before <> v_queue_after then
+      raise exception 'FAIL E51: net.http_request_queue changed without service_role_key: before=% after=%',
+        v_queue_before, v_queue_after;
+    end if;
+  end if;
+
+  -- E52: khoá quyền authenticated đối với các hàm nội bộ mới
+  set local role authenticated;
+  perform public._th08_expect_err('select einvoice._invoke_processor()', 'permission denied');
+  perform public._th08_expect_err('select einvoice._stable_command_id(''x'')', 'permission denied');
+  reset role;
 
   raise notice 'einvoice_th08: OK';
 end;

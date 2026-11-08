@@ -14,6 +14,7 @@ import {
 import { createDeliveryProvider } from './handlers/delivery/delivery_provider.ts'
 import { createMisaDeliveryObservationProvider } from './handlers/delivery/delivery_observation_provider.ts'
 import { createSupabaseDeliveryGateway } from './handlers/delivery/supabase_gateways.ts'
+import { createSupabaseAutomationGateway } from './handlers/automation/supabase_gateways.ts'
 import type { ConnectionRecorder } from './handlers/sync_capabilities.ts'
 import { runInvocation } from './queue/processor.ts'
 import { SupabaseQueueRpc } from './queue/supabase_queue_rpc.ts'
@@ -104,6 +105,9 @@ Deno.serve(async (req) => {
         provider: createDeliveryProvider({ clients: clientFactory, log }),
         observation: createMisaDeliveryObservationProvider(),
         gateway: createSupabaseDeliveryGateway(client),
+      },
+      automation: {
+        gateway: createSupabaseAutomationGateway(client),
       },
     }
     const handlers = buildHandlers(deps)
