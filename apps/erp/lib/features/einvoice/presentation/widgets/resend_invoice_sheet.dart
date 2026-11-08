@@ -27,6 +27,19 @@ Future<bool?> showOrderInvoiceResendSheet(
   );
 }
 
+/// Latest delivery whose status is succeeded (history is ordered by
+/// `delivery_no` ascending); null when none succeeded.
+InvoiceDeliveryItemDto? latestSuccessfulDelivery(
+  List<InvoiceDeliveryItemDto> history,
+) {
+  for (var i = history.length - 1; i >= 0; i--) {
+    if (history[i].status == DeliveryStatus.succeeded) {
+      return history[i];
+    }
+  }
+  return null;
+}
+
 /// App-owned resend sheet (SG07-O02).
 class OrderInvoiceResendSheet extends StatefulWidget {
   const OrderInvoiceResendSheet({
@@ -84,17 +97,12 @@ class _OrderInvoiceResendSheetState extends State<OrderInvoiceResendSheet> {
     Navigator.of(context).pop();
   }
 
-  String _latestSummary() {
-    if (widget.sheetContext.history.isEmpty) {
-      final email = widget.sheetContext.suggestedEmail ?? '';
-      return OrderInvoiceDeliveryCopy.latestDeliverySummary(
-        email: email,
-        dateTime: '—',
-      );
+  String? _latestSummary() {
+    final latest = latestSuccessfulDelivery(widget.sheetContext.history);
+    if (latest == null) {
+      return null;
     }
-    final latest = widget.sheetContext.history.last;
-    final occurred = latest.completedAt ?? latest.startedAt;
-    final local = occurred.toLocal();
+    final local = (latest.completedAt ?? latest.startedAt).toLocal();
     final dateTime =
         '${local.day.toString().padLeft(2, '0')}/'
         '${local.month.toString().padLeft(2, '0')}/'
@@ -125,6 +133,10 @@ class _OrderInvoiceResendSheetState extends State<OrderInvoiceResendSheet> {
       },
       builder: (context, state) {
         final historyEnabled = !state.isSubmitting;
+        final summary = _latestSummary();
+        final source = OrderInvoiceDeliveryCopy.suggestionSource(
+          widget.sheetContext.suggestedEmailSource,
+        );
         return Material(
           color: colors.surface.withValues(alpha: 0),
           child: SafeArea(
@@ -146,12 +158,6 @@ class _OrderInvoiceResendSheetState extends State<OrderInvoiceResendSheet> {
                     color: colors.textPrimary,
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
-                  const VGap.sm(),
-                  VText(
-                    _latestSummary(),
-                    variant: VTextVariant.bodyDefault,
-                    color: colors.textSecondary,
-                  ),
                   const VGap.md(),
                   InvoiceDeliveryRecipientForm(
                     emailController: _emailController,
@@ -162,14 +168,36 @@ class _OrderInvoiceResendSheetState extends State<OrderInvoiceResendSheet> {
                     onChanged: _onEmailChanged,
                     onPrimary: _submit,
                     onCancel: _cancel,
-                    footerAboveActions: Align(
-                      alignment: Alignment.center,
-                      child: VButton(
-                        key: const Key('action_view_delivery_history'),
-                        label: OrderInvoiceDeliveryCopy.viewHistory,
-                        variant: VButtonVariant.link,
-                        onPressed: historyEnabled ? () => widget.onViewHistory(context) : null,
-                      ),
+                    sourceLabel: source == null
+                        ? null
+                        : VText(
+                            source,
+                            key: const Key('label_suggestion_source'),
+                            variant: VTextVariant.bodySmall,
+                            color: colors.textSecondary,
+                          ),
+                    footerAboveActions: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (summary != null) ...[
+                          VText(
+                            summary,
+                            variant: VTextVariant.bodyDefault,
+                            color: colors.textSecondary,
+                          ),
+                          const VGap.sm(),
+                        ],
+                        Align(
+                          alignment: Alignment.center,
+                          child: VButton(
+                            key: const Key('action_view_delivery_history'),
+                            label: OrderInvoiceDeliveryCopy.viewHistory,
+                            variant: VButtonVariant.link,
+                            onPressed: historyEnabled ? () => widget.onViewHistory(context) : null,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
