@@ -473,3 +473,19 @@ Review commit `f40119e50..3c2252a1e` (6 commit) và cây làm việc.
   - (c) Thêm "**R1 — sửa**" dưới mục 9, ghi lệnh + số ca sau R1-2.
 
 R2 = lượt review sau khi phiên code làm xong R1-1 … R1-3 và ghi vào mục 9 (không tự tích `[x]` ở mục 10).
+
+### R2 — 2026-11-08 — **ĐẠT**
+
+Review commit `2e87b8476` và cây làm việc.
+
+| Hạng mục | Kết quả | Ghi chú |
+|---|---|---|
+| R1-1 dòng trống cuối tệp | ✅ | `git status` sạch; `git diff --name-only 765eb7917 HEAD` chỉ có tệp mục 4, test, tài liệu, test bước 0 của module, và `AGENTS.md` / `CLAUDE.md` (số liệu chỉ mục do `gitnexus analyze` tự ghi, như 7-A1) |
+| R1-2 kiểm gọi lưu 1 lần | ✅ | `default_issuance_configuration_view_test.dart` 2 ca `setDefaultConfiguration` `hasLength(1)`, `automation_policy_view_test.dart` 1 ca `updateAutomationPolicy` `hasLength(1)` |
+| R1-3 Kết quả | ✅ | Task 4 đúng số ca từng tệp (1 / 2 / 1 / 3 / 5 / 6 / 13); 6.6 chạy lại so `765eb7917`: 60 tệp, 493 symbol, 1 luồng `Build → _two` (`einvoice_datetime_copy.dart` → `provider_connection_view.dart`, đều là tệp mới chép), mức medium do số symbol mới, không đụng luồng cũ |
+| `flutter test test/features/einvoice/ test/core/di/injection_test.dart` | ✅ | chạy lại: 226 + 10 bỏ qua |
+| `dart analyze test/features/einvoice` | ✅ | No issues found |
+
+**Còn lại (người dùng):** kiểm tay 6.7 trên Dev (iPhone + web).
+
+**Ghi nhận cho plan sau:** 2 hằng `ProviderConnectionCopy.recheckSuccessTitle` / `recheckSuccessMessage` không ai dùng (chép nguyên); xoá khi dọn ở 7-C hoặc khi đụng tới tệp.
