@@ -3,7 +3,7 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: dùng superpowers:subagent-driven-development (khuyên dùng) hoặc superpowers:executing-plans để làm theo từng task. Các bước dùng checkbox (`- [ ]`).
 
 > Theme 8 (mã cũ P7) · Bước (b) sửa theo TH-08, phía app · Gồm việc 7.2, 7.3 (KI-01, KI-08, bố cục web) — PLAN.md mục Theme 8
-> Trạng thái: Plan ✅ (duyệt 2026-11-08) | Làm ⬜ | Review ⬜
+> Trạng thái: Plan ✅ (duyệt 2026-11-08) | Làm ✅ 2026-11-08 (còn kiểm tay 5.7, checklist 6.6 — người dùng) | Review ✅ R1 ĐẠT 2026-11-08
 > Trước: 7-A2a (4 trang thiết lập), 7-A2b (khu HĐĐT trên đơn) — đều Review ✅. Sau: 7-C (xoá module).
 > Tài liệu: [TH-08](../../../02-yeu-cau/TH-08-hoa-don-dien-tu.md) US-01.2 FR-05, US-04.2 FR-03 / FR-05 / AC-06, 5.1, 5.3, 5.4, 5.11, 5.13, KI-01, KI-08; PLAN.md "Thiết bị (chốt 2026-10-20)", "Plan xoá / tách / thay code cũ"; [DEV-LIVE-ACCEPTANCE-CHECKLIST](../../../themes/TH-08-e-invoice/harness/DEV-LIVE-ACCEPTANCE-CHECKLIST.md). Mẫu: `plans/P7/7-A2b-einvoice-ui-tren-don.md`.
 
@@ -279,4 +279,32 @@ Mỗi task ghi ngay sau khi xong:
   - **Chưa làm:** 5.6 (`gitnexus detect_changes` — công cụ không có trong phiên) và 5.7 (kiểm tay trên simulator / Chrome). Mục 6.6 là việc của người dùng.
   - Ghi chú review: `dart format` đã chạm vài tệp ngoài phạm vi, đã hoàn nguyên; chỉ giữ thay đổi liên quan.
 
+- **Sửa R1 — ✅ 2026-11-08**
+  - R1-1: xoá `import 'dart:async';` ở `test/features/einvoice/presentation/widgets/einvoice_sheets_adaptive_test.dart:1`. `dart analyze test/features/einvoice` không còn `unnecessary_import`; `flutter test` tệp đó → 26 đạt.
+  - R1-2: impact / `detect_changes` chạy bằng CLI `node .gitnexus/run.cjs … -r erp-sales-inventory` (không còn thay bằng `grep`).
+
 ## 9. Review
+
+### R1 — 2026-11-08: **ĐẠT** (2 góp ý nhỏ; còn kiểm tay 5.7 + checklist live 6.6 — người dùng)
+
+| Hạng mục | Kết quả | Ghi chú |
+|---|---|---|
+| Bước 0 (B0-1 … B0-8) | ✅ | Chạy lại trên commit `f36075a32` (code cũ): 8/8 xanh; 10 ca desktop / iPhone của Task 3 đỏ đúng chờ đợi. Tệp test không bị đổi sau Task 0 (`git diff f36075a32..HEAD` rỗng) ⇒ điều kiện kiểm giữ. Lệch B0-7 / B0-8 chạy ở 600 px (dialog cũ tràn ở 390) — hợp lý, đã ghi |
+| KI-01 + Q1 (HD-04) | ✅ | `default_issuance_configuration_cubit.dart:31,53-61` đọc `getConnectionScreen` sau 2 lời gọi cũ, lỗi → `null`; state `lastSyncedAt` vào `props`, `copyWith` giữ; view định dạng (logic không import presentation); `lastSyncedLabel` đã xoá |
+| Q5 / KI-27 (giờ máy) | ✅ | `einvoice_datetime_copy.dart` `_hm` / `_dmy` gọi `toLocal()`; test dựng kỳ vọng từ `toLocal()`, không phụ thuộc múi máy |
+| KI-08 + Q4 (HD-12) | ✅ | `latestSuccessfulDelivery` duyệt từ cuối; tóm tắt ẩn khi không có lần thành công (bỏ cả nhánh "· —"); nhãn nguồn cùng `Key('label_suggestion_source')` như HD-11; tóm tắt nằm trong `footerAboveActions` trên "Xem lịch sử gửi". 6 ca mới |
+| Q2 / Q3 (7 sheet) | ✅ | 7 hàm `show…` dùng `showVAdaptiveSheet(title:, semanticLabel:)` đúng bảng mục 5; tiêu đề / `SafeArea` trong nội dung đã bỏ; `Key` giữ; HD-03 trả `result ?? false`, nút đỏ `tone: VComponentTone.danger`. Lệch: bỏ dòng kiểm tiêu đề ở 6 ca dựng widget trực tiếp thay vì mở qua `show…` — chấp nhận vì B0-1 … B0-7 và ca desktop / iPhone đã kiểm tiêu đề qua hàm `show…` |
+| Review Focus 1 – 5 | ✅ | Có đủ ca: bàn phím iPhone, snackbar lỗi giữ hộp thoại, quay lại từ lịch sử giữ email `moi@x.vn`, đọc kết nối lỗi, giờ quanh nửa đêm UTC |
+| Q6 (cột 720) | ✅ | `einvoice_pages_web_layout_test.dart` 10 ca; HD-13 đo `InvoiceDeliveryHistoryView` (không có `VPagePadding`) — đã ghi |
+| `flutter test test/features/einvoice/` | ✅ | Review chạy lại: **457 đạt, 10 bỏ qua, 0 đỏ** (Kết quả ghi 447 lúc Task 3, trước khi có 10 ca Task 4) |
+| Cả `apps/erp` | ✅ | Theo Kết quả: 55 đỏ, so từng tên 0 mới / 0 hết (review không chạy lại cả app) |
+| `dart analyze` | ⚠️ | Tệp đã chạm chỉ còn cảnh báo `deprecated_member_use` có sẵn, trừ **1 cảnh báo mới**: `einvoice_sheets_adaptive_test.dart:1` `unnecessary_import` (`dart:async`) — Kết quả ghi "bằng mốc" là chưa đúng → R1-1 |
+| `check_feature_imports`, `git grep` 5.3 | ✅ | Không dòng einvoice mới; grep rỗng |
+| 5.6 `detect_changes` | ✅ (review chạy) | Kết quả ghi "công cụ không có" nhưng CLI có: `node .gitnexus/run.cjs detect-changes -s compare -b a26db5628 -r erp-sales-inventory` → 30 tệp / 82 symbol (gồm `AGENTS.md`, `CLAUDE.md` chưa commit của người dùng — ngoài 7-B2), 1 luồng `Build → _two` qua `updatedAt` (đúng Q5), rủi ro **medium**. Impact trước khi sửa cũng làm được bằng `node .gitnexus/run.cjs impact <symbol> -r erp-sales-inventory` → R1-2 |
+| TH-08, PLAN.md | ✅ | KI-01, KI-08 ✅ 7-B2; KI-27 thêm; 5.4, 5.11, 5.13, US-01.2 FR-05, US-04.2 AC-06 sửa đúng |
+| 5.7 kiểm tay, 6.6 checklist live | ⬜ | Chưa làm — người dùng |
+
+**Góp ý nhỏ (không chặn ĐẠT):**
+
+- **R1-1** Xoá `import 'dart:async';` ở `apps/erp/test/features/einvoice/presentation/widgets/einvoice_sheets_adaptive_test.dart:1`; chạy `dart analyze test/features/einvoice` → không còn `unnecessary_import`.
+- **R1-2** Lần sau impact / `detect_changes` dùng CLI `node .gitnexus/run.cjs <impact|detect-changes> … -r erp-sales-inventory` khi phiên không có MCP, không thay bằng `grep`.
