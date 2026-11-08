@@ -7,9 +7,9 @@ import '../../features/catalog/data/models.dart' hide ProductChangeHistoryPage;
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/pricing/data/models.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_einvoice_presentation/presentation.dart';
+import '../../features/einvoice/data/einvoice_configuration_repository.dart';
+import '../../features/einvoice/logic/einvoice_permissions.dart';
+import '../../features/einvoice/presentation/widgets/configuration_permission_denied_state.dart';
 import 'package:erp/features/auth/data/auth_repository.dart';
 import 'package:erp/features/auth/data/invitation_acceptance_repository.dart';
 import 'package:erp/features/iam/data/account_repository.dart';
@@ -1129,8 +1129,7 @@ final appRouter = GoRouter(
           );
         }
         return EInvoiceConfigurationOverviewPage(
-          einvoiceModule: getIt<IEInvoiceModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          repository: getIt<EInvoiceConfigurationRepository>(),
           onBack: goBack,
           onConnectionTap: () async {
             await context.push('/more/einvoice/connection');
@@ -1145,8 +1144,7 @@ final appRouter = GoRouter(
       name: 'more.einvoice.connection',
       builder: (context, state) {
         return ProviderConnectionPage(
-          einvoiceModule: getIt<IEInvoiceModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          repository: getIt<EInvoiceConfigurationRepository>(),
           onCancel: () => context.pop(),
           onBack: () => context.pop(),
         );
@@ -1157,8 +1155,7 @@ final appRouter = GoRouter(
       name: 'more.einvoice.issuance',
       builder: (context, state) {
         return DefaultIssuanceConfigurationPage(
-          einvoiceModule: getIt<IEInvoiceModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          repository: getIt<EInvoiceConfigurationRepository>(),
           onCancel: () => context.pop(),
           onBack: () => context.pop(),
         );
@@ -1169,8 +1166,7 @@ final appRouter = GoRouter(
       name: 'more.einvoice.automation',
       builder: (context, state) {
         return AutomationPolicyPage(
-          einvoiceModule: getIt<IEInvoiceModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          repository: getIt<EInvoiceConfigurationRepository>(),
           onCancel: () => context.pop(),
           onBack: () => context.pop(),
         );

@@ -12,6 +12,8 @@ import '../../features/catalog/data/measurement_unit_repository.dart';
 import '../../features/catalog/data/product_price_repository.dart';
 import '../../features/catalog/data/product_repository.dart';
 import '../../features/dashboard/data/default_pair_repository.dart';
+import '../../features/einvoice/data/einvoice_configuration_repository.dart';
+import '../../features/einvoice/data/einvoice_processor_trigger.dart';
 import '../../features/catalog/presentation/services/product_image_display_resolver.dart';
 import '../../features/iam/data/account_repository.dart';
 import '../../features/iam/data/audit_log_repository.dart';
@@ -260,6 +262,18 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     ..registerLazySingleton<ReturnExchangeRepository>(
       () => ReturnExchangeRepository(
         rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+        actorId: () async =>
+            sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
+      ),
+    )
+    ..registerLazySingleton<EInvoiceProcessorTrigger>(
+      () => EInvoiceProcessorTrigger(supabaseModule.client.functions),
+    )
+    ..registerLazySingleton<EInvoiceConfigurationRepository>(
+      () => EInvoiceConfigurationRepository(
+        rpc: getIt<SupabaseRpc>(),
+        trigger: getIt<EInvoiceProcessorTrigger>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
         actorId: () async =>
             sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),

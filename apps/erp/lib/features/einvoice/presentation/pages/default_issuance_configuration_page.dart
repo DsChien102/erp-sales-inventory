@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_presentation/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
+
+import '../../data/einvoice_configuration_repository.dart';
+import '../../logic/default_issuance_configuration_copy.dart';
+import '../../logic/default_issuance_configuration_cubit.dart';
+import '../widgets/default_issuance_configuration_view.dart';
 
 class DefaultIssuanceConfigurationPage extends StatelessWidget {
   const DefaultIssuanceConfigurationPage({
     super.key,
-    required this.einvoiceModule,
-    required this.executionContext,
+    required this.repository,
     this.onCancel,
     this.onBack,
   });
 
-  final IEInvoiceModule einvoiceModule;
-  final IExecutionContext executionContext;
+  final EInvoiceConfigurationRepository repository;
   final VoidCallback? onCancel;
   final VoidCallback? onBack;
 
@@ -23,8 +23,7 @@ class DefaultIssuanceConfigurationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => DefaultIssuanceConfigurationCubit(
-        einvoiceModule: einvoiceModule,
-        executionContext: executionContext,
+        repository: repository,
       )..load(),
       child: VPageScaffold(
         title: DefaultIssuanceConfigurationCopy.pageTitle,

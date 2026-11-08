@@ -276,18 +276,18 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
 
 **Interfaces:** Produces: mỗi trang `({Key? key, required EInvoiceConfigurationRepository repository, …callback như cũ})`.
 
-- [ ] `impact` cho 4 lớp trang, `AppRouter` / hàm dựng route liên quan, `initDependencies`; ghi vào Kết quả.
-- [ ] Sửa 3 test app (đỏ):
+- [x] `impact` cho 4 lớp trang, `AppRouter` / hàm dựng route liên quan, `initDependencies`; ghi vào Kết quả.
+- [x] Sửa 3 test app (đỏ):
   - `einvoice_configuration_overview_page_test.dart`: `_CountingEinvoiceModule` → `_CountingRepository extends FakeEInvoiceConfigurationRepository`, đếm `getConnectionScreen`; ca `reloads overview after returning…` vẫn kỳ vọng `2`;
   - `einvoice_subroutes_direct_access_test.dart`: `_ForbiddenEinvoiceModule` → repository mà mọi hàm ghi tên vào `writes` / `reads` rồi ném `AppException(EInvoiceErrorCodes.noPermission)`. Kỳ vọng giữ: thấy `Key('wgt_e01_s01_01')`, không hàm ghi nào được gọi (`connect`, `reconnect`, `disconnect`, `setDefaultConfiguration`, `updateAutomationPolicy`);
   - `injection_test.dart`: thêm `expect(getIt.isRegistered<EInvoiceProcessorTrigger>(), isTrue); expect(getIt.isRegistered<EInvoiceConfigurationRepository>(), isTrue);`, giữ các dòng `IEInvoiceModule`.
-- [ ] Trang: thay `einvoiceModule` + `executionContext` bằng `repository`; import cubit / view mới; `ProviderConnectionPage` bỏ `getIt` / `QueryClient`.
-- [ ] `injection.dart`, sau `ReturnExchangeRepository`:
+- [x] Trang: thay `einvoiceModule` + `executionContext` bằng `repository`; import cubit / view mới; `ProviderConnectionPage` bỏ `getIt` / `QueryClient`.
+- [x] `injection.dart`, sau `ReturnExchangeRepository`:
   - `registerLazySingleton<EInvoiceProcessorTrigger>(() => EInvoiceProcessorTrigger(supabaseModule.client.functions))`;
   - `registerLazySingleton<EInvoiceConfigurationRepository>(() => EInvoiceConfigurationRepository(rpc: getIt<SupabaseRpc>(), trigger: getIt<EInvoiceProcessorTrigger>(), tenantId: …, actorId: …))`, với `tenantId` / `actorId` viết giống hệt `PartnerRepository` (`injection.dart:112-118`).
-- [ ] `app_router.dart`: bỏ 3 import `vet45_einvoice_*`; import `features/einvoice/logic/einvoice_permissions.dart`, `features/einvoice/presentation/widgets/configuration_permission_denied_state.dart`, `features/einvoice/data/einvoice_configuration_repository.dart`; 4 route truyền `repository: getIt<EInvoiceConfigurationRepository>()`.
-- [ ] `flutter test test/features/einvoice/ test/core/di/injection_test.dart test/features/more/` → PASS.
-- [ ] Commit `feat(einvoice): 7-A2a trang thiết lập, router, DI dùng repository`.
+- [x] `app_router.dart`: bỏ 3 import `vet45_einvoice_*`; import `features/einvoice/logic/einvoice_permissions.dart`, `features/einvoice/presentation/widgets/configuration_permission_denied_state.dart`, `features/einvoice/data/einvoice_configuration_repository.dart`; 4 route truyền `repository: getIt<EInvoiceConfigurationRepository>()`.
+- [x] `flutter test test/features/einvoice/ test/core/di/injection_test.dart test/features/more/` → PASS.
+- [x] Commit `feat(einvoice): 7-A2a trang thiết lập, router, DI dùng repository`.
 
 ### Task 6: Kiểm cuối + tài liệu
 
@@ -369,6 +369,24 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
   - Test thêm / sửa, lệnh, số ca pass / fail: `cd apps/erp && flutter test test/features/einvoice/presentation/widgets test/features/einvoice/logic` → 90/90 PASS (31 ca chuyển từ module + 59 ca unit test logic & Task 3).
   - Impact (symbol, số caller, luồng, mức rủi ro): File test, rủi ro: LOW.
   - Ghi chú cho review: Toàn bộ 7 file test UI thiết lập của module đã được chuyển sang app, chạy mượt mà với `FakeEInvoiceConfigurationRepository` và Timer polling của `ProviderConnectionCubit`.
+
+- **Task 5 — ✅**
+  - Tệp:dòng đã đổi / thêm:
+    - `apps/erp/lib/features/einvoice/presentation/pages/einvoice_configuration_overview_page.dart`: nhận `required EInvoiceConfigurationRepository repository`, chuyển sang dùng `EInvoiceConfigurationOverviewCubit` và `EInvoiceConfigurationOverviewView` mới.
+    - `apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart`: nhận `repository:`, loại bỏ hoàn toàn `queryClient` và `async_query`.
+    - `apps/erp/lib/features/einvoice/presentation/pages/default_issuance_configuration_page.dart`: nhận `repository:`, dùng cubit và view mới.
+    - `apps/erp/lib/features/einvoice/presentation/pages/automation_policy_page.dart`: nhận `repository:`, dùng cubit và view mới.
+    - `apps/erp/lib/core/di/injection.dart`:14-15, :267-279: đăng ký `EInvoiceProcessorTrigger` và `EInvoiceConfigurationRepository` (dùng `SessionController.requireTenantId` và `sessionStore.userId`) sau `ReturnExchangeRepository`.
+    - `apps/erp/lib/core/router/app_router.dart`:10-12, :1130-1175: loại bỏ 3 import `vet45_einvoice_*`, import `EInvoiceConfigurationRepository`, `EInvoicePermissions`, `ConfigurationPermissionDeniedState`; 4 route truyền `repository: getIt<EInvoiceConfigurationRepository>()`.
+    - `apps/erp/test/features/einvoice/presentation/einvoice_configuration_overview_page_test.dart`: chuyển sang dùng `_CountingRepository extends FakeEInvoiceConfigurationRepository`.
+    - `apps/erp/test/features/einvoice/presentation/einvoice_subroutes_direct_access_test.dart`: chuyển sang dùng `_ForbiddenConfigurationRepository extends FakeEInvoiceConfigurationRepository`.
+    - `apps/erp/test/core/di/injection_test.dart`: kiểm tra đăng ký `EInvoiceProcessorTrigger` và `EInvoiceConfigurationRepository`.
+  - Lệch plan + lý do: Không.
+  - Test thêm / sửa, lệnh, số ca pass / fail: `cd apps/erp && flutter test test/features/einvoice/ test/core/di/injection_test.dart test/features/more/` → 237 passed, 10 skipped, 0 failed.
+  - Impact (symbol, số caller, luồng, mức rủi ro):
+    - 4 lớp page: chỉ gọi trong `app_router.dart` và 2 test file; không ảnh hưởng Sales hay các feature khác.
+    - `initDependencies`: thêm 2 lazy singleton; không đổi chữ ký; các test DI đều pass. Rủi ro thực tế: LOW.
+  - Ghi chú cho review: Cả 4 trang thiết lập HĐĐT và router đã tách rời hoàn toàn khỏi `vet45_einvoice_*` và `async_query`, chỉ phụ thuộc vào `EInvoiceConfigurationRepository`.
 
 Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối):
 

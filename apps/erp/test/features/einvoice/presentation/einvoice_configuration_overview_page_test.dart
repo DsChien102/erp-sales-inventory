@@ -1,36 +1,27 @@
-import 'package:erp/features/einvoice/presentation/pages/einvoice_configuration_overview_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_application/testing.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:erp/features/einvoice/data/models.dart';
+import 'package:erp/features/einvoice/presentation/pages/einvoice_configuration_overview_page.dart';
 
-final class _CountingEinvoiceModule implements IEInvoiceModule {
-  _CountingEinvoiceModule(this.delegate);
+import '../support/fake_einvoice_configuration_repository.dart';
 
-  final IEInvoiceModule delegate;
+class _CountingRepository extends FakeEInvoiceConfigurationRepository {
+  _CountingRepository({super.scenario = FakeEInvoiceConfigurationScenario.configReadinessReady});
+
   int connectionScreenQueries = 0;
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    return delegate.executeCommandAsync(command);
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    if (query is GetProviderConnectionScreenQuery) {
-      connectionScreenQueries += 1;
-    }
-    return delegate.executeQueryAsync(query);
+  Future<ProviderConnectionScreenDto> getConnectionScreen() {
+    connectionScreenQueries += 1;
+    return super.getConnectionScreen();
   }
 }
 
 void main() {
   testWidgets('reloads overview after returning from MISA connection', (tester) async {
-    final module = _CountingEinvoiceModule(
-      FakeEInvoiceModule(scenario: FakeEInvoiceScenario.configReadinessBlocked),
+    final repository = _CountingRepository(
+      scenario: FakeEInvoiceConfigurationScenario.configReadinessBlocked,
     );
     var opened = false;
 
@@ -38,8 +29,7 @@ void main() {
       MaterialApp(
         theme: VTheme.lightTheme,
         home: EInvoiceConfigurationOverviewPage(
-          einvoiceModule: module,
-          executionContext: FakeExecutionContext(),
+          repository: repository,
           onConnectionTap: () async {
             opened = true;
           },
@@ -52,12 +42,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(opened, isTrue);
-    expect(module.connectionScreenQueries, 2);
+    expect(repository.connectionScreenQueries, 2);
   });
 
   testWidgets('issuance card stays closed while MISA is disconnected', (tester) async {
-    final module = _CountingEinvoiceModule(
-      FakeEInvoiceModule(scenario: FakeEInvoiceScenario.configReadinessBlocked),
+    final repository = _CountingRepository(
+      scenario: FakeEInvoiceConfigurationScenario.configReadinessBlocked,
     );
     var opened = false;
 
@@ -65,8 +55,7 @@ void main() {
       MaterialApp(
         theme: VTheme.lightTheme,
         home: EInvoiceConfigurationOverviewPage(
-          einvoiceModule: module,
-          executionContext: FakeExecutionContext(),
+          repository: repository,
           onIssuanceTap: () async {
             opened = true;
           },
@@ -79,12 +68,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(opened, isFalse);
-    expect(module.connectionScreenQueries, 1);
+    expect(repository.connectionScreenQueries, 1);
   });
 
   testWidgets('reloads overview after returning from issuance configuration', (tester) async {
-    final module = _CountingEinvoiceModule(
-      FakeEInvoiceModule(scenario: FakeEInvoiceScenario.configReadinessReady),
+    final repository = _CountingRepository(
+      scenario: FakeEInvoiceConfigurationScenario.configReadinessReady,
     );
     var opened = false;
 
@@ -92,8 +81,7 @@ void main() {
       MaterialApp(
         theme: VTheme.lightTheme,
         home: EInvoiceConfigurationOverviewPage(
-          einvoiceModule: module,
-          executionContext: FakeExecutionContext(),
+          repository: repository,
           onIssuanceTap: () async {
             opened = true;
           },
@@ -106,14 +94,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(opened, isTrue);
-    expect(module.connectionScreenQueries, 2);
+    expect(repository.connectionScreenQueries, 2);
   });
 
   testWidgets('reloads overview after returning from automation policy configuration', (
     tester,
   ) async {
-    final module = _CountingEinvoiceModule(
-      FakeEInvoiceModule(scenario: FakeEInvoiceScenario.configReadinessBlocked),
+    final repository = _CountingRepository(
+      scenario: FakeEInvoiceConfigurationScenario.configReadinessBlocked,
     );
     var opened = false;
 
@@ -121,8 +109,7 @@ void main() {
       MaterialApp(
         theme: VTheme.lightTheme,
         home: EInvoiceConfigurationOverviewPage(
-          einvoiceModule: module,
-          executionContext: FakeExecutionContext(),
+          repository: repository,
           onAutomationTap: () async {
             opened = true;
           },
@@ -135,6 +122,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(opened, isTrue);
-    expect(module.connectionScreenQueries, 2);
+    expect(repository.connectionScreenQueries, 2);
   });
 }

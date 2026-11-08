@@ -1,24 +1,21 @@
-import 'package:async_query/async_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_presentation/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
-import '../../../../core/di/injection.dart';
+import '../../data/einvoice_configuration_repository.dart';
+import '../../logic/provider_connection_copy.dart';
+import '../../logic/provider_connection_cubit.dart';
+import '../widgets/provider_connection_view.dart';
 
 class ProviderConnectionPage extends StatelessWidget {
   const ProviderConnectionPage({
     super.key,
-    required this.einvoiceModule,
-    required this.executionContext,
+    required this.repository,
     this.onCancel,
     this.onBack,
   });
 
-  final IEInvoiceModule einvoiceModule;
-  final IExecutionContext executionContext;
+  final EInvoiceConfigurationRepository repository;
   final VoidCallback? onCancel;
   final VoidCallback? onBack;
 
@@ -26,9 +23,7 @@ class ProviderConnectionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ProviderConnectionCubit(
-        einvoiceModule: einvoiceModule,
-        executionContext: executionContext,
-        queryClient: getIt.isRegistered<QueryClient>() ? getIt<QueryClient>() : null,
+        repository: repository,
       )..load(),
       child: VPageScaffold(
         title: ProviderConnectionCopy.pageTitle,

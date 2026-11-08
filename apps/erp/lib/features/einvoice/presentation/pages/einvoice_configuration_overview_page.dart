@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_presentation/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
+
+import '../../data/einvoice_configuration_repository.dart';
+import '../../logic/einvoice_configuration_overview_cubit.dart';
+import '../widgets/einvoice_configuration_overview_view.dart';
 
 class EInvoiceConfigurationOverviewPage extends StatefulWidget {
   const EInvoiceConfigurationOverviewPage({
     super.key,
-    required this.einvoiceModule,
-    required this.executionContext,
+    required this.repository,
     this.onConnectionTap,
     this.onIssuanceTap,
     this.onAutomationTap,
     this.onBack,
   });
 
-  final IEInvoiceModule einvoiceModule;
-  final IExecutionContext executionContext;
+  final EInvoiceConfigurationRepository repository;
   final Future<void> Function()? onConnectionTap;
   final Future<void> Function()? onIssuanceTap;
   final Future<void> Function()? onAutomationTap;
@@ -35,8 +34,7 @@ class _EInvoiceConfigurationOverviewPageState extends State<EInvoiceConfiguratio
   void initState() {
     super.initState();
     _cubit = EInvoiceConfigurationOverviewCubit(
-      einvoiceModule: widget.einvoiceModule,
-      executionContext: widget.executionContext,
+      repository: widget.repository,
     )..load();
   }
 
