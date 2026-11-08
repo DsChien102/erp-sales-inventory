@@ -1,6 +1,7 @@
 import { assertEquals } from 'jsr:@std/assert@1'
 import { createIssuanceDeadLetters } from './dead_letters.ts'
 import { buildDeadLetters, type HandlerDeps } from '../registry.ts'
+import { FakeDeliveryGateway } from '../delivery/fake_gateways.ts'
 import { FakeIssuanceGateways, FakeIssuanceProvider } from './fake_gateways.ts'
 import { CanonicalInvoiceIntegrityError } from './errors.ts'
 import { cmd } from '../../queue/test_support.ts'
@@ -107,6 +108,11 @@ Deno.test('registers dead letters for preview and publish', () => {
         loadDocumentContext: () => Promise.resolve(null),
       },
     },
+    delivery: {
+      gateway: new FakeDeliveryGateway(),
+      provider: {} as never,
+      observation: {} as never,
+    },
   } as unknown as HandlerDeps
 
   const deadLetters = buildDeadLetters(deps)
@@ -115,5 +121,7 @@ Deno.test('registers dead letters for preview and publish', () => {
     'einvoice.fetch_official_view',
     'einvoice.preview_invoice',
     'einvoice.publish_invoice',
+    'einvoice.reconcile_invoice_delivery',
+    'einvoice.send_invoice_email',
   ])
 })

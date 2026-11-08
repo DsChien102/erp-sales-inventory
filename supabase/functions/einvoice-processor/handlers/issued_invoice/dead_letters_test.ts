@@ -2,6 +2,7 @@ import { assertEquals } from 'jsr:@std/assert@1'
 import type { ClaimedCommand } from '../../queue/types.ts'
 import { buildDeadLetters, type HandlerDeps } from '../registry.ts'
 import { createIssuedInvoiceDeadLetters } from './dead_letters.ts'
+import { FakeDeliveryGateway } from '../delivery/fake_gateways.ts'
 import { FakeIssuedInvoiceGateway } from './fake_gateways.ts'
 import type { DocumentContext, OfficialViewContext } from './gateways.ts'
 
@@ -151,6 +152,11 @@ Deno.test('registers dead letters for issuance and issued invoice commands', () 
       provider: {} as never,
       storage: {} as never,
     },
+    delivery: {
+      gateway: new FakeDeliveryGateway(),
+      provider: {} as never,
+      observation: {} as never,
+    },
   } as unknown as HandlerDeps
 
   const deadLetters = buildDeadLetters(deps)
@@ -159,6 +165,8 @@ Deno.test('registers dead letters for issuance and issued invoice commands', () 
     'einvoice.fetch_official_view',
     'einvoice.preview_invoice',
     'einvoice.publish_invoice',
+    'einvoice.reconcile_invoice_delivery',
+    'einvoice.send_invoice_email',
   ])
 })
 

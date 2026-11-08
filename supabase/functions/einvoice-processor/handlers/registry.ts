@@ -1,4 +1,8 @@
 import type { CommandHandler, DeadLetterHandler } from '../queue/types.ts'
+import { createDeliveryDeadLetters } from './delivery/dead_letters.ts'
+import type { DeliveryDeps } from './delivery/gateways.ts'
+import { createReconcileInvoiceDeliveryHandler } from './delivery/reconcile_invoice_delivery.ts'
+import { createSendInvoiceEmailHandler } from './delivery/send_invoice_email.ts'
 import { createIssuanceDeadLetters } from './issuance/dead_letters.ts'
 import type { IssuanceGateways } from './issuance/gateways.ts'
 import type { IssuanceProvider } from './issuance/issuance_provider.ts'
@@ -22,6 +26,7 @@ export type HandlerDeps = SyncCapabilitiesDeps & {
     gateways: IssuanceGateways
   }
   issuedInvoice: IssuedInvoiceDeps
+  delivery: DeliveryDeps
 }
 
 export function buildHandlers(
@@ -43,6 +48,10 @@ export function buildHandlers(
     'einvoice.poll_provider_observation': createPollProviderObservationHandler(
       deps.issuedInvoice,
     ),
+    'einvoice.send_invoice_email': createSendInvoiceEmailHandler(deps.delivery),
+    'einvoice.reconcile_invoice_delivery': createReconcileInvoiceDeliveryHandler(
+      deps.delivery,
+    ),
   }
 }
 
@@ -52,5 +61,6 @@ export function buildDeadLetters(
   return {
     ...createIssuanceDeadLetters(deps.issuance.gateways),
     ...createIssuedInvoiceDeadLetters(deps.issuedInvoice.gateway),
+    ...createDeliveryDeadLetters(deps.delivery.gateway),
   }
 }

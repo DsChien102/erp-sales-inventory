@@ -11,6 +11,9 @@ import {
   createDocumentStorage,
   createSupabaseDocumentBucket,
 } from './handlers/issued_invoice/document_storage.ts'
+import { createDeliveryProvider } from './handlers/delivery/delivery_provider.ts'
+import { createMisaDeliveryObservationProvider } from './handlers/delivery/delivery_observation_provider.ts'
+import { createSupabaseDeliveryGateway } from './handlers/delivery/supabase_gateways.ts'
 import type { ConnectionRecorder } from './handlers/sync_capabilities.ts'
 import { runInvocation } from './queue/processor.ts'
 import { SupabaseQueueRpc } from './queue/supabase_queue_rpc.ts'
@@ -96,6 +99,11 @@ Deno.serve(async (req) => {
         provider: createIssuedInvoiceProvider({ clients: clientFactory, log }),
         gateway: createSupabaseIssuedInvoiceGateway(client),
         storage: createDocumentStorage(createSupabaseDocumentBucket(client)),
+      },
+      delivery: {
+        provider: createDeliveryProvider({ clients: clientFactory, log }),
+        observation: createMisaDeliveryObservationProvider(),
+        gateway: createSupabaseDeliveryGateway(client),
       },
     }
     const handlers = buildHandlers(deps)
