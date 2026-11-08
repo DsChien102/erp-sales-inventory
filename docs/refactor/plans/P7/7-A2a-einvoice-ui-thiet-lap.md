@@ -221,9 +221,9 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
 
 - `_throwIfConfigurationQueryBlocked` áp cho 5 hàm đọc như cũ.
 
-- [ ] Test (đỏ): `connectAuthFailed` → `connect` ném `AppException` mã `PROVIDER_AUTH_FAILED`; `setDefaultIncompatible` → `TEMPLATE_NOT_AVAILABLE`; `connectionScreenPending` → `getConnectionScreen()` trả `checkRequired`; `configurationLoadFailure` → cả 5 hàm đọc ném `SYSTEM_ERROR`; `calls` ghi đúng thứ tự.
-- [ ] Viết fake → `flutter test test/features/einvoice/support/` PASS.
-- [ ] Commit `test(einvoice): 7-A2a fake EInvoiceConfigurationRepository`.
+- [x] Test (đỏ): `connectAuthFailed` → `connect` ném `AppException` mã `PROVIDER_AUTH_FAILED`; `setDefaultIncompatible` → `TEMPLATE_NOT_AVAILABLE`; `connectionScreenPending` → `getConnectionScreen()` trả `checkRequired`; `configurationLoadFailure` → cả 5 hàm đọc ném `SYSTEM_ERROR`; `calls` ghi đúng thứ tự.
+- [x] Viết fake → `flutter test test/features/einvoice/support/` PASS.
+- [x] Commit `test(einvoice): 7-A2a fake EInvoiceConfigurationRepository`.
 
 ### Task 3: Chép 29 tệp + đổi 4 cubit
 
@@ -330,6 +330,15 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
   - Test thêm / sửa, lệnh, số ca pass / fail: `flutter test test/features/einvoice/` → 177 passed, 10 skipped, 0 failed.
   - Impact (symbol, số caller, luồng, mức rủi ro): `einvoiceException` (caller nội bộ `einvoice_configuration_repository.dart`, `einvoice_repository.dart`, `einvoice_errors_test.dart`). GitNexus impact upstream: direct 444 (chỉ số stale do chuỗi regex match file test/specs), trên thực tế chỉ ảnh hưởng 2 repository HĐĐT và các test liên quan; rủi ro thực tế: LOW (chỉ mở rộng 2 mã ở cuối danh sách ưu tiên theo Q1).
   - Ghi chú cho review: 2 mã cấu hình mới được ưu tiên sau các mã lỗi trạng thái/quyền, đảm bảo không che lấp `STATE_CHANGED` hay `ISSUANCE_NOT_READY`.
+
+- **Task 2 — ✅**
+  - Tệp:dòng đã đổi / thêm:
+    - Tạo `apps/erp/test/features/einvoice/support/fake_einvoice_configuration_repository.dart` (định nghĩa `FakeEInvoiceConfigurationScenario`, `FakeEInvoiceConfigurationFixtures`, `FakeEInvoiceConfigurationRepository` kế thừa `EInvoiceConfigurationRepository`, override cả 10 phương thức, ánh xạ lỗi theo bảng mục 5 và ghi nhận thứ tự `calls`).
+    - Tạo `apps/erp/test/features/einvoice/support/fake_einvoice_configuration_repository_test.dart` (5 ca kiểm tra các kịch bản ném lỗi và thứ tự ghi nhận calls).
+  - Lệch plan + lý do: Không.
+  - Test thêm / sửa, lệnh, số ca pass / fail: `flutter test test/features/einvoice/support/` → 5/5 PASS.
+  - Impact (symbol, số caller, luồng, mức rủi ro): Fake trong thư mục test, không ảnh hưởng code production.
+  - Ghi chú cho review: Sẵn sàng phục vụ Task 3 (test cubit), Task 4 (chép test module), Task 5 (test page/router).
 
 Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối):
 
