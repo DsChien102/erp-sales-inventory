@@ -1,7 +1,7 @@
 # 8-C — Dọn sạch module sales
 
 > Theme 5 (mã cũ P8) · Bước (dọn) theo "Quy tắc dọn module (chốt 2026-10-11)" của PLAN.md
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-08) | Làm ✅ 2026-11-08 | Review ⬜
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-08) | Làm ✅ 2026-11-08 | Review ✅ R1 2026-11-08
 > Làm **sau** 8-A1…8-A4, 8-B1…8-B3 (đã commit, review đạt).
 > Tài liệu: PLAN.md mục Theme 5 dòng 8-C, "Quy tắc dọn module", "Quy tắc migration", "Plan xoá / tách / thay code cũ", "Plan chuyển kiến trúc: giữ nghiệp vụ"; TH-05 mục 3, 6.1, 6.2, 9.1, BR-36, KI-12…14; 8-A1 (chép kiểu ở 8-C); mẫu đã làm: 6-C (`docs/refactor/plans/P6/6-C-don-module-pricing.md`), 4-C (outbox).
 
@@ -445,3 +445,28 @@ Nhóm B (Task 2), đếm trên code cũ (cả `old` và `new`):
 ## 9. Review
 
 <!-- Chỉ phiên review ghi. -->
+
+### R1 (2026-11-08, HEAD `2d0a719c0`) — **ĐẠT**
+
+| Mục | Kết quả | Cách kiểm |
+|---|---|---|
+| Mục tiêu 1: hết `vet45_sales_{domain,application,infrastructure}` | ✅ | grep mục 1 ⇒ chỉ chuỗi cấm ở `sales_runtime_registration_test.dart:40-41`, `group_f_no_demo_contract_test.dart:65` (+ chuỗi tên gói trong `packages/vet45_generator/test`, không phải phụ thuộc); 3 pubspec, `pubspec.lock` không còn 3 gói |
+| `ls modules/sales` = `integration_events` | ✅ | `ls`; einvoice vẫn chỉ phụ thuộc `vet45_sales_integration_events` |
+| RF1 — tệp chép lệch bản gốc | ✅ | 63 tệp `contracts/` `diff` (bỏ dòng `import`) với `git show 735ed8704:modules/sales/application/lib/…` ⇒ 0 khác; 0 import package; barrel 63 `export` |
+| RF2 — nới điều kiện kiểm | ✅ | Đếm lại `expect(` / số test 14 tệp nhóm A ở `735ed8704` và HEAD: khớp bảng Kết quả Task 1 từng dòng (số test bằng nhau). Dòng `expect(` bị xoá không chứa `tenantId`/`actorId` đều có bản viết lại trên `*Calls` (vd `commandId` + `idempotencyKey` ở `sales_transaction_result_cubit_test.dart:452-506`, `reasonText` / `expectedVersion` ở `sales_order_detail_cubit_test.dart:480, 831, 854`); bỏ thật chỉ 20 tenant/actor (Q3c) + 3 khoá idempotency (lệch 5, người dùng chốt) + 1 Q3f |
+| RF3 — fake ném lỗi khác cầu cũ | ✅ | `sales_contract_error_test.dart` 5 ca theo bảng mục 4 dòng 1, xanh |
+| RF4 — `sales.outbox_messages` | ✅ | Bảng 5 cột như 5 cột đầu của bản cài cũ (`20260623000001:189-195`), RLS + `revoke` như cũ; mọi `insert` (gồm `20260904001`, `20261031017:592`) chỉ dùng 4 cột; 2 chỗ đọc giữ. Không migration nào giữa `20260623000002` và `20260830005` dùng `sales.*` lúc tạo (chỉ thân plpgsql `20260709023`). `install_module_messaging` của einvoice (`20261031002`) chỉ cài `einvoice` |
+| RF5 — workspace | ✅ | Diff pubspec đúng 3 tệp mục 5; `apps/erp/example/pubspec.lock` chỉ còn `integration_events` |
+| `lib` chỉ đổi import + tệp chép + DI | ✅ | `git diff 735ed8704 HEAD -- apps/erp/lib` bỏ `contracts/`, `models.dart`, dòng `import` ⇒ chỉ khối `SalesStartup` / `ISalesModule`, chú thích `injection.dart`, 4 chú thích nguồn kiểu (đã ghi ở Kết quả Task 3) |
+| Test | ✅ | `flutter test test/features/sales test/core` ⇒ +1189 xanh (= +1185 Task 4 + 4 test `removed` Task 5); `sales_sql_contract_test` + `sales_runtime_registration_test` + `sales_contract_error_test` +16; `flutter test` cả app ⇒ +2741 / -55, cả 55 tên đều có trong `TEST-BASELINE.md` (53 danh sách `apps/erp` + 2 ⚠️ "Sau 5-C"), 0 lỗi mới |
+| Analyze / migrate | ✅ | `dart analyze lib test integration_test` 228 info, 0 error, 0 warning; `example` 2 info; `verify_migration_policy` 0 error, 3 warning có sẵn; `verify_schema_lock_sync` OK; `modules/einvoice/application` 217 / 1 (như mốc) |
+| Tài liệu | ✅ | TH-05 3.1, PLAN 8-C / 7-5 / 9-2 / 9.4 / Theme 5 / "Theo dõi tiến độ" ghi đúng Q1, Q5 |
+| Impact | ✅ (có ghi chú) | Task 4 `initDependencies` CRITICAL do đếm gộp tên `build`, thay đổi thực chỉ bỏ 1 đăng ký không ai lấy; Task 3 `impact MoneyDto` nhắm nhầm kiểu pricing — chấp nhận vì không sửa thân symbol nào |
+
+**Góp ý nhỏ (không chặn, không mở R2):**
+- `apps/erp/lib/features/sales/presentation/lookups/sales_pricing_ports.dart:4` chú thích còn nhắc gói `vet45_sales_presentation` (không còn tồn tại); sửa khi chạm tệp này lần sau.
+- Kết quả Task 5, Task 6 ghi "Commit: xem `git log`" — hash là `7c9f91540` (Task 5), `0e82e93f3` (tài liệu Task 6), `2d0a719c0` (sửa vòng 1 Task 6).
+- TH-05 dòng 4 lên 3.1 nhưng "Branch đối chiếu" vẫn `@ 47b4cb188`.
+- Test `sales has no inbox, internal commands or queue functions` xanh ngay từ đầu (tên do SQL động dựng), chỉ là chốt chặn; chốt thật là `sales no longer installs messaging`.
+
+**TEST-BASELINE.md** (phiên review cập nhật, như 6-C): bỏ 3 hàng `modules/sales/{domain,application,infrastructure}` và mục lỗi `modules/sales/infrastructure` (11, test SQL đọc `_drafts/`, Q7); thêm ghi chú "Sau 8-C".

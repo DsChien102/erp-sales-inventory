@@ -14,6 +14,8 @@
 
 > **Sau 6-C (2026-11-06, review 6-C R1 đạt):** đã xoá `modules/pricing/{domain,application,infrastructure}`; bỏ 3 hàng tương ứng trong bảng và 2 mục lỗi `modules/pricing/infrastructure` (50: test SQL đọc `_drafts/` đã promote, 6-C Q4), `modules/pricing/domain` (1). Bỏ khỏi danh sách `apps/erp` 4 test nhập Excel (`pricing_import_history_e2e_test.dart` ×3, `PricingImportPage (S8)` ×1), đã xoá cùng màn nhập ở 6-A2. Test hợp đồng SQL pricing mới ở `apps/erp/test/features/pricing/data/pricing_sql_contract_test.dart` (10, xanh). `apps/erp` **2.282 đạt / 55 lỗi**: 53 lỗi trong danh sách `apps/erp` dưới đây + 2 lỗi ⚠️ ngoài mốc đã ghi ở mục "Sau 5-C" (`product_guided_create_e2e_test` duplicate SKU, `product_change_history_e2e_test`), không do 6-C. `modules/einvoice/application` 217 / 1 (như baseline).
 
+> **Sau 8-C (2026-11-08, review 8-C R1 đạt):** đã xoá `modules/sales/{domain,application,infrastructure}` (giữ `modules/sales/integration_events`, einvoice dùng tới 7-C); bỏ 3 hàng tương ứng trong bảng và mục lỗi `modules/sales/infrastructure` (11: test SQL đọc `_drafts/`, 8-C Q7). Test hợp đồng SQL sales mới ở `apps/erp/test/features/sales/data/sales_sql_contract_test.dart` (9, xanh). `apps/erp` **2.741 đạt / 55 lỗi**: 53 lỗi trong danh sách `apps/erp` dưới đây + 2 lỗi ⚠️ ngoài mốc đã ghi ở mục "Sau 5-C", không do 8-C. `modules/einvoice/application` 217 / 1 (như baseline).
+
 | Package | Loại | Đạt | Lỗi |
 |---|---|---|---|
 | `apps/messaging_worker` | dart | 45 | 0 |
@@ -31,7 +33,6 @@
 | `modules/iam/application` | dart | 225 | 0 |
 | `modules/iam/infrastructure` | dart | 289 | **21** |
 | `modules/iam/domain` | dart | 40 | 0 |
-| `modules/sales/domain` | dart | 47 | 0 |
 | `modules/einvoice/integration_events` | dart | 16 | 0 |
 | `modules/einvoice/application` | dart | 217 | **1** |
 | `modules/einvoice/infrastructure` | dart | 741 | **2** |
@@ -43,8 +44,6 @@
 | `packages/vet45_shared/infrastructure` | dart | 22 | 0 |
 | `packages/vet45_shared/domain` | dart | 9 | 0 |
 | `modules/sales/integration_events` | dart | 4 | 0 |
-| `modules/sales/application` | dart | 171 | 0 |
-| `modules/sales/infrastructure` | dart | 360 | **11** |
 | `packages/vet45_async_query/packages/async_query_flutter` | flutter | 4 | 0 |
 
 ## Test đang lỗi
@@ -158,17 +157,3 @@
 
 - test/electronic_invoice/einvoice_s4_contract_repair_test.dart: S4 contract freezes ambiguous and scope requirements
 - test/schema/einvoice_goi1_configuration_sql_contract_test.dart: Task 4 — tenant_settings disconnect clears the default issuance configuration
-
-### `modules/sales/infrastructure` (11)
-
-- test/domain/sales_receipt/sales_receipt_group_e_sql_contract_test.dart: (setUpAll)
-- test/domain/return_exchange_order/sales_return_exchange_group_i_settlement_sql_contract_test.dart: evaluate uses Theme 5 / ADR-2 sign and authoritative line/pricing sources
-- test/domain/schema/sales_remove_unused_policy_tables_sql_contract_test.dart: promoted baselines no longer create or reference retired tables
-- test/domain/schema/sales_remove_unused_policy_tables_sql_contract_test.dart: policy and context responses preserve empty-array contracts
-- test/domain/schema/sales_remove_unused_policy_tables_sql_contract_test.dart: confirmation keeps source, valuation, version and lifecycle guards
-- test/domain/schema/sales_remove_unused_policy_tables_sql_contract_test.dart: duplicate bootstrap generations remain synchronized
-- test/domain/sales_order/sales_read_group_e_sql_contract_test.dart: (setUpAll)
-- test/domain/sales_order/order_detail_current_lines_sql_contract_test.dart: (setUpAll)
-- test/domain/sales_order/sales_inquiry_group_f_sql_contract_test.dart: (setUpAll)
-- test/domain/sales_order/sales_settlement_rebuild_sql_contract_test.dart: mutations recompute settlement and emit canonical fact + settlement_changed
-- test/domain/sales_order_draft/sales_order_draft_sql_contract_test.dart: (setUpAll)
