@@ -291,7 +291,7 @@ Bảng đầy đủ. Các user story ở mục 4 dẫn lại mã này. Mã giữ
 | BR-26 | Kết quả hoàn tất: đơn `completed`, dòng đơn kèm snapshot, settlement, mỗi khoản thu thành 1 giao dịch `collection` nguồn `checkout`; nháp nguồn → `converted`; ghi sự kiện `sales_order_finalized.v1` | finalize |
 | BR-27 | Mất kết nối khi hoàn tất: tra kết quả bằng chính `idempotency_key` (`get_checkout_result`); **không cho thanh toán lại**. Kết quả bị chặn / lỗi cũng được lưu để tra lại | `get_checkout_result` |
 | BR-28 | Sau hoàn tất tạo phiếu bán hàng. Lỗi tạo phiếu không ảnh hưởng đơn; có "Tạo lại phiếu bán hàng" | result page |
-| BR-29 | Sau hoàn tất, phát hành HĐĐT tự động nếu tổ chức bật (TH-08 BR-32) | chưa nối (messaging bỏ ở 8-C); sau 7-4: trigger → `einvoice.internal_commands` |
+| BR-29 | Sau hoàn tất, phát hành HĐĐT tự động nếu tổ chức bật (TH-08 BR-32) | chưa nối (messaging bỏ ở 8-C); sau 7-E3: trigger → `einvoice.internal_commands` |
 
 **Thu tiền sau bán** 🆕
 
@@ -2256,7 +2256,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 | `Page → Cubit → orchestrator → ISalesModule → Handler → Gateway → RPC` | `Page → Cubit → SalesDraftRepository / SalesCheckoutRepository / SalesOrderRepository / SalesPaymentRepository / SalesReceiptRepository / SalesCancellationRepository / ReturnExchangeRepository → RPC` (xong 8-C) |
 | Lookups gọi `IPricingModule`, `ICatalogModule`, `IPartnerModule` | Dùng lại `SalesPricingRepository` (P6), `ProductRepository` (P5), `PartnerRepository` (P4) |
 | Rule Aggregate trong `modules/sales/domain` | Hàm thuần (tính tổng, cộng dồn dòng, kiểm vượt tổng, tiền thừa), giữ test cũ |
-| Sự kiện `sales_order_finalized.v1` → messaging worker phát HĐĐT | outbox giữ làm nhật ký (8-C); trigger ở 7-4: trên `sales.sales_orders` khi đơn Hoàn tất ghi việc vào `einvoice.internal_commands`; Edge Function `einvoice-processor` xử lý (TH-08 KI-19, KI-20) |
+| Sự kiện `sales_order_finalized.v1` → messaging worker phát HĐĐT | outbox giữ làm nhật ký (8-C); trigger ở 7-E3: trên `sales.sales_orders` khi đơn Hoàn tất ghi việc vào `einvoice.internal_commands`; Edge Function `einvoice-processor` xử lý (TH-08 KI-19, KI-20) |
 | Trigger lịch sử giao dịch đối tác | Trigger trên `sales.sales_orders` gọi `partner.upsert_partner_history` (PLAN 4.3, TH-03 KI-02) |
 
 ### 9.2 Theo PR của P8
