@@ -1505,8 +1505,8 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | KI-12 | Hồ sơ đối soát `UNRESOLVED` giữ đơn "Đang xử lý" vô thời hạn; không có màn / nút cho người dùng thường | **Giữ nguyên** (đúng spec: không mở khóa mù); hỗ trợ kỹ thuật xử lý bằng SQL | — |
 | KI-13 | Tệp tải về tên `invoice_<id nội bộ đơn>.pdf|xml` | **Giữ nguyên** | — |
 | KI-14 | HD-08 không hiện tên người mua và cảnh báo (spec SG03-O01-B) | **Giữ nguyên** | — |
-| KI-15 | `ConfigurationBlockerResult`, `OrderDataBlockerResult` (màn "Chưa thể tiếp tục", "Chưa đủ thông tin phát hành") và nút "Kiểm tra lại" kết nối (`recheck`, `verify_provider_connection`) có code nhưng không màn nào dùng | Xóa khi refactor; giữ RPC `verify_provider_connection` | P7 PR 7.2 |
-| KI-16 | Trang kết nối hỏi lại bằng khóa truy vấn cố định `'current-tenant'` thay vì id tổ chức | Đưa việc hỏi lại vào cubit, khóa theo tổ chức | P7 PR 7.2 |
+| KI-15 | `ConfigurationBlockerResult`, `OrderDataBlockerResult` (màn "Chưa thể tiếp tục", "Chưa đủ thông tin phát hành") và nút "Kiểm tra lại" kết nối (`recheck`, `verify_provider_connection`) có code nhưng không màn nào dùng | Xóa khi refactor; giữ RPC `verify_provider_connection` | phần thiết lập ✅ 7-A2a (2026-11-08); `OrderDataBlockerResult` không vào app |
+| KI-16 | Trang kết nối hỏi lại bằng khóa truy vấn cố định `'current-tenant'` thay vì id tổ chức | Đưa việc hỏi lại vào cubit, khóa theo tổ chức | ✅ 7-A2a (2026-11-08) |
 | KI-17 | UI HĐĐT bị tách đôi: một phần ở `modules/einvoice/presentation`, một phần là **bản sao** trong `apps/erp/.../sales/presentation/widgets/einvoice` (post-issue, tài liệu, gửi, gửi lại, lịch sử) | Gộp về `apps/erp/lib/features/einvoice/presentation`, xóa bản trùng | P7 PR 7.2 |
 | KI-18 | 23 file SQL của theme từng ở `_drafts` | Promote theo thứ tự 001 → 023 | Đã promote `8b08bb01c` (2026-11-02) |
 | KI-19 | TH-05 / PLAN P8 từng ghi "`SalesCheckoutCubit` gọi `EInvoiceRepository.autoIssueIfEnabled`". Phát hành tự động phải chạy cả khi app tắt và qua cùng hàng đợi với đối soát | Không dùng `autoIssueIfEnabled`; dùng trigger khi đơn Hoàn tất (KI-20) | P7 |

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:erp/core/iam/iam_codes.dart';
-import 'package:vet45_shared_application/application.dart';
 import '../../features/catalog/data/models.dart' hide ProductChangeHistoryPage;
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';

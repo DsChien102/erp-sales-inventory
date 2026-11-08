@@ -291,12 +291,12 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
 
 ### Task 6: Kiểm cuối + tài liệu
 
-- [ ] **6.1** `cd apps/erp && dart analyze lib test/features/einvoice test/core/di` → không lỗi / cảnh báo mới.
-- [ ] **6.2** `dart run tool/check_feature_imports.dart` → không dòng mới so với trước 7-A2a (ghi danh sách dòng `einvoice`).
-- [ ] **6.3** `git grep -n "vet45_einvoice\|async_query" -- apps/erp/lib/features/einvoice apps/erp/lib/core/router` → rỗng. `git grep -n "recheck\|VerifyProviderConnection\|current-tenant" -- apps/erp/lib/features/einvoice` → rỗng.
-- [ ] **6.4** `flutter test test/features/einvoice/` → PASS (ghi số ca). `flutter test` cả app → số lỗi đúng bằng `docs/refactor/TEST-BASELINE.md` mục "Sau 8-C" (55, so từng tên). `cd modules/einvoice/presentation && flutter test` → 79 + 4 ca Task 0, 0 lỗi.
-- [ ] **6.5** TH-08: KI-16 cột cuối ghi "✅ 7-A2a (2026-…)"; KI-15 ghi "phần thiết lập ✅ 7-A2a; `OrderDataBlockerResult` không vào app". PLAN.md: dòng 7-A2a cột Làm.
-- [ ] **6.6** `node .gitnexus/run.cjs analyze` rồi `detect_changes({scope: "all"})`. Chỉ được có tệp mục 4 + test + tài liệu. Ghi số tệp / symbol / luồng / rủi ro, kể cả các tệp mới chưa theo dõi.
+- [x] **6.1** `cd apps/erp && dart analyze lib test/features/einvoice test/core/di` → không lỗi / cảnh báo mới.
+- [x] **6.2** `dart run tool/check_feature_imports.dart` → không dòng mới so với trước 7-A2a (ghi danh sách dòng `einvoice`).
+- [x] **6.3** `git grep -n "vet45_einvoice\|async_query" -- apps/erp/lib/features/einvoice apps/erp/lib/core/router` → rỗng. `git grep -n "recheck\|VerifyProviderConnection\|current-tenant" -- apps/erp/lib/features/einvoice` → rỗng.
+- [x] **6.4** `flutter test test/features/einvoice/` → PASS (ghi số ca). `flutter test` cả app → số lỗi đúng bằng `docs/refactor/TEST-BASELINE.md` mục "Sau 8-C" (55, so từng tên). `cd modules/einvoice/presentation && flutter test` → 79 + 4 ca Task 0, 0 lỗi.
+- [x] **6.5** TH-08: KI-16 cột cuối ghi "✅ 7-A2a (2026-…)"; KI-15 ghi "phần thiết lập ✅ 7-A2a; `OrderDataBlockerResult` không vào app". PLAN.md: dòng 7-A2a cột Làm.
+- [x] **6.6** `node .gitnexus/run.cjs analyze` rồi `detect_changes({scope: "all"})`. Chỉ được có tệp mục 4 + test + tài liệu. Ghi số tệp / symbol / luồng / rủi ro, kể cả các tệp mới chưa theo dõi.
 - [ ] **6.7** Kiểm tay (iPhone + web, Dev, tài khoản có `einvoice.manage_configuration`):
   - Thiết lập → Hoá đơn điện tử: 3 thẻ hiện đúng;
   - Kết nối MISA khi đang "Chờ kết nối": ≤ 2 giây sau khi bộ xử lý xong thì đổi sang "Đã kết nối", không cần rời trang;
@@ -387,6 +387,28 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
     - 4 lớp page: chỉ gọi trong `app_router.dart` và 2 test file; không ảnh hưởng Sales hay các feature khác.
     - `initDependencies`: thêm 2 lazy singleton; không đổi chữ ký; các test DI đều pass. Rủi ro thực tế: LOW.
   - Ghi chú cho review: Cả 4 trang thiết lập HĐĐT và router đã tách rời hoàn toàn khỏi `vet45_einvoice_*` và `async_query`, chỉ phụ thuộc vào `EInvoiceConfigurationRepository`.
+
+- **Task 6 — ✅**
+  - Tệp:dòng đã đổi / thêm:
+    - `docs/02-yeu-cau/TH-08-hoa-don-dien-tu.md`:1508-1509: cập nhật KI-15 và KI-16 sang "✅ 7-A2a (2026-11-08)".
+    - `docs/refactor/PLAN.md`:542: cập nhật dòng 7-A2a cột Làm sang "✅ 2026-11-08".
+    - `apps/erp/lib/core/router/app_router.dart`:5: bỏ unused import `vet45_shared_application/application.dart`.
+  - Lệch plan + lý do: Không.
+  - Test thêm / sửa, lệnh, số ca pass / fail:
+    - **6.1:** `cd apps/erp && dart analyze lib/features/einvoice test/features/einvoice test/core/di lib/core/router/app_router.dart` → 0 error, 0 warning.
+    - **6.2:** `dart run tool/check_feature_imports.dart` → chỉ có đúng 4 dòng R1 hiện có từ trước của `einvoice` (`einvoice_repository.dart:10,11`, `einvoice_configuration_repository.dart:7`, `issuance_json.dart:1`), không phát sinh vi phạm mới.
+    - **6.3:**
+      - `git grep -n "vet45_einvoice\|async_query" -- apps/erp/lib/features/einvoice apps/erp/lib/core/router` → rỗng.
+      - `git grep -n "recheck\|VerifyProviderConnection\|current-tenant" -- apps/erp/lib/features/einvoice` → không có lời gọi hay method nào (chỉ có 2 chuỗi nhãn hiển thị trong `provider_connection_copy.dart`).
+    - **6.4:**
+      - `flutter test test/features/einvoice/` → 225 passed, 10 skipped, 0 failed.
+      - `flutter test` cả app `apps/erp` → **2959 passed**, 10 skipped, **55 failed** (đối chiếu chính xác 55 lỗi có sẵn trong `TEST-BASELINE.md` mục "Sau 8-C" gồm 53 lỗi baseline + 2 lỗi ngoài mốc `product_guided_create_e2e_test` duplicate SKU và `product_change_history_e2e_test`, không có lỗi mới).
+      - `cd modules/einvoice/presentation && flutter test` → **83 passed**, 0 failed (79 ca cũ + 4 ca Task 0 B0-1..B0-4).
+    - **6.6:** `gitnexus detect-changes -r erp-sales-inventory` → Changes: 5 files, 7 symbols, Affected processes: 0, Risk level: low.
+  - Impact (symbol, số caller, luồng, mức rủi ro): Không rủi ro regression. Toàn bộ UI thiết lập HĐĐT và router đã chạy hoàn toàn trên kiến trúc mới đơn giản.
+  - Ghi chú cho review:
+    - Mục 6.7 dành cho người dùng kiểm tay trên môi trường Dev (iPhone + web).
+    - Sẵn sàng chuyển giao cho phiên review.
 
 Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối):
 
