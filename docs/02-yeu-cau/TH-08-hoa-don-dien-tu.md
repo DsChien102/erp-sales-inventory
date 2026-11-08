@@ -261,9 +261,9 @@ Lúc bắt đầu một lượt phát hành do người dùng (không phải lư
 
 | Mã | Quy tắc | Nguồn |
 |---|---|---|
-| BR-32 | Đơn chuyển Hoàn tất → hàng đợi HĐĐT nhận việc phát hành tự động → bộ xử lý gọi `start_auto_issuance`. Hiện tại tín hiệu đi qua outbox `sales_order_finalized.v1` + bộ xử lý; 🆕 sau refactor là **trigger** trên `sales.sales_orders` (khi `lifecycle_status` thành `completed`) ghi thẳng vào `einvoice.internal_commands` (KI-20). Mỗi đơn một dòng theo dõi (`auto_issuance_processes`); tín hiệu lặp dùng lại dòng cũ | draft 008 |
+| BR-32 | Đơn chuyển Hoàn tất → hàng đợi HĐĐT nhận việc phát hành tự động → bộ xử lý gọi `start_auto_issuance`. Hiện tại tín hiệu đi qua outbox `sales_order_finalized.v1` + bộ xử lý; 🆕 sau refactor là **trigger** trên `sales.sales_orders` (khi `lifecycle_status` thành `completed`) ghi thẳng việc `einvoice.start_auto_issuance` vào `einvoice.internal_commands` (KI-20, 7-E3). Mỗi đơn một dòng theo dõi (`auto_issuance_processes`); tín hiệu lặp dùng lại dòng cũ | draft 008 |
 | BR-33 | Chính sách tắt → `SKIPPED` (`AUTOMATION_POLICY_DISABLED`). Đơn đã có hóa đơn / đang có lượt → `SKIPPED`. Đơn trả hết → `SKIPPED` | `start_auto_issuance` |
-| BR-34 | Chưa có kết nối / mẫu, hoặc nguồn đơn chưa đọc được → `PENDING_REEVALUATION` kèm mã chặn; khi hồ sơ đối tác của khách cập nhật thì đánh giá lại các dòng đang chờ của đúng khách đó, không tạo dòng mới. Hiện qua sự kiện `partner.partner.profile_updated`; 🆕 sau refactor là trigger trên hồ sơ đối tác ghi việc `reevaluate_auto_issuance` vào hàng đợi | `start_auto_issuance`, `reevaluate_auto_issuance` |
+| BR-34 | Chưa có kết nối / mẫu, hoặc nguồn đơn chưa đọc được → `PENDING_REEVALUATION` kèm mã chặn; khi hồ sơ đối tác của khách cập nhật thì đánh giá lại các dòng đang chờ của đúng khách đó, không tạo dòng mới. Hiện qua sự kiện `partner.partner.profile_updated`; 🆕 sau refactor là trigger trên hồ sơ đối tác (`partner.partners` khi đổi `version`) ghi việc `reevaluate_auto_issuance` vào hàng đợi (7-E3) | `start_auto_issuance`, `reevaluate_auto_issuance` |
 | BR-35 | Phát hành tự động dùng cùng ảnh chụp, khóa chống trùng (`RefID` = UUIDv5 của tổ chức + đơn + phiên bản) và xử lý kết quả như thủ công | draft 008 |
 
 **Xem và tài liệu**
@@ -686,9 +686,9 @@ Feature: Phát hành thủ công
 **Câu chuyện.** Là chủ cửa hàng, tôi muốn đơn Hoàn tất tự có hóa đơn để nhân viên không quên phát hành.
 
 **FR**
-- FR-01: Đơn chuyển Hoàn tất → hàng đợi HĐĐT có việc phát hành tự động (BR-32) → bộ xử lý gọi `start_auto_issuance(trigger_key, idempotency_key)`.
+- FR-01: Đơn chuyển Hoàn tất → trigger trên `sales.sales_orders` xếp việc phát hành tự động `einvoice.start_auto_issuance` vào hàng đợi HĐĐT (BR-32, 7-E3) → bộ xử lý gọi `start_auto_issuance(trigger_key, idempotency_key)`.
 - FR-02: Kết quả theo dòng `auto_issuance_processes`: `ATTEMPT_STARTED` (đã tạo lượt), `SKIPPED` (chính sách tắt, đã có hóa đơn, đang có lượt, đơn trả hết), `PENDING_REEVALUATION` (chưa kết nối, chưa có mẫu, nguồn đơn chưa đọc được).
-- FR-03: Hồ sơ đối tác cập nhật → bộ xử lý tìm các đơn `PENDING_REEVALUATION` của đúng khách đó và gọi `reevaluate_auto_issuance` (BR-34).
+- FR-03: Hồ sơ đối tác đổi version → trigger tìm các đơn `PENDING_REEVALUATION` của đúng khách đó và xếp việc `reevaluate_auto_issuance` (BR-34, 7-E3).
 - FR-04: Trên UI, phát hành tự động trông như thủ công: dòng HĐĐT "Đang xử lý" → "Đã phát hành" / "Phát hành lỗi". Không có sheet xác nhận.
 
 **BR áp dụng:** BR-32 … BR-35, BR-21 … BR-29.
@@ -730,7 +730,7 @@ Feature: Phát hành tự động
 - FR-02: Bộ xử lý hỏi MISA bằng `RefID` theo lịch 30 giây → 2 phút → 10 phút → 30 phút → 2 giờ. Thấy hóa đơn → `record_issuance_success`; MISA xác nhận không có → `record_issuance_failure`; vẫn chưa rõ → lần sau.
 - FR-03: Hết 5 lần → hồ sơ `UNRESOLVED`; lượt vẫn `RECONCILING`, đơn vẫn "Đang xử lý", vẫn khóa phát hành.
 - FR-04: MISA xác nhận nhưng ghi `electronic_invoices` lỗi → `internal_finalization_state = UNRESOLVED`, bộ xử lý chạy `recover_internal_finalization` chỉ ghi phần nội bộ.
-- FR-05: Thành công → hóa đơn được ghi và việc gửi tự động được đưa vào hàng đợi (hiện qua sự kiện `einvoice.electronic_invoice.registered`; 🆕 sau refactor `record_issuance_success` ghi thẳng lệnh `start_auto_delivery` vào `internal_commands`).
+- FR-05: Thành công → hóa đơn được ghi vào `einvoice.electronic_invoices`; trigger `after insert` trên `electronic_invoices` ghi việc `einvoice.start_auto_delivery` vào `internal_commands` (KI-26, 7-E3).
 
 **BR áp dụng:** BR-24, BR-26 … BR-29.
 
@@ -892,7 +892,7 @@ Feature: Lưu tài liệu hóa đơn
 **Câu chuyện.** Là chủ cửa hàng, tôi muốn hóa đơn tự gửi cho khách để khỏi gửi tay.
 
 **FR**
-- FR-01: Hóa đơn được ghi nhận → hàng đợi có việc gửi tự động (US-02.4 FR-05) → bộ xử lý gọi `start_auto_delivery` với khóa `UUIDv5(<tổ chức>|<hóa đơn>|auto_initial)`.
+- FR-01: Hóa đơn được ghi nhận vào `einvoice.electronic_invoices` → trigger `after insert` xếp việc `einvoice.start_auto_delivery` vào `internal_commands` (US-02.4 FR-05, KI-26, 7-E3) → bộ xử lý gọi `start_auto_delivery` với khóa `UUIDv5(<tổ chức>|<hóa đơn>|auto_initial)`.
 - FR-02: Kiểm lúc xử lý: chính sách còn bật (nếu không → bỏ qua `POLICY_OFF`); MISA hỗ trợ gửi email (nếu không → `DELIVERY_NOT_SUPPORTED`); email hợp lệ theo BR-46 (nếu không → bỏ qua `INVALID_OR_MISSING_EMAIL`); chưa có lần gửi đầu tiên (nếu có → bỏ qua).
 - FR-03: Đủ điều kiện → tạo lần gửi `INITIAL_SEND`, `initiated_by_actor_type = SYSTEM`, bộ xử lý gọi MISA `sendEmail`.
 
@@ -1362,11 +1362,12 @@ RPC ghi dữ liệu + internal_commands ─▶ messaging_worker (Dart, chạy li
 Bộ xử lý ghi kết quả bằng RPC service_role ─▶ app hỏi lại (async_query refetchInterval / vòng lặp trong cubit)
 ```
 
-**Sau refactor** 🆕 (KI-20)
+**Sau refactor** 🆕 (KI-20, KI-26, 7-E3)
 
 ```text
 Page ─▶ Cubit ─▶ EInvoiceRepository ─▶ supabase.schema('einvoice').rpc(...)   (ghi yêu cầu + internal_commands)
                                    └─▶ supabase.functions.invoke('einvoice-processor', {tenant})   (gọi ngay, không chờ kết quả)
+Đơn Hoàn tất / Khách đổi version / Hoá đơn mới ─▶ 3 Trigger ─▶ einvoice.internal_commands   (tự động xếp việc)
 pg_cron mỗi 30 giây ─▶ pg_net POST /functions/v1/einvoice-processor   (quét mọi tổ chức có việc đến hạn)
 einvoice-processor (Deno/TypeScript, service_role):
   claim internal_commands đến hạn ─▶ client MISA (TypeScript) ─▶ RPC record_* ─▶ complete / fail
@@ -1409,7 +1410,7 @@ UI thiết lập nằm ở `modules/einvoice/presentation` (dùng lại trong 4 
 
 **Bộ xử lý gọi (`service_role`)**: `record_connection_verified`, `read_provider_credentials`, `store_preview_result`, `prepare_issuance_publish`, `mark_issuance_provider_call_started`, `record_issuance_success` / `_failure` / `_undetermined` / `_command_integrity_failure`, `record_retryable_provider_publish_rejection`, `claim_issuance_reconciliation_case`, `resolve_reconciliation_case`, `recover_internal_finalization`, `start_auto_issuance`, `reevaluate_auto_issuance`, `record_official_invoice_view_result`, `record_invoice_document_result`, `request_provider_observation_refresh`, `record_provider_observation`, `start_auto_delivery`, `load_delivery_attempt_context`, `prepare_delivery_provider_call`, `record_delivery_result`, `record_delivery_command_dead_letter`, `record_delivery_reconciliation_check`; khóa thuê ký hiệu (draft 019); hàng đợi `claim_*` / `complete_*` / `fail_*` (draft 002); `list_tenants_with_due_commands` (tổ chức có việc đến hạn, 7-E1). Cũng chỉ `service_role`: `start_auto_issuance`, `reevaluate_auto_issuance`, `list_open_auto_issuance_processes`, `build_canonical_invoice` và hàm nội bộ `_buyer_issuance_blocker` (KI-21).
 
-**Lệnh nội bộ cho bộ xử lý** (`internal_commands.command_type`, giữ nguyên tên khi chuyển sang Edge Function): `einvoice.sync_capabilities`, `einvoice.preview_invoice`, `einvoice.publish_invoice`, `einvoice.poll_issuance_status`, `einvoice.fetch_official_view` (tối đa 2 lượt thử), `einvoice.download_invoice_document` (3), `einvoice.poll_provider_observation`, `einvoice.send_invoice_email`, `einvoice.reconcile_invoice_delivery`.
+**Lệnh nội bộ cho bộ xử lý** (`internal_commands.command_type`, giữ nguyên tên khi chuyển sang Edge Function): `einvoice.sync_capabilities`, `einvoice.preview_invoice`, `einvoice.publish_invoice`, `einvoice.poll_issuance_status`, `einvoice.fetch_official_view` (tối đa 2 lượt thử), `einvoice.download_invoice_document` (3), `einvoice.poll_provider_observation`, `einvoice.send_invoice_email`, `einvoice.reconcile_invoice_delivery`, `einvoice.start_auto_issuance` (trigger xếp, 7-E3), `einvoice.reevaluate_auto_issuance` (trigger xếp, 7-E3), `einvoice.start_auto_delivery` (trigger xếp, 7-E3).
 
 ### 6.3 Phụ thuộc
 
@@ -1509,12 +1510,13 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | KI-17 | UI HĐĐT bị tách đôi: một phần ở `modules/einvoice/presentation`, một phần là **bản sao** trong `apps/erp/.../sales/presentation/widgets/einvoice` (post-issue, tài liệu, gửi, gửi lại, lịch sử) | Gộp về `apps/erp/lib/features/einvoice/presentation`, xóa bản trùng | P7 PR 7.2 |
 | KI-18 | 23 file SQL của theme từng ở `_drafts` | Promote theo thứ tự 001 → 023 | Đã promote `8b08bb01c` (2026-11-02) |
 | KI-19 | TH-05 / PLAN P8 từng ghi "`SalesCheckoutCubit` gọi `EInvoiceRepository.autoIssueIfEnabled`". Phát hành tự động phải chạy cả khi app tắt và qua cùng hàng đợi với đối soát | Không dùng `autoIssueIfEnabled`; dùng trigger khi đơn Hoàn tất (KI-20) | P7 |
-| KI-20 | 🆕 Bỏ `apps/messaging_worker` (cần máy chủ chạy liên tục). Thay bằng Edge Function `einvoice-processor` (TypeScript) xử lý `einvoice.internal_commands`, kích hoạt bởi app (ngay sau thao tác) và `pg_cron` + `pg_net` (mỗi 30 giây). Tín hiệu đơn Hoàn tất / hồ sơ khách đổi chuyển từ outbox/inbox sang trigger ghi thẳng `internal_commands`; `record_issuance_success` tự xếp việc gửi tự động. Hành vi (BR-21 … BR-48) giữ nguyên | Quyết định 2026-10-07 | P7 PR 7.4, 7.5 |
+| KI-20 | 🆕 Bỏ `apps/messaging_worker` (cần máy chủ chạy liên tục). Thay bằng Edge Function `einvoice-processor` (TypeScript) xử lý `einvoice.internal_commands`, kích hoạt bởi app (ngay sau thao tác) và `pg_cron` + `pg_net` (mỗi 30 giây). Tín hiệu đơn Hoàn tất / hồ sơ khách đổi chuyển từ outbox/inbox sang trigger ghi thẳng `internal_commands`; trigger trên `electronic_invoices` xếp việc gửi tự động (KI-26). Hành vi (BR-21 … BR-48) giữ nguyên | Quyết định 2026-10-07 | P7 PR 7.4, 7.5, 7-E3 |
 | KI-21 | 4 hàm của bộ xử lý (`start_auto_issuance`, `reevaluate_auto_issuance`, `list_open_auto_issuance_processes`, `build_canonical_invoice`) từng `grant` cho `authenticated` mà không kiểm quyền: ai đăng nhập cũng gọi được | Chỉ `service_role` gọi được; `_buyer_issuance_blocker` cũng chỉ `service_role` | Đã sửa 7-B1 |
 | KI-22 | `reschedule_internal_command` ghi `updated_at` nhưng `einvoice.internal_commands` không có cột này ⇒ gọi là lỗi `column "updated_at" does not exist` | Bỏ dòng ghi `updated_at` | Đã sửa 7-E1 |
 | KI-23 | 7 câu `insert into einvoice.internal_commands` (mở / xếp / seed việc đối soát phát hành `…009`, xếp đối soát gửi `…014`, `…015`) ghi cột `created_at` không có ⇒ phát hành "chưa xác định" hoặc gửi cần đối soát là lỗi; `seed` lỗi chặn mọi việc của cửa hàng trong bộ xử lý | Bỏ cột `created_at` ở cả 7 câu | Đã sửa 7-E1 (R1-1) |
 | KI-24 | Bucket `einvoice-documents` không nhận `application/zip` trong khi MISA có thể trả XML nén ZIP ⇒ tải XML lỗi, hết 3 lượt thành `CHECK_REQUIRED` | Thêm `application/zip` vào `allowed_mime_types` (`…011`) | Đã sửa 7-E2b |
 | KI-25 | Việc `reconcile_invoice_delivery` do SQL xếp với payload camelCase (`…014`, `…015`) nhưng dead-letter Dart chỉ đọc `reconciliation_case_id` ⇒ hết 3 lượt thì hồ sơ đối soát gửi kẹt `PENDING`, không `UNRESOLVED`, không cảnh báo | Dead-letter Edge Function đọc cả hai kiểu khoá | Đã sửa 7-E2c |
+| KI-26 | Hoá đơn được ghi ở 2 hàm (`record_issuance_success`, `recover_internal_finalization`); PLAN / TH-08 từng ghi chỉ `record_issuance_success` tự xếp gửi tự động ⇒ hoá đơn ra từ đối soát sẽ không bao giờ gửi tự động | Trigger `after insert on einvoice.electronic_invoices` xếp `einvoice.start_auto_delivery` | Đã sửa 7-E3 |
 
 ---
 
@@ -1550,7 +1552,7 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | UI tách đôi module + bản sao trong `features/sales` (KI-17) | Một chỗ `features/einvoice/presentation`; `features/sales` chỉ nhúng `OrderEInvoiceSection` |
 | `vet45_async_query` (`QueryClient`, `refetchInterval`) để hỏi lại | **Giữ hành vi hỏi lại** (5 giây trên đơn, 2 giây ở kết nối, vòng lặp xem trước / xem / tải) nhưng viết bằng `Timer` trong cubit; bỏ phụ thuộc `async_query` |
 | Bộ xử lý `apps/messaging_worker` (Dart, chạy liên tục, cần hosting) dùng handler trong `modules/einvoice/application` + `packages/vet45_misa` | 🆕 Edge Function `supabase/functions/einvoice-processor` (TypeScript): client MISA + handler phát hành, đối soát, xem, tải, gửi; kích hoạt bởi app và `pg_cron` mỗi 30 giây. Giữ nguyên hàng đợi `internal_commands`, khóa ký hiệu, lịch đối soát, RPC `record_*` (KI-20); khoá ký hiệu không gia hạn (khoá 300 giây > giới hạn 150 giây của Edge Function). Xóa bộ xử lý ở P9 |
-| Outbox `sales_order_finalized.v1`, sự kiện `partner.partner.profile_updated`, `einvoice.electronic_invoice.registered` | Trigger / RPC ghi thẳng `einvoice.internal_commands` (KI-19, KI-20) |
+| Outbox `sales_order_finalized.v1`, sự kiện `partner.partner.profile_updated`, `einvoice.electronic_invoice.registered` | 3 trigger tự động (`sales_orders`, `partners`, `electronic_invoices`) ghi thẳng `einvoice.internal_commands` (KI-19, KI-20, KI-26, 7-E3) |
 | Tìm tổ chức có việc: `platform.list_tenants_with_pending_messaging` (gộp cả outbox / inbox) | `pg_cron` quét tổ chức qua `einvoice.list_tenants_with_due_commands` (chỉ `internal_commands` đến hạn). Không có `tenant_id` chỉ `service_role` gọi được; có `tenant_id` mọi người đăng nhập gọi được (7-E1 Q2). Loại lệnh chưa có handler được dời 300 giây, không tính lượt thử. Edge Function trả CORS (`OPTIONS` → 204) để app web gọi được |
 | RPC | **Giữ nguyên chữ ký**; chỉ sửa thân theo KI-02, KI-04, KI-06 |
 
@@ -1562,7 +1564,7 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | 7.2 | **Thiết lập**: chuyển HD-01 … HD-05 vào `features/einvoice/presentation`, `EInvoiceRepository` (kết nối, mẫu, chính sách, sẵn sàng); bỏ chuỗi cố định, bỏ màn chết, sửa khóa hỏi lại | KI-01, 15, 16, 17 |
 | 7.3 | **Trên đơn**: `OrderEInvoiceSection` + `OrderEInvoiceCubit` + `OrderInvoiceDeliveryCubit` dùng repository; gộp HD-06 … HD-13 về một chỗ; sửa dòng tóm tắt gửi lại | KI-08, 17 |
 | 7.4 | 🆕 **Edge Function `einvoice-processor`** (7-E1 / 7-E2a / 7-E2b / 7-E2c): client MISA TypeScript (đăng nhập + token theo tổ chức, lấy mẫu, xem trước, phát hành, `getStatus`, tải, gửi email; phân loại lỗi như `vet45_misa`), handler cho 9 loại lệnh ở 6.2, giới hạn số việc mỗi lần gọi; chép kịch bản test của `vet45_misa` (62 test, một số chạy nhiều bộ dữ liệu) sang Deno test | KI-20 |
-| 7.5 | 🆕 **Kích hoạt**: `pg_cron` + `pg_net` gọi `einvoice-processor` mỗi 30 giây; app gọi `functions.invoke` sau mỗi RPC ghi yêu cầu; trigger đơn Hoàn tất và hồ sơ khách đổi ghi `internal_commands`; `record_issuance_success` xếp việc gửi tự động. Chạy checklist MISA sandbox (`docs/themes/TH-08-e-invoice/harness/S1-MISA-SANDBOX-CHECKLIST.md`, `DEV-LIVE-ACCEPTANCE-CHECKLIST.md`) với Edge Function, **tắt** bộ xử lý | KI-19, KI-20 |
+| 7.5 | 🆕 **Kích hoạt**: `pg_cron` + `pg_net` gọi `einvoice-processor` mỗi 30 giây; app gọi `functions.invoke` sau mỗi RPC ghi yêu cầu; 3 trigger tự động (đơn Hoàn tất, hồ sơ khách đổi, hoá đơn được ghi) ghi `internal_commands` (KI-26). Checklist MISA sandbox (`S1-MISA-SANDBOX-CHECKLIST.md`) phần server hoàn tất ở 7-E3; phần UI `DEV-LIVE-ACCEPTANCE-CHECKLIST.md` chạy sau 7-A2 | KI-19, KI-20, KI-26 |
 
 ### 9.3 Kiểm thử bắt buộc
 

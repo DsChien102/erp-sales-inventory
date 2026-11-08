@@ -1,6 +1,9 @@
 # TH-08 — Dev Live Acceptance Checklist & Runbook
 
-> **Mục đích:** Hướng dẫn chạy kiểm thử live acceptance một lần (one-shot) cho module Hóa đơn điện tử (TH-08) trên môi trường Dev với tài khoản MISA test thật (`https://testapi.meinvoice.vn/api/integration`), Supabase dev và messaging worker.
+> [!IMPORTANT]
+> **Chạy sau 7-A2** (sau khi app Flutter đã hoàn tất gọi `functions.invoke` tới Edge Function).
+
+> **Mục đích:** Hướng dẫn chạy kiểm thử live acceptance một lần (one-shot) cho module Hóa đơn điện tử (TH-08) trên môi trường Dev với tài khoản MISA test thật (`https://testapi.meinvoice.vn/api/integration`), Supabase dev và Edge Function `einvoice-processor` + `pg_cron` (theo [RUNBOOK-einvoice](../../../../refactor/RUNBOOK-einvoice.md)).
 
 ---
 
@@ -33,8 +36,8 @@ Trước khi thực hiện các bước trên UI, phải đảm bảo các đi�
 - [ ] **MISA Connection:** Đã kết nối tài khoản sandbox thành công (`status = 'CONNECTED'`), capabilities đã được đồng bộ.
 - [ ] **Issuance Profile:** Có ít nhất một profile phát hành đang hoạt động (`is_active = true`), đã chọn ký hiệu / mẫu hóa đơn hợp lệ từ MISA.
 - [ ] **Automation Safety Policy:** Bắt buộc `autoIssueEnabled = false` và `autoSendEnabled = false`. Nếu một trong hai đang bật, UI sẽ chặn phát hành để bảo vệ luồng manual.
-- [ ] **Messaging Worker:** Đang chạy với profile dev (`melos run worker:serve` hoặc `worker:once`), kết nối đúng Supabase dev và `MISA_MEINVOICE_BASE_URL=https://testapi.meinvoice.vn/api/integration`.
-- [ ] **Database Bundle:** Toàn bộ draft SQL TH-08 (bao gồm `sales` acceptance source và các RPC đã sửa) đã được apply qua bundle `theme8.sql`.
+- [ ] **Edge Function & pg_cron:** Edge Function `einvoice-processor` đã deploy và lịch `pg_cron` (`einvoice-processor-tick`) đang chạy theo [RUNBOOK-einvoice](../../../../refactor/RUNBOOK-einvoice.md).
+- [ ] **Database Migrations:** Toàn bộ migration TH-08 (gồm trigger tự động `008`/`013` và cron `20261108001`) đã được apply lên Supabase Dev qua `supabase db reset --linked`.
 - [ ] **Seed Fixture:** Đã chạy script seed đơn hàng `TEST-HDDT-001` vào schema `sales`.
 
 ---
@@ -86,11 +89,11 @@ Theo plan `2026-09-16-th08-misa-contract-production-hardening.md`. Aggregate **c
 
 Mọi script chạy trực tiếp vào database đều yêu cầu biến xác nhận `CONFIRM_DEV_EINVOICE_ACCEPTANCE=YES`:
 
-### 4.0 Apply Database Bundle (Idempotent)
+### 4.0 Apply Database Migrations (Idempotent)
+Thực hiện theo [RUNBOOK-einvoice](../../../../refactor/RUNBOOK-einvoice.md) mục 3:
 ```bash
-CONFIRM_APPLY_EINVOICE_DEV_BUNDLE=YES \
-DATABASE_URL="<dev-database-url>" \
-bash scripts/supabase/apply_einvoice_dev_acceptance_bundle.sh
+supabase db reset --linked
+supabase functions deploy einvoice-processor
 ```
 
 ### 4.1 Seed đơn hàng acceptance (Idempotent)
@@ -111,16 +114,19 @@ DATABASE_URL="<dev-database-url>" \
 bash scripts/supabase/trigger_einvoice_dev_acceptance_observation.sh
 ```
 
-### 4.3 Khởi chạy Messaging Worker cho Dev Acceptance
+### 4.3 Khởi chạy / Kiểm tra Edge Function cho Dev Acceptance
+Thực hiện theo [RUNBOOK-einvoice](../../../../refactor/RUNBOOK-einvoice.md) mục 4 để kiểm tra `pg_cron` và Edge Function `einvoice-processor`.
+Nếu cần kiểm thử local:
 ```bash
-melos run worker:serve
-# hoặc chạy 1 tick duy nhất:
-melos run worker:once
+supabase functions serve einvoice-processor
 ```
 
 ---
 
 ## 5. Nhật ký Bằng chứng Thực thi (Execution Evidence Log)
+
+> [!NOTE]
+> Mục 5 ghi lại bằng chứng kiểm thử của đợt worker cũ (2026-09) để tham chiếu lịch sử; kiến trúc hiện tại chuyển sang Edge Function `einvoice-processor` + `pg_cron`.
 
 ### 5.1 Bằng chứng kiểm thử tự động (Automated Test Verification Suites)
 

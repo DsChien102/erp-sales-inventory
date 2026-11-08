@@ -1,25 +1,17 @@
 # TH-08 S1 — Checklist kết nối MISA sandbox
 
-Checklist này kiểm tra chuỗi thật `Vault → Supabase RPC/queue → messaging_worker → ERP`.
-ERP không gọi HTTP MISA trực tiếp; sau khi lưu credential, trạng thái đúng phải là
-`checkRequired` cho tới khi worker hoàn tất xác thực.
+Checklist này kiểm tra chuỗi thật `Vault → RPC → hàng đợi HĐĐT → einvoice-processor (pg_cron / app) → MISA`.
+ERP không gọi HTTP MISA trực tiếp; sau khi lưu credential, trạng thái đúng phải là `checkRequired` cho tới khi Edge Function `einvoice-processor` hoàn tất xác thực và đồng bộ mẫu hoá đơn.
 
 ## 1. Database test
 
-- [ ] Chạy lại toàn bộ [`theme8.sql`](../../../../theme8.sql) trên Supabase test.
-- [ ] Trong **Project Settings → Data API → Exposed schemas**, thêm `einvoice`
-  rồi lưu cấu hình. Tham chiếu: [Using Custom Schemas](https://supabase.com/docs/guides/api/using-custom-schemas).
-- [ ] Nếu ERP vẫn báo `PGRST106`, kiểm tra role `authenticator` có override
-  `pgrst.db_schemas`; reset override hoặc thêm `einvoice` cùng toàn bộ schema đang
-  dùng, sau đó reload cấu hình PostgREST.
-- [ ] Xác nhận user đang đăng nhập thuộc đúng tenant và có permission
-  `einvoice.manage_configuration`.
-- [ ] Không grant các RPC `claim_*`, `complete_*`, `fail_*`,
-  `read_provider_credentials` hoặc `record_connection_verified` cho
-  `authenticated`; chúng chỉ dành cho `service_role`.
+- [ ] Toàn bộ migration HĐĐT đã được áp dụng lên Supabase Dev (theo [RUNBOOK-einvoice](../../../../refactor/RUNBOOK-einvoice.md) mục 3).
+- [ ] Trong **Project Settings → Data API → Exposed schemas**, thêm `einvoice` rồi lưu cấu hình. Tham chiếu: [Using Custom Schemas](https://supabase.com/docs/guides/api/using-custom-schemas).
+- [ ] Nếu ERP vẫn báo `PGRST106`, kiểm tra role `authenticator` có override `pgrst.db_schemas`; reset override hoặc thêm `einvoice` cùng toàn bộ schema đang dùng, sau đó reload cấu hình PostgREST.
+- [ ] Xác nhận user đang đăng nhập thuộc đúng tenant và có permission `einvoice.manage_configuration`.
+- [ ] Không grant các RPC `claim_*`, `complete_*`, `fail_*`, `read_provider_credentials`, `start_auto_delivery` hoặc `record_connection_verified` cho `authenticated`; chúng chỉ dành cho `service_role`.
 
-Nếu UI trả `NO_PERMISSION`, dừng tại đây và sửa membership/permission của user;
-đây chưa phải lỗi tài khoản MISA.
+Nếu UI trả `NO_PERMISSION`, dừng tại đây và sửa membership/permission của user; đây chưa phải lỗi tài khoản MISA.
 
 ## 2. Vault encryption key
 
@@ -47,85 +39,163 @@ where name = 'einvoice_credential_key';
 ```
 
 - [ ] Có đúng một row tên `einvoice_credential_key`.
-- [ ] Không đổi/rotate secret sau khi đã lưu credential MISA, trừ khi có quy trình
-  giải mã và mã hóa lại toàn bộ ciphertext.
+- [ ] Không đổi/rotate secret sau khi đã lưu credential MISA, trừ khi có quy trình giải mã và mã hóa lại toàn bộ ciphertext.
 
-## 3. Worker environment
+## 3. Cấu hình Edge Function và pg_cron
 
-Sửa profile nguồn `.vet45/profiles/<profileId>/<env>.env`, không sửa trực tiếp
-`apps/messaging_worker/.env*`:
+Thực hiện theo [docs/refactor/RUNBOOK-einvoice.md](../../../../refactor/RUNBOOK-einvoice.md) mục 1–3:
+1. Đặt secrets cho Edge Function: `MISA_MEINVOICE_APP_ID`, `MISA_MEINVOICE_BASE_URL`, `MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED`.
+2. Tạo 3 Vault secrets: `project_url`, `service_role_key` (legacy JWT), `einvoice_credential_key`.
+3. Deploy function: `supabase functions deploy einvoice-processor`.
 
-```dotenv
-SUPABASE_URL=https://<test-project-ref>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<test-project-service-role-key>
-WORKER_TICK_SECRET=<local-test-secret>
-MISA_MEINVOICE_APP_ID=<misa-sandbox-app-id>
-MISA_MEINVOICE_BASE_URL=https://testapi.meinvoice.vn/api/integration
-```
+- [ ] Lịch cron `einvoice-processor-tick` được khởi tạo và chạy định kỳ mỗi 30 giây.
+- [ ] Edge Function phản hồi HTTP 200 cho các lượt quét của cron.
 
-Sau đó:
+## 4. ERP UI
 
 ```bash
-melos run env:sync -- --target worker
-melos run env:doctor -- --target worker
-melos run worker:serve
-```
-
-- [ ] Log startup có module `einvoice` trong `boundModules`.
-- [ ] Worker dùng đúng Supabase test project và MISA test API.
-- [ ] Không đưa `SUPABASE_SERVICE_ROLE_KEY` hay `WORKER_TICK_SECRET` vào ERP.
-
-Để xử lý một vòng rồi thoát có thể dùng `melos run worker:once`.
-
-## 4. ERP
-
-```bash
-melos run env:sync -- --target erp
-melos run env:doctor -- --target erp
+melos run env:sync
 vet45 run erp debug
 ```
 
 - [ ] Đăng nhập đúng user/tenant đã cấp `einvoice.manage_configuration`.
-- [ ] Mở màn **Hóa đơn điện tử** như ảnh tham chiếu.
+- [ ] Mở màn **Hóa đơn điện tử**.
 - [ ] Chạm thẻ **Kết nối MISA**.
 - [ ] Mã số thuế lấy từ hồ sơ pháp lý tenant, không nhập tay.
 - [ ] Nhập tài khoản/mật khẩu sandbox và chọn **Kết nối**.
-- [ ] UI chuyển sang **Chờ kết nối**; không báo “Đã kết nối” ngay khi RPC vừa lưu
-  credential.
-- [ ] Chọn **Tải lại trạng thái**, hoặc quay lại màn Hóa đơn điện tử; màn overview
-  phải tự tải lại.
-- [ ] Worker thành công: thẻ MISA hiện **Đã kết nối** và chỉ hiện tài khoản đã che.
-- [ ] Sai credential: trạng thái thành `reconnectRequired`, UI cho phép
-  **Kết nối lại**.
+- [ ] UI chuyển sang **Chờ kết nối**; không báo “Đã kết nối” ngay khi RPC vừa lưu credential.
+- [ ] Chọn **Tải lại trạng thái**, hoặc quay lại màn Hóa đơn điện tử; màn overview phải tự tải lại.
+- [ ] Edge Function xử lý thành công: thẻ MISA hiện **Đã kết nối** và chỉ hiện tài khoản đã che.
+- [ ] Sai credential: trạng thái thành `reconnectRequired`, UI cho phép **Kết nối lại**.
 
-## 5. Quan sát an toàn trong SQL Editor
+## 5. Kiểm phía server bằng SQL Editor
 
 Thay `<tenant-id>` bằng tenant đang test:
 
+### Bước 5.1: Kiểm tra kết nối và đồng bộ mẫu
+Sau khi bấm Kết nối trên UI (hoặc gọi RPC `einvoice.connect_provider`):
 ```sql
-select tenant_id, status, last_verified_at, connection_version, updated_at
-from einvoice.provider_connections
-where tenant_id = '<tenant-id>'::uuid;
-
-select command_type, enqueued_at, processed_at, failed_at, retry_count, error
+select command_type, enqueued_at, claimed_at, processed_at, failed_at, retry_count, left(error, 100) as err
 from einvoice.internal_commands
 where tenant_id = '<tenant-id>'::uuid
   and command_type = 'einvoice.sync_capabilities'
 order by enqueued_at desc
+limit 5;
+```
+**Kỳ vọng:** có dòng `einvoice.sync_capabilities` và `processed_at` có giá trị trong ≤ 60 giây (do `pg_cron` gọi Edge Function).
+Bảng `einvoice.provider_connections` chuyển trạng thái:
+```sql
+select status, last_verified_at, connection_version
+from einvoice.provider_connections
+where tenant_id = '<tenant-id>'::uuid;
+```
+**Kỳ vọng:** `status = 'CONNECTED'`.
+
+### Bước 5.2: Bật chính sách phát hành và gửi tự động
+```sql
+update einvoice.tenant_settings
+set auto_issue_enabled = true,
+    auto_send_enabled = true
+where tenant_id = '<tenant-id>'::uuid;
+```
+> [!NOTE]
+> Trên sandbox testapi MISA, `supports_email_delivery` luôn là `false` (chỉ host `api.meinvoice.vn` mới hỗ trợ gửi email). Nếu chỉ muốn kiểm tra luồng phát hành tự động mà không muốn lệnh gửi thử lại 3 lần rồi ghi nhận `failed_at` (`DELIVERY_NOT_SUPPORTED`), có thể đặt `auto_send_enabled = false`.
+
+### Bước 5.3: Tạo đơn hàng khách có email (Luồng phát hành & gửi tự động)
+Tạo hoặc hoàn tất đơn bán hàng (`lifecycle_status = 'completed'`):
+1. **Trigger xếp việc:**
+   ```sql
+   select id, command_type, enqueued_at, processed_at, failed_at
+   from einvoice.internal_commands
+   where tenant_id = '<tenant-id>'::uuid
+     and command_type = 'einvoice.start_auto_issuance'
+   order by enqueued_at desc limit 1;
+   ```
+   **Kỳ vọng:** có đúng 1 lệnh `einvoice.start_auto_issuance`.
+2. **Tiến trình tự động:**
+   ```sql
+   select id, status, blocker_code, last_evaluated_at
+   from einvoice.auto_issuance_processes
+   where tenant_id = '<tenant-id>'::uuid
+   order by created_at desc limit 1;
+   ```
+   **Kỳ vọng:** `status = 'ATTEMPT_STARTED'`.
+3. **Phát hành và ghi hoá đơn:**
+   Sau khi các lệnh `einvoice.preview_invoice` và `einvoice.publish_invoice` chạy xong, bảng `einvoice.electronic_invoices` có bản ghi mới:
+   ```sql
+   select id, invoice_number, invoice_series, issued_at
+   from einvoice.electronic_invoices
+   where tenant_id = '<tenant-id>'::uuid
+   order by created_at desc limit 1;
+   ```
+4. **Trigger gửi tự động:**
+   Hoá đơn mới chèn tự động kích hoạt trigger xếp việc `einvoice.start_auto_delivery`:
+   ```sql
+   select id, command_type, retry_count, left(error, 150) as error_preview, processed_at, failed_at
+   from einvoice.internal_commands
+   where tenant_id = '<tenant-id>'::uuid
+     and command_type = 'einvoice.start_auto_delivery'
+   order by enqueued_at desc limit 1;
+   ```
+   Kiểm tra bảng `einvoice.invoice_deliveries`:
+   ```sql
+   select id, delivery_intent, status, retry_count
+   from einvoice.invoice_deliveries
+   where tenant_id = '<tenant-id>'::uuid
+   order by created_at desc limit 1;
+   ```
+   **Kỳ vọng theo từng trường hợp:**
+   - **(a) testapi + `auto_send_enabled = true`:** việc `einvoice.start_auto_delivery` thất bại sau các lượt thử (`failed_at is not null`, `retry_count = 3`, `error` chứa `DELIVERY_NOT_SUPPORTED`); bảng `einvoice.invoice_deliveries` có **0 dòng**.
+   - **(b) `auto_send_enabled = false`:** việc hoàn tất bình thường (`processed_at is not null`, `failed_at is null`) do bỏ qua theo chính sách (`POLICY_OFF`); bảng `einvoice.invoice_deliveries` có **0 dòng**.
+   - **(c) Production (host `api.meinvoice.vn`) + `MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED=true` + khách có email:** việc hoàn tất (`processed_at is not null`); bảng `einvoice.invoice_deliveries` có **1 dòng** `delivery_intent = 'INITIAL_SEND'`, `status = 'SUCCEEDED'`.
+
+### Bước 5.4: Khách tổ chức thiếu MST (Luồng đánh giá lại)
+1. Bán hàng cho khách tổ chức chưa có MST:
+   ```sql
+   select id, status, blocker_code
+   from einvoice.auto_issuance_processes
+   where tenant_id = '<tenant-id>'::uuid
+   order by created_at desc limit 1;
+   ```
+   **Kỳ vọng:** `status = 'PENDING_REEVALUATION'`, `blocker_code = 'BUYER_TAX_CODE_REQUIRED'`.
+2. Bổ sung MST cho khách hàng trên app (hoặc cập nhật tăng `version` trên `partner.partners`):
+   ```sql
+   update partner.organization_profiles
+   set tax_code = '0101234567'
+   where partner_id = '<partner-id>'::uuid;
+
+   update partner.partners
+   set version = version + 1
+   where partner_id = '<partner-id>'::uuid;
+   ```
+3. Trigger kích hoạt lệnh `einvoice.reevaluate_auto_issuance`:
+   ```sql
+   select id, command_type, processed_at, failed_at
+   from einvoice.internal_commands
+   where tenant_id = '<tenant-id>'::uuid
+     and command_type = 'einvoice.reevaluate_auto_issuance'
+   order by enqueued_at desc limit 1;
+   ```
+   **Kỳ vọng:** tiến trình `auto_issuance_processes` chuyển từ `PENDING_REEVALUATION` sang `ATTEMPT_STARTED`.
+
+### Bước 5.5: Kiểm tra các việc hỏng / thất bại
+```sql
+select command_type, retry_count, left(error, 150) as error_preview, failed_at
+from einvoice.internal_commands
+where tenant_id = '<tenant-id>'::uuid
+  and failed_at is not null
+order by failed_at desc
 limit 10;
 ```
-
-Không query/log `provider_credentials.password_ciphertext`,
-`read_provider_credentials` hoặc decrypted Vault secret để debug UI.
 
 ## 6. Cách phân loại lỗi
 
 | Dấu hiệu | Kiểm tra trước |
 | --- | --- |
-| `PGRST106 Invalid schema: einvoice` | thêm `einvoice` vào Data API Exposed schemas; kiểm tra override `pgrst.db_schemas` |
-| `NO_PERMISSION` | user, tenant membership, `einvoice.manage_configuration` |
-| `einvoice_credential_key is missing` | Vault secret ở bước 2 |
-| Queue còn `checkRequired`, chưa processed | worker đang chạy, đúng project, module `einvoice` đã bind |
-| `reconnectRequired` | credential/App ID/MST sandbox và phản hồi auth từ MISA |
-| Worker báo RPC permission | worker dùng service-role key; bundle SQL mới đã được chạy |
-| Provider unavailable/timeout | MISA test API và network; giữ `checkRequired`, queue tự retry/backoff |
+| `PGRST106 Invalid schema: einvoice` | Thêm `einvoice` vào Data API Exposed schemas; kiểm tra override `pgrst.db_schemas` |
+| `NO_PERMISSION` | User, tenant membership, quyền `einvoice.manage_configuration` |
+| `einvoice_credential_key is missing` | Vault secret `einvoice_credential_key` ở bước 2 |
+| Queue còn `checkRequired`, chưa processed sau 60s | Kiểm tra `cron.job` `einvoice-processor-tick`, Vault `project_url` và `service_role_key` (legacy JWT); xem `net._http_response` |
+| `reconnectRequired` | Kiểm tra MST doanh nghiệp, tài khoản, mật khẩu sandbox và MISA App ID |
+| Edge Function trả lỗi 403 `service_role_required` | `service_role_key` trong Vault phải là legacy JWT (bắt đầu bằng `eyJ…`), không dùng key `sb_secret_…` |
+| Provider unavailable/timeout | MISA test API bị chậm hoặc ngắt mạng; giữ `checkRequired`, queue tự retry/backoff |
