@@ -1514,6 +1514,7 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | KI-22 | `reschedule_internal_command` ghi `updated_at` nhưng `einvoice.internal_commands` không có cột này ⇒ gọi là lỗi `column "updated_at" does not exist` | Bỏ dòng ghi `updated_at` | Đã sửa 7-E1 |
 | KI-23 | 7 câu `insert into einvoice.internal_commands` (mở / xếp / seed việc đối soát phát hành `…009`, xếp đối soát gửi `…014`, `…015`) ghi cột `created_at` không có ⇒ phát hành "chưa xác định" hoặc gửi cần đối soát là lỗi; `seed` lỗi chặn mọi việc của cửa hàng trong bộ xử lý | Bỏ cột `created_at` ở cả 7 câu | Đã sửa 7-E1 (R1-1) |
 | KI-24 | Bucket `einvoice-documents` không nhận `application/zip` trong khi MISA có thể trả XML nén ZIP ⇒ tải XML lỗi, hết 3 lượt thành `CHECK_REQUIRED` | Thêm `application/zip` vào `allowed_mime_types` (`…011`) | Đã sửa 7-E2b |
+| KI-25 | Việc `reconcile_invoice_delivery` do SQL xếp với payload camelCase (`…014`, `…015`) nhưng dead-letter Dart chỉ đọc `reconciliation_case_id` ⇒ hết 3 lượt thì hồ sơ đối soát gửi kẹt `PENDING`, không `UNRESOLVED`, không cảnh báo | Dead-letter Edge Function đọc cả hai kiểu khoá | Đã sửa 7-E2c |
 
 ---
 
