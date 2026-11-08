@@ -298,6 +298,12 @@ declare
   v_kb2 uuid;
   v_kb3 uuid;
   v_kc uuid;
+  v_cmd uuid;
+  v_tok uuid;
+  v_rc int;
+  v_due timestamptz;
+  v_n int;
+  v_case uuid;
   v_kd uuid;
   v_cfg record;
   v_pol record;
@@ -774,7 +780,66 @@ begin
     'select * from einvoice.issue_invoice(p_tenant_id => %L, p_actor_id => %L, p_sales_order_id => %L, p_source_version => %L, p_idempotency_key => %L)',
     v_ta, v_ub, v_oa, '1', 'k31'), 'NO_PERMISSION');
 
+  -- =========================================================================
+  -- E32 list_tenants_with_due_commands lọc đúng điều kiện claim
+  -- =========================================================================
   reset role;
+  insert into einvoice.internal_commands (id, tenant_id, command_type, payload, enqueued_at)
+  values (gen_random_uuid(), v_tb, 'einvoice.sync_capabilities', '{}', now() + interval '1 hour');
+  insert into einvoice.internal_commands (id, tenant_id, command_type, payload, enqueued_at, claimed_at, claim_token)
+  values (gen_random_uuid(), v_tb, 'einvoice.sync_capabilities', '{}', now() - interval '1 hour', now() - interval '1 minute', gen_random_uuid());
+  insert into einvoice.internal_commands (id, tenant_id, command_type, payload, enqueued_at, processed_at)
+  values (gen_random_uuid(), v_tb, 'einvoice.sync_capabilities', '{}', now() - interval '1 hour', now());
+  select count(*) into v_n from einvoice.list_tenants_with_due_commands(1000) where tenant_id = v_tb;
+  if v_n <> 0 then raise exception 'FAIL E32a: tenant B listed without due command'; end if;
+  insert into einvoice.internal_commands (id, tenant_id, command_type, payload, enqueued_at, claimed_at, claim_token)
+  values (gen_random_uuid(), v_tb, 'einvoice.sync_capabilities', '{}', now() - interval '1 hour', now() - interval '11 minutes', gen_random_uuid());
+  select oldest_due_at into v_due from einvoice.list_tenants_with_due_commands(1000) where tenant_id = v_tb;
+  if v_due is null or v_due > now() then raise exception 'FAIL E32b: tenant B not listed with stale claim'; end if;
+
+  -- =========================================================================
+  -- E33 reschedule_internal_command không ghi cột không tồn tại (KI-22)
+  -- =========================================================================
+  select command_id, claim_token, retry_count into v_cmd, v_tok, v_rc
+  from einvoice.claim_internal_commands_batch(v_tb, 10);
+  if v_cmd is null then raise exception 'FAIL E33: claim returned no row'; end if;
+  perform einvoice.reschedule_internal_command(v_tb, v_cmd, v_tok, 120);
+  select count(*) into v_n from einvoice.internal_commands
+  where id = v_cmd and enqueued_at between now() + interval '119 seconds' and now() + interval '121 seconds'
+    and claimed_at is null and claim_token is null and retry_count = v_rc;
+  if v_n <> 1 then raise exception 'FAIL E33: reschedule did not reset the row as expected'; end if;
+  select count(*) into v_n from einvoice.list_tenants_with_due_commands(1000) where tenant_id = v_tb;
+  if v_n <> 0 then raise exception 'FAIL E33: tenant B still listed after reschedule'; end if;
+
+  -- =========================================================================
+  -- E34 list_tenants_with_due_commands chỉ service_role
+  -- =========================================================================
+  perform set_config('request.jwt.claims', v_claims, true);
+  set local role authenticated;
+  perform public._th08_expect_err('select * from einvoice.list_tenants_with_due_commands(10)', 'permission denied');
+  reset role;
+
+  -- =========================================================================
+  -- E40 seed_due_issuance_reconciliation_commands không ghi cột không tồn tại (KI-23)
+  -- =========================================================================
+  insert into einvoice.invoice_reconciliation_cases (
+    tenant_id, target_type, target_id, provider_connection_id, reason_code, status,
+    check_count, next_check_at, correlation_id
+  ) values (
+    v_ta, 'ISSUANCE_ATTEMPT', gen_random_uuid(), v_conn, 'E40_TEST', 'PENDING',
+    0, now() - interval '1 minute', 'e40'
+  )
+  returning id into v_case;
+  select einvoice.seed_due_issuance_reconciliation_commands(v_ta, 1000) into v_n;
+  if v_n < 1 then raise exception 'FAIL E40: seed returned %', v_n; end if;
+  select count(*) into v_n from einvoice.internal_commands
+  where id = einvoice._reconciliation_poll_command_id(v_case, 1)
+    and tenant_id = v_ta
+    and command_type = 'einvoice.poll_issuance_status'
+    and enqueued_at <= now()
+    and processed_at is null and failed_at is null;
+  if v_n <> 1 then raise exception 'FAIL E40: poll command not seeded'; end if;
+
   raise notice 'einvoice_th08: OK';
 end;
 $$;

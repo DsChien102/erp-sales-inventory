@@ -227,8 +227,7 @@ begin
   update einvoice.internal_commands
   set enqueued_at = now() + v_delay,
       claimed_at = null,
-      claim_token = null,
-      updated_at = now()
+      claim_token = null
   where id = p_command_id;
 end;
 $$;

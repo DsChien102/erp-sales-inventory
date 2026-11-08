@@ -388,8 +388,7 @@ begin
         command_type,
         payload,
         source_event_id,
-        enqueued_at,
-        created_at
+        enqueued_at
       ) values (
         v_cmd_id,
         p_tenant_id,
@@ -400,8 +399,7 @@ begin
           'checkSequence', v_next_sequence
         ),
         v_cmd_id,
-        v_next_check,
-        now()
+        v_next_check
       )
       on conflict (id) do nothing;
     end if;

@@ -122,8 +122,7 @@ begin
       command_type,
       payload,
       source_event_id,
-      enqueued_at,
-      created_at
+      enqueued_at
     ) values (
       v_cmd_id,
       p_tenant_id,
@@ -135,8 +134,7 @@ begin
         'correlation_id', v_correlation_id
       ),
       v_cmd_id,
-      v_next_check,
-      now()
+      v_next_check
     )
     on conflict (id) do nothing;
   end if;
@@ -268,8 +266,7 @@ begin
       command_type,
       payload,
       source_event_id,
-      enqueued_at,
-      created_at
+      enqueued_at
     ) values (
       v_cmd_id,
       p_tenant_id,
@@ -281,8 +278,7 @@ begin
         'correlation_id', v_case_correlation_id
       ),
       v_cmd_id,
-      v_next_check,
-      now()
+      v_next_check
     )
     on conflict (id) do nothing;
   end if;
@@ -341,8 +337,7 @@ begin
     command_type,
     payload,
     source_event_id,
-    enqueued_at,
-    created_at
+    enqueued_at
   ) values (
     v_cmd_id,
     p_tenant_id,
@@ -354,8 +349,7 @@ begin
       'correlation_id', v_case.correlation_id
     ),
     v_cmd_id,
-    v_next_check,
-    now()
+    v_next_check
   )
   on conflict (id) do nothing;
 end;
@@ -744,8 +738,7 @@ begin
       command_type,
       payload,
       source_event_id,
-      enqueued_at,
-      created_at
+      enqueued_at
     ) values (
       v_cmd_id,
       p_tenant_id,
@@ -757,8 +750,7 @@ begin
         'correlation_id', v_case.correlation_id
       ),
       v_cmd_id,
-      coalesce(v_case.next_check_at, now()),
-      now()
+      coalesce(v_case.next_check_at, now())
     )
     on conflict (id) do update set
       failed_at = null,
@@ -840,6 +832,25 @@ begin
 end;
 $$;
 
+-- 11. Tenants with due internal commands (Edge Function einvoice-processor)
+create or replace function einvoice.list_tenants_with_due_commands(p_limit int default 20)
+returns table (tenant_id uuid, oldest_due_at timestamptz)
+language sql
+stable
+security definer
+set search_path = einvoice, pg_temp
+as $$
+  select m.tenant_id, min(m.enqueued_at)
+  from einvoice.internal_commands m
+  where m.processed_at is null
+    and m.failed_at is null
+    and m.enqueued_at <= now()
+    and (m.claimed_at is null or m.claimed_at < now() - interval '10 minutes')
+  group by m.tenant_id
+  order by min(m.enqueued_at)
+  limit greatest(p_limit, 1)
+$$;
+
 -- Grants
 grant execute on function einvoice.open_reconciliation_case(uuid, uuid, text) to service_role;
 grant execute on function einvoice.record_issuance_undetermined(uuid, uuid, varchar, varchar, varchar) to service_role;
@@ -848,6 +859,8 @@ grant execute on function einvoice.resolve_reconciliation_case(uuid, uuid, text,
 grant execute on function einvoice.recover_internal_finalization(uuid, uuid) to service_role;
 grant execute on function einvoice.seed_due_issuance_reconciliation_commands(uuid, int) to service_role;
 grant execute on function einvoice.claim_internal_commands_batch(uuid, int) to service_role;
+revoke all on function einvoice.list_tenants_with_due_commands(int) from public, anon, authenticated;
+grant execute on function einvoice.list_tenants_with_due_commands(int) to service_role;
 
 -- Idempotent backfill: seed poll commands for existing PENDING cases without command rows
 do $$
@@ -867,8 +880,7 @@ begin
       command_type,
       payload,
       source_event_id,
-      enqueued_at,
-      created_at
+      enqueued_at
     ) values (
       v_cmd_id,
       v_case.tenant_id,
@@ -880,8 +892,7 @@ begin
         'correlation_id', v_case.correlation_id
       ),
       v_cmd_id,
-      coalesce(v_case.next_check_at, now()),
-      now()
+      coalesce(v_case.next_check_at, now())
     )
     on conflict (id) do nothing;
   end loop;
