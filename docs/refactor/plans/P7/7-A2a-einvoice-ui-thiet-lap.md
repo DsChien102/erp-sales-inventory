@@ -175,17 +175,17 @@ Chỉ thêm test vào module, **không** sửa code module. Đây là ngoại l�
 
 **Interfaces:** Produces: `einvoiceException(PostgrestException('TEMPLATE_NOT_AVAILABLE: …'))` có `.code == EInvoiceErrorCodes.templateNotAvailable`.
 
-- [ ] `impact({target: "einvoiceException", direction: "upstream"})`, ghi vào Kết quả.
-- [ ] Thêm ca (đỏ) vào `einvoice_errors_test.dart`:
+- [x] `impact({target: "einvoiceException", direction: "upstream"})`, ghi vào Kết quả.
+- [x] Thêm ca (đỏ) vào `einvoice_errors_test.dart`:
   - `template_not_available_code`: `einvoiceException(AppException('SYSTEM_ERROR', cause: PostgrestException(message: 'TEMPLATE_NOT_AVAILABLE: template has no invoice series', code: 'P0001')))` → `code == 'TEMPLATE_NOT_AVAILABLE'`, `serverMessage` là message gốc.
   - `signing_not_available_code`: tương tự với `'SIGNING_CONFIGURATION_NOT_AVAILABLE: MTT template requires SignType=5'` → `'SIGNING_CONFIGURATION_NOT_AVAILABLE'`.
   - `earlier_code_wins_over_template`: `'STATE_CHANGED: TEMPLATE_NOT_AVAILABLE'` → `'STATE_CHANGED'`.
   - `issuance_not_ready_still_wins`: `'ISSUANCE_NOT_READY: {"details":{"blockers":["TEMPLATE_NOT_AVAILABLE"]}}'` → `'ISSUANCE_NOT_READY'`, `details['blockers'] == ['TEMPLATE_NOT_AVAILABLE']`.
-- [ ] Chạy `cd apps/erp && flutter test test/features/einvoice/data/einvoice_errors_test.dart` → 2 ca đầu FAIL.
-- [ ] Thêm `EInvoiceErrorCodes.templateNotAvailable`, `EInvoiceErrorCodes.signingConfigurationNotAvailable` vào **cuối** `_seventeenCodes`; đổi tên hằng thành `_codesByPriority` (tên cũ sai số lượng). Sửa chú thích "17 mã" nếu có.
-- [ ] Thêm ca vào `einvoice_error_messages_test.dart`: `einvoiceErrorMessage(einvoiceException(<PostgrestException TEMPLATE_NOT_AVAILABLE>))` == `'Mẫu hóa đơn đã chọn không còn khả dụng. Vui lòng cập nhật cấu hình phát hành.'` (`einvoice_error_messages.dart:39`).
-- [ ] Chạy `flutter test test/features/einvoice/` → PASS. Ghi số ca.
-- [ ] Commit `feat(einvoice): 7-A2a einvoiceException nhận TEMPLATE_NOT_AVAILABLE / SIGNING_CONFIGURATION_NOT_AVAILABLE`.
+- [x] Chạy `cd apps/erp && flutter test test/features/einvoice/data/einvoice_errors_test.dart` → 2 ca đầu FAIL.
+- [x] Thêm `EInvoiceErrorCodes.templateNotAvailable`, `EInvoiceErrorCodes.signingConfigurationNotAvailable` vào **cuối** `_seventeenCodes`; đổi tên hằng thành `_codesByPriority` (tên cũ sai số lượng). Sửa chú thích "17 mã" nếu có.
+- [x] Thêm ca vào `einvoice_error_messages_test.dart`: `einvoiceErrorMessage(einvoiceException(<PostgrestException TEMPLATE_NOT_AVAILABLE>))` == `'Mẫu hóa đơn đã chọn không còn khả dụng. Vui lòng cập nhật cấu hình phát hành.'` (`einvoice_error_messages.dart:39`).
+- [x] Chạy `flutter test test/features/einvoice/` → PASS. Ghi số ca.
+- [x] Commit `feat(einvoice): 7-A2a einvoiceException nhận TEMPLATE_NOT_AVAILABLE / SIGNING_CONFIGURATION_NOT_AVAILABLE`.
 
 ### Task 2: Fake repository
 
@@ -320,6 +320,16 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
   - Số nhịp thật: B0-1 cần 1 nhịp 2s để chạm `Exception('net')` và 1 nhịp 2s nữa để sang 'Đã kết nối' (tổng 2 nhịp 2s); B0-4 cần 1 nhịp 2s sau khi submit để sang 'Đã kết nối'.
   - Impact (symbol, số caller, luồng, mức rủi ro): Không (chỉ thêm test vào file test).
   - Ghi chú cho review: 4 ca kiểm chứng hành vi hỏi lại trên code cũ đều xanh; số nhịp chuyển trạng thái ăn khớp hoàn toàn với lý thuyết.
+
+- **Task 1 — ✅**
+  - Tệp:dòng đã đổi / thêm:
+    - `apps/erp/lib/features/einvoice/data/einvoice_errors.dart`:38-56 (thêm `templateNotAvailable`, `signingConfigurationNotAvailable` vào cuối `_codesByPriority`, sửa vòng lặp :112).
+    - `apps/erp/test/features/einvoice/data/einvoice_errors_test.dart`:12-20 (bỏ `TEMPLATE_NOT_AVAILABLE` khỏi parity cũ), :104-144 (thêm 4 ca: template_not_available_code, signing_not_available_code, earlier_code_wins_over_template, issuance_not_ready_still_wins).
+    - `apps/erp/test/features/einvoice/logic/einvoice_error_messages_test.dart`:1-7, :198-208 (thêm ca kiểm einvoiceErrorMessage với einvoiceException mã TEMPLATE_NOT_AVAILABLE).
+  - Lệch plan + lý do: Không.
+  - Test thêm / sửa, lệnh, số ca pass / fail: `flutter test test/features/einvoice/` → 177 passed, 10 skipped, 0 failed.
+  - Impact (symbol, số caller, luồng, mức rủi ro): `einvoiceException` (caller nội bộ `einvoice_configuration_repository.dart`, `einvoice_repository.dart`, `einvoice_errors_test.dart`). GitNexus impact upstream: direct 444 (chỉ số stale do chuỗi regex match file test/specs), trên thực tế chỉ ảnh hưởng 2 repository HĐĐT và các test liên quan; rủi ro thực tế: LOW (chỉ mở rộng 2 mã ở cuối danh sách ưu tiên theo Q1).
+  - Ghi chú cho review: 2 mã cấu hình mới được ưu tiên sau các mã lỗi trạng thái/quyền, đảm bảo không che lấp `STATE_CHANGED` hay `ISSUANCE_NOT_READY`.
 
 Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối):
 

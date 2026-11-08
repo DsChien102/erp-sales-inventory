@@ -14,7 +14,6 @@ void main() {
       'IDEMPOTENCY_CONFLICT: payload differs for key k': EInvoiceErrorCodes.idempotencyConflict,
       'INVALID_STATUS: ALREADY_ISSUED': EInvoiceErrorCodes.invalidStatus,
       'STATE_CHANGED: connection version mismatch': EInvoiceErrorCodes.stateChanged,
-      'TEMPLATE_NOT_AVAILABLE: x': EInvoiceErrorCodes.systemError,
       'boom': EInvoiceErrorCodes.systemError,
       'ISSUANCE_NOT_READY: provider not connected': EInvoiceErrorCodes.issuanceNotReady,
     };
@@ -100,6 +99,47 @@ void main() {
         final mapped = einvoiceException(appEx);
         expect(mapped.code, EInvoiceErrorCodes.validationError);
         expect(mapped.serverMessage, 'username is required');
+      });
+
+      test('// Q1: template_not_available_code maps to TEMPLATE_NOT_AVAILABLE', () {
+        const message = 'TEMPLATE_NOT_AVAILABLE: template has no invoice series';
+        final pgEx = const PostgrestException(message: message, code: 'P0001');
+        final appEx = AppException('SYSTEM_ERROR', cause: pgEx);
+        final mapped = einvoiceException(appEx);
+
+        expect(mapped.code, EInvoiceErrorCodes.templateNotAvailable);
+        expect(mapped.serverMessage, message);
+      });
+
+      test('// Q1: signing_not_available_code maps to SIGNING_CONFIGURATION_NOT_AVAILABLE', () {
+        const message = 'SIGNING_CONFIGURATION_NOT_AVAILABLE: MTT template requires SignType=5';
+        final pgEx = const PostgrestException(message: message, code: 'P0001');
+        final appEx = AppException('SYSTEM_ERROR', cause: pgEx);
+        final mapped = einvoiceException(appEx);
+
+        expect(mapped.code, EInvoiceErrorCodes.signingConfigurationNotAvailable);
+        expect(mapped.serverMessage, message);
+      });
+
+      test('// Q1: earlier_code_wins_over_template', () {
+        const message = 'STATE_CHANGED: TEMPLATE_NOT_AVAILABLE';
+        final pgEx = const PostgrestException(message: message, code: 'P0001');
+        final appEx = AppException('SYSTEM_ERROR', cause: pgEx);
+        final mapped = einvoiceException(appEx);
+
+        expect(mapped.code, EInvoiceErrorCodes.stateChanged);
+        expect(mapped.serverMessage, message);
+      });
+
+      test('// Q1: issuance_not_ready_still_wins over template', () {
+        const message = 'ISSUANCE_NOT_READY: {"details":{"blockers":["TEMPLATE_NOT_AVAILABLE"]}}';
+        final pgEx = const PostgrestException(message: message, code: 'P0001');
+        final appEx = AppException('SYSTEM_ERROR', cause: pgEx);
+        final mapped = einvoiceException(appEx);
+
+        expect(mapped.code, EInvoiceErrorCodes.issuanceNotReady);
+        expect(mapped.details?['blockers'], ['TEMPLATE_NOT_AVAILABLE']);
+        expect(mapped.serverMessage, message);
       });
     });
   });

@@ -35,7 +35,7 @@ abstract final class EInvoiceErrorCodes {
   static const network = 'NETWORK_ERROR';
 }
 
-const _seventeenCodes = <String>[
+const _codesByPriority = <String>[
   EInvoiceErrorCodes.noPermission,
   EInvoiceErrorCodes.notFound,
   EInvoiceErrorCodes.validationError,
@@ -53,6 +53,8 @@ const _seventeenCodes = <String>[
   EInvoiceErrorCodes.resultUndetermined,
   EInvoiceErrorCodes.documentUnavailable,
   EInvoiceErrorCodes.deliveryNotSupported,
+  EInvoiceErrorCodes.templateNotAvailable,
+  EInvoiceErrorCodes.signingConfigurationNotAvailable,
 ];
 
 List<String> _parseIssuanceBlockers(String message) {
@@ -107,7 +109,7 @@ AppException einvoiceException(Object error) {
       );
     }
 
-    for (final code in _seventeenCodes) {
+    for (final code in _codesByPriority) {
       if (upper.contains(code)) {
         return AppException(
           code,

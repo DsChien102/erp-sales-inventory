@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/einvoice/data/einvoice_errors.dart';
 import 'package:erp/features/einvoice/logic/einvoice_error_messages.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase/supabase.dart';
 
 void main() {
   group('einvoiceErrorMessage', () {
@@ -191,6 +193,18 @@ void main() {
           const AppException('X_CODE', serverMessage: 'PlatformException'),
         ),
         'Không thể thực hiện thao tác hóa đơn điện tử. Vui lòng thử lại.',
+      );
+    });
+
+    test('// Q1: einvoiceErrorMessage maps einvoiceException(PostgrestException TEMPLATE_NOT_AVAILABLE) to template error message', () {
+      final pgEx = const PostgrestException(
+        message: 'TEMPLATE_NOT_AVAILABLE: template has no invoice series',
+        code: 'P0001',
+      );
+      final ex = einvoiceException(AppException('SYSTEM_ERROR', cause: pgEx));
+      expect(
+        einvoiceErrorMessage(ex),
+        'Mẫu hóa đơn đã chọn không còn khả dụng. Vui lòng cập nhật cấu hình phát hành.',
       );
     });
   });
