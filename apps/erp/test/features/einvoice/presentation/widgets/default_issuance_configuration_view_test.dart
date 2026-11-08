@@ -128,6 +128,10 @@ void main() {
       await tester.tap(find.byKey(const Key('default_issuance_save')));
       await tester.pumpAndSettle();
 
+      expect(
+        repo.calls.where((c) => c == 'setDefaultConfiguration'),
+        hasLength(1),
+      );
       expect(repo.lastTemplateId, 'tpl-2');
       expect(repo.lastSigningConfigId, 'sign-hsm');
       expect(repo.lastExpectedProfileVersion, 1);
@@ -157,6 +161,10 @@ void main() {
       await tester.tap(find.byKey(const Key('default_issuance_save')));
       await tester.pumpAndSettle();
 
+      expect(
+        repo.calls.where((c) => c == 'setDefaultConfiguration'),
+        hasLength(1),
+      );
       expect(repo.lastTemplateId, 'tpl-mtt');
       expect(repo.lastSigningConfigId, 'sign-nosign');
     },

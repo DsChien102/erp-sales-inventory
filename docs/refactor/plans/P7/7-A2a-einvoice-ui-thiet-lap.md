@@ -358,12 +358,12 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
 - **Task 4 — ✅**
   - Tệp:dòng đã đổi / thêm:
     - Tạo 7 tệp test dưới `apps/erp/test/features/einvoice/`:
-      - `logic/provider_connection_state_test.dart` (3 ca)
+      - `logic/provider_connection_state_test.dart` (1 ca)
       - `presentation/widgets/configuration_state_messages_test.dart` (2 ca)
       - `presentation/widgets/provider_connection_overlays_test.dart` (1 ca)
-      - `presentation/widgets/automation_policy_view_test.dart` (4 ca)
-      - `presentation/widgets/default_issuance_configuration_view_test.dart` (4 ca)
-      - `presentation/widgets/einvoice_configuration_overview_view_test.dart` (4 ca)
+      - `presentation/widgets/automation_policy_view_test.dart` (3 ca)
+      - `presentation/widgets/default_issuance_configuration_view_test.dart` (5 ca)
+      - `presentation/widgets/einvoice_configuration_overview_view_test.dart` (6 ca)
       - `presentation/widgets/provider_connection_view_test.dart` (13 ca: 9 ca chuyển từ module - bỏ 1 ca query cache Q6 + 4 ca Task 0 B0-1..B0-4)
   - Lệch plan + lý do: Không.
   - Test thêm / sửa, lệnh, số ca pass / fail: `cd apps/erp && flutter test test/features/einvoice/presentation/widgets test/features/einvoice/logic` → 90/90 PASS (31 ca chuyển từ module + 59 ca unit test logic & Task 3).
@@ -404,11 +404,24 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
       - `flutter test test/features/einvoice/` → 225 passed, 10 skipped, 0 failed.
       - `flutter test` cả app `apps/erp` → **2959 passed**, 10 skipped, **55 failed** (đối chiếu chính xác 55 lỗi có sẵn trong `TEST-BASELINE.md` mục "Sau 8-C" gồm 53 lỗi baseline + 2 lỗi ngoài mốc `product_guided_create_e2e_test` duplicate SKU và `product_change_history_e2e_test`, không có lỗi mới).
       - `cd modules/einvoice/presentation && flutter test` → **83 passed**, 0 failed (79 ca cũ + 4 ca Task 0 B0-1..B0-4).
-    - **6.6:** `gitnexus detect-changes -r erp-sales-inventory` → Changes: 5 files, 7 symbols, Affected processes: 0, Risk level: low.
+    - **6.6:** `gitnexus detect-changes --scope compare --base-ref 765eb7917 -r erp-sales-inventory` → Changes: 60 files, 493 symbols, Affected processes: 1 (`Build → _two`), Risk level: medium.
   - Impact (symbol, số caller, luồng, mức rủi ro): Không rủi ro regression. Toàn bộ UI thiết lập HĐĐT và router đã chạy hoàn toàn trên kiến trúc mới đơn giản.
   - Ghi chú cho review:
     - Mục 6.7 dành cho người dùng kiểm tay trên môi trường Dev (iPhone + web).
     - Sẵn sàng chuyển giao cho phiên review.
+
+- **R1 — sửa — ✅**
+  - Tệp:dòng đã đổi / thêm:
+    - R1-1: Hoàn tác 37 tệp dư dòng trống cuối tệp (`git checkout -- apps/erp/lib/features/einvoice apps/erp/test/features/einvoice`).
+    - R1-2: Bổ sung kiểm tra số lần gọi hàm lưu `hasLength(1)` trong:
+      - `apps/erp/test/features/einvoice/presentation/widgets/default_issuance_configuration_view_test.dart`:130-134 (ca lưu thường), :164-168 (ca lưu MTT) -> `expect(repo.calls.where((c) => c == 'setDefaultConfiguration'), hasLength(1));`.
+      - `apps/erp/test/features/einvoice/presentation/widgets/automation_policy_view_test.dart`:104-108 (ca lưu) -> `expect(repo.calls.where((c) => c == 'updateAutomationPolicy'), hasLength(1));`.
+    - R1-3: Cập nhật lại số ca từng tệp trong Task 4 (tổng 31 ca), cập nhật kết quả `detect_changes` so sánh với `765eb7917`.
+  - Test thêm / sửa, lệnh, số ca pass / fail:
+    - `flutter test test/features/einvoice/presentation/widgets/default_issuance_configuration_view_test.dart test/features/einvoice/presentation/widgets/automation_policy_view_test.dart` → 8/8 PASS.
+    - `flutter test test/features/einvoice/` → 225 passed, 10 skipped, 0 failed.
+  - Impact (symbol, số caller, luồng, mức rủi ro): Test assertions, rủi ro: LOW.
+  - Ghi chú cho review: Đã hoàn thành sửa 3 điểm của Review 1, cây làm việc sạch, sẵn sàng cho Review 2 (R2).
 
 Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối):
 
@@ -426,3 +439,37 @@ Task 6 ghi thêm: lệnh đã chạy, pass / fail, tên test hỏng đối chi�
 ## 10. Review
 
 <!-- Phiên review ghi; phiên code không tự chấm ĐẠT / xoá task R<n>. -->
+
+### R1 — 2026-11-08 — **CHƯA ĐẠT** (3 việc sửa nhỏ; code đúng plan, chạy đúng, không lỗi test mới)
+
+Review commit `f40119e50..3c2252a1e` (6 commit) và cây làm việc.
+
+| Hạng mục | Kết quả | Ghi chú |
+|---|---|---|
+| Bước 0 (Task 0) | ✅ | 4 ca B0-1…B0-4 có trong `modules/einvoice/presentation/test/widgets/provider_connection_view_test.dart`, chạy lại trên module: 83 / 0 |
+| `einvoiceException` (Task 1, Q1) | ✅ | 2 mã thêm ở **cuối** `_codesByPriority`; 4 ca mới đúng plan. Bỏ dòng `'TEMPLATE_NOT_AVAILABLE: x' → SYSTEM_ERROR` khỏi bảng parity cũ / mới: đúng, vì đây là đổi có chủ đích (Q1) |
+| Chép nguyên văn 29 tệp | ✅ | So từng tệp với nguồn module (bỏ import, dòng trống): 16 tệp giống hệt, 9 tệp chỉ khác định dạng (bề rộng dòng), `provider_connection_view.dart` chỉ bỏ `_ProviderConnectionPollingWrapper` / `UseQuery` (mục 6) |
+| 4 cubit, bắt lỗi (mục 5) | ✅ | Thứ tự gọi, tham số, nhánh mã khớp bảng; `load()` tổng quan giữ thứ tự H9; `mapConfigurationQueryFailure` so `NO_PERMISSION` |
+| Hỏi lại (mục 6, Q3, KI-16) | ✅ | `onChange` → `_syncPolling(change.nextState)`, chống chồng lượt, nuốt lỗi, chỉ thay màn khi khác trạng thái, `close()` huỷ timer. Lệch: `final class` → `class` để test con gọi `emit` (đã ghi, chấp nhận) |
+| Trang, router, DI (Task 5) | ✅ | Router hết `vet45_einvoice_*` / `vet45_shared_application`; DI thêm 2 lazy singleton sau `ReturnExchangeRepository`, `tenantId` / `actorId` như `PartnerRepository` |
+| `dart analyze lib/features/einvoice test/features/einvoice test/core/di lib/core` | ✅ | 0 lỗi / cảnh báo (10 `info` deprecated của design system, chép từ module) |
+| `check_feature_imports` | ✅ | `einvoice` chỉ còn 4 dòng R1 có từ 7-A1 |
+| `git grep` 6.3 | ✅ | rỗng; `recheck` chỉ còn ở 2 hằng chuỗi `recheckSuccess*` trong `provider_connection_copy.dart` (chép nguyên, không ai dùng; 7-C / dọn sau, không bắt sửa) |
+| `flutter test test/features/einvoice/ test/core/di/injection_test.dart test/features/more/` | ✅ | chạy lại: 237 + 10 bỏ qua |
+| `flutter test` cả app | ✅ | chạy lại: 2.959 đạt / 10 bỏ qua / 55 lỗi, cả 55 đều có trong `TEST-BASELINE.md` (khớp Kết quả) |
+| Test chép từ module (Task 4) | ⚠️ | Tên ca khớp từng tệp (chỉ bỏ ca cache theo Q6); số nhịp `pump` giữ nguyên. Nhưng 2 ca mất kiểm số lần gọi — R1-2 |
+| Cây làm việc | ❌ | 37 tệp chưa commit, chỉ thêm 1 dòng trống cuối tệp — R1-1 |
+| Kết quả | ⚠️ | R1-3 |
+| TH-08 KI-15 / KI-16, PLAN.md | ✅ | |
+| Kiểm tay 6.7 | ⬜ | người dùng |
+
+#### R1 — việc cần sửa
+
+- [ ] **R1-1 — 37 tệp dư dòng trống cuối tệp (chưa commit).** `git diff --stat` sau `3c2252a1e`: 37 tệp dưới `apps/erp/lib/features/einvoice/{logic,presentation}` và `apps/erp/test/features/einvoice/` chỉ có `+` một dòng trống sau `}` cuối. Bỏ đi: `git checkout -- apps/erp/lib/features/einvoice apps/erp/test/features/einvoice` (kiểm `git diff` chỉ còn các dòng trống đó trước khi chạy), hoặc `dart format` các tệp đó. Sau đó `git status` sạch phần code.
+- [ ] **R1-2 — 2 ca test chép mất kiểm "chỉ gọi lưu 1 lần".** Bản module có `expect(executedCommands, hasLength(1))` (`modules/einvoice/presentation/test/widgets/default_issuance_configuration_view_test.dart`, 2 ca lưu mẫu thường / MTT; `automation_policy_view_test.dart`, ca lưu). Bản app chỉ còn `repo.lastX`, nên bấm Lưu gọi 2 lần vẫn xanh. Sửa ở `apps/erp/test/features/einvoice/presentation/widgets/default_issuance_configuration_view_test.dart` (2 ca) và `automation_policy_view_test.dart` (1 ca): thêm `expect(repo.calls.where((c) => c == 'setDefaultConfiguration'), hasLength(1));` / `… == 'updateAutomationPolicy'`, hoặc đếm trong repository con. Hai `expect` `tenantId` / `actorId` bỏ là đúng (cubit không còn truyền).
+- [ ] **R1-3 — Kết quả.**
+  - (a) Task 4: số ca từng tệp ghi sai. Thực tế (đếm `test(` / `testWidgets(`): `provider_connection_state_test` **1**, `automation_policy_view_test` **3**, `default_issuance_configuration_view_test` **5**, `einvoice_configuration_overview_view_test` **6**, `provider_connection_view_test` 13, `configuration_state_messages_test` 2, `provider_connection_overlays_test` 1 (tổng 31, khớp). Sửa lại.
+  - (b) 6.6: `detect_changes` "5 files" là chạy trên cây làm việc sau khi đã commit, nên không phản ánh 7-A2a. Chạy lại `detect_changes({scope: "compare", base_ref: "765eb7917"})` và ghi số tệp / symbol / luồng / rủi ro.
+  - (c) Thêm "**R1 — sửa**" dưới mục 9, ghi lệnh + số ca sau R1-2.
+
+R2 = lượt review sau khi phiên code làm xong R1-1 … R1-3 và ghi vào mục 9 (không tự tích `[x]` ở mục 10).

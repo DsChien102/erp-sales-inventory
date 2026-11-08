@@ -102,6 +102,10 @@ void main() {
       await tester.tap(find.byKey(const Key('automation_policy_save')));
       await tester.pumpAndSettle();
 
+      expect(
+        repo.calls.where((c) => c == 'updateAutomationPolicy'),
+        hasLength(1),
+      );
       expect(repo.lastAutoIssue, isFalse);
       expect(repo.lastAutoSend, isFalse);
       expect(repo.lastExpectedVersion, 1);
