@@ -15,7 +15,7 @@ import 'package:vet45_shared_application/application.dart';
 final class _SequencedConnectionModule implements IEInvoiceModule {
   _SequencedConnectionModule(this.screens);
 
-  final List<ProviderConnectionScreenDto> screens;
+  final List<Object?> screens;
   int queryCount = 0;
   int verifyCount = 0;
 
@@ -31,6 +31,13 @@ final class _SequencedConnectionModule implements IEInvoiceModule {
           )
           as TResult;
     }
+    if (command is ConnectProviderCommand) {
+      return ProviderConnectionResultDto(
+            connectionId: 'connection-1',
+            status: ProviderConnectionStatus.checkRequired,
+          )
+          as TResult;
+    }
     throw UnimplementedError();
   }
 
@@ -39,9 +46,12 @@ final class _SequencedConnectionModule implements IEInvoiceModule {
     if (query is! GetProviderConnectionScreenQuery) {
       throw UnimplementedError();
     }
-    final screen = screens[queryCount < screens.length ? queryCount : screens.length - 1];
+    final item = screens[queryCount < screens.length ? queryCount : screens.length - 1];
     queryCount += 1;
-    return screen as TResult;
+    if (item is Exception) {
+      throw item;
+    }
+    return item as TResult;
   }
 }
 
@@ -335,4 +345,171 @@ void main() {
       expect(find.text('Không có quyền truy cập'), findsOneWidget);
     },
   );
+
+  testWidgets('B0-1 poll error keeps pending screen', (tester) async {
+    final module = _SequencedConnectionModule([
+      _screen(ProviderConnectionStatus.checkRequired),
+      Exception('net'),
+      _screen(ProviderConnectionStatus.connected),
+    ]);
+    final client = QueryClient();
+
+    await tester.pumpWidget(
+      QueryClientProvider(
+        client: client,
+        child: MaterialApp(
+          theme: VTheme.lightTheme,
+          home: BlocProvider(
+            create: (_) => ProviderConnectionCubit(
+              einvoiceModule: module,
+              executionContext: FakeExecutionContext(),
+              queryClient: client,
+            )..load(),
+            child: const Scaffold(body: ProviderConnectionView()),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Chờ kết nối'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Chờ kết nối'), findsOneWidget);
+    expect(find.text(ConfigurationStateCopy.loadErrorTitle), findsNothing);
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Đã kết nối'), findsOneWidget);
+  });
+
+  testWidgets('B0-2 polling stops after status leaves checkRequired', (tester) async {
+    final module = _SequencedConnectionModule([
+      _screen(ProviderConnectionStatus.checkRequired),
+      _screen(ProviderConnectionStatus.connected),
+    ]);
+    final client = QueryClient();
+
+    await tester.pumpWidget(
+      QueryClientProvider(
+        client: client,
+        child: MaterialApp(
+          theme: VTheme.lightTheme,
+          home: BlocProvider(
+            create: (_) => ProviderConnectionCubit(
+              einvoiceModule: module,
+              executionContext: FakeExecutionContext(),
+              queryClient: client,
+            )..load(),
+            child: const Scaffold(body: ProviderConnectionView()),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Chờ kết nối'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Đã kết nối'), findsOneWidget);
+    final n = module.queryCount;
+
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pump();
+
+    expect(module.queryCount, equals(n));
+  });
+
+  testWidgets('B0-3 no polling when not pending', (tester) async {
+    final module = _SequencedConnectionModule([
+      _screen(ProviderConnectionStatus.connected),
+    ]);
+    final client = QueryClient();
+
+    await tester.pumpWidget(
+      QueryClientProvider(
+        client: client,
+        child: MaterialApp(
+          theme: VTheme.lightTheme,
+          home: BlocProvider(
+            create: (_) => ProviderConnectionCubit(
+              einvoiceModule: module,
+              executionContext: FakeExecutionContext(),
+              queryClient: client,
+            )..load(),
+            child: const Scaffold(body: ProviderConnectionView()),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Đã kết nối'), findsOneWidget);
+    expect(module.queryCount, equals(1));
+
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pump();
+
+    expect(module.queryCount, equals(1));
+  });
+
+  testWidgets('B0-4 connect pending then polls to connected', (tester) async {
+    final module = _SequencedConnectionModule([
+      _screen(ProviderConnectionStatus.disconnected),
+      _screen(ProviderConnectionStatus.connected),
+    ]);
+    final client = QueryClient();
+
+    await tester.pumpWidget(
+      QueryClientProvider(
+        client: client,
+        child: MaterialApp(
+          theme: VTheme.lightTheme,
+          home: BlocProvider(
+            create: (_) => ProviderConnectionCubit(
+              einvoiceModule: module,
+              executionContext: FakeExecutionContext(),
+              queryClient: client,
+            )..load(),
+            child: const Scaffold(body: ProviderConnectionView()),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Kết nối'), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(VTextField, 'Tài khoản MISA'),
+      'ketoan@anphu.vn',
+    );
+    await tester.enterText(
+      find.widgetWithText(VPasswordField, 'Mật khẩu MISA'),
+      'secret',
+    );
+    await tester.tap(find.byKey(const Key('provider_connection_submit')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Chờ kết nối'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Đã kết nối'), findsOneWidget);
+  });
 }
