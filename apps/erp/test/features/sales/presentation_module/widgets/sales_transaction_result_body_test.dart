@@ -12,17 +12,17 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_application/testing.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_einvoice_presentation/presentation.dart'
-    hide InvoiceDocumentsActionSheet, PostIssueEInvoiceActionSheet;
+import 'package:erp/features/einvoice/presentation/support/order_einvoice_copy.dart';
+import 'package:erp/features/einvoice/presentation/widgets/order_einvoice_row.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';
-import 'package:erp/features/sales/presentation/services/i_invoice_document_exporter.dart';
-import 'package:erp/features/sales/presentation/support/order_invoice_delivery_copy.dart';
-import 'package:erp/features/sales/presentation/widgets/einvoice/invoice_documents_action_sheet.dart';
-import 'package:erp/features/sales/presentation/widgets/einvoice/post_issue_einvoice_action_sheet.dart';
-import 'package:erp/features/sales/presentation/widgets/einvoice/resend_invoice_sheet.dart';
+import 'package:erp/features/einvoice/logic/i_invoice_document_exporter.dart';
+import 'package:erp/features/einvoice/presentation/support/order_invoice_delivery_copy.dart';
+import 'package:erp/features/einvoice/presentation/widgets/invoice_documents_action_sheet.dart';
+import 'package:erp/features/einvoice/presentation/widgets/post_issue_einvoice_action_sheet.dart';
+import 'package:erp/features/einvoice/presentation/widgets/resend_invoice_sheet.dart';
 import 'package:erp/features/sales/presentation/widgets/sales_transaction_result_body.dart';
 
 void main() {

@@ -5,8 +5,8 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
-import '../services/i_invoice_document_exporter.dart';
-import '../services/i_invoice_viewer_launcher.dart';
+import 'package:erp/features/einvoice/logic/i_invoice_document_exporter.dart';
+import 'package:erp/features/einvoice/logic/i_invoice_viewer_launcher.dart';
 import 'sales_result_customer_card.dart';
 import 'sales_result_failure_view.dart';
 import 'sales_result_documents_section.dart';

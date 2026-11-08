@@ -9,13 +9,13 @@ import 'package:erp/core/formatting/money_formatter.dart';
 
 import 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
+import 'package:erp/features/einvoice/logic/i_invoice_document_exporter.dart';
+import 'package:erp/features/einvoice/logic/i_invoice_viewer_launcher.dart';
+import 'package:erp/features/einvoice/presentation/widgets/order_einvoice_section.dart';
 import '../navigation/sales_typed_routes.dart';
-import '../services/i_invoice_document_exporter.dart';
-import '../services/i_invoice_viewer_launcher.dart';
 import '../support/order_einvoice_payable.dart';
 import '../support/sales_pdf_runner.dart';
 import '../support/sales_receipt_pdf_generator.dart';
-import 'order_einvoice_section.dart';
 import 'sales_einvoice_entry_card.dart';
 import 'sales_receipt_entry_card.dart';
 import 'sales_result_receipt_sheet.dart';
