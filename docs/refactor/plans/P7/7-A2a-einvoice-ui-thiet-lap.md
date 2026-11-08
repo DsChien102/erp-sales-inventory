@@ -233,8 +233,8 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
 - Consumes: `EInvoiceConfigurationRepository` (7-A1), `EInvoiceErrorCodes`, model `data/models.dart`, fake Task 2.
 - Produces: 4 cubit, mỗi cubit `({required EInvoiceConfigurationRepository repository})`, riêng `ProviderConnectionCubit` có thêm `Duration pollInterval` (mục 6); bỏ getter `einvoiceModule` / `executionContext`. Các `enum` `*SaveResult` / `ProviderConnectionSubmitResult` và state giữ nguyên tên, giá trị.
 
-- [ ] Chép 29 tệp theo mục 4, đổi import (`package:erp/features/einvoice/...`), chưa đổi thân.
-- [ ] Viết test cubit (đỏ):
+- [x] Chép 29 tệp theo mục 4, đổi import (`package:erp/features/einvoice/...`), chưa đổi thân.
+- [x] Viết test cubit (đỏ):
   - `provider_connection_cubit_test.dart`:
     - `close cancels polling`: fake `connectionScreenPending`, `pollInterval: 10ms` (app không có `fake_async`: dùng `await Future<void>.delayed(...)` thật). `await load()` rồi `await close()`, chờ thêm 50ms → `calls.where((c) => c == 'getConnectionScreen').length == 1`.
     - `slow poll does not overlap`: repository con mà `getConnectionScreen` lần 2 chờ `Completer`. `pollInterval: 10ms`; chờ 35ms → đúng 2 lần gọi (load + lượt đang treo). `complete` xong, chờ thêm 15ms → 3 lần.
@@ -247,10 +247,10 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
     - `setDefaultNotConnected` (fake ném ở `listTemplates` nên `load` lỗi): dùng repository con chỉ ném ở `setDefaultConfiguration` → `notConnected`;
     - `STATE_CHANGED` → `failed`;
     - `signing id`: mẫu `isMtt: true` → gọi `setDefaultConfiguration` với `signingConfigId == 'sign-nosign'`, ngược lại `'sign-hsm'`.
-- [ ] Đổi 4 cubit theo mục 5 + mục 6; bỏ `recheck()`, `updateErrorFromQuery`, `_setConnectionQueryData`, `_invalidateConnectionQuery`.
-- [ ] Sửa `ProviderConnectionView` theo mục 6 (bỏ `UseQuery`).
-- [ ] `flutter test test/features/einvoice/logic/` PASS; `dart analyze lib/features/einvoice` sạch; `dart run tool/check_feature_imports.dart` không dòng `einvoice` mới ngoài 4 dòng R1 đã có.
-- [ ] Commit `feat(einvoice): 7-A2a chép UI thiết lập, cubit dùng EInvoiceConfigurationRepository, hỏi lại bằng Timer`.
+- [x] Đổi 4 cubit theo mục 5 + mục 6; bỏ `recheck()`, `updateErrorFromQuery`, `_setConnectionQueryData`, `_invalidateConnectionQuery`.
+- [x] Sửa `ProviderConnectionView` theo mục 6 (bỏ `UseQuery`).
+- [x] `flutter test test/features/einvoice/logic/` PASS; `dart analyze lib/features/einvoice` sạch; `dart run tool/check_feature_imports.dart` không dòng `einvoice` mới ngoài 4 dòng R1 đã có.
+- [x] Commit `feat(einvoice): 7-A2a chép UI thiết lập, cubit dùng EInvoiceConfigurationRepository, hỏi lại bằng Timer`.
 
 ### Task 4: Chép 7 tệp test module
 
@@ -339,6 +339,21 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
   - Test thêm / sửa, lệnh, số ca pass / fail: `flutter test test/features/einvoice/support/` → 5/5 PASS.
   - Impact (symbol, số caller, luồng, mức rủi ro): Fake trong thư mục test, không ảnh hưởng code production.
   - Ghi chú cho review: Sẵn sàng phục vụ Task 3 (test cubit), Task 4 (chép test module), Task 5 (test page/router).
+
+- **Task 3 — ✅**
+  - Tệp:dòng đã đổi / thêm:
+    - Tạo 30 tệp theo mục 4 trong `apps/erp/lib/features/einvoice/`:
+      - `logic/`: `einvoice_permissions.dart`, `configuration_query_failure.dart`, `provider_connection_copy.dart`, `default_issuance_configuration_copy.dart`, `einvoice_configuration_display.dart`, `einvoice_configuration_overview_state.dart`, `einvoice_configuration_overview_cubit.dart`, `automation_policy_state.dart`, `automation_policy_cubit.dart`, `default_issuance_configuration_state.dart`, `default_issuance_configuration_cubit.dart`, `provider_connection_state.dart`, `provider_connection_cubit.dart`.
+      - `presentation/support/`: `automation_policy_copy.dart`, `configuration_state_copy.dart`, `einvoice_configuration_overview_copy.dart`, `einvoice_datetime_copy.dart`.
+      - `presentation/widgets/`: `configuration_load_error_state.dart`, `configuration_permission_denied_state.dart`, `configuration_query_failure_view.dart`, `settings_info_row.dart`, `settings_navigation_item.dart`, `switch_setting_row.dart`, `configuration_editor_bottom_bar.dart`, `disconnect_provider_sheet.dart`, `readiness_summary.dart`, `einvoice_configuration_overview_view.dart`, `automation_policy_view.dart`, `default_issuance_configuration_view.dart`, `provider_connection_view.dart`.
+    - Viết test cubit:
+      - `apps/erp/test/features/einvoice/logic/provider_connection_cubit_test.dart` (4 ca: close cancels polling, slow poll does not overlap, poll update keeps reconnect mode, auth failed code maps to authFailed).
+      - `apps/erp/test/features/einvoice/logic/automation_policy_cubit_test.dart` (3 ca: enableAutoIssueNotReady, automationStateChanged, AppException systemError).
+      - `apps/erp/test/features/einvoice/logic/default_issuance_configuration_cubit_test.dart` (5 ca: server template error shows incompatible, SIGNING_CONFIGURATION_NOT_AVAILABLE, setDefaultNotConnected, STATE_CHANGED, signing id).
+  - Lệch plan + lý do: Đổi `ProviderConnectionCubit` từ `final class` sang `class` để cho phép test subclass phát `emit` kiểm tra giữ reconnect mode.
+  - Test thêm / sửa, lệnh, số ca pass / fail: `flutter test test/features/einvoice/logic/` → 59/59 PASS. `dart analyze lib/features/einvoice` → 0 errors, 0 warnings. `dart run tool/check_feature_imports.dart` → giữ nguyên 4 dòng R1 hiện có của `einvoice`, không phát sinh vi phạm mới.
+  - Impact (symbol, số caller, luồng, mức rủi ro): Toàn bộ 4 cubit và 30 tệp thiết lập mới nằm trong `features/einvoice`, chưa nối vào router/pages, rủi ro: LOW.
+  - Ghi chú cho review: Cơ chế hỏi lại của `ProviderConnectionCubit` chuyển sang `Timer` 2 giây hoàn toàn khép kín trong cubit; `ProviderConnectionView` không còn dùng `UseQuery`.
 
 Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối):
 
