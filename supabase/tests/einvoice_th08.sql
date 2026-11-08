@@ -335,6 +335,18 @@ declare
   v_g1 uuid := gen_random_uuid();
   v_g2 uuid := gen_random_uuid();
   v_caps text;
+  v_att_e41 uuid;
+  v_lease_e41 record;
+  v_lease_e41b record;
+  v_lease_e43 record;
+  v_lease_row einvoice.publish_series_leases%rowtype;
+  v_att_row einvoice.issuance_attempts%rowtype;
+  v_src_cmd uuid;
+  v_child_cmd1 uuid;
+  v_child_cmd2 uuid;
+  v_child_cmd3 uuid;
+  v_retry_res record;
+  v_child_count int;
 begin
   -- 0) Hai tenant + owner + JWT (như sales_th05.sql)
   insert into auth.users (
@@ -839,6 +851,228 @@ begin
     and enqueued_at <= now()
     and processed_at is null and failed_at is null;
   if v_n <> 1 then raise exception 'FAIL E40: poll command not seeded'; end if;
+
+  -- =========================================================================
+  -- E41–E45 (7-E2a): Khoá ký hiệu phát hành + Thử lại bền InvoiceNumberNotCotinuous
+  -- =========================================================================
+  reset role;
+  v_att_e41 := public._th08_attempt_id(v_oa, 1);
+  if v_att_e41 is null then
+    raise exception 'FAIL E41: attempt for v_oa not found';
+  end if;
+
+  select * into v_att_row from einvoice.issuance_attempts where id = v_att_e41;
+
+  -- E41: khoá bận
+  select * into v_lease_e41
+  from einvoice.acquire_publish_series_lease(v_ta, v_att_e41, 'owner-a');
+  if v_lease_e41.acquired is not true then
+    raise exception 'FAIL E41: expected acquired = true for owner-a';
+  end if;
+
+  select * into v_lease_e41b
+  from einvoice.acquire_publish_series_lease(v_ta, v_att_e41, 'owner-b');
+  if v_lease_e41b.acquired is not false or v_lease_e41b.retry_after_seconds <= 0 then
+    raise exception 'FAIL E41: expected acquired = false and retry_after_seconds > 0 for owner-b, got % (retry_after=%)',
+      v_lease_e41b.acquired, v_lease_e41b.retry_after_seconds;
+  end if;
+
+  -- E42: chủ khác không nhả được khoá
+  perform einvoice.release_publish_series_lease(
+    v_ta,
+    v_lease_e41.provider_connection_id,
+    v_lease_e41.invoice_series,
+    'owner-b',
+    v_lease_e41.lease_version
+  );
+  select * into v_lease_row
+  from einvoice.publish_series_leases
+  where tenant_id = v_ta
+    and provider_connection_id = v_lease_e41.provider_connection_id
+    and invoice_series = v_lease_e41.invoice_series;
+  if v_lease_row.owner_token <> 'owner-a' or v_lease_row.leased_until <= clock_timestamp() then
+    raise exception 'FAIL E42: lease should remain held by owner-a, got owner_token=%, leased_until=%',
+      v_lease_row.owner_token, v_lease_row.leased_until;
+  end if;
+
+  -- E43: khoá hết hạn thì chủ khác lấy được, lease_version tăng
+  update einvoice.publish_series_leases
+  set leased_until = clock_timestamp() - interval '1 second'
+  where tenant_id = v_ta
+    and provider_connection_id = v_lease_e41.provider_connection_id
+    and invoice_series = v_lease_e41.invoice_series;
+
+  select * into v_lease_e43
+  from einvoice.acquire_publish_series_lease(v_ta, v_att_e41, 'owner-b');
+  if v_lease_e43.acquired is not true or v_lease_e43.lease_version <= v_lease_e41.lease_version then
+    raise exception 'FAIL E43: expected acquired = true with newer lease_version, got acquired=%, version=% vs %',
+      v_lease_e43.acquired, v_lease_e43.lease_version, v_lease_e41.lease_version;
+  end if;
+
+  -- Nhả khoá của E43 để sạch trạng thái
+  perform einvoice.release_publish_series_lease(
+    v_ta,
+    v_lease_e43.provider_connection_id,
+    v_lease_e43.invoice_series,
+    'owner-b',
+    v_lease_e43.lease_version
+  );
+
+  -- E44: Thử lại bền:
+  -- Lệnh nguồn ban đầu
+  select id into v_src_cmd
+  from einvoice.internal_commands
+  where tenant_id = v_ta
+    and command_type = 'einvoice.publish_invoice'
+    and source_event_id = v_att_e41
+  limit 1;
+  if v_src_cmd is null then
+    raise exception 'FAIL E44: source publish_invoice command not found for attempt %', v_att_e41;
+  end if;
+
+  -- Lần 1: chuyển lượt sang SUBMITTED rồi gọi record_retryable_provider_publish_rejection
+  update einvoice.issuance_attempts set status = 'SUBMITTED' where id = v_att_e41;
+  select * into v_retry_res
+  from einvoice.record_retryable_provider_publish_rejection(
+    v_ta,
+    v_att_e41,
+    v_src_cmd,
+    v_att_row.idempotency_key,
+    v_att_row.canonical_payload_hash,
+    'InvoiceNumberNotCotinuous',
+    'th08',
+    5
+  );
+  if v_retry_res.attempt_status <> 'PREPARING'
+     or v_retry_res.provider_publish_retry_count <> 1
+     or v_retry_res.scheduled_publish_retry is not true then
+    raise exception 'FAIL E44 round 1: expected (PREPARING, 1, true) but got (%)', v_retry_res;
+  end if;
+
+  select id into v_child_cmd1
+  from einvoice.internal_commands
+  where tenant_id = v_ta
+    and command_type = 'einvoice.publish_invoice'
+    and source_event_id = v_src_cmd
+    and enqueued_at >= now() + interval '4 seconds';
+  if v_child_cmd1 is null then
+    raise exception 'FAIL E44 round 1: child command not found or enqueued_at < now() + 4s';
+  end if;
+
+  -- Lần 2: lượt về SUBMITTED, nguồn = child 1
+  update einvoice.issuance_attempts set status = 'SUBMITTED' where id = v_att_e41;
+  select * into v_retry_res
+  from einvoice.record_retryable_provider_publish_rejection(
+    v_ta,
+    v_att_e41,
+    v_child_cmd1,
+    v_att_row.idempotency_key,
+    v_att_row.canonical_payload_hash,
+    'InvoiceNumberNotCotinuous',
+    'th08',
+    5
+  );
+  if v_retry_res.attempt_status <> 'PREPARING'
+     or v_retry_res.provider_publish_retry_count <> 2
+     or v_retry_res.scheduled_publish_retry is not true then
+    raise exception 'FAIL E44 round 2: expected (PREPARING, 2, true) but got (%)', v_retry_res;
+  end if;
+
+  select id into v_child_cmd2
+  from einvoice.internal_commands
+  where tenant_id = v_ta
+    and command_type = 'einvoice.publish_invoice'
+    and source_event_id = v_child_cmd1
+    and enqueued_at >= now() + interval '29 seconds';
+  if v_child_cmd2 is null then
+    raise exception 'FAIL E44 round 2: child command 2 not found or enqueued_at < now() + 29s';
+  end if;
+
+  -- Lần 3: lượt về SUBMITTED, nguồn = child 2
+  update einvoice.issuance_attempts set status = 'SUBMITTED' where id = v_att_e41;
+  select * into v_retry_res
+  from einvoice.record_retryable_provider_publish_rejection(
+    v_ta,
+    v_att_e41,
+    v_child_cmd2,
+    v_att_row.idempotency_key,
+    v_att_row.canonical_payload_hash,
+    'InvoiceNumberNotCotinuous',
+    'th08',
+    5
+  );
+  if v_retry_res.attempt_status <> 'PREPARING'
+     or v_retry_res.provider_publish_retry_count <> 3
+     or v_retry_res.scheduled_publish_retry is not true then
+    raise exception 'FAIL E44 round 3: expected (PREPARING, 3, true) but got (%)', v_retry_res;
+  end if;
+
+  select id into v_child_cmd3
+  from einvoice.internal_commands
+  where tenant_id = v_ta
+    and command_type = 'einvoice.publish_invoice'
+    and source_event_id = v_child_cmd2
+    and enqueued_at >= now() + interval '29 seconds';
+  if v_child_cmd3 is null then
+    raise exception 'FAIL E44 round 3: child command 3 not found or enqueued_at < now() + 29s';
+  end if;
+
+  -- E45: gọi lại cùng nguồn của lần 3 trước lần 4:
+  select count(*) into v_child_count
+  from einvoice.internal_commands
+  where tenant_id = v_ta
+    and command_type = 'einvoice.publish_invoice'
+    and (payload ->> 'attempt_id')::uuid = v_att_e41;
+
+  select * into v_retry_res
+  from einvoice.record_retryable_provider_publish_rejection(
+    v_ta,
+    v_att_e41,
+    v_child_cmd2,
+    v_att_row.idempotency_key,
+    v_att_row.canonical_payload_hash,
+    'InvoiceNumberNotCotinuous',
+    'th08',
+    5
+  );
+  if v_retry_res.scheduled_publish_retry is not true or v_retry_res.provider_publish_retry_count <> 3 then
+    raise exception 'FAIL E45: expected scheduled_publish_retry = true, retry_count = 3, got (%)', v_retry_res;
+  end if;
+
+  select count(*) into v_n
+  from einvoice.internal_commands
+  where tenant_id = v_ta
+    and command_type = 'einvoice.publish_invoice'
+    and (payload ->> 'attempt_id')::uuid = v_att_e41;
+  if v_n <> v_child_count then
+    raise exception 'FAIL E45: command count should not change, expected % got %', v_child_count, v_n;
+  end if;
+
+  -- E44 (tiếp tục lần thứ 4): lượt về SUBMITTED, nguồn = child 3
+  update einvoice.issuance_attempts set status = 'SUBMITTED' where id = v_att_e41;
+  select * into v_retry_res
+  from einvoice.record_retryable_provider_publish_rejection(
+    v_ta,
+    v_att_e41,
+    v_child_cmd3,
+    v_att_row.idempotency_key,
+    v_att_row.canonical_payload_hash,
+    'InvoiceNumberNotCotinuous',
+    'th08',
+    5
+  );
+  if v_retry_res.attempt_status <> 'FAILED' or v_retry_res.scheduled_publish_retry is not false then
+    raise exception 'FAIL E44 round 4: expected attempt_status = FAILED, scheduled = false, got (%)', v_retry_res;
+  end if;
+
+  select count(*) into v_n
+  from einvoice.internal_commands
+  where tenant_id = v_ta
+    and command_type = 'einvoice.publish_invoice'
+    and source_event_id = v_child_cmd3;
+  if v_n <> 0 then
+    raise exception 'FAIL E44 round 4: child command should not be created, got %', v_n;
+  end if;
 
   raise notice 'einvoice_th08: OK';
 end;

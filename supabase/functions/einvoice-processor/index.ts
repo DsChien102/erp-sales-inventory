@@ -2,7 +2,9 @@ import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2'
 import { authorizeRequest, jsonResponse as json, preflightResponse, readJwtRole } from './auth.ts'
 import { type CredentialsRow, TenantMisaClientFactory } from './handlers/misa_client_factory.ts'
 import { type MisaEnv, readMisaEnv } from './handlers/misa_env.ts'
-import { buildHandlers, DEAD_LETTER_HANDLERS } from './handlers/registry.ts'
+import { buildDeadLetters, buildHandlers, type HandlerDeps } from './handlers/registry.ts'
+import { createIssuanceProvider } from './handlers/issuance/issuance_provider.ts'
+import { createSupabaseIssuanceGateways } from './handlers/issuance/supabase_gateways.ts'
 import type { ConnectionRecorder } from './handlers/sync_capabilities.ts'
 import { runInvocation } from './queue/processor.ts'
 import { SupabaseQueueRpc } from './queue/supabase_queue_rpc.ts'
@@ -75,10 +77,19 @@ Deno.serve(async (req) => {
 
     const client = getClient(supabaseUrl, serviceRoleKey)
     clientFactory ??= new TenantMisaClientFactory(env, credentialsReader(client))
-    const handlers = buildHandlers({ clients: clientFactory, recorder: connectionRecorder(client), env })
+    const deps: HandlerDeps = {
+      clients: clientFactory,
+      recorder: connectionRecorder(client),
+      env,
+      issuance: {
+        provider: createIssuanceProvider({ clients: clientFactory }),
+        gateways: createSupabaseIssuanceGateways(client),
+      },
+    }
+    const handlers = buildHandlers(deps)
 
     const summary = await runInvocation(
-      { rpc: new SupabaseQueueRpc(client), handlers, deadLetters: DEAD_LETTER_HANDLERS },
+      { rpc: new SupabaseQueueRpc(client), handlers, deadLetters: buildDeadLetters(deps) },
       decision.tenantId,
     )
     return json(summary)
