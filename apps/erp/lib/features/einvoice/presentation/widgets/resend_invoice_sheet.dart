@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
+import '../../data/models.dart';
 
 import '../../logic/order_invoice_delivery_cubit.dart';
 import '../../logic/order_invoice_delivery_state.dart';

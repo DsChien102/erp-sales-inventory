@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
-import 'package:erp/features/einvoice/logic/file_invoice_document_exporter.dart';
 import 'package:flutter/services.dart' show Rect;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/models.dart';
+import 'package:erp/features/einvoice/data/file_invoice_document_exporter.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

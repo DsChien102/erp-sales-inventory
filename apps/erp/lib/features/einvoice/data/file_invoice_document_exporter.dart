@@ -1,9 +1,10 @@
+import 'dart:ui' show Rect;
+
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'models.dart';
 
 import 'i_invoice_document_exporter.dart';
 
@@ -120,17 +121,10 @@ final class FileInvoiceDocumentExporter implements IInvoiceDocumentExporter {
       return result.status == ShareResultStatus.success ||
           result.status == ShareResultStatus.dismissed;
     } catch (error) {
-      if (error is PlatformException) {
-        debugPrint(
-          'FileInvoiceDocumentExporter stage=native_share '
-          'errorType=PlatformException code=${error.code}',
-        );
-      } else {
-        debugPrint(
-          'FileInvoiceDocumentExporter stage=native_share '
-          'errorType=${error.runtimeType}',
-        );
-      }
+      debugPrint(
+        'FileInvoiceDocumentExporter stage=native_share '
+        'errorType=${error.runtimeType} error=$error',
+      );
       return false;
     }
   }

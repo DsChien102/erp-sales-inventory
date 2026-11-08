@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
-
 import 'package:erp/core/formatting/money_formatter.dart';
-
+import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dart';
+import 'package:erp/features/einvoice/data/einvoice_repository.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
-import 'package:erp/features/einvoice/logic/i_invoice_document_exporter.dart';
-import 'package:erp/features/einvoice/logic/i_invoice_viewer_launcher.dart';
 import 'package:erp/features/einvoice/presentation/widgets/order_einvoice_section.dart';
 import '../navigation/sales_typed_routes.dart';
 import '../support/order_einvoice_payable.dart';
@@ -19,22 +15,24 @@ import '../support/sales_receipt_pdf_generator.dart';
 import 'sales_einvoice_entry_card.dart';
 import 'sales_receipt_entry_card.dart';
 import 'sales_result_receipt_sheet.dart';
+import 'package:erp/features/einvoice/data/i_invoice_viewer_launcher.dart';
+import 'package:erp/features/einvoice/data/i_invoice_document_exporter.dart';
 
 class SalesResultDocumentsSection extends StatelessWidget {
   const SalesResultDocumentsSection({
     super.key,
     required this.state,
     required this.cubit,
-    this.eInvoiceMediator,
-    this.executionContext,
+    this.eInvoiceRepository,
+    this.eInvoiceConfigurationRepository,
     this.viewerLauncher,
     this.documentExporter,
   });
 
   final SalesTransactionResultState state;
   final SalesTransactionResultCubit cubit;
-  final IModuleMediator? eInvoiceMediator;
-  final IExecutionContext? executionContext;
+  final EInvoiceRepository? eInvoiceRepository;
+  final EInvoiceConfigurationRepository? eInvoiceConfigurationRepository;
   final IInvoiceViewerLauncher? viewerLauncher;
   final IInvoiceDocumentExporter? documentExporter;
 
@@ -71,13 +69,13 @@ class SalesResultDocumentsSection extends StatelessWidget {
             currentPayableMinor: state.payment?.orderTotal.amountMinor,
           );
 
-    final resolvedMediator =
-        eInvoiceMediator ??
-        (GetIt.instance.isRegistered<IEInvoiceModule>() ? GetIt.instance<IEInvoiceModule>() : null);
-    final resolvedExecutionContext =
-        executionContext ??
-        (GetIt.instance.isRegistered<IExecutionContext>()
-            ? GetIt.instance<IExecutionContext>()
+    final resolvedRepository = eInvoiceRepository ??
+        (GetIt.instance.isRegistered<EInvoiceRepository>()
+            ? GetIt.instance<EInvoiceRepository>()
+            : null);
+    final resolvedConfigurationRepository = eInvoiceConfigurationRepository ??
+        (GetIt.instance.isRegistered<EInvoiceConfigurationRepository>()
+            ? GetIt.instance<EInvoiceConfigurationRepository>()
             : null);
 
     return Column(
@@ -159,8 +157,8 @@ class SalesResultDocumentsSection extends StatelessWidget {
             orderVersion != null &&
             orderCode != null &&
             orderCode.isNotEmpty &&
-            resolvedMediator != null &&
-            resolvedExecutionContext != null)
+            resolvedRepository != null &&
+            resolvedConfigurationRepository != null)
           OrderEInvoiceSection(
             key: const Key('sales_result_einvoice_section'),
             salesOrderId: salesOrderId,
@@ -173,8 +171,8 @@ class SalesResultDocumentsSection extends StatelessWidget {
               actions: const [OrderInvoiceAction.issue],
             ),
             hasLoadedInitialProjection: false,
-            mediator: resolvedMediator,
-            executionContext: resolvedExecutionContext,
+            repository: resolvedRepository,
+            configurationRepository: resolvedConfigurationRepository,
             viewerLauncher: viewerLauncher,
             documentExporter: documentExporter,
             buyerPartnerId: state.order?.customer?.customerId,

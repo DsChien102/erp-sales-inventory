@@ -1,19 +1,19 @@
 import 'dart:async';
 
-import 'package:async_query/async_query.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dart';
+import 'package:erp/features/einvoice/data/einvoice_errors.dart';
+import 'package:erp/features/einvoice/data/einvoice_repository.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
-import 'package:erp/features/sales/presentation/support/order_einvoice_error_message.dart';
-import 'file_invoice_document_exporter.dart';
-import 'i_invoice_document_exporter.dart';
-import 'i_invoice_viewer_launcher.dart';
+import 'einvoice_error_messages.dart';
 import 'order_einvoice_idempotency_key_factory.dart';
 import 'order_einvoice_refresh_snapshot.dart';
 import 'order_einvoice_state.dart';
-import 'url_invoice_viewer_launcher.dart';
+import 'package:erp/features/einvoice/data/i_invoice_viewer_launcher.dart';
+import 'package:erp/features/einvoice/data/i_invoice_document_exporter.dart';
+import 'package:erp/features/einvoice/data/file_invoice_document_exporter.dart';
+import 'package:erp/features/einvoice/data/url_invoice_viewer_launcher.dart';
 
 class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
   OrderEInvoiceCubit({
@@ -23,16 +23,15 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     IssuanceReadinessDto? initialReadiness,
     bool isBuyerNotReady = false,
     bool hasLoadedInitialProjection = true,
-    required IExecutionContext executionContext,
-    required IModuleMediator mediator,
-    required QueryClient queryClient,
+    required EInvoiceRepository repository,
+    required EInvoiceConfigurationRepository configurationRepository,
     IInvoiceViewerLauncher? viewerLauncher,
     IInvoiceDocumentExporter? documentExporter,
     OrderEInvoiceIdempotencyKeyFactory idempotencyKeyFactory =
         const OrderEInvoiceIdempotencyKeyFactory(),
-  }) : _executionContext = executionContext,
-       _mediator = mediator,
-       _queryClient = queryClient,
+    this.pollInterval = const Duration(seconds: 5),
+  }) : _repository = repository,
+       _configurationRepository = configurationRepository,
        _viewerLauncher = viewerLauncher ?? const UrlInvoiceViewerLauncher(),
        _documentExporter = documentExporter ?? const FileInvoiceDocumentExporter(),
        _idempotencyKeys = idempotencyKeyFactory,
@@ -47,17 +46,15 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
          ),
        );
 
-  final IExecutionContext _executionContext;
-  final IModuleMediator _mediator;
-  final QueryClient _queryClient;
+  final EInvoiceRepository _repository;
+  final EInvoiceConfigurationRepository _configurationRepository;
   final IInvoiceViewerLauncher _viewerLauncher;
   final IInvoiceDocumentExporter _documentExporter;
   final OrderEInvoiceIdempotencyKeyFactory _idempotencyKeys;
+  final Duration pollInterval;
 
-  QueryObserver<OrderEInvoiceRefreshSnapshot>? _pollObserver;
-  StreamSubscription<QueryState<OrderEInvoiceRefreshSnapshot>>? _pollSubscription;
-  bool _pollingRequested = false;
-  bool _startingPolling = false;
+  Timer? _pollTimer;
+  Future<OrderEInvoiceRefreshSnapshot>? _inFlight;
   int _previewGeneration = 0;
 
   /// Triggered when user confirms issue/retry action on UI.
@@ -66,49 +63,31 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     emit(currentState.copyWith(status: OrderEInvoiceStatus.submitting));
 
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
       final key = _idempotencyKeys.next();
 
       if (currentState.projection.issuanceDisplayState == IssuanceDisplayState.failed) {
         // Retry from failed
-        await _mediator.executeCommandAsync(
-          RetryIssuanceCommand(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: currentState.salesOrderId,
-            expectedOrderVersion: currentState.orderVersion,
-            idempotencyKey: key,
-          ),
+        await _repository.retry(
+          salesOrderId: currentState.salesOrderId,
+          expectedOrderVersion: currentState.orderVersion,
+          idempotencyKey: key,
         );
       } else {
         // Normal issue
-        await _mediator.executeCommandAsync(
-          IssueInvoiceCommand(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: currentState.salesOrderId,
-            sourceVersion: currentState.orderVersion.toString(),
-            idempotencyKey: key,
-          ),
+        await _repository.issue(
+          salesOrderId: currentState.salesOrderId,
+          sourceVersion: currentState.orderVersion.toString(),
+          idempotencyKey: key,
         );
       }
 
       emit(state.toProcessing());
-      // Avoid poll-observer onListen re-applying a stale failed cache snapshot.
-      _queryClient.setQueryData<OrderEInvoiceRefreshSnapshot>(
-        ['einvoice', 'orderInvoice', tenantId, state.salesOrderId],
-        OrderEInvoiceRefreshSnapshot(
-          projection: state.projection,
-          readiness: state.readiness,
-        ),
-      );
       await refresh();
     } catch (e) {
       emit(
         state.copyWith(
           status: OrderEInvoiceStatus.error,
-          errorMessage: OrderEInvoiceErrorMessage.of(e),
+          errorMessage: einvoiceErrorMessage(e),
         ),
       );
     }
@@ -117,6 +96,21 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
   /// Alias for issueOrRetry for explicit issue action.
   Future<void> issueNow() => issueOrRetry();
 
+  Future<OrderEInvoiceRefreshSnapshot> _read() {
+    _inFlight ??= _loadRefreshSnapshot().whenComplete(() => _inFlight = null);
+    return _inFlight!;
+  }
+
+  Future<void> _pollOnce() async {
+    if (isClosed || !state.isPageActive) return;
+    try {
+      final snapshot = await _read();
+      if (!isClosed) {
+        _applyRefreshSnapshot(snapshot);
+      }
+    } catch (_) {}
+  }
+
   /// Projection, readiness, and safe attempt-status refresh.
   Future<void> refresh() async {
     if (isClosed || !state.isPageActive) {
@@ -124,118 +118,46 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     }
 
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
-      final queryState = await _queryClient.fetchQuery<OrderEInvoiceRefreshSnapshot>(
-        queryKey: ['einvoice', 'orderInvoice', tenantId, state.salesOrderId],
-        queryFn: () => _loadRefreshSnapshot(
-          tenantId: tenantId,
-          actorId: actorId,
-        ),
-        staleTime: Duration.zero,
-        retry: 0,
-      );
-      final snapshot = queryState.data;
-      if (snapshot != null) _applyRefreshSnapshot(snapshot);
+      final snapshot = await _read();
+      if (!isClosed) {
+        _applyRefreshSnapshot(snapshot);
+      }
     } catch (_) {
       // Lỗi đọc tạm thời không được thay thế projection đáng tin cậy gần nhất.
     }
   }
 
   void setPollingActive(bool active) {
-    _pollingRequested = active;
     if (!active) {
-      _stopPolling();
+      _pollTimer?.cancel();
+      _pollTimer = null;
       return;
     }
-    unawaited(_startPolling());
-  }
-
-  Future<void> _startPolling() async {
-    if (!_pollingRequested || isClosed || _pollObserver != null || _startingPolling) {
-      return;
+    if (_pollTimer == null && !isClosed) {
+      unawaited(_pollOnce());
+      _pollTimer = Timer.periodic(pollInterval, (_) => unawaited(_pollOnce()));
     }
-    _startingPolling = true;
-    try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
-      if (!_pollingRequested || isClosed) return;
-
-      final observer = _queryClient.watchQuery<OrderEInvoiceRefreshSnapshot>(
-        queryKey: ['einvoice', 'orderInvoice', tenantId, state.salesOrderId],
-        queryFn: () => _loadRefreshSnapshot(
-          tenantId: tenantId,
-          actorId: actorId,
-        ),
-        staleTime: Duration.zero,
-        retry: 0,
-        refetchOnMount: true,
-        refetchInterval: const Duration(seconds: 5),
-      );
-      _pollObserver = observer;
-      _pollSubscription = observer.stream.listen((queryState) {
-        final snapshot = queryState.data;
-        if (snapshot != null) _applyRefreshSnapshot(snapshot);
-      });
-    } catch (_) {
-      _stopPolling();
-      // Keep last trusted projection; auth/network failures must not escape.
-    } finally {
-      _startingPolling = false;
-    }
-  }
-
-  void _stopPolling() {
-    unawaited(_pollSubscription?.cancel());
-    _pollSubscription = null;
-    _pollObserver?.dispose();
-    _pollObserver = null;
   }
 
   @override
   Future<void> close() async {
-    _pollingRequested = false;
-    final subscription = _pollSubscription;
-    _pollSubscription = null;
-    await subscription?.cancel();
-    _pollObserver?.dispose();
-    _pollObserver = null;
+    _pollTimer?.cancel();
+    _pollTimer = null;
     return super.close();
   }
 
-  Future<OrderEInvoiceRefreshSnapshot> _loadRefreshSnapshot({
-    required String tenantId,
-    required String actorId,
-  }) async {
-    final projection = await _mediator.executeQueryAsync(
-      GetOrderInvoiceProjectionQuery(
-        tenantId: tenantId,
-        actorId: actorId,
-        salesOrderId: state.salesOrderId,
-      ),
-    );
+  Future<OrderEInvoiceRefreshSnapshot> _loadRefreshSnapshot() async {
+    final projection = await _repository.getProjection(state.salesOrderId);
 
     IssuanceReadinessDto? readiness;
     try {
-      readiness = await _mediator.executeQueryAsync(
-        GetIssuanceReadinessQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: state.salesOrderId,
-        ),
-      );
+      readiness = await _repository.getReadiness(state.salesOrderId);
     } catch (_) {}
 
     IssuanceAttemptStatusDto? attemptStatus;
     if (projection.issuanceDisplayState == IssuanceDisplayState.failed) {
       try {
-        attemptStatus = await _mediator.executeQueryAsync(
-          GetIssuanceAttemptStatusQuery(
-            tenantId: tenantId,
-            actorId: actorId,
-            salesOrderId: state.salesOrderId,
-          ),
-        );
+        attemptStatus = await _repository.getAttemptStatus(state.salesOrderId);
       } catch (_) {}
     }
 
@@ -253,8 +175,8 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
         ? state.isBuyerNotReady
         : blockers.any(
             (blocker) =>
-                blocker.code == 'BUYER_TAX_CODE_REQUIRED' ||
-                blocker.code == 'BUYER_DATA_INCOMPLETE' ||
+                blocker.code == EInvoiceErrorCodes.buyerTaxCodeRequired ||
+                blocker.code == EInvoiceErrorCodes.buyerDataIncomplete ||
                 blocker.code == 'BUYER_SOURCE_UNAVAILABLE',
           );
     final failure = snapshot.attemptStatus;
@@ -279,12 +201,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
   /// read returns true so a transient error does not block the sheet.
   Future<bool> ensureIssuanceTemplateDisplay() async {
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
-      final template = await _loadIssuanceTemplateDisplay(
-        tenantId: tenantId,
-        actorId: actorId,
-      );
+      final template = await _loadIssuanceTemplateDisplay();
       if (template.saved == false) return false;
       emit(
         state.copyWith(
@@ -300,23 +217,16 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
   }
 
   Future<({bool? saved, String number, String symbol, String authority})>
-  _loadIssuanceTemplateDisplay({
-    required String tenantId,
-    required String actorId,
-  }) async {
+  _loadIssuanceTemplateDisplay() async {
     IssuanceProfileDto? profile;
     var profileLoaded = false;
     List<ProviderTemplateDto> templates = const [];
     try {
-      profile = await _mediator.executeQueryAsync(
-        GetIssuanceProfileQuery(tenantId: tenantId, actorId: actorId),
-      );
+      profile = await _configurationRepository.getIssuanceProfile();
       profileLoaded = true;
     } catch (_) {}
     try {
-      templates = await _mediator.executeQueryAsync(
-        ListProviderTemplatesQuery(tenantId: tenantId, actorId: actorId),
-      );
+      templates = await _configurationRepository.listTemplates();
     } catch (_) {}
 
     ProviderTemplateDto? selected;
@@ -404,17 +314,11 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
       ),
     );
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
       if (!_isPreviewGenerationCurrent(generation)) return null;
 
-      final result = await _mediator.executeCommandAsync(
-        RequestInvoicePreviewCommand(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: state.salesOrderId,
-          expectedOrderVersion: state.orderVersion,
-        ),
+      final result = await _repository.requestPreview(
+        salesOrderId: state.salesOrderId,
+        expectedOrderVersion: state.orderVersion,
       );
       if (!_isPreviewGenerationCurrent(generation)) return null;
 
@@ -425,13 +329,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           await Future<void>.delayed(delay);
           if (!_isPreviewGenerationCurrent(generation)) return null;
           try {
-            final preview = await _mediator.executeQueryAsync(
-              GetInvoicePreviewQuery(
-                tenantId: tenantId,
-                actorId: actorId,
-                salesOrderId: state.salesOrderId,
-              ),
-            );
+            final preview = await _repository.getPreview(state.salesOrderId);
             if (!_isPreviewGenerationCurrent(generation)) return null;
             viewerUrl = _nonEmptyViewerRef(preview.viewerRef);
             if (viewerUrl != null) {
@@ -477,7 +375,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
       emit(
         state.copyWith(
           status: OrderEInvoiceStatus.error,
-          errorMessage: OrderEInvoiceErrorMessage.of(e),
+          errorMessage: einvoiceErrorMessage(e),
         ),
       );
       return null;
@@ -511,16 +409,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
       ),
     );
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
-
-      final result = await _mediator.executeCommandAsync(
-        RequestOfficialInvoiceViewCommand(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: state.salesOrderId,
-        ),
-      );
+      final result = await _repository.requestOfficialView(state.salesOrderId);
       if (isClosed) return false;
 
       var viewerUrl = _nonEmptyViewerRef(result.viewerUrl);
@@ -558,13 +447,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           if (isClosed) return false;
 
           try {
-            final detail = await _mediator.executeQueryAsync(
-              GetElectronicInvoiceDetailQuery(
-                tenantId: tenantId,
-                actorId: actorId,
-                salesOrderId: state.salesOrderId,
-              ),
-            );
+            final detail = await _repository.getDetail(state.salesOrderId);
             if (isClosed) return false;
 
             if (detail.officialViewOperationId != operationId) {
@@ -638,7 +521,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
         emit(
           state.copyWith(
             status: OrderEInvoiceStatus.error,
-            errorMessage: OrderEInvoiceErrorMessage.of(e),
+            errorMessage: einvoiceErrorMessage(e),
           ),
         );
       }
@@ -672,16 +555,9 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
       ),
     );
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
-
-      final result = await _mediator.executeCommandAsync(
-        RequestInvoiceDocumentCommand(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: state.salesOrderId,
-          documentType: type,
-        ),
+      final result = await _repository.requestDocument(
+        salesOrderId: state.salesOrderId,
+        documentType: type,
       );
       if (isClosed) return false;
 
@@ -721,13 +597,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           if (isClosed) return false;
 
           try {
-            final documents = await _mediator.executeQueryAsync(
-              GetInvoiceDocumentsQuery(
-                tenantId: tenantId,
-                actorId: actorId,
-                salesOrderId: state.salesOrderId,
-              ),
-            );
+            final documents = await _repository.getDocuments(state.salesOrderId);
             if (isClosed) return false;
 
             final item = type == InvoiceDocumentType.pdf ? documents.pdf : documents.xml;
@@ -833,7 +703,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
         emit(
           state.copyWith(
             status: OrderEInvoiceStatus.error,
-            errorMessage: OrderEInvoiceErrorMessage.of(e),
+            errorMessage: einvoiceErrorMessage(e),
           ),
         );
       }

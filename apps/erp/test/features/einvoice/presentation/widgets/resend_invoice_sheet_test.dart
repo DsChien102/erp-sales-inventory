@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/logic/order_einvoice_idempotency_key_factory.dart';
 import 'package:erp/features/einvoice/logic/order_invoice_delivery_cubit.dart';
 import 'package:erp/features/einvoice/presentation/support/order_invoice_delivery_copy.dart';
@@ -8,51 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 
-final class _RecordingMediator implements IModuleMediator {
-  final List<dynamic> commands = [];
-  final List<dynamic> queries = [];
-
-  Object? commandResult;
-  Future<Object?>? commandResultFuture;
-  Object? queryResult;
-  Exception? errorToThrow;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    if (errorToThrow != null) throw errorToThrow!;
-    if (commandResultFuture != null) {
-      return (await commandResultFuture) as TResult;
-    }
-    if (commandResult != null) return commandResult as TResult;
-    return null as TResult;
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (errorToThrow != null) throw errorToThrow!;
-    if (queryResult != null) return queryResult as TResult;
-    return null as TResult;
-  }
-}
+import '../../support/fake_einvoice_repository.dart';
 
 void main() {
-  late FakeExecutionContext executionContext;
-  late _RecordingMediator mediator;
+  late FakeEInvoiceRepository repository;
   late DeterministicOrderEInvoiceIdempotencyKeyFactory keys;
 
   setUp(() {
-    executionContext = FakeExecutionContext(
-      tenantId: 'tenant-test',
-      userId: 'actor-test',
-    );
-    mediator = _RecordingMediator();
+    repository = FakeEInvoiceRepository();
     keys = DeterministicOrderEInvoiceIdempotencyKeyFactory(const [
       'key-1',
       'key-2',
@@ -108,15 +73,13 @@ void main() {
   Future<OrderInvoiceDeliveryCubit> readyCubit(
     SendInvoiceSheetContextDto context,
   ) async {
-    mediator.queryResult = context;
+    repository.sendContext = context;
     final cubit = OrderInvoiceDeliveryCubit(
       salesOrderId: 'order-101',
-      executionContext: executionContext,
-      mediator: mediator,
+      repository: repository,
       idempotencyKeyFactory: keys,
     );
     await cubit.loadContext();
-    mediator.errorToThrow = null;
     return cubit;
   }
 
@@ -181,8 +144,8 @@ void main() {
       final cubit = await readyCubit(context);
       addTearDown(cubit.close);
 
-      final pending = Completer<Object?>();
-      mediator.commandResultFuture = pending.future;
+      final pending = Completer<void>();
+      repository.holdOn['send'] = pending;
 
       await pumpSheet(
         tester,
@@ -213,12 +176,11 @@ void main() {
         isNull,
       );
 
-      pending.complete(
-        const SendInvoiceResultDto(
-          deliveryId: 'del-3',
-          status: DeliveryStatus.processing,
-        ),
+      repository.sendResult = const SendInvoiceResultDto(
+        deliveryId: 'del-3',
+        status: DeliveryStatus.processing,
       );
+      pending.complete();
       await tester.pumpAndSettle();
     });
 
@@ -263,7 +225,7 @@ void main() {
         await tester.tap(find.byKey(const Key('action_view_delivery_history')));
         await tester.pump();
         expect(historyOpened, 1);
-        expect(mediator.commands, isEmpty);
+        expect(repository.sendCalls, isEmpty);
       },
     );
   });

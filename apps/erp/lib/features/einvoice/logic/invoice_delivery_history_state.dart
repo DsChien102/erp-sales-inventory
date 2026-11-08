@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
 import 'invoice_delivery_history_vm.dart';
 

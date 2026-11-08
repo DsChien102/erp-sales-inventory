@@ -94,6 +94,38 @@ void main() {
       );
     });
 
+    test('missing invoice template says to choose a template', () {
+      expect(
+        einvoiceErrorMessage(const AppException('CONFIG_NOT_READY')),
+        'Chưa chọn mẫu hóa đơn. Vui lòng cập nhật cấu hình phát hành.',
+      );
+    });
+
+    test('fully returned order has its own message', () {
+      expect(
+        einvoiceErrorMessage(
+          const AppException('ISSUANCE_NOT_READY', details: {'blockers': ['ORDER_FULLY_RETURNED']}),
+        ),
+        'Đơn hàng đã trả hết hàng, không cần xuất hóa đơn.',
+      );
+    });
+
+    test('source version mismatch asks to reload', () {
+      expect(
+        einvoiceErrorMessage(
+          const AppException('ISSUANCE_NOT_READY', details: {'blockers': ['SOURCE_VERSION_MISMATCH']}),
+        ),
+        'Đơn hàng vừa thay đổi (đổi/trả). Vui lòng tải lại rồi phát hành.',
+      );
+    });
+
+    test('server message mentioning another code does not change the message', () {
+      expect(
+        einvoiceErrorMessage(const AppException('SYSTEM_ERROR', serverMessage: 'NOT_FOUND NO_PERMISSION')),
+        isNot(anyOf('Bạn không có quyền thực hiện thao tác này.', 'Không tìm thấy hóa đơn điện tử của đơn hàng này.')),
+      );
+    });
+
     test('maps by details blockers array', () {
       expect(
         einvoiceErrorMessage(

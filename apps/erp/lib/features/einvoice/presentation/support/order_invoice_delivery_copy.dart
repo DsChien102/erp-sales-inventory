@@ -1,4 +1,4 @@
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
 /// Copy strings for app-owned SG-07 send / resend sheets.
 abstract final class OrderInvoiceDeliveryCopy {

@@ -19,8 +19,8 @@ import 'package:erp/features/sales/presentation/models/sales_receipt/sales_recei
 import 'package:erp/features/sales/presentation/support/sales_order_cancellation_attempt_factory.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_detail_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/einvoice_repository.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -34,9 +34,9 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     required this.returnExchangeRepository,
     required this.executionContext,
     SalesOrderCancellationAttemptFactory? cancellationAttemptFactory,
-    IEInvoiceModule? eInvoiceModule,
+    EInvoiceRepository? eInvoiceRepository,
   }) : _cancellationAttemptFactory = cancellationAttemptFactory,
-       _eInvoiceModule = eInvoiceModule,
+       _eInvoiceRepository = eInvoiceRepository,
        super(const SalesOrderDetailState()) {
     _receiptOps = SalesReceiptOperationHandler(
       salesOrderId: orderId,
@@ -66,24 +66,15 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
 
   /// Tùy chọn: khi có, badge HĐĐT trên thẻ chứng từ phản ánh trạng thái thật.
   /// Khi null (test cũ, host chưa nối), badge giữ `notIssued` như trước.
-  final IEInvoiceModule? _eInvoiceModule;
+  final EInvoiceRepository? _eInvoiceRepository;
 
   /// Đọc projection HĐĐT để điền badge và cung cấp dữ liệu cho OrderEInvoiceSection.
   /// Không bao giờ ném: einvoice hỏng thì trang chi tiết đơn vẫn phải mở được.
   Future<OrderInvoiceProjectionDto?> _loadEInvoiceProjection() async {
-    final module = _eInvoiceModule;
-    if (module == null) return null;
+    final repository = _eInvoiceRepository;
+    if (repository == null) return null;
     try {
-      final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
-      final projection = await module.executeQueryAsync(
-        GetOrderInvoiceProjectionQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: orderId,
-        ),
-      );
-      return projection;
+      return await repository.getProjection(orderId);
     } catch (_) {
       return null;
     }

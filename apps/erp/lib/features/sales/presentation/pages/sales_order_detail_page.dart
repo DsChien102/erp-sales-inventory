@@ -3,9 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
+import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dart';
+import 'package:erp/features/einvoice/data/einvoice_repository.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
@@ -48,10 +49,10 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
       cancellationRepository: GetIt.instance<SalesCancellationRepository>(),
       returnExchangeRepository: GetIt.instance<ReturnExchangeRepository>(),
       executionContext: GetIt.instance<IExecutionContext>(),
-      // Badge HĐĐT là phần bổ trợ: host nào chưa nối module einvoice (widget
+      // Badge HĐĐT là phần bổ trợ: host nào chưa nối repository einvoice (widget
       // test, harness) vẫn dựng được trang, badge lùi về `notIssued`.
-      eInvoiceModule: GetIt.instance.isRegistered<IEInvoiceModule>()
-          ? GetIt.instance<IEInvoiceModule>()
+      eInvoiceRepository: GetIt.instance.isRegistered<EInvoiceRepository>()
+          ? GetIt.instance<EInvoiceRepository>()
           : null,
     )..load();
   }
@@ -254,7 +255,7 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
 
   /// Fallback khi người dùng bấm vào thẻ HĐĐT nếu chưa tải được projection.
   Future<void> _openEInvoice(SalesOrderDetailVm vm) async {
-    if (!GetIt.instance.isRegistered<IEInvoiceModule>()) {
+    if (!GetIt.instance.isRegistered<EInvoiceRepository>()) {
       VToast.show(
         context,
         title: 'Không thể mở hóa đơn điện tử',
@@ -492,7 +493,8 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
                     historyErrorMessage: state.historyErrorMessage,
                     onOpenReceipt: _openReceipt,
                     onOpenEInvoice: () => _openEInvoice(vm),
-                    eInvoiceSection: GetIt.instance.isRegistered<IEInvoiceModule>()
+                    eInvoiceSection: GetIt.instance.isRegistered<EInvoiceRepository>() &&
+                            GetIt.instance.isRegistered<EInvoiceConfigurationRepository>()
                         ? OrderEInvoiceSection(
                             key: const Key('btn_sg08_einvoice'),
                             salesOrderId: vm.orderId,
@@ -516,8 +518,9 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
                                   actions: const [],
                                 ),
                             hasLoadedInitialProjection: state.eInvoiceProjection != null,
-                            mediator: GetIt.instance<IEInvoiceModule>(),
-                            executionContext: GetIt.instance<IExecutionContext>(),
+                            repository: GetIt.instance<EInvoiceRepository>(),
+                            configurationRepository:
+                                GetIt.instance<EInvoiceConfigurationRepository>(),
                             buyerPartnerId: vm.customerId,
                           )
                         : null,

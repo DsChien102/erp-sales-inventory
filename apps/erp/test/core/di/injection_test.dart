@@ -10,6 +10,8 @@ import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dart';
 import 'package:erp/features/einvoice/data/einvoice_processor_trigger.dart';
+import 'package:erp/features/einvoice/data/einvoice_repository.dart';
+import 'package:erp/features/einvoice/data/invoice_document_signed_urls.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_application/testing.dart';
 import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
@@ -55,6 +57,8 @@ void main() {
     expect(getIt.isRegistered<PartnerRepository>(), isTrue);
     expect(getIt.isRegistered<EInvoiceProcessorTrigger>(), isTrue);
     expect(getIt.isRegistered<EInvoiceConfigurationRepository>(), isTrue);
+    expect(getIt.isRegistered<InvoiceDocumentSignedUrls>(), isTrue);
+    expect(getIt.isRegistered<EInvoiceRepository>(), isTrue);
     expect(getIt.isRegistered<IEInvoiceModule>(), isTrue);
     expect(getIt<IEInvoiceModule>(), isA<EinvoiceModule>());
     expect(getIt<IEInvoiceModule>(), isNot(isA<FakeEInvoiceModule>()));

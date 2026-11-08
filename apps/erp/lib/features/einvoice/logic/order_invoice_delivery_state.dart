@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vet45_einvoice_application/application.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
 enum OrderInvoiceDeliveryStatus {
   initial,

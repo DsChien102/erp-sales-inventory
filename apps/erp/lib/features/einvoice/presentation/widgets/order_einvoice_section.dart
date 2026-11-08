@@ -1,17 +1,16 @@
 import 'dart:async';
 
-import 'package:async_query_flutter/async_query_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:erp/features/sales/presentation/support/order_einvoice_error_message.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dart';
+import 'package:erp/features/einvoice/data/einvoice_errors.dart';
+import 'package:erp/features/einvoice/data/einvoice_repository.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
-import '../../logic/i_invoice_document_exporter.dart';
-import '../../logic/i_invoice_viewer_launcher.dart';
+import '../../logic/einvoice_error_messages.dart';
 import '../../logic/order_einvoice_cubit.dart';
 import '../../logic/order_einvoice_idempotency_key_factory.dart';
 import '../../logic/order_einvoice_state.dart';
@@ -25,6 +24,8 @@ import 'post_issue_einvoice_action_sheet.dart';
 import 'pre_issue_einvoice_action_sheet.dart';
 import 'resend_invoice_sheet.dart';
 import 'send_invoice_sheet.dart';
+import 'package:erp/features/einvoice/data/i_invoice_viewer_launcher.dart';
+import 'package:erp/features/einvoice/data/i_invoice_document_exporter.dart';
 
 class OrderEInvoiceSection extends StatelessWidget {
   const OrderEInvoiceSection({
@@ -38,8 +39,8 @@ class OrderEInvoiceSection extends StatelessWidget {
     this.initialReadiness,
     this.isBuyerNotReady = false,
     this.buyerPartnerId,
-    required this.mediator,
-    required this.executionContext,
+    required this.repository,
+    required this.configurationRepository,
     this.viewerLauncher,
     this.documentExporter,
     this.idempotencyKeyFactory,
@@ -62,8 +63,8 @@ class OrderEInvoiceSection extends StatelessWidget {
 
   /// Partner to open when the buyer-correction link is tapped. Empty hides the link.
   final String? buyerPartnerId;
-  final IModuleMediator mediator;
-  final IExecutionContext executionContext;
+  final EInvoiceRepository repository;
+  final EInvoiceConfigurationRepository configurationRepository;
   final IInvoiceViewerLauncher? viewerLauncher;
   final IInvoiceDocumentExporter? documentExporter;
   final OrderEInvoiceIdempotencyKeyFactory? idempotencyKeyFactory;
@@ -89,8 +90,7 @@ class OrderEInvoiceSection extends StatelessWidget {
           orderCode: orderCode,
           orderTotalFormatted: orderTotalFormatted,
           buyerPartnerId: buyerPartnerId,
-          executionContext: executionContext,
-          mediator: mediator,
+          repository: repository,
           idempotencyKeyFactory:
               idempotencyKeyFactory ?? const OrderEInvoiceIdempotencyKeyFactory(),
         ),
@@ -99,7 +99,6 @@ class OrderEInvoiceSection extends StatelessWidget {
     if (cubit != null) {
       return BlocProvider.value(value: cubit!, child: child);
     }
-    final queryClient = QueryClientProvider.of(context);
     return BlocProvider(
       create: (ctx) {
         final cubit = OrderEInvoiceCubit(
@@ -109,9 +108,8 @@ class OrderEInvoiceSection extends StatelessWidget {
           hasLoadedInitialProjection: hasLoadedInitialProjection,
           initialReadiness: initialReadiness,
           isBuyerNotReady: isBuyerNotReady,
-          executionContext: executionContext,
-          mediator: mediator,
-          queryClient: queryClient,
+          repository: repository,
+          configurationRepository: configurationRepository,
           viewerLauncher: viewerLauncher,
           documentExporter: documentExporter,
           idempotencyKeyFactory:
@@ -130,16 +128,14 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
     required this.orderCode,
     this.orderTotalFormatted,
     this.buyerPartnerId,
-    required this.executionContext,
-    required this.mediator,
+    required this.repository,
     required this.idempotencyKeyFactory,
   });
 
   final String orderCode;
   final String? orderTotalFormatted;
   final String? buyerPartnerId;
-  final IExecutionContext executionContext;
-  final IModuleMediator mediator;
+  final EInvoiceRepository repository;
   final OrderEInvoiceIdempotencyKeyFactory idempotencyKeyFactory;
 
   @override
@@ -223,7 +219,7 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
     bool providerConnected(OrderEInvoiceState value) {
       final blockers = value.readiness?.blockers;
       if (blockers == null) return true;
-      return !blockers.any((blocker) => blocker.code == EInvoiceBlockedCodes.providerNotConnected);
+      return !blockers.any((blocker) => blocker.code == EInvoiceErrorCodes.providerNotConnected);
     }
 
     PreIssueSheetState preIssueSheetState(OrderEInvoiceState value) {
@@ -272,8 +268,8 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
         VToast.show(
           context,
           title: 'Hóa đơn điện tử',
-          message: OrderEInvoiceErrorMessage.of(
-            const EInvoiceBlockedException(EInvoiceBlockedCodes.configNotReady),
+          message: einvoiceErrorMessage(
+            const AppException(EInvoiceErrorCodes.configNotReady),
           ),
           type: VToastType.danger,
         );
@@ -314,8 +310,7 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
   ) async {
     final deliveryCubit = OrderInvoiceDeliveryCubit(
       salesOrderId: cubit.state.salesOrderId,
-      executionContext: executionContext,
-      mediator: mediator,
+      repository: repository,
       idempotencyKeyFactory: idempotencyKeyFactory,
     );
     try {
@@ -344,8 +339,7 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
                 MaterialPageRoute<void>(
                   builder: (_) => InvoiceDeliveryHistoryPage(
                     salesOrderId: cubit.state.salesOrderId,
-                    mediator: mediator,
-                    executionContext: executionContext,
+                    repository: repository,
                   ),
                 ),
               ),

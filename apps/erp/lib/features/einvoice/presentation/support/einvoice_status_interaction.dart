@@ -1,5 +1,5 @@
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
 /// Shared interaction rule for E-Invoice surfaces that show a status badge.
 ///

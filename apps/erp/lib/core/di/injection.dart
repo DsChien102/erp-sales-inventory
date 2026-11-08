@@ -1,4 +1,3 @@
-import 'package:async_query/async_query.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
@@ -14,6 +13,8 @@ import '../../features/catalog/data/product_repository.dart';
 import '../../features/dashboard/data/default_pair_repository.dart';
 import '../../features/einvoice/data/einvoice_configuration_repository.dart';
 import '../../features/einvoice/data/einvoice_processor_trigger.dart';
+import '../../features/einvoice/data/einvoice_repository.dart';
+import '../../features/einvoice/data/invoice_document_signed_urls.dart';
 import '../../features/catalog/presentation/services/product_image_display_resolver.dart';
 import '../../features/iam/data/account_repository.dart';
 import '../../features/iam/data/audit_log_repository.dart';
@@ -49,14 +50,6 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   }
 
   getIt.registerSingleton<SupabaseModule>(supabaseModule);
-
-  getIt.registerLazySingleton<QueryClient>(
-    () => QueryClient(
-      options: const QueryClientOptions(
-        queries: QueryOptionsDefaults(gcTime: Duration(minutes: 5)),
-      ),
-    ),
-  );
 
   getIt.registerLazySingleton<ILoggerFactory>(
     () => const LoggingLoggerFactory(),
@@ -274,6 +267,19 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
       () => EInvoiceConfigurationRepository(
         rpc: getIt<SupabaseRpc>(),
         trigger: getIt<EInvoiceProcessorTrigger>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+        actorId: () async =>
+            sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
+      ),
+    )
+    ..registerLazySingleton<InvoiceDocumentSignedUrls>(
+      () => InvoiceDocumentSignedUrls(storage: supabaseModule.client.storage),
+    )
+    ..registerLazySingleton<EInvoiceRepository>(
+      () => EInvoiceRepository(
+        rpc: getIt<SupabaseRpc>(),
+        trigger: getIt<EInvoiceProcessorTrigger>(),
+        signedUrls: getIt<InvoiceDocumentSignedUrls>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
         actorId: () async =>
             sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),

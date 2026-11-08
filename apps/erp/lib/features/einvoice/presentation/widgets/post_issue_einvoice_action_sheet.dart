@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import '../../data/models.dart';
 
 import '../support/order_einvoice_post_issue_copy.dart';
 import 'einvoice_action_item.dart';

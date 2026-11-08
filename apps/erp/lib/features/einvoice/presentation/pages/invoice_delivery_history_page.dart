@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:erp/features/einvoice/data/einvoice_repository.dart';
 
 import '../../logic/invoice_delivery_history_cubit.dart';
 import '../../logic/invoice_delivery_history_state.dart';
@@ -13,21 +13,18 @@ class InvoiceDeliveryHistoryPage extends StatelessWidget {
   const InvoiceDeliveryHistoryPage({
     super.key,
     required this.salesOrderId,
-    required this.mediator,
-    required this.executionContext,
+    required this.repository,
   });
 
   final String salesOrderId;
-  final IModuleMediator mediator;
-  final IExecutionContext executionContext;
+  final EInvoiceRepository repository;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => InvoiceDeliveryHistoryCubit(
         salesOrderId: salesOrderId,
-        executionContext: executionContext,
-        mediator: mediator,
+        repository: repository,
       )..load(),
       child: const _InvoiceDeliveryHistoryPageBody(),
     );

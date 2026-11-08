@@ -1,4 +1,4 @@
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'models.dart';
 
 /// Contract for exporting or downloading electronic invoice documents.
 abstract interface class IInvoiceDocumentExporter {

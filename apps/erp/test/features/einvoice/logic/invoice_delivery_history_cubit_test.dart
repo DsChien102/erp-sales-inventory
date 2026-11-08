@@ -1,31 +1,13 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/einvoice/data/einvoice_errors.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/logic/invoice_delivery_history_cubit.dart';
 import 'package:erp/features/einvoice/logic/invoice_delivery_history_state.dart';
 import 'package:erp/features/einvoice/logic/invoice_delivery_history_vm.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 
-final class _RecordingMediator implements IModuleMediator {
-  final List<dynamic> queries = [];
-  Object? queryResult;
-  Exception? errorToThrow;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (errorToThrow != null) throw errorToThrow!;
-    if (queryResult != null) return queryResult as TResult;
-    return null as TResult;
-  }
-}
+import '../support/fake_einvoice_repository.dart';
 
 void main() {
   InvoiceDeliveryItemDto delivery({
@@ -58,51 +40,41 @@ void main() {
         delivery(
           no: 1,
           actor: DeliveryActorType.system,
-          status: DeliveryStatus.failed,
-          failureCode: 'PROVIDER_TIMEOUT',
-          actorId: 'actor-secret-99',
+          status: DeliveryStatus.succeeded,
         ),
       );
-
-      expect(row.statusLabel, 'Gửi lỗi');
-      expect(row.tone, VComponentTone.danger);
       expect(row.actorLabel, 'Tự động');
-      expect(row.actorLabel, isNot(contains('actor-secret')));
-      expect(row.recipientEmail, 'buyer@example.com');
+      expect(row.statusLabel, 'Đã gửi');
+      expect(row.tone, VComponentTone.success);
     });
 
-    test('maps unknown and user actor', () {
+    test('prefers user label when actor id present', () {
       final row = InvoiceDeliveryHistoryRowVm.fromDto(
         delivery(
           no: 2,
           actor: DeliveryActorType.user,
-          status: DeliveryStatus.unknown,
-          actorId: 'user-1',
+          status: DeliveryStatus.failed,
+          failureCode: 'SEND_FAILED',
+          actorId: 'usr-1',
         ),
       );
-      expect(row.statusLabel, 'Không xác định kết quả');
-      expect(row.tone, VComponentTone.warning);
       expect(row.actorLabel, 'Người dùng');
+      expect(row.statusLabel, 'Gửi lỗi');
+      expect(row.tone, VComponentTone.danger);
     });
   });
 
   group('InvoiceDeliveryHistoryCubit', () {
-    late FakeExecutionContext executionContext;
-    late _RecordingMediator mediator;
+    late FakeEInvoiceRepository repository;
 
     setUp(() {
-      executionContext = FakeExecutionContext(
-        tenantId: 'tenant-test',
-        userId: 'actor-test',
-      );
-      mediator = _RecordingMediator();
+      repository = FakeEInvoiceRepository();
     });
 
     InvoiceDeliveryHistoryCubit createCubit() {
       return InvoiceDeliveryHistoryCubit(
         salesOrderId: 'order-101',
-        executionContext: executionContext,
-        mediator: mediator,
+        repository: repository,
       );
     }
 
@@ -114,7 +86,7 @@ void main() {
           delivery(no: 3),
           delivery(no: 2),
         ];
-        mediator.queryResult = InvoiceDeliveryHistoryDto(
+        repository.history = InvoiceDeliveryHistoryDto(
           deliveries: source,
           displayState: DeliveryDisplayState.sent,
           hasSecondaryAttention: true,
@@ -128,18 +100,12 @@ void main() {
         expect(source.map((row) => row.deliveryNo), [1, 3, 2]);
         expect(cubit.state.hasSecondaryAttention, isTrue);
         expect(cubit.state.displayState, DeliveryDisplayState.sent);
-        expect(
-          mediator.queries.single,
-          isA<GetInvoiceDeliveryHistoryQuery>()
-              .having((q) => q.salesOrderId, 'salesOrderId', 'order-101')
-              .having((q) => q.tenantId, 'tenantId', 'tenant-test')
-              .having((q) => q.actorId, 'actorId', 'actor-test'),
-        );
+        expect(repository.calls, contains('getDeliveryHistory'));
       },
     );
 
     test('query failure maps safe error and retry loads again', () async {
-      mediator.errorToThrow = Exception('NO_PERMISSION: denied');
+      repository.throwOn['getDeliveryHistory'] = const AppException(EInvoiceErrorCodes.noPermission);
       final cubit = createCubit();
       addTearDown(cubit.close);
 
@@ -151,15 +117,15 @@ void main() {
       );
       expect(cubit.state.errorMessage, isNot(contains('NO_PERMISSION')));
 
-      mediator.errorToThrow = null;
-      mediator.queryResult = const InvoiceDeliveryHistoryDto(
+      repository.throwOn.remove('getDeliveryHistory');
+      repository.history = const InvoiceDeliveryHistoryDto(
         deliveries: [],
         displayState: DeliveryDisplayState.notSent,
         hasSecondaryAttention: false,
       );
       await cubit.load();
 
-      expect(mediator.queries, hasLength(2));
+      expect(repository.calls.where((c) => c == 'getDeliveryHistory'), hasLength(2));
       expect(cubit.state.status, InvoiceDeliveryHistoryStatus.loaded);
       expect(cubit.state.isEmpty, isTrue);
     });

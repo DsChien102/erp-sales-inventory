@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:erp/features/einvoice/logic/url_invoice_viewer_launcher.dart';
+import 'package:erp/features/einvoice/data/url_invoice_viewer_launcher.dart';
 
 void main() {
   group('UrlInvoiceViewerLauncher', () {

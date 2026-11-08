@@ -5,7 +5,7 @@ import 'package:erp/features/einvoice/presentation/widgets/invoice_delivery_hist
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
 void main() {
   Widget buildSubject(InvoiceDeliveryHistoryState state, {VoidCallback? onRetry}) {

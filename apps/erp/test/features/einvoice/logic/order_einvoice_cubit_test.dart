@@ -1,16 +1,85 @@
 import 'dart:async';
 
-import 'package:async_query/async_query.dart';
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:erp/features/einvoice/logic/i_invoice_document_exporter.dart';
-import 'package:erp/features/einvoice/logic/i_invoice_viewer_launcher.dart';
+import 'package:erp/features/einvoice/data/models.dart';
+import 'package:erp/features/einvoice/logic/einvoice_error_messages.dart';
 import 'package:erp/features/einvoice/logic/order_einvoice_cubit.dart';
 import 'package:erp/features/einvoice/logic/order_einvoice_state.dart';
-import 'package:erp/features/sales/presentation/support/order_einvoice_error_message.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../support/fake_einvoice_configuration_repository.dart';
+import '../support/fake_einvoice_repository.dart';
+import 'package:erp/features/einvoice/data/i_invoice_viewer_launcher.dart';
+import 'package:erp/features/einvoice/data/i_invoice_document_exporter.dart';
+
+class IssueInvoiceCommand {
+  const IssueInvoiceCommand({required this.salesOrderId, required this.sourceVersion, required this.idempotencyKey});
+  final String salesOrderId;
+  final String sourceVersion;
+  final String idempotencyKey;
+}
+
+class RetryIssuanceCommand {
+  const RetryIssuanceCommand({required this.salesOrderId, required this.expectedOrderVersion, required this.idempotencyKey});
+  final String salesOrderId;
+  final int expectedOrderVersion;
+  final String idempotencyKey;
+}
+
+class RequestOfficialInvoiceViewCommand {
+  const RequestOfficialInvoiceViewCommand({required this.salesOrderId});
+  final String salesOrderId;
+}
+
+class RequestInvoiceDocumentCommand {
+  const RequestInvoiceDocumentCommand({required this.salesOrderId, required this.documentType});
+  final String salesOrderId;
+  final InvoiceDocumentType documentType;
+}
+
+class RequestInvoicePreviewCommand {
+  const RequestInvoicePreviewCommand({required this.salesOrderId, required this.expectedOrderVersion});
+  final String salesOrderId;
+  final int expectedOrderVersion;
+}
+
+class GetElectronicInvoiceDetailQuery {
+  const GetElectronicInvoiceDetailQuery({required this.salesOrderId});
+  final String salesOrderId;
+}
+
+class GetInvoiceDocumentsQuery {
+  const GetInvoiceDocumentsQuery({required this.salesOrderId});
+  final String salesOrderId;
+}
+
+class GetInvoicePreviewQuery {
+  const GetInvoicePreviewQuery({this.salesOrderId});
+  final String? salesOrderId;
+}
+
+class GetOrderInvoiceProjectionQuery {
+  const GetOrderInvoiceProjectionQuery({this.salesOrderId});
+  final String? salesOrderId;
+}
+
+class GetIssuanceReadinessQuery {
+  const GetIssuanceReadinessQuery({this.salesOrderId});
+  final String? salesOrderId;
+}
+
+class GetIssuanceAttemptStatusQuery {
+  const GetIssuanceAttemptStatusQuery({this.salesOrderId});
+  final String? salesOrderId;
+}
+
+class GetIssuanceProfileQuery {
+  const GetIssuanceProfileQuery();
+}
+
+class ListProviderTemplatesQuery {
+  const ListProviderTemplatesQuery();
+}
 
 final class _RecordingLauncher implements IInvoiceViewerLauncher {
   final List<String> launchedUrls = [];
@@ -54,103 +123,260 @@ final class _RecordingExporter implements IInvoiceDocumentExporter {
   }
 }
 
-final class _ConfigurableMediator implements IModuleMediator {
+final class _ConfigurableRepository extends FakeEInvoiceRepository {
+  _ConfigurableRepository() : super();
+
   final List<dynamic> executedCommands = [];
   final List<dynamic> executedQueries = [];
 
   Object? commandResult;
   Future<Object?>? commandResultFuture;
-  Object? Function(ICommand<dynamic> command)? commandResultBuilder;
+  Object? Function(dynamic command)? commandResultBuilder;
   Object? queryResult;
-  Object? Function(IQuery<dynamic> query)? queryResultBuilder;
+  Object? Function(dynamic query)? queryResultBuilder;
   Exception? errorToThrow;
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    executedCommands.add(command);
+  Future<OrderInvoiceProjectionDto> getProjection(String salesOrderId) async {
+    final query = GetOrderInvoiceProjectionQuery(salesOrderId: salesOrderId);
+    executedQueries.add(query);
     if (errorToThrow != null) throw errorToThrow!;
-    if (commandResultBuilder != null) {
-      return commandResultBuilder!(command) as TResult;
+    if (queryResultBuilder != null) {
+      final res = queryResultBuilder!(query);
+      if (res is OrderInvoiceProjectionDto) return res;
+      if (res is Future) return (await res) as OrderInvoiceProjectionDto;
     }
-    if (commandResultFuture != null) {
-      return (await commandResultFuture) as TResult;
-    }
-    if (commandResult != null) return commandResult as TResult;
-    if (command is IssueInvoiceCommand) {
-      return const IssueInvoiceResultDto(
-            issuanceId: 'iss-1',
-            attemptId: 'att-1',
-            status: IssuanceAttemptStatus.preparing,
-          )
-          as TResult;
-    }
-    return null as TResult;
+    if (queryResult is OrderInvoiceProjectionDto) return queryResult as OrderInvoiceProjectionDto;
+    return projection;
   }
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+  Future<IssuanceReadinessDto> getReadiness(String salesOrderId) async {
+    final query = GetIssuanceReadinessQuery(salesOrderId: salesOrderId);
     executedQueries.add(query);
     if (errorToThrow != null) throw errorToThrow!;
-    if (query is GetIssuanceReadinessQuery) {
-      return const IssuanceReadinessDto(
-            level: IssuanceReadinessLevel.ready,
-            blockers: [],
-            warnings: [],
-            buyerCompletionState: BuyerCompletionStatus.open,
-          )
-          as TResult;
-    }
     if (queryResultBuilder != null) {
-      return queryResultBuilder!(query) as TResult;
+      final res = queryResultBuilder!(query);
+      if (res is IssuanceReadinessDto) return res;
     }
-    if (query is GetIssuanceProfileQuery) {
-      return const IssuanceProfileDto(
-            profileVersion: 1,
-            templateId: 'tpl-live',
-            signingMethod: SigningMethod.hsm,
-            compatibilityWarnings: [],
-          )
-          as TResult;
+    if (queryResult is IssuanceReadinessDto) return queryResult as IssuanceReadinessDto;
+    return readiness ??
+        const IssuanceReadinessDto(
+          level: IssuanceReadinessLevel.ready,
+          blockers: [],
+          warnings: [],
+          buyerCompletionState: BuyerCompletionStatus.open,
+        );
+  }
+
+  @override
+  Future<IssuanceAttemptStatusDto> getAttemptStatus(String salesOrderId) async {
+    final query = GetIssuanceAttemptStatusQuery(salesOrderId: salesOrderId);
+    executedQueries.add(query);
+    if (errorToThrow != null) throw errorToThrow!;
+    if (queryResultBuilder != null) {
+      final res = queryResultBuilder!(query);
+      if (res is IssuanceAttemptStatusDto) return res;
     }
-    if (query is ListProviderTemplatesQuery) {
-      return const [
-            ProviderTemplateDto(
-              templateId: 'tpl-live',
-              name: 'Hóa đơn GTGT',
-              serial: '1/001',
-              symbol: '1C26TYY',
-            ),
-          ]
-          as TResult;
+    if (queryResult is IssuanceAttemptStatusDto) return queryResult as IssuanceAttemptStatusDto;
+    return attemptStatus ??
+        const IssuanceAttemptStatusDto(
+          attemptId: 'att-1',
+          status: IssuanceAttemptStatus.submitted,
+          internalFinalizationStatus: InternalFinalizationStatus.pending,
+          hasElectronicInvoice: false,
+          hasActiveOperation: false,
+        );
+  }
+
+  @override
+  Future<IssueInvoiceResultDto> issue({
+    required String salesOrderId,
+    required String sourceVersion,
+    required String idempotencyKey,
+    bool? acknowledgeWarnings,
+  }) async {
+    final cmd = IssueInvoiceCommand(
+      salesOrderId: salesOrderId,
+      sourceVersion: sourceVersion,
+      idempotencyKey: idempotencyKey,
+    );
+    executedCommands.add(cmd);
+    if (errorToThrow != null) throw errorToThrow!;
+    if (commandResultBuilder != null) {
+      final res = commandResultBuilder!(cmd);
+      if (res is IssueInvoiceResultDto) return res;
     }
-    return (queryResult as TResult?) ?? (null as TResult);
+    if (commandResultFuture != null) {
+      return (await commandResultFuture) as IssueInvoiceResultDto;
+    }
+    if (commandResult is IssueInvoiceResultDto) return commandResult as IssueInvoiceResultDto;
+    return const IssueInvoiceResultDto(
+      issuanceId: 'iss-1',
+      attemptId: 'att-1',
+      status: IssuanceAttemptStatus.preparing,
+    );
+  }
+
+  @override
+  Future<IssueInvoiceResultDto> retry({
+    required String salesOrderId,
+    required int expectedOrderVersion,
+    required String idempotencyKey,
+    bool? acknowledgeWarnings,
+  }) async {
+    final cmd = RetryIssuanceCommand(
+      salesOrderId: salesOrderId,
+      expectedOrderVersion: expectedOrderVersion,
+      idempotencyKey: idempotencyKey,
+    );
+    executedCommands.add(cmd);
+    if (errorToThrow != null) throw errorToThrow!;
+    if (commandResultBuilder != null) {
+      final res = commandResultBuilder!(cmd);
+      if (res is IssueInvoiceResultDto) return res;
+    }
+    if (commandResultFuture != null) {
+      return (await commandResultFuture) as IssueInvoiceResultDto;
+    }
+    if (commandResult is IssueInvoiceResultDto) return commandResult as IssueInvoiceResultDto;
+    return const IssueInvoiceResultDto(
+      issuanceId: 'iss-1',
+      attemptId: 'att-1',
+      status: IssuanceAttemptStatus.preparing,
+    );
+  }
+
+  @override
+  Future<InvoicePreviewResultDto> requestPreview({
+    required String salesOrderId,
+    required int expectedOrderVersion,
+  }) async {
+    final cmd = RequestInvoicePreviewCommand(
+      salesOrderId: salesOrderId,
+      expectedOrderVersion: expectedOrderVersion,
+    );
+    executedCommands.add(cmd);
+    if (errorToThrow != null) throw errorToThrow!;
+    if (commandResultBuilder != null) {
+      final res = commandResultBuilder!(cmd);
+      if (res is InvoicePreviewResultDto) return res;
+    }
+    if (commandResultFuture != null) {
+      return (await commandResultFuture) as InvoicePreviewResultDto;
+    }
+    if (commandResult is InvoicePreviewResultDto) return commandResult as InvoicePreviewResultDto;
+    return requestPreviewResult;
+  }
+
+  @override
+  Future<InvoicePreviewResultDto> getPreview(String salesOrderId) async {
+    final query = GetInvoicePreviewQuery(salesOrderId: salesOrderId);
+    executedQueries.add(query);
+    if (errorToThrow != null) throw errorToThrow!;
+    if (queryResultBuilder != null) {
+      final res = queryResultBuilder!(query);
+      if (res is InvoicePreviewResultDto) return res;
+    }
+    if (queryResult is InvoicePreviewResultDto) return queryResult as InvoicePreviewResultDto;
+    return super.getPreview(salesOrderId);
+  }
+
+  @override
+  Future<OfficialInvoiceViewDto> requestOfficialView(String salesOrderId) async {
+    final cmd = RequestOfficialInvoiceViewCommand(salesOrderId: salesOrderId);
+    executedCommands.add(cmd);
+    if (errorToThrow != null) throw errorToThrow!;
+    if (commandResultBuilder != null) {
+      final res = commandResultBuilder!(cmd);
+      if (res is OfficialInvoiceViewDto) return res;
+    }
+    if (commandResultFuture != null) {
+      return (await commandResultFuture) as OfficialInvoiceViewDto;
+    }
+    if (commandResult is OfficialInvoiceViewDto) return commandResult as OfficialInvoiceViewDto;
+    return officialViewResult;
+  }
+
+  @override
+  Future<ElectronicInvoiceDetailDto> getDetail(String salesOrderId) async {
+    final query = GetElectronicInvoiceDetailQuery(salesOrderId: salesOrderId);
+    executedQueries.add(query);
+    if (errorToThrow != null) throw errorToThrow!;
+    if (queryResultBuilder != null) {
+      final res = queryResultBuilder!(query);
+      if (res is ElectronicInvoiceDetailDto) return res;
+    }
+    if (queryResult is ElectronicInvoiceDetailDto) return queryResult as ElectronicInvoiceDetailDto;
+    return super.getDetail(salesOrderId);
+  }
+
+  @override
+  Future<InvoiceDocumentRetrievalDto> requestDocument({
+    required String salesOrderId,
+    required InvoiceDocumentType documentType,
+  }) async {
+    final cmd = RequestInvoiceDocumentCommand(
+      salesOrderId: salesOrderId,
+      documentType: documentType,
+    );
+    executedCommands.add(cmd);
+    if (errorToThrow != null) throw errorToThrow!;
+    if (commandResultBuilder != null) {
+      final res = commandResultBuilder!(cmd);
+      if (res is InvoiceDocumentRetrievalDto) return res;
+    }
+    if (commandResultFuture != null) {
+      return (await commandResultFuture) as InvoiceDocumentRetrievalDto;
+    }
+    if (commandResult is InvoiceDocumentRetrievalDto) return commandResult as InvoiceDocumentRetrievalDto;
+    return documentResult;
+  }
+
+  @override
+  Future<InvoiceDocumentsDto> getDocuments(String salesOrderId) async {
+    final query = GetInvoiceDocumentsQuery(salesOrderId: salesOrderId);
+    executedQueries.add(query);
+    if (errorToThrow != null) throw errorToThrow!;
+    if (queryResultBuilder != null) {
+      final res = queryResultBuilder!(query);
+      if (res is InvoiceDocumentsDto) return res;
+    }
+    if (queryResult is InvoiceDocumentsDto) return queryResult as InvoiceDocumentsDto;
+    return super.getDocuments(salesOrderId);
+  }
+}
+
+final class _ConfigurableConfigurationRepository extends FakeEInvoiceConfigurationRepository {
+  _ConfigurableConfigurationRepository(this.repository);
+  final _ConfigurableRepository repository;
+
+  @override
+  Future<IssuanceProfileDto> getIssuanceProfile() async {
+    repository.executedQueries.add(const GetIssuanceProfileQuery());
+    return super.getIssuanceProfile();
+  }
+
+  @override
+  Future<List<ProviderTemplateDto>> listTemplates({bool? invoiceWithCode, int? year}) async {
+    repository.executedQueries.add(const ListProviderTemplatesQuery());
+    return super.listTemplates(invoiceWithCode: invoiceWithCode, year: year);
   }
 }
 
 void main() {
   group('OrderEInvoiceCubit', () {
-    late FakeExecutionContext executionContext;
-    late _ConfigurableMediator mediator;
+    late _ConfigurableRepository mediator;
+    late _ConfigurableConfigurationRepository configurationRepository;
     late _RecordingLauncher launcher;
     late _RecordingExporter exporter;
-    late QueryClient queryClient;
 
     setUp(() {
-      executionContext = FakeExecutionContext(
-        tenantId: 'tenant-test',
-        userId: 'actor-test',
-      );
-      mediator = _ConfigurableMediator();
+      mediator = _ConfigurableRepository();
+      configurationRepository = _ConfigurableConfigurationRepository(mediator);
       launcher = _RecordingLauncher();
       exporter = _RecordingExporter();
-      queryClient = QueryClient(
-        options: const QueryClientOptions(
-          queries: QueryOptionsDefaults(retry: 0, staleTime: Duration.zero),
-        ),
-      );
     });
-
-    tearDown(() => queryClient.dispose());
 
     const issuedState = OrderEInvoiceState(
       salesOrderId: 'order-101',
@@ -171,7 +397,7 @@ void main() {
     });
 
     test('unknown technical error is never exposed verbatim', () {
-      final message = OrderEInvoiceErrorMessage.of(
+      final message = einvoiceErrorMessage(
         Exception('MISA_TOKEN=secret; postgres detail'),
       );
 
@@ -183,6 +409,7 @@ void main() {
       OrderInvoiceProjectionDto? initialProjection,
       IssuanceReadinessDto? initialReadiness,
       bool isBuyerNotReady = false,
+      Duration pollInterval = const Duration(seconds: 5),
     }) {
       return OrderEInvoiceCubit(
         salesOrderId: 'order-101',
@@ -196,11 +423,11 @@ void main() {
             ),
         initialReadiness: initialReadiness,
         isBuyerNotReady: isBuyerNotReady,
-        executionContext: executionContext,
-        mediator: mediator,
-        queryClient: queryClient,
+        repository: mediator,
+        configurationRepository: configurationRepository,
         viewerLauncher: launcher,
         documentExporter: exporter,
+        pollInterval: pollInterval,
       );
     }
 
@@ -788,7 +1015,8 @@ void main() {
           InvoiceDocumentStatus.failed,
           InvoiceDocumentStatus.checkRequired,
         ]) {
-          mediator = _ConfigurableMediator();
+          mediator = _ConfigurableRepository();
+          configurationRepository = _ConfigurableConfigurationRepository(mediator);
           launcher = _RecordingLauncher();
           final cubit = createCubit(
             initialProjection: const OrderInvoiceProjectionDto(
@@ -1225,7 +1453,8 @@ void main() {
           InvoiceDocumentStatus.failed,
           InvoiceDocumentStatus.checkRequired,
         ]) {
-          mediator = _ConfigurableMediator();
+          mediator = _ConfigurableRepository();
+          configurationRepository = _ConfigurableConfigurationRepository(mediator);
           exporter = _RecordingExporter();
           final cubit = createCubit(
             initialProjection: const OrderInvoiceProjectionDto(
@@ -1263,7 +1492,7 @@ void main() {
 
     test('permission error surfaces human-friendly message', () async {
       final cubit = createCubit();
-      mediator.errorToThrow = Exception('RPC error: NO_PERMISSION');
+      mediator.errorToThrow = const AppException('NO_PERMISSION');
 
       await cubit.issueNow();
 
@@ -1281,6 +1510,97 @@ void main() {
       await cubit.refresh();
 
       expect(mediator.executedQueries, isEmpty);
+    });
+
+    test('new cubit starts from initial projection', () {
+      const initial = OrderInvoiceProjectionDto(
+        salesOrderId: 'order-101',
+        issuanceDisplayState: IssuanceDisplayState.processing,
+        actions: [],
+      );
+      final cubit = createCubit(initialProjection: initial);
+      addTearDown(cubit.close);
+
+      expect(cubit.state.projection, initial);
+      expect(cubit.state.projection.issuanceDisplayState, IssuanceDisplayState.processing);
+    });
+
+    test('poll error keeps error message', () async {
+      final cubit = createCubit(
+        initialProjection: const OrderInvoiceProjectionDto(
+          salesOrderId: 'order-101',
+          issuanceDisplayState: IssuanceDisplayState.processing,
+          actions: [],
+        ),
+      );
+      addTearDown(cubit.close);
+
+      cubit.emit(cubit.state.copyWith(errorMessage: 'Lỗi phát hành trước đó'));
+      mediator.errorToThrow = Exception('Network error during poll');
+
+      await cubit.refresh();
+
+      expect(cubit.state.errorMessage, 'Lỗi phát hành trước đó');
+    });
+
+    test('slow poll does not overlap', () async {
+      final cubit = createCubit(
+        initialProjection: const OrderInvoiceProjectionDto(
+          salesOrderId: 'order-101',
+          issuanceDisplayState: IssuanceDisplayState.processing,
+          actions: [],
+        ),
+        pollInterval: const Duration(milliseconds: 10),
+      );
+      addTearDown(cubit.close);
+
+      final gate = Completer<OrderInvoiceProjectionDto>();
+      mediator.queryResultBuilder = (query) => query is GetOrderInvoiceProjectionQuery
+          ? gate.future
+          : null;
+
+      int projectionReads() => mediator.executedQueries.whereType<GetOrderInvoiceProjectionQuery>().length;
+
+      cubit.setPollingActive(true);
+      await Future<void>.delayed(const Duration(milliseconds: 35));
+      expect(projectionReads(), 1);
+
+      gate.complete(
+        const OrderInvoiceProjectionDto(
+          salesOrderId: 'order-101',
+          issuanceDisplayState: IssuanceDisplayState.processing,
+          actions: [],
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 8));
+      expect(projectionReads(), 2);
+    });
+
+    test('poll result after close is dropped', () async {
+      final cubit = createCubit(
+        initialProjection: const OrderInvoiceProjectionDto(
+          salesOrderId: 'order-101',
+          issuanceDisplayState: IssuanceDisplayState.processing,
+          actions: [],
+        ),
+      );
+
+      final gate = Completer<OrderInvoiceProjectionDto>();
+      mediator.queryResultBuilder = (_) => gate.future;
+
+      final refreshFuture = cubit.refresh();
+      await cubit.close();
+
+      gate.complete(
+        const OrderInvoiceProjectionDto(
+          salesOrderId: 'order-101',
+          issuanceDisplayState: IssuanceDisplayState.issued,
+          actions: [OrderInvoiceAction.view],
+        ),
+      );
+      await refreshFuture;
+
+      expect(cubit.isClosed, isTrue);
     });
   });
 }

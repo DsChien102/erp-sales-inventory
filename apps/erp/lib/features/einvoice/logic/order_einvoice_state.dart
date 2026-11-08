@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
 enum OrderEInvoiceStatus { idle, submitting, previewing, downloading, error }
 

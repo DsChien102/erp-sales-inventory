@@ -1,6 +1,5 @@
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
 String deliveryStatusLabel(DeliveryStatus status) => switch (status) {
   DeliveryStatus.processing => 'Đang gửi',

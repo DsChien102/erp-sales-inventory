@@ -1,17 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:async_query/async_query.dart';
-import 'package:async_query_flutter/async_query_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_application/testing.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/presentation/support/order_einvoice_copy.dart';
 import 'package:erp/features/einvoice/presentation/widgets/order_einvoice_row.dart';
-import 'package:erp/features/einvoice/logic/i_invoice_viewer_launcher.dart';
 import 'package:erp/features/einvoice/logic/order_einvoice_cubit.dart';
 import 'package:erp/features/einvoice/logic/order_einvoice_idempotency_key_factory.dart';
 import 'package:erp/features/einvoice/presentation/support/order_einvoice_post_issue_copy.dart';
@@ -22,8 +17,27 @@ import 'package:erp/features/einvoice/presentation/widgets/send_invoice_sheet.da
 import 'package:erp/features/sales/logic/sales_order_detail_state.dart';
 import 'package:erp/features/sales/presentation/models/sales_order/sales_order_detail_vm.dart';
 import 'package:erp/features/sales/presentation/widgets/sales_order_detail_documents_section.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../support/fake_einvoice_configuration_repository.dart';
+import '../support/fake_einvoice_repository.dart';
+import 'package:erp/features/einvoice/data/i_invoice_viewer_launcher.dart';
+
+const _salesOrderId = 'so-fake-001';
+
+OrderInvoiceProjectionDto _projection({
+  IssuanceDisplayState issuance = IssuanceDisplayState.notIssued,
+  DeliveryDisplayState delivery = DeliveryDisplayState.notSent,
+  bool hasSecondaryAttention = false,
+  List<OrderInvoiceAction> actions = const [],
+}) {
+  return OrderInvoiceProjectionDto(
+    salesOrderId: _salesOrderId,
+    issuanceDisplayState: issuance,
+    deliveryDisplayState: delivery,
+    hasSecondaryAttention: hasSecondaryAttention,
+    actions: actions,
+  );
+}
 
 void main() {
   group('SG02-R01 mount contract', () {
@@ -46,7 +60,7 @@ void main() {
         isNot(contains('showSalesResultEInvoiceSheet')),
         reason: 'placeholder sheet must not be used on order detail',
       );
-      expect(pageSource, contains('IEInvoiceModule'));
+      expect(pageSource, contains('EInvoiceRepository'));
       expect(
         pageSource,
         contains('hasLoadedInitialProjection'),
@@ -85,62 +99,42 @@ void main() {
   });
 
   group('Theme 05 host runtime', () {
-    late FakeExecutionContext executionContext;
-    late QueryClient queryClient;
-
-    setUp(() {
-      executionContext = FakeExecutionContext(
-        tenantId: 'tenant-fake',
-        userId: 'actor-fake',
-      );
-      queryClient = QueryClient(
-        options: const QueryClientOptions(
-          queries: QueryOptionsDefaults(retry: 0, staleTime: Duration.zero),
-        ),
-      );
-    });
-
-    tearDown(() => queryClient.dispose());
-
     testWidgets(
       'th08_e2e_e03_u01_sc01_01 order detail opens official viewer from issued row',
       (tester) async {
-        final module = FakeEInvoiceModule(
-          scenario: FakeEInvoiceScenario.officialViewOk,
+        final repository = FakeEInvoiceRepository.forScenario(
+          FakeEInvoiceScenario.officialViewOk,
         );
-        final mediator = _RecordingMediator(module);
+        final configurationRepository = FakeEInvoiceConfigurationRepository();
         final launcher = _RecordingLauncher();
 
         await tester.pumpWidget(
-          QueryClientProvider(
-            client: queryClient,
-            child: MaterialApp(
-              theme: VTheme.lightTheme,
-              home: Scaffold(
-                key: const Key('order_detail_host'),
-                body: SalesOrderDetailDocumentsSection(
-                  isCancelled: false,
-                  eInvoiceStatus: SalesEInvoiceStatus.issued,
-                  historyStatus: SalesOrderDetailSectionStatus.loaded,
-                  returnSlips: const [],
-                  onOpenReceipt: () {},
-                  onOpenReturnList: () {},
-                  onOpenHistory: () {},
-                  onRetryHistory: () {},
-                  eInvoiceSection: OrderEInvoiceSection(
-                    key: const Key('btn_sg08_einvoice'),
-                    salesOrderId: FakeEInvoiceFixtures.salesOrderId,
-                    orderVersion: 1,
-                    orderCode: 'DH-001',
-                    initialProjection: FakeEInvoiceFixtures.projection(
-                      issuance: IssuanceDisplayState.issued,
-                      actions: const [OrderInvoiceAction.view],
-                    ),
-                    mediator: mediator,
-                    executionContext: executionContext,
-                    viewerLauncher: launcher,
-                    idempotencyKeyFactory: const OrderEInvoiceIdempotencyKeyFactory(),
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: Scaffold(
+              key: const Key('order_detail_host'),
+              body: SalesOrderDetailDocumentsSection(
+                isCancelled: false,
+                eInvoiceStatus: SalesEInvoiceStatus.issued,
+                historyStatus: SalesOrderDetailSectionStatus.loaded,
+                returnSlips: const [],
+                onOpenReceipt: () {},
+                onOpenReturnList: () {},
+                onOpenHistory: () {},
+                onRetryHistory: () {},
+                eInvoiceSection: OrderEInvoiceSection(
+                  key: const Key('btn_sg08_einvoice'),
+                  salesOrderId: _salesOrderId,
+                  orderVersion: 1,
+                  orderCode: 'DH-001',
+                  initialProjection: _projection(
+                    issuance: IssuanceDisplayState.issued,
+                    actions: const [OrderInvoiceAction.view],
                   ),
+                  repository: repository,
+                  configurationRepository: configurationRepository,
+                  viewerLauncher: launcher,
+                  idempotencyKeyFactory: const OrderEInvoiceIdempotencyKeyFactory(),
                 ),
               ),
             ),
@@ -156,7 +150,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          mediator.commands.whereType<RequestOfficialInvoiceViewCommand>(),
+          repository.calls.where((c) => c == 'requestOfficialView'),
           hasLength(1),
         );
         expect(launcher.launchedUrls, ['https://view.fake/invoice']);
@@ -170,44 +164,42 @@ void main() {
     testWidgets(
       'th08_e2e_e04_u02_sc01_01 order detail send sheet submits and keeps host',
       (tester) async {
-        final module = FakeEInvoiceModule(
-          scenario: FakeEInvoiceScenario.sendOk,
+        final repository = FakeEInvoiceRepository.forScenario(
+          FakeEInvoiceScenario.sendOk,
         );
         final sendGate = Completer<void>();
-        final mediator = _RecordingMediator(module, sendGate: sendGate);
+        repository.holdOn['send'] = sendGate;
+        final configurationRepository = FakeEInvoiceConfigurationRepository();
 
         await tester.pumpWidget(
-          QueryClientProvider(
-            client: queryClient,
-            child: MaterialApp(
-              theme: VTheme.lightTheme,
-              home: Scaffold(
-                key: const Key('order_detail_host'),
-                body: SalesOrderDetailDocumentsSection(
-                  isCancelled: false,
-                  eInvoiceStatus: SalesEInvoiceStatus.issued,
-                  historyStatus: SalesOrderDetailSectionStatus.loaded,
-                  returnSlips: const [],
-                  onOpenReceipt: () {},
-                  onOpenReturnList: () {},
-                  onOpenHistory: () {},
-                  onRetryHistory: () {},
-                  eInvoiceSection: OrderEInvoiceSection(
-                    key: const Key('btn_sg08_einvoice'),
-                    salesOrderId: FakeEInvoiceFixtures.salesOrderId,
-                    orderVersion: 1,
-                    orderCode: 'DH-001',
-                    initialProjection: FakeEInvoiceFixtures.projection(
-                      issuance: IssuanceDisplayState.issued,
-                      delivery: DeliveryDisplayState.notSent,
-                      actions: const [OrderInvoiceAction.view],
-                    ),
-                    mediator: mediator,
-                    executionContext: executionContext,
-                    idempotencyKeyFactory: DeterministicOrderEInvoiceIdempotencyKeyFactory(const [
-                      'key-send-1',
-                    ]),
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: Scaffold(
+              key: const Key('order_detail_host'),
+              body: SalesOrderDetailDocumentsSection(
+                isCancelled: false,
+                eInvoiceStatus: SalesEInvoiceStatus.issued,
+                historyStatus: SalesOrderDetailSectionStatus.loaded,
+                returnSlips: const [],
+                onOpenReceipt: () {},
+                onOpenReturnList: () {},
+                onOpenHistory: () {},
+                onRetryHistory: () {},
+                eInvoiceSection: OrderEInvoiceSection(
+                  key: const Key('btn_sg08_einvoice'),
+                  salesOrderId: _salesOrderId,
+                  orderVersion: 1,
+                  orderCode: 'DH-001',
+                  initialProjection: _projection(
+                    issuance: IssuanceDisplayState.issued,
+                    delivery: DeliveryDisplayState.notSent,
+                    actions: const [OrderInvoiceAction.view],
                   ),
+                  repository: repository,
+                  configurationRepository: configurationRepository,
+                  idempotencyKeyFactory: DeterministicOrderEInvoiceIdempotencyKeyFactory(const [
+                    'key-send-1',
+                  ]),
                 ),
               ),
             ),
@@ -231,7 +223,7 @@ void main() {
           isTrue,
         );
         expect(
-          mediator.commands.whereType<SendElectronicInvoiceCommand>(),
+          repository.sendCalls,
           hasLength(1),
         );
 
@@ -247,31 +239,28 @@ void main() {
     testWidgets(
       'th08_e2e_e04_u01_sc01_01 auto-send projection never emits auto command',
       (tester) async {
-        final module = FakeEInvoiceModule(
-          scenario: FakeEInvoiceScenario.sendOk,
+        final repository = FakeEInvoiceRepository.forScenario(
+          FakeEInvoiceScenario.sendOk,
         );
-        final mediator = _RecordingMediator(module);
+        final configurationRepository = FakeEInvoiceConfigurationRepository();
         late OrderEInvoiceCubit? cubit;
 
         await tester.pumpWidget(
-          QueryClientProvider(
-            client: queryClient,
-            child: MaterialApp(
-              theme: VTheme.lightTheme,
-              home: Scaffold(
-                body: OrderEInvoiceSection(
-                  salesOrderId: FakeEInvoiceFixtures.salesOrderId,
-                  orderVersion: 1,
-                  orderCode: 'DH-001',
-                  initialProjection: FakeEInvoiceFixtures.projection(
-                    issuance: IssuanceDisplayState.issued,
-                    delivery: DeliveryDisplayState.notSent,
-                    actions: const [OrderInvoiceAction.view],
-                  ),
-                  mediator: mediator,
-                  executionContext: executionContext,
-                  onCubitCreated: (c) => cubit = c,
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: Scaffold(
+              body: OrderEInvoiceSection(
+                salesOrderId: _salesOrderId,
+                orderVersion: 1,
+                orderCode: 'DH-001',
+                initialProjection: _projection(
+                  issuance: IssuanceDisplayState.issued,
+                  delivery: DeliveryDisplayState.notSent,
+                  actions: const [OrderInvoiceAction.view],
                 ),
+                repository: repository,
+                configurationRepository: configurationRepository,
+                onCubitCreated: (c) => cubit = c,
               ),
             ),
           ),
@@ -280,7 +269,7 @@ void main() {
 
         cubit!.emit(
           cubit!.state.copyWith(
-            projection: FakeEInvoiceFixtures.projection(
+            projection: _projection(
               issuance: IssuanceDisplayState.issued,
               delivery: DeliveryDisplayState.sending,
               actions: const [OrderInvoiceAction.view],
@@ -292,7 +281,7 @@ void main() {
 
         cubit!.emit(
           cubit!.state.copyWith(
-            projection: FakeEInvoiceFixtures.projection(
+            projection: _projection(
               issuance: IssuanceDisplayState.issued,
               delivery: DeliveryDisplayState.sent,
               actions: const [OrderInvoiceAction.view],
@@ -302,7 +291,7 @@ void main() {
         await tester.pump();
         expect(find.text(OrderEInvoiceCopy.badgeIssued), findsOneWidget);
         expect(
-          mediator.commands.whereType<StartAutoDeliveryCommand>(),
+          repository.sendCalls,
           isEmpty,
         );
 
@@ -313,30 +302,27 @@ void main() {
     testWidgets(
       'th08_e2e_e04_u03_sc04_01 prior sent + secondary attention keeps sent badge',
       (tester) async {
-        final module = FakeEInvoiceModule(
-          scenario: FakeEInvoiceScenario.sendSheetResend,
+        final repository = FakeEInvoiceRepository.forScenario(
+          FakeEInvoiceScenario.sendSheetResend,
         );
-        final mediator = _RecordingMediator(module);
+        final configurationRepository = FakeEInvoiceConfigurationRepository();
 
         await tester.pumpWidget(
-          QueryClientProvider(
-            client: queryClient,
-            child: MaterialApp(
-              theme: VTheme.lightTheme,
-              home: Scaffold(
-                body: OrderEInvoiceSection(
-                  salesOrderId: FakeEInvoiceFixtures.salesOrderId,
-                  orderVersion: 1,
-                  orderCode: 'DH-001',
-                  initialProjection: FakeEInvoiceFixtures.projection(
-                    issuance: IssuanceDisplayState.issued,
-                    delivery: DeliveryDisplayState.sent,
-                    hasSecondaryAttention: true,
-                    actions: const [OrderInvoiceAction.view],
-                  ),
-                  mediator: mediator,
-                  executionContext: executionContext,
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: Scaffold(
+              body: OrderEInvoiceSection(
+                salesOrderId: _salesOrderId,
+                orderVersion: 1,
+                orderCode: 'DH-001',
+                initialProjection: _projection(
+                  issuance: IssuanceDisplayState.issued,
+                  delivery: DeliveryDisplayState.sent,
+                  hasSecondaryAttention: true,
+                  actions: const [OrderInvoiceAction.view],
                 ),
+                repository: repository,
+                configurationRepository: configurationRepository,
               ),
             ),
           ),
@@ -365,32 +351,29 @@ void main() {
     testWidgets(
       'th08_e2e_e04_u02_sc08_01 UNKNOWN unlocks manual resend once',
       (tester) async {
-        final module = FakeEInvoiceModule(
-          scenario: FakeEInvoiceScenario.sendSheetUnknown,
+        final repository = FakeEInvoiceRepository.forScenario(
+          FakeEInvoiceScenario.sendSheetUnknown,
         );
-        final mediator = _RecordingMediator(module);
+        final configurationRepository = FakeEInvoiceConfigurationRepository();
 
         await tester.pumpWidget(
-          QueryClientProvider(
-            client: queryClient,
-            child: MaterialApp(
-              theme: VTheme.lightTheme,
-              home: Scaffold(
-                body: OrderEInvoiceSection(
-                  salesOrderId: FakeEInvoiceFixtures.salesOrderId,
-                  orderVersion: 1,
-                  orderCode: 'DH-001',
-                  initialProjection: FakeEInvoiceFixtures.projection(
-                    issuance: IssuanceDisplayState.issued,
-                    delivery: DeliveryDisplayState.unknown,
-                    actions: const [OrderInvoiceAction.view],
-                  ),
-                  mediator: mediator,
-                  executionContext: executionContext,
-                  idempotencyKeyFactory: DeterministicOrderEInvoiceIdempotencyKeyFactory(const [
-                    'key-unknown-1',
-                  ]),
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: Scaffold(
+              body: OrderEInvoiceSection(
+                salesOrderId: _salesOrderId,
+                orderVersion: 1,
+                orderCode: 'DH-001',
+                initialProjection: _projection(
+                  issuance: IssuanceDisplayState.issued,
+                  delivery: DeliveryDisplayState.unknown,
+                  actions: const [OrderInvoiceAction.view],
                 ),
+                repository: repository,
+                configurationRepository: configurationRepository,
+                idempotencyKeyFactory: DeterministicOrderEInvoiceIdempotencyKeyFactory(const [
+                  'key-unknown-1',
+                ]),
               ),
             ),
           ),
@@ -408,7 +391,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          mediator.commands.whereType<SendElectronicInvoiceCommand>(),
+          repository.sendCalls,
           hasLength(1),
         );
 
@@ -428,30 +411,6 @@ extension on OrderInvoiceProjectionDto {
       deliveryPending: pending,
       actions: actions,
     );
-  }
-}
-
-final class _RecordingMediator implements IModuleMediator {
-  _RecordingMediator(this.module, {this.sendGate});
-
-  final FakeEInvoiceModule module;
-  final Completer<void>? sendGate;
-  final List<ICommand<dynamic>> commands = [];
-  final List<IQuery<dynamic>> queries = [];
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    if (command is SendElectronicInvoiceCommand && sendGate != null) {
-      await sendGate!.future;
-    }
-    return module.executeCommandAsync(command);
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    queries.add(query);
-    return module.executeQueryAsync(query);
   }
 }
 

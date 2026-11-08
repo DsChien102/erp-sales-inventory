@@ -5,7 +5,7 @@ import 'package:erp/features/sales/presentation/models/sales_order/sales_order_h
 import 'package:erp/features/sales/presentation/models/sales_order_cancellation/sales_order_cancellation_vm.dart';
 import 'package:erp/features/sales/presentation/models/sales_order_settlement/sales_order_payment_vm.dart';
 import 'package:erp/features/sales/presentation/models/sales_receipt/sales_receipt_operation_state.dart';
-import 'package:vet45_einvoice_application/application.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
 enum SalesOrderDetailStatus {
   initial,

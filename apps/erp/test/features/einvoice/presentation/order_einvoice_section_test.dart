@@ -1,34 +1,60 @@
 import 'dart:async';
 
-import 'package:async_query/async_query.dart';
-import 'package:async_query_flutter/async_query_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_application/testing.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/einvoice_errors.dart';
+import 'package:erp/features/einvoice/data/models.dart';
+import 'package:erp/features/einvoice/logic/einvoice_error_messages.dart';
 import 'package:erp/features/einvoice/presentation/support/order_einvoice_copy.dart';
 import 'package:erp/features/einvoice/presentation/widgets/issuance_failure_banner.dart';
 import 'package:erp/features/einvoice/presentation/widgets/issue_invoice_confirmation_sheet.dart';
 import 'package:erp/features/einvoice/presentation/widgets/order_einvoice_row.dart';
 import 'package:erp/features/einvoice/presentation/widgets/pre_issue_einvoice_action_sheet.dart';
-import 'package:erp/features/einvoice/logic/i_invoice_document_exporter.dart';
 import 'package:erp/features/einvoice/logic/order_einvoice_cubit.dart';
 import 'package:erp/features/einvoice/logic/order_einvoice_idempotency_key_factory.dart';
 import 'package:erp/features/einvoice/logic/order_einvoice_state.dart';
 import 'package:erp/features/einvoice/presentation/support/order_einvoice_post_issue_copy.dart';
 import 'package:erp/features/einvoice/presentation/support/order_invoice_delivery_copy.dart';
-import 'package:erp/features/sales/presentation/support/order_invoice_delivery_error_message.dart';
 import 'package:erp/features/einvoice/presentation/widgets/einvoice_action_item.dart';
 import 'package:erp/features/einvoice/presentation/widgets/invoice_documents_action_sheet.dart';
 import 'package:erp/features/einvoice/presentation/widgets/order_einvoice_section.dart';
 import 'package:erp/features/einvoice/presentation/widgets/post_issue_einvoice_action_sheet.dart';
 import 'package:erp/features/einvoice/presentation/widgets/resend_invoice_sheet.dart';
 import 'package:erp/features/einvoice/presentation/widgets/send_invoice_sheet.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../support/fake_einvoice_configuration_repository.dart';
+import '../support/fake_einvoice_repository.dart';
+import 'package:erp/features/einvoice/data/i_invoice_document_exporter.dart';
+
+class RetryIssuanceCommand {
+  const RetryIssuanceCommand({required this.salesOrderId, required this.expectedOrderVersion, required this.idempotencyKey});
+  final String salesOrderId;
+  final int expectedOrderVersion;
+  final String idempotencyKey;
+}
+
+class GetSendInvoiceSheetContextQuery {
+  const GetSendInvoiceSheetContextQuery({this.salesOrderId});
+  final String? salesOrderId;
+}
+
+class SendElectronicInvoiceCommand {
+  const SendElectronicInvoiceCommand({required this.salesOrderId, required this.recipientEmail, required this.idempotencyKey});
+  final String salesOrderId;
+  final String recipientEmail;
+  final String idempotencyKey;
+}
+
+class GetOrderInvoiceProjectionQuery {
+  const GetOrderInvoiceProjectionQuery({this.salesOrderId});
+  final String? salesOrderId;
+}
+
+class StartAutoDeliveryCommand {
+  const StartAutoDeliveryCommand();
+}
 
 final class _RecordingExporter implements IInvoiceDocumentExporter {
   _RecordingExporter();
@@ -62,91 +88,125 @@ final class _RecordingExporter implements IInvoiceDocumentExporter {
   }
 }
 
-final class _TestMediator implements IModuleMediator {
+final class _TestMediator extends FakeEInvoiceRepository {
   _TestMediator(
-    this.module, {
+    FakeEInvoiceScenario scenario, {
     this.officialViewGate,
     this.documentGate,
     this.previewGate,
     this.sendGate,
-    this.sheetContextOverride,
-  });
+    SendInvoiceSheetContextDto? sheetContextOverride,
+    OrderInvoiceProjectionDto? projectionOverride,
+  }) : super() {
+    final configured = FakeEInvoiceRepository.forScenario(scenario);
+    projection = projectionOverride ?? configured.projection;
+    readiness = configured.readiness;
+    attemptStatus = configured.attemptStatus;
+    requestPreviewResult = configured.requestPreviewResult;
+    officialViewResult = configured.officialViewResult;
+    documentResult = configured.documentResult;
+    documentResults = List.of(configured.documentResults);
+    previewResults = List.of(configured.previewResults);
+    detailResults = List.of(configured.detailResults);
+    issueResult = configured.issueResult;
+    sendContext = sheetContextOverride ?? configured.sendContext;
+    sendResult = configured.sendResult;
+    history = configured.history;
+    throwOn.addAll(configured.throwOn);
+  }
 
-  final FakeEInvoiceModule module;
   final Completer<void>? officialViewGate;
   final Completer<void>? documentGate;
   final Completer<void>? previewGate;
   final Completer<void>? sendGate;
-  final SendInvoiceSheetContextDto? sheetContextOverride;
   final List<dynamic> queries = [];
   final List<dynamic> commands = [];
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    if (command is RequestOfficialInvoiceViewCommand && officialViewGate != null) {
-      await officialViewGate!.future;
-    }
-    if (command is RequestInvoiceDocumentCommand && documentGate != null) {
-      await documentGate!.future;
-    }
-    if (command is RequestInvoicePreviewCommand && previewGate != null) {
-      await previewGate!.future;
-    }
-    if (command is SendElectronicInvoiceCommand && sendGate != null) {
-      await sendGate!.future;
-    }
-    return module.executeCommandAsync(command);
+  Future<OrderInvoiceProjectionDto> getProjection(String salesOrderId) async {
+    queries.add(GetOrderInvoiceProjectionQuery(salesOrderId: salesOrderId));
+    return super.getProjection(salesOrderId);
   }
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is GetSendInvoiceSheetContextQuery && sheetContextOverride != null) {
-      return sheetContextOverride as TResult;
-    }
-    return module.executeQueryAsync(query);
+  Future<IssueInvoiceResultDto> retry({
+    required String salesOrderId,
+    required int expectedOrderVersion,
+    required String idempotencyKey,
+    bool? acknowledgeWarnings,
+  }) async {
+    commands.add(RetryIssuanceCommand(
+      salesOrderId: salesOrderId,
+      expectedOrderVersion: expectedOrderVersion,
+      idempotencyKey: idempotencyKey,
+    ));
+    return super.retry(
+      salesOrderId: salesOrderId,
+      expectedOrderVersion: expectedOrderVersion,
+      idempotencyKey: idempotencyKey,
+      acknowledgeWarnings: acknowledgeWarnings,
+    );
+  }
+
+  @override
+  Future<OfficialInvoiceViewDto> requestOfficialView(String salesOrderId) async {
+    if (officialViewGate != null) await officialViewGate!.future;
+    return super.requestOfficialView(salesOrderId);
+  }
+
+  @override
+  Future<InvoiceDocumentRetrievalDto> requestDocument({
+    required String salesOrderId,
+    required InvoiceDocumentType documentType,
+  }) async {
+    if (documentGate != null) await documentGate!.future;
+    return super.requestDocument(salesOrderId: salesOrderId, documentType: documentType);
+  }
+
+  @override
+  Future<InvoicePreviewResultDto> requestPreview({
+    required String salesOrderId,
+    required int expectedOrderVersion,
+  }) async {
+    if (previewGate != null) await previewGate!.future;
+    return super.requestPreview(salesOrderId: salesOrderId, expectedOrderVersion: expectedOrderVersion);
+  }
+
+  @override
+  Future<SendInvoiceSheetContextDto> getSendSheetContext(String salesOrderId) async {
+    queries.add(GetSendInvoiceSheetContextQuery(salesOrderId: salesOrderId));
+    return super.getSendSheetContext(salesOrderId);
+  }
+
+  @override
+  Future<SendInvoiceResultDto> send({
+    required String salesOrderId,
+    required String recipientEmail,
+    required String idempotencyKey,
+  }) async {
+    commands.add(SendElectronicInvoiceCommand(
+      salesOrderId: salesOrderId,
+      recipientEmail: recipientEmail,
+      idempotencyKey: idempotencyKey,
+    ));
+    if (sendGate != null) await sendGate!.future;
+    return super.send(salesOrderId: salesOrderId, recipientEmail: recipientEmail, idempotencyKey: idempotencyKey);
   }
 }
 
-final class _ProjectionOverrideMediator implements IModuleMediator {
-  _ProjectionOverrideMediator(this.delegate, {required this.projectionFn});
+final class _ProjectionOverrideMediator extends FakeEInvoiceRepository {
+  _ProjectionOverrideMediator(this.delegate, {required this.projectionFn}) : super();
 
-  final IModuleMediator delegate;
+  final FakeEInvoiceRepository delegate;
   final OrderInvoiceProjectionDto Function() projectionFn;
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    return delegate.executeCommandAsync(command);
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is GetOrderInvoiceProjectionQuery) {
-      return projectionFn() as TResult;
-    }
-    return delegate.executeQueryAsync(query);
+  Future<OrderInvoiceProjectionDto> getProjection(String salesOrderId) async {
+    return projectionFn();
   }
 }
 
 void main() {
-  late FakeExecutionContext executionContext;
-  late QueryClient queryClient;
-
-  setUp(() {
-    executionContext = FakeExecutionContext(
-      tenantId: 'tenant-fake',
-      userId: 'actor-fake',
-    );
-    queryClient = QueryClient(
-      options: const QueryClientOptions(
-        queries: QueryOptionsDefaults(retry: 0, staleTime: Duration.zero),
-      ),
-    );
-  });
-
-  tearDown(() => queryClient.dispose());
-
   Widget buildSubject({
     required FakeEInvoiceScenario scenario,
     required OrderInvoiceProjectionDto projection,
@@ -162,43 +222,45 @@ void main() {
     SendInvoiceSheetContextDto? sheetContextOverride,
     IInvoiceDocumentExporter? documentExporter,
   }) {
-    final module = FakeEInvoiceModule(scenario: scenario);
     final mediator = _TestMediator(
-      module,
+      scenario,
       officialViewGate: officialViewGate,
       documentGate: documentGate,
       previewGate: previewGate,
       sendGate: sendGate,
       sheetContextOverride: sheetContextOverride,
+      projectionOverride: projection,
     );
     onMediatorCreated?.call(mediator);
+    final configurationRepository = FakeEInvoiceConfigurationRepository(
+      scenario: scenario == FakeEInvoiceScenario.configReadinessBlocked
+          ? FakeEInvoiceConfigurationScenario.configReadinessBlocked
+          : FakeEInvoiceConfigurationScenario.connectionScreenOk,
+    );
 
-    return QueryClientProvider(
-      client: queryClient,
-      child: MaterialApp(
-        theme: VTheme.lightTheme,
-        home: Scaffold(
-          body: OrderEInvoiceSection(
-            salesOrderId: 'so-fake-001',
-            orderCode: 'DH-001',
-            orderVersion: 1,
-            initialProjection: projection,
-            hasLoadedInitialProjection: hasLoadedInitialProjection,
-            isBuyerNotReady: isBuyerNotReady,
-            mediator: mediator,
-            executionContext: executionContext,
-            documentExporter: documentExporter,
-            idempotencyKeyFactory: keyFactory,
-            onCubitCreated: onCubitCreated,
-          ),
+    return MaterialApp(
+      theme: VTheme.lightTheme,
+      home: Scaffold(
+        body: OrderEInvoiceSection(
+          salesOrderId: 'so-fake-001',
+          orderCode: 'DH-001',
+          orderVersion: 1,
+          initialProjection: projection,
+          hasLoadedInitialProjection: hasLoadedInitialProjection,
+          isBuyerNotReady: isBuyerNotReady,
+          repository: mediator,
+          configurationRepository: configurationRepository,
+          documentExporter: documentExporter,
+          idempotencyKeyFactory: keyFactory,
+          onCubitCreated: onCubitCreated,
         ),
       ),
     );
   }
 
   Widget buildCorrectionSubject({String? buyerPartnerId}) {
-    final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.previewOk);
-    final mediator = _TestMediator(module);
+    final mediator = _TestMediator(FakeEInvoiceScenario.previewOk);
+    final configurationRepository = FakeEInvoiceConfigurationRepository();
     final router = GoRouter(
       initialLocation: '/',
       routes: [
@@ -216,8 +278,8 @@ void main() {
               ),
               isBuyerNotReady: true,
               buyerPartnerId: buyerPartnerId,
-              mediator: mediator,
-              executionContext: executionContext,
+              repository: mediator,
+              configurationRepository: configurationRepository,
             ),
           ),
         ),
@@ -230,12 +292,9 @@ void main() {
       ],
     );
     addTearDown(router.dispose);
-    return QueryClientProvider(
-      client: queryClient,
-      child: MaterialApp.router(
-        theme: VTheme.lightTheme,
-        routerConfig: router,
-      ),
+    return MaterialApp.router(
+      theme: VTheme.lightTheme,
+      routerConfig: router,
     );
   }
 
@@ -246,36 +305,32 @@ void main() {
       deliveryDisplayState: DeliveryDisplayState.sending,
       actions: [],
     );
-    final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.retryAfterFailOk);
-    final mediator = _TestMediator(module);
+    final mediator = _TestMediator(FakeEInvoiceScenario.retryAfterFailOk);
+    final configurationRepository = FakeEInvoiceConfigurationRepository();
     final cubit = OrderEInvoiceCubit(
       salesOrderId: 'so-fake-001',
       orderVersion: 1,
       initialProjection: liveProjection,
-      executionContext: executionContext,
-      mediator: _ProjectionOverrideMediator(
+      repository: _ProjectionOverrideMediator(
         mediator,
         projectionFn: () => liveProjection,
       ),
-      queryClient: queryClient,
+      configurationRepository: configurationRepository,
     );
     addTearDown(cubit.close);
 
     await tester.pumpWidget(
-      QueryClientProvider(
-        client: queryClient,
-        child: MaterialApp(
-          theme: VTheme.lightTheme,
-          home: Scaffold(
-            body: OrderEInvoiceSection(
-              salesOrderId: 'so-fake-001',
-              orderCode: 'DH-001',
-              orderVersion: 1,
-              initialProjection: liveProjection,
-              mediator: mediator,
-              executionContext: executionContext,
-              cubit: cubit,
-            ),
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: Scaffold(
+          body: OrderEInvoiceSection(
+            salesOrderId: 'so-fake-001',
+            orderCode: 'DH-001',
+            orderVersion: 1,
+            initialProjection: liveProjection,
+            repository: mediator,
+            configurationRepository: configurationRepository,
+            cubit: cubit,
           ),
         ),
       ),
@@ -712,7 +767,7 @@ void main() {
                   level: IssuanceReadinessLevel.notReady,
                   blockers: [
                     ReadinessBlockerDto(
-                      code: EInvoiceBlockedCodes.providerNotConnected,
+                      code: EInvoiceErrorCodes.providerNotConnected,
                       message: 'Chưa kết nối nhà cung cấp',
                     ),
                   ],
@@ -873,32 +928,27 @@ void main() {
       'placeholder projection blocks tap until authoritative snapshot',
       (tester) async {
         final gate = Completer<void>();
-        final module = FakeEInvoiceModule(
-          scenario: FakeEInvoiceScenario.retryAfterFailOk,
-        );
-        final mediator = _GatedProjectionMediator(module, gate);
+        final mediator = _GatedProjectionMediator(gate);
+        final configurationRepository = FakeEInvoiceConfigurationRepository();
         OrderEInvoiceCubit? cubit;
 
         await tester.pumpWidget(
-          QueryClientProvider(
-            client: queryClient,
-            child: MaterialApp(
-              theme: VTheme.lightTheme,
-              home: Scaffold(
-                body: OrderEInvoiceSection(
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: Scaffold(
+              body: OrderEInvoiceSection(
+                salesOrderId: 'so-fake-001',
+                orderCode: 'DH-001',
+                orderVersion: 1,
+                hasLoadedInitialProjection: false,
+                initialProjection: const OrderInvoiceProjectionDto(
                   salesOrderId: 'so-fake-001',
-                  orderCode: 'DH-001',
-                  orderVersion: 1,
-                  hasLoadedInitialProjection: false,
-                  initialProjection: const OrderInvoiceProjectionDto(
-                    salesOrderId: 'so-fake-001',
-                    issuanceDisplayState: IssuanceDisplayState.notIssued,
-                    actions: [OrderInvoiceAction.issue],
-                  ),
-                  mediator: mediator,
-                  executionContext: executionContext,
-                  onCubitCreated: (value) => cubit = value,
+                  issuanceDisplayState: IssuanceDisplayState.notIssued,
+                  actions: [OrderInvoiceAction.issue],
                 ),
+                repository: mediator,
+                configurationRepository: configurationRepository,
+                onCubitCreated: (value) => cubit = value,
               ),
             ),
           ),
@@ -920,20 +970,12 @@ void main() {
         await tester.tap(find.byType(OrderEInvoiceRow));
         await tester.pumpAndSettle();
         expect(find.byType(PreIssueEInvoiceActionSheet), findsOneWidget);
-
-        queryClient.clear();
       },
     );
 
     testWidgets(
       'auto progress lands on safe failure and retry returns to processing',
       (tester) async {
-        final sequencedClient = QueryClient(
-          options: const QueryClientOptions(
-            queries: QueryOptionsDefaults(retry: 0, staleTime: Duration.zero),
-          ),
-        );
-        addTearDown(sequencedClient.dispose);
         final mediator = _SequencedProjectionMediator(
           const [
             OrderInvoiceProjectionDto(
@@ -967,7 +1009,6 @@ void main() {
         await tester.pumpWidget(
           _buildSequencedSubject(
             mediator,
-            sequencedClient,
             onCubitCreated: (value) => cubit = value,
           ),
         );
@@ -1137,7 +1178,7 @@ void main() {
         expect(find.text('buyer@fake.test'), findsOneWidget);
         expect(find.byType(SnackBar), findsOneWidget);
         expect(
-          find.text(OrderInvoiceDeliveryErrorMessage.fallback),
+          find.text(einvoiceDeliveryFallbackMessage),
           findsOneWidget,
         );
         expect(find.textContaining('Invalid email'), findsNothing);
@@ -1344,116 +1385,103 @@ void main() {
   });
 }
 
-final class _GatedProjectionMediator implements IModuleMediator {
-  _GatedProjectionMediator(this.delegate, this.gate);
+final class _GatedProjectionMediator extends FakeEInvoiceRepository {
+  _GatedProjectionMediator(this.gate) : super();
 
-  final IModuleMediator delegate;
   final Completer<void> gate;
-  final List<ICommand<dynamic>> commands = [];
+  final List<dynamic> commands = [];
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is GetOrderInvoiceProjectionQuery) {
-      await gate.future;
-      return const OrderInvoiceProjectionDto(
-            salesOrderId: 'so-fake-001',
-            issuanceDisplayState: IssuanceDisplayState.notIssued,
-            actions: [OrderInvoiceAction.issue],
-          )
-          as TResult;
-    }
-    if (query is GetIssuanceReadinessQuery) {
-      await gate.future;
-      return const IssuanceReadinessDto(
-            level: IssuanceReadinessLevel.ready,
-            blockers: [],
-            warnings: [],
-            buyerCompletionState: BuyerCompletionStatus.open,
-          )
-          as TResult;
-    }
-    return delegate.executeQueryAsync(query);
+  Future<OrderInvoiceProjectionDto> getProjection(String salesOrderId) async {
+    await gate.future;
+    return const OrderInvoiceProjectionDto(
+      salesOrderId: 'so-fake-001',
+      issuanceDisplayState: IssuanceDisplayState.notIssued,
+      actions: [OrderInvoiceAction.issue],
+    );
   }
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    commands.add(command);
-    return delegate.executeCommandAsync(command);
+  Future<IssuanceReadinessDto> getReadiness(String salesOrderId) async {
+    await gate.future;
+    return const IssuanceReadinessDto(
+      level: IssuanceReadinessLevel.ready,
+      blockers: [],
+      warnings: [],
+      buyerCompletionState: BuyerCompletionStatus.open,
+    );
   }
 }
 
-final class _SequencedProjectionMediator implements IModuleMediator {
-  _SequencedProjectionMediator(this.projections, this.failure);
+final class _SequencedProjectionMediator extends FakeEInvoiceRepository {
+  _SequencedProjectionMediator(this.projections, this.failure) : super();
 
   final List<OrderInvoiceProjectionDto> projections;
   final IssuanceAttemptStatusDto failure;
-  final List<ICommand<dynamic>> commands = [];
+  final List<dynamic> commands = [];
   int projectionIndex = 0;
 
   @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is GetOrderInvoiceProjectionQuery) {
-      final index = projectionIndex < projections.length ? projectionIndex : projections.length - 1;
-      projectionIndex++;
-      return projections[index] as TResult;
-    }
-    if (query is GetIssuanceReadinessQuery) {
-      return const IssuanceReadinessDto(
-            level: IssuanceReadinessLevel.ready,
-            blockers: [],
-            warnings: [],
-            buyerCompletionState: BuyerCompletionStatus.open,
-          )
-          as TResult;
-    }
-    if (query is GetIssuanceAttemptStatusQuery) return failure as TResult;
-    if (query is GetIssuanceProfileQuery || query is ListProviderTemplatesQuery) {
-      throw UnsupportedError('optional template query');
-    }
-    throw UnsupportedError('Unexpected query $query');
+  Future<OrderInvoiceProjectionDto> getProjection(String salesOrderId) async {
+    final index = projectionIndex < projections.length ? projectionIndex : projections.length - 1;
+    projectionIndex++;
+    return projections[index];
   }
 
   @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    commands.add(command);
-    if (command is RetryIssuanceCommand) {
-      return const IssueInvoiceResultDto(
-            issuanceId: 'issuance-1',
-            attemptId: 'attempt-2',
-            status: IssuanceAttemptStatus.preparing,
-          )
-          as TResult;
-    }
-    throw UnsupportedError('Unexpected command $command');
+  Future<IssuanceReadinessDto> getReadiness(String salesOrderId) async {
+    return const IssuanceReadinessDto(
+      level: IssuanceReadinessLevel.ready,
+      blockers: [],
+      warnings: [],
+      buyerCompletionState: BuyerCompletionStatus.open,
+    );
+  }
+
+  @override
+  Future<IssuanceAttemptStatusDto> getAttemptStatus(String salesOrderId) async {
+    return failure;
+  }
+
+  @override
+  Future<IssueInvoiceResultDto> retry({
+    required String salesOrderId,
+    required int expectedOrderVersion,
+    required String idempotencyKey,
+    bool? acknowledgeWarnings,
+  }) async {
+    commands.add(RetryIssuanceCommand(
+      salesOrderId: salesOrderId,
+      expectedOrderVersion: expectedOrderVersion,
+      idempotencyKey: idempotencyKey,
+    ));
+    return const IssueInvoiceResultDto(
+      issuanceId: 'issuance-1',
+      attemptId: 'attempt-2',
+      status: IssuanceAttemptStatus.preparing,
+    );
   }
 }
 
 Widget _buildSequencedSubject(
-  _SequencedProjectionMediator mediator,
-  QueryClient queryClient, {
+  _SequencedProjectionMediator mediator, {
   void Function(OrderEInvoiceCubit)? onCubitCreated,
 }) {
-  return QueryClientProvider(
-    client: queryClient,
-    child: MaterialApp(
-      theme: VTheme.lightTheme,
-      home: Scaffold(
-        body: OrderEInvoiceSection(
+  return MaterialApp(
+    theme: VTheme.lightTheme,
+    home: Scaffold(
+      body: OrderEInvoiceSection(
+        salesOrderId: 'so-fake-001',
+        orderCode: 'DH-001',
+        orderVersion: 1,
+        initialProjection: const OrderInvoiceProjectionDto(
           salesOrderId: 'so-fake-001',
-          orderCode: 'DH-001',
-          orderVersion: 1,
-          initialProjection: const OrderInvoiceProjectionDto(
-            salesOrderId: 'so-fake-001',
-            issuanceDisplayState: IssuanceDisplayState.processing,
-            actions: [],
-          ),
-          mediator: mediator,
-          executionContext: FakeExecutionContext(
-            tenantId: 'tenant-fake',
-            userId: 'actor-fake',
-          ),
-          onCubitCreated: onCubitCreated,
+          issuanceDisplayState: IssuanceDisplayState.processing,
+          actions: [],
         ),
+        repository: mediator,
+        configurationRepository: FakeEInvoiceConfigurationRepository(),
+        onCubitCreated: onCubitCreated,
       ),
     ),
   );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/presentation/support/order_einvoice_post_issue_copy.dart';
 import 'package:erp/features/einvoice/presentation/widgets/einvoice_action_item.dart';
 import 'package:erp/features/einvoice/presentation/widgets/post_issue_einvoice_action_sheet.dart';

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
-
+import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dart';
+import 'package:erp/features/einvoice/data/einvoice_repository.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_cubit.dart';
 import 'package:erp/features/sales/logic/sales_transaction_result_state.dart';
-import 'package:erp/features/einvoice/logic/i_invoice_document_exporter.dart';
-import 'package:erp/features/einvoice/logic/i_invoice_viewer_launcher.dart';
 import 'sales_result_customer_card.dart';
 import 'sales_result_failure_view.dart';
 import 'sales_result_documents_section.dart';
@@ -14,20 +12,22 @@ import 'sales_result_header_card.dart';
 import 'sales_result_loading_view.dart';
 import 'sales_result_partial_banner.dart';
 import 'sales_result_payment_summary_card.dart';
+import 'package:erp/features/einvoice/data/i_invoice_viewer_launcher.dart';
+import 'package:erp/features/einvoice/data/i_invoice_document_exporter.dart';
 
 class SalesTransactionResultBody extends StatelessWidget {
   const SalesTransactionResultBody({
     super.key,
     required this.onViewOrderDetail,
-    this.eInvoiceMediator,
-    this.executionContext,
+    this.eInvoiceRepository,
+    this.eInvoiceConfigurationRepository,
     this.viewerLauncher,
     this.documentExporter,
   });
 
   final VoidCallback onViewOrderDetail;
-  final IModuleMediator? eInvoiceMediator;
-  final IExecutionContext? executionContext;
+  final EInvoiceRepository? eInvoiceRepository;
+  final EInvoiceConfigurationRepository? eInvoiceConfigurationRepository;
   final IInvoiceViewerLauncher? viewerLauncher;
   final IInvoiceDocumentExporter? documentExporter;
 
@@ -73,8 +73,8 @@ class SalesTransactionResultBody extends StatelessWidget {
                 SalesResultDocumentsSection(
                   state: state,
                   cubit: cubit,
-                  eInvoiceMediator: eInvoiceMediator,
-                  executionContext: executionContext,
+                  eInvoiceRepository: eInvoiceRepository,
+                  eInvoiceConfigurationRepository: eInvoiceConfigurationRepository,
                   viewerLauncher: viewerLauncher,
                   documentExporter: documentExporter,
                 ),

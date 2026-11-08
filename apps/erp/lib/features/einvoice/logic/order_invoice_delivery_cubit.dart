@@ -1,9 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/einvoice/data/einvoice_errors.dart';
+import 'package:erp/features/einvoice/data/einvoice_repository.dart';
+import 'package:erp/features/einvoice/data/models.dart';
 
-import 'package:erp/features/sales/presentation/support/order_invoice_delivery_error_message.dart';
+import 'einvoice_error_messages.dart';
 import 'order_einvoice_idempotency_key_factory.dart';
 import 'order_invoice_delivery_state.dart';
 
@@ -14,19 +15,16 @@ import 'order_invoice_delivery_state.dart';
 final class OrderInvoiceDeliveryCubit extends Cubit<OrderInvoiceDeliveryState> {
   OrderInvoiceDeliveryCubit({
     required String salesOrderId,
-    required IExecutionContext executionContext,
-    required IModuleMediator mediator,
+    required EInvoiceRepository repository,
     OrderEInvoiceIdempotencyKeyFactory idempotencyKeyFactory =
         const OrderEInvoiceIdempotencyKeyFactory(),
   }) : _salesOrderId = salesOrderId,
-       _executionContext = executionContext,
-       _mediator = mediator,
+       _repository = repository,
        _idempotencyKeyFactory = idempotencyKeyFactory,
        super(const OrderInvoiceDeliveryState());
 
   final String _salesOrderId;
-  final IExecutionContext _executionContext;
-  final IModuleMediator _mediator;
+  final EInvoiceRepository _repository;
   final OrderEInvoiceIdempotencyKeyFactory _idempotencyKeyFactory;
 
   String? _pendingEmailKey;
@@ -41,15 +39,7 @@ final class OrderInvoiceDeliveryCubit extends Cubit<OrderInvoiceDeliveryState> {
       ),
     );
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
-      final context = await _mediator.executeQueryAsync(
-        GetSendInvoiceSheetContextQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: _salesOrderId,
-        ),
-      );
+      final context = await _repository.getSendSheetContext(_salesOrderId);
       if (isClosed) return context;
       emit(
         state.copyWith(
@@ -64,7 +54,7 @@ final class OrderInvoiceDeliveryCubit extends Cubit<OrderInvoiceDeliveryState> {
         emit(
           state.copyWith(
             status: OrderInvoiceDeliveryStatus.failure,
-            errorMessage: OrderInvoiceDeliveryErrorMessage.of(error),
+            errorMessage: einvoiceDeliveryErrorMessage(error),
           ),
         );
       }
@@ -97,16 +87,10 @@ final class OrderInvoiceDeliveryCubit extends Cubit<OrderInvoiceDeliveryState> {
     final idempotencyKey = _idempotencyKeyFor(trimmed);
 
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
-      final result = await _mediator.executeCommandAsync(
-        SendElectronicInvoiceCommand(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: _salesOrderId,
-          recipientEmail: trimmed,
-          idempotencyKey: idempotencyKey,
-        ),
+      final result = await _repository.send(
+        salesOrderId: _salesOrderId,
+        recipientEmail: trimmed,
+        idempotencyKey: idempotencyKey,
       );
 
       if (result.status != DeliveryStatus.processing) {
@@ -115,7 +99,7 @@ final class OrderInvoiceDeliveryCubit extends Cubit<OrderInvoiceDeliveryState> {
             state.copyWith(
               status: OrderInvoiceDeliveryStatus.failure,
               sheetContext: sheetContext,
-              errorMessage: OrderInvoiceDeliveryErrorMessage.fallback,
+              errorMessage: einvoiceDeliveryFallbackMessage,
             ),
           );
         }
@@ -136,13 +120,13 @@ final class OrderInvoiceDeliveryCubit extends Cubit<OrderInvoiceDeliveryState> {
       }
       return true;
     } catch (error) {
-      final locked = error.toString().contains('OPERATION_IN_PROGRESS');
+      final locked = error is AppException && error.code == EInvoiceErrorCodes.operationInProgress;
       if (!isClosed) {
         emit(
           state.copyWith(
             status: OrderInvoiceDeliveryStatus.failure,
             sheetContext: sheetContext,
-            errorMessage: OrderInvoiceDeliveryErrorMessage.of(error),
+            errorMessage: einvoiceDeliveryErrorMessage(error),
             lockedAfterConflict: locked ? true : state.lockedAfterConflict,
           ),
         );

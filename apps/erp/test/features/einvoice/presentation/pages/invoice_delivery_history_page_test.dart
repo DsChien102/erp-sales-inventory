@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/logic/order_einvoice_idempotency_key_factory.dart';
 import 'package:erp/features/einvoice/logic/order_invoice_delivery_cubit.dart';
 import 'package:erp/features/einvoice/presentation/pages/invoice_delivery_history_page.dart';
@@ -9,52 +8,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 
-final class _RecordingMediator implements IModuleMediator {
-  final List<dynamic> queries = [];
-  Object? historyResult;
-  Object? sheetContextResult;
-  Completer<Object?>? historyGate;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    queries.add(query);
-    if (query is GetInvoiceDeliveryHistoryQuery) {
-      if (historyGate != null) {
-        return (await historyGate!.future) as TResult;
-      }
-      if (historyResult != null) return historyResult as TResult;
-    }
-    if (query is GetSendInvoiceSheetContextQuery && sheetContextResult != null) {
-      return sheetContextResult as TResult;
-    }
-    return null as TResult;
-  }
-}
+import '../../support/fake_einvoice_repository.dart';
 
 void main() {
-  late FakeExecutionContext executionContext;
-  late _RecordingMediator mediator;
+  late FakeEInvoiceRepository repository;
 
   setUp(() {
-    executionContext = FakeExecutionContext(
-      tenantId: 'tenant-test',
-      userId: 'actor-test',
-    );
-    mediator = _RecordingMediator();
+    repository = FakeEInvoiceRepository();
   });
 
   testWidgets('page loads history and back pops to source', (tester) async {
-    mediator.historyResult = InvoiceDeliveryHistoryDto(
+    repository.history = InvoiceDeliveryHistoryDto(
       deliveries: [
         InvoiceDeliveryItemDto(
           deliveryId: 'del-1',
@@ -87,8 +52,7 @@ void main() {
                     MaterialPageRoute<void>(
                       builder: (_) => InvoiceDeliveryHistoryPage(
                         salesOrderId: 'order-101',
-                        mediator: mediator,
-                        executionContext: executionContext,
+                        repository: repository,
                       ),
                     ),
                   );
@@ -106,7 +70,7 @@ void main() {
     expect(find.text(OrderInvoiceDeliveryCopy.historyPageTitle), findsOneWidget);
     expect(find.textContaining('buyer@example.com'), findsOneWidget);
     expect(
-      mediator.queries.whereType<GetInvoiceDeliveryHistoryQuery>(),
+      repository.calls.where((c) => c == 'getDeliveryHistory'),
       hasLength(1),
     );
 
@@ -147,8 +111,8 @@ void main() {
         displayState: DeliveryDisplayState.sent,
       );
 
-      mediator.sheetContextResult = sheetContext;
-      mediator.historyResult = const InvoiceDeliveryHistoryDto(
+      repository.sendContext = sheetContext;
+      repository.history = const InvoiceDeliveryHistoryDto(
         deliveries: [],
         displayState: DeliveryDisplayState.sent,
         hasSecondaryAttention: false,
@@ -156,8 +120,7 @@ void main() {
 
       final deliveryCubit = OrderInvoiceDeliveryCubit(
         salesOrderId: 'order-101',
-        executionContext: executionContext,
-        mediator: mediator,
+        repository: repository,
         idempotencyKeyFactory: DeterministicOrderEInvoiceIdempotencyKeyFactory(
           const ['k1'],
         ),
@@ -177,8 +140,7 @@ void main() {
                   MaterialPageRoute<void>(
                     builder: (_) => InvoiceDeliveryHistoryPage(
                       salesOrderId: 'order-101',
-                      mediator: mediator,
-                      executionContext: executionContext,
+                      repository: repository,
                     ),
                   ),
                 ),
