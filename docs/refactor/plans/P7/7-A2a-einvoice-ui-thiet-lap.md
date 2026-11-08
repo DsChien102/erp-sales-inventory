@@ -258,15 +258,15 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
 - `presentation/widgets/{provider_connection_view_test,automation_policy_view_test,default_issuance_configuration_view_test,einvoice_configuration_overview_view_test,configuration_state_messages_test,provider_connection_overlays_test}.dart`
 - `logic/provider_connection_state_test.dart`
 
-- [ ] Chép nguyên văn, đổi:
+- [x] Chép nguyên văn, đổi:
   - `FakeEInvoiceModule(scenario: X)` → `FakeEInvoiceConfigurationRepository(scenario: FakeEInvoiceConfigurationScenario.X)`;
   - bỏ `QueryClientProvider` / `QueryClient` / `FakeExecutionContext`;
   - cubit nhận `repository:`.
   - `_SequencedConnectionModule` → `_SequencedConnectionRepository extends FakeEInvoiceConfigurationRepository`, override `getConnectionScreen` và `connect`, giữ `queryCount`. Bỏ `verifyCount` và nhánh Verify.
   - `_DisconnectedOverviewModule` (`einvoice_configuration_overview_view_test.dart:12`) → repository con tương ứng.
-- [ ] Bỏ ca `connect sets query data and updates query cache` (Q6). Giữ 4 ca Task 0, đúng số nhịp đã ghi.
-- [ ] `flutter test test/features/einvoice/presentation/widgets test/features/einvoice/logic` → PASS. Số ca = số ca module (28) − 1 + 4 = **31**, cộng số ca Task 3.
-- [ ] Commit `test(einvoice): 7-A2a chép test UI thiết lập sang app`.
+- [x] Bỏ ca `connect sets query data and updates query cache` (Q6). Giữ 4 ca Task 0, đúng số nhịp đã ghi.
+- [x] `flutter test test/features/einvoice/presentation/widgets test/features/einvoice/logic` → PASS. Số ca = số ca module (28) − 1 + 4 = **31**, cộng số ca Task 3.
+- [x] Commit `test(einvoice): 7-A2a chép test UI thiết lập sang app`.
 
 ### Task 5: Trang, router, DI
 
@@ -354,6 +354,21 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
   - Test thêm / sửa, lệnh, số ca pass / fail: `flutter test test/features/einvoice/logic/` → 59/59 PASS. `dart analyze lib/features/einvoice` → 0 errors, 0 warnings. `dart run tool/check_feature_imports.dart` → giữ nguyên 4 dòng R1 hiện có của `einvoice`, không phát sinh vi phạm mới.
   - Impact (symbol, số caller, luồng, mức rủi ro): Toàn bộ 4 cubit và 30 tệp thiết lập mới nằm trong `features/einvoice`, chưa nối vào router/pages, rủi ro: LOW.
   - Ghi chú cho review: Cơ chế hỏi lại của `ProviderConnectionCubit` chuyển sang `Timer` 2 giây hoàn toàn khép kín trong cubit; `ProviderConnectionView` không còn dùng `UseQuery`.
+
+- **Task 4 — ✅**
+  - Tệp:dòng đã đổi / thêm:
+    - Tạo 7 tệp test dưới `apps/erp/test/features/einvoice/`:
+      - `logic/provider_connection_state_test.dart` (3 ca)
+      - `presentation/widgets/configuration_state_messages_test.dart` (2 ca)
+      - `presentation/widgets/provider_connection_overlays_test.dart` (1 ca)
+      - `presentation/widgets/automation_policy_view_test.dart` (4 ca)
+      - `presentation/widgets/default_issuance_configuration_view_test.dart` (4 ca)
+      - `presentation/widgets/einvoice_configuration_overview_view_test.dart` (4 ca)
+      - `presentation/widgets/provider_connection_view_test.dart` (13 ca: 9 ca chuyển từ module - bỏ 1 ca query cache Q6 + 4 ca Task 0 B0-1..B0-4)
+  - Lệch plan + lý do: Không.
+  - Test thêm / sửa, lệnh, số ca pass / fail: `cd apps/erp && flutter test test/features/einvoice/presentation/widgets test/features/einvoice/logic` → 90/90 PASS (31 ca chuyển từ module + 59 ca unit test logic & Task 3).
+  - Impact (symbol, số caller, luồng, mức rủi ro): File test, rủi ro: LOW.
+  - Ghi chú cho review: Toàn bộ 7 file test UI thiết lập của module đã được chuyển sang app, chạy mượt mà với `FakeEInvoiceConfigurationRepository` và Timer polling của `ProviderConnectionCubit`.
 
 Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối):
 
