@@ -876,7 +876,7 @@ Feature: Lưu tài liệu hóa đơn
 
 **FR**
 - FR-01: `request_provider_observation_refresh` (chỉ `service_role`, có `trigger_id`) → bộ xử lý hỏi MISA `getStatus` → `record_provider_observation` ghi thêm một dòng `invoice_provider_observations`.
-- FR-02: `get_latest_provider_observation` trả quan sát mới nhất. App **không** có màn hay nút nào gọi chức năng này.
+- FR-02: `get_latest_provider_observation` trả quan sát mới nhất. App **không** có màn hay nút nào gọi chức năng này. Hiện chưa có nơi nào gọi `request_provider_observation_refresh` (không có nút, không có lịch) ⇒ bộ xử lý có handler nhưng chưa nhận việc.
 - FR-03: Quan sát không đổi hóa đơn hay trạng thái "Đã phát hành"; sai lệch phát sự kiện `einvoice.provider_observation_attention_required`.
 
 **AC**
@@ -1513,6 +1513,7 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | KI-21 | 4 hàm của bộ xử lý (`start_auto_issuance`, `reevaluate_auto_issuance`, `list_open_auto_issuance_processes`, `build_canonical_invoice`) từng `grant` cho `authenticated` mà không kiểm quyền: ai đăng nhập cũng gọi được | Chỉ `service_role` gọi được; `_buyer_issuance_blocker` cũng chỉ `service_role` | Đã sửa 7-B1 |
 | KI-22 | `reschedule_internal_command` ghi `updated_at` nhưng `einvoice.internal_commands` không có cột này ⇒ gọi là lỗi `column "updated_at" does not exist` | Bỏ dòng ghi `updated_at` | Đã sửa 7-E1 |
 | KI-23 | 7 câu `insert into einvoice.internal_commands` (mở / xếp / seed việc đối soát phát hành `…009`, xếp đối soát gửi `…014`, `…015`) ghi cột `created_at` không có ⇒ phát hành "chưa xác định" hoặc gửi cần đối soát là lỗi; `seed` lỗi chặn mọi việc của cửa hàng trong bộ xử lý | Bỏ cột `created_at` ở cả 7 câu | Đã sửa 7-E1 (R1-1) |
+| KI-24 | Bucket `einvoice-documents` không nhận `application/zip` trong khi MISA có thể trả XML nén ZIP ⇒ tải XML lỗi, hết 3 lượt thành `CHECK_REQUIRED` | Thêm `application/zip` vào `allowed_mime_types` (`…011`) | Đã sửa 7-E2b |
 
 ---
 
