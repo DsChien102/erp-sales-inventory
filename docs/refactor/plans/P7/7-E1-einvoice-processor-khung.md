@@ -3,7 +3,7 @@
 > Theme 8 (mã cũ P7) · Phần server, làm sau 7-B1 (PLAN.md: 7-B1 → 7-E1 → 7-E2 → 7-E3, chốt 2026-11-08).
 > Gồm: việc 7.4 phần khung (client MISA, hàng đợi, 1/9 handler); hàm SQL tìm cửa hàng có việc (Q1); sửa lỗi `reschedule_internal_command` ghi cột không có (Q4, KI-22).
 > Trạng thái: Plan ✅ (viết 2026-11-08, duyệt 2026-11-08) | Làm ✅ 2026-11-08 | Review ✅ R2 2026-11-08 (ĐẠT; R1 CHƯA ĐẠT → đã sửa R1-1, R1-2)
-> Trước: 7-B1. Sau: 7-E2 (8 handler còn lại + 5 dead-letter, dùng `FakeMeInvoiceClient`, `QueueRpc`, `HANDLERS`, `DEAD_LETTER_HANDLERS` của plan này), 7-E3 (`pg_cron` gọi function), 7-A1 (app gọi `functions.invoke`).
+> Trước: 7-B1. Sau: 7-E2a / 7-E2b / 7-E2c (8 handler còn lại + 6 dead-letter, dùng `FakeMeInvoiceClient`, `QueueRpc`, `HANDLERS`, `DEAD_LETTER_HANDLERS` của plan này), 7-E3 (`pg_cron` gọi function), 7-A1 (app gọi `functions.invoke`).
 > Tài liệu: [TH-08](../../../02-yeu-cau/TH-08-hoa-don-dien-tu.md) 1 (dòng 44), 6.2 "Lệnh nội bộ", 9.1 "Sau refactor" (KI-20), 9.2 (PR 7.4), 9.4. Nguồn chép: `packages/vet45_misa/lib` + `test`; `modules/einvoice/infrastructure/lib/src/configuration/processing/internal_commands/process_internal_commands_command_handler.dart`, `einvoice_internal_command_attempt_policy.dart`; `modules/einvoice/application/lib/src/configuration/commands/sync_provider_capabilities/`; `modules/einvoice/infrastructure/lib/src/adapters/misa/{me_invoice_provider_adapter,tenant_me_invoice_client_factory,me_invoice_endpoint_capabilities}.dart`; `modules/einvoice/infrastructure/lib/src/data_access/einvoice_rpc_mapper.dart:53-100`; `modules/einvoice/domain/lib/src/issuance_profile/{provider_template_ref,invoice_series_classification}.dart`. Mẫu Edge Function: `supabase/functions/send-email/`, `supabase/functions/invitation-signup/`.
 >
 > **Cho phiên code:** dùng `superpowers:executing-plans` (tuần tự). Mỗi task xong ghi ngay mục 9 theo mẫu (tệp:dòng, lệch plan, ca test, impact). **Không commit** (người dùng commit sau `detect_changes()`). **Không làm gì với DB** (không chạy SQL, không reset, không push, không deploy function). **Không đụng `modules/`, `packages/`, `apps/`** (chỉ đọc để chép). **Không ghi mục 10.**
@@ -23,7 +23,7 @@
 - 8 loại lệnh chưa có handler → dời 300 giây, **không** tính lượt thử.
 - `reschedule_internal_command` chạy được (không còn ghi `updated_at`).
 
-**Không làm:** 8 handler còn lại + 5 dead-letter (7-E2); `pg_cron`, `pg_net`, trigger, `record_issuance_success` xếp gửi (7-E3); app gọi `functions.invoke` (7-A1); xoá `packages/vet45_misa`, `platform.list_tenants_with_pending_messaging` (7-C); thêm `[functions.einvoice-processor]` vào `config.toml` (giữ `verify_jwt` mặc định bật); lưu token MISA vào DB.
+**Không làm:** 8 handler còn lại + 6 dead-letter (7-E2); `pg_cron`, `pg_net`, trigger, `record_issuance_success` xếp gửi (7-E3); app gọi `functions.invoke` (7-A1); xoá `packages/vet45_misa`, `platform.list_tenants_with_pending_messaging` (7-C); thêm `[functions.einvoice-processor]` vào `config.toml` (giữ `verify_jwt` mặc định bật); lưu token MISA vào DB.
 
 ## 2. Quyết định
 
