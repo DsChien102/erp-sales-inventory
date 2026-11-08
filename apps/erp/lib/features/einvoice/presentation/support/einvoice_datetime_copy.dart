@@ -3,15 +3,21 @@ abstract final class EInvoiceDateTimeCopy {
     return 'Kiểm tra gần nhất: ${_hm(value)}, ${_dmy(value)}';
   }
 
+  static String syncedAt(DateTime value) {
+    return 'Đồng bộ gần nhất: ${_hm(value)}, ${_dmy(value)}';
+  }
+
   static String updatedAt(DateTime value) {
     return 'Cập nhật gần nhất: ${_hm(value)}, ${_dmy(value)}';
   }
 
-  static String _hm(DateTime value) {
+  static String _hm(DateTime utcOrLocal) {
+    final value = utcOrLocal.toLocal();
     return '${_two(value.hour)}:${_two(value.minute)}';
   }
 
-  static String _dmy(DateTime value) {
+  static String _dmy(DateTime utcOrLocal) {
+    final value = utcOrLocal.toLocal();
     return '${_two(value.day)}/${_two(value.month)}/${value.year}';
   }
 

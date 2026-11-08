@@ -24,6 +24,7 @@ final class DefaultIssuanceConfigurationLoaded extends DefaultIssuanceConfigurat
     this.selectedTemplateId,
     this.isSubmitting = false,
     this.templateError,
+    this.lastSyncedAt,
   });
 
   final IssuanceProfileDto profile;
@@ -31,6 +32,7 @@ final class DefaultIssuanceConfigurationLoaded extends DefaultIssuanceConfigurat
   final String? selectedTemplateId;
   final bool isSubmitting;
   final String? templateError;
+  final DateTime? lastSyncedAt;
 
   ProviderTemplateDto? get selectedTemplate {
     final id = selectedTemplateId;
@@ -59,6 +61,7 @@ final class DefaultIssuanceConfigurationLoaded extends DefaultIssuanceConfigurat
       selectedTemplateId: selectedTemplateId ?? this.selectedTemplateId,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       templateError: clearTemplateError ? templateError : templateError ?? this.templateError,
+      lastSyncedAt: lastSyncedAt,
     );
   }
 
@@ -69,6 +72,7 @@ final class DefaultIssuanceConfigurationLoaded extends DefaultIssuanceConfigurat
         selectedTemplateId,
         isSubmitting,
         templateError,
+        lastSyncedAt,
       ];
 }
 

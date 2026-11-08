@@ -6,6 +6,7 @@ import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/logic/provider_connection_copy.dart';
 import 'package:erp/features/einvoice/logic/provider_connection_cubit.dart';
 import 'package:erp/features/einvoice/presentation/support/configuration_state_copy.dart';
+import 'package:erp/features/einvoice/presentation/support/einvoice_datetime_copy.dart';
 import 'package:erp/features/einvoice/presentation/widgets/provider_connection_view.dart';
 
 import '../../support/fake_einvoice_configuration_repository.dart';
@@ -130,7 +131,10 @@ void main() {
       expect(find.text('ke***@anphu.vn'), findsOneWidget);
       expect(find.text('ketoan@anphu.vn'), findsNothing);
       expect(find.text('0101234567'), findsOneWidget);
-      expect(find.text('Cập nhật gần nhất: 10:40, 05/08/2026'), findsOneWidget);
+      expect(
+        find.text(EInvoiceDateTimeCopy.updatedAt(DateTime.utc(2026, 8, 5, 10, 40))),
+        findsOneWidget,
+      );
       expect(find.text('Ngắt kết nối'), findsOneWidget);
       expect(find.text('Thao tác'), findsNothing);
       expect(find.text('Kết nối lại'), findsNothing);

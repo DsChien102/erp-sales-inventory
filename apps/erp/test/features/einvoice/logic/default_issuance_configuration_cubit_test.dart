@@ -4,6 +4,7 @@ import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/einvoice/data/einvoice_errors.dart';
 import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/logic/default_issuance_configuration_cubit.dart';
+import 'package:erp/features/einvoice/logic/default_issuance_configuration_state.dart';
 
 import '../support/fake_einvoice_configuration_repository.dart';
 
@@ -44,7 +45,82 @@ class _SigningCaptureRepo extends FakeEInvoiceConfigurationRepository {
   }
 }
 
+class _ConnectionOverrideRepo extends FakeEInvoiceConfigurationRepository {
+  _ConnectionOverrideRepo({this.failure, this.lastCheckedAt});
+
+  final Object? failure;
+  final DateTime? lastCheckedAt;
+
+  @override
+  Future<ProviderConnectionScreenDto> getConnectionScreen() async {
+    calls.add('getConnectionScreen');
+    if (failure != null) {
+      throw failure!;
+    }
+    final base = FakeEInvoiceConfigurationFixtures.connectedScreen();
+    return ProviderConnectionScreenDto(
+      legalProfile: base.legalProfile,
+      connection: ProviderConnectionSummaryDto(
+        connectionId: base.connection.connectionId,
+        status: base.connection.status,
+        lastCheckedAt: lastCheckedAt,
+        maskedAccount: base.connection.maskedAccount,
+        connectionVersion: base.connection.connectionVersion,
+      ),
+    );
+  }
+}
+
 void main() {
+  group('DefaultIssuanceConfigurationCubit last synced', () {
+    test('load reads connection after profile and templates', () async {
+      final repo = FakeEInvoiceConfigurationRepository();
+      final cubit = DefaultIssuanceConfigurationCubit(repository: repo);
+      await cubit.load();
+      expect(repo.calls, ['getIssuanceProfile', 'listTemplates', 'getConnectionScreen']);
+      final state = cubit.state as DefaultIssuanceConfigurationLoaded;
+      expect(
+        state.lastSyncedAt,
+        FakeEInvoiceConfigurationFixtures.connectedScreen().connection.lastCheckedAt,
+      );
+      await cubit.close();
+    });
+
+    test('connection read failure hides synced line', () async {
+      final repo = _ConnectionOverrideRepo(
+        failure: const AppException(EInvoiceErrorCodes.systemError),
+      );
+      final cubit = DefaultIssuanceConfigurationCubit(repository: repo);
+      await cubit.load();
+      final state = cubit.state as DefaultIssuanceConfigurationLoaded;
+      expect(state.lastSyncedAt, isNull);
+      await cubit.close();
+    });
+
+    test('lastCheckedAt null keeps line hidden', () async {
+      final cubit = DefaultIssuanceConfigurationCubit(
+        repository: _ConnectionOverrideRepo(),
+      );
+      await cubit.load();
+      expect((cubit.state as DefaultIssuanceConfigurationLoaded).lastSyncedAt, isNull);
+      await cubit.close();
+    });
+
+    test('select and save keep lastSyncedAt', () async {
+      final cubit = DefaultIssuanceConfigurationCubit(
+        repository: FakeEInvoiceConfigurationRepository(),
+      );
+      await cubit.load();
+      final before = (cubit.state as DefaultIssuanceConfigurationLoaded).lastSyncedAt;
+      expect(before, isNotNull);
+      cubit.selectTemplate('tpl-2');
+      expect((cubit.state as DefaultIssuanceConfigurationLoaded).lastSyncedAt, before);
+      await cubit.save();
+      expect((cubit.state as DefaultIssuanceConfigurationLoaded).lastSyncedAt, before);
+      await cubit.close();
+    });
+  });
+
   group('DefaultIssuanceConfigurationCubit', () {
     test('server template error shows incompatible', () async {
       final repo = _CustomErrorIssuanceRepo(

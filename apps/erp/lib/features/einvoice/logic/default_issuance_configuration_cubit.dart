@@ -28,6 +28,7 @@ final class DefaultIssuanceConfigurationCubit extends Cubit<DefaultIssuanceConfi
     try {
       final profile = await _repository.getIssuanceProfile();
       final templates = await _repository.listTemplates();
+      final lastSyncedAt = await _readLastSyncedAt();
       if (isClosed) {
         return;
       }
@@ -36,6 +37,7 @@ final class DefaultIssuanceConfigurationCubit extends Cubit<DefaultIssuanceConfi
           profile: profile,
           templates: templates,
           selectedTemplateId: profile.templateId,
+          lastSyncedAt: lastSyncedAt,
         ),
       );
     } catch (error) {
@@ -45,6 +47,16 @@ final class DefaultIssuanceConfigurationCubit extends Cubit<DefaultIssuanceConfi
       emit(
         DefaultIssuanceConfigurationError(mapConfigurationQueryFailure(error)),
       );
+    }
+  }
+
+  /// KI-01: sync time comes from the connection (`last_verified_at`);
+  /// any failure just hides the line.
+  Future<DateTime?> _readLastSyncedAt() async {
+    try {
+      return (await _repository.getConnectionScreen()).connection.lastCheckedAt;
+    } catch (_) {
+      return null;
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/logic/default_issuance_configuration_cubit.dart';
+import 'package:erp/features/einvoice/presentation/support/einvoice_datetime_copy.dart';
 import 'package:erp/features/einvoice/presentation/widgets/default_issuance_configuration_view.dart';
 
 import '../../support/fake_einvoice_configuration_repository.dart';
@@ -33,7 +34,32 @@ class _RecordingDefaultIssuanceRepository extends FakeEInvoiceConfigurationRepos
   }
 }
 
+class _NoConnectionRepo extends FakeEInvoiceConfigurationRepository {
+  _NoConnectionRepo()
+      : super(scenario: FakeEInvoiceConfigurationScenario.listTemplatesOk);
+
+  @override
+  Future<ProviderConnectionScreenDto> getConnectionScreen() async {
+    throw Exception('boom');
+  }
+}
+
 void main() {
+  testWidgets('no synced line when connection read fails', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: BlocProvider(
+          create: (_) => DefaultIssuanceConfigurationCubit(repository: _NoConnectionRepo())..load(),
+          child: const Scaffold(body: DefaultIssuanceConfigurationView()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('wgt_e01_u02_fr04_01')), findsOneWidget);
+    expect(find.textContaining('Đồng bộ gần nhất'), findsNothing);
+  });
+
   Future<void> pumpIssuance(
     WidgetTester tester, {
     required FakeEInvoiceConfigurationScenario scenario,
@@ -71,7 +97,14 @@ void main() {
         find.textContaining('Mẫu hóa đơn', findRichText: true),
         findsOneWidget,
       );
-      expect(find.text('Đồng bộ gần nhất: 10:38, 05/08/2026'), findsOneWidget);
+      expect(
+        find.text(
+          EInvoiceDateTimeCopy.syncedAt(
+            FakeEInvoiceConfigurationFixtures.connectedScreen().connection.lastCheckedAt!,
+          ),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Thông tin mẫu'), findsOneWidget);
       expect(find.text('Ký hiệu'), findsOneWidget);
       expect(find.text('C22TAA'), findsWidgets);

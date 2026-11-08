@@ -6,6 +6,7 @@ import 'package:erp/features/einvoice/logic/default_issuance_configuration_copy.
 import 'package:erp/features/einvoice/logic/default_issuance_configuration_cubit.dart';
 import 'package:erp/features/einvoice/logic/default_issuance_configuration_state.dart';
 import 'package:erp/features/einvoice/logic/einvoice_configuration_display.dart';
+import 'package:erp/features/einvoice/presentation/support/einvoice_datetime_copy.dart';
 import 'package:erp/features/einvoice/presentation/widgets/configuration_editor_bottom_bar.dart';
 import 'package:erp/features/einvoice/presentation/widgets/configuration_query_failure_view.dart';
 import 'package:erp/features/einvoice/presentation/widgets/settings_info_row.dart';
@@ -120,7 +121,9 @@ class _DefaultIssuanceBody extends StatelessWidget {
                   isRequired: true,
                   value: state.selectedTemplateId,
                   errorText: state.templateError,
-                  helperText: EInvoiceConfigurationDisplay.lastSyncedLabel,
+                  helperText: state.lastSyncedAt == null
+                      ? null
+                      : EInvoiceDateTimeCopy.syncedAt(state.lastSyncedAt!),
                   enabled: !state.isSubmitting,
                   onChanged: cubit.selectTemplate,
                   items: [
