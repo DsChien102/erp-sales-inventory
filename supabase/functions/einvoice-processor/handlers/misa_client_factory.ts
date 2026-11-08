@@ -33,10 +33,11 @@ export class TenantMisaClientFactory {
   ) {}
 
   /** Null when the tenant has no credentials row. */
-  async getForTenant(tenantId: string): Promise<{ client: IMeInvoiceClient; baseUrl: string } | null> {
+  async getForTenant(tenantId: string): Promise<{ client: IMeInvoiceClient; baseUrl: string; taxCode: string | null } | null> {
     const row = await this.credentials.read(tenantId)
     if (row === null) return null
     const baseUrl = row.base_url ?? this.env.baseUrl
+    const taxCode = row.tax_code
     const config: MeInvoiceConfig = {
       baseUrl,
       appId: this.env.appId,
@@ -47,12 +48,12 @@ export class TenantMisaClientFactory {
     const existing = this.#clients.get(tenantId)
     const existingConfig = this.#configs.get(tenantId)
     if (existing && existingConfig && sameConfig(existingConfig, config)) {
-      return { client: existing, baseUrl }
+      return { client: existing, baseUrl, taxCode }
     }
     const client = this.create(config)
     this.#clients.set(tenantId, client)
     this.#configs.set(tenantId, config)
-    return { client, baseUrl }
+    return { client, baseUrl, taxCode }
   }
 
   invalidate(tenantId: string): void {

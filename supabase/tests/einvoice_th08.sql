@@ -347,6 +347,8 @@ declare
   v_child_cmd3 uuid;
   v_retry_res record;
   v_child_count int;
+  v_mimes_e46 text[];
+  v_bucket_e46 record;
 begin
   -- 0) Hai tenant + owner + JWT (như sales_th05.sql)
   insert into auth.users (
@@ -1072,6 +1074,29 @@ begin
     and source_event_id = v_child_cmd3;
   if v_n <> 0 then
     raise exception 'FAIL E44 round 4: child command should not be created, got %', v_n;
+  end if;
+
+  -- E46 (7-E2b KI-24): bucket einvoice-documents nhận ZIP (XML nén) + PDF + XML
+  select public, file_size_limit, allowed_mime_types into v_bucket_e46
+  from storage.buckets
+  where id = 'einvoice-documents';
+  if v_bucket_e46 is null then
+    raise exception 'FAIL E46: bucket einvoice-documents not found';
+  end if;
+  if v_bucket_e46.public is not false then
+    raise exception 'FAIL E46: expected public = false, got %', v_bucket_e46.public;
+  end if;
+  if v_bucket_e46.file_size_limit <> 20971520 then
+    raise exception 'FAIL E46: expected file_size_limit = 20971520, got %', v_bucket_e46.file_size_limit;
+  end if;
+  v_mimes_e46 := v_bucket_e46.allowed_mime_types;
+  if not (
+    'application/pdf' = any(v_mimes_e46) and
+    'application/xml' = any(v_mimes_e46) and
+    'text/xml' = any(v_mimes_e46) and
+    'application/zip' = any(v_mimes_e46)
+  ) then
+    raise exception 'FAIL E46: allowed_mime_types missing required types, got %', v_mimes_e46;
   end if;
 
   raise notice 'einvoice_th08: OK';

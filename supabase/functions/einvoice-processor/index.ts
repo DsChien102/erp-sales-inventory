@@ -5,6 +5,12 @@ import { type MisaEnv, readMisaEnv } from './handlers/misa_env.ts'
 import { buildDeadLetters, buildHandlers, type HandlerDeps } from './handlers/registry.ts'
 import { createIssuanceProvider } from './handlers/issuance/issuance_provider.ts'
 import { createSupabaseIssuanceGateways } from './handlers/issuance/supabase_gateways.ts'
+import { createIssuedInvoiceProvider } from './handlers/issued_invoice/issued_invoice_provider.ts'
+import { createSupabaseIssuedInvoiceGateway } from './handlers/issued_invoice/supabase_gateways.ts'
+import {
+  createDocumentStorage,
+  createSupabaseDocumentBucket,
+} from './handlers/issued_invoice/document_storage.ts'
 import type { ConnectionRecorder } from './handlers/sync_capabilities.ts'
 import { runInvocation } from './queue/processor.ts'
 import { SupabaseQueueRpc } from './queue/supabase_queue_rpc.ts'
@@ -77,13 +83,19 @@ Deno.serve(async (req) => {
 
     const client = getClient(supabaseUrl, serviceRoleKey)
     clientFactory ??= new TenantMisaClientFactory(env, credentialsReader(client))
+    const log = (event: string, data: Record<string, unknown>) => console.log(JSON.stringify({ event, ...data }))
     const deps: HandlerDeps = {
       clients: clientFactory,
       recorder: connectionRecorder(client),
       env,
       issuance: {
-        provider: createIssuanceProvider({ clients: clientFactory }),
+        provider: createIssuanceProvider({ clients: clientFactory, log }),
         gateways: createSupabaseIssuanceGateways(client),
+      },
+      issuedInvoice: {
+        provider: createIssuedInvoiceProvider({ clients: clientFactory, log }),
+        gateway: createSupabaseIssuedInvoiceGateway(client),
+        storage: createDocumentStorage(createSupabaseDocumentBucket(client)),
       },
     }
     const handlers = buildHandlers(deps)

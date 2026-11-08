@@ -99,10 +99,20 @@ Deno.test('registers dead letters for preview and publish', () => {
   const provider = new FakeIssuanceProvider()
   const deps = {
     issuance: { provider, gateways },
+    issuedInvoice: {
+      gateway: {
+        recordOfficialViewResult: () => Promise.resolve(),
+        recordDocumentResult: () => Promise.resolve(),
+        loadOfficialViewContext: () => Promise.resolve(null),
+        loadDocumentContext: () => Promise.resolve(null),
+      },
+    },
   } as unknown as HandlerDeps
 
   const deadLetters = buildDeadLetters(deps)
   assertEquals(Object.keys(deadLetters).sort(), [
+    'einvoice.download_invoice_document',
+    'einvoice.fetch_official_view',
     'einvoice.preview_invoice',
     'einvoice.publish_invoice',
   ])

@@ -43,7 +43,7 @@ values (
   'einvoice-documents',
   false,
   20971520,
-  array['application/pdf','application/xml','text/xml']
+  array['application/pdf','application/xml','text/xml','application/zip']
 )
 on conflict (id) do update set
   public = false,

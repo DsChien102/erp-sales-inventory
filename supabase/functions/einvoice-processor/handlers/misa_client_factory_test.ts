@@ -66,6 +66,17 @@ Deno.test('misa_client_factory returns null without credentials row', async () =
   assertEquals(await factory.getForTenant('t1'), null)
 })
 
+Deno.test('misa_client_factory getForTenant returns tax code from credentials row', async () => {
+  const { factory } = setup(row({ tax_code: '0101234567' }))
+  const first = await factory.getForTenant('t1')
+  assertEquals(first?.taxCode, '0101234567')
+
+  // Reused client branch also returns tax code
+  const second = await factory.getForTenant('t1')
+  assertEquals(second?.taxCode, '0101234567')
+  assertStrictEquals(first?.client, second?.client)
+})
+
 Deno.test('readMisaEnv missing app id throws missing_MISA_MEINVOICE_APP_ID', () => {
   assertThrows(() => readMisaEnv(() => undefined), Error, 'missing_MISA_MEINVOICE_APP_ID')
   assertThrows(
