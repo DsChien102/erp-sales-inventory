@@ -18,15 +18,11 @@ Hệ thống ERP cho phòng khám thú y và cửa hàng bán lẻ thú y — **
 vet45/
 ├── apps/
 │   └── erp/                 # Flutter app duy nhất — UI, DI, feature, quản trị nền tảng
-├── modules/                 # Bounded contexts (domain / application / infrastructure / …)
-│   ├── catalog/, sales/, partner/, inventory/, …   # code cũ, còn đến P9
-├── packages/                # Shared kernel, adapters, design system, codegen
+├── packages/                # Shared kernel, design system, lint
 ├── supabase/                # Local Supabase config + migrations
 ├── docs/                    # Kiến trúc, theme, module blueprints
 └── pubspec.yaml             # Workspace root + Melos scripts
 ```
-
-Mỗi module theo layer: `vet45_{module}_{domain|application|infrastructure|…}`.
 
 ## Yêu cầu
 
@@ -108,8 +104,6 @@ dart test tools/vet45_env        # CLI quản lý môi trường
 ```
 
 **AI agents:** đọc [AGENTS.md](AGENTS.md) trước khi implement.
-
-Scaffold module mới: `./scripts/scaffold_module.sh`.
 
 ## Versioning & changelog (ship units)
 

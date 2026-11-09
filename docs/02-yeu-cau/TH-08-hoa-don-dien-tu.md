@@ -1,12 +1,12 @@
 # TH-08 — Hóa đơn điện tử
 
 > **Vai trò:** **đặc tả chuẩn (source of truth)** cho app sau refactor. Theme đã hoàn thành: **code hiện tại là phạm vi chuẩn**. Mọi quy tắc mặc định = hành vi code hiện tại (SCOPE: giữ 100% chức năng, giữ RPC). Gắn 🔧 = code hiện tại **sai**, phải sửa khi refactor. Gắn 🆕 = chưa có code, phải làm. Làm theo tài liệu, không chép lỗi của code cũ.
-> **Phiên bản:** 1.1 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> **Phiên bản:** 1.2 · **Ngày:** 2026-11-09 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
 > **Thay thế:** `docs/themes/TH-08-e-invoice/Theme-8-e-invoice.md` (spec v1, 4 epic) cho mục đích làm app. Spec v1 và harness (`docs/themes/TH-08-e-invoice/harness/`) giữ lại làm tài liệu tham khảo kỹ thuật. Chỗ spec v1 khác code: **code thắng** (quyết định 2026-10-07), ghi ở [mục 7.3](#73-vấn-đề-đã-biết-và-quyết-định) và [mục 8](#8-ngoài-phạm-vi-so-với-spec-v1).
 > **Nguồn đối chiếu:**
 > - DB: schema `einvoice`, `supabase/migrations/20261031001…023` (đã promote 2026-11-02, `8b08bb01c`), cùng `sales.get_einvoice_source_snapshot`, `sales.can_access_sales_order` (draft 018), `partner.get_einvoice_buyer_profile` (023), `partner.get_einvoice_recipient_snapshot` (016).
-> - App: `apps/erp/lib/features/einvoice/presentation/` (4 trang thiết lập), `apps/erp/lib/features/sales/presentation/` (khối HĐĐT trên đơn: `OrderEInvoiceSection`, `OrderEInvoiceCubit`, `OrderInvoiceDeliveryCubit`, 6 sheet/trang), module `modules/einvoice/` (domain, application, infrastructure, presentation).
-> - Bộ xử lý: `apps/messaging_worker` (Dart) **đã xoá 2026-10-11**; hiện chưa có gì chạy lệnh MISA (`packages/vet45_misa` còn là nguồn để port). **Sau refactor thay bằng Edge Function `einvoice-processor` + `pg_cron`** (quyết định 2026-10-07, xem [9.1](#91-kiến-trúc) và KI-20). Trong tài liệu, "**bộ xử lý**" là nơi chạy mọi lệnh gọi MISA, không phụ thuộc nó là bộ xử lý hay Edge Function.
+> - App: `apps/erp/lib/features/einvoice/{data,logic,presentation}` (UI thiết lập + khu HĐĐT trên đơn, 7-A2a / 7-A2b).
+> - Bộ xử lý: `apps/messaging_worker` (Dart) **đã xoá 2026-10-11**; hiện chưa có gì chạy lệnh MISA (`packages/vet45_misa` đã xoá ở 7-C (client MISA ở Edge Function, 7-E1)). **Sau refactor thay bằng Edge Function `einvoice-processor` + `pg_cron`** (quyết định 2026-10-07, xem [9.1](#91-kiến-trúc) và KI-20). Trong tài liệu, "**bộ xử lý**" là nơi chạy mọi lệnh gọi MISA, không phụ thuộc nó là bộ xử lý hay Edge Function.
 >
 > **Cách đọc:** mục 1–3 là mô hình chung và dữ liệu; mục 4 chia theo epic → user story (bối cảnh, FR, BR, AC, EC, kịch bản Gherkin); mục 5 đặc tả từng màn hình (trạng thái, thành phần, phác thảo); mục 6 RPC và thông điệp lỗi; mục 7 phân quyền và vấn đề đã biết; mục 8 ngoài phạm vi; mục 9 kế hoạch refactor và kiểm thử.
 
@@ -331,7 +331,7 @@ Ngoài sơ đồ: `buyer_invoice_completions` và `invoice_previews` (một dòn
 | `auto_issuance_processes` | `sales_order_id`, `sales_order_version`, `buyer_partner_id`, `trigger_key`, `provider_idempotency_key`, `status` (`PENDING_REEVALUATION`/`ATTEMPT_STARTED`/`SKIPPED`), `blocker_code` | Một dòng / đơn |
 | `publish_series_leases` | (`tenant_id`, `invoice_series`), `owner_token`, `lease_version`, `leased_until` | Khóa thuê theo ký hiệu |
 
-Hàng đợi `internal_commands`, `outbox_messages`, `inbox_messages` của schema `einvoice` do `platform.install_module_messaging('einvoice')` tạo (draft 002). Sau refactor chỉ còn dùng `internal_commands` (hàng đợi của bộ xử lý); outbox/inbox bỏ ở P9 (KI-20).
+Hàng đợi `internal_commands` (bộ xử lý) và `outbox_messages` (nhật ký sự kiện 5 cột, không ai đọc) do `20261031002` tạo thẳng; inbox và hàm outbox / inbox bỏ ở 7-C (KI-20).
 
 **Ảnh chụp lượt phát hành** (`attempt_snapshot`, bất biến): `source_order` (đơn, phiên bản, trạng thái), `seller`, `buyer` (người mua hiệu lực), `buyer_lineage` (ảnh chụp gốc của đơn, `buyerPartnerId`, `buyerCompletedAt`), `invoice_context` (mẫu, ký hiệu, `SignType`, có/không mã), `lines`, `totals`, `payment_information`, `automation_policy`, `readiness_result`, `mapping_schema_version`.
 
@@ -1381,7 +1381,7 @@ App hỏi lại kết quả như hiện tại (Timer trong cubit)
 - Secret của Edge Function: `MISA_MEINVOICE_APP_ID`, `MISA_MEINVOICE_BASE_URL` (bắt buộc), `MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED` (`true` / `1` để bật gửi email; chỉ có hiệu lực với host `api.meinvoice.vn`).
 - Việc hẹn giờ (đối soát 30 giây → 2 giờ, thử lại, khóa ký hiệu bận) dùng `next_check_at` / thời điểm đến hạn của `internal_commands`; `pg_cron` bảo đảm được quét dù không ai mở app.
 
-UI thiết lập nằm ở `modules/einvoice/presentation` (dùng lại trong 4 trang mỏng của `apps/erp/lib/features/einvoice`); UI trên đơn nằm ở `apps/erp/lib/features/sales/presentation` (một phần widget dùng từ module, một phần bản sao trong app).
+UI thiết lập và khu HĐĐT trên đơn nằm ở `apps/erp/lib/features/einvoice/presentation`; `features/sales` chỉ nhúng `OrderEInvoiceSection` (7-A2b).
 
 ### 6.2 Danh mục RPC (schema `einvoice`)
 
@@ -1550,10 +1550,10 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 
 | Hiện tại | Sau refactor |
 |---|---|
-| Module `modules/einvoice` (domain / application / infrastructure / presentation / integration_events), mediator, CQRS handler | `apps/erp/lib/features/einvoice/`: `data/einvoice_configuration_repository.dart` và `data/einvoice_repository.dart` gọi `supabase.schema('einvoice').rpc(...)`; cubit gọi repository |
+| Module `modules/einvoice` (domain / application / infrastructure / presentation / integration_events), mediator, CQRS handler | `apps/erp/lib/features/einvoice/`: `data/einvoice_configuration_repository.dart` và `data/einvoice_repository.dart` gọi `supabase.schema('einvoice').rpc(...)`; cubit gọi repository (xong 7-C) |
 | UI tách đôi module + bản sao trong `features/sales` (KI-17) | Một chỗ `features/einvoice/presentation`; `features/sales` chỉ nhúng `OrderEInvoiceSection` |
-| `vet45_async_query` (`QueryClient`, `refetchInterval`) để hỏi lại | **Giữ hành vi hỏi lại** (5 giây trên đơn, 2 giây ở kết nối, vòng lặp xem trước / xem / tải) nhưng viết bằng `Timer` trong cubit; bỏ phụ thuộc `async_query` |
-| Bộ xử lý `apps/messaging_worker` (Dart, chạy liên tục, cần hosting) dùng handler trong `modules/einvoice/application` + `packages/vet45_misa` | 🆕 Edge Function `supabase/functions/einvoice-processor` (TypeScript): client MISA + handler phát hành, đối soát, xem, tải, gửi; kích hoạt bởi app và `pg_cron` mỗi 30 giây. Giữ nguyên hàng đợi `internal_commands`, khóa ký hiệu, lịch đối soát, RPC `record_*` (KI-20); khoá ký hiệu không gia hạn (khoá 300 giây > giới hạn 150 giây của Edge Function). Xóa bộ xử lý ở P9 |
+| `vet45_async_query` (`QueryClient`, `refetchInterval`) để hỏi lại | **Giữ hành vi hỏi lại** (5 giây trên đơn, 2 giây ở kết nối, vòng lặp xem trước / xem / tải) nhưng viết bằng `Timer` trong cubit; bỏ phụ thuộc `async_query` (xong 7-C) |
+| Bộ xử lý `apps/messaging_worker` (Dart, chạy liên tục, cần hosting) dùng handler trong `modules/einvoice/application` + `packages/vet45_misa` | 🆕 Edge Function `supabase/functions/einvoice-processor` (TypeScript): client MISA + handler phát hành, đối soát, xem, tải, gửi; kích hoạt bởi app và `pg_cron` mỗi 30 giây. Giữ nguyên hàng đợi `internal_commands`, khóa ký hiệu, lịch đối soát, RPC `record_*` (KI-20); khoá ký hiệu không gia hạn (khoá 300 giây > giới hạn 150 giây của Edge Function). Xóa bộ xử lý ở P9 (xong 7-C) |
 | Outbox `sales_order_finalized.v1`, sự kiện `partner.partner.profile_updated`, `einvoice.electronic_invoice.registered` | 3 trigger tự động (`sales_orders`, `partners`, `electronic_invoices`) ghi thẳng `einvoice.internal_commands` (KI-19, KI-20, KI-26, 7-E3) |
 | Tìm tổ chức có việc: `platform.list_tenants_with_pending_messaging` (gộp cả outbox / inbox) | `pg_cron` quét tổ chức qua `einvoice.list_tenants_with_due_commands` (chỉ `internal_commands` đến hạn). Không có `tenant_id` chỉ `service_role` gọi được; có `tenant_id` mọi người đăng nhập gọi được (7-E1 Q2). Loại lệnh chưa có handler được dời 300 giây, không tính lượt thử. Edge Function trả CORS (`OPTIONS` → 204) để app web gọi được |
 | RPC | **Giữ nguyên chữ ký**; chỉ sửa thân theo KI-02, KI-04, KI-06 |
