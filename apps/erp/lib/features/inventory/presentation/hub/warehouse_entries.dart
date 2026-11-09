@@ -219,19 +219,19 @@ const List<WarehouseQuickAction> warehouseQuickActions = [
   WarehouseQuickAction(
     label: 'Lấy hàng',
     icon: VIcons.inventory,
-    route: null,
+    route: '/warehouse/area/movement',
   ),
   WarehouseQuickAction(
     label: 'Kiểm kê',
     icon: VIcons.checkList,
-    route: null,
+    route: '/warehouse/area/control',
   ),
   WarehouseQuickAction(
     label: 'Tra cứu tồn',
     icon: VIcons.search,
-    route: null,
+    route: '/warehouse/area/inventory',
     requiresActivation: false,
   ),
 ];
 
-const String? warehouseStockSearchRoute = null; // Q-a4; G5-2 đặt
+const String warehouseStockSearchRoute = '/warehouse/area/inventory';

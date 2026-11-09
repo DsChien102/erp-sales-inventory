@@ -37,7 +37,7 @@ html/
 ```bash
 python3 -m http.server 8765 --bind 127.0.0.1 &
 node tools/golden.mjs capture tools/.golden-now
-node tools/golden.mjs compare tools/.golden-phase1 tools/.golden-now
+node tools/golden.mjs compare tools/.golden-g3 tools/.golden-now
 node tools/golden.mjs usage tools/.usage-now   # CSS unused + JS uncovered
 FULL=1 node tools/golden.mjs capture tools/.full-now  # ảnh toàn trang (harness)
 AUDIT_JS=<tệp biểu thức JS> node tools/golden.mjs capture tools/.audit-now SC_journey_4  # chạy kiểm sau mỗi bước, ghi _audit.json
@@ -45,7 +45,15 @@ AUDIT_JS=tools/audit.js node tools/golden.mjs capture tools/.audit-now   # audit
 
 # Khung Web 1280×800 (chỉ chụp nhóm màn × trạng thái + kịch bản trong WEB_SCENARIOS của golden.mjs; tên ca thêm @web)
 DEVICE=web node tools/golden.mjs capture tools/.golden-web-now
-node tools/golden.mjs compare tools/.golden-web-base tools/.golden-web-now
+node tools/golden.mjs compare tools/.golden-g3-web tools/.golden-web-now
 ```
 
-Mốc `tools/.golden-phase1` (1348 ca) = trạng thái hết Giai đoạn 1 sau A12, khớp mọi mốc trước Giai đoạn 1. Mốc `tools/.golden-web-base` (555 ca, `DEVICE=web`) = khung web sau H1, mốc cho BJ-12. Thư mục `.golden*/`, `.full*/`, `.usage*/` không vào git — chụp lại mốc trên máy mới bằng `capture` ở một commit đã biết đúng. Mốc `tools/.golden-chang1` / `tools/.golden-chang1-web` = hết chặng 1 "Mở kho" (sau CAP-01, v5.7.0). Mốc `tools/.golden-bj02-after` / `tools/.golden-bj02-web-after` = sau BJ-02 (v5.8.0). Mốc `tools/.golden-bj03-after` / `tools/.golden-bj03-web-after` = sau BJ-03 (v5.9.0), mốc cho BJ-13.
+Mốc hiện có: `tools/.golden-g3` (2241 ca, iPhone) / `tools/.golden-g3-web` (1350 ca) = hết Giai đoạn 3 (G3-7, v5.26.1); prototype sau đó chỉ đổi chữ phiên bản (v5.27.0 FROZEN) nên mốc này là bản cuối. Các mốc cũ hơn (Giai đoạn 1, chặng 1–6, từng BJ, G3-1…G3-7, audit / keys / deadends) đã xoá 2026-11-09; cần thì chụp lại bằng `capture` ở commit tương ứng (xem CHANGELOG). Thư mục `.golden*/`, `.full*/`, `.usage*/`, `.audit*/`, `.keys*/`, `.deadends*/` không vào git.
+
+**Ảnh đích cho Flutter:** `tools/proto-final/iphone/` và `tools/proto-final/web/` (500 ảnh mỗi khổ, chép từ `.golden-g3` / `-web`: chỉ ca màn × trạng thái `UIF-*`, `HUB_*`, `CAP-*`; bỏ kịch bản `SC_*` và `.txt`). Không vào git; plan Flutter chép ảnh cần dùng sang `docs/refactor/plans/T7/img/<plan>/` (PLAN.md, quy ước "UI Flutter: trích nguyên code prototype vào plan"). Tạo lại:
+
+```bash
+cd tools && mkdir -p proto-final/iphone proto-final/web
+cp .golden-g3/{UIF-,HUB_,CAP-}*.png proto-final/iphone/
+cp .golden-g3-web/{UIF-,HUB_,CAP-}*.png proto-final/web/
+```

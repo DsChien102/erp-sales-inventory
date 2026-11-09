@@ -115,18 +115,27 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
     final summary = state.summary;
 
     // 1. Ô tìm kiếm
-    final searchWidget = warehouseStockSearchRoute != null
-        ? VSearchBar(
-            hintText: 'Tìm sản phẩm, SKU hoặc quét mã',
-            onSubmitted: (q) {
-              if (q.trim().isNotEmpty) {
-                context.push(
-                  '$warehouseStockSearchRoute?q=${Uri.encodeQueryComponent(q.trim())}',
-                );
-              }
-            },
+    final searchWidget = VSearchBar(
+      hintText: 'Tìm sản phẩm, SKU hoặc quét mã',
+      onSubmitted: (q) {
+        if (q.trim().isNotEmpty) {
+          final target = warehouseStockSearchRoute;
+          context.push(
+            '$target?q=${Uri.encodeQueryComponent(q.trim())}',
+          );
+        }
+      },
+    );
+
+    final wrappedSearch = isWide
+        ? Align(
+            alignment: Alignment.centerLeft,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: searchWidget,
+            ),
           )
-        : null;
+        : searchWidget;
 
     // 2. Banner chưa kích hoạt
     Widget? bannerWidget;
@@ -150,29 +159,27 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
       );
     }
 
-    // 3. Nút nhanh
-    final availableActions =
-        warehouseQuickActions.where((a) => a.route != null).toList();
-    Widget? quickActionsWidget;
-    if (availableActions.isNotEmpty) {
-      final actionButtons = availableActions.map((action) {
-        final isEnabled = !action.requiresActivation || summary.activated;
-        return VQuickActionButton(
-          label: action.label,
-          icon: action.icon,
-          onPressed: isEnabled && action.route != null
-              ? () => context.push(action.route!)
-              : null,
-        );
-      }).toList();
+    // 3. Nút nhanh (Lưới 2x2 trên mobile, 1 hàng trên web)
+    final actionButtons = warehouseQuickActions.map((action) {
+      final isEnabled = !action.requiresActivation || summary.activated;
+      return VQuickActionButton(
+        label: action.label,
+        icon: action.icon,
+        onPressed: isEnabled && action.route != null
+            ? () => context.push(action.route!)
+            : null,
+      );
+    }).toList();
 
+    Widget? quickActionsWidget;
+    if (actionButtons.isNotEmpty) {
       if (isWide) {
         quickActionsWidget = Row(
           children: actionButtons
               .map(
                 (btn) => Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
                     child: btn,
                   ),
                 ),
@@ -180,10 +187,36 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
               .toList(),
         );
       } else {
-        quickActionsWidget = Wrap(
-          spacing: VSpacing.space3,
-          runSpacing: VSpacing.space3,
-          children: actionButtons,
+        quickActionsWidget = Column(
+          children: [
+            Row(
+              children: [
+                Expanded(child: actionButtons[0]),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: actionButtons.length > 1
+                      ? actionButtons[1]
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: actionButtons.length > 2
+                      ? actionButtons[2]
+                      : const SizedBox.shrink(),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: actionButtons.length > 3
+                      ? actionButtons[3]
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
+          ],
         );
       }
     }
@@ -193,10 +226,13 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
     if (summary.pendingTotal > 0) {
       attentionRows.add(
         VListRow(
+          asCard: true,
           leading: VIcons.clock,
+          leadingBackgroundColor: const Color(0xFFE8F0FE),
+          leadingIconColor: const Color(0xFF1A73E8),
           title: 'Chờ duyệt',
           subtitle: summary.pendingText.isNotEmpty ? summary.pendingText : null,
-          trailing: Text('${summary.pendingTotal}'),
+          trailing: _buildCountBadge(summary.pendingTotal),
           onTap: () => context.push('/warehouse/approvals'),
         ),
       );
@@ -206,40 +242,51 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
       final controlEntries = warehouseAreaEntries(WarehouseArea.control);
       final qEntry =
           controlEntries.where((e) => e.id == 'quarantine').firstOrNull;
-      if (qEntry?.route != null) {
-        attentionRows.add(
-          VListRow(
-            leading: VIcons.shield,
-            title: 'Hàng cần xử lý',
-            subtitle: summary.problems!.text,
-            trailing: Text('${summary.problems!.count}'),
-            onTap: () => context.push(qEntry!.route!),
-          ),
-        );
-      }
+      attentionRows.add(
+        VListRow(
+          asCard: true,
+          leading: VIcons.shield,
+          leadingBackgroundColor: const Color(0xFFFFF7E6),
+          leadingIconColor: const Color(0xFFE37400),
+          title: 'Hàng cần xử lý',
+          subtitle: summary.problems!.text,
+          trailing: _buildCountBadge(summary.problems!.count),
+          onTap: () =>
+              context.push(qEntry?.route ?? '/warehouse/area/control'),
+        ),
+      );
     }
 
     if (summary.activated && summary.reconciliation != null) {
       final controlEntries = warehouseAreaEntries(WarehouseArea.control);
       final rEntry =
           controlEntries.where((e) => e.id == 'reconciliation').firstOrNull;
-      if (rEntry?.route != null) {
-        attentionRows.add(
-          VListRow(
-            leading: VIcons.search,
-            title: 'Hồ sơ cần kiểm tra',
-            subtitle: summary.reconciliation!.text,
-            trailing: Text('${summary.reconciliation!.count}'),
-            onTap: () => context.push(rEntry!.route!),
-          ),
-        );
-      }
+      attentionRows.add(
+        VListRow(
+          asCard: true,
+          leading: VIcons.search,
+          leadingBackgroundColor: const Color(0xFFFFF7E6),
+          leadingIconColor: const Color(0xFFE37400),
+          title: 'Hồ sơ cần kiểm tra',
+          subtitle: summary.reconciliation!.text,
+          trailing: _buildCountBadge(summary.reconciliation!.count),
+          onTap: () =>
+              context.push(rEntry?.route ?? '/warehouse/area/control'),
+        ),
+      );
     }
 
     final attentionWidget = attentionRows.isNotEmpty
         ? VSection(
             title: 'Cần chú ý',
-            child: Column(children: attentionRows),
+            child: Column(
+              children: [
+                for (int i = 0; i < attentionRows.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 12),
+                  attentionRows[i],
+                ],
+              ],
+            ),
           )
         : null;
 
@@ -254,14 +301,19 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
     final managementWidget = VSection(
       title: 'Quản lý kho',
       child: Column(
-        children: managementAreas.map((area) {
-          return VListRow(
-            leading: area.icon,
-            title: area.title,
-            subtitle: area.subtitle,
-            onTap: () => context.push('/warehouse/area/${area.id}'),
-          );
-        }).toList(),
+        children: [
+          for (int i = 0; i < managementAreas.length; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            VListRow(
+              asCard: true,
+              bareLeading: true,
+              leading: managementAreas[i].icon,
+              title: managementAreas[i].title,
+              subtitle: managementAreas[i].subtitle,
+              onTap: () => context.push('/warehouse/area/${managementAreas[i].id}'),
+            ),
+          ],
+        ],
       ),
     );
 
@@ -269,6 +321,8 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
     final setupArea = WarehouseArea.setup;
     final setupWidget = VSection(
       child: VListRow(
+        asCard: true,
+        bareLeading: true,
         leading: setupArea.icon,
         title: setupArea.title,
         subtitle: setupArea.subtitle,
@@ -282,10 +336,8 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (searchWidget != null) ...[
-              searchWidget,
-              const SizedBox(height: VSpacing.space4),
-            ],
+            wrappedSearch,
+            const SizedBox(height: VSpacing.space4),
             if (quickActionsWidget != null) ...[
               quickActionsWidget,
               const SizedBox(height: VSpacing.space4),
@@ -328,10 +380,8 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (searchWidget != null) ...[
-            searchWidget,
-            const SizedBox(height: VSpacing.space4),
-          ],
+          wrappedSearch,
+          const SizedBox(height: VSpacing.space4),
           if (bannerWidget != null) ...[
             bannerWidget,
             const SizedBox(height: VSpacing.space4),
@@ -348,6 +398,27 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
           const SizedBox(height: VSpacing.space4),
           setupWidget,
         ],
+      ),
+    );
+  }
+
+  Widget _buildCountBadge(int count) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F3F4),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        '$count',
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Color(0xFF202124),
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          fontFeatures: [FontFeature.tabularFigures()],
+        ),
       ),
     );
   }

@@ -357,8 +357,13 @@ begin
   delete from einvoice.provider_credentials c
   where c.connection_id = p_connection_id and c.tenant_id = p_tenant_id;
 
+  update einvoice.tenant_settings
   set default_template_id = null,
       default_invoice_series = null,
+      profile_version = profile_version + 1,
+      updated_at = now()
+  where tenant_id = p_tenant_id;
+
   return query select p_connection_id, 'DISCONNECTED'::text;
 end;
 $$;

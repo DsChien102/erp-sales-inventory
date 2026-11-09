@@ -188,7 +188,7 @@ void main() {
       expect(find.text('Giá trị kho'), findsNothing);
     });
 
-    testWidgets('hub_hides_entries_without_route', (tester) async {
+    testWidgets('hub_shows_all_quick_actions_and_search', (tester) async {
       const summary = WarehouseHubSummary(activated: true);
       final repo = _FakeHubRepo(summary);
       final cubit = WarehouseHubCubit(repository: repo, isOwner: () => true);
@@ -196,10 +196,11 @@ void main() {
       await tester.pumpWidget(wrap(WarehouseHubPage(cubit: cubit)));
       await tester.pumpAndSettle();
 
-      expect(find.text('Lấy hàng'), findsNothing);
-      expect(find.text('Kiểm kê'), findsNothing);
-      expect(find.text('Tra cứu tồn'), findsNothing);
-      expect(find.byType(VSearchBar), findsNothing);
+      expect(find.text('Nhận hàng'), findsOneWidget);
+      expect(find.text('Lấy hàng'), findsOneWidget);
+      expect(find.text('Kiểm kê'), findsOneWidget);
+      expect(find.text('Tra cứu tồn'), findsOneWidget);
+      expect(find.byType(VSearchBar), findsOneWidget);
     });
 
     testWidgets('hub_web_two_columns', (tester) async {

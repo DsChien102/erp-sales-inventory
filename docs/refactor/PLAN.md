@@ -641,10 +641,22 @@ Mọi plan G5 trỏ về mục này trong "Global Constraints" và chỉ ghi ph�
 3. **Cubit + Page từng màn:** mỗi trạng thái Screen Contract một nhánh + widget test (cả hai bề rộng khi khác bố cục). Chữ trên màn chép **nguyên văn** mục 8 của Screen Contract.
 4. **Điều hướng:** route; đăng ký lối vào Hub (`warehouse_entries.dart`) + nguồn "Cần chú ý" / "Chờ duyệt" nếu BJ có; lối vào ngữ cảnh (PAT-NAV mục 3).
 5. **Luồng đầu–cuối:** một test đi hết luồng chính trên fake repository.
-6. **Đối chiếu prototype:** mở `index.html?uif=UIF-xx&viewport=mobile|web&screen=…&state=…`, so từng trạng thái; ghi lệch vào Kết quả.
+6. **Đối chiếu prototype:** so ảnh prototype với ảnh Flutter theo mục "UI Flutter: trích nguyên code prototype vào plan" bước 5 (`index.html?uif=UIF-xx&viewport=mobile|web&screen=…&state=…`), từng trạng thái; ghi lệch vào Kết quả.
 7. **Kết quả** (mẫu "Cách làm việc") + **Review** (phiên review ghi).
 
 Mỗi plan BJ có mục "Quyết định" (câu hỏi đã chốt với người dùng) và "Review Focus". Plan xoá / thay code đang chạy có bảng "Đang làm gì" + bước 0 test giữ hành vi (PLAN.md "Cách làm việc").
+
+#### UI Flutter: trích nguyên code prototype vào plan (chốt 2026-11-09)
+
+Lý do: UI Flutter làm từ Screen Contract và mô tả bằng lời lệch prototype nặng (G5-0a R1: chevron đôi, tiêu đề thừa, giá trị tràn, đo badge sai). Phiên code không được tự đoán bố cục. Áp cho **mọi plan có màn Flutter** (G5-0a về sau, Theme khác cũng vậy):
+
+1. **Plan chép nguyên văn code prototype của từng màn** vào task dựng màn, trong khối ```` ```js ```` / ```` ```css ````, kèm `tệp:dòng`:
+   - hàm render của màn (vd. `hub.js:186–218 renderHubHome`) và các hàm con nó gọi (`ds24ListRow`, `quickAction`, `attentionRow`, `shell`…);
+   - **mọi luật CSS** của class màn đó dùng (`styles/components.css`, `styles/screens.css`), gồm cả `@media` web; biến `var(--…)` tra ra giá trị ở `styles/tokens.css`.
+2. **Bảng ánh xạ phần tử → Flutter** ngay dưới code: mỗi phần tử HTML (theo `data-ds-component` / class) một dòng: widget DS / khuôn K, tham số, token (`VSpacing`, `VTypography`, `VRadius`, màu) với giá trị px của CSS. Giá trị CSS không có token: ghi số và lý do, không tự làm tròn. Phần tử prototype **không** dựng (Q9, chờ BJ khác) ghi rõ "bỏ — lý do".
+3. **Thứ tự, chữ, điều kiện hiện / ẩn lấy từ code prototype** (nhánh `if`, `viewport === 'web'`, cờ `disabled`). Screen Contract mục 8 dùng để kiểm chữ; prototype và Screen Contract lệch nhau thì hỏi người dùng lúc viết plan.
+4. **Phiên code dựng theo bảng ánh xạ**, không thêm phần tử ngoài bảng (vd. `trailing` khi DS đã tự vẽ). Cần lệch thì ghi "Lệch plan + lý do" ở Kết quả.
+5. **Đối chiếu bằng ảnh** (thay bước 6 chỉ đọc mã): ảnh prototype lấy ở `specs/themes/theme-07/03.design/prototype/html/tools/proto-final/{iphone,web}/` (bản cuối, chép từ mốc `.golden-g3` / `-web`; tên `UIF-xx_SCR-yyy_<TRẠNG THÁI>[_biến thể].png`, `HUB_*`, `CAP-*`). Thư mục này không vào git ⇒ lúc viết plan, **chép ảnh cần dùng** sang `docs/refactor/plans/T7/img/<plan>/` (`proto-<SCR>-<trạng thái>-390|1280.png`). Phiên code thêm ảnh Flutter (`matchesGoldenFile`, cùng bề rộng, mặt vẽ thật) tên `flutter-…` cạnh đó; đặt cặp ảnh cạnh nhau trong Kết quả; review so ảnh trước khi đọc code. Plan xoá thì xoá luôn `img/<plan>/`.
 
 #### Thành phần DS mới (T7-P mục 6) → plan dựng
 
