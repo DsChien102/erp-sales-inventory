@@ -16,6 +16,8 @@
 
 > **Sau 8-C (2026-11-08, review 8-C R1 đạt):** đã xoá `modules/sales/{domain,application,infrastructure}` (giữ `modules/sales/integration_events`, einvoice dùng tới 7-C); bỏ 3 hàng tương ứng trong bảng và mục lỗi `modules/sales/infrastructure` (11: test SQL đọc `_drafts/`, 8-C Q7). Test hợp đồng SQL sales mới ở `apps/erp/test/features/sales/data/sales_sql_contract_test.dart` (9, xanh). `apps/erp` **2.741 đạt / 55 lỗi**: 53 lỗi trong danh sách `apps/erp` dưới đây + 2 lỗi ⚠️ ngoài mốc đã ghi ở mục "Sau 5-C", không do 8-C. `modules/einvoice/application` 217 / 1 (như baseline).
 
+> **Sau 7-C (2026-11-09, review 7-C R1 đạt):** đã xoá hết `modules/` (`einvoice/{domain,application,infrastructure,presentation,integration_events}`, `partner/integration_events`, `sales/integration_events`) và `packages/vet45_misa`, `vet45_async_query` (kèm `async_query_flutter`), `vet45_adapters`, `vet45_generator`; bỏ 12 hàng tương ứng trong bảng và 2 mục lỗi `modules/einvoice/application` (1), `modules/einvoice/infrastructure` (2; test SQL đọc `_drafts/`, 7-C Q4). Test hợp đồng SQL einvoice mới ở `apps/erp/test/features/einvoice/data/einvoice_sql_contract_test.dart` (10, xanh). `apps/erp` **3.021 đạt / 55 lỗi** (review chạy lại): 53 lỗi trong danh sách `apps/erp` dưới đây + 2 lỗi ⚠️ ngoài mốc đã ghi ở mục "Sau 5-C", không do 7-C.
+
 | Package | Loại | Đạt | Lỗi |
 |---|---|---|---|
 | `apps/messaging_worker` | dart | 45 | 0 |
@@ -23,28 +25,16 @@
 | `apps/erp` | flutter | 1343 | **61** |
 | `tools/vet45_supabase_migrate` | dart | 76 | 0 |
 | `tools/vet45_env` | dart | 107 | **1** |
-| `packages/vet45_adapters` | dart | 4 | 0 |
 | `packages/vet45_annotations` | dart | 8 | 0 |
-| `packages/vet45_generator` | dart | 20 | 0 |
-| `packages/vet45_misa` | dart | 80 | 0 |
 | `packages/vet45_design_system` | flutter | 288 | **2** |
-| `packages/vet45_async_query` | dart | 17 | 0 |
 | `modules/iam/integration_events` | dart | 3 | 0 |
 | `modules/iam/application` | dart | 225 | 0 |
 | `modules/iam/infrastructure` | dart | 289 | **21** |
 | `modules/iam/domain` | dart | 40 | 0 |
-| `modules/einvoice/integration_events` | dart | 16 | 0 |
-| `modules/einvoice/application` | dart | 217 | **1** |
-| `modules/einvoice/infrastructure` | dart | 741 | **2** |
-| `modules/einvoice/domain` | dart | 116 | 0 |
-| `modules/einvoice/presentation` | flutter | 79 | 0 |
-| `modules/partner/integration_events` | dart | 2 | 0 |
 | `packages/vet45_shared/testing` | dart | 6 | 0 |
 | `packages/vet45_shared/application` | dart | 5 | 0 |
 | `packages/vet45_shared/infrastructure` | dart | 22 | 0 |
 | `packages/vet45_shared/domain` | dart | 9 | 0 |
-| `modules/sales/integration_events` | dart | 4 | 0 |
-| `packages/vet45_async_query/packages/async_query_flutter` | flutter | 4 | 0 |
 
 ## Test đang lỗi
 
@@ -149,11 +139,3 @@
 - test/iam_fix_utc_now_offset_sql_contract_test.dart: (setUpAll)
 - test/sql/iam_active_store_context_contract_test.dart: (setUpAll)
 
-### `modules/einvoice/application` (1)
-
-- test/fake_einvoice_scenarios_e01_test.dart: EP-01 fake scenarios list_templates_ok returns 2 templates
-
-### `modules/einvoice/infrastructure` (2)
-
-- test/electronic_invoice/einvoice_s4_contract_repair_test.dart: S4 contract freezes ambiguous and scope requirements
-- test/schema/einvoice_goi1_configuration_sql_contract_test.dart: Task 4 — tenant_settings disconnect clears the default issuance configuration

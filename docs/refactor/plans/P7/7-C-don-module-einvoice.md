@@ -1,7 +1,7 @@
 # 7-C — Dọn sạch module einvoice (module cuối)
 
 > Theme 8 (mã cũ P7, 7-5) · Bước (dọn) theo "Quy tắc dọn module (chốt 2026-10-11)" của PLAN.md
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-09) | Làm ⬜ | Review ⬜
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-09) | Làm ✅ 2026-11-09 | Review ✅ R1 2026-11-09 (góp ý R1-1, R1-2 đã sửa)
 > Làm **sau** 7-B1, 7-E1…7-E3, 7-A1, 7-A2a, 7-A2b, 7-B2 (đã commit, review đạt).
 > Tài liệu: PLAN.md mục Theme 8 dòng 7-C, "Quy tắc dọn module", "Quy tắc migration", "Plan xoá / tách / thay code cũ", "Plan chuyển kiến trúc: giữ nghiệp vụ"; TH-08 mục 3, 6.1, 9.1, KI-17, KI-20; mẫu đã làm: 8-C (`docs/refactor/plans/P8/8-C-don-module-sales.md`), 6-C, 4-C.
 
@@ -428,4 +428,37 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
 
 ## 9. Review
 
-<!-- Chỉ phiên review ghi. -->
+### R1 — 2026-11-09: **ĐẠT** (3 góp ý nhỏ; còn `db reset` + `supabase/tests/einvoice_th08.sql` + một lượt phát hành trên Dev — người dùng)
+
+> Lưu ý git: lúc review, 7 commit của Kết quả nằm ngoài nhánh (reflog: amend `05bc086ca` → `c90acb88f` rồi `reset: moving to 19c2495ba`), 7-C nằm ở index. Index trùng `c90acb88f` nên review chạy trên đó; sau review đã `git reset --soft c90acb88f` lấy lại 7 commit (commit Task 6 thật là `c90acb88f`, không phải `05bc086ca`).
+
+| Hạng mục | Kết quả | Ghi chú |
+|---|---|---|
+| Task 0 (bước 0) | ✅ | `einvoice_sql_contract_test.dart` nhóm `kept` 6 test đúng bảng; `_einvoiceDefines` có vế dự phòng cho code cũ như plan |
+| Task 1 (test bỏ phần cũ) | ✅ | Test readiness đổi sang giá trị cố định đo trên handler cũ (3 mẫu, mã khớp nhóm cũ); nhóm `new` không đổi |
+| Task 2 (DI / phiên) | ✅ | `injection.dart`: bỏ import module, `ILoggerFactory`, `IEventsBus`, 2 checker, `EinvoiceStartup`; giữ `CoreExecutionContext` + 3 đăng ký (Q1). Không còn chỗ nào trong `lib` / `integration_test` / `example/lib` tra `ILoggerFactory` / `IEventsBus` / `IPermissionChecker` / `ITenantAccessChecker`. Impact ghi đủ, không HIGH / CRITICAL. Sót 1 chú thích → R1-1 |
+| Task 3 (xoá `modules/` + 4 package) | ✅ | `ls modules` không tồn tại; `ls packages` đúng 4. Lệch `production_boundary_test.dart` (tìm gốc repo bằng `packages` thay `modules`) — chấp nhận, test 6/6 xanh |
+| Task 4 (DB) — Review Focus 1, 3 | ✅ | Review so tay bản cũ / mới `20261031002`: 12 cột + 2 index `internal_commands` giống hệt; 5 hàm cùng chữ ký, `security definer`, `search_path = einvoice, platform, pg_temp`, thân giống; `drop … claim_internal_commands_batch(uuid, integer)` giữ; revoke / grant 5 hàm như cũ; dòng cuối `revoke execute on all functions in schema einvoice from public, anon` giữ. Bảng cũ cũng không bật RLS ⇒ không lệch. Không migration nào sau `002` gọi `install_module_messaging` ⇒ bỏ bản đè an toàn. 1 chỗ ghi `insert into einvoice.outbox_messages` (`012:279`) chỉ dùng 5 cột. `019`: bỏ hàm + revoke + grant + Touches; `REGISTRY.yaml` đúng Step 5. Không còn tên đã bỏ trong `supabase/tests`, `supabase/functions` |
+| `verify_migration_policy` / `verify_schema_lock_sync` | ✅ | Review chạy lại: 2 ERROR `20261108001` `touches_match_body` (mốc, Q6a) + WARN có sẵn, không dòng nào nhắc `002` / `019`; schema lock `OK` |
+| Task 5 (script) — Review Focus 4 | ✅ | `sh -n hooks/pre-commit` OK; không còn script nào trong `scripts/`, `tools/*.dart` trỏ `modules/`. Lệch `verify_harness.sh` (bỏ 4 lệnh gọi guard đã xoá) — chấp nhận, đúng ý Q5. `tools/vet45_supabase_migrate/test/*` còn chuỗi `modules/catalog/...` nhưng là đường dẫn giả trong thư mục tạm của test công cụ — để 9-1 |
+| Review Focus 2 (sales) | ✅ | `flutter test test/features/sales` +948 (bằng Task 0) |
+| Review Focus 5 (workspace) | ✅ | Theo Kết quả `pub get` gốc + example không lỗi; `dart analyze lib test integration_test` review chạy lại: 258 info, 0 error / warning |
+| `flutter test test/features/einvoice test/core` + `production_boundary_test` | ✅ | Review chạy lại: **534/534** (= 435 + 93 + 6, khớp Kết quả 528 + 6) |
+| `flutter test test/features/catalog` | ✅ | +501 −46 (bằng Task 0) |
+| Cả `apps/erp` | ✅ | Review chạy lại: **3.021 đạt / 55 lỗi**; 55 lỗi đều thuộc tệp có trong `TEST-BASELINE.md` (catalog / pricing / tenant_admin / my_account; 0 lỗi einvoice / sales / core). Số đạt trong Kết quả không khớp: Task 0 ghi "~2.747" (ước, không đo — 2.741 của 8-C cộng 6, bỏ qua test 7-A / 7-B thêm sau 8-C), Task 3 ghi 2.984 → R1-3 |
+| Mục 1 — lệnh `grep` mục tiêu | ⚠️ | Còn `apps/erp/lib/core/session/session_controller.dart:23` (chú thích nhắc `CorePermissionChecker`) ngoài `injection_test.dart`; Kết quả Task 6 ghi "không còn tham chiếu" là chưa đúng. Plan Task 2 Step 4 cũng chỉ liệt `session_store.dart` (sót tệp này) → R1-1 |
+| TH-08 1.2, PLAN.md, README, AGENTS, `domain.md` | ⚠️ | Đúng các dòng plan ghi; `AGENTS.md` chỉ hunk dòng 35 vào index. 2 chỗ chữ lệch → R1-2 |
+| `TEST-BASELINE.md` | ✅ (review sửa) | Thêm mục "Sau 7-C"; bỏ 12 hàng package / module đã xoá và 2 mục lỗi `modules/einvoice/application` (1), `modules/einvoice/infrastructure` (2) |
+
+**Góp ý nhỏ (không chặn ĐẠT):**
+
+- **R1-1** `apps/erp/lib/core/session/session_controller.dart:23`: sửa chú thích `` `CoreExecutionContext` / `CorePermissionChecker` cùng store này`` thành chỉ `` `CoreExecutionContext` `` (chỉ chú thích; `git diff 19c2495ba -- apps/erp/lib --stat` sẽ thành 5 tệp). Chạy lại lệnh `grep` mục 1 ⇒ chỉ còn `injection_test.dart`.
+- **R1-2** Chữ tài liệu: (a) TH-08 dòng 9: "hiện chưa có gì chạy lệnh MISA (`packages/vet45_misa` đã xoá ở 7-C (client MISA ở Edge Function, 7-E1))" tự mâu thuẫn — bỏ vế "hiện chưa có gì chạy lệnh MISA", ghi "lệnh MISA do Edge Function `einvoice-processor` chạy (7-E1 … 7-E3); `packages/vet45_misa` đã xoá ở 7-C". (b) PLAN.md dòng 7-C: "xoá `renew_publish_series_lease` … (Q4)" ⇒ **(Q3)**; "test hợp đồng SQL chuyển sang `apps/erp/test/features/einvoice/data/`" ⇒ "test hợp đồng SQL **mới** ở … (test module bỏ, không chuyển — Q4)".
+- **R1-3** Lần sau mục Kết quả ghi số **đo được** (`flutter test 2>&1 | tail -1`), không ghi số ước có `~`; nếu không chạy cả app ở bước đó thì ghi "không chạy".
+
+**Sửa R1 (phiên review sửa theo yêu cầu người dùng, 2026-11-09):**
+
+- R1-1 ✅ `session_controller.dart:22-23` chú thích thành "logic sales đọc tenant / cửa hàng qua `CoreExecutionContext` cùng store này (thay ở 9-1)" (chỉ chú thích, không đổi symbol). Lệnh `grep` mục 1 ⇒ chỉ còn `apps/erp/test/core/di/injection_test.dart`; `dart analyze lib/core/session` ⇒ No issues.
+- R1-2 ✅ TH-08 dòng 9: "lệnh MISA do Edge Function `einvoice-processor` + `pg_cron` chạy (7-E1 … 7-E3); `packages/vet45_misa` đã xoá ở 7-C". PLAN.md dòng 7-C: `renew_publish_series_lease` (Q3); "test hợp đồng SQL **mới** ở `…/einvoice_sql_contract_test.dart` (test module bỏ, không chuyển — Q4)".
+- R1-3 — quy ước cho lần sau, không sửa Kết quả (số thật đã ghi ở bảng trên: 3.021 / 55).
+

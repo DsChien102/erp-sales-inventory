@@ -6,7 +6,7 @@
 > **Nguồn đối chiếu:**
 > - DB: schema `einvoice`, `supabase/migrations/20261031001…023` (đã promote 2026-11-02, `8b08bb01c`), cùng `sales.get_einvoice_source_snapshot`, `sales.can_access_sales_order` (draft 018), `partner.get_einvoice_buyer_profile` (023), `partner.get_einvoice_recipient_snapshot` (016).
 > - App: `apps/erp/lib/features/einvoice/{data,logic,presentation}` (UI thiết lập + khu HĐĐT trên đơn, 7-A2a / 7-A2b).
-> - Bộ xử lý: `apps/messaging_worker` (Dart) **đã xoá 2026-10-11**; hiện chưa có gì chạy lệnh MISA (`packages/vet45_misa` đã xoá ở 7-C (client MISA ở Edge Function, 7-E1)). **Sau refactor thay bằng Edge Function `einvoice-processor` + `pg_cron`** (quyết định 2026-10-07, xem [9.1](#91-kiến-trúc) và KI-20). Trong tài liệu, "**bộ xử lý**" là nơi chạy mọi lệnh gọi MISA, không phụ thuộc nó là bộ xử lý hay Edge Function.
+> - Bộ xử lý: `apps/messaging_worker` (Dart) **đã xoá 2026-10-11**; lệnh MISA do Edge Function `einvoice-processor` + `pg_cron` chạy (7-E1 … 7-E3); `packages/vet45_misa` đã xoá ở 7-C. **Sau refactor thay bằng Edge Function `einvoice-processor` + `pg_cron`** (quyết định 2026-10-07, xem [9.1](#91-kiến-trúc) và KI-20). Trong tài liệu, "**bộ xử lý**" là nơi chạy mọi lệnh gọi MISA, không phụ thuộc nó là bộ xử lý hay Edge Function.
 >
 > **Cách đọc:** mục 1–3 là mô hình chung và dữ liệu; mục 4 chia theo epic → user story (bối cảnh, FR, BR, AC, EC, kịch bản Gherkin); mục 5 đặc tả từng màn hình (trạng thái, thành phần, phác thảo); mục 6 RPC và thông điệp lỗi; mục 7 phân quyền và vấn đề đã biết; mục 8 ngoài phạm vi; mục 9 kế hoạch refactor và kiểm thử.
 

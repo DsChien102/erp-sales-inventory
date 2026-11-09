@@ -19,8 +19,8 @@ import 'session_store.dart';
 
 /// Một nguồn sự thật về phiên đăng nhập và tổ chức đang chọn.
 ///
-/// Ghi vào [SessionStore]; module nghiệp vụ cũ đọc tenant / cửa hàng qua
-/// `CoreExecutionContext` / `CorePermissionChecker` cùng store này.
+/// Ghi vào [SessionStore]; logic sales đọc tenant / cửa hàng qua
+/// `CoreExecutionContext` cùng store này (thay ở 9-1).
 final class SessionController extends Cubit<SessionState> {
   SessionController({
     required SessionRepository repository,
