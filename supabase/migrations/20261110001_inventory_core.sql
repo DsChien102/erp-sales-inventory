@@ -2,7 +2,7 @@
 -- Kind: schema
 -- Intent: inventory_core
 -- Context: TH-07 / KB-KGV-001..005, spec giá vốn; PLAN T7-G5-0b
--- Touches: ledger_counters, lots, stock_movements, stock_balances, cost_policies, cost_periods, cost_versions, value_movements, product_costs, _raise, _forbid_ledger_mutation, _lock_tracking_after_movement
+-- Touches: ledger_counters, lots, stock_movements, stock_balances, cost_policies, cost_periods, cost_versions, value_movements, product_costs, _raise, _forbid_ledger_mutation, _lock_tracking_after_movement, _assert_actor, _begin_idempotency, _complete_idempotency, _cost_method, _ensure_open_period, _available_quantity
 -- Safety: one-shot ; low lock impact on new tables
 -- Depends on: 20261104001_inventory_default_pair, 20260709001_catalog_guided_create
 
@@ -232,3 +232,263 @@ revoke all on function catalog._lock_tracking_after_movement() from public, anon
 create trigger trg_catalog_products_lock_tracking
   before update of tracking_mode, expiry_required on catalog.products
   for each row execute function catalog._lock_tracking_after_movement();
+
+-- ---------------------------------------------------------------------------
+-- Helpers (Internal, revoke execute from authenticated)
+-- ---------------------------------------------------------------------------
+
+-- 1. _assert_actor: check auth, permission, is_owner, store_warehouse_assignments
+create or replace function inventory._assert_actor(
+  p_tenant_id uuid,
+  p_permission text,
+  p_require_owner boolean default false
+) returns jsonb
+language plpgsql
+security definer
+set search_path = inventory, iam, public, pg_temp
+as $$
+declare
+  v_actor_id uuid := auth.uid();
+  v_owner boolean := false;
+  v_assignment record;
+begin
+  if v_actor_id is null then
+    perform inventory._raise('PERMISSION_DENIED', 'Not authenticated.');
+  end if;
+
+  if not iam.has_permission(p_tenant_id, p_permission) then
+    perform inventory._raise('PERMISSION_DENIED', 'Permission denied: ' || coalesce(p_permission, ''));
+  end if;
+
+  -- check is_owner
+  select exists (
+    select 1
+    from iam.memberships m
+    join iam.roles r on r.id = m.role_id
+    where m.tenant_id = p_tenant_id
+      and m.user_id = v_actor_id
+      and r.code = 'owner'
+  ) into v_owner;
+
+  if p_require_owner and not v_owner then
+    perform inventory._raise('PERMISSION_DENIED', 'Owner permission required.');
+  end if;
+
+  select store_id, warehouse_id into v_assignment
+  from inventory.store_warehouse_assignments
+  where tenant_id = p_tenant_id
+    and status = 'active';
+
+  if not found then
+    perform inventory._raise('CONTEXT_INVALID', 'Active store warehouse assignment not found.');
+  end if;
+
+  return jsonb_build_object(
+    'actor_id', v_actor_id,
+    'is_owner', v_owner,
+    'store_id', v_assignment.store_id,
+    'warehouse_id', v_assignment.warehouse_id
+  );
+end;
+$$;
+
+revoke all on function inventory._assert_actor(uuid, text, boolean) from public, anon, authenticated;
+
+-- 2. _begin_idempotency: advisory lock -> new | replay | in_progress, conflict on hash mismatch
+create or replace function inventory._begin_idempotency(
+  p_tenant_id uuid,
+  p_command_scope text,
+  p_idempotency_key text,
+  p_payload_hash text
+) returns jsonb
+language plpgsql
+security definer
+set search_path = inventory, iam, public, pg_temp
+as $$
+declare
+  v_key text := trim(p_idempotency_key);
+  v_hash text := coalesce(nullif(trim(coalesce(p_payload_hash, '')), ''), '');
+  v_record inventory.idempotency_records%rowtype;
+begin
+  if nullif(v_key, '') is null or nullif(trim(coalesce(p_command_scope, '')), '') is null then
+    perform inventory._raise('CONTEXT_INVALID', 'Idempotency scope and key are required.');
+  end if;
+
+  perform pg_advisory_xact_lock(
+    hashtextextended(p_tenant_id::text || ':' || trim(p_command_scope) || ':' || v_key, 0)
+  );
+
+  select * into v_record
+  from inventory.idempotency_records
+  where tenant_id = p_tenant_id
+    and command_scope = trim(p_command_scope)
+    and idempotency_key = v_key
+  for update;
+
+  if found then
+    if v_record.payload_hash is distinct from v_hash then
+      perform inventory._raise('IDEMPOTENCY_CONFLICT', 'Idempotency key was already used with another payload.');
+    end if;
+
+    if v_record.status = 'in_progress' then
+      return jsonb_build_object(
+        'decision', 'in_progress',
+        'status', v_record.status,
+        'result_snapshot', v_record.result_snapshot
+      );
+    end if;
+
+    return jsonb_build_object(
+      'decision', 'replay',
+      'status', v_record.status,
+      'result_snapshot', v_record.result_snapshot
+    );
+  end if;
+
+  insert into inventory.idempotency_records (
+    id,
+    tenant_id,
+    command_scope,
+    idempotency_key,
+    payload_hash,
+    status,
+    correlation_id
+  ) values (
+    gen_random_uuid(),
+    p_tenant_id,
+    trim(p_command_scope),
+    v_key,
+    v_hash,
+    'in_progress',
+    gen_random_uuid()
+  );
+
+  return jsonb_build_object(
+    'decision', 'new',
+    'status', 'in_progress'
+  );
+end;
+$$;
+
+revoke all on function inventory._begin_idempotency(uuid, text, text, text) from public, anon, authenticated;
+
+-- 3. _complete_idempotency: save succeeded/failed result snapshot
+create or replace function inventory._complete_idempotency(
+  p_tenant_id uuid,
+  p_command_scope text,
+  p_idempotency_key text,
+  p_status text,
+  p_result_snapshot jsonb
+) returns void
+language plpgsql
+security definer
+set search_path = inventory, iam, public, pg_temp
+as $$
+declare
+  v_key text := trim(p_idempotency_key);
+begin
+  if p_status not in ('succeeded', 'failed') then
+    perform inventory._raise('CONTEXT_INVALID', 'Idempotency completion status is invalid.');
+  end if;
+
+  update inventory.idempotency_records
+  set status = p_status,
+      result_snapshot = p_result_snapshot,
+      updated_at = now()
+  where tenant_id = p_tenant_id
+    and command_scope = trim(p_command_scope)
+    and idempotency_key = v_key;
+end;
+$$;
+
+revoke all on function inventory._complete_idempotency(uuid, text, text, text, jsonb) from public, anon, authenticated;
+
+-- 4. _cost_method: returns MOVING or PERIODIC
+create or replace function inventory._cost_method(p_tenant_id uuid)
+returns text
+language plpgsql
+security definer
+set search_path = inventory, pg_temp
+as $$
+declare
+  v_method text;
+begin
+  select method into v_method
+  from inventory.cost_policies
+  where tenant_id = p_tenant_id;
+
+  return coalesce(v_method, 'MOVING');
+end;
+$$;
+
+revoke all on function inventory._cost_method(uuid) from public, anon, authenticated;
+
+-- 5. _ensure_open_period: checks if period is CLOSED -> PERIOD_CLOSED, creates OPEN if missing
+create or replace function inventory._ensure_open_period(
+  p_tenant_id uuid,
+  p_business_date date
+) returns uuid
+language plpgsql
+security definer
+set search_path = inventory, pg_temp
+as $$
+declare
+  v_month date := date_trunc('month', p_business_date)::date;
+  v_period record;
+  v_period_id uuid;
+begin
+  select id, status into v_period
+  from inventory.cost_periods
+  where tenant_id = p_tenant_id
+    and period_month = v_month;
+
+  if found then
+    if v_period.status = 'CLOSED' then
+      perform inventory._raise('PERIOD_CLOSED', 'Kỳ giá vốn ' || to_char(v_month, 'MM/YYYY') || ' đã khoá sổ.');
+    end if;
+    return v_period.id;
+  end if;
+
+  insert into inventory.cost_periods (
+    tenant_id,
+    period_month,
+    status
+  ) values (
+    p_tenant_id,
+    v_month,
+    'OPEN'
+  )
+  on conflict (tenant_id, period_month) do update
+    set period_month = excluded.period_month
+  returning id into v_period_id;
+
+  return v_period_id;
+end;
+$$;
+
+revoke all on function inventory._ensure_open_period(uuid, date) from public, anon, authenticated;
+
+-- 6. _available_quantity: sum of physical_quantity for product (+ optional lot)
+create or replace function inventory._available_quantity(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_lot_id uuid default null
+) returns numeric
+language plpgsql
+security definer
+set search_path = inventory, pg_temp
+as $$
+declare
+  v_qty numeric;
+begin
+  select coalesce(sum(physical_quantity), 0) into v_qty
+  from inventory.stock_balances
+  where tenant_id = p_tenant_id
+    and product_id = p_product_id
+    and (p_lot_id is null or lot_key = p_lot_id);
+
+  return v_qty;
+end;
+$$;
+
+revoke all on function inventory._available_quantity(uuid, uuid, uuid) from public, anon, authenticated;

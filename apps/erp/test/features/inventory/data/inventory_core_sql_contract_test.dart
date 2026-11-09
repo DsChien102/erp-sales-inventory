@@ -270,18 +270,131 @@ void main() {
       expect(sql, contains('_lock_tracking_after_movement'));
     });
   });
+
+  group('helpers', () {
+    test('helpers_not_granted', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final helperNames = [
+        '_assert_actor',
+        '_begin_idempotency',
+        '_complete_idempotency',
+        '_available_quantity',
+        '_cost_method',
+        '_ensure_open_period',
+      ];
+      for (final name in helperNames) {
+        expect(sql, contains('on function inventory.$name('));
+        expect(
+          sql,
+          isNot(contains('grant execute on function inventory.$name(')),
+        );
+      }
+    });
+
+    test('assert_actor_checks_in_order', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_assert_actor',
+        schema: 'inventory',
+      );
+      final permIdx = body.indexOf('has_permission');
+      final ownerIdx = body.indexOf('is_owner');
+      final assignIdx = body.indexOf('store_warehouse_assignments');
+      expect(permIdx, isNonNegative);
+      expect(ownerIdx, isNonNegative);
+      expect(assignIdx, isNonNegative);
+      expect(permIdx < ownerIdx, isTrue);
+      expect(ownerIdx < assignIdx, isTrue);
+    });
+
+    test('assert_actor_no_activation', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_assert_actor',
+        schema: 'inventory',
+      );
+      expect(body.toLowerCase(), isNot(contains('activation')));
+      expect(body, isNot(contains('INVENTORY_NOT_ACTIVATED')));
+    });
+
+    test('idempotency_conflict_code', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_begin_idempotency',
+        schema: 'inventory',
+      );
+      expect(body, contains('IDEMPOTENCY_CONFLICT'));
+    });
+
+    test('cost_method_defaults_moving', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_cost_method',
+        schema: 'inventory',
+      );
+      expect(body, contains("'MOVING'"));
+    });
+
+    test('ensure_period_raises_closed', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_ensure_open_period',
+        schema: 'inventory',
+      );
+      expect(body, contains('PERIOD_CLOSED'));
+    });
+  });
 }
 
-String _functionDefinition(String sql, String functionName) {
+String _functionDefinition(
+  String sql,
+  String functionName, {
+  String schema = 'catalog',
+}) {
   final start = sql.indexOf(
-    'create or replace function catalog.$functionName(',
+    'create or replace function $schema.$functionName(',
   );
   if (start < 0) {
-    throw StateError('Could not locate catalog.$functionName');
+    throw StateError('Could not locate $schema.$functionName');
   }
   final end = sql.indexOf(r'$$;', start);
   if (end < 0) {
-    throw StateError('Could not locate the end of catalog.$functionName');
+    throw StateError('Could not locate the end of $schema.$functionName');
   }
   return sql.substring(start, end + 3);
 }

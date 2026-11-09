@@ -144,6 +144,65 @@ begin
     raise exception 'FAIL: rebate_row_requires_rebate_id';
   end if;
 
+  -- 8. Test case: replay_same_hash_returns_saved_result
+  declare
+    v_res jsonb;
+  begin
+    v_res := inventory._begin_idempotency(v_tenant_id, 'test_scope', 'key_1', 'hash_1');
+    if v_res ->> 'decision' <> 'new' then
+      raise exception 'FAIL: begin_idempotency_new';
+    end if;
+
+    perform inventory._complete_idempotency(
+      v_tenant_id, 'test_scope', 'key_1', 'succeeded', '{"ok": true}'::jsonb
+    );
+
+    v_res := inventory._begin_idempotency(v_tenant_id, 'test_scope', 'key_1', 'hash_1');
+    if v_res ->> 'decision' <> 'replay' or (v_res -> 'result_snapshot' ->> 'ok') <> 'true' then
+      raise exception 'FAIL: replay_same_hash_returns_saved_result';
+    end if;
+  end;
+
+  -- 9. Test case: same_key_other_hash_conflict
+  v_caught := false;
+  begin
+    perform inventory._begin_idempotency(v_tenant_id, 'test_scope', 'key_1', 'other_hash');
+  exception when others then
+    if sqlerrm like '%IDEMPOTENCY_CONFLICT%' then
+      v_caught := true;
+    end if;
+  end;
+  if not v_caught then
+    raise exception 'FAIL: same_key_other_hash_conflict';
+  end if;
+
+  -- 10. Test case: period_created_on_first_use
+  declare
+    v_period_id uuid;
+  begin
+    v_period_id := inventory._ensure_open_period(v_tenant_id, current_date);
+    if v_period_id is null then
+      raise exception 'FAIL: period_created_on_first_use';
+    end if;
+
+    -- 11. Test case: closed_period_raises
+    update inventory.cost_periods
+    set status = 'CLOSED'
+    where id = v_period_id;
+
+    v_caught := false;
+    begin
+      perform inventory._ensure_open_period(v_tenant_id, current_date);
+    exception when others then
+      if sqlerrm like '%PERIOD_CLOSED%' then
+        v_caught := true;
+      end if;
+    end;
+    if not v_caught then
+      raise exception 'FAIL: closed_period_raises';
+    end if;
+  end;
+
   -- Rollback all test data
   raise exception 'ROLLBACK_TEST_SUCCESS';
 exception
