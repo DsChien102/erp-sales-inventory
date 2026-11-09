@@ -318,6 +318,7 @@ inventory:
   _value_line: 20261110001_inventory_core.sql
   ensure_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
   get_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
+  get_warehouse_hub_summary: 20261110001_inventory_core.sql
 
 partner:
   _assert_actor: 20260714004_partner_v2_write_rpc.sql

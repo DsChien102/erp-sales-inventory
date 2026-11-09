@@ -2,7 +2,7 @@
 -- Kind: schema
 -- Intent: inventory_core
 -- Context: TH-07 / KB-KGV-001..005, spec giá vốn; PLAN T7-G5-0b
--- Touches: ledger_counters, lots, stock_movements, stock_balances, cost_policies, cost_periods, cost_versions, value_movements, product_costs, _raise, _forbid_ledger_mutation, _lock_tracking_after_movement, _assert_actor, _begin_idempotency, _complete_idempotency, _cost_method, _ensure_open_period, _available_quantity, _next_ledger_sequence, _value_line, _post_movements
+-- Touches: ledger_counters, lots, stock_movements, stock_balances, cost_policies, cost_periods, cost_versions, value_movements, product_costs, _raise, _forbid_ledger_mutation, _lock_tracking_after_movement, _assert_actor, _begin_idempotency, _complete_idempotency, _cost_method, _ensure_open_period, _available_quantity, _next_ledger_sequence, _value_line, _post_movements, get_warehouse_hub_summary
 -- Safety: one-shot ; low lock impact on new tables
 -- Depends on: 20261104001_inventory_default_pair, 20260709001_catalog_guided_create
 
@@ -13,6 +13,11 @@ returns void
 language plpgsql
 as $$
 begin
+  -- Core Error Codes:
+  -- 'PERMISSION_DENIED', 'CONTEXT_INVALID', 'DATA_SCOPE_DENIED', 'IDEMPOTENCY_CONFLICT',
+  -- 'COMMAND_IN_PROGRESS', 'VERSION_CONFLICT', 'INSUFFICIENT_STOCK', 'LOT_REQUIRED',
+  -- 'LOT_NOT_ALLOWED', 'EXPIRY_REQUIRED', 'LOT_ATTRIBUTE_CONFLICT', 'TRACKING_LOCKED',
+  -- 'UNIT_COST_REQUIRED', 'PERIOD_CLOSED'
   raise exception using message = jsonb_build_object(
     'code', p_code,
     'message', p_message
@@ -980,4 +985,39 @@ end;
 $$;
 
 revoke all on function inventory._post_movements(uuid, uuid, text, uuid, date, jsonb, uuid) from public, anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Public RPCs (grant execute to authenticated)
+-- ---------------------------------------------------------------------------
+
+create or replace function inventory.get_warehouse_hub_summary(p_tenant_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = inventory, iam, catalog, pg_temp
+as $$
+declare
+  v_actor jsonb;
+  v_activated boolean;
+begin
+  -- 1. Assert actor with inventory.read permission
+  v_actor := inventory._assert_actor(p_tenant_id, 'inventory.read');
+
+  -- 2. Activated = exists at least one stock_movement for tenant
+  select exists (
+    select 1
+    from inventory.stock_movements
+    where tenant_id = p_tenant_id
+  ) into v_activated;
+
+  -- 3. Return summary with activated and problems (problems is null until G5-2)
+  return jsonb_build_object(
+    'activated', v_activated,
+    'problems', null
+  );
+end;
+$$;
+
+grant execute on function inventory.get_warehouse_hub_summary(uuid) to authenticated;
+
 

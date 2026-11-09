@@ -517,6 +517,107 @@ void main() {
       expect(body, contains("'stock_changes'"));
     });
   });
+
+  group('public', () {
+    test('hub_summary_granted_definer', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        'get_warehouse_hub_summary',
+        schema: 'inventory',
+      );
+      expect(body, contains('security definer'));
+      expect(body, contains('search_path = inventory, iam, catalog, pg_temp'));
+      expect(
+        sql,
+        contains(
+          'grant execute on function inventory.get_warehouse_hub_summary(uuid) to authenticated;',
+        ),
+      );
+    });
+
+    test('hub_summary_shape', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        'get_warehouse_hub_summary',
+        schema: 'inventory',
+      );
+      expect(body, contains("'activated'"));
+      expect(body, contains("'problems'"));
+      expect(body, isNot(contains("'pending'")));
+      expect(body, isNot(contains("'reconciliation'")));
+    });
+
+    test('no_approval_or_outcome_rpc', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      expect(sql, isNot(contains('_open_approval')));
+      expect(sql, isNot(contains('_decide_approval')));
+      expect(sql, isNot(contains('get_command_outcome')));
+      expect(sql, isNot(contains('function inventory._activate')));
+    });
+
+    test('all_core_error_codes_present', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final coreCodes = [
+        'PERMISSION_DENIED',
+        'CONTEXT_INVALID',
+        'DATA_SCOPE_DENIED',
+        'IDEMPOTENCY_CONFLICT',
+        'COMMAND_IN_PROGRESS',
+        'VERSION_CONFLICT',
+        'INSUFFICIENT_STOCK',
+        'LOT_REQUIRED',
+        'LOT_NOT_ALLOWED',
+        'EXPIRY_REQUIRED',
+        'LOT_ATTRIBUTE_CONFLICT',
+        'TRACKING_LOCKED',
+        'UNIT_COST_REQUIRED',
+        'PERIOD_CLOSED',
+      ];
+      for (final code in coreCodes) {
+        expect(sql, contains("'$code'"));
+      }
+    });
+
+    test('no_removed_error_codes', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final removedCodes = [
+        'INVENTORY_NOT_ACTIVATED',
+        'APPROVAL_ALREADY_OPEN',
+        'APPROVAL_ALREADY_DECIDED',
+        'REASON_REQUIRED',
+      ];
+      for (final code in removedCodes) {
+        expect(sql, isNot(contains("'$code'")));
+      }
+    });
+  });
 }
 
 String _functionDefinition(

@@ -409,6 +409,40 @@ begin
     end if;
   end;
 
+  -- 20. Test case: hub_summary_not_activated_when_no_movement & hub_summary_activated_after_movement
+  declare
+    v_empty_tenant uuid := gen_random_uuid();
+    v_empty_wh uuid := gen_random_uuid();
+    v_empty_store uuid := gen_random_uuid();
+    v_summary jsonb;
+  begin
+    insert into iam.tenants (id, name, slug)
+    values (v_empty_tenant, 'Empty Tenant', 'empty-' || substr(v_empty_tenant::text, 1, 8));
+
+    insert into inventory.warehouses (id, tenant_id, display_name, status)
+    values (v_empty_wh, v_empty_tenant, 'Kho trống', 'active');
+
+    insert into inventory.store_warehouse_assignments (tenant_id, store_id, warehouse_id, status)
+    values (v_empty_tenant, v_empty_store, v_empty_wh, 'active');
+
+    perform set_config('request.jwt.claim.sub', v_user_id::text, true);
+
+    v_summary := inventory.get_warehouse_hub_summary(v_empty_tenant);
+    if (v_summary ->> 'activated')::boolean is not false or (v_summary ->> 'problems') is not null then
+      raise exception 'FAIL: hub_summary_not_activated_when_no_movement';
+    end if;
+
+    -- 21. Test case: hub_summary_activated_after_movement
+    insert into inventory.store_warehouse_assignments (tenant_id, store_id, warehouse_id, status)
+    values (v_tenant_id, gen_random_uuid(), v_warehouse_id, 'active')
+    on conflict do nothing;
+
+    v_summary := inventory.get_warehouse_hub_summary(v_tenant_id);
+    if (v_summary ->> 'activated')::boolean is not true then
+      raise exception 'FAIL: hub_summary_activated_after_movement';
+    end if;
+  end;
+
   -- Rollback all test data
   raise exception 'ROLLBACK_TEST_SUCCESS';
 exception

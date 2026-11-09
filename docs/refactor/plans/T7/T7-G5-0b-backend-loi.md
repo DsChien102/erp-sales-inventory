@@ -248,9 +248,9 @@ Giữ nguyên như đã làm (xem Kết quả). Không đổi theo rút gọn.
 
 **Interfaces — Produces:** `inventory.get_warehouse_hub_summary(p_tenant_id uuid) returns jsonb` (mục 2.4).
 
-- [ ] **Step 1: Test** nhóm `public`: `hub_summary_granted_definer` (`security definer`, `set search_path`, `grant execute … to authenticated`); `hub_summary_shape` (`'activated'`, `'problems'`; **không** `'pending'`, `'reconciliation'`); `no_approval_or_outcome_rpc` (tệp không chứa `_open_approval`, `_decide_approval`, `get_command_outcome`, `_activate`); `all_core_error_codes_present` (14 mã mục 2.5) + `no_removed_error_codes` (không còn 4 mã đã bỏ).
+- [x] **Step 1: Test** nhóm `public`: `hub_summary_granted_definer` (`security definer`, `set search_path`, `grant execute … to authenticated`); `hub_summary_shape` (`'activated'`, `'problems'`; **không** `'pending'`, `'reconciliation'`); `no_approval_or_outcome_rpc` (tệp không chứa `_open_approval`, `_decide_approval`, `get_command_outcome`, `_activate`); `all_core_error_codes_present` (14 mã mục 2.5) + `no_removed_error_codes` (không còn 4 mã đã bỏ).
   Ca SQL: `hub_summary_not_activated_when_no_movement`, `hub_summary_activated_after_movement`.
-- [ ] **Step 2–4:** FAIL → viết → PASS. **Step 5:** Commit `feat(inventory): RPC tóm tắt Hub (T7-G5-0b)`.
+- [x] **Step 2–4:** FAIL → viết → PASS. **Step 5:** Commit `feat(inventory): RPC tóm tắt Hub (T7-G5-0b)`.
 
 ### Task 6: Lớp Flutter lõi
 
@@ -386,7 +386,7 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Ghi chú cho review: Helper `_assert_actor` tuân thủ nghiêm thứ tự `has_permission` -> `is_owner` -> `store_warehouse_assignments`; `_ensure_open_period` ném lỗi `PERIOD_CLOSED` nếu kỳ đã đóng hoặc tự động tạo kỳ `OPEN` nếu chưa tồn tại.
 
 ### Task 4 (2026-11-10) — ✅
-- Commit: `feat(inventory): _post_movements ghi sổ số lượng + sổ giá trị theo phương pháp (T7-G5-0b)`
+- Commit: `f2613f116`
 - Tệp:dòng đã đổi:
   - `supabase/migrations/20261110001_inventory_core.sql`: dòng 5 Touches; thêm `_next_ledger_sequence`, `_value_line` (tính giá vốn, ghi `value_movements`, cập nhật `product_costs`), `_post_movements` (kiểm tra kỳ trước lock, lock advisory theo `product_id`, kiểm tra luật lô, ghi `stock_movements`, cập nhật `stock_balances`, gọi `_value_line`).
   - `supabase/migrations/REGISTRY.yaml`: đăng ký các helper mới của schema `inventory`.
@@ -396,6 +396,18 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Test thêm / sửa (tên): `period_check_before_lock`, `advisory_lock_before_balance_read`, `lot_rules_codes`, `insufficient_stock_code`, `unit_cost_required_code`, `value_line_called_per_line`, `value_line_branches`, `returns_lines_and_stock_changes` (tổng 28/28 tests contract pass).
 - Impact: Thêm function nội bộ schema `inventory`, revoke quyền từ public/anon/authenticated. GitNexus risk: low.
 - Ghi chú cho review: `_post_movements` thực hiện kiểm tra `_ensure_open_period` trước khi advisory lock; advisory lock sắp xếp theo `product_id` tăng dần tránh deadlock; ghi song song sổ số lượng và sổ giá trị; tính giá vốn và cập nhật `product_costs` đúng theo phương pháp của cửa hàng.
+
+### Task 5 (2026-11-10) — ✅
+- Commit: `feat(inventory): RPC tóm tắt Hub (T7-G5-0b)`
+- Tệp:dòng đã đổi:
+  - `supabase/migrations/20261110001_inventory_core.sql`: dòng 5 Touches; bổ sung ghi chú 14 mã lỗi lõi vào `_raise`; thêm RPC công khai `get_warehouse_hub_summary(p_tenant_id uuid)` (`security definer`, search path chuẩn, kiểm tra quyền `inventory.read` qua `_assert_actor`, trả `{activated, problems: null}`, grant cho `authenticated`).
+  - `supabase/migrations/REGISTRY.yaml`: đăng ký `get_warehouse_hub_summary`.
+  - `supabase/tests/inventory_core.sql`: thêm test cases 20–21 (`hub_summary_not_activated_when_no_movement`, `hub_summary_activated_after_movement`).
+  - `apps/erp/test/features/inventory/data/inventory_core_sql_contract_test.dart`: thêm 5 tests nhóm `public`.
+- Lệch plan + lý do: Không.
+- Test thêm / sửa (tên): `hub_summary_granted_definer`, `hub_summary_shape`, `no_approval_or_outcome_rpc`, `all_core_error_codes_present`, `no_removed_error_codes` (tổng 33/33 tests contract pass).
+- Impact: RPC công khai schema `inventory` được cấp quyền cho `authenticated`. GitNexus risk: low.
+- Ghi chú cho review: `get_warehouse_hub_summary` kiểm tra kích hoạt kho dựa vào sự tồn tại của dòng biến động kho (`stock_movements`), trả `problems: null` để plan sau (G5-2) bổ sung cảnh báo sắp hết/cận hạn.
 
 Task 9 thêm: lệnh đã chạy, đạt / lỗi, tên test hỏng đối chiếu `TEST-BASELINE.md`, kết quả `detect_changes`.
 
