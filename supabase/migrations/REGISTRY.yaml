@@ -158,8 +158,12 @@ einvoice:
   claim_internal_commands_batch: 20261031009_einvoice_issuance_reconciliation_rpcs.sql
   claim_issuance_reconciliation_case: 20261031020_einvoice_misa_publish_retry_policy.sql
   complete_buyer_invoice_data: 20261031006_einvoice_buyer_completion_and_preview_rpcs.sql
+  complete_internal_command: 20261031002_einvoice_install_module_messaging.sql
   connect_provider: 20261031003_einvoice_provider_connection_rpcs.sql
   disconnect_provider: 20261031003_einvoice_provider_connection_rpcs.sql
+  enqueue_internal_command: 20261031002_einvoice_install_module_messaging.sql
+  enqueue_outbox_message: 20261031002_einvoice_install_module_messaging.sql
+  fail_internal_command: 20261031002_einvoice_install_module_messaging.sql
   get_automation_policy: 20261031004_einvoice_profile_policy_readiness_rpcs.sql
   get_configuration_readiness: 20261031004_einvoice_profile_policy_readiness_rpcs.sql
   get_electronic_invoice_detail: 20261031010_einvoice_official_view_rpcs.sql
@@ -205,7 +209,6 @@ einvoice:
   recover_internal_finalization: 20261031009_einvoice_issuance_reconciliation_rpcs.sql
   reevaluate_auto_issuance: 20261031008_einvoice_auto_issuance_and_retry_rpcs.sql
   release_publish_series_lease: 20261031019_einvoice_misa_publish_series_lease.sql
-  renew_publish_series_lease: 20261031019_einvoice_misa_publish_series_lease.sql
   request_invoice_document: 20261031011_einvoice_document_operations_rpcs.sql
   request_invoice_preview: 20261031006_einvoice_buyer_completion_and_preview_rpcs.sql
   request_official_invoice_view: 20261031010_einvoice_official_view_rpcs.sql
@@ -340,7 +343,7 @@ partner:
   upsert_partner_history: 20260714004_partner_v2_write_rpc.sql
 
 platform:
-  install_module_messaging: 20261031002_einvoice_install_module_messaging.sql
+  install_module_messaging: 20260623000001_platform_messaging_foundation.sql
   list_tenants_with_pending_messaging: 20260820008_platform_list_pending_messaging_queues.sql
   rebuild_messaging_backlog_stats_view: 20260623000001_platform_messaging_foundation.sql
 

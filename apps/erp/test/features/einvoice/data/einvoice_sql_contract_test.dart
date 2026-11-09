@@ -178,6 +178,119 @@ void main() {
       }
     });
   });
+
+  group('removed', () {
+    test('einvoice no longer installs messaging', () {
+      final sql = _allMigrationsSql();
+      expect(sql.contains("install_module_messaging('einvoice')"), isFalse);
+
+      final m = _migration('20261031002');
+      expect(m.contains('platform.install_module_messaging'), isFalse);
+      expect(m.contains('messaging_module_registry'), isFalse);
+      expect(m.contains('rebuild_messaging_backlog_stats_view'), isFalse);
+    });
+
+    test('einvoice has no inbox or outbox queue', () {
+      final m = _migration('20261031002');
+      expect(m.contains('inbox_messages'), isFalse);
+      expect(m.contains('receive_integration_event'), isFalse);
+      expect(m.contains('claim_outbox_batch'), isFalse);
+      expect(m.contains('complete_outbox_message'), isFalse);
+      expect(m.contains('fail_outbox_message'), isFalse);
+      expect(m.contains('claim_inbox_batch'), isFalse);
+      expect(m.contains('complete_inbox_message'), isFalse);
+      expect(m.contains('fail_inbox_message'), isFalse);
+    });
+
+    test('creates einvoice queue directly', () {
+      final m = _migration('20261031002');
+
+      // (1) internal_commands table with 12 columns
+      final cmdStart = m.indexOf('create table if not exists einvoice.internal_commands (');
+      expect(cmdStart, greaterThanOrEqualTo(0), reason: 'Missing table einvoice.internal_commands');
+      final cmdEnd = m.indexOf(');', cmdStart);
+      final cmdBlock = m.substring(cmdStart, cmdEnd);
+      for (final col in const [
+        'id uuid primary key',
+        'tenant_id uuid not null',
+        'command_type text not null',
+        'payload jsonb not null',
+        'source_event_id uuid null',
+        'enqueued_at timestamptz not null default now()',
+        'processed_at timestamptz null',
+        'failed_at timestamptz null',
+        'error text null',
+        'retry_count int not null default 0',
+        'claimed_at timestamptz null',
+        'claim_token uuid null',
+      ]) {
+        expect(cmdBlock.contains(col), isTrue, reason: 'internal_commands missing $col');
+      }
+
+      // (2) 2 indexes
+      expect(m.contains('internal_commands_pending_tenant_idx'), isTrue);
+      expect(m.contains('internal_commands_source_dedup_idx'), isTrue);
+
+      // (3) outbox_messages table with 5 columns
+      final outboxStart = m.indexOf('create table if not exists einvoice.outbox_messages (');
+      expect(outboxStart, greaterThanOrEqualTo(0), reason: 'Missing table einvoice.outbox_messages');
+      final outboxEnd = m.indexOf(');', outboxStart);
+      final outboxBlock = m.substring(outboxStart, outboxEnd);
+      for (final col in const [
+        'id uuid primary key',
+        'tenant_id uuid not null',
+        'event_type text not null',
+        'payload jsonb not null',
+        'occurred_at timestamptz not null default now()',
+      ]) {
+        expect(outboxBlock.contains(col), isTrue, reason: 'outbox_messages missing $col');
+      }
+      expect(outboxBlock.contains('processed_at'), isFalse);
+      expect(outboxBlock.contains('claim_token'), isFalse);
+
+      // (4) 5 functions defined in this migration
+      for (final fn in const [
+        'enqueue_outbox_message',
+        'enqueue_internal_command',
+        'claim_internal_commands_batch',
+        'complete_internal_command',
+        'fail_internal_command',
+      ]) {
+        expect(_definesFn(m, 'einvoice', fn), isTrue, reason: 'Migration missing function einvoice.$fn');
+      }
+
+      // (5) 5 grant execute signatures to service_role
+      for (final sig in const [
+        'einvoice.enqueue_outbox_message(uuid, text, jsonb, uuid, timestamptz)',
+        'einvoice.enqueue_internal_command(uuid, text, jsonb, uuid, uuid)',
+        'einvoice.claim_internal_commands_batch(uuid, int)',
+        'einvoice.complete_internal_command(uuid, uuid, uuid)',
+        'einvoice.fail_internal_command(uuid, uuid, uuid, text)',
+      ]) {
+        expect(
+          m.contains('grant execute on function $sig to service_role'),
+          isTrue,
+          reason: 'Missing grant execute for $sig',
+        );
+      }
+
+      // (6) permissions
+      expect(m.contains('revoke all on all tables in schema einvoice from public, anon, authenticated'), isTrue);
+      expect(m.contains('grant usage on schema einvoice to service_role'), isTrue);
+      expect(m.contains('grant usage on schema einvoice to authenticated'), isTrue);
+    });
+
+    test('drops renew_publish_series_lease', () {
+      final sql = _allMigrationsSql();
+      expect(_definesFn(sql, 'einvoice', 'renew_publish_series_lease'), isFalse);
+      expect(sql.contains('einvoice.renew_publish_series_lease'), isFalse);
+
+      final repoRoot = _findRepoRoot();
+      final regFile = File('${repoRoot.path}/supabase/migrations/REGISTRY.yaml');
+      final regContent = regFile.readAsStringSync();
+      expect(regContent.contains('renew_publish_series_lease'), isFalse);
+    });
+  });
 }
 
 Directory _findRepoRoot() {
