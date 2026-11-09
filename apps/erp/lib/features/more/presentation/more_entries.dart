@@ -62,7 +62,7 @@ const List<MoreEntry> kMoreEntries = [
     icon: VIcons.warehouse,
     title: 'Kho',
     subtitle: 'Tồn kho, phiếu nhập, điều chỉnh',
-    route: '/inventory',
+    route: '/warehouse',
     needsActiveTenant: true,
     matchPrefixes: ['/inventory', '/warehouse'],
   ),

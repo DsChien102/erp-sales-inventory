@@ -35,6 +35,7 @@ class VChip extends StatelessWidget {
   const VChip({
     super.key,
     required this.label,
+    this.count,
     this.tone,
     @Deprecated('Use tone instead. Will be removed in a future release.') this.emphasis,
     @Deprecated('Use tone: VComponentTone.primary when the chip is selected.') this.selected,
@@ -48,6 +49,7 @@ class VChip extends StatelessWidget {
   });
 
   final String label;
+  final int? count;
 
   @Deprecated('Use tone instead. Will be removed in a future release.')
   final VComponentEmphasis? emphasis;
@@ -118,6 +120,15 @@ class VChip extends StatelessWidget {
             style: labelStyle,
           ),
         ),
+        if (count != null) ...[
+          Text(
+            ' $count',
+            style: VTypography.bodySmall.copyWith(
+              color: count == 0 ? colors.textSecondary : foreground,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
         if (onRemove != null) ...[
           const VGap(VSpacing.space1, axis: Axis.horizontal),
           _RemoveIcon(
@@ -176,7 +187,8 @@ class VChip extends StatelessWidget {
       );
     }
 
-    final semanticsLabel = semanticLabel ?? label;
+    final resolvedLabel = count != null ? '$label $count' : label;
+    final semanticsLabel = semanticLabel ?? resolvedLabel;
 
     if (!isInteractive) {
       return vInspectorHide(

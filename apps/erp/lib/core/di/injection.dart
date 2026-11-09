@@ -19,6 +19,7 @@ import '../../features/iam/data/invitation_repository.dart';
 import '../../features/iam/data/member_repository.dart';
 import '../../features/iam/data/organization_repository.dart';
 import '../../features/inventory/data/goods_receipt_repository.dart';
+import '../../features/inventory/data/hub/warehouse_hub_repository.dart';
 import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../../features/pricing/data/customer_price_rule_repository.dart';
@@ -81,6 +82,9 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     ..registerSingleton<ICurrentTenant>(executionContext);
 
   getIt
+    ..registerLazySingleton<WarehouseHubRepository>(
+      () => const WarehouseHubRepository(),
+    )
     ..registerLazySingleton<ValuationRepository>(() => ValuationRepository())
     ..registerLazySingleton<GoodsReceiptRepository>(
       () => GoodsReceiptRepository(valuation: getIt<ValuationRepository>()),

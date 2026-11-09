@@ -43,7 +43,7 @@ import '../../features/inventory/presentation/pages/goods_receipt_review_page.da
 import '../../features/inventory/presentation/pages/quick_receipt_header_page.dart';
 import '../../features/inventory/presentation/pages/receipt_entry_choice_page.dart';
 import '../../features/inventory/presentation/pages/receipt_item_detail_args.dart';
-import '../../features/inventory/presentation/pages/warehouse_home_page.dart';
+import '../../features/inventory/presentation/hub/warehouse_hub_routes.dart';
 import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/inventory/logic/valuation_session_cubit.dart';
 import '../../features/inventory/presentation/pages/valuation_queue_page.dart';
@@ -635,15 +635,12 @@ final appRouter = GoRouter(
                     ),
                   ),
                 ),
+                ...warehouseHubRoutes(),
               ],
             ),
           ],
         ),
-    GoRoute(
-      path: '/inventory',
-      name: 'inventory',
-      builder: (context, state) => const WarehouseHomePage(),
-    ),
+    inventoryRedirectRoute(),
     GoRoute(
       path: '/warehouse/receipts/new',
       name: 'warehouse.receipts.new',

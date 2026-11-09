@@ -89,6 +89,9 @@ export 'src/components/v_progress.dart';
 export 'src/components/v_segmented_control.dart';
 export 'src/components/v_numeric_keypad_sheet.dart';
 export 'src/components/v_swipe_reveal.dart';
+export 'src/components/v_list_row.dart';
+export 'src/components/v_quick_action_button.dart';
+export 'src/components/v_key_value_row.dart';
 
 // Forms
 export 'src/forms/validators/v_email_validator.dart';

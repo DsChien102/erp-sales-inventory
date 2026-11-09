@@ -24,6 +24,7 @@ class VTable extends StatelessWidget {
   final VComponentTone? tone;
   final bool stripedRows;
   final String? semanticLabel;
+  final ValueChanged<int>? onRowTap;
 
   const VTable({
     super.key,
@@ -34,6 +35,7 @@ class VTable extends StatelessWidget {
     this.tone,
     this.stripedRows = false,
     this.semanticLabel,
+    this.onRowTap,
   });
 
   @override
@@ -98,17 +100,33 @@ class VTable extends StatelessWidget {
                     : null,
                 children: [
                   for (var i = 0; i < row.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: VSpacing.space3,
-                        horizontal: VSpacing.space2,
-                      ),
-                      // Numeric columns align right like their header, so
-                      // amounts stack digit over digit.
-                      child: headers[i].isNumeric
-                          ? Align(alignment: Alignment.centerRight, child: row[i])
-                          : row[i],
-                    ),
+                    () {
+                      Widget cell = Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: VSpacing.space3,
+                          horizontal: VSpacing.space2,
+                        ),
+                        // Numeric columns align right like their header, so
+                        // amounts stack digit over digit.
+                        child: headers[i].isNumeric
+                            ? Align(alignment: Alignment.centerRight, child: row[i])
+                            : row[i],
+                      );
+
+                      if (onRowTap != null) {
+                        cell = InkWell(
+                          onTap: () => onRowTap!(rowIndex),
+                          child: cell,
+                        );
+                        if (i == 0) {
+                          cell = Semantics(
+                            button: true,
+                            child: cell,
+                          );
+                        }
+                      }
+                      return cell;
+                    }(),
                 ],
               );
             }),
