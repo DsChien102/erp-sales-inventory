@@ -52,19 +52,6 @@ class SessionRepository {
     return TenantContext.fromJson(_asMap(result));
   }
 
-  /// `iam.has_permission`: quyền nghiệp vụ của người dùng trong một tổ chức.
-  Future<bool> hasPermission(String tenantId, String permission) async {
-    final result = await _rpc.call(
-      'iam',
-      'has_permission',
-      params: <String, dynamic>{
-        'p_tenant_id': tenantId,
-        'p_permission': permission,
-      },
-    );
-    return result == true;
-  }
-
   Future<String?> getLastSelectedTenantId() async {
     final result = await _rpc.call('iam', 'get_last_selected_tenant');
     if (result == null) return null;

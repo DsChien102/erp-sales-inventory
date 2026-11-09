@@ -23,7 +23,6 @@ import 'package:erp/features/catalog/presentation/pages/product_price_bands_page
 import 'package:erp/features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:erp/features/catalog/presentation/pages/product_change_history_page.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import 'support/catalog_test_registry.dart';
 import 'support/fake_catalog_scenario.dart';
@@ -79,15 +78,10 @@ class FakeSupabaseClient extends Fake implements SupabaseClient {
 
 Future<void> setUpErpCatalogE2E({
   String scenario = FakeCatalogScenario.guidedCreateOk,
-  IPermissionChecker? permissionChecker,
 }) async {
   await getIt.reset();
   await initDependencies(supabaseModule: SupabaseModule(FakeSupabaseClient()));
   registerFakeCatalog(getIt, scenario: scenario);
-  if (permissionChecker != null && getIt.isRegistered<IPermissionChecker>()) {
-    await getIt.unregister<IPermissionChecker>();
-    getIt.registerSingleton<IPermissionChecker>(permissionChecker);
-  }
 }
 
 class _GuidedCreateE2ELauncher extends StatefulWidget {

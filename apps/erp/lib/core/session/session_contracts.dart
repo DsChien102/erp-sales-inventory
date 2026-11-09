@@ -1,7 +1,6 @@
 import 'package:uuid/uuid.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import 'session_repository.dart';
 import 'session_store.dart';
 
 /// Ngữ cảnh thực thi cho các module nghiệp vụ cũ, đọc từ [SessionStore].
@@ -40,53 +39,5 @@ final class CoreExecutionContext implements IExecutionContext, ICurrentUser, ICu
       throw const ApplicationException('Tenant is required');
     }
     return tenantId;
-  }
-}
-
-/// Kiểm tra quyền cho pipeline lệnh của module nghiệp vụ.
-///
-/// Chủ sở hữu, hoặc phiên đã có quyền: qua, không gọi mạng.
-/// Còn lại: RPC `iam.has_permission(p_tenant_id, p_permission)`.
-final class CorePermissionChecker implements IPermissionChecker {
-  CorePermissionChecker({
-    required SessionStore store,
-    required SessionRepository repository,
-    required IExecutionContext executionContext,
-  }) : _store = store,
-       _repository = repository,
-       _executionContext = executionContext;
-
-  final SessionStore _store;
-  final SessionRepository _repository;
-  final IExecutionContext _executionContext;
-
-  @override
-  Future<void> require(String permissionCode) async {
-    if (_store.isOwner || _store.hasPermission(permissionCode)) {
-      return;
-    }
-
-    final tenantId = await _executionContext.requireTenantId();
-    final allowed = await _repository.hasPermission(tenantId, permissionCode);
-    if (!allowed) throw _denied(permissionCode);
-  }
-
-  static ApplicationException _denied(String permissionCode) {
-    return ApplicationException('Permission denied: $permissionCode');
-  }
-}
-
-/// Người dùng hiện tại phải là thành viên của tổ chức được yêu cầu.
-final class CoreTenantAccessChecker implements ITenantAccessChecker {
-  CoreTenantAccessChecker({required SessionRepository repository}) : _repository = repository;
-
-  final SessionRepository _repository;
-
-  @override
-  Future<void> ensureAccess(String tenantId) async {
-    final principal = await _repository.getSessionContext(tenantId);
-    if (principal == null) {
-      throw ApplicationException('Tenant access denied: $tenantId');
-    }
   }
 }

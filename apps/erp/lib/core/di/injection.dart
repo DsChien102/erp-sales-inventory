@@ -1,8 +1,5 @@
 import 'package:get_it/get_it.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/invitation_acceptance_repository.dart';
@@ -51,12 +48,6 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
 
   getIt.registerSingleton<SupabaseModule>(supabaseModule);
 
-  getIt.registerLazySingleton<ILoggerFactory>(
-    () => const LoggingLoggerFactory(),
-  );
-
-  getIt.registerLazySingleton<IEventsBus>(() => InMemoryEventBusClient());
-
   getIt.registerLazySingleton<SupabaseRpc>(() => SupabaseRpc(supabaseModule.client));
   getIt.registerLazySingleton<SessionRepository>(
     () => SessionRepository(rpc: getIt<SupabaseRpc>()),
@@ -81,23 +72,13 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
   sessionRefresh.attach(session);
 
-  // Ngữ cảnh / quyền cho module einvoice cũ (bỏ ở 7-5), đọc cùng SessionStore.
+  // Ngữ cảnh phiên cho logic sales (IExecutionContext; thay ở 9-1), đọc cùng SessionStore.
   final executionContext = CoreExecutionContext(store: sessionStore);
-  final permissionChecker = CorePermissionChecker(
-    store: sessionStore,
-    repository: getIt<SessionRepository>(),
-    executionContext: executionContext,
-  );
-  final tenantAccessChecker = CoreTenantAccessChecker(
-    repository: getIt<SessionRepository>(),
-  );
 
   getIt
     ..registerSingleton<IExecutionContext>(executionContext)
     ..registerSingleton<ICurrentUser>(executionContext)
-    ..registerSingleton<ICurrentTenant>(executionContext)
-    ..registerSingleton<IPermissionChecker>(permissionChecker)
-    ..registerSingleton<ITenantAccessChecker>(tenantAccessChecker);
+    ..registerSingleton<ICurrentTenant>(executionContext);
 
   getIt
     ..registerLazySingleton<ValuationRepository>(() => ValuationRepository())
@@ -285,14 +266,4 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
             sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
       ),
     );
-
-  final einvoiceRuntime = EinvoiceStartup.initialize(
-    supabase: supabaseModule.client,
-    loggerFactory: getIt<ILoggerFactory>(),
-    permissionChecker: permissionChecker,
-    tenantAccessChecker: tenantAccessChecker,
-    integrationEventBus: getIt<IEventsBus>(),
-  );
-
-  getIt.registerSingleton<IEInvoiceModule>(einvoiceRuntime.module);
 }

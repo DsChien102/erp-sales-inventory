@@ -31,16 +31,6 @@ class FakeSessionRepository implements SessionRepository {
   final List<AccessibleTenant> _tenants = [];
   final Map<String, TenantContext> _contexts = {};
 
-  /// `iam.has_permission`: trả `true` khi [permissionGranted] bật.
-  bool permissionGranted = true;
-  final List<({String tenantId, String permission})> permissionChecks = [];
-
-  @override
-  Future<bool> hasPermission(String tenantId, String permission) async {
-    permissionChecks.add((tenantId: tenantId, permission: permission));
-    return permissionGranted;
-  }
-
   @override
   Future<String?> getLastSelectedTenantId() async => lastSelectedTenantId;
 

@@ -6,7 +6,7 @@ import 'session_repository.dart';
 /// Phiên trong bộ nhớ: người dùng, tổ chức và cửa hàng đang chọn, vai trò, quyền.
 ///
 /// `SessionController` ghi vào đây; các module nghiệp vụ cũ đọc qua
-/// `CoreExecutionContext` / `CorePermissionChecker` (xem `session_contracts.dart`).
+/// `CoreExecutionContext` (xem `session_contracts.dart`).
 base class SessionStore {
   SessionStore({SessionRepository? repository}) : _repository = repository;
 
@@ -41,8 +41,7 @@ base class SessionStore {
 
   // Tạm thời (TH-01 BR-52): mọi thành viên hoạt động của tổ chức (đã có `role`)
   // có đủ quyền nghiệp vụ, giống `iam.has_permission` phía server.
-  // Khi quản lý vai trò theo quyền ra đời, đổi về `isOwner || permissions.contains(code)`;
-  // lúc đó nhánh RPC của `CorePermissionChecker` mới thật sự chạy.
+  // Khi quản lý vai trò theo quyền ra đời, đổi về `isOwner || permissions.contains(code)`.
   bool hasPermission(String code) => _role != null || _permissions.contains(code);
 
   /// Cửa hàng đang hoạt động. Thiếu thì nạp lại từ `get_session_context` đúng một
