@@ -587,7 +587,7 @@ Thứ tự = chặng hành trình của prototype (T7-P mục 8.2), vì khuôn �
 
 | Plan | Chặng | Nội dung | Màn (Screen Contract) | Phụ thuộc | Ước lượng | Plan | Làm | Review |
 |---|---|---|---|---|---|---|---|---|
-| **G5-0a** | nền | UI nền: DS mới (`VListRow`, `VQuickActionButton`, `VChip.count`, `VKeyValueRow`, `VTable.onRowTap`), khuôn K1–K4 / K6 / K7, Home Kho SCR-090…096 + "Chờ duyệt", route `/warehouse`, xoá `WarehouseHomePage` v3.8. **Chạy song song với G5-0b** | 090, 091, 092, 093, 094, 095, 096 | W-1 ✅ | ~1 ngày | ✅ [plan](plans/T7/T7-G5-0a-ui-nen.md) | ✅ 2026-11-09 | ❌ R1 chưa đạt (2026-11-09) |
+| **G5-0a** | nền | UI nền: DS mới (`VListRow`, `VQuickActionButton`, `VChip.count`, `VKeyValueRow`, `VTable.onRowTap`), khuôn K1–K4 / K6 / K7, Home Kho SCR-090…096 + "Chờ duyệt", route `/warehouse`, xoá `WarehouseHomePage` v3.8. **Chạy song song với G5-0b** | 090, 091, 092, 093, 094, 095, 096 | W-1 ✅ | ~1 ngày | ✅ [plan](plans/T7/T7-G5-0a-ui-nen.md) | ✅ 2026-11-09 | ✅ R2 đạt (2026-11-09) |
 | **G5-0b** | nền | Backend lõi: kho / lô / sổ biến động / tồn + khả dụng (đọc), phiếu kho chung, ApprovalCase, nhật ký lệnh + idempotency (K3), quyền + che tài chính, RPC tóm tắt Hub (kích hoạt, chờ duyệt); lớp RPC Flutter; ô gạt "Quản lý theo lô" ở Theme 2. **Chạy song song với G5-0a** | — | — (riêng Task 7 cần Task 7 của G5-0a: repository Hub) | ~1,5 ngày | ✅ [plan](plans/T7/T7-G5-0b-backend-loi.md) | ⬜ | ⬜ |
 | G5-1 | 1 | BJ-12 Khởi tạo tồn đầu kỳ (kích hoạt kho; tệp nhập, K2 duyệt chủ cửa hàng) | 066, 067, 068, 070, 071 | G5-0a, G5-0b | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
 | G5-2 | 1 | BJ-01 Tồn kho & khả dụng (đọc sổ kho thật) | 001, 003 | G5-1 | ~1 ngày | ⬜ | ⬜ | ⬜ |

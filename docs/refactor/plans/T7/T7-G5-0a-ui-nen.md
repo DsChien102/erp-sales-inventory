@@ -1,7 +1,7 @@
 # T7-G5-0a — UI nền Theme 7: thành phần DS, khuôn K1–K4 / K6 / K7, Home Kho
 
 > Theme 7 · plan **G5-0a** của [PLAN.md](../../PLAN.md) mục "Theme 7" (bảng Plan)
-> Trạng thái: Plan ✅ (người dùng duyệt 2026-11-09) | Làm ✅ 2026-11-09 | Review ❌ R1 chưa đạt (2026-11-09)
+> Trạng thái: Plan ✅ (người dùng duyệt 2026-11-09) | Làm ✅ 2026-11-09 | Review ✅ R2 đạt (2026-11-09; R1 ❌)
 > Đặc tả (v5.27.0 FROZEN): [SCR-090](../../../../specs/themes/theme-07/03.design/screens/SCR-090.md) … [SCR-096](../../../../specs/themes/theme-07/03.design/screens/SCR-096.md), [PAT-NAV](../../../../specs/themes/theme-07/03.design/patterns/PAT-NAV.md), [PAT-UI-UX](../../../../specs/themes/theme-07/03.design/patterns/PAT-UI-UX.md) mục 4.5–4.8. Prototype (đối chiếu): `app/hub.js` (`renderHubHome`, `renderWorkspace`, `renderPendingApprovals`), `app/shared-patterns.js` (K1–K4, K6, K7).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -318,7 +318,7 @@ Tệp xoá (Task 9): `presentation/pages/warehouse_home_page.dart`, `logic/wareh
 Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa chừng ghi `🔄 dở` + tới bước nào.
 
 ### Task 0 (2026-11-09) — ✅
-- Commit: `1c36c05e0`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `1c36c05e0` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `apps/erp/test/features/inventory/support/inventory_router_harness.dart` (tạo mới, 84 dòng), `apps/erp/test/features/inventory/presentation/hub/warehouse_entry_parity_test.dart` (tạo mới, 28 dòng)
 - Lệch plan + lý do: Không
 - Test thêm / sửa (tên): `inventory_route_opens_kho`, `more_kho_opens_kho` (PASS 2/2)
@@ -326,7 +326,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Ghi chú cho review: Test giữ hành vi đã xanh trên code cũ (WarehouseHomePage v3.8)
 
 ### Task 1 (2026-11-09) — ✅
-- Commit: `2a08e4ad1`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `2a08e4ad1` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `packages/vet45_design_system/lib/src/components/v_list_row.dart` (mới, 131 dòng), `packages/vet45_design_system/lib/src/components/v_quick_action_button.dart` (mới, 82 dòng), `packages/vet45_design_system/lib/design_system.dart` (thêm 2 dòng export), `packages/vet45_design_system/test/components/v_list_row_test.dart` (mới, 122 dòng), `packages/vet45_design_system/test/components/v_quick_action_button_test.dart` (mới, 72 dòng)
 - Lệch plan + lý do: Không
 - Test thêm / sửa (tên): `navigation_shows_chevron`, `plain_has_no_chevron`, `tap_calls_onTap`, `disabled_ignores_tap`, `shows_subtitle_and_trailing`, `min_height_44`, `tap_calls`, `null_onPressed_is_disabled`, `size_at_least_44` (PASS 9/9)
@@ -334,7 +334,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Ghi chú cho review: Đảm bảo kích thước tối thiểu `minTouchTarget` 44, `vDisabledOpacity`, `Semantics` button/enabled
 
 ### Task 2 (2026-11-09) — ✅
-- Commit: `99f8c841a`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `99f8c841a` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `packages/vet45_design_system/lib/src/primitives/v_chip.dart` (thêm `count`), `packages/vet45_design_system/lib/src/components/v_table.dart` (thêm `onRowTap`), `packages/vet45_design_system/lib/src/components/v_key_value_row.dart` (mới, 128 dòng), `packages/vet45_design_system/lib/design_system.dart` (export `v_key_value_row.dart`), `test/primitives/v_chip_count_test.dart` (mới, 55 dòng), `test/components/v_key_value_row_test.dart` (mới, 58 dòng), `test/components/v_table_row_tap_test.dart` (mới, 75 dòng)
 - Lệch plan + lý do: Không
 - Test thêm / sửa (tên): `chip_count_renders_and_zero_is_muted`, `chip_without_count_unchanged`, `key_value_mono_uses_mono_style`, `group_renders_title_and_rows`, `table_row_tap_reports_index`, `table_first_cell_is_button_semantics`, `table_without_onRowTap_unchanged` (PASS 7/7). Toàn package: 464 đạt / 1 lỗi (khớp `TEST-BASELINE.md`).
@@ -344,7 +344,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Ghi chú cho review: Đã kiểm tra không làm hỏng bất kỳ test hay component nào hiện có.
 
 ### Task 3 (2026-11-09) — ✅
-- Commit: `6a6f096f5`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `6a6f096f5` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `apps/erp/lib/features/inventory/presentation/patterns/inventory_layout.dart` (mới, 153 dòng), `apps/erp/lib/features/inventory/presentation/patterns/inventory_states.dart` (mới, 203 dòng), `apps/erp/lib/features/inventory/presentation/patterns/inventory_footer.dart` (mới, 147 dòng), `apps/erp/test/features/inventory/presentation/patterns/k1_k7_footer_test.dart` (mới, 328 dòng)
 - Lệch plan + lý do: `VButtonVariant` không có giá trị `danger`; dùng `tone: danger ? VComponentTone.danger : null` theo đúng token DS của `VButton`.
 - Test thêm / sửa (tên): `denied_has_title_next_and_exit`, `stale_banner_and_action`, `locked_has_no_button`, `empty_action_optional`, `k7_split_row_on_web_column_on_iphone`, `k7_split_aside_web_only_hidden_on_iphone`, `k7_table_web_is_vtable_iphone_is_list`, `k7_filter_chips_single_line`, `footer_two_short_labels_row`, `footer_long_label_stacks_on_iphone_primary_first`, `footer_long_label_stays_row_on_web`, `reason_footer_shows_reason_when_disabled_note_when_enabled` (PASS 12/12)
@@ -352,7 +352,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Ghi chú cho review: Bố cục K7 thích ứng với ngưỡng desktop (1024); footer tự động chuyển từ xếp ngang sang xếp dọc (nút chính lên trên) khi ở iPhone và nhãn > 17 ký tự.
 
 ### Task 4 (2026-11-09) — ✅
-- Commit: `264ab40b7`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `264ab40b7` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `apps/erp/lib/features/inventory/presentation/patterns/k2_approval.dart` (mới, 335 dòng), `apps/erp/test/features/inventory/presentation/patterns/k2_approval_test.dart` (mới, 254 dòng)
 - Lệch plan + lý do: Không
 - Test thêm / sửa (tên): `pending_text_with_and_without_subject`, `pending_lock_note`, `attention_empty_renders_nothing`, `attention_strips_trailing_colon`, `decision_order`, `reason_sheet_confirm_disabled_until_reason`, `reason_sheet_returns_trimmed_reason`, `reason_sheet_cancel_returns_null`, `reason_sheet_is_dialog_on_web` (PASS 9/9)
@@ -360,7 +360,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Ghi chú cho review: `showK2ReasonSheet` tự động thành sheet trên mobile và dialog trên web; nút confirm bị disabled khi lý do rỗng; K2Decision giữ đúng thứ tự hiển thị tiêu chuẩn.
 
 ### Task 5 (2026-11-09) — ✅
-- Commit: `4d0a83d98`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `4d0a83d98` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `apps/erp/lib/features/inventory/presentation/patterns/k3_unknown_page.dart` (mới, 149 dòng), `apps/erp/lib/features/inventory/presentation/patterns/k4_result_page.dart` (mới, 150 dòng), `apps/erp/test/features/inventory/presentation/patterns/k3_k4_test.dart` (mới, 163 dòng)
 - Lệch plan + lý do: `VPageScaffold` nhận `bottomBar:` thay vì `bottomNavigationBar:`
 - Test thêm / sửa (tên): `k4_no_back_button`, `k4_stock_change_line`, `k4_iphone_has_bottom_navigation`, `k4_web_has_no_bottom_navigation`, `k4_bottom_nav_tap_goes_to_tab`, `k3_rows_and_copy`, `k3_two_buttons_when_verify`, `k3_only_exit_when_verify_null` (PASS 8/8)
@@ -368,7 +368,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Ghi chú cho review: K4 hiển thị thanh 5 tab `ErpBottomNavigation` trên iPhone để người dùng điều hướng nhanh; K3 không hiển thị thanh tab và hỗ trợ nút 'Chuyển sang xác minh' (chỉ hiện khi `onVerify != null`).
 
 ### Task 6 (2026-11-09) — ✅
-- Commit: `c588db94b`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `c588db94b` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `apps/erp/lib/features/inventory/presentation/patterns/k6_task_list.dart` (mới, 203 dòng), `apps/erp/test/features/inventory/presentation/patterns/k6_task_list_test.dart` (mới, 240 dòng), `packages/vet45_design_system/lib/src/components/v_list_row.dart` (thêm `contentBelow:`)
 - Lệch plan + lý do: thêm tham số tuỳ chọn `VListRow.contentBelow` (DS, ngoài plan) để đặt badge dưới tiêu đề theo G3-7 (sửa ở R1-7)
 - Test thêm / sửa (tên): `total_zero_shows_empty`, `filtered_empty_shows_filter_empty`, `tap_row_opens / disabled_row_does_not_open`, `web_uses_table_iphone_uses_rows`, `long_title_moves_badge_below`, `short_title_badge_right` (PASS 6/6)
@@ -376,7 +376,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Ghi chú cho review: Đúng quy chuẩn G3-7: tiêu đề dài gãy 2 dòng thì badge tự động chuyển xuống dưới tiêu đề thông qua tính toán đo đạc `TextPainter` trong `LayoutBuilder`.
 
 ### Task 7 (2026-11-09) — ✅
-- Commit: `a3f86f200`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `a3f86f200` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `apps/erp/lib/features/inventory/data/hub/warehouse_hub_summary.dart` (mới, 70 dòng), `apps/erp/lib/features/inventory/data/hub/warehouse_hub_repository.dart` (mới, 11 dòng), `apps/erp/lib/features/inventory/logic/hub/warehouse_hub_state.dart` (mới, 38 dòng), `apps/erp/lib/features/inventory/logic/hub/warehouse_hub_cubit.dart` (mới, 30 dòng), `apps/erp/lib/features/inventory/presentation/hub/warehouse_entries.dart` (mới, 196 dòng), `apps/erp/test/features/inventory/logic/hub/warehouse_hub_test.dart` (mới, 151 dòng)
 - Lệch plan + lý do: Không
 - Test thêm / sửa (tên): `pending_text_joins_non_empty_groups`, `area_entries_filter_owner_only`, `entries_copy_matches_contract`, `cubit_loads_summary_and_owner`, `cubit_error_message_from_app_exception` (PASS 5/5)
@@ -384,7 +384,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Ghi chú cho review: Khớp 100% copy text từ contract v5.27.0 và prototype `hub.js`; bảo đảm 2 lối vào tạm theo Q-a1 ('Nhận hàng' -> `/warehouse/receipts/new`, 'Hàng chờ xác lập giá trị' -> `/warehouse/valuation/queue`); xử lý đúng AppException và chuẩn bị sẵn cho G5-0b thay thân RPC.
 
 ### Task 8 (2026-11-09) — ✅
-- Commit: `15b9467f6`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `15b9467f6` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `apps/erp/lib/features/inventory/presentation/hub/warehouse_hub_page.dart` (mới, 357 dòng), `apps/erp/lib/features/inventory/presentation/hub/warehouse_area_page.dart` (mới, 66 dòng), `apps/erp/lib/features/inventory/presentation/hub/warehouse_pending_approvals_page.dart` (mới, 142 dòng), `apps/erp/test/features/inventory/presentation/hub/warehouse_hub_pages_test.dart` (mới, 293 dòng)
 - Lệch plan + lý do: dòng "Cần chú ý" dùng `trailing: Text('${count}')` thay `VText(count)` (sửa ở R1-7; câu cũ nhắc `VChip.count` là nhầm, Hub không dùng `VChip`).
 - Test thêm / sửa (tên): `hub_normal_with_attention`, `hub_no_attention_hides_section`, `hub_not_activated`, `hub_not_activated_problems_hidden`, `hub_non_owner_hides_owner_rows`, `hub_hides_entries_without_route`, `hub_web_two_columns`, `hub_web_no_back_button / hub_iphone_back_button`, `hub_error_retry`, `area_lists_entries_with_route`, `area_hides_entries_without_route`, `pending_list_rows_and_badge` (PASS 12/12)
@@ -392,7 +392,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Ghi chú cho review: Tuân thủ nghiêm ngặt Q9 (không dựng lối vào route null), ẩn các khu/lối vào ownerOnly khi non-owner, bố cục 2 cột trên Web 1280 và 1 cột trên iPhone 390.
 
 ### Task 9 (2026-11-09) — ✅
-- Commit: `8ec89ceb4`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `8ec89ceb4` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `apps/erp/lib/features/inventory/presentation/hub/warehouse_hub_routes.dart` (mới, 53 dòng), `apps/erp/lib/core/router/app_router.dart` (+6/-9), `apps/erp/lib/core/di/injection.dart` (+4/-0), `apps/erp/lib/features/more/presentation/more_entries.dart` (+1/-1), `apps/erp/test/features/inventory/presentation/hub/warehouse_hub_routes_test.dart` (mới, 97 dòng), `apps/erp/test/features/inventory/support/inventory_router_harness.dart` (+5/-0); đã xoá 8 tệp code cũ v3.8 (`warehouse_home_page.dart`, `warehouse_home_cubit.dart`, `warehouse_home_state.dart`, `inventory_repository.dart`, `warehouse_task_item.dart`, `warehouse_manual_action.dart`, `warehouse_task_card.dart`, `warehouse_start_new_sheet.dart`) và 1 tệp test cũ (`warehouse_home_page_test.dart`).
 - Lệch plan + lý do: Không
 - Test thêm / sửa (tên): `hub_iphone_has_bottom_navigation`, `hub_web_has_sidebar`, `area_route_opens_area`, `unknown_area_redirects_hub`, `valuation_area_redirects_non_owner`, `quick_receive_opens_old_receipt_entry`, `valuation_entry_opens_old_queue` (PASS 7/7); `inventory_route_opens_kho`, `more_kho_opens_kho` (PASS 2/2); test/features/more (PASS 11/11); dart analyze 0 lỗi.
@@ -400,7 +400,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Ghi chú cho review: Router chuyển tiếp thông suốt `/inventory` -> `/warehouse`; Hub mới nằm trong nhánh StatefulShellBranch "Thêm" nên giữ trọn vẹn BottomNavigation trên iPhone và SideNavigation trên Web; bảo vệ redirect bảo mật cho khu `valuation` khi non-owner; 2 route tạm theo Q-a1 kết nối hoàn hảo với các màn hình nhận hàng và hàng chờ xác lập giá trị.
 
 ### Task 10 (2026-11-09) — ✅
-- Commit: `264676882`
+- Commit: `cd0bc8fa7` (commit gộp; mã cũ `264676882` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `docs/refactor/PLAN.md` (cập nhật dòng G5-0a cột Làm: `✅ 2026-11-09`), `docs/refactor/plans/T7/T7-G5-0a-ui-nen.md` (hoàn tất toàn bộ checkbox và mục kết quả)
 - Lệnh đã chạy:
   - `cd packages/vet45_design_system && flutter test --no-pub -r compact`: 464 passed / 1 failed (đúng mốc baseline ≤ 2 lỗi có sẵn).
@@ -411,9 +411,9 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Đối chiếu prototype: ~~Khớp 100%~~ (sai, review R1 tìm ra 2 lệch: chevron đôi, tiêu đề "Thiết lập kho" thừa). Kết quả sau R1-1 / R1-2: xem khối "R1 — sửa".
 - Ghi chú cho review: Commit `be88977a6` (`fix(inventory): wrap VFieldLabel and VTextField inside VField in K2`) nằm giữa Task 9 và Task 10, trước đây chưa ghi.
 
-### R1 — sửa (2026-11-09, chưa commit)
+### R1 — sửa (2026-11-09, commit `cd0bc8fa7`)
 
-- **Commit:** người dùng tự commit. Các mã commit ở Task 0–10 (`1c36c05e0` … `264676882`, `be88977a6`, `75932d728`) **không còn trên nhánh**: reflog có `reset: moving to ddef43c53`. Code của chúng vẫn nằm trong cây làm việc. Khi commit, điền mã mới vào đây. Không `git add` `AGENTS.md`, `CLAUDE.md`.
+- **Commit:** người dùng chọn cách (b) của R1-7: commit lại **một commit gộp** `cd0bc8fa7` (`refactor: redesign inventory warehouse hub and design system components`), gồm toàn bộ code Task 0–10 + sửa R1. `git branch --contains cd0bc8fa7` → `refactor/simple-arch`. Các mã cũ (`1c36c05e0` … `264676882`, `be88977a6`, `75932d728`) mất sau `reset: moving to ddef43c53`, chỉ còn để tra trong mục này. Commit gộp có kèm `AGENTS.md`, `CLAUDE.md` (trái Global Constraints). Phần đổi chỉ là số liệu GitNexus (số symbol / relationship), không ảnh hưởng gì nên giữ nguyên.
 - **Impact:** GitNexus `impact` không tìm thấy `VKeyValueRow`, `VListRow`, `K6TaskRow`, `K6TaskList`, `WarehouseHubPage`, `WarehouseAreaPage` (code mới, chưa vào index). Tra bằng grep: người gọi chỉ nằm trong `features/inventory/presentation/{patterns,hub}` ⇒ thấp. Trước khi commit chạy `node .gitnexus/run.cjs analyze` rồi `detect-changes`.
 
 | Task | Tệp:dòng | Làm gì | Test |
@@ -438,6 +438,29 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Toàn `apps/erp`: **3085 đạt / 55 lỗi**. Cả 55 lỗi đều ở catalog / tenant_admin / pricing / my_account, khớp mốc "Sau 7-C"; không có lỗi nào ở inventory / more. Số đạt +7 so với R1 (3078), đúng bằng số test mới.
 
 ## 8. Review
+
+### R2 — 2026-11-09 — ✅ ĐẠT (0 P1, 0 P2, 0 P3 mới)
+
+**Kết luận: ĐẠT.** Cả 7 việc của R1 đã làm. Review chạy trên commit `cd0bc8fa7`; cây làm việc không còn thay đổi nào thuộc G5-0a.
+
+| Việc R1 | Kết quả |
+|---|---|
+| R1-1 hai mũi tên › | Đạt. Code không còn `trailing: chevronRight` ở `warehouse_hub_page.dart` và `warehouse_area_page.dart`. Test `hub_rows_single_chevron_and_setup_title_once` và `area_rows_single_chevron` chạy ở 390 / 1280 |
+| R1-2 tiêu đề "Thiết lập kho" | Đạt. `VSection` của `setupWidget` không còn `title`. Test kiểm `find.text('Thiết lập kho')` tìm đúng 1 |
+| R1-3 `VKeyValueRow` tràn + mặt vẽ thật | Đạt. Nhãn `Flexible(flex: 2)`, giá trị `Flexible(flex: 3, textAlign: right)`. 5 tệp test gọi `useInventoryTestSurface`. Log `test/features/inventory` không có dòng `overflowed` nào. Test DS `v_key_value_row_test.dart` 3 / 3 |
+| R1-4 K6 đo theo cỡ chữ | Đạt. `_titleWraps` dùng `textScaler` + `textDirection`. Style và đệm đo khớp `VBadge` (`bodySmall` w600, đệm 10) và `VListRow` (`space3`, `space2`, chevron 20). Test `long_title_moves_badge_below_large_text x1.0 / x1.5` |
+| R1-5 `K6Search.value` | Đạt. `_K6SearchField` có controller + `didUpdateWidget`. Test `search_shows_initial_value` |
+| R1-6 import thừa | Đạt. `dart analyze` DS `lib` sạch |
+| R1-7 git + mục 7 | Đạt. Người dùng chọn cách (b), commit gộp `cd0bc8fa7`, `git branch --contains` ra `refactor/simple-arch`. Mục 7 đã sửa mã commit (phiên review sửa giúp). Commit có kèm `AGENTS.md` / `CLAUDE.md`: chỉ đổi số liệu GitNexus, ghi nhận, không chặn |
+
+**Đã chạy (phiên review R2):**
+- `flutter test --no-pub test/features/inventory test/features/more`: **146 / 146**.
+- Toàn `apps/erp`: **3085 đạt / 55 lỗi**, khớp mốc "Sau 7-C" và khớp số ở mục 7.
+- DS `flutter test`: **465 / 1**. Lỗi có sẵn là `v_overlay_menu_shell_test` (shadow token), trong mốc ≤ 2.
+- `dart analyze lib/features/inventory lib/core/router lib/core/di lib/features/more test/features/inventory ../../packages/vet45_design_system/lib`: sạch.
+- `node .gitnexus/run.cjs analyze` (index cũ sai đường dẫn, đã dựng lại), rồi `detect-changes -r erp-sales-inventory --scope compare --base-ref ddef43c53`: 48 tệp, 150 symbol, **0 process bị ảnh hưởng, risk low**. Toàn bộ symbol thuộc phạm vi plan, cộng 2 mục GitNexus của `AGENTS.md` / `CLAUDE.md`.
+
+**Còn mở (từ R1, chỉ ghi nhận):** P3-2 (`VTable.onRowTap` bọc từng ô), P3-3 (thiếu `SessionStore` ⇒ coi là chủ), P3-4 (`InventoryFooter` không tự xếp thứ tự nút). Plan BJ đầu tiên đụng tới thì xử lý.
 
 ### R1 — 2026-11-09 — ❌ CHƯA ĐẠT (0 P1, 4 P2, 4 P3)
 
