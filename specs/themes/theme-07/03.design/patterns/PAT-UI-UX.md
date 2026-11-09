@@ -4,28 +4,28 @@ type: design-pattern
 theme: theme-07
 title: "UI/UX policy & patterns"
 owner: BA
-status: FROZEN
-source_baseline: v3.13.0
+status: IN_REVIEW
+source_baseline: v5.27.0
 ---
 # PAT-UI-UX — UI/UX policy & patterns
 
 ## 1. Vấn đề cần giải quyết
 
-Giữ các quy tắc/pattern UI đã được xác lập trong source v3.10.1 cho phạm vi Theme 7.
+Giữ các quy tắc/pattern UI đã được xác lập cho phạm vi phân hệ Kho (Theme 7).
 
 ## 2. Khi nào dùng
 
-Theo phạm vi được mô tả trong nội dung nguồn bên dưới.
+Áp dụng cho toàn bộ các màn hình, quy trình và tương tác trong Theme 7 (Kho).
 
 ## 3. Khi nào không dùng
 
-Không mở rộng ngoài phạm vi nguồn.
+Không mở rộng ra ngoài phạm vi Theme 7 khi chưa có phê duyệt từ nhóm kiến trúc sản phẩm.
 
 ## 4. Hành vi bắt buộc
 
 ### 1. Vai trò và ranh giới
 
-Phần này đặc tả kiến trúc trải nghiệm và dẫn tới gói Screen Contract. **Screen Group và Figma không còn thuộc mô hình chính thức.** Prototype HTML là renderer thiết kế/kiểm chứng. UIF-02 hiện đã có HTML v0.3.2; các UIF còn lại được triển khai tuần tự qua Harness và cumulative regression.
+Phần này đặc tả kiến trúc trải nghiệm và dẫn tới gói Screen Contract. **Screen Group và Figma không còn thuộc mô hình chính thức.** Prototype HTML là renderer thiết kế/kiểm chứng.
 
 Thứ tự thẩm quyền khi có xung đột:
 
@@ -52,59 +52,94 @@ flowchart TD
 
 ### 3. Nguồn Design System
 
-Áp dụng [`../prototype/contracts/design-system-profile.md`](../design-system/design-system-profile.md). Flutter Design System ZIP là semantic/API authority; Vercel là visual authority vì được project xác nhận render trực tiếp từ cùng Flutter DS. HTML không phải Design System thứ hai.
+Áp dụng [`../design-system/design-system-profile.md`](../design-system/design-system-profile.md). Flutter Design System ZIP là semantic/API authority; Vercel là visual authority vì được project xác nhận render trực tiếp từ cùng Flutter DS. HTML không phải Design System thứ hai.
 
 Các nguyên tắc bắt buộc: iPhone và web đều là thiết bị chính (mỗi màn đủ hai bố cục, [LUONG-UNG-DUNG 1.1](../../../../../docs/02-yeu-cau/LUONG-UNG-DUNG.md)); rõ ràng hơn thông minh; theo luồng công việc; một hành động chính; tiết lộ tăng dần; phòng ngừa trước khi sửa; trạng thái và số liệu phải trung thực.
 
 ### 4. Kiến trúc thông tin
 
-Sáu khu vực điều hướng được định nghĩa tại [`navigation-areas.md`](PAT-NAV.md). Chúng không thay thế Domain, BJ, UC hoặc phạm vi giao việc.
+Kiến trúc điều hướng của Kho được tổ chức quanh Home Kho (`SCR-090`) và 6 workspace (`SCR-091`…`SCR-096`), xem chi tiết tại [`PAT-NAV.md`](PAT-NAV.md).
 
-### 5. Screen Registry
+### 5. Khuôn dùng chung (K1–K7)
 
-- Registry máy đọc: [`screen-registry.json`](../../09.generated/registries/design/screen-registry.json)
-- Registry cho người đọc: [`screen-registry.md`](../../09.generated/registries/design/screen-registry.md)
-- Screen Contracts: [`screens/`](../screens)
+Mỗi khuôn được dựng chuẩn một lần, các màn hình và quy trình sau tái sử dụng trực tiếp:
 
-| Chỉ tiêu | Giá trị |
-|---|---:|
-| Màn hình canonical | 83 |
-| State fixture obligation | 479 |
-| UI Action | 33 |
-| Screen Group active | 0 |
+| # | Khuôn | Dựng ở | Dùng lại ở |
+|---|---|---|---|
+| K1 | **Trạng thái chung:** không có quyền, đang tải, rỗng, rỗng sau lọc, dữ liệu cũ, bị khoá | BJ-12 | Tất cả các luồng |
+| K2 | **Lập → duyệt → kết quả:** người lập gửi; danh sách "Chờ duyệt" (Home → Cần chú ý); màn duyệt (thứ cần quyết đầu tiên, ngoại lệ nổi bật, Duyệt / Từ chối có lý do); người lập thấy trạng thái chờ, khoá sửa; kết quả. | BJ-12 | 02, 06, 08, 09, 10, 11, 13, 14, CAP-01 |
+| K3 | **Kết quả chưa rõ → xác minh:** không coi là thất bại; mã tham chiếu + giờ; điều gì an toàn; một nút xác minh; lối ra; BJ-17 là màn xác minh chung | BJ-12 | Mọi BJ có ghi dữ liệu |
+| K4 | **Kết quả xong:** tóm tắt (ai, lúc nào, bao nhiêu), bước tiếp hợp lý (xem tồn, làm tiếp, về Kho), không lặp danh sách dài | BJ-12 | Mọi BJ có màn kết quả |
+| K5 | **Chọn hàng → xử lý → bàn giao:** danh sách hàng đủ điều kiện, chọn lô / lượng, xác nhận, bàn giao | BJ-09 (SCR-036 / 037 / 041 dựng chung) | 07, 10 |
+| K6 | **Danh sách công việc:** danh sách phiếu / phiên với trạng thái, lọc theo trạng thái, mở tiếp đúng bước đang dở | BJ-05 | 06, 07, 08, 11, 12, 14, 16 |
+| K7 | **Bố cục web:** danh sách – chi tiết hai cột (chọn bên trái, xem / duyệt bên phải, không đổi trang); bảng thay danh sách thẻ khi có nhiều cột số; footer hành động thành thanh nút bên phải; sheet thành hộp thoại / bảng bên. Dưới bề rộng ngưỡng tự về bố cục iPhone | BJ-12 | Mọi màn web chính |
 
-### 6. Bao phủ Business Journey
+**Quy tắc duyệt K2:**
+> **Người duyệt** là `is_owner` hoặc vai trò `store_owner`, khác người lập. **Ngoại lệ:** cửa hàng chỉ có một chủ, nên `is_owner` lập vẫn gửi duyệt rồi tự duyệt ở màn duyệt (không có đường ghi nhận thẳng); lịch sử ghi người duyệt "Chủ cửa hàng".
 
-| BJ | Số Screen liên quan | Trạng thái |
-|---|---:|---|
-| `BJ-01` | 17 | `MAPPED` |
-| `BJ-02` | 8 | `MAPPED` |
-| `BJ-03` | 6 | `MAPPED` |
-| `BJ-04` | 11 | `MAPPED` |
-| `BJ-05` | 5 | `MAPPED` |
-| `BJ-06` | 6 | `MAPPED` |
-| `BJ-07` | 6 | `MAPPED` |
-| `BJ-08` | 6 | `MAPPED` |
-| `BJ-09` | 7 | `MAPPED` |
-| `BJ-10` | 6 | `MAPPED` |
-| `BJ-11` | 6 | `MAPPED` |
-| `BJ-12` | 6 | `MAPPED` |
-| `BJ-13` | 6 | `MAPPED` |
-| `BJ-14` | 12 | `MAPPED` |
-| `BJ-15` | 6 | `MAPPED` |
-| `BJ-16` | 6 | `MAPPED` |
-| `BJ-17` | 6 | `MAPPED` |
+### 6. Thành phần Design System mới
 
+Các thành phần phát sinh trong quá trình thiết kế Theme 7 đã được kiểm chứng trên prototype HTML và sẽ được đưa vào Flutter `vet45_design_system` ở Giai đoạn 5 (T7-G5):
 
-Chi tiết theo BJ/UC nằm tại [`bj-ui-flow-map.md`](../../09.generated/matrices/design/bj-ui-flow-map.md). Mỗi BJ có mapping UI; không có BJ mồ côi.
+| Thành phần | Phát sinh ở | Mô tả | Trạng thái |
+|---|---|---|---|
+| `ds24DotBadge` / `.ds24-badge--dot` | BJ-01 | VBadge có chấm: đặc = cảnh báo, rỗng = nguy hiểm | prototype; Flutter ở T7-G5 |
+| `VStockRow` | BJ-01 | List Row có cột phải hai tầng: số lượng mono + badge | prototype; Flutter ở T7-G5 |
+| Nút quét mã vạch trong `VSearchBar` | BJ-01 | Hành động cuối ô tìm kiếm | prototype; Flutter ở T7-G5 |
+| `VChip` có số đếm | BJ-01 | Chip lọc kèm số; số 0 mờ, vẫn bấm được | prototype; Flutter ở T7-G5 |
+| Bảng dữ liệu web (`k7Table`) | BJ-12 | Bảng có tiêu đề cố định, số mono căn phải; trên iPhone thành danh sách thẻ | prototype; Flutter ở T7-G5 |
+| Vùng kéo thả tệp trên web (`VFileDropZone` mở rộng) | BJ-12 | Thêm dòng "Kéo tệp vào đây hoặc Chọn tệp", chỉ web | prototype; Flutter ở T7-G5 |
+| Dải số một hàng (`cf12Strip`) | BJ-12 | Biến thể ngang tóm tắt: "{a} dòng đọc được · {b} hợp lệ · {c} cần sửa" | prototype; Flutter ở T7-G5 |
+| `VMoneyField` trạng thái lỗi | BJ-12 | Viền + dòng lỗi dưới ô nhập tiền | prototype; Flutter ở T7-G5 |
+| Ô số sửa tại dòng (`k7EditCell`) | CAP-01 | Ô số có hậu tố đơn vị, lỗi dưới ô, `aria-label`; chạm ≥ 44 trên iPhone | prototype; Flutter ở T7-G5 |
+| `VSegmentedControl` (`dsSegmented`) | CAP-01 | Thanh chọn hai / ba mục; mục chọn nổi nền trắng | prototype; Flutter ở T7-G5 |
+| Thẻ lựa chọn lớn (`dsChoiceRow`) | CAP-01 | List Row chọn một có tiêu đề + mô tả + nút tròn | prototype; Flutter ở T7-G5 |
+| Thanh tiến độ mảnh (`.bj02-progress`) | BJ-02 | "Đã xử lý {a}/{b} mặt hàng" dưới dòng ngữ cảnh | prototype; Flutter ở T7-G5 |
+| Ô hạn dùng tự hiểu độ chính xác | BJ-02 | Nhận "30/11/2026", "11/2026" hoặc "2026"; lỗi tại ô; lưu `expiryPrecision` | prototype; Flutter ở T7-G5 |
+| `VFileDropZone` biến thể iPhone | BJ-02 | Hai nút "Chụp ảnh" \| "Chọn tệp" + danh sách tệp có "Xoá" | prototype; Flutter ở T7-G5 |
+| Ô số lớn nhập thẳng + ba ô nhỏ | BJ-02 | "Đạt" lớn, "Cách ly" / "Hỏng" / "Từ chối" một hàng; thay bàn phím số riêng | prototype; Flutter ở T7-G5 |
+| Ô tick (`role="checkbox"`) kèm mô tả | BJ-02 | Hộp kiểm cam kết kèm dòng giải thích rõ ràng | prototype; Flutter ở T7-G5 |
+| Chân màn có dòng lý do (`bj02Footer`) | BJ-02 | Dòng chữ giải thích lý do ngay trên nút khi nút bị tắt (disabled) | prototype; Flutter ở T7-G5 |
+| Ô tick trong bảng (`k7Table` cột `select`) | BJ-03 | Chọn dòng sản phẩm; `role="checkbox"` + `aria-checked`; dòng không chọn được thì tắt | prototype; Flutter ở T7-G5 |
+| Ô số nhập thẳng tại dòng | BJ-08 | Nhập trực tiếp trên dòng với `enterkeyhint="next"`; Enter nhảy sang ô kế tiếp | prototype; Flutter ở T7-G5 |
+| Nút chữ nguy hiểm (`VButton` danger text) | BJ-08 | Nút dạng chữ tone nguy hiểm (vd. "Hủy phiên" ở cuối nội dung) | prototype; Flutter ở T7-G5 |
+| Khối "Tóm tắt" + dải tổng | BJ-03 | Web: nhãn — giá trị căn phải; iPhone: dải tổng trên chân màn hình | prototype; Flutter ở T7-G5 |
 
-### 7. Quy tắc Screen Contract
+### 7. Quy tắc UI chung
 
-Mỗi Screen Contract phải có: mục đích; BJ/UC liên quan; người dùng và thẩm quyền; dữ liệu; state; action–BC–API; responsive/accessibility; điều kiện nghiệm thu; ranh giới bằng chứng.
+- Dùng thành phần DS có sẵn (`VChip`, `VSearchBar`, `VBanner`, `VBottomSheet`, `VEmptyState`, `VButton`, `VBadge`, `VFileDropZone`…); không tạo thành phần riêng cho một tính năng khi DS đã đủ.
+- Từ 2 Info / Key-value Row cùng nhóm ngữ nghĩa thì **một bề mặt chung**; list độc lập nền trong suốt. Product → LOT là cha–con (row phẳng cùng bề mặt), không card lồng card.
+- Mỗi trạng thái **một hành động chính**; footer hai nút xếp ngang (Phụ | Chính). Không có trạng thái cụt; Back / điều hướng không được đổi finality.
+- `VBanner` chỉ cho ngoại lệ, cảnh báo, chặn, hệ quả. Thành công cùng màn dùng toast; không toast trùng màn kết quả / lỗi inline / UNKNOWN. `UNKNOWN` ≠ thất bại, luôn có đường phục hồi.
+- Chip lọc một hàng, cuộn ngang, không wrap. Hủy đối tượng đang mở nằm trong ngữ cảnh đối tượng, không đặt ở danh sách.
+- Nội dung: dùng từ "mã vạch" (không dùng "barcode"), ĐVT (UOM) luôn đi liền với số lượng, không hiển thị ID kỹ thuật. `PERMISSION_DENIED`: dữ liệu được bảo vệ **không có mặt** trong cây widget; `FINANCIAL_MASKED`: hoàn toàn không hiển thị số tiền trong giao diện.
+- Đảm bảo độ tương phản màu, kích thước vùng chạm ≥ 44pt trên iPhone, nhãn hỗ trợ tiếp cận (`Semantics`) cho mọi nút icon.
+- **Số tiền kiểu chữ số mono:** Số tiền ở thẻ số liệu, Key-value Row, dải tổng và khối "Tóm tắt" dùng kiểu chữ số mono (như cột số của bảng) để thẳng hàng và dễ đối soát trực quan.
 
-Mỗi hành động thay đổi dữ liệu có đúng một Action ID, một BC chính và một API chính. Double submit giữ cùng idempotency key; `UNKNOWN` giữ cùng operation identity để truy vấn hoặc phục hồi.
+### 8. Thiết bị và bố cục chuẩn
 
-### 8. Chuẩn nội dung và thuật ngữ
+- **iPhone và Web ngang nhau ở mọi màn hình:** Cả hai đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](../../../../../docs/02-yeu-cau/LUONG-UNG-DUNG.md)). Không có bên nào là bản thứ cấp chỉ kiểm tra "không vỡ".
+- Trên Web: áp dụng khuôn K7 — danh sách/chi tiết hai cột, bảng dữ liệu thay thẻ, thanh nút hành động bên phải, sheet thành modal/dialog. Khi bề rộng cửa sổ thu hẹp dưới ngưỡng responsive, giao diện tự động chuyển về bố cục một cột như iPhone.
+
+### 9. Danh sách màn hình
+
+Danh sách màn hình active và màn hình đã bỏ được chuẩn hoá và quản lý tập trung tại:
+- Bảng danh mục màn hình: [`screens/INDEX.md`](../screens/INDEX.md)
+- Màn hình đã nghỉ hưu (retired): [`screens/RETIRED.md`](../screens/RETIRED.md)
+
+## 5. Bố cục / tương tác chuẩn
+
+Xem chi tiết tại mục 4 và từng Screen Contract cụ thể.
+
+## 6. Phần được phép thay đổi
+
+Chỉ dữ liệu/copy/variant được nghiệp vụ và Design System cho phép.
+
+## 7. Mapping với Design System
+
+Xem [`../design-system/design-system-profile.md`](../design-system/design-system-profile.md).
+
+## 8. Chuẩn nội dung và thuật ngữ
 
 - `Assertion` → **Điều kiện xác thực**.
 - `Invariant` → **Điều kiện bắt buộc**.
@@ -114,49 +149,8 @@ Mỗi hành động thay đổi dữ liệu có đúng một Action ID, một BC
 - `Concurrency guard` → **Cơ chế chống xung đột**.
 - `Cardinality relationship` → **Quan hệ số lượng**.
 
-Enum, stable ID và error code kỹ thuật giữ nguyên nhưng chỉ xuất hiện như thông tin hỗ trợ.
+Enum, stable ID và error code kỹ thuật giữ nguyên nhưng chỉ xuất hiện như thông tin hỗ trợ trong tài liệu kỹ thuật hoặc log, không đưa lên UI.
 
-### 9. Trạng thái prototype
+## 9. Screen tham chiếu
 
-Canonical prototype layer nằm tại `../prototype/`. UIF-02 là seed đã có HTML v0.3.2 và static conformance; UIF-01 đã qua local + cumulative contract review và đang chờ HTML. Mỗi UIF có `component-usage/*.md + *.yaml`; pattern dùng chung chỉ được promote sau cumulative review.
-
-Harness chạy incremental theo BJ/UIF và sau mỗi vòng phải rerun regression với toàn bộ UIF đã hoàn thành trước đó.
-
-### 10. Cổng chất lượng UI/UX
-
-1. 17/17 BJ và 70/70 UC có mapping Screen/UIF; canonical flow hiện có 202 transition sau correction UIF-01.
-2. 83/83 Screen có mục đích, state và trace nguồn.
-3. 33/33 UI Action có BC/API chính và không mồ côi.
-4. Không còn Screen Group active hoặc bước bàn giao qua công cụ thiết kế trung gian trong SRS/UI Contract.
-5. Mọi dữ liệu tài chính được che nhất quán theo quyền.
-6. `UNKNOWN`, conflict, lock và permission không tạo hiệu lực cuối cùng giả.
-7. Một UIF chỉ freeze khi Screen Contract + component usage + HTML + local flow + cumulative regression đều pass; pixel parity với Vercel là gate riêng.
-
-### Inventory Valuation Product-flow rule — v3.13.0
-
-- Entry point, cross-BJ handoff, actor orchestration và lý do kiến trúc không mặc định trở thành banner/card trong app. Chỉ hiển thị context khi nó thay đổi quyết định hiện tại.
-- Không materialize mỗi UC/system state thành full screen. Supporting provenance dùng section/sheet; blocker/calculating/publish-review là state khi cùng mental task.
-- **BJ03:** `014 → 015 → 017 → 019`; `016` retired. Quick không phụ thuộc Theme 10; `015` cho phép thêm direct basis bằng Form Sheet.
-- **BJ13:** `085 → 086 → 088 → 089`; `087` retired. Scope + allocation preview cùng một mental task; signed adjustment có thể dương hoặc âm.
-- **BJ14:** `072 → 074 → 077`; `073/075/076` retired. Setup/calculation/blocker/review/publish-confirm là state/section của `074`. Costing method read-only từ tenant policy.
-- Mỗi screen có một primary task; list/read-only không có footer CTA vô nghĩa.
-- Card dùng tiết chế: ưu tiên `List Row`, `Info Row`, `Key-value Row`, grouped section; `Summary Card` chỉ khi có một summary thật sự.
-- Badge chỉ biểu đạt status/label có nghĩa; không dùng badge cho metadata hoặc giải thích.
-- `VBottomSheet` là shell canonical cho Form/Confirmation/Action sheet; handle, radius, safe area và anatomy theo Figma DS live.
-- Disabled dùng `Opacity/Disabled = 0.4`; không tạo disabled color riêng.
-
-## 5. Bố cục / tương tác chuẩn
-
-Xem mục 4 và Screen Contracts.
-
-## 6. Phần được phép thay đổi
-
-Chỉ dữ liệu/copy/variant được nguồn và DS cho phép.
-
-## 7. Mapping với Design System
-
-Xem `../design-system/design-system-profile.md`.
-
-## 8. Screen tham chiếu
-
-Xem `../screens/`.
+Xem [`../screens/INDEX.md`](../screens/INDEX.md).

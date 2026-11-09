@@ -4,176 +4,88 @@ type: design-pattern
 theme: theme-07
 title: "Navigation areas"
 owner: BA
-status: FROZEN
-source_baseline: v3.10.1
+status: IN_REVIEW
+source_baseline: v5.27.0
 ---
 # PAT-NAV — Navigation areas
 
 ## 1. Vấn đề cần giải quyết
 
-Giữ các quy tắc/pattern UI đã được xác lập trong source v3.10.1 cho phạm vi Theme 7.
+Quy định cấu trúc điều hướng, lối vào ứng dụng và kiến trúc thông tin cho phân hệ Kho (Theme 7).
 
 ## 2. Khi nào dùng
 
-Theo phạm vi được mô tả trong nội dung nguồn bên dưới.
+Áp dụng khi thiết kế, triển khai hoặc kiểm thử luồng điều hướng, thanh điều hướng chính, cây màn hình và các điểm vào (entry points) của Kho trên cả thiết bị di động (iPhone) và máy tính (Web).
 
 ## 3. Khi nào không dùng
 
-Không mở rộng ngoài phạm vi nguồn.
+Không áp dụng để thay thế phân rã nghiệp vụ của các Business Journey (BJ) hoặc quy tắc bảo mật RPC.
 
 ## 4. Hành vi bắt buộc
 
-> Baseline **v1.4.3**. NAV area là taxonomy để tổ chức surface; **không đồng nghĩa mọi screen trong area đều là menu/feature entry**. Canonical entry class nằm tại [`entry-architecture.md`](../../06.evidence/design/legacy-contracts/entry-architecture.md).
+### 1. Lối vào Kho
 
-### Product entry rule
+Kho là một phân hệ trong ứng dụng bán hàng và quản lý tổng thể VET45:
+- **Trên iPhone:** Kho nằm trong tab "Thêm" của thanh điều hướng đáy 5 tab (`VET45BottomNavigation`: Trang chủ, Đơn hàng, Sản phẩm, Đối tác, Thêm). Bấm dòng "Kho" trong màn Thêm để mở Home Kho (`SCR-090`).
+- **Trên Web:** Kho là mục con của "Thêm" trên thanh bên trái (Web sidebar). Bấm "Kho" để mở Home Kho (`SCR-090`).
 
-Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`, `CONTEXTUAL_DEEP_LINK`, `ACTOR_HANDOFF_TASK`, `IN_FLOW_SURFACE`, `SYSTEM_RECOVERY` và `RESULT` phải xuất hiện từ đúng parent/task/state; không được tự biến thành menu item vì có Screen ID.
+### 2. Vị trí trên Home Kho (SCR-090)
 
-| Module entry reviewed | Screen | Product meaning |
+Home Kho (`SCR-090`) là hub điều hướng chính, tổ chức theo mức độ ưu tiên và tần suất sử dụng:
+
+| Vị trí | Nghiệp vụ / Màn đích | Cách tới |
 |---|---|---|
-| Tồn kho | `SCR-001` | Tra cứu tồn/khả dụng |
-| Nhận hàng | `SCR-007` | Chứng từ chờ nhận + dòng "Hàng đến chưa có chứng từ" (nhập nhanh); document context có thể deep-link vào goods receipt flow |
-| Hàng chờ xác nhận giá nhập | `SCR-014` (UIF03) | Work queue của Inventory Valuation |
-| Chi phí mua bổ sung | `SCR-085` (UIF13) | Late-cost source work queue |
-| Giá vốn | `SCR-072` (UIF14) | Cost run worklist |
-| Lấy hàng | `SCR-025` | Warehouse pick queue |
-| Hàng khách trả | `SCR-030` | Warehouse return-receipt queue |
-| Trả nhà cung cấp | `SCR-036` (UIF07) | Source-authorized supplier-return queue |
+| 4 nút nhanh | `SCR-007` (Nhận hàng), `SCR-025` (Lấy hàng), `SCR-042` (Kiểm kê), `SCR-001` (Tra cứu tồn) | 1 chạm |
+| Cần chú ý (chỉ khi có việc) | Chờ duyệt (mở `SCR-011` hoặc màn duyệt tương ứng), "Hàng cần xử lý" (`SCR-036`), "Hồ sơ cần kiểm tra" (`SCR-078`) | 1 chạm |
+| Quản lý kho → Tồn kho (`SCR-091`) | `SCR-001` (Tồn kho & khả dụng), `SCR-062` (Chính sách tồn & cận hạn) | Lớp thứ hai |
+| Quản lý kho → Nhập, xuất & hoàn trả (`SCR-092`) | `SCR-007` (Nhận hàng), `SCR-025` (Lấy & bàn giao), `SCR-030` (Hàng khách trả), `SCR-036` (Trả nhà cung cấp) | Lớp thứ hai |
+| Quản lý kho → Kiểm kê & xử lý (`SCR-093`) | `SCR-042` (Kiểm kê kho), `SCR-036` (Hàng cần xử lý), `SCR-048` (Hủy & sửa sai nghiệp vụ), `SCR-078` (Đối soát sai lệch) | Lớp thứ hai |
+| Quản lý kho → Giá trị kho (`SCR-094`) | `SCR-014` (Hàng chờ xác lập giá trị), `SCR-085` (Điều chỉnh giá trị hàng nhập), `SCR-072` (Giá vốn) — chỉ Chủ cửa hàng | Lớp thứ hai |
+| Quản lý kho → Báo cáo & lịch sử (`SCR-095`) | `SCR-055` (Báo cáo tồn & thẻ kho) | Lớp thứ hai |
+| Thiết lập kho (`SCR-096`) | `SCR-066` (Khởi tạo tồn đầu kỳ — chỉ Chủ cửa hàng), `SCR-062` (Chính sách tồn & cận hạn) | Sâu |
 
-`SCR-021` (BJ04) **không** là module entry; chỉ mở từ context đơn bán. `SCR-011`/`SCR-034` là actor-handoff task. `SCR-013` là recovery only.
+### 3. Mỗi BJ bắt đầu ở nơi việc phát sinh
 
-### NAV taxonomy
+Mỗi BJ bắt đầu ở nơi việc phát sinh, menu Kho là đường phụ:
+- `BJ-04`, `BJ-05`, `BJ-06` bắt đầu từ ngữ cảnh Đơn hàng bán.
+- `BJ-07` bắt đầu từ đơn mua hàng / trả hàng.
+- `BJ-03` bắt đầu ngay sau khi nhận hàng xong (`SCR-012`).
+- `BJ-16`, `BJ-17` bắt đầu từ cảnh báo hoặc sai lệch đối soát.
+- `BJ-09`, `BJ-10` bắt đầu từ danh sách hàng hoặc lô có vấn đề.
 
-| ID | Khu vực | Mục đích |
-|---|---|---|
-| `NAV-01` | Tổng quan tồn kho và chỉ báo | Theo dõi tồn, khả dụng, lô/hạn và chỉ báo vận hành. |
-| `NAV-02` | Tác nghiệp kho | Nhận, lấy, hàng khách trả, trả NCC và các in-flow operational surfaces. |
-| `NAV-03` | Kiểm soát và phục hồi | Phê duyệt, sửa sai, đối soát và phục hồi; phần lớn không phải module entry. |
-| `NAV-04` | Giá trị và giá vốn | Xác nhận giá nhập, chi phí mua đến muộn và công bố giá vốn. |
-| `NAV-05` | Báo cáo và truy vết | Tra cứu thẻ kho, biến động, provenance và xuất báo cáo. |
-| `NAV-06` | Thiết lập và khởi tạo | Chính sách tồn/cận hạn và số dư đầu kỳ. |
+Kho không phải là điểm bắt đầu duy nhất của mọi thao tác kho, mà là trung tâm tác nghiệp tại chỗ và rà soát tổng hợp.
 
-### Danh mục theo khu vực
+### 4. Các Workspace quản lý kho (SCR-091…SCR-096)
 
-#### NAV-01 — Tổng quan tồn kho và chỉ báo
-
-**Active full-screen surfaces của BJ-01 v0.3.2**
-
-- [`SCR-001` — Tồn kho](../screens/SCR-001.md)
-- [`SCR-003` — Chi tiết tồn kho](../screens/SCR-003.md)
-
-**Contextual / migration artifacts**
-
-- [`SCR-004` — Chi tiết lô](../screens/SCR-004.md): LOT Detail Bottom Sheet trong `SCR-003`.
-- [`SCR-005` — Nguồn và thời điểm cập nhật](../screens/SCR-005.md): Provenance Bottom Sheet trong `SCR-003`.
-- `SCR-002`, `SCR-060`, `SCR-061`: quan hệ BJ-01 đã merge vào `SCR-001/003`; ID vẫn được giữ cho migration hoặc BJ khác.
-
-#### NAV-02 — Tác nghiệp kho
-
-**Module entry**
-
-- [`SCR-007` — Nhận hàng](../screens/SCR-007.md) — BJ02 (SCR-006 đã gộp vào).
-- [`SCR-025` — Đơn cần lấy hàng](../screens/SCR-025.md) — BJ05.
-- [`SCR-030` — Yêu cầu khách trả](../screens/SCR-030.md) — BJ06 maker queue.
-- [`SCR-036` — Hàng cần xử lý](../screens/SCR-036.md) — UIF07 mode là supplier-return queue.
-
-**Contextual / in-flow**
-
-- BJ02: `SCR-007`, `SCR-008`, `SCR-009`, `SCR-084`, `SCR-010`. `SCR-009` có thể là contextual deep-link khi Purchase document đã biết.
-- BJ04: [`SCR-021` — Giữ hàng theo đơn](../screens/SCR-021.md) là **CONTEXTUAL_ONLY từ đơn bán**, read-only projection.
-- BJ05: `SCR-026`, `SCR-028`.
-- BJ06 maker: `SCR-031`, `SCR-032`, `SCR-033`.
-- BJ07: `SCR-037`, `SCR-039`; `SCR-038` không thuộc active UIF07.
-- Inventory audit/control operational surfaces `SCR-038`, `SCR-040`, `SCR-042`–`SCR-047` giữ context theo UIF tương ứng.
-
-**Actor handoff / result / recovery — không phải menu destination**
-
-- [`SCR-011`](../screens/SCR-011.md) — receiving approver task.
-- [`SCR-034`](../screens/SCR-034.md) — wrong-LOT approver task.
-- `SCR-012`, `SCR-029`, `SCR-035`, `SCR-041`, `SCR-047` — result/finality surfaces.
-- [`SCR-013`](../screens/SCR-013.md) — recovery only, chỉ từ UNKNOWN.
-
-**Retired khỏi active UIF04**
-
-- `SCR-020`, `SCR-022`, `SCR-023`, `SCR-024` chỉ là migration/historical contracts; không được đưa lại vào flow hoặc navigation của BJ04.
-
-#### NAV-03 — Kiểm soát và phục hồi
-
-- [`SCR-048` — Danh sách operation](../screens/SCR-048.md)
-- [`SCR-049` — Chi tiết operation](../screens/SCR-049.md)
-- [`SCR-050` — Nháp và gửi operation](../screens/SCR-050.md)
-- [`SCR-051` — Quyết định phê duyệt](../screens/SCR-051.md)
-- [`SCR-052` — Hủy hoặc sửa sai](../screens/RETIRED.md) — đã gộp vào SCR-050 và SCR-049.
-- [`SCR-053` — Kết quả kiểm soát operation](../screens/SCR-053.md)
-- [`SCR-078` — Hồ sơ cần kiểm tra](../screens/SCR-078.md)
-- [`SCR-079` — Bằng chứng & kết luận](../screens/SCR-079.md)
-- [`SCR-080` — Phương án xử lý](../screens/RETIRED.md) — đã gộp vào sheet xác nhận ở SCR-079.
-- [`SCR-081` — Đang cập nhật số trên app](../screens/SCR-081.md)
-- [`SCR-082` — Rà soát kết quả](../screens/SCR-082.md)
-- [`SCR-083` — Kết quả xử lý](../screens/SCR-083.md)
-
-#### NAV-04 — Giá trị và giá vốn
-
-**BJ03 — Xác nhận giá nhập ban đầu**
-
-- [`SCR-014` — Hàng chờ xác nhận giá nhập](../screens/SCR-014.md) — module entry.
-- [`SCR-015` — Chọn hàng cần xác nhận giá](../screens/SCR-015.md) — contextual/in-flow scope.
-- `SCR-016` — historical/migration identity; cách tính là sheet "Cách tính" trên SCR-015. (xem [`RETIRED.md`](../screens/RETIRED.md))
-- `SCR-017` — đã gộp vào SCR-015: xác nhận cuối là sheet "Ghi giá trị nhập ban đầu?" (xem [`RETIRED.md`](../screens/RETIRED.md)).
-- [`SCR-019` — Kết quả xác nhận giá](../screens/SCR-019.md) — result/finality.
-
-**BJ13 — Chi phí mua bổ sung (v1.4.5 dedicated flow)**
-
-- [`SCR-085` — Chi phí mua bổ sung](../screens/SCR-085.md) — module work queue.
-- [`SCR-086` — Nguồn và phạm vi chi phí](../screens/SCR-086.md) — source task / 1..N receipt-line scope.
-- [`SCR-087` — Phân bổ chi phí](../screens/RETIRED.md) — server preview, in-flow.
-- [`SCR-088` — Rà soát ghi chi phí](../screens/RETIRED.md) — single final commit surface.
-- [`SCR-089` — Kết quả ghi chi phí](../screens/SCR-089.md) — result/finality; dirty scope handoff cho BJ14.
-- `SCR-018` retired khỏi active UIF13; giữ historical/migration trace. (xem [`RETIRED.md`](../screens/RETIRED.md))
-
-**BJ14 — Tính và công bố giá vốn (v1.5.0)**
-
-- [`SCR-072` — Giá vốn](../screens/SCR-072.md) — module worklist.
-- [`SCR-073` — Thiết lập lần tính](../screens/RETIRED.md) — setup/create immutable run.
-- [`SCR-074` — Kết quả lần tính](../screens/SCR-074.md) — CALCULATING/BLOCKED/READY state surface.
-- [`SCR-076` — Rà soát công bố](../screens/RETIRED.md) — final publish review.
-- [`SCR-077` — Kết quả công bố](../screens/SCR-077.md) — result/finality.
-- `SCR-075` retired khỏi active UIF14; giữ historical/migration trace. (xem [`RETIRED.md`](../screens/RETIRED.md))
-
-#### NAV-05 — Báo cáo và truy vết
-
-- [`SCR-055` — Báo cáo nhập – xuất – tồn / Thẻ kho](../screens/SCR-055.md)
-- [`SCR-056` — Chi tiết biến động](../screens/SCR-056.md)
-- [`SCR-059` — Kết quả xuất báo cáo](../screens/SCR-059.md)
-- `SCR-054` / `SCR-057` / `SCR-058` retired khỏi UIF15 (v5.20.0). (xem [`RETIRED.md`](../screens/RETIRED.md))
-
-#### NAV-06 — Thiết lập và khởi tạo
-
-- [`SCR-062` — Ngưỡng tồn](../screens/SCR-062.md)
-- [`SCR-063` — Cận hạn](../screens/SCR-063.md)
-- [`SCR-064` — Rà soát chính sách](../screens/RETIRED.md) — đã thành sheet tác động trong SCR-062.
-- [`SCR-065` — Kết quả cập nhật chính sách](../screens/SCR-065.md)
-- [`SCR-066` — Các batch số dư đầu kỳ](../screens/SCR-066.md)
-- [`SCR-067` — Nạp file và thiết lập cut-off](../screens/SCR-067.md)
-- [`SCR-068` — Kiểm tra dữ liệu](../screens/SCR-068.md)
-- [`SCR-069` — Rà soát và gửi duyệt](../screens/RETIRED.md) — đã gộp vào SCR-068.
-- [`SCR-070` — Xác nhận kích hoạt](../screens/SCR-070.md)
-- [`SCR-071` — Báo cáo kích hoạt](../screens/SCR-071.md)
+Thay thế phân loại NAV-01…06 trước đây bằng 6 workspace chuẩn:
+- [`SCR-091` — Tồn kho](../screens/SCR-091.md): Tra cứu số lượng, khả dụng, lô và chính sách tồn.
+- [`SCR-092` — Nhập, xuất & hoàn trả](../screens/SCR-092.md): Tác nghiệp nhận hàng, lấy hàng giao đơn, hàng khách trả, trả nhà cung cấp.
+- [`SCR-093` — Kiểm kê & xử lý](../screens/SCR-093.md): Đếm kiểm kê, xử lý hàng lỗi/cận hạn, hủy/sửa sai giao dịch và điều tra sai lệch.
+- [`SCR-094` — Giá trị kho](../screens/SCR-094.md): Xác lập giá nhập, điều chỉnh giá trị hàng nhập và kỳ tính giá vốn (dành riêng cho Chủ cửa hàng).
+- [`SCR-095` — Báo cáo & lịch sử](../screens/SCR-095.md): Báo cáo tồn kho theo thời điểm và thẻ kho chi tiết.
+- [`SCR-096` — Thiết lập kho](../screens/SCR-096.md): Khởi tạo số dư tồn kho ban đầu và cấu hình chính sách cảnh báo.
 
 ## 5. Bố cục / tương tác chuẩn
 
-Xem mục 4 và Screen Contracts.
+Xem chi tiết tại từng Screen Contract tương ứng.
 
-**Màn kết quả (K4, `RESULT`) và thanh điều hướng của app** (prototype v5.25.0, G3-5): ở chế độ Toàn Theme 7 trên **iPhone**, màn kết quả hiện thanh 5 tab của app (Trang chủ · Đơn hàng · Sản phẩm · Đối tác · Thêm) để luôn có lối về ngoài các nút ở chân; các màn khác trong luồng không có thanh dưới. Chế độ xem từng BJ và khung **web** giữ như cũ (web luôn có thanh bên).
+**Màn kết quả (K4, `RESULT`) và thanh điều hướng của app:**
+Ở chế độ Toàn Theme 7 trên **iPhone**, màn kết quả hiện thanh 5 tab của app (Trang chủ · Đơn hàng · Sản phẩm · Đối tác · Thêm) để luôn có lối về nhanh ngoài các nút ở chân; các màn đang thao tác trong luồng không hiện thanh dưới để tránh rời luồng dở dang. Khung **Web** luôn có thanh bên trái để chuyển đổi khu vực làm việc.
 
 ## 6. Phần được phép thay đổi
 
-Chỉ dữ liệu/copy/variant được nguồn và DS cho phép.
+Chỉ dữ liệu/copy/variant được nghiệp vụ và Design System cho phép.
 
 ## 7. Mapping với Design System
 
-Xem `../design-system/design-system-profile.md`.
+Xem [`../design-system/design-system-profile.md`](../design-system/design-system-profile.md).
 
 ## 8. Screen tham chiếu
 
-Xem `../screens/`.
+- [`SCR-090` — Kho](../screens/SCR-090.md)
+- [`SCR-091` — Tồn kho](../screens/SCR-091.md)
+- [`SCR-092` — Nhập, xuất & hoàn trả](../screens/SCR-092.md)
+- [`SCR-093` — Kiểm kê & xử lý](../screens/SCR-093.md)
+- [`SCR-094` — Giá trị kho](../screens/SCR-094.md)
+- [`SCR-095` — Báo cáo & lịch sử](../screens/SCR-095.md)
+- [`SCR-096` — Thiết lập kho](../screens/SCR-096.md)
