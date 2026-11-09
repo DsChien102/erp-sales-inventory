@@ -1,8 +1,8 @@
 -- Title: inventory core schema and ledger
 -- Kind: schema
 -- Intent: inventory_core
--- Context: TH-07 / KB-KGV-001..005; PLAN T7-G5-0b
--- Touches: tenant_inventory_settings, ledger_counters, lots, stock_movements, stock_balances, value_movements, approval_cases, _raise, _forbid_ledger_mutation, _lock_tracking_after_movement
+-- Context: TH-07 / KB-KGV-001..005, spec giá vốn; PLAN T7-G5-0b
+-- Touches: ledger_counters, lots, stock_movements, stock_balances, cost_policies, cost_periods, cost_versions, value_movements, product_costs, _raise, _forbid_ledger_mutation, _lock_tracking_after_movement
 -- Safety: one-shot ; low lock impact on new tables
 -- Depends on: 20261104001_inventory_default_pair, 20260709001_catalog_guided_create
 
@@ -22,21 +22,13 @@ $$;
 
 revoke all on function inventory._raise(text, text) from public, anon, authenticated;
 
--- 1. Tenant settings
-create table inventory.tenant_inventory_settings (
-  tenant_id uuid primary key references iam.tenants (id) on delete cascade,
-  activation_status text not null default 'PREPARING' check (activation_status in ('PREPARING', 'ACTIVE')),
-  activated_at timestamptz,
-  activated_by uuid
-);
-
--- 2. Ledger counters (tenant-monotonic counter)
+-- 1. Ledger counters (tenant-monotonic counter)
 create table inventory.ledger_counters (
   tenant_id uuid primary key references iam.tenants (id) on delete cascade,
   last_sequence bigint not null default 0
 );
 
--- 3. Lots
+-- 2. Lots
 create table inventory.lots (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references iam.tenants (id) on delete cascade,
@@ -54,7 +46,7 @@ create table inventory.lots (
   constraint lots_tenant_product_code_key unique (tenant_id, product_id, lot_code_normalized)
 );
 
--- 4. Stock movements (append-only ledger)
+-- 3. Stock movements (append-only ledger)
 create table inventory.stock_movements (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references iam.tenants (id) on delete cascade,
@@ -65,88 +57,128 @@ create table inventory.stock_movements (
   intent_type text not null,
   intent_id uuid not null,
   intent_line_id uuid,
-  movement_kind text not null,
-  from_state text check (from_state is null or from_state in ('SELLABLE', 'QUARANTINE', 'DAMAGED', 'EXPIRED', 'DEMO', 'RETURN_PENDING', 'RTV_PENDING')),
-  to_state text check (to_state is null or to_state in ('SELLABLE', 'QUARANTINE', 'DAMAGED', 'EXPIRED', 'DEMO', 'RETURN_PENDING', 'RTV_PENDING')),
-  valuation_state text not null check (valuation_state in ('PENDING', 'CONFIRMED')),
+  movement_kind text not null check (movement_kind in (
+    'OPENING', 'RECEIPT', 'SALE', 'SALE_REVERSAL',
+    'RETURN_IN', 'COUNT_GAIN', 'COUNT_LOSS', 'WRITE_OFF'
+  )),
+  reason text check (reason is null or reason in ('DAMAGED', 'EXPIRED', 'LOSS', 'COUNT')),
   quantity_delta numeric not null check (quantity_delta <> 0),
   business_date date not null,
   created_at timestamptz not null default now(),
   created_by uuid not null,
-  constraint chk_stock_movements_state_change check (from_state is not null or to_state is not null),
   constraint stock_movements_tenant_sequence_key unique (tenant_id, ledger_sequence)
 );
 
--- 5. Stock balances
+-- 4. Stock balances
 create table inventory.stock_balances (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references iam.tenants (id) on delete cascade,
   warehouse_id uuid not null references inventory.warehouses (id) on delete cascade,
   product_id uuid not null references catalog.products (id) on delete cascade,
-  stock_state text not null check (stock_state in ('SELLABLE', 'QUARANTINE', 'DAMAGED', 'EXPIRED', 'DEMO', 'RETURN_PENDING', 'RTV_PENDING')),
-  valuation_state text not null check (valuation_state in ('PENDING', 'CONFIRMED')),
   lot_key uuid not null,
   physical_quantity numeric not null default 0 check (physical_quantity >= 0),
   last_ledger_sequence bigint not null default 0,
   updated_at timestamptz not null default now(),
-  constraint stock_balances_unique_key unique (tenant_id, warehouse_id, product_id, stock_state, valuation_state, lot_key)
+  constraint stock_balances_unique_key unique (tenant_id, warehouse_id, product_id, lot_key)
 );
 
--- 6. Value movements (append-only ledger)
+-- 5. Cost policies
+create table inventory.cost_policies (
+  tenant_id uuid primary key references iam.tenants (id) on delete cascade,
+  method text not null default 'MOVING' check (method in ('MOVING', 'PERIODIC')),
+  changed_at timestamptz not null default now(),
+  changed_by uuid not null
+);
+
+-- 6. Cost periods
+create table inventory.cost_periods (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references iam.tenants (id) on delete cascade,
+  period_month date not null,
+  status text not null default 'OPEN' check (status in ('OPEN', 'CLOSED')),
+  closed_at timestamptz,
+  closed_by uuid,
+  closing_run_id uuid,
+  constraint cost_periods_tenant_month_key unique (tenant_id, period_month)
+);
+
+-- 7. Cost versions
+create table inventory.cost_versions (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references iam.tenants (id) on delete cascade,
+  product_id uuid not null references catalog.products (id) on delete cascade,
+  unit_cost numeric(18,4) not null check (unit_cost >= 0),
+  method text not null check (method in ('MOVING', 'PERIODIC')),
+  effective_from_sequence bigint not null,
+  cost_run_id uuid,
+  created_at timestamptz not null default now()
+);
+
+-- 8. Value movements (append-only ledger)
 create table inventory.value_movements (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references iam.tenants (id) on delete cascade,
   ledger_sequence bigint not null,
-  warehouse_id uuid not null references inventory.warehouses (id) on delete cascade,
   product_id uuid not null references catalog.products (id) on delete cascade,
-  lot_id uuid references inventory.lots (id) on delete set null,
-  intent_type text not null,
-  intent_id uuid not null,
-  intent_line_id uuid,
-  movement_kind text not null,
-  quantity_basis numeric not null,
+  movement_id uuid references inventory.stock_movements (id) on delete cascade,
+  kind text not null check (kind in (
+    'OPENING', 'RECEIPT', 'SALE', 'SALE_REVERSAL', 'RETURN_IN',
+    'COUNT_GAIN', 'COUNT_LOSS', 'WRITE_OFF',
+    'COGS_TRUE_UP', 'LOSS_TRUE_UP', 'REVALUE_ROUNDING', 'SUPPLIER_REBATE'
+  )),
+  quantity_basis numeric not null default 0,
+  unit_cost numeric(18,4) check (unit_cost is null or unit_cost >= 0),
   amount_vnd bigint not null,
+  cost_version_id uuid references inventory.cost_versions (id) on delete set null,
+  is_provisional boolean not null default false,
+  cost_run_id uuid,
+  supplier_rebate_id uuid,
+  source_movement_id uuid references inventory.stock_movements (id) on delete set null,
   business_date date not null,
   created_at timestamptz not null default now(),
-  created_by uuid not null
+  created_by uuid not null,
+  constraint chk_value_movements_adjust_requires_run check (
+    (kind in ('COGS_TRUE_UP', 'LOSS_TRUE_UP', 'REVALUE_ROUNDING') and movement_id is null and cost_run_id is not null)
+    or (kind = 'SUPPLIER_REBATE' and movement_id is null and supplier_rebate_id is not null)
+    or (kind not in ('COGS_TRUE_UP', 'LOSS_TRUE_UP', 'REVALUE_ROUNDING', 'SUPPLIER_REBATE') and movement_id is not null)
+  ),
+  constraint value_movements_tenant_sequence_key unique (tenant_id, ledger_sequence)
 );
 
--- 7. Approval cases
-create table inventory.approval_cases (
-  id uuid primary key default gen_random_uuid(),
+-- 9. Product costs (moving average cost & ledger valuation per tenant + product)
+create table inventory.product_costs (
   tenant_id uuid not null references iam.tenants (id) on delete cascade,
-  subject_type text not null,
-  subject_id uuid not null,
-  snapshot jsonb not null,
-  requester_id uuid not null,
-  submitted_at timestamptz not null default now(),
-  status text not null check (status in ('PENDING', 'APPROVED', 'REJECTED', 'SUPERSEDED')),
-  decided_by uuid,
-  decided_at timestamptz,
-  decision_reason text,
-  version int not null default 1
+  product_id uuid not null references catalog.products (id) on delete cascade,
+  quantity_on_hand numeric not null default 0 check (quantity_on_hand >= 0),
+  ledger_value_vnd bigint not null default 0,
+  moving_avg_cost numeric(18,4) not null default 0 check (moving_avg_cost >= 0),
+  official_version_id uuid references inventory.cost_versions (id) on delete set null,
+  official_unit_cost numeric(18,4) check (official_unit_cost is null or official_unit_cost >= 0),
+  last_ledger_sequence bigint not null default 0,
+  updated_at timestamptz not null default now(),
+  primary key (tenant_id, product_id)
 );
-
-create unique index approval_cases_tenant_subject_pending_key
-  on inventory.approval_cases (tenant_id, subject_type, subject_id)
-  where status = 'PENDING';
 
 -- RLS & Revoke
-alter table inventory.tenant_inventory_settings enable row level security;
 alter table inventory.ledger_counters enable row level security;
 alter table inventory.lots enable row level security;
 alter table inventory.stock_movements enable row level security;
 alter table inventory.stock_balances enable row level security;
+alter table inventory.cost_policies enable row level security;
+alter table inventory.cost_periods enable row level security;
+alter table inventory.cost_versions enable row level security;
 alter table inventory.value_movements enable row level security;
-alter table inventory.approval_cases enable row level security;
+alter table inventory.product_costs enable row level security;
 
-revoke all on inventory.tenant_inventory_settings from public, anon, authenticated;
 revoke all on inventory.ledger_counters from public, anon, authenticated;
 revoke all on inventory.lots from public, anon, authenticated;
 revoke all on inventory.stock_movements from public, anon, authenticated;
 revoke all on inventory.stock_balances from public, anon, authenticated;
+revoke all on inventory.cost_policies from public, anon, authenticated;
+revoke all on inventory.cost_periods from public, anon, authenticated;
+revoke all on inventory.cost_versions from public, anon, authenticated;
 revoke all on inventory.value_movements from public, anon, authenticated;
-revoke all on inventory.approval_cases from public, anon, authenticated;
+revoke all on inventory.product_costs from public, anon, authenticated;
 
 -- Triggers for append-only ledger
 create or replace function inventory._forbid_ledger_mutation()
@@ -167,6 +199,10 @@ create trigger trg_stock_movements_forbid_mutation
 
 create trigger trg_value_movements_forbid_mutation
   before update or delete on inventory.value_movements
+  for each row execute function inventory._forbid_ledger_mutation();
+
+create trigger trg_cost_versions_forbid_mutation
+  before update or delete on inventory.cost_versions
   for each row execute function inventory._forbid_ledger_mutation();
 
 -- Trigger on catalog.products to lock tracking mode changes after movement

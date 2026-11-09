@@ -8,8 +8,8 @@ declare
   v_warehouse_id uuid := gen_random_uuid();
   v_product_id uuid := gen_random_uuid();
   v_movement_id uuid;
+  v_val_id uuid;
   v_caught boolean;
-  v_err_code text;
 begin
   -- Setup dummy tenant and warehouse
   insert into iam.tenants (id, name, slug)
@@ -25,11 +25,11 @@ begin
   insert into inventory.stock_movements (
     tenant_id, ledger_sequence, warehouse_id, product_id,
     intent_type, intent_id, movement_kind,
-    to_state, valuation_state, quantity_delta, business_date, created_by
+    quantity_delta, business_date, created_by
   ) values (
     v_tenant_id, 1, v_warehouse_id, v_product_id,
-    'RECEIPT', gen_random_uuid(), 'INITIAL',
-    'SELLABLE', 'CONFIRMED', 10, current_date, v_user_id
+    'RECEIPT', gen_random_uuid(), 'RECEIPT',
+    10, current_date, v_user_id
   ) returning id into v_movement_id;
 
   v_caught := false;
@@ -82,6 +82,67 @@ begin
   exception when others then
     raise exception 'FAIL: tracking_change_without_movement_ok';
   end;
+
+  -- 5. Test case: value_ledger_update_blocked
+  insert into inventory.value_movements (
+    tenant_id, ledger_sequence, product_id, movement_id,
+    kind, quantity_basis, unit_cost, amount_vnd,
+    business_date, created_by
+  ) values (
+    v_tenant_id, 2, v_product_id, v_movement_id,
+    'RECEIPT', 10, 10000, 100000,
+    current_date, v_user_id
+  ) returning id into v_val_id;
+
+  v_caught := false;
+  begin
+    update inventory.value_movements
+    set amount_vnd = 200000
+    where id = v_val_id;
+  exception when others then
+    v_caught := true;
+  end;
+  if not v_caught then
+    raise exception 'FAIL: value_ledger_update_blocked';
+  end if;
+
+  -- 6. Test case: adjust_row_requires_run
+  v_caught := false;
+  begin
+    insert into inventory.value_movements (
+      tenant_id, ledger_sequence, product_id,
+      kind, quantity_basis, amount_vnd,
+      business_date, created_by
+    ) values (
+      v_tenant_id, 3, v_product_id,
+      'COGS_TRUE_UP', 0, 5000,
+      current_date, v_user_id
+    );
+  exception when check_violation then
+    v_caught := true;
+  end;
+  if not v_caught then
+    raise exception 'FAIL: adjust_row_requires_run';
+  end if;
+
+  -- 7. Test case: rebate_row_requires_rebate_id
+  v_caught := false;
+  begin
+    insert into inventory.value_movements (
+      tenant_id, ledger_sequence, product_id,
+      kind, quantity_basis, amount_vnd,
+      business_date, created_by
+    ) values (
+      v_tenant_id, 4, v_product_id,
+      'SUPPLIER_REBATE', 0, -2000,
+      current_date, v_user_id
+    );
+  exception when check_violation then
+    v_caught := true;
+  end;
+  if not v_caught then
+    raise exception 'FAIL: rebate_row_requires_rebate_id';
+  end if;
 
   -- Rollback all test data
   raise exception 'ROLLBACK_TEST_SUCCESS';

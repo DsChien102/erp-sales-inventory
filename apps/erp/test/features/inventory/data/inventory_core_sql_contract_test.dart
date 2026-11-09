@@ -65,17 +65,27 @@ void main() {
       expect(migration.existsSync(), isTrue);
       final sql = migration.readAsStringSync();
       final expectedTables = [
-        'tenant_inventory_settings',
         'ledger_counters',
         'lots',
         'stock_movements',
         'stock_balances',
         'value_movements',
-        'approval_cases',
+        'product_costs',
+        'cost_policies',
+        'cost_periods',
+        'cost_versions',
       ];
       for (final table in expectedTables) {
         expect(sql, contains('create table inventory.$table'));
       }
+      expect(
+        sql,
+        isNot(contains('create table inventory.tenant_inventory_settings')),
+      );
+      expect(
+        sql,
+        isNot(contains('create table inventory.approval_cases')),
+      );
     });
 
     test('rls_and_revoke_for_every_table', () {
@@ -86,13 +96,15 @@ void main() {
       expect(migration.existsSync(), isTrue);
       final sql = migration.readAsStringSync();
       final expectedTables = [
-        'tenant_inventory_settings',
         'ledger_counters',
         'lots',
         'stock_movements',
         'stock_balances',
         'value_movements',
-        'approval_cases',
+        'product_costs',
+        'cost_policies',
+        'cost_periods',
+        'cost_versions',
       ];
       for (final table in expectedTables) {
         expect(
@@ -108,24 +120,47 @@ void main() {
       }
     });
 
-    test('stock_state_values', () {
+    test('no_state_columns', () {
       final repoRoot = _findRepoRoot();
       final migration = File(
         '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
       );
       expect(migration.existsSync(), isTrue);
       final sql = migration.readAsStringSync();
-      final expectedStates = [
-        'SELLABLE',
-        'QUARANTINE',
+      expect(sql, isNot(contains('stock_state')));
+      expect(sql, isNot(contains('from_state')));
+      expect(sql, isNot(contains('to_state')));
+      expect(sql, isNot(contains('valuation_state')));
+    });
+
+    test('movement_kind_and_reason_values', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final expectedKinds = [
+        'OPENING',
+        'RECEIPT',
+        'SALE',
+        'SALE_REVERSAL',
+        'RETURN_IN',
+        'COUNT_GAIN',
+        'COUNT_LOSS',
+        'WRITE_OFF',
+      ];
+      for (final kind in expectedKinds) {
+        expect(sql, contains("'$kind'"));
+      }
+      final expectedReasons = [
         'DAMAGED',
         'EXPIRED',
-        'DEMO',
-        'RETURN_PENDING',
-        'RTV_PENDING',
+        'LOSS',
+        'COUNT',
       ];
-      for (final state in expectedStates) {
-        expect(sql, contains("'$state'"));
+      for (final reason in expectedReasons) {
+        expect(sql, contains("'$reason'"));
       }
     });
 
@@ -139,10 +174,71 @@ void main() {
       expect(
         sql,
         contains(
-          'unique (tenant_id, warehouse_id, product_id, stock_state, valuation_state, lot_key)',
+          'unique (tenant_id, warehouse_id, product_id, lot_key)',
         ),
       );
       expect(sql, contains('physical_quantity >= 0'));
+    });
+
+    test('value_movements_shape', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final valueKinds = [
+        'OPENING',
+        'RECEIPT',
+        'SALE',
+        'SALE_REVERSAL',
+        'RETURN_IN',
+        'COUNT_GAIN',
+        'COUNT_LOSS',
+        'WRITE_OFF',
+        'COGS_TRUE_UP',
+        'LOSS_TRUE_UP',
+        'REVALUE_ROUNDING',
+        'SUPPLIER_REBATE',
+      ];
+      for (final kind in valueKinds) {
+        expect(sql, contains("'$kind'"));
+      }
+      expect(sql, contains('amount_vnd bigint not null'));
+      expect(sql, contains('unit_cost numeric(18,4)'));
+      expect(
+        sql,
+        contains('movement_id is null and cost_run_id is not null'),
+      );
+      expect(
+        sql,
+        contains('movement_id is null and supplier_rebate_id is not null'),
+      );
+    });
+
+    test('product_costs_shape', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      expect(sql, contains('primary key (tenant_id, product_id)'));
+      expect(sql, contains('ledger_value_vnd bigint'));
+      expect(sql, contains('moving_avg_cost numeric(18,4)'));
+      expect(sql, contains('quantity_on_hand >= 0'));
+    });
+
+    test('cost_tables_shape', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      expect(sql, contains("method in ('MOVING', 'PERIODIC')"));
+      expect(sql, contains("status in ('OPEN', 'CLOSED')"));
+      expect(sql, contains('unique (tenant_id, period_month)'));
     });
 
     test('ledger_append_only_trigger', () {
@@ -154,6 +250,7 @@ void main() {
       final sql = migration.readAsStringSync();
       expect(sql, contains('before update or delete on inventory.stock_movements'));
       expect(sql, contains('before update or delete on inventory.value_movements'));
+      expect(sql, contains('before update or delete on inventory.cost_versions'));
       expect(sql, contains('_forbid_ledger_mutation'));
     });
 
@@ -171,16 +268,6 @@ void main() {
         ),
       );
       expect(sql, contains('_lock_tracking_after_movement'));
-    });
-
-    test('pending_case_unique', () {
-      final repoRoot = _findRepoRoot();
-      final migration = File(
-        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
-      );
-      expect(migration.existsSync(), isTrue);
-      final sql = migration.readAsStringSync();
-      expect(sql, contains("where status = 'PENDING'"));
     });
   });
 }
