@@ -22,6 +22,14 @@ const bj01Products = [
   ]},
   { id:"INV-OXY", name:"Oxytetracycline LA", code:"SP-000147", barcode:"8938500007144", stockUom:"chai", tracking:"NONE", physical:12, eligible:11, reserved:4, available:7, threshold:null, target:null, monitoringConfigStatus:"NOT_CONFIGURED", eligibilityBreakdown:[{reason:"Cách ly",quantity:1}], latestPhysicalMovement:{label:"Nhận hàng",source:"PN-260824-05",delta:31}, reservationSummary:{quantity:4,source:"SO-260827-03"}, lots:[] },
 ];
+// v5.28.0 rút gọn: không còn giữ hàng (BJ-04), tình trạng cách ly / hỏng (BJ-09), mức tồn mục tiêu (CAP-01).
+// Khả dụng = tồn của các lô còn hạn; lô hết hạn chờ điều chỉnh giảm qua Kiểm kê.
+bj01Products.forEach((p) => {
+  (p.lots || []).forEach((l) => { if (l.stockState !== "EXPIRED") { l.eligible = l.physical; l.stockState = "SELLABLE"; } });
+  const expired = (p.lots || []).filter((l) => l.stockState === "EXPIRED").reduce((n, l) => n + l.physical, 0);
+  p.eligible = p.physical - expired; p.reserved = 0; p.available = p.eligible; p.target = null;
+  p.eligibilityBreakdown = expired ? [{ reason: "Hết hạn", quantity: expired }] : [];
+});
 let bj01Filter = "ALL";
 let bj01Query = "";
 let bj01SelectedProductId = "INV-NOB";
@@ -44,7 +52,7 @@ function bj01Indicators(p) {
   if((p.lots||[]).some((l)=>l.expiryIndicator==="EXPIRED")) out.push({key:"EXPIRED",label:"Có lô hết hạn",scope:"LOT"});
   if(configured && p.available>0 && p.threshold!=null && p.available<=p.threshold) out.push({key:"LOW",label:"Tồn thấp",scope:"PRODUCT"});
   if((p.lots||[]).some((l)=>l.expiryIndicator==="NEAR_EXPIRY")) out.push({key:"NEAR",label:"Có lô cận hạn",scope:"LOT"});
-  if(!configured) out.push({key:"NOT_CONFIGURED",label:"Chưa có ngưỡng tồn",scope:"MONITORING"});
+  if(!configured) out.push({key:"NOT_CONFIGURED",label:"Chưa đặt tồn tối thiểu",scope:"MONITORING"});
   return out;
 }
 function bj01MatchesFilter(p) { return bj01Filter==="ALL" || bj01Indicators(p).some((x)=>x.key===bj01Filter); }
@@ -118,8 +126,9 @@ function bj01StockHero(p) {
   const reasons=(p.eligibilityBreakdown||[]).filter((x)=>Number(x.quantity)>0).map((x)=>`${x.reason} ${x.quantity} ${p.stockUom}`);
   const stat=(label,value)=>`<div><dt>${esc(label)}</dt><dd>${esc(value)} ${unit}</dd></div>`;
   // Ngưỡng của sản phẩm đã cấu hình: một dòng cuối thẻ + "Sửa ngưỡng" (CAP-01); nhân viên chỉ thấy số.
-  const policy=p.monitoringConfigStatus!=="NOT_CONFIGURED"&&p.threshold!=null?`<div class="bj01-stock-hero__policy"><span>Ngưỡng ${esc(p.threshold)} · Mục tiêu ${esc(p.target)} ${unit}</span>${bj01CanSetThreshold()?`<button class="cap-link-button" data-bj01-set-threshold type="button">Sửa ngưỡng</button>`:""}</div>`:"";
-  return `<section class="bj01-stock-hero" data-composed-from="VCard,DS v2 / Key-value Row"><div class="bj01-stock-hero__main"><span>Khả dụng</span><strong>${esc(p.available)} ${unit}</strong>${badge}</div><dl class="bj01-stock-hero__stats">${stat("Tồn vật lý",p.physical)}${stat("Đủ điều kiện bán",p.eligible)}${stat("Đã giữ",p.reserved)}</dl>${reasons.length?`<p class="bj01-stock-hero__note">Không đủ điều kiện bán: ${esc(reasons.join(" · "))}</p>`:""}${policy}</section>`;
+  // v5.28.0: chỉ còn "Tồn tối thiểu" của sản phẩm (sửa ở hồ sơ sản phẩm Theme 2; CAP-01 đã bỏ).
+  const policy=p.monitoringConfigStatus!=="NOT_CONFIGURED"&&p.threshold!=null?`<div class="bj01-stock-hero__policy"><span>Tồn tối thiểu ${esc(p.threshold)} ${unit}</span></div>`:"";
+  return `<section class="bj01-stock-hero" data-composed-from="VCard,DS v2 / Key-value Row"><div class="bj01-stock-hero__main"><span>Khả dụng</span><strong>${esc(p.available)} ${unit}</strong>${badge}</div><dl class="bj01-stock-hero__stats">${stat("Tồn vật lý",p.physical)}</dl>${reasons.length?`<p class="bj01-stock-hero__note">Không đủ điều kiện bán: ${esc(reasons.join(" · "))}</p>`:""}${policy}</section>`;
 }
 function bj01LotQuantityRows(lot,p) {
   const unit=esc(p.stockUom);
@@ -132,15 +141,15 @@ function bj01Attention(p) {
   let html="";
   if(item) {
     const desc=item.key==="OUT"
-      ? `Khả dụng 0 ${unit}${p.threshold!=null?` · Ngưỡng ${p.threshold} ${unit}.`:'.'}`
-      : `Khả dụng ${p.available} ${unit}${p.threshold!=null?` · Ngưỡng ${p.threshold} ${unit}.`:'.'}`;
+      ? `Khả dụng 0 ${unit}${p.threshold!=null?` · Tồn tối thiểu ${p.threshold} ${unit}.`:'.'}`
+      : `Khả dụng ${p.available} ${unit}${p.threshold!=null?` · Tồn tối thiểu ${p.threshold} ${unit}.`:'.'}`;
     const hint=p.target!=null&&p.target>p.available?`<p class="bj01-attention__hint">Gợi ý nhập thêm ${p.target-p.available} ${unit} (mục tiêu ${p.target} ${unit})</p>`:"";
     html+=`<div class="bj01-attention">${vBanner(item.key==="OUT"?"error":"warning",item.label,desc)}${hint}<button class="ds24-button ds24-button--secondary" data-bj01-receive type="button" data-ds-component="VButton" data-figma-node="521:529">Nhận hàng</button></div>`;
   }
   const expired=(p.lots||[]).filter((l)=>l.expiryIndicator==="EXPIRED");
   if(expired.length) {
     const qty=expired.reduce((sum,l)=>sum+Number(l.physical||0),0);
-    html+=`<div class="bj01-attention">${vBanner("error","Có lô hết hạn",`Lô ${esc(expired.map((l)=>l.code).join(" · "))} · ${qty} ${unit} không đủ điều kiện bán.`)}<button class="ds24-button ds24-button--secondary" data-bj01-dispose-lot="${escapeAttribute(expired[0].code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Xử lý lô hết hạn</button></div>`;
+    html+=`<div class="bj01-attention">${vBanner("error","Có lô hết hạn",`Lô ${esc(expired.map((l)=>l.code).join(" · "))} · ${qty} ${unit} không đủ điều kiện bán.`)}<button class="ds24-button ds24-button--secondary" data-bj01-dispose-lot="${escapeAttribute(expired[0].code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Điều chỉnh lô hết hạn</button></div>`;
   }
   return html;
 }
@@ -157,8 +166,8 @@ function bj01LotSheet(p) {
   else if(lot.expiryIndicator==='NEAR_EXPIRY'&&lot.nearExpiryAction==='BLOCK_SALE') status=vBanner('warning','Cận hạn · Đã chặn bán','Lượng của lô này không tính vào khả dụng theo chính sách hiện tại.');
   else if(lot.expiryIndicator==='NEAR_EXPIRY') status=vBanner('warning','Cận hạn',`${lot.daysToExpiry!=null?`Còn ${lot.daysToExpiry} ngày · `:''}vẫn đủ điều kiện bán theo chính sách hiện tại.`);
   const t7 = bj01T7Lot(p, lot.code);
-  const dispose=lot.expiryIndicator==='EXPIRED'?`<button class="ds24-button ds24-button--secondary" data-bj01-dispose-lot="${escapeAttribute(lot.code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Xử lý lô hết hạn</button>`
-    :t7&&t7.state==='SELLABLE'?`<button class="ds24-button ds24-button--secondary" data-bj01-change-state="${escapeAttribute(lot.code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Đổi tình trạng</button>`:'';
+  const dispose=lot.expiryIndicator==='EXPIRED'?`<button class="ds24-button ds24-button--secondary" data-bj01-dispose-lot="${escapeAttribute(lot.code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Điều chỉnh lô hết hạn</button>`
+    :''; // v5.28.0: bỏ "Đổi tình trạng" (BJ-09)
   return ds24Sheet({title:`Lô ${lot.code}`,attrs:'data-bj01-close-lot',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · HSD ${esc(lot.expiryDisplay)}</p>${bj01LotQuantityRows(lot,p)}${status}${dispose}`});
 }
 // Biến động vật lý gần nhất đọc từ sổ kho (BJ-15); chưa nạp sổ thì dùng số liệu mẫu của sản phẩm.
@@ -182,7 +191,7 @@ function bj01Stale(withDate) {
 // Chi tiết một sản phẩm (cột phải của SCR-001 trên web, thân của SCR-003): trái thẻ số + ngưỡng, phải lô + nguồn.
 // iPhone: các lớp bọc là display:contents nên thứ tự và khoảng cách như cũ.
 function bj01DetailBody(p) {
-  const configNote=p.monitoringConfigStatus==='NOT_CONFIGURED'?`<p class="ds24-context bj01-config-note" data-ds-component="VText">Chưa cấu hình ngưỡng tồn; chưa thể xác định trạng thái tồn thấp/bình thường.</p>${bj01CanSetThreshold()?`<button class="ds24-button ds24-button--secondary" data-bj01-set-threshold type="button" data-ds-component="VButton" data-figma-node="521:529">Đặt ngưỡng tồn</button>`:""}`:"";
+  const configNote=p.monitoringConfigStatus==='NOT_CONFIGURED'?`<p class="ds24-context bj01-config-note" data-ds-component="VText">Chưa đặt tồn tối thiểu (ở hồ sơ sản phẩm); chưa xác định được tồn thấp.</p>`:'';
   let more="";
   if(p.tracking==='LOT') {
     const sorted=[...p.lots].sort((x,y)=>bj01ExpirySortKey(x)-bj01ExpirySortKey(y));
@@ -283,18 +292,15 @@ document.addEventListener("click", (event) => {
       // Mở Nhận hàng với ô tìm điền sẵn tên sản phẩm: chứng từ đang chờ có sản phẩm này hiện ra trước, nhập nhanh ở cuối danh sách.
       const product = bj01ProductById(bj01SelectedProductId);
       bj01LotOpen=false; bj01ProvenanceOpen=false;
-      activeFlowId="UIF-02"; flowMode="document"; resetBj02Receipt("document"); bj02ResetFlowStates();
-      documentSearchQuery=product.name;
-      activeScreenId="SCR-007"; stateByScreen["SCR-007"]="READY";
+      activeFlowId="UIF-02"; flowMode="quick"; resetBj02Receipt("quick"); bj02ResetFlowStates();
+      activeScreenId="SCR-008"; stateByScreen["SCR-008"]="READY";
       syncReviewUrl(); return render();
     }
     const dispose = event.target.closest("[data-bj01-dispose-lot]");
     if (dispose) {
       bj01LotOpen=false; bj01ProvenanceOpen=false;
-      const t7 = bj01T7Lot(bj01ProductById(bj01SelectedProductId), dispose.dataset.bj01DisposeLot);
-      if (t7) return k5ShowLot(t7.id, "SCR-037");
-      activeFlowId="UIF-09"; activeScreenId="SCR-036"; stateByScreen["SCR-036"]="READY";
-      syncReviewUrl(); return render();
+      // v5.28.0: lô hết hạn được điều chỉnh giảm qua Kiểm kê (lý do "Hết hạn"), không còn luồng Tiêu hủy.
+      return crSwitchFlow("UIF-08", "SCR-043", "READY");
     }
     const change = event.target.closest("[data-bj01-change-state]");
     if (change) {

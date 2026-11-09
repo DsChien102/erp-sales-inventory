@@ -1,4 +1,5 @@
 /* BJ-02 — Nhận hàng mua (UIF-02). Màn: SCR-007 (gồm lối nhập nhanh; SCR-006 đã gộp vào), 008, 009, 084, 010, 011, 012, 013.
+ * v5.28.0 rút gọn (PLAN.md Theme 7 → G5-3): chỉ còn phiếu nhận theo NCC (chế độ quick), NCC bắt buộc + số chứng từ NCC, giá mua (gồm VAT) trên từng dòng, một ô "Số lượng nhận", ghi nhận thẳng. Bỏ: nhận theo chứng từ mua (PO), chứng từ giao nhận + xác nhận sở hữu, Cách ly / Hỏng / Từ chối, duyệt (SCR-011 chỉ còn RECORDED), đối soát SCR-013, kết quả chưa xác định.
  *
  * Thiết kế lại (T7-P BJ-02, v5.8.0): nhân viên lập trên iPhone, chủ cửa hàng duyệt trên web (K2). Cửa hàng chỉ có một chủ; chủ lập phiếu
  * cũng phải gửi duyệt rồi tự vào SCR-011 duyệt một lần nữa (như phiếu của thủ kho) — không có đường ghi nhận thẳng.
@@ -185,9 +186,7 @@ function bj02EvidenceRefs() {
   if(refs.length) return refs;
   return bj02Header.evidence ? [{id:'EV-LEGACY-1',name:bj02Header.evidence,type:'DELIVERY_DOCUMENT'}] : [];
 }
-function bj02OwnershipReady() {
- return Boolean(bj02Header.ownershipAssertion?.status==='ASSERTED');
-}
+function bj02OwnershipReady() { return true; } // v5.28.0: bỏ chứng từ giao nhận + xác nhận sở hữu
 function bj02MakeOwnershipAssertion() {
   bj02Header.ownershipAssertion={
     status:'ASSERTED',
@@ -349,10 +348,7 @@ function documentLineAllowanceBase(line) {
   return bj02SourceRemaining(line)*ratio;
 }
 function bj02LineOver(line) { return flowMode==='document' && lineAcceptedBase(line)>documentLineAllowanceBase(line); }
-function bj02RequiresApproval() {
-  if(flowMode==='quick') return true;
-  return bj02Lines.some(bj02LineOver);
-}
+function bj02RequiresApproval() { return false; } // v5.28.0: không còn duyệt (K2)
 function receiptRiskValue() {
   return bj02Lines.reduce((sum,line)=>{
     const basis=line.priceBasisSnapshot || productById(line.productId)?.priceBasisSnapshot;
@@ -370,6 +366,8 @@ function bj02ReviewIssue(line) {
   if(flowMode==='document'&&line.remainingReceivableQty!=null&&t.physicalIncrease<bj02SourceRemaining(line)) return {label:'Nhận một phần',tone:'info'};
   return null;
 }
+function bj02LineValue(line) { return lineTotals(line).accepted * (Number(line?.unitPrice) || 0); }
+function bj02ReceiptValue() { return bj02Lines.reduce((n, line) => n + bj02LineValue(line), 0); }
 function bj02ReviewProductCount() {
   return new Set(bj02Lines.map((line) => line.productId)).size;
 }
@@ -377,11 +375,16 @@ function bj02ReviewProductCount() {
 /* ---------- Fixture xem trước ---------- */
 
 function bj02SeedDocumentLines(forceApproval=false){
-  flowMode="document"; selectedDocumentId="PN-260816-04";
-  if(!bj02Lines.length) bj02Lines=createDocumentReceiptLines(selectedDocumentId);
+  // v5.28.0: fixture là một phiếu nhận theo NCC (không còn chứng từ mua).
+  flowMode="quick";
+  if(!bj02Header.supplierId){ bj02Header={...bj02Header,supplierId:"SUP-MINH-DUNG",supplier:"Minh Dũng",supplierDocNo:"HĐ 0001523"}; }
+  if(!bj02Lines.length) bj02Lines=[
+    hydrateReceiptLine({id:"QUICK-S1",productId:"P-NOB-DHPP",uomId:"UOM-BOX",uom:"hộp",trackingPolicy:"LOT",expiryRequired:true,remainingReceivableQty:20,unitPrice:118000,lots:[]}),
+    hydrateReceiptLine({id:"QUICK-S2",productId:"P-OXY-LA",uomId:"UOM-BOTTLE",uom:"chai",trackingPolicy:"NONE",expiryRequired:false,remainingReceivableQty:24,unitPrice:95000,lots:[]}),
+  ];
   bj02Lines.forEach((line,idx)=>{
     const expected=Math.max(1,Number(line.remainingReceivableQty)||1);
-    const received=expected+((forceApproval&&idx===0)?1:0);
+    const received=expected; line.remainingReceivableQty=null;
     line.status="COMPLETED";
     line.accepted=received; line.quarantine=0; line.damaged=0; line.rejected=0; line.totalReceived=received;
     if(line.trackingPolicy==="LOT"){
@@ -448,7 +451,7 @@ function bj02ReceiptDate() { return formatIsoDate(bj02Header.businessDate||BJ02_
 // Một dòng ngữ cảnh lần nhận (009, 010): "PN-260816-04 · Minh Dũng" / "Nhập nhanh · {NCC}" + kho, ngày; edit = { label, attr } cho liên kết bên phải.
 function bj02ContextRow(edit = null) {
   const quick = flowMode === "quick";
-  const title = quick ? `Nhập nhanh · ${currentReceiptSupplier() || "—"}` : `${selectedDocumentId} · ${currentReceiptSupplier()}`;
+  const title = `${currentReceiptSupplier() || "Chưa chọn nhà cung cấp"}${bj02Header.supplierDocNo ? ` · ${bj02Header.supplierDocNo}` : ""}`;
   const trailing = edit ? `<button class="inline-edit bj02-context-edit" type="button" ${edit.attr} data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.link">${esc(edit.label)}</button>` : "";
   return ds24ListRow({ title, subtitle: `${BJ02_CONTEXT.warehouse.name} · nhận ${bj02ReceiptDate()}`, trailing, leading: "warehouse", type: "Status", density: "Compact", interactive: false, extraClass: "bj02-context-row" });
 }
@@ -472,7 +475,7 @@ function bj02LineQuantity(line) {
 }
 function bj02LineSubtitle(line) {
   if (flowMode === "document" && line.remainingReceivableQty != null && !lineHandled(line)) return `Còn chờ nhận ${line.remainingReceivableQty} ${line.uom}`;
-  return [line.sku || line.productId, line.uom].filter(Boolean).join(" · ");
+  return [line.sku || line.productId, line.unitPrice ? `${cfMoney(line.unitPrice)}/${line.uom}` : line.uom].filter(Boolean).join(" · ");
 }
 function bj02LineRow(line, attrs) {
   return ds24StockRow({ title: line.name, subtitle: bj02LineSubtitle(line), quantity: bj02LineQuantity(line), badge: bj02IssueBadge(line), attrs });
@@ -499,15 +502,15 @@ function bj02ReviewDetailSheet() {
   if (!line) return "";
   const t = lineTotals(line);
   const quantityRows = [
-    ["Đạt", t.accepted], ["Cách ly", t.quarantine], ["Hỏng", t.damaged], ["Từ chối", t.rejected],
-  ].filter(([, value]) => Number(value) > 0).map(([label, value]) => bj02InfoRow(label, `${value} ${line.uom}`)).join("");
+    ["Số lượng nhận", `${t.accepted} ${line.uom}`], ["Giá mua", line.unitPrice ? `${cfMoney(line.unitPrice)}/${line.uom}` : "—"], ["Thành tiền", cfMoney(bj02LineValue(line))],
+  ].map(([label, value]) => bj02InfoRow(label, value)).join("");
   const lotRows = line.trackingPolicy === "LOT" ? (line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0).map((lot) => {
     const lt = lotDraftTotals(lot);
     return `<div class="bj02-review-lot-group"><div class="bj02-review-lot-title"><strong>Lô ${escapeAttribute(lot.code || "—")}</strong>${lot.expiry ? `<span>HSD ${escapeAttribute(lot.expiry)}</span>` : ""}</div>${bj02InfoRow("Số lượng", `${lt.totalReceived} ${line.uom}`)}</div>`;
   }).join("") : "";
   const issue = bj02ReviewIssue(line);
   const issueBanner = issue ? vBanner(issue.tone === "error" ? "error" : issue.tone, issue.label, "Kiểm tra lại dòng hàng này trước khi xác nhận hồ sơ.", "", "Compact") : "";
-  return `<div class="sheet-backdrop bj02-review-detail-backdrop" data-bj02-review-close><section class="bj02-review-detail-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" data-ds-prop-show-title="true" role="dialog" aria-modal="true" aria-label="Chi tiết ${escapeAttribute(line.name)}" onclick="event.stopPropagation()"><div class="bj02-review-sheet-handle"></div><h2>${escapeAttribute(line.name)}</h2><p class="bj02-review-sheet-context">${escapeAttribute(line.sku || line.productId)} · ${escapeAttribute(line.uom)}</p>${issueBanner}<section class="bj02-review-detail-section" data-ds-component="VSection"><div class="bj02-review-detail-heading"><strong>Phân loại số lượng</strong><span>${t.totalReceived} ${line.uom}</span></div><div class="bj02-review-detail-rows">${quantityRows || bj02InfoRow("Tổng kiểm nhận", `${t.totalReceived} ${line.uom}`)}</div></section>${lotRows ? `<section class="bj02-review-detail-section" data-ds-component="VSection"><div class="bj02-review-detail-heading"><strong>Lô và hạn dùng</strong><span>${(line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0).length} lô</span></div><div class="bj02-review-lot-list">${lotRows}</div></section>` : ""}<button class="button button--secondary button--full bj02-review-close-button" data-bj02-review-close type="button" data-ds-component="VButton">Đóng</button></section></div>`;
+  return `<div class="sheet-backdrop bj02-review-detail-backdrop" data-bj02-review-close><section class="bj02-review-detail-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" data-ds-prop-show-title="true" role="dialog" aria-modal="true" aria-label="Chi tiết ${escapeAttribute(line.name)}" onclick="event.stopPropagation()"><div class="bj02-review-sheet-handle"></div><h2>${escapeAttribute(line.name)}</h2><p class="bj02-review-sheet-context">${escapeAttribute(line.sku || line.productId)} · ${escapeAttribute(line.uom)}</p>${issueBanner}<section class="bj02-review-detail-section" data-ds-component="VSection"><div class="bj02-review-detail-heading"><strong>Số lượng và giá</strong><span>${t.totalReceived} ${line.uom}</span></div><div class="bj02-review-detail-rows">${quantityRows || bj02InfoRow("Tổng kiểm nhận", `${t.totalReceived} ${line.uom}`)}</div></section>${lotRows ? `<section class="bj02-review-detail-section" data-ds-component="VSection"><div class="bj02-review-detail-heading"><strong>Lô và hạn dùng</strong><span>${(line.lots || []).filter((lot) => lotDraftTotals(lot).totalReceived > 0).length} lô</span></div><div class="bj02-review-lot-list">${lotRows}</div></section>` : ""}<button class="button button--secondary button--full bj02-review-close-button" data-bj02-review-close type="button" data-ds-component="VButton">Đóng</button></section></div>`;
 }
 function bj02LinesSheet() {
   if (!bj02LinesSheetOpen) return "";
@@ -550,34 +553,30 @@ function bj02QuickEntry(state) {
   const row = ds24ListRow({ title: "Hàng đến chưa có chứng từ", subtitle: blocker || "Nhập hàng nhanh · cần chủ cửa hàng duyệt", leading: "zap", attrs: 'data-flow="quick"', disabled });
   return `<div class="k7-mobile-only"><section class="ds24-list-stack bj02-quick-entry" data-composed-from="DS v2 / List Row">${row}</section></div><div class="k7-web-only"><button class="button button--secondary bj02-quick-button" type="button" data-flow="quick" data-ds-component="VButton" ${disabled ? "disabled" : ""}>Hàng đến chưa có chứng từ</button></div>`;
 }
+// Phiếu nhận gần đây (fixture xem trước; app đọc từ phiếu đã ghi).
+const BJ02_RECENT = [
+  { ref: "REC-260915-02", supplier: "An Việt", doc: "HĐ 0004411", date: "15/09/2026", items: 3, value: 4850000 },
+  { ref: "REC-260912-01", supplier: "Minh Dũng", doc: "HĐ 0001498", date: "12/09/2026", items: 2, value: 7460000 },
+  { ref: "REC-260908-03", supplier: "Phương Nam", doc: "", date: "08/09/2026", items: 1, value: 1620000 },
+];
 function render007BJ02(state) {
   const title = "Nhận hàng";
   if (state === "PERMISSION_DENIED") return appShell({ title, body: bj02Denied("nhận hàng"), centered: true, back: false });
   if (state === "LOADING") return appShell({ title, body: k1Loading({ blocks: ["search", "row", "row", "row"] }), back: false });
-  const quick = bj02QuickEntry(state);
-  if (state === "EMPTY") return appShell({ title, body: `${k1Empty({ title: "Không có chứng từ đang chờ nhận", description: "Hàng đã đến mà chưa có chứng từ mua thì nhập hàng nhanh." })}${quick}`, back: false, extraClass: "k7-wide" });
-  const locked = ["LOCKED", "READ_ONLY"].includes(state);
+  const start = primaryFooter("Lập phiếu nhận", 'data-flow="quick"', state === "LOCKED");
+  if (state === "EMPTY") return appShell({ title, body: k1Empty({ title: "Chưa có phiếu nhận nào", description: "Lập phiếu khi hàng của nhà cung cấp về kho." }), actions: start, back: false, extraClass: "k7-wide" });
   const query = state === "FILTER_EMPTY" ? "Không có kết quả" : documentSearchQuery;
   const q = ioNormalizeSearch(query);
-  const search = ds24Search(query, 'data-bj02-document-search', 'Tìm chứng từ, nhà cung cấp hoặc sản phẩm');
-  const rows = bj02DocumentRows().map((r) => ({ ...r, hidden: Boolean(q) && !r.searchText.includes(q) }));
+  const search = ds24Search(query, 'data-bj02-document-search', 'Tìm phiếu, nhà cung cấp hoặc số chứng từ');
+  const rows = BJ02_RECENT.map((r) => { const searchText = [r.ref, r.supplier, r.doc].join(" ").toLowerCase(); return { ...r, searchText, hidden: Boolean(q) && !searchText.includes(q) }; });
   const visible = rows.filter((r) => !r.hidden).length;
-  const rowAttr = (r) => `data-bj02-document-id="${r.id}" data-bj02-document-search-text="${escapeAttribute(r.searchText)}"${r.hidden ? " hidden" : ""}`;
-  const columns = [
-    { key: "idHtml", label: "Chứng từ", html: true },
-    { key: "supplier", label: "Nhà cung cấp" },
-    { key: "date", label: "Ngày", mono: true },
-    { key: "itemsText", label: "Mặt hàng" },
-    { key: "statusHtml", label: "Tình trạng", html: true },
-  ];
-  const tableRows = rows.map((r) => ({ ...r, idHtml: `<button class="k7-row-link" type="button" ${locked ? "disabled" : ""}>${esc(r.id)}</button>`, statusHtml: ds24Badge(r.status || "Chờ nhận", r.status ? "Info" : "Neutral") }));
-  const mobileRow = (r) => bj02RecordCard({ title: r.id, supporting1: esc(r.supplier), supporting2: esc(r.itemsText), summary: `${r.count} mặt hàng`, timestamp: r.date, status: r.status, attr: `${rowAttr(r)}${locked ? " disabled" : ""}` });
-  const list = k7Table({ columns, rows: tableRows, mobileRow, caption: "Chứng từ chờ nhận", rowAttr });
-  const noResult = `<div class="document-filter-empty" data-bj02-document-filter-empty ${visible ? "hidden" : ""}>${k1Empty({ title: "Không có kết quả phù hợp", description: "Thử mã chứng từ, nhà cung cấp hoặc sản phẩm khác." })}</div>`;
-  const notice = state === "SOURCE_VERSION_STALE"
-    ? k1Stale({ title: "Chứng từ nguồn đã đổi", description: "Lượng còn được phép nhận vừa thay đổi. Mở phiên bản hiện hành để đối chiếu.", actionAttr: 'data-bj02-action="reload"' })
-    : bj02StateNotice(state);
-  return appShell({ title, body: `${notice}${search}${list}${noResult}${quick}`, back: false, extraClass: "k7-wide" });
+  const rowAttr = (r) => `data-bj02-document-search-text="${escapeAttribute(r.searchText)}"${r.hidden ? " hidden" : ""}`;
+  const columns = [{ key: "ref", label: "Phiếu nhận", mono: true }, { key: "supplier", label: "Nhà cung cấp" }, { key: "docText", label: "Số chứng từ NCC" }, { key: "date", label: "Ngày", mono: true }, { key: "itemsText", label: "Mặt hàng", align: "end" }, { key: "valueText", label: "Giá trị", align: "end", mono: true }];
+  const tableRows = rows.map((r) => ({ ...r, docText: r.doc || "—", itemsText: `${r.items}`, valueText: cfMoney(r.value) }));
+  const mobileRow = (r) => bj02RecordCard({ title: r.ref, supporting1: esc(r.supplier), supporting2: esc(r.doc || "Không có số chứng từ"), summary: `${r.items} mặt hàng · ${cfMoney(r.value)}`, timestamp: r.date, status: "Đã ghi nhận", attr: rowAttr(r) });
+  const list = `${ac310SectionTitle("Phiếu nhận gần đây")}${k7Table({ columns, rows: tableRows, mobileRow, caption: "Phiếu nhận gần đây", rowAttr })}`;
+  const noResult = `<div class="document-filter-empty" data-bj02-document-filter-empty ${visible ? "hidden" : ""}>${k1Empty({ title: "Không có kết quả phù hợp", description: "Thử mã phiếu, nhà cung cấp hoặc số chứng từ khác." })}</div>`;
+  return appShell({ title, body: `${bj02StateNotice(state)}${search}${list}${noResult}`, actions: start, back: false, extraClass: "k7-wide" });
 }
 
 /* ---------- SCR-008 Thông tin nhập hàng nhanh ---------- */
@@ -595,21 +594,18 @@ function bj02OwnershipCheck(locked) {
 }
 function bj02QuickBlockedReason() {
   if (!bj02SupplierValid()) return "Chọn nhà cung cấp trong danh sách.";
-  if (!bj02EvidenceRefs().length) return "Thêm chứng từ giao nhận";
-  if (!bj02OwnershipReady()) return "Tick xác nhận quyền sở hữu";
   return "";
 }
 function render008BJ02(state) {
-  const title = "Nhập hàng nhanh";
-  if (state === "PERMISSION_DENIED") return appShell({ title, body: bj02Denied("nhập hàng nhanh"), centered: true, extraClass: "k7-wide" });
+  const title = "Phiếu nhận hàng";
+  if (state === "PERMISSION_DENIED") return appShell({ title, body: bj02Denied("nhận hàng"), centered: true, extraClass: "k7-wide" });
   const locked = state === "LOCKED", hasError = state === "VALIDATION_ERROR";
   const supplierValid = bj02SupplierValid();
   const supplierValue = supplierValid ? bj02Header.supplier : "Chọn nhà cung cấp";
   const body = `${bj02StateNotice(state === "VALIDATION_ERROR" ? "" : state)}<div class="form-stack quick-source-form bj02-quick-grid">
       <div class="form-field supplier-field${locked ? " is-disabled" : ""}" data-ds-component="VSelect" data-figma-node="522:7291"><label>Nhà cung cấp <span class="required">*</span></label><button class="bj02-vselect-trigger${supplierValid ? " is-filled" : ""}${hasError && !supplierValid ? " is-error" : ""}" data-bj02-open-supplier-sheet type="button" ${locked ? "disabled" : ""}><span>${esc(supplierValue)}</span>${icon("chevronDown", "icon--sm")}</button>${hasError && !supplierValid ? '<span class="field-error" data-bj02-supplier-error>Chọn nhà cung cấp trong danh sách.</span>' : '<span class="field-error" data-bj02-supplier-error hidden>Chọn nhà cung cấp trong danh sách.</span>'}</div>
       <div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186" data-ds-prop-state="Filled"><label>Kho và ngày nhận</label><span class="input-shell is-readonly"><input value="${escapeAttribute(`${BJ02_CONTEXT.warehouse.name} · ${bj02ReceiptDate()}`)}" disabled aria-disabled="true" aria-label="Kho và ngày nhận"/></span></div>
-      ${bj02EvidenceZone(locked)}
-      ${bj02OwnershipCheck(locked)}
+      <div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186"><label>Số chứng từ của nhà cung cấp</label><span class="input-shell"><input data-bj02-supplier-doc value="${escapeAttribute(bj02Header.supplierDocNo || "")}" placeholder="Ví dụ: HĐ 0001523" autocomplete="off" aria-label="Số chứng từ của nhà cung cấp" ${locked ? "disabled" : ""}/></span><small class="field-help">Số hoá đơn hoặc phiếu giao hàng, nếu có.</small></div>
     </div>${bj02SupplierSelectSheet(locked)}`;
   const reason = locked ? "" : bj02QuickBlockedReason();
   const disabled = locked || Boolean(reason) || !BJ02_CONTEXT.capabilities.assertOwnership;
@@ -823,12 +819,17 @@ function bj02QtyInput(key, label, value, unit, locked, large) {
 }
 function exceptionQuantitiesEditor(totals, locked = false) {
   const unit = lineEditorDraft?.uom || "";
-  return `<div class="bj02-qty-editor" data-ds-role="quantity-input-composition" data-composed-from="VNumberField">${bj02QtyInput("accepted", "Đạt", totals.accepted || 0, unit, locked, true)}<fieldset class="bj02-qty-bad"><legend>Hàng không đạt</legend><div class="bj02-qty-bad__row">${bj02QtyInput("quarantine", "Cách ly", totals.quarantine || 0, unit, locked, false)}${bj02QtyInput("damaged", "Hỏng", totals.damaged || 0, unit, locked, false)}${bj02QtyInput("rejected", "Từ chối", totals.rejected || 0, unit, locked, false)}</div></fieldset></div>`;
+  return `<div class="bj02-qty-editor" data-ds-role="quantity-input-composition" data-composed-from="VNumberField">${bj02QtyInput("accepted", "Số lượng nhận", totals.accepted || 0, unit, locked, true)}</div>`;
+}
+// Giá mua một đơn vị nhập (theo hoá đơn, gồm VAT — hộ kinh doanh không khấu trừ); một giá cho cả dòng.
+function bj02PriceField() {
+  const d = lineEditorDraft, locked = lineEditorIsReadOnly();
+  return `<div class="form-field bj02-price-field" data-ds-component="VMoneyField"><label>Giá mua / ${esc(d?.uom || "đơn vị")} <span class="required">*</span></label><span class="input-shell"><input data-bj02-unit-price inputmode="numeric" value="${d?.unitPrice ? cfMoneyInput(String(d.unitPrice)) : ""}" placeholder="0" autocomplete="off" aria-label="Giá mua" ${locked ? "disabled" : ""}/><em class="bj02-qty__unit" aria-hidden="true">đ</em></span><small class="field-help">Theo hoá đơn, đã gồm VAT.</small></div>`;
 }
 function lineTotalSummaryHtml(line) {
   const t = lineTotals(line);
   const value = flowMode === "document" && line.remainingReceivableQty != null ? `${t.totalReceived} / ${line.remainingReceivableQty} ${line.uom}` : `${t.totalReceived} ${line.uom || ""}`.trim();
-  return bj02KeyValueRow("Tổng kiểm nhận", value, true, "bj02-derived-total", "data-bj02-total");
+  return `${bj02KeyValueRow("Tổng nhận", value, false, "bj02-derived-total", "data-bj02-total")}${bj02KeyValueRow("Thành tiền", cfMoney(bj02LineValue(line)), true, "bj02-derived-total")}`;
 }
 function bj02FillButton() {
   const d = lineEditorDraft;
@@ -838,7 +839,7 @@ function bj02FillButton() {
 function renderNonLotLineEditor() {
   const t = lineTotals(lineEditorDraft);
   const locked = lineEditorIsReadOnly();
-  return `<section class="line-entry-section">${bj02FillButton()}${exceptionQuantitiesEditor(t, locked)}${lineTotalSummaryHtml(lineEditorDraft)}<div class="editor-feedback document-variance-feedback" data-bj02-document-variance>${documentVarianceFeedback(lineEditorDraft)}</div></section>`;
+  return `<section class="line-entry-section">${bj02FillButton()}${exceptionQuantitiesEditor(t, locked)}${bj02PriceField()}${lineTotalSummaryHtml(lineEditorDraft)}<div class="editor-feedback document-variance-feedback" data-bj02-document-variance>${documentVarianceFeedback(lineEditorDraft)}</div></section>`;
 }
 function bj02DateField(label, field, value, { required = false, hint = "", locked = false } = {}) {
   const parsed = bj02ExpiryParse(value);
@@ -868,7 +869,7 @@ function renderLotLineEditor() {
   if (!lineEditorDraft.lots.length) lineEditorDraft.lots = [emptyLot()];
   const locked = lineEditorIsReadOnly();
   const rows = lineEditorDraft.lots.map((lot, index) => renderLotCompact(lot, index, lot.id === activeLotDraftId)).join("");
-  return `<section class="lot-line-editor">${bj02FillButton()}<div class="section-label section-label--first lot-section-heading"><span>Các lô thực nhận</span></div><div class="lot-accordion-list">${rows}</div>${!locked ? `<button class="button button--secondary button--full add-lot-button" data-bj02-action="add-editor-lot" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" data-ds-prop-size="VButtonSize.small" type="button">Thêm lô khác</button>` : ""}${lineTotalSummaryHtml(lineEditorDraft)}<div class="editor-feedback document-variance-feedback" data-bj02-document-variance>${documentVarianceFeedback(lineEditorDraft)}</div></section>`;
+  return `<section class="lot-line-editor">${bj02FillButton()}<div class="section-label section-label--first lot-section-heading"><span>Các lô thực nhận</span></div><div class="lot-accordion-list">${rows}</div>${!locked ? `<button class="button button--secondary button--full add-lot-button" data-bj02-action="add-editor-lot" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" data-ds-prop-size="VButtonSize.small" type="button">Thêm lô khác</button>` : ""}${bj02PriceField()}${lineTotalSummaryHtml(lineEditorDraft)}<div class="editor-feedback document-variance-feedback" data-bj02-document-variance>${documentVarianceFeedback(lineEditorDraft)}</div></section>`;
 }
 // Câu đầu tiên còn thiếu để bấm "Xong"; rỗng khi hợp lệ (hoặc chưa có gì để nhập).
 function lineEditorInvalidReason() {
@@ -885,11 +886,12 @@ function lineEditorInvalidReason() {
       if (d.expiryRequired && !expiry) return "Nhập hạn dùng";
       if (expiry && !bj02ExpiryParse(expiry).valid) return "Hạn dùng chưa đúng dạng";
       if (manufacture && !bj02ExpiryParse(manufacture).valid) return "Ngày sản xuất chưa đúng dạng";
-      if (lotDraftTotals(lot).totalReceived <= 0) return "Nhập ít nhất một phân loại số lượng để tiếp tục.";
+      if (lotDraftTotals(lot).totalReceived <= 0) return "Nhập số lượng nhận.";
     }
-    return "";
+    return Number(d.unitPrice) > 0 ? "" : "Nhập giá mua.";
   }
-  return lineTotals(d).totalReceived > 0 ? "" : "Nhập ít nhất một phân loại số lượng để tiếp tục.";
+  if (lineTotals(d).totalReceived <= 0) return "Nhập số lượng nhận.";
+  return Number(d.unitPrice) > 0 ? "" : "Nhập giá mua.";
 }
 function lineEditorValid() {
   if (!lineEditorDraft?.productId || !lineEditorDraft?.uomId) return false;
@@ -931,6 +933,8 @@ function syncEditorDraftFromDom() {
   const target = isLot ? lot : lineEditorDraft;
   if (target) document.querySelectorAll("[data-bj02-qty]").forEach((input) => { target[input.dataset.bj02Qty] = Math.max(0, parseInt(String(input.value).replace(/\D/g, ""), 10) || 0); });
   lineEditorDraft.totalReceived = lineTotals(lineEditorDraft).totalReceived;
+  const price = document.querySelector("[data-bj02-unit-price]");
+  if (price) lineEditorDraft.unitPrice = parseInt(String(price.value).replace(/\D/g, ""), 10) || 0;
   if (lot) {
     document.querySelectorAll("[data-bj02-lot-field]").forEach((input) => {
       const field = input.dataset.bj02LotField;
@@ -1052,7 +1056,9 @@ function updateBj02EditorLiveFeedback() {
   const totalSummary = document.querySelector("[data-bj02-total]");
   if (totalSummary) {
     const t = lineTotals(lineEditorDraft);
-    totalSummary.textContent = flowMode === "document" && lineEditorDraft.remainingReceivableQty != null ? `${t.totalReceived} / ${lineEditorDraft.remainingReceivableQty} ${lineEditorDraft.uom}` : `${t.totalReceived} ${lineEditorDraft.uom || ""}`.trim();
+    totalSummary.textContent = `${t.totalReceived} ${lineEditorDraft.uom || ""}`.trim();
+    const valueRow = totalSummary.closest(".bj02-derived-total")?.nextElementSibling?.querySelector("strong");
+    if (valueRow) valueRow.textContent = cfMoney(bj02LineValue(lineEditorDraft));
   }
   ["expiry", "manufactureDate"].forEach((field) => {
     const input = document.querySelector(`[data-bj02-lot-field="${field}"]`);
@@ -1125,19 +1131,8 @@ function selectSupplier(supplierId) {
 
 // "Cần chú ý": vượt chứng từ, hàng không đạt, chưa nhận, nhập nhanh.
 function bj02AttentionRows() {
-  const rows = [];
-  bj02Lines.filter(bj02LineOver).forEach((line) => {
-    const b = lineTotals(line).physicalIncrease, a = bj02SourceRemaining(line);
-    rows.push(["Vượt chứng từ", `${line.name} ${b} / ${a} ${line.uom} (+${b - a})`]);
-  });
-  bj02Lines.filter((line) => line.status === "COMPLETED").forEach((line) => {
-    const t = lineTotals(line);
-    const parts = [t.quarantine ? `${t.quarantine} cách ly` : "", t.damaged ? `${t.damaged} hỏng` : "", t.rejected ? `${t.rejected} từ chối` : ""].filter(Boolean);
-    if (parts.length) rows.push(["Hàng không đạt", `${line.name} ${parts.join(" · ")}`]);
-  });
-  bj02Lines.filter((line) => line.status === "NOT_RECEIVED").forEach((line) => rows.push(["Chưa nhận lần này", line.name]));
-  if (flowMode === "quick") rows.push(["Nhập nhanh", "chưa có chứng từ mua", "info"]);
-  return rows;
+  // v5.28.0: không còn vượt chứng từ / hàng không đạt / nhập nhanh; chỉ còn dòng chưa có giá.
+  return bj02Lines.filter((line) => line.status === "COMPLETED" && !(Number(line.unitPrice) > 0)).map((line) => ["Chưa có giá mua", line.name]);
 }
 // Khung web, SCR-010: bảng "Hàng thực nhận" bên trái, khối tóm tắt + nút xác nhận bên phải (như SCR-015 của BJ-03).
 function bj02ReviewRows() {
@@ -1146,14 +1141,14 @@ function bj02ReviewRows() {
     const received = line.status === "NOT_RECEIVED" ? 0 : lineTotals(line).physicalIncrease;
     return {
       line, product: `<strong>${esc(line.name)}</strong><small>${esc(line.sku || "")}</small>`,
-      expected: quick ? "—" : `${bj02SourceRemaining(line)} ${line.uom}`, received: handled ? `${received} ${line.uom}` : "—",
+      received: handled ? `${received} ${line.uom}` : "—", price: line.unitPrice ? cfMoney(line.unitPrice) : "—", value: handled ? cfMoney(bj02LineValue(line)) : "—",
       lots: bj02LotCell(line), status: bj02IssueBadge(line) || '<span class="k7-muted">—</span>',
     };
   });
 }
 function bj02ReviewSummary(label, disabled) {
   const quick = flowMode === "quick";
-  const facts = [["Chứng từ", quick ? "Nhập nhanh" : selectedDocumentId], ["Nhà cung cấp", currentReceiptSupplier()], ["Kho nhận", BJ02_CONTEXT.warehouse.name], ["Ngày nhận", bj02ReceiptDate()], ["Mặt hàng", `${bj02ReviewProductCount()} mặt hàng`]];
+  const facts = [["Nhà cung cấp", currentReceiptSupplier()], ["Số chứng từ", bj02Header.supplierDocNo || "—"], ["Kho nhận", BJ02_CONTEXT.warehouse.name], ["Ngày nhận", bj02ReceiptDate()], ["Mặt hàng", `${bj02ReviewProductCount()} mặt hàng`], ["Giá trị nhập", cfMoney(bj02ReceiptValue()), true]];
   return `${ac310InfoSurface("Tóm tắt", facts)}<button class="button button--primary bj02-cta" type="button" data-action="submit" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium"${disabled ? " disabled" : ""}>${esc(label)}</button>`;
 }
 function render010BJ02(state) {
@@ -1172,24 +1167,25 @@ function render010BJ02(state) {
   }
   const requiresApproval = bj02RequiresApproval(), noLines = bj02Lines.length === 0, incomplete = !noLines && !allReceiptLinesHandled();
   const quickZero = flowMode === "quick" && bj02AcceptedPhysicalTotal() === 0;
-  const disabled = noLines || incomplete || quickZero || (flowMode === "quick" && !bj02OwnershipReady());
+  const disabled = noLines || incomplete || quickZero || bj02AttentionRows().length > 0;
   const notice = state === "VALIDATION_ERROR" ? stateBanner(state) : "";
-  const zeroNotice = quickZero ? vBanner("error", "Chưa có hàng vào tồn", "Nhập hàng nhanh chỉ gửi được khi Đạt + Cách ly + Hỏng lớn hơn 0.") : "";
+  const zeroNotice = quickZero ? vBanner("error", "Chưa có hàng vào tồn", "Phiếu nhận cần ít nhất một mặt hàng có số lượng lớn hơn 0.") : "";
   const readiness = noLines
     ? `<div class="empty-state bj02-review-empty" data-ds-component="VEmptyState"><div class="icon-box">${icon("package", "icon--empty-media")}</div><h3>Chưa có hàng để rà soát</h3><p>Thêm và hoàn tất hàng thực nhận trước khi tiếp tục.</p></div>`
     : incomplete ? vBanner("warning", "Còn mặt hàng chưa hoàn tất", "Quay lại Hàng thực nhận để hoàn tất từng mặt hàng.") : "";
-  const label = requiresApproval ? "Gửi phê duyệt" : "Xác nhận nhận hàng";
+  const label = "Ghi nhận";
   const web = viewport === "web";
   let content;
   if (noLines) content = readiness;
   else {
     const attention = incomplete ? "" : k2Attention(bj02AttentionRows());
-    const edit = flowMode === "quick" ? { label: "Sửa", attr: 'data-next="SCR-008"' } : { label: "Đổi chứng từ", attr: 'data-bj02-action="change-source"' };
+    const edit = { label: "Sửa", attr: 'data-next="SCR-008"' };
     const heading = ac310SectionTitle("Hàng thực nhận", `${bj02ReviewProductCount()} mặt hàng · ${bj02Lines.length} dòng`);
     const lines = web
-      ? k7Table({ columns: [{ key: "product", label: "Mặt hàng", html: true }, { key: "expected", label: "Theo chứng từ", align: "end", mono: true }, { key: "received", label: "Thực nhận", align: "end", mono: true }, { key: "lots", label: "Lô", html: true }, { key: "status", label: "Tình trạng", html: true }], rows: bj02ReviewRows(), caption: "Hàng thực nhận", mobileRow: (r) => bj02LineRow(r.line, `data-bj02-review-line="${r.line.id}"`), rowAttr: (r) => `data-bj02-review-line="${r.line.id}"`, rowOpen: true })
+      ? k7Table({ columns: [{ key: "product", label: "Mặt hàng", html: true }, { key: "lots", label: "Lô", html: true }, { key: "received", label: "Số lượng", align: "end", mono: true }, { key: "price", label: "Giá mua", align: "end", mono: true }, { key: "value", label: "Thành tiền", align: "end", mono: true }, { key: "status", label: "Tình trạng", html: true }], rows: bj02ReviewRows(), caption: "Hàng thực nhận", mobileRow: (r) => bj02LineRow(r.line, `data-bj02-review-line="${r.line.id}"`), rowAttr: (r) => `data-bj02-review-line="${r.line.id}"`, rowOpen: true })
       : `<section class="ds24-list-stack receipt-line-list bj02-review-lines" data-composed-from="DS v2 / List Row">${bj02Lines.map((line) => bj02LineRow(line, `data-bj02-review-line="${line.id}"`)).join("")}</section>`;
-    content = `${readiness}${attention}${heading}${lines}${ac310SectionTitle("Thông tin lần nhận")}${bj02ContextRow(edit)}`;
+    const total = web ? "" : ac310InfoSurface("Tổng phiếu", [["Mặt hàng", `${bj02ReviewProductCount()} mặt hàng`], ["Giá trị nhập", cfMoney(bj02ReceiptValue()), true]]);
+    content = `${readiness}${attention}${heading}${lines}${total}${ac310SectionTitle("Thông tin phiếu")}${bj02ContextRow(edit)}`;
   }
   const overlays = `${bj02ReviewDetailSheet()}${bj02ConfirmSheet()}`;
   if (web && !noLines) return appShell({ title, body: `<div class="bj02-review">${notice}${zeroNotice}${k7Split({ main: content, aside: bj02ReviewSummary(label, disabled), wideMain: true, asideWebOnly: true })}</div>${overlays}`, extraClass: wide });
@@ -1336,20 +1332,16 @@ function render012BJ02(state) {
   const title = "Kết quả nhận hàng";
   if (state === "PERMISSION_DENIED") return appShell({ title, body: bj02Denied("xem kết quả nhận hàng"), centered: true });
   if (state === "PROCESSING") return appShell({ title, body: `<div class="loading-state" data-ds-component="VLoading"><span class="v-loading-spinner"></span><strong>Đang ghi nhận hàng</strong><p>Hệ thống đang xử lý. Bạn không cần thực hiện lại.</p></div>` });
-  if (["UNKNOWN", "COMMIT_UNKNOWN"].includes(state)) return render013BJ02("PROCESSING_OR_UNKNOWN");
   if (state === "REJECTED_EXECUTION") return k4Result({ screenTitle: title, kind: "warning", title: "Chưa ghi nhận hàng", description: "Yêu cầu bị chặn trước khi tồn kho thay đổi.", facts: [["Tác động tồn kho", "Không có"]], next: [{ label: "Quay lại rà soát", attr: 'data-next="SCR-010"', primary: true }] });
   const mode = bj02LastCommitted?.mode ?? flowMode, owner = bj02IsApprover();
   const physical = bj02AcceptedPhysicalTotal(), zeroImpact = physical === 0;
   const stocked = bj02Lines.filter((line) => bj02AcceptedPhysical(line) > 0).length, lots = bj02LotCount();
-  const facts = [["Phiếu nhận", BJ02_CONTEXT.submitted.receiptRef], ["Chứng từ", mode === "quick" ? "Nhập nhanh" : (bj02LastCommitted?.ref || selectedDocumentId)], ["Nhà cung cấp", esc(currentReceiptSupplier())], ["Người nhận", esc(BJ02_CONTEXT.submitted.maker)]];
-  if (bj02Approver) facts.push(["Người duyệt", bj02Approver.name]); else if (bj02RequiresApproval()) facts.push(["Người duyệt", "Chủ cửa hàng"]);
+  const facts = [["Phiếu nhận", BJ02_CONTEXT.submitted.receiptRef], ["Nhà cung cấp", esc(currentReceiptSupplier())], ["Số chứng từ", esc(bj02Header.supplierDocNo || "—")], ["Người nhận", esc(BJ02_CONTEXT.submitted.maker)]];
   if (!zeroImpact) facts.push(["Vào tồn", `${stocked} mặt hàng${lots ? ` · ${lots} lô` : ""}`]);
-  if (owner && !zeroImpact) facts.push(["Giá trị", "Chờ xác lập"]);
-  const next = owner
-    ? [{ label: "Nhận tiếp", attr: 'data-bj02-action="receive-more"' }, { label: "Xác lập giá trị", attr: 'data-bj02-action="go-valuation"', primary: true, disabled: zeroImpact }]
-    : [{ label: "Xem tồn kho", attr: 'data-bj02-action="see-inventory"' }, { label: "Nhận tiếp", attr: 'data-bj02-action="receive-more"', primary: true }];
+  if (owner && !zeroImpact) facts.push(["Giá trị nhập", cfMoney(bj02ReceiptValue())]);
+  const next = [{ label: "Xem tồn kho", attr: 'data-bj02-action="see-inventory"' }, { label: "Nhận tiếp", attr: 'data-bj02-action="receive-more"', primary: true }];
   const detail = `<button class="inline-edit bj02-lines-link" type="button" data-bj02-action="open-lines" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.link">Xem ${bj02Lines.length} dòng hàng</button>`;
-  return k4Result({ screenTitle: title, title: zeroImpact ? "Đã ghi nhận kết quả lần nhận" : "Đã ghi nhận hàng", description: zeroImpact ? "Không có hàng vào tồn vật lý trong lần nhận này." : `Đã tăng tồn vật lý theo ${bj02Lines.length} dòng hàng được xử lý.`, facts, next, button: detail + bj02LinesSheet() });
+  return k4Result({ screenTitle: title, title: zeroImpact ? "Đã ghi nhận phiếu nhận" : "Đã ghi nhận hàng", description: zeroImpact ? "Không có hàng vào tồn trong phiếu này." : `Đã tăng tồn theo ${bj02Lines.length} dòng hàng; giá vốn bình quân được tính lại theo giá mua.`, facts, next, button: detail + bj02LinesSheet() });
 }
 
 /* ---------- SCR-013 Đối soát nhận hàng (phục hồi ngắn) ---------- */
@@ -1408,7 +1400,7 @@ function startAutoExecution() {
   executionTimer = window.setTimeout(() => {
     if (activeFlowId !== "UIF-02" || activeScreenId !== "SCR-012" || stateByScreen["SCR-012"] !== "PROCESSING") return;
     bj02Commit(seq);
-    stateByScreen["SCR-012"] = "VALUATION_PENDING_RESULT";
+    stateByScreen["SCR-012"] = "COMPLETED";
     syncReviewUrl();
     render();
   }, 1400);
@@ -1608,7 +1600,7 @@ document.addEventListener("click", (event) => {
   if (!["exit-flow", "exit-approval", "exit-receipt-document-context", "submit", "refresh"].includes(action)) return;
   event.preventDefault(); event.stopPropagation();
   if (actionEl.disabled) return;
-  if (action === "exit-flow") { selectedDocumentId = "PN-260816-04"; bj02StartNew("document"); return navigate("SCR-007"); }
+  if (action === "exit-flow") { bj02StartNew("quick"); return navigate("SCR-007"); }
   if (action === "exit-approval") return showToast("Quay về danh sách việc cần duyệt của người phê duyệt", "info");
   if (action === "exit-receipt-document-context") return showToast(`Quay về chứng từ ${selectedDocumentId}`, "info");
   if (action === "submit") {
@@ -1712,6 +1704,15 @@ document.addEventListener("input", (event) => {
     updateBj02EditorLiveFeedback();
     return;
   }
+  if (t.matches("[data-bj02-unit-price]")) {
+    const digits = t.value.replace(/\D/g, "");
+    t.value = digits ? cfMoneyInput(digits) : "";
+    lineEditorDirty = true;
+    syncEditorDraftFromDom();
+    updateBj02EditorLiveFeedback();
+    return;
+  }
+  if (t.matches("[data-bj02-supplier-doc]")) { bj02Header.supplierDocNo = t.value; return; }
   if (t.matches("[data-bj02-lot-field]")) {
     lineEditorDirty = true;
     syncEditorDraftFromDom();

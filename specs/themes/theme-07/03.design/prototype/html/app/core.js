@@ -12,11 +12,69 @@
  */
 const HARNESS = window.VET45_HARNESS_DATA || { flows: [], screens: [], runOrder: [] };
 const FIGMA_DS_MAP = window.VET45_FIGMA_DS_MAP || { componentMappings:{}, profileMappings:{}, themeComponentMappings:{}, internalMappings:{} };
+// Phạm vi rút gọn (v5.28.0 — docs/refactor/PLAN.md mục Theme 7 → "Rút gọn 2026-11-09"): chỉ còn luồng / màn / trạng thái app làm.
+// Luồng bỏ vẫn nạp (các tệp gọi chéo nhau) nhưng không có lối vào. ?scope=full mở lại bản đầy đủ v5.27.0 để tra cứu.
+const REDUCED_SCOPE = new URLSearchParams(window.location.search).get("scope") !== "full";
+// Thứ tự = luồng demo: tồn đầu kỳ → tồn → nhận hàng → kiểm kê → giá vốn → báo cáo.
+const REDUCED_FLOW_SCREENS = {
+  "UIF-12": ["SCR-066", "SCR-067", "SCR-068", "SCR-071"],
+  "UIF-01": ["SCR-001", "SCR-003"],
+  "UIF-02": ["SCR-007", "SCR-008", "SCR-009", "SCR-084", "SCR-010", "SCR-012"],
+  "UIF-08": ["SCR-042", "SCR-043", "SCR-044", "SCR-045", "SCR-047"],
+  "UIF-14": ["SCR-072", "SCR-074", "SCR-077"],
+  "UIF-15": ["SCR-055", "SCR-056"],
+};
+// Trạng thái của cơ chế đã bỏ: duyệt K2, kết quả chưa xác định K3.
+const REDUCED_DROPPED_STATES = ["UNKNOWN", "COMMIT_UNKNOWN", "PROCESSING_OR_UNKNOWN", "APPROVAL_REQUIRED", "PENDING_APPROVAL", "REJECTED", "SELF_APPROVAL_NOT_ALLOWED", "APPROVAL_ALREADY_DECIDED"];
+// Trạng thái riêng từng màn thuộc phần đã bỏ (nhập tệp + số kiểm soát…).
+const REDUCED_DROPPED_SCREEN_STATES = { "SCR-068": ["CONTROL_TOTAL_MISMATCH"], "SCR-007": ["PARTIAL_RECEIPT", "SOURCE_VERSION_STALE"], "SCR-012": ["VALUATION_PENDING_RESULT"], "SCR-009": ["CONFLICT"] };
+// Lối tắt sang luồng đã lược bỏ (từ màn còn giữ): báo bằng toast, không chuyển màn.
+function reducedBlocked(flowId) { if (typeof showToast === "function") showToast("Phần này đã lược bỏ ở bản rút gọn", "info"); return false; }
+function inReducedScope(flowId) { return !REDUCED_SCOPE || Object.prototype.hasOwnProperty.call(REDUCED_FLOW_SCREENS, flowId); }
+if (!REDUCED_SCOPE) document.addEventListener("DOMContentLoaded", () => { const b = document.getElementById("scope-badge"); if (b) b.textContent = "v5.27.0 · Bản đầy đủ (tra cứu)"; });
+if (REDUCED_SCOPE) {
+  const order = Object.keys(REDUCED_FLOW_SCREENS);
+  HARNESS.flows = HARNESS.flows
+    .filter((f) => order.includes(f.id))
+    .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
+    .map((f) => {
+      const keep = REDUCED_FLOW_SCREENS[f.id].filter((id) => f.screens.includes(id));
+      return { ...f, screens: keep, entry: (f.entry || []).filter((id) => keep.includes(id)), terminals: (f.terminals || []).filter((id) => keep.includes(id)) };
+    });
+  HARNESS.runOrder = order;
+  // Chữ mô tả (sidebar / inspector) của luồng và màn đã đổi ở bản rút gọn.
+  const intents = {
+    "UIF-12": "Chủ cửa hàng nhập tay số tồn hiện có (sản phẩm, lô, hạn dùng, số lượng, giá gốc) một lần, kiểm tra rồi ghi nhận thẳng; giá gốc từng dòng là giá vốn đầu tiên.",
+    "UIF-01": "Xem tồn theo sản phẩm, lô và hạn dùng; khả dụng = tồn của các lô còn hạn; cảnh báo tồn thấp (theo tồn tối thiểu của sản phẩm) và lô cận hạn / hết hạn.",
+    "UIF-02": "Lập phiếu nhận theo nhà cung cấp (bắt buộc) và số chứng từ của NCC; mỗi dòng: sản phẩm, lô / hạn dùng, số lượng nhận, giá mua đã gồm VAT; rà soát rồi ghi nhận thẳng, giá vốn bình quân được tính lại.",
+    "UIF-08": "Mở phiên kiểm kê, đếm mù, đếm lại các dòng lệch; còn lệch thì ghi nhận điều chỉnh vào tồn kho, không cần duyệt. Lô hết hạn được điều chỉnh giảm tại đây.",
+  };
+  HARNESS.flows.forEach((f) => { if (intents[f.id]) f.intent = intents[f.id]; });
+  const screenText = {
+    "SCR-007": ["Nhận hàng", "Danh sách phiếu nhận gần đây và nút lập phiếu nhận mới."],
+    "SCR-008": ["Thông tin phiếu nhận", "Chọn nhà cung cấp (bắt buộc), nhập số chứng từ của NCC nếu có; kho và ngày nhận tự điền."],
+    "SCR-084": ["Chi tiết hàng thực nhận", "Một dòng phiếu: lô / hạn dùng (sản phẩm theo lô), số lượng nhận và giá mua một đơn vị (đã gồm VAT)."],
+    "SCR-010": ["Rà soát nhận hàng", "Rà soát số lượng, giá mua và giá trị nhập của phiếu rồi ghi nhận thẳng."],
+    "SCR-012": ["Kết quả nhận hàng", "Phiếu đã ghi: tồn tăng, giá vốn bình quân tính lại; người không phải chủ không thấy tiền."],
+    "SCR-066": ["Khởi tạo tồn kho", "Lối vào khi kho chưa có biến động: cần chuẩn bị danh sách hàng, giá gốc, ngày chốt."],
+    "SCR-067": ["Dữ liệu tồn kho đầu kỳ", "Nhập tay từng dòng (sản phẩm, lô, hạn dùng, số lượng, giá gốc) và ngày chốt số dư."],
+    "SCR-068": ["Kết quả kiểm tra dữ liệu", "Kiểm tra dòng nhập (thiếu hạn dùng, trùng dòng…); đạt thì rà soát và ghi nhận."],
+    "SCR-071": ["Kết quả khởi tạo tồn kho", "Số dư đã ghi nhận; kho bắt đầu hoạt động."],
+    "SCR-045": ["Chênh lệch và đếm lại", "Đếm lại dòng lệch; còn lệch thì ghi nhận điều chỉnh vào tồn kho."],
+  };
+  HARNESS.screens.forEach((sc) => { const t = screenText[sc.id]; if (t) { sc.name = t[0]; sc.purpose = t[1]; } });
+  document.addEventListener("DOMContentLoaded", () => { const b = document.getElementById("scope-badge"); if (b) b.textContent = "v5.28.0 · Rút gọn phạm vi"; });
+  HARNESS.screens.forEach((s) => {
+    const drop = [...REDUCED_DROPPED_STATES, ...(REDUCED_DROPPED_SCREEN_STATES[s.id] || [])];
+    const states = (s.states || []).filter((x) => !drop.includes(x));
+    if (states.length) { s.states = states; if (!states.includes(s.defaultState)) s.defaultState = states[0]; }
+  });
+}
 // Fixture review (tiền tệ, tỷ giá, thuế, chính sách giá vốn) — đầu vào runtime, không phải quyết định nghiệp vụ.
 window.__VET45_MONEY_CURRENCY_CATALOG__ = window.__VET45_MONEY_CURRENCY_CATALOG__ || [{id:"VND",label:"VND"},{id:"USD",label:"USD"}];
 window.__VET45_FX_SOURCE_FIXTURE__ = window.__VET45_FX_SOURCE_FIXTURE__ || {VND:{rate:1,version:"LOCAL-VND"},USD:{rate:24450,version:"FX-DEMO-USD-202609"}};
 window.__VET45_TAX_TREATMENT_POLICY__ = window.__VET45_TAX_TREATMENT_POLICY__ || {version:"TAX-HKD-DEMO-v1",recoverableRate:0};
-window.__VET45_TENANT_COST_POLICY__ = window.__VET45_TENANT_COST_POLICY__ || {version:"COST-POLICY-DEMO-v1",method:"PERIODIC",label:"Bình quân cuối kỳ",periodCloseScopes:[{id:"ALL_PRODUCTS",label:"Toàn bộ sản phẩm"},{id:"DIRTY_PRODUCTS_ONLY",label:"Sản phẩm cần tính lại"}],fixture:true};
+window.__VET45_TENANT_COST_POLICY__ = window.__VET45_TENANT_COST_POLICY__ || {version:"COST-POLICY-DEMO-v1",method:"PERIODIC",label:"Bình quân cuối kỳ",periodCloseScopes:[{id:"ALL_PRODUCTS",label:"Toàn bộ sản phẩm"}],fixture:true};
 // Figma DS v2.0.3 is UI authority; business authority remains in BJ/UC/decision/contracts.
 const FIGMA_MIGRATED_FLOWS = new Set([
   "UIF-01","UIF-02","UIF-03","UIF-04","UIF-05","UIF-06","UIF-07","UIF-08","UIF-09",
@@ -49,8 +107,8 @@ const FIGMA_TEMPLATE_BY_FLOW_SCREEN = {
 function figmaScreenTemplate(){ return FIGMA_TEMPLATE_BY_FLOW_SCREEN[activeFlowId]?.[activeScreenId] || null; }
 const screens = HARNESS.screens;
 const flowCatalog = HARNESS.flows;
-let activeFlowId = new URLSearchParams(window.location.search).get("uif") || "UIF-02";
-if (!flowCatalog.some((f) => f.id === activeFlowId)) activeFlowId = "UIF-02";
+let activeFlowId = new URLSearchParams(window.location.search).get("uif") || (REDUCED_SCOPE ? "UIF-12" : "UIF-02");
+if (!flowCatalog.some((f) => f.id === activeFlowId)) activeFlowId = flowCatalog[0]?.id || "UIF-02";
 const groups = ["Screens"];
 
 const stateByScreen = Object.fromEntries(screens.map((screen) => [screen.id, screen.defaultState]));
@@ -67,7 +125,7 @@ let activeScreenId = (() => {
   return initialFlow?.screens[0] || "SCR-007";
 })();
 let viewport = initialParams.get("viewport") === "web" ? "web" : "mobile";
-let flowMode = initialParams.get("flow") === "quick" ? "quick" : "document";
+let flowMode = REDUCED_SCOPE ? "quick" : (initialParams.get("flow") === "quick" ? "quick" : "document"); // v5.28.0: chỉ còn phiếu nhận theo NCC
 
 // Entry architecture: one table (screen + optional state/flowMode). v350 targets win where both existed.
 const entryTargets = {
@@ -116,6 +174,7 @@ const onEntry = {};
 let actorMode = entryMode;
 function currentActor() { return actorMode; }
 function applyEntry(flowId, mode, shouldRender = false) {
+  if (!inReducedScope(flowId)) return reducedBlocked(flowId);
   const target = entryTargets[flowId]?.[mode];
   if (!target) return false;
   activeFlowId = flowId;
@@ -455,7 +514,7 @@ function ds24Result(title,description,rows,tone='success') {
 // Chuyển luồng khi handoff (BJ-16 → BJ-11, BJ-17 …): đổi luồng + màn + trạng thái rồi dựng lại.
 
 
-function crSwitchFlow(flowId,screenId,state){activeFlowId=flowId;activeScreenId=screenId;if(state&&stateByScreen[screenId]!==undefined)stateByScreen[screenId]=state;syncReviewUrl();render();}
+function crSwitchFlow(flowId,screenId,state){if(!inReducedScope(flowId))return reducedBlocked(flowId);activeFlowId=flowId;activeScreenId=screenId;if(state&&stateByScreen[screenId]!==undefined)stateByScreen[screenId]=state;syncReviewUrl();render();}
 
 
 

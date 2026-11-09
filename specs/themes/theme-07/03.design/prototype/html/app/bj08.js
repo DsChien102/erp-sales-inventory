@@ -23,7 +23,8 @@ const BJ08_UNEXPECTED_STATES = [["SELLABLE", "Bán được"], ["QUARANTINE", "C
 const BJ08_STATUS = { COUNTING: ["Đang đếm", "Info"], RECOUNT: ["Đếm lại", "Warning"], PENDING: ["Chờ duyệt", "Warning"], DONE: ["Đã xong", "Success"], CANCELLED: ["Đã hủy", "Neutral"] };
 const BJ08_FILTERS = {
   ALL: () => true,
-  COUNTING: (s) => s.status === "COUNTING" || s.status === "RECOUNT",
+  COUNTING: (s) => s.status === "COUNTING",
+  RECOUNT: (s) => s.status === "RECOUNT",
   PENDING: (s) => s.status === "PENDING",
   DONE: (s) => s.status === "DONE" || s.status === "CANCELLED",
 };
@@ -122,7 +123,8 @@ function bj08Initial() {
     { round: 2, type: "RECOUNT", actor: BJ08_STAFF, at: "15/09/2026 17:40", values: { glove: "9" } },
   ];
   pending.counts = { ...pending.rounds[0].values };
-  pending.status = "PENDING"; pending.sentAt = "15/09/2026 17:40"; pending.sentBy = BJ08_STAFF;
+  // v5.28.0: không còn "Chờ duyệt" — phiên này đang ở vòng đếm lại.
+  pending.rounds = pending.rounds.slice(0, 1); pending.status = "RECOUNT"; pending.recounts = {};
   const done = bj08Make({ id: "KK-260830-01", scope: { kind: "ALL", label: "Toàn kho" }, counter: BJ08_STAFF, openedAt: "30/08/2026 18:00", keys: allKeys });
   done.rounds = [{ round: 1, type: "FIRST", actor: BJ08_STAFF, at: "30/08/2026 19:20", values: Object.fromEntries(done.lines.map((l) => [l.key, String(l.book)])) }];
   done.counts = { ...done.rounds[0].values };
@@ -172,24 +174,24 @@ function bj08CommitFirst(s) {
   s.status = "RECOUNT"; s.recounts = {};
   return "RECOUNT";
 }
-// Gửi đếm lại: chỉ ghi các dòng lệch; khớp hết → xong; còn lệch → chờ duyệt.
+// Gửi đếm lại: chỉ ghi các dòng lệch; khớp hết → xong; còn lệch → ghi nhận điều chỉnh ngay (v5.28.0: bỏ duyệt K2 / SCR-046).
 function bj08CommitRecount(s) {
   const values = {};
   bj08Variance(s).forEach((x) => { values[x.line.key] = s.recounts[x.line.key]; });
   s.rounds.push({ round: s.rounds.length + 1, type: "RECOUNT", actor: s.counter, at: BJ08_RECOUNT_AT, values });
   s.recounts = {};
   if (!bj08Variance(s).length) { bj08Finish(s, { type: "ZERO", committedAt: BJ08_RECOUNT_AT }); return "ZERO"; }
-  s.status = "PENDING"; s.sentAt = BJ08_RECOUNT_AT; s.sentBy = s.counter;
-  return "PENDING";
+  bj08ApproveSession(s, s.counter);
+  return "ADJUSTED";
 }
-function bj08ApproveSession(s) {
+function bj08ApproveSession(s, by = BJ08_OWNER) {
   const t = bj08Totals(s);
   // Duyệt điều chỉnh là lúc tồn đổi: ghi từng dòng lệch vào sổ chung (hàng không có ở BJ-01 thì bỏ qua).
   bj08Variance(s).forEach((x) => {
     const state = t7Ledger.STATE_LABEL[x.line.state];
     if (state) t7Ledger.post({ key: `UIF-08:${s.id}:${x.line.key}`, productId: x.line.code, lot: x.line.lot, kind: "Điều chỉnh kiểm kê", doc: s.id, delta: x.variance, state, sourceFlow: "UIF-08" });
   });
-  bj08Finish(s, { type: "ADJUSTED", lines: t.lines, short: t.short, over: t.over, net: t.net, hasMoney: t.hasMoney, approver: BJ08_OWNER, committedAt: BJ08_APPROVED_AT });
+  bj08Finish(s, { type: "ADJUSTED", lines: t.lines, short: t.short, over: t.over, net: t.net, hasMoney: t.hasMoney, approver: by, committedAt: BJ08_APPROVED_AT });
 }
 function bj08RequestRecount(s, reason) { s.reviews.push({ reason, at: BJ08_APPROVED_AT }); s.status = "RECOUNT"; s.recounts = {}; }
 function bj08CancelSession(s, reason) { s.status = "CANCELLED"; s.result = { type: "CANCELLED", reason, committedAt: BJ08_CANCELLED_AT }; }
@@ -288,7 +290,7 @@ function render042BJ08(state) {
     return { id: s.id, title: s.id, subtitle: bj08ListSub(s), status: { label, tone }, scope: s.scope.label, counter: s.counter, progress: s.status === "COUNTING" ? `${bj08CountedN(s)}/${s.lines.length}` : `${bj08Variance(s).length} lệch`, openedAt: s.openedAt, statusHtml: ds24Badge(label, tone), searchText: text(s) };
   });
   const count = (key) => all.filter(BJ08_FILTERS[key]).length;
-  const items = [["ALL", "Tất cả"], ["COUNTING", "Đang đếm"], ["PENDING", "Chờ duyệt"], ["DONE", "Đã xong"]].map(([k, l]) => [k, l, count(k)]);
+  const items = [["ALL", "Tất cả"], ["COUNTING", "Đang đếm"], ["RECOUNT", "Đếm lại"], ["DONE", "Đã xong"]].map(([k, l]) => [k, l, count(k)]);
   const columns = [{ key: "title", label: "Phiên", mono: true }, { key: "scope", label: "Phạm vi" }, { key: "counter", label: "Người đếm" }, { key: "progress", label: "Đã đếm", align: "end", mono: true }, { key: "openedAt", label: "Mở lúc", mono: true }, { key: "statusHtml", label: "Tình trạng", html: true }];
   const body = k6TaskList({
     search: { value: bj08ListQuery, attr: "data-bj08-search", placeholder: "Tìm phiên kiểm kê" },
@@ -325,7 +327,7 @@ function bj08ScopeBlock(showError) {
 }
 function bj08LockNotice() {
   if (!bj08DraftScopeKnown()) return "";
-  return k2Attention([[`Tạm khoá ${bj08DraftKeys().length} mặt hàng: không nhận, xuất hay bán được cho tới khi kiểm xong.`, ""], ["Số theo sổ được chốt lúc mở phiên.", "", "info"]], { title: "Khi mở phiên" });
+  return k2Attention([[`${bj08DraftKeys().length} mặt hàng sẽ được đếm.`, ""], ["Số theo sổ được chốt lúc mở phiên.", "", "info"]], { title: "Khi mở phiên" });
 }
 function bj08ScopeSummary() {
   const keys = bj08DraftKeys(), known = bj08DraftScopeKnown();
@@ -434,7 +436,7 @@ function render045BJ08(state) {
   const showError = state === "VALIDATION_ERROR";
   const variance = bj08Variance(s), matched = bj08MatchedLines(s);
   const missing = bj08PriceMissing(s);
-  const banner = blocked ? vBanner("warning", "Hàng thừa chưa có giá vốn", `${esc(missing ? missing.line.name : "Hàng thừa")} chưa có giá vốn nên chưa duyệt được. Phiên vẫn khoá; chủ cửa hàng cần xác lập giá trị trước.`) : "";
+  const banner = blocked ? vBanner("warning", "Hàng thừa chưa có giá vốn", `${esc(missing ? missing.line.name : "Hàng thừa")} chưa có giá vốn nên chưa ghi nhận được. Phiên vẫn khoá; chủ cửa hàng cần xác lập giá trị trước.`) : "";
   const strip = cf12Strip([[variance.length, "mặt hàng lệch"], [matched.length, "khớp"]]);
   const matchedBtn = matched.length ? `<button class="k7-row-link bj08-link" type="button" data-bj08-action="matched-open">Xem ${matched.length} mặt hàng khớp</button>` : "";
   const rows = variance.map((x) => bj08RecountRow(s, x, blocked, showError));
@@ -442,7 +444,7 @@ function render045BJ08(state) {
   const table = k7Table({ columns, rows, mobileRow: (r) => r.mobile, caption: "Dòng cần đếm lại", rowAttr: (r) => `data-bj08-line="${bj08Attr(r.key)}"` });
   const main = `${banner}${bj08Lead("Kết quả vòng trước được giữ nguyên trong lịch sử.")}${strip}${table}${matchedBtn}${bj08CancelLink()}`;
   const blocker = blocked ? "Chờ giá vốn của hàng thừa" : bj08RecountBlocker(s);
-  const actions = k4ReasonFooter({ label: "Gửi kết quả đếm lại", attr: 'data-bj08-action="submit-recount"', disabled: Boolean(blocker), reason: blocker });
+  const actions = k4ReasonFooter({ label: "Ghi nhận điều chỉnh", attr: 'data-bj08-action="submit-recount"', disabled: Boolean(blocker), reason: blocker });
   return bj08Shell({ title, subtitle, body: `<div class="bj08-count">${main}</div>${bj08Overlays()}`, actions });
 }
 
@@ -515,8 +517,8 @@ function render047BJ08(state) {
   if (state === "REJECTED_EXECUTION") return k4Result({ screenTitle: title, kind: "warning", title: "Chưa thực hiện điều chỉnh", description: "Điều kiện nghiệp vụ không đạt; không có tác động tồn kho.", facts: [["Phiên", s.id], ["Tác động", "Không ghi nhận"]], next: [{ ...toList, primary: true }] });
   if (state === "CANCELLED" || r?.type === "CANCELLED") return k4Result({ screenTitle: title, kind: "warning", title: "Đã hủy phiên", description: "Không tạo điều chỉnh. Lịch sử đếm được giữ và phạm vi đã mở khóa.", facts: [["Phiên", s.id], ["Phạm vi", s.scope.label], ["Lý do", r?.reason || "—"], ["Thời điểm", r?.committedAt || BJ08_CANCELLED_AT]], next: [{ ...toList, primary: true }] });
   if (r?.type === "ZERO") return k4Result({ screenTitle: title, title: "Đã hoàn tất kiểm kê", description: "Kết quả thực tế khớp số sổ. Không cần tạo điều chỉnh và phạm vi đã mở khóa.", facts: [["Phiên", s.id], ["Phạm vi", s.scope.label], ["Hoàn tất lúc", r.committedAt]], next: [toList, toStock] });
-  const facts = [["Phiên", s.id], ["Phạm vi", s.scope.label], ["Đã điều chỉnh", `${r?.lines ?? 0} dòng`], ["Thiếu / thừa", `Thiếu ${r?.short ?? 0} · thừa ${r?.over ?? 0} mặt hàng`], ...(bj08Money(r?.net) && r?.hasMoney ? [["Giá trị điều chỉnh", bj08Money(r.net)]] : []), ["Người duyệt", r?.approver || BJ08_OWNER], ["Ghi nhận lúc", r?.committedAt || BJ08_APPROVED_AT]];
-  return k4Result({ screenTitle: title, title: "Đã hoàn tất kiểm kê", description: "Điều chỉnh chênh lệch đã được ghi và phạm vi đã mở khóa.", facts, next: [toList, toStock] });
+  const facts = [["Phiên", s.id], ["Phạm vi", s.scope.label], ["Đã điều chỉnh", `${r?.lines ?? 0} dòng`], ["Thiếu / thừa", `Thiếu ${r?.short ?? 0} · thừa ${r?.over ?? 0} mặt hàng`], ...(bj08Money(r?.net) && r?.hasMoney ? [["Giá trị điều chỉnh", bj08Money(r.net)]] : []), ["Người ghi nhận", r?.approver || BJ08_OWNER], ["Ghi nhận lúc", r?.committedAt || BJ08_APPROVED_AT]];
+  return k4Result({ screenTitle: title, title: "Đã hoàn tất kiểm kê", description: "Điều chỉnh chênh lệch đã được ghi vào tồn kho.", facts, next: [toList, toStock] });
 }
 
 /* ---------- Sheet / hộp thoại ---------- */
@@ -548,9 +550,9 @@ function bj08MatchedSheet(s) {
 function bj08DialogSheet() {
   const s = bj08Session(), common = { open: true, closeAttr: 'data-bj08-action="dialog-close"', closeLabel: "Quay lại", withReason: false };
   const confirm = (name) => `data-bj08-action="${name}"`;
-  if (bj08Dialog === "open") return k2RejectSheet({ ...common, title: "Mở phiên kiểm kê?", description: `Trong lúc kiểm, ${bj08DraftKeys().length} mặt hàng này tạm không nhận, xuất hay bán được.`, confirmAttr: confirm("confirm-open"), confirmLabel: "Mở phiên" });
+  if (bj08Dialog === "open") return k2RejectSheet({ ...common, title: "Mở phiên kiểm kê?", description: `Số theo sổ của ${bj08DraftKeys().length} mặt hàng được chốt lúc mở phiên.`, confirmAttr: confirm("confirm-open"), confirmLabel: "Mở phiên" });
   if (bj08Dialog === "first") return k2RejectSheet({ ...common, title: "Nộp lần đếm đầu?", description: "Sau khi nộp, số sổ và chênh lệch mới được hiển thị. Không sửa được lần đếm này.", confirmAttr: confirm("confirm-first"), confirmLabel: "Nộp kết quả" });
-  if (bj08Dialog === "recount") return k2RejectSheet({ ...common, title: "Gửi kết quả đếm lại?", description: "Kết quả được lưu thành một lần đếm lại, không sửa được.", confirmAttr: confirm("confirm-recount"), confirmLabel: "Gửi kết quả" });
+  if (bj08Dialog === "recount") return k2RejectSheet({ ...common, title: "Ghi nhận điều chỉnh?", description: "Kết quả đếm lại được lưu, không sửa được. Dòng còn lệch được điều chỉnh vào tồn kho theo số đếm.", confirmAttr: confirm("confirm-recount"), confirmLabel: "Ghi nhận" });
   if (bj08Dialog === "cancel") return k2RejectSheet({ ...common, withReason: true, title: "Hủy phiên kiểm kê?", description: "Không tạo điều chỉnh; toàn bộ lịch sử đếm được giữ và phạm vi được mở khóa.", reason: bj08CancelReason, reasonAttr: "data-bj08-cancel-reason", reasonLabel: "Lý do", placeholder: "Bắt buộc để lưu lịch sử quyết định.", confirmAttr: confirm("confirm-cancel"), confirmLabel: "Hủy phiên", tone: "danger" });
   if (bj08Dialog === "review") return k2RejectSheet({ ...common, withReason: true, title: "Yêu cầu đếm lại?", description: "Vòng đếm hiện tại được giữ nguyên. Một vòng đếm lại mới sẽ được mở.", reason: bj08ReviewReason, reasonAttr: "data-bj08-review-reason", reasonLabel: "Lý do", placeholder: "Bắt buộc để lưu lịch sử quyết định.", confirmAttr: confirm("confirm-review"), confirmLabel: "Yêu cầu đếm lại" });
   if (bj08Dialog === "scope") return bj08ScopeSheet();
@@ -721,9 +723,7 @@ function bj08SubmitRecount() {
   if (stateByScreen["SCR-045"] === "PRICE_BASIS_REQUIRED") return renderAppScreen();
   if (bj08RecountBlocker(s)) { bj08SetState("SCR-045", "VALIDATION_ERROR"); return renderAppScreen(); }
   const next = bj08CommitRecount(s);
-  if (next === "ZERO") return bj08Go("SCR-047", "COMPLETED");
-  bj08Go("SCR-046", "PENDING_APPROVAL");
-  return showToast("Đã gửi chủ cửa hàng duyệt", "success");
+  return bj08Go("SCR-047", "COMPLETED");
 }
 function bj08Decide() {
   const s = bj08Session(); if (!s) return;

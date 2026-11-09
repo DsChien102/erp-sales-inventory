@@ -1,5 +1,17 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.28.0] — Rút gọn phạm vi (docs/refactor/PLAN.md mục Theme 7 → "Rút gọn 2026-11-09")
+
+- **Lọc phạm vi** (`app/core.js` `REDUCED_SCOPE`, mặc định bật; `?scope=full` hiện thêm luồng đã lược bỏ để tra cứu): còn 6 luồng theo luồng demo — UIF-12 → UIF-01 → UIF-02 → UIF-08 → UIF-14 → UIF-15. Luồng bỏ (UIF-03, 04, 05, 06, 07, 09, 10, 11, 13, 16, 17, CAP-01) vẫn nạp nhưng không có lối vào; lối tắt từ màn còn giữ sang luồng bỏ (`crSwitchFlow` / `applyEntry`) hiện toast "Phần này đã lược bỏ ở bản rút gọn". Bỏ trạng thái K2 / K3 (`UNKNOWN`, `PENDING_APPROVAL`, `REJECTED`…) khỏi danh sách trạng thái.
+- **Hub:** gỡ lối vào luồng bỏ, "Chờ duyệt", "Hàng cần xử lý", "Hồ sơ cần kiểm tra", nút nhanh "Lấy hàng"; đổi chữ khu.
+- **BJ-12** (viết lại `app/bj12.js`): nhập tay từng dòng qua sheet "Thêm dòng" (sản phẩm, lô, hạn dùng, số lượng, giá gốc); bỏ nhập tệp + số kiểm soát, gửi phê duyệt / SCR-070, tình trạng Cách ly; rà soát → "Ghi nhận".
+- **BJ-02:** chỉ còn phiếu nhận theo NCC (bỏ nhận theo chứng từ mua): SCR-007 = phiếu nhận gần đây + "Lập phiếu nhận"; SCR-008 = NCC (bắt buộc) + số chứng từ NCC (bỏ chứng từ giao nhận + xác nhận sở hữu); SCR-084 một ô "Số lượng nhận" + "Giá mua" (gồm VAT), thành tiền; SCR-010 có giá mua / thành tiền / giá trị nhập, nút "Ghi nhận" (bỏ duyệt); SCR-012 hiện giá trị nhập, bỏ "Xác lập giá trị". Bỏ SCR-011 (duyệt), SCR-013 (đối soát).
+- **BJ-08:** bỏ duyệt (SCR-046): đếm lại còn lệch → "Ghi nhận điều chỉnh" → SCR-047; bỏ khoá phạm vi; chip "Đếm lại" thay "Chờ duyệt".
+- **BJ-01:** khả dụng = tồn của lô còn hạn (bỏ giữ hàng, cách ly); "Tồn tối thiểu" thay ngưỡng / mục tiêu CAP-01; "Điều chỉnh lô hết hạn" mở Kiểm kê; bỏ "Đổi tình trạng".
+- **BJ-14:** chỉ một phạm vi chốt ("Toàn bộ sản phẩm"). **BJ-15:** bỏ dòng sổ "Đổi tình trạng".
+- **Chưa có trong prototype** (thiết kế trong plan Flutter): ưu đãi nhà cung cấp (G5-2b, G5-5b), chi phí thu mua / chiết khấu / hàng tặng trên phiếu nhận (G5-3), lý do điều chỉnh khi kiểm kê (G5-5), cập nhật giá vốn giữa kỳ theo spec giá vốn (G5-6), báo cáo lãi gộp (G5-7).
+- **Ảnh đích `tools/proto-final/` và mốc `.golden-g3*` là của v5.27.0**: màn đã đổi (BJ-12, BJ-02, BJ-08, BJ-01, Hub) phải chụp lại trước khi dùng làm đích Flutter; kịch bản `SC_*` của `tools/golden.mjs` cho BJ-12 / BJ-02 / BJ-08 và luồng bỏ chưa cập nhật.
+
 ## [5.27.0] — T7-G4 chốt đặc tả
 
 - **Chốt đặc tả FROZEN Theme 7:** Không đổi giao diện prototype; đồng bộ toàn bộ tài liệu đặc tả sau khi kết thúc Giai đoạn 3.

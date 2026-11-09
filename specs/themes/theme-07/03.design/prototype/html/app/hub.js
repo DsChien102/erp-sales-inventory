@@ -164,6 +164,22 @@ const ThemeApp = (() => {
     return shell({ title: 'Thêm', back: false, body: `<section class="ds24-list-stack t7-more-list" data-composed-from="DS v2 / List Row">${rows}</section>` });
   }
 
+  // Phạm vi rút gọn (core.js REDUCED_SCOPE): khu chỉ còn lối vào của luồng app làm; chữ phụ không còn nhắc phần đã bỏ.
+  if (REDUCED_SCOPE) {
+    Object.values(WORKSPACES).forEach((w) => { w.items = w.items.filter((item) => inReducedScope(item.flow)); });
+    WORKSPACES.inventory.subtitle = 'Số lượng, khả dụng và lô hàng';
+    WORKSPACES.movement.title = 'Nhập hàng';
+    WORKSPACES.movement.subtitle = 'Nhận hàng từ nhà cung cấp';
+    WORKSPACES.control.title = 'Kiểm kê';
+    WORKSPACES.control.subtitle = 'Đếm thực tế và điều chỉnh chênh lệch';
+    WORKSPACES.setup.subtitle = 'Khởi tạo tồn đầu kỳ';
+    const receipt = WORKSPACES.movement.items.find((item) => item.flow === 'UIF-02');
+    if (receipt) receipt.subtitle = 'Nhận hàng theo phiếu nhập';
+    const cost = WORKSPACES.valuation.items.find((item) => item.flow === 'UIF-14');
+    if (cost) cost.subtitle = 'Tính, rà soát và công bố giá vốn';
+    WORKSPACES.valuation.subtitle = 'Giá vốn và chốt kỳ';
+  }
+
   function heading(title, meta = '') {
     return `<div class="t462-section-heading"><h2 data-ds-component="VText" data-ds-prop-style="Label/Default">${esc(title)}</h2>${meta ? `<span>${esc(meta)}</span>` : ''}</div>`;
   }
@@ -191,27 +207,27 @@ const ThemeApp = (() => {
       : '';
     const quick = `<section class="t462-section t462-section--quick" data-ds-component="VSection"><div class="t462-quick-grid">
       ${quickAction({ label: 'Nhận hàng', iconName: 'cloudUpload', flow: 'UIF-02', disabled: off })}
-      ${quickAction({ label: 'Lấy hàng', iconName: 'package', flow: 'UIF-05', disabled: off })}
+      ${REDUCED_SCOPE ? '' : quickAction({ label: 'Lấy hàng', iconName: 'package', flow: 'UIF-05', disabled: off })}
       ${quickAction({ label: 'Kiểm kê', iconName: 'listCheck', flow: 'UIF-08', disabled: off })}
       ${quickAction({ label: 'Tra cứu tồn', iconName: 'search', flow: 'UIF-01', disabled: off })}
     </div></section>`;
     const pending = pendingSummary();
-    const pendingRow = pending.total > 0 ? attentionRow({ title: 'Chờ duyệt', subtitle: pending.text, count: String(pending.total), iconName: 'clock', attrs: 'data-v464-pending-approvals' }) : '';
+    const pendingRow = !REDUCED_SCOPE && pending.total > 0 ? attentionRow({ title: 'Chờ duyệt', subtitle: pending.text, count: String(pending.total), iconName: 'clock', attrs: 'data-v464-pending-approvals' }) : '';
     // Kho chưa kích hoạt: chưa có tồn nên không có lô / sai lệch / nghiệp vụ; chỉ còn việc chờ duyệt (vd. số dư đầu kỳ), không có thì bỏ cả mục.
-    const problem = off || typeof k5AttentionSummary !== 'function' ? null : k5AttentionSummary();
+    const problem = off || REDUCED_SCOPE || typeof k5AttentionSummary !== 'function' ? null : k5AttentionSummary();
     // "Hồ sơ cần kiểm tra" (BJ-16 + BJ-17): bj16.js đăng ký hàm đếm; số = số hồ sơ "Cần làm".
-    const recon = off || typeof window.__T7_RECON_COUNTS__ !== 'function' ? null : window.__T7_RECON_COUNTS__();
+    const recon = off || REDUCED_SCOPE || typeof window.__T7_RECON_COUNTS__ !== 'function' ? null : window.__T7_RECON_COUNTS__();
     const operating = off ? '' : `
         ${problem ? attentionRow({ title: 'Hàng cần xử lý', subtitle: problem.text, count: String(problem.count), flow: 'UIF-09', iconName: 'shield', attrs: 'data-k5-entry-filter="OPEN"' }) : ''}
         ${recon ? attentionRow({ title: 'Hồ sơ cần kiểm tra', subtitle: recon.text, count: String(recon.count), flow: 'UIF-16', iconName: 'search', attrs: 'data-cr-entry="ALL"' }) : ''}`;
-    const attention = !pendingRow && !operating ? '' : `<section class="t462-section" data-ds-component="VSection">${heading('Cần chú ý')}
+    const attention = !pendingRow && !operating.trim() ? '' : `<section class="t462-section" data-ds-component="VSection">${heading('Cần chú ý')}
       <div class="t462-attention-list">
         ${pendingRow}${operating}
       </div></section>`;
     const workspaces = `<section class="t462-section" data-ds-component="VSection">${heading('Quản lý kho')}
       <div class="t462-workspace-list ds24-list-stack">${['inventory', 'movement', 'control', 'valuation', 'history'].map(workspaceRow).join('')}</div>
     </section>`;
-    const setup = `<section class="t462-section" data-ds-component="VSection">${ds24ListRow({ title: 'Thiết lập kho', subtitle: 'Tồn đầu kỳ và chính sách ít dùng', leading: 'inbox', attrs: 'data-t462-workspace="setup"', theme: 'Theme7WarehouseCandidateSetup', extraClass: 't462-workspace-row' })}</section>`;
+    const setup = `<section class="t462-section" data-ds-component="VSection">${ds24ListRow({ title: 'Thiết lập kho', subtitle: REDUCED_SCOPE ? 'Khởi tạo tồn đầu kỳ' : 'Tồn đầu kỳ và chính sách ít dùng', leading: 'inbox', attrs: 'data-t462-workspace="setup"', theme: 'Theme7WarehouseCandidateSetup', extraClass: 't462-workspace-row' })}</section>`;
     // Web: thanh bên đã chỉ chỗ nên không có nút quay lại; dưới nút nhanh chia hai cột (trái: banner chưa kích hoạt + "Cần chú ý", phải: "Quản lý kho" + "Thiết lập kho"). iPhone giữ một cột.
     if (viewport === 'web') return shell({ title: 'Kho', back: false, extraClass: 't462-warehouse-hub', body: `${search}${quick}<div class="t462-columns"><div class="t462-column">${notActivated}${attention}</div><div class="t462-column">${workspaces}${setup}</div></div>` });
     return shell({ title: 'Kho', back: true, backAttr: 'data-theme-app-back', extraClass: 't462-warehouse-hub', body: `${search}${notActivated}${quick}${attention}${workspaces}${setup}` });
@@ -288,7 +304,7 @@ const ThemeApp = (() => {
     document.getElementById('sidebar-flow-title').textContent = route === 'flow' ? 'Toàn Theme 7 · Đang thao tác' : 'Toàn Theme 7';
     document.getElementById('sidebar-flow-intent').textContent = route === 'flow' ? `Đang dùng chung runtime ${f.id}; quay lại Kho để mở nghiệp vụ khác.` : 'Đi từ Thêm → Kho và thao tác xuyên toàn bộ Theme 7 trên cùng runtime.';
     document.getElementById('workbench-title').textContent = `Theme 7 · ${title}`;
-    document.getElementById('workbench-count').textContent = '17 BJ + CAP-01';
+    document.getElementById('workbench-count').textContent = REDUCED_SCOPE ? `Rút gọn · ${flowCatalog.length} luồng` : '17 BJ + CAP-01';
   }
 
   function renderNavigation() {

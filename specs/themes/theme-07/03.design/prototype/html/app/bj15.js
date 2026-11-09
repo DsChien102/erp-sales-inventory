@@ -52,7 +52,6 @@ const BJ15_RAW = [
   ["INV-AMX", "", "Nhận hàng", "PN-260904-08", "04/09", "07/09 09:00", BJ15_AN, 20, "Bán được", "UIF-11", "IO-260904-021", "Nhập muộn: ghi nhận sau Đổi tình trạng ST-260906-04"],
   ["INV-NOB", "DH2509", "Xuất bán", "SO-260905-07", "05/09", "05/09 11:05", BJ15_AN, -10, "Bán được", "UIF-05"],
   ["INV-TYLO", "TY2511", "Xuất bán", "SO-260905-11", "05/09", "05/09 15:20", BJ15_BINH, -3, "Bán được", "UIF-05"],
-  ["INV-AMX", "", "Đổi tình trạng", "ST-260906-04", "06/09", "06/09 14:05", BJ15_AN, 0, "Cách ly", "UIF-11", "IO-260906-022", "2 hộp chuyển sang Cách ly"],
   ["INV-NOB", "DH2507", "Bàn giao hàng", "SO-260827-21", "08/09", "09/09 08:50", BJ15_AN, -2, "Bán được", "UIF-05"],
 ];
 const bj15Iso = (dm) => `2026-${dm.slice(3, 5)}-${dm.slice(0, 2)}`;

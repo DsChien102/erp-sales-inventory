@@ -1,4 +1,6 @@
-# Theme 7 HTML Prototype Harness · v5.3.0
+# Theme 7 HTML Prototype Harness · v5.28.0 (rút gọn)
+
+> **v5.28.0 — bản rút gọn** theo `docs/refactor/PLAN.md` mục Theme 7 → "Rút gọn 2026-11-09": mặc định chỉ hiện 6 luồng app làm (UIF-12, 01, 02, 08, 14, 15) và đã gỡ duyệt / nhập tệp / nhận theo chứng từ mua / tình trạng hàng / K3. Thêm `?scope=full` để hiện cả luồng đã lược bỏ (tra cứu; luồng còn giữ vẫn là bản rút gọn — bản đầy đủ v5.27.0 xem git). Chi tiết: CHANGELOG 5.28.0. Ảnh `tools/proto-final/` là của v5.27.0, chụp lại màn đã đổi trước khi dùng.
 
 Prototype thiết kế Theme 7 (Kho & Giá vốn). Sau **T7-P A11**: `core.js` chỉ còn khung; harness tách; mọi BJ ở `app/bjNN.js`.
 
