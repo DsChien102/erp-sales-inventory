@@ -187,6 +187,9 @@ class FakeStoredProduct {
     this.basePriceMode = FakeProductReadinessBuilder.basePriceModeManual,
     this.pricePermissionDenied = false,
     this.businessStatus = ProductBusinessStatus.active,
+    this.trackingMode = ProductTrackingMode.none,
+    this.expiryRequired = false,
+    this.hasInventoryMovements = false,
     DateTime? updatedAt,
   }) : floorMarkupRatio = null,
        listMarkupRatio = null,
@@ -225,6 +228,9 @@ class FakeStoredProduct {
   final BasePriceMode basePriceMode;
   final bool pricePermissionDenied;
   ProductBusinessStatus businessStatus;
+  ProductTrackingMode trackingMode;
+  bool expiryRequired;
+  bool hasInventoryMovements;
   List<ProductChangeHistoryEntryDto> statusHistory = const [];
   DateTime updatedAt;
   int version = 1;
@@ -1032,6 +1038,8 @@ class FakeCatalogBackend {
       stockMode: stockMode,
       basePriceMode: basePriceMode,
       pricePermissionDenied: pricePermissionDenied,
+      trackingMode: input.trackingMode,
+      expiryRequired: input.expiryRequired,
     );
 
     _ensureUniqueSku(product, product.sku);
@@ -1248,6 +1256,8 @@ class FakeCatalogBackend {
     String? barcode,
     String? description,
     String? note,
+    ProductTrackingMode? trackingMode,
+    bool? expiryRequired,
   }) async {
     final product = _findProduct(productId);
     if (product == null) {
@@ -1263,6 +1273,18 @@ class FakeCatalogBackend {
     final finalBarcode = _optionalText(barcode) ?? '';
     _ensureUniqueSku(product, normalizedSku);
     _ensureUniqueBarcode(product, finalBarcode);
+
+    if ((trackingMode != null && trackingMode != product.trackingMode) ||
+        (expiryRequired != null && expiryRequired != product.expiryRequired)) {
+      if (product.hasInventoryMovements) {
+        throw const AppException(
+          CatalogErrorCodes.trackingLocked,
+          serverMessage: 'Đã có biến động kho, không đổi được.',
+        );
+      }
+      if (trackingMode != null) product.trackingMode = trackingMode;
+      if (expiryRequired != null) product.expiryRequired = expiryRequired;
+    }
 
     product.name = trimmedName;
     product.tradeName = _optionalText(commercialName);
@@ -3120,6 +3142,9 @@ class FakeCatalogBackend {
       pricePermissionDenied: product.pricePermissionDenied,
       customFieldGroupCards: customFieldCards,
       changeHistoryPreview: history,
+      trackingMode: product.trackingMode,
+      expiryRequired: product.expiryRequired,
+      hasInventoryMovements: product.hasInventoryMovements,
     );
 
     final readiness = _buildReadinessView(product);

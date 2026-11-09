@@ -112,6 +112,9 @@ abstract final class FakeCatalogProductBuilder {
     bool pricePermissionDenied = false,
     List<CustomFieldGroupCardDto> customFieldGroupCards = const [],
     List<ProductChangeHistoryEntryDto> changeHistoryPreview = const [],
+    ProductTrackingMode trackingMode = ProductTrackingMode.none,
+    bool expiryRequired = false,
+    bool hasInventoryMovements = false,
   }) {
     final hasBaseUnit = baseUnit != null && baseUnit.trim().isNotEmpty;
     final hasImages = images.isNotEmpty;
@@ -169,6 +172,9 @@ abstract final class FakeCatalogProductBuilder {
         images: images,
         description: description,
         note: note,
+        trackingMode: trackingMode,
+        expiryRequired: expiryRequired,
+        hasInventoryMovements: hasInventoryMovements,
       ),
       units: ProductUnitsCardDto(
         baseUnitName: hasBaseUnit ? baseUnit : null,

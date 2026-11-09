@@ -308,9 +308,9 @@ Giữ nguyên như bản đầu (không đổi theo rút gọn).
 - `ProductProfileMaintenanceCubit(…, initialTrackingMode, initialExpiryRequired, trackingLocked)` + 2 setter; lưu chỉ gửi khi đổi.
 - UI: trong `product_guided_step_identification.dart` và `product_profile_maintenance_page.dart`, sau ô mã vạch: `VSwitch` `Quản lý theo lô`; `VSwitch` `Bắt buộc hạn dùng` (tắt khi chưa bật lô); khi `trackingLocked` cả hai tắt + `VText` `Đã có biến động kho, không đổi được.`; lỗi server `TRACKING_LOCKED` → cùng câu đó ở dòng lỗi chung của form.
 
-- [ ] **Step 1: Test:** `guided_create_sends_tracking`; `expiry_toggle_disabled_until_lot`; `turning_lot_off_clears_expiry`; `profile_update_sends_tracking_only_when_changed`; `toggles_locked_when_has_movements`; `pcc_dto_defaults_when_keys_missing`.
-- [ ] **Step 2–4:** FAIL → `impact` → viết → `flutter test --no-pub test/features/catalog` số lỗi ≤ mốc Task 0.
-- [ ] **Step 5:** Commit `feat(catalog): ô gạt Quản lý theo lô / Bắt buộc hạn dùng (T7-G5-0b)`.
+- [x] **Step 1: Test:** `guided_create_sends_tracking`; `expiry_toggle_disabled_until_lot`; `turning_lot_off_clears_expiry`; `profile_update_sends_tracking_only_when_changed`; `toggles_locked_when_has_movements`; `pcc_dto_defaults_when_keys_missing`.
+- [x] **Step 2–4:** FAIL → `impact` → viết → `flutter test --no-pub test/features/catalog` số lỗi ≤ mốc Task 0.
+- [x] **Step 5:** Commit `feat(catalog): ô gạt Quản lý theo lô / Bắt buộc hạn dùng (T7-G5-0b)`.
 
 ### Task 9: README, PLAN.md, kiểm cuối
 
@@ -424,7 +424,7 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Ghi chú cho review: `InventoryRpc` tự đính kèm `p_tenant_id` và `p_idempotency_key` cho `mutate`, rethrow nguyên vẹn `AppException` (bao gồm lỗi mạng `AppErrorCode.network` để UI hiển thị và retry với cùng key).
 
 ### Task 7 (2026-11-10) — ✅
-- Commit: `refactor(inventory): Hub đọc RPC, gỡ Chờ duyệt / K2 / K3 / lối vào BJ bỏ (T7-G5-0b)`
+- Commit: `441d419cd`
 - Tệp:dòng đã đổi:
   - Xoá `apps/erp/lib/features/inventory/presentation/hub/warehouse_pending_approvals_page.dart`
   - Xoá `apps/erp/lib/features/inventory/presentation/patterns/k2_approval.dart`
@@ -445,6 +445,29 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Test thêm / sửa: 102/102 test inventory pass 100%. `git grep` xác nhận không còn reference tới `WarehousePendingApprovalsPage`, `K2Approval`, `K3Unknown`.
 - Impact: Hub repository chuyển sang đọc RPC thật qua `InventoryRpc`. GitNexus risk: low.
 - Ghi chú cho review: Gỡ bỏ hoàn toàn hạ tầng K2 duyệt và K3 xác minh kết quả chưa rõ theo quyết định Q-b10, Q-b14, Q-b15, Q-b19.
+
+### Task 8 (2026-11-10) — ✅
+- Commit: (sắp commit)
+- Tệp:dòng đã đổi:
+  - `apps/erp/lib/features/catalog/data/models/catalog_enums.dart`: thêm `enum ProductTrackingMode { none, lot }`.
+  - `apps/erp/lib/features/catalog/data/models/product_inputs.dart`: `CreateGuidedProductInput` thêm `trackingMode`, `expiryRequired`.
+  - `apps/erp/lib/features/catalog/data/models/product_control_center.dart`: `ProductProfileSummaryDto` và `ProductControlCenterReadModel` thêm `trackingMode`, `expiryRequired`, `hasInventoryMovements`.
+  - `apps/erp/lib/features/catalog/data/catalog_errors.dart`: thêm `CatalogErrorCodes.trackingLocked`, phân loại lỗi `tracking_locked`.
+  - `apps/erp/lib/features/catalog/data/product_repository.dart`: `createGuided` gửi `p_tracking_mode`, `p_expiry_required`; `updateProfile` nhận và gửi `p_tracking_mode`, `p_expiry_required` khi khác null.
+  - `apps/erp/lib/features/catalog/presentation/models/product_list_item_model.dart`: mang theo 3 trường mới.
+  - `apps/erp/lib/features/catalog/presentation/mappers/catalog_ui_mapper.dart`: ánh xạ 3 trường từ create và PCC.
+  - `apps/erp/lib/features/catalog/logic/product_readiness.dart`: chuyển 3 trường sang `ProductProfileSummaryDto`.
+  - `apps/erp/lib/features/catalog/logic/catalog_error_messages.dart`: thêm thông báo cho `trackingLocked`.
+  - `apps/erp/lib/features/catalog/logic/product_guided_create_state.dart` & `product_guided_create_cubit.dart`: thêm state, setter `setTrackingMode`, `setExpiryRequired`, đính kèm vào create input.
+  - `apps/erp/lib/features/catalog/logic/product_profile_maintenance_cubit.dart`: thêm state, setter `trackingModeChanged`, `expiryRequiredChanged`, kiểm tra dirty chỉ gửi khi đổi so với initial, xử lý lỗi `trackingLocked`.
+  - `apps/erp/lib/features/catalog/presentation/widgets/product_guided_step_identification.dart`: 2 VSwitch `Quản lý theo lô` và `Bắt buộc hạn dùng` (tắt khi chưa bật lô).
+  - `apps/erp/lib/features/catalog/presentation/pages/product_profile_maintenance_page.dart`: 2 VSwitch, disable khi `trackingLocked`, thông báo cảnh báo và lỗi form.
+  - `apps/erp/test/features/catalog/product_tracking_fields_test.dart`: tạo 6 test cases mới theo đúng spec (100% pass).
+  - `apps/erp/test/features/catalog/support/` và các mock repo test: cập nhật hỗ trợ chữ ký mới.
+- Lệch plan + lý do: Không.
+- Test thêm / sửa (tên): 6 tests mới trong `product_tracking_fields_test.dart` (`guided_create_sends_tracking`, `expiry_toggle_disabled_until_lot`, `turning_lot_off_clears_expiry`, `profile_update_sends_tracking_only_when_changed`, `toggles_locked_when_has_movements`, `pcc_dto_defaults_when_keys_missing`). Toàn bộ test catalog ≤ mốc Task 0.
+- Impact: Thêm trường và tham số tùy chọn vào Catalog DTO/Repo, không phá vỡ caller cũ; GitNexus risk: low.
+- Ghi chú cho review: 2 ô gạt quản lý lô và hạn dùng tuân thủ chặt chẽ ràng buộc khóa khi sản phẩm đã có biến động kho ở cả client cubit và server RPC.
 
 Task 9 thêm: lệnh đã chạy, đạt / lỗi, tên test hỏng đối chiếu `TEST-BASELINE.md`, kết quả `detect_changes`.
 

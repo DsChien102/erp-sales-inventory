@@ -64,6 +64,9 @@ final class ProductProfileSummaryDto {
     this.images = const [],
     this.description,
     this.note,
+    this.trackingMode = ProductTrackingMode.none,
+    this.expiryRequired = false,
+    this.hasInventoryMovements = false,
   });
 
   final String productId;
@@ -76,6 +79,9 @@ final class ProductProfileSummaryDto {
   final List<String> images;
   final String? description;
   final String? note;
+  final ProductTrackingMode trackingMode;
+  final bool expiryRequired;
+  final bool hasInventoryMovements;
 
   bool get isSoftDeleted => businessStatus.isSoftDeleted;
 }
@@ -318,6 +324,9 @@ final class ProductControlCenterReadModel {
     this.isCustomOverride = false,
     this.customFieldGroupCards = const [],
     this.changeHistoryPreview = const [],
+    this.trackingMode = ProductTrackingMode.none,
+    this.expiryRequired = false,
+    this.hasInventoryMovements = false,
   });
 
   final String productId;
@@ -349,6 +358,9 @@ final class ProductControlCenterReadModel {
   final bool isCustomOverride;
   final List<CustomFieldGroupCardDto> customFieldGroupCards;
   final List<ProductChangeHistoryEntryDto> changeHistoryPreview;
+  final ProductTrackingMode trackingMode;
+  final bool expiryRequired;
+  final bool hasInventoryMovements;
 
   bool get isSoftDeleted => businessStatus.isSoftDeleted;
 
@@ -396,6 +408,10 @@ final class ProductControlCenterReadModel {
         .map((item) => CustomFieldGroupCardDto.fromJson(Map<String, dynamic>.from(item)))
         .toList(growable: false);
 
+    final trackingMode = ProductTrackingMode.fromWire(json['tracking_mode'] as String?);
+    final expiryRequired = json['expiry_required'] as bool? ?? false;
+    final hasInventoryMovements = json['has_inventory_movements'] as bool? ?? false;
+
     return ProductControlCenterReadModel(
       productId: productId,
       name: productName,
@@ -428,6 +444,9 @@ final class ProductControlCenterReadModel {
       isCustomOverride: json['is_custom_override'] as bool? ?? false,
       customFieldGroupCards: customFieldGroupCards,
       changeHistoryPreview: history,
+      trackingMode: trackingMode,
+      expiryRequired: expiryRequired,
+      hasInventoryMovements: hasInventoryMovements,
     );
   }
 

@@ -60,6 +60,8 @@ class _SpyProductRepository extends FakeProductRepository {
     String? barcode,
     String? description,
     String? note,
+    ProductTrackingMode? trackingMode,
+    bool? expiryRequired,
   }) {
     updateProfileCalls.add(_UpdateProfileCall(
       productId: productId,
@@ -78,6 +80,8 @@ class _SpyProductRepository extends FakeProductRepository {
       barcode: barcode,
       description: description,
       note: note,
+      trackingMode: trackingMode,
+      expiryRequired: expiryRequired,
     );
   }
 }

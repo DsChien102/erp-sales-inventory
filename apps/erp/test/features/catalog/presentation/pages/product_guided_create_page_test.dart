@@ -134,7 +134,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('input_guided_base_unit')), 'Hộp');
     await tester.pump();
-    await tester.ensureVisible(find.text('4. Tồn kho khởi tạo'));
+    await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('4. Tồn kho khởi tạo'));
     await tester.pumpAndSettle();
 

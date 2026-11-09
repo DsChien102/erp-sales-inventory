@@ -36,6 +36,7 @@ abstract final class CatalogErrorCodes {
   static const productSoftDeleted = 'PRODUCT_SOFT_DELETED';
   static const productNotFound = 'PRODUCT_NOT_FOUND';
   static const productNameRequired = 'PRODUCT_NAME_REQUIRED';
+  static const trackingLocked = 'TRACKING_LOCKED';
 }
 
 /// Phân loại lại lỗi RPC catalog sang [AppException] với mã riêng.
@@ -324,6 +325,14 @@ AppException catalogException(AppException error) {
     return AppException(
       CatalogErrorCodes.productNameRequired,
       serverMessage: 'Product name is required.',
+      cause: error.cause,
+    );
+  }
+
+  if (lower.contains('tracking_locked') || lower.contains('đã có biến động kho')) {
+    return AppException(
+      CatalogErrorCodes.trackingLocked,
+      serverMessage: m,
       cause: error.cause,
     );
   }

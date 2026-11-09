@@ -5,6 +5,7 @@ import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../data/models/catalog_enums.dart';
 import '../../data/product_repository.dart';
 import '../widgets/product_form_bottom_bar.dart';
 
@@ -26,6 +27,9 @@ class ProductProfileMaintenancePage extends StatelessWidget {
         initialTradeName: product.tradeName,
         initialSku: product.sku,
         initialBarcode: product.barcode,
+        initialTrackingMode: product.trackingMode,
+        initialExpiryRequired: product.expiryRequired,
+        trackingLocked: product.hasInventoryMovements,
       ),
       child: const _ProductProfileMaintenanceView(),
     );
@@ -150,6 +154,66 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
                       ),
                     ],
                   ),
+                  const SizedBox(height: VSpacing.space4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      VText(
+                        'Quản lý theo lô',
+                        variant: VTextVariant.bodyDefault,
+                        color: dynamicColors.textPrimary,
+                      ),
+                      VSwitch(
+                        key: const Key('switch_profile_tracking_mode'),
+                        value: state.trackingMode == ProductTrackingMode.lot,
+                        enabled: !state.trackingLocked,
+                        onChanged: state.trackingLocked
+                            ? null
+                            : (val) => context.read<ProductProfileMaintenanceCubit>().trackingModeChanged(
+                                  val ? ProductTrackingMode.lot : ProductTrackingMode.none,
+                                ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: VSpacing.space3),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      VText(
+                        'Bắt buộc hạn dùng',
+                        variant: VTextVariant.bodyDefault,
+                        color: (!state.trackingLocked && state.trackingMode == ProductTrackingMode.lot)
+                            ? dynamicColors.textPrimary
+                            : dynamicColors.textSecondary,
+                      ),
+                      VSwitch(
+                        key: const Key('switch_profile_expiry_required'),
+                        value: state.expiryRequired,
+                        enabled: !state.trackingLocked && state.trackingMode == ProductTrackingMode.lot,
+                        onChanged: (!state.trackingLocked && state.trackingMode == ProductTrackingMode.lot)
+                            ? (val) => context.read<ProductProfileMaintenanceCubit>().expiryRequiredChanged(val)
+                            : null,
+                      ),
+                    ],
+                  ),
+                  if (state.trackingLocked) ...[
+                    const SizedBox(height: VSpacing.space2),
+                    VText(
+                      'Đã có biến động kho, không đổi được.',
+                      key: const Key('text_profile_tracking_locked'),
+                      variant: VTextVariant.bodySmall,
+                      color: dynamicColors.warning,
+                    ),
+                  ],
+                  if (state.errorMessage != null) ...[
+                    const SizedBox(height: VSpacing.space2),
+                    VText(
+                      state.errorMessage!,
+                      key: const Key('text_profile_form_error'),
+                      variant: VTextVariant.bodySmall,
+                      color: dynamicColors.danger,
+                    ),
+                  ],
                 ],
               );
             },

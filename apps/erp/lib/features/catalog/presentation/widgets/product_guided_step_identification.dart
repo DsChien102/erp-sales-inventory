@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
+import '../../data/models/catalog_enums.dart';
 import '../../logic/product_guided_create_cubit.dart';
 import '../../logic/product_guided_create_state.dart';
 import 'product_guided_fields.dart';
@@ -107,6 +108,56 @@ class ProductGuidedStepIdentification extends StatelessWidget {
             ),
           ),
         ],
+        const SizedBox(height: VSpacing.space3),
+        Row(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: VText(
+                      'Quản lý theo lô',
+                      variant: VTextVariant.bodyDefault,
+                      color: dynamicColors.textPrimary,
+                    ),
+                  ),
+                  VSwitch(
+                    key: const Key('switch_guided_tracking_mode'),
+                    value: state.trackingMode == ProductTrackingMode.lot,
+                    enabled: true,
+                    onChanged: (val) => cubit.setTrackingMode(
+                      val ? ProductTrackingMode.lot : ProductTrackingMode.none,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: VSpacing.space4),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: VText(
+                      'Bắt buộc hạn dùng',
+                      variant: VTextVariant.bodyDefault,
+                      color: state.trackingMode == ProductTrackingMode.lot
+                          ? dynamicColors.textPrimary
+                          : dynamicColors.textSecondary,
+                    ),
+                  ),
+                  VSwitch(
+                    key: const Key('switch_guided_expiry_required'),
+                    value: state.expiryRequired,
+                    enabled: state.trackingMode == ProductTrackingMode.lot,
+                    onChanged: state.trackingMode == ProductTrackingMode.lot
+                        ? (val) => cubit.setExpiryRequired(val)
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: VSpacing.space4),
         ProductGuidedFields.buildNavigationButtons(context, showSkip: true),
       ],

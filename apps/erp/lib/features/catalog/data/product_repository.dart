@@ -218,6 +218,8 @@ class ProductRepository {
           },
           'p_list_markup_ratio': input.listMarkupRatio,
           'p_floor_markup_ratio': input.floorMarkupRatio,
+          'p_tracking_mode': input.trackingMode.wire,
+          'p_expiry_required': input.expiryRequired,
           'p_custom_field_values': input.customFieldValues
               .map(
                 (value) => <String, dynamic>{
@@ -407,6 +409,8 @@ class ProductRepository {
     String? barcode,
     String? description,
     String? note,
+    ProductTrackingMode? trackingMode,
+    bool? expiryRequired,
   }) async {
     checkUpdateProfile(
       productName: productName,
@@ -432,6 +436,8 @@ class ProductRepository {
           'p_description': _optionalText(description),
           'p_note': _optionalText(note),
           'p_expected_version': expectedVersion,
+          if (trackingMode != null) 'p_tracking_mode': trackingMode.wire,
+          if (expiryRequired != null) 'p_expiry_required': expiryRequired,
         },
       );
 

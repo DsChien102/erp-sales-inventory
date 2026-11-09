@@ -17,6 +17,8 @@ final class _MockProductRepository extends Fake implements ProductRepository {
     String? barcode,
     String? description,
     String? note,
+    ProductTrackingMode? trackingMode,
+    bool? expiryRequired,
   }) onUpdateProfile;
 
   @override
@@ -29,6 +31,8 @@ final class _MockProductRepository extends Fake implements ProductRepository {
     String? barcode,
     String? description,
     String? note,
+    ProductTrackingMode? trackingMode,
+    bool? expiryRequired,
   }) {
     return onUpdateProfile(
       productId: productId,
@@ -39,6 +43,8 @@ final class _MockProductRepository extends Fake implements ProductRepository {
       barcode: barcode,
       description: description,
       note: note,
+      trackingMode: trackingMode,
+      expiryRequired: expiryRequired,
     );
   }
 }
@@ -66,6 +72,8 @@ void main() {
           description,
           note,
           expectedVersion,
+          trackingMode,
+          expiryRequired,
         }) async {
           throw const AppException(CatalogErrorCodes.duplicateSku);
         },
@@ -89,6 +97,8 @@ void main() {
           description,
           note,
           expectedVersion,
+          trackingMode,
+          expiryRequired,
         }) async {
           throw const AppException(CatalogErrorCodes.duplicateBarcode);
         },
@@ -112,6 +122,8 @@ void main() {
           description,
           note,
           expectedVersion,
+          trackingMode,
+          expiryRequired,
         }) async {
           throw const AppException(CatalogErrorCodes.staleProductVersion);
         },
@@ -135,6 +147,8 @@ void main() {
           description,
           note,
           expectedVersion,
+          trackingMode,
+          expiryRequired,
         }) async {
           throw const AppException(
             CatalogErrorCodes.productNotFound,
@@ -162,6 +176,8 @@ void main() {
           description,
           note,
           expectedVersion,
+          trackingMode,
+          expiryRequired,
         }) async {
           capturedBarcode = barcode;
         },
@@ -187,6 +203,8 @@ void main() {
           description,
           note,
           expectedVersion,
+          trackingMode,
+          expiryRequired,
         }) async {
           repoCalled = true;
         },

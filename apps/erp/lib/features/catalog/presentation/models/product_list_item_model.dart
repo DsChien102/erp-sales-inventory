@@ -1,4 +1,4 @@
-import 'product_business_status.dart';
+import '../../data/models/catalog_enums.dart';
 
 import 'product_readiness_status.dart';
 
@@ -24,6 +24,9 @@ class ProductListItemModel {
     this.industryInfo,
     this.notes,
     this.images,
+    this.trackingMode = ProductTrackingMode.none,
+    this.expiryRequired = false,
+    this.hasInventoryMovements = false,
   });
 
   final String id;
@@ -46,6 +49,9 @@ class ProductListItemModel {
   final String? industryInfo;
   final String? notes;
   final List<String>? images;
+  final ProductTrackingMode trackingMode;
+  final bool expiryRequired;
+  final bool hasInventoryMovements;
 
   bool get isSoftDeleted => businessStatus.isSoftDeleted;
 
@@ -88,6 +94,9 @@ class ProductListItemModel {
     String? industryInfo,
     String? notes,
     List<String>? images,
+    ProductTrackingMode? trackingMode,
+    bool? expiryRequired,
+    bool? hasInventoryMovements,
   }) {
     return ProductListItemModel(
       id: id ?? this.id,
@@ -110,6 +119,9 @@ class ProductListItemModel {
       industryInfo: industryInfo ?? this.industryInfo,
       notes: notes ?? this.notes,
       images: images ?? this.images,
+      trackingMode: trackingMode ?? this.trackingMode,
+      expiryRequired: expiryRequired ?? this.expiryRequired,
+      hasInventoryMovements: hasInventoryMovements ?? this.hasInventoryMovements,
     );
   }
 }

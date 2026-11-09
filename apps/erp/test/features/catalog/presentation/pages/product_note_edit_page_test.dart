@@ -1,4 +1,5 @@
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/catalog/presentation.dart';
 import 'package:erp/features/catalog/presentation/pages/product_note_edit_page.dart';
@@ -18,6 +19,8 @@ final class _MockProductRepository extends Fake implements ProductRepository {
     String? barcode,
     String? description,
     String? note,
+    ProductTrackingMode? trackingMode,
+    bool? expiryRequired,
   }) onUpdateProfile;
 
   @override
@@ -30,6 +33,8 @@ final class _MockProductRepository extends Fake implements ProductRepository {
     String? barcode,
     String? description,
     String? note,
+    ProductTrackingMode? trackingMode,
+    bool? expiryRequired,
   }) {
     return onUpdateProfile(
       productId: productId,
@@ -40,6 +45,8 @@ final class _MockProductRepository extends Fake implements ProductRepository {
       barcode: barcode,
       description: description,
       note: note,
+      trackingMode: trackingMode,
+      expiryRequired: expiryRequired,
     );
   }
 }
@@ -93,6 +100,8 @@ void main() {
         description,
         note,
         expectedVersion,
+        trackingMode,
+        expiryRequired,
       }) async {
         savedNote = note;
       },
@@ -140,6 +149,8 @@ void main() {
         description,
         note,
         expectedVersion,
+        trackingMode,
+        expiryRequired,
       }) async {
         throw const AppException(
           AppErrorCode.noPermission,

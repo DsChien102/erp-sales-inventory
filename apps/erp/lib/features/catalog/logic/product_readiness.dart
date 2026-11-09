@@ -459,6 +459,9 @@ abstract final class ProductControlCenterAssembler {
         images: model.images,
         description: model.description,
         note: model.note,
+        trackingMode: model.trackingMode,
+        expiryRequired: model.expiryRequired,
+        hasInventoryMovements: model.hasInventoryMovements,
       ),
       units: ProductUnitsCardDto(
         baseUnitName: hasBaseUnit ? model.baseUnitName : null,

@@ -127,6 +127,8 @@ class FakeProductRepository extends ProductRepository {
     String? barcode,
     String? description,
     String? note,
+    ProductTrackingMode? trackingMode,
+    bool? expiryRequired,
   }) {
     calls.add('updateProfile');
     return backend.handleUpdateProfile(
@@ -138,6 +140,8 @@ class FakeProductRepository extends ProductRepository {
       barcode: barcode,
       description: description,
       note: note,
+      trackingMode: trackingMode,
+      expiryRequired: expiryRequired,
     );
   }
 

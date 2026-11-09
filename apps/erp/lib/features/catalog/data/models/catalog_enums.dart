@@ -1,6 +1,25 @@
 /// Catalog enums and status objects.
 library;
 
+enum ProductTrackingMode {
+  none('none'),
+  lot('lot');
+
+  const ProductTrackingMode(this.wire);
+  final String wire;
+
+  static ProductTrackingMode fromWire(String? raw) {
+    final normalized = (raw ?? '').trim().toLowerCase();
+    return switch (normalized) {
+      'lot' => lot,
+      _ => none,
+    };
+  }
+
+  bool get isLot => this == lot;
+  bool get isNone => this == none;
+}
+
 /// Business lifecycle status for a product (source of truth for soft delete).
 final class ProductBusinessStatus {
   const ProductBusinessStatus._(this._wire);

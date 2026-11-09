@@ -51,6 +51,8 @@ class ProductGuidedCreateState {
     this.customFieldValues = const {},
     this.customFieldValidationErrors = const {},
     this.note = '',
+    this.trackingMode = ProductTrackingMode.none,
+    this.expiryRequired = false,
   });
 
   final String name;
@@ -60,6 +62,8 @@ class ProductGuidedCreateState {
   final List<ProductImageDraft> imageDrafts;
   final int coverImageIndex;
   final String baseUnit;
+  final ProductTrackingMode trackingMode;
+  final bool expiryRequired;
 
   final String basicStockQuantityBase;
   final String baseCost;
@@ -223,6 +227,8 @@ class ProductGuidedCreateState {
     Map<String, ProductCustomFieldValueInput>? customFieldValues,
     Map<String, String>? customFieldValidationErrors,
     String? note,
+    ProductTrackingMode? trackingMode,
+    bool? expiryRequired,
   }) {
     return ProductGuidedCreateState(
       name: name ?? this.name,
@@ -232,6 +238,8 @@ class ProductGuidedCreateState {
       imageDrafts: imageDrafts ?? this.imageDrafts,
       coverImageIndex: coverImageIndex ?? this.coverImageIndex,
       baseUnit: baseUnit ?? this.baseUnit,
+      trackingMode: trackingMode ?? this.trackingMode,
+      expiryRequired: expiryRequired ?? this.expiryRequired,
       basicStockQuantityBase: basicStockQuantityBase ?? this.basicStockQuantityBase,
       baseCost: baseCost ?? this.baseCost,
       pricingMethod: pricingMethod ?? this.pricingMethod,

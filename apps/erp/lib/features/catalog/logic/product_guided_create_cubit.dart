@@ -113,6 +113,22 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     emit(state.copyWith(tradeName: val));
   }
 
+  void setTrackingMode(ProductTrackingMode mode) {
+    emit(
+      state.copyWith(
+        trackingMode: mode,
+        expiryRequired: mode == ProductTrackingMode.none ? false : state.expiryRequired,
+      ),
+    );
+  }
+
+  void setExpiryRequired(bool val) {
+    if (state.trackingMode == ProductTrackingMode.none) {
+      return;
+    }
+    emit(state.copyWith(expiryRequired: val));
+  }
+
   void updateNote(String val) {
     emit(state.copyWith(note: val));
   }
@@ -611,6 +627,8 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         listMarkupRatio: priceBandSubmission.listMarkupRatio,
         floorMarkupRatio: priceBandSubmission.floorMarkupRatio,
         customFieldValues: activeValues,
+        trackingMode: state.trackingMode,
+        expiryRequired: state.expiryRequired,
       );
 
       final createResult = await _productRepository.createGuided(input);

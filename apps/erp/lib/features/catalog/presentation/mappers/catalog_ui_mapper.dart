@@ -111,6 +111,9 @@ class CatalogUiMapper {
       floorBeforeVat: floorBeforeVat,
       listAfterVat: listAfterVat,
       floorAfterVat: floorAfterVat,
+      trackingMode: state.trackingMode,
+      expiryRequired: state.expiryRequired,
+      hasInventoryMovements: false,
     );
   }
 
@@ -157,6 +160,9 @@ class CatalogUiMapper {
       baseUnit: cc.units.baseUnitName,
       notes: cc.profile.note,
       stockQty: cc.stock.quantity,
+      trackingMode: cc.profile.trackingMode,
+      expiryRequired: cc.profile.expiryRequired,
+      hasInventoryMovements: cc.profile.hasInventoryMovements,
     );
   }
 }

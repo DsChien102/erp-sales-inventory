@@ -63,6 +63,7 @@ String catalogErrorMessage(
     CatalogErrorCodes.storePriceRuleInactive => 'Khung giá cửa hàng đang tắt.',
     CatalogErrorCodes.duplicateCustomFieldGroupName => 'Tên nhóm đã tồn tại.',
     CatalogErrorCodes.duplicateCustomFieldName => 'Tên trường đã tồn tại trong nhóm.',
+    CatalogErrorCodes.trackingLocked => 'Đã có biến động kho, không đổi được.',
     CatalogErrorCodes.customFieldTypeChangeBlocked => 'Không đổi được kiểu dữ liệu do đã có dữ liệu.',
     CatalogErrorCodes.customFieldGroupNotFound || CatalogErrorCodes.customFieldNotFound =>
       'Không tìm thấy nhóm / trường.',

@@ -103,6 +103,8 @@ final class CreateGuidedProductInput {
     this.listMarkupRatio,
     this.floorMarkupRatio,
     this.customFieldValues = const [],
+    this.trackingMode = ProductTrackingMode.none,
+    this.expiryRequired = false,
   });
 
   final String productName;
@@ -121,5 +123,7 @@ final class CreateGuidedProductInput {
   final double? listMarkupRatio;
   final double? floorMarkupRatio;
   final List<ProductCustomFieldValueInput> customFieldValues;
+  final ProductTrackingMode trackingMode;
+  final bool expiryRequired;
 }
 
