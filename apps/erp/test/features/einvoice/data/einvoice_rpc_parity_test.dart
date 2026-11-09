@@ -1,5 +1,3 @@
-// ignore_for_file: implementation_imports
-
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dart';
@@ -13,404 +11,10 @@ import 'package:erp/features/einvoice/data/mappers/issuance_json.dart';
 import 'package:erp/features/einvoice/data/models.dart' as new_models;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase/supabase.dart';
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_einvoice_infrastructure/src/data_access/einvoice_rpc_mapper.dart';
-import 'package:vet45_einvoice_infrastructure/src/data_access/electronic_invoice_rpc_mapper.dart';
-import 'package:vet45_einvoice_infrastructure/src/domain/delivery/delivery_rpc_mapper.dart';
-import 'package:vet45_einvoice_infrastructure/src/domain/issuance/issuance_rpc_mapper.dart';
 
 import 'einvoice_parity_expectations.dart';
 
 void main() {
-  group('old', () {
-    group('params parity', () {
-      test(
-        'C1: get_provider_connection_screen',
-        () {},
-        skip: '⏭ Gateway cũ dựng map tại chỗ qua SupabaseSchemaRpcClient (vet45_adapters không nằm trong dependencies của apps/erp); đã đối chiếu mã nguồn SupabaseProviderConnectionReadGateway.getConnectionScreen khớp expectedGetConnectionScreenParams',
-      );
-
-      test('C2: connect_provider', () {
-        final withVer = EinvoiceRpcMapper.connectProviderParams(
-          ConnectProviderCommand(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            username: parityRawUsername,
-            password: parityRawPassword,
-            expectedConnectionVersion: 3,
-          ),
-        );
-        expect(withVer, equals(expectedConnectParamsWithVersion));
-
-        final withoutVer = EinvoiceRpcMapper.connectProviderParams(
-          ConnectProviderCommand(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            username: parityRawUsername,
-            password: parityRawPassword,
-          ),
-        );
-        expect(withoutVer, equals(expectedConnectParamsWithoutVersion));
-      });
-
-      test('C3: reconnect_provider', () {
-        final withVer = EinvoiceRpcMapper.reconnectProviderParams(
-          ReconnectProviderCommand(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            connectionId: parityRawConnectionId,
-            username: parityRawUsername,
-            password: parityRawPassword,
-            expectedConnectionVersion: 3,
-          ),
-        );
-        expect(withVer, equals(expectedReconnectParamsWithVersion));
-
-        final withoutVer = EinvoiceRpcMapper.reconnectProviderParams(
-          ReconnectProviderCommand(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            connectionId: parityRawConnectionId,
-            username: parityRawUsername,
-            password: parityRawPassword,
-          ),
-        );
-        expect(withoutVer, equals(expectedReconnectParamsWithoutVersion));
-      });
-
-      test('C4: disconnect_provider', () {
-        final params = EinvoiceRpcMapper.disconnectProviderParams(
-          DisconnectProviderCommand(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            connectionId: parityRawConnectionId,
-            confirm: true,
-          ),
-        );
-        expect(params, equals(expectedDisconnectParams));
-      });
-
-      test(
-        'C5: list_provider_templates',
-        () {},
-        skip: '⏭ Gateway cũ dựng map tại chỗ qua SupabaseSchemaRpcClient; đã đối chiếu mã nguồn SupabaseProviderConnectionReadGateway.listProviderTemplates khớp expectedListTemplatesParamsWithFilters / expectedListTemplatesParamsWithoutFilters',
-      );
-
-      test(
-        'C6: get_issuance_profile',
-        () {},
-        skip: '⏭ Gateway cũ dựng map tại chỗ qua SupabaseSchemaRpcClient; đã đối chiếu mã nguồn SupabaseIssuanceProfileGateway.getProfile khớp expectedGetIssuanceProfileParams',
-      );
-
-      test(
-        'C7: set_default_issuance_configuration',
-        () {},
-        skip: '⏭ Gateway cũ dựng map tại chỗ qua SupabaseSchemaRpcClient; đã đối chiếu mã nguồn SupabaseIssuanceProfileGateway.setDefaultConfiguration khớp expectedSetDefaultConfigurationParamsWithVersion / expectedSetDefaultConfigurationParamsWithoutVersion',
-      );
-
-      test(
-        'C8: get_automation_policy',
-        () {},
-        skip: '⏭ Gateway cũ dựng map tại chỗ qua SupabaseSchemaRpcClient; đã đối chiếu mã nguồn SupabaseAutomationPolicyGateway.getPolicy khớp expectedGetAutomationPolicyParams',
-      );
-
-      test(
-        'C9: update_automation_policy',
-        () {},
-        skip: '⏭ Gateway cũ dựng map tại chỗ qua SupabaseSchemaRpcClient; đã đối chiếu mã nguồn SupabaseAutomationPolicyGateway.updatePolicy khớp expectedUpdateAutomationPolicyParamsWithBoth / expectedUpdateAutomationPolicyParamsAutoIssueOnly',
-      );
-
-      test(
-        'C10: get_configuration_readiness',
-        () {},
-        skip: '⏭ Gateway cũ dựng map tại chỗ qua SupabaseSchemaRpcClient; đã đối chiếu mã nguồn SupabaseConfigurationReadinessReadGateway.getReadiness khớp expectedGetConfigurationReadinessParamsWithPurpose / expectedGetConfigurationReadinessParamsWithoutPurpose',
-      );
-
-      test('O1: get_order_invoice_projection', () {
-        final params = IssuanceRpcMapper.orderInvoiceProjectionParams(
-          tenantId: parityTenantId,
-          actorId: parityActorId,
-          salesOrderId: parityOrderId,
-        );
-        expect(params, equals(expectedGetOrderInvoiceProjectionParams));
-      });
-
-      test(
-        'O2: get_issuance_readiness',
-        () {},
-        skip: '⏭ Gateway cũ dựng map tại chỗ qua SupabaseSchemaRpcClient; đã đối chiếu mã nguồn SupabaseIssuanceReadinessReadGateway.load khớp expectedGetIssuanceReadinessParams',
-      );
-
-      test('O3: get_issuance_attempt_status', () {
-        final params = IssuanceRpcMapper.getIssuanceAttemptStatusParams(
-          tenantId: parityTenantId,
-          actorId: parityActorId,
-          salesOrderId: parityOrderId,
-        );
-        expect(params, equals(expectedGetIssuanceAttemptStatusParams));
-      });
-
-      test(
-        'O4: request_invoice_preview',
-        () {},
-        skip: '⏭ Gateway cũ dựng map tại chỗ qua SupabaseSchemaRpcClient; đã đối chiếu mã nguồn SupabaseInvoicePreviewGateway.persistRequestAndEnqueue khớp expectedRequestInvoicePreviewParams',
-      );
-
-      test(
-        'O5: get_invoice_preview',
-        () {},
-        skip: '⏭ Gateway cũ dựng map tại chỗ qua SupabaseSchemaRpcClient; đã đối chiếu mã nguồn SupabaseInvoicePreviewGateway.readCached khớp expectedGetInvoicePreviewParams',
-      );
-
-      test('O6: issue_invoice', () {
-        final withAck = IssuanceRpcMapper.issueInvoiceParams(
-          const IssueInvoiceStartRequest(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            salesOrderId: parityOrderId,
-            sourceVersion: '1',
-            idempotencyKey: parityIdempotencyKey,
-            acknowledgeWarnings: true,
-          ),
-        );
-        expect(withAck, equals(expectedIssueInvoiceParamsWithAck));
-
-        final withoutAck = IssuanceRpcMapper.issueInvoiceParams(
-          const IssueInvoiceStartRequest(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            salesOrderId: parityOrderId,
-            sourceVersion: '1',
-            idempotencyKey: parityIdempotencyKey,
-            acknowledgeWarnings: false,
-          ),
-        );
-        expect(withoutAck, equals(expectedIssueInvoiceParamsWithoutAck));
-      });
-
-      test('O7: retry_issuance', () {
-        final params = IssuanceRpcMapper.retryIssuanceParams(
-          const RetryIssuanceStartRequest(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            salesOrderId: parityOrderId,
-            expectedOrderVersion: 7,
-            idempotencyKey: parityIdempotencyKey,
-            acknowledgeWarnings: false,
-          ),
-        );
-        expect(params, equals(expectedRetryIssuanceParams));
-      });
-
-      test('O8, O9, O11: scopedSalesOrderParams', () {
-        final params = ElectronicInvoiceRpcMapper.scopedSalesOrderParams(
-          tenantId: parityTenantId,
-          actorId: parityActorId,
-          salesOrderId: parityOrderId,
-        );
-        expect(params, equals(expectedRequestOfficialViewParams));
-        expect(params, equals(expectedGetElectronicInvoiceDetailParams));
-        expect(params, equals(expectedGetInvoiceDocumentsParams));
-      });
-
-      test('O10: requestDocumentParams', () {
-        final pdf = ElectronicInvoiceRpcMapper.requestDocumentParams(
-          tenantId: parityTenantId,
-          actorId: parityActorId,
-          salesOrderId: parityOrderId,
-          documentType: InvoiceDocumentType.pdf,
-        );
-        expect(pdf, equals(expectedRequestDocumentPdfParams));
-
-        final xml = ElectronicInvoiceRpcMapper.requestDocumentParams(
-          tenantId: parityTenantId,
-          actorId: parityActorId,
-          salesOrderId: parityOrderId,
-          documentType: InvoiceDocumentType.xml,
-        );
-        expect(xml, equals(expectedRequestDocumentXmlParams));
-      });
-
-      test('O12: sendSheetContextParams', () {
-        final params = DeliveryRpcMapper.sendSheetContextParams(
-          tenantId: parityTenantId,
-          actorId: parityActorId,
-          salesOrderId: parityOrderId,
-        );
-        expect(params, equals(expectedGetSendSheetContextParams));
-      });
-
-      test('O13: send_electronic_invoice', () {
-        final params = DeliveryRpcMapper.startManualParams(
-          const ManualDeliveryStartRequest(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            salesOrderId: parityOrderId,
-            recipientEmail: parityRawEmail,
-            idempotencyKey: parityIdempotencyKey,
-          ),
-        );
-        expect(params, equals(expectedSendElectronicInvoiceParams));
-      });
-
-      test('O14: historyParams', () {
-        final params = DeliveryRpcMapper.historyParams(
-          tenantId: parityTenantId,
-          actorId: parityActorId,
-          salesOrderId: parityOrderId,
-        );
-        expect(params, equals(expectedGetInvoiceDeliveryHistoryParams));
-      });
-    });
-
-    group('json parsing parity', () {
-      test('parse_mapConnectionScreen', () {
-        final screen = EinvoiceRpcMapper.mapConnectionScreen(sampleConnectionScreenJson());
-        expectConnectionScreen(screen);
-      });
-
-      test('parse_mapConnectionResult', () {
-        final result = EinvoiceRpcMapper.mapConnectionResult(sampleConnectionResultJson());
-        expectConnectionResult(result);
-      });
-
-      test('parse_mapTemplateList', () {
-        final templates = EinvoiceRpcMapper.mapTemplateList(sampleTemplateListJson());
-        expectTemplateList(templates);
-      });
-
-      test('parse_mapIssuanceProfile', () {
-        final profile = EinvoiceRpcMapper.mapIssuanceProfile(sampleIssuanceProfileJson());
-        expectIssuanceProfile(profile);
-      });
-
-      test('parse_mapAutomationPolicy', () {
-        final policy = EinvoiceRpcMapper.mapAutomationPolicy(sampleAutomationPolicyJson());
-        expectAutomationPolicy(policy);
-      });
-
-      test('parse_mapConfigurationReadiness', () {
-        final readiness = EinvoiceRpcMapper.mapConfigurationReadiness(sampleConfigurationReadinessJson());
-        expectConfigurationReadiness(readiness);
-      });
-
-      test('parse_orderInvoiceProjectionFromRow', () {
-        final projection = IssuanceRpcMapper.orderInvoiceProjectionFromRow(sampleOrderInvoiceProjectionJson());
-        expectOrderInvoiceProjection(projection);
-      });
-
-      test('parse_issuanceAttemptStatusFromRow', () {
-        final status = IssuanceRpcMapper.issuanceAttemptStatusFromRow(sampleIssuanceAttemptStatusJson());
-        expectIssuanceAttemptStatus(status);
-      });
-
-      test('parse_invoicePreviewResultFromRow', () {
-        final preview = EinvoiceRpcMapper.invoicePreviewResultFromRow(sampleInvoicePreviewResultJson());
-        expectInvoicePreviewResult(preview);
-      });
-
-      test('parse_issueInvoiceResultFromRow', () {
-        final result = IssuanceRpcMapper.issueInvoiceResultFromRow(sampleIssueInvoiceResultJson());
-        expectIssueInvoiceResult(result);
-      });
-
-      test('parse_officialViewFromRow', () {
-        final view = ElectronicInvoiceRpcMapper.officialViewFromRow(sampleOfficialViewJson());
-        expectOfficialInvoiceView(view);
-      });
-
-      test('parse_documentRetrievalFromRow', () {
-        final doc = ElectronicInvoiceRpcMapper.documentRetrievalFromRow(sampleDocumentRetrievalJson());
-        expectInvoiceDocumentRetrieval(doc);
-      });
-
-      test('parse_detailFromRow', () {
-        final detail = ElectronicInvoiceRpcMapper.detailFromRow(sampleDetailJson());
-        expectElectronicInvoiceDetail(detail);
-      });
-
-      test('parse_documentsFromRow', () {
-        final docs = ElectronicInvoiceRpcMapper.documentsFromRow(sampleDocumentsJson());
-        expectInvoiceDocuments(docs);
-      });
-
-      test('parse_sendSheetContextFromRow', () {
-        final context = DeliveryRpcMapper.sendSheetContextFromRow(sampleSendSheetContextJson());
-        expectSendInvoiceSheetContext(context);
-      });
-
-      test('parse_sendInvoiceResultFromRow', () {
-        final result = DeliveryRpcMapper.sendInvoiceResultFromRow(sampleSendInvoiceResultJson());
-        expectSendInvoiceResult(result);
-      });
-
-      test('parse_historyFromRow', () {
-        final history = DeliveryRpcMapper.historyFromRow(sampleHistoryJson());
-        expectInvoiceDeliveryHistory(history);
-      });
-    });
-
-    group('readiness_dto via GetIssuanceReadinessQueryHandler', () {
-      test('readiness_dto ready', () async {
-        final input = EinvoiceRpcMapper.issuanceReadinessInputFromRow(sampleReadinessReadyJson());
-        final gateway = _FakeReadinessGateway(input);
-        final handler = GetIssuanceReadinessQueryHandler(readinessGateway: gateway);
-        final dto = await handler.handle(
-          GetIssuanceReadinessQuery(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            salesOrderId: parityOrderId,
-          ),
-        );
-        expectIssuanceReadiness(
-          dto,
-          expectedLevel: 'ready',
-          expectedBlockers: const [],
-          expectedWarnings: const [],
-        );
-      });
-
-      test('readiness_dto missing template', () async {
-        final input = EinvoiceRpcMapper.issuanceReadinessInputFromRow(sampleReadinessMissingTemplateJson());
-        final gateway = _FakeReadinessGateway(input);
-        final handler = GetIssuanceReadinessQueryHandler(readinessGateway: gateway);
-        final dto = await handler.handle(
-          GetIssuanceReadinessQuery(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            salesOrderId: parityOrderId,
-          ),
-        );
-        expectIssuanceReadiness(
-          dto,
-          expectedLevel: 'notReady',
-          expectedBlockers: ['CONFIG_NOT_READY'],
-          expectedWarnings: const [],
-        );
-      });
-
-      test('readiness_dto org missing tax code', () async {
-        final input = EinvoiceRpcMapper.issuanceReadinessInputFromRow(sampleReadinessOrgMissingTaxJson());
-        final gateway = _FakeReadinessGateway(input);
-        final handler = GetIssuanceReadinessQueryHandler(readinessGateway: gateway);
-        final dto = await handler.handle(
-          GetIssuanceReadinessQuery(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            salesOrderId: parityOrderId,
-          ),
-        );
-        expectIssuanceReadiness(
-          dto,
-          expectedLevel: 'notReady',
-          expectedBlockers: ['BUYER_TAX_CODE_REQUIRED'],
-          expectedWarnings: const [],
-        );
-      });
-    });
-  });
-
   group('new (json)', () {
     test('parse_mapConnectionScreen', () {
       final screen = EInvoiceConfigurationJson.mapConnectionScreen(sampleConnectionScreenJson());
@@ -939,42 +543,50 @@ void main() {
       expect(trigger.kicks, isEmpty);
     });
 
-    test('readiness_dto parity: new repository matches GetIssuanceReadinessQueryHandler on all 3 sets', () async {
+    test('readiness_dto: new repository maps all 3 sets', () async {
       final samples = [
-        sampleReadinessReadyJson(),
-        sampleReadinessMissingTemplateJson(),
-        sampleReadinessOrgMissingTaxJson(),
+        (
+          sample: sampleReadinessReadyJson(),
+          level: 'ready',
+          buyer: 'locked',
+          blockers: <(String, String)>[],
+          warnings: <(String, String)>[],
+        ),
+        (
+          sample: sampleReadinessMissingTemplateJson(),
+          level: 'notReady',
+          buyer: 'locked',
+          blockers: <(String, String)>[
+            ('CONFIG_NOT_READY', 'Cấu hình phát hành chưa sẵn sàng'),
+          ],
+          warnings: <(String, String)>[],
+        ),
+        (
+          sample: sampleReadinessOrgMissingTaxJson(),
+          level: 'notReady',
+          buyer: 'locked',
+          blockers: <(String, String)>[
+            ('BUYER_TAX_CODE_REQUIRED', 'Khách tổ chức thiếu mã số thuế'),
+          ],
+          warnings: <(String, String)>[],
+        ),
       ];
 
-      for (final sample in samples) {
-        // old handler
-        final oldInput = EinvoiceRpcMapper.issuanceReadinessInputFromRow(sample);
-        final oldHandler = GetIssuanceReadinessQueryHandler(
-          readinessGateway: _FakeReadinessGateway(oldInput),
-        );
-        final oldDto = await oldHandler.handle(
-          GetIssuanceReadinessQuery(
-            tenantId: parityTenantId,
-            actorId: parityActorId,
-            salesOrderId: parityOrderId,
-          ),
-        );
-
-        // new repository
-        rpc.result = [sample];
+      for (final s in samples) {
+        rpc.result = [s.sample];
         final newDto = await repository.getReadiness(parityOrderId);
 
-        expect(newDto.level.name, oldDto.level.name);
-        expect(newDto.buyerCompletionState.name, oldDto.buyerCompletionState.name);
-        expect(newDto.blockers.length, oldDto.blockers.length);
+        expect(newDto.level.name, s.level);
+        expect(newDto.buyerCompletionState.name, s.buyer);
+        expect(newDto.blockers.length, s.blockers.length);
         for (var i = 0; i < newDto.blockers.length; i++) {
-          expect(newDto.blockers[i].code, oldDto.blockers[i].code);
-          expect(newDto.blockers[i].message, oldDto.blockers[i].message);
+          expect(newDto.blockers[i].code, s.blockers[i].$1);
+          expect(newDto.blockers[i].message, s.blockers[i].$2);
         }
-        expect(newDto.warnings.length, oldDto.warnings.length);
+        expect(newDto.warnings.length, s.warnings.length);
         for (var i = 0; i < newDto.warnings.length; i++) {
-          expect(newDto.warnings[i].code, oldDto.warnings[i].code);
-          expect(newDto.warnings[i].message, oldDto.warnings[i].message);
+          expect(newDto.warnings[i].code, s.warnings[i].$1);
+          expect(newDto.warnings[i].message, s.warnings[i].$2);
         }
       }
     });
@@ -1067,18 +679,4 @@ class _FakeSignedUrls extends InvoiceDocumentSignedUrls {
   @override
   DateTime leaseExpiresAt({DateTime? now}) =>
       expiresAtToReturn ?? (now ?? DateTime.utc(2026, 11, 8, 12, 5, 0));
-}
-
-class _FakeReadinessGateway implements IIssuanceReadinessReadGateway {
-  _FakeReadinessGateway(this.input);
-  final IssuanceReadinessInput input;
-
-  @override
-  Future<IssuanceReadinessInput> load({
-    required String tenantId,
-    required String actorId,
-    required String salesOrderId,
-  }) async {
-    return input;
-  }
 }

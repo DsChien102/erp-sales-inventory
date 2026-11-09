@@ -1,11 +1,7 @@
-// ignore_for_file: implementation_imports
-
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/einvoice/data/einvoice_errors.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase/supabase.dart';
-import 'package:vet45_einvoice_infrastructure/src/errors/einvoice_error_mapper.dart';
-import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 void main() {
   group('einvoice_errors', () {
@@ -18,16 +14,11 @@ void main() {
       'ISSUANCE_NOT_READY: provider not connected': EInvoiceErrorCodes.issuanceNotReady,
     };
 
-    group('common cases with old mapEinvoiceRpcError parity', () {
+    group('common cases', () {
       for (final entry in commonCases.entries) {
         test('maps "${entry.key}" -> ${entry.value}', () {
           final pgEx = PostgrestException(message: entry.key, code: 'P0001');
 
-          // Old mapping
-          final oldException = mapEinvoiceRpcError(RpcException(pgEx.toString()));
-          expect(oldException.code, entry.value);
-
-          // New mapping
           final appEx = AppException.from(pgEx);
           final mapped = einvoiceException(appEx);
           expect(mapped.code, entry.value);
@@ -40,9 +31,6 @@ void main() {
           message: 'permission denied for function issue_invoice',
           code: '42501',
         );
-
-        final oldException = mapEinvoiceRpcError(RpcException(pgEx.toString()));
-        expect(oldException.code, EInvoiceErrorCodes.noPermission);
 
         final appEx = AppException.from(pgEx);
         final mapped = einvoiceException(appEx);
