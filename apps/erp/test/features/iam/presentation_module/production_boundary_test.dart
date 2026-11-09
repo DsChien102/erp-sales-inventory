@@ -10,7 +10,7 @@ Directory _repoRoot() {
       final text = pubspec.readAsStringSync();
       if (text.contains('name: vet45') &&
           Directory('${dir.path}/apps').existsSync() &&
-          Directory('${dir.path}/modules').existsSync()) {
+          Directory('${dir.path}/packages').existsSync()) {
         return dir;
       }
     }
