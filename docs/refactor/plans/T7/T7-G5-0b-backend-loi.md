@@ -62,6 +62,7 @@ Q-b1…Q-b9: bản đầu (2026-11-09). Q-b10…Q-b15: sửa theo rút gọn The
 | Q-b14 | **Hub:** gỡ "Chờ duyệt" (dòng Cần chú ý, trang `/warehouse/approvals`, model `WarehousePendingGroup` / `Item`), gỡ `reconciliation`; `problems` để `null` (G5-2 điền "sắp hết / cận hạn"). Gỡ lối vào các BJ bị bỏ khỏi `warehouseAreaEntries`; lối "Giá vốn" giữ phụ đề `Tính, rà soát và công bố giá vốn` (G5-6 gắn route). Nút nhanh "Lấy hàng" **bỏ** (còn 3 nút: Nhận hàng, Kiểm kê, Tra cứu tồn) |
 | Q-b16 | **G5-0b dựng phần giá vốn dùng lúc ghi sổ:** `cost_policies` (mặc định `MOVING`), `cost_periods` (khoá sổ `PERIOD_CLOSED`), `cost_versions` (chỉ bảng; G5-6 mới tạo dòng). **Không** có `cost_runs` / `cost_run_lines` / RPC tính, công bố (G5-6) |
 | Q-b18 | **Ưu đãi NCC (spec giá vốn mục 12):** G5-0b chỉ chuẩn bị sổ giá trị (loại `SUPPLIER_REBATE`, cột `supplier_rebate_id`); bảng chương trình thuộc G5-2b, ghi nhận chiết khấu thuộc G5-5b. Giá gốc gồm VAT (spec GV-6) — không ảnh hưởng lõi (người gọi truyền giá gốc) |
+| Q-b19 | **Bỏ tồn đầu kỳ** (2026-11-09): không có `OPENING`; kho bắt đầu trống, hàng vào lần đầu qua phiếu nhận. Hub khi `activated = false`: banner "Kho chưa có hàng" + nút "Lập phiếu nhận" (thay "Kho chưa kích hoạt" + "Khởi tạo tồn kho"), nút nhanh không tắt; gỡ lối vào `initial_stock` và khu "Thiết lập kho" (Task 7) |
 | Q-b17 | **Luật giá tách hàm `inventory._value_line`** (tính đơn giá, số tiền, cập nhật `product_costs`, ghi `value_movements`); `_post_movements` gọi cho từng dòng — test riêng được, G5-6 đọc cùng luật để phát lại liên hoàn |
 | Q-b15 | **Xoá khuôn K2 (`k2_approval.dart`) và K3 (`k3_unknown_page.dart`)** cùng test của chúng (giữ phần K4 của `k3_k4_test.dart`) |
 
@@ -75,9 +76,9 @@ Mọi bảng: `tenant_id uuid not null`, RLS bật, `revoke all … from public,
 |---|---|---|---|
 | `ledger_counters` | `tenant_id` (PK), `last_sequence` | dùng chung cho cả hai sổ | giữ |
 | `lots` | như Task 2 | `unique (tenant_id, product_id, lot_code_normalized)` | giữ |
-| `stock_movements` | `id`, `ledger_sequence`, `warehouse_id`, `product_id`, `lot_id`, `intent_type`, `intent_id`, `intent_line_id`, `movement_kind`, `reason`, `quantity_delta`, `business_date`, `created_at`, `created_by` | `quantity_delta <> 0`; `movement_kind in ('OPENING','RECEIPT','SALE','SALE_REVERSAL','RETURN_IN','COUNT_GAIN','COUNT_LOSS','WRITE_OFF')`; `reason is null or reason in ('DAMAGED','EXPIRED','LOSS','COUNT')`; chỉ thêm | **bỏ** `from_state`, `to_state`, `valuation_state`, `chk_stock_movements_state_change`; **thêm** `reason`, check `movement_kind` |
+| `stock_movements` | `id`, `ledger_sequence`, `warehouse_id`, `product_id`, `lot_id`, `intent_type`, `intent_id`, `intent_line_id`, `movement_kind`, `reason`, `quantity_delta`, `business_date`, `created_at`, `created_by` | `quantity_delta <> 0`; `movement_kind in ('RECEIPT','SALE','SALE_REVERSAL','RETURN_IN','COUNT_GAIN','COUNT_LOSS','WRITE_OFF')`; `reason is null or reason in ('DAMAGED','EXPIRED','LOSS','COUNT')`; chỉ thêm | **bỏ** `from_state`, `to_state`, `valuation_state`, `chk_stock_movements_state_change`; **thêm** `reason`, check `movement_kind` |
 | `stock_balances` | `warehouse_id`, `product_id`, `lot_key`, `physical_quantity`, `last_ledger_sequence`, `updated_at` | `unique (tenant_id, warehouse_id, product_id, lot_key)`; `physical_quantity >= 0` | **bỏ** `stock_state`, `valuation_state` |
-| `value_movements` | spec mục 3.1: `ledger_sequence`, `product_id`, `movement_id`, `kind` (12 loại, gồm `SUPPLIER_REBATE`), `quantity_basis`, `unit_cost`, `amount_vnd`, `cost_version_id`, `is_provisional`, `cost_run_id`, `supplier_rebate_id`, `source_movement_id`, `business_date`, `created_at`, `created_by` | chỉ thêm; loại điều chỉnh của lần tính (`COGS_TRUE_UP`, `LOSS_TRUE_UP`, `REVALUE_ROUNDING`) ⇒ `movement_id is null and cost_run_id is not null`; `SUPPLIER_REBATE` ⇒ `movement_id is null and supplier_rebate_id is not null` (FK thêm ở G5-5b); loại khác ⇒ `movement_id is not null` | **đổi dạng** (bỏ `warehouse_id`, `lot_id`, `intent_*`, `movement_kind`; thêm các cột spec) |
+| `value_movements` | spec mục 3.1: `ledger_sequence`, `product_id`, `movement_id`, `kind` (11 loại, gồm `SUPPLIER_REBATE`), `quantity_basis`, `unit_cost`, `amount_vnd`, `cost_version_id`, `is_provisional`, `cost_run_id`, `supplier_rebate_id`, `source_movement_id`, `business_date`, `created_at`, `created_by` | chỉ thêm; loại điều chỉnh của lần tính (`COGS_TRUE_UP`, `LOSS_TRUE_UP`, `REVALUE_ROUNDING`) ⇒ `movement_id is null and cost_run_id is not null`; `SUPPLIER_REBATE` ⇒ `movement_id is null and supplier_rebate_id is not null` (FK thêm ở G5-5b); loại khác ⇒ `movement_id is not null` | **đổi dạng** (bỏ `warehouse_id`, `lot_id`, `intent_*`, `movement_kind`; thêm các cột spec) |
 | `product_costs` | PK `(tenant_id, product_id)`; `quantity_on_hand`, `ledger_value_vnd bigint`, `moving_avg_cost numeric(18,4)`, `official_version_id`, `official_unit_cost`, `last_ledger_sequence`, `updated_at` | `quantity_on_hand >= 0`, `moving_avg_cost >= 0` | **mới** |
 | `cost_policies` | PK `tenant_id`; `method` (`MOVING` / `PERIODIC`), `changed_at`, `changed_by` | không có dòng = `MOVING` | **mới** |
 | `cost_periods` | `id`, `period_month date`, `status` (`OPEN` / `CLOSED`), `closed_at`, `closed_by`, `closing_run_id uuid` (FK thêm ở G5-6) | `unique (tenant_id, period_month)`; `period_month` là ngày 1 | **mới** |
@@ -104,7 +105,7 @@ Mọi bảng: `tenant_id uuid not null`, RLS bật, `revoke all … from public,
 
 `inventory._post_movements(p_tenant_id uuid, p_warehouse_id uuid, p_intent_type text, p_intent_id uuid, p_business_date date, p_lines jsonb) returns jsonb`
 
-Mỗi phần tử `p_lines`: `{line_id, product_id, lot_code?, expiry_date?, expiry_precision?, manufacture_date?, quantity_delta, movement_kind, reason?, unit_cost?, amount_vnd?, source_movement_id?}`. `quantity_delta > 0` = vào kho, `< 0` = ra kho; dấu phải khớp `movement_kind` (vào: `OPENING`, `RECEIPT`, `RETURN_IN`, `COUNT_GAIN`, `SALE_REVERSAL`; ra: `SALE`, `COUNT_LOSS`, `WRITE_OFF`) — sai → `CONTEXT_INVALID`.
+Mỗi phần tử `p_lines`: `{line_id, product_id, lot_code?, expiry_date?, expiry_precision?, manufacture_date?, quantity_delta, movement_kind, reason?, unit_cost?, amount_vnd?, source_movement_id?}`. `quantity_delta > 0` = vào kho, `< 0` = ra kho; dấu phải khớp `movement_kind` (vào: `RECEIPT`, `RETURN_IN`, `COUNT_GAIN`, `SALE_REVERSAL`; ra: `SALE`, `COUNT_LOSS`, `WRITE_OFF`) — sai → `CONTEXT_INVALID`.
 
 Thứ tự:
 
@@ -116,7 +117,7 @@ Thứ tự:
 
    | `movement_kind` | Đơn giá `c` | `amount_vnd` | Cập nhật `product_costs` |
    |---|---|---|---|
-   | `OPENING`, `RECEIPT` | `unit_cost` truyền vào (thiếu → `UNIT_COST_REQUIRED`) | `amount_vnd` truyền vào nếu có, ngược lại `round(d × c)` | `m = (V + amount) / (q + d)`; `q += d`; `V += amount` |
+   | `RECEIPT` | `unit_cost` truyền vào (thiếu → `UNIT_COST_REQUIRED`) | `amount_vnd` truyền vào nếu có, ngược lại `round(d × c)` | `m = (V + amount) / (q + d)`; `q += d`; `V += amount` |
    | `COUNT_GAIN` | `PERIODIC` và có `o` → `o`; ngược lại `m`; `q = 0` và `m = 0` → `UNIT_COST_REQUIRED` | `round(d × c)` | như trên |
    | `RETURN_IN` | `unit_cost` của dòng `value_movements` `SALE` có `movement_id = source_movement_id` (thiếu → `CONTEXT_INVALID`) | `round(d × c)` | như trên |
    | `SALE`, `COUNT_LOSS`, `WRITE_OFF` | `MOVING` → `m`; `PERIODIC` → `o`, chưa có `o` → `m` + `is_provisional = true` (bỏ qua `unit_cost` truyền vào) | `round(d × c)` (âm) | `q += d`; `V += amount`; `m` giữ |
@@ -155,7 +156,7 @@ Theme 2: như bản đầu (Task 8).
 
 ### 2.7 Ngoài phạm vi
 
-Bảng phiếu của từng plan (G5-1…); chọn lô FEFO + nối Sales + chọn `SALE_REVERSAL` / `RETURN_IN` (G5-4); lần tính / công bố / đổi phương pháp / `cost_runs` (G5-6); `min_stock` + "Cần chú ý" (G5-2); lý do điều chỉnh trên màn (G5-5); khoá kho trong lúc kiểm kê (không làm); seed dữ liệu.
+Bảng phiếu của từng plan (G5-3…); chọn lô FEFO + nối Sales + chọn `SALE_REVERSAL` / `RETURN_IN` (G5-4); lần tính / công bố / đổi phương pháp / `cost_runs` (G5-6); `min_stock` + "Cần chú ý" (G5-2); lý do điều chỉnh trên màn (G5-5); khoá kho trong lúc kiểm kê (không làm); seed dữ liệu.
 
 ## 3. Tệp
 
@@ -195,9 +196,9 @@ Giữ nguyên như đã làm (xem Kết quả). Không đổi theo rút gọn.
 - [ ] **Step 1: Test** nhóm `schema` (sửa test đã có):
   - `core_tables_exist`: đúng `ledger_counters`, `lots`, `stock_movements`, `stock_balances`, `value_movements`, `product_costs`, `cost_policies`, `cost_periods`, `cost_versions`; **không** chứa `create table inventory.tenant_inventory_settings`, `approval_cases`.
   - `rls_and_revoke_for_every_table`: danh sách mới.
-  - Thay `stock_state_values` bằng `no_state_columns` (tệp không chứa `stock_state`, `from_state`, `to_state`, `valuation_state`) và `movement_kind_and_reason_values` (đủ 8 kind sổ số lượng, 4 reason).
+  - Thay `stock_state_values` bằng `no_state_columns` (tệp không chứa `stock_state`, `from_state`, `to_state`, `valuation_state`) và `movement_kind_and_reason_values` (đủ 7 kind sổ số lượng, 4 reason).
   - `balance_unique_key_and_non_negative`: `unique (tenant_id, warehouse_id, product_id, lot_key)`, `physical_quantity >= 0`.
-  - Mới `value_movements_shape`: 12 `kind` (gồm `SUPPLIER_REBATE`); `amount_vnd bigint not null`; `unit_cost numeric(18,4)`; check điều chỉnh lần tính ⇔ `movement_id is null and cost_run_id is not null`; `SUPPLIER_REBATE` ⇔ `supplier_rebate_id is not null`.
+  - Mới `value_movements_shape`: 11 `kind` (gồm `SUPPLIER_REBATE`, không có `OPENING`); `amount_vnd bigint not null`; `unit_cost numeric(18,4)`; check điều chỉnh lần tính ⇔ `movement_id is null and cost_run_id is not null`; `SUPPLIER_REBATE` ⇔ `supplier_rebate_id is not null`.
   - Mới `product_costs_shape`: `primary key (tenant_id, product_id)`, `ledger_value_vnd bigint`, `moving_avg_cost numeric(18,4)`, `quantity_on_hand >= 0`.
   - Mới `cost_tables_shape`: `method in ('MOVING', 'PERIODIC')`; `status in ('OPEN', 'CLOSED')`; `unique (tenant_id, period_month)`.
   - `ledger_append_only_trigger`: trigger cho `stock_movements`, `value_movements`, `cost_versions`.
@@ -256,7 +257,7 @@ Giữ nguyên như đã làm (xem Kết quả). Không đổi theo rút gọn.
 **Files:** Create `apps/erp/lib/features/inventory/data/core/inventory_error_codes.dart`, `inventory_rpc.dart`, `inventory_command_result.dart`, `idempotency_key.dart` + `test/features/inventory/data/core/inventory_rpc_test.dart`, `inventory_command_result_test.dart`.
 
 **Interfaces — Consumes:** `SupabaseRpc` (`lib/core/supabase/supabase_rpc.dart`), `AppException`, `AppErrorCode`, `K4StockChange` (G5-0a), `formatQuantity` (`logic/receipt_rules.dart`). **Produces:**
-- `abstract final class InventoryErrorCode` — 13 hằng ở mục 2.5, trừ `PERMISSION_DENIED` dùng `AppErrorCode.noPermission`.
+- `abstract final class InventoryErrorCode` — 14 hằng ở mục 2.5, trừ `PERMISSION_DENIED` dùng `AppErrorCode.noPermission`.
 - `String inventoryErrorMessage(AppException error, {required String fallback, Map<String, String> overrides = const {}})`.
 - `class InventoryRpc { InventoryRpc({required SupabaseRpc rpc, required Future<String> Function() tenantId}); Future<Map<String, dynamic>> query(String fn, [Map<String, dynamic> params = const {}]); Future<Map<String, dynamic>> mutate({required String scope, required String idempotencyKey, required String fn, required Map<String, dynamic> params}); }` — schema `inventory`; tự thêm `p_tenant_id`; `mutate` thêm `p_idempotency_key`; mọi lỗi ném nguyên `AppException`.
 - `final class InventoryStockChange { productId, productName, baseUom, before, after }`; `final class InventoryPostedLine { lineId, movementId, valueMovementId, unitCost (num?), amountVnd (int?), costVersionId (String?), isProvisional (bool) }` (tiền `null` khi bị che); `final class InventoryCommandResult { movementIds; lines; stockChanges; factory fromJson; List<K4StockChange> toK4(); }`.
@@ -280,14 +281,14 @@ Giữ nguyên như đã làm (xem Kết quả). Không đổi theo rút gọn.
 - `WarehouseHubRepository({required InventoryRpc rpc})`; `getSummary()` = `rpc.query('get_warehouse_hub_summary')` → `activated`, `problems: null`.
 - `WarehouseHubPage`: bỏ dòng "Chờ duyệt" và dòng "Đối soát"; dòng "Hàng cần xử lý" (`problems`) giữ khung để G5-2 dùng (đổi chữ ở G5-2).
 - `buildWarehouseHubRoutes`: bỏ route `approvals` (`warehouse.approvals`); xoá `warehouse_pending_approvals_page.dart`.
-- `warehouseAreaEntries` (Q-b14) chỉ còn: `stock_availability`, `receipts` (route tạm giữ), `stocktaking`, `valuation_queue` (route tạm giữ — G5-3 gỡ cùng code BJ-03 cũ), `cogs` (phụ đề `Giá vốn bình quân hiện tại`), `stock_card_reports`, `initial_stock`. Bỏ: `stock_policies`, `dispatch`, `returns`, `vendor_returns`, `quarantine`, `adjustments`, `reconciliation`, `valuation_adjustments`, `stock_thresholds`. Giữ đủ 6 khu (khu chỉ còn 1 lối vào vẫn giữ; G5-7 rà lại).
+- `warehouseAreaEntries` (Q-b14) chỉ còn: `stock_availability`, `receipts` (route tạm giữ), `stocktaking`, `valuation_queue` (route tạm giữ — G5-3 gỡ cùng code BJ-03 cũ), `cogs`, `stock_card_reports`. Gỡ cả `initial_stock` và khu `setup` (Q-b19). Bỏ: `stock_policies`, `dispatch`, `returns`, `vendor_returns`, `quarantine`, `adjustments`, `reconciliation`, `valuation_adjustments`, `stock_thresholds`. Còn 5 khu (bỏ `setup`); khu chỉ còn 1 lối vào vẫn giữ (G5-8 rà lại).
 - `warehouseQuickActions`: bỏ "Lấy hàng".
 - Xoá `presentation/patterns/k2_approval.dart`, `k3_unknown_page.dart` + test (Q-b15).
 - DI: `registerLazySingleton<InventoryRpc>(() => InventoryRpc(rpc: getIt<SupabaseRpc>(), tenantId: () async => getIt<SessionStore>().tenantId!))`; `WarehouseHubRepository(rpc: getIt<InventoryRpc>())`.
 - Test G5-0a tạo `const WarehouseHubRepository()` → đổi sang `FakeWarehouseHubRepository` trong `test/features/inventory/support/`.
 
 - [ ] **Step 0 (giữ hành vi):** `flutter test --no-pub -r compact test/features/inventory` → ghi mốc đạt / lỗi vào Kết quả.
-- [ ] **Step 1: Test:** `parses_activated` (`{activated: true, problems: null}`); `hub_has_no_pending_row` (không có chữ "Chờ duyệt"); `not_activated_shows_initial_stock_prompt` (giữ hành vi G5-0a khi `activated == false`); `area_entries_only_kept_bj` (danh sách id đúng như trên); `quick_actions_three`. Sửa test Hub / patterns G5-0a đang kiểm `pending` / K2 / K3 (xoá ca thuộc phần bỏ, ghi tên ca đã xoá vào Kết quả).
+- [ ] **Step 1: Test:** `parses_activated` (`{activated: true, problems: null}`); `hub_has_no_pending_row` (không có chữ "Chờ duyệt"); `empty_warehouse_prompts_receipt` (`activated == false` ⇒ banner "Kho chưa có hàng" + nút "Lập phiếu nhận", nút nhanh bật — Q-b19); `area_entries_only_kept_bj` (danh sách id đúng như trên); `quick_actions_three`. Sửa test Hub / patterns G5-0a đang kiểm `pending` / K2 / K3 (xoá ca thuộc phần bỏ, ghi tên ca đã xoá vào Kết quả).
 - [ ] **Step 2–3:** FAIL → `impact` các symbol Hub ở Global Constraints → viết / xoá.
 - [ ] **Step 4:** PASS; `grep -rn "WarehousePending\|k2_approval\|k3_unknown\|K3Unknown\|warehouse.approvals\|/warehouse/approvals" apps/erp/lib apps/erp/test` → rỗng; `flutter test --no-pub test/features/inventory` không thêm lỗi so với Step 0 (trừ ca đã xoá).
 - [ ] **Step 5:** Commit `refactor(inventory): Hub đọc RPC, gỡ Chờ duyệt / K2 / K3 / lối vào BJ bỏ (T7-G5-0b)`.

@@ -202,14 +202,18 @@ const ThemeApp = (() => {
   function renderHubHome() {
     const search = `<div class="t462-search-wrap">${ds24Search('', 'data-t462-inventory-search', 'Tìm sản phẩm, SKU hoặc quét mã')}</div>`;
     const off = !inventoryActivated;
+    const quickOff = off && !REDUCED_SCOPE; // bản rút gọn: kho trống vẫn nhận / tra cứu được
     const notActivated = off
-      ? `<section class="t462-section t462-not-activated" data-ds-component="VSection">${vBanner('info', 'Kho chưa kích hoạt', 'Nhập số tồn hiện có một lần để bắt đầu nhận, bán và kiểm kê hàng.')}<button class="button button--primary t462-not-activated__action" type="button" data-theme-entry-flow="UIF-12" data-theme-entry-actor="owner" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium">Khởi tạo tồn kho</button></section>`
+      ? (REDUCED_SCOPE
+        // v5.28.0: bỏ tồn đầu kỳ — kho bắt đầu trống, hàng vào lần đầu qua phiếu nhận.
+        ? `<section class="t462-section t462-not-activated" data-ds-component="VSection">${vBanner('info', 'Kho chưa có hàng', 'Lập phiếu nhận khi hàng của nhà cung cấp về để bắt đầu bán và kiểm kê.')}<button class="button button--primary t462-not-activated__action" type="button" data-theme-entry-flow="UIF-02" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium">Lập phiếu nhận</button></section>`
+        : `<section class="t462-section t462-not-activated" data-ds-component="VSection">${vBanner('info', 'Kho chưa kích hoạt', 'Nhập số tồn hiện có một lần để bắt đầu nhận, bán và kiểm kê hàng.')}<button class="button button--primary t462-not-activated__action" type="button" data-theme-entry-flow="UIF-12" data-theme-entry-actor="owner" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.primary" data-ds-prop-size="VButtonSize.medium">Khởi tạo tồn kho</button></section>`)
       : '';
     const quick = `<section class="t462-section t462-section--quick" data-ds-component="VSection"><div class="t462-quick-grid">
-      ${quickAction({ label: 'Nhận hàng', iconName: 'cloudUpload', flow: 'UIF-02', disabled: off })}
+      ${quickAction({ label: 'Nhận hàng', iconName: 'cloudUpload', flow: 'UIF-02', disabled: quickOff })}
       ${REDUCED_SCOPE ? '' : quickAction({ label: 'Lấy hàng', iconName: 'package', flow: 'UIF-05', disabled: off })}
       ${quickAction({ label: 'Kiểm kê', iconName: 'listCheck', flow: 'UIF-08', disabled: off })}
-      ${quickAction({ label: 'Tra cứu tồn', iconName: 'search', flow: 'UIF-01', disabled: off })}
+      ${quickAction({ label: 'Tra cứu tồn', iconName: 'search', flow: 'UIF-01', disabled: quickOff })}
     </div></section>`;
     const pending = pendingSummary();
     const pendingRow = !REDUCED_SCOPE && pending.total > 0 ? attentionRow({ title: 'Chờ duyệt', subtitle: pending.text, count: String(pending.total), iconName: 'clock', attrs: 'data-v464-pending-approvals' }) : '';
@@ -227,7 +231,7 @@ const ThemeApp = (() => {
     const workspaces = `<section class="t462-section" data-ds-component="VSection">${heading('Quản lý kho')}
       <div class="t462-workspace-list ds24-list-stack">${['inventory', 'movement', 'control', 'valuation', 'history'].map(workspaceRow).join('')}</div>
     </section>`;
-    const setup = `<section class="t462-section" data-ds-component="VSection">${ds24ListRow({ title: 'Thiết lập kho', subtitle: REDUCED_SCOPE ? 'Khởi tạo tồn đầu kỳ' : 'Tồn đầu kỳ và chính sách ít dùng', leading: 'inbox', attrs: 'data-t462-workspace="setup"', theme: 'Theme7WarehouseCandidateSetup', extraClass: 't462-workspace-row' })}</section>`;
+    const setup = REDUCED_SCOPE ? '' : `<section class="t462-section" data-ds-component="VSection">${ds24ListRow({ title: 'Thiết lập kho', subtitle: REDUCED_SCOPE ? 'Khởi tạo tồn đầu kỳ' : 'Tồn đầu kỳ và chính sách ít dùng', leading: 'inbox', attrs: 'data-t462-workspace="setup"', theme: 'Theme7WarehouseCandidateSetup', extraClass: 't462-workspace-row' })}</section>`;
     // Web: thanh bên đã chỉ chỗ nên không có nút quay lại; dưới nút nhanh chia hai cột (trái: banner chưa kích hoạt + "Cần chú ý", phải: "Quản lý kho" + "Thiết lập kho"). iPhone giữ một cột.
     if (viewport === 'web') return shell({ title: 'Kho', back: false, extraClass: 't462-warehouse-hub', body: `${search}${quick}<div class="t462-columns"><div class="t462-column">${notActivated}${attention}</div><div class="t462-column">${workspaces}${setup}</div></div>` });
     return shell({ title: 'Kho', back: true, backAttr: 'data-theme-app-back', extraClass: 't462-warehouse-hub', body: `${search}${notActivated}${quick}${attention}${workspaces}${setup}` });

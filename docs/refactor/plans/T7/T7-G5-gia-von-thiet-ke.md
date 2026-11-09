@@ -1,7 +1,7 @@
 # T7 — Thiết kế giá vốn hàng tồn kho (spec)
 
 > Theme 7 · spec dùng chung cho G5-0b (Task 2b), G5-3, G5-4, G5-5, G5-6, G5-7 của [PLAN.md](../../PLAN.md) mục "Theme 7"
-> Trạng thái: Spec ✅ người dùng duyệt 2026-11-09 | Thiết kế duyệt trong chat 2026-11-09 (giá vốn: 3 phần; ưu đãi NCC: 2 phần, mục 12)
+> Trạng thái: Spec ✅ người dùng duyệt 2026-11-09 (sửa cùng ngày: bỏ tồn đầu kỳ — kho bắt đầu trống, hàng vào lần đầu qua phiếu nhận) | Thiết kế duyệt trong chat 2026-11-09 (giá vốn: 3 phần; ưu đãi NCC: 2 phần, mục 12)
 > Nguồn nghiệp vụ: spec Theme 7 v5.27.0 — [BJ-14](../../../../specs/themes/theme-07/02.specification/behavior/journeys/BJ-14-tinh-va-cong-bo-gia-von.md), KB-KGV-015 (đơn giá chính thức, tổng giá trị từ sổ), KB-KGV-016 (hai phương pháp bình quân), KB-KGV-017 (công bố + điều chỉnh liên kết), KB-KGV-018 (mốc chốt, điều kiện chặn, cập nhật giữa kỳ). Chuẩn mực: VAS 02 Hàng tồn kho; Thông tư 200 / 133 (chọn một phương pháp, áp dụng nhất quán).
 
 ## 1. Mục tiêu
@@ -49,7 +49,7 @@ Schema `inventory`, mọi bảng có `tenant_id`, RLS bật, `revoke all` (chỉ
 | `id`, `ledger_sequence` | dùng chung bộ đếm `ledger_counters` với sổ số lượng |
 | `product_id` | |
 | `movement_id uuid null` | dòng sổ số lượng tương ứng; `null` với dòng điều chỉnh |
-| `kind text` | `OPENING`, `RECEIPT`, `SALE`, `SALE_REVERSAL`, `RETURN_IN`, `COUNT_GAIN`, `COUNT_LOSS`, `WRITE_OFF`, `COGS_TRUE_UP`, `LOSS_TRUE_UP`, `REVALUE_ROUNDING`, `SUPPLIER_REBATE` (12 loại) |
+| `kind text` | `RECEIPT`, `SALE`, `SALE_REVERSAL`, `RETURN_IN`, `COUNT_GAIN`, `COUNT_LOSS`, `WRITE_OFF`, `COGS_TRUE_UP`, `LOSS_TRUE_UP`, `REVALUE_ROUNDING`, `SUPPLIER_REBATE` (11 loại; không có `OPENING` — bỏ tồn đầu kỳ 2026-11-09) |
 | `quantity_basis numeric` | số lượng (ĐVT cơ sở) làm căn cứ, có dấu; `0` với dòng điều chỉnh |
 | `unit_cost numeric(18,4) null` | đơn giá đã dùng; `null` với dòng điều chỉnh |
 | `amount_vnd bigint not null` | có dấu (+ vào, − ra) |
@@ -83,7 +83,7 @@ Chạy sau khoá sản phẩm, cùng giao dịch ghi sổ số lượng. Với m
 
 | Biến động | Đơn giá `c` | `amount_vnd` | Cập nhật |
 |---|---|---|---|
-| `OPENING`, `RECEIPT` (vào) | giá gốc người gọi truyền (bắt buộc, thiếu → `UNIT_COST_REQUIRED`) | `round(d × c)` | `m = (q × m + amount) / (q + d)`; `q += d`; `V += amount` |
+| `RECEIPT` (vào) | giá gốc người gọi truyền (bắt buộc, thiếu → `UNIT_COST_REQUIRED`) | `round(d × c)` | `m = (q × m + amount) / (q + d)`; `q += d`; `V += amount` |
 | `COUNT_GAIN` (vào) | `o` nếu `PERIODIC` và có `o`; ngược lại `m`; `q = 0` và không có `m` → `UNIT_COST_REQUIRED` | `round(d × c)` | như trên |
 | `RETURN_IN` (trả hàng của dòng `SALE` thuộc đoạn đã công bố) | đơn giá dòng `SALE` gốc | `round(d × c)` | như trên |
 | `SALE`, `COUNT_LOSS`, `WRITE_OFF` (ra) | `MOVING`: `m`. `PERIODIC`: `o`; chưa có `o` → `m` và `is_provisional = true` | `round(d × c)` (âm) | `q += d`; `V += amount`; `m` không đổi |
@@ -114,7 +114,7 @@ Với mỗi sản phẩm có dòng sổ giá trị trong đoạn:
 
 | Đại lượng | Từ sổ giá trị của đoạn |
 |---|---|
-| `inbound_qty / value` | Σ `OPENING`, `RECEIPT`, `COUNT_GAIN`, `RETURN_IN` (`RECEIPT` có hàng tặng: số lượng gồm SL tặng, giá trị = tiền đã trả — mục 12) |
+| `inbound_qty / value` | Σ `RECEIPT`, `COUNT_GAIN`, `RETURN_IN` (`RECEIPT` có hàng tặng: số lượng gồm SL tặng, giá trị = tiền đã trả — mục 12) |
 | `rebate_inventory_value` `B` | Σ `SUPPLIER_REBATE` (âm) của đoạn — **không** vào `inbound` (mục 12.4) |
 | `sale_qty / sale_value_recorded` | Σ `SALE` + `SALE_REVERSAL` (đổi dấu thành số dương) |
 | `loss_qty / loss_value_recorded` | Σ `COUNT_LOSS`, `WRITE_OFF` (dương) |
@@ -222,7 +222,6 @@ Chữ trên màn: theo Screen Contract 072 / 074 / 077 (FROZEN) phần còn đú
 | Plan | Phần giá vốn |
 |---|---|
 | G5-0b (Task 2b, 4) | `value_movements` dạng 3.1; `product_costs` dạng 3.2 (theo tổ chức + sản phẩm); `cost_policies`, `cost_periods`, `cost_versions`; luật mục 4 trong `_post_movements`; `PERIOD_CLOSED` |
-| G5-1 | `OPENING` truyền giá gốc từng dòng |
 | G5-2 | SCR-003 hiện giá vốn |
 | **G5-2b Chương trình NCC** (mới) | Mục 12.1–12.3 phần khai báo, tiến độ, gợi ý; P1, P2, P3 (chưa ghi nhận); khối ở chi tiết NCC Theme 3; lối vào Hub |
 | G5-3 | Phân bổ mục 4.1, `RECEIPT`; áp loại 1 / 2, `free_qty`, gắn `program_id`, cộng tiến độ → `REACHED` |
@@ -296,7 +295,7 @@ Loại 3 **không có hạn thời gian**: tính từ ngày bắt đầu chươn
 | NCC-2 | **Phiếu nhận bắt buộc chọn NCC.** Mỗi tenant có sẵn một đối tác hệ thống **"Mua lẻ / khác"** (vai trò `supplier`, không sửa / xoá, không tạo chương trình được — `PROGRAM_SUPPLIER_INVALID`); G5-2b tạo nó và chọn cách đánh dấu đối tác hệ thống ở Theme 3 |
 | NCC-3 | **Loại 3 nhiều sản phẩm phải cùng ĐVT cơ sở** (chặn lúc tạo / sửa: `PROGRAM_UOM_MISMATCH`) |
 | NCC-4 | **Loại 1 xét bậc trên từng dòng phiếu**, không cộng gộp sản phẩm |
-| NCC-5 | Chỉ phiếu nhận (G5-3) áp ưu đãi; tồn đầu kỳ, khách trả, kiểm kê thừa không áp | Bỏ: tặng hàng khi đạt mốc, tặng sản phẩm khác, ưu đãi bằng tiền không gắn hàng.
+| NCC-5 | Chỉ phiếu nhận (G5-3) áp ưu đãi; khách trả, kiểm kê thừa không áp | Bỏ: tặng hàng khi đạt mốc, tặng sản phẩm khác, ưu đãi bằng tiền không gắn hàng.
 
 ### 12.2 Dữ liệu (schema `inventory`)
 

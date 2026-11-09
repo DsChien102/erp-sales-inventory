@@ -15,11 +15,10 @@ const FIGMA_DS_MAP = window.VET45_FIGMA_DS_MAP || { componentMappings:{}, profil
 // Phạm vi rút gọn (v5.28.0 — docs/refactor/PLAN.md mục Theme 7 → "Rút gọn 2026-11-09"): chỉ còn luồng / màn / trạng thái app làm.
 // Luồng bỏ vẫn nạp (các tệp gọi chéo nhau) nhưng không có lối vào. ?scope=full mở lại bản đầy đủ v5.27.0 để tra cứu.
 const REDUCED_SCOPE = new URLSearchParams(window.location.search).get("scope") !== "full";
-// Thứ tự = luồng demo: tồn đầu kỳ → tồn → nhận hàng → kiểm kê → giá vốn → báo cáo.
+// Thứ tự = luồng demo: kho trống → nhận hàng → tồn → kiểm kê → giá vốn → báo cáo. Bỏ tồn đầu kỳ (UIF-12, 2026-11-09).
 const REDUCED_FLOW_SCREENS = {
-  "UIF-12": ["SCR-066", "SCR-067", "SCR-068", "SCR-071"],
-  "UIF-01": ["SCR-001", "SCR-003"],
   "UIF-02": ["SCR-007", "SCR-008", "SCR-009", "SCR-084", "SCR-010", "SCR-012"],
+  "UIF-01": ["SCR-001", "SCR-003"],
   "UIF-08": ["SCR-042", "SCR-043", "SCR-044", "SCR-045", "SCR-047"],
   "UIF-14": ["SCR-072", "SCR-074", "SCR-077"],
   "UIF-15": ["SCR-055", "SCR-056"],
@@ -107,7 +106,7 @@ const FIGMA_TEMPLATE_BY_FLOW_SCREEN = {
 function figmaScreenTemplate(){ return FIGMA_TEMPLATE_BY_FLOW_SCREEN[activeFlowId]?.[activeScreenId] || null; }
 const screens = HARNESS.screens;
 const flowCatalog = HARNESS.flows;
-let activeFlowId = new URLSearchParams(window.location.search).get("uif") || (REDUCED_SCOPE ? "UIF-12" : "UIF-02");
+let activeFlowId = new URLSearchParams(window.location.search).get("uif") || "UIF-02";
 if (!flowCatalog.some((f) => f.id === activeFlowId)) activeFlowId = flowCatalog[0]?.id || "UIF-02";
 const groups = ["Screens"];
 

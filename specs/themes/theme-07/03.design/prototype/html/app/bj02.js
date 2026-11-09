@@ -1400,6 +1400,7 @@ function startAutoExecution() {
   executionTimer = window.setTimeout(() => {
     if (activeFlowId !== "UIF-02" || activeScreenId !== "SCR-012" || stateByScreen["SCR-012"] !== "PROCESSING") return;
     bj02Commit(seq);
+    if (typeof ThemeApp !== "undefined" && typeof ThemeApp.setActivated === "function") ThemeApp.setActivated(true); // phiếu nhận đầu tiên = kho bắt đầu có hàng
     stateByScreen["SCR-012"] = "COMPLETED";
     syncReviewUrl();
     render();
