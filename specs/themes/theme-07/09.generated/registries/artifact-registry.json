@@ -7,7 +7,7 @@
   "merge_source": "v3.13.0",
   "merge_source_parent": "v3.12.0",
   "registry_policy": "Actual package tree only; user-pruned files are not restored. Metadata is preserved from existing entries where available.",
-  "artifact_count": 446,
+  "artifact_count": 438,
   "artifacts": [
     {
       "path": "01.knowledge/decisions/decision-register.md",
@@ -1050,8 +1050,8 @@
       "theme": "theme-07",
       "title": "Cấu hình ngưỡng tồn sản phẩm",
       "source_baseline": "v3.10.1",
-      "sha256": "452f0931bb845f5ea2ab6347b38edcd3dbbf43f275b2d1c421ed916b72eff224",
-      "size": 6044
+      "sha256": "86bcc933e3ee00079b57cbd58bde7172cfbf05ed3331f2602502ab6500ea3f1f",
+      "size": 6060
     },
     {
       "path": "02.specification/behavior/behavioral-contracts/CAP-01-OP-02.md",
@@ -1062,8 +1062,8 @@
       "theme": "theme-07",
       "title": "Cấu hình cận hạn mặc định",
       "source_baseline": "v3.10.1",
-      "sha256": "6fad542b30c7ba458f92964a2af1b4148a5ea33733c16ba9ce3cfcb52667a699",
-      "size": 6021
+      "sha256": "bddf148af1da7b883aecd5d21590e544e1625390a558ad2b397efa9e0ae02f9d",
+      "size": 6037
     },
     {
       "path": "02.specification/behavior/behavioral-contracts/CAP-01-OP-03.md",
@@ -1074,8 +1074,8 @@
       "theme": "theme-07",
       "title": "Ghi đè cận hạn theo sản phẩm",
       "source_baseline": "v3.10.1",
-      "sha256": "ad48ff400771349fb07322cbf2582d5c81013c887ee74a398a7469cd6fbbb098",
-      "size": 6008
+      "sha256": "85006c3460afcfb0d6da277e20bfad4e44a44e78665a4f6612e7485f8c916a9b",
+      "size": 6024
     },
     {
       "path": "02.specification/behavior/behavioral-contracts/CAP-01.md",
@@ -1086,8 +1086,8 @@
       "theme": "theme-07",
       "title": "Quản lý chính sách tồn và cận hạn",
       "source_baseline": "v3.10.1",
-      "sha256": "0310a49f7330bc5d23e18a25c185082e196b59108a2308703802a0e2773e08ca",
-      "size": 2734
+      "sha256": "a27f1229b8d94fc3795fd92606c1a0724d45165a1d6adad325725e1035387fe3",
+      "size": 2750
     },
     {
       "path": "02.specification/behavior/behavioral-contracts/SBC-COM-01.md",
@@ -1170,8 +1170,8 @@
       "theme": "theme-07",
       "title": "Business Journey Map — Theme 07",
       "source_baseline": "v4.1.0",
-      "sha256": "9365566a679e4f580ea5bb193c818bd8a891d8c13eee35f99614a3f08fd97141",
-      "size": 44088
+      "sha256": "67a343b8069e42c6043c9f5b86e448e68cc686759791edb068eb788ab9f46b0d",
+      "size": 44104
     },
     {
       "path": "02.specification/behavior/journeys/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md",
@@ -1182,8 +1182,8 @@
       "theme": "theme-07",
       "title": "Theo dõi tồn, khả dụng và chỉ báo vận hành",
       "source_baseline": "v4.0.0",
-      "sha256": "7b3a19ab5c7cdfe7402db3370c3a8ccbe8c2ad391dee7165dcf75eed052f2a1a",
-      "size": 7553
+      "sha256": "fa283f1a4e61adefb460199954d5dafce09058aad3bc8e1a0da0bec421aeed6d",
+      "size": 7569
     },
     {
       "path": "02.specification/behavior/journeys/BJ-02-nhan-hang-mua.md",
@@ -1194,8 +1194,8 @@
       "theme": "theme-07",
       "title": "Nhận hàng mua",
       "source_baseline": "v4.0.0",
-      "sha256": "7ce1a08c5377848898c077c2f7c1b7d52217b63133604c9376ae92d0e90e05a7",
-      "size": 12280
+      "sha256": "81dbc60183b676725d5f444c8771fb23645ad4704036bf36a827eb11fd5196d8",
+      "size": 12296
     },
     {
       "path": "02.specification/behavior/journeys/BJ-03-xac-lap-gia-tri-ban-dau-cua-hang-nhan.md",
@@ -1206,8 +1206,8 @@
       "theme": "theme-07",
       "title": "Xác lập giá trị ban đầu của hàng nhận",
       "source_baseline": "v4.6.0",
-      "sha256": "4bed354e63128cf913af3fdc4a6c0f5f17e62f80f2eb0520485c1e99f7c4c403",
-      "size": 7005
+      "sha256": "ebfb15aaa1be139c90713d12a741f3baf5879110d3bf0fe475300d8ece227df3",
+      "size": 7021
     },
     {
       "path": "02.specification/behavior/journeys/BJ-04-quan-ly-vong-oi-giu-hang.md",
@@ -1218,8 +1218,8 @@
       "theme": "theme-07",
       "title": "Quản lý vòng đời giữ hàng",
       "source_baseline": "v4.0.0",
-      "sha256": "fd59d7d77c7a16448cd05a3ac6b3020a88daef0aeaca963cbd1009515c9105f3",
-      "size": 6173
+      "sha256": "74ca07efce097a1aeffc4da1fd6e40cf983ebaf11a28ffdf5d579c760571c555",
+      "size": 6189
     },
     {
       "path": "02.specification/behavior/journeys/BJ-05-lay-hang-va-ban-giao-on.md",
@@ -1230,8 +1230,8 @@
       "theme": "theme-07",
       "title": "Lấy hàng và bàn giao đơn",
       "source_baseline": "v4.0.0",
-      "sha256": "5457666e3f25fa3ab1efe2a7dd8cc533a837861d39909aef4495782a1e1291fc",
-      "size": 7207
+      "sha256": "f173888ad8e345e87aed5715e57e2ad4851b5e841d88682ac505e276daba2e44",
+      "size": 7223
     },
     {
       "path": "02.specification/behavior/journeys/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra.md",
@@ -1242,8 +1242,8 @@
       "theme": "theme-07",
       "title": "Tiếp nhận và phân loại hàng khách trả",
       "source_baseline": "v4.0.0",
-      "sha256": "809c8fb7abb8632719200a0197bfb2e7f2f1c90743e4181cb9de181ccba18ff4",
-      "size": 7087
+      "sha256": "7aeae37349450371d38ff2933eda99a181b47b34f620c1c0793aca4dbdf62c61",
+      "size": 7640
     },
     {
       "path": "02.specification/behavior/journeys/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md",
@@ -1254,8 +1254,8 @@
       "theme": "theme-07",
       "title": "Thực hiện trả hàng cho nhà cung cấp",
       "source_baseline": "v4.0.0",
-      "sha256": "2de492db44ed9ca7e9fc75b6f05983ee8424dad957bee47f086bb585d5d3fd23",
-      "size": 7291
+      "sha256": "59b3e0380bdea1cd476859805d2e5c537c3a7ef2fd4110a0acfbfe5607b4be43",
+      "size": 7307
     },
     {
       "path": "02.specification/behavior/journeys/BJ-08-kiem-ke-va-ieu-chinh-chenh-lech.md",
@@ -1266,8 +1266,8 @@
       "theme": "theme-07",
       "title": "Kiểm kê và điều chỉnh chênh lệch",
       "source_baseline": "v4.0.0",
-      "sha256": "ead4337cac952d055297015927e1dc0121fe09bd769ec18daf7ff31fb6cba5d3",
-      "size": 7319
+      "sha256": "b926a4616809be097aa6dc6094de5ae12b36e5e0ad9daff97a7c4c1614d9a558",
+      "size": 7753
     },
     {
       "path": "02.specification/behavior/journeys/BJ-09-quan-ly-trang-thai-hang.md",
@@ -1278,8 +1278,8 @@
       "theme": "theme-07",
       "title": "Quản lý trạng thái hàng",
       "source_baseline": "v4.0.0",
-      "sha256": "7e8c25533ec2f65a35c44522c19177d35667265fef57fb63dad8f622c9499f0e",
-      "size": 6596
+      "sha256": "4caa6754dda279ab49b62d5cb908c7a537df3c2e12b9c0e55253095e185f90fc",
+      "size": 7155
     },
     {
       "path": "02.specification/behavior/journeys/BJ-10-tieu-huy-hang.md",
@@ -1290,8 +1290,8 @@
       "theme": "theme-07",
       "title": "Tiêu hủy hàng",
       "source_baseline": "v4.0.0",
-      "sha256": "18963109ddab7e9fa8dc4dd5d9e746d3cd575e43f372a2fe1adcae4663fa659f",
-      "size": 6493
+      "sha256": "15cd6943a6d48060d3cba3c57b89abe048552a82e1f0b2f6b5b3075c1e020a28",
+      "size": 7049
     },
     {
       "path": "02.specification/behavior/journeys/BJ-11-huy-va-sua-sai-nghiep-vu-kho.md",
@@ -1302,8 +1302,8 @@
       "theme": "theme-07",
       "title": "Hủy và sửa sai nghiệp vụ kho",
       "source_baseline": "v4.0.0",
-      "sha256": "1cf1c9292cc0b4ac1251f634ce42cfb7fddd81254c9145c795e8685b778447d0",
-      "size": 7063
+      "sha256": "f93e45c5019730193df1d06c5613eb4157ce263227b9a08ec4bc20da84f7170d",
+      "size": 7625
     },
     {
       "path": "02.specification/behavior/journeys/BJ-12-khoi-tao-so-du-ton-kho-au-ky.md",
@@ -1314,8 +1314,8 @@
       "theme": "theme-07",
       "title": "Khởi tạo số dư tồn kho đầu kỳ",
       "source_baseline": "v4.0.0",
-      "sha256": "2d378d4d4671ce1d545205d7e474682fe36f4e668e096a5cb001031275f515d1",
-      "size": 6893
+      "sha256": "801b6b70586f71f4b4126f5f100596d66899d1082746fa84c98e72ac39c770f7",
+      "size": 6909
     },
     {
       "path": "02.specification/behavior/journeys/BJ-13-dieu-chinh-gia-tri-hang-nhap.md",
@@ -1326,8 +1326,8 @@
       "theme": "theme-07",
       "title": "Điều chỉnh giá trị hàng nhập",
       "source_baseline": "v4.6.0",
-      "sha256": "fab453ffcfeaef2c2782b40d441c98e27f10140427368314cb682239037db16b",
-      "size": 6324
+      "sha256": "fb53c2b09fb03b4bb199a4c7e100041b2cf2e3190fc77bba94556aff09dce0eb",
+      "size": 6340
     },
     {
       "path": "02.specification/behavior/journeys/BJ-14-tinh-va-cong-bo-gia-von.md",
@@ -1338,8 +1338,8 @@
       "theme": "theme-07",
       "title": "Tính và công bố giá vốn",
       "source_baseline": "v4.6.0",
-      "sha256": "66a03c0a290c6fbc60357c3505ea2f45595bf610b8a5978b1c1969d1bac1b4c9",
-      "size": 6934
+      "sha256": "d68f57c90023a3e6bf7e6cef2bb45aba2875a9c5df579c0534c520048d50ff5f",
+      "size": 6950
     },
     {
       "path": "02.specification/behavior/journeys/BJ-15-tra-cuu-bao-cao-ton-va-the-kho.md",
@@ -1350,8 +1350,8 @@
       "theme": "theme-07",
       "title": "Tra cứu báo cáo tồn và thẻ kho",
       "source_baseline": "v4.0.0",
-      "sha256": "87e53913eb935d331a2c49d7d3b1850679907aa03ea9c7d041eeb33a119da065",
-      "size": 6435
+      "sha256": "b58fdbc9f9f965cbf4b4dc540b498f69b8c8dd11675bbafdf49bdb004cdb7ae4",
+      "size": 6451
     },
     {
       "path": "02.specification/behavior/journeys/BJ-16-ieu-tra-va-oi-soat-sai-lech.md",
@@ -1362,8 +1362,8 @@
       "theme": "theme-07",
       "title": "Điều tra và đối soát sai lệch",
       "source_baseline": "v4.0.0",
-      "sha256": "9a860ffe21a96cf677a5c08c5a61515533c5f4d7511bcaf27405838d258f56c9",
-      "size": 7156
+      "sha256": "807776548c5e4cca309a70ed565abfb09a35bd3854425a81d1d8df002cf95d4d",
+      "size": 7172
     },
     {
       "path": "02.specification/behavior/journeys/BJ-17-phuc-hoi-nghiep-vu-co-ket-qua-chua-xac-inh.md",
@@ -1374,8 +1374,8 @@
       "theme": "theme-07",
       "title": "Phục hồi nghiệp vụ có kết quả chưa xác định",
       "source_baseline": "v4.0.0",
-      "sha256": "d6209c99ef043d0c32cf67acd9b7caec43613c164c6042652dafda73666c0838",
-      "size": 6935
+      "sha256": "07a13cc9c00dc9f55ee273ab0e654e561ff1bf210022e0b43483feb6bb7cd6df",
+      "size": 6951
     },
     {
       "path": "02.specification/behavior/use-cases/00-use-case-map.md",
@@ -1386,8 +1386,8 @@
       "theme": "theme-07",
       "title": "Use Case Map — Theme 07",
       "source_baseline": "v4.6.0",
-      "sha256": "d404a6d567e80b3c95c1988c70e5e58bb16c5687cbca1209bd58e58b573dcfac",
-      "size": 21860
+      "sha256": "21ee87fc03c3965a39f76cab6cc383c9858d7b653534bad60684269846e6b953",
+      "size": 21832
     },
     {
       "path": "02.specification/behavior/use-cases/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md",
@@ -1398,8 +1398,8 @@
       "theme": "theme-07",
       "title": "Xác định ngữ cảnh và sản phẩm",
       "source_baseline": "v4.0.0",
-      "sha256": "244e4358bc143afae3a3488e87ba67a29e642871ef67bd1ecf83da72575fdba8",
-      "size": 9617
+      "sha256": "3ce213b574182a88016c427541e6b12e7bdc73eee7e3b0700306332f0cae40f5",
+      "size": 9633
     },
     {
       "path": "02.specification/behavior/use-cases/UC-01-02-xem-ton-va-kha-dung.md",
@@ -1410,8 +1410,8 @@
       "theme": "theme-07",
       "title": "Xem tồn và khả dụng",
       "source_baseline": "v4.0.0",
-      "sha256": "387658e764b712789ace5ec8c8a59062189dcee38078932dff5fd901aafb1aec",
-      "size": 9578
+      "sha256": "ee947e06291c3f67ab871c1111bfaa70280020cb17e19b57069019ad2a9be2e0",
+      "size": 9608
     },
     {
       "path": "02.specification/behavior/use-cases/UC-01-03-xem-trace-summary.md",
@@ -1422,8 +1422,8 @@
       "theme": "theme-07",
       "title": "Xem trace summary",
       "source_baseline": "v4.0.0",
-      "sha256": "ccf9de3b14a64963a65086d8959849394ba911eff77d785abf7a46feaa6f26e7",
-      "size": 8779
+      "sha256": "d171fdb751fc0d596ab3a6d33b29074c47ef5405d249c12dc461667d911d6065",
+      "size": 8847
     },
     {
       "path": "02.specification/behavior/use-cases/UC-01-04-xem-ton-thap-va-luong-goi-y.md",
@@ -1434,8 +1434,8 @@
       "theme": "theme-07",
       "title": "Xem tồn thấp và lượng gợi ý",
       "source_baseline": "v4.0.0",
-      "sha256": "80543ef0065f5b26bfe32414c57af53906acc34dea9d9a3ddc32e59a3e26b3be",
-      "size": 9644
+      "sha256": "2d3aac345672632aba98c6e8a865f9ee7b4cc4ccd864dbf6461a04ab0d659533",
+      "size": 9660
     },
     {
       "path": "02.specification/behavior/use-cases/UC-01-05-xem-hang-can-han-va-het-han.md",
@@ -1446,8 +1446,8 @@
       "theme": "theme-07",
       "title": "Xem hàng cận hạn và hết hạn",
       "source_baseline": "v4.0.0",
-      "sha256": "88592ae8fa5c320ed50726fed709a356107c5f3d5f46ca1e4a5081a4fc9f7b9c",
-      "size": 9768
+      "sha256": "985b6f9ce0fbc441e46266ecde442b1b39217a9dabde5504f6ab721ec9b0b7a7",
+      "size": 9798
     },
     {
       "path": "02.specification/behavior/use-cases/UC-02-01-chuan-bi-nhan-theo-chung-tu.md",
@@ -1458,8 +1458,8 @@
       "theme": "theme-07",
       "title": "Chuẩn bị nhận theo chứng từ",
       "source_baseline": "v4.0.0",
-      "sha256": "a489728633dc48aa02a0ebb1b6c467488ea132cab519e93ee0083e12ba107322",
-      "size": 14942
+      "sha256": "0bda5e7a1b5ce86cd2faf2266843d2c58b1ba3517a428239598733afff784898",
+      "size": 14958
     },
     {
       "path": "02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md",
@@ -1470,8 +1470,8 @@
       "theme": "theme-07",
       "title": "Chuẩn bị nhập hàng nhanh",
       "source_baseline": "v4.6.7",
-      "sha256": "3416534794d5101c6d7593332b2acc8faf3f588842683c01afe121fa596e71d1",
-      "size": 15831
+      "sha256": "2150871f61ca3b6f7d063b466d5ebaecc04b9deb04555114dd8d85938346ca03",
+      "size": 15847
     },
     {
       "path": "02.specification/behavior/use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md",
@@ -1482,8 +1482,8 @@
       "theme": "theme-07",
       "title": "Phê duyệt yêu cầu nhận hàng",
       "source_baseline": "v4.6.7",
-      "sha256": "f56e569ecbc8caca676f9821db0fbde3db18339643578fb414d07e01a4a60345",
-      "size": 13038
+      "sha256": "0808ba873d13e91af57a94a07a22a93962225fe1a713649e79870bb650e0f61b",
+      "size": 13054
     },
     {
       "path": "02.specification/behavior/use-cases/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md",
@@ -1494,8 +1494,8 @@
       "theme": "theme-07",
       "title": "Ghi nhận hàng vào tồn vật lý",
       "source_baseline": "v4.0.0",
-      "sha256": "fe0b0324be2c092b5f4e6b0dd31e175e59041897efdcb88bd03546796f5615d6",
-      "size": 11564
+      "sha256": "f9bc228686c1d6d7971bce6e365ab558600097feae091df1a102d6fefa710a3f",
+      "size": 11580
     },
     {
       "path": "02.specification/behavior/use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md",
@@ -1506,8 +1506,8 @@
       "theme": "theme-07",
       "title": "Truy vấn và phục hồi ngắn kết quả nhận hàng",
       "source_baseline": "v4.0.0",
-      "sha256": "6f8bd25320614bf4ced467792e5281ff928b5f5065da4565618bcdb0ce4b7795",
-      "size": 8459
+      "sha256": "c9e5f3ab93512d337977234ab35ae1609921e0a638e4364304e88a8feb2cced2",
+      "size": 8475
     },
     {
       "path": "02.specification/behavior/use-cases/UC-03-01-xac-lap-gia-tri-nhap-ban-dau.md",
@@ -1518,8 +1518,8 @@
       "theme": "theme-07",
       "title": "Xác lập giá trị nhập ban đầu",
       "source_baseline": "v4.6.1",
-      "sha256": "c44653341f7a12e5a4dde193cf3301983699a86306bfb97872bf11f80ee81b1d",
-      "size": 19417
+      "sha256": "e6fbee40d06fd96b1222ceb4dc4b62fdcc3f0756d8bf131e1f515ebb8f7549c1",
+      "size": 19433
     },
     {
       "path": "02.specification/behavior/use-cases/UC-04-01-tao-reservation.md",
@@ -1530,8 +1530,8 @@
       "theme": "theme-07",
       "title": "Tạo reservation",
       "source_baseline": "v4.0.0",
-      "sha256": "8a4c932e3bb3544a24dd49b6eae433877ffe637903975b735f090868f1d8dbfb",
-      "size": 9402
+      "sha256": "d778ef049505d2799f3594c82de5052751f9148b3acb0c30844012a4528d2649",
+      "size": 9418
     },
     {
       "path": "02.specification/behavior/use-cases/UC-04-02-dieu-chinh-reservation.md",
@@ -1542,8 +1542,8 @@
       "theme": "theme-07",
       "title": "Điều chỉnh reservation",
       "source_baseline": "v4.0.0",
-      "sha256": "29c01fa2a9bbaef2d427775f65fbca314c5d49a17bf4db28612c449381b7a066",
-      "size": 9170
+      "sha256": "e794011a6c8bd7ef55b2402410e6753f5d057077b37ba9fa22aa6808c8fa62c6",
+      "size": 9186
     },
     {
       "path": "02.specification/behavior/use-cases/UC-04-03-ket-thuc-va-giai-phong.md",
@@ -1554,8 +1554,8 @@
       "theme": "theme-07",
       "title": "Kết thúc và giải phóng",
       "source_baseline": "v4.0.0",
-      "sha256": "beb089e100c5911d796c5113c10df4ea4de8829e9f017b8425e02c3928ff262d",
-      "size": 8545
+      "sha256": "3e42b8f35fabf2fdcc0a132fd9530cae643b8668178e2f098eb6766c91d27e5a",
+      "size": 8561
     },
     {
       "path": "02.specification/behavior/use-cases/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md",
@@ -1566,8 +1566,8 @@
       "theme": "theme-07",
       "title": "Đánh giá lại và xử lý thiếu",
       "source_baseline": "v4.0.0",
-      "sha256": "18c9bf011c542699424b2805a91de58e4179319e50ae93bff75040bb33012ba2",
-      "size": 9270
+      "sha256": "71694478b396f3265ced5b4b91f6dd89d3e97f92d8d142800624353589a2ecad",
+      "size": 9286
     },
     {
       "path": "02.specification/behavior/use-cases/UC-05-01-lap-allocation.md",
@@ -1578,8 +1578,8 @@
       "theme": "theme-07",
       "title": "Lập allocation",
       "source_baseline": "v4.0.0",
-      "sha256": "f67a34a23ca82db982eace293e4946c0c346d80a583b01572fddc2405d45cc3b",
-      "size": 10390
+      "sha256": "efd21734bb87e4f1d0630b5f1dc099ba54b4e50e3a6af95db841f13128e09140",
+      "size": 10406
     },
     {
       "path": "02.specification/behavior/use-cases/UC-05-02-xac-nhan-hang-da-lay.md",
@@ -1590,8 +1590,8 @@
       "theme": "theme-07",
       "title": "Xác nhận hàng đã lấy",
       "source_baseline": "v4.0.0",
-      "sha256": "9940747094995d466a8ba45bdbaae7c5271632cab9fec2de35beb4349bf41922",
-      "size": 10291
+      "sha256": "4603b23167104e4177427be91301cbdaa0f901609ceb9c4bf116ef7152381a20",
+      "size": 10307
     },
     {
       "path": "02.specification/behavior/use-cases/UC-05-03-ban-giao-hang.md",
@@ -1602,8 +1602,8 @@
       "theme": "theme-07",
       "title": "Bàn giao hàng",
       "source_baseline": "v4.0.0",
-      "sha256": "134911093db54d78d57466a2aa608562c0fef4d2d3886e1a02b16404433b05e0",
-      "size": 10237
+      "sha256": "fb53e0765dac42bf2bdf0e92dcb7803d2d2d31fa80c7178e3715fc3d34d16556",
+      "size": 10253
     },
     {
       "path": "02.specification/behavior/use-cases/UC-05-04-phuc-hoi-allocation-stale.md",
@@ -1614,8 +1614,8 @@
       "theme": "theme-07",
       "title": "Phục hồi allocation stale",
       "source_baseline": "v4.0.0",
-      "sha256": "28c71686876a051938b8fa12ad0f484ecd969fa9e330c716c781d6b97fab3539",
-      "size": 9581
+      "sha256": "d4cf75212b48370cb2117e7420d3affe01a9d1091d35bb44b8367a827f3972d2",
+      "size": 9438
     },
     {
       "path": "02.specification/behavior/use-cases/UC-05-05-ghi-xuat-kho-nguyen-tu.md",
@@ -1626,8 +1626,8 @@
       "theme": "theme-07",
       "title": "Ghi xuất kho nguyên tử",
       "source_baseline": "v4.0.0",
-      "sha256": "8c9300c2b368838cc9c0428d3de5f67cf2236202c6ede5afba781232263d1b7c",
-      "size": 10924
+      "sha256": "ed054c4360f0c45042b71533ed25288952c76fd960363e2e1ffc30cd4bcba1f5",
+      "size": 10940
     },
     {
       "path": "02.specification/behavior/use-cases/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md",
@@ -1638,8 +1638,8 @@
       "theme": "theme-07",
       "title": "Xác minh hàng được phép nhận trả",
       "source_baseline": "v4.0.0",
-      "sha256": "6036413c41d75692a66f05d367786c53c4eed54e749c836008cd29c25fab0aeb",
-      "size": 10553
+      "sha256": "76807ab567df969815eec87485102772bf685eb7d6e7b6e787bfba4ba7e12f0d",
+      "size": 10569
     },
     {
       "path": "02.specification/behavior/use-cases/UC-06-02-xu-ly-ngoai-le-truy-vet.md",
@@ -1650,8 +1650,8 @@
       "theme": "theme-07",
       "title": "Xử lý ngoại lệ truy vết",
       "source_baseline": "v4.0.0",
-      "sha256": "0bf964126a0ae8bac216141de8a2911c30370f1ea65f1cfbedaaacb7dc1143f3",
-      "size": 11536
+      "sha256": "c074dfe4d789ebbfcf3639283b48527de9824df0d5e2fd457fd078bc81d50415",
+      "size": 11552
     },
     {
       "path": "02.specification/behavior/use-cases/UC-06-03-ghi-nhan-hang-khach-tra.md",
@@ -1662,8 +1662,8 @@
       "theme": "theme-07",
       "title": "Ghi nhận hàng khách trả",
       "source_baseline": "v4.0.0",
-      "sha256": "11a4f77f428acbb8b9181756a2e926a3758c706df4a598ca08cc74669ca9da92",
-      "size": 11474
+      "sha256": "a063c469aee33c71398358b38917f59a790f97baf1477f04e94236885a78dfb1",
+      "size": 11490
     },
     {
       "path": "02.specification/behavior/use-cases/UC-06-04-phan-loai-hang-thuc-nhan.md",
@@ -1674,8 +1674,8 @@
       "theme": "theme-07",
       "title": "Phân loại hàng thực nhận",
       "source_baseline": "v4.0.0",
-      "sha256": "23c9eb3b7f54a777c53233a35496d9206be758c690584e7717fc2c16d1a4affd",
-      "size": 11074
+      "sha256": "15341a3f81345e07666a71d666e6f833eb417210679f494dde8358a06e60e7a2",
+      "size": 11090
     },
     {
       "path": "02.specification/behavior/use-cases/UC-07-01-xac-minh-pham-vi-tra.md",
@@ -1686,8 +1686,8 @@
       "theme": "theme-07",
       "title": "Xác minh phạm vi trả",
       "source_baseline": "v4.0.0",
-      "sha256": "3fd3ad77efc8305365cc4b613a64580a3da3222f01fbdc95b412b9cfcaf98524",
-      "size": 10472
+      "sha256": "b0657df4029b53c11e27ccff6e1b8c6a706a16004b80fdab723c6fe0b2e68836",
+      "size": 10488
     },
     {
       "path": "02.specification/behavior/use-cases/UC-07-02-dua-hang-vao-cho-tra.md",
@@ -1698,8 +1698,8 @@
       "theme": "theme-07",
       "title": "Đồng bộ hàng vào chờ trả",
       "source_baseline": "v4.0.0",
-      "sha256": "923f6b85c653231bb1e3515e554a773a40cdb2db95f1750fe24df1eafb80623f",
-      "size": 10016
+      "sha256": "45c2d415e42e6d8028625f1457be8c056ac6a12f0925aeee9aaef88fa2900169",
+      "size": 10032
     },
     {
       "path": "02.specification/behavior/use-cases/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md",
@@ -1710,8 +1710,8 @@
       "theme": "theme-07",
       "title": "Điều chỉnh hoặc hủy trước bàn giao",
       "source_baseline": "v4.0.0",
-      "sha256": "4c1b70aa2ca608a3b7e257610caade6b887d31fb9bf7cc633cca001832b93946",
-      "size": 10126
+      "sha256": "16f3838f00d9f7dc14d0fc7184be2f28cf9310c9d836f92a22277ed3916e1f6f",
+      "size": 10142
     },
     {
       "path": "02.specification/behavior/use-cases/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md",
@@ -1722,8 +1722,8 @@
       "theme": "theme-07",
       "title": "Ghi nhận bàn giao trả nhà cung cấp",
       "source_baseline": "v4.0.0",
-      "sha256": "7e207f92a5214dfeed8f7676c8d4986923ff8a06d6ac406a5c35e22b6d9c9b82",
-      "size": 10212
+      "sha256": "f7c3e5543d8bedc0c048623071a4ab479f79e03eb9d0f2027bb814b319cccbe4",
+      "size": 10228
     },
     {
       "path": "02.specification/behavior/use-cases/UC-08-01-mo-va-khoa-pham-vi.md",
@@ -1734,8 +1734,8 @@
       "theme": "theme-07",
       "title": "Mở và khóa phạm vi",
       "source_baseline": "v4.0.0",
-      "sha256": "4dee22c3b68ceb4f42258e4b029dbc4e3430b6e75558f1b7ea3e5492c98eaa79",
-      "size": 9971
+      "sha256": "bfbfa6a9df4092e436659a707447a934fbdf287a9fa1f44d3042d9d00d1663bd",
+      "size": 9987
     },
     {
       "path": "02.specification/behavior/use-cases/UC-08-02-ghi-nhan-lan-dem-mu.md",
@@ -1746,8 +1746,8 @@
       "theme": "theme-07",
       "title": "Ghi nhận lần đếm mù",
       "source_baseline": "v4.0.0",
-      "sha256": "dda6b241d78325e16472d9e401ccc32790c89d885032b72b0e596ca306434cbf",
-      "size": 9760
+      "sha256": "303ce7c0e012edf540bd8a1cde9fcf6d5eb182c1811b20f1eae03de2eb0bbb82",
+      "size": 9776
     },
     {
       "path": "02.specification/behavior/use-cases/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md",
@@ -1758,8 +1758,8 @@
       "theme": "theme-07",
       "title": "Đếm lại và hoàn thiện căn cứ",
       "source_baseline": "v4.0.0",
-      "sha256": "1164f43e87f9419d7c4da31c6ec58297a8ab5b590dfee019b7de8ac73e69f287",
-      "size": 9531
+      "sha256": "b5c9c99b85ecf317c5e3c6afa50c9645f66c3ee40ee18c7d18c6666ed37bc535",
+      "size": 9547
     },
     {
       "path": "02.specification/behavior/use-cases/UC-08-04-duyet-va-dieu-chinh.md",
@@ -1770,8 +1770,8 @@
       "theme": "theme-07",
       "title": "Duyệt và điều chỉnh",
       "source_baseline": "v4.0.0",
-      "sha256": "a2927e561287320636446e1d6882cccabf70c6667991faad5825b607a03f74c7",
-      "size": 10671
+      "sha256": "37a415f76a22f1cabc63c26dcf0368b4766f53645c625cf20179c5bc5f6192f8",
+      "size": 10687
     },
     {
       "path": "02.specification/behavior/use-cases/UC-08-05-huy-phien-kiem-ke.md",
@@ -1782,8 +1782,8 @@
       "theme": "theme-07",
       "title": "Hủy phiên kiểm kê",
       "source_baseline": "v4.0.0",
-      "sha256": "7f2e8961f83bf44d1a213a35159d03172314029bed475c9d52ea7d2349852240",
-      "size": 8276
+      "sha256": "589a9ce13e658e128bb1317ed63e3b47e4fc214f1ec353aed2f246b5e1258012",
+      "size": 8292
     },
     {
       "path": "02.specification/behavior/use-cases/UC-09-01-chuan-bi-thay-doi-trang-thai.md",
@@ -1794,8 +1794,8 @@
       "theme": "theme-07",
       "title": "Chuẩn bị thay đổi trạng thái",
       "source_baseline": "v4.0.0",
-      "sha256": "393bebe9f72f926aa96d2104ac283724edeaa6ef104694309d402505b52f47c5",
-      "size": 11583
+      "sha256": "25d117d8fe13652bc13a4c7e55672b6bf394c72a7e2fbd14dba2fb60848d7868",
+      "size": 11599
     },
     {
       "path": "02.specification/behavior/use-cases/UC-09-02-phe-duyet-thay-doi-trang-thai.md",
@@ -1806,8 +1806,8 @@
       "theme": "theme-07",
       "title": "Phê duyệt thay đổi trạng thái",
       "source_baseline": "v4.0.0",
-      "sha256": "f6b95f529c9e59b55c677a5db73bc5b61fb8152733178e7f36868fec8bff68b3",
-      "size": 10660
+      "sha256": "0366fa3b3d9086d362fd7abd02b89a42274b5cd1164a000e5282a24b28bc475f",
+      "size": 11408
     },
     {
       "path": "02.specification/behavior/use-cases/UC-09-03-xac-dinh-hang-het-han.md",
@@ -1818,8 +1818,8 @@
       "theme": "theme-07",
       "title": "Xác định hàng hết hạn",
       "source_baseline": "v4.0.0",
-      "sha256": "e9a00acb4153a0f664e830b97d4ba320f9493c8c9853b364ac47f2ae50e67a24",
-      "size": 10150
+      "sha256": "26029a0bb0cbb5844f4596383cb8c534f8998b744dc6f6fed9834640079f0ae1",
+      "size": 10166
     },
     {
       "path": "02.specification/behavior/use-cases/UC-09-04-ghi-state-movement.md",
@@ -1830,8 +1830,8 @@
       "theme": "theme-07",
       "title": "Ghi state movement",
       "source_baseline": "v4.0.0",
-      "sha256": "e1d2ad0b0683bdf2ea482236c6cf664e5f529cc2e48127caf6f34cde053e5893",
-      "size": 10603
+      "sha256": "4f91575a656186f916caa37d39e0c36fb41e4cd8440ed6e1c02b50d7a3e33c83",
+      "size": 10619
     },
     {
       "path": "02.specification/behavior/use-cases/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md",
@@ -1842,8 +1842,8 @@
       "theme": "theme-07",
       "title": "Chuẩn bị yêu cầu tiêu hủy",
       "source_baseline": "v4.0.0",
-      "sha256": "b6933b94d30c5ee013d03d4493570b87689f368760ceb71f7007103990330584",
-      "size": 11556
+      "sha256": "376c85cc0833adfdc6a19f235bc3e82620a2d4d20c5d68ebd5360c8125d3af2a",
+      "size": 11572
     },
     {
       "path": "02.specification/behavior/use-cases/UC-10-02-phe-duyet-tieu-huy.md",
@@ -1854,8 +1854,8 @@
       "theme": "theme-07",
       "title": "Phê duyệt tiêu hủy",
       "source_baseline": "v4.0.0",
-      "sha256": "034223a6645b332836c2fc3eed6279d12708bb24ad51e42b625123f7beb24fa9",
-      "size": 10365
+      "sha256": "3254408ed07af2d8aaa2ff2ba15263f4f4a082b95b8ac759ed48e94d781d2829",
+      "size": 10381
     },
     {
       "path": "02.specification/behavior/use-cases/UC-10-03-xac-nhan-da-tieu-huy.md",
@@ -1866,8 +1866,8 @@
       "theme": "theme-07",
       "title": "Xác nhận đã tiêu hủy",
       "source_baseline": "v4.0.0",
-      "sha256": "63d517205404303fa3777d93207124fb4420589c3452d4b45c0f3c35f39dbf4b",
-      "size": 10319
+      "sha256": "66583c084093e77563e6fec8cb485b55620b0ddf84e690a3e3c9708c85652e29",
+      "size": 10335
     },
     {
       "path": "02.specification/behavior/use-cases/UC-10-04-ghi-giam-hang-tieu-huy.md",
@@ -1878,8 +1878,8 @@
       "theme": "theme-07",
       "title": "Ghi giảm hàng tiêu hủy",
       "source_baseline": "v4.0.0",
-      "sha256": "76f33c6e77a35cac8df1174889acc2acf2e1d471494151636041f3486e654226",
-      "size": 10126
+      "sha256": "d3399816d9d640c6055adb3c4d988b8b49b701d86da213dfc945421b22016755",
+      "size": 10142
     },
     {
       "path": "02.specification/behavior/use-cases/UC-11-01-xac-dinh-duong-xu-ly.md",
@@ -1890,8 +1890,8 @@
       "theme": "theme-07",
       "title": "Xác định đường xử lý",
       "source_baseline": "v4.0.0",
-      "sha256": "754c807278636c4cfc486d6af2759c6cde67f470cbd25d82ba0f39c299b23036",
-      "size": 10215
+      "sha256": "9264deb90095e6cac70aa0eed2d44cff86de62bb0a95167bb610f91b1b4c7c8a",
+      "size": 10231
     },
     {
       "path": "02.specification/behavior/use-cases/UC-11-02-huy-operation-chua-thuc-thi.md",
@@ -1902,8 +1902,8 @@
       "theme": "theme-07",
       "title": "Hủy operation chưa thực thi",
       "source_baseline": "v4.0.0",
-      "sha256": "aff6924d174f9ce75e0916c96a0c91d12e356e577356d334b8298927702e01bb",
-      "size": 10219
+      "sha256": "887643a7f7dbe6a9c7d7702a497d3ad494b3c6b30494140a4e49766c9af25e23",
+      "size": 10277
     },
     {
       "path": "02.specification/behavior/use-cases/UC-11-03-chuan-bi-phuong-an-correction.md",
@@ -1914,8 +1914,8 @@
       "theme": "theme-07",
       "title": "Chuẩn bị phương án correction",
       "source_baseline": "v4.0.0",
-      "sha256": "8697eb524fcc66c4acae402d28dc97d9806cb4601f7404bc7c6a1f98281e90ac",
-      "size": 11594
+      "sha256": "15af822315dcc1d1ab77211ec6314fa207ad7b14b405e23bb1143141ef2ea460",
+      "size": 11647
     },
     {
       "path": "02.specification/behavior/use-cases/UC-11-04-phe-duyet-correction.md",
@@ -1926,8 +1926,8 @@
       "theme": "theme-07",
       "title": "Phê duyệt correction",
       "source_baseline": "v4.0.0",
-      "sha256": "420aa477f660c3b8e69360d476cfeb7e83e80ed951496403684da53ecddf64c7",
-      "size": 10527
+      "sha256": "3a75dd212a5533e90c2358458134b130badfecd672f8e0e8a6edaa575297ec62",
+      "size": 11261
     },
     {
       "path": "02.specification/behavior/use-cases/UC-11-05-ghi-correction-chain.md",
@@ -1938,8 +1938,8 @@
       "theme": "theme-07",
       "title": "Ghi correction chain",
       "source_baseline": "v4.0.0",
-      "sha256": "412601a7f198a9136ef8b200ad148409ae75feb5dbd76056552b717d4d0c8af7",
-      "size": 10358
+      "sha256": "f7bac6381c0cae551c99a94d92b30c2486dbb3b7b828dadcd450946a8a800ac8",
+      "size": 10374
     },
     {
       "path": "02.specification/behavior/use-cases/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md",
@@ -1950,8 +1950,8 @@
       "theme": "theme-07",
       "title": "Nạp và kiểm tra batch đầu kỳ",
       "source_baseline": "v4.0.0",
-      "sha256": "b96e9c41be4f73ad7938c60fdf03ae1a80bb0f4bd2ca2d750d2de115b77e6edf",
-      "size": 11609
+      "sha256": "9bb2f08763bac9899aa05c48a6985df608cddf80dc4eb6104bb9b8169c499d5d",
+      "size": 11625
     },
     {
       "path": "02.specification/behavior/use-cases/UC-12-02-ra-soat-va-duyet-batch.md",
@@ -1962,8 +1962,8 @@
       "theme": "theme-07",
       "title": "Rà soát và duyệt batch",
       "source_baseline": "v4.0.0",
-      "sha256": "6cab559cea61704e8fbf562146e66d350fd7432deefbbc2ce50c48f6ad26fd17",
-      "size": 11308
+      "sha256": "07db54365439c9adc63c1a6f14980ea70d7e8cd03d7e5626a949676785c9d753",
+      "size": 11324
     },
     {
       "path": "02.specification/behavior/use-cases/UC-12-03-commit-va-kich-hoat-ton-kho.md",
@@ -1974,8 +1974,8 @@
       "theme": "theme-07",
       "title": "Commit và kích hoạt tồn kho",
       "source_baseline": "v4.0.0",
-      "sha256": "8a32fe7ea0ae45ca8ebe87456698cec21ab63b8026016305a641dce1113c7e9b",
-      "size": 10533
+      "sha256": "95bec9e4fe34a2fda1e9a2dd0f79d3c13a6041937295a7c96c70d8b4e59e1c69",
+      "size": 10549
     },
     {
       "path": "02.specification/behavior/use-cases/UC-13-01-ghi-nhan-dieu-chinh-gia-tri-hang-nhap.md",
@@ -1986,8 +1986,8 @@
       "theme": "theme-07",
       "title": "Ghi nhận điều chỉnh giá trị hàng nhập",
       "source_baseline": "v4.6.0",
-      "sha256": "a4ddb46feff00d8b65433511953fa67a73bf1347d1b19ccd0ec2198aa92cbfdd",
-      "size": 14594
+      "sha256": "7986603e2bc13c3af70bd137e4be390b8c028fc6a92d6106313642a503abc92d",
+      "size": 14625
     },
     {
       "path": "02.specification/behavior/use-cases/UC-14-01-tinh-va-ra-soat-gia-von.md",
@@ -1998,8 +1998,8 @@
       "theme": "theme-07",
       "title": "Tính và rà soát giá vốn",
       "source_baseline": "v4.6.1",
-      "sha256": "2439bb5d5d474f1bfb61ba12523504af7aece568ccb0148bb7895c2e908d5002",
-      "size": 11663
+      "sha256": "f4892b06fe31642abdba168676a4886e948e3b90183e580ef13ed107a3dfbda0",
+      "size": 11679
     },
     {
       "path": "02.specification/behavior/use-cases/UC-14-04-cong-bo-gia-von.md",
@@ -2010,8 +2010,8 @@
       "theme": "theme-07",
       "title": "Công bố giá vốn",
       "source_baseline": "v4.6.0",
-      "sha256": "253d538181a77760033696db6fa1a9b7b4ed37ac4d0c9e79db1051f5b8096898",
-      "size": 11200
+      "sha256": "37c4dec045edfb6c35f396d14b8533924aef129e7078bb9e9ecf946712b4f2be",
+      "size": 11216
     },
     {
       "path": "02.specification/behavior/use-cases/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md",
@@ -2022,8 +2022,8 @@
       "theme": "theme-07",
       "title": "Xác định báo cáo và phạm vi",
       "source_baseline": "v4.0.0",
-      "sha256": "594dd6368cb35101225b4e0b798c3b00bfab0b5e913e21818cd44e9122f0ef51",
-      "size": 9278
+      "sha256": "3208c1f34f107721478a0091b13c4b42335b2cc1dd646071f75b2096d8989018",
+      "size": 9294
     },
     {
       "path": "02.specification/behavior/use-cases/UC-15-02-xem-bao-cao-ton-kho.md",
@@ -2034,8 +2034,8 @@
       "theme": "theme-07",
       "title": "Xem báo cáo tồn kho",
       "source_baseline": "v4.0.0",
-      "sha256": "e5c5dae55b938392d07d2b50336d3d314a76731a73612218e0a37a4341b7d73e",
-      "size": 8927
+      "sha256": "f24f5599b50b50804ea7fa58006e99a9d0255bd59670c75a11b4b6720c4e4bcb",
+      "size": 8943
     },
     {
       "path": "02.specification/behavior/use-cases/UC-15-03-xem-the-kho-va-lich-su.md",
@@ -2046,8 +2046,8 @@
       "theme": "theme-07",
       "title": "Xem thẻ kho và lịch sử",
       "source_baseline": "v4.0.0",
-      "sha256": "ec5b14e37ab9ecba0f92a8b0b0b5b934997ad115c7321335ba94bf25a5b6c7e0",
-      "size": 9613
+      "sha256": "7ddcd945ba876e9781150268aeb12b42fbfceb1cc549b5d260b06b986094cddd",
+      "size": 9629
     },
     {
       "path": "02.specification/behavior/use-cases/UC-15-04-xuat-bao-cao.md",
@@ -2058,8 +2058,8 @@
       "theme": "theme-07",
       "title": "Xuất báo cáo",
       "source_baseline": "v4.0.0",
-      "sha256": "d060159ecc9940b09488dbb3e3b7f1c91d5aa1eb21dd27c7fae8238368e6ecae",
-      "size": 9474
+      "sha256": "a8dec1705c17b2c3dfcb73cc0ab2996cb35bf72154e1098bfa5b8ee035f20920",
+      "size": 9490
     },
     {
       "path": "02.specification/behavior/use-cases/UC-16-01-mo-va-phan-loai-ho-so-doi-soat.md",
@@ -2070,8 +2070,8 @@
       "theme": "theme-07",
       "title": "Mở và phân loại hồ sơ đối soát",
       "source_baseline": "v4.0.0",
-      "sha256": "738dd8213a0517a6f61150bcc8922d4afb30c71a259491e0020bbe3c64643be8",
-      "size": 10269
+      "sha256": "7f55e405da12656e26a9bf6a97464e87acdbbaef24ed3e155e55de1d070ba9d1",
+      "size": 10285
     },
     {
       "path": "02.specification/behavior/use-cases/UC-16-02-bao-ve-pham-vi-rui-ro.md",
@@ -2082,8 +2082,8 @@
       "theme": "theme-07",
       "title": "Bảo vệ phạm vi rủi ro",
       "source_baseline": "v4.0.0",
-      "sha256": "a79c50d67358cbef275d923473863ec726543a101f02c90992a4a72b285224de",
-      "size": 10356
+      "sha256": "2d15ed9f5d345e5db610f99f7d1a2191031ffa8911643054818bc7465f589ac3",
+      "size": 10372
     },
     {
       "path": "02.specification/behavior/use-cases/UC-16-03-dieu-tra-va-xac-dinh-nguyen-nhan.md",
@@ -2094,8 +2094,8 @@
       "theme": "theme-07",
       "title": "Điều tra và xác định nguyên nhân",
       "source_baseline": "v4.0.0",
-      "sha256": "ffb54605b72f0aeb6f065f4dee9d04c19874ec0064bbd8ec83aa4e02bcf5ef24",
-      "size": 11499
+      "sha256": "f22ced855aaaaf8ec0900859af45c959b0ba5b280a8a8cdf95df23454397e70b",
+      "size": 11515
     },
     {
       "path": "02.specification/behavior/use-cases/UC-16-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md",
@@ -2106,8 +2106,8 @@
       "theme": "theme-07",
       "title": "Xác minh và cập nhật kết quả đối soát",
       "source_baseline": "v4.0.0",
-      "sha256": "a04c86eadac9474c68c9f55fc1f0854e693048ad3276110f084fb5feb95636d8",
-      "size": 11019
+      "sha256": "abf6054c9f178800a642d06e787f4583897a16aecf5286f191eac9fe6ac7fe4a",
+      "size": 11035
     },
     {
       "path": "02.specification/behavior/use-cases/UC-17-01-thu-thap-va-danh-gia-bang-chung.md",
@@ -2118,8 +2118,8 @@
       "theme": "theme-07",
       "title": "Thu thập và đánh giá bằng chứng",
       "source_baseline": "v4.0.0",
-      "sha256": "2a30c8f113d058b583bf2e84af43dd8b8b725a4ff69835789b756bf2c73352b3",
-      "size": 11224
+      "sha256": "6771cfda84e025908d42ef22742cef894fef2cf8d73f331dcb9122ed57a3f2f9",
+      "size": 11240
     },
     {
       "path": "02.specification/behavior/use-cases/UC-17-02-xac-lap-operation-da-hoan-tat.md",
@@ -2130,8 +2130,8 @@
       "theme": "theme-07",
       "title": "Xác lập operation đã hoàn tất",
       "source_baseline": "v4.0.0",
-      "sha256": "dfdbcae9161b49b7196cba8987d2b43f9ace6602fde00ca3593f9ea0a312854a",
-      "size": 10470
+      "sha256": "d337afebab6e4814a295a792995edd00f9bac94f6d62c80551db1bf85881a066",
+      "size": 10486
     },
     {
       "path": "02.specification/behavior/use-cases/UC-17-03-tiep-tuc-cung-operation-identity.md",
@@ -2142,8 +2142,8 @@
       "theme": "theme-07",
       "title": "Tiếp tục cùng operation identity",
       "source_baseline": "v4.0.0",
-      "sha256": "f9c4e514801be81d28da8c4f76957654698155d1f6b6718bcd83d1d185921f99",
-      "size": 10051
+      "sha256": "e63f4790736d16512a31543cb42799e61b339945c31c3f41a4033e7cfa9601dd",
+      "size": 10067
     },
     {
       "path": "02.specification/behavior/use-cases/UC-17-04-giu-chua-xac-dinh-va-escalated.md",
@@ -2154,8 +2154,8 @@
       "theme": "theme-07",
       "title": "Giữ chưa xác định và escalated",
       "source_baseline": "v4.0.0",
-      "sha256": "fd5c64785c0e515fb76c2b867dc3f031a0267d54703a38a014f83cf465253f98",
-      "size": 10902
+      "sha256": "f54991c26e573590fd9f6b557f62bf42938d063c54df94cccd2c5a233891bec0",
+      "size": 10918
     },
     {
       "path": "02.specification/domain/aggregates/AGG-IC-01-ApprovalCase.md",
@@ -2310,8 +2310,8 @@
       "theme": "theme-07",
       "title": "ReceiptValuation Aggregate",
       "source_baseline": "v3.12.0",
-      "sha256": "fd1bfbec59b2d6ab031984c0194774cacdfd4e66cf6d934573900b83e77f1c6b",
-      "size": 1969
+      "sha256": "d809365ed120ef504b1ce39f9a31024d7f89e93641db35d5d66ee3203b0a256e",
+      "size": 1985
     },
     {
       "path": "02.specification/domain/aggregates/AGG-IV-02-CostCalculationRun.md",
@@ -2322,8 +2322,8 @@
       "theme": "theme-07",
       "title": "CostCalculationRun Aggregate",
       "source_baseline": "v3.12.0",
-      "sha256": "cde1d03a6c6794df0576127a144f2d99409fb4512a40cc4c2de9a0a74467b9a8",
-      "size": 2012
+      "sha256": "b17dc4710d7120baaef921047142fca2c9db4ba6129562c5cbd45a168cd20605",
+      "size": 2028
     },
     {
       "path": "02.specification/domain/aggregates/AGG-IV-03-OfficialCostVersion.md",
@@ -2334,8 +2334,8 @@
       "theme": "theme-07",
       "title": "OfficialCostVersion Aggregate",
       "source_baseline": "v3.12.0",
-      "sha256": "b2d1bb2cf469c3aaee39710ffe66297ea096068e3c8b2ea0ce5c48b45a8df203",
-      "size": 1401
+      "sha256": "b2270172e738f7ec46914c462672c06466a7cc1f897ef7d84583c7939f267270",
+      "size": 1417
     },
     {
       "path": "02.specification/domain/aggregates/AGG-IV-04-ValuationAdjustmentBatch.md",
@@ -2346,8 +2346,8 @@
       "theme": "theme-07",
       "title": "ValuationAdjustmentBatch Aggregate",
       "source_baseline": "v3.12.0",
-      "sha256": "b7cb020cb66bff6cf425ad5c8a31d01f50980634567cec78e7814fc603adc05f",
-      "size": 1507
+      "sha256": "c52ccc9f5dcbba55744c809c2ff6ffa4b184e6fd66331573dff9ee2e568f3180",
+      "size": 1523
     },
     {
       "path": "02.specification/domain/domain-foundation/DOM-COM.md",
@@ -2802,8 +2802,8 @@
       "theme": "theme-07",
       "title": "Hợp đồng tích hợp liên Theme của Kho & Giá vốn",
       "source_baseline": "v3.12.0",
-      "sha256": "62ec76758f429ba1a1319201f1b9926dade3c6e498aa3ec533327fb98598ff70",
-      "size": 8347
+      "sha256": "c83010d5a9d8bb9ca44424c24cc1ad1c6f64e1f9cdf6b404f50f54af31c5ceb1",
+      "size": 8363
     },
     {
       "path": "02.specification/domain/read-models/PRJ-01-AvailabilityView.md",
@@ -2886,8 +2886,8 @@
       "theme": "theme-07",
       "title": "ValuationWorkbenchView",
       "source_baseline": "v3.12.0",
-      "sha256": "f9eff53d95c60a50f6da463aed5f0663b1e0278e060fd9c6dd5d0d2fac6eb1fb",
-      "size": 3508
+      "sha256": "f74a1b4fd4fbd5655726168e5311bc024b42fb6dfc5f9a8b7bc9e16d090b3011",
+      "size": 3524
     },
     {
       "path": "02.specification/domain/read-models/PRJ-08-LowStockView.md",
@@ -2982,8 +2982,8 @@
       "theme": "theme-07",
       "title": "Theo dõi tồn, khả dụng và chỉ báo vận hành",
       "source_baseline": "v4.1.0",
-      "sha256": "15e3d072fa84b435562854c9f29e2a1c0e19b77fb909ddc390234c6b4794a7c0",
-      "size": 6149
+      "sha256": "61e460c6384c867d56abfa3e8c3dc129010189b67d926f6e02bcd376c8328740",
+      "size": 6396
     },
     {
       "path": "03.design/flows/UIF-02-BJ-02.md",
@@ -2994,8 +2994,8 @@
       "theme": "theme-07",
       "title": "Nhận hàng mua",
       "source_baseline": "v4.6.5",
-      "sha256": "9d8ed4a64e0be1204e6831aa02b8938c38c48f69acbc80cfa80fc826fba8f2cf",
-      "size": 8712
+      "sha256": "10a3a22324388492cbba8b16f01de67f545e348813578fe74cde1b15cf5ed5ef",
+      "size": 8728
     },
     {
       "path": "03.design/flows/UIF-03-BJ-03.md",
@@ -3006,8 +3006,8 @@
       "theme": "theme-07",
       "title": "Xác lập giá trị ban đầu của hàng nhận",
       "source_baseline": "v4.1.0",
-      "sha256": "168531d1d3344e912205ce8ee520a9da9b6f4c09f8e2aba358e3fbfbc12504b4",
-      "size": 6997
+      "sha256": "2c64e7ac6a3701db67fc619aad4a065b072430fb0b855650f4944904d195a586",
+      "size": 7013
     },
     {
       "path": "03.design/flows/UIF-04-BJ-04.md",
@@ -3018,8 +3018,8 @@
       "theme": "theme-07",
       "title": "Quản lý vòng đời giữ hàng",
       "source_baseline": "v4.1.0",
-      "sha256": "5d4956d714a92ff5424eefc15c308b77cd4cf5adb7a7e8bd46c6c6dcc2aa7a8f",
-      "size": 9001
+      "sha256": "56d0d79a57ee5489082b7b144b370f4cf5ce50eac25725a14a664b0a4bc1d88e",
+      "size": 8563
     },
     {
       "path": "03.design/flows/UIF-05-BJ-05.md",
@@ -3030,8 +3030,8 @@
       "theme": "theme-07",
       "title": "Lấy hàng và bàn giao đơn",
       "source_baseline": "v4.1.0",
-      "sha256": "35c106b7c028ae9d8a7761f3c4f388e9f07db32ebc7a4b2753f12ab1b9318f45",
-      "size": 11716
+      "sha256": "ad29c1cdc90bdd19d4c8ea802b130c99d4743d243f3e6effdb0385320e221fe5",
+      "size": 11732
     },
     {
       "path": "03.design/flows/UIF-06-BJ-06.md",
@@ -3042,8 +3042,8 @@
       "theme": "theme-07",
       "title": "Tiếp nhận và phân loại hàng khách trả",
       "source_baseline": "v4.1.0",
-      "sha256": "e7aebc664bb4d8ac68980d4747842d1adce4f115672687f9b32f2c606e408767",
-      "size": 13094
+      "sha256": "65b9bd4b4abddee9645d1818272b6bd6489aec8cf6b3a94b17aaef0c750d10ed",
+      "size": 13110
     },
     {
       "path": "03.design/flows/UIF-07-BJ-07.md",
@@ -3054,8 +3054,8 @@
       "theme": "theme-07",
       "title": "Thực hiện trả hàng cho nhà cung cấp",
       "source_baseline": "v4.1.0",
-      "sha256": "036070b48d6ee7959c23f440133f20b7950ef6c779ae461adeca32360003a837",
-      "size": 12582
+      "sha256": "30c7b4c61c0c22866805edfeff83a4eeab9c2b17eafee5101a19cc7394d34227",
+      "size": 12598
     },
     {
       "path": "03.design/flows/UIF-08-BJ-08.md",
@@ -3066,8 +3066,8 @@
       "theme": "theme-07",
       "title": "Kiểm kê và điều chỉnh chênh lệch",
       "source_baseline": "v4.1.0",
-      "sha256": "d656812e8c15e6963088d63205278c4b5ba45c007cf31def2ccd9535bcea39aa",
-      "size": 14679
+      "sha256": "d76ef3c3b6e4066a7022a7796994e3482204f2350e2b28f80fd19ee097d99aa8",
+      "size": 14695
     },
     {
       "path": "03.design/flows/UIF-09-BJ-09.md",
@@ -3078,8 +3078,8 @@
       "theme": "theme-07",
       "title": "Quản lý trạng thái hàng",
       "source_baseline": "v4.1.0",
-      "sha256": "ee432d88ca52db1faafd4dbe2f57c0906d2a271ceb2fd96bcc04af37c00448c2",
-      "size": 13399
+      "sha256": "e9718da0fda0cb6d802e6d3341da655ba68adfe02e9bdb552acb877edbeed746",
+      "size": 13415
     },
     {
       "path": "03.design/flows/UIF-10-BJ-10.md",
@@ -3090,8 +3090,8 @@
       "theme": "theme-07",
       "title": "Tiêu hủy hàng",
       "source_baseline": "v4.1.0",
-      "sha256": "a5b502e667949ac53c8a88831bae266e98da5c4abff05dff166e7cb7798d7ddf",
-      "size": 13626
+      "sha256": "e6d1f91cd34776a8f11e777363b41bd2f72b9ee782b158cc61ba79c9a33ed3e2",
+      "size": 13642
     },
     {
       "path": "03.design/flows/UIF-11-BJ-11.md",
@@ -3102,8 +3102,8 @@
       "theme": "theme-07",
       "title": "Hủy và sửa sai nghiệp vụ kho",
       "source_baseline": "v4.1.0",
-      "sha256": "852111d4a2d447313efeca808d5f3faece29a42a50b626326003eb1a44e5a718",
-      "size": 16229
+      "sha256": "3d1168b2e83c8873e199cb2819ba961c2eb2ac17d149096a0bf8211cd864230c",
+      "size": 16245
     },
     {
       "path": "03.design/flows/UIF-12-BJ-12.md",
@@ -3114,8 +3114,8 @@
       "theme": "theme-07",
       "title": "Khởi tạo số dư tồn kho đầu kỳ",
       "source_baseline": "v4.1.0",
-      "sha256": "bfd3fdb54d2aa4c5b4dc8a9ca6152db5dbe4e286be67ebb1caff610f2b16629f",
-      "size": 6558
+      "sha256": "31212870bf2aff3f4b991afe84ecd4c34ed7256f24da52e8c4c29e977eb56cfb",
+      "size": 6574
     },
     {
       "path": "03.design/flows/UIF-13-BJ-13.md",
@@ -3126,8 +3126,8 @@
       "theme": "theme-07",
       "title": "Điều chỉnh giá trị hàng nhập",
       "source_baseline": "v4.5.2",
-      "sha256": "c68222d41d1b62a0e14667f91632af28101565500a3281998fb69e3ea010797d",
-      "size": 6822
+      "sha256": "3cb93b2c45cbda3787a4115125abb8c0f0c5fa28c96478363c5d8ac97ceaad05",
+      "size": 6838
     },
     {
       "path": "03.design/flows/UIF-14-BJ-14.md",
@@ -3138,8 +3138,8 @@
       "theme": "theme-07",
       "title": "Tính và công bố giá vốn",
       "source_baseline": "v4.1.0",
-      "sha256": "5d71f96a4e1d2e58035b711308edeee003471ccd6574b0568af5827fa325c58a",
-      "size": 12011
+      "sha256": "c83d0b4f116f53b0752a605658798ea434b393c07254fca73fa1015ef003fc1c",
+      "size": 12027
     },
     {
       "path": "03.design/flows/UIF-15-BJ-15.md",
@@ -3150,8 +3150,8 @@
       "theme": "theme-07",
       "title": "Tra cứu báo cáo tồn và thẻ kho",
       "source_baseline": "v4.1.0",
-      "sha256": "78e68a2de48d04b1a0de9aff85af238b39540c2d2e8d94ae70b56571a6aca89d",
-      "size": 11151
+      "sha256": "f303e3dbe561192e274be141c2a59d46792ecc11c1aecb8d7609d1f99abea13b",
+      "size": 11188
     },
     {
       "path": "03.design/flows/UIF-16-BJ-16.md",
@@ -3162,8 +3162,8 @@
       "theme": "theme-07",
       "title": "Điều tra và đối soát sai lệch",
       "source_baseline": "v4.1.0",
-      "sha256": "492f458763e662801dac5ec8ddc274915d4c7830e4d68cfe1ef0445f32d58ebf",
-      "size": 14281
+      "sha256": "19ccf6864f508f2f2aa0da64010b321f022f11db10c7765ce57eb1de43373ee7",
+      "size": 14297
     },
     {
       "path": "03.design/flows/UIF-17-BJ-17.md",
@@ -3174,8 +3174,8 @@
       "theme": "theme-07",
       "title": "Phục hồi nghiệp vụ có kết quả chưa xác định",
       "source_baseline": "v4.1.0",
-      "sha256": "0b22edce2688cdaaad37defd13ecfd7408cb40e1c5e4bcbb7fba96e9058aea02",
-      "size": 11105
+      "sha256": "dc1f77e93c73f7d09e71c9628512f7eceff7e8bb0cc0458460bbe0e66971b365",
+      "size": 11121
     },
     {
       "path": "03.design/flows/_TEMPLATE.md",
@@ -3186,8 +3186,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "326f3b34434b5bc9b217fbb078ceba8a783552fd8b64b55a383ff9fae2cd7a1e",
-      "size": 765
+      "sha256": "7b6ea14438406c08b4a96bd1e9288cbcdba075e3c9455a8cffb4920828268f2a",
+      "size": 781
     },
     {
       "path": "03.design/patterns/PAT-NAV.md",
@@ -3198,8 +3198,8 @@
       "theme": "theme-07",
       "title": "Navigation areas",
       "source_baseline": "v3.10.1",
-      "sha256": "6c72e6e9216db8a0225230ce6f890237c159b8643965f6979c84c07ada7f7a48",
-      "size": 9882
+      "sha256": "969c9a8eea92c887800849ceed07a359284b16ef7b1507f81b6f3afa732874ec",
+      "size": 5939
     },
     {
       "path": "03.design/patterns/PAT-UI-UX.md",
@@ -3210,8 +3210,8 @@
       "theme": "theme-07",
       "title": "UI/UX policy & patterns",
       "source_baseline": "v3.13.0",
-      "sha256": "902a704fbc2ac06eedf2b42aebc0860c887b561fc31aa0a87c5348cff7db9661",
-      "size": 8211
+      "sha256": "eb5b063e29fa8ab999c90084171e26ccb723ba4a4d1941139d90d4f56f201173",
+      "size": 12611
     },
     {
       "path": "03.design/prototype/README.md",
@@ -3222,8 +3222,8 @@
       "theme": "theme-07",
       "title": "Theme 07 mobile prototype mapping",
       "source_baseline": "v4.6.6",
-      "sha256": "177595ac7ed97aee2a1fb32b6a438a5420530b29ae816a8f8c743abfc6891fe7",
-      "size": 1342
+      "sha256": "77677248775f4f8689125628ea23056272945bd4ed67365d083c85bdb8ef9433",
+      "size": 1344
     },
     {
       "path": "03.design/prototype/html/CHANGELOG.md",
@@ -3234,8 +3234,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "baef756ff5d63f36bf4a72bd4623683ef6a0de39397268f45ac774e35d28c554",
-      "size": 153090
+      "sha256": "826ac231628b4fe6107d58e782140e9bfc5290768f1a619fd6a963054d974119",
+      "size": 154778
     },
     {
       "path": "03.design/prototype/html/DS-CONFORMANCE.md",
@@ -3618,7 +3618,7 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "bbc793a4561c6e0e6d5ffb301b20e6e01ac6d5c6f4de9bc2a303a88bfc3fb514",
+      "sha256": "cdf067e7dc463bafa4f944817af25abca9134fd72f6c4d33caf7fbb08090a98a",
       "size": 27655
     },
     {
@@ -3630,8 +3630,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "06419c68f99c7b0af7f81f2b8e56fbc9cbb4a10853f52b0674c1a680ebc146b8",
-      "size": 6661
+      "sha256": "21423e7e73b3fcbae2165269746de97ba9e474d0722e69779ab2f8b9cc01787e",
+      "size": 6650
     },
     {
       "path": "03.design/prototype/html/manifest.json",
@@ -3642,8 +3642,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "79f6e745c3deddcab73ff565fe816dc8e97d78272ec0336f1dee04e8ff3eccee",
-      "size": 1656
+      "sha256": "2830e9a7aafc9d8c9eb0f04c92b1280ccb7da7cff8c71798849fb8f7348d99e2",
+      "size": 1375
     },
     {
       "path": "03.design/prototype/html/prototype.manifest.json",
@@ -3718,6 +3718,18 @@
       "size": 4147
     },
     {
+      "path": "03.design/prototype/html/tools/check-spec.py",
+      "id": "",
+      "type": "",
+      "owner": "",
+      "status": "",
+      "theme": "",
+      "title": "",
+      "source_baseline": "",
+      "sha256": "60e14b521a41ab533979edf50ed2bdfbe11f3d4b1bc1f3a4d7dd6423293db5e9",
+      "size": 8633
+    },
+    {
       "path": "03.design/prototype/html/tools/css-important.mjs",
       "id": "",
       "type": "",
@@ -3774,8 +3786,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "dada314d85e0b037d6813e9bde2e5ad1c43aed81162d2398a23f18922051215a",
-      "size": 8282
+      "sha256": "e781fb659ebe0d2408d525be3ba22058fd2c0010881e96fd5885970a7fa6a2c3",
+      "size": 8072
     },
     {
       "path": "03.design/screens/RETIRED.md",
@@ -3786,8 +3798,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "7841dbcde2f029b9ad3aa4eb95e3c5b7305a93c637b969d818a070e2a31a315b",
-      "size": 3912
+      "sha256": "989ae88485f3477bf0fbd1b01c7d8b5b338ca253f5ddbd8a83781c433a0eae38",
+      "size": 5072
     },
     {
       "path": "03.design/screens/SCR-001.md",
@@ -3798,20 +3810,8 @@
       "theme": "theme-07",
       "title": "Tồn kho",
       "source_baseline": "v3.10.1",
-      "sha256": "4b85632cd5eb4ced35b9ccb3e9114252eb0807df90db05c74c149937fbed60bf",
-      "size": 7147
-    },
-    {
-      "path": "03.design/screens/SCR-002.md",
-      "id": "SCR-002",
-      "type": "screen-contract",
-      "owner": "BA",
-      "status": "FROZEN",
-      "theme": "theme-07",
-      "title": "Kết quả khả dụng — MERGED",
-      "source_baseline": "v3.10.1",
-      "sha256": "4a68989e285c76375b2aac62f3df60491d949917c1eb07ade6da715e653ebc98",
-      "size": 2241
+      "sha256": "b4c036cbfad66648f4e28502b1719758c67b991e4952a0dcd1cc80150ba8741b",
+      "size": 7163
     },
     {
       "path": "03.design/screens/SCR-003.md",
@@ -3822,32 +3822,8 @@
       "theme": "theme-07",
       "title": "Chi tiết tồn kho",
       "source_baseline": "v3.10.1",
-      "sha256": "5cd659fe58d0f248ab17089382c8e78894e2551c746f48b7c0ea803d21ef630d",
-      "size": 9534
-    },
-    {
-      "path": "03.design/screens/SCR-004.md",
-      "id": "SCR-004",
-      "type": "screen-contract",
-      "owner": "BA",
-      "status": "FROZEN",
-      "theme": "theme-07",
-      "title": "Chi tiết lô — OVERLAY COMPATIBILITY",
-      "source_baseline": "v3.10.1",
-      "sha256": "c4a60f91147be71ed37455f6b349a1fe9e9aea39bfa0e3965a54e58ad713a243",
-      "size": 2530
-    },
-    {
-      "path": "03.design/screens/SCR-005.md",
-      "id": "SCR-005",
-      "type": "screen-contract",
-      "owner": "BA",
-      "status": "FROZEN",
-      "theme": "theme-07",
-      "title": "Nguồn số liệu — OVERLAY COMPATIBILITY",
-      "source_baseline": "v3.10.1",
-      "sha256": "078e6f20100a884aaf4eb1a14ace2de3d0dbebc26f2e5e56af3b16be85801bdf",
-      "size": 2230
+      "sha256": "9679d9ba35d371c0c788a00614cc344239663bc83ba5912d1df9a5362003ef64",
+      "size": 9568
     },
     {
       "path": "03.design/screens/SCR-007.md",
@@ -3858,8 +3834,8 @@
       "theme": "theme-07",
       "title": "Chứng từ chờ nhận",
       "source_baseline": "v3.10.1",
-      "sha256": "c36c2a5baa4f1d79c95ef87f6df7a21e62c80c4f35e5fe3aa369ea67936e90be",
-      "size": 5528
+      "sha256": "a5e0b7bfa4eaabf962fa9b54769e72b7e6df75cee7290d7f9b9efb2cfed07756",
+      "size": 5544
     },
     {
       "path": "03.design/screens/SCR-008.md",
@@ -3870,8 +3846,8 @@
       "theme": "theme-07",
       "title": "Thông tin nhập hàng nhanh",
       "source_baseline": "v4.6.6",
-      "sha256": "e0f20b5ff5702b448b93915b60c42700fa1a8634377e14762e22066076624cfd",
-      "size": 4724
+      "sha256": "cf38fb466eb3be7c65eac3c9098c33b1f0bff599e0e468354c7ccfcf8a61c127",
+      "size": 4740
     },
     {
       "path": "03.design/screens/SCR-009.md",
@@ -3882,8 +3858,8 @@
       "theme": "theme-07",
       "title": "Hàng thực nhận",
       "source_baseline": "v3.10.1",
-      "sha256": "33c2064d55b4790fd424bf11d5bbe59361eb5cdedf2cdedabdc67e707e64f3b5",
-      "size": 5337
+      "sha256": "9035d3e4a34b4760b201217709bcab75c46b971377aa1ec49e63b535f1e986d5",
+      "size": 5353
     },
     {
       "path": "03.design/screens/SCR-010.md",
@@ -3894,8 +3870,8 @@
       "theme": "theme-07",
       "title": "Rà soát và gửi xử lý",
       "source_baseline": "v3.10.1",
-      "sha256": "696a0ffd1729b5d6c732b594922874f14de42079cda30f0b2db1b9a40917484f",
-      "size": 6178
+      "sha256": "c962954367e239d4e3cd2556fde1a2651ad02626698816563e3e7c3493662ff7",
+      "size": 6417
     },
     {
       "path": "03.design/screens/SCR-011.md",
@@ -3906,8 +3882,8 @@
       "theme": "theme-07",
       "title": "Phê duyệt yêu cầu nhận hàng",
       "source_baseline": "v3.10.1",
-      "sha256": "05c824efd78e30ea9dd7546d5c931b38035c5ce514483229e58f75b05e39a70a",
-      "size": 6938
+      "sha256": "78bed8bf51a532dcf57c76e7f01038ee553fcf29216c6c25a66870c5daf841c4",
+      "size": 6954
     },
     {
       "path": "03.design/screens/SCR-012.md",
@@ -3918,8 +3894,8 @@
       "theme": "theme-07",
       "title": "Kết quả nhận hàng",
       "source_baseline": "v3.10.1",
-      "sha256": "56e068cc765c269bdf905005809f4d24f4c0e5189f33449faf23a888776d0ecd",
-      "size": 4827
+      "sha256": "a6c0829deee33fb27341a6a09273c8fa45d4686f28df7883ea1abcf2208cdde6",
+      "size": 5365
     },
     {
       "path": "03.design/screens/SCR-013.md",
@@ -3930,8 +3906,8 @@
       "theme": "theme-07",
       "title": "Đối soát kết quả nhận hàng",
       "source_baseline": "v3.10.1",
-      "sha256": "63b6a221f0efec9add4d9a6d5f1288f22a76c2fa6b3c24dcf6f2a74d9c153a46",
-      "size": 3865
+      "sha256": "82bfa55d177d2f5481c44d6b68eb9add2e357f0d7de8b144b5a068ed19e40b93",
+      "size": 3881
     },
     {
       "path": "03.design/screens/SCR-014.md",
@@ -3942,8 +3918,8 @@
       "theme": "theme-07",
       "title": "Hàng chờ xác lập giá trị",
       "source_baseline": "v4.3.0",
-      "sha256": "133a6c892698a70aaa5e53a41d0501565ab55c3ad2ce10257fd91c9ad1913d8c",
-      "size": 4759
+      "sha256": "65b3ed17b07e359617ed0d7265f72ed544f0ba0ccd2c7cc2b99534e5f796185c",
+      "size": 4775
     },
     {
       "path": "03.design/screens/SCR-015.md",
@@ -3954,8 +3930,8 @@
       "theme": "theme-07",
       "title": "Xác lập giá trị nhập ban đầu",
       "source_baseline": "v4.6.1",
-      "sha256": "db452a366c5f78a5a9a6534660d0620577791426a6b24d0aab4ec7d49fde0a64",
-      "size": 12115
+      "sha256": "fb9d73686c3eb9710b5b8b8ca082fcd188dda5e5ffd9425dc8f9fe6461d213eb",
+      "size": 12411
     },
     {
       "path": "03.design/screens/SCR-019.md",
@@ -3966,20 +3942,8 @@
       "theme": "theme-07",
       "title": "Kết quả xác lập giá trị",
       "source_baseline": "v4.6.0",
-      "sha256": "984744fef3e5edf1c886c90eb9ac1da4f6e8ac50b6a4492d4104afb4e29ef2be",
-      "size": 5471
-    },
-    {
-      "path": "03.design/screens/SCR-020.md",
-      "id": "SCR-020",
-      "type": "screen-contract",
-      "owner": "BA",
-      "status": "FROZEN",
-      "theme": "theme-07",
-      "title": "Đơn cần giữ hàng",
-      "source_baseline": "v3.10.1",
-      "sha256": "474ba913a33056fc780e6b86e4e87422d4bc1aedabbbab36b9859a3c2ece855e",
-      "size": 5717
+      "sha256": "42c2d4d9095842c12a576eed8d50f8d7c4e1e846b85645dfd747076b9ecfbd04",
+      "size": 5487
     },
     {
       "path": "03.design/screens/SCR-021.md",
@@ -3990,44 +3954,8 @@
       "theme": "theme-07",
       "title": "Giữ hàng theo đơn",
       "source_baseline": "v3.10.1",
-      "sha256": "eaea5e7b61e48579042d33d115130cae72889461d7730e0bf782222a67d7a136",
-      "size": 4916
-    },
-    {
-      "path": "03.design/screens/SCR-022.md",
-      "id": "SCR-022",
-      "type": "screen-contract",
-      "owner": "BA",
-      "status": "FROZEN",
-      "theme": "theme-07",
-      "title": "Rà soát giữ hàng",
-      "source_baseline": "v3.10.1",
-      "sha256": "440aa90f307448dcd92f4c1f1597a2b4107676998962dd249f8cf2c57101c248",
-      "size": 6209
-    },
-    {
-      "path": "03.design/screens/SCR-023.md",
-      "id": "SCR-023",
-      "type": "screen-contract",
-      "owner": "BA",
-      "status": "FROZEN",
-      "theme": "theme-07",
-      "title": "Giải phóng hoặc phân bổ lại",
-      "source_baseline": "v3.10.1",
-      "sha256": "a60dfeae6f3271108b7ce1203dadf377c7d9ac7abcdc3d45582e7abae01afa72",
-      "size": 6765
-    },
-    {
-      "path": "03.design/screens/SCR-024.md",
-      "id": "SCR-024",
-      "type": "screen-contract",
-      "owner": "BA",
-      "status": "FROZEN",
-      "theme": "theme-07",
-      "title": "Kết quả reservation",
-      "source_baseline": "v3.10.1",
-      "sha256": "3d12635362230efade6b5681ea9ef02b2d2671d0346f27c2d9da83cbb64f6f6a",
-      "size": 6504
+      "sha256": "9f854bc63ac764cbac7013a23e530e87c1623d7dd55b3a2a7e5fb59fdf128da1",
+      "size": 4932
     },
     {
       "path": "03.design/screens/SCR-025.md",
@@ -4038,8 +3966,8 @@
       "theme": "theme-07",
       "title": "Đơn cần lấy hàng",
       "source_baseline": "v3.10.1",
-      "sha256": "3b478548c744a3d406467a640d78e6208d788af807cc3082d05a9a0855acb4cf",
-      "size": 4845
+      "sha256": "b90a2b5746ca0b3a11e3f77a21471210d75300cd0f3a00ca4204fd708a2929b7",
+      "size": 4861
     },
     {
       "path": "03.design/screens/SCR-026.md",
@@ -4050,8 +3978,8 @@
       "theme": "theme-07",
       "title": "Hàng cần lấy",
       "source_baseline": "v3.10.1",
-      "sha256": "055938146b051da5189118427b52f43b86e567643ecc0f67b5fb84c41eca048c",
-      "size": 7127
+      "sha256": "f2ba989e0a975167e113b0a5baae8d27d6598a728379339b202fe7675e0a2324",
+      "size": 7143
     },
     {
       "path": "03.design/screens/SCR-028.md",
@@ -4062,8 +3990,8 @@
       "theme": "theme-07",
       "title": "Rà soát bàn giao",
       "source_baseline": "v3.10.1",
-      "sha256": "c324acb908c0a51866de8b69a8937db746d3769f2357d2466345d4fe1d6eae9c",
-      "size": 4633
+      "sha256": "abf62ec65eb620010accc283a00af5d6c4aff6a5d5b55c1d272322eba23e88b0",
+      "size": 4649
     },
     {
       "path": "03.design/screens/SCR-029.md",
@@ -4074,8 +4002,8 @@
       "theme": "theme-07",
       "title": "Kết quả bàn giao",
       "source_baseline": "v3.10.1",
-      "sha256": "03add102bc4349aee157781faaefb75d7f1b0aa5c69ed0cef31660953d31b002",
-      "size": 4431
+      "sha256": "0e3311e393bb84915db12680cbe208a15ca610155e286d6d6c69084210886d53",
+      "size": 4907
     },
     {
       "path": "03.design/screens/SCR-030.md",
@@ -4086,8 +4014,8 @@
       "theme": "theme-07",
       "title": "Hàng khách trả",
       "source_baseline": "v3.10.1",
-      "sha256": "16588de5940f2885662d45bebcb07e1937cb69a295b82104d470e91ce002d224",
-      "size": 4656
+      "sha256": "5d0fba915c625921c07ee5138cb361409a0004abc03f32a128e1e2006f68134a",
+      "size": 4672
     },
     {
       "path": "03.design/screens/SCR-031.md",
@@ -4098,8 +4026,8 @@
       "theme": "theme-07",
       "title": "Hàng khách trả",
       "source_baseline": "v3.10.1",
-      "sha256": "ef2b06c8dab6febef31086c95b38ef63c4cab3abbf2c5cdabb693daf41819cc6",
-      "size": 6545
+      "sha256": "ef67164d09888bfee3d5310c866d5bf562960c78792db8bcc8e7b8486b090ae9",
+      "size": 6561
     },
     {
       "path": "03.design/screens/SCR-032.md",
@@ -4110,8 +4038,8 @@
       "theme": "theme-07",
       "title": "Chi tiết hàng trả",
       "source_baseline": "v3.10.1",
-      "sha256": "ea5ca987b3ec68adea2a553696c3c76609c746c5e66716068b1e24959ce7aede",
-      "size": 5257
+      "sha256": "e549ab839be0c7ec112ea9e173c0ad326dd23ab8a75af53496370f7132c60da2",
+      "size": 5273
     },
     {
       "path": "03.design/screens/SCR-033.md",
@@ -4122,8 +4050,8 @@
       "theme": "theme-07",
       "title": "Phân loại hàng trả",
       "source_baseline": "v3.10.1",
-      "sha256": "e656122d59c90c3a60c85daf8584f78ec2fcca66474b68e47b1ba96c7ee7900e",
-      "size": 4556
+      "sha256": "dfe861ba5303d9e6195636841e1337577d1ed4ce0bc436a80a7392bb4931dddc",
+      "size": 4572
     },
     {
       "path": "03.design/screens/SCR-034.md",
@@ -4134,8 +4062,8 @@
       "theme": "theme-07",
       "title": "Ngoại lệ lô cần duyệt",
       "source_baseline": "v3.10.1",
-      "sha256": "8ad4183b7b2e2faee00fb055d5a6375696b02a76b50fc3d4b3de5abe85246370",
-      "size": 5023
+      "sha256": "8e13b35c8f43ba7f597f6aed89351d1f9b14bb1847c098bb199aa4becd9c329b",
+      "size": 5039
     },
     {
       "path": "03.design/screens/SCR-035.md",
@@ -4146,8 +4074,8 @@
       "theme": "theme-07",
       "title": "Kết quả hàng trả",
       "source_baseline": "v3.10.1",
-      "sha256": "932cb18a0b74b290f3ee57ef56bfc5bdaaca91f243b48936d0716bcf61c81b92",
-      "size": 4438
+      "sha256": "1c5da317a0d5f48af3791c7d79c9d9ee289c2259c391f7fb4a12fccfe8d16426",
+      "size": 4454
     },
     {
       "path": "03.design/screens/SCR-036.md",
@@ -4158,8 +4086,8 @@
       "theme": "theme-07",
       "title": "Hàng cần xử lý",
       "source_baseline": "v3.10.1",
-      "sha256": "245cb9c1503c65a01531e14e3e7313a37ad5e05d13b4c9044cb493503d066694",
-      "size": 7267
+      "sha256": "4dc929eab0c20696148293a3f237b789d3ccca7ead062866768e88a31cf598df",
+      "size": 7283
     },
     {
       "path": "03.design/screens/SCR-037.md",
@@ -4170,8 +4098,8 @@
       "theme": "theme-07",
       "title": "Chi tiết hàng và bằng chứng",
       "source_baseline": "v3.10.1",
-      "sha256": "4cd88af2ca3d9e03359f9b55c7c0463d675fa1e00e4a425b41c4701062d71e20",
-      "size": 13211
+      "sha256": "4c3508860025b170bdb302e259b5f312cff1b319914378ff51bffcf9173403d4",
+      "size": 13409
     },
     {
       "path": "03.design/screens/SCR-038.md",
@@ -4182,8 +4110,8 @@
       "theme": "theme-07",
       "title": "Chuyển trạng thái",
       "source_baseline": "v4.0.0",
-      "sha256": "eeb1ed288ed2630b0f93c883177fd7e308dfc9d896e7c9c7a29df0125ef67746",
-      "size": 7502
+      "sha256": "8d7c0297288a48a0f16db15c2a5018cb0331c3ef0484d28f4cb148a274c7f012",
+      "size": 7518
     },
     {
       "path": "03.design/screens/SCR-039.md",
@@ -4194,8 +4122,8 @@
       "theme": "theme-07",
       "title": "Bàn giao trả nhà cung cấp",
       "source_baseline": "v3.10.1",
-      "sha256": "7846888ab950e26debef0c1369036f2de1201bf48148090897dec2a23feed303",
-      "size": 5223
+      "sha256": "6e42f7fb69ea822d873e34fbc4a34b80dcb6e446796ba81bcdf274a4843cf4e4",
+      "size": 5239
     },
     {
       "path": "03.design/screens/SCR-040.md",
@@ -4206,8 +4134,8 @@
       "theme": "theme-07",
       "title": "Xác nhận tiêu hủy",
       "source_baseline": "v3.10.1",
-      "sha256": "7510138fe11e742a7b9ec3c7d25fa8a578046cb98cc495ceaa4b8668eb9185aa",
-      "size": 11361
+      "sha256": "b40977ac18ea48a4291f0766cfa768e3108cf482e4aeb1b988056059b7e5d804",
+      "size": 11556
     },
     {
       "path": "03.design/screens/SCR-041.md",
@@ -4218,8 +4146,8 @@
       "theme": "theme-07",
       "title": "Kết quả xử lý",
       "source_baseline": "v3.10.1",
-      "sha256": "245b712acd225457c518a6919898b12d7040af14c22c7edbc5434592695a736a",
-      "size": 12309
+      "sha256": "24f355a7cc29d2a74967a8f40cef78f3bc761425c55b7608d4d32eb2260a9a3e",
+      "size": 12325
     },
     {
       "path": "03.design/screens/SCR-042.md",
@@ -4230,8 +4158,8 @@
       "theme": "theme-07",
       "title": "Phiên kiểm kê",
       "source_baseline": "v3.10.1",
-      "sha256": "1f73c06064a916e1b97503d634d3ec72181fbcadbdc85e14448c97a620720490",
-      "size": 5211
+      "sha256": "c27aa8293f5be10a6c118bd1850e083b4e57a54d29ce41a4cb0d214c81bff0e2",
+      "size": 5227
     },
     {
       "path": "03.design/screens/SCR-043.md",
@@ -4242,8 +4170,8 @@
       "theme": "theme-07",
       "title": "Chọn phạm vi và mở phiên",
       "source_baseline": "v3.10.1",
-      "sha256": "3706cb037ee8c2ab7b0e31ad9a7f59f936f7229ea4fcd7730b0ea7796b086a1e",
-      "size": 5704
+      "sha256": "d7bb89c3cc2cb5f2ea58b833151ede81465a128edf385774653b7d35759c52a8",
+      "size": 5720
     },
     {
       "path": "03.design/screens/SCR-044.md",
@@ -4254,8 +4182,8 @@
       "theme": "theme-07",
       "title": "Đếm mù",
       "source_baseline": "v3.10.1",
-      "sha256": "19abb4e92775e0b300d2df0fdbc7d414e299aaa57efbdc2523e3ae4714672cd2",
-      "size": 6660
+      "sha256": "745980273694e954f13f31bdcf8edadb2428b976762707e804c155f28fbea046",
+      "size": 6676
     },
     {
       "path": "03.design/screens/SCR-045.md",
@@ -4266,8 +4194,8 @@
       "theme": "theme-07",
       "title": "Chênh lệch và đếm lại",
       "source_baseline": "v3.10.1",
-      "sha256": "dbef3d9b8853dd6ab910ffd19e8d96079f38f046379d3c78317fec2ca7c9ce94",
-      "size": 5637
+      "sha256": "4d837d87f73f61544d8ded0718ff10f86950f956f9bf74b6d1ec7f2078668345",
+      "size": 5653
     },
     {
       "path": "03.design/screens/SCR-046.md",
@@ -4278,8 +4206,8 @@
       "theme": "theme-07",
       "title": "Duyệt kết quả kiểm kê",
       "source_baseline": "v3.10.1",
-      "sha256": "8c6a6eaad937eae7bdc39346a54d223531e2cbd4fa855ee4028503b1b43c6fd4",
-      "size": 7260
+      "sha256": "2631fd578af537a17cdaa622e23eb4a6e1428ac7f2228343f09caf2e1f658fe0",
+      "size": 7873
     },
     {
       "path": "03.design/screens/SCR-047.md",
@@ -4290,8 +4218,8 @@
       "theme": "theme-07",
       "title": "Kết quả kiểm kê",
       "source_baseline": "v3.10.1",
-      "sha256": "6690b9b2b8da61f7e6a646a3c597a61cbcfd6d3a7cf86e117e312f039eabc4b0",
-      "size": 5069
+      "sha256": "44ed98fa7fd0ad761ed0b4c44b79d0e510b7baa14166d6176706e2613ccfb63c",
+      "size": 5722
     },
     {
       "path": "03.design/screens/SCR-048.md",
@@ -4302,8 +4230,8 @@
       "theme": "theme-07",
       "title": "Nghiệp vụ cần kiểm soát",
       "source_baseline": "v3.10.1",
-      "sha256": "226875acc20b47f071a9d232542bd60bee0918ea04ca9d0a5223cc6f9074a155",
-      "size": 5373
+      "sha256": "0276cb9f865c40db5a9922237a61717fe90538e925b3a6f389c3e5d4eb51fc55",
+      "size": 5601
     },
     {
       "path": "03.design/screens/SCR-049.md",
@@ -4314,8 +4242,8 @@
       "theme": "theme-07",
       "title": "Chi tiết nghiệp vụ kho",
       "source_baseline": "v3.10.1",
-      "sha256": "5c82a25b1e80518a49d3973079161362e3768cc2aa4068f701d26f8eb7f70b75",
-      "size": 6735
+      "sha256": "015c35f44be950e957b82f6b1e8f3bde2d8ad3298dd190e5ed8c2bace7d2a8a6",
+      "size": 6751
     },
     {
       "path": "03.design/screens/SCR-050.md",
@@ -4326,8 +4254,8 @@
       "theme": "theme-07",
       "title": "Nội dung sửa sai",
       "source_baseline": "v3.10.1",
-      "sha256": "addf8b88fe4343e694461738ee574559da6b9c272691e99191d1a1d762b182ce",
-      "size": 7422
+      "sha256": "b0a9142eeaac8621af34b3890971db752dc845a91aa18a912a418c6228bd7122",
+      "size": 7773
     },
     {
       "path": "03.design/screens/SCR-051.md",
@@ -4338,8 +4266,8 @@
       "theme": "theme-07",
       "title": "Duyệt sửa sai",
       "source_baseline": "v3.10.1",
-      "sha256": "55d94f6e542758cec11f14f67d7a90eecf202c7327bef6d0f176541b3f461595",
-      "size": 5906
+      "sha256": "515cd9a0b06a2882d3c066262662a7f33aac3af96d140f848bfb54fd7930bb36",
+      "size": 5922
     },
     {
       "path": "03.design/screens/SCR-053.md",
@@ -4350,8 +4278,8 @@
       "theme": "theme-07",
       "title": "Kết quả sửa sai",
       "source_baseline": "v3.10.1",
-      "sha256": "29c89d263ade66c51e8186eca03f09be932cb157a258feb456b69c0efa19603f",
-      "size": 7296
+      "sha256": "adfdea0a94a5dccec39b1e2006bb4a8b0e5dea44fa7bce16836e4c662f54447e",
+      "size": 7312
     },
     {
       "path": "03.design/screens/SCR-055.md",
@@ -4362,8 +4290,8 @@
       "theme": "theme-07",
       "title": "Báo cáo tồn / Thẻ kho",
       "source_baseline": "v3.10.1",
-      "sha256": "d0498611b7f65ccf5e2d769d0e407f17ec68ed73aeafb8109d5e62b12ad3b94e",
-      "size": 9822
+      "sha256": "c3fb49406750a5f96e255463efe20b9a9164e3339a9c7d330eedde7ad13e7909",
+      "size": 9838
     },
     {
       "path": "03.design/screens/SCR-056.md",
@@ -4374,8 +4302,8 @@
       "theme": "theme-07",
       "title": "Chi tiết biến động tồn kho",
       "source_baseline": "v3.10.1",
-      "sha256": "a6414eaae939aeb82b04130903c3e1fff4f17e7c8480e8fb2e692fa41b976a21",
-      "size": 6675
+      "sha256": "ceb0ea128873a1e29b843495f75d63deba6aa4b6d1e125435cd937b790211988",
+      "size": 6691
     },
     {
       "path": "03.design/screens/SCR-059.md",
@@ -4386,32 +4314,8 @@
       "theme": "theme-07",
       "title": "Kết quả xuất báo cáo",
       "source_baseline": "v3.10.1",
-      "sha256": "9658932cb9d074ed5f330e054538e2511aecdac325ab4228dd37f77dd3dcf87a",
-      "size": 3677
-    },
-    {
-      "path": "03.design/screens/SCR-060.md",
-      "id": "SCR-060",
-      "type": "screen-contract",
-      "owner": "BA",
-      "status": "FROZEN",
-      "theme": "theme-07",
-      "title": "Chỉ báo tồn kho",
-      "source_baseline": "v3.10.1",
-      "sha256": "06a79114acd1a3bf7682a236d8e147504d718e67c83cc757de9255bab7516454",
-      "size": 6543
-    },
-    {
-      "path": "03.design/screens/SCR-061.md",
-      "id": "SCR-061",
-      "type": "screen-contract",
-      "owner": "BA",
-      "status": "FROZEN",
-      "theme": "theme-07",
-      "title": "Chi tiết chỉ báo sản phẩm",
-      "source_baseline": "v3.10.1",
-      "sha256": "b67d48fe3175b419371a01d3ccd7d461f20ea61a0d6cd949aa53a12c3dca6bf2",
-      "size": 7389
+      "sha256": "4a70a28e36dad423a406694ddc79e3f3c0f4397346a6d1c008741c13d62a7e05",
+      "size": 3693
     },
     {
       "path": "03.design/screens/SCR-062.md",
@@ -4422,8 +4326,8 @@
       "theme": "theme-07",
       "title": "Cấu hình chính sách tồn",
       "source_baseline": "v3.10.1",
-      "sha256": "0138981602b1c520e2005dd0a8ba2eda8ed19ab2f7dc99fcb2d550a5d8830aaf",
-      "size": 11178
+      "sha256": "9dbe49b7fb97cd0170aa3595242d93f0e4a99aa097471e1b9d64e08929e62d68",
+      "size": 11194
     },
     {
       "path": "03.design/screens/SCR-063.md",
@@ -4434,8 +4338,8 @@
       "theme": "theme-07",
       "title": "Cấu hình hàng cận hạn",
       "source_baseline": "v3.10.1",
-      "sha256": "73938594fe440cac4f90a8cb61d09294358979491d93853bcee1e2df40d0e2cc",
-      "size": 6758
+      "sha256": "d63e1d70cf924cb26c39f506aaa944ad5b8558b4fa86f7ae5c612d94a748d797",
+      "size": 6774
     },
     {
       "path": "03.design/screens/SCR-065.md",
@@ -4446,8 +4350,8 @@
       "theme": "theme-07",
       "title": "Kết quả cập nhật",
       "source_baseline": "v3.10.1",
-      "sha256": "21462680a4468cb7199e816b931117a3f847c63aa2c7c5ede37dcc5e3b647824",
-      "size": 3531
+      "sha256": "74bb139d57cb723797903c77edf1f5c9d33ee3b5d68a0c821bf9445daf200d33",
+      "size": 3547
     },
     {
       "path": "03.design/screens/SCR-066.md",
@@ -4458,8 +4362,8 @@
       "theme": "theme-07",
       "title": "Khởi tạo tồn kho",
       "source_baseline": "v3.10.1",
-      "sha256": "0a6d55fe53309e4600ebde0afa782b9ffd6a0c533bd811b491a960d78b141b05",
-      "size": 6315
+      "sha256": "e829e9ddeaf0572ea5e8880bb5f5ebd182b0fb90515c09b0c5ca9b035e421c88",
+      "size": 6331
     },
     {
       "path": "03.design/screens/SCR-067.md",
@@ -4470,8 +4374,8 @@
       "theme": "theme-07",
       "title": "Dữ liệu tồn kho đầu kỳ",
       "source_baseline": "v3.10.1",
-      "sha256": "afea3367442112d04b3d6e4058a1cd17ebc5a36b2cb05a8cee47d6b714819c1c",
-      "size": 4513
+      "sha256": "dc2aac6d40a3a59c672c1672ca8fb7fb9a4aac1c3c951c50bf92d828c969e6e8",
+      "size": 4529
     },
     {
       "path": "03.design/screens/SCR-068.md",
@@ -4482,8 +4386,8 @@
       "theme": "theme-07",
       "title": "Kết quả kiểm tra dữ liệu",
       "source_baseline": "v3.10.1",
-      "sha256": "e29db0f5a746184b8dbd7585c843853c4a692694b5d53b6d0ca67b6c95d500b4",
-      "size": 5594
+      "sha256": "71447ee3a310ca4789b26a78c61559b4f04dbe67067f05fcee3eb10ec8a8844f",
+      "size": 5610
     },
     {
       "path": "03.design/screens/SCR-070.md",
@@ -4494,8 +4398,8 @@
       "theme": "theme-07",
       "title": "Duyệt số dư đầu kỳ",
       "source_baseline": "v3.10.1",
-      "sha256": "1587c9147617e766592eea6db0f9334e678c6c9d397d5396f558318d660bdadd",
-      "size": 5275
+      "sha256": "fb1b1eaf8f0bc31195f123dac19957887ee58c6c34a6eba1223b102d05f7190a",
+      "size": 5291
     },
     {
       "path": "03.design/screens/SCR-071.md",
@@ -4506,8 +4410,8 @@
       "theme": "theme-07",
       "title": "Kết quả khởi tạo tồn kho",
       "source_baseline": "v3.10.1",
-      "sha256": "47cd6e8bd981822131292badebad22daabf769c379604f02cfb8cba6025a69eb",
-      "size": 4478
+      "sha256": "6127524bc60f7ba75a81fe3860fdc397abdc2393f7fcf2bba428439825cdb6b3",
+      "size": 4494
     },
     {
       "path": "03.design/screens/SCR-072.md",
@@ -4518,8 +4422,8 @@
       "theme": "theme-07",
       "title": "Công việc giá vốn",
       "source_baseline": "v4.3.0",
-      "sha256": "a4928029d49814a46891f60d6666b405ae6fee8abde2bad0c039c64d8c6e369e",
-      "size": 5714
+      "sha256": "75d5e113663324f8866643c0dbbecca612f2870e3b86698deb7b3ca625a1cada",
+      "size": 5730
     },
     {
       "path": "03.design/screens/SCR-074.md",
@@ -4530,8 +4434,8 @@
       "theme": "theme-07",
       "title": "Tính và rà soát giá vốn",
       "source_baseline": "v4.6.1",
-      "sha256": "de10493a5359ef410a891e71eed8f7cf3857c0f815f32b1e97d4e7c09e621c13",
-      "size": 10697
+      "sha256": "c112358cd2aaec295a6e4cb4690ff419682b7bbf794f8c58644c90792eb2a3bd",
+      "size": 10968
     },
     {
       "path": "03.design/screens/SCR-077.md",
@@ -4542,8 +4446,8 @@
       "theme": "theme-07",
       "title": "Kết quả công bố giá vốn",
       "source_baseline": "v4.6.0",
-      "sha256": "843c37c8d4ef532fc7dee4145a96c2bc22311105be1016fa11588a826f37432a",
-      "size": 4329
+      "sha256": "90001a8bf367d59530b3a53fc1c2673126638b9880f904778c509580944d211b",
+      "size": 4345
     },
     {
       "path": "03.design/screens/SCR-078.md",
@@ -4554,8 +4458,8 @@
       "theme": "theme-07",
       "title": "Hồ sơ cần kiểm tra",
       "source_baseline": "v3.10.1",
-      "sha256": "c2195ffe7ba4b02c97cb173172b4fd9ec5b89612951f07e9d290336a7d4d067f",
-      "size": 5391
+      "sha256": "5582080dfb65f30ff14bc066baf07441fc92f2d42548028e3ef2e5ea9168fea4",
+      "size": 5407
     },
     {
       "path": "03.design/screens/SCR-079.md",
@@ -4566,8 +4470,8 @@
       "theme": "theme-07",
       "title": "Bằng chứng & kết luận",
       "source_baseline": "v3.10.1",
-      "sha256": "45164d7d098b281636f17677dc23c0228bc027a17a8c5a9ed809400d5a0fea38",
-      "size": 12185
+      "sha256": "c0766b7ae5a9bce21338a80f72772ab29c2e16d8eb61907677b4b39c37045549",
+      "size": 12201
     },
     {
       "path": "03.design/screens/SCR-081.md",
@@ -4578,8 +4482,8 @@
       "theme": "theme-07",
       "title": "Đang khôi phục số liệu",
       "source_baseline": "v3.10.1",
-      "sha256": "c431f7aea2191176b37b741bb2852af4dfedc4014219a23e604b32ccde959344",
-      "size": 2890
+      "sha256": "e065c46adf6fa9d5f7348172fb90d340f2d3ad2aa9e66770f542ba47e31351bc",
+      "size": 2906
     },
     {
       "path": "03.design/screens/SCR-082.md",
@@ -4590,8 +4494,8 @@
       "theme": "theme-07",
       "title": "Rà soát kết quả",
       "source_baseline": "v3.10.1",
-      "sha256": "d1baeb54040ed15b64bbd684f261d2e686ddcfefe8df1c19f4c917e3bcc700b0",
-      "size": 3252
+      "sha256": "137ae6cb11a71cd4c35177e56b02bf8312c91d02346fed4208b2f450f6614795",
+      "size": 3268
     },
     {
       "path": "03.design/screens/SCR-083.md",
@@ -4602,8 +4506,8 @@
       "theme": "theme-07",
       "title": "Kết quả xử lý",
       "source_baseline": "v3.10.1",
-      "sha256": "5efb69446e0ec84630bfa976b88a5023184a43c0e13030e65906bf740f21c605",
-      "size": 6032
+      "sha256": "8ab381fec32c9af0e027924a3475eb6aaa64a7c381cc66dcf9d77fd4f4dde06b",
+      "size": 6048
     },
     {
       "path": "03.design/screens/SCR-084.md",
@@ -4614,8 +4518,8 @@
       "theme": "theme-07",
       "title": "Chi tiết hàng thực nhận",
       "source_baseline": "v3.10.1",
-      "sha256": "d1c96ce440c6619629b51d5bd0c126be146aed41711526e894985104ff570cbb",
-      "size": 5777
+      "sha256": "30e8246afaf8d987af21d13af95d7ae9ddf1eff13d740391dd5febce6acf66c6",
+      "size": 5793
     },
     {
       "path": "03.design/screens/SCR-085.md",
@@ -4626,8 +4530,8 @@
       "theme": "theme-07",
       "title": "Điều chỉnh giá trị hàng nhập",
       "source_baseline": "v4.3.0",
-      "sha256": "5b9a75daf9dafd87b3a277359127ca2dd26932081efa6156dfb6daba36290e67",
-      "size": 5745
+      "sha256": "48836e68c1aa967d7925738218113ba6f05f23babe9daf7d965f81475069de9a",
+      "size": 5761
     },
     {
       "path": "03.design/screens/SCR-086.md",
@@ -4638,8 +4542,8 @@
       "theme": "theme-07",
       "title": "Phân bổ điều chỉnh giá trị",
       "source_baseline": "v4.6.1",
-      "sha256": "dcf406f20c05ff6b07236097d98fc484456bc10c8ac4fba3051e9faaa4c199a3",
-      "size": 9650
+      "sha256": "95cca5180f668897cf0e27de55618244da6d70fda8faa9db4301b456725f4547",
+      "size": 9666
     },
     {
       "path": "03.design/screens/SCR-089.md",
@@ -4650,8 +4554,8 @@
       "theme": "theme-07",
       "title": "Kết quả điều chỉnh giá trị",
       "source_baseline": "v4.6.0",
-      "sha256": "a3eaa4dfc43839aaebfc428ade0cbef278d4dbdda4dc79e1a328bacdc5f95e45",
-      "size": 5183
+      "sha256": "a123115965d9ea20ca714acc55477b61609967f2a427c9176f049dac2cc288d2",
+      "size": 5199
     },
     {
       "path": "03.design/screens/SCR-090.md",
@@ -4662,8 +4566,8 @@
       "theme": "theme-07",
       "title": "Kho",
       "source_baseline": "v4.6.7",
-      "sha256": "cc08bc6c4c4ef6b276758cbead1c61eb41785346e7862ab3db90f057b4ebab6a",
-      "size": 5254
+      "sha256": "e4611b05dbd94d16de1eff0a7f572d8bbbb7a8027250e44e61cde7c7085b1bef",
+      "size": 12014
     },
     {
       "path": "03.design/screens/SCR-091.md",
@@ -4674,8 +4578,8 @@
       "theme": "theme-07",
       "title": "Tồn kho",
       "source_baseline": "v4.6.4",
-      "sha256": "3f57fd1f408465b68a92bbf70d77d78094095d36c9ed0e360caa540f4a099e1e",
-      "size": 1288
+      "sha256": "df61264653a8973a2925380a6cf098e04a00e0621419f02faaf191b20b796809",
+      "size": 3573
     },
     {
       "path": "03.design/screens/SCR-092.md",
@@ -4686,8 +4590,8 @@
       "theme": "theme-07",
       "title": "Nhập, xuất & hoàn trả",
       "source_baseline": "v4.6.4",
-      "sha256": "3020a527ab9d4dc93f6e495e7d422eadf45b8e93480b4b7bac68062f88a7d412",
-      "size": 1259
+      "sha256": "2ed9efbc91fb901ae44709ad8e4db6095226226e8d3486aef999fcfbe8b972c7",
+      "size": 4557
     },
     {
       "path": "03.design/screens/SCR-093.md",
@@ -4698,8 +4602,8 @@
       "theme": "theme-07",
       "title": "Kiểm kê & xử lý",
       "source_baseline": "v4.6.4",
-      "sha256": "23a30d75614943c17107e0773ac1ebbe987b5af5c36b91cbe85c198da93f17b3",
-      "size": 1555
+      "sha256": "bb6021cc29bd1e226c5f639d41bc62e153f267cb7fb59cec063b5b838914918a",
+      "size": 4912
     },
     {
       "path": "03.design/screens/SCR-094.md",
@@ -4710,8 +4614,8 @@
       "theme": "theme-07",
       "title": "Giá trị kho",
       "source_baseline": "v4.6.4",
-      "sha256": "27adb4c42528e1d1e2a6999ed8c76d9362f9f852f2271f0a5716f0b68e204ef0",
-      "size": 1342
+      "sha256": "32a752d769c732aae81ccc74860890208305edb128d0a93d732cdd35291f3646",
+      "size": 4783
     },
     {
       "path": "03.design/screens/SCR-095.md",
@@ -4722,8 +4626,8 @@
       "theme": "theme-07",
       "title": "Báo cáo & lịch sử",
       "source_baseline": "v4.6.4",
-      "sha256": "1b1c1e35f66839266c9088f403f12f07275d2cbce85164118e18dd202a1f3719",
-      "size": 1099
+      "sha256": "b9c5603082d551ec289585bca6a129740a84f07db4c474ca00d269224784f472",
+      "size": 3120
     },
     {
       "path": "03.design/screens/SCR-096.md",
@@ -4734,8 +4638,8 @@
       "theme": "theme-07",
       "title": "Thiết lập kho",
       "source_baseline": "v4.6.4",
-      "sha256": "d016be4abf2d1a94661adc9dc3ac06205d38af35752e39229696ae31601c8ceb",
-      "size": 1370
+      "sha256": "c3f7a22f6704ef9b707fe28dd4e39b379688ac65a7546e80417dc903e47930b9",
+      "size": 3778
     },
     {
       "path": "03.design/screens/_TEMPLATE.md",
@@ -4746,8 +4650,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "b16ce83324da30348c6824e7eaba4371828412cb0fd05c5aac569fbcbb3680d5",
-      "size": 2257
+      "sha256": "8f64dec7a02fdf131a707fa9a342f12763f609b72561da92f79ae79340858b52",
+      "size": 2273
     },
     {
       "path": "04.harness/manifests/theme.manifest.yml",
@@ -5323,8 +5227,8 @@
       "theme": "theme-07",
       "title": "Theme 07 — Kho & Giá vốn",
       "source_baseline": "v4.6.6",
-      "sha256": "ee00a1dc8fb328a560074e7ecce2d82ba8c50a62a63be2f477a555f47df00305",
-      "size": 11539
+      "sha256": "fe0a3ccf3235266d4ebc014338ddc7baff4efa6ae3b0de771d52c2610657281a",
+      "size": 11456
     }
   ]
 }

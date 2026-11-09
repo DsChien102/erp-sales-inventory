@@ -4,7 +4,8 @@ type: ui-flow-contract
 theme: theme-07
 title: "Báo cáo nhập – xuất – tồn và thẻ kho"
 owner: BA/UX
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 version: v5.20.0
 source_baseline: v4.2.0
 business_journey: BJ-15

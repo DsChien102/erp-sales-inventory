@@ -4,7 +4,8 @@ type: behavioral-contract
 theme: theme-07
 title: "Quản lý chính sách tồn và cận hạn"
 owner: BA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 source_baseline: v3.10.1
 ---
 # CAP-01 — Quản lý chính sách tồn và cận hạn

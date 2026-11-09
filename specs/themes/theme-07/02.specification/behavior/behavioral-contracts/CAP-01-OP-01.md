@@ -4,7 +4,8 @@ type: behavioral-contract
 theme: theme-07
 title: "Cấu hình ngưỡng tồn sản phẩm"
 owner: BA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 source_baseline: v3.10.1
 classification: supporting-capability-operation
 ---

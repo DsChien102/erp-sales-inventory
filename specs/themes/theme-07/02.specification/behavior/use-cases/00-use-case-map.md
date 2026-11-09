@@ -4,7 +4,8 @@ type: use-case-map
 theme: theme-07
 title: "Use Case Map — Theme 07"
 owner: BA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 source_baseline: v4.6.0
 ---
 # Bản đồ Trường hợp sử dụng — Theme 7

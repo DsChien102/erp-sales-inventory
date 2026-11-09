@@ -4,7 +4,8 @@ type: business-journey
 theme: theme-07
 title: "Tính và công bố giá vốn"
 owner: BA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 aligned_to: BJ.template.md
 source_baseline: v4.6.0
 ui_flow: UIF-14

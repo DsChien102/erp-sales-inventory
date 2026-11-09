@@ -4,7 +4,8 @@ type: use-case
 theme: theme-07
 title: "Chuẩn bị phiếu nhận hàng nhanh"
 owner: BA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 aligned_to: UC.template.md
 source_baseline: v4.6.7
 ui_flow: UIF-02

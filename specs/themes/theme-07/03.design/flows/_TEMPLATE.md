@@ -4,7 +4,8 @@ type: ui-flow
 theme: theme-07
 bj: BJ-XX
 title: "<Tên luồng>"
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 prototype: "app/bjXX.js"
 updated: YYYY-MM-DD
 ---

@@ -1,5 +1,14 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.27.0] — T7-G4 chốt đặc tả
+
+- **Chốt đặc tả FROZEN Theme 7:** Không đổi giao diện prototype; đồng bộ toàn bộ tài liệu đặc tả sau khi kết thúc Giai đoạn 3.
+- **Nghỉ hưu 9 màn chưa dựng:** `SCR-002`, `SCR-004`, `SCR-005`, `SCR-020`, `SCR-022`, `SCR-023`, `SCR-024`, `SCR-060`, `SCR-061` được chuyển sang `RETIRED.md` và xoá tệp Screen Contract lẻ tương ứng; cập nhật toàn bộ tham chiếu sang màn hiện hành (`SCR-001`, `SCR-003`, `SCR-021`).
+- **Viết lại Hub SCR-090…096:** Viết lại toàn bộ 7 Screen Contract theo khuôn mới (`_TEMPLATE.md`, 9 mục) và bám sát mã nguồn `app/hub.js`.
+- **Viết lại PAT-UI-UX & PAT-NAV:** Đưa bảng khuôn dùng chung K1–K7 (kèm quy tắc duyệt K2 chuẩn), bảng thành phần Design System mới, 7 quy tắc UI chung, quy tắc số tiền mono; chuẩn hoá kiến trúc điều hướng theo Home Kho candidate.
+- **Ghi nhận 5 đề xuất G3-7 đã duyệt:** Đưa 5 đề xuất (1a: dòng "Tồn kho đã đổi" ở SCR-012/029/047; 1b: bỏ lặp "Tóm tắt" ở SCR-010 web và SCR-074 web; 1c: badge dưới tiêu đề ở SCR-048 danh sách iPhone; 1d: dọn dải số thẻ lô và tiêu đề "Việc tiếp theo" ở SCR-037; 1e: kiểu chữ số mono cho số tiền) vào mục 3 và mục 8 của Screen Contract (prototype chưa có, Flutter làm theo đặc tả); đề xuất 1f (đếm mù / căn cứ) bỏ.
+- **Đồng loạt đóng băng:** Chuyển toàn bộ các tệp `status: IN_REVIEW` trong phạm vi đóng băng sang `status: FROZEN` tại mốc `v5.27.0`; giữ nguyên 36 tệp `status: DRAFT`.
+
 ## [5.26.1] — Giai đoạn 3 · G3-7 đo cuối, hết Giai đoạn 3
 
 Critique toàn theme (`/impeccable critique`, hai khung, cùng 10 heuristic): **iPhone 29 → 31, web 29 → 31** (gốc 24, G3-6 29); 0 P0 / P1 (lần đo đầu có 1 P1: "Chờ duyệt" là số mẫu cố định). Lưu ở `.impeccable/critique/2026-10-27T02-17-04Z…` (lần 1, 29 / 29), `…02-35-15Z…` (lần 2, 30 / 31), `…02-42-19Z…` (lần 3, 31 / 31). Mục tiêu 32 chưa đạt; người dùng chốt đóng G3-7 ở 31. Audit toàn theme lần đầu (`tools/audit.js`, mọi ca màn × trạng thái và mọi bước kịch bản): trước sửa iPhone 10 tương phản / 11 vùng chạm, web 7 / 65; sau sửa iPhone 9 / 10, web 6 / 42 — số còn lại không phải lỗi (nút `disabled`; chip, nút đóng toast, "Sửa ngưỡng" / "Dùng mặc định" có vùng chạm `::after`; liên kết nội dòng bảng web, dòng bảng nhận bấm) — 0 tràn ngang, 0 thiếu tên. Bàn phím (`tools/keys.js`): hộp thoại đi vòng Tab / Shift+Tab, Esc đóng; 5 / 5 sheet trả focus về nút đã mở. Dò ngõ cụt 0 / 498 mỗi khung, lỗi JS 0. Mốc sau gói: `tools/.golden-g3` / `-web`.

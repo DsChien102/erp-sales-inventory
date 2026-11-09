@@ -4,7 +4,8 @@ type: business-journey-map
 theme: theme-07
 title: "Business Journey Map — Theme 07"
 owner: BA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 source_baseline: v4.1.0
 ---
 

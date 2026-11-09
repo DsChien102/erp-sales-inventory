@@ -4,7 +4,8 @@ type: use-case
 theme: theme-07
 title: "Xác minh hàng được phép nhận trả"
 owner: BA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 aligned_to: UC.template.md
 source_baseline: v4.0.0
 ui_flow: UIF-06

@@ -4,7 +4,8 @@ type: ui-flow
 theme: theme-07
 bj: BJ-12
 title: "Khởi tạo số dư tồn kho đầu kỳ"
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 prototype: "app/bj12.js"
 updated: 2026-10-21
 ---

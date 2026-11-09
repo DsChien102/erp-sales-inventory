@@ -5,8 +5,8 @@ theme: theme-07
 title: "Theme 07 mobile prototype mapping"
 owner: BA
 status: FROZEN
-source_baseline: v5.3.1
-version: v5.3.1
+source_baseline: v5.27.0
+version: v5.27.0
 ---
 # Prototype — Theme 07
 

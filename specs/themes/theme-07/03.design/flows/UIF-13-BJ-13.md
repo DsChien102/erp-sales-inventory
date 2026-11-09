@@ -4,7 +4,8 @@ type: ui-flow
 theme: theme-07
 bj: BJ-13
 title: "Điều chỉnh giá trị hàng nhập"
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 prototype: "app/bj13.js"
 updated: 2026-10-24
 ---

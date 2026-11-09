@@ -4,7 +4,8 @@ type: ui-flow
 theme: theme-07
 bj: BJ-01
 title: "Theo dõi tồn, khả dụng và chỉ báo vận hành"
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 prototype: "app/bj01.js"
 updated: 2026-10-21
 ---

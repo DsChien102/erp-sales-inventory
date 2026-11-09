@@ -4,7 +4,8 @@ type: ui-flow
 theme: theme-07
 bj: BJ-02
 title: "Nhận hàng mua"
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 prototype: "app/bj02.js"
 updated: 2026-10-22
 ---

@@ -5,7 +5,8 @@ theme: theme-07
 title: "<Tiêu đề hiện trên app bar>"
 bj: BJ-XX
 uif: UIF-XX
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 prototype: "app/bjXX.js · renderXXX"
 updated: YYYY-MM-DD
 ---

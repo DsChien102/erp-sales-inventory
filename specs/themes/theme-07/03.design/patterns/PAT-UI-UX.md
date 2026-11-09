@@ -4,7 +4,8 @@ type: design-pattern
 theme: theme-07
 title: "UI/UX policy & patterns"
 owner: BA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 source_baseline: v5.27.0
 ---
 # PAT-UI-UX — UI/UX policy & patterns

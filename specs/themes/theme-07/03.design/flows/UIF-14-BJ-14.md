@@ -4,7 +4,8 @@ type: ui-flow-contract
 theme: theme-07
 title: "Tính và công bố giá vốn"
 owner: BA/UX
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 version: v5.19.0
 source_baseline: v4.2.0
 business_journey: BJ-14

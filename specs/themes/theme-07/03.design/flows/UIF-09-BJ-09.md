@@ -4,7 +4,8 @@ type: ui-flow-contract
 theme: theme-07
 title: "Quản lý trạng thái hàng"
 owner: BA/UX
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 version: v5.13.0
 source_baseline: v4.2.0
 business_journey: BJ-09

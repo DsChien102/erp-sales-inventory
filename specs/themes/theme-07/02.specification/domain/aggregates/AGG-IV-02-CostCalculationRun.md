@@ -4,7 +4,8 @@ type: aggregate
 theme: theme-07
 title: "CostCalculationRun Aggregate"
 owner: SA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 source_baseline: v3.12.0
 ---
 # AGG-IV-02 — CostCalculationRun Aggregate

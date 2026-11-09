@@ -4,7 +4,8 @@ type: ui-flow
 theme: theme-07
 bj: BJ-03
 title: "Xác lập giá trị nhập ban đầu"
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 prototype: "app/bj03.js"
 updated: 2026-10-22
 ---

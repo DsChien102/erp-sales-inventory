@@ -4,7 +4,8 @@ type: integration
 theme: theme-07
 title: "Hợp đồng tích hợp liên Theme của Kho & Giá vốn"
 owner: SA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 source_baseline: v3.12.0
 ---
 # INT-01 — Hợp đồng tích hợp liên Theme của Kho & Giá vốn

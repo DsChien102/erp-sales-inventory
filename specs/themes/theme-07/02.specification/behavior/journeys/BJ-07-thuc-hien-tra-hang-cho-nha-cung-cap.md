@@ -4,7 +4,8 @@ type: business-journey
 theme: theme-07
 title: "Thực hiện trả hàng cho nhà cung cấp"
 owner: BA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 aligned_to: BJ.template.md
 source_baseline: v4.0.0
 ui_flow: UIF-07

@@ -5,10 +5,10 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA/SA
 status: FROZEN
-version: v4.6.8
-parent: v4.6.7
-source_baseline: v4.6.7
-semantic_delta: BJ02_DESIGN_STATE_CLEANUP
+version: v5.27.0
+parent: v4.6.8
+source_baseline: v5.26.1
+semantic_delta: T7_G4_SPEC_FREEZE
 structure_baseline: V45-Theme-skeleton
 ---
 # T07 — Theme 07 — Kho & Giá vốn
@@ -120,8 +120,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - `T7-DR-198` — Công thức và điều kiện hợp lệ của phân bổ BJ13.
 - `T7-DR-199` — Phạm vi chốt kỳ BJ14 do policy cấp tenant cho phép.
 - `SCR-008` — Xác định header của một lần nhập nhanh trước khi ghi hàng thực nhận. Màn này chỉ xử lý nhà cung cấp, kho mặc định, ngày nhận và chứng từ giao nhận; Product/UOM/LOT/quantity nằm ở `SCR-009/SCR-084`.
-- `SCR-015` — Làm việc với các Product/UOM còn `VALUATION_PENDING`, hiểu căn cứ đang dùng và chọn các dòng đủ điều kiện để xác nhận giá trị ban đầu. Màn này là **workspace**, không phải màn rà soát cuối.
-- `SCR-017` — Cho kế toán kiểm tra **toàn bộ phạm vi sắp ghi** trước mutation. Đây là summary review, không lặp lại workspace `SCR-015`.
+- `SCR-015` — Làm việc với các Product/UOM còn `VALUATION_PENDING`, hiểu căn cứ đang dùng và chọn các dòng đủ điều kiện để xác nhận giá trị ban đầu. Màn này là **workspace**, xác nhận cuối là sheet "Ghi giá trị nhập ban đầu?" (SCR-017 đã bỏ, xem `03.design/screens/RETIRED.md`).
 - `SCR-086` — Giúp kế toán hiểu nguồn điều chỉnh, phạm vi source-owned, chọn **một phương pháp phân bổ hợp lệ**, xem được vì sao từng Product nhận số tiền đó và xác nhận ghi adjustment.
 - `SCR-089` — Thông báo finality của adjustment. Result screen ưu tiên kết quả nghiệp vụ, không lặp lại toàn bộ preview.
 - `SCR-074` — Một bề mặt cho setup → calculating → blocked/ready → xác nhận publication. `SCR-073/075/076` là alias/retired state, không phải active screen riêng. (xem `03.design/screens/RETIRED.md`)

@@ -4,7 +4,8 @@ type: read-model
 theme: theme-07
 title: ValuationWorkbenchView
 owner: SA
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 source_baseline: v3.12.0
 ---
 # PRJ-07 — ValuationWorkbenchView

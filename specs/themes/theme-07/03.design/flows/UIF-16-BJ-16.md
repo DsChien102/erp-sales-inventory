@@ -4,7 +4,8 @@ type: ui-flow-contract
 theme: theme-07
 title: "Điều tra và đối soát sai lệch"
 owner: BA/UX
-status: IN_REVIEW
+status: FROZEN
+frozen_at: v5.27.0
 version: v5.18.0
 source_baseline: v4.1.0
 business_journey: BJ-16
