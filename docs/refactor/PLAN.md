@@ -14,9 +14,11 @@ Web cho app (W-1 khung, W-2 Theme 1): hoãn, sau Theme 7 prototype; W-1 trước
 
 **Đặt tên theo theme** (2026-10-14): mỗi mục nghiệp vụ mang số theme TH-0x của `docs/02-yeu-cau`; mục không thuộc theme nào (Chuẩn bị, Nền core, Dọn dẹp, Báo cáo) giữ tên riêng. **Thứ tự trong file = thứ tự làm.**
 
+**Rút gọn Theme 7 2026-11-09 (người dùng chốt):** từ 17 BJ + CAP-01 (70 màn) còn 11 plan G5 theo luồng demo chính, bỏ duyệt K2 / xác minh K3. **Giá vốn làm kỹ** (trọng tâm báo cáo, chốt cùng ngày): hai phương pháp bình quân, cửa hàng chọn một, chốt kỳ + điều chỉnh liên kết, **ưu đãi nhà cung cấp** (giảm theo bậc, mua X tặng Y, chiết khấu đạt mốc số lượng — giáo viên hướng dẫn yêu cầu) — [spec giá vốn](plans/T7/T7-G5-gia-von-thiet-ke.md). Danh sách giữ / bỏ: mục Theme 7 → "Rút gọn 2026-11-09". AI và Theme 6 giữ nguyên.
+
 **Sửa thứ tự 2026-11-09 (người dùng chốt):** **Tích hợp AI** lên ngay sau Theme 7; **Theme 6 Công nợ** để sau AI; Dọn dẹp sau Theme 6, rồi Báo cáo. Công cụ "công nợ phải thu" của AI đọc công nợ đơn TH-05 (không chờ Theme 6).
 
-**Thứ tự chốt lại 2026-11-03 (thay thứ tự 2026-10-14 bên dưới):** chuyển **hết các theme đã có code** sang kiến trúc mới trước (Theme 2 → Theme 4 → Theme 5 → Theme 8), **rồi** mới làm Theme 7. Hệ quả (người dùng chốt): (1) việc nối kho của Sales tách khỏi Theme 5, làm trong Theme 7 (G5-7 / G5-8); Theme 5 chuyển kiến trúc và giữ tồn cơ bản như hiện tại; (2) Theme 6 (dựng mới) làm sau Theme 7; (3) 5-C (dọn module catalog + inventory, chạy sau Theme 7) thành **dọn module cuối**, nên việc xoá hẳn `modules/` và các package chỉ module dùng chuyển từ 7-C sang 5-C. **Sửa 2026-11-04:** 5-C làm **ngay** (SP-10 chuyển sang `ProductRepository`, không chờ Theme 7) ⇒ 7-C lại là dọn module cuối: xoá `modules/` + `vet45_adapters`, `vet45_generator` trở về 7-C; `vet45_annotations` xoá ở 9-1 (cùng `vet45_shared`, vì `vet45_shared_application` re-export nó).
+**Thứ tự chốt lại 2026-11-03 (thay thứ tự 2026-10-14 bên dưới):** chuyển **hết các theme đã có code** sang kiến trúc mới trước (Theme 2 → Theme 4 → Theme 5 → Theme 8), **rồi** mới làm Theme 7. Hệ quả (người dùng chốt): (1) việc nối kho của Sales tách khỏi Theme 5, làm trong Theme 7 (G5-7 / G5-8; từ rút gọn 2026-11-09 là G5-4); Theme 5 chuyển kiến trúc và giữ tồn cơ bản như hiện tại; (2) Theme 6 (dựng mới) làm sau Theme 7; (3) 5-C (dọn module catalog + inventory, chạy sau Theme 7) thành **dọn module cuối**, nên việc xoá hẳn `modules/` và các package chỉ module dùng chuyển từ 7-C sang 5-C. **Sửa 2026-11-04:** 5-C làm **ngay** (SP-10 chuyển sang `ProductRepository`, không chờ Theme 7) ⇒ 7-C lại là dọn module cuối: xoá `modules/` + `vet45_adapters`, `vet45_generator` trở về 7-C; `vet45_annotations` xoá ở 9-1 (cùng `vet45_shared`, vì `vet45_shared_application` re-export nó).
 
 **Thứ tự chốt 2026-10-14 (đã thay):** Theme 7 (Kho & Giá vốn, dựng mới theo spec v1) làm **trọn một lượt ngay sau Theme 2**, vì nó chỉ cần sản phẩm / ĐVT (Theme 2) và nhà cung cấp (Theme 3), và thay luôn tồn kho cơ bản của Theme 2. Theme 5 (Sales) làm sau Theme 7 để nối sổ kho thật một lần thay vì refactor xong rồi quay lại. Theme 8 (HĐĐT) làm sau Theme 5, gắn khu HĐĐT vào màn chi tiết đơn đã refactor.
 
@@ -57,14 +59,14 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 | Theme 3 | Partner (+ dọn module, 3 module rỗng) | 1 ngày | Theme 1 | Nhỏ; Theme 7 (nhà cung cấp), Theme 4, Theme 5 cần nó |
 | Theme 2 | Catalog + tồn kho cơ bản (+ dọn module 5-C) | 2 ngày | Theme 1 | Lớn; Theme 7, Theme 4, Theme 5 cần nó |
 | Theme 4 | Pricing (+ dọn module) | 1 ngày | Theme 3, Theme 2 | Sales cần giá |
-| Theme 5 | Sales (+ dọn module; nối kho làm ở Theme 7 G5-7 / G5-8) | ~2,5 ngày | Theme 3, 2, 4 | Chuyển kiến trúc trước Theme 7 (chốt 2026-11-03); giữ tồn cơ bản tới Theme 7 G5-12 |
+| Theme 5 | Sales (+ dọn module; nối kho làm ở Theme 7 G5-4) | ~2,5 ngày | Theme 3, 2, 4 | Chuyển kiến trúc trước Theme 7 (chốt 2026-11-03); giữ tồn cơ bản tới Theme 7 G5-5 |
 | Theme 8 | E-invoice (+ dọn module einvoice, `vet45_misa`) | ~3,5 ngày (dựng lại khung 2026-11-08: thêm 3 plan Edge Function) | Theme 5 | Khu HĐĐT trên đơn (7.3) gắn vào màn chi tiết đơn **đã refactor** ở Theme 5; server trước (worker đã xoá, hiện không có gì chạy lệnh MISA); hạ tầng Edge Function + `pg_cron` giống 2-B2 |
-| Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 70 màn) — T7-G5: Flutter + backend, mỗi BJ một plan | ~25 ngày (tốc độ thật, gồm backend; ước lượng 2026-11-09) | Theme 2, Theme 3; làm sau Theme 8 | Prototype / đặc tả xong (T7-P, T7-G4). Chốt 2026-11-09: mỗi BJ kèm backend, RPC thật không seed, thay tồn kho cơ bản của Theme 2 |
+| Theme 7 | **Kho & Giá vốn** — **rút gọn 2026-11-09**: 11 plan G5 (tồn đầu kỳ, tồn & lô, **chương trình NCC**, nhận hàng có giá gốc, nối Sales, kiểm kê / điều chỉnh, **ghi nhận chiết khấu NCC**, **giá vốn & chốt kỳ**, báo cáo tồn + lãi gộp), 21 màn BJ + 5 màn NCC + 7 màn Hub (từ 17 BJ + CAP-01, 70 màn) | không ước lượng (xem bảng Plan Theme 7) | Theme 2, Theme 3; làm sau Theme 8 | Prototype / đặc tả xong (T7-P, T7-G4). Mỗi plan kèm backend, RPC thật không seed, thay tồn kho cơ bản của Theme 2 |
 | Tích hợp AI | Trợ lý "Hỏi VET45" (Gemini API) hỏi đáp số liệu + dự báo nhập hàng (giảng viên yêu cầu "tích hợp AI vào app") | ~4,5 ngày | Theme 7 (công nợ đọc từ đơn TH-05) | Chốt 2026-11-09: làm **ngay sau Theme 7 (gồm nối kho Sales)**, trước Theme 6 (trước đây làm cuối, 2026-10-27); trợ lý hỏi đáp + dự báo nhập hàng, Gemini API |
 | Theme 6 | **Công nợ phải thu khách hàng** (từ đơn bán) + thu tiền + cấn trừ; không có phải trả nhà cung cấp | ~4,5 ngày | Theme 5, Theme 3; làm sau Tích hợp AI | Phải thu đi ra từ công nợ đơn của Theme 5 |
 | Dọn dẹp | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 1 ngày | Nền core → Theme 6 (sau 5-C, Theme 7) | Thứ tự 2026-11-03: theme cuối là Theme 6 |
 | Báo cáo | Tài liệu, sơ đồ cho báo cáo, kịch bản demo, tập bảo vệ | 3 ngày | Dọn dẹp | |
-| | **Tổng phần còn lại** (từ 2026-10-27) | **~42 ngày** (Theme 7 ~16, Theme 6 ~4,5, AI ~4,5) — hạn đồ án **2026-12-02** (~36 ngày lịch): **hụt ~6 ngày** so với tốc độ đang tính | | |
+| | **Tổng phần còn lại** | Không cộng tổng (2026-11-09: ước lượng không sát; Theme 7 rút gọn thay vì ước lại) — hạn đồ án **2026-12-02** | | |
 
 Ước lượng tính cho 1 người. Sales và Catalog lớn nhất, nên chia nhỏ PR.
 
@@ -91,6 +93,23 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 Một việc chỉ tính **xong** khi Review ✅. Ghi commit/PR vào bảng [Theo dõi tiến độ](#theo-dõi-tiến-độ).
 
 Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `📝 [plan](plans/T7/T7-G5-0a-ui-nen.md)`; plan đã làm + review xong thì xoá tệp, ô ghi `✅ plan (đã xoá)` (nội dung tra lại trong lịch sử git, vd. `git show c0faec9e2^:<đường dẫn>`). Tiến độ theo dõi trong bảng của từng Theme.
+
+### Plan có màn Flutter: kèm code + ảnh prototype (chốt 2026-11-09)
+
+Lý do: dựng màn từ mô tả bằng lời làm UI Flutter lệch prototype nặng (T7-G5-0a R1). Áp cho **mọi plan có dựng hoặc sửa màn Flutter**, mọi Theme. Chi tiết cách chép code: Theme 7 → "Quy ước chung cho mọi plan G5" → "UI Flutter: trích nguyên code prototype vào plan".
+
+1. **Code prototype:** task dựng màn chép nguyên văn hàm render + CSS của màn (kèm `tệp:dòng`) và bảng ánh xạ phần tử → widget / token.
+2. **Ảnh đích, lúc viết plan:** chép ảnh prototype của từng màn × trạng thái mà plan dựng vào `docs/refactor/plans/<phase>/img/<mã plan>/`, tên `proto-<SCR>-<trạng thái>-390.png` / `-1280.png`. Nguồn ảnh Theme 7: `specs/themes/theme-07/03.design/prototype/html/tools/proto-final/{iphone,web}/` (đọc README của prototype). Theme khác: ảnh prototype của Theme đó nếu có, không có thì ghi "không có ảnh" và lý do.
+3. **Trong plan:** đặt ảnh ngay ở task dựng màn đó, dạng bảng hai cột:
+   ```markdown
+   | Prototype | Flutter |
+   |---|---|
+   | ![](img/<mã plan>/proto-SCR-066-normal-390.png) | ![](img/<mã plan>/flutter-SCR-066-normal-390.png) |
+   ```
+   Lúc viết plan cột Flutter để trống; phiên code thêm ảnh `flutter-…` (golden test cùng bề rộng, mặt vẽ thật).
+4. **Ảnh người dùng chụp lỗi:** bỏ vào cùng thư mục, tên `user-<SCR>-<mô tả>.png`; phiên review / code đọc ảnh và chuyển thành việc cần sửa trong mục Review.
+5. **Review** so từng cặp ảnh trước khi đọc code; lệch ghi kèm tên ảnh.
+6. Plan xoá (đã ✅) thì xoá luôn thư mục `img/<mã plan>/` (ảnh tra lại trong lịch sử git).
 
 ### Plan xoá / tách / thay code cũ: test giữ hành vi trước (chốt 2026-10-28)
 
@@ -507,9 +526,9 @@ Chi tiết từng việc:
 | 8.5 | Huỷ đơn + đổi/trả     | cancellation (lý do, precheck, confirm); return/exchange (start, preview pricing, update, confirm, complete, cancel)                                                               |
 
 
-**Integration event:** bỏ messaging; `sales.outbox_messages` giữ làm nhật ký sự kiện (8-C, 2026-11-08). Phát hành HĐĐT tự động dùng trigger trên `sales.sales_orders` khi đơn Hoàn tất, ghi việc vào `einvoice.internal_commands` (làm ở 7.5 của Theme 8, sau Theme 5; TH-08 KI-19, KI-20). Không gọi "nhớ giá từ đơn" (ngoài phạm vi, TH-04 KI-02). Trừ/cộng tồn khi bán, huỷ, đổi trả: Theme 5 **giữ tồn cơ bản như hiện tại** (chỉ chuyển kiến trúc); nối sổ kho Theme 7 ở Theme 7 **G5-7 / G5-8**.
+**Integration event:** bỏ messaging; `sales.outbox_messages` giữ làm nhật ký sự kiện (8-C, 2026-11-08). Phát hành HĐĐT tự động dùng trigger trên `sales.sales_orders` khi đơn Hoàn tất, ghi việc vào `einvoice.internal_commands` (làm ở 7.5 của Theme 8, sau Theme 5; TH-08 KI-19, KI-20). Không gọi "nhớ giá từ đơn" (ngoài phạm vi, TH-04 KI-02). Trừ/cộng tồn khi bán, huỷ, đổi trả: Theme 5 **giữ tồn cơ bản như hiện tại** (chỉ chuyển kiến trúc); nối sổ kho Theme 7 ở Theme 7 **G5-4**.
 
-**Xong khi:** đủ 6 kịch bản: bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng. Công nợ (còn phải thu của đơn) đúng sau mỗi kịch bản. Tồn kho (tồn cơ bản) đúng như trước khi chuyển kiến trúc sau mỗi kịch bản; tồn theo sổ kho kiểm ở Theme 7 G5-7 / G5-8. Các màn sales trong checklist đều đã tick.
+**Xong khi:** đủ 6 kịch bản: bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng. Công nợ (còn phải thu của đơn) đúng sau mỗi kịch bản. Tồn kho (tồn cơ bản) đúng như trước khi chuyển kiến trúc sau mỗi kịch bản; tồn theo sổ kho kiểm ở Theme 7 G5-4. Các màn sales trong checklist đều đã tick.
 
 ---
 
@@ -555,108 +574,149 @@ Chi tiết từng việc:
 
 ## Theme 7. Inventory — Kho & Giá vốn
 
-**Trạng thái:** 🔄 Chỉ còn **T7-G5: Flutter + backend**, mỗi BJ một plan kèm backend (chốt 2026-11-09). G5-0a đã hoàn thành (✅ 2026-11-09), G5-0b plan ✅ (duyệt 2026-11-09) đang chạy; tiếp: làm code G5-0b + viết plan G5-1. Code BJ-02 / 03 cũ (v4.6.8) giữ tới G5-4 / G5-5 thì xoá.
+**Trạng thái:** 🔄 **Rút gọn phạm vi 2026-11-09** (người dùng chốt, vì hạn 2026-12-02): còn 11 plan G5 theo luồng demo chính (tồn đầu → chương trình NCC → nhận hàng có giá gốc + ưu đãi → bán / trả / huỷ qua Sales → kiểm kê → ghi nhận chiết khấu NCC → giá vốn & chốt kỳ → báo cáo tồn + lãi gộp). G5-0a ✅ (2026-11-09). G5-0b: Task 0–2 ✅; plan đã sửa theo [spec giá vốn](plans/T7/T7-G5-gia-von-thiet-ke.md) ✅ (duyệt 2026-11-09), tiếp Task 2b; song song: viết plan G5-1. Code BJ-02 / 03 cũ (v4.6.8) giữ tới G5-3 thì xoá.
 
-> **Đã xong (bỏ khỏi bảng 2026-11-09):** T7-0 / T7-0b / T7-0c (Flutter BJ-02 / 03 theo prototype v4.6.8, commit `49967966e` — sẽ viết lại ở G5-4 / G5-5), T7-P0 (dọn prototype), T7-P (thiết kế lại trên prototype, đóng 2026-10-27, v5.26.1 — [plan](plans/T7/T7-P-thiet-ke-lai-luong.md) giữ để tra khuôn K1–K7, mục 5), T7-G4 (chốt đặc tả FROZEN v5.27.0, 2026-11-09). Prototype không sửa nữa, chỉ đối chiếu hình ảnh. Bảng cũ: `git show 88758fe5c:docs/refactor/PLAN.md`.
+> **Đã xong (bỏ khỏi bảng 2026-11-09):** T7-0 / T7-0b / T7-0c (Flutter BJ-02 / 03 theo prototype v4.6.8, commit `49967966e` — sẽ viết lại ở G5-3), T7-P0 (dọn prototype), T7-P (thiết kế lại trên prototype, đóng 2026-10-27, v5.26.1 — [plan](plans/T7/T7-P-thiet-ke-lai-luong.md) giữ để tra khuôn K1–K7, mục 5), T7-G4 (chốt đặc tả FROZEN v5.27.0, 2026-11-09). Prototype không sửa nữa, chỉ đối chiếu hình ảnh. Bảng cũ (17 BJ, G5-0a…G5-17): `git show e5c9d4599:docs/refactor/PLAN.md`.
 
-> **Thay tồn cơ bản của Theme 2 (chốt 2026-11-04, Q3 của 5-C):** khi BJ-08 (kiểm kê / điều chỉnh) và BJ-12 (tồn đầu kỳ) có màn: xoá SP-10 `product_stock_adjustment_page.dart` (đã chạy qua `ProductRepository` + `ProductStockAdjustmentCubit` từ 5-C) và route `/products/items/:productId/stock`; nút "Sửa" thẻ Tồn kho ở PCC và mục readiness `missing_stock` mở màn Theme 7 tương ứng; bước nhập tồn khi tạo sản phẩm giữ / bỏ theo plan Theme 7. DB tồn cơ bản giữ tới G5-12 (bỏ hẳn ở đó, sau khi G5-7 / G5-8 đã chuyển Sales sang kho Theme 7).
+> **Thay tồn cơ bản của Theme 2 (chốt 2026-11-04, Q3 của 5-C; đổi plan 2026-11-09):** G5-4 chuyển Sales sang sổ kho Theme 7; **G5-5** (khi BJ-08 kiểm kê đã có màn, BJ-12 có từ G5-1) xoá SP-10 `product_stock_adjustment_page.dart` và route `/products/items/:productId/stock`, bỏ bảng / RPC tồn cơ bản; nút "Sửa" thẻ Tồn kho ở PCC và mục readiness `missing_stock` mở màn Theme 7 tương ứng; bước nhập tồn khi tạo sản phẩm giữ / bỏ theo plan G5-5.
 
-> Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) **v5.27.0 FROZEN** (17 BJ + CAP-01; BJ / UC / BC / Screen Contract / UIF / PAT-UI-UX / PAT-NAV); prototype `03.design/prototype/html` v5.26.1 (đã đóng, đối chiếu hình ảnh); [T7-P](plans/T7/T7-P-thiet-ke-lai-luong.md) mục 5 (khuôn K1–K7), 6 (DS mới), 10 (luồng demo), 13 (đề xuất đã duyệt). [TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ. Vai trò: Claude viết plan và review, bạn tự code.
+> Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) **v5.27.0 FROZEN** — từ 2026-11-09 là **tài liệu tham khảo**: chỉ các BJ / màn trong bảng Plan dưới đây được làm, và làm theo bản rút gọn (bỏ duyệt, bỏ xác minh…); chỗ app khác spec ghi vào báo cáo đồ án, không sửa spec. Prototype `03.design/prototype/html` v5.26.1 (đối chiếu hình ảnh); [T7-P](plans/T7/T7-P-thiet-ke-lai-luong.md) mục 5 (khuôn K1, K4, K6, K7), 6 (DS mới). [TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ. Vai trò: Claude viết plan và review, bạn tự code.
 
-### Đã chốt (người dùng, 2026-11-09)
+### Rút gọn 2026-11-09 (người dùng chốt)
+
+Lý do: phạm vi 17 BJ + CAP-01, 70 màn, quá lớn so với thời gian còn lại tới hạn và với một đồ án tốt nghiệp. Giữ luồng một cửa hàng thú y dùng hằng ngày, có lô + HSD và giá vốn; phần bỏ ghi vào báo cáo là "hướng phát triển".
+
+**Bỏ — chức năng (BJ):**
+
+| Bỏ | Thay bằng |
+|---|---|
+| BJ-04 Giữ hàng, BJ-05 Lấy hàng & bàn giao (K6 dựng ở đây) | Thanh toán đơn ⇒ xuất kho ngay (G5-4). K6 đã có ở G5-0a, dùng cho danh sách phiên kiểm kê nếu cần |
+| BJ-06 màn Hàng khách trả | Đơn trả / đổi hàng của Sales ⇒ nhập lại kho tự động (G5-4), không có màn kho riêng |
+| BJ-07 Trả nhà cung cấp | — |
+| BJ-09 Tình trạng hàng (cách ly / hỏng) + khuôn K5 | — (không có tình trạng hàng; hàng hỏng / hết hạn xử lý bằng điều chỉnh có lý do ở G5-5) |
+| BJ-10 Tiêu hủy | Điều chỉnh giảm có lý do "Hỏng" / "Hết hạn" ở G5-5 |
+| BJ-11 Hủy & sửa sai chứng từ | — (phiếu đã ghi không sửa; sai thì kiểm kê điều chỉnh) |
+| BJ-13 Điều chỉnh giá trị hàng nhập | Chi phí thu mua / chiết khấu thương mại nhập ngay trên phiếu nhận, phân bổ vào dòng (G5-3); không điều chỉnh sau khi ghi — **trừ** chiết khấu NCC đạt mốc có chứng từ (G5-5b, spec giá vốn mục 12) |
+| BJ-14 phần nhiều phạm vi chốt, giá tham chiếu định giá bán | — (BJ-14 còn lại **làm**, xem "Giá vốn") |
+| BJ-16 Đối soát, BJ-17 Xác minh UNKNOWN | — |
+| CAP-01 Chính sách tồn & cận hạn | Cột "tồn tối thiểu" trên sản phẩm (dùng cho cảnh báo sắp hết ở Hub và dự báo AI-3); cận hạn = số ngày cố định trong code |
+
+**Bỏ — cơ chế dùng chung:**
+
+| Bỏ | Thay bằng |
+|---|---|
+| K2 lập → duyệt (ApprovalCase, màn "Chờ duyệt" của Hub, SCR-011 / 046 / 070 duyệt) | Ghi nhận thẳng sau bước rà soát; chỉ kiểm quyền |
+| K3 kết quả chưa rõ (nhật ký lệnh, `get_command_outcome`, nút "Chuyển sang xác minh") | Khoá idempotency trên phiếu (gửi lại cùng khoá không ghi hai lần); mất mạng ⇒ báo lỗi + "Thử lại" (cùng khoá) |
+| Kích hoạt kho | Hub hiện lối "Khởi tạo tồn đầu kỳ" khi kho chưa có biến động |
+| Nhập tồn đầu kỳ bằng tệp | Nhập tay từng dòng |
+| BJ-02: nhập nhanh riêng, đối soát, duyệt khi nhận vượt, ảnh bằng chứng, chia "Đạt / Cách ly / Hỏng / Từ chối" | Một phiếu nhận: nhà cung cấp, số chứng từ, dòng (sản phẩm, lô, HSD, số lượng, giá nhập) |
+| Q8 rà / đổi domain DRAFT → FROZEN | Không sửa spec; chỗ lệch ghi báo cáo |
+
+**Rút gọn quy trình UI (thay bước 5–6 cũ):** chép code prototype cho **màn chính** của mỗi plan; so ảnh **trạng thái chính** (iPhone 390 + web 1280); widget test trạng thái chính + lỗi chính (không phủ mọi trạng thái Screen Contract).
+
+**Ảnh hưởng tới việc đã làm:**
+
+- **G5-0a ✅:** ẩn / xoá màn "Chờ duyệt" (`/warehouse/approvals`) và nguồn "Chờ duyệt" của Hub; gỡ lối vào Hub của BJ bị bỏ khỏi `warehouse_entries.dart` (không để `route: null` chờ). Làm ở G5-0b (Task Hub) hoặc G5-1.
+- **G5-0b (plan ✅, đã code Task 0–2):** sửa plan trước khi code tiếp — bỏ Task 5 (duyệt K2, `approval_cases`, `_open_approval`, RPC duyệt), bỏ kích hoạt kho + `get_command_outcome` / UNKNOWN ở Task 3 / Task 6 (giữ khoá idempotency), RPC tóm tắt Hub bỏ phần chờ duyệt; **thêm giá vốn** vào lõi theo [spec giá vốn](plans/T7/T7-G5-gia-von-thiet-ke.md) mục 3–4: **giữ** `value_movements` (dạng mới, có dòng điều chỉnh), `product_costs` theo tổ chức + sản phẩm (giá trị sổ, bình quân liên hoàn, giá chính thức), `cost_policies`, `cost_periods`, `cost_versions`; `_post_movements` ghi dòng giá trị theo phương pháp, chặn `PERIOD_CLOSED`; bỏ chiều tình trạng hàng / trạng thái định giá (Q-b11 của plan). Mã lỗi lõi bỏ các mã chỉ dùng cho duyệt / xác minh / kích hoạt. Cột `min_stock` (tồn tối thiểu) làm ở **G5-2** (nơi dùng). Plan G5-0b đã sửa theo các điểm này (duyệt 2026-11-09), **phần giá vốn sửa lại theo spec** (duyệt 2026-11-09); Task 0–2 đã commit, phần thừa / đổi làm ở Task 2b.
+
+### Giá vốn (chốt 2026-11-09, làm kỹ — trọng tâm báo cáo)
+
+Thiết kế đầy đủ: [spec giá vốn](plans/T7/T7-G5-gia-von-thiet-ke.md) (người dùng duyệt từng phần trong chat 2026-11-09). Thay bản "chỉ bình quân liên hoàn" ghi sáng cùng ngày.
+
+| # | Quyết định |
+|---|---|
+| GV-1 | Trọng tâm: **nghiệp vụ kế toán đúng chuẩn** (VAS 02, TT 200 / 133), chứng minh bằng công thức, ví dụ số, test |
+| GV-2 | **Cửa hàng chọn phương pháp** bình quân liên hoàn / bình quân cuối kỳ (đổi chỉ trước lần công bố đầu); mỗi lần tính luôn tính **cả hai** để đối chiếu; chốt kỳ theo tháng + cập nhật giữa kỳ |
+| GV-3 | **Giá gốc trên phiếu nhận:** giá mua trước thuế + chi phí thu mua − chiết khấu thương mại, phân bổ theo giá trị dòng |
+| GV-5 | **Ưu đãi nhà cung cấp** (spec mục 12, chốt 2026-11-09 theo yêu cầu giáo viên hướng dẫn): (1) giảm giá theo bậc số lượng trên phiếu → giảm ngay giá gốc; (2) mua X tặng Y cùng sản phẩm → tiền mua chia cho SL mua + tặng; (3) chiết khấu đạt mốc **số lượng tích luỹ, không hạn thời gian** → có chứng từ mới ghi, phần tồn giảm giá trị tồn, phần đã bán giảm giá vốn (TT 200). Kèm tiến độ, giá vốn dự kiến (không ghi sổ), so sánh NCC |
+| GV-6 | **Giá gốc gồm VAT đầu vào** (hộ kinh doanh không khấu trừ, KB-KGV-019 mục 5) |
+| GV-4 | **Tính lại từ sổ:** lần tính bất biến tới mốc chốt (`ledger_sequence`) → rà soát → công bố một giao dịch (ghi dòng điều chỉnh liên kết, phiên bản giá chính thức mới, khoá kỳ); không sửa dòng sổ cũ |
+
+Phạm vi giá: tổ chức + sản phẩm (không theo kho / lô). Trong kỳ: nhập theo giá gốc; xuất theo bình quân liên hoàn (`MOVING`) hoặc giá chính thức đang hiệu lực (`PERIODIC`, chưa có thì "giá tạm"). Lúc công bố: điều chỉnh giá vốn hàng bán / hao hụt / làm tròn chỉ ghi phần chênh. Kiểm cân bằng: đầu đoạn + nhập = xuất đã điều chỉnh + tồn cuối.
+
+### Đã chốt (người dùng, 2026-11-09 — trước khi rút gọn; còn hiệu lực trừ chỗ ghi "đổi")
 
 | Q | Quyết định |
 |---|---|
-| Q1 | **Viết lại BJ-02 / BJ-03 theo v5.27.** Giữ model / luật thuần còn đúng (vd. `LotDate`, `formatQuantity`); xoá page / cubit / repository cũ khi màn mới thay. Plan cũ `T7-0d-nhan-theo-chung-tu.md`, `T7-1-ton-kho-bj01.md` (viết theo v4.6.8) **xoá**; các dòng `T7-0d`, `T7-0e`, `T7-1` … `T7-16` ở PLAN.md thay bằng bảng Plan dưới đây |
-| Q2 | **Chia plan: nền + mỗi BJ một plan, theo chặng** (thứ tự ở bảng Plan). Khuôn dựng ở plan nền hoặc ở BJ đầu tiên dùng nó, BJ sau gọi lại |
-| Q3 | **Bố cục web làm trong cùng plan BJ** (không có plan `-W` riêng như Theme 2–5): mỗi màn dựng iPhone + web một lần, test cả hai bề rộng |
-| Q4 | **Mỗi BJ kèm luôn backend** (thay cách "UI trên dữ liệu mẫu trước, backend `T7-B*` sau" của 2026-10-14 / 2026-11-03): plan BJ gồm migration (bảng, RLS, RPC), repository gọi RPC thật, UI, test. **Không có plan `T7-B*` riêng** |
-| Q5 | **Backend lõi dùng chung dựng ở plan nền** (sổ biến động kho, tồn theo lô + khả dụng, phiếu kho chung, ApprovalCase cho K2, nhật ký lệnh cho K3 / idempotency, kiểm quyền). Plan nền tách hai: **G5-0a** (UI nền) và **G5-0b** (backend lõi) |
-| Q6 | **Dữ liệu: RPC thật, không seed.** Widget test dùng fake repository. Dữ liệu demo người dùng tự tạo qua app (khởi tạo tồn đầu kỳ → nhận hàng → …). Bỏ "kho mẫu chung tĩnh" (câu hỏi lô Amox / số giữ hàng Nobivac không còn: không có fixture để lệch) |
-| Q7 | **Nối kho Sales làm trong plan BJ:** G5-7 làm luôn checkout → giữ hàng / xuất kho (`BC-IO-04`), huỷ đơn → hoàn nguyên (`BC-IO-13`), khả dụng khi chọn sản phẩm (`BC-IO-01`, thay tồn cơ bản trong `search_sellable_products`); G5-8 làm nhận hàng khách trả từ đơn trả (`BC-IO-07`); G5-12 bỏ tồn cơ bản của Theme 2 (bảng, RPC, SP-10). 6 kịch bản Theme 5 (bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng) cho tồn đúng theo sổ kho là tiêu chí của G5-7 / G5-8 |
-| Q8 | **Domain DRAFT:** mỗi plan BJ rà các tệp `02.specification/domain/*` (AGG / ENT / PRJ / INT) mà BJ dùng; chỗ lệch UC / Screen Contract FROZEN thì hỏi người dùng lúc viết plan; sửa tệp domain theo schema đã làm và đổi `DRAFT` → `FROZEN` trong cùng plan |
-| Q9 | **Home Kho mới dựng khung ở G5-0a**, mỗi plan BJ tự gắn lối vào của mình (đăng ký route vào bảng lối vào của Hub) và nguồn "Cần chú ý" (mở rộng RPC tóm tắt Hub). Lối vào chưa có màn thì **ẩn**, không toast |
+| Q1 | **Viết lại BJ-02 / BJ-03 theo v5.27** (đổi: gộp vào G5-3, bản rút gọn). Giữ model / luật thuần còn đúng (vd. `LotDate`, `formatQuantity`); xoá page / cubit / repository cũ khi màn mới thay |
+| Q2 | Chia plan: nền + mỗi chặng một plan (đổi: 8 plan, bảng Plan) |
+| Q3 | **Bố cục web làm trong cùng plan** (không có plan `-W` riêng): mỗi màn dựng iPhone + web một lần |
+| Q4 | **Mỗi plan kèm luôn backend**: migration (bảng, RLS, RPC), repository gọi RPC thật, UI, test. Không có plan `T7-B*` riêng |
+| Q5 | **Backend lõi dùng chung dựng ở G5-0b** (đổi: sổ biến động, tồn theo lô + giá vốn, phiếu kho chung, idempotency, kiểm quyền; bỏ ApprovalCase, nhật ký lệnh UNKNOWN) |
+| Q6 | **Dữ liệu: RPC thật, không seed.** Widget test dùng fake repository. Dữ liệu demo người dùng tự tạo qua app (tồn đầu kỳ → nhận hàng → bán …) |
+| Q7 | **Nối kho Sales ở G5-4** (đổi: gộp G5-7 + G5-8 cũ): checkout → xuất kho FEFO (`BC-IO-04`, không giữ hàng / bàn giao), huỷ đơn → hoàn nguyên (`BC-IO-13`), khả dụng khi chọn sản phẩm (`BC-IO-01`, thay tồn cơ bản trong `search_sellable_products`), đơn trả / đổi → nhập lại (`BC-IO-07`, không màn kho). 6 kịch bản Theme 5 (bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng) cho tồn + giá vốn đúng theo sổ kho là tiêu chí của G5-4 |
+| Q8 | ~~Rà / FROZEN domain~~ — **bỏ** (rút gọn 2026-11-09) |
+| Q9 | **Home Kho dựng khung ở G5-0a**, mỗi plan tự gắn lối vào (bảng lối vào của Hub) và nguồn "Cần chú ý". Lối vào chưa có màn thì **ẩn**; lối vào của BJ bị bỏ thì **gỡ** |
 
-Quyết định cũ vẫn giữ: danh tính người dùng lấy từ phiên thật (`SessionStore.userId`, `isOwner`); quy tắc duyệt K2 theo PAT-UI-UX mục 4.5 (chủ cửa hàng lập vẫn gửi duyệt rồi tự duyệt); `features/inventory/` là của Theme 7; tồn cơ bản Theme 2 giữ tới G5-12.
-
-**Đã chốt (2026-10-14):** `features/inventory/` là của Theme 7; 5-A4 chỉ chuyển cổng cặp mặc định sang `DefaultPairRepository` (không dùng tên `InventoryRepository`), phần tồn cơ bản để Theme 7 thay.
+Quyết định cũ vẫn giữ: danh tính người dùng lấy từ phiên thật (`SessionStore.userId`, `isOwner`); `features/inventory/` là của Theme 7; 5-A4 chỉ chuyển cổng cặp mặc định sang `DefaultPairRepository` (không dùng tên `InventoryRepository`).
 
 ### Plan
 
-Thứ tự = chặng hành trình của prototype (T7-P mục 8.2), vì khuôn được dựng ở BJ đầu chặng và dữ liệu demo đi theo đúng thứ tự này (không seed: phải khởi tạo tồn trước mới nhận / bán / kiểm kê được). Ước lượng theo tốc độ thật (nhanh ~3–4 lần ước lượng cũ), gồm backend.
+Thứ tự = luồng demo (không seed: phải khởi tạo tồn trước mới nhận / bán / kiểm kê được). Không ghi ước lượng ngày (2026-11-09: người dùng bỏ; theo dõi bằng tiến độ từng plan).
 
-| Plan | Chặng | Nội dung | Màn (Screen Contract) | Phụ thuộc | Ước lượng | Plan | Làm | Review |
-|---|---|---|---|---|---|---|---|---|
-| **G5-0a** | nền | UI nền: DS mới (`VListRow`, `VQuickActionButton`, `VChip.count`, `VKeyValueRow`, `VTable.onRowTap`), khuôn K1–K4 / K6 / K7, Home Kho SCR-090…096 + "Chờ duyệt", route `/warehouse`, xoá `WarehouseHomePage` v3.8. **Chạy song song với G5-0b** | 090, 091, 092, 093, 094, 095, 096 | W-1 ✅ | ~1 ngày | ✅ [plan](plans/T7/T7-G5-0a-ui-nen.md) | ✅ 2026-11-09 | ✅ R2 đạt (2026-11-09) |
-| **G5-0b** | nền | Backend lõi: kho / lô / sổ biến động / tồn + khả dụng (đọc), phiếu kho chung, ApprovalCase, nhật ký lệnh + idempotency (K3), quyền + che tài chính, RPC tóm tắt Hub (kích hoạt, chờ duyệt); lớp RPC Flutter; ô gạt "Quản lý theo lô" ở Theme 2. **Chạy song song với G5-0a** | — | — (riêng Task 7 cần Task 7 của G5-0a: repository Hub) | ~1,5 ngày | ✅ [plan](plans/T7/T7-G5-0b-backend-loi.md) | ⬜ | ⬜ |
-| G5-1 | 1 | BJ-12 Khởi tạo tồn đầu kỳ (kích hoạt kho; tệp nhập, K2 duyệt chủ cửa hàng) | 066, 067, 068, 070, 071 | G5-0a, G5-0b | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
-| G5-2 | 1 | BJ-01 Tồn kho & khả dụng (đọc sổ kho thật) | 001, 003 | G5-1 | ~1 ngày | ⬜ | ⬜ | ⬜ |
-| G5-3 | 1 | CAP-01 Chính sách tồn & cận hạn | 062, 063, 065 | G5-2 | ~1 ngày | ⬜ | ⬜ | ⬜ |
-| G5-4 | 2 | BJ-02 Nhận hàng (theo chứng từ + nhập nhanh, duyệt khi vượt, đối soát) — **viết lại, xoá code BJ-02 cũ** | 007, 008, 009, 084, 010, 011, 012, 013 | G5-1 | ~2 ngày | ⬜ | ⬜ | ⬜ |
-| G5-5 | 2 | BJ-03 Xác lập giá trị nhập ban đầu — **viết lại, xoá code BJ-03 cũ** | 014, 015, 019 | G5-4 | ~1 ngày | ⬜ | ⬜ | ⬜ |
-| G5-6 | 2 | BJ-13 Điều chỉnh giá trị hàng nhập | 085, 086, 089 | G5-5 | ~1 ngày | ⬜ | ⬜ | ⬜ |
-| G5-7 | 3 | BJ-04 Giữ hàng (đọc) + BJ-05 Lấy & bàn giao (dựng K6) + **nối Sales**: checkout → giữ hàng / xuất kho, huỷ đơn → hoàn nguyên, khả dụng khi chọn sản phẩm; 6 kịch bản Theme 5 cho tồn đúng theo sổ kho | 021, 025, 026, 028, 029 | G5-2 | ~2 ngày | ⬜ | ⬜ | ⬜ |
-| G5-8 | 3 | BJ-06 Hàng khách trả + **nối Sales**: nhận hàng trả từ đơn trả / đổi hàng Theme 5 | 030, 031, 032, 033, 034, 035 | G5-7 | ~1,5–2 ngày | ⬜ | ⬜ | ⬜ |
-| G5-9 | 4 | BJ-09 Tình trạng hàng + **K5** (036 / 037 / 041 dùng chung) + SCR-056 | 036, 037, 038, 041, 056 | G5-2 | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
-| G5-10 | 4 | BJ-07 Trả nhà cung cấp (chế độ trên 036 / 037 / 041) | 039 | G5-9 | ~1 ngày | ⬜ | ⬜ | ⬜ |
-| G5-11 | 4 | BJ-10 Tiêu hủy | 040 | G5-9 | ~1 ngày | ⬜ | ⬜ | ⬜ |
-| G5-12 | 5 | BJ-08 Kiểm kê (đếm mù) + **bỏ tồn cơ bản của Theme 2** (SP-10, bảng / RPC tồn cơ bản; ghi chú "Thay tồn cơ bản" ở đầu mục) | 042, 043, 044, 045, 046, 047 | G5-2 | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
-| G5-13 | 5 | BJ-11 Hủy & sửa sai | 048, 049, 050, 051, 053 | G5-4, G5-12 | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
-| G5-14 | 5 | BJ-16 + BJ-17 Đối soát + xác minh UNKNOWN (nối nút "Chuyển sang xác minh" của mọi K3) | 078, 079, 081, 082, 083 | G5-0b | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
-| G5-15 | 6 | BJ-14 Giá vốn | 072, 074, 077 | G5-5, G5-6 | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
-| G5-16 | 6 | BJ-15 Báo cáo tồn & thẻ kho (đọc sổ biến động thật) | 055, 059 (+056 dùng lại) | G5-9 | ~1 ngày | ⬜ | ⬜ | ⬜ |
-| G5-17 | — | Rà cuối: bảng 70 màn → route → test, bảng trạng thái → test, luồng demo, tương phản / vùng chạm / `Semantics`, quét chuỗi giả, không còn lối vào ẩn / K3 thiếu nút xác minh | toàn Theme | tất cả | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| Plan | Nội dung | Màn (Screen Contract) | Phụ thuộc | Plan | Làm | Review |
+|---|---|---|---|---|---|---|
+| **G5-0a** | UI nền: DS mới, khuôn K1–K4 / K6 / K7, Home Kho, route `/warehouse`, xoá `WarehouseHomePage` v3.8 | 090…096 | W-1 ✅ | ✅ [plan](plans/T7/T7-G5-0a-ui-nen.md) | ✅ 2026-11-09 | ✅ R2 đạt (2026-11-09) |
+| **G5-0b** | Backend lõi (bản rút gọn): kho / lô / sổ biến động chỉ thêm / tồn + khả dụng + **sổ giá trị + luật giá theo phương pháp** (spec giá vốn mục 3–4), `_post_movements` (khoá, chặn tồn âm), phiếu kho chung + khoá idempotency, quyền + che tài chính, RPC tóm tắt Hub; lớp RPC Flutter; ô gạt "Quản lý theo lô" ở Theme 2; gỡ "Chờ duyệt" / K2 / K3 / lối vào BJ bị bỏ khỏi Hub | — | G5-0a (Task Hub) | ✅ [plan](plans/T7/T7-G5-0b-backend-loi.md) (rút gọn + spec giá vốn, duyệt 2026-11-09) | 🔄 Task 0–2 ✅ | ⬜ |
+| G5-1 | BJ-12 Khởi tạo tồn đầu kỳ: nhập tay dòng (sản phẩm, lô, HSD, số lượng, **giá gốc**), rà soát, ghi nhận thẳng (`OPENING`) | 066, 067, 068, 071 | G5-0b | ⬜ | ⬜ | ⬜ |
+| G5-2 | BJ-01 Tồn kho & khả dụng (theo lô, HSD, giá vốn bq có che) + cột / ô **"Tồn tối thiểu"** (`min_stock`) ở sản phẩm Theme 2 + "Cần chú ý" Hub: sắp hết (dưới tồn tối thiểu), cận hạn | 001, 003 | G5-1 | ⬜ | ⬜ | ⬜ |
+| **G5-2b** | **Chương trình nhà cung cấp** (spec giá vốn mục 12.1–12.3, 12.6–12.7): bảng chương trình (3 loại), RPC tạo / sửa / kết thúc / danh sách / chi tiết / gợi ý cho dòng phiếu; màn P1 danh sách, P2 tạo / sửa, P3 chi tiết (chưa ghi nhận); khối "Chương trình ưu đãi" + "Lịch sử nhập hàng" ở chi tiết NCC Theme 3; lối vào Hub; tạo đối tác hệ thống "Mua lẻ / khác" cho mỗi tenant. Ưu đãi gắn cặp **NCC + sản phẩm**, chỉ áp cho phiếu cùng NCC. **Không có prototype** ⇒ plan vẽ khung ASCII, người dùng duyệt | P1, P2, P3 | G5-0b | ⬜ | ⬜ | ⬜ |
+| G5-3 | BJ-02 Nhận hàng **gộp BJ-03** (giá mua ở từng dòng) — một phiếu: nhà cung cấp (**bắt buộc**; mua lẻ chọn "Mua lẻ / khác"), số chứng từ, dòng, **chi phí thu mua + chiết khấu thương mại phân bổ ra giá gốc** (spec giá vốn mục 4.1) + **ưu đãi NCC trên dòng** (bậc giảm giá, SL tặng, cộng tiến độ chương trình đạt mốc → `REACHED`; mục 12.3), rà soát có bảng phân bổ, kết quả; xem lại phiếu đã ghi. **Xoá code BJ-02 / 03 cũ** | 007, 009, 010, 012, 011 (chỉ `RECORDED`) | G5-1, G5-2b | ⬜ | ⬜ | ⬜ |
+| G5-4 | **Nối Sales** (Q7): xuất kho FEFO + dòng đơn lưu **giá vốn, phiên bản giá, cờ giá tạm** khi thanh toán, huỷ / trả cùng đoạn → `SALE_REVERSAL`, trả hàng của đoạn đã công bố → `RETURN_IN`, khả dụng khi chọn sản phẩm; test giữ hành vi 6 kịch bản Theme 5 | màn Sales (không màn kho mới) | G5-2 | ⬜ | ⬜ | ⬜ |
+| G5-5 | BJ-08 Kiểm kê (tạo phiên, đếm, chênh lệch, ghi nhận thẳng) + **điều chỉnh có lý do** (hỏng / hết hạn / thất thoát — thay BJ-10; định giá theo phương pháp, điều chỉnh vào **hao hụt**, phiên kiểm kê mở chặn lần tính giá vốn) + **bỏ tồn cơ bản Theme 2** (SP-10, bảng / RPC; ghi chú "Thay tồn cơ bản" ở đầu mục) | 042, 043, 044, 045, 047 | G5-2, G5-4 | ⬜ | ⬜ | ⬜ |
+| **G5-5b** | **Ghi nhận chiết khấu NCC & so sánh NCC** (spec giá vốn mục 12.4–12.7): RPC xem trước / ghi nhận chiết khấu đạt mốc (phân bổ phần tồn / phần đã bán), giá vốn dự kiến, so sánh NCC; màn P4 ghi nhận, P5 so sánh, khối "Giá vốn dự kiến" + nút ghi nhận ở P3; "Cần chú ý" Hub | P4, P5 | G5-2b, G5-4 | ⬜ | ⬜ | ⬜ |
+| **G5-6** | **BJ-14 Giá vốn & chốt kỳ** ([spec giá vốn](plans/T7/T7-G5-gia-von-thiet-ke.md) mục 5–7): `cost_runs` / `cost_run_lines`; RPC tổng quan, đổi phương pháp, tạo / xem / công bố / bỏ lần tính, lịch sử phiên bản; chốt kỳ + cập nhật giữa kỳ; điều kiện chặn, lần tính cũ; xử lý dòng `SUPPLIER_REBATE`; 17 kịch bản `supabase/tests/inventory_costing.sql` | 072, 074, 077 | G5-3, G5-4, G5-5, G5-5b | ⬜ | ⬜ | ⬜ |
+| G5-7 | BJ-15 Báo cáo nhập – xuất – tồn / thẻ kho (giá trị sổ) + chi tiết biến động ("Mở phiếu gốc") + **báo cáo lãi gộp** (theo sản phẩm theo kỳ: giá vốn lúc bán + điều chỉnh − chiết khấu NCC; theo đơn: giá vốn lúc bán; hao hụt dòng riêng) + báo cáo nhập hàng theo NCC (SL mua / tặng, giá gốc) | 055, 056 | G5-6 | ⬜ | ⬜ | ⬜ |
+| G5-8 | Rà cuối: bảng màn → route → test, luồng demo, không còn lối vào trỏ BJ bị bỏ, tương phản / vùng chạm / `Semantics`, quét chuỗi giả | toàn Theme | tất cả | ⬜ | ⬜ | ⬜ |
 
-Tổng ~25 ngày theo tốc độ thật. **So với hạn 2026-12-02 (còn 23 ngày lịch) là quá hạn**, đã gồm nối kho Sales; chưa tính Tích hợp AI, Theme 6, Dọn dẹp, Báo cáo — xem "Rủi ro riêng".
+Tổng: 21 màn BJ + 5 màn NCC (P1–P5, ngoài spec Theme 7) + 7 màn Hub (từ 70). Màn bỏ (Screen Contract vẫn FROZEN trong spec, app không dựng): 008, 013, 014, 015, 019, 021, 025…035, 036…041, 046, 048…053, 059, 062…065, 070, 078…089.
 
 Plan con: `docs/refactor/plans/T7/T7-G5-<mã>-<slug>.md`, viết bằng `superpowers:writing-plans`, đi trước phiên làm code đúng một plan. Plan đã làm + review xong thì xoá tệp (như mọi plan).
 
 ### Quy ước chung cho mọi plan G5
 
-Mọi plan G5 trỏ về mục này trong "Global Constraints" và chỉ ghi phần riêng của BJ.
+Mọi plan G5 trỏ về mục này trong "Global Constraints" và chỉ ghi phần riêng của plan.
 
 #### Cấu trúc code
 
 | Lớp | Chỗ | Quy ước |
 |---|---|---|
 | Thành phần DS chung (không mang nghĩa Kho) | `packages/vet45_design_system/lib/src/{components,primitives,forms}/` + export ở `design_system.dart` | Thêm khi plan con đầu tiên cần (bảng "Thành phần DS mới"); có test trong `packages/vet45_design_system/test/` |
-| Khuôn K1–K4, K6, K7 (mang nghĩa Kho) | `apps/erp/lib/features/inventory/presentation/patterns/` | Dựng ở G5-0a; K5 dựng ở G5-9 |
+| Khuôn K1, K4, K6, K7 (mang nghĩa Kho) | `apps/erp/lib/features/inventory/presentation/patterns/` | Đã dựng ở G5-0a. K2 / K3 dựng ở G5-0a **không dùng nữa** (rút gọn): plan đầu tiên đụng tới thì xoá nếu không còn chỗ gọi |
 | Hub Kho | `features/inventory/presentation/hub/`, `logic/warehouse_hub_*` | G5-0a |
-| Một BJ | `features/inventory/{data,logic,presentation}/<bj>/` (vd. `data/opening_balance/`) | Model + luật thuần (`logic/<bj>/<x>_rules.dart`) có unit test; repository một class, mỗi phương thức gọi **đúng một RPC**; Cubit; Page dựng theo "Thứ bậc thông tin" của Screen Contract |
+| Một BJ | `features/inventory/{data,logic,presentation}/<bj>/` (vd. `data/opening_balance/`) | Model + luật thuần (`logic/<bj>/<x>_rules.dart`) có unit test; repository một class, mỗi phương thức gọi **đúng một RPC**; Cubit; Page dựng theo "Thứ bậc thông tin" của Screen Contract (bỏ phần thuộc cơ chế đã bỏ) |
 | Lỗi | `features/inventory/data/inventory_rpc_errors.dart` (G5-0b) | Mã lỗi server → `AppException`; câu hiển thị theo Screen Contract; không hiện `e.toString()` |
 | SQL | `supabase/migrations/2026MMDDnnn_inventory_<bj>.sql` | Sửa thẳng migration gốc tới khi lên Prod (không tạo bản ghi đè). Plan **không** ghi bước chạy / reset DB (người dùng tự làm) |
 | Test SQL | `apps/erp/test/features/inventory/data/<bj>_sql_contract_test.dart` | Đọc tệp migration, kiểm có hàm / RLS / `security definer` / kiểm quyền / mã lỗi (cùng kiểu `sales_sql_contract_test.dart`) |
 
 #### Điều hướng
 
-- Hub `/warehouse`, khu `/warehouse/area/:areaId`, "Chờ duyệt" `/warehouse/approvals`: trong nhánh tab "Thêm" (iPhone có thanh 5 tab, web có thanh bên). `/inventory` chuyển hướng sang `/warehouse` (G5-0a).
-- Màn trong luồng BJ: `GoRoute` con của `ShellRoute(StoreShell)`, **ngoài** `StatefulShellRoute` ⇒ web có thanh bên, iPhone không có thanh tab (PAT-NAV mục 5). Đường dẫn `/warehouse/<bj-slug>/…`, có id trên URL cho màn chi tiết (mở lại / deep link được).
+- Hub `/warehouse`, khu `/warehouse/area/:areaId`: trong nhánh tab "Thêm" (iPhone có thanh 5 tab, web có thanh bên). `/inventory` chuyển hướng sang `/warehouse` (G5-0a). `/warehouse/approvals` bỏ (rút gọn).
+- Màn trong luồng BJ: `GoRoute` con của `ShellRoute(StoreShell)`, **ngoài** `StatefulShellRoute` ⇒ web có thanh bên, iPhone không có thanh tab (PAT-NAV mục 5). Đường dẫn `/warehouse/<bj-slug>/…`, có id trên URL cho màn chi tiết.
 - Màn kết quả K4 trên iPhone hiện thanh 5 tab (`K4ResultPage` tự gắn, G5-0a).
-- Màn đầu luồng mở từ Hub: nút quay lại "Quay về Kho". Sau khi gửi duyệt: không có nút quay lại (prototype `afterFlowRender`).
+- Màn đầu luồng mở từ Hub: nút quay lại "Quay về Kho". Sau khi ghi nhận: màn kết quả không có nút quay lại.
 
 #### Mỗi plan BJ gồm (thứ tự task)
 
-1. **Domain + SQL:** rà tệp domain của BJ (Q8); migration bảng + RLS + RPC; test hợp đồng SQL.
+1. **SQL:** migration bảng + RLS + RPC (gọi `_post_movements` của lõi); test hợp đồng SQL.
 2. **Repository + model + luật thuần:** chữ ký theo RPC; unit test luật.
-3. **Cubit + Page từng màn:** mỗi trạng thái Screen Contract một nhánh + widget test (cả hai bề rộng khi khác bố cục). Chữ trên màn chép **nguyên văn** mục 8 của Screen Contract.
-4. **Điều hướng:** route; đăng ký lối vào Hub (`warehouse_entries.dart`) + nguồn "Cần chú ý" / "Chờ duyệt" nếu BJ có; lối vào ngữ cảnh (PAT-NAV mục 3).
+3. **Cubit + Page từng màn:** trạng thái chính + lỗi chính có nhánh dựng và widget test (cả hai bề rộng khi khác bố cục). Chữ trên màn chép **nguyên văn** mục 8 của Screen Contract (bỏ câu thuộc cơ chế đã bỏ).
+4. **Điều hướng:** route; đăng ký lối vào Hub (`warehouse_entries.dart`) + nguồn "Cần chú ý" nếu có; lối vào ngữ cảnh (PAT-NAV mục 3).
 5. **Luồng đầu–cuối:** một test đi hết luồng chính trên fake repository.
-6. **Đối chiếu prototype:** so ảnh prototype với ảnh Flutter theo mục "UI Flutter: trích nguyên code prototype vào plan" bước 5 (`index.html?uif=UIF-xx&viewport=mobile|web&screen=…&state=…`), từng trạng thái; ghi lệch vào Kết quả.
+6. **Đối chiếu prototype:** so ảnh prototype với ảnh Flutter của **trạng thái chính** (mục "UI Flutter" bước 5); ghi lệch vào Kết quả.
 7. **Kết quả** (mẫu "Cách làm việc") + **Review** (phiên review ghi).
 
-Mỗi plan BJ có mục "Quyết định" (câu hỏi đã chốt với người dùng) và "Review Focus". Plan xoá / thay code đang chạy có bảng "Đang làm gì" + bước 0 test giữ hành vi (PLAN.md "Cách làm việc").
+Mỗi plan có mục "Quyết định" (câu hỏi đã chốt với người dùng) và "Review Focus". Plan xoá / thay code đang chạy có bảng "Đang làm gì" + bước 0 test giữ hành vi (PLAN.md "Cách làm việc").
 
-#### UI Flutter: trích nguyên code prototype vào plan (chốt 2026-11-09)
+#### UI Flutter: trích code prototype vào plan (chốt 2026-11-09, rút gọn cùng ngày)
 
-Lý do: UI Flutter làm từ Screen Contract và mô tả bằng lời lệch prototype nặng (G5-0a R1: chevron đôi, tiêu đề thừa, giá trị tràn, đo badge sai). Phiên code không được tự đoán bố cục. Áp cho **mọi plan có màn Flutter** (G5-0a về sau, Theme khác cũng vậy):
+Lý do: UI Flutter làm từ Screen Contract và mô tả bằng lời lệch prototype nặng (G5-0a R1: chevron đôi, tiêu đề thừa, giá trị tràn, đo badge sai). Phiên code không được tự đoán bố cục. Áp cho **mọi plan có màn Flutter**:
 
-1. **Plan chép nguyên văn code prototype của từng màn** vào task dựng màn, trong khối ```` ```js ```` / ```` ```css ````, kèm `tệp:dòng`:
-   - hàm render của màn (vd. `hub.js:186–218 renderHubHome`) và các hàm con nó gọi (`ds24ListRow`, `quickAction`, `attentionRow`, `shell`…);
-   - **mọi luật CSS** của class màn đó dùng (`styles/components.css`, `styles/screens.css`), gồm cả `@media` web; biến `var(--…)` tra ra giá trị ở `styles/tokens.css`.
-2. **Bảng ánh xạ phần tử → Flutter** ngay dưới code: mỗi phần tử HTML (theo `data-ds-component` / class) một dòng: widget DS / khuôn K, tham số, token (`VSpacing`, `VTypography`, `VRadius`, màu) với giá trị px của CSS. Giá trị CSS không có token: ghi số và lý do, không tự làm tròn. Phần tử prototype **không** dựng (Q9, chờ BJ khác) ghi rõ "bỏ — lý do".
-3. **Thứ tự, chữ, điều kiện hiện / ẩn lấy từ code prototype** (nhánh `if`, `viewport === 'web'`, cờ `disabled`). Screen Contract mục 8 dùng để kiểm chữ; prototype và Screen Contract lệch nhau thì hỏi người dùng lúc viết plan.
-4. **Phiên code dựng theo bảng ánh xạ**, không thêm phần tử ngoài bảng (vd. `trailing` khi DS đã tự vẽ). Cần lệch thì ghi "Lệch plan + lý do" ở Kết quả.
-5. **Đối chiếu bằng ảnh** (thay bước 6 chỉ đọc mã): ảnh prototype lấy ở `specs/themes/theme-07/03.design/prototype/html/tools/proto-final/{iphone,web}/` (bản cuối, chép từ mốc `.golden-g3` / `-web`; tên `UIF-xx_SCR-yyy_<TRẠNG THÁI>[_biến thể].png`, `HUB_*`, `CAP-*`). Thư mục này không vào git ⇒ lúc viết plan, **chép ảnh cần dùng** sang `docs/refactor/plans/T7/img/<plan>/` (`proto-<SCR>-<trạng thái>-390|1280.png`). Phiên code thêm ảnh Flutter (`matchesGoldenFile`, cùng bề rộng, mặt vẽ thật) tên `flutter-…` cạnh đó; đặt cặp ảnh cạnh nhau trong Kết quả; review so ảnh trước khi đọc code. Plan xoá thì xoá luôn `img/<plan>/`.
+1. **Plan chép nguyên văn code prototype của màn chính** (mỗi màn trong cột "Màn" của bảng Plan) vào task dựng màn, trong khối ```` ```js ```` / ```` ```css ````, kèm `tệp:dòng`: hàm render + hàm con, luật CSS của class màn dùng (gồm `@media` web), biến `var(--…)` tra ra giá trị ở `styles/tokens.css`. Trạng thái phụ (rỗng, lỗi, không có quyền) dùng khuôn K1, không chép code.
+2. **Bảng ánh xạ phần tử → Flutter** ngay dưới code: mỗi phần tử HTML một dòng: widget DS / khuôn K, tham số, token với giá trị px của CSS. Giá trị CSS không có token: ghi số và lý do. Phần tử prototype thuộc phần đã bỏ (duyệt, xác minh, tình trạng hàng…) ghi "bỏ — rút gọn".
+3. **Thứ tự, chữ, điều kiện hiện / ẩn lấy từ code prototype**. Screen Contract mục 8 dùng để kiểm chữ; lệch nhau thì hỏi người dùng lúc viết plan.
+4. **Phiên code dựng theo bảng ánh xạ**, không thêm phần tử ngoài bảng. Cần lệch thì ghi "Lệch plan + lý do" ở Kết quả.
+5. **Đối chiếu bằng ảnh, trạng thái chính**: ảnh prototype ở `specs/themes/theme-07/03.design/prototype/html/tools/proto-final/{iphone,web}/` (không vào git) ⇒ lúc viết plan **chép ảnh trạng thái chính** sang `docs/refactor/plans/T7/img/<plan>/` (`proto-<SCR>-<trạng thái>-390|1280.png`). Phiên code thêm ảnh Flutter (`matchesGoldenFile`, cùng bề rộng) tên `flutter-…` cạnh đó; review so ảnh trước khi đọc code. Plan xoá thì xoá luôn `img/<plan>/`.
 
 #### Thành phần DS mới (T7-P mục 6) → plan dựng
 
@@ -664,77 +724,64 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 
 | Thành phần (T7-P mục 6) | Flutter | Plan |
 |---|---|---|
-| List Row (DS v2) | mới `VListRow` | G5-0a |
-| Nút nhanh Hub | mới `VQuickActionButton` | G5-0a |
-| `VChip` có số đếm | thêm `count` vào `VChip` | G5-0a |
-| Key-value Row + bề mặt chung; số tiền mono (G3-7) | mới `VKeyValueRow`, `VKeyValueGroup` (`mono`) | G5-0a |
-| Bảng web bấm được dòng | thêm `onRowTap` vào `VTable` | G5-0a |
-| Chân màn có dòng lý do (`bj02Footer` / `k4ReasonFooter`) | `InventoryReasonFooter` (khuôn K4) | G5-0a |
-| Vùng kéo thả tệp web (dòng "Kéo tệp vào đây hoặc Chọn tệp") | mở rộng `VFileDropZone` | G5-1 |
+| `VListRow`, `VQuickActionButton`, `VChip.count`, `VKeyValueRow` / `VKeyValueGroup` (`mono`), `VTable.onRowTap`, `InventoryReasonFooter` | — | G5-0a ✅ |
 | Dải số một hàng (`cf12Strip`) | mới `VSummaryStrip` | G5-1 |
 | `VMoneyField` trạng thái lỗi | kiểm `errorText`; thêm nếu thiếu | G5-1 |
+| Ô hạn dùng tự hiểu độ chính xác | mới `VExpiryDateField` (dùng `LotDate`) | G5-1 |
+| Ô số sửa tại dòng (`k7EditCell`) | `VNumberField` trong ô `VTable`, hậu tố ĐVT | G5-1 |
 | `ds24DotBadge` (chấm đặc / rỗng) | thêm kiểu chấm rỗng vào `VBadge` | G5-2 |
 | `VStockRow` (cột phải hai tầng) | mới `VStockRow` | G5-2 |
-| Nút quét mã vạch trong ô tìm | dùng `VSearchBar.suffix` (không thêm thành phần) | G5-2 |
-| Ô số sửa tại dòng (`k7EditCell`) | `VNumberField` trong ô `VTable`, hậu tố ĐVT | G5-3 |
-| Thẻ lựa chọn lớn (`dsChoiceRow`) | `VListRow` kiểu selection + `VRadio`, hoặc `VChoiceList` nếu đủ | G5-3 |
-| Thanh tiến độ mảnh | `VProgress(height:)` | G5-4 |
-| Ô hạn dùng tự hiểu độ chính xác | mới `VExpiryDateField` (dùng `LotDate`) | G5-4 |
-| Vùng ảnh bằng chứng iPhone ("Chụp ảnh" \| "Chọn tệp" + danh sách có "Xoá") — thay `k5Evidence` / `bj06EvidenceZone` | mới `InventoryEvidenceField` (feature, dựng ở BJ-02, BJ-06 / 09 / 10 dùng lại) | G5-4 |
-| Ô số lớn + ba ô nhỏ ("Đạt" / "Cách ly" / "Hỏng" / "Từ chối") | widget feature BJ-02 | G5-4 |
-| Ô tick kèm mô tả | `VCheckbox` + mô tả; mở rộng nếu thiếu | G5-4 |
-| Ô tick trong bảng | thêm cột chọn vào `VTable` | G5-5 |
-| Khối "Tóm tắt" + dải tổng | `VKeyValueGroup` + `VSummaryStrip` | G5-5 |
-| Ô số nhập thẳng tại dòng, Enter sang ô kế tiếp | `VNumberField` + `textInputAction.next` | G5-12 |
-| Nút chữ nguy hiểm | kiểm `VButton` (variant text + tone danger); thêm nếu thiếu | G5-12 |
-| `VNumericKeypadSheet` | **không dùng** ở Theme 7 | — |
+| Nút quét mã vạch trong ô tìm | dùng `VSearchBar.suffix` | G5-2 |
+| Khối "Tóm tắt" + dải tổng | `VKeyValueGroup` + `VSummaryStrip` | G5-3 |
+| Ô số nhập thẳng tại dòng, Enter sang ô kế tiếp | `VNumberField` + `textInputAction.next` | G5-5 |
+| Nút chữ nguy hiểm | kiểm `VButton` (variant text + tone danger); thêm nếu thiếu | G5-5 |
+| Vùng kéo thả tệp, ảnh bằng chứng (`InventoryEvidenceField`), ô "Đạt / Cách ly / Hỏng / Từ chối", ô tick trong bảng, thẻ lựa chọn lớn (`dsChoiceRow`), `VNumericKeypadSheet` | **không dựng** (rút gọn) | — |
 
 #### Đề xuất G3-7 đã ghi vào Screen Contract (T7-P mục 13, Flutter làm)
 
 | Đề xuất | Plan |
 |---|---|
-| U5: K4 thêm dòng "Tồn kho đã đổi: {sản phẩm} {trước} → {sau}" (nhận hàng / bàn giao / kiểm kê). Server trả tồn vật lý trước / sau trong kết quả RPC ghi nhận (T7-G4 1a) | khuôn ở G5-0a; dữ liệu ở G5-4, G5-7, G5-12 |
-| "Tóm tắt" lặp thẻ chính (SCR-011, SCR-074 web) | G5-4, G5-15 |
-| Dòng K6 iPhone: badge xuống dưới tiêu đề khi tiêu đề gãy hai dòng (SCR-048) | khuôn K6 ở G5-0a |
-| Số tiền mono ở thẻ số liệu / "Tóm tắt" | `VKeyValueRow(mono:)` ở G5-0a; mọi plan dùng |
-| SCR-037: tiêu đề "Việc tiếp theo" khi chỉ có ghi chú; badge "Cách ly" lặp | G5-9 |
+| U5: K4 thêm dòng "Tồn kho đã đổi: {sản phẩm} {trước} → {sau}". Server trả tồn vật lý trước / sau trong kết quả RPC ghi nhận (`stockChanges`, T7-G4 1a) | khuôn ở G5-0a ✅; dữ liệu ở G5-3, G5-5 |
+| "Tóm tắt" lặp thẻ chính (SCR-011) | G5-3 |
+| Dòng K6 iPhone: badge xuống dưới tiêu đề khi tiêu đề gãy hai dòng | G5-0a ✅ |
+| Số tiền mono ở thẻ số liệu / "Tóm tắt" | `VKeyValueRow(mono:)` G5-0a ✅; mọi plan dùng |
 
 ### Việc còn treo của T7-P / T7-G4 → plan
 
 | Việc (nguồn) | Xử lý |
 |---|---|
-| Gom CSS theo BJ / bỏ `!important` (G3-1) | **Bỏ** (CSS prototype không còn là nguồn) |
-| Vùng ảnh BJ-02 / 06 sang `k5Evidence` (G3-2) | Flutter dựng một `InventoryEvidenceField` ở G5-4, G5-8 / G5-9 / G5-11 dùng lại |
-| Lô Amox thống nhất BJ-01 / 06 / 08 / 09; số giữ hàng Nobivac khớp BJ-04; fixture BJ-07 theo tồn BJ-01 (G3-4) | **Hết việc** (Q6: không có fixture; số liệu đi từ sổ kho thật) |
-| Review gói G3-1 … G3-7 (chuyển T7-G5) | **Không review prototype nữa** (T7-P đã đóng); thay bằng bước "đối chiếu prototype" của từng plan con (quy ước "Mỗi plan BJ gồm", bước 6) + G5-17 |
-| T7-G4 1a: kết quả RPC nhận hàng / bàn giao / kiểm kê trả tồn vật lý trước / sau | G5-4, G5-7, G5-12 (RPC ghi nhận trả `stockChanges`) |
-| Toast nút đóng 20 × 20; dòng bảng web chưa có `role`; bẫy focus sheet riêng từng BJ (đầu vào GĐ3) | Flutter: `VToast`, `VTable.onRowTap` (Semantics nút ở ô đầu, G5-0a), `showVAdaptiveSheet` — không còn mã riêng từng BJ |
-| `onUnknownResolved` / đường quay lại sau xác minh (đầu vào GĐ3) | G5-14 chốt với người dùng |
-| Sổ kho tĩnh trong `SC_demo`; BJ-01 "Nguồn và thời điểm cập nhật" lệch sổ kho BJ-15 (đầu vào GĐ3) | **Hết việc**: BJ-01, BJ-15 cùng đọc sổ biến động thật (G5-0b) |
-| BJ-02 chưa có màn xem phiếu đã nhận → BJ-15 "Mở phiếu gốc" (đầu vào GĐ3) | SCR-011 trạng thái `RECORDED` (FROZEN) ở G5-4; G5-16 nối "Mở phiếu gốc" |
-| `README.md` theme dòng 131 còn ghi "v5.0.0" (T7-G4 ghi chú) | G5-0b (đụng README khi ghi schema) |
-| SP-10 tồn cơ bản (PLAN.md mục Theme 7: xoá khi BJ-08 + BJ-12 có màn) | G5-12 (hỏi người dùng nút "Sửa" thẻ Tồn kho của PCC và mục readiness `missing_stock` mở màn Theme 7 nào) |
+| Gom CSS theo BJ / bỏ `!important` (G3-1); review gói G3-1 … G3-7 | **Bỏ** (prototype không còn là nguồn; thay bằng bước đối chiếu ảnh của từng plan + G5-8) |
+| Vùng ảnh bằng chứng (G3-2); fixture lô Amox / Nobivac (G3-4); sổ kho tĩnh `SC_demo` | **Hết việc** (rút gọn / Q6 không seed; BJ-01, BJ-15 cùng đọc sổ biến động thật) |
+| T7-G4 1a: kết quả RPC ghi nhận trả tồn vật lý trước / sau | G5-3, G5-5 (`stockChanges`) |
+| Toast nút đóng 20 × 20; dòng bảng web chưa có `role`; bẫy focus sheet | Flutter: `VToast`, `VTable.onRowTap` (G5-0a), `showVAdaptiveSheet` |
+| `onUnknownResolved` / quay lại sau xác minh | **Bỏ** (K3 / BJ-17 bỏ) |
+| BJ-02 chưa có màn xem phiếu đã nhận → BJ-15 "Mở phiếu gốc" | SCR-011 trạng thái `RECORDED` ở G5-3; G5-7 nối "Mở phiếu gốc" |
+| `README.md` theme dòng 131 còn ghi "v5.0.0" | G5-0b |
+| SP-10 tồn cơ bản | G5-5 (hỏi người dùng nút "Sửa" thẻ Tồn kho của PCC và mục readiness `missing_stock` mở màn Theme 7 nào) |
 
 ### Rủi ro riêng
 
 | Rủi ro | Cách xử lý |
 |---|---|
-| **Quá hạn:** ~25 ngày T7-G5 + AI (~4,5) + Theme 6 (~4,5) > 23 ngày còn lại | Theo dõi sát sau mỗi plan con, ước lượng lại ở bảng Plan; plan con viết đi trước một bước để phiên code không chờ |
-| Backend lõi (G5-0b) thiết kế sai làm vỡ các BJ sau | G5-0b bám AGG / ENT / BC của spec; plan BJ được phép mở rộng bảng lõi (sửa migration gốc, Q8) nhưng phải ghi vào Kết quả |
-| Không seed ⇒ muốn thử một BJ giữa chặng phải đi lại luồng từ đầu | Chấp nhận (Q6). Test tự động dùng fake, không cần dữ liệu |
-| Khuôn K dựng ở G5-0a chưa đủ cho BJ sau | Plan BJ được mở rộng khuôn (tham số mới, giữ mặc định cũ), ghi Kết quả |
-| UI ẩn lối vào chưa có màn ⇒ dễ quên nối | G5-17 kiểm không còn `route: null` trong `warehouse_entries.dart` và không còn K3 thiếu nút xác minh |
+| **Quá hạn** 2026-12-02 dù đã rút gọn | Theo dõi sau mỗi plan con; plan con viết đi trước một bước để phiên code không chờ. Cần cắt thêm thì ưu tiên giữ G5-0b → G5-4 → **G5-6** (luồng demo bán hàng có tồn + giá vốn + chốt kỳ), rồi G5-2b / G5-5b (ưu đãi NCC — giáo viên yêu cầu); G5-5 / G5-7 rút gọn trước |
+| Backend lõi (G5-0b) thiết kế sai làm vỡ các plan sau | G5-0b bám AGG / ENT / BC của spec (phần còn giữ); plan sau được mở rộng bảng lõi (sửa migration gốc) nhưng phải ghi vào Kết quả |
+| Giá vốn sai (xuất / trả / kiểm kê / chốt kỳ / làm tròn) | Luật giá tách hàm `inventory._value_line` (G5-0b); lần tính đọc lại từ sổ; 11 kịch bản `inventory_costing.sql` so từng đồng + bất biến cân bằng (spec giá vốn mục 9, 11) |
+| Không seed ⇒ muốn thử một plan giữa chặng phải đi lại luồng từ đầu | Chấp nhận (Q6). Test tự động dùng fake |
+| Code G5-0a còn K2 / K3 / "Chờ duyệt" không dùng | G5-0b gỡ "Chờ duyệt" khỏi Hub; G5-8 kiểm không còn code chết của K2 / K3 và lối vào trỏ BJ bị bỏ |
+| Spec FROZEN nhiều hơn app ⇒ hội đồng hỏi | Báo cáo có mục "Phạm vi đã làm / hướng phát triển" liệt kê bảng "Rút gọn 2026-11-09" |
 
 ### Xong khi
 
 | # | Tiêu chí | Kiểm bằng |
 |---|---|---|
-| 1 | **70 màn active** (`screens/INDEX.md`, 63 màn BJ + 7 màn Hub) chạy trên Flutter, cả iPhone lẫn web, mở được từ Home Kho hoặc lối vào ngữ cảnh (PAT-NAV mục 3), không còn toast / SnackBar giả hành vi | G5-17: bảng màn → route → test mở màn |
-| 2 | Mỗi trạng thái trong mục 4 của từng Screen Contract có nhánh dựng + ít nhất một widget test (iPhone 390 × 844 **và** web 1280 × 800 khi bố cục khác nhau) | G5-17: bảng trạng thái → test |
-| 3 | Mỗi BJ ghi dữ liệu thật qua RPC Supabase (migration trong `supabase/migrations`), có test hợp đồng SQL; luật nghiệp vụ (BR / BC) kiểm ở server | test `*_sql_contract_test.dart` của từng plan con |
-| 4 | Luồng demo T7-P mục 10 (8 bước, BJ-12 → 01 → 02 → 03 → 05 → 08 → 14 → 15) đi được trên DB Dev dựng từ migration, **dữ liệu tạo qua app** (không seed) | G5-17 kiểm tay (người dùng) |
-| 5 | `dart analyze lib/features/inventory test/features/inventory` = 0 lỗi; `flutter test` không thêm lỗi so với `TEST-BASELINE.md` | mỗi plan con |
-| 6 | Code BJ-02 / BJ-03 cũ (theo prototype v4.6.8) đã xoá hết; `WarehouseHomePage` v3.8 đã xoá | G5-0a, G5-4, G5-5 |
+| 1 | 21 màn BJ + 5 màn NCC (bảng Plan) + 7 màn Hub chạy trên Flutter, cả iPhone lẫn web, mở được từ Home Kho hoặc lối vào ngữ cảnh; không còn toast / SnackBar giả hành vi, không còn lối vào trỏ BJ bị bỏ | G5-8: bảng màn → route → test mở màn |
+| 2 | Trạng thái chính + lỗi chính của mỗi màn có widget test (iPhone 390 × 844 **và** web 1280 × 800 khi bố cục khác nhau) | mỗi plan con |
+| 3 | Mỗi plan ghi dữ liệu thật qua RPC Supabase, có test hợp đồng SQL; luật nghiệp vụ (chặn tồn âm, FEFO, giá vốn đúng từng đồng theo **cả hai** phương pháp, khoá sổ kỳ đã chốt, idempotency) kiểm ở server | test `*_sql_contract_test.dart` + `supabase/tests/*.sql` |
+| 4 | Luồng demo đi được trên DB Dev dựng từ migration, **dữ liệu tạo qua app**: tồn đầu kỳ → xem tồn → nhận hàng có giá → bán (xuất FEFO, có giá vốn) → trả hàng → huỷ đơn → kiểm kê / điều chỉnh hỏng → **chương trình NCC đạt mốc → ghi nhận chiết khấu (phần tồn / phần đã bán)** → **cập nhật giá vốn giữa kỳ → rà soát (so sánh hai phương pháp) → công bố** → thẻ kho + giá trị tồn khớp + lãi gộp sau điều chỉnh | G5-8 kiểm tay (người dùng) |
+| 5 | 6 kịch bản Theme 5 cho tồn + giá vốn đúng theo sổ kho; tồn cơ bản Theme 2 đã bỏ | G5-4, G5-5 |
+| 6 | `dart analyze lib/features/inventory test/features/inventory` = 0 lỗi; `flutter test` không thêm lỗi so với `TEST-BASELINE.md` | mỗi plan con |
+| 7 | Code BJ-02 / BJ-03 cũ (v4.6.8) và `WarehouseHomePage` v3.8 đã xoá | G5-0a ✅, G5-3 |
+| 8 | 17 kịch bản `supabase/tests/inventory_costing.sql` đạt (spec giá vốn mục 9, gồm 6 ca ưu đãi NCC) | G5-2b, G5-3, G5-5b, G5-6; người dùng chạy |
 
 ---
 
@@ -749,7 +796,7 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 | **AI-0** | Yêu cầu ngắn cho "Hỏi VET45": danh sách câu hỏi phải trả lời được, công cụ và bộ tham số (thống kê bán hàng, tình hình tồn kho, biến động kho, công nợ phải thu, dự báo bán hàng, tìm sản phẩm / khách / đơn), lời dặn hệ thống, chữ trên màn, quyền, giới hạn; bộ 20–30 câu hỏi thử để đánh giá | ~0,5 ngày | ⬜ | ⬜ | ⬜ |
 | **AI-1** | Backend: Edge Function `ai-assistant` gọi Gemini API (function calling); **viết mới RPC tổng hợp chỉ đọc có tham số** (app hiện chưa có RPC tổng doanh thu — `list_sales_orders` chỉ trả danh sách theo trang; thẻ doanh thu Home đang gõ cứng), dùng lại RPC đọc của Theme 7; công cụ công nợ phải thu tính theo khách từ công nợ đơn TH-05 (Theme 6 làm sau AI, chốt 2026-11-09); gọi bằng JWT của người hỏi (RLS + quyền tự áp); nhật ký (người hỏi, công cụ, token, câu không có công cụ), giới hạn số câu mỗi tổ chức mỗi ngày | ~2 ngày | ⬜ | ⬜ | ⬜ |
 | **AI-2** | UI (iPhone + web): màn "Hỏi VET45", lối vào từ Home; câu trả lời + bảng dựng từ kết quả công cụ + nút mở màn; đang trả lời, lỗi, hết lượt, không có quyền; `/impeccable audit` | ~1 ngày | ⬜ | ⬜ | ⬜ |
-| **AI-3** | Dự báo nhập hàng: RPC tính tốc độ bán trung bình có trọng số 8 tuần → số ngày còn hàng + lượng nên nhập theo mức tồn mục tiêu CAP-01; công cụ `du_bao_ban_hang`; script sinh lịch sử bán mô phỏng vài tháng (ghi rõ trong báo cáo là dữ liệu mô phỏng) | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| **AI-3** | Dự báo nhập hàng: RPC tính tốc độ bán trung bình có trọng số 8 tuần → số ngày còn hàng + lượng nên nhập theo **tồn tối thiểu** của sản phẩm (CAP-01 bỏ ở rút gọn Theme 7 2026-11-09); công cụ `du_bao_ban_hang`; script sinh lịch sử bán mô phỏng vài tháng (ghi rõ trong báo cáo là dữ liệu mô phỏng) | ~1 ngày | ⬜ | ⬜ | ⬜ |
 
 **Xong khi:** tính năng chọn ở AI-0 chạy được từ đầu đến cuối trong app (iPhone + web), chỉ dùng dữ liệu của tổ chức và theo quyền người dùng; có một kịch bản demo cho hội đồng.
 
@@ -814,7 +861,7 @@ Chi tiết từng việc:
 | # | Việc |
 |---|---|
 | 10.1 | Viết lại `docs/architecture/` thành 2 file: `ARCHITECTURE.md` (sơ đồ 3 tầng, luồng request, quy tắc phụ thuộc) và `DATABASE.md` (ERD theo schema, RLS, các RPC transaction) |
-| 10.2 | Sơ đồ cho báo cáo: kiến trúc tổng thể, use case theo vai trò (Owner / Nhân viên), sequence đăng ký cửa hàng, sequence checkout → HĐĐT |
+| 10.2 | Sơ đồ cho báo cáo: kiến trúc tổng thể, use case theo vai trò (Owner / Nhân viên), sequence đăng ký cửa hàng, sequence checkout → HĐĐT; **chương "Giá vốn hàng tồn kho"** theo [spec giá vốn](plans/T7/T7-G5-gia-von-thiet-ke.md) mục 10 (giá gốc VAS 02 gồm VAT với hộ kinh doanh, hai công thức + ví dụ, ưu đãi nhà cung cấp ba cách hạch toán, điều chỉnh liên kết, mốc chốt theo số thứ tự sổ, sơ đồ trạng thái lần tính, bảng ca test) |
 | 10.3 | Cập nhật README: cách chạy local (Supabase + seed + app) |
 | 10.4 | Kịch bản demo bảo vệ: đăng ký cửa hàng → thêm sản phẩm → thêm khách → bán hàng → phát hành HĐĐT → đổi trả |
 | 10.5 | (Tùy chọn) Đổi tên công cụ `vet45` / thư mục `.vet45` / `tools/vet45_env` cho khớp tên dự án mới |
@@ -837,9 +884,9 @@ Chi tiết từng việc:
 | Theme 3 | 🔄 | | 2026-11-02: code 4-A, 4-B, 4-W, 4-C xong, review ✅ cả 4 (4-W R2, các plan còn lại R1), đã commit. **Chỉ còn việc người dùng:** kiểm tay (4-A 7.2, 4-B 7.2, 4-W 6.2); `db reset` local + `supabase/tests/partner_th03.sql` / `iam_*.sql` (4-B, 4-C); reset Dev |
 | Theme 2 | 🔄 | | Đang làm: 5-A1 ✅, 5-A2 ✅, 5-A3 ✅; 5-C ✅ (review R2 2026-11-04; còn việc người dùng: `db reset` local + `catalog_th02.sql`, reset Dev) |
 | Theme 4 | 🔄 | | 6-A1, 6-A2, 6-B, 6-C ✅ (review đạt, đã commit; 6-C R1 2026-11-06). **Chỉ còn việc người dùng:** `db reset` local + `supabase/tests/pricing_th04.sql`, reset Dev; kiểm tay 6-A2 7.2, 6-B 8.2 |
-| Theme 5 | 🔄 | | 8-A1…8-A4, 8-B1…8-B3, 8-C ✅ (review đạt; 8-C R1 2026-11-08). Còn: việc người dùng của 8-B2 / 8-B3 (nối kho: Theme 7 G5-7 / G5-8) |
+| Theme 5 | 🔄 | | 8-A1…8-A4, 8-B1…8-B3, 8-C ✅ (review đạt; 8-C R1 2026-11-08). Còn: việc người dùng của 8-B2 / 8-B3 (nối kho: Theme 7 G5-4) |
 | Theme 8 | 🔄 | | 2026-11-09: 7-B1, 7-E1..E3, 7-A1..A2b, 7-B2, 7-C ✅ (review R1 đạt 2026-11-09; xoá xong `modules/`). Còn: kiểm live trên Dev |
-| Theme 7 | 🔄 | — | Prototype + đặc tả xong (T7-P đóng 2026-10-27; T7-G4 ✅ FROZEN v5.27.0, 2026-11-09). T7-G5: G5-0a, G5-0b plan ✅ (2026-11-09) |
+| Theme 7 | 🔄 | — | Prototype + đặc tả xong (T7-P đóng 2026-10-27; T7-G4 ✅ FROZEN v5.27.0, 2026-11-09). Rút gọn 2026-11-09 (8 plan G5). G5-0a ✅; G5-0b plan rút gọn ✅, đang làm (Task 0–2 ✅) |
 | Tích hợp AI | ⬜ | | Mới thêm 2026-10-27: giảng viên yêu cầu; 2026-11-09 chuyển lên sau Theme 7, trước Theme 6 |
 | Theme 6 | ⬜ | | Mới thêm 2026-10-27: phải thu + cấn trừ |
 | Dọn dẹp | ⬜ | | |
@@ -853,12 +900,12 @@ Chi tiết từng việc:
 | Theme 1 | Email OTP local khó test | Dùng Inbucket/Mailpit có sẵn trong `supabase start` để đọc mã |
 | Theme 2 / Theme 7 | SP-10 (tồn cơ bản) sau 5-C chạy qua `ProductRepository`; `set_basic_stock_quantity_base` không kiểm đơn vị cơ sở (chỉ UI chặn) | Theme 7 thay SP-10 (xem Q3 của 5-C, mục Theme 7) |
 | Theme 7 | Mỗi BJ tự dựng lại row / sheet khiến UI lệch nhau | Khuôn K1–K7 + DS mới (mục Theme 7 → "Quy ước chung cho mọi plan G5"); Review kiểm trùng lặp trước khi ✅ |
-| Theme 7 | 421 trạng thái → test phình | Bảng "trạng thái → test" ở G5-17 (T7-G5); test theo bảng, không viết tay từng cái |
-| Theme 7 | Theme 7 lớn (~25 ngày gồm backend) làm sau Theme 8 → dồn về cuối, vượt hạn 2026-12-02 | Theo dõi sau mỗi plan G5, ước lượng lại ở bảng Plan của Theme 7 |
-| Theme 5 / Theme 7 | Sales phải sửa 2 lần: chuyển kiến trúc ở Theme 5, nối sổ kho ở Theme 7 G5-7 / G5-8 | Theme 5 giữ tồn cơ bản đúng như cũ; G5-7 / G5-8 chỉ đổi chỗ đọc / ghi tồn, có test giữ hành vi 6 kịch bản |
+| Theme 7 | Nhiều trạng thái → test phình | Rút gọn 2026-11-09: chỉ test trạng thái chính + lỗi chính |
+| Theme 7 | Theme 7 lớn làm sau Theme 8 → dồn về cuối, vượt hạn 2026-12-02 | Rút gọn 2026-11-09 (mục Theme 7 → "Rút gọn 2026-11-09"); cần cắt thêm thì giữ G5-0b → G5-4 trước |
+| Theme 5 / Theme 7 | Sales phải sửa 2 lần: chuyển kiến trúc ở Theme 5, nối sổ kho ở Theme 7 G5-4 | Theme 5 giữ tồn cơ bản đúng như cũ; G5-4 chỉ đổi chỗ đọc / ghi tồn, có test giữ hành vi 6 kịch bản |
 | Mọi theme | Thêm bố cục web làm mỗi theme dài thêm (~10–20% phần UI; cao hơn từ 2026-10-22 vì không còn thiết bị phụ) | Không cắt bằng cách hạ một thiết bị xuống phụ. Dùng lại khuôn bố cục web chung (K7 của Theme 7) thay vì dựng lại từng theme; ước lượng lại trong plan từng theme |
 | Theme 5 | Mất rule nghiệp vụ khi bỏ Aggregate | Bước 5 của công thức: port rule thành hàm thuần và giữ test cũ |
-| Theme 5 | Từ lúc sổ kho Theme 7 chạy tới khi nối kho (G5-7), Sales cũ vẫn đọc tồn cơ bản không còn cập nhật | Chỉ ảnh hưởng Dev (Prod chưa chạy); G5-7 chuyển sang khả dụng của Theme 7 |
+| Theme 5 | Từ lúc sổ kho Theme 7 chạy tới khi nối kho (G5-4), Sales cũ vẫn đọc tồn cơ bản không còn cập nhật | Chỉ ảnh hưởng Dev (Prod chưa chạy); G5-4 chuyển sang khả dụng của Theme 7 |
 | Theme 8 | UI einvoice nằm ở module nên phải chuyển nhiều file | Chuyển nguyên thư mục trước, đổi dependency sau, 2 PR riêng |
 | Dọn dẹp | Gộp migration làm lệch schema | So `pg_dump --schema-only` trước và sau; chạy lại toàn bộ checklist |
 

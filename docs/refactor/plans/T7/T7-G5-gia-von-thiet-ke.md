@@ -1,7 +1,7 @@
 # T7 — Thiết kế giá vốn hàng tồn kho (spec)
 
 > Theme 7 · spec dùng chung cho G5-0b (Task 2b), G5-3, G5-4, G5-5, G5-6, G5-7 của [PLAN.md](../../PLAN.md) mục "Theme 7"
-> Trạng thái: Spec 📝 chờ người dùng review | Thiết kế duyệt trong chat 2026-11-09 (giá vốn: 3 phần; ưu đãi NCC: 2 phần, mục 12)
+> Trạng thái: Spec ✅ người dùng duyệt 2026-11-09 | Thiết kế duyệt trong chat 2026-11-09 (giá vốn: 3 phần; ưu đãi NCC: 2 phần, mục 12)
 > Nguồn nghiệp vụ: spec Theme 7 v5.27.0 — [BJ-14](../../../../specs/themes/theme-07/02.specification/behavior/journeys/BJ-14-tinh-va-cong-bo-gia-von.md), KB-KGV-015 (đơn giá chính thức, tổng giá trị từ sổ), KB-KGV-016 (hai phương pháp bình quân), KB-KGV-017 (công bố + điều chỉnh liên kết), KB-KGV-018 (mốc chốt, điều kiện chặn, cập nhật giữa kỳ). Chuẩn mực: VAS 02 Hàng tồn kho; Thông tư 200 / 133 (chọn một phương pháp, áp dụng nhất quán).
 
 ## 1. Mục tiêu
