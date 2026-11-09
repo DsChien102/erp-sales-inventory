@@ -93,10 +93,10 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-087 | Phân bổ điều chỉnh — Đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-088 | Rà soát điều chỉnh giá trị — đã hợp nhất | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-089 | Kết quả điều chỉnh giá trị | BJ-13 | IN_REVIEW | Có |
-| SCR-090 | Kho | — | FROZEN | Có, trong `app/hub.js` (Home Kho) |
-| SCR-091 | Tồn kho | — | FROZEN | Có, trong `app/hub.js` (khu Tồn kho) |
-| SCR-092 | Nhập, xuất & hoàn trả | — | FROZEN | Có, trong `app/hub.js` (khu Nhập, xuất & hoàn trả) |
-| SCR-093 | Kiểm kê & xử lý | — | FROZEN | Có, trong `app/hub.js` (khu Kiểm kê & xử lý) |
-| SCR-094 | Giá trị kho | — | FROZEN | Có, trong `app/hub.js` (khu Giá trị kho) |
-| SCR-095 | Báo cáo & lịch sử | — | FROZEN | Có, trong `app/hub.js` (khu Báo cáo & lịch sử) |
-| SCR-096 | Thiết lập kho | — | FROZEN | Có, trong `app/hub.js` (Thiết lập kho) |
+| SCR-090 | Kho | — | IN_REVIEW | Có, trong `app/hub.js` (Home Kho) |
+| SCR-091 | Tồn kho | — | IN_REVIEW | Có, trong `app/hub.js` (khu Tồn kho) |
+| SCR-092 | Nhập, xuất & hoàn trả | — | IN_REVIEW | Có, trong `app/hub.js` (khu Nhập, xuất & hoàn trả) |
+| SCR-093 | Kiểm kê & xử lý | — | IN_REVIEW | Có, trong `app/hub.js` (khu Kiểm kê & xử lý) |
+| SCR-094 | Giá trị kho | — | IN_REVIEW | Có, trong `app/hub.js` (khu Giá trị kho) |
+| SCR-095 | Báo cáo & lịch sử | — | IN_REVIEW | Có, trong `app/hub.js` (khu Báo cáo & lịch sử) |
+| SCR-096 | Thiết lập kho | — | IN_REVIEW | Có, trong `app/hub.js` (Thiết lập kho) |
