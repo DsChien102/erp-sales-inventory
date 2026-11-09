@@ -111,8 +111,7 @@ Không tự chuyển trạng thái hoặc tiêu hủy hàng. UC này chỉ xác 
 | Screen | Vai trò trong UC |
 |---|---|
 | `SCR-001` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem hàng cận hạn và hết hạn”; không tạo mutation. |
-| `SCR-003` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem hàng cận hạn và hết hạn”; không tạo mutation. |
-| `SCR-004` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem hàng cận hạn và hết hạn”; không tạo mutation. |
+| `SCR-003` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem hàng cận hạn và hết hạn”; không tạo mutation. Sheet lô (thay SCR-004 cũ): Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem hàng cận hạn và hết hạn”; không tạo mutation. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

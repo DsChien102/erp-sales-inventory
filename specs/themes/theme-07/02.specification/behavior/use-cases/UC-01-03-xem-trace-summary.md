@@ -103,8 +103,7 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-005` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem trace summary”; không tạo mutation. |
-| `SCR-003` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem trace summary”; không tạo mutation. |
+| `SCR-003` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem trace summary”; không tạo mutation. Sheet 'Nguồn và thời điểm cập nhật' (thay SCR-005 cũ): Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem trace summary”; không tạo mutation. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

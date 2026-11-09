@@ -70,7 +70,7 @@ flowchart TD
 | SCR-003 `OUT` / `LOW` | "Nhận hàng" | BJ-02 SCR-008 (nhập nhanh) | Chưa điền sẵn sản phẩm vào phiếu |
 | SCR-003 / sheet lô hết hạn | "Xử lý lô hết hạn" | BJ-09 SCR-036 | Lọc "Hết hạn", ô tìm là mã lô |
 
-SCR-004 (chi tiết lô) và SCR-005 (nguồn số liệu) là sheet trong SCR-003, không phải bước riêng. SCR-002, SCR-060, SCR-061 không dựng: xem [INDEX](../screens/INDEX.md).
+SCR-003 có Sheet lô (thay SCR-004 cũ) và Sheet nguồn số liệu (thay SCR-005 cũ), không phải bước riêng. Khả dụng hiện ngay trên dòng sản phẩm SCR-001 (thay SCR-002 cũ). Chỉ báo tồn kho và chi tiết chỉ báo nằm ở bộ lọc SCR-001 và khối cảnh báo SCR-003 (SCR-060, SCR-061 đã bỏ từ v5.27.0): xem [RETIRED](../screens/RETIRED.md) và [INDEX](../screens/INDEX.md).
 
 ## 5. Khuôn dùng chung áp dụng
 

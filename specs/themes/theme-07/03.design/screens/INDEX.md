@@ -5,10 +5,11 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | Màn | Tên | BJ | Trạng thái file | Trong prototype |
 |---|---|---|---|---|
 | SCR-001 | Tồn kho | BJ-01 | IN_REVIEW | Có |
-| SCR-002 | Kết quả khả dụng — MERGED | BJ-01 | FROZEN | Không — đã gộp vào SCR-001 (dòng sản phẩm hiện khả dụng) |
+| SCR-002 | Kết quả khả dụng — Đã bỏ | BJ-01 | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-003 | Chi tiết tồn kho | BJ-01 | IN_REVIEW | Có |
-| SCR-004 | Chi tiết lô — OVERLAY COMPATIBILITY | BJ-01, BJ-05 | FROZEN | Sheet lô trong SCR-003 |
-| SCR-005 | Nguồn số liệu — OVERLAY COMPATIBILITY | BJ-15 | FROZEN | Sheet "Nguồn và thời điểm cập nhật" trong SCR-003 |
+| SCR-004 | Chi tiết lô — Đã bỏ | BJ-01, BJ-05 | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-005 | Nguồn số liệu — Đã bỏ | BJ-15 | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-006 | Chọn cách nhận hàng — Đã gộp vào SCR-007 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-007 | Nhận hàng | BJ-02 | IN_REVIEW | Có |
 | SCR-008 | Nhập hàng nhanh | BJ-02 | IN_REVIEW | Có |
 | SCR-009 | Hàng thực nhận | BJ-02 | IN_REVIEW | Có |
@@ -22,11 +23,11 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-017 | Rà soát giá trị nhập ban đầu — Đã gộp vào SCR-015 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-018 | Ghi chi phí mua bổ sung — Đã thay thế | BJ-13 | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-019 | Kết quả xác lập giá trị | BJ-03 | IN_REVIEW | Có |
-| SCR-020 | Đơn cần giữ hàng | BJ-04 | FROZEN | Chưa dựng (BJ-04 hiện chỉ có SCR-021) |
+| SCR-020 | Đơn cần giữ hàng — Đã bỏ | BJ-04 | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-021 | Giữ hàng theo đơn | BJ-04 | IN_REVIEW | Có |
-| SCR-022 | Rà soát giữ hàng | BJ-04 | FROZEN | Chưa dựng (BJ-04 hiện chỉ có SCR-021) |
-| SCR-023 | Giải phóng hoặc phân bổ lại | BJ-04 | FROZEN | Chưa dựng (BJ-04 hiện chỉ có SCR-021) |
-| SCR-024 | Kết quả reservation | BJ-04 | FROZEN | Chưa dựng (BJ-04 hiện chỉ có SCR-021) |
+| SCR-022 | Rà soát giữ hàng — Đã bỏ | BJ-04 | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-023 | Giải phóng hoặc phân bổ lại — Đã bỏ | BJ-04 | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-024 | Kết quả reservation — Đã bỏ | BJ-04 | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-025 | Đơn cần lấy hàng | BJ-05 | IN_REVIEW | Có |
 | SCR-026 | Hàng cần lấy | BJ-05 | IN_REVIEW | Có |
 | SCR-027 | Chi tiết lấy hàng — Đã gộp vào SCR-026 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
@@ -62,8 +63,8 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 | SCR-057 | Nguồn biến động — Đã gộp vào SCR-056 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-058 | Xuất báo cáo — Đã gộp vào sheet ở SCR-055 | — | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-059 | Kết quả xuất báo cáo | BJ-15 | IN_REVIEW | Có |
-| SCR-060 | Chỉ báo tồn kho | BJ-01 | FROZEN | Chưa dựng — chỉ báo nằm ở bộ lọc SCR-001 |
-| SCR-061 | Chi tiết chỉ báo sản phẩm | BJ-01 | FROZEN | Chưa dựng — chỉ báo nằm ở SCR-003 |
+| SCR-060 | Chỉ báo tồn kho — Đã bỏ | BJ-01 | RETIRED | Đã bỏ (xem RETIRED.md) |
+| SCR-061 | Chi tiết chỉ báo sản phẩm — Đã bỏ | BJ-01 | RETIRED | Đã bỏ (xem RETIRED.md) |
 | SCR-062 | Ngưỡng tồn (Chính sách tồn & cận hạn) | CAP-01 | IN_REVIEW | Có |
 | SCR-063 | Cận hạn (Chính sách tồn & cận hạn) | CAP-01 | IN_REVIEW | Có |
 | SCR-064 | Rà soát chính sách — đã thay bằng sheet tác động | — | RETIRED | Đã bỏ (xem RETIRED.md) |

@@ -28,6 +28,8 @@ Mô tả cách người dùng xem tình trạng giữ hàng ngay trong ngữ c�
 
 ## 2. Người dùng bắt đầu và kết thúc ở đâu
 
+Giữ hàng do đơn bán tạo / sửa / giải phóng; Kho chỉ có SCR-021 để xem (SCR-020, 022–024 đã bỏ từ v5.27.0).
+
 | Cách vào luồng | Màn hình | Người thực hiện | Đi từ đâu |
 |---|---|---|---|
 | Chỉ mở trong ngữ cảnh liên quan | `SCR-021` | Người có quyền xem đơn và kho | Chi tiết đơn > Tình trạng giữ hàng |
@@ -88,12 +90,9 @@ Các quy tắc chung về quyền, quay lại, dữ liệu thay đổi và chố
 |---|---|---|
 | [SCR-021](../screens/SCR-021.md) | Giữ hàng theo đơn | Màn hình chính trong luồng |
 
-### Màn hình liên quan nhưng không phải một bước riêng
+### Màn hình đã bỏ
 
-- `SCR-020` — Đơn cần giữ hàng: giữ để truy vết/tương thích; không được tự suy thành bước điều hướng riêng của UIF-04.
-- `SCR-022` — Rà soát giữ hàng: giữ để truy vết/tương thích; không được tự suy thành bước điều hướng riêng của UIF-04.
-- `SCR-023` — Giải phóng hoặc phân bổ lại: giữ để truy vết/tương thích; không được tự suy thành bước điều hướng riêng của UIF-04.
-- `SCR-024` — Kết quả giữ hàng: giữ để truy vết/tương thích; không được tự suy thành bước điều hướng riêng của UIF-04.
+SCR-020, SCR-022, SCR-023, SCR-024 đã bỏ từ v5.27.0 (xem [RETIRED](../screens/RETIRED.md)).
 
 ## 7. Truy vết kỹ thuật
 

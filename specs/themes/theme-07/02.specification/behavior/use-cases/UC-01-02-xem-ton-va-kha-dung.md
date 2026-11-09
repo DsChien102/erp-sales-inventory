@@ -109,8 +109,7 @@ Không giữ hàng, không xuất/nhập kho và không sửa số dư. UC này 
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-003` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem tồn và khả dụng”; không tạo mutation. |
-| `SCR-004` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem tồn và khả dụng”; không tạo mutation. |
+| `SCR-003` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem tồn và khả dụng”; không tạo mutation. Sheet lô (thay SCR-004 cũ): Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem tồn và khả dụng”; không tạo mutation. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 
