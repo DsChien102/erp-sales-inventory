@@ -201,6 +201,212 @@ begin
     if not v_caught then
       raise exception 'FAIL: closed_period_raises';
     end if;
+
+    -- Mở lại kỳ để làm tiếp các test Task 4
+    update inventory.cost_periods
+    set status = 'OPEN'
+    where id = v_period_id;
+  end;
+
+  -- 12. Test case: post_movements_receipt_moving
+  declare
+    v_res jsonb;
+    v_cost record;
+    v_bal record;
+    v_prod_lot uuid := gen_random_uuid();
+    v_prod_exp uuid := gen_random_uuid();
+  begin
+    v_res := inventory._post_movements(
+      v_tenant_id, v_warehouse_id, 'RECEIPT', gen_random_uuid(), current_date,
+      jsonb_build_array(jsonb_build_object(
+        'product_id', v_product_id,
+        'quantity_delta', 10,
+        'movement_kind', 'RECEIPT',
+        'unit_cost', 50000
+      )),
+      v_user_id
+    );
+
+    select physical_quantity into v_bal
+    from inventory.stock_balances
+    where tenant_id = v_tenant_id and product_id = v_product_id and warehouse_id = v_warehouse_id;
+    if v_bal.physical_quantity <> 10 then
+      raise exception 'FAIL: post_movements_receipt_moving balance %', v_bal.physical_quantity;
+    end if;
+
+    select quantity_on_hand, ledger_value_vnd, moving_avg_cost into v_cost
+    from inventory.product_costs
+    where tenant_id = v_tenant_id and product_id = v_product_id;
+    if v_cost.quantity_on_hand <> 10 or v_cost.ledger_value_vnd <> 500000 or v_cost.moving_avg_cost <> 50000 then
+      raise exception 'FAIL: post_movements_receipt_moving cost %', v_cost;
+    end if;
+
+    -- 13. Test case: post_movements_sale_moving
+    v_res := inventory._post_movements(
+      v_tenant_id, v_warehouse_id, 'SALE', gen_random_uuid(), current_date,
+      jsonb_build_array(jsonb_build_object(
+        'product_id', v_product_id,
+        'quantity_delta', -4,
+        'movement_kind', 'SALE'
+      )),
+      v_user_id
+    );
+
+    select physical_quantity into v_bal
+    from inventory.stock_balances
+    where tenant_id = v_tenant_id and product_id = v_product_id and warehouse_id = v_warehouse_id;
+    if v_bal.physical_quantity <> 6 then
+      raise exception 'FAIL: post_movements_sale_moving balance %', v_bal.physical_quantity;
+    end if;
+
+    select quantity_on_hand, ledger_value_vnd, moving_avg_cost into v_cost
+    from inventory.product_costs
+    where tenant_id = v_tenant_id and product_id = v_product_id;
+    if v_cost.quantity_on_hand <> 6 or v_cost.ledger_value_vnd <> 300000 or v_cost.moving_avg_cost <> 50000 then
+      raise exception 'FAIL: post_movements_sale_moving cost %', v_cost;
+    end if;
+
+    -- 14. Test case: post_movements_periodic_provisional
+    insert into inventory.cost_policies (tenant_id, method, changed_by)
+    values (v_tenant_id, 'PERIODIC', v_user_id)
+    on conflict (tenant_id) do update set method = 'PERIODIC';
+
+    v_res := inventory._post_movements(
+      v_tenant_id, v_warehouse_id, 'SALE', gen_random_uuid(), current_date,
+      jsonb_build_array(jsonb_build_object(
+        'product_id', v_product_id,
+        'quantity_delta', -2,
+        'movement_kind', 'SALE'
+      )),
+      v_user_id
+    );
+
+    declare
+      v_is_prov boolean;
+    begin
+      select is_provisional into v_is_prov
+      from inventory.value_movements
+      where id = (v_res -> 'lines' -> 0 ->> 'value_movement_id')::uuid;
+      if v_is_prov is not true then
+        raise exception 'FAIL: post_movements_periodic_provisional';
+      end if;
+    end;
+
+    -- 15. Test case: post_movements_insufficient_stock
+    v_caught := false;
+    begin
+      perform inventory._post_movements(
+        v_tenant_id, v_warehouse_id, 'SALE', gen_random_uuid(), current_date,
+        jsonb_build_array(jsonb_build_object(
+          'product_id', v_product_id,
+          'quantity_delta', -100,
+          'movement_kind', 'SALE'
+        )),
+        v_user_id
+      );
+    exception when others then
+      if sqlerrm like '%INSUFFICIENT_STOCK%' then
+        v_caught := true;
+      end if;
+    end;
+    if not v_caught then
+      raise exception 'FAIL: post_movements_insufficient_stock';
+    end if;
+
+    -- 16. Test case: post_movements_lot_required
+    insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required)
+    values (v_prod_lot, v_tenant_id, 'Hàng theo lô', v_user_id, v_user_id, 'lot', false);
+
+    v_caught := false;
+    begin
+      perform inventory._post_movements(
+        v_tenant_id, v_warehouse_id, 'RECEIPT', gen_random_uuid(), current_date,
+        jsonb_build_array(jsonb_build_object(
+          'product_id', v_prod_lot,
+          'quantity_delta', 5,
+          'movement_kind', 'RECEIPT',
+          'unit_cost', 20000
+        )),
+        v_user_id
+      );
+    exception when others then
+      if sqlerrm like '%LOT_REQUIRED%' then
+        v_caught := true;
+      end if;
+    end;
+    if not v_caught then
+      raise exception 'FAIL: post_movements_lot_required';
+    end if;
+
+    -- 17. Test case: post_movements_lot_not_allowed
+    v_caught := false;
+    begin
+      perform inventory._post_movements(
+        v_tenant_id, v_warehouse_id, 'RECEIPT', gen_random_uuid(), current_date,
+        jsonb_build_array(jsonb_build_object(
+          'product_id', v_product_id,
+          'lot_code', 'LOT001',
+          'quantity_delta', 5,
+          'movement_kind', 'RECEIPT',
+          'unit_cost', 20000
+        )),
+        v_user_id
+      );
+    exception when others then
+      if sqlerrm like '%LOT_NOT_ALLOWED%' then
+        v_caught := true;
+      end if;
+    end;
+    if not v_caught then
+      raise exception 'FAIL: post_movements_lot_not_allowed';
+    end if;
+
+    -- 18. Test case: post_movements_expiry_required
+    insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required)
+    values (v_prod_exp, v_tenant_id, 'Hàng bắt buộc date', v_user_id, v_user_id, 'lot', true);
+
+    v_caught := false;
+    begin
+      perform inventory._post_movements(
+        v_tenant_id, v_warehouse_id, 'RECEIPT', gen_random_uuid(), current_date,
+        jsonb_build_array(jsonb_build_object(
+          'product_id', v_prod_exp,
+          'lot_code', 'LOTEXP01',
+          'quantity_delta', 5,
+          'movement_kind', 'RECEIPT',
+          'unit_cost', 30000
+        )),
+        v_user_id
+      );
+    exception when others then
+      if sqlerrm like '%EXPIRY_REQUIRED%' then
+        v_caught := true;
+      end if;
+    end;
+    if not v_caught then
+      raise exception 'FAIL: post_movements_expiry_required';
+    end if;
+
+    -- 19. Test case: post_movements_unit_cost_required
+    v_caught := false;
+    begin
+      perform inventory._post_movements(
+        v_tenant_id, v_warehouse_id, 'RECEIPT', gen_random_uuid(), current_date,
+        jsonb_build_array(jsonb_build_object(
+          'product_id', v_product_id,
+          'quantity_delta', 5,
+          'movement_kind', 'RECEIPT'
+        )),
+        v_user_id
+      );
+    exception when others then
+      if sqlerrm like '%UNIT_COST_REQUIRED%' then
+        v_caught := true;
+      end if;
+    end;
+    if not v_caught then
+      raise exception 'FAIL: post_movements_unit_cost_required';
+    end if;
   end;
 
   -- Rollback all test data

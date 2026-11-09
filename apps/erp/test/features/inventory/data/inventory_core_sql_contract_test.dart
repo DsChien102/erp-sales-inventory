@@ -379,6 +379,144 @@ void main() {
       expect(body, contains('PERIOD_CLOSED'));
     });
   });
+
+  group('post_movements', () {
+    test('period_check_before_lock', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_post_movements',
+        schema: 'inventory',
+      );
+      final periodIdx = body.indexOf('_ensure_open_period');
+      final lockIdx = body.indexOf('pg_advisory_xact_lock');
+      expect(periodIdx, isNonNegative);
+      expect(lockIdx, isNonNegative);
+      expect(periodIdx < lockIdx, isTrue);
+    });
+
+    test('advisory_lock_before_balance_read', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_post_movements',
+        schema: 'inventory',
+      );
+      final lockIdx = body.indexOf('pg_advisory_xact_lock');
+      final balanceIdx = body.indexOf('stock_balances');
+      expect(lockIdx, isNonNegative);
+      expect(balanceIdx, isNonNegative);
+      expect(lockIdx < balanceIdx, isTrue);
+      expect(body, contains('for update'));
+    });
+
+    test('lot_rules_codes', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_post_movements',
+        schema: 'inventory',
+      );
+      expect(body, contains('LOT_REQUIRED'));
+      expect(body, contains('LOT_NOT_ALLOWED'));
+      expect(body, contains('EXPIRY_REQUIRED'));
+    });
+
+    test('insufficient_stock_code', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_post_movements',
+        schema: 'inventory',
+      );
+      expect(body, contains('INSUFFICIENT_STOCK'));
+    });
+
+    test('unit_cost_required_code', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_value_line',
+        schema: 'inventory',
+      );
+      expect(body, contains('UNIT_COST_REQUIRED'));
+    });
+
+    test('value_line_called_per_line', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_post_movements',
+        schema: 'inventory',
+      );
+      expect(body, contains('_value_line'));
+    });
+
+    test('value_line_branches', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_value_line',
+        schema: 'inventory',
+      );
+      expect(body, contains("'MOVING'"));
+      expect(body, contains("'PERIODIC'"));
+      expect(body, contains('is_provisional'));
+      expect(body, contains('moving_avg_cost'));
+      expect(body, contains('official_unit_cost'));
+    });
+
+    test('returns_lines_and_stock_changes', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final body = _functionDefinition(
+        sql,
+        '_post_movements',
+        schema: 'inventory',
+      );
+      expect(body, contains("'lines'"));
+      expect(body, contains("'stock_changes'"));
+    });
+  });
 }
 
 String _functionDefinition(

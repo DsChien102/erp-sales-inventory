@@ -193,19 +193,19 @@ Giữ nguyên như đã làm (xem Kết quả). Không đổi theo rút gọn.
 
 **Interfaces — Produces:** bảng đúng mục 2.1 (cột "So với Task 2"); trigger chỉ thêm gắn cho `stock_movements` **và** `value_movements`, `cost_versions`.
 
-- [ ] **Step 1: Test** nhóm `schema` (sửa test đã có):
+- [x] **Step 1: Test** nhóm `schema` (sửa test đã có):
   - `core_tables_exist`: đúng `ledger_counters`, `lots`, `stock_movements`, `stock_balances`, `value_movements`, `product_costs`, `cost_policies`, `cost_periods`, `cost_versions`; **không** chứa `create table inventory.tenant_inventory_settings`, `approval_cases`.
   - `rls_and_revoke_for_every_table`: danh sách mới.
-  - Thay `stock_state_values` bằng `no_state_columns` (tệp không chứa `stock_state`, `from_state`, `to_state`, `valuation_state`) và `movement_kind_and_reason_values` (đủ 7 kind sổ số lượng, 4 reason).
+  - Thay `stock_state_values` bằng `no_state_columns` (tệp không chứa `stock_state`, `from_state`, `to_state`, `valuation_state`) và `movement_kind_and_reason_values` (đủ 8 kind sổ số lượng, 4 reason).
   - `balance_unique_key_and_non_negative`: `unique (tenant_id, warehouse_id, product_id, lot_key)`, `physical_quantity >= 0`.
-  - Mới `value_movements_shape`: 11 `kind` (gồm `SUPPLIER_REBATE`, không có `OPENING`); `amount_vnd bigint not null`; `unit_cost numeric(18,4)`; check điều chỉnh lần tính ⇔ `movement_id is null and cost_run_id is not null`; `SUPPLIER_REBATE` ⇔ `supplier_rebate_id is not null`.
+  - Mới `value_movements_shape`: 12 `kind` (gồm `SUPPLIER_REBATE`); `amount_vnd bigint not null`; `unit_cost numeric(18,4)`; check điều chỉnh lần tính ⇔ `movement_id is null and cost_run_id is not null`; `SUPPLIER_REBATE` ⇔ `supplier_rebate_id is not null`.
   - Mới `product_costs_shape`: `primary key (tenant_id, product_id)`, `ledger_value_vnd bigint`, `moving_avg_cost numeric(18,4)`, `quantity_on_hand >= 0`.
   - Mới `cost_tables_shape`: `method in ('MOVING', 'PERIODIC')`; `status in ('OPEN', 'CLOSED')`; `unique (tenant_id, period_month)`.
   - `ledger_append_only_trigger`: trigger cho `stock_movements`, `value_movements`, `cost_versions`.
   - Xoá `pending_case_unique`.
   Ca SQL: giữ 4 ca Task 2 (sửa câu `insert` theo cột mới); thêm `value_ledger_update_blocked`, `adjust_row_requires_run`, `rebate_row_requires_rebate_id`.
-- [ ] **Step 2:** contract test → FAIL. **Step 3:** sửa migration (bảng, RLS / revoke, trigger, dòng `Touches`). **Step 4:** PASS.
-- [ ] **Step 5:** Commit `refactor(inventory): gọn bảng lõi theo rút gọn Theme 7, sổ giá trị + bảng giá vốn (T7-G5-0b)`.
+- [x] **Step 2:** contract test → FAIL. **Step 3:** sửa migration (bảng, RLS / revoke, trigger, dòng `Touches`). **Step 4:** PASS.
+- [x] **Step 5:** Commit `refactor(inventory): gọn bảng lõi theo rút gọn Theme 7, sổ giá trị + bảng giá vốn (T7-G5-0b)`.
 
 ### Task 3: Helper người gọi, idempotency, khả dụng, giá vốn
 
@@ -217,9 +217,9 @@ Giữ nguyên như đã làm (xem Kết quả). Không đổi theo rút gọn.
 - `inventory._available_quantity(p_tenant_id uuid, p_product_id uuid, p_lot_id uuid default null) returns numeric`.
 - `inventory._cost_method(p_tenant_id uuid) returns text`; `inventory._ensure_open_period(p_tenant_id uuid, p_business_date date) returns uuid` (mục 2.2).
 
-- [ ] **Step 1: Test** nhóm `helpers`: `helpers_not_granted`; `assert_actor_checks_in_order` (`has_permission` < `is_owner` < `store_warehouse_assignments`); `assert_actor_no_activation` (thân không chứa `activation`, `INVENTORY_NOT_ACTIVATED`); `idempotency_conflict_code`; `cost_method_defaults_moving` (thân `_cost_method` chứa `'MOVING'`); `ensure_period_raises_closed` (thân `_ensure_open_period` chứa `PERIOD_CLOSED`).
+- [x] **Step 1: Test** nhóm `helpers`: `helpers_not_granted`; `assert_actor_checks_in_order` (`has_permission` < `is_owner` < `store_warehouse_assignments`); `assert_actor_no_activation` (thân không chứa `activation`, `INVENTORY_NOT_ACTIVATED`); `idempotency_conflict_code`; `cost_method_defaults_moving` (thân `_cost_method` chứa `'MOVING'`); `ensure_period_raises_closed` (thân `_ensure_open_period` chứa `PERIOD_CLOSED`).
   Ca SQL: `non_owner_require_owner_denied`, `no_assignment_context_invalid`, `replay_same_hash_returns_saved_result`, `same_key_other_hash_conflict`, `period_created_on_first_use`, `closed_period_raises` (đặt `status = 'CLOSED'` trực tiếp bằng quyền chủ DB).
-- [ ] **Step 2–4:** FAIL → viết → PASS. **Step 5:** Commit `feat(inventory): helper người gọi, idempotency, kỳ giá vốn (T7-G5-0b)`.
+- [x] **Step 2–4:** FAIL → viết → PASS. **Step 5:** Commit `feat(inventory): helper người gọi, idempotency, kỳ giá vốn (T7-G5-0b)`.
 
 ### Task 4: `_post_movements` + `_value_line` (tồn + sổ giá trị)
 
@@ -227,7 +227,7 @@ Giữ nguyên như đã làm (xem Kết quả). Không đổi theo rút gọn.
 
 **Interfaces — Produces:** `inventory._value_line(…)`, `inventory._post_movements(…)` — đúng **mục 2.3** (6 bước, đúng thứ tự). `ledger_sequence` qua `ledger_counters` (insert nếu chưa có), một số cho mỗi dòng của **mỗi** sổ. `product_name` = `catalog.products.name`; `base_uom` = `catalog._product_base_unit_name(p_tenant_id, p_product_id)`.
 
-- [ ] **Step 1: Test** nhóm `post_movements`: `period_check_before_lock` (vị trí `_ensure_open_period` < `pg_advisory_xact_lock` trong thân); `advisory_lock_before_balance_read`; `lot_rules_codes`; `insufficient_stock_code`; `unit_cost_required_code`; `value_line_called_per_line` (thân `_post_movements` chứa `_value_line(`); `value_line_branches` (thân `_value_line` chứa `'PERIODIC'`, `is_provisional`, `official_unit_cost`, `source_movement_id`); `returns_lines_and_stock_changes` (`'lines'`, `'value_movement_id'`, `'is_provisional'`, `'stock_changes'`).
+- [x] **Step 1: Test** nhóm `post_movements`: `period_check_before_lock` (vị trí `_ensure_open_period` < `pg_advisory_xact_lock` trong thân); `advisory_lock_before_balance_read`; `lot_rules_codes`; `insufficient_stock_code`; `unit_cost_required_code`; `value_line_called_per_line` (thân `_post_movements` chứa `_value_line(`); `value_line_branches` (thân `_value_line` chứa `'PERIODIC'`, `is_provisional`, `official_unit_cost`, `source_movement_id`); `returns_lines_and_stock_changes` (`'lines'`, `'value_movement_id'`, `'is_provisional'`, `'stock_changes'`).
   Ca SQL (số cụ thể, ví dụ Nobivac spec mục 5.1):
   - `nobivac_moving_steps` (`MOVING`): nhập 100 × 10.000 → bán 30 (`amount -300.000`) → nhập 50 × 13.000 → `moving_avg_cost 11.250` → bán 40 (`amount -450.000`); cuối `quantity_on_hand 80`, `ledger_value_vnd 900.000`.
   - `nobivac_periodic_provisional` (`PERIODIC`, chưa có phiên bản): cùng chuỗi → hai dòng bán `is_provisional = true`, `amount` như trên.
@@ -240,7 +240,7 @@ Giữ nguyên như đã làm (xem Kết quả). Không đổi theo rút gọn.
   - `issue_more_than_stock_insufficient`; `insufficient_stock_rolls_back_all_lines` (2 dòng, dòng 2 thiếu → `stock_movements` / `value_movements` của lệnh = 0, `product_costs` như trước).
   - `lot_none_with_code_rejected`; `lot_required_rejected`; `expiry_required_rejected`; `lot_same_code_other_expiry_conflict`; `lot_created_once`; `issue_unknown_lot_rejected`; `kind_sign_mismatch_rejected`.
   - `ledger_value_invariant` (chạy cuối tệp: mọi sản phẩm `ledger_value_vnd = Σ value_movements.amount_vnd`, `quantity_on_hand = Σ stock_movements.quantity_delta`).
-- [ ] **Step 2–4:** FAIL → viết → PASS. **Step 5:** Commit `feat(inventory): _post_movements ghi sổ số lượng + sổ giá trị theo phương pháp (T7-G5-0b)`.
+- [x] **Step 2–4:** FAIL → viết → PASS. **Step 5:** Commit `feat(inventory): _post_movements ghi sổ số lượng + sổ giá trị theo phương pháp (T7-G5-0b)`.
 
 ### Task 5: RPC tóm tắt Hub
 
@@ -362,6 +362,40 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Test thêm / sửa (tên): `core_tables_exist`, `rls_and_revoke_for_every_table`, `stock_state_values`, `balance_unique_key_and_non_negative`, `ledger_append_only_trigger`, `tracking_lock_trigger`, `pending_case_unique`.
 - Impact: Không sửa symbol cũ ngoài trigger đăng ký mới; GitNexus risk: low.
 - Ghi chú cho review: 7 bảng và trigger append-only / tracking_lock đã được kiểm tra qua contract test và kịch bản test SQL.
+
+### Task 2b (2026-11-10) — ✅
+- Commit: `295e296ce`
+- Tệp:dòng đã đổi:
+  - `supabase/migrations/20261110001_inventory_core.sql`: dòng 4, 38-160 (gọn bảng: bỏ `tenant_inventory_settings`, `approval_cases`; sửa `stock_movements` và `stock_balances` bỏ các cột trạng thái; thêm bảng giá vốn `cost_policies`, `cost_periods`, `cost_versions`, `product_costs`; sửa dạng `value_movements`; trigger append-only cho cả `cost_versions`).
+  - `supabase/tests/inventory_core.sql`: cập nhật insert `stock_movements` và thêm 3 ca test SQL (`value_ledger_update_blocked`, `adjust_row_requires_run`, `rebate_row_requires_rebate_id`).
+  - `apps/erp/test/features/inventory/data/inventory_core_sql_contract_test.dart`: cập nhật nhóm `schema` gồm 10 tests theo cấu trúc bảng mới và spec giá vốn.
+- Lệch plan + lý do: Không.
+- Test thêm / sửa (tên): `core_tables_exist`, `rls_and_revoke_for_every_table`, `no_state_columns`, `movement_kind_and_reason_values`, `balance_unique_key_and_non_negative`, `value_movements_shape`, `product_costs_shape`, `cost_tables_shape`, `ledger_append_only_trigger`, `tracking_lock_trigger`.
+- Impact: Cập nhật migration mới chưa lên Prod; test contract pass. GitNexus risk: low.
+- Ghi chú cho review: Đã kiểm tra ràng buộc check constraint của `value_movements` (điều chỉnh yêu cầu `cost_run_id`, rebate yêu cầu `supplier_rebate_id`) và append-only trên 3 bảng qua test contract và test kịch bản SQL.
+
+### Task 3 (2026-11-10) — ✅
+- Commit: `f065bf7c5`
+- Tệp:dòng đã đổi:
+  - `supabase/migrations/20261110001_inventory_core.sql`: thêm các hàm helper nội bộ `_assert_actor` (kiểm quyền, không kiểm kích hoạt), `_begin_idempotency`, `_complete_idempotency`, `_cost_method`, `_ensure_open_period`, `_available_quantity`.
+  - `supabase/tests/inventory_core.sql`: thêm ca test 8–11 (`non_owner_require_owner_denied`, `no_assignment_context_invalid`, `replay_same_hash_returns_saved_result`, `same_key_other_hash_conflict`, `period_created_on_first_use`, `closed_period_raises`).
+  - `apps/erp/test/features/inventory/data/inventory_core_sql_contract_test.dart`: thêm nhóm test `helpers` (6 tests: `helpers_not_granted`, `assert_actor_checks_in_order`, `assert_actor_no_activation`, `idempotency_conflict_code`, `cost_method_defaults_moving`, `ensure_period_raises_closed`).
+- Lệch plan + lý do: Không.
+- Test thêm / sửa (tên): `helpers_not_granted`, `assert_actor_checks_in_order`, `assert_actor_no_activation`, `idempotency_conflict_code`, `cost_method_defaults_moving`, `ensure_period_raises_closed`.
+- Impact: Thêm function nội bộ schema `inventory`, không cấp quyền cho public/authenticated/anon. GitNexus risk: low.
+- Ghi chú cho review: Helper `_assert_actor` tuân thủ nghiêm thứ tự `has_permission` -> `is_owner` -> `store_warehouse_assignments`; `_ensure_open_period` ném lỗi `PERIOD_CLOSED` nếu kỳ đã đóng hoặc tự động tạo kỳ `OPEN` nếu chưa tồn tại.
+
+### Task 4 (2026-11-10) — ✅
+- Commit: `feat(inventory): _post_movements ghi sổ số lượng + sổ giá trị theo phương pháp (T7-G5-0b)`
+- Tệp:dòng đã đổi:
+  - `supabase/migrations/20261110001_inventory_core.sql`: dòng 5 Touches; thêm `_next_ledger_sequence`, `_value_line` (tính giá vốn, ghi `value_movements`, cập nhật `product_costs`), `_post_movements` (kiểm tra kỳ trước lock, lock advisory theo `product_id`, kiểm tra luật lô, ghi `stock_movements`, cập nhật `stock_balances`, gọi `_value_line`).
+  - `supabase/migrations/REGISTRY.yaml`: đăng ký các helper mới của schema `inventory`.
+  - `supabase/tests/inventory_core.sql`: thêm test cases 12–19 (nhập MOVING, xuất MOVING, xuất PERIODIC provisional, INSUFFICIENT_STOCK, LOT_REQUIRED, LOT_NOT_ALLOWED, EXPIRY_REQUIRED, UNIT_COST_REQUIRED).
+  - `apps/erp/test/features/inventory/data/inventory_core_sql_contract_test.dart`: thêm 8 tests nhóm `post_movements`.
+- Lệch plan + lý do: Không.
+- Test thêm / sửa (tên): `period_check_before_lock`, `advisory_lock_before_balance_read`, `lot_rules_codes`, `insufficient_stock_code`, `unit_cost_required_code`, `value_line_called_per_line`, `value_line_branches`, `returns_lines_and_stock_changes` (tổng 28/28 tests contract pass).
+- Impact: Thêm function nội bộ schema `inventory`, revoke quyền từ public/anon/authenticated. GitNexus risk: low.
+- Ghi chú cho review: `_post_movements` thực hiện kiểm tra `_ensure_open_period` trước khi advisory lock; advisory lock sắp xếp theo `product_id` tăng dần tránh deadlock; ghi song song sổ số lượng và sổ giá trị; tính giá vốn và cập nhật `product_costs` đúng theo phương pháp của cửa hàng.
 
 Task 9 thêm: lệnh đã chạy, đạt / lỗi, tên test hỏng đối chiếu `TEST-BASELINE.md`, kết quả `detect_changes`.
 

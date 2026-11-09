@@ -305,8 +305,17 @@ iam:
   verify_password_reset_code_by_email: 20260811025_iam_password_reset_by_email.sql
 
 inventory:
+  _assert_actor: 20261110001_inventory_core.sql
+  _available_quantity: 20261110001_inventory_core.sql
+  _begin_idempotency: 20261110001_inventory_core.sql
+  _complete_idempotency: 20261110001_inventory_core.sql
+  _cost_method: 20261110001_inventory_core.sql
+  _ensure_open_period: 20261110001_inventory_core.sql
   _forbid_ledger_mutation: 20261110001_inventory_core.sql
+  _next_ledger_sequence: 20261110001_inventory_core.sql
+  _post_movements: 20261110001_inventory_core.sql
   _raise: 20261110001_inventory_core.sql
+  _value_line: 20261110001_inventory_core.sql
   ensure_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
   get_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
 

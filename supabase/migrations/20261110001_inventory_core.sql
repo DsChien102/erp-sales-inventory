@@ -2,7 +2,7 @@
 -- Kind: schema
 -- Intent: inventory_core
 -- Context: TH-07 / KB-KGV-001..005, spec giá vốn; PLAN T7-G5-0b
--- Touches: ledger_counters, lots, stock_movements, stock_balances, cost_policies, cost_periods, cost_versions, value_movements, product_costs, _raise, _forbid_ledger_mutation, _lock_tracking_after_movement, _assert_actor, _begin_idempotency, _complete_idempotency, _cost_method, _ensure_open_period, _available_quantity
+-- Touches: ledger_counters, lots, stock_movements, stock_balances, cost_policies, cost_periods, cost_versions, value_movements, product_costs, _raise, _forbid_ledger_mutation, _lock_tracking_after_movement, _assert_actor, _begin_idempotency, _complete_idempotency, _cost_method, _ensure_open_period, _available_quantity, _next_ledger_sequence, _value_line, _post_movements
 -- Safety: one-shot ; low lock impact on new tables
 -- Depends on: 20261104001_inventory_default_pair, 20260709001_catalog_guided_create
 
@@ -492,3 +492,492 @@ end;
 $$;
 
 revoke all on function inventory._available_quantity(uuid, uuid, uuid) from public, anon, authenticated;
+
+-- 7. _next_ledger_sequence: increments and returns sequence from ledger_counters
+create or replace function inventory._next_ledger_sequence(p_tenant_id uuid)
+returns bigint
+language plpgsql
+security definer
+set search_path = inventory, pg_temp
+as $$
+declare
+  v_seq bigint;
+begin
+  insert into inventory.ledger_counters (tenant_id, last_sequence)
+  values (p_tenant_id, 1)
+  on conflict (tenant_id) do update
+  set last_sequence = inventory.ledger_counters.last_sequence + 1
+  returning last_sequence into v_seq;
+
+  return v_seq;
+end;
+$$;
+
+revoke all on function inventory._next_ledger_sequence(uuid) from public, anon, authenticated;
+
+-- 8. _value_line: records a value_movement row and updates product_costs
+create or replace function inventory._value_line(
+  p_tenant_id          uuid,
+  p_movement_id        uuid,
+  p_product_id         uuid,
+  p_kind               text,
+  p_quantity           numeric,
+  p_unit_cost          numeric,
+  p_amount_vnd         bigint,
+  p_source_movement_id uuid,
+  p_business_date      date,
+  p_created_by         uuid default auth.uid()
+) returns jsonb
+language plpgsql
+security definer
+set search_path = inventory, iam, catalog, pg_temp
+as $$
+declare
+  v_method text;
+  v_cost record;
+  v_q numeric;
+  v_val bigint;
+  v_m numeric(18,4);
+  v_o numeric(18,4);
+  v_official_version_id uuid;
+  v_cost_version_id uuid := null;
+  v_is_provisional boolean := false;
+  v_c numeric(18,4) := null;
+  v_amount bigint := null;
+  v_delta numeric := p_quantity;
+  v_new_q numeric;
+  v_new_val bigint;
+  v_new_m numeric(18,4);
+  v_src_cost numeric(18,4);
+  v_seq bigint;
+  v_val_id uuid;
+begin
+  v_method := inventory._cost_method(p_tenant_id);
+
+  insert into inventory.product_costs (
+    tenant_id, product_id, quantity_on_hand, ledger_value_vnd,
+    moving_avg_cost, official_unit_cost, official_version_id,
+    last_ledger_sequence, updated_at
+  ) values (
+    p_tenant_id, p_product_id, 0, 0,
+    0, null, null,
+    0, now()
+  ) on conflict (tenant_id, product_id) do nothing;
+
+  select * into v_cost
+  from inventory.product_costs
+  where tenant_id = p_tenant_id and product_id = p_product_id
+  for update;
+
+  v_q := v_cost.quantity_on_hand;
+  v_val := v_cost.ledger_value_vnd;
+  v_m := v_cost.moving_avg_cost;
+  v_o := v_cost.official_unit_cost;
+  v_official_version_id := v_cost.official_version_id;
+
+  if p_kind = 'RECEIPT' then
+    if p_unit_cost is null or p_unit_cost < 0 then
+      perform inventory._raise('UNIT_COST_REQUIRED', 'Nhập hàng yêu cầu đơn giá không âm.');
+    end if;
+    v_c := p_unit_cost;
+    if p_amount_vnd is not null then
+      v_amount := p_amount_vnd;
+    else
+      v_amount := round(abs(v_delta) * v_c)::bigint;
+    end if;
+    v_new_q := v_q + abs(v_delta);
+    v_new_val := v_val + v_amount;
+    if v_new_q > 0 then
+      v_new_m := round((v_new_val::numeric / v_new_q::numeric), 4);
+    else
+      v_new_m := v_m;
+    end if;
+    update inventory.product_costs
+    set quantity_on_hand = v_new_q,
+        ledger_value_vnd = v_new_val,
+        moving_avg_cost = v_new_m
+    where tenant_id = p_tenant_id and product_id = p_product_id;
+
+  elsif p_kind = 'COUNT_GAIN' then
+    if v_method = 'PERIODIC' and v_o is not null then
+      v_c := v_o;
+      v_cost_version_id := v_official_version_id;
+    else
+      if p_unit_cost is not null and p_unit_cost > 0 then
+        v_c := p_unit_cost;
+      else
+        v_c := v_m;
+      end if;
+      if v_q = 0 and (v_c is null or v_c = 0) then
+        perform inventory._raise('UNIT_COST_REQUIRED', 'Kiểm kê tăng khi chưa có tồn yêu cầu đơn giá.');
+      end if;
+    end if;
+    if p_amount_vnd is not null then
+      v_amount := p_amount_vnd;
+    else
+      v_amount := round(abs(v_delta) * coalesce(v_c, 0))::bigint;
+    end if;
+    v_new_q := v_q + abs(v_delta);
+    v_new_val := v_val + v_amount;
+    if v_new_q > 0 then
+      v_new_m := round((v_new_val::numeric / v_new_q::numeric), 4);
+    else
+      v_new_m := v_m;
+    end if;
+    update inventory.product_costs
+    set quantity_on_hand = v_new_q,
+        ledger_value_vnd = v_new_val,
+        moving_avg_cost = v_new_m
+    where tenant_id = p_tenant_id and product_id = p_product_id;
+
+  elsif p_kind = 'RETURN_IN' then
+    if p_source_movement_id is null then
+      perform inventory._raise('CONTEXT_INVALID', 'Trả hàng nhập kho yêu cầu source_movement_id.');
+    end if;
+    select unit_cost into v_src_cost
+    from inventory.value_movements
+    where tenant_id = p_tenant_id and movement_id = p_source_movement_id;
+    if v_src_cost is null then
+      perform inventory._raise('CONTEXT_INVALID', 'Không tìm thấy dòng xuất gốc trong sổ giá trị.');
+    end if;
+    v_c := v_src_cost;
+    v_amount := round(abs(v_delta) * v_c)::bigint;
+    v_new_q := v_q + abs(v_delta);
+    v_new_val := v_val + v_amount;
+    if v_new_q > 0 then
+      v_new_m := round((v_new_val::numeric / v_new_q::numeric), 4);
+    else
+      v_new_m := v_m;
+    end if;
+    update inventory.product_costs
+    set quantity_on_hand = v_new_q,
+        ledger_value_vnd = v_new_val,
+        moving_avg_cost = v_new_m
+    where tenant_id = p_tenant_id and product_id = p_product_id;
+
+  elsif p_kind in ('SALE', 'COUNT_LOSS', 'WRITE_OFF') then
+    if v_method = 'MOVING' then
+      v_c := v_m;
+    elsif v_method = 'PERIODIC' then
+      if v_o is not null then
+        v_c := v_o;
+        v_cost_version_id := v_official_version_id;
+      else
+        v_c := v_m;
+        v_is_provisional := true;
+      end if;
+    end if;
+    v_amount := -round(abs(v_delta) * coalesce(v_c, 0))::bigint;
+    v_new_q := v_q - abs(v_delta);
+    v_new_val := v_val + v_amount;
+    v_new_m := v_m;
+    update inventory.product_costs
+    set quantity_on_hand = v_new_q,
+        ledger_value_vnd = v_new_val,
+        moving_avg_cost = v_new_m
+    where tenant_id = p_tenant_id and product_id = p_product_id;
+
+  elsif p_kind = 'SALE_REVERSAL' then
+    if p_source_movement_id is null then
+      perform inventory._raise('CONTEXT_INVALID', 'Huỷ bán hàng yêu cầu source_movement_id.');
+    end if;
+    select unit_cost into v_src_cost
+    from inventory.value_movements
+    where tenant_id = p_tenant_id and movement_id = p_source_movement_id;
+    if v_src_cost is null then
+      perform inventory._raise('CONTEXT_INVALID', 'Không tìm thấy dòng xuất gốc cho huỷ bán hàng.');
+    end if;
+    v_c := v_src_cost;
+    v_amount := round(abs(v_delta) * v_c)::bigint;
+    v_new_q := v_q + abs(v_delta);
+    v_new_val := v_val + v_amount;
+    if v_new_q > 0 then
+      v_new_m := round((v_new_val::numeric / v_new_q::numeric), 4);
+    else
+      v_new_m := v_m;
+    end if;
+    update inventory.product_costs
+    set quantity_on_hand = v_new_q,
+        ledger_value_vnd = v_new_val,
+        moving_avg_cost = v_new_m
+    where tenant_id = p_tenant_id and product_id = p_product_id;
+
+  else
+    perform inventory._raise('CONTEXT_INVALID', 'Loại biến động không được hỗ trợ trong sổ giá trị: ' || coalesce(p_kind, 'null'));
+  end if;
+
+  v_seq := inventory._next_ledger_sequence(p_tenant_id);
+
+  insert into inventory.value_movements (
+    tenant_id, ledger_sequence, product_id, movement_id, kind,
+    quantity_basis, unit_cost, amount_vnd, cost_version_id, is_provisional,
+    source_movement_id, business_date, created_by
+  ) values (
+    p_tenant_id, v_seq, p_product_id, p_movement_id, p_kind,
+    abs(v_delta), v_c, v_amount, v_cost_version_id, v_is_provisional,
+    p_source_movement_id, p_business_date, coalesce(p_created_by, auth.uid(), '00000000-0000-0000-0000-000000000000'::uuid)
+  ) returning id into v_val_id;
+
+  update inventory.product_costs
+  set last_ledger_sequence = v_seq, updated_at = now()
+  where tenant_id = p_tenant_id and product_id = p_product_id;
+
+  return jsonb_build_object(
+    'value_movement_id', v_val_id,
+    'unit_cost', v_c,
+    'amount_vnd', v_amount,
+    'cost_version_id', v_cost_version_id,
+    'is_provisional', v_is_provisional
+  );
+end;
+$$;
+
+revoke all on function inventory._value_line(uuid, uuid, uuid, text, numeric, numeric, bigint, uuid, date, uuid) from public, anon, authenticated;
+
+-- 9. _post_movements: core inventory posting for stock and value ledger
+create or replace function inventory._post_movements(
+  p_tenant_id        uuid,
+  p_warehouse_id     uuid,
+  p_intent_type      text,
+  p_intent_id        uuid,
+  p_business_date    date,
+  p_lines            jsonb,
+  p_created_by       uuid default auth.uid()
+) returns jsonb
+language plpgsql
+security definer
+set search_path = inventory, iam, catalog, pg_temp
+as $$
+declare
+  v_prod_id uuid;
+  v_elem jsonb;
+  v_line_id uuid;
+  v_product_id uuid;
+  v_lot_id uuid;
+  v_lot_code text;
+  v_expiry_date date;
+  v_expiry_precision text;
+  v_manufacture_date date;
+  v_qty_delta numeric;
+  v_movement_kind text;
+  v_reason text;
+  v_unit_cost numeric;
+  v_amount_vnd bigint;
+  v_source_movement_id uuid;
+  v_prod record;
+  v_lot record;
+  v_lot_key uuid;
+  v_current_qty numeric;
+  v_after_qty numeric;
+  v_stock_seq bigint;
+  v_movement_id uuid;
+  v_val_res jsonb;
+  v_res_movement_ids jsonb := '[]'::jsonb;
+  v_res_lines jsonb := '[]'::jsonb;
+  v_stock_changes jsonb := '[]'::jsonb;
+begin
+  -- 1. Ensure period is open before any lock or write
+  perform inventory._ensure_open_period(p_tenant_id, p_business_date);
+
+  if p_lines is null or jsonb_array_length(p_lines) = 0 then
+    return jsonb_build_object(
+      'movement_ids', v_res_movement_ids,
+      'lines', v_res_lines,
+      'stock_changes', v_stock_changes
+    );
+  end if;
+
+  -- 2. Advisory lock ordered by product_id
+  for v_prod_id in
+    select distinct (elem->>'product_id')::uuid as pid
+    from jsonb_array_elements(p_lines) as elem
+    order by pid
+  loop
+    perform pg_advisory_xact_lock(
+      hashtext(p_tenant_id::text),
+      hashtext(v_prod_id::text)
+    );
+  end loop;
+
+  -- 3. Iterate through lines
+  for v_elem in select * from jsonb_array_elements(p_lines)
+  loop
+    v_line_id := coalesce((v_elem->>'line_id')::uuid, gen_random_uuid());
+    v_product_id := (v_elem->>'product_id')::uuid;
+    v_lot_code := trim(coalesce(v_elem->>'lot_code', ''));
+    v_expiry_date := (v_elem->>'expiry_date')::date;
+    v_expiry_precision := coalesce(v_elem->>'expiry_precision', 'DAY');
+    v_manufacture_date := (v_elem->>'manufacture_date')::date;
+    v_qty_delta := (v_elem->>'quantity_delta')::numeric;
+    v_movement_kind := v_elem->>'movement_kind';
+    v_reason := v_elem->>'reason';
+    v_unit_cost := (v_elem->>'unit_cost')::numeric;
+    v_amount_vnd := (v_elem->>'amount_vnd')::bigint;
+    v_source_movement_id := (v_elem->>'source_movement_id')::uuid;
+
+    if v_qty_delta is null or v_qty_delta = 0 then
+      perform inventory._raise('CONTEXT_INVALID', 'Số lượng biến động không được rỗng hoặc bằng 0.');
+    end if;
+
+    if v_movement_kind in ('RECEIPT', 'RETURN_IN', 'COUNT_GAIN', 'SALE_REVERSAL') then
+      if v_qty_delta <= 0 then
+        perform inventory._raise('CONTEXT_INVALID', 'Chiều vào yêu cầu số lượng dương.');
+      end if;
+    elsif v_movement_kind in ('SALE', 'COUNT_LOSS', 'WRITE_OFF') then
+      if v_qty_delta >= 0 then
+        perform inventory._raise('CONTEXT_INVALID', 'Chiều ra yêu cầu số lượng âm.');
+      end if;
+    else
+      perform inventory._raise('CONTEXT_INVALID', 'Loại biến động không hợp lệ: ' || coalesce(v_movement_kind, 'null'));
+    end if;
+
+    select id, name, base_uom, tracking_mode, expiry_required
+    into v_prod
+    from catalog.products
+    where id = v_product_id and tenant_id = p_tenant_id and deleted_at is null;
+
+    if not found then
+      perform inventory._raise('CONTEXT_INVALID', 'Sản phẩm không tồn tại: ' || v_product_id::text);
+    end if;
+
+    -- Lot rules
+    if v_prod.tracking_mode = 'none' then
+      if v_lot_code <> '' or (v_elem->>'lot_id') is not null then
+        perform inventory._raise('LOT_NOT_ALLOWED', 'Sản phẩm ' || v_prod.name || ' không quản lý theo lô.');
+      end if;
+      v_lot_id := null;
+      v_lot_key := '00000000-0000-0000-0000-000000000000'::uuid;
+    elsif v_prod.tracking_mode = 'lot' then
+      if (v_elem->>'lot_id') is not null then
+        v_lot_id := (v_elem->>'lot_id')::uuid;
+        select * into v_lot
+        from inventory.lots
+        where id = v_lot_id and tenant_id = p_tenant_id and product_id = v_product_id;
+        if not found then
+          perform inventory._raise('LOT_REQUIRED', 'Lô không tồn tại: ' || v_lot_id::text);
+        end if;
+        v_lot_key := v_lot_id;
+      elsif v_lot_code <> '' then
+        select * into v_lot
+        from inventory.lots
+        where tenant_id = p_tenant_id
+          and product_id = v_product_id
+          and lot_code_normalized = lower(trim(v_lot_code));
+        if not found then
+          if v_qty_delta < 0 then
+            perform inventory._raise('LOT_REQUIRED', 'Lô chưa tồn tại khi xuất kho: ' || v_lot_code);
+          end if;
+          if v_prod.expiry_required and v_expiry_date is null then
+            perform inventory._raise('EXPIRY_REQUIRED', 'Sản phẩm ' || v_prod.name || ' bắt buộc hạn dùng.');
+          end if;
+          insert into inventory.lots (
+            tenant_id, product_id, lot_code, lot_code_normalized,
+            expiry_date, expiry_precision, manufacture_date, created_by
+          ) values (
+            p_tenant_id, v_product_id, v_lot_code, lower(trim(v_lot_code)),
+            v_expiry_date, v_expiry_precision, v_manufacture_date,
+            coalesce(p_created_by, auth.uid(), '00000000-0000-0000-0000-000000000000'::uuid)
+          ) returning id into v_lot_id;
+          v_lot_key := v_lot_id;
+        else
+          if v_expiry_date is not null and v_lot.expiry_date is not null and v_lot.expiry_date <> v_expiry_date then
+            perform inventory._raise('LOT_ATTRIBUTE_CONFLICT', 'Xung đột hạn dùng cho lô ' || v_lot_code);
+          end if;
+          v_lot_id := v_lot.id;
+          v_lot_key := v_lot.id;
+        end if;
+      else
+        perform inventory._raise('LOT_REQUIRED', 'Sản phẩm ' || v_prod.name || ' yêu cầu thông tin lô.');
+      end if;
+    end if;
+
+    -- Stock balance check & lock
+    insert into inventory.stock_balances (
+      tenant_id, warehouse_id, product_id, lot_key,
+      physical_quantity, last_ledger_sequence, updated_at
+    ) values (
+      p_tenant_id, p_warehouse_id, v_product_id, v_lot_key,
+      0, 0, now()
+    ) on conflict (tenant_id, warehouse_id, product_id, lot_key) do nothing;
+
+    select physical_quantity into v_current_qty
+    from inventory.stock_balances
+    where tenant_id = p_tenant_id
+      and warehouse_id = p_warehouse_id
+      and product_id = v_product_id
+      and lot_key = v_lot_key
+    for update;
+
+    v_after_qty := v_current_qty + v_qty_delta;
+    if v_after_qty < 0 then
+      perform inventory._raise('INSUFFICIENT_STOCK', 'Tồn kho không đủ cho sản phẩm ' || v_prod.name);
+    end if;
+
+    -- Record stock movement
+    v_stock_seq := inventory._next_ledger_sequence(p_tenant_id);
+
+    insert into inventory.stock_movements (
+      tenant_id, ledger_sequence, warehouse_id, product_id, lot_id,
+      intent_type, intent_id, intent_line_id, movement_kind, reason,
+      quantity_delta, business_date, created_by
+    ) values (
+      p_tenant_id, v_stock_seq, p_warehouse_id, v_product_id, v_lot_id,
+      p_intent_type, p_intent_id, v_line_id, v_movement_kind, v_reason,
+      v_qty_delta, p_business_date,
+      coalesce(p_created_by, auth.uid(), '00000000-0000-0000-0000-000000000000'::uuid)
+    ) returning id into v_movement_id;
+
+    update inventory.stock_balances
+    set physical_quantity = v_after_qty,
+        last_ledger_sequence = v_stock_seq,
+        updated_at = now()
+    where tenant_id = p_tenant_id
+      and warehouse_id = p_warehouse_id
+      and product_id = v_product_id
+      and lot_key = v_lot_key;
+
+    -- Call _value_line for value ledger
+    v_val_res := inventory._value_line(
+      p_tenant_id,
+      v_movement_id,
+      v_product_id,
+      v_movement_kind,
+      v_qty_delta,
+      v_unit_cost,
+      v_amount_vnd,
+      v_source_movement_id,
+      p_business_date,
+      p_created_by
+    );
+
+    v_res_lines := v_res_lines || jsonb_build_object(
+      'line_id', v_line_id,
+      'movement_id', v_movement_id,
+      'value_movement_id', v_val_res->'value_movement_id',
+      'unit_cost', v_val_res->'unit_cost',
+      'amount_vnd', v_val_res->'amount_vnd',
+      'cost_version_id', v_val_res->'cost_version_id',
+      'is_provisional', v_val_res->'is_provisional'
+    );
+    v_res_movement_ids := v_res_movement_ids || to_jsonb(v_movement_id);
+
+    v_stock_changes := v_stock_changes || jsonb_build_object(
+      'product_id', v_product_id,
+      'product_name', v_prod.name,
+      'base_uom', v_prod.base_uom,
+      'lot_id', v_lot_id,
+      'before', v_current_qty,
+      'after', v_after_qty
+    );
+  end loop;
+
+  return jsonb_build_object(
+    'movement_ids', v_res_movement_ids,
+    'lines', v_res_lines,
+    'stock_changes', v_stock_changes
+  );
+end;
+$$;
+
+revoke all on function inventory._post_movements(uuid, uuid, text, uuid, date, jsonb, uuid) from public, anon, authenticated;
+
