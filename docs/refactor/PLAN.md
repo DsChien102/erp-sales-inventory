@@ -6,13 +6,15 @@
 ## Tổng quan
 
 ```text
-Chuẩn bị ─▶ Nền core/ ─▶ Theme 1 IAM ─▶ Theme 1 làm gọn IAM ─▶ Đợt kiểm IAM ─▶ Theme 3 Partner ─▶ Theme 2 Catalog ─▶ Theme 4 Pricing ─▶ Theme 5 Sales ─▶ Theme 8 E-invoice ─▶ Theme 7 Kho & Giá vốn ─▶ 8-D nối kho Sales ─▶ Theme 6 Công nợ ─▶ Dọn dẹp ─▶ Tích hợp AI ─▶ Báo cáo
+Chuẩn bị ─▶ Nền core/ ─▶ Theme 1 IAM ─▶ Theme 1 làm gọn IAM ─▶ Đợt kiểm IAM ─▶ Theme 3 Partner ─▶ Theme 2 Catalog ─▶ Theme 4 Pricing ─▶ Theme 5 Sales ─▶ Theme 8 E-invoice ─▶ Theme 7 Kho & Giá vốn ─▶ 8-D nối kho Sales ─▶ Tích hợp AI ─▶ Theme 6 Công nợ ─▶ Dọn dẹp ─▶ Báo cáo
 
 Theme 7 — làm sau Theme 8 (chốt 2026-11-03); việc Theme 7 đã làm trước đó (T7-0…, prototype T7-P) giữ nguyên
 Web cho app (W-1 khung, W-2 Theme 1): hoãn, sau Theme 7 prototype; W-1 trước màn Flutter web đầu tiên
 ```
 
 **Đặt tên theo theme** (2026-10-14): mỗi mục nghiệp vụ mang số theme TH-0x của `docs/02-yeu-cau`; mục không thuộc theme nào (Chuẩn bị, Nền core, Dọn dẹp, Báo cáo) giữ tên riêng. **Thứ tự trong file = thứ tự làm.**
+
+**Sửa thứ tự 2026-11-09 (người dùng chốt):** **Tích hợp AI** lên ngay sau Theme 7 + 8-D; **Theme 6 Công nợ** để sau AI; Dọn dẹp sau Theme 6, rồi Báo cáo. Công cụ "công nợ phải thu" của AI đọc công nợ đơn TH-05 (không chờ Theme 6).
 
 **Thứ tự chốt lại 2026-11-03 (thay thứ tự 2026-10-14 bên dưới):** chuyển **hết các theme đã có code** sang kiến trúc mới trước (Theme 2 → Theme 4 → Theme 5 → Theme 8), **rồi** mới làm Theme 7. Hệ quả (người dùng chốt): (1) việc nối kho của Sales **8-D** tách khỏi Theme 5, thành mục riêng chạy ngay sau Theme 7; Theme 5 chuyển kiến trúc và giữ tồn cơ bản như hiện tại, sau 8-D thì quay lại sales một lần; (2) Theme 6 (dựng mới) làm sau 8-D; (3) 5-C (dọn module catalog + inventory, chạy sau Theme 7) thành **dọn module cuối**, nên việc xoá hẳn `modules/` và các package chỉ module dùng chuyển từ 7-C sang 5-C. **Sửa 2026-11-04:** 5-C làm **ngay** (SP-10 chuyển sang `ProductRepository`, không chờ Theme 7) ⇒ 7-C lại là dọn module cuối: xoá `modules/` + `vet45_adapters`, `vet45_generator` trở về 7-C; `vet45_annotations` xoá ở 9-1 (cùng `vet45_shared`, vì `vet45_shared_application` re-export nó).
 
@@ -59,10 +61,10 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 | Theme 8 | E-invoice (+ dọn module einvoice, `vet45_misa`) | ~3,5 ngày (dựng lại khung 2026-11-08: thêm 3 plan Edge Function) | Theme 5 | Khu HĐĐT trên đơn (7.3) gắn vào màn chi tiết đơn **đã refactor** ở Theme 5; server trước (worker đã xoá, hiện không có gì chạy lệnh MISA); hạ tầng Edge Function + `pg_cron` giống 2-B2 |
 | Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 73 màn) | ~12 ngày UI + ~4 ngày backend | Theme 2, Theme 3; làm sau Theme 8 | Chốt 2026-11-03: chuyển hết theme đã có code trước rồi mới làm Theme 7. Thay tồn kho cơ bản của Theme 2. Trong theme: **UI trước** (fixture), backend sau |
 | 8-D | Nối kho cho Sales: xuất kho khi checkout, hoàn nguyên khi huỷ, nhận hàng trả, khả dụng khi chọn sản phẩm | ~0,5–1 ngày | Theme 7, Theme 5 | Tách khỏi Theme 5 (chốt 2026-11-03); sửa lại sales một lần sau khi có sổ kho |
-| Theme 6 | **Công nợ phải thu khách hàng** (từ đơn bán) + thu tiền + cấn trừ; không có phải trả nhà cung cấp | ~4,5 ngày | Theme 5, Theme 3 | Phải thu đi ra từ công nợ đơn của Theme 5 |
+| Tích hợp AI | Trợ lý "Hỏi VET45" (Gemini API) hỏi đáp số liệu + dự báo nhập hàng (giảng viên yêu cầu "tích hợp AI vào app") | ~4,5 ngày | Theme 7, 8-D (công nợ đọc từ đơn TH-05) | Chốt 2026-11-09: làm **ngay sau Theme 7 + 8-D**, trước Theme 6 (trước đây làm cuối, 2026-10-27); trợ lý hỏi đáp + dự báo nhập hàng, Gemini API |
+| Theme 6 | **Công nợ phải thu khách hàng** (từ đơn bán) + thu tiền + cấn trừ; không có phải trả nhà cung cấp | ~4,5 ngày | Theme 5, Theme 3; làm sau Tích hợp AI | Phải thu đi ra từ công nợ đơn của Theme 5 |
 | Dọn dẹp | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 1 ngày | Nền core → Theme 6 (sau 5-C, 8-D) | Thứ tự 2026-11-03: theme cuối là Theme 6 |
-| Tích hợp AI | Trợ lý "Hỏi VET45" (Gemini API) hỏi đáp số liệu + dự báo nhập hàng (giảng viên yêu cầu "tích hợp AI vào app") | ~4,5 ngày | Dọn dẹp (cần dữ liệu thật của các theme) | Người dùng chốt làm **cuối cùng** (2026-10-27); trợ lý hỏi đáp + dự báo nhập hàng, Gemini API |
-| Báo cáo | Tài liệu, sơ đồ cho báo cáo, kịch bản demo, tập bảo vệ | 3 ngày | Tích hợp AI | |
+| Báo cáo | Tài liệu, sơ đồ cho báo cáo, kịch bản demo, tập bảo vệ | 3 ngày | Dọn dẹp | |
 | | **Tổng phần còn lại** (từ 2026-10-27) | **~42 ngày** (Theme 7 ~16, Theme 6 ~4,5, AI ~4,5) — hạn đồ án **2026-12-02** (~36 ngày lịch): **hụt ~6 ngày** so với tốc độ đang tính | | |
 
 Ước lượng tính cho 1 người. Sales và Catalog lớn nhất, nên chia nhỏ PR.
@@ -571,7 +573,7 @@ Chi tiết từng việc:
 
 > **Thay tồn cơ bản của Theme 2 (chốt 2026-11-04, Q3 của 5-C):** khi BJ-08 (kiểm kê / điều chỉnh) và BJ-12 (tồn đầu kỳ) có màn: xoá SP-10 `product_stock_adjustment_page.dart` (đã chạy qua `ProductRepository` + `ProductStockAdjustmentCubit` từ 5-C) và route `/products/items/:productId/stock`; nút "Sửa" thẻ Tồn kho ở PCC và mục readiness `missing_stock` mở màn Theme 7 tương ứng; bước nhập tồn khi tạo sản phẩm giữ / bỏ theo plan Theme 7. DB tồn cơ bản giữ tới 8-D.
 
-> Theme 7 gồm UI và backend. Làm **UI trước** (màn hình, trạng thái, điều hướng, test; plan `T7-0…T7-16`, ~12 ngày) trên fixture; cả UI lẫn backend làm **sau Theme 8** (chốt 2026-11-03, thay "UI song song, backend ngay sau Theme 2" của 2026-10-14; việc T7 đã làm giữ nguyên), plan mã `T7-B1…` chưa lập, khi lập thì thêm vào bảng Plan của mục này; riêng phần nối với bán hàng (xuất kho khi checkout, huỷ, hàng trả, BJ-04/05/06) làm ở **8-D**, mục ngay sau Theme 7. Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) v4.6.8 (17 BJ + CAP-01, FROZEN) và prototype `03.design/prototype/html`; đặc tả giữ nguyên v1 đầy đủ theo quyết định 2026-10-07 ([TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ). Phạm vi: **73 màn active / 421 trạng thái** (đếm mỗi màn một lần).
+> Theme 7 gồm UI và backend. Làm **UI trước** (màn hình, trạng thái, điều hướng, test; plan `T7-0…T7-16`, ~12 ngày) trên fixture; cả UI lẫn backend làm **sau Theme 8** (chốt 2026-11-03, thay "UI song song, backend ngay sau Theme 2" của 2026-10-14; việc T7 đã làm giữ nguyên), plan mã `T7-B1…` chưa lập, khi lập thì thêm vào bảng Plan của mục này; riêng phần nối với bán hàng (xuất kho khi checkout, huỷ, hàng trả, BJ-04/05/06) làm ở **8-D**, mục ngay sau Theme 7. Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) v5.27.0 (17 BJ + CAP-01, FROZEN) và prototype `03.design/prototype/html`; đặc tả giữ nguyên v1 đầy đủ theo quyết định 2026-10-07 ([TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ). Phạm vi: **70 màn active** (đếm mỗi màn một lần).
 
 
 |                       |                                                                                                                                                                                      |
@@ -594,8 +596,8 @@ Chi tiết từng việc:
 | **T7-0c** | (Đợt 0, ~1,5–2 ngày, 2 PR) Sửa còn lại của T7-0b (G1 key thẻ lô, G2 "Sửa" ở SCR-010) + trạng thái chung BJ-02 qua `ReceiptScenario` (không quyền, kho khoá, dữ liệu vừa đổi, chưa có người duyệt, đang ghi nhận, chưa rõ kết quả, bị chặn) + SCR-013 Đối soát + bảng trạng thái → test | SCR-006…013 | ✅ plan (đã xoá) | ✅ | ✅ (2026-10-14) |
 | **T7-P0** | (Trước T7-P tiếp, ~5–6 ngày, 4 PR) Dọn prototype: công cụ golden (chụp mọi UIF × màn × trạng thái), xoá 18 file không nạp + CHANGELOG / qa cũ + Hub v3.8, gộp 68 CSS → tokens / components / screens, gộp 45 JS → `core.js` + một file mỗi BJ, gộp lớp `v470`–`v472` vào nguồn; golden phải khớp. Từ đây sửa thẳng vào file sở hữu, không tạo lớp vá | Prototype toàn Theme | ✅ plan (đã xoá) | ✅ khung chung + token + Hub (từng BJ viết lại ở T7-P) | ✅ 2026-10-16 (mục 11 của plan) |
 | **T7-P**  | Thiết kế lại Theme 7 trên prototype — **chỉ prototype**, ba giai đoạn: GĐ1 viết lại code sạch cho 17 BJ + CAP-01 theo 11 gói A1–A11 (~20 ngày, golden khớp, giao diện không đổi); GĐ2 thiết kế lại từng BJ theo 6 chặng (brief → bạn duyệt → plan thực thi → bạn làm, ~24 ngày); GĐ3 hoàn thiện (8 gói G3-0…G3-7, ~8–9 ngày: dọn CSS, khung dùng chung, sổ kho chung, không ngõ cụt, critique ≥ 32/40). Chốt đặc tả và Flutter: T7-G4, T7-G5. Phiên này chỉ viết plan / brief và review | Prototype toàn Theme | ✅ [plan tổng thể](plans/T7/T7-P-thiet-ke-lai-luong.md) · ✅ GĐ3 (đã xoá) | ✅ GĐ1 (`v5.3.0`) · GĐ2 (`v5.20.1`) · GĐ3 (`v5.26.1`, 2026-10-27; critique 31/40, mục tiêu 32 chưa đạt — người dùng chốt đóng) | ✅ **Đóng hẳn** 2026-10-27 (GĐ1 ✅ · GĐ2 ✅ · review GĐ3 chuyển T7-G5; lỗi sau đó sửa theo yêu cầu) |
-| **T7-G4** | (Sau T7-P GĐ3, ~1–2 ngày) **Chốt đặc tả**: áp các đề xuất ⬜ của [T7-P mục 13](plans/T7/T7-P-thiet-ke-lai-luong.md) vào UC / BJ / PROC / Screen Contract / UIF; rà toàn bộ `03.design`, đổi `IN_REVIEW` → `FROZEN` đồng loạt với mốc phiên bản mới; `PAT-UI-UX` / `PAT-NAV` theo khuôn dùng chung K1…K7 (T7-P mục 5); `INDEX.md`, registry (`sync-registry.py`). Gồm chữ còn treo của GĐ3 (K3 lặp câu ở `UIF-13_SCR-089_UNKNOWN`) | Tài liệu Theme 7 | ⬜ (phiên review viết, bạn duyệt) | ⬜ | ⬜ |
-| **T7-G5** | (Sau T7-G4) **Nối sang Flutter**: rà lại T7-0d, T7-1, T7-0e theo prototype đã chốt; plan sửa phần BJ-02 / 03 đã code; thành phần DS mới ([T7-P mục 6](plans/T7/T7-P-thiet-ke-lai-luong.md)) vào `vet45_design_system`; rồi đi tiếp T7-1…T7-15 (T7-15 dựng Home Kho candidate). W-1 phải xong trước màn web đầu tiên. Việc GĐ3 hoãn sang đây (chốt 2026-10-26: xong G3-7 là đóng T7-P, phần còn lại làm sau): gom CSS theo BJ / bỏ `!important` (còn 55 luật) không cần làm nữa (CSS prototype không còn là nguồn); vùng ảnh BJ-02 / 06 sang `k5Evidence`; lô Amox thống nhất giữa BJ-01 / 06 / 08 / 09; số giữ hàng Nobivac khớp BJ-04; fixture BJ-07 dựng theo tồn BJ-01; review các gói G3-1…G3-7 (plan G3 mục 14) | Flutter toàn Theme | ⬜ (phiên review viết plan từng phần) | ⬜ | ⬜ |
+| **T7-G4** | (Sau T7-P GĐ3, ~1–2 ngày) **Chốt đặc tả**: áp các đề xuất ⬜ của [T7-P mục 13](plans/T7/T7-P-thiet-ke-lai-luong.md) vào UC / BJ / PROC / Screen Contract / UIF; 9 màn chưa dựng → RETIRED; Hub 090–096 viết lại; 5 đề xuất G3-7 vào đặc tả; rà toàn bộ `03.design`, đổi `IN_REVIEW` → `FROZEN` đồng loạt với mốc phiên bản mới (v5.27.0); `PAT-UI-UX` / `PAT-NAV` theo khuôn dùng chung K1…K7 (T7-P mục 5); `INDEX.md`, registry (`sync-registry.py`). Gồm chữ còn treo của GĐ3 (K3 lặp câu ở `UIF-13_SCR-089_UNKNOWN`) | Tài liệu Theme 7 | ✅ [plan](plans/T7/T7-G4-chot-dac-ta.md) | ✅ 2026-11-09 | ⬜ |
+| **T7-G5** | (Sau T7-G4) **Nối sang Flutter**: rà lại T7-0d, T7-1, T7-0e theo prototype đã chốt; plan sửa phần BJ-02 / 03 đã code; thành phần DS mới ([T7-P mục 6](plans/T7/T7-P-thiet-ke-lai-luong.md)) vào `vet45_design_system`; rồi đi tiếp T7-1…T7-15 (T7-15 dựng Home Kho candidate); backend T7-B: kết quả RPC nhận hàng / bàn giao / kiểm kê trả tồn vật lý trước / sau cho dòng "Tồn kho đã đổi" (T7-G4 1a). W-1 phải xong trước màn web đầu tiên. Việc GĐ3 hoãn sang đây (chốt 2026-10-26: xong G3-7 là đóng T7-P, phần còn lại làm sau): gom CSS theo BJ / bỏ `!important` (còn 55 luật) không cần làm nữa (CSS prototype không còn là nguồn); vùng ảnh BJ-02 / 06 sang `k5Evidence`; lô Amox thống nhất giữa BJ-01 / 06 / 08 / 09; số giữ hàng Nobivac khớp BJ-04; fixture BJ-07 dựng theo tồn BJ-01; review các gói G3-1…G3-7 (plan G3 mục 14) | Flutter toàn Theme | ⬜ (phiên review viết plan từng phần) | ⬜ | ⬜ |
 | **T7-0d** | (Đợt 0, ~2,5 ngày, 2 PR) BJ-02 nhận theo chứng từ: fixture chứng từ mua + bản nháp tự lưu + kiểm phiên bản; SCR-007; chế độ chứng từ của SCR-009 / 084 / 010 / 011 / 012 (`Chưa nhận lần này`, chênh lệch, `Đổi chứng từ`, chỉ duyệt khi vượt, không vượt thì ghi nhận ngay, tổng giá trị rủi ro); đổi đường dẫn phiên `quick` → `session` | SCR-007, 009, 084, 010, 011, 012 | 📝 [plan](plans/T7/T7-0d-nhan-theo-chung-tu.md) | ⬜ | ⬜ |
 | **T7-0e** | (Đợt 0, ~1,5 ngày) BJ-03 theo spec (SCR-014/015/017/019 + trạng thái, form căn cứ: Tiền tệ, không chọn sẵn cách hiểu giá) + kiến trúc / DS còn lại BJ-02/03 (Cubit cho page còn lại, `VToast`, token màu, widget dùng chung, tiền số nguyên) | BJ-03 (21) | ⬜ | ⬜ | ⬜ |
 | **T7-1**  | (Đợt 1, 1,5 ngày) BJ-01 Tồn kho & khả dụng                                                                                                                            | SCR-001, 003 · 10                                 | 📝 [plan](plans/T7/T7-1-ton-kho-bj01.md) | ⬜   | ⬜      |
@@ -680,7 +682,7 @@ Chi tiết từng việc:
 
 **Đã chốt (2026-10-14):** `features/inventory/` là của Theme 7; 5-A4 chỉ chuyển cổng cặp mặc định sang `DefaultPairRepository` (không dùng tên `InventoryRepository`), phần tồn cơ bản để Theme 7 thay.
 
-**Xong khi (UI):** 73 màn active đều mở được từ Home hoặc deep link, không còn toast / SnackBar giả hành vi; mỗi trạng thái trong Screen Contract có nhánh dựng và ít nhất một test; `dart analyze lib/features/inventory test/features/inventory` = 0 lỗi và `flutter test` không lỗi thêm so với `TEST-BASELINE.md`; mỗi UIF đối chiếu inspector prototype đạt, không còn đường cụt.
+**Xong khi (UI):** 70 màn active đều mở được từ Home hoặc deep link, không còn toast / SnackBar giả hành vi; mỗi trạng thái trong Screen Contract có nhánh dựng và ít nhất một test; `dart analyze lib/features/inventory test/features/inventory` = 0 lỗi và `flutter test` không lỗi thêm so với `TEST-BASELINE.md`; mỗi UIF đối chiếu inspector prototype đạt, không còn đường cụt.
 
 ---
 
@@ -693,6 +695,23 @@ Chi tiết từng việc:
 | **8-D** | (b) **Nối kho Theme 7**: xuất kho cùng checkout (`BC-IO-04`), hoàn nguyên khi huỷ đơn (`BC-IO-13`), nhận hàng khách trả (`BC-IO-07`), khả dụng khi chọn sản phẩm (`BC-IO-01`, thay tồn cơ bản trong `search_sellable_products`); backend BJ-04 giữ hàng, BJ-05 lấy và bàn giao, BJ-06 hàng khách trả | Thứ tự 2026-10-14 | ⬜ | ⬜ | ⬜ |
 
 **Xong khi:** 6 kịch bản của Theme 5 (bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng) cho tồn kho đúng theo sổ kho Theme 7 (xuất, hoàn nguyên, nhận hàng trả); khả dụng khi chọn sản phẩm lấy từ Theme 7.
+
+---
+
+## Tích hợp AI (~4,5 ngày)
+
+**Trạng thái:** ⬜ Chưa làm. Giảng viên phụ trách yêu cầu "tích hợp AI vào app". Làm **ngay sau Theme 7 + 8-D** (chốt 2026-11-09; trước đây làm cuối, sau Dọn dẹp), trước Theme 6.
+
+**Đã chốt (2026-10-27, người dùng; không hỏi lại giáo viên; plan chi tiết viết khi tới phần này, làm cùng người dùng):** tính năng = trợ lý **"Hỏi VET45"** hỏi đáp số liệu cửa hàng bằng tiếng Việt, chỉ đọc, theo quyền người hỏi, **kèm dự báo nhập hàng** (AI-3: app tính dự báo bằng công thức thống kê trong RPC, Gemini chỉ giải thích — không huấn luyện model riêng, không để Gemini tự tính số). Công cụ là vài RPC tổng hợp **có tham số** (chỉ số × nhóm theo × lọc × thời gian, giá trị chọn trong danh sách cố định; SQL do mình viết), không viết một RPC cho mỗi câu hỏi; câu không có công cụ → trả lời "chưa hỗ trợ", ghi nhật ký. Đọc ảnh phiếu giao hàng: chỉ là ý tưởng nếu dư thời gian, không nằm trong plan. **Làm đủ chức năng** (người dùng chốt 2026-10-27): cả trợ lý lẫn dự báo, đủ các công cụ (thống kê bán hàng, tồn kho, biến động kho, công nợ, dự báo, tìm kiếm) và bộ 20–30 câu hỏi thử — không chia tầng cắt; người dùng đẩy nhanh các theme trước để dành thời gian cho phần này. Model: **Gemini API, hạn mức miễn phí** (khoá tạo ở Google AI Studio, chỉ nằm trong secrets Edge Function); phần gọi model tách một lớp riêng để đổi nhà cung cấp được.
+
+| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
+| ---- | -------- | -------- | ---- | --- | ------ |
+| **AI-0** | Yêu cầu ngắn cho "Hỏi VET45": danh sách câu hỏi phải trả lời được, công cụ và bộ tham số (thống kê bán hàng, tình hình tồn kho, biến động kho, công nợ phải thu, dự báo bán hàng, tìm sản phẩm / khách / đơn), lời dặn hệ thống, chữ trên màn, quyền, giới hạn; bộ 20–30 câu hỏi thử để đánh giá | ~0,5 ngày | ⬜ | ⬜ | ⬜ |
+| **AI-1** | Backend: Edge Function `ai-assistant` gọi Gemini API (function calling); **viết mới RPC tổng hợp chỉ đọc có tham số** (app hiện chưa có RPC tổng doanh thu — `list_sales_orders` chỉ trả danh sách theo trang; thẻ doanh thu Home đang gõ cứng), dùng lại RPC đọc của Theme 7; công cụ công nợ phải thu tính theo khách từ công nợ đơn TH-05 (Theme 6 làm sau AI, chốt 2026-11-09); gọi bằng JWT của người hỏi (RLS + quyền tự áp); nhật ký (người hỏi, công cụ, token, câu không có công cụ), giới hạn số câu mỗi tổ chức mỗi ngày | ~2 ngày | ⬜ | ⬜ | ⬜ |
+| **AI-2** | UI (iPhone + web): màn "Hỏi VET45", lối vào từ Home; câu trả lời + bảng dựng từ kết quả công cụ + nút mở màn; đang trả lời, lỗi, hết lượt, không có quyền; `/impeccable audit` | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| **AI-3** | Dự báo nhập hàng: RPC tính tốc độ bán trung bình có trọng số 8 tuần → số ngày còn hàng + lượng nên nhập theo mức tồn mục tiêu CAP-01; công cụ `du_bao_ban_hang`; script sinh lịch sử bán mô phỏng vài tháng (ghi rõ trong báo cáo là dữ liệu mô phỏng) | ~1 ngày | ⬜ | ⬜ | ⬜ |
+
+**Xong khi:** tính năng chọn ở AI-0 chạy được từ đầu đến cuối trong app (iPhone + web), chỉ dùng dữ liệu của tổ chức và theo quyền người dùng; có một kịch bản demo cho hội đồng.
 
 ---
 
@@ -733,23 +752,6 @@ Chi tiết từng việc:
 | 9.6 | Xoá `tools/vet45_supabase_migrate` và guard CI không còn dùng. **Giữ `tools/vet45_env`** (đổi môi trường local/Dev/Prod, `sync` env, `link`, `doctor`), gọn lại: bỏ target `admin`, `worker` và action `run worker …`, bỏ key `MESSAGING_CLIENT_POLL_ENABLED`, `WORKER_*`; thêm key secrets cho Edge Function (`MISA_*`, `RESEND_*`) nếu cần | `vet45 doctor` sạch; `vet45 switch` + `sync` sinh đúng `apps/erp/.env` |
 
 **Xong khi:** đạt toàn bộ **Definition of Done ở SCOPE mục 6**.
-
----
-
-## Tích hợp AI (~4,5 ngày)
-
-**Trạng thái:** ⬜ Chưa làm. Giảng viên phụ trách yêu cầu "tích hợp AI vào app". Làm **cuối cùng**, sau Dọn dẹp, để AI dùng dữ liệu thật của các theme đã xong.
-
-**Đã chốt (2026-10-27, người dùng; không hỏi lại giáo viên; plan chi tiết viết khi tới phần này, làm cùng người dùng):** tính năng = trợ lý **"Hỏi VET45"** hỏi đáp số liệu cửa hàng bằng tiếng Việt, chỉ đọc, theo quyền người hỏi, **kèm dự báo nhập hàng** (AI-3: app tính dự báo bằng công thức thống kê trong RPC, Gemini chỉ giải thích — không huấn luyện model riêng, không để Gemini tự tính số). Công cụ là vài RPC tổng hợp **có tham số** (chỉ số × nhóm theo × lọc × thời gian, giá trị chọn trong danh sách cố định; SQL do mình viết), không viết một RPC cho mỗi câu hỏi; câu không có công cụ → trả lời "chưa hỗ trợ", ghi nhật ký. Đọc ảnh phiếu giao hàng: chỉ là ý tưởng nếu dư thời gian, không nằm trong plan. **Làm đủ chức năng** (người dùng chốt 2026-10-27): cả trợ lý lẫn dự báo, đủ các công cụ (thống kê bán hàng, tồn kho, biến động kho, công nợ, dự báo, tìm kiếm) và bộ 20–30 câu hỏi thử — không chia tầng cắt; người dùng đẩy nhanh các theme trước để dành thời gian cho phần này. Model: **Gemini API, hạn mức miễn phí** (khoá tạo ở Google AI Studio, chỉ nằm trong secrets Edge Function); phần gọi model tách một lớp riêng để đổi nhà cung cấp được.
-
-| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
-| ---- | -------- | -------- | ---- | --- | ------ |
-| **AI-0** | Yêu cầu ngắn cho "Hỏi VET45": danh sách câu hỏi phải trả lời được, công cụ và bộ tham số (thống kê bán hàng, tình hình tồn kho, biến động kho, công nợ phải thu, dự báo bán hàng, tìm sản phẩm / khách / đơn), lời dặn hệ thống, chữ trên màn, quyền, giới hạn; bộ 20–30 câu hỏi thử để đánh giá | ~0,5 ngày | ⬜ | ⬜ | ⬜ |
-| **AI-1** | Backend: Edge Function `ai-assistant` gọi Gemini API (function calling); **viết mới RPC tổng hợp chỉ đọc có tham số** (app hiện chưa có RPC tổng doanh thu — `list_sales_orders` chỉ trả danh sách theo trang; thẻ doanh thu Home đang gõ cứng), dùng lại RPC đọc của Theme 6 / 7; gọi bằng JWT của người hỏi (RLS + quyền tự áp); nhật ký (người hỏi, công cụ, token, câu không có công cụ), giới hạn số câu mỗi tổ chức mỗi ngày | ~2 ngày | ⬜ | ⬜ | ⬜ |
-| **AI-2** | UI (iPhone + web): màn "Hỏi VET45", lối vào từ Home; câu trả lời + bảng dựng từ kết quả công cụ + nút mở màn; đang trả lời, lỗi, hết lượt, không có quyền; `/impeccable audit` | ~1 ngày | ⬜ | ⬜ | ⬜ |
-| **AI-3** | Dự báo nhập hàng: RPC tính tốc độ bán trung bình có trọng số 8 tuần → số ngày còn hàng + lượng nên nhập theo mức tồn mục tiêu CAP-01; công cụ `du_bao_ban_hang`; script sinh lịch sử bán mô phỏng vài tháng (ghi rõ trong báo cáo là dữ liệu mô phỏng) | ~1 ngày | ⬜ | ⬜ | ⬜ |
-
-**Xong khi:** tính năng chọn ở AI-0 chạy được từ đầu đến cuối trong app (iPhone + web), chỉ dùng dữ liệu của tổ chức và theo quyền người dùng; có một kịch bản demo cho hội đồng.
 
 ---
 
@@ -798,11 +800,11 @@ Chi tiết từng việc:
 | Theme 4 | 🔄 | | 6-A1, 6-A2, 6-B, 6-C ✅ (review đạt, đã commit; 6-C R1 2026-11-06). **Chỉ còn việc người dùng:** `db reset` local + `supabase/tests/pricing_th04.sql`, reset Dev; kiểm tay 6-A2 7.2, 6-B 8.2 |
 | Theme 5 | 🔄 | | 8-A1…8-A4, 8-B1…8-B3, 8-C ✅ (review đạt; 8-C R1 2026-11-08). Còn: 8-D (sau Theme 7), việc người dùng của 8-B2 / 8-B3 |
 | Theme 8 | 🔄 | | 2026-11-09: 7-B1, 7-E1..E3, 7-A1..A2b, 7-B2, 7-C ✅ (review R1 đạt 2026-11-09; xoá xong `modules/`). Còn: kiểm live trên Dev |
-| Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*`. 2026-10-16: chốt **sửa prototype trước (T7-P), rồi mới code Flutter**; T7-0d, T7-1 tạm dừng, rà lại theo prototype mới trước khi giao |
+| Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*`. 2026-10-16: chốt **sửa prototype trước (T7-P), rồi mới code Flutter**; T7-0d, T7-1 tạm dừng, rà lại theo prototype mới trước khi giao. 2026-11-09: T7-G4 ✅ (FROZEN v5.27.0); tiếp T7-G5 |
 | 8-D | ⬜ | | Tách khỏi Theme 5 (2026-11-03); sau Theme 7 |
+| Tích hợp AI | ⬜ | | Mới thêm 2026-10-27: giảng viên yêu cầu; 2026-11-09 chuyển lên sau 8-D, trước Theme 6 |
 | Theme 6 | ⬜ | | Mới thêm 2026-10-27: phải thu + cấn trừ |
 | Dọn dẹp | ⬜ | | |
-| Tích hợp AI | ⬜ | | Mới thêm 2026-10-27: giảng viên yêu cầu; làm cuối cùng |
 | Báo cáo | ⬜ | | |
 
 ## Rủi ro theo mục
