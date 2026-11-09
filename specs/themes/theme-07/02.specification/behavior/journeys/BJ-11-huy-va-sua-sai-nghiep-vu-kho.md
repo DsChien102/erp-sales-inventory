@@ -27,6 +27,7 @@ Cho phép dừng yêu cầu chưa thực thi hoặc sửa sai operation đã ho�
 | Tác nhân | Trách nhiệm | Phạm vi thẩm quyền |
 |---|---|---|
 | Người vận hành kho và người duyệt sửa sai | Phân loại cancel/correction, chuẩn bị phương án, duyệt và ghi correction chain bất biến. | Không sửa transaction đã hoàn tất tại chỗ; phải dùng cancellation/correction/reconciliation đúng loại. |
+| Người duyệt: `is_owner` hoặc vai trò `store_owner`, khác người lập (trừ ngoại lệ `is_owner` tự duyệt) | Duyệt hoặc từ chối phương án sửa sai nghiệp vụ kho. | **Người duyệt** là `is_owner` hoặc vai trò `store_owner`, khác người lập. **Ngoại lệ:** cửa hàng chỉ có một chủ, nên `is_owner` lập yêu cầu sửa sai thì vẫn gửi duyệt rồi tự duyệt ở màn duyệt (không có đường ghi nhận thẳng); lịch sử ghi người duyệt "Chủ cửa hàng". |
 
 ## 3. Sơ đồ hành trình nghiệp vụ
 

@@ -27,7 +27,7 @@ So sánh hàng thực tế với **book snapshot tại đúng cut-off đã khóa
 |---|---|---|
 | Người có quyền mở kiểm kê | Chọn phạm vi/lý do và khởi tạo phiên | Không được mở nếu scope conflict hoặc còn valuation chưa giải quyết |
 | Người đếm được phân công | Ghi FIRST/RECOUNT theo đếm mù và bằng chứng vật lý | Không xem book/variance trước FIRST submit; không nhập giá trị hàng thừa |
-| Người duyệt độc lập | Duyệt exact final variance snapshot hoặc yêu cầu recount | Không được là actor đã góp count evidence của snapshot đang xét; không sửa số đếm |
+| Người duyệt: `is_owner` hoặc vai trò `store_owner`, khác người lập (trừ ngoại lệ `is_owner` tự duyệt) | Duyệt exact final variance snapshot hoặc yêu cầu recount trên phiên kiểm kê. | **Người duyệt** là `is_owner` hoặc vai trò `store_owner`, khác người lập. **Ngoại lệ:** cửa hàng chỉ có một chủ, nên `is_owner` lập phiên kiểm kê (kể cả khi chủ tự đếm) thì vẫn gửi duyệt rồi tự duyệt ở màn duyệt (không có đường ghi nhận thẳng); lịch sử ghi người duyệt "Chủ cửa hàng". Không sửa số đếm. |
 | Hệ thống | Khóa scope/cutoff, tính variance/risk, ghi adjustment và giải phóng lock | Không tự hợp thức hóa surplus thiếu value basis |
 
 ## 3. Sơ đồ hành trình nghiệp vụ

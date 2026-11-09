@@ -34,7 +34,7 @@ Không tự thực thi correction và không sửa operation gốc. UC chỉ ghi
 
 ## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Tác nhân chính:** Người vận hành kho và người duyệt sửa sai.
+- **Tác nhân chính:** Người duyệt sửa sai. **Người duyệt** là `is_owner` hoặc vai trò `store_owner`, khác người lập. **Ngoại lệ:** cửa hàng chỉ có một chủ, nên `is_owner` lập yêu cầu sửa sai thì vẫn gửi duyệt rồi tự duyệt ở màn duyệt (không có đường ghi nhận thẳng); lịch sử ghi người duyệt "Chủ cửa hàng".
 - **Thẩm quyền:** Chỉ tác nhân có quyền phê duyệt đúng policy và phạm vi mới được ra quyết định; quyết định không thay thế bước thực thi nghiệp vụ phía sau.
 - **Sự kiện khởi phát:** Proposal có snapshot rủi ro.
 - **Điều kiện trước:** Hồ sơ/case đúng version đang ở trạng thái chờ quyết định; tác nhân có quyền phê duyệt theo policy và đọc được snapshot/evidence làm căn cứ.
@@ -97,6 +97,7 @@ Không tự thực thi correction và không sửa operation gốc. UC chỉ ghi
 | BR-04 | Dependency | Chặn reversal nếu làm âm tồn hoặc dependency chưa được trung hòa; không giả lập trung hòa bằng sửa số dư| Decision / DOM-IC / BC nguồn |
 | BR-05 | Delta hay full reversal | Dùng delta khi chỉ phần sai có thể sửa độc lập và giữ đúng nguồn; dùng reversal + replacement khi toàn operation mất hiệu lực hoặc payload đúng phải được xác lập lại nguyên khối| Decision / DOM-IC / BC nguồn |
 | BR-06 | Hàng thực quay về | Sale Issue đã bàn giao chỉ tăng tồn qua BJ-06; cancellation/correction không thay thế việc nhận hàng thực tế| Decision / DOM-IC / BC nguồn |
+| BR-K2 | Người duyệt và tự duyệt | Người duyệt là `is_owner` hoặc vai trò `store_owner`, khác người lập. Ngoại lệ: cửa hàng chỉ có một chủ, nên `is_owner` lập yêu cầu sửa sai thì vẫn gửi duyệt rồi tự duyệt ở màn duyệt (không có đường ghi nhận thẳng); lịch sử ghi người duyệt "Chủ cửa hàng". | Decision K2 / T7-P |
 
 - `SBC-COM-01` — Bao yêu cầu và định danh.
 - `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.

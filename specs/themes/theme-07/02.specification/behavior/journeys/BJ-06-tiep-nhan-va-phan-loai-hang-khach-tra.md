@@ -27,6 +27,7 @@ Ghi đúng **hàng thực tế quay về từ khách**, liên kết được v�
 | Tác nhân | Trách nhiệm | Phạm vi thẩm quyền |
 |---|---|---|
 | Thủ kho; bộ phận trả hàng cung cấp ý định thương mại | Xác minh hàng thực nhận, truy vết giao dịch gốc và phân loại hàng khách trả. | Theme 7 chỉ sở hữu phiếu nhận hàng/physical state; quyết định hoàn tiền/thương mại thuộc Theme nguồn. |
+| Người duyệt: `is_owner` hoặc vai trò `store_owner`, khác người lập (trừ ngoại lệ `is_owner` tự duyệt) | Duyệt ngoại lệ lô/truy vết hàng khách trả. | **Người duyệt** là `is_owner` hoặc vai trò `store_owner`, khác người lập. **Ngoại lệ:** cửa hàng chỉ có một chủ, nên `is_owner` lập ngoại lệ hàng trả thì vẫn gửi duyệt rồi tự duyệt ở màn duyệt (không có đường ghi nhận thẳng); lịch sử ghi người duyệt "Chủ cửa hàng". |
 
 ## 3. Sơ đồ hành trình nghiệp vụ
 

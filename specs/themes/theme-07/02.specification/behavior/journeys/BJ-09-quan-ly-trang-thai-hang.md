@@ -27,6 +27,7 @@ Phản ánh đúng **tình trạng và khả năng bán của hàng vẫn còn h
 | Tác nhân | Trách nhiệm | Phạm vi thẩm quyền |
 |---|---|---|
 | Thủ kho hoặc quản lý kho | Chuẩn bị, duyệt khi cần và thực thi thay đổi trạng thái vật lý của hàng. | Không dùng state change để thay thế quantity/value correction hoặc tiêu hủy. |
+| Người duyệt: `is_owner` hoặc vai trò `store_owner`, khác người lập (trừ ngoại lệ `is_owner` tự duyệt) | Duyệt hoặc từ chối yêu cầu đổi tình trạng hàng. | **Người duyệt** là `is_owner` hoặc vai trò `store_owner`, khác người lập. **Ngoại lệ:** cửa hàng chỉ có một chủ, nên `is_owner` lập đổi tình trạng thì vẫn gửi duyệt rồi tự duyệt ở màn duyệt (không có đường ghi nhận thẳng); lịch sử ghi người duyệt "Chủ cửa hàng". |
 
 ## 3. Sơ đồ hành trình nghiệp vụ
 

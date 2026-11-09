@@ -37,7 +37,7 @@ Kết thúc khi adjustment được commit đúng một lần; hoặc yêu cầu
 
 ## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Tác nhân chính:** Kế toán mua hàng hoặc kế toán kho có quyền tài chính.
+- **Tác nhân chính:** Kế toán mua hàng hoặc kế toán kho có quyền tài chính. "Kế toán" trong UC này là chủ cửa hàng khi cửa hàng không có kế toán riêng.
 - **Thẩm quyền:** Xác nhận nguồn và cách phân bổ trong policy; không sửa nguồn do Theme 10/Theme khác sở hữu.
 - **Sự kiện khởi phát:** Một nguồn hợp lệ tạo chênh lệch so với giá trị nhập đã ghi.
 - **Điều kiện trước:** Target đã initial-valued; source có stable economic identity; amount/tax/FX đủ xác định; posting route tồn tại; không trùng adjustment đã ghi.

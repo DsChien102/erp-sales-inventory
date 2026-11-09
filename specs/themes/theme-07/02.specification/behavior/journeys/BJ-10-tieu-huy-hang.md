@@ -27,6 +27,7 @@ Ghi nhận đúng việc **hàng đã thực sự bị tiêu hủy hoặc xử l
 | Tác nhân | Trách nhiệm | Phạm vi thẩm quyền |
 |---|---|---|
 | Thủ kho, người duyệt và người xác nhận xử lý | Chuẩn bị, duyệt, xác nhận xử lý thực tế và ghi giảm hàng tiêu hủy. | Người thực hiện/duyệt phải tuân segregation policy; không ghi giảm trước completion evidence. |
+| Người duyệt: `is_owner` hoặc vai trò `store_owner`, khác người lập (trừ ngoại lệ `is_owner` tự duyệt) | Duyệt hoặc từ chối đề nghị tiêu hủy hàng. | **Người duyệt** là `is_owner` hoặc vai trò `store_owner`, khác người lập. **Ngoại lệ:** cửa hàng chỉ có một chủ, nên `is_owner` lập đề nghị tiêu hủy thì vẫn gửi duyệt rồi tự duyệt ở màn duyệt (không có đường ghi nhận thẳng); lịch sử ghi người duyệt "Chủ cửa hàng". |
 
 ## 3. Sơ đồ hành trình nghiệp vụ
 

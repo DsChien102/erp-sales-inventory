@@ -34,7 +34,7 @@ Không tự ghi state movement và không sửa yêu cầu đã khóa. UC chỉ 
 
 ## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Tác nhân chính:** Thủ kho hoặc quản lý kho.
+- **Tác nhân chính:** Người duyệt. **Người duyệt** là `is_owner` hoặc vai trò `store_owner`, khác người lập. **Ngoại lệ:** cửa hàng chỉ có một chủ, nên `is_owner` lập đổi tình trạng thì vẫn gửi duyệt rồi tự duyệt ở màn duyệt (không có đường ghi nhận thẳng); lịch sử ghi người duyệt "Chủ cửa hàng".
 - **Thẩm quyền:** Chỉ tác nhân có quyền phê duyệt đúng policy và phạm vi mới được ra quyết định; quyết định không thay thế bước thực thi nghiệp vụ phía sau.
 - **Sự kiện khởi phát:** Yêu cầu vượt ngưỡng/rủi ro.
 - **Điều kiện trước:** Hồ sơ/case đúng version đang ở trạng thái chờ quyết định; tác nhân có quyền phê duyệt theo policy và đọc được snapshot/evidence làm căn cứ.
@@ -97,6 +97,7 @@ Không tự ghi state movement và không sửa yêu cầu đã khóa. UC chỉ 
 | BR-04 | Cận hạn | Chỉ là chỉ báo/policy WARN hoặc BLOCK_SALE; không phải state movement và không tạo hồ sơ cảnh báo có lifecycle| Decision / DOM-IC / BC nguồn |
 | BR-05 | Demo | Vẫn thuộc physical và book value nhưng không khả dụng; muốn bán lại phải qua chuyển trạng thái được phép| Decision / DOM-IC / BC nguồn |
 | BR-06 | Reservation | Khi eligible giảm, phát tác động để BJ-04 đánh giá lại; BJ này không tự sửa order hoặc PickAllocation| Decision / DOM-IC / BC nguồn |
+| BR-K2 | Người duyệt và tự duyệt | Người duyệt là `is_owner` hoặc vai trò `store_owner`, khác người lập. Ngoại lệ: cửa hàng chỉ có một chủ, nên `is_owner` lập đổi tình trạng thì vẫn gửi duyệt rồi tự duyệt ở màn duyệt (không có đường ghi nhận thẳng); lịch sử ghi người duyệt "Chủ cửa hàng". | Decision K2 / T7-P |
 
 - `SBC-COM-01` — Bao yêu cầu và định danh.
 - `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.
