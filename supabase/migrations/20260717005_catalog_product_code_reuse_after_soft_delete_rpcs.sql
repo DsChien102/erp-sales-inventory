@@ -371,7 +371,9 @@ create or replace function catalog.update_product_profile(
   p_barcode text default null,
   p_description text default null,
   p_note text default null,
-  p_expected_version integer default null
+  p_expected_version integer default null,
+  p_tracking_mode text default null,
+  p_expiry_required boolean default null
 )
 returns table (
   product_id uuid,
@@ -468,6 +470,8 @@ begin
       barcode = v_barcode,
       description = nullif(btrim(coalesce(p_description, '')), ''),
       note = nullif(btrim(coalesce(p_note, '')), ''),
+      tracking_mode = coalesce(p_tracking_mode, catalog.products.tracking_mode),
+      expiry_required = coalesce(p_expiry_required, catalog.products.expiry_required),
       updated_at = now(),
       updated_by = p_actor_id,
       version = catalog.products.version + 1
@@ -529,8 +533,8 @@ end;
 $$;
 
 revoke all on function catalog.update_product_profile(
-  uuid, uuid, text, uuid, text, text, text, text, text, integer
+  uuid, uuid, text, uuid, text, text, text, text, text, integer, text, boolean
 ) from public, anon;
 grant execute on function catalog.update_product_profile(
-  uuid, uuid, text, uuid, text, text, text, text, text, integer
+  uuid, uuid, text, uuid, text, text, text, text, text, integer, text, boolean
 ) to authenticated, service_role;

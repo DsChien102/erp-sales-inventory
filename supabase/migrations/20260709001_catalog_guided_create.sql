@@ -47,6 +47,8 @@ create table if not exists catalog.products (
   barcode_normalized text null,
   description text null,
   note text null,
+  tracking_mode text not null default 'none',
+  expiry_required boolean not null default false,
   business_status catalog.product_business_status not null default 'active',
   deleted_at timestamptz null,
   created_at timestamptz not null default now(),
@@ -59,7 +61,11 @@ create table if not exists catalog.products (
   constraint chk_products_sku_normalization
     check (sku is null or sku_normalized is not null),
   constraint chk_products_barcode_normalization
-    check (barcode is null or barcode_normalized is not null)
+    check (barcode is null or barcode_normalized is not null),
+  constraint chk_products_tracking_mode
+    check (tracking_mode in ('none', 'lot')),
+  constraint chk_products_expiry_requires_lot
+    check (not expiry_required or tracking_mode = 'lot')
 );
 
 create unique index if not exists uq_products_tenant_idempotency_key

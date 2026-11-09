@@ -344,6 +344,12 @@ begin
     'product_id', p.id,
     'name', p.name,
     'trade_name', p.trade_name,
+    'tracking_mode', p.tracking_mode,
+    'expiry_required', p.expiry_required,
+    'has_inventory_movements', exists (
+      select 1 from inventory.stock_movements m
+      where m.tenant_id = p_tenant_id and m.product_id = p.id
+    ),
     'sku', p.sku,
     'barcode', p.barcode,
     'description', p.description,

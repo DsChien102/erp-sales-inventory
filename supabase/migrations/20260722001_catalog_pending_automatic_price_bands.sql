@@ -600,7 +600,9 @@ create or replace function catalog.create_guided_product(
   p_list_markup_ratio numeric default null,
   p_floor_markup_ratio numeric default null,
   p_custom_field_values jsonb default '[]'::jsonb,
-  p_idempotency_key uuid default null
+  p_idempotency_key uuid default null,
+  p_tracking_mode text default 'none',
+  p_expiry_required boolean default false
 )
 returns jsonb
 language plpgsql
@@ -735,6 +737,11 @@ begin
     p_idempotency_key => p_idempotency_key
   );
 
+  update catalog.products
+  set tracking_mode = coalesce(p_tracking_mode, 'none'),
+      expiry_required = coalesce(p_expiry_required, false)
+  where id = v_product_id and tenant_id = p_tenant_id;
+
   if v_has_base_unit_input then
     perform catalog.set_product_base_unit(
       p_tenant_id, v_product_id, p_tenant_unit_id, p_new_unit_name
@@ -806,10 +813,10 @@ $$;
 revoke all on function catalog.create_guided_product(
   uuid, uuid, text, text, text, text, text, text, jsonb, uuid, text,
   numeric, numeric, numeric, numeric, boolean, text, numeric, numeric,
-  jsonb, uuid
+  jsonb, uuid, text, boolean
 ) from public, anon;
 grant execute on function catalog.create_guided_product(
   uuid, uuid, text, text, text, text, text, text, jsonb, uuid, text,
   numeric, numeric, numeric, numeric, boolean, text, numeric, numeric,
-  jsonb, uuid
+  jsonb, uuid, text, boolean
 ) to authenticated, service_role;
