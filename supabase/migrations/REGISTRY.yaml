@@ -24,6 +24,7 @@ catalog:
   _ensure_product_has_base_unit: 20260709005_catalog_units.sql
   _get_product_price_band_snapshot_for_pricing: 20260725002_catalog_pricing_price_band_snapshot.sql
   _image_extension_from_name: 20260709001_catalog_guided_create.sql
+  _lock_tracking_after_movement: 20261110001_inventory_core.sql
   _normalize_custom_field_name: 20260709013_catalog_custom_fields.sql
   _normalize_measurement_unit_name: 20260709005_catalog_units.sql
   _normalize_product_barcode: 20260710002_catalog_patch_inline_normalize_schema.sql
@@ -304,6 +305,8 @@ iam:
   verify_password_reset_code_by_email: 20260811025_iam_password_reset_by_email.sql
 
 inventory:
+  _forbid_ledger_mutation: 20261110001_inventory_core.sql
+  _raise: 20261110001_inventory_core.sql
   ensure_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
   get_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
 

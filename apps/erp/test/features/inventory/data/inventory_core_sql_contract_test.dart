@@ -55,6 +55,134 @@ void main() {
       expect(pcc, contains("'has_inventory_movements'"));
     });
   });
+
+  group('schema', () {
+    test('core_tables_exist', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final expectedTables = [
+        'tenant_inventory_settings',
+        'ledger_counters',
+        'lots',
+        'stock_movements',
+        'stock_balances',
+        'value_movements',
+        'approval_cases',
+      ];
+      for (final table in expectedTables) {
+        expect(sql, contains('create table inventory.$table'));
+      }
+    });
+
+    test('rls_and_revoke_for_every_table', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final expectedTables = [
+        'tenant_inventory_settings',
+        'ledger_counters',
+        'lots',
+        'stock_movements',
+        'stock_balances',
+        'value_movements',
+        'approval_cases',
+      ];
+      for (final table in expectedTables) {
+        expect(
+          sql,
+          contains('alter table inventory.$table enable row level security;'),
+        );
+        expect(
+          sql,
+          contains(
+            'revoke all on inventory.$table from public, anon, authenticated;',
+          ),
+        );
+      }
+    });
+
+    test('stock_state_values', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      final expectedStates = [
+        'SELLABLE',
+        'QUARANTINE',
+        'DAMAGED',
+        'EXPIRED',
+        'DEMO',
+        'RETURN_PENDING',
+        'RTV_PENDING',
+      ];
+      for (final state in expectedStates) {
+        expect(sql, contains("'$state'"));
+      }
+    });
+
+    test('balance_unique_key_and_non_negative', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      expect(
+        sql,
+        contains(
+          'unique (tenant_id, warehouse_id, product_id, stock_state, valuation_state, lot_key)',
+        ),
+      );
+      expect(sql, contains('physical_quantity >= 0'));
+    });
+
+    test('ledger_append_only_trigger', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      expect(sql, contains('before update or delete on inventory.stock_movements'));
+      expect(sql, contains('before update or delete on inventory.value_movements'));
+      expect(sql, contains('_forbid_ledger_mutation'));
+    });
+
+    test('tracking_lock_trigger', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      expect(
+        sql,
+        contains(
+          'before update of tracking_mode, expiry_required on catalog.products',
+        ),
+      );
+      expect(sql, contains('_lock_tracking_after_movement'));
+    });
+
+    test('pending_case_unique', () {
+      final repoRoot = _findRepoRoot();
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/20261110001_inventory_core.sql',
+      );
+      expect(migration.existsSync(), isTrue);
+      final sql = migration.readAsStringSync();
+      expect(sql, contains("where status = 'PENDING'"));
+    });
+  });
 }
 
 String _functionDefinition(String sql, String functionName) {
