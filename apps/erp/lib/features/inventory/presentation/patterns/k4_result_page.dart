@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../../../dashboard/presentation/widgets/erp_bottom_navigation.dart';
+import '../../data/core/inventory_command_result.dart';
+import '../../logic/receipt_rules.dart';
 import 'inventory_footer.dart';
 import 'inventory_layout.dart';
 
@@ -23,6 +25,19 @@ class K4StockChange {
   final String product;
   final String before;
   final String after;
+}
+
+extension InventoryCommandResultK4X on InventoryCommandResult {
+  List<K4StockChange> toK4() {
+    return stockChanges.map((sc) {
+      final unitSuffix = sc.baseUom.trim().isNotEmpty ? ' ${sc.baseUom.trim()}' : '';
+      return K4StockChange(
+        product: sc.productName,
+        before: '${formatQuantity(sc.before.toDouble())}$unitSuffix',
+        after: '${formatQuantity(sc.after.toDouble())}$unitSuffix',
+      );
+    }).toList(growable: false);
+  }
 }
 
 class K4ResultPage extends StatelessWidget {

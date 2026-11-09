@@ -263,14 +263,14 @@ Giữ nguyên như đã làm (xem Kết quả). Không đổi theo rút gọn.
 - `final class InventoryStockChange { productId, productName, baseUom, before, after }`; `final class InventoryPostedLine { lineId, movementId, valueMovementId, unitCost (num?), amountVnd (int?), costVersionId (String?), isProvisional (bool) }` (tiền `null` khi bị che); `final class InventoryCommandResult { movementIds; lines; stockChanges; factory fromJson; List<K4StockChange> toK4(); }`.
 - `String newIdempotencyKey()` → `const Uuid().v4()`.
 
-- [ ] **Step 1: Test** (fake `SupabaseRpc` ghi lời gọi / ném lỗi):
+- [x] **Step 1: Test** (fake `SupabaseRpc` ghi lời gọi / ném lỗi):
   - `query_adds_tenant_id`, `mutate_adds_tenant_and_key`.
   - `mutate_network_error_rethrows_network` (`AppException(AppErrorCode.network)` → ném lại, `code == AppErrorCode.network`).
   - `retry_uses_same_key` (gọi `mutate` hai lần cùng `idempotencyKey` → hai lời gọi có cùng `p_idempotency_key`; ghi rõ trong test: Cubit của plan sau phải giữ khoá).
   - `mutate_business_error_rethrows_app_exception` (`INSUFFICIENT_STOCK` giữ `code`).
   - `result_from_json_and_to_k4` (`{movement_ids: ['m1'], lines: [{line_id: 'l1', movement_id: 'm1', value_movement_id: 'v1', unit_cost: 1500, amount_vnd: -15000, cost_version_id: null, is_provisional: true}], stock_changes: [{product_id: 'p', product_name: 'Nobivac DHPPi', base_uom: 'hộp', before: 120, after: 122}]}` → `lines.single.unitCost == 1500`, `.amountVnd == -15000`, `.isProvisional`, `toK4().single.before == '120 hộp'`); `result_lines_unit_cost_null_when_masked`.
   - `error_message_override_then_fallback`.
-- [ ] **Step 2–4:** FAIL → viết → `flutter test --no-pub test/features/inventory/data/core` PASS. **Step 5:** Commit `feat(inventory): lớp RPC Flutter lõi (T7-G5-0b)`.
+- [x] **Step 2–4:** FAIL → viết → `flutter test --no-pub test/features/inventory/data/core` PASS. **Step 5:** Commit `feat(inventory): lớp RPC Flutter lõi (T7-G5-0b)`.
 
 ### Task 7: Hub đọc RPC, gỡ phần đã bỏ
 
@@ -398,7 +398,7 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Ghi chú cho review: `_post_movements` thực hiện kiểm tra `_ensure_open_period` trước khi advisory lock; advisory lock sắp xếp theo `product_id` tăng dần tránh deadlock; ghi song song sổ số lượng và sổ giá trị; tính giá vốn và cập nhật `product_costs` đúng theo phương pháp của cửa hàng.
 
 ### Task 5 (2026-11-10) — ✅
-- Commit: `feat(inventory): RPC tóm tắt Hub (T7-G5-0b)`
+- Commit: `9d47d1a25`
 - Tệp:dòng đã đổi:
   - `supabase/migrations/20261110001_inventory_core.sql`: dòng 5 Touches; bổ sung ghi chú 14 mã lỗi lõi vào `_raise`; thêm RPC công khai `get_warehouse_hub_summary(p_tenant_id uuid)` (`security definer`, search path chuẩn, kiểm tra quyền `inventory.read` qua `_assert_actor`, trả `{activated, problems: null}`, grant cho `authenticated`).
   - `supabase/migrations/REGISTRY.yaml`: đăng ký `get_warehouse_hub_summary`.
@@ -408,6 +408,20 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Test thêm / sửa (tên): `hub_summary_granted_definer`, `hub_summary_shape`, `no_approval_or_outcome_rpc`, `all_core_error_codes_present`, `no_removed_error_codes` (tổng 33/33 tests contract pass).
 - Impact: RPC công khai schema `inventory` được cấp quyền cho `authenticated`. GitNexus risk: low.
 - Ghi chú cho review: `get_warehouse_hub_summary` kiểm tra kích hoạt kho dựa vào sự tồn tại của dòng biến động kho (`stock_movements`), trả `problems: null` để plan sau (G5-2) bổ sung cảnh báo sắp hết/cận hạn.
+
+### Task 6 (2026-11-10) — ✅
+- Commit: `feat(inventory): lớp RPC Flutter lõi (T7-G5-0b)`
+- Tệp:dòng đã đổi:
+  - `apps/erp/lib/features/inventory/data/core/idempotency_key.dart`: tạo hàm `newIdempotencyKey()`.
+  - `apps/erp/lib/features/inventory/data/core/inventory_error_codes.dart`: tạo `InventoryErrorCode` (14 mã lỗi lõi) và `inventoryErrorMessage` (fallback, overrides).
+  - `apps/erp/lib/features/inventory/data/core/inventory_command_result.dart`: tạo `InventoryStockChange`, `InventoryPostedLine`, `InventoryCommandResult.fromJson`.
+  - `apps/erp/lib/features/inventory/presentation/patterns/k4_result_page.dart`: thêm extension `toK4()` cho `InventoryCommandResult` (tuân thủ quy tắc kiến trúc không import presentation từ data).
+  - `apps/erp/lib/features/inventory/data/core/inventory_rpc.dart`: tạo `InventoryRpc` (`query`, `mutate` đính kèm tenantId, idempotencyKey, rethrow `AppException`).
+  - `apps/erp/test/features/inventory/data/core/{inventory_rpc_test,inventory_command_result_test,inventory_error_codes_test}.dart`: 12 unit tests.
+- Lệch plan + lý do: Đặt extension `toK4()` trong `presentation/patterns/k4_result_page.dart` thay vì trực tiếp trong `data/core/` để tuân thủ kiến trúc phân tầng (data không import logic/presentation, `dart run tool/check_feature_imports.dart` sạch 100%).
+- Test thêm / sửa (tên): 12 tests mới trong `test/features/inventory/data/core/` pass 100%. `check_feature_imports` không có lỗi trong inventory.
+- Impact: Thêm các class core cho inventory. GitNexus risk: low.
+- Ghi chú cho review: `InventoryRpc` tự đính kèm `p_tenant_id` và `p_idempotency_key` cho `mutate`, rethrow nguyên vẹn `AppException` (bao gồm lỗi mạng `AppErrorCode.network` để UI hiển thị và retry với cùng key).
 
 Task 9 thêm: lệnh đã chạy, đạt / lỗi, tên test hỏng đối chiếu `TEST-BASELINE.md`, kết quả `detect_changes`.
 
