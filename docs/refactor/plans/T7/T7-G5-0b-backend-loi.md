@@ -287,11 +287,11 @@ Giữ nguyên như đã làm (xem Kết quả). Không đổi theo rút gọn.
 - DI: `registerLazySingleton<InventoryRpc>(() => InventoryRpc(rpc: getIt<SupabaseRpc>(), tenantId: () async => getIt<SessionStore>().tenantId!))`; `WarehouseHubRepository(rpc: getIt<InventoryRpc>())`.
 - Test G5-0a tạo `const WarehouseHubRepository()` → đổi sang `FakeWarehouseHubRepository` trong `test/features/inventory/support/`.
 
-- [ ] **Step 0 (giữ hành vi):** `flutter test --no-pub -r compact test/features/inventory` → ghi mốc đạt / lỗi vào Kết quả.
-- [ ] **Step 1: Test:** `parses_activated` (`{activated: true, problems: null}`); `hub_has_no_pending_row` (không có chữ "Chờ duyệt"); `empty_warehouse_prompts_receipt` (`activated == false` ⇒ banner "Kho chưa có hàng" + nút "Lập phiếu nhận", nút nhanh bật — Q-b19); `area_entries_only_kept_bj` (danh sách id đúng như trên); `quick_actions_three`. Sửa test Hub / patterns G5-0a đang kiểm `pending` / K2 / K3 (xoá ca thuộc phần bỏ, ghi tên ca đã xoá vào Kết quả).
-- [ ] **Step 2–3:** FAIL → `impact` các symbol Hub ở Global Constraints → viết / xoá.
-- [ ] **Step 4:** PASS; `grep -rn "WarehousePending\|k2_approval\|k3_unknown\|K3Unknown\|warehouse.approvals\|/warehouse/approvals" apps/erp/lib apps/erp/test` → rỗng; `flutter test --no-pub test/features/inventory` không thêm lỗi so với Step 0 (trừ ca đã xoá).
-- [ ] **Step 5:** Commit `refactor(inventory): Hub đọc RPC, gỡ Chờ duyệt / K2 / K3 / lối vào BJ bỏ (T7-G5-0b)`.
+- [x] **Step 0 (giữ hành vi):** `flutter test --no-pub -r compact test/features/inventory` → ghi mốc đạt / lỗi vào Kết quả.
+- [x] **Step 1: Test:** `parses_activated` (`{activated: true, problems: null}`); `hub_has_no_pending_row` (không có chữ "Chờ duyệt"); `empty_warehouse_prompts_receipt` (`activated == false` ⇒ banner "Kho chưa có hàng" + nút "Lập phiếu nhận", nút nhanh bật — Q-b19); `area_entries_only_kept_bj` (danh sách id đúng như trên); `quick_actions_three`. Sửa test Hub / patterns G5-0a đang kiểm `pending` / K2 / K3 (xoá ca thuộc phần bỏ, ghi tên ca đã xoá vào Kết quả).
+- [x] **Step 2–3:** FAIL → `impact` các symbol Hub ở Global Constraints → viết / xoá.
+- [x] **Step 4:** PASS; `grep -rn "WarehousePending\|k2_approval\|k3_unknown\|K3Unknown\|warehouse.approvals\|/warehouse/approvals" apps/erp/lib apps/erp/test` → rỗng; `flutter test --no-pub test/features/inventory` không thêm lỗi so với Step 0 (trừ ca đã xoá).
+- [x] **Step 5:** Commit `refactor(inventory): Hub đọc RPC, gỡ Chờ duyệt / K2 / K3 / lối vào BJ bỏ (T7-G5-0b)`.
 
 ### Task 8: Theme 2 — ô gạt theo dõi lô
 
@@ -410,7 +410,7 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Ghi chú cho review: `get_warehouse_hub_summary` kiểm tra kích hoạt kho dựa vào sự tồn tại của dòng biến động kho (`stock_movements`), trả `problems: null` để plan sau (G5-2) bổ sung cảnh báo sắp hết/cận hạn.
 
 ### Task 6 (2026-11-10) — ✅
-- Commit: `feat(inventory): lớp RPC Flutter lõi (T7-G5-0b)`
+- Commit: `cc03e3d0b`
 - Tệp:dòng đã đổi:
   - `apps/erp/lib/features/inventory/data/core/idempotency_key.dart`: tạo hàm `newIdempotencyKey()`.
   - `apps/erp/lib/features/inventory/data/core/inventory_error_codes.dart`: tạo `InventoryErrorCode` (14 mã lỗi lõi) và `inventoryErrorMessage` (fallback, overrides).
@@ -422,6 +422,29 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Test thêm / sửa (tên): 12 tests mới trong `test/features/inventory/data/core/` pass 100%. `check_feature_imports` không có lỗi trong inventory.
 - Impact: Thêm các class core cho inventory. GitNexus risk: low.
 - Ghi chú cho review: `InventoryRpc` tự đính kèm `p_tenant_id` và `p_idempotency_key` cho `mutate`, rethrow nguyên vẹn `AppException` (bao gồm lỗi mạng `AppErrorCode.network` để UI hiển thị và retry với cùng key).
+
+### Task 7 (2026-11-10) — ✅
+- Commit: `refactor(inventory): Hub đọc RPC, gỡ Chờ duyệt / K2 / K3 / lối vào BJ bỏ (T7-G5-0b)`
+- Tệp:dòng đã đổi:
+  - Xoá `apps/erp/lib/features/inventory/presentation/hub/warehouse_pending_approvals_page.dart`
+  - Xoá `apps/erp/lib/features/inventory/presentation/patterns/k2_approval.dart`
+  - Xoá `apps/erp/lib/features/inventory/presentation/patterns/k3_unknown_page.dart`
+  - Xoá `apps/erp/test/features/inventory/presentation/patterns/k2_approval_test.dart`
+  - `apps/erp/lib/features/inventory/data/hub/warehouse_hub_summary.dart`: chỉ còn `activated`, `problems`.
+  - `apps/erp/lib/features/inventory/data/hub/warehouse_hub_repository.dart`: inject `InventoryRpc`, gọi RPC `get_warehouse_hub_summary`.
+  - `apps/erp/lib/core/di/injection.dart`: đăng ký `InventoryRpc`, inject vào `WarehouseHubRepository`.
+  - `apps/erp/lib/features/inventory/presentation/hub/warehouse_entries.dart`: bỏ khu setup, còn 5 khu vực; gỡ các lối vào BJ bị bỏ; nút nhanh còn 3 nút (bỏ Lấy hàng).
+  - `apps/erp/lib/features/inventory/presentation/hub/warehouse_hub_page.dart`: banner "Kho chưa có hàng" + nút "Lập phiếu nhận" khi chưa kích hoạt; gỡ section "Thiết lập kho", gỡ dòng "Chờ duyệt" và "Đối soát".
+  - `apps/erp/lib/features/inventory/presentation/hub/warehouse_hub_routes.dart`: bỏ route `warehouse.approvals`.
+  - `apps/erp/test/features/inventory/data/hub/warehouse_hub_repository_test.dart`: tạo mới test `getSummary`.
+  - `apps/erp/test/features/inventory/logic/hub/warehouse_hub_test.dart`: cập nhật test summary, entries (5 khu, 3 quick actions), cubit.
+  - `apps/erp/test/features/inventory/presentation/hub/warehouse_hub_pages_test.dart`: cập nhật test hub layout, bỏ nhóm pending approvals.
+  - `apps/erp/test/features/inventory/presentation/patterns/k3_k4_test.dart`: bỏ nhóm K3UnknownPage.
+  - `apps/erp/test/features/inventory/support/inventory_router_harness.dart`: inject `_FakeInventoryRpc` cho repository.
+- Lệch plan + lý do: Không.
+- Test thêm / sửa: 102/102 test inventory pass 100%. `git grep` xác nhận không còn reference tới `WarehousePendingApprovalsPage`, `K2Approval`, `K3Unknown`.
+- Impact: Hub repository chuyển sang đọc RPC thật qua `InventoryRpc`. GitNexus risk: low.
+- Ghi chú cho review: Gỡ bỏ hoàn toàn hạ tầng K2 duyệt và K3 xác minh kết quả chưa rõ theo quyết định Q-b10, Q-b14, Q-b15, Q-b19.
 
 Task 9 thêm: lệnh đã chạy, đạt / lỗi, tên test hỏng đối chiếu `TEST-BASELINE.md`, kết quả `detect_changes`.
 

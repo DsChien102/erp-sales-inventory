@@ -3,6 +3,7 @@ import 'package:erp/core/router/app_router.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_store.dart';
 import 'package:erp/features/dashboard/data/default_pair_repository.dart';
+import 'package:erp/features/inventory/data/core/inventory_rpc.dart';
 import 'package:erp/features/inventory/data/goods_receipt_repository.dart';
 import 'package:erp/features/inventory/data/hub/warehouse_hub_repository.dart';
 import 'package:erp/features/inventory/data/valuation_repository.dart';
@@ -14,6 +15,15 @@ import 'package:vet45_shared_testing/shared_testing.dart';
 
 import '../../auth/support/scripted_auth.dart';
 import '../../dashboard/presentation/fake_default_pair_repository.dart';
+
+class _FakeInventoryRpc extends Fake implements InventoryRpc {
+  @override
+  Future<Map<String, dynamic>> query(
+    String fn, [
+    Map<String, dynamic> params = const {},
+  ]) async =>
+      {'activated': true, 'problems': null};
+}
 
 base class InventorySessionStore extends SessionStore {
   InventorySessionStore({this.isOwner = true});
@@ -38,7 +48,7 @@ Future<void> setUpInventoryRouterTest({bool isOwner = true}) async {
     ..registerSingleton<SessionStore>(store)
     ..registerSingleton<IExecutionContext>(FakeExecutionContext(tenantId: 'tenant-test'))
     ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
-    ..registerSingleton<WarehouseHubRepository>(const WarehouseHubRepository())
+    ..registerSingleton<WarehouseHubRepository>(WarehouseHubRepository(rpc: _FakeInventoryRpc()))
     ..registerSingleton<ValuationRepository>(valuationRepo)
     ..registerSingleton<GoodsReceiptRepository>(GoodsReceiptRepository(valuation: valuationRepo))
     ..registerSingleton<SessionController>(session);

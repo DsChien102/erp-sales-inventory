@@ -137,29 +137,28 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
           )
         : searchWidget;
 
-    // 2. Banner chưa kích hoạt
+    // 2. Banner chưa có hàng
     Widget? bannerWidget;
     if (!summary.activated) {
-      final initialStockEntry = warehouseAreaEntries(WarehouseArea.setup)
-          .firstWhere((e) => e.id == 'initial_stock');
-      final canInit = state.isOwner && initialStockEntry.route != null;
+      final receiptEntries = warehouseAreaEntries(WarehouseArea.movement);
+      final receiptEntry = receiptEntries.firstWhere((e) => e.id == 'receipts');
 
       bannerWidget = VBanner(
-        title: 'Kho chưa kích hoạt',
+        title: 'Kho chưa có hàng',
         tone: VComponentTone.info,
         description:
-            'Nhập số tồn hiện có một lần để bắt đầu nhận, bán và kiểm kê hàng.',
-        footer: canInit
+            'Tạo phiếu nhận đầu tiên để bắt đầu theo dõi tồn kho và biến động.',
+        footer: receiptEntry.route != null
             ? VButton(
-                label: 'Khởi tạo tồn kho',
+                label: 'Lập phiếu nhận',
                 variant: VButtonVariant.primary,
-                onPressed: () => context.push(initialStockEntry.route!),
+                onPressed: () => context.push(receiptEntry.route!),
               )
             : null,
       );
     }
 
-    // 3. Nút nhanh (Lưới 2x2 trên mobile, 1 hàng trên web)
+    // 3. Nút nhanh (1 hàng trên mobile và web)
     final actionButtons = warehouseQuickActions.map((action) {
       final isEnabled = !action.requiresActivation || summary.activated;
       return VQuickActionButton(
@@ -187,35 +186,12 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
               .toList(),
         );
       } else {
-        quickActionsWidget = Column(
+        quickActionsWidget = Row(
           children: [
-            Row(
-              children: [
-                Expanded(child: actionButtons[0]),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: actionButtons.length > 1
-                      ? actionButtons[1]
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: actionButtons.length > 2
-                      ? actionButtons[2]
-                      : const SizedBox.shrink(),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: actionButtons.length > 3
-                      ? actionButtons[3]
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ),
+            for (int i = 0; i < actionButtons.length; i++) ...[
+              if (i > 0) const SizedBox(width: 8),
+              Expanded(child: actionButtons[i]),
+            ],
           ],
         );
       }
@@ -223,25 +199,11 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
 
     // 4. Section "Cần chú ý"
     final attentionRows = <Widget>[];
-    if (summary.pendingTotal > 0) {
-      attentionRows.add(
-        VListRow(
-          asCard: true,
-          leading: VIcons.clock,
-          leadingBackgroundColor: const Color(0xFFE8F0FE),
-          leadingIconColor: const Color(0xFF1A73E8),
-          title: 'Chờ duyệt',
-          subtitle: summary.pendingText.isNotEmpty ? summary.pendingText : null,
-          trailing: _buildCountBadge(summary.pendingTotal),
-          onTap: () => context.push('/warehouse/approvals'),
-        ),
-      );
-    }
 
     if (summary.activated && summary.problems != null) {
       final controlEntries = warehouseAreaEntries(WarehouseArea.control);
       final qEntry =
-          controlEntries.where((e) => e.id == 'quarantine').firstOrNull;
+          controlEntries.where((e) => e.id == 'stocktaking').firstOrNull;
       attentionRows.add(
         VListRow(
           asCard: true,
@@ -253,25 +215,6 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
           trailing: _buildCountBadge(summary.problems!.count),
           onTap: () =>
               context.push(qEntry?.route ?? '/warehouse/area/control'),
-        ),
-      );
-    }
-
-    if (summary.activated && summary.reconciliation != null) {
-      final controlEntries = warehouseAreaEntries(WarehouseArea.control);
-      final rEntry =
-          controlEntries.where((e) => e.id == 'reconciliation').firstOrNull;
-      attentionRows.add(
-        VListRow(
-          asCard: true,
-          leading: VIcons.search,
-          leadingBackgroundColor: const Color(0xFFFFF7E6),
-          leadingIconColor: const Color(0xFFE37400),
-          title: 'Hồ sơ cần kiểm tra',
-          subtitle: summary.reconciliation!.text,
-          trailing: _buildCountBadge(summary.reconciliation!.count),
-          onTap: () =>
-              context.push(rEntry?.route ?? '/warehouse/area/control'),
         ),
       );
     }
@@ -317,19 +260,6 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
       ),
     );
 
-    // 6. Section "Thiết lập kho"
-    final setupArea = WarehouseArea.setup;
-    final setupWidget = VSection(
-      child: VListRow(
-        asCard: true,
-        bareLeading: true,
-        leading: setupArea.icon,
-        title: setupArea.title,
-        subtitle: setupArea.subtitle,
-        onTap: () => context.push('/warehouse/area/${setupArea.id}'),
-      ),
-    );
-
     if (isWide) {
       return SingleChildScrollView(
         padding: const EdgeInsets.all(VSpacing.space4),
@@ -363,8 +293,6 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       managementWidget,
-                      const SizedBox(height: VSpacing.space4),
-                      setupWidget,
                     ],
                   ),
                 ),
@@ -395,8 +323,6 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
             const SizedBox(height: VSpacing.space4),
           ],
           managementWidget,
-          const SizedBox(height: VSpacing.space4),
-          setupWidget,
         ],
       ),
     );

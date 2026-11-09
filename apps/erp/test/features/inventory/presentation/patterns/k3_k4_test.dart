@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/dashboard/presentation/widgets/erp_bottom_navigation.dart';
-import 'package:erp/features/inventory/presentation/patterns/k3_unknown_page.dart';
 import 'package:erp/features/inventory/presentation/patterns/k4_result_page.dart';
 import '../../support/inventory_test_surface.dart';
 
@@ -117,82 +116,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(navigatedTo, '/orders');
-    });
-  });
-
-  group('K3UnknownPage', () {
-    testWidgets('k3_rows_and_copy', (tester) async {
-      await tester.pumpWidget(
-        wrap(
-          K3UnknownPage(
-            operation: 'Nhận hàng',
-            scope: 'Kho Chính',
-            ref: 'PN-260905-01',
-            sentAt: '09:41',
-            safe: 'Phiếu chưa được lưu.',
-            onExit: () {},
-          ),
-        ),
-      );
-
-      expect(find.text('Kết quả chưa xác định'), findsOneWidget);
-      expect(
-        find.textContaining('Không gửi lại thao tác.'),
-        findsOneWidget,
-      );
-      expect(
-        find.textContaining('Phiếu chưa được lưu.'),
-        findsOneWidget,
-      );
-
-      expect(find.text('Nghiệp vụ'), findsOneWidget);
-      expect(find.text('Nhận hàng'), findsOneWidget);
-      expect(find.text('Phạm vi'), findsOneWidget);
-      expect(find.text('Kho Chính'), findsOneWidget);
-      expect(find.text('Mã tham chiếu'), findsOneWidget);
-      expect(find.text('PN-260905-01'), findsOneWidget);
-      expect(find.text('Thời điểm gửi'), findsOneWidget);
-      expect(find.text('09:41'), findsOneWidget);
-      expect(find.text('Trạng thái'), findsOneWidget);
-      expect(find.text('Chưa kết luận'), findsOneWidget);
-
-      expect(find.byType(ErpBottomNavigation), findsNothing);
-    });
-
-    testWidgets('k3_two_buttons_when_verify', (tester) async {
-      await tester.pumpWidget(
-        wrap(
-          K3UnknownPage(
-            operation: 'Nhận hàng',
-            scope: 'Kho Chính',
-            ref: 'PN-01',
-            sentAt: '09:41',
-            onExit: () {},
-            onVerify: () {},
-          ),
-        ),
-      );
-
-      expect(find.text('Về Kho'), findsOneWidget);
-      expect(find.text('Chuyển sang xác minh'), findsOneWidget);
-    });
-
-    testWidgets('k3_only_exit_when_verify_null', (tester) async {
-      await tester.pumpWidget(
-        wrap(
-          K3UnknownPage(
-            operation: 'Nhận hàng',
-            scope: 'Kho Chính',
-            ref: 'PN-01',
-            sentAt: '09:41',
-            onExit: () {},
-            onVerify: null,
-          ),
-        ),
-      );
-
-      expect(find.text('Về Kho'), findsOneWidget);
-      expect(find.text('Chuyển sang xác minh'), findsNothing);
     });
   });
 }

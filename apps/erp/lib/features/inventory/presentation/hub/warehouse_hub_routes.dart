@@ -4,7 +4,6 @@ import 'package:erp/core/session/session_store.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_entries.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_hub_page.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_area_page.dart';
-import 'package:erp/features/inventory/presentation/hub/warehouse_pending_approvals_page.dart';
 
 List<RouteBase> warehouseHubRoutes() => [
       GoRoute(
@@ -38,11 +37,6 @@ List<RouteBase> warehouseHubRoutes() => [
                   : true;
               return WarehouseAreaPage(area: area, isOwner: isOwner);
             },
-          ),
-          GoRoute(
-            path: 'approvals',
-            name: 'warehouse.approvals',
-            builder: (context, state) => const WarehousePendingApprovalsPage(),
           ),
         ],
       ),

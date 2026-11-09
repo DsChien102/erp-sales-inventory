@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/inventory/data/core/inventory_rpc.dart';
 import 'package:erp/features/inventory/data/hub/warehouse_hub_repository.dart';
 import 'package:erp/features/inventory/data/hub/warehouse_hub_summary.dart';
 import 'package:erp/features/inventory/logic/hub/warehouse_hub_cubit.dart';
+import 'package:erp/features/inventory/presentation/hub/warehouse_area_page.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_entries.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_hub_page.dart';
-import 'package:erp/features/inventory/presentation/hub/warehouse_area_page.dart';
-import 'package:erp/features/inventory/presentation/hub/warehouse_pending_approvals_page.dart';
 import '../../support/inventory_test_surface.dart';
 
+class _MockInventoryRpc extends Mock implements InventoryRpc {}
+
 class _FakeHubRepo extends WarehouseHubRepository {
-  _FakeHubRepo(this._summary);
+  _FakeHubRepo(this._summary) : super(rpc: _MockInventoryRpc());
   final WarehouseHubSummary _summary;
-  int calls = 0;
 
   @override
   Future<WarehouseHubSummary> getSummary() async {
-    calls++;
     return _summary;
   }
 }
 
 class _ThrowingHubRepo extends WarehouseHubRepository {
+  _ThrowingHubRepo() : super(rpc: _MockInventoryRpc());
   int calls = 0;
   bool shouldThrow = true;
 
@@ -31,19 +33,19 @@ class _ThrowingHubRepo extends WarehouseHubRepository {
   Future<WarehouseHubSummary> getSummary() async {
     calls++;
     if (shouldThrow) {
-      throw const AppException(AppErrorCode.network);
+      throw const AppException(AppErrorCode.unknown);
     }
     return const WarehouseHubSummary(activated: true);
   }
 }
 
-/// Mỗi `VListRow` có đúng một mũi tên › (R1-1).
 void _expectSingleChevronPerRow(WidgetTester tester) {
-  final rows = find.byType(VListRow);
-  expect(rows, findsWidgets);
-  for (final row in rows.evaluate()) {
+  final rowFinders = find.byType(VListRow);
+  expect(rowFinders, findsWidgets);
+
+  for (final rowElement in rowFinders.evaluate()) {
     final chevrons = find.descendant(
-      of: find.byWidget(row.widget),
+      of: find.byElementPredicate((e) => identical(e, rowElement)),
       matching: find.byWidgetPredicate(
         (w) => w is VIcon && w.icon == VIcons.chevronRight,
       ),
@@ -66,25 +68,9 @@ void main() {
 
   group('WarehouseHubPage', () {
     for (final size in const [Size(390, 844), Size(1280, 800)]) {
-      testWidgets('hub_rows_single_chevron_and_setup_title_once ${size.width.toInt()}',
+      testWidgets('hub_rows_single_chevron_and_management_title ${size.width.toInt()}',
           (tester) async {
-        const summary = WarehouseHubSummary(
-          activated: true,
-          pending: [
-            WarehousePendingGroup(
-              sourceId: 'receipts',
-              label: 'nhận hàng',
-              items: [
-                WarehousePendingItem(
-                  title: 'PN-01',
-                  subtitle: 'NCC A',
-                  icon: VIcons.cloudUpload,
-                  route: '/r/1',
-                ),
-              ],
-            ),
-          ],
-        );
+        const summary = WarehouseHubSummary(activated: true);
         final cubit = WarehouseHubCubit(
           repository: _FakeHubRepo(summary),
           isOwner: () => true,
@@ -94,33 +80,15 @@ void main() {
         await tester.pumpAndSettle();
 
         _expectSingleChevronPerRow(tester);
-        expect(find.text('Thiết lập kho'), findsOneWidget);
+        expect(find.text('Quản lý kho'), findsOneWidget);
+        expect(find.text('Thiết lập kho'), findsNothing);
       });
     }
 
     testWidgets('hub_normal_with_attention', (tester) async {
       const summary = WarehouseHubSummary(
         activated: true,
-        pending: [
-          WarehousePendingGroup(
-            sourceId: 'receipts',
-            label: 'nhận hàng',
-            items: [
-              WarehousePendingItem(
-                title: 'PN-01',
-                subtitle: 'NCC A',
-                icon: VIcons.cloudUpload,
-                route: '/r/1',
-              ),
-              WarehousePendingItem(
-                title: 'PN-02',
-                subtitle: 'NCC B',
-                icon: VIcons.cloudUpload,
-                route: '/r/2',
-              ),
-            ],
-          ),
-        ],
+        problems: WarehouseAttention(count: 2, text: '2 hàng hỏng'),
       );
       final repo = _FakeHubRepo(summary);
       final cubit = WarehouseHubCubit(repository: repo, isOwner: () => true);
@@ -129,9 +97,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Cần chú ý'), findsOneWidget);
-      expect(find.text('Chờ duyệt'), findsOneWidget);
+      expect(find.text('Hàng cần xử lý'), findsOneWidget);
+      expect(find.text('2 hàng hỏng'), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
-      expect(find.text('Hàng cần xử lý'), findsNothing);
+      expect(find.text('Chờ duyệt'), findsNothing);
     });
 
     testWidgets('hub_no_attention_hides_section', (tester) async {
@@ -153,12 +122,12 @@ void main() {
       await tester.pumpWidget(wrap(WarehouseHubPage(cubit: cubit)));
       await tester.pumpAndSettle();
 
-      expect(find.text('Kho chưa kích hoạt'), findsOneWidget);
+      expect(find.text('Kho chưa có hàng'), findsOneWidget);
 
-      final receiveBtn = tester.widget<VQuickActionButton>(
-        find.widgetWithText(VQuickActionButton, 'Nhận hàng'),
+      final receiveBtn = tester.widget<VButton>(
+        find.widgetWithText(VButton, 'Lập phiếu nhận'),
       );
-      expect(receiveBtn.onPressed, isNull);
+      expect(receiveBtn.onPressed, isNotNull);
 
       expect(find.text('Khởi tạo tồn kho'), findsNothing);
     });
@@ -197,29 +166,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Nhận hàng'), findsOneWidget);
-      expect(find.text('Lấy hàng'), findsOneWidget);
       expect(find.text('Kiểm kê'), findsOneWidget);
       expect(find.text('Tra cứu tồn'), findsOneWidget);
+      expect(find.text('Lấy hàng'), findsNothing);
       expect(find.byType(VSearchBar), findsOneWidget);
     });
 
     testWidgets('hub_web_two_columns', (tester) async {
       const summary = WarehouseHubSummary(
         activated: true,
-        pending: [
-          WarehousePendingGroup(
-            sourceId: 'receipts',
-            label: 'nhận hàng',
-            items: [
-              WarehousePendingItem(
-                title: 'PN-01',
-                subtitle: 'NCC A',
-                icon: VIcons.cloudUpload,
-                route: '/r/1',
-              ),
-            ],
-          ),
-        ],
+        problems: WarehouseAttention(count: 1, text: 'Cần kiểm kê'),
       );
       final repo = _FakeHubRepo(summary);
       final cubit = WarehouseHubCubit(repository: repo, isOwner: () => true);
@@ -304,7 +260,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Nhận hàng'), findsOneWidget);
-      expect(find.text('Lấy & bàn giao'), findsNothing);
     });
 
     testWidgets('area_hides_entries_without_route', (tester) async {
@@ -314,45 +269,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(VListRow), findsNothing);
-    });
-  });
-
-  group('WarehousePendingApprovalsPage', () {
-    testWidgets('pending_list_rows_and_badge', (tester) async {
-      const summary = WarehouseHubSummary(
-        activated: true,
-        pending: [
-          WarehousePendingGroup(
-            sourceId: 'receipts',
-            label: 'nhận hàng',
-            items: [
-              WarehousePendingItem(
-                title: 'PN-01',
-                subtitle: 'NCC A',
-                icon: VIcons.cloudUpload,
-                route: '/r/1',
-              ),
-              WarehousePendingItem(
-                title: 'PN-02',
-                subtitle: 'NCC B',
-                icon: VIcons.cloudUpload,
-                route: '/r/2',
-              ),
-            ],
-          ),
-        ],
-      );
-      final repo = _FakeHubRepo(summary);
-      final cubit = WarehouseHubCubit(repository: repo, isOwner: () => true);
-
-      await tester.pumpWidget(
-        wrap(WarehousePendingApprovalsPage(cubit: cubit)),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Đang chờ xử lý'), findsOneWidget);
-      expect(find.byType(VListRow), findsNWidgets(2));
-      expect(find.widgetWithText(VBadge, 'Chờ duyệt'), findsNWidgets(2));
     });
   });
 }

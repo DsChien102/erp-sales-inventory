@@ -1,14 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/inventory/data/core/inventory_rpc.dart';
 import 'package:erp/features/inventory/data/hub/warehouse_hub_summary.dart';
 import 'package:erp/features/inventory/data/hub/warehouse_hub_repository.dart';
 import 'package:erp/features/inventory/logic/hub/warehouse_hub_cubit.dart';
 import 'package:erp/features/inventory/logic/hub/warehouse_hub_state.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_entries.dart';
 
+class _MockInventoryRpc extends Mock implements InventoryRpc {}
+
 class _ThrowingHubRepo extends WarehouseHubRepository {
-  const _ThrowingHubRepo(this.error);
+  _ThrowingHubRepo(this.error) : super(rpc: _MockInventoryRpc());
   final Object error;
 
   @override
@@ -17,58 +20,27 @@ class _ThrowingHubRepo extends WarehouseHubRepository {
   }
 }
 
+class _SuccessHubRepo extends WarehouseHubRepository {
+  _SuccessHubRepo(this._summary) : super(rpc: _MockInventoryRpc());
+  final WarehouseHubSummary _summary;
+
+  @override
+  Future<WarehouseHubSummary> getSummary() async {
+    return _summary;
+  }
+}
+
 void main() {
   group('WarehouseHubSummary', () {
-    test('pending_text_joins_non_empty_groups', () {
+    test('activated_and_problems_fields', () {
       const summary = WarehouseHubSummary(
         activated: true,
-        pending: [
-          WarehousePendingGroup(
-            sourceId: 'receipts',
-            label: 'nhận hàng',
-            items: [
-              WarehousePendingItem(
-                title: 'PN-01',
-                subtitle: 'NCC ABC',
-                icon: VIcons.cloudUpload,
-                route: '/r/1',
-              ),
-              WarehousePendingItem(
-                title: 'PN-02',
-                subtitle: 'NCC XYZ',
-                icon: VIcons.cloudUpload,
-                route: '/r/2',
-              ),
-              WarehousePendingItem(
-                title: 'PN-03',
-                subtitle: 'NCC 123',
-                icon: VIcons.cloudUpload,
-                route: '/r/3',
-              ),
-            ],
-          ),
-          WarehousePendingGroup(
-            sourceId: 'initial',
-            label: 'số dư đầu kỳ',
-            items: [
-              WarehousePendingItem(
-                title: 'Tồn đầu kỳ 2026',
-                subtitle: 'Chờ duyệt',
-                icon: VIcons.inbox,
-                route: '/r/initial',
-              ),
-            ],
-          ),
-          WarehousePendingGroup(
-            sourceId: 'returns',
-            label: 'hàng khách trả',
-            items: [],
-          ),
-        ],
+        problems: WarehouseAttention(count: 2, text: '2 hàng hỏng'),
       );
 
-      expect(summary.pendingTotal, 4);
-      expect(summary.pendingText, '3 nhận hàng · 1 số dư đầu kỳ');
+      expect(summary.activated, isTrue);
+      expect(summary.problems?.count, 2);
+      expect(summary.problems?.text, '2 hàng hỏng');
     });
   });
 
@@ -81,25 +53,16 @@ void main() {
         valuationEntriesNonOwner.any((e) => e.title == 'Giá vốn'),
         isFalse,
       );
-
-      final setupEntriesNonOwner = warehouseAreaEntries(WarehouseArea.setup)
-          .where((e) => !e.ownerOnly)
-          .toList();
-      expect(
-        setupEntriesNonOwner.any((e) => e.title == 'Khởi tạo tồn đầu kỳ'),
-        isFalse,
-      );
     });
 
     test('entries_copy_matches_contract', () {
-      // 6 khu vực
-      expect(WarehouseArea.values.length, 6);
+      // 5 khu vực (đã bỏ setup)
+      expect(WarehouseArea.values.length, 5);
       expect(WarehouseArea.inventory.title, 'Tồn kho');
       expect(WarehouseArea.movement.title, 'Nhập, xuất & hoàn trả');
       expect(WarehouseArea.control.title, 'Kiểm kê & xử lý');
       expect(WarehouseArea.valuation.title, 'Giá trị kho');
       expect(WarehouseArea.history.title, 'Báo cáo & lịch sử');
-      expect(WarehouseArea.setup.title, 'Thiết lập kho');
 
       // Tạm 2 route theo Q-a1
       final receiptsEntry = warehouseAreaEntries(WarehouseArea.movement)
@@ -110,17 +73,18 @@ void main() {
           .firstWhere((e) => e.id == 'valuation_queue');
       expect(valEntry.route, '/warehouse/valuation/queue');
 
-      // Quick action
-      expect(warehouseQuickActions.length, 4);
+      // Quick action (3 nút: Nhận hàng, Kiểm kê, Tra cứu tồn — đã bỏ Lấy hàng)
+      expect(warehouseQuickActions.length, 3);
       expect(warehouseQuickActions.first.label, 'Nhận hàng');
       expect(warehouseQuickActions.first.route, '/warehouse/receipts/new');
+      expect(warehouseQuickActions.any((a) => a.label == 'Lấy hàng'), isFalse);
     });
   });
 
   group('WarehouseHubCubit', () {
     test('cubit_loads_summary_and_owner', () async {
       final cubit = WarehouseHubCubit(
-        repository: const WarehouseHubRepository(),
+        repository: _SuccessHubRepo(const WarehouseHubSummary(activated: true)),
         isOwner: () => true,
       );
 
@@ -135,8 +99,8 @@ void main() {
 
     test('cubit_error_message_from_app_exception', () async {
       final cubit = WarehouseHubCubit(
-        repository: const _ThrowingHubRepo(
-          AppException(AppErrorCode.network),
+        repository: _ThrowingHubRepo(
+          const AppException(AppErrorCode.network),
         ),
         isOwner: () => false,
       );

@@ -18,6 +18,7 @@ import '../../features/iam/data/audit_log_repository.dart';
 import '../../features/iam/data/invitation_repository.dart';
 import '../../features/iam/data/member_repository.dart';
 import '../../features/iam/data/organization_repository.dart';
+import '../../features/inventory/data/core/inventory_rpc.dart';
 import '../../features/inventory/data/goods_receipt_repository.dart';
 import '../../features/inventory/data/hub/warehouse_hub_repository.dart';
 import '../../features/inventory/data/valuation_repository.dart';
@@ -82,8 +83,14 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     ..registerSingleton<ICurrentTenant>(executionContext);
 
   getIt
+    ..registerLazySingleton<InventoryRpc>(
+      () => InventoryRpc(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
     ..registerLazySingleton<WarehouseHubRepository>(
-      () => const WarehouseHubRepository(),
+      () => WarehouseHubRepository(rpc: getIt<InventoryRpc>()),
     )
     ..registerLazySingleton<ValuationRepository>(() => ValuationRepository())
     ..registerLazySingleton<GoodsReceiptRepository>(

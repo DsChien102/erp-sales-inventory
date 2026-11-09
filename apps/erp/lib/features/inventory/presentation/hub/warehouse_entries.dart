@@ -5,8 +5,7 @@ enum WarehouseArea {
   movement,
   control,
   valuation,
-  history,
-  setup;
+  history;
 
   String get id => name;
 
@@ -16,7 +15,6 @@ enum WarehouseArea {
         WarehouseArea.control => 'Kiểm kê & xử lý',
         WarehouseArea.valuation => 'Giá trị kho',
         WarehouseArea.history => 'Báo cáo & lịch sử',
-        WarehouseArea.setup => 'Thiết lập kho',
       };
 
   String get subtitle => switch (this) {
@@ -26,7 +24,6 @@ enum WarehouseArea {
           'Kiểm tra thực tế, sai lệch và trường hợp bất thường',
         WarehouseArea.valuation => 'Giá nhập, chi phí mua và giá vốn',
         WarehouseArea.history => 'Thẻ kho, biến động và số liệu tra cứu',
-        WarehouseArea.setup => 'Tồn đầu kỳ và chính sách ít dùng',
       };
 
   VIcons get icon => switch (this) {
@@ -35,7 +32,6 @@ enum WarehouseArea {
         WarehouseArea.control => VIcons.checkList,
         WarehouseArea.valuation => VIcons.coins,
         WarehouseArea.history => VIcons.history,
-        WarehouseArea.setup => VIcons.inbox,
       };
 
   bool get ownerOnly => this == WarehouseArea.valuation;
@@ -75,13 +71,6 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             icon: VIcons.warehouse,
             route: null,
           ),
-          WarehouseEntry(
-            id: 'stock_policies',
-            title: 'Chính sách tồn & cận hạn',
-            subtitle: 'Thiết lập ngưỡng tồn và chính sách cận hạn',
-            icon: VIcons.shield,
-            route: null,
-          ),
         ],
       WarehouseArea.movement => const [
           WarehouseEntry(
@@ -90,27 +79,6 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             subtitle: 'Nhận theo chứng từ hoặc nhập nhanh',
             icon: VIcons.cloudUpload,
             route: '/warehouse/receipts/new', // tạm — G5-4
-          ),
-          WarehouseEntry(
-            id: 'dispatch',
-            title: 'Lấy & bàn giao',
-            subtitle: 'Chuẩn bị hàng và bàn giao theo đơn bán',
-            icon: VIcons.inventory,
-            route: null,
-          ),
-          WarehouseEntry(
-            id: 'returns',
-            title: 'Hàng khách trả',
-            subtitle: 'Tiếp nhận và phân loại hàng trả lại',
-            icon: VIcons.refresh,
-            route: null,
-          ),
-          WarehouseEntry(
-            id: 'vendor_returns',
-            title: 'Trả nhà cung cấp',
-            subtitle: 'Chuẩn bị và thực hiện trả hàng',
-            icon: VIcons.arrowLeft,
-            route: null,
           ),
         ],
       WarehouseArea.control => const [
@@ -121,27 +89,6 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             icon: VIcons.checkList,
             route: null,
           ),
-          WarehouseEntry(
-            id: 'quarantine',
-            title: 'Hàng cần xử lý',
-            subtitle: 'Bắt đầu từ sản phẩm hoặc lô có tình trạng cần xử lý',
-            icon: VIcons.shield,
-            route: null,
-          ),
-          WarehouseEntry(
-            id: 'adjustments',
-            title: 'Hủy & sửa sai nghiệp vụ',
-            subtitle: 'Xử lý giao dịch kho có sai sót',
-            icon: VIcons.edit,
-            route: null,
-          ),
-          WarehouseEntry(
-            id: 'reconciliation',
-            title: 'Đối soát sai lệch',
-            subtitle: 'Điều tra khi số liệu giữa các nguồn không khớp',
-            icon: VIcons.search,
-            route: null,
-          ),
         ],
       WarehouseArea.valuation => const [
           WarehouseEntry(
@@ -150,14 +97,6 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             subtitle: 'Ghi giá nhập cho hàng đã nhận',
             icon: VIcons.success,
             route: '/warehouse/valuation/queue', // tạm — G5-5
-          ),
-          WarehouseEntry(
-            id: 'valuation_adjustments',
-            title: 'Điều chỉnh giá trị hàng nhập',
-            subtitle:
-                'Chi phí, chiết khấu phát sinh sau khi đã xác lập giá',
-            icon: VIcons.fileText,
-            route: null,
           ),
           WarehouseEntry(
             id: 'cogs',
@@ -174,23 +113,6 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             title: 'Báo cáo tồn & thẻ kho',
             subtitle: 'Xem tồn tại thời điểm và lịch sử biến động',
             icon: VIcons.history,
-            route: null,
-          ),
-        ],
-      WarehouseArea.setup => const [
-          WarehouseEntry(
-            id: 'initial_stock',
-            title: 'Khởi tạo tồn đầu kỳ',
-            subtitle: 'Thiết lập số dư tồn kho ban đầu',
-            icon: VIcons.inbox,
-            route: null,
-            ownerOnly: true,
-          ),
-          WarehouseEntry(
-            id: 'stock_thresholds',
-            title: 'Chính sách tồn & cận hạn',
-            subtitle: 'Thiết lập ngưỡng tồn và chính sách cảnh báo',
-            icon: VIcons.shield,
             route: null,
           ),
         ],
@@ -215,11 +137,6 @@ const List<WarehouseQuickAction> warehouseQuickActions = [
     label: 'Nhận hàng',
     icon: VIcons.cloudUpload,
     route: '/warehouse/receipts/new', // tạm — G5-4
-  ),
-  WarehouseQuickAction(
-    label: 'Lấy hàng',
-    icon: VIcons.inventory,
-    route: '/warehouse/area/movement',
   ),
   WarehouseQuickAction(
     label: 'Kiểm kê',
