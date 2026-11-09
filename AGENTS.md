@@ -37,10 +37,10 @@ apps/erp/lib/
 ## Quy tắc làm việc
 
 - **Phân vai:** agent **lên plan và review**, người dùng **tự code**. Mỗi việc trong PLAN có file plan ở [docs/refactor/plans/](docs/refactor/plans/README.md); cập nhật cột Plan / Làm / Review trong PLAN.md. Không tự sửa code ứng dụng trừ khi người dùng yêu cầu rõ.
-- Trả lời người dùng bằng tiếng Việt; xác nhận phạm vi trước khi sửa code.
+- Trả lời người dùng bằng tiếng Việt.
 - Làm theo `docs/02-yeu-cau`. Mục 🔧 = code cũ sai, phải sửa khi chuyển; 🆕 = chưa có, phải làm. Không chép lỗi cũ.
 - Giữ chữ ký RPC hiện có trừ khi tài liệu TH ghi sửa.
-- Mỗi phase: test không được lỗi thêm ngoài `TEST-BASELINE.md`; tick cột "Mới" trong CHECKLIST.
+- **Phạm vi kiểm thử:** khi làm từng việc/plan, **chỉ chạy test trong phạm vi plan** (file/thư mục test liên quan trực tiếp của feature, `dart analyze lib test`, `dart run tool/check_feature_imports.dart`). **Không chạy test toàn app** (`flutter test`) ở từng plan con để tránh mất thời gian; chỉ chạy toàn app khi nghiệm thu kết thúc Phase để đối chiếu với `TEST-BASELINE.md` hoặc khi người dùng yêu cầu rõ. Tick cột "Mới" trong CHECKLIST khi hoàn thành phase.
 
 ## Supabase
 
@@ -59,7 +59,8 @@ apps/erp/lib/
 ```bash
 melos run env:sync            # sinh apps/erp/.env từ profile đang chọn
 melos run analyze
-cd apps/erp && flutter test   # so với docs/refactor/TEST-BASELINE.md
+cd apps/erp && flutter test test/features/<feature>  # test phạm vi plan
+cd apps/erp && flutter test                         # nghiệm thu phase (so với docs/refactor/TEST-BASELINE.md)
 cd apps/erp && dart run tool/check_feature_imports.dart
 supabase db reset             # local
 supabase migration list --linked
@@ -72,7 +73,7 @@ Hướng dẫn GitNexus (impact analysis trước khi sửa symbol, `detect_chan
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **erp-sales-inventory** (49387 symbols, 108405 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **erp-sales-inventory** (42335 symbols, 90415 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 

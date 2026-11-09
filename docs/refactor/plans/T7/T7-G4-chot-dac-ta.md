@@ -1,7 +1,7 @@
 # T7-G4 — Chốt đặc tả Theme 7 (FROZEN v5.27.0)
 
 > Theme 7 · mục T7-G4 của PLAN.md (sau T7-P GĐ3, trước T7-G5)
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-09) | Làm ⬜ | Review ⬜
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-09) | Làm ✅ 2026-11-09 | Review ✅ R1 ĐẠT 2026-11-09
 > Tài liệu: [T7-P](T7-P-thiet-ke-lai-luong.md) mục 2, 5, 6, 7.3, 13; `specs/themes/theme-07/03.design/screens/_TEMPLATE.md`, `flows/_TEMPLATE.md`, `INDEX.md`, `RETIRED.md`; prototype `03.design/prototype/html` v5.26.1 (đã đóng — **không sửa giao diện**).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -349,3 +349,24 @@ Mỗi đề xuất ghi vào **mục 3 (Thứ bậc thông tin)** và **mục 8 (
 ## 8. Review
 
 <!-- Chỉ phiên review ghi. -->
+
+### R1 (2026-11-09) — **ĐẠT**
+
+| Mục | Kiểm lại | Kết quả |
+|---|---|---|
+| Script kiểm | `check-spec.py --freeze` | 0 lỗi, thoát 0; `scope/FROZEN=252`, `scope/DRAFT=35`, không còn `IN_REVIEW` ✅ |
+| Đổi trạng thái | `git diff fe26f5400..HEAD` dòng `status:` | 175 `IN_REVIEW` → `FROZEN`; 9 `FROZEN` mất là 9 màn bỏ; 0 tệp `DRAFT` bị đổi; tệp mới đóng băng đều có `frozen_at: v5.27.0` ✅ |
+| Giữ giao diện | `git diff --stat` `app/`, `styles/`, `04.harness/`, `registries/design*` | Rỗng; prototype chỉ đổi `manifest.json`, `workbench.js:458`, `index.html:28`, `README.md`, `CHANGELOG.md` + thêm `tools/check-spec.py` ✅ |
+| Phiên bản | README theme, manifest, workbench, badge, README prototype, CHANGELOG | Đều 5.27.0; manifest `parent` 5.26.1, `canonicalActiveScreens` 70 = số tệp `SCR-*.md` ✅ |
+| Task 1 — 9 màn bỏ | `RETIRED.md`, `INDEX.md`, grep từng mã | 9 dòng `v5.27.0` đúng màn thay; INDEX `RETIRED` + dòng SCR-006; mọi dòng còn nhắc 002…061 đều có chữ đánh dấu ✅ |
+| Task 2 — tham chiếu cũ | grep SCR-027 / 052 / 054 / 088 | Chỉ còn dòng có "gộp" / "đã bỏ" / "trước đây" / "Link cũ" ✅ |
+| Task 3 — K2 | grep "gửi duyệt rồi tự duyệt" theo lệnh Step 2 | Đủ 14 tệp (cả cây: 7 BJ + 10 UC); câu chuẩn đúng mẫu; SCR-040/046/050 có câu; UC-13-01 có "Kế toán = chủ cửa hàng" ✅ |
+| Task 4 — 1a–1e | đọc 9 Screen Contract | Dấu "Đề xuất G3-7…" đủ 9 tệp; 1a đúng vị trí, đúng giá trị, đúng trạng thái hiện; 1b SCR-010 bỏ "Thông tin lần nhận" web + nút vào cuối "Tóm tắt", SCR-074 bỏ 2 dòng; 1c, 1d, 1e đúng plan; quy tắc mono ở PAT-UI-UX ✅ |
+| Task 5 — Hub | so 64 chuỗi mục 8 của SCR-090…096 với `app/hub.js` | 64/64 khớp; frontmatter `NAVIGATION` / `PAT-NAV`; INDEX `FROZEN` ✅ |
+| Task 6 — PAT | đọc PAT-UI-UX, PAT-NAV | K1–K7, DS mới, mono; PAT-NAV bỏ NAV-01…06, link hỏng hết (C5 = 0) ✅ |
+| Task 8 | T7-P mục 13, PLAN.md | 0 ô ⬜ ở mục 13; PLAN.md T7-G4 Làm ✅, T7-G5 có ghi chú backend trả tồn trước / sau (1a) ✅ |
+| Kết quả từng task | so với commit | Số liệu khớp. "184 tệp" ở Task 7 = 175 + 7 Hub + 2 PAT (Task 5–6 đã đưa về `IN_REVIEW` theo plan), không phải lệch ✅ |
+
+Ghi chú (không chặn, không cần lượt sửa):
+- Dòng trạng thái đầu plan vẫn ghi `Làm ⬜` dù PLAN.md đã ✅ — review sửa luôn khi ghi `Review ✅`.
+- `README.md` theme dòng 131 vẫn ghi "Prototype HTML hiện hành (v5.0.0, sau T7-P0)" — câu cũ ngoài phạm vi Task 7 (plan chỉ yêu cầu viết lại danh sách màn). Sửa khi T7-G5 đụng README.

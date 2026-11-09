@@ -6,7 +6,7 @@
 ## Tổng quan
 
 ```text
-Chuẩn bị ─▶ Nền core/ ─▶ Theme 1 IAM ─▶ Theme 1 làm gọn IAM ─▶ Đợt kiểm IAM ─▶ Theme 3 Partner ─▶ Theme 2 Catalog ─▶ Theme 4 Pricing ─▶ Theme 5 Sales ─▶ Theme 8 E-invoice ─▶ Theme 7 Kho & Giá vốn ─▶ 8-D nối kho Sales ─▶ Tích hợp AI ─▶ Theme 6 Công nợ ─▶ Dọn dẹp ─▶ Báo cáo
+Chuẩn bị ─▶ Nền core/ ─▶ Theme 1 IAM ─▶ Theme 1 làm gọn IAM ─▶ Đợt kiểm IAM ─▶ Theme 3 Partner ─▶ Theme 2 Catalog ─▶ Theme 4 Pricing ─▶ Theme 5 Sales ─▶ Theme 8 E-invoice ─▶ Theme 7 Kho & Giá vốn (gồm nối kho Sales) ─▶ Tích hợp AI ─▶ Theme 6 Công nợ ─▶ Dọn dẹp ─▶ Báo cáo
 
 Theme 7 — làm sau Theme 8 (chốt 2026-11-03); việc Theme 7 đã làm trước đó (T7-0…, prototype T7-P) giữ nguyên
 Web cho app (W-1 khung, W-2 Theme 1): hoãn, sau Theme 7 prototype; W-1 trước màn Flutter web đầu tiên
@@ -14,11 +14,11 @@ Web cho app (W-1 khung, W-2 Theme 1): hoãn, sau Theme 7 prototype; W-1 trước
 
 **Đặt tên theo theme** (2026-10-14): mỗi mục nghiệp vụ mang số theme TH-0x của `docs/02-yeu-cau`; mục không thuộc theme nào (Chuẩn bị, Nền core, Dọn dẹp, Báo cáo) giữ tên riêng. **Thứ tự trong file = thứ tự làm.**
 
-**Sửa thứ tự 2026-11-09 (người dùng chốt):** **Tích hợp AI** lên ngay sau Theme 7 + 8-D; **Theme 6 Công nợ** để sau AI; Dọn dẹp sau Theme 6, rồi Báo cáo. Công cụ "công nợ phải thu" của AI đọc công nợ đơn TH-05 (không chờ Theme 6).
+**Sửa thứ tự 2026-11-09 (người dùng chốt):** **Tích hợp AI** lên ngay sau Theme 7; **Theme 6 Công nợ** để sau AI; Dọn dẹp sau Theme 6, rồi Báo cáo. Công cụ "công nợ phải thu" của AI đọc công nợ đơn TH-05 (không chờ Theme 6).
 
-**Thứ tự chốt lại 2026-11-03 (thay thứ tự 2026-10-14 bên dưới):** chuyển **hết các theme đã có code** sang kiến trúc mới trước (Theme 2 → Theme 4 → Theme 5 → Theme 8), **rồi** mới làm Theme 7. Hệ quả (người dùng chốt): (1) việc nối kho của Sales **8-D** tách khỏi Theme 5, thành mục riêng chạy ngay sau Theme 7; Theme 5 chuyển kiến trúc và giữ tồn cơ bản như hiện tại, sau 8-D thì quay lại sales một lần; (2) Theme 6 (dựng mới) làm sau 8-D; (3) 5-C (dọn module catalog + inventory, chạy sau Theme 7) thành **dọn module cuối**, nên việc xoá hẳn `modules/` và các package chỉ module dùng chuyển từ 7-C sang 5-C. **Sửa 2026-11-04:** 5-C làm **ngay** (SP-10 chuyển sang `ProductRepository`, không chờ Theme 7) ⇒ 7-C lại là dọn module cuối: xoá `modules/` + `vet45_adapters`, `vet45_generator` trở về 7-C; `vet45_annotations` xoá ở 9-1 (cùng `vet45_shared`, vì `vet45_shared_application` re-export nó).
+**Thứ tự chốt lại 2026-11-03 (thay thứ tự 2026-10-14 bên dưới):** chuyển **hết các theme đã có code** sang kiến trúc mới trước (Theme 2 → Theme 4 → Theme 5 → Theme 8), **rồi** mới làm Theme 7. Hệ quả (người dùng chốt): (1) việc nối kho của Sales tách khỏi Theme 5, làm trong Theme 7 (G5-7 / G5-8); Theme 5 chuyển kiến trúc và giữ tồn cơ bản như hiện tại; (2) Theme 6 (dựng mới) làm sau Theme 7; (3) 5-C (dọn module catalog + inventory, chạy sau Theme 7) thành **dọn module cuối**, nên việc xoá hẳn `modules/` và các package chỉ module dùng chuyển từ 7-C sang 5-C. **Sửa 2026-11-04:** 5-C làm **ngay** (SP-10 chuyển sang `ProductRepository`, không chờ Theme 7) ⇒ 7-C lại là dọn module cuối: xoá `modules/` + `vet45_adapters`, `vet45_generator` trở về 7-C; `vet45_annotations` xoá ở 9-1 (cùng `vet45_shared`, vì `vet45_shared_application` re-export nó).
 
-**Thứ tự chốt 2026-10-14 (đã thay):** Theme 7 (Kho & Giá vốn, dựng mới theo spec v1) làm **trọn một lượt ngay sau Theme 2**, vì nó chỉ cần sản phẩm / ĐVT (Theme 2) và nhà cung cấp (Theme 3), và thay luôn tồn kho cơ bản của Theme 2. Theme 5 (Sales) làm sau Theme 7 để nối sổ kho thật một lần (8-D) thay vì refactor xong rồi quay lại. Theme 8 (HĐĐT) làm sau Theme 5, gắn khu HĐĐT vào màn chi tiết đơn đã refactor.
+**Thứ tự chốt 2026-10-14 (đã thay):** Theme 7 (Kho & Giá vốn, dựng mới theo spec v1) làm **trọn một lượt ngay sau Theme 2**, vì nó chỉ cần sản phẩm / ĐVT (Theme 2) và nhà cung cấp (Theme 3), và thay luôn tồn kho cơ bản của Theme 2. Theme 5 (Sales) làm sau Theme 7 để nối sổ kho thật một lần thay vì refactor xong rồi quay lại. Theme 8 (HĐĐT) làm sau Theme 5, gắn khu HĐĐT vào màn chi tiết đơn đã refactor.
 
 **Mã plan và thư mục giữ theo số phase cũ** để không gãy link (vd `2-A1`, `3-E`, `plans/P2`). Bảng tra:
 
@@ -57,13 +57,12 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 | Theme 3 | Partner (+ dọn module, 3 module rỗng) | 1 ngày | Theme 1 | Nhỏ; Theme 7 (nhà cung cấp), Theme 4, Theme 5 cần nó |
 | Theme 2 | Catalog + tồn kho cơ bản (+ dọn module 5-C) | 2 ngày | Theme 1 | Lớn; Theme 7, Theme 4, Theme 5 cần nó |
 | Theme 4 | Pricing (+ dọn module) | 1 ngày | Theme 3, Theme 2 | Sales cần giá |
-| Theme 5 | Sales (+ dọn module; **8-D tách sau Theme 7**) | ~2,5 ngày | Theme 3, 2, 4 | Chuyển kiến trúc trước Theme 7 (chốt 2026-11-03); giữ tồn cơ bản tới 8-D |
+| Theme 5 | Sales (+ dọn module; nối kho làm ở Theme 7 G5-7 / G5-8) | ~2,5 ngày | Theme 3, 2, 4 | Chuyển kiến trúc trước Theme 7 (chốt 2026-11-03); giữ tồn cơ bản tới Theme 7 G5-12 |
 | Theme 8 | E-invoice (+ dọn module einvoice, `vet45_misa`) | ~3,5 ngày (dựng lại khung 2026-11-08: thêm 3 plan Edge Function) | Theme 5 | Khu HĐĐT trên đơn (7.3) gắn vào màn chi tiết đơn **đã refactor** ở Theme 5; server trước (worker đã xoá, hiện không có gì chạy lệnh MISA); hạ tầng Edge Function + `pg_cron` giống 2-B2 |
-| Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 73 màn) | ~12 ngày UI + ~4 ngày backend | Theme 2, Theme 3; làm sau Theme 8 | Chốt 2026-11-03: chuyển hết theme đã có code trước rồi mới làm Theme 7. Thay tồn kho cơ bản của Theme 2. Trong theme: **UI trước** (fixture), backend sau |
-| 8-D | Nối kho cho Sales: xuất kho khi checkout, hoàn nguyên khi huỷ, nhận hàng trả, khả dụng khi chọn sản phẩm | ~0,5–1 ngày | Theme 7, Theme 5 | Tách khỏi Theme 5 (chốt 2026-11-03); sửa lại sales một lần sau khi có sổ kho |
-| Tích hợp AI | Trợ lý "Hỏi VET45" (Gemini API) hỏi đáp số liệu + dự báo nhập hàng (giảng viên yêu cầu "tích hợp AI vào app") | ~4,5 ngày | Theme 7, 8-D (công nợ đọc từ đơn TH-05) | Chốt 2026-11-09: làm **ngay sau Theme 7 + 8-D**, trước Theme 6 (trước đây làm cuối, 2026-10-27); trợ lý hỏi đáp + dự báo nhập hàng, Gemini API |
+| Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 70 màn) — T7-G5: Flutter + backend, mỗi BJ một plan | ~25 ngày (tốc độ thật, gồm backend; ước lượng 2026-11-09) | Theme 2, Theme 3; làm sau Theme 8 | Prototype / đặc tả xong (T7-P, T7-G4). Chốt 2026-11-09: mỗi BJ kèm backend, RPC thật không seed, thay tồn kho cơ bản của Theme 2 |
+| Tích hợp AI | Trợ lý "Hỏi VET45" (Gemini API) hỏi đáp số liệu + dự báo nhập hàng (giảng viên yêu cầu "tích hợp AI vào app") | ~4,5 ngày | Theme 7 (công nợ đọc từ đơn TH-05) | Chốt 2026-11-09: làm **ngay sau Theme 7 (gồm nối kho Sales)**, trước Theme 6 (trước đây làm cuối, 2026-10-27); trợ lý hỏi đáp + dự báo nhập hàng, Gemini API |
 | Theme 6 | **Công nợ phải thu khách hàng** (từ đơn bán) + thu tiền + cấn trừ; không có phải trả nhà cung cấp | ~4,5 ngày | Theme 5, Theme 3; làm sau Tích hợp AI | Phải thu đi ra từ công nợ đơn của Theme 5 |
-| Dọn dẹp | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 1 ngày | Nền core → Theme 6 (sau 5-C, 8-D) | Thứ tự 2026-11-03: theme cuối là Theme 6 |
+| Dọn dẹp | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 1 ngày | Nền core → Theme 6 (sau 5-C, Theme 7) | Thứ tự 2026-11-03: theme cuối là Theme 6 |
 | Báo cáo | Tài liệu, sơ đồ cho báo cáo, kịch bản demo, tập bảo vệ | 3 ngày | Dọn dẹp | |
 | | **Tổng phần còn lại** (từ 2026-10-27) | **~42 ngày** (Theme 7 ~16, Theme 6 ~4,5, AI ~4,5) — hạn đồ án **2026-12-02** (~36 ngày lịch): **hụt ~6 ngày** so với tốc độ đang tính | | |
 
@@ -91,7 +90,7 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 
 Một việc chỉ tính **xong** khi Review ✅. Ghi commit/PR vào bảng [Theo dõi tiến độ](#theo-dõi-tiến-độ).
 
-Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `📝 [plan](plans/T7/T7-1-ton-kho-bj01.md)`; plan đã làm + review xong thì xoá tệp, ô ghi `✅ plan (đã xoá)` (nội dung tra lại trong lịch sử git, vd. `git show c0faec9e2^:<đường dẫn>`). Tiến độ theo dõi trong bảng của từng Theme.
+Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `📝 [plan](plans/T7/T7-G5-0a-ui-nen.md)`; plan đã làm + review xong thì xoá tệp, ô ghi `✅ plan (đã xoá)` (nội dung tra lại trong lịch sử git, vd. `git show c0faec9e2^:<đường dẫn>`). Tiến độ theo dõi trong bảng của từng Theme.
 
 ### Plan xoá / tách / thay code cũ: test giữ hành vi trước (chốt 2026-10-28)
 
@@ -121,7 +120,6 @@ Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** 
 2. Xoá thư mục module + mục workspace / DI / router / test liên quan.
 3. DB của schema đó: bỏ outbox / inbox / RPC / bảng chỉ module cũ dùng — **sửa migration gốc** (quy tắc migration bên dưới).
 4. Ràng buộc thứ tự: `modules/einvoice` phụ thuộc `partner/integration_events` và `sales/integration_events` → 4-C giữ `partner/integration_events`, 8-C giữ `sales/integration_events`, tới 7-C. Từ 2026-11-04 5-C làm ngay sau 5-W (SP-10 sang `ProductRepository`), nên **7-C là module cuối**: xoá `modules/` và `vet45_adapters` / `vet45_generator` ở 7-C; `vet45_annotations` ở 9-1 (`vet45_shared_application` re-export nó). (Bản 2026-11-03: 5-C là module cuối, chạy sau Theme 7 — đã thay.)
-
 
 
 ### Quy tắc migration (chốt 2026-10-11)
@@ -191,7 +189,6 @@ Page ─▶ Cubit ─▶ XxxRepository.method() ─▶ supabase.schema('x').rpc(
 ---
 
 
-
 ## Chuẩn bị (0,5 ngày)
 
 **Trạng thái:** ✅ Xong (2026-10-08)
@@ -218,7 +215,6 @@ Chi tiết từng việc:
 **Xong khi:** branch sạch, có tag, có checklist và mốc test.
 
 ---
-
 
 
 ## Nền `core/` (2 ngày)
@@ -249,7 +245,6 @@ Chi tiết từng việc:
 **Xong khi:** app chạy như cũ; feature mẫu chạy qua repository; guard là hàm thuần có test (3 nhánh hiện có, 3 nhánh mới của TH-01 2.3 thêm ở 2-B1 / P3); có test cho `SessionController` và guard.
 
 ---
-
 
 
 ## Theme 1. Auth, đăng ký cửa hàng, IAM (5 ngày)
@@ -286,8 +281,6 @@ Chi tiết từng việc:
 | 2A.4 | Email qua Edge Function           | Tạo `supabase/functions/send-email` (Resend), bảng `iam.email_jobs` và Database Webhook. Sửa RPC lời mời / reset mật khẩu: ghi `email_jobs` thay cho `enqueue_outbox_message`                                                                                                                                                                                                                                                   |
 
 
-
-
 ### 2B. Màn hình
 
 
@@ -315,7 +308,6 @@ Chi tiết từng việc:
 - Các màn IAM trong checklist đều đã tick.
 
 ---
-
 
 
 ## Theme 1 (tiếp). Làm gọn IAM (3 ngày)
@@ -354,7 +346,6 @@ Chi tiết từng việc:
 **Xong khi:** repo không còn `modules/iam`, `apps/admin`, `apps/messaging_worker`, `features/platform_admin`; DB không còn RPC onboarding / `platform_*`, cột trạng thái tổ chức / tài khoản; `db reset --linked` + kịch bản SQL IAM chạy qua (đợt kiểm IAM).
 
 ---
-
 
 
 ## Web cho app (W) (~1,5 ngày)
@@ -413,7 +404,6 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-13): xem [TH-03 mục 9.2](../
 ---
 
 
-
 ## Theme 2. Catalog + tồn kho cơ bản (2 ngày)
 
 **Trạng thái:** ✅ plan (2026-11-01) Đã viết và người dùng duyệt 6 plan 5-A1 → 5-A2 → 5-A3 → 5-A4 → 5-B → 5-W (điều kiện: giữ nghiệp vụ cũ, chỉ đổi những chỗ TH-02 KI / người dùng đã chốt); 5-C viết 2026-11-04 (làm ngay, không chờ Theme 7). Chốt cùng người dùng: chia 5-A **theo lớp** (dữ liệu 5-A1/5-A2, đổi UI một lượt 5-A3) vì các nhóm màn dùng chung kiểu / widget và test e2e đi xuyên mọi màn; bỏ RPC đọc trước / sau và kiểm quyền client, giữ rule đầu vào; chép hết kiểu + fake ở 5-A; SP-10 giữ module tới 5-C, bỏ KI tồn (01, 02, 04–07 phần tồn, 12: Theme 7 thay); bỏ sheet cảnh báo giá ngay ở 5-A3; promote migration nháp cặp cửa hàng–kho ở 5-A4; web: PCC trong tab, màn con có id trên URL, Cài đặt sản phẩm toàn màn cột 720
@@ -454,7 +444,6 @@ Các sửa lỗi: [TH-02 mục 9.2](../02-yeu-cau/TH-02-san-pham-va-gia-ban.md#9
 ---
 
 
-
 ## Theme 4. Pricing (1 ngày)
 
 **Trạng thái:** 🔄 đang làm (2026-11-06): code + review xong cả 4 plan (6-A1, 6-A2, 6-B, 6-C; 6-C review R1 đạt 2026-11-06), đã commit. Còn việc người dùng: `db reset` local + `pricing_th04.sql`, reset Dev, kiểm tay (6-A2 7.2, 6-B 8.2). Chốt cùng người dùng: chia 6-A **theo lớp** như Theme 2 (6-A1 dữ liệu, 6-A2 đổi UI một lượt); Sales chuyển ngay trong 6-A (`SalesPricingRepository`); sửa luôn lỗi bật lại mất cờ ghi đè; câu lỗi thô đổi theo TH-04 6.4; **bỏ hẳn nhập Excel** (EP-04, PR-09) và màn "Chọn cách thêm" (PR-03) ngay ở 6-A, DB nhập xoá ở 6-C
@@ -487,8 +476,7 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 ---
 
 
-
-## Theme 5. Sales (~2,5 ngày; 8-D tách sau Theme 7)
+## Theme 5. Sales (~2,5 ngày; nối kho ở Theme 7)
 
 **Trạng thái:** 🔄 8-A1…8-A3 xong (review ĐẠT 2026-11-07); 8-A4 xong (review R2 ĐẠT 2026-11-07). Chốt cùng người dùng: chia 8-A **theo nhóm màn** (giữ bảng dưới); repository gọi thẳng RPC nhưng **trả DTO của `vet45_sales_application`**, chép kiểu + đổi import một lượt ở 8-C; lỗi repository là `AppException`; câu lỗi thô đổi theo TH-05 6.4 ngay ở (a); việc đổi hành vi / sửa DB của 8.1 (KI-07, TH-02 KI-08) sang 8-B. 8-B chia 3 plan (chốt 2026-11-07): 8-B1 server → 8-B2 app → 8-B3 Thu tiền, người dùng duyệt 2026-11-07; 2026-11-08: 8-C xong (review R1 ĐẠT).
 
@@ -519,12 +507,11 @@ Chi tiết từng việc:
 | 8.5 | Huỷ đơn + đổi/trả     | cancellation (lý do, precheck, confirm); return/exchange (start, preview pricing, update, confirm, complete, cancel)                                                               |
 
 
-**Integration event:** bỏ messaging; `sales.outbox_messages` giữ làm nhật ký sự kiện (8-C, 2026-11-08). Phát hành HĐĐT tự động dùng trigger trên `sales.sales_orders` khi đơn Hoàn tất, ghi việc vào `einvoice.internal_commands` (làm ở 7.5 của Theme 8, sau Theme 5; TH-08 KI-19, KI-20). Không gọi "nhớ giá từ đơn" (ngoài phạm vi, TH-04 KI-02). Trừ/cộng tồn khi bán, huỷ, đổi trả: Theme 5 **giữ tồn cơ bản như hiện tại** (chỉ chuyển kiến trúc); nối sổ kho Theme 7 ở **8-D**, mục riêng sau Theme 7 (chốt 2026-11-03).
+**Integration event:** bỏ messaging; `sales.outbox_messages` giữ làm nhật ký sự kiện (8-C, 2026-11-08). Phát hành HĐĐT tự động dùng trigger trên `sales.sales_orders` khi đơn Hoàn tất, ghi việc vào `einvoice.internal_commands` (làm ở 7.5 của Theme 8, sau Theme 5; TH-08 KI-19, KI-20). Không gọi "nhớ giá từ đơn" (ngoài phạm vi, TH-04 KI-02). Trừ/cộng tồn khi bán, huỷ, đổi trả: Theme 5 **giữ tồn cơ bản như hiện tại** (chỉ chuyển kiến trúc); nối sổ kho Theme 7 ở Theme 7 **G5-7 / G5-8**.
 
-**Xong khi:** đủ 6 kịch bản: bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng. Công nợ (còn phải thu của đơn) đúng sau mỗi kịch bản. Tồn kho (tồn cơ bản) đúng như trước khi chuyển kiến trúc sau mỗi kịch bản; tồn theo sổ kho kiểm ở 8-D. Các màn sales trong checklist đều đã tick.
+**Xong khi:** đủ 6 kịch bản: bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng. Công nợ (còn phải thu của đơn) đúng sau mỗi kịch bản. Tồn kho (tồn cơ bản) đúng như trước khi chuyển kiến trúc sau mỗi kịch bản; tồn theo sổ kho kiểm ở Theme 7 G5-7 / G5-8. Các màn sales trong checklist đều đã tick.
 
 ---
-
 
 
 ## Theme 8. E-invoice (~3,5 ngày)
@@ -566,141 +553,182 @@ Chi tiết từng việc:
 ---
 
 
-
 ## Theme 7. Inventory — Kho & Giá vốn
 
-**Trạng thái:** 🔄 UI BJ-02, BJ-03 đã code trước khi có plan (chưa commit, review ở T7-0); T7-1 đã có plan; backend chưa lập plan
+**Trạng thái:** 🔄 Chỉ còn **T7-G5: Flutter + backend**, mỗi BJ một plan kèm backend (chốt 2026-11-09). G5-0a, G5-0b plan ✅ (duyệt 2026-11-09), chạy song song; tiếp: làm code + viết plan G5-1. Code BJ-02 / 03 cũ (v4.6.8) giữ tới G5-4 / G5-5 thì xoá.
 
-> **Thay tồn cơ bản của Theme 2 (chốt 2026-11-04, Q3 của 5-C):** khi BJ-08 (kiểm kê / điều chỉnh) và BJ-12 (tồn đầu kỳ) có màn: xoá SP-10 `product_stock_adjustment_page.dart` (đã chạy qua `ProductRepository` + `ProductStockAdjustmentCubit` từ 5-C) và route `/products/items/:productId/stock`; nút "Sửa" thẻ Tồn kho ở PCC và mục readiness `missing_stock` mở màn Theme 7 tương ứng; bước nhập tồn khi tạo sản phẩm giữ / bỏ theo plan Theme 7. DB tồn cơ bản giữ tới 8-D.
+> **Đã xong (bỏ khỏi bảng 2026-11-09):** T7-0 / T7-0b / T7-0c (Flutter BJ-02 / 03 theo prototype v4.6.8, commit `49967966e` — sẽ viết lại ở G5-4 / G5-5), T7-P0 (dọn prototype), T7-P (thiết kế lại trên prototype, đóng 2026-10-27, v5.26.1 — [plan](plans/T7/T7-P-thiet-ke-lai-luong.md) giữ để tra khuôn K1–K7, mục 5), T7-G4 (chốt đặc tả FROZEN v5.27.0, 2026-11-09). Prototype không sửa nữa, chỉ đối chiếu hình ảnh. Bảng cũ: `git show 88758fe5c:docs/refactor/PLAN.md`.
 
-> Theme 7 gồm UI và backend. Làm **UI trước** (màn hình, trạng thái, điều hướng, test; plan `T7-0…T7-16`, ~12 ngày) trên fixture; cả UI lẫn backend làm **sau Theme 8** (chốt 2026-11-03, thay "UI song song, backend ngay sau Theme 2" của 2026-10-14; việc T7 đã làm giữ nguyên), plan mã `T7-B1…` chưa lập, khi lập thì thêm vào bảng Plan của mục này; riêng phần nối với bán hàng (xuất kho khi checkout, huỷ, hàng trả, BJ-04/05/06) làm ở **8-D**, mục ngay sau Theme 7. Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) v5.27.0 (17 BJ + CAP-01, FROZEN) và prototype `03.design/prototype/html`; đặc tả giữ nguyên v1 đầy đủ theo quyết định 2026-10-07 ([TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ). Phạm vi: **70 màn active** (đếm mỗi màn một lần).
+> **Thay tồn cơ bản của Theme 2 (chốt 2026-11-04, Q3 của 5-C):** khi BJ-08 (kiểm kê / điều chỉnh) và BJ-12 (tồn đầu kỳ) có màn: xoá SP-10 `product_stock_adjustment_page.dart` (đã chạy qua `ProductRepository` + `ProductStockAdjustmentCubit` từ 5-C) và route `/products/items/:productId/stock`; nút "Sửa" thẻ Tồn kho ở PCC và mục readiness `missing_stock` mở màn Theme 7 tương ứng; bước nhập tồn khi tạo sản phẩm giữ / bỏ theo plan Theme 7. DB tồn cơ bản giữ tới G5-12 (bỏ hẳn ở đó, sau khi G5-7 / G5-8 đã chuyển Sales sang kho Theme 7).
 
+> Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) **v5.27.0 FROZEN** (17 BJ + CAP-01; BJ / UC / BC / Screen Contract / UIF / PAT-UI-UX / PAT-NAV); prototype `03.design/prototype/html` v5.26.1 (đã đóng, đối chiếu hình ảnh); [T7-P](plans/T7/T7-P-thiet-ke-lai-luong.md) mục 5 (khuôn K1–K7), 6 (DS mới), 10 (luồng demo), 13 (đề xuất đã duyệt). [TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ. Vai trò: Claude viết plan và review, bạn tự code.
 
-|                       |                                                                                                                                                                                      |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Dữ liệu | **Fixture trong bộ nhớ sau lớp Repository** (cùng cách BJ-02, BJ-03 đang làm), chép giá trị từ prototype để so mắt với HTML. Chữ ký repository giữ ổn định để thay thân bằng RPC khi có backend |
-| Chưa làm trong đợt UI | RPC / migration; ghi tồn thật; số liệu tài chính thật; trừ tồn khi bán (nối ở 8-D) |
-| Vai trò               | Như mọi phase: Claude viết plan và review, bạn tự code                                                                                                                               |
-| Thẩm quyền            | Nghiệp vụ: BJ / UC / UIF / Screen Contract. Thành phần, token, mật độ: Figma DS (`DS-CONFORMANCE.md` của prototype). HTML prototype là chuẩn đối chiếu hình ảnh                      |
+### Đã chốt (người dùng, 2026-11-09)
 
+| Q | Quyết định |
+|---|---|
+| Q1 | **Viết lại BJ-02 / BJ-03 theo v5.27.** Giữ model / luật thuần còn đúng (vd. `LotDate`, `formatQuantity`); xoá page / cubit / repository cũ khi màn mới thay. Plan cũ `T7-0d-nhan-theo-chung-tu.md`, `T7-1-ton-kho-bj01.md` (viết theo v4.6.8) **xoá**; các dòng `T7-0d`, `T7-0e`, `T7-1` … `T7-16` ở PLAN.md thay bằng bảng Plan dưới đây |
+| Q2 | **Chia plan: nền + mỗi BJ một plan, theo chặng** (thứ tự ở bảng Plan). Khuôn dựng ở plan nền hoặc ở BJ đầu tiên dùng nó, BJ sau gọi lại |
+| Q3 | **Bố cục web làm trong cùng plan BJ** (không có plan `-W` riêng như Theme 2–5): mỗi màn dựng iPhone + web một lần, test cả hai bề rộng |
+| Q4 | **Mỗi BJ kèm luôn backend** (thay cách "UI trên dữ liệu mẫu trước, backend `T7-B*` sau" của 2026-10-14 / 2026-11-03): plan BJ gồm migration (bảng, RLS, RPC), repository gọi RPC thật, UI, test. **Không có plan `T7-B*` riêng** |
+| Q5 | **Backend lõi dùng chung dựng ở plan nền** (sổ biến động kho, tồn theo lô + khả dụng, phiếu kho chung, ApprovalCase cho K2, nhật ký lệnh cho K3 / idempotency, kiểm quyền). Plan nền tách hai: **G5-0a** (UI nền) và **G5-0b** (backend lõi) |
+| Q6 | **Dữ liệu: RPC thật, không seed.** Widget test dùng fake repository. Dữ liệu demo người dùng tự tạo qua app (khởi tạo tồn đầu kỳ → nhận hàng → …). Bỏ "kho mẫu chung tĩnh" (câu hỏi lô Amox / số giữ hàng Nobivac không còn: không có fixture để lệch) |
+| Q7 | **Nối kho Sales làm trong plan BJ:** G5-7 làm luôn checkout → giữ hàng / xuất kho (`BC-IO-04`), huỷ đơn → hoàn nguyên (`BC-IO-13`), khả dụng khi chọn sản phẩm (`BC-IO-01`, thay tồn cơ bản trong `search_sellable_products`); G5-8 làm nhận hàng khách trả từ đơn trả (`BC-IO-07`); G5-12 bỏ tồn cơ bản của Theme 2 (bảng, RPC, SP-10). 6 kịch bản Theme 5 (bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng) cho tồn đúng theo sổ kho là tiêu chí của G5-7 / G5-8 |
+| Q8 | **Domain DRAFT:** mỗi plan BJ rà các tệp `02.specification/domain/*` (AGG / ENT / PRJ / INT) mà BJ dùng; chỗ lệch UC / Screen Contract FROZEN thì hỏi người dùng lúc viết plan; sửa tệp domain theo schema đã làm và đổi `DRAFT` → `FROZEN` trong cùng plan |
+| Q9 | **Home Kho mới dựng khung ở G5-0a**, mỗi plan BJ tự gắn lối vào của mình (đăng ký route vào bảng lối vào của Hub) và nguồn "Cần chú ý" (mở rộng RPC tóm tắt Hub). Lối vào chưa có màn thì **ẩn**, không toast |
 
-
-
-### Plan
-
-
-| Plan      | Nội dung                                                                                                                                                              | Gồm việc (màn · số trạng thái)                    | Plan                                     | Làm | Review |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---------------------------------------- | --- | ------ |
-| **T7-0**  | (Đợt 0, ~2 ngày, 2 PR) Sửa lỗi dữ liệu và luồng phê duyệt BJ-02/03 (review 2026-10-14): thêm trùng ghi đè, dòng chưa xong bị bỏ, HSD tự điền, mã lô / số âm, BJ-03 xác lập hai lần, người lập tự duyệt, gửi xong sai màn | BJ-02 (58), BJ-03 (21) | ✅ plan (đã xoá) | ✅   | ✅ (2026-10-14) |
-| **T7-0b** | (Đợt 0, ~2 ngày, 2 PR) BJ-02 nhập hàng nhanh đúng spec: SCR-006/008/009/084/010/011/012 (câu chữ, bố cục, tìm sản phẩm trên màn, HSD theo cách ghi bao bì, lô trùng khác hạn) + 3 góp ý review T7-0 | SCR-006, 008, 009, 084, 010, 011, 012 | ✅ plan (đã xoá) | ✅ | ✅ (2026-10-14; G1, G2 chuyển T7-0c) |
-| **T7-0c** | (Đợt 0, ~1,5–2 ngày, 2 PR) Sửa còn lại của T7-0b (G1 key thẻ lô, G2 "Sửa" ở SCR-010) + trạng thái chung BJ-02 qua `ReceiptScenario` (không quyền, kho khoá, dữ liệu vừa đổi, chưa có người duyệt, đang ghi nhận, chưa rõ kết quả, bị chặn) + SCR-013 Đối soát + bảng trạng thái → test | SCR-006…013 | ✅ plan (đã xoá) | ✅ | ✅ (2026-10-14) |
-| **T7-P0** | (Trước T7-P tiếp, ~5–6 ngày, 4 PR) Dọn prototype: công cụ golden (chụp mọi UIF × màn × trạng thái), xoá 18 file không nạp + CHANGELOG / qa cũ + Hub v3.8, gộp 68 CSS → tokens / components / screens, gộp 45 JS → `core.js` + một file mỗi BJ, gộp lớp `v470`–`v472` vào nguồn; golden phải khớp. Từ đây sửa thẳng vào file sở hữu, không tạo lớp vá | Prototype toàn Theme | ✅ plan (đã xoá) | ✅ khung chung + token + Hub (từng BJ viết lại ở T7-P) | ✅ 2026-10-16 (mục 11 của plan) |
-| **T7-P**  | Thiết kế lại Theme 7 trên prototype — **chỉ prototype**, ba giai đoạn: GĐ1 viết lại code sạch cho 17 BJ + CAP-01 theo 11 gói A1–A11 (~20 ngày, golden khớp, giao diện không đổi); GĐ2 thiết kế lại từng BJ theo 6 chặng (brief → bạn duyệt → plan thực thi → bạn làm, ~24 ngày); GĐ3 hoàn thiện (8 gói G3-0…G3-7, ~8–9 ngày: dọn CSS, khung dùng chung, sổ kho chung, không ngõ cụt, critique ≥ 32/40). Chốt đặc tả và Flutter: T7-G4, T7-G5. Phiên này chỉ viết plan / brief và review | Prototype toàn Theme | ✅ [plan tổng thể](plans/T7/T7-P-thiet-ke-lai-luong.md) · ✅ GĐ3 (đã xoá) | ✅ GĐ1 (`v5.3.0`) · GĐ2 (`v5.20.1`) · GĐ3 (`v5.26.1`, 2026-10-27; critique 31/40, mục tiêu 32 chưa đạt — người dùng chốt đóng) | ✅ **Đóng hẳn** 2026-10-27 (GĐ1 ✅ · GĐ2 ✅ · review GĐ3 chuyển T7-G5; lỗi sau đó sửa theo yêu cầu) |
-| **T7-G4** | (Sau T7-P GĐ3, ~1–2 ngày) **Chốt đặc tả**: áp các đề xuất ⬜ của [T7-P mục 13](plans/T7/T7-P-thiet-ke-lai-luong.md) vào UC / BJ / PROC / Screen Contract / UIF; 9 màn chưa dựng → RETIRED; Hub 090–096 viết lại; 5 đề xuất G3-7 vào đặc tả; rà toàn bộ `03.design`, đổi `IN_REVIEW` → `FROZEN` đồng loạt với mốc phiên bản mới (v5.27.0); `PAT-UI-UX` / `PAT-NAV` theo khuôn dùng chung K1…K7 (T7-P mục 5); `INDEX.md`, registry (`sync-registry.py`). Gồm chữ còn treo của GĐ3 (K3 lặp câu ở `UIF-13_SCR-089_UNKNOWN`) | Tài liệu Theme 7 | ✅ [plan](plans/T7/T7-G4-chot-dac-ta.md) | ✅ 2026-11-09 | ⬜ |
-| **T7-G5** | (Sau T7-G4) **Nối sang Flutter**: rà lại T7-0d, T7-1, T7-0e theo prototype đã chốt; plan sửa phần BJ-02 / 03 đã code; thành phần DS mới ([T7-P mục 6](plans/T7/T7-P-thiet-ke-lai-luong.md)) vào `vet45_design_system`; rồi đi tiếp T7-1…T7-15 (T7-15 dựng Home Kho candidate); backend T7-B: kết quả RPC nhận hàng / bàn giao / kiểm kê trả tồn vật lý trước / sau cho dòng "Tồn kho đã đổi" (T7-G4 1a). W-1 phải xong trước màn web đầu tiên. Việc GĐ3 hoãn sang đây (chốt 2026-10-26: xong G3-7 là đóng T7-P, phần còn lại làm sau): gom CSS theo BJ / bỏ `!important` (còn 55 luật) không cần làm nữa (CSS prototype không còn là nguồn); vùng ảnh BJ-02 / 06 sang `k5Evidence`; lô Amox thống nhất giữa BJ-01 / 06 / 08 / 09; số giữ hàng Nobivac khớp BJ-04; fixture BJ-07 dựng theo tồn BJ-01; review các gói G3-1…G3-7 (plan G3 mục 14) | Flutter toàn Theme | ⬜ (phiên review viết plan từng phần) | ⬜ | ⬜ |
-| **T7-0d** | (Đợt 0, ~2,5 ngày, 2 PR) BJ-02 nhận theo chứng từ: fixture chứng từ mua + bản nháp tự lưu + kiểm phiên bản; SCR-007; chế độ chứng từ của SCR-009 / 084 / 010 / 011 / 012 (`Chưa nhận lần này`, chênh lệch, `Đổi chứng từ`, chỉ duyệt khi vượt, không vượt thì ghi nhận ngay, tổng giá trị rủi ro); đổi đường dẫn phiên `quick` → `session` | SCR-007, 009, 084, 010, 011, 012 | 📝 [plan](plans/T7/T7-0d-nhan-theo-chung-tu.md) | ⬜ | ⬜ |
-| **T7-0e** | (Đợt 0, ~1,5 ngày) BJ-03 theo spec (SCR-014/015/017/019 + trạng thái, form căn cứ: Tiền tệ, không chọn sẵn cách hiểu giá) + kiến trúc / DS còn lại BJ-02/03 (Cubit cho page còn lại, `VToast`, token màu, widget dùng chung, tiền số nguyên) | BJ-03 (21) | ⬜ | ⬜ | ⬜ |
-| **T7-1**  | (Đợt 1, 1,5 ngày) BJ-01 Tồn kho & khả dụng                                                                                                                            | SCR-001, 003 · 10                                 | 📝 [plan](plans/T7/T7-1-ton-kho-bj01.md) | ⬜   | ⬜      |
-| **T7-2**  | (Đợt 1, 1,5 ngày) BJ-13 Điều chỉnh giá trị hàng nhập                                                                                                                  | SCR-085, 086, 089 · 16                            | ⬜                                        | ⬜   | ⬜      |
-| **T7-3**  | (Đợt 1, 2 ngày) BJ-14 Tính và công bố giá vốn                                                                                                                         | SCR-072, 074, 077 · 13                            | ⬜                                        | ⬜   | ⬜      |
-| **T7-4**  | (Đợt 2, 3 ngày) BJ-04 Giữ hàng (chỉ đọc) + BJ-05 Lấy hàng và bàn giao                                                                                                 | SCR-021 · 3; SCR-025…029 · 23                     | ⬜                                        | ⬜   | ⬜      |
-| **T7-5**  | (Đợt 2, 3 ngày) BJ-06 Hàng khách trả                                                                                                                                  | SCR-030…035 · 38                                  | ⬜                                        | ⬜   | ⬜      |
-| **T7-6**  | (Đợt 2, 2,5 ngày) BJ-07 Trả nhà cung cấp — **dựng 3 màn dùng chung** cho BJ-09/10                                                                                     | SCR-036, 037, 039, 041 · 24                       | ⬜                                        | ⬜   | ⬜      |
-| **T7-7**  | (Đợt 3, 2 ngày) BJ-09 Trạng thái hàng + SCR-056 (dùng lại ở T7-13)                                                                                                    | SCR-038 · 8; SCR-056 · 6; chế độ trên 036/037/041 | ⬜                                        | ⬜   | ⬜      |
-| **T7-8**  | (Đợt 3, 2 ngày) BJ-10 Tiêu hủy hàng                                                                                                                                   | SCR-040 · 10; chế độ trên 036/037/041             | ⬜                                        | ⬜   | ⬜      |
-| **T7-9**  | (Đợt 3, 3,5 ngày) BJ-08 Kiểm kê (đếm mù, `VNumericKeypadSheet`)                                                                                                       | SCR-042…047 · 34                                  | ⬜                                        | ⬜   | ⬜      |
-| **T7-10** | (Đợt 4, 3 ngày) BJ-11 Hủy và sửa sai nghiệp vụ kho                                                                                                                    | SCR-048…053 · 37                                  | ⬜                                        | ⬜   | ⬜      |
-| **T7-11** | (Đợt 4, 3 ngày) BJ-16 + BJ-17 Đối soát và phục hồi UNKNOWN (một bộ màn, hai ngữ cảnh vào)                                                                             | SCR-078…083 · 36                                  | ⬜                                        | ⬜   | ⬜      |
-| **T7-12** | (Đợt 4, 3 ngày) BJ-12 Khởi tạo tồn đầu kỳ (nhập tệp, `VFileDropZone`)                                                                                                 | SCR-066…071 · 36                                  | ⬜                                        | ⬜   | ⬜      |
-| **T7-13** | (Đợt 5, 3 ngày) BJ-15 Báo cáo tồn và thẻ kho (ngày ghi nhận / ngày nghiệp vụ)                                                                                         | SCR-054, 055, 057, 058, 059 · 30                  | ⬜                                        | ⬜   | ⬜      |
-| **T7-14** | (Đợt 5, 1,5 ngày) CAP-01 Chính sách tồn & cận hạn                                                                                                                     | SCR-062…065 · 18                                  | ⬜                                        | ⬜   | ⬜      |
-| **T7-15** | (Đợt 5, 2 ngày) Kho Home: lối vào, "Cần chú ý", "Tất cả chức năng kho", deep link; thay hard-code `task.id` và toast còn sót                                          | `warehouse_home_*`                                | ⬜                                        | ⬜   | ⬜      |
-| **T7-16** | (Đợt 5, 2 ngày) Rà soát cuối: bảng 421 trạng thái → test, luồng đầu–cuối mỗi BJ, tương phản / vùng chạm / `Semantics`, quét chuỗi giả                                 | Toàn Theme                                        | ⬜                                        | ⬜   | ⬜      |
-
-
-**Thứ tự đợt:** 0 làm trước (BJ-02/03 có lỗi dữ liệu và sai vai phê duyệt, lại là mẫu cho các BJ sau) → 1 nối tiếp cụm valuation → 2 xuất và hoàn trả (có LOT, Product/UOM) → 3 kiểm soát tồn (BJ-09/10 dùng lại màn của BJ-07) → 4 sửa sai / đối soát / khởi tạo (cần nghiệp vụ gốc để có cái mà sửa) → 5 báo cáo, chính sách, Home (đọc từ mọi nguồn, gom mọi lối vào nên làm cuối). Ước lượng thô cho 1 người, gồm UI + test, chưa gồm backend (plan `T7-B*` chưa lập). Thứ tự BJ trong đợt lấy theo `runOrder` của prototype, chỉ nhóm lại theo phụ thuộc màn dùng chung.
-
-### Hiện trạng (2026-10-13)
-
-
-| Hạng mục                                                   | Trạng thái                                                                                                                                                                                                                                              |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BJ-02                                                      | Có SCR-006, 008, 009, 084, 010, 011, 012 (nhập nhanh, `QuickReceiptSessionCubit`). **Thiếu** SCR-007 (nhận theo chứng từ — nút "Nhập theo PO" chỉ hiện SnackBar) và SCR-013 (đối soát UNKNOWN)                                                          |
-| BJ-03                                                      | Có SCR-014, 015, 017, 019 + sheet căn cứ trực tiếp; có `sourceChanged`, `commercialConflict`                                                                                                                                                            |
-| Trạng thái chưa thấy trong `lib/features/inventory` (grep) | `PERMISSION_DENIED`, `UNKNOWN` / `COMMIT_UNKNOWN`, `FINANCIAL_MASKED`, `LOCKED`, `SELF_APPROVAL_NOT_ALLOWED`, `APPROVAL_ALREADY_DECIDED`, `PENDING_APPROVAL`, `APPROVER_CONFIGURATION_MISSING`                                                          |
-| Home                                                       | `WarehouseHomePage` v3.8: Việc của bạn · Bắt đầu việc mới · Tra cứu. Điều hướng việc còn hard-code `task.id == 'receipt_01'`, phần còn lại toast; `/warehouse/stock`, `/warehouse/reports` chưa có route                                                |
-| Build                                                      | Đã sửa lỗi `th` (2026-10-13 23:32): `dart analyze lib/features/inventory` sạch, 14 test xanh. `flutter analyze` sập vì đường dẫn có dấu ("Đồ án") — lỗi môi trường, dùng `dart analyze` |
-
-
-
-
-### Công thức làm MỘT BJ (phía UI)
-
-1. **Đọc**: UIF → từng Screen Contract (Information hierarchy, Trạng thái, Hành động) → UC (luồng thay thế / ngoại lệ) → fixture trong `app/core.js` / `app/bjNN.js` của prototype.
-2. **Model + luật thuần**: `data/models/` và hàm suy ra (chỉ báo, điều kiện bật nút, tính tiền) là Dart thuần, có unit test; không để luật nằm trong widget.
-3. **Repository fixture**: một class, chữ ký như RPC sau này; tham số kịch bản (`normal / empty / stale / permissionDenied / unknown…`) để test và demo ép trạng thái.
-4. **Cubit**: Page → Cubit → Repository; lỗi qua `AppException`, không hiện exception thô.
-5. **Page**: dựng đúng thứ tự "Information hierarchy"; **mỗi trạng thái trong contract có một nhánh dựng và một test**.
-6. **Điều hướng**: đăng ký route, nối **đúng lối vào đã có trên Home** (thay toast / SnackBar giả); Back về đúng nơi gọi, giữ bộ lọc.
-7. **Test**: unit (luật), widget từng trạng thái, một luồng đầu–cuối.
-8. **So với prototype**: `index.html` → UIF → đối chiếu từng trạng thái ở inspector; ghi lệch vào mục Review của plan.
-
-**Quy tắc UI chung** (rút từ `DS-CONFORMANCE.md` của prototype):
-
-- Dùng thành phần DS có sẵn (`VChip`, `VSearchBar`, `VBanner`, `VBottomSheet`, `VEmptyState`, `VButton`, `VBadge`, `VNumericKeypadSheet`, `VFileDropZone`…); không tạo thành phần riêng cho một tính năng khi DS đã đủ.
-- Từ 2 Info / Key-value Row cùng nhóm ngữ nghĩa thì **một bề mặt chung**; list độc lập nền trong suốt. Product → LOT là cha–con (row phẳng cùng bề mặt), không card lồng card.
-- Mỗi trạng thái **một hành động chính**; footer hai nút xếp ngang (Phụ | Chính). Không có trạng thái cụt; Back / điều hướng không được đổi finality.
-- `VBanner` chỉ cho ngoại lệ, cảnh báo, chặn, hệ quả. Thành công cùng màn dùng toast; không toast trùng màn kết quả / lỗi inline / UNKNOWN. `UNKNOWN` ≠ thất bại, luôn có đường phục hồi.
-- Chip lọc một hàng, cuộn ngang, không wrap. Hủy đối tượng đang mở nằm trong ngữ cảnh đối tượng, không đặt ở danh sách.
-- Nội dung: "mã vạch" (không "barcode"), UOM luôn đi với số lượng, không ID kỹ thuật. `PERMISSION_DENIED`: dữ liệu được bảo vệ **không có mặt** trong cây widget; `FINANCIAL_MASKED`: không hiện số tiền.
-- Tương phản, vùng chạm ≥ 44, nhãn `Semantics` cho nút icon theo 10-4…10-6.
-
-**Dùng lại, đừng làm lại:**
-
-
-| Dùng chung                                                                      | Ở đâu                                      | Plan           |
-| ------------------------------------------------------------------------------- | ------------------------------------------ | -------------- |
-| Row điều hướng, Key-value Row (`inventory_list_row`, `inventory_key_value_row`) | `features/inventory/presentation/widgets/` | T7-1           |
-| SCR-036 / 037 / 041 (BJ-07 · BJ-09 · BJ-10)                                     | dựng ở BJ-07; BJ-09/10 chỉ đổi chế độ      | T7-6           |
-| SCR-056 Chi tiết movement (BJ-09 · BJ-15)                                       | dựng ở BJ-09                               | T7-7           |
-| SCR-078…083 (BJ-16 · BJ-17)                                                     | một bộ màn, hai ngữ cảnh vào               | T7-11          |
-| Hàng chờ → làm việc → rà soát → kết quả (BJ-03)                                 | mẫu cho BJ-13, BJ-14, BJ-05, BJ-07         | T7-0 chuẩn hoá |
-
-
-
-
-### Quyết định cần chốt
-
-
-| #   | Câu hỏi                                                                                                                                                                                                                          | Gợi ý                                                                                                         |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| 1   | Home: giữ v3.8 đang làm hay chuyển candidate v4.6.4 (Cần chú ý + 6 nhóm chức năng)?                                                                                                                                              | **Đã chốt 2026-10-16: Home Kho = candidate** (SCR-090). `WarehouseHomePage` Flutter (v3.8) phải đổi theo ở T7-15 |
-| 2   | Widget dùng chung ở feature hay lên `vet45_design_system`?                                                                                                                                                                       | Ở feature trước; đẩy lên package khi ≥ 3 BJ dùng và hình dạng đã ổn (plan riêng)                              |
-| 3   | Fixture dùng chung một chỗ (`data/fixtures/`) để cùng sản phẩm không lệch mã giữa BJ (hiện BJ-01 `SP-000184`, BJ-03 `SP-00142`)?                                                                                                 | Có, từ T7-1; T7-0 chuyển fixture BJ-02/03 sang                                                                |
-| 4   | Vai người dùng (Chủ, Thủ kho, Kế toán…) để thấy `PERMISSION_DENIED`, `FINANCIAL_MASKED`, `SELF_APPROVAL_NOT_ALLOWED`: phiên thật hay tham số kịch bản?                                                                           | **Danh tính: phiên thật** (`SessionStore.userId` + `AccountRepository`), chốt trong T7-0 để kiểm người lập ≠ người duyệt; **quyền / che tài chính: tham số kịch bản** ở giai đoạn UI |
-
+Quyết định cũ vẫn giữ: danh tính người dùng lấy từ phiên thật (`SessionStore.userId`, `isOwner`); quy tắc duyệt K2 theo PAT-UI-UX mục 4.5 (chủ cửa hàng lập vẫn gửi duyệt rồi tự duyệt); `features/inventory/` là của Theme 7; tồn cơ bản Theme 2 giữ tới G5-12.
 
 **Đã chốt (2026-10-14):** `features/inventory/` là của Theme 7; 5-A4 chỉ chuyển cổng cặp mặc định sang `DefaultPairRepository` (không dùng tên `InventoryRepository`), phần tồn cơ bản để Theme 7 thay.
 
-**Xong khi (UI):** 70 màn active đều mở được từ Home hoặc deep link, không còn toast / SnackBar giả hành vi; mỗi trạng thái trong Screen Contract có nhánh dựng và ít nhất một test; `dart analyze lib/features/inventory test/features/inventory` = 0 lỗi và `flutter test` không lỗi thêm so với `TEST-BASELINE.md`; mỗi UIF đối chiếu inspector prototype đạt, không còn đường cụt.
+### Plan
 
----
+Thứ tự = chặng hành trình của prototype (T7-P mục 8.2), vì khuôn được dựng ở BJ đầu chặng và dữ liệu demo đi theo đúng thứ tự này (không seed: phải khởi tạo tồn trước mới nhận / bán / kiểm kê được). Ước lượng theo tốc độ thật (nhanh ~3–4 lần ước lượng cũ), gồm backend.
 
-## Nối kho cho Sales — 8-D (~0,5–1 ngày)
+| Plan | Chặng | Nội dung | Màn (Screen Contract) | Phụ thuộc | Ước lượng | Plan | Làm | Review |
+|---|---|---|---|---|---|---|---|---|
+| **G5-0a** | nền | UI nền: DS mới (`VListRow`, `VQuickActionButton`, `VChip.count`, `VKeyValueRow`, `VTable.onRowTap`), khuôn K1–K4 / K6 / K7, Home Kho SCR-090…096 + "Chờ duyệt", route `/warehouse`, xoá `WarehouseHomePage` v3.8. **Chạy song song với G5-0b** | 090, 091, 092, 093, 094, 095, 096 | W-1 ✅ | ~1 ngày | ✅ [plan](plans/T7/T7-G5-0a-ui-nen.md) | ⬜ | ⬜ |
+| **G5-0b** | nền | Backend lõi: kho / lô / sổ biến động / tồn + khả dụng (đọc), phiếu kho chung, ApprovalCase, nhật ký lệnh + idempotency (K3), quyền + che tài chính, RPC tóm tắt Hub (kích hoạt, chờ duyệt); lớp RPC Flutter; ô gạt "Quản lý theo lô" ở Theme 2. **Chạy song song với G5-0a** | — | — (riêng Task 7 cần Task 7 của G5-0a: repository Hub) | ~1,5 ngày | ✅ [plan](plans/T7/T7-G5-0b-backend-loi.md) | ⬜ | ⬜ |
+| G5-1 | 1 | BJ-12 Khởi tạo tồn đầu kỳ (kích hoạt kho; tệp nhập, K2 duyệt chủ cửa hàng) | 066, 067, 068, 070, 071 | G5-0a, G5-0b | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
+| G5-2 | 1 | BJ-01 Tồn kho & khả dụng (đọc sổ kho thật) | 001, 003 | G5-1 | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| G5-3 | 1 | CAP-01 Chính sách tồn & cận hạn | 062, 063, 065 | G5-2 | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| G5-4 | 2 | BJ-02 Nhận hàng (theo chứng từ + nhập nhanh, duyệt khi vượt, đối soát) — **viết lại, xoá code BJ-02 cũ** | 007, 008, 009, 084, 010, 011, 012, 013 | G5-1 | ~2 ngày | ⬜ | ⬜ | ⬜ |
+| G5-5 | 2 | BJ-03 Xác lập giá trị nhập ban đầu — **viết lại, xoá code BJ-03 cũ** | 014, 015, 019 | G5-4 | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| G5-6 | 2 | BJ-13 Điều chỉnh giá trị hàng nhập | 085, 086, 089 | G5-5 | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| G5-7 | 3 | BJ-04 Giữ hàng (đọc) + BJ-05 Lấy & bàn giao (dựng K6) + **nối Sales**: checkout → giữ hàng / xuất kho, huỷ đơn → hoàn nguyên, khả dụng khi chọn sản phẩm; 6 kịch bản Theme 5 cho tồn đúng theo sổ kho | 021, 025, 026, 028, 029 | G5-2 | ~2 ngày | ⬜ | ⬜ | ⬜ |
+| G5-8 | 3 | BJ-06 Hàng khách trả + **nối Sales**: nhận hàng trả từ đơn trả / đổi hàng Theme 5 | 030, 031, 032, 033, 034, 035 | G5-7 | ~1,5–2 ngày | ⬜ | ⬜ | ⬜ |
+| G5-9 | 4 | BJ-09 Tình trạng hàng + **K5** (036 / 037 / 041 dùng chung) + SCR-056 | 036, 037, 038, 041, 056 | G5-2 | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
+| G5-10 | 4 | BJ-07 Trả nhà cung cấp (chế độ trên 036 / 037 / 041) | 039 | G5-9 | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| G5-11 | 4 | BJ-10 Tiêu hủy | 040 | G5-9 | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| G5-12 | 5 | BJ-08 Kiểm kê (đếm mù) + **bỏ tồn cơ bản của Theme 2** (SP-10, bảng / RPC tồn cơ bản; ghi chú "Thay tồn cơ bản" ở đầu mục) | 042, 043, 044, 045, 046, 047 | G5-2 | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
+| G5-13 | 5 | BJ-11 Hủy & sửa sai | 048, 049, 050, 051, 053 | G5-4, G5-12 | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
+| G5-14 | 5 | BJ-16 + BJ-17 Đối soát + xác minh UNKNOWN (nối nút "Chuyển sang xác minh" của mọi K3) | 078, 079, 081, 082, 083 | G5-0b | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
+| G5-15 | 6 | BJ-14 Giá vốn | 072, 074, 077 | G5-5, G5-6 | ~1,5 ngày | ⬜ | ⬜ | ⬜ |
+| G5-16 | 6 | BJ-15 Báo cáo tồn & thẻ kho (đọc sổ biến động thật) | 055, 059 (+056 dùng lại) | G5-9 | ~1 ngày | ⬜ | ⬜ | ⬜ |
+| G5-17 | — | Rà cuối: bảng 70 màn → route → test, bảng trạng thái → test, luồng demo, tương phản / vùng chạm / `Semantics`, quét chuỗi giả, không còn lối vào ẩn / K3 thiếu nút xác minh | toàn Theme | tất cả | ~1 ngày | ⬜ | ⬜ | ⬜ |
 
-**Trạng thái:** ⬜ Chưa làm. Tách khỏi Theme 5, chạy ngay sau Theme 7 (chốt 2026-11-03). Cần Theme 5 đã chuyển kiến trúc và sổ kho Theme 7 đã chạy.
+Tổng ~25 ngày theo tốc độ thật. **So với hạn 2026-12-02 (còn 23 ngày lịch) là quá hạn**, đã gồm nối kho Sales; chưa tính Tích hợp AI, Theme 6, Dọn dẹp, Báo cáo — xem "Rủi ro riêng".
 
-| Plan     | Nội dung                                                                                                                                                                                                                                                                                                                                                                                         | Gồm việc                | Plan | Làm | Review |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- | ---- | --- | ------ |
-| **8-D** | (b) **Nối kho Theme 7**: xuất kho cùng checkout (`BC-IO-04`), hoàn nguyên khi huỷ đơn (`BC-IO-13`), nhận hàng khách trả (`BC-IO-07`), khả dụng khi chọn sản phẩm (`BC-IO-01`, thay tồn cơ bản trong `search_sellable_products`); backend BJ-04 giữ hàng, BJ-05 lấy và bàn giao, BJ-06 hàng khách trả | Thứ tự 2026-10-14 | ⬜ | ⬜ | ⬜ |
+Plan con: `docs/refactor/plans/T7/T7-G5-<mã>-<slug>.md`, viết bằng `superpowers:writing-plans`, đi trước phiên làm code đúng một plan. Plan đã làm + review xong thì xoá tệp (như mọi plan).
 
-**Xong khi:** 6 kịch bản của Theme 5 (bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng) cho tồn kho đúng theo sổ kho Theme 7 (xuất, hoàn nguyên, nhận hàng trả); khả dụng khi chọn sản phẩm lấy từ Theme 7.
+### Quy ước chung cho mọi plan G5
+
+Mọi plan G5 trỏ về mục này trong "Global Constraints" và chỉ ghi phần riêng của BJ.
+
+#### Cấu trúc code
+
+| Lớp | Chỗ | Quy ước |
+|---|---|---|
+| Thành phần DS chung (không mang nghĩa Kho) | `packages/vet45_design_system/lib/src/{components,primitives,forms}/` + export ở `design_system.dart` | Thêm khi plan con đầu tiên cần (bảng "Thành phần DS mới"); có test trong `packages/vet45_design_system/test/` |
+| Khuôn K1–K4, K6, K7 (mang nghĩa Kho) | `apps/erp/lib/features/inventory/presentation/patterns/` | Dựng ở G5-0a; K5 dựng ở G5-9 |
+| Hub Kho | `features/inventory/presentation/hub/`, `logic/warehouse_hub_*` | G5-0a |
+| Một BJ | `features/inventory/{data,logic,presentation}/<bj>/` (vd. `data/opening_balance/`) | Model + luật thuần (`logic/<bj>/<x>_rules.dart`) có unit test; repository một class, mỗi phương thức gọi **đúng một RPC**; Cubit; Page dựng theo "Thứ bậc thông tin" của Screen Contract |
+| Lỗi | `features/inventory/data/inventory_rpc_errors.dart` (G5-0b) | Mã lỗi server → `AppException`; câu hiển thị theo Screen Contract; không hiện `e.toString()` |
+| SQL | `supabase/migrations/2026MMDDnnn_inventory_<bj>.sql` | Sửa thẳng migration gốc tới khi lên Prod (không tạo bản ghi đè). Plan **không** ghi bước chạy / reset DB (người dùng tự làm) |
+| Test SQL | `apps/erp/test/features/inventory/data/<bj>_sql_contract_test.dart` | Đọc tệp migration, kiểm có hàm / RLS / `security definer` / kiểm quyền / mã lỗi (cùng kiểu `sales_sql_contract_test.dart`) |
+
+#### Điều hướng
+
+- Hub `/warehouse`, khu `/warehouse/area/:areaId`, "Chờ duyệt" `/warehouse/approvals`: trong nhánh tab "Thêm" (iPhone có thanh 5 tab, web có thanh bên). `/inventory` chuyển hướng sang `/warehouse` (G5-0a).
+- Màn trong luồng BJ: `GoRoute` con của `ShellRoute(StoreShell)`, **ngoài** `StatefulShellRoute` ⇒ web có thanh bên, iPhone không có thanh tab (PAT-NAV mục 5). Đường dẫn `/warehouse/<bj-slug>/…`, có id trên URL cho màn chi tiết (mở lại / deep link được).
+- Màn kết quả K4 trên iPhone hiện thanh 5 tab (`K4ResultPage` tự gắn, G5-0a).
+- Màn đầu luồng mở từ Hub: nút quay lại "Quay về Kho". Sau khi gửi duyệt: không có nút quay lại (prototype `afterFlowRender`).
+
+#### Mỗi plan BJ gồm (thứ tự task)
+
+1. **Domain + SQL:** rà tệp domain của BJ (Q8); migration bảng + RLS + RPC; test hợp đồng SQL.
+2. **Repository + model + luật thuần:** chữ ký theo RPC; unit test luật.
+3. **Cubit + Page từng màn:** mỗi trạng thái Screen Contract một nhánh + widget test (cả hai bề rộng khi khác bố cục). Chữ trên màn chép **nguyên văn** mục 8 của Screen Contract.
+4. **Điều hướng:** route; đăng ký lối vào Hub (`warehouse_entries.dart`) + nguồn "Cần chú ý" / "Chờ duyệt" nếu BJ có; lối vào ngữ cảnh (PAT-NAV mục 3).
+5. **Luồng đầu–cuối:** một test đi hết luồng chính trên fake repository.
+6. **Đối chiếu prototype:** mở `index.html?uif=UIF-xx&viewport=mobile|web&screen=…&state=…`, so từng trạng thái; ghi lệch vào Kết quả.
+7. **Kết quả** (mẫu "Cách làm việc") + **Review** (phiên review ghi).
+
+Mỗi plan BJ có mục "Quyết định" (câu hỏi đã chốt với người dùng) và "Review Focus". Plan xoá / thay code đang chạy có bảng "Đang làm gì" + bước 0 test giữ hành vi (PLAN.md "Cách làm việc").
+
+#### Thành phần DS mới (T7-P mục 6) → plan dựng
+
+Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VCheckbox`, `VNumberField`, `VMoneyField`, `VTable`, `VSearchBar(suffix)`, `VBadge(showDot)`, `VChoiceList`. Plan con chỉ **mở rộng** khi thiếu.
+
+| Thành phần (T7-P mục 6) | Flutter | Plan |
+|---|---|---|
+| List Row (DS v2) | mới `VListRow` | G5-0a |
+| Nút nhanh Hub | mới `VQuickActionButton` | G5-0a |
+| `VChip` có số đếm | thêm `count` vào `VChip` | G5-0a |
+| Key-value Row + bề mặt chung; số tiền mono (G3-7) | mới `VKeyValueRow`, `VKeyValueGroup` (`mono`) | G5-0a |
+| Bảng web bấm được dòng | thêm `onRowTap` vào `VTable` | G5-0a |
+| Chân màn có dòng lý do (`bj02Footer` / `k4ReasonFooter`) | `InventoryReasonFooter` (khuôn K4) | G5-0a |
+| Vùng kéo thả tệp web (dòng "Kéo tệp vào đây hoặc Chọn tệp") | mở rộng `VFileDropZone` | G5-1 |
+| Dải số một hàng (`cf12Strip`) | mới `VSummaryStrip` | G5-1 |
+| `VMoneyField` trạng thái lỗi | kiểm `errorText`; thêm nếu thiếu | G5-1 |
+| `ds24DotBadge` (chấm đặc / rỗng) | thêm kiểu chấm rỗng vào `VBadge` | G5-2 |
+| `VStockRow` (cột phải hai tầng) | mới `VStockRow` | G5-2 |
+| Nút quét mã vạch trong ô tìm | dùng `VSearchBar.suffix` (không thêm thành phần) | G5-2 |
+| Ô số sửa tại dòng (`k7EditCell`) | `VNumberField` trong ô `VTable`, hậu tố ĐVT | G5-3 |
+| Thẻ lựa chọn lớn (`dsChoiceRow`) | `VListRow` kiểu selection + `VRadio`, hoặc `VChoiceList` nếu đủ | G5-3 |
+| Thanh tiến độ mảnh | `VProgress(height:)` | G5-4 |
+| Ô hạn dùng tự hiểu độ chính xác | mới `VExpiryDateField` (dùng `LotDate`) | G5-4 |
+| Vùng ảnh bằng chứng iPhone ("Chụp ảnh" \| "Chọn tệp" + danh sách có "Xoá") — thay `k5Evidence` / `bj06EvidenceZone` | mới `InventoryEvidenceField` (feature, dựng ở BJ-02, BJ-06 / 09 / 10 dùng lại) | G5-4 |
+| Ô số lớn + ba ô nhỏ ("Đạt" / "Cách ly" / "Hỏng" / "Từ chối") | widget feature BJ-02 | G5-4 |
+| Ô tick kèm mô tả | `VCheckbox` + mô tả; mở rộng nếu thiếu | G5-4 |
+| Ô tick trong bảng | thêm cột chọn vào `VTable` | G5-5 |
+| Khối "Tóm tắt" + dải tổng | `VKeyValueGroup` + `VSummaryStrip` | G5-5 |
+| Ô số nhập thẳng tại dòng, Enter sang ô kế tiếp | `VNumberField` + `textInputAction.next` | G5-12 |
+| Nút chữ nguy hiểm | kiểm `VButton` (variant text + tone danger); thêm nếu thiếu | G5-12 |
+| `VNumericKeypadSheet` | **không dùng** ở Theme 7 | — |
+
+#### Đề xuất G3-7 đã ghi vào Screen Contract (T7-P mục 13, Flutter làm)
+
+| Đề xuất | Plan |
+|---|---|
+| U5: K4 thêm dòng "Tồn kho đã đổi: {sản phẩm} {trước} → {sau}" (nhận hàng / bàn giao / kiểm kê). Server trả tồn vật lý trước / sau trong kết quả RPC ghi nhận (T7-G4 1a) | khuôn ở G5-0a; dữ liệu ở G5-4, G5-7, G5-12 |
+| "Tóm tắt" lặp thẻ chính (SCR-011, SCR-074 web) | G5-4, G5-15 |
+| Dòng K6 iPhone: badge xuống dưới tiêu đề khi tiêu đề gãy hai dòng (SCR-048) | khuôn K6 ở G5-0a |
+| Số tiền mono ở thẻ số liệu / "Tóm tắt" | `VKeyValueRow(mono:)` ở G5-0a; mọi plan dùng |
+| SCR-037: tiêu đề "Việc tiếp theo" khi chỉ có ghi chú; badge "Cách ly" lặp | G5-9 |
+
+### Việc còn treo của T7-P / T7-G4 → plan
+
+| Việc (nguồn) | Xử lý |
+|---|---|
+| Gom CSS theo BJ / bỏ `!important` (G3-1) | **Bỏ** (CSS prototype không còn là nguồn) |
+| Vùng ảnh BJ-02 / 06 sang `k5Evidence` (G3-2) | Flutter dựng một `InventoryEvidenceField` ở G5-4, G5-8 / G5-9 / G5-11 dùng lại |
+| Lô Amox thống nhất BJ-01 / 06 / 08 / 09; số giữ hàng Nobivac khớp BJ-04; fixture BJ-07 theo tồn BJ-01 (G3-4) | **Hết việc** (Q6: không có fixture; số liệu đi từ sổ kho thật) |
+| Review gói G3-1 … G3-7 (chuyển T7-G5) | **Không review prototype nữa** (T7-P đã đóng); thay bằng bước "đối chiếu prototype" của từng plan con (quy ước "Mỗi plan BJ gồm", bước 6) + G5-17 |
+| T7-G4 1a: kết quả RPC nhận hàng / bàn giao / kiểm kê trả tồn vật lý trước / sau | G5-4, G5-7, G5-12 (RPC ghi nhận trả `stockChanges`) |
+| Toast nút đóng 20 × 20; dòng bảng web chưa có `role`; bẫy focus sheet riêng từng BJ (đầu vào GĐ3) | Flutter: `VToast`, `VTable.onRowTap` (Semantics nút ở ô đầu, G5-0a), `showVAdaptiveSheet` — không còn mã riêng từng BJ |
+| `onUnknownResolved` / đường quay lại sau xác minh (đầu vào GĐ3) | G5-14 chốt với người dùng |
+| Sổ kho tĩnh trong `SC_demo`; BJ-01 "Nguồn và thời điểm cập nhật" lệch sổ kho BJ-15 (đầu vào GĐ3) | **Hết việc**: BJ-01, BJ-15 cùng đọc sổ biến động thật (G5-0b) |
+| BJ-02 chưa có màn xem phiếu đã nhận → BJ-15 "Mở phiếu gốc" (đầu vào GĐ3) | SCR-011 trạng thái `RECORDED` (FROZEN) ở G5-4; G5-16 nối "Mở phiếu gốc" |
+| `README.md` theme dòng 131 còn ghi "v5.0.0" (T7-G4 ghi chú) | G5-0b (đụng README khi ghi schema) |
+| SP-10 tồn cơ bản (PLAN.md mục Theme 7: xoá khi BJ-08 + BJ-12 có màn) | G5-12 (hỏi người dùng nút "Sửa" thẻ Tồn kho của PCC và mục readiness `missing_stock` mở màn Theme 7 nào) |
+
+### Rủi ro riêng
+
+| Rủi ro | Cách xử lý |
+|---|---|
+| **Quá hạn:** ~25 ngày T7-G5 + AI (~4,5) + Theme 6 (~4,5) > 23 ngày còn lại | Theo dõi sát sau mỗi plan con, ước lượng lại ở bảng Plan; plan con viết đi trước một bước để phiên code không chờ |
+| Backend lõi (G5-0b) thiết kế sai làm vỡ các BJ sau | G5-0b bám AGG / ENT / BC của spec; plan BJ được phép mở rộng bảng lõi (sửa migration gốc, Q8) nhưng phải ghi vào Kết quả |
+| Không seed ⇒ muốn thử một BJ giữa chặng phải đi lại luồng từ đầu | Chấp nhận (Q6). Test tự động dùng fake, không cần dữ liệu |
+| Khuôn K dựng ở G5-0a chưa đủ cho BJ sau | Plan BJ được mở rộng khuôn (tham số mới, giữ mặc định cũ), ghi Kết quả |
+| UI ẩn lối vào chưa có màn ⇒ dễ quên nối | G5-17 kiểm không còn `route: null` trong `warehouse_entries.dart` và không còn K3 thiếu nút xác minh |
+
+### Xong khi
+
+| # | Tiêu chí | Kiểm bằng |
+|---|---|---|
+| 1 | **70 màn active** (`screens/INDEX.md`, 63 màn BJ + 7 màn Hub) chạy trên Flutter, cả iPhone lẫn web, mở được từ Home Kho hoặc lối vào ngữ cảnh (PAT-NAV mục 3), không còn toast / SnackBar giả hành vi | G5-17: bảng màn → route → test mở màn |
+| 2 | Mỗi trạng thái trong mục 4 của từng Screen Contract có nhánh dựng + ít nhất một widget test (iPhone 390 × 844 **và** web 1280 × 800 khi bố cục khác nhau) | G5-17: bảng trạng thái → test |
+| 3 | Mỗi BJ ghi dữ liệu thật qua RPC Supabase (migration trong `supabase/migrations`), có test hợp đồng SQL; luật nghiệp vụ (BR / BC) kiểm ở server | test `*_sql_contract_test.dart` của từng plan con |
+| 4 | Luồng demo T7-P mục 10 (8 bước, BJ-12 → 01 → 02 → 03 → 05 → 08 → 14 → 15) đi được trên DB Dev dựng từ migration, **dữ liệu tạo qua app** (không seed) | G5-17 kiểm tay (người dùng) |
+| 5 | `dart analyze lib/features/inventory test/features/inventory` = 0 lỗi; `flutter test` không thêm lỗi so với `TEST-BASELINE.md` | mỗi plan con |
+| 6 | Code BJ-02 / BJ-03 cũ (theo prototype v4.6.8) đã xoá hết; `WarehouseHomePage` v3.8 đã xoá | G5-0a, G5-4, G5-5 |
 
 ---
 
 ## Tích hợp AI (~4,5 ngày)
 
-**Trạng thái:** ⬜ Chưa làm. Giảng viên phụ trách yêu cầu "tích hợp AI vào app". Làm **ngay sau Theme 7 + 8-D** (chốt 2026-11-09; trước đây làm cuối, sau Dọn dẹp), trước Theme 6.
+**Trạng thái:** ⬜ Chưa làm. Giảng viên phụ trách yêu cầu "tích hợp AI vào app". Làm **ngay sau Theme 7** (chốt 2026-11-09; trước đây làm cuối, sau Dọn dẹp), trước Theme 6.
 
 **Đã chốt (2026-10-27, người dùng; không hỏi lại giáo viên; plan chi tiết viết khi tới phần này, làm cùng người dùng):** tính năng = trợ lý **"Hỏi VET45"** hỏi đáp số liệu cửa hàng bằng tiếng Việt, chỉ đọc, theo quyền người hỏi, **kèm dự báo nhập hàng** (AI-3: app tính dự báo bằng công thức thống kê trong RPC, Gemini chỉ giải thích — không huấn luyện model riêng, không để Gemini tự tính số). Công cụ là vài RPC tổng hợp **có tham số** (chỉ số × nhóm theo × lọc × thời gian, giá trị chọn trong danh sách cố định; SQL do mình viết), không viết một RPC cho mỗi câu hỏi; câu không có công cụ → trả lời "chưa hỗ trợ", ghi nhật ký. Đọc ảnh phiếu giao hàng: chỉ là ý tưởng nếu dư thời gian, không nằm trong plan. **Làm đủ chức năng** (người dùng chốt 2026-10-27): cả trợ lý lẫn dự báo, đủ các công cụ (thống kê bán hàng, tồn kho, biến động kho, công nợ, dự báo, tìm kiếm) và bộ 20–30 câu hỏi thử — không chia tầng cắt; người dùng đẩy nhanh các theme trước để dành thời gian cho phần này. Model: **Gemini API, hạn mức miễn phí** (khoá tạo ở Google AI Studio, chỉ nằm trong secrets Edge Function); phần gọi model tách một lớp riêng để đổi nhà cung cấp được.
 
@@ -784,7 +812,6 @@ Chi tiết từng việc:
 | 10.9 | Vùng chạm ≥ 44 (nút mật khẩu, nút xoá chip, `VIconBox` có `onTap`); nhãn cho nút quay lại `VAppBar`, mũi tên combobox, bàn phím số; `VSwipeReveal.semanticActions`; thanh dưới chừa đủ inset; skeleton / swipe tôn trọng giảm chuyển động |
 
 
-
 ## Theo dõi tiến độ
 
 | Mục | Trạng thái | PR | Ghi chú |
@@ -798,11 +825,10 @@ Chi tiết từng việc:
 | Theme 3 | 🔄 | | 2026-11-02: code 4-A, 4-B, 4-W, 4-C xong, review ✅ cả 4 (4-W R2, các plan còn lại R1), đã commit. **Chỉ còn việc người dùng:** kiểm tay (4-A 7.2, 4-B 7.2, 4-W 6.2); `db reset` local + `supabase/tests/partner_th03.sql` / `iam_*.sql` (4-B, 4-C); reset Dev |
 | Theme 2 | 🔄 | | Đang làm: 5-A1 ✅, 5-A2 ✅, 5-A3 ✅; 5-C ✅ (review R2 2026-11-04; còn việc người dùng: `db reset` local + `catalog_th02.sql`, reset Dev) |
 | Theme 4 | 🔄 | | 6-A1, 6-A2, 6-B, 6-C ✅ (review đạt, đã commit; 6-C R1 2026-11-06). **Chỉ còn việc người dùng:** `db reset` local + `supabase/tests/pricing_th04.sql`, reset Dev; kiểm tay 6-A2 7.2, 6-B 8.2 |
-| Theme 5 | 🔄 | | 8-A1…8-A4, 8-B1…8-B3, 8-C ✅ (review đạt; 8-C R1 2026-11-08). Còn: 8-D (sau Theme 7), việc người dùng của 8-B2 / 8-B3 |
+| Theme 5 | 🔄 | | 8-A1…8-A4, 8-B1…8-B3, 8-C ✅ (review đạt; 8-C R1 2026-11-08). Còn: việc người dùng của 8-B2 / 8-B3 (nối kho: Theme 7 G5-7 / G5-8) |
 | Theme 8 | 🔄 | | 2026-11-09: 7-B1, 7-E1..E3, 7-A1..A2b, 7-B2, 7-C ✅ (review R1 đạt 2026-11-09; xoá xong `modules/`). Còn: kiểm live trên Dev |
-| Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*`. 2026-10-16: chốt **sửa prototype trước (T7-P), rồi mới code Flutter**; T7-0d, T7-1 tạm dừng, rà lại theo prototype mới trước khi giao. 2026-11-09: T7-G4 ✅ (FROZEN v5.27.0); tiếp T7-G5 |
-| 8-D | ⬜ | | Tách khỏi Theme 5 (2026-11-03); sau Theme 7 |
-| Tích hợp AI | ⬜ | | Mới thêm 2026-10-27: giảng viên yêu cầu; 2026-11-09 chuyển lên sau 8-D, trước Theme 6 |
+| Theme 7 | 🔄 | — | Prototype + đặc tả xong (T7-P đóng 2026-10-27; T7-G4 ✅ FROZEN v5.27.0, 2026-11-09). T7-G5: G5-0a, G5-0b plan ✅ (2026-11-09) |
+| Tích hợp AI | ⬜ | | Mới thêm 2026-10-27: giảng viên yêu cầu; 2026-11-09 chuyển lên sau Theme 7, trước Theme 6 |
 | Theme 6 | ⬜ | | Mới thêm 2026-10-27: phải thu + cấn trừ |
 | Dọn dẹp | ⬜ | | |
 | Báo cáo | ⬜ | | |
@@ -814,16 +840,13 @@ Chi tiết từng việc:
 | Theme 1 | Trigger trên `auth.users` lỗi làm hỏng việc xác minh email | Test kỹ ở local; trigger bắt lỗi rõ ràng; validate dữ liệu cửa hàng trên client trước khi `signUp` |
 | Theme 1 | Email OTP local khó test | Dùng Inbucket/Mailpit có sẵn trong `supabase start` để đọc mã |
 | Theme 2 / Theme 7 | SP-10 (tồn cơ bản) sau 5-C chạy qua `ProductRepository`; `set_basic_stock_quantity_base` không kiểm đơn vị cơ sở (chỉ UI chặn) | Theme 7 thay SP-10 (xem Q3 của 5-C, mục Theme 7) |
-| Theme 7 | Prototype đã dọn T7-P0 (CSS `styles/*`, JS `app/core.js` + stub BJ); vẫn có thể còn lớp vá bên trong `core.js` đến khi tách finer | Đối chiếu **hiển thị cuối cùng** trong `index.html`; dữ liệu và luật lấy từ `app/core.js` / `app/bjNN.js` + Screen Contract |
-| Theme 7 | Số liệu lệch giữa tài liệu prototype (README 82 màn, manifest 73 màn active / 482 render) | Dùng `manifest.json` v4.6.8 + `workbench-data.js`; đếm lại khi spec đổi |
-| Theme 7 | Mỗi BJ tự dựng lại row / sheet khiến UI lệch nhau | Bảng "Dùng lại"; Review kiểm trùng lặp trước khi ✅ |
-| Theme 7 | UI trên fixture che lỗi hợp đồng dữ liệu (kiểu số, null, phân trang) | Repository giữ chữ ký như RPC; model theo `PRJ-*` / `ENT-*`; plan backend rà lại model trước khi nối |
-| Theme 7 | 421 trạng thái → test phình | Bảng "trạng thái → test" ở T7-0 / T7-16; test theo bảng, không viết tay từng cái |
-| Theme 7 | Theme 7 lớn (UI ~12 ngày + backend ~4) làm sau Theme 8 (thứ tự 2026-11-03) → dồn về cuối, sát hạn 2026-12-02 | Theo dõi tiến độ sát; chuyển kiến trúc Theme 4 / 5 / 8 không kéo dài quá ước lượng |
-| Theme 5 / 8-D | Sales phải sửa 2 lần: chuyển kiến trúc ở Theme 5, nối sổ kho ở 8-D (đổi so với thứ tự 2026-10-14) | Theme 5 giữ tồn cơ bản đúng như cũ; 8-D chỉ đổi chỗ đọc / ghi tồn, có test giữ hành vi 6 kịch bản |
+| Theme 7 | Mỗi BJ tự dựng lại row / sheet khiến UI lệch nhau | Khuôn K1–K7 + DS mới (mục Theme 7 → "Quy ước chung cho mọi plan G5"); Review kiểm trùng lặp trước khi ✅ |
+| Theme 7 | 421 trạng thái → test phình | Bảng "trạng thái → test" ở G5-17 (T7-G5); test theo bảng, không viết tay từng cái |
+| Theme 7 | Theme 7 lớn (~25 ngày gồm backend) làm sau Theme 8 → dồn về cuối, vượt hạn 2026-12-02 | Theo dõi sau mỗi plan G5, ước lượng lại ở bảng Plan của Theme 7 |
+| Theme 5 / Theme 7 | Sales phải sửa 2 lần: chuyển kiến trúc ở Theme 5, nối sổ kho ở Theme 7 G5-7 / G5-8 | Theme 5 giữ tồn cơ bản đúng như cũ; G5-7 / G5-8 chỉ đổi chỗ đọc / ghi tồn, có test giữ hành vi 6 kịch bản |
 | Mọi theme | Thêm bố cục web làm mỗi theme dài thêm (~10–20% phần UI; cao hơn từ 2026-10-22 vì không còn thiết bị phụ) | Không cắt bằng cách hạ một thiết bị xuống phụ. Dùng lại khuôn bố cục web chung (K7 của Theme 7) thay vì dựng lại từng theme; ước lượng lại trong plan từng theme |
 | Theme 5 | Mất rule nghiệp vụ khi bỏ Aggregate | Bước 5 của công thức: port rule thành hàm thuần và giữ test cũ |
-| Theme 5 | Từ lúc sổ kho Theme 7 chạy tới khi Theme 5 nối kho (8-D), Sales cũ vẫn đọc tồn cơ bản không còn cập nhật | Chỉ ảnh hưởng Dev (Prod chưa chạy); 8-D chuyển sang khả dụng của Theme 7 |
+| Theme 5 | Từ lúc sổ kho Theme 7 chạy tới khi nối kho (G5-7), Sales cũ vẫn đọc tồn cơ bản không còn cập nhật | Chỉ ảnh hưởng Dev (Prod chưa chạy); G5-7 chuyển sang khả dụng của Theme 7 |
 | Theme 8 | UI einvoice nằm ở module nên phải chuyển nhiều file | Chuyển nguyên thư mục trước, đổi dependency sau, 2 PR riêng |
 | Dọn dẹp | Gộp migration làm lệch schema | So `pg_dump --schema-only` trước và sau; chạy lại toàn bộ checklist |
 
