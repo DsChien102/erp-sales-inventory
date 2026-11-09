@@ -118,7 +118,7 @@ flowchart TD
 
 ### Màn hình đã được hợp nhất hoặc ngừng dùng
 
-- `SCR-054` — biểu mẫu tra cứu bỏ; kỳ và cách hiểu ngày ở thanh lọc `SCR-055`.
+- `SCR-054` (đã bỏ, v5.20.0) — biểu mẫu tra cứu bỏ; kỳ và cách hiểu ngày ở thanh lọc `SCR-055`.
 - `SCR-057` — gộp thành khối "Nguồn" của `SCR-056`.
 - `SCR-058` — thay bằng sheet "Xuất báo cáo" ở `SCR-055`.
 

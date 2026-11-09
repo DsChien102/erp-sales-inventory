@@ -117,7 +117,6 @@ Không tạo business effect mới để “bù” cho kết quả chưa rõ; ch
 | Screen | Vai trò trong UC |
 |---|---|
 | `SCR-026` | Trình bày evidence/finality và hành động phục hồi an toàn cho “Phục hồi allocation stale”; giữ cùng operation identity. |
-| `SCR-027` | Trình bày evidence/finality và hành động phục hồi an toàn cho “Phục hồi allocation stale”; giữ cùng operation identity. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

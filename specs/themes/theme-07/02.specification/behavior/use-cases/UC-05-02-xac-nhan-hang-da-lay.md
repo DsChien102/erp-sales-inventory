@@ -123,7 +123,7 @@ Không ghi xuất kho và không kết thúc reservation. UC chỉ xác nhận l
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-027` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Xác nhận hàng đã lấy”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
+| `SCR-026` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Xác nhận hàng đã lấy”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

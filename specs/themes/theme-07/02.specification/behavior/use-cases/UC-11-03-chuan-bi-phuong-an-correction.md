@@ -125,7 +125,7 @@ Không ghi reversal/correction movement ở bước chuẩn bị và không sử
 | Screen | Vai trò trong UC |
 |---|---|
 | `SCR-049` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị phương án correction”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
-| `SCR-052` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị phương án correction”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
+| `SCR-050` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị phương án correction” (chọn cách sửa và số đúng); việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

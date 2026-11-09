@@ -156,7 +156,7 @@ Với normalized signed source amount `A`, target `i` có metric `m_i`, `M = Σm
 - Theo lượng: chỉ được dùng khi source/policy cung cấp metric quantity có cùng dimension/metric-unit trên toàn scope; không lấy trực tiếp các quantity khác UOM để cộng chung.
 - Làm tròn VND theo stable exposure order; exposure cuối nhận residual để tổng phân bổ đúng bằng `A`.
 - `M <= 0` hoặc metric không so sánh được => method không hợp lệ, không fallback chia đều.
-- Bước rà soát vẫn bắt buộc về hành vi nhưng v4.6.0 dùng Confirmation Sheet ngay trên `SCR-086`; không cần `SCR-088` là screen riêng.
+- Bước rà soát vẫn bắt buộc về hành vi; rà soát là sheet xác nhận "Ghi điều chỉnh giá trị?" ngay trên `SCR-086` (SCR-088 đã bỏ).
 
 ## 8. Liên hệ giao diện
 
@@ -166,7 +166,6 @@ Với normalized signed source amount `A`, target `i` có metric `m_i`, `M = Σm
 |---|---|
 | `SCR-085` | Danh sách công việc điều chỉnh giá trị hàng nhập, bao gồm cả khoản tăng và giảm. |
 | `SCR-086` | Nguồn, phạm vi áp dụng, cách phân bổ và kết quả dự kiến trên cùng một công việc. |
-| `SCR-088` | Rà soát chỉ đọc trước khi ghi điều chỉnh tăng/giảm. |
 | `SCR-089` | Kết quả có hiệu lực và phạm vi cần BJ14 cập nhật giá vốn. |
 
 `SCR-087` đã retire từ v3.13.0; không tạo màn trung gian chỉ để chuyển từ chọn phạm vi sang xem kết quả phân bổ.
