@@ -1,7 +1,7 @@
 # T7 — Thiết kế giá vốn hàng tồn kho (spec)
 
 > Theme 7 · spec dùng chung cho G5-0b (Task 2b), G5-3, G5-4, G5-5, G5-6, G5-7 của [PLAN.md](../../PLAN.md) mục "Theme 7"
-> Trạng thái: Spec 📝 chờ người dùng review | Thiết kế duyệt trong chat 2026-11-09 (3 phần)
+> Trạng thái: Spec 📝 chờ người dùng review | Thiết kế duyệt trong chat 2026-11-09 (giá vốn: 3 phần; ưu đãi NCC: 2 phần, mục 12)
 > Nguồn nghiệp vụ: spec Theme 7 v5.27.0 — [BJ-14](../../../../specs/themes/theme-07/02.specification/behavior/journeys/BJ-14-tinh-va-cong-bo-gia-von.md), KB-KGV-015 (đơn giá chính thức, tổng giá trị từ sổ), KB-KGV-016 (hai phương pháp bình quân), KB-KGV-017 (công bố + điều chỉnh liên kết), KB-KGV-018 (mốc chốt, điều kiện chặn, cập nhật giữa kỳ). Chuẩn mực: VAS 02 Hàng tồn kho; Thông tư 200 / 133 (chọn một phương pháp, áp dụng nhất quán).
 
 ## 1. Mục tiêu
@@ -14,16 +14,18 @@ Giá vốn là phần trọng tâm của Kho trong báo cáo đồ án. Hội đ
 |---|---|
 | GV-1 | Trọng tâm: nghiệp vụ kế toán đúng chuẩn (không ưu tiên kỹ thuật hiệu năng, không ưu tiên nhiều màn) |
 | GV-2 | **Cửa hàng chọn phương pháp** (bình quân liên hoàn `MOVING` / bình quân cuối kỳ `PERIODIC`); lần tính luôn tính cả hai để đối chiếu; có chốt kỳ theo tháng + true-up |
-| GV-3 | **Giá gốc trên phiếu nhận:** chi phí thu mua + chiết khấu thương mại cấp phiếu, phân bổ vào dòng; không điều chỉnh sau khi đã ghi (BJ-13 vẫn bỏ) |
+| GV-3 | **Giá gốc trên phiếu nhận:** chi phí thu mua + chiết khấu thương mại cấp phiếu, phân bổ vào dòng; không sửa phiếu sau khi đã ghi. Ngoại lệ có chứng từ: chiết khấu NCC đạt mốc ghi bằng dòng điều chỉnh (mục 12) |
+| GV-5 | **Ưu đãi nhà cung cấp** (mục 12): 3 loại — giảm giá theo bậc số lượng trên phiếu, mua X tặng Y cùng sản phẩm, chiết khấu đạt mốc **số lượng tích luỹ** (không có hạn thời gian); kèm theo dõi tiến độ, giá vốn dự kiến, so sánh NCC |
+| GV-6 | **Giá gốc gồm VAT đầu vào:** cửa hàng là hộ kinh doanh, VAT đầu vào không được khấu trừ (KB-KGV-019 mục 5) ⇒ giá mua lấy theo hoá đơn **đã gồm thuế** |
 | GV-4 | **Cách A:** tính lại từ sổ lúc tạo lần tính (kết quả bất biến), rà soát, công bố nguyên tử |
 
-**Ngoài phạm vi:** điều chỉnh giá trị hàng nhập sau khi ghi (BJ-13), đổi phương pháp sau lần công bố đầu, giá vốn theo kho / lô, FIFO / đích danh, giá vốn tham chiếu cho định giá bán, bút toán kế toán (TK 156 / 632) — chỉ ghi tên loại để báo cáo đối chiếu.
+**Ngoài phạm vi:** điều chỉnh giá trị hàng nhập sau khi ghi (BJ-13) — trừ chiết khấu NCC đạt mốc (mục 12), tặng hàng khi đạt mốc, tặng sản phẩm khác, ưu đãi bằng tiền không gắn hàng, tách VAT được khấu trừ (mô hình để ngỏ cho doanh nghiệp sau), đổi phương pháp sau lần công bố đầu, giá vốn theo kho / lô, FIFO / đích danh, giá vốn tham chiếu cho định giá bán, bút toán kế toán (TK 156 / 632) — chỉ ghi tên loại để báo cáo đối chiếu.
 
 ## 2. Khái niệm
 
 | Khái niệm | Nghĩa trong app |
 |---|---|
-| Giá gốc (giá nhập) | Giá mua trước thuế GTGT + chi phí thu mua phân bổ − chiết khấu thương mại phân bổ (VAS 02). Thuế GTGT được khấu trừ, không vào giá gốc |
+| Giá gốc (giá nhập) | Giá mua theo hoá đơn (**gồm VAT đầu vào** — hộ kinh doanh không khấu trừ, GV-6) + chi phí thu mua phân bổ − chiết khấu thương mại phân bổ (VAS 02, KB-KGV-019) |
 | Sổ số lượng | `inventory.stock_movements` (G5-0b): mỗi dòng một biến động số lượng theo lô |
 | Sổ giá trị | `inventory.value_movements`: mỗi dòng một biến động giá trị; dòng điều chỉnh chỉ có giá trị, không có số lượng |
 | Giá trị sổ | Σ `amount_vnd` của sổ giá trị cho sản phẩm (có thẩm quyền, KB-KGV-015) |
@@ -47,17 +49,18 @@ Schema `inventory`, mọi bảng có `tenant_id`, RLS bật, `revoke all` (chỉ
 | `id`, `ledger_sequence` | dùng chung bộ đếm `ledger_counters` với sổ số lượng |
 | `product_id` | |
 | `movement_id uuid null` | dòng sổ số lượng tương ứng; `null` với dòng điều chỉnh |
-| `kind text` | `OPENING`, `RECEIPT`, `SALE`, `SALE_REVERSAL`, `RETURN_IN`, `COUNT_GAIN`, `COUNT_LOSS`, `WRITE_OFF`, `COGS_TRUE_UP`, `LOSS_TRUE_UP`, `REVALUE_ROUNDING` |
+| `kind text` | `OPENING`, `RECEIPT`, `SALE`, `SALE_REVERSAL`, `RETURN_IN`, `COUNT_GAIN`, `COUNT_LOSS`, `WRITE_OFF`, `COGS_TRUE_UP`, `LOSS_TRUE_UP`, `REVALUE_ROUNDING`, `SUPPLIER_REBATE` (12 loại) |
 | `quantity_basis numeric` | số lượng (ĐVT cơ sở) làm căn cứ, có dấu; `0` với dòng điều chỉnh |
 | `unit_cost numeric(18,4) null` | đơn giá đã dùng; `null` với dòng điều chỉnh |
 | `amount_vnd bigint not null` | có dấu (+ vào, − ra) |
 | `cost_version_id uuid null` | phiên bản giá đã dùng khi xuất theo giá chính thức |
 | `is_provisional boolean not null default false` | xuất theo giá tạm |
-| `cost_run_id uuid null` | bắt buộc với 3 loại điều chỉnh |
+| `cost_run_id uuid null` | bắt buộc với 3 loại điều chỉnh của lần tính |
+| `supplier_rebate_id uuid null` | bắt buộc với `SUPPLIER_REBATE` (mục 12) |
 | `source_movement_id uuid null` | `SALE_REVERSAL` trỏ dòng `SALE` gốc |
 | `business_date`, `created_at`, `created_by` | |
 
-Chỉ thêm (trigger `_forbid_ledger_mutation`). Check: loại điều chỉnh ⇒ `movement_id is null and cost_run_id is not null`; loại khác ⇒ `movement_id is not null`.
+Chỉ thêm (trigger `_forbid_ledger_mutation`). Check: 3 loại điều chỉnh của lần tính ⇒ `movement_id is null and cost_run_id is not null`; `SUPPLIER_REBATE` ⇒ `movement_id is null and supplier_rebate_id is not null`; loại khác ⇒ `movement_id is not null`.
 
 ### 3.2 Bảng mới / đổi
 
@@ -95,7 +98,7 @@ Thêm:
 
 ### 4.1 Phân bổ giá gốc trên phiếu nhận (G5-3)
 
-Với `n` dòng, giá mua dòng `a_i` (trước thuế, = SL × đơn giá mua), tổng `A = Σ a_i`, chi phí thu mua `F`, chiết khấu `D` (cấp phiếu, ≥ 0, `D ≤ A + F`):
+Với `n` dòng, giá mua dòng `a_i` (theo hoá đơn, gồm VAT, sau chiết khấu bậc của chương trình loại 1 nếu có — mục 12; = SL mua × đơn giá mua), tổng `A = Σ a_i`, chi phí thu mua `F`, chiết khấu `D` (cấp phiếu, ≥ 0, `D ≤ A + F`):
 
 - `f_i = floor(F × a_i / A)`, `k_i = floor(D × a_i / A)`; phần dư `F − Σ f_i`, `D − Σ k_i` cộng vào dòng có `a_i` lớn nhất (bằng nhau → dòng đầu).
 - Giá gốc dòng `g_i = a_i + f_i − k_i`; đơn giá gốc `g_i / SL_i` (4 chữ số) truyền vào `_post_movements` kèm `amount_vnd = g_i` (không làm tròn lại từ đơn giá — dùng đúng `g_i`).
@@ -111,7 +114,8 @@ Với mỗi sản phẩm có dòng sổ giá trị trong đoạn:
 
 | Đại lượng | Từ sổ giá trị của đoạn |
 |---|---|
-| `inbound_qty / value` | Σ `OPENING`, `RECEIPT`, `COUNT_GAIN`, `RETURN_IN` |
+| `inbound_qty / value` | Σ `OPENING`, `RECEIPT`, `COUNT_GAIN`, `RETURN_IN` (`RECEIPT` có hàng tặng: số lượng gồm SL tặng, giá trị = tiền đã trả — mục 12) |
+| `rebate_inventory_value` `B` | Σ `SUPPLIER_REBATE` (âm) của đoạn — **không** vào `inbound` (mục 12.4) |
 | `sale_qty / sale_value_recorded` | Σ `SALE` + `SALE_REVERSAL` (đổi dấu thành số dương) |
 | `loss_qty / loss_value_recorded` | Σ `COUNT_LOSS`, `WRITE_OFF` (dương) |
 | `closing_qty` | `opening_qty + inbound_qty − sale_qty − loss_qty` (phải bằng Σ `stock_movements.quantity_delta` của sản phẩm có `ledger_sequence <= cut_off_sequence`; lệch → điều kiện chặn `LEDGER_MISMATCH`, dấu hiệu sổ số lượng và sổ giá trị không khớp) |
@@ -123,12 +127,13 @@ Với mỗi sản phẩm có dòng sổ giá trị trong đoạn:
 
 - `cogs_true_up = round(sale_qty × S) − sale_value_recorded`
 - `loss_true_up = round(loss_qty × S) − loss_value_recorded`
-- `closing_value_before = opening_value + inbound_value − sale_value_recorded − loss_value_recorded`
-- `rounding_adjust = round(closing_qty × S) − (closing_value_before − cogs_true_up − loss_true_up)` (thường vài đồng; `MOVING` cũng có thể khác 0 do làm tròn từng dòng)
-- `closing_value_after = round(closing_qty × S)`
+- `closing_value_before = opening_value + inbound_value + B − sale_value_recorded − loss_value_recorded` (giá trị sổ tại mốc, trước điều chỉnh)
+- `MOVING`: phát lại liên hoàn có `SUPPLIER_REBATE` như dòng chỉ đổi giá trị (`m = (V + B) / q`); `S = moving_avg_end`; `closing_value_after = round(closing_qty × S)`.
+- `PERIODIC`: `P` tính **không** gồm `B`; `S = P`; `closing_value_after = round(closing_qty × S) + B`; phiên bản giá = `closing_value_after / closing_qty` (4 chữ số).
+- `rounding_adjust = closing_value_after − (closing_value_before − cogs_true_up − loss_true_up)` (thường vài đồng; `MOVING` cũng có thể khác 0 do làm tròn từng dòng)
 
 **Bất biến cân bằng** (kiểm cho mọi dòng run, hiện trên màn rà soát):
-`opening_value + inbound_value = (sale_value_recorded + cogs_true_up) + (loss_value_recorded + loss_true_up) + closing_value_after − rounding_adjust`.
+`opening_value + inbound_value + B = (sale_value_recorded + cogs_true_up) + (loss_value_recorded + loss_true_up) + closing_value_after − rounding_adjust`. Phần chiết khấu NCC giảm giá vốn hàng bán (`supplier_rebate_allocations.cogs_part`) **không** thuộc sổ giá trị tồn kho; báo cáo lãi gộp cộng riêng.
 
 ### 5.1 Ví dụ (đưa vào báo cáo)
 
@@ -219,11 +224,14 @@ Chữ trên màn: theo Screen Contract 072 / 074 / 077 (FROZEN) phần còn đú
 | G5-0b (Task 2b, 4) | `value_movements` dạng 3.1; `product_costs` dạng 3.2 (theo tổ chức + sản phẩm); `cost_policies`, `cost_periods`, `cost_versions`; luật mục 4 trong `_post_movements`; `PERIOD_CLOSED` |
 | G5-1 | `OPENING` truyền giá gốc từng dòng |
 | G5-2 | SCR-003 hiện giá vốn |
-| G5-3 | Phân bổ mục 4.1, `RECEIPT` |
+| **G5-2b Chương trình NCC** (mới) | Mục 12.1–12.3 phần khai báo, tiến độ, gợi ý; P1, P2, P3 (chưa ghi nhận); khối ở chi tiết NCC Theme 3; lối vào Hub |
+| G5-3 | Phân bổ mục 4.1, `RECEIPT`; áp loại 1 / 2, `free_qty`, gắn `program_id`, cộng tiến độ → `REACHED` |
 | G5-4 | `SALE`, `SALE_REVERSAL`, `RETURN_IN`; dòng đơn lưu giá vốn |
 | G5-5 | `COUNT_GAIN`, `COUNT_LOSS`, `WRITE_OFF`; phiên kiểm kê mở là điều kiện chặn |
+| **G5-5b Ghi nhận chiết khấu & so sánh NCC** (mới, sau G5-4) | Mục 12.4–12.6: xem trước / ghi nhận, P4, P5, khối "Giá vốn dự kiến" ở P3, "Cần chú ý" |
 | **G5-6 Giá vốn & chốt kỳ (mới)** | `cost_runs`, `cost_run_lines`, RPC mục 6.2, SCR-072 / 074 / 077 |
-| G5-7 Báo cáo (G5-6 cũ) | SCR-055 / 056 + báo cáo lãi gộp |
+| G5-6 (thêm) | Lần tính xử lý `SUPPLIER_REBATE` (mục 5, 12.4) |
+| G5-7 Báo cáo (G5-6 cũ) | SCR-055 / 056 + báo cáo lãi gộp (dòng "Chiết khấu NCC giảm giá vốn") + báo cáo nhập hàng theo NCC (SL mua / tặng, giá gốc) |
 | G5-8 Rà cuối (G5-7 cũ) | — |
 
 ## 9. Test chứng minh số
@@ -243,12 +251,18 @@ Chữ trên màn: theo Screen Contract 072 / 074 / 077 (FROZEN) phần còn đú
 | 9 | Công bố hai lần cùng khoá; công bố run có lần công bố khác chen vào; đổi chính sách giữa chừng | trả kết quả cũ; `COST_RUN_STALE`; `COST_POLICY_LOCKED` sau lần công bố đầu |
 | 10 | `MID_PERIOD` rồi `PERIOD_CLOSE` | hai đoạn nối tiếp, không đếm trùng dòng điều chỉnh của đoạn trước |
 | 11 | Bán trong lúc run chờ rà soát | công bố vẫn được; dòng bán thuộc đoạn sau |
+| 12 | Loại 1: 300 hộp, bậc 5% (mục 12.2) | giá gốc 28.500.000; gợi ý "nhập thêm 20" khi 280 |
+| 13 | Loại 2: mua 10 tặng 1 trên kho 20 hộp bq 50.000 | nhập 11 / 500.000; `moving_avg_cost` 48.387,0968 |
+| 14 | Loại 3: ví dụ 12.4 | phần tồn 1.500.000, phần giá vốn 3.500.000; bq 100.000 → 95.000 |
+| 15 | Loại 3 nhiều sản phẩm; tồn lớn hơn mốc | chia theo tiền mua, cộng đủ từng đồng; phần tồn giới hạn `min(tồn, Q)` |
+| 16 | Loại 3 với `PERIODIC` rồi lần tính | không giảm hai lần; cân bằng mục 5 có `B` |
+| 17 | Giá vốn dự kiến; ghi nhận hai lần | không sinh dòng sổ; lần sau trả kết quả lần đầu |
 
 Bất biến kiểm sau **mọi** ca: `product_costs.ledger_value_vnd = Σ value_movements.amount_vnd`; cân bằng mục 5 cho mọi dòng run; số dòng sổ cũ không đổi (không update / delete). Flutter: test hợp đồng SQL (có hàm, mã lỗi, `security definer`, khoá trước khi đọc) + widget test màn theo quy ước G5.
 
 ## 10. Cho báo cáo đồ án
 
-Mục "Giá vốn hàng tồn kho" (làm ở phần Báo cáo): giá gốc theo VAS 02 + ví dụ phân bổ 4.1; hai công thức bình quân + ví dụ 5.1; nguyên tắc sổ chỉ thêm và điều chỉnh liên kết (KB-KGV-017); vì sao mốc chốt theo số thứ tự sổ (6.4 bước 4); sơ đồ trạng thái lần tính (`READY_FOR_REVIEW` / `BLOCKED` / `STALE` / `PUBLISHED` / `SUPERSEDED`); bảng ca test mục 9; phần spec chưa làm (BJ-13, nhiều phạm vi chốt, giá tham chiếu định giá).
+Mục "Giá vốn hàng tồn kho" (làm ở phần Báo cáo): giá gốc theo VAS 02 (gồm VAT với hộ kinh doanh) + ví dụ phân bổ 4.1; **ưu đãi nhà cung cấp** (mục 12: ba cách hạch toán, ba ví dụ số, giả định tách phần tồn / đã bán, sơ đồ trạng thái chương trình); hai công thức bình quân + ví dụ 5.1; nguyên tắc sổ chỉ thêm và điều chỉnh liên kết (KB-KGV-017); vì sao mốc chốt theo số thứ tự sổ (6.4 bước 4); sơ đồ trạng thái lần tính (`READY_FOR_REVIEW` / `BLOCKED` / `STALE` / `PUBLISHED` / `SUPERSEDED`); bảng ca test mục 9; phần spec chưa làm (BJ-13, nhiều phạm vi chốt, giá tham chiếu định giá).
 
 ## 11. Rủi ro
 
@@ -259,3 +273,81 @@ Mục "Giá vốn hàng tồn kho" (làm ở phần Báo cáo): giá gốc theo 
 | Phương pháp đổi giữa chừng làm số khó giải thích | Chỉ đổi trước lần công bố đầu (`COST_POLICY_LOCKED`); lần tính chụp `method` |
 | Kỳ theo tháng làm demo khó chốt kỳ | `MID_PERIOD` demo được ngay; `PERIOD_CLOSE` demo bằng dữ liệu tháng trước (script mô phỏng của AI-3 có thể tạo biến động có `business_date` tháng trước — quyết ở G5-6) |
 | Spec làm phiên bản giá theo "đơn vị vận hành"; app một kho | Phạm vi tổ chức + sản phẩm khớp spec khi một tổ chức một đơn vị vận hành; ghi trong báo cáo |
+
+## 12. Ưu đãi nhà cung cấp (chốt 2026-11-09)
+
+Giáo viên hướng dẫn yêu cầu có quản lý nhà cung cấp gắn với giá vốn (ví dụ giá nhập lần sau đắt hơn, NCC có chương trình "nhập 1.000 sản phẩm giảm giá" hoặc hàng tặng). Nguồn: KB-KGV-019 (thành phần giá trị hàng nhập), KB-KGV-043 (kịch bản chiết khấu, giá vốn dự kiến không ghi sổ), TT 200 (chiết khấu nhận sau khi mua: phần tồn giảm giá trị tồn, phần đã bán giảm giá vốn). Spec giao phần thương mại cho Theme 10 (dự án không làm) ⇒ Theme 7 giữ, ở mức dưới đây.
+
+### 12.1 Ba loại, ba cách hạch toán
+
+| # | Loại (`kind`) | Ví dụ | Hạch toán |
+|---|---|---|---|
+| 1 | Giảm giá theo bậc SL trên một phiếu (`TIER_DISCOUNT`) | Nobivac: ≥ 100 hộp giảm 3%, ≥ 300 hộp giảm 5% | Giảm ngay giá gốc của lần nhập |
+| 2 | Mua X tặng Y cùng sản phẩm (`BUY_X_GET_Y`) | Thuốc tẩy giun: mua 10 tặng 1 | Hàng tặng nhập kho có số lượng, giá 0; tiền mua chia cho SL mua + SL tặng |
+| 3 | Chiết khấu đạt mốc **SL tích luỹ** (`VOLUME_REBATE`) | NCC A: mua đủ 1.000 hộp → giảm 5% trên tổng tiền mua | Phát sinh sau khi nhập; có chứng từ mới ghi; dòng điều chỉnh giá trị, tách phần tồn / phần đã bán |
+
+Loại 3 **không có hạn thời gian**: tính từ ngày bắt đầu chương trình tới khi đạt mốc; đạt một lần. Bỏ: tặng hàng khi đạt mốc, tặng sản phẩm khác, ưu đãi bằng tiền không gắn hàng.
+
+### 12.2 Dữ liệu (schema `inventory`)
+
+| Bảng | Cột chính | Ràng buộc |
+|---|---|---|
+| `supplier_programs` | `id`, `supplier_id` (đối tác Theme 3), `name`, `kind`, `status` (`ACTIVE` / `REACHED` / `RECORDED` / `ENDED`), `started_on date`, `buy_qty`, `free_qty` (loại 2), `target_qty`, `rebate_percent numeric(5,2)` (loại 3), `progress_qty numeric` (loại 3), `reached_at`, `ended_at`, `note`, `created_by/at` | đối tác phải có vai trò `supplier` (`PROGRAM_SUPPLIER_INVALID`); tham số đúng theo `kind` (check); `REACHED` / `RECORDED` chỉ cho loại 3 |
+| `supplier_program_products` | `program_id`, `product_id` | PK cặp; loại 2 đúng 1 sản phẩm |
+| `supplier_program_tiers` | `program_id`, `min_qty`, `discount_percent` | loại 1; `unique (program_id, min_qty)` |
+| `supplier_program_receipts` | `program_id`, `receipt_line_id`, `paid_qty`, `purchase_amount_vnd` | dòng phiếu nhận tính vào loại 3 (căn cứ chiết khấu) |
+| `supplier_rebates` | `id`, `program_id` (unique), `document_no`, `document_date`, `base_amount_vnd`, `proposed_amount_vnd`, `rebate_amount_vnd`, `override_reason`, `business_date`, `recorded_by/at` | một lần ghi nhận mỗi chương trình |
+| `supplier_rebate_allocations` | `rebate_id`, `product_id`, `paid_qty`, `purchase_amount_vnd`, `rebate_part_vnd`, `on_hand_qty`, `inventory_part_vnd`, `cogs_part_vnd`, `value_movement_id` | `inventory_part + cogs_part = rebate_part`; Σ `rebate_part` = `rebate_amount` |
+
+Dòng phiếu nhận (G5-3) thêm: `program_id`, `paid_qty`, `free_qty`, `tier_discount_percent`, `tier_discount_vnd`. Số lượng nhập kho = `paid_qty + free_qty`.
+
+Chương trình chỉ sửa tham số khi chưa có phiếu nào gắn (`PROGRAM_LOCKED`); sau đó chỉ "Kết thúc" (`ENDED`). Nhiều chương trình cùng NCC + sản phẩm: một dòng phiếu áp tối đa một chương trình mỗi loại.
+
+### 12.3 Luật trên phiếu nhận (loại 1, 2) và tiến độ (loại 3)
+
+- **Loại 1:** bậc = `min_qty` lớn nhất `<= paid_qty` của dòng; `tier_discount_vnd = round(paid_qty × đơn giá mua × %)`; `a_i` (mục 4.1) = tiền mua − `tier_discount_vnd`. Gợi ý bậc kế: "Nhập thêm {min_qty kế − paid_qty} {ĐVT} để được giảm {%}". Người lập sửa được (chứng từ NCC là căn cứ); sửa thì `program_id` vẫn gắn, ghi `tier_discount_percent` thực tế.
+- **Loại 2:** gợi ý `free_qty = floor(paid_qty / buy_qty) × free_qty`; sửa được. Dòng nhập kho `paid_qty + free_qty`, `amount_vnd = g_i` (tiền đã trả sau phân bổ) ⇒ đơn giá gốc = `g_i / (paid_qty + free_qty)`.
+- **Loại 3:** mỗi dòng phiếu của NCC + sản phẩm thuộc chương trình `ACTIVE`, `business_date >= started_on` ⇒ thêm `supplier_program_receipts` (`paid_qty`, `purchase_amount_vnd` = `a_i` sau chiết khấu trên phiếu, **chưa** cộng chi phí thu mua; không tính SL tặng); `progress_qty += paid_qty`; đạt `target_qty` ⇒ `REACHED` trong cùng giao dịch ghi phiếu. SL vượt mốc vẫn vào căn cứ (chữ màn nói rõ).
+
+Ví dụ loại 1: 300 × 100.000 = 30.000.000, bậc 5% ⇒ giá gốc 28.500.000 = 95.000 / hộp. Ví dụ loại 2: kho 20 hộp bq 50.000 (1.000.000); mua 10 × 50.000 tặng 1 ⇒ nhập 11 hộp / 500.000 ⇒ bq (1.000.000 + 500.000) / 31 = 48.387,0968.
+
+### 12.4 Ghi nhận chiết khấu đạt mốc (loại 3)
+
+1. Chủ cửa hàng mở P4 (chương trình `REACHED`): nhập số / ngày chứng từ NCC; `proposed = round(base × rebate_percent / 100)` với `base = Σ purchase_amount_vnd`; số ghi nhận mặc định = `proposed`, sửa được kèm `override_reason`.
+2. **Xem trước** (RPC, không ghi): chia `R` theo `purchase_amount` từng sản phẩm (`floor`, phần dư vào sản phẩm có tiền mua lớn nhất) ⇒ `rebate_part_p`; `Q_p` = Σ `paid_qty` của sản phẩm trong chương trình; `on_hand_p` = tồn hiện tại; `inventory_part_p = round(rebate_part_p × min(on_hand_p, Q_p) / Q_p)`; `cogs_part_p = rebate_part_p − inventory_part_p`.
+3. **Ghi nhận** (một giao dịch, idempotency): `_ensure_open_period(business_date)` → khoá sản phẩm theo `product_id` tăng dần → **tính lại** bước 2 theo tồn tại lúc ghi → mỗi sản phẩm có `inventory_part ≠ 0`: dòng `value_movements` `SUPPLIER_REBATE` `amount = −inventory_part` (`supplier_rebate_id`), `product_costs`: `V += amount`, `m = V / q` → lưu `supplier_rebates` + `supplier_rebate_allocations` → chương trình `RECORDED`.
+4. `cogs_part` giảm giá vốn hàng bán **của kỳ chứa `business_date`**; không vào sổ giá trị tồn kho; báo cáo lãi gộp và tổng giá vốn kỳ đọc từ `supplier_rebate_allocations`.
+5. Lần tính giá vốn (mục 5): `MOVING` phát lại `SUPPLIER_REBATE`; `PERIODIC` không đưa vào `P`, cộng thẳng vào tồn cuối (`B`) — tránh giảm hai lần cho hàng đã bán (đã giảm qua `cogs_part`).
+
+**Giả định (ghi trong báo cáo):** bình quân không theo dõi hộp nào thuộc lần nhập nào ⇒ coi hàng đang tồn thuộc các lần nhập của chương trình trước (là các lần nhập gần nhất), tối đa `Q_p`.
+
+Ví dụ: phiếu 1 400 × 100.000, phiếu 2 600 × 100.000 ⇒ `base` 100.000.000, `R` 5.000.000; lúc ghi nhận tồn 300 hộp (giá trị 30.000.000, bq 100.000) ⇒ phần tồn 5.000.000 × 300 / 1.000 = 1.500.000 (giá trị tồn 28.500.000, bq 95.000), phần giá vốn 3.500.000.
+
+### 12.5 Giá vốn dự kiến và so sánh NCC (chỉ đọc, không ghi sổ)
+
+- **Giá vốn dự kiến** (P3, loại 3 `ACTIVE`): người dùng nhập SL định mua thêm `x` và đơn giá dự kiến `u`; nếu `progress + x >= target`: `R_dk = (base + x × u) × %`; bình quân dự kiến = `(V + x × u − R_dk × min(q + x, Q + x) / (Q + x)) / (q + x)`; không đạt mốc thì chỉ `(V + x × u) / (q + x)`. Nhãn "Dự kiến, chưa ghi sổ".
+- **So sánh NCC** (P5, theo sản phẩm): mỗi NCC có phiếu nhận: đơn giá gốc lần gần nhất, bình quân đơn giá gốc (Σ giá gốc / Σ SL nhập gồm tặng), số lần nhập, tổng SL mua / tặng, chương trình `ACTIVE` / `REACHED` + tiến độ.
+
+### 12.6 RPC, quyền, mã lỗi
+
+| RPC | Plan |
+|---|---|
+| `list_supplier_programs`, `get_supplier_program`, `create_supplier_program`, `update_supplier_program`, `end_supplier_program` | G5-2b |
+| `get_receipt_program_hints(p_supplier_id, p_lines)` (bậc, SL tặng, chương trình loại 3 sẽ cộng) | G5-2b, dùng ở G5-3 |
+| `preview_supplier_rebate`, `record_supplier_rebate`, `get_projected_cost`, `compare_suppliers(p_product_id)` | G5-5b |
+
+Chỉ `is_owner` tạo / sửa / kết thúc chương trình, ghi nhận chiết khấu, xem số tiền; nhân viên lập phiếu thấy gợi ý % / SL tặng, tiền bị che. Mã lỗi mới: `PROGRAM_NOT_REACHED`, `PROGRAM_LOCKED`, `PROGRAM_SUPPLIER_INVALID`.
+
+### 12.7 Màn hình (không có prototype / Screen Contract ⇒ plan vẽ khung ASCII, người dùng duyệt; dựng từ khuôn K1 / K4 / K6 / K7 + DS)
+
+| Màn | Plan | Nội dung |
+|---|---|---|
+| P1 Chương trình NCC | G5-2b | K6: chip Đang chạy · Đạt mốc · Đã ghi nhận · Kết thúc; dòng NCC, tên, loại, tóm tắt / thanh tiến độ; "Tạo chương trình" |
+| P2 Tạo / sửa chương trình | G5-2b | NCC, loại, sản phẩm, tham số theo loại; khoá khi đã có phiếu, chỉ còn "Kết thúc chương trình" |
+| P3 Chi tiết chương trình | G5-2b (+ G5-5b: dự kiến, nút ghi nhận) | tham số; loại 3: tiến độ, phiếu đã tính, khối "Giá vốn dự kiến", "Ghi nhận chiết khấu" khi đạt mốc |
+| P4 Ghi nhận chiết khấu | G5-5b | chứng từ, số tiền (đề xuất / sửa + lý do), bảng phân bổ xem trước, "Ghi nhận" → K4 |
+| P5 So sánh NCC | G5-5b | mở từ SCR-003 và dòng phiếu nhận |
+| Phiếu nhận (phần thêm) | G5-3 | gợi ý theo dòng: bậc đang áp + bậc kế, SL tặng, chương trình loại 3 sẽ cộng |
+| Chi tiết NCC (Theme 3) | G5-2b | khối "Chương trình ưu đãi" + "Lịch sử nhập hàng", lối sang P1 / P3 lọc theo NCC |
+| Hub Kho | G5-2b, G5-5b | lối "Chương trình nhà cung cấp" (khu Giá trị); "Cần chú ý": chương trình đạt mốc chờ ghi nhận |
+
