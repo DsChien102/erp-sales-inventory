@@ -72,6 +72,6 @@ while IFS= read -r pubspec; do
     write_analysis_options "$dir" dart
   fi
   ensure_pubspec_dep "$pubspec"
-done < <(find apps packages modules -name pubspec.yaml -not -path '*/.dart_tool/*' -not -path '*/vet45_lints/*' -not -path '*/vet45_design_system/example/*' | sort)
+done < <(find apps packages -name pubspec.yaml -not -path '*/.dart_tool/*' -not -path '*/vet45_lints/*' -not -path '*/vet45_design_system/example/*' | sort)
 
 echo "Synced analysis_options.yaml for all workspace packages."

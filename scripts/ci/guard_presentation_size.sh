@@ -24,11 +24,6 @@ while IFS= read -r -d '' file; do
   check_file "$file"
 done < <(find "$root/apps/erp/lib" \( -name '*_page.dart' -o -name '*_screen.dart' \) -print0 2>/dev/null)
 
-while IFS= read -r -d '' file; do
-  [[ "$file" == *.g.dart ]] && continue
-  check_file "$file"
-done < <(find "$root/modules" -path '*/presentation/lib/*.dart' -print0 2>/dev/null)
-
 if [[ "$failed" -ne 0 ]]; then
   exit 1
 fi

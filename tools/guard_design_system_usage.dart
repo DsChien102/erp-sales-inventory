@@ -4,7 +4,6 @@ import 'package:path/path.dart' as p;
 void main(List<String> args) {
   final root = Directory.current.path;
   final erpFeaturesDir = Directory(p.join(root, 'apps', 'erp', 'lib', 'features'));
-  final modulesDir = Directory(p.join(root, 'modules'));
 
   final legacyMode = Platform.environment['GUARD_DESIGN_SYSTEM_LEGACY'] == '1';
   final strictMode = Platform.environment['GUARD_DESIGN_SYSTEM_STRICT'] == '1';
@@ -87,8 +86,7 @@ void main(List<String> args) {
     }
 
     // --- MONITORED (scan / warn) ---
-    if ((relPath.startsWith('apps/erp/lib/features/') && relPath.contains('/presentation/')) ||
-        (relPath.startsWith('modules/') && relPath.contains('/presentation/lib/src/widgets/'))) {
+    if (relPath.startsWith('apps/erp/lib/features/') && relPath.contains('/presentation/')) {
       return 'monitored';
     }
 
@@ -173,11 +171,10 @@ void main(List<String> args) {
 
   print('Running Design System Usage Guard (Dart Version)...');
   scanDir(erpFeaturesDir);
-  scanDir(modulesDir);
 
   print('');
   print('Summary: enforced lane = product_control_center* + product_catalog*');
-  print('         monitored = apps/erp features presentation + modules/*/presentation widgets');
+  print('         monitored = apps/erp features presentation');
   if (warnCount > 0) {
     print('WARN count: $warnCount (set GUARD_DESIGN_SYSTEM_STRICT=1 to fail on monitored)');
   }
