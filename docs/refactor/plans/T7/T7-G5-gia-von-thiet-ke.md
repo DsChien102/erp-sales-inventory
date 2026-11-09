@@ -286,7 +286,17 @@ Giáo viên hướng dẫn yêu cầu có quản lý nhà cung cấp gắn với
 | 2 | Mua X tặng Y cùng sản phẩm (`BUY_X_GET_Y`) | Thuốc tẩy giun: mua 10 tặng 1 | Hàng tặng nhập kho có số lượng, giá 0; tiền mua chia cho SL mua + SL tặng |
 | 3 | Chiết khấu đạt mốc **SL tích luỹ** (`VOLUME_REBATE`) | NCC A: mua đủ 1.000 hộp → giảm 5% trên tổng tiền mua | Phát sinh sau khi nhập; có chứng từ mới ghi; dòng điều chỉnh giá trị, tách phần tồn / phần đã bán |
 
-Loại 3 **không có hạn thời gian**: tính từ ngày bắt đầu chương trình tới khi đạt mốc; đạt một lần. Bỏ: tặng hàng khi đạt mốc, tặng sản phẩm khác, ưu đãi bằng tiền không gắn hàng.
+Loại 3 **không có hạn thời gian**: tính từ ngày bắt đầu chương trình tới khi đạt mốc; đạt một lần.
+
+**Phạm vi một chương trình (chốt 2026-11-09):** thuộc một tenant, **đúng một NCC**, áp cho danh sách sản phẩm chọn khi tạo — tức ưu đãi gắn với cặp **NCC + sản phẩm**. Cùng sản phẩm nhập từ nhiều NCC ⇒ mỗi NCC có chương trình riêng, không lẫn nhau. Giá vốn luôn theo từng sản phẩm.
+
+| Quyết định | Nội dung |
+|---|---|
+| NCC-1 | **Chỉ áp chương trình cùng NCC với phiếu nhận** (lọc `supplier_id` của phiếu + sản phẩm của dòng) |
+| NCC-2 | **Phiếu nhận bắt buộc chọn NCC.** Mỗi tenant có sẵn một đối tác hệ thống **"Mua lẻ / khác"** (vai trò `supplier`, không sửa / xoá, không tạo chương trình được — `PROGRAM_SUPPLIER_INVALID`); G5-2b tạo nó và chọn cách đánh dấu đối tác hệ thống ở Theme 3 |
+| NCC-3 | **Loại 3 nhiều sản phẩm phải cùng ĐVT cơ sở** (chặn lúc tạo / sửa: `PROGRAM_UOM_MISMATCH`) |
+| NCC-4 | **Loại 1 xét bậc trên từng dòng phiếu**, không cộng gộp sản phẩm |
+| NCC-5 | Chỉ phiếu nhận (G5-3) áp ưu đãi; tồn đầu kỳ, khách trả, kiểm kê thừa không áp | Bỏ: tặng hàng khi đạt mốc, tặng sản phẩm khác, ưu đãi bằng tiền không gắn hàng.
 
 ### 12.2 Dữ liệu (schema `inventory`)
 
@@ -326,7 +336,7 @@ Ví dụ: phiếu 1 400 × 100.000, phiếu 2 600 × 100.000 ⇒ `base` 100.000.
 ### 12.5 Giá vốn dự kiến và so sánh NCC (chỉ đọc, không ghi sổ)
 
 - **Giá vốn dự kiến** (P3, loại 3 `ACTIVE`): người dùng nhập SL định mua thêm `x` và đơn giá dự kiến `u`; nếu `progress + x >= target`: `R_dk = (base + x × u) × %`; bình quân dự kiến = `(V + x × u − R_dk × min(q + x, Q + x) / (Q + x)) / (q + x)`; không đạt mốc thì chỉ `(V + x × u) / (q + x)`. Nhãn "Dự kiến, chưa ghi sổ".
-- **So sánh NCC** (P5, theo sản phẩm): mỗi NCC có phiếu nhận: đơn giá gốc lần gần nhất, bình quân đơn giá gốc (Σ giá gốc / Σ SL nhập gồm tặng), số lần nhập, tổng SL mua / tặng, chương trình `ACTIVE` / `REACHED` + tiến độ.
+- **So sánh NCC** (P5, theo sản phẩm; không gồm "Mua lẻ / khác" trong phần ưu đãi, vẫn hiện giá): mỗi NCC có phiếu nhận: đơn giá gốc lần gần nhất, bình quân đơn giá gốc (Σ giá gốc / Σ SL nhập gồm tặng), số lần nhập, tổng SL mua / tặng, chương trình `ACTIVE` / `REACHED` + tiến độ.
 
 ### 12.6 RPC, quyền, mã lỗi
 
@@ -336,17 +346,17 @@ Ví dụ: phiếu 1 400 × 100.000, phiếu 2 600 × 100.000 ⇒ `base` 100.000.
 | `get_receipt_program_hints(p_supplier_id, p_lines)` (bậc, SL tặng, chương trình loại 3 sẽ cộng) | G5-2b, dùng ở G5-3 |
 | `preview_supplier_rebate`, `record_supplier_rebate`, `get_projected_cost`, `compare_suppliers(p_product_id)` | G5-5b |
 
-Chỉ `is_owner` tạo / sửa / kết thúc chương trình, ghi nhận chiết khấu, xem số tiền; nhân viên lập phiếu thấy gợi ý % / SL tặng, tiền bị che. Mã lỗi mới: `PROGRAM_NOT_REACHED`, `PROGRAM_LOCKED`, `PROGRAM_SUPPLIER_INVALID`.
+Chỉ `is_owner` tạo / sửa / kết thúc chương trình, ghi nhận chiết khấu, xem số tiền; nhân viên lập phiếu thấy gợi ý % / SL tặng, tiền bị che. Mã lỗi mới: `PROGRAM_NOT_REACHED`, `PROGRAM_LOCKED`, `PROGRAM_SUPPLIER_INVALID`, `PROGRAM_UOM_MISMATCH`; phiếu nhận thiếu NCC → `SUPPLIER_REQUIRED` (G5-3).
 
 ### 12.7 Màn hình (không có prototype / Screen Contract ⇒ plan vẽ khung ASCII, người dùng duyệt; dựng từ khuôn K1 / K4 / K6 / K7 + DS)
 
 | Màn | Plan | Nội dung |
 |---|---|---|
-| P1 Chương trình NCC | G5-2b | K6: chip Đang chạy · Đạt mốc · Đã ghi nhận · Kết thúc; dòng NCC, tên, loại, tóm tắt / thanh tiến độ; "Tạo chương trình" |
+| P1 Chương trình NCC | G5-2b | K6: chip Đang chạy · Đạt mốc · Đã ghi nhận · Kết thúc; **lọc theo NCC và theo sản phẩm**; dòng NCC, tên, loại, tóm tắt / thanh tiến độ; "Tạo chương trình" |
 | P2 Tạo / sửa chương trình | G5-2b | NCC, loại, sản phẩm, tham số theo loại; khoá khi đã có phiếu, chỉ còn "Kết thúc chương trình" |
 | P3 Chi tiết chương trình | G5-2b (+ G5-5b: dự kiến, nút ghi nhận) | tham số; loại 3: tiến độ, phiếu đã tính, khối "Giá vốn dự kiến", "Ghi nhận chiết khấu" khi đạt mốc |
 | P4 Ghi nhận chiết khấu | G5-5b | chứng từ, số tiền (đề xuất / sửa + lý do), bảng phân bổ xem trước, "Ghi nhận" → K4 |
-| P5 So sánh NCC | G5-5b | mở từ SCR-003 và dòng phiếu nhận |
+| P5 So sánh NCC | G5-5b | theo một sản phẩm, mỗi NCC từng bán sản phẩm một dòng: giá gốc gần nhất, bình quân giá gốc, số lần nhập, **ưu đãi đang có của NCC đó cho sản phẩm này** + tiến độ, nút **"Thêm ưu đãi"** (mở P2 điền sẵn NCC + sản phẩm); mở từ SCR-003 và dòng phiếu nhận |
 | Phiếu nhận (phần thêm) | G5-3 | gợi ý theo dòng: bậc đang áp + bậc kế, SL tặng, chương trình loại 3 sẽ cộng |
 | Chi tiết NCC (Theme 3) | G5-2b | khối "Chương trình ưu đãi" + "Lịch sử nhập hàng", lối sang P1 / P3 lọc theo NCC |
 | Hub Kho | G5-2b, G5-5b | lối "Chương trình nhà cung cấp" (khu Giá trị); "Cần chú ý": chương trình đạt mốc chờ ghi nhận |
