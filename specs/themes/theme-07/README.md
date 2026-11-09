@@ -128,7 +128,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 
 ### 6.5 Các điểm giao diện đã đồng bộ
 
-- Prototype HTML hiện hành (v5.0.0, sau T7-P0) không còn lớp vá: CSS ở `03.design/prototype/html/styles/`, JS ở `03.design/prototype/html/app/`; xem `03.design/prototype/html/README.md`.
+- Prototype HTML hiện hành (v5.27.0, sau T7-P0) không còn lớp vá: CSS ở `03.design/prototype/html/styles/`, JS ở `03.design/prototype/html/app/`; xem `03.design/prototype/html/README.md`.
 - `SCR-088` không còn là active route; legacy/deep-link hội tụ về `SCR-086`. (xem `03.design/screens/RETIRED.md`)
 - BJ13 không chia đều khi metric không hợp lệ; preview bị chặn theo `T7-DR-198`.
 - BJ03/BJ13 không hiển thị hoặc yêu cầu người dùng nhập tỷ giá; UI chỉ dùng giá trị VND đã chuẩn hóa.

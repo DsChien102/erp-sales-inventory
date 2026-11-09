@@ -314,11 +314,11 @@ Giữ nguyên như bản đầu (không đổi theo rút gọn).
 
 ### Task 9: README, PLAN.md, kiểm cuối
 
-- [ ] **Step 1:** README theme dòng 131: `v5.0.0` → `v5.27.0`. (Không rà / FROZEN domain — Q8 bỏ ở rút gọn.)
-- [ ] **Step 2:** PLAN.md mục Theme 7 → "Quy ước chung" → "Cấu trúc code" thêm dòng **"Mẫu RPC ghi"** (mục 2.3 cuối) + câu "giá vốn: chỉ qua `_post_movements` (→ `_value_line`); vào kho truyền `unit_cost` / `amount_vnd`, ra kho lấy `lines[]` trả về (đơn giá, số tiền, phiên bản, cờ giá tạm)". Bảng Plan dòng G5-0b: cột Làm `✅ {ngày}`.
-- [ ] **Step 3:** `cd apps/erp && dart analyze lib/features/inventory lib/features/catalog lib/core test/features/inventory test/features/catalog` → 0 lỗi; `flutter test --no-pub -r compact` → không vượt mốc `TEST-BASELINE.md` ("Sau 7-C": 55 lỗi).
-- [ ] **Step 4:** `detect_changes({scope: "compare", base_ref: "main"})` → ghi Kết quả.
-- [ ] **Step 5:** Commit `docs(refactor): T7-G5-0b xong, mẫu RPC ghi vào PLAN.md`.
+- [x] **Step 1:** README theme dòng 131: `v5.0.0` → `v5.27.0`. (Không rà / FROZEN domain — Q8 bỏ ở rút gọn.)
+- [x] **Step 2:** PLAN.md mục Theme 7 → "Quy ước chung" → "Cấu trúc code" thêm dòng **"Mẫu RPC ghi"** (mục 2.3 cuối) + câu "giá vốn: chỉ qua `_post_movements` (→ `_value_line`); vào kho truyền `unit_cost` / `amount_vnd`, ra kho lấy `lines[]` trả về (đơn giá, số tiền, phiên bản, cờ giá tạm)". Bảng Plan dòng G5-0b: cột Làm `✅ 2026-11-10`.
+- [x] **Step 3:** `cd apps/erp && dart analyze lib/features/inventory lib/features/catalog lib/core test/features/inventory test/features/catalog` → 0 lỗi; `flutter test --no-pub -r compact` → không vượt mốc `TEST-BASELINE.md` ("Sau 7-C": 55 lỗi).
+- [x] **Step 4:** `detect_changes({scope: "compare", base_ref: "main"})` → ghi Kết quả.
+- [x] **Step 5:** Commit `docs(refactor): T7-G5-0b xong, mẫu RPC ghi vào PLAN.md`.
 
 ## 5. Rủi ro / lưu ý
 
@@ -447,7 +447,7 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Ghi chú cho review: Gỡ bỏ hoàn toàn hạ tầng K2 duyệt và K3 xác minh kết quả chưa rõ theo quyết định Q-b10, Q-b14, Q-b15, Q-b19.
 
 ### Task 8 (2026-11-10) — ✅
-- Commit: (sắp commit)
+- Commit: `bc6ba3c9a`
 - Tệp:dòng đã đổi:
   - `apps/erp/lib/features/catalog/data/models/catalog_enums.dart`: thêm `enum ProductTrackingMode { none, lot }`.
   - `apps/erp/lib/features/catalog/data/models/product_inputs.dart`: `CreateGuidedProductInput` thêm `trackingMode`, `expiryRequired`.
@@ -469,7 +469,17 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Impact: Thêm trường và tham số tùy chọn vào Catalog DTO/Repo, không phá vỡ caller cũ; GitNexus risk: low.
 - Ghi chú cho review: 2 ô gạt quản lý lô và hạn dùng tuân thủ chặt chẽ ràng buộc khóa khi sản phẩm đã có biến động kho ở cả client cubit và server RPC.
 
-Task 9 thêm: lệnh đã chạy, đạt / lỗi, tên test hỏng đối chiếu `TEST-BASELINE.md`, kết quả `detect_changes`.
+### Task 9 (2026-11-10) — ✅
+- Lệnh đã chạy:
+  - `cd apps/erp && dart analyze lib/features/inventory lib/features/catalog lib/core test/features/inventory test/features/catalog`: **0 errors, 0 warnings**.
+  - `cd apps/erp && flutter test --no-pub test/features/inventory`: **169 đạt / 0 lỗi** (100% pass).
+  - `cd apps/erp && flutter test --no-pub -r compact`: **3.126 đạt / 54 lỗi** (so với mốc `TEST-BASELINE.md` "Sau 7-C" là 3.021 đạt / 55 lỗi ⇒ pass tăng 105 tests, lỗi giảm 1, không vượt mốc baseline).
+  - `node .gitnexus/run.cjs detect-changes -r erp-sales-inventory --scope compare --base-ref main`: Changes 3575 files, 21189 symbols, 282 affected execution flows (toàn bộ nhánh refactor so với main).
+- Tệp:dòng đã đổi:
+  - `specs/themes/theme-07/README.md`: dòng 131 sửa `v5.0.0` → `v5.27.0`.
+  - `docs/refactor/PLAN.md`: thêm dòng "Mẫu RPC ghi" trong "Cấu trúc code", cập nhật trạng thái Theme 7 và dòng bảng G5-0b sang `✅ 2026-11-10`.
+  - `docs/refactor/plans/T7/T7-G5-0b-backend-loi.md`: cập nhật kết quả từng task và hoàn thành Task 9.
+- Commit: `docs(refactor): T7-G5-0b xong, mẫu RPC ghi vào PLAN.md`
 
 ## 7. Review
 

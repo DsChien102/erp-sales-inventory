@@ -574,7 +574,7 @@ Chi tiết từng việc:
 
 ## Theme 7. Inventory — Kho & Giá vốn
 
-**Trạng thái:** 🔄 **Rút gọn phạm vi 2026-11-09** (người dùng chốt, vì hạn 2026-12-02): còn 10 plan G5 theo luồng demo chính (kho trống → chương trình NCC → nhận hàng có giá gốc + ưu đãi → bán / trả / huỷ qua Sales → kiểm kê → ghi nhận chiết khấu NCC → giá vốn & chốt kỳ → báo cáo tồn + lãi gộp). G5-0a ✅ (2026-11-09). G5-0b: Task 0–2 ✅; plan đã sửa theo [spec giá vốn](plans/T7/T7-G5-gia-von-thiet-ke.md) ✅ (duyệt 2026-11-09), tiếp Task 2b; song song: viết plan G5-2b. Code BJ-02 / 03 cũ (v4.6.8) giữ tới G5-3 thì xoá.
+**Trạng thái:** 🔄 **Rút gọn phạm vi 2026-11-09** (người dùng chốt, vì hạn 2026-12-02): còn 10 plan G5 theo luồng demo chính (kho trống → chương trình NCC → nhận hàng có giá gốc + ưu đãi → bán / trả / huỷ qua Sales → kiểm kê → ghi nhận chiết khấu NCC → giá vốn & chốt kỳ → báo cáo tồn + lãi gộp). G5-0a ✅ (2026-11-09). G5-0b ✅ (2026-11-10); song song: viết plan G5-2b. Code BJ-02 / 03 cũ (v4.6.8) giữ tới G5-3 thì xoá.
 
 > **Đã xong (bỏ khỏi bảng 2026-11-09):** T7-0 / T7-0b / T7-0c (Flutter BJ-02 / 03 theo prototype v4.6.8, commit `49967966e` — sẽ viết lại ở G5-3), T7-P0 (dọn prototype), T7-P (thiết kế lại trên prototype, đóng 2026-10-27, v5.26.1 — [plan](plans/T7/T7-P-thiet-ke-lai-luong.md) giữ để tra khuôn K1–K7, mục 5), T7-G4 (chốt đặc tả FROZEN v5.27.0, 2026-11-09). Prototype **v5.28.0 rút gọn** (2026-11-09, người dùng yêu cầu): chỉ còn 5 luồng app làm (bỏ cả tồn đầu kỳ), đã gỡ duyệt / nhập tệp / nhận theo chứng từ mua / tình trạng hàng / K3 (`?scope=full` hiện thêm luồng bỏ để tra cứu; xem CHANGELOG 5.28.0). Ảnh `proto-final` là của v5.27.0 ⇒ plan chụp lại màn đã đổi trước khi dùng làm đích. Bảng cũ (17 BJ, G5-0a…G5-17): `git show e5c9d4599:docs/refactor/PLAN.md`.
 
@@ -657,7 +657,7 @@ Thứ tự = luồng demo (không seed: phải khởi tạo tồn trước mới
 | Plan | Nội dung | Màn (Screen Contract) | Phụ thuộc | Plan | Làm | Review |
 |---|---|---|---|---|---|---|
 | **G5-0a** | UI nền: DS mới, khuôn K1–K4 / K6 / K7, Home Kho, route `/warehouse`, xoá `WarehouseHomePage` v3.8 | 090…096 | W-1 ✅ | ✅ [plan](plans/T7/T7-G5-0a-ui-nen.md) | ✅ 2026-11-09 | ✅ R2 đạt (2026-11-09) |
-| **G5-0b** | Backend lõi (bản rút gọn): kho / lô / sổ biến động chỉ thêm / tồn + khả dụng + **sổ giá trị + luật giá theo phương pháp** (spec giá vốn mục 3–4), `_post_movements` (khoá, chặn tồn âm), phiếu kho chung + khoá idempotency, quyền + che tài chính, RPC tóm tắt Hub; lớp RPC Flutter; ô gạt "Quản lý theo lô" ở Theme 2; gỡ "Chờ duyệt" / K2 / K3 / lối vào BJ bị bỏ khỏi Hub | — | G5-0a (Task Hub) | ✅ [plan](plans/T7/T7-G5-0b-backend-loi.md) (rút gọn + spec giá vốn, duyệt 2026-11-09) | 🔄 Task 0–2 ✅ | ⬜ |
+| **G5-0b** | Backend lõi (bản rút gọn): kho / lô / sổ biến động chỉ thêm / tồn + khả dụng + **sổ giá trị + luật giá theo phương pháp** (spec giá vốn mục 3–4), `_post_movements` (khoá, chặn tồn âm), phiếu kho chung + khoá idempotency, quyền + che tài chính, RPC tóm tắt Hub; lớp RPC Flutter; ô gạt "Quản lý theo lô" ở Theme 2; gỡ "Chờ duyệt" / K2 / K3 / lối vào BJ bị bỏ khỏi Hub | — | G5-0a (Task Hub) | ✅ [plan](plans/T7/T7-G5-0b-backend-loi.md) (rút gọn + spec giá vốn, duyệt 2026-11-09) | ✅ 2026-11-10 | ⬜ |
 | ~~G5-1~~ | ~~BJ-12 Khởi tạo tồn đầu kỳ~~ — **bỏ** (2026-11-09: kho bắt đầu trống) | — | — | — | — | — |
 | G5-2 | BJ-01 Tồn kho & khả dụng (theo lô, HSD, giá vốn bq có che) + cột / ô **"Tồn tối thiểu"** (`min_stock`) ở sản phẩm Theme 2 + "Cần chú ý" Hub: sắp hết (dưới tồn tối thiểu), cận hạn | 001, 003 | G5-0b | ⬜ | ⬜ | ⬜ |
 | **G5-2b** | **Chương trình nhà cung cấp** (spec giá vốn mục 12.1–12.3, 12.6–12.7): bảng chương trình (3 loại), RPC tạo / sửa / kết thúc / danh sách / chi tiết / gợi ý cho dòng phiếu; màn P1 danh sách, P2 tạo / sửa, P3 chi tiết (chưa ghi nhận); khối "Chương trình ưu đãi" + "Lịch sử nhập hàng" ở chi tiết NCC Theme 3; lối vào Hub; tạo đối tác hệ thống "Mua lẻ / khác" cho mỗi tenant. Ưu đãi gắn cặp **NCC + sản phẩm**, chỉ áp cho phiếu cùng NCC. **Không có prototype** ⇒ plan vẽ khung ASCII, người dùng duyệt | P1, P2, P3 | G5-0b | ⬜ | ⬜ | ⬜ |
@@ -688,6 +688,7 @@ Mọi plan G5 trỏ về mục này trong "Global Constraints" và chỉ ghi ph�
 | Lỗi | `features/inventory/data/inventory_rpc_errors.dart` (G5-0b) | Mã lỗi server → `AppException`; câu hiển thị theo Screen Contract; không hiện `e.toString()` |
 | SQL | `supabase/migrations/2026MMDDnnn_inventory_<bj>.sql` | Sửa thẳng migration gốc tới khi lên Prod (không tạo bản ghi đè). Plan **không** ghi bước chạy / reset DB (người dùng tự làm) |
 | Test SQL | `apps/erp/test/features/inventory/data/<bj>_sql_contract_test.dart` | Đọc tệp migration, kiểm có hàm / RLS / `security definer` / kiểm quyền / mã lỗi (cùng kiểu `sales_sql_contract_test.dart`) |
+| Mẫu RPC ghi | `supabase/migrations/` | Mỗi RPC ghi một phiếu kho / nghiệp vụ gọi `_post_movements` (mục 2.3 của spec lõi). Giá vốn: chỉ qua `_post_movements` (→ `_value_line`); vào kho truyền `unit_cost` / `amount_vnd`, ra kho lấy `lines[]` trả về (đơn giá, số tiền, phiên bản, cờ giá tạm) |
 
 #### Điều hướng
 
@@ -886,7 +887,7 @@ Chi tiết từng việc:
 | Theme 4 | 🔄 | | 6-A1, 6-A2, 6-B, 6-C ✅ (review đạt, đã commit; 6-C R1 2026-11-06). **Chỉ còn việc người dùng:** `db reset` local + `supabase/tests/pricing_th04.sql`, reset Dev; kiểm tay 6-A2 7.2, 6-B 8.2 |
 | Theme 5 | 🔄 | | 8-A1…8-A4, 8-B1…8-B3, 8-C ✅ (review đạt; 8-C R1 2026-11-08). Còn: việc người dùng của 8-B2 / 8-B3 (nối kho: Theme 7 G5-4) |
 | Theme 8 | 🔄 | | 2026-11-09: 7-B1, 7-E1..E3, 7-A1..A2b, 7-B2, 7-C ✅ (review R1 đạt 2026-11-09; xoá xong `modules/`). Còn: kiểm live trên Dev |
-| Theme 7 | 🔄 | — | Prototype + đặc tả xong (T7-P đóng 2026-10-27; T7-G4 ✅ FROZEN v5.27.0, 2026-11-09). Rút gọn 2026-11-09 (8 plan G5). G5-0a ✅; G5-0b plan rút gọn ✅, đang làm (Task 0–2 ✅) |
+| Theme 7 | 🔄 | — | Prototype + đặc tả xong (T7-P đóng 2026-10-27; T7-G4 ✅ FROZEN v5.27.0, 2026-11-09). Rút gọn 2026-11-09 (8 plan G5). G5-0a ✅; G5-0b ✅ (2026-11-10) |
 | Tích hợp AI | ⬜ | | Mới thêm 2026-10-27: giảng viên yêu cầu; 2026-11-09 chuyển lên sau Theme 7, trước Theme 6 |
 | Theme 6 | ⬜ | | Mới thêm 2026-10-27: phải thu + cấn trừ |
 | Dọn dẹp | ⬜ | | |
