@@ -266,14 +266,13 @@ begin
   end if;
 
   -- check is_owner
-  select exists (
-    select 1
-    from iam.memberships m
-    join iam.roles r on r.id = m.role_id
-    where m.tenant_id = p_tenant_id
-      and m.user_id = v_actor_id
-      and r.code = 'owner'
-  ) into v_owner;
+  select coalesce(m.is_owner, false)
+  into v_owner
+  from iam.memberships m
+  where m.tenant_id = p_tenant_id
+    and m.user_id = v_actor_id;
+
+  v_owner := coalesce(v_owner, false);
 
   if p_require_owner and not v_owner then
     perform inventory._raise('PERMISSION_DENIED', 'Owner permission required.');
@@ -770,6 +769,7 @@ declare
   v_amount_vnd bigint;
   v_source_movement_id uuid;
   v_prod record;
+  v_base_uom text;
   v_lot record;
   v_lot_key uuid;
   v_current_qty numeric;
@@ -836,7 +836,7 @@ begin
       perform inventory._raise('CONTEXT_INVALID', 'Loại biến động không hợp lệ: ' || coalesce(v_movement_kind, 'null'));
     end if;
 
-    select id, name, base_uom, tracking_mode, expiry_required
+    select id, name, tracking_mode, expiry_required
     into v_prod
     from catalog.products
     where id = v_product_id and tenant_id = p_tenant_id and deleted_at is null;
@@ -844,6 +844,8 @@ begin
     if not found then
       perform inventory._raise('CONTEXT_INVALID', 'Sản phẩm không tồn tại: ' || v_product_id::text);
     end if;
+
+    v_base_uom := catalog._product_base_unit_name(p_tenant_id, v_product_id);
 
     -- Lot rules
     if v_prod.tracking_mode = 'none' then
@@ -969,7 +971,7 @@ begin
     v_stock_changes := v_stock_changes || jsonb_build_object(
       'product_id', v_product_id,
       'product_name', v_prod.name,
-      'base_uom', v_prod.base_uom,
+      'base_uom', v_base_uom,
       'lot_id', v_lot_id,
       'before', v_current_qty,
       'after', v_after_qty
