@@ -1,7 +1,7 @@
 # T7-G5-2 — BJ-01 Tồn kho & khả dụng
 
 > Theme 7 · plan **G5-2** của [PLAN.md](../../PLAN.md) mục "Theme 7" (bảng Plan)
-> Trạng thái: Plan ✅ (người dùng duyệt 2026-11-10) | Làm ⬜ | Review ⬜
+> Trạng thái: Plan ✅ (người dùng duyệt 2026-11-10) | Làm ✅ (2026-11-10) | Review ✅ R2 đạt (2026-11-10; R1 ❌) — còn nợ P3 #4–#11, chạy `supabase/tests/inventory_stock_view.sql`
 > Thiết kế: duyệt trong chat 2026-11-10 (mục 1). Màn: SCR-001, SCR-003 (FROZEN v5.27.0) theo prototype **v5.28.0** (`app/bj01.js`), CAP-01 lấy lại ở [G5-2a](T7-G5-2a-chinh-sach-ton.md). Phụ thuộc: G5-0b, **G5-2a**.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -119,11 +119,11 @@ Nút quét camera (Q-2-1), "Nhận hàng" / "Mở phiếu nhận" (G5-3), "Đi�
 - Produces: JSON mục 2.1 (Task 2 đọc).
 - Thứ tự migration: `20261110001` định nghĩa `get_warehouse_hub_summary` trước khi có `_product_stock_rows` (`20261111001`) — plpgsql chỉ phân giải lúc chạy nên hợp lệ; ghi rõ ở dòng `Depends on` của header.
 
-- [ ] **Step 1: Test hợp đồng (đỏ):** `stock_view_rpcs_granted` (`list_stock_overview(uuid)`, `get_stock_detail(uuid, uuid)` có `security definer` + `grant execute … to authenticated` + `_assert_actor(p_tenant_id, 'inventory.read')`); `detail_masks_cost_for_non_owner` (chuỗi `'financial_masked'` và nhánh `is_owner` trong `get_stock_detail`); `hub_summary_fills_problems` (đọc `20261110001`: hàm có `'near_expiry'`, `'products'`, gọi `_product_stock_rows`, không còn `'problems', null` trong nhánh đã kích hoạt); `no_new_error_codes`.
-- [ ] **Step 2: Chạy, thấy đỏ** — `cd apps/erp && flutter test --no-pub -r compact test/features/inventory/data/stock_view_sql_contract_test.dart`.
-- [ ] **Step 3: Viết migration + sửa Hub summary** theo 2.1.
-- [ ] **Step 4: Viết `supabase/tests/inventory_stock_view.sql`** (khuôn `inventory_core.sql`): `product_without_movement_listed_zero`, `available_excludes_expired_lot` (11 hết hạn + 3 còn hạn ⇒ `available 3`, `expired_quantity 11`), `lots_sorted_by_expiry_end` (`DAY 30/09`, `MONTH 09`, `YEAR`, không HSD ⇒ đúng thứ tự), `staff_cost_masked`, `owner_cost_from_product_costs`, `latest_movement_is_max_sequence`, `hub_problems_counts` (1 hết hàng, 1 tồn thấp + có lô cận hạn ⇒ `products 2`).
-- [ ] **Step 5: Chạy test hợp đồng, thấy xanh.**
+- [x] **Step 1: Test hợp đồng (đỏ):** `stock_view_rpcs_granted` (`list_stock_overview(uuid)`, `get_stock_detail(uuid, uuid)` có `security definer` + `grant execute … to authenticated` + `_assert_actor(p_tenant_id, 'inventory.read')`); `detail_masks_cost_for_non_owner` (chuỗi `'financial_masked'` và nhánh `is_owner` trong `get_stock_detail`); `hub_summary_fills_problems` (đọc `20261110001`: hàm có `'near_expiry'`, `'products'`, gọi `_product_stock_rows`, không còn `'problems', null` trong nhánh đã kích hoạt); `no_new_error_codes`.
+- [x] **Step 2: Chạy, thấy đỏ** — `cd apps/erp && flutter test --no-pub -r compact test/features/inventory/data/stock_view_sql_contract_test.dart`.
+- [x] **Step 3: Viết migration + sửa Hub summary** theo 2.1.
+- [x] **Step 4: Viết `supabase/tests/inventory_stock_view.sql`** (khuôn `inventory_core.sql`): `product_without_movement_listed_zero`, `available_excludes_expired_lot` (11 hết hạn + 3 còn hạn ⇒ `available 3`, `expired_quantity 11`), `lots_sorted_by_expiry_end` (`DAY 30/09`, `MONTH 09`, `YEAR`, không HSD ⇒ đúng thứ tự), `staff_cost_masked`, `owner_cost_from_product_costs`, `latest_movement_is_max_sequence`, `hub_problems_counts` (1 hết hàng, 1 tồn thấp + có lô cận hạn ⇒ `products 2`).
+- [x] **Step 5: Chạy test hợp đồng, thấy xanh.**
 
 ### Task 2: Model + repository + `formatQuantity`
 
@@ -139,10 +139,10 @@ Nút quét camera (Q-2-1), "Nhận hàng" / "Mở phiếu nhận" (G5-3), "Đi�
   - `class StockDetail { DateTime asOf; String warehouseName; bool isOwner; String productId, name, code, uom; bool isLotTracked; num physical, available, expiredQuantity; num? threshold, target; List<StockLot> lots; StockLatestMovement? latestMovement; StockCost? cost; List<StockIndicator> get indicators; }`
   - `StockRepository({required InventoryRpc rpc})`: `Future<StockOverview> loadOverview()` → `rpc.query('list_stock_overview')`; `Future<StockDetail> loadDetail(String productId)` → `rpc.query('get_stock_detail', {'p_product_id': productId})`.
 
-- [ ] **Step 1: Test (đỏ):** `format_quantity_moved_same_output` (`106` → "106", `1.5` → "1,5"); `format_stock_quantity` ("41 hộp"); `overview_parses` (JSON mẫu: `as_of` ISO ⇒ `DateTime` local, `reorder_threshold null` ⇒ `threshold null`, `indicators == [notConfigured]`); `detail_parses_lots_and_cost`; `lot_date_from_json_month` (`'2027-11-30'`, `'MONTH'` ⇒ `format() == '11/2027'`); `detail_cost_null_when_masked`; `latest_movement_label` (`SALE` ⇒ "Xuất bán").
-- [ ] **Step 2: Chạy, thấy đỏ.**
-- [ ] **Step 3: Viết code**; chạy lại test cũ dùng `formatQuantity` (`flutter test --no-pub -r compact test/features/inventory`).
-- [ ] **Step 4: Chạy, thấy xanh.**
+- [x] **Step 1: Test (đỏ):** `format_quantity_moved_same_output` (`106` → "106", `1.5` → "1,5"); `format_stock_quantity` ("41 hộp"); `overview_parses` (JSON mẫu: `as_of` ISO ⇒ `DateTime` local, `reorder_threshold null` ⇒ `threshold null`, `indicators == [notConfigured]`); `detail_parses_lots_and_cost`; `lot_date_from_json_month` (`'2027-11-30'`, `'MONTH'` ⇒ `format() == '11/2027'`); `detail_cost_null_when_masked`; `latest_movement_label` (`SALE` ⇒ "Xuất bán").
+- [x] **Step 2: Chạy, thấy đỏ.**
+- [x] **Step 3: Viết code**; chạy lại test cũ dùng `formatQuantity` (`flutter test --no-pub -r compact test/features/inventory`).
+- [x] **Step 4: Chạy, thấy xanh.**
 
 ### Task 3: Luật danh sách + 2 Cubit + mốc STALE
 
@@ -161,10 +161,10 @@ Nút quét camera (Q-2-1), "Nhận hàng" / "Mở phiếu nhận" (G5-3), "Đi�
   - `StockDetailState { status (loading, ready, denied, loadError); StockDetail? data; bool stale; }`; `StockDetailCubit({required StockRepository repository, StaleWatcher? stale})`: `load(String productId)`, `refresh()`, `checkStale()`.
   - Lỗi `NO_PERMISSION` ⇒ `denied`; mất mạng / khác ⇒ `loadError` (K1 "Thử lại"). `products` rỗng ⇒ `empty`.
 
-- [ ] **Step 1: Test (đỏ)** với fixture 5 sản phẩm như `bj01.js:12-32` sau khi áp v5.28 (Nobivac 118/120 lô cận hạn ngưỡng 30; Amox 46 ngưỡng 50; Enro 0 ngưỡng 10; Tylo khả dụng 3 có lô hết hạn ngưỡng 8; Oxy 11 chưa ngưỡng): `all_sorted_by_urgency` (Enro, Tylo, Amox, Nobivac, Oxy); `chip_counts_ignore_search` (gõ "amox" ⇒ `filterCount(low) == 2`); `search_matches_barcode` ("8938500004068" ⇒ Amox); `filter_keeps_original_order`; `empty_status_when_no_products`; `denied_on_no_permission`; `stale_after_five_minutes_on_resume` (now giả +5 phút 1 giây ⇒ `checkStale()` ⇒ `stale true`; +4 phút ⇒ false); `refresh_clears_stale_and_keeps_filter`; `selected_falls_back_to_first_visible`; `detail_load_and_refresh`.
-- [ ] **Step 2: Chạy, thấy đỏ.**
-- [ ] **Step 3: Viết code.**
-- [ ] **Step 4: Chạy, thấy xanh.**
+- [x] **Step 1: Test (đỏ)** với fixture 5 sản phẩm như `bj01.js:12-32` sau khi áp v5.28 (Nobivac 118/120 lô cận hạn ngưỡng 30; Amox 46 ngưỡng 50; Enro 0 ngưỡng 10; Tylo khả dụng 3 có lô hết hạn ngưỡng 8; Oxy 11 chưa ngưỡng): `all_sorted_by_urgency` (Enro, Tylo, Amox, Nobivac, Oxy); `chip_counts_ignore_search` (gõ "amox" ⇒ `filterCount(low) == 2`); `search_matches_barcode` ("8938500004068" ⇒ Amox); `filter_keeps_original_order`; `empty_status_when_no_products`; `denied_on_no_permission`; `stale_after_five_minutes_on_resume` (now giả +5 phút 1 giây ⇒ `checkStale()` ⇒ `stale true`; +4 phút ⇒ false); `refresh_clears_stale_and_keeps_filter`; `selected_falls_back_to_first_visible`; `detail_load_and_refresh`.
+- [x] **Step 2: Chạy, thấy đỏ.**
+- [x] **Step 3: Viết code.**
+- [x] **Step 4: Chạy, thấy xanh.**
 
 ### Task 4: DS `VBadge` chấm rỗng + `VStockRow`; SCR-001 iPhone
 
@@ -241,12 +241,12 @@ Token: `text-secondary` #4A535E, `text-primary` #0E1116, `font-mono` "JetBrains 
 | `LOADING` | `InventoryLoading(blocks: [search, row, row, row, row])` dưới dòng ngữ cảnh | ngữ cảnh chưa có ⇒ bỏ |
 | `PERMISSION_DENIED` | `InventoryDenied(what: 'xem tồn kho', next: 'Bạn chưa được cấp quyền xem tồn kho. Liên hệ chủ cửa hàng nếu cần.', onExit: () => context.go('/warehouse'))` | tiêu đề "Bạn chưa có quyền xem tồn kho"; nút "Về Kho" |
 
-- [ ] **Step 1: Test DS (đỏ)** — `packages/vet45_design_system/test/primitives/v_badge_hollow_dot_test.dart`: `hollow_dot_draws_ring` (chấm 8 × 8 viền tone, nền trong suốt); `packages/vet45_design_system/test/components/v_stock_row_test.dart`: `min_height_64`, `quantity_mono_bold_16`, `badge_below_quantity`, `has_chevron`, `semantics_button_label` ("{title}, {quantity}, {badge}").
-- [ ] **Step 2: Viết** `VBadge.hollowDot` (bool, mặc định false; chỉ có hiệu lực khi `showDot`) và `VStockRow({required String title, String? subtitle, required String quantity, Widget? badge, VoidCallback? onTap, bool selected = false})` (dựa trên `VListRow` không icon đầu); export ở `design_system.dart`. Sửa `StockIndicatorBadge` của G5-2a (`presentation/stock_policy/`) dùng `hollowDot: true` cho tone `danger` và dời sang `presentation/stock/stock_indicator_badge.dart` để hai màn dùng chung (sửa import ở G5-2a). Chạy test DS + test G5-2a xanh.
-- [ ] **Step 3: Widget test SCR-001 iPhone (đỏ)** — `test/features/inventory/presentation/stock/stock_list_page_test.dart` (390 × 844, fake repository fixture Task 3): `list_ready_390` (ngữ cảnh "Kho trung tâm · Dữ liệu đến 21:30, 17/09/2026"; không có `Semantics('Quét mã vạch')`; dòng đầu Enrofloxacin "0 chai" + "Hết hàng"; Oxy phụ đề "SP-000147 · Chưa có ngưỡng tồn", không badge); `chip_tap_filters_390`; `empty_when_no_products`; `filter_empty_clear_resets`; `stale_banner_refresh`; `denied_390`; `row_tap_opens_detail_route` (đẩy `/warehouse/stock/INV-AMX`).
-- [ ] **Step 4: Chạy, thấy đỏ.**
-- [ ] **Step 5: Dựng `stock_list_page.dart`** (bố cục iPhone) theo bảng; `WidgetsBindingObserver` gọi `checkStale()` khi resumed; quay về từ chi tiết (`await context.push`) gọi `checkStale()`.
-- [ ] **Step 6: Chạy, thấy xanh.**
+- [x] **Step 1: Test DS (đỏ)** — `packages/vet45_design_system/test/primitives/v_badge_hollow_dot_test.dart`: `hollow_dot_draws_ring` (chấm 8 × 8 viền tone, nền trong suốt); `packages/vet45_design_system/test/components/v_stock_row_test.dart`: `min_height_64`, `quantity_mono_bold_16`, `badge_below_quantity`, `has_chevron`, `semantics_button_label` ("{title}, {quantity}, {badge}").
+- [x] **Step 2: Viết** `VBadge.hollowDot` (bool, mặc định false; chỉ có hiệu lực khi `showDot`) và `VStockRow({required String title, String? subtitle, required String quantity, Widget? badge, VoidCallback? onTap, bool selected = false})` (dựa trên `VListRow` không icon đầu); export ở `design_system.dart`. Sửa `StockIndicatorBadge` của G5-2a (`presentation/stock_policy/`) dùng `hollowDot: true` cho tone `danger` và dời sang `presentation/stock/stock_indicator_badge.dart` để hai màn dùng chung (sửa import ở G5-2a). Chạy test DS + test G5-2a xanh.
+- [x] **Step 3: Widget test SCR-001 iPhone (đỏ)** — `test/features/inventory/presentation/stock/stock_list_page_test.dart` (390 × 844, fake repository fixture Task 3): `list_ready_390` (ngữ cảnh "Kho trung tâm · Dữ liệu đến 21:30, 17/09/2026"; không có `Semantics('Quét mã vạch')`; dòng đầu Enrofloxacin "0 chai" + "Hết hàng"; Oxy phụ đề "SP-000147 · Chưa có ngưỡng tồn", không badge); `chip_tap_filters_390`; `empty_when_no_products`; `filter_empty_clear_resets`; `stale_banner_refresh`; `denied_390`; `row_tap_opens_detail_route` (đẩy `/warehouse/stock/INV-AMX`).
+- [x] **Step 4: Chạy, thấy đỏ.**
+- [x] **Step 5: Dựng `stock_list_page.dart`** (bố cục iPhone) theo bảng; `WidgetsBindingObserver` gọi `checkStale()` khi resumed; quay về từ chi tiết (`await context.push`) gọi `checkStale()`.
+- [x] **Step 6: Chạy, thấy xanh.**
 
 ### Task 5: SCR-003 Chi tiết tồn kho (iPhone + web lối vào thẳng), sheet lô, sheet nguồn, khối giá vốn
 
@@ -399,7 +399,7 @@ Token: `space-1` 4, `space-3` 12, `space-4` 16, `space-6` 24, `radius-4` 12, `bo
 | `bj01Detail` web (lối vào thẳng) | `stock_detail_body.dart` ≥ 1024: `Row` 5 : 7, khe 24 — trái summary (thẻ số, cảnh báo, ghi chú, giá vốn), phải lô + nguồn; iPhone một cột khe 12 | |
 | `LOADING` | `VAppBar` có tên (từ `extra` của route nếu có, không thì "Chi tiết tồn kho") + `InventoryLoading(blocks: [card, row, row, row])` | |
 
-- [ ] **Step 1: Widget test (đỏ)** `test/features/inventory/presentation/stock/stock_detail_page_test.dart` (fake repository; Tylosin có lô `TY2408` hết hạn 11, `TY2511` 3; Nobivac lô cận hạn còn 13 ngày):
+- [x] **Step 1: Widget test (đỏ)** `test/features/inventory/presentation/stock/stock_detail_page_test.dart` (fake repository; Tylosin có lô `TY2408` hết hạn 11, `TY2511` 3; Nobivac lô cận hạn còn 13 ngày):
   - `detail_ready_390` (thẻ "Khả dụng" "3 lọ" + "Tồn thấp"; "Tồn vật lý 14 lọ"; "Không đủ điều kiện bán: Hết hạn 11 lọ"; "Ngưỡng 8 · Mục tiêu 24 lọ"; banner "Tồn thấp" "Khả dụng 3 lọ · Ngưỡng 8 lọ."; "Gợi ý nhập thêm 21 lọ (mục tiêu 24 lọ)"; banner "Có lô hết hạn" "Lô TY2408 · 11 lọ không đủ điều kiện bán."; không có chữ "Nhận hàng", "Điều chỉnh lô hết hạn", "Đã giữ"; lô `TY2408` đứng trước `TY2511`).
   - `owner_sees_cost_block_390` ("Giá vốn chính thức", "Bình quân liên hoàn", "Giá trị tồn (sổ)", "Phương pháp: Bình quân liên hoàn").
   - `periodic_provisional_shows_note` ("Chưa công bố", "Xuất kho đang dùng giá tạm (bình quân liên hoàn).").
@@ -410,9 +410,9 @@ Token: `space-1` 4, `space-3` 12, `space-4` 16, `space-6` 24, `radius-4` 12, `bo
   - `provenance_sheet_no_reservation` (không "Đang giữ", không "Xem thẻ kho và lịch sử"; có "Nhận hàng gần nhất").
   - `detail_two_columns_1280` (thẻ số và bảng lô cùng hàng).
   - `detail_denied`.
-- [ ] **Step 2: Chạy, thấy đỏ.**
-- [ ] **Step 3: Dựng** `stock_detail_body.dart` (nhận `StockDetail` + callback `onEditThreshold`, `onReceive`, `onAdjustExpired`, `onOpenStockCard`, `onOpenReceipt` — 4 cái sau truyền `null` ở plan này), `stock_cost_block.dart`, `stock_lot_sheet.dart`, `stock_provenance_sheet.dart`, `stock_detail_page.dart`.
-- [ ] **Step 4: Chạy, thấy xanh.**
+- [x] **Step 2: Chạy, thấy đỏ.**
+- [x] **Step 3: Dựng** `stock_detail_body.dart` (nhận `StockDetail` + callback `onEditThreshold`, `onReceive`, `onAdjustExpired`, `onOpenStockCard`, `onOpenReceipt` — 4 cái sau truyền `null` ở plan này), `stock_cost_block.dart`, `stock_lot_sheet.dart`, `stock_provenance_sheet.dart`, `stock_detail_page.dart`.
+- [x] **Step 4: Chạy, thấy xanh.**
 
 ### Task 6: SCR-001 web — danh sách – chi tiết
 
@@ -463,11 +463,11 @@ CSS `styles/components.css:3006-3008`:
 | aside | `StockDetailPanel` = `BlocProvider(StockDetailCubit..load(selected.id))` + `StockDetailBody` (Task 5, chế độ một cột) | đổi dòng ⇒ `load` sản phẩm mới, không đổi URL |
 | không có dòng (`EMPTY` / `FILTER_EMPTY`) | như iPhone, không cột phải | |
 
-- [ ] **Step 1: `impact` cho `K7Table`**; test `K7Table` (đỏ): `selected_row_highlighted` (nền #EBF4EC, `Semantics.selected`).
-- [ ] **Step 2: Widget test (đỏ)** thêm vào `stock_list_page_test.dart` (1280 × 800): `list_detail_ready_1280` (4 tiêu đề cột, không "Đã giữ"; cột phải hiện thẻ số của dòng đầu "Enrofloxacin 10%"); `row_tap_changes_aside_not_route_1280`; `selected_falls_back_to_first_visible_1280` (chọn Amox, lọc "Hết hạn" ⇒ cột phải là Tylosin).
-- [ ] **Step 3: Chạy, thấy đỏ.**
-- [ ] **Step 4: Dựng** nhánh web của `stock_list_page.dart`, thêm `K7Table.selected`.
-- [ ] **Step 5: Chạy, thấy xanh** — `flutter test --no-pub -r compact test/features/inventory`.
+- [x] **Step 1: `impact` cho `K7Table`**; test `K7Table` (đỏ): `selected_row_highlighted` (nền #EBF4EC, `Semantics.selected`).
+- [x] **Step 2: Widget test (đỏ)** thêm vào `stock_list_page_test.dart` (1280 × 800): `list_detail_ready_1280` (4 tiêu đề cột, không "Đã giữ"; cột phải hiện thẻ số của dòng đầu "Enrofloxacin 10%"); `row_tap_changes_aside_not_route_1280`; `selected_falls_back_to_first_visible_1280` (chọn Amox, lọc "Hết hạn" ⇒ cột phải là Tylosin).
+- [x] **Step 3: Chạy, thấy đỏ.**
+- [x] **Step 4: Dựng** nhánh web của `stock_list_page.dart`, thêm `K7Table.selected`.
+- [x] **Step 5: Chạy, thấy xanh** — `flutter test --no-pub -r compact test/features/inventory`.
 
 ### Task 7: Route, DI, lối vào Hub, "Cần chú ý"
 
@@ -479,23 +479,118 @@ CSS `styles/components.css:3006-3008`:
 - `WarehouseHubRepository.getSummary`: đọc `problems` (mục 2.1) ⇒ `WarehouseAttention(count: products, text: …)` theo chữ đề xuất mục 1; `products == 0` ⇒ `null`.
 - Hub: dòng "Cần chú ý" đổi tiêu đề thành "Tồn kho cần chú ý", chạm ⇒ `context.push('/warehouse/stock')` (thay đích `stocktaking` cũ của G5-0a).
 
-- [ ] **Step 1: `impact`** cho `WarehouseHubRepository.getSummary`, `warehouseAreaEntries`, `warehouseQuickActions`, `warehouseStockSearchRoute`.
-- [ ] **Step 2: Test (đỏ):** `hub_summary_text_joins_nonzero` (`{out: 2, low: 1, expired: 1, near_expiry: 0, products: 3}` ⇒ `count 3`, `text '2 hết hàng · 1 tồn thấp · 1 có lô hết hạn'`); `hub_problems_zero_is_null`; `hub_attention_row_opens_stock`; `quick_action_tra_cuu_ton_opens_stock`; `route_detail_opens_product`.
-- [ ] **Step 3: Chạy, thấy đỏ.**
-- [ ] **Step 4: Viết.**
-- [ ] **Step 5: Chạy, thấy xanh.**
+- [x] **Step 1: `impact`** cho `WarehouseHubRepository.getSummary`, `warehouseAreaEntries`, `warehouseQuickActions`, `warehouseStockSearchRoute`.
+- [x] **Step 2: Test (đỏ):** `hub_summary_text_joins_nonzero` (`{out: 2, low: 1, expired: 1, near_expiry: 0, products: 3}` ⇒ `count 3`, `text '2 hết hàng · 1 tồn thấp · 1 có lô hết hạn'`); `hub_problems_zero_is_null`; `hub_attention_row_opens_stock`; `quick_action_tra_cuu_ton_opens_stock`; `route_detail_opens_product`.
+- [x] **Step 3: Chạy, thấy đỏ.**
+- [x] **Step 4: Viết.**
+- [x] **Step 5: Chạy, thấy xanh.**
 
 ### Task 8: Luồng đầu–cuối, đối chiếu ảnh, kiểm cuối
 
-- [ ] **Step 1: Test luồng** `test/features/inventory/presentation/stock/stock_flow_test.dart` (fake repository, chủ cửa hàng, 390): Hub "Tồn kho cần chú ý" → danh sách → chip "Tồn thấp" → Tylosin → "Sửa ngưỡng" → (fake G5-2a trả `true`) → chi tiết tải lại → quay lại danh sách giữ chip "Tồn thấp".
-- [ ] **Step 2: Ảnh Flutter** (`matchesGoldenFile`): `img/G5-2/flutter-SCR-001-READY-{390,1280}.png`, `flutter-SCR-003-READY-{390,1280}.png` (fixture Task 3; SCR-003 là Nobivac như ảnh prototype, chủ cửa hàng). So với `proto-*`; lệch ghi Kết quả (chênh đã biết: mục đầu Task 4, Task 5).
-- [ ] **Step 3: Kiểm** — `cd apps/erp && dart analyze lib/features/inventory test/features/inventory` = 0 lỗi; `cd packages/vet45_design_system && dart analyze && flutter test --no-pub -r compact`; `flutter test --no-pub -r compact` (app) không thêm lỗi so với `TEST-BASELINE.md`; `detect_changes()`.
-- [ ] **Step 4: Ghi Kết quả** + PLAN.md bảng Plan (cột Làm).
+- [x] **Step 1: Test luồng** `test/features/inventory/presentation/stock/stock_flow_test.dart` (fake repository, chủ cửa hàng, 390): Hub "Tồn kho cần chú ý" → danh sách → chip "Tồn thấp" → Tylosin → "Sửa ngưỡng" → (fake G5-2a trả `true`) → chi tiết tải lại → quay lại danh sách giữ chip "Tồn thấp".
+- [x] **Step 2: Ảnh Flutter** (`matchesGoldenFile`): `img/G5-2/flutter-SCR-001-READY-{390,1280}.png`, `flutter-SCR-003-READY-{390,1280}.png` (fixture Task 3; SCR-003 là Nobivac như ảnh prototype, chủ cửa hàng). So với `proto-*`; lệch ghi Kết quả (chênh đã biết: mục đầu Task 4, Task 5).
+- [x] **Step 3: Kiểm** — `cd apps/erp && dart analyze lib/features/inventory test/features/inventory` = 0 lỗi; `cd packages/vet45_design_system && dart analyze && flutter test --no-pub -r compact`; `flutter test --no-pub -r compact` (app) không thêm lỗi so với `TEST-BASELINE.md`; `detect_changes()`.
+- [x] **Step 4: Ghi Kết quả** + PLAN.md bảng Plan (cột Làm).
 
 ## 5. Kết quả
 
-_(phiên code ghi)_
+### 5.1 Tiến độ & Kết quả kiểm thử từng Task
+1. **Task 1 (SQL — 2 RPC đọc + "Cần chú ý" Hub):**
+   - `impact` cho `get_warehouse_hub_summary` / `WarehouseHubRepository.getSummary`: LOW risk (chỉ được gọi bởi `WarehouseHubRepository.getSummary`).
+   - Tạo migration `supabase/migrations/20261112001_inventory_stock_view.sql` gồm `inventory.list_stock_overview(uuid)` và `inventory.get_stock_detail(uuid, uuid)`.
+   - Cập nhật `inventory.get_warehouse_hub_summary(uuid)` trong `supabase/migrations/20261110001_inventory_core.sql` điền `problems: {out, low, expired, near_expiry, products}` khi `activated = true`; cập nhật `supabase/migrations/REGISTRY.yaml`.
+   - Viết 7 ca test SQL trong `supabase/tests/inventory_stock_view.sql` (chỉ viết file, không chạy DB).
+   - Test hợp đồng `test/features/inventory/data/stock_view_sql_contract_test.dart` (4/4 PASS) và `inventory_core_sql_contract_test.dart` (33/33 PASS).
+2. **Task 2 (Model + repository + `formatQuantity`):**
+   - `impact` cho `receipt_rules.formatQuantity`: LOW risk trong `features/inventory` (9 tệp import `receipt_rules.dart`, giữ re-export `inventory_format.dart`).
+   - Tạo `lib/features/inventory/logic/inventory_format.dart` (`formatQuantity`, `formatStockQuantity`), cập nhật `receipt_rules.dart`.
+   - Tạo `lib/features/inventory/data/stock/stock_models.dart` và `stock_repository.dart`; bổ sung extension `indicators` cho `StockOverviewItem` và `StockDetail` tại `logic/stock/stock_indicator_rules.dart` để tuân thủ ranh giới tầng `data` không import `logic` (0 vi phạm `check_feature_imports.dart` cho `inventory`).
+   - Test `inventory_format_test.dart` (2/2 PASS), `stock_repository_test.dart` (5/5 PASS), `receipt_rules_test.dart` (20/20 PASS).
+3. **Task 3 (Luật danh sách + 2 Cubit + mốc STALE):**
+   - Tạo `stale_watcher.dart`, `stock_list_rules.dart`, `stock_list_state.dart`, `stock_list_cubit.dart`, `stock_detail_state.dart`, `stock_detail_cubit.dart`.
+   - Test `test/features/inventory/logic/stock/stock_list_test.dart` (10/10 PASS).
+4. **Task 4 (DS `VBadge` chấm rỗng + `VStockRow`; SCR-001 iPhone):**
+   - `impact` cho `VBadge` (MEDIUM — thêm tham số tuỳ chọn `hollowDot = false`) và `StockIndicatorBadge` (LOW — dời sang `presentation/stock/stock_indicator_badge.dart`, giữ re-export tại `stock_policy/`).
+   - Bổ sung `VBadge.hollowDot` và `VStockRow` trong `vet45_design_system`; test DS `v_badge_hollow_dot_test.dart`, `v_badge_test.dart`, `v_stock_row_test.dart` (14/14 PASS) và `stock_policy_page_test.dart` (16/16 PASS).
+   - Dựng `lib/features/inventory/presentation/stock/stock_list_page.dart` (iPhone 390); test `test/features/inventory/presentation/stock/stock_list_page_test.dart` (7/7 PASS).
+5. **Task 5 (SCR-003 Chi tiết tồn kho, sheet lô, sheet nguồn, khối giá vốn):**
+   - Dựng `stock_cost_block.dart`, `stock_lot_sheet.dart`, `stock_provenance_sheet.dart`, `stock_detail_body.dart`, `stock_detail_page.dart`.
+   - Test `test/features/inventory/presentation/stock/stock_detail_page_test.dart` (10/10 PASS).
+6. **Task 6 (SCR-001 web — danh sách – chi tiết):**
+   - `impact` cho `K7Table`: chỉ được dùng nội bộ trong `features/inventory` (`k6_task_list`, `near_expiry_tab`, `stock_threshold_tab`, `stock_detail_body`, `k1_k7_footer_test`) — thêm tham số tuỳ chọn `selected` (`K7Table.selected` / `VTable.selectedRowIndex`) tương thích ngược 100%.
+   - Bổ sung nhánh web danh sách – chi tiết (`K7Split` 7:5 + `StockDetailPanel`) trong `stock_list_page.dart`.
+   - Test `k1_k7_footer_test.dart` + `stock_list_page_test.dart` (23/23 PASS), toàn bộ `test/features/inventory` (273/273 PASS).
+7. **Task 7 (Route, DI, lối vào Hub, "Cần chú ý"):**
+   - `impact` cho `warehouseQuickActions`, `warehouseStockSearchRoute` (LOW risk, chỉ dùng trong `warehouse_hub_page.dart`), `warehouseAreaEntries` (chỉ dùng trong `features/inventory/presentation/hub/`), `WarehouseHubRepository.getSummary` (LOW risk).
+   - Tạo `stock_routes.dart` (`stockRoutes()`), đăng ký `StockRepository` trong `injection.dart`, gắn `...stockRoutes()` ngoài `StatefulShellRoute` trong `app_router.dart`, cập nhật `warehouse_entries.dart`, `warehouse_hub_repository.dart`, `warehouse_hub_page.dart`.
+   - Test `warehouse_hub_repository_test.dart`, `warehouse_hub_test.dart`, `warehouse_hub_pages_test.dart`, `warehouse_hub_routes_test.dart`, `stock_routes_test.dart` (34/34 PASS).
+8. **Task 8 (Luồng đầu–cuối, đối chiếu ảnh, kiểm cuối):**
+   - Tạo `test/features/inventory/presentation/stock/stock_flow_test.dart` (3/3 PASS): kiểm tra luồng đầu–cuối 390px từ Hub "Tồn kho cần chú ý" → danh sách `/warehouse/stock` → lọc chip "Tồn thấp" → chạm "Tylosin 20%" mở `/warehouse/stock/INV-TYLO` → bấm "Sửa ngưỡng" mở G5-2a `StockThresholdSinglePage` → sửa ngưỡng & lưu → chi tiết tự động tải lại ngưỡng mới → bấm Back quay lại danh sách giữ nguyên chip "Tồn thấp"; đồng thời sinh và kiểm `matchesGoldenFile` cho 4 ảnh chụp `flutter-SCR-001-READY-{390,1280}.png` và `flutter-SCR-003-READY-{390,1280}.png`.
+
+### 5.2 Đối chiếu ảnh (`flutter-SCR-*` so với `proto-SCR-*`)
+- `flutter-SCR-001-READY-390.png` so với `proto-SCR-001-READY-390.png`:
+  - Khớp thứ bậc thông tin, dòng ngữ cảnh (`Kho trung tâm · Dữ liệu đến 21:30, 17/09/2026`), ô tìm kiếm, 5 chip lọc (`Tất cả 5` đang chọn), 5 thẻ `VStockRow` theo đúng thứ tự ưu tiên (`Enrofloxacin 10%` chấm rỗng đỏ "Hết hàng", `Tylosin 20%` chấm rỗng đỏ "Có lô hết hạn", `Amox 500` chấm đặc vàng "Tồn thấp", `Nobivac DHPPi` chấm đặc vàng "Có lô cận hạn", `Oxytetracycline LA` dòng phụ `SP-000147 · Chưa có ngưỡng tồn`).
+  - Chênh đã biết theo thiết kế: không có nút quét mã vạch ở hậu tố ô tìm (quyết định mục 1); `VAppBar` có nút Back để quay về Hub `/warehouse`; môi trường test Flutter dùng font Ahem.
+- `flutter-SCR-001-READY-1280.png` so với `proto-SCR-001-READY-1280.png`:
+  - Khớp bố cục `K7Split` 7:5 có thanh điều hướng bên trái (`Thêm` → `Kho`). Cột trái hiện bảng `K7Table` 4 cột (`Sản phẩm`, `Khả dụng`, `Tồn vật lý`, `Chỉ báo` — chủ đích bỏ cột `Đã giữ` theo KI-02 / KI-13), dòng đầu `Enrofloxacin 10%` tô nền chọn `#EBF4EC`. Cột phải hiện `StockDetailBody` của `Enrofloxacin 10%` ở chế độ một cột (thẻ Khả dụng + `VBanner` đỏ "Hết hàng" + gợi ý nhập thêm 30 chai + khối "Giá vốn" của chủ cửa hàng + dòng "Nguồn và thời điểm cập nhật"; nút "Nhận hàng" **ẩn** theo Q-2-5).
+- `flutter-SCR-003-READY-390.png` so với `proto-SCR-003-READY-390.png`:
+  - Khớp bố cục chi tiết `Nobivac DHPPi` (`SP-000184 · hộp`): dòng ngữ cảnh, thẻ Khả dụng (`118 hộp`, `Tồn vật lý 120 hộp`, `Ngưỡng 30 · Mục tiêu 80 hộp`, nút `Sửa ngưỡng` — bỏ `Đủ điều kiện bán`, `Đã giữ`, `Cách ly` theo KI-02 / KI-03), khối "Giá vốn" (chủ cửa hàng, thêm theo G5-0b mục 2.5), mục "Lô và hạn dùng" (`2 lô` thẻ dọc `Lô DH2509` cận hạn và `Lô DH2507`), dòng "Nguồn và thời điểm cập nhật".
+- `flutter-SCR-003-READY-1280.png` so với `proto-SCR-003-READY-1280.png`:
+  - Khớp bố cục 2 cột rộng trên web (chụp cho `Nobivac DHPPi` theo yêu cầu Task 8 Step 2 để hiển thị đầy đủ cả bảng lô 4 cột và khối Giá vốn): cột trái gồm thẻ Khả dụng + khối Giá vốn; cột phải gồm bảng `K7Table` "Lô và hạn dùng" (`Lô`, `HSD`, `Tồn`, `Tình trạng`) + dòng "Nguồn và thời điểm cập nhật".
+
+### 5.3 Kiểm tra tổng thể & `detect_changes`
+- `cd apps/erp && dart analyze lib/features/inventory test/features/inventory`: **No issues found!** (0 lỗi, 0 warning, 0 info).
+- `cd apps/erp && dart run tool/check_feature_imports.dart`: **0 vi phạm** trong `lib/features/inventory`.
+- `cd apps/erp && flutter test --no-pub -r compact test/features/inventory`: **281/281 PASS**.
+- `cd packages/vet45_design_system && dart analyze lib`: **No issues found!**; các test DS liên quan (`v_badge_test.dart`, `v_badge_hollow_dot_test.dart`, `v_stock_row_test.dart`, `v_table_row_tap_test.dart`, `v_table_selected_test.dart` — thêm sau R1) **PASS 100%** (toàn gói DS 472 pass / 1 fail sẵn có ở `v_overlay_menu_shell_test.dart` không liên quan).
+- `node .gitnexus/run.cjs detect-changes --repo erp-sales-inventory`:
+  - `Changes: 20 files, 7 symbols | Affected processes: 0 | Risk level: low`
+  - Các symbol thay đổi đều nằm đúng phạm vi plan (`appRouter`, `GoRouter`, `LotIssue`, `build` trong `inventory_layout.dart`, `InventorySessionStore`, `VTable`, `isSmall` trong `v_badge.dart`).
+- Lưu ý DB: tuân thủ quy tắc phiên code không tự chạy DB (`supabase/tests/inventory_stock_view.sql` đã viết đủ 7 ca test để người dùng chạy khi áp migration).
+
+### 5.4 Sửa sau R1 (2026-11-10)
+- **#1** `StockDetailCubit.load`: đổi sang sản phẩm khác ⇒ xoá `data` cũ; `_fetch` bỏ phản hồi (cả lỗi) khi `productId` không còn là sản phẩm đang chọn. Test `load_other_product_clears_old_data`, `late_response_ignored` (`stock_list_test.dart`), `aside_error_shows_retry_1280` (`stock_list_page_test.dart`).
+- **#2** `StockDetailPanel` nhận `listAsOf` (mốc "Dữ liệu đến" của danh sách); mốc đổi ⇒ `refresh()` cột phải. Lưu ngưỡng ở cột phải ⇒ cột phải tự tải lại rồi làm mới danh sách (thêm 1 lần gọi khi mốc đổi — chấp nhận, để không phụ thuộc danh sách làm mới thành công). Test `refresh_reloads_aside_1280`.
+- **#3** Sửa 5.2 / 5.3 cho khớp code. Thêm `packages/vet45_design_system/test/components/v_table_selected_test.dart` (`selected_row_background`, `no_selection_by_default`, `selected_semantics`). Kèm #9 một phần: `VTable` dòng chọn dùng `colors.surfaceBrand` thay `Color(0xFFEBF4EC)` (sửa `selected_row_highlighted` theo token).
+- Kiểm: `dart analyze lib/features/inventory test/features/inventory` = 0; `flutter test --no-pub test/features/inventory` = **285/285**; DS `dart analyze lib` = 0, `v_table_*_test` 6/6.
+- Chưa sửa: P3 #4–#8, #10, #11, phần `Color(0xFF4A535E)` của #9.
+- `detect_changes` (sau `analyze` lại): 23 tệp, 44 symbol, 0 process bị ảnh hưởng, **low**; `impact StockDetailPanel` LOW (5). `AGENTS.md`, `CLAUDE.md` chỉ đổi dòng thống kê do `analyze` — không `git add`.
+- Còn biết: `stock_flow_test.dart` (như `stock_policy_flow_test.dart` của G5-2a) ghi ảnh rồi mới `matchesGoldenFile` chính tệp đó ⇒ so ảnh không bao giờ đỏ, và mỗi lần chạy test ghi đè ảnh trong `docs/`.
 
 ## 6. Review
 
-_(phiên review ghi)_
+### R1 (2026-11-10) — ❌ chưa đạt (0 P1, 3 P2)
+
+Đã chạy: `dart analyze lib/features/inventory test/features/inventory lib/core` = 0 lỗi; `flutter test --no-pub test/features/inventory` = **đạt hết**; test DS `v_stock_row_test`, `primitives/*` đạt. Mọi test có tên trong plan đều có (SQL 7/7 ca trong `supabase/tests/inventory_stock_view.sql`, chưa chạy — người dùng chạy). Đã so ảnh `flutter-SCR-001-READY-1280`, `flutter-SCR-003-READY-390` với `proto-*` (Ahem nên chỉ so được bố cục).
+
+| # | Mức | Chỗ | Lỗi | Sửa |
+|---|---|---|---|---|
+| 1 | P2 | `stock_list_page.dart:473-477`, `stock_detail_cubit.dart:19-28` | Web: đổi dòng ⇒ `load(newId)` **giữ `data` cũ** (`copyWith` không xoá) ⇒ trong lúc tải cột phải vẫn hiện sản phẩm cũ trong khi bảng tô dòng mới; tải lỗi ⇒ hiện sản phẩm cũ **mãi**, không báo lỗi (nhánh `loadError && data == null` không vào). Bấm nhanh A → B: phản hồi A về sau ghi đè B (không bỏ phản hồi cũ) | `load(id)` khác `state.productId` ⇒ xoá `data`; `_fetch` bỏ kết quả khi `productId != state.productId`. Test `aside_switch_shows_loading_not_old_product_1280`, `aside_late_response_ignored`, `aside_error_shows_retry_1280` |
+| 2 | P2 | `stock_list_page.dart:405-410` | Web: "Làm mới" (banner STALE) chỉ gọi `StockListCubit.refresh` ⇒ cột phải **không tải lại** (productId không đổi) ⇒ bảng và chi tiết lệch số / "Dữ liệu đến". Khi resume, cột phải cũng không bao giờ `checkStale` | Truyền mốc `data.asOf` (hoặc `refreshTick`) vào `StockDetailPanel`, `didUpdateWidget` đổi mốc ⇒ `_cubit.refresh()`. Test `refresh_reloads_aside_1280` |
+| 3 | P2 | Kết quả 5.2, 5.3 | Ghi sai so với code / ảnh: (a) ảnh SCR-001 1280 cột phải "nút **Nhận hàng**" — code ẩn (`onReceive` null, Q-2-5), ảnh cũng không có nút; (b) bảng lô SCR-003 web ghi cột "Tồn vật lý", "Trạng thái" — code là "Tồn", "Tình trạng" (đúng plan); (c) 5.3 ghi `v_table_test.dart` PASS — tệp **không tồn tại**; `VTable.selectedRowIndex` (sửa DS) không có test nào trong `packages/vet45_design_system/test/` (chỉ test qua `K7Table` ở app) | Sửa Kết quả cho khớp; thêm `packages/vet45_design_system/test/components/v_table_selected_test.dart` (`selected_row_background`, `selected_semantics`) |
+| 4 | P3 | `stock_list_cubit.dart:45-52`, `stock_detail_cubit.dart:50-58` | "Làm mới" lỗi khi đã có dữ liệu ⇒ `status = loadError` nhưng màn vẫn vẽ dữ liệu cũ (vì `data != null`), banner STALE còn đó, **không báo gì** | Lỗi lúc `refresh` giữ `ready`, đặt `refreshError` ⇒ `VToast` / banner "Không làm mới được. Thử lại." |
+| 5 | P3 | `stock_list_state.dart:37-46` | Dòng chọn dự phòng chỉ tính lúc đọc, `selectedProductId` vẫn giữ sản phẩm đã ẩn ⇒ chọn Amox, lọc "Hết hạn" (thấy Tylosin), về "Tất cả" ⇒ cột phải nhảy **lại Amox**. Prototype ghi đè `bj01SelectedProductId = selected.id` (Review Focus 6: "không giữ sản phẩm đã ẩn") | `setFilter` / `setQuery`: sản phẩm chọn không còn trong `visible` ⇒ đặt `selectedProductId = visible.first.productId`. Thêm bước vào test `selected_falls_back_to_first_visible_1280` |
+| 6 | P3 | `stock_list_page.dart:114` | Không truyền `extra: item.name` ⇒ LOADING app bar ghi "Chi tiết tồn kho" thay vì tên sản phẩm (Task 5 dòng LOADING, Task 7 `extra`) | `context.push('/warehouse/stock/$id', extra: item.name)`; test `loading_shows_product_name` |
+| 7 | P3 | `stock_indicator_badge.dart:20-24` (dùng ở cột "Chỉ báo" web) | Sản phẩm bình thường hiện badge xanh "Bình thường"; `bj01TableRow` để **trống** (chữ không có trong SCR-001) | Thêm cờ `showNormal` (mặc định `true` cho G5-2a), SCR-001 truyền `false` |
+| 8 | P3 | `stock_detail_body.dart:179-189` | "Sửa ngưỡng" là `InkWell` + chữ 13px: vùng chạm ~20px (< 44), không có `Semantics(button)` | `VButton(variant: tertiary, size small)` hoặc `Semantics(button: true)` + `ConstrainedBox(minHeight: 44)` |
+| 9 | P3 | `v_table.dart:102`; `stock_*` (nhiều chỗ `Color(0xFF4A535E)`) | Mã màu cứng thay token: nền dòng chọn có sẵn `colors.surfaceBrand`, chữ phụ có `colors.textSecondary` ⇒ DS / chế độ tối không theo | Đổi sang `context.vColors.surfaceBrand` / `.textSecondary` |
+| 10 | P3 | `20261112001_inventory_stock_view.sql:110-116` | `get_stock_detail` không lọc `business_status = 'active'`, trong khi `_product_stock_rows` chỉ có sản phẩm `active` ⇒ sản phẩm ngừng bán còn hàng: thẻ "Khả dụng 0 / Tồn vật lý 0" nhưng danh sách lô vẫn có lô tồn > 0. Thêm: `_product_stock_rows` cộng **mọi kho**, còn lô / biến động lọc theo `warehouse_id` — đúng chỉ khi một kho | Tính `physical` / `available` cho chi tiết thẳng từ lô đã lọc (hoặc `CONTEXT_INVALID` cho sản phẩm không `active`); ghi chú "một kho" ở header migration. Ca SQL `inactive_product_detail_consistent` |
+| 11 | P3 | `flutter-SCR-003-READY-390.png` khối "Giá vốn" | Nhãn `VKeyValueRow` gãy 3–4 dòng ("Bình quân liên hoàn"), giá trị chiếm phần lớn bề ngang — Ahem phóng đại nhưng tỉ lệ nhãn / giá trị có vẻ ngược | Kiểm bằng font thật; nếu vẫn gãy, giới hạn cột giá trị (`Flexible`) |
+
+**Đạt:** SQL đúng 2.1 (quyền `_assert_actor`, `security definer`, grant, che `cost` + `financial_masked`, sắp lô `_lot_expiry_end` + `nulls last`, `latest_movement` theo `ledger_sequence`, Hub `problems` cùng luật `stockIndicators`, chưa kích hoạt ⇒ `null`, không mã lỗi mới, REGISTRY); `formatQuantity` dời đúng + re-export; ranh giới tầng (`indicators` là extension ở `logic`); luật chip / tìm / sắp mức gấp / đếm chip khớp `bj01.js`; STALE 5 phút + resume + quay về; Q-2-1 (không nút quét), Q-2-4 (bỏ "Đã giữ", "Cách ly"), Q-2-5 (4 nút ẩn qua callback null); nhân viên không có khối giá vốn, không "Sửa ngưỡng" / "Đặt ngưỡng tồn"; route ngoài `StatefulShellRoute`; Hub "Tồn kho cần chú ý" + nút nhanh "Tra cứu tồn".
+
+Làm lại: sửa #1–#3 (P2), #4–#11 khi tiện; ghi Kết quả R1 → R2.
+
+### R2 (2026-11-10) — ✅ đạt (P2 đã sửa; P3 còn nợ)
+
+Kiểm lại trên code sau sửa (mục 5.4): `dart analyze` = 0; `check_feature_imports` = 0 vi phạm inventory; `flutter test --no-pub test/features/inventory` = 285/285; `detect_changes` low, 0 process.
+
+| # R1 | Trạng thái | Bằng chứng |
+|---|---|---|
+| 1 P2 | ✅ | `stock_detail_cubit.dart` `load` xoá `data` khi đổi sản phẩm, `_fetch` bỏ phản hồi lệch `productId`; 3 test mới xanh |
+| 2 P2 | ✅ | `StockDetailPanel.listAsOf` ⇒ `refresh()`; lưu ngưỡng ở cột phải tự tải lại trước rồi làm mới danh sách (R2 sửa hồi quy: bản đầu phụ thuộc danh sách làm mới thành công); `refresh_reloads_aside_1280` xanh |
+| 3 P2 | ✅ | 5.2 / 5.3 khớp code; `v_table_selected_test.dart` 3/3 |
+| 9 P3 | 🟡 một phần | `VTable` dùng `surfaceBrand`; `Color(0xFF4A535E)` ở `stock_*` còn |
+| 4–8, 10, 11 P3 | ⬜ còn nợ | — |
+
+Thêm (P3, có từ G5-2a): `stock_flow_test.dart` ghi ảnh rồi `matchesGoldenFile` chính tệp đó ⇒ so ảnh không bao giờ đỏ.
