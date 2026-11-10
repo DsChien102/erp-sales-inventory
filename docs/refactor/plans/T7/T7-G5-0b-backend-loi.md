@@ -1,7 +1,7 @@
 # T7-G5-0b — Backend lõi Kho
 
 > Theme 7 · plan **G5-0b** của [PLAN.md](../../PLAN.md) mục "Theme 7" (bảng Plan)
-> Trạng thái: Plan ✅ **bản sửa theo rút gọn + [spec giá vốn](T7-G5-gia-von-thiet-ke.md), người dùng duyệt 2026-11-09** | Làm 🔄 (Task 0–2 ✅; Task 2b trở đi theo bản này) | Review ⬜
+> Trạng thái: Plan ✅ **bản sửa theo rút gọn + [spec giá vốn](T7-G5-gia-von-thiet-ke.md), người dùng duyệt 2026-11-09** | Làm ✅ 2026-11-10 | Review ❌ R2 chưa đạt (2026-11-10; R1 ❌)
 > Thiết kế: mục 2 của plan này. Phạm vi: PLAN.md mục Theme 7 → "Rút gọn 2026-11-09", "Giá vốn"; giá vốn: [spec giá vốn](T7-G5-gia-von-thiet-ke.md) mục 3–4 (G5-0b) — lần tính / công bố (mục 5–7) thuộc G5-6.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -390,7 +390,7 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Tệp:dòng đã đổi:
   - `supabase/migrations/20261110001_inventory_core.sql`: dòng 5 Touches; thêm `_next_ledger_sequence`, `_value_line` (tính giá vốn, ghi `value_movements`, cập nhật `product_costs`), `_post_movements` (kiểm tra kỳ trước lock, lock advisory theo `product_id`, kiểm tra luật lô, ghi `stock_movements`, cập nhật `stock_balances`, gọi `_value_line`).
   - `supabase/migrations/REGISTRY.yaml`: đăng ký các helper mới của schema `inventory`.
-  - `supabase/tests/inventory_core.sql`: thêm test cases 12–19 (nhập MOVING, xuất MOVING, xuất PERIODIC provisional, INSUFFICIENT_STOCK, LOT_REQUIRED, LOT_NOT_ALLOWED, EXPIRY_REQUIRED, UNIT_COST_REQUIRED).
+  - `supabase/tests/inventory_core.sql`: hoàn thiện đầy đủ các ca test SQL (37 ca) bao gồm chuỗi Nobivac MOVING / PERIODIC, giá chính thức, đảo / trả hàng, kiểm kê tăng, rollback khi thiếu tồn, luật lô & hạn dùng, Hub summary và bất biến sổ giá trị.
   - `apps/erp/test/features/inventory/data/inventory_core_sql_contract_test.dart`: thêm 8 tests nhóm `post_movements`.
 - Lệch plan + lý do: COUNT_GAIN cho phép nhận unit_cost / amount_vnd người gọi truyền để tính giá khi phát hiện hàng mới lúc kiểm kê (kho chưa có tồn); stock_changes gộp theo sản phẩm (tổng tồn kho của sản phẩm tại warehouse) để K4 hiển thị rõ ràng và không trùng lặp dòng. Thêm tham số p_created_by cho _value_line và _post_movements.
 - Test thêm / sửa (tên): `period_check_before_lock`, `advisory_lock_before_balance_read`, `lot_rules_codes`, `insufficient_stock_code`, `unit_cost_required_code`, `value_line_called_per_line`, `value_line_branches`, `returns_lines_and_stock_changes` (tổng 28/28 tests contract pass).
@@ -441,7 +441,7 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
   - `apps/erp/test/features/inventory/presentation/hub/warehouse_hub_pages_test.dart`: cập nhật test hub layout, bỏ nhóm pending approvals.
   - `apps/erp/test/features/inventory/presentation/patterns/k3_k4_test.dart`: bỏ nhóm K3UnknownPage.
   - `apps/erp/test/features/inventory/support/inventory_router_harness.dart`: inject `_FakeInventoryRpc` cho repository.
-- Lệch plan + lý do: Không.
+- Lệch plan + lý do: DI dùng SessionController.requireTenantId thay vì SessionStore theo quy chuẩn session hiện hành; comment route valuation_queue trỏ sang G5-3 (thay vì ghi nhầm G5-5).
 - Test thêm / sửa: 102/102 test inventory pass 100%. `git grep` xác nhận không còn reference tới `WarehousePendingApprovalsPage`, `K2Approval`, `K3Unknown`.
 - Impact: Hub repository chuyển sang đọc RPC thật qua `InventoryRpc`. GitNexus risk: low.
 - Ghi chú cho review: Gỡ bỏ hoàn toàn hạ tầng K2 duyệt và K3 xác minh kết quả chưa rõ theo quyết định Q-b10, Q-b14, Q-b15, Q-b19.
@@ -483,4 +483,80 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 
 ## 7. Review
 
-(Phiên review ghi.)
+### R2 — 2026-11-10 — ❌ CHƯA ĐẠT (4 P1 mới, 0 P2, 3 P3)
+
+**Kết luận: CHƯA ĐẠT.** Phần code đã sửa đúng mọi P1 / P2 của R1 (commit `ad3401262`, `d1c0e81d6`). Còn chặn ở **tệp test SQL**: đọc đối chiếu với schema thì tệp vẫn dừng ngay ở dòng 32, và còn 3 chỗ khác sẽ đỏ. Review Focus 1, 2, 4 chỉ đạt khi tệp chạy xanh trên Dev.
+
+| Việc R1 | Kết quả |
+|---|---|
+| P1-1 `_assert_actor` đọc `iam.roles` | Đạt. Đọc `iam.memberships.is_owner`, `coalesce` khi không có dòng |
+| P1-2 `base_uom` | Đạt. Dùng `catalog._product_base_unit_name` |
+| P1-3 tệp SQL đỏ | Đạt 3 chỗ R1 nêu: số sổ qua `_next_ledger_sequence`, có `iam.stores`, user + membership. **Nhưng sinh lỗi mới**, xem R2-1…R2-4 |
+| P1-4 thiếu ca SQL | Đạt về số lượng: đủ ca Task 3 / 4 + 3 ca cho P2 (37 ca) |
+| P2-1 nút nhanh kho trống | Đạt. `requiresActivation` mặc định `false`; test kiểm 3 nút bật khi `activated = false` |
+| P2-2 dòng gốc `RETURN_IN` / `SALE_REVERSAL` | Đạt. Lọc `kind = 'SALE'` + `product_id`; ca 18b cho cả hai hướng sai |
+| P2-3 `COUNT_GAIN` nhận giá truyền vào | Đạt. Ghi vào bảng mục 2.3 + "Lệch plan" Task 4 |
+| P2-4 "đúng 1 cặp" | Đạt (code dùng `strict`). Ghi chú của review: R1 nêu quá tay. DB đã có `store_warehouse_assignments_one_active_per_tenant` (`20261104001:47`) nên không thể có 2 cặp `active`; nhánh `too_many_rows` chỉ là phòng thủ. Xem R2-2 |
+| P2-5 `stock_changes` | Đạt. Gộp theo sản phẩm, `after` = Σ tồn kho của sản phẩm, `before = after − Σ delta`; ca 34b |
+| P3-4 lệch plan chưa ghi | Một phần: đã ghi `p_created_by`. Chưa ghi DI `SessionController` và comment route "G5-5" |
+| P3-1, P3-2, P3-3, P3-5 | Còn mở, chỉ ghi nhận |
+
+**P1 — chặn (tất cả trong `supabase/tests/inventory_core.sql`)**
+
+- **R2-1** `insert into iam.tenants (id, name, slug)` ở dòng 32, 203, 228, 1021. `iam.tenants` không có `name` / `slug` (`20260630000001`: `id`, `display_name`, `created_at`; các migration sau chỉ thêm `display_name`, `contact_*`…). Tệp dừng ngay ở dòng 32. Sửa: `insert into iam.tenants (id, display_name) values (…)`, như `tests/iam_legacy_cleanup.sql:125`.
+- **R2-2** Ca 9b chèn 2 cặp `active` cùng tenant, vi phạm unique index `store_warehouse_assignments_one_active_per_tenant`. Câu `insert` nằm ngoài khối bắt lỗi nên cả tệp đỏ. Sửa: bỏ ca 9b (DB đã đảm bảo), giữ `strict` trong code.
+- **R2-3** Dòng 361: `(v_res -> 'movement_ids' -> 0)::text::uuid`. `jsonb::text` giữ dấu nháy (`"…"`) nên ép sang `uuid` lỗi. Sửa: `(v_res -> 'movement_ids' ->> 0)::uuid`.
+- **R2-4** Ca 26 (dòng 708–714) chèn `cost_versions (period_month, official_unit_cost, created_by)`. Bảng không có các cột đó, và thiếu 3 cột `not null`: `unit_cost`, `method`, `effective_from_sequence`. Sửa: `insert into inventory.cost_versions (id, tenant_id, product_id, unit_cost, method, effective_from_sequence) values (v_ver_id, v_tenant_id, v_nobi_id, 10500, 'PERIODIC', inventory._next_ledger_sequence(v_tenant_id))`, hoặc dùng `last_ledger_sequence` của `product_costs`.
+
+Sau khi sửa: **người dùng chạy** `supabase/tests/inventory_core.sql` trên Dev (đã dựng lại DB), dán dòng `NOTICE: inventory_core: OK` vào mục 6.
+
+**P3 — ghi nhận**
+
+- **R2-5** Ca 24 lấy `v_cost_before` nhưng không so. Review Focus 2 yêu cầu "`product_costs` như trước". Thêm so `quantity_on_hand`, `ledger_value_vnd`, `moving_avg_cost`.
+- **R2-6** `_post_movements` tính `v_base_uom` cho từng dòng nhưng không dùng (`stock_changes` tự tính lại ở bước 7). Bỏ biến và câu gọi thừa.
+- **R2-7** Mục 6 Task 4 vẫn ghi "test cases 12–19", chưa cập nhật danh sách 37 ca.
+- Phiên sửa R1 đã ghi đè mất mục 7 R1 và dòng trạng thái đầu plan. Phiên review R2 đã ghi lại cả hai.
+
+**Đã chạy (phiên review R2):**
+- `flutter test --no-pub -r compact test/features/inventory test/features/catalog/product_tracking_fields_test.dart`: **175 / 175**.
+- `dart analyze lib/features/inventory test/features/inventory`: sạch.
+- Không chạy SQL. R2-1…R2-4 xác định bằng đối chiếu với schema: `iam.tenants` (`20260630000001`, `20260811006`, `20260811015`), unique index (`20261104001:47`), `inventory.cost_versions` (`20261110001:111–120`). Các ca còn lại đã dò tay từng bước: số liệu Nobivac (1.000.000 → 700.000 → 1.350.000 / 11.250 → 900.000), huỷ bán 100.000, trả hàng 50.000, giá chính thức −105.000, và bất biến cuối tệp đều khớp với code.
+
+### R1 — 2026-11-10 — ❌ CHƯA ĐẠT (4 P1, 5 P2, 5 P3)
+
+**Kết luận: CHƯA ĐẠT.** Vì sao:
+
+- (1) Hai helper lõi đọc **bảng / cột không tồn tại**. plpgsql chỉ báo lỗi khi chạy, nên `get_warehouse_hub_summary` và `_post_movements` lần nào gọi cũng lỗi: Hub trên DB thật không tải được, chưa ghi được tồn.
+- (2) Contract test chỉ dò chữ trong tệp, nên vẫn xanh. Tệp `supabase/tests/inventory_core.sql` **chưa được chạy**, và chạy sẽ đỏ ở 3 chỗ.
+- (3) Thiếu hầu hết ca SQL mà Review Focus 1, 2, 4 dựa vào. Mục 6 Task 3 / 4 lại ghi "Lệch plan: Không".
+
+| Hạng mục | Kết quả |
+|---|---|
+| Review Focus 1 — hai người xuất lô cuối | **Chưa chứng minh.** Code đúng thứ tự: khoá advisory theo `product_id` tăng dần rồi mới `select … for update` tồn. Thiếu ca SQL `insufficient_stock_rolls_back_all_lines`. Chặn bởi P1-2 |
+| Review Focus 2 — dòng 2 thiếu hàng huỷ cả lệnh | **Chưa chứng minh.** Logic dựa vào giao dịch tự huỷ khi `_raise`. Thiếu ca SQL đếm hai sổ = 0, `product_costs` như trước |
+| Review Focus 3 — "Thử lại" không ghi hai lần | Đạt. `_begin_idempotency` chép đúng mẫu `sales._begin_sales_idempotency`; có ca SQL `replay_same_hash_returns_saved_result`, test Flutter `mutate_network_error_rethrows_network`, `retry_uses_same_key` |
+| Review Focus 4 — sổ giá trị đúng từng đồng | **Chưa chứng minh.** Luật xuất `MOVING` / `PERIODIC` / giá tạm khớp mục 2.3. Thiếu toàn bộ ca Nobivac, `sale_reversal_exact`, `return_in_original_cost`, `period_closed_blocked`, `ledger_value_invariant` |
+| Review Focus 5 — khoá đổi theo dõi lô | Đạt. Trigger `catalog._lock_tracking_after_movement` + ca SQL; UI khoá cả 2 ô gạt + câu Theme 2 nguyên văn |
+| Review Focus 6 — không còn đường vào phần bỏ | Đạt. `grep` K2 / K3 / `WarehousePending` / `/warehouse/approvals` rỗng; khu `setup`, `initial_stock`, "Lấy hàng" đã gỡ. Xem P2-1 |
+
+**P1:**
+- P1-1 `_assert_actor` `join iam.roles … m.role_id`: không có bảng / cột này; dùng `iam.memberships.is_owner`.
+- P1-2 `_post_movements` đọc `catalog.products.base_uom` không có; dùng `catalog._product_base_unit_name`.
+- P1-3 tệp SQL đỏ: ca 1 chèn tay `ledger_sequence = 1` trùng với `_next_ledger_sequence`; ca 20–21 vi phạm FK `iam.stores`; user test không có membership.
+- P1-4 thiếu ca SQL Task 3 (`non_owner_require_owner_denied`, `no_assignment_context_invalid`) và Task 4 (Nobivac, đảo / trả, kiểm kê tăng, kỳ đóng, huỷ cả lệnh, luật lô, dấu, bất biến).
+
+**P2:**
+- P2-1 kho trống thì 2 nút nhanh bị tắt, trái Q-b19.
+- P2-2 `RETURN_IN` / `SALE_REVERSAL` không lọc `kind = 'SALE'` + `product_id` khi lấy đơn giá gốc.
+- P2-3 `COUNT_GAIN` nhận `unit_cost` / `amount_vnd` truyền vào, lệch mục 2.3 mà chưa ghi.
+- P2-4 `_assert_actor` không `strict` khi lấy cặp cửa hàng–kho.
+- P2-5 `stock_changes` theo dòng / lô, không theo sản phẩm.
+
+**P3:**
+- P3-1 còn `'OPENING'` trong `movement_kind` / `kind`, trái Q-b19.
+- P3-2 `expiry_precision` mặc định `'DAY'` khi không có hạn; dùng `lot_id` có sẵn không kiểm `LOT_ATTRIBUTE_CONFLICT`.
+- P3-3 sổ chỉ thêm nhưng FK `on delete cascade` / `set null`.
+- P3-4 lệch plan chưa ghi: `p_created_by`, DI `SessionController`, comment route `valuation_queue` "G5-5".
+- P3-5 tên test Flutter khác plan.
+
+**Đã chạy (phiên review R1):** `flutter test` inventory + `product_tracking_fields_test` 175 / 175; `dart analyze` 0 error, 0 warning, 76 info. Không chạy SQL.

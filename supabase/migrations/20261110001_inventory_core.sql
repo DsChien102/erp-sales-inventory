@@ -778,7 +778,6 @@ declare
   v_amount_vnd bigint;
   v_source_movement_id uuid;
   v_prod record;
-  v_base_uom text;
   v_lot record;
   v_lot_key uuid;
   v_current_qty numeric;
@@ -853,8 +852,6 @@ begin
     if not found then
       perform inventory._raise('CONTEXT_INVALID', 'Sản phẩm không tồn tại: ' || v_product_id::text);
     end if;
-
-    v_base_uom := catalog._product_base_unit_name(p_tenant_id, v_product_id);
 
     -- Lot rules
     if v_prod.tracking_mode = 'none' then

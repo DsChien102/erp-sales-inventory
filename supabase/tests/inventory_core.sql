@@ -29,8 +29,8 @@ begin
     '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, now(), now(), now()
   );
 
-  insert into iam.tenants (id, name, slug)
-  values (v_tenant_id, 'Test Tenant', 'test-' || substr(v_tenant_id::text, 1, 8));
+  insert into iam.tenants (id, display_name)
+  values (v_tenant_id, 'Test Tenant');
 
   insert into iam.memberships (tenant_id, user_id, role, is_owner)
   values
@@ -200,8 +200,8 @@ begin
   declare
     v_no_assign_tenant uuid := gen_random_uuid();
   begin
-    insert into iam.tenants (id, name, slug)
-    values (v_no_assign_tenant, 'Tenant No Assign', 'no-assign-' || substr(v_no_assign_tenant::text, 1, 8));
+    insert into iam.tenants (id, display_name)
+    values (v_no_assign_tenant, 'Tenant No Assign');
     insert into iam.memberships (tenant_id, user_id, role, is_owner)
     values (v_no_assign_tenant, v_user_id, 'owner', true);
 
@@ -215,41 +215,6 @@ begin
     end;
     if not v_caught then
       raise exception 'FAIL: no_assignment_context_invalid';
-    end if;
-  end;
-
-  -- 9b. Test case (P2-4): multiple_assignments_context_invalid
-  declare
-    v_multi_assign_tenant uuid := gen_random_uuid();
-    v_store1 uuid := gen_random_uuid();
-    v_store2 uuid := gen_random_uuid();
-    v_wh1 uuid := gen_random_uuid();
-  begin
-    insert into iam.tenants (id, name, slug)
-    values (v_multi_assign_tenant, 'Tenant Multi Assign', 'multi-assign-' || substr(v_multi_assign_tenant::text, 1, 8));
-    insert into iam.memberships (tenant_id, user_id, role, is_owner)
-    values (v_multi_assign_tenant, v_user_id, 'owner', true);
-    insert into iam.stores (id, tenant_id, code, display_name, status)
-    values
-      (v_store1, v_multi_assign_tenant, 'STR1', 'Cửa hàng 1', 'active'),
-      (v_store2, v_multi_assign_tenant, 'STR2', 'Cửa hàng 2', 'active');
-    insert into inventory.warehouses (id, tenant_id, display_name, status)
-    values (v_wh1, v_multi_assign_tenant, 'Kho 1', 'active');
-    insert into inventory.store_warehouse_assignments (tenant_id, store_id, warehouse_id, status)
-    values
-      (v_multi_assign_tenant, v_store1, v_wh1, 'active'),
-      (v_multi_assign_tenant, v_store2, v_wh1, 'active');
-
-    v_caught := false;
-    begin
-      perform inventory._assert_actor(v_multi_assign_tenant, 'inventory.read');
-    exception when others then
-      if sqlerrm like '%Multiple active store warehouse assignments found%' or sqlerrm like '%CONTEXT_INVALID%' then
-        v_caught := true;
-      end if;
-    end;
-    if not v_caught then
-      raise exception 'FAIL: multiple_assignments_context_invalid';
     end if;
   end;
 
@@ -358,7 +323,7 @@ begin
       )),
       v_user_id
     );
-    v_sale1_mov_id := (v_res -> 'movement_ids' -> 0)::text::uuid;
+    v_sale1_mov_id := (v_res -> 'movement_ids' ->> 0)::uuid;
     select quantity_on_hand, ledger_value_vnd, moving_avg_cost into v_cost
     from inventory.product_costs where tenant_id = v_tenant_id and product_id = v_nobi_id;
     if v_cost.quantity_on_hand <> 70 or v_cost.ledger_value_vnd <> 700000 or v_cost.moving_avg_cost <> 10000 then
@@ -673,6 +638,18 @@ begin
          or (select count(*) from inventory.value_movements where tenant_id = v_tenant_id) <> v_vm_count_before then
         raise exception 'FAIL: insufficient_stock_rolls_back_all_lines did not rollback ledger';
       end if;
+
+      declare
+        v_cost_after record;
+      begin
+        select * into v_cost_after from inventory.product_costs where tenant_id = v_tenant_id and product_id = v_nobi_id;
+        if v_cost_after.quantity_on_hand <> v_cost_before.quantity_on_hand
+           or v_cost_after.ledger_value_vnd <> v_cost_before.ledger_value_vnd
+           or v_cost_after.moving_avg_cost <> v_cost_before.moving_avg_cost then
+          raise exception 'FAIL: insufficient_stock_rolls_back_all_lines did not rollback product_costs: before %, after %',
+            v_cost_before, v_cost_after;
+        end if;
+      end;
     end;
 
     -- 25. Test case: nobivac_periodic_provisional (Chuyển sang PERIODIC, bán ghi nhận provisional)
@@ -706,11 +683,11 @@ begin
       v_val_row record;
     begin
       insert into inventory.cost_versions (
-        id, tenant_id, product_id, period_month,
-        official_unit_cost, created_by
+        id, tenant_id, product_id, unit_cost,
+        method, effective_from_sequence
       ) values (
-        v_ver_id, v_tenant_id, v_nobi_id, date_trunc('month', current_date)::date,
-        10500, v_user_id
+        v_ver_id, v_tenant_id, v_nobi_id, 10500,
+        'PERIODIC', inventory._next_ledger_sequence(v_tenant_id)
       );
 
       update inventory.product_costs
@@ -1018,8 +995,8 @@ begin
     v_summary jsonb;
   begin
     -- 35. Hub summary: kho trống chưa có biến động -> {activated: false, problems: null}
-    insert into iam.tenants (id, name, slug)
-    values (v_empty_tenant, 'Empty Tenant', 'empty-' || substr(v_empty_tenant::text, 1, 8));
+    insert into iam.tenants (id, display_name)
+    values (v_empty_tenant, 'Empty Tenant');
 
     insert into iam.memberships (tenant_id, user_id, role, is_owner)
     values (v_empty_tenant, v_user_id, 'owner', true);
