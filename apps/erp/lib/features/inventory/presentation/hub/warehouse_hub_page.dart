@@ -240,6 +240,7 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
       WarehouseArea.control,
       if (state.isOwner) WarehouseArea.valuation,
       WarehouseArea.history,
+      WarehouseArea.setup,
     ];
     final managementWidget = VSection(
       title: 'Quản lý kho',

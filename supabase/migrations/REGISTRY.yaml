@@ -312,13 +312,20 @@ inventory:
   _cost_method: 20261110001_inventory_core.sql
   _ensure_open_period: 20261110001_inventory_core.sql
   _forbid_ledger_mutation: 20261110001_inventory_core.sql
+  _lot_expiry_end: 20261111001_inventory_stock_policy.sql
+  _near_expiry_days: 20261111001_inventory_stock_policy.sql
   _next_ledger_sequence: 20261110001_inventory_core.sql
   _post_movements: 20261110001_inventory_core.sql
+  _product_stock_rows: 20261111001_inventory_stock_policy.sql
   _raise: 20261110001_inventory_core.sql
+  _today: 20261111001_inventory_stock_policy.sql
   _value_line: 20261110001_inventory_core.sql
   ensure_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
   get_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
+  get_stock_policy: 20261111001_inventory_stock_policy.sql
   get_warehouse_hub_summary: 20261110001_inventory_core.sql
+  save_near_expiry_policy: 20261111001_inventory_stock_policy.sql
+  save_stock_thresholds: 20261111001_inventory_stock_policy.sql
 
 partner:
   _assert_actor: 20260714004_partner_v2_write_rpc.sql

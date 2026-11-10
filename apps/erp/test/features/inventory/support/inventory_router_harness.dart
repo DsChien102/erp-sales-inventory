@@ -6,6 +6,8 @@ import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 import 'package:erp/features/inventory/data/core/inventory_rpc.dart';
 import 'package:erp/features/inventory/data/goods_receipt_repository.dart';
 import 'package:erp/features/inventory/data/hub/warehouse_hub_repository.dart';
+import 'package:erp/features/inventory/data/stock_policy/stock_policy_models.dart';
+import 'package:erp/features/inventory/data/stock_policy/stock_policy_repository.dart';
 import 'package:erp/features/inventory/data/valuation_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,6 +25,29 @@ class _FakeInventoryRpc extends Fake implements InventoryRpc {
     Map<String, dynamic> params = const {},
   ]) async =>
       {'activated': true, 'problems': null};
+}
+
+class _FakeStockPolicyRepo extends Fake implements StockPolicyRepository {
+  @override
+  Future<StockPolicySnapshot> load() async => const StockPolicySnapshot(
+        revision: 1,
+        isOwner: true,
+        nearExpiryDays: 30,
+        products: [
+          StockPolicyProduct(
+            productId: 'p_nobivac',
+            name: 'Nobivac DHPPi',
+            code: 'NOBI',
+            uom: 'hộp',
+            isLotTracked: true,
+            available: 30,
+            hasExpired: false,
+            hasNearExpiry: false,
+            threshold: 20,
+            target: 50,
+          ),
+        ],
+      );
 }
 
 base class InventorySessionStore extends SessionStore {
@@ -49,6 +74,7 @@ Future<void> setUpInventoryRouterTest({bool isOwner = true}) async {
     ..registerSingleton<IExecutionContext>(FakeExecutionContext(tenantId: 'tenant-test'))
     ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
     ..registerSingleton<WarehouseHubRepository>(WarehouseHubRepository(rpc: _FakeInventoryRpc()))
+    ..registerSingleton<StockPolicyRepository>(_FakeStockPolicyRepo())
     ..registerSingleton<ValuationRepository>(valuationRepo)
     ..registerSingleton<GoodsReceiptRepository>(GoodsReceiptRepository(valuation: valuationRepo))
     ..registerSingleton<SessionController>(session);
@@ -66,6 +92,7 @@ Future<void> pumpInventoryApp(
   Size size = const Size(390, 844),
   String location = '/more',
   bool? isOwner,
+  GlobalKey? repaintBoundaryKey,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1.0;
@@ -94,7 +121,16 @@ Future<void> pumpInventoryApp(
   }
 
   await tester.pumpWidget(
-    MaterialApp.router(theme: VTheme.lightTheme, routerConfig: appRouter),
+    MaterialApp.router(
+      theme: VTheme.lightTheme,
+      routerConfig: appRouter,
+      builder: repaintBoundaryKey != null
+          ? (context, child) => RepaintBoundary(
+                key: repaintBoundaryKey,
+                child: child ?? const SizedBox.shrink(),
+              )
+          : null,
+    ),
   );
   appRouter.go(location);
   await tester.pumpAndSettle();

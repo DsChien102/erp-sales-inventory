@@ -21,6 +21,7 @@ import '../../features/iam/data/organization_repository.dart';
 import '../../features/inventory/data/core/inventory_rpc.dart';
 import '../../features/inventory/data/goods_receipt_repository.dart';
 import '../../features/inventory/data/hub/warehouse_hub_repository.dart';
+import '../../features/inventory/data/stock_policy/stock_policy_repository.dart';
 import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../../features/pricing/data/customer_price_rule_repository.dart';
@@ -91,6 +92,9 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     )
     ..registerLazySingleton<WarehouseHubRepository>(
       () => WarehouseHubRepository(rpc: getIt<InventoryRpc>()),
+    )
+    ..registerLazySingleton<StockPolicyRepository>(
+      () => StockPolicyRepository(rpc: getIt<InventoryRpc>()),
     )
     ..registerLazySingleton<ValuationRepository>(() => ValuationRepository())
     ..registerLazySingleton<GoodsReceiptRepository>(

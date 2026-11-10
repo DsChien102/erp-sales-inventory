@@ -5,7 +5,8 @@ enum WarehouseArea {
   movement,
   control,
   valuation,
-  history;
+  history,
+  setup;
 
   String get id => name;
 
@@ -15,6 +16,7 @@ enum WarehouseArea {
         WarehouseArea.control => 'Kiểm kê & xử lý',
         WarehouseArea.valuation => 'Giá trị kho',
         WarehouseArea.history => 'Báo cáo & lịch sử',
+        WarehouseArea.setup => 'Thiết lập kho',
       };
 
   String get subtitle => switch (this) {
@@ -24,6 +26,7 @@ enum WarehouseArea {
           'Kiểm tra thực tế, sai lệch và trường hợp bất thường',
         WarehouseArea.valuation => 'Giá nhập, chi phí mua và giá vốn',
         WarehouseArea.history => 'Thẻ kho, biến động và số liệu tra cứu',
+        WarehouseArea.setup => 'Các việc thiết lập ít dùng',
       };
 
   VIcons get icon => switch (this) {
@@ -32,6 +35,7 @@ enum WarehouseArea {
         WarehouseArea.control => VIcons.checkList,
         WarehouseArea.valuation => VIcons.coins,
         WarehouseArea.history => VIcons.history,
+        WarehouseArea.setup => VIcons.inbox,
       };
 
   bool get ownerOnly => this == WarehouseArea.valuation;
@@ -114,6 +118,16 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             subtitle: 'Xem tồn tại thời điểm và lịch sử biến động',
             icon: VIcons.history,
             route: null,
+          ),
+        ],
+      WarehouseArea.setup => const [
+          WarehouseEntry(
+            id: 'stock_policy',
+            title: 'Chính sách tồn & cận hạn',
+            subtitle: 'Thiết lập ngưỡng tồn và chính sách cảnh báo',
+            icon: VIcons.shield,
+            route: '/warehouse/stock-policy',
+            ownerOnly: false,
           ),
         ],
     };

@@ -64,25 +64,29 @@ class VConfirmDialog extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: VSpacing.space6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    VButton(
-                      label: cancelLabel,
-                      variant: VButtonVariant.secondary,
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    const SizedBox(width: VSpacing.space2),
-                    VButton(
-                      label: actionLabel,
-                      variant: VButtonVariant.primary,
-                      tone: isDestructive ? VComponentTone.danger : tone,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        onAction();
-                      },
-                    ),
-                  ],
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: VSpacing.space2,
+                    runSpacing: VSpacing.space2,
+                    children: [
+                      VButton(
+                        label: cancelLabel,
+                        variant: VButtonVariant.secondary,
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      VButton(
+                        label: actionLabel,
+                        variant: VButtonVariant.primary,
+                        tone: isDestructive ? VComponentTone.danger : tone,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          onAction();
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

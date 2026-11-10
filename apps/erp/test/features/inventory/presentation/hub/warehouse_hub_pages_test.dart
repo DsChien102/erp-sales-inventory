@@ -81,7 +81,7 @@ void main() {
 
         _expectSingleChevronPerRow(tester);
         expect(find.text('Quản lý kho'), findsOneWidget);
-        expect(find.text('Thiết lập kho'), findsNothing);
+        expect(find.text('Thiết lập kho'), findsOneWidget);
       });
     }
 

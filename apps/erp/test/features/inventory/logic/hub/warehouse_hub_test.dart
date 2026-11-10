@@ -7,6 +7,7 @@ import 'package:erp/features/inventory/data/hub/warehouse_hub_repository.dart';
 import 'package:erp/features/inventory/logic/hub/warehouse_hub_cubit.dart';
 import 'package:erp/features/inventory/logic/hub/warehouse_hub_state.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_entries.dart';
+import 'package:vet45_design_system/design_system.dart';
 
 class _MockInventoryRpc extends Mock implements InventoryRpc {}
 
@@ -56,13 +57,22 @@ void main() {
     });
 
     test('entries_copy_matches_contract', () {
-      // 5 khu vực (đã bỏ setup)
-      expect(WarehouseArea.values.length, 5);
+      // 6 khu vực (đã thêm lại setup theo G5-2a)
+      expect(WarehouseArea.values.length, 6);
       expect(WarehouseArea.inventory.title, 'Tồn kho');
       expect(WarehouseArea.movement.title, 'Nhập, xuất & hoàn trả');
       expect(WarehouseArea.control.title, 'Kiểm kê & xử lý');
       expect(WarehouseArea.valuation.title, 'Giá trị kho');
       expect(WarehouseArea.history.title, 'Báo cáo & lịch sử');
+      expect(WarehouseArea.setup.title, 'Thiết lập kho');
+      expect(WarehouseArea.setup.subtitle, 'Các việc thiết lập ít dùng');
+      expect(WarehouseArea.setup.icon, VIcons.inbox);
+
+      final stockPolicyEntry = warehouseAreaEntries(WarehouseArea.setup)
+          .firstWhere((e) => e.id == 'stock_policy');
+      expect(stockPolicyEntry.route, '/warehouse/stock-policy');
+      expect(stockPolicyEntry.subtitle, 'Thiết lập ngưỡng tồn và chính sách cảnh báo');
+      expect(stockPolicyEntry.icon, VIcons.shield);
 
       // Tạm 2 route theo Q-a1
       final receiptsEntry = warehouseAreaEntries(WarehouseArea.movement)
