@@ -278,14 +278,17 @@ begin
     perform inventory._raise('PERMISSION_DENIED', 'Owner permission required.');
   end if;
 
-  select store_id, warehouse_id into v_assignment
-  from inventory.store_warehouse_assignments
-  where tenant_id = p_tenant_id
-    and status = 'active';
-
-  if not found then
-    perform inventory._raise('CONTEXT_INVALID', 'Active store warehouse assignment not found.');
-  end if;
+  begin
+    select store_id, warehouse_id into strict v_assignment
+    from inventory.store_warehouse_assignments
+    where tenant_id = p_tenant_id
+      and status = 'active';
+  exception
+    when no_data_found then
+      perform inventory._raise('CONTEXT_INVALID', 'Active store warehouse assignment not found.');
+    when too_many_rows then
+      perform inventory._raise('CONTEXT_INVALID', 'Multiple active store warehouse assignments found, expected exactly one.');
+  end;
 
   return jsonb_build_object(
     'actor_id', v_actor_id,
@@ -640,9 +643,12 @@ begin
     end if;
     select unit_cost into v_src_cost
     from inventory.value_movements
-    where tenant_id = p_tenant_id and movement_id = p_source_movement_id;
+    where tenant_id = p_tenant_id
+      and movement_id = p_source_movement_id
+      and kind = 'SALE'
+      and product_id = p_product_id;
     if v_src_cost is null then
-      perform inventory._raise('CONTEXT_INVALID', 'Không tìm thấy dòng xuất gốc trong sổ giá trị.');
+      perform inventory._raise('CONTEXT_INVALID', 'Không tìm thấy dòng xuất bán gốc hợp lệ trong sổ giá trị.');
     end if;
     v_c := v_src_cost;
     v_amount := round(abs(v_delta) * v_c)::bigint;
@@ -687,9 +693,12 @@ begin
     end if;
     select unit_cost into v_src_cost
     from inventory.value_movements
-    where tenant_id = p_tenant_id and movement_id = p_source_movement_id;
+    where tenant_id = p_tenant_id
+      and movement_id = p_source_movement_id
+      and kind = 'SALE'
+      and product_id = p_product_id;
     if v_src_cost is null then
-      perform inventory._raise('CONTEXT_INVALID', 'Không tìm thấy dòng xuất gốc cho huỷ bán hàng.');
+      perform inventory._raise('CONTEXT_INVALID', 'Không tìm thấy dòng xuất bán gốc hợp lệ cho huỷ bán hàng.');
     end if;
     v_c := v_src_cost;
     v_amount := round(abs(v_delta) * v_c)::bigint;
@@ -967,15 +976,49 @@ begin
       'is_provisional', v_val_res->'is_provisional'
     );
     v_res_movement_ids := v_res_movement_ids || to_jsonb(v_movement_id);
+  end loop;
 
-    v_stock_changes := v_stock_changes || jsonb_build_object(
-      'product_id', v_product_id,
-      'product_name', v_prod.name,
-      'base_uom', v_base_uom,
-      'lot_id', v_lot_id,
-      'before', v_current_qty,
-      'after', v_after_qty
-    );
+  -- 7. Build consolidated stock_changes per product
+  v_stock_changes := '[]'::jsonb;
+  for v_prod_id in (
+    select distinct (elem->>'product_id')::uuid
+    from jsonb_array_elements(p_lines) elem
+  ) loop
+    declare
+      v_p_name text;
+      v_p_uom text;
+      v_p_delta numeric;
+      v_p_after numeric;
+      v_p_before numeric;
+    begin
+      select name into v_p_name
+      from catalog.products
+      where id = v_prod_id;
+
+      v_p_uom := catalog._product_base_unit_name(p_tenant_id, v_prod_id);
+
+      select coalesce(sum((elem->>'quantity_delta')::numeric), 0)
+      into v_p_delta
+      from jsonb_array_elements(p_lines) elem
+      where (elem->>'product_id')::uuid = v_prod_id;
+
+      select coalesce(sum(physical_quantity), 0)
+      into v_p_after
+      from inventory.stock_balances
+      where tenant_id = p_tenant_id
+        and warehouse_id = p_warehouse_id
+        and product_id = v_prod_id;
+
+      v_p_before := v_p_after - v_p_delta;
+
+      v_stock_changes := v_stock_changes || jsonb_build_object(
+        'product_id', v_prod_id,
+        'product_name', coalesce(v_p_name, ''),
+        'base_uom', coalesce(v_p_uom, ''),
+        'before', v_p_before,
+        'after', v_p_after
+      );
+    end;
   end loop;
 
   return jsonb_build_object(

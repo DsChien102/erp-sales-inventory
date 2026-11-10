@@ -218,6 +218,41 @@ begin
     end if;
   end;
 
+  -- 9b. Test case (P2-4): multiple_assignments_context_invalid
+  declare
+    v_multi_assign_tenant uuid := gen_random_uuid();
+    v_store1 uuid := gen_random_uuid();
+    v_store2 uuid := gen_random_uuid();
+    v_wh1 uuid := gen_random_uuid();
+  begin
+    insert into iam.tenants (id, name, slug)
+    values (v_multi_assign_tenant, 'Tenant Multi Assign', 'multi-assign-' || substr(v_multi_assign_tenant::text, 1, 8));
+    insert into iam.memberships (tenant_id, user_id, role, is_owner)
+    values (v_multi_assign_tenant, v_user_id, 'owner', true);
+    insert into iam.stores (id, tenant_id, code, display_name, status)
+    values
+      (v_store1, v_multi_assign_tenant, 'STR1', 'Cửa hàng 1', 'active'),
+      (v_store2, v_multi_assign_tenant, 'STR2', 'Cửa hàng 2', 'active');
+    insert into inventory.warehouses (id, tenant_id, display_name, status)
+    values (v_wh1, v_multi_assign_tenant, 'Kho 1', 'active');
+    insert into inventory.store_warehouse_assignments (tenant_id, store_id, warehouse_id, status)
+    values
+      (v_multi_assign_tenant, v_store1, v_wh1, 'active'),
+      (v_multi_assign_tenant, v_store2, v_wh1, 'active');
+
+    v_caught := false;
+    begin
+      perform inventory._assert_actor(v_multi_assign_tenant, 'inventory.read');
+    exception when others then
+      if sqlerrm like '%Multiple active store warehouse assignments found%' or sqlerrm like '%CONTEXT_INVALID%' then
+        v_caught := true;
+      end if;
+    end;
+    if not v_caught then
+      raise exception 'FAIL: multiple_assignments_context_invalid';
+    end if;
+  end;
+
   -- 10. Test case (Task 3): replay_same_hash_returns_saved_result
   declare
     v_res jsonb;
@@ -404,6 +439,65 @@ begin
       where id = (v_res -> 'lines' -> 0 ->> 'value_movement_id')::uuid;
       if v_ret_val.unit_cost <> 10000 or v_ret_val.amount_vnd <> 50000 then
         raise exception 'FAIL: return_in_original_cost value: %', v_ret_val;
+      end if;
+    end;
+
+    -- 18b. Test case (P2-2): return_in_source_wrong_kind_or_product_rejected
+    declare
+      v_rcpt_mov_id uuid;
+      v_other_prod uuid := gen_random_uuid();
+    begin
+      -- Lấy 1 movement_id của loại RECEIPT
+      select id into v_rcpt_mov_id
+      from inventory.stock_movements
+      where tenant_id = v_tenant_id and product_id = v_nobi_id and movement_kind = 'RECEIPT'
+      limit 1;
+
+      -- Trỏ nhầm vào dòng RECEIPT -> phải ném CONTEXT_INVALID
+      v_caught := false;
+      begin
+        perform inventory._post_movements(
+          v_tenant_id, v_warehouse_id, 'RETURN_IN', gen_random_uuid(), current_date,
+          jsonb_build_array(jsonb_build_object(
+            'product_id', v_nobi_id,
+            'quantity_delta', 1,
+            'movement_kind', 'RETURN_IN',
+            'source_movement_id', v_rcpt_mov_id
+          )),
+          v_user_id
+        );
+      exception when others then
+        if sqlerrm like '%CONTEXT_INVALID%' then
+          v_caught := true;
+        end if;
+      end;
+      if not v_caught then
+        raise exception 'FAIL: return_in_source_wrong_kind_rejected';
+      end if;
+
+      -- Trỏ nhầm sang sản phẩm khác -> phải ném CONTEXT_INVALID
+      insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required)
+      values (v_other_prod, v_tenant_id, 'SP Khác Trỏ Nhầm', v_user_id, v_user_id, 'none', false);
+
+      v_caught := false;
+      begin
+        perform inventory._post_movements(
+          v_tenant_id, v_warehouse_id, 'RETURN_IN', gen_random_uuid(), current_date,
+          jsonb_build_array(jsonb_build_object(
+            'product_id', v_other_prod,
+            'quantity_delta', 1,
+            'movement_kind', 'RETURN_IN',
+            'source_movement_id', v_sale1_mov_id
+          )),
+          v_user_id
+        );
+      exception when others then
+        if sqlerrm like '%CONTEXT_INVALID%' then
+          v_caught := true;
+        end if;
+      end;
+      if not v_caught then
+        raise exception 'FAIL: return_in_source_wrong_product_rejected';
       end if;
     end;
 
@@ -874,6 +968,44 @@ begin
     if not v_caught then
       raise exception 'FAIL: kind_sign_mismatch_rejected (receipt negative)';
     end if;
+
+    -- 34b. Test case (P2-5): stock_changes_consolidated_per_product
+    -- Lệnh 2 dòng cùng 1 sản phẩm v_prod_lot (2 lô khác nhau) -> stock_changes chỉ có đúng 1 phần tử
+    declare
+      v_res_multi jsonb;
+      v_sc jsonb;
+    begin
+      v_res_multi := inventory._post_movements(
+        v_tenant_id, v_warehouse_id, 'RECEIPT', gen_random_uuid(), current_date,
+        jsonb_build_array(
+          jsonb_build_object(
+            'product_id', v_prod_lot,
+            'lot_code', 'LOT-P2-1',
+            'expiry_date', '2027-08-01',
+            'quantity_delta', 10,
+            'movement_kind', 'RECEIPT',
+            'unit_cost', 20000
+          ),
+          jsonb_build_object(
+            'product_id', v_prod_lot,
+            'lot_code', 'LOT-P2-2',
+            'expiry_date', '2027-09-01',
+            'quantity_delta', 20,
+            'movement_kind', 'RECEIPT',
+            'unit_cost', 20000
+          )
+        ),
+        v_user_id
+      );
+
+      v_sc := v_res_multi -> 'stock_changes';
+      if jsonb_array_length(v_sc) <> 1 then
+        raise exception 'FAIL: stock_changes_consolidated_per_product length %', jsonb_array_length(v_sc);
+      end if;
+      if (v_sc -> 0 ->> 'product_id')::uuid <> v_prod_lot then
+        raise exception 'FAIL: stock_changes_consolidated_per_product prod_id mismatch';
+      end if;
+    end;
   end;
 
   -- -------------------------------------------------------------------------

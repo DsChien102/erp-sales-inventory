@@ -118,8 +118,8 @@ Thứ tự:
    | `movement_kind` | Đơn giá `c` | `amount_vnd` | Cập nhật `product_costs` |
    |---|---|---|---|
    | `RECEIPT` | `unit_cost` truyền vào (thiếu → `UNIT_COST_REQUIRED`) | `amount_vnd` truyền vào nếu có, ngược lại `round(d × c)` | `m = (V + amount) / (q + d)`; `q += d`; `V += amount` |
-   | `COUNT_GAIN` | `PERIODIC` và có `o` → `o`; ngược lại `m`; `q = 0` và `m = 0` → `UNIT_COST_REQUIRED` | `round(d × c)` | như trên |
-   | `RETURN_IN` | `unit_cost` của dòng `value_movements` `SALE` có `movement_id = source_movement_id` (thiếu → `CONTEXT_INVALID`) | `round(d × c)` | như trên |
+   | `COUNT_GAIN` | `PERIODIC` và có `o` → `o`; ngược lại `m`. Khi `q = 0` và `m = 0`: bắt buộc truyền `unit_cost` (thiếu → `UNIT_COST_REQUIRED`). Cho phép nhận `unit_cost` / `amount_vnd` truyền vào khi kiểm kê hàng mới phát hiện (kho chưa có tồn) | `amount_vnd` truyền vào nếu có, ngược lại `round(d × c)` | như trên |
+   | `RETURN_IN` | `unit_cost` của dòng `value_movements` `SALE` có `movement_id = source_movement_id` (thiếu hoặc sai kind/product → `CONTEXT_INVALID`) | `round(d × c)` | như trên |
    | `SALE`, `COUNT_LOSS`, `WRITE_OFF` | `MOVING` → `m`; `PERIODIC` → `o`, chưa có `o` → `m` + `is_provisional = true` (bỏ qua `unit_cost` truyền vào) | `round(d × c)` (âm) | `q += d`; `V += amount`; `m` giữ |
    | `SALE_REVERSAL` | đơn giá dòng `SALE` gốc (`source_movement_id`) | `round(d × c)` (dương) | `q += d`; `V += amount`; `m = V / q` khi `q > 0` |
 
@@ -392,7 +392,7 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
   - `supabase/migrations/REGISTRY.yaml`: đăng ký các helper mới của schema `inventory`.
   - `supabase/tests/inventory_core.sql`: thêm test cases 12–19 (nhập MOVING, xuất MOVING, xuất PERIODIC provisional, INSUFFICIENT_STOCK, LOT_REQUIRED, LOT_NOT_ALLOWED, EXPIRY_REQUIRED, UNIT_COST_REQUIRED).
   - `apps/erp/test/features/inventory/data/inventory_core_sql_contract_test.dart`: thêm 8 tests nhóm `post_movements`.
-- Lệch plan + lý do: Không.
+- Lệch plan + lý do: COUNT_GAIN cho phép nhận unit_cost / amount_vnd người gọi truyền để tính giá khi phát hiện hàng mới lúc kiểm kê (kho chưa có tồn); stock_changes gộp theo sản phẩm (tổng tồn kho của sản phẩm tại warehouse) để K4 hiển thị rõ ràng và không trùng lặp dòng. Thêm tham số p_created_by cho _value_line và _post_movements.
 - Test thêm / sửa (tên): `period_check_before_lock`, `advisory_lock_before_balance_read`, `lot_rules_codes`, `insufficient_stock_code`, `unit_cost_required_code`, `value_line_called_per_line`, `value_line_branches`, `returns_lines_and_stock_changes` (tổng 28/28 tests contract pass).
 - Impact: Thêm function nội bộ schema `inventory`, revoke quyền từ public/anon/authenticated. GitNexus risk: low.
 - Ghi chú cho review: `_post_movements` thực hiện kiểm tra `_ensure_open_period` trước khi advisory lock; advisory lock sắp xếp theo `product_id` tăng dần tránh deadlock; ghi song song sổ số lượng và sổ giá trị; tính giá vốn và cập nhật `product_costs` đúng theo phương pháp của cửa hàng.

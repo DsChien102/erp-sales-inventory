@@ -123,7 +123,7 @@ class WarehouseQuickAction {
     required this.label,
     required this.icon,
     this.route,
-    this.requiresActivation = true,
+    this.requiresActivation = false,
   });
 
   final String label;
@@ -137,11 +137,13 @@ const List<WarehouseQuickAction> warehouseQuickActions = [
     label: 'Nhận hàng',
     icon: VIcons.cloudUpload,
     route: '/warehouse/receipts/new', // tạm — G5-4
+    requiresActivation: false,
   ),
   WarehouseQuickAction(
     label: 'Kiểm kê',
     icon: VIcons.checkList,
     route: '/warehouse/area/control',
+    requiresActivation: false,
   ),
   WarehouseQuickAction(
     label: 'Tra cứu tồn',

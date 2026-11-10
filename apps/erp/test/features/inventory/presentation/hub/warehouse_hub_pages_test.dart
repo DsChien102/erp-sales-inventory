@@ -129,6 +129,22 @@ void main() {
       );
       expect(receiveBtn.onPressed, isNotNull);
 
+      // Q-b19: Nút nhanh vẫn bật khi kho trống (chưa kích hoạt)
+      final quickReceive = tester.widget<VQuickActionButton>(
+        find.widgetWithText(VQuickActionButton, 'Nhận hàng'),
+      );
+      expect(quickReceive.onPressed, isNotNull);
+
+      final quickCheck = tester.widget<VQuickActionButton>(
+        find.widgetWithText(VQuickActionButton, 'Kiểm kê'),
+      );
+      expect(quickCheck.onPressed, isNotNull);
+
+      final quickSearch = tester.widget<VQuickActionButton>(
+        find.widgetWithText(VQuickActionButton, 'Tra cứu tồn'),
+      );
+      expect(quickSearch.onPressed, isNotNull);
+
       expect(find.text('Khởi tạo tồn kho'), findsNothing);
     });
 
