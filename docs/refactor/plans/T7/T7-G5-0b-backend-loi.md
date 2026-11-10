@@ -1,7 +1,7 @@
 # T7-G5-0b — Backend lõi Kho
 
 > Theme 7 · plan **G5-0b** của [PLAN.md](../../PLAN.md) mục "Theme 7" (bảng Plan)
-> Trạng thái: Plan ✅ **bản sửa theo rút gọn + [spec giá vốn](T7-G5-gia-von-thiet-ke.md), người dùng duyệt 2026-11-09** | Làm ✅ 2026-11-10 | Review ❌ R2 chưa đạt (2026-11-10; R1 ❌)
+> Trạng thái: Plan ✅ **bản sửa theo rút gọn + [spec giá vốn](T7-G5-gia-von-thiet-ke.md), người dùng duyệt 2026-11-09** | Làm ✅ 2026-11-10 | Review ✅ R3 đạt (2026-11-10; R1, R2 ❌) — còn nợ chạy `supabase/tests/inventory_core.sql`
 > Thiết kế: mục 2 của plan này. Phạm vi: PLAN.md mục Theme 7 → "Rút gọn 2026-11-09", "Giá vốn"; giá vốn: [spec giá vốn](T7-G5-gia-von-thiet-ke.md) mục 3–4 (G5-0b) — lần tính / công bố (mục 5–7) thuộc G5-6.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -482,6 +482,38 @@ Xong **mỗi task** ghi ngay; dừng giữa chừng ghi `🔄 dở` + tới bư�
 - Commit: `docs(refactor): T7-G5-0b xong, mẫu RPC ghi vào PLAN.md`
 
 ## 7. Review
+
+### R3 — 2026-11-10 — ✅ ĐẠT (0 P1, 0 P2, 1 P3 mới) — người dùng chốt, SQL chạy sau
+
+**Kết luận: ĐẠT** theo quyết định của người dùng (2026-11-10): chốt đạt dựa trên review đọc code và tệp test, **chưa chạy** `supabase/tests/inventory_core.sql`. Review Focus 1, 2, 4 mới được dò tay, chưa có bằng chứng chạy. **Việc còn nợ:** dựng lại DB Dev, chạy tệp, dán `NOTICE: inventory_core: OK` vào mục 6. Nếu ra `FAIL: …` thì sửa trước khi bắt đầu G5-2 / G5-2b (hai plan gọi `_post_movements`).
+
+| Việc R2 | Kết quả |
+|---|---|
+| R2-1 `iam.tenants (name, slug)` | Đạt. 3 chỗ còn lại (dòng 32, 203, 998) dùng `(id, display_name)` |
+| R2-2 ca 9b vi phạm unique index | Đạt. Đã bỏ ca 9b; code giữ `strict` |
+| R2-3 `jsonb::text::uuid` | Đạt. `(… ->> 0)::uuid` (dòng 338) |
+| R2-4 cột `cost_versions` | Đạt. `(id, tenant_id, product_id, unit_cost, method, effective_from_sequence)` đúng bảng (dòng 685–691) |
+| R2-5 ca 24 không so `product_costs` | Đạt. So `quantity_on_hand`, `ledger_value_vnd`, `moving_avg_cost` trước / sau |
+| R2-6 `v_base_uom` thừa | Đạt. Đã bỏ |
+| R2-7 mục 6 Task 4 "12–19" | Đạt. Ghi 37 ca |
+| P3-4 (R1) lệch plan chưa ghi | Đạt về ghi chép. Nhưng xem R3-1 |
+
+**Dò tay toàn tệp test (phiên R3):**
+- Phần chuẩn bị dữ liệu khớp schema: `auth.users`, `iam.tenants`, `iam.memberships (role, is_owner)`, `iam.stores (code, display_name, status)`, `inventory.warehouses`, `store_warehouse_assignments` (mỗi tenant một cặp `active`, đúng 2 unique index). `iam.tenants` / `iam.stores` / `inventory.*` không có trigger chèn thêm dòng.
+- Số liệu từng ca khớp với code:
+  - Nobivac 1.000.000 → 700.000 → 1.350.000 / `m` 11.250 → 900.000.
+  - Huỷ bán +100.000, trả hàng +50.000 (giá dòng gốc 10.000), giá chính thức −105.000.
+  - Huỷ cả lệnh: 2 sổ + `product_costs` không đổi.
+  - Bất biến cuối tệp đúng. `v_product_id` có dòng chèn tay ở ca 1 / 5 nhưng không có `product_costs` nên không vào vòng kiểm.
+- Cuối tệp dùng `raise 'ROLLBACK_TEST_SUCCESS'` trong khối có `exception`, nên mọi dữ liệu test bị huỷ.
+
+**P3 — ghi nhận**
+- **R3-1** Mục 6 Task 7 ghi "comment route `valuation_queue` trỏ sang G5-3", nhưng code vẫn `// tạm — G5-5` (`warehouse_entries.dart:99`). Sửa comment hoặc sửa câu ghi.
+- Còn mở từ R1, không chặn: P3-1 (`'OPENING'` còn 2 chỗ trong migration), P3-2, P3-3, P3-5.
+
+**Việc còn nợ (sau khi chốt):** dựng lại DB Dev, chạy `supabase/tests/inventory_core.sql`, rồi dán dòng `NOTICE: inventory_core: OK` (hoặc lỗi `FAIL: …` nếu có) vào mục 6.
+
+**Đã chạy (phiên review R3):** `flutter test --no-pub test/features/inventory/data` 47 / 47; R2 đã chạy `test/features/inventory` + `product_tracking_fields_test` 175 / 175, R3 không có thay đổi Dart. Không chạy SQL.
 
 ### R2 — 2026-11-10 — ❌ CHƯA ĐẠT (4 P1 mới, 0 P2, 3 P3)
 
