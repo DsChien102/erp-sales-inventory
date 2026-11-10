@@ -92,6 +92,7 @@ class VBadge extends StatelessWidget {
   final VBadgeStatus? status;
 
   final bool showDot;
+  final bool hollowDot;
   final IconData? iconData;
   final bool isSmall;
 
@@ -109,6 +110,7 @@ class VBadge extends StatelessWidget {
     // ignore: deprecated_member_use_from_same_package
     @Deprecated('Use tone + variant instead. Will be removed in a future release.') this.status,
     this.showDot = false,
+    this.hollowDot = false,
     this.iconData,
     this.isSmall = false,
     this.tone,
@@ -167,8 +169,11 @@ class VBadge extends StatelessWidget {
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: textColor,
+                color: hollowDot ? Colors.transparent : textColor,
                 shape: BoxShape.circle,
+                border: hollowDot
+                    ? Border.all(color: textColor, width: 2)
+                    : null,
               ),
             ),
             const VGap(VSpacing.space1, axis: Axis.horizontal),

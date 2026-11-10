@@ -1,0 +1,413 @@
+import 'package:erp/core/di/injection.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/inventory/data/core/inventory_error_codes.dart';
+import 'package:erp/features/inventory/data/models/lot_date.dart';
+import 'package:erp/features/inventory/data/stock/stock_models.dart';
+import 'package:erp/features/inventory/data/stock/stock_repository.dart';
+import 'package:erp/features/inventory/presentation/stock/stock_detail_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+
+class _FakeStockRepository implements StockRepository {
+  StockDetail Function(String productId) detailBuilder;
+  int detailLoadCount = 0;
+
+  _FakeStockRepository(this.detailBuilder);
+
+  @override
+  Future<StockOverview> loadOverview() async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<StockDetail> loadDetail(String productId) async {
+    detailLoadCount++;
+    return detailBuilder(productId);
+  }
+}
+
+StockDetail _buildTylosinDetail({
+  bool isOwner = true,
+  StockCost? cost,
+}) {
+  return StockDetail(
+    asOf: DateTime(2026, 9, 17, 21, 30),
+    warehouseName: 'Kho trung tâm',
+    isOwner: isOwner,
+    productId: 'INV-TYL',
+    name: 'Tylosin 200',
+    code: 'SP-000118',
+    uom: 'lọ',
+    isLotTracked: true,
+    physical: 14,
+    available: 3,
+    expiredQuantity: 11,
+    threshold: 8,
+    target: 24,
+    lots: const [
+      StockLot(
+        lotId: 'L-TY2511',
+        code: 'TY2511',
+        expiry: LotDate(year: 2027, month: 11, day: 15),
+        physical: 3,
+        isExpired: false,
+        isNearExpiry: false,
+        daysToExpiry: 424,
+      ),
+      StockLot(
+        lotId: 'L-TY2408',
+        code: 'TY2408',
+        expiry: LotDate(year: 2025, month: 8, day: 10),
+        physical: 11,
+        isExpired: true,
+        isNearExpiry: false,
+        daysToExpiry: -403,
+      ),
+    ],
+    latestMovement: StockLatestMovement(
+      kind: 'RECEIPT',
+      intentType: 'PURCHASE_RECEIPT',
+      intentId: 'REC-01',
+      delta: 14,
+      businessDate: DateTime(2026, 9, 15),
+    ),
+    cost: cost,
+  );
+}
+
+StockDetail _buildNobivacDetail() {
+  return StockDetail(
+    asOf: DateTime(2026, 9, 17, 21, 30),
+    warehouseName: 'Kho trung tâm',
+    isOwner: true,
+    productId: 'INV-NOB',
+    name: 'Nobivac DHPPi',
+    code: 'SP-000105',
+    uom: 'liều',
+    isLotTracked: true,
+    physical: 30,
+    available: 30,
+    expiredQuantity: 0,
+    threshold: 30,
+    target: 80,
+    lots: const [
+      StockLot(
+        lotId: 'L-NB2609',
+        code: 'NB2609',
+        expiry: LotDate(year: 2026, month: 9, day: 30),
+        physical: 30,
+        isExpired: false,
+        isNearExpiry: true,
+        daysToExpiry: 13,
+      ),
+    ],
+  );
+}
+
+StockDetail _buildOxyDetail({bool isOwner = true}) {
+  return StockDetail(
+    asOf: DateTime(2026, 9, 17, 21, 30),
+    warehouseName: 'Kho trung tâm',
+    isOwner: isOwner,
+    productId: 'INV-OXY',
+    name: 'Oxytetracycline 20% LA chai 100ml',
+    code: 'SP-000147',
+    uom: 'chai',
+    isLotTracked: false,
+    physical: 36,
+    available: 36,
+    expiredQuantity: 0,
+    threshold: null,
+    target: null,
+  );
+}
+
+Widget _buildTestApp({
+  required StockRepository repository,
+  String productId = 'INV-TYL',
+  bool policyResult = true,
+  ValueChanged<String>? onPolicyOpened,
+}) {
+  if (getIt.isRegistered<StockRepository>()) {
+    getIt.unregister<StockRepository>();
+  }
+  getIt.registerSingleton<StockRepository>(repository);
+
+  final router = GoRouter(
+    initialLocation: '/warehouse/stock/$productId',
+    routes: [
+      GoRoute(
+        path: '/warehouse',
+        builder: (_, _) => const Scaffold(body: Text('Hub Kho')),
+      ),
+      GoRoute(
+        path: '/warehouse/stock/:productId',
+        builder: (_, state) => StockDetailPage(
+          productId: state.pathParameters['productId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/warehouse/stock-policy/product/:productId',
+        builder: (context, state) {
+          final id = state.pathParameters['productId']!;
+          onPolicyOpened?.call(id);
+          return Scaffold(
+            body: ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(policyResult),
+              child: const Text('Lưu ngưỡng'),
+            ),
+          );
+        },
+      ),
+    ],
+  );
+
+  return MaterialApp.router(routerConfig: router);
+}
+
+void main() {
+  setUp(() async {
+    await getIt.reset();
+  });
+
+  tearDown(() async {
+    await getIt.reset();
+  });
+
+  group('StockDetailPage (SCR-003)', () {
+    testWidgets('detail_ready_390', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final repo = _FakeStockRepository((_) => _buildTylosinDetail());
+      await tester.pumpWidget(_buildTestApp(repository: repo));
+      await tester.pumpAndSettle();
+
+      // Thẻ Khả dụng "3 lọ" + "Tồn thấp"
+      expect(find.text('Khả dụng'), findsOneWidget);
+      expect(find.text('3 lọ'), findsOneWidget);
+      expect(find.text('Tồn thấp'), findsWidgets);
+
+      // Tồn vật lý 14 lọ
+      expect(find.text('Tồn vật lý'), findsOneWidget);
+      expect(find.text('14 lọ'), findsOneWidget);
+
+      // Không đủ điều kiện bán: Hết hạn 11 lọ
+      expect(
+        find.text('Không đủ điều kiện bán: Hết hạn 11 lọ'),
+        findsOneWidget,
+      );
+
+      // Ngưỡng 8 · Mục tiêu 24 lọ
+      expect(find.text('Ngưỡng 8 · Mục tiêu 24 lọ'), findsOneWidget);
+
+      // Banner Tồn thấp + gợi ý
+      expect(find.text('Khả dụng 3 lọ · Ngưỡng 8 lọ.'), findsOneWidget);
+      expect(
+        find.text('Gợi ý nhập thêm 21 lọ (mục tiêu 24 lọ)'),
+        findsOneWidget,
+      );
+
+      // Banner Có lô hết hạn
+      expect(find.text('Có lô hết hạn'), findsOneWidget);
+      expect(
+        find.text('Lô TY2408 · 11 lọ không đủ điều kiện bán.'),
+        findsOneWidget,
+      );
+
+      // Không có Nhận hàng, Điều chỉnh lô hết hạn, Đã giữ
+      expect(find.text('Nhận hàng'), findsNothing);
+      expect(find.text('Điều chỉnh lô hết hạn'), findsNothing);
+      expect(find.text('Đã giữ'), findsNothing);
+
+      // Lô TY2408 đứng trước TY2511
+      final ty2408Dy = tester.getTopLeft(find.text('Lô TY2408')).dy;
+      final ty2511Dy = tester.getTopLeft(find.text('Lô TY2511')).dy;
+      expect(ty2408Dy, lessThan(ty2511Dy));
+    });
+
+    testWidgets('owner_sees_cost_block_390', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final repo = _FakeStockRepository(
+        (_) => _buildTylosinDetail(
+          isOwner: true,
+          cost: const StockCost(
+            method: CostMethod.moving,
+            officialUnitCost: 118500,
+            movingAvgCost: 117940,
+            ledgerValueVnd: 1651160,
+          ),
+        ),
+      );
+      await tester.pumpWidget(_buildTestApp(repository: repo));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Giá vốn'), findsOneWidget);
+      expect(find.text('Giá vốn chính thức'), findsOneWidget);
+      expect(find.text('Bình quân liên hoàn'), findsOneWidget);
+      expect(find.text('Giá trị tồn (sổ)'), findsOneWidget);
+      expect(find.text('Phương pháp: Bình quân liên hoàn'), findsOneWidget);
+    });
+
+    testWidgets('periodic_provisional_shows_note', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final repo = _FakeStockRepository(
+        (_) => _buildTylosinDetail(
+          isOwner: true,
+          cost: const StockCost(
+            method: CostMethod.periodic,
+            officialUnitCost: null,
+            movingAvgCost: 117940,
+            ledgerValueVnd: 1651160,
+          ),
+        ),
+      );
+      await tester.pumpWidget(_buildTestApp(repository: repo));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chưa công bố'), findsOneWidget);
+      expect(find.text('Phương pháp: Bình quân cuối kỳ'), findsOneWidget);
+      expect(
+        find.text('Xuất kho đang dùng giá tạm (bình quân liên hoàn).'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('staff_no_cost_no_threshold_links_390', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final repo = _FakeStockRepository(
+        (_) => _buildTylosinDetail(isOwner: false, cost: null),
+      );
+      await tester.pumpWidget(_buildTestApp(repository: repo));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Giá vốn'), findsNothing);
+      expect(find.text('Sửa ngưỡng'), findsNothing);
+      expect(find.text('Đặt ngưỡng tồn'), findsNothing);
+    });
+
+    testWidgets('not_configured_shows_note_and_set_button', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final repo = _FakeStockRepository(
+        (_) => _buildOxyDetail(isOwner: true),
+      );
+      await tester.pumpWidget(
+        _buildTestApp(repository: repo, productId: 'INV-OXY'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'Chưa cấu hình ngưỡng tồn; chưa thể xác định trạng thái tồn thấp/bình thường.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Đặt ngưỡng tồn'), findsOneWidget);
+    });
+
+    testWidgets('edit_threshold_pushes_policy_and_refreshes', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      String? policyId;
+      final repo = _FakeStockRepository((_) => _buildTylosinDetail());
+      await tester.pumpWidget(
+        _buildTestApp(
+          repository: repo,
+          onPolicyOpened: (id) => policyId = id,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(repo.detailLoadCount, 1);
+
+      await tester.tap(find.text('Sửa ngưỡng'));
+      await tester.pumpAndSettle();
+
+      expect(policyId, 'INV-TYL');
+      await tester.tap(find.text('Lưu ngưỡng'));
+      await tester.pumpAndSettle();
+
+      expect(repo.detailLoadCount, 2);
+    });
+
+    testWidgets('lot_sheet_near_expiry_390', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final repo = _FakeStockRepository((_) => _buildNobivacDetail());
+      await tester.pumpWidget(
+        _buildTestApp(repository: repo, productId: 'INV-NOB'),
+      );
+      await tester.pumpAndSettle();
+
+      final lotRow = find.text('Lô NB2609');
+      await tester.ensureVisible(lotRow);
+      await tester.tap(lotRow);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'Còn 13 ngày · vẫn đủ điều kiện bán theo chính sách hiện tại.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('provenance_sheet_no_reservation', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final repo = _FakeStockRepository((_) => _buildTylosinDetail());
+      await tester.pumpWidget(_buildTestApp(repository: repo));
+      await tester.pumpAndSettle();
+
+      final provRow = find.text('Nguồn và thời điểm cập nhật');
+      await tester.ensureVisible(provRow);
+      await tester.tap(provRow);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nhận hàng gần nhất'), findsOneWidget);
+      expect(find.text('15/09/2026 · +14 lọ'), findsOneWidget);
+      expect(find.text('Đang giữ'), findsNothing);
+      expect(find.text('Xem thẻ kho và lịch sử'), findsNothing);
+    });
+
+    testWidgets('detail_two_columns_1280', (tester) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final repo = _FakeStockRepository((_) => _buildTylosinDetail());
+      await tester.pumpWidget(_buildTestApp(repository: repo));
+      await tester.pumpAndSettle();
+
+      final heroLeft = tester.getTopLeft(find.text('Khả dụng')).dx;
+      final lotsLeft = tester.getTopLeft(find.text('Lô và hạn dùng')).dx;
+      expect(heroLeft, lessThan(lotsLeft));
+    });
+
+    testWidgets('detail_denied', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final repo = _FakeStockRepository(
+        (_) => throw const AppException(InventoryErrorCode.permissionDenied),
+      );
+      await tester.pumpWidget(_buildTestApp(repository: repo));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chi tiết tồn kho'), findsOneWidget);
+      expect(find.text('Bạn chưa có quyền xem tồn kho'), findsOneWidget);
+    });
+  });
+}

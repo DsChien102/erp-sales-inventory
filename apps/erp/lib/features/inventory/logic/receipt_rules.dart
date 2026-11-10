@@ -1,5 +1,8 @@
 import '../data/models/lot_date.dart';
 import '../data/models/receipt_item_draft.dart';
+import 'inventory_format.dart';
+
+export 'inventory_format.dart';
 
 enum LotIssue {
   emptyQuantity, // Nhập ít nhất một số lượng
@@ -65,12 +68,6 @@ String lotIssueMessage(LotIssue issue) => switch (issue) {
       LotIssue.expiryNotAfterManufacture => 'Hạn dùng phải sau ngày sản xuất',
       LotIssue.lotConflict => 'Lô này đã có trong hệ thống với hạn dùng khác',
     };
-
-/// 106 · 1,5 · 0,25 — không làm tròn số lẻ.
-String formatQuantity(double q) {
-  if (q == q.roundToDouble()) return q.toInt().toString();
-  return q.toStringAsFixed(3).replaceFirst(RegExp(r'0+$'), '').replaceAll('.', ',');
-}
 
 /// "120 đạt · 2 cách ly · 1 hỏng · 5 từ chối" hoặc "Chưa ghi nhận" (prototype `classificationText`).
 String classificationText(ReceiptItemDraft item) {

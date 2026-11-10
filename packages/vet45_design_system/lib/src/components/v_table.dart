@@ -25,6 +25,7 @@ class VTable extends StatelessWidget {
   final bool stripedRows;
   final String? semanticLabel;
   final ValueChanged<int>? onRowTap;
+  final int? selectedRowIndex;
 
   const VTable({
     super.key,
@@ -36,6 +37,7 @@ class VTable extends StatelessWidget {
     this.stripedRows = false,
     this.semanticLabel,
     this.onRowTap,
+    this.selectedRowIndex,
   });
 
   @override
@@ -94,10 +96,13 @@ class VTable extends StatelessWidget {
               final row = entry.value;
               assert(row.length == headers.length, 'Row length must match headers length');
               final int rowIndex = entry.key;
+              final bool isSelected = selectedRowIndex == rowIndex;
               return TableRow(
-                decoration: stripedRows && rowIndex.isOdd
-                    ? BoxDecoration(color: dynamicColors.surfaceAlt.withValues(alpha: 0.35))
-                    : null,
+                decoration: isSelected
+                    ? BoxDecoration(color: dynamicColors.surfaceBrand)
+                    : (stripedRows && rowIndex.isOdd
+                        ? BoxDecoration(color: dynamicColors.surfaceAlt.withValues(alpha: 0.35))
+                        : null),
                 children: [
                   for (var i = 0; i < row.length; i++)
                     () {
@@ -118,12 +123,13 @@ class VTable extends StatelessWidget {
                           onTap: () => onRowTap!(rowIndex),
                           child: cell,
                         );
-                        if (i == 0) {
-                          cell = Semantics(
-                            button: true,
-                            child: cell,
-                          );
-                        }
+                      }
+                      if (isSelected || (onRowTap != null && i == 0)) {
+                        cell = Semantics(
+                          selected: isSelected ? true : null,
+                          button: (onRowTap != null && i == 0) ? true : null,
+                          child: cell,
+                        );
                       }
                       return cell;
                     }(),

@@ -322,8 +322,10 @@ inventory:
   _value_line: 20261110001_inventory_core.sql
   ensure_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
   get_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
+  get_stock_detail: 20261112001_inventory_stock_view.sql
   get_stock_policy: 20261111001_inventory_stock_policy.sql
   get_warehouse_hub_summary: 20261110001_inventory_core.sql
+  list_stock_overview: 20261112001_inventory_stock_view.sql
   save_near_expiry_policy: 20261111001_inventory_stock_policy.sql
   save_stock_thresholds: 20261111001_inventory_stock_policy.sql
 

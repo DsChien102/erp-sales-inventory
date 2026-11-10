@@ -199,6 +199,35 @@ void main() {
       expect(find.text('Mobile: A1'), findsOneWidget);
     });
 
+    testWidgets('selected_row_highlighted', (tester) async {
+      final columns = [
+        K7Column<String>(label: 'Mã', cell: (item) => Text(item)),
+      ];
+      final rows = ['A1', 'A2'];
+
+      await tester.pumpWidget(
+        wrap(
+          K7Table<String>(
+            columns: columns,
+            rows: rows,
+            selected: 'A2',
+            mobileRow: (item) => Text('Mobile: $item'),
+          ),
+          size: const Size(1280, 800),
+        ),
+      );
+
+      final table = tester.widget<Table>(find.byType(Table));
+      final colors = tester.element(find.byType(Table)).vColors;
+      // Row 0 is header, Row 1 is A1, Row 2 is A2 (selected)
+      expect(table.children[1].decoration, isNull);
+      final selectedDecoration = table.children[2].decoration as BoxDecoration?;
+      expect(selectedDecoration?.color, colors.surfaceBrand);
+
+      final a2Semantics = tester.getSemantics(find.text('A2'));
+      expect(a2Semantics.flagsCollection.isSelected.toBoolOrNull(), isTrue);
+    });
+
     testWidgets('k7_filter_chips_single_line', (tester) async {
       final filters = [
         const K7Filter(key: 'all', label: 'Tất cả', count: 10),

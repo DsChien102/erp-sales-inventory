@@ -6,6 +6,8 @@ import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 import 'package:erp/features/inventory/data/core/inventory_rpc.dart';
 import 'package:erp/features/inventory/data/goods_receipt_repository.dart';
 import 'package:erp/features/inventory/data/hub/warehouse_hub_repository.dart';
+import 'package:erp/features/inventory/data/stock/stock_models.dart';
+import 'package:erp/features/inventory/data/stock/stock_repository.dart';
 import 'package:erp/features/inventory/data/stock_policy/stock_policy_models.dart';
 import 'package:erp/features/inventory/data/stock_policy/stock_policy_repository.dart';
 import 'package:erp/features/inventory/data/valuation_repository.dart';
@@ -50,6 +52,46 @@ class _FakeStockPolicyRepo extends Fake implements StockPolicyRepository {
       );
 }
 
+class _FakeStockRepo extends Fake implements StockRepository {
+  @override
+  Future<StockOverview> loadOverview() async => StockOverview(
+        asOf: DateTime(2026, 9, 17, 21, 30),
+        warehouseName: 'Kho trung tâm',
+        products: const [
+          StockOverviewItem(
+            productId: 'INV-NOB',
+            name: 'Nobivac DHPPi',
+            code: 'SP-000184',
+            barcode: '8938500001012',
+            uom: 'hộp',
+            isLotTracked: true,
+            physical: 120,
+            available: 118,
+            hasExpired: false,
+            hasNearExpiry: true,
+            threshold: 30,
+          ),
+        ],
+      );
+
+  @override
+  Future<StockDetail> loadDetail(String productId) async => StockDetail(
+        asOf: DateTime(2026, 9, 17, 21, 30),
+        warehouseName: 'Kho trung tâm',
+        isOwner: true,
+        productId: productId,
+        name: 'Nobivac DHPPi',
+        code: 'SP-000184',
+        uom: 'hộp',
+        isLotTracked: true,
+        physical: 120,
+        available: 118,
+        expiredQuantity: 0,
+        threshold: 30,
+        target: 80,
+      );
+}
+
 base class InventorySessionStore extends SessionStore {
   InventorySessionStore({this.isOwner = true});
 
@@ -75,6 +117,7 @@ Future<void> setUpInventoryRouterTest({bool isOwner = true}) async {
     ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
     ..registerSingleton<WarehouseHubRepository>(WarehouseHubRepository(rpc: _FakeInventoryRpc()))
     ..registerSingleton<StockPolicyRepository>(_FakeStockPolicyRepo())
+    ..registerSingleton<StockRepository>(_FakeStockRepo())
     ..registerSingleton<ValuationRepository>(valuationRepo)
     ..registerSingleton<GoodsReceiptRepository>(GoodsReceiptRepository(valuation: valuationRepo))
     ..registerSingleton<SessionController>(session);

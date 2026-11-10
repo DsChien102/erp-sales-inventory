@@ -73,7 +73,7 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             title: 'Tồn kho & khả dụng',
             subtitle: 'Tra cứu sản phẩm, số lượng, lô và khả dụng',
             icon: VIcons.warehouse,
-            route: null,
+            route: '/warehouse/stock',
           ),
         ],
       WarehouseArea.movement => const [
@@ -162,9 +162,9 @@ const List<WarehouseQuickAction> warehouseQuickActions = [
   WarehouseQuickAction(
     label: 'Tra cứu tồn',
     icon: VIcons.search,
-    route: '/warehouse/area/inventory',
+    route: '/warehouse/stock',
     requiresActivation: false,
   ),
 ];
 
-const String warehouseStockSearchRoute = '/warehouse/area/inventory';
+const String warehouseStockSearchRoute = '/warehouse/stock';

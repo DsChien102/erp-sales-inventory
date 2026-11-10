@@ -97,7 +97,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Cần chú ý'), findsOneWidget);
-      expect(find.text('Hàng cần xử lý'), findsOneWidget);
+      expect(find.text('Tồn kho cần chú ý'), findsOneWidget);
       expect(find.text('2 hàng hỏng'), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
       expect(find.text('Chờ duyệt'), findsNothing);
@@ -159,7 +159,7 @@ void main() {
       await tester.pumpWidget(wrap(WarehouseHubPage(cubit: cubit)));
       await tester.pumpAndSettle();
 
-      expect(find.text('Hàng cần xử lý'), findsNothing);
+      expect(find.text('Tồn kho cần chú ý'), findsNothing);
     });
 
     testWidgets('hub_non_owner_hides_owner_rows', (tester) async {

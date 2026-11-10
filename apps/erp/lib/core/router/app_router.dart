@@ -44,6 +44,7 @@ import '../../features/inventory/presentation/pages/quick_receipt_header_page.da
 import '../../features/inventory/presentation/pages/receipt_entry_choice_page.dart';
 import '../../features/inventory/presentation/pages/receipt_item_detail_args.dart';
 import '../../features/inventory/presentation/hub/warehouse_hub_routes.dart';
+import '../../features/inventory/presentation/stock/stock_routes.dart';
 import '../../features/inventory/presentation/stock_policy/stock_policy_routes.dart';
 import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/inventory/logic/valuation_session_cubit.dart';
@@ -643,6 +644,7 @@ final appRouter = GoRouter(
         ),
     inventoryRedirectRoute(),
     ...stockPolicyRoutes(),
+    ...stockRoutes(),
     GoRoute(
       path: '/warehouse/receipts/new',
       name: 'warehouse.receipts.new',

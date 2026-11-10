@@ -75,18 +75,21 @@ class K7Table<T> extends StatelessWidget {
     required this.rows,
     required this.mobileRow,
     this.onRowTap,
+    this.selected,
   });
 
   final List<K7Column<T>> columns;
   final List<T> rows;
   final Widget Function(T) mobileRow;
   final ValueChanged<T>? onRowTap;
+  final T? selected;
 
   @override
   Widget build(BuildContext context) {
     final isWide = inventoryIsWide(context);
 
     if (isWide) {
+      final selectedIdx = selected != null ? rows.indexOf(selected as T) : -1;
       return VTable(
         headers: columns
             .map((c) => VTableHeader(title: c.label, isNumeric: c.numeric))
@@ -94,6 +97,7 @@ class K7Table<T> extends StatelessWidget {
         rows: rows
             .map((row) => columns.map((col) => col.cell(row)).toList())
             .toList(),
+        selectedRowIndex: selectedIdx >= 0 ? selectedIdx : null,
         onRowTap: onRowTap != null ? (index) => onRowTap!(rows[index]) : null,
       );
     }

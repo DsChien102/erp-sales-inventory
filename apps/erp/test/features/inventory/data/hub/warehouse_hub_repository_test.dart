@@ -35,5 +35,50 @@ void main() {
       expect(summary.activated, isFalse);
       expect(summary.problems, isNull);
     });
+
+    test('hub_summary_text_joins_nonzero', () async {
+      when(() => mockRpc.query('get_warehouse_hub_summary')).thenAnswer(
+        (_) async => {
+          'activated': true,
+          'problems': {
+            'out': 2,
+            'low': 1,
+            'expired': 1,
+            'near_expiry': 0,
+            'products': 3,
+          },
+        },
+      );
+
+      final summary = await repository.getSummary();
+
+      expect(summary.activated, isTrue);
+      expect(summary.problems, isNotNull);
+      expect(summary.problems!.count, 3);
+      expect(
+        summary.problems!.text,
+        '2 hết hàng · 1 tồn thấp · 1 có lô hết hạn',
+      );
+    });
+
+    test('hub_problems_zero_is_null', () async {
+      when(() => mockRpc.query('get_warehouse_hub_summary')).thenAnswer(
+        (_) async => {
+          'activated': true,
+          'problems': {
+            'out': 0,
+            'low': 0,
+            'expired': 0,
+            'near_expiry': 0,
+            'products': 0,
+          },
+        },
+      );
+
+      final summary = await repository.getSummary();
+
+      expect(summary.activated, isTrue);
+      expect(summary.problems, isNull);
+    });
   });
 }

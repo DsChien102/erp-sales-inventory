@@ -4,7 +4,7 @@
 -- Context: TH-07 / KB-KGV-001..005, spec giá vốn; PLAN T7-G5-0b
 -- Touches: ledger_counters, lots, stock_movements, stock_balances, cost_policies, cost_periods, cost_versions, value_movements, product_costs, _raise, _forbid_ledger_mutation, _lock_tracking_after_movement, _assert_actor, _begin_idempotency, _complete_idempotency, _cost_method, _ensure_open_period, _available_quantity, _next_ledger_sequence, _value_line, _post_movements, get_warehouse_hub_summary
 -- Safety: one-shot ; low lock impact on new tables
--- Depends on: 20261104001_inventory_default_pair, 20260709001_catalog_guided_create
+-- Depends on: 20261104001_inventory_default_pair, 20260709001_catalog_guided_create (runtime get_warehouse_hub_summary calls _product_stock_rows from 20261111001_inventory_stock_policy)
 
 create schema if not exists inventory;
 
@@ -1041,6 +1041,11 @@ as $$
 declare
   v_actor jsonb;
   v_activated boolean;
+  v_out int := 0;
+  v_low int := 0;
+  v_expired int := 0;
+  v_near_expiry int := 0;
+  v_products int := 0;
 begin
   -- 1. Assert actor with inventory.read permission
   v_actor := inventory._assert_actor(p_tenant_id, 'inventory.read');
@@ -1052,10 +1057,48 @@ begin
     where tenant_id = p_tenant_id
   ) into v_activated;
 
-  -- 3. Return summary with activated and problems (problems is null until G5-2)
+  if not v_activated then
+    return jsonb_build_object(
+      'activated', false,
+      'problems', null
+    );
+  end if;
+
+  -- 3. Count stock indicators across active products using _product_stock_rows + product_stock_policies
+  select
+    count(*) filter (where sr.available = 0)::int,
+    count(*) filter (
+      where psp.reorder_threshold is not null
+        and sr.available > 0
+        and sr.available <= psp.reorder_threshold
+    )::int,
+    count(*) filter (where sr.has_expired)::int,
+    count(*) filter (where sr.has_near_expiry)::int,
+    count(*) filter (
+      where sr.available = 0
+         or (
+           psp.reorder_threshold is not null
+           and sr.available > 0
+           and sr.available <= psp.reorder_threshold
+         )
+         or sr.has_expired
+         or sr.has_near_expiry
+    )::int
+  into v_out, v_low, v_expired, v_near_expiry, v_products
+  from inventory._product_stock_rows(p_tenant_id) sr
+  left join inventory.product_stock_policies psp
+    on psp.tenant_id = p_tenant_id
+   and psp.product_id = sr.product_id;
+
   return jsonb_build_object(
-    'activated', v_activated,
-    'problems', null
+    'activated', true,
+    'problems', jsonb_build_object(
+      'out', coalesce(v_out, 0),
+      'low', coalesce(v_low, 0),
+      'expired', coalesce(v_expired, 0),
+      'near_expiry', coalesce(v_near_expiry, 0),
+      'products', coalesce(v_products, 0)
+    )
   );
 end;
 $$;

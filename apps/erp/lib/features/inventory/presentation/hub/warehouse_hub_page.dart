@@ -201,20 +201,16 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
     final attentionRows = <Widget>[];
 
     if (summary.activated && summary.problems != null) {
-      final controlEntries = warehouseAreaEntries(WarehouseArea.control);
-      final qEntry =
-          controlEntries.where((e) => e.id == 'stocktaking').firstOrNull;
       attentionRows.add(
         VListRow(
           asCard: true,
           leading: VIcons.shield,
           leadingBackgroundColor: const Color(0xFFFFF7E6),
           leadingIconColor: const Color(0xFFE37400),
-          title: 'Hàng cần xử lý',
+          title: 'Tồn kho cần chú ý',
           subtitle: summary.problems!.text,
           trailing: _buildCountBadge(summary.problems!.count),
-          onTap: () =>
-              context.push(qEntry?.route ?? '/warehouse/area/control'),
+          onTap: () => context.push('/warehouse/stock'),
         ),
       );
     }

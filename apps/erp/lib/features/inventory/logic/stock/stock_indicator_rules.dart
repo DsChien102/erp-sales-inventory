@@ -1,3 +1,4 @@
+import 'package:erp/features/inventory/data/stock/stock_models.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 /// 5 loại chỉ báo tồn theo đặc tả Theme 7 (bj01.js / cap01.js).
@@ -107,4 +108,22 @@ int urgencyRank(List<StockIndicator> all) {
   }
 
   return urgency.length; // 4 (bình thường)
+}
+
+extension StockOverviewItemIndicatorsX on StockOverviewItem {
+  List<StockIndicator> get indicators => stockIndicators(
+        available: available,
+        threshold: threshold,
+        hasExpired: hasExpired,
+        hasNearExpiry: hasNearExpiry,
+      );
+}
+
+extension StockDetailIndicatorsX on StockDetail {
+  List<StockIndicator> get indicators => stockIndicators(
+        available: available,
+        threshold: threshold,
+        hasExpired: expiredQuantity > 0 || lots.any((l) => l.isExpired),
+        hasNearExpiry: lots.any((l) => l.isNearExpiry),
+      );
 }
