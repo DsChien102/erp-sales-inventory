@@ -10,6 +10,7 @@ abstract final class PartnerErrorCodes {
   static const systemError = AppErrorCode.unknown;
   static const duplicateWarning = 'DUPLICATE_WARNING';
   static const invalidStatus = 'INVALID_STATUS';
+  static const systemLocked = 'PARTNER_SYSTEM_LOCKED';
   static const hasTransactions = 'HAS_TRANSACTIONS';
   static const primaryContactOfOrganization = 'PRIMARY_CONTACT_OF_ORGANIZATION';
 }

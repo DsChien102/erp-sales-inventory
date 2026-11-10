@@ -316,5 +316,32 @@ void main() {
 
       expect(find.text('PN-26'), findsOneWidget);
     });
+
+    testWidgets('below_rendered_under_subtitle', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          K6TaskList<_TestTask>(
+            columns: sampleColumns,
+            rows: const [
+              _TestTask(id: '1', title: 'PN-01', statusLabel: 'Chờ duyệt'),
+            ],
+            total: 1,
+            title: (t) => t.title,
+            subtitle: (_) => 'NCC A · Chiết khấu đạt mốc',
+            below: (_) => const Text('1.000 / 1.000 hộp'),
+            status: (t) => K6Status(label: t.statusLabel, tone: t.statusTone),
+            onOpen: (_) {},
+            empty: emptyState,
+            filterEmpty: filterEmptyState,
+          ),
+          size: const Size(390, 844),
+        ),
+      );
+
+      final subtitleBottom =
+          tester.getBottomLeft(find.text('NCC A · Chiết khấu đạt mốc')).dy;
+      final belowTop = tester.getTopLeft(find.text('1.000 / 1.000 hộp')).dy;
+      expect(belowTop, greaterThanOrEqualTo(subtitleBottom));
+    });
   });
 }

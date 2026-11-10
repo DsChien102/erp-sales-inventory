@@ -4,7 +4,7 @@
 -- Context: TH-07 / KB-KGV-003; PLAN 5-A4
 -- Touches: ensure_default_store_warehouse_pair, get_default_store_warehouse_pair
 -- Safety: one-shot ; low
--- Depends on: 20260830001_iam_active_store_context_group_a, 20260916001_iam_ensure_default_store_scope_helpers, 20260811024_iam_patch_owner_role_canonicalization
+-- Depends on: 20261113001_inventory_supplier_programs (runtime _ensure_walk_in_supplier), 20260830001_iam_active_store_context_group_a, 20260916001_iam_ensure_default_store_scope_helpers, 20260811024_iam_patch_owner_role_canonicalization
 -- Promoted from _drafts/inventory_default_pair.sql
 
 create schema if not exists inventory;
@@ -119,6 +119,8 @@ begin
       0
     )
   );
+
+  perform inventory._ensure_walk_in_supplier(p_tenant_id);
 
   select count(*)::int
   into v_active_warehouse_count

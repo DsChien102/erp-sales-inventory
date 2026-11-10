@@ -210,6 +210,10 @@ begin
     perform partner._raise_partner_error('INVALID_STATUS', 'partner is deleted');
   end if;
 
+  if v_partner.is_system then
+    perform partner._raise_partner_error('PARTNER_SYSTEM_LOCKED', 'system partner is read-only');
+  end if;
+
   if p_expected_version is not null and v_partner.version <> p_expected_version then
     perform partner._raise_partner_error('STATE_CHANGED', 'version mismatch');
   end if;

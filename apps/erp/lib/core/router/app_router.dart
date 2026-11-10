@@ -46,6 +46,8 @@ import '../../features/inventory/presentation/pages/receipt_item_detail_args.dar
 import '../../features/inventory/presentation/hub/warehouse_hub_routes.dart';
 import '../../features/inventory/presentation/stock/stock_routes.dart';
 import '../../features/inventory/presentation/stock_policy/stock_policy_routes.dart';
+import '../../features/inventory/presentation/supplier_program/supplier_program_routes.dart';
+import '../../features/inventory/presentation/supplier_program/supplier_programs_section.dart';
 import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/inventory/logic/valuation_session_cubit.dart';
 import '../../features/inventory/presentation/pages/valuation_queue_page.dart';
@@ -616,6 +618,9 @@ final appRouter = GoRouter(
                               showCreateSuccessToast: showCreateSuccessToast,
                               showTransformSuccessToast: showTransformSuccessToast,
                               onMutated: () => listCubit.fetchPartners(isRefresh: true),
+                              supplierSection: (ctx, dto) => SupplierProgramsSection(
+                                partnerId: dto.partnerId,
+                              ),
                             );
                           },
                         ),
@@ -645,6 +650,7 @@ final appRouter = GoRouter(
     inventoryRedirectRoute(),
     ...stockPolicyRoutes(),
     ...stockRoutes(),
+    ...supplierProgramRoutes(),
     GoRoute(
       path: '/warehouse/receipts/new',
       name: 'warehouse.receipts.new',

@@ -31,6 +31,7 @@ class K6TaskRow<T> extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
+    this.below,
     required this.status,
     this.disabled = false,
     this.onTap,
@@ -38,6 +39,7 @@ class K6TaskRow<T> extends StatelessWidget {
 
   final String title;
   final String? subtitle;
+  final Widget? below;
   final K6Status status;
   final bool disabled;
   final VoidCallback? onTap;
@@ -54,18 +56,36 @@ class K6TaskRow<T> extends StatelessWidget {
         final movesBadgeBelow = constraints.maxWidth.isFinite &&
             _titleWraps(context, constraints.maxWidth);
 
+        Widget? contentBelow;
+        if (below != null && movesBadgeBelow) {
+          contentBelow = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              below!,
+              const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: badgeWidget,
+              ),
+            ],
+          );
+        } else if (below != null) {
+          contentBelow = below;
+        } else if (movesBadgeBelow) {
+          contentBelow = Align(
+            alignment: Alignment.centerLeft,
+            child: badgeWidget,
+          );
+        }
+
         return VListRow(
           title: title,
           subtitle: subtitle,
           enabled: !disabled,
           onTap: !disabled ? onTap : null,
           trailing: movesBadgeBelow ? null : badgeWidget,
-          contentBelow: movesBadgeBelow
-              ? Align(
-                  alignment: Alignment.centerLeft,
-                  child: badgeWidget,
-                )
-              : null,
+          contentBelow: contentBelow,
         );
       },
     );
@@ -123,6 +143,7 @@ class K6TaskList<T> extends StatelessWidget {
     required this.total,
     required this.title,
     this.subtitle,
+    this.below,
     required this.status,
     this.isDisabled,
     required this.onOpen,
@@ -137,6 +158,7 @@ class K6TaskList<T> extends StatelessWidget {
   final int total;
   final String Function(T) title;
   final String Function(T)? subtitle;
+  final Widget? Function(T)? below;
   final K6Status Function(T) status;
   final bool Function(T)? isDisabled;
   final ValueChanged<T> onOpen;
@@ -161,6 +183,7 @@ class K6TaskList<T> extends StatelessWidget {
         mobileRow: (item) => K6TaskRow<T>(
           title: title(item),
           subtitle: subtitle?.call(item),
+          below: below?.call(item),
           status: status(item),
           disabled: isDisabled?.call(item) ?? false,
           onTap: () => onOpen(item),
@@ -180,6 +203,7 @@ class K6TaskList<T> extends StatelessWidget {
             K6TaskRow<T>(
               title: title(rows[i]),
               subtitle: subtitle?.call(rows[i]),
+              below: below?.call(rows[i]),
               status: status(rows[i]),
               disabled: isDisabled?.call(rows[i]) ?? false,
               onTap: () => onOpen(rows[i]),

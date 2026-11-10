@@ -16,6 +16,7 @@ declare
   v_res2 jsonb;
   v_get jsonb;
   v_caught boolean;
+  v_walk_in_count int;
 begin
   -- 0) Tạo auth.users cho owner và stranger
   insert into auth.users (
@@ -108,6 +109,19 @@ begin
   if (v_res2->>'replayed')::boolean is not true then
     raise exception 'FAIL [3]: expected replayed true on second ensure';
   end if;
+
+  -- 3b) "Mua lẻ / khác" được tạo đúng một lần (G5-2b)
+  reset role;
+  select count(*) into v_walk_in_count
+  from partner.partners p
+  join partner.partner_roles r on r.partner_id = p.partner_id and r.role = 'supplier'
+  where p.tenant_id = v_tenant
+    and p.is_system
+    and p.display_name = 'Mua lẻ / khác';
+  if v_walk_in_count <> 1 then
+    raise exception 'FAIL [3b]: walk_in_created_once expected 1 system supplier, got %', v_walk_in_count;
+  end if;
+  set local role authenticated;
 
   -- 4) get → cùng storeId / warehouseId
   v_get := inventory.get_default_store_warehouse_pair(v_tenant);

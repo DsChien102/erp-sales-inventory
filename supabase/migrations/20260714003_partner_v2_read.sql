@@ -123,7 +123,8 @@ select
         and cp.status <> 'deleted'
     ),
     '[]'::jsonb
-  ) as contacts
+  ) as contacts,
+  p.is_system
 from partner.partners p
 left join partner.person_profiles pp on pp.partner_id = p.partner_id
 left join partner.organization_profiles op on op.partner_id = p.partner_id;
@@ -373,28 +374,30 @@ begin
     limit 1;
   end if;
 
-  if iam.has_permission(p_tenant_id, 'partner.update') then
-    v_actions := array_append(v_actions, 'update');
-  end if;
-  if iam.has_permission(p_tenant_id, 'partner.status.manage') then
-    if v_row.status = 'active' then
-      v_actions := array_append(v_actions, 'deactivate');
-    elsif v_row.status = 'inactive' then
-      v_actions := array_append(v_actions, 'reactivate');
+  if not v_row.is_system then
+    if iam.has_permission(p_tenant_id, 'partner.update') then
+      v_actions := array_append(v_actions, 'update');
     end if;
-  end if;
-  if iam.has_permission(p_tenant_id, 'partner.delete')
-    and v_row.status in ('active', 'inactive') then
-    v_actions := array_append(v_actions, 'delete');
-  end if;
-  if iam.has_permission(p_tenant_id, 'partner.transform')
-    and v_row.partner_type = 'person'
-    and v_row.status <> 'deleted' then
-    v_actions := array_append(v_actions, 'transform');
-  end if;
-  if iam.has_permission(p_tenant_id, 'partner.contact.manage')
-    and v_row.partner_type = 'organization' then
-    v_actions := array_append(v_actions, 'manageContacts');
+    if iam.has_permission(p_tenant_id, 'partner.status.manage') then
+      if v_row.status = 'active' then
+        v_actions := array_append(v_actions, 'deactivate');
+      elsif v_row.status = 'inactive' then
+        v_actions := array_append(v_actions, 'reactivate');
+      end if;
+    end if;
+    if iam.has_permission(p_tenant_id, 'partner.delete')
+      and v_row.status in ('active', 'inactive') then
+      v_actions := array_append(v_actions, 'delete');
+    end if;
+    if iam.has_permission(p_tenant_id, 'partner.transform')
+      and v_row.partner_type = 'person'
+      and v_row.status <> 'deleted' then
+      v_actions := array_append(v_actions, 'transform');
+    end if;
+    if iam.has_permission(p_tenant_id, 'partner.contact.manage')
+      and v_row.partner_type = 'organization' then
+      v_actions := array_append(v_actions, 'manageContacts');
+    end if;
   end if;
   if iam.has_permission(p_tenant_id, 'partner.history.view') then
     v_actions := array_append(v_actions, 'viewHistory');
@@ -414,7 +417,8 @@ begin
     'primary_contact_organization_id', v_primary_contact_organization_id,
     'primary_contact_organization_name', v_primary_contact_organization_name,
     'created_at', v_row.created_at,
-    'updated_at', v_row.updated_at
+    'updated_at', v_row.updated_at,
+    'is_system', v_row.is_system
   );
 end;
 $$;

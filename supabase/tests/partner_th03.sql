@@ -100,6 +100,8 @@ declare
   v_items text;
   v_org_profile jsonb;
   v_claims text;
+  v_psys uuid;
+  v_detail jsonb;
 begin
   -- 0) Dựng 2 tenant + owner (như iam_legacy_cleanup.sql).
   insert into auth.users (
@@ -540,6 +542,49 @@ begin
   );
   perform 1 from partner.search_partners(v_ta, null, null, null, null, 1, 20, 'updated_at_desc', 7);
   perform 1 from partner.search_partners(v_ta, null, null, null, null, 1, 20, 'updated_at_desc', 30);
+
+  -- =========================================================================
+  -- Ca 9: đối tác hệ thống (G5-2b) — chỉ đọc, chi tiết chỉ còn viewHistory
+  -- =========================================================================
+  reset role;
+  insert into partner.partners (tenant_id, partner_type, display_name, is_system, created_by, updated_by)
+  values (v_ta, 'organization', 'Mua lẻ / khác', true, v_ua, v_ua)
+  returning partner_id into v_psys;
+  insert into partner.organization_profiles (
+    partner_id, tenant_id, organization_type, organization_name, phone, allow_blank_phone
+  ) values (v_psys, v_ta, 'other', 'Mua lẻ / khác', '', true);
+  insert into partner.partner_roles (partner_id, tenant_id, role)
+  values (v_psys, v_ta, 'supplier');
+  set local role authenticated;
+
+  perform public._th03_expect_err(
+    format(
+      'select * from partner.update_partner(%L, %L, %L, %s, array[''supplier''], null, %L::jsonb)',
+      v_ta, v_ua, v_psys, public._th03_version(v_psys),
+      '{"organization_name":"Doi ten","organization_type":"other","phone":"0900000000"}'
+    ),
+    'PARTNER_SYSTEM_LOCKED'
+  );
+  perform public._th03_expect_err(
+    format(
+      'select * from partner.soft_delete_partner(%L, %L, %L, %s, ''x'')',
+      v_ta, v_ua, v_psys, public._th03_version(v_psys)
+    ),
+    'PARTNER_SYSTEM_LOCKED'
+  );
+  perform public._th03_expect_err(
+    format(
+      'select * from partner.deactivate_partner(%L, %L, %L, %s, ''x'')',
+      v_ta, v_ua, v_psys, public._th03_version(v_psys)
+    ),
+    'PARTNER_SYSTEM_LOCKED'
+  );
+
+  v_detail := partner.get_partner_detail(v_ta, v_psys);
+  if (v_detail->>'is_system')::boolean is not true
+     or v_detail->'available_actions' <> '["viewHistory"]'::jsonb then
+    raise exception 'FAIL: system_partner_detail_actions, got %', v_detail;
+  end if;
 
   reset role;
   raise notice 'partner_th03: OK';

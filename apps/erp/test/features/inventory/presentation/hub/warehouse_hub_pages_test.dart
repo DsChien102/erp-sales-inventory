@@ -286,5 +286,24 @@ void main() {
 
       expect(find.byType(VListRow), findsNothing);
     });
+
+    test('valuation_area_has_supplier_programs', () {
+      final entries = warehouseAreaEntries(WarehouseArea.valuation);
+      final ids = entries.map((e) => e.id).toList();
+      final spIndex = ids.indexOf('supplier_programs');
+      final cogsIndex = ids.indexOf('cogs');
+
+      expect(spIndex, isNonNegative);
+      expect(cogsIndex, isNonNegative);
+      expect(spIndex, lessThan(cogsIndex));
+
+      final spEntry = entries[spIndex];
+      expect(spEntry.title, 'Chương trình nhà cung cấp');
+      expect(
+        spEntry.subtitle,
+        'Ưu đãi giảm giá, hàng tặng, chiết khấu đạt mốc',
+      );
+      expect(spEntry.route, '/warehouse/supplier-programs');
+    });
   });
 }

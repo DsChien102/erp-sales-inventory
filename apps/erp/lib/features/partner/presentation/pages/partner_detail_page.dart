@@ -17,6 +17,7 @@ class PartnerDetailPage extends StatefulWidget {
     this.showCreateSuccessToast = false,
     this.showTransformSuccessToast = false,
     this.onMutated,
+    this.supplierSection,
   });
 
   final String partnerId;
@@ -27,6 +28,11 @@ class PartnerDetailPage extends StatefulWidget {
   /// Gọi sau mỗi thao tác đổi dữ liệu đang hiện ở danh sách (sửa, chuyển đổi,
   /// ngừng / kích hoạt, xoá). Ở web 2 cột, route dùng nó để tải lại danh sách.
   final VoidCallback? onMutated;
+
+  /// Khối bổ sung cho nhà cung cấp (Kho gắn "Chương trình ưu đãi" qua router; Theme 3
+  /// không import Kho). Chỉ dựng khi hồ sơ có vai trò nhà cung cấp và không phải đối tác
+  /// hệ thống.
+  final Widget Function(BuildContext context, PartnerDetailDto dto)? supplierSection;
 
   @override
   State<PartnerDetailPage> createState() => _PartnerDetailPageState();
@@ -388,7 +394,14 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                                 const VGap.md(),
                               ],
 
-                              if (warningDescription != null &&
+                              if (dto.isSystem) ...[
+                                const VBanner(
+                                  status: VBannerStatus.info,
+                                  title:
+                                      'Đối tác hệ thống, dùng cho phiếu nhận mua lẻ. Không sửa hoặc xoá được.',
+                                ),
+                                const VGap.md(),
+                              ] else if (warningDescription != null &&
                                   dto.status == PartnerStatus.active) ...[
                                 PartnerDetailWarningBanner(
                                   description: warningDescription,
@@ -422,6 +435,13 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                               PartnerDetailNoteCard(dto: dto),
                               const VGap.sm(),
 
+                              if (widget.supplierSection != null &&
+                                  !dto.isSystem &&
+                                  dto.roles.contains(PartnerRoleType.supplier)) ...[
+                                widget.supplierSection!(context, dto),
+                                const VGap.sm(),
+                              ],
+
                               PartnerDetailSystemCard(
                                 dto: dto,
                                 onTapHistory: () => context.push(
@@ -435,6 +455,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                       ),
                     ),
 
+                    if (!dto.isSystem)
                     Container(
                       decoration: BoxDecoration(
                         color: colors.surface,

@@ -103,6 +103,13 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             route: '/warehouse/valuation/queue', // tạm — G5-5
           ),
           WarehouseEntry(
+            id: 'supplier_programs',
+            title: 'Chương trình nhà cung cấp',
+            subtitle: 'Ưu đãi giảm giá, hàng tặng, chiết khấu đạt mốc',
+            icon: VIcons.coins,
+            route: '/warehouse/supplier-programs',
+          ),
+          WarehouseEntry(
             id: 'cogs',
             title: 'Giá vốn',
             subtitle: 'Tính, rà soát và công bố giá vốn',

@@ -104,6 +104,7 @@ create table if not exists partner.partners (
   created_by uuid not null,
   updated_at timestamptz not null default now(),
   updated_by uuid not null,
+  is_system boolean not null default false,
   constraint chk_partners_display_name_not_blank
     check (length(btrim(display_name)) > 0),
   constraint chk_partners_version_positive
@@ -141,6 +142,7 @@ create table if not exists partner.organization_profiles (
   short_name text null,
   intl_name text null,
   phone text not null,
+  allow_blank_phone boolean not null default false,
   email text null,
   tax_code text null,
   company_address text null,
@@ -154,7 +156,7 @@ create table if not exists partner.organization_profiles (
   constraint chk_organization_profiles_name_not_blank
     check (length(btrim(organization_name)) > 0),
   constraint chk_organization_profiles_phone_not_blank
-    check (length(btrim(phone)) > 0)
+    check (allow_blank_phone or length(btrim(phone)) > 0)
 );
 
 create table if not exists partner.partner_roles (
@@ -223,6 +225,10 @@ create unique index if not exists uq_partner_history_views_source
 -- ---------------------------------------------------------------------------
 -- Indexes (tenant_id, phone, status per harness)
 -- ---------------------------------------------------------------------------
+
+create unique index if not exists partners_one_system_per_tenant
+  on partner.partners (tenant_id)
+  where is_system;
 
 create index if not exists idx_partners_tenant_id
   on partner.partners (tenant_id);

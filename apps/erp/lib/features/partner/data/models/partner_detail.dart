@@ -157,6 +157,7 @@ final class PartnerDetailDto {
     this.primaryContactOrganizationName,
     this.createdAt,
     this.updatedAt,
+    this.isSystem = false,
   });
 
   factory PartnerDetailDto.fromJson(Map<String, dynamic> row) {
@@ -181,6 +182,7 @@ final class PartnerDetailDto {
       primaryContactOrganizationName: row['primary_contact_organization_name'] as String?,
       createdAt: row['created_at'] == null ? null : DateTime.parse(row['created_at'] as String),
       updatedAt: row['updated_at'] == null ? null : DateTime.parse(row['updated_at'] as String),
+      isSystem: row['is_system'] as bool? ?? false,
     );
   }
 
@@ -198,6 +200,9 @@ final class PartnerDetailDto {
   final String? primaryContactOrganizationName;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+
+  /// Đối tác hệ thống ("Mua lẻ / khác"): chỉ đọc, không sửa hoặc xoá được.
+  final bool isSystem;
 }
 
 OrganizationType _organizationType(String raw) {

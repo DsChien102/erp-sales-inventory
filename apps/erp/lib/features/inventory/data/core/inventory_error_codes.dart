@@ -16,6 +16,10 @@ abstract final class InventoryErrorCode {
   static const trackingLocked = 'TRACKING_LOCKED';
   static const unitCostRequired = 'UNIT_COST_REQUIRED';
   static const periodClosed = 'PERIOD_CLOSED';
+  static const programOverlap = 'PROGRAM_OVERLAP';
+  static const programSupplierInvalid = 'PROGRAM_SUPPLIER_INVALID';
+  static const programUomMismatch = 'PROGRAM_UOM_MISMATCH';
+  static const programLocked = 'PROGRAM_LOCKED';
 }
 
 /// Chuyển đổi mã lỗi sang thông báo thân thiện người dùng tiếng Việt.
@@ -56,6 +60,14 @@ String inventoryErrorMessage(
       'Bắt buộc phải nhập đơn giá vốn.',
     InventoryErrorCode.periodClosed =>
       'Kỳ giá vốn đã đóng, không thể ghi sổ.',
+    InventoryErrorCode.programOverlap =>
+      'NCC này đang có chương trình khác đang chạy. Kết thúc chương trình đó trước khi tạo chương trình mới.',
+    InventoryErrorCode.programSupplierInvalid =>
+      'Nhà cung cấp không hợp lệ hoặc đã ngừng hoạt động.',
+    InventoryErrorCode.programUomMismatch =>
+      'Các sản phẩm phải cùng đơn vị tính cơ sở.',
+    InventoryErrorCode.programLocked =>
+      'Chương trình đã có phiếu nhận gắn hoặc đã kết thúc nên không sửa được.',
     _ => fallback,
   };
 }

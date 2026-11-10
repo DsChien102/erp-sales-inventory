@@ -311,23 +311,34 @@ inventory:
   _complete_idempotency: 20261110001_inventory_core.sql
   _cost_method: 20261110001_inventory_core.sql
   _ensure_open_period: 20261110001_inventory_core.sql
+  _ensure_walk_in_supplier: 20261113001_inventory_supplier_programs.sql
   _forbid_ledger_mutation: 20261110001_inventory_core.sql
   _lot_expiry_end: 20261111001_inventory_stock_policy.sql
   _near_expiry_days: 20261111001_inventory_stock_policy.sql
   _next_ledger_sequence: 20261110001_inventory_core.sql
   _post_movements: 20261110001_inventory_core.sql
+  _program_is_locked: 20261113001_inventory_supplier_programs.sql
+  _program_row_json: 20261113001_inventory_supplier_programs.sql
   _product_stock_rows: 20261111001_inventory_stock_policy.sql
   _raise: 20261110001_inventory_core.sql
   _today: 20261111001_inventory_stock_policy.sql
+  _validate_program_payload: 20261113001_inventory_supplier_programs.sql
   _value_line: 20261110001_inventory_core.sql
+  create_supplier_program: 20261113001_inventory_supplier_programs.sql
+  end_supplier_program: 20261113001_inventory_supplier_programs.sql
   ensure_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
   get_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
+  get_receipt_program_hints: 20261113001_inventory_supplier_programs.sql
   get_stock_detail: 20261112001_inventory_stock_view.sql
   get_stock_policy: 20261111001_inventory_stock_policy.sql
+  get_supplier_program: 20261113001_inventory_supplier_programs.sql
+  get_supplier_program_form_options: 20261113001_inventory_supplier_programs.sql
   get_warehouse_hub_summary: 20261110001_inventory_core.sql
   list_stock_overview: 20261112001_inventory_stock_view.sql
+  list_supplier_programs: 20261113001_inventory_supplier_programs.sql
   save_near_expiry_policy: 20261111001_inventory_stock_policy.sql
   save_stock_thresholds: 20261111001_inventory_stock_policy.sql
+  update_supplier_program: 20261113001_inventory_supplier_programs.sql
 
 partner:
   _assert_actor: 20260714004_partner_v2_write_rpc.sql

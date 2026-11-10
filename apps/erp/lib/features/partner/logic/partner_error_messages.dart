@@ -17,6 +17,7 @@ String partnerErrorMessage(
       'Hồ sơ đã được cập nhật bởi người khác. Vui lòng tải lại.',
     PartnerErrorCodes.invalidStatus =>
       'Trạng thái hồ sơ không cho phép thao tác này.',
+    PartnerErrorCodes.systemLocked => 'Đối tác hệ thống không sửa hoặc xoá được.',
     PartnerErrorCodes.duplicateWarning =>
       'Đã tồn tại hồ sơ trùng MST/SĐT/email. Vui lòng kiểm tra lại.',
     _ => fallback,
