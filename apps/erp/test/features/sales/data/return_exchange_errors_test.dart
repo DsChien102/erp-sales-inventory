@@ -38,6 +38,7 @@ void main() {
       'IN_PROGRESS',
       'INVALID_QUANTITY',
       'PRODUCT_NOT_SELLABLE',
+      'INSUFFICIENT_STOCK',
       'PROJECTION_PENDING',
       'NETWORK_ERROR',
     }) {

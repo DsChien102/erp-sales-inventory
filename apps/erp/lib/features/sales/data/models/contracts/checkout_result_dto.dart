@@ -7,6 +7,7 @@ final class CheckoutResultDto {
     required this.salesOrderVersion,
     required this.status,
     this.blockedCode,
+    this.blockedMessage,
   });
 
   final String idempotencyKey;
@@ -16,4 +17,7 @@ final class CheckoutResultDto {
 
   /// Mã chặn khi `status == blocked`, ví dụ `PRICE_CHANGED`.
   final String? blockedCode;
+
+  /// Thông báo chi tiết lý do chặn, ví dụ 'Thuốc A: chỉ còn 0 hộp bán được.'.
+  final String? blockedMessage;
 }

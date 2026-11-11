@@ -9,6 +9,7 @@ const Map<String, String> _messages = {
   SalesCheckoutErrorCodes.productNotSellable: 'Sản phẩm đã ngừng bán. Vui lòng quay lại đơn.',
   SalesCheckoutErrorCodes.priceChanged: 'Giá đã thay đổi. Vui lòng quay lại kiểm tra.',
   SalesCheckoutErrorCodes.pricingBlocked: 'Sản phẩm này chưa có giá bán.',
+  SalesCheckoutErrorCodes.insufficientStock: 'Không đủ tồn kho để bán.',
   SalesCheckoutErrorCodes.checkoutBlocked: 'Đơn chưa đủ điều kiện thanh toán.',
 };
 

@@ -39,6 +39,45 @@ void main() {
     expect(result.single.units.single.productUnitId, '22222222-2222-2222-2222-222222222222');
     expect(result.single.units.single.unitPrice.amountMinor, 125000);
     expect(result.single.units.single.floorUnitPrice?.amountMinor, 100000);
+    expect(result.single.stockQuantity, 12);
+    expect(result.single.availabilityLabel, 'Tồn 12');
+  });
+
+  test('availabilityLabel maps positive stock to Tồn X and zero or negative stock to Hết hàng', () async {
+    const pZeroStock = SellableProductDto(
+      productId: '44444444-4444-4444-4444-444444444444',
+      sku: 'SKU-003',
+      displayName: 'Thuoc Het Hang',
+      tradeName: null,
+      isSellable: true,
+      blockReason: null,
+      currencyCode: 'VND',
+      listPriceMinor: 10000,
+      floorPriceMinor: null,
+      availableStockMicros: 0,
+      units: [],
+    );
+    const pNegStock = SellableProductDto(
+      productId: '55555555-5555-5555-5555-555555555555',
+      sku: 'SKU-004',
+      displayName: 'Thuoc Am Hang',
+      tradeName: null,
+      isSellable: true,
+      blockReason: null,
+      currencyCode: 'VND',
+      listPriceMinor: 10000,
+      floorPriceMinor: null,
+      availableStockMicros: -5000000,
+      units: [],
+    );
+    catalog.products = const [_product, pZeroStock, pNegStock, _product2];
+
+    final result = await SalesCatalogProductLookup.bindSearch(di)('thuoc');
+
+    expect(result[0].availabilityLabel, 'Tồn 12');
+    expect(result[1].availabilityLabel, 'Hết hàng');
+    expect(result[2].availabilityLabel, 'Hết hàng');
+    expect(result[3].availabilityLabel, isNull);
   });
 
   test('barcode preserves multiple matches and units use focused query', () async {

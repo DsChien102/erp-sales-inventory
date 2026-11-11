@@ -96,6 +96,7 @@ abstract final class SalesCheckoutJson {
       salesOrderVersion: _int(json['salesOrderVersion']),
       status: _checkoutAttemptStatus(_string(json, 'status')),
       blockedCode: json['blockedCode'] as String?,
+      blockedMessage: json['blockedMessage'] as String?,
     );
   }
 

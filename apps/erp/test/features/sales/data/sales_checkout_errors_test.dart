@@ -18,6 +18,7 @@ const _twelve = [
   'CHECKOUT_RESULT_NOT_FOUND',
   'PRICE_CHANGED',
   'PRICING_BLOCKED',
+  'INSUFFICIENT_STOCK',
 ];
 
 PostgrestException _pg(String code, [String message = 'x']) =>

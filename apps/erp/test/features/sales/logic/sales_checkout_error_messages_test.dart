@@ -11,6 +11,7 @@ void main() {
     'PRODUCT_NOT_SELLABLE': 'Sản phẩm đã ngừng bán. Vui lòng quay lại đơn.',
     'PRICE_CHANGED': 'Giá đã thay đổi. Vui lòng quay lại kiểm tra.',
     'PRICING_BLOCKED': 'Sản phẩm này chưa có giá bán.',
+    'INSUFFICIENT_STOCK': 'Không đủ tồn kho để bán.',
     'CHECKOUT_BLOCKED': 'Đơn chưa đủ điều kiện thanh toán.',
   };
   for (final entry in table.entries) {

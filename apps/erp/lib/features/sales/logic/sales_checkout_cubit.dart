@@ -286,6 +286,7 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
               'PRICING_BLOCKED' => 'Không xác định được giá sản phẩm. Vui lòng quay lại đơn.',
               'CUSTOMER_INVALID' => 'Khách hàng không còn hoạt động.',
               'RECEIVABLE_DUE_DATE_INVALID' => 'Ngày hẹn thanh toán không được trước hôm nay.',
+              'INSUFFICIENT_STOCK' => result.blockedMessage ?? 'Không đủ tồn kho để bán.',
               _ => null,
             },
             clearAttemptErrorMessage: result.blockedCode == null,

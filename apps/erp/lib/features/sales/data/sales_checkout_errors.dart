@@ -16,6 +16,7 @@ abstract final class SalesCheckoutErrorCodes {
   static const checkoutResultNotFound = 'CHECKOUT_RESULT_NOT_FOUND';
   static const priceChanged = 'PRICE_CHANGED';
   static const pricingBlocked = 'PRICING_BLOCKED';
+  static const insufficientStock = 'INSUFFICIENT_STOCK';
   static const networkError = 'NETWORK_ERROR'; // AppErrorCode.network
   static const systemError = 'SYSTEM_ERROR';
 }
@@ -33,6 +34,7 @@ const Set<String> _stableCodes = {
   SalesCheckoutErrorCodes.checkoutResultNotFound,
   SalesCheckoutErrorCodes.priceChanged,
   SalesCheckoutErrorCodes.pricingBlocked,
+  SalesCheckoutErrorCodes.insufficientStock,
   SalesCheckoutErrorCodes.networkError,
 };
 

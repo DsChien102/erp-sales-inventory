@@ -195,12 +195,17 @@ void expectPrecheck(CheckoutPrecheckDto dto) {
   expect(dto.receivableRequirement.customerId, 'customer-1');
 }
 
-Map<String, dynamic> checkoutResultJson(String status, {String? blockedCode}) => {
+Map<String, dynamic> checkoutResultJson(
+  String status, {
+  String? blockedCode,
+  String? blockedMessage,
+}) => {
   'idempotencyKey': 'checkout:attempt-1',
   'salesOrderId': status == 'succeeded' ? 'order-1' : '',
   'salesOrderVersion': status == 'succeeded' ? 1 : 0,
   'status': status,
   'blockedCode': ?blockedCode,
+  'blockedMessage': ?blockedMessage,
 };
 
 const checkoutStatuses = {

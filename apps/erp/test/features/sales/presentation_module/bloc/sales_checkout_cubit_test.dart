@@ -355,6 +355,53 @@ void main() {
       await cubit.close();
     });
 
+    test('insufficient stock finalize surfaces custom blockedMessage when provided', () async {
+      final module = FakeSalesCheckoutRepository(precheckResult: _readyResult())
+        ..finalizeResults.add(
+          const CheckoutResultDto(
+            idempotencyKey: 'k',
+            salesOrderId: '',
+            salesOrderVersion: 0,
+            status: CheckoutResultStatus.blocked,
+            blockedCode: 'INSUFFICIENT_STOCK',
+            blockedMessage: 'Thuốc A: chỉ còn 0 hộp bán được.',
+          ),
+        );
+      final cubit = _cubit(module: module);
+
+      await cubit.finalizeCheckout();
+
+      expect(cubit.state.attemptStatus, SalesCheckoutAttemptStatus.blocked);
+      expect(
+        cubit.state.attemptErrorMessage,
+        'Thuốc A: chỉ còn 0 hộp bán được.',
+      );
+      await cubit.close();
+    });
+
+    test('insufficient stock finalize falls back to default message when blockedMessage is null', () async {
+      final module = FakeSalesCheckoutRepository(precheckResult: _readyResult())
+        ..finalizeResults.add(
+          const CheckoutResultDto(
+            idempotencyKey: 'k',
+            salesOrderId: '',
+            salesOrderVersion: 0,
+            status: CheckoutResultStatus.blocked,
+            blockedCode: 'INSUFFICIENT_STOCK',
+          ),
+        );
+      final cubit = _cubit(module: module);
+
+      await cubit.finalizeCheckout();
+
+      expect(cubit.state.attemptStatus, SalesCheckoutAttemptStatus.blocked);
+      expect(
+        cubit.state.attemptErrorMessage,
+        'Không đủ tồn kho để bán.',
+      );
+      await cubit.close();
+    });
+
     test('blocked finalize precheck stops before command', () async {
       final module = FakeSalesCheckoutRepository(precheckResult: _blockedResult());
       final cubit = _cubit(module: module);

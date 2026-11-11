@@ -166,6 +166,8 @@ abstract final class SalesCatalogProductLookup {
 
   static String? _availabilityLabel(int? micros) {
     final quantity = _wholeQuantity(micros);
-    return quantity == null ? null : 'Tồn $quantity';
+    if (quantity == null) return null;
+    if (quantity <= 0) return 'Hết hàng';
+    return 'Tồn $quantity';
   }
 }

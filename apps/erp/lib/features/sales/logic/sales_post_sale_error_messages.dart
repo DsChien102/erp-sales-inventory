@@ -16,6 +16,7 @@ const Map<String, String> _errorMessages = {
   'INVALID_QUANTITY': 'Số lượng không hợp lệ với đơn vị bán.',
   'PRODUCT_NOT_SELLABLE': 'Sản phẩm đã ngừng bán. Vui lòng quay lại đơn.',
   'PRICING_BLOCKED': 'Sản phẩm này chưa có giá bán.',
+  'INSUFFICIENT_STOCK': 'Không đủ tồn kho để đổi hàng.',
   'NETWORK_ERROR': 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.',
 };
 

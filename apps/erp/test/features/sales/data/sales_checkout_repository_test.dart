@@ -84,6 +84,17 @@ void main() {
     expect(dto.blockedCode, 'PRICE_CHANGED');
   });
 
+  test('finalize_blocked_result_carries_blocked_message', () async {
+    rpc.result = checkoutResultJson(
+      'blocked',
+      blockedCode: 'INSUFFICIENT_STOCK',
+      blockedMessage: 'Thuốc A: chỉ còn 0 hộp bán được.',
+    );
+    final dto = await repo.finalize(_request());
+    expect(dto.blockedCode, 'INSUFFICIENT_STOCK');
+    expect(dto.blockedMessage, 'Thuốc A: chỉ còn 0 hộp bán được.');
+  });
+
   test('finalize_network_error_is_uncertain', () async {
     rpc.error = const AppException('NETWORK_ERROR');
     await expectLater(
