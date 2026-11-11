@@ -577,6 +577,8 @@ declare
   v_sol_id uuid;
   v_ex_line_id uuid;
   v_rx_line record;
+  v_lookup jsonb;
+  v_avail_micros bigint;
 begin
   -- 1. Setup tenant & permissions
   insert into auth.users (id, instance_id, aud, role, email, raw_app_meta_data, raw_user_meta_data, email_confirmed_at, created_at, updated_at)
@@ -890,7 +892,41 @@ begin
 
   perform public._assert_inventory_invariants(v_t, v_pa, 'S8');
 
-  raise notice 'inventory_sales_link Task 2 (S1-S8): OK';
+  -- -------------------------------------------------------------------------
+  -- S10: Catalog lookups read ledger available stock
+  -- -------------------------------------------------------------------------
+  -- 1) search_sellable_products
+  v_lookup := catalog.search_sellable_products(v_t, v_store, 'SP_A');
+  v_avail_micros := (v_lookup -> 'items' -> 0 ->> 'available_stock_micros')::bigint;
+  if v_avail_micros <> (v_bal2 * 1000000)::bigint then
+    raise exception 'FAIL [S10]: search_sellable_products available_stock_micros expected %, got %',
+      (v_bal2 * 1000000)::bigint, v_avail_micros;
+  end if;
+
+  -- 2) resolve_sellable_products
+  v_lookup := catalog.resolve_sellable_products(v_t, v_store, array[v_pa]);
+  v_avail_micros := (v_lookup -> 'items' -> 0 ->> 'available_stock_micros')::bigint;
+  if v_avail_micros <> (v_bal2 * 1000000)::bigint then
+    raise exception 'FAIL [S10]: resolve_sellable_products available_stock_micros expected %, got %',
+      (v_bal2 * 1000000)::bigint, v_avail_micros;
+  end if;
+
+  -- 3) list_sellable_product_units
+  v_lookup := catalog.list_sellable_product_units(v_t, v_store, v_pa);
+  v_avail_micros := (v_lookup -> 'units' -> 0 ->> 'available_stock_micros')::bigint;
+  if v_avail_micros <> (v_bal2 * 1000000)::bigint then
+    raise exception 'FAIL [S10]: list_sellable_product_units available_stock_micros expected %, got %',
+      (v_bal2 * 1000000)::bigint, v_avail_micros;
+  end if;
+
+  -- 4) SP_D out of stock -> 0
+  v_lookup := catalog.resolve_sellable_products(v_t, v_store, array[v_pd]);
+  v_avail_micros := (v_lookup -> 'items' -> 0 ->> 'available_stock_micros')::bigint;
+  if v_avail_micros <> 0 then
+    raise exception 'FAIL [S10]: SP_D out of stock expected 0, got %', v_avail_micros;
+  end if;
+
+  raise notice 'inventory_sales_link Task 2 & Task 3 (S1-S10): OK';
 end;
 $$;
 

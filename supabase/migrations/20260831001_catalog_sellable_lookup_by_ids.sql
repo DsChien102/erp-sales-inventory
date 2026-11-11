@@ -17,7 +17,7 @@ returns jsonb
 language plpgsql
 stable
 security definer
-set search_path = catalog, iam, pg_temp
+set search_path = catalog, iam, inventory, pg_temp
 as $$
 begin
   if auth.uid() is null then
@@ -111,13 +111,8 @@ begin
                 'list_price_minor', product_price.list_price_minor,
                 'floor_price_minor', product_price.floor_price_minor,
                 'available_stock_micros', (
-                  select case
-                    when sp.basic_stock_quantity_base is null then null
-                    else (trunc(sp.basic_stock_quantity_base) * 1000000)::bigint
-                  end
-                  from catalog.product_stock_profiles sp
-                  where sp.product_id = resolved.id
-                    and sp.tenant_id = resolved.tenant_id
+                  select (trunc(coalesce(sr.available, 0)) * 1000000)::bigint
+                  from inventory._product_stock_rows(p_tenant_id, array[resolved.id]) sr
                   limit 1
                 ),
                 'units', units.units
@@ -170,10 +165,9 @@ begin
             'list_price_minor', pb.list_price_after_vat::bigint,
             'floor_price_minor', pb.floor_price_after_vat::bigint,
             'available_stock_micros', case
-              when sp.basic_stock_quantity_base is null then null
               when coalesce(pu.conversion_rate_to_base, 0) <= 0 then null
               else (
-                trunc(sp.basic_stock_quantity_base / pu.conversion_rate_to_base)
+                trunc(coalesce(sr.available, 0) / pu.conversion_rate_to_base)
                 * 1000000
               )::bigint
             end
@@ -190,9 +184,8 @@ begin
        and pb.status = 'active'
        and pb.effective_from <= now()
        and (pb.effective_to is null or pb.effective_to > now())
-      left join catalog.product_stock_profiles sp
-        on sp.product_id = resolved.id
-       and sp.tenant_id = resolved.tenant_id
+      left join inventory._product_stock_rows(p_tenant_id, array[resolved.id]) sr
+        on sr.product_id = resolved.id
       where pu.tenant_id = p_tenant_id
         and pu.product_id = resolved.id
         and pu.is_active = true

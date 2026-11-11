@@ -9,6 +9,8 @@ void main() {
   late String salesCheckoutRpcsSql;
   late String salesBuyerInvoiceSql;
   late String salesNormalizeSql;
+  late String catalogSalesLookupSql;
+  late String catalogSellableByIdsSql;
 
   setUpAll(() {
     final repoRoot = _findRepoRoot();
@@ -47,6 +49,18 @@ void main() {
     );
     expect(salesNormalizeFile.existsSync(), isTrue, reason: '20260904001 migration must exist');
     salesNormalizeSql = salesNormalizeFile.readAsStringSync();
+
+    final catalogLookupFile = File(
+      '${repoRoot.path}/supabase/migrations/20260830002_catalog_sales_sellable_lookup_group_a.sql',
+    );
+    expect(catalogLookupFile.existsSync(), isTrue, reason: '20260830002 migration must exist');
+    catalogSalesLookupSql = catalogLookupFile.readAsStringSync();
+
+    final catalogByIdsFile = File(
+      '${repoRoot.path}/supabase/migrations/20260831001_catalog_sellable_lookup_by_ids.sql',
+    );
+    expect(catalogByIdsFile.existsSync(), isTrue, reason: '20260831001 migration must exist');
+    catalogSellableByIdsSql = catalogByIdsFile.readAsStringSync();
   });
 
   group('inventory_sales_link SQL contract - Task 1', () {
@@ -162,6 +176,16 @@ void main() {
       ]) {
         expect(salesSchemaSql, contains(col), reason: 'Column $col must exist in sales schema rebuild');
       }
+    });
+  });
+
+  group('inventory_sales_link SQL contract - Task 3', () {
+    test('catalog_lookups_use_inventory_stock_rows', () {
+      expect(catalogSalesLookupSql, contains('inventory._product_stock_rows('));
+      expect(catalogSalesLookupSql, isNot(contains('catalog.product_stock_profiles')));
+
+      expect(catalogSellableByIdsSql, contains('inventory._product_stock_rows('));
+      expect(catalogSellableByIdsSql, isNot(contains('catalog.product_stock_profiles')));
     });
   });
 }

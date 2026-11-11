@@ -14,7 +14,7 @@ returns jsonb
 language plpgsql
 stable
 security definer
-set search_path = catalog, iam, extensions, pg_temp
+set search_path = catalog, iam, inventory, extensions, pg_temp
 as $$
 declare
   v_keyword text := nullif(
@@ -84,13 +84,8 @@ begin
             'list_price_minor', product_price.list_price_minor,
             'floor_price_minor', product_price.floor_price_minor,
             'available_stock_micros', (
-              select case
-                when sp.basic_stock_quantity_base is null then null
-                else (trunc(sp.basic_stock_quantity_base) * 1000000)::bigint
-              end
-              from catalog.product_stock_profiles sp
-              where sp.product_id = p.id
-                and sp.tenant_id = p.tenant_id
+              select (trunc(coalesce(sr.available, 0)) * 1000000)::bigint
+              from inventory._product_stock_rows(p_tenant_id, array[p.id]) sr
               limit 1
             ),
             'units', units.units
@@ -141,10 +136,9 @@ begin
             'list_price_minor', pb.list_price_after_vat::bigint,
             'floor_price_minor', pb.floor_price_after_vat::bigint,
             'available_stock_micros', case
-              when sp.basic_stock_quantity_base is null then null
               when coalesce(pu.conversion_rate_to_base, 0) <= 0 then null
               else (
-                trunc(sp.basic_stock_quantity_base / pu.conversion_rate_to_base)
+                trunc(coalesce(sr.available, 0) / pu.conversion_rate_to_base)
                 * 1000000
               )::bigint
             end
@@ -161,9 +155,8 @@ begin
        and pb.status = 'active'
        and pb.effective_from <= now()
        and (pb.effective_to is null or pb.effective_to > now())
-      left join catalog.product_stock_profiles sp
-        on sp.product_id = p.id
-       and sp.tenant_id = p.tenant_id
+      left join inventory._product_stock_rows(p_tenant_id, array[p.id]) sr
+        on sr.product_id = p.id
       where pu.tenant_id = p_tenant_id
         and pu.product_id = p.id
         and pu.is_active = true
@@ -242,13 +235,8 @@ begin
             'list_price_minor', product_price.list_price_minor,
             'floor_price_minor', product_price.floor_price_minor,
             'available_stock_micros', (
-              select case
-                when sp.basic_stock_quantity_base is null then null
-                else (trunc(sp.basic_stock_quantity_base) * 1000000)::bigint
-              end
-              from catalog.product_stock_profiles sp
-              where sp.product_id = p.id
-                and sp.tenant_id = p.tenant_id
+              select (trunc(coalesce(sr.available, 0)) * 1000000)::bigint
+              from inventory._product_stock_rows(p_tenant_id, array[p.id]) sr
               limit 1
             ),
             'units', units.units
@@ -299,10 +287,9 @@ begin
             'list_price_minor', pb.list_price_after_vat::bigint,
             'floor_price_minor', pb.floor_price_after_vat::bigint,
             'available_stock_micros', case
-              when sp.basic_stock_quantity_base is null then null
               when coalesce(pu.conversion_rate_to_base, 0) <= 0 then null
               else (
-                trunc(sp.basic_stock_quantity_base / pu.conversion_rate_to_base)
+                trunc(coalesce(sr.available, 0) / pu.conversion_rate_to_base)
                 * 1000000
               )::bigint
             end
@@ -319,9 +306,8 @@ begin
        and pb.status = 'active'
        and pb.effective_from <= now()
        and (pb.effective_to is null or pb.effective_to > now())
-      left join catalog.product_stock_profiles sp
-        on sp.product_id = p.id
-       and sp.tenant_id = p.tenant_id
+      left join inventory._product_stock_rows(p_tenant_id, array[p.id]) sr
+        on sr.product_id = p.id
       where pu.tenant_id = p_tenant_id
         and pu.product_id = p.id
         and pu.is_active = true
@@ -383,10 +369,9 @@ begin
             'list_price_minor', pb.list_price_after_vat::bigint,
             'floor_price_minor', pb.floor_price_after_vat::bigint,
             'available_stock_micros', case
-              when sp.basic_stock_quantity_base is null then null
               when coalesce(pu.conversion_rate_to_base, 0) <= 0 then null
               else (
-                trunc(sp.basic_stock_quantity_base / pu.conversion_rate_to_base)
+                trunc(coalesce(sr.available, 0) / pu.conversion_rate_to_base)
                 * 1000000
               )::bigint
             end
@@ -407,9 +392,8 @@ begin
      and pb.status = 'active'
      and pb.effective_from <= now()
      and (pb.effective_to is null or pb.effective_to > now())
-    left join catalog.product_stock_profiles sp
-      on sp.product_id = p.id
-     and sp.tenant_id = p.tenant_id
+    left join inventory._product_stock_rows(p_tenant_id, array[p.id]) sr
+      on sr.product_id = p.id
     where p.id = p_product_id
       and p.tenant_id = p_tenant_id
       and p.business_status = 'active'::catalog.product_business_status
