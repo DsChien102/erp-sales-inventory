@@ -175,6 +175,10 @@ create table if not exists sales.sales_order_lines (
   product_unit_snapshot jsonb not null,
   pricing_snapshot jsonb not null default '{}'::jsonb,           -- nguồn giá lúc chốt (tra cứu, không dùng tính tiền)
   line_note text,
+  cogs_amount_vnd bigint,
+  cogs_unit_cost numeric(18,4),
+  cost_version_id uuid,
+  cogs_is_provisional boolean,
   created_at timestamptz not null default now(),
   constraint sales_order_lines_seq_unique unique (sales_order_id, line_sequence), -- FC-06
   constraint sales_order_lines_qty_positive check (quantity_micros > 0),          -- FC-13
@@ -360,6 +364,10 @@ create table if not exists sales.return_exchange_lines (
   unit_value_minor bigint not null,
   return_reason_code varchar(50),
   return_condition_code varchar(50),
+  cogs_amount_vnd bigint,
+  cogs_unit_cost numeric(18,4),
+  cost_version_id uuid,
+  cogs_is_provisional boolean,
   product_snapshot jsonb not null,
   product_unit_snapshot jsonb not null,
   created_at timestamptz not null default now(),
@@ -459,6 +467,17 @@ create table if not exists sales.sales_receipt_activities (
 -- Every statement below must be idempotent. Add new schema changes in BOTH the
 -- create-table block (for fresh installs) and here (for existing databases).
 -- ===========================================================================
+alter table sales.sales_order_lines
+  add column if not exists cogs_amount_vnd bigint,
+  add column if not exists cogs_unit_cost numeric(18,4),
+  add column if not exists cost_version_id uuid,
+  add column if not exists cogs_is_provisional boolean;
+
+alter table sales.return_exchange_lines
+  add column if not exists cogs_amount_vnd bigint,
+  add column if not exists cogs_unit_cost numeric(18,4),
+  add column if not exists cost_version_id uuid,
+  add column if not exists cogs_is_provisional boolean;
 
 -- ===========================================================================
 -- Access control — writes go through RPCs (Phase B), never direct DML.

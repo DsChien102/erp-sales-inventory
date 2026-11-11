@@ -231,6 +231,7 @@ declare
   v_orig_line uuid;
   v_unit_id uuid;
   v_msg text;
+  v_wh uuid;
 begin
   -- 0) Tenant + owner + JWT (như pricing_th04.sql)
   insert into auth.users (
@@ -307,6 +308,38 @@ begin
     update catalog.products set is_ready_to_sell = true where id in (v_p1, v_p2);
     raise notice 'sales_th05: is_ready_to_sell phải bật tay cho P1/P2';
   end if;
+
+  -- Kho và tồn kho ban đầu cho store
+  perform inventory.ensure_default_store_warehouse_pair(v_ta, gen_random_uuid());
+  select warehouse_id into v_wh
+  from inventory.store_warehouse_assignments
+  where tenant_id = v_ta and store_id = v_store and status = 'active'
+  limit 1;
+
+  perform inventory._post_movements(
+    v_ta,
+    v_wh,
+    'TEST_SETUP',
+    gen_random_uuid(),
+    v_today,
+    jsonb_build_array(
+      jsonb_build_object(
+        'product_id', v_p1,
+        'movement_kind', 'RECEIPT',
+        'quantity_delta', 1000000,
+        'unit_cost', 50000,
+        'amount_vnd', 50000000000
+      ),
+      jsonb_build_object(
+        'product_id', v_p2,
+        'movement_kind', 'RECEIPT',
+        'quantity_delta', 1000000,
+        'unit_cost', 70000,
+        'amount_vnd', 70000000000
+      )
+    ),
+    v_ua
+  );
   set local role authenticated;
 
   -- Khách

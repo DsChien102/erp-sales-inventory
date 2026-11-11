@@ -29,7 +29,7 @@ create or replace function sales.finalize_sales_order(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = sales, iam, public, pg_temp
+set search_path = sales, iam, inventory, catalog, public, pg_temp
 as $$
 declare
   v_decision jsonb;
@@ -70,6 +70,10 @@ declare
   v_request_hash text;
   v_error text;
   v_error_code text;
+  v_error_msg text;
+  v_stock_issue_input jsonb := '[]'::jsonb;
+  v_stock_issue_res jsonb;
+  v_issue_line jsonb;
 begin
   perform sales._assert_sales_actor(p_tenant_id, p_actor_id, p_store_id, 'sales.checkout.create');
 
@@ -546,6 +550,35 @@ begin
       );
     end loop;
 
+    -- Issue stock FEFO for sale order lines and persist COGS snapshot
+    for v_line in select * from jsonb_array_elements(v_persisted_line_inputs) loop
+      v_stock_issue_input := v_stock_issue_input || jsonb_build_array(jsonb_build_object(
+        'line_id', (v_line ->> 'lineId')::uuid,
+        'product_id', (v_line ->> 'product_id')::uuid,
+        'base_qty', (v_line ->> 'base_quantity_micros')::numeric / 1000000.0
+      ));
+    end loop;
+
+    v_stock_issue_res := inventory._issue_for_sale(
+      p_tenant_id,
+      p_store_id,
+      'SALES_ORDER',
+      v_order_id,
+      v_stock_issue_input,
+      p_actor_id
+    );
+
+    for v_issue_line in select * from jsonb_array_elements(coalesce(v_stock_issue_res -> 'lines', '[]'::jsonb)) loop
+      update sales.sales_order_lines
+      set cogs_amount_vnd = (v_issue_line ->> 'cogs_amount_vnd')::bigint,
+          cogs_unit_cost = (v_issue_line ->> 'cogs_unit_cost')::numeric,
+          cost_version_id = nullif(v_issue_line ->> 'cost_version_id', '')::uuid,
+          cogs_is_provisional = coalesce((v_issue_line ->> 'cogs_is_provisional')::boolean, false)
+      where tenant_id = p_tenant_id
+        and sales_order_id = v_order_id
+        and id = (v_issue_line ->> 'line_id')::uuid;
+    end loop;
+
     insert into sales.sales_order_settlements(
       id, tenant_id, sales_order_id, currency_code, original_payable_amount_minor,
       post_sale_adjustment_amount_minor, current_payable_amount_minor, collected_amount_minor,
@@ -648,8 +681,10 @@ begin
     v_error := sqlerrm;
     begin
       v_error_code := coalesce((v_error::jsonb) ->> 'code', 'CHECKOUT_FAILED');
+      v_error_msg := (v_error::jsonb) ->> 'message';
     exception when others then
       v_error_code := 'CHECKOUT_FAILED';
+      v_error_msg := null;
     end;
 
     v_result := jsonb_build_object(
@@ -661,13 +696,19 @@ begin
           'CHECKOUT_BLOCKED', 'STALE_VERSION', 'CONTEXT_INVALID',
           'PRODUCT_NOT_SELLABLE', 'RECEIVABLE_DUE_DATE_REQUIRED',
           'PRICE_CHANGED', 'PRICING_BLOCKED', 'CUSTOMER_INVALID',
-          'RECEIVABLE_DUE_DATE_INVALID'
+          'RECEIVABLE_DUE_DATE_INVALID', 'INSUFFICIENT_STOCK'
         ) then 'blocked'
         else 'failed'
       end
     );
     if v_result ->> 'status' = 'blocked' then
-      v_result := v_result || jsonb_build_object('blockedCode', v_error_code);
+      v_result := v_result || jsonb_build_object(
+        'blockedCode', v_error_code,
+        'blockedMessage', case
+          when v_error_code = 'INSUFFICIENT_STOCK' then coalesce(v_error_msg, 'Không đủ tồn kho để bán.')
+          else null
+        end
+      );
     end if;
 
     if v_error_code in (

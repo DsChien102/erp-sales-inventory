@@ -27,7 +27,7 @@ create or replace function sales.record_sales_payment(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = sales, iam, public, pg_temp
+set search_path = sales, iam, inventory, public, pg_temp
 as $$
 declare
   v_decision jsonb;
@@ -168,7 +168,7 @@ create or replace function sales.record_sales_refund(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = sales, iam, public, pg_temp
+set search_path = sales, iam, inventory, public, pg_temp
 as $$
 declare
   v_decision jsonb;
@@ -342,7 +342,7 @@ create or replace function sales.confirm_sales_order_cancellation(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = sales, iam, public, pg_temp
+set search_path = sales, iam, inventory, public, pg_temp
 as $$
 declare
   v_order sales.sales_orders%rowtype;
@@ -569,6 +569,25 @@ begin
   where id = confirm_sales_order_cancellation.sales_order_id
     and sales_orders.tenant_id = confirm_sales_order_cancellation.tenant_id;
 
+  -- Reverse sale in inventory ledger
+  perform inventory._reverse_sale(
+    confirm_sales_order_cancellation.tenant_id,
+    v_order.store_id,
+    'SALES_CANCELLATION',
+    v_inserted.id,
+    (
+      select jsonb_agg(jsonb_build_object(
+        'line_id', sol.id,
+        'product_id', sol.product_id,
+        'base_qty', sol.base_quantity_micros::numeric / 1000000.0
+      ))
+      from sales.sales_order_lines sol
+      where sol.tenant_id = confirm_sales_order_cancellation.tenant_id
+        and sol.sales_order_id = v_order.id
+    ),
+    confirm_sales_order_cancellation.actor_id
+  );
+
   -- B4b: huy don -> triet tieu nghia vu con lai (current_payable -> 0), mot lan/nguon
   -- (source_id = cancellation). Giu nguyen tien thuong mai goc; chi doi nghia vu.
   if v_settlement.id is not null then
@@ -668,7 +687,7 @@ create or replace function sales.confirm_return_exchange(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = sales, iam, public, pg_temp
+set search_path = sales, iam, inventory, public, pg_temp
 as $$
 #variable_conflict use_column
 declare
@@ -708,6 +727,8 @@ declare
   v_sold_base_micros bigint;
   v_returned_base_micros bigint;
   v_return_status text;
+  v_exchange_issue_res jsonb;
+  v_ex_issue_line jsonb;
 begin
   if tenant_id is null
     or nullif(btrim(idempotency_key), '') is null then
@@ -1160,6 +1181,61 @@ begin
   update sales.return_exchange_valuations
   set status = 'confirmed'
   where id = v_valuation.id;
+
+  -- Reverse sale for returned lines
+  if v_has_returned then
+    perform inventory._reverse_sale(
+      confirm_return_exchange.tenant_id,
+      v_order.store_id,
+      'SALES_RETURN',
+      v_session.id,
+      (
+        select jsonb_agg(jsonb_build_object(
+          'line_id', coalesce(rl.original_sales_order_line_id, rl.source_exchange_line_id, rl.id),
+          'product_id', rl.product_id,
+          'base_qty', rl.base_quantity_micros::numeric / 1000000.0
+        ))
+        from sales.return_exchange_lines rl
+        where rl.tenant_id = confirm_return_exchange.tenant_id
+          and rl.return_exchange_order_id = v_session.id
+          and rl.line_role = 'returned'
+      ),
+      confirm_return_exchange.actor_id
+    );
+  end if;
+
+  -- Issue stock FEFO for exchange lines
+  if v_has_exchange then
+    v_exchange_issue_res := inventory._issue_for_sale(
+      confirm_return_exchange.tenant_id,
+      v_order.store_id,
+      'EXCHANGE',
+      v_session.id,
+      (
+        select jsonb_agg(jsonb_build_object(
+          'line_id', rl.id,
+          'product_id', rl.product_id,
+          'base_qty', rl.base_quantity_micros::numeric / 1000000.0
+        ))
+        from sales.return_exchange_lines rl
+        where rl.tenant_id = confirm_return_exchange.tenant_id
+          and rl.return_exchange_order_id = v_session.id
+          and rl.line_role = 'exchange'
+      ),
+      confirm_return_exchange.actor_id
+    );
+
+    for v_ex_issue_line in select * from jsonb_array_elements(coalesce(v_exchange_issue_res -> 'lines', '[]'::jsonb)) loop
+      update sales.return_exchange_lines
+      set cogs_amount_vnd = (v_ex_issue_line ->> 'cogs_amount_vnd')::bigint,
+          cogs_unit_cost = (v_ex_issue_line ->> 'cogs_unit_cost')::numeric,
+          cost_version_id = nullif(v_ex_issue_line ->> 'cost_version_id', '')::uuid,
+          cogs_is_provisional = coalesce((v_ex_issue_line ->> 'cogs_is_provisional')::boolean, false)
+      where tenant_id = confirm_return_exchange.tenant_id
+        and return_exchange_order_id = v_session.id
+        and id = (v_ex_issue_line ->> 'line_id')::uuid;
+    end loop;
+  end if;
 
   -- Auto-settle remainders in the same transaction via settle helper.
   -- Set confirmation_context GUC so settle skips payment/refund permission.

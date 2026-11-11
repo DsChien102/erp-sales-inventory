@@ -22,7 +22,7 @@ create or replace function sales.precheck_sales_order_checkout(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = sales, iam, public, pg_temp
+set search_path = sales, iam, inventory, catalog, public, pg_temp
 as $$
 declare
   v_blockers jsonb := '[]'::jsonb;
@@ -36,6 +36,12 @@ declare
   v_payment jsonb;
   v_payment_count integer := 0;
   v_today date := (now() at time zone 'Asia/Ho_Chi_Minh')::date;
+  v_stock_lines jsonb := '[]'::jsonb;
+  v_unit_name text;
+  v_conversion_rate numeric;
+  v_base_numeric numeric;
+  v_shortages jsonb := '[]'::jsonb;
+  v_shortage_elem jsonb;
 begin
   perform sales._assert_sales_actor(p_tenant_id, p_actor_id, p_store_id, 'sales.checkout.create');
 
@@ -100,7 +106,8 @@ begin
           'field', 'lines'
         ));
       else
-        perform 1
+        select pu.unit_name, pu.conversion_rate_to_base
+        into v_unit_name, v_conversion_rate
         from catalog.products p
         join catalog.product_units pu
           on pu.tenant_id = p.tenant_id
@@ -122,9 +129,29 @@ begin
           v_grand_total_minor := v_grand_total_minor
             + ((v_line -> 'unit_price' ->> 'amount_minor')::bigint
               * (v_line ->> 'quantity_micros')::bigint / 1000000);
+
+          v_base_numeric := ((v_line ->> 'quantity_micros')::numeric / 1000000.0) * coalesce(v_conversion_rate, 1);
+          v_stock_lines := v_stock_lines || jsonb_build_array(jsonb_build_object(
+            'line_id', coalesce(v_line ->> 'line_id', v_line ->> 'lineId', 'lines[' || (v_line_index - 1)::text || ']'),
+            'product_id', trim(v_line ->> 'product_id')::uuid,
+            'base_qty', v_base_numeric,
+            'unit_name', coalesce(v_unit_name, ''),
+            'conversion_rate', coalesce(v_conversion_rate, 1)
+          ));
         end if;
       end if;
     end loop;
+
+    if jsonb_array_length(v_stock_lines) > 0 then
+      v_shortages := inventory._stock_shortages(p_tenant_id, v_stock_lines);
+      for v_shortage_elem in select * from jsonb_array_elements(v_shortages) loop
+        v_blockers := v_blockers || jsonb_build_array(jsonb_build_object(
+          'code', 'INSUFFICIENT_STOCK',
+          'message', v_shortage_elem ->> 'message',
+          'field', coalesce(v_shortage_elem ->> 'line_id', 'lines')
+        ));
+      end loop;
+    end if;
   end if;
 
   if jsonb_typeof(coalesce(p_payment_intents, '[]'::jsonb)) = 'array' then

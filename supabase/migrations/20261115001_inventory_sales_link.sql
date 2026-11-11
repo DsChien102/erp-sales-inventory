@@ -394,8 +394,7 @@ begin
     from jsonb_array_elements(p_lines) elem
     join inventory.stock_movements m
       on m.tenant_id = p_tenant_id
-     and m.intent_type = (elem->>'source_intent_type')
-     and m.intent_line_id = (elem->>'source_intent_line_id')::uuid
+     and m.intent_line_id = coalesce((elem->>'source_intent_line_id')::uuid, (elem->>'line_id')::uuid)
      and m.movement_kind = 'SALE'
     order by m.product_id asc
   ) loop
@@ -405,15 +404,18 @@ begin
   -- (2) Allocation per line
   for v_line_elem in select * from jsonb_array_elements(p_lines) loop
     v_line_id := (v_line_elem->>'line_id')::uuid;
+    v_src_line_id := coalesce(
+      (v_line_elem->>'source_intent_line_id')::uuid,
+      (v_line_elem->>'line_id')::uuid
+    );
     v_src_type := v_line_elem->>'source_intent_type';
-    v_src_line_id := (v_line_elem->>'source_intent_line_id')::uuid;
     v_need_qty := (v_line_elem->>'base_qty')::numeric;
 
     if not exists (
       select 1
       from inventory.stock_movements m
       where m.tenant_id = p_tenant_id
-        and m.intent_type = v_src_type
+        and (v_src_type is null or m.intent_type = v_src_type)
         and m.intent_line_id = v_src_line_id
         and m.movement_kind = 'SALE'
     ) then
@@ -432,7 +434,7 @@ begin
       group by vm_rev.source_movement_id
     ) rev on rev.source_movement_id = m.id
     where m.tenant_id = p_tenant_id
-      and m.intent_type = v_src_type
+      and (v_src_type is null or m.intent_type = v_src_type)
       and m.intent_line_id = v_src_line_id
       and m.movement_kind = 'SALE';
 
@@ -458,7 +460,7 @@ begin
         group by vm_rev.source_movement_id
       ) rev on rev.source_movement_id = m.id
       where m.tenant_id = p_tenant_id
-        and m.intent_type = v_src_type
+        and (v_src_type is null or m.intent_type = v_src_type)
         and m.intent_line_id = v_src_line_id
         and m.movement_kind = 'SALE'
       order by inventory._lot_expiry_end(l.expiry_date, l.expiry_precision) desc nulls first, m.ledger_sequence desc
