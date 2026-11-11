@@ -34,7 +34,7 @@ begin
 
   insert into iam.memberships (tenant_id, user_id, role, is_owner)
   values
-    (v_tenant_id, v_user_id, 'owner', true),
+    (v_tenant_id, v_user_id, 'store_owner', true),
     (v_tenant_id, v_staff_id, 'staff', false);
 
   insert into iam.stores (id, tenant_id, code, display_name, status)
@@ -50,8 +50,8 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', v_user_id::text, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', v_user_id::text, true);
 
-  insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required)
-  values (v_product_id, v_tenant_id, 'Sản phẩm test', v_user_id, v_user_id, 'none', false);
+  insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required, reference_id)
+  values (v_product_id, v_tenant_id, 'Sản phẩm test', v_user_id, v_user_id, 'none', false, 'REF-' || (v_product_id)::text);
 
   -- 1. Test case: ledger_update_blocked (sử dụng _next_ledger_sequence tránh đụng sequence)
   v_seq := inventory._next_ledger_sequence(v_tenant_id);
@@ -106,8 +106,8 @@ begin
   declare
     v_product_no_movement uuid := gen_random_uuid();
   begin
-    insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required)
-    values (v_product_no_movement, v_tenant_id, 'SP chưa có biến động', v_user_id, v_user_id, 'none', false);
+    insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required, reference_id)
+    values (v_product_no_movement, v_tenant_id, 'SP chưa có biến động', v_user_id, v_user_id, 'none', false, 'REF-' || (v_product_no_movement)::text);
 
     update catalog.products
     set tracking_mode = 'lot'
@@ -203,7 +203,7 @@ begin
     insert into iam.tenants (id, display_name)
     values (v_no_assign_tenant, 'Tenant No Assign');
     insert into iam.memberships (tenant_id, user_id, role, is_owner)
-    values (v_no_assign_tenant, v_user_id, 'owner', true);
+    values (v_no_assign_tenant, v_user_id, 'store_owner', false); -- mỗi user chỉ làm chủ 1 tenant (memberships_one_owned_tenant_per_user_uidx)
 
     v_caught := false;
     begin
@@ -293,8 +293,8 @@ begin
     v_nobi_per_id uuid := gen_random_uuid();
     v_period_id uuid;
   begin
-    insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required)
-    values (v_nobi_id, v_tenant_id, 'Nobivac DHPPi Moving', v_user_id, v_user_id, 'none', false);
+    insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required, reference_id)
+    values (v_nobi_id, v_tenant_id, 'Nobivac DHPPi Moving', v_user_id, v_user_id, 'none', false, 'REF-' || (v_nobi_id)::text);
 
     -- 13. Nobivac Bước 1: Nhập 100 × 10.000 (MOVING)
     v_res := inventory._post_movements(
@@ -441,8 +441,8 @@ begin
       end if;
 
       -- Trỏ nhầm sang sản phẩm khác -> phải ném CONTEXT_INVALID
-      insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required)
-      values (v_other_prod, v_tenant_id, 'SP Khác Trỏ Nhầm', v_user_id, v_user_id, 'none', false);
+      insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required, reference_id)
+      values (v_other_prod, v_tenant_id, 'SP Khác Trỏ Nhầm', v_user_id, v_user_id, 'none', false, 'REF-' || (v_other_prod)::text);
 
       v_caught := false;
       begin
@@ -491,8 +491,8 @@ begin
     declare
       v_empty_prod uuid := gen_random_uuid();
     begin
-      insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required)
-      values (v_empty_prod, v_tenant_id, 'SP Trống Kiểm Kê', v_user_id, v_user_id, 'none', false);
+      insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required, reference_id)
+      values (v_empty_prod, v_tenant_id, 'SP Trống Kiểm Kê', v_user_id, v_user_id, 'none', false, 'REF-' || (v_empty_prod)::text);
 
       v_caught := false;
       begin
@@ -725,8 +725,8 @@ begin
     v_res jsonb;
     v_lot_id1 uuid;
   begin
-    insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required)
-    values (v_prod_lot, v_tenant_id, 'Hàng theo lô test', v_user_id, v_user_id, 'lot', false);
+    insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required, reference_id)
+    values (v_prod_lot, v_tenant_id, 'Hàng theo lô test', v_user_id, v_user_id, 'lot', false, 'REF-' || (v_prod_lot)::text);
 
     -- 27. post_movements_lot_required (Sản phẩm lot nhưng không truyền lô)
     v_caught := false;
@@ -774,8 +774,8 @@ begin
     end if;
 
     -- 29. post_movements_expiry_required (Sản phẩm expiry_required nhưng thiếu hạn dùng)
-    insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required)
-    values (v_prod_exp, v_tenant_id, 'Hàng bắt buộc date', v_user_id, v_user_id, 'lot', true);
+    insert into catalog.products (id, tenant_id, name, created_by, updated_by, tracking_mode, expiry_required, reference_id)
+    values (v_prod_exp, v_tenant_id, 'Hàng bắt buộc date', v_user_id, v_user_id, 'lot', true, 'REF-' || (v_prod_exp)::text);
 
     v_caught := false;
     begin
@@ -999,7 +999,7 @@ begin
     values (v_empty_tenant, 'Empty Tenant');
 
     insert into iam.memberships (tenant_id, user_id, role, is_owner)
-    values (v_empty_tenant, v_user_id, 'owner', true);
+    values (v_empty_tenant, v_user_id, 'store_owner', false); -- mỗi user chỉ làm chủ 1 tenant (memberships_one_owned_tenant_per_user_uidx)
 
     insert into iam.stores (id, tenant_id, code, display_name, status)
     values (v_empty_store, v_empty_tenant, 'STORE_EMPTY', 'Cửa hàng trống', 'active');

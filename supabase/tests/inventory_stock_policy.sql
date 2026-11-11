@@ -45,7 +45,7 @@ begin
 
   insert into iam.memberships (tenant_id, user_id, role, is_owner)
   values
-    (v_tenant_id, v_owner_id, 'owner', true),
+    (v_tenant_id, v_owner_id, 'store_owner', true),
     (v_tenant_id, v_staff_id, 'staff', false);
 
   insert into iam.stores (id, tenant_id, code, display_name, status)
@@ -58,12 +58,12 @@ begin
   values (v_tenant_id, v_store_id, v_warehouse_id, 'active');
 
   -- Products
-  insert into catalog.products (id, tenant_id, name, sku, created_by, updated_by, tracking_mode, expiry_required)
+  insert into catalog.products (id, tenant_id, name, sku, created_by, updated_by, tracking_mode, expiry_required, reference_id)
   values
-    (v_p1_id, v_tenant_id, 'Nobivac DHPPi', 'NOBI', v_owner_id, v_owner_id, 'lot', true),
-    (v_p2_id, v_tenant_id, 'Amoxicillin 500', 'AMOX', v_owner_id, v_owner_id, 'lot', true),
-    (v_p3_id, v_tenant_id, 'Tylosin 200', 'TYLO', v_owner_id, v_owner_id, 'lot', true),
-    (v_p_none_id, v_tenant_id, 'Bông gạc y tế', 'BONG', v_owner_id, v_owner_id, 'none', false);
+    (v_p1_id, v_tenant_id, 'Nobivac DHPPi', 'NOBI', v_owner_id, v_owner_id, 'lot', true, 'REF-' || (v_p1_id)::text),
+    (v_p2_id, v_tenant_id, 'Amoxicillin 500', 'AMOX', v_owner_id, v_owner_id, 'lot', true, 'REF-' || (v_p2_id)::text),
+    (v_p3_id, v_tenant_id, 'Tylosin 200', 'TYLO', v_owner_id, v_owner_id, 'lot', true, 'REF-' || (v_p3_id)::text),
+    (v_p_none_id, v_tenant_id, 'Bông gạc y tế', 'BONG', v_owner_id, v_owner_id, 'none', false, 'REF-' || (v_p_none_id)::text);
 
   -- Set session to owner
   perform set_config('request.jwt.claims', json_build_object('sub', v_owner_id::text, 'role', 'authenticated')::text, true);

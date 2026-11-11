@@ -47,7 +47,7 @@ begin
 
   insert into iam.memberships (tenant_id, user_id, role, is_owner)
   values
-    (v_tenant_id, v_owner_id, 'owner', true),
+    (v_tenant_id, v_owner_id, 'store_owner', true),
     (v_tenant_id, v_staff_id, 'staff', false);
 
   insert into iam.stores (id, tenant_id, code, display_name, status)
@@ -61,11 +61,11 @@ begin
 
   -- Products
   insert into catalog.products (
-    id, tenant_id, name, sku, barcode, created_by, updated_by, tracking_mode, expiry_required
+    id, tenant_id, name, sku, barcode, created_by, updated_by, tracking_mode, expiry_required, reference_id
   ) values
-    (v_p_zero_id, v_tenant_id, 'Enrofloxacin 10%', 'SP-000091', '8930001', v_owner_id, v_owner_id, 'none', false),
-    (v_p_tylo_id, v_tenant_id, 'Tylosin 20%', 'SP-000122', '8930002', v_owner_id, v_owner_id, 'lot', true),
-    (v_p_sort_id, v_tenant_id, 'Nobivac DHPPi', 'SP-000184', '8930003', v_owner_id, v_owner_id, 'lot', false);
+    (v_p_zero_id, v_tenant_id, 'Enrofloxacin 10%', 'SP-000091', '8930001', v_owner_id, v_owner_id, 'none', false, 'REF-' || (v_p_zero_id)::text),
+    (v_p_tylo_id, v_tenant_id, 'Tylosin 20%', 'SP-000122', '8930002', v_owner_id, v_owner_id, 'lot', true, 'REF-' || (v_p_tylo_id)::text),
+    (v_p_sort_id, v_tenant_id, 'Nobivac DHPPi', 'SP-000184', '8930003', v_owner_id, v_owner_id, 'lot', false, 'REF-' || (v_p_sort_id)::text);
 
   -- Set session to owner
   perform set_config('request.jwt.claims', json_build_object('sub', v_owner_id::text, 'role', 'authenticated')::text, true);

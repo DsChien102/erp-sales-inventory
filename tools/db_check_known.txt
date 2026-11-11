@@ -1,0 +1,13 @@
+# Nợ đã biết của tools/db_check.sh — lỗi có ở đây hiện ⚠️, không làm đỏ.
+# Mỗi dòng: <loại><TAB><khoá>. Sửa xong lỗi nào thì xoá dòng đó.
+#   plpgsql<TAB><schema.hàm><TAB><thông điệp plpgsql_check>
+#   test<TAB><tên tệp supabase/tests, không .sql>
+# Ghi nhận 2026-11-11 (lần đầu chạy db_check, ngoài Theme 7):
+plpgsql	catalog.create_product	column p.sku_normalized does not exist
+plpgsql	catalog.get_product_stock_history	column reference "id" is ambiguous
+plpgsql	catalog.search_products	column sp.initial_stock does not exist
+plpgsql	einvoice.record_issuance_undetermined	structure of query does not match function result type
+test	catalog_th02
+test	einvoice_th08
+test	pricing_th04
+test	sales_th05
