@@ -10,4 +10,3 @@ plpgsql	einvoice.record_issuance_undetermined	structure of query does not match 
 test	catalog_th02
 test	einvoice_th08
 test	pricing_th04
-test	sales_th05

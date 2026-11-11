@@ -60,7 +60,7 @@ declare
   v_snapshot jsonb;
 begin
   select jsonb_agg(jsonb_build_object(
-    'lineId', gen_random_uuid()::text,
+    'lineId', 'line-' || l.ordinality::text,
     'product', jsonb_build_object('productId', l.value ->> 'product_id', 'displayName', 'SP'),
     'unit', jsonb_build_object('productUnitId', l.value ->> 'product_unit_id', 'unitName', 'DV'),
     'quantityMicros', (l.value ->> 'quantity_micros')::bigint,
@@ -253,7 +253,7 @@ begin
   if v_ta is null then
     raise exception 'FAIL: tenant was not created';
   end if;
-  select s.id into v_store from catalog.stores s where s.tenant_id = v_ta limit 1;
+  select s.id into v_store from iam.stores s where s.tenant_id = v_ta limit 1;
 
   v_claims := json_build_object('sub', v_ua::text, 'role', 'authenticated')::text;
   perform set_config('request.jwt.claims', v_claims, true);
@@ -263,10 +263,10 @@ begin
   -- Sản phẩm P1 (100.000), P2 (150.000)
   v_res := catalog.create_guided_product(
     p_tenant_id => v_ta, p_actor_id => v_ua, p_name => 'Thuoc P1 TH05',
-    p_reference_id => 'TH05-P1', p_unit_name => 'Hop');
+    p_reference_id => 'TH05-P1', p_new_unit_name => 'Hop');
   v_p1 := (v_res ->> 'product_id')::uuid;
   reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
-  select id into v_u1 from catalog.product_units where product_id = v_p1 and is_base_unit = true;
+  select id, tenant_measurement_unit_id into v_u1, v_unit_id from catalog.product_units where product_id = v_p1 and is_base_unit = true;
   set local role authenticated;
   perform catalog.set_product_unit_price_band(
     p_tenant_id => v_ta, p_product_id => v_p1, p_product_unit_id => v_u1,
@@ -276,7 +276,7 @@ begin
 
   v_res := catalog.create_guided_product(
     p_tenant_id => v_ta, p_actor_id => v_ua, p_name => 'Thuoc P2 TH05',
-    p_reference_id => 'TH05-P2', p_unit_name => 'Hop');
+    p_reference_id => 'TH05-P2', p_tenant_unit_id => v_unit_id);
   v_p2 := (v_res ->> 'product_id')::uuid;
   reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   select id into v_u2 from catalog.product_units where product_id = v_p2 and is_base_unit = true;
@@ -286,15 +286,6 @@ begin
     p_source_type => 'manual',
     p_list_price_before_vat => 150000, p_list_price_after_vat => 150000,
     p_floor_price_before_vat => 70000, p_floor_price_after_vat => 70000);
-
-  -- Sản phẩm phải bán được; nếu chưa thì bật (giao dịch rollback cuối tệp).
-  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
-  if exists (select 1 from catalog.products
-             where id in (v_p1, v_p2) and is_ready_to_sell is not true) then
-    update catalog.products set is_ready_to_sell = true where id in (v_p1, v_p2);
-    raise notice 'sales_th05: is_ready_to_sell phải bật tay cho P1/P2';
-  end if;
-  set local role authenticated;
 
   -- Đơn vị quy đổi cho C17–C19 (add_product_conversion_unit trả {unit:{id}} như catalog_th02.sql:288)
   v_res := catalog.add_product_conversion_unit(v_ta, v_p1, 'Thung', 10);
@@ -308,6 +299,15 @@ begin
     p_source_type => 'manual',
     p_list_price_before_vat => 1000000, p_list_price_after_vat => 1000000,
     p_floor_price_before_vat => 500000, p_floor_price_after_vat => 500000);
+
+  -- Sản phẩm phải bán được; nếu chưa thì bật (giao dịch rollback cuối tệp).
+  reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
+  if exists (select 1 from catalog.products
+             where id in (v_p1, v_p2) and is_ready_to_sell is not true) then
+    update catalog.products set is_ready_to_sell = true where id in (v_p1, v_p2);
+    raise notice 'sales_th05: is_ready_to_sell phải bật tay cho P1/P2';
+  end if;
+  set local role authenticated;
 
   -- Khách
   v_anbinh := public._th05_customer(v_ta, v_ua, 'Đại lý An Bình', '0911000001');
@@ -367,9 +367,11 @@ begin
   if v_res ->> 'status' is distinct from 'blocked' or v_res ->> 'blockedCode' is distinct from 'STALE_VERSION' then
     raise exception 'FAIL: C03 expected blocked/STALE_VERSION, got %', v_res;
   end if;
+  reset role;
   if (select count(*) from sales.sales_orders where tenant_id = v_ta) <> v_n then
     raise exception 'FAIL: C03 created an order despite STALE_VERSION';
   end if;
+  set local role authenticated;
 
   -- =========================================================================
   -- C04 ✱ PRICE_CHANGED: lineTotal của snapshot khác tiền server
@@ -475,10 +477,12 @@ begin
     query_id => gen_random_uuid()::text, tenant_id => v_ta, actor_id => v_ua,
     sales_order_id => v_order);
   v_r2 := public._th05_cancel(v_ta, v_ua, v_order, 'c10-cancel');
+  reset role;
   if (select current_payable_amount_minor from sales.sales_order_settlements
       where tenant_id = v_ta and sales_order_id = v_order) is distinct from 0 then
     raise exception 'FAIL: C10 current_payable_amount_minor not 0 after cancel';
   end if;
+  set local role authenticated;
   perform public._th05_expect_err(
     format($f$select sales.record_sales_payment(%L, %L, %L, %L, 1000, 'cash', 'c10-pay', 'h')$f$,
       v_ta, v_ua, v_store, v_order),
@@ -509,7 +513,7 @@ begin
   -- =========================================================================
   v_res := public._th05_finalize(v_ta, v_ua, v_store, v_anbinh,
     jsonb_build_array(public._th05_line(v_p1, v_u1, 3000000, 100000)),
-    public._th05_pay(300000), null, 'c12-key');
+    null, v_today + 7, 'c12-key');
   v_order2 := (v_res ->> 'salesOrderId')::uuid;
   reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
   select id into v_orig_line from sales.sales_order_lines
@@ -677,6 +681,7 @@ begin
   if exists (select 1 from catalog.product_units where id = v_u1_conv2) then
     raise exception 'FAIL: C18 conversion unit still exists after delete';
   end if;
+  update catalog.products set is_ready_to_sell = true where id in (v_p1, v_p2);
   set local role authenticated;
 
   perform sales.save_sales_order_draft(
@@ -710,7 +715,7 @@ begin
     p_search => 'an binh');
   if not exists (
     select 1 from jsonb_array_elements(v_res -> 'items') it
-    where (it ->> 'id')::uuid = v_draft_id
+    where (it ->> 'draft_id')::uuid = v_draft_id
   ) then
     raise exception 'FAIL: D01 draft not found by unaccent search "an binh", got %', v_res;
   end if;
@@ -736,7 +741,7 @@ begin
     insert into iam.memberships (
       tenant_id, user_id, role, is_owner, version, created_at, updated_at
     ) values (
-      v_ta, v_ub, 'owner', true, 1, now(), now()
+      v_ta, v_ub, 'staff', false, 1, now(), now()
     );
 
     v_claims := json_build_object('sub', v_ub::text, 'role', 'authenticated')::text;
@@ -838,6 +843,9 @@ begin
     v_res := public._th05_finalize(v_ta, v_ua, v_store, v_anbinh,
       jsonb_build_array(public._th05_line(v_p1, v_u1, 10000000, 100000)),
       public._th05_pay(400000), v_today + 7, 'p-order-key');
+    if v_res ->> 'status' <> 'succeeded' then
+      raise exception 'FAIL: P01 finalize failed: %', v_res;
+    end if;
     v_order_p := (v_res ->> 'salesOrderId')::uuid;
 
     -- P01: Đơn còn 600.000, record_sales_payment 600.000 => payment_status = 'paid',
