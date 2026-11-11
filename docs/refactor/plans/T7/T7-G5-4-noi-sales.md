@@ -1,7 +1,7 @@
 # T7-G5-4 — Nối Sales với sổ kho
 
 > Theme 7 · plan **G5-4** của [PLAN.md](../../PLAN.md) mục "Theme 7" (bảng Plan, Q7)
-> Trạng thái: Plan ✅ (duyệt 2026-11-11) | Làm ✅ 2026-11-11 | Review ✅ R2 đạt (2026-11-11)
+> Trạng thái: Plan ✅ (duyệt 2026-11-11) | Làm ✅ 2026-11-11 | Review ✅ R4 đạt (2026-11-11)
 > Thiết kế: duyệt trong chat 2026-11-11 (2 câu hỏi + phương án nối + 4 phần: SQL kho, Sales + lookup, Flutter, test). Nguồn nghiệp vụ: [spec giá vốn](T7-G5-gia-von-thiet-ke.md) mục 3.1, 3.2 (dòng đơn lưu giá vốn), 4 (luật `SALE` / `SALE_REVERSAL` / `RETURN_IN`), 9 ca 6. Phụ thuộc: G5-0b (`_post_movements`, `_value_line`), G5-2a (`_product_stock_rows`, `_lot_expiry_end`), G5-3 (có hàng vào kho để bán). Không có màn mới ⇒ không áp "UI Flutter: trích code prototype".
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -388,3 +388,27 @@ cd apps/erp && flutter test --no-pub -r compact test/features/sales test/feature
 dart analyze apps/erp/lib apps/erp/test
 ```
 Cả ba ✅ (số test đỏ không hơn `docs/refactor/TEST-BASELINE.md`) ⇒ G5-4 đạt; commit phần sửa sau R1.
+
+### R3 (2026-11-11) — ❌ 1 test Flutter mới đỏ
+
+Kết quả người dùng chạy đủ bộ:
+
+| Lệnh | Kết quả |
+|---|---|
+| `tools/db_check.sh` | ✅ DB check đạt — migration lên đủ; plpgsql_check chỉ 4 nợ đã biết; `supabase/tests/*` đạt hết trừ 3 nợ đã biết (`catalog_th02`, `einvoice_th08`, `pricing_th04`) |
+| `flutter test … sales inventory catalog` | ❌ 1 đỏ **mới** (không có trong `TEST-BASELINE.md`) |
+| `dart analyze apps/erp/lib apps/erp/test` | ✅ 260 mục, toàn `info` (không `error` / `warning`) |
+
+| # | Mức | Vấn đề | Sửa |
+|---|---|---|---|
+| 1 | P2 | `apps/erp/test/features/inventory/data/stock_policy_sql_contract_test.dart` ca `helpers_are_revoked` đỏ: test (dòng 36) vẫn đòi `_product_stock_rows(uuid)`, còn `20261111001_inventory_stock_policy.sql:215` nay là `_product_stock_rows(uuid, uuid[])` (đổi chữ ký ở R1 #9) | Sửa chuỗi ở dòng 36 thành `'_product_stock_rows(uuid, uuid[])'` |
+| 2 | P3 | Giữ từ R2: thiếu câu kiểm `intent_type` / `intent_line_id` của dòng đảo ở S4 / S5 | Như R2 |
+
+### R4 (2026-11-11) — ✅ đạt
+
+| R3 | Kết quả |
+|---|---|
+| #1 P2 | ✅ `stock_policy_sql_contract_test.dart:36` = `'_product_stock_rows(uuid, uuid[])'`; `stock_policy_sql_contract_test` + `inventory_sales_link_sql_contract_test` 17/17 xanh |
+| #2 P3 | ✅ S4 kiểm dòng đảo `SALES_CANCELLATION` + `intent_line_id` = dòng đơn; S5 kiểm `RETURN_EXCHANGE` + `intent_line_id` = dòng `returned`; `tools/db_check.sh --no-reset inventory_sales_link` ✅ S1–S11 OK, `sales_th05` ✅ |
+
+Ghi chú: `tools/db_check.sh` chỉ nhận **một** tên lọc (tham số sau ghi đè tham số trước) — chạy nhiều tệp thì gọi từng lệnh. Không nợ mở. Dev cần reset `--linked` (người dùng quyết định).

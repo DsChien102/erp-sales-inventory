@@ -787,11 +787,23 @@ begin
     raise exception 'FAIL [S4]: finalize failed: %', v_res;
   end if;
   v_order_id := (v_res ->> 'salesOrderId')::uuid;
+  select id into v_sol_id from sales.sales_order_lines where tenant_id = v_t and sales_order_id = v_order_id;
 
   -- Huỷ đơn
   v_res := public._isl_cancel(v_t, v_owner, v_order_id, 's4-cancel-key');
   if not exists (select 1 from sales.sales_orders where id = v_order_id and lifecycle_status = 'cancelled') then
     raise exception 'FAIL [S4]: order lifecycle not cancelled';
+  end if;
+
+  -- Kiểm tra intent_type và intent_line_id của dòng đảo trong stock_movements (huỷ => SALES_CANCELLATION + sol.id)
+  if not exists (
+    select 1 from inventory.stock_movements
+    where tenant_id = v_t
+      and movement_kind in ('SALE_REVERSAL', 'RETURN_IN')
+      and intent_type = 'SALES_CANCELLATION'
+      and intent_line_id = v_sol_id
+  ) then
+    raise exception 'FAIL [S4]: expected stock movement with intent_type SALES_CANCELLATION and intent_line_id = %', v_sol_id;
   end if;
 
   -- Kiểm tra số lượng hoàn về Lô 1 = 2, Lô 2 = 5
@@ -846,6 +858,20 @@ begin
   v_rx_ver := (v_rx ->> 'version')::int;
   perform sales.evaluate_return_exchange_valuation(gen_random_uuid()::text, v_t, v_owner, v_rx_id);
   perform sales.confirm_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_rx_id, 's5-ret1-conf', 'h', gen_random_uuid()::text, expected_version => v_rx_ver);
+
+  -- Kiểm tra intent_type và intent_line_id của dòng đảo trong stock_movements (trả => RETURN_EXCHANGE + rl.id)
+  select id into v_ex_line_id from sales.return_exchange_lines
+  where tenant_id = v_t and return_exchange_order_id = v_rx_id and line_role = 'returned';
+
+  if not exists (
+    select 1 from inventory.stock_movements
+    where tenant_id = v_t
+      and movement_kind in ('SALE_REVERSAL', 'RETURN_IN')
+      and intent_type = 'RETURN_EXCHANGE'
+      and intent_line_id = v_ex_line_id
+  ) then
+    raise exception 'FAIL [S5]: expected stock movement with intent_type RETURN_EXCHANGE and intent_line_id = %', v_ex_line_id;
+  end if;
 
   select physical_quantity into v_bal1 from inventory.stock_balances
   where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pf and lot_key = v_lot_f1;

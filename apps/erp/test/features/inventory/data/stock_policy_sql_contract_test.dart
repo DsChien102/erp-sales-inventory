@@ -33,7 +33,7 @@ void main() {
         '_today()',
         '_lot_expiry_end(date, text)',
         '_near_expiry_days(uuid, uuid)',
-        '_product_stock_rows(uuid)',
+        '_product_stock_rows(uuid, uuid[])',
       ]) {
         expect(
           sql,
