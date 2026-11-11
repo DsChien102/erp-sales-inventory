@@ -124,7 +124,10 @@ $$;
 revoke all on function inventory._near_expiry_days(uuid, uuid) from public, anon, authenticated;
 
 -- 6. _product_stock_rows helper
-create or replace function inventory._product_stock_rows(p_tenant_id uuid)
+create or replace function inventory._product_stock_rows(
+  p_tenant_id uuid,
+  p_product_ids uuid[] default null
+)
 returns table (
   product_id uuid,
   physical numeric,
@@ -148,6 +151,7 @@ begin
     where p.tenant_id = p_tenant_id
       and p.deleted_at is null
       and p.business_status = 'active'
+      and (p_product_ids is null or p.id = any(p_product_ids))
   ),
   lot_balances as (
     select
@@ -207,7 +211,7 @@ begin
 end;
 $$;
 
-revoke all on function inventory._product_stock_rows(uuid) from public, anon, authenticated;
+revoke all on function inventory._product_stock_rows(uuid, uuid[]) from public, anon, authenticated;
 
 -- 7. get_stock_policy RPC
 create or replace function inventory.get_stock_policy(p_tenant_id uuid)

@@ -314,6 +314,7 @@ inventory:
   _ensure_open_period: 20261110001_inventory_core.sql
   _ensure_walk_in_supplier: 20261113001_inventory_supplier_programs.sql
   _forbid_ledger_mutation: 20261110001_inventory_core.sql
+  _issue_for_sale: 20261115001_inventory_sales_link.sql
   _lot_expiry_end: 20261111001_inventory_stock_policy.sql
   _near_expiry_days: 20261111001_inventory_stock_policy.sql
   _next_ledger_sequence: 20261110001_inventory_core.sql
@@ -322,9 +323,13 @@ inventory:
   _program_row_json: 20261113001_inventory_supplier_programs.sql
   _product_stock_rows: 20261111001_inventory_stock_policy.sql
   _raise: 20261110001_inventory_core.sql
+  _reversal_kind: 20261115001_inventory_sales_link.sql
+  _reverse_sale: 20261115001_inventory_sales_link.sql
+  _stock_shortages: 20261115001_inventory_sales_link.sql
   _today: 20261111001_inventory_stock_policy.sql
   _validate_program_payload: 20261113001_inventory_supplier_programs.sql
   _value_line: 20261110001_inventory_core.sql
+  _warehouse_for_store: 20261115001_inventory_sales_link.sql
   create_supplier_program: 20261113001_inventory_supplier_programs.sql
   end_supplier_program: 20261113001_inventory_supplier_programs.sql
   ensure_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
