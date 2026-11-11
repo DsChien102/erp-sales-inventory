@@ -54,6 +54,18 @@ class LotDate extends Equatable {
     return LotDate(year: year, month: month, day: day);
   }
 
+  /// Tự nhận diện độ chính xác theo số đoạn phân cách bởi `/`
+  /// 3 đoạn -> day (dd/mm/yyyy), 2 đoạn -> month (mm/yyyy), 1 đoạn -> year (yyyy)
+  static LotDate? tryParseAuto(String input) {
+    final parts = input.trim().split('/');
+    return switch (parts.length) {
+      3 => tryParse(input, DatePrecision.day),
+      2 => tryParse(input, DatePrecision.month),
+      1 => tryParse(input, DatePrecision.year),
+      _ => null,
+    };
+  }
+
   @override
   List<Object?> get props => [year, month, day];
 }

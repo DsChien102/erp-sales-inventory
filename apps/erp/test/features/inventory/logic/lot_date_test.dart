@@ -27,4 +27,31 @@ void main() {
       expect(LotDate.tryParse('', DatePrecision.year), isNull);
     });
   });
+
+  group('LotDate.tryParseAuto', () {
+    test('try_parse_auto_day_month_year', () {
+      final d = LotDate.tryParseAuto('15/09/2026');
+      expect(d?.precision, DatePrecision.day);
+      expect(d?.day, 15);
+      expect(d?.month, 9);
+      expect(d?.year, 2026);
+
+      final m = LotDate.tryParseAuto('11/2027');
+      expect(m?.precision, DatePrecision.month);
+      expect(m?.month, 11);
+      expect(m?.year, 2027);
+
+      final y = LotDate.tryParseAuto('2027');
+      expect(y?.precision, DatePrecision.year);
+      expect(y?.year, 2027);
+    });
+
+    test('try_parse_auto_invalid', () {
+      expect(LotDate.tryParseAuto(''), isNull);
+      expect(LotDate.tryParseAuto('31/02/2026'), isNull);
+      expect(LotDate.tryParseAuto('13/2026'), isNull);
+      expect(LotDate.tryParseAuto('1/2/3/4'), isNull);
+      expect(LotDate.tryParseAuto('abc'), isNull);
+    });
+  });
 }

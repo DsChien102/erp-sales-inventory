@@ -203,6 +203,9 @@ class _StockDetailViewState extends State<_StockDetailView>
                       detail: detail,
                       onEditThreshold: () =>
                           _editThreshold(context, detail.productId),
+                      onReceive: () => context.push(
+                        '/warehouse/receipts/new?product_id=${detail.productId}',
+                      ),
                     ),
                   ],
                 ),

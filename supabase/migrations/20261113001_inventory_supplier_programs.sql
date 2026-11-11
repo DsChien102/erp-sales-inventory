@@ -121,6 +121,39 @@ $$;
 
 revoke all on function inventory._program_is_locked(uuid) from public, anon, authenticated;
 
+create or replace function inventory._effective_receipt_program(
+  p_tenant_id uuid,
+  p_supplier_id uuid,
+  p_product_id uuid
+)
+returns inventory.supplier_programs
+language plpgsql
+stable
+security definer
+set search_path = inventory, pg_temp
+as $$
+declare
+  v_prog inventory.supplier_programs%rowtype;
+begin
+  select sp.* into v_prog
+  from inventory.supplier_programs sp
+  join inventory.supplier_program_products spp on spp.program_id = sp.id
+  where sp.tenant_id = p_tenant_id
+    and sp.supplier_id = p_supplier_id
+    and sp.status = 'ACTIVE'
+    and sp.started_on <= inventory._today()
+    and spp.product_id = p_product_id
+  limit 1;
+
+  if not found then
+    return null;
+  end if;
+  return v_prog;
+end;
+$$;
+
+revoke all on function inventory._effective_receipt_program(uuid, uuid, uuid) from public, anon, authenticated;
+
 create or replace function inventory._ensure_walk_in_supplier(p_tenant_id uuid)
 returns uuid
 language plpgsql
@@ -927,17 +960,9 @@ begin
       perform inventory._raise('CONTEXT_INVALID', 'Dòng phiếu không hợp lệ.');
     end;
 
-    select sp.* into v_prog
-    from inventory.supplier_programs sp
-    join inventory.supplier_program_products spp on spp.program_id = sp.id
-    where sp.tenant_id = p_tenant_id
-      and sp.supplier_id = p_supplier_id
-      and sp.status = 'ACTIVE'
-      and sp.started_on <= v_today
-      and spp.product_id = v_product_id
-    limit 1;
+    v_prog := inventory._effective_receipt_program(p_tenant_id, p_supplier_id, v_product_id);
 
-    if found then
+    if v_prog.id is not null then
       v_tier_json := null;
       v_next_json := null;
       v_free := null;

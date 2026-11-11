@@ -93,6 +93,7 @@ export 'src/components/v_list_row.dart';
 export 'src/components/v_stock_row.dart';
 export 'src/components/v_quick_action_button.dart';
 export 'src/components/v_key_value_row.dart';
+export 'src/components/v_summary_strip.dart';
 
 // Forms
 export 'src/forms/validators/v_email_validator.dart';

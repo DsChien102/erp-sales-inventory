@@ -4,7 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../../../dashboard/presentation/widgets/erp_bottom_navigation.dart';
 import '../../data/core/inventory_command_result.dart';
-import '../../logic/receipt_rules.dart';
+import '../../logic/inventory_format.dart';
 import 'inventory_footer.dart';
 import 'inventory_layout.dart';
 

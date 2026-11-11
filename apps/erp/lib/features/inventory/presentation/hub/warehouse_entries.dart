@@ -82,7 +82,7 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             title: 'Nhận hàng',
             subtitle: 'Nhận theo chứng từ hoặc nhập nhanh',
             icon: VIcons.cloudUpload,
-            route: '/warehouse/receipts/new', // tạm — G5-4
+            route: warehouseReceiptsRoute,
           ),
         ],
       WarehouseArea.control => const [
@@ -95,13 +95,6 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
           ),
         ],
       WarehouseArea.valuation => const [
-          WarehouseEntry(
-            id: 'valuation_queue',
-            title: 'Hàng chờ xác lập giá trị',
-            subtitle: 'Ghi giá nhập cho hàng đã nhận',
-            icon: VIcons.success,
-            route: '/warehouse/valuation/queue', // tạm — G5-5
-          ),
           WarehouseEntry(
             id: 'supplier_programs',
             title: 'Chương trình nhà cung cấp',
@@ -157,7 +150,7 @@ const List<WarehouseQuickAction> warehouseQuickActions = [
   WarehouseQuickAction(
     label: 'Nhận hàng',
     icon: VIcons.cloudUpload,
-    route: '/warehouse/receipts/new', // tạm — G5-4
+    route: warehouseReceiptNewRoute,
     requiresActivation: false,
   ),
   WarehouseQuickAction(
@@ -175,3 +168,5 @@ const List<WarehouseQuickAction> warehouseQuickActions = [
 ];
 
 const String warehouseStockSearchRoute = '/warehouse/stock';
+const String warehouseReceiptsRoute = '/warehouse/receipts';
+const String warehouseReceiptNewRoute = '/warehouse/receipts/new';

@@ -19,12 +19,11 @@ import '../../features/iam/data/invitation_repository.dart';
 import '../../features/iam/data/member_repository.dart';
 import '../../features/iam/data/organization_repository.dart';
 import '../../features/inventory/data/core/inventory_rpc.dart';
-import '../../features/inventory/data/goods_receipt_repository.dart';
+import '../../features/inventory/data/goods_receipt/goods_receipt_repository.dart';
 import '../../features/inventory/data/hub/warehouse_hub_repository.dart';
 import '../../features/inventory/data/stock/stock_repository.dart';
 import '../../features/inventory/data/stock_policy/stock_policy_repository.dart';
 import '../../features/inventory/data/supplier_program/supplier_program_repository.dart';
-import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../../features/pricing/data/customer_price_rule_repository.dart';
 import '../../features/pricing/data/sales_pricing_repository.dart';
@@ -104,9 +103,8 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     ..registerLazySingleton<SupplierProgramRepository>(
       () => SupplierProgramRepository(rpc: getIt<InventoryRpc>()),
     )
-    ..registerLazySingleton<ValuationRepository>(() => ValuationRepository())
     ..registerLazySingleton<GoodsReceiptRepository>(
-      () => GoodsReceiptRepository(valuation: getIt<ValuationRepository>()),
+      () => GoodsReceiptRepository(rpc: getIt<InventoryRpc>()),
     )
     ..registerLazySingleton<PartnerRepository>(
       () => PartnerRepository(

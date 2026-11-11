@@ -216,8 +216,8 @@ void main() {
         findsOneWidget,
       );
 
-      // Không có Nhận hàng, Điều chỉnh lô hết hạn, Đã giữ
-      expect(find.text('Nhận hàng'), findsNothing);
+      // Có nút Nhận hàng; Không có Điều chỉnh lô hết hạn, Đã giữ
+      expect(find.text('Nhận hàng'), findsOneWidget);
       expect(find.text('Điều chỉnh lô hết hạn'), findsNothing);
       expect(find.text('Đã giữ'), findsNothing);
 

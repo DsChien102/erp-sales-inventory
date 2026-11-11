@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:erp/core/iam/iam_codes.dart';
@@ -30,30 +31,14 @@ import '../../features/einvoice/presentation/pages/default_issuance_configuratio
 import '../../features/einvoice/presentation/pages/automation_policy_page.dart';
 
 // Inventory
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../features/inventory/data/current_receipt_actor.dart';
-import '../../features/inventory/data/goods_receipt_repository.dart';
-import '../../features/inventory/logic/quick_receipt_session_cubit.dart';
-import '../../features/inventory/presentation/pages/goods_receipt_approval_page.dart';
-import '../../features/inventory/presentation/pages/goods_receipt_item_detail_page.dart';
-import '../../features/inventory/presentation/pages/goods_receipt_items_page.dart';
-import '../../features/inventory/presentation/pages/goods_receipt_reconciliation_page.dart';
-import '../../features/inventory/presentation/pages/goods_receipt_result_page.dart';
-import '../../features/inventory/presentation/pages/goods_receipt_review_page.dart';
-import '../../features/inventory/presentation/pages/quick_receipt_header_page.dart';
-import '../../features/inventory/presentation/pages/receipt_entry_choice_page.dart';
-import '../../features/inventory/presentation/pages/receipt_item_detail_args.dart';
+import '../../features/inventory/data/goods_receipt/goods_receipt_repository.dart';
+import '../../features/inventory/presentation/goods_receipt/goods_receipt_routes.dart';
+import '../../features/inventory/presentation/goods_receipt/receipt_history_section.dart';
 import '../../features/inventory/presentation/hub/warehouse_hub_routes.dart';
 import '../../features/inventory/presentation/stock/stock_routes.dart';
 import '../../features/inventory/presentation/stock_policy/stock_policy_routes.dart';
 import '../../features/inventory/presentation/supplier_program/supplier_program_routes.dart';
 import '../../features/inventory/presentation/supplier_program/supplier_programs_section.dart';
-import '../../features/inventory/data/valuation_repository.dart';
-import '../../features/inventory/logic/valuation_session_cubit.dart';
-import '../../features/inventory/presentation/pages/valuation_queue_page.dart';
-import '../../features/inventory/presentation/pages/valuation_workspace_page.dart';
-import '../../features/inventory/presentation/pages/valuation_review_page.dart';
-import '../../features/inventory/presentation/pages/valuation_result_page.dart';
 
 // Auth
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -618,8 +603,23 @@ final appRouter = GoRouter(
                               showCreateSuccessToast: showCreateSuccessToast,
                               showTransformSuccessToast: showTransformSuccessToast,
                               onMutated: () => listCubit.fetchPartners(isRefresh: true),
-                              supplierSection: (ctx, dto) => SupplierProgramsSection(
-                                partnerId: dto.partnerId,
+                              supplierSection: (ctx, dto) => Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  SupplierProgramsSection(
+                                    partnerId: dto.partnerId,
+                                  ),
+                                  const SizedBox(height: VSpacing.space4),
+                                  ReceiptHistorySection(
+                                    supplierId: dto.partnerId,
+                                    repository: getIt<GoodsReceiptRepository>(),
+                                    onViewAll: () => ctx.push(
+                                      '/warehouse/receipts?supplier_id=${dto.partnerId}',
+                                    ),
+                                    onOpenReceipt: (id) =>
+                                        ctx.push('/warehouse/receipts/$id'),
+                                  ),
+                                ],
                               ),
                             );
                           },
@@ -651,111 +651,7 @@ final appRouter = GoRouter(
     ...stockPolicyRoutes(),
     ...stockRoutes(),
     ...supplierProgramRoutes(),
-    GoRoute(
-      path: '/warehouse/receipts/new',
-      name: 'warehouse.receipts.new',
-      builder: (context, state) => const ReceiptEntryChoicePage(),
-    ),
-    ShellRoute(
-      builder: (context, state, child) {
-        return BlocProvider(
-          create: (_) => QuickReceiptSessionCubit(
-            repository: getIt<GoodsReceiptRepository>(),
-            actorLoader: currentReceiptActor,
-          )..loadCatalog(),
-          child: child,
-        );
-      },
-      routes: [
-        GoRoute(
-          path: '/warehouse/receipts/quick/header',
-          name: 'warehouse.receipts.quick.header',
-          builder: (context, state) => const QuickReceiptHeaderPage(),
-        ),
-        GoRoute(
-          path: '/warehouse/receipts/quick/items',
-          name: 'warehouse.receipts.quick.items',
-          builder: (context, state) => const GoodsReceiptItemsPage(),
-        ),
-        GoRoute(
-          path: '/warehouse/receipts/quick/item-detail',
-          name: 'warehouse.receipts.quick.item-detail',
-          builder: (context, state) {
-            final args = state.extra as ReceiptItemDetailArgs;
-            return GoodsReceiptItemDetailPage(
-              item: args.item,
-              readOnly: args.readOnly,
-            );
-          },
-        ),
-        GoRoute(
-          path: '/warehouse/receipts/quick/review',
-          name: 'warehouse.receipts.quick.review',
-          builder: (context, state) => const GoodsReceiptReviewPage(),
-        ),
-      ],
-    ),
-    GoRoute(
-      path: '/warehouse/receipts/approval/:id',
-      name: 'warehouse.receipts.approval',
-      builder: (context, state) {
-        final id = state.pathParameters['id'] ?? '';
-        return GoodsReceiptApprovalPage(receiptId: id);
-      },
-    ),
-    GoRoute(
-      path: '/warehouse/receipts/result/:id',
-      name: 'warehouse.receipts.result',
-      builder: (context, state) {
-        final id = state.pathParameters['id'] ?? '';
-        return GoodsReceiptResultPage(receiptId: id);
-      },
-    ),
-    GoRoute(
-      path: '/warehouse/receipts/reconciliation/:id',
-      name: 'warehouse.receipts.reconciliation',
-      builder: (context, state) => GoodsReceiptReconciliationPage(
-        receiptId: state.pathParameters['id'] ?? '',
-      ),
-    ),
-    GoRoute(
-      path: '/warehouse/valuation/queue',
-      name: 'warehouse.valuation.queue',
-      builder: (context, state) => const ValuationQueuePage(),
-    ),
-    ShellRoute(
-      builder: (context, state, child) {
-        return BlocProvider(
-          create: (_) => ValuationSessionCubit(
-            repository: getIt<ValuationRepository>(),
-          ),
-          child: child,
-        );
-      },
-      routes: [
-        GoRoute(
-          path: '/warehouse/valuation/receipt/:id',
-          name: 'warehouse.valuation.receipt',
-          builder: (context, state) {
-            final id = state.pathParameters['id'] ?? '';
-            return ValuationWorkspacePage(receiptId: id);
-          },
-        ),
-        GoRoute(
-          path: '/warehouse/valuation/review',
-          name: 'warehouse.valuation.review',
-          builder: (context, state) => const ValuationReviewPage(),
-        ),
-        GoRoute(
-          path: '/warehouse/valuation/result/:id',
-          name: 'warehouse.valuation.result',
-          builder: (context, state) {
-            final id = state.pathParameters['id'] ?? '';
-            return ValuationResultPage(receiptId: id);
-          },
-        ),
-      ],
-    ),
+    ...goodsReceiptRoutes(),
     GoRoute(
       path: '/more/settings',
       name: 'more.settings',

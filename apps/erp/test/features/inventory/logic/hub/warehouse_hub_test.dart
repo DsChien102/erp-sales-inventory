@@ -74,14 +74,16 @@ void main() {
       expect(stockPolicyEntry.subtitle, 'Thiết lập ngưỡng tồn và chính sách cảnh báo');
       expect(stockPolicyEntry.icon, VIcons.shield);
 
-      // Tạm 2 route theo Q-a1
+      // receipts.route đã bật ở Task 6
       final receiptsEntry = warehouseAreaEntries(WarehouseArea.movement)
           .firstWhere((e) => e.id == 'receipts');
-      expect(receiptsEntry.route, '/warehouse/receipts/new');
+      expect(receiptsEntry.route, '/warehouse/receipts');
 
-      final valEntry = warehouseAreaEntries(WarehouseArea.valuation)
-          .firstWhere((e) => e.id == 'valuation_queue');
-      expect(valEntry.route, '/warehouse/valuation/queue');
+      // valuation_queue đã gỡ ở G5-3
+      expect(
+        warehouseAreaEntries(WarehouseArea.valuation).any((e) => e.id == 'valuation_queue'),
+        isFalse,
+      );
 
       // Quick action (3 nút: Nhận hàng, Kiểm kê, Tra cứu tồn — đã bỏ Lấy hàng)
       expect(warehouseQuickActions.length, 3);

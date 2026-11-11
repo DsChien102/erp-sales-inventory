@@ -20,6 +20,10 @@ abstract final class InventoryErrorCode {
   static const programSupplierInvalid = 'PROGRAM_SUPPLIER_INVALID';
   static const programUomMismatch = 'PROGRAM_UOM_MISMATCH';
   static const programLocked = 'PROGRAM_LOCKED';
+  static const supplierRequired = 'SUPPLIER_REQUIRED';
+  static const supplierInvalid = 'SUPPLIER_INVALID';
+  static const receiptProgramChanged = 'RECEIPT_PROGRAM_CHANGED';
+  static const receiptDiscountTooLarge = 'RECEIPT_DISCOUNT_TOO_LARGE';
 }
 
 /// Chuyển đổi mã lỗi sang thông báo thân thiện người dùng tiếng Việt.
@@ -68,6 +72,14 @@ String inventoryErrorMessage(
       'Các sản phẩm phải cùng đơn vị tính cơ sở.',
     InventoryErrorCode.programLocked =>
       'Chương trình đã có phiếu nhận gắn hoặc đã kết thúc nên không sửa được.',
+    InventoryErrorCode.supplierRequired =>
+      'Chọn nhà cung cấp',
+    InventoryErrorCode.supplierInvalid =>
+      'Nhà cung cấp không hợp lệ hoặc đã ngừng hoạt động.',
+    InventoryErrorCode.receiptProgramChanged =>
+      'Ưu đãi của nhà cung cấp vừa thay đổi. Đã cập nhật lại gợi ý, kiểm tra rồi ghi nhận lại.',
+    InventoryErrorCode.receiptDiscountTooLarge =>
+      'Chiết khấu không được lớn hơn tổng giá mua và chi phí',
     _ => fallback,
   };
 }

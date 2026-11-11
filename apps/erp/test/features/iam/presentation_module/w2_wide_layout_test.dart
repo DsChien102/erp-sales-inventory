@@ -11,9 +11,6 @@ import 'package:erp/features/iam/data/member_repository.dart';
 import 'package:erp/features/iam/data/invitation_repository.dart';
 import 'package:erp/features/iam/data/audit_log_repository.dart';
 import 'package:erp/features/iam/presentation/users/widgets/member_card.dart';
-import 'package:erp/features/inventory/data/goods_receipt_repository.dart';
-import 'package:erp/features/inventory/presentation/pages/quick_receipt_header_page.dart';
-import 'package:erp/features/inventory/presentation/pages/receipt_entry_choice_page.dart';
 
 import '../support/fake_iam_backend.dart';
 import '../../auth/support/scripted_auth.dart';
@@ -723,26 +720,6 @@ void main() {
       expect(find.text('Bạn không có quyền xem thành viên'), findsOneWidget);
       expect(module.queriesOf<ListTenantMembersQuery>(), isEmpty);
       expect(module.queriesOf<GetTenantMemberQuery>(), isEmpty);
-    });
-
-    testWidgets('13. Hẹp: /warehouse/receipts/quick/header có Quay lại, bấm thì rời trang', (
-      tester,
-    ) async {
-      getIt.registerLazySingleton<GoodsReceiptRepository>(() => GoodsReceiptRepository());
-      await pumpApp(tester, size: const Size(390, 844));
-
-      appRouter.go('/warehouse/receipts/new');
-      await tester.pumpAndSettle();
-      appRouter.push('/warehouse/receipts/quick/header');
-      await tester.pumpAndSettle();
-
-      expect(find.byType(QuickReceiptHeaderPage), findsOneWidget);
-      expect(find.byTooltip('Quay lại'), findsOneWidget);
-
-      await tester.tap(find.byTooltip('Quay lại'));
-      await tester.pumpAndSettle();
-      expect(find.byType(QuickReceiptHeaderPage), findsNothing);
-      expect(find.byType(ReceiptEntryChoicePage), findsOneWidget);
     });
 
     testWidgets(

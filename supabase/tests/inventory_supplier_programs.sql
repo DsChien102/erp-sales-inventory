@@ -59,7 +59,7 @@ begin
 
   insert into iam.tenants (id, display_name) values (v_tenant_id, 'Supplier Program Tenant');
   insert into iam.memberships (tenant_id, user_id, role, is_owner)
-  values (v_tenant_id, v_owner_id, 'owner', true);
+  values (v_tenant_id, v_owner_id, 'store_owner', true);
   insert into iam.stores (id, tenant_id, code, display_name, status)
   values (v_store_id, v_tenant_id, 'ST01', 'Kho CH', 'active');
   insert into inventory.warehouses (id, tenant_id, display_name, status)
@@ -67,11 +67,11 @@ begin
   insert into inventory.store_warehouse_assignments (tenant_id, store_id, warehouse_id, status)
   values (v_tenant_id, v_store_id, v_warehouse_id, 'active');
 
-  insert into catalog.products (id, tenant_id, name, sku, created_by, updated_by)
+  insert into catalog.products (id, tenant_id, name, sku, reference_id, created_by, updated_by)
   values
-    (v_p_hop, v_tenant_id, 'Nobivac DHPPi', 'NOBI', v_owner_id, v_owner_id),
-    (v_p_hop2, v_tenant_id, 'Nobivac Rabies', 'RABI', v_owner_id, v_owner_id),
-    (v_p_chai, v_tenant_id, 'Tylosin chai', 'TYLO', v_owner_id, v_owner_id);
+    (v_p_hop, v_tenant_id, 'Nobivac DHPPi', 'NOBI', 'SP-NOBI', v_owner_id, v_owner_id),
+    (v_p_hop2, v_tenant_id, 'Nobivac Rabies', 'RABI', 'SP-RABI', v_owner_id, v_owner_id),
+    (v_p_chai, v_tenant_id, 'Tylosin chai', 'TYLO', 'SP-TYLO', v_owner_id, v_owner_id);
   insert into catalog.product_units (tenant_id, product_id, unit_name, is_base_unit, conversion_rate_to_base)
   values
     (v_tenant_id, v_p_hop, 'hộp', true, 1),

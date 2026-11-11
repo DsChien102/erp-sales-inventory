@@ -4,13 +4,15 @@ import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_store.dart';
 import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 import 'package:erp/features/inventory/data/core/inventory_rpc.dart';
-import 'package:erp/features/inventory/data/goods_receipt_repository.dart';
+import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_models.dart';
+import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_repository.dart';
 import 'package:erp/features/inventory/data/hub/warehouse_hub_repository.dart';
 import 'package:erp/features/inventory/data/stock/stock_models.dart';
 import 'package:erp/features/inventory/data/stock/stock_repository.dart';
 import 'package:erp/features/inventory/data/stock_policy/stock_policy_models.dart';
 import 'package:erp/features/inventory/data/stock_policy/stock_policy_repository.dart';
-import 'package:erp/features/inventory/data/valuation_repository.dart';
+import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
+import 'package:erp/features/inventory/data/supplier_program/supplier_program_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -92,6 +94,29 @@ class _FakeStockRepo extends Fake implements StockRepository {
       );
 }
 
+class _FakeGoodsReceiptRepo extends Fake implements GoodsReceiptRepository {
+  @override
+  Future<List<ReceiptListRow>> list({String? supplierId, int limit = 20, int offset = 0}) async => [];
+
+  @override
+  Future<ReceiptFormOptions> formOptions() async => const ReceiptFormOptions(
+        warehouseName: 'Kho chính',
+        today: '2026-11-10',
+        suppliers: [],
+        products: [],
+        lots: [],
+      );
+}
+
+class _FakeSupplierProgramRepo extends Fake implements SupplierProgramRepository {
+  @override
+  Future<List<ProgramHint?>> receiptHints({
+    required String supplierId,
+    required List<({String productId, num paidQty, int unitPrice})> lines,
+  }) async =>
+      [];
+}
+
 base class InventorySessionStore extends SessionStore {
   InventorySessionStore({this.isOwner = true});
 
@@ -110,7 +135,6 @@ Future<void> setUpInventoryRouterTest({bool isOwner = true}) async {
   final store = InventorySessionStore(isOwner: isOwner);
   final session = loginSession(store: store);
   session.applySignedInUser('user-1');
-  final valuationRepo = ValuationRepository();
   getIt
     ..registerSingleton<SessionStore>(store)
     ..registerSingleton<IExecutionContext>(FakeExecutionContext(tenantId: 'tenant-test'))
@@ -118,8 +142,8 @@ Future<void> setUpInventoryRouterTest({bool isOwner = true}) async {
     ..registerSingleton<WarehouseHubRepository>(WarehouseHubRepository(rpc: _FakeInventoryRpc()))
     ..registerSingleton<StockPolicyRepository>(_FakeStockPolicyRepo())
     ..registerSingleton<StockRepository>(_FakeStockRepo())
-    ..registerSingleton<ValuationRepository>(valuationRepo)
-    ..registerSingleton<GoodsReceiptRepository>(GoodsReceiptRepository(valuation: valuationRepo))
+    ..registerSingleton<GoodsReceiptRepository>(_FakeGoodsReceiptRepo())
+    ..registerSingleton<SupplierProgramRepository>(_FakeSupplierProgramRepo())
     ..registerSingleton<SessionController>(session);
 }
 
