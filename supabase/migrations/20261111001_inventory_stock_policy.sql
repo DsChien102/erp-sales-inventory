@@ -165,6 +165,7 @@ begin
       on l.tenant_id = sb.tenant_id
      and l.id = sb.lot_key
     where sb.tenant_id = p_tenant_id
+      and (p_product_ids is null or sb.product_id = any(p_product_ids))
     group by sb.product_id, sb.lot_key, l.expiry_date, l.expiry_precision
   ),
   lot_evaluated as (

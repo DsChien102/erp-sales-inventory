@@ -29,12 +29,39 @@ void main() {
 
       for (final entry in expectedTableA.entries) {
         final result = salesPostSaleErrorMessage(
-          AppException(entry.key, serverMessage: 'Server English message'),
+          AppException(
+            entry.key,
+            serverMessage: entry.key == 'INSUFFICIENT_STOCK' ? null : 'Server English message',
+          ),
           fallback: fallback,
         );
         expect(result, equals(entry.value), reason: 'Code ${entry.key} must match Table A');
         expect(result.contains('Server English'), isFalse);
       }
+    });
+
+    test('post_sale_insufficient_uses_server_message: surfaces serverMessage when provided, falls back when null or blank', () {
+      expect(
+        salesPostSaleErrorMessage(
+          const AppException('INSUFFICIENT_STOCK', serverMessage: 'Vòng cổ: chỉ còn 0 cái bán được.'),
+          fallback: fallback,
+        ),
+        equals('Vòng cổ: chỉ còn 0 cái bán được.'),
+      );
+      expect(
+        salesPostSaleErrorMessage(
+          const AppException('INSUFFICIENT_STOCK', serverMessage: '   '),
+          fallback: fallback,
+        ),
+        equals('Không đủ tồn kho để đổi hàng.'),
+      );
+      expect(
+        salesPostSaleErrorMessage(
+          const AppException('INSUFFICIENT_STOCK'),
+          fallback: fallback,
+        ),
+        equals('Không đủ tồn kho để đổi hàng.'),
+      );
     });
 
     test('codes not in Table A return fallback', () {

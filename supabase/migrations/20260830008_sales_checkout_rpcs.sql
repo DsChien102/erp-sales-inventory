@@ -132,7 +132,7 @@ begin
 
           v_base_numeric := ((v_line ->> 'quantity_micros')::numeric / 1000000.0) * coalesce(v_conversion_rate, 1);
           v_stock_lines := v_stock_lines || jsonb_build_array(jsonb_build_object(
-            'line_id', coalesce(v_line ->> 'line_id', v_line ->> 'lineId', 'lines[' || (v_line_index - 1)::text || ']'),
+            'line_id', 'lines[' || (v_line_index - 1)::text || ']',
             'product_id', trim(v_line ->> 'product_id')::uuid,
             'base_qty', v_base_numeric,
             'unit_name', coalesce(v_unit_name, ''),

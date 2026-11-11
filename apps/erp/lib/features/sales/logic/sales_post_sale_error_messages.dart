@@ -40,6 +40,12 @@ String salesPostSaleErrorMessage(
   if (overrides.containsKey(error.code)) {
     return overrides[error.code]!;
   }
+  if (error.code == 'INSUFFICIENT_STOCK') {
+    final serverMsg = error.serverMessage?.trim();
+    if (serverMsg != null && serverMsg.isNotEmpty) {
+      return serverMsg;
+    }
+  }
   return _errorMessages[error.code] ?? fallback;
 }
 

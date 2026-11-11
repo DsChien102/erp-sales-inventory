@@ -555,7 +555,9 @@ begin
       v_stock_issue_input := v_stock_issue_input || jsonb_build_array(jsonb_build_object(
         'line_id', (v_line ->> 'lineId')::uuid,
         'product_id', (v_line ->> 'product_id')::uuid,
-        'base_qty', (v_line ->> 'base_quantity_micros')::numeric / 1000000.0
+        'base_qty', (v_line ->> 'base_quantity_micros')::numeric / 1000000.0,
+        'unit_name', coalesce(v_line -> 'product_unit_snapshot' ->> 'unitName', ''),
+        'conversion_rate', coalesce((v_line -> 'product_unit_snapshot' ->> 'conversionRateToBase')::numeric, 1)
       ));
     end loop;
 
@@ -573,7 +575,7 @@ begin
       set cogs_amount_vnd = (v_issue_line ->> 'cogs_amount_vnd')::bigint,
           cogs_unit_cost = (v_issue_line ->> 'cogs_unit_cost')::numeric,
           cost_version_id = nullif(v_issue_line ->> 'cost_version_id', '')::uuid,
-          cogs_is_provisional = coalesce((v_issue_line ->> 'cogs_is_provisional')::boolean, false)
+          cogs_is_provisional = coalesce((v_issue_line ->> 'is_provisional')::boolean, false)
       where tenant_id = p_tenant_id
         and sales_order_id = v_order_id
         and id = (v_issue_line ->> 'line_id')::uuid;

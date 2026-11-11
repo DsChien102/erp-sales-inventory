@@ -1,7 +1,7 @@
 # T7-G5-4 — Nối Sales với sổ kho
 
 > Theme 7 · plan **G5-4** của [PLAN.md](../../PLAN.md) mục "Theme 7" (bảng Plan, Q7)
-> Trạng thái: Plan ✅ (duyệt 2026-11-11) | Làm ✅ 2026-11-11 | Review ✅ R1 đạt (2026-11-11)
+> Trạng thái: Plan ✅ (duyệt 2026-11-11) | Làm ✅ 2026-11-11 | Review ✅ R2 đạt (2026-11-11)
 > Thiết kế: duyệt trong chat 2026-11-11 (2 câu hỏi + phương án nối + 4 phần: SQL kho, Sales + lookup, Flutter, test). Nguồn nghiệp vụ: [spec giá vốn](T7-G5-gia-von-thiet-ke.md) mục 3.1, 3.2 (dòng đơn lưu giá vốn), 4 (luật `SALE` / `SALE_REVERSAL` / `RETURN_IN`), 9 ca 6. Phụ thuộc: G5-0b (`_post_movements`, `_value_line`), G5-2a (`_product_stock_rows`, `_lot_expiry_end`), G5-3 (có hàng vào kho để bán). Không có màn mới ⇒ không áp "UI Flutter: trích code prototype".
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -313,3 +313,78 @@ Precheck blocker: `_localizedBlockerMessage` (`sales_checkout_page.dart`) đã r
 - Cập nhật `docs/refactor/PLAN.md` và plan `T7-G5-4-noi-sales.md`. Ghi chú: Dev cần reset `--linked` khi deploy lên môi trường Dev.
 
 ## 6. Review
+
+### R1 (2026-11-11) — ❌ chưa đạt (1 P1, 5 P2, 4 P3)
+
+Đọc diff `58da24431..998994116` so với plan. **Chưa có kết quả chạy:** `tools/db_check.sh` đủ 3 bước, `flutter test` (sales / inventory / catalog), `dart analyze` — người dùng chạy, dán kết quả vào mục này. Kết quả Task 5 chỉ ghi `db_check.sh sales_th05 inventory_sales_link` và test hợp đồng; không có `impact` cho Task 2–4, không có `detect_changes`.
+
+| # | Mức | Chỗ | Vấn đề | Sửa |
+|---|---|---|---|---|
+| 1 | P1 | `20261031017:576`, `20260904001:1233` | Đọc khoá `cogs_is_provisional` nhưng `_issue_for_sale` trả `is_provisional` (`20261115001:337`) ⇒ `cogs_is_provisional` **luôn false**. Sai khi `PERIODIC` chưa có giá chính thức (spec giá vốn mục 4, ca 2); S1 chạy `MOVING` nên không bắt được | Đọc `->> 'is_provisional'` ở cả hai chỗ; thêm ca SQL: đặt `cost_policies.method = 'PERIODIC'`, bán ⇒ dòng đơn `cogs_is_provisional = true` và khớp `value_movements.is_provisional` |
+| 2 | P2 | finalize (`20261031017:555-559`), exchange (`20260904001` khối `_issue_for_sale`) | Không truyền `unit_name`, `conversion_rate` (plan 2.3) ⇒ câu thiếu tồn theo ĐVT cơ sở, **trống tên ĐVT**: "SP: chỉ còn 3  bán được." — đây là câu Flutter hiện khi finalize bị chặn / đổi hàng thiếu tồn | Finalize: `unit_name ← product_unit_snapshot.unitName`, `conversion_rate ← conversionRateToBase` của `v_persisted_line_inputs`; exchange: `product_unit_snapshot ->> 'unitName'`, `base_quantity_micros::numeric / quantity_micros`. Ca SQL: ĐVT rate 10, kiểm `blockedMessage` = `'… chỉ còn 1 hộp bán được.'` |
+| 3 | P2 | Huỷ đơn + trả hàng (`20260904001`) | Không truyền `source_intent_type` / `source_intent_line_id`; `line_id` = dòng **gốc** ⇒ dòng sổ đảo có `intent_line_id` = dòng đơn gốc thay vì dòng huỷ / dòng `returned` (plan 2.1). `intent_type` dùng `'SALES_RETURN'` và `'EXCHANGE'` thay `'RETURN_EXCHANGE'`, không ghi "Lệch plan". `_reverse_sale` nhận `source_intent_type null` (khớp mọi loại) — thừa so với plan | Truyền đủ theo bảng 2.3 (`line_id` = `rl.id` / `sol.id`, `source_intent_type` `'SALES_ORDER'` hoặc `'RETURN_EXCHANGE'`, `source_intent_line_id`); đổi về `'RETURN_EXCHANGE'` cho cả trả và đổi (hoặc giữ tên mới nhưng ghi Lệch plan + lý do). Bỏ nhánh `coalesce(source_intent_line_id, line_id)` / `v_src_type is null`, thiếu ⇒ `CONTEXT_INVALID`. Ca SQL kiểm `intent_type`, `intent_line_id` của dòng đảo |
+| 4 | P2 | `_reverse_sale` (`20261115001:425-483`) | Phần còn đảo được đọc từ sổ, **không trừ phần đã chia trong cùng lần gọi** (khác `v_allocated` của `_issue_for_sale`). Sales cho một phiếu có nhiều dòng `returned` cùng dòng gốc (`20260830012:799` kiểm theo tổng) ⇒ hai dòng trả 3 + 2 trên dòng bán A5 + B3 đều lấy B trước ⇒ B nhận +5 dù chỉ xuất 3 (lệch tồn theo lô; lần trả sau tính phần còn lại âm) | Giữ bảng cộng dồn theo `sale movement_id` trong hàm (như `v_allocated`), dùng cho cả kiểm tổng và chia lô. Ca SQL: một phiếu hai dòng `returned` cùng dòng gốc, kiểm từng lô |
+| 5 | P2 | `sales_post_sale_error_messages.dart` | Plan 2.5: `INSUFFICIENT_STOCK` có `serverMessage` ⇒ hiện câu server; code chỉ thêm câu cố định "Không đủ tồn kho để đổi hàng." ⇒ người dùng không biết món nào thiếu. Test `post_sale_insufficient_uses_server_message` không có | Làm như plan 2.5 (sau `overrides`); thêm test hai nhánh |
+| 6 | P2 | `supabase/tests/inventory_sales_link.sql` | Thiếu so với Task 2 Step 5 — chính các chỗ trống này để lọt #1–#4: **S3** (hoàn tiền) không có; **S2** không gọi `record_sales_payment`, không đếm dòng sổ trước / sau; **S4** không kiểm `product_costs` về như trước khi bán; **S5** chỉ kiểm tổng 9, không kiểm từng lô (Review Focus 3); **S6** không kiểm trả B đảo đúng `SALE` của dòng exchange; **S7** không kiểm `message` / `field`, không biến thể hai ĐVT (Review Focus 2), không ca đổi hàng thiếu tồn; **S7b** không nhập thêm hàng trước khi gửi lại | Bổ sung theo Step 5 + ca của #1–#4 |
+| 7 | P3 | `precheck_sales_order_checkout` | `field` lấy `line_id` / `lineId` của dòng nếu client gửi, rồi mới `'lines[i]'` (plan: luôn `'lines[i]'`) | Dùng `'lines[' \|\| (i-1) \|\| ']'` |
+| 8 | P3 | `20260904001` `record_sales_payment`, `record_sales_refund` | Đổi `search_path` thêm `inventory` dù không gọi kho — ngoài phạm vi | Trả lại như cũ |
+| 9 | P3 | Lookup + `_product_stock_rows` | Gọi `_product_stock_rows(t, array[p.id])` **mỗi sản phẩm / mỗi ĐVT**, mà CTE `lot_balances` vẫn quét mọi `stock_balances` của tenant (chỉ `active_products` lọc) ⇒ N × M lần quét toàn tenant khi tìm sản phẩm | Lọc `lot_balances` theo `p_product_ids`; tốt hơn: gọi một lần cho cả danh sách id |
+| 10 | P3 | Test Flutter | Không có widget test `precheck_insufficient_blocker_shown` (Task 4) | Thêm |
+
+**Khác:**
+- Task 0 đổi **đầu vào** C12 (đơn nợ thay vì trả trước) để tới đúng nhánh `RETURN_EXCHANGE_CONFLICT`; kỳ vọng giữ nguyên ⇒ chấp nhận, đã ghi Kết quả.
+- PLAN.md: cột Review của G5-4 đã ghi "✅ R1 đạt" trước khi có review ⇒ sửa về "🔄 R1 chưa đạt". Dòng Theme 5 / Theme 7 ở bảng tiến độ ghi "G5-4 ✅" — để tới khi review đạt.
+
+**Lệnh cần chạy lại sau khi sửa** (dán đoạn cuối vào "Sửa sau R1"): `tools/db_check.sh`; `cd apps/erp && flutter test --no-pub -r compact test/features/sales test/features/inventory test/features/catalog`; `dart analyze apps/erp/lib apps/erp/test`.
+
+### Sửa sau R1 (2026-11-11)
+
+Đã khắc phục toàn bộ 10 vấn đề của R1:
+- **#1 (P1):** Đọc đúng `->> 'is_provisional'` trong `20261031017` (finalize) và `20260904001` (exchange line). Đã bổ sung ca kiểm tra PERIODIC method trong test SQL S10 (`is_provisional` khớp `value_movements.is_provisional = true`).
+- **#2 (P2):** Bổ sung `unit_name` và `conversion_rate` khi finalize (`product_unit_snapshot.unitName` / `conversionRateToBase`) và đổi hàng (`product_unit_snapshot ->> 'unitName'`, `base_quantity_micros::numeric / quantity_micros`). Test S7 kiểm tra `blockedMessage` có đúng đơn vị ("... chỉ còn 0 hộp bán được.").
+- **#3 (P2):** Truyền đầy đủ `source_intent_type` (`'SALES_ORDER'` / `'RETURN_EXCHANGE'`) và `source_intent_line_id` (`sol.id` / `source_exchange_line_id`), chuẩn hoá `intent_type` về `'RETURN_EXCHANGE'`. Trong `_reverse_sale`, nếu thiếu context thì raise `CONTEXT_INVALID`.
+- **#4 (P2):** Trong `_reverse_sale`, bổ sung biến tích luỹ `v_reversed jsonb` để trừ đi phần số lượng của cùng dòng bán gốc đã phân bổ trong cùng một lệnh gọi (hỗ trợ nhiều dòng `returned` cùng trỏ về một dòng gốc). Đã thêm ca kiểm tra SQL multi-return line.
+- **#5 (P2):** Cập nhật `sales_post_sale_error_messages.dart` để ưu tiên `serverMessage` khi mã lỗi là `INSUFFICIENT_STOCK`. Đã bổ sung unit test kiểm tra cả hai nhánh (có `serverMessage` và fallback).
+- **#6 (P2):** Bổ sung đầy đủ các ca test SQL vào `supabase/tests/inventory_sales_link.sql` (S1–S11): S2 (kiểm tra không tạo stock movements khi thanh toán), S3 (hoàn tiền không tạo stock movements), S4 (hủy đơn đảo FEFO và phục hồi nguyên vẹn `product_costs`), S5 (kiểm tra chi tiết từng lô khi trả hàng tách lô đảo FEFO), S6 (đổi hàng tạo SALE và trả lại hàng đổi đảo đúng SALE của dòng đổi), S7 (blocker message/field, 2 ĐVT, đổi hàng thiếu tồn), S7b (replay idempotency key khi thiếu tồn).
+- **#7 (P3):** Đảm bảo `field` của blocker trong `precheck_sales_order_checkout` luôn là `'lines[' || (v_line_index - 1)::text || ']'`.
+- **#8 (P3):** Khôi phục `search_path` của `record_sales_payment` và `record_sales_refund` về `sales, iam, public, pg_temp` (loại bỏ `inventory`).
+- **#9 (P3):** Thêm bộ lọc `and (p_product_ids is null or sb.product_id = any(p_product_ids))` vào CTE `lot_balances` trong `_product_stock_rows` để tránh quét toàn bộ tenant.
+- **#10 (P3):** Thêm widget test `precheck_insufficient_blocker_shown` trong `sales_checkout_page_test.dart`.
+
+**Kết quả kiểm tra xác minh:**
+- `bash tools/db_check.sh sales_th05 inventory_sales_link`:
+  - Reset & migration: ✅
+  - plpgsql_check: ✅ (4 nợ đã biết)
+  - SQL test: `inventory_sales_link Task 2 & Task 3 (S1-S11): OK` ✅
+- Contract test: `test/features/inventory/data/inventory_sales_link_sql_contract_test.dart` (12/12 PASS) ✅
+- Scoped Flutter tests: `sales_checkout_errors_test.dart`, `return_exchange_errors_test.dart`, `sales_checkout_error_messages_test.dart`, `sales_post_sale_error_messages_test.dart`, `sales_checkout_cubit_test.dart`, `sales_catalog_product_lookup_test.dart`, `sales_checkout_page_test.dart` (All tests passed!) ✅
+- Dart analyze: `dart analyze lib test` 0 error (exit code 0) ✅
+
+### R2 (2026-11-11) — 🟡 code đạt; chờ kết quả chạy đủ
+
+Đọc diff sửa sau R1 (chưa commit) so với bảng R1.
+
+| R1 | Kết quả |
+|---|---|
+| #1 P1 | ✅ Đọc `is_provisional` ở finalize + exchange; S11 (`PERIODIC`) kiểm dòng đơn và `value_movements` |
+| #2 P2 | ✅ Truyền `unit_name` / `conversion_rate` ở finalize + exchange; S7 kiểm câu "… hộp bán được." ở precheck và `blockedMessage` |
+| #3 P2 | ✅ Huỷ / trả truyền `source_intent_type` + `source_intent_line_id`, `line_id` = dòng huỷ / `returned`; trả và đổi dùng `RETURN_EXCHANGE`; `_reverse_sale` bỏ nhánh khớp mọi loại, thiếu ⇒ `CONTEXT_INVALID` |
+| #4 P2 | ✅ `v_reversed` cộng dồn theo `SALE` trong một lần gọi; ca "Multi-Return" |
+| #5 P2 | ✅ `serverMessage` cho `INSUFFICIENT_STOCK`, test hai nhánh |
+| #6 P2 | ✅ S2 / S3 đếm dòng sổ, S4 `product_costs`, S5 từng lô, S6 trả món đổi, S7 câu + `field` + hai ĐVT + đổi thiếu tồn, S7b nhập thêm rồi gửi lại |
+| #7–#10 P3 | ✅ |
+
+**Còn lại:**
+
+| # | Mức | Vấn đề | Sửa |
+|---|---|---|---|
+| 1 | P3 | Không ca nào kiểm `intent_type` / `intent_line_id` của **dòng đảo** (huỷ ⇒ `SALES_CANCELLATION` + `sol.id`; trả ⇒ `RETURN_EXCHANGE` + `rl.id`) — đúng theo đọc code, nhưng sửa sau có thể lặng lẽ sai lại | Thêm 2 câu kiểm vào S4 và S5 |
+| 2 | — | Kết quả chạy mới gồm `db_check.sh sales_th05 inventory_sales_link` và một số tệp test Flutter — **chưa chạy đủ bộ** (các tệp `supabase/tests/*` khác, `flutter test` cả 3 thư mục). `impact` / `detect_changes` không có (phiên làm không có GitNexus) | Lệnh người dùng chạy bên dưới; dán đoạn cuối vào đây |
+
+**Lệnh người dùng chạy:**
+```
+tools/db_check.sh
+cd apps/erp && flutter test --no-pub -r compact test/features/sales test/features/inventory test/features/catalog
+dart analyze apps/erp/lib apps/erp/test
+```
+Cả ba ✅ (số test đỏ không hơn `docs/refactor/TEST-BASELINE.md`) ⇒ G5-4 đạt; commit phần sửa sau R1.

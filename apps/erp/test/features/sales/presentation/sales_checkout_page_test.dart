@@ -562,6 +562,28 @@ void main() {
       expect(find.textContaining('1028 6888'), findsNothing);
       expect(find.byKey(const Key('input_sg05_transaction_code')), findsOneWidget);
     });
+
+    testWidgets('precheck_insufficient_blocker_shown', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      const shortageBlocker = SalesBlockerDto(
+        code: 'INSUFFICIENT_STOCK',
+        message: 'Nobivac: chỉ còn 2 hộp bán được.',
+        field: 'lines[0]',
+      );
+
+      final precheck = _blockedResult(blockers: const [shortageBlocker]);
+
+      await pumpCheckout(tester, result: precheck);
+      await _confirmFinalize(tester);
+
+      expect(find.textContaining('Nobivac: chỉ còn 2 hộp bán được.'), findsOneWidget);
+    });
   });
 }
 

@@ -379,6 +379,8 @@ declare
   v_take numeric;
   v_rev_kind text;
   v_elements jsonb := '[]'::jsonb;
+  v_reversed jsonb := '{}'::jsonb;
+  v_cand_avail numeric;
   v_post_res jsonb;
   v_out_lines jsonb := '[]'::jsonb;
 begin
@@ -394,7 +396,8 @@ begin
     from jsonb_array_elements(p_lines) elem
     join inventory.stock_movements m
       on m.tenant_id = p_tenant_id
-     and m.intent_line_id = coalesce((elem->>'source_intent_line_id')::uuid, (elem->>'line_id')::uuid)
+     and m.intent_type = elem->>'source_intent_type'
+     and m.intent_line_id = (elem->>'source_intent_line_id')::uuid
      and m.movement_kind = 'SALE'
     order by m.product_id asc
   ) loop
@@ -404,25 +407,30 @@ begin
   -- (2) Allocation per line
   for v_line_elem in select * from jsonb_array_elements(p_lines) loop
     v_line_id := (v_line_elem->>'line_id')::uuid;
-    v_src_line_id := coalesce(
-      (v_line_elem->>'source_intent_line_id')::uuid,
-      (v_line_elem->>'line_id')::uuid
-    );
     v_src_type := v_line_elem->>'source_intent_type';
+    v_src_line_id := nullif(v_line_elem->>'source_intent_line_id', '')::uuid;
     v_need_qty := (v_line_elem->>'base_qty')::numeric;
+
+    if v_src_type is null or v_src_line_id is null or v_line_id is null then
+      perform inventory._raise('CONTEXT_INVALID', 'Thiếu thông tin dòng bán gốc để đảo (source_intent_type, source_intent_line_id).');
+    end if;
 
     if not exists (
       select 1
       from inventory.stock_movements m
       where m.tenant_id = p_tenant_id
-        and (v_src_type is null or m.intent_type = v_src_type)
+        and m.intent_type = v_src_type
         and m.intent_line_id = v_src_line_id
         and m.movement_kind = 'SALE'
     ) then
       perform inventory._raise('CONTEXT_INVALID', 'Không tìm thấy dòng xuất bán gốc để đảo.');
     end if;
 
-    select coalesce(sum(- m.quantity_delta - coalesce(rev.reversed_qty, 0)), 0)
+    select coalesce(sum(
+      - m.quantity_delta
+      - coalesce(rev.reversed_qty, 0)
+      - coalesce((v_reversed->>m.id::text)::numeric, 0)
+    ), 0)
     into v_total_avail
     from inventory.stock_movements m
     left join (
@@ -434,7 +442,7 @@ begin
       group by vm_rev.source_movement_id
     ) rev on rev.source_movement_id = m.id
     where m.tenant_id = p_tenant_id
-      and (v_src_type is null or m.intent_type = v_src_type)
+      and m.intent_type = v_src_type
       and m.intent_line_id = v_src_line_id
       and m.movement_kind = 'SALE';
 
@@ -460,14 +468,17 @@ begin
         group by vm_rev.source_movement_id
       ) rev on rev.source_movement_id = m.id
       where m.tenant_id = p_tenant_id
-        and (v_src_type is null or m.intent_type = v_src_type)
+        and m.intent_type = v_src_type
         and m.intent_line_id = v_src_line_id
         and m.movement_kind = 'SALE'
       order by inventory._lot_expiry_end(l.expiry_date, l.expiry_precision) desc nulls first, m.ledger_sequence desc
     loop
       if v_need_qty <= 0 then exit; end if;
-      if v_sale_rec.avail_qty > 0 then
-        v_take := least(v_need_qty, v_sale_rec.avail_qty);
+
+      v_cand_avail := v_sale_rec.avail_qty - coalesce((v_reversed->>v_sale_rec.movement_id::text)::numeric, 0);
+
+      if v_cand_avail > 0 then
+        v_take := least(v_need_qty, v_cand_avail);
         v_rev_kind := inventory._reversal_kind(p_tenant_id, v_sale_rec.movement_id);
 
         v_elements := v_elements || jsonb_build_object(
@@ -478,6 +489,13 @@ begin
           'movement_kind', v_rev_kind,
           'source_movement_id', v_sale_rec.movement_id
         );
+
+        v_reversed := jsonb_set(
+          v_reversed,
+          array[v_sale_rec.movement_id::text],
+          to_jsonb(coalesce((v_reversed->>v_sale_rec.movement_id::text)::numeric, 0) + v_take)
+        );
+
         v_need_qty := v_need_qty - v_take;
       end if;
     end loop;

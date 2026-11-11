@@ -27,7 +27,7 @@ create or replace function sales.record_sales_payment(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = sales, iam, inventory, public, pg_temp
+set search_path = sales, iam, public, pg_temp
 as $$
 declare
   v_decision jsonb;
@@ -168,7 +168,7 @@ create or replace function sales.record_sales_refund(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = sales, iam, inventory, public, pg_temp
+set search_path = sales, iam, public, pg_temp
 as $$
 declare
   v_decision jsonb;
@@ -578,6 +578,8 @@ begin
     (
       select jsonb_agg(jsonb_build_object(
         'line_id', sol.id,
+        'source_intent_type', 'SALES_ORDER',
+        'source_intent_line_id', sol.id,
         'product_id', sol.product_id,
         'base_qty', sol.base_quantity_micros::numeric / 1000000.0
       ))
@@ -1187,11 +1189,13 @@ begin
     perform inventory._reverse_sale(
       confirm_return_exchange.tenant_id,
       v_order.store_id,
-      'SALES_RETURN',
+      'RETURN_EXCHANGE',
       v_session.id,
       (
         select jsonb_agg(jsonb_build_object(
-          'line_id', coalesce(rl.original_sales_order_line_id, rl.source_exchange_line_id, rl.id),
+          'line_id', rl.id,
+          'source_intent_type', case when rl.source_exchange_line_id is not null then 'RETURN_EXCHANGE' else 'SALES_ORDER' end,
+          'source_intent_line_id', coalesce(rl.source_exchange_line_id, rl.original_sales_order_line_id),
           'product_id', rl.product_id,
           'base_qty', rl.base_quantity_micros::numeric / 1000000.0
         ))
@@ -1209,13 +1213,15 @@ begin
     v_exchange_issue_res := inventory._issue_for_sale(
       confirm_return_exchange.tenant_id,
       v_order.store_id,
-      'EXCHANGE',
+      'RETURN_EXCHANGE',
       v_session.id,
       (
         select jsonb_agg(jsonb_build_object(
           'line_id', rl.id,
           'product_id', rl.product_id,
-          'base_qty', rl.base_quantity_micros::numeric / 1000000.0
+          'base_qty', rl.base_quantity_micros::numeric / 1000000.0,
+          'unit_name', coalesce(rl.product_unit_snapshot ->> 'unitName', ''),
+          'conversion_rate', case when coalesce(rl.quantity_micros, 0) > 0 then rl.base_quantity_micros::numeric / rl.quantity_micros else 1 end
         ))
         from sales.return_exchange_lines rl
         where rl.tenant_id = confirm_return_exchange.tenant_id
@@ -1230,7 +1236,7 @@ begin
       set cogs_amount_vnd = (v_ex_issue_line ->> 'cogs_amount_vnd')::bigint,
           cogs_unit_cost = (v_ex_issue_line ->> 'cogs_unit_cost')::numeric,
           cost_version_id = nullif(v_ex_issue_line ->> 'cost_version_id', '')::uuid,
-          cogs_is_provisional = coalesce((v_ex_issue_line ->> 'cogs_is_provisional')::boolean, false)
+          cogs_is_provisional = coalesce((v_ex_issue_line ->> 'is_provisional')::boolean, false)
       where tenant_id = confirm_return_exchange.tenant_id
         and return_exchange_order_id = v_session.id
         and id = (v_ex_issue_line ->> 'line_id')::uuid;

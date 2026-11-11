@@ -478,7 +478,7 @@ begin
   select jsonb_agg(jsonb_build_object(
     'lineId', 'line-' || l.ordinality::text,
     'product', jsonb_build_object('productId', l.value ->> 'product_id', 'displayName', 'SP'),
-    'unit', jsonb_build_object('productUnitId', l.value ->> 'product_unit_id', 'unitName', 'DV'),
+    'unit', jsonb_build_object('productUnitId', l.value ->> 'product_unit_id', 'unitName', coalesce(pu.unit_name, 'DV')),
     'quantityMicros', (l.value ->> 'quantity_micros')::bigint,
     'lineTotal', jsonb_build_object(
       'amountMinor',
@@ -487,7 +487,8 @@ begin
     )
   ) order by l.ordinality)
   into v_snap_lines
-  from jsonb_array_elements(p_lines) with ordinality as l(value, ordinality);
+  from jsonb_array_elements(p_lines) with ordinality as l(value, ordinality)
+  left join catalog.product_units pu on pu.id = (l.value ->> 'product_unit_id')::uuid;
 
   v_snapshot := jsonb_build_object(
     'store', jsonb_build_object('storeId', p_store::text),
@@ -563,12 +564,36 @@ declare
   v_lot1 uuid;
   v_lot2 uuid;
 
+  v_pf uuid := gen_random_uuid();
+  v_uf uuid := gen_random_uuid();
+  v_lot_f1 uuid;
+  v_lot_f2 uuid;
+
+  v_pg uuid := gen_random_uuid();
+  v_ug uuid := gen_random_uuid();
+  v_lot_g1 uuid;
+  v_lot_g2 uuid;
+
+  v_p_two uuid := gen_random_uuid();
+  v_u_two_base uuid := gen_random_uuid();
+  v_u_two_box uuid := gen_random_uuid();
+
+  v_p_periodic uuid := gen_random_uuid();
+  v_u_periodic uuid := gen_random_uuid();
+
   v_res jsonb;
   v_order_id uuid;
   v_sol record;
   v_bal numeric;
   v_bal1 numeric;
   v_bal2 numeric;
+
+  v_sm_before bigint;
+  v_sm_after bigint;
+  v_qoh_before numeric;
+  v_val_before bigint;
+  v_qoh_after numeric;
+  v_val_after bigint;
 
   v_pre jsonb;
   v_rx jsonb;
@@ -607,19 +632,30 @@ begin
     (v_pa, v_t, 'SP_A Lô', 'SKU-PA', 'lot', true, 'active', true, 'REF-PA', v_owner, v_owner),
     (v_pb, v_t, 'SP_B Ko Lô', 'SKU-PB', 'none', false, 'active', true, 'REF-PB', v_owner, v_owner),
     (v_pc, v_t, 'SP_C Đổi', 'SKU-PC', 'none', false, 'active', true, 'REF-PC', v_owner, v_owner),
-    (v_pd, v_t, 'SP_D Hết Hàng', 'SKU-PD', 'none', false, 'active', true, 'REF-PD', v_owner, v_owner);
+    (v_pd, v_t, 'SP_D Hết Hàng', 'SKU-PD', 'none', false, 'active', true, 'REF-PD', v_owner, v_owner),
+    (v_pf, v_t, 'SP_F Lô Tách', 'SKU-PF', 'lot', true, 'active', true, 'REF-PF', v_owner, v_owner),
+    (v_pg, v_t, 'SP_G Lô MultiRet', 'SKU-PG', 'lot', true, 'active', true, 'REF-PG', v_owner, v_owner),
+    (v_p_two, v_t, 'SP_Two 2 ĐVT', 'SKU-PTWO', 'none', false, 'active', true, 'REF-PTWO', v_owner, v_owner);
 
   insert into catalog.product_units (id, tenant_id, product_id, unit_name, conversion_rate_to_base, is_base_unit)
   values
     (v_ua, v_t, v_pa, 'hộp', 1, true),
     (v_ub, v_t, v_pb, 'hộp', 1, true),
     (v_uc, v_t, v_pc, 'hộp', 1, true),
-    (v_ud, v_t, v_pd, 'hộp', 1, true);
+    (v_ud, v_t, v_pd, 'hộp', 1, true),
+    (v_uf, v_t, v_pf, 'hộp', 1, true),
+    (v_ug, v_t, v_pg, 'hộp', 1, true),
+    (v_u_two_base, v_t, v_p_two, 'viên', 1, true),
+    (v_u_two_box, v_t, v_p_two, 'hộp', 10, false);
 
   perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_pa, p_product_unit_id => v_ua, p_source_type => 'manual', p_list_price_before_vat => 50000, p_list_price_after_vat => 50000, p_floor_price_before_vat => 20000, p_floor_price_after_vat => 20000);
   perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_pb, p_product_unit_id => v_ub, p_source_type => 'manual', p_list_price_before_vat => 60000, p_list_price_after_vat => 60000, p_floor_price_before_vat => 30000, p_floor_price_after_vat => 30000);
   perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_pc, p_product_unit_id => v_uc, p_source_type => 'manual', p_list_price_before_vat => 50000, p_list_price_after_vat => 50000, p_floor_price_before_vat => 20000, p_floor_price_after_vat => 20000);
   perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_pd, p_product_unit_id => v_ud, p_source_type => 'manual', p_list_price_before_vat => 30000, p_list_price_after_vat => 30000, p_floor_price_before_vat => 10000, p_floor_price_after_vat => 10000);
+  perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_pf, p_product_unit_id => v_uf, p_source_type => 'manual', p_list_price_before_vat => 40000, p_list_price_after_vat => 40000, p_floor_price_before_vat => 10000, p_floor_price_after_vat => 10000);
+  perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_pg, p_product_unit_id => v_ug, p_source_type => 'manual', p_list_price_before_vat => 40000, p_list_price_after_vat => 40000, p_floor_price_before_vat => 10000, p_floor_price_after_vat => 10000);
+  perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_p_two, p_product_unit_id => v_u_two_base, p_source_type => 'manual', p_list_price_before_vat => 5000, p_list_price_after_vat => 5000, p_floor_price_before_vat => 2000, p_floor_price_after_vat => 2000);
+  perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_p_two, p_product_unit_id => v_u_two_box, p_source_type => 'manual', p_list_price_before_vat => 50000, p_list_price_after_vat => 50000, p_floor_price_before_vat => 20000, p_floor_price_after_vat => 20000);
 
   -- Initial stocks
   -- PA: Lô 1 (5 hộp, hạn +10 ngày, giá vốn 10.000), Lô 2 (5 hộp, hạn +20 ngày, giá vốn 12.000)
@@ -629,7 +665,12 @@ begin
       jsonb_build_object('product_id', v_pa, 'lot_code', 'PA-L1', 'expiry_date', v_today + 10, 'quantity_delta', 5, 'unit_cost', 10000, 'movement_kind', 'RECEIPT'),
       jsonb_build_object('product_id', v_pa, 'lot_code', 'PA-L2', 'expiry_date', v_today + 20, 'quantity_delta', 5, 'unit_cost', 12000, 'movement_kind', 'RECEIPT'),
       jsonb_build_object('product_id', v_pb, 'quantity_delta', 10, 'unit_cost', 20000, 'movement_kind', 'RECEIPT'),
-      jsonb_build_object('product_id', v_pc, 'quantity_delta', 5, 'unit_cost', 15000, 'movement_kind', 'RECEIPT')
+      jsonb_build_object('product_id', v_pc, 'quantity_delta', 5, 'unit_cost', 15000, 'movement_kind', 'RECEIPT'),
+      jsonb_build_object('product_id', v_pf, 'lot_code', 'PF-L1', 'expiry_date', v_today + 10, 'quantity_delta', 5, 'unit_cost', 10000, 'movement_kind', 'RECEIPT'),
+      jsonb_build_object('product_id', v_pf, 'lot_code', 'PF-L2', 'expiry_date', v_today + 20, 'quantity_delta', 5, 'unit_cost', 12000, 'movement_kind', 'RECEIPT'),
+      jsonb_build_object('product_id', v_pg, 'lot_code', 'PG-L1', 'expiry_date', v_today + 10, 'quantity_delta', 5, 'unit_cost', 10000, 'movement_kind', 'RECEIPT'),
+      jsonb_build_object('product_id', v_pg, 'lot_code', 'PG-L2', 'expiry_date', v_today + 20, 'quantity_delta', 5, 'unit_cost', 12000, 'movement_kind', 'RECEIPT'),
+      jsonb_build_object('product_id', v_p_two, 'quantity_delta', 12, 'unit_cost', 4000, 'movement_kind', 'RECEIPT')
     ),
     v_owner
   );
@@ -638,6 +679,10 @@ begin
 
   select id into v_lot1 from inventory.lots where tenant_id = v_t and product_id = v_pa and lot_code = 'PA-L1';
   select id into v_lot2 from inventory.lots where tenant_id = v_t and product_id = v_pa and lot_code = 'PA-L2';
+  select id into v_lot_f1 from inventory.lots where tenant_id = v_t and product_id = v_pf and lot_code = 'PF-L1';
+  select id into v_lot_f2 from inventory.lots where tenant_id = v_t and product_id = v_pf and lot_code = 'PF-L2';
+  select id into v_lot_g1 from inventory.lots where tenant_id = v_t and product_id = v_pg and lot_code = 'PG-L1';
+  select id into v_lot_g2 from inventory.lots where tenant_id = v_t and product_id = v_pg and lot_code = 'PG-L2';
 
   -- -------------------------------------------------------------------------
   -- S1: Normal Sale + COGS snapshot
@@ -667,7 +712,7 @@ begin
   perform public._assert_inventory_invariants(v_t, v_pa, 'S1');
 
   -- -------------------------------------------------------------------------
-  -- S2: Debt Sale
+  -- S2: Debt Sale + Record Payment (no stock movements)
   -- -------------------------------------------------------------------------
   v_res := public._isl_finalize(v_t, v_owner, v_store, v_cust,
     jsonb_build_array(public._isl_line(v_pa, v_ua, 1000000, 50000)),
@@ -676,6 +721,7 @@ begin
   if v_res ->> 'status' <> 'succeeded' then
     raise exception 'FAIL [S2]: debt sale finalize failed: %', v_res;
   end if;
+  v_order_id := (v_res ->> 'salesOrderId')::uuid;
 
   select physical_quantity into v_bal from inventory.stock_balances
   where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pa and lot_key = v_lot1;
@@ -683,11 +729,56 @@ begin
     raise exception 'FAIL [S2]: lot1 balance expected 2, got %', v_bal;
   end if;
 
+  select count(*) into v_sm_before from inventory.stock_movements where tenant_id = v_t;
+
+  perform sales.record_sales_payment(
+    p_tenant_id => v_t,
+    p_actor_id => v_owner,
+    p_store_id => v_store,
+    p_sales_order_id => v_order_id,
+    p_amount_minor => 50000::bigint,
+    p_payment_method_code => 'cash',
+    p_idempotency_key => 's2-pay-key',
+    p_payload_hash => 'h'
+  );
+
+  select count(*) into v_sm_after from inventory.stock_movements where tenant_id = v_t;
+  if v_sm_before <> v_sm_after then
+    raise exception 'FAIL [S2]: record_sales_payment must not create stock movements: before=% vs after=%',
+      v_sm_before, v_sm_after;
+  end if;
+
   perform public._assert_inventory_invariants(v_t, v_pa, 'S2');
 
   -- -------------------------------------------------------------------------
-  -- S4: Cancel order spanning 2 lots (Reverse FEFO)
+  -- S3: Record Refund (no stock movements)
   -- -------------------------------------------------------------------------
+  select count(*) into v_sm_before from inventory.stock_movements where tenant_id = v_t;
+
+  perform sales.record_sales_refund(
+    p_tenant_id => v_t,
+    p_actor_id => v_owner,
+    p_store_id => v_store,
+    p_sales_order_id => v_order_id,
+    p_amount_minor => 20000::bigint,
+    p_payment_method_code => 'cash',
+    p_reason_code => 'CUSTOMER_REQUEST',
+    p_idempotency_key => 's3-refund-key',
+    p_payload_hash => 'h'
+  );
+
+  select count(*) into v_sm_after from inventory.stock_movements where tenant_id = v_t;
+  if v_sm_before <> v_sm_after then
+    raise exception 'FAIL [S3]: record_sales_refund must not create stock movements: before=% vs after=%',
+      v_sm_before, v_sm_after;
+  end if;
+
+  -- -------------------------------------------------------------------------
+  -- S4: Cancel order spanning 2 lots (Reverse FEFO) + cost restored
+  -- -------------------------------------------------------------------------
+  select quantity_on_hand, ledger_value_vnd into v_qoh_before, v_val_before
+  from inventory.product_costs where tenant_id = v_t and product_id = v_pa;
+
   -- Mua 4 hộp PA: xuất 2 hộp Lô 1 (hết lô 1) và 2 hộp Lô 2 (bán nợ để đủ điều kiện huỷ EP-05)
   v_res := public._isl_finalize(v_t, v_owner, v_store, v_cust,
     jsonb_build_array(public._isl_line(v_pa, v_ua, 4000000, 50000)),
@@ -716,67 +807,125 @@ begin
     raise exception 'FAIL [S4]: lot2 balance after cancellation expected 5, got %', v_bal;
   end if;
 
+  select quantity_on_hand, ledger_value_vnd into v_qoh_after, v_val_after
+  from inventory.product_costs where tenant_id = v_t and product_id = v_pa;
+  if v_qoh_before <> v_qoh_after or v_val_before <> v_val_after then
+    raise exception 'FAIL [S4]: product_costs not restored after cancellation: qoh before=% after=%, val before=% after=%',
+      v_qoh_before, v_qoh_after, v_val_before, v_val_after;
+  end if;
+
   perform public._assert_inventory_invariants(v_t, v_pa, 'S4');
 
   -- -------------------------------------------------------------------------
-  -- S5: 3 partial returns 4/4/1 from PB (initial 10)
+  -- S5: 3 partial returns 4/4/1 from PF (split across 2 lots, Review Focus 3)
+  -- PF initial: L1: 5 (expiry +10), L2: 5 (expiry +20)
   -- -------------------------------------------------------------------------
   v_res := public._isl_finalize(v_t, v_owner, v_store, null,
-    jsonb_build_array(public._isl_line(v_pb, v_ub, 10000000, 60000)),
-    public._isl_pay(600000), null, 's5-key');
+    jsonb_build_array(public._isl_line(v_pf, v_uf, 8000000, 40000)),
+    public._isl_pay(320000), null, 's5-key');
+  if v_res ->> 'status' <> 'succeeded' then
+    raise exception 'FAIL [S5]: finalize failed: %', v_res;
+  end if;
   v_order_id := (v_res ->> 'salesOrderId')::uuid;
   select id into v_sol_id from sales.sales_order_lines where tenant_id = v_t and sales_order_id = v_order_id;
 
-  -- Trả lần 1: 4 hộp
+  -- Sau bán 8: FEFO lấy L1: 5, L2: 3. Tồn: L1 = 0, L2 = 2
+  select physical_quantity into v_bal1 from inventory.stock_balances
+  where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pf and lot_key = v_lot_f1;
+  select physical_quantity into v_bal2 from inventory.stock_balances
+  where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pf and lot_key = v_lot_f2;
+  if v_bal1 <> 0 or v_bal2 <> 2 then
+    raise exception 'FAIL [S5]: balance after sale 8 expected L1=0, L2=2, got L1=%, L2=%', v_bal1, v_bal2;
+  end if;
+
+  -- Trả lần 1: 4 hộp -> đảo FEFO ưu tiên hạn xa hơn (L2 nhận 3, L1 nhận 1)
   v_rx := sales.start_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_order_id, 'standard',
-    jsonb_build_array(jsonb_build_object('kind', 'returnLine', 'original_sales_order_line_id', v_sol_id, 'product_id', v_pb, 'product_unit_id', v_ub, 'quantity_micros', 4000000, 'reason_code', 'OTHER', 'condition_code', 'GOOD')),
+    jsonb_build_array(jsonb_build_object('kind', 'returnLine', 'original_sales_order_line_id', v_sol_id, 'product_id', v_pf, 'product_unit_id', v_uf, 'quantity_micros', 4000000, 'reason_code', 'OTHER', 'condition_code', 'GOOD')),
     's5-ret1-start', 'h', gen_random_uuid()::text);
   v_rx_id := (v_rx ->> 'returnExchangeId')::uuid;
   v_rx_ver := (v_rx ->> 'version')::int;
   perform sales.evaluate_return_exchange_valuation(gen_random_uuid()::text, v_t, v_owner, v_rx_id);
   perform sales.confirm_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_rx_id, 's5-ret1-conf', 'h', gen_random_uuid()::text, expected_version => v_rx_ver);
 
-  -- Trả lần 2: 4 hộp
+  select physical_quantity into v_bal1 from inventory.stock_balances
+  where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pf and lot_key = v_lot_f1;
+  select physical_quantity into v_bal2 from inventory.stock_balances
+  where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pf and lot_key = v_lot_f2;
+  if v_bal1 <> 1 or v_bal2 <> 5 then
+    raise exception 'FAIL [S5]: balance after return 1 expected L1=1, L2=5, got L1=%, L2=%', v_bal1, v_bal2;
+  end if;
+
+  -- Trả lần 2: 4 hộp -> L2 đã hết phần đảo được, đảo 4 vào L1 (L1 lên 1 + 4 = 5)
   v_rx := sales.start_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_order_id, 'standard',
-    jsonb_build_array(jsonb_build_object('kind', 'returnLine', 'original_sales_order_line_id', v_sol_id, 'product_id', v_pb, 'product_unit_id', v_ub, 'quantity_micros', 4000000, 'reason_code', 'OTHER', 'condition_code', 'GOOD')),
+    jsonb_build_array(jsonb_build_object('kind', 'returnLine', 'original_sales_order_line_id', v_sol_id, 'product_id', v_pf, 'product_unit_id', v_uf, 'quantity_micros', 4000000, 'reason_code', 'OTHER', 'condition_code', 'GOOD')),
     's5-ret2-start', 'h', gen_random_uuid()::text);
   v_rx_id := (v_rx ->> 'returnExchangeId')::uuid;
   v_rx_ver := (v_rx ->> 'version')::int;
   perform sales.evaluate_return_exchange_valuation(gen_random_uuid()::text, v_t, v_owner, v_rx_id);
   perform sales.confirm_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_rx_id, 's5-ret2-conf', 'h', gen_random_uuid()::text, expected_version => v_rx_ver);
 
-  -- Trả lần 3: 1 hộp
-  v_rx := sales.start_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_order_id, 'standard',
-    jsonb_build_array(jsonb_build_object('kind', 'returnLine', 'original_sales_order_line_id', v_sol_id, 'product_id', v_pb, 'product_unit_id', v_ub, 'quantity_micros', 1000000, 'reason_code', 'OTHER', 'condition_code', 'GOOD')),
-    's5-ret3-start', 'h', gen_random_uuid()::text);
-  v_rx_id := (v_rx ->> 'returnExchangeId')::uuid;
-  v_rx_ver := (v_rx ->> 'version')::int;
-  perform sales.evaluate_return_exchange_valuation(gen_random_uuid()::text, v_t, v_owner, v_rx_id);
-  perform sales.confirm_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_rx_id, 's5-ret3-conf', 'h', gen_random_uuid()::text, expected_version => v_rx_ver);
+  select physical_quantity into v_bal1 from inventory.stock_balances
+  where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pf and lot_key = v_lot_f1;
+  select physical_quantity into v_bal2 from inventory.stock_balances
+  where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pf and lot_key = v_lot_f2;
+  if v_bal1 <> 5 or v_bal2 <> 5 then
+    raise exception 'FAIL [S5]: balance after return 2 expected L1=5, L2=5, got L1=%, L2=%', v_bal1, v_bal2;
+  end if;
 
-  -- Thử trả lần 4: 2 hộp -> phải lỗi RETURN_QUANTITY_EXCEEDED
+  -- Trả lần 3: thử trả thêm 1 hộp -> lỗi RETURN_QUANTITY_EXCEEDED
+  select count(*) into v_sm_before from inventory.stock_movements where tenant_id = v_t;
   begin
     perform sales.start_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_order_id, 'standard',
-      jsonb_build_array(jsonb_build_object('kind', 'returnLine', 'original_sales_order_line_id', v_sol_id, 'product_id', v_pb, 'product_unit_id', v_ub, 'quantity_micros', 2000000, 'reason_code', 'OTHER', 'condition_code', 'GOOD')),
-      's5-ret4-start', 'h', gen_random_uuid()::text);
+      jsonb_build_array(jsonb_build_object('kind', 'returnLine', 'original_sales_order_line_id', v_sol_id, 'product_id', v_pf, 'product_unit_id', v_uf, 'quantity_micros', 1000000, 'reason_code', 'OTHER', 'condition_code', 'GOOD')),
+      's5-ret3-start', 'h', gen_random_uuid()::text);
     raise exception 'FAIL [S5]: expected RETURN_QUANTITY_EXCEEDED';
   exception when others then
     if sqlerrm not like '%RETURN_QUANTITY_EXCEEDED%' then
       raise exception 'FAIL [S5]: expected RETURN_QUANTITY_EXCEEDED, got %', sqlerrm;
     end if;
   end;
-
-  -- Tổng hoàn lại: 4 + 4 + 1 = 9 hộp PB. Tồn kho PB = 0 + 9 = 9 hộp.
-  select physical_quantity into v_bal from inventory.stock_balances
-  where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pb;
-  if v_bal <> 9 then
-    raise exception 'FAIL [S5]: balance of PB expected 9, got %', v_bal;
+  select count(*) into v_sm_after from inventory.stock_movements where tenant_id = v_t;
+  if v_sm_before <> v_sm_after then
+    raise exception 'FAIL [S5]: failed return attempt must not create stock movements';
   end if;
 
-  perform public._assert_inventory_invariants(v_t, v_pb, 'S5');
+  perform public._assert_inventory_invariants(v_t, v_pf, 'S5');
 
   -- -------------------------------------------------------------------------
-  -- S6: Exchange PA -> PC, then return PC
+  -- Ca bổ sung Review R1 #4: Một phiếu có 2 dòng returned cùng trỏ về 1 dòng bán gốc
+  -- PG initial: L1: 5 (expiry +10), L2: 5 (expiry +20)
+  -- -------------------------------------------------------------------------
+  v_res := public._isl_finalize(v_t, v_owner, v_store, null,
+    jsonb_build_array(public._isl_line(v_pg, v_ug, 8000000, 40000)),
+    public._isl_pay(320000), null, 'spg-sale-key');
+  v_order_id := (v_res ->> 'salesOrderId')::uuid;
+  select id into v_sol_id from sales.sales_order_lines where tenant_id = v_t and sales_order_id = v_order_id;
+
+  -- Phiếu trả gồm 2 dòng returned: dòng 1 trả 3 hộp, dòng 2 trả 2 hộp (tổng trả 5)
+  v_rx := sales.start_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_order_id, 'standard',
+    jsonb_build_array(
+      jsonb_build_object('kind', 'returnLine', 'original_sales_order_line_id', v_sol_id, 'product_id', v_pg, 'product_unit_id', v_ug, 'quantity_micros', 3000000, 'reason_code', 'OTHER', 'condition_code', 'GOOD'),
+      jsonb_build_object('kind', 'returnLine', 'original_sales_order_line_id', v_sol_id, 'product_id', v_pg, 'product_unit_id', v_ug, 'quantity_micros', 2000000, 'reason_code', 'OTHER', 'condition_code', 'GOOD')
+    ),
+    'spg-multiline-ret-start', 'h', gen_random_uuid()::text);
+  v_rx_id := (v_rx ->> 'returnExchangeId')::uuid;
+  v_rx_ver := (v_rx ->> 'version')::int;
+  perform sales.evaluate_return_exchange_valuation(gen_random_uuid()::text, v_t, v_owner, v_rx_id);
+  perform sales.confirm_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_rx_id, 'spg-multiline-ret-conf', 'h', gen_random_uuid()::text, expected_version => v_rx_ver);
+
+  -- Trước trả: L1=0, L2=2. Dòng 1 trả 3 -> vào L2 đủ 3 (L2 lên 5, hết phần đảo). Dòng 2 trả 2 -> buộc vào L1 (L1 lên 2)
+  select physical_quantity into v_bal1 from inventory.stock_balances
+  where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pg and lot_key = v_lot_g1;
+  select physical_quantity into v_bal2 from inventory.stock_balances
+  where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pg and lot_key = v_lot_g2;
+  if v_bal1 <> 2 or v_bal2 <> 5 then
+    raise exception 'FAIL [Review #4 Multi-Return]: expected L1=2, L2=5, got L1=%, L2=%', v_bal1, v_bal2;
+  end if;
+
+  perform public._assert_inventory_invariants(v_t, v_pg, 'Multi-Return');
+
+  -- -------------------------------------------------------------------------
+  -- S6: Exchange PA -> PC, then return PC (verify reverse exchange SALE)
   -- -------------------------------------------------------------------------
   v_res := public._isl_finalize(v_t, v_owner, v_store, null,
     jsonb_build_array(public._isl_line(v_pa, v_ua, 1000000, 50000)),
@@ -816,6 +965,22 @@ begin
   perform sales.evaluate_return_exchange_valuation(gen_random_uuid()::text, v_t, v_owner, v_rx_id);
   perform sales.confirm_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_rx_id, 's6-ret-pc-conf', 'h', gen_random_uuid()::text, expected_version => v_rx_ver);
 
+  -- Kiểm tra dòng đảo của phiếu 2 đảo đúng SALE của dòng exchange (intent_type RETURN_EXCHANGE)
+  if not exists (
+    select 1
+    from inventory.value_movements vm
+    join inventory.stock_movements sm on sm.id = vm.movement_id
+    where sm.tenant_id = v_t
+      and sm.movement_kind = 'SALE_REVERSAL'
+      and sm.intent_type = 'RETURN_EXCHANGE'
+      and vm.source_movement_id in (
+        select id from inventory.stock_movements
+        where tenant_id = v_t and intent_type = 'RETURN_EXCHANGE' and intent_line_id = v_ex_line_id and movement_kind = 'SALE'
+      )
+  ) then
+    raise exception 'FAIL [S6]: return of exchange item did not reverse the exchange SALE movement';
+  end if;
+
   -- Tồn PC ban đầu 5, đổi xuất 1 còn 4, trả hoàn 1 về 5
   select physical_quantity into v_bal from inventory.stock_balances
   where tenant_id = v_t and warehouse_id = v_wh and product_id = v_pc;
@@ -827,7 +992,7 @@ begin
   perform public._assert_inventory_invariants(v_t, v_pc, 'S6-PC');
 
   -- -------------------------------------------------------------------------
-  -- S7: Insufficient stock (precheck, finalize, idempotent replay)
+  -- S7: Insufficient stock (precheck message/field, finalize, 2 ĐVT, exchange shortage)
   -- -------------------------------------------------------------------------
   v_pre := sales.precheck_sales_order_checkout(
     p_query_id => gen_random_uuid(), p_tenant_id => v_t, p_actor_id => v_owner, p_store_id => v_store,
@@ -840,8 +1005,10 @@ begin
     raise exception 'FAIL [S7]: precheck should have canFinalize = false';
   end if;
 
-  if not exists (select 1 from jsonb_array_elements(v_pre -> 'blockers') b where b ->> 'code' = 'INSUFFICIENT_STOCK') then
-    raise exception 'FAIL [S7]: precheck missing INSUFFICIENT_STOCK blocker: %', v_pre;
+  if v_pre -> 'blockers' -> 0 ->> 'code' <> 'INSUFFICIENT_STOCK'
+     or v_pre -> 'blockers' -> 0 ->> 'field' <> 'lines[0]'
+     or v_pre -> 'blockers' -> 0 ->> 'message' not like '%hộp bán được.%' then
+    raise exception 'FAIL [S7]: precheck blocker invalid: %', v_pre -> 'blockers';
   end if;
 
   -- Finalize out of stock
@@ -849,17 +1016,96 @@ begin
     jsonb_build_array(public._isl_line(v_pd, v_ud, 1000000, 30000)),
     public._isl_pay(30000), null, 's7-blocked-key');
 
-  if v_res ->> 'status' <> 'blocked' or v_res ->> 'blockedCode' <> 'INSUFFICIENT_STOCK' or coalesce(v_res ->> 'blockedMessage', '') = '' then
+  if v_res ->> 'status' <> 'blocked'
+     or v_res ->> 'blockedCode' <> 'INSUFFICIENT_STOCK'
+     or v_res ->> 'blockedMessage' not like '%hộp bán được.%' then
     raise exception 'FAIL [S7]: finalize blocked result invalid: %', v_res;
   end if;
 
-  -- S7b: Replay blocked
+  -- Biến thể 2 ĐVT (Review Focus 2): SP_Two có 12 viên. Đơn mua 1 hộp (10 viên) + 5 viên = 15 viên > 12 viên
+  v_pre := sales.precheck_sales_order_checkout(
+    p_query_id => gen_random_uuid(), p_tenant_id => v_t, p_actor_id => v_owner, p_store_id => v_store,
+    p_customer_id => null, p_currency_code => 'VND',
+    p_lines => jsonb_build_array(
+      public._isl_line(v_p_two, v_u_two_box, 1000000, 50000),
+      public._isl_line(v_p_two, v_u_two_base, 5000000, 5000)
+    ),
+    p_payment_intents => public._isl_pay(75000)
+  );
+  if not exists (
+    select 1 from jsonb_array_elements(v_pre -> 'blockers') b
+    where b ->> 'code' = 'INSUFFICIENT_STOCK' and b ->> 'field' = 'lines[0]'
+  ) then
+    raise exception 'FAIL [S7 2-UOM]: precheck 2 UOM should block with lines[0]: %', v_pre;
+  end if;
+
+  v_res := public._isl_finalize(v_t, v_owner, v_store, null,
+    jsonb_build_array(
+      public._isl_line(v_p_two, v_u_two_box, 1000000, 50000),
+      public._isl_line(v_p_two, v_u_two_base, 5000000, 5000)
+    ),
+    public._isl_pay(75000), null, 's7-2uom-blocked-key');
+  if v_res ->> 'status' <> 'blocked' or v_res ->> 'blockedCode' <> 'INSUFFICIENT_STOCK' then
+    raise exception 'FAIL [S7 2-UOM]: finalize should be blocked for 15 > 12';
+  end if;
+
+  -- Đổi hàng thiếu tồn: confirm_return_exchange ném INSUFFICIENT_STOCK
+  v_res := public._isl_finalize(v_t, v_owner, v_store, null,
+    jsonb_build_array(public._isl_line(v_pa, v_ua, 1000000, 50000)),
+    public._isl_pay(50000), null, 's7-order-for-ex-key');
+  v_order_id := (v_res ->> 'salesOrderId')::uuid;
+  select id into v_sol_id from sales.sales_order_lines where tenant_id = v_t and sales_order_id = v_order_id;
+
+  v_rx := sales.start_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_order_id, 'standard',
+    jsonb_build_array(
+      jsonb_build_object('kind', 'returnLine', 'original_sales_order_line_id', v_sol_id, 'product_id', v_pa, 'product_unit_id', v_ua, 'quantity_micros', 1000000, 'reason_code', 'OTHER', 'condition_code', 'GOOD'),
+      jsonb_build_object('kind', 'exchangeLine', 'product_id', v_pd, 'product_unit_id', v_ud, 'quantity_micros', 2000000)
+    ),
+    's7-ex-shortage-start', 'h', gen_random_uuid()::text,
+    reference_decision => jsonb_build_object('exchange_prices_by_product_unit_id',
+      jsonb_build_object(v_ud::text, jsonb_build_object('amountMinor', 30000))));
+  v_rx_id := (v_rx ->> 'returnExchangeId')::uuid;
+  v_rx_ver := (v_rx ->> 'version')::int;
+  perform sales.evaluate_return_exchange_valuation(gen_random_uuid()::text, v_t, v_owner, v_rx_id);
+
+  begin
+    perform sales.confirm_return_exchange(gen_random_uuid()::text, v_t, v_owner, v_rx_id, 's7-ex-shortage-conf', 'h', gen_random_uuid()::text, expected_version => v_rx_ver);
+    raise exception 'FAIL [S7]: expected INSUFFICIENT_STOCK on exchange confirm';
+  exception when others then
+    if sqlerrm not like '%INSUFFICIENT_STOCK%' then
+      raise exception 'FAIL [S7]: expected INSUFFICIENT_STOCK on exchange confirm, got %', sqlerrm;
+    end if;
+  end;
+
+  -- Phiếu đổi hàng vẫn ở trạng thái validating hoặc draft (chưa confirmed)
+  if exists (select 1 from sales.return_exchange_orders where id = v_rx_id and status = 'confirmed') then
+    raise exception 'FAIL [S7]: return exchange order must not be confirmed when stock insufficient';
+  end if;
+
+  -- -------------------------------------------------------------------------
+  -- S7b: Replay blocked after restock still blocked, no stock movements
+  -- -------------------------------------------------------------------------
+  -- Nhập thêm hàng cho SP_D:
+  perform inventory._post_movements(
+    v_t, v_wh, 'RECEIPT', gen_random_uuid(), v_today,
+    jsonb_build_array(jsonb_build_object('product_id', v_pd, 'quantity_delta', 10, 'unit_cost', 10000, 'movement_kind', 'RECEIPT')),
+    v_owner
+  );
+
+  select count(*) into v_sm_before from inventory.stock_movements where tenant_id = v_t;
+
+  -- Replay cùng khoá 's7-blocked-key'
   v_res := public._isl_finalize(v_t, v_owner, v_store, null,
     jsonb_build_array(public._isl_line(v_pd, v_ud, 1000000, 30000)),
     public._isl_pay(30000), null, 's7-blocked-key');
 
   if v_res ->> 'status' <> 'blocked' or v_res ->> 'blockedCode' <> 'INSUFFICIENT_STOCK' then
-    raise exception 'FAIL [S7b]: replay blocked result invalid: %', v_res;
+    raise exception 'FAIL [S7b]: replay blocked result after restock should still be blocked: %', v_res;
+  end if;
+
+  select count(*) into v_sm_after from inventory.stock_movements where tenant_id = v_t;
+  if v_sm_before <> v_sm_after then
+    raise exception 'FAIL [S7b]: replay blocked must not create stock movements';
   end if;
 
   -- -------------------------------------------------------------------------
@@ -893,6 +1139,52 @@ begin
   perform public._assert_inventory_invariants(v_t, v_pa, 'S8');
 
   -- -------------------------------------------------------------------------
+  -- S11: PERIODIC Cost Policy -> cogs_is_provisional is true (Review R1 #1)
+  -- -------------------------------------------------------------------------
+  insert into catalog.products (id, tenant_id, name, sku, tracking_mode, expiry_required, business_status, is_ready_to_sell, reference_id, created_by, updated_by)
+  values (v_p_periodic, v_t, 'SP_Periodic', 'SKU-PERIODIC', 'none', false, 'active', true, 'REF-PERIODIC', v_owner, v_owner);
+
+  insert into catalog.product_units (id, tenant_id, product_id, unit_name, conversion_rate_to_base, is_base_unit)
+  values (v_u_periodic, v_t, v_p_periodic, 'hộp', 1, true);
+
+  perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_p_periodic, p_product_unit_id => v_u_periodic, p_source_type => 'manual', p_list_price_before_vat => 50000, p_list_price_after_vat => 50000, p_floor_price_before_vat => 20000, p_floor_price_after_vat => 20000);
+
+  update catalog.products set is_ready_to_sell = true where id = v_p_periodic;
+
+  perform inventory._post_movements(
+    v_t, v_wh, 'RECEIPT', gen_random_uuid(), v_today,
+    jsonb_build_array(jsonb_build_object('product_id', v_p_periodic, 'quantity_delta', 10, 'unit_cost', 10000, 'movement_kind', 'RECEIPT')),
+    v_owner
+  );
+
+  update inventory.cost_policies set method = 'PERIODIC' where tenant_id = v_t;
+
+  v_res := public._isl_finalize(v_t, v_owner, v_store, null,
+    jsonb_build_array(public._isl_line(v_p_periodic, v_u_periodic, 2000000, 50000)),
+    public._isl_pay(100000), null, 's11-key');
+
+  if v_res ->> 'status' <> 'succeeded' then
+    raise exception 'FAIL [S11]: finalize failed: %', v_res;
+  end if;
+
+  v_order_id := (v_res ->> 'salesOrderId')::uuid;
+  select * into v_sol from sales.sales_order_lines where tenant_id = v_t and sales_order_id = v_order_id;
+
+  if v_sol.cogs_is_provisional is not true then
+    raise exception 'FAIL [S11]: cogs_is_provisional expected true for PERIODIC policy, got %', v_sol.cogs_is_provisional;
+  end if;
+
+  if not exists (
+    select 1 from inventory.value_movements vm
+    join inventory.stock_movements sm on sm.id = vm.movement_id
+    where sm.tenant_id = v_t and sm.intent_id = v_order_id and vm.is_provisional is true
+  ) then
+    raise exception 'FAIL [S11]: value_movements.is_provisional should be true';
+  end if;
+
+  perform public._assert_inventory_invariants(v_t, v_p_periodic, 'S11');
+
+  -- -------------------------------------------------------------------------
   -- S10: Catalog lookups read ledger available stock
   -- -------------------------------------------------------------------------
   -- 1) search_sellable_products
@@ -919,14 +1211,14 @@ begin
       (v_bal2 * 1000000)::bigint, v_avail_micros;
   end if;
 
-  -- 4) SP_D out of stock -> 0
+  -- 4) SP_D out of stock -> 10 (vì vừa nhập thêm 10 ở S7b)
   v_lookup := catalog.resolve_sellable_products(v_t, v_store, array[v_pd]);
   v_avail_micros := (v_lookup -> 'items' -> 0 ->> 'available_stock_micros')::bigint;
-  if v_avail_micros <> 0 then
-    raise exception 'FAIL [S10]: SP_D out of stock expected 0, got %', v_avail_micros;
+  if v_avail_micros <> 10000000 then
+    raise exception 'FAIL [S10]: SP_D after restock expected 10000000, got %', v_avail_micros;
   end if;
 
-  raise notice 'inventory_sales_link Task 2 & Task 3 (S1-S10): OK';
+  raise notice 'inventory_sales_link Task 2 & Task 3 (S1-S11): OK';
 end;
 $$;
 
