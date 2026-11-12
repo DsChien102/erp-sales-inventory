@@ -79,6 +79,39 @@ void main() {
 
       expect(summary.activated, isTrue);
       expect(summary.problems, isNull);
+      expect(summary.openStocktakes, 0);
+    });
+
+    test('hub_attention_stocktakes parses stocktakes_open when activated only',
+        () async {
+      when(() => mockRpc.query('get_warehouse_hub_summary')).thenAnswer(
+        (_) async => {
+          'activated': true,
+          'problems': {
+            'out': 0,
+            'low': 0,
+            'expired': 0,
+            'near_expiry': 0,
+            'products': 0,
+            'stocktakes_open': 2,
+          },
+        },
+      );
+
+      final active = await repository.getSummary();
+      expect(active.openStocktakes, 2);
+
+      when(() => mockRpc.query('get_warehouse_hub_summary')).thenAnswer(
+        (_) async => {
+          'activated': false,
+          'problems': {
+            'stocktakes_open': 2,
+          },
+        },
+      );
+
+      final inactive = await repository.getSummary();
+      expect(inactive.openStocktakes, 0);
     });
   });
 }

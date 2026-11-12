@@ -215,6 +215,20 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
       );
     }
 
+    if (summary.activated && summary.openStocktakes > 0) {
+      final n = summary.openStocktakes;
+      attentionRows.add(
+        VListRow(
+          asCard: true,
+          leading: VIcons.checkList,
+          title: 'Kiểm kê đang dở',
+          subtitle: '$n phiên chưa ghi nhận',
+          trailing: _buildCountBadge(n),
+          onTap: () => context.push('/warehouse/stocktakes'),
+        ),
+      );
+    }
+
     final attentionWidget = attentionRows.isNotEmpty
         ? VSection(
             title: 'Cần chú ý',

@@ -82,7 +82,11 @@ class StockLotSheet extends StatelessWidget {
               VButton(
                 label: 'Điều chỉnh lô hết hạn',
                 variant: VButtonVariant.secondary,
-                onPressed: onAdjustExpired,
+                onPressed: () {
+                  final nav = Navigator.of(context);
+                  if (nav.canPop()) nav.pop();
+                  onAdjustExpired!();
+                },
               ),
             ],
           ] else if (lot.isNearExpiry) ...[

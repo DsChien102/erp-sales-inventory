@@ -128,6 +128,7 @@ Widget _buildTestApp({
   String productId = 'INV-TYL',
   bool policyResult = true,
   ValueChanged<String>? onPolicyOpened,
+  ValueChanged<String>? onStocktakeOpened,
 }) {
   if (getIt.isRegistered<StockRepository>()) {
     getIt.unregister<StockRepository>();
@@ -146,6 +147,18 @@ Widget _buildTestApp({
         builder: (_, state) => StockDetailPage(
           productId: state.pathParameters['productId']!,
         ),
+      ),
+      GoRoute(
+        path: '/warehouse/stocktakes/new',
+        builder: (context, state) {
+          onStocktakeOpened?.call(state.uri.toString());
+          return Scaffold(
+            body: ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Mở kiểm kê ${state.uri}'),
+            ),
+          );
+        },
       ),
       GoRoute(
         path: '/warehouse/stock-policy/product/:productId',
@@ -216,9 +229,9 @@ void main() {
         findsOneWidget,
       );
 
-      // Có nút Nhận hàng; Không có Điều chỉnh lô hết hạn, Đã giữ
+      // Có nút Nhận hàng và Điều chỉnh lô hết hạn; không có Đã giữ
       expect(find.text('Nhận hàng'), findsOneWidget);
-      expect(find.text('Điều chỉnh lô hết hạn'), findsNothing);
+      expect(find.text('Điều chỉnh lô hết hạn'), findsOneWidget);
       expect(find.text('Đã giữ'), findsNothing);
 
       // Lô TY2408 đứng trước TY2511
@@ -409,5 +422,95 @@ void main() {
       expect(find.text('Chi tiết tồn kho'), findsOneWidget);
       expect(find.text('Bạn chưa có quyền xem tồn kho'), findsOneWidget);
     });
+
+    testWidgets(
+      'stock_detail_adjust_expired routes single lot vs multiple lots accurately',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(390, 844));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        // Một lô hết hạn -> nút banner mở ?lotId=L-TY2408
+        String? navigatedUri;
+        final singleRepo = _FakeStockRepository((_) => _buildTylosinDetail());
+        await tester.pumpWidget(
+          _buildTestApp(
+            repository: singleRepo,
+            onStocktakeOpened: (uri) => navigatedUri = uri,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final adjustBannerBtn = find.text('Điều chỉnh lô hết hạn');
+        expect(adjustBannerBtn, findsOneWidget);
+        await tester.ensureVisible(adjustBannerBtn);
+        await tester.tap(adjustBannerBtn);
+        await tester.pumpAndSettle();
+        expect(navigatedUri, '/warehouse/stocktakes/new?lotId=L-TY2408');
+
+        // Hai lô hết hạn -> banner mở ?productId=..., sheet lô 2 mở ?lotId=L-EX2
+        final multiExpiredDetail = StockDetail(
+          asOf: DateTime(2026, 9, 17, 21, 30),
+          warehouseName: 'Kho trung tâm',
+          isOwner: true,
+          productId: 'INV-MULTI',
+          name: 'Amoxicillin LA',
+          code: 'SP-000199',
+          uom: 'lọ',
+          isLotTracked: true,
+          physical: 9,
+          available: 0,
+          expiredQuantity: 9,
+          lots: const [
+            StockLot(
+              lotId: 'L-EX1',
+              code: 'EX1',
+              expiry: LotDate(year: 2025, month: 1, day: 10),
+              physical: 4,
+              isExpired: true,
+              isNearExpiry: false,
+              daysToExpiry: -200,
+            ),
+            StockLot(
+              lotId: 'L-EX2',
+              code: 'EX2',
+              expiry: LotDate(year: 2025, month: 2, day: 20),
+              physical: 5,
+              isExpired: true,
+              isNearExpiry: false,
+              daysToExpiry: -160,
+            ),
+          ],
+        );
+
+        navigatedUri = null;
+        final multiRepo = _FakeStockRepository((_) => multiExpiredDetail);
+        await tester.pumpWidget(
+          _buildTestApp(
+            repository: multiRepo,
+            productId: 'INV-MULTI',
+            onStocktakeOpened: (uri) => navigatedUri = uri,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.ensureVisible(find.text('Điều chỉnh lô hết hạn'));
+        await tester.tap(find.text('Điều chỉnh lô hết hạn'));
+        await tester.pumpAndSettle();
+        expect(navigatedUri, '/warehouse/stocktakes/new?productId=INV-MULTI');
+
+        await tester.tap(find.text('Mở kiểm kê $navigatedUri'));
+        await tester.pumpAndSettle();
+
+        navigatedUri = null;
+        final secondLotRow = find.text('Lô EX2');
+        await tester.ensureVisible(secondLotRow);
+        await tester.tap(secondLotRow);
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Điều chỉnh lô hết hạn').last);
+        await tester.pumpAndSettle();
+        expect(navigatedUri, '/warehouse/stocktakes/new?lotId=L-EX2');
+      },
+    );
   });
 }

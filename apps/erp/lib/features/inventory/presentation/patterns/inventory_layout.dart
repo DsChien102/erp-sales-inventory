@@ -74,6 +74,7 @@ class K7Table<T> extends StatelessWidget {
     required this.columns,
     required this.rows,
     required this.mobileRow,
+    this.columnWidths,
     this.onRowTap,
     this.selected,
   });
@@ -81,6 +82,7 @@ class K7Table<T> extends StatelessWidget {
   final List<K7Column<T>> columns;
   final List<T> rows;
   final Widget Function(T) mobileRow;
+  final Map<int, TableColumnWidth>? columnWidths;
   final ValueChanged<T>? onRowTap;
   final T? selected;
 
@@ -97,6 +99,7 @@ class K7Table<T> extends StatelessWidget {
         rows: rows
             .map((row) => columns.map((col) => col.cell(row)).toList())
             .toList(),
+        columnWidths: columnWidths,
         selectedRowIndex: selectedIdx >= 0 ? selectedIdx : null,
         onRowTap: onRowTap != null ? (index) => onRowTap!(rows[index]) : null,
       );

@@ -2,14 +2,46 @@ import 'package:erp/features/inventory/presentation/patterns/inventory_layout.da
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+class _SingleDecimalTextInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+    if (text.isEmpty) return newValue;
+    final filtered = StringBuffer();
+    var hasSeparator = false;
+    for (var i = 0; i < text.length; i++) {
+      final ch = text[i];
+      if (ch.codeUnitAt(0) >= 48 && ch.codeUnitAt(0) <= 57) {
+        filtered.write(ch);
+      } else if ((ch == ',' || ch == '.') && !hasSeparator) {
+        hasSeparator = true;
+        filtered.write(ch);
+      } else if (ch == ',' || ch == '.') {
+        return oldValue;
+      }
+    }
+    final result = filtered.toString();
+    if (result == text) return newValue;
+    return TextEditingValue(
+      text: result,
+      selection: TextSelection.collapsed(offset: result.length),
+    );
+  }
+}
+
 /// Ô nhập số tại dòng theo mẫu K7 (prototype k7EditCell).
 class K7EditCell extends StatefulWidget {
   final String value;
   final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onSubmitted;
   final String unit;
   final String? errorText;
   final String semanticLabel;
   final bool enabled;
+  final bool allowDecimal;
   final TextInputAction? textInputAction;
   final double? maxWidth;
   final FocusNode? focusNode;
@@ -18,10 +50,12 @@ class K7EditCell extends StatefulWidget {
     super.key,
     required this.value,
     required this.onChanged,
+    this.onSubmitted,
     this.unit = '',
     this.errorText,
     required this.semanticLabel,
     this.enabled = true,
+    this.allowDecimal = false,
     this.textInputAction,
     this.maxWidth,
     this.focusNode,
@@ -115,9 +149,13 @@ class _K7EditCellState extends State<K7EditCell> {
                     focusNode: _effectiveFocusNode,
                     enabled: widget.enabled,
                     textAlign: TextAlign.right,
-                    keyboardType: TextInputType.number,
+                    keyboardType: widget.allowDecimal
+                        ? const TextInputType.numberWithOptions(decimal: true)
+                        : TextInputType.number,
                     textInputAction: widget.textInputAction,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    inputFormatters: widget.allowDecimal
+                        ? [_SingleDecimalTextInputFormatter()]
+                        : [FilteringTextInputFormatter.digitsOnly],
                     style: TextStyle(
                       fontSize: 14,
                       height: 20 / 14,
@@ -137,6 +175,7 @@ class _K7EditCellState extends State<K7EditCell> {
                       isCollapsed: true,
                     ),
                     onChanged: widget.onChanged,
+                    onSubmitted: widget.onSubmitted,
                   ),
                 ),
               ),

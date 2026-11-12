@@ -24,6 +24,11 @@ abstract final class InventoryErrorCode {
   static const supplierInvalid = 'SUPPLIER_INVALID';
   static const receiptProgramChanged = 'RECEIPT_PROGRAM_CHANGED';
   static const receiptDiscountTooLarge = 'RECEIPT_DISCOUNT_TOO_LARGE';
+  static const stocktakeScopeEmpty = 'STOCKTAKE_SCOPE_EMPTY';
+  static const stocktakeStateChanged = 'STOCKTAKE_STATE_CHANGED';
+  static const stocktakeCountMissing = 'STOCKTAKE_COUNT_MISSING';
+  static const stocktakeLineExists = 'STOCKTAKE_LINE_EXISTS';
+  static const cancelReasonRequired = 'CANCEL_REASON_REQUIRED';
 }
 
 /// Chuyển đổi mã lỗi sang thông báo thân thiện người dùng tiếng Việt.
@@ -80,6 +85,13 @@ String inventoryErrorMessage(
       'Ưu đãi của nhà cung cấp vừa thay đổi. Đã cập nhật lại gợi ý, kiểm tra rồi ghi nhận lại.',
     InventoryErrorCode.receiptDiscountTooLarge =>
       'Chiết khấu không được lớn hơn tổng giá mua và chi phí',
+    InventoryErrorCode.stocktakeScopeEmpty =>
+      'Kho chưa có hàng trong phạm vi này để kiểm kê.',
+    InventoryErrorCode.stocktakeStateChanged =>
+      'Người khác vừa nộp phiên này',
+    InventoryErrorCode.stocktakeCountMissing => 'Nhập số đếm được',
+    InventoryErrorCode.stocktakeLineExists => 'Mặt hàng này đã có trong phiên.',
+    InventoryErrorCode.cancelReasonRequired => 'Nhập lý do hủy phiên',
     _ => fallback,
   };
 }

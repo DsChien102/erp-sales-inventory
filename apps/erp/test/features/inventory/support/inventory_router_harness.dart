@@ -11,6 +11,8 @@ import 'package:erp/features/inventory/data/stock/stock_models.dart';
 import 'package:erp/features/inventory/data/stock/stock_repository.dart';
 import 'package:erp/features/inventory/data/stock_policy/stock_policy_models.dart';
 import 'package:erp/features/inventory/data/stock_policy/stock_policy_repository.dart';
+import 'package:erp/features/inventory/data/stocktake/stocktake_models.dart';
+import 'package:erp/features/inventory/data/stocktake/stocktake_repository.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_repository.dart';
 import 'package:flutter/material.dart';
@@ -117,6 +119,12 @@ class _FakeSupplierProgramRepo extends Fake implements SupplierProgramRepository
       [];
 }
 
+class _FakeStocktakeRepo extends Fake implements StocktakeRepository {
+  @override
+  Future<List<StocktakeListRow>> list({int limit = 20, int offset = 0}) async =>
+      [];
+}
+
 base class InventorySessionStore extends SessionStore {
   InventorySessionStore({this.isOwner = true});
 
@@ -143,6 +151,7 @@ Future<void> setUpInventoryRouterTest({bool isOwner = true}) async {
     ..registerSingleton<StockPolicyRepository>(_FakeStockPolicyRepo())
     ..registerSingleton<StockRepository>(_FakeStockRepo())
     ..registerSingleton<GoodsReceiptRepository>(_FakeGoodsReceiptRepo())
+    ..registerSingleton<StocktakeRepository>(_FakeStocktakeRepo())
     ..registerSingleton<SupplierProgramRepository>(_FakeSupplierProgramRepo())
     ..registerSingleton<SessionController>(session);
 }

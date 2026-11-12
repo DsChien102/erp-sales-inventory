@@ -206,6 +206,17 @@ class _StockDetailViewState extends State<_StockDetailView>
                       onReceive: () => context.push(
                         '/warehouse/receipts/new?product_id=${detail.productId}',
                       ),
+                      onAdjustExpiredProduct: () {
+                        final expiredLots =
+                            detail.lots.where((l) => l.isExpired).toList();
+                        final target = expiredLots.length == 1
+                            ? '/warehouse/stocktakes/new?lotId=${Uri.encodeQueryComponent(expiredLots.first.lotId)}'
+                            : '/warehouse/stocktakes/new?productId=${Uri.encodeQueryComponent(detail.productId)}';
+                        context.push(target);
+                      },
+                      onAdjustExpiredLot: (lot) => context.push(
+                        '/warehouse/stocktakes/new?lotId=${Uri.encodeQueryComponent(lot.lotId)}',
+                      ),
                     ),
                   ],
                 ),

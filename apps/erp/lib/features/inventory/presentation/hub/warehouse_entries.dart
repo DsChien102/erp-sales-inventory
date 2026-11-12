@@ -91,7 +91,7 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             title: 'Kiểm kê kho',
             subtitle: 'Đếm, rà soát và xử lý chênh lệch',
             icon: VIcons.checkList,
-            route: null,
+            route: '/warehouse/stocktakes',
           ),
         ],
       WarehouseArea.valuation => const [
@@ -156,7 +156,7 @@ const List<WarehouseQuickAction> warehouseQuickActions = [
   WarehouseQuickAction(
     label: 'Kiểm kê',
     icon: VIcons.checkList,
-    route: '/warehouse/area/control',
+    route: '/warehouse/stocktakes',
     requiresActivation: false,
   ),
   WarehouseQuickAction(

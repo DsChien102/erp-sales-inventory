@@ -10,10 +10,12 @@ class WarehouseHubRepository {
     final res = await _rpc.query('get_warehouse_hub_summary');
     final activated = res['activated'] as bool? ?? false;
     WarehouseAttention? problems;
+    var openStocktakes = 0;
 
     final rawProblems = res['problems'];
     if (activated && rawProblems is Map) {
       final map = Map<String, dynamic>.from(rawProblems);
+      openStocktakes = (map['stocktakes_open'] as num?)?.toInt() ?? 0;
       final products = (map['products'] as num?)?.toInt() ?? 0;
       if (products > 0) {
         final out = (map['out'] as num?)?.toInt() ?? 0;
@@ -37,6 +39,7 @@ class WarehouseHubRepository {
     return WarehouseHubSummary(
       activated: activated,
       problems: problems,
+      openStocktakes: openStocktakes,
     );
   }
 }

@@ -204,7 +204,8 @@ class StockDetailBody extends StatelessWidget {
   final bool singleColumn;
   final VoidCallback? onEditThreshold;
   final VoidCallback? onReceive;
-  final VoidCallback? onAdjustExpired;
+  final VoidCallback? onAdjustExpiredProduct;
+  final ValueChanged<StockLot>? onAdjustExpiredLot;
   final VoidCallback? onOpenStockCard;
   final VoidCallback? onOpenReceipt;
 
@@ -214,7 +215,8 @@ class StockDetailBody extends StatelessWidget {
     this.singleColumn = false,
     this.onEditThreshold,
     this.onReceive,
-    this.onAdjustExpired,
+    this.onAdjustExpiredProduct,
+    this.onAdjustExpiredLot,
     this.onOpenStockCard,
     this.onOpenReceipt,
   });
@@ -312,14 +314,14 @@ class StockDetailBody extends StatelessWidget {
                 description:
                     'Lô ${expiredLots.map((l) => l.code).join(' · ')} · ${formatStockQuantity(expiredQty, detail.uom)} không đủ điều kiện bán.',
               ),
-              if (onAdjustExpired != null) ...[
+              if (onAdjustExpiredProduct != null) ...[
                 const SizedBox(height: VSpacing.space2),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: VButton(
                     label: 'Điều chỉnh lô hết hạn',
                     variant: VButtonVariant.secondary,
-                    onPressed: onAdjustExpired,
+                    onPressed: onAdjustExpiredProduct,
                   ),
                 ),
               ],
@@ -372,7 +374,9 @@ class StockDetailBody extends StatelessWidget {
         lot: lot,
         productName: detail.name,
         uom: detail.uom,
-        onAdjustExpired: onAdjustExpired,
+        onAdjustExpired: onAdjustExpiredLot == null
+            ? null
+            : () => onAdjustExpiredLot!(lot),
       );
     }
 

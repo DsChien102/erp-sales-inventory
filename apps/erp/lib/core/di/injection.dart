@@ -23,6 +23,7 @@ import '../../features/inventory/data/goods_receipt/goods_receipt_repository.dar
 import '../../features/inventory/data/hub/warehouse_hub_repository.dart';
 import '../../features/inventory/data/stock/stock_repository.dart';
 import '../../features/inventory/data/stock_policy/stock_policy_repository.dart';
+import '../../features/inventory/data/stocktake/stocktake_repository.dart';
 import '../../features/inventory/data/supplier_program/supplier_program_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../../features/pricing/data/customer_price_rule_repository.dart';
@@ -105,6 +106,9 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     )
     ..registerLazySingleton<GoodsReceiptRepository>(
       () => GoodsReceiptRepository(rpc: getIt<InventoryRpc>()),
+    )
+    ..registerLazySingleton<StocktakeRepository>(
+      () => StocktakeRepository(rpc: getIt<InventoryRpc>()),
     )
     ..registerLazySingleton<PartnerRepository>(
       () => PartnerRepository(

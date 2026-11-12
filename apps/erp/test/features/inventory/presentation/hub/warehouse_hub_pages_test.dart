@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/core/errors/app_exception.dart';
@@ -305,5 +306,75 @@ void main() {
       );
       expect(spEntry.route, '/warehouse/supplier-programs');
     });
+
+    test('hub_entry_stocktakes routes both control entry and quick action', () {
+      final controlEntries = warehouseAreaEntries(WarehouseArea.control);
+      final stocktakeEntry = controlEntries.firstWhere(
+        (e) => e.title == 'Kiểm kê kho',
+      );
+      expect(stocktakeEntry.route, '/warehouse/stocktakes');
+
+      final quickAction = warehouseQuickActions.firstWhere(
+        (a) => a.label == 'Kiểm kê',
+      );
+      expect(quickAction.route, '/warehouse/stocktakes');
+    });
+
+    testWidgets(
+      'hub_attention_stocktakes shows open stocktakes row and opens /warehouse/stocktakes',
+      (tester) async {
+        const summary = WarehouseHubSummary(
+          activated: true,
+          openStocktakes: 2,
+        );
+        final cubit = WarehouseHubCubit(
+          repository: _FakeHubRepo(summary),
+          isOwner: () => true,
+        );
+        String? pushedRoute;
+        final router = GoRouter(
+          initialLocation: '/warehouse',
+          routes: [
+            GoRoute(
+              path: '/warehouse',
+              builder: (_, _) => WarehouseHubPage(cubit: cubit),
+            ),
+            GoRoute(
+              path: '/warehouse/stocktakes',
+              builder: (_, _) {
+                pushedRoute = '/warehouse/stocktakes';
+                return const Scaffold(body: Text('Danh sách kiểm kê'));
+              },
+            ),
+          ],
+        );
+
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: VTheme.lightTheme,
+            routerConfig: router,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Kiểm kê đang dở'), findsOneWidget);
+        expect(find.text('2 phiên chưa ghi nhận'), findsOneWidget);
+        expect(find.text('2'), findsOneWidget);
+
+        await tester.tap(find.text('Kiểm kê đang dở'));
+        await tester.pumpAndSettle();
+
+        expect(pushedRoute, '/warehouse/stocktakes');
+        expect(find.text('Danh sách kiểm kê'), findsOneWidget);
+
+        final zeroCubit = WarehouseHubCubit(
+          repository: _FakeHubRepo(const WarehouseHubSummary(activated: true)),
+          isOwner: () => true,
+        );
+        await tester.pumpWidget(wrap(WarehouseHubPage(cubit: zeroCubit)));
+        await tester.pumpAndSettle();
+        expect(find.text('Kiểm kê đang dở'), findsNothing);
+      },
+    );
   });
 }

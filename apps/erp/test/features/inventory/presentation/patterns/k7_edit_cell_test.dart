@@ -146,6 +146,83 @@ void main() {
       expect(dec?.focusedBorder, InputBorder.none);
       expect(dec?.disabledBorder, InputBorder.none);
     });
+
+    testWidgets('k7_default_digits_only strips comma and uses integer keyboard', (
+      tester,
+    ) async {
+      var latest = '';
+      await tester.pumpWidget(
+        buildApp(
+          K7EditCell(
+            value: '',
+            onChanged: (v) => latest = v,
+            semanticLabel: 'Số lượng',
+          ),
+        ),
+      );
+
+      final tf = tester.widget<TextField>(find.byType(TextField));
+      expect(tf.keyboardType, TextInputType.number);
+
+      await tester.enterText(find.byType(TextField), '2,5');
+      await tester.pump();
+      expect(latest, '25');
+      expect(find.text('25'), findsOneWidget);
+    });
+
+    testWidgets('k7_allow_decimal keeps single separator and uses decimal keyboard', (
+      tester,
+    ) async {
+      var latest = '';
+      await tester.pumpWidget(
+        buildApp(
+          K7EditCell(
+            value: '',
+            allowDecimal: true,
+            onChanged: (v) => latest = v,
+            semanticLabel: 'Số lượng',
+          ),
+        ),
+      );
+
+      final tf = tester.widget<TextField>(find.byType(TextField));
+      expect(
+        tf.keyboardType,
+        const TextInputType.numberWithOptions(decimal: true),
+      );
+
+      await tester.enterText(find.byType(TextField), '2,5');
+      await tester.pump();
+      expect(latest, '2,5');
+
+      await tester.enterText(find.byType(TextField), '2,5,');
+      await tester.pump();
+      expect(find.text('2,5'), findsOneWidget);
+    });
+
+    testWidgets('k7_on_submitted delivers value on TextInputAction.next', (
+      tester,
+    ) async {
+      String? submitted;
+      await tester.pumpWidget(
+        buildApp(
+          K7EditCell(
+            value: '10',
+            allowDecimal: true,
+            textInputAction: TextInputAction.next,
+            onChanged: (_) {},
+            onSubmitted: (v) => submitted = v,
+            semanticLabel: 'Số lượng',
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(TextField));
+      await tester.testTextInput.receiveAction(TextInputAction.next);
+      await tester.pump();
+
+      expect(submitted, '10');
+    });
   });
 }
 
