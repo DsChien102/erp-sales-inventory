@@ -4,6 +4,7 @@ import 'package:erp/features/inventory/data/costing/costing_repository.dart';
 import 'package:erp/features/inventory/logic/costing/cost_run_cubit.dart';
 import 'package:erp/features/inventory/logic/costing/cost_run_state.dart';
 import 'package:erp/features/inventory/logic/costing/costing_rules.dart';
+import 'package:erp/features/inventory/logic/reports/report_period.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_footer.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_states.dart';
 import 'package:erp/features/inventory/presentation/patterns/k4_result_page.dart';
@@ -19,11 +20,17 @@ class CostResultPage extends StatelessWidget {
     required this.runId,
     this.onToList,
     this.onBack,
+    this.onOpenReport,
+    this.clock,
   });
 
   final String runId;
   final VoidCallback? onToList;
   final VoidCallback? onBack;
+
+  /// Nhận đường dẫn báo cáo (tồn / lãi gộp) của kỳ vừa công bố. Mặc định `context.push`.
+  final ValueChanged<String>? onOpenReport;
+  final DateTime Function()? clock;
 
   CostingRepository _resolveRepo(BuildContext context) {
     try {
@@ -125,6 +132,20 @@ class CostResultPage extends StatelessWidget {
             );
           }
 
+          final period = ReportPeriod.ofMonth(
+            run.periodMonth,
+            (clock ?? DateTime.now)(),
+          );
+          final query = Uri(queryParameters: period.toQuery()).query;
+          void openReport(String path) {
+            final target = '$path?$query';
+            if (onOpenReport != null) {
+              onOpenReport!(target);
+              return;
+            }
+            context.push(target);
+          }
+
           return K4ResultPage(
             screenTitle: 'Kết quả công bố giá vốn',
             title: 'Đã công bố giá vốn ${periodLabel(run.periodMonth)}',
@@ -163,7 +184,21 @@ class CostResultPage extends StatelessWidget {
                 mono: true,
               ),
             ],
-            next: [toList],
+            next: [
+              InventoryFooterAction(
+                label: toList.label,
+                onPressed: toList.onPressed,
+              ),
+              InventoryFooterAction(
+                label: 'Xem báo cáo lãi gộp',
+                onPressed: () => openReport('/warehouse/reports/gross-profit'),
+              ),
+              InventoryFooterAction(
+                label: 'Xem báo cáo tồn',
+                primary: true,
+                onPressed: () => openReport('/warehouse/reports/stock'),
+              ),
+            ],
           );
         },
       ),

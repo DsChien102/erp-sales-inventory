@@ -16,12 +16,12 @@ class _FakeCostingRepository extends Fake implements CostingRepository {
   Future<CostRunView> getRun(String runId) async => runResult!;
 }
 
-CostRunView _run({required CostRunStatus status}) {
+CostRunView _run({required CostRunStatus status, DateTime? periodMonth}) {
   return CostRunView(
     runId: 'run-1',
     code: 'GV-2611-01',
     kind: CostRunKind.periodClose,
-    periodMonth: DateTime(2026, 11, 1),
+    periodMonth: periodMonth ?? DateTime(2026, 11, 1),
     status: status,
     method: CostMethod.periodic,
     fromSequence: 1,
@@ -64,6 +64,7 @@ void main() {
   Widget buildApp({
     required Size size,
     VoidCallback? onToList,
+    ValueChanged<String>? onOpenReport,
   }) {
     useInventoryTestSurface(size);
     return MaterialApp(
@@ -76,6 +77,8 @@ void main() {
       home: CostResultPage(
         runId: 'run-1',
         onToList: onToList ?? () {},
+        onOpenReport: onOpenReport ?? (_) {},
+        clock: () => DateTime(2026, 11, 13),
       ),
     );
   }
@@ -83,7 +86,7 @@ void main() {
   group('CostResultPage', () {
     for (final size in const [Size(390, 844), Size(1280, 800)]) {
       testWidgets(
-        'result_completed_${size.width.toInt()} renders 6 facts and only Về giá vốn',
+        'result_completed_${size.width.toInt()} renders 6 facts and the three next actions',
         (tester) async {
           repository.runResult = _run(status: CostRunStatus.published);
           var wentToList = false;
@@ -108,7 +111,8 @@ void main() {
           expect(find.text('12/11/2026 · 14:05'), findsOneWidget);
 
           expect(find.text('Về giá vốn'), findsOneWidget);
-          expect(find.text('Xem báo cáo tồn'), findsNothing);
+          expect(find.text('Xem báo cáo lãi gộp'), findsOneWidget);
+          expect(find.text('Xem báo cáo tồn'), findsOneWidget);
 
           await tester.ensureVisible(find.text('Về giá vốn'));
           await tester.pumpAndSettle();
@@ -118,6 +122,44 @@ void main() {
         },
       );
     }
+
+    testWidgets('result_page_report_links', (tester) async {
+      repository.runResult = _run(
+        status: CostRunStatus.published,
+        periodMonth: DateTime(2026, 10, 1),
+      );
+      final opened = <String>[];
+      await tester.pumpWidget(
+        buildApp(size: const Size(390, 844), onOpenReport: opened.add),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('Xem báo cáo tồn'));
+      await tester.tap(find.text('Xem báo cáo tồn'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Xem báo cáo lãi gộp'));
+      await tester.tap(find.text('Xem báo cáo lãi gộp'));
+      await tester.pumpAndSettle();
+
+      expect(opened, [
+        '/warehouse/reports/stock?from=2026-10-01&to=2026-10-31',
+        '/warehouse/reports/gross-profit?from=2026-10-01&to=2026-10-31',
+      ]);
+    });
+
+    testWidgets('result_page_current_month_caps_at_today', (tester) async {
+      repository.runResult = _run(status: CostRunStatus.published);
+      final opened = <String>[];
+      await tester.pumpWidget(
+        buildApp(size: const Size(390, 844), onOpenReport: opened.add),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('Xem báo cáo tồn'));
+      await tester.tap(find.text('Xem báo cáo tồn'));
+      await tester.pumpAndSettle();
+      expect(opened.single, '/warehouse/reports/stock?from=2026-11-01&to=2026-11-13');
+    });
 
     testWidgets(
       'result_rejected_when_not_published renders warning K4ResultPage',

@@ -279,13 +279,50 @@ void main() {
       expect(find.text('Nhận hàng'), findsOneWidget);
     });
 
-    testWidgets('area_hides_entries_without_route', (tester) async {
+    testWidgets('hub_history_entries owner sees 3 report entries', (tester) async {
       await tester.pumpWidget(
         wrap(const WarehouseAreaPage(area: WarehouseArea.history, isOwner: true)),
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(VListRow), findsNothing);
+      expect(find.byType(VListRow), findsNWidgets(3));
+      expect(find.text('Báo cáo tồn & thẻ kho'), findsOneWidget);
+      expect(find.text('Lãi gộp'), findsOneWidget);
+      expect(find.text('Doanh thu, giá vốn và lãi theo kỳ'), findsOneWidget);
+      expect(find.text('Nhập hàng theo NCC'), findsOneWidget);
+      expect(
+        find.text('Tiền mua, hàng tặng và giá gốc theo nhà cung cấp'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('hub_history_entries staff sees only stock report', (tester) async {
+      await tester.pumpWidget(
+        wrap(const WarehouseAreaPage(area: WarehouseArea.history, isOwner: false)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(VListRow), findsOneWidget);
+      expect(find.text('Báo cáo tồn & thẻ kho'), findsOneWidget);
+      expect(find.text('Lãi gộp'), findsNothing);
+      expect(find.text('Nhập hàng theo NCC'), findsNothing);
+    });
+
+    test('hub_history_entries routes', () {
+      final routes = {
+        for (final e in warehouseAreaEntries(WarehouseArea.history)) e.id: e.route,
+      };
+      expect(routes, {
+        'stock_card_reports': '/warehouse/reports/stock',
+        'gross_profit': '/warehouse/reports/gross-profit',
+        'supplier_purchases': '/warehouse/reports/supplier-purchases',
+      });
+      expect(
+        warehouseAreaEntries(WarehouseArea.history)
+            .where((e) => e.ownerOnly)
+            .map((e) => e.id),
+        ['gross_profit', 'supplier_purchases'],
+      );
     });
 
     test('valuation_area_has_supplier_programs', () {

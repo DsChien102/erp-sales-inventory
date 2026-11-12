@@ -38,6 +38,7 @@ import '../../features/inventory/presentation/hub/warehouse_hub_routes.dart';
 import '../../features/inventory/presentation/stock/stock_routes.dart';
 import '../../features/inventory/presentation/stock_policy/stock_policy_routes.dart';
 import '../../features/inventory/presentation/costing/costing_routes.dart';
+import '../../features/inventory/presentation/reports/reports_routes.dart';
 import '../../features/inventory/presentation/stocktake/stocktake_routes.dart';
 import '../../features/inventory/presentation/supplier_program/supplier_program_routes.dart';
 import '../../features/inventory/presentation/supplier_program/supplier_programs_section.dart';
@@ -644,6 +645,7 @@ final appRouter = GoRouter(
     ...goodsReceiptRoutes(),
     ...stocktakeRoutes(),
     ...costingRoutes(),
+    ...reportsRoutes(),
     GoRoute(
       path: '/more/settings',
       name: 'more.settings',

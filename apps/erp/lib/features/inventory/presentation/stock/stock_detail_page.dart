@@ -220,6 +220,9 @@ class _StockDetailViewState extends State<_StockDetailView>
                       onCompareSuppliers: () => context.push(
                         '/warehouse/stock/${Uri.encodeComponent(detail.productId)}/suppliers',
                       ),
+                      onOpenStockCard: () => context.push(
+                        '/warehouse/reports/stock/${Uri.encodeComponent(detail.productId)}?back=stock',
+                      ),
                     ),
                   ],
                 ),

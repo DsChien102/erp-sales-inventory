@@ -131,6 +131,7 @@ Widget _buildTestApp({
   ValueChanged<String>? onPolicyOpened,
   ValueChanged<String>? onStocktakeOpened,
   ValueChanged<String>? onCompareOpened,
+  ValueChanged<String>? onCardOpened,
 }) {
   if (getIt.isRegistered<StockRepository>()) {
     getIt.unregister<StockRepository>();
@@ -156,6 +157,13 @@ Widget _buildTestApp({
           final id = state.pathParameters['productId']!;
           onCompareOpened?.call('/warehouse/stock/$id/suppliers');
           return Scaffold(body: Text('COMPARE:$id'));
+        },
+      ),
+      GoRoute(
+        path: '/warehouse/reports/stock/:productId',
+        builder: (_, state) {
+          onCardOpened?.call(state.uri.toString());
+          return Scaffold(body: Text('CARD:${state.pathParameters['productId']}'));
         },
       ),
       GoRoute(
@@ -401,7 +409,30 @@ void main() {
       expect(find.text('Nhận hàng gần nhất'), findsOneWidget);
       expect(find.text('15/09/2026 · +14 lọ'), findsOneWidget);
       expect(find.text('Đang giữ'), findsNothing);
-      expect(find.text('Xem thẻ kho và lịch sử'), findsNothing);
+      // G5-7: trang chi tiết đã nối thẻ kho nên sheet nguồn có nút mở thẻ kho.
+      expect(find.text('Xem thẻ kho và lịch sử'), findsOneWidget);
+    });
+
+    testWidgets('stock_detail_opens_card', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      String? opened;
+      final repo = _FakeStockRepository((_) => _buildTylosinDetail());
+      await tester.pumpWidget(
+        _buildTestApp(repository: repo, onCardOpened: (uri) => opened = uri),
+      );
+      await tester.pumpAndSettle();
+
+      final provRow = find.text('Nguồn và thời điểm cập nhật');
+      await tester.ensureVisible(provRow);
+      await tester.tap(provRow);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Xem thẻ kho và lịch sử'));
+      await tester.pumpAndSettle();
+
+      expect(opened, '/warehouse/reports/stock/INV-TYL?back=stock');
+      expect(find.text('CARD:INV-TYL'), findsOneWidget);
     });
 
     testWidgets('detail_two_columns_1280', (tester) async {

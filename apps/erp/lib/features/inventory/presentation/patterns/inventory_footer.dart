@@ -29,7 +29,15 @@ class InventoryFooter extends StatelessWidget {
 
     final isWide = inventoryIsWide(context);
 
-    // Web: hàng nút căn phải
+    // Web: hàng nút căn phải (từ 3 nút: tự xuống dòng khi hẹp)
+    if (isWide && actions.length >= 3) {
+      return Wrap(
+        alignment: WrapAlignment.end,
+        spacing: VSpacing.space3,
+        runSpacing: VSpacing.space2,
+        children: [for (final a in actions) _buildButton(a)],
+      );
+    }
     if (isWide) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -46,6 +54,24 @@ class InventoryFooter extends StatelessWidget {
     // 1 nút: full
     if (actions.length == 1) {
       return _buildButton(actions.first, fullWidth: true);
+    }
+
+    // 3 nút trở lên: xếp dọc, nút chính ở trên, giữ thứ tự còn lại
+    if (actions.length >= 3) {
+      final ordered = [
+        ...actions.where((a) => a.primary),
+        ...actions.where((a) => !a.primary),
+      ];
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < ordered.length; i++) ...[
+            _buildButton(ordered[i], fullWidth: true),
+            if (i < ordered.length - 1) const SizedBox(height: VSpacing.space2),
+          ],
+        ],
+      );
     }
 
     // 2 nút và có nhãn > 17 ký tự: xếp dọc, nút chính ở trên
