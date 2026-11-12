@@ -290,14 +290,14 @@ void main() {
 
       await tester.tap(find.text('Người liên hệ'));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.textContaining('Xem tất cả'));
+      await tester.ensureVisible(find.textContaining('Xem tất cả ('));
       await tester.pumpAndSettle();
       // Font Ahem làm hàng "Thêm / Xem tất cả" tràn ngang ở 390 (nút nằm ngoài
       // màn): gọi onTap của InkWell thay vì tap theo toạ độ.
       tester
           .widget<InkWell>(
             find
-                .ancestor(of: find.textContaining('Xem tất cả'), matching: find.byType(InkWell))
+                .ancestor(of: find.textContaining('Xem tất cả ('), matching: find.byType(InkWell))
                 .first,
           )
           .onTap!();

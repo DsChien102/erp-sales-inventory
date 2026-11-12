@@ -335,9 +335,9 @@ void main() {
 
       await tester.tap(find.text('Người liên hệ'));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.textContaining('Xem tất cả'));
+      await tester.ensureVisible(find.textContaining('Xem tất cả ('));
       await tester.pumpAndSettle();
-      await tester.tap(find.textContaining('Xem tất cả'));
+      await tester.tap(find.textContaining('Xem tất cả ('));
       await tester.pumpAndSettle();
       expect(find.byType(PartnerContactsPage), findsOneWidget);
       await tester.tap(find.byTooltip('Quay lại'));

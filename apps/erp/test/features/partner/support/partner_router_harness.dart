@@ -9,6 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/dashboard/data/default_pair_repository.dart';
+import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_models.dart';
+import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_repository.dart';
+import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
+import 'package:erp/features/inventory/data/supplier_program/supplier_program_repository.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
@@ -43,12 +47,26 @@ const allPartnerPermissions = {
   PartnerPermissions.historyView,
 };
 
+/// Chi tiết nhà cung cấp có khối chương trình NCC + lịch sử nhận hàng (G5-3):
+/// trả danh sách rỗng để test Đối tác không phụ thuộc Kho.
+class _EmptyGoodsReceiptRepository extends Fake implements GoodsReceiptRepository {
+  @override
+  Future<List<ReceiptListRow>> list({String? supplierId, int limit = 20, int offset = 0}) async => [];
+}
+
+class _EmptySupplierProgramRepository extends Fake implements SupplierProgramRepository {
+  @override
+  Future<List<ProgramRow>> list() async => [];
+}
+
 /// `setUp` chung cho test dựng qua `appRouter` thật.
 Future<void> setUpPartnerRouterTest() async {
   await getIt.reset();
   getIt
     ..registerSingleton<IExecutionContext>(FakeExecutionContext(tenantId: 'tenant-test'))
-    ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository());
+    ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
+    ..registerSingleton<GoodsReceiptRepository>(_EmptyGoodsReceiptRepository())
+    ..registerSingleton<SupplierProgramRepository>(_EmptySupplierProgramRepository());
 }
 
 Future<void> tearDownPartnerRouterTest() async {
