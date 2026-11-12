@@ -334,7 +334,7 @@ Ví dụ: phiếu 1 400 × 100.000, phiếu 2 600 × 100.000 ⇒ `base` 100.000.
 
 ### 12.5 Giá vốn dự kiến và so sánh NCC (chỉ đọc, không ghi sổ)
 
-- **Giá vốn dự kiến** (P3, loại 3 `ACTIVE`): người dùng nhập SL định mua thêm `x` và đơn giá dự kiến `u`; nếu `progress + x >= target`: `R_dk = (base + x × u) × %`; bình quân dự kiến = `(V + x × u − R_dk × min(q + x, Q + x) / (Q + x)) / (q + x)`; không đạt mốc thì chỉ `(V + x × u) / (q + x)`. Nhãn "Dự kiến, chưa ghi sổ".
+- **Giá vốn dự kiến** (P3, loại 3 `ACTIVE`): người dùng nhập SL định mua thêm `x` và đơn giá dự kiến `u`; nếu `progress + x >= target`: `R_dk = (base + x × u) × %`; bình quân dự kiến = `(V + x × u − R_dk × min(q + x, Q + x) / (Q + x)) / (q + x)`; không đạt mốc thì chỉ `(V + x × u) / (q + x)`. Nhãn "Dự kiến, chưa ghi sổ". *Ghi chú: công thức tính theo từng sản phẩm — xem plan G5-5b mục 2.3.*
 - **So sánh NCC** (P5, theo sản phẩm; không gồm "Mua lẻ / khác" trong phần ưu đãi, vẫn hiện giá): mỗi NCC có phiếu nhận: đơn giá gốc lần gần nhất, bình quân đơn giá gốc (Σ giá gốc / Σ SL nhập gồm tặng), số lần nhập, tổng SL mua / tặng, chương trình `ACTIVE` / `REACHED` + tiến độ.
 
 ### 12.6 RPC, quyền, mã lỗi
@@ -345,7 +345,7 @@ Ví dụ: phiếu 1 400 × 100.000, phiếu 2 600 × 100.000 ⇒ `base` 100.000.
 | `get_receipt_program_hints(p_supplier_id, p_lines)` (bậc, SL tặng, chương trình loại 3 sẽ cộng) | G5-2b, dùng ở G5-3 |
 | `preview_supplier_rebate`, `record_supplier_rebate`, `get_projected_cost`, `compare_suppliers(p_product_id)` | G5-5b |
 
-Chỉ `is_owner` tạo / sửa / kết thúc chương trình, ghi nhận chiết khấu, xem số tiền; nhân viên lập phiếu thấy gợi ý % / SL tặng, tiền bị che. Mã lỗi mới: `PROGRAM_NOT_REACHED`, `PROGRAM_LOCKED`, `PROGRAM_SUPPLIER_INVALID`, `PROGRAM_UOM_MISMATCH`; phiếu nhận thiếu NCC → `SUPPLIER_REQUIRED` (G5-3).
+Chỉ `is_owner` (quyền **Q-5b-1**) tạo / sửa / kết thúc chương trình, ghi nhận chiết khấu (`preview_supplier_rebate`, `record_supplier_rebate`), và xem số tiền ở `get_projected_cost`, `compare_suppliers`, `get_supplier_program` (`viewer_is_owner` + che `rebate` với nhân viên); nhân viên lập phiếu chỉ thấy gợi ý % / SL tặng / SL mua và tiến độ, tiền / bình quân / "Rẻ nhất" bị che (`financial_masked = true`). Mã lỗi mới: `PROGRAM_NOT_REACHED`, `PROGRAM_LOCKED`, `PROGRAM_SUPPLIER_INVALID`, `PROGRAM_UOM_MISMATCH`, `REBATE_AMOUNT_INVALID`, `REBATE_REASON_REQUIRED`; phiếu nhận thiếu NCC → `SUPPLIER_REQUIRED` (G5-3).
 
 ### 12.7 Màn hình (không có prototype / Screen Contract ⇒ plan vẽ khung ASCII, người dùng duyệt; dựng từ khuôn K1 / K4 / K6 / K7 + DS)
 
