@@ -445,5 +445,71 @@ void main() {
         expect(find.text('Chương trình đạt mốc'), findsNothing);
       },
     );
+
+    test('hub_cogs_entry_routes_costing sets /warehouse/costing on cogs entry',
+        () {
+      final entries = warehouseAreaEntries(WarehouseArea.valuation);
+      final cogs = entries.firstWhere((e) => e.id == 'cogs');
+      expect(cogs.route, '/warehouse/costing');
+    });
+
+    testWidgets(
+      'hub_attention_cost_rows_owner_only shows period close and pending runs only for owner',
+      (tester) async {
+        final summary = WarehouseHubSummary(
+          activated: true,
+          costPeriodToClose: DateTime(2026, 10, 1),
+          costRunsPending: 2,
+        );
+        final ownerCubit = WarehouseHubCubit(
+          repository: _FakeHubRepo(summary),
+          isOwner: () => true,
+        );
+
+        String? pushedUri;
+        final router = GoRouter(
+          initialLocation: '/warehouse',
+          routes: [
+            GoRoute(
+              path: '/warehouse',
+              builder: (_, _) => WarehouseHubPage(cubit: ownerCubit),
+            ),
+            GoRoute(
+              path: '/warehouse/costing',
+              builder: (_, state) {
+                pushedUri = state.uri.toString();
+                return const Scaffold(body: SizedBox.shrink());
+              },
+            ),
+          ],
+        );
+
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: VTheme.lightTheme,
+            routerConfig: router,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Kỳ 10/2026 chưa chốt giá vốn'), findsOneWidget);
+        expect(find.text('Tháng đã kết thúc, cần chốt giá vốn'), findsOneWidget);
+        expect(find.text('Lần tính giá vốn chờ công bố'), findsOneWidget);
+        expect(find.text('2 lần tính đã tính, chờ công bố'), findsOneWidget);
+
+        await tester.tap(find.text('Kỳ 10/2026 chưa chốt giá vốn'));
+        await tester.pumpAndSettle();
+        expect(pushedUri, '/warehouse/costing');
+
+        final staffCubit = WarehouseHubCubit(
+          repository: _FakeHubRepo(summary),
+          isOwner: () => false,
+        );
+        await tester.pumpWidget(wrap(WarehouseHubPage(cubit: staffCubit)));
+        await tester.pumpAndSettle();
+        expect(find.text('Kỳ 10/2026 chưa chốt giá vốn'), findsNothing);
+        expect(find.text('Lần tính giá vốn chờ công bố'), findsNothing);
+      },
+    );
   });
 }

@@ -5,6 +5,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/core/session/session_store.dart';
 import 'package:erp/features/inventory/data/hub/warehouse_hub_repository.dart';
+import 'package:erp/features/inventory/logic/costing/costing_rules.dart';
 import 'package:erp/features/inventory/logic/hub/warehouse_hub_cubit.dart';
 import 'package:erp/features/inventory/logic/hub/warehouse_hub_state.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_entries.dart';
@@ -239,6 +240,34 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
           subtitle: '$n chương trình nhà cung cấp đạt mốc chờ ghi nhận chiết khấu',
           trailing: _buildCountBadge(n),
           onTap: () => context.push('/warehouse/supplier-programs?status=REACHED'),
+        ),
+      );
+    }
+
+    if (summary.activated &&
+        state.isOwner &&
+        summary.costPeriodToClose != null) {
+      attentionRows.add(
+        VListRow(
+          asCard: true,
+          leading: VIcons.coins,
+          title: 'Kỳ ${periodLabel(summary.costPeriodToClose!)} chưa chốt giá vốn',
+          subtitle: 'Tháng đã kết thúc, cần chốt giá vốn',
+          onTap: () => context.push('/warehouse/costing'),
+        ),
+      );
+    }
+
+    if (summary.activated && state.isOwner && summary.costRunsPending > 0) {
+      final n = summary.costRunsPending;
+      attentionRows.add(
+        VListRow(
+          asCard: true,
+          leading: VIcons.coins,
+          title: 'Lần tính giá vốn chờ công bố',
+          subtitle: '$n lần tính đã tính, chờ công bố',
+          trailing: _buildCountBadge(n),
+          onTap: () => context.push('/warehouse/costing'),
         ),
       );
     }

@@ -107,7 +107,7 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
             title: 'Giá vốn',
             subtitle: 'Tính, rà soát và công bố giá vốn',
             icon: VIcons.coins,
-            route: null,
+            route: '/warehouse/costing',
             ownerOnly: true,
           ),
         ],

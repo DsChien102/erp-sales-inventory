@@ -586,5 +586,32 @@ void main() {
       expect(pushedCompare, '/warehouse/stock/INV-TYL/suppliers');
       expect(find.text('COMPARE:INV-TYL'), findsOneWidget);
     });
+
+    testWidgets('stock_cost_block_versions_link_owner_only', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final ownerRepo = _FakeStockRepository(
+        (_) => _buildTylosinDetail(
+          isOwner: true,
+          cost: const StockCost(
+            method: CostMethod.moving,
+            officialUnitCost: 118500,
+            movingAvgCost: 117940,
+            ledgerValueVnd: 1651160,
+          ),
+        ),
+      );
+      await tester.pumpWidget(_buildTestApp(repository: ownerRepo));
+      await tester.pumpAndSettle();
+      expect(find.text('Lịch sử giá vốn'), findsOneWidget);
+
+      final staffRepo = _FakeStockRepository(
+        (_) => _buildTylosinDetail(isOwner: false, cost: null),
+      );
+      await tester.pumpWidget(_buildTestApp(repository: staffRepo));
+      await tester.pumpAndSettle();
+      expect(find.text('Lịch sử giá vốn'), findsNothing);
+    });
   });
 }

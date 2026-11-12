@@ -32,6 +32,9 @@ abstract final class InventoryErrorCode {
   static const programNotReached = 'PROGRAM_NOT_REACHED';
   static const rebateAmountInvalid = 'REBATE_AMOUNT_INVALID';
   static const rebateReasonRequired = 'REBATE_REASON_REQUIRED';
+  static const costRunStale = 'COST_RUN_STALE';
+  static const costRunNotReady = 'COST_RUN_NOT_READY';
+  static const costPolicyLocked = 'COST_POLICY_LOCKED';
 }
 
 /// Chuyển đổi mã lỗi sang thông báo thân thiện người dùng tiếng Việt.
@@ -101,6 +104,12 @@ String inventoryErrorMessage(
       'Số tiền ghi nhận phải từ 1 đ đến tổng tiền mua.',
     InventoryErrorCode.rebateReasonRequired =>
       'Nhập lý do khi số tiền khác đề xuất.',
+    InventoryErrorCode.costRunStale =>
+      'Dữ liệu đầu vào đã thay đổi. Hãy tạo lần tính kế tiếp.',
+    InventoryErrorCode.costRunNotReady =>
+      'Lần tính không còn ở trạng thái chờ công bố.',
+    InventoryErrorCode.costPolicyLocked =>
+      'Đã công bố giá vốn nên không đổi được phương pháp.',
     _ => fallback,
   };
 }

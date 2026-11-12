@@ -19,12 +19,16 @@ class WarehouseHubSummary extends Equatable {
     this.problems,
     this.openStocktakes = 0,
     this.programsReached = 0,
+    this.costPeriodToClose,
+    this.costRunsPending = 0,
   });
 
   final bool activated;
   final WarehouseAttention? problems;
   final int openStocktakes;
   final int programsReached;
+  final DateTime? costPeriodToClose;
+  final int costRunsPending;
 
   @override
   List<Object?> get props => [
@@ -32,5 +36,7 @@ class WarehouseHubSummary extends Equatable {
         problems,
         openStocktakes,
         programsReached,
+        costPeriodToClose,
+        costRunsPending,
       ];
 }

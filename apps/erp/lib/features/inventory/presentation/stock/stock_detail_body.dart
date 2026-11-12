@@ -2,6 +2,7 @@ import 'package:erp/features/inventory/data/models/lot_date.dart';
 import 'package:erp/features/inventory/data/stock/stock_models.dart';
 import 'package:erp/features/inventory/logic/inventory_format.dart';
 import 'package:erp/features/inventory/logic/stock/stock_indicator_rules.dart';
+import 'package:erp/features/inventory/presentation/costing/cost_versions_sheet.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_layout.dart';
 import 'package:erp/features/inventory/presentation/stock/stock_cost_block.dart';
 import 'package:erp/features/inventory/presentation/stock/stock_lot_sheet.dart';
@@ -357,6 +358,12 @@ class StockDetailBody extends StatelessWidget {
           StockCostBlock(
             cost: detail.cost!,
             uom: detail.uom,
+            onShowVersions: detail.isOwner
+                ? () => showCostVersionsSheet(
+                      context,
+                      productId: detail.productId,
+                    )
+                : null,
           ),
         ],
       ],

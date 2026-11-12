@@ -12,12 +12,19 @@ class WarehouseHubRepository {
     WarehouseAttention? problems;
     var openStocktakes = 0;
     var programsReached = 0;
+    DateTime? costPeriodToClose;
+    var costRunsPending = 0;
 
     final rawProblems = res['problems'];
     if (activated && rawProblems is Map) {
       final map = Map<String, dynamic>.from(rawProblems);
       openStocktakes = (map['stocktakes_open'] as num?)?.toInt() ?? 0;
       programsReached = (map['programs_reached'] as num?)?.toInt() ?? 0;
+      final rawPeriod = map['cost_period_to_close'] as String?;
+      if (rawPeriod != null && rawPeriod.isNotEmpty) {
+        costPeriodToClose = DateTime.tryParse(rawPeriod);
+      }
+      costRunsPending = (map['cost_runs_pending'] as num?)?.toInt() ?? 0;
       final products = (map['products'] as num?)?.toInt() ?? 0;
       if (products > 0) {
         final out = (map['out'] as num?)?.toInt() ?? 0;
@@ -43,6 +50,8 @@ class WarehouseHubRepository {
       problems: problems,
       openStocktakes: openStocktakes,
       programsReached: programsReached,
+      costPeriodToClose: costPeriodToClose,
+      costRunsPending: costRunsPending,
     );
   }
 }

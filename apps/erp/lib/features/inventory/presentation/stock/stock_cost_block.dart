@@ -6,11 +6,13 @@ import 'package:vet45_design_system/design_system.dart';
 class StockCostBlock extends StatelessWidget {
   final StockCost cost;
   final String uom;
+  final VoidCallback? onShowVersions;
 
   const StockCostBlock({
     super.key,
     required this.cost,
     required this.uom,
+    this.onShowVersions,
   });
 
   String _formatUnitCost(num? value) {
@@ -68,6 +70,17 @@ class StockCostBlock extends StatelessWidget {
             value: ledgerText,
             mono: true,
           ),
+          if (onShowVersions != null) ...[
+            const SizedBox(height: VSpacing.space2),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: VButton(
+                label: 'Lịch sử giá vốn',
+                variant: VButtonVariant.tertiary,
+                onPressed: onShowVersions,
+              ),
+            ),
+          ],
           const SizedBox(height: VSpacing.space2),
           Container(
             padding: const EdgeInsets.only(top: VSpacing.space3),
