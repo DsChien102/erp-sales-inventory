@@ -233,3 +233,42 @@ Finder findMoneyText() {
     (w) => w is RichText && money.hasMatch(w.text.toPlainText()),
   );
 }
+
+MovementDetail movementDetailOf({
+  String kind = 'RECEIPT',
+  String intent = 'GOODS_RECEIPT',
+  String? reason,
+  num delta = 20,
+  num before = 28,
+  int? value = 840000,
+  String? lot,
+  bool lotTracked = false,
+  MovementSource? source,
+}) =>
+    MovementDetail(
+      movementId: 'm1',
+      product: StockCardProduct(
+        productId: 'p1',
+        name: 'Vắc xin Dại',
+        code: 'VX-01',
+        uom: 'hộp',
+        isLotTracked: lotTracked,
+      ),
+      lotCode: lot,
+      movementKind: kind,
+      reason: reason,
+      intentType: intent,
+      quantityDelta: delta,
+      beforeQty: before,
+      afterQty: before + delta,
+      businessDate: DateTime(2026, 9, 4),
+      recordedAt: DateTime(2026, 9, 4, 8, 15),
+      actorName: 'Chủ cửa hàng',
+      valueAmount: value,
+      source: source ??
+          const MovementSource(
+            kind: 'RECEIPT',
+            docCode: 'PN-260904-08',
+            receiptId: 'r1',
+          ),
+    );
