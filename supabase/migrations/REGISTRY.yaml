@@ -314,6 +314,7 @@ inventory:
   _ensure_open_period: 20261110001_inventory_core.sql
   _ensure_walk_in_supplier: 20261113001_inventory_supplier_programs.sql
   _forbid_ledger_mutation: 20261110001_inventory_core.sql
+  _has_open_stocktake: 20261116001_inventory_stocktake.sql
   _issue_for_sale: 20261115001_inventory_sales_link.sql
   _lot_expiry_end: 20261111001_inventory_stock_policy.sql
   _near_expiry_days: 20261111001_inventory_stock_policy.sql
@@ -330,6 +331,8 @@ inventory:
   _validate_program_payload: 20261113001_inventory_supplier_programs.sql
   _value_line: 20261110001_inventory_core.sql
   _warehouse_for_store: 20261115001_inventory_sales_link.sql
+  add_stocktake_unexpected_line: 20261116001_inventory_stocktake.sql
+  cancel_stocktake: 20261116001_inventory_stocktake.sql
   create_supplier_program: 20261113001_inventory_supplier_programs.sql
   end_supplier_program: 20261113001_inventory_supplier_programs.sql
   ensure_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
@@ -339,15 +342,23 @@ inventory:
   get_receipt_program_hints: 20261113001_inventory_supplier_programs.sql
   get_stock_detail: 20261112001_inventory_stock_view.sql
   get_stock_policy: 20261111001_inventory_stock_policy.sql
+  get_stocktake_form_options: 20261116001_inventory_stocktake.sql
+  get_stocktake_session: 20261116001_inventory_stocktake.sql
+  get_stocktake_unexpected_options: 20261116001_inventory_stocktake.sql
   get_supplier_program: 20261113001_inventory_supplier_programs.sql
   get_supplier_program_form_options: 20261113001_inventory_supplier_programs.sql
   get_warehouse_hub_summary: 20261110001_inventory_core.sql
   list_goods_receipts: 20261114001_inventory_goods_receipts.sql
   list_stock_overview: 20261112001_inventory_stock_view.sql
+  list_stocktake_sessions: 20261116001_inventory_stocktake.sql
   list_supplier_programs: 20261113001_inventory_supplier_programs.sql
+  open_stocktake: 20261116001_inventory_stocktake.sql
   record_goods_receipt: 20261114001_inventory_goods_receipts.sql
   save_near_expiry_policy: 20261111001_inventory_stock_policy.sql
   save_stock_thresholds: 20261111001_inventory_stock_policy.sql
+  save_stocktake_draft: 20261116001_inventory_stocktake.sql
+  submit_stocktake_first_count: 20261116001_inventory_stocktake.sql
+  submit_stocktake_recount: 20261116001_inventory_stocktake.sql
   update_supplier_program: 20261113001_inventory_supplier_programs.sql
 
 partner:

@@ -1046,6 +1046,7 @@ declare
   v_expired int := 0;
   v_near_expiry int := 0;
   v_products int := 0;
+  v_stocktakes_open int := 0;
 begin
   -- 1. Assert actor with inventory.read permission
   v_actor := inventory._assert_actor(p_tenant_id, 'inventory.read');
@@ -1090,6 +1091,12 @@ begin
     on psp.tenant_id = p_tenant_id
    and psp.product_id = sr.product_id;
 
+  select count(*)::int
+  into v_stocktakes_open
+  from inventory.stocktake_sessions ss
+  where ss.tenant_id = p_tenant_id
+    and ss.status in ('COUNTING', 'RECOUNT');
+
   return jsonb_build_object(
     'activated', true,
     'problems', jsonb_build_object(
@@ -1097,7 +1104,8 @@ begin
       'low', coalesce(v_low, 0),
       'expired', coalesce(v_expired, 0),
       'near_expiry', coalesce(v_near_expiry, 0),
-      'products', coalesce(v_products, 0)
+      'products', coalesce(v_products, 0),
+      'stocktakes_open', coalesce(v_stocktakes_open, 0)
     )
   );
 end;
