@@ -634,6 +634,8 @@ Thiết kế đầy đủ: [spec giá vốn](plans/T7/T7-G5-gia-von-thiet-ke.md)
 
 Phạm vi giá: tổ chức + sản phẩm (không theo kho / lô). Trong kỳ: nhập theo giá gốc; xuất theo bình quân liên hoàn (`MOVING`) hoặc giá chính thức đang hiệu lực (`PERIODIC`, chưa có thì "giá tạm"). Lúc công bố: điều chỉnh giá vốn hàng bán / hao hụt / làm tròn chỉ ghi phần chênh. Kiểm cân bằng: đầu đoạn + nhập = xuất đã điều chỉnh + tồn cuối.
 
+> **Ghi chú G5-7 (đã chốt ở G5-6):** mốc chốt kỳ tính theo tháng (D1: `period_month` đầu tháng); các dòng điều chỉnh `COGS_TRUE_UP` / `LOSS_TRUE_UP` ghi vào `value_movements` với dấu giảm/tăng giá trị tồn (D5: báo cáo lãi gộp G5-7 đọc với dấu `−amount`).
+
 ### Đã chốt (người dùng, 2026-11-09 — trước khi rút gọn; còn hiệu lực trừ chỗ ghi "đổi")
 
 | Q | Quyết định |
@@ -666,7 +668,7 @@ Thứ tự = luồng demo (không seed: phải khởi tạo tồn trước mới
 | G5-4 | **Nối Sales** (Q7): xuất kho FEFO (**bỏ qua lô hết hạn** — `_lot_expiry_end` của G5-2a; khả dụng khi bán = `available` của `_product_stock_rows`) + dòng đơn lưu **giá vốn, phiên bản giá, cờ giá tạm** khi thanh toán, huỷ / trả cùng đoạn → `SALE_REVERSAL`, trả hàng của đoạn đã công bố → `RETURN_IN`, khả dụng khi chọn sản phẩm; test giữ hành vi 6 kịch bản Theme 5 | màn Sales (không màn kho mới) | G5-2 | ✅ [plan](plans/T7/T7-G5-4-noi-sales.md) (duyệt 2026-11-11) | ✅ 2026-11-11 | ✅ R4 đạt (2026-11-11; Dev cần reset --linked) |
 | G5-5 | BJ-08 Kiểm kê (tạo phiên, đếm, chênh lệch, ghi nhận thẳng) + **điều chỉnh có lý do** (hỏng / hết hạn / thất thoát — thay BJ-10; định giá theo phương pháp, điều chỉnh vào **hao hụt**, phiên kiểm kê mở chặn lần tính giá vốn) + **bỏ tồn cơ bản Theme 2** (SP-10, bảng / RPC; ghi chú "Thay tồn cơ bản" ở đầu mục) | 042, 043, 044, 045, 047 | G5-2, G5-4 | ✅ [plan](plans/T7/T7-G5-5-kiem-ke.md) (duyệt 2026-11-11) | ✅ 2026-11-12 | ✅ R2 đạt 2026-11-12 |
 | **G5-5b** | **Ghi nhận chiết khấu NCC & so sánh NCC** (spec giá vốn mục 12.4–12.7): RPC xem trước / ghi nhận chiết khấu đạt mốc (phân bổ phần tồn / phần đã bán), giá vốn dự kiến, so sánh NCC; màn P4 ghi nhận, P5 so sánh, khối "Giá vốn dự kiến" + nút ghi nhận ở P3; "Cần chú ý" Hub | P4, P5 | G5-2b, G5-4 | ✅ [plan](plans/T7/T7-G5-5b-chiet-khau-so-sanh-ncc.md) (duyệt 2026-11-12) | ✅ 2026-11-12 (Dev cần reset `--linked`) | ✅ R2 2026-11-12 |
-| **G5-6** | **BJ-14 Giá vốn & chốt kỳ** ([spec giá vốn](plans/T7/T7-G5-gia-von-thiet-ke.md) mục 5–7): `cost_runs` / `cost_run_lines`; RPC tổng quan, đổi phương pháp, tạo / xem / công bố / bỏ lần tính, lịch sử phiên bản; chốt kỳ + cập nhật giữa kỳ; điều kiện chặn, lần tính cũ; xử lý dòng `SUPPLIER_REBATE`; 17 kịch bản `supabase/tests/inventory_costing.sql` | 072, 074, 077 | G5-3, G5-4, G5-5, G5-5b | ⬜ | ⬜ | ⬜ |
+| **G5-6** | **BJ-14 Giá vốn & chốt kỳ** ([spec giá vốn](plans/T7/T7-G5-gia-von-thiet-ke.md) mục 5–7): `cost_runs` / `cost_run_lines`; RPC tổng quan, đổi phương pháp, tạo / xem / công bố / bỏ lần tính, lịch sử phiên bản; chốt kỳ + cập nhật giữa kỳ; điều kiện chặn, lần tính cũ; xử lý dòng `SUPPLIER_REBATE`; 17 kịch bản `supabase/tests/inventory_costing.sql` | 072, 074, 077 | G5-3, G5-4, G5-5, G5-5b | ✅ [plan](plans/T7/T7-G5-6-gia-von-chot-ky.md) (duyệt 2026-11-12) | ✅ 2026-11-12 | ✅ R3 đạt 2026-11-12 |
 | G5-7 | BJ-15 Báo cáo nhập – xuất – tồn / thẻ kho (giá trị sổ) + chi tiết biến động ("Mở phiếu gốc") + **báo cáo lãi gộp** (theo sản phẩm theo kỳ: giá vốn lúc bán + điều chỉnh − chiết khấu NCC; theo đơn: giá vốn lúc bán; hao hụt dòng riêng) + báo cáo nhập hàng theo NCC (SL mua / tặng, giá gốc) | 055, 056 | G5-6 | ⬜ | ⬜ | ⬜ |
 | G5-8 | Rà cuối: bảng màn → route → test, luồng demo, không còn lối vào trỏ BJ bị bỏ, tương phản / vùng chạm / `Semantics`, quét chuỗi giả | toàn Theme | tất cả | ⬜ | ⬜ | ⬜ |
 
@@ -788,7 +790,7 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 | 5 | 6 kịch bản Theme 5 cho tồn + giá vốn đúng theo sổ kho; tồn cơ bản Theme 2 đã bỏ | G5-4, G5-5 |
 | 6 | `dart analyze lib/features/inventory test/features/inventory` = 0 lỗi; `flutter test` không thêm lỗi so với `TEST-BASELINE.md` | mỗi plan con |
 | 7 | Code BJ-02 / BJ-03 cũ (v4.6.8) và `WarehouseHomePage` v3.8 đã xoá | G5-0a ✅, G5-3 |
-| 8 | 17 kịch bản `supabase/tests/inventory_costing.sql` đạt (spec giá vốn mục 9, gồm 6 ca ưu đãi NCC) | G5-2b, G5-3, G5-5b, G5-6; người dùng chạy |
+| 8 | 17 kịch bản spec mục 9 (`inventory_costing.sql` + ca trỏ ở plan G5-6 mục 2.5) đạt (gồm 6 ca ưu đãi NCC) | G5-2b, G5-3, G5-5b, G5-6; người dùng chạy |
 
 ---
 
