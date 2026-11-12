@@ -15,11 +15,13 @@ class ReceiptLineEditor extends StatelessWidget {
     required this.lineKey,
     required this.onDone,
     this.onDelete,
+    this.onCompareSuppliers,
   });
 
   final String lineKey;
   final VoidCallback onDone;
   final VoidCallback? onDelete;
+  final ValueChanged<String>? onCompareSuppliers;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +74,17 @@ class ReceiptLineEditor extends StatelessWidget {
                           '${line.product.code} · ${line.unit.name}',
                           style: VTypography.bodySmall,
                         ),
+                        if (onCompareSuppliers != null &&
+                            line.product.id.isNotEmpty) ...[
+                          const SizedBox(height: VSpacing.space1),
+                          VButton(
+                            variant: VButtonVariant.link,
+                            size: VButtonSize.small,
+                            label: 'So sánh nhà cung cấp',
+                            onPressed: () =>
+                                onCompareSuppliers!(line.product.id),
+                          ),
+                        ],
                       ],
                     ),
                   ),

@@ -18,17 +18,20 @@ import 'package:vet45_design_system/design_system.dart';
 
 class ProgramFormPage extends StatelessWidget {
   final String? supplierId;
+  final String? productId;
   final String? programId;
 
   const ProgramFormPage.create({
     super.key,
     this.supplierId,
+    this.productId,
   }) : programId = null;
 
   const ProgramFormPage.edit({
     super.key,
     required String this.programId,
-  }) : supplierId = null;
+  }) : supplierId = null,
+       productId = null;
 
   bool get isEdit => programId != null;
 
@@ -42,7 +45,7 @@ class ProgramFormPage extends StatelessWidget {
         if (programId != null) {
           cubit.startEdit(programId!);
         } else {
-          cubit.startCreate(supplierId: supplierId);
+          cubit.startCreate(supplierId: supplierId, productId: productId);
         }
         return cubit;
       },

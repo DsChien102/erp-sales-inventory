@@ -5,6 +5,8 @@ import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/inventory/data/core/inventory_error_codes.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_repository.dart';
+import 'package:erp/features/inventory/data/supplier_rebate/supplier_rebate_models.dart';
+import 'package:erp/features/inventory/data/supplier_rebate/supplier_rebate_repository.dart';
 import 'package:erp/features/inventory/presentation/supplier_program/program_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -111,6 +113,8 @@ class _FakeSupplierProgramRepository implements SupplierProgramRepository {
 ProgramDetail _volumeDetail({
   ProgramStatus status = ProgramStatus.active,
   bool isLocked = false,
+  bool viewerIsOwner = false,
+  RecordedRebate? rebate,
   DateTime? endedAt,
 }) {
   return ProgramDetail(
@@ -133,6 +137,8 @@ ProgramDetail _volumeDetail({
     note: 'Ghi chú Q4',
     revision: 1,
     isLocked: isLocked,
+    viewerIsOwner: viewerIsOwner,
+    rebate: rebate,
     endedAt: endedAt,
     products: const [
       ProgramProduct(
@@ -151,6 +157,57 @@ ProgramDetail _volumeDetail({
     receipts: const [],
     baseAmountVnd: 40000000,
   );
+}
+
+class _FakeSupplierRebateRepository implements SupplierRebateRepository {
+  bool throwOnProjection = false;
+
+  @override
+  Future<ProjectedCost> projectedCost({
+    required String programId,
+    required String productId,
+    num? extraQty,
+    num? unitPrice,
+  }) async {
+    if (throwOnProjection) {
+      throw const AppException('NETWORK_ERROR');
+    }
+    return ProjectedCost(
+      productId: productId,
+      uom: 'hộp',
+      progressQty: 400,
+      targetQty: 1000,
+      missingQty: 600,
+      reachesTarget: null,
+      rebateEstimate: null,
+      avgNow: 100000,
+      avgProjected: 100000,
+      defaultUnitPrice: 100000,
+      financialMasked: false,
+    );
+  }
+
+  @override
+  Future<RebatePreview> preview({required String programId, int? amountVnd}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<RebateRecordResult> record({
+    required String idempotencyKey,
+    required String programId,
+    required String documentNo,
+    required DateTime documentDate,
+    required int amountVnd,
+    String? overrideReason,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<SupplierCompare> compareSuppliers(String productId) {
+    throw UnimplementedError();
+  }
 }
 
 ProgramDetail _tierDetail() {
@@ -194,6 +251,9 @@ void main() {
     await getIt.reset();
     fakeRepo = _FakeSupplierProgramRepository(detail: _volumeDetail());
     getIt.registerSingleton<SupplierProgramRepository>(fakeRepo);
+    getIt.registerSingleton<SupplierRebateRepository>(
+      _FakeSupplierRebateRepository(),
+    );
   });
 
   tearDown(() async {
@@ -222,6 +282,12 @@ void main() {
           path: '/warehouse/supplier-programs/:id/edit',
           builder: (_, state) => Scaffold(
             body: Text('EDIT:${state.pathParameters['id']}'),
+          ),
+        ),
+        GoRoute(
+          path: '/warehouse/supplier-programs/:id/rebate',
+          builder: (_, state) => Scaffold(
+            body: Text('REBATE:${state.pathParameters['id']}'),
           ),
         ),
         GoRoute(
@@ -372,7 +438,9 @@ void main() {
       await tester.pumpWidget(buildApp());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Nobivac DHPPi'));
+      await tester.ensureVisible(find.text('Nobivac DHPPi').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Nobivac DHPPi').first);
       await tester.pumpAndSettle();
 
       expect(find.text('STOCK:prod-1'), findsOneWidget);
@@ -397,6 +465,125 @@ void main() {
         find.byType(MaterialApp),
         matchesGoldenFile(_goldenPath('flutter-P3-VOLUME-1280.png')),
       );
+    });
+
+    testWidgets('active_volume_shows_projection', (tester) async {
+      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Giá vốn dự kiến'), findsOneWidget);
+      expect(find.text('Dự kiến, chưa ghi sổ'), findsOneWidget);
+    });
+
+    testWidgets('tier_program_no_projection', (tester) async {
+      fakeRepo.detail = _tierDetail();
+      await tester.pumpWidget(buildApp(programId: 'prog-2'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Giá vốn dự kiến'), findsNothing);
+    });
+
+    testWidgets('reached_owner_has_record_button', (tester) async {
+      fakeRepo.detail = _volumeDetail(
+        status: ProgramStatus.reached,
+        isLocked: true,
+        viewerIsOwner: true,
+      );
+      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
+
+      final bannerFinder = find.ancestor(
+        of: find.text('Đã đạt mốc, chờ ghi nhận chiết khấu'),
+        matching: find.byType(VBanner),
+      );
+      expect(bannerFinder, findsOneWidget);
+      expect(
+        find.descendant(of: bannerFinder, matching: find.byType(VButton)),
+        findsNothing,
+      );
+
+      expect(find.text('Ghi nhận chiết khấu'), findsOneWidget);
+      await tester.tap(find.text('Ghi nhận chiết khấu'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('REBATE:prog-1'), findsOneWidget);
+    });
+
+    testWidgets('reached_staff_no_record_button', (tester) async {
+      fakeRepo.detail = _volumeDetail(
+        status: ProgramStatus.reached,
+        isLocked: true,
+        viewerIsOwner: false,
+      );
+      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ghi nhận chiết khấu'), findsNothing);
+    });
+
+    testWidgets('recorded_shows_section', (tester) async {
+      fakeRepo.detail = _volumeDetail(
+        status: ProgramStatus.recorded,
+        isLocked: true,
+        viewerIsOwner: true,
+        rebate: RecordedRebate(
+          rebateId: 'reb-1',
+          documentNo: 'CK-2026-11',
+          documentDate: DateTime(2026, 11, 12),
+          baseAmountVnd: 100000000,
+          proposedAmountVnd: 5000000,
+          rebateAmountVnd: 5000000,
+          inventoryPartVnd: 1500000,
+          cogsPartVnd: 3500000,
+          recordedAt: DateTime(2026, 11, 12, 14, 5),
+          recordedByName: 'Chủ',
+          allocations: const [],
+        ),
+      );
+      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chiết khấu đã ghi nhận'), findsOneWidget);
+      expect(find.text('CK-2026-11 · 12/11/2026'), findsOneWidget);
+      expect(find.text('Giảm giá vốn hàng đã bán'), findsOneWidget);
+      expect(find.text('3.500.000 đ'), findsOneWidget);
+      expect(find.text('Kết thúc chương trình'), findsNothing);
+      expect(find.text('Ghi nhận chiết khấu'), findsNothing);
+      expect(find.text('Sửa'), findsNothing);
+
+      // Nhân viên xem bản bị che tiền ⇒ '—'
+      fakeRepo.detail = _volumeDetail(
+        status: ProgramStatus.recorded,
+        isLocked: true,
+        viewerIsOwner: false,
+        rebate: RecordedRebate(
+          rebateId: 'reb-1',
+          documentNo: 'CK-2026-11',
+          documentDate: DateTime(2026, 11, 12),
+          recordedAt: DateTime(2026, 11, 12, 14, 5),
+          recordedByName: 'Chủ',
+          allocations: const [],
+        ),
+      );
+      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chiết khấu đã ghi nhận'), findsOneWidget);
+      expect(find.text('—'), findsNWidgets(3));
+    });
+
+    testWidgets('projection_error_not_blocking', (tester) async {
+      await getIt.unregister<SupplierRebateRepository>();
+      final rebateRepo = _FakeSupplierRebateRepository()
+        ..throwOnProjection = true;
+      getIt.registerSingleton<SupplierRebateRepository>(rebateRepo);
+
+      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Thông tin'), findsOneWidget);
+      expect(find.text('Không tính được giá vốn dự kiến.'), findsOneWidget);
+      expect(find.text('Thử lại'), findsOneWidget);
     });
   });
 }

@@ -217,6 +217,9 @@ class _StockDetailViewState extends State<_StockDetailView>
                       onAdjustExpiredLot: (lot) => context.push(
                         '/warehouse/stocktakes/new?lotId=${Uri.encodeQueryComponent(lot.lotId)}',
                       ),
+                      onCompareSuppliers: () => context.push(
+                        '/warehouse/stock/${Uri.encodeComponent(detail.productId)}/suppliers',
+                      ),
                     ),
                   ],
                 ),

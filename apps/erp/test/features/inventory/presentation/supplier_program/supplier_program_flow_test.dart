@@ -1,6 +1,8 @@
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_repository.dart';
+import 'package:erp/features/inventory/data/supplier_rebate/supplier_rebate_models.dart';
+import 'package:erp/features/inventory/data/supplier_rebate/supplier_rebate_repository.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_area_page.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_entries.dart';
 import 'package:erp/features/inventory/presentation/supplier_program/supplier_program_routes.dart';
@@ -158,6 +160,47 @@ class _StatefulSupplierProgramRepository implements SupplierProgramRepository {
       [];
 }
 
+class _FakeSupplierRebateRepository implements SupplierRebateRepository {
+  @override
+  Future<ProjectedCost> projectedCost({
+    required String programId,
+    required String productId,
+    num? extraQty,
+    num? unitPrice,
+  }) async =>
+      ProjectedCost(
+        productId: productId,
+        uom: 'hộp',
+        progressQty: 0,
+        targetQty: 100,
+        missingQty: 100,
+        defaultUnitPrice: 100000,
+        financialMasked: false,
+      );
+
+  @override
+  Future<RebatePreview> preview({
+    required String programId,
+    int? amountVnd,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<RebateRecordResult> record({
+    required String idempotencyKey,
+    required String programId,
+    required String documentNo,
+    required DateTime documentDate,
+    required int amountVnd,
+    String? overrideReason,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<SupplierCompare> compareSuppliers(String productId) =>
+      throw UnimplementedError();
+}
+
 void main() {
   late _StatefulSupplierProgramRepository repo;
 
@@ -165,6 +208,9 @@ void main() {
     await getIt.reset();
     repo = _StatefulSupplierProgramRepository();
     getIt.registerSingleton<SupplierProgramRepository>(repo);
+    getIt.registerSingleton<SupplierRebateRepository>(
+      _FakeSupplierRebateRepository(),
+    );
   });
 
   tearDown(() async {

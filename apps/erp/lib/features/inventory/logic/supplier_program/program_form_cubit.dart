@@ -18,6 +18,7 @@ class ProgramFormCubit extends Cubit<ProgramFormState> {
   final String Function() _newKey;
 
   String? _editingProgramId;
+  String? _initialProductId;
   int _expectedRevision = 1;
   String? _lastPayloadHash;
   String? _lastIdempotencyKey;
@@ -29,8 +30,9 @@ class ProgramFormCubit extends Cubit<ProgramFormState> {
         _newKey = newKey,
         super(ProgramFormState.initial());
 
-  Future<void> startCreate({String? supplierId}) async {
+  Future<void> startCreate({String? supplierId, String? productId}) async {
     _editingProgramId = null;
+    _initialProductId = productId;
     _lastPayloadHash = null;
     _lastIdempotencyKey = null;
     final initialDraft = ProgramFormDraft.initial(supplierId: supplierId);
@@ -43,10 +45,15 @@ class ProgramFormCubit extends Cubit<ProgramFormState> {
     );
     try {
       final opts = await _repository.formOptions();
-      final errs = validateProgramForm(initialDraft, opts.products);
+      final draft = productId != null &&
+              opts.products.any((p) => p.productId == productId)
+          ? initialDraft.copyWith(productIds: [productId])
+          : initialDraft;
+      final errs = validateProgramForm(draft, opts.products);
       emit(
         state.copyWith(
           status: ProgramFormStatus.editing,
+          draft: draft,
           options: opts,
           errors: errs,
           showErrors: false,
@@ -61,6 +68,7 @@ class ProgramFormCubit extends Cubit<ProgramFormState> {
 
   Future<void> startEdit(String programId) async {
     _editingProgramId = programId;
+    _initialProductId = null;
     _lastPayloadHash = null;
     _lastIdempotencyKey = null;
     emit(
@@ -108,7 +116,10 @@ class ProgramFormCubit extends Cubit<ProgramFormState> {
     if (_editingProgramId != null) {
       await startEdit(_editingProgramId!);
     } else {
-      await startCreate(supplierId: state.draft.supplierId);
+      await startCreate(
+        supplierId: state.draft.supplierId,
+        productId: _initialProductId,
+      );
     }
   }
 

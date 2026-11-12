@@ -1,5 +1,7 @@
 // Mô hình dữ liệu cho chương trình nhà cung cấp (T7-G5-2b).
 
+import 'package:erp/features/inventory/data/supplier_rebate/supplier_rebate_models.dart';
+
 enum ProgramKind {
   tierDiscount('TIER_DISCOUNT'),
   buyXGetY('BUY_X_GET_Y'),
@@ -181,6 +183,8 @@ class ProgramDetail {
   final List<ProgramProduct> products;
   final List<ProgramReceipt> receipts;
   final int baseAmountVnd;
+  final bool viewerIsOwner;
+  final RecordedRebate? rebate;
 
   const ProgramDetail({
     required this.row,
@@ -192,11 +196,14 @@ class ProgramDetail {
     required this.products,
     required this.receipts,
     required this.baseAmountVnd,
+    this.viewerIsOwner = false,
+    this.rebate,
   });
 
   factory ProgramDetail.fromJson(Map<String, dynamic> json) {
     final programJson = Map<String, dynamic>.from(json['program'] as Map);
     final rawNote = programJson['note'] as String?;
+    final rawRebate = json['rebate'];
     return ProgramDetail(
       row: ProgramRow.fromJson(programJson),
       note: (rawNote == null || rawNote.trim().isEmpty) ? null : rawNote,
@@ -221,6 +228,10 @@ class ProgramDetail {
           )
           .toList(),
       baseAmountVnd: (json['base_amount_vnd'] as num?)?.toInt() ?? 0,
+      viewerIsOwner: json['viewer_is_owner'] as bool? ?? false,
+      rebate: rawRebate is Map
+          ? RecordedRebate.fromJson(Map<String, dynamic>.from(rawRebate))
+          : null,
     );
   }
 }

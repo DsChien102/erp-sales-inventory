@@ -29,6 +29,9 @@ abstract final class InventoryErrorCode {
   static const stocktakeCountMissing = 'STOCKTAKE_COUNT_MISSING';
   static const stocktakeLineExists = 'STOCKTAKE_LINE_EXISTS';
   static const cancelReasonRequired = 'CANCEL_REASON_REQUIRED';
+  static const programNotReached = 'PROGRAM_NOT_REACHED';
+  static const rebateAmountInvalid = 'REBATE_AMOUNT_INVALID';
+  static const rebateReasonRequired = 'REBATE_REASON_REQUIRED';
 }
 
 /// Chuyển đổi mã lỗi sang thông báo thân thiện người dùng tiếng Việt.
@@ -92,6 +95,12 @@ String inventoryErrorMessage(
     InventoryErrorCode.stocktakeCountMissing => 'Nhập số đếm được',
     InventoryErrorCode.stocktakeLineExists => 'Mặt hàng này đã có trong phiên.',
     InventoryErrorCode.cancelReasonRequired => 'Nhập lý do hủy phiên',
+    InventoryErrorCode.programNotReached =>
+      'Chương trình chưa đạt mốc hoặc đã ghi nhận chiết khấu.',
+    InventoryErrorCode.rebateAmountInvalid =>
+      'Số tiền ghi nhận phải từ 1 đ đến tổng tiền mua.',
+    InventoryErrorCode.rebateReasonRequired =>
+      'Nhập lý do khi số tiền khác đề xuất.',
     _ => fallback,
   };
 }

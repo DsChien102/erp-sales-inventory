@@ -17,10 +17,12 @@ import 'package:vet45_design_system/design_system.dart';
 
 class ProgramListPage extends StatelessWidget {
   final String? initialSupplierId;
+  final ProgramStatus? initialStatus;
 
   const ProgramListPage({
     super.key,
     this.initialSupplierId,
+    this.initialStatus,
   });
 
   @override
@@ -29,6 +31,7 @@ class ProgramListPage extends StatelessWidget {
       create: (_) => ProgramListCubit(
         repository: getIt<SupplierProgramRepository>(),
         initialSupplierId: initialSupplierId,
+        initialStatus: initialStatus,
       )..load(),
       child: const _ProgramListView(),
     );

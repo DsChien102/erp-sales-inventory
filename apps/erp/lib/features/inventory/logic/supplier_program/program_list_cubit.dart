@@ -9,8 +9,14 @@ class ProgramListCubit extends Cubit<ProgramListState> {
   ProgramListCubit({
     required SupplierProgramRepository repository,
     String? initialSupplierId,
+    ProgramStatus? initialStatus,
   })  : _repository = repository,
-        super(ProgramListState(supplierId: initialSupplierId));
+        super(
+          ProgramListState(
+            supplierId: initialSupplierId,
+            statusFilter: initialStatus ?? ProgramStatus.active,
+          ),
+        );
 
   Future<void> load() async {
     emit(state.copyWith(status: ProgramListStatus.loading));

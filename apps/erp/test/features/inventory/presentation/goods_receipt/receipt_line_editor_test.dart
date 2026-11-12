@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_models.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_repository.dart';
@@ -188,12 +189,88 @@ void main() {
       // Khi mới mở: chưa nhập mã lô -> chân hiện "Nhập mã lô"
       expect(find.text('Nhập mã lô'), findsOneWidget);
 
+      await tester.tap(find.text('Nhập mã lô').first);
+      await tester.pumpAndSettle();
       // Nhập mã lô -> hiện "Nhập hạn dùng"
       cubit.updateLine(lineKey, (l) => l.copyWith(
         lots: [l.lots.first.copyWith(code: 'L01')],
       ));
       await tester.pumpAndSettle();
       expect(find.text('Nhập hạn dùng'), findsOneWidget);
+    });
+
+    testWidgets('receipt_line_compare_link', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final cubit = ReceiptDraftCubit(
+        repository: receiptRepo,
+        programs: programRepo,
+        hintDebounce: Duration.zero,
+      );
+      await cubit.load();
+      cubit.selectSupplier(supplierA);
+      final lineKey = cubit.addLine('p-lot', 'u-1');
+      cubit.updateLine(
+        lineKey,
+        (l) => l.copyWith(
+          lots: [l.lots.first.copyWith(code: 'DRAFT-LOT')],
+          unitPriceVnd: 95000,
+        ),
+      );
+
+      String? pushedUri;
+      final router = GoRouter(
+        initialLocation: '/editor',
+        routes: [
+          GoRoute(
+            path: '/editor',
+            builder: (_, _) => BlocProvider.value(
+              value: cubit,
+              child: ReceiptLineEditorPage(
+                lineKey: lineKey,
+                onDone: () {},
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/warehouse/stock/:productId/suppliers',
+            builder: (context, state) {
+              pushedUri = state.uri.toString();
+              return Scaffold(
+                body: Center(
+                  child: ElevatedButton(
+                    onPressed: () => context.pop(),
+                    child: const Text('Quay lại dòng'),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: VTheme.lightTheme,
+          routerConfig: router,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('So sánh nhà cung cấp'), findsOneWidget);
+      await tester.tap(find.text('So sánh nhà cung cấp'));
+      await tester.pumpAndSettle();
+
+      expect(pushedUri, '/warehouse/stock/p-lot/suppliers');
+      expect(find.text('Quay lại dòng'), findsOneWidget);
+
+      await tester.tap(find.text('Quay lại dòng'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('DRAFT-LOT'), findsOneWidget);
     });
   });
 }

@@ -11,11 +11,13 @@ class WarehouseHubRepository {
     final activated = res['activated'] as bool? ?? false;
     WarehouseAttention? problems;
     var openStocktakes = 0;
+    var programsReached = 0;
 
     final rawProblems = res['problems'];
     if (activated && rawProblems is Map) {
       final map = Map<String, dynamic>.from(rawProblems);
       openStocktakes = (map['stocktakes_open'] as num?)?.toInt() ?? 0;
+      programsReached = (map['programs_reached'] as num?)?.toInt() ?? 0;
       final products = (map['products'] as num?)?.toInt() ?? 0;
       if (products > 0) {
         final out = (map['out'] as num?)?.toInt() ?? 0;
@@ -40,6 +42,7 @@ class WarehouseHubRepository {
       activated: activated,
       problems: problems,
       openStocktakes: openStocktakes,
+      programsReached: programsReached,
     );
   }
 }

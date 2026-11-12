@@ -376,5 +376,74 @@ void main() {
         expect(find.text('Kiểm kê đang dở'), findsNothing);
       },
     );
+
+    testWidgets(
+      'hub_attention_programs_reached owner shows row and opens /warehouse/supplier-programs?status=REACHED',
+      (tester) async {
+        const summary = WarehouseHubSummary(
+          activated: true,
+          programsReached: 2,
+        );
+        final ownerCubit = WarehouseHubCubit(
+          repository: _FakeHubRepo(summary),
+          isOwner: () => true,
+        );
+        String? pushedUri;
+        final router = GoRouter(
+          initialLocation: '/warehouse',
+          routes: [
+            GoRoute(
+              path: '/warehouse',
+              builder: (_, _) => WarehouseHubPage(cubit: ownerCubit),
+            ),
+            GoRoute(
+              path: '/warehouse/supplier-programs',
+              builder: (_, state) {
+                pushedUri = state.uri.toString();
+                return Scaffold(body: Text('LIST:${state.uri}'));
+              },
+            ),
+          ],
+        );
+
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: VTheme.lightTheme,
+            routerConfig: router,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Chương trình đạt mốc'), findsOneWidget);
+        expect(
+          find.text('2 chương trình nhà cung cấp đạt mốc chờ ghi nhận chiết khấu'),
+          findsOneWidget,
+        );
+        expect(find.text('2'), findsOneWidget);
+
+        await tester.tap(find.text('Chương trình đạt mốc'));
+        await tester.pumpAndSettle();
+
+        expect(pushedUri, '/warehouse/supplier-programs?status=REACHED');
+
+        // 0 => ẩn
+        final zeroCubit = WarehouseHubCubit(
+          repository: _FakeHubRepo(const WarehouseHubSummary(activated: true)),
+          isOwner: () => true,
+        );
+        await tester.pumpWidget(wrap(WarehouseHubPage(cubit: zeroCubit)));
+        await tester.pumpAndSettle();
+        expect(find.text('Chương trình đạt mốc'), findsNothing);
+
+        // Nhân viên (không phải owner) => ẩn dù > 0
+        final staffCubit = WarehouseHubCubit(
+          repository: _FakeHubRepo(summary),
+          isOwner: () => false,
+        );
+        await tester.pumpWidget(wrap(WarehouseHubPage(cubit: staffCubit)));
+        await tester.pumpAndSettle();
+        expect(find.text('Chương trình đạt mốc'), findsNothing);
+      },
+    );
   });
 }

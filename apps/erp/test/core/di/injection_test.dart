@@ -18,6 +18,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import 'package:erp/core/di/injection.dart';
+import 'package:erp/features/inventory/data/supplier_rebate/supplier_rebate_repository.dart';
 import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:erp/core/supabase/supabase_module.dart';
 
@@ -53,6 +54,7 @@ void main() {
     expect(getIt.isRegistered<CustomFieldRepository>(), isTrue);
     expect(getIt.isRegistered<ProductPriceRepository>(), isTrue);
     expect(getIt.isRegistered<PartnerRepository>(), isTrue);
+    expect(getIt.isRegistered<SupplierRebateRepository>(), isTrue);
     expect(getIt.isRegistered<EInvoiceProcessorTrigger>(), isTrue);
     expect(getIt.isRegistered<EInvoiceConfigurationRepository>(), isTrue);
     expect(getIt.isRegistered<InvoiceDocumentSignedUrls>(), isTrue);

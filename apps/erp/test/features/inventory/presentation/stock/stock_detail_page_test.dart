@@ -4,6 +4,7 @@ import 'package:erp/features/inventory/data/core/inventory_error_codes.dart';
 import 'package:erp/features/inventory/data/models/lot_date.dart';
 import 'package:erp/features/inventory/data/stock/stock_models.dart';
 import 'package:erp/features/inventory/data/stock/stock_repository.dart';
+import 'package:erp/features/inventory/presentation/stock/stock_detail_body.dart';
 import 'package:erp/features/inventory/presentation/stock/stock_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -129,6 +130,7 @@ Widget _buildTestApp({
   bool policyResult = true,
   ValueChanged<String>? onPolicyOpened,
   ValueChanged<String>? onStocktakeOpened,
+  ValueChanged<String>? onCompareOpened,
 }) {
   if (getIt.isRegistered<StockRepository>()) {
     getIt.unregister<StockRepository>();
@@ -147,6 +149,14 @@ Widget _buildTestApp({
         builder: (_, state) => StockDetailPage(
           productId: state.pathParameters['productId']!,
         ),
+      ),
+      GoRoute(
+        path: '/warehouse/stock/:productId/suppliers',
+        builder: (_, state) {
+          final id = state.pathParameters['productId']!;
+          onCompareOpened?.call('/warehouse/stock/$id/suppliers');
+          return Scaffold(body: Text('COMPARE:$id'));
+        },
       ),
       GoRoute(
         path: '/warehouse/stocktakes/new',
@@ -512,5 +522,69 @@ void main() {
         expect(navigatedUri, '/warehouse/stocktakes/new?lotId=L-EX2');
       },
     );
+
+    testWidgets('stock_detail_compare_row', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      // StockDetailBody với onCompareSuppliers null -> ẩn
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: StockDetailBody(detail: _buildTylosinDetail()),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('So sánh nhà cung cấp'), findsNothing);
+
+      // StockDetailBody có callback -> nằm trên 'Nguồn và thời điểm cập nhật'
+      var tapped = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: StockDetailBody(
+                detail: _buildTylosinDetail(),
+                onCompareSuppliers: () => tapped = true,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final compareFinder = find.text('So sánh nhà cung cấp');
+      final provFinder = find.text('Nguồn và thời điểm cập nhật');
+      expect(compareFinder, findsOneWidget);
+      expect(
+        tester.getTopLeft(compareFinder).dy,
+        lessThan(tester.getTopLeft(provFinder).dy),
+      );
+
+      await tester.ensureVisible(compareFinder);
+      await tester.tap(compareFinder);
+      expect(tapped, isTrue);
+
+      // StockDetailPage -> push /warehouse/stock/<id>/suppliers
+      String? pushedCompare;
+      final repo = _FakeStockRepository((_) => _buildTylosinDetail());
+      await tester.pumpWidget(
+        _buildTestApp(
+          repository: repo,
+          onCompareOpened: (uri) => pushedCompare = uri,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('So sánh nhà cung cấp'));
+      await tester.tap(find.text('So sánh nhà cung cấp'));
+      await tester.pumpAndSettle();
+
+      expect(pushedCompare, '/warehouse/stock/INV-TYL/suppliers');
+      expect(find.text('COMPARE:INV-TYL'), findsOneWidget);
+    });
   });
 }

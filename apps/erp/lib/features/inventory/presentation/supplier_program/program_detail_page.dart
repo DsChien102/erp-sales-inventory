@@ -8,6 +8,8 @@ import 'package:erp/features/inventory/logic/supplier_program/supplier_program_r
 import 'package:erp/features/inventory/presentation/patterns/inventory_footer.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_states.dart';
 import 'package:erp/features/inventory/presentation/supplier_program/program_end_sheet.dart';
+import 'package:erp/features/inventory/presentation/supplier_rebate/projected_cost_section.dart';
+import 'package:erp/features/inventory/presentation/supplier_rebate/recorded_rebate_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -61,6 +63,16 @@ class _ProgramDetailView extends StatelessWidget {
     }
   }
 
+  Future<void> _onRecordRebate(
+    BuildContext context,
+    ProgramDetailCubit cubit,
+  ) async {
+    await context.push('/warehouse/supplier-programs/$programId/rebate');
+    if (context.mounted) {
+      await cubit.refresh();
+    }
+  }
+
   Future<void> _onEnd(
     BuildContext context,
     ProgramDetailCubit cubit,
@@ -108,11 +120,20 @@ class _ProgramDetailView extends StatelessWidget {
               ? null
               : () => _onEnd(context, cubit, detail),
         ),
-      if (state.canEdit)
+      if (state.canEdit && detail?.row.status != ProgramStatus.reached)
         InventoryFooterAction(
           label: 'Sửa',
           primary: true,
           onPressed: state.ending ? null : () => _onEdit(context, cubit),
+        ),
+      if (detail != null &&
+          detail.row.status == ProgramStatus.reached &&
+          detail.viewerIsOwner)
+        InventoryFooterAction(
+          label: 'Ghi nhận chiết khấu',
+          primary: true,
+          onPressed:
+              state.ending ? null : () => _onRecordRebate(context, cubit),
         ),
     ];
 
@@ -376,6 +397,18 @@ class _ProgramDetailView extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: VSpacing.space4),
+                    if (row.status == ProgramStatus.active &&
+                        detail.products.isNotEmpty) ...[
+                      ProjectedCostSection(
+                        programId: programId,
+                        products: detail.products,
+                      ),
+                      const SizedBox(height: VSpacing.space4),
+                    ] else if (row.status == ProgramStatus.recorded &&
+                        detail.rebate != null) ...[
+                      RecordedRebateSection(rebate: detail.rebate!),
+                      const SizedBox(height: VSpacing.space4),
+                    ],
                   ],
 
                   for (final s in extra) ...[

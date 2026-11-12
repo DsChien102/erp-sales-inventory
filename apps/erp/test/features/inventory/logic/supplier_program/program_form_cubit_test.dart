@@ -60,6 +60,21 @@ void main() {
       expect(cubit.state.overlapping, isNull);
     });
 
+    test('form_prefills_product', () async {
+      final cubit = ProgramFormCubit(repository: mockRepository);
+      await cubit.startCreate(supplierId: 'sup-ok', productId: 'prod-1');
+
+      expect(cubit.state.draft.supplierId, 'sup-ok');
+      expect(cubit.state.draft.productIds, ['prod-1']);
+
+      final cubitMissing = ProgramFormCubit(repository: mockRepository);
+      await cubitMissing.startCreate(
+        supplierId: 'sup-ok',
+        productId: 'not-in-options',
+      );
+      expect(cubitMissing.state.draft.productIds, isEmpty);
+    });
+
     test('form_overlap_from_options', () async {
       final cubit = ProgramFormCubit(repository: mockRepository);
       await cubit.startCreate(supplierId: 'sup-overlap');

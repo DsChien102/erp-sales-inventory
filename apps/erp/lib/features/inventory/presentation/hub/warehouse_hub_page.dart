@@ -229,6 +229,20 @@ class _WarehouseHubPageState extends State<WarehouseHubPage> {
       );
     }
 
+    if (summary.activated && state.isOwner && summary.programsReached > 0) {
+      final n = summary.programsReached;
+      attentionRows.add(
+        VListRow(
+          asCard: true,
+          leading: VIcons.coins,
+          title: 'Chương trình đạt mốc',
+          subtitle: '$n chương trình nhà cung cấp đạt mốc chờ ghi nhận chiết khấu',
+          trailing: _buildCountBadge(n),
+          onTap: () => context.push('/warehouse/supplier-programs?status=REACHED'),
+        ),
+      );
+    }
+
     final attentionWidget = attentionRows.isNotEmpty
         ? VSection(
             title: 'Cần chú ý',

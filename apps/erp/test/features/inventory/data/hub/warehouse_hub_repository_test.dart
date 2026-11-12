@@ -113,5 +113,37 @@ void main() {
       final inactive = await repository.getSummary();
       expect(inactive.openStocktakes, 0);
     });
+
+    test('hub_attention_programs_reached parses programs_reached when activated only',
+        () async {
+      when(() => mockRpc.query('get_warehouse_hub_summary')).thenAnswer(
+        (_) async => {
+          'activated': true,
+          'problems': {
+            'out': 0,
+            'low': 0,
+            'expired': 0,
+            'near_expiry': 0,
+            'products': 0,
+            'programs_reached': 2,
+          },
+        },
+      );
+
+      final active = await repository.getSummary();
+      expect(active.programsReached, 2);
+
+      when(() => mockRpc.query('get_warehouse_hub_summary')).thenAnswer(
+        (_) async => {
+          'activated': false,
+          'problems': {
+            'programs_reached': 2,
+          },
+        },
+      );
+
+      final inactive = await repository.getSummary();
+      expect(inactive.programsReached, 0);
+    });
   });
 }

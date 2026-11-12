@@ -208,6 +208,7 @@ class StockDetailBody extends StatelessWidget {
   final ValueChanged<StockLot>? onAdjustExpiredLot;
   final VoidCallback? onOpenStockCard;
   final VoidCallback? onOpenReceipt;
+  final VoidCallback? onCompareSuppliers;
 
   const StockDetailBody({
     super.key,
@@ -219,6 +220,7 @@ class StockDetailBody extends StatelessWidget {
     this.onAdjustExpiredLot,
     this.onOpenStockCard,
     this.onOpenReceipt,
+    this.onCompareSuppliers,
   });
 
   Widget? _buildLotBadge(StockLot lot) {
@@ -469,6 +471,17 @@ class StockDetailBody extends StatelessWidget {
                       ],
                     ],
                   ),
+          ),
+          const SizedBox(height: VSpacing.space3),
+        ],
+        if (onCompareSuppliers != null) ...[
+          VListRow(
+            asCard: true,
+            leading: VIcons.coins,
+            title: 'So sánh nhà cung cấp',
+            subtitle: 'Giá gốc và ưu đãi theo từng nhà cung cấp',
+            type: VListRowType.navigation,
+            onTap: onCompareSuppliers,
           ),
           const SizedBox(height: VSpacing.space3),
         ],

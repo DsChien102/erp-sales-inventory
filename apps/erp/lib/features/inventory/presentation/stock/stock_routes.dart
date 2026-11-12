@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../supplier_rebate/supplier_compare_page.dart';
 import 'stock_detail_page.dart';
 import 'stock_list_page.dart';
 
@@ -24,6 +25,16 @@ List<RouteBase> stockRoutes() => [
                 initialName: initialName,
               );
             },
+            routes: [
+              GoRoute(
+                path: 'suppliers',
+                name: 'warehouse.stock.suppliers',
+                builder: (context, state) {
+                  final productId = state.pathParameters['productId']!;
+                  return SupplierComparePage(productId: productId);
+                },
+              ),
+            ],
           ),
         ],
       ),

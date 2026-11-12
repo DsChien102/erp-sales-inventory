@@ -109,6 +109,7 @@ void main() {
   Widget buildCreateApp({
     Size size = const Size(390, 844),
     String? supplierId,
+    String? productId,
   }) {
     useInventoryTestSurface(size);
     final router = GoRouter(
@@ -116,7 +117,10 @@ void main() {
       routes: [
         GoRoute(
           path: '/warehouse/supplier-programs/new',
-          builder: (_, _) => ProgramFormPage.create(supplierId: supplierId),
+          builder: (_, _) => ProgramFormPage.create(
+            supplierId: supplierId,
+            productId: productId,
+          ),
         ),
         GoRoute(
           path: '/warehouse/supplier-programs/:programId',
@@ -518,6 +522,15 @@ void main() {
         find.byType(MaterialApp),
         matchesGoldenFile(_goldenPath('flutter-P2-CREATE-1280.png')),
       );
+    });
+
+    testWidgets('form_prefills_product_390', (tester) async {
+      await tester.pumpWidget(
+        buildCreateApp(supplierId: 'sup-1', productId: 'prod-1'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nobivac DHPPi'), findsOneWidget);
     });
   });
 }

@@ -120,6 +120,7 @@ void main() {
   Widget buildApp({
     Size size = const Size(390, 844),
     String? initialSupplierId,
+    ProgramStatus? initialStatus,
     ValueChanged<String>? onRoutePushed,
   }) {
     useInventoryTestSurface(size);
@@ -132,8 +133,10 @@ void main() {
         ),
         GoRoute(
           path: '/warehouse/supplier-programs',
-          builder: (_, _) =>
-              ProgramListPage(initialSupplierId: initialSupplierId),
+          builder: (_, _) => ProgramListPage(
+            initialSupplierId: initialSupplierId,
+            initialStatus: initialStatus,
+          ),
         ),
         GoRoute(
           path: '/warehouse/supplier-programs/new',
@@ -299,6 +302,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(pushed, '/warehouse/supplier-programs/new');
+    });
+
+    testWidgets('list_initial_status_reached', (tester) async {
+      await tester.pumpWidget(
+        buildApp(initialStatus: ProgramStatus.reached),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Mốc 1.000 hộp Q4'), findsOneWidget);
+      expect(find.text('Nobivac bậc SL'), findsNothing);
     });
   });
 }
