@@ -1047,6 +1047,7 @@ declare
   v_near_expiry int := 0;
   v_products int := 0;
   v_stocktakes_open int := 0;
+  v_programs_reached int := 0;
 begin
   -- 1. Assert actor with inventory.read permission
   v_actor := inventory._assert_actor(p_tenant_id, 'inventory.read');
@@ -1097,6 +1098,14 @@ begin
   where ss.tenant_id = p_tenant_id
     and ss.status in ('COUNTING', 'RECOUNT');
 
+  if coalesce((v_actor->>'is_owner')::boolean, false) then
+    select count(*)::int
+    into v_programs_reached
+    from inventory.supplier_programs sp
+    where sp.tenant_id = p_tenant_id
+      and sp.status = 'REACHED';
+  end if;
+
   return jsonb_build_object(
     'activated', true,
     'problems', jsonb_build_object(
@@ -1105,7 +1114,8 @@ begin
       'expired', coalesce(v_expired, 0),
       'near_expiry', coalesce(v_near_expiry, 0),
       'products', coalesce(v_products, 0),
-      'stocktakes_open', coalesce(v_stocktakes_open, 0)
+      'stocktakes_open', coalesce(v_stocktakes_open, 0),
+      'programs_reached', coalesce(v_programs_reached, 0)
     )
   );
 end;

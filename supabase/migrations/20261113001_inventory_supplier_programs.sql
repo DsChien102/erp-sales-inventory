@@ -438,13 +438,21 @@ security definer
 set search_path = inventory, iam, catalog, partner, pg_temp
 as $$
 declare
+  v_actor jsonb;
+  v_is_owner boolean;
   v_sp inventory.supplier_programs%rowtype;
   v_row jsonb;
   v_products jsonb;
   v_receipts jsonb;
   v_base bigint;
+  v_reb record;
+  v_rebate_json jsonb := null;
+  v_rebate_allocs jsonb;
+  v_rebate_inv_total bigint := 0;
+  v_rebate_cogs_total bigint := 0;
 begin
-  perform inventory._assert_actor(p_tenant_id, 'inventory.read');
+  v_actor := inventory._assert_actor(p_tenant_id, 'inventory.read');
+  v_is_owner := coalesce((v_actor->>'is_owner')::boolean, false);
 
   select * into v_sp
   from inventory.supplier_programs
@@ -498,11 +506,61 @@ begin
   from inventory.supplier_program_receipts r
   where r.program_id = p_program_id;
 
+  select * into v_reb
+  from inventory.supplier_rebates sr
+  where sr.tenant_id = p_tenant_id
+    and sr.program_id = p_program_id;
+
+  if found then
+    select
+      coalesce(
+        jsonb_agg(
+          jsonb_build_object(
+            'product_id', sra.product_id,
+            'name', p.name,
+            'uom', catalog._product_base_unit_name(p_tenant_id, sra.product_id),
+            'paid_qty', sra.paid_qty,
+            'on_hand_qty', sra.on_hand_qty,
+            'rebate_part_vnd', case when v_is_owner then sra.rebate_part_vnd else null end,
+            'inventory_part_vnd', case when v_is_owner then sra.inventory_part_vnd else null end,
+            'cogs_part_vnd', case when v_is_owner then sra.cogs_part_vnd else null end,
+            'avg_cost_before', case when v_is_owner then sra.avg_cost_before else null end,
+            'avg_cost_after', case when v_is_owner then sra.avg_cost_after else null end
+          )
+          order by sra.rebate_part_vnd desc, p.name asc
+        ),
+        '[]'::jsonb
+      ),
+      coalesce(sum(sra.inventory_part_vnd), 0)::bigint,
+      coalesce(sum(sra.cogs_part_vnd), 0)::bigint
+    into v_rebate_allocs, v_rebate_inv_total, v_rebate_cogs_total
+    from inventory.supplier_rebate_allocations sra
+    join catalog.products p on p.id = sra.product_id
+    where sra.rebate_id = v_reb.id;
+
+    v_rebate_json := jsonb_build_object(
+      'rebate_id', v_reb.id,
+      'document_no', v_reb.document_no,
+      'document_date', v_reb.document_date,
+      'base_amount_vnd', case when v_is_owner then v_reb.base_amount_vnd else null end,
+      'proposed_amount_vnd', case when v_is_owner then v_reb.proposed_amount_vnd else null end,
+      'rebate_amount_vnd', case when v_is_owner then v_reb.rebate_amount_vnd else null end,
+      'override_reason', v_reb.override_reason,
+      'inventory_part_vnd', case when v_is_owner then v_rebate_inv_total else null end,
+      'cogs_part_vnd', case when v_is_owner then v_rebate_cogs_total else null end,
+      'recorded_at', v_reb.recorded_at,
+      'recorded_by_name', iam._member_display_name(v_reb.recorded_by),
+      'allocations', v_rebate_allocs
+    );
+  end if;
+
   return jsonb_build_object(
     'program', v_row,
     'products', v_products,
     'receipts', v_receipts,
-    'base_amount_vnd', v_base
+    'base_amount_vnd', v_base,
+    'viewer_is_owner', v_is_owner,
+    'rebate', v_rebate_json
   );
 end;
 $$;

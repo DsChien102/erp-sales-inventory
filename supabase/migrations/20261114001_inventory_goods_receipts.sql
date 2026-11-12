@@ -441,9 +441,18 @@ begin
       end if;
 
       if v_prog.id is not null and v_prog.kind = 'VOLUME_REBATE' then
-        perform 1 from inventory.supplier_programs sp
-        where sp.id = v_prog.id and sp.tenant_id = p_tenant_id
-        for update;
+        declare
+          v_locked_status text;
+        begin
+          select sp.status into v_locked_status
+          from inventory.supplier_programs sp
+          where sp.id = v_prog.id and sp.tenant_id = p_tenant_id
+          for update;
+
+          if not found or v_locked_status not in ('ACTIVE', 'REACHED') then
+            perform inventory._raise('RECEIPT_PROGRAM_CHANGED', 'Chương trình ưu đãi của nhà cung cấp đã thay đổi.');
+          end if;
+        end;
       end if;
 
       if v_prog.id is not null and v_prog.kind = 'TIER_DISCOUNT' then

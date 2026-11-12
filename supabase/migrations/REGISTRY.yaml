@@ -316,10 +316,12 @@ inventory:
   _near_expiry_days: 20261111001_inventory_stock_policy.sql
   _next_ledger_sequence: 20261110001_inventory_core.sql
   _post_movements: 20261110001_inventory_core.sql
+  _post_value_adjustment: 20261117001_inventory_supplier_rebates.sql
   _program_is_locked: 20261114001_inventory_goods_receipts.sql
   _program_row_json: 20261113001_inventory_supplier_programs.sql
   _product_stock_rows: 20261111001_inventory_stock_policy.sql
   _raise: 20261110001_inventory_core.sql
+  _rebate_allocation: 20261117001_inventory_supplier_rebates.sql
   _reversal_kind: 20261115001_inventory_sales_link.sql
   _reverse_sale: 20261115001_inventory_sales_link.sql
   _stock_shortages: 20261115001_inventory_sales_link.sql
@@ -329,12 +331,14 @@ inventory:
   _warehouse_for_store: 20261115001_inventory_sales_link.sql
   add_stocktake_unexpected_line: 20261116001_inventory_stocktake.sql
   cancel_stocktake: 20261116001_inventory_stocktake.sql
+  compare_suppliers: 20261117001_inventory_supplier_rebates.sql
   create_supplier_program: 20261113001_inventory_supplier_programs.sql
   end_supplier_program: 20261113001_inventory_supplier_programs.sql
   ensure_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
   get_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
   get_goods_receipt: 20261114001_inventory_goods_receipts.sql
   get_goods_receipt_form_options: 20261114001_inventory_goods_receipts.sql
+  get_projected_cost: 20261117001_inventory_supplier_rebates.sql
   get_receipt_program_hints: 20261113001_inventory_supplier_programs.sql
   get_stock_detail: 20261112001_inventory_stock_view.sql
   get_stock_policy: 20261111001_inventory_stock_policy.sql
@@ -349,7 +353,9 @@ inventory:
   list_stocktake_sessions: 20261116001_inventory_stocktake.sql
   list_supplier_programs: 20261113001_inventory_supplier_programs.sql
   open_stocktake: 20261116001_inventory_stocktake.sql
+  preview_supplier_rebate: 20261117001_inventory_supplier_rebates.sql
   record_goods_receipt: 20261114001_inventory_goods_receipts.sql
+  record_supplier_rebate: 20261117001_inventory_supplier_rebates.sql
   save_near_expiry_policy: 20261111001_inventory_stock_policy.sql
   save_stock_thresholds: 20261111001_inventory_stock_policy.sql
   save_stocktake_draft: 20261116001_inventory_stocktake.sql
