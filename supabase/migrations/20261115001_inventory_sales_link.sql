@@ -164,10 +164,10 @@ begin
 
   if exists (
     select 1
-    from inventory.cost_versions cv
-    where cv.tenant_id = p_tenant_id
-      and cv.product_id = v_prod_id
-      and cv.effective_from_sequence > v_seq
+    from inventory.cost_runs cr
+    where cr.tenant_id = p_tenant_id
+      and cr.status = 'PUBLISHED'
+      and cr.cut_off_sequence >= v_seq
   ) then
     return 'RETURN_IN';
   else

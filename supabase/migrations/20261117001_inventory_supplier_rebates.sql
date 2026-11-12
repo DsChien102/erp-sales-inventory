@@ -139,12 +139,12 @@ begin
   v_avg_before := v_cost.moving_avg_cost;
   v_val_after := v_val_before + p_amount_vnd;
 
-  if v_val_after < 0 then
-    perform inventory._raise('CONTEXT_INVALID', 'Giá trị sổ sau điều chỉnh không được âm.');
+  if p_kind = 'SUPPLIER_REBATE' and v_val_after < 0 then
+    perform inventory._raise('CONTEXT_INVALID', 'Giá trị sổ sau điều chỉnh chiết khấu NCC không được âm.');
   end if;
 
   if v_q > 0 then
-    v_avg_after := round((v_val_after::numeric / v_q::numeric), 4);
+    v_avg_after := greatest(round((v_val_after::numeric / v_q::numeric), 4), 0);
   else
     v_avg_after := v_avg_before;
   end if;

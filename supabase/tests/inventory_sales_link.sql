@@ -394,13 +394,17 @@ begin
   from inventory.stock_movements
   where tenant_id = v_tenant_id and intent_line_id = v_line1_id and movement_kind = 'SALE';
 
-  -- Chèn cost_version sau sequence bán
-  insert into inventory.cost_versions (
-    tenant_id, product_id, method, effective_from_sequence,
-    unit_cost
+  -- Chèn cost_run PUBLISHED có cut_off_sequence >= v_sale_seq
+  insert into inventory.cost_runs (
+    tenant_id, code, kind, period_id, period_month,
+    from_sequence, cut_off_sequence, cut_off_at,
+    method, status, created_by, published_by, published_at
   ) values (
-    v_tenant_id, v_p_retin, 'MOVING', v_sale_seq + 1,
-    7000
+    v_tenant_id, 'GV-SL-01', 'MID_PERIOD',
+    inventory._ensure_open_period(v_tenant_id, v_today),
+    date_trunc('month', v_today)::date,
+    0, v_sale_seq, now(),
+    'MOVING', 'PUBLISHED', v_owner_id, v_owner_id, now()
   );
 
   -- Đảo bán: _reversal_kind phải ra RETURN_IN

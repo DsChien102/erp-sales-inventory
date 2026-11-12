@@ -127,7 +127,7 @@ create table inventory.value_movements (
   product_id uuid not null references catalog.products (id) on delete cascade,
   movement_id uuid references inventory.stock_movements (id) on delete cascade,
   kind text not null check (kind in (
-    'OPENING', 'RECEIPT', 'SALE', 'SALE_REVERSAL', 'RETURN_IN',
+    'RECEIPT', 'SALE', 'SALE_REVERSAL', 'RETURN_IN',
     'COUNT_GAIN', 'COUNT_LOSS', 'WRITE_OFF',
     'COGS_TRUE_UP', 'LOSS_TRUE_UP', 'REVALUE_ROUNDING', 'SUPPLIER_REBATE'
   )),
@@ -454,6 +454,16 @@ begin
       perform inventory._raise('PERIOD_CLOSED', 'Kỳ giá vốn ' || to_char(v_month, 'MM/YYYY') || ' đã khoá sổ.');
     end if;
     return v_period.id;
+  end if;
+
+  if exists (
+    select 1
+    from inventory.cost_periods cp
+    where cp.tenant_id = p_tenant_id
+      and cp.status = 'CLOSED'
+      and cp.period_month > v_month
+  ) then
+    perform inventory._raise('PERIOD_CLOSED', 'Đã có kỳ mới hơn khoá sổ, không thể mở kỳ ' || to_char(v_month, 'MM/YYYY') || '.');
   end if;
 
   insert into inventory.cost_periods (
@@ -1048,6 +1058,8 @@ declare
   v_products int := 0;
   v_stocktakes_open int := 0;
   v_programs_reached int := 0;
+  v_cost_period_to_close text := null;
+  v_cost_runs_pending int := 0;
 begin
   -- 1. Assert actor with inventory.read permission
   v_actor := inventory._assert_actor(p_tenant_id, 'inventory.read');
@@ -1104,6 +1116,20 @@ begin
     from inventory.supplier_programs sp
     where sp.tenant_id = p_tenant_id
       and sp.status = 'REACHED';
+
+    select to_char(min(cp.period_month), 'YYYY-MM-DD')
+    into v_cost_period_to_close
+    from inventory.cost_periods cp
+    where cp.tenant_id = p_tenant_id
+      and cp.status = 'OPEN'
+      and (cp.period_month + interval '1 month')::date <= inventory._today();
+
+    select count(*)::int
+    into v_cost_runs_pending
+    from inventory.cost_runs cr
+    where cr.tenant_id = p_tenant_id
+      and cr.status = 'READY_FOR_REVIEW'
+      and not inventory._cost_run_is_stale(p_tenant_id, cr);
   end if;
 
   return jsonb_build_object(
@@ -1115,7 +1141,9 @@ begin
       'near_expiry', coalesce(v_near_expiry, 0),
       'products', coalesce(v_products, 0),
       'stocktakes_open', coalesce(v_stocktakes_open, 0),
-      'programs_reached', coalesce(v_programs_reached, 0)
+      'programs_reached', coalesce(v_programs_reached, 0),
+      'cost_period_to_close', v_cost_period_to_close,
+      'cost_runs_pending', coalesce(v_cost_runs_pending, 0)
     )
   );
 end;
