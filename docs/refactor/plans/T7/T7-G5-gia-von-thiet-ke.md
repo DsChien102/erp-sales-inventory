@@ -186,7 +186,7 @@ Dòng bán ở bước 2, 4 không đổi; `PERIODIC` có thêm một dòng `COG
 |---|---|---|
 | `PREVIOUS_PERIOD_OPEN` | `PERIOD_CLOSE` mà còn kỳ `OPEN` cũ hơn kỳ định chốt | Chốt kỳ trước |
 | `PERIOD_NOT_ENDED` | `PERIOD_CLOSE` khi tháng chưa hết | Dùng "Cập nhật giữa kỳ" |
-| `STOCKTAKE_OPEN` | Có phiên kiểm kê chưa ghi nhận / huỷ (G5-5) | Ghi nhận hoặc huỷ phiên kiểm kê |
+| `STOCKTAKE_OPEN` | Có phiên kiểm kê chưa ghi nhận / huỷ (hàm `inventory._has_open_stocktake` có từ G5-5, 2026-11-12) | Ghi nhận hoặc huỷ phiên kiểm kê |
 | `RUN_PENDING_REVIEW` | Đã có lần `READY_FOR_REVIEW` | Công bố hoặc bỏ lần tính đó |
 | `LEDGER_MISMATCH` | `closing_qty` lệch sổ số lượng tại mốc (mục 5) | Báo lỗi dữ liệu (không tự sửa) |
 | `NOTHING_TO_COST` | Đoạn không có dòng nào | — |
