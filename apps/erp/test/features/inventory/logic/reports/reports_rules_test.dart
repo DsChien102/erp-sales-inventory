@@ -33,4 +33,10 @@ void main() {
   test('as_of_text', () {
     expect(asOfText(DateTime(2026, 11, 13, 9, 5)), '13/11/2026 · 09:05');
   });
+
+  test('unit_cost_text', () {
+    expect(unitCostText(103000), '103.000 đ');
+    expect(unitCostText(93.6364), '93,64 đ');
+    expect(unitCostText(10.5), '10,5 đ');
+  });
 }

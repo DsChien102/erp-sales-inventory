@@ -272,3 +272,139 @@ MovementDetail movementDetailOf({
             receiptId: 'r1',
           ),
     );
+
+GrossProfitRow grossRow({
+  String id = 'p1',
+  String name = 'Amoxicillin 500mg',
+}) =>
+    GrossProfitRow(
+      productId: id,
+      name: name,
+      code: 'AM-500',
+      uom: 'hộp',
+      revenueVnd: 6000000,
+      deductionVnd: 800000,
+      netRevenueVnd: 5200000,
+      cogsAtSaleVnd: 6860000,
+      cogsAdjustVnd: 20000,
+      rebateVnd: 3500000,
+      cogsAfterVnd: 3380000,
+      grossProfitVnd: 1820000,
+      marginPct: 35.0,
+    );
+
+GrossProfitByProduct grossProductOf({List<GrossProfitRow>? rows, int loss = 150000}) {
+  final list = rows ?? [grossRow()];
+  return GrossProfitByProduct(
+    from: DateTime(2026, 11, 1),
+    to: DateTime(2026, 11, 13),
+    asOf: _asOf,
+    rows: list,
+    lossVnd: loss,
+    totals: GrossProfitTotals(
+      revenue: 6000000,
+      deduction: 800000,
+      netRevenue: 5200000,
+      cogsAtSale: 6860000,
+      cogsAdjust: 20000,
+      rebate: 3500000,
+      cogsAfter: 3380000,
+      grossProfit: 1820000,
+      marginPct: 35.0,
+      loss: loss,
+      profitAfterLoss: 1820000 - loss,
+    ),
+  );
+}
+
+GrossProfitByOrder grossOrderOf({List<GrossProfitOrderRow>? rows}) {
+  final list = rows ??
+      [
+        GrossProfitOrderRow(
+          orderId: 'o1',
+          orderCode: 'DH-0001',
+          completedOn: DateTime(2026, 11, 2),
+          revenueVnd: 300000,
+          cogsVnd: 200000,
+          grossProfitVnd: 100000,
+          marginPct: 33.3,
+          hasProvisional: true,
+        ),
+        GrossProfitOrderRow(
+          orderId: 'o2',
+          orderCode: 'DH-0002',
+          completedOn: DateTime(2026, 11, 1),
+          revenueVnd: 160000,
+          cogsVnd: 100000,
+          grossProfitVnd: 60000,
+          marginPct: 37.5,
+          hasProvisional: false,
+        ),
+      ];
+  return GrossProfitByOrder(
+    from: DateTime(2026, 11, 1),
+    to: DateTime(2026, 11, 13),
+    asOf: _asOf,
+    rows: list,
+    totals: const GrossProfitOrderTotals(
+      revenue: 460000,
+      cogs: 300000,
+      grossProfit: 160000,
+      marginPct: 34.8,
+    ),
+  );
+}
+
+SupplierPurchaseReport supplierReportOf({bool empty = false}) =>
+    SupplierPurchaseReport(
+      from: DateTime(2026, 11, 1),
+      to: DateTime(2026, 11, 13),
+      asOf: _asOf,
+      suppliers: empty
+          ? const []
+          : const [
+              SupplierPurchaseRow(
+                supplierId: 's1',
+                name: 'Cty Thú y A',
+                isSystem: false,
+                receiptCount: 3,
+                purchaseVnd: 30000000,
+                freightVnd: 100000,
+                tradeDiscountVnd: 20000,
+                landedVnd: 30080000,
+                rebateVnd: 500000,
+                products: [
+                  SupplierPurchaseProduct(
+                    productId: 'p1',
+                    name: 'Nobivac DHPPi',
+                    code: 'NB-01',
+                    uom: 'hộp',
+                    paidQty: 10,
+                    freeQty: 1,
+                    purchaseVnd: 1000000,
+                    landedVnd: 1030000,
+                    avgLandedUnitCost: 93636.3636,
+                  ),
+                ],
+              ),
+              SupplierPurchaseRow(
+                supplierId: 's2',
+                name: 'Mua lẻ / khác',
+                isSystem: true,
+                receiptCount: 1,
+                purchaseVnd: 15000000,
+                freightVnd: 0,
+                tradeDiscountVnd: 0,
+                landedVnd: 15120000,
+                rebateVnd: 0,
+                products: [],
+              ),
+            ],
+      totals: const SupplierPurchaseTotals(
+        purchase: 45000000,
+        freight: 100000,
+        tradeDiscount: 20000,
+        landed: 45200000,
+        rebate: 500000,
+      ),
+    );
