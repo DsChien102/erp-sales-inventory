@@ -32,20 +32,41 @@ class K6TaskRow<T> extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.below,
-    required this.status,
+    this.status,
+    this.trailing,
     this.disabled = false,
     this.onTap,
-  });
+  }) : assert(
+          status != null || trailing != null,
+          'K6TaskRow cần status (badge) hoặc trailing',
+        );
 
   final String title;
   final String? subtitle;
   final Widget? below;
-  final K6Status status;
+
+  /// Badge trạng thái; bỏ trống khi dùng [trailing].
+  final K6Status? status;
+
+  /// Thay badge bằng widget tuỳ ý, căn phải; không đo chỗ badge.
+  final Widget? trailing;
   final bool disabled;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final status = this.status;
+    if (status == null) {
+      return VListRow(
+        title: title,
+        subtitle: subtitle,
+        enabled: !disabled,
+        onTap: !disabled ? onTap : null,
+        trailing: trailing,
+        contentBelow: below,
+      );
+    }
+
     final badgeWidget = VBadge(
       label: status.label,
       tone: status.tone,
@@ -54,7 +75,7 @@ class K6TaskRow<T> extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final movesBadgeBelow = constraints.maxWidth.isFinite &&
-            _titleWraps(context, constraints.maxWidth);
+            _titleWraps(context, constraints.maxWidth, status);
 
         Widget? contentBelow;
         if (below != null && movesBadgeBelow) {
@@ -98,7 +119,7 @@ class K6TaskRow<T> extends StatelessWidget {
 
   /// G3-7: tiêu đề có gãy dòng nếu badge nằm cột phải không?
   /// Đo theo cỡ chữ người dùng (`textScaler`) cho cả tiêu đề và badge.
-  bool _titleWraps(BuildContext context, double rowWidth) {
+  bool _titleWraps(BuildContext context, double rowWidth, K6Status status) {
     final textScaler = MediaQuery.textScalerOf(context);
     final textDirection = Directionality.of(context);
 
@@ -144,12 +165,16 @@ class K6TaskList<T> extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.below,
-    required this.status,
+    this.status,
+    this.trailing,
     this.isDisabled,
     required this.onOpen,
     required this.empty,
     required this.filterEmpty,
-  });
+  }) : assert(
+          status != null || trailing != null,
+          'K6TaskList cần status (badge) hoặc trailing',
+        );
 
   final K6Search? search;
   final K7FilterChips? filters;
@@ -159,7 +184,8 @@ class K6TaskList<T> extends StatelessWidget {
   final String Function(T) title;
   final String Function(T)? subtitle;
   final Widget? Function(T)? below;
-  final K6Status Function(T) status;
+  final K6Status Function(T)? status;
+  final Widget Function(T)? trailing;
   final bool Function(T)? isDisabled;
   final ValueChanged<T> onOpen;
   final InventoryEmpty empty;
@@ -184,7 +210,8 @@ class K6TaskList<T> extends StatelessWidget {
           title: title(item),
           subtitle: subtitle?.call(item),
           below: below?.call(item),
-          status: status(item),
+          status: status?.call(item),
+          trailing: trailing?.call(item),
           disabled: isDisabled?.call(item) ?? false,
           onTap: () => onOpen(item),
         ),
@@ -204,7 +231,8 @@ class K6TaskList<T> extends StatelessWidget {
               title: title(rows[i]),
               subtitle: subtitle?.call(rows[i]),
               below: below?.call(rows[i]),
-              status: status(rows[i]),
+              status: status?.call(rows[i]),
+              trailing: trailing?.call(rows[i]),
               disabled: isDisabled?.call(rows[i]) ?? false,
               onTap: () => onOpen(rows[i]),
             ),

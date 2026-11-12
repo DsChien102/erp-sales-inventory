@@ -128,12 +128,14 @@ class K7Filter {
   const K7Filter({
     required this.key,
     required this.label,
-    required this.count,
+    this.count,
   });
 
   final String key;
   final String label;
-  final int count;
+
+  /// `null` ⇒ chip không hiện số.
+  final int? count;
 }
 
 class K7FilterChips extends StatelessWidget {
