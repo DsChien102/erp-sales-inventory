@@ -316,6 +316,7 @@ inventory:
   _has_open_stocktake: 20261116001_inventory_stocktake.sql
   _issue_for_sale: 20261115001_inventory_sales_link.sql
   _lot_expiry_end: 20261111001_inventory_stock_policy.sql
+  _movement_source: 20261119001_inventory_reports.sql
   _near_expiry_days: 20261111001_inventory_stock_policy.sql
   _next_ledger_sequence: 20261110001_inventory_core.sql
   _post_movements: 20261110001_inventory_core.sql
@@ -325,6 +326,7 @@ inventory:
   _product_stock_rows: 20261111001_inventory_stock_policy.sql
   _raise: 20261110001_inventory_core.sql
   _rebate_allocation: 20261117001_inventory_supplier_rebates.sql
+  _report_range_check: 20261119001_inventory_reports.sql
   _reversal_kind: 20261115001_inventory_sales_link.sql
   _reverse_sale: 20261115001_inventory_sales_link.sql
   _stock_shortages: 20261115001_inventory_sales_link.sql
@@ -345,15 +347,20 @@ inventory:
   get_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
   get_goods_receipt: 20261114001_inventory_goods_receipts.sql
   get_goods_receipt_form_options: 20261114001_inventory_goods_receipts.sql
+  get_gross_profit_report: 20261119001_inventory_reports.sql
+  get_movement_detail: 20261119001_inventory_reports.sql
   get_projected_cost: 20261117001_inventory_supplier_rebates.sql
   get_receipt_program_hints: 20261113001_inventory_supplier_programs.sql
+  get_stock_card: 20261119001_inventory_reports.sql
   get_stock_detail: 20261112001_inventory_stock_view.sql
   get_stock_policy: 20261111001_inventory_stock_policy.sql
+  get_stock_report: 20261119001_inventory_reports.sql
   get_stocktake_form_options: 20261116001_inventory_stocktake.sql
   get_stocktake_session: 20261116001_inventory_stocktake.sql
   get_stocktake_unexpected_options: 20261116001_inventory_stocktake.sql
   get_supplier_program: 20261113001_inventory_supplier_programs.sql
   get_supplier_program_form_options: 20261113001_inventory_supplier_programs.sql
+  get_supplier_purchase_report: 20261119001_inventory_reports.sql
   get_warehouse_hub_summary: 20261110001_inventory_core.sql
   list_cost_versions: 20261118001_inventory_costing.sql
   list_goods_receipts: 20261114001_inventory_goods_receipts.sql
