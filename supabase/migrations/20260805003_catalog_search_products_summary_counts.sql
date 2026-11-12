@@ -52,7 +52,7 @@ returns table (
 )
 language plpgsql
 security definer
-set search_path = catalog, iam, extensions, pg_temp
+set search_path = catalog, inventory, iam, extensions, pg_temp
 as $$
 declare
   v_keyword text;
@@ -116,11 +116,9 @@ begin
       p.updated_at,
       p.fact_has_base_unit,
       p.fact_has_images,
-      p.fact_has_stock,
       p.fact_has_base_price,
       p.fact_has_price_band,
       p.fact_has_required_custom_fields,
-      p.fact_stock_mode,
       p.fact_base_price_mode
     from catalog.products p
     where p.tenant_id = p_tenant_id
@@ -185,6 +183,13 @@ begin
       r.name asc
     limit greatest(p_limit, 0)
     offset greatest(p_offset, 0)
+  ),
+  page_stock as materialized (
+    select sr.*
+    from inventory._product_stock_rows(
+      p_tenant_id,
+      (select coalesce(array_agg(pg.id), array[]::uuid[]) from page pg)
+    ) sr
   )
   select
     pg.id as product_id,
@@ -210,13 +215,7 @@ begin
         and u.is_base_unit = true
       limit 1
     ) as base_unit_name,
-    (
-      select sp.basic_stock_quantity_base
-      from catalog.product_stock_profiles sp
-      where sp.product_id = pg.id
-        and sp.tenant_id = p_tenant_id
-      limit 1
-    ) as stock_qty,
+    coalesce(st.available, 0)::numeric as stock_qty,
     (
       select pb.list_price_before_vat
       from catalog.product_unit_price_bands pb
@@ -304,11 +303,11 @@ begin
     pg.updated_at,
     pg.fact_has_base_unit as has_base_unit,
     pg.fact_has_images as has_images,
-    pg.fact_has_stock as has_stock,
+    (coalesce(st.physical, 0) > 0) as has_stock,
     pg.fact_has_base_price as has_base_price,
     pg.fact_has_price_band as has_price_band,
     pg.fact_has_required_custom_fields as has_required_custom_fields,
-    pg.fact_stock_mode as stock_mode,
+    'advanced'::text as stock_mode,
     pg.fact_base_price_mode as base_price_mode,
     catalog._product_custom_field_list_values_json(p_tenant_id, pg.id) as custom_field_values,
     c.total_count,
@@ -317,6 +316,7 @@ begin
     c.inactive_count
   from page pg
   cross join counted c
+  left join page_stock st on st.product_id = pg.id
   order by
     case when pg.business_status = 'active' then 0 else 1 end,
     pg.relevance_rank desc nulls last,

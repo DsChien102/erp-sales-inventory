@@ -291,9 +291,7 @@ enum ProductChangeHistoryAction {
       'reactivate_product_conversion_unit' => ProductChangeHistoryAction.unitReactivated,
       'delete_product_conversion_unit' => ProductChangeHistoryAction.unitDeleted,
       'set_product_base_unit' => ProductChangeHistoryAction.baseUnitSet,
-      'set_basic_stock_quantity_base' ||
-      'set_initial_stock' ||
-      'adjust_basic_stock' => ProductChangeHistoryAction.stockUpdated,
+      'set_initial_stock' => ProductChangeHistoryAction.stockUpdated,
       'set_manual_base_price' => ProductChangeHistoryAction.manualBasePriceSet,
       'apply_store_price_rule' => ProductChangeHistoryAction.storePriceRuleApplied,
       'set_product_unit_price_band' ||
@@ -349,15 +347,12 @@ abstract final class ReadinessBlockerCode {
   static const missingImage = 'missing_image';
   static const missingPrice = 'missing_price';
   static const missingPriceBand = 'missing_price_band';
-  static const missingStock = 'missing_stock';
   static const missingRequiredCustomFields = 'missing_required_custom_fields';
-  static const pendingStockFromInventory = 'pending_stock_from_inventory';
   static const pendingBasePriceFromCosting = 'pending_base_price_from_costing';
 }
 
 abstract final class ContextualActionId {
   static const setBaseUnit = 'set_base_unit';
-  static const setBasicStockQuantityBase = 'set_basic_stock_quantity_base';
   static const setManualBasePrice = 'set_manual_base_price';
   static const setPriceBand = 'set_price_band';
   static const fillCustomFields = 'fill_custom_fields';

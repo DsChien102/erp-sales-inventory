@@ -41,7 +41,7 @@ void main() {
     await tester.enterText(find.byKey(const Key('input_guided_name')), 'Thuốc có ghi chú');
     await tester.pump();
 
-    final noteStep = find.text('7. Ghi chú');
+    final noteStep = find.text('6. Ghi chú');
     await tester.ensureVisible(noteStep);
     await tester.tap(noteStep);
     await tester.pumpAndSettle();
@@ -103,30 +103,20 @@ void main() {
     await tester.enterText(find.byKey(const Key('input_guided_base_unit')), 'Hộp');
     await tester.pump();
 
-    // Open Step 4: Tồn kho khởi tạo
-    final step4Finder = find.text('4. Tồn kho khởi tạo');
+    // Open Step 4: Giá cơ sở
+    final step4Finder = find.text('4. Giá cơ sở');
     await tester.ensureVisible(step4Finder);
     await tester.tap(step4Finder);
-    await tester.pumpAndSettle();
-
-    // Fill Initial Stock
-    await tester.enterText(find.byKey(const Key('input_guided_basic_stock_quantity_base')), '150');
-    await tester.pump();
-
-    // Open Step 5: Giá cơ sở
-    final step5Finder = find.text('5. Giá cơ sở');
-    await tester.ensureVisible(step5Finder);
-    await tester.tap(step5Finder);
     await tester.pumpAndSettle();
 
     // Fill Base Cost
     await tester.enterText(find.byKey(const Key('input_guided_base_cost')), '5000');
     await tester.pump();
 
-    // Confirm step 6 price band (store rule preview)
-    final step6Finder = find.text('6. Khung giá bán');
-    await tester.ensureVisible(step6Finder);
-    await tester.tap(step6Finder);
+    // Confirm step 5 price band (store rule preview)
+    final step5Finder = find.text('5. Khung giá bán');
+    await tester.ensureVisible(step5Finder);
+    await tester.tap(step5Finder);
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.byKey(const Key('btn_guided_price_band_confirm')));
     await tester.tap(find.byKey(const Key('btn_guided_price_band_confirm')));
@@ -241,23 +231,16 @@ void main() {
     await tester.enterText(find.byKey(const Key('input_guided_base_unit')), 'Hộp');
     await tester.pump();
 
-    final step4Finder = find.text('4. Tồn kho khởi tạo');
+    final step4Finder = find.text('4. Giá cơ sở');
     await tester.ensureVisible(step4Finder);
     await tester.tap(step4Finder);
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const Key('input_guided_basic_stock_quantity_base')), '150');
-    await tester.pump();
-
-    final step5Finder = find.text('5. Giá cơ sở');
-    await tester.ensureVisible(step5Finder);
-    await tester.tap(step5Finder);
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('input_guided_base_cost')), '5000');
     await tester.pump();
 
-    final step6Finder = find.text('6. Khung giá bán');
-    await tester.ensureVisible(step6Finder);
-    await tester.tap(step6Finder);
+    final step5Finder = find.text('5. Khung giá bán');
+    await tester.ensureVisible(step5Finder);
+    await tester.tap(step5Finder);
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('btn_guided_save')));

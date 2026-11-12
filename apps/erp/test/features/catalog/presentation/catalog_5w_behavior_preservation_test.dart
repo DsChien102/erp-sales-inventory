@@ -18,7 +18,7 @@ import 'package:erp/features/catalog/presentation/pages/product_note_edit_page.d
 import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_profile_maintenance_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_readiness_checklist_page.dart';
-import 'package:erp/features/catalog/presentation/pages/product_stock_adjustment_page.dart';
+import 'package:erp/features/inventory/presentation/stock/stock_detail_page.dart';
 import 'package:erp/features/dashboard/presentation/widgets/erp_bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -222,9 +222,9 @@ void main() {
 
     testWidgets('w6_stock_opens', (tester) async {
       await openPcc(tester);
-      await tester.tap(find.text('Tồn kho'));
+      await tester.tap(find.text('Xem tồn kho'));
       await tester.pumpAndSettle();
-      expect(find.byType(ProductStockAdjustmentPage), findsOneWidget);
+      expect(find.byType(StockDetailPage), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
@@ -389,7 +389,6 @@ void main() {
         'profile-maintenance',
         'images-maintenance',
         'measurement-units',
-        'stock',
         'note',
         'manual-base-price',
         'price-bands',

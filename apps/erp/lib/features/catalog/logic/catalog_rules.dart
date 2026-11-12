@@ -54,8 +54,7 @@ void checkCreateGuided(CreateGuidedProductInput input) {
     }
   }
 
-  final requiresBaseUnit = input.basicStockQuantityBase != null ||
-      input.basePrice != null ||
+  final requiresBaseUnit = input.basePrice != null ||
       input.listBeforeVat != null ||
       input.floorBeforeVat != null ||
       input.priceBandSourceType == PriceBandSourceType.customConfig ||
@@ -64,13 +63,7 @@ void checkCreateGuided(CreateGuidedProductInput input) {
   if (requiresBaseUnit && input.baseUnit == null) {
     throw const AppException(
       AppErrorCode.validation,
-      serverMessage: 'Cần thiết lập đơn vị cơ sở trước tồn kho hoặc giá.',
-    );
-  }
-  if (input.basicStockQuantityBase != null && input.basicStockQuantityBase! < 0) {
-    throw const AppException(
-      AppErrorCode.validation,
-      serverMessage: 'Số lượng tồn kho ban đầu phải là số nguyên không âm.',
+      serverMessage: 'Cần thiết lập đơn vị cơ sở trước khi cấu hình giá.',
     );
   }
   for (final value in [input.basePrice, input.listBeforeVat, input.floorBeforeVat]) {
@@ -549,24 +542,6 @@ void checkPriceBandSnapshotRequest(List<ProductPriceBandSnapshotRequest> items) 
         serverMessage: 'Duplicate product and unit pair is not allowed.',
       );
     }
-  }
-}
-
-void checkSetBasicStock(int quantity) {
-  if (quantity < 0) {
-    throw const AppException(
-      AppErrorCode.validation,
-      serverMessage: 'Số lượng tồn kho ban đầu không được âm.',
-    );
-  }
-}
-
-void checkAdjustBasicStock(int newQuantity) {
-  if (newQuantity < 0) {
-    throw const AppException(
-      AppErrorCode.validation,
-      serverMessage: 'Số lượng tồn kho không được âm.',
-    );
   }
 }
 

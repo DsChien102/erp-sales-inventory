@@ -317,10 +317,6 @@ as $$
       values
         ('missing_base_unit', 'Thiếu đơn vị cơ sở', 'units', not (select has_base_unit from facts)),
         ('missing_image', 'Thiếu ảnh sản phẩm', 'images', not (select has_images from facts)),
-        ('missing_stock', 'Thiếu tồn kho', 'stock',
-          (select stock_mode = 'basic' and not has_stock from facts)),
-        ('pending_stock_from_inventory', 'Chờ tồn kho từ module Kho', 'stock',
-          (select stock_mode = 'advanced' and not has_stock from facts)),
         ('missing_price', 'Thiếu Giá cơ sở định giá', 'basePrice',
           (select base_price_mode = 'manual' and not has_base_price from facts)),
         ('pending_base_price_from_costing', 'Chờ giá vốn từ module Giá vốn', 'basePrice',

@@ -372,4 +372,86 @@ void main() {
 
     expect(mutationCount, 2);
   });
+
+  testWidgets('pcc_stock_card_view_only', (tester) async {
+    final backend = FakeCatalogBackend(scenario: FakeCatalogScenario.pccReadyToSell);
+    final baseRepo = FakeProductRepository(backend: backend);
+    final spyRepo = _ViewOnlyStockRepository(backend: backend, inner: baseRepo);
+
+    registerFakeCatalog(getIt, scenario: FakeCatalogScenario.pccReadyToSell, backend: backend);
+    getIt.unregister<ProductRepository>();
+    getIt.registerSingleton<ProductRepository>(spyRepo);
+
+    final router = GoRouter(
+      initialLocation: '/products/items/product-1',
+      routes: [
+        GoRoute(
+          path: '/products/items/:productId',
+          builder: (context, state) => ProductControlCenterPage(
+            productId: state.pathParameters['productId']!,
+          ),
+        ),
+        GoRoute(
+          path: '/warehouse/stock/:productId',
+          builder: (context, state) => Scaffold(
+            body: Text('warehouse-stock-${state.pathParameters['productId']}'),
+          ),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tồn kho'), findsOneWidget);
+    expect(find.textContaining('7'), findsWidgets);
+    expect(find.text('Thiếu thiết lập tồn kho'), findsNothing);
+    expect(find.text('Xem tồn kho'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Xem tồn kho'));
+    await tester.tap(find.text('Xem tồn kho'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('warehouse-stock-product-1'), findsOneWidget);
+  });
+}
+
+class _ViewOnlyStockRepository extends FakeProductRepository {
+  _ViewOnlyStockRepository({
+    required super.backend,
+    required FakeProductRepository inner,
+  }) : _inner = inner;
+
+  final FakeProductRepository _inner;
+
+  @override
+  Future<ProductControlCenterDto> getControlCenter(String productId) async {
+    final base = await _inner.getControlCenter(productId);
+    return ProductControlCenterDto(
+      profile: base.profile,
+      units: base.units,
+      stock: const ProductStockCardDto(
+        mode: StockMode.advanced,
+        source: StockDataSource.inventoryModule,
+        sourceLabel: 'Tồn kho từ module Kho',
+        quantity: 7,
+        unitName: 'Hộp',
+        isConfigured: true,
+        isOutOfStock: false,
+        canAdjust: false,
+        currentVersion: null,
+        isPendingExternal: false,
+        isMissing: false,
+        missingMessage: null,
+      ),
+      basePrice: base.basePrice,
+      priceBand: base.priceBand,
+      customFieldGroupCards: base.customFieldGroupCards,
+      readinessSummary: base.readinessSummary,
+      checklist: base.checklist,
+      contextualActions: base.contextualActions,
+      changeHistoryPreview: base.changeHistoryPreview,
+      primaryActionId: base.primaryActionId,
+    );
+  }
 }

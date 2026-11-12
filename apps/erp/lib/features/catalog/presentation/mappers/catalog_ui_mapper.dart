@@ -71,7 +71,6 @@ class CatalogUiMapper {
         : null;
     final coverPath = coverDraft?.localPath;
 
-    final stockQty = state.parsedBasicStockQuantityBase;
     final baseCost = parseCatalogCurrencyAmount(state.baseCost)?.toDouble();
 
     // Manual / calculated amounts are treated as after-VAT (UI default).
@@ -86,8 +85,6 @@ class CatalogUiMapper {
     ProductReadinessStatus readiness;
     if (state.baseUnit.trim().isEmpty) {
       readiness = ProductReadinessStatus.missingBaseUnit;
-    } else if (stockQty == null) {
-      readiness = ProductReadinessStatus.missingStockSource;
     } else if (listAfterVat == null) {
       readiness = ProductReadinessStatus.missingPriceBand;
     } else {
@@ -105,7 +102,7 @@ class CatalogUiMapper {
       readinessStatus: readiness,
       baseUnit: state.baseUnit.isNotEmpty ? state.baseUnit : null,
       images: state.imageDrafts.map((d) => d.localPath).toList(),
-      stockQty: stockQty,
+      stockQty: null,
       baseCost: baseCost,
       listBeforeVat: listBeforeVat,
       floorBeforeVat: floorBeforeVat,

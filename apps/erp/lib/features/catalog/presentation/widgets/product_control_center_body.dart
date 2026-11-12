@@ -12,7 +12,6 @@ import '../pages/product_manual_base_price_page.dart';
 import '../pages/product_measurement_units_page.dart';
 import '../pages/product_price_bands_page.dart';
 import '../pages/product_readiness_checklist_page.dart';
-import '../pages/product_stock_adjustment_page.dart';
 import '../pages/product_note_edit_page.dart';
 import 'product_control_center_custom_fields_section.dart';
 import 'product_control_center_danger_section.dart';
@@ -110,7 +109,7 @@ class ProductControlCenterBody extends StatelessWidget {
                     : () => _openMeasurementUnits(context, controlCenter),
                 onEditStock: isSoftDeleted
                     ? null
-                    : () => _openStockAdjustment(context, controlCenter),
+                    : () => _openStockView(context),
                 onEditBasePrice: isSoftDeleted
                     ? null
                     : controlCenter.basePrice.canEdit
@@ -268,24 +267,8 @@ class ProductControlCenterBody extends StatelessWidget {
     );
   }
 
-  Future<void> _openStockAdjustment(
-    BuildContext context,
-    ProductControlCenterDto controlCenter,
-  ) async {
-    if (!controlCenter.stock.canAdjust) return;
-
-    final didChange = await context.push<bool>(
-      '/products/items/${product.id}/stock',
-      extra: ProductStockAdjustmentRouteArgs(
-        product: product,
-        currentQuantity: controlCenter.stock.quantity,
-        unitName: controlCenter.stock.unitName,
-        stockVersion: controlCenter.stock.currentVersion,
-      ),
-    );
-    if (didChange == true && context.mounted) {
-      _reload(context);
-    }
+  void _openStockView(BuildContext context) {
+    context.push('/warehouse/stock/${product.id}', extra: product.name);
   }
 
   Future<void> _openNoteEdit(

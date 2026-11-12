@@ -60,7 +60,7 @@ abstract final class GuidedPriceBandSubmissionResolver {
       'manual' => _resolveManual(state),
       _ => const GuidedPriceBandInvalid(
         message: 'Cách tính giá không hợp lệ.',
-        targetStepIndex: 5,
+        targetStepIndex: 4,
       ),
     };
   }
@@ -81,13 +81,13 @@ abstract final class GuidedPriceBandSubmissionResolver {
     if (listPercent == null || floorPercent == null) {
       return const GuidedPriceBandInvalid(
         message: 'Vui lòng nhập tỷ lệ lãi cơ sở và giá sàn hợp lệ.',
-        targetStepIndex: 5,
+        targetStepIndex: 4,
       );
     }
     if (floorPercent > listPercent) {
       return const GuidedPriceBandInvalid(
         message: 'Tỷ lệ giá sàn không được lớn hơn tỷ lệ lãi cơ sở.',
-        targetStepIndex: 5,
+        targetStepIndex: 4,
       );
     }
 
@@ -126,7 +126,7 @@ abstract final class GuidedPriceBandSubmissionResolver {
     if (listPrice == null) {
       return const GuidedPriceBandInvalid(
         message: 'Giá niêm yết là bắt buộc.',
-        targetStepIndex: 5,
+        targetStepIndex: 4,
         manualPriceError: 'Nhập giá niêm yết',
       );
     }
@@ -136,14 +136,14 @@ abstract final class GuidedPriceBandSubmissionResolver {
     if (floorRaw.isNotEmpty && floorPrice == null) {
       return const GuidedPriceBandInvalid(
         message: 'Giá sàn không hợp lệ.',
-        targetStepIndex: 5,
+        targetStepIndex: 4,
         manualPriceError: 'Nhập giá sàn hợp lệ',
       );
     }
     if (floorPrice != null && floorPrice > listPrice) {
       return const GuidedPriceBandInvalid(
         message: 'Giá sàn không được lớn hơn giá niêm yết.',
-        targetStepIndex: 5,
+        targetStepIndex: 4,
         manualPriceError: 'Giá sàn phải ≤ giá niêm yết',
       );
     }

@@ -349,10 +349,6 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     emit(state.copyWith(baseUnit: val));
   }
 
-  void updateBasicStockQuantityBase(String val) {
-    emit(state.copyWith(basicStockQuantityBase: val));
-  }
-
   void updateBaseCost(String val) {
     emit(state.copyWith(baseCost: val));
   }
@@ -512,22 +508,10 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       return;
     }
 
-    if (state.basicStockQuantityBaseError != null) {
-      emit(
-        state.copyWith(
-          activeStepIndex: 3,
-          showValidationErrors: true,
-          status: ProductGuidedCreateStatus.error,
-          errorMessage: state.basicStockQuantityBaseError,
-        ),
-      );
-      return;
-    }
-
     if (state.baseCostError != null) {
       emit(
         state.copyWith(
-          activeStepIndex: 4,
+          activeStepIndex: 3,
           showValidationErrors: true,
           status: ProductGuidedCreateStatus.error,
           errorMessage: state.baseCostError,
@@ -594,7 +578,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
           status: ProductGuidedCreateStatus.error,
           errorMessage: 'Vui lòng điền đầy đủ các trường bắt buộc.',
           customFieldValidationErrors: validationErrors,
-          activeStepIndex: 6 + firstFailedGroupIndex!,
+          activeStepIndex: 5 + firstFailedGroupIndex!,
         ),
       );
       return;
@@ -618,7 +602,6 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         baseUnit: state.baseUnit.trim().isEmpty
             ? null
             : _resolveBaseUnitSelection(state.baseUnit),
-        basicStockQuantityBase: state.parsedBasicStockQuantityBase,
         basePrice: double.tryParse(state.baseCost.trim().replaceAll(',', '')),
         listBeforeVat: priceBandSubmission.listBeforeVat,
         floorBeforeVat: priceBandSubmission.floorBeforeVat,

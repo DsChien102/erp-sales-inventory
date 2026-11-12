@@ -9,7 +9,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
 
 import '../../support/catalog_test_registry.dart';
 import '../../support/fake_catalog_repositories.dart';
@@ -121,32 +120,6 @@ void main() {
     expect(find.byKey(const Key('wgt_e02_u01_fr01_01')), findsOneWidget);
     expect(find.text('Tạo nhanh sản phẩm'), findsOneWidget);
     expect(find.text('Lưu sản phẩm'), findsOneWidget);
-  });
-
-  testWidgets('initial stock uses Design System integer field', (tester) async {
-    await tester.pumpWidget(
-      buildTestableWidget(),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.text('3. Đơn vị cơ sở'));
-    await tester.tap(find.text('3. Đơn vị cơ sở'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const Key('input_guided_base_unit')), 'Hộp');
-    await tester.pump();
-    await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('4. Tồn kho khởi tạo'));
-    await tester.pumpAndSettle();
-
-    final field = find.byKey(const Key('input_guided_basic_stock_quantity_base'));
-    expect(field, findsOneWidget);
-    final numberField = tester.widget<VNumberField>(field);
-    expect(numberField.allowDecimal, isFalse);
-
-    await tester.enterText(field, '150');
-    await tester.pump();
-    expect(find.text('150'), findsOneWidget);
   });
 
   testWidgets('wgt_e02_u01_fr01_01: successful create navigates to PCC', (tester) async {
@@ -325,7 +298,7 @@ void main() {
     await tester.pump();
 
     expect(recordingRepo.guidedCreateCommand, isNull);
-    expect(cubit.state.activeStepIndex, 5);
+    expect(cubit.state.activeStepIndex, 4);
     expect(cubit.state.errorMessage, isNotNull);
   });
 
@@ -365,5 +338,25 @@ void main() {
 
     expect(find.text('Existing Product'), findsWidgets);
     expect(find.text('Thiếu dữ liệu'), findsOneWidget);
+  });
+
+  testWidgets('guided_create_no_stock_step: no stock step or field in guided create', (
+    tester,
+  ) async {
+    final backend = registerFakeCatalog(getIt);
+    final recordingRepo = _RecordingProductRepository(backend: backend);
+    await tester.pumpWidget(
+      buildTestableWidget(repository: recordingRepo),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('4. Tồn kho khởi tạo'), findsNothing);
+    expect(find.textContaining('Tồn kho khởi tạo'), findsNothing);
+    expect(find.byKey(const Key('input_guided_basic_stock_quantity_base')), findsNothing);
+
+    await enterGuidedName(tester, 'Sản phẩm mới không tồn kho');
+    await tapSave(tester);
+
+    expect(recordingRepo.guidedCreateCommand, isNotNull);
   });
 }

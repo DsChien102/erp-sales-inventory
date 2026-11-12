@@ -66,7 +66,6 @@ import '../../features/catalog/presentation/pages/product_guided_create_page.dar
 import '../../features/catalog/presentation/pages/product_control_center_page.dart';
 import '../../features/catalog/presentation/pages/product_readiness_checklist_page.dart';
 import '../../features/catalog/presentation/pages/product_measurement_units_page.dart';
-import '../../features/catalog/presentation/pages/product_stock_adjustment_page.dart';
 import '../../features/catalog/presentation/pages/product_note_edit_page.dart';
 import '../../features/catalog/presentation/pages/product_manual_base_price_page.dart';
 import '../../features/catalog/presentation/pages/product_price_bands_page.dart';
@@ -357,17 +356,6 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final args = state.extra as ProductMeasurementUnitsRouteArgs;
         return ProductMeasurementUnitsPage(product: args.product);
-      },
-    ),
-    GoRoute(
-      path: '/products/items/:productId/stock',
-      name: 'products.items.pcc.stock',
-      redirect: (context, state) => state.extra is ProductStockAdjustmentRouteArgs
-          ? null
-          : '/products/items/${state.pathParameters['productId']}',
-      builder: (context, state) {
-        final args = state.extra as ProductStockAdjustmentRouteArgs;
-        return ProductStockAdjustmentPage(args: args);
       },
     ),
     GoRoute(

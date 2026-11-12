@@ -6,7 +6,6 @@ import '../../logic/product_guided_create_state.dart';
 import 'product_guided_step_base_unit.dart';
 import 'product_guided_step_identification.dart';
 import 'product_guided_step_images.dart';
-import 'product_guided_step_inventory.dart';
 import 'product_guided_step_base_cost.dart';
 import 'product_guided_step_price_bands.dart';
 import 'product_guided_step_custom_fields.dart';
@@ -67,7 +66,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
                         context: context,
                         stepIndex: 2,
                         title: '3. Đơn vị cơ sở',
-                        subtitle: 'Chọn đơn vị gốc để tính tồn/giá',
+                        subtitle: 'Chọn đơn vị gốc để tính giá',
                         isExpanded: state.activeStepIndex == 2,
                         child: ProductGuidedStepBaseUnit(state: state),
                       ),
@@ -75,32 +74,23 @@ class ProductGuidedCreateBody extends StatelessWidget {
                       _buildStep(
                         context: context,
                         stepIndex: 3,
-                        title: '4. Tồn kho khởi tạo',
-                        subtitle: 'Nhập số lượng tồn ban đầu',
-                        isExpanded: state.activeStepIndex == 3,
-                        child: ProductGuidedStepInventory(state: state),
-                      ),
-                      const VGap.sm(),
-                      _buildStep(
-                        context: context,
-                        stepIndex: 4,
-                        title: '5. Giá cơ sở',
+                        title: '4. Giá cơ sở',
                         subtitle: 'Thiết lập giá cơ sở ban đầu',
-                        isExpanded: state.activeStepIndex == 4,
+                        isExpanded: state.activeStepIndex == 3,
                         child: ProductGuidedStepBaseCost(state: state),
                       ),
                       const VGap.sm(),
                       _buildStep(
                         context: context,
-                        stepIndex: 5,
-                        title: '6. Khung giá bán',
+                        stepIndex: 4,
+                        title: '5. Khung giá bán',
                         subtitle: 'Thiết lập cách tính giá bán',
-                        isExpanded: state.activeStepIndex == 5,
+                        isExpanded: state.activeStepIndex == 4,
                         child: ProductGuidedStepPriceBands(state: state),
                       ),
                       ...List.generate(state.customFieldGroups.length, (index) {
                         final group = state.customFieldGroups[index];
-                        final stepIdx = 6 + index;
+                        final stepIdx = 5 + index;
                         final filledCount = group.fields.where((f) {
                           final val = state.customFieldValues[f.fieldId];
                           return val != null && !val.isEmpty;
@@ -129,10 +119,10 @@ class ProductGuidedCreateBody extends StatelessWidget {
                           const VGap.sm(),
                           _buildStep(
                             context: context,
-                            stepIndex: 6 + state.customFieldGroups.length,
-                            title: '${7 + state.customFieldGroups.length}. Ghi chú',
+                            stepIndex: 5 + state.customFieldGroups.length,
+                            title: '${6 + state.customFieldGroups.length}. Ghi chú',
                             subtitle: 'Nhắc chính bạn: nguồn hàng, lưu ý riêng...',
-                            isExpanded: state.activeStepIndex == 6 + state.customFieldGroups.length,
+                            isExpanded: state.activeStepIndex == 5 + state.customFieldGroups.length,
                             child: ProductGuidedStepNote(state: state),
                           ),
                         ],

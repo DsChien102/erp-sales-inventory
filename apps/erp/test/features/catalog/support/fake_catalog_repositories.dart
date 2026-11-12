@@ -292,34 +292,6 @@ class FakeProductRepository extends ProductRepository {
       productIds: productIds,
     );
   }
-
-  @override
-  Future<void> setBasicStock({
-    required String productId,
-    required int quantity,
-  }) {
-    calls.add('setBasicStock');
-    return backend.handleSetBasicStock(
-      productId: productId,
-      quantity: quantity,
-    );
-  }
-
-  @override
-  Future<void> adjustBasicStock({
-    required String productId,
-    required int newQuantity,
-    String? reason,
-    int? expectedQuantity,
-  }) {
-    calls.add('adjustBasicStock');
-    return backend.handleAdjustBasicStock(
-      productId: productId,
-      newQuantity: newQuantity,
-      reason: reason,
-      expectedQuantity: expectedQuantity,
-    );
-  }
 }
 
 class FakeMeasurementUnitRepository extends MeasurementUnitRepository {

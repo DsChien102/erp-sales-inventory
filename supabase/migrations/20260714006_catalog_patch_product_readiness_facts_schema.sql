@@ -45,20 +45,18 @@ begin
   set
     fact_has_base_unit = f.has_base_unit,
     fact_has_images = f.has_images,
-    fact_has_stock = f.has_stock,
     fact_has_base_price = f.has_base_price,
     fact_has_price_band = f.has_price_band,
     fact_has_required_custom_fields = f.has_required_custom_fields,
-    fact_stock_mode = f.stock_mode,
     fact_base_price_mode = f.base_price_mode,
     is_ready_to_sell = catalog._product_readiness_is_ready(
       f.has_base_unit,
       f.has_images,
-      f.has_stock,
+      null::boolean,
       f.has_base_price,
       f.has_price_band,
       f.has_required_custom_fields,
-      f.stock_mode,
+      null::text,
       f.base_price_mode
     )
   from catalog._product_operational_facts(p_tenant_id, p_product_id) f

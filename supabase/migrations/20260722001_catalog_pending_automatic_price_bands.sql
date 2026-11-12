@@ -68,11 +68,13 @@ returns table (
   stock_mode text,
   base_price_mode text
 )
-language sql
+language plpgsql
 stable
 security definer
-set search_path = catalog, pg_temp
+set search_path = catalog, inventory, pg_temp
 as $$
+begin
+  return query
   select
     exists (
       select 1
@@ -89,9 +91,10 @@ as $$
     ) as has_images,
     exists (
       select 1
-      from catalog.product_stock_profiles sp
-      where sp.product_id = p_product_id
-        and sp.tenant_id = p_tenant_id
+      from inventory.stock_balances sb
+      where sb.tenant_id = p_tenant_id
+        and sb.product_id = p_product_id
+        and sb.physical_quantity > 0
     ) as has_stock,
     exists (
       select 1
@@ -153,16 +156,7 @@ as $$
     end as has_price_band,
     catalog._product_has_required_custom_fields(p_tenant_id, p_product_id)
       as has_required_custom_fields,
-    coalesce(
-      (
-        select sp.mode
-        from catalog.product_stock_profiles sp
-        where sp.product_id = p_product_id
-          and sp.tenant_id = p_tenant_id
-        limit 1
-      ),
-      'basic'
-    ) as stock_mode,
+    'advanced'::text as stock_mode,
     coalesce(
       (
         select case
@@ -176,6 +170,7 @@ as $$
       ),
       'manual'
     ) as base_price_mode;
+end;
 $$;
 
 revoke all on function catalog._product_operational_facts(uuid, uuid)
@@ -624,6 +619,9 @@ begin
   if not iam.has_permission(p_tenant_id, 'catalog.product.create') then
     raise exception 'permission denied: catalog.product.create';
   end if;
+  if p_basic_stock_quantity_base is not null then
+    raise exception 'validation_exception: basic stock removed';
+  end if;
 
   if p_idempotency_key is not null then
     select p.id into v_product_id
@@ -664,10 +662,6 @@ begin
      and not iam.has_permission(p_tenant_id, 'catalog.product.manage_units') then
     raise exception 'permission denied: catalog.product.manage_units';
   end if;
-  if p_basic_stock_quantity_base is not null
-     and not iam.has_permission(p_tenant_id, 'catalog.product.manage_stock') then
-    raise exception 'permission denied: catalog.product.manage_stock';
-  end if;
   if (p_base_price_after_vat is not null
       or v_source_type in ('customConfig', 'manual')
       or (v_source_type = 'ruleBased' and v_has_base_unit_input)
@@ -680,16 +674,10 @@ begin
     raise exception 'permission denied: catalog.product.update';
   end if;
 
-  if p_basic_stock_quantity_base is not null
-     and (p_basic_stock_quantity_base < 0
-       or p_basic_stock_quantity_base <> trunc(p_basic_stock_quantity_base)) then
-    raise exception 'validation_exception: initial stock must be a non-negative integer';
-  end if;
-  if (p_basic_stock_quantity_base is not null
-      or p_base_price_after_vat is not null
+  if (p_base_price_after_vat is not null
       or v_source_type in ('customConfig', 'manual'))
      and not v_has_base_unit_input then
-    raise exception 'validation_exception: base unit is required for stock or pricing';
+    raise exception 'validation_exception: base unit is required for pricing';
   end if;
   if p_base_price_after_vat < 0 or p_list_price_before_vat < 0
      or p_floor_price_before_vat < 0 then
@@ -745,11 +733,6 @@ begin
   if v_has_base_unit_input then
     perform catalog.set_product_base_unit(
       p_tenant_id, v_product_id, p_tenant_unit_id, p_new_unit_name
-    );
-  end if;
-  if p_basic_stock_quantity_base is not null then
-    perform catalog.set_basic_stock_quantity_base(
-      p_tenant_id, v_product_id, 'basic', p_basic_stock_quantity_base
     );
   end if;
   if p_base_price_after_vat is not null then

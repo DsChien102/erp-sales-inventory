@@ -68,10 +68,6 @@ void main() {
           builder: (_, _) => const Scaffold(body: Text('route:images-maintenance')),
         ),
         GoRoute(
-          path: '/products/items/:productId/stock',
-          builder: (_, _) => const Scaffold(body: Text('route:stock')),
-        ),
-        GoRoute(
           path: '/products/items/:productId/manual-base-price',
           builder: (_, _) => const Scaffold(body: Text('route:manual-base-price')),
         ),
@@ -92,7 +88,6 @@ void main() {
   final testCases = [
     ('missing_base_unit', 'route:measurement-units'),
     ('missing_image', 'route:images-maintenance'),
-    ('missing_stock', 'route:stock'),
     ('missing_price', 'route:manual-base-price'),
     ('missing_price_band', 'route:price-bands'),
     ('missing_required_custom_fields', 'route:custom-fields/edit'),
@@ -161,10 +156,6 @@ void main() {
       buildHarness(
         blockers: const [
           ReadinessBlockerDto(
-            code: 'pending_stock_from_inventory',
-            message: 'msg-pending-stock',
-          ),
-          ReadinessBlockerDto(
             code: 'pending_base_price_from_costing',
             message: 'msg-pending-costing',
           ),
@@ -176,23 +167,15 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    expect(find.text('msg-pending-stock'), findsOneWidget);
     expect(find.text('msg-pending-costing'), findsOneWidget);
 
     // Ẩn nút CTA cho blocker chờ module khác
     expect(find.byType(TextButton), findsNothing);
     expect(find.text('Xem Kho'), findsNothing);
     expect(find.text('Xem Giá vốn'), findsNothing);
-    expect(find.text('Nhập tồn kho'), findsNothing);
     expect(find.text('Thiết lập giá cơ sở'), findsNothing);
 
     // Tap vào blocker không nhảy route và không toast
-    await tester.tap(find.text('msg-pending-stock'));
-    await tester.pumpAndSettle();
-    expect(find.textContaining('route:'), findsNothing);
-    expect(find.textContaining('đang được xây dựng'), findsNothing);
-    expect(find.textContaining('hoàn thiện ở màn sau'), findsNothing);
-
     await tester.tap(find.text('msg-pending-costing'));
     await tester.pumpAndSettle();
     expect(find.textContaining('route:'), findsNothing);

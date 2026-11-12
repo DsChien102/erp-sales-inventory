@@ -1027,7 +1027,7 @@ class FakeCatalogBackend {
       barcode: input.barcode?.trim() ?? '',
       baseUnit: baseUnitName,
       images: images,
-      stockQty: hasStock ? (input.basicStockQuantityBase ?? 0) : input.basicStockQuantityBase,
+      stockQty: hasStock ? 0 : null,
       baseCost: hasBasePrice ? (input.basePrice ?? 0) : input.basePrice,
       listBeforeVat: hasPriceBand ? 1 : input.listBeforeVat,
       floorBeforeVat: hasPriceBand ? 1 : input.floorBeforeVat,
@@ -2550,78 +2550,6 @@ class FakeCatalogBackend {
       items: page.map((entry) => entry.toDto(isCurrent: entry.id == newestId)).toList(growable: false),
       totalCount: history.length,
     );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Stock Handlers
-  // ---------------------------------------------------------------------------
-
-  Future<void> handleSetBasicStock({
-    required String productId,
-    required int quantity,
-  }) async {
-    final prod = _products.firstWhere((p) => p.id == productId);
-    if (!prod.hasBaseUnit) {
-      throw const AppException(CatalogErrorCodes.missingBaseUnit);
-    }
-    if (prod.stockMode == StockMode.advanced) {
-      throw const AppException(CatalogErrorCodes.notBasicStockMode);
-    }
-    final previousQty = prod.stockQty ?? 0;
-    prod.stockQty = quantity;
-    prod.stockVersion += 1;
-    prod.stockMovements = [
-      ...prod.stockMovements,
-      FakeStockMovement(
-        id: 'movement-${prod.id}-${prod.stockMovements.length + 1}',
-        occurredAt: DateTime.now(),
-        actorDisplayName: 'Nguyễn Văn A',
-        movementType: 'initial',
-        quantityBefore: previousQty,
-        quantityAfter: quantity,
-        delta: quantity - previousQty,
-      ),
-    ];
-  }
-
-  Future<void> handleAdjustBasicStock({
-    required String productId,
-    required int newQuantity,
-    String? reason,
-    int? expectedQuantity,
-  }) async {
-    final prod = _products.firstWhere((p) => p.id == productId);
-    if (!prod.hasBaseUnit) {
-      throw const AppException(CatalogErrorCodes.missingBaseUnit);
-    }
-    if (prod.stockMode == StockMode.advanced) {
-      throw const AppException(CatalogErrorCodes.notBasicStockMode);
-    }
-    if (newQuantity < 0) {
-      throw const AppException(
-        AppErrorCode.validation,
-        serverMessage: 'Số lượng tồn kho không được âm.',
-      );
-    }
-    final previousQty = prod.stockQty ?? 0;
-    if (expectedQuantity != null && expectedQuantity != previousQty) {
-      throw const AppException(CatalogErrorCodes.staleStockQuantity);
-    }
-    prod.stockQty = newQuantity;
-    prod.stockVersion += 1;
-    prod.stockMovements = [
-      ...prod.stockMovements,
-      FakeStockMovement(
-        id: 'movement-${prod.id}-${prod.stockMovements.length + 1}',
-        occurredAt: DateTime.now(),
-        actorDisplayName: 'Nguyễn Văn A',
-        movementType: 'adjust',
-        quantityBefore: previousQty,
-        quantityAfter: newQuantity,
-        delta: newQuantity - previousQty,
-        reason: reason,
-      ),
-    ];
   }
 
   // ---------------------------------------------------------------------------

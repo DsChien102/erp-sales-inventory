@@ -22,12 +22,10 @@ returns boolean
 language sql
 immutable
 as $$
-  -- p_has_images / p_stock_mode / p_base_price_mode kept for signature compatibility.
-  -- Images are recommended-only. Modes only change blocker *codes* in refresh paths;
-  -- absence of stock or base price always blocks ready (matches _refresh_product_readiness).
+  -- p_has_stock / p_stock_mode giữ cho tương thích chữ ký (G5-5).
+  -- Images are recommended-only; stock lives in inventory module (not a catalog readiness blocker).
   select
     coalesce(p_has_base_unit, false)
-    and coalesce(p_has_stock, false)
     and coalesce(p_has_base_price, false)
     and coalesce(p_has_price_band, false)
     and coalesce(p_has_required_custom_fields, true);

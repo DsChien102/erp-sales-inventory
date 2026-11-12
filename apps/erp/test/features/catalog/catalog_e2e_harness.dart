@@ -9,7 +9,6 @@ import 'package:erp/features/catalog/presentation/pages/product_measurement_unit
 import 'package:erp/features/catalog/presentation/pages/product_readiness_checklist_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_images_maintenance_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_profile_maintenance_page.dart';
-import 'package:erp/features/catalog/presentation/pages/product_stock_adjustment_page.dart';
 import 'package:erp/features/catalog/presentation/pages/settings/custom_field_group_detail_page.dart';
 import 'package:erp/features/catalog/presentation/pages/settings/custom_field_groups_page.dart';
 import 'package:erp/features/catalog/presentation/pages/settings/upsert_custom_field_group_page.dart';
@@ -154,13 +153,6 @@ Widget buildCatalogPostCreateRouter() {
         },
       ),
       GoRoute(
-        path: '/products/items/:productId/stock',
-        builder: (context, state) {
-          final args = state.extra as ProductStockAdjustmentRouteArgs;
-          return ProductStockAdjustmentPage(args: args);
-        },
-      ),
-      GoRoute(
         path: '/products/items/:productId/manual-base-price',
         builder: (context, state) {
           final args = state.extra as ProductManualBasePriceRouteArgs;
@@ -224,13 +216,6 @@ Widget buildCatalogDiscoveryRouter() {
         builder: (context, state) {
           final args = state.extra as ProductMeasurementUnitsRouteArgs;
           return ProductMeasurementUnitsPage(product: args.product);
-        },
-      ),
-      GoRoute(
-        path: '/products/items/:productId/stock',
-        builder: (context, state) {
-          final args = state.extra as ProductStockAdjustmentRouteArgs;
-          return ProductStockAdjustmentPage(args: args);
         },
       ),
       GoRoute(

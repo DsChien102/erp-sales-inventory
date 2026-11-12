@@ -18,8 +18,6 @@ class ProductReadinessChecklistBody extends StatelessWidget {
         return 'Thiết lập đơn vị';
       case 'missing_image':
         return 'Quản lý ảnh';
-      case 'missing_stock':
-        return 'Nhập tồn kho';
       case 'missing_price':
         return 'Thiết lập giá cơ sở';
       case 'missing_price_band':

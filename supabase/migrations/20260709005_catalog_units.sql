@@ -105,9 +105,6 @@ begin
   if not p_has_images then
     v_blockers := v_blockers || '[{"code": "missing_image", "group": "recommended", "message": "Sản phẩm chưa có ảnh"}]'::jsonb;
   end if;
-  if p_stock_mode = 'basic' and not p_has_stock then
-    v_blockers := v_blockers || '[{"code": "missing_stock", "group": "required", "message": "Sản phẩm chưa có tồn kho ban đầu"}]'::jsonb;
-  end if;
   if p_base_price_mode = 'manual' and not p_has_base_price then
     v_blockers := v_blockers || '[{"code": "missing_price", "group": "required", "message": "Sản phẩm chưa có Giá cơ sở định giá"}]'::jsonb;
   end if;

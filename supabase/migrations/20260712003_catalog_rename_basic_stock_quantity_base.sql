@@ -925,25 +925,29 @@ create or replace function catalog._product_business_status_warnings(
   p_product_id uuid
 )
 returns jsonb
-language sql
+language plpgsql
 stable
 security definer
-set search_path = catalog, pg_temp
+set search_path = catalog, inventory, pg_temp
 as $$
-  select coalesce(jsonb_agg(warning), '[]'::jsonb)
-  from (
-    select jsonb_build_object(
-      'code', 'has_stock',
-      'message', 'Sản phẩm vẫn còn tồn kho hiện hành.'
-    ) as warning
-    where exists (
-      select 1
-      from catalog.product_stock_profiles sp
-      where sp.tenant_id = p_tenant_id
-        and sp.product_id = p_product_id
-        and coalesce(sp.basic_stock_quantity_base, 0) > 0
-    )
-  ) warnings;
+begin
+  return (
+    select coalesce(jsonb_agg(warning), '[]'::jsonb)
+    from (
+      select jsonb_build_object(
+        'code', 'has_stock',
+        'message', 'Sản phẩm vẫn còn tồn kho hiện hành.'
+      ) as warning
+      where exists (
+        select 1
+        from inventory.stock_balances sb
+        where sb.tenant_id = p_tenant_id
+          and sb.product_id = p_product_id
+          and sb.physical_quantity > 0
+      )
+    ) warnings
+  );
+end;
 $$;
 
 create or replace function catalog._product_deletion_issues(
@@ -951,28 +955,32 @@ create or replace function catalog._product_deletion_issues(
   p_product_id uuid
 )
 returns jsonb
-language sql
+language plpgsql
 stable
 security definer
-set search_path = catalog, pg_temp
+set search_path = catalog, inventory, pg_temp
 as $$
-  select coalesce(jsonb_agg(issue), '[]'::jsonb)
-  from (
-    -- Foundation MVP: live Sales/Purchase/Promotions contracts are not available yet.
-    -- Keep cross-module dependency checks false until their read contracts exist.
-    select jsonb_build_object(
-      'code', 'has_stock',
-      'message', 'Sản phẩm vẫn còn tồn kho hiện hành.',
-      'severity', 'warning'
-    ) as issue
-    where exists (
-      select 1
-      from catalog.product_stock_profiles sp
-      where sp.tenant_id = p_tenant_id
-        and sp.product_id = p_product_id
-        and coalesce(sp.basic_stock_quantity_base, 0) > 0
-    )
-  ) issues;
+begin
+  return (
+    select coalesce(jsonb_agg(issue), '[]'::jsonb)
+    from (
+      -- Foundation MVP: live Sales/Purchase/Promotions contracts are not available yet.
+      -- Keep cross-module dependency checks false until their read contracts exist.
+      select jsonb_build_object(
+        'code', 'has_stock',
+        'message', 'Sản phẩm vẫn còn tồn kho hiện hành.',
+        'severity', 'warning'
+      ) as issue
+      where exists (
+        select 1
+        from inventory.stock_balances sb
+        where sb.tenant_id = p_tenant_id
+          and sb.product_id = p_product_id
+          and sb.physical_quantity > 0
+      )
+    ) issues
+  );
+end;
 $$;
 
 -- ============================================================

@@ -109,22 +109,10 @@ final class ReadinessBlocker {
     group: 'pricing',
   );
 
-  factory ReadinessBlocker.missingStock() => const ReadinessBlocker(
-    code: ReadinessBlockerCode.missingStock,
-    message: 'Thiếu thiết lập tồn kho',
-    group: 'stock',
-  );
-
   factory ReadinessBlocker.missingRequiredCustomFields() => const ReadinessBlocker(
     code: ReadinessBlockerCode.missingRequiredCustomFields,
     message: 'Thiếu thông tin bổ sung bắt buộc',
     group: 'custom_fields',
-  );
-
-  factory ReadinessBlocker.pendingStockFromInventory() => const ReadinessBlocker(
-    code: ReadinessBlockerCode.pendingStockFromInventory,
-    message: 'Chờ dữ liệu tồn kho từ module Kho',
-    group: 'stock',
   );
 
   factory ReadinessBlocker.pendingBasePriceFromCosting() => const ReadinessBlocker(

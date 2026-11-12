@@ -52,11 +52,6 @@ void main() {
         expect(err.code, CatalogErrorCodes.missingBaseUnit);
       });
 
-      test('not_basic_stock_mode', () {
-        final err = classify('not_basic_stock_mode');
-        expect(err.code, CatalogErrorCodes.notBasicStockMode);
-      });
-
       test('not_manual_base_price_mode', () {
         final err = classify('not_manual_base_price_mode');
         expect(err.code, CatalogErrorCodes.notManualBasePriceMode);

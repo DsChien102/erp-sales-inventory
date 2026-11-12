@@ -59,14 +59,6 @@ void main() {
       expect(rule, isNotNull);
     });
 
-    test('FakeProductRepository.setBasicStock records call and writes initial movement', () async {
-      await productRepo.setBasicStock(productId: 'product-1', quantity: 30);
-      expect(productRepo.calls, contains('setBasicStock'));
-      final prod = backend.products.firstWhere((p) => p.id == 'product-1');
-      expect(prod.stockQty, 30);
-      expect(prod.stockMovements.last.movementType, 'initial');
-    });
-
     test('FakeProductRepository throws AppException on permission denied scenario', () async {
       final errorBackend = FakeCatalogBackend(scenario: FakeCatalogScenario.guidedCreatePermissionDenied);
       final repo = FakeProductRepository(backend: errorBackend);
@@ -131,17 +123,6 @@ void main() {
         ),
       );
       expect(repo.calls, contains('applyStorePriceRule'));
-    });
-
-    test('FakeProductRepository.adjustBasicStock throws STALE_STOCK_QUANTITY on mismatch', () async {
-      expect(
-        () => productRepo.adjustBasicStock(
-          productId: 'product-1',
-          newQuantity: 20,
-          expectedQuantity: 999,
-        ),
-        throwsA(isA<AppException>().having((e) => e.code, 'code', CatalogErrorCodes.staleStockQuantity)),
-      );
     });
 
     test('registerFakeCatalog registers all services into GetIt', () async {

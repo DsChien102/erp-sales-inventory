@@ -5,7 +5,6 @@ import 'package:vet45_design_system/design_system.dart';
 import '../../data/models.dart';
 import '../utils/resolve_priority_custom_field_group.dart';
 import 'product_measurement_units_page.dart';
-import 'product_stock_adjustment_page.dart';
 import 'product_manual_base_price_page.dart';
 import 'product_price_bands_page.dart';
 import 'product_custom_field_group_edit_page.dart';
@@ -45,7 +44,6 @@ class ProductReadinessChecklistPage extends StatelessWidget {
         onActionTap: (actionId) {
           // Chỉ chặn các mục phụ thuộc UOM. Custom field / ảnh độc lập đơn vị cơ sở.
           const actionsRequiringBaseUnit = {
-            'missing_stock',
             'missing_price',
             'missing_price_band',
           };
@@ -84,16 +82,6 @@ class ProductReadinessChecklistPage extends StatelessWidget {
                 .push(
                   '/products/items/${product.id}/images-maintenance',
                   extra: product,
-                )
-                .then(popOnReturn);
-            return;
-          }
-
-          if (actionId == 'missing_stock') {
-            context
-                .push(
-                  '/products/items/${product.id}/stock',
-                  extra: ProductStockAdjustmentRouteArgs(product: product),
                 )
                 .then(popOnReturn);
             return;

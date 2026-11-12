@@ -7,6 +7,8 @@ import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_store.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/dashboard/data/default_pair_repository.dart';
+import 'package:erp/features/inventory/data/stock/stock_models.dart';
+import 'package:erp/features/inventory/data/stock/stock_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -98,6 +100,23 @@ base class CatalogSessionStore extends SessionStore {
   String? get tenantId => 'tenant-test';
 }
 
+class _CatalogFakeStockRepository extends Fake implements StockRepository {
+  @override
+  Future<StockDetail> loadDetail(String productId) async => StockDetail(
+        asOf: DateTime(2026, 9, 17, 21, 30),
+        warehouseName: 'Kho trung tâm',
+        isOwner: true,
+        productId: productId,
+        name: 'Amoxicillin 500mg',
+        code: 'SP-0001',
+        uom: 'Hộp',
+        isLotTracked: false,
+        physical: 150,
+        available: 150,
+        expiredQuantity: 0,
+      );
+}
+
 /// `setUp` chung cho test catalog dựng qua `appRouter` thật.
 Future<void> setUpCatalogRouterTest() async {
   HttpOverrides.global = _FakeHttpOverrides();
@@ -106,7 +125,8 @@ Future<void> setUpCatalogRouterTest() async {
     ..registerSingleton<IExecutionContext>(
       FakeExecutionContext(tenantId: 'tenant-test', userId: 'user-1'),
     )
-    ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository());
+    ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
+    ..registerSingleton<StockRepository>(_CatalogFakeStockRepository());
 }
 
 Future<void> tearDownCatalogRouterTest() async {

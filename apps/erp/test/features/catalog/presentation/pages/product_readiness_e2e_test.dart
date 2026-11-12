@@ -58,12 +58,6 @@ Widget _buildChecklistRouter({
           );
         },
       ),
-      GoRoute(
-        path: '/products/items/:productId/stock',
-        builder: (context, state) => const Scaffold(
-          body: Text('stock-opened', key: Key('stock_opened')),
-        ),
-      ),
     ],
   );
 
@@ -238,11 +232,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Nhập tồn kho'));
+      await tester.tap(find.text('Thiết lập giá cơ sở'));
       await tester.pumpAndSettle();
 
       expect(find.text('Vui lòng thiết lập đơn vị cơ sở trước.'), findsOneWidget);
-      expect(find.byKey(const Key('stock_opened')), findsNothing);
     },
   );
 

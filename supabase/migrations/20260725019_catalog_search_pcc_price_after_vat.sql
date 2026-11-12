@@ -333,7 +333,7 @@ create or replace function catalog.get_product_control_center(
 returns jsonb
 language plpgsql
 security definer
-set search_path = catalog, iam, pg_temp
+set search_path = catalog, inventory, iam, pg_temp
 as $$
 declare
   v_result jsonb;
@@ -385,19 +385,14 @@ begin
         and u.tenant_id = p_tenant_id
         and u.is_base_unit = false
     ), '[]'::jsonb),
-    'stock_mode', f.stock_mode,
-    'stock_qty', (
-      select sp.basic_stock_quantity_base
-      from catalog.product_stock_profiles sp
-      where sp.product_id = p.id
-      limit 1
-    ),
-    'stock_version', (
-      select sp.stock_version
-      from catalog.product_stock_profiles sp
-      where sp.product_id = p.id
-      limit 1
-    ),
+    'stock_mode', 'advanced',
+    'stock_qty', coalesce((
+      select sum(sb.physical_quantity)
+      from inventory.stock_balances sb
+      where sb.tenant_id = p_tenant_id
+        and sb.product_id = p.id
+    ), 0),
+    'stock_version', null,
     'base_price_mode', f.base_price_mode,
     'base_price_after_vat', (
       select bp.base_price_after_vat
@@ -595,7 +590,7 @@ returns table (
 )
 language plpgsql
 security definer
-set search_path = catalog, iam, pg_temp
+set search_path = catalog, inventory, iam, pg_temp
 as $$
 declare
   v_barcode text;
@@ -638,13 +633,12 @@ begin
         and u.is_base_unit = true
       limit 1
     ) as base_unit_name,
-    (
-      select sp.basic_stock_quantity_base
-      from catalog.product_stock_profiles sp
-      where sp.product_id = p.id
-        and sp.tenant_id = p_tenant_id
-      limit 1
-    ) as stock_qty,
+    coalesce((
+      select sum(sb.physical_quantity)
+      from inventory.stock_balances sb
+      where sb.tenant_id = p_tenant_id
+        and sb.product_id = p.id
+    ), 0) as stock_qty,
     (
       select pb.list_price_before_vat
       from catalog.product_unit_price_bands pb
@@ -736,7 +730,7 @@ begin
     f.has_base_price,
     f.has_price_band,
     f.has_required_custom_fields,
-    f.stock_mode,
+    'advanced'::text as stock_mode,
     f.base_price_mode
   from catalog.products p
   cross join lateral catalog._product_operational_facts(p_tenant_id, p.id) f

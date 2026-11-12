@@ -11,7 +11,6 @@ abstract final class CatalogErrorCodes {
   static const duplicateReferenceId = 'DUPLICATE_REFERENCE_ID'; // details: {'value': ...}
   static const duplicateProductUnit = 'DUPLICATE_PRODUCT_UNIT'; // details: {'value': '<tên>'}
   static const missingBaseUnit = 'MISSING_BASE_UNIT';
-  static const notBasicStockMode = 'NOT_BASIC_STOCK_MODE';
   static const notManualBasePriceMode = 'NOT_MANUAL_BASE_PRICE_MODE';
   static const storePriceRuleNotFound = 'STORE_PRICE_RULE_NOT_FOUND';
   static const storePriceRuleInactive = 'STORE_PRICE_RULE_INACTIVE';
@@ -88,14 +87,6 @@ AppException catalogException(AppException error) {
   if (lower.contains('missing base unit') || lower.contains('base_unit_not_found')) {
     return AppException(
       CatalogErrorCodes.missingBaseUnit,
-      serverMessage: m,
-      cause: error.cause,
-    );
-  }
-
-  if (lower.contains('not_basic_stock_mode')) {
-    return AppException(
-      CatalogErrorCodes.notBasicStockMode,
       serverMessage: m,
       cause: error.cause,
     );

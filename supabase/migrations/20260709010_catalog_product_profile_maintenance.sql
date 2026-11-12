@@ -88,24 +88,6 @@ begin
     ));
   end if;
 
-  if coalesce(v_facts.stock_mode, 'basic') = 'advanced' then
-    if not coalesce(v_facts.has_stock, false) then
-      v_required_count := v_required_count + 1;
-      v_blockers := v_blockers || jsonb_build_array(jsonb_build_object(
-        'code', 'pending_stock_from_inventory',
-        'message', 'Chờ dữ liệu tồn kho từ Inventory',
-        'group', 'stock'
-      ));
-    end if;
-  elsif not coalesce(v_facts.has_stock, false) then
-    v_required_count := v_required_count + 1;
-    v_blockers := v_blockers || jsonb_build_array(jsonb_build_object(
-      'code', 'missing_stock',
-      'message', 'Thiếu tồn kho ban đầu',
-      'group', 'stock'
-    ));
-  end if;
-
   if coalesce(v_facts.base_price_mode, 'manual') = 'costing_module' then
     if not coalesce(v_facts.has_base_price, false) then
       v_required_count := v_required_count + 1;

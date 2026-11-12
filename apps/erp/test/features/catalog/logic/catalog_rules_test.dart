@@ -87,10 +87,10 @@ void main() {
           );
         });
 
-        test('fails when stock/price set without base unit', () {
+        test('fails when price set without base unit', () {
           const input = app_in.CreateGuidedProductInput(
             productName: 'P1',
-            basicStockQuantityBase: 10,
+            basePrice: 50000,
           );
           expect(
             () => app_rules.checkCreateGuided(input),
@@ -100,27 +100,7 @@ void main() {
                   .having(
                     (e) => e.serverMessage,
                     'serverMessage',
-                    'Cần thiết lập đơn vị cơ sở trước tồn kho hoặc giá.',
-                  ),
-            ),
-          );
-        });
-
-        test('fails when basicStockQuantityBase < 0', () {
-          const input = app_in.CreateGuidedProductInput(
-            productName: 'P1',
-            baseUnit: app_in.NewTenantUnit('Hộp'),
-            basicStockQuantityBase: -1,
-          );
-          expect(
-            () => app_rules.checkCreateGuided(input),
-            throwsA(
-              isA<AppException>()
-                  .having((e) => e.code, 'code', AppErrorCode.validation)
-                  .having(
-                    (e) => e.serverMessage,
-                    'serverMessage',
-                    'Số lượng tồn kho ban đầu phải là số nguyên không âm.',
+                    'Cần thiết lập đơn vị cơ sở trước khi cấu hình giá.',
                   ),
             ),
           );
@@ -261,7 +241,6 @@ void main() {
           final input = app_in.CreateGuidedProductInput(
             productName: 'Thuốc hạ sốt',
             baseUnit: const app_in.NewTenantUnit('Hộp'),
-            basicStockQuantityBase: 100,
             basePrice: 50000,
             listBeforeVat: 60000,
             floorBeforeVat: 55000,
@@ -1308,50 +1287,6 @@ void main() {
             ]),
             returnsNormally,
           );
-        });
-      });
-
-      group('checkSetBasicStock', () {
-        test('fails when quantity < 0', () {
-          expect(
-            () => app_rules.checkSetBasicStock(-1),
-            throwsA(
-              isA<AppException>()
-                  .having((e) => e.code, 'code', AppErrorCode.validation)
-                  .having(
-                    (e) => e.serverMessage,
-                    'serverMessage',
-                    'Số lượng tồn kho ban đầu không được âm.',
-                  ),
-            ),
-          );
-        });
-
-        test('passes when quantity >= 0', () {
-          expect(() => app_rules.checkSetBasicStock(0), returnsNormally);
-          expect(() => app_rules.checkSetBasicStock(10), returnsNormally);
-        });
-      });
-
-      group('checkAdjustBasicStock', () {
-        test('fails when newQuantity < 0', () {
-          expect(
-            () => app_rules.checkAdjustBasicStock(-1),
-            throwsA(
-              isA<AppException>()
-                  .having((e) => e.code, 'code', AppErrorCode.validation)
-                  .having(
-                    (e) => e.serverMessage,
-                    'serverMessage',
-                    'Số lượng tồn kho không được âm.',
-                  ),
-            ),
-          );
-        });
-
-        test('passes when newQuantity >= 0', () {
-          expect(() => app_rules.checkAdjustBasicStock(0), returnsNormally);
-          expect(() => app_rules.checkAdjustBasicStock(10), returnsNormally);
         });
       });
     });

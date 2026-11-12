@@ -174,6 +174,44 @@ void main() {
         );
         expect(dtoNoHistory.changeHistoryPreview, isEmpty);
       });
+
+      test('readiness_no_missing_stock: no missing_stock or pending_stock_from_inventory blocker', () {
+        final perms = new_logic.readinessPermissionsOf((p) => allPerms.contains(p));
+
+        for (final mode in [new_enum.StockMode.basic, new_enum.StockMode.advanced]) {
+          final facts = new_readiness.ProductReadinessFacts(
+            productId: 'p-no-stock-${mode.name}',
+            productName: 'Product No Stock',
+            hasBaseUnit: true,
+            hasImages: true,
+            hasStock: false,
+            hasBasePrice: true,
+            hasPriceBand: true,
+            hasRequiredCustomFields: true,
+            stockMode: mode,
+            basePriceMode: new_enum.BasePriceMode.manual,
+          );
+
+          final readiness = new_logic.ProductReadinessEvaluator.compute(facts);
+          final blockerCodes = readiness.blockers.map((b) => b.code).toList();
+          expect(blockerCodes, isNot(anyElement(contains('stock'))));
+
+          final view = new_logic.ProductReadinessViewAssembler.assemble(
+            facts: facts,
+            readiness: readiness,
+            permissions: perms,
+          );
+          final labelsAndDescriptions = view.checklist
+              .expand((c) => [c.label, c.description ?? '', c.blockerCode ?? ''])
+              .toList();
+          expect(labelsAndDescriptions, isNot(contains('Thiếu tồn kho')));
+          expect(labelsAndDescriptions, isNot(contains('Chờ tồn kho từ module Kho')));
+          expect(
+            view.checklist.map((c) => c.blockerCode ?? ''),
+            isNot(anyElement(contains('stock'))),
+          );
+        }
+      });
     });
 
     group('H7 reference id from UUID', () {

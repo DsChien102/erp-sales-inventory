@@ -94,7 +94,6 @@ final class CreateGuidedProductInput {
     this.note,
     this.images = const [],
     this.baseUnit,
-    this.basicStockQuantityBase,
     this.basePrice,
     this.listBeforeVat,
     this.floorBeforeVat,
@@ -114,7 +113,6 @@ final class CreateGuidedProductInput {
   final String? note;
   final List<ProductImageInput> images;
   final BaseUnitSelection? baseUnit;
-  final int? basicStockQuantityBase;
   final double? basePrice;
   final int? listBeforeVat;
   final int? floorBeforeVat;

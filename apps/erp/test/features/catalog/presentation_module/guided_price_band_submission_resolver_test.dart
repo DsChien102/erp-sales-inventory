@@ -107,7 +107,7 @@ void main() {
       final result = GuidedPriceBandSubmissionResolver.resolve(state);
 
       expect(result, isA<GuidedPriceBandInvalid>());
-      expect((result as GuidedPriceBandInvalid).targetStepIndex, 5);
+      expect((result as GuidedPriceBandInvalid).targetStepIndex, 4);
     });
 
     test('rejects manual floor greater than list at the price band step', () {
@@ -123,7 +123,7 @@ void main() {
 
       expect(result, isA<GuidedPriceBandInvalid>());
       final invalid = result as GuidedPriceBandInvalid;
-      expect(invalid.targetStepIndex, 5);
+      expect(invalid.targetStepIndex, 4);
       expect(invalid.manualPriceError, 'Giá sàn phải ≤ giá niêm yết');
     });
   });

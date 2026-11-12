@@ -33,7 +33,6 @@ abstract final class ProductReadinessEvaluator {
       blockers.add(ReadinessBlocker.missingImage());
     }
 
-    _appendStockBlockers(blockers, facts);
     _appendBasePriceBlockers(blockers, facts);
 
     if (!facts.hasPriceBand) {
@@ -51,21 +50,6 @@ abstract final class ProductReadinessEvaluator {
       status: requiredBlockers.isEmpty ? ReadinessStatus.readyToSell : ReadinessStatus.incomplete,
       blockers: List.unmodifiable(blockers),
     );
-  }
-
-  static void _appendStockBlockers(
-    List<ReadinessBlocker> blockers,
-    ProductReadinessFacts facts,
-  ) {
-    if (facts.stockMode == StockMode.advanced) {
-      if (!facts.hasStock) {
-        blockers.add(ReadinessBlocker.pendingStockFromInventory());
-      }
-      return;
-    }
-    if (!facts.hasStock) {
-      blockers.add(ReadinessBlocker.missingStock());
-    }
   }
 
   static void _appendBasePriceBlockers(
@@ -210,42 +194,15 @@ abstract final class ProductReadinessViewAssembler {
     ProductReadinessFacts facts,
     ProductReadinessPermissionContext permissions,
   ) {
-    if (facts.stockMode == StockMode.advanced) {
-      if (!facts.hasStock && facts.hasBaseUnit) {
-        actions.add(
-          ContextualActionDto(
-            actionId: ContextualActionId.openInventory,
-            label: 'Xem module Kho',
-            priority: ContextualActionPriority.primary,
-            enabled: permissions.can(CatalogPermissions.viewDetail),
-            requiredPermission: CatalogPermissions.viewDetail,
-            targetModule: 'inventory',
-          ),
-        );
-      }
-      checklist.add(
-        ReadinessChecklistItemDto(
-          group: ReadinessChecklistGroup.stock,
-          label: 'Tồn kho',
-          status: facts.hasStock
-              ? ReadinessChecklistItemStatus.complete
-              : ReadinessChecklistItemStatus.pendingExternal,
-          kind: ReadinessItemKind.external,
-          blockerCode: facts.hasStock ? null : ReadinessBlockerCode.pendingStockFromInventory,
-          description: 'Nguồn tồn kho từ module Kho',
-        ),
-      );
-      return;
-    }
-
-    if (!facts.hasStock && facts.hasBaseUnit && !_hasPrimaryAction(actions)) {
+    if (!facts.hasStock && facts.hasBaseUnit) {
       actions.add(
         ContextualActionDto(
-          actionId: ContextualActionId.setBasicStockQuantityBase,
-          label: 'Thiết lập tồn kho',
+          actionId: ContextualActionId.openInventory,
+          label: 'Xem module Kho',
           priority: ContextualActionPriority.primary,
-          enabled: permissions.can(CatalogPermissions.manageStock),
-          requiredPermission: CatalogPermissions.manageStock,
+          enabled: permissions.can(CatalogPermissions.viewDetail),
+          requiredPermission: CatalogPermissions.viewDetail,
+          targetModule: 'inventory',
         ),
       );
     }
@@ -255,9 +212,9 @@ abstract final class ProductReadinessViewAssembler {
         label: 'Tồn kho',
         status: facts.hasStock
             ? ReadinessChecklistItemStatus.complete
-            : ReadinessChecklistItemStatus.missing,
-        kind: ReadinessItemKind.required,
-        blockerCode: facts.hasStock ? null : ReadinessBlockerCode.missingStock,
+            : ReadinessChecklistItemStatus.pendingExternal,
+        kind: ReadinessItemKind.external,
+        description: 'Nguồn tồn kho từ module Kho',
       ),
     );
   }
@@ -470,24 +427,18 @@ abstract final class ProductControlCenterAssembler {
         missingMessage: hasBaseUnit ? null : 'Thiếu đơn vị cơ sở',
       ),
       stock: ProductStockCardDto(
-        mode: model.facts.stockMode,
-        source: model.facts.stockMode == StockMode.advanced
-            ? StockDataSource.inventoryModule
-            : StockDataSource.basicProfile,
-        sourceLabel: model.facts.stockMode == StockMode.advanced
-            ? 'Tồn kho từ module Kho'
-            : 'Tồn kho cơ bản',
+        mode: StockMode.advanced,
+        source: StockDataSource.inventoryModule,
+        sourceLabel: 'Tồn kho từ module Kho',
         quantity: model.stockQuantity,
         unitName: hasBaseUnit ? model.baseUnitName : null,
         isConfigured: hasStock,
         isOutOfStock: hasStock && model.stockQuantity == 0,
-        canAdjust: model.facts.stockMode == StockMode.basic,
+        canAdjust: false,
         currentVersion: model.stockVersion,
-        isPendingExternal: model.facts.stockMode == StockMode.advanced,
-        isMissing: model.facts.stockMode == StockMode.basic && !hasStock,
-        missingMessage: model.facts.stockMode == StockMode.basic && !hasStock
-            ? 'Thiếu thiết lập tồn kho'
-            : null,
+        isPendingExternal: false,
+        isMissing: false,
+        missingMessage: null,
       ),
       basePrice: ProductBasePriceCardDto(
         mode: model.facts.basePriceMode,

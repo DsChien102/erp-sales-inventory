@@ -21,7 +21,6 @@ class ProductGuidedCreateState {
     this.imageDrafts = const [],
     this.coverImageIndex = 0,
     this.baseUnit = '',
-    this.basicStockQuantityBase = '',
     this.baseCost = '',
     this.pricingMethod = 'storeRule',
     this.customAutoMarkup = '',
@@ -65,7 +64,6 @@ class ProductGuidedCreateState {
   final ProductTrackingMode trackingMode;
   final bool expiryRequired;
 
-  final String basicStockQuantityBase;
   final String baseCost;
   final String pricingMethod; // 'storeRule', 'customAuto', 'manual'
   final String customAutoMarkup;
@@ -99,7 +97,7 @@ class ProductGuidedCreateState {
   final Map<String, String> customFieldValidationErrors;
   final String note;
 
-  static const baseStepCount = 6;
+  static const baseStepCount = 5;
   static const maxImages = 8;
 
   bool get isStep1Valid => name.trim().isNotEmpty;
@@ -107,22 +105,6 @@ class ProductGuidedCreateState {
   bool get isUploadingImages =>
       imageDrafts.any((d) => d.status == ProductImageUploadStatus.uploading);
   bool get hasUploadFailures => imageDrafts.any((d) => d.status == ProductImageUploadStatus.failed);
-  int? get parsedBasicStockQuantityBase {
-    final raw = basicStockQuantityBase.trim().replaceAll(',', '');
-    if (raw.isEmpty) return null;
-    final value = int.tryParse(raw);
-    if (value == null || value < 0) return null;
-    return value;
-  }
-
-  String? get basicStockQuantityBaseError {
-    final raw = basicStockQuantityBase.trim().replaceAll(',', '');
-    if (raw.isEmpty) return null;
-    final value = int.tryParse(raw);
-    if (value == null) return 'Tồn kho phải là số nguyên hợp lệ';
-    if (value < 0) return 'Tồn kho ban đầu không được âm';
-    return null;
-  }
 
   String? get baseCostError {
     if (baseCost.trim().isEmpty) return null;
@@ -135,7 +117,6 @@ class ProductGuidedCreateState {
 
   bool get canSubmit =>
       isStep1Valid &&
-      basicStockQuantityBaseError == null &&
       baseCostError == null &&
       !hasDuplicateError &&
       !isUploadingImages &&
@@ -176,11 +157,10 @@ class ProductGuidedCreateState {
       barcode.trim().isNotEmpty ||
       imageDrafts.isNotEmpty ||
       baseUnit.trim().isNotEmpty ||
-      basicStockQuantityBase.trim().isNotEmpty ||
       baseCost.trim().isNotEmpty ||
       note.trim().isNotEmpty;
 
-  int get stepCount => 7 + customFieldGroups.length;
+  int get stepCount => 6 + customFieldGroups.length;
 
   ProductGuidedCreateState copyWith({
     String? name,
@@ -190,7 +170,6 @@ class ProductGuidedCreateState {
     List<ProductImageDraft>? imageDrafts,
     int? coverImageIndex,
     String? baseUnit,
-    String? basicStockQuantityBase,
     String? baseCost,
     String? pricingMethod,
     String? customAutoMarkup,
@@ -240,7 +219,6 @@ class ProductGuidedCreateState {
       baseUnit: baseUnit ?? this.baseUnit,
       trackingMode: trackingMode ?? this.trackingMode,
       expiryRequired: expiryRequired ?? this.expiryRequired,
-      basicStockQuantityBase: basicStockQuantityBase ?? this.basicStockQuantityBase,
       baseCost: baseCost ?? this.baseCost,
       pricingMethod: pricingMethod ?? this.pricingMethod,
       customAutoMarkup: customAutoMarkup ?? this.customAutoMarkup,

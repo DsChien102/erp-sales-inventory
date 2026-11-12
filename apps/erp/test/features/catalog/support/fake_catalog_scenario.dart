@@ -10,8 +10,6 @@ abstract final class FakeCatalogScenario {
   static const guidedCreateUploadSlotOk = 'guided_create_upload_slot_ok';
   static const guidedCreateUploadInvalidType = 'guided_create_upload_invalid_type';
   static const guidedCreatePermissionDenied = 'guided_create_permission_denied';
-  static const basicStockQuantityBaseOk = 'basic_stock_quantity_base_ok';
-  static const basicStockQuantityBaseSkip = 'basic_stock_quantity_base_skip';
   static const manualBasePriceOk = 'manual_base_price_ok';
   static const priceBandFromStoreRule = 'price_band_from_store_rule';
 
