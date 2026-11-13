@@ -182,10 +182,10 @@ class _StockDetailViewState extends State<_StockDetailView>
                   children: [
                     Text(
                       '${detail.warehouseName} · Dữ liệu đến ${formatStockContextAsOf(detail.asOf)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         height: 20 / 13,
-                        color: Color(0xFF4A535E),
+                        color: context.vColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: VSpacing.space3),

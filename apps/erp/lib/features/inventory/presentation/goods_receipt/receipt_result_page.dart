@@ -64,7 +64,7 @@ class ReceiptResultPage extends StatelessWidget {
       for (final sc in result.stockChanges)
         VKeyValueRow(
           label: sc.productName,
-          value: '${_formatNum(sc.before)} -> ${_formatNum(sc.after)} ${sc.baseUom}',
+          value: '${_formatNum(sc.before)} → ${_formatNum(sc.after)} ${sc.baseUom}',
           mono: true,
         ),
     ];

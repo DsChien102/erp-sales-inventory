@@ -1,6 +1,7 @@
 import 'package:erp/features/inventory/presentation/patterns/inventory_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vet45_design_system/design_system.dart';
 
 class _SingleDecimalTextInputFormatter extends TextInputFormatter {
   @override
@@ -162,8 +163,8 @@ class _K7EditCellState extends State<K7EditCell> {
                       fontWeight: FontWeight.w500,
                       fontFamily: 'JetBrainsMono',
                       color: widget.enabled
-                          ? const Color(0xFF0E1116)
-                          : const Color(0xFF4A535E),
+                          ? context.vColors.textPrimary
+                          : context.vColors.textSecondary,
                     ),
                     decoration: const InputDecoration(
                       border: InputBorder.none,
@@ -183,11 +184,11 @@ class _K7EditCellState extends State<K7EditCell> {
                 const SizedBox(width: 6),
                 Text(
                   widget.unit,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     height: 16 / 12,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xFF4A535E),
+                    color: context.vColors.textSecondary,
                   ),
                 ),
               ],

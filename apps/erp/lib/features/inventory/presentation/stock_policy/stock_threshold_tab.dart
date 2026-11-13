@@ -90,20 +90,20 @@ class StockThresholdTab extends StatelessWidget {
                             Text(
                               p.name,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 height: 20 / 14,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF0E1116),
+                                color: context.vColors.textPrimary,
                               ),
                             ),
                             Text(
                               p.code,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 height: 16 / 12,
-                                color: Color(0xFF4A535E),
+                                color: context.vColors.textSecondary,
                               ),
                             ),
                           ],
@@ -117,9 +117,9 @@ class StockThresholdTab extends StatelessWidget {
                 label: 'ĐVT',
                 cell: (p) => Text(
                   p.uom,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF0E1116),
+                    color: context.vColors.textPrimary,
                   ),
                 ),
               ),
@@ -128,10 +128,10 @@ class StockThresholdTab extends StatelessWidget {
                 numeric: true,
                 cell: (p) => Text(
                   '${p.available}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontFamily: 'JetBrainsMono',
-                    color: Color(0xFF0E1116),
+                    color: context.vColors.textPrimary,
                   ),
                 ),
               ),
@@ -219,12 +219,12 @@ class StockThresholdTab extends StatelessWidget {
             },
           ),
         const SizedBox(height: VSpacing.space3),
-        const Text(
+        Text(
           'Thay đổi chính sách không làm đổi số tồn.',
           style: TextStyle(
             fontSize: 12,
             height: 18 / 12,
-            color: Color(0xFF4A535E),
+            color: context.vColors.textSecondary,
           ),
         ),
       ],

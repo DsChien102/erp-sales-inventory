@@ -46,12 +46,12 @@ class StockCostBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Giá vốn',
             style: TextStyle(
               fontSize: 13,
               height: 20 / 13,
-              color: Color(0xFF4A535E),
+              color: context.vColors.textSecondary,
             ),
           ),
           const SizedBox(height: VSpacing.space2),
@@ -93,20 +93,20 @@ class StockCostBlock extends StatelessWidget {
               children: [
                 Text(
                   methodLabel,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     height: 20 / 13,
-                    color: Color(0xFF4A535E),
+                    color: context.vColors.textSecondary,
                   ),
                 ),
                 if (cost.provisional) ...[
                   const SizedBox(height: VSpacing.space1),
-                  const Text(
+                  Text(
                     'Xuất kho đang dùng giá tạm (bình quân liên hoàn).',
                     style: TextStyle(
                       fontSize: 13,
                       height: 20 / 13,
-                      color: Color(0xFF4A535E),
+                      color: context.vColors.textSecondary,
                     ),
                   ),
                 ],

@@ -106,6 +106,34 @@ void main() {
       expect(cubit.state.data!.revision, 2);
     });
 
+    test('end_success_but_reload_error_disables_actions', () async {
+      when(() => mockRepository.get('p1')).thenAnswer(
+        (_) async => buildDetail(status: ProgramStatus.active, isLocked: false, revision: 1),
+      );
+      when(
+        () => mockRepository.end(
+          idempotencyKey: any(named: 'idempotencyKey'),
+          id: 'p1',
+          expectedRevision: 1,
+        ),
+      ).thenAnswer((_) async => 2);
+
+      final cubit = ProgramDetailCubit(repository: mockRepository);
+      await cubit.load('p1');
+      expect(cubit.state.canEnd, isTrue);
+      expect(cubit.state.canEdit, isTrue);
+
+      // Bước tải lại bị lỗi mạng
+      when(() => mockRepository.get('p1')).thenThrow(
+        Exception('Network failure'),
+      );
+
+      final ok = await cubit.end();
+      expect(ok, isTrue);
+      expect(cubit.state.canEnd, isFalse);
+      expect(cubit.state.canEdit, isFalse);
+    });
+
     test('detail_not_found_on_context_invalid', () async {
       when(() => mockRepository.get('missing')).thenThrow(
         const AppException(InventoryErrorCode.contextInvalid),

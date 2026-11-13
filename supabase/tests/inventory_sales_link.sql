@@ -371,6 +371,26 @@ begin
   end;
 
   -- -------------------------------------------------------------------------
+  -- Ca 7b: reverse_empty_source_line_id (G5-8 R1 #9)
+  -- source_intent_line_id = '' ⇒ CONTEXT_INVALID, không phải lỗi cú pháp uuid thô
+  -- -------------------------------------------------------------------------
+  begin
+    perform inventory._reverse_sale(
+      v_tenant_id, v_store_id, 'TEST', gen_random_uuid(),
+      jsonb_build_array(
+        jsonb_build_object('line_id', gen_random_uuid(), 'source_intent_type', 'TEST', 'source_intent_line_id', '', 'base_qty', 1)
+      ),
+      v_owner_id
+    );
+    raise exception 'FAIL: reverse_empty_source_line_id should raise CONTEXT_INVALID';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    if sqlerrm not like '%CONTEXT_INVALID%' then
+      raise exception 'FAIL: reverse_empty_source_line_id unexpected error [%]', sqlerrm;
+    end if;
+  end;
+
+  -- -------------------------------------------------------------------------
   -- Ca 8: reversal_kind_return_in
   -- -------------------------------------------------------------------------
   perform inventory._post_movements(

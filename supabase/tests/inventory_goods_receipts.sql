@@ -498,6 +498,60 @@ begin
     raise exception 'FAIL: get_receipt_lots_keep_entry_order lots did not preserve entry order';
   end if;
 
+  -- =========================================================================
+  -- TEST CASE: get_receipt_lots_return_manufacture_date_and_amount (G5-8 R1 #1)
+  -- Mỗi lô trả đủ manufacture_date và allocated_landed_cost_vnd; tổng tiền lô = landed_amount_vnd của dòng.
+  -- =========================================================================
+  v_res := inventory.record_goods_receipt(
+    v_tenant_id,
+    'g58-lot-fields-key-1',
+    jsonb_build_object(
+      'supplier_id', v_sup_a,
+      'lines', jsonb_build_array(
+        jsonb_build_object(
+          'product_id', v_p_lot,
+          'unit_id', v_u_lot_base,
+          'unit_price_vnd', 50000,
+          'free_qty', 0,
+          'lots', jsonb_build_array(
+            jsonb_build_object('lot_code', 'LOT_MFG_1', 'expiry_date', '2027-06-01', 'expiry_precision', 'MONTH', 'manufacture_date', '2026-05-01', 'quantity', 4),
+            jsonb_build_object('lot_code', 'LOT_MFG_2', 'expiry_date', '2027-06-01', 'expiry_precision', 'MONTH', 'quantity', 3)
+          )
+        )
+      )
+    )
+  );
+
+  v_res := inventory.get_goods_receipt(v_tenant_id, (v_res->>'receipt_id')::uuid);
+  if (v_res->'lines'->0->'lots'->0->>'manufacture_date') is distinct from '2026-05-01' then
+    raise exception 'FAIL: get_receipt_lots_return_manufacture_date lot 1 got %', v_res->'lines'->0->'lots'->0->>'manufacture_date';
+  end if;
+  if not (v_res->'lines'->0->'lots'->1 ? 'manufacture_date') then
+    raise exception 'FAIL: get_receipt_lots_return_manufacture_date lot 2 thiếu khoá manufacture_date';
+  end if;
+  if (v_res->'lines'->0->'lots'->0->>'allocated_landed_cost_vnd') is null
+     or (v_res->'lines'->0->'lots'->1->>'allocated_landed_cost_vnd') is null then
+    raise exception 'FAIL: get_receipt_lots_return_amount thiếu allocated_landed_cost_vnd';
+  end if;
+  if (v_res->'lines'->0->'lots'->0->>'allocated_landed_cost_vnd')::bigint
+     + (v_res->'lines'->0->'lots'->1->>'allocated_landed_cost_vnd')::bigint
+     is distinct from (v_res->'lines'->0->>'landed_amount_vnd')::bigint then
+    raise exception 'FAIL: get_receipt_lots_return_amount tổng tiền lô % khác landed_amount_vnd %',
+      (v_res->'lines'->0->'lots'->0->>'allocated_landed_cost_vnd')::bigint
+      + (v_res->'lines'->0->'lots'->1->>'allocated_landed_cost_vnd')::bigint,
+      v_res->'lines'->0->>'landed_amount_vnd';
+  end if;
+
+  -- =========================================================================
+  -- TEST CASE: invalid_expiry_precision_rejected (G5-8 R1 #3)
+  -- Giá trị ngoài DAY / MONTH / YEAR ⇒ CONTEXT_INVALID (không phải check_violation thô)
+  -- =========================================================================
+  perform pg_temp.expect_err(
+    format('select inventory.record_goods_receipt(%L, %L, %L::jsonb)', v_tenant_id, 'g58-bad-precision-key', jsonb_build_object('supplier_id', v_sup_a, 'lines', jsonb_build_array(jsonb_build_object('product_id', v_p_lot, 'unit_id', v_u_lot_base, 'unit_price_vnd', 50000, 'lots', jsonb_build_array(jsonb_build_object('lot_code', 'LOT_WEEK', 'expiry_date', '2027-06-01', 'expiry_precision', 'WEEK', 'quantity', 2)))))),
+    'CONTEXT_INVALID',
+    'invalid_expiry_precision_rejected'
+  );
+
   raise notice 'ALL GOODS RECEIPT SQL TESTS PASSED!';
 end;
 $$;

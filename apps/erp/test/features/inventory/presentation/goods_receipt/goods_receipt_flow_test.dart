@@ -70,7 +70,7 @@ class _FlowTestReceiptRepo extends Fake implements GoodsReceiptRepository {
   );
 
   @override
-  Future<List<ReceiptListRow>> list({String? supplierId, int limit = 20, int offset = 0}) async => [
+  Future<List<ReceiptListRow>> list({String? supplierId, int limit = 100}) async => [
         ReceiptListRow(
           receiptId: 'rc-101',
           receiptNo: 'PN-261110-01',

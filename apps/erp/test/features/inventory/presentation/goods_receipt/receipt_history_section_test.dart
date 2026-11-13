@@ -9,7 +9,7 @@ class _FakeReceiptRepo extends Fake implements GoodsReceiptRepository {
   List<ReceiptListRow> rows = [];
 
   @override
-  Future<List<ReceiptListRow>> list({String? supplierId, int limit = 20, int offset = 0}) async {
+  Future<List<ReceiptListRow>> list({String? supplierId, int limit = 100}) async {
     return rows;
   }
 }

@@ -198,7 +198,7 @@ Map<String, String> validateProgramForm(
             r < 0.01 ||
             r > 100 ||
             !RegExp(r'^\d+([.,]\d{1,2})?$').hasMatch(d.rebatePercent.trim())) {
-          errors['rebatePercent'] = 'Mức giảm từ 0,01 đến 100%';
+          errors['rebatePercent'] = '% chiết khấu từ 0,01 đến 100%';
         }
       }
   }

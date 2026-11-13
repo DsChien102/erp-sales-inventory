@@ -63,12 +63,12 @@ class StockHeroCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Khả dụng',
             style: TextStyle(
               fontSize: 13,
               height: 20 / 13,
-              color: Color(0xFF4A535E),
+              color: context.vColors.textSecondary,
             ),
           ),
           const SizedBox(height: VSpacing.space1),
@@ -106,12 +106,12 @@ class StockHeroCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
+                    Text(
                       'Tồn vật lý',
                       style: TextStyle(
                         fontSize: 12,
                         height: 16 / 12,
-                        color: Color(0xFF4A535E),
+                        color: context.vColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: VSpacing.space1),
@@ -144,10 +144,10 @@ class StockHeroCard extends StatelessWidget {
               ),
               child: Text(
                 'Không đủ điều kiện bán: Hết hạn ${formatStockQuantity(detail.expiredQuantity, detail.uom)}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   height: 20 / 13,
-                  color: Color(0xFF4A535E),
+                  color: context.vColors.textSecondary,
                 ),
               ),
             ),
@@ -168,24 +168,34 @@ class StockHeroCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Ngưỡng ${formatQuantity(detail.threshold!.toDouble())} · Mục tiêu ${formatStockQuantity(detail.target ?? detail.threshold!, detail.uom)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         height: 20 / 13,
-                        color: Color(0xFF4A535E),
+                        color: context.vColors.textSecondary,
                       ),
                     ),
                   ),
                   if (detail.isOwner && onEditThreshold != null) ...[
                     const SizedBox(width: VSpacing.space3),
-                    InkWell(
-                      onTap: onEditThreshold,
-                      child: Text(
-                        'Sửa ngưỡng',
-                        style: TextStyle(
-                          fontSize: 13,
-                          height: 20 / 13,
-                          fontWeight: FontWeight.w600,
-                          color: colors.textBrand,
+                    MergeSemantics(
+                      child: Semantics(
+                        button: true,
+                        child: InkWell(
+                          onTap: onEditThreshold,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+                            child: Center(
+                              child: Text(
+                                'Sửa ngưỡng',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  height: 20 / 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.textBrand,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -333,12 +343,12 @@ class StockDetailBody extends StatelessWidget {
         ],
         if (detail.threshold == null) ...[
           const SizedBox(height: VSpacing.space2),
-          const Text(
+          Text(
             'Chưa cấu hình ngưỡng tồn; chưa thể xác định trạng thái tồn thấp/bình thường.',
             style: TextStyle(
               fontSize: 13,
               height: 20 / 13,
-              color: Color(0xFF4A535E),
+              color: context.vColors.textSecondary,
             ),
           ),
           if (detail.isOwner && onEditThreshold != null) ...[
@@ -411,10 +421,10 @@ class StockDetailBody extends StatelessWidget {
             title: 'Lô và hạn dùng',
             trailing: Text(
               '${sortedLots.length} lô',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 height: 20 / 13,
-                color: Color(0xFF4A535E),
+                color: context.vColors.textSecondary,
               ),
             ),
             child: isWide

@@ -195,6 +195,35 @@ begin
     raise exception 'FAIL: hub_problems_counts: %', v_summary;
   end if;
 
+  -- 8. Test case: inactive_product_detail_consistent (G5-8 R1 #18)
+  -- Sản phẩm ngừng bán còn hàng: thẻ tồn khớp danh sách lô (không để 0 trong khi lô > 0).
+  update catalog.products
+  set business_status = 'inactive'::catalog.product_business_status
+  where id = v_p_tylo_id;
+
+  -- Theo lô: 11 lô hết hạn + 3 lô còn hạn ⇒ physical 14, available 3, expired 11
+  v_detail := inventory.get_stock_detail(v_tenant_id, v_p_tylo_id);
+  if (v_detail->>'physical')::numeric <> 14
+     or (v_detail->>'available')::numeric <> 3
+     or (v_detail->>'expired_quantity')::numeric <> 11 then
+    raise exception 'FAIL: inactive_product_detail_consistent (lot): %', v_detail;
+  end if;
+
+  -- Không theo lô: tồn 7 ⇒ physical = available = 7
+  insert into inventory.stock_balances (tenant_id, warehouse_id, product_id, lot_key, physical_quantity)
+  values (v_tenant_id, v_warehouse_id, v_p_zero_id, '00000000-0000-0000-0000-000000000000'::uuid, 7);
+
+  update catalog.products
+  set business_status = 'inactive'::catalog.product_business_status
+  where id = v_p_zero_id;
+
+  v_detail := inventory.get_stock_detail(v_tenant_id, v_p_zero_id);
+  if (v_detail->>'physical')::numeric <> 7
+     or (v_detail->>'available')::numeric <> 7
+     or (v_detail->>'expired_quantity')::numeric <> 0 then
+    raise exception 'FAIL: inactive_product_detail_consistent (none): %', v_detail;
+  end if;
+
   -- Rollback all test data
   raise exception 'ROLLBACK_TEST_SUCCESS';
 exception

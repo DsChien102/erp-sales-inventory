@@ -164,7 +164,9 @@ void main() {
                 'lot_code': 'DH1',
                 'expiry_date': '2026-11-30',
                 'expiry_precision': 'DAY',
+                'manufacture_date': '2026-05-01',
                 'quantity': 10,
+                'allocated_landed_cost_vnd': 1000000,
               },
             ],
           },
@@ -174,7 +176,35 @@ void main() {
       final detail = await repository.get('rc-1');
       expect(detail.header.receiptNo, 'PN-261110-01');
       expect(detail.lines.first.lots.length, 1);
-      expect(detail.lines.first.lots.first.lotCode, 'DH1');
+      final lot = detail.lines.first.lots.first;
+      expect(lot.lotCode, 'DH1');
+      expect(lot.manufactureDate, '2026-05-01');
+      expect(lot.allocatedLandedCostVnd, 1000000);
+    });
+
+    test('list_sends_limit_100_and_parses_rows', () async {
+      rpc.nextResponse = {
+        'receipts': [
+          {
+            'receipt_id': 'rc-1',
+            'receipt_no': 'PN-261110-01',
+            'supplier_id': 's1',
+            'supplier_name': 'Á Châu',
+            'business_date': '2026-11-10',
+            'line_count': 1,
+            'lot_count': 1,
+            'landed_total_vnd': 1000000,
+            'created_at': '2026-11-10T10:00:00Z',
+          },
+        ],
+      };
+
+      final rows = await repository.list(supplierId: 's1');
+      expect(rpc.lastFunction, 'list_goods_receipts');
+      expect(rpc.lastParams?['p_supplier_id'], 's1');
+      expect(rpc.lastParams?['p_limit'], 100);
+      expect(rows.length, 1);
+      expect(rows.first.receiptNo, 'PN-261110-01');
     });
   });
 }

@@ -427,6 +427,12 @@ begin
           end if;
           v_lot_codes := array_append(v_lot_codes, v_l_code);
         end if;
+
+        if (v_lot_item ? 'expiry_precision') and (v_lot_item->>'expiry_precision') is not null then
+          if (v_lot_item->>'expiry_precision') not in ('DAY', 'MONTH', 'YEAR') then
+            perform inventory._raise('CONTEXT_INVALID', 'Độ chính xác hạn dùng không hợp lệ.');
+          end if;
+        end if;
       end loop;
 
       v_paid := v_sum_qty - v_free;
@@ -927,7 +933,9 @@ begin
             'lot_code', lt.lot_code,
             'expiry_date', lt.expiry_date,
             'expiry_precision', lt.expiry_precision,
-            'quantity', lt.quantity
+            'manufacture_date', lt.manufacture_date,
+            'quantity', lt.quantity,
+            'allocated_landed_cost_vnd', lt.amount_vnd
           )
           order by lt.lot_no asc
         )

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/inventory/logic/goods_receipt/receipt_draft_cubit.dart';
@@ -171,6 +172,9 @@ class _ReceiptHeaderPageState extends State<ReceiptHeaderPage> {
                       key: const Key('receipt_doc_no'),
                       controller: _docNoController,
                       hintText: 'VD: HĐ 0001523',
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(60),
+                      ],
                       onChanged: (val) {
                         cubit.setDocNo(val);
                       },

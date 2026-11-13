@@ -76,10 +76,10 @@ class ThresholdImpactSheet extends StatelessWidget {
                       ),
                     ],
                   ),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     height: 20 / 14,
-                    color: Color(0xFF0E1116),
+                    color: context.vColors.textPrimary,
                   ),
                 ),
               );
@@ -89,20 +89,20 @@ class ThresholdImpactSheet extends StatelessWidget {
         const SizedBox(height: VSpacing.space2),
         Text(
           'Tồn thấp: $beforeLow → $afterLow sản phẩm',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             height: 20 / 14,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF0E1116),
+            color: context.vColors.textPrimary,
           ),
         ),
         const SizedBox(height: VSpacing.space1),
-        const Text(
+        Text(
           'Thay đổi chính sách không làm đổi số tồn.',
           style: TextStyle(
             fontSize: 12,
             height: 18 / 12,
-            color: Color(0xFF4A535E),
+            color: context.vColors.textSecondary,
           ),
         ),
         const SizedBox(height: VSpacing.space4),

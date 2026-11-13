@@ -114,6 +114,7 @@ class ProgramDetailCubit extends Cubit<ProgramDetailState> {
           ending: false,
           clearActionError: true,
           versionConflict: false,
+          endedLocally: true,
         ),
       );
     }

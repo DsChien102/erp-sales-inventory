@@ -71,7 +71,7 @@ void main() {
 
       // Thay đổi tồn kho
       expect(find.text('Nobivac DHPPi'), findsOneWidget);
-      expect(find.text('10 -> 25 hộp'), findsOneWidget);
+      expect(find.text('10 → 25 hộp'), findsOneWidget);
 
       // Nút liên kết xem phiếu
       final viewReceiptLink = find.text('Xem phiếu PN-261110-01');

@@ -397,7 +397,7 @@ begin
     join inventory.stock_movements m
       on m.tenant_id = p_tenant_id
      and m.intent_type = elem->>'source_intent_type'
-     and m.intent_line_id = (elem->>'source_intent_line_id')::uuid
+     and m.intent_line_id = nullif(elem->>'source_intent_line_id', '')::uuid
      and m.movement_kind = 'SALE'
     order by m.product_id asc
   ) loop

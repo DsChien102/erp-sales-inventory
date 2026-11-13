@@ -31,14 +31,14 @@ class NearExpiryAddSheet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (options.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: VSpacing.space3),
             child: Text(
               'Mọi sản phẩm theo lô đều đã có chính sách riêng.',
               style: TextStyle(
                 fontSize: 12,
                 height: 18 / 12,
-                color: Color(0xFF4A535E),
+                color: context.vColors.textSecondary,
               ),
             ),
           )

@@ -324,6 +324,30 @@ void main() {
       expect(find.text('Đặt ngưỡng tồn'), findsNothing);
     });
 
+    testWidgets('edit_threshold_tap_target_at_least_44_and_labeled_390', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final handle = tester.ensureSemantics();
+
+      final repo = _FakeStockRepository((_) => _buildTylosinDetail());
+      await tester.pumpWidget(_buildTestApp(repository: repo));
+      await tester.pumpAndSettle();
+
+      final inkWell = find.ancestor(
+        of: find.text('Sửa ngưỡng'),
+        matching: find.byType(InkWell),
+      );
+      expect(inkWell, findsOneWidget);
+      final size = tester.getSize(inkWell);
+      expect(size.height, greaterThanOrEqualTo(44));
+      expect(size.width, greaterThanOrEqualTo(44));
+
+      // Một nút duy nhất cho trình đọc màn hình, không đọc hai lần.
+      expect(find.bySemanticsLabel('Sửa ngưỡng'), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('not_configured_shows_note_and_set_button', (tester) async {
       await tester.binding.setSurfaceSize(const Size(390, 844));
       addTearDown(() => tester.binding.setSurfaceSize(null));

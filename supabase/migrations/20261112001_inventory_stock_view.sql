@@ -128,6 +128,28 @@ begin
     v_physical := coalesce(v_sr.physical, 0);
     v_available := coalesce(v_sr.available, 0);
     v_expired_qty := v_physical - v_available;
+  else
+    if v_prod.tracking_mode = 'lot' then
+      v_today := inventory._today();
+      select
+        coalesce(sum(sb.physical_quantity), 0),
+        coalesce(sum(case when inventory._lot_expiry_end(l.expiry_date, l.expiry_precision) < v_today then 0 else sb.physical_quantity end), 0)
+      into v_physical, v_available
+      from inventory.stock_balances sb
+      left join inventory.lots l on l.id = sb.lot_key and l.tenant_id = sb.tenant_id
+      where sb.tenant_id = p_tenant_id
+        and sb.warehouse_id = v_warehouse_id
+        and sb.product_id = p_product_id;
+    else
+      select coalesce(sum(sb.physical_quantity), 0)
+      into v_physical
+      from inventory.stock_balances sb
+      where sb.tenant_id = p_tenant_id
+        and sb.warehouse_id = v_warehouse_id
+        and sb.product_id = p_product_id;
+      v_available := v_physical;
+    end if;
+    v_expired_qty := v_physical - v_available;
   end if;
 
   select reorder_threshold, target_level

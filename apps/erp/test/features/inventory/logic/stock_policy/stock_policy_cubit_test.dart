@@ -246,6 +246,87 @@ void main() {
       ).called(1);
     });
 
+    test('saved_successfully_clears_key_and_subsequent_save_uses_new_key', () async {
+      when(() => mockRepo.load()).thenAnswer((_) async => initialSnapshot);
+      await cubit.load();
+
+      cubit.editThreshold('p2', threshold: '20', target: '40');
+
+      when(
+        () => mockRepo.saveThresholds(
+          idempotencyKey: any(named: 'idempotencyKey'),
+          expectedRevision: any(named: 'expectedRevision'),
+          changes: any(named: 'changes'),
+        ),
+      ).thenAnswer((_) async => 6);
+
+      await cubit.saveThresholds();
+
+      // Lưu lần 1 dùng key-1
+      verify(
+        () => mockRepo.saveThresholds(
+          idempotencyKey: 'key-1',
+          expectedRevision: 5,
+          changes: any(named: 'changes'),
+        ),
+      ).called(1);
+
+      // Sửa lại đúng giá trị cũ (sau khi state đã update snapshot revision 6)
+      cubit.editThreshold('p2', threshold: '20', target: '40');
+      await cubit.saveThresholds();
+
+      // Phải sinh key-2 mới, không dùng lại key-1
+      verify(
+        () => mockRepo.saveThresholds(
+          idempotencyKey: 'key-2',
+          expectedRevision: 5,
+          changes: any(named: 'changes'),
+        ),
+      ).called(1);
+    });
+
+    test('save_ok_but_reload_fails_retry_reuses_same_key', () async {
+      var loadCalls = 0;
+      when(() => mockRepo.load()).thenAnswer((_) async {
+        loadCalls++;
+        // 1: cubit.load(); 2: tải lại sau lần lưu đầu (lỗi); 3: sau "Thử lại"
+        if (loadCalls == 2) throw Exception('network');
+        return initialSnapshot;
+      });
+      await cubit.load();
+
+      when(
+        () => mockRepo.saveThresholds(
+          idempotencyKey: any(named: 'idempotencyKey'),
+          expectedRevision: any(named: 'expectedRevision'),
+          changes: any(named: 'changes'),
+        ),
+      ).thenAnswer((_) async => 6);
+
+      cubit.editThreshold('p2', threshold: '20', target: '40');
+      await cubit.saveThresholds();
+      expect(cubit.state.saveError, isNotNull);
+
+      // "Thử lại": cùng nội dung, snapshot cũ ⇒ phải dùng lại đúng khoá cũ.
+      await cubit.saveThresholds();
+
+      verify(
+        () => mockRepo.saveThresholds(
+          idempotencyKey: 'key-1',
+          expectedRevision: 5,
+          changes: any(named: 'changes'),
+        ),
+      ).called(2);
+      verifyNever(
+        () => mockRepo.saveThresholds(
+          idempotencyKey: 'key-2',
+          expectedRevision: any(named: 'expectedRevision'),
+          changes: any(named: 'changes'),
+        ),
+      );
+      expect(cubit.state.saveError, isNull);
+    });
+
     test('save_success_sets_saved_revision_and_reloads', () async {
       when(() => mockRepo.load()).thenAnswer((_) async => initialSnapshot);
       await cubit.load();

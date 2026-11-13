@@ -171,6 +171,10 @@ class StockPolicyCubit extends Cubit<StockPolicyState> {
       );
 
       final newSnapshot = await _repository.load();
+      // Chỉ xoá khoá khi cả lưu và tải lại đều xong: nếu tải lại lỗi, "Thử lại"
+      // phải dùng lại đúng khoá cũ để server trả kết quả đã lưu (replay).
+      _lastThresholdPayload = null;
+      _lastThresholdKey = null;
       emit(
         state.copyWith(
           status: StockPolicyStatus.ready,
@@ -230,6 +234,8 @@ class StockPolicyCubit extends Cubit<StockPolicyState> {
       );
 
       final newSnapshot = await _repository.load();
+      _lastSinglePayload = null;
+      _lastSingleKey = null;
       final newDrafts = Map<String, ThresholdDraft>.from(state.thresholdDrafts)
         ..remove(productId);
 
@@ -364,6 +370,8 @@ class StockPolicyCubit extends Cubit<StockPolicyState> {
       );
 
       final newSnapshot = await _repository.load();
+      _lastExpiryPayload = null;
+      _lastExpiryKey = null;
       final newDefaultDays = newSnapshot.nearExpiryDays?.toString() ?? '';
       final newOverridesDraft = newSnapshot.products
           .where((p) => p.nearExpiryDaysOverride != null)

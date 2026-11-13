@@ -84,21 +84,21 @@ class _ThresholdEditSheetState extends State<ThresholdEditSheet> {
       children: [
         Text(
           'Khả dụng ${p.available} ${p.uom}',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             height: 20 / 14,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF0E1116),
+            color: context.vColors.textPrimary,
           ),
         ),
         const SizedBox(height: VSpacing.space3),
-        const Text(
+        Text(
           'Ngưỡng cảnh báo',
           style: TextStyle(
             fontSize: 13,
             height: 18 / 13,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF0E1116),
+            color: context.vColors.textPrimary,
           ),
         ),
         const SizedBox(height: VSpacing.space1),
@@ -109,13 +109,13 @@ class _ThresholdEditSheetState extends State<ThresholdEditSheet> {
           onChanged: (val) => setState(() => _threshold = val),
         ),
         const SizedBox(height: VSpacing.space3),
-        const Text(
+        Text(
           'Mức tồn mục tiêu',
           style: TextStyle(
             fontSize: 13,
             height: 18 / 13,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF0E1116),
+            color: context.vColors.textPrimary,
           ),
         ),
         const SizedBox(height: VSpacing.space1),
@@ -130,11 +130,11 @@ class _ThresholdEditSheetState extends State<ThresholdEditSheet> {
           const SizedBox(height: VSpacing.space3),
           Text(
             'Sau khi lưu: $preview',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               height: 20 / 14,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF0E1116),
+              color: context.vColors.textPrimary,
             ),
           ),
         ],

@@ -199,7 +199,7 @@ void main() {
         products,
         today: DateTime(2026, 11, 10),
       );
-      expect(errsVol['rebatePercent'], 'Mức giảm từ 0,01 đến 100%');
+      expect(errsVol['rebatePercent'], '% chiết khấu từ 0,01 đến 100%');
     });
 
     test('validate_volume_uom_mismatch', () {

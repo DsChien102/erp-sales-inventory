@@ -5,6 +5,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_models.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_repository.dart';
 import 'package:erp/features/inventory/logic/goods_receipt/receipt_list_cubit.dart';
+import 'package:erp/features/inventory/logic/goods_receipt/receipt_list_state.dart';
 import 'package:erp/features/inventory/presentation/goods_receipt/receipt_list_page.dart';
 
 class _FakeReceiptRepo extends Fake implements GoodsReceiptRepository {
@@ -21,7 +22,7 @@ class _FakeReceiptRepo extends Fake implements GoodsReceiptRepository {
   );
 
   @override
-  Future<List<ReceiptListRow>> list({String? supplierId, int limit = 20, int offset = 0}) async {
+  Future<List<ReceiptListRow>> list({String? supplierId, int limit = 100}) async {
     if (supplierId != null) {
       return rows.where((r) => r.supplierId == supplierId).toList();
     }
@@ -158,6 +159,24 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Nhà cung cấp: Công ty Á Châu'), findsOneWidget);
+    });
+
+    test('cubit_set_supplier_reloads_from_repository', () async {
+      final cubit = ReceiptListCubit(repository: repository, initialSupplierId: 's-1');
+      await cubit.load();
+      expect(cubit.state.supplierId, 's-1');
+
+      // Vào từ màn NCC: server chỉ trả phiếu của s-1.
+      expect(cubit.state.all.map((r) => r.supplierId).toSet(), {'s-1'});
+
+      await cubit.setSupplier(null);
+      expect(cubit.state.supplierId, isNull);
+      expect(cubit.state.status, ReceiptListStatus.ready);
+      // "Tất cả NCC" phải tải lại từ server ⇒ có phiếu của mọi NCC.
+      expect(cubit.state.all.map((r) => r.supplierId).toSet(), {'s-1', 's-2'});
+
+      await cubit.setSupplier('s-2');
+      expect(cubit.state.visible.map((r) => r.receiptId), ['rc-2']);
     });
   });
 }

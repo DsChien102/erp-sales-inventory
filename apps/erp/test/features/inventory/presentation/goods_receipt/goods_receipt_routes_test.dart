@@ -38,7 +38,7 @@ class _FakeReceiptRepo extends Fake implements GoodsReceiptRepository {
   );
 
   @override
-  Future<List<ReceiptListRow>> list({String? supplierId, int limit = 20, int offset = 0}) async => rows;
+  Future<List<ReceiptListRow>> list({String? supplierId, int limit = 100}) async => rows;
 
   @override
   Future<ReceiptFormOptions> formOptions() async => options;

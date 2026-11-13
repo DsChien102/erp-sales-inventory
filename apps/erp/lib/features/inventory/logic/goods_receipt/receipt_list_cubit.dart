@@ -29,12 +29,16 @@ class ReceiptListCubit extends Cubit<ReceiptListState> {
 
   Future<void> refresh() => load();
 
-  void setSupplier(String? id) {
-    if (id == null || id.isEmpty) {
+  Future<void> setSupplier(String? id) async {
+    final newId = (id == null || id.isEmpty) ? null : id;
+    if (newId == state.supplierId) return;
+
+    if (newId == null) {
       emit(state.copyWith(clearSupplier: true));
     } else {
-      emit(state.copyWith(supplierId: id));
+      emit(state.copyWith(supplierId: newId));
     }
+    await load();
   }
 
   void setQuery(String query) {

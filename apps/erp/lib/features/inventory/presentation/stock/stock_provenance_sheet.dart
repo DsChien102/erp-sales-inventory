@@ -71,10 +71,10 @@ class StockProvenanceSheet extends StatelessWidget {
         children: [
           Text(
             '${detail.name} · ${detail.warehouseName}',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               height: 20 / 13,
-              color: Color(0xFF4A535E),
+              color: context.vColors.textSecondary,
             ),
           ),
           const SizedBox(height: VSpacing.space3),

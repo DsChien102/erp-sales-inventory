@@ -80,7 +80,7 @@ List<WarehouseEntry> warehouseAreaEntries(WarehouseArea area) => switch (area) {
           WarehouseEntry(
             id: 'receipts',
             title: 'Nhận hàng',
-            subtitle: 'Nhận theo chứng từ hoặc nhập nhanh',
+            subtitle: 'Nhận hàng theo chứng từ nhà cung cấp',
             icon: VIcons.cloudUpload,
             route: warehouseReceiptsRoute,
           ),

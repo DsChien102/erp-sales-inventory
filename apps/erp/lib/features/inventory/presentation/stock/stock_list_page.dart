@@ -111,7 +111,7 @@ class _StockListViewState extends State<_StockListView>
 
   Future<void> _openDetail(BuildContext context, StockOverviewItem item) async {
     final cubit = context.read<StockListCubit>();
-    await context.push('/warehouse/stock/${item.productId}');
+    await context.push('/warehouse/stock/${item.productId}', extra: item.name);
     if (mounted) {
       cubit.checkStale();
     }
@@ -185,10 +185,10 @@ class _StockListViewState extends State<_StockListView>
               Text(
                 item.code,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   height: 16 / 12,
-                  color: Color(0xFF4A535E),
+                  color: context.vColors.textSecondary,
                 ),
               ),
             ],
@@ -307,10 +307,10 @@ class _StockListViewState extends State<_StockListView>
               children: [
                 Text(
                   '${data.warehouseName} · Dữ liệu đến ${formatStockContextAsOf(data.asOf)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     height: 20 / 13,
-                    color: Color(0xFF4A535E),
+                    color: context.vColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: VSpacing.space3),
@@ -361,10 +361,10 @@ class _StockListViewState extends State<_StockListView>
               children: [
                 Text(
                   '${data.warehouseName} · Dữ liệu đến ${formatStockContextAsOf(data.asOf)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     height: 20 / 13,
-                    color: Color(0xFF4A535E),
+                    color: context.vColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: VSpacing.space3),

@@ -1,7 +1,7 @@
 # T7-G5-7 — Báo cáo kho: nhập – xuất – tồn, thẻ kho, lãi gộp, nhập theo NCC (BJ-15)
 
 > Theme 7 · plan **G5-7** của [PLAN.md](../../PLAN.md) mục "Theme 7" (bảng Plan)
-> Trạng thái: Plan ✅ (người dùng duyệt 2026-11-13) | Làm ✅ 2026-11-13 | Review ⬜
+> Trạng thái: Plan ✅ (người dùng duyệt 2026-11-13) | Làm ✅ 2026-11-13 | Review ✅ R2 đạt 2026-11-13
 > Thiết kế: duyệt trong chat 2026-11-12 / 13 (3 câu hỏi + 3 phần: dữ liệu / RPC; màn / lối vào; test / task). Nguồn nghiệp vụ: Screen Contract SCR-055 / 056 (FROZEN v5.27.0), UIF-15, [spec giá vốn](T7-G5-gia-von-thiet-ke.md) mục 7 (báo cáo lãi gộp), 8 (G5-7), PLAN.md "Ghi chú G5-7" (D1 kỳ tháng, D5 dấu sổ). Prototype `app/bj15.js` (mục 2.6). Phụ thuộc: G5-0b (`stock_movements`, `value_movements`, `product_costs`), G5-2a (`_product_stock_rows`), G5-3 (`goods_receipts*`), G5-4 (dòng đơn lưu giá vốn), G5-5 (`STOCKTAKE`), G5-5b (`supplier_rebate_allocations`), G5-6 (`COGS_TRUE_UP` / `LOSS_TRUE_UP`, SCR-077).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -586,3 +586,18 @@ tools/db_check.sh
 Gửi lại phần tóm tắt cuối (migration, `plpgsql_check`, các suite `inventory_*`). Sau khi sửa #1: chạy thêm `tools/db_check.sh --no-reset inventory_reports`. Reset Dev `--linked` vẫn chờ người dùng quyết.
 
 **Phiên sửa:** ghi "Sửa sau R1" ở mục 5; chạy lại `flutter test --no-pub -r compact test/features/inventory` + `dart analyze`.
+
+### R2 (2026-11-13) — Đạt
+
+**Đã xem:** commit `20d6aeae7` ("Sửa sau R1" mục 5): diff migration (4 chỗ `margin_pct` đổi `<> 0` → `> 0`), khẳng định mới ở `r6_prior_month_return`, `movement_detail_page.dart` (`K7Split(wideMain: true)` + bề rộng tối đa 960 trên desktop), dòng mới ở bảng mục 1, ảnh `flutter-056-READY-1280.png` mới. Phiên review tự chạy: `dart analyze` sạch; `flutter test --no-pub -r compact test/features/inventory` = **702 đạt / 0 đỏ**; golden không đổi sau khi chạy.
+
+**`tools/db_check.sh`** (người dùng chạy đủ, có reset, 2026-11-13): ✅ DB check đạt — migration lên đủ; `plpgsql_check` 0 lỗi mới (2 nợ đã biết: `catalog.create_product:44`, `einvoice.record_issuance_undetermined:42`); `inventory_reports: OK` cùng mọi suite `inventory_*`, `sales_th05`, `partner_th03`; nợ đã biết `catalog_th02`, `einvoice_th08`, `pricing_th04`.
+
+| # R1 | Kết quả | Ghi chú |
+|---|---|---|
+| 1 | ✅ | Đúng 4 chỗ; ca r6 khẳng định `null`. Ví dụ số trong R1 sai (đúng là 103,3%, như phiên sửa ghi) — kết luận lỗi không đổi |
+| 2 | ✅ | Ảnh mới: số liệu ≈ 530 px trái, Nguồn ≈ 380 px phải, nội dung giữa trang — khớp bố cục prototype |
+| 3 | ✅ (giữ, đã ghi lệch) | Lập luận đúng: không lệnh nào xoá `inventory.lots`, `_post_movements` bắt buộc lô cho sản phẩm theo lô |
+| 4 | ✅ | Số test 702 |
+
+**Còn sót (tài liệu, không chặn):** mục 2.3 dòng `margin_pct` vẫn ghi "`net_revenue = 0` ⇒ `null`" (quy tắc mới nằm ở bảng mục 1); mục 5 "Kiểm" vẫn ghi "Còn lại: chạy lại `tools/db_check.sh`" — nay đã chạy đạt (R2). Reset Dev `--linked` vẫn chờ người dùng.

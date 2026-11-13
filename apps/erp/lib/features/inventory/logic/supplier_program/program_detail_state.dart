@@ -13,6 +13,7 @@ class ProgramDetailState {
   final bool ending;
   final String? actionError;
   final bool versionConflict;
+  final bool endedLocally;
 
   const ProgramDetailState({
     this.status = ProgramDetailStatus.loading,
@@ -20,9 +21,11 @@ class ProgramDetailState {
     this.ending = false,
     this.actionError,
     this.versionConflict = false,
+    this.endedLocally = false,
   });
 
   bool get canEnd {
+    if (endedLocally) return false;
     final s = data?.row.status;
     return s == ProgramStatus.active || s == ProgramStatus.reached;
   }
@@ -36,6 +39,7 @@ class ProgramDetailState {
     String? actionError,
     bool clearActionError = false,
     bool? versionConflict,
+    bool? endedLocally,
   }) {
     return ProgramDetailState(
       status: status ?? this.status,
@@ -43,6 +47,7 @@ class ProgramDetailState {
       ending: ending ?? this.ending,
       actionError: clearActionError ? null : (actionError ?? this.actionError),
       versionConflict: versionConflict ?? this.versionConflict,
+      endedLocally: endedLocally ?? this.endedLocally,
     );
   }
 }

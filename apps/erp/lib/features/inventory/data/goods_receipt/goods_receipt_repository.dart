@@ -26,8 +26,7 @@ class GoodsReceiptRepository {
 
   Future<List<ReceiptListRow>> list({
     String? supplierId,
-    int limit = 20,
-    int offset = 0,
+    int limit = 100,
   }) async {
     final res = await _rpc.query(
       'list_goods_receipts',

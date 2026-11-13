@@ -131,5 +131,24 @@ void main() {
       expect(find.text('Bỏ phiếu'), findsOneWidget);
       expect(find.text('Ở lại'), findsOneWidget);
     });
+
+    testWidgets('doc_no_limited_to_60_characters', (tester) async {
+      final cubit = ReceiptDraftCubit(repository: receiptRepo, programs: programRepo);
+      await cubit.load();
+
+      await tester.pumpWidget(wrap(cubit));
+      await tester.pumpAndSettle();
+
+      final docNoFinder = find.byKey(const Key('receipt_doc_no'));
+      expect(docNoFinder, findsOneWidget);
+
+      final over60Text = 'A' * 65;
+      await tester.enterText(docNoFinder, over60Text);
+      await tester.pumpAndSettle();
+
+      final textField = tester.widget<VTextField>(docNoFinder);
+      expect(textField.controller?.text.length, 60);
+      expect(cubit.state.draft.docNo.length, 60);
+    });
   });
 }
