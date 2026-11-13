@@ -41,7 +41,8 @@ as $$
 $$;
 
 create or replace function pg_temp.rep_finalize(
-  p_tenant uuid, p_actor uuid, p_store uuid, p_lines jsonb, p_payments jsonb, p_key text
+  p_tenant uuid, p_actor uuid, p_store uuid, p_lines jsonb, p_payments jsonb, p_key text,
+  p_customer uuid default null, p_due date default null
 )
 returns jsonb
 language plpgsql
@@ -68,7 +69,11 @@ begin
   v_snapshot := jsonb_build_object(
     'store', jsonb_build_object('storeId', p_store::text),
     'seller', jsonb_build_object('actorId', p_actor::text),
-    'customer', null,
+    'customer', case when p_customer is null then null
+      else jsonb_build_object(
+        'customerId', p_customer::text,
+        'displayName', (select display_name from partner.partners where partner_id = p_customer))
+    end,
     'lines', v_snap_lines
   );
 
@@ -78,7 +83,7 @@ begin
     p_actor_id => p_actor,
     p_store_id => p_store,
     p_source_draft_id => null,
-    p_customer_id => null,
+    p_customer_id => p_customer,
     p_currency_code => 'VND',
     p_order_note => null,
     p_commercial_snapshot => v_snapshot,
@@ -87,7 +92,7 @@ begin
     p_idempotency_key => p_key,
     p_payload_hash => 'h',
     p_correlation_id => gen_random_uuid()::text,
-    p_payment_due_date => null
+    p_payment_due_date => p_due
   );
 end;
 $$;
@@ -160,6 +165,7 @@ declare
   v_prev_end date := (date_trunc('month', inventory._today()) - interval '1 day')::date;
   v_prev_start date := date_trunc('month', (date_trunc('month', inventory._today()) - interval '1 day'))::date;
 
+  v_cust uuid;
   v_sup uuid := gen_random_uuid();
   v_p_lot uuid := gen_random_uuid();
   v_p_plain uuid := gen_random_uuid();
@@ -235,6 +241,9 @@ begin
   values (v_sup, v_t, 'organization', 'NCC Báo cáo', 'active', v_owner, v_owner);
   insert into partner.partner_roles (partner_id, tenant_id, role) values (v_sup, v_t, 'supplier');
 
+  select c.partner_id into v_cust
+  from partner.create_partner(v_t, v_owner, 'person', array['customer'], jsonb_build_object('full_name', 'Khách nợ báo cáo', 'phone', '0988000777')) c;
+
   insert into catalog.products (id, tenant_id, name, sku, tracking_mode, expiry_required, business_status, is_ready_to_sell, reference_id, created_by, updated_by)
   values
     (v_p_lot, v_t, 'Vắc xin Lô', 'RP-LOT', 'lot', true, 'active', true, 'RP-REF-LOT', v_owner, v_owner),
@@ -282,7 +291,8 @@ begin
 
   -- Bán 3 → huỷ đơn → bán 2 → trả 1
   v_res := pg_temp.rep_finalize(v_t, v_owner, v_store,
-    jsonb_build_array(pg_temp.rep_line(v_p_lot, v_u_lot, 3000000, 150000)), pg_temp.rep_pay(450000), 'rep-o1');
+    jsonb_build_array(pg_temp.rep_line(v_p_lot, v_u_lot, 3000000, 150000)), '[]'::jsonb, 'rep-o1',
+    v_cust, v_today + 5);  -- bán nợ để đủ điều kiện huỷ (EP-05)
   if v_res ->> 'status' <> 'succeeded' then
     raise exception 'FAIL: fixture finalize order1: %', v_res;
   end if;
