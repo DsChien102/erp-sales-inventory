@@ -248,6 +248,8 @@ begin
   perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_p_lot, p_product_unit_id => v_u_lot, p_source_type => 'manual', p_list_price_before_vat => 150000, p_list_price_after_vat => 150000, p_floor_price_before_vat => 50000, p_floor_price_after_vat => 50000);
   perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_p_plain, p_product_unit_id => v_u_plain, p_source_type => 'manual', p_list_price_before_vat => 80000, p_list_price_after_vat => 80000, p_floor_price_before_vat => 20000, p_floor_price_after_vat => 20000);
 
+  update catalog.products set is_ready_to_sell = true where tenant_id = v_t;
+
   -- Hàng tháng trước: nhận 7 vào ngày cuối tháng trước, nhận thêm 3 hôm nay
   perform inventory._post_movements(
     v_t, v_wh, 'SETUP', gen_random_uuid(), v_prev_end,
@@ -537,6 +539,7 @@ begin
   -- TASK 2 — lãi gộp, nhập theo NCC
   -- =========================================================================
   perform catalog.set_product_unit_price_band(p_tenant_id => v_t, p_product_id => v_p_old, p_product_unit_id => v_u_old, p_source_type => 'manual', p_list_price_before_vat => 30000, p_list_price_after_vat => 30000, p_floor_price_before_vat => 10000, p_floor_price_after_vat => 10000);
+  update catalog.products set is_ready_to_sell = true where tenant_id = v_t;
 
   -- r6_gross_profit_product: dữ liệu fixture r1 (đơn 1 bán 3 rồi huỷ, đơn 2 bán 2 trả 1; 150.000 / hộp, giá vốn 100.000)
   v_gp := inventory.get_gross_profit_report(v_t, v_month_start, v_today, 'PRODUCT');
