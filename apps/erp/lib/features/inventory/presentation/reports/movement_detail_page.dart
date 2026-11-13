@@ -14,6 +14,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+const VResponsiveValue<double> _wideContentMaxWidth = VResponsiveValue(
+  mobile: double.infinity,
+  tablet: 640,
+  desktop: 960,
+);
+
 /// SCR-056: Chi tiết một biến động kho.
 class MovementDetailPage extends StatelessWidget {
   const MovementDetailPage({
@@ -92,9 +98,8 @@ class _MovementDetailView extends StatelessWidget {
     return VPageScaffold(
       title: title,
       subtitle: subtitle,
-      contentMaxWidth: isWide
-          ? VPageScaffold.fullWidth
-          : VPageScaffold.defaultContentMaxWidth,
+      // Web: hai cột (số liệu rộng hơn Nguồn), nội dung có bề rộng tối đa như prototype.
+      contentMaxWidth: isWide ? _wideContentMaxWidth : VPageScaffold.defaultContentMaxWidth,
       leading: reportBackButton(() => _back(context)),
       bottomBar: route == null
           ? null
@@ -215,6 +220,7 @@ class _MovementDetailView extends StatelessWidget {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(VSpacing.space4),
       child: K7Split(
+        wideMain: true,
         main: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,

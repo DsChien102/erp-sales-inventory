@@ -601,6 +601,10 @@ begin
      or (v_row->>'net_revenue_vnd')::bigint <> -30000 then
     raise exception 'FAIL: r6_prior_month_return this month expected revenue 0 / deduction 30000, got %', v_row;
   end if;
+  -- doanh thu thuần ≤ 0 ⇒ không có tỷ lệ (không chia ra số dương giả)
+  if (v_row->>'margin_pct') is not null then
+    raise exception 'FAIL: r6_prior_month_return margin_pct must be null when net revenue < 0, got %', v_row;
+  end if;
   v_gp_prev := inventory.get_gross_profit_report(v_t, v_prev_start, v_prev_end, 'PRODUCT');
   v_row := pg_temp.rep_row(v_gp_prev->'rows', v_p_old);
   if (v_row->>'revenue_vnd')::bigint <> 60000 or (v_row->>'deduction_vnd')::bigint <> 0 then

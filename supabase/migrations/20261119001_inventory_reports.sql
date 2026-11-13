@@ -570,7 +570,7 @@ begin
           'cogs_vnd', o.cogs_vnd,
           'gross_profit_vnd', o.revenue_vnd - o.cogs_vnd,
           'margin_pct', case
-            when o.revenue_vnd <> 0
+            when o.revenue_vnd > 0
               then round((o.revenue_vnd - o.cogs_vnd) * 100.0 / o.revenue_vnd, 1)
             else null
           end,
@@ -616,7 +616,7 @@ begin
         'cogs', v_cogs,
         'gross_profit', v_revenue - v_cogs,
         'margin_pct', case
-          when v_revenue <> 0 then round((v_revenue - v_cogs) * 100.0 / v_revenue, 1)
+          when v_revenue > 0 then round((v_revenue - v_cogs) * 100.0 / v_revenue, 1)
           else null
         end
       )
@@ -757,7 +757,7 @@ begin
         'cogs_after_vnd', c.cogs_after,
         'gross_profit_vnd', c.net_revenue - c.cogs_after,
         'margin_pct', case
-          when c.net_revenue <> 0
+          when c.net_revenue > 0
             then round((c.net_revenue - c.cogs_after) * 100.0 / c.net_revenue, 1)
           else null
         end
@@ -806,7 +806,7 @@ begin
       'cogs_after', v_cogs_after,
       'gross_profit', v_gross,
       'margin_pct', case
-        when v_net <> 0 then round(v_gross * 100.0 / v_net, 1)
+        when v_net > 0 then round(v_gross * 100.0 / v_net, 1)
         else null
       end,
       'loss', v_loss,

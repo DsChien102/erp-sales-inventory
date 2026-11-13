@@ -58,6 +58,7 @@
 | Hao hụt (lãi gộp) | `−Σ amount_vnd` của `COUNT_LOSS`, `WRITE_OFF`, `COUNT_GAIN`, `LOSS_TRUE_UP` theo `business_date` | Kiểm kê thừa bù hao hụt; `REVALUE_ROUNDING` không vào lãi gộp (chỉ giá trị tồn) |
 | Chiết khấu NCC (lãi gộp) | Chỉ **phần đã bán**: Σ `supplier_rebate_allocations.cogs_part_vnd` theo `supplier_rebates.business_date`. Phần tồn (dòng `SUPPLIER_REBATE`) không vào lãi gộp | Phần tồn giảm giá trị tồn, tới lúc bán mới thành giá vốn thấp hơn |
 | Đơn huỷ | Doanh thu của đơn hoàn tất trong kỳ **gồm** đơn bị huỷ sau đó; giảm trừ ghi ở kỳ của `cancelled_at`. Chế độ đơn chỉ liệt kê đơn `lifecycle_status = 'completed'` | Cùng kỳ ⇒ triệt tiêu; khác kỳ ⇒ đúng ngày phát sinh |
+| Tỷ lệ lãi gộp (`margin_pct`) | `null` khi doanh thu thuần ≤ 0 (không chỉ = 0): dòng chỉ có hàng trả ra tỷ lệ dương giả (R1 #1) | Tỷ lệ trên doanh thu âm không có nghĩa |
 | Doanh thu theo đơn | Σ `line_total_minor` (không gồm rounding cấp đơn); chế độ đơn **không** trừ hàng trả về sau | Spec giá vốn mục 7: "theo đơn: giá vốn lúc bán" |
 | Đơn giá gốc bình quân (NCC) | `landed_vnd / (paid_base + free_base)`, 4 chữ số; mẫu 0 ⇒ `null` | Mua X tặng Y chia tiền cho cả hàng tặng (spec 12.1) |
 | Lối vào 077 | "Xem báo cáo tồn" (primary) + "Xem báo cáo lãi gộp" mở kỳ `period_month` → `min(cuối tháng, hôm nay)` | Screen Contract 055 lối vào; spec giá vốn mục 7 |
@@ -537,7 +538,7 @@ _(phiên làm ghi sau mỗi task)_
 
 **Commit:** Task 1–2 `c2cc49dde` · Task 3 `0e6499ea9` · Task 4 `3b293220d` · Task 5 `618c3c582` · Task 6 `e0391b846` · Task 7 `5bcc1277c`.
 
-**Kiểm:** `flutter test test/features/inventory` = **695 đạt / 0 đỏ** (+88 test mới; 607 → 695); `dart analyze` (lib + test inventory) sạch; test hợp đồng SQL xanh. **DB (người dùng chạy local):** `tools/db_check.sh` đủ 3 bước — migration lên đủ, `plpgsql_check` không lỗi mới; `inventory_reports` đạt sau 5 lần sửa **fixture test** (không sửa RPC): `is_ready_to_sell` bị đặt lại sau khi gán bảng giá; đơn sẽ huỷ phải bán nợ (EP-05); thiếu tham số tenant ở `r3`; `cost_runs` thật cho `r7`; `quantity` của lô = tổng nhận gồm hàng tặng (`r9`). Các tệp `inventory_*` khác đạt ở lần chạy đủ đầu tiên. **Còn lại:** chạy lại `tools/db_check.sh` đủ một lần sau các sửa fixture; reset Dev `--linked` (hỏi người dùng).
+**Kiểm:** `flutter test test/features/inventory` = **702 đạt / 0 đỏ** (+95 test mới, gồm 7 test golden; 607 → 702); `dart analyze` (lib + test inventory) sạch; test hợp đồng SQL xanh. **DB (người dùng chạy local):** `tools/db_check.sh` đủ 3 bước — migration lên đủ, `plpgsql_check` không lỗi mới; `inventory_reports` đạt sau 5 lần sửa **fixture test** (không sửa RPC): `is_ready_to_sell` bị đặt lại sau khi gán bảng giá; đơn sẽ huỷ phải bán nợ (EP-05); thiếu tham số tenant ở `r3`; `cost_runs` thật cho `r7`; `quantity` của lô = tổng nhận gồm hàng tặng (`r9`). Các tệp `inventory_*` khác đạt ở lần chạy đủ đầu tiên. **Còn lại:** chạy lại `tools/db_check.sh` đủ một lần sau các sửa fixture; reset Dev `--linked` (hỏi người dùng).
 
 **Quyết định / lệch plan (Ruling):**
 1. **Task 1 + 2 một commit** (`c2cc49dde`): cả hai nằm cùng một migration + một tệp test, tách commit theo hunk không có lợi. Commit **trước khi** `db_check` chạy vì lệnh DB do người dùng chạy — nếu `db_check` đỏ thì sửa tiếp trong migration / test.
@@ -556,6 +557,32 @@ _(phiên làm ghi sau mỗi task)_
 
 **Giới hạn đã biết (ghi báo cáo đồ án):** không phân trang, chỉ mục `stock_movements (tenant_id, product_id, business_date)` là điểm cần thêm khi dữ liệu lớn (mục 2.7).
 
+**Sửa sau R1:**
+- **#1** `margin_pct` (4 chỗ: dòng sản phẩm, tổng, dòng đơn, tổng đơn) chỉ chia khi doanh thu thuần `> 0`, còn lại `null`; `r6_prior_month_return` thêm khẳng định `margin_pct` null. Số thật của ca đó là 103,3% (lãi −31.000 / thuần −30.000), không phải 33,3% như ví dụ trong R1.
+- **#2** 056 web: `K7Split(wideMain: true)` + bề rộng nội dung tối đa 960 px; ảnh `flutter-056-READY-1280.png` chụp lại (số liệu ≈532 px, Nguồn ≈380 px).
+- **#3** **Giữ nguyên, ghi lệch:** chip "Tất cả lô" = Σ `lots[].closing_qty`; dòng sổ có `lot_id` null (chỉ xảy ra nếu xoá lô thủ công — không câu lệnh nào xoá `inventory.lots`, `_post_movements` bắt buộc lô cho sản phẩm theo lô) không vào chip nhưng vào dải số / 055. Không thêm khoá RPC.
+- **#4** số test 702.
+- Migration sửa **tại chỗ** (chưa lên Dev). Cần `tools/db_check.sh` **đủ** (có reset): `--no-reset` không nạp lại migration đã sửa.
+
 ## 6. Review
 
-_(chỉ phiên review ghi)_
+### R1 (2026-11-13) — Đạt có điều kiện: chờ `tools/db_check.sh` đủ một lần; sửa #1, #2; #3 tuỳ chọn
+
+**Đã xem:** toàn bộ `20261119001_inventory_reports.sql` (đối chiếu mục 2.1–2.4 và Review Focus 1–5); `supabase/tests/inventory_reports.sql` (đủ ca r1–r10, r5b; ca r6_prior_month_return dời `completed_at` như Ruling 11); `report_period.dart`, `reports_rules.dart`, `report_status.dart`, `reports_repository.dart`, 3 cubit (vé `_request` chặn trả lời cũ; debounce 300 ms); `reports_routes.dart`, `MovementSource.route` (khớp route có thật: `/warehouse/receipts/:id`, `/sales/orders/:orderId/returns/:returnExchangeId/detail`); `stock_report_page.dart`, `stock_card_page.dart`, `movement_detail_page.dart`; diff `inventory_layout.dart`, `k6_task_list.dart`; ảnh `flutter-056-READY-1280` so `proto-SCR-056-READY-1280`. Phiên review tự chạy: `dart analyze` (lib + test inventory) sạch; `flutter test --no-pub -r compact test/features/inventory` = **702 đạt / 0 đỏ**; golden không đổi sau khi chạy (git sạch). **Không chạy DB.**
+
+| # | Mức | Chỗ | Vấn đề | Sửa |
+|---|---|---|---|---|
+| 1 | Trung bình | `get_gross_profit_report` — `margin_pct` (`20261119001:759-763`, `:808-811`; chế độ đơn `:572-576`, `:618-621`) | `net_revenue < 0` vẫn chia ⇒ dòng **chỉ có hàng trả** ra tỷ lệ **dương**. Ví dụ đúng ca `r6_prior_month_return`: doanh thu 0, giảm trừ 30.000 ⇒ thuần −30.000; giá vốn hoàn −20.000 ⇒ lãi −10.000 ⇒ `−10.000 × 100 / −30.000` = **33,3%** — màn hiện "Lãi −10.000 đ · 33,3%". Cùng lỗi ở dòng tổng của một kỳ ít bán nhiều trả | `net_revenue <= 0` ⇒ `null` (cả 4 chỗ; màn đã hiện "—"). Thêm khẳng định vào `r6_prior_month_return`: `margin_pct` null. Ghi vào bảng "Thêm lúc viết plan" mục 1 (plan chỉ nói `= 0`) |
+| 2 | Thấp | 056 web: `movement_detail_page.dart:95-97` + `K7Split` mặc định (`inventory_layout.dart:31-36`, main 5 / aside 7) | Cột "Nguồn" **rộng hơn** khối số liệu (≈ 720 / 510 px), trang trải hết 1280. Prototype: hai cột gần bằng nhau, khối chính bên trái rộng hơn chút, nội dung có bề rộng tối đa. Lệch này không có trong "Lệch prototype" | `K7Split(wideMain: true, …)`; cân nhắc `VPageScaffold.defaultContentMaxWidth` cho web (như 077). Chụp lại `flutter-056-READY-1280.png`. Nếu giữ ⇒ ghi lệch ở mục 5 |
+| 3 | Thấp | Chip "Tất cả lô" (`stock_card_page.dart:212-218`) | Số = Σ `lots[].closing_qty`, mà `lots` nối **inner join** `inventory.lots` ⇒ dòng sổ có `lot_id` null (lô bị xoá → `on delete set null`) không vào chip, trong khi dải số / 055 có. Plan mục 2.6 ghi "summary.closing của tất cả". Hiếm gặp với dữ liệu đồ án | Tuỳ chọn: RPC thêm `all_lots_closing_qty` (không lọc lô) và chip đọc khoá đó; hoặc ghi lệch ở mục 5 |
+| 4 | Thấp (tài liệu) | Mục 5 "Kiểm" | Ghi 695 test; chạy lại hiện **702** (khả năng 7 test golden Task 7 chưa tính). "Còn lại" vẫn là chạy `tools/db_check.sh` đủ một lần sau 5 commit sửa fixture | Sửa số; ghi kết quả `db_check` đủ khi người dùng chạy |
+
+**Không phải lỗi (đã kiểm):** che tiền ở server (`case when v_is_owner`, `financial_masked`; thẻ kho trả `closing_value` null khi lọc lô); `_assert_actor` là lệnh đầu tiên của cả 5 RPC (`false` ×3, `true` ×2); `_report_range_check` trước mọi truy vấn; `lifecycle_status` của Sales chỉ có `completed` / `cancelled` (`20260830005:132`) ⇒ mọi đơn huỷ đều có doanh thu ở kỳ `completed_at` (không có giảm trừ "mồ côi"); `value_movements` theo tenant (không có `warehouse_id`) — cùng gốc với `product_costs`, khớp r1; `balance_after` = đầu kỳ + cộng dồn theo `ledger_sequence` khớp `summary` (Ruling 10); `before_qty` 056 theo `ledger_sequence` duy nhất trong tenant; Nhập / Xuất tách theo dấu; chiết khấu NCC chỉ `cogs_part_vnd`, hao hụt gồm `COUNT_GAIN` / `LOSS_TRUE_UP`, không gồm `REVALUE_ROUNDING`; NCC chỉ có chiết khấu vẫn có dòng; `STOCKTAKE` / `OTHER` không có route ⇒ không chân; huỷ đơn mở đơn gốc; cột "Khả dụng" theo `show_available` của server; nút rỗng "Xem tất cả" / "Xem tháng trước" đúng điều kiện.
+
+**Cần người dùng chạy (local):**
+```
+tools/db_check.sh
+```
+Gửi lại phần tóm tắt cuối (migration, `plpgsql_check`, các suite `inventory_*`). Sau khi sửa #1: chạy thêm `tools/db_check.sh --no-reset inventory_reports`. Reset Dev `--linked` vẫn chờ người dùng quyết.
+
+**Phiên sửa:** ghi "Sửa sau R1" ở mục 5; chạy lại `flutter test --no-pub -r compact test/features/inventory` + `dart analyze`.
