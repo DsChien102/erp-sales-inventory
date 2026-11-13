@@ -706,7 +706,8 @@ begin
     'lines', jsonb_build_array(
       jsonb_build_object('product_id', v_p_tier, 'unit_id', v_u_tier, 'unit_price_vnd', 100000,
         'free_qty', 1, 'program_id', v_prog_tier, 'tier_discount_percent', 5.00,
-        'lots', jsonb_build_array(jsonb_build_object('quantity', 10))))));
+        -- quantity = tổng nhận (gồm hàng tặng) ⇒ mua 10 + tặng 1
+        'lots', jsonb_build_array(jsonb_build_object('quantity', 11))))));
 
   insert into inventory.supplier_programs (id, tenant_id, supplier_id, name, kind, status, started_on, target_qty, rebate_percent, progress_qty, created_by, updated_by)
   values (v_prog_vol3, v_t, v_sup3, 'Tích lũy NCC ba', 'VOLUME_REBATE', 'ACTIVE', v_today, 1000, 10.00, 0, v_owner, v_owner);
