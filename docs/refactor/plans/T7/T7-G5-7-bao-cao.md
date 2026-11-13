@@ -1,7 +1,7 @@
 # T7-G5-7 — Báo cáo kho: nhập – xuất – tồn, thẻ kho, lãi gộp, nhập theo NCC (BJ-15)
 
 > Theme 7 · plan **G5-7** của [PLAN.md](../../PLAN.md) mục "Theme 7" (bảng Plan)
-> Trạng thái: Plan ✅ (người dùng duyệt 2026-11-13) | Làm ✅ 2026-11-13 (SQL chưa chạy DB — chờ người dùng) | Review ⬜
+> Trạng thái: Plan ✅ (người dùng duyệt 2026-11-13) | Làm ✅ 2026-11-13 | Review ⬜
 > Thiết kế: duyệt trong chat 2026-11-12 / 13 (3 câu hỏi + 3 phần: dữ liệu / RPC; màn / lối vào; test / task). Nguồn nghiệp vụ: Screen Contract SCR-055 / 056 (FROZEN v5.27.0), UIF-15, [spec giá vốn](T7-G5-gia-von-thiet-ke.md) mục 7 (báo cáo lãi gộp), 8 (G5-7), PLAN.md "Ghi chú G5-7" (D1 kỳ tháng, D5 dấu sổ). Prototype `app/bj15.js` (mục 2.6). Phụ thuộc: G5-0b (`stock_movements`, `value_movements`, `product_costs`), G5-2a (`_product_stock_rows`), G5-3 (`goods_receipts*`), G5-4 (dòng đơn lưu giá vốn), G5-5 (`STOCKTAKE`), G5-5b (`supplier_rebate_allocations`), G5-6 (`COGS_TRUE_UP` / `LOSS_TRUE_UP`, SCR-077).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -537,7 +537,7 @@ _(phiên làm ghi sau mỗi task)_
 
 **Commit:** Task 1–2 `c2cc49dde` · Task 3 `0e6499ea9` · Task 4 `3b293220d` · Task 5 `618c3c582` · Task 6 `e0391b846` · Task 7 `5bcc1277c`.
 
-**Kiểm:** `flutter test test/features/inventory` = **695 đạt / 0 đỏ** (+88 test mới; 607 → 695); `dart analyze` (lib + test inventory) sạch; test hợp đồng SQL xanh. **Chưa chạy:** `tools/db_check.sh` (mọi tệp, gồm `supabase/tests/inventory_reports.sql`), reset Dev `--linked` — **người dùng chạy**; lệnh: `tools/db_check.sh --no-reset inventory_reports` rồi `tools/db_check.sh`.
+**Kiểm:** `flutter test test/features/inventory` = **695 đạt / 0 đỏ** (+88 test mới; 607 → 695); `dart analyze` (lib + test inventory) sạch; test hợp đồng SQL xanh. **DB (người dùng chạy local):** `tools/db_check.sh` đủ 3 bước — migration lên đủ, `plpgsql_check` không lỗi mới; `inventory_reports` đạt sau 5 lần sửa **fixture test** (không sửa RPC): `is_ready_to_sell` bị đặt lại sau khi gán bảng giá; đơn sẽ huỷ phải bán nợ (EP-05); thiếu tham số tenant ở `r3`; `cost_runs` thật cho `r7`; `quantity` của lô = tổng nhận gồm hàng tặng (`r9`). Các tệp `inventory_*` khác đạt ở lần chạy đủ đầu tiên. **Còn lại:** chạy lại `tools/db_check.sh` đủ một lần sau các sửa fixture; reset Dev `--linked` (hỏi người dùng).
 
 **Quyết định / lệch plan (Ruling):**
 1. **Task 1 + 2 một commit** (`c2cc49dde`): cả hai nằm cùng một migration + một tệp test, tách commit theo hunk không có lợi. Commit **trước khi** `db_check` chạy vì lệnh DB do người dùng chạy — nếu `db_check` đỏ thì sửa tiếp trong migration / test.
