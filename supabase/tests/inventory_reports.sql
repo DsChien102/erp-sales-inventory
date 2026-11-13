@@ -646,6 +646,13 @@ begin
 
   -- r7_adjust_and_rebate: chèn thẳng dòng sổ / chiết khấu (số liệu tính giá vốn đã có test ở inventory_costing)
   v_run := gen_random_uuid();
+  insert into inventory.cost_runs (id, tenant_id, code, kind, period_id, period_month, from_sequence, cut_off_sequence, cut_off_at, method, status, created_by, published_by, published_at)
+  select v_run, v_t, 'GV-REP-01', 'MID_PERIOD', cp.id, cp.period_month, 0, 0, now(), 'MOVING', 'PUBLISHED', v_owner, v_owner, now()
+  from inventory.cost_periods cp
+  where cp.tenant_id = v_t and cp.period_month = v_month_start;
+  if not found then
+    raise exception 'FAIL: fixture cost period for current month not found';
+  end if;
   insert into inventory.value_movements (tenant_id, ledger_sequence, product_id, kind, amount_vnd, cost_run_id, business_date, created_by)
   values
     (v_t, inventory._next_ledger_sequence(v_t), v_p_plain, 'COGS_TRUE_UP', -20000, v_run, v_today, v_owner),
