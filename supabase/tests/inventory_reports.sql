@@ -400,7 +400,7 @@ begin
   -- =========================================================================
   -- r3_prior_month
   -- =========================================================================
-  v_res := inventory.get_stock_report(v_prev_start, v_prev_end);
+  v_res := inventory.get_stock_report(v_t, v_prev_start, v_prev_end);
   if (v_res->>'show_available')::boolean then
     raise exception 'FAIL: r3_prior_month show_available must be false for a past period';
   end if;
@@ -408,7 +408,7 @@ begin
   if v_row is null or (v_row->>'closing_qty')::numeric <> 7 or (v_row->>'available') is not null then
     raise exception 'FAIL: r3_prior_month expected closing 7 without available, got %', v_row;
   end if;
-  v_res2 := inventory.get_stock_report(v_month_start, v_today);
+  v_res2 := inventory.get_stock_report(v_t, v_month_start, v_today);
   v_row := pg_temp.rep_row(v_res2->'rows', v_p_old);
   if (v_row->>'opening_qty')::numeric <> 7 or (v_row->>'in_qty')::numeric <> 3 or (v_row->>'closing_qty')::numeric <> 10 then
     raise exception 'FAIL: r3_prior_month report opening this month must equal closing last month, got %', v_row;
