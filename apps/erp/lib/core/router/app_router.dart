@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:erp/features/assistant/data.dart';
+import 'package:erp/features/assistant/logic.dart';
+import 'package:erp/features/assistant/presentation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
@@ -313,6 +316,17 @@ final appRouter = GoRouter(
           repository: getIt<PartnerRepository>(),
         );
       },
+    ),
+    GoRoute(
+      path: '/ask',
+      name: 'assistant.ask',
+      builder: (context, state) => BlocProvider(
+        create: (_) => AskAssistantCubit(
+          repository: getIt<AssistantRepository>(),
+          tenantId: () => getIt<SessionController>().requireTenantId(),
+        ),
+        child: const AskAssistantPage(),
+      ),
     ),
     // Sản phẩm: các route độc lập / toàn màn khai báo TRƯỚC ShellRoute(StoreShell)
     GoRoute(

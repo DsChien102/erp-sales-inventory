@@ -27,7 +27,7 @@ void main() {
   setUp(() {
     repo = _MockRepo();
     tenant = 'T1';
-    cubit = AskAssistantCubit(repository: repo, tenantId: () => tenant);
+    cubit = AskAssistantCubit(repository: repo, tenantId: () async => tenant);
   });
 
   tearDown(() => cubit.close());

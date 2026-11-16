@@ -7,7 +7,7 @@ import 'ask_assistant_state.dart';
 class AskAssistantCubit extends Cubit<AskAssistantState> {
   AskAssistantCubit({
     required AssistantRepository repository,
-    required String Function() tenantId,
+    required Future<String> Function() tenantId,
   }) : _repository = repository,
        _tenantId = tenantId,
        super(const AskAssistantState());
@@ -16,7 +16,7 @@ class AskAssistantCubit extends Cubit<AskAssistantState> {
   static const maxHistoryTurns = 6;
 
   final AssistantRepository _repository;
-  final String Function() _tenantId;
+  final Future<String> Function() _tenantId;
   String? _lastQuestion;
 
   Future<void> send(String question) async {
@@ -42,7 +42,7 @@ class AskAssistantCubit extends Cubit<AskAssistantState> {
     _lastQuestion = text;
     try {
       final reply = await _repository.ask(
-        tenantId: _tenantId(),
+        tenantId: await _tenantId(),
         question: text,
         history: history,
       );
