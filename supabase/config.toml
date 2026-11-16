@@ -10,7 +10,7 @@ enabled = true
 port = 54321
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
 # endpoints. `public` and `graphql_public` schemas are included by default.
-schemas = ["public", "graphql_public", "platform", "iam", "catalog", "partner", "sales", "inventory", "costing", "accounting", "dashboard", "einvoice"]
+schemas = ["public", "graphql_public", "platform", "iam", "catalog", "partner", "sales", "inventory", "costing", "accounting", "dashboard", "einvoice", "ai"]
 # Extra schemas to add to the search_path of every request.
 extra_search_path = ["public", "platform", "iam", "catalog", "partner", "sales", "inventory", "costing", "accounting", "dashboard", "einvoice", "extensions"]
 # The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
@@ -383,6 +383,9 @@ verify_jwt = false
 
 [functions.invitation-signup]
 verify_jwt = false
+
+[functions.ai-assistant]
+verify_jwt = true
 
 [edge_runtime]
 enabled = true

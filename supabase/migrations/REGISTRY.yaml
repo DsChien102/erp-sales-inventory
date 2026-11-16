@@ -2,6 +2,12 @@
 # Update when promoting Kind: patch|surgical migrations.
 # Regenerate owners: melos run migrate:seed-registry -- --write
 
+ai:
+  _daily_limit: 20261120002_ai_assistant_log.sql
+  _raise: 20261120002_ai_assistant_log.sql
+  finish_question: 20261120002_ai_assistant_log.sql
+  start_question: 20261120002_ai_assistant_log.sql
+
 catalog:
   _assert_custom_fields_permission: 20260709013_catalog_custom_fields.sql
   _assert_product_permission: 20260709014_catalog_custom_field_values.sql
@@ -491,6 +497,7 @@ sales:
   get_sales_order_settlement: 20260830010_sales_inquiry_receipt_rpcs.sql
   get_sales_order_timeline: 20260830010_sales_inquiry_receipt_rpcs.sql
   get_sales_receipt: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_stats: 20261120001_sales_stats.sql
   list_sales_order_cancellation_reasons: 20260830011_sales_adjustment_cancellation_rpcs.sql
   list_sales_order_drafts: 20260830007_sales_draft_rpcs.sql
   list_sales_orders: 20261031021_sales_list_einvoice_issuance_filter.sql

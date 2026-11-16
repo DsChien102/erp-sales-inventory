@@ -1,0 +1,12 @@
+{
+  "fmt": {
+    "singleQuote": true,
+    "semiColons": false,
+    "lineWidth": 120
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-import-prefix"]
+    }
+  }
+}
