@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:erp/features/assistant/data.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../../features/auth/data/auth_repository.dart';
@@ -171,6 +172,9 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
         rpc: getIt<SupabaseRpc>(),
         functions: supabaseModule.client.functions,
       ),
+    )
+    ..registerLazySingleton<AssistantRepository>(
+      () => AssistantRepository(functions: supabaseModule.client.functions),
     )
     ..registerLazySingleton<ProductRepository>(
       () => ProductRepository(
