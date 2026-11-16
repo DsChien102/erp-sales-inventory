@@ -26,45 +26,53 @@ class NearExpiryAddSheet extends StatelessWidget {
         .where((p) => p.isLotTracked && !taken.contains(p.productId))
         .toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (options.isEmpty)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: VSpacing.space3),
-            child: Text(
-              'Mọi sản phẩm theo lô đều đã có chính sách riêng.',
-              style: TextStyle(
-                fontSize: 12,
-                height: 18 / 12,
-                color: context.vColors.textSecondary,
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.all(VSpacing.space4),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (options.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: VSpacing.space3),
+                  child: Text(
+                    'Mọi sản phẩm theo lô đều đã có chính sách riêng.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 18 / 12,
+                      color: context.vColors.textSecondary,
+                    ),
+                  ),
+                )
+              else
+                for (var i = 0; i < options.length; i++) ...[
+                  VListRow(
+                    title: options[i].name,
+                    subtitle: options[i].code,
+                    type: VListRowType.navigation,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      cubit.addOverride(options[i].productId);
+                    },
+                  ),
+                  if (i < options.length - 1) const SizedBox(height: VSpacing.space2),
+                ],
+              const SizedBox(height: VSpacing.space4),
+              Align(
+                alignment: Alignment.centerRight,
+                child: VButton(
+                  label: 'Đóng',
+                  variant: VButtonVariant.secondary,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ),
-            ),
-          )
-        else
-          for (var i = 0; i < options.length; i++) ...[
-            VListRow(
-              title: options[i].name,
-              subtitle: options[i].code,
-              type: VListRowType.navigation,
-              onTap: () {
-                Navigator.of(context).pop();
-                cubit.addOverride(options[i].productId);
-              },
-            ),
-            if (i < options.length - 1) const SizedBox(height: VSpacing.space2),
-          ],
-        const SizedBox(height: VSpacing.space4),
-        Align(
-          alignment: Alignment.centerRight,
-          child: VButton(
-            label: 'Đóng',
-            variant: VButtonVariant.secondary,
-            onPressed: () => Navigator.of(context).pop(),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

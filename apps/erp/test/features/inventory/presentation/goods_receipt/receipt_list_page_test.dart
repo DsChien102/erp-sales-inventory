@@ -72,7 +72,11 @@ void main() {
     repository.rows = sampleRows;
   });
 
-  Widget buildApp(ReceiptListCubit cubit, {Size size = const Size(390, 844)}) {
+  Widget buildApp(
+    ReceiptListCubit cubit, {
+    Size size = const Size(390, 844),
+    VoidCallback? onBack,
+  }) {
     return MaterialApp(
       theme: VTheme.lightTheme,
       home: MediaQuery(
@@ -82,6 +86,7 @@ void main() {
           child: ReceiptListPage(
             onOpenDetail: (_) {},
             onNewReceipt: () {},
+            onBack: onBack,
           ),
         ),
       ),
@@ -159,6 +164,20 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Nhà cung cấp: Công ty Á Châu'), findsOneWidget);
+    });
+
+    testWidgets('back_button_triggers_on_back', (tester) async {
+      var backed = false;
+      final cubit = ReceiptListCubit(repository: repository);
+      await cubit.load();
+
+      await tester.pumpWidget(buildApp(cubit, onBack: () => backed = true));
+      await tester.pumpAndSettle();
+
+      final backBtn = find.byTooltip('Quay về Kho');
+      expect(backBtn, findsOneWidget);
+      await tester.tap(backBtn);
+      expect(backed, isTrue);
     });
 
     test('cubit_set_supplier_reloads_from_repository', () async {

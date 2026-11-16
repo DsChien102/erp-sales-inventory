@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/inventory/logic/goods_receipt/receipt_draft_cubit.dart';
 import 'package:erp/features/inventory/logic/goods_receipt/receipt_draft_state.dart';
@@ -24,6 +25,7 @@ class ReceiptHeaderPage extends StatefulWidget {
 class _ReceiptHeaderPageState extends State<ReceiptHeaderPage> {
   String? _supplierError;
   late final TextEditingController _docNoController;
+  bool _isDiscarding = false;
 
   @override
   void initState() {
@@ -38,10 +40,22 @@ class _ReceiptHeaderPageState extends State<ReceiptHeaderPage> {
     super.dispose();
   }
 
+  void _leave(BuildContext context) {
+    if (widget.onDiscard != null) {
+      widget.onDiscard!();
+      return;
+    }
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      context.go('/warehouse/receipts');
+    }
+  }
+
   void _handleBack(BuildContext context) {
     final cubit = context.read<ReceiptDraftCubit>();
     if (!cubit.isDirty) {
-      Navigator.of(context).maybePop();
+      _leave(context);
       return;
     }
 
@@ -66,12 +80,11 @@ class _ReceiptHeaderPageState extends State<ReceiptHeaderPage> {
                   tone: VComponentTone.danger,
                   label: 'Bỏ phiếu',
                   onPressed: () {
+                    setState(() {
+                      _isDiscarding = true;
+                    });
                     Navigator.of(sheetContext).pop();
-                    if (widget.onDiscard != null) {
-                      widget.onDiscard!();
-                    } else {
-                      Navigator.of(context).maybePop();
-                    }
+                    _leave(context);
                   },
                 ),
                 const SizedBox(height: VSpacing.space2),
@@ -134,7 +147,7 @@ class _ReceiptHeaderPageState extends State<ReceiptHeaderPage> {
     final suppliers = state.options?.suppliers ?? const [];
 
     return PopScope(
-      canPop: !cubit.isDirty,
+      canPop: _isDiscarding || !cubit.isDirty,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) {
           _handleBack(context);

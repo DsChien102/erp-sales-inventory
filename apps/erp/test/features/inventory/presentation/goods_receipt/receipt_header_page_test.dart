@@ -43,12 +43,19 @@ void main() {
     programRepo = _FakeProgramRepository();
   });
 
-  Widget wrap(ReceiptDraftCubit cubit, {VoidCallback? onContinue}) {
+  Widget wrap(
+    ReceiptDraftCubit cubit, {
+    VoidCallback? onContinue,
+    VoidCallback? onDiscard,
+  }) {
     return MaterialApp(
       theme: VTheme.lightTheme,
       home: BlocProvider.value(
         value: cubit,
-        child: ReceiptHeaderPage(onContinue: onContinue ?? () {}),
+        child: ReceiptHeaderPage(
+          onContinue: onContinue ?? () {},
+          onDiscard: onDiscard,
+        ),
       ),
     );
   }
@@ -130,6 +137,42 @@ void main() {
       expect(find.text('Thông tin và các dòng hàng đã nhập sẽ mất.'), findsOneWidget);
       expect(find.text('Bỏ phiếu'), findsOneWidget);
       expect(find.text('Ở lại'), findsOneWidget);
+    });
+
+    testWidgets('back_with_data_confirms_discard_invokes_on_discard', (tester) async {
+      final cubit = ReceiptDraftCubit(repository: receiptRepo, programs: programRepo);
+      await cubit.load();
+      cubit.selectSupplier(supplierA);
+
+      bool discarded = false;
+      await tester.pumpWidget(wrap(cubit, onDiscard: () => discarded = true));
+      await tester.pumpAndSettle();
+
+      final backButton = find.byType(BackButton);
+      await tester.tap(backButton);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Bỏ phiếu đang lập?'), findsOneWidget);
+
+      await tester.tap(find.text('Bỏ phiếu'));
+      await tester.pumpAndSettle();
+
+      expect(discarded, isTrue);
+    });
+
+    testWidgets('back_empty_draft_invokes_on_discard', (tester) async {
+      final cubit = ReceiptDraftCubit(repository: receiptRepo, programs: programRepo);
+      await cubit.load();
+
+      bool discarded = false;
+      await tester.pumpWidget(wrap(cubit, onDiscard: () => discarded = true));
+      await tester.pumpAndSettle();
+
+      final backButton = find.byType(BackButton);
+      await tester.tap(backButton);
+      await tester.pumpAndSettle();
+
+      expect(discarded, isTrue);
     });
 
     testWidgets('doc_no_limited_to_60_characters', (tester) async {

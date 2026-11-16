@@ -12,12 +12,14 @@ class ReceiptResultPage extends StatelessWidget {
     required this.onViewReceipt,
     required this.onViewStock,
     required this.onNewReceipt,
+    this.onBack,
   });
 
   final RecordReceiptResult result;
   final ValueChanged<String> onViewReceipt;
   final VoidCallback onViewStock;
   final VoidCallback onNewReceipt;
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +73,14 @@ class ReceiptResultPage extends StatelessWidget {
 
     return K4ResultPage(
       screenTitle: 'Kết quả nhận hàng',
+      onBack: onBack ??
+          () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              onViewReceipt(result.receiptId);
+            }
+          },
       kind: K4Kind.success,
       title: 'Ghi nhận hàng thành công',
       description: 'Phiếu nhận đã được lưu vào hệ thống và tăng tồn kho.',

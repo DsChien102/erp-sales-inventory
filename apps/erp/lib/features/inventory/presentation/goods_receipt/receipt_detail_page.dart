@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
@@ -81,6 +82,17 @@ class _ReceiptDetailView extends StatelessWidget {
     return VPageScaffold(
       title: 'Phiếu nhận ${header.receiptNo}',
       subtitle: subtitle,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        tooltip: 'Quay lại',
+        onPressed: () {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          } else {
+            context.go('/warehouse/receipts');
+          }
+        },
+      ),
       contentMaxWidth: const VResponsiveValue(
         mobile: double.infinity,
         tablet: 900,

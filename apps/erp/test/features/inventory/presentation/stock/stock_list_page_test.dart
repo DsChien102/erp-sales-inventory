@@ -398,7 +398,7 @@ void main() {
 
       // Cột phải hiện thẻ số của dòng đầu "Enrofloxacin 10%"
       expect(
-        find.text('Khả dụng 0 chai · Ngưỡng 10 chai.'),
+        find.text('Ngưỡng 10 · Mục tiêu 30 chai'),
         findsOneWidget,
       );
     });
@@ -424,7 +424,7 @@ void main() {
 
       expect(pushedRoute, isNull);
       expect(
-        find.text('Khả dụng 46 hộp · Ngưỡng 50 hộp.'),
+        find.text('Ngưỡng 50 · Mục tiêu 150 hộp'),
         findsOneWidget,
       );
     });
@@ -442,7 +442,7 @@ void main() {
       // Chọn Amox 500
       await tester.tap(find.text('Amox 500'));
       await tester.pumpAndSettle();
-      expect(find.text('Khả dụng 46 hộp · Ngưỡng 50 hộp.'), findsOneWidget);
+      expect(find.text('Ngưỡng 50 · Mục tiêu 150 hộp'), findsOneWidget);
 
       // Lọc "Hết hạn" => cột phải là Tylosin
       final expiredChip = find.widgetWithText(VChip, 'Hết hạn');
@@ -450,7 +450,7 @@ void main() {
       await tester.tap(expiredChip);
       await tester.pumpAndSettle();
 
-      expect(find.text('Khả dụng 3 lọ · Ngưỡng 8 lọ.'), findsOneWidget);
+      expect(find.text('Ngưỡng 8 · Mục tiêu 24 lọ'), findsOneWidget);
     });
 
     testWidgets('aside_error_shows_retry_1280', (tester) async {
@@ -463,13 +463,13 @@ void main() {
       repo.detailErrors['INV-AMX'] = Exception('network');
       await tester.pumpWidget(_buildTestApp(repository: repo));
       await tester.pumpAndSettle();
-      expect(find.text('Khả dụng 0 chai · Ngưỡng 10 chai.'), findsOneWidget);
+      expect(find.text('Ngưỡng 10 · Mục tiêu 30 chai'), findsOneWidget);
 
       await tester.tap(find.text('Amox 500'));
       await tester.pumpAndSettle();
 
       // Không còn chi tiết của Enrofloxacin (dòng cũ) ở cột phải.
-      expect(find.text('Khả dụng 0 chai · Ngưỡng 10 chai.'), findsNothing);
+      expect(find.text('Ngưỡng 10 · Mục tiêu 30 chai'), findsNothing);
       expect(find.text('Không thể tải chi tiết tồn kho'), findsOneWidget);
       expect(find.text('Thử lại'), findsOneWidget);
     });
@@ -492,7 +492,7 @@ void main() {
 
       await tester.tap(find.text('Amox 500'));
       await tester.pumpAndSettle();
-      expect(find.text('Khả dụng 46 hộp · Ngưỡng 50 hộp.'), findsOneWidget);
+      expect(find.text('Ngưỡng 50 · Mục tiêu 150 hộp'), findsOneWidget);
 
       currentTime = DateTime(2026, 9, 17, 21, 36);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
@@ -524,8 +524,8 @@ void main() {
       await tester.tap(find.text('Làm mới'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Khả dụng 40 hộp · Ngưỡng 50 hộp.'), findsOneWidget);
-      expect(find.text('Khả dụng 46 hộp · Ngưỡng 50 hộp.'), findsNothing);
+      expect(find.text('40 hộp'), findsWidgets);
+      expect(find.text('46 hộp'), findsNothing);
     });
   });
 }

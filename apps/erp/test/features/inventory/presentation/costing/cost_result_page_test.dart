@@ -64,6 +64,7 @@ void main() {
   Widget buildApp({
     required Size size,
     VoidCallback? onToList,
+    VoidCallback? onBack,
     ValueChanged<String>? onOpenReport,
   }) {
     useInventoryTestSurface(size);
@@ -77,6 +78,7 @@ void main() {
       home: CostResultPage(
         runId: 'run-1',
         onToList: onToList ?? () {},
+        onBack: onBack,
         onOpenReport: onOpenReport ?? (_) {},
         clock: () => DateTime(2026, 11, 13),
       ),
@@ -178,5 +180,43 @@ void main() {
         expect(find.text('Về giá vốn'), findsOneWidget);
       },
     );
+
+    testWidgets('result_page_back_button_triggers_on_back', (tester) async {
+      repository.runResult = _run(status: CostRunStatus.published);
+      var backed = false;
+
+      await tester.pumpWidget(
+        buildApp(
+          size: const Size(390, 844),
+          onBack: () => backed = true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final backButton = find.byIcon(Icons.arrow_back);
+      expect(backButton, findsOneWidget);
+      await tester.tap(backButton);
+      await tester.pumpAndSettle();
+      expect(backed, isTrue);
+    });
+
+    testWidgets('result_page_back_button_fallback_to_on_to_list', (tester) async {
+      repository.runResult = _run(status: CostRunStatus.published);
+      var wentToList = false;
+
+      await tester.pumpWidget(
+        buildApp(
+          size: const Size(390, 844),
+          onToList: () => wentToList = true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final backButton = find.byIcon(Icons.arrow_back);
+      expect(backButton, findsOneWidget);
+      await tester.tap(backButton);
+      await tester.pumpAndSettle();
+      expect(wentToList, isTrue);
+    });
   });
 }

@@ -50,82 +50,90 @@ class ThresholdImpactSheet extends StatelessWidget {
       }),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final p in dirtyProducts) ...[
-          Builder(
-            builder: (context) {
-              final draft = state.thresholdDrafts[p.productId]!;
-              final oldText = p.configured
-                  ? '${p.threshold} / ${p.target}'
-                  : 'chưa có';
-              return Padding(
-                padding: const EdgeInsets.only(bottom: VSpacing.space2),
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: p.name,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.all(VSpacing.space4),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final p in dirtyProducts) ...[
+                Builder(
+                  builder: (context) {
+                    final draft = state.thresholdDrafts[p.productId]!;
+                    final oldText = p.configured
+                        ? '${p.threshold} / ${p.target}'
+                        : 'chưa có';
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: VSpacing.space2),
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: p.name,
+                              style: const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            TextSpan(
+                              text:
+                                  ': $oldText → ${draft.threshold} / ${draft.target} ${p.uom}',
+                            ),
+                          ],
+                        ),
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 20 / 14,
+                          color: context.vColors.textPrimary,
+                        ),
                       ),
-                      TextSpan(
-                        text:
-                            ': $oldText → ${draft.threshold} / ${draft.target} ${p.uom}',
-                      ),
-                    ],
-                  ),
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 20 / 14,
-                    color: context.vColors.textPrimary,
-                  ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
-        ],
-        const SizedBox(height: VSpacing.space2),
-        Text(
-          'Tồn thấp: $beforeLow → $afterLow sản phẩm',
-          style: TextStyle(
-            fontSize: 14,
-            height: 20 / 14,
-            fontWeight: FontWeight.w500,
-            color: context.vColors.textPrimary,
+              ],
+              const SizedBox(height: VSpacing.space2),
+              Text(
+                'Tồn thấp: $beforeLow → $afterLow sản phẩm',
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 20 / 14,
+                  fontWeight: FontWeight.w500,
+                  color: context.vColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: VSpacing.space1),
+              Text(
+                'Thay đổi chính sách không làm đổi số tồn.',
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 18 / 12,
+                  color: context.vColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: VSpacing.space4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  VButton(
+                    label: 'Huỷ',
+                    variant: VButtonVariant.secondary,
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  const SizedBox(width: VSpacing.space3),
+                  VButton(
+                    label: 'Lưu chính sách',
+                    variant: VButtonVariant.primary,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      cubit.saveThresholds();
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: VSpacing.space1),
-        Text(
-          'Thay đổi chính sách không làm đổi số tồn.',
-          style: TextStyle(
-            fontSize: 12,
-            height: 18 / 12,
-            color: context.vColors.textSecondary,
-          ),
-        ),
-        const SizedBox(height: VSpacing.space4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            VButton(
-              label: 'Huỷ',
-              variant: VButtonVariant.secondary,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            const SizedBox(width: VSpacing.space3),
-            VButton(
-              label: 'Lưu chính sách',
-              variant: VButtonVariant.primary,
-              onPressed: () {
-                Navigator.of(context).pop();
-                cubit.saveThresholds();
-              },
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 }

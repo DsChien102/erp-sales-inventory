@@ -140,13 +140,42 @@ void main() {
 
       expect(find.byType(ReceiptHeaderPage), findsOneWidget);
 
-      // Bấm Back khi nháp rỗng -> không hiện sheet bỏ phiếu, quay lại trang trước
+      // Bấm Back khi nháp rỗng -> không hiện sheet bỏ phiếu, quay về danh sách
       final backBtn = find.byType(BackButton);
       expect(backBtn, findsOneWidget);
       await tester.tap(backBtn);
       await tester.pumpAndSettle();
 
-      expect(find.text('Bỏ phiếu nhận này?'), findsNothing);
+      expect(find.text('Bỏ phiếu đang lập?'), findsNothing);
+      expect(find.byType(ReceiptListPage), findsOneWidget);
+    });
+
+    testWidgets('back_on_dirty_draft_confirms_and_leaves_to_list', (tester) async {
+      await pumpInventoryApp(
+        tester,
+        size: const Size(390, 844),
+        location: '/warehouse/receipts/new',
+      );
+
+      expect(find.byType(ReceiptHeaderPage), findsOneWidget);
+
+      // Nhập số chứng từ để draft trở thành isDirty = true
+      final docNoFinder = find.byKey(const Key('receipt_doc_no'));
+      await tester.enterText(docNoFinder, 'HD-999');
+      await tester.pumpAndSettle();
+
+      // Bấm Back -> mở sheet xác nhận bỏ phiếu
+      final backBtn = find.byType(BackButton);
+      await tester.tap(backBtn);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Bỏ phiếu đang lập?'), findsOneWidget);
+
+      // Bấm "Bỏ phiếu" -> thoát về danh sách
+      await tester.tap(find.text('Bỏ phiếu'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ReceiptListPage), findsOneWidget);
     });
 
     testWidgets('stock_detail_receive_opens_new_with_product', (tester) async {

@@ -35,6 +35,8 @@ Future<void> _capture(
   final boundary =
       key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
   if (boundary == null) return;
+  // Chỉ ghi ảnh vào docs khi chủ động bật: CAPTURE_SCREENSHOTS=1 flutter test ...
+  if (Platform.environment['CAPTURE_SCREENSHOTS'] != '1') return;
   await tester.runAsync(() async {
     final image = await boundary.toImage(pixelRatio: 1.0);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -492,7 +494,7 @@ void main() {
       );
       expect(find.byType(StockListPage), findsOneWidget);
       await _capture(tester, repaintKey390, 'flutter-SCR-001-READY-390.png');
-      await expectLater(
+      if (Platform.environment['CAPTURE_SCREENSHOTS'] == '1') await expectLater(
         find.byKey(repaintKey390),
         matchesGoldenFile(_screenshotPath('flutter-SCR-001-READY-390.png')),
       );
@@ -507,7 +509,7 @@ void main() {
       );
       expect(find.byType(StockListPage), findsOneWidget);
       await _capture(tester, repaintKey1280, 'flutter-SCR-001-READY-1280.png');
-      await expectLater(
+      if (Platform.environment['CAPTURE_SCREENSHOTS'] == '1') await expectLater(
         find.byKey(repaintKey1280),
         matchesGoldenFile(_screenshotPath('flutter-SCR-001-READY-1280.png')),
       );
@@ -524,7 +526,7 @@ void main() {
       );
       expect(find.byType(StockDetailPage), findsOneWidget);
       await _capture(tester, repaintKey390, 'flutter-SCR-003-READY-390.png');
-      await expectLater(
+      if (Platform.environment['CAPTURE_SCREENSHOTS'] == '1') await expectLater(
         find.byKey(repaintKey390),
         matchesGoldenFile(_screenshotPath('flutter-SCR-003-READY-390.png')),
       );
@@ -539,7 +541,7 @@ void main() {
       );
       expect(find.byType(StockDetailPage), findsOneWidget);
       await _capture(tester, repaintKey1280, 'flutter-SCR-003-READY-1280.png');
-      await expectLater(
+      if (Platform.environment['CAPTURE_SCREENSHOTS'] == '1') await expectLater(
         find.byKey(repaintKey1280),
         matchesGoldenFile(_screenshotPath('flutter-SCR-003-READY-1280.png')),
       );

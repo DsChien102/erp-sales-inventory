@@ -50,6 +50,13 @@ List<RouteBase> goodsReceiptRoutes({
           child: ReceiptListPage(
             onOpenDetail: (id) => context.push('/warehouse/receipts/$id'),
             onNewReceipt: () => context.push('/warehouse/receipts/new'),
+            onBack: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                context.go('/warehouse');
+              }
+            },
           ),
         );
       },
@@ -71,6 +78,13 @@ List<RouteBase> goodsReceiptRoutes({
               path: 'new',
               builder: (context, state) => ReceiptHeaderPage(
                 onContinue: () => context.push('/warehouse/receipts/new/lines'),
+                onDiscard: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/warehouse/receipts');
+                  }
+                },
               ),
               routes: [
                 GoRoute(
@@ -122,6 +136,7 @@ List<RouteBase> goodsReceiptRoutes({
             if (extraResult != null) {
               return ReceiptResultPage(
                 result: extraResult,
+                onBack: () => context.go('/warehouse/receipts'),
                 onViewReceipt: (receiptId) =>
                     context.go('/warehouse/receipts/$receiptId'),
                 onViewStock: () => context.go('/warehouse/stock'),
@@ -159,6 +174,7 @@ List<RouteBase> goodsReceiptRoutes({
                 );
                 return ReceiptResultPage(
                   result: fallbackResult,
+                  onBack: () => context.go('/warehouse/receipts'),
                   onViewReceipt: (receiptId) =>
                       context.go('/warehouse/receipts/$receiptId'),
                   onViewStock: () => context.go('/warehouse/stock'),

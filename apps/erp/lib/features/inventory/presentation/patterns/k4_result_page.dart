@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../../../dashboard/presentation/widgets/erp_bottom_navigation.dart';
 import '../../data/core/inventory_command_result.dart';
 import '../../logic/inventory_format.dart';
 import 'inventory_footer.dart';
@@ -51,6 +49,8 @@ class K4ResultPage extends StatelessWidget {
     this.stockChanges = const [],
     this.extra,
     this.next = const [],
+    this.showBackButton = true,
+    this.onBack,
   });
 
   final String screenTitle;
@@ -61,11 +61,29 @@ class K4ResultPage extends StatelessWidget {
   final List<K4StockChange> stockChanges;
   final Widget? extra;
   final List<InventoryFooterAction> next;
+  final bool showBackButton;
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final isWide = inventoryIsWide(context);
+    final canPop = Navigator.of(context).canPop();
+    final shouldShowBack = showBackButton && (onBack != null || canPop);
+
+    final resolvedLeading = shouldShowBack
+        ? IconButton(
+            icon: const Icon(Icons.arrow_back),
+            tooltip: 'Quay lại',
+            onPressed: () {
+              if (onBack != null) {
+                onBack!();
+              } else if (canPop) {
+                Navigator.of(context).pop();
+              }
+            },
+          )
+        : null;
 
     final (icon, tone) = switch (kind) {
       K4Kind.success => (VIcons.success, VComponentTone.success),
@@ -142,13 +160,8 @@ class K4ResultPage extends StatelessWidget {
     return VPageScaffold(
       title: screenTitle,
       showBackButton: false,
+      leading: resolvedLeading,
       body: body,
-      bottomBar: !isWide
-          ? ErpBottomNavigation(
-              currentIndex: ErpTab.more.index,
-              onTap: (i) => context.go(ErpTab.values[i].routePath),
-            )
-          : null,
     );
   }
 }

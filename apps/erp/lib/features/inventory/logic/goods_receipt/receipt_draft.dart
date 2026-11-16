@@ -54,6 +54,7 @@ class ReceiptLineDraft extends Equatable {
     required this.lots,
     this.hint,
     this.hintAtEntry,
+    this.rebatePercent,
   });
 
   final String key;
@@ -68,6 +69,9 @@ class ReceiptLineDraft extends Equatable {
   final List<ReceiptLotEntry> lots;
   final ProgramHint? hint;
   final ProgramHint? hintAtEntry;
+
+  /// % chiết khấu của chương trình đạt mốc (lấy từ chi tiết chương trình, dùng để ước tính trên màn).
+  final num? rebatePercent;
 
   num get totalQuantity => lots.fold<num>(0, (acc, lot) => acc + lot.quantity);
 
@@ -92,6 +96,8 @@ class ReceiptLineDraft extends Equatable {
     bool clearHint = false,
     ProgramHint? hintAtEntry,
     bool clearHintAtEntry = false,
+    num? rebatePercent,
+    bool clearRebatePercent = false,
   }) {
     return ReceiptLineDraft(
       key: key ?? this.key,
@@ -106,6 +112,7 @@ class ReceiptLineDraft extends Equatable {
       lots: lots ?? this.lots,
       hint: clearHint ? null : (hint ?? this.hint),
       hintAtEntry: clearHintAtEntry ? null : (hintAtEntry ?? this.hintAtEntry),
+      rebatePercent: clearRebatePercent ? null : (rebatePercent ?? this.rebatePercent),
     );
   }
 
@@ -173,6 +180,7 @@ class ReceiptLineDraft extends Equatable {
         lots,
         hint,
         hintAtEntry,
+        rebatePercent,
       ];
 }
 

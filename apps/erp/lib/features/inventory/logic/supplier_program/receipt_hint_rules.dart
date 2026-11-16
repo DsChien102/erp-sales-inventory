@@ -1,3 +1,4 @@
+import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
 import 'package:erp/features/inventory/logic/supplier_program/supplier_program_rules.dart';
 
@@ -45,3 +46,36 @@ List<String> hintLines(
   return lines;
 }
 
+/// Dòng ước tính chiết khấu đạt mốc ngay trên dòng phiếu nhận (plan G5-5c, tính trên UI).
+///
+/// `paidQty` và `unitPrice` đã quy về ĐVT cơ sở. Chỉ là xấp xỉ: coi toàn bộ tiền mua của
+/// chương trình bằng `mốc × đơn giá`, không tính hàng đang tồn và các lần nhập trước có giá khác.
+List<String> rebateEstimateLines(
+  ProgramHint hint,
+  num? rebatePercent,
+  String uom, {
+  required num paidQty,
+  required num unitPrice,
+}) {
+  final r = hint.rebate;
+  if (hint.kind != ProgramKind.volumeRebate || r == null) return const [];
+
+  final lines = <String>[];
+  final missing = r.target - r.progress - paidQty;
+  if (missing > 0) {
+    lines.add(
+      'Còn thiếu ${formatProgramQuantity(missing)} $uom để đạt mốc ${formatProgramQuantity(r.target)}.',
+    );
+  }
+  if (rebatePercent != null && unitPrice > 0) {
+    final estimate = (r.target * unitPrice * rebatePercent / 100).round();
+    final avgExpected = (unitPrice * (1 - rebatePercent / 100)).round();
+    lines.add(
+      'Nếu nhập đủ mốc với đơn giá này: giảm ${formatPercent(rebatePercent)}% ≈ ${MoneyFormatter.formatMinorPlain(estimate)} đ.',
+    );
+    lines.add(
+      'Giá vốn dự kiến ≈ ${MoneyFormatter.formatMinor(avgExpected)}/$uom. Dự kiến, chưa ghi sổ; chưa tính hàng đang tồn.',
+    );
+  }
+  return lines;
+}

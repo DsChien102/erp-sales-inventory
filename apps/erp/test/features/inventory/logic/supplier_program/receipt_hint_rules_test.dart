@@ -113,5 +113,69 @@ void main() {
       );
     });
   });
-}
 
+  group('rebateEstimateLines', () {
+    const rebateHint = ProgramHint(
+      programId: 'p3',
+      programName: 'A - Nobivac mốc 100',
+      kind: ProgramKind.volumeRebate,
+      rebate: (progress: 0, target: 100, wouldReach: false),
+    );
+
+    test('lines_full', () {
+      expect(
+        rebateEstimateLines(rebateHint, 5, 'hộp', paidQty: 60, unitPrice: 100000),
+        [
+          'Còn thiếu 40 hộp để đạt mốc 100.',
+          'Nếu nhập đủ mốc với đơn giá này: giảm 5% ≈ 500.000 đ.',
+          'Giá vốn dự kiến ≈ 95.000đ/hộp. Dự kiến, chưa ghi sổ; chưa tính hàng đang tồn.',
+        ],
+      );
+    });
+
+    test('lines_no_price_hides_money', () {
+      expect(
+        rebateEstimateLines(rebateHint, 5, 'hộp', paidQty: 60, unitPrice: 0),
+        ['Còn thiếu 40 hộp để đạt mốc 100.'],
+      );
+    });
+
+    test('lines_reached_no_missing', () {
+      final lines = rebateEstimateLines(rebateHint, 5, 'hộp', paidQty: 100, unitPrice: 100000);
+      expect(lines.any((l) => l.startsWith('Còn thiếu')), isFalse);
+      expect(lines.length, 2);
+    });
+
+    test('lines_base_unit_conversion', () {
+      // 6 thùng × 10 = 60 hộp; giá thùng 1.000.000 => 100.000/hộp (đã quy về ĐVT cơ sở)
+      expect(
+        rebateEstimateLines(rebateHint, 5, 'hộp', paidQty: 6 * 10, unitPrice: 1000000 / 10),
+        rebateEstimateLines(rebateHint, 5, 'hộp', paidQty: 60, unitPrice: 100000),
+      );
+    });
+
+    test('lines_other_kinds_empty', () {
+      const tier = ProgramHint(
+        programId: 'p1',
+        programName: 'Bậc SL',
+        kind: ProgramKind.tierDiscount,
+      );
+      const buyXGetY = ProgramHint(
+        programId: 'p2',
+        programName: 'Mua 10 tặng 1',
+        kind: ProgramKind.buyXGetY,
+        buyQty: 10,
+        freeQty: 1,
+      );
+      expect(rebateEstimateLines(tier, 5, 'hộp', paidQty: 60, unitPrice: 100000), isEmpty);
+      expect(rebateEstimateLines(buyXGetY, 5, 'hộp', paidQty: 60, unitPrice: 100000), isEmpty);
+    });
+
+    test('lines_without_percent_only_missing', () {
+      expect(
+        rebateEstimateLines(rebateHint, null, 'hộp', paidQty: 60, unitPrice: 100000),
+        ['Còn thiếu 40 hộp để đạt mốc 100.'],
+      );
+    });
+  });
+}

@@ -136,6 +136,69 @@ void main() {
       expect(find.text('% giảm theo bậc'), findsOneWidget);
     });
 
+    Future<(ReceiptDraftCubit, String)> pumpRebateLine(
+      WidgetTester tester, {
+      num? percent,
+    }) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final cubit = ReceiptDraftCubit(
+        repository: receiptRepo,
+        programs: programRepo,
+        hintDebounce: Duration.zero,
+      );
+      await cubit.load();
+      cubit.selectSupplier(supplierA);
+      final lineKey = cubit.addLine('p-lot', 'u-1');
+      // Số lượng và giá trước (kích hoạt lấy gợi ý, fake trả rỗng), rồi mới gắn hint.
+      cubit.updateLine(
+        lineKey,
+        (l) => l.copyWith(
+          unitPriceVnd: 100000,
+          lots: [l.lots.first.copyWith(quantity: 60)],
+        ),
+      );
+      await tester.pumpWidget(wrap(cubit, lineKey));
+      await tester.pumpAndSettle();
+      cubit.updateLine(
+        lineKey,
+        (l) => l.copyWith(
+          programId: 'pr-rebate',
+          rebatePercent: percent,
+          hint: const ProgramHint(
+            programId: 'pr-rebate',
+            programName: 'A - Nobivac mốc 100',
+            kind: ProgramKind.volumeRebate,
+            rebate: (progress: 0, target: 100, wouldReach: false),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      return (cubit, lineKey);
+    }
+
+    testWidgets('banner_shows_estimate', (tester) async {
+      await pumpRebateLine(tester, percent: 5);
+
+      expect(find.textContaining('Còn thiếu 40 hộp để đạt mốc 100.'), findsOneWidget);
+      expect(find.textContaining('Nếu nhập đủ mốc với đơn giá này: giảm 5% ≈ 500.000 đ.'), findsOneWidget);
+      expect(
+        find.textContaining('Giá vốn dự kiến ≈ 95.000đ/hộp. Dự kiến, chưa ghi sổ; chưa tính hàng đang tồn.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('banner_without_percent', (tester) async {
+      await pumpRebateLine(tester);
+
+      expect(find.textContaining('Còn thiếu 40 hộp để đạt mốc 100.'), findsOneWidget);
+      expect(find.textContaining('Nếu nhập đủ mốc'), findsNothing);
+      expect(find.textContaining('Giá vốn dự kiến'), findsNothing);
+    });
+
     testWidgets('free_helper_and_error_390', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;

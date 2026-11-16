@@ -38,6 +38,8 @@ Future<void> _capture(
   final boundary =
       key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
   if (boundary == null) return;
+  // Chỉ ghi ảnh vào docs khi chủ động bật: CAPTURE_SCREENSHOTS=1 flutter test ...
+  if (Platform.environment['CAPTURE_SCREENSHOTS'] != '1') return;
   await tester.runAsync(() async {
     final image = await boundary.toImage(pixelRatio: 1.0);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);

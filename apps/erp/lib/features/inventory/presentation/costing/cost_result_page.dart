@@ -48,6 +48,18 @@ class CostResultPage extends StatelessWidget {
     context.go('/warehouse/costing');
   }
 
+  void _handleBack(BuildContext context) {
+    if (onBack != null) {
+      onBack!();
+      return;
+    }
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      return;
+    }
+    _goToList(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -55,10 +67,15 @@ class CostResultPage extends StatelessWidget {
       child: BlocBuilder<CostRunCubit, CostRunState>(
         builder: (context, state) {
           if (state.phase == CostRunPhase.calculating) {
-            return const VPageScaffold(
+            return VPageScaffold(
               title: 'Kết quả công bố giá vốn',
               showBackButton: false,
-              body: Padding(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Quay lại',
+                onPressed: () => _handleBack(context),
+              ),
+              body: const Padding(
                 padding: EdgeInsets.all(VSpacing.space4),
                 child: InventoryLoading(
                   blocks: [
@@ -75,13 +92,18 @@ class CostResultPage extends StatelessWidget {
             return VPageScaffold(
               title: 'Kết quả công bố giá vốn',
               showBackButton: false,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Quay lại',
+                onPressed: () => _handleBack(context),
+              ),
               body: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(VSpacing.space4),
                   child: InventoryDenied(
                     what: 'xem kết quả công bố giá vốn',
                     next: 'Chỉ chủ cửa hàng xem kết quả công bố giá vốn.',
-                    onExit: onBack ?? () => _goToList(context),
+                    onExit: () => _handleBack(context),
                   ),
                 ),
               ),
@@ -93,6 +115,11 @@ class CostResultPage extends StatelessWidget {
             return VPageScaffold(
               title: 'Kết quả công bố giá vốn',
               showBackButton: false,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Quay lại',
+                onPressed: () => _handleBack(context),
+              ),
               body: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(VSpacing.space4),
@@ -117,6 +144,7 @@ class CostResultPage extends StatelessWidget {
           if (run.status != CostRunStatus.published) {
             return K4ResultPage(
               screenTitle: 'Kết quả công bố giá vốn',
+              onBack: () => _handleBack(context),
               kind: K4Kind.warning,
               title: 'Chưa công bố giá vốn',
               description:
@@ -148,6 +176,7 @@ class CostResultPage extends StatelessWidget {
 
           return K4ResultPage(
             screenTitle: 'Kết quả công bố giá vốn',
+            onBack: () => _handleBack(context),
             title: 'Đã công bố giá vốn ${periodLabel(run.periodMonth)}',
             description:
                 'Phần chênh lệch đã được ghi và giá vốn chính thức mới đã có hiệu lực.',

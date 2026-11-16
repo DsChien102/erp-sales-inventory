@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_models.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_repository.dart';
+import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_repository.dart';
 import 'package:erp/features/inventory/logic/goods_receipt/receipt_draft.dart';
 import 'package:erp/features/inventory/logic/goods_receipt/receipt_draft_state.dart';
@@ -26,6 +27,9 @@ class ReceiptDraftCubit extends Cubit<ReceiptDraftState> {
   final Duration _hintDebounce;
 
   final Map<String, Timer> _debounceTimers = {};
+
+  /// % chiết khấu theo `programId`, lấy một lần từ chi tiết chương trình (không nhớ khi lỗi).
+  final Map<String, num?> _rebatePercents = {};
   int _lineSeq = 1;
   int _lotSeq = 1;
 
@@ -62,6 +66,7 @@ class ReceiptDraftCubit extends Cubit<ReceiptDraftState> {
           clearProgramId: true,
           clearTierPercent: true,
           clearHint: true,
+          clearRebatePercent: true,
           freeQty: line.freeEdited ? line.freeQty : 0,
         );
       }).toList();
@@ -238,9 +243,48 @@ class ReceiptDraftCubit extends Cubit<ReceiptDraftState> {
         draft: state.draft.copyWith(lines: updatedLines),
         hintsLoading: false,
       ));
+      for (final line in updatedLines) {
+        await _syncRebatePercent(line.key);
+      }
     } catch (_) {
       emit(state.copyWith(hintsLoading: false));
     }
+  }
+
+  /// Lấy % chiết khấu cho dòng có chương trình đạt mốc; dòng không còn hint đạt mốc thì xoá.
+  Future<void> _syncRebatePercent(String lineKey) async {
+    final line = state.draft.lines.where((l) => l.key == lineKey).firstOrNull;
+    if (line == null) return;
+
+    final programId = line.programId;
+    if (line.hint?.kind != ProgramKind.volumeRebate || programId == null) {
+      if (line.rebatePercent != null) _setRebatePercent(lineKey, null, null);
+      return;
+    }
+
+    if (!_rebatePercents.containsKey(programId)) {
+      try {
+        final detail = await _programs.get(programId);
+        _rebatePercents[programId] = detail.row.rebatePercent;
+      } catch (_) {
+        return; // Lỗi: giữ banner như cũ, không hiện lỗi.
+      }
+    }
+    _setRebatePercent(lineKey, programId, _rebatePercents[programId]);
+  }
+
+  void _setRebatePercent(String lineKey, String? programId, num? percent) {
+    final idx = state.draft.lines.indexWhere((l) => l.key == lineKey);
+    if (idx < 0) return;
+    final current = state.draft.lines[idx];
+    // Dòng đã đổi chương trình trong lúc chờ: bỏ kết quả cũ.
+    if (programId != null && current.programId != programId) return;
+
+    final lines = List<ReceiptLineDraft>.from(state.draft.lines);
+    lines[idx] = percent == null
+        ? current.copyWith(clearRebatePercent: true)
+        : current.copyWith(rebatePercent: percent);
+    emit(state.copyWith(draft: state.draft.copyWith(lines: lines)));
   }
 
   Future<void> _fetchHintForLine(String lineKey) async {
@@ -270,6 +314,7 @@ class ReceiptDraftCubit extends Cubit<ReceiptDraftState> {
         final lines = List<ReceiptLineDraft>.from(state.draft.lines);
         lines[currentIdx] = applied;
         emit(state.copyWith(draft: state.draft.copyWith(lines: lines)));
+        await _syncRebatePercent(lineKey);
       }
     } catch (_) {
       // Ignore hint failure

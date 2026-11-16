@@ -38,6 +38,10 @@ final class LoginCubit extends Cubit<LoginState> {
     try {
       final userId = await _auth.signIn(email: email, password: password);
       _session.applySignedInUser(userId);
+      // Router có thể đã rời /login khi phiên được gắn và đóng cubit giữa lúc await.
+      if (isClosed) {
+        return;
+      }
       final session = _session.readSession();
 
       if (!session.isAuthenticated) {
@@ -62,6 +66,9 @@ final class LoginCubit extends Cubit<LoginState> {
         ),
       );
     } catch (error) {
+      if (isClosed) {
+        return;
+      }
       final failure = IamUiFailureMapper.from(error);
       if (failure.code == IamBlockedCodes.identityEmailNotVerified) {
         emit(

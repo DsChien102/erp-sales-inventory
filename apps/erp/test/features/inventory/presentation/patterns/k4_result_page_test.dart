@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:erp/features/dashboard/presentation/widgets/erp_bottom_navigation.dart';
 import 'package:erp/features/inventory/presentation/patterns/k4_result_page.dart';
 import '../../support/inventory_test_surface.dart';
 
@@ -54,7 +52,7 @@ void main() {
       expect(find.text('Nobivac DHPPi 120 hộp → 122 hộp'), findsOneWidget);
     });
 
-    testWidgets('k4_iphone_has_bottom_navigation', (tester) async {
+    testWidgets('k4_has_no_bottom_bar', (tester) async {
       await tester.pumpWidget(
         wrap(
           const K4ResultPage(
@@ -65,57 +63,8 @@ void main() {
         ),
       );
 
-      expect(find.byType(ErpBottomNavigation), findsOneWidget);
-    });
-
-    testWidgets('k4_web_has_no_bottom_navigation', (tester) async {
-      await tester.pumpWidget(
-        wrap(
-          const K4ResultPage(
-            title: 'Thành công',
-            description: 'Đã lưu.',
-          ),
-          size: const Size(1280, 800),
-        ),
-      );
-
-      expect(find.byType(ErpBottomNavigation), findsNothing);
-    });
-
-    testWidgets('k4_bottom_nav_tap_goes_to_tab', (tester) async {
-      String? navigatedTo;
-      final router = GoRouter(
-        initialLocation: '/result',
-        routes: [
-          GoRoute(
-            path: '/result',
-            builder: (context, state) => const K4ResultPage(
-              title: 'Thành công',
-              description: 'Đã lưu.',
-            ),
-          ),
-          GoRoute(
-            path: '/orders',
-            builder: (context, state) {
-              navigatedTo = '/orders';
-              return const Scaffold(body: Text('Orders Page'));
-            },
-          ),
-        ],
-      );
-
-      await tester.pumpWidget(
-        MaterialApp.router(
-          theme: VTheme.lightTheme,
-          routerConfig: router,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Đơn hàng'));
-      await tester.pumpAndSettle();
-
-      expect(navigatedTo, '/orders');
+      final scaffold = tester.widget<VPageScaffold>(find.byType(VPageScaffold));
+      expect(scaffold.bottomBar, isNull);
     });
   });
 }

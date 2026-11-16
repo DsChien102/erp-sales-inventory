@@ -233,13 +233,6 @@ void main() {
       // Ngưỡng 8 · Mục tiêu 24 lọ
       expect(find.text('Ngưỡng 8 · Mục tiêu 24 lọ'), findsOneWidget);
 
-      // Banner Tồn thấp + gợi ý
-      expect(find.text('Khả dụng 3 lọ · Ngưỡng 8 lọ.'), findsOneWidget);
-      expect(
-        find.text('Gợi ý nhập thêm 21 lọ (mục tiêu 24 lọ)'),
-        findsOneWidget,
-      );
-
       // Banner Có lô hết hạn
       expect(find.text('Có lô hết hạn'), findsOneWidget);
       expect(
@@ -247,8 +240,8 @@ void main() {
         findsOneWidget,
       );
 
-      // Có nút Nhận hàng và Điều chỉnh lô hết hạn; không có Đã giữ
-      expect(find.text('Nhận hàng'), findsOneWidget);
+      // Không còn nút Nhận hàng; có nút Điều chỉnh lô hết hạn; không có Đã giữ
+      expect(find.text('Nhận hàng'), findsNothing);
       expect(find.text('Điều chỉnh lô hết hạn'), findsOneWidget);
       expect(find.text('Đã giữ'), findsNothing);
 

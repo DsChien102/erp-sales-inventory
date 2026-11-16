@@ -12,10 +12,12 @@ class ReceiptListPage extends StatelessWidget {
     super.key,
     required this.onOpenDetail,
     required this.onNewReceipt,
+    this.onBack,
   });
 
   final ValueChanged<String> onOpenDetail;
   final VoidCallback onNewReceipt;
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,13 @@ class ReceiptListPage extends StatelessWidget {
         return VPageScaffold(
           title: 'Phiếu nhận hàng',
           subtitle: subtitle,
+          leading: onBack != null
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  tooltip: 'Quay về Kho',
+                  onPressed: onBack,
+                )
+              : null,
           contentMaxWidth: const VResponsiveValue(
             mobile: double.infinity,
             tablet: 900,

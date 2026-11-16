@@ -37,6 +37,37 @@ class _FakeProgramRepository extends Fake implements SupplierProgramRepository {
   int hintCallCount = 0;
   List<({String productId, num paidQty, int unitPrice})>? lastInputs;
   List<ProgramHint?> nextHints = [];
+  int getCallCount = 0;
+  num? nextRebatePercent;
+  Object? getError;
+
+  @override
+  Future<ProgramDetail> get(String id) async {
+    getCallCount++;
+    if (getError != null) throw getError!;
+    return ProgramDetail(
+      row: ProgramRow(
+        id: id,
+        name: 'A - Nobivac mốc 100',
+        supplierId: 's-1',
+        supplierName: 'Công ty Á Châu',
+        kind: ProgramKind.volumeRebate,
+        status: ProgramStatus.active,
+        startedOn: DateTime(2026, 11, 16),
+        productIds: const ['p-1'],
+        productCount: 1,
+        tiers: const [],
+        targetQty: 100,
+        rebatePercent: nextRebatePercent,
+        progressQty: 0,
+      ),
+      revision: 1,
+      isLocked: false,
+      products: const [],
+      receipts: const [],
+      baseAmountVnd: 0,
+    );
+  }
 
   @override
   Future<List<ProgramHint?>> receiptHints({
@@ -77,6 +108,90 @@ void main() {
       lots: [],
     );
     programRepo = _FakeProgramRepository();
+  });
+
+  group('ReceiptDraftCubit rebatePercent', () {
+    const rebateHint = ProgramHint(
+      programId: 'prog-1',
+      programName: 'A - Nobivac mốc 100',
+      kind: ProgramKind.volumeRebate,
+      rebate: (progress: 0, target: 100, wouldReach: false),
+    );
+    const tierHint = ProgramHint(
+      programId: 'prog-2',
+      programName: 'Bậc SL',
+      kind: ProgramKind.tierDiscount,
+      tier: (minQty: 50, percent: 3, discountVnd: 100),
+    );
+
+    Future<(ReceiptDraftCubit, String)> setUpLine() async {
+      final cubit = ReceiptDraftCubit(
+        repository: receiptRepo,
+        programs: programRepo,
+      );
+      await cubit.load();
+      cubit.selectSupplier(supplierA);
+      final lineKey = cubit.addLine('p-1', 'u-1');
+      return (cubit, lineKey);
+    }
+
+    test('cubit_sets_percent', () async {
+      programRepo.nextRebatePercent = 5;
+      programRepo.nextHints = [rebateHint];
+      final (cubit, _) = await setUpLine();
+
+      await cubit.refreshAllHints();
+
+      expect(programRepo.getCallCount, 1);
+      expect(cubit.state.draft.lines.first.rebatePercent, 5);
+    });
+
+    test('cubit_caches_percent', () async {
+      programRepo.nextRebatePercent = 5;
+      programRepo.nextHints = [rebateHint];
+      final (cubit, _) = await setUpLine();
+
+      await cubit.refreshAllHints();
+      await cubit.refreshAllHints();
+
+      expect(programRepo.getCallCount, 1);
+      expect(cubit.state.draft.lines.first.rebatePercent, 5);
+    });
+
+    test('cubit_skips_non_rebate', () async {
+      programRepo.nextHints = [tierHint];
+      final (cubit, _) = await setUpLine();
+
+      await cubit.refreshAllHints();
+
+      expect(programRepo.getCallCount, 0);
+      expect(cubit.state.draft.lines.first.rebatePercent, isNull);
+    });
+
+    test('cubit_percent_failure_ignored', () async {
+      programRepo.getError = Exception('rpc down');
+      programRepo.nextHints = [rebateHint];
+      final (cubit, _) = await setUpLine();
+
+      await cubit.refreshAllHints();
+
+      expect(cubit.state.hintsLoading, isFalse);
+      expect(cubit.state.draft.lines.first.rebatePercent, isNull);
+      expect(cubit.state.draft.lines.first.hint, isNotNull);
+    });
+
+    test('cubit_clears_percent_when_hint_gone', () async {
+      programRepo.nextRebatePercent = 5;
+      programRepo.nextHints = [rebateHint];
+      final (cubit, _) = await setUpLine();
+      await cubit.refreshAllHints();
+      expect(cubit.state.draft.lines.first.rebatePercent, 5);
+
+      programRepo.nextHints = [null];
+      await cubit.refreshAllHints();
+
+      expect(cubit.state.draft.lines.first.rebatePercent, isNull);
+    });
   });
 
   group('ReceiptDraftCubit', () {

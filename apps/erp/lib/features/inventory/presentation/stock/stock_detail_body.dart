@@ -254,15 +254,6 @@ class StockDetailBody extends StatelessWidget {
   }
 
   Widget _buildSummaryColumn(BuildContext context, List<StockLot> sortedLots) {
-    final colors = context.vColors;
-    final inds = detail.indicators;
-    StockIndicator? issue;
-    if (inds.contains(StockIndicator.out)) {
-      issue = StockIndicator.out;
-    } else if (inds.contains(StockIndicator.low)) {
-      issue = StockIndicator.low;
-    }
-
     final expiredLots = sortedLots.where((l) => l.isExpired).toList();
     final expiredQty = expiredLots.fold<num>(0, (sum, l) => sum + l.physical);
 
@@ -274,47 +265,6 @@ class StockDetailBody extends StatelessWidget {
           detail: detail,
           onEditThreshold: onEditThreshold,
         ),
-        if (issue != null) ...[
-          const SizedBox(height: VSpacing.space3),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              VBanner(
-                tone: issue == StockIndicator.out
-                    ? VComponentTone.danger
-                    : VComponentTone.warning,
-                title: issue.label,
-                description:
-                    'Khả dụng ${formatStockQuantity(detail.available, detail.uom)}${detail.threshold != null ? ' · Ngưỡng ${formatStockQuantity(detail.threshold!, detail.uom)}.' : '.'}',
-              ),
-              if (detail.target != null &&
-                  detail.target! > detail.available) ...[
-                const SizedBox(height: VSpacing.space2),
-                Text(
-                  'Gợi ý nhập thêm ${formatStockQuantity(detail.target! - detail.available, detail.uom)} (mục tiêu ${formatStockQuantity(detail.target!, detail.uom)})',
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 20 / 14,
-                    fontWeight: FontWeight.w600,
-                    color: colors.textPrimary,
-                  ),
-                ),
-              ],
-              if (onReceive != null) ...[
-                const SizedBox(height: VSpacing.space2),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: VButton(
-                    label: 'Nhận hàng',
-                    variant: VButtonVariant.secondary,
-                    onPressed: onReceive,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ],
         if (expiredLots.isNotEmpty) ...[
           const SizedBox(height: VSpacing.space3),
           Column(

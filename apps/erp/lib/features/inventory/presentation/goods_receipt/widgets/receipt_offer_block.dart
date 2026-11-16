@@ -51,11 +51,22 @@ class ReceiptOfferBlock extends StatelessWidget {
           VBanner(
             tone: VComponentTone.info,
             title: hint.programName,
-            description: hintLines(
-              hint,
-              line.product.baseUom,
-              paidQty: line.paidQuantity * line.unit.rate,
-            ).join('\n'),
+            description: [
+              ...hintLines(
+                hint,
+                line.product.baseUom,
+                paidQty: line.paidQuantity * line.unit.rate,
+              ),
+              ...rebateEstimateLines(
+                hint,
+                line.rebatePercent,
+                line.product.baseUom,
+                paidQty: line.paidQuantity * line.unit.rate,
+                unitPrice: line.unit.rate > 0
+                    ? line.unitPriceVnd / line.unit.rate
+                    : line.unitPriceVnd,
+              ),
+            ].join('\n'),
           ),
           const SizedBox(height: VSpacing.space2),
         ],
