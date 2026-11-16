@@ -69,7 +69,7 @@ class _AskAssistantPageState extends State<AskAssistantPage> {
                             padding: const EdgeInsets.only(bottom: VSpacing.cozy),
                             child: AssistantMessageBubble(
                               message: state.messages[i],
-                              onRetry: cubit.retry,
+                              onRetry: i == state.messages.length - 1 ? cubit.retry : null,
                             ),
                           ),
                         if (state.waiting) const AssistantWaitingBubble(),
@@ -78,19 +78,22 @@ class _AskAssistantPageState extends State<AskAssistantPage> {
                   ),
                 ),
               ),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 840),
-                  child: Column(
-                    children: [
-                      AssistantComposer(
-                        controller: _controller,
-                        waiting: state.waiting,
-                        locked: state.locked,
-                        onSend: _send,
-                      ),
-                      AssistantFooter(remaining: state.remaining),
-                    ],
+              SafeArea(
+                top: false,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 840),
+                    child: Column(
+                      children: [
+                        AssistantComposer(
+                          controller: _controller,
+                          waiting: state.waiting,
+                          locked: state.locked,
+                          onSend: _send,
+                        ),
+                        AssistantFooter(remaining: state.remaining),
+                      ],
+                    ),
                   ),
                 ),
               ),

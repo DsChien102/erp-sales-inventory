@@ -200,4 +200,13 @@ void main() {
     expect(find.textContaining('Còn 7'), findsOneWidget);
     expect(find.textContaining('Trợ lý AI có thể hiểu nhầm'), findsOneWidget);
   });
+
+  testWidgets('chỉ lỗi cuối cùng có nút Thử lại', (tester) async {
+    stubAsk().thenThrow(const AppException(AppErrorCode.network));
+    await pump(tester);
+    await ask(tester, 'một');
+    stubAsk().thenThrow(const AppException(AppErrorCode.unknown));
+    await ask(tester, 'hai');
+    expect(find.text('Thử lại'), findsOneWidget);
+  });
 }

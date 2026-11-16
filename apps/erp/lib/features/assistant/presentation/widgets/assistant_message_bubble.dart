@@ -48,12 +48,14 @@ class AssistantMessageBubble extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 VText(offline ? assistantOfflineText : assistantErrorText),
-                const SizedBox(height: VSpacing.sm),
-                VButton(
-                  label: 'Thử lại',
-                  variant: VButtonVariant.secondary,
-                  onPressed: onRetry,
-                ),
+                if (onRetry != null) ...[
+                  const SizedBox(height: VSpacing.sm),
+                  VButton(
+                    label: 'Thử lại',
+                    variant: VButtonVariant.secondary,
+                    onPressed: onRetry,
+                  ),
+                ],
               ],
             ),
           ),
