@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../../../core/session/session_controller.dart';
 import '../../../core/session/session_state.dart';
@@ -46,6 +47,13 @@ class HomeTabPage extends StatelessWidget {
               const SizedBox(height: VSpacing.space5),
               if (state.current?.isOwner == true && !state.legalProfileBannerDismissed)
                 const LegalProfileHomeBanner(),
+              VButton(
+                label: 'Hỏi VET45',
+                variant: VButtonVariant.secondary,
+                fullWidth: true,
+                onPressed: () => context.push('/ask'),
+              ),
+              const SizedBox(height: VSpacing.space4),
               const _SectionHeader(title: 'Tổng quan hôm nay'),
               const SizedBox(height: VSpacing.space2),
               const RevenueSummaryCard(),

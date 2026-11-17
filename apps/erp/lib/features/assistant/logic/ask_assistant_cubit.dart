@@ -1,5 +1,6 @@
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/assistant/data.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'ask_assistant_state.dart';
@@ -58,6 +59,7 @@ class AskAssistantCubit extends Cubit<AskAssistantState> {
     } catch (error, stackTrace) {
       if (isClosed) return;
       final exception = AppException.from(error, stackTrace);
+      if (kDebugMode) debugPrint('AskAssistantCubit lỗi: ${exception.code} cause=${exception.cause ?? error}');
       emit(
         state.copyWith(
           messages: [

@@ -63,18 +63,12 @@ class _Grid extends StatelessWidget {
         for (final row in block.rows)
           [
             for (var i = 0; i < block.columns.length; i++)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: VSpacing.cozy,
-                  vertical: VSpacing.sm,
-                ),
-                child: VText(
-                  formatAssistantCell(block.columns[i].kind, row.cells[block.columns[i].key]),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: _isNumeric(block.columns[i].kind) ? TextAlign.right : TextAlign.left,
-                  color: i == 0 && _location(row) != null ? c.textBrand : null,
-                ),
+              VText(
+                formatAssistantCell(block.columns[i].kind, row.cells[block.columns[i].key]),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: _isNumeric(block.columns[i].kind) ? TextAlign.right : TextAlign.left,
+                color: i == 0 && _location(row) != null ? c.textBrand : null,
               ),
           ],
       ],
