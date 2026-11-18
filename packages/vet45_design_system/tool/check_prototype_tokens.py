@@ -52,7 +52,7 @@ for k, f in RAD.items():
     if k in css and f in radius:
         d = radius[f]; c = float(css[k].replace('px', '')); rows.append(('bo góc', k, css[k], f'{d:g}px', 'khớp' if c == d else 'LỆCH'))
 
-WRITABLE = {'surface-brand','surface-success','surface-warning','surface-danger','surface-info','border-brand'}
+WRITABLE = {'action-primary-pressed','action-danger-pressed','surface-brand','surface-success','surface-warning','surface-danger','surface-info','border-brand'}
 if '--write' in sys.argv:
     text = CSS.read_text(encoding='utf-8')
     for r in rows:
@@ -63,6 +63,10 @@ if '--write' in sys.argv:
     css = {m.group(1): m.group(2).strip() for m in re.finditer(r'--vet45-v2-([\w-]+):\s*([^;]+);', text)}
     rows = [(g, k, (css.get(k, '').upper() if g == 'màu vai trò' else c), d, ('khớp' if g == 'màu vai trò' and d and css.get(k, '').upper()[:7] == d else st)) for g, k, c, d, st in rows]
 
+# focus-ring: Flutter (v_text_field_focus_ring.dart) vẽ viền primary đặc + vầng 3px màu successBg/dangerBg,
+# không dùng token focusRing; CSS --focus-ring là viền đặc 2px. Khác khái niệm, không phải lệch màu.
+KNOWN = {'focus-ring'}
+rows = [(g, k, c, d, 'khác khái niệm' if k in KNOWN and st == 'LỆCH' else st) for g, k, c, d, st in rows]
 bad = [r for r in rows if r[4] in ('LỆCH', 'thiếu')]
 for g in dict.fromkeys(r[0] for r in rows):
     sub = [r for r in rows if r[0] == g]
