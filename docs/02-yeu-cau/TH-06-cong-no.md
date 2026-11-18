@@ -453,22 +453,22 @@ Chạy sau mỗi kịch bản (cùng với TH-05 3.7):
 1. `create schema receivable`; cấp `usage` cho `authenticated` như các schema nghiệp vụ khác; thêm `receivable` vào `schemas` của `supabase/config.toml` (API) để app gọi được `schema('receivable')`.
 2. `alter table sales.<bảng> set schema receivable` cho `sales_order_settlements`, `sales_payment_transactions`, `settlement_obligation_adjustments`. Dữ liệu, khoá chính, khoá ngoại (kể cả khoá tới `sales.sales_orders`), CHECK, index, RLS đi theo bảng; **tên bảng giữ nguyên**.
 2b. (R1) `alter table receivable.sales_order_settlements add column payment_due_date date`; chép `update … set payment_due_date = o.payment_due_date from sales.sales_orders o where o.id = sales_order_id`; rồi `alter table sales.sales_orders drop column payment_due_date` (sau bước 3, khi mọi hàm đã đọc / ghi cột mới).
-3. Tạo lại (`create or replace`, lấy **bản mới nhất** của từng hàm) mọi hàm đang ghi tên bảng đầy đủ `sales.<bảng>` hoặc đọc / ghi `sales_orders.payment_due_date` — do `set search_path = ''` nên chúng hỏng ngay sau bước 2. Danh sách đo ngày 2026-11-18 (ký hiệu **[R1]** = có dùng `payment_due_date`):
+3. Tạo lại (`create or replace`, lấy **bản mới nhất** của từng hàm) mọi hàm đang ghi tên bảng đầy đủ `sales.<bảng>` hoặc đọc / ghi `sales_orders.payment_due_date` — do chúng ghi tên đầy đủ `sales.<bảng>` (`search_path` thật là `sales, …`, không có tham chiếu trần) nên chúng hỏng ngay sau bước 2. Danh sách đo ngày 2026-11-18 (ký hiệu **[R1]** = có dùng `payment_due_date`):
 
 | Migration gốc (bản mới nhất) | Hàm |
 |---|---|
 | `20260830006` | `sales._apply_settlement_obligation_adjustment`, `_emit_sales_settlement_changed`, `_recompute_sales_settlement`, `audit_sales_review_invariants` |
-| `20260830008`, `20261031017` | `sales.finalize_sales_order` [R1], `precheck_sales_order_checkout` [R1] |
+| `20260830008`, `20261031017` | `sales.finalize_sales_order` [R1] (`precheck_sales_order_checkout` chỉ dùng tham số `p_payment_due_date`, không phải sửa) |
 | `20260830009`, `20260904001` | `sales._settlement_id_for_order`, `_settlement_mutation_snapshot`, `record_sales_payment`, `record_sales_refund` |
 | `20260830010`, `20261031021` | `sales.generate_sales_receipt` [R1], `get_sales_order_detail`, `get_sales_order_original_receipt` [R1], `get_sales_order_payment_summary` [R1], `get_sales_order_payment_transactions`, `get_sales_order_settlement`, `get_sales_order_timeline`, `list_sales_orders`, `search_sales_orders` |
 | `20260830011`, `20260904001` | `sales.precheck_sales_order_cancellation`, `confirm_sales_order_cancellation` |
 | `20260830012` | `sales._get_return_exchange_context`, `start_return_exchange` |
 | `20260830013` | `sales.evaluate_return_exchange_valuation`, `settle_return_exchange_difference` |
 | `20260830014`, `20260904001` | `sales.confirm_return_exchange` [R1] |
-| `20261122001` | view / hàm `ai._warehouse` [R1] (đọc cho trợ lý AI) |
+| `20261122001` | view `ai_read.don_ban` [R1] (đọc cho trợ lý AI; tự theo bảng khi đổi schema nhưng chặn `drop column` nếu chưa sửa) |
 
    Trước khi viết migration phải quét lại (`grep -E "sales\.(sales_order_settlements|sales_payment_transactions|settlement_obligation_adjustments)|payment_due_date"` trên `supabase/migrations`, `supabase/tests`) vì có thể có migration mới sau ngày đo, và chạy `impact` GitNexus cho từng hàm (CLAUDE.md).
-4. Test SQL đang đọc thẳng bảng (`sales_th05`, `sales_stats`, `inventory_reports`, `inventory_purchase_forecast`, `inventory_issue_multi_line`, `inventory_sales_link`, `ai_read_views`, `ai_run_query`, thêm `einvoice_th08` vì dùng `payment_due_date`) đổi `sales.<bảng>` → `receivable.<bảng>` và đọc / ghi `payment_due_date` ở quyết toán thay vì đơn.
+4. Test SQL đang đọc thẳng bảng (`sales_th05`, `sales_stats`, `inventory_reports`, `inventory_purchase_forecast`, `inventory_issue_multi_line`, `inventory_sales_link`, `ai_read_views`, `ai_run_query` — 8 test; `einvoice_th08` chỉ truyền tham số nên không sửa) đổi `sales.<bảng>` → `receivable.<bảng>` và đọc / ghi `payment_due_date` ở quyết toán thay vì đơn.
 5. Cập nhật `supabase/migrations/REGISTRY.yaml`.
 
 **Không làm:** không đổi tên bảng / cột; không chuyển RPC TH-05 sang `receivable` (cách B, không chọn); không sửa app — RPC trả `paymentDueDate` cùng tên trường như cũ (`sales_checkout_json.dart` đọc từ JSON RPC, không đọc bảng).

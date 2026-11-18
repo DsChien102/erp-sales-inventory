@@ -84,10 +84,12 @@ catalog:
   _trg_product_custom_field_values_refresh_operational_facts: 20260714006_catalog_patch_product_readiness_facts_schema.sql
   _trg_product_custom_field_values_refresh_search_document: 20260714005_catalog_patch_product_typeahead_search.sql
   _trg_product_images_refresh_operational_facts: 20260714006_catalog_patch_product_readiness_facts_schema.sql
+  _trg_product_stock_profiles_refresh_operational_facts: 20260714006_catalog_patch_product_readiness_facts_schema.sql
   _trg_product_unit_price_bands_refresh_operational_facts: 20260714006_catalog_patch_product_readiness_facts_schema.sql
   _trg_product_units_refresh_operational_facts: 20260714006_catalog_patch_product_readiness_facts_schema.sql
   _trg_products_refresh_search_document: 20260714005_catalog_patch_product_typeahead_search.sql
   add_product_conversion_unit: 20260710004_catalog_patch_inline_normalize_units_rpcs.sql
+  adjust_basic_stock: 20260712003_catalog_rename_basic_stock_quantity_base.sql
   apply_store_price_rule: 20260717007_catalog_product_price_band_change_history_direct.sql
   check_duplicate_measurement_unit_name: 20260710004_catalog_patch_inline_normalize_units_rpcs.sql
   check_duplicate_product_code: 20260717005_catalog_product_code_reuse_after_soft_delete_rpcs.sql
@@ -106,6 +108,7 @@ catalog:
   get_product_custom_field_values: 20260709014_catalog_custom_field_values.sql
   get_product_price_band_snapshot: 20260713001_catalog_patch_price_band_vat_effective.sql
   get_product_readiness: 20260709003_catalog_product_readiness.sql
+  get_product_stock_history: 20260709006_catalog_basic_stock.sql
   get_store_price_rule: 20260709008_catalog_store_price_rule.sql
   get_store_price_rule_change_history: 20260709022_catalog_store_price_rule_change_history.sql
   initialize_custom_field_template: 20260710005_catalog_patch_inline_normalize_custom_fields_rpcs.sql
@@ -126,6 +129,7 @@ catalog:
   restore_product: 20260712006_catalog_patch_business_status_soft_deleted_soft_delete_rpcs.sql
   search_products: 20260805003_catalog_search_products_summary_counts.sql
   search_sellable_products: 20260830002_catalog_sales_sellable_lookup_group_a.sql
+  set_basic_stock_quantity_base: 20260712003_catalog_rename_basic_stock_quantity_base.sql
   set_initial_price_band: 20260717007_catalog_product_price_band_change_history_direct.sql
   set_initial_stock: 20260709006_catalog_basic_stock.sql
   set_manual_base_price: 20260717008_catalog_product_price_band_change_history_recalculation.sql
@@ -141,6 +145,7 @@ catalog:
   upsert_product_custom_field_values: 20260714010_catalog_patch_upsert_custom_field_values_skip_required_gate.sql
 
 einvoice:
+  _buyer_issuance_blocker: 20261031023_einvoice_buyer_partner_fallback.sql
   _credential_encryption_key: 20261031001_einvoice_configuration_schema.sql
   _decrypt_credential: 20261031001_einvoice_configuration_schema.sql
   _delivery_display_projection: 20261031013_einvoice_delivery_schema_and_start_rpcs.sql
@@ -190,6 +195,7 @@ einvoice:
   issue_invoice: 20261031008_einvoice_auto_issuance_and_retry_rpcs.sql
   list_open_auto_issuance_processes: 20261031008_einvoice_auto_issuance_and_retry_rpcs.sql
   list_provider_templates: 20261031004_einvoice_profile_policy_readiness_rpcs.sql
+  list_tenants_with_due_commands: 20261031009_einvoice_issuance_reconciliation_rpcs.sql
   load_delivery_attempt_context: 20261031013_einvoice_delivery_schema_and_start_rpcs.sql
   load_delivery_reconciliation_context: 20261031015_einvoice_delivery_reconciliation_rpcs.sql
   load_invoice_document_operation_context: 20261031011_einvoice_document_operations_rpcs.sql
@@ -334,9 +340,9 @@ inventory:
   _next_ledger_sequence: 20261110001_inventory_core.sql
   _post_movements: 20261110001_inventory_core.sql
   _post_value_adjustment: 20261117001_inventory_supplier_rebates.sql
+  _product_stock_rows: 20261111001_inventory_stock_policy.sql
   _program_is_locked: 20261114001_inventory_goods_receipts.sql
   _program_row_json: 20261113001_inventory_supplier_programs.sql
-  _product_stock_rows: 20261111001_inventory_stock_policy.sql
   _raise: 20261110001_inventory_core.sql
   _rebate_allocation: 20261117001_inventory_supplier_rebates.sql
   _report_range_check: 20261119001_inventory_reports.sql
@@ -457,7 +463,7 @@ pricing:
   update_customer_price_rule: 20260810001_pricing_patch_overwrite_disabled_rules.sql
 
 sales:
-  _apply_settlement_obligation_adjustment: 20260830006_sales_shared_rpc_helpers.sql
+  _apply_settlement_obligation_adjustment: 20261123001_receivable_move_money_tables.sql
   _assert_exchange_price: 20260830012_sales_return_exchange_session_rpcs.sql
   _assert_sales_actor: 20260830006_sales_shared_rpc_helpers.sql
   _base_quantity_micros: 20260830012_sales_return_exchange_session_rpcs.sql
@@ -465,28 +471,28 @@ sales:
   _complete_sales_idempotency: 20260830006_sales_shared_rpc_helpers.sql
   _draft_customer_snapshot: 20260830007_sales_draft_rpcs.sql
   _draft_payload: 20260830007_sales_draft_rpcs.sql
-  _emit_sales_settlement_changed: 20260830006_sales_shared_rpc_helpers.sql
-  _get_return_exchange_context: 20260830012_sales_return_exchange_session_rpcs.sql
+  _emit_sales_settlement_changed: 20261123001_receivable_move_money_tables.sql
+  _get_return_exchange_context: 20261123001_receivable_move_money_tables.sql
   _price_exchange_unit: 20260830012_sales_return_exchange_session_rpcs.sql
   _product_unit_conversion_rate: 20260830012_sales_return_exchange_session_rpcs.sql
-  _recompute_sales_settlement: 20260830006_sales_shared_rpc_helpers.sql
+  _recompute_sales_settlement: 20261123001_receivable_move_money_tables.sql
   _sales_order_current_lines: 20260830010_sales_inquiry_receipt_rpcs.sql
   _sales_order_lines_payload: 20260830010_sales_inquiry_receipt_rpcs.sql
   _sales_receipt_envelope: 20260830010_sales_inquiry_receipt_rpcs.sql
   _sales_receipt_lines_payload: 20260830010_sales_inquiry_receipt_rpcs.sql
-  _settlement_id_for_order: 20260830009_sales_settlement_rpcs.sql
-  _settlement_mutation_snapshot: 20260830009_sales_settlement_rpcs.sql
+  _settlement_id_for_order: 20261123001_receivable_move_money_tables.sql
+  _settlement_mutation_snapshot: 20261123001_receivable_move_money_tables.sql
   _write_draft_lines: 20260830007_sales_draft_rpcs.sql
-  audit_sales_review_invariants: 20260830006_sales_shared_rpc_helpers.sql
+  audit_sales_review_invariants: 20261123001_receivable_move_money_tables.sql
   can_access_sales_order: 20261031018_sales_einvoice_source_contract.sql
   cancel_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
   cancel_sales_order_draft: 20260830007_sales_draft_rpcs.sql
   complete_return_exchange: 20260830014_sales_return_exchange_confirmation_rpcs.sql
-  confirm_return_exchange: 20260904001_sales_normalize_outbox_and_commands.sql
-  confirm_sales_order_cancellation: 20260904001_sales_normalize_outbox_and_commands.sql
-  evaluate_return_exchange_valuation: 20260830013_sales_return_exchange_settlement_rpcs.sql
-  finalize_sales_order: 20261031017_sales_buyer_invoice_snapshot.sql
-  generate_sales_receipt: 20260830010_sales_inquiry_receipt_rpcs.sql
+  confirm_return_exchange: 20261123001_receivable_move_money_tables.sql
+  confirm_sales_order_cancellation: 20261123001_receivable_move_money_tables.sql
+  evaluate_return_exchange_valuation: 20261123001_receivable_move_money_tables.sql
+  finalize_sales_order: 20261123001_receivable_move_money_tables.sql
+  generate_sales_receipt: 20261123001_receivable_move_money_tables.sql
   get_available_post_sale_actions: 20260830011_sales_adjustment_cancellation_rpcs.sql
   get_checkout_result: 20260830008_sales_checkout_rpcs.sql
   get_einvoice_source_snapshot: 20261031018_sales_einvoice_source_contract.sql
@@ -496,30 +502,30 @@ sales:
   get_returnable_order_lines: 20260830012_sales_return_exchange_session_rpcs.sql
   get_sales_order: 20260830010_sales_inquiry_receipt_rpcs.sql
   get_sales_order_cancellation: 20260830011_sales_adjustment_cancellation_rpcs.sql
-  get_sales_order_detail: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_order_detail: 20261123001_receivable_move_money_tables.sql
   get_sales_order_draft_for_restore: 20260830007_sales_draft_rpcs.sql
-  get_sales_order_original_receipt: 20260830010_sales_inquiry_receipt_rpcs.sql
-  get_sales_order_payment_summary: 20260830010_sales_inquiry_receipt_rpcs.sql
-  get_sales_order_payment_transactions: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_order_original_receipt: 20261123001_receivable_move_money_tables.sql
+  get_sales_order_payment_summary: 20261123001_receivable_move_money_tables.sql
+  get_sales_order_payment_transactions: 20261123001_receivable_move_money_tables.sql
   get_sales_order_return_summary: 20260830010_sales_inquiry_receipt_rpcs.sql
-  get_sales_order_settlement: 20260830010_sales_inquiry_receipt_rpcs.sql
-  get_sales_order_timeline: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_order_settlement: 20261123001_receivable_move_money_tables.sql
+  get_sales_order_timeline: 20261123001_receivable_move_money_tables.sql
   get_sales_receipt: 20260830010_sales_inquiry_receipt_rpcs.sql
   get_sales_stats: 20261120001_sales_stats.sql
   list_sales_order_cancellation_reasons: 20260830011_sales_adjustment_cancellation_rpcs.sql
   list_sales_order_drafts: 20260830007_sales_draft_rpcs.sql
-  list_sales_orders: 20261031021_sales_list_einvoice_issuance_filter.sql
+  list_sales_orders: 20261123001_receivable_move_money_tables.sql
   precheck_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
-  precheck_sales_order_cancellation: 20260830011_sales_adjustment_cancellation_rpcs.sql
+  precheck_sales_order_cancellation: 20261123001_receivable_move_money_tables.sql
   precheck_sales_order_checkout: 20260830008_sales_checkout_rpcs.sql
   preview_return_exchange_pricing: 20260830012_sales_return_exchange_session_rpcs.sql
-  record_sales_payment: 20260904001_sales_normalize_outbox_and_commands.sql
+  record_sales_payment: 20261123001_receivable_move_money_tables.sql
   record_sales_receipt_activity: 20260830010_sales_inquiry_receipt_rpcs.sql
-  record_sales_refund: 20260904001_sales_normalize_outbox_and_commands.sql
+  record_sales_refund: 20261123001_receivable_move_money_tables.sql
   save_sales_order_draft: 20260830007_sales_draft_rpcs.sql
-  search_sales_orders: 20261031021_sales_list_einvoice_issuance_filter.sql
-  settle_return_exchange_difference: 20260830013_sales_return_exchange_settlement_rpcs.sql
-  start_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
+  search_sales_orders: 20261123001_receivable_move_money_tables.sql
+  settle_return_exchange_difference: 20261123001_receivable_move_money_tables.sql
+  start_return_exchange: 20261123001_receivable_move_money_tables.sql
   update_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
   update_sales_order_draft: 20260830007_sales_draft_rpcs.sql
 
@@ -692,6 +698,29 @@ bootstrap_grandfathered:
   - 20261031021_sales_list_einvoice_issuance_filter.sql
   - 20261031022_einvoice_attempt_status_provider_failure_message.sql
   - 20261031023_einvoice_buyer_partner_fallback.sql
+  - 20261101001_partner_sales_order_history_trigger.sql
+  - 20261104001_inventory_default_pair.sql
+  - 20261105001_iam_member_display_name.sql
+  - 20261108001_einvoice_processor_cron.sql
+  - 20261110001_inventory_core.sql
+  - 20261111001_inventory_stock_policy.sql
+  - 20261112001_inventory_stock_view.sql
+  - 20261113001_inventory_supplier_programs.sql
+  - 20261114001_inventory_goods_receipts.sql
+  - 20261115001_inventory_sales_link.sql
+  - 20261116001_inventory_stocktake.sql
+  - 20261116002_catalog_drop_basic_stock.sql
+  - 20261117001_inventory_supplier_rebates.sql
+  - 20261118001_inventory_costing.sql
+  - 20261119001_inventory_reports.sql
+  - 20261120001_sales_stats.sql
+  - 20261120002_ai_assistant_log.sql
+  - 20261121001_inventory_purchase_forecast.sql
+  - 20261121002_inventory_issue_for_sale_alloc_key.sql
+  - 20261122001_ai_read_views.sql
+  - 20261122002_ai_run_query.sql
+  - 20261122003_inventory_gross_profit_all_members.sql
+  - 20261123001_receivable_move_money_tables.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
 #   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql
