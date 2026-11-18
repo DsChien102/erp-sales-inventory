@@ -170,7 +170,7 @@ declare
 begin
   reset role;  -- đọc version bằng quyền chủ (bảng sales bật RLS, không có policy); RPC huỷ vẫn gọi bằng authenticated
   select version into v_ov from sales.sales_orders where tenant_id = p_tenant and id = p_order;
-  select version into v_sv from sales.sales_order_settlements
+  select version into v_sv from receivable.sales_order_settlements
     where tenant_id = p_tenant and sales_order_id = p_order
     order by version desc limit 1;
   set local role authenticated;
@@ -485,8 +485,8 @@ begin
     raise exception 'FAIL: C08 expected succeeded, got %', v_res;
   end if;
   reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
-  select payment_due_date into v_due from sales.sales_orders
-    where id = (v_res ->> 'salesOrderId')::uuid;
+  select payment_due_date into v_due from receivable.sales_order_settlements
+    where sales_order_id = (v_res ->> 'salesOrderId')::uuid;
   set local role authenticated;
   if v_due is distinct from v_today then
     raise exception 'FAIL: C08 payment_due_date expected %, got %', v_today, v_due;
@@ -511,7 +511,7 @@ begin
     sales_order_id => v_order);
   v_r2 := public._th05_cancel(v_ta, v_ua, v_order, 'c10-cancel');
   reset role;
-  if (select current_payable_amount_minor from sales.sales_order_settlements
+  if (select current_payable_amount_minor from receivable.sales_order_settlements
       where tenant_id = v_ta and sales_order_id = v_order) is distinct from 0 then
     raise exception 'FAIL: C10 current_payable_amount_minor not 0 after cancel';
   end if;
@@ -596,7 +596,7 @@ begin
     correlation_id => gen_random_uuid()::text, expected_version => v_ret_ver,
     payment_settled_now_minor => 0, payment_due_date => v_today + 7);
   reset role;  -- đọc bảng bằng quyền chủ (bảng sales bật RLS không policy; catalog đã revoke authenticated)
-  select payment_due_date into v_due from sales.sales_orders where id = v_order2;
+  select payment_due_date into v_due from receivable.sales_order_settlements where sales_order_id = v_order2;
   set local role authenticated;
   if v_due is distinct from v_today + 7 then
     raise exception 'FAIL: C14 payment_due_date expected %, got %', v_today + 7, v_due;
@@ -900,11 +900,11 @@ begin
     v_p_settlement_id := sales._settlement_id_for_order(v_ta, v_order_p);
     select payment_status, outstanding_amount_minor
     into v_p_status, v_p_outstanding
-    from sales.sales_order_settlements
+    from receivable.sales_order_settlements
     where tenant_id = v_ta and id = v_p_settlement_id;
 
     select count(*)::integer into v_tx_count
-    from sales.sales_payment_transactions
+    from receivable.sales_payment_transactions
     where tenant_id = v_ta
       and sales_order_settlement_id = v_p_settlement_id
       and source_context = 'additional_collection';
@@ -940,7 +940,7 @@ begin
     v_p_settlement_id := sales._settlement_id_for_order(v_ta, v_order_p2);
     select payment_status, outstanding_amount_minor
     into v_p_status, v_p_outstanding
-    from sales.sales_order_settlements
+    from receivable.sales_order_settlements
     where tenant_id = v_ta and id = v_p_settlement_id;
     set local role authenticated;
 
@@ -952,7 +952,7 @@ begin
     -- P03: Gọi lại cùng p_idempotency_key + p_payload_hash => cùng transactionId, đếm giao dịch không tăng
     reset role;
     select count(*)::integer into v_tx_count
-    from sales.sales_payment_transactions
+    from receivable.sales_payment_transactions
     where tenant_id = v_ta and sales_order_settlement_id = v_p_settlement_id;
     set local role authenticated;
 
@@ -979,7 +979,7 @@ begin
       v_tx_count_after integer;
     begin
       select count(*)::integer into v_tx_count_after
-      from sales.sales_payment_transactions
+      from receivable.sales_payment_transactions
       where tenant_id = v_ta and sales_order_settlement_id = v_p_settlement_id;
       set local role authenticated;
 

@@ -110,7 +110,7 @@ declare
   v_sv int;
 begin
   select version into v_ov from sales.sales_orders where tenant_id = p_tenant and id = p_order;
-  select version into v_sv from sales.sales_order_settlements
+  select version into v_sv from receivable.sales_order_settlements
     where tenant_id = p_tenant and sales_order_id = p_order
     order by version desc limit 1;
   return sales.confirm_sales_order_cancellation(
