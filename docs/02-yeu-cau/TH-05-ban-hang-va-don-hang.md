@@ -54,7 +54,7 @@ Sau bán:
 
 - **Huỷ đơn** khi đơn tạo nhầm hoặc trùng **và chưa thu tiền**. Đơn đã thu tiền thì không huỷ được mà phải dùng đổi/trả, để dòng tiền luôn có chứng từ.
 - **Đổi/trả** khi khách mang hàng quay lại: trả một phần hoặc toàn bộ, đổi sang hàng khác. Hệ thống tính chênh lệch: khách trả thêm, cửa hàng hoàn tiền, hoặc giảm số nợ của đơn.
-- **Thu tiền sau bán** khi khách quay lại trả nợ.
+- **Thu tiền sau bán** khi khách quay lại trả nợ: làm ở trang Công nợ phải thu (TH-06), không thu từng đơn ở chi tiết đơn (đổi 2026-11-18). Thanh toán riêng từng đơn chỉ có lúc bán.
 
 Nguyên tắc xuyên suốt: **đơn gốc không bao giờ bị sửa**. Mọi thay đổi sau bán được ghi bằng bản ghi riêng (phiếu huỷ, phiếu đổi/trả, giao dịch tiền), nên luôn truy vết được.
 
@@ -78,7 +78,7 @@ Nguyên tắc xuyên suốt: **đơn gốc không bao giờ bị sửa**. Mọi 
 | EP-01 Lập đơn & lưu nháp | Khách lẻ / chọn / tạo nhanh khách; tìm, quét sản phẩm; đơn vị, số lượng; giá tự động; điều chỉnh giá dòng; lưu thành giá riêng; ghi chú; lưu, mở, xoá nháp | Có |
 | EP-02 Thanh toán & hoàn tất | Tiền mặt / chuyển khoản / kết hợp; tiền thừa; công nợ + ngày hẹn; kiểm tra trước; hoàn tất chống trùng; màn kết quả; phiếu bán hàng | Có (🔧 vài chỗ) |
 | EP-03 Tra cứu & theo dõi | Danh sách, tìm kiếm, nhóm nhanh, bộ lọc; chi tiết đơn; thanh toán & công nợ; phiếu đổi/trả của đơn; lịch sử; xem / in / chia sẻ phiếu | Có |
-| EP-04 Thu tiền công nợ của đơn | Thu một khoản cho đơn còn phải thu | RPC có, màn SG-11 (8-B3) |
+| EP-04 Thu tiền công nợ của đơn 🔧 | **Bỏ khỏi giao diện (2026-11-18)**: thu sau bán chuyển sang TH-06 (CN-03, có "Chọn đơn") | SG-11 gỡ; RPC giữ |
 | EP-05 Huỷ đơn | Kiểm tra điều kiện, xác nhận huỷ có lý do | Có |
 | EP-06 Đổi/trả & quyết toán | Chọn hàng trả, hàng đổi; định giá; kế hoạch quyết toán; xác nhận; kết quả; chi tiết & phiếu đổi/trả | Có |
 
@@ -129,14 +129,11 @@ flowchart LR
 | Khách lẻ | Đơn không có `customer_partner_id`. Không bao giờ được nợ |
 | Dòng đơn | Một sản phẩm + một đơn vị bán + số lượng + đơn giá + giảm giá dòng. Cùng sản phẩm + cùng đơn vị chỉ có một dòng |
 | Số lượng cơ sở | `số lượng × tỷ lệ quy đổi` của đơn vị bán; phải là số nguyên (bán nguyên đơn vị cơ sở) |
-| Quyết toán (settlement) | `sales_order_settlements`, 1–1 với đơn: nghĩa vụ gốc, điều chỉnh, nghĩa vụ hiện tại, đã thu, đã hoàn, thu ròng, còn phải thu, trạng thái |
-| Giao dịch tiền | `sales_payment_transactions`: `collection` (thu, chiều vào) hoặc `refund` (hoàn, chiều ra). Số tiền > 0. Không sửa, không xoá |
-| Nguồn giao dịch | `checkout` (lúc bán), `additional_collection` (thu sau bán), `return_exchange` (quyết toán đổi trả), `manual_correction` (hoàn thủ công, không dùng) |
-| Điều chỉnh nghĩa vụ | `settlement_obligation_adjustments`: mỗi nguồn (một phiếu huỷ, một phiếu đổi trả) tối đa 1 dòng, số tiền có dấu |
+| Quyết toán, giao dịch tiền, nguồn giao dịch, điều chỉnh nghĩa vụ | **Mô tả ở [TH-06 mục 2.1](TH-06-cong-no.md#21-khái-niệm)** (chuyển 2026-11-18). Tóm tắt: mỗi đơn 1 quyết toán; tiền là giao dịch thu / hoàn không sửa, không xoá |
 | Phiếu huỷ | `sales_order_cancellations`, mỗi đơn tối đa 1 |
 | Phiếu đổi/trả | `return_exchange_orders` + dòng (`returned` = hàng khách trả, `exchange` = hàng khách nhận) + định giá |
 | Phiếu bán hàng | `sales_receipts` (có `receipt_version`) + hoạt động in / chia sẻ. **Không phải hoá đơn điện tử** |
-| Phương thức thanh toán | `cash` (Tiền mặt), `manual_bank_transfer` (Chuyển khoản, kèm mã giao dịch tuỳ chọn) |
+| Phương thức thanh toán | `cash` (Tiền mặt), `manual_bank_transfer` (Chuyển khoản, kèm mã giao dịch tuỳ chọn); `offset` (Cấn trừ) nội bộ — xem TH-06 |
 
 ### 2.2 Công thức tiền
 
@@ -156,15 +153,7 @@ discount      = Σ discount_amount
 payable       = subtotal − discount + tax + rounding               (tax = 0, rounding = 0)
 ```
 
-**Quyết toán**
-
-```text
-current_payable   = original_payable + Σ obligation_adjustments
-collected         = Σ collection đã xác nhận
-refunded          = Σ refund đã xác nhận
-net_collected     = collected − refunded
-outstanding       = max(current_payable − net_collected, 0)
-```
+**Quyết toán:** công thức `current_payable`, `net_collected`, `outstanding` ở [TH-06 mục 2.2](TH-06-cong-no.md#22-công-thức) (chuyển 2026-11-18).
 
 **Đổi/trả**
 
@@ -204,18 +193,7 @@ net_difference    = exchange_value − return_value
   (hoàn tất) ──▶ completed ──(huỷ)──▶ cancelled     không mở lại được
 ```
 
-**Trạng thái thanh toán** (tính lại sau mỗi giao dịch / điều chỉnh)
-
-| Giá trị | Nhãn | Điều kiện (theo thứ tự kiểm) |
-|---|---|---|
-| `no_balance` | Không phát sinh | `current_payable ≤ 0` và chưa có giao dịch nào |
-| `refunded` | Đã hoàn tiền | `net_collected ≤ 0` và đã từng hoàn |
-| `unpaid` | Chưa thanh toán | `net_collected ≤ 0` |
-| `partially_refunded` | Hoàn một phần | đã từng hoàn và `outstanding > 0` |
-| `paid` | Đã thanh toán | `outstanding = 0` |
-| `partially_paid` | Thanh toán một phần | còn lại |
-
-Danh sách đơn gộp `unpaid` + `partially_paid` thành "Còn phải thu".
+**Trạng thái thanh toán:** bảng giá trị / nhãn / điều kiện ở [TH-06 mục 2.2](TH-06-cong-no.md#22-công-thức) (chuyển 2026-11-18). Danh sách đơn gộp `unpaid` + `partially_paid` thành "Còn phải thu".
 
 **Trạng thái trả hàng** (chỉ tính phiếu đã hoàn tất, theo từng dòng gốc)
 
@@ -297,7 +275,7 @@ Bảng đầy đủ. Các user story ở mục 4 dẫn lại mã này. Mã giữ
 
 | Mã | Quy tắc | Ở đâu |
 |---|---|---|
-| BR-30 | 🆕 Đơn `completed` còn phải thu > 0: chi tiết đơn có "Thu tiền": số tiền ≤ còn phải thu (`OVERPAYMENT_NOT_ALLOWED`), phương thức, mã giao dịch. Ghi `collection` nguồn `additional_collection`, tính lại settlement, sinh phiếu bán hàng phiên bản mới | `record_sales_payment` |
+| BR-30 | 🔧 Đơn `completed` còn phải thu > 0: **không có** nút "Thu tiền" ở chi tiết đơn. Mọi khoản thu sau hoàn tất đi qua Công nợ phải thu (TH-06 BR-05: tick đơn nhận tiền, có ô "Tất cả đơn · trả hết"); thanh toán riêng từng đơn chỉ có lúc bán (checkout). Mỗi đơn được thu vẫn tính lại settlement và sinh phiếu bán hàng phiên bản mới. RPC `record_sales_payment` và nguồn `additional_collection` giữ nguyên để TH-06 dùng và để đọc dữ liệu cũ | `record_sales_payment` (qua `record_customer_collection`) |
 | BR-31 | Đơn đã huỷ không thu thêm (`ORDER_CANCELLED`) | như trên |
 
 **Tra cứu**
@@ -420,7 +398,7 @@ Không có khoá ngoại sang `catalog`, `partner`, `iam`; tham chiếu được
 | `subtotal_amount_minor`, `discount_amount_minor`, `tax_amount_minor`, `rounding_amount_minor`, `payable_amount_minor` | bigint | ✓ | CHECK công thức 2.2 |
 | `sales_context_snapshot` | jsonb | ✓ | `store {storeId, storeCode, displayName}`, `seller {actorId, displayName}`, `customer {customerId, displayName, phoneNumber, taxCode}` |
 | `buyer_tax_snapshot` | jsonb | | do TH-08 ghi |
-| `payment_due_date` | date | | ngày hẹn thanh toán |
+| ~~`payment_due_date`~~ | date | | ngày hẹn thanh toán — **chuyển sang `receivable.sales_order_settlements.payment_due_date`** ở Theme 6 T6-1a, cột này bị xoá ([TH-06 mục 3.2](TH-06-cong-no.md#32-bảng-tiền-của-đơn-chuyển-từ-th-05-34-đã-có-trong-db), Q13 R1). RPC vẫn trả `paymentDueDate` như cũ |
 | `completed_at`, `cancelled_at`, `created_at`, `updated_at` | timestamptz | | |
 
 **`sales_order_lines`**
@@ -443,34 +421,7 @@ Không có khoá ngoại sang `catalog`, `partner`, `iam`; tham chiếu được
 
 ### 3.4 Bảng tiền
 
-**`sales_order_settlements`** (1–1 với đơn)
-
-| Cột | Ghi chú |
-|---|---|
-| `original_payable_amount_minor` | = `payable` của đơn, không đổi |
-| `post_sale_adjustment_amount_minor` | Σ điều chỉnh, có dấu |
-| `current_payable_amount_minor` | CHECK = gốc + điều chỉnh |
-| `collected_amount_minor`, `refunded_amount_minor`, `net_collected_amount_minor` | CHECK net = thu − hoàn |
-| `outstanding_amount_minor` | còn phải thu |
-| `payment_status` | bảng 2.3 |
-| `settled_at` | lúc trả đủ; xoá khi không còn đủ |
-| `version` | tăng mỗi lần tính lại |
-
-**`sales_payment_transactions`**
-
-| Cột | Ghi chú |
-|---|---|
-| `transaction_type` / `direction` | `collection`/`inflow` hoặc `refund`/`outflow` |
-| `amount_minor` | > 0 |
-| `payment_method_code`, `payment_method_snapshot` | `cash`, `manual_bank_transfer` |
-| `status` | `confirmed` (`pending`, `failed` không dùng) |
-| `source_context`, `source_type`, `source_id` | nguồn (2.1) |
-| `related_transaction_id` | khoản thu được hoàn (hoàn thủ công) |
-| `initiated_by_user_id` | người ghi |
-| `reason_code`, `reason`, `external_reference` | mã giao dịch chuyển khoản |
-| `occurred_at` | |
-
-**`settlement_obligation_adjustments`**: `source_kind` (`cancellation` / `return_exchange`), `source_id`, `amount_minor` (có dấu); duy nhất theo nguồn.
+**Chuyển sang TH-06 (2026-11-18).** Cột của `sales_order_settlements`, `sales_payment_transactions`, `settlement_obligation_adjustments` và `sales_orders.payment_due_date` mô tả ở [TH-06 mục 3.2](TH-06-cong-no.md#32-bảng-tiền-của-đơn-chuyển-từ-th-05-34-đã-có-trong-db). Ba bảng tiền chuyển sang schema **`receivable`** ở Theme 6 T6-1a ([TH-06 mục 3.6](TH-06-cong-no.md#36-chuyển-bảng-tiền-sang-schema-receivable-q12-cách-a-q13-r1)); `payment_due_date` chuyển vào bảng quyết toán. Các RPC TH-05 (thanh toán, thu tiền một đơn, huỷ, đổi/trả) ở lại `sales`, được tạo lại để ghi vào bảng mới; tên RPC và kết quả không đổi.
 
 ### 3.5 Bảng sau bán
 
@@ -489,7 +440,7 @@ Không có khoá ngoại sang `catalog`, `partner`, `iam`; tham chiếu được
 
 **`return_exchange_lines`**: `line_role` (`returned` / `exchange`), `original_sales_order_line_id` **xor** `source_exchange_line_id` (dòng trả), `product_id`, `product_unit_id`, `quantity_micros`, `base_quantity_micros`, `unit_value_minor` (đơn giá trả / giá đổi), `return_reason_code`, `return_condition_code` (không dùng, KI-10), snapshot sản phẩm & đơn vị.
 
-**`return_exchange_valuations`**: `return_value_minor`, `exchange_value_minor`, `net_difference_minor` (CHECK = đổi − trả), `status` (`calculated` / `confirmed`), `valuation_details.settlement_plan` (`collect_amount`, `refund_amount`, `receivable_create_amount`, `receivable_reverse_amount`, version nguồn).
+**`return_exchange_valuations`**: `return_value_minor`, `exchange_value_minor`, `net_difference_minor` (CHECK = đổi − trả), `status` (`calculated` / `confirmed`), `valuation_details` (định giá hàng). Kế hoạch tiền (`settlement_plan`: thu thêm, hoàn, ghi nợ, giảm nợ, cấn trừ) **chuyển sang bảng `receivable.return_exchange_settlement_plans`** ở Theme 6 T6-1b ([TH-06 mục 3.3](TH-06-cong-no.md#33-bảng-mới), Q13 R2); RPC vẫn trả khối `settlement_plan` cùng hình dạng.
 
 ### 3.6 Bảng chứng từ & kỹ thuật
 
@@ -506,10 +457,8 @@ Không có khoá ngoại sang `catalog`, `partner`, `iam`; tham chiếu được
 Dùng làm truy vấn kiểm thử sau mỗi kịch bản:
 
 1. `sales_orders.payable = subtotal − discount + tax + rounding`; `line_total = gross − discount + tax`.
-2. `settlement.original_payable = order.payable_amount`.
-3. `settlement.current_payable = original + Σ obligation_adjustments`.
-4. `collected = Σ collection`, `refunded = Σ refund`, `outstanding = max(current − (collected − refunded), 0)`.
-5. Mỗi đơn có đúng 1 settlement; mỗi nháp `converted` có đúng 1 đơn trỏ về.
+2. Bất biến tiền (gốc, điều chỉnh, thu / hoàn, còn phải thu, 1 settlement mỗi đơn): [TH-06 mục 3.5](TH-06-cong-no.md#35-bất-biến-kiểm-tra-được) mục 0.
+5. Mỗi nháp `converted` có đúng 1 đơn trỏ về.
 6. Tổng số trả của mỗi dòng gốc (phiếu đã hoàn tất) ≤ số bán.
 7. `net_difference = exchange_value − return_value` và = điều chỉnh nghĩa vụ của phiếu.
 
@@ -540,7 +489,7 @@ Dùng làm truy vấn kiểm thử sau mỗi kịch bản:
 | | US-03.4 Xem lịch sử đơn | SG-09c |
 | | US-03.5 Xem các phiếu đổi/trả của đơn | SG-09d |
 | | US-03.6 Xem lại, in lại phiếu bán hàng | SG-16 |
-| EP-04 Thu tiền công nợ | US-04.1 Thu tiền cho đơn còn phải thu | SG-11 |
+| EP-04 Thu tiền công nợ 🔧 | US-04.1 (đã bỏ, thay bằng TH-06 US-02.1) | — |
 | EP-05 Huỷ đơn | US-05.1 Kiểm tra điều kiện huỷ | SG-09, SG-10 |
 | | US-05.2 Xác nhận huỷ đơn | SG-10 |
 | EP-06 Đổi/trả & quyết toán | US-06.1 Bắt đầu đổi/trả từ đơn gốc | SG-12 |
@@ -1066,7 +1015,7 @@ Scenario: SC-02 — Nháp bị sửa ở máy khác
 
 ### 4.4 EP-03 — Tra cứu & theo dõi
 
-**Tổng quan.** Epic chỉ đọc. Mọi số liệu lấy từ bản ghi gốc (đơn, settlement, giao dịch, phiếu), không có bảng tổng hợp riêng nên không có độ trễ đồng bộ. Từ chi tiết đơn, người dùng đi tiếp sang các nghiệp vụ sau bán (EP-04, EP-05, EP-06).
+**Tổng quan.** Epic chỉ đọc. Mọi số liệu lấy từ bản ghi gốc (đơn, settlement, giao dịch, phiếu), không có bảng tổng hợp riêng nên không có độ trễ đồng bộ. Từ chi tiết đơn, người dùng đi tiếp sang các nghiệp vụ sau bán (EP-05, EP-06) hoặc sang Công nợ phải thu (TH-06).
 
 **Điểm vào:** tab "Đơn hàng" → `/orders`; "Xem chi tiết đơn" từ kết quả bán hàng; liên kết từ lịch sử giao dịch khách hàng (TH-03); liên kết từ HĐĐT (TH-08).
 
@@ -1114,7 +1063,7 @@ Scenario: SC-02 — Nháp bị sửa ở máy khác
 - FR-05: Khối "Lịch sử — Xem thanh toán và các hoạt động của đơn" → SG-09c.
 - FR-06: Khối "Chứng từ & hóa đơn — Thanh toán, chứng từ và nghiệp vụ sau bán": phiếu bán hàng (US-03.6), HĐĐT ([TH-08](TH-08-hoa-don-dien-tu.md) HD-06: Chưa phát hành / Đang xử lý / Đã phát hành / Phát hành lỗi, phụ đề "Quản lý HĐĐT").
 - FR-07: Đơn đã huỷ: khối "Lý do hủy".
-- FR-08: Nút "Thao tác" → sheet: "Đổi/trả hàng — Chọn hàng khách trả hoặc đổi", "Hủy đơn — Kiểm tra điều kiện và tác động trước khi hủy" (BR-37); "Thu tiền" khi còn phải thu (EP-04).
+- FR-08: Nút "Thao tác" → sheet: "Đổi/trả hàng — Chọn hàng khách trả hoặc đổi", "Hủy đơn — Kiểm tra điều kiện và tác động trước khi hủy" (BR-37). Không có "Thu tiền" (BR-30); khối thanh toán có dòng "Xem công nợ của khách ›" (TH-06).
 - FR-09: Mỗi khối tải riêng: "Đang tải …", lỗi "Không tải được …" + "Thử lại", không quyền "Bạn không có quyền xem …", chưa sẵn sàng "… đang đồng bộ. Thử lại sau." (`PROJECTION_PENDING`).
 - FR-10: Toàn trang: không tìm thấy ("Đơn hàng không tồn tại hoặc đã bị xóa."), không quyền ("Tài khoản của bạn không có quyền xem đơn hàng này."), lỗi ("Không thể tải chi tiết đơn hàng"), đơn đang cập nhật ("Dữ liệu đơn hàng chưa sẵn sàng. Vui lòng thử lại.").
 
@@ -1140,7 +1089,7 @@ Scenario: SC-02 — Nháp bị sửa ở máy khác
 - FR-04: "Giao dịch": danh sách thu / hoàn (loại, phương thức, số tiền, thời gian, mã giao dịch).
 - FR-05: Bỏ thẻ "Xem công nợ — Mở sổ công nợ của khách hàng" (hiện chỉ hiện toast, không có sổ công nợ — KI-07).
 
-**Quy tắc:** công thức 2.2; BR-30.
+**Quy tắc:** công thức quyết toán [TH-06 2.2](TH-06-cong-no.md#22-công-thức); BR-30.
 
 **Tiêu chí nghiệm thu**
 
@@ -1177,48 +1126,26 @@ Scenario: SC-02 — Nháp bị sửa ở máy khác
 
 ---
 
-### 4.5 EP-04 — Thu tiền công nợ của đơn
+### 4.5 EP-04 — Thu tiền công nợ của đơn (đã bỏ khỏi giao diện)
 
-**Bối cảnh.** Khách nợ quay lại trả tiền. RPC `record_sales_payment` đã có và đã chống trùng, nhưng app chưa có màn nào gọi. PLAN P8 cần kịch bản "bán nợ rồi thu sau", nên phải có màn này. Sổ công nợ theo khách (thu gộp nhiều đơn) thuộc Theme 6, chưa làm.
+**Bối cảnh.** Epic này từng có màn SG-11 "Thu tiền" ở chi tiết đơn (làm ở 8-B3). Từ 2026-11-18 chủ sản phẩm chốt: thanh toán riêng từng đơn chỉ có lúc đơn vừa tạo (checkout); sau khi đơn hoàn tất, mọi khoản thu phải đi qua trang Công nợ phải thu của Theme 6, nơi nhân viên tick các đơn khách muốn trả, hoặc tick tất cả để trả hết (TH-06 BR-05, US-02.1). Khách lẻ không được nợ nên phải thanh toán đủ 100% lúc bán.
 
-#### US-04.1 — Thu tiền cho đơn còn phải thu
+#### US-04.1 — (đã bỏ) Thu tiền cho đơn còn phải thu
 
-| Là | Tôi muốn | Để |
-|---|---|---|
-| Nhân viên bán hàng | ghi nhận khoản khách trả thêm cho một đơn còn nợ | số còn phải thu của đơn đúng |
+Thay bằng TH-06 US-02.1. Còn lại ở TH-05:
 
-**Yêu cầu chức năng**
-
-- FR-01: Sheet "Thao tác" ở SG-09 có "Thu tiền" khi đơn `completed` và `outstanding > 0`.
-- FR-02: SG-11 "Thu tiền": "Còn phải thu <số>", hẹn thanh toán; "Số tiền" (mặc định = còn phải thu); "Phương thức" Tiền mặt / Chuyển khoản; "Mã giao dịch" (chuyển khoản, tuỳ chọn); "Xác nhận thu tiền".
-- FR-03: Gọi `record_sales_payment` (nguồn `additional_collection`, `idempotency_key` mới cho mỗi lần mở sheet, giữ nguyên khi thử lại).
-- FR-04: Thành công → toast "Đã ghi nhận <số>", SG-09 tải lại; phiếu bán hàng lần sau sinh phiên bản mới.
-- FR-05: Lỗi: vượt số còn phải thu (`OVERPAYMENT_NOT_ALLOWED`) → "Số tiền vượt quá số còn phải thu."; đơn đã huỷ (`ORDER_CANCELLED`) → "Đơn đã hủy, không thể thu thêm."; mất mạng → giữ sheet, "Thử lại" cùng key.
+- FR-01: Chi tiết đơn (SG-09) và sheet "Thao tác" không có mục "Thu tiền", kể cả khi đơn `completed` còn `outstanding > 0`.
+- FR-02: Khối thanh toán của SG-09 có dòng "Xem công nợ của khách ›" (TH-06, mục 5.1) khi đơn còn nợ và có khách.
+- FR-03: RPC `record_sales_payment`, nguồn giao dịch `additional_collection`, `idempotency_key`, `OVERPAYMENT_NOT_ALLOWED`, `ORDER_CANCELLED` giữ nguyên vì TH-06 gọi lại (`record_customer_collection`); không còn màn nào gọi trực tiếp.
 
 **Quy tắc:** BR-02, BR-30, BR-31.
 
 **Tiêu chí nghiệm thu**
 
-- AC-01: Đơn còn phải thu 600.000, thu 600.000 → trạng thái "Đã thanh toán", còn phải thu 0, có thêm 1 giao dịch nguồn `additional_collection`.
-- AC-02: Thu 200.000 → "Thanh toán một phần", còn 400.000.
-- AC-03: Bấm xác nhận hai lần / thử lại sau mất mạng → chỉ 1 giao dịch.
-- AC-04: Đơn không còn nợ → không có mục "Thu tiền".
-
-**Kịch bản**
-
-```gherkin
-Scenario: SC-01 — Khách trả nốt nợ
-  Given đơn DH202610060003 còn phải thu 600.000
-  When tôi chọn "Thu tiền", nhập 600.000 tiền mặt và xác nhận
-  Then đơn có trạng thái thanh toán "Đã thanh toán"
-  And lịch sử có "Ghi nhận thanh toán tiền mặt" 600.000
-
-Scenario: SC-02 — Thu quá số nợ
-  Given đơn còn phải thu 100.000
-  When tôi nhập 150.000 và xác nhận
-  Then tôi thấy "Số tiền vượt quá số còn phải thu."
-  And không có giao dịch mới
-```
+- AC-01: Đơn `completed` còn phải thu 600.000 → SG-09 và sheet "Thao tác" không có "Thu tiền"; có "Xem công nợ của khách ›".
+- AC-02: Thu 600.000 cho đơn đó ở TH-06 CN-03 (chọn đơn) → "Đã thanh toán", còn phải thu 0, 1 giao dịch (TH-06 US-02.1 AC-07).
+- AC-03: Đơn không còn nợ → không có dòng "Xem công nợ của khách" ở khối thanh toán.
+- AC-04: Khách lẻ: đơn chỉ hoàn tất khi thanh toán đủ 100%, nên không có công nợ.
 
 ---
 
@@ -1479,7 +1406,7 @@ Scenario: SC-02 — Trả hàng của đơn còn nợ
 | SG-09c | Lịch sử | Màn con | từ SG-09 | US-03.4 |
 | SG-09d | Phiếu đổi/trả của đơn | Màn con | từ SG-09 | US-03.5 |
 | SG-10 | Huỷ đơn | Bottom sheet | từ SG-09 | US-05.1, 05.2 |
-| SG-11 | Thu tiền | Bottom sheet | từ SG-09 | US-04.1 |
+| SG-11 | ~~Thu tiền~~ (đã gỡ 2026-11-18, thay bằng TH-06 CN-03) | — | — | — |
 | SG-12 | Lập phiếu đổi/trả | Màn | `/sales/orders/:orderId/returns/new` | US-06.1…06.4 |
 | SG-13 | Quyết toán đổi/trả | Màn | `…/returns/:id/settle` | US-06.5, 06.6 |
 | SG-14 | Kết quả đổi/trả | Màn | `…/returns/:id/result` | US-06.7 |
@@ -1812,7 +1739,7 @@ Bộ lọc (sheet)
 | Lịch sử | "Xem thanh toán và các hoạt động của đơn" → SG-09c | như trên |
 | Chứng từ & hóa đơn | phiếu bán hàng; HĐĐT (TH-08) | — |
 | Lý do hủy | khi đã huỷ: lý do, người, thời gian | "Đang cập nhật kết quả hủy đơn..." / lỗi / không quyền |
-| Thanh dưới | "Thao tác" | sheet: "Thu tiền" 🆕, "Đổi/trả hàng", "Hủy đơn" |
+| Thanh dưới | "Thao tác" | sheet: "Đổi/trả hàng", "Hủy đơn" (🔧 bỏ "Thu tiền", BR-30) |
 
 ```text
 ┌──────────────────────────────────┐
@@ -1838,7 +1765,6 @@ Bộ lọc (sheet)
 └──────────────────────────────────┘
 
 Sheet "Thao tác"
-  💵 Thu tiền                              (🆕, khi còn phải thu)
   ↺ Đổi/trả hàng — Chọn hàng khách trả hoặc đổi
   ⊘ Hủy đơn — Kiểm tra điều kiện và tác động trước khi hủy
      (vô hiệu: "Đơn đã có thanh toán, vui lòng đổi/trả")
@@ -1891,29 +1817,9 @@ Sheet "Thao tác"
 
 Dòng "Tồn kho — Hoàn lại N mặt hàng" chỉ hiện khi Theme 7 đã làm (KI-01). Đang gửi: "Đang hủy...". Bị chặn: hộp thoại "Không thể huỷ đơn" + lý do.
 
-### 5.12 SG-11 — Thu tiền
+### 5.12 SG-11 — (đã gỡ)
 
-```text
-┌──────────────────────────────────┐
-│ Thu tiền                         │
-│ Đơn DH202610060003               │
-│ Còn phải thu           600.000 ₫ │
-│ Hẹn thanh toán        15/10/2026 │
-│ Số tiền                          │
-│ [ 600.000                 ] đ    │
-│ Phương thức [●Tiền mặt][Chuyển khoản]│
-│ Mã giao dịch (Không bắt buộc)    │
-│ [ Quay lại ] [ Xác nhận thu tiền ]│
-└──────────────────────────────────┘
-```
-
-| Trạng thái | Nội dung |
-|---|---|
-| Nhập | số tiền mặc định = còn phải thu |
-| Lỗi nhập | "Số tiền vượt quá số còn phải thu." / số ≤ 0 |
-| Đang gửi | nút khoá |
-| Lỗi gửi | thông điệp + "Thử lại" (cùng key) |
-| Thành công | đóng sheet, toast "Đã ghi nhận <số>", SG-09 tải lại |
+Màn "Thu tiền" ở chi tiết đơn đã gỡ ngày 2026-11-18. Thu sau bán: TH-06 CN-03 (mục 5.4 của TH-06). Mã SG-11 không dùng lại.
 
 ### 5.13 SG-12 — Lập phiếu đổi/trả
 
@@ -2196,7 +2102,7 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | KI-03 | Hoàn tất không kiểm khách còn hoạt động | Đã sửa 8-B1 (BR-24) | P8 |
 | KI-04 | Ngày hẹn thanh toán chỉ app chặn quá khứ | Đã sửa 8-B1 (BR-20: precheck, finalize, confirm đổi/trả) | P8 |
 | KI-05 | Đổi hàng phát sinh nợ: bắt nhập ngày hẹn nhưng không lưu | Đã sửa 8-B1 (BR-51) | P8 |
-| KI-06 | Không có màn thu tiền sau bán (RPC có) | Đã làm 8-B3 (EP-04, SG-11) | P8 |
+| KI-06 | Không có màn thu tiền sau bán (RPC có) | Đã làm 8-B3 (EP-04, SG-11), **rồi gỡ 2026-11-18**: thu sau bán chuyển sang TH-06 | P8 |
 | KI-07 | Thẻ "Xem công nợ" chỉ hiện toast; "Nợ cũ" ở thanh toán luôn 0 | Đã sửa 8-B2: bỏ cả hai | P8 |
 | KI-08 | Quyết toán đổi/trả có QR mẫu cứng ("QR cửa hàng · ACB", "Nguyễn Văn A") và lựa chọn "Cấn trừ công nợ hiện tại" bị khoá | Đã sửa 8-B2: bỏ QR mẫu và lựa chọn cấn trừ công nợ | P8 |
 | KI-09 | Tìm đơn phân biệt dấu | Đã sửa 8-B1 (BR-33: `unaccent`, như TH-03) | P8 |
@@ -2236,7 +2142,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 | Tách bước xác nhận / hoàn tất đổi/trả, `processing` chờ downstream | Một bước, hoàn tất ngay |
 | Quick flow "Trả toàn bộ & hoàn tiền" từ màn huỷ | Không có (KI-19) |
 | Đặt chỗ hàng, kiểm khả dụng theo lô khi bán | Theme 7 |
-| Sổ công nợ khách, cấn trừ công nợ giữa các đơn, thu nợ gộp | Theme 6 (chưa làm); thu theo từng đơn (EP-04) |
+| Sổ công nợ khách, cấn trừ công nợ giữa các đơn, thu nợ gộp, thu sau bán | Theme 6 (chưa làm) |
 | Payment gateway, ví, QR động, đối soát ngân hàng | Tiền mặt, chuyển khoản nhập tay |
 | Thuế, làm tròn theo cấu hình, đa tiền tệ | Thuế = 0, làm tròn = 0, chỉ VND |
 | Mã khuyến mại, chương trình ưu đãi | Không có (TH-04) |
@@ -2265,7 +2171,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 |---|---|---|
 | 8.1 | Soạn đơn + nháp; bỏ "Nợ cũ" | EP-01, KI-07 |
 | 8.2 | Thanh toán + hoàn tất; sửa `finalize_sales_order`, `precheck_sales_order_checkout` (giá, khách, ngày hẹn) | EP-02, KI-02/03/04 |
-| 8.3 | Tra cứu + chi tiết; `search_sales_orders` bỏ dấu; bỏ "Xem công nợ"; **thêm Thu tiền** (làm ở 8-B3) | EP-03, EP-04, KI-06/07/09 |
+| 8.3 | Tra cứu + chi tiết; `search_sales_orders` bỏ dấu; bỏ "Xem công nợ"; **thêm Thu tiền** (làm ở 8-B3, gỡ 2026-11-18, xem TH-06) | EP-03, EP-04, KI-06/07/09 |
 | 8.4 | Phiếu bán hàng / phiếu đổi trả (PDF, in, chia sẻ) | US-02.6, 03.6, 06.7 |
 | 8.5 | Huỷ + đổi/trả; sửa `confirm_return_exchange` (ngày hẹn); bỏ QR mẫu, nút "Hoàn tất phiếu", code chính sách trống; mặc định Tiền mặt | EP-05, EP-06, KI-05/08/10/17/18 |
 
@@ -2276,7 +2182,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 | # | Kịch bản | Kỳ vọng chính |
 |---|---|---|
 | 1 | Bán thường: Khách lẻ, 2 dòng, tiền mặt có tiền thừa | `paid`; 1 giao dịch = tổng đơn; phiếu có tiền mặt |
-| 2 | Bán nợ rồi thu sau: khách A trả 40%, hẹn ngày; sau đó "Thu tiền" phần còn lại | `partially_paid` → `paid`; `payment_due_date` lưu; 2 giao dịch |
+| 2 | Bán nợ rồi thu sau: khách A trả 40%, hẹn ngày; sau đó thu phần còn lại ở Công nợ phải thu (TH-06 CN-03) | `partially_paid` → `paid`; `payment_due_date` lưu; 2 giao dịch |
 | 3 | Hoàn tiền: đơn đã trả đủ, trả 1 dòng | giao dịch `refund`; `current_payable` giảm; vẫn `paid` |
 | 4 | Huỷ đơn: bán nợ 100%, huỷ | `cancelled`; `current_payable = 0`; không thu thêm được |
 | 5 | Đổi hàng: trả 1, đổi sang hàng đắt hơn, khách trả một phần | thu thêm + nợ mới + ngày hẹn lưu |
@@ -2298,7 +2204,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 
 - SG-02: cộng dồn dòng, vượt tồn, làm mới giá khi đổi khách, sheet rời màn.
 - SG-06: tiền thừa, vượt tổng, công nợ bắt buộc ngày hẹn, Khách lẻ không nợ, khôi phục sau mất kết nối (không cho thanh toán lại).
-- SG-09: từng khối lỗi độc lập; "Hủy đơn" vô hiệu khi đã thu; "Thu tiền" chỉ hiện khi còn nợ.
+- SG-09: từng khối lỗi độc lập; "Hủy đơn" vô hiệu khi đã thu; không có "Thu tiền"; "Xem công nợ của khách" chỉ hiện khi còn nợ.
 - SG-13: ba trường hợp chênh lệch, khách trả thiếu bắt buộc ngày hẹn.
 
 ### 9.4 Giữ nguyên
