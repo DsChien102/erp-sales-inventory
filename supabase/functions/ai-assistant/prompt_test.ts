@@ -24,10 +24,29 @@ Deno.test('chủ cửa hàng', () => {
   assert(p.includes('05/01/2026'))
 })
 
-Deno.test('AI-1 chưa có công cụ công nợ / dự báo: không nằm trong phạm vi, có dòng chua_ho_tro', () => {
+Deno.test('AI-3: có dự báo nhập hàng, chưa có công nợ; còn dòng chua_ho_tro', () => {
   const p = buildSystemPrompt({ today: '2026-11-16', isOwner: true, tenantName: 'X' })
   assert(!p.includes('công nợ khách'))
-  assert(!p.includes('dự báo nhập hàng'))
+  assert(p.includes('dự báo nhập hàng'))
   assert(p.includes('KHÔNG trả lời nội dung'))
   assert(p.includes('chua_ho_tro'))
+})
+
+Deno.test('AI-4: lời dặn nhắc truy_van, ưu tiên công cụ chuyên dụng', () => {
+  const p = buildSystemPrompt({ today: '2026-11-17', isOwner: true, tenantName: 'X' })
+  assert(p.includes('truy_van'))
+  assert(p.includes('KHÔNG dùng truy_van'))
+  assert(p.includes('KHÔNG trả lời nội dung'))
+})
+
+Deno.test('AI-5: câu chào không được chứa chữ số (bộ lọc chống bịa số)', () => {
+  const p = buildSystemPrompt({ today: '2026-11-18', isOwner: true, tenantName: 'X' })
+  assert(p.includes('KHÔNG được chứa chữ số'))
+  assert(p.includes('không gọi công cụ'))
+})
+
+Deno.test('AI-5: chỉ trả lời câu hỏi mới nhất, không chạy lại công cụ cho câu cũ', () => {
+  const p = buildSystemPrompt({ today: '2026-11-18', isOwner: true, tenantName: 'X' })
+  assert(p.includes('Chỉ trả lời câu hỏi MỚI NHẤT'))
+  assert(p.includes('KHÔNG gọi lại công cụ cho câu hỏi cũ'))
 })

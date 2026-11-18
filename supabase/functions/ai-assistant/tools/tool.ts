@@ -23,7 +23,7 @@ export type ToolContext = {
 
 export type ToolOutcome =
   | { kind: 'data'; forModel: unknown; block?: TableBlock }
-  | { kind: 'bad_args'; chi_tiet: string } // gửi lại Gemini { loi: 'tham_so_sai', chi_tiet }
+  | { kind: 'bad_args'; chi_tiet: string } // gửi lại model { loi: 'tham_so_sai', chi_tiet }
   | {
     kind: 'unsupported'
     status: 'ngoai_pham_vi' | 'chua_ho_tro' | 'tu_choi'
@@ -31,6 +31,8 @@ export type ToolOutcome =
 
 export interface Tool {
   declaration: ToolDeclaration
+  /** Tải dữ liệu cần cho mô tả công cụ (vd. danh mục view). Không được ném lỗi. */
+  prepare?(ctx: ToolContext): Promise<void>
   run(args: Record<string, unknown>, ctx: ToolContext): Promise<ToolOutcome>
 }
 // RpcError 'PERMISSION_DENIED' được ném tiếp (orchestrator bắt), không gói thành ToolOutcome.

@@ -117,15 +117,19 @@ void main() {
     expect(find.text('ổn'), findsOneWidget);
   });
 
-  testWidgets('đang chờ hiện "Đang xem số liệu…" và vô hiệu nút Gửi', (tester) async {
+  testWidgets('đang chờ hiện "Đang trả lời…", sau 8 giây đổi chữ, vô hiệu nút Gửi', (tester) async {
     final completer = Completer<AssistantReply>();
     stubAsk().thenAnswer((_) => completer.future);
     await pump(tester);
     await tester.enterText(find.byType(EditableText), 'a');
     await tester.tap(find.bySemanticsLabel('Gửi'));
     await tester.pump();
-    expect(find.text('Đang xem số liệu…'), findsOneWidget);
+    expect(find.text('Đang trả lời…'), findsOneWidget);
     expect(tester.widget<VButton>(find.byType(VButton)).onPressed, isNull);
+    // Sau 8 giây đổi sang chữ "chờ lâu"
+    await tester.pump(const Duration(seconds: 8));
+    expect(find.text('Đang trả lời…'), findsNothing);
+    expect(find.text('Vẫn đang xử lý, chờ chút nhé…'), findsOneWidget);
     completer.complete(_reply());
     await tester.pumpAndSettle();
   });

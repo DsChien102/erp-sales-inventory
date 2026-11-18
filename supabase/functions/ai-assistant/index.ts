@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { GeminiClient } from './model/gemini_client.ts'
+import { ClaudeClient } from './model/claude_client.ts'
 import { handleRequest, type SupabaseLike } from './handler.ts'
 
 Deno.serve((req) =>
@@ -15,6 +15,6 @@ Deno.serve((req) =>
           auth: { persistSession: false, autoRefreshToken: false },
         },
       ) as unknown as SupabaseLike,
-    makeModel: (apiKey, model) => new GeminiClient({ apiKey, model }),
+    makeModel: (cfg) => new ClaudeClient(cfg),
   })
 )

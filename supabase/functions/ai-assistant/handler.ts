@@ -1,4 +1,5 @@
 import { MESSAGES } from './messages.ts'
+import { type ModelConfig, modelConfigFromEnv } from './model/config.ts'
 import { ModelBusyError, type ModelClient, ModelError } from './model/model_client.ts'
 import { answerQuestion } from './orchestrator.ts'
 import { todayInVietnam } from './period.ts'
@@ -27,11 +28,10 @@ export type HandlerDeps = {
   now: () => Date
   getEnv: (key: string) => string | undefined
   makeClient: (authorization: string) => SupabaseLike
-  makeModel: (apiKey: string, model: string) => ModelClient
+  makeModel: (cfg: ModelConfig) => ModelClient
   timeoutMs?: number
 }
 
-const DEFAULT_MODEL = 'gemini-3.1-flash-lite'
 const DEFAULT_TIMEOUT_MS = 30_000
 
 class TimeoutError extends Error {}
@@ -127,10 +127,11 @@ export async function handleRequest(
   }[] = []
   let usage = { inputTokens: 0, outputTokens: 0 }
 
-  const apiKey = deps.getEnv('GEMINI_API_KEY')
-  if (!apiKey) {
-    console.error('GEMINI_API_KEY chưa được cấu hình')
+  const cfg = modelConfigFromEnv(deps.getEnv)
+  if (!cfg) {
+    console.error('ANTHROPIC_API_KEY chưa được cấu hình')
   } else {
+    console.log('ai-trace model', cfg.model, cfg.effort)
     const controller = new AbortController()
     let timer: ReturnType<typeof setTimeout> | undefined
     try {
@@ -144,10 +145,7 @@ export async function handleRequest(
             isOwner: info.is_owner === true,
             tenantName: info.tenant_name ?? '',
           }),
-          model: deps.makeModel(
-            apiKey,
-            deps.getEnv('GEMINI_MODEL') || DEFAULT_MODEL,
-          ),
+          model: deps.makeModel(cfg),
           tools: buildTools(),
           ctx: { tenantId, actorId, today, rpc: rpcCaller(client) },
           signal: controller.signal,
@@ -168,7 +166,7 @@ export async function handleRequest(
       if (e instanceof ModelBusyError) {
         status = 'ban'
         answer = MESSAGES.ban
-        console.error('ai-assistant Gemini bận:', e.message)
+        console.error('ai-assistant Claude bận:', e.message)
       } else if (
         e instanceof TimeoutError ||
         (e instanceof Error && e.name === 'AbortError')

@@ -4,8 +4,12 @@
 //   AI_EVAL_OWNER_EMAIL=… AI_EVAL_OWNER_PASSWORD=… \
 //   AI_EVAL_CASHIER_EMAIL=… AI_EVAL_CASHIER_PASSWORD=… \
 //   AI_EVAL_SAN_PHAM_A="…" AI_EVAL_MA_DON="…" \
-//   deno run --allow-env --allow-net --allow-read scripts/ai/run_eval.ts
+//   deno run --allow-env --allow-net --allow-read scripts/ai/run_eval.ts [scripts/ai/eval_questions_ai4.json]
 //
+// Tham số dòng lệnh (tuỳ chọn): đường dẫn bộ câu thử; bỏ trống = eval_questions.json.
+// Trường `truoc` (mảng câu hỏi): chạy trước trong cùng hội thoại để thử câu nối tiếp.
+// `trang_thai` có thể liệt kê nhiều giá trị chấp nhận, ngăn bằng "|".
+
 // Tự động chấm: khớp công cụ + trạng thái. Đúng số: người dùng đối chiếu tay (cột cuối).
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
@@ -13,6 +17,7 @@ type Question = {
   id: number
   nguoi_hoi: 'chu' | 'thu_ngan'
   cau_hoi: string
+  truoc?: string[]
   cong_cu: string[]
   trang_thai: string
   doi_chieu: string
@@ -55,9 +60,51 @@ const tokens = {
   ),
 }
 
+const questionsPath = Deno.args[0]
 const questions: Question[] = JSON.parse(
-  await Deno.readTextFile(new URL('./eval_questions.json', import.meta.url)),
+  await Deno.readTextFile(
+    questionsPath ? questionsPath : new URL('./eval_questions.json', import.meta.url),
+  ),
 )
+
+type History = { role: 'user' | 'assistant'; text: string }[]
+
+function fill(text: string): string {
+  return text.replaceAll('{san_pham_a}', sanPhamA).replaceAll('{ma_don}', maDon)
+}
+
+async function ask(
+  token: string,
+  question: string,
+  history: History,
+): Promise<{ tools: string[]; status: string; answer: string; ms: number }> {
+  const t0 = Date.now()
+  try {
+    const res = await fetch(`${url}/functions/v1/ai-assistant`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        apikey: anonKey,
+      },
+      body: JSON.stringify({ tenant_id: tenantId, question, history }),
+    })
+    const body = await res.json()
+    return {
+      tools: Array.isArray(body.cong_cu) ? body.cong_cu : [],
+      status: body.trang_thai ?? `http_${res.status}`,
+      answer: String(body.cau_tra_loi ?? JSON.stringify(body)),
+      ms: Date.now() - t0,
+    }
+  } catch (e) {
+    return {
+      tools: [],
+      status: 'loi_goi',
+      answer: e instanceof Error ? e.message : String(e),
+      ms: Date.now() - t0,
+    }
+  }
+}
 
 const sameSet = (a: string[], b: string[]) => {
   const x = [...new Set(a)].sort().join(',')
@@ -66,39 +113,30 @@ const sameSet = (a: string[], b: string[]) => {
 }
 
 let passed = 0
+const timings: { id: number; ms: number }[] = []
 const rows: string[] = []
 
 for (const q of questions) {
-  const question = q.cau_hoi.replaceAll('{san_pham_a}', sanPhamA).replaceAll(
-    '{ma_don}',
-    maDon,
-  )
-  let actualTools: string[] = []
-  let actualStatus = 'loi_goi'
-  let answer = ''
-  try {
-    const res = await fetch(`${url}/functions/v1/ai-assistant`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${tokens[q.nguoi_hoi]}`,
-        apikey: anonKey,
-      },
-      body: JSON.stringify({ tenant_id: tenantId, question }),
-    })
-    const body = await res.json()
-    actualTools = Array.isArray(body.cong_cu) ? body.cong_cu : []
-    actualStatus = body.trang_thai ?? `http_${res.status}`
-    answer = String(body.cau_tra_loi ?? JSON.stringify(body))
-  } catch (e) {
-    answer = e instanceof Error ? e.message : String(e)
+  const question = fill(q.cau_hoi)
+  const history: History = []
+  for (const prev of q.truoc ?? []) {
+    const r = await ask(tokens[q.nguoi_hoi], fill(prev), history)
+    history.push({ role: 'user', text: fill(prev) }, { role: 'assistant', text: r.answer })
+    timings.push({ id: q.id, ms: r.ms })
+    await new Promise((res) => setTimeout(res, 1000))
   }
+  const { tools: actualTools, status: actualStatus, answer, ms } = await ask(
+    tokens[q.nguoi_hoi],
+    question,
+    history,
+  )
 
-  const ok = sameSet(actualTools, q.cong_cu) && actualStatus === q.trang_thai
+  timings.push({ id: q.id, ms })
+  const ok = sameSet(actualTools, q.cong_cu) && q.trang_thai.split('|').includes(actualStatus)
   if (ok) passed++
   rows.push(
     [
-      `#${q.id} ${ok ? '✅' : '❌'} (${q.nguoi_hoi})`,
+      `#${q.id} ${ok ? '✅' : '❌'} (${q.nguoi_hoi}) ${ms} ms`,
       `  Câu hỏi : ${question}`,
       `  Công cụ : mong đợi [${q.cong_cu.join(', ')}] / thực tế [${actualTools.join(', ')}]`,
       `  Trạng thái: mong đợi ${q.trang_thai} / thực tế ${actualStatus}`,
@@ -107,7 +145,10 @@ for (const q of questions) {
     ].join('\n'),
   )
   console.log(rows[rows.length - 1] + '\n')
-  await new Promise((r) => setTimeout(r, 5000)) // tránh chạm hạn mức theo phút của Gemini
+  await new Promise((r) => setTimeout(r, 1000))
 }
 
 console.log(`Tự động đạt: ${passed}/${questions.length}`)
+const slowest = timings.reduce((a, b) => (b.ms > a.ms ? b : a), timings[0])
+const avg = Math.round(timings.reduce((s, t) => s + t.ms, 0) / timings.length)
+console.log(`Thời gian: TB ${avg} ms, chậm nhất ${slowest.ms} ms (câu #${slowest.id})`)

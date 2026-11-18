@@ -148,7 +148,7 @@
       "du_bao_ban_hang"
     ],
     "trang_thai": "ok",
-    "doi_chieu": "Khớp kết quả RPC dự báo (cần AI-3)"
+    "doi_chieu": "Khớp bảng cuối seed_demo_sales.sql / RPC get_purchase_forecast"
   },
   {
     "id": 19,
@@ -159,7 +159,7 @@
       "du_bao_ban_hang"
     ],
     "trang_thai": "ok",
-    "doi_chieu": "Đúng số ngày (cần AI-3)"
+    "doi_chieu": "Sữa tươi hộp 1L: days_left ≈ 3,3 ngày"
   },
   {
     "id": 20,
@@ -169,7 +169,7 @@
       "du_bao_ban_hang"
     ],
     "trang_thai": "ok",
-    "doi_chieu": "Như câu 18 (cần AI-3)"
+    "doi_chieu": "Khớp bảng cuối seed_demo_sales.sql / RPC get_purchase_forecast"
   },
   {
     "id": 21,
@@ -218,7 +218,7 @@
     "cong_cu": [
       "lai_gop"
     ],
-    "trang_thai": "khong_quyen",
-    "doi_chieu": "\"Không có quyền\", không lộ số"
+    "trang_thai": "ok",
+    "doi_chieu": "Như chủ; khớp báo cáo lãi gộp"
   }
 ]

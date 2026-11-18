@@ -1,6 +1,7 @@
 import 'package:erp/core/iam/iam_ui_failure.dart';
 import 'package:erp/core/iam/iam_ui_failure_mapper.dart';
 import 'package:erp/core/session/session_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 
@@ -65,7 +66,10 @@ final class LoginCubit extends Cubit<LoginState> {
           clearFailure: true,
         ),
       );
-    } catch (error) {
+    } catch (error, stack) {
+      if (kDebugMode) {
+        debugPrint('LoginCubit.submit lỗi: $error\n$stack');
+      }
       if (isClosed) {
         return;
       }

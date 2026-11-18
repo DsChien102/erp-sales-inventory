@@ -1,6 +1,6 @@
 const PERSONAL_KEY = /phone|email|address|tax|cccd|identity/i
 
-/** Bỏ đệ quy mọi khoá chứa thông tin cá nhân trước khi gửi cho Gemini (AI-0 mục 11). */
+/** Bỏ đệ quy mọi khoá chứa thông tin cá nhân trước khi gửi cho model (AI-0 mục 11). */
 export function redactPersonal(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(redactPersonal)
   if (value !== null && typeof value === 'object') {

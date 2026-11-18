@@ -749,12 +749,20 @@ begin
     raise exception 'FAIL: r9_supplier_purchase totals.landed';
   end if;
 
-  -- r5b_staff_denied
+  -- r5b_staff_gross_profit_ok (staff) + supplier purchases still owner-only
   perform set_config('request.jwt.claim.sub', v_staff::text, true);
   perform set_config('request.jwt.claims', json_build_object('sub', v_staff::text, 'role', 'authenticated')::text, true);
-  perform pg_temp.expect_err(
-    format('select inventory.get_gross_profit_report(%L, %L::date, %L::date, %L)', v_t, v_month_start, v_today, 'PRODUCT'),
-    'PERMISSION_DENIED', 'r5b_staff_denied gross profit');
+  -- r5b_staff_gross_profit_ok: AI-4 Task 4 mở lãi gộp cho mọi thành viên; số bằng của chủ cùng kỳ
+  v_res := inventory.get_gross_profit_report(v_t, v_month_start, v_today, 'PRODUCT');
+  perform set_config('request.jwt.claim.sub', v_owner::text, true);
+  perform set_config('request.jwt.claims', json_build_object('sub', v_owner::text, 'role', 'authenticated')::text, true);
+  if v_res->'totals' is null
+     or (v_res->'totals'->>'net_revenue')::bigint
+        is distinct from (inventory.get_gross_profit_report(v_t, v_month_start, v_today, 'PRODUCT')->'totals'->>'net_revenue')::bigint then
+    raise exception 'FAIL: r5b_staff_gross_profit_ok staff totals must equal owner totals: %', v_res->'totals';
+  end if;
+  perform set_config('request.jwt.claim.sub', v_staff::text, true);
+  perform set_config('request.jwt.claims', json_build_object('sub', v_staff::text, 'role', 'authenticated')::text, true);
   perform pg_temp.expect_err(
     format('select inventory.get_supplier_purchase_report(%L, %L::date, %L::date)', v_t, v_month_start, v_today),
     'PERMISSION_DENIED', 'r5b_staff_denied supplier purchases');

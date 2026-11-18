@@ -8,7 +8,8 @@ export type ToolCall = { name: string; args: Record<string, unknown> }
 
 export type ModelTurn =
   | { role: 'user'; text: string }
-  | { role: 'model'; raw: unknown } // nguyên văn content model trả (giữ thoughtSignature)
+  | { role: 'model_text'; text: string } // lượt trả lời cũ trong history (chỉ chữ)
+  | { role: 'model'; raw: unknown } // nguyên văn content model trả (giữ thinking/tool_use)
   | { role: 'tool_results'; results: { name: string; response: unknown }[] }
 
 export type Usage = { inputTokens: number; outputTokens: number }

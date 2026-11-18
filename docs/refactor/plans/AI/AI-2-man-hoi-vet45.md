@@ -3,7 +3,7 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development hoặc superpowers:executing-plans. Dự án này **người dùng tự code, Claude review ở phiên khác** (xem [README plans](../README.md)); các bước dùng checkbox để người dùng tick.
 
 > Tích hợp AI · plan **AI-2** của [PLAN.md](../../PLAN.md) mục "Tích hợp AI"
-> Trạng thái: Plan ✅ (người dùng duyệt 2026-11-16) | Làm 🟡 (Task 1–5 xong; Task 6 đã chạy thật trên web, còn vài mục kiểm tay) | Review ⬜
+> Trạng thái: Plan ✅ (người dùng duyệt 2026-11-16) | Làm ✅ (2026-11-17; còn vài mục kiểm tay ghi ở Ghi chú) | Review ⬜
 > Spec: [`docs/superpowers/specs/2026-11-16-ai-2-man-hoi-vet45-design.md`](../../../superpowers/specs/2026-11-16-ai-2-man-hoi-vet45-design.md) (người dùng duyệt 2026-11-16) · Yêu cầu: [AI-0](AI-0-yeu-cau.md) mục 4–8 · Backend: [AI-1](AI-1-backend.md) (R4 ✅)
 
 **Goal:** Màn chat `/ask` gọi Edge Function `ai-assistant`, hiện câu trả lời + bảng (thẻ trên iPhone, bảng thật trên web), đủ các trạng thái, bấm dòng mở sản phẩm / khách / đơn.
@@ -158,7 +158,7 @@ String? assistantOpenLocation(OpenTarget target);
 - [x] **Step 1: Widget test (cubit giả / repository giả):**
   - Màn trống hiện lời chào + 4 câu gợi ý (AI-0 mục 8); bấm gợi ý → gọi `send` với đúng câu đó.
   - Mỗi `AssistantStatus` hiện `reply.text`; `hetLuot` → ô nhập `enabled: false` và chữ hết lượt; `ErrorMessage` hiện nút **Thử lại** → gọi `retry`.
-  - `waiting` → hiện "Đang xem số liệu…", nút Gửi vô hiệu.
+  - `waiting` → hiện "Đang trả lời…", sau 8 giây "Vẫn đang xử lý, chờ chút nhé…" (đổi 2026-11-17: câu chào cũng hiện chờ, không nên nói "xem số liệu"), nút Gửi vô hiệu.
   - Ô nhập có `maxLength: 500`.
   - Bảng: ở khung rộng 1280 render `VTable` có tiêu đề cột và căn phải cột `tien/so/phan_tram`; ở 390 render từng thẻ (cột đầu = tiêu đề thẻ, còn lại "nhãn: giá trị"); chọn dạng bằng `LayoutBuilder` theo bề rộng **khung bảng** ≥ `VBreakpoints.tablet` (600) *(điều chỉnh so với spec: dùng token có sẵn thay cho 900)*.
   - Bấm dòng / thẻ có `open` hợp lệ → `context.push(<location>)`; dòng không `open` hoặc location `null` → không bấm được.

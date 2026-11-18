@@ -73,7 +73,7 @@ const rpcErr = (code: string) => ({
 function deps(
   client: SupabaseLike,
   model: ModelClient,
-  env: Record<string, string> = { GEMINI_API_KEY: 'k' },
+  env: Record<string, string> = { ANTHROPIC_API_KEY: 'k' },
   timeoutMs?: number,
 ): HandlerDeps {
   return {
@@ -150,7 +150,7 @@ Deno.test('start_question PERMISSION_DENIED ⇒ khong_quyen', async () => {
   assertEquals(body.trang_thai, 'khong_quyen')
 })
 
-Deno.test('Gemini 429 ⇒ ban + câu cố định, nhật ký ghi ban', async () => {
+Deno.test('Claude 429 ⇒ ban + câu cố định, nhật ký ghi ban', async () => {
   const log: RpcLog[] = []
   const client = fakeClient({
     log,
@@ -182,7 +182,7 @@ Deno.test('model chậm quá thời hạn ⇒ loi + MESSAGES.cham', async () => 
   })
   const body = await (await handleRequest(
     post(good),
-    deps(client, slow, { GEMINI_API_KEY: 'k' }, 20),
+    deps(client, slow, { ANTHROPIC_API_KEY: 'k' }, 20),
   )).json()
   assertEquals([body.trang_thai, body.cau_tra_loi], ['loi', MESSAGES.cham])
 })
@@ -198,16 +198,16 @@ Deno.test('lỗi khác ⇒ loi + MESSAGES.loi', async () => {
   assertEquals([body.trang_thai, body.cau_tra_loi], ['loi', MESSAGES.loi])
 })
 
-Deno.test('thiếu GEMINI_API_KEY ⇒ loi, không 500', async () => {
+Deno.test('missing_anthropic_key_loi: thiếu ANTHROPIC_API_KEY ⇒ loi, không gọi model, không 500', async () => {
   const client = fakeClient({
     rpc: (_s, fn) => (fn === 'start_question' ? START_OK : { data: null }),
   })
-  const res = await handleRequest(
-    post(good),
-    deps(client, new FakeModelClient([]), {}),
-  )
+  let made = 0
+  const d = { ...deps(client, new FakeModelClient([]), {}), makeModel: () => (made++, new FakeModelClient([])) }
+  const res = await handleRequest(post(good), d)
   assertEquals(res.status, 200)
   assertEquals((await res.json()).trang_thai, 'loi')
+  assertEquals(made, 0)
 })
 
 Deno.test('lỗi ghi nhật ký không làm hỏng câu trả lời', async () => {
@@ -299,19 +299,22 @@ Deno.test('getUser nhận token đã bỏ tiền tố Bearer', async () => {
   assertEquals(tokens, ['abc.def.ghi'])
 })
 
-Deno.test('model mặc định gemini-3.1-flash-lite; GEMINI_MODEL ghi đè', async () => {
-  const seen: string[] = []
+Deno.test('claude_config_passed: mặc định haiku/low; CLAUDE_MODEL, CLAUDE_EFFORT ghi đè', async () => {
+  const seen: { model: string; effort: string }[] = []
   const client = fakeClient({ rpc: (_s, fn) => (fn === 'start_question' ? START_OK : { data: null }) })
   const make = (env: Record<string, string>) => ({
     ...deps(client, new FakeModelClient([text('Chào bạn!')]), env),
-    makeModel: (_k: string, model: string) => {
-      seen.push(model)
+    makeModel: (cfg: { model: string; effort: string }) => {
+      seen.push({ model: cfg.model, effort: cfg.effort })
       return new FakeModelClient([text('Chào bạn!')])
     },
   })
-  await handleRequest(post(good), make({ GEMINI_API_KEY: 'k' }))
-  await handleRequest(post(good), make({ GEMINI_API_KEY: 'k', GEMINI_MODEL: 'model-khac' }))
-  assertEquals(seen, ['gemini-3.1-flash-lite', 'model-khac'])
+  await handleRequest(post(good), make({ ANTHROPIC_API_KEY: 'k' }))
+  await handleRequest(
+    post(good),
+    make({ ANTHROPIC_API_KEY: 'k', CLAUDE_MODEL: 'model-khac', CLAUDE_EFFORT: 'medium' }),
+  )
+  assertEquals(seen, [{ model: 'claude-haiku-5-5', effort: 'low' }, { model: 'model-khac', effort: 'medium' }])
 })
 
 Deno.test('log lỗi model ghi message (mã HTTP) nhưng không lộ câu hỏi hay khoá', async () => {
@@ -324,19 +327,19 @@ Deno.test('log lỗi model ghi message (mã HTTP) nhưng không lộ câu hỏi 
     const client = fakeClient({ rpc: (_s, fn) => (fn === 'start_question' ? START_OK : { data: null }) })
     await handleRequest(
       post(q),
-      deps(client, new FakeModelClient([new ModelError('Gemini HTTP 404')]), { GEMINI_API_KEY: 'KHOÁ-BÍ-MẬT' }),
+      deps(client, new FakeModelClient([new ModelError('Claude HTTP 404')]), { ANTHROPIC_API_KEY: 'KHOÁ-BÍ-MẬT' }),
     )
     await handleRequest(
       post(q),
-      deps(client, new FakeModelClient([new ModelBusyError('Gemini hết hạn mức (429)')]), {
-        GEMINI_API_KEY: 'KHOÁ-BÍ-MẬT',
+      deps(client, new FakeModelClient([new ModelBusyError('Claude bận (429)')]), {
+        ANTHROPIC_API_KEY: 'KHOÁ-BÍ-MẬT',
       }),
     )
   } finally {
     console.error = original
   }
   const all = logged.join('\n')
-  assertEquals(all.includes('Gemini HTTP 404'), true)
+  assertEquals(all.includes('Claude HTTP 404'), true)
   assertEquals(all.includes('429'), true)
   assertEquals(all.includes('CÂU-HỎI-RIÊNG-TƯ'), false)
   assertEquals(all.includes('KHOÁ-BÍ-MẬT'), false)

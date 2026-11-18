@@ -8,7 +8,7 @@ export const MAX_HISTORY_TEXT = 2000
 
 /**
  * Chỉ nhận lịch sử dạng chữ thuần ({role: 'user' | 'assistant', text}), bỏ mọi khoá khác —
- * app không được nhét functionCall / functionResponse hay lượt "model" giả vào Gemini.
+ * app không được nhét functionCall / functionResponse hay lượt "model" giả vào model.
  */
 export function parseAssistantRequest(
   body: unknown,

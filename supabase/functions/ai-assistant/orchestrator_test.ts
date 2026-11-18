@@ -146,21 +146,21 @@ Deno.test('chitchat_with_numbers_blocked', async () => {
   assertEquals(r.answer, MESSAGES.chua_ho_tro)
 })
 
-Deno.test('four_calls_capped', async () => {
+Deno.test('six_calls_capped_at_five', async () => {
   let runs = 0
   const t = tool('cong_cu_a', () => {
     runs++
     return Promise.resolve({ kind: 'data', forModel: {}, block: BLOCK })
   })
   const model = new FakeModelClient([
-    calls('cong_cu_a', 'cong_cu_a', 'cong_cu_a', 'cong_cu_a'),
+    calls('cong_cu_a', 'cong_cu_a', 'cong_cu_a', 'cong_cu_a', 'cong_cu_a', 'cong_cu_a'),
   ])
   const r = await ask(model, [t])
-  assertEquals(MAX_TOOL_CALLS, 3)
-  assertEquals(runs, 3)
+  assertEquals(MAX_TOOL_CALLS, 5)
+  assertEquals(runs, 5)
   assertEquals(r.status, 'ok')
   assertEquals(r.answer, MESSAGES.qua_phuc_tap)
-  assertEquals(r.blocks.length, 3)
+  assertEquals(r.blocks.length, 5)
 })
 
 Deno.test('cap across loops without any data ⇒ chua_ho_tro', async () => {
@@ -171,10 +171,11 @@ Deno.test('cap across loops without any data ⇒ chua_ho_tro', async () => {
   const model = new FakeModelClient([
     calls('cong_cu_a', 'cong_cu_a'),
     calls('cong_cu_a', 'cong_cu_a'),
+    calls('cong_cu_a', 'cong_cu_a'),
   ])
   const r = await ask(model, [bad])
   assertEquals(r.status, 'chua_ho_tro')
-  assertEquals(r.toolCalls.length, 3)
+  assertEquals(r.toolCalls.length, 5)
 })
 
 Deno.test('bad_args_sent_back', async () => {
@@ -216,7 +217,7 @@ Deno.test('unknown_tool', async () => {
   assertEquals(r.toolCalls[0].ok, false)
 })
 
-Deno.test('history_mapped', async () => {
+Deno.test('history_assistant_is_text_turn', async () => {
   const model = new FakeModelClient([text('ok')])
   await ask(model, [dataTool()], {
     history: [{ role: 'user', text: 'Câu 1' }, {
@@ -226,7 +227,7 @@ Deno.test('history_mapped', async () => {
   })
   assertEquals(model.requests[0].turns, [
     { role: 'user', text: 'Câu 1' },
-    { role: 'model', raw: { role: 'model', parts: [{ text: 'Trả lời 1' }] } },
+    { role: 'model_text', text: 'Trả lời 1' },
     { role: 'user', text: 'Hỏi' },
   ])
   assertEquals(model.requests[0].system, 'SYS')
@@ -259,4 +260,14 @@ Deno.test('lỗi model không bị bắt ở orchestrator', async () => {
     thrown = true
   }
   assert(thrown)
+})
+
+Deno.test('chitchat_mentions_vet45_not_blocked', async () => {
+  const greet = 'Xin chào! Mình là Hỏi VET45, giúp bạn xem số liệu cửa hàng.'
+  const r = await ask(new FakeModelClient([text(greet)]), [dataTool()])
+  assertEquals(r.status, 'tro_chuyen')
+  assertEquals(r.answer, greet)
+  // vẫn chặn khi có số thật
+  const r2 = await ask(new FakeModelClient([text('Hỏi VET45: hôm nay bán 2.000.000đ')]), [dataTool()])
+  assertEquals(r2.status, 'chua_ho_tro')
 })

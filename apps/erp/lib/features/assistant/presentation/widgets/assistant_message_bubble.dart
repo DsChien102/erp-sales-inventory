@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:erp/features/assistant/data.dart';
 import 'package:erp/features/assistant/logic.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,11 @@ import 'assistant_result_table.dart';
 /// Chữ khi lỗi / mất mạng (AI-0 mục 8). Câu từ chối / lỗi khác lấy từ backend.
 const assistantErrorText = 'Có lỗi khi trả lời. Bạn thử lại nhé.';
 const assistantOfflineText = 'Không có kết nối mạng.';
-const assistantWaitingText = 'Đang xem số liệu…';
+const assistantWaitingText = 'Đang trả lời…';
+const assistantWaitingSlowText = 'Vẫn đang xử lý, chờ chút nhé…';
+
+/// Sau bao lâu thì đổi chữ chờ sang [assistantWaitingSlowText].
+const assistantWaitingSlowAfter = Duration(seconds: 8);
 
 class AssistantMessageBubble extends StatelessWidget {
   const AssistantMessageBubble({super.key, required this.message, this.onRetry});
@@ -92,8 +98,30 @@ class AssistantMessageBubble extends StatelessWidget {
   static bool _drawable(TableBlock b) => b.columns.isNotEmpty && b.rows.isNotEmpty;
 }
 
-class AssistantWaitingBubble extends StatelessWidget {
+class AssistantWaitingBubble extends StatefulWidget {
   const AssistantWaitingBubble({super.key});
+
+  @override
+  State<AssistantWaitingBubble> createState() => _AssistantWaitingBubbleState();
+}
+
+class _AssistantWaitingBubbleState extends State<AssistantWaitingBubble> {
+  Timer? _timer;
+  bool _slow = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(assistantWaitingSlowAfter, () {
+      if (mounted) setState(() => _slow = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +131,10 @@ class AssistantWaitingBubble extends StatelessWidget {
       child: _Bubble(
         background: c.surface,
         border: c.borderDefault,
-        child: VText(assistantWaitingText, color: c.textSecondary),
+        child: VText(
+          _slow ? assistantWaitingSlowText : assistantWaitingText,
+          color: c.textSecondary,
+        ),
       ),
     );
   }
