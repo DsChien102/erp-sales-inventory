@@ -434,11 +434,6 @@ partner:
   update_partner: 20260714004_partner_v2_write_rpc.sql
   upsert_partner_history: 20260714004_partner_v2_write_rpc.sql
 
-platform:
-  install_module_messaging: 20260623000001_platform_messaging_foundation.sql
-  list_tenants_with_pending_messaging: 20260820008_platform_list_pending_messaging_queues.sql
-  rebuild_messaging_backlog_stats_view: 20260623000001_platform_messaging_foundation.sql
-
 pricing:
   _auto_disable_overlapping_customer_price_rules: 20260810001_pricing_patch_overwrite_disabled_rules.sql
   _customer_price_rule_history_snapshot: 20260725012_pricing_customer_price_rule_history_s10.sql
@@ -542,8 +537,6 @@ sales:
   update_sales_order_draft: 20260830007_sales_draft_rpcs.sql
 
 bootstrap_grandfathered:
-  - 20260623000001_platform_messaging_foundation.sql
-  - 20260623000002_install_module_messaging_modules.sql
   - 20260630000001_iam_foundation.sql
   - 20260701000001_iam_tenant_membership_ops.sql
   - 20260709001_catalog_guided_create.sql
@@ -654,7 +647,6 @@ bootstrap_grandfathered:
   - 20260820004_iam_tenant_member_detail_user_info.sql
   - 20260820005_iam_assign_member_role_fix.sql
   - 20260820007_iam_clear_stale_last_selected_tenant.sql
-  - 20260820008_platform_list_pending_messaging_queues.sql
   - 20260826001_iam_fix_utc_now_offset.sql
   - 20260826002_iam_tenant_audit_history_v2_payloads.sql
   - 20260826003_iam_audit_owner_activation_cleanup.sql
