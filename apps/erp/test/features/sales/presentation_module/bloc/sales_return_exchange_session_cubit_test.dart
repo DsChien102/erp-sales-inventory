@@ -1,9 +1,9 @@
+import '../../../iam/support/iam_test_session.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
-import 'package:c45_shared_application/application.dart';
 
 import '../../support/fake_return_exchange_repository.dart';
 import '../../support/fake_sales_order_repository.dart';
@@ -19,7 +19,7 @@ void main() {
       orderId: 'order-1',
       returnExchangeRepository: module.returnExchange,
       orderRepository: module.orders,
-      executionContext: const _ExecutionContext(),
+      session: testSessionController(tenantId: 'tenant-1', userId: 'actor-1'),
       attemptFactory: SalesReturnExchangeAttemptFactory(
         newAttemptId: () {
           ids.moveNext();
@@ -562,7 +562,7 @@ void main() {
       orderId: 'order-1',
       returnExchangeRepository: fakeRepo,
       orderRepository: FakeSalesOrderRepository()..detailResult = _detail(),
-      executionContext: const _ExecutionContext(),
+      session: testSessionController(tenantId: 'tenant-1', userId: 'actor-1'),
       attemptFactory: SalesReturnExchangeAttemptFactory(
         newAttemptId: () => 'attempt-retry-1',
       ),
@@ -736,17 +736,4 @@ final class _QueuedErrorReturnExchangeRepository extends FakeReturnExchangeRepos
     cancelError = _nextError();
     return super.cancel(request);
   }
-}
-
-final class _ExecutionContext implements IExecutionContext {
-  const _ExecutionContext();
-
-  @override
-  String get correlationId => 'corr-1';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'actor-1';
 }

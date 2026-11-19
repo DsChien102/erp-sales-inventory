@@ -1,3 +1,5 @@
+import 'package:erp/core/session/session_controller.dart';
+import '../iam/support/iam_test_session.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:printing/printing.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 
 import 'support/fake_return_exchange_repository.dart';
 import 'support/fake_sales_order_repository.dart';
@@ -26,8 +27,8 @@ void main() {
       );
     GetIt.instance.registerSingleton<ReturnExchangeRepository>(returnExchange);
     GetIt.instance.registerSingleton<SalesOrderRepository>(orders);
-    GetIt.instance.registerSingleton<IExecutionContext>(
-      const _ExecutionContext(),
+    GetIt.instance.registerSingleton<SessionController>(
+      testSessionController(tenantId: 'tenant-1', userId: 'actor-1'),
     );
   });
 
@@ -105,18 +106,6 @@ SalesOrderDetailDto _orderDetail() {
   );
 }
 
-final class _ExecutionContext implements IExecutionContext {
-  const _ExecutionContext();
-
-  @override
-  String get correlationId => 'corr-1';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'actor-1';
-}
 
 ReturnExchangeDetailDto _detail() {
   const plan = ReturnExchangeSettlementPlanDto(

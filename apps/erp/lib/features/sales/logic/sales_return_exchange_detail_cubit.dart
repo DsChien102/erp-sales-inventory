@@ -1,3 +1,4 @@
+import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
@@ -6,7 +7,6 @@ import 'package:erp/features/sales/presentation/support/sales_return_exchange_at
 import 'package:erp/features/sales/presentation/support/sales_return_exchange_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 
 import 'sales_return_exchange_detail_state.dart';
 
@@ -16,7 +16,7 @@ class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailStat
     required String returnExchangeId,
     required this.returnExchangeRepository,
     required this.orderRepository,
-    required this.executionContext,
+    required this.session,
     SalesReturnExchangeAttemptFactory? attemptFactory,
   }) : super(
          SalesReturnExchangeDetailState(
@@ -27,7 +27,7 @@ class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailStat
 
   final ReturnExchangeRepository returnExchangeRepository;
   final SalesOrderRepository orderRepository;
-  final IExecutionContext executionContext;
+  final SessionController session;
 
   int _loadGeneration = 0;
 
@@ -46,9 +46,9 @@ class SalesReturnExchangeDetailCubit extends Cubit<SalesReturnExchangeDetailStat
       );
     }
     try {
-      await executionContext.requireTenantId();
-      await executionContext.requireUserId();
-      final correlationId = executionContext.correlationId;
+      await session.requireTenantId();
+      await session.requireUserId();
+      final correlationId = session.correlationId;
       if (correlationId.trim().isEmpty) {
         throw const AppException('CONTEXT_INVALID');
       }

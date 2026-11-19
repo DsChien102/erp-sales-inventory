@@ -7,7 +7,6 @@ import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
-import 'package:c45_shared_application/application.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 
 /// SG-05 — Group D checkout finalize and uncertain-result recovery.
@@ -35,7 +34,7 @@ class _SalesCheckoutPageState extends State<SalesCheckoutPage> {
     _cubit = SalesCheckoutCubit(
       args: widget.args,
       repository: GetIt.instance<SalesCheckoutRepository>(),
-      executionContext: GetIt.instance<IExecutionContext>(),
+      session: GetIt.instance<SessionController>(),
       activeStoreContext: _SalesCheckoutActiveStoreAdapter(
         GetIt.instance<SessionController>(),
       ),

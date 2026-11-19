@@ -5,18 +5,16 @@ import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 
 abstract final class SalesCheckoutOrchestrator {
   static SalesCheckoutPrepareFn bind() {
     return (SalesComposeState state) async {
       try {
-        final executionContext = GetIt.instance<IExecutionContext>();
         final session = GetIt.instance<SessionController>();
         final accounts = GetIt.instance<AccountRepository>();
         final repository = GetIt.instance<SalesCheckoutRepository>();
-        final tenantId = (await executionContext.requireTenantId()).trim();
-        final actorId = (await executionContext.requireUserId()).trim();
+        final tenantId = (await session.requireTenantId()).trim();
+        final actorId = (await session.requireUserId()).trim();
         final activeStoreId = (await session.requireActiveStoreId()).trim();
         if (tenantId.isEmpty || actorId.isEmpty || activeStoreId.isEmpty) {
           throw StateError('Checkout identity context is incomplete.');

@@ -1,3 +1,4 @@
+import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/models/sales_draft_list_page.dart';
 import 'package:erp/features/sales/data/sales_draft_errors.dart';
@@ -7,20 +8,19 @@ import 'package:erp/features/sales/logic/sales_draft_list_state.dart';
 import 'package:erp/features/sales/presentation/models/sales_order_draft/sales_draft_list_item_vm.dart';
 import 'package:erp/features/sales/presentation/support/i_sales_active_store_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:c45_shared_application/application.dart';
 
 final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
   SalesDraftListCubit({
     required SalesDraftRepository repository,
-    required IExecutionContext executionContext,
+    required SessionController session,
     required ISalesActiveStoreContext activeStoreContext,
   }) : _repository = repository,
-       _executionContext = executionContext,
+       _session = session,
        _activeStoreContext = activeStoreContext,
        super(const SalesDraftListInitial());
 
   final SalesDraftRepository _repository;
-  final IExecutionContext _executionContext;
+  final SessionController _session;
   final ISalesActiveStoreContext _activeStoreContext;
 
   String? _query;
@@ -86,7 +86,7 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
     );
 
     try {
-      final actorId = await _executionContext.requireUserId();
+      final actorId = await _session.requireUserId();
       final storeId = await _activeStoreContext.requireActiveStoreId();
       if (isClosed || gen != _generation) return;
 
@@ -160,7 +160,7 @@ final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
     emit(current.copyWith(isLoadingMore: true, clearLoadMoreError: true));
 
     try {
-      final actorId = await _executionContext.requireUserId();
+      final actorId = await _session.requireUserId();
       final storeId = await _activeStoreContext.requireActiveStoreId();
       if (isClosed || gen != _generation) return;
 

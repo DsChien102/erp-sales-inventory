@@ -1,3 +1,4 @@
+import 'package:erp/core/session/session_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -17,7 +18,6 @@ import 'package:erp/features/einvoice/presentation/widgets/order_einvoice_sectio
 import 'package:erp/features/sales/presentation.dart';
 import 'package:erp/features/sales/presentation/support/order_einvoice_payable.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_detail_original_receipt_actions.dart';
-import 'package:c45_shared_application/application.dart';
 
 /// SG-08 — Tra cứu chi tiết giao dịch gốc & Lịch sử (EP-03/US-02..07).
 class SalesOrderDetailPage extends StatefulWidget {
@@ -48,7 +48,7 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
       paymentRepository: GetIt.instance<SalesPaymentRepository>(),
       cancellationRepository: GetIt.instance<SalesCancellationRepository>(),
       returnExchangeRepository: GetIt.instance<ReturnExchangeRepository>(),
-      executionContext: GetIt.instance<IExecutionContext>(),
+      session: GetIt.instance<SessionController>(),
       // Badge HĐĐT là phần bổ trợ: host nào chưa nối repository einvoice (widget
       // test, harness) vẫn dựng được trang, badge lùi về `notIssued`.
       eInvoiceRepository: GetIt.instance.isRegistered<EInvoiceRepository>()

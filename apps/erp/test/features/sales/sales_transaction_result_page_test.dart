@@ -1,3 +1,5 @@
+import 'package:erp/core/session/session_controller.dart';
+import '../iam/support/iam_test_session.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
@@ -14,7 +16,6 @@ import 'package:go_router/go_router.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/features/sales/presentation.dart'
     hide SalesOrderLifecycleStatus, SalesSettlementStatus;
-import 'package:c45_shared_application/application.dart';
 
 import 'package:erp/features/sales/presentation/pages/sales_result_invalid_entry_page.dart';
 import 'package:erp/features/sales/presentation/pages/sales_transaction_result_page.dart';
@@ -34,7 +35,7 @@ void main() {
       ..registerSingleton<SalesOrderRepository>(orders)
       ..registerSingleton<SalesReceiptRepository>(FakeSalesReceiptRepository())
       ..registerSingleton<SalesPaymentRepository>(payments)
-      ..registerSingleton<IExecutionContext>(const _TestExecutionContext());
+      ..registerSingleton<SessionController>(testSessionController(tenantId: 'tenant-1', userId: 'actor-1'));
   });
 
   tearDown(() async {
@@ -138,18 +139,6 @@ SalesCheckoutResultArgs _successArgs() => SalesCheckoutResultArgs(
   ),
 );
 
-final class _TestExecutionContext implements IExecutionContext {
-  const _TestExecutionContext();
-
-  @override
-  String get correlationId => 'corr-test';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'actor-1';
-}
 
 SalesOrderResultDto _orderResult(String orderNumber) {
   return SalesOrderResultDto(

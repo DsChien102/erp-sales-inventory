@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 
 import 'package:erp/main.dart' as app;
 
@@ -37,9 +36,9 @@ void main() {
       await app.main();
       await tester.pumpAndSettle();
       final di = GetIt.instance;
-      final executionContext = di<IExecutionContext>();
+      final session = di<SessionController>();
       final sales = di<SalesCheckoutRepository>();
-      final tenantId = await executionContext.requireTenantId();
+      final tenantId = await session.requireTenantId();
       final storeId = await di<SessionController>().requireActiveStoreId();
       expect(tenantId, _tenantId);
       expect(storeId, _storeId);

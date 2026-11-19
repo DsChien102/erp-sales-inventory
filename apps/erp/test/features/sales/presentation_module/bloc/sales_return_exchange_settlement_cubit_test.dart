@@ -1,9 +1,9 @@
+import '../../../iam/support/iam_test_session.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 
 import '../../support/fake_return_exchange_repository.dart';
 import '../../support/fake_sales_order_repository.dart';
@@ -112,7 +112,7 @@ void main() {
       returnExchangeId: 'return-1',
       returnExchangeRepository: repos.returnExchange,
       orderRepository: repos.orders,
-      executionContext: const _ExecutionContext(),
+      session: testSessionController(tenantId: 'tenant-1', userId: 'actor-1'),
       attemptFactory: SalesReturnExchangeAttemptFactory(
         newAttemptId: () {
           ids.moveNext();
@@ -832,17 +832,4 @@ final class _OrderedOrderRepository extends FakeSalesOrderRepository {
     _calls.add('orderDetail');
     return super.getDetail(salesOrderId: salesOrderId);
   }
-}
-
-final class _ExecutionContext implements IExecutionContext {
-  const _ExecutionContext();
-
-  @override
-  String get correlationId => 'corr-1';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'actor-1';
 }

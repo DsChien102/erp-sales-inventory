@@ -1,3 +1,4 @@
+import '../iam/support/iam_test_session.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
@@ -11,7 +12,6 @@ import 'support/fake_sales_order_repository.dart';
 import 'support/fake_sales_payment_repository.dart';
 import 'support/fake_sales_receipt_repository.dart';
 import 'support/sales_contract_fixtures.dart';
-import '../iam/support/iam_test_session.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +31,6 @@ import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'support/fake_sales_draft_repository.dart';
 import 'support/recording_sales_pricing_repository.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 import 'package:erp/features/sales/presentation.dart' hide SalesOrderLifecycleStatus;
 
 import 'package:erp/features/sales/presentation/orchestration/sales_draft_list_scope.dart';
@@ -45,18 +44,6 @@ import 'package:erp/features/sales/presentation/pages/sales_return_exchange_sett
 import 'package:erp/features/sales/presentation/pages/sales_order_compose_page.dart';
 import 'package:erp/features/sales/presentation/pages/sales_transaction_result_page.dart';
 
-final class TestExecutionContext implements IExecutionContext {
-  const TestExecutionContext();
-
-  @override
-  String get correlationId => 'corr-1';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-demo';
-
-  @override
-  Future<String> requireUserId() async => 'user-demo';
-}
 
 void main() {
   late _SalesFlowProductRepository catalogModule;
@@ -77,9 +64,6 @@ void main() {
     GetIt.instance.registerSingleton<SalesCancellationRepository>(salesModule.cancellations);
     GetIt.instance.registerSingleton<ReturnExchangeRepository>(salesModule.returnExchange);
     GetIt.instance.registerSingleton<SalesDraftRepository>(draftRepo);
-    GetIt.instance.registerSingleton<IExecutionContext>(
-      const TestExecutionContext(),
-    );
     GetIt.instance.registerSingleton<PartnerRepository>(
       ScriptedPartnerRepository(onCall: _salesFlowPartnerScript),
     );

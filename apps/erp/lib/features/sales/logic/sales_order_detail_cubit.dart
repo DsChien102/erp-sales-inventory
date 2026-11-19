@@ -1,3 +1,4 @@
+import 'package:erp/core/session/session_controller.dart';
 import 'dart:async';
 
 import 'package:erp/core/errors/app_exception.dart';
@@ -22,7 +23,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:erp/features/einvoice/data/einvoice_repository.dart';
 import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 
 class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   SalesOrderDetailCubit({
@@ -32,7 +32,7 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     required this.paymentRepository,
     required this.cancellationRepository,
     required this.returnExchangeRepository,
-    required this.executionContext,
+    required this.session,
     SalesOrderCancellationAttemptFactory? cancellationAttemptFactory,
     EInvoiceRepository? eInvoiceRepository,
   }) : _cancellationAttemptFactory = cancellationAttemptFactory,
@@ -61,7 +61,7 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   final SalesPaymentRepository paymentRepository;
   final SalesCancellationRepository cancellationRepository;
   final ReturnExchangeRepository returnExchangeRepository;
-  final IExecutionContext executionContext;
+  final SessionController session;
   final SalesOrderCancellationAttemptFactory? _cancellationAttemptFactory;
 
   /// Tùy chọn: khi có, badge HĐĐT trên thẻ chứng từ phản ánh trạng thái thật.
@@ -317,7 +317,7 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
       orderId: orderId,
       cancellationRepository: cancellationRepository,
       returnExchangeRepository: returnExchangeRepository,
-      executionContext: executionContext,
+      session: session,
       isClosed: () => isClosed,
       currentGeneration: () => _requestGeneration,
       readState: () => state,

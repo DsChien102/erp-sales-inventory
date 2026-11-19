@@ -1,6 +1,6 @@
+import 'package:erp/core/session/session_controller.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/sales_checkout_errors.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
@@ -16,7 +16,7 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
   SalesCheckoutCubit({
     required this.args,
     required this.repository,
-    required this.executionContext,
+    required this.session,
     required this.activeStoreContext,
     this.debounceDuration = const Duration(milliseconds: 250),
     SalesCheckoutAttemptFactory? attemptFactory,
@@ -46,7 +46,7 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
 
   final SalesCheckoutDraftArgs args;
   final SalesCheckoutRepository repository;
-  final IExecutionContext executionContext;
+  final SessionController session;
   final ISalesActiveStoreContext activeStoreContext;
   final Duration debounceDuration;
   final SalesCheckoutAttemptFactory attemptFactory;
@@ -183,8 +183,8 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
       final precheckPassed = await _runPrecheck();
       if (!precheckPassed || isClosed) return;
 
-      final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
+      final tenantId = await session.requireTenantId();
+      final actorId = await session.requireUserId();
       final storeId = await activeStoreContext.requireActiveStoreId();
       final envelope = attemptFactory.create(
         args: args,
@@ -192,7 +192,7 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
         tenantId: tenantId,
         actorId: actorId,
         storeId: storeId,
-        correlationId: executionContext.correlationId,
+        correlationId: session.correlationId,
       );
       emit(
         state.copyWith(

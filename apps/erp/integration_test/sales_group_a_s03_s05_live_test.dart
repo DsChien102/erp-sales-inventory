@@ -6,7 +6,6 @@ import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/sales/data/models.dart' as sales;
 import 'package:erp/features/sales/presentation.dart';
-import 'package:c45_shared_application/application.dart';
 
 import 'package:erp/features/sales/presentation/lookups/sales_catalog_product_lookup.dart';
 import 'package:erp/features/sales/presentation/lookups/sales_pricing_lookup.dart';
@@ -37,7 +36,7 @@ void main() {
       await app.main();
       await tester.pumpAndSettle();
       final di = GetIt.instance;
-      expect(await di<IExecutionContext>().requireTenantId(), _tenantId);
+      expect(await di<SessionController>().requireTenantId(), _tenantId);
       expect(await di<SessionController>().requireActiveStoreId(), _storeId);
 
       final products = await SalesCatalogProductLookup.bindSearch(di)(

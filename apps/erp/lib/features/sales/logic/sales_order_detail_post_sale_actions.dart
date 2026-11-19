@@ -1,3 +1,4 @@
+import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:erp/features/sales/data/sales_cancellation_repository.dart';
@@ -6,7 +7,6 @@ import 'package:erp/features/sales/presentation/models/sales_order/sales_order_a
 import 'package:erp/features/sales/presentation/models/sales_order/sales_post_sale_navigation_intent.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_cancellation_attempt_factory.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 
 import 'sales_order_detail_sections_loader.dart';
 import 'sales_order_detail_state.dart';
@@ -17,7 +17,7 @@ final class SalesOrderDetailPostSaleActions {
     required this.orderId,
     required this.cancellationRepository,
     required this.returnExchangeRepository,
-    required this.executionContext,
+    required this.session,
     required this.isClosed,
     required this.currentGeneration,
     required this.readState,
@@ -31,7 +31,7 @@ final class SalesOrderDetailPostSaleActions {
   final String orderId;
   final SalesCancellationRepository cancellationRepository;
   final ReturnExchangeRepository returnExchangeRepository;
-  final IExecutionContext executionContext;
+  final SessionController session;
   final bool Function() isClosed;
   final int Function() currentGeneration;
   final SalesOrderDetailState Function() readState;
@@ -93,8 +93,8 @@ final class SalesOrderDetailPostSaleActions {
     final trimmedNote = note.trim();
 
     try {
-      final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
+      final tenantId = await session.requireTenantId();
+      final actorId = await session.requireUserId();
       if (isClosed() || generation != currentGeneration()) {
         return 'Huỷ đơn thất bại. Vui lòng thử lại.';
       }
@@ -122,7 +122,7 @@ final class SalesOrderDetailPostSaleActions {
         expectedOrderVersion: precheck.sourceVersion,
         expectedSettlementVersion: precheck.sourceSettlementVersion,
         reasonText: trimmedNote,
-        correlationId: executionContext.correlationId,
+        correlationId: session.correlationId,
       );
       final result = await cancellationRepository.confirm(attempt.request);
       if (isClosed() || generation != currentGeneration()) {

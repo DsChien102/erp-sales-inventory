@@ -1,9 +1,9 @@
+import '../../../iam/support/iam_test_session.dart';
 import 'dart:async';
 
 import 'package:erp/features/sales/presentation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/sales/data/models.dart' as app;
-import 'package:c45_shared_application/application.dart';
 
 import '../../support/fake_return_exchange_repository.dart';
 import '../../support/fake_sales_cancellation_repository.dart';
@@ -1187,7 +1187,7 @@ SalesOrderDetailCubit _buildCubit({
     paymentRepository: module.payments,
     cancellationRepository: module.cancellations,
     returnExchangeRepository: module.returnExchange,
-    executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
+    session: testSessionController(tenantId: 'tenant-1', userId: 'actor-1'),
     cancellationAttemptFactory: cancellationAttemptFactory,
   );
 }
@@ -1687,20 +1687,4 @@ app.AvailablePostSaleActionsDto _availableActions({
     canCancel: canCancel,
     canReturnExchange: canReturnExchange,
   );
-}
-
-final class _ExecutionContext implements IExecutionContext {
-  const _ExecutionContext(this.tenantId, this.userId);
-
-  final String tenantId;
-  final String userId;
-
-  @override
-  String get correlationId => 'corr-test';
-
-  @override
-  Future<String> requireTenantId() async => tenantId;
-
-  @override
-  Future<String> requireUserId() async => userId;
 }

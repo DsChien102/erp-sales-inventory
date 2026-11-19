@@ -1,5 +1,6 @@
 import 'package:erp/features/sales/data/models/sales_draft_list_page.dart'
     hide SalesDraftListPage;
+import '../../../iam/support/iam_test_session.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:erp/features/sales/presentation/pages/sales_draft_list_page.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 
 import '../../support/fake_sales_draft_repository.dart';
 
@@ -159,20 +159,11 @@ void main() {
 SalesDraftListCubit _buildCubit(FakeSalesDraftRepository fake) {
   return SalesDraftListCubit(
     repository: fake,
-    executionContext: const _TestExecutionContext(),
+    session: testSessionController(tenantId: 'tenant-1', userId: 'user-1'),
     activeStoreContext: const _TestActiveStoreContext(),
   );
 }
 
-final class _TestExecutionContext implements IExecutionContext {
-  const _TestExecutionContext();
-  @override
-  String get correlationId => 'corr-1';
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-  @override
-  Future<String> requireUserId() async => 'user-1';
-}
 
 final class _TestActiveStoreContext implements ISalesActiveStoreContext {
   const _TestActiveStoreContext();

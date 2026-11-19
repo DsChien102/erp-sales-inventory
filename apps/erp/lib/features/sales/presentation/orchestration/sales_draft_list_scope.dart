@@ -4,7 +4,6 @@ import 'package:erp/features/sales/logic/sales_draft_list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:c45_shared_application/application.dart';
 
 import '../support/i_sales_active_store_context.dart';
 
@@ -31,7 +30,7 @@ class _SalesDraftListScopeState extends State<SalesDraftListScope> {
     super.initState();
     _cubit = SalesDraftListCubit(
       repository: GetIt.instance<SalesDraftRepository>(),
-      executionContext: GetIt.instance<IExecutionContext>(),
+      session: GetIt.instance<SessionController>(),
       activeStoreContext: _SalesActiveStoreAdapter(
         GetIt.instance<SessionController>(),
       ),

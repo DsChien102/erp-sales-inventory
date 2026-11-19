@@ -1,3 +1,4 @@
+import '../../iam/support/iam_test_session.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import '../support/fake_sales_checkout_repository.dart';
 import '../support/sales_contract_error.dart';
@@ -17,7 +18,6 @@ import 'package:go_router/go_router.dart';
 import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:c45_design_system/design_system.dart';
-import '../../iam/support/iam_test_session.dart';
 import '../../iam/support/scripted_iam_repositories.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
 import 'package:erp/features/partner/data/partner_repository.dart';
@@ -30,7 +30,6 @@ import 'package:erp/features/sales/data/models.dart';
 
 import '../support/fake_sales_draft_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
-import 'package:c45_shared_application/application.dart';
 
 void main() {
   late _CheckoutRepo checkoutRepo;
@@ -64,9 +63,6 @@ void main() {
     GetIt.instance.registerSingleton<SalesCheckoutRepository>(checkoutRepo);
     GetIt.instance.registerSingleton<SalesDraftRepository>(FakeSalesDraftRepository());
     GetIt.instance.registerSingleton<AccountRepository>(accounts);
-    GetIt.instance.registerSingleton<IExecutionContext>(
-      const _TestExecutionContext(),
-    );
     GetIt.instance.registerSingleton<SessionController>(session);
     GetIt.instance.registerSingleton<PartnerRepository>(
       ScriptedPartnerRepository(onCall: _salesFlowPartnerScript),
@@ -784,18 +780,6 @@ pricing.SalesWorkingStatePricingPreviewDto _pricingPreviewFor({
   );
 }
 
-final class _TestExecutionContext implements IExecutionContext {
-  const _TestExecutionContext();
-
-  @override
-  String get correlationId => 'corr-1';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-demo';
-
-  @override
-  Future<String> requireUserId() async => 'user-demo';
-}
 
 final class _CheckoutRepo extends FakeSalesCheckoutRepository {
   _CheckoutRepo() : super(precheckResult: _readyResult());

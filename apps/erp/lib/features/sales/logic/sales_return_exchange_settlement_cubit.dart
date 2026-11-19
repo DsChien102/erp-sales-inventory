@@ -1,3 +1,4 @@
+import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/data/models/return_exchange_requests.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
@@ -9,7 +10,6 @@ import 'package:erp/features/sales/presentation/support/sales_return_exchange_ma
 import 'package:erp/features/sales/presentation/support/sales_return_exchange_pricing_copy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:c45_shared_application/application.dart';
 
 import 'sales_return_exchange_settlement_state.dart';
 
@@ -19,7 +19,7 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
     required String returnExchangeId,
     required this.returnExchangeRepository,
     required this.orderRepository,
-    required this.executionContext,
+    required this.session,
     SalesReturnExchangeAttemptFactory? attemptFactory,
   }) : _attemptFactory = attemptFactory ?? SalesReturnExchangeAttemptFactory(),
        super(
@@ -31,7 +31,7 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
 
   final ReturnExchangeRepository returnExchangeRepository;
   final SalesOrderRepository orderRepository;
-  final IExecutionContext executionContext;
+  final SessionController session;
   final SalesReturnExchangeAttemptFactory _attemptFactory;
 
   String? _tenantId;
@@ -52,9 +52,9 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
     );
     _currentAttempt = null;
     try {
-      final tenantId = await executionContext.requireTenantId();
-      final actorId = await executionContext.requireUserId();
-      final correlationId = executionContext.correlationId;
+      final tenantId = await session.requireTenantId();
+      final actorId = await session.requireUserId();
+      final correlationId = session.correlationId;
       if (correlationId.trim().isEmpty) {
         throw const AppException('CONTEXT_INVALID');
       }

@@ -5,7 +5,6 @@ import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
-import 'package:c45_shared_application/application.dart';
 
 import 'package:erp/features/sales/presentation/lookups/sales_catalog_product_lookup.dart';
 import 'package:erp/features/sales/presentation/lookups/sales_partner_customer_lookup.dart';
@@ -38,9 +37,9 @@ void main() {
       await app.main();
       await tester.pumpAndSettle();
       final di = GetIt.instance;
-      final executionContext = di<IExecutionContext>();
+      final session = di<SessionController>();
       final sales = di<SalesDraftRepository>();
-      final tenantId = await executionContext.requireTenantId();
+      final tenantId = await session.requireTenantId();
       final storeId = await di<SessionController>().requireActiveStoreId();
       expect(tenantId, _tenantId);
       expect(storeId, _storeId);
