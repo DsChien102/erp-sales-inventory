@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:erp/features/assistant/data.dart';
-import 'package:c45_shared_application/application.dart';
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/invitation_acceptance_repository.dart';
@@ -42,7 +41,6 @@ import '../../features/sales/data/sales_payment_repository.dart';
 import '../../features/sales/data/sales_receipt_repository.dart';
 import '../errors/app_exception.dart';
 import '../router/session_refresh.dart';
-import '../session/session_contracts.dart';
 import '../session/session_controller.dart';
 import '../session/session_repository.dart';
 import '../session/session_store.dart';
@@ -81,14 +79,6 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     },
   );
   sessionRefresh.attach(session);
-
-  // Ngữ cảnh phiên cho logic sales (IExecutionContext; thay ở 9-1), đọc cùng SessionStore.
-  final executionContext = CoreExecutionContext(store: sessionStore);
-
-  getIt
-    ..registerSingleton<IExecutionContext>(executionContext)
-    ..registerSingleton<ICurrentUser>(executionContext)
-    ..registerSingleton<ICurrentTenant>(executionContext);
 
   getIt
     ..registerLazySingleton<InventoryRpc>(

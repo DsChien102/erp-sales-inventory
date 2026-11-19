@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:c45_shared_application/application.dart';
 import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/catalog/presentation/pages/product_catalog_tab_page.dart';
@@ -26,17 +25,6 @@ final class _FilterErrorProductRepository extends FakeProductRepository {
   }
 }
 
-final class _FakeExecutionContext implements IExecutionContext {
-  @override
-  String get correlationId => 'test-correlation';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'user-1';
-}
-
 void main() {
   final getIt = GetIt.instance;
 
@@ -45,7 +33,6 @@ void main() {
   });
 
   Widget buildTestableWidget({String scenario = FakeCatalogScenario.searchEmpty}) {
-    getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
     registerFakeCatalog(getIt, scenario: scenario);
 
     final router = GoRouter(
@@ -95,7 +82,6 @@ void main() {
   testWidgets('H2: filter options loading error is ignored and product list is still displayed', (
     tester,
   ) async {
-    getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
     final backend = FakeCatalogBackend(scenario: FakeCatalogScenario.searchWithReadiness);
     final errorRepo = _FilterErrorProductRepository(backend: backend);
     getIt.registerSingleton<ProductRepository>(errorRepo);
@@ -200,7 +186,6 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
       final backend = registerFakeCatalog(getIt);
       final recordingRepo = RecordingProductRepository(
         backend: backend,
@@ -239,7 +224,6 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
       final backend = registerFakeCatalog(getIt);
       final recordingRepo = RecordingProductRepository(
         backend: backend,
@@ -433,7 +417,6 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
       final backend = registerFakeCatalog(getIt);
       final recordingRepo = RecordingProductRepository(
         backend: backend,
@@ -479,7 +462,6 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
       final backend = registerFakeCatalog(getIt);
       final recordingRepo = RecordingProductRepository(
         backend: backend,
@@ -526,7 +508,6 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
       final backend = registerFakeCatalog(getIt);
       final recordingRepo = RecordingProductRepository(
         backend: backend,
@@ -571,7 +552,6 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
       final backend = registerFakeCatalog(getIt);
       final recordingRepo = RecordingProductRepository(
         backend: backend,
@@ -604,7 +584,6 @@ void main() {
     });
 
     testWidgets('selectedId highlights the selected tile via VCard.isSelected', (tester) async {
-      getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
       registerFakeCatalog(getIt, scenario: FakeCatalogScenario.searchWithReadiness);
 
       final router = GoRouter(
@@ -639,7 +618,6 @@ void main() {
     });
 
     testWidgets('tab_page_with_cubit_does_not_fetch_or_close', (tester) async {
-      getIt.registerSingleton<IExecutionContext>(_FakeExecutionContext());
       final backend = registerFakeCatalog(getIt);
       final recordingRepo = RecordingProductRepository(
         backend: backend,

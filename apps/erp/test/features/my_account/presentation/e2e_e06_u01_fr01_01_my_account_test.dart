@@ -9,8 +9,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/session/session_store.dart';
 import '../../iam/support/fake_iam_backend.dart';
-import 'package:c45_shared_application/application.dart';
-import 'package:c45_shared_testing/shared_testing.dart';
 
 import '../../../core/session/fake_session_repository.dart';
 import '../../iam/support/scripted_iam_repositories.dart';
@@ -37,7 +35,7 @@ void main() {
 
   void registerModule(FakeIamBackend module) {
     getIt
-      ..registerSingleton<IExecutionContext>(FakeExecutionContext())
+      
       ..registerSingleton<FakeIamBackend>(module);
   }
 

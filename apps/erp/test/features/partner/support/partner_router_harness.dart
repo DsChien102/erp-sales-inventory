@@ -13,8 +13,6 @@ import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_models.d
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_repository.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_repository.dart';
-import 'package:c45_shared_application/application.dart';
-import 'package:c45_shared_testing/shared_testing.dart';
 
 import '../../auth/support/scripted_auth.dart';
 import '../../dashboard/presentation/fake_default_pair_repository.dart';
@@ -63,7 +61,7 @@ class _EmptySupplierProgramRepository extends Fake implements SupplierProgramRep
 Future<void> setUpPartnerRouterTest() async {
   await getIt.reset();
   getIt
-    ..registerSingleton<IExecutionContext>(FakeExecutionContext(tenantId: 'tenant-test'))
+    
     ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
     ..registerSingleton<GoodsReceiptRepository>(_EmptyGoodsReceiptRepository())
     ..registerSingleton<SupplierProgramRepository>(_EmptySupplierProgramRepository());

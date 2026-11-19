@@ -1,5 +1,5 @@
 import 'package:supabase/supabase.dart';
-import 'package:c45_shared_application/application.dart';
+import '../session/tenant_access_revoked_signal.dart';
 
 import '../errors/app_exception.dart';
 

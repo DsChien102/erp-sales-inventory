@@ -6,7 +6,6 @@ import 'package:erp/features/catalog/data/product_price_repository.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:c45_shared_application/application.dart';
 
 import 'catalog_test_registry.dart';
 import 'fake_catalog_backend.dart';
@@ -134,7 +133,6 @@ void main() {
       expect(getIt<MeasurementUnitRepository>(), isA<FakeMeasurementUnitRepository>());
       expect(getIt<CustomFieldRepository>(), isA<FakeCustomFieldRepository>());
       expect(getIt<ProductPriceRepository>(), isA<FakeProductPriceRepository>());
-      expect(getIt<IExecutionContext>(), isNotNull);
     });
   });
 }

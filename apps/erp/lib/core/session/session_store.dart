@@ -1,12 +1,11 @@
-import 'package:c45_shared_application/application.dart';
+import '../errors/application_exception.dart';
 
 import 'models/session_principal.dart';
 import 'session_repository.dart';
 
 /// Phiên trong bộ nhớ: người dùng, tổ chức và cửa hàng đang chọn, vai trò, quyền.
 ///
-/// `SessionController` ghi vào đây; các module nghiệp vụ cũ đọc qua
-/// `CoreExecutionContext` (xem `session_contracts.dart`).
+/// `SessionController` ghi vào đây và đọc lại (`requireTenantId`, `requireUserId`).
 base class SessionStore {
   SessionStore({SessionRepository? repository}) : _repository = repository;
 

@@ -4,27 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:c45_design_system/design_system.dart';
-import 'package:c45_shared_application/application.dart';
 
 import '../../support/catalog_test_registry.dart';
-
-final class _ExecutionContext implements IExecutionContext {
-  @override
-  String get correlationId => 'test-correlation';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'user-1';
-}
 
 void main() {
   final getIt = GetIt.instance;
 
   setUp(() async {
     await getIt.reset();
-    getIt.registerSingleton<IExecutionContext>(_ExecutionContext());
     registerFakeCatalog(getIt);
   });
 

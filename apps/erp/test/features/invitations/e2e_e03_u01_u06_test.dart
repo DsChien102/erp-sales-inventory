@@ -7,8 +7,6 @@ import '../iam/support/fake_iam_backend.dart';
 import '../iam/support/iam_test_session.dart';
 import 'package:erp/features/iam/presentation.dart';
 import '../iam/support/iam_fixtures.dart';
-import 'package:c45_shared_application/application.dart';
-import 'package:c45_shared_testing/shared_testing.dart';
 
 import '../auth/support/scripted_invitations.dart';
 
@@ -51,9 +49,7 @@ void main() {
 
   void register(FakeIamBackend module) {
     getIt
-      ..registerSingleton<IExecutionContext>(
-        FakeExecutionContext(tenantId: 'org-001'),
-      )
+      
       ..registerSingleton<FakeIamBackend>(module);
   }
 

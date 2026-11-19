@@ -12,7 +12,7 @@ import 'fake_session_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:c45_shared_application/application.dart';
+import 'package:erp/core/session/tenant_access_revoked_signal.dart';
 
 class _MockAuth extends Mock implements GoTrueClient {}
 

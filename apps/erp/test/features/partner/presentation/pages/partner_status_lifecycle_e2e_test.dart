@@ -12,8 +12,6 @@ import 'package:erp/core/session/session_store.dart';
 import 'package:erp/core/session/models/session_principal.dart';
 import '../../support/fake_partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:c45_shared_application/application.dart';
-import 'package:c45_shared_testing/shared_testing.dart';
 
 void main() {
   final getIt = GetIt.instance;
@@ -43,9 +41,7 @@ void main() {
       );
 
     getIt
-      ..registerSingleton<IExecutionContext>(
-        FakeExecutionContext(tenantId: 'tenant-1', userId: 'user-1'),
-      )
+      
       ..registerSingleton<PartnerRepository>(partnerModule)
       ..registerSingleton<SessionController>(
         SessionController(repository: FakeSessionRepository(), store: session),

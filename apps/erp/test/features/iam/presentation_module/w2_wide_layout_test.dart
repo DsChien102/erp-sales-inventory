@@ -16,8 +16,6 @@ import '../support/fake_iam_backend.dart';
 import '../../auth/support/scripted_auth.dart';
 
 import 'package:erp/features/dashboard/data/default_pair_repository.dart';
-import 'package:c45_shared_application/application.dart';
-import 'package:c45_shared_testing/shared_testing.dart';
 import '../../dashboard/presentation/fake_default_pair_repository.dart';
 
 base class _CustomSessionStore extends SessionStore {
@@ -46,7 +44,7 @@ void main() {
   setUp(() async {
     await getIt.reset();
     getIt
-      ..registerSingleton<IExecutionContext>(FakeExecutionContext(tenantId: 'tenant-test'))
+      
       ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository());
   });
 

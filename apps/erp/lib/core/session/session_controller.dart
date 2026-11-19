@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
-import 'package:c45_shared_application/application.dart';
 
 import '../errors/app_exception.dart';
 import '../iam/iam_codes.dart';
@@ -17,6 +16,7 @@ import 'models/tenant_context.dart';
 import 'session_repository.dart';
 import 'session_state.dart';
 import 'session_store.dart';
+import 'tenant_access_revoked_signal.dart';
 
 /// Một nguồn sự thật về phiên đăng nhập và tổ chức đang chọn.
 ///

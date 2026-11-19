@@ -1,6 +1,6 @@
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:supabase/supabase.dart';
-import 'package:c45_shared_application/application.dart';
+import '../errors/application_exception.dart';
 
 import 'iam_codes.dart';
 import 'iam_ui_failure.dart';

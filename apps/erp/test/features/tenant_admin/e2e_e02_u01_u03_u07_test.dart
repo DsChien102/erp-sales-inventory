@@ -10,8 +10,6 @@ import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/iam/data/models/tenant_audit_log.dart';
 import '../iam/support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:c45_shared_application/application.dart';
-import 'package:c45_shared_testing/shared_testing.dart';
 
 import '../iam/support/scripted_iam_repositories.dart';
 
@@ -170,9 +168,6 @@ void main() {
   }
 
   void register() {
-    getIt.registerSingleton<IExecutionContext>(
-      FakeExecutionContext(tenantId: 'org-001'),
-    );
   }
 
   testWidgets(

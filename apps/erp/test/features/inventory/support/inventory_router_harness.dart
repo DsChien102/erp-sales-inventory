@@ -18,8 +18,6 @@ import 'package:erp/features/inventory/data/supplier_program/supplier_program_re
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:c45_design_system/design_system.dart';
-import 'package:c45_shared_application/application.dart';
-import 'package:c45_shared_testing/shared_testing.dart';
 
 import '../../auth/support/scripted_auth.dart';
 import '../../dashboard/presentation/fake_default_pair_repository.dart';
@@ -145,7 +143,7 @@ Future<void> setUpInventoryRouterTest({bool isOwner = true}) async {
   session.applySignedInUser('user-1');
   getIt
     ..registerSingleton<SessionStore>(store)
-    ..registerSingleton<IExecutionContext>(FakeExecutionContext(tenantId: 'tenant-test'))
+    
     ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
     ..registerSingleton<WarehouseHubRepository>(WarehouseHubRepository(rpc: _FakeInventoryRpc()))
     ..registerSingleton<StockPolicyRepository>(_FakeStockPolicyRepo())
