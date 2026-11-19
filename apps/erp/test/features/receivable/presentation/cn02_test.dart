@@ -1,7 +1,6 @@
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/receivable/data/receivable_models.dart';
 import 'package:erp/features/receivable/presentation/pages/customer_receivable_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_receivable_repository.dart';

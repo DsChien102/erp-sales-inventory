@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/receivable/data/receivable_models.dart';
 import 'package:erp/features/receivable/logic/receivable_list_cubit.dart';
 import 'package:erp/features/receivable/presentation/pages/customer_receivable_page.dart';
@@ -108,6 +109,7 @@ Future<void> capture(
   required Size size,
   required Widget page,
   required String name,
+  Future<void> Function()? interact,
 }) async {
   useInventoryTestSurface(size);
   final key = GlobalKey();
@@ -123,6 +125,13 @@ Future<void> capture(
   );
   await tester.pump(const Duration(milliseconds: 50));
   await tester.pump();
+  if (interact != null) {
+    await interact();
+    // Không pumpAndSettle: toast tự tắt sau 4 giây. 3 × 400 ms đủ cho chuyển cảnh hộp thoại.
+    for (var i = 0; i < 3; i++) {
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+  }
   await expectLater(find.byKey(key), matchesGoldenFile(_goldenPath(name)));
 }
 
@@ -259,7 +268,6 @@ void main() {
       targetOrderCode: 'DH-002',
       returnExchangeReference: '#DT-0001',
     );
-    final dh1 = order('DH-001', '2026-11-01T09:00:00', 4000000, 4000000, '2026-11-10', 8);
     final dh3 = order('DH-003', '2026-11-12T09:00:00', 6000000, 6000000, '2026-11-30', 0);
     ReceivableHistoryPage page(List<ReceivableHistoryItem> i) => ReceivableHistoryPage(items: i, nextCursor: null);
     const hoa = ReceivableCustomer(
@@ -333,6 +341,170 @@ void main() {
                 ? detailPage
                 : ReceivableAreaShell(cubit: cubit, selectedId: id, child: detailPage),
             name: 'flutter-CN-02-${entry.key}-${size.width.toInt()}',
+          );
+          expect(tester.takeException(), isNull);
+        });
+      }
+    }
+  });
+
+  group('CN-03', () {
+    final c2 = ReceivableHistoryItem(
+      kind: ReceivableHistoryKind.customerCollection,
+      occurredAt: DateTime(2026, 11, 6, 14, 20),
+      amountMinor: 2000000,
+      paymentMethodCode: 'cash',
+      actorDisplayName: 'Nguyễn An',
+      allocations: const [HistoryAllocation(orderCode: 'DH-002', amountMinor: 2000000)],
+    );
+    final c10 = ReceivableHistoryItem(
+      kind: ReceivableHistoryKind.customerCollection,
+      occurredAt: DateTime(2026, 11, 18, 9, 30),
+      amountMinor: 10000000,
+      paymentMethodCode: 'cash',
+      actorDisplayName: 'Nguyễn An',
+      allocations: const [
+        HistoryAllocation(orderCode: 'DH-001', amountMinor: 4000000),
+        HistoryAllocation(orderCode: 'DH-002', amountMinor: 6000000),
+      ],
+    );
+    final afterCollect = CustomerReceivableDetail(
+      customer: fx.tuanCustomer,
+      outstandingMinor: 8000000,
+      openOrderCount: 2,
+      overdueOrderCount: 1,
+      maxOverdueDays: 3,
+      openOrders: [
+        OpenReceivableOrder(
+          salesOrderId: 'so-002',
+          orderCode: 'DH-002',
+          completedAt: DateTime(2026, 11, 5, 9),
+          payableMinor: 10000000,
+          outstandingMinor: 2000000,
+          dueDate: DateTime(2026, 11, 15),
+          overdueDays: 3,
+          settlementVersion: 2,
+        ),
+        fx.tuanOrders[2],
+      ],
+    );
+
+    late FakeReceivableRepository repo;
+    late WidgetTester t;
+
+    Future<void> tapText(String text) async {
+      await t.tap(find.text(text).last);
+      await t.pump(const Duration(milliseconds: 100));
+    }
+
+    Future<void> tapButton(String label) async {
+      await t.tap(find.widgetWithText(VButton, label).last);
+      await t.pump(const Duration(milliseconds: 100));
+    }
+
+    Future<void> amount(String v) async {
+      await t.enterText(find.byType(VTextField).first, v);
+      await t.pump(const Duration(milliseconds: 100));
+    }
+
+    Future<void> open() async {
+      await tapButton('Thu tiền');
+      await t.pumpAndSettle();
+    }
+
+    Future<void> tickAll(String v) async {
+      await tapText('Tất cả đơn · trả hết');
+      await amount(v);
+    }
+
+    Future<void> toConfirm(String v) async {
+      await tickAll(v);
+      await tapButton('Xác nhận thu');
+      await t.pumpAndSettle();
+    }
+
+    final cases = <String, Future<void> Function()>{
+      'empty': () async {},
+      'valid': () => tickAll('10000000'),
+      'over': () => tickAll('18000001'),
+      'transfer': () async {
+        await tickAll('10000000');
+        await tapText('Chuyển khoản');
+        await t.enterText(find.byType(VTextField).at(1), 'FT2611180001');
+      },
+      'confirm': () => toConfirm('10000000'),
+      'submitting': () async {
+        repo.enqueueRecord(Completer<CustomerCollectionResult>());
+        await toConfirm('10000000');
+        await tapButton('Xác nhận');
+      },
+      'submit-error': () async {
+        repo.enqueueRecord(const AppException(AppErrorCode.network));
+        await toConfirm('10000000');
+        await tapButton('Xác nhận');
+      },
+      'changed': () async {
+        repo.enqueueRecord(const AppException('RECEIVABLE_CHANGED'));
+        await toConfirm('10000000');
+        await tapButton('Xác nhận');
+      },
+      'leave-confirm': () async {
+        await tickAll('10000000');
+        await t.tap(find.byTooltip('Đóng'));
+      },
+      'all': () => tapText('Tất cả đơn · trả hết'),
+      'one': () => tapText('DH-002'),
+      'multi': () async {
+        await tapText('DH-001');
+        await tapText('DH-003');
+        await amount('5000000');
+      },
+      'one-over': () async {
+        await tapText('DH-002');
+        await amount('8000001');
+      },
+      'one-confirm': () async {
+        await tapText('DH-002');
+        await tapButton('Xác nhận thu');
+        await t.pumpAndSettle();
+      },
+      'success': () async {
+        repo
+          ..enqueueCustomer(afterCollect)
+          ..enqueueHistory(ReceivableHistoryPage(items: [c10, c2], nextCursor: null));
+        await toConfirm('10000000');
+        await tapButton('Xác nhận');
+        await t.pump(const Duration(milliseconds: 600));
+      },
+    };
+
+    for (final entry in cases.entries) {
+      for (final size in [phone, web]) {
+        testWidgets('${entry.key} ${size.width.toInt()}', (tester) async {
+          t = tester;
+          repo = FakeReceivableRepository()
+            ..enqueueHistory(ReceivableHistoryPage(items: [c2], nextCursor: null));
+          final cubit = ReceivableListCubit(repository: repo);
+          addTearDown(cubit.close);
+          await tester.runAsync(cubit.load);
+          final detailPage = CustomerReceivableDetailPage(
+            key: const ValueKey(fx.tuanId),
+            customerId: fx.tuanId,
+            repository: repo,
+            today: fx.today,
+            canCollect: true,
+          );
+          await capture(
+            tester,
+            size: size,
+            page: size.width < 840
+                ? detailPage
+                : ReceivableAreaShell(cubit: cubit, selectedId: fx.tuanId, child: detailPage),
+            name: 'flutter-CN-03-${entry.key}-${size.width.toInt()}',
+            interact: () async {
+              await open();
+              await entry.value();
+            },
           );
           expect(tester.takeException(), isNull);
         });

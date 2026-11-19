@@ -23,10 +23,13 @@ TextStyle receivableMoneyStyle(
 
 /// `dueBadge` của prototype: quá hạn = icon cảnh báo + chữ đỏ; hôm nay = vàng; còn lại xám.
 class ReceivableDueBadge extends StatelessWidget {
-  const ReceivableDueBadge(this.label, {super.key, this.fontSize = 13});
+  const ReceivableDueBadge(this.label, {super.key, this.fontSize = 13, this.wrap = false});
 
   final DueLabel label;
   final double fontSize;
+
+  /// `true` (dòng đơn CN-03): nhãn được xuống hàng khi hẹp, như ảnh prototype `proto-CN-03-valid-390`.
+  final bool wrap;
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +49,16 @@ class ReceivableDueBadge extends StatelessWidget {
             VIcon(icon: VIcons.warning, size: 16, color: color),
             const SizedBox(width: VSpacing.space1),
           ],
-          Text(
-            label.text,
-            softWrap: false,
-            maxLines: 1,
-            style: VTypography.bodySmall.copyWith(
-              fontSize: fontSize,
-              fontWeight: FontWeight.w600,
-              color: color,
+          Flexible(
+            child: Text(
+              label.text,
+              softWrap: wrap,
+              maxLines: wrap ? 2 : 1,
+              style: VTypography.bodySmall.copyWith(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
             ),
           ),
         ],

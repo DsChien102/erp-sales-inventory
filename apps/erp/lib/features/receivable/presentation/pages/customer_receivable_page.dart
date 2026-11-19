@@ -10,7 +10,9 @@ import '../../data/receivable_repository.dart';
 import '../../logic/customer_receivable_cubit.dart';
 import '../../logic/customer_receivable_state.dart';
 import '../../logic/receivable_format.dart';
+import '../../logic/receivable_list_cubit.dart';
 import '../../logic/receivable_permissions.dart';
+import '../widgets/customer_collection_sheet.dart';
 import '../widgets/receivable_parts.dart';
 
 String _two(int n) => n.toString().padLeft(2, '0');
@@ -66,6 +68,44 @@ class _CustomerReceivableDetailPageState extends State<CustomerReceivableDetailP
 
   bool get _canCollect =>
       widget.canCollect ?? getIt<SessionController>().hasPermission(receivableCollectPermission);
+
+  /// Cubit danh sách (CN-01) nếu có trong cây (shell công nợ).
+  ReceivableListCubit? _listCubit(BuildContext context) {
+    try {
+      return context.read<ReceivableListCubit>();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _collect(CustomerReceivableDetail detail) async {
+    final listCubit = _listCubit(context);
+    final outcome = await showCustomerCollectionSheet(
+      context,
+      customerId: detail.customer.customerId,
+      customerName: detail.customer.displayName,
+      orders: detail.openOrders,
+      repository: widget.repository,
+      today: widget.today,
+    );
+    if (!mounted) return;
+    switch (outcome) {
+      case CollectionCollected(:final amountMinor):
+        VToast.show(
+          context,
+          title: 'Đã thu ${formatVnd(amountMinor)} từ ${detail.customer.displayName}',
+          message: '',
+          type: VToastType.success,
+        );
+        _cubit.reload();
+        listCubit?.refresh();
+      case CollectionNeedsReload():
+        _cubit.reload();
+        listCubit?.refresh();
+      case CollectionCancelled():
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,8 +179,7 @@ class _CustomerReceivableDetailPageState extends State<CustomerReceivableDetailP
               child: VButton(
                 label: 'Thu tiền',
                 fullWidth: true,
-                // T6-2b Task 5
-                onPressed: () {},
+                onPressed: () => _collect(detail),
               ),
             ),
           ),
