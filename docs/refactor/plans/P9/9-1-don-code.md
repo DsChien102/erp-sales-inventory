@@ -1,7 +1,7 @@
 # 9-1 — Dọn code: bỏ `c45_shared`, `c45_annotations`, `apps/erp/example`, Melos
 
 > Dọn dẹp (mã cũ P9) · Gồm việc 9.1, 9.2, 9.3, 9.6 của PLAN.md mục "Dọn dẹp"
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-19) | Làm ⬜ | Review ⬜
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-19) | Làm ✅ 2026-11-19 | Review ⬜
 > Tài liệu: PLAN.md mục "Dọn dẹp" (9-1), 7-C Q1 (`CoreExecutionContext` giữ tới 9-1), 8-C Q5; SCOPE.md mục 6 (DoD); mẫu đã làm: 8-C (`plans/P8/8-C-don-module-sales.md`), 7-C.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -190,7 +190,18 @@ Integration test (`apps/erp/integration_test/sales_group_{a_s03_s05,b_s06_s07,c_
 
 ## 8. Kết quả
 
-<!-- Phiên code ghi sau mỗi task -->
+### Phiên code 2026-11-19
+
+- **Task 1:** `session_controller.dart` thêm `requireUserId()` + `correlationId` (+ tham số `correlationId` của constructor); `iam_test_session.dart` thêm tham số `correlationId`; 5 test mới ở `session_controller_test.dart` (đỏ rồi xanh, tệp `+22`). Impact `SessionController`: CRITICAL (1865) nhưng thay đổi chỉ **thêm** (method + tham số tuỳ chọn).
+- **Task 2:** 8 tệp `sales/logic` + 8 page / scope + 15 test sales + 3 integration test đổi sang `SessionController`. Test sales: **+965 trước = +965 sau**, 0 lỗi. Lệch plan: `sales_flow_pages_test`, `sales_order_detail_page_test`, `presentation/sales_checkout_page_test` đã đăng ký sẵn `SessionController` (có `activeStoreId`) ⇒ bỏ đăng ký trùng, giữ bản có cửa hàng (cùng `tenant-demo` / `user-demo`).
+- **Task 3:** tạo `core/errors/application_exception.dart`, `core/session/tenant_access_revoked_signal.dart`; `app_logging.dart` tự cấu hình `Logger.root` (bỏ `configurePackageLogging`, `_parseLogLevel` riêng tư); `injection.dart` bỏ `CoreExecutionContext`; xoá `session_contracts.dart` + test. `injection_test.dart`: bỏ 1 test `drops module-only services`, test `keeps execution context` đổi thành assert `correlationId` không rỗng.
+- **Task 4:** xoá `packages/c45_shared`, `packages/c45_annotations`, `apps/erp/example`; bỏ Melos; sửa `.vscode`, `guard_codegen_fresh.sh`, README, AGENTS, `.cursor/rules`. `dart pub get` gốc OK; grep mục 1 rỗng; guard in `OK: generated files are fresh`; `dart analyze` không có lỗi (275 info / warning cũ). Lệch plan: `group_f_no_demo_contract_test.dart` còn liệt kê `apps/erp/example/...` ⇒ bỏ đúng dòng đó.
+- **Test cả `apps/erp`:** cũ (HEAD `941594c2b`, worktree) `+3853 -62`; mới `+3854 -62`, **cùng 62 test lỗi** (so tên từng test; `TEST-BASELINE.md` ghi 61, đã lệch từ trước).
+- **Task 5:** PLAN.md (9-1, 9-2, 9.2, 9.3, 9.5, 9.6) và SCOPE.md mục 6 cập nhật.
+- `detect_changes` không chạy được (CLI cần `--repo`); chưa chạy trước commit.
+- Ngoài phạm vi, để người dùng quyết: `docs/operations/environments.md`, `environment-manager.md` còn mô tả `c45_env` / `melos run env:*`.
+- Các commit Task 4 / Task 5 gộp chung (đã `git add` cả tài liệu và cấu hình trước khi commit Task 4).
+
 
 ## 9. Review
 
