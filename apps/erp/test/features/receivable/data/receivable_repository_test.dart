@@ -141,4 +141,15 @@ void main() {
     });
     expect(o.dueDate, isNull);
   });
+
+  test('getSummary sends customer id and parses', () async {
+    rpc.result = {'outstandingMinor': 18000000, 'openOrderCount': 3, 'maxOverdueDays': 8};
+    final r = await repo.getSummary('c-1');
+    expect(rpc.fn, 'get_customer_receivable_summary');
+    expect(rpc.params!['p_customer_partner_id'], 'c-1');
+    expect(rpc.params!['p_tenant_id'], 't-1');
+    expect(r.outstandingMinor, 18000000);
+    expect(r.openOrderCount, 3);
+    expect(r.maxOverdueDays, 8);
+  });
 }

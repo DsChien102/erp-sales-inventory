@@ -63,6 +63,7 @@ import '../../features/catalog/presentation/pages/product_catalog_tab_page.dart'
 import '../../features/partner/presentation/pages/partner_list_page.dart';
 import '../../features/partner/presentation/partner_area_shell.dart';
 import '../../features/receivable/presentation/receivable_routes.dart';
+import '../../features/receivable/presentation/widgets/customer_receivable_summary_card.dart';
 import '../../features/partner/presentation/widgets/partner_no_permission_view.dart';
 import '../../features/partner/logic/partner_list_cubit.dart';
 import '../../features/partner/logic/partner_permissions.dart';
@@ -609,6 +610,8 @@ final appRouter = GoRouter(
                               showCreateSuccessToast: showCreateSuccessToast,
                               showTransformSuccessToast: showTransformSuccessToast,
                               onMutated: () => listCubit.fetchPartners(isRefresh: true),
+                              customerSection: (ctx, dto) =>
+                                  CustomerReceivableSummaryCard(customerId: dto.partnerId),
                               supplierSection: (ctx, dto) => Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [

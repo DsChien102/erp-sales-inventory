@@ -53,6 +53,11 @@ class ReceivableRepository {
     return CustomerReceivableDetail.fromJson(json);
   }
 
+  Future<CustomerReceivableSummary> getSummary(String customerId) async {
+    final json = await _call('get_customer_receivable_summary', {'p_customer_partner_id': customerId});
+    return CustomerReceivableSummary.fromJson(json);
+  }
+
   Future<ReceivableHistoryPage> history(String customerId, {String? cursor}) async {
     final json = await _call('list_customer_receivable_history', {
       'p_customer_partner_id': customerId,

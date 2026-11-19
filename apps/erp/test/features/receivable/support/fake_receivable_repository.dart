@@ -62,6 +62,21 @@ class FakeReceivableRepository implements ReceivableRepository {
     return _customer.next();
   }
 
+  final List<String> summaryCalls = [];
+  Object summaryResult = const CustomerReceivableSummary(
+    outstandingMinor: 18000000,
+    openOrderCount: 3,
+    maxOverdueDays: 8,
+  );
+
+  @override
+  Future<CustomerReceivableSummary> getSummary(String customerId) {
+    summaryCalls.add(customerId);
+    final r = summaryResult;
+    if (r is CustomerReceivableSummary) return Future.value(r);
+    return Future.error(r);
+  }
+
   @override
   Future<ReceivableHistoryPage> history(String customerId, {String? cursor}) {
     historyCalls.add((customerId: customerId, cursor: cursor));

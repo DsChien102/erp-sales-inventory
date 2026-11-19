@@ -31,6 +31,28 @@ Map<String, dynamic> _map(Object? v) =>
 List<Map<String, dynamic>> _list(Object? v) =>
     v is List ? [for (final e in v) _map(e)] : const [];
 
+/// PT-07: tóm tắt công nợ của một khách (`get_customer_receivable_summary`).
+class CustomerReceivableSummary extends Equatable {
+  const CustomerReceivableSummary({
+    required this.outstandingMinor,
+    required this.openOrderCount,
+    required this.maxOverdueDays,
+  });
+
+  factory CustomerReceivableSummary.fromJson(Map<String, dynamic> j) => CustomerReceivableSummary(
+    outstandingMinor: _int(j['outstandingMinor']),
+    openOrderCount: _int(j['openOrderCount']),
+    maxOverdueDays: _int(j['maxOverdueDays']),
+  );
+
+  final int outstandingMinor;
+  final int openOrderCount;
+  final int maxOverdueDays;
+
+  @override
+  List<Object?> get props => [outstandingMinor, openOrderCount, maxOverdueDays];
+}
+
 class ReceivableSummary extends Equatable {
   const ReceivableSummary({
     required this.totalOutstandingMinor,

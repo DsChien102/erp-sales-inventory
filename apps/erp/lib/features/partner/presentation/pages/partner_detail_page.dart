@@ -18,6 +18,7 @@ class PartnerDetailPage extends StatefulWidget {
     this.showTransformSuccessToast = false,
     this.onMutated,
     this.supplierSection,
+    this.customerSection,
   });
 
   final String partnerId;
@@ -33,6 +34,10 @@ class PartnerDetailPage extends StatefulWidget {
   /// không import Kho). Chỉ dựng khi hồ sơ có vai trò nhà cung cấp và không phải đối tác
   /// hệ thống.
   final Widget Function(BuildContext context, PartnerDetailDto dto)? supplierSection;
+
+  /// Khối Công nợ cho khách hàng (Công nợ gắn qua router; Theme 3 không import
+  /// Công nợ). Chỉ dựng khi hồ sơ có vai trò khách hàng và không phải đối tác hệ thống.
+  final Widget Function(BuildContext context, PartnerDetailDto dto)? customerSection;
 
   @override
   State<PartnerDetailPage> createState() => _PartnerDetailPageState();
@@ -411,6 +416,13 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
 
                               PartnerDetailMainInfoCard(dto: dto),
                               const VGap.sm(),
+
+                              if (widget.customerSection != null &&
+                                  !dto.isSystem &&
+                                  dto.roles.contains(PartnerRoleType.customer)) ...[
+                                widget.customerSection!(context, dto),
+                                const VGap.sm(),
+                              ],
 
                               if (!isPerson) ...[
                                 PartnerDetailContactsCard(
