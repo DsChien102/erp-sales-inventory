@@ -315,7 +315,8 @@ class _OffsetRow extends StatelessWidget {
         checked: on,
         button: true,
         container: true,
-        label: '$title, Trừ ${formatVndBare(shareMinor)}',
+        // TH-06 5.6: đọc đủ hạn nợ ("Quá hạn N ngày"), không chỉ màu đỏ.
+        label: '$title, ${due.text}, Trừ ${formatVndBare(shareMinor)}',
         excludeSemantics: true,
         child: Material(
           color: colors.surface,

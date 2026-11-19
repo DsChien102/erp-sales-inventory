@@ -127,6 +127,20 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('offset row label reads due text (TH-06 5.6)', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_harness(stateFor(base, selected: {'o2', 'o3'})));
+      expect(
+        find.bySemanticsLabel('DH-002 · còn nợ 2.000.000 ₫, Quá hạn 3 ngày, Trừ 500.000'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel('DH-003 · còn nợ 6.000.000 ₫, Hẹn 30/11, Trừ 0'),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
     testWidgets('offset row title shows full outstanding at 390', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;

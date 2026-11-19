@@ -530,7 +530,7 @@ Prototype `patches.js` pt07: thẻ một dòng, tiêu đề `Công nợ`, dòng 
 
 ## Kết quả
 
-**Trạng thái 2026-11-19:** Task 2–8 xong phía Flutter; Task 1 viết xong nhưng **chưa chạy DB, chưa commit**; Task 9 còn audit, kịch bản 9.1, golden `patch-*`.
+**Trạng thái 2026-11-19 (cập nhật sau R2):** Task 1–8 xong (DB xanh, xem mục Review). Task 9: người dùng chọn **bỏ** golden `patch-sg09 / sg09b / sg09c / sg14 / pt07` và `/impeccable audit`, thay bằng tự test tay trên iPhone và web (so với ảnh `proto-patch-*`) cùng kịch bản 9.1 — **chưa có kết quả**. Phần không thay được bằng test tay: tương phản, vùng chạm, trình đọc màn hình ngoài ô cấn trừ (ô này đã có test nhãn).
 
 **Impact (GitNexus).** Chỉ mục Dart không đáng tin: `SalesPaymentMethod` báo LOW / 0 trong khi ~23 file dùng; `ReturnExchangeConfirmRequest` và cubit SG-13 báo CRITICAL (1865) do trùng tên symbol (ambiguous). Blast radius thật theo grep: cubit chỉ được `SalesReturnExchangeSettlementPage` dùng; thay đổi đều là thêm khoá/tham số có mặc định. Không dừng vì CRITICAL (kết quả nhiễu, thay đổi cộng thêm). `detect_changes compare main` trả 3997 file (cả nhánh refactor) nên không dùng được làm bằng chứng; chỉ mục cũ.
 
@@ -548,7 +548,7 @@ Prototype `patches.js` pt07: thẻ một dòng, tiêu đề `Công nợ`, dòng 
 
 **Golden.** `flutter-SG-13-*` đủ 16 ảnh (cạnh ảnh `proto-*`). Khác prototype còn lại: icon cảnh báo hiện ô vuông (font icon không nạp trong test, như golden T6-2b), nền trang xám theo `VPageScaffold`, sheet xác nhận xếp nút dọc (sheet có sẵn), hero meta ở 390 xuống dòng. **Chưa làm** golden `patch-sg14 / sg09 / sg09b / sg09c / pt07`.
 
-**Chưa làm (cần người dùng):** chạy DB Task 1; `/impeccable audit`; kịch bản 9.1 trên iPhone và web; golden `patch-*`; tài liệu TH-06 9.4 và `detect_changes` sau cùng.
+**Chưa làm (cần người dùng):** kịch bản 9.1 và test tay trên iPhone và web (thay golden `patch-*` và audit). `detect_changes -s all` trước commit trả "No changes detected" (chỉ mục Dart cũ, migration chưa được theo dõi) — phạm vi kiểm bằng `git diff --stat`: `_OffsetRow` (1 dòng), 1 test, migration, `receivable_th06.sql`, REGISTRY, tài liệu.
 
 ## Review
 
@@ -596,4 +596,31 @@ Prototype `patches.js` pt07: thẻ một dòng, tiêu đề `Công nợ`, dòng 
 3. Gợi ý cũng làm: bỏ import thừa (hết warning); dòng cấn trừ SG-14 dùng `textPrimary`; `_OffsetRow` gộp semantics một nhãn `DH-002 · còn nợ …, Trừ …`.
 `flutter test test/features/sales test/features/receivable test/features/partner`: 1442 PASS; `flutter analyze`: sạch. Mục 3–4 (DB, audit, kịch bản 9.1, golden `patch-*`) vẫn chờ.
 
-**Commit.** Migration, B15 / B16, REGISTRY chưa commit — commit sau khi DB xanh.
+
+### R2 — 2026-11-19 · 🔄 Flutter đạt, chờ kết quả DB
+
+**Đã kiểm** (commit `8331ae736`).
+- Mục 1: `_OffsetRow` thành hai hàng (tiêu đề đủ bề ngang; nhãn hạn + `Trừ …`). Ảnh `flutter-SG-13-all-selected-390` hiện đủ `DH-002 · còn nợ 2.000.000 ₫` và `DH-003 · còn nợ 6.000.000 ₫`, khớp prototype. 16 golden đã chụp lại.
+- Mục 2: `openCustomerReceivable` trả `Future`, iPhone `await context.push`; thẻ PT-07 `_load()` và SG-09 `_cubit.refresh()` sau khi quay về, có test.
+- Gợi ý R1: bỏ import thừa, dòng cấn trừ SG-14 `textPrimary`, semantics ô cấn trừ gộp một nhãn — đã làm.
+- Chạy lại: `flutter test test/features/sales test/features/receivable test/features/partner` **1442 PASS**; `flutter analyze` không error / warning.
+
+**Nên sửa (nhỏ)**
+
+1. **Nhãn đọc màn hình của ô cấn trừ thiếu hạn nợ** — `sales_return_entitled_settlement.dart` `_OffsetRow`: `excludeSemantics: true` bỏ luôn `ReceivableDueBadge`, nhãn chỉ còn `DH-002 · còn nợ 2.000.000 ₫, Trừ 500.000`. TH-06 5.6 yêu cầu đọc đủ "Quá hạn N ngày". Sửa: `label: '$title, ${due.text}, Trừ ${formatVndBare(shareMinor)}'`; test kiểm nhãn chứa `Quá hạn 3 ngày`.
+
+**Gợi ý (không bắt buộc)**
+
+- PT-07 kéo làm mới vẫn không tải lại khối Công nợ (cùng `customerId`). Có thể truyền `key: ValueKey(<lần tải hồ sơ>)` từ trang, hoặc để như hiện tại vì quay về từ CN-02 đã tải lại.
+
+**Chưa xác minh (như R1 mục 3–4):** kết quả 3 lệnh DB; golden `patch-*`, `/impeccable audit`, kịch bản 9.1 iPhone + web, `detect_changes`.
+
+
+**Kết quả DB (người dùng chạy local, 2026-11-19)** — chốt R1 mục 3:
+- `tools/db_check.sh --no-reset receivable_th06` khi chưa áp `20261126001` → `FAIL: B16 nhãn thu theo khách expected [1] got [0]` (đỏ đúng; B16 ở khối A nên chạy trước B15).
+- `tools/db_check.sh receivable_th06` (reset) → `receivable_th06: OK`; plpgsql_check chỉ 2 nợ đã biết.
+- `tools/db_check.sh --no-reset sales_th05` → `sales_th05: OK`.
+
+Task 1 đạt. Commit migration `20261126001`, B15 / B16, REGISTRY được rồi.
+
+**Phản hồi R2 mục 1 (2026-11-19, Claude sửa theo yêu cầu người dùng — cần phiên khác review).** `_OffsetRow` nhãn đọc màn hình thêm hạn nợ: `'$title, ${due.text}, Trừ …'`. Test `offset row label reads due text (TH-06 5.6)` (nhãn `DH-002 · còn nợ 2.000.000 ₫, Quá hạn 3 ngày, Trừ 500.000` và `DH-003 · …, Hẹn 30/11, Trừ 0`) đỏ trước khi sửa, xanh sau. `flutter test test/features/sales/presentation_module/widgets/` 119 PASS; `flutter analyze` sales không thêm vấn đề (7 info có sẵn). Golden không đổi (chỉ đổi semantics).
