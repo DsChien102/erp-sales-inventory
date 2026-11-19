@@ -30,6 +30,7 @@ import '../../features/inventory/data/stocktake/stocktake_repository.dart';
 import '../../features/inventory/data/supplier_program/supplier_program_repository.dart';
 import '../../features/inventory/data/supplier_rebate/supplier_rebate_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
+import '../../features/receivable/data/receivable_repository.dart';
 import '../../features/pricing/data/customer_price_rule_repository.dart';
 import '../../features/pricing/data/sales_pricing_repository.dart';
 import '../../features/sales/data/return_exchange_repository.dart';
@@ -125,6 +126,14 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     )
     ..registerLazySingleton<PartnerRepository>(
       () => PartnerRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+        actorId: () async =>
+            sessionStore.userId ?? (throw const AppException(AppErrorCode.authRequired)),
+      ),
+    )
+    ..registerLazySingleton<ReceivableRepository>(
+      () => ReceivableRepository(
         rpc: getIt<SupabaseRpc>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
         actorId: () async =>
