@@ -119,4 +119,37 @@ void main() {
     expect(cubit.state.query, '');
     expect(repo.listCalls.last.search, anyOf(isNull, isEmpty));
   });
+
+  test('loadMore bị chặn khi đang đổi lọc', () async {
+    final hold = Completer<CustomerReceivablePage>();
+    repo
+      ..enqueueList(_page([fx.rowsBefore[0], fx.rowsBefore[1]], cursor: 'c1'))
+      ..enqueueList(hold);
+    await cubit.load();
+    cubit.toggleOverdue();
+    await pumpEventQueue();
+    await cubit.loadMore();
+    expect(repo.listCalls.where((c) => c.cursor != null), isEmpty);
+    hold.complete(_page([fx.rowsBefore[0]]));
+    await pumpEventQueue();
+    expect([for (final r in cubit.state.items) r.displayName], ['Anh Tuấn']);
+    expect(cubit.state.filter, ReceivableFilter.overdue);
+  });
+
+  test('loadMore cũ về muộn không đè kết quả của lọc mới', () async {
+    final more = Completer<CustomerReceivablePage>();
+    repo
+      ..enqueueList(_page([fx.rowsBefore[0]], cursor: 'c1'))
+      ..enqueueList(more)
+      ..enqueueList(_page([fx.rowsBefore[2]]));
+    await cubit.load();
+    final pending = cubit.loadMore();
+    cubit.toggleOverdue();
+    await pumpEventQueue();
+    more.complete(_page([fx.rowsBefore[1]]));
+    await pending;
+    await pumpEventQueue();
+    expect([for (final r in cubit.state.items) r.displayName], ['Chị Lan']);
+    expect(cubit.state.loadingMore, isFalse);
+  });
 }

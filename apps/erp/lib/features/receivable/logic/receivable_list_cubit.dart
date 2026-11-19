@@ -19,6 +19,7 @@ class ReceivableListCubit extends Cubit<ReceivableListState> {
 
   Timer? _debounce;
   int _requestId = 0;
+  int _moreId = 0;
 
   /// Tải lại từ đầu, hiện khung chờ (lần đầu / sau lỗi / bấm Thử lại).
   Future<void> load() => _fetch(showLoading: true);
@@ -31,26 +32,26 @@ class ReceivableListCubit extends Cubit<ReceivableListState> {
     final next = state.filter == ReceivableFilter.all
         ? ReceivableFilter.overdue
         : ReceivableFilter.all;
-    emit(state.copyWith(filter: next));
+    emit(state.copyWith(filter: next, nextCursor: () => null));
     unawaited(_fetch(showLoading: false));
   }
 
   void setQuery(String text) {
     _debounce?.cancel();
-    emit(state.copyWith(query: text));
+    emit(state.copyWith(query: text, nextCursor: () => null));
     _debounce = Timer(searchDebounce, () => unawaited(_fetch(showLoading: false)));
   }
 
   void clearQuery() {
     _debounce?.cancel();
-    emit(state.copyWith(query: ''));
+    emit(state.copyWith(query: '', nextCursor: () => null));
     unawaited(_fetch(showLoading: false));
   }
 
   Future<void> loadMore() async {
     final cursor = state.nextCursor;
     if (cursor == null || state.loadingMore || state.status != ReceivableListStatus.ready) return;
-    final id = ++_requestId;
+    final id = ++_moreId;
     emit(state.copyWith(loadingMore: true));
     try {
       final page = await _repository.list(
@@ -58,7 +59,7 @@ class ReceivableListCubit extends Cubit<ReceivableListState> {
         search: state.query,
         cursor: cursor,
       );
-      if (id != _requestId || isClosed) return;
+      if (id != _moreId || isClosed) return;
       emit(
         state.copyWith(
           items: [...state.items, ...page.items],
@@ -68,13 +69,14 @@ class ReceivableListCubit extends Cubit<ReceivableListState> {
         ),
       );
     } catch (_) {
-      if (id != _requestId || isClosed) return;
+      if (id != _moreId || isClosed) return;
       emit(state.copyWith(loadingMore: false));
     }
   }
 
   Future<void> _fetch({required bool showLoading}) async {
     final id = ++_requestId;
+    _moreId++; // trang tải thêm của lọc / tìm cũ về muộn bị bỏ
     if (showLoading) {
       emit(state.copyWith(status: ReceivableListStatus.loading, loadingMore: false));
     }
