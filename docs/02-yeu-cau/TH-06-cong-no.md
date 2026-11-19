@@ -125,7 +125,7 @@ Xem [mục 8](#8-ngoài-phạm-vi). Tóm tắt: không phải trả nhà cung c�
 | Giao dịch tiền | `sales_payment_transactions`: `collection` (thu, chiều vào) hoặc `refund` (hoàn, chiều ra). Số tiền > 0. Không sửa, không xoá |
 | Nguồn giao dịch | `checkout` (lúc bán), `additional_collection` (thu một đơn sau bán, SG-11; **không còn trên giao diện** từ 2026-11-18, giữ để đọc dữ liệu cũ), `receivable_collection` 🆕 (thu theo khách), `return_exchange` (quyết toán đổi/trả, gồm cấn trừ), `cancellation` (không dùng), `manual_correction` (hoàn thủ công, không dùng) |
 | Điều chỉnh nghĩa vụ | `settlement_obligation_adjustments`: mỗi nguồn (một phiếu huỷ, một phiếu đổi/trả) tối đa 1 dòng, số tiền có dấu |
-| Phương thức thanh toán | `cash` (Tiền mặt), `manual_bank_transfer` (Chuyển khoản, kèm mã giao dịch tuỳ chọn), `offset` 🆕 (Cấn trừ, chỉ nội bộ) |
+| Phương thức thanh toán | `cash` (Tiền mặt), `manualBankTransfer` (Chuyển khoản, kèm mã giao dịch tuỳ chọn), `offset` 🆕 (Cấn trừ, chỉ nội bộ) |
 | Đơn còn nợ | Đơn `sales_orders` `lifecycle_status = completed`, có `customer_partner_id`, settlement `outstanding_amount_minor > 0` |
 | Khách còn nợ | Khách có ≥ 1 đơn còn nợ |
 | Công nợ của khách | Σ `outstanding` các đơn còn nợ của khách. **Tính khi đọc**, không lưu |
@@ -240,9 +240,9 @@ Hôm nay 18/11. Công nợ = 18.000.000; quá hạn: DH-001 (8 ngày), DH-002 (3
 | Mã | Quy tắc | Ở đâu |
 |---|---|---|
 | BR-03 | `0 < số thu ≤ Σ còn nợ các đơn áp dụng` (không chọn đơn = công nợ cả khách). Vượt → `OVERPAYMENT_NOT_ALLOWED`; ≤ 0 → `AMOUNT_INVALID` | app + `record_customer_collection` |
-| BR-04 | Phương thức: Tiền mặt (`cash`) / Chuyển khoản (`manual_bank_transfer`, mã giao dịch tuỳ chọn). Không có "Kết hợp": khách trả hai cách thì ghi hai lần thu | app + RPC |
+| BR-04 | Phương thức: Tiền mặt (`cash`) / Chuyển khoản (`manualBankTransfer`, mã giao dịch tuỳ chọn). Không có "Kết hợp": khách trả hai cách thì ghi hai lần thu | app + RPC |
 | BR-05 | Sau khi đơn **hoàn tất**, mọi khoản thu đều đi qua công nợ (CN-03); chi tiết đơn không còn nút "Thu tiền" (đổi 2026-11-18, bỏ SG-11 sau bán). Thanh toán riêng từng đơn chỉ có lúc bán (checkout). CN-03 chỉ có **một cách chọn**: danh sách đơn còn nợ có ô tick, đầu danh sách có ô tick **"Tất cả đơn · trả hết"**; không còn chế độ Tự động / Chọn đơn và không còn nút "Trả hết". Tick đơn nào thì số tiền tự điền = Σ còn nợ các đơn đã tick; người dùng sửa số nhỏ hơn thì chia **cũ trước** trong các đơn đã tick (tick cả khách rồi sửa số = chia cũ trước như trước đây). Không gõ số riêng từng đơn. RPC nhận `p_order_ids` (**bắt buộc, ≥ 1 đơn**); `p_expected_outstanding_minor` = Σ còn nợ các đơn đã chọn | RPC |
-| BR-06 | Một transaction: khoá settlement các đơn còn nợ của khách (theo `id`), so tổng công nợ với số app đã thấy (`p_expected_outstanding_minor`); khác → `RECEIVABLE_CHANGED`, không ghi gì. Ghi 1 `customer_collections` + N giao dịch `collection` (`source_context = receivable_collection`, `source_type = customer_collection`, `source_id` = id lần thu); tính lại settlement từng đơn; sinh phiếu bán hàng phiên bản mới cho từng đơn; ghi `sales_payment_recorded.v1` cho từng đơn | `record_customer_collection` |
+| BR-06 | Một transaction: khoá settlement các đơn còn nợ của khách (theo `id`), so Σ còn nợ **các đơn đã chọn** với số app đã thấy (`p_expected_outstanding_minor`, như BR-05); khác → `RECEIVABLE_CHANGED`, không ghi gì. Ghi 1 `customer_collections` + N giao dịch `collection` (`source_context = receivable_collection`, `source_type = customer_collection`, `source_id` = id lần thu); tính lại settlement từng đơn; sinh phiếu bán hàng phiên bản mới cho từng đơn; ghi `sales_payment_recorded.v1` cho từng đơn | `record_customer_collection` |
 | BR-07 | Lần thu, giao dịch, cấn trừ **không sửa, không xoá, không huỷ** trên app (Q7). Ghi nhầm → bên kỹ thuật sửa DB | — |
 | BR-08 | Chống trùng: `idempotency_key` mới cho mỗi lần mở màn thu, giữ nguyên khi thử lại; cùng key + cùng nội dung → trả kết quả cũ; khác nội dung → `IDEMPOTENCY_CONFLICT` | `receivable.idempotency_records` (Q13 R3), scope `customer_collection` |
 | BR-09 | Thu không đổi ngày hẹn của đơn (D5). Khách ngừng hoạt động vẫn thu được (D3) | RPC |
@@ -255,7 +255,7 @@ Hôm nay 18/11. Công nợ = 18.000.000; quá hạn: DH-001 (8 ngày), DH-002 (3
 | BR-21 | Thứ tự: giảm nợ chính đơn nguồn → cấn trừ → hoàn (công thức 2.2) | như trên |
 | BR-22 | Đơn nhận cấn trừ: đơn còn nợ khác của cùng khách, trong phạm vi BR-02, xếp cũ trước. Kế hoạch quyết toán trả danh sách đề xuất (`offset_candidates`) kèm số cấn trừ mỗi đơn | `evaluate_return_exchange_valuation` |
 | BR-23 | Mặc định chọn **mọi** đơn đề xuất. Người dùng bỏ chọn được từng đơn; số cấn trừ tính lại theo các đơn còn chọn (cũ trước), phần không cấn trừ chuyển sang "Hoàn cho khách" | SG-13 (TH-05) |
-| BR-24 | Xác nhận gửi danh sách đơn nhận được chọn (`p_offset_target_order_ids`). Server tính lại cấn trừ; đơn nhận nào đã hết nợ hoặc đổi version settlement → `STALE_VERSION` (người dùng tải lại quyết toán) | `confirm_return_exchange` |
+| BR-24 | Xác nhận gửi danh sách đơn nhận được chọn (`offset_target_order_ids`). Server tính lại cấn trừ; đơn nhận nào đã hết nợ hoặc đổi version settlement → `STALE_VERSION` (người dùng tải lại quyết toán) | `confirm_return_exchange` |
 | BR-25 | Mỗi cấn trừ ghi 2 giao dịch (công thức 2.2) + 1 dòng `receivable_offsets`; tính lại settlement đơn nguồn và các đơn nhận; sinh phiếu bán hàng mới cho các đơn nhận; ghi `receivable_offset_recorded.v1` vào outbox của **cả hai** đơn | `confirm_return_exchange` |
 | BR-26 | Không còn đơn nào để cấn trừ, hoặc bỏ chọn hết → hoàn toàn bộ `còn_lại` bằng tiền mặt / chuyển khoản như TH-05 (Q4) | như trên |
 | BR-27 | Hoàn tiền vẫn ≤ `net_collected` đơn nguồn (TH-05). Theo công thức 2.2 luôn đúng vì `còn_lại ≤ net_collected` | như trên |
@@ -337,7 +337,7 @@ Tạo ở `20260830005_sales_rebuild_schema.sql` trong schema `sales`; T6-1a chu
 | `transaction_type` / `direction` | text | ✓ | `collection`/`inflow` hoặc `refund`/`outflow` |
 | `amount_minor` | bigint | ✓ | > 0 |
 | `currency_code` | char(3) | ✓ | |
-| `payment_method_code` | varchar(50) | ✓ | `cash`, `manual_bank_transfer`, `offset` 🆕 |
+| `payment_method_code` | varchar(50) | ✓ | `cash`, `manualBankTransfer`, `offset` 🆕 |
 | `payment_method_snapshot` | jsonb | | nhãn phương thức lúc ghi |
 | `status` | text | ✓ | `confirmed` (`pending`, `failed` không dùng) |
 | `source_context` | text | ✓ | nguồn (2.1); `receivable_collection` có trong CHECK từ đầu, TH-06 mới dùng |
@@ -373,7 +373,7 @@ Cấn trừ **không** ghi điều chỉnh nghĩa vụ ở đơn nhận (nghĩa 
 | `customer_partner_id` | uuid | ✓ | |
 | `amount_minor` | bigint | ✓ | > 0; = Σ phân bổ |
 | `currency_code` | char(3) | ✓ | `VND` |
-| `payment_method_code` | varchar(50) | ✓ | `cash` / `manual_bank_transfer` |
+| `payment_method_code` | varchar(50) | ✓ | `cash` / `manualBankTransfer` |
 | `external_reference` | varchar(150) | | mã giao dịch chuyển khoản |
 | `customer_outstanding_before_minor`, `customer_outstanding_after_minor` | bigint | ✓ | để hiện lịch sử, không phải nguồn tính |
 | `allocation_snapshot` | jsonb | ✓ | `[{salesOrderId, orderCode, amountMinor, outstandingAfterMinor}]` |
@@ -410,8 +410,9 @@ Duy nhất theo (`tenant_id`, `return_exchange_order_id`, `target_sales_order_id
 | `receivable_reverse_amount_minor` | bigint | ✓ | giảm nợ chính đơn nguồn (≥ 0), tính **trước** (công thức 2.2) |
 | `offset_amount_minor` 🆕 | bigint | ✓ | tổng cấn trừ sang đơn khác khi chọn hết đề xuất (≥ 0) |
 | `refund_amount_minor` | bigint | ✓ | hoàn tiền khi chọn hết đề xuất (≥ 0) |
-| `offset_candidates` 🆕 | jsonb | ✓ | `[{salesOrderId, orderCode, completedAt, outstandingMinor, offsetAmountMinor, dueDate, settlementVersion}]`, cũ trước; `[]` khi không có |
+| `offset_candidates` 🆕 | jsonb | ✓ | `[{salesOrderId, orderCode, completedAt, outstandingMinor, offsetAmountMinor, dueDate, overdueDays, settlementVersion}]`, cũ trước; `[]` khi không có (Khách lẻ, hoặc không còn gì để cấn trừ sau khi giảm nợ) |
 | `source_order_version`, `source_settlement_version` | bigint | ✓ | phát hiện thay đổi khi xác nhận |
+| `source_session_version`, `pricing_source_version`, `inventory_source_version`, `correlation_id` | bigint / integer / integer / text | | cột kỹ thuật (T6-1b) thay các khoá cùng tên trong jsonb cũ, để xác nhận kiểm phiên bản không đọc jsonb |
 | `status` | text | ✓ | `calculated` / `confirmed` (theo định giá) |
 | `calculated_at`, `created_at` | timestamptz | ✓ | |
 
@@ -683,7 +684,7 @@ Scenario: SC-03 — Công nợ đổi trong lúc thu
 **Yêu cầu chức năng**
 
 - FR-01: Sheet "Xác nhận đổi/trả?" thêm dòng "Cấn trừ <số> vào đơn <mã>" cho từng đơn được chọn.
-- FR-02: `confirm_return_exchange` thêm tham số `p_offset_target_order_ids` (mảng, có thể rỗng) (BR-24).
+- FR-02: `confirm_return_exchange` thêm tham số `offset_target_order_ids` (mảng, có thể rỗng) (BR-24).
 - FR-03: SG-14 "Kết quả đổi/trả" thêm dòng "Cấn trừ vào DH-002 <số>"; nút "Xem công nợ của khách" khi có cấn trừ.
 - FR-04: `STALE_VERSION` do đơn nhận đổi → "Công nợ của khách vừa thay đổi. Hãy tải lại quyết toán." + "Tải lại" (gọi lại định giá).
 
@@ -935,9 +936,20 @@ RPC 🆕 ở schema `receivable`; RPC 🔧 là của TH-05, ở lại `sales`.
 | `get_customer_receivable_summary` 🆕 | `receivable.view` | đọc | cho PT-07: `outstandingMinor`, `openOrderCount`, `maxOverdueDays` |
 | `record_customer_collection` 🆕 | `receivable.collect` (+ `sales.payment.record`) | ghi, idempotent, 1 transaction | vào: `p_customer_partner_id`, `p_amount_minor`, `p_payment_method_code`, `p_external_reference`, `p_order_ids` (mảng **bắt buộc ≥ 1 đơn**, BR-05), `p_expected_outstanding_minor` (= Σ còn nợ các đơn đã chọn), `p_idempotency_key`; ra: `collectionId`, `allocations`, `outstandingAfterMinor` |
 | `evaluate_return_exchange_valuation` 🔧 | (TH-05) | | ghi kế hoạch vào `receivable.return_exchange_settlement_plans` (R2); khối JSON `settlement_plan` trả về giữ hình dạng cũ + thêm `offset_candidates`, `offset_amount`; thứ tự giảm nợ → cấn trừ → hoàn |
-| `confirm_return_exchange` 🔧 | (TH-05) | | thêm `p_offset_target_order_ids uuid[]`; ghi cấn trừ (BR-24, BR-25) |
-| `settle_return_exchange_difference` 🔧 | nội bộ | | áp thứ tự mới |
+| `confirm_return_exchange` 🔧 | (TH-05) | | thêm `offset_target_order_ids uuid[]`; ghi cấn trừ (BR-24, BR-25) |
+| `settle_return_exchange_difference` | — | | **đã xoá (T6-1b)**: `confirm_return_exchange` ghi giao dịch trực tiếp qua `receivable._post_money_transaction` |
 | `get_sales_order_payment_transactions`, `get_sales_order_payment_summary`, `get_sales_order_timeline`, `generate_sales_receipt` 🔧 | (TH-05) | | nhận phương thức `offset`, nguồn `receivable_collection`, sự kiện mới |
+
+**Khoá JSON thật của 4 RPC đọc (T6-1b)**
+
+| RPC | Ra |
+|---|---|
+| `list_customer_receivables` (`p_filter` `all`/`overdue`) | `{summary {totalOutstandingMinor, customerCount, overdueCustomerCount, overdueAmountMinor, maxOverdueDays}, items [{customerId, displayName, phone, isActive, outstandingMinor, openOrderCount, overdueOrderCount, overdueAmountMinor, maxOverdueDays, nextDueDate}], nextCursor}` |
+| `get_customer_receivable` | `{customer {customerId, displayName, phone, isActive}, outstandingMinor, openOrderCount, overdueOrderCount, maxOverdueDays, openOrders [{salesOrderId, orderCode, completedAt, payableMinor, outstandingMinor, dueDate, overdueDays, settlementVersion}]}` |
+| `list_customer_receivable_history` | `{items [{kind, occurredAt, amountMinor, paymentMethodCode, externalReference, actorId, actorDisplayName, salesOrderId, orderCode, allocations, sourceOrderCode, targetOrderCode, returnExchangeReference}], nextCursor}`; `kind` ∈ `customer_collection` / `order_collection` / `offset` / `refund` |
+| `get_customer_receivable_summary` | `{outstandingMinor, openOrderCount, maxOverdueDays}` |
+
+`offset_target_order_ids` rỗng hoặc không gửi = không cấn trừ (giảm nợ rồi hoàn). `confirm_return_exchange` ghi giao dịch tiền trước, điều chỉnh nghĩa vụ sau.
 
 Mọi RPC mới: `security definer`, `set search_path = ''`, kiểm `iam.has_permission` + `iam.can_access_store` từng đơn, như TH-05.
 
@@ -951,7 +963,7 @@ Mọi RPC mới: `security definer`, `set search_path = ''`, kiểm `iam.has_per
 | `NO_OUTSTANDING` | khách không còn nợ | "Khách không còn khoản phải thu." |
 | `OVERPAYMENT_NOT_ALLOWED` | thu > công nợ | "Số tiền vượt quá tổng còn nợ của khách." |
 | `RECEIVABLE_CHANGED` | công nợ khác số app gửi | "Công nợ của khách vừa thay đổi. Hãy tải lại rồi thử lại." |
-| `PAYMENT_METHOD_INVALID` | phương thức ngoài `cash` / `manual_bank_transfer` (gồm `offset`) | "Phương thức thanh toán không hợp lệ." |
+| `PAYMENT_METHOD_INVALID` | phương thức ngoài `cash` / `manualBankTransfer` (gồm `offset`) | "Phương thức thanh toán không hợp lệ." |
 | `IDEMPOTENCY_CONFLICT`, `IN_PROGRESS` | như TH-05 | như TH-05 |
 | `STALE_VERSION` | đổi/trả: đơn nhận cấn trừ đã đổi | "Công nợ của khách vừa thay đổi. Hãy tải lại quyết toán." |
 | `OFFSET_TARGET_INVALID` | đơn nhận không cùng khách / đã huỷ / không truy cập được | "Đơn được chọn để cấn trừ không hợp lệ." |
@@ -962,7 +974,7 @@ Mọi RPC mới: `security definer`, `set search_path = ''`, kiểm `iam.has_per
 
 ### 7.1 Mã quyền
 
-`receivable.view`, `receivable.collect` (thêm vào danh mục quyền bằng migration). Cấn trừ dùng quyền đổi/trả có sẵn `sales.return_exchange.confirm` (cấn trừ chỉ xảy ra trong lệnh xác nhận đổi/trả).
+`receivable.view`, `receivable.collect`. Không cần thêm vào danh mục quyền: `iam.has_permission` trả `true` cho mọi mã ngoài `tenant.*` / `iam.*` (TH-01), nên RPC chỉ việc gọi đúng mã. Cấn trừ dùng quyền đổi/trả có sẵn `sales.return_exchange.confirm` (cấn trừ chỉ xảy ra trong lệnh xác nhận đổi/trả).
 
 ### 7.2 Phân quyền
 
@@ -1029,7 +1041,7 @@ Sau mỗi bước chạy bất biến 3.5 và TH-05 3.7.
 
 - `list_customer_receivables`: chỉ khách có đơn `completed` còn nợ; bỏ Khách lẻ, đơn huỷ; thứ tự mức khẩn (BR-10: quá hạn lâu nhất → đến hạn hôm nay → hẹn gần nhất → không hẹn; cùng mức nợ giảm dần, rồi tên), cursor theo đúng khoá đó; `summary.overdueAmountMinor` chỉ cộng đơn đã quá hạn và không đổi theo `p_filter` / `p_search`; lọc `overdue` theo giờ VN (đơn hẹn hôm nay không quá hạn); tìm bỏ dấu; ngoài cửa hàng truy cập được không thấy.
 - `record_customer_collection`: chia cũ trước đúng ví dụ 2.3; `p_order_ids` chỉ ghi vào các đơn đã chọn, đơn không chọn không đổi, rỗng → `AMOUNT_INVALID`, đơn chọn đã hết nợ / không thuộc khách → `RECEIVABLE_CHANGED`, vượt Σ các đơn chọn → `OVERPAYMENT_NOT_ALLOWED`; thu = công nợ → mọi đơn `paid`; vượt → `OVERPAYMENT_NOT_ALLOWED`; ≤ 0 → `AMOUNT_INVALID`; `p_expected_outstanding_minor` lệch → `RECEIVABLE_CHANGED` và không ghi gì; cùng key 2 lần → 1 lần thu; cùng key khác số → `IDEMPOTENCY_CONFLICT`; phương thức `offset` → `PAYMENT_METHOD_INVALID`; phiếu bán hàng mới cho từng đơn; ngày hẹn không đổi.
-- `confirm_return_exchange`: thứ tự giảm nợ → cấn trừ → hoàn (SC-03, AC-02 US-03.2); `p_offset_target_order_ids` rỗng → hoàn như TH-05; đơn nhận khác khách → `OFFSET_TARGET_INVALID`; đơn nhận đã hết nợ → `STALE_VERSION`; Khách lẻ không cấn trừ; bất biến 3.5 (3), (4).
+- `confirm_return_exchange`: thứ tự giảm nợ → cấn trừ → hoàn (SC-03, AC-02 US-03.2); `offset_target_order_ids` rỗng → hoàn như TH-05; đơn nhận khác khách → `OFFSET_TARGET_INVALID`; đơn nhận đã hết nợ → `STALE_VERSION`; Khách lẻ không cấn trừ; bất biến 3.5 (3), (4).
 - Cập nhật test TH-05 bị đổi: US-06.6 AC-02 và kịch bản 6 (9.3 TH-05) theo thứ tự mới.
 
 ### 9.3 Widget / cubit test
@@ -1047,4 +1059,6 @@ Sau mỗi bước chạy bất biến 3.5 và TH-05 3.7.
 |---|---|
 | T6-1a | DB: chuyển 3 bảng tiền sang schema `receivable`, chuyển `payment_due_date` vào quyết toán (R1), tạo lại các hàm phụ thuộc (mục 3.6); chạy lại toàn bộ test SQL cũ. Làm trước |
 | T6-1b | DB: 4 bảng mới (`customer_collections`, `receivable_offsets`, `return_exchange_settlement_plans` — R2, `idempotency_records` — R3), CHECK `offset`, quyền `receivable.*`, 5 RPC mới, sửa định giá / xác nhận / quyết toán đổi/trả, RPC đọc TH-05 nhận `offset`; test 9.2; sửa chữ TH-05 / TH-03 phần dữ liệu |
-| T6-2 | Prototype CN-01…03 + SG-13 (iPhone + web), rồi Flutter: feature `receivable`, sửa SG-09 / 09b / 09c / 13 / 14, PT-07, menu Thêm; test 9.3; `/impeccable audit`; kịch bản 9.1 |
+| T6-2a | Prototype CN-01…03 + SG-13 (iPhone + web) |
+| T6-2b | Flutter feature `receivable`: CN-01, CN-02, CN-03, route `/more/receivables`, menu Thêm; test 9.3 phần CN |
+| T6-2c | Sửa SG-09 / 09b / 09c / 13 / 14, PT-07; `/impeccable audit`; kịch bản 9.1 |

@@ -462,6 +462,20 @@ pricing:
   search_customer_price_rules: 20260805001_pricing_patch_customer_phone_snapshot.sql
   update_customer_price_rule: 20260810001_pricing_patch_overwrite_disabled_rules.sql
 
+receivable:
+  _assert_actor: 20261124001_receivable_customer_collections.sql
+  _begin_idempotency: 20261124001_receivable_customer_collections.sql
+  _complete_idempotency: 20261124001_receivable_customer_collections.sql
+  _customer_receivable_rows: 20261124001_receivable_customer_collections.sql
+  _open_orders: 20261124001_receivable_customer_collections.sql
+  _post_money_transaction: 20261124001_receivable_customer_collections.sql
+  _raise_error: 20261124001_receivable_customer_collections.sql
+  get_customer_receivable: 20261124001_receivable_customer_collections.sql
+  get_customer_receivable_summary: 20261124001_receivable_customer_collections.sql
+  list_customer_receivable_history: 20261125001_receivable_history_actor_name.sql
+  list_customer_receivables: 20261124001_receivable_customer_collections.sql
+  record_customer_collection: 20261124001_receivable_customer_collections.sql
+
 sales:
   _apply_settlement_obligation_adjustment: 20261123001_receivable_move_money_tables.sql
   _assert_exchange_price: 20260830012_sales_return_exchange_session_rpcs.sql
@@ -488,16 +502,16 @@ sales:
   cancel_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
   cancel_sales_order_draft: 20260830007_sales_draft_rpcs.sql
   complete_return_exchange: 20260830014_sales_return_exchange_confirmation_rpcs.sql
-  confirm_return_exchange: 20261123001_receivable_move_money_tables.sql
+  confirm_return_exchange: 20261124002_receivable_return_offsets.sql
   confirm_sales_order_cancellation: 20261123001_receivable_move_money_tables.sql
-  evaluate_return_exchange_valuation: 20261123001_receivable_move_money_tables.sql
+  evaluate_return_exchange_valuation: 20261124002_receivable_return_offsets.sql
   finalize_sales_order: 20261123001_receivable_move_money_tables.sql
   generate_sales_receipt: 20261123001_receivable_move_money_tables.sql
   get_available_post_sale_actions: 20260830011_sales_adjustment_cancellation_rpcs.sql
   get_checkout_result: 20260830008_sales_checkout_rpcs.sql
   get_einvoice_source_snapshot: 20261031018_sales_einvoice_source_contract.sql
   get_order_integration_status: 20260830010_sales_inquiry_receipt_rpcs.sql
-  get_return_exchange_detail: 20260830012_sales_return_exchange_session_rpcs.sql
+  get_return_exchange_detail: 20261124002_receivable_return_offsets.sql
   get_return_exchange_form_policy: 20260830012_sales_return_exchange_session_rpcs.sql
   get_returnable_order_lines: 20260830012_sales_return_exchange_session_rpcs.sql
   get_sales_order: 20260830010_sales_inquiry_receipt_rpcs.sql
@@ -505,8 +519,8 @@ sales:
   get_sales_order_detail: 20261123001_receivable_move_money_tables.sql
   get_sales_order_draft_for_restore: 20260830007_sales_draft_rpcs.sql
   get_sales_order_original_receipt: 20261123001_receivable_move_money_tables.sql
-  get_sales_order_payment_summary: 20261123001_receivable_move_money_tables.sql
-  get_sales_order_payment_transactions: 20261123001_receivable_move_money_tables.sql
+  get_sales_order_payment_summary: 20261124002_receivable_return_offsets.sql
+  get_sales_order_payment_transactions: 20261124002_receivable_return_offsets.sql
   get_sales_order_return_summary: 20260830010_sales_inquiry_receipt_rpcs.sql
   get_sales_order_settlement: 20261123001_receivable_move_money_tables.sql
   get_sales_order_timeline: 20261123001_receivable_move_money_tables.sql
@@ -524,7 +538,6 @@ sales:
   record_sales_refund: 20261123001_receivable_move_money_tables.sql
   save_sales_order_draft: 20260830007_sales_draft_rpcs.sql
   search_sales_orders: 20261123001_receivable_move_money_tables.sql
-  settle_return_exchange_difference: 20261123001_receivable_move_money_tables.sql
   start_return_exchange: 20261123001_receivable_move_money_tables.sql
   update_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
   update_sales_order_draft: 20260830007_sales_draft_rpcs.sql
@@ -721,6 +734,8 @@ bootstrap_grandfathered:
   - 20261122002_ai_run_query.sql
   - 20261122003_inventory_gross_profit_all_members.sql
   - 20261123001_receivable_move_money_tables.sql
+  - 20261124001_receivable_customer_collections.sql
+  - 20261124002_receivable_return_offsets.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
 #   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql
