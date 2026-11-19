@@ -65,6 +65,32 @@ void main() {
       ]);
     });
 
+    test('slip rows include offset', () {
+      const plan = ReturnExchangeSettlementPlanDto(
+        currencyCode: 'VND',
+        netDifferenceMinor: -3000000,
+        collectAmountMinor: 0,
+        refundAmountMinor: 1000000,
+        receivableCreateAmountMinor: 0,
+        receivableReverseAmountMinor: 0,
+        processedCollectMinor: 0,
+        processedRefundMinor: 1000000,
+        pendingReceivableCreateMinor: 0,
+        pendingReceivableReverseMinor: 0,
+        remainderCollectMinor: 0,
+        remainderRefundMinor: 0,
+        sourceOrderVersion: 1,
+        sourceSettlementVersion: 1,
+        offsetAmountMinor: 2000000,
+      );
+
+      expect(SalesSlipPdfGenerator.settlementRows(plan), [
+        ('Cần hoàn tiền', '1.000.000đ'),
+        ('Cấn trừ sang đơn khác', '2.000.000đ'),
+        ('Đã hoàn', '1.000.000đ'),
+      ]);
+    });
+
     test('collect follows the template: Phải thu thêm · Đã thu · Công nợ phát sinh', () {
       const plan = ReturnExchangeSettlementPlanDto(
         currencyCode: 'VND',

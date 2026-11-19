@@ -9,12 +9,16 @@ class SalesReturnResultActionBar extends StatelessWidget {
     required this.onViewOrderDetail,
     this.isErrorState = false,
     this.onRetryLoad,
+    this.onViewCustomerReceivable,
   });
 
   final VoidCallback onGoHome;
   final VoidCallback onViewOrderDetail;
   final bool isErrorState;
   final VoidCallback? onRetryLoad;
+
+  /// Có thì hiện nút phụ "Xem công nợ của khách" (SG-14, khi có cấn trừ).
+  final VoidCallback? onViewCustomerReceivable;
 
   @override
   Widget build(BuildContext context) {
@@ -29,29 +33,46 @@ class SalesReturnResultActionBar extends StatelessWidget {
         top: false,
         child: Padding(
           padding: const EdgeInsets.all(VSpacing.space4),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: VButton(
-                  key: const Key('btn_return_result_go_home'),
-                  label: 'Về trang chủ',
+              if (onViewCustomerReceivable != null) ...[
+                VButton(
+                  key: const Key('btn_return_result_view_receivable'),
+                  label: 'Xem công nợ của khách',
                   variant: VButtonVariant.secondary,
                   size: VButtonSize.large,
                   fullWidth: true,
-                  onPressed: onGoHome,
+                  onPressed: onViewCustomerReceivable,
                 ),
-              ),
-              const VGap.horizontalSm(),
-              Expanded(
-                child: VButton(
-                  key: const Key('btn_return_result_view_detail'),
-                  label: 'Xem chi tiết đơn',
-                  variant: VButtonVariant.primary,
-                  tone: VComponentTone.success,
-                  size: VButtonSize.large,
-                  fullWidth: true,
-                  onPressed: onViewOrderDetail,
-                ),
+                const VGap.sm(),
+              ],
+              Row(
+                children: [
+                  Expanded(
+                    child: VButton(
+                      key: const Key('btn_return_result_go_home'),
+                      label: 'Về trang chủ',
+                      variant: VButtonVariant.secondary,
+                      size: VButtonSize.large,
+                      fullWidth: true,
+                      onPressed: onGoHome,
+                    ),
+                  ),
+                  const VGap.horizontalSm(),
+                  Expanded(
+                    child: VButton(
+                      key: const Key('btn_return_result_view_detail'),
+                      label: 'Xem chi tiết đơn',
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.success,
+                      size: VButtonSize.large,
+                      fullWidth: true,
+                      onPressed: onViewOrderDetail,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -93,8 +93,8 @@ class SalesSlipPdfGenerator {
   /// Follows the slip template (collect / refund / zero difference). A refund
   /// on an order that still owes is split by the server into the cash refund
   /// and a reduction of this order's own debt, so the refund template gets one
-  /// extra "Giảm nợ đơn" row. Sales does not offset debt across orders
-  /// (Receivable-owned), so no "offset" rows are printed.
+  /// extra "Giảm nợ đơn" row. An offset into other orders (done by the server
+  /// when confirming, TH-06 EP-03) prints one "Cấn trừ sang đơn khác" row.
   static List<(String, String)> settlementRows(ReturnExchangeSettlementPlanDto plan) {
     final netMinor = plan.netDifferenceMinor;
     if (netMinor > 0) {
@@ -123,6 +123,8 @@ class SalesSlipPdfGenerator {
         // rest of |net| is the debt reduction below.
         ('Cần hoàn tiền', MoneyFormatter.formatMinor(plan.refundAmountMinor)),
         if (debtReduction > 0) ('Giảm nợ đơn', MoneyFormatter.formatMinor(debtReduction)),
+        if (plan.offsetAmountMinor > 0)
+          ('Cấn trừ sang đơn khác', MoneyFormatter.formatMinor(plan.offsetAmountMinor)),
         ('Đã hoàn', MoneyFormatter.formatMinor(refunded)),
       ];
     }

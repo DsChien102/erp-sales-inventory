@@ -15,6 +15,7 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
     required this.onViewOrderDetail,
     this.onViewReturnSlipDetail,
     this.onRetry,
+    this.onViewCustomerReceivable,
   });
 
   final SalesReturnExchangeDetailState state;
@@ -22,6 +23,9 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
   final VoidCallback onViewOrderDetail;
   final VoidCallback? onViewReturnSlipDetail;
   final VoidCallback? onRetry;
+
+  /// Mở công nợ của khách; chỉ hiện khi phiếu có cấn trừ.
+  final VoidCallback? onViewCustomerReceivable;
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +103,8 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
               onGoHome: onGoHome,
               onViewOrderDetail: onViewOrderDetail,
               isErrorState: false,
+              onViewCustomerReceivable:
+                  detail.settlementPlan.offsetAmountMinor > 0 ? onViewCustomerReceivable : null,
             ),
           ],
         );
@@ -238,7 +244,14 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
         ? 'Hoàn cho khách: ${MoneyFormatter.formatMinor(plan.refundAmountMinor)}'
         : plan.collectAmountMinor > 0
         ? 'Thu thêm từ khách: ${MoneyFormatter.formatMinor(plan.collectAmountMinor)}'
+        : plan.offsetAmountMinor > 0
+        ? 'Hoàn cho khách: ${MoneyFormatter.formatMinor(0)}'
         : 'Không phát sinh thu hoặc hoàn tiền';
+    final offsetLines = <String>[
+      for (final c in plan.offsetCandidates)
+        if (c.offsetAmountMinor > 0)
+          'Cấn trừ vào ${c.orderCode}: ${MoneyFormatter.formatMinor(c.offsetAmountMinor)}',
+    ];
     final debtLine = plan.receivableCreateAmountMinor > 0
         ? 'Ghi nợ khách: ${MoneyFormatter.formatMinor(plan.receivableCreateAmountMinor)}'
         : plan.receivableReverseAmountMinor > 0
@@ -271,6 +284,14 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    for (final line in offsetLines) ...[
+                      VText(
+                        line,
+                        variant: VTextVariant.bodyDefault,
+                        color: colors.warning,
+                      ),
+                      const VGap.xs(),
+                    ],
                     VText(
                       paymentLine,
                       variant: VTextVariant.bodyDefault,

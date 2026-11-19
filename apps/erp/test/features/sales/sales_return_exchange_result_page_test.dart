@@ -57,6 +57,34 @@ void main() {
     expect(returnExchange.detailCalls, hasLength(1));
   });
 
+  testWidgets('result shows offset rows', (tester) async {
+    returnExchange.detailResult = _detail(offsetMinor: 500000);
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SalesReturnExchangeResultPage(orderId: 'order-1', returnExchangeId: 'return-1'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Cấn trừ vào DH-002: 500.000đ'), findsOneWidget);
+    expect(find.textContaining('DH-003'), findsNothing);
+    expect(find.text('Xem công nợ của khách'), findsOneWidget);
+  });
+
+  testWidgets('result shows actual split after untick', (tester) async {
+    returnExchange.detailResult = _detail(refundMinor: 500000);
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SalesReturnExchangeResultPage(orderId: 'order-1', returnExchangeId: 'return-1'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Hoàn cho khách: 500.000đ'), findsOneWidget);
+    expect(find.textContaining('Cấn trừ vào'), findsNothing);
+    expect(find.text('Xem công nợ của khách'), findsNothing);
+  });
+
   testWidgets('shows failure state without fabricated slip number', (tester) async {
     returnExchange.detailError = salesContractError(
       'DEPENDENCY_UNAVAILABLE',
@@ -125,27 +153,52 @@ SalesOrderDetailDto _orderDetail() {
   );
 }
 
-ReturnExchangeDetailDto _detail({bool completionReady = false}) {
-  const plan = ReturnExchangeSettlementPlanDto(
+ReturnExchangeDetailDto _detail({
+  bool completionReady = false,
+  int offsetMinor = 0,
+  int refundMinor = 0,
+}) {
+  final plan = ReturnExchangeSettlementPlanDto(
     currencyCode: 'VND',
-    netDifferenceMinor: 0,
+    netDifferenceMinor: -(offsetMinor + refundMinor),
     collectAmountMinor: 0,
-    refundAmountMinor: 0,
+    refundAmountMinor: refundMinor,
     receivableCreateAmountMinor: 0,
     receivableReverseAmountMinor: 0,
     processedCollectMinor: 0,
-    processedRefundMinor: 0,
+    processedRefundMinor: refundMinor,
     pendingReceivableCreateMinor: 0,
     pendingReceivableReverseMinor: 0,
     remainderCollectMinor: 0,
     remainderRefundMinor: 0,
     sourceOrderVersion: 7,
     sourceSettlementVersion: 3,
+    offsetAmountMinor: offsetMinor,
+    offsetCandidates: [
+      ReturnExchangeOffsetCandidateDto(
+        salesOrderId: 'o2',
+        orderCode: 'DH-002',
+        completedAt: DateTime.utc(2026, 11, 1),
+        outstandingMinor: 2000000,
+        offsetAmountMinor: offsetMinor,
+        overdueDays: 0,
+        settlementVersion: 1,
+      ),
+      ReturnExchangeOffsetCandidateDto(
+        salesOrderId: 'o3',
+        orderCode: 'DH-003',
+        completedAt: DateTime.utc(2026, 11, 2),
+        outstandingMinor: 6000000,
+        offsetAmountMinor: 0,
+        overdueDays: 0,
+        settlementVersion: 1,
+      ),
+    ],
   );
-  const valuation = ReturnExchangeValuationDto(
-    returnValue: MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
-    exchangeValue: MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
-    settlementDifference: MoneyDto(amountMinor: 0, currencyCode: 'VND'),
+  final valuation = ReturnExchangeValuationDto(
+    returnValue: const MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
+    exchangeValue: const MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
+    settlementDifference: MoneyDto(amountMinor: plan.netDifferenceMinor, currencyCode: 'VND'),
     settlementPlan: plan,
     sourceOrderVersion: 7,
   );

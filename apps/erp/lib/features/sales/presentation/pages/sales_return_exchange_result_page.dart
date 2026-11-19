@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:erp/features/receivable/presentation/receivable_navigation.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
@@ -85,6 +86,7 @@ class _SalesReturnExchangeResultPageState extends State<SalesReturnExchangeResul
       value: _cubit,
       child: BlocBuilder<SalesReturnExchangeDetailCubit, SalesReturnExchangeDetailState>(
         builder: (context, state) {
+          final customerId = state.orderDetail?.customer?.customerId;
           return VPageScaffold(
             key: const Key('wgt_sg13_return_result_page'),
             title: 'Kết quả đổi/trả',
@@ -100,6 +102,9 @@ class _SalesReturnExchangeResultPageState extends State<SalesReturnExchangeResul
               onViewOrderDetail: _viewOrderDetail,
               onViewReturnSlipDetail: _viewSlipDetail,
               onRetry: () => _cubit.refresh(),
+              onViewCustomerReceivable: customerId == null
+                  ? null
+                  : () => openCustomerReceivable(context, customerId),
             ),
           );
         },
