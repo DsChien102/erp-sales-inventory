@@ -76,7 +76,7 @@ Trên giao diện, module có tên **KH & NCC**. Trong code và tài liệu, kh�
 | Nội dung | Thuộc |
 |---|---|
 | Đơn bán, công nợ phải thu của đơn | TH-05 Bán hàng |
-| Sổ công nợ khách / nhà cung cấp | Theme 6 (chưa làm) |
+| Sổ công nợ khách / nhà cung cấp | Theme 6 — [TH-06](TH-06-cong-no.md) (khách; nhà cung cấp ngoài phạm vi) |
 | Phiếu nhập từ nhà cung cấp, trả NCC | Theme 7 Kho (P11) |
 | Phát hành hoá đơn điện tử | TH-08 |
 | Gộp hồ sơ trùng, khôi phục hồ sơ đã xoá, xoá cứng | Chưa làm |
@@ -1222,7 +1222,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 | Action sheet có "Xem lịch sử", "Quản lý người liên hệ" | Nằm trên các thẻ của hồ sơ |
 | Tab "Tài liệu", đính kèm tệp | Không có |
 | Gộp hồ sơ trùng, xoá cứng, CRM (nhóm khách, hạng, điểm), xuất danh bạ | Không làm |
-| Hạn mức công nợ, điều khoản thanh toán theo đối tác | Theme 6 |
+| Hạn mức công nợ, điều khoản thanh toán theo đối tác | Không làm ([TH-06 Q5](TH-06-cong-no.md)) |
 | Nhiều địa chỉ giao hàng | Một địa chỉ |
 | Phân quyền chi tiết theo vai trò | Không làm (7.2) |
 

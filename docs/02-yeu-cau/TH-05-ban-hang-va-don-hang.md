@@ -90,7 +90,7 @@ Nguyên tắc xuyên suốt: **đơn gốc không bao giờ bị sửa**. Mọi 
 | Hồ sơ khách hàng, kiểm tra trùng khi tạo nhanh | TH-03 |
 | Giá riêng, thứ tự áp giá, kiểm tra giá thủ công | TH-04 |
 | Trừ / hoàn tồn kho khi bán, huỷ, đổi trả; khả dụng; lô | Theme 7 (spec `specs/themes/theme-07`, P11) — xem KI-01 |
-| Sổ công nợ theo khách, thu gộp nhiều đơn | Theme 6 (chưa làm) |
+| Sổ công nợ theo khách, thu gộp nhiều đơn | Theme 6 — [TH-06](TH-06-cong-no.md) |
 | Phát hành, gửi hoá đơn điện tử (khối "Chứng từ & hoá đơn" trong chi tiết đơn) | TH-08 |
 
 ### 1.6 Tác nhân
@@ -133,7 +133,7 @@ flowchart LR
 | Phiếu huỷ | `sales_order_cancellations`, mỗi đơn tối đa 1 |
 | Phiếu đổi/trả | `return_exchange_orders` + dòng (`returned` = hàng khách trả, `exchange` = hàng khách nhận) + định giá |
 | Phiếu bán hàng | `sales_receipts` (có `receipt_version`) + hoạt động in / chia sẻ. **Không phải hoá đơn điện tử** |
-| Phương thức thanh toán | `cash` (Tiền mặt), `manual_bank_transfer` (Chuyển khoản, kèm mã giao dịch tuỳ chọn); `offset` (Cấn trừ) nội bộ — xem TH-06 |
+| Phương thức thanh toán | `cash` (Tiền mặt), `manualBankTransfer` (Chuyển khoản, kèm mã giao dịch tuỳ chọn); `offset` (Cấn trừ) nội bộ — xem TH-06 |
 
 ### 2.2 Công thức tiền
 
@@ -314,7 +314,7 @@ Bảng đầy đủ. Các user story ở mục 4 dẫn lại mã này. Mã giữ
 | BR-46 | Dòng trả tham chiếu đúng 1 nguồn (dòng gốc **hoặc** dòng đã đổi), cùng sản phẩm và đơn vị với nguồn, không vượt số có thể trả (`RETURN_QUANTITY_EXCEEDED`). Phiếu phải có ≥ 1 dòng trả | start / update |
 | BR-47 | Hàng đổi: sản phẩm bán được bất kỳ, giá do TH-04 tính theo khách của đơn **tại lúc đổi**; khi lưu, định giá, xác nhận mà giá đã khác → `PRICE_CHANGED` | `_assert_exchange_price` |
 | BR-48 | Định giá theo công thức 2.2 | `evaluate_return_exchange_valuation` |
-| BR-49 | Kế hoạch quyết toán do server lập theo công thức 2.2. Khách lẻ không được nợ / giảm nợ | như trên + confirm |
+| BR-49 | Kế hoạch quyết toán do server lập theo công thức 2.2. Khách lẻ không được nợ / giảm nợ. 🔧 Khi khách được hưởng (`net < 0`): **giảm nợ chính đơn nguồn trước**, rồi cấn trừ sang đơn khác của khách, rồi mới hoàn tiền ([TH-06 mục 2.2](TH-06-cong-no.md)) | như trên + confirm |
 | BR-50 | Màn quyết toán: phương thức thu/hoàn (Tiền mặt / Chuyển khoản), số khách trả ngay (khi khách trả thêm), ngày hẹn cho phần nợ; sheet "Xác nhận đổi/trả?" tóm tắt thu / hoàn / ghi nợ / giảm nợ | settlement page |
 | BR-51 | Xác nhận trong 1 transaction: kiểm lại version đơn, settlement, phiếu, giá; ghi giao dịch thu / hoàn; ghi điều chỉnh nghĩa vụ = chênh lệch; phiếu → `completed`; cập nhật trạng thái trả hàng; `version` đơn + 1. Ngày hẹn của phần nợ mới lưu vào `sales_orders.payment_due_date` | `confirm_return_exchange`, KI-05 |
 | BR-52 | Xác nhận đổi/trả **chưa** ghi tồn kho. Nhận hàng trả / xuất hàng đổi làm ở Theme 7 (`BC-IO-07`, `BC-IO-04`) | KI-01 |
@@ -1329,7 +1329,7 @@ Scenario: SC-02 — Đơn đã thu tiền
 **Yêu cầu chức năng**
 
 - FR-01: **Khách trả thêm** (chênh lệch > 0): "Phương thức thu" (Tiền mặt / Chuyển khoản; mặc định Tiền mặt), "Khách thanh toán ngay" (0 → toàn bộ). Trả thiếu → "Công nợ phát sinh" + "Ngày hẹn thanh toán" (từ hôm nay đến 2 năm), bắt buộc. Trả đủ → "Thu đủ, không phát sinh công nợ." Khách lẻ không được trả thiếu.
-- FR-02: **Khách được hưởng** (chênh lệch < 0): "Phương thức hoàn"; số hoàn = min(|chênh lệch|, đã thu ròng); phần còn lại "Giảm nợ đơn này" ("Phần khách chưa thanh toán cho hàng trả được trừ khỏi nợ của đơn, không hoàn tiền.").
+- FR-02: 🔧 **Khách được hưởng** (chênh lệch < 0): thứ tự **giảm nợ đơn này → cấn trừ đơn khác → hoàn** ([TH-06 mục 2.2](TH-06-cong-no.md)); "Phương thức hoàn" chỉ áp cho phần hoàn tiền. (Bản cũ: số hoàn = min(|chênh lệch|, đã thu ròng), phần còn lại "Giảm nợ đơn này" ("Phần khách chưa thanh toán cho hàng trả được trừ khỏi nợ của đơn, không hoàn tiền."))
 - FR-03: Bỏ lựa chọn "Cấn trừ công nợ hiện tại" đang bị khoá ("Sẽ áp dụng khi có module công nợ.") và khối QR mẫu ("QR cửa hàng · ACB", "Nguyễn Văn A", "Số tiền trên QR") — KI-08. Chuyển khoản chỉ cần chọn phương thức.
 - FR-04: "Xác nhận đổi/trả" → sheet "Xác nhận đổi/trả?" tóm tắt: "Thu thêm <số> từ khách", "Hoàn <số> cho khách", "ghi nhận công nợ <số>", "ghi giảm công nợ <số>", hoặc "Xác nhận đổi/trả hàng không phát sinh chênh lệch." ("Xác nhận" / "Quay lại").
 - FR-05: Xác nhận → `confirm_return_exchange` kèm version phiếu, số trả ngay, phương thức, ngày hẹn, `idempotency_key`. Nút hiện "Đang xử lý...".
@@ -1340,7 +1340,7 @@ Scenario: SC-02 — Đơn đã thu tiền
 **Tiêu chí nghiệm thu**
 
 - AC-01: Đơn 1.000.000 đã trả đủ; trả hàng trị giá 300.000 → hoàn 300.000; đơn: nghĩa vụ 700.000, đã thu ròng 700.000, "Đã thanh toán".
-- AC-02: Đơn 1.000.000 đã trả 400.000; trả hàng 600.000 → hoàn 400.000, giảm nợ 200.000; đơn: nghĩa vụ 400.000, thu ròng 0, còn phải thu 400.000.
+- AC-02: 🔧 Đơn 1.000.000 đã trả 400.000; trả hàng 600.000 → giảm nợ 600.000, không hoàn; đơn: nghĩa vụ 400.000, thu ròng 400.000, còn phải thu 0 ([TH-06 mục 2.2](TH-06-cong-no.md); bản cũ hoàn 400.000 + giảm nợ 200.000).
 - AC-03: Chênh lệch +30.000, khách trả ngay 10.000, hẹn 20/10 → giao dịch thu 10.000; còn phải thu tăng 20.000; `payment_due_date = 20/10`.
 - AC-04: Khách lẻ, chênh lệch +30.000, trả ngay 0 → không xác nhận được.
 - AC-05: Xác nhận hai lần → 1 phiếu, không trùng giao dịch.
@@ -1365,8 +1365,8 @@ Scenario: SC-01 — Đổi hàng khách trả thêm
 Scenario: SC-02 — Trả hàng của đơn còn nợ
   Given đơn 1.000.000 đã thu 400.000
   When tôi trả hàng trị giá 600.000
-  Then quyết toán hoàn 400.000 và giảm nợ 200.000
-  And sau xác nhận đơn còn phải thu 400.000
+  Then quyết toán giảm nợ 600.000 và không hoàn tiền (TH-06 mục 2.2)
+  And sau xác nhận đơn còn phải thu 0
 ```
 
 #### US-06.7 — Xem kết quả, chi tiết và phiếu đổi/trả
@@ -2031,7 +2031,7 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | | `evaluate_return_exchange_valuation` | `sales.return_exchange.view` | ghi định giá |
 | | `confirm_return_exchange` | `sales.return_exchange.confirm` | ghi, idempotent, 1 transaction |
 | | `get_return_exchange_detail` | `sales.return_exchange.view` | đọc |
-| | `settle_return_exchange_difference` | nội bộ | gọi trong confirm (app không gọi) |
+| | `settle_return_exchange_difference` | — | **đã xoá (T6-1b)**: `confirm_return_exchange` ghi giao dịch trực tiếp ([TH-06 mục 6.2](TH-06-cong-no.md)) |
 | | `complete_return_exchange` | nội bộ | app không gọi, giữ trong DB |
 | Kiểm tra | `audit_sales_review_invariants` | nội bộ | chỉ đọc, kiểm bất biến; không ai gọi, giữ trong DB |
 
@@ -2104,7 +2104,7 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | KI-05 | Đổi hàng phát sinh nợ: bắt nhập ngày hẹn nhưng không lưu | Đã sửa 8-B1 (BR-51) | P8 |
 | KI-06 | Không có màn thu tiền sau bán (RPC có) | Đã làm 8-B3 (EP-04, SG-11), **rồi gỡ 2026-11-18**: thu sau bán chuyển sang TH-06 | P8 |
 | KI-07 | Thẻ "Xem công nợ" chỉ hiện toast; "Nợ cũ" ở thanh toán luôn 0 | Đã sửa 8-B2: bỏ cả hai | P8 |
-| KI-08 | Quyết toán đổi/trả có QR mẫu cứng ("QR cửa hàng · ACB", "Nguyễn Văn A") và lựa chọn "Cấn trừ công nợ hiện tại" bị khoá | Đã sửa 8-B2: bỏ QR mẫu và lựa chọn cấn trừ công nợ | P8 |
+| KI-08 | Quyết toán đổi/trả có QR mẫu cứng ("QR cửa hàng · ACB", "Nguyễn Văn A") và lựa chọn "Cấn trừ công nợ hiện tại" bị khoá | Đã sửa 8-B2: bỏ QR mẫu và lựa chọn cấn trừ công nợ. Cấn trừ thật làm ở Theme 6 ([TH-06 EP-03](TH-06-cong-no.md)); DB xong ở T6-1b | P8 |
 | KI-09 | Tìm đơn phân biệt dấu | Đã sửa 8-B1 (BR-33: `unaccent`, như TH-03) | P8 |
 | KI-10 | Lý do / tình trạng hàng trả: RPC chính sách trả rỗng, app luôn trống, còn trạng thái "Chưa cấu hình chính sách đổi/trả" | Đã sửa 8-B2: bỏ code chết lý do / tình trạng | P8 |
 | KI-11 | Nháp không bao giờ `expired` | **Giữ nguyên** (BR-09) | — |
@@ -2142,7 +2142,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 | Tách bước xác nhận / hoàn tất đổi/trả, `processing` chờ downstream | Một bước, hoàn tất ngay |
 | Quick flow "Trả toàn bộ & hoàn tiền" từ màn huỷ | Không có (KI-19) |
 | Đặt chỗ hàng, kiểm khả dụng theo lô khi bán | Theme 7 |
-| Sổ công nợ khách, cấn trừ công nợ giữa các đơn, thu nợ gộp, thu sau bán | Theme 6 (chưa làm) |
+| Sổ công nợ khách, cấn trừ công nợ giữa các đơn, thu nợ gộp, thu sau bán | Theme 6 — [TH-06](TH-06-cong-no.md) |
 | Payment gateway, ví, QR động, đối soát ngân hàng | Tiền mặt, chuyển khoản nhập tay |
 | Thuế, làm tròn theo cấu hình, đa tiền tệ | Thuế = 0, làm tròn = 0, chỉ VND |
 | Mã khuyến mại, chương trình ưu đãi | Không có (TH-04) |

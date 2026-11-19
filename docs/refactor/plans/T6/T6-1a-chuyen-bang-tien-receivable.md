@@ -1,6 +1,6 @@
 # T6-1a — Chuyển bảng tiền sang schema `receivable` Implementation Plan
 
-> Phase: Theme 6 · Trạng thái: Plan ✅ (duyệt 2026-11-18) | Làm ✅ | Review ⬜
+> Phase: Theme 6 · Trạng thái: Plan ✅ (duyệt 2026-11-18) | Làm ✅ | Review ✅ R1
 > Tài liệu liên quan: PLAN mục Theme 6 (T6-1a), [TH-06](../../../02-yeu-cau/TH-06-cong-no.md) 1.8 (Q12, Q13 R1), 3.2, 3.4, 3.6
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. (Dự án này: **người dùng tự code**, Claude review.)
@@ -223,7 +223,18 @@ git commit -m "feat(receivable): T6-1a chuyển bảng tiền sang schema receiv
 - `/tmp/t61a_functions.sql` chỉ dùng một lần, không commit.
 
 ## 7. Review
-<!-- Claude ghi sau khi người dùng code xong -->
-- Ngày, commit được review:
-- Kết quả: ✅ đạt / 🔄 cần sửa
-- Góp ý:
+
+### R1
+- Ngày, commit được review: 2026-11-18, `d13372e93` (migration + test), `26a4ef78b` (registry + TH-06 3.6)
+- Kết quả: ✅ đạt
+- Kiểm:
+  - Migration tạo lại 25 hàm (đúng bảng 3.6, trừ `precheck_sales_order_checkout` chỉ dùng tham số); không còn `sales.<bảng tiền>`; thứ tự khối đúng plan, có kiểm đếm sau khi chép ngày hẹn, `drop column` không `cascade`.
+  - R1: `finalize_sales_order` ghi ngày hẹn vào quyết toán; `confirm_return_exchange` cập nhật quyết toán với `confirm_return_exchange.payment_due_date` + bí danh `s`, chỉ khi `v_collect_debt > 0` (như cũ); ba RPC biên lai / tóm tắt đọc từ quyết toán, trường JSON giữ tên.
+  - `ai_read.don_ban` giữ thứ tự / tên cột, chỉ đổi nguồn ngày hẹn.
+  - Test: 8 file đổi tên schema, kỳ vọng giữ; C08 / C14 đọc từ quyết toán; `receivable_t6_1a.sql` M01–M06.
+  - `tools/db_check.sh` (người dùng chạy): migration lên đủ; `plpgsql_check` không lỗi mới (2 nợ đã biết); mọi test xanh, gồm `receivable_t6_1a: OK`, `sales_th05: OK` (3 ⚠️ là nợ đã biết: `catalog_th02`, `einvoice_th08`, `pricing_th04`).
+  - GitNexus `detect-changes`: rủi ro thấp, 0 luồng (không lập chỉ mục SQL).
+- Góp ý (không chặn):
+  1. Sinh lại `REGISTRY.yaml` kéo theo ~57 dòng sắp xếp / bổ sung ở theme khác — vô hại, chỉ làm commit to.
+  2. M04 chỉ bắt `v_order.` / `so.payment_due_date`; `plpgsql_check` của `db_check.sh` là lớp chặn chính.
+  3. Kịch bản tay TH-05 9.3 + câu hỏi hạn nợ ở "Hỏi VET45": người dùng tự xác nhận.
