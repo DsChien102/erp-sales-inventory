@@ -836,7 +836,7 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 
 ## Dọn dẹp (1 ngày)
 
-**Trạng thái:** 🔄 9-1 ✅ (review R1 2026-11-19); 9-2 plan ✅ duyệt 2026-11-19; làm xong code 2026-11-19 (chờ chạy test SQL, review). **Chốt 2026-11-19 (người dùng): không gộp migration** (phương án B) — 9-2 chỉ sửa migration gốc; 9.5 bỏ.
+**Trạng thái:** 🔄 9-1 ✅ (review R1 2026-11-19); 9-2 plan ✅ duyệt 2026-11-19; làm xong 2026-11-19 (test SQL đã chạy; chờ review, reset Dev). **Chốt 2026-11-19 (người dùng): không gộp migration** (phương án B) — 9-2 chỉ sửa migration gốc; 9.5 bỏ.
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|

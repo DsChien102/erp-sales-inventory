@@ -1,7 +1,7 @@
 # 9-2 — Dọn DB: bỏ nền messaging `platform`, outbox `iam` / `einvoice`
 
 > Dọn dẹp (P9) · Gồm việc 9.4 của PLAN.md mục "Dọn dẹp"
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-19) | Làm ✅ code (test SQL chờ chạy) | Review ⬜
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-19) | Làm ✅ 2026-11-19 | Review ⬜
 > Tài liệu: PLAN.md "Dọn dẹp" (9-2, 9.4), "Quy tắc migration", "Plan xoá / tách / thay code cũ"; 7-C Q3 (nền `platform` để P9); 8-C Q1 (giữ `sales.outbox_messages`); 3-B (onboarding / FK đã xong, test `supabase/tests/iam_legacy_cleanup.sql`).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -228,10 +228,12 @@ Tất cả chỗ email đều dạng 4 đối số `(<tenant>, 'iam.email.delive
 
 - Commit: `24c0f0928` (Task 1), `162fecf58` (Task 2), `2eaa95e7b` (Task 3).
 - Dart: mốc trước 9-2 `+19` (einvoice + sales contract); sau Task 2 `+18` (= 19 − 2 + 1). `flutter test` toàn bộ: `+3853 -62`; 62 đỏ đều ở test presentation / golden (catalog, pricing, inventory golden, my_account, tenant_admin), không test SQL contract nào đỏ; chưa có mốc đầy đủ trước 9-2 để so.
-- DB: **chưa chạy** (người dùng tự chạy). Task 0 mốc DB cũ, Task 1 Step 2 / Task 3 Step 2 (đỏ trước) bị bỏ qua; chờ chạy một lượt cuối.
+- DB: người dùng chạy `supabase db reset` OK; vòng test SQL xanh, gồm `iam_email_jobs`, `platform_messaging_removed`, `iam_legacy_cleanup`, `receivable_th06`, `einvoice_th08`. Task 0 mốc DB cũ và các bước "đỏ trước" (Task 1 Step 2, Task 3 Step 2) bị bỏ qua.
+- Ngoài phạm vi (làm thêm theo yêu cầu): `einvoice_th08`, `catalog_th02`, `pricing_th04` đã đỏ sẵn từ trước 9-2 (lệch schema) nên đã sửa test (commit `c57ac4185`, `4169b89a4`); `catalog_th02` / `pricing_th04` chạy với điều kiện nới (grant đọc, tắt RLS trong transaction). Migration `20260805002` thêm `drop function` cho overload cũ của `create_customer_price_rule` và `reenable_customer_price_rule` (trùng bản gây `is not unique`).
+- Lưu ý Dev: `reenable_customer_price_rule` cần secret Vault `pricing_reenable_fingerprint_hmac_v1`.
+- Chưa kiểm: `catalog.create_product` và `catalog.update_product_profile` còn 2 overload mỗi hàm.
 - Lệch plan: comment `Intentionally no enqueue_outbox_message` (`20260811018`, `20260826001`) và header `20260811017` đổi chữ để grep rỗng; grep mục 1 chỉ còn trúng tên tệp `…install_module_messaging.sql` của einvoice (giữ tên tệp theo plan) và test.
 - Còn sót (nhẹ): 6 hàm einvoice còn `set search_path = einvoice, platform, pg_temp` (schema không tồn tại, vô hại).
-- Lệnh chờ chạy: `supabase stop && supabase start && supabase db reset && supabase status`, rồi vòng test SQL (Global Constraints).
 
 ## 9. Review
 
