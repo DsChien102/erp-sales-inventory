@@ -310,9 +310,8 @@ declare
   v_rd record;
   v_iss record;
   v_start record;
-  v_n int;
   v_n2 int;
-  v_cmd int;
+  v_cmd_count int;
   v_ok boolean;
   v_flag boolean;
   v_status text;
@@ -389,7 +388,7 @@ begin
   if v_ta is null or v_tb is null then
     raise exception 'FAIL: tenants were not created';
   end if;
-  select s.id into v_store from catalog.stores s where s.tenant_id = v_ta limit 1;
+  select s.id into v_store from iam.stores s where s.tenant_id = v_ta limit 1;
 
   v_claims := json_build_object('sub', v_ua::text, 'role', 'authenticated')::text;
   v_claims_b := json_build_object('sub', v_ub::text, 'role', 'authenticated')::text;
@@ -400,7 +399,7 @@ begin
   -- Sản phẩm P1 (100.000)
   v_res := catalog.create_guided_product(
     p_tenant_id => v_ta, p_actor_id => v_ua, p_name => 'Thuoc P1 TH08',
-    p_reference_id => 'TH08-P1', p_unit_name => 'Hop');
+    p_reference_id => 'TH08-P1', p_new_unit_name => 'Hop');
   v_p1 := (v_res ->> 'product_id')::uuid;
   reset role;
   select id into v_u1 from catalog.product_units where product_id = v_p1 and is_base_unit = true;
@@ -414,6 +413,27 @@ begin
     p_source_type => 'manual',
     p_list_price_before_vat => 100000, p_list_price_after_vat => 100000,
     p_floor_price_before_vat => 50000, p_floor_price_after_vat => 50000);
+  -- Đặt giá làm tính lại readiness; test này không kiểm readiness nên bật tay lần nữa.
+  reset role;
+  update catalog.products set is_ready_to_sell = true where id = v_p1;
+  -- Bán hàng xuất kho: cần cặp kho mặc định và tồn đầu kỳ (theo sales_th05).
+  declare
+    v_wh uuid;
+  begin
+    perform inventory.ensure_default_store_warehouse_pair(v_ta, gen_random_uuid());
+    select warehouse_id into v_wh
+    from inventory.store_warehouse_assignments
+    where tenant_id = v_ta and store_id = v_store and status = 'active'
+    limit 1;
+    perform inventory._post_movements(
+      v_ta, v_wh, 'TEST_SETUP', gen_random_uuid(), current_date,
+      jsonb_build_array(jsonb_build_object(
+        'product_id', v_p1, 'movement_kind', 'RECEIPT',
+        'quantity_delta', 1000000, 'unit_cost', 50000,
+        'amount_vnd', 50000000000)),
+      v_ua);
+  end;
+  set local role authenticated;
 
   -- Khách
   v_ka := public._th08_customer(v_ta, v_ua, 'person', 'Anh A', null, null);
@@ -570,14 +590,14 @@ begin
   if v_rd.buyer_tax_code is not null then
     raise exception 'FAIL: E13 readiness buyer_tax_code should be null but is %', v_rd.buyer_tax_code;
   end if;
-  v_cmd := public._th08_publish_command_count();
+  v_cmd_count := public._th08_publish_command_count();
   perform public._th08_expect_err(format(
     'select * from einvoice.issue_invoice(p_tenant_id => %L, p_actor_id => %L, p_sales_order_id => %L, p_source_version => %L, p_idempotency_key => %L)',
     v_ta, v_ua, v_oc, v_ver, 'k13'), 'ISSUANCE_NOT_READY', 'BUYER_TAX_CODE_REQUIRED');
   if public._th08_attempt_count(v_oc) <> 0 then
     raise exception 'FAIL: E13 an attempt was created for a buyer without tax code';
   end if;
-  if public._th08_publish_command_count() <> v_cmd then
+  if public._th08_publish_command_count() <> v_cmd_count then
     raise exception 'FAIL: E13 einvoice.publish_invoice was enqueued for a buyer without tax code';
   end if;
 
@@ -837,6 +857,7 @@ begin
   -- E34 list_tenants_with_due_commands chỉ service_role
   -- =========================================================================
   perform set_config('request.jwt.claims', v_claims, true);
+  perform set_config('request.jwt.claim.sub', v_ua::text, true);
   set local role authenticated;
   perform public._th08_expect_err('select * from einvoice.list_tenants_with_due_commands(10)', 'permission denied');
   reset role;
@@ -898,7 +919,6 @@ begin
   select * into v_lease_row
   from einvoice.publish_series_leases
   where tenant_id = v_ta
-    and provider_connection_id = v_lease_e41.provider_connection_id
     and invoice_series = v_lease_e41.invoice_series;
   if v_lease_row.owner_token <> 'owner-a' or v_lease_row.leased_until <= clock_timestamp() then
     raise exception 'FAIL E42: lease should remain held by owner-a, got owner_token=%, leased_until=%',
@@ -909,7 +929,6 @@ begin
   update einvoice.publish_series_leases
   set leased_until = clock_timestamp() - interval '1 second'
   where tenant_id = v_ta
-    and provider_connection_id = v_lease_e41.provider_connection_id
     and invoice_series = v_lease_e41.invoice_series;
 
   select * into v_lease_e43
