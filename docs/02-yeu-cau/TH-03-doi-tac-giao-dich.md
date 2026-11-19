@@ -868,7 +868,7 @@ Scenario: SC-02 — Khách chưa có giao dịch
 | PT-04 | Sheet trùng hồ sơ | (sheet) | `partner_duplicate_sheet` |
 | PT-05 | Tạo / chỉnh sửa hồ sơ | `/partner/new`, `/partner/:id/edit` | `partner_create_page` |
 | PT-06 | Chọn khu vực hành chính | (sheet) | `partner_administrative_unit_picker_sheet` |
-| PT-07 | Hồ sơ KH & NCC | `/partner/:id` | `partner_detail_page` |
+| PT-07 | Hồ sơ KH & NCC (khách có khối **Công nợ** ngay dưới thông tin chính, qua `customerSection`; xem TH-06 EP-04) | `/partner/:id` | `partner_detail_page` |
 | PT-08 | Người liên hệ | `/partner/:id/contacts` | `partner_contacts_page` |
 | PT-09 | Thêm / sửa người liên hệ | `…/contacts/new`, `…/contacts/:contactId/edit` | `partner_contact_form_page` |
 | PT-10 | Chọn từ cá nhân | `…/contacts/select` | `partner_contact_select_page` |

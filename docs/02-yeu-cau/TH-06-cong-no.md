@@ -936,7 +936,7 @@ RPC 🆕 ở schema `receivable`; RPC 🔧 là của TH-05, ở lại `sales`.
 | `get_customer_receivable_summary` 🆕 | `receivable.view` | đọc | cho PT-07: `outstandingMinor`, `openOrderCount`, `maxOverdueDays` |
 | `record_customer_collection` 🆕 | `receivable.collect` (+ `sales.payment.record`) | ghi, idempotent, 1 transaction | vào: `p_customer_partner_id`, `p_amount_minor`, `p_payment_method_code`, `p_external_reference`, `p_order_ids` (mảng **bắt buộc ≥ 1 đơn**, BR-05), `p_expected_outstanding_minor` (= Σ còn nợ các đơn đã chọn), `p_idempotency_key`; ra: `collectionId`, `allocations`, `outstandingAfterMinor` |
 | `evaluate_return_exchange_valuation` 🔧 | (TH-05) | | ghi kế hoạch vào `receivable.return_exchange_settlement_plans` (R2); khối JSON `settlement_plan` trả về giữ hình dạng cũ + thêm `offset_candidates`, `offset_amount`; thứ tự giảm nợ → cấn trừ → hoàn |
-| `confirm_return_exchange` 🔧 | (TH-05) | | thêm `offset_target_order_ids uuid[]`; ghi cấn trừ (BR-24, BR-25) |
+| `confirm_return_exchange` 🔧 | (TH-05) | | thêm `offset_target_order_ids uuid[]`; ghi cấn trừ (BR-24, BR-25); sau khi ghi, cập nhật kế hoạch theo cách chia thật |
 | `settle_return_exchange_difference` | — | | **đã xoá (T6-1b)**: `confirm_return_exchange` ghi giao dịch trực tiếp qua `receivable._post_money_transaction` |
 | `get_sales_order_payment_transactions`, `get_sales_order_payment_summary`, `get_sales_order_timeline`, `generate_sales_receipt` 🔧 | (TH-05) | | nhận phương thức `offset`, nguồn `receivable_collection`, sự kiện mới |
 

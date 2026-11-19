@@ -1819,6 +1819,8 @@ Dòng "Tồn kho — Hoàn lại N mặt hàng" chỉ hiện khi Theme 7 đã l�
 
 ### 5.12 SG-11 — (đã gỡ)
 
+> T6-2c (2026-11-19): code SG-11 (sheet, cubit, repo `recordPayment`) đã xoá khỏi app. SG-13 / SG-14 / SG-09b / SG-09c có thêm cấn trừ và dòng "Xem công nợ của khách" ở SG-09: xem TH-06 EP-03, EP-04.
+
 Màn "Thu tiền" ở chi tiết đơn đã gỡ ngày 2026-11-18. Thu sau bán: TH-06 CN-03 (mục 5.4 của TH-06). Mã SG-11 không dùng lại.
 
 ### 5.13 SG-12 — Lập phiếu đổi/trả
