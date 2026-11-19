@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:erp/features/receivable/data/receivable_models.dart';
 import 'package:erp/features/receivable/logic/receivable_list_cubit.dart';
+import 'package:erp/features/receivable/presentation/pages/customer_receivable_page.dart';
 import 'package:erp/features/receivable/presentation/pages/receivable_list_page.dart';
 import 'package:erp/features/receivable/presentation/receivable_area_shell.dart';
 import 'package:erp/features/receivable/presentation/widgets/receivable_parts.dart';
@@ -205,6 +206,134 @@ void main() {
       for (final size in [phone, web]) {
         testWidgets('${entry.key} ${size.width.toInt()}', (tester) async {
           await run(tester, entry.key, size, entry.value);
+          expect(tester.takeException(), isNull);
+        });
+      }
+    }
+  });
+
+  group('CN-02', () {
+    OpenReceivableOrder order(String code, String done, int payable, int owed, String due, int days) =>
+        OpenReceivableOrder(
+          salesOrderId: 'so-$code',
+          orderCode: code,
+          completedAt: DateTime.parse(done),
+          payableMinor: payable,
+          outstandingMinor: owed,
+          dueDate: DateTime.parse(due),
+          overdueDays: days,
+          settlementVersion: 1,
+        );
+    CustomerReceivableDetail detail(
+      ReceivableCustomer c,
+      List<OpenReceivableOrder> orders,
+    ) => CustomerReceivableDetail(
+      customer: c,
+      outstandingMinor: orders.fold(0, (s, o) => s + o.outstandingMinor),
+      openOrderCount: orders.length,
+      overdueOrderCount: orders.where((o) => o.overdueDays > 0).length,
+      maxOverdueDays: orders.fold(0, (m, o) => o.overdueDays > m ? o.overdueDays : m),
+      openOrders: orders,
+    );
+    ReceivableHistoryItem collect(DateTime at, int amount, List<(String, int)> alloc) => ReceivableHistoryItem(
+      kind: ReceivableHistoryKind.customerCollection,
+      occurredAt: at,
+      amountMinor: amount,
+      paymentMethodCode: 'cash',
+      actorDisplayName: 'Nguyễn An',
+      allocations: [for (final a in alloc) HistoryAllocation(orderCode: a.$1, amountMinor: a.$2)],
+    );
+    final c2 = collect(DateTime(2026, 11, 6, 14, 20), 2000000, [('DH-002', 2000000)]);
+    final c10 = collect(DateTime(2026, 11, 18, 9, 30), 10000000, [('DH-001', 4000000), ('DH-002', 6000000)]);
+    final c18 = collect(
+      DateTime(2026, 11, 18, 9, 30),
+      18000000,
+      [('DH-001', 4000000), ('DH-002', 8000000), ('DH-003', 6000000)],
+    );
+    final o500 = ReceivableHistoryItem(
+      kind: ReceivableHistoryKind.offset,
+      occurredAt: DateTime(2026, 11, 18, 10, 15),
+      amountMinor: 500000,
+      actorDisplayName: 'Nguyễn An',
+      sourceOrderCode: 'DH-001',
+      targetOrderCode: 'DH-002',
+      returnExchangeReference: '#DT-0001',
+    );
+    final dh1 = order('DH-001', '2026-11-01T09:00:00', 4000000, 4000000, '2026-11-10', 8);
+    final dh3 = order('DH-003', '2026-11-12T09:00:00', 6000000, 6000000, '2026-11-30', 0);
+    ReceivableHistoryPage page(List<ReceivableHistoryItem> i) => ReceivableHistoryPage(items: i, nextCursor: null);
+    const hoa = ReceivableCustomer(
+      customerId: 'c-hoa',
+      displayName: 'Cô Hoa',
+      phone: '0933 111 222',
+      isActive: false,
+    );
+    const lan = ReceivableCustomer(
+      customerId: fx.lanId,
+      displayName: 'Chị Lan',
+      phone: '0912 345 678',
+      isActive: true,
+    );
+
+    final cases = <String, (CustomerReceivableDetail, Object, String)>{
+      'full': (fx.tuanDetail, page([c2]), fx.tuanId),
+      'after-offset': (
+        detail(fx.tuanCustomer, [order('DH-002', '2026-11-05T09:00:00', 10000000, 1500000, '2026-11-15', 3), dh3]),
+        page([o500, c10, c2]),
+        fx.tuanId,
+      ),
+      'block-error': (fx.tuanDetail, Exception('x'), fx.tuanId),
+      'paid-off': (detail(fx.tuanCustomer, const []), page([c18, c2]), fx.tuanId),
+      'inactive': (
+        detail(hoa, [order('DH-030', '2026-11-12T09:00:00', 2000000, 1500000, '2026-11-30', 0)]),
+        page([
+          ReceivableHistoryItem(
+            kind: ReceivableHistoryKind.orderCollection,
+            occurredAt: DateTime(2026, 11, 12, 9, 10),
+            amountMinor: 500000,
+            orderCode: 'DH-030',
+          ),
+          ReceivableHistoryItem(
+            kind: ReceivableHistoryKind.refund,
+            occurredAt: DateTime(2026, 11, 3, 16),
+            amountMinor: 200000,
+            orderCode: 'DH-029',
+          ),
+        ]),
+        'c-hoa',
+      ),
+      'no-history': (
+        detail(lan, [order('DH-020', '2026-11-10T09:00:00', 6000000, 6000000, '2026-11-25', 0)]),
+        page(const []),
+        fx.lanId,
+      ),
+    };
+
+    for (final entry in cases.entries) {
+      for (final size in [phone, web]) {
+        testWidgets('${entry.key} ${size.width.toInt()}', (tester) async {
+          final (detailData, historyData, id) = entry.value;
+          final repo = FakeReceivableRepository()
+            ..enqueueCustomer(detailData)
+            ..enqueueHistory(historyData);
+          final cubit = ReceivableListCubit(repository: repo);
+          addTearDown(cubit.close);
+          await tester.runAsync(cubit.load);
+          final detailPage = CustomerReceivableDetailPage(
+            key: ValueKey(id),
+            customerId: id,
+            repository: repo,
+            today: fx.today,
+            canCollect: true,
+          );
+          await capture(
+            tester,
+            size: size,
+            page: size.width < 840
+                ? detailPage
+                : ReceivableAreaShell(cubit: cubit, selectedId: id, child: detailPage),
+            name: 'flutter-CN-02-${entry.key}-${size.width.toInt()}',
+          );
           expect(tester.takeException(), isNull);
         });
       }

@@ -4,12 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../logic/receivable_list_cubit.dart';
+import '../logic/receivable_permissions.dart';
+import 'pages/customer_receivable_page.dart';
 import 'pages/receivable_list_page.dart';
 import 'receivable_area_shell.dart';
 import 'widgets/receivable_parts.dart';
-
-const receivableViewPermission = 'receivable.view';
-const receivableCollectPermission = 'receivable.collect';
 
 /// `/more/receivables[/:customerId]` — web hai cột, iPhone danh sách rồi push chi tiết.
 List<RouteBase> receivableRoutes({required bool Function(String code) hasPermission}) => [
@@ -38,8 +37,10 @@ List<RouteBase> receivableRoutes({required bool Function(String code) hasPermiss
           GoRoute(
             path: ':customerId',
             name: 'receivable.customer',
-            // Task 4 thay bằng CN-02.
-            builder: (context, state) => const SizedBox.shrink(),
+            builder: (context, state) {
+              final customerId = state.pathParameters['customerId']!;
+              return CustomerReceivableDetailPage(key: ValueKey(customerId), customerId: customerId);
+            },
           ),
         ],
       ),

@@ -3,7 +3,7 @@ import 'package:erp/features/receivable/data/receivable_models.dart';
 /// Dữ liệu ví dụ TH-06 2.3 (giống `data.js` của prototype T6-2a).
 final today = DateTime(2026, 11, 18);
 
-const _ts = '2026-11-06T14:20:00+07:00';
+final _ts = DateTime(2026, 11, 6, 14, 20);
 
 const tuanId = 'c-tuan';
 const hungId = 'c-hung';
@@ -29,9 +29,9 @@ OpenReceivableOrder _order(
 );
 
 final List<OpenReceivableOrder> tuanOrders = [
-  _order('so-001', 'DH-001', '2026-10-01T09:00:00+07:00', 4000000, 4000000, '2026-11-10', 8),
-  _order('so-002', 'DH-002', '2026-10-05T09:00:00+07:00', 10000000, 8000000, '2026-11-15', 3),
-  _order('so-003', 'DH-003', '2026-11-10T09:00:00+07:00', 6000000, 6000000, '2026-11-30', 0),
+  _order('so-001', 'DH-001', '2026-11-01T09:00:00', 4000000, 4000000, '2026-11-10', 8),
+  _order('so-002', 'DH-002', '2026-11-05T09:00:00', 10000000, 8000000, '2026-11-15', 3),
+  _order('so-003', 'DH-003', '2026-11-12T09:00:00', 6000000, 6000000, '2026-11-30', 0),
 ];
 
 const tuanCustomer = ReceivableCustomer(
@@ -52,7 +52,7 @@ final CustomerReceivableDetail tuanDetail = CustomerReceivableDetail(
 
 final ReceivableHistoryItem tuanHistoryItem = ReceivableHistoryItem(
   kind: ReceivableHistoryKind.customerCollection,
-  occurredAt: DateTime.parse(_ts),
+  occurredAt: _ts,
   amountMinor: 2000000,
   paymentMethodCode: 'cash',
   actorDisplayName: 'Nguyễn An',
@@ -172,7 +172,7 @@ Map<String, dynamic> get historyJson => {
   'items': [
     {
       'kind': 'customer_collection',
-      'occurredAt': _ts,
+      'occurredAt': _ts.toIso8601String(),
       'amountMinor': 2000000,
       'paymentMethodCode': 'cash',
       'externalReference': null,
