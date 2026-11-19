@@ -83,6 +83,19 @@ abstract final class ReturnExchangeJson {
     'sourceOrderVersion',
     'sourceSettlementVersion',
     'pricingSourceVersion',
+    'offsetAmountMinor',
+    'offsetCandidates',
+  };
+
+  static const _offsetCandidateKeys = <String>{
+    'salesOrderId',
+    'orderCode',
+    'completedAt',
+    'outstandingMinor',
+    'offsetAmountMinor',
+    'dueDate',
+    'overdueDays',
+    'settlementVersion',
   };
 
   static const _previewPricingKeys = <String>{'lines'};
@@ -346,6 +359,7 @@ abstract final class ReturnExchangeJson {
       'payment_settled_now_minor': request.settledNowMinor,
       'payment_method': _paymentMethodWire(request.paymentMethod),
       'payment_due_date': _dateOnlyWire(request.paymentDueDate),
+      'offset_target_order_ids': request.offsetTargetOrderIds,
     };
   }
 
@@ -701,7 +715,44 @@ abstract final class ReturnExchangeJson {
       sourceOrderVersion: _int(json['sourceOrderVersion']),
       sourceSettlementVersion: _int(json['sourceSettlementVersion']),
       pricingSourceVersion: _nullableInt(json['pricingSourceVersion']),
+      offsetAmountMinor: _nullableInt(json['offsetAmountMinor']) ?? 0,
+      offsetCandidates: _offsetCandidates(json['offsetCandidates']),
     );
+  }
+
+  static List<ReturnExchangeOffsetCandidateDto> _offsetCandidates(
+    Object? value,
+  ) {
+    if (value == null) return const [];
+    if (value is! List) {
+      throw const FormatException('Expected offsetCandidates array.');
+    }
+    return value.map((item) {
+      if (item is! Map) {
+        throw const FormatException('Expected offset candidate object.');
+      }
+      final json = item.cast<String, dynamic>();
+      _rejectUnknownKeys(json, _offsetCandidateKeys);
+      final due = json['dueDate'];
+      DateTime? dueDate;
+      if (due != null) {
+        if (due is! String) {
+          throw const FormatException('Expected dueDate string.');
+        }
+        final parsed = DateTime.parse(due);
+        dueDate = DateTime(parsed.year, parsed.month, parsed.day);
+      }
+      return ReturnExchangeOffsetCandidateDto(
+        salesOrderId: _string(json, 'salesOrderId'),
+        orderCode: _string(json, 'orderCode'),
+        completedAt: DateTime.parse(_string(json, 'completedAt')).toUtc(),
+        outstandingMinor: _int(json['outstandingMinor']),
+        offsetAmountMinor: _int(json['offsetAmountMinor']),
+        dueDate: dueDate,
+        overdueDays: _int(json['overdueDays']),
+        settlementVersion: _int(json['settlementVersion']),
+      );
+    }).toList(growable: false);
   }
 
   static ReturnExchangeSettlementPlanDto _detailSettlementPlanFromJson(
@@ -824,6 +875,8 @@ abstract final class ReturnExchangeJson {
   static String _paymentMethodWire(SalesPaymentMethod method) => switch (method) {
     SalesPaymentMethod.cash => 'cash',
     SalesPaymentMethod.manualBankTransfer => 'manualBankTransfer',
+    SalesPaymentMethod.offset =>
+      throw ArgumentError('offset is never sent by the app'),
   };
 
   static String? _dateOnlyWire(DateTime? date) {

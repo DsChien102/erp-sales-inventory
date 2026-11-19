@@ -221,6 +221,7 @@ abstract final class SalesReceiptJson {
     return switch (value) {
       'cash' => SalesPaymentMethod.cash,
       'manualBankTransfer' => SalesPaymentMethod.manualBankTransfer,
+      'offset' => SalesPaymentMethod.offset,
       _ => throw FormatException('Unknown sales payment method: $value.'),
     };
   }

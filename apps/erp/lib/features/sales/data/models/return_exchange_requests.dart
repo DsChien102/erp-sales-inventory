@@ -75,6 +75,7 @@ final class ReturnExchangeConfirmRequest {
     this.settledNowMinor,
     this.paymentMethod = SalesPaymentMethod.cash,
     this.paymentDueDate,
+    this.offsetTargetOrderIds = const [],
   });
 
   final String commandId;
@@ -84,6 +85,7 @@ final class ReturnExchangeConfirmRequest {
   final String correlationId;
   final int expectedVersion;
   final int? settledNowMinor;
+  final List<String> offsetTargetOrderIds;
   final SalesPaymentMethod paymentMethod;
   final DateTime? paymentDueDate;
 }

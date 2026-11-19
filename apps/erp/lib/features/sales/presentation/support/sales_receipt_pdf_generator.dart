@@ -415,6 +415,7 @@ final class SalesReceiptPdfGenerator {
     return switch (method) {
       SalesPaymentMethod.cash => 'Tiền mặt',
       SalesPaymentMethod.manualBankTransfer => 'Chuyển khoản',
+      SalesPaymentMethod.offset => 'Cấn trừ',
     };
   }
 

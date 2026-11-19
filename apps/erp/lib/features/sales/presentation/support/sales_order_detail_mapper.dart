@@ -60,6 +60,8 @@ final class SalesOrderDetailMapper {
             cash += tx.amount.amountMinor;
           case app.SalesPaymentMethod.manualBankTransfer:
             bank += tx.amount.amountMinor;
+          case app.SalesPaymentMethod.offset:
+            break;
         }
       }
     }
@@ -316,6 +318,7 @@ final class SalesOrderDetailMapper {
     return switch (method) {
       app.SalesPaymentMethod.cash => 'Tiền mặt',
       app.SalesPaymentMethod.manualBankTransfer => 'Chuyển khoản',
+      app.SalesPaymentMethod.offset => 'Cấn trừ',
     };
   }
 

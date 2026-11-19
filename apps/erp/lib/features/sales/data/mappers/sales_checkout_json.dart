@@ -245,6 +245,8 @@ abstract final class SalesCheckoutJson {
     return switch (method) {
       SalesPaymentMethod.cash => 'cash',
       SalesPaymentMethod.manualBankTransfer => 'manualBankTransfer',
+      SalesPaymentMethod.offset =>
+        throw ArgumentError('offset is never sent by the app'),
     };
   }
 

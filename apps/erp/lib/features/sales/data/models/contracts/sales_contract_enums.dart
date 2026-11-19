@@ -23,7 +23,9 @@ enum SalesSettlementStatus {
 
 enum SalesPaymentStatus { pending, confirmed, failed, voided }
 
-enum SalesPaymentMethod { cash, manualBankTransfer }
+/// `offset` is read-only: the server writes it for receivable offsets and the
+/// app never sends it.
+enum SalesPaymentMethod { cash, manualBankTransfer, offset }
 
 /// Stored payment row kind. Product UI only labels collection and refund.
 enum SalesPaymentTransactionType { collection, refund, reversal }

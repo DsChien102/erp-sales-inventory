@@ -257,6 +257,7 @@ Map<String, dynamic> expectedConfirmReturnExchangeParams({
   int? settledNowMinor = 100000,
   String paymentMethod = 'cash',
   String? paymentDueDate = '2026-11-20',
+  List<String> offsetTargetOrderIds = const <String>[],
 }) => <String, dynamic>{
   'command_id': commandId,
   'tenant_id': tenantId,
@@ -271,6 +272,7 @@ Map<String, dynamic> expectedConfirmReturnExchangeParams({
   'payment_settled_now_minor': settledNowMinor,
   'payment_method': paymentMethod,
   'payment_due_date': paymentDueDate,
+  'offset_target_order_ids': offsetTargetOrderIds,
 };
 
 Map<String, dynamic> expectedCompleteReturnExchangeParams({

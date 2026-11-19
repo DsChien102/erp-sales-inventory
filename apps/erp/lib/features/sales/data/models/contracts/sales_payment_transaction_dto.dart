@@ -15,6 +15,9 @@ final class SalesPaymentTransactionDto {
     this.actorId,
     this.reasonCode,
     this.reason,
+    this.counterpartSalesOrderId,
+    this.counterpartOrderCode,
+    this.customerCollectionId,
   });
 
   final String transactionId;
@@ -29,6 +32,9 @@ final class SalesPaymentTransactionDto {
   final String? actorId;
   final String? reasonCode;
   final String? reason;
+  final String? counterpartSalesOrderId;
+  final String? counterpartOrderCode;
+  final String? customerCollectionId;
 
   bool get countsAsCollected =>
       status == SalesPaymentStatus.confirmed &&

@@ -166,6 +166,7 @@ final class SalesReturnExchangeAttemptFactory {
     int? settledNowMinor,
     SalesPaymentMethod paymentMethod = SalesPaymentMethod.cash,
     DateTime? paymentDueDate,
+    List<String> offsetTargetOrderIds = const [],
   }) {
     final context = _requireContext(
       tenantId: tenantId,
@@ -191,6 +192,9 @@ final class SalesReturnExchangeAttemptFactory {
       'settledNowMinor': settledNowMinor,
       'paymentMethod': paymentMethod.name,
       'paymentDueDate': dueDate,
+      // Only hashed when present, so confirms without offsets keep their hash.
+      if (offsetTargetOrderIds.isNotEmpty)
+        'offsetTargetOrderIds': offsetTargetOrderIds,
     };
     final built = _build(operation: SalesReturnExchangeOperation.confirm, payload: payload);
     return SalesReturnExchangeAttempt<ReturnExchangeConfirmRequest>(
@@ -205,6 +209,7 @@ final class SalesReturnExchangeAttemptFactory {
         settledNowMinor: settledNowMinor,
         paymentMethod: paymentMethod,
         paymentDueDate: paymentDueDate,
+        offsetTargetOrderIds: List.unmodifiable(offsetTargetOrderIds),
       ),
       canonicalPayloadJson: built.canonicalJson,
       payloadHash: built.payloadHash,

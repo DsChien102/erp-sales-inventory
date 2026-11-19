@@ -31,6 +31,15 @@ void main() {
       expect(rows, contains(('Còn phải thu', '800.000đ')));
     });
 
+    test('receipt pdf renders an offset payment (label Cấn trừ)', () async {
+      final cash = await SalesReceiptPdfGenerator.generate(_documentA());
+      final offset = await SalesReceiptPdfGenerator.generate(
+        _documentA(method: SalesPaymentMethod.offset),
+      );
+      expect(offset, isNotEmpty);
+      expect(offset, isNot(equals(cash)));
+    });
+
     test('keeps Tổng đơn when a legacy receipt has no settlement block', () {
       final rows = SalesReceiptPdfGenerator.summaryRows(_documentA());
       expect(rows, contains(('Tổng đơn', '90.000đ')));
@@ -128,7 +137,9 @@ SalesReceiptDocumentDto _documentDiscounted() => SalesReceiptDocumentDto(
   payments: const <PaymentIntentSummaryDto>[],
 );
 
-SalesReceiptDocumentDto _documentA() => SalesReceiptDocumentDto(
+SalesReceiptDocumentDto _documentA({
+  SalesPaymentMethod method = SalesPaymentMethod.cash,
+}) => SalesReceiptDocumentDto(
   receiptNumber: 'PBH-20260812-0001',
   orderNumber: 'SO-0001',
   soldAt: DateTime.utc(2026, 8, 12, 2, 41),
@@ -167,10 +178,10 @@ SalesReceiptDocumentDto _documentA() => SalesReceiptDocumentDto(
   orderTotal: const MoneyDto(amountMinor: 90000, currencyCode: 'VND'),
   paidTotal: const MoneyDto(amountMinor: 50000, currencyCode: 'VND'),
   outstandingTotal: const MoneyDto(amountMinor: 40000, currencyCode: 'VND'),
-  payments: const <PaymentIntentSummaryDto>[
+  payments: <PaymentIntentSummaryDto>[
     PaymentIntentSummaryDto(
-      method: SalesPaymentMethod.cash,
-      amount: MoneyDto(amountMinor: 50000, currencyCode: 'VND'),
+      method: method,
+      amount: const MoneyDto(amountMinor: 50000, currencyCode: 'VND'),
       status: SalesPaymentStatus.confirmed,
     ),
   ],

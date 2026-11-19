@@ -57,6 +57,8 @@ abstract final class SalesPaymentJson {
       'p_payment_method_code': switch (request.method) {
         SalesPaymentMethod.cash => 'cash',
         SalesPaymentMethod.manualBankTransfer => 'manualBankTransfer',
+        SalesPaymentMethod.offset =>
+          throw ArgumentError('offset is never sent by the app'),
       },
       'p_idempotency_key': request.idempotencyKey,
       'p_payload_hash': request.payloadHash,
@@ -92,6 +94,12 @@ abstract final class SalesPaymentJson {
       adjustmentTotal: _money(_map(json['adjustmentTotal'])),
       collectedCash: _money(_map(json['collectedCash'])),
       collectedBank: _money(_map(json['collectedBank'])),
+      collectedOffset: json['collectedOffset'] == null
+          ? const MoneyDto(amountMinor: 0, currencyCode: 'VND')
+          : _money(_map(json['collectedOffset'])),
+      refundedOffset: json['refundedOffset'] == null
+          ? const MoneyDto(amountMinor: 0, currencyCode: 'VND')
+          : _money(_map(json['refundedOffset'])),
       dueAt: _nullableDateOnly(json['dueAt']),
       originalOrder: originalOrder == null
           ? null
@@ -174,6 +182,9 @@ abstract final class SalesPaymentJson {
       actorId: _nullableString(json['actorId']),
       reasonCode: _nullableString(json['reasonCode']),
       reason: _nullableString(json['reason']),
+      counterpartSalesOrderId: _nullableString(json['counterpartSalesOrderId']),
+      counterpartOrderCode: _nullableString(json['counterpartOrderCode']),
+      customerCollectionId: _nullableString(json['customerCollectionId']),
     );
   }
 
@@ -210,6 +221,7 @@ abstract final class SalesPaymentJson {
     return switch (value) {
       'cash' => SalesPaymentMethod.cash,
       'manualBankTransfer' => SalesPaymentMethod.manualBankTransfer,
+      'offset' => SalesPaymentMethod.offset,
       _ => throw FormatException('Unknown payment method: $value.'),
     };
   }
