@@ -12,13 +12,12 @@ if [[ "${GUARD_CODEGEN_STRICT:-0}" != "1" ]]; then
 fi
 
 if [[ "${GUARD_CODEGEN_SKIP_BOOTSTRAP:-0}" != "1" ]]; then
-  export PATH="$PATH:$HOME/.pub-cache/bin"
-  melos bootstrap >/dev/null
-  melos run codegen --no-select
+  dart pub get >/dev/null
+  (cd apps/erp && dart run build_runner build --delete-conflicting-outputs)
 fi
 
 if ! git diff --quiet -- '**/*.g.dart'; then
-  echo "ERROR: generated *.g.dart files are stale — run melos run codegen and commit"
+  echo "ERROR: generated *.g.dart files are stale — run: cd apps/erp && dart run build_runner build --delete-conflicting-outputs, then commit"
   git diff -- '**/*.g.dart' || true
   exit 1
 fi

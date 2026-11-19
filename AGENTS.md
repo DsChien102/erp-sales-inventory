@@ -32,7 +32,6 @@ apps/erp/lib/
 - Lỗi: repository ném `AppException` (`core/errors`), UI hiển thị `e.userMessage()`.
 - Nghiệp vụ và kiểm tra quyền nằm trong RPC Postgres (`iam.has_permission`); app chỉ hiển thị.
 - Gọi dịch vụ ngoài (MISA meInvoice, email) qua **Supabase Edge Function** (`supabase/functions/*`), kích hoạt bởi app và `pg_cron`. Không có worker chạy riêng (TH-08 KI-20).
-- Code cũ trong `packages/c45_shared` còn đến 9-1 (`modules/` đã xoá hết ở 7-C); chỉ đọc để chuyển, không thêm code mới.
 
 ## Quy tắc làm việc
 
@@ -57,7 +56,7 @@ apps/erp/lib/
 ## Lệnh hay dùng
 
 ```bash
-melos run analyze
+dart analyze apps/erp packages
 cd apps/erp && flutter test test/features/<feature>  # test phạm vi plan
 cd apps/erp && flutter test                         # nghiệm thu phase (so với docs/refactor/TEST-BASELINE.md)
 cd apps/erp && dart run tool/check_feature_imports.dart

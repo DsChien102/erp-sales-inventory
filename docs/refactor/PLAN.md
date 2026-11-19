@@ -836,23 +836,23 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 
 ## Dọn dẹp (1 ngày)
 
-**Trạng thái:** ⬜ Chưa làm
+**Trạng thái:** 🔄 9-1 plan ✅ duyệt 2026-11-19. **Chốt 2026-11-19 (người dùng): không gộp migration** (phương án B) — 9-2 chỉ sửa migration gốc; 9.5 bỏ.
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
-| **9-1** | Dọn code: thay `IExecutionContext` / `CoreExecutionContext` trong `features/sales/logic` (10 tệp) bằng `SessionController` (7-C Q1); gộp phần còn dùng của `c45_shared` vào `core/` rồi xoá; dọn nền messaging `platform` (`20260623000001/000002`, `20260820008`, 4 schema `iam` / `costing` / `accounting` / `dashboard`) (7-C Q3); bỏ Melos; gọn `c45_env` (module / app / package cũ đã xoá ở 3-D, 4-C, 5-C, 6-C, 7-C, 8-C); xoá `packages/c45_annotations` cùng `c45_shared` (chuyển từ 5-C / 7-C, 2026-11-04) | 9.1, 9.2, 9.3, 9.6 | ⬜ | ⬜ | ⬜ |
-| **9-2** | Dọn DB: bỏ outbox/inbox/onboarding (trừ `sales.outbox_messages`, nhật ký sự kiện của đơn, 8-C Q1), gộp migration baseline | 9.4, 9.5 | ⬜ | ⬜ | ⬜ |
+| **9-1** | Dọn code: thay `IExecutionContext` / `CoreExecutionContext` trong `features/sales/logic` (10 tệp) bằng `SessionController` (7-C Q1); gộp phần còn dùng của `c45_shared` vào `core/` rồi xoá; dọn nền messaging `platform` (`20260623000001/000002`, `20260820008`, 4 schema `iam` / `costing` / `accounting` / `dashboard`) (7-C Q3); bỏ Melos; xoá `apps/erp/example`; xoá `packages/c45_annotations` cùng `c45_shared` (chuyển từ 5-C / 7-C, 2026-11-04). `c45_env` đã xoá ở `8ad18cd27` | 9.1, 9.2, 9.3, 9.6 | ✅ [plan](plans/P9/9-1-don-code.md) duyệt 2026-11-19 | ✅ 2026-11-19 (chờ review) | ⬜ |
+| **9-2** | Dọn DB: bỏ outbox/inbox/onboarding (trừ `sales.outbox_messages`, nhật ký sự kiện của đơn, 8-C Q1); **không gộp migration** (chốt 2026-11-19) | 9.4 | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
 | # | Việc | Kiểm tra |
 |---|---|---|
 | 9.1 | Kiểm **không còn** `modules/`, `apps/admin`, `apps/messaging_worker` (`modules/` đã xoá hết ở 7-C; 3-D IAM / admin / worker; 4-C partner; 5-C catalog, inventory; 6-C pricing; 7-C einvoice + 4 package; 8-C sales) | `grep -r "c45_.*_application"` không còn kết quả |
-| 9.2 | Gộp phần còn dùng của `c45_shared` (`ApplicationException`, `TenantAccessRevokedSignal`…) vào `core/` rồi xoá `packages/c45_shared` (4 package `c45_misa`, `c45_async_query`, `c45_adapters`, `c45_generator` đã xoá ở 7-C) | `flutter pub get` OK |
-| 9.3 | Bỏ Melos, `pubspec.yaml` gốc chỉ còn workspace nhỏ (`apps/erp`, `packages/c45_design_system`, `tools/c45_env`). Lệnh `melos run env:*` đổi thành `.c45/bin/c45 …` (dựng bằng `dart compile exe`) hoặc `dart run tools/c45_env/bin/run.dart …`. Xoá `packages/c45_misa` (đã viết lại bằng TypeScript trong Edge Function ở P7.4) | `flutter analyze` sạch |
+| 9.2 | Gộp phần còn dùng của `c45_shared` (`ApplicationException`, `TenantAccessRevokedSignal`…) vào `core/` rồi xoá `packages/c45_shared`, `packages/c45_annotations` và `apps/erp/example` (4 package `c45_misa`, `c45_async_query`, `c45_adapters`, `c45_generator` đã xoá ở 7-C) | `flutter pub get` OK |
+| 9.3 | Bỏ Melos; `pubspec.yaml` gốc chỉ còn workspace `apps/erp`, `packages/c45_lints`, `packages/c45_design_system`. Lệnh gốc: `dart pub get`, `dart analyze apps/erp packages`, codegen `cd apps/erp && dart run build_runner build --delete-conflicting-outputs`. `packages/c45_misa` đã xoá (viết lại bằng TypeScript trong Edge Function ở P7.4) | `dart pub get` OK; `dart analyze` không lỗi |
 | 9.4 | DB: bỏ outbox/inbox của mọi schema (kể cả `einvoice`; trừ `sales.outbox_messages` (nhật ký sự kiện của đơn, 8-C Q1)) và RPC/view messaging của `platform`; **giữ `einvoice.internal_commands`** (hàng đợi của Edge Function). Bỏ idempotency/onboarding, RPC readiness/activate/onboarding, trạng thái `provisioning`/`pending_activation`; thêm lại FK `memberships.user_id` | `supabase db reset` OK |
-| 9.5 | **Gộp migration**: dump schema thành ~5 file baseline (`00_schemas`, `01_tables`, `02_functions`, `03_rls`, `04_triggers`) + `seed.sql`; chuyển migration cũ vào `supabase/_archive/` | `db reset` từ baseline + chạy lại checklist |
-| 9.6 | Xoá `tools/c45_supabase_migrate` và guard CI không còn dùng. **Giữ `tools/c45_env`** (đổi môi trường local/Dev/Prod, `sync` env, `link`, `doctor`), gọn lại: bỏ target `admin`, `worker` và action `run worker …`, bỏ key `MESSAGING_CLIENT_POLL_ENABLED`, `WORKER_*`; thêm key secrets cho Edge Function (`MISA_*`, `RESEND_*`) nếu cần | `c45 doctor` sạch; `c45 switch` + `sync` sinh đúng `apps/erp/.env` |
+| 9.5 | ~~Gộp migration~~ **Bỏ (chốt 2026-11-19)**: giữ migration hiện có, 9-2 chỉ sửa migration gốc | — |
+| 9.6 | `tools/c45_supabase_migrate` và `tools/c45_env` **đã xoá** ở `8ad18cd27` (guard CI không còn dùng đã bỏ). Còn lại: dọn `docs/operations/environments.md`, `environment-manager.md` (vẫn mô tả `c45_env` / `melos run env:*`) | — |
 
 **Xong khi:** đạt toàn bộ **Definition of Done ở SCOPE mục 6**.
 

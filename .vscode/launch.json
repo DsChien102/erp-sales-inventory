@@ -63,23 +63,6 @@
         "--dart-define-from-file=.env.production"
       ]
     },
-    {
-      "name": "ERP · example",
-      "type": "dart",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/apps/erp/example",
-      "program": "lib/main.dart",
-      "preLaunchTask": "erp:example pub get"
-    },
-    {
-      "name": "ERP · example · web",
-      "type": "dart",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/apps/erp/example",
-      "program": "lib/main.dart",
-      "deviceId": "chrome",
-      "preLaunchTask": "erp:example pub get"
-    },
     // ── Design system example (no env sync required) ─────────────────────────
     {
       "name": "Design system · example",

@@ -10,7 +10,7 @@ Hệ thống ERP cho phòng khám thú y và cửa hàng bán lẻ thú y — **
 | State / routing | flutter_bloc, go_router |
 | DI | get_it |
 | Backend | Supabase (Auth, Postgres, Storage, Edge Functions) |
-| Monorepo | Dart workspace + [Melos](https://melos.invertase.dev/) |
+| Monorepo | Dart pub workspace |
 
 ## Cấu trúc repository
 
@@ -28,7 +28,6 @@ c45/
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) (stable, khớp `sdk: ^3.11.1` trong `apps/erp/pubspec.yaml`)
 - [Dart SDK](https://dart.dev/get-dart) ≥ 3.11
-- [Melos](https://melos.invertase.dev/): `dart pub global activate melos`
 - (Tuỳ chọn) [Supabase CLI](https://supabase.com/docs/guides/cli) — dev DB local
 - (Tuỳ chọn) Xcode — build iOS
 
@@ -39,7 +38,7 @@ c45/
 cd c45
 
 # 2. Cài dependency workspace
-melos bootstrap
+dart pub get
 
 # 3. Cấu hình môi trường: tạo apps/erp/.env với APP_ENV, SUPABASE_CONNECTION_URL, SUPABASE_ANON_KEY
 #    (Supabase local: http://127.0.0.1:54421, lấy key bằng `supabase status`)
@@ -76,10 +75,9 @@ Tổ chức tạo bằng **Đăng ký cửa hàng mới** trên màn đăng nh�
 ## Lệnh phát triển
 
 ```bash
-melos bootstrap          # Link lại packages sau khi đổi pubspec
-melos run codegen        # build_runner ở các module/package có cấu hình
-melos run analyze        # dart analyze toàn workspace
-melos run test           # dart test các package có thư mục test/ (trừ erp)
+dart pub get                                                       # Link lại packages sau khi đổi pubspec
+(cd apps/erp && dart run build_runner build --delete-conflicting-outputs)   # codegen
+dart analyze apps/erp packages/c45_design_system packages/c45_lints   # analyze
 ./scripts/ci/verify_harness.sh   # Layer guards + doc link checks
 cd apps/erp && flutter test      # Unit/widget test shell app
 ```
@@ -112,7 +110,7 @@ Thiết lập App Store Connect: [docs/operations/testflight-asc-setup.md](docs/
 
 ## CI
 
-Chưa cấu hình CI/CD. Kiểm tra local trước khi push: `melos run analyze --no-select` và `melos run test --no-select`.
+Chưa cấu hình CI/CD. Kiểm tra local trước khi push: `dart analyze apps/erp packages/c45_design_system packages/c45_lints` và `cd apps/erp && flutter test`.
 
 ## Tài liệu
 

@@ -15,21 +15,6 @@
         "close": true
       },
       "problemMatcher": []
-    },
-    {
-      "label": "erp:example pub get",
-      "type": "shell",
-      "command": "flutter pub get",
-      "options": {
-        "cwd": "${workspaceFolder}/apps/erp/example"
-      },
-      "presentation": {
-        "reveal": "silent",
-        "panel": "shared",
-        "showReuseMessage": false,
-        "close": true
-      },
-      "problemMatcher": []
-    },
+    }
   ]
 }

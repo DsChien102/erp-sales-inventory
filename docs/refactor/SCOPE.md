@@ -309,7 +309,7 @@ Mỗi giai đoạn chỉ tính là xong khi các màn hình của nó trong mụ
 - [ ] Không còn `apps/admin`, `modules/`, `apps/messaging_worker`, Melos, CommandBus/QueryBus, outbox/inbox.
 - [ ] `flutter analyze` sạch cho `apps/erp` và `packages/*`.
 - [ ] Test cho repository và cubit của các luồng chính: đăng nhập, tạo SP, tạo đối tác, checkout, đổi trả, phát hành HĐĐT.
-- [ ] `supabase db reset` chạy được từ baseline migration mới + seed.
+- [ ] `supabase db reset` chạy được từ migration hiện có + seed (không gộp baseline — chốt 2026-11-19).
 - [ ] `docs/architecture` còn 1–2 file mô tả kiến trúc mới (sơ đồ 3 tầng + ERD).
 
 ## 7. Rủi ro & cách giảm

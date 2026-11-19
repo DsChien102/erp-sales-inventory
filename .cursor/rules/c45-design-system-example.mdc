@@ -52,5 +52,5 @@ Khi implement UI trong `apps/erp` hoặc `modules/*/presentation`:
 [ ] PreviewSection + PreviewStateRow đủ state API
 [ ] _exampleCoverage updated
 [ ] cd packages/c45_design_system/example && flutter analyze
-[ ] (optional) melos run design-system:example — smoke tab mới
+[ ] (optional) cd packages/c45_design_system/example && flutter run — smoke tab mới
 ```

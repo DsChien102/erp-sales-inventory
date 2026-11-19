@@ -47,9 +47,8 @@ void main() {
       // ERP list/detail pages
       'apps/erp/lib/features/sales/presentation/pages/sales_order_list_page.dart',
       'apps/erp/lib/features/sales/presentation/pages/sales_order_detail_page.dart',
-      // Public barrel + example catalog wiring
+      // Public barrel
       'apps/erp/lib/features/sales/presentation.dart',
-      'apps/erp/example/lib/sales/preview/overview_tab.dart',
     ];
     const forbidden = <String>[
       'so-demo-',
