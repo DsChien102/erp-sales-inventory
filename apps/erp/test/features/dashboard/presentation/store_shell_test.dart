@@ -195,10 +195,10 @@ void main() {
     expect(find.text('MY_ACCOUNT_PAGE'), findsOneWidget);
     expect(find.byType(VSideNavigation), findsOneWidget);
 
-    // 'Thêm' is selected (index 4, child 3 for my-account)
+    // 'Thêm' is selected (index 4, child 4 for my-account)
     final sideNav = tester.widget<VSideNavigation>(find.byType(VSideNavigation));
     expect(sideNav.selected.$1, equals(4));
-    expect(sideNav.selected.$2, equals(3));
+    expect(sideNav.selected.$2, equals(4));
   });
 
   testWidgets('narrow 390: bottom bar present at root, absent when pushed to sub-route', (
@@ -287,7 +287,7 @@ void main() {
     // Sub-item 'Người dùng & vai trò' is selected
     final sideNav = tester.widget<VSideNavigation>(find.byType(VSideNavigation));
     expect(sideNav.selected.$1, equals(4));
-    expect(sideNav.selected.$2, equals(2));
+    expect(sideNav.selected.$2, equals(3));
 
     // Semantics selected property is true for this item
     expect(
