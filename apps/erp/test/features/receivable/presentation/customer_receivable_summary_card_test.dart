@@ -72,4 +72,35 @@ void main() {
     await tester.pumpAndSettle();
     expect(log.locations, ['/more/receivables/c1']);
   });
+
+  testWidgets('returning from CN-02 reloads the summary', (tester) async {
+    final repo = FakeReceivableRepository()
+      ..summaryResult = const CustomerReceivableSummary(
+        outstandingMinor: 18000000,
+        openOrderCount: 3,
+        maxOverdueDays: 0,
+      );
+    await pumpReceivable(
+      tester,
+      Scaffold(
+        body: CustomerReceivableSummaryCard(customerId: 'c1', repository: repo, today: DateTime(2026, 11, 19)),
+      ),
+    );
+    expect(find.text('Còn nợ 18.000.000 ₫ · 3 đơn'), findsOneWidget);
+
+    repo.summaryResult = const CustomerReceivableSummary(
+      outstandingMinor: 0,
+      openOrderCount: 0,
+      maxOverdueDays: 0,
+    );
+    await tester.tap(find.byKey(const Key('wgt_pt07_receivable_card')));
+    await tester.pumpAndSettle();
+    expect(find.text('detail'), findsOneWidget);
+    // Quay lại (pop route CN-02).
+    tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+    await tester.pumpAndSettle();
+
+    expect(repo.summaryCalls, ['c1', 'c1']);
+    expect(find.text('Không còn nợ'), findsOneWidget);
+  });
 }

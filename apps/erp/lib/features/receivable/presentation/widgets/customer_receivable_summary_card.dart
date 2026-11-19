@@ -85,7 +85,10 @@ class _CustomerReceivableSummaryCardState extends State<CustomerReceivableSummar
         child: InkWell(
           key: const Key('wgt_pt07_receivable_card'),
           borderRadius: BorderRadius.circular(VRadius.card),
-          onTap: () => openCustomerReceivable(context, widget.customerId),
+          onTap: () async {
+              await openCustomerReceivable(context, widget.customerId);
+              if (mounted) _load();
+            },
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: VSpacing.minTouchTarget),
             child: Padding(

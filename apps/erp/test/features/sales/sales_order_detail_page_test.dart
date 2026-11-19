@@ -684,9 +684,15 @@ void main() {
     expect(link, findsOneWidget);
     expect(find.text('Xem công nợ của khách'), findsOneWidget);
     expect(tester.getSize(link).height, greaterThanOrEqualTo(44));
+    final before = salesModule.payments.summaryCalls.length;
     await tester.tap(link);
     await tester.pumpAndSettle();
     expect(pushed, 'customer-1');
+
+    // Quay lại từ CN-02 thì SG-09 tải lại số công nợ.
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(salesModule.payments.summaryCalls.length, greaterThan(before));
   });
 
   testWidgets('walk-in has no receivable link', (tester) async {

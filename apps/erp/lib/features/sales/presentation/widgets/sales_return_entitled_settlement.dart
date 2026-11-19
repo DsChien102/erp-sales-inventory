@@ -57,7 +57,12 @@ class SalesReturnEntitledSettlement extends StatelessWidget {
       children: [
         if (sub.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.fromLTRB(VSpacing.space4, VSpacing.space3, VSpacing.space4, 0),
+            padding: const EdgeInsets.fromLTRB(
+              VSpacing.space4,
+              VSpacing.space3,
+              VSpacing.space4,
+              0,
+            ),
             child: Text(
               sub,
               style: VTypography.labelDefault.copyWith(
@@ -217,7 +222,13 @@ class SalesReturnEntitledSettlement extends StatelessWidget {
 }
 
 class _FlowRow extends StatelessWidget {
-  const _FlowRow({super.key, required this.dot, required this.label, required this.value, this.note});
+  const _FlowRow({
+    super.key,
+    required this.dot,
+    required this.label,
+    required this.value,
+    this.note,
+  });
 
   final Color dot;
   final String label;
@@ -245,7 +256,10 @@ class _FlowRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: VTypography.bodyDefault.copyWith(fontSize: 14, color: colors.textPrimary)),
+              Text(
+                label,
+                style: VTypography.bodyDefault.copyWith(fontSize: 14, color: colors.textPrimary),
+              ),
               if (note != null)
                 Text(
                   note!,
@@ -259,7 +273,12 @@ class _FlowRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: VSpacing.space2),
-        Text(value, softWrap: false, textAlign: TextAlign.right, style: receivableMoneyStyle(context)),
+        Text(
+          value,
+          softWrap: false,
+          textAlign: TextAlign.right,
+          style: receivableMoneyStyle(context),
+        ),
       ],
     );
   }
@@ -289,12 +308,15 @@ class _OffsetRow extends StatelessWidget {
       today: today,
     );
     void toggle() => onToggle?.call(candidate.salesOrderId);
+    final title = '${candidate.orderCode} · còn nợ ${formatVnd(candidate.outstandingMinor)}';
     return Padding(
       padding: const EdgeInsets.fromLTRB(VSpacing.space4, 0, VSpacing.space4, VSpacing.space2),
       child: Semantics(
         checked: on,
         button: true,
         container: true,
+        label: '$title, Trừ ${formatVndBare(shareMinor)}',
+        excludeSemantics: true,
         child: Material(
           color: colors.surface,
           shape: RoundedRectangleBorder(
@@ -307,60 +329,60 @@ class _OffsetRow extends StatelessWidget {
             onTap: onToggle == null ? null : toggle,
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: VSpacing.minTouchTarget),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox.square(
-                      dimension: VSpacing.minTouchTarget,
-                      child: Center(
-                        child: VCheckbox(
-                          value: on,
-                          enabled: onToggle != null,
-                          onChanged: (_) => toggle(),
-                        ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox.square(
+                    dimension: VSpacing.minTouchTarget,
+                    child: Center(
+                      child: VCheckbox(
+                        value: on,
+                        enabled: onToggle != null,
+                        onChanged: (_) => toggle(),
                       ),
                     ),
-                    const SizedBox(width: VSpacing.space2),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '${candidate.orderCode} · còn nợ ${formatVnd(candidate.outstandingMinor)}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: VTypography.labelDefault.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: colors.textPrimary,
-                              ),
+                  ),
+                  const SizedBox(width: VSpacing.space2),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        0,
+                        VSpacing.space2,
+                        VSpacing.space3,
+                        VSpacing.space2,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: VTypography.labelDefault.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: colors.textPrimary,
                             ),
-                            ReceivableDueBadge(due, fontSize: 13),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: VSpacing.space2),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, VSpacing.space2, VSpacing.space3, VSpacing.space2),
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: Text(
-                          'Trừ ${formatVndBare(shareMinor)}',
-                          softWrap: false,
-                          style: receivableMoneyStyle(
-                            context,
-                            fontWeight: shareMinor == 0 ? FontWeight.w600 : FontWeight.w700,
-                            color: shareMinor == 0 ? colors.textMuted : null,
                           ),
-                        ),
+                          Row(
+                            children: [
+                              Expanded(child: ReceivableDueBadge(due, fontSize: 13)),
+                              const SizedBox(width: VSpacing.space2),
+                              Text(
+                                'Trừ ${formatVndBare(shareMinor)}',
+                                softWrap: false,
+                                style: receivableMoneyStyle(
+                                  context,
+                                  fontWeight: shareMinor == 0 ? FontWeight.w600 : FontWeight.w700,
+                                  color: shareMinor == 0 ? colors.textMuted : null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

@@ -552,4 +552,48 @@ Prototype `patches.js` pt07: thẻ một dòng, tiêu đề `Công nợ`, dòng 
 
 ## Review
 
-_(phiên review ghi)_
+### R1 — 2026-11-19 · 🔄 cần sửa 2 việc + chờ kết quả DB
+
+**Đã kiểm.**
+- Migration `20261126001` so với thân gốc (`20261124002` cho `confirm_return_exchange`, `20261123001` cho `get_sales_order_timeline`): chỉ khác câu `update` cuối và dòng `description`, đúng Task 1. Không migration nào sau đó định nghĩa lại hai hàm (REGISTRY), nên trích từ file thay cho `pg_get_functiondef` là chấp nhận được. CHECK `balance` vẫn giữ vì `offset + refund` không đổi. Ca B15 / B16 đúng plan; ca "tick cả hai" đã có ở B12 (`offsetAmountMinor 500000` sau xác nhận).
+- Đọc diff 8 commit: dữ liệu (`offset`, khoá kế hoạch, khoá giao dịch, hash), `planReturnSettlement`, cubit (tick, gửi đơn có số trừ > 0, STALE / `OFFSET_TARGET_INVALID` có gửi đơn thì hộp thoại, không tự tải lại), SG-13, SG-14, phiếu đổi/trả, xoá SG-11, SG-09 / 09b / 09c, PT-07 (`customerSection`). Route `/more/receivables/:id` nằm ngoài shell nên `push` từ tab khác quay lại được.
+- So ảnh SG-13 `mixed-390`, `all-selected-390`, `all-selected-1280` với prototype: bố cục, chữ, màu khớp, trừ mục 1 dưới đây.
+- `flutter test test/features/sales test/features/receivable test/features/partner`: **1440 PASS**. `flutter analyze`: không error, **1 warning mới** (gợi ý dưới).
+- Review Focus 1–5 đều có test.
+
+**Cần sửa**
+
+1. **(Trung bình) SG-13 ở 390: tiêu đề ô cấn trừ bị cắt mất số còn nợ** — `sales_return_entitled_settlement.dart` `_OffsetRow`. Cột "Trừ …" chiếm cả chiều cao ô nên tiêu đề chỉ còn chỗ hẹp: `DH-002 · còn nợ 2.000.0…` (ảnh `flutter-SG-13-all-selected-390`, `mixed-390`). Prototype hiện đủ `DH-002 · còn nợ 2.000.000 ₫` vì số "Trừ" canh đáy, tiêu đề tràn sang khoảng trống phía trên số. Nhân viên cần thấy đơn còn nợ bao nhiêu để quyết định bỏ tick.
+   Cách sửa: phần giữa thành `Column` hai hàng — hàng 1: tiêu đề chiếm hết bề ngang (trừ ô tick); hàng 2: `Row(ReceivableDueBadge, Spacer, Text('Trừ …'))`. Chạy lại golden SG-13 (16 ảnh); thêm kiểm `find.text('DH-002 · còn nợ 2.000.000 ₫')` hiện đủ ở 390.
+
+2. **(Trung bình) Quay lại từ CN-02 thì PT-07 và SG-09 vẫn hiện số cũ (iPhone)** — `openCustomerReceivable` bỏ qua `Future` của `context.push`. `CustomerReceivableSummaryCard` chỉ tải trong `initState`; SG-09 không tải lại sau khi quay về. Kịch bản 9.1 bước 6 (iPhone): PT-07 → CN-02 → thu "Tất cả đơn · trả hết" → quay lại, PT-07 vẫn "Còn nợ 18.000.000 ₫ · 3 đơn", trái với "CN-01 = CN-02 = PT-07 ở mọi bước". Kéo làm mới PT-07 cũng không tải lại khối này (cùng `customerId`).
+   Cách sửa:
+   - `Future<void> openCustomerReceivable(...)`: iPhone `return context.push(path)` (đợi tới khi quay lại); web giữ `go`.
+   - Thẻ PT-07: `await openCustomerReceivable(...)` rồi `_load()`.
+   - SG-09: `await openCustomerReceivable(...)` rồi `_cubit.refresh()`.
+   - Test: fake repo đổi số giữa hai lần gọi; chạm thẻ, đóng route → thẻ hiện số mới; SG-09 tương tự (`refresh` được gọi).
+
+**Chưa xác minh (người dùng chạy local)**
+
+3. **Task 1 DB.** Chạy:
+   - `tools/db_check.sh --no-reset receivable_th06` **trước** migration → phải ra `FAIL: B15 offset thật = 0`;
+   - `tools/db_check.sh receivable_th06` → `receivable_th06: OK`;
+   - `tools/db_check.sh --no-reset sales_th05` → OK.
+
+   Gửi lại kết quả. Đến lúc đó SG-14 / phiếu đổi/trả ở ca bỏ tick (Review Focus 1) mới đúng khi chạy thật; test Flutter chỉ dùng dữ liệu giả.
+
+4. **Còn lại của Task 9:** golden `patch-sg09 / sg09b / sg09c / sg14 / pt07` (Task 6–8 Bước "Golden"), `/impeccable audit`, kịch bản 9.1 iPhone + web, `detect_changes` sau cùng.
+
+**Gợi ý (không bắt buộc)**
+
+- `test/features/sales/data/sales_payment_repository_test.dart:8` import `models.dart` thừa sau khi xoá test SG-11 (warning mới) — xoá.
+- SG-14: dòng `Cấn trừ vào DH-002: …` tô `colors.warning` (vàng) như thể cảnh báo; prototype là dòng thường — nên dùng `textPrimary` / `textSecondary`.
+- `_OffsetRow`: `Semantics(checked:)` bọc ngoài `VCheckbox` nên trình đọc màn hình có thể đọc hai lần trạng thái chọn; bọc `MergeSemantics` hoặc `ExcludeSemantics` ô tick, kèm `label: '${orderCode}, còn nợ …, Trừ …'`.
+
+**Phản hồi R1 (2026-11-19, người làm).** Xác nhận cả 2 việc là đúng, đã sửa:
+1. SG-13 ô cấn trừ: phần giữa thành `Column` (tiêu đề đủ bề ngang; hàng 2 = nhãn hạn + `Trừ …` canh phải). Test `offset row title shows full outstanding at 390` (font Inter thật, `didExceedMaxLines` false) **đỏ trên bản cũ, xanh trên bản mới**; 16 golden SG-13 chạy lại, ảnh 390 hiện đủ `DH-002 · còn nợ 2.000.000 ₫`.
+2. `openCustomerReceivable` giờ `Future<void>` (iPhone đợi `push`); thẻ PT-07 `_load()` và SG-09 `_cubit.refresh()` sau khi quay về. Test: thẻ PT-07 đổi số sau khi pop CN-02; SG-09 `summaryCalls` tăng sau pop.
+3. Gợi ý cũng làm: bỏ import thừa (hết warning); dòng cấn trừ SG-14 dùng `textPrimary`; `_OffsetRow` gộp semantics một nhãn `DH-002 · còn nợ …, Trừ …`.
+`flutter test test/features/sales test/features/receivable test/features/partner`: 1442 PASS; `flutter analyze`: sạch. Mục 3–4 (DB, audit, kịch bản 9.1, golden `patch-*`) vẫn chờ.
+
+**Commit.** Migration, B15 / B16, REGISTRY chưa commit — commit sau khi DB xanh.

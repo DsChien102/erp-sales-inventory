@@ -470,7 +470,10 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
                     onOpenReceipt: _openReceipt,
                     onOpenCustomerReceivable: vm.customerId == null
                         ? null
-                        : () => openCustomerReceivable(context, vm.customerId!),
+                        : () async {
+                            await openCustomerReceivable(context, vm.customerId!);
+                            if (mounted) await _cubit.refresh();
+                          },
                     onOpenEInvoice: () => _openEInvoice(vm),
                     eInvoiceSection: GetIt.instance.isRegistered<EInvoiceRepository>() &&
                             GetIt.instance.isRegistered<EInvoiceConfigurationRepository>()

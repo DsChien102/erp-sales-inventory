@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/sales/presentation.dart';
 
+import '../../../receivable/presentation/receivable_test_harness.dart' show loadInterFont;
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // Ahem rộng giả nên không đo được chữ bị cắt; dùng Inter thật như golden.
+  setUpAll(loadInterFont);
 
   group('SG-13 khách được hưởng', () {
     ReturnExchangeOffsetCandidateDto cand(String id, String code, int out, int due, int overdue) =>
@@ -120,6 +125,18 @@ void main() {
       expect(find.byWidgetPredicate((w) => isOffsetRow(w, true)), findsOneWidget); // DH-002
       expect(find.byWidgetPredicate((w) => isOffsetRow(w, false)), findsOneWidget); // DH-003
       handle.dispose();
+    });
+
+    testWidgets('offset row title shows full outstanding at 390', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_harness(stateFor(base, selected: {'o2', 'o3'})));
+      expect(find.text('DH-002 · còn nợ 2.000.000 ₫'), findsOneWidget);
+      expect(find.text('DH-003 · còn nợ 6.000.000 ₫'), findsOneWidget);
+      // Không bị cắt "…": đoạn chữ không vượt quá số dòng cho phép.
+      final render = tester.renderObject<RenderParagraph>(find.text('DH-002 · còn nợ 2.000.000 ₫'));
+      expect(render.didExceedMaxLines, isFalse);
     });
 
     testWidgets('confirm sheet lists lines', (tester) async {

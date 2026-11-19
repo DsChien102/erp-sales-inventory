@@ -288,7 +288,7 @@ class SalesReturnExchangeResultBody extends StatelessWidget {
                       VText(
                         line,
                         variant: VTextVariant.bodyDefault,
-                        color: colors.warning,
+                        color: colors.textPrimary,
                       ),
                       const VGap.xs(),
                     ],

@@ -5,7 +5,6 @@ import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase/supabase.dart';
-import 'package:erp/features/sales/data/models.dart';
 
 import 'sales_checkout_parity_expectations.dart';
 
