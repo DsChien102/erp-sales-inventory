@@ -85,7 +85,7 @@ final List<CustomerReceivableRow> rowsBefore = [
   CustomerReceivableRow(
     customerId: hungId,
     displayName: 'Trại Hưng Phát',
-    phone: null,
+    phone: '0987 654 321',
     isActive: true,
     outstandingMinor: 2500000,
     openOrderCount: 2,
@@ -97,7 +97,7 @@ final List<CustomerReceivableRow> rowsBefore = [
   CustomerReceivableRow(
     customerId: lanId,
     displayName: 'Chị Lan',
-    phone: '0912 000 111',
+    phone: '0912 345 678',
     isActive: true,
     outstandingMinor: 6000000,
     openOrderCount: 1,

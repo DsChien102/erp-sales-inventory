@@ -62,6 +62,7 @@ import '../../features/sales/presentation/pages/sales_order_list_page.dart';
 import '../../features/catalog/presentation/pages/product_catalog_tab_page.dart';
 import '../../features/partner/presentation/pages/partner_list_page.dart';
 import '../../features/partner/presentation/partner_area_shell.dart';
+import '../../features/receivable/presentation/receivable_routes.dart';
 import '../../features/partner/presentation/widgets/partner_no_permission_view.dart';
 import '../../features/partner/logic/partner_list_cubit.dart';
 import '../../features/partner/logic/partner_permissions.dart';
@@ -660,6 +661,7 @@ final appRouter = GoRouter(
     ...stocktakeRoutes(),
     ...costingRoutes(),
     ...reportsRoutes(),
+    ...receivableRoutes(hasPermission: _hasTenantPermission),
     GoRoute(
       path: '/more/settings',
       name: 'more.settings',

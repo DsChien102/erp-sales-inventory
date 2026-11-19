@@ -51,6 +51,15 @@ const List<MoreEntry> kMoreEntries = [
     enabled: false,
   ),
   MoreEntry(
+    id: 'receivables',
+    icon: VIcons.accountBalanceWallet,
+    title: 'Công nợ phải thu',
+    subtitle: 'Khách đang nợ, quá hạn, thu tiền',
+    route: '/more/receivables',
+    needsActiveTenant: true,
+    matchPrefixes: ['/more/receivables'],
+  ),
+  MoreEntry(
     id: 'purchase_orders',
     icon: VIcons.download,
     title: 'Đơn nhập',
