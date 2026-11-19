@@ -8,6 +8,152 @@ import 'package:erp/features/sales/presentation.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  group('SG-13 khách được hưởng', () {
+    ReturnExchangeOffsetCandidateDto cand(String id, String code, int out, int due, int overdue) =>
+        ReturnExchangeOffsetCandidateDto(
+          salesOrderId: id,
+          orderCode: code,
+          completedAt: DateTime.utc(2026, 11, 1),
+          outstandingMinor: out,
+          offsetAmountMinor: 0,
+          dueDate: overdue > 0 ? DateTime(2026, 11, 16) : DateTime(2026, 11, due),
+          overdueDays: overdue,
+          settlementVersion: 1,
+        );
+
+    ReturnExchangeValuationDto valuation({
+      required int entitled,
+      required int returnValue,
+      int reduce = 0,
+      int offset = 0,
+      int refund = 0,
+      List<ReturnExchangeOffsetCandidateDto> candidates = const [],
+    }) => ReturnExchangeValuationDto(
+      returnValue: MoneyDto(amountMinor: returnValue, currencyCode: 'VND'),
+      exchangeValue: const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
+      settlementDifference: MoneyDto(amountMinor: -entitled, currencyCode: 'VND'),
+      settlementPlan: ReturnExchangeSettlementPlanDto(
+        currencyCode: 'VND',
+        netDifferenceMinor: -entitled,
+        collectAmountMinor: 0,
+        refundAmountMinor: refund,
+        receivableCreateAmountMinor: 0,
+        receivableReverseAmountMinor: reduce,
+        processedCollectMinor: 0,
+        processedRefundMinor: 0,
+        pendingReceivableCreateMinor: 0,
+        pendingReceivableReverseMinor: 0,
+        remainderCollectMinor: 0,
+        remainderRefundMinor: refund,
+        sourceOrderVersion: 1,
+        sourceSettlementVersion: 1,
+        offsetAmountMinor: offset,
+        offsetCandidates: candidates,
+      ),
+      sourceOrderVersion: 1,
+    );
+
+    final both = [
+      cand('o2', 'DH-002', 2000000, 16, 3),
+      cand('o3', 'DH-003', 6000000, 30, 0),
+    ];
+
+    SalesReturnExchangeSettlementState stateFor(
+      ReturnExchangeValuationDto v, {
+      required Set<String> selected,
+    }) => SalesReturnExchangeSettlementState(
+      orderId: 'order-1',
+      returnExchangeId: 'return-1',
+      orderNumber: 'DH-001',
+      customerDisplayName: 'Anh Tuấn',
+      status: SalesReturnExchangeSettlementStatus.ready,
+      valuation: v,
+      selectedOffsetOrderIds: selected,
+    );
+
+    final base = valuation(entitled: 500000, returnValue: 500000, offset: 500000, candidates: both);
+
+    testWidgets('all-selected', (tester) async {
+      await tester.pumpWidget(_harness(stateFor(base, selected: {'o2', 'o3'})));
+      expect(find.text('Trừ 500.000'), findsOneWidget);
+      expect(find.text('Trừ 0'), findsOneWidget);
+      expect(find.text('0 ₫'), findsOneWidget);
+      expect(find.text('Phương thức hoàn'), findsNothing);
+      expect(find.text('DH-002 · còn nợ 2.000.000 ₫'), findsOneWidget);
+      expect(find.text('Quá hạn 3 ngày'), findsOneWidget);
+      expect(find.text('Hẹn 30/11'), findsOneWidget);
+    });
+
+    testWidgets('none-selected and toggling', (tester) async {
+      final toggled = <String>[];
+      await tester.pumpWidget(_harness(stateFor(base, selected: {}), onToggleOffset: toggled.add));
+      expect(find.text('500.000 ₫'), findsWidgets);
+      expect(find.text('Phương thức hoàn'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('wgt_sg13_offset_o2')));
+      await tester.tap(find.byKey(const Key('wgt_sg13_offset_o3')));
+      expect(toggled, ['o2', 'o3']);
+    });
+
+    testWidgets('source-has-debt', (tester) async {
+      final v = valuation(entitled: 600000, returnValue: 600000, reduce: 600000, candidates: both);
+      await tester.pumpWidget(_harness(stateFor(v, selected: {'o2'})));
+      expect(find.text('Giảm nợ đơn này'), findsOneWidget);
+      expect(find.text('600.000 ₫'), findsWidgets);
+      expect(find.text('Trừ vào nợ của chính đơn này'), findsOneWidget);
+      expect(find.text('CẤN TRỪ VÀO ĐƠN KHÁC'), findsNothing);
+    });
+
+    testWidgets('no-other-debt', (tester) async {
+      final v = valuation(entitled: 500000, returnValue: 500000, refund: 500000);
+      await tester.pumpWidget(_harness(stateFor(v, selected: {})));
+      expect(find.text('CẤN TRỪ VÀO ĐƠN KHÁC'), findsNothing);
+      expect(find.text('Cấn trừ vào đơn khác'), findsNothing);
+    });
+
+    testWidgets('offset row is at least 44 high and exposes checked', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_harness(stateFor(base, selected: {'o2'})));
+      final size = tester.getSize(find.byKey(const Key('wgt_sg13_offset_o2')));
+      expect(size.height, greaterThanOrEqualTo(44));
+      bool isOffsetRow(Widget w, bool checked) =>
+          w is Semantics && w.properties.checked == checked && w.properties.button == true;
+      expect(find.byWidgetPredicate((w) => isOffsetRow(w, true)), findsOneWidget); // DH-002
+      expect(find.byWidgetPredicate((w) => isOffsetRow(w, false)), findsOneWidget); // DH-003
+      handle.dispose();
+    });
+
+    testWidgets('confirm sheet lists lines', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: const Scaffold(
+            body: SalesReturnConfirmSettlementSheet(
+              vm: SalesReturnExchangeSettlementVm(
+                returnExchangeId: 'r',
+                currencyCode: 'VND',
+                netDifferenceMinor: -3000000,
+                storeRefundMinor: 600000,
+                customerCollectMinor: 0,
+                receivableCreateMinor: 0,
+                receivableReverseMinor: 400000,
+                sourceOrderVersion: 1,
+                sourceSettlementVersion: 1,
+              ),
+              settlementLines: [
+                'Giảm nợ đơn này 400.000 ₫',
+                'Cấn trừ 2.000.000 ₫ vào đơn DH-002',
+                'Hoàn 600.000 ₫ cho khách',
+              ],
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Giảm nợ đơn này 400.000 ₫'), findsOneWidget);
+      expect(find.text('Cấn trừ 2.000.000 ₫ vào đơn DH-002'), findsOneWidget);
+      expect(find.text('Hoàn 600.000 ₫ cho khách'), findsOneWidget);
+    });
+  });
+
   testWidgets('settlement_transfer_shows_no_qr', (tester) async {
     await tester.pumpWidget(
       _harness(
@@ -71,17 +217,11 @@ void main() {
     );
 
     expect(find.text('Thiếu kế hoạch quyết toán'), findsNothing);
-    expect(find.byKey(const Key('wgt_sg12_settlement_plan')), findsOneWidget);
-
-    // Summary is collapsed by default; its rows appear only after expanding.
-    expect(find.byKey(const Key('wgt_sg12_plan_breakdown')), findsNothing);
-    await tester.tap(find.byKey(const Key('btn_sg12_plan_toggle')));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('wgt_sg12_plan_breakdown')), findsOneWidget);
-    expect(find.text('Giá trị hàng trả'), findsOneWidget);
-    expect(find.text('Giá trị hàng đổi'), findsOneWidget);
-    expect(find.text('-320.000đ'), findsWidgets);
+    // Khách được hưởng (SG-13): số tiền và cách chia thay cho thẻ tóm tắt cũ.
+    expect(find.text('Khách được hưởng'), findsOneWidget);
+    expect(find.text('320.000 ₫'), findsWidgets);
+    expect(find.byKey(const Key('wgt_sg13_flow')), findsOneWidget);
+    expect(find.text('Chênh lệch −320.000 ₫ · Hàng trả 320.000 · Hàng đổi 0'), findsOneWidget);
   });
 
   testWidgets('ready collect flow renders payment collection UI', (tester) async {
@@ -159,7 +299,8 @@ void main() {
     expect(find.text('Không phát sinh chênh lệch'), findsNothing);
     expect(find.text('Không cần thu thêm, hoàn tiền hoặc ghi nhận công nợ.'), findsNothing);
     expect(find.byKey(const Key('wgt_sg12_debt_reduction')), findsOneWidget);
-    expect(find.text('Cần hoàn tiền'), findsOneWidget);
+    expect(find.text('Hoàn cho khách'), findsOneWidget);
+    expect(find.text('0 ₫'), findsOneWidget);
     expect(find.text('Phương thức hoàn'), findsNothing);
   });
 
@@ -179,20 +320,16 @@ void main() {
         ),
       );
 
-      expect(find.text('Cần hoàn tiền'), findsOneWidget);
-      expect(find.text('100.000đ'), findsWidgets);
+      expect(find.text('Hoàn cho khách'), findsOneWidget);
+      expect(find.text('100.000 ₫'), findsOneWidget);
       expect(find.byKey(const Key('wgt_sg12_debt_reduction')), findsOneWidget);
       expect(find.text('Giảm nợ đơn này'), findsOneWidget);
-      expect(find.text('300.000đ'), findsOneWidget);
-      expect(
-        find.text(
-          'Phần khách chưa thanh toán cho hàng trả được trừ khỏi nợ của đơn, không hoàn tiền.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('300.000 ₫'), findsOneWidget);
+      expect(find.text('Trừ vào nợ của chính đơn này'), findsOneWidget);
+      expect(find.text('CẤN TRỪ VÀO ĐƠN KHÁC'), findsNothing);
       expect(find.text('Phương thức hoàn'), findsOneWidget);
       expect(find.text('Tiền mặt'), findsOneWidget);
-      expect(find.text('Chuyển khoản'), findsOneWidget);
+      expect(find.text('CK'), findsOneWidget);
       expect(find.text('Kết hợp'), findsNothing);
       // Old app-side offset math is gone.
       expect(find.text('Còn phải hoàn'), findsNothing);
@@ -364,6 +501,7 @@ void main() {
 Widget _harness(
   SalesReturnExchangeSettlementState state, {
   ValueChanged<DateTime?>? onDueDateChanged,
+  ValueChanged<String>? onToggleOffset,
 }) {
   return MaterialApp(
     theme: VTheme.lightTheme,
@@ -372,6 +510,8 @@ Widget _harness(
         state: state,
         onRetry: () {},
         onDueDateChanged: onDueDateChanged,
+        onToggleOffset: onToggleOffset,
+        today: DateTime(2026, 11, 19),
       ),
     ),
   );

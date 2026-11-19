@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/sales/data/models.dart';
 
+import 'package:erp/features/sales/logic/return_settlement_preview.dart';
 import 'package:erp/features/sales/logic/sales_return_exchange_settlement_state.dart';
+import 'sales_return_entitled_settlement.dart';
 import '../models/return_exchange_order/sales_return_exchange_settlement_vm.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 
@@ -16,6 +18,8 @@ class SalesReturnExchangeSettlementBody extends StatelessWidget {
     this.onSettledNowChanged,
     this.onDueDateChanged,
     this.onMethodChanged,
+    this.onToggleOffset,
+    this.today,
   });
 
   final SalesReturnExchangeSettlementState state;
@@ -29,6 +33,12 @@ class SalesReturnExchangeSettlementBody extends StatelessWidget {
 
   /// Notifies the chosen collection method.
   final ValueChanged<SalesPaymentMethod>? onMethodChanged;
+
+  /// Ticks / unticks an order that receives the offset (SG-13).
+  final ValueChanged<String>? onToggleOffset;
+
+  /// Overrides "today" for due labels (tests, goldens).
+  final DateTime? today;
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +98,12 @@ class SalesReturnExchangeSettlementBody extends StatelessWidget {
           onSettledNowChanged: onSettledNowChanged,
           onDueDateChanged: onDueDateChanged,
           onMethodChanged: onMethodChanged,
+          preview: state.offsetPreview,
+          candidates: state.valuation?.settlementPlan.offsetCandidates ?? const [],
+          selectedOffsetIds: state.selectedOffsetOrderIds,
+          receivableChanged: state.receivableChanged,
+          onToggleOffset: onToggleOffset,
+          today: today,
         );
     }
   }
@@ -153,6 +169,12 @@ class _ReadyBody extends StatefulWidget {
     required this.onSettledNowChanged,
     required this.onDueDateChanged,
     required this.onMethodChanged,
+    required this.preview,
+    required this.candidates,
+    required this.selectedOffsetIds,
+    required this.receivableChanged,
+    required this.onToggleOffset,
+    required this.today,
   });
 
   final String orderNumber;
@@ -167,6 +189,12 @@ class _ReadyBody extends StatefulWidget {
   final ValueChanged<int>? onSettledNowChanged;
   final ValueChanged<DateTime?>? onDueDateChanged;
   final ValueChanged<SalesPaymentMethod>? onMethodChanged;
+  final ReturnSettlementPreview? preview;
+  final List<ReturnExchangeOffsetCandidateDto> candidates;
+  final Set<String> selectedOffsetIds;
+  final bool receivableChanged;
+  final ValueChanged<String>? onToggleOffset;
+  final DateTime? today;
 
   @override
   State<_ReadyBody> createState() => _ReadyBodyState();
@@ -281,6 +309,48 @@ class _ReadyBodyState extends State<_ReadyBody> {
       headerBuffer.write(widget.customerDisplayName);
     }
     final subheaderText = headerBuffer.isNotEmpty ? headerBuffer.toString() : 'Quyết toán đổi/trả';
+
+    final entitled = widget.preview;
+    if (!_isCollect && widget.settlement.netDifferenceMinor < 0 && entitled != null) {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.screenError != null && !widget.receivableChanged)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(VSpacing.space4, VSpacing.space4, VSpacing.space4, 0),
+                child: VBanner(
+                  key: const Key('wgt_sg12_screen_error'),
+                  title: widget.screenError!,
+                  status: VBannerStatus.warning,
+                  trailing: widget.onRetry == null
+                      ? null
+                      : VButton(
+                          label: 'Tải lại',
+                          variant: VButtonVariant.secondary,
+                          size: VButtonSize.small,
+                          onPressed: widget.onRetry,
+                        ),
+                ),
+              ),
+            SalesReturnEntitledSettlement(
+              orderCode: widget.orderNumber,
+              customerDisplayName: widget.customerDisplayName,
+              entitledMinor: -widget.settlement.netDifferenceMinor,
+              returnValueMinor: widget.valuation?.returnValue.amountMinor ?? 0,
+              exchangeValueMinor: widget.valuation?.exchangeValue.amountMinor ?? 0,
+              preview: entitled,
+              candidates: widget.candidates,
+              selectedIds: widget.selectedOffsetIds,
+              onToggle: widget.onToggleOffset,
+              method: widget.method,
+              onMethodChanged: widget.onMethodChanged,
+              today: widget.today,
+            ),
+          ],
+        ),
+      );
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(VSpacing.space4),

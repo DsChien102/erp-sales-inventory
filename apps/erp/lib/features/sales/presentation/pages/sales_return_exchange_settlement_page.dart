@@ -5,6 +5,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
+import 'package:erp/features/sales/presentation/widgets/sales_receivable_changed_dialog.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 
@@ -51,9 +52,11 @@ class _SalesReturnExchangeSettlementPageState extends State<SalesReturnExchangeS
     final settlement = _cubit.state.effectiveSettlement;
     if (settlement == null) return;
 
+    final preview = _cubit.state.offsetPreview;
     final confirm = await showSalesReturnConfirmSettlementSheet(
       context,
       vm: settlement,
+      settlementLines: preview == null ? const [] : buildEntitledSettlementLines(preview),
     );
     if (confirm != true || !mounted) return;
 
@@ -67,6 +70,15 @@ class _SalesReturnExchangeSettlementPageState extends State<SalesReturnExchangeS
         returnExchangeId: widget.returnExchangeId,
       ).pushReplacement(context);
     }
+  }
+
+  Future<void> _showReceivableChanged(String message) async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => SalesReceivableChangedDialog(title: message),
+    );
+    if (mounted) _cubit.loadAndEvaluate();
   }
 
   String _bottomBarLabel(SalesReturnExchangeSettlementState state) {
@@ -102,7 +114,11 @@ class _SalesReturnExchangeSettlementPageState extends State<SalesReturnExchangeS
 
     return BlocProvider.value(
       value: _cubit,
-      child: BlocBuilder<SalesReturnExchangeSettlementCubit, SalesReturnExchangeSettlementState>(
+      child: BlocConsumer<SalesReturnExchangeSettlementCubit, SalesReturnExchangeSettlementState>(
+        listenWhen: (a, b) => !a.receivableChanged && b.receivableChanged,
+        listener: (context, state) => _showReceivableChanged(
+          state.screenError ?? 'Công nợ của khách vừa thay đổi. Hãy tải lại quyết toán.',
+        ),
         builder: (context, state) {
           final isConfirming = state.status == SalesReturnExchangeSettlementStatus.confirming;
           final settlement = state.effectiveSettlement;
@@ -128,22 +144,25 @@ class _SalesReturnExchangeSettlementPageState extends State<SalesReturnExchangeS
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            VText(
-                              _bottomBarLabel(state),
-                              variant: VTextVariant.bodyDefault,
-                              color: colors.textSecondary,
-                            ),
-                            VText(
-                              _bottomBarValue(state),
-                              variant: VTextVariant.bodyDefault,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        const VGap.sm(),
+                        // Nhánh "khách được hưởng" chỉ có nút (SG-13).
+                        if (state.offsetPreview == null) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              VText(
+                                _bottomBarLabel(state),
+                                variant: VTextVariant.bodyDefault,
+                                color: colors.textSecondary,
+                              ),
+                              VText(
+                                _bottomBarValue(state),
+                                variant: VTextVariant.bodyDefault,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          const VGap.sm(),
+                        ],
                         VButton(
                           key: const Key('btn_sg12_confirm_settlement'),
                           label: isConfirming ? 'Đang xử lý...' : 'Xác nhận đổi/trả',
@@ -165,6 +184,7 @@ class _SalesReturnExchangeSettlementPageState extends State<SalesReturnExchangeS
               onSettledNowChanged: _cubit.updateSettledNow,
               onDueDateChanged: _cubit.updatePaymentDueDate,
               onMethodChanged: _cubit.updatePaymentMethod,
+              onToggleOffset: _cubit.toggleOffsetTarget,
             ),
           );
         },

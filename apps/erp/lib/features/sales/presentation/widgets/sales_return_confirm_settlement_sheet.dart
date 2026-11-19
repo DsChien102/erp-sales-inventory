@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import 'package:erp/features/receivable/logic/receivable_format.dart';
+import 'package:erp/features/sales/logic/return_settlement_preview.dart';
+
 import '../models/return_exchange_order/sales_return_exchange_settlement_vm.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 
@@ -8,13 +11,23 @@ import 'package:erp/core/formatting/money_formatter.dart';
 Future<bool?> showSalesReturnConfirmSettlementSheet(
   BuildContext context, {
   required SalesReturnExchangeSettlementVm vm,
+  List<String> settlementLines = const [],
 }) {
   return showVBottomSheet<bool>(
     context: context,
     semanticLabel: 'Xác nhận đổi/trả',
-    child: SalesReturnConfirmSettlementSheet(vm: vm),
+    child: SalesReturnConfirmSettlementSheet(vm: vm, settlementLines: settlementLines),
   );
 }
+
+/// Các dòng tóm tắt cách chia tiền khi khách được hưởng (SG-13).
+List<String> buildEntitledSettlementLines(ReturnSettlementPreview preview) => [
+  if (preview.reduceOwnDebtMinor > 0)
+    'Giảm nợ đơn này ${formatVnd(preview.reduceOwnDebtMinor)}',
+  for (final o in preview.offsets)
+    if (o.amountMinor > 0) 'Cấn trừ ${formatVnd(o.amountMinor)} vào đơn ${o.orderCode}',
+  if (preview.refundMinor > 0) 'Hoàn ${formatVnd(preview.refundMinor)} cho khách',
+];
 
 /// Builds confirmation message from authoritative settlement plan amounts.
 String buildReturnConfirmationMessage(SalesReturnExchangeSettlementVm vm) {
@@ -56,9 +69,13 @@ class SalesReturnConfirmSettlementSheet extends StatelessWidget {
   const SalesReturnConfirmSettlementSheet({
     super.key,
     required this.vm,
+    this.settlementLines = const [],
   });
 
   final SalesReturnExchangeSettlementVm vm;
+
+  /// Có dòng thì hiện danh sách gạch đầu dòng thay cho phần tóm tắt cũ.
+  final List<String> settlementLines;
 
   @override
   Widget build(BuildContext context) {
@@ -77,11 +94,32 @@ class SalesReturnConfirmSettlementSheet extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const VGap.xs(),
-          VText(
-            message,
-            variant: VTextVariant.bodyDefault,
-            color: colors.textSecondary,
-          ),
+          if (settlementLines.isEmpty)
+            VText(
+              message,
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
+            )
+          else
+            Column(
+              key: const Key('wgt_confirm_settlement_lines'),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final line in settlementLines)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('•  ', style: TextStyle(color: colors.textPrimary)),
+                      Expanded(
+                        child: Text(
+                          line,
+                          style: VTypography.bodyDefault.copyWith(color: colors.textPrimary),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           const VGap.lg(),
           VButton(
             key: const Key('btn_confirm_settlement_submit'),
