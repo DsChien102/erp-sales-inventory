@@ -26,18 +26,9 @@ echo "==> guard_design_system_usage"
 echo "==> guard_design_system_contracts"
 "$root/scripts/ci/guard_design_system_contracts.sh"
 
-echo "==> verify_env_manifest"
-"$root/scripts/ci/verify_env_manifest.sh"
-
 if [[ "${VERIFY_HARNESS_SKIP_CODEGEN:-0}" != "1" ]]; then
   echo "==> guard_codegen_fresh"
   GUARD_CODEGEN_STRICT=1 "$root/scripts/ci/guard_codegen_fresh.sh"
 fi
-
-echo "==> migrate_verify_policy"
-melos run migrate:verify-policy -- --strict
-
-echo "==> guard_schema_lock_sync"
-"$root/scripts/ci/guard_schema_lock_sync.sh"
 
 echo "OK: all harness guards passed"

@@ -2,66 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "env:sync erp · development",
-      "type": "shell",
-      "command": "dart run tools/c45_env/bin/c45_env.dart use-and-sync development --target erp",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "silent",
-        "panel": "shared",
-        "showReuseMessage": false,
-        "close": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "env:sync erp · local",
-      "type": "shell",
-      "command": "dart run tools/c45_env/bin/c45_env.dart use-and-sync local --target erp",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "silent",
-        "panel": "shared",
-        "showReuseMessage": false,
-        "close": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "env:sync erp · staging",
-      "type": "shell",
-      "command": "dart run tools/c45_env/bin/c45_env.dart use-and-sync staging --target erp",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "silent",
-        "panel": "shared",
-        "showReuseMessage": false,
-        "close": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "env:sync erp · production",
-      "type": "shell",
-      "command": "dart run tools/c45_env/bin/c45_env.dart use-and-sync production --target erp",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "silent",
-        "panel": "shared",
-        "showReuseMessage": false,
-        "close": true
-      },
-      "problemMatcher": []
-    },
-    {
       "label": "design-system:example pub get",
       "type": "shell",
       "command": "flutter pub get",
