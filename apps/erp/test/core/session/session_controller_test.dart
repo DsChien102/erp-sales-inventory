@@ -7,6 +7,7 @@ import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_state.dart';
 import 'package:erp/core/session/session_store.dart';
 import '../../features/iam/support/fake_iam_backend.dart';
+import '../../features/iam/support/iam_test_session.dart';
 import 'fake_session_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -400,5 +401,43 @@ void main() {
     expect(cubit.activeStoreId, 'store-org-001');
 
     await cubit.close();
+  });
+
+  group('execution identity', () {
+    Matcher authRequired() => throwsA(
+      isA<AppException>().having((e) => e.code, 'code', AppErrorCode.authRequired),
+    );
+
+    test('requireUserId returns the signed-in user id', () async {
+      final c = testSessionController(userId: 'u-42');
+      expect(await c.requireUserId(), 'u-42');
+      await c.close();
+    });
+
+    test('requireUserId throws AUTHENTICATION_REQUIRED when signed out', () async {
+      final c = testSessionController(signedIn: false);
+      await expectLater(c.requireUserId(), authRequired());
+      await c.close();
+    });
+
+    test('requireUserId throws AUTHENTICATION_REQUIRED when user id blank', () async {
+      final c = testSessionController(userId: '  ');
+      await expectLater(c.requireUserId(), authRequired());
+      await c.close();
+    });
+
+    test('correlationId is non-empty and stable across reads', () async {
+      final c = testSessionController();
+      final a = c.correlationId;
+      expect(a.trim(), isNotEmpty);
+      expect(c.correlationId, a);
+      await c.close();
+    });
+
+    test('correlationId can be injected', () async {
+      final c = testSessionController(correlationId: 'corr-x');
+      expect(c.correlationId, 'corr-x');
+      await c.close();
+    });
   });
 }

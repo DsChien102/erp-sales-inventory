@@ -17,6 +17,7 @@ SessionController testSessionController({
   String? activeStoreId,
   String? activeStoreCode,
   String? activeStoreDisplayName,
+  String? correlationId,
 }) {
   final store = SessionStore();
   if (signedIn) {
@@ -36,6 +37,7 @@ SessionController testSessionController({
   return SessionController(
     repository: FakeSessionRepository(),
     store: store,
+    correlationId: correlationId,
     initialState: SessionState(
       authStatus: signedIn ? AuthStatus.signedIn : AuthStatus.signedOut,
       userId: signedIn ? userId : null,

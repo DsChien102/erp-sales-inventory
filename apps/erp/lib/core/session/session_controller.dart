@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 import 'package:c45_shared_application/application.dart';
 
 import '../errors/app_exception.dart';
@@ -19,8 +20,8 @@ import 'session_store.dart';
 
 /// Một nguồn sự thật về phiên đăng nhập và tổ chức đang chọn.
 ///
-/// Ghi vào [SessionStore]; logic sales đọc tenant / cửa hàng qua
-/// `CoreExecutionContext` cùng store này (thay ở 9-1).
+/// Ghi vào [SessionStore]; logic sales đọc tenant / user / correlationId
+/// trực tiếp từ controller này.
 final class SessionController extends Cubit<SessionState> {
   SessionController({
     required SessionRepository repository,
@@ -30,7 +31,9 @@ final class SessionController extends Cubit<SessionState> {
     SessionState? initialState,
     Stream<String>? tenantAccessRevoked,
     DateTime Function()? clock,
-  }) : _repository = repository,
+    String? correlationId,
+  }) : correlationId = correlationId ?? const Uuid().v4(),
+       _repository = repository,
        _auth = auth,
        _store = store ?? SessionStore(repository: repository),
        _clock = clock ?? DateTime.now,
@@ -41,6 +44,9 @@ final class SessionController extends Cubit<SessionState> {
       _onTenantAccessRevoked,
     );
   }
+
+  /// Mã tương quan, sinh một lần lúc dựng controller (ổn định suốt đời phiên app).
+  final String correlationId;
 
   final SessionRepository _repository;
   final GoTrueClient? _auth;
@@ -187,6 +193,14 @@ final class SessionController extends Cubit<SessionState> {
   Future<String> requireTenantId() async {
     final id = tenantId?.trim();
     if (id == null || id.isEmpty) {
+      throw const AppException(AppErrorCode.authRequired);
+    }
+    return id;
+  }
+
+  Future<String> requireUserId() async {
+    final id = _blankToNull(_store.userId) ?? _blankToNull(state.userId);
+    if (id == null) {
       throw const AppException(AppErrorCode.authRequired);
     }
     return id;
