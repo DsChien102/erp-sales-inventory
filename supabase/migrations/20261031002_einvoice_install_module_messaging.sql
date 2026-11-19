@@ -1,22 +1,14 @@
--- Title: einvoice — hàng đợi internal_commands + nhật ký outbox
+-- Title: einvoice — hàng đợi internal_commands
 -- Kind: surgical
 -- Intent: einvoice_s1_install_messaging
 -- Context: TH-08 / S1 worker internal_commands
--- Touches: einvoice.internal_commands, einvoice.outbox_messages, einvoice.enqueue_outbox_message, einvoice.enqueue_internal_command, einvoice.claim_internal_commands_batch, einvoice.complete_internal_command, einvoice.fail_internal_command
+-- Touches: einvoice.internal_commands, einvoice.enqueue_internal_command, einvoice.claim_internal_commands_batch, einvoice.complete_internal_command, einvoice.fail_internal_command
 -- Safety: idempotent ; medium
 -- Depends on: 20261031001_einvoice_configuration_schema.sql
--- 7-C (2026-11-09): bỏ messaging (inbox, hàm outbox / inbox, đăng ký platform); outbox_messages = nhật ký sự kiện, không ai đọc.
+-- 7-C (2026-11-09): bỏ messaging (inbox, hàm outbox / inbox, đăng ký platform).
+-- 9-2 (2026-11-19): bỏ outbox (nhật ký không ai đọc).
 
 create schema if not exists einvoice;
-
--- Outbox messages (nhật ký sự kiện, 5 cột)
-create table if not exists einvoice.outbox_messages (
-  id uuid primary key,
-  tenant_id uuid not null,
-  event_type text not null,
-  payload jsonb not null,
-  occurred_at timestamptz not null default now()
-);
 
 -- Internal commands
 create table if not exists einvoice.internal_commands (
@@ -41,30 +33,6 @@ create index if not exists internal_commands_pending_tenant_idx
 create unique index if not exists internal_commands_source_dedup_idx
   on einvoice.internal_commands (tenant_id, source_event_id, command_type)
   where source_event_id is not null;
-
--- enqueue_outbox_message
-create or replace function einvoice.enqueue_outbox_message(
-  p_tenant_id uuid,
-  p_event_type text,
-  p_payload jsonb,
-  p_message_id uuid default gen_random_uuid(),
-  p_occurred_at timestamptz default now()
-)
-returns uuid
-language plpgsql
-security definer
-set search_path = einvoice, platform, pg_temp
-as $$
-begin
-  insert into outbox_messages (
-    id, tenant_id, event_type, payload, occurred_at
-  )
-  values (
-    p_message_id, p_tenant_id, p_event_type, p_payload, p_occurred_at
-  );
-  return p_message_id;
-end;
-$$;
 
 -- enqueue_internal_command
 create or replace function einvoice.enqueue_internal_command(
@@ -213,14 +181,12 @@ grant usage on schema einvoice to authenticated;
 revoke all on all tables in schema einvoice from public, anon, authenticated;
 
 revoke all on function
-  einvoice.enqueue_outbox_message(uuid, text, jsonb, uuid, timestamptz),
   einvoice.enqueue_internal_command(uuid, text, jsonb, uuid, uuid),
   einvoice.claim_internal_commands_batch(uuid, int),
   einvoice.complete_internal_command(uuid, uuid, uuid),
   einvoice.fail_internal_command(uuid, uuid, uuid, text)
 from public, anon, authenticated;
 
-grant execute on function einvoice.enqueue_outbox_message(uuid, text, jsonb, uuid, timestamptz) to service_role;
 grant execute on function einvoice.enqueue_internal_command(uuid, text, jsonb, uuid, uuid) to service_role;
 grant execute on function einvoice.claim_internal_commands_batch(uuid, int) to service_role;
 grant execute on function einvoice.complete_internal_command(uuid, uuid, uuid) to service_role;

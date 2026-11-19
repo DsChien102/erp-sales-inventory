@@ -48,10 +48,7 @@ void main() {
       final dataDir = Directory(
         '${repoRoot.path}/apps/erp/lib/features/einvoice/data',
       );
-      final dartFiles = dataDir
-          .listSync()
-          .whereType<File>()
-          .where((f) => f.path.endsWith('.dart'));
+      final dartFiles = dataDir.listSync().whereType<File>().where((f) => f.path.endsWith('.dart'));
 
       final rpcCalls = <String>{};
       final pattern = RegExp(r"'einvoice',\s*'([a-z_]+)'", multiLine: true);
@@ -93,67 +90,6 @@ void main() {
           reason: 'Expected einvoice.$rpc (processor) to be defined in migrations.',
         );
       }
-    });
-
-    test('keeps outbox log writers', () {
-      final repoRoot = _findRepoRoot();
-      final dir = Directory('${repoRoot.path}/supabase/migrations');
-      final files = dir
-          .listSync()
-          .whereType<File>()
-          .where(
-            (f) =>
-                f.path.endsWith('.sql') &&
-                !f.path.contains('_drafts') &&
-                !f.uri.pathSegments.last.startsWith('20261031002'),
-          );
-
-      var count = 0;
-      final pattern = RegExp(r'einvoice\.enqueue_outbox_message\(');
-      for (final f in files) {
-        final content = f.readAsStringSync();
-        count += pattern.allMatches(content).length;
-      }
-
-      expect(count, equals(12));
-      final sql = _allMigrationsSql();
-      expect(_einvoiceDefines(sql, 'enqueue_outbox_message'), isTrue);
-    });
-
-    test('outbox writers use only the 5 log columns', () {
-      final sql = _allMigrationsSql();
-      const allowed = {
-        'id',
-        'tenant_id',
-        'event_type',
-        'payload',
-        'occurred_at',
-      };
-      final pattern = RegExp(
-        r'insert into einvoice\.outbox_messages\s*\(([^)]*)\)',
-        caseSensitive: false,
-      );
-      final matches = pattern.allMatches(sql).toList();
-      expect(matches, isNotEmpty);
-
-      for (final match in matches) {
-        final cols = match
-            .group(1)!
-            .split(',')
-            .map((c) => c.trim().toLowerCase())
-            .toSet();
-        expect(
-          allowed.containsAll(cols),
-          isTrue,
-          reason: 'Found unexpected column in outbox insert: $cols',
-        );
-      }
-
-      final migration2 = _migration('20261031002');
-      expect(
-        migration2.contains('id, tenant_id, event_type, payload, occurred_at'),
-        isTrue,
-      );
     });
 
     test('nobody reads outbox or inbox', () {
@@ -202,6 +138,21 @@ void main() {
       expect(m.contains('fail_inbox_message'), isFalse);
     });
 
+    test('einvoice has no outbox', () {
+      final sql = _allMigrationsSql();
+      expect(sql.contains('einvoice.outbox_messages'), isFalse);
+      expect(sql.contains('einvoice.enqueue_outbox_message'), isFalse);
+      expect(_definesFn(sql, 'einvoice', 'enqueue_outbox_message'), isFalse);
+      final reg = File(
+        '${_findRepoRoot().path}/supabase/migrations/REGISTRY.yaml',
+      ).readAsStringSync();
+      final einvoiceBlock = RegExp(
+        r'^einvoice:\n((?:  .*\n)*)',
+        multiLine: true,
+      ).firstMatch(reg)!.group(1)!;
+      expect(einvoiceBlock.contains('  enqueue_outbox_message:'), isFalse);
+    });
+
     test('creates einvoice queue directly', () {
       final m = _migration('20261031002');
 
@@ -231,37 +182,25 @@ void main() {
       expect(m.contains('internal_commands_pending_tenant_idx'), isTrue);
       expect(m.contains('internal_commands_source_dedup_idx'), isTrue);
 
-      // (3) outbox_messages table with 5 columns
-      final outboxStart = m.indexOf('create table if not exists einvoice.outbox_messages (');
-      expect(outboxStart, greaterThanOrEqualTo(0), reason: 'Missing table einvoice.outbox_messages');
-      final outboxEnd = m.indexOf(');', outboxStart);
-      final outboxBlock = m.substring(outboxStart, outboxEnd);
-      for (final col in const [
-        'id uuid primary key',
-        'tenant_id uuid not null',
-        'event_type text not null',
-        'payload jsonb not null',
-        'occurred_at timestamptz not null default now()',
-      ]) {
-        expect(outboxBlock.contains(col), isTrue, reason: 'outbox_messages missing $col');
-      }
-      expect(outboxBlock.contains('processed_at'), isFalse);
-      expect(outboxBlock.contains('claim_token'), isFalse);
+      // (3) no outbox
+      expect(m.contains('outbox_messages'), isFalse);
 
-      // (4) 5 functions defined in this migration
+      // (4) 4 functions defined in this migration
       for (final fn in const [
-        'enqueue_outbox_message',
         'enqueue_internal_command',
         'claim_internal_commands_batch',
         'complete_internal_command',
         'fail_internal_command',
       ]) {
-        expect(_definesFn(m, 'einvoice', fn), isTrue, reason: 'Migration missing function einvoice.$fn');
+        expect(
+          _definesFn(m, 'einvoice', fn),
+          isTrue,
+          reason: 'Migration missing function einvoice.$fn',
+        );
       }
 
-      // (5) 5 grant execute signatures to service_role
+      // (5) 4 grant execute signatures to service_role
       for (final sig in const [
-        'einvoice.enqueue_outbox_message(uuid, text, jsonb, uuid, timestamptz)',
         'einvoice.enqueue_internal_command(uuid, text, jsonb, uuid, uuid)',
         'einvoice.claim_internal_commands_batch(uuid, int)',
         'einvoice.complete_internal_command(uuid, uuid, uuid)',
@@ -275,7 +214,10 @@ void main() {
       }
 
       // (6) permissions
-      expect(m.contains('revoke all on all tables in schema einvoice from public, anon, authenticated'), isTrue);
+      expect(
+        m.contains('revoke all on all tables in schema einvoice from public, anon, authenticated'),
+        isTrue,
+      );
       expect(m.contains('grant usage on schema einvoice to service_role'), isTrue);
       expect(m.contains('grant usage on schema einvoice to authenticated'), isTrue);
     });
@@ -320,11 +262,7 @@ String _allMigrationsSql() {
 
 bool _definesFn(String sql, String schema, String name) {
   return RegExp(
-    r'create\s+(or\s+replace\s+)?function\s+' +
-        schema +
-        r'\.' +
-        name +
-        r'\s*\(',
+    r'create\s+(or\s+replace\s+)?function\s+' + schema + r'\.' + name + r'\s*\(',
     caseSensitive: false,
   ).hasMatch(sql);
 }
@@ -332,16 +270,13 @@ bool _definesFn(String sql, String schema, String name) {
 String _migration(String prefix) {
   final repoRoot = _findRepoRoot();
   final dir = Directory('${repoRoot.path}/supabase/migrations');
-  final matches =
-      dir
-          .listSync()
-          .whereType<File>()
-          .where(
-            (f) =>
-                f.uri.pathSegments.last.startsWith(prefix) &&
-                f.path.endsWith('.sql'),
-          )
-          .toList();
+  final matches = dir
+      .listSync()
+      .whereType<File>()
+      .where(
+        (f) => f.uri.pathSegments.last.startsWith(prefix) && f.path.endsWith('.sql'),
+      )
+      .toList();
   if (matches.length != 1) {
     fail(
       'Expected exactly one migration file with prefix $prefix, found ${matches.length}',
@@ -350,27 +285,4 @@ String _migration(String prefix) {
   return matches.single.readAsStringSync();
 }
 
-const _installedQueueFns = {
-  'enqueue_outbox_message',
-  'claim_outbox_batch',
-  'complete_outbox_message',
-  'fail_outbox_message',
-  'receive_integration_event',
-  'claim_inbox_batch',
-  'complete_inbox_message',
-  'fail_inbox_message',
-  'enqueue_internal_command',
-  'claim_internal_commands_batch',
-  'complete_internal_command',
-  'fail_internal_command',
-};
-
-bool _einvoiceDefines(String sql, String name) {
-  if (_definesFn(sql, 'einvoice', name)) return true;
-  final migration2 = _migration('20261031002');
-  return migration2.contains(
-        "select platform.install_module_messaging('einvoice')",
-      ) &&
-      _installedQueueFns.contains(name);
-}
-
+bool _einvoiceDefines(String sql, String name) => _definesFn(sql, 'einvoice', name);

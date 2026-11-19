@@ -177,7 +177,6 @@ einvoice:
   connect_provider: 20261031003_einvoice_provider_connection_rpcs.sql
   disconnect_provider: 20261031003_einvoice_provider_connection_rpcs.sql
   enqueue_internal_command: 20261031002_einvoice_install_module_messaging.sql
-  enqueue_outbox_message: 20261031002_einvoice_install_module_messaging.sql
   fail_internal_command: 20261031002_einvoice_install_module_messaging.sql
   get_automation_policy: 20261031004_einvoice_profile_policy_readiness_rpcs.sql
   get_configuration_readiness: 20261031004_einvoice_profile_policy_readiness_rpcs.sql
