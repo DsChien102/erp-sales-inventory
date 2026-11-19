@@ -836,12 +836,12 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 
 ## Dọn dẹp (1 ngày)
 
-**Trạng thái:** 🔄 9-1 ✅ (review R1 2026-11-19); 9-2 plan ✅ duyệt 2026-11-19; làm xong 2026-11-19 (test SQL đã chạy; chờ review, reset Dev). **Chốt 2026-11-19 (người dùng): không gộp migration** (phương án B) — 9-2 chỉ sửa migration gốc; 9.5 bỏ.
+**Trạng thái:** 🔄 9-1 ✅ (review R1 2026-11-19); 9-2 plan ✅ duyệt 2026-11-19; làm xong 2026-11-19 (test SQL đã chạy), review ✅ 2026-11-19; chờ reset Dev. **Chốt 2026-11-19 (người dùng): không gộp migration** (phương án B) — 9-2 chỉ sửa migration gốc; 9.5 bỏ.
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
 | **9-1** | Dọn code: thay `IExecutionContext` / `CoreExecutionContext` trong `features/sales/logic` (10 tệp) bằng `SessionController` (7-C Q1); gộp phần còn dùng của `c45_shared` vào `core/` rồi xoá; bỏ Melos; xoá `apps/erp/example`; xoá `packages/c45_annotations` cùng `c45_shared` (chuyển từ 5-C / 7-C, 2026-11-04). `c45_env` đã xoá ở `8ad18cd27` | 9.1, 9.2, 9.3, 9.6 | ✅ [plan](plans/P9/9-1-don-code.md) duyệt 2026-11-19 | ✅ 2026-11-19 | ✅ R1 2026-11-19 (R1-1…R1-3 đã sửa) |
-| **9-2** | Dọn DB: dọn nền messaging `platform` (`20260623000001/000002`, `20260820008`, 4 schema `iam` / `costing` / `accounting` / `dashboard`) (7-C Q3); bỏ outbox/inbox/onboarding (trừ `sales.outbox_messages`, nhật ký sự kiện của đơn, 8-C Q1); **không gộp migration** (chốt 2026-11-19) | 9.4 | ✅ [plan](plans/P9/9-2-don-db.md) duyệt 2026-11-19 | ⬜ | ⬜ |
+| **9-2** | Dọn DB: dọn nền messaging `platform` (`20260623000001/000002`, `20260820008`, 4 schema `iam` / `costing` / `accounting` / `dashboard`) (7-C Q3); bỏ outbox/inbox/onboarding (trừ `sales.outbox_messages`, nhật ký sự kiện của đơn, 8-C Q1); **không gộp migration** (chốt 2026-11-19) | 9.4 | ✅ [plan](plans/P9/9-2-don-db.md) duyệt 2026-11-19 | ✅ 2026-11-19 | ✅ 2026-11-19 (người dùng đánh đạt) |
 
 Chi tiết từng việc:
 

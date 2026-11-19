@@ -1,7 +1,7 @@
 # 9-2 — Dọn DB: bỏ nền messaging `platform`, outbox `iam` / `einvoice`
 
 > Dọn dẹp (P9) · Gồm việc 9.4 của PLAN.md mục "Dọn dẹp"
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-19) | Làm ✅ 2026-11-19 | Review ⬜
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-19) | Làm ✅ 2026-11-19 | Review ✅ 2026-11-19
 > Tài liệu: PLAN.md "Dọn dẹp" (9-2, 9.4), "Quy tắc migration", "Plan xoá / tách / thay code cũ"; 7-C Q3 (nền `platform` để P9); 8-C Q1 (giữ `sales.outbox_messages`); 3-B (onboarding / FK đã xong, test `supabase/tests/iam_legacy_cleanup.sql`).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -237,4 +237,4 @@ Tất cả chỗ email đều dạng 4 đối số `(<tenant>, 'iam.email.delive
 
 ## 9. Review
 
-_(phiên review ghi)_
+Người dùng review và đánh **ĐẠT** 2026-11-19. Phiên code không tự chấm. Còn lại: reset Dev (`supabase db reset --linked`) khi người dùng đồng ý; kiểm secret Vault `pricing_reenable_fingerprint_hmac_v1` trước.
