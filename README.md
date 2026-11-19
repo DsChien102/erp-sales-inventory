@@ -41,32 +41,14 @@ cd c45
 # 2. Cài dependency workspace
 melos bootstrap
 
-# 3. Cấu hình môi trường
-cp .c45/profiles/<profileId>/development.env.example .c45/profiles/<profileId>/development.env
-cp .c45/profiles/<profileId>/staging.env.example .c45/profiles/<profileId>/staging.env
-cp .c45/profiles/<profileId>/production.env.example .c45/profiles/<profileId>/production.env
-# Điền Supabase URL + keys trong development.env (remote dev) hoặc dùng Supabase CLI local
+# 3. Cấu hình môi trường: tạo apps/erp/.env với APP_ENV, SUPABASE_CONNECTION_URL, SUPABASE_ANON_KEY
+#    (Supabase local: http://127.0.0.1:54421, lấy key bằng `supabase status`)
 
 # 4. Chạy app
-melos run env:sync
-melos run debug
+cd apps/erp && flutter run --flavor development --dart-define-from-file=.env
 ```
 
-Xem [docs/operations/environment-manager.md](docs/operations/environment-manager.md) cho workflow đầy đủ.
-
-Lệnh `melos run debug` chạy ERP theo **active environment** (mặc định `development` = remote dev + `supabase link`).
-
-| Lệnh | Mô tả |
-| ---- | ----- |
-| `melos run env:development` | Development (mặc định) + sync ERP `.env` |
-| `melos run env:local` | Supabase CLI local + sync ERP `.env` |
-| `melos run env:doctor` | Kiểm tra config môi trường active |
-| `melos run debug` | ERP — active environment |
-| `melos run debug:dev` | Alias: `development` + sync + debug |
-| `melos run debug:staging` | Staging + sync + debug |
-| `melos run debug:prod` | Production + sync + debug |
-| `melos run debug:web` | Chrome + active env |
-| `melos run debug:ios` | iOS + active env |
+Chi tiết: [apps/erp/README.md](apps/erp/README.md). Trong VS Code có sẵn các cấu hình chạy **ERP · development / local / staging / production**.
 
 Chi tiết flavor, bundle ID: [docs/operations/environments.md](docs/operations/environments.md).
 
@@ -100,7 +82,6 @@ melos run analyze        # dart analyze toàn workspace
 melos run test           # dart test các package có thư mục test/ (trừ erp)
 ./scripts/ci/verify_harness.sh   # Layer guards + doc link checks
 cd apps/erp && flutter test      # Unit/widget test shell app
-dart test tools/c45_env        # CLI quản lý môi trường
 ```
 
 **AI agents:** đọc [AGENTS.md](AGENTS.md) trước khi implement.
@@ -123,12 +104,9 @@ PR template (GitHub): [`.github/pull_request_template.md`](.github/pull_request_
 ## Build iOS & TestFlight
 
 ```bash
-melos run env:use:staging
-melos run build:ios       # chỉ build
-melos run deploy:ios      # build + upload
+./apps/erp/scripts/build_ios.sh --env staging   # chỉ build
+./apps/erp/deploy-ios.sh --env staging          # upload TestFlight
 ```
-
-Hoặc shortcut: `melos run build:ios:staging`, `melos run deploy:ios:staging`.
 
 Thiết lập App Store Connect: [docs/operations/testflight-asc-setup.md](docs/operations/testflight-asc-setup.md).
 

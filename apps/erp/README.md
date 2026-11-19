@@ -4,46 +4,33 @@ Flutter shell cho modular monolith ERP.
 
 ## Môi trường
 
-Secrets nằm trong `.c45/profiles/<profileId>/`; `melos run env:sync` sinh `apps/erp/.env*` (generated — không chỉnh tay).
+Biến môi trường nằm trong `apps/erp/.env` (không commit, đã nằm trong `.gitignore`), tạo tay với 3 khoá:
 
-| Lệnh | Mô tả |
-|---|---|
-| `melos run env:sync` | Sync `.env` theo active environment |
-| `melos run debug` | ERP — active env (mặc định `development`) |
-| `melos run debug:staging` | Staging + sync + run |
-| `melos run build:ios` | Build IPA — active env (staging\|production) |
-| `melos run deploy:ios` | Build + upload TestFlight — active env |
-| `melos run build:ios:staging` | Shortcut staging build |
-| `melos run deploy:ios:staging` | Shortcut staging build + upload |
+```env
+APP_ENV=development
+SUPABASE_CONNECTION_URL=<URL Supabase>
+SUPABASE_ANON_KEY=<anon key>
+```
 
-Chi tiết: [docs/operations/environment-manager.md](../../docs/operations/environment-manager.md) · [environments.md](../../docs/operations/environments.md)
+- Supabase local (`supabase start`): URL là `http://127.0.0.1:54421`, lấy anon key bằng `supabase status`.
+- Cần nhiều môi trường: tạo `.env.staging`, `.env.production`; script build iOS ưu tiên `.env.<env>` và quay về `.env` nếu không có.
+- VS Code: dùng cấu hình **ERP · development / local / staging / production** trong `.vscode/launch.json`; chúng đọc `--dart-define-from-file=.env`.
 
 ## Setup
 
 ```bash
 melos bootstrap
-cp .c45/profiles/<profileId>/development.env.example .c45/profiles/<profileId>/development.env
-# Điền Supabase URL + keys (remote dev)
-
-melos run env:sync
-melos run env:doctor
-melos run debug
+# tạo apps/erp/.env như trên
+cd apps/erp && flutter run --flavor development --dart-define-from-file=.env
 ```
-
-Supabase CLI local (`supabase start`):
-
-```bash
-melos run env:local
-melos run debug
-```
-
-Staging/production secrets: `.c45/profiles/<profileId>/staging.env`, `.c45/profiles/<profileId>/production.env` → `melos run env:use:staging` + `env:sync`.
 
 ## iOS release
 
 ```bash
-./scripts/build_ios.sh --env staging
-./deploy-ios.sh --env staging
+./scripts/build_ios.sh --env staging        # build IPA (flavor suy ra từ --env)
+./deploy-ios.sh --env staging               # upload TestFlight, đọc deploy/deploy.env
 ```
+
+Ghi đè đường dẫn: `ERP_ENV_FILE=/đường/dẫn/.env` cho build, `DEPLOY_SECRETS_FILE=/đường/dẫn/deploy.env` cho deploy.
 
 TestFlight setup: [docs/operations/testflight-asc-setup.md](../../docs/operations/testflight-asc-setup.md)

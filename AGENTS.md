@@ -47,17 +47,16 @@ apps/erp/lib/
 | Môi trường | Project | Ghi chú |
 |---|---|---|
 | Local | `supabase start` | `supabase db reset` dựng lại từ `supabase/migrations/` |
-| Dev | `pzlsjedtsntkarkivhve` (Đồ án tốt nghiệp - Dev) | Đang link; app dùng qua `.c45/profiles/default/development.env` → `melos run env:sync` |
+| Dev | `pzlsjedtsntkarkivhve` (Đồ án tốt nghiệp - Dev) | Đang link; app đọc URL và key từ `apps/erp/.env` (tạo tay) |
 | Prod | `xodvjcaaxtubnkibmrmn` (Đồ án tốt nghiệp - Prod) | **Không đụng** trước P10 |
 
 - Migration mới: `supabase/migrations/YYYYMMDDxxx_<scope>_<mô_tả>.sql`, không sửa migration đã áp. SQL HĐĐT còn ở `supabase/migrations/_drafts/` đến P7.1.
 - `supabase db push` / `supabase config push` ghi lên remote: **hỏi người dùng trước**. `config push` áp ngay, không có bước xem trước.
-- Không in hay commit key; file `.c45/profiles/**` và `apps/*/.env*` đã nằm trong `.gitignore`.
+- Không in hay commit key; file `apps/*/.env*` và `deploy/deploy.env` đã nằm trong `.gitignore`.
 
 ## Lệnh hay dùng
 
 ```bash
-melos run env:sync            # sinh apps/erp/.env từ profile đang chọn
 melos run analyze
 cd apps/erp && flutter test test/features/<feature>  # test phạm vi plan
 cd apps/erp && flutter test                         # nghiệm thu phase (so với docs/refactor/TEST-BASELINE.md)
