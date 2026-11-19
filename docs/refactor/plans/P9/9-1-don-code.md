@@ -1,7 +1,7 @@
 # 9-1 — Dọn code: bỏ `c45_shared`, `c45_annotations`, `apps/erp/example`, Melos
 
 > Dọn dẹp (mã cũ P9) · Gồm việc 9.1, 9.2, 9.3, 9.6 của PLAN.md mục "Dọn dẹp"
-> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-19) | Làm ✅ 2026-11-19 | Review ⬜
+> Trạng thái: Plan ✅ (viết + người dùng duyệt 2026-11-19) | Làm ✅ 2026-11-19 | Review ✅ R1 2026-11-19 (R1-1…R1-3 đã sửa)
 > Tài liệu: PLAN.md mục "Dọn dẹp" (9-1), 7-C Q1 (`CoreExecutionContext` giữ tới 9-1), 8-C Q5; SCOPE.md mục 6 (DoD); mẫu đã làm: 8-C (`plans/P8/8-C-don-module-sales.md`), 7-C.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -205,4 +205,28 @@ Integration test (`apps/erp/integration_test/sales_group_{a_s03_s05,b_s06_s07,c_
 
 ## 9. Review
 
-<!-- Phiên review ghi -->
+### R1 (2026-11-19, HEAD `731985ddb`) — **CẦN SỬA** (code đạt; 1 việc chặn về git, 2 việc nhỏ) → đã sửa cùng ngày, xem dưới
+
+**Đã kiểm (đạt):**
+- Mục 1: grep rỗng; `ls packages` = `c45_design_system`, `c45_lints`; `apps/erp/example` không còn; `pubspec.yaml` gốc chỉ còn 3 workspace, không còn Melos; `dart pub get` gốc OK; `dart analyze apps/erp packages` 0 lỗi (275 info / warning cũ).
+- Q1: `SessionController.requireUserId` / `correlationId` đúng thiết kế (sinh một lần, tiêm được); 5 test mới phủ Review Focus 2, 3.
+- Q3 / Review Focus 1: đối chiếu từng tệp test sales — giá trị `testSessionController(tenantId, userId)` khớp fake cũ (kể cả 2 cubit test có tham số: `'tenant-1'` / `'actor-1'`); 3 tệp dùng `tenant-demo` / `user-demo` giữ bản đăng ký `SessionController` có sẵn (lệch plan hợp lý, đã ghi).
+- Q4 / Review Focus 4: `ApplicationException`, `ValidationException`, `TenantAccessRevokedSignal` chép nguyên thân (chỉ bỏ dòng `TODO(P9)`); không còn import bản package. `app_logging.dart` viết gọn nhưng hành vi tương đương (`onRecord` luôn là hàm của app; gọi lại chỉ đổi `level`).
+- Q5: assert bỏ đúng phạm vi (`injection_test` 30 → 19 `expect`, `session_contracts_test` xoá 7); tổng `expect(` trong test 12.502 → 12.487 (−15 = đúng hai tệp đó).
+- Review Focus 5: `.vscode`, guard codegen (`OK`), README / AGENTS / `.cursor` không còn `melos`.
+- `flutter test` (apps/erp): **+3854 −62**. 51 lỗi trong `TEST-BASELINE.md`; 11 lỗi golden inventory ngoài mốc — review chạy lại 3 tệp golden trên `941594c2b`: cùng `+3 −11` ⇒ có sẵn, không do 9-1. Đã ghi mục "Sau 9-1" vào `TEST-BASELINE.md`.
+
+**Góp ý:**
+
+| # | Mức | Nội dung | Sửa |
+|---|---|---|---|
+| R1-1 | **Chặn** | Commit `091904c20` đưa vào git **56 ảnh lỗi golden** `apps/erp/test/features/inventory/presentation/{costing,stocktake,supplier_rebate}/failures/*.png` (sinh ra khi chạy 11 golden đang lỗi; trước 9-1 không có tệp `failures/` nào trong git) | `git rm -r` 3 thư mục `failures/`; thêm `apps/erp/test/**/failures/` vào `.gitignore` |
+| R1-2 | Nhỏ | 5 tệp test còn dòng chỉ có khoảng trắng ở chỗ bỏ `registerSingleton<IExecutionContext>` trong chuỗi `..`: `catalog/support/catalog_router_harness.dart:123`, `dashboard/presentation/store_shell_test.dart:28`, `iam/presentation_module/w2_behavior_preservation_test.dart:46`, `w2_wide_layout_test.dart:47`, `inventory/support/inventory_router_harness.dart:146` (`git diff --check`) | xoá các dòng đó |
+| R1-3 | Nhỏ (tài liệu) | PLAN.md: dòng 9-1 vẫn ghi "dọn nền messaging `platform` (`20260623000001/000002`, `20260820008`, 4 schema …) (7-C Q3)" — việc DB, theo thiết kế 2026-11-19 thuộc 9-2; dòng 9-2 chưa ghi việc đó. Dòng tổng quan `:67` còn "baseline", bảng rủi ro `:926` còn "Gộp migration làm lệch schema" | chuyển cụm messaging `platform` sang dòng 9-2; bỏ "baseline" ở `:67`; dòng rủi ro `:926` ghi "bỏ (không gộp migration, 2026-11-19)" |
+
+Ngoài phạm vi (như Kết quả đã nêu): `docs/operations/environments.md`, `environment-manager.md` còn mô tả `c45_env` / `melos run env:*` — người dùng quyết. `detect_changes` chưa chạy trước commit (CLI cần `--repo erp-sales-inventory`) — chạy ở lượt sửa R1.
+
+**Sửa R1 (2026-11-19, phiên review sửa theo yêu cầu người dùng):**
+- R1-1: `git rm -r` 3 thư mục `inventory/presentation/{costing,stocktake,supplier_rebate}/failures/` (56 ảnh); `.gitignore` thêm `apps/erp/test/**/failures/`. Chạy lại golden sinh ảnh mới ⇒ git bỏ qua (`git ls-files | grep /failures/` rỗng).
+- R1-2: xoá 5 dòng khoảng trắng; `git diff --check` sạch. Chạy lại `test/features/{catalog/support,inventory}`, `store_shell_test`, 2 tệp `w2_*`: `+763 −11` (11 = lỗi golden có sẵn).
+- R1-3: PLAN.md — cụm messaging `platform` chuyển từ dòng 9-1 sang 9-2; dòng tổng quan bỏ "baseline"; dòng rủi ro "Gộp migration" ghi bỏ.

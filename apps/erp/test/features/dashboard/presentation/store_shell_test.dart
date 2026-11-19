@@ -25,7 +25,6 @@ void main() {
   setUp(() async {
     await getIt.reset();
     getIt
-      
       ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
       ..registerSingleton<FakeIamBackend>(FakeIamBackend());
   });

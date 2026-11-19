@@ -143,7 +143,6 @@ Future<void> setUpInventoryRouterTest({bool isOwner = true}) async {
   session.applySignedInUser('user-1');
   getIt
     ..registerSingleton<SessionStore>(store)
-    
     ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
     ..registerSingleton<WarehouseHubRepository>(WarehouseHubRepository(rpc: _FakeInventoryRpc()))
     ..registerSingleton<StockPolicyRepository>(_FakeStockPolicyRepo())

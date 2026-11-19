@@ -18,6 +18,8 @@
 
 > **Sau 7-C (2026-11-09, review 7-C R1 đạt):** đã xoá hết `modules/` (`einvoice/{domain,application,infrastructure,presentation,integration_events}`, `partner/integration_events`, `sales/integration_events`) và `packages/c45_misa`, `c45_async_query` (kèm `async_query_flutter`), `c45_adapters`, `c45_generator`; bỏ 12 hàng tương ứng trong bảng và 2 mục lỗi `modules/einvoice/application` (1), `modules/einvoice/infrastructure` (2; test SQL đọc `_drafts/`, 7-C Q4). Test hợp đồng SQL einvoice mới ở `apps/erp/test/features/einvoice/data/einvoice_sql_contract_test.dart` (10, xanh). `apps/erp` **3.021 đạt / 55 lỗi** (review chạy lại): 53 lỗi trong danh sách `apps/erp` dưới đây + 2 lỗi ⚠️ ngoài mốc đã ghi ở mục "Sau 5-C", không do 7-C.
 
+> **Sau 9-1 (2026-11-19, review 9-1 R1):** đã xoá `packages/c45_shared/{application,domain,infrastructure,testing}`, `packages/c45_annotations`, `apps/erp/example`; 5 hàng tương ứng trong bảng chỉ còn giá trị lịch sử (cùng `tools/c45_env`, `tools/c45_supabase_migrate` đã xoá ở `8ad18cd27`). `apps/erp` **3.854 đạt / 62 lỗi** (review chạy lại, HEAD `731985ddb`): 51 lỗi trong danh sách `apps/erp` dưới đây + ⚠️ **11 lỗi golden ngoài mốc**, có sẵn trước 9-1 (review chạy lại trên `941594c2b`: cùng `+3 -11`), không do 9-1: `inventory/presentation/costing/costing_golden_test.dart` (077_COMPLETED), `inventory/presentation/stocktake/stocktake_golden_test.dart` (SCR_042_READY, 043_READY, 044_BLIND_COUNT, 045_RECOUNT_REQUIRED, 047_COMPLETED), `inventory/presentation/supplier_rebate/supplier_rebate_golden_test.dart` (P3_PROJECTED, P3_RECORDED, P4_READY, P4_RESULT, P5_READY) — ảnh đích lệch, cần chụp lại hoặc sửa ở đợt sửa UI.
+
 | Package | Loại | Đạt | Lỗi |
 |---|---|---|---|
 | `apps/messaging_worker` | dart | 45 | 0 |

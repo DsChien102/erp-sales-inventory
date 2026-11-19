@@ -105,3 +105,6 @@ docs/superpowers/
 
 # Theme 7 prototype golden screenshots (T7-P0)
 specs/themes/theme-07/03.design/prototype/html/tools/.golden*/
+
+# Ảnh lỗi do golden test sinh ra (flutter test), không commit
+apps/erp/test/**/failures/

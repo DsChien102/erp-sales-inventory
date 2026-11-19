@@ -120,7 +120,6 @@ Future<void> setUpCatalogRouterTest() async {
   HttpOverrides.global = _FakeHttpOverrides();
   await getIt.reset();
   getIt
-    
     ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
     ..registerSingleton<StockRepository>(_CatalogFakeStockRepository());
 }

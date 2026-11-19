@@ -64,7 +64,7 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 | Theme 7 | **Kho & Giá vốn** — **rút gọn 2026-11-09**: 10 plan G5 (tồn & lô, **chương trình NCC**, nhận hàng có giá gốc, nối Sales, kiểm kê / điều chỉnh, **ghi nhận chiết khấu NCC**, **giá vốn & chốt kỳ**, báo cáo tồn + lãi gộp), 18 màn BJ + 5 màn NCC + 7 màn Hub (từ 17 BJ + CAP-01, 70 màn) | không ước lượng (xem bảng Plan Theme 7) | Theme 2, Theme 3; làm sau Theme 8 | Prototype / đặc tả xong (T7-P, T7-G4). Mỗi plan kèm backend, RPC thật không seed, thay tồn kho cơ bản của Theme 2 |
 | Tích hợp AI | Trợ lý "Hỏi Mosaic Retail" (Gemini API) hỏi đáp số liệu + dự báo nhập hàng (giảng viên yêu cầu "tích hợp AI vào app") | ~4,5 ngày | Theme 7 (công nợ đọc từ đơn TH-05) | Chốt 2026-11-09: làm **ngay sau Theme 7 (gồm nối kho Sales)**, trước Theme 6 (trước đây làm cuối, 2026-10-27); trợ lý hỏi đáp + dự báo nhập hàng, Gemini API |
 | Theme 6 | **Công nợ phải thu khách hàng** (từ đơn bán) + thu tiền + cấn trừ; không có phải trả nhà cung cấp | ~4,5 ngày | Theme 5, Theme 3; làm sau Tích hợp AI | Phải thu đi ra từ công nợ đơn của Theme 5. **Kèm việc AI hoãn lại (2026-11-16):** công cụ `cong_no_phai_thu` cho "Hỏi Mosaic Retail", câu thử 15–17, bước demo 4, ô Home "Phải thu" — xem [AI-0](plans/AI/AI-0-yeu-cau.md) |
-| Dọn dẹp | Dọn dẹp còn lại (`c45_shared`, Melos, DB messaging, baseline) | 1 ngày | Nền core → Theme 6 (sau 5-C, Theme 7) | Thứ tự 2026-11-03: theme cuối là Theme 6 |
+| Dọn dẹp | Dọn dẹp còn lại (`c45_shared`, Melos, DB messaging; không gộp migration — chốt 2026-11-19) | 1 ngày | Nền core → Theme 6 (sau 5-C, Theme 7) | Thứ tự 2026-11-03: theme cuối là Theme 6 |
 | Báo cáo | Tài liệu, sơ đồ cho báo cáo, kịch bản demo, tập bảo vệ | 3 ngày | Dọn dẹp | |
 | | **Tổng phần còn lại** | Không cộng tổng (2026-11-09: ước lượng không sát; Theme 7 rút gọn thay vì ước lại) — hạn đồ án **2026-12-02** | | |
 
@@ -836,12 +836,12 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 
 ## Dọn dẹp (1 ngày)
 
-**Trạng thái:** 🔄 9-1 plan ✅ duyệt 2026-11-19. **Chốt 2026-11-19 (người dùng): không gộp migration** (phương án B) — 9-2 chỉ sửa migration gốc; 9.5 bỏ.
+**Trạng thái:** 🔄 9-1 ✅ (review R1 2026-11-19); 9-2 chưa làm. **Chốt 2026-11-19 (người dùng): không gộp migration** (phương án B) — 9-2 chỉ sửa migration gốc; 9.5 bỏ.
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
-| **9-1** | Dọn code: thay `IExecutionContext` / `CoreExecutionContext` trong `features/sales/logic` (10 tệp) bằng `SessionController` (7-C Q1); gộp phần còn dùng của `c45_shared` vào `core/` rồi xoá; dọn nền messaging `platform` (`20260623000001/000002`, `20260820008`, 4 schema `iam` / `costing` / `accounting` / `dashboard`) (7-C Q3); bỏ Melos; xoá `apps/erp/example`; xoá `packages/c45_annotations` cùng `c45_shared` (chuyển từ 5-C / 7-C, 2026-11-04). `c45_env` đã xoá ở `8ad18cd27` | 9.1, 9.2, 9.3, 9.6 | ✅ [plan](plans/P9/9-1-don-code.md) duyệt 2026-11-19 | ✅ 2026-11-19 (chờ review) | ⬜ |
-| **9-2** | Dọn DB: bỏ outbox/inbox/onboarding (trừ `sales.outbox_messages`, nhật ký sự kiện của đơn, 8-C Q1); **không gộp migration** (chốt 2026-11-19) | 9.4 | ⬜ | ⬜ | ⬜ |
+| **9-1** | Dọn code: thay `IExecutionContext` / `CoreExecutionContext` trong `features/sales/logic` (10 tệp) bằng `SessionController` (7-C Q1); gộp phần còn dùng của `c45_shared` vào `core/` rồi xoá; bỏ Melos; xoá `apps/erp/example`; xoá `packages/c45_annotations` cùng `c45_shared` (chuyển từ 5-C / 7-C, 2026-11-04). `c45_env` đã xoá ở `8ad18cd27` | 9.1, 9.2, 9.3, 9.6 | ✅ [plan](plans/P9/9-1-don-code.md) duyệt 2026-11-19 | ✅ 2026-11-19 | ✅ R1 2026-11-19 (R1-1…R1-3 đã sửa) |
+| **9-2** | Dọn DB: dọn nền messaging `platform` (`20260623000001/000002`, `20260820008`, 4 schema `iam` / `costing` / `accounting` / `dashboard`) (7-C Q3); bỏ outbox/inbox/onboarding (trừ `sales.outbox_messages`, nhật ký sự kiện của đơn, 8-C Q1); **không gộp migration** (chốt 2026-11-19) | 9.4 | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
@@ -923,5 +923,5 @@ Chi tiết từng việc:
 | Theme 5 | Mất rule nghiệp vụ khi bỏ Aggregate | Bước 5 của công thức: port rule thành hàm thuần và giữ test cũ |
 | Theme 5 | Từ lúc sổ kho Theme 7 chạy tới khi nối kho (G5-4), Sales cũ vẫn đọc tồn cơ bản không còn cập nhật | Chỉ ảnh hưởng Dev (Prod chưa chạy); G5-4 chuyển sang khả dụng của Theme 7 |
 | Theme 8 | UI einvoice nằm ở module nên phải chuyển nhiều file | Chuyển nguyên thư mục trước, đổi dependency sau, 2 PR riêng |
-| Dọn dẹp | Gộp migration làm lệch schema | So `pg_dump --schema-only` trước và sau; chạy lại toàn bộ checklist |
+| Dọn dẹp | ~~Gộp migration làm lệch schema~~ | Bỏ: không gộp migration (chốt 2026-11-19); 9-2 sửa migration gốc, kiểm bằng `db reset` + test SQL |
 
