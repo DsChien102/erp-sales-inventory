@@ -559,6 +559,185 @@ void main() {
     expect(cubit.state.status, SalesReturnExchangeSettlementStatus.failure);
     expect(cubit.state.screenError, 'Không thể đổi/trả.');
   });
+
+  // --- T6-2c: cấn trừ ---
+  ReturnExchangeOffsetCandidateDto cand(String id, String code, int out) =>
+      ReturnExchangeOffsetCandidateDto(
+        salesOrderId: id,
+        orderCode: code,
+        completedAt: DateTime.utc(2026, 11, 1),
+        outstandingMinor: out,
+        offsetAmountMinor: 500000,
+        overdueDays: 0,
+        settlementVersion: 4,
+      );
+
+  ReturnExchangeSettlementPlanDto offsetPlan(
+    List<ReturnExchangeOffsetCandidateDto> candidates,
+  ) => ReturnExchangeSettlementPlanDto(
+    currencyCode: 'VND',
+    netDifferenceMinor: -500000,
+    collectAmountMinor: 0,
+    refundAmountMinor: 0,
+    receivableCreateAmountMinor: 0,
+    receivableReverseAmountMinor: 0,
+    processedCollectMinor: 0,
+    processedRefundMinor: 0,
+    pendingReceivableCreateMinor: 0,
+    pendingReceivableReverseMinor: 0,
+    remainderCollectMinor: 0,
+    remainderRefundMinor: 500000,
+    sourceOrderVersion: 7,
+    sourceSettlementVersion: 3,
+    offsetAmountMinor: 500000,
+    offsetCandidates: candidates,
+  );
+
+  final twoCandidates = [
+    cand('o2', 'DH-002', 2000000),
+    cand('o3', 'DH-003', 6000000),
+  ];
+
+  test('load selects all offset candidates', () async {
+    final repos = _Repos(detail: detail(plan: offsetPlan(twoCandidates)));
+    final cubit = build(repos);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+
+    expect(cubit.state.selectedOffsetOrderIds, {'o2', 'o3'});
+    expect(cubit.state.offsetPreview!.offsets.map((o) => o.amountMinor), [500000, 0]);
+  });
+
+  test('toggle recomputes preview', () async {
+    final repos = _Repos(detail: detail(plan: offsetPlan(twoCandidates)));
+    final cubit = build(repos);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+
+    cubit.toggleOffsetTarget('o2');
+    expect(cubit.state.offsetPreview!.offsets.map((o) => o.amountMinor), [0, 500000]);
+    cubit.toggleOffsetTarget('o3');
+    expect(cubit.state.offsetPreview!.refundMinor, 500000);
+    cubit.toggleOffsetTarget('o2');
+    expect(cubit.state.offsetPreview!.offsets.map((o) => o.amountMinor), [500000, 0]);
+  });
+
+  test('confirm sends targets with positive share', () async {
+    final repos = _Repos(detail: detail(plan: offsetPlan(twoCandidates)));
+    final cubit = build(repos);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+    await cubit.confirm();
+    expect(repos.returnExchange.confirmCalls.single.offsetTargetOrderIds, ['o2']);
+  });
+
+  test('confirm sends empty targets when none selected', () async {
+    final repos = _Repos(detail: detail(plan: offsetPlan(twoCandidates)));
+    final cubit = build(repos);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+    cubit.toggleOffsetTarget('o2');
+    cubit.toggleOffsetTarget('o3');
+    await cubit.confirm();
+    expect(repos.returnExchange.confirmCalls.single.offsetTargetOrderIds, isEmpty);
+  });
+
+  test('stale with offset targets shows receivableChanged without reload', () async {
+    final repos = _Repos(
+      detail: detail(plan: offsetPlan(twoCandidates)),
+      commandErrorsQueue: const [AppException('STALE_VERSION')],
+    );
+    final cubit = build(repos);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+    expect(await cubit.confirm(), isNull);
+
+    expect(repos.returnExchange.evaluateCalls, hasLength(1));
+    expect(cubit.state.status, SalesReturnExchangeSettlementStatus.stale);
+    expect(cubit.state.receivableChanged, isTrue);
+    expect(
+      cubit.state.screenError,
+      'Công nợ của khách vừa thay đổi. Hãy tải lại quyết toán.',
+    );
+  });
+
+  test('reload after stale reselects new candidates', () async {
+    final repos = _Repos(
+      detail: detail(plan: offsetPlan(twoCandidates)),
+      commandErrorsQueue: const [AppException('STALE_VERSION')],
+    );
+    final cubit = build(repos);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+    await cubit.confirm();
+
+    repos.returnExchange.evaluateResults.add(
+      valuationFor(offsetPlan([cand('o3', 'DH-003', 6000000)])),
+    );
+    await cubit.loadAndEvaluate();
+    expect(cubit.state.selectedOffsetOrderIds, {'o3'});
+    expect(cubit.state.receivableChanged, isFalse);
+    expect(cubit.state.status, SalesReturnExchangeSettlementStatus.ready);
+  });
+
+  test('OFFSET_TARGET_INVALID shows code message', () async {
+    final repos = _Repos(
+      detail: detail(plan: offsetPlan(twoCandidates)),
+      commandErrorsQueue: const [AppException('OFFSET_TARGET_INVALID')],
+    );
+    final cubit = build(repos);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+    await cubit.confirm();
+    expect(cubit.state.screenError, 'Đơn được chọn để cấn trừ không hợp lệ.');
+    expect(cubit.state.receivableChanged, isTrue);
+    expect(repos.returnExchange.evaluateCalls, hasLength(1));
+  });
+
+  test('retry keeps attempt when targets unchanged', () async {
+    final repos = _Repos(
+      detail: detail(plan: offsetPlan(twoCandidates)),
+      commandErrorsQueue: const [AppException('NETWORK_ERROR'), null],
+    );
+    final cubit = build(repos);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+    await cubit.confirm();
+    await cubit.confirm();
+    final calls = repos.returnExchange.confirmCalls;
+    expect(calls, hasLength(2));
+    expect(calls[0].idempotencyKey, calls[1].idempotencyKey);
+  });
+
+  test('toggle after error makes new attempt', () async {
+    final repos = _Repos(
+      detail: detail(plan: offsetPlan(twoCandidates)),
+      commandErrorsQueue: const [AppException('NETWORK_ERROR'), null],
+    );
+    final cubit = build(repos);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+    await cubit.confirm();
+    cubit.toggleOffsetTarget('o2');
+    await cubit.confirm();
+    final calls = repos.returnExchange.confirmCalls;
+    expect(calls[0].idempotencyKey, isNot(calls[1].idempotencyKey));
+    expect(calls[1].offsetTargetOrderIds, ['o3']);
+  });
+
+  test('stale without offset targets keeps old behaviour', () async {
+    final repos = _Repos(
+      detail: detail(),
+      commandErrorsQueue: const [AppException('STALE_VERSION')],
+    );
+    final cubit = build(repos);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+    await cubit.confirm();
+    expect(repos.returnExchange.evaluateCalls, hasLength(2));
+    expect(cubit.state.receivableChanged, isFalse);
+    expect(cubit.state.status, SalesReturnExchangeSettlementStatus.stale);
+  });
 }
 
 /// Ghi thứ tự lời gọi giữa hai repository (`calls`) và trả lỗi theo hàng đợi cho `confirm`.

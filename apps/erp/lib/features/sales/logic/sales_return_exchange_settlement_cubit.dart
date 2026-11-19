@@ -40,6 +40,7 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
   SalesReturnExchangeAttempt<ReturnExchangeConfirmRequest>? _currentAttempt;
   int _loadGeneration = 0;
   bool _confirmInFlight = false;
+  List<String> _sentOffsetTargets = const [];
 
   Future<void> loadAndEvaluate() async {
     final generation = ++_loadGeneration;
@@ -123,6 +124,11 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
           clearSettledNow: true,
           clearPaymentDueDate: true,
           paymentMethod: SalesPaymentMethod.cash,
+          selectedOffsetOrderIds: {
+            for (final c in valuation.settlementPlan.offsetCandidates)
+              c.salesOrderId,
+          },
+          receivableChanged: false,
         ),
       );
     } on AppException catch (error) {
@@ -192,6 +198,16 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
     emit(state.copyWith(paymentMethod: method));
   }
 
+  /// Tick / bỏ tick một đơn nhận cấn trừ. Đổi danh sách thì khoá chống trùng
+  /// phải mới.
+  void toggleOffsetTarget(String salesOrderId) {
+    if (isClosed) return;
+    final next = {...state.selectedOffsetOrderIds};
+    if (!next.remove(salesOrderId)) next.add(salesOrderId);
+    _currentAttempt = null;
+    emit(state.copyWith(selectedOffsetOrderIds: next));
+  }
+
   Future<SalesReturnExchangeResult?> confirm() async {
     if (_confirmInFlight) return null;
     if (!state.canConfirm) return null;
@@ -210,6 +226,8 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
     }
 
     _confirmInFlight = true;
+    final targets = state.offsetPreview?.targetOrderIds ?? const <String>[];
+    _sentOffsetTargets = targets;
     emit(
       state.copyWith(
         status: SalesReturnExchangeSettlementStatus.confirming,
@@ -229,6 +247,7 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
             settledNowMinor: state.settledNowMinor,
             paymentMethod: state.paymentMethod,
             paymentDueDate: state.paymentDueDate,
+            offsetTargetOrderIds: targets,
           );
       _currentAttempt = attempt;
       final result = await returnExchangeRepository.confirm(attempt.request);
@@ -295,6 +314,21 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
         state.copyWith(
           status: SalesReturnExchangeSettlementStatus.stale,
           screenError: SalesReturnExchangePricingCopy.priceChangedGoBack,
+        ),
+      );
+      return null;
+    }
+    if (_sentOffsetTargets.isNotEmpty &&
+        (error.code == 'STALE_VERSION' || error.code == 'OFFSET_TARGET_INVALID')) {
+      // Công nợ của khách đổi: không tự tải lại, để người dùng chọn lại.
+      _currentAttempt = null;
+      emit(
+        state.copyWith(
+          status: SalesReturnExchangeSettlementStatus.stale,
+          receivableChanged: true,
+          screenError: error.code == 'OFFSET_TARGET_INVALID'
+              ? _messageFor(error)
+              : 'Công nợ của khách vừa thay đổi. Hãy tải lại quyết toán.',
         ),
       );
       return null;

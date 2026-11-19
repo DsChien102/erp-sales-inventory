@@ -8,6 +8,7 @@ const Map<String, String> _errorMessages = {
   'FIELD_NOT_ALLOWED': 'Dữ liệu không hợp lệ.',
   'IDEMPOTENCY_CONFLICT': 'Yêu cầu bị xung đột',
   'IN_PROGRESS': 'Yêu cầu đang được xử lý, vui lòng chờ.',
+  'OFFSET_TARGET_INVALID': 'Đơn được chọn để cấn trừ không hợp lệ.',
   'STALE_VERSION': 'Đơn hàng đã thay đổi. Hãy tải lại chi tiết rồi thử lại.',
   'NOT_FOUND': 'Đơn hàng không tồn tại hoặc đã bị xóa.',
   'COMPETING_CANCELLATION': 'Đơn đã được hủy.',

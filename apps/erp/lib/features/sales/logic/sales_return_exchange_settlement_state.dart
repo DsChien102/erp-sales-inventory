@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:erp/features/sales/data/models.dart';
+import 'package:erp/features/sales/logic/return_settlement_preview.dart';
 
 import 'package:erp/features/sales/presentation/models/return_exchange_order/sales_return_exchange_settlement_vm.dart';
 
@@ -32,6 +33,8 @@ class SalesReturnExchangeSettlementState extends Equatable {
     this.settledNowMinor,
     this.paymentDueDate,
     this.paymentMethod = SalesPaymentMethod.cash,
+    this.selectedOffsetOrderIds = const <String>{},
+    this.receivableChanged = false,
   });
 
   final String orderId;
@@ -58,6 +61,25 @@ class SalesReturnExchangeSettlementState extends Equatable {
 
   /// Method for the amount collected now.
   final SalesPaymentMethod paymentMethod;
+
+  /// Đơn khác của khách đang được tick để nhận cấn trừ (SG-13).
+  final Set<String> selectedOffsetOrderIds;
+
+  /// Công nợ của khách đổi trong lúc quyết toán: phải tải lại, chọn lại.
+  final bool receivableChanged;
+
+  /// Cách chia tiền khi khách được hưởng; null khi chưa định giá hoặc không
+  /// phải nhánh "khách được hưởng".
+  ReturnSettlementPreview? get offsetPreview {
+    final plan = valuation?.settlementPlan;
+    if (plan == null || plan.netDifferenceMinor >= 0) return null;
+    return planReturnSettlement(
+      reduceOwnDebtMinor: plan.receivableReverseAmountMinor,
+      distributableMinor: plan.offsetAmountMinor + plan.refundAmountMinor,
+      candidates: plan.offsetCandidates,
+      selectedIds: selectedOffsetOrderIds,
+    );
+  }
 
   SalesReturnExchangeSettlementVm? get effectiveSettlement {
     final cached = settlement;
@@ -120,6 +142,8 @@ class SalesReturnExchangeSettlementState extends Equatable {
     SalesPaymentMethod? paymentMethod,
     bool clearSettledNow = false,
     bool clearPaymentDueDate = false,
+    Set<String>? selectedOffsetOrderIds,
+    bool? receivableChanged,
   }) {
     return SalesReturnExchangeSettlementState(
       orderId: orderId,
@@ -136,6 +160,8 @@ class SalesReturnExchangeSettlementState extends Equatable {
       settledNowMinor: clearSettledNow ? null : (settledNowMinor ?? this.settledNowMinor),
       paymentDueDate: clearPaymentDueDate ? null : (paymentDueDate ?? this.paymentDueDate),
       paymentMethod: paymentMethod ?? this.paymentMethod,
+      selectedOffsetOrderIds: selectedOffsetOrderIds ?? this.selectedOffsetOrderIds,
+      receivableChanged: receivableChanged ?? this.receivableChanged,
     );
   }
 
@@ -155,5 +181,7 @@ class SalesReturnExchangeSettlementState extends Equatable {
     settledNowMinor,
     paymentDueDate,
     paymentMethod,
+    selectedOffsetOrderIds,
+    receivableChanged,
   ];
 }
