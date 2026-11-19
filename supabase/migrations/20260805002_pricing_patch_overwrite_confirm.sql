@@ -106,6 +106,11 @@ revoke all on function pricing._auto_disable_overlapping_customer_price_rules(
 ) from public, anon, authenticated, service_role;
 
 -- 1. Patch create_customer_price_rule to support p_acknowledge_overwrite
+-- Bỏ overload 12 tham số của 20260725004, nếu không gọi theo tên / vị trí 9 tham số đầu bị "not unique".
+drop function if exists pricing.create_customer_price_rule(
+  uuid, uuid, uuid, uuid, uuid, bigint, text, date, text, date, text, boolean
+);
+
 create or replace function pricing.create_customer_price_rule(
   p_tenant_id uuid,
   p_rule_id uuid,
@@ -690,6 +695,11 @@ grant execute on function pricing.update_customer_price_rule(
 ) to authenticated, service_role;
 
 -- 3. Patch reenable_customer_price_rule to support p_acknowledge_overwrite
+-- Bỏ overload 6 tham số của 20260725009 (cùng lý do với create_customer_price_rule).
+drop function if exists pricing.reenable_customer_price_rule(
+  uuid, uuid, integer, date, text, boolean
+);
+
 create or replace function pricing.reenable_customer_price_rule(
   p_tenant_id uuid,
   p_rule_id uuid,

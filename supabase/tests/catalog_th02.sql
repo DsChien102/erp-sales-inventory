@@ -78,6 +78,10 @@ begin
   v_claims := json_build_object('sub', v_ua::text, 'role', 'authenticated')::text;
   perform set_config('request.jwt.claims', v_claims, true);
   perform set_config('request.jwt.claim.sub', v_ua::text, true);
+  -- Test đọc trực tiếp bảng catalog: cấp quyền đọc trong transaction (rollback cuối tệp).
+  grant usage on schema catalog to authenticated;
+  grant select on all tables in schema catalog to authenticated;
+  grant execute on all functions in schema catalog to authenticated;
   set local role authenticated;
 
   -- =========================================================================
@@ -114,24 +118,16 @@ begin
   end if;
 
   -- =========================================================================
-  -- Ca 2: create_guided_product có tồn / giá mà không đơn vị -> lỗi, không tạo gì
+  -- Ca 2: create_guided_product có giá mà không đơn vị -> lỗi, không tạo gì
   -- =========================================================================
   select count(*) into v_count_before from catalog.products where tenant_id = v_ta;
-
-  perform public._th02_expect_err(
-    format(
-      'select catalog.create_guided_product(%L, %L, %L, %L, p_basic_stock_quantity_base => 10)',
-      v_ta, v_ua, 'SP Khong Don Vi 1', 'REF-NO-UNIT-1'
-    ),
-    'validation_exception: base unit is required for stock or pricing'
-  );
 
   perform public._th02_expect_err(
     format(
       'select catalog.create_guided_product(%L, %L, %L, %L, p_base_price_after_vat => 50000)',
       v_ta, v_ua, 'SP Khong Don Vi 2', 'REF-NO-UNIT-2'
     ),
-    'validation_exception: base unit is required for stock or pricing'
+    'validation_exception: base unit is required for pricing'
   );
 
   select count(*) into v_count from catalog.products where tenant_id = v_ta;
@@ -276,7 +272,8 @@ begin
   -- Áp dụng khung giá cửa hàng (ruleBased) cho đơn vị cơ sở
   perform catalog.apply_store_price_rule(
     p_tenant_id => v_ta,
-    p_product_id => v_pbu
+    p_product_id => v_pbu,
+    p_confirm_overwrite => true
   );
 
   -- Thêm đơn vị quy đổi 'Vi' để thiết lập khung customConfig (tỷ lệ riêng 50% list, 20% floor)

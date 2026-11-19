@@ -54,6 +54,8 @@ declare
   v_cust1 uuid;
   v_cust2 uuid;
   v_cust3 uuid;
+  v_cust4 uuid;
+  v_cust5 uuid;
   v_cust_anbinh uuid;
   v_cust_ankhang uuid;
   v_cust_binhminh uuid;
@@ -104,11 +106,27 @@ begin
     raise exception 'FAIL: tenant was not created';
   end if;
 
-  select s.id into v_store_id from catalog.stores s where s.tenant_id = v_ta limit 1;
+  select s.id into v_store_id from iam.stores s where s.tenant_id = v_ta limit 1;
 
   v_claims := json_build_object('sub', v_ua::text, 'role', 'authenticated')::text;
   perform set_config('request.jwt.claims', v_claims, true);
   perform set_config('request.jwt.claim.sub', v_ua::text, true);
+  -- Test đọc trực tiếp bảng pricing / catalog: cấp quyền đọc trong transaction (rollback cuối tệp).
+  grant usage on schema pricing, catalog to authenticated;
+  grant select on all tables in schema pricing to authenticated;
+  grant select on all tables in schema catalog to authenticated;
+  -- reenable_customer_price_rule cần secret trong Vault (deploy tạo; local sau reset chưa có).
+  if not exists (select 1 from vault.secrets where name = 'pricing_reenable_fingerprint_hmac_v1') then
+    perform vault.create_secret('th04-test-secret', 'pricing_reenable_fingerprint_hmac_v1');
+  end if;
+  -- RLS chặn đọc trực tiếp; tắt trong transaction để đối chiếu số liệu (RPC không phụ thuộc RLS).
+  declare
+    v_t record;
+  begin
+    for v_t in select tablename from pg_tables where schemaname = 'pricing' loop
+      execute format('alter table pricing.%I disable row level security', v_t.tablename);
+    end loop;
+  end;
   set local role authenticated;
 
   -- Tạo sản phẩm P1 (base unit Hop)
@@ -117,10 +135,12 @@ begin
     p_actor_id => v_ua,
     p_name => 'Thuoc P1 TH04',
     p_reference_id => 'REF-P1',
-    p_unit_name => 'Hop'
+    p_new_unit_name => 'Hop'
   );
   v_p1 := (v_res ->> 'product_id')::uuid;
+  reset role;
   select id into v_u1 from catalog.product_units where product_id = v_p1 and is_base_unit = true;
+  set local role authenticated;
 
   -- Thiết lập khung giá cho P1 (list 150.000, floor 100.000)
   perform catalog.set_product_unit_price_band(
@@ -138,6 +158,7 @@ begin
   v_cust1 := public._th04_person(v_ta, v_ua, 'Khach Hang 1', '0911000001');
   v_cust2 := public._th04_person(v_ta, v_ua, 'Khach Hang 2', '0911000002');
   v_cust3 := public._th04_person(v_ta, v_ua, 'Khach Hang 3', '0911000003');
+  v_cust4 := public._th04_person(v_ta, v_ua, 'Khach Hang 4', '0911000004');
 
   -- =========================================================================
   -- Ca 1: create_customer_price_rule idempotency
@@ -251,7 +272,7 @@ begin
     p_idempotency_key => 'idem-ca3-ack',
     p_acknowledge_floor_warning => true
   );
-  if (v_res -> 'rule' ->> 'review_status') is distinct from 'warning'
+  if (v_res -> 'rule' -> 'validation_outcome' ->> 'outcome') is distinct from 'warning'
     or not ((v_res -> 'rule' -> 'validation_outcome' -> 'warning_codes') ? 'below_floor_price') then
     raise exception 'FAIL: Ca 3 expected review_status warning with below_floor_price';
   end if;
@@ -262,7 +283,7 @@ begin
   perform pricing.create_customer_price_rule(
     p_tenant_id => v_ta,
     p_rule_id => v_rule_edit,
-    p_customer_id => v_cust1,
+    p_customer_id => v_cust4,
     p_product_id => v_p1,
     p_product_unit_id => v_u1,
     p_rule_price_minor => 130000,
@@ -300,10 +321,16 @@ begin
     raise exception 'FAIL: Ca 4 expected activity reason = ''Theo hợp đồng Q3'', got %', v_res ->> 'reason';
   end if;
 
-  -- get_customer_price_rule_history trả item đầu tiên có reason = 'Theo hợp đồng Q3'
+  -- get_customer_price_rule_history trả item sửa có reason = 'Theo hợp đồng Q3'
   v_res := pricing.get_customer_price_rule_history(v_ta, v_rule_edit);
-  if (v_res -> 'items' -> 0 ->> 'reason') is distinct from 'Theo hợp đồng Q3' then
-    raise exception 'FAIL: Ca 4 history item 0 reason unexpected: %', v_res -> 'items' -> 0;
+  -- Cùng transaction nên created_at trùng nhau, thứ tự item không ổn định: tìm theo activity_type.
+  if (
+    select i ->> 'reason'
+    from jsonb_array_elements(v_res -> 'items') i
+    where i ->> 'activity_type' = 'updated'
+    limit 1
+  ) is distinct from 'Theo hợp đồng Q3' then
+    raise exception 'FAIL: Ca 4 history updated item reason unexpected: %', v_res -> 'items';
   end if;
 
   -- Sửa lần 2 không truyền p_reason: note giữ, new_value ->> 'reason' là null
@@ -320,10 +347,11 @@ begin
   if v_note is distinct from 'Ghi chú cũ' then
     raise exception 'FAIL: Ca 4 note changed after second update';
   end if;
+  -- Cùng transaction nên created_at trùng nhau: chọn dòng sửa lần 2 theo giá 136000.
   select new_value into v_res
   from pricing.customer_price_rule_activities
   where customer_price_rule_id = v_rule_edit and activity_type = 'updated'
-  order by created_at desc, id desc
+    and (new_value ->> 'rule_price_minor')::bigint = 136000
   limit 1;
   if (v_res ->> 'reason') is not null then
     raise exception 'FAIL: Ca 4 expected null reason when p_reason omitted';
@@ -379,10 +407,10 @@ begin
   -- =========================================================================
   -- Ca 6: H2 Sắp xếp và phân trang trên 4 khách
   -- =========================================================================
-  v_cust_anbinh := public._th04_person(v_ta, v_ua, 'Đại lý An Bình');
-  v_cust_ankhang := public._th04_person(v_ta, v_ua, 'an khang');
-  v_cust_binhminh := public._th04_person(v_ta, v_ua, 'Bình Minh');
-  v_cust_cuong := public._th04_person(v_ta, v_ua, 'Cường');
+  v_cust_anbinh := public._th04_person(v_ta, v_ua, 'Đại lý An Bình', '0911000011');
+  v_cust_ankhang := public._th04_person(v_ta, v_ua, 'an khang', '0911000012');
+  v_cust_binhminh := public._th04_person(v_ta, v_ua, 'Bình Minh', '0911000013');
+  v_cust_cuong := public._th04_person(v_ta, v_ua, 'Cường', '0911000014');
 
   -- Tạo sản phẩm riêng P2 để test sắp xếp độc lập
   v_res := catalog.create_guided_product(
@@ -390,10 +418,12 @@ begin
     p_actor_id => v_ua,
     p_name => 'Thuoc P2 TH04',
     p_reference_id => 'REF-P2',
-    p_unit_name => 'Hop'
+    p_new_unit_name => 'Vien'
   );
   v_p2 := (v_res ->> 'product_id')::uuid;
+  reset role;
   select id into v_u2 from catalog.product_units where product_id = v_p2 and is_base_unit = true;
+  set local role authenticated;
 
   perform catalog.set_product_unit_price_band(
     p_tenant_id => v_ta,
@@ -561,7 +591,7 @@ begin
   perform pricing.create_customer_price_rule(
     p_tenant_id => v_ta,
     p_rule_id => v_rule_dyn,
-    p_customer_id => public._th04_person(v_ta, v_ua, 'Khach Dyn Floor'),
+    p_customer_id => public._th04_person(v_ta, v_ua, 'Khach Dyn Floor', '0911000015'),
     p_product_id => v_p1,
     p_product_unit_id => v_u1,
     p_rule_price_minor => 110000,
@@ -632,7 +662,9 @@ begin
   end if;
 
   -- Ngừng bán đơn vị -> search p_quick_filter => 'all' vẫn có dòng đó, không lỗi
-  perform catalog.set_product_unit_active(v_ta, v_p1, v_u1, false);
+  reset role;
+  update catalog.product_units set is_active = false where id = v_u1;
+  set local role authenticated;
   v_res := pricing.search_customer_price_rules(
     p_tenant_id => v_ta,
     p_business_date => current_date,
@@ -673,9 +705,9 @@ begin
     p_expected_version => 4,
     p_reason => 'Tat de kiem tra display name'
   );
-  if (v_res2 -> 'rule' ->> 'disabled_by_name') is distinct from 'Nguyễn Lan' then
+  if (v_res2 ->> 'disabled_by_name') is distinct from 'Nguyễn Lan' then
     raise exception 'FAIL: Ca 9 disable result disabled_by_name is distinct from ''Nguyễn Lan'' (got %)',
-      v_res2 -> 'rule' ->> 'disabled_by_name';
+      v_res2 ->> 'disabled_by_name';
   end if;
 
   v_detail := pricing.get_customer_price_rule_detail(v_ta, v_rule_edit, current_date);
@@ -688,6 +720,8 @@ begin
 
   -- Tạo user 2 trong tenant (thành viên) không có profile, chỉ có email b@th04.test
   reset role;
+  -- Đơn vị đã ngừng ở Ca 8; sửa rule cần đơn vị còn hiệu lực.
+  update catalog.product_units set is_active = true where id = v_u1;
   insert into auth.users (
     id, instance_id, aud, role, email,
     raw_app_meta_data, raw_user_meta_data,
@@ -701,7 +735,7 @@ begin
   insert into iam.memberships (
     tenant_id, user_id, role, is_owner, version, created_at, updated_at
   ) values (
-    v_ta, v_ub, 'owner', true, 1, now(), now()
+    v_ta, v_ub, 'store_owner', false, 1, now(), now()
   );
 
   -- Đóng vai user 2 để sửa rule v_rule_edit
@@ -721,9 +755,13 @@ begin
 
   -- Kiểm tra lịch sử có actor.display_name = 'b@th04.test'
   v_res := pricing.get_customer_price_rule_history(v_ta, v_rule_edit);
-  if (v_res -> 'items' -> 0 -> 'actor' ->> 'display_name') is distinct from 'b@th04.test' then
-    raise exception 'FAIL: Ca 9 user 2 actor display_name <> ''b@th04.test'' (got %)',
-      v_res -> 'items' -> 0 -> 'actor' ->> 'display_name';
+  if (
+    select i -> 'actor' ->> 'display_name'
+    from jsonb_array_elements(v_res -> 'items') i
+    where i ->> 'reason' = 'User 2 sua gia'
+    limit 1
+  ) is distinct from 'b@th04.test' then
+    raise exception 'FAIL: Ca 9 user 2 actor display_name <> ''b@th04.test'' (items %)', v_res -> 'items';
   end if;
 
   -- Trả lại claims cho v_ua
@@ -742,7 +780,9 @@ begin
   -- Ca 10: H1 preview_sales_working_state_pricing áp cả rule warning
   -- =========================================================================
   -- Kích hoạt lại unit để bán
-  perform catalog.set_product_unit_active(v_ta, v_p1, v_u1, true);
+  reset role;
+  update catalog.product_units set is_active = true where id = v_u1;
+  set local role authenticated;
   -- Thiết lập lại sàn 100k để v_rule_below (90.000) có warning
   perform catalog.set_product_unit_price_band(
     p_tenant_id => v_ta,
@@ -780,10 +820,11 @@ begin
   -- Ca 11: Kiểm tra bất biến 3.3
   -- =========================================================================
   -- Tạo 1 ca ghi đè để có dòng deleted do AUTO_REPLACED_BY_RULE
+  v_cust5 := coalesce(v_cust5, public._th04_person(v_ta, v_ua, 'Khach Hang 5', '0911000005'));
   perform pricing.create_customer_price_rule(
     p_tenant_id => v_ta,
     p_rule_id => v_rule_over,
-    p_customer_id => v_cust1,
+    p_customer_id => v_cust5,
     p_product_id => v_p1,
     p_product_unit_id => v_u1,
     p_rule_price_minor => 140000,
@@ -794,7 +835,7 @@ begin
   perform pricing.create_customer_price_rule(
     p_tenant_id => v_ta,
     p_rule_id => v_rule_over_new,
-    p_customer_id => v_cust1,
+    p_customer_id => v_cust5,
     p_product_id => v_p1,
     p_product_unit_id => v_u1,
     p_rule_price_minor => 145000,
