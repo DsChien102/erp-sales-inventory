@@ -315,24 +315,6 @@ begin
     )
   );
 
-  begin
-    perform iam.enqueue_outbox_message(
-      p_tenant_id,
-      p_event_type,
-      jsonb_build_object(
-        'membership_id', v_row.id,
-        'tenant_id', v_row.tenant_id,
-        'user_id', v_row.user_id,
-        'status', iam._membership_status_code(v_row.is_active, v_row.removed_at),
-        'version', v_row.version,
-        'actor_user_id', v_caller
-      )
-    );
-  exception
-    when undefined_function then
-      null;
-  end;
-
   return iam._membership_detail_json(v_row);
 end;
 $$;

@@ -278,7 +278,7 @@ iam:
   create_tenant_invitation: 20260916005_iam_patch_invitation_membership_store_scope.sql
   deactivate_membership: 20260811014_iam_tenant_membership_lifecycle.sql
   decline_invitation: 20260916005_iam_patch_invitation_membership_store_scope.sql
-  enqueue_outbox_message: 20261009003_iam_email_jobs.sql
+  enqueue_email_job: 20261009003_iam_email_jobs.sql
   get_auth_user_snapshot: 20260811016_iam_tenant_readiness_activate.sql
   get_email_delivery_outcome_by_correlation: 20260811001_iam_notify_email_delivery_outcome.sql
   get_last_selected_tenant: 20260811008_iam_user_preferences.sql

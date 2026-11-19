@@ -1,16 +1,13 @@
--- Title: iam email jobs replace outbox email delivery
+-- Title: iam email jobs (enqueue_email_job, claim, complete)
 -- Kind: patch
 -- Intent: iam_email_jobs
 -- Context: TH-01 6.3, BR-64, KI-07
--- Touches: iam.email_jobs, iam.enqueue_outbox_message, iam._email_template_data,
+-- Touches: iam.email_jobs, iam.enqueue_email_job, iam._email_template_data,
 --          iam.claim_email_job, iam.complete_email_job
 -- Safety: idempotent ; medium
--- Depends on: 20260623000002_install_module_messaging_modules.sql,
---             20260811001_iam_notify_email_delivery_outcome.sql,
+-- Depends on: 20260811001_iam_notify_email_delivery_outcome.sql,
 --             20260811017_iam_tenant_invitation_create.sql
--- Note (3-B, 2026-10-11): iam.enqueue_outbox_message is intentionally redefined here instead of being merged
---   into 20260623000001: the original is generated with format() for every schema, so a separate iam
---   version there would be more complex than this override.
+-- 9-2 (2026-11-19): bỏ outbox IAM; hàm gửi email của IAM đổi tên thành enqueue_email_job (chỉ đường email).
 
 create table if not exists iam.email_jobs (
   id uuid primary key,
@@ -106,20 +103,16 @@ begin
 end;
 $$;
 
--- Same signature as platform.install_module_messaging. Email events go to
--- iam.email_jobs (BR-64: the code is not stored in outbox_messages). Every
--- other event keeps the original outbox insert.
-create or replace function iam.enqueue_outbox_message(
-  p_tenant_id uuid,
-  p_event_type text,
+-- Email goes to iam.email_jobs (BR-64: the code is stored only there). Only
+-- security definer RPCs of the same owner call this; nobody else has execute.
+create or replace function iam.enqueue_email_job(
   p_payload jsonb,
-  p_message_id uuid default gen_random_uuid(),
-  p_occurred_at timestamptz default now()
+  p_job_id uuid default gen_random_uuid()
 )
 returns uuid
 language plpgsql
 security definer
-set search_path = iam, platform, pg_temp
+set search_path = iam, pg_temp
 as $$
 declare
   v_ciphertext text;
@@ -129,16 +122,6 @@ declare
   v_tenant_id uuid;
   v_template_data jsonb;
 begin
-  if p_event_type is distinct from 'iam.email.delivery_requested' then
-    insert into outbox_messages (
-      id, tenant_id, event_type, payload, occurred_at
-    )
-    values (
-      p_message_id, p_tenant_id, p_event_type, p_payload, p_occurred_at
-    );
-    return p_message_id;
-  end if;
-
   v_ciphertext := p_payload->>'secret_payload_ciphertext';
   if v_ciphertext is null or v_ciphertext not like 'transient:%' then
     raise exception 'VALIDATION_ERROR: email secret';
@@ -197,7 +180,7 @@ begin
     secret
   )
   values (
-    p_message_id,
+    p_job_id,
     v_tenant_id,
     v_template_id,
     trim(both from p_payload->>'to_email'),
@@ -208,7 +191,7 @@ begin
     jsonb_build_object('code', v_code)
   );
 
-  return p_message_id;
+  return p_job_id;
 end;
 $$;
 
@@ -333,6 +316,8 @@ begin
 end;
 $$;
 
+revoke all on function iam.enqueue_email_job(jsonb, uuid)
+  from public, anon, authenticated;
 revoke all on function iam._email_template_data(text, jsonb)
   from public, anon, authenticated;
 revoke all on function iam.claim_email_job(uuid)

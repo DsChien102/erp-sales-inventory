@@ -195,9 +195,7 @@ begin
   v_masked := left(v_inv.invitee_email, 1) || '***' ||
     substring(v_inv.invitee_email from position('@' in v_inv.invitee_email));
 
-  perform iam.enqueue_outbox_message(
-    p_tenant_id,
-    'iam.email.delivery_requested',
+  perform iam.enqueue_email_job(
     jsonb_build_object(
       'event_version', 1,
       'id', v_message_id,
@@ -349,7 +347,7 @@ begin
   where id = v_inv.id
   returning * into v_inv;
 
-  -- Intentionally no enqueue_outbox_message on revoke.
+  -- Intentionally no email job on revoke.
 
   perform iam.append_audit_log(
     p_scope => 'tenant',

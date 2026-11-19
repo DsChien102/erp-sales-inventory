@@ -5,9 +5,6 @@ begin;
 
 do $$
 declare
-  v_outbox_before bigint;
-  v_outbox_after bigint;
-  v_jobs_before bigint;
   v_message_id uuid := gen_random_uuid();
   v_other_id uuid := gen_random_uuid();
   v_retry_id uuid := gen_random_uuid();
@@ -21,11 +18,7 @@ declare
   v_attempts int;
   v_i int;
 begin
-  select count(*) into v_outbox_before from iam.outbox_messages;
-
-  perform iam.enqueue_outbox_message(
-    '00000000-0000-0000-0000-000000000000'::uuid,
-    'iam.email.delivery_requested',
+  perform iam.enqueue_email_job(
     jsonb_build_object(
       'template_id', 'password_reset_code',
       'to_email', 'reset@example.com',
@@ -37,11 +30,6 @@ begin
     ),
     v_message_id
   );
-
-  select count(*) into v_outbox_after from iam.outbox_messages;
-  if v_outbox_after <> v_outbox_before then
-    raise exception 'email event wrote outbox_messages';
-  end if;
 
   select secret->>'code', status
   into v_secret, v_status
@@ -55,28 +43,6 @@ begin
   if (select template_data->>'expires_in_minutes' from iam.email_jobs where id = v_message_id)
      is distinct from '10' then
     raise exception 'password_reset_code template_data missing expires_in_minutes';
-  end if;
-
-  select count(*) into v_jobs_before from iam.email_jobs;
-
-  perform iam.enqueue_outbox_message(
-    '00000000-0000-0000-0000-000000000001'::uuid,
-    'iam.tenant.created',
-    '{"hello":"world"}'::jsonb,
-    v_other_id
-  );
-
-  if not exists (
-    select 1
-    from iam.outbox_messages
-    where id = v_other_id
-      and event_type = 'iam.tenant.created'
-  ) then
-    raise exception 'non-email event did not enter outbox_messages';
-  end if;
-
-  if (select count(*) from iam.email_jobs) <> v_jobs_before then
-    raise exception 'non-email event entered email_jobs';
   end if;
 
   v_claim := iam.claim_email_job(v_message_id);
@@ -106,9 +72,7 @@ begin
     raise exception 'outcome should be sent, got %', v_status;
   end if;
 
-  perform iam.enqueue_outbox_message(
-    '00000000-0000-0000-0000-000000000000'::uuid,
-    'iam.email.delivery_requested',
+  perform iam.enqueue_email_job(
     jsonb_build_object(
       'template_id', 'password_reset_code',
       'to_email', 'retry@example.com',
@@ -162,13 +126,19 @@ begin
     raise exception 'authenticated can execute claim_email_job';
   end if;
 
+  if has_function_privilege('authenticated', 'iam.enqueue_email_job(jsonb, uuid)', 'execute')
+     or has_function_privilege('anon', 'iam.enqueue_email_job(jsonb, uuid)', 'execute') then
+    raise exception 'authenticated / anon can execute enqueue_email_job';
+  end if;
+  if to_regclass('iam.outbox_messages') is not null then
+    raise exception 'iam.outbox_messages still exists';
+  end if;
+
   declare
     v_unknown_id uuid := gen_random_uuid();
     v_unknown_correlation text := gen_random_uuid()::text;
   begin
-    perform iam.enqueue_outbox_message(
-      '00000000-0000-0000-0000-000000000000'::uuid,
-      'iam.email.delivery_requested',
+    perform iam.enqueue_email_job(
       jsonb_build_object(
         'template_id', 'activation_invitation',
         'to_email', 'unknown-template@example.com',
@@ -211,9 +181,7 @@ begin
     end if;
   end;
 
-  perform iam.enqueue_outbox_message(
-    '00000000-0000-0000-0000-000000000000'::uuid,
-    'iam.email.delivery_requested',
+  perform iam.enqueue_email_job(
     jsonb_build_object(
       'template_id', 'password_reset_code',
       'to_email', 'novault@example.com',
@@ -224,6 +192,63 @@ begin
     ),
     gen_random_uuid()
   );
+end;
+$$;
+
+-- assign_member_role vẫn ghi nhật ký sau khi bỏ outbox IAM (9-2).
+do $$
+declare
+  v_owner uuid := gen_random_uuid();
+  v_staff uuid := gen_random_uuid();
+  v_tenant uuid;
+  v_membership_id uuid;
+begin
+  insert into auth.users (
+    id, instance_id, aud, role, email,
+    raw_app_meta_data, raw_user_meta_data,
+    email_confirmed_at, created_at, updated_at
+  )
+  select u, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated',
+         'role-' || u::text || '@example.com',
+         '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb,
+         now(), now(), now()
+  from unnest(array[v_owner, v_staff]) as u;
+
+  v_tenant := iam._create_tenant_for_owner(
+    v_owner,
+    jsonb_build_object(
+      'name', 'Nha thuoc Role Audit',
+      'contact_phone', '0900000002',
+      'contact_email', 'owner@example.com',
+      'province_code', '01',
+      'commune_code', '00001',
+      'address_text', 'So 1'
+    )
+  );
+
+  insert into iam.memberships (
+    tenant_id, user_id, role, is_owner, version, created_at, updated_at
+  )
+  values (v_tenant, v_staff, 'staff', false, 1, now(), now())
+  returning id into v_membership_id;
+
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', v_owner::text, 'role', 'authenticated')::text,
+    true
+  );
+  perform set_config('request.jwt.claim.sub', v_owner::text, true);
+
+  perform iam.assign_member_role(v_tenant, v_staff, 'accountant');
+
+  if not exists (
+    select 1
+    from iam.audit_logs
+    where event_code = 'iam.membership.role_changed'
+      and target_id = v_membership_id::text
+  ) then
+    raise exception 'role change audit missing';
+  end if;
 end;
 $$;
 

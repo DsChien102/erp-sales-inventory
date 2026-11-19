@@ -124,9 +124,7 @@ begin
 
   v_ciphertext := 'transient:' || encode(convert_to(v_code, 'UTF8'), 'base64');
 
-  perform iam.enqueue_outbox_message(
-    v_platform_partition,
-    'iam.email.delivery_requested',
+  perform iam.enqueue_email_job(
     jsonb_build_object(
       'event_version', 1,
       'id', v_message_id,
@@ -214,9 +212,7 @@ begin
 
   if v_email is not null then
     v_ciphertext := 'transient:' || encode(convert_to(v_code, 'UTF8'), 'base64');
-    perform iam.enqueue_outbox_message(
-      v_platform_partition,
-      'iam.email.delivery_requested',
+    perform iam.enqueue_email_job(
       jsonb_build_object(
         'event_version', 1,
         'id', v_message_id,

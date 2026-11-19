@@ -114,26 +114,6 @@ begin
     when undefined_function then
       null;
   end;
-
-  begin
-    perform iam.enqueue_outbox_message(
-      p_tenant_id,
-      'iam.membership.role_changed',
-      jsonb_build_object(
-        'membership_id', v_target_row.id,
-        'tenant_id', v_target_row.tenant_id,
-        'user_id', v_target_row.user_id,
-        'role', v_target_row.role,
-        'previous_role', v_before->>'role',
-        'status', iam._membership_status_code(v_target_row.is_active, v_target_row.removed_at),
-        'version', v_target_row.version,
-        'actor_user_id', v_caller
-      )
-    );
-  exception
-    when undefined_function then
-      null;
-  end;
 end;
 $$;
 

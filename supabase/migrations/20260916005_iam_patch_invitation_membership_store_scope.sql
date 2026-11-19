@@ -180,9 +180,7 @@ begin
 
   v_masked := left(v_email, 1) || '***' || substring(v_email from position('@' in v_email));
 
-  perform iam.enqueue_outbox_message(
-    p_tenant_id,
-    'iam.email.delivery_requested',
+  perform iam.enqueue_email_job(
     jsonb_build_object(
       'event_version', 1,
       'id', v_message_id,
