@@ -659,6 +659,13 @@ begin
     '2');
   perform public._th06_invariants(v_ta, 'A07');
 
+  -- B16 nhãn thu theo khách trong lịch sử đơn
+  perform public._th06_expect('B16 nhãn thu theo khách',
+    (select count(*)::text from jsonb_array_elements(
+       sales.get_sales_order_timeline(gen_random_uuid()::text, v_ta, v_ua, v_o2) -> 'entries') e
+     where e ->> 'eventType' = 'sales_payment_recorded.v1'
+       and e ->> 'description' = 'Ghi nhận thu nợ theo khách'), '1');
+
   -- A15 lịch sử sau A07
   v_res := receivable.list_customer_receivable_history(v_ta, v_ua, v_tuan);
   perform public._th06_expect('A15 kind mới nhất', v_res -> 'items' -> 0 ->> 'kind', 'customer_collection');
@@ -836,6 +843,7 @@ begin
     v_h1 uuid; v_h2 uuid; v_h3 uuid; v_h4 uuid;
     v_w1 uuid;
     v_rx jsonb; v_rxid uuid; v_rxver int;
+    v_rx_a jsonb; v_det jsonb;
     v_plan jsonb;
     v_movements bigint;
     v_tx_before text;
@@ -1039,6 +1047,7 @@ begin
     v_g2 := public._th06_order(v_ta, v_ua, v_store, v_kg, v_p1, v_u1, 10, 0, v_today + 30, 'th06-g2');
     perform public._th06_set(v_g2, 4, v_today + 10);
     v_rx := public._th06_return(v_ta, v_ua, v_g1, v_p1, v_u1, 2, 'th06-g1-start-a');
+    v_rx_a := v_rx;
     perform public._th06_confirm(v_ta, v_ua, (v_rx ->> 'id')::uuid, (v_rx ->> 'version')::int, 'th06-g1-confirm-a', '{}'::uuid[]);
     v_rx := public._th06_return(v_ta, v_ua, v_g1, v_p1, v_u1, 3, 'th06-g1-start-b');
     perform public._th06_confirm(v_ta, v_ua, (v_rx ->> 'id')::uuid, (v_rx ->> 'version')::int, 'th06-g1-confirm-b', null);
@@ -1049,6 +1058,14 @@ begin
       public._th06_val(format('select count(*) from receivable.receivable_offsets where customer_partner_id = %L', v_kg)), '0');
     perform public._th06_expect('B06 đơn khác không đổi', public._th06_out(v_g2), '1000000');
     perform public._th06_invariants(v_ta, 'B06');
+
+    -- B15 cách chia thật sau xác nhận (B06 bỏ hết cấn trừ, kế hoạch từng đề xuất cấn vào g2)
+    v_det := sales.get_return_exchange_detail(gen_random_uuid()::text, v_ta, v_ua, (v_rx_a ->> 'id')::uuid);
+    perform public._th06_expect('B15 offset thật = 0', v_det #>> '{settlementPlan,offsetAmountMinor}', '0');
+    perform public._th06_expect('B15 hoàn thật = 200000', v_det #>> '{settlementPlan,refundAmountMinor}', '200000');
+    perform public._th06_expect('B15 ứng viên g2 trừ 0',
+      (select c ->> 'offsetAmountMinor' from jsonb_array_elements(v_det #> '{settlementPlan,offsetCandidates}') c
+       where c ->> 'salesOrderId' = v_g2::text), '0');
 
     -- B07 giữa định giá và xác nhận, đơn nhận vừa được thu → STALE_VERSION, không ghi gì
     v_c1 := public._th06_order(v_ta, v_ua, v_store, v_kc, v_p1, v_u1, 10, 1000000, null, 'th06-c1');

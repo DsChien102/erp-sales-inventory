@@ -502,7 +502,7 @@ sales:
   cancel_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
   cancel_sales_order_draft: 20260830007_sales_draft_rpcs.sql
   complete_return_exchange: 20260830014_sales_return_exchange_confirmation_rpcs.sql
-  confirm_return_exchange: 20261124002_receivable_return_offsets.sql
+  confirm_return_exchange: 20261126001_receivable_offset_actual_split.sql
   confirm_sales_order_cancellation: 20261123001_receivable_move_money_tables.sql
   evaluate_return_exchange_valuation: 20261124002_receivable_return_offsets.sql
   finalize_sales_order: 20261123001_receivable_move_money_tables.sql
@@ -523,7 +523,7 @@ sales:
   get_sales_order_payment_transactions: 20261124002_receivable_return_offsets.sql
   get_sales_order_return_summary: 20260830010_sales_inquiry_receipt_rpcs.sql
   get_sales_order_settlement: 20261123001_receivable_move_money_tables.sql
-  get_sales_order_timeline: 20261123001_receivable_move_money_tables.sql
+  get_sales_order_timeline: 20261126001_receivable_offset_actual_split.sql
   get_sales_receipt: 20260830010_sales_inquiry_receipt_rpcs.sql
   get_sales_stats: 20261120001_sales_stats.sql
   list_sales_order_cancellation_reasons: 20260830011_sales_adjustment_cancellation_rpcs.sql
