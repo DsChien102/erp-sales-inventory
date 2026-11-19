@@ -35,6 +35,7 @@ class SalesOrderDetailBody extends StatelessWidget {
     this.showHistory = true,
     this.selectedTabIndex = 0,
     this.onTabSelected,
+    this.onOpenCustomerReceivable,
   });
 
   final SalesOrderDetailVm vm;
@@ -56,6 +57,9 @@ class SalesOrderDetailBody extends StatelessWidget {
   final VoidCallback onOpenHistory;
   final VoidCallback onOpenReceipt;
   final VoidCallback? onOpenEInvoice;
+
+  /// Có thì hiện dòng "Xem công nợ của khách" (SG-09, chỉ đơn có khách).
+  final VoidCallback? onOpenCustomerReceivable;
   final Widget? eInvoiceSection;
   final VoidCallback onRetryPayment;
   final VoidCallback onRetryHistory;
@@ -152,6 +156,10 @@ class SalesOrderDetailBody extends StatelessWidget {
                     onTap: onOpenPaymentDebt,
                     onRetry: onRetryPayment,
                   ),
+                  if (onOpenCustomerReceivable != null) ...[
+                    const VGap(VSpacing.space2),
+                    _ViewCustomerReceivableRow(onTap: onOpenCustomerReceivable!),
+                  ],
                   const VGap(VSpacing.space2),
                   SalesOrderDetailProductsSection(items: displayedItems),
                   const VGap.cozy(),
@@ -178,6 +186,44 @@ class SalesOrderDetailBody extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// SG-09: lối vào CN-02 của khách (TH-06 EP-04).
+class _ViewCustomerReceivableRow extends StatelessWidget {
+  const _ViewCustomerReceivableRow({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    return Semantics(
+      button: true,
+      child: VCard(
+        key: const Key('wgt_sg09_view_customer_receivable'),
+        onTap: onTap,
+        backgroundColor: colors.surface,
+        border: Border.all(color: colors.borderDefault),
+        padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: VSpacing.minTouchTarget),
+          child: Row(
+            children: [
+              Expanded(
+                child: VText(
+                  'Xem công nợ của khách',
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              VIcon(icon: VIcons.chevronRight, size: 20, color: colors.textMuted),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

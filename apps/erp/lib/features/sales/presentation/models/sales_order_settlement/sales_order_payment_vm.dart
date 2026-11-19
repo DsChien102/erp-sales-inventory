@@ -10,6 +10,7 @@ final class SalesOrderPaymentTransactionVm extends Equatable {
     required this.recordedAtFormatted,
     this.kindLabel,
     this.actorId,
+    this.counterpartSalesOrderId,
   });
 
   final String transactionId;
@@ -21,6 +22,9 @@ final class SalesOrderPaymentTransactionVm extends Equatable {
   final String recordedAtFormatted;
   final String? actorId;
 
+  /// Đơn đối ứng của giao dịch cấn trừ; chạm vào mở đơn đó (SG-09b).
+  final String? counterpartSalesOrderId;
+
   @override
   List<Object?> get props => [
     transactionId,
@@ -29,6 +33,7 @@ final class SalesOrderPaymentTransactionVm extends Equatable {
     amountMinor,
     recordedAtFormatted,
     actorId,
+    counterpartSalesOrderId,
   ];
 }
 
@@ -91,6 +96,7 @@ final class SalesOrderPaymentVm extends Equatable {
     this.transactionsLoadMoreError = false,
     this.originalOrderBreakdown,
     this.returnSlipBreakdowns = const [],
+    this.offsetMinor = 0,
   });
 
   final int orderTotalMinor;
@@ -106,6 +112,9 @@ final class SalesOrderPaymentVm extends Equatable {
   final bool transactionsLoadMoreError;
   final SalesOrderPaymentOriginalBreakdownVm? originalOrderBreakdown;
   final List<SalesOrderPaymentReturnSlipBreakdownVm> returnSlipBreakdowns;
+
+  /// Đã cấn trừ = nhận + cho (một đơn thường chỉ ở một phía).
+  final int offsetMinor;
 
   bool get hasPostReturnBreakdown =>
       originalOrderBreakdown != null || returnSlipBreakdowns.isNotEmpty;
@@ -136,6 +145,7 @@ final class SalesOrderPaymentVm extends Equatable {
     SalesOrderPaymentOriginalBreakdownVm? originalOrderBreakdown,
     bool clearOriginalOrderBreakdown = false,
     List<SalesOrderPaymentReturnSlipBreakdownVm>? returnSlipBreakdowns,
+    int? offsetMinor,
   }) {
     return SalesOrderPaymentVm(
       orderTotalMinor: orderTotalMinor ?? this.orderTotalMinor,
@@ -155,6 +165,7 @@ final class SalesOrderPaymentVm extends Equatable {
           ? null
           : (originalOrderBreakdown ?? this.originalOrderBreakdown),
       returnSlipBreakdowns: returnSlipBreakdowns ?? this.returnSlipBreakdowns,
+      offsetMinor: offsetMinor ?? this.offsetMinor,
     );
   }
 
@@ -173,6 +184,7 @@ final class SalesOrderPaymentVm extends Equatable {
     transactionsLoadMoreError,
     originalOrderBreakdown,
     returnSlipBreakdowns,
+    offsetMinor,
   ];
 }
 

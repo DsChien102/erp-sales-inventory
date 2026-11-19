@@ -1,7 +1,6 @@
 
 import 'dart:async';
 
-import 'package:erp/features/sales/data/models/sales_record_payment.dart';
 import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/data/models.dart';
 
@@ -21,13 +20,10 @@ class SalesPaymentCall {
 class FakeSalesPaymentRepository implements SalesPaymentRepository {
   SalesOrderPaymentSummaryDto? summaryResult;
   SalesOrderSettlementDto? settlementResult;
-  SalesRecordPaymentResult? recordResult;
-  Completer<SalesRecordPaymentResult>? recordCompleter;
 
   /// Hàng đợi trang giao dịch; hết thì dùng [transactionsResult].
   SalesPaymentTransactionsDto? transactionsResult;
   final List<SalesPaymentTransactionsDto> transactionsPages = [];
-  final List<Object> recordErrors = [];
 
   Object? summaryError;
   Object? settlementError;
@@ -36,7 +32,6 @@ class FakeSalesPaymentRepository implements SalesPaymentRepository {
   final summaryCalls = <SalesPaymentCall>[];
   final settlementCalls = <SalesPaymentCall>[];
   final transactionsCalls = <SalesPaymentCall>[];
-  final recordCalls = <SalesRecordPaymentRequest>[];
 
   @override
   Future<SalesOrderPaymentSummaryDto> getSummary({
@@ -83,16 +78,5 @@ class FakeSalesPaymentRepository implements SalesPaymentRepository {
     if (error != null) throw error;
     if (transactionsPages.isNotEmpty) return transactionsPages.removeAt(0);
     return transactionsResult!;
-  }
-
-  @override
-  Future<SalesRecordPaymentResult> recordPayment(SalesRecordPaymentRequest request) async {
-    recordCalls.add(request);
-    if (recordErrors.isNotEmpty) {
-      throw recordErrors.removeAt(0);
-    }
-    final completer = recordCompleter;
-    if (completer != null) return completer.future;
-    return recordResult!;
   }
 }

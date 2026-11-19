@@ -6,7 +6,6 @@ import 'package:erp/features/sales/data/sales_payment_repository.dart';
 import 'package:erp/features/sales/data/sales_receipt_repository.dart';
 import '../iam/support/iam_test_session.dart';
 import 'package:erp/features/sales/data/models/sales_cancellation_request.dart';
-import 'package:erp/features/sales/data/models/sales_record_payment.dart';
 import 'support/fake_return_exchange_repository.dart';
 import 'support/fake_sales_cancellation_repository.dart';
 import 'support/fake_sales_order_repository.dart';
@@ -290,7 +289,6 @@ void main() {
     expect(salesModule.cancellations.confirmCalls, hasLength(1));
     expect(
       [
-        ...salesModule.payments.recordCalls,
         ...salesModule.receipts.generateCalls,
         ...salesModule.receipts.printedCalls,
         ...salesModule.receipts.sharedCalls,
@@ -643,7 +641,7 @@ void main() {
     },
   );
 
-  testWidgets('SG-08 collect_payment_shown_when_outstanding', (tester) async {
+  testWidgets('actions sheet has no Thu tiền', (tester) async {
     salesModule.paidTotalMinor = 650000; // Total 1250000 -> outstanding 600000
     await tester.pumpWidget(
       const MaterialApp(
@@ -655,27 +653,52 @@ void main() {
     await tester.tap(find.byKey(const Key('btn_sg08_actions')));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('btn_order_action_collect_payment')), findsOneWidget);
-    expect(find.text('Thu tiền'), findsOneWidget);
-    expect(find.text('Ghi nhận khoản khách trả thêm cho đơn'), findsOneWidget);
+    expect(find.byKey(const Key('btn_order_action_collect_payment')), findsNothing);
+    expect(find.text('Thu tiền'), findsNothing);
+    expect(find.byKey(const Key('btn_order_action_return')), findsOneWidget);
   });
 
-  testWidgets('SG-08 collect_payment_hidden_when_paid (AC-04)', (tester) async {
-    salesModule.paidTotalMinor = 1250000; // Outstanding 0
+  testWidgets('customer order shows receivable link', (tester) async {
+    String? pushed;
+    final router = GoRouter(
+      initialLocation: '/sales/orders/order-1',
+      routes: [
+        GoRoute(
+          path: '/sales/orders/:orderId',
+          builder: (context, state) =>
+              SalesOrderDetailPage(orderId: state.pathParameters['orderId']!),
+        ),
+        GoRoute(
+          path: '/more/receivables/:customerId',
+          builder: (context, state) {
+            pushed = state.pathParameters['customerId'];
+            return const Scaffold(body: Text('receivable-route'));
+          },
+        ),
+      ],
+    );
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+
+    final link = find.byKey(const Key('wgt_sg09_view_customer_receivable'));
+    expect(link, findsOneWidget);
+    expect(find.text('Xem công nợ của khách'), findsOneWidget);
+    expect(tester.getSize(link).height, greaterThanOrEqualTo(44));
+    await tester.tap(link);
+    await tester.pumpAndSettle();
+    expect(pushed, 'customer-1');
+  });
+
+  testWidgets('walk-in has no receivable link', (tester) async {
+    salesModule.detail = _detail(walkIn: true);
     await tester.pumpWidget(
-      const MaterialApp(
-        home: SalesOrderDetailPage(orderId: 'order-1'),
-      ),
+      const MaterialApp(home: SalesOrderDetailPage(orderId: 'order-1')),
     );
     await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('btn_sg08_actions')));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('btn_order_action_collect_payment')), findsNothing);
+    expect(find.byKey(const Key('wgt_sg09_view_customer_receivable')), findsNothing);
   });
 
-  testWidgets('SG-08 collect_payment_hidden_when_cancelled', (tester) async {
+  testWidgets('SG-08 cancelled_hides_action_bar', (tester) async {
     salesModule.detail = _detail(
       lifecycleStatus: SalesOrderLifecycleStatus.cancelled,
     );
@@ -689,71 +712,6 @@ void main() {
     // Cancelled order hides action bar
     expect(find.byKey(const Key('btn_sg08_actions')), findsNothing);
   });
-
-  testWidgets('SG-08 collect_payment_hidden_when_payment_section_failed', (tester) async {
-    salesModule.paymentError = Exception('Payment section network error');
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: SalesOrderDetailPage(orderId: 'order-1'),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('btn_sg08_actions')));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('btn_order_action_collect_payment')), findsNothing);
-  });
-
-  testWidgets('SG-08 success_toasts_and_refreshes', (tester) async {
-    salesModule.paidTotalMinor = 650000; // Outstanding 600000
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: SalesOrderDetailPage(orderId: 'order-1'),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    final queryCountBefore = salesModule.queryCount;
-
-    await tester.tap(find.byKey(const Key('btn_sg08_actions')));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('btn_order_action_collect_payment')));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Xác nhận thu tiền'), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('btn_sg11_confirm')));
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('Đã ghi nhận 600.000đ'), findsOneWidget);
-    expect(salesModule.queryCount, greaterThan(queryCountBefore));
-  });
-
-  testWidgets('SG-08 closed_without_payment_still_refreshes', (tester) async {
-    salesModule.paidTotalMinor = 650000;
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: SalesOrderDetailPage(orderId: 'order-1'),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    final queryCountBefore = salesModule.queryCount;
-
-    await tester.tap(find.byKey(const Key('btn_sg08_actions')));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('btn_order_action_collect_payment')));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Quay lại'));
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('Đã ghi nhận'), findsNothing);
-    expect(salesModule.queryCount, greaterThan(queryCountBefore));
-  });
 }
 
 SalesOrderDetailDto _detail({
@@ -761,6 +719,7 @@ SalesOrderDetailDto _detail({
   int version = 7,
   String? orderNote = 'Giao giờ hành chính',
   List<SalesOrderCurrentLineDto> currentLines = const [],
+  bool walkIn = false,
 }) {
   return SalesOrderDetailDto(
     order: SalesOrderDto(
@@ -778,11 +737,13 @@ SalesOrderDetailDto _detail({
       displayName: 'Chi nhánh Quận 1',
     ),
     seller: const ActorSnapshotDto(actorId: 'seller-1', displayName: 'Minh Anh'),
-    customer: const CustomerSnapshotDto(
-      customerId: 'customer-1',
-      displayName: 'Đại lý An Bình',
-      phoneNumber: '0903456789',
-    ),
+    customer: walkIn
+        ? null
+        : const CustomerSnapshotDto(
+            customerId: 'customer-1',
+            displayName: 'Đại lý An Bình',
+            phoneNumber: '0903456789',
+          ),
     lines: const [
       SalesOrderLineDto(
         lineId: 'line-1',
@@ -895,14 +856,7 @@ final class _OrderRepo extends FakeSalesOrderRepository {
 }
 
 final class _PaymentRepo extends FakeSalesPaymentRepository {
-  _PaymentRepo(this.s) {
-    recordResult = const SalesRecordPaymentResult(
-      transactionId: 'tx-recorded',
-      outstandingMinor: 0,
-      paymentStatus: 'paid',
-      version: 2,
-    );
-  }
+  _PaymentRepo(this.s);
   final _DetailRepos s;
 
   @override

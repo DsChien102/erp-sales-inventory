@@ -31,7 +31,6 @@ const _appSalesRpcNames = [
   'precheck_sales_order_cancellation',
   'precheck_sales_order_checkout',
   'preview_return_exchange_pricing',
-  'record_sales_payment',
   'record_sales_receipt_activity',
   'save_sales_order_draft',
   'search_sales_orders',
@@ -44,7 +43,7 @@ void main() {
   group('kept', () {
     test('keeps every RPC the app calls', () {
       final sql = _allMigrationsSql();
-      expect(_appSalesRpcNames.length, 35);
+      expect(_appSalesRpcNames.length, 34);
       for (final rpc in _appSalesRpcNames) {
         expect(
           _definesFn(sql, 'sales', rpc),

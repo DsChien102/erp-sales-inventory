@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:erp/features/receivable/presentation/receivable_navigation.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dart';
 import 'package:erp/features/einvoice/data/einvoice_repository.dart';
@@ -16,7 +17,6 @@ import 'package:erp/features/einvoice/presentation/widgets/order_einvoice_sectio
 import 'package:erp/features/sales/presentation.dart';
 import 'package:erp/features/sales/presentation/support/order_einvoice_payable.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_detail_original_receipt_actions.dart';
-import 'package:erp/features/sales/presentation/widgets/sales_record_payment_sheet.dart';
 import 'package:vet45_shared_application/application.dart';
 
 /// SG-08 — Tra cứu chi tiết giao dịch gốc & Lịch sử (EP-03/US-02..07).
@@ -76,15 +76,9 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
       return;
     }
     final hasCollectedPayment = (state.payment?.paidTotalMinor ?? 0) > 0;
-    final canCollectPayment =
-        vm.lifecycleStatus == SalesOrderLifecycleStatus.committed &&
-        state.paymentStatus == SalesOrderDetailSectionStatus.loaded &&
-        state.payment != null &&
-        state.payment!.outstandingMinor > 0;
 
     final action = await showSalesOrderActionsSheet(
       context,
-      canCollectPayment: canCollectPayment,
       canReturnExchange: actions.canReturnExchange,
       canCancel: actions.canCancel && !hasCollectedPayment,
       cancelDisabledReason: hasCollectedPayment ? 'Đơn đã có thanh toán, vui lòng đổi/trả' : null,
@@ -92,24 +86,6 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
     if (!mounted || action == null) return;
 
     switch (action) {
-      case SalesOrderSheetAction.collectPayment:
-        final collectedAmount = await showSalesRecordPaymentSheet(
-          context,
-          salesOrderId: vm.orderId,
-          orderNumber: vm.orderNumber,
-          outstandingMinor: state.payment!.outstandingMinor,
-          dueDateFormatted: state.payment!.dueDateFormatted,
-        );
-        if (!mounted) return;
-        if (collectedAmount != null) {
-          VToast.show(
-            context,
-            title: 'Thu tiền',
-            message: 'Đã ghi nhận ${MoneyFormatter.formatMinor(collectedAmount)}',
-            type: VToastType.success,
-          );
-        }
-        await _cubit.refresh();
       case SalesOrderSheetAction.returnExchange:
         await _navigateAfterPrecheck(_cubit.requestReturnExchange);
       case SalesOrderSheetAction.cancel:
@@ -492,6 +468,9 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
                     },
                     historyErrorMessage: state.historyErrorMessage,
                     onOpenReceipt: _openReceipt,
+                    onOpenCustomerReceivable: vm.customerId == null
+                        ? null
+                        : () => openCustomerReceivable(context, vm.customerId!),
                     onOpenEInvoice: () => _openEInvoice(vm),
                     eInvoiceSection: GetIt.instance.isRegistered<EInvoiceRepository>() &&
                             GetIt.instance.isRegistered<EInvoiceConfigurationRepository>()

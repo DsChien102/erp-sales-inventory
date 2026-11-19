@@ -75,6 +75,7 @@ final class SalesOrderDetailMapper {
       paidBankAmountMinor: bank,
       dueDateFormatted: dueAt == null ? null : formatDateOnly(dueAt),
       settlementStatus: _settlement(summary.status),
+      offsetMinor: summary.collectedOffset.amountMinor + summary.refundedOffset.amountMinor,
       transactions: mapped,
       hasMoreTransactions: transactions.page.hasMore,
       nextTransactionsCursor: transactions.page.nextCursor,
@@ -274,6 +275,7 @@ final class SalesOrderDetailMapper {
       'PAYMENT_RECORDED' || 'SALES_PAYMENT_RECORDED' => 'Ghi nhận thanh toán',
       'REFUND_RECORDED' || 'SALES_REFUND_RECORDED' => 'Ghi nhận hoàn tiền',
       'PAYMENT_VOIDED' || 'SALES_PAYMENT_VOIDED' => 'Hủy thanh toán',
+      'RECEIVABLE_OFFSET_RECORDED' => 'Cấn trừ công nợ',
       'SETTLEMENT_CHANGED' || 'SALES_SETTLEMENT_CHANGED' => 'Cập nhật quyết toán',
       'SETTLEMENT_RECOMPUTED' || 'SALES_SETTLEMENT_RECOMPUTED' => 'Tính lại quyết toán',
       'RECEIPT_PRINTED' || 'SALES_RECEIPT_PRINTED' => 'In phiếu bán hàng',
@@ -296,13 +298,19 @@ final class SalesOrderDetailMapper {
   }
 
   static SalesOrderPaymentTransactionVm _transactionVm(app.SalesPaymentTransactionDto tx) {
+    final isOffset = tx.method == app.SalesPaymentMethod.offset;
+    final code = tx.counterpartOrderCode;
+    final direction = tx.transactionType == app.SalesPaymentTransactionType.refund ? 'sang' : 'từ';
     return SalesOrderPaymentTransactionVm(
       transactionId: tx.transactionId,
-      methodLabel: _paymentMethodLabel(tx.method),
-      kindLabel: _paymentKindLabel(tx.transactionType),
+      methodLabel: isOffset && code != null && code.isNotEmpty
+          ? 'Cấn trừ · $direction $code'
+          : _paymentMethodLabel(tx.method),
+      kindLabel: isOffset ? null : _paymentKindLabel(tx.transactionType),
       amountMinor: tx.amount.amountMinor,
       recordedAtFormatted: formatCommittedAt(tx.recordedAt),
       actorId: tx.actorId,
+      counterpartSalesOrderId: isOffset ? tx.counterpartSalesOrderId : null,
     );
   }
 
