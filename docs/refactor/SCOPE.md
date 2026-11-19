@@ -1,10 +1,10 @@
-# Scope: Đơn giản hoá kiến trúc Vet45
+# Scope: Đơn giản hoá kiến trúc Mosaic Retail
 
 > Trạng thái: **đã chốt (2026-10-06)** · Ngày lập: 2026-10-06 · Branch đề xuất: `refactor/simple-arch`
 
 ## 1. Mục tiêu
 
-Chuyển Vet45 từ **Modular Monolith + DDD + CQRS + Outbox/Worker** sang kiến trúc **Flutter feature-first 3 tầng + Supabase**, để:
+Chuyển Mosaic Retail từ **Modular Monolith + DDD + CQRS + Outbox/Worker** sang kiến trúc **Flutter feature-first 3 tầng + Supabase**, để:
 
 - dễ hiểu, dễ trình bày và bảo vệ trong đồ án;
 - giảm số package / file / thành phần phải deploy;
@@ -77,12 +77,12 @@ apps/erp/lib/
 | CommandBus / QueryBus, handler, gateway, aggregate | **Bỏ.** Thay bằng Cubit gọi Repository |
 | Integration events, Outbox/Inbox, internal commands | **Bỏ.** Xem bảng thay thế ở mục 4 |
 | `apps/messaging_worker` | **Bỏ** |
-| `vet45_generator`, `vet45_annotations`, `vet45_adapters` | **Bỏ** |
-| `vet45_shared`, `vet45_async_query` | **Gộp** phần còn dùng vào `core/`, bỏ phần CQRS |
-| `vet45_design_system` | **Giữ** (chuyển thành `packages/design_system` hoặc `core/design_system`) |
-| `vet45_misa` | **Bỏ ở P9**: client MISA viết lại bằng TypeScript trong Edge Function `einvoice-processor` (TH-08 KI-20, quyết định 2026-10-07) |
-| `vet45_resend` | **Chuyển** sang Edge Function `send-email` (API key nằm ở server) |
-| `vet45_lints` | Giữ thành `analysis_options.yaml` |
+| `c45_generator`, `c45_annotations`, `c45_adapters` | **Bỏ** |
+| `c45_shared`, `c45_async_query` | **Gộp** phần còn dùng vào `core/`, bỏ phần CQRS |
+| `c45_design_system` | **Giữ** (chuyển thành `packages/design_system` hoặc `core/design_system`) |
+| `c45_misa` | **Bỏ ở P9**: client MISA viết lại bằng TypeScript trong Edge Function `einvoice-processor` (TH-08 KI-20, quyết định 2026-10-07) |
+| `c45_resend` | **Chuyển** sang Edge Function `send-email` (API key nằm ở server) |
+| `c45_lints` | Giữ thành `analysis_options.yaml` |
 | BLoC | **Giữ.** Ưu tiên Cubit cho màn đơn giản |
 | Multi-tenant + RLS | **Giữ** (phạm vi hiện tại có tenant/store) |
 | 2 app `erp` + `admin` | **Gộp thành 1 app** (`apps/erp`). Không còn Platform Admin (3-E, 2026-10-12). Xoá `apps/admin` |
@@ -110,7 +110,7 @@ apps/erp/lib/
 
 #### Vì sao chọn hướng này: đối chiếu với ERP/POS trên thị trường
 
-| Tiêu chí | Sản phẩm phổ biến (KiotViet, Sapo, MISA eShop, Odoo, Shopify) | Luồng cũ Vet45 | Luồng mới |
+| Tiêu chí | Sản phẩm phổ biến (KiotViet, Sapo, MISA eShop, Odoo, Shopify) | Luồng cũ Mosaic Retail | Luồng mới |
 |---|---|---|---|
 | Ai tạo cửa hàng/tổ chức | **Khách tự đăng ký** ("Dùng thử miễn phí") | Platform Admin tạo hộ | Khách tự tạo |
 | Số bước tới khi dùng được | 1 form đăng ký → vào app ngay | 5 bước, qua 2 app, phải chờ email mời | Từ màn đăng nhập: Tài khoản → Cửa hàng → xác minh email → vào app |

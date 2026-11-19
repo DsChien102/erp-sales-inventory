@@ -1,7 +1,7 @@
 import 'package:erp/features/inventory/data/stock/stock_models.dart';
 import 'package:erp/features/inventory/logic/inventory_format.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 String formatStockAsOfDot(DateTime asOf) {
   final hh = asOf.hour.toString().padLeft(2, '0');

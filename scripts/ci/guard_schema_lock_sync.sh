@@ -5,4 +5,4 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root"
 
-dart run tools/vet45_supabase_migrate/bin/verify_schema_lock_sync.dart "$@"
+dart run tools/c45_supabase_migrate/bin/verify_schema_lock_sync.dart "$@"

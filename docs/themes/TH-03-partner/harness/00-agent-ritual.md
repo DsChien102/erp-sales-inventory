@@ -7,7 +7,7 @@ Thứ tự đọc khi implement một slice. Platform CQRS/module layout: [docs/
 ## Trước khi code
 
 ```text
-1. AGENTS.md + .cursor/rules/vet45-architecture.mdc
+1. AGENTS.md + .cursor/rules/c45-architecture.mdc
 2. docs/harness/PROGRESS.md
 3. TH-03/README.md
 4. Theme-3-partner.md (theme context khi cần)
@@ -45,8 +45,8 @@ cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 | Mục đích | Path |
 | -------- | ---- |
 | Codegen + CQRS wiring (golden) | `modules/iam/` + [modules/iam/README.md](../../../../modules/iam/README.md) |
-| Command + handler annotations (fixtures) | `packages/vet45_generator/test/fixtures/lib/src/` |
-| Pipeline test | `packages/vet45_shared/testing/test/shared_testing_test.dart` |
+| Command + handler annotations (fixtures) | `packages/c45_generator/test/fixtures/lib/src/` |
+| Pipeline test | `packages/c45_shared/testing/test/shared_testing_test.dart` |
 | Module layout | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
 | Page mỏng + widgets tách file | `apps/erp/lib/features/dashboard/presentation/` |
 | API contracts | [harness/07-api-contracts.md](07-api-contracts.md) |

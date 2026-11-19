@@ -10,7 +10,7 @@
 
 **Architecture:** Migration mới `20261114001_inventory_goods_receipts.sql` (3 bảng, 4 RPC, helper `_effective_receipt_program` dùng chung với `get_receipt_program_hints`); `_program_is_locked` mở rộng. **Server là chuẩn** cho mọi số tiền (cách A, chốt 2026-11-10); Flutter có bản sao luật thuần `receipt_cost_rules.dart` chỉ để xem trước, test chung bộ số với SQL. Flutter: BJ mới `features/inventory/{data,logic,presentation}/goods_receipt/`; một `ReceiptDraftCubit` sống trong `ShellRoute` con của luồng lập phiếu; chi tiết NCC nhận thêm khối "Lịch sử nhập hàng" qua tham số `supplierSection` sẵn có.
 
-**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `vet45_design_system`.
+**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `c45_design_system`.
 
 **Spec:** mục 1–2 của plan này + [spec giá vốn](T7-G5-gia-von-thiet-ke.md) mục 4.1, 12.3 + [plan G5-2b](T7-G5-2b-chuong-trinh-ncc.md) mục 2.2–2.3 (RPC gợi ý, câu gợi ý) + PLAN.md Theme 7 → "Quy ước chung cho mọi plan G5".
 
@@ -23,7 +23,7 @@
 - Tiền `bigint` (đồng); đơn giá gốc `numeric(18,4)` theo **ĐVT cơ sở**; % `numeric(5,2)`; số lượng nhập trên màn là **số nguyên theo ĐVT đã chọn**, đổi ra ĐVT cơ sở bằng `× conversion_rate_to_base` (`numeric`). Làm tròn tiền: `round()` của Postgres (nửa lên) ↔ Dart `(x).round()` trên số dương; phân bổ dùng `floor` như mục 2.3.
 - Hiển thị số lượng `formatQuantity` (`logic/inventory_format.dart`), tiền `MoneyFormatter.formatMinor(int)`, số tiền ở khối số liệu `VKeyValueRow(mono: true)`. Ngày `dd/MM/yyyy`.
 - Chữ trên màn: **nguyên văn** code prototype đã chép ở mục 2.5 (bỏ phần ghi "bỏ — rút gọn") và chữ mới ở mục 2.4 / 2.6.
-- `dart analyze` (không `flutter analyze`). Test: `cd apps/erp && flutter test --no-pub -r compact <đường dẫn>`; DS: `cd packages/vet45_design_system && flutter test --no-pub -r compact`.
+- `dart analyze` (không `flutter analyze`). Test: `cd apps/erp && flutter test --no-pub -r compact <đường dẫn>`; DS: `cd packages/c45_design_system && flutter test --no-pub -r compact`.
 - Trước khi sửa symbol đã có (`inventory._program_is_locked`, `inventory.get_receipt_program_hints`, `LotDate`, `warehouseAreaEntries`, `warehouseQuickActions`, `WarehouseHubPage`, `StockDetailPage`, `inventoryErrorMessage`, `InventoryErrorCode`, `PartnerDetailPage` (chỉ chỗ gọi ở router), `app_router.dart`, `injection.dart`): chạy `impact({target, direction: "upstream"})`, ghi Kết quả; HIGH / CRITICAL → dừng, báo người dùng. Task cuối: `detect_changes({scope: "compare", base_ref: "main"})`.
 - `AGENTS.md`, `CLAUDE.md`: không `git add`. Ghi mục 5 Kết quả sau mỗi task.
 
@@ -187,7 +187,7 @@ Lối vào: `warehouse_entries.dart` `receipts.route = '/warehouse/receipts'`, `
 
 Ảnh đích (chụp v5.28.0 lúc viết plan, `tools/golden.mjs capture`, luồng `quick`): `img/G5-3/proto-SCR-{007,008,009,010}-READY-{390,1280}.png`, `proto-SCR-084-READY-390.png`, `proto-SCR-012-COMPLETED-{390,1280}.png`.
 
-Token (`styles/tokens.css`) → Flutter: `--vet45-v2-space-1/2/3/4/6` = 4/8/12/16/24 ⇒ `VSpacing.space1/2/3/4/6`; `radius-3` 8 / `radius-4` 12 / `radius-input` 8 / `radius-pill` 999 ⇒ `VRadius.r8 / r12 / input / pill`; `text-primary #0E1116`, `text-secondary #4A535E`, `text-muted #6B7480`, `text-brand #26612F`, `surface-brand #EBF4EC`, `surface-subtle #E5E8EB`, `border-default #E5E8EB`, `border-input #868E98`, `border-brand #B8DFBD`, `action-primary-default #2F7A3A` ⇒ `context.vColors.{textPrimary, textSecondary, textMuted, textBrand, surfaceBrand, surfaceSubtle, borderDefault, borderInput, borderBrand, actionPrimary}`. Tên hằng Flutter đúng theo `packages/vet45_design_system/lib/src/foundation/` — khác tên thì dùng hằng cùng giá trị, ghi Kết quả.
+Token (`styles/tokens.css`) → Flutter: `--c45-v2-space-1/2/3/4/6` = 4/8/12/16/24 ⇒ `VSpacing.space1/2/3/4/6`; `radius-3` 8 / `radius-4` 12 / `radius-input` 8 / `radius-pill` 999 ⇒ `VRadius.r8 / r12 / input / pill`; `text-primary #0E1116`, `text-secondary #4A535E`, `text-muted #6B7480`, `text-brand #26612F`, `surface-brand #EBF4EC`, `surface-subtle #E5E8EB`, `border-default #E5E8EB`, `border-input #868E98`, `border-brand #B8DFBD`, `action-primary-default #2F7A3A` ⇒ `context.vColors.{textPrimary, textSecondary, textMuted, textBrand, surfaceBrand, surfaceSubtle, borderDefault, borderInput, borderBrand, actionPrimary}`. Tên hằng Flutter đúng theo `packages/c45_design_system/lib/src/foundation/` — khác tên thì dùng hằng cùng giá trị, ghi Kết quả.
 
 #### SCR-007 Nhận hàng
 
@@ -225,13 +225,13 @@ function bj02RecordCard({title,supporting1,supporting2,summary,timestamp="",attr
 
 ```css
 /* styles/screens.css:583-591 */
-body[data-active-uif="UIF-02"] .bj02-record-card{width:370px;height:116px;min-height:116px;padding:var(--vet45-v2-space-3);display:flex;flex-direction:column;align-items:stretch;gap:var(--vet45-v2-space-1);overflow:hidden;border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-4);background:var(--vet45-v2-surface-default);box-shadow:none;text-align:left;color:var(--vet45-v2-text-primary);box-sizing:border-box}
-body[data-active-uif="UIF-02"] .bj02-record-head{height:22px;min-height:22px;display:flex;align-items:center;justify-content:space-between;gap:var(--vet45-v2-space-2);overflow:hidden}
+body[data-active-uif="UIF-02"] .bj02-record-card{width:370px;height:116px;min-height:116px;padding:var(--c45-v2-space-3);display:flex;flex-direction:column;align-items:stretch;gap:var(--c45-v2-space-1);overflow:hidden;border:var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);border-radius:var(--c45-v2-radius-4);background:var(--c45-v2-surface-default);box-shadow:none;text-align:left;color:var(--c45-v2-text-primary);box-sizing:border-box}
+body[data-active-uif="UIF-02"] .bj02-record-head{height:22px;min-height:22px;display:flex;align-items:center;justify-content:space-between;gap:var(--c45-v2-space-2);overflow:hidden}
 body[data-active-uif="UIF-02"] .bj02-record-head>strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px;line-height:22px;font-weight:600;letter-spacing:0}
 body[data-active-uif="UIF-02"] .bj02-record-support{width:346px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;line-height:20px;font-weight:400}
-body[data-active-uif="UIF-02"] .bj02-record-support.secondary{color:var(--vet45-v2-text-secondary)}
-body[data-active-uif="UIF-02"] .bj02-record-support.primary{color:var(--vet45-v2-text-primary)}
-body[data-active-uif="UIF-02"] .bj02-record-meta{height:18px;display:flex;align-items:center;justify-content:space-between;gap:var(--vet45-v2-space-2);overflow:hidden;color:var(--vet45-v2-text-secondary);font-size:12px;line-height:16px;font-weight:500;letter-spacing:.1px}
+body[data-active-uif="UIF-02"] .bj02-record-support.secondary{color:var(--c45-v2-text-secondary)}
+body[data-active-uif="UIF-02"] .bj02-record-support.primary{color:var(--c45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .bj02-record-meta{height:18px;display:flex;align-items:center;justify-content:space-between;gap:var(--c45-v2-space-2);overflow:hidden;color:var(--c45-v2-text-secondary);font-size:12px;line-height:16px;font-weight:500;letter-spacing:.1px}
 body[data-active-uif="UIF-02"] .bj02-record-meta>span:first-child{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 body[data-active-uif="UIF-02"] .bj02-record-meta>span:last-child{flex:0 0 auto;text-align:right}
 ```
@@ -379,23 +379,23 @@ function quickOverviewProductSearch() {
 
 ```css
 /* styles/components.css:2738-2744 */
-.bj02-progress-block { display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); }
+.bj02-progress-block { display: flex; flex-direction: column; gap: var(--c45-v2-space-1); }
 
-.bj02-progress { height: 6px; border-radius: var(--vet45-v2-radius-pill); background: var(--vet45-v2-surface-subtle); overflow: hidden; }
+.bj02-progress { height: 6px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-subtle); overflow: hidden; }
 
-.bj02-progress > span { display: block; height: 100%; border-radius: inherit; background: var(--vet45-v2-action-primary-default); }
+.bj02-progress > span { display: block; height: 100%; border-radius: inherit; background: var(--c45-v2-action-primary-default); }
 
-.bj02-progress-block > small { font: 500 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj02-progress-block > small { font: 500 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
 /* styles/components.css:3049-3061 */
 .device-preview.is-web .k7-wide .bj02-linesplit .k7-split :is(.ac310-section-title, .lot-accordion-item, .lot-accordion-header, .lot-accordion-toggle, .lot-accordion-list, .lot-line-editor, .line-entry-section, .active-lot-editor, .form-stack, .form-field, .form-field > label, .input-shell, .bj02-qty-editor, .bj02-qty, .bj02-qty__label, .bj02-qty__box, .bj02-qty-bad, .bj02-qty-bad__row, .bj02-key-value-row, .field-help, .quick-overview-search, .combobox-anchor, .combobox-menu, .ds24-search-header, .ds24-search, .ds24-list-stack, .ds24-stock-row, .bj02-fill-button, .add-lot-button, [data-ds-component="DS v2 / List Row"], [data-ds-role="lot-editor-composition"], [data-ds-role="quantity-input-composition"]) {width: 100% !important; max-width: none !important; box-sizing: border-box; }
 
 .device-preview.is-web .bj02-linesplit .ds24-search-header { margin: 0; padding-inline: 0; }
 
-.device-preview.is-web .bj02-linesplit .receipt-line-list .ds24-stock-row[aria-current="true"] { border-color: var(--vet45-v2-border-brand); background: var(--vet45-v2-surface-brand); }
+.device-preview.is-web .bj02-linesplit .receipt-line-list .ds24-stock-row[aria-current="true"] { border-color: var(--c45-v2-border-brand); background: var(--c45-v2-surface-brand); }
 
-.device-preview.is-web .bj02-linesplit .k7-split__aside { gap: var(--vet45-v2-space-3); }
+.device-preview.is-web .bj02-linesplit .k7-split__aside { gap: var(--c45-v2-space-3); }
 
-.bj02-editor-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--vet45-v2-space-3); padding-top: var(--vet45-v2-space-2); }
+.bj02-editor-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--c45-v2-space-3); padding-top: var(--c45-v2-space-2); }
 
 .bj02-editor-actions > .k4-reason-footer__reason { margin-right: auto; text-align: left; }
 
@@ -562,21 +562,21 @@ function render084BJ02(state) {
 
 ```css
 /* styles/components.css:2763-2781 */
-.bj02-qty-editor { display: flex; flex-direction: column; gap: var(--vet45-v2-space-4); }
+.bj02-qty-editor { display: flex; flex-direction: column; gap: var(--c45-v2-space-4); }
 
-.bj02-qty { display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); min-width: 0; }
+.bj02-qty { display: flex; flex-direction: column; gap: var(--c45-v2-space-1); min-width: 0; }
 
-.bj02-qty__label { font: 600 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj02-qty__label { font: 600 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
 
-.bj02-qty__box { display: flex; align-items: center; gap: var(--vet45-v2-space-2); min-height: 44px; padding: 0 var(--vet45-v2-space-3); border: 1px solid var(--vet45-v2-border-input); border-radius: var(--vet45-v2-radius-input); background: var(--vet45-v2-surface-default); box-sizing: border-box; }
+.bj02-qty__box { display: flex; align-items: center; gap: var(--c45-v2-space-2); min-height: 44px; padding: 0 var(--c45-v2-space-3); border: 1px solid var(--c45-v2-border-input); border-radius: var(--c45-v2-radius-input); background: var(--c45-v2-surface-default); box-sizing: border-box; }
 
-.bj02-qty__box:focus-within { border-color: var(--vet45-v2-border-brand); outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: 0; }
+.bj02-qty__box:focus-within { border-color: var(--c45-v2-border-brand); outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 0; }
 
-.bj02-qty__box input { flex: 1 1 auto; min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; padding: 0; font: 600 16px/24px Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--vet45-v2-text-primary); }
+.bj02-qty__box input { flex: 1 1 auto; min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; padding: 0; font: 600 16px/24px Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--c45-v2-text-primary); }
 
-.bj02-qty__box input::placeholder { color: var(--vet45-v2-text-muted); font-weight: 400; }
+.bj02-qty__box input::placeholder { color: var(--c45-v2-text-muted); font-weight: 400; }
 
-.bj02-qty__unit { flex: 0 0 auto; font: 400 13px/20px Inter, system-ui, sans-serif; font-style: normal; color: var(--vet45-v2-text-secondary); }
+.bj02-qty__unit { flex: 0 0 auto; font: 400 13px/20px Inter, system-ui, sans-serif; font-style: normal; color: var(--c45-v2-text-secondary); }
 
 .bj02-qty--main .bj02-qty__box { min-height: 56px; }
 
@@ -595,12 +595,12 @@ body[data-active-uif="UIF-02"] .bj02-key-value-row {
   border:0;
   background:transparent;
 }
-body[data-active-uif="UIF-02"] .bj02-key-value-row > span { flex:0 0 auto; font:400 13px/20px "Inter",system-ui,sans-serif; color:var(--vet45-v2-text-secondary); white-space:nowrap; }
-body[data-active-uif="UIF-02"] .bj02-key-value-row > strong { flex:0 0 auto; margin-left:auto; font:400 14px/22px "JetBrains Mono",ui-monospace,monospace; color:var(--vet45-v2-text-primary); white-space:nowrap; text-align:right; }
-body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis { padding:0 12px; border-radius:8px; background:var(--vet45-v2-surface-brand); }
-body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis > span { font:600 14px/20px "Inter",system-ui,sans-serif; color:var(--vet45-v2-text-primary); }
+body[data-active-uif="UIF-02"] .bj02-key-value-row > span { flex:0 0 auto; font:400 13px/20px "Inter",system-ui,sans-serif; color:var(--c45-v2-text-secondary); white-space:nowrap; }
+body[data-active-uif="UIF-02"] .bj02-key-value-row > strong { flex:0 0 auto; margin-left:auto; font:400 14px/22px "JetBrains Mono",ui-monospace,monospace; color:var(--c45-v2-text-primary); white-space:nowrap; text-align:right; }
+body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis { padding:0 12px; border-radius:8px; background:var(--c45-v2-surface-brand); }
+body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis > span { font:600 14px/20px "Inter",system-ui,sans-serif; color:var(--c45-v2-text-primary); }
 /* !important: đè luật thành phần có độ ưu tiên cao hơn */
-body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis > strong {font:600 16px/22px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-brand); }
+body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis > strong {font:600 16px/22px "Inter",system-ui,sans-serif!important; color:var(--c45-v2-text-brand); }
 ```
 
 | Phần tử | Flutter | Tham số |
@@ -695,9 +695,9 @@ function bj02ReviewSummary(label, disabled) {
 
 .device-preview.is-web .bj02-review .k7-table tr[data-bj02-review-line] { cursor: pointer; }
 
-.device-preview.is-web .bj02-review .k7-table tr[data-bj02-review-line]:hover td { background: var(--vet45-v2-surface-subtle); }
+.device-preview.is-web .bj02-review .k7-table tr[data-bj02-review-line]:hover td { background: var(--c45-v2-surface-subtle); }
 
-.device-preview.is-web .bj02-review .k7-table tr[data-bj02-review-line]:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: -2px; }
+.device-preview.is-web .bj02-review .k7-table tr[data-bj02-review-line]:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: -2px; }
 
 .bj02-cta { width: 100%; }
 ```
@@ -855,7 +855,7 @@ function render012BJ02(state) {
 | Code cũ mục "Đang làm gì" (+ test cũ), `app_router.dart`, `injection.dart`, `warehouse_entries.dart`, `w2_wide_layout_test.dart`, `inventory_router_harness.dart` | xoá / sửa | 2 |
 | `lib/features/inventory/data/goods_receipt/{goods_receipt_models,goods_receipt_repository}.dart`, `data/core/inventory_error_codes.dart`, `data/models/lot_date.dart` + test | tạo / sửa | 3 |
 | `lib/features/inventory/logic/goods_receipt/{receipt_cost_rules,receipt_line_rules,receipt_draft}.dart` + test | tạo | 3 |
-| `packages/vet45_design_system/lib/src/components/v_summary_strip.dart`, `design_system.dart` + test; `lib/features/inventory/presentation/patterns/expiry_date_field.dart` + test | tạo / sửa | 4 |
+| `packages/c45_design_system/lib/src/components/v_summary_strip.dart`, `design_system.dart` + test; `lib/features/inventory/presentation/patterns/expiry_date_field.dart` + test | tạo / sửa | 4 |
 | `lib/features/inventory/logic/goods_receipt/receipt_draft_cubit.dart` (+ state), `presentation/goods_receipt/{receipt_header_page,receipt_lines_page,receipt_line_editor_page,receipt_line_editor,widgets/*}.dart` + test | tạo | 4 |
 | `…/logic/goods_receipt/receipt_draft_cubit.dart` (ghi nhận), `presentation/goods_receipt/{receipt_review_page,receipt_result_page,receipt_allocation_block,receipt_line_sheet}.dart` + test | tạo / sửa | 5 |
 | `…/logic/goods_receipt/{receipt_list_cubit,receipt_detail_cubit}.dart`, `presentation/goods_receipt/{receipt_list_page,receipt_detail_page,receipt_history_section,goods_receipt_routes}.dart`, `app_router.dart`, `injection.dart`, `warehouse_entries.dart`, `warehouse_hub_page.dart`, `stock_detail_page.dart` + test | tạo / sửa | 6 |
@@ -936,7 +936,7 @@ function render012BJ02(state) {
 
 ### Task 4: DS + nháp + màn 008 / 009 / 084
 
-**Files:** Create `packages/vet45_design_system/lib/src/components/v_summary_strip.dart` + export + `test/components/v_summary_strip_test.dart`; `lib/features/inventory/presentation/patterns/expiry_date_field.dart` + test; `lib/features/inventory/logic/goods_receipt/{receipt_draft_cubit,receipt_draft_state}.dart`; `lib/features/inventory/presentation/goods_receipt/{receipt_header_page,receipt_lines_page,receipt_line_editor_page,receipt_line_editor,widgets/receipt_supplier_field,widgets/receipt_product_search,widgets/receipt_lot_list,widgets/receipt_offer_block,widgets/receipt_line_row}.dart`; Test `test/features/inventory/logic/goods_receipt/receipt_draft_cubit_test.dart`, `test/features/inventory/presentation/goods_receipt/{receipt_header_page,receipt_lines_page,receipt_line_editor}_test.dart`.
+**Files:** Create `packages/c45_design_system/lib/src/components/v_summary_strip.dart` + export + `test/components/v_summary_strip_test.dart`; `lib/features/inventory/presentation/patterns/expiry_date_field.dart` + test; `lib/features/inventory/logic/goods_receipt/{receipt_draft_cubit,receipt_draft_state}.dart`; `lib/features/inventory/presentation/goods_receipt/{receipt_header_page,receipt_lines_page,receipt_line_editor_page,receipt_line_editor,widgets/receipt_supplier_field,widgets/receipt_product_search,widgets/receipt_lot_list,widgets/receipt_offer_block,widgets/receipt_line_row}.dart`; Test `test/features/inventory/logic/goods_receipt/receipt_draft_cubit_test.dart`, `test/features/inventory/presentation/goods_receipt/{receipt_header_page,receipt_lines_page,receipt_line_editor}_test.dart`.
 
 **Interfaces:**
 - Consumes: Task 3 (nháp, luật, repository); `SupplierProgramRepository.receiptHints`; `K7Split`, `InventoryReasonFooter`, `InventoryEmpty`, `InventoryLoading` (G5-0a).
@@ -950,7 +950,7 @@ function render012BJ02(state) {
 - [x] **Step 3: Widget test (đỏ), 390 × 844 và 1280 × 800, fake repository:** 008 `header_requires_supplier_390` (bấm "Tiếp tục" chưa chọn ⇒ "Chọn nhà cung cấp trong danh sách."); `walk_in_first_in_sheet_390`; `back_with_data_asks_discard_390`; 009 `lines_reason_footer_390` ("Thêm ít nhất một mặt hàng" → "Còn 1 mặt hàng chưa xử lý" → nút bật); `offer_subline_shown_390`; `web_split_editor_1280` (chọn dòng ⇒ cột phải có "Chi tiết hàng thực nhận", "Xong" chuyển sang dòng chưa xong kế tiếp); 084 `known_lot_prefills_expiry_390`; `tier_field_only_for_tier_program_390`; `free_helper_and_error_390`; `done_reason_texts_390` (mỗi câu mục 2.7 hiện trên chân khi tương ứng).
 - [x] **Step 4: Chạy, thấy đỏ.**
 - [x] **Step 5: Viết code** theo mục 2.5 (008 / 009 / 084) + 2.6 (khối ưu đãi, dòng phụ, sheet bỏ phiếu); dựng theo **bảng ánh xạ**, không thêm phần tử ngoài bảng.
-- [x] **Step 6: Chạy test Task 4 + `packages/vet45_design_system` test, thấy xanh.**
+- [x] **Step 6: Chạy test Task 4 + `packages/c45_design_system` test, thấy xanh.**
 - [x] **Step 7: Bỏ commit theo yêu cầu người dùng.**
 
 ### Task 5: Màn 010 + ghi nhận + 012
@@ -1029,7 +1029,7 @@ function render012BJ02(state) {
   - Thêm `LotDate.tryParseAuto` và các mã lỗi `InventoryErrorCode`.
   - Bộ unit tests Task 3 đạt 35/35 passed. Không commit theo yêu cầu người dùng.
 - **Task 4 (2026-11-10):**
-  - Đã bổ sung component `VSummaryStrip` trong `packages/vet45_design_system`.
+  - Đã bổ sung component `VSummaryStrip` trong `packages/c45_design_system`.
   - Đã tạo `InventoryExpiryField` hỗ trợ định dạng hạn dùng.
   - Đã triển khai `ReceiptDraftCubit`, `ReceiptHeaderPage` (008), `ReceiptLinesPage` (009), `ReceiptLineEditorPage` (084) và các widgets hỗ trợ.
   - Bộ widget/cubit test Task 4 đạt 50/50 passed. Không commit theo yêu cầu người dùng.
@@ -1188,7 +1188,7 @@ Ghi chú quy trình: phiên làm chỉ ghi "Kết quả" / "Sửa sau Rn"; các 
 
 ### R4 (2026-11-11, chạy trên DB local) — ❌ chưa đạt (RPC sai tên cột; test SQL hỏng fixture)
 
-Đã chạy: `supabase db reset --local` **qua** (mọi migration lên, xác nhận R1 #3). `docker exec -i supabase_db_vet45 psql … < supabase/tests/inventory_goods_receipts.sql` **đỏ ở fixture**; `inventory_supplier_programs.sql` (G5-2b) cũng **đỏ ở fixture**. Đối chiếu `information_schema.columns` trên DB vừa reset: migration `20261114001` dùng cột không có ⇒ migration tạo được (plpgsql phân giải lúc chạy) nhưng RPC lỗi khi gọi. Test Flutter dùng repository giả nên không bắt được.
+Đã chạy: `supabase db reset --local` **qua** (mọi migration lên, xác nhận R1 #3). `docker exec -i supabase_db_c45 psql … < supabase/tests/inventory_goods_receipts.sql` **đỏ ở fixture**; `inventory_supplier_programs.sql` (G5-2b) cũng **đỏ ở fixture**. Đối chiếu `information_schema.columns` trên DB vừa reset: migration `20261114001` dùng cột không có ⇒ migration tạo được (plpgsql phân giải lúc chạy) nhưng RPC lỗi khi gọi. Test Flutter dùng repository giả nên không bắt được.
 
 | # | Mức | Chỗ (`20261114001`) | Lỗi | Sửa (theo schema thật) |
 |---|---|---|---|---|
@@ -1208,7 +1208,7 @@ Không có GitNexus MCP ⇒ không chạy được `impact`; chỉ đổi tên c
 - R4-4 (`supabase/tests/inventory_goods_receipts.sql`): dựng lại fixture theo schema thật (`store_owner` + `is_owner`, `stores.code/display_name/status`, `warehouses.display_name/status` + `store_warehouse_assignments`, `cost_policies.changed_by`, bỏ insert `cost_periods` — `_ensure_open_period` tự mở, `partners.partner_type`, `products.sku/reference_id/created_by/updated_by`, `product_units.unit_name/is_base_unit`). Sửa thêm 2 ca test sai ý: `record_idempotent_replay` gửi lại **đúng payload** (trước gửi `{dummy:1}` ⇒ server trả `IDEMPOTENCY_CONFLICT` đúng) + kiểm trả đúng phiếu cũ, không nhân đôi; thêm ca `record_idempotent_conflict`. `get_goods_receipt cross tenant blocked`: tenant lạ ⇒ `PERMISSION_DENIED` (chặn ở `_assert_actor`), thêm ca `get_goods_receipt unknown receipt` (tenant mình, mã lạ ⇒ `CONTEXT_INVALID`, đúng 2.2).
 - R4-5 (`supabase/tests/inventory_supplier_programs.sql`): role `'store_owner'`; `catalog.products` thêm `reference_id` (cột bắt buộc).
 
-Đã chạy (`supabase db reset --local` rồi `docker exec -i supabase_db_vet45 psql -U postgres -d postgres -v ON_ERROR_STOP=1 < …`):
+Đã chạy (`supabase db reset --local` rồi `docker exec -i supabase_db_c45 psql -U postgres -d postgres -v ON_ERROR_STOP=1 < …`):
 - `inventory_goods_receipts.sql` ⇒ `NOTICE: ALL GOODS RECEIPT SQL TESTS PASSED!`
 - `inventory_supplier_programs.sql` ⇒ `NOTICE: inventory_supplier_programs: all cases passed`
 - `inventory_default_pair.sql` ⇒ OK

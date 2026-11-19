@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Bottom Sheet Cảnh báo mã số thuế trùng (TA-O-02).
 class TaxCodeDuplicateWarningBottomSheet extends StatelessWidget {

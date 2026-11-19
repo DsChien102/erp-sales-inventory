@@ -1789,7 +1789,7 @@ Appendix A định nghĩa đặc tả UI/UX cho Theme 3 — Đối tác giao d�
 - DP-06: **Prevent before correct** — Các thao tác nhạy cảm như xóa mềm, ngừng hoạt động, chuyển cá nhân thành tổ chức phải có confirmation hoặc blocked state rõ ràng.
 
 - DP-07: **Status is always honest** — Trạng thái `Đang hoạt động`, `Ngừng hoạt động`, `Đã xóa` phải luôn hiển thị rõ tại list, detail và action flow.
- Các nguyên tắc này bám theo VET45 Design System: mobile-first, clear over clever, business-flow first, one primary action, progressive disclosure và prevent before correct.
+ Các nguyên tắc này bám theo Mosaic Retail Design System: mobile-first, clear over clever, business-flow first, one primary action, progressive disclosure và prevent before correct.
 
 ## 8.2 Visual architecture
 
@@ -2264,7 +2264,7 @@ D-07 — No permission
 
 - VD-01: Màn danh sách dùng mobile portrait, top bar title `KH & NCC` căn giữa, nội dung có edge padding 16px.
 
-- VD-02: Background dùng màu nền nhẹ của VET45; card dùng surface trắng, border nhẹ, radius mềm.
+- VD-02: Background dùng màu nền nhẹ của Mosaic Retail; card dùng surface trắng, border nhẹ, radius mềm.
 
 - VD-03: Search input nằm dưới top bar, cao tối thiểu 44px, icon search bên trái, placeholder rõ nghĩa.
 
@@ -2342,7 +2342,7 @@ D-07 — No permission
 
 - AC-SG01-09: Filter/sort/search không làm mất trạng thái của nhau.
 
-- AC-SG01-10: Visual tuân thủ VET45 Design System và không stretch mobile frame.
+- AC-SG01-10: Visual tuân thủ Mosaic Retail Design System và không stretch mobile frame.
 
 ### 8.4.2 SG-02 — Tạo mới & chỉnh sửa KH & NCC
 
@@ -2752,7 +2752,7 @@ Auxiliary states — Save error / No permission / Source changed
 
 - AC-SG02-13: Source changed có CTA `Tải lại`.
 
-- AC-SG02-14: Visual tuân thủ VET45 Design System và không stretch mobile frame.
+- AC-SG02-14: Visual tuân thủ Mosaic Retail Design System và không stretch mobile frame.
 
 ### 8.4.3 SG-03 — Hồ sơ KH & NCC
 
@@ -2861,7 +2861,7 @@ SG-03 là screen group chính hoặc supporting screen group cho các user stori
 
 ```Plain Text
 ┌─────────────────────────────┐
-│ 09:42             VET45 100% │
+│ 09:42             Mosaic Retail 100% │
 ├─────────────────────────────┤
 │ ←       Hồ sơ KH & NCC   ⋯   │
 ├─────────────────────────────┤
@@ -3070,7 +3070,7 @@ Not found:
 
 - Top-level board title: `SG-03 — Hồ sơ KH & NCC`.
 
-- Use VET45 mobile-first style: white cards, light border, soft radius, restrained typography.
+- Use Mosaic Retail mobile-first style: white cards, light border, soft radius, restrained typography.
 
 - Bottom nav keeps `KH & NCC` active.
 
@@ -3273,7 +3273,7 @@ SG-03 được nghiệm thu khi đạt các điều kiện sau:
 |Status correctness|Active / Inactive / Deleted khác nhau rõ ràng|
 |Permission safety|No permission không lộ dữ liệu và không hiển thị action nghiệp vụ|
 |Data quality|Warning thiếu dữ liệu rõ, có hướng xử lý|
-|Visual consistency|Match VET45 Design System và SG-02|
+|Visual consistency|Match Mosaic Retail Design System và SG-02|
 |Mobile quality|Không méo frame, không resize chữ/icon/card|
 |Action safety|Action nguy hiểm có vị trí/tone đúng|
 |Traceability|Mỗi màn D-xx truy được về ít nhất một US hoặc business flow|
@@ -3844,7 +3844,7 @@ Mục tiêu của SG-05 là giúp người dùng:
 
 - Sau khi chuyển thành công, điều hướng sang hồ sơ tổ chức mới.
 
-- Hiển thị toast thành công style VET45: dark bar, icon check xanh, text trắng.
+- Hiển thị toast thành công style Mosaic Retail: dark bar, icon check xanh, text trắng.
 
 - Header mới hiển thị loại hồ sơ `Tổ chức`.
 
@@ -4253,7 +4253,7 @@ SG-06 không phải là nơi chỉnh sửa chứng từ nguồn. Đây là màn 
 
 - Board title: `SG-06 — Lịch sử làm việc với KH & NCC`.
 
-- Subtitle: `Visual Design · VET45 Design System · Mobile First`.
+- Subtitle: `Visual Design · Mosaic Retail Design System · Mobile First`.
 
 - Dùng 7 phone frames cùng kích thước, không stretch.
 
@@ -4782,7 +4782,7 @@ Mục tiêu UX là giúp người dùng hiểu rõ:
 
 - Board title: `SG-07 — Trạng thái & xóa mềm KH & NCC`.
 
-- Subtitle: `Visual Design · VET45 Design System · Mobile First`.
+- Subtitle: `Visual Design · Mosaic Retail Design System · Mobile First`.
 
 - Dùng 10 phone frames cùng kích thước, không stretch.
 

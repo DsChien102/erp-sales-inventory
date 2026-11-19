@@ -7,11 +7,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** App hết `vet45_pricing_*` (cả test, integration test, pubspec). Xoá `modules/pricing`. DB schema `pricing` bỏ toàn bộ phần nhập Excel và 2 RPC đọc trước (create / update context) mà app không còn gọi.
+**Goal:** App hết `c45_pricing_*` (cả test, integration test, pubspec). Xoá `modules/pricing`. DB schema `pricing` bỏ toàn bộ phần nhập Excel và 2 RPC đọc trước (create / update context) mà app không còn gọi.
 
 **Architecture:** Không đổi code chạy trong `lib/`: 6-A2 đã chuyển hết sang `CustomerPriceRuleRepository` / `SalesPricingRepository`. Việc còn lại là xoá nhóm test `old`, sửa đoạn dọn của live test, xoá module + workspace, và sửa migration gốc. Một test hợp đồng SQL mới ở app chốt danh sách RPC phải còn / phải mất.
 
-**Tech Stack:** Flutter / Dart (`flutter_test`), Supabase Postgres (plpgsql), `tools/vet45_supabase_migrate`.
+**Tech Stack:** Flutter / Dart (`flutter_test`), Supabase Postgres (plpgsql), `tools/c45_supabase_migrate`.
 
 **Spec:** [TH-04](../../../02-yeu-cau/TH-04-chinh-sach-gia.md) (mục 3, 6.2, 6.3, 8, BR-19).
 
@@ -24,7 +24,7 @@
 - Trước khi sửa mỗi symbol Dart: `node .gitnexus/run.cjs impact <symbol> --direction upstream --repo erp-sales-inventory`, ghi vào Kết quả. Trước mỗi commit: `detect_changes`.
 - `flutter analyze` sập vì đường dẫn có dấu: dùng `dart analyze`.
 - Tìm kiếm dùng `grep -r`, không dùng `git grep` (4-C sót tệp chưa theo dõi; phần lớn tệp 6-A1 đang untracked).
-- **Giữ** `modules/` (còn `einvoice`, `partner/integration_events`, `sales`), `packages/vet45_adapters`, `vet45_annotations`, `vet45_generator`, `vet45_shared*` (7-5, 9-1 lo).
+- **Giữ** `modules/` (còn `einvoice`, `partner/integration_events`, `sales`), `packages/c45_adapters`, `c45_annotations`, `c45_generator`, `c45_shared*` (7-5, 9-1 lo).
 
 ## Review Focus
 
@@ -38,7 +38,7 @@
 
 ## 1. Mục tiêu
 
-- `grep -r "vet45_pricing" apps modules packages tools` rỗng (trừ không còn gì). Không còn `IPricingModule` / `FakePricingModule` trong repo.
+- `grep -r "c45_pricing" apps modules packages tools` rỗng (trừ không còn gì). Không còn `IPricingModule` / `FakePricingModule` trong repo.
 - Xoá `modules/pricing` (domain, application, infrastructure; gồm codec `.xlsx`, TH-04 dòng 922).
 - DB: xoá 4 RPC nhập, 5 hàm phụ nhập, 2 bảng lô / dòng nhập, `catalog._resolve_product_unit_for_pricing_import`, `get_customer_price_rule_create_context`, `get_customer_price_rule_update_context`.
 - TH-04 lên 3.3 ghi đúng hiện trạng.
@@ -58,9 +58,9 @@
 
 | Thứ | Ai còn dùng |
 |---|---|
-| `package:vet45_pricing_*` trong `apps/erp/lib` | **không** (6-A2) |
+| `package:c45_pricing_*` trong `apps/erp/lib` | **không** (6-A2) |
 | `apps/erp/test` | `features/pricing/data/pricing_rpc_parity_test.dart:16-28` (nhóm `old (mappers)` dòng 35-501; `new (json)` 502, `new (CustomerPriceRuleRepository)` 582, `new (SalesPricingRepository)` 778); `data/pricing_errors_test.dart:7-8` (nhóm `old (mapPricingRpcError)` dòng 49-82); `support/fake_customer_price_rule_repository_test.dart` (cả tệp, 7 test) |
-| `apps/erp/integration_test` | `sales_group_a_s03_s05_live_test.dart:6` (import), `:221-228` (`di<IPricingModule>().executeCommandAsync(DeleteCustomerPriceRuleCommand(…))`). `IExecutionContext` (`vet45_shared_application`) còn dùng ở dòng 40, giữ |
+| `apps/erp/integration_test` | `sales_group_a_s03_s05_live_test.dart:6` (import), `:221-228` (`di<IPricingModule>().executeCommandAsync(DeleteCustomerPriceRuleCommand(…))`). `IExecutionContext` (`c45_shared_application`) còn dùng ở dòng 40, giữ |
 | Workspace | `pubspec.yaml:30-32`; `apps/erp/pubspec.yaml:22-24`; `apps/erp/example/pubspec.yaml:56-61` |
 | Module khác phụ thuộc pricing | không (grep `pubspec.yaml` trong `modules`, `packages`) |
 | Script CI, `schema.lock.yaml`, `supabase/sql` | không nhắc pricing |
@@ -161,15 +161,15 @@ Expected: PASS 4/4. Đỏ ⇒ dừng, ghi lại (bảng mục 3 sai).
 **Interfaces:**
 - Consumes: `SupabaseRpc.call(String schema, String fn, {Map<String, dynamic>? params})` (`lib/core/supabase/supabase_rpc.dart:16`), đăng ký trong DI (`injection.dart:60`).
 
-- [x] **Step 1: Sửa** khối `finally` theo bảng mục 4 dòng 4. Thêm `import 'package:erp/core/supabase/supabase_rpc.dart';`, xoá `import 'package:vet45_pricing_application/application.dart';`. Không đổi gì khác (giữ `IExecutionContext`, `sales.MoneyDto`).
-- [x] **Step 2: Kiểm**: `cd apps/erp && dart analyze integration_test` ⇒ `No issues found!`; `grep -n "IPricingModule\|vet45_pricing" integration_test -r` ⇒ rỗng.
+- [x] **Step 1: Sửa** khối `finally` theo bảng mục 4 dòng 4. Thêm `import 'package:erp/core/supabase/supabase_rpc.dart';`, xoá `import 'package:c45_pricing_application/application.dart';`. Không đổi gì khác (giữ `IExecutionContext`, `sales.MoneyDto`).
+- [x] **Step 2: Kiểm**: `cd apps/erp && dart analyze integration_test` ⇒ `No issues found!`; `grep -n "IPricingModule\|c45_pricing" integration_test -r` ⇒ rỗng.
 - [x] **Step 3: Commit** `test(sales): 6-C live test dọn giá riêng qua RPC delete_customer_price_rule`
 
 ### Task 2: Bỏ nhóm test `old`, xoá module + workspace
 
 **Files:** theo bảng mục 5 (3 tệp test, 3 pubspec, `modules/pricing`).
 
-- [x] **Step 1: Kiểm điều kiện**: `grep -rln "vet45_pricing\|IPricingModule\|FakePricingModule" apps/erp/lib apps/erp/test apps/erp/integration_test`. Expected: đúng 3 tệp `pricing_rpc_parity_test.dart`, `pricing_errors_test.dart`, `fake_customer_price_rule_repository_test.dart`. Khác ⇒ dừng, ghi lại.
+- [x] **Step 1: Kiểm điều kiện**: `grep -rln "c45_pricing\|IPricingModule\|FakePricingModule" apps/erp/lib apps/erp/test apps/erp/integration_test`. Expected: đúng 3 tệp `pricing_rpc_parity_test.dart`, `pricing_errors_test.dart`, `fake_customer_price_rule_repository_test.dart`. Khác ⇒ dừng, ghi lại.
 - [x] **Step 2: Ghi số test trước**: `flutter test test/features/pricing/data/pricing_rpc_parity_test.dart test/features/pricing/data/pricing_errors_test.dart` ⇒ ghi số pass / nhóm vào Kết quả.
 - [x] **Step 3: Bỏ nhóm `old`**: `pricing_rpc_parity_test.dart` xoá `group('old (mappers)', …)` (dòng 35-501), import 16-28, và helper / lớp chỉ nhóm đó dùng (kiểm `_RpcCall`, `_RecordingRpc` dòng 899-906: nhóm `new` còn dùng thì giữ). `pricing_errors_test.dart` xoá `group('old (mapPricingRpcError)', …)` (49-82) + import 7-8; giữ danh sách ca dùng chung nếu nhóm `new` còn dùng. **Không sửa** ca / giá trị mong đợi của nhóm `new` và `pricing_parity_expectations.dart`.
 - [x] **Step 4: Xoá** `apps/erp/test/features/pricing/support/fake_customer_price_rule_repository_test.dart` (Q5).
@@ -216,8 +216,8 @@ Run: `flutter test test/features/pricing/data/pricing_sql_contract_test.dart` �
 - [x] **Step 7: Kiểm**:
   - `flutter test test/features/pricing/data/pricing_sql_contract_test.dart` ⇒ 10/10 PASS
   - `grep -rlE "customer_price_rule_import|_resolve_product_unit_for_pricing_import|get_customer_price_rule_(create|update)_context" supabase` ⇒ chỉ còn header comment `Depends on: …010_pricing_customer_price_rule_import_s8.sql` ở 011, 012 (tên tệp, không phải đối tượng). Chỗ khác ⇒ dừng
-  - `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart` ⇒ 0 error, đúng 3 warning có sẵn (mục 3)
-  - `dart run tools/vet45_supabase_migrate/bin/verify_schema_lock_sync.dart` ⇒ `OK`
+  - `dart run tools/c45_supabase_migrate/bin/verify_migration_policy.dart` ⇒ 0 error, đúng 3 warning có sẵn (mục 3)
+  - `dart run tools/c45_supabase_migrate/bin/verify_schema_lock_sync.dart` ⇒ `OK`
 - [x] **Step 8: Ghi vào Kết quả** (người dùng làm, phiên code không chạy): `supabase db reset` local + chạy `supabase/tests/pricing_th04.sql`; kiểm `information_schema.tables` schema `pricing` không còn `customer_price_rule_imports`, `customer_price_rule_import_rows`; `select count(*) from pricing.customer_price_rules where source_type = 'excel_import'` trên Dev trước reset (nếu > 0 thì dữ liệu cũ vẫn giữ nhãn, cột truy vết không FK); **cần reset Dev**.
 - [x] **Step 9: Commit** `chore(db): 6-C xoá nhập Excel + RPC create/update context của pricing (sửa migration gốc)`
 
@@ -231,7 +231,7 @@ Run: `flutter test test/features/pricing/data/pricing_sql_contract_test.dart` �
   - dòng 922 (codec `.xlsx`): "đã xoá cùng module ở 6-C"
 - [x] **Step 2: PLAN.md**: dòng 6-C cột Làm `✅ <ngày>`; dòng "Theo dõi tiến độ" Theme 4; dòng 9.1 / Rủi ro nếu còn nhắc `modules/pricing`.
 - [x] **Step 3: Kiểm tổng**
-  - `grep -rn "vet45_pricing\|IPricingModule\|FakePricingModule" apps modules packages tools` ⇒ rỗng
+  - `grep -rn "c45_pricing\|IPricingModule\|FakePricingModule" apps modules packages tools` ⇒ rỗng
   - `ls modules` ⇒ `einvoice partner sales`
   - `cd apps/erp && dart analyze lib test integration_test` ⇒ 0 error, 0 warning mới
   - `cd apps/erp && flutter test` ⇒ không fail mới so với `TEST-BASELINE.md`; ghi số pass / fail
@@ -244,7 +244,7 @@ Run: `flutter test test/features/pricing/data/pricing_sql_contract_test.dart` �
 - **DB dựng lại sau khi xoá tệp.** Hàm `language plpgsql` không kiểm bảng lúc `create`, nên lỗi sót chỉ lộ khi gọi. Mọi hàm còn lại đã quét: không hàm nào nhắc bảng / hàm nhập (grep mục Task 3 Step 7). Người dùng chạy `pricing_th04.sql` sau reset để chắc.
 - **Quyền `pricing.customer_price_rule.import` + thao tác `'import'`** vẫn còn trong `search_customer_price_rules` (Q6). Vô hại (app không hiện nút). Muốn bỏ thì làm ở plan sửa KI sau, có test RPC.
 - **`modules/einvoice`** không phụ thuộc pricing (đo pubspec); nếu `pub get` báo lỗi ở einvoice thì dừng, ghi lại.
-- **Test live** mặc định skip (`VET45_RUN_LIVE_GROUP_A`), CI không chạy; chỉ kiểm bằng `dart analyze`.
+- **Test live** mặc định skip (`C45_RUN_LIVE_GROUP_A`), CI không chạy; chỉ kiểm bằng `dart analyze`.
 
 ## 8. Kết quả
 
@@ -254,12 +254,12 @@ Run: `flutter test test/features/pricing/data/pricing_sql_contract_test.dart` �
 2. `13bab2b67`: `test(pricing): 6-C bước 0 — test hợp đồng RPC pricing trên migration hiện tại`
    - Tạo `apps/erp/test/features/pricing/data/pricing_sql_contract_test.dart` với nhóm `kept` (4 test).
 3. `b636b642f`: `test(sales): 6-C live test dọn giá riêng qua RPC delete_customer_price_rule`
-   - Sửa `apps/erp/integration_test/sales_group_a_s03_s05_live_test.dart`: dọn dữ liệu giá riêng trực tiếp qua `di<SupabaseRpc>().call('pricing', 'delete_customer_price_rule', ...)`, bỏ import `vet45_pricing_application`.
+   - Sửa `apps/erp/integration_test/sales_group_a_s03_s05_live_test.dart`: dọn dữ liệu giá riêng trực tiếp qua `di<SupabaseRpc>().call('pricing', 'delete_customer_price_rule', ...)`, bỏ import `c45_pricing_application`.
 4. `10203d6fd`: `chore(pricing): 6-C xoá modules/pricing + workspace, nhóm test old`
    - Bỏ nhóm `old (mappers)` trong `pricing_rpc_parity_test.dart`, nhóm `old (mapPricingRpcError)` trong `pricing_errors_test.dart`.
    - Xoá `apps/erp/test/features/pricing/support/fake_customer_price_rule_repository_test.dart`.
    - Xoá hoàn toàn `modules/pricing` (249 tệp).
-   - Xoá tham chiếu `vet45_pricing_*` trong 3 tệp `pubspec.yaml` (root, `apps/erp`, `apps/erp/example`).
+   - Xoá tham chiếu `c45_pricing_*` trong 3 tệp `pubspec.yaml` (root, `apps/erp`, `apps/erp/example`).
 5. `c45414601`: `chore(db): 6-C xoá nhập Excel + RPC create/update context của pricing (sửa migration gốc)`
    - Thêm nhóm test `removed` (6 test) vào `pricing_sql_contract_test.dart`.
    - Xoá 5 tệp migration nhập: `20260725003`, `20260725013`, `20260725016`, `20260725017`, `20260725018`.
@@ -284,7 +284,7 @@ Run: `flutter test test/features/pricing/data/pricing_sql_contract_test.dart` �
   - `verify_migration_policy.dart`: 0 error, đúng 3 warning grandfathered có sẵn (`20261101001` ×1, `20261104001` ×2).
   - `verify_schema_lock_sync.dart`: `OK`.
 - **Rà soát chuỗi tham chiếu mã cũ:**
-  - `grep -rn "vet45_pricing\|IPricingModule\|FakePricingModule" apps modules packages tools` ⇒ rỗng (0 kết quả).
+  - `grep -rn "c45_pricing\|IPricingModule\|FakePricingModule" apps modules packages tools` ⇒ rỗng (0 kết quả).
   - `ls modules` ⇒ `einvoice partner sales` (đã dọn hoàn toàn `pricing`).
 
 ### 8.3. Tác động mã & GitNexus
@@ -306,7 +306,7 @@ Run: `flutter test test/features/pricing/data/pricing_sql_contract_test.dart` �
 | Hạng mục | Kết quả |
 |---|---|
 | Task 0: test hợp đồng `kept` | ✅ `pricing_sql_contract_test.dart`: đủ 4 test, đúng bảng Step 2; `_definesFn`, `_allMigrationsSql` (bỏ `_drafts`) đúng Interfaces |
-| Task 1: live test dọn (RF4) | ✅ map `{'p_tenant_id', 'p_rule_id', 'p_expected_version'}` khớp `PricingDeleteRpcMapper.params` cũ (`git show 10203d6fd^:…/pricing_delete_rpc_mapper.dart`) và chữ ký `pricing.delete_customer_price_rule(uuid, uuid, integer)` (`20260725014:151`). Không còn import `vet45_pricing_*` |
+| Task 1: live test dọn (RF4) | ✅ map `{'p_tenant_id', 'p_rule_id', 'p_expected_version'}` khớp `PricingDeleteRpcMapper.params` cũ (`git show 10203d6fd^:…/pricing_delete_rpc_mapper.dart`) và chữ ký `pricing.delete_customer_price_rule(uuid, uuid, integer)` (`20260725014:151`). Không còn import `c45_pricing_*` |
 | Task 2: bỏ nhóm `old`, xoá module | ✅ Nhóm `new` không mất test: parity 25 → 25 `test(`, errors 6 → 6 `test(` (đếm ở `10203d6fd^` và HEAD). 566 dòng xoá ở parity gồm nhóm `old` + 4 lớp fake `_FakePricingRpcSupabase`, `_FakeGoTrueClient`, `_FakePricingQuerySchema`, `_FakePostgrestRpc` chỉ nhóm `old` dùng (HEAD: 0 tham chiếu). `ls modules` = `einvoice partner sales`; 3 pubspec + `pubspec.lock` hết `pricing` |
 | Task 3: DB (RF1, RF2, RF3) | ✅ `20260725010` còn đúng 2 CHECK + 4 cột `uuid` không `references`. 004 / 007 / 810001 mỗi tệp mất đúng 1 hàm (`create or replace function`: 5→4, 2→1, 4→3), chỗ cắt sạch (`create_customer_price_rule` / `update_customer_price_rule` + revoke / grant còn nguyên). `REGISTRY.yaml` −11 owner, −5 tệp. Grep đối tượng đã xoá trong `supabase`, `tools`: chỉ còn tên tệp `010_…import_s8.sql` (header 011, 012, `REGISTRY.yaml:509`, `Intent` của 010) |
 | Task 4: tài liệu | ✅ TH-04 3.3 đúng các dòng Step 1 (mục 3, ERD, 6.1, 6.2, 6.3, codec). PLAN.md cột Làm |

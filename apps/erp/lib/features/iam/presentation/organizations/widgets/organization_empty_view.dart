@@ -1,6 +1,6 @@
 import 'package:erp/core/session/session_state.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 export 'package:erp/core/session/session_state.dart' show OrganizationEmptyStateType;
 

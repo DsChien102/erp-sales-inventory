@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../support/inventory_router_harness.dart';
 

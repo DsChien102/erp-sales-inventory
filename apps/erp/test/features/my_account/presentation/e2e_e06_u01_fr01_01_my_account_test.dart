@@ -6,11 +6,11 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/session/session_store.dart';
 import '../../iam/support/fake_iam_backend.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:c45_shared_application/application.dart';
+import 'package:c45_shared_testing/shared_testing.dart';
 
 import '../../../core/session/fake_session_repository.dart';
 import '../../iam/support/scripted_iam_repositories.dart';
@@ -227,7 +227,7 @@ void main() {
     await tester.tap(find.text('Đăng xuất'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Đăng xuất khỏi VET45?'), findsOneWidget);
+    expect(find.text('Đăng xuất khỏi Mosaic Retail?'), findsOneWidget);
     await tester.tap(find.widgetWithText(VButton, 'Đăng xuất'));
     await tester.pumpAndSettle();
 

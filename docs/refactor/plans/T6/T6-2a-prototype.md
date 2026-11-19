@@ -19,7 +19,7 @@
 - Vùng chạm ≥ 44 px (ô chọn cấn trừ, dòng danh sách) (5.6).
 - Chữ trên màn **đúng nguyên văn spec**: "Công nợ phải thu", "Tổng còn phải thu", "Tất cả", "Quá hạn (n)", "Tìm tên, SĐT", "Không tìm thấy khách phù hợp.", "Xoá tìm kiếm", "Không có khách nào đang nợ", "Đơn bán nợ sẽ hiện ở đây.", "Không tải được công nợ", "Thử lại", "Ngừng hoạt động", "Chọn một khách để xem công nợ", "Công nợ khách hàng", "Còn nợ", "Không còn nợ", "Không còn đơn nào nợ", "Chưa có lần thu nào", "Xem thêm", "Thu tiền", "Số tiền", "Trả hết", "Phương thức", "Tiền mặt", "Chuyển khoản", "Mã giao dịch (Không bắt buộc)", "Số tiền vượt quá tổng còn nợ của khách.", "Quay lại", "Xác nhận thu", "Xác nhận thu tiền?", "Xác nhận", "Sẽ trừ vào", "Khách còn nợ sau khi thu", "Đang ghi nhận...", "Không ghi nhận được. Thử lại?", "Công nợ của khách vừa thay đổi. Hãy tải lại rồi thử lại.", "Tải lại", "Bỏ khoản thu đang nhập?", "Đã thu <số> từ <khách>", "Quyết toán đổi/trả", "Khách được hưởng", "Cấn trừ vào đơn khác", "Trừ vào nợ đơn khác của khách thay vì hoàn tiền.", "Hoàn cho khách", "Phương thức hoàn", "Giảm nợ đơn này", "Phần khách được hưởng được trừ vào nợ của chính đơn này.", "Xác nhận đổi/trả", "Xác nhận đổi/trả?", "Cấn trừ <số> vào đơn <mã>", "Công nợ của khách vừa thay đổi. Hãy tải lại quyết toán.".
 - Chữ spec **không** quy định (nút của hộp "Bỏ khoản thu đang nhập?", tiêu đề phụ SG-13 có sẵn…): lấy từ màn Flutter đang có nếu có; không thì đặt tạm và liệt kê trong README mục "Chữ tạm" để bạn chốt lúc duyệt ảnh.
-- Chỉ dùng token `--vet45-v2-*` từ `tokens.css`; không màu / cỡ chữ gõ cứng trong CSS mới (`receivable.css`). Rule chép từ Theme 7 giữ nguyên giá trị gốc.
+- Chỉ dùng token `--c45-v2-*` từ `tokens.css`; không màu / cỡ chữ gõ cứng trong CSS mới (`receivable.css`). Rule chép từ Theme 7 giữ nguyên giá trị gốc.
 - Không sửa gì ngoài `specs/themes/theme-06/` và `docs/refactor/plans/T6/`. Không đụng harness Theme 7.
 - Khổ chụp: iPhone **390×844**, web **1280×800**, scale 1. Font: Theme 7 không nạp Inter (chỉ khai báo `font-family`), nên ảnh dùng font hệ thống; giữ như Theme 7, ghi trong README để lúc so với Flutter không bắt nhầm lệch font.
 - Commit chỉ `git add specs/themes/theme-06` (nhánh đang có nhiều thay đổi khác chưa commit). Prototype không phải code app nên không cần `detect_changes` của GitNexus.
@@ -123,7 +123,7 @@ while read c; do grep -q "\.$c\b" styles/*.css || echo "KHÔNG CÓ RULE $c"; don
 cd $P && python3 -m http.server 8766 --bind 127.0.0.1 &
 curl -s -o /dev/null -w "%{http_code}\n" "http://127.0.0.1:8766/index.html?screen=cn01&state=all&device=iphone"
 # biến thiếu:
-grep -oh "var(--vet45-v2-[a-z0-9-]*" styles/components.css styles/receivable.css | sed 's/var(//' | sort -u | while read v; do grep -q "^ *$v:" styles/tokens.css || echo "THIẾU $v"; done
+grep -oh "var(--c45-v2-[a-z0-9-]*" styles/components.css styles/receivable.css | sed 's/var(//' | sort -u | while read v; do grep -q "^ *$v:" styles/tokens.css || echo "THIẾU $v"; done
 # selector cấm còn sót:
 grep -nE 'data-active-uif|\.device-preview|\.is-web|\.bj[01][0-9]|\.workbench' styles/components.css
 ```
@@ -306,7 +306,7 @@ Mở ảnh bằng Read, đối chiếu 5.2: 3 dòng, "Quá hạn 8 ngày" / "H�
 
 **Files:** Create `app/patches.js`; Modify `app/main.js`, `styles/receivable.css`
 
-**Interfaces:** Produces `renderPatches(state: 'sg09'|'sg09b'|'sg09c'|'sg14'|'pt07'|'more-menu', device): string` — mỗi state hai nửa "Trước" / "Sau" (iPhone: trên / dưới; web: trái / phải), phần mới viền `--vet45-v2-primary-500` và nhãn `MỚI`.
+**Interfaces:** Produces `renderPatches(state: 'sg09'|'sg09b'|'sg09c'|'sg14'|'pt07'|'more-menu', device): string` — mỗi state hai nửa "Trước" / "Sau" (iPhone: trên / dưới; web: trái / phải), phần mới viền `--c45-v2-primary-500` và nhãn `MỚI`.
 
 - [ ] **Step 1: Cài** theo US-03.2 FR-03, US-03.3, US-04.1, 7.3:
   - `sg09`: dòng `Xem công nợ của khách ›` trong khối "Thanh toán & công nợ".

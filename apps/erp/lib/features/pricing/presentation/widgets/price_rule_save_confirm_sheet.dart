@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// D-08 SG-03 — Bottom sheet xác nhận lưu thay đổi khi sửa giá riêng.
 ///
 /// Dùng [showVBottomSheet] + [VBottomSheet] (handle, viewInsets) và [VCard].
-/// Tuân thủ chuẩn thiết kế vet45_design_system:
+/// Tuân thủ chuẩn thiết kế c45_design_system:
 /// - Header tiêu đề "Lưu thay đổi?" + nút đóng (VIcons.close) + subtitle "Bạn có chắc muốn cập nhật giá riêng này?"
 /// - Thẻ thông tin [VCard] hiển thị sự thay đổi của:
 ///   - Giá riêng: [oldPriceLabel] → [newPriceLabel] (nổi bật màu success)

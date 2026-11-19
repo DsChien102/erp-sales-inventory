@@ -3,7 +3,7 @@ import 'package:erp/features/sales/presentation.dart';
 import 'package:erp/features/sales/presentation/widgets/sales_receivable_changed_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../../inventory/support/inventory_test_surface.dart';
 import '../../../receivable/presentation/receivable_test_harness.dart';

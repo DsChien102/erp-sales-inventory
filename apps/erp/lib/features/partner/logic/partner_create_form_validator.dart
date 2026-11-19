@@ -1,5 +1,5 @@
 import 'package:erp/core/validation/tax_code.dart' as core;
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
 
 import 'partner_create_state.dart';

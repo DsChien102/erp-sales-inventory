@@ -1,17 +1,17 @@
-/* VET45 Theme 7 prototype — khung runtime (T7-P A11–A12, BJ-12, v5.5.0).
+/* Mosaic Retail Theme 7 prototype — khung runtime (T7-P A11–A12, BJ-12, v5.5.0).
  *
  * Chỉ còn khung sản phẩm:
  *   - Trạng thái + routing lối vào (`entryTargets` / `applyEntry` / `onEntry` / `currentActor`)
  *   - `renderers` / `flowRenderers` / `flowScreen` / `renderAppScreen` / `render` / `navigate` / `previousScreen`
  *   - Helper DS (`appShell`, `ds24*`, `vBanner`, `primaryFooter`, `icon`, `io*` / `ic*` còn dùng…)
  *   - Toast, lối ra dự phòng, bước dựng chung `applyGroupedSurfaceRule`
- *   - API QA `window.__VET45_QA__` (BJ chỉ `Object.assign`)
+ *   - API QA `window.__C45_QA__` (BJ chỉ `Object.assign`)
  *
  * Harness (sidebar / inspector / Inspect / device frame) → `harness/workbench.js` + `harness/workbench.css` + `harness/figma-ds-map.js`.
  * Mỗi BJ → `app/bjNN.js` / `cap01.js`; Hub → `app/hub.js`. Không còn lớp vá `vNNN` / bọc `render`/`navigate`.
  */
-const HARNESS = window.VET45_HARNESS_DATA || { flows: [], screens: [], runOrder: [] };
-const FIGMA_DS_MAP = window.VET45_FIGMA_DS_MAP || { componentMappings:{}, profileMappings:{}, themeComponentMappings:{}, internalMappings:{} };
+const HARNESS = window.C45_HARNESS_DATA || { flows: [], screens: [], runOrder: [] };
+const FIGMA_DS_MAP = window.C45_FIGMA_DS_MAP || { componentMappings:{}, profileMappings:{}, themeComponentMappings:{}, internalMappings:{} };
 // Phạm vi rút gọn (v5.28.0 — docs/refactor/PLAN.md mục Theme 7 → "Rút gọn 2026-11-09"): chỉ còn luồng / màn / trạng thái app làm.
 // Luồng bỏ vẫn nạp (các tệp gọi chéo nhau) nhưng không có lối vào. ?scope=full mở lại bản đầy đủ v5.27.0 để tra cứu.
 const REDUCED_SCOPE = new URLSearchParams(window.location.search).get("scope") !== "full";
@@ -70,10 +70,10 @@ if (REDUCED_SCOPE) {
   });
 }
 // Fixture review (tiền tệ, tỷ giá, thuế, chính sách giá vốn) — đầu vào runtime, không phải quyết định nghiệp vụ.
-window.__VET45_MONEY_CURRENCY_CATALOG__ = window.__VET45_MONEY_CURRENCY_CATALOG__ || [{id:"VND",label:"VND"},{id:"USD",label:"USD"}];
-window.__VET45_FX_SOURCE_FIXTURE__ = window.__VET45_FX_SOURCE_FIXTURE__ || {VND:{rate:1,version:"LOCAL-VND"},USD:{rate:24450,version:"FX-DEMO-USD-202609"}};
-window.__VET45_TAX_TREATMENT_POLICY__ = window.__VET45_TAX_TREATMENT_POLICY__ || {version:"TAX-HKD-DEMO-v1",recoverableRate:0};
-window.__VET45_TENANT_COST_POLICY__ = window.__VET45_TENANT_COST_POLICY__ || {version:"COST-POLICY-DEMO-v1",method:"PERIODIC",label:"Bình quân cuối kỳ",periodCloseScopes:[{id:"ALL_PRODUCTS",label:"Toàn bộ sản phẩm"}],fixture:true};
+window.__C45_MONEY_CURRENCY_CATALOG__ = window.__C45_MONEY_CURRENCY_CATALOG__ || [{id:"VND",label:"VND"},{id:"USD",label:"USD"}];
+window.__C45_FX_SOURCE_FIXTURE__ = window.__C45_FX_SOURCE_FIXTURE__ || {VND:{rate:1,version:"LOCAL-VND"},USD:{rate:24450,version:"FX-DEMO-USD-202609"}};
+window.__C45_TAX_TREATMENT_POLICY__ = window.__C45_TAX_TREATMENT_POLICY__ || {version:"TAX-HKD-DEMO-v1",recoverableRate:0};
+window.__C45_TENANT_COST_POLICY__ = window.__C45_TENANT_COST_POLICY__ || {version:"COST-POLICY-DEMO-v1",method:"PERIODIC",label:"Bình quân cuối kỳ",periodCloseScopes:[{id:"ALL_PRODUCTS",label:"Toàn bộ sản phẩm"}],fixture:true};
 // Figma DS v2.0.3 is UI authority; business authority remains in BJ/UC/decision/contracts.
 const FIGMA_MIGRATED_FLOWS = new Set([
   "UIF-01","UIF-02","UIF-03","UIF-04","UIF-05","UIF-06","UIF-07","UIF-08","UIF-09",
@@ -197,7 +197,7 @@ if (initialState && !(entryApplied && entryApplied.state) && screens.find((s) =>
 let toastTimer = null;
 
 // QA surface — BJ files only Object.assign into this object (never reassign).
-window.__VET45_QA__ = {
+window.__C45_QA__ = {
   setActor(mode) { actorMode = String(mode || "module"); return actorMode; },
   getActor() { return actorMode; },
   applyEntry(flowId, mode) {
@@ -459,13 +459,13 @@ function ds24GroupedCollection(content,extraClass="",composedFrom="") {
 function ds24SummaryCard(title,body,extra="") {
   return `<section class="ds24-summary-card" data-ds-component="DS v2 / Summary Card" data-figma-node="525:552" data-ds-prop-tone="Neutral" ${extra}><h2 class="ds24-summary-card__title">${esc(title)}</h2><p class="ds24-summary-card__body">${esc(body)}</p></section>`;
 }
-function ds24SectionTitle(title,meta="") { return `<div class="ds24-section-title"><h2 class="vet45-text-style-5">${esc(title)}</h2>${meta?`<span class="vet45-text-style-11">${esc(meta)}</span>`:''}</div>`; }
+function ds24SectionTitle(title,meta="") { return `<div class="ds24-section-title"><h2 class="c45-text-style-5">${esc(title)}</h2>${meta?`<span class="c45-text-style-11">${esc(meta)}</span>`:''}</div>`; }
 function ds24EmptyState(filtered=true) {
-  return `<div class="ds24-empty" data-ds-component="VEmptyState"><div class="ds24-empty__media" data-ds-component="VEmptyMedia">${icon(filtered?'search':'inbox')}</div><h3 class="vet45-text-style-5" data-ds-component="VEmptyTitle">${filtered?'Không có kết quả phù hợp':'Chưa có dữ liệu tồn kho'}</h3><p class="vet45-text-style-6" data-ds-component="VEmptyDescription">${filtered?'Thử tên, mã sản phẩm hoặc chọn bộ lọc khác.':'Không có dữ liệu trong kho hiện tại.'}</p>${filtered?`<button class="ds24-button ds24-button--secondary" data-bj01-clear type="button" data-ds-component="VButton" data-figma-node="521:529">Xóa tìm kiếm và bộ lọc</button>`:''}</div>`;
+  return `<div class="ds24-empty" data-ds-component="VEmptyState"><div class="ds24-empty__media" data-ds-component="VEmptyMedia">${icon(filtered?'search':'inbox')}</div><h3 class="c45-text-style-5" data-ds-component="VEmptyTitle">${filtered?'Không có kết quả phù hợp':'Chưa có dữ liệu tồn kho'}</h3><p class="c45-text-style-6" data-ds-component="VEmptyDescription">${filtered?'Thử tên, mã sản phẩm hoặc chọn bộ lọc khác.':'Không có dữ liệu trong kho hiện tại.'}</p>${filtered?`<button class="ds24-button ds24-button--secondary" data-bj01-clear type="button" data-ds-component="VButton" data-figma-node="521:529">Xóa tìm kiếm và bộ lọc</button>`:''}</div>`;
 }
 
 function ds24Sheet({title,body,attrs=""}) {
-  return `<div class="sheet-backdrop ds24-overlay" ${attrs}><section class="ds24-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" data-ds-prop-show-title="true" data-ds-prop-title="${escapeAttribute(title)}" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}"><div class="ds24-sheet__handle" data-ds-internal="VBottomSheet.handle"></div><h3 class="vet45-text-style-4" data-ds-internal="VBottomSheet.title">${esc(title)}</h3><div class="ds24-sheet__body" data-ds-internal="VBottomSheet.content">${body}</div></section></div>`;
+  return `<div class="sheet-backdrop ds24-overlay" ${attrs}><section class="ds24-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" data-ds-prop-show-title="true" data-ds-prop-title="${escapeAttribute(title)}" role="dialog" aria-modal="true" aria-label="${escapeAttribute(title)}"><div class="ds24-sheet__handle" data-ds-internal="VBottomSheet.handle"></div><h3 class="c45-text-style-4" data-ds-internal="VBottomSheet.title">${esc(title)}</h3><div class="ds24-sheet__body" data-ds-internal="VBottomSheet.content">${body}</div></section></div>`;
 }
 
 
@@ -499,14 +499,14 @@ function resultHero(title,desc,kind="success"){// "pending" (chờ / chưa rõ k
 function ioResult(title,desc,rows,kind="success",button=""){return `<div class="io-result">${resultHero(title,desc,kind)}${ioReadCard(rows.map(r=>ioMetaRow(r[0],r[1],true)).join(''))}${button}</div>`;}
 
 function ds24SelectField(label,value,options,attr="") {
-  return `<label class="ds24-field" data-ds-component="VSelect" data-figma-node="522:7291"><span class="vet45-text-style-8">${esc(label)}</span><select ${attr} class="ds24-field__control vet45-text-style-6">${options.map(([v,l])=>`<option value="${v}" ${v===value?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
+  return `<label class="ds24-field" data-ds-component="VSelect" data-figma-node="522:7291"><span class="c45-text-style-8">${esc(label)}</span><select ${attr} class="ds24-field__control c45-text-style-6">${options.map(([v,l])=>`<option value="${v}" ${v===value?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
 }
 function ds24TextField(label,value,attrs="",helper="") {
-  return `<label class="ds24-field" data-ds-component="VTextField" data-figma-node="522:7186"><span class="vet45-text-style-8">${esc(label)}</span><input class="ds24-field__control vet45-text-style-6" value="${escapeAttribute(value)}" ${attrs}>${helper?`<small class="vet45-text-style-11">${esc(helper)}</small>`:''}</label>`;
+  return `<label class="ds24-field" data-ds-component="VTextField" data-figma-node="522:7186"><span class="c45-text-style-8">${esc(label)}</span><input class="ds24-field__control c45-text-style-6" value="${escapeAttribute(value)}" ${attrs}>${helper?`<small class="c45-text-style-11">${esc(helper)}</small>`:''}</label>`;
 }
 function ds24Result(title,description,rows,tone='success') {
   const iconName=tone==='success'?'checkCircle':tone==='danger'?'xCircle':'alert';
-  return `<section class="ds24-result" data-theme-component="Theme7OperationResult" data-composed-from="VIcon,VText,DS v2 / Info Row,State Pattern"><div class="ds24-result__icon ds24-result__icon--${tone}">${icon(iconName)}</div><h2 class="vet45-text-style-3">${esc(title)}</h2><p class="vet45-text-style-6">${esc(description)}</p><div class="ds24-info-stack">${rows.map(([k,v])=>ds24InfoRow(k,v)).join('')}</div></section>`;
+  return `<section class="ds24-result" data-theme-component="Theme7OperationResult" data-composed-from="VIcon,VText,DS v2 / Info Row,State Pattern"><div class="ds24-result__icon ds24-result__icon--${tone}">${icon(iconName)}</div><h2 class="c45-text-style-3">${esc(title)}</h2><p class="c45-text-style-6">${esc(description)}</p><div class="ds24-info-stack">${rows.map(([k,v])=>ds24InfoRow(k,v)).join('')}</div></section>`;
 }
 
 
@@ -749,7 +749,7 @@ function applyGroupedSurfaceRule() {
   });
   return { candidates, added };
 }
-window.__VET45_QA__.applyGroupedSurfaceRule = applyGroupedSurfaceRule;
+window.__C45_QA__.applyGroupedSurfaceRule = applyGroupedSurfaceRule;
 (() => {
   const root = document.querySelector('#app-screen');
   if (!root || typeof MutationObserver === 'undefined') return;

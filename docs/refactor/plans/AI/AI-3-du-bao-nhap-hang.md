@@ -2,11 +2,11 @@
 
 > Tích hợp AI · plan **AI-3** của [PLAN.md](../../PLAN.md) mục "Tích hợp AI" (bảng Plan)
 > Trạng thái: Plan ✅ (người dùng duyệt 2026-11-17) | Làm ✅ 2026-11-17 (chờ chạy Dev) | Review 🟡 R2 đạt phần đọc code; chờ kết quả chạy Dev để đóng
-> Thiết kế: duyệt trong chat 2026-11-17 (chọn **cách A** sinh dữ liệu: gọi RPC bán thật rồi lùi `completed_at`; công thức 8 tuần trọng số; bộ dữ liệu 12 sản phẩm / 90 ngày). Yêu cầu: [AI-0](AI-0-yeu-cau.md) mục 4, 8a, 9 · Backend nền: [AI-1](AI-1-backend.md) (R4 ✅) · Màn: [AI-2](AI-2-man-hoi-vet45.md).
+> Thiết kế: duyệt trong chat 2026-11-17 (chọn **cách A** sinh dữ liệu: gọi RPC bán thật rồi lùi `completed_at`; công thức 8 tuần trọng số; bộ dữ liệu 12 sản phẩm / 90 ngày). Yêu cầu: [AI-0](AI-0-yeu-cau.md) mục 4, 8a, 9 · Backend nền: [AI-1](AI-1-backend.md) (R4 ✅) · Màn: [AI-2](AI-2-man-hoi-c45.md).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development hoặc superpowers:executing-plans. Dự án này **người dùng tự code, Claude review ở phiên khác** (xem [README plans](../README.md)); các bước dùng checkbox để người dùng tick.
 
-**Goal:** Hỏi "Hàng nào sắp hết, nên nhập bao nhiêu?" trong Hỏi VET45 trả bảng dự báo đúng số (còn bán mấy ngày, nên nhập bao nhiêu) từ RPC; có bộ dữ liệu bán mô phỏng 90 ngày để demo và chạy đủ 22 câu thử.
+**Goal:** Hỏi "Hàng nào sắp hết, nên nhập bao nhiêu?" trong Hỏi Mosaic Retail trả bảng dự báo đúng số (còn bán mấy ngày, nên nhập bao nhiêu) từ RPC; có bộ dữ liệu bán mô phỏng 90 ngày để demo và chạy đủ 22 câu thử.
 
 **Architecture:** Một RPC đọc `inventory.get_purchase_forecast` tính tốc độ bán trung bình có trọng số 8 tuần từ đơn bán thật (cùng cách tính `get_sales_stats`) + tồn khả dụng + `product_stock_policies`. Công cụ `du_bao_ban_hang` (module mới trong `ai-assistant/tools`) gọi RPC, dựng bảng; Gemini chỉ viết lời. Script SQL dựng cửa hàng demo + 12 sản phẩm + ~270 đơn bán qua `sales.finalize_sales_order` rồi lùi `completed_at`.
 
@@ -113,7 +113,7 @@ Quyền: `inventory._assert_actor(p_tenant_id, 'inventory.read')` (như `list_st
 Làm sớm (đầu plan) vì Task 3–4 và demo cần dữ liệu. Chạy **trên Supabase Dev** (không rollback, dữ liệu ở lại để demo); người dùng tự chạy, **chạy một lần**. Script **tự dựng một cửa hàng riêng** ("Cửa hàng Demo AI") để không đụng dữ liệu đang có và có sẵn hai tài khoản cho bộ câu thử.
 
 **Quyết định:**
-- Cửa hàng + kho + chính sách giá vốn `MOVING` + hai tài khoản đăng nhập được: chủ `demo.chu@vet45.local`, thu ngân `demo.thungan@vet45.local` (thành viên **không** phải chủ, `role = 'staff'`), mật khẩu `Demo@12345` (chèn `auth.users` với `encrypted_password = crypt(…, gen_salt('bf'))` **và** `auth.identities`; dựng theo cách `ss_tenant` ở `sales_stats.sql` + thêm mật khẩu). Chạy lại script: bỏ qua nếu cửa hàng đã có (idempotent theo `display_name`).
+- Cửa hàng + kho + chính sách giá vốn `MOVING` + hai tài khoản đăng nhập được: chủ `demo.chu@c45.local`, thu ngân `demo.thungan@c45.local` (thành viên **không** phải chủ, `role = 'staff'`), mật khẩu `Demo@12345` (chèn `auth.users` với `encrypted_password = crypt(…, gen_salt('bf'))` **và** `auth.identities`; dựng theo cách `ss_tenant` ở `sales_stats.sql` + thêm mật khẩu). Chạy lại script: bỏ qua nếu cửa hàng đã có (idempotent theo `display_name`).
 - 12 sản phẩm (tên chỉ là dữ liệu mẫu, đổi được; giá bán là giá niêm yết, một đơn vị `hộp`):
 
 | # | Sản phẩm | Kiểu bán | ≈ bán/ngày (8 tuần cuối) | Giá | Tồn cuối | Ngưỡng / mục tiêu | Kỳ vọng dự báo |
@@ -200,7 +200,7 @@ Khai báo cho Gemini: tham số `san_pham_id` (uuid, tuỳ chọn, lấy từ `t
 - [ ] Không có thay đổi ở `home_tab_page.dart`
 
 ## Rủi ro / lưu ý
-- **Dev là DB dùng chung:** script mô phỏng ghi dữ liệu thật vào Dev (tài khoản `demo.*@vet45.local`, ~270 đơn, nhập kho); không có script dọn. Không có bước kiểm `plpgsql_check` (chỉ có ở `db_check` local) nên lỗi tên bảng / cột chỉ lộ khi chạy test.
+- **Dev là DB dùng chung:** script mô phỏng ghi dữ liệu thật vào Dev (tài khoản `demo.*@c45.local`, ~270 đơn, nhập kho); không có script dọn. Không có bước kiểm `plpgsql_check` (chỉ có ở `db_check` local) nên lỗi tên bảng / cột chỉ lộ khi chạy test.
 - Chèn `auth.users` + mật khẩu có thể cần thêm `auth.identities` / cột khác tuỳ phiên bản GoTrue — Task 2 Step 3 kiểm; lệch thì sửa script.
 - Làm tròn `daily_rate` 1 chữ số: hàng bán rất chậm (< 0,05/ngày) hiện "0" nhưng vẫn có `days_left`; dữ liệu demo không có hàng như vậy.
 - Số trong lời Gemini không được đối chiếu lại với kết quả công cụ khi **đã có** dữ liệu (đã ghi ở R1 của AI-1); câu thử 18–20 kiểm tay phần này.

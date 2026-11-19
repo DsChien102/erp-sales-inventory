@@ -6,8 +6,8 @@ Thực hiện một lần trên [App Store Connect](https://appstoreconnect.appl
 
 | App name | Bundle ID | Mục đích |
 |---|---|---|
-| **VET45 Staging** | `com.dschien.erp.staging` | TestFlight only — QA / UAT |
-| **VET45** | `com.dschien.erp` | TestFlight beta + App Store production |
+| **Mosaic Retail Staging** | `com.dschien.erp.staging` | TestFlight only — QA / UAT |
+| **Mosaic Retail** | `com.dschien.erp` | TestFlight beta + App Store production |
 
 **Không** gộp staging và production vào một app ASC.
 
@@ -20,18 +20,18 @@ Thực hiện một lần trên [App Store Connect](https://appstoreconnect.appl
 
 1. App Store Connect → Users and Access → Keys
 2. Tạo API key với quyền Developer
-3. Lưu vào `deploy/deploy.env` (local, dùng chung staging + production) hoặc CircleCI context `vet45-deploy`:
+3. Lưu vào `deploy/deploy.env` (local, dùng chung staging + production) hoặc CircleCI context `c45-deploy`:
    - `APP_STORE_CONNECT_ISSUER_ID`
    - `APP_STORE_CONNECT_KEY_IDENTIFIER`
    - File `.p8` tại `~/.appstoreconnect/private_keys/AuthKey_<KEY_IDENTIFIER>.p8` (không commit)
 
 ## 4. TestFlight groups
 
-**VET45 Staging app:**
+**Mosaic Retail Staging app:**
 - Internal: QA + Product + Dev
 - (Optional) External: pilot khách — cần Beta App Review lần đầu
 
-**VET45 production app:**
+**Mosaic Retail production app:**
 - Internal: beta testers hẹp
 - Sau soak test → Submit App Store Review
 
@@ -56,8 +56,8 @@ Chi tiết version/changelog: [app_versioning.md](app_versioning.md). Manual: s�
 
 ## 6. Checklist
 
-- [ ] App **VET45 Staging** tạo với bundle `com.dschien.erp.staging`
-- [ ] App **VET45** có bundle `com.dschien.erp`
+- [ ] App **Mosaic Retail Staging** tạo với bundle `com.dschien.erp.staging`
+- [ ] App **Mosaic Retail** có bundle `com.dschien.erp`
 - [ ] TestFlight group staging có QA
 - [ ] Build staging upload thành công
 - [ ] Build production upload thành công (app riêng)

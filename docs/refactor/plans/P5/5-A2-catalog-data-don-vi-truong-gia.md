@@ -177,7 +177,7 @@ Trước mỗi symbol sửa: `gitnexus impact` (upstream), ghi vào Kết quả.
 ## 7. Kiểm tra
 
 - [ ] `git diff --stat`: chỉ tệp mới dưới `features/catalog/{data,logic}/` + test; sửa `product_repository.dart` chỉ khi tách `_guard`.
-- [ ] `git grep -n "package:vet45_" -- apps/erp/lib/features/catalog/data apps/erp/lib/features/catalog/logic` **rỗng**.
+- [ ] `git grep -n "package:c45_" -- apps/erp/lib/features/catalog/data apps/erp/lib/features/catalog/logic` **rỗng**.
 - [ ] Không có hai class cùng tên trong `features/catalog/data/models/` (`git grep -hoE "^(final |abstract |sealed )*(class|enum) \w+" -- apps/erp/lib/features/catalog/data/models | sort | uniq -d` rỗng).
 - [ ] `cd apps/erp && dart analyze lib test`: không lỗi / cảnh báo mới.
 - [ ] `cd apps/erp && flutter test test/features/catalog`: xanh; `flutter test`: không fail mới so với sau 5-A1.
@@ -208,7 +208,7 @@ Trước mỗi symbol sửa: `gitnexus impact` (upstream), ghi vào Kết quả.
   - `apps/erp/lib/features/catalog/logic/store_price_suggestion.dart`: tạo `StorePriceSuggestionCalculator` gồm 3 hàm: `scaleBasePriceForUnit`, `suggest`, `basePriceVersionFor`.
   - Impact: tất cả là file mới, 0 direct caller từ UI hiện tại (UI sẽ chuyển ở 5-A3).
   - Trùng lặp class/enum: 0 vi phạm (`uniq -d` rỗng).
-  - Import `package:vet45_` trong models và logic: 0 vi phạm (rỗng).
+  - Import `package:c45_` trong models và logic: 0 vi phạm (rỗng).
 
 - **Bước 2 ✅:**
   - `apps/erp/lib/features/catalog/logic/catalog_rules.dart:226–553`: thêm 11 hàm rule thuần mới + hằng `maxUnitNameLength = 80`, không thêm helper mới (đếm giá trị có kiểu dùng lại `_typedValueCount` từ dòng 141 của 5-A1), không sửa/xóa bất kỳ symbol cũ nào:
@@ -243,7 +243,7 @@ Trước mỗi symbol sửa: `gitnexus impact` (upstream), ghi vào Kết quả.
 
 - **Bước 4 ✅:**
   - `git diff --stat`: Chỉ thêm/sửa file trong `features/catalog/{data,logic}/` và test tương ứng; không sửa `product_repository.dart`.
-  - `git grep -n "package:vet45_" -- apps/erp/lib/features/catalog/data apps/erp/lib/features/catalog/logic`: rỗng (0 vi phạm).
+  - `git grep -n "package:c45_" -- apps/erp/lib/features/catalog/data apps/erp/lib/features/catalog/logic`: rỗng (0 vi phạm).
   - Trùng lặp class/enum: 0 vi phạm.
   - `cd apps/erp && dart analyze lib/features/catalog/data lib/features/catalog/logic test/features/catalog/data test/features/catalog/logic`: 0 issues!
   - `cd apps/erp && flutter test test/features/catalog/data test/features/catalog/logic`: 392 đạt, 1 bỏ qua (100% xanh).
@@ -261,7 +261,7 @@ Trước mỗi symbol sửa: `gitnexus impact` (upstream), ghi vào Kết quả.
 | Rule (H3) | ✅ 12 hàm ở `catalog_rules.dart:226–553` (`checkBaseUnitSelection` … `checkPriceBandSnapshotRequest`) khớp từng câu của mục 4.2, đúng Q8; có ca 0.1 / 0.104, single select nhãn `'  '`, mã `FLOOR_GREATER_THAN_LIST` |
 | Một RPC mỗi method, đổi có chủ đích (H4, H5, Q9) | ✅ Có test, ghi rõ là đổi có chủ đích |
 | Model | ✅ Không chép trùng `ProductPriceBandStatus` / `PriceBandSourceType`; dùng lại `CustomFieldSelectOptionDto`, `customFieldGroupDisplayName`; `StorePriceSuggestionCalculator` chép đủ 3 hàm |
-| Kiểm tra (mục 7) | ✅ `package:vet45_` rỗng; không trùng class; `dart analyze` 4 thư mục data / logic: 0; `flutter test test/features/catalog/{data,logic}`: 389 đạt; `test/features/catalog`: 498 đạt, 48 lỗi = 48 dòng catalog trong `TEST-BASELINE.md`. Test 5-A1 trong `catalog_rules_test.dart` giữ đủ (diff `-217` dòng là do định dạng lại) |
+| Kiểm tra (mục 7) | ✅ `package:c45_` rỗng; không trùng class; `dart analyze` 4 thư mục data / logic: 0; `flutter test test/features/catalog/{data,logic}`: 389 đạt; `test/features/catalog`: 498 đạt, 48 lỗi = 48 dòng catalog trong `TEST-BASELINE.md`. Test 5-A1 trong `catalog_rules_test.dart` giữ đủ (diff `-217` dòng là do định dạng lại) |
 | Kết quả (mục 9) | ❌ Mô tả sai so với code (R1-2) |
 
 ### R1 — việc cần sửa

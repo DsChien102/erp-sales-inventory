@@ -2,7 +2,7 @@ import 'package:erp/features/inventory/data/stock/stock_models.dart';
 import 'package:erp/features/inventory/logic/costing/cost_overview_cubit.dart';
 import 'package:erp/features/inventory/logic/costing/costing_rules.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Sheet chọn phương pháp tính giá vốn (SCR-072).
 Future<void> showCostMethodSheet(

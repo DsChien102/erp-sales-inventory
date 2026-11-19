@@ -84,8 +84,8 @@
 ## Group C BE–FE vertical integration — 2026-08-11
 
 - S08–S11 FE vertical path wired: compose → typed `SalesCheckoutDraftSnapshot` (GoRouter `extra`) → `SalesCheckoutCubit` → `PrecheckSalesOrderCheckoutQuery` through required `ICheckoutGateway`; checkout precheck panel; stale-response guard; no Group D finalize.
-- Guarded live evidence: `apps/erp/integration_test/sales_group_c_s08_s11_live_test.dart` (`VET45_RUN_LIVE_GROUP_C`). Disabled gate without the flag is **not** a pass claim. Live gate expects fail-closed `DEPENDENCY_UNAVAILABLE` by default (`VET45_E2E_GROUP_C_EXPECT_UNAVAILABLE=true`) until draft `002` is promoted/applied and owner contracts/seeds exist.
-- **Task 7 evidence (2026-08-11):** disabled gate on iOS Simulator → `All tests skipped` (+0 ~1). Live gate **not run**. Blockers: all five `VET45_E2E_*` seed IDs missing from profile `dschien-local`/`development.env`; `_drafts/002_sales_checkout_group_c_precheck.sql` still draft-only/unpromoted/unapplied; `melos run env:doctor` fails on missing `deploy/deploy.env` (unrelated to Sales seeds but recorded).
+- Guarded live evidence: `apps/erp/integration_test/sales_group_c_s08_s11_live_test.dart` (`C45_RUN_LIVE_GROUP_C`). Disabled gate without the flag is **not** a pass claim. Live gate expects fail-closed `DEPENDENCY_UNAVAILABLE` by default (`C45_E2E_GROUP_C_EXPECT_UNAVAILABLE=true`) until draft `002` is promoted/applied and owner contracts/seeds exist.
+- **Task 7 evidence (2026-08-11):** disabled gate on iOS Simulator → `All tests skipped` (+0 ~1). Live gate **not run**. Blockers: all five `C45_E2E_*` seed IDs missing from profile `dschien-local`/`development.env`; `_drafts/002_sales_checkout_group_c_precheck.sql` still draft-only/unpromoted/unapplied; `melos run env:doctor` fails on missing `deploy/deploy.env` (unrelated to Sales seeds but recorded).
 - Draft SQL `_drafts/002_sales_checkout_group_c_precheck.sql` remains **draft-only/unpromoted/unapplied**; do not claim live E2E success.
 - S10 requires due-date policy, but frozen PrecheckSalesOrderCheckoutQuery has no
   dueDate field. Group C BE–FE integration renders fail-closed for stable
@@ -185,16 +185,16 @@
 
 ## FE preview entry (2026-07-31)
 
-- Sales FE **widget preview** sống tại `modules/sales/presentation/example/` — chạy `vet45 run sales_presentation debug` (hoặc `debug:web` / `debug:ios`).
+- Sales FE **widget preview** sống tại `modules/sales/presentation/example/` — chạy `c45 run sales_presentation debug` (hoặc `debug:web` / `debug:ios`).
 - Example = catalog + `PreviewSection` stubs (order note / blocker placeholders); **không** thay ERP pages và **không** claim FE slice roadmap `done`.
 - ERP `features/sales` pages vẫn `todo`; khi ship public widget trong `presentation/lib` → cùng PR thêm section trong example.
-- Phân biệt: `vet45 run design_system debug` (hoặc `melos run design-system:example`) = DS primitives; `sales_presentation` = BC Sales widgets.
+- Phân biệt: `c45 run design_system debug` (hoặc `melos run design-system:example`) = DS primitives; `sales_presentation` = BC Sales widgets.
 
 ## Domain layer (2026-07-30)
 
 - `modules/sales/domain` implements aggregates from `01-domain-model.md` (+ calculators/policies); ~~`OrderAdjustment`~~ superseded.
-- Kernel `Money` / `Quantity` live in `vet45_shared_domain` (pricing/accounting local Money chưa migrate).
-- Status enums exist under `lib/src/enums/` and are exported via `package:vet45_sales_domain/enums.dart` — **not** from `domain.dart` — để tránh đụng tên với application `sales_contract_enums.dart` (CONTRACT freeze). Migration gộp enum = follow-up khi BE handlers land.
+- Kernel `Money` / `Quantity` live in `c45_shared_domain` (pricing/accounting local Money chưa migrate).
+- Status enums exist under `lib/src/enums/` and are exported via `package:c45_sales_domain/enums.dart` — **not** from `domain.dart` — để tránh đụng tên với application `sales_contract_enums.dart` (CONTRACT freeze). Migration gộp enum = follow-up khi BE handlers land.
 - Repository ports hoãn sang BE/application slice.
 
 ## Source gap
@@ -328,7 +328,7 @@ Coverage checks (sau CONTRACT code sync 2026-07-30):
 | 2026-07-27 | Section mới chỉ catalog, chưa có compile boundary | Freeze application contract theo wave; giữ BE/FE/E2E `todo` |
 | 2026-07-30 | Theme-5 thu hẹp EP-04 note-only + EP-06 session discard | Re-harness docs; renumber S23+ |
 | 2026-07-30 | Dart contracts còn whitelist/draft CRUD | Sync application DTOs/fakes → 234 scenarios; đóng debt |
-| 2026-07-31 | Cần preview FE Sales trước ERP pages | Module `presentation/example` + `vet45.target.json` (`sales_presentation`); FE roadmap vẫn `todo` |
+| 2026-07-31 | Cần preview FE Sales trước ERP pages | Module `presentation/example` + `c45.target.json` (`sales_presentation`); FE roadmap vẫn `todo` |
 | 2026-08-12 | ~~Group G S22 BE–FE production integration~~ | **Superseded 2026-09-07** — EP-04/S22 out of scope; lanes `n/a` |
 | 2026-09-07 | EP-04 / S22 order-note adjustment withdrawn | Roadmap/traceability/contracts/domain: Group G superseded; product US kept with banner |
 | 2026-08-26 | TH-05 durable Inventory/Receivable impact handoff (typed events + enqueue helper + pending/queued UI); no owner consumer | Sync §S12/S20/S25/S26/S34 contracts; roadmap blockers → handoff done / E2E chờ TH-06/TH-07; no fake accepted; no worker binding; TH-08 deferred; drafts unpromoted |

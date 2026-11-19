@@ -309,7 +309,7 @@ Frozen evidence: public Dart contract + field catalog + permission/concurrency/e
 
 - Artifacts: full-snapshot commands/DTOs/validators; `ISalesOrderDraftGateway` + `SalesOrderDraftRpcMapper` + `SupabaseSalesOrderDraftGateway` + in-memory gateway; ERP `SalesDraftBackend` orchestration (Catalog/Partner/Pricing via mediators); draft-only `supabase/migrations/_drafts/007_sales_draft_rpcs.sql` (not promoted/applied).
 - Unit/contract coverage: `sales_order_draft_handlers_test.dart`; `sales_order_draft_rpc_mapper_test.dart`; `sales_order_draft_sql_contract_test.dart`; `sales_group_b_startup_test.dart`; presentation/ERP draft-backend and no-fake DI tests.
-- Live E2E remains **blocked**: missing `VET45_E2E_*` seed defines and rebuild draft `007_sales_draft_rpcs.sql` not promoted/applied (`REGISTRY.yaml` has no Sales rebuild RPC ownership yet). Guarded test `apps/erp/integration_test/sales_group_b_s06_s07_live_test.dart` skips cleanly when `VET45_RUN_LIVE_GROUP_B` is unset. Do **not** mark E2E done.
+- Live E2E remains **blocked**: missing `C45_E2E_*` seed defines and rebuild draft `007_sales_draft_rpcs.sql` not promoted/applied (`REGISTRY.yaml` has no Sales rebuild RPC ownership yet). Guarded test `apps/erp/integration_test/sales_group_b_s06_s07_live_test.dart` skips cleanly when `C45_RUN_LIVE_GROUP_B` is unset. Do **not** mark E2E done.
 
 ## §S07 — [EP-01/US-07](../Epic-01-order-drafting-and-drafts/US-07.md) — Khôi phục và quản lý đơn nháp
 

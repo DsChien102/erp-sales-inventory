@@ -3,7 +3,7 @@ import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/sales/presentation.dart';
 import '../../support/fake_sales_checkout_repository.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 void main() {
   group('SalesCheckoutCubit Group C precheck', () {

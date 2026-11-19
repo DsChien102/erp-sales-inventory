@@ -1,6 +1,6 @@
 import 'package:erp/features/dashboard/presentation/widgets/default_pair_gate_error_view.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class DefaultPairGateErrorPreviewSection extends StatelessWidget {
   const DefaultPairGateErrorPreviewSection({super.key});

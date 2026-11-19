@@ -7,7 +7,7 @@ import 'package:erp/features/partner/presentation/widgets/partner_change_history
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 void main() {
   final occurredAt = DateTime.utc(2026, 7, 16, 11, 26);

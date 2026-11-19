@@ -120,5 +120,5 @@ Directory _findRepoRoot() {
     }
     directory = directory.parent;
   }
-  throw StateError('Unable to locate the Vet45 repository root');
+  throw StateError('Unable to locate the Mosaic Retail repository root');
 }

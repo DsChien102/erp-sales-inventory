@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/inventory/data/core/inventory_error_codes.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_models.dart';

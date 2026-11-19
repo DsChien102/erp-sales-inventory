@@ -14,7 +14,7 @@
   SalesDraftListCubit ─┐
   SalesDraftBackend  ──┴─▶ SalesDraftRepository ─▶ SupabaseRpc.call('sales', …)
   ```
-- Repository **nhận và trả kiểu của `vet45_sales_application`** (Q1). Chỉ chép vào app: dựng tham số + đọc JSON (từ `SalesOrderDraftRpcMapper`), rule đầu vào (từ 3 validator), phân loại lỗi.
+- Repository **nhận và trả kiểu của `c45_sales_application`** (Q1). Chỉ chép vào app: dựng tham số + đọc JSON (từ `SalesOrderDraftRpcMapper`), rule đầu vào (từ 3 validator), phân loại lỗi.
 - Lỗi đi ra là `AppException` (Q2). Danh sách nháp / xoá nháp hết hiện câu server thô (Q3, đổi có chủ đích).
 - Có test parity `old` (module) / `new` (repository) dùng **chung giá trị mong đợi**. 8-C xoá nhóm `old` cùng module.
 - `SalesDraftListCubit` (+ state) và `SalesDraftBackend` chuyển vào `features/sales/logic/` (bước 6 của công thức).
@@ -25,7 +25,7 @@
 
 | # | Câu hỏi | Chốt |
 |---|---|---|
-| Q1 | Chia 8-A; kiểu dùng chung (`MoneyDto` 89 chỗ, soạn đơn → thanh toán qua `CheckoutLineInput` / `SalesCommercialSnapshotInput`) | **Người dùng chốt 2026-11-06:** chia theo nhóm màn như PLAN.md (8-A1 nháp, 8-A2 thanh toán…). Repository gọi thẳng RPC nhưng **trả DTO của `vet45_sales_application`**, dùng lại `SalesOrderDraftContractMapper` (application) để dựng DTO. Chép kiểu + đổi import một lượt ở 8-C. Lệch quy ước "chép kiểu ở (a)" của Theme 2/4 — có chủ đích |
+| Q1 | Chia 8-A; kiểu dùng chung (`MoneyDto` 89 chỗ, soạn đơn → thanh toán qua `CheckoutLineInput` / `SalesCommercialSnapshotInput`) | **Người dùng chốt 2026-11-06:** chia theo nhóm màn như PLAN.md (8-A1 nháp, 8-A2 thanh toán…). Repository gọi thẳng RPC nhưng **trả DTO của `c45_sales_application`**, dùng lại `SalesOrderDraftContractMapper` (application) để dựng DTO. Chép kiểu + đổi import một lượt ở 8-C. Lệch quy ước "chép kiểu ở (a)" của Theme 2/4 — có chủ đích |
 | Q2 | Kiểu lỗi của repository | **Người dùng chốt 2026-11-06:** `AppException`. `SalesDraftListCubit` và nhánh `draftGone` của `SalesComposeCubit` đổi `SalesContractException` → `AppException` ngay ở 8-A1 |
 | Q3 | Câu lỗi thô ở SG-01: `sales_draft_list_cubit.dart:111` (`error.message ?? error.code`), `:113` (`error.message ?? …`), `:228-231` (`error.message ?? …`) hiện câu tiếng Anh của server / gateway ("Draft version has changed.", "Sales draft operation failed.") | **Người dùng chốt 2026-11-06: sửa ở 8-A1, đổi có chủ đích** theo TH-05 6.4 / US-01.7 (bảng 4.4). Không bao giờ hiện `serverMessage` hay mã |
 | Q4 | PLAN 8.1 có TH-02 KI-08 (sửa `catalog._product_unit_has_sales_transaction_usage`), TH-05 9.2 ghi 8.1 "bỏ Nợ cũ" (KI-07) | **Người dùng chốt 2026-11-06:** cả hai sang **8-B** (đổi hành vi / sửa DB, không thuộc (a)) |
@@ -259,7 +259,7 @@ Nơi dùng (đều trong `SalesDraftListCubit`):
 **Files:** Modify: `docs/refactor/PLAN.md` (dòng 8-A1, mục 8.1), `docs/02-yeu-cau/TH-05-ban-hang-va-don-hang.md` (đã thêm KI-21, KI-22 lúc viết plan — kiểm lại còn đúng)
 
 - [ ] **5.1** `cd apps/erp && dart analyze lib/features/sales lib/core/di test/features/sales` → 0 lỗi, 0 cảnh báo mới.
-- [ ] **5.2** `git grep -nE "SaveSalesOrderDraftCommand|UpdateSalesOrderDraftCommand|CancelSalesOrderDraftCommand|ListSalesOrderDraftsQuery|GetSalesOrderDraftForRestoreQuery" -- apps/erp/lib` → rỗng; `git grep -n "vet45_sales" -- apps/erp/lib/features/sales/data apps/erp/lib/features/sales/logic` → chỉ `application.dart` (kiểu DTO, Q1).
+- [ ] **5.2** `git grep -nE "SaveSalesOrderDraftCommand|UpdateSalesOrderDraftCommand|CancelSalesOrderDraftCommand|ListSalesOrderDraftsQuery|GetSalesOrderDraftForRestoreQuery" -- apps/erp/lib` → rỗng; `git grep -n "c45_sales" -- apps/erp/lib/features/sales/data apps/erp/lib/features/sales/logic` → chỉ `application.dart` (kiểu DTO, Q1).
 - [ ] **5.3** `dart run tool/check_feature_imports.dart` → không dòng mới.
 - [ ] **5.4** `flutter test` cả app → số lỗi đúng bằng `docs/refactor/TEST-BASELINE.md` (so từng tên).
 - [ ] **5.5** `node .gitnexus/run.cjs analyze` rồi `detect_changes({scope: "all"})`: chỉ tệp trong danh sách; ghi số tệp / symbol / luồng / rủi ro.
@@ -271,7 +271,7 @@ Tự động: Task 5. **Kiểm tay (người dùng, iPhone simulator + Chrome):*
 
 ## 8. Rủi ro / lưu ý
 
-- **Kiểu module còn trong `data/`** (Q1): `sales_draft_repository.dart`, `sales_draft_json.dart` import `vet45_sales_application`. 8-C phải chép `SalesOrderDraftDto`, `SalesOrderDraftLineInput`, `CustomerSnapshotDto`, `PagedSalesOrderDraftListDto`, `SalesOrderDraftForRestoreDto`, `OpaqueCursorPageDto`, `MoneyDto`, `QuantityDto`, `SalesDraftStatus`, `SalesOrderDraftContractMapper` cùng mọi kiểu dùng chung.
+- **Kiểu module còn trong `data/`** (Q1): `sales_draft_repository.dart`, `sales_draft_json.dart` import `c45_sales_application`. 8-C phải chép `SalesOrderDraftDto`, `SalesOrderDraftLineInput`, `CustomerSnapshotDto`, `PagedSalesOrderDraftListDto`, `SalesOrderDraftForRestoreDto`, `OpaqueCursorPageDto`, `MoneyDto`, `QuantityDto`, `SalesDraftStatus`, `SalesOrderDraftContractMapper` cùng mọi kiểu dùng chung.
 - **Hai kiểu lỗi cùng lúc** tới 8-A4: phần nháp `AppException`, phần còn lại `SalesContractException`. Màn chung SG-02 → SG-06: nút "Thanh toán" của compose không đi qua repository nháp ⇒ không lẫn.
 - **Q8 `REFERENCE_UNAVAILABLE` khi xoá** không tải lại danh sách — 8-B cân nhắc coi như `STALE_DATA`.
 - **8-B nhận thêm:** KI-21 (tải thêm nháp), KI-22 ("Tạo bởi" nháp người khác), KI-07, TH-02 KI-08; câu "Không hủy được đơn nháp" khác US-01.7 FR-04 "Không xóa được đơn nháp" (giữ câu app ở 8-A1).
@@ -323,7 +323,7 @@ Tự động: Task 5. **Kiểm tay (người dùng, iPhone simulator + Chrome):*
 
 **Task 5 — ✅**
 - `dart analyze lib/features/sales lib/core/di test/features/sales`: 0 lỗi, 1 warning có sẵn (`test/features/sales/presentation/order_einvoice_section_test.dart:32`, tệp không đổi).
-- 5.2 `git grep` 5 command / query trong `apps/erp/lib`: chỉ còn 1 dòng chú thích (`sales_draft_list_scope.dart:14`); `vet45_sales` trong `data/` + `logic/`: chỉ `application.dart`.
+- 5.2 `git grep` 5 command / query trong `apps/erp/lib`: chỉ còn 1 dòng chú thích (`sales_draft_list_scope.dart:14`); `c45_sales` trong `data/` + `logic/`: chỉ `application.dart`.
 - 5.3: xem R-imports-tool.
 - 5.4 `flutter test` cả app: **2422 đạt / 55 lỗi**. Đối chiếu từng tên với `TEST-BASELINE.md` (53 mục `apps/erp`): 53 trùng; **2 ngoài danh sách**: `product_change_history_e2e_test: e2e_e07_u04_fr02_01` và `product_guided_create_e2e_test: e2e_e02_u01_fr01_01` (cả hai thuộc catalog, cùng triệu chứng "Thuốc A" không thấy). Chạy lại ở worktree `HEAD` sạch (`380142da9`): 2 tệp đó cũng lỗi (4 ca) ⇒ **có sẵn**, baseline cũ chưa ghi. Không lỗi nào thuộc `features/sales`.
 - 5.5 `analyze` rồi `detect_changes({scope: "all"})`: **36 tệp, 23 symbol, 0 luồng, rủi ro low** (36 tệp gồm cả `AGENTS.md` / `CLAUDE.md` và 16 tệp test chỉ đổi định dạng, đã hoàn nguyên sau đó — xem R-format, R-analyze-docs). Tệp còn lại đều trong danh sách plan + R-import.

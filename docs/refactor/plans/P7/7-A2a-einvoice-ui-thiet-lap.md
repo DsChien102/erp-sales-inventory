@@ -7,7 +7,7 @@
 > Trước: 7-A1 (Làm ✅ + Review R2 ✅; 2 repository, model, `einvoiceException`, `EInvoiceProcessorTrigger`). Sau: **7-A2b** (khu HĐĐT trên đơn, màn kết quả bán, chi tiết đơn: `Timer` 5 giây, KI-17, bỏ `QueryClient`), rồi 7-B2, 7-C.
 > Tài liệu: [TH-08](../../../02-yeu-cau/TH-08-hoa-don-dien-tu.md) US HD-04 FR-04, HD-05 FR-03, 6.4, KI-15, KI-16; PLAN.md "Cách chuyển MỘT feature", "Plan xoá / tách / thay code cũ", "Plan chuyển kiến trúc: giữ nghiệp vụ…". Mẫu: `plans/P5/5-A3-catalog-ui-sang-repository.md`, `plans/P7/7-A1-einvoice-data.md`.
 
-**Goal:** 4 trang `/more/einvoice/*` chạy trên `EInvoiceConfigurationRepository` (7-A1), cubit nằm ở `features/einvoice/logic/`, không còn import `vet45_einvoice_*` hay `async_query` trong các tệp thiết lập và trong `app_router.dart`.
+**Goal:** 4 trang `/more/einvoice/*` chạy trên `EInvoiceConfigurationRepository` (7-A1), cubit nằm ở `features/einvoice/logic/`, không còn import `c45_einvoice_*` hay `async_query` trong các tệp thiết lập và trong `app_router.dart`.
 
 **Architecture:** Chép 29 tệp thiết lập của `modules/einvoice/presentation` vào `apps/erp/lib/features/einvoice/{logic,presentation}`. 4 cubit đổi constructor sang repository, các nhánh `on XException` đổi sang so `AppException.code`. Việc hỏi lại trạng thái kết nối chuyển từ `UseQuery` (khoá cố định `'current-tenant'`) sang `Timer.periodic` trong `ProviderConnectionCubit`. Router lấy repository từ `getIt`.
 
@@ -40,7 +40,7 @@ Sau 7-A2a:
 /more/einvoice/* (router) ─▶ Page ─▶ Cubit (features/einvoice/logic) ─▶ EInvoiceConfigurationRepository ─▶ SupabaseRpc
 ```
 
-- `git grep -n "vet45_einvoice\|async_query" -- apps/erp/lib/features/einvoice apps/erp/lib/core/router` → rỗng.
+- `git grep -n "c45_einvoice\|async_query" -- apps/erp/lib/features/einvoice apps/erp/lib/core/router` → rỗng.
 - Trang Kết nối hỏi lại 2 giây bằng `Timer` trong cubit, không còn khoá `'current-tenant'` (KI-16).
 - Không còn `recheck()` / `VerifyProviderConnectionCommand`, `ConfigurationBlockerResult`, `OrderDataBlockerResult` trong app (KI-15 phần thiết lập; 2 widget này chưa từng vào app, chỉ không chép).
 - HD-04 hiện đúng toast "Mẫu không tương thích" / "Chưa kết nối MISA" theo FR-04 (Q1).
@@ -58,13 +58,13 @@ Sau 7-A2a:
 | Q2 | Tự động hoá: `on ConfigNotReadyException` không bao giờ chạy | Đã chốt ở 7-A1 Q7: `CONFIG_NOT_READY` → `notReady` (đổi có chủ đích; TH-08 HD-05 AC-03) |
 | Q3 | Hỏi lại trang Kết nối (KI-16) | **Người dùng duyệt thiết kế 2026-11-08.** `Timer.periodic(2 giây)` trong cubit, chạy đúng khi state là `ProviderConnectionLoaded` với `checkRequired`; mục 6 |
 | Q4 | Cubit dùng `ProviderConnectionCopy.accountRequired` / `passwordRequired` / `maskAccount`, `DefaultIssuanceConfigurationCopy.templateRequired`, `EInvoiceConfigurationDisplay` (id ký); state dùng `ConfigurationQueryFailure`. Để ở `presentation/support/` thì `logic/` → `presentation/` là **R2** | Hệ quả kỹ thuật của luật import (như 5-A3 Q15): 4 tệp đó đặt ở `logic/`; `presentation/` import ngược lại (cùng feature, hợp lệ). **Duyệt plan là chốt** |
-| Q5 | Quyền `EInvoicePermissions.manageConfiguration` (router) nằm ở `vet45_einvoice_domain` | `features/einvoice/logic/einvoice_permissions.dart`, chỉ hằng `manageConfiguration` (như `partner_permissions.dart`). 7-A2b thêm hằng khác nếu cần |
+| Q5 | Quyền `EInvoicePermissions.manageConfiguration` (router) nằm ở `c45_einvoice_domain` | `features/einvoice/logic/einvoice_permissions.dart`, chỉ hằng `manageConfiguration` (như `partner_permissions.dart`). 7-A2b thêm hằng khác nếu cần |
 | Q6 | Test module (`modules/einvoice/presentation/test`) | 7 tệp thiết lập **chép** sang app (đổi sang fake repository); bản module để nguyên, xoá ở 7-C. Bỏ ca `connect sets query data and updates query cache` (kiểm cache `QueryClient`, cơ chế bị bỏ), thay bằng ca Task 0 `connect pending then polls to connected` |
 
 ## 3. Hiện trạng (đo 2026-11-08)
 
 - `apps/erp/lib/features/einvoice/presentation/pages/` có 4 trang. Mỗi trang dựng cubit của module bằng `IEInvoiceModule` + `IExecutionContext`, rồi gắn view của module. `provider_connection_page.dart:31` truyền thêm `getIt<QueryClient>()`. `EInvoiceConfigurationOverviewPage` gọi `_cubit.load()` lại sau mỗi lần quay về từ trang con.
-- `app_router.dart:10-12` import `vet45_einvoice_{application,domain,presentation}`; dùng `EInvoicePermissions.manageConfiguration` (`:1124`), `ConfigurationPermissionDeniedState` (`:1129`), `getIt<IEInvoiceModule>()` + `getIt<IExecutionContext>()` (`:1132,1148,1160,1172`).
+- `app_router.dart:10-12` import `c45_einvoice_{application,domain,presentation}`; dùng `EInvoicePermissions.manageConfiguration` (`:1124`), `ConfigurationPermissionDeniedState` (`:1129`), `getIt<IEInvoiceModule>()` + `getIt<IExecutionContext>()` (`:1132,1148,1160,1172`).
 - Module presentation: 30 tệp mà 4 trang kéo theo (đo bằng bao đóng import, 2.688 dòng), trong đó `support/einvoice_query_keys.dart` chỉ phục vụ `QueryClient` (không chép). Tệp ngoài bao đóng (khu trên đơn, toast, `ConfigurationBlockerResult`, `OrderDataBlockerResult`) **không** thuộc 7-A2a.
 - Kiểu module mà 29 tệp dùng đều đã có ở `data/models/` (7-A1): `AutomationPolicyDto`, `ConfigurationReadinessDto`, `ConfigurationReadinessLevel`, `IssuanceProfileDto`, `ProviderConnectionResultDto`, `ProviderConnectionScreenDto`, `ProviderConnectionStatus`, `ProviderConnectionSummaryDto`, `ProviderTemplateDto` (có `isMtt`), `LegalProfileSummaryDto`, `ReadinessBlockerDto`, `ReadinessWarningDto`. Kiểu không chép: `IEInvoiceModule`, `IExecutionContext`, 11 Command / Query, `EInvoiceBlockedException`, `EInvoiceBlockedCodes`, `ConfigNotReadyException`, `ProviderAuthFailedException`, `ProviderNotConnectedException`, `ProviderUnavailableException`, `ValidationException`, `UseQuery`.
 - Server (đo theo `raise exception` trong `20261031003`, `20261031004`): `connect_provider` → `NO_PERMISSION`, `STATE_CHANGED`, `VALIDATION_ERROR`; `reconnect_provider` → thêm `INVALID_STATUS`, `NOT_FOUND`; `disconnect_provider` → `NO_PERMISSION`, `NOT_FOUND`, `VALIDATION_ERROR`; `update_automation_policy` → `NO_PERMISSION`, `CONFIG_NOT_READY`, `STATE_CHANGED`; `set_default_issuance_configuration` → Q1. Không RPC nào trả `PROVIDER_AUTH_FAILED` / `PROVIDER_UNAVAILABLE` ⇒ đổi `on ProviderAuthFailedException` sang so mã **không** đổi hành vi thật.
@@ -285,7 +285,7 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
 - [x] `injection.dart`, sau `ReturnExchangeRepository`:
   - `registerLazySingleton<EInvoiceProcessorTrigger>(() => EInvoiceProcessorTrigger(supabaseModule.client.functions))`;
   - `registerLazySingleton<EInvoiceConfigurationRepository>(() => EInvoiceConfigurationRepository(rpc: getIt<SupabaseRpc>(), trigger: getIt<EInvoiceProcessorTrigger>(), tenantId: …, actorId: …))`, với `tenantId` / `actorId` viết giống hệt `PartnerRepository` (`injection.dart:112-118`).
-- [x] `app_router.dart`: bỏ 3 import `vet45_einvoice_*`; import `features/einvoice/logic/einvoice_permissions.dart`, `features/einvoice/presentation/widgets/configuration_permission_denied_state.dart`, `features/einvoice/data/einvoice_configuration_repository.dart`; 4 route truyền `repository: getIt<EInvoiceConfigurationRepository>()`.
+- [x] `app_router.dart`: bỏ 3 import `c45_einvoice_*`; import `features/einvoice/logic/einvoice_permissions.dart`, `features/einvoice/presentation/widgets/configuration_permission_denied_state.dart`, `features/einvoice/data/einvoice_configuration_repository.dart`; 4 route truyền `repository: getIt<EInvoiceConfigurationRepository>()`.
 - [x] `flutter test test/features/einvoice/ test/core/di/injection_test.dart test/features/more/` → PASS.
 - [x] Commit `feat(einvoice): 7-A2a trang thiết lập, router, DI dùng repository`.
 
@@ -293,7 +293,7 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
 
 - [x] **6.1** `cd apps/erp && dart analyze lib test/features/einvoice test/core/di` → không lỗi / cảnh báo mới.
 - [x] **6.2** `dart run tool/check_feature_imports.dart` → không dòng mới so với trước 7-A2a (ghi danh sách dòng `einvoice`).
-- [x] **6.3** `git grep -n "vet45_einvoice\|async_query" -- apps/erp/lib/features/einvoice apps/erp/lib/core/router` → rỗng. `git grep -n "recheck\|VerifyProviderConnection\|current-tenant" -- apps/erp/lib/features/einvoice` → rỗng.
+- [x] **6.3** `git grep -n "c45_einvoice\|async_query" -- apps/erp/lib/features/einvoice apps/erp/lib/core/router` → rỗng. `git grep -n "recheck\|VerifyProviderConnection\|current-tenant" -- apps/erp/lib/features/einvoice` → rỗng.
 - [x] **6.4** `flutter test test/features/einvoice/` → PASS (ghi số ca). `flutter test` cả app → số lỗi đúng bằng `docs/refactor/TEST-BASELINE.md` mục "Sau 8-C" (55, so từng tên). `cd modules/einvoice/presentation && flutter test` → 79 + 4 ca Task 0, 0 lỗi.
 - [x] **6.5** TH-08: KI-16 cột cuối ghi "✅ 7-A2a (2026-…)"; KI-15 ghi "phần thiết lập ✅ 7-A2a; `OrderDataBlockerResult` không vào app". PLAN.md: dòng 7-A2a cột Làm.
 - [x] **6.6** `node .gitnexus/run.cjs analyze` rồi `detect_changes({scope: "all"})`. Chỉ được có tệp mục 4 + test + tài liệu. Ghi số tệp / symbol / luồng / rủi ro, kể cả các tệp mới chưa theo dõi.
@@ -377,7 +377,7 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
     - `apps/erp/lib/features/einvoice/presentation/pages/default_issuance_configuration_page.dart`: nhận `repository:`, dùng cubit và view mới.
     - `apps/erp/lib/features/einvoice/presentation/pages/automation_policy_page.dart`: nhận `repository:`, dùng cubit và view mới.
     - `apps/erp/lib/core/di/injection.dart`:14-15, :267-279: đăng ký `EInvoiceProcessorTrigger` và `EInvoiceConfigurationRepository` (dùng `SessionController.requireTenantId` và `sessionStore.userId`) sau `ReturnExchangeRepository`.
-    - `apps/erp/lib/core/router/app_router.dart`:10-12, :1130-1175: loại bỏ 3 import `vet45_einvoice_*`, import `EInvoiceConfigurationRepository`, `EInvoicePermissions`, `ConfigurationPermissionDeniedState`; 4 route truyền `repository: getIt<EInvoiceConfigurationRepository>()`.
+    - `apps/erp/lib/core/router/app_router.dart`:10-12, :1130-1175: loại bỏ 3 import `c45_einvoice_*`, import `EInvoiceConfigurationRepository`, `EInvoicePermissions`, `ConfigurationPermissionDeniedState`; 4 route truyền `repository: getIt<EInvoiceConfigurationRepository>()`.
     - `apps/erp/test/features/einvoice/presentation/einvoice_configuration_overview_page_test.dart`: chuyển sang dùng `_CountingRepository extends FakeEInvoiceConfigurationRepository`.
     - `apps/erp/test/features/einvoice/presentation/einvoice_subroutes_direct_access_test.dart`: chuyển sang dùng `_ForbiddenConfigurationRepository extends FakeEInvoiceConfigurationRepository`.
     - `apps/erp/test/core/di/injection_test.dart`: kiểm tra đăng ký `EInvoiceProcessorTrigger` và `EInvoiceConfigurationRepository`.
@@ -386,19 +386,19 @@ class FakeEInvoiceConfigurationRepository extends EInvoiceConfigurationRepositor
   - Impact (symbol, số caller, luồng, mức rủi ro):
     - 4 lớp page: chỉ gọi trong `app_router.dart` và 2 test file; không ảnh hưởng Sales hay các feature khác.
     - `initDependencies`: thêm 2 lazy singleton; không đổi chữ ký; các test DI đều pass. Rủi ro thực tế: LOW.
-  - Ghi chú cho review: Cả 4 trang thiết lập HĐĐT và router đã tách rời hoàn toàn khỏi `vet45_einvoice_*` và `async_query`, chỉ phụ thuộc vào `EInvoiceConfigurationRepository`.
+  - Ghi chú cho review: Cả 4 trang thiết lập HĐĐT và router đã tách rời hoàn toàn khỏi `c45_einvoice_*` và `async_query`, chỉ phụ thuộc vào `EInvoiceConfigurationRepository`.
 
 - **Task 6 — ✅**
   - Tệp:dòng đã đổi / thêm:
     - `docs/02-yeu-cau/TH-08-hoa-don-dien-tu.md`:1508-1509: cập nhật KI-15 và KI-16 sang "✅ 7-A2a (2026-11-08)".
     - `docs/refactor/PLAN.md`:542: cập nhật dòng 7-A2a cột Làm sang "✅ 2026-11-08".
-    - `apps/erp/lib/core/router/app_router.dart`:5: bỏ unused import `vet45_shared_application/application.dart`.
+    - `apps/erp/lib/core/router/app_router.dart`:5: bỏ unused import `c45_shared_application/application.dart`.
   - Lệch plan + lý do: Không.
   - Test thêm / sửa, lệnh, số ca pass / fail:
     - **6.1:** `cd apps/erp && dart analyze lib/features/einvoice test/features/einvoice test/core/di lib/core/router/app_router.dart` → 0 error, 0 warning.
     - **6.2:** `dart run tool/check_feature_imports.dart` → chỉ có đúng 4 dòng R1 hiện có từ trước của `einvoice` (`einvoice_repository.dart:10,11`, `einvoice_configuration_repository.dart:7`, `issuance_json.dart:1`), không phát sinh vi phạm mới.
     - **6.3:**
-      - `git grep -n "vet45_einvoice\|async_query" -- apps/erp/lib/features/einvoice apps/erp/lib/core/router` → rỗng.
+      - `git grep -n "c45_einvoice\|async_query" -- apps/erp/lib/features/einvoice apps/erp/lib/core/router` → rỗng.
       - `git grep -n "recheck\|VerifyProviderConnection\|current-tenant" -- apps/erp/lib/features/einvoice` → không có lời gọi hay method nào (chỉ có 2 chuỗi nhãn hiển thị trong `provider_connection_copy.dart`).
     - **6.4:**
       - `flutter test test/features/einvoice/` → 225 passed, 10 skipped, 0 failed.
@@ -451,7 +451,7 @@ Review commit `f40119e50..3c2252a1e` (6 commit) và cây làm việc.
 | Chép nguyên văn 29 tệp | ✅ | So từng tệp với nguồn module (bỏ import, dòng trống): 16 tệp giống hệt, 9 tệp chỉ khác định dạng (bề rộng dòng), `provider_connection_view.dart` chỉ bỏ `_ProviderConnectionPollingWrapper` / `UseQuery` (mục 6) |
 | 4 cubit, bắt lỗi (mục 5) | ✅ | Thứ tự gọi, tham số, nhánh mã khớp bảng; `load()` tổng quan giữ thứ tự H9; `mapConfigurationQueryFailure` so `NO_PERMISSION` |
 | Hỏi lại (mục 6, Q3, KI-16) | ✅ | `onChange` → `_syncPolling(change.nextState)`, chống chồng lượt, nuốt lỗi, chỉ thay màn khi khác trạng thái, `close()` huỷ timer. Lệch: `final class` → `class` để test con gọi `emit` (đã ghi, chấp nhận) |
-| Trang, router, DI (Task 5) | ✅ | Router hết `vet45_einvoice_*` / `vet45_shared_application`; DI thêm 2 lazy singleton sau `ReturnExchangeRepository`, `tenantId` / `actorId` như `PartnerRepository` |
+| Trang, router, DI (Task 5) | ✅ | Router hết `c45_einvoice_*` / `c45_shared_application`; DI thêm 2 lazy singleton sau `ReturnExchangeRepository`, `tenantId` / `actorId` như `PartnerRepository` |
 | `dart analyze lib/features/einvoice test/features/einvoice test/core/di lib/core` | ✅ | 0 lỗi / cảnh báo (10 `info` deprecated của design system, chép từ module) |
 | `check_feature_imports` | ✅ | `einvoice` chỉ còn 4 dòng R1 có từ 7-A1 |
 | `git grep` 6.3 | ✅ | rỗng; `recheck` chỉ còn ở 2 hằng chuỗi `recheckSuccess*` trong `provider_connection_copy.dart` (chép nguyên, không ai dùng; 7-C / dọn sau, không bắt sửa) |

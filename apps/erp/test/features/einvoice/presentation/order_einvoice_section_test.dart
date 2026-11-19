@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/einvoice/data/einvoice_errors.dart';
 import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/logic/einvoice_error_messages.dart';

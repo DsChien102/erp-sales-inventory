@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 
 import '../../../../core/di/injection.dart';
@@ -179,8 +179,8 @@ class _LoginViewState extends State<_LoginView> {
     final dynamicColors = context.vColors;
     final orgName = widget.organizationName?.trim();
     final joinedMessage = (orgName != null && orgName.isNotEmpty)
-        ? 'Đã tham gia tổ chức "$orgName" thành công. Đăng nhập để vào VET45.'
-        : 'Đã tham gia tổ chức thành công. Đăng nhập để vào VET45.';
+        ? 'Đã tham gia tổ chức "$orgName" thành công. Đăng nhập để vào Mosaic Retail.'
+        : 'Đã tham gia tổ chức thành công. Đăng nhập để vào Mosaic Retail.';
 
     return BlocConsumer<LoginCubit, LoginState>(
       listenWhen: (previous, current) => previous.status != current.status,
@@ -255,7 +255,7 @@ class _LoginViewState extends State<_LoginView> {
                           ),
                           const VGap.lg(),
                           VText(
-                            'VET45',
+                            'Mosaic Retail',
                             variant: VTextVariant.headingH1,
                             color: dynamicColors.textPrimary,
                             style: const TextStyle(
@@ -399,7 +399,7 @@ class _LoginViewState extends State<_LoginView> {
                           Padding(
                             padding: const EdgeInsets.only(bottom: VSpacing.md),
                             child: VText(
-                              '© VET45 · Phiên bản Mobile',
+                              '© Mosaic Retail · Phiên bản Mobile',
                               variant: VTextVariant.bodySmall,
                               color: dynamicColors.textMuted,
                             ),

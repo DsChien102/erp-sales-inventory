@@ -1,4 +1,4 @@
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Date/time labels for IAM presentation. Never uses wall clock internally.
 abstract final class IamDateFormatter {

@@ -1,6 +1,6 @@
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Sheet xác nhận trước khi ghi nhận chiết khấu nhà cung cấp (P4).
 Future<bool> showRebateConfirmSheet(

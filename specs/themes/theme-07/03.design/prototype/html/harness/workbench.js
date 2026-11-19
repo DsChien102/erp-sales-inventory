@@ -168,18 +168,18 @@ function resolveFigmaMapping(element) {
 
 function figmaTextStyleFor(element) {
   const v = String(element.dataset.dsPropVariant || "");
-  if (v.includes("headingH1")) return "VET45 v2 / Heading / H1";
-  if (v.includes("headingH2")) return "VET45 v2 / Heading / H2";
-  if (v.includes("headingH3")) return "VET45 v2 / Heading / H3";
-  if (v.includes("headingH4")) return "VET45 v2 / Heading / H4";
-  if (v.includes("bodySmall")) return "VET45 v2/Body/Small";
-  if (v.includes("bodyDefault") || v.includes("bodyMedium")) return "VET45 v2 / Body / Default";
-  if (element.matches("h1")) return "VET45 v2 / Heading / H1";
-  if (element.matches("h2")) return "VET45 v2 / Heading / H3";
-  if (element.matches("h3")) return "VET45 v2 / Heading / H4";
-  if (element.matches("small")) return "VET45 v2/Body/Small";
-  if (element.matches("strong")) return "VET45 v2 / Label / Default";
-  return "VET45 v2 / Body / Default";
+  if (v.includes("headingH1")) return "Mosaic Retail v2 / Heading / H1";
+  if (v.includes("headingH2")) return "Mosaic Retail v2 / Heading / H2";
+  if (v.includes("headingH3")) return "Mosaic Retail v2 / Heading / H3";
+  if (v.includes("headingH4")) return "Mosaic Retail v2 / Heading / H4";
+  if (v.includes("bodySmall")) return "Mosaic Retail v2/Body/Small";
+  if (v.includes("bodyDefault") || v.includes("bodyMedium")) return "Mosaic Retail v2 / Body / Default";
+  if (element.matches("h1")) return "Mosaic Retail v2 / Heading / H1";
+  if (element.matches("h2")) return "Mosaic Retail v2 / Heading / H3";
+  if (element.matches("h3")) return "Mosaic Retail v2 / Heading / H4";
+  if (element.matches("small")) return "Mosaic Retail v2/Body/Small";
+  if (element.matches("strong")) return "Mosaic Retail v2 / Label / Default";
+  return "Mosaic Retail v2 / Body / Default";
 }
 
 function canonicalFigmaProps(element, mapping) {
@@ -233,7 +233,7 @@ function canonicalFigmaProps(element, mapping) {
   } else if (ds === "VText") {
     out.push(["Text style", figmaTextStyleFor(element)]);
   } else if (ds === "VIcon") {
-    out.push(["Registry", "VET45 approved Icon Library"]);
+    out.push(["Registry", "Mosaic Retail approved Icon Library"]);
     if (element.dataset.dsPropIcon) out.push(["Icon", element.dataset.dsPropIcon.replace(/^VIcons\./, "")]);
   }
   return out;
@@ -432,7 +432,7 @@ function fitReviewDeviceToViewport() {
   const canvas = document.querySelector(".stage-canvas");
   if (!device || !canvas) return;
   if (window.innerWidth <= 840) {
-    device.style.setProperty("--vet45-review-scale", "1");
+    device.style.setProperty("--c45-review-scale", "1");
     return;
   }
   const canvasRect = canvas.getBoundingClientRect();
@@ -447,13 +447,13 @@ function fitReviewDeviceToViewport() {
   const scale = isWeb
     ? Math.min(1, availableHeight / 802, availableWidth / 1282)
     : Math.min(1, availableHeight / 890, availableWidth / 418);
-  device.style.setProperty("--vet45-review-scale", String(scale));
+  device.style.setProperty("--c45-review-scale", String(scale));
 }
 window.addEventListener("resize", fitReviewDeviceToViewport);
 requestAnimationFrame(fitReviewDeviceToViewport);
 
 
-window.__VET45_PROTOTYPE__ = {
+window.__C45_PROTOTYPE__ = {
   productKind: "app",
   version: "5.28.0",
   defaultViewport: { width: 402, height: 874 },

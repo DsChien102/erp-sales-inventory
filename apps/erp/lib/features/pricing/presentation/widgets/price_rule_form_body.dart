@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../logic/price_rule_form_cubit.dart';
 import '../../logic/price_rule_form_state.dart';

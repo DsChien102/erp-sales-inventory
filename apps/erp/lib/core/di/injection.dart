@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:erp/features/assistant/data.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/invitation_acceptance_repository.dart';

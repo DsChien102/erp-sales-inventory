@@ -1,7 +1,7 @@
 import 'package:erp/features/assistant/logic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 const assistantHint = 'Hỏi về doanh thu, tồn kho, công nợ…';
 const assistantLockedHint = 'Đã hết lượt hôm nay';

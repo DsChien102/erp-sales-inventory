@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// D-09 SG-03 — Dữ liệu đã thay đổi bởi người khác.
 class PriceRuleStateChangedBanner extends StatelessWidget {

@@ -346,7 +346,7 @@ when this is the first delivery and a suggested recipient exists.
 
 ```text
 SendInvoiceSheet
-└── VBottomSheet / current VET45 form-sheet pattern
+└── VBottomSheet / current Mosaic Retail form-sheet pattern
     ├── drag handle
     ├── title:
     │   "Gửi hóa đơn điện tử"
@@ -552,7 +552,7 @@ resend_invoice_sheet.dart
 
 ```text
 ResendInvoiceSheet
-└── VBottomSheet / current VET45 form-sheet pattern
+└── VBottomSheet / current Mosaic Retail form-sheet pattern
     ├── drag handle
     ├── title:
     │   "Gửi lại hóa đơn điện tử"
@@ -997,7 +997,7 @@ Exact repository APIs take precedence over descriptive names here.
 
 | UI responsibility | Intended mapping |
 |---|---|
-| Send / Resend sheet | `VBottomSheet` / current VET45 form-sheet pattern |
+| Send / Resend sheet | `VBottomSheet` / current Mosaic Retail form-sheet pattern |
 | Email input | current DS email/text-field component |
 | Input validation | existing DS field error state |
 | Primary action | `VButton` primary |

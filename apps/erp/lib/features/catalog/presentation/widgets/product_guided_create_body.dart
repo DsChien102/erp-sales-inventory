@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import '../../logic/product_guided_create_cubit.dart';
 import '../../logic/product_guided_create_state.dart';
 import 'product_guided_step_base_unit.dart';

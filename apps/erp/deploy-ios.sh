@@ -48,8 +48,8 @@ expected_bundle_id() {
   esac
 }
 
-"$ROOT/scripts/env/vet45_env.sh" sync --env "$ENV_NAME" >/dev/null
-RESOLVED="$("$ROOT/scripts/env/vet45_env.sh" resolve-shell --env "$ENV_NAME")"
+"$ROOT/scripts/env/c45_env.sh" sync --env "$ENV_NAME" >/dev/null
+RESOLVED="$("$ROOT/scripts/env/c45_env.sh" resolve-shell --env "$ENV_NAME")"
 while IFS= read -r line; do
   [[ -z "$line" ]] && continue
   export "$line"

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/inventory/logic/goods_receipt/receipt_cost_rules.dart';
 import 'package:erp/features/inventory/logic/goods_receipt/receipt_draft.dart';

@@ -16,7 +16,7 @@ import 'package:erp/features/einvoice/data/einvoice_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../support/fake_einvoice_repository.dart';
 

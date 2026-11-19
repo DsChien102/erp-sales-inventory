@@ -1,7 +1,7 @@
 import 'package:erp/features/inventory/presentation/patterns/inventory_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class _SingleDecimalTextInputFormatter extends TextInputFormatter {
   @override

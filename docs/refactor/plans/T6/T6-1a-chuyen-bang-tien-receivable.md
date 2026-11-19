@@ -199,7 +199,7 @@ git commit -m "feat(receivable): T6-1a chuyển bảng tiền sang schema receiv
 
 - [ ] **Bước 1:** `melos run migrate:seed-registry -- --write`; `git diff supabase/migrations/REGISTRY.yaml` chỉ đổi chủ sở hữu các hàm trong `Touches` sang `20261123001_…` (thêm cả khối `receivable:` nếu công cụ sinh).
 - [ ] **Bước 2: TH-06 3.6** — bảng hàm: dòng `20261122001` đổi thành "view `ai_read.don_ban` [R1]"; bỏ [R1] ở `precheck_sales_order_checkout` (chỉ tham số); mục 4: "8 test" (bỏ `einvoice_th08`, chỉ truyền tham số); ghi `search_path` thật là `sales, …` nhưng hàm luôn ghi tên đầy đủ.
-- [ ] **Bước 3: Chạy tay** kịch bản TH-05 9.3 trên app (iPhone hoặc web): bán nợ có hẹn → chi tiết đơn hiện ngày hẹn → thu một phần → in phiếu (ngày hẹn đúng) → đổi/trả phát sinh nợ thêm với hẹn mới → chi tiết đơn hiện hẹn mới → huỷ một đơn khác. Hỏi "Hỏi VET45": "đơn nào còn nợ, hạn khi nào?" ra đúng hạn.
+- [ ] **Bước 3: Chạy tay** kịch bản TH-05 9.3 trên app (iPhone hoặc web): bán nợ có hẹn → chi tiết đơn hiện ngày hẹn → thu một phần → in phiếu (ngày hẹn đúng) → đổi/trả phát sinh nợ thêm với hẹn mới → chi tiết đơn hiện hẹn mới → huỷ một đơn khác. Hỏi "Hỏi Mosaic Retail": "đơn nào còn nợ, hạn khi nào?" ra đúng hạn.
 - [ ] **Bước 4:** `detect_changes()` GitNexus (CLAUDE.md) → chỉ đụng các ký hiệu trong `Touches`.
 - [ ] **Bước 5:** PLAN.md dòng T6-1a: Làm ✅; commit `docs(refactor): T6-1a registry + sửa TH-06 3.6`.
 
@@ -237,4 +237,4 @@ git commit -m "feat(receivable): T6-1a chuyển bảng tiền sang schema receiv
 - Góp ý (không chặn):
   1. Sinh lại `REGISTRY.yaml` kéo theo ~57 dòng sắp xếp / bổ sung ở theme khác — vô hại, chỉ làm commit to.
   2. M04 chỉ bắt `v_order.` / `so.payment_due_date`; `plpgsql_check` của `db_check.sh` là lớp chặn chính.
-  3. Kịch bản tay TH-05 9.3 + câu hỏi hạn nợ ở "Hỏi VET45": người dùng tự xác nhận.
+  3. Kịch bản tay TH-05 9.3 + câu hỏi hạn nợ ở "Hỏi Mosaic Retail": người dùng tự xác nhận.

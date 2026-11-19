@@ -81,6 +81,6 @@ modules/partner/presentation/
     widgets/        — dialogs, forms, contact list, history tab, ...
 ```
 
-**Import rule:** `apps/erp` → `vet45_partner_presentation`; module presentation **không** import `apps/erp`.
+**Import rule:** `apps/erp` → `c45_partner_presentation`; module presentation **không** import `apps/erp`.
 
 Skill: [.cursor/skills/presentation-layer/SKILL.md](../../../../.cursor/skills/presentation-layer/SKILL.md)

@@ -1,5 +1,5 @@
 import 'package:erp/features/inventory/data/stock/stock_models.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// 5 loại chỉ báo tồn theo đặc tả Theme 7 (bj01.js / cap01.js).
 enum StockIndicator {

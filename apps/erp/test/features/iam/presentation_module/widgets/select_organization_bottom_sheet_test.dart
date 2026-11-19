@@ -1,7 +1,7 @@
 import 'package:erp/core/session/models/accessible_tenant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import 'package:erp/features/iam/presentation/organizations/widgets/select_organization_bottom_sheet.dart';
 

@@ -1,7 +1,7 @@
 import 'package:erp/features/auth/presentation/pages/no_organization_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import '../../support/scripted_auth.dart';
 
 void main() {

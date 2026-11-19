@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/models.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../utils/product_change_history_formatters.dart';
 import 'product_price_band_history_change.dart';

@@ -59,7 +59,7 @@ const ThemeApp = (() => {
     ] },
   };
 
-  const ORG_NAME = 'VET45 Demo';
+  const ORG_NAME = 'Mosaic Retail Demo';
 
   // Ba dòng của prototype mở cùng một fixture ở SCR-011 (phiếu của Minh Dũng, Nguyễn Văn An gửi 09:41).
   const PENDING_RECEIPTS = [
@@ -104,7 +104,7 @@ const ThemeApp = (() => {
 
   // Khung 5 tab của app (docs/02-yeu-cau/LUONG-UNG-DUNG.md); chỉ "Thêm" bấm được trong prototype.
   function bottomNav() {
-    return `<nav class="t7-app-bottom-nav" aria-label="Điều hướng chính" data-theme-component="VET45BottomNavigation">
+    return `<nav class="t7-app-bottom-nav" aria-label="Điều hướng chính" data-theme-component="C45BottomNavigation">
       <button type="button" disabled aria-label="Trang chủ">${icon('warehouse', 'icon--sm')}<span>Trang chủ</span></button>
       <button type="button" disabled aria-label="Đơn hàng">${icon('fileText', 'icon--sm')}<span>Đơn hàng</span></button>
       <button type="button" disabled aria-label="Sản phẩm">${icon('package', 'icon--sm')}<span>Sản phẩm</span></button>
@@ -147,7 +147,7 @@ const ThemeApp = (() => {
   }
 
   function disabledMoreRow(title, subtitle, leading) {
-    return ds24ListRow({ title, subtitle, leading, type: 'Navigation', state: 'Disabled', disabled: true, attrs: 'data-theme-disabled-module="true"', theme: 'VET45MoreNavigationRow' });
+    return ds24ListRow({ title, subtitle, leading, type: 'Navigation', state: 'Disabled', disabled: true, attrs: 'data-theme-disabled-module="true"', theme: 'C45MoreNavigationRow' });
   }
 
   function renderMore() {
@@ -312,7 +312,7 @@ const ThemeApp = (() => {
   }
 
   function renderNavigation() {
-    const rootButtons = `<button class="screen-nav-item ${route === 'more' ? 'is-active' : ''}" data-theme-sidebar-route="more" type="button"><span class="screen-nav-number">01</span><span class="screen-nav-copy"><strong>Thêm</strong><span>VET45 navigation</span></span><span class="nav-chevron">›</span></button><button class="screen-nav-item ${route === 'inventory' ? 'is-active' : ''}" data-theme-sidebar-route="inventory" type="button"><span class="screen-nav-number">02</span><span class="screen-nav-copy"><strong>Kho</strong><span>Theme 7 module root</span></span><span class="nav-chevron">›</span></button>`;
+    const rootButtons = `<button class="screen-nav-item ${route === 'more' ? 'is-active' : ''}" data-theme-sidebar-route="more" type="button"><span class="screen-nav-number">01</span><span class="screen-nav-copy"><strong>Thêm</strong><span>Mosaic Retail navigation</span></span><span class="nav-chevron">›</span></button><button class="screen-nav-item ${route === 'inventory' ? 'is-active' : ''}" data-theme-sidebar-route="inventory" type="button"><span class="screen-nav-number">02</span><span class="screen-nav-copy"><strong>Kho</strong><span>Theme 7 module root</span></span><span class="nav-chevron">›</span></button>`;
     const current = route === 'flow' ? `<div class="nav-group"><span class="nav-group-label">Đang mở</span><button class="screen-nav-item is-active" type="button" disabled><span class="screen-nav-number">${esc(activeFlow().bj.replace('BJ-', '').replace('CAP-', 'C'))}</span><span class="screen-nav-copy"><strong>${esc(FLOW_LABELS[activeFlowId] || activeFlow().name)}</strong><span>${esc(activeFlowId)}</span></span></button><button class="screen-nav-item" data-theme-sidebar-route="inventory" type="button"><span class="screen-nav-number">←</span><span class="screen-nav-copy"><strong>Về Kho</strong><span>Chọn nghiệp vụ khác</span></span><span class="nav-chevron">›</span></button></div>` : '';
     document.getElementById('screen-navigation').innerHTML = `<div class="nav-group"><span class="nav-group-label">Điểm vào</span>${rootButtons}</div>${current}`;
   }
@@ -320,14 +320,14 @@ const ThemeApp = (() => {
   function renderRootInspector() {
     const more = route === 'more';
     const view = hubView;
-    document.getElementById('current-screen-id').textContent = more ? 'VET45 · NAV-MORE' : view === 'home' ? 'THEME-07 · HUB-CANDIDATE' : view === 'pending-approvals' ? 'BJ02 · PENDING-APPROVAL-WORKLIST' : 'THEME-07 · WORKSPACE-CANDIDATE';
+    document.getElementById('current-screen-id').textContent = more ? 'Mosaic Retail · NAV-MORE' : view === 'home' ? 'THEME-07 · HUB-CANDIDATE' : view === 'pending-approvals' ? 'BJ02 · PENDING-APPROVAL-WORKLIST' : 'THEME-07 · WORKSPACE-CANDIDATE';
     document.getElementById('current-screen-name').textContent = more ? 'Thêm' : view === 'home' ? 'Kho · Candidate' : view === 'pending-approvals' ? 'Nhận hàng chờ phê duyệt' : WORKSPACES[view]?.title || 'Kho · Candidate';
     document.getElementById('state-switcher').innerHTML = '<span class="t7-inspector-static">READY · app navigation</span>';
     document.getElementById('traceability').innerHTML = more
       ? '<div class="trace-row"><span>Entry</span><strong>Bottom navigation → Thêm</strong></div><div class="trace-row"><span>UI authority</span><strong>Figma DS · VAppBar · DS v2 / List Row</strong></div><div class="trace-row"><span>Runtime</span><strong>Shared with BJ / UIF tab</strong></div><div class="trace-row"><span>Coverage</span><strong>Kho entry</strong></div>'
       : '<div class="trace-row"><span>Review mode</span><strong>Hub Kho</strong></div><div class="trace-row"><span>Primary IA</span><strong>Search + 4 Quick Actions + Cần chú ý + 5 workspace</strong></div><div class="trace-row"><span>Permission</span><strong>Không phụ thuộc role; thiết kế cho một Owner làm tất cả</strong></div>';
     document.getElementById('design-rationale').textContent = more
-      ? 'Tái hiện điểm vào hiện tại của VET45. Chỉ Kho được bật trong phạm vi prototype Theme 7; các module ngoài phạm vi giữ đúng trạng thái Disabled.'
+      ? 'Tái hiện điểm vào hiện tại của Mosaic Retail. Chỉ Kho được bật trong phạm vi prototype Theme 7; các module ngoài phạm vi giữ đúng trạng thái Disabled.'
       : 'Home Kho (SCR-090): một người vận hành toàn bộ Kho qua tìm kiếm, thao tác nhanh, việc cần chú ý và 5 workspace.';
   }
 
@@ -467,7 +467,7 @@ const ThemeApp = (() => {
       // Vào danh sách chung "Hồ sơ cần kiểm tra" (BJ-16 / BJ-17): chip theo lối vào.
       if (typeof crSetEntryFilter === 'function') crSetEntryFilter(flow.id, entry.dataset.crEntry);
       // Vai khi vào luồng: mặc định "module"; lối vào gắn data-theme-entry-actor (vd. Owner khởi tạo kho, người duyệt từ "Chờ duyệt") đặt vai riêng.
-      window.__VET45_QA__.setActor(entry.dataset.themeEntryActor || 'module');
+      window.__C45_QA__.setActor(entry.dataset.themeEntryActor || 'module');
       activeFlowId = flow.id;
       activeScreenId = flow.screens[0];
       route = 'flow';

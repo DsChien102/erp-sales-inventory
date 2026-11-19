@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// SC-06 — Xác nhận thoát form tạo/sửa giá riêng khi còn thay đổi chưa lưu.
 /// Sử dụng [showVBottomSheet] theo chuẩn Design System.

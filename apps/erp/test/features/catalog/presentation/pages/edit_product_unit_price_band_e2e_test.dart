@@ -3,8 +3,8 @@ import 'package:erp/features/catalog/presentation/pages/edit_product_unit_price_
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_design_system/design_system.dart';
+import 'package:c45_shared_application/application.dart';
 
 import '../../support/catalog_test_registry.dart';
 

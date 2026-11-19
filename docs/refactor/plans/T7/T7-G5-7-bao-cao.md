@@ -10,7 +10,7 @@
 
 **Architecture:** Migration mới `20261119001_inventory_reports.sql`: helper `_movement_source`, `_report_range_check` và 5 RPC **chỉ đọc** (không bảng mới, không sửa migration cũ). Flutter: BJ mới `features/inventory/{data,logic,presentation}/reports/` (055 báo cáo + thẻ kho, 056, lãi gộp, nhập theo NCC, sheet "Chọn kỳ" dùng chung); nối lối vào Hub, 077, SCR-003.
 
-**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `vet45_design_system`.
+**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `c45_design_system`.
 
 **Spec:** mục 1–2 của plan này + Screen Contract SCR-055 / 056 + PLAN.md Theme 7 → "Quy ước chung cho mọi plan G5".
 

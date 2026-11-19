@@ -2,7 +2,7 @@ import 'package:erp/features/assistant/data.dart' hide TableRow;
 import 'package:erp/features/assistant/data.dart' as data show TableRow;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../assistant_cell_format.dart';
 import '../assistant_open_target.dart';

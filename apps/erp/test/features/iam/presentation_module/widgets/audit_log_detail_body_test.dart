@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/iam/presentation/audit_logs/widgets/audit_log_detail_body.dart';
 import 'package:erp/features/iam/presentation/audit_logs/mappers/tenant_audit_ui_mapper.dart';
 import '../../support/fake_iam_backend.dart';

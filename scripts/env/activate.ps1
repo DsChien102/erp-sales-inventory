@@ -1,4 +1,4 @@
-# Activate Vet45 env/profile for the current PowerShell session (like Python venv).
+# Activate Mosaic Retail env/profile for the current PowerShell session (like Python venv).
 #
 # Usage:
 #   . .\scripts\env\activate.ps1
@@ -7,13 +7,13 @@
 # Deactivate:
 #   deactivate
 
-function global:_Vet45ReadState {
+function global:_C45ReadState {
   param([string]$RepoRoot)
 
   $profileId = "default"
   $environmentId = "development"
-  $stateFile = Join-Path $RepoRoot ".vet45\state.json"
-  $activeFile = Join-Path $RepoRoot ".vet45\active"
+  $stateFile = Join-Path $RepoRoot ".c45\state.json"
+  $activeFile = Join-Path $RepoRoot ".c45\active"
 
   if (Test-Path $stateFile) {
     try {
@@ -35,33 +35,33 @@ function global:_Vet45ReadState {
   }
 }
 
-function global:_Vet45RefreshExports {
-  $state = _Vet45ReadState -RepoRoot $env:VET45_ROOT
-  $env:VET45_PROFILE = $state.Profile
-  $env:VET45_ENV_ID = $state.Environment
-  $env:VET45_ACTIVE_LABEL = $state.Label
+function global:_C45RefreshExports {
+  $state = _C45ReadState -RepoRoot $env:C45_ROOT
+  $env:C45_PROFILE = $state.Profile
+  $env:C45_ENV_ID = $state.Environment
+  $env:C45_ACTIVE_LABEL = $state.Label
 }
 
 function global:deactivate {
-  if (Test-Path Function:_Vet45OldPrompt) {
-    Copy-Item -Path Function:_Vet45OldPrompt -Destination Function:prompt -Force
-    Remove-Item -Path Function:_Vet45OldPrompt -Force -ErrorAction SilentlyContinue
+  if (Test-Path Function:_C45OldPrompt) {
+    Copy-Item -Path Function:_C45OldPrompt -Destination Function:prompt -Force
+    Remove-Item -Path Function:_C45OldPrompt -Force -ErrorAction SilentlyContinue
   } elseif (Test-Path Function:prompt) {
     Remove-Item -Path Function:prompt -Force -ErrorAction SilentlyContinue
   }
 
-  if ($env:_VET45_OLD_PATH) {
-    $env:PATH = $env:_VET45_OLD_PATH
-    Remove-Item Env:_VET45_OLD_PATH -ErrorAction SilentlyContinue
+  if ($env:_C45_OLD_PATH) {
+    $env:PATH = $env:_C45_OLD_PATH
+    Remove-Item Env:_C45_OLD_PATH -ErrorAction SilentlyContinue
   }
 
-  Remove-Item Env:VET45_ROOT -ErrorAction SilentlyContinue
-  Remove-Item Env:VET45_PROFILE -ErrorAction SilentlyContinue
-  Remove-Item Env:VET45_ENV_ID -ErrorAction SilentlyContinue
-  Remove-Item Env:VET45_ACTIVE_LABEL -ErrorAction SilentlyContinue
+  Remove-Item Env:C45_ROOT -ErrorAction SilentlyContinue
+  Remove-Item Env:C45_PROFILE -ErrorAction SilentlyContinue
+  Remove-Item Env:C45_ENV_ID -ErrorAction SilentlyContinue
+  Remove-Item Env:C45_ACTIVE_LABEL -ErrorAction SilentlyContinue
 
-  Remove-Item Function:_Vet45ReadState -ErrorAction SilentlyContinue
-  Remove-Item Function:_Vet45RefreshExports -ErrorAction SilentlyContinue
+  Remove-Item Function:_C45ReadState -ErrorAction SilentlyContinue
+  Remove-Item Function:_C45RefreshExports -ErrorAction SilentlyContinue
   Remove-Item Function:deactivate -ErrorAction SilentlyContinue
 }
 
@@ -74,36 +74,36 @@ if (Get-Command deactivate -ErrorAction SilentlyContinue) {
   deactivate | Out-Null
 }
 
-$env:VET45_ROOT = $repoRoot
-_Vet45RefreshExports
+$env:C45_ROOT = $repoRoot
+_C45RefreshExports
 
-$binDir = Join-Path $repoRoot ".vet45\bin"
-$env:_VET45_OLD_PATH = $env:PATH
+$binDir = Join-Path $repoRoot ".c45\bin"
+$env:_C45_OLD_PATH = $env:PATH
 if (-not (($env:PATH -split ';') -contains $binDir)) {
   $env:PATH = "$binDir;$($env:PATH)"
 }
 
 # Preserve previous prompt, then wrap with (profile/env)
 if (Test-Path Function:prompt) {
-  Copy-Item -Path Function:prompt -Destination Function:_Vet45OldPrompt -Force
+  Copy-Item -Path Function:prompt -Destination Function:_C45OldPrompt -Force
 } else {
-  function global:_Vet45OldPrompt { "PS $($executionContext.SessionState.Path.CurrentLocation)> " }
+  function global:_C45OldPrompt { "PS $($executionContext.SessionState.Path.CurrentLocation)> " }
 }
 
 function global:prompt {
-  _Vet45RefreshExports | Out-Null
-  $label = $env:VET45_ACTIVE_LABEL
-  if (-not $label) { $label = "(vet45)" }
-  "$label $(&_Vet45OldPrompt)"
+  _C45RefreshExports | Out-Null
+  $label = $env:C45_ACTIVE_LABEL
+  if (-not $label) { $label = "(c45)" }
+  "$label $(&_C45OldPrompt)"
 }
 
-Write-Host "Activated Vet45: $($env:VET45_ACTIVE_LABEL)"
-Write-Host "  root: $($env:VET45_ROOT)"
-$exe = Join-Path $binDir "vet45.exe"
+Write-Host "Activated Mosaic Retail: $($env:C45_ACTIVE_LABEL)"
+Write-Host "  root: $($env:C45_ROOT)"
+$exe = Join-Path $binDir "c45.exe"
 if (Test-Path $exe) {
-  Write-Host "  cli:  vet45.exe  (AOT on PATH)"
+  Write-Host "  cli:  c45.exe  (AOT on PATH)"
 } else {
-  Write-Host "  tip: melos run env:build  # compile AOT binary for faster vet45"
+  Write-Host "  tip: melos run env:build  # compile AOT binary for faster c45"
 }
 Write-Host "  tip: melos run env:use:staging  # prompt updates automatically"
 Write-Host "  tip: deactivate"

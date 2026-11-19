@@ -7,7 +7,7 @@ import 'package:erp/features/sales/logic/sales_draft_list_state.dart';
 import 'package:erp/features/sales/presentation/models/sales_order_draft/sales_draft_list_item_vm.dart';
 import 'package:erp/features/sales/presentation/support/i_sales_active_store_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 final class SalesDraftListCubit extends Cubit<SalesDraftListState> {
   SalesDraftListCubit({

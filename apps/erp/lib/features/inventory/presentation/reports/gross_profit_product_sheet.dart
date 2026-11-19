@@ -3,7 +3,7 @@ import 'package:erp/features/inventory/data/reports/reports_models.dart';
 import 'package:erp/features/inventory/logic/costing/costing_rules.dart';
 import 'package:erp/features/inventory/logic/reports/reports_rules.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Chiết khấu NCC hiện `−{x}` khi > 0, không có ⇒ `—`.
 String rebateText(int rebateVnd) =>

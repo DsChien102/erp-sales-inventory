@@ -18,7 +18,7 @@
   SalesReturnExchangeSettlementCubit┘                                getDetail / evaluate / confirm
               (cả 3) ─────────────────▶ SalesOrderRepository         getDetail / getReturnSummary (có từ 8-A3)
   ```
-- Repository **nhận và trả kiểu của `vet45_sales_application`** (8-A1 Q1), trừ 6 command thay bằng lớp request thuần (Q5).
+- Repository **nhận và trả kiểu của `c45_sales_application`** (8-A1 Q1), trừ 6 command thay bằng lớp request thuần (Q5).
 - Lỗi đi ra là `AppException`. Câu thô (câu Anh của server, mã, `'$error'`, `rpcMessage`) đổi theo TH-05 6.4 (Q3, bảng 4.4).
 - 3 cubit + 3 state chuyển vào `features/sales/logic/`. `SalesOrderDetailCubit` bỏ `salesModule`.
 
@@ -351,7 +351,7 @@ Câu trùng chỉ hiện một lần (`toSet()` trước `join('\n')` / trước
   git grep -n "SalesContractException" -- apps/erp/lib/features/sales
   git grep -nE "_get_return_exchange_context|(Start|Update|Cancel|Confirm|Complete)ReturnExchangeCommand|ConfirmSalesOrderCancellationCommand|Precheck(SalesOrderCancellation|ReturnExchange)Query|GetReturnableOrderLinesQuery|PreviewReturnExchangePricingQuery|GetReturnExchangeDetailQuery|EvaluateReturnPricingImpactQuery|GetSalesOrder(Detail|ReturnSummary)Query" -- apps/erp/lib
   ```
-- [x] **6.3** `dart run tool/check_feature_imports.dart` → liệt kê dòng mới; chấp nhận cùng loại 8-A1…8-A3 (`logic/` → `presentation/`, `data/` → `vet45_sales_*`, để 8-W / 8-C), ghi từng dòng vào Kết quả.
+- [x] **6.3** `dart run tool/check_feature_imports.dart` → liệt kê dòng mới; chấp nhận cùng loại 8-A1…8-A3 (`logic/` → `presentation/`, `data/` → `c45_sales_*`, để 8-W / 8-C), ghi từng dòng vào Kết quả.
 - [x] **6.4** `flutter test` cả app → số lỗi đúng bằng mốc sau 8-A3 (**55**), 0 lỗi `features/sales`; so từng tên.
 - [x] **6.5** `node .gitnexus/run.cjs analyze` rồi `node .gitnexus/run.cjs detect-changes --repo erp-sales-inventory --scope all`: chỉ tệp trong plan; ghi số tệp / symbol / luồng / rủi ro. Hoàn nguyên `AGENTS.md` / `CLAUDE.md` nếu `analyze` sửa.
 - [x] **6.6** PLAN.md dòng 8-A4: Làm ✅ + ngày. Chỉ `dart format` tệp của plan.

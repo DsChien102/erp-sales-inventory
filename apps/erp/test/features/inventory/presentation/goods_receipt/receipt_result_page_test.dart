@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_models.dart';
 import 'package:erp/features/inventory/presentation/goods_receipt/receipt_result_page.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 void main() {
   Widget buildApp(Widget child, {Size size = const Size(390, 844)}) {

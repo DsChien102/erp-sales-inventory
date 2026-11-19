@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// D-05 — Không thể tải đơn nháp.
 class SalesDraftListErrorState extends StatelessWidget {

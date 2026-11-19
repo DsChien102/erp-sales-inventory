@@ -1,7 +1,7 @@
 import 'package:erp/features/inventory/data/stocktake/stocktake_models.dart';
 import 'package:erp/features/inventory/logic/stocktake/stocktake_rules.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 void main() {
   group('stocktake_rules', () {

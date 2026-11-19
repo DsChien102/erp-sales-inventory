@@ -24,9 +24,9 @@ enum AppEnvironment {
       };
 
   String get displayName => switch (this) {
-        AppEnvironment.development => 'VET45 Dev',
-        AppEnvironment.staging => 'VET45 Staging',
-        AppEnvironment.production => 'VET45',
+        AppEnvironment.development => 'Mosaic Retail Dev',
+        AppEnvironment.staging => 'Mosaic Retail Staging',
+        AppEnvironment.production => 'Mosaic Retail',
       };
 
   String? get bannerLabel => switch (this) {

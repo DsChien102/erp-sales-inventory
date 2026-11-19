@@ -9,7 +9,7 @@ import 'package:erp/features/inventory/logic/inventory_format.dart';
 import 'package:erp/features/inventory/logic/stocktake/stocktake_count_state.dart';
 import 'package:erp/features/inventory/logic/stocktake/stocktake_rules.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class StocktakeCountCubit extends Cubit<StocktakeCountState> {
   StocktakeCountCubit({

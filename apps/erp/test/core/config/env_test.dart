@@ -17,9 +17,9 @@ void main() {
     });
 
     test('display names and banners', () {
-      expect(AppEnvironment.development.displayName, 'VET45 Dev');
-      expect(AppEnvironment.staging.displayName, 'VET45 Staging');
-      expect(AppEnvironment.production.displayName, 'VET45');
+      expect(AppEnvironment.development.displayName, 'Mosaic Retail Dev');
+      expect(AppEnvironment.staging.displayName, 'Mosaic Retail Staging');
+      expect(AppEnvironment.production.displayName, 'Mosaic Retail');
 
       expect(AppEnvironment.development.bannerLabel, 'DEV');
       expect(AppEnvironment.staging.bannerLabel, 'STAGING');

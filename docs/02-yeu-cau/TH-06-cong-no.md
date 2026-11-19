@@ -909,7 +909,7 @@ Bỏ chọn DH-002 và DH-003
 - Số tiền canh phải, chữ số đều (tabular); ô tiền bàn phím số.
 - Vùng chạm ≥ 44 px (ô chọn cấn trừ, dòng danh sách).
 - iPhone và web ngang nhau (LUONG-UNG-DUNG 1.1); web: CN-01 + CN-02 danh sách – chi tiết, CN-03 hộp thoại; đi được bằng bàn phím (Tab, Enter để xác nhận).
-- UI Flutter dựng theo prototype (PLAN "UI Flutter: trích nguyên code prototype"); prototype CN-01…CN-03 và SG-13 **đã chốt 2026-11-18** (`specs/themes/theme-06/03.design/prototype/html/`, dùng nền chung `specs/prototype/shared/`, token khớp `packages/vet45_design_system`; 90 ảnh đích trong `tools/proto-final/`).
+- UI Flutter dựng theo prototype (PLAN "UI Flutter: trích nguyên code prototype"); prototype CN-01…CN-03 và SG-13 **đã chốt 2026-11-18** (`specs/themes/theme-06/03.design/prototype/html/`, dùng nền chung `specs/prototype/shared/`, token khớp `packages/c45_design_system`; 90 ảnh đích trong `tools/proto-final/`).
 
 ---
 

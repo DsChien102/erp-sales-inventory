@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import '../errors/app_exception.dart';
 import '../iam/iam_codes.dart';

@@ -1,7 +1,7 @@
 -- Title: ai_read views (read-only, per-store filtered) + ai_reader role + ai.get_catalog
 -- Kind: schema
 -- Intent: ai_read_views
--- Context: AI-4 Task 1 (trợ lý "Hỏi VET45" tự truy vấn); 6 view đã lọc theo cửa hàng của người hỏi
+-- Context: AI-4 Task 1 (trợ lý "Hỏi Mosaic Retail" tự truy vấn); 6 view đã lọc theo cửa hàng của người hỏi
 -- Touches: ai_reader, _tenant, _store, _warehouse, get_catalog, ai_read.don_ban, ai_read.ban_hang_thuan, ai_read.ton_kho, ai_read.bien_dong_kho, ai_read.san_pham, ai_read.khach_hang
 -- Safety: one-shot ; new role, new schema and views only, no change to existing tables
 -- Depends on: 20261120002_ai_assistant_log, 20261120001_sales_stats, 20261112001_inventory_stock_view, 20260714001_partner_v2_schema

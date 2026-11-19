@@ -11,7 +11,7 @@
 
 **Architecture:** Chỉ sửa `apps/erp/lib/features/einvoice` (không đụng server, không migration). HD-04 cubit đọc thêm `getConnectionScreen()` (lỗi thì bỏ dòng). 7 hàm `show…` chuyển sang `showVAdaptiveSheet(title:)`, tiêu đề trong nội dung bỏ đi. HD-01 … HD-05, HD-13 đã nằm trong cột 720 của `VPageScaffold` — chỉ thêm test.
 
-**Tech Stack:** Dart / Flutter, `flutter_bloc`, `flutter_test`, `vet45_design_system` (`showVAdaptiveSheet`, `VSheetDialog`, `VBottomSheet`, `VBreakpoints`).
+**Tech Stack:** Dart / Flutter, `flutter_bloc`, `flutter_test`, `c45_design_system` (`showVAdaptiveSheet`, `VSheetDialog`, `VBottomSheet`, `VBreakpoints`).
 
 ## Global Constraints
 

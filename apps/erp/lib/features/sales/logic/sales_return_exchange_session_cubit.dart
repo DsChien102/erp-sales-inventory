@@ -9,7 +9,7 @@ import 'package:erp/features/sales/presentation/support/sales_return_exchange_pr
 import 'package:erp/features/sales/presentation/support/sales_return_exchange_session_draft.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import 'sales_return_exchange_session_state.dart';
 

@@ -28,7 +28,7 @@ Khi agent fail cùng lỗi docs/ID → cập nhật file này + guard/doc, khôn
 
 | Gap | Ảnh hưởng | Hướng xử lý |
 | --- | --------- | ----------- |
-| `vet45_async_query` thiếu `refetchInterval` | Không poll được trạng thái async bằng cơ chế chung | Bổ sung vào `QueryOptions`/`QueryObserver` trong S2 FE lane — không dựng `Timer.periodic` từng màn |
+| `c45_async_query` thiếu `refetchInterval` | Không poll được trạng thái async bằng cơ chế chung | Bổ sung vào `QueryOptions`/`QueryObserver` trong S2 FE lane — không dựng `Timer.periodic` từng màn |
 | `IMessagingFlushPort.flushAfterMutation()` chưa có implementation | Không kick worker sau enqueue; latency phụ thuộc tick 3–30s | Deferred — xem [03 §11](03-architecture-and-flows.md) |
 | Supabase Realtime chưa dùng ở đâu trong repo | Push signal sẽ là mechanism hoàn toàn mới (gateway + RLS + test) | Deferred, không thuộc S2 |
 
@@ -45,7 +45,7 @@ Khi agent fail cùng lỗi docs/ID → cập nhật file này + guard/doc, khôn
 
 ## Scope locks (MVP)
 
-- Một HĐ gốc / SalesOrder; không điều chỉnh / thay thế / hủy trong VET45.
+- Một HĐ gốc / SalesOrder; không điều chỉnh / thay thế / hủy trong Mosaic Retail.
 - Một ProviderConnection hoạt động; Phase 1 = MISA meInvoice.
 - Không danh sách HĐĐT độc lập; entry từ Theme 05.
 - Worker-only HTTP tới MISA ([03-architecture-and-flows.md](03-architecture-and-flows.md)).
@@ -58,11 +58,11 @@ Khi agent fail cùng lỗi docs/ID → cập nhật file này + guard/doc, khôn
 
 ## Package đã có (blackbox)
 
-`packages/vet45_misa` — Phase A: `listInvoiceTemplates`, `previewUnpublished`, `publish`, `getStatus`, `download`, `previewPublished`, `sendEmail`. Map vào worker jobs — xem [03-architecture-and-flows.md §8](03-architecture-and-flows.md).
+`packages/c45_misa` — Phase A: `listInvoiceTemplates`, `previewUnpublished`, `publish`, `getStatus`, `download`, `previewPublished`, `sendEmail`. Map vào worker jobs — xem [03-architecture-and-flows.md §8](03-architecture-and-flows.md).
 
 ## Presentation example catalog
 
-Audit scaffold (38 SRS §6.5 specimens, SG tabs placeholder): [modules/einvoice/presentation/example/README.md](../../../modules/einvoice/presentation/example/README.md) — chạy `vet45 run einvoice_presentation debug:web`.
+Audit scaffold (38 SRS §6.5 specimens, SG tabs placeholder): [modules/einvoice/presentation/example/README.md](../../../modules/einvoice/presentation/example/README.md) — chạy `c45 run einvoice_presentation debug:web`.
 
 ## Harness maturity (2026-08-17)
 

@@ -2,7 +2,7 @@
 
 ## Epic overview
 
-Epic này giúp VET45 thiết lập và kiểm soát đơn vị đo lường của sản phẩm, bao gồm đơn vị cơ sở, đơn vị quy đổi, vai trò của từng đơn vị trong bán hàng/nhập hàng/hiển thị, và tác động của đơn vị đến readiness của sản phẩm.
+Epic này giúp Mosaic Retail thiết lập và kiểm soát đơn vị đo lường của sản phẩm, bao gồm đơn vị cơ sở, đơn vị quy đổi, vai trò của từng đơn vị trong bán hàng/nhập hàng/hiển thị, và tác động của đơn vị đến readiness của sản phẩm.
 
 Đơn vị đo lường là dữ liệu nền rất quan trọng vì tồn kho, Giá cơ sở định giá, Giá niêm yết, Giá sàn, nhập hàng và bán hàng đều cần hiểu “số lượng này đang tính theo đơn vị nào”. Nếu đơn vị cơ sở sai hoặc thiếu, các dữ liệu phía sau như tồn kho và giá đều có nguy cơ bị hiểu sai.
 

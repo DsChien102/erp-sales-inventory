@@ -83,4 +83,4 @@ const t7Ledger = (() => {
   return { post, check, reset, productOf, labelOf, STATE_LABEL, posted };
 })();
 
-Object.assign(window.__VET45_QA__, { resetLedger: t7Ledger.reset, checkLedger: () => bj01Products.every((p) => t7Ledger.check(p)) });
+Object.assign(window.__C45_QA__, { resetLedger: t7Ledger.reset, checkLedger: () => bj01Products.every((p) => t7Ledger.check(p)) });

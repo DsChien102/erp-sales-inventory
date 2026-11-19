@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/core/router/app_router.dart';
 import 'package:erp/core/session/session_controller.dart';
@@ -22,8 +22,8 @@ import '../support/fake_iam_backend.dart';
 import '../../auth/support/scripted_auth.dart';
 
 import 'package:erp/features/dashboard/data/default_pair_repository.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:c45_shared_application/application.dart';
+import 'package:c45_shared_testing/shared_testing.dart';
 import '../../dashboard/presentation/fake_default_pair_repository.dart';
 
 base class _CustomSessionStore extends SessionStore {

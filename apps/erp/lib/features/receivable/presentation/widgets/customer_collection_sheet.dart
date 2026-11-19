@@ -3,7 +3,7 @@ import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../data/receivable_models.dart';
 import '../../data/receivable_repository.dart';

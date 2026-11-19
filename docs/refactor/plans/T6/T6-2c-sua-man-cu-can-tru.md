@@ -9,7 +9,7 @@
 
 **Architecture:** Một migration nhỏ sửa hai RPC (xác nhận ghi lại cách chia thật; lịch sử đơn gắn nhãn thu theo khách). Phía app: tầng dữ liệu `sales` nhận phương thức `offset` và các khoá mới → hàm thuần `planReturnSettlement` (tính lại khi tick) → cubit quyết toán giữ danh sách đơn đang tick → dựng lại nhánh "khách được hưởng" của SG-13 theo `sg13.js`; các màn còn lại chỉ thêm dòng. PT-07 nhận khối Công nợ qua tham số `customerSection` (khuôn `supplierSection`, partner không import receivable).
 
-**Tech Stack:** Flutter (flutter_bloc, go_router, get_it), `vet45_design_system`, PostgreSQL plpgsql (Supabase local).
+**Tech Stack:** Flutter (flutter_bloc, go_router, get_it), `c45_design_system`, PostgreSQL plpgsql (Supabase local).
 
 **Spec:** TH-06 v1.0 + prototype đã chốt `specs/themes/theme-06/03.design/prototype/html/` (`app/sg13.js`, `app/patches.js`, `app/allocate.js`, `styles/receivable.css`) + thiết kế duyệt trong chat 2026-11-19 (hướng A; bổ sung migration cùng ngày).
 
@@ -381,7 +381,7 @@ if (plan.refund > 0) rows.push(`Hoàn ${formatVnd(plan.refund)} cho khách`);
 | `rc-sub--pad` "DH-010 · Anh Tuấn" | `Padding(fromLTRB(space4, space3, space4, 0))` + `Text` `labelDefault` w600 `textSecondary` (bỏ nếu trang đã có dòng này phía trên) |
 | `rs-hero__amt` | `Text(formatVnd(entitled))` cỡ 28, `height 1.3`, `letterSpacing -0.5`, w700, `colors.success`, tabular |
 | `rs-hero__meta` | `Chênh lệch −${formatVnd(diff)} · Hàng trả ${formatVndBare(returnValue)} · Hàng đổi ${formatVndBare(exchangeValue)}`, 13, `textSecondary` |
-| `rs-flow` | `Container` viền `borderDefault`, `VRadius.r12` (`--vet45-v2-radius-card` 12px), nền `surface`, `padding space3`, `margin fromLTRB(space4, space3, space4, 0)` |
+| `rs-flow` | `Container` viền `borderDefault`, `VRadius.r12` (`--c45-v2-radius-card` 12px), nền `surface`, `padding space3`, `margin fromLTRB(space4, space3, space4, 0)` |
 | `rs-bar` | `ClipRRect(pill)` cao 8 nền `VColors.neutral200`; `Row` các `Expanded(flex: số tiền rút gọn về int an toàn — chia cho 1000)` cách 2; màu `colors.info` / `colors.primary` / `VColors.neutral400`; `ExcludeSemantics` |
 | `rs-flow__row` | `Row`: chấm 10×10 trong ô rộng 12, `SizedBox(space2)`, `Expanded` (nhãn 14 + ghi chú 13 `textSecondary` w500), số `receivableMoneyStyle` |
 | `rc-method` + `ds-segmented` | nhãn "Phương thức hoàn" 13 w600 + bộ chọn phương thức **đang có** trong body (`_methods`: Tiền mặt / CK), chỉ khi `refundMinor > 0` |

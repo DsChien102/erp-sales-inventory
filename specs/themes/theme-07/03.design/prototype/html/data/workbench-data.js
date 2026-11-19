@@ -1,4 +1,4 @@
-window.VET45_HARNESS_DATA = {
+window.C45_HARNESS_DATA = {
   "flows": [
     {
       "id": "UIF-02",

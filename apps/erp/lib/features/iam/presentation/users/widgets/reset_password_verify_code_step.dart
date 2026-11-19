@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Step 1 — enter 6-digit verification code.
 class ResetPasswordVerifyCodeStep extends StatelessWidget {

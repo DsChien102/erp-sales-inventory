@@ -16,7 +16,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import '../../iam/support/iam_test_session.dart';
 import '../../iam/support/scripted_iam_repositories.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
@@ -30,7 +30,7 @@ import 'package:erp/features/sales/data/models.dart';
 
 import '../support/fake_sales_draft_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 void main() {
   late _CheckoutRepo checkoutRepo;
@@ -558,7 +558,7 @@ void main() {
       await _tapVisible(tester, find.text('Chuyển khoản'));
       await tester.pumpAndSettle();
 
-      expect(find.text('VET45 · ACB'), findsNothing);
+      expect(find.text('Mosaic Retail · ACB'), findsNothing);
       expect(find.textContaining('1028 6888'), findsNothing);
       expect(find.byKey(const Key('input_sg05_transaction_code')), findsOneWidget);
     });

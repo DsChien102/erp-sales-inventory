@@ -8,7 +8,7 @@ import 'package:erp/features/sales/presentation/models/sales_order_draft/sales_d
 import 'package:erp/features/sales/presentation/support/i_sales_active_store_context.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import '../support/fake_sales_draft_repository.dart';
 

@@ -520,12 +520,12 @@ function bj02EvidenceSheet() {
   if (!BJ02_CONTEXT.evidenceSheetOpen) return "";
   const refs = flowMode === "quick" ? bj02EvidenceRefs() : [{ id: documentContext().sourceDocumentRef || selectedDocumentId, name: selectedDocumentId, type: "SOURCE_DOCUMENT" }];
   const rows = refs.map((ref) => ds24ListRow({ title: ref.name, subtitle: ref.type === "SOURCE_DOCUMENT" ? "Chứng từ nguồn" : "Chứng từ giao nhận", leading: "fileText", type: "Status", density: "Compact", interactive: false, trailing: `<button class="button button--tertiary" type="button" data-bj02-action="preview-file" data-ds-component="VButton">Xem</button>` })).join("");
-  return ds24Sheet({ title: "Chứng từ giao nhận", attrs: 'data-bj02-action="close-evidence"', body: `<p class="ds24-context vet45-text-style-7">Bằng chứng đã khóa theo phiên bản yêu cầu gửi duyệt.</p><div class="ds24-list-stack">${rows}</div><button class="ds24-button ds24-button--secondary" data-bj02-action="close-evidence" type="button" data-ds-component="VButton" data-figma-node="521:529">Đóng</button>` });
+  return ds24Sheet({ title: "Chứng từ giao nhận", attrs: 'data-bj02-action="close-evidence"', body: `<p class="ds24-context c45-text-style-7">Bằng chứng đã khóa theo phiên bản yêu cầu gửi duyệt.</p><div class="ds24-list-stack">${rows}</div><button class="ds24-button ds24-button--secondary" data-bj02-action="close-evidence" type="button" data-ds-component="VButton" data-figma-node="521:529">Đóng</button>` });
 }
 function bj02ScanSheet() {
   if (!bj02ScanOpen) return "";
   const sample = productById("P-OXY-LA");
-  return ds24Sheet({ title: "Quét mã vạch", attrs: 'data-bj02-action="scan-close"', body: `<div class="bj01-scan-frame" aria-hidden="true">${icon("scan")}</div><p class="ds24-context vet45-text-style-7">Đưa mã vạch vào khung</p><button class="ds24-button ds24-button--secondary" data-bj02-scan-sample="${sample.id}" type="button" data-ds-component="VButton" data-figma-node="521:529">Quét thử: ${esc(sample.name)}</button>` });
+  return ds24Sheet({ title: "Quét mã vạch", attrs: 'data-bj02-action="scan-close"', body: `<div class="bj01-scan-frame" aria-hidden="true">${icon("scan")}</div><p class="ds24-context c45-text-style-7">Đưa mã vạch vào khung</p><button class="ds24-button ds24-button--secondary" data-bj02-scan-sample="${sample.id}" type="button" data-ds-component="VButton" data-figma-node="521:529">Quét thử: ${esc(sample.name)}</button>` });
 }
 function bj02SupplierSelectSheet(locked=false) {
   if(!supplierMenuOpen||locked) return '';
@@ -1383,9 +1383,9 @@ Object.assign(renderers, {
   "SCR-013": render013BJ02,
 });
 
-if (window.__VET45_PROTOTYPE__) {
-  window.__VET45_PROTOTYPE__.scenarios = [...new Set([...(window.__VET45_PROTOTYPE__.scenarios || []), 'bj02-quick-receipt-no-draft', 'bj02-quick-approval-no-price-basis', 'bj02-design-state-cleanup'])];
-  window.__VET45_PROTOTYPE__.bj02QuickReceipt = { draftPersistence: false, firstPersistedState: 'PENDING_APPROVAL', receiptIdCreatedOnSuccessfulSubmit: true, priceFxRequiredAtBj02Submit: false, designStateRegistryClean: true };
+if (window.__C45_PROTOTYPE__) {
+  window.__C45_PROTOTYPE__.scenarios = [...new Set([...(window.__C45_PROTOTYPE__.scenarios || []), 'bj02-quick-receipt-no-draft', 'bj02-quick-approval-no-price-basis', 'bj02-design-state-cleanup'])];
+  window.__C45_PROTOTYPE__.bj02QuickReceipt = { draftPersistence: false, firstPersistedState: 'PENDING_APPROVAL', receiptIdCreatedOnSuccessfulSubmit: true, priceFxRequiredAtBj02Submit: false, designStateRegistryClean: true };
 }
 
 /* ---------- Xử lý sự kiện ---------- */

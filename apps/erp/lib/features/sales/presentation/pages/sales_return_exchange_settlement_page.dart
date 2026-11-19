@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/sales/data/return_exchange_repository.dart';
 import 'package:erp/features/sales/data/sales_order_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:erp/features/sales/presentation/widgets/sales_receivable_changed_dialog.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 
 /// SG-12 — Quyết toán chênh lệch đổi/trả (thin composition root).

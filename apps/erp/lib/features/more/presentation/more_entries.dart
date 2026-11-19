@@ -1,4 +1,4 @@
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Single item in the "Thêm" (More) section, shared between the mobile
 /// [MorePage] list and the desktop [ErpSideNavigation] sub-items.

@@ -8,9 +8,9 @@
 
 **Goal:** Có đủ thành phần DS, khuôn dùng chung và Home Kho mới để plan BJ đầu tiên (G5-1) chỉ còn dựng màn riêng của nó.
 
-**Architecture:** Thành phần không mang nghĩa Kho vào `vet45_design_system`; khuôn K mang nghĩa Kho vào `features/inventory/presentation/patterns/`; Hub đọc `WarehouseHubRepository` (G5-0a trả giá trị cố định "đã kích hoạt, không có việc", G5-0b thay thân bằng RPC). Hub nằm trong nhánh tab "Thêm" của router (iPhone có thanh tab, web có thanh bên); `WarehouseHomePage` v3.8 xoá.
+**Architecture:** Thành phần không mang nghĩa Kho vào `c45_design_system`; khuôn K mang nghĩa Kho vào `features/inventory/presentation/patterns/`; Hub đọc `WarehouseHubRepository` (G5-0a trả giá trị cố định "đã kích hoạt, không có việc", G5-0b thay thân bằng RPC). Hub nằm trong nhánh tab "Thêm" của router (iPhone có thanh tab, web có thanh bên); `WarehouseHomePage` v3.8 xoá.
 
-**Tech Stack:** Flutter, `flutter_bloc`, `go_router`, `get_it`, `vet45_design_system`.
+**Tech Stack:** Flutter, `flutter_bloc`, `go_router`, `get_it`, `c45_design_system`.
 
 **Spec:** SCR-090…096 + PAT-NAV + PAT-UI-UX (v5.27.0). Quy ước chung: PLAN.md mục Theme 7 → "Quy ước chung cho mọi plan G5".
 
@@ -19,7 +19,7 @@
 - Chữ trên màn chép **nguyên văn** mục 8 của Screen Contract hoặc từ plan này (đã chép từ `hub.js` / `shared-patterns.js`). Không tự đặt chữ mới.
 - Bề rộng test: iPhone `Size(390, 844)`, web `Size(1280, 800)`. "Web" trong plan = `inventoryIsWide(context)` = `MediaQuery.sizeOf(context).width >= VBreakpoints.desktop` (1024, cùng ngưỡng thanh bên của `StoreShell`).
 - Vùng chạm ≥ `VSpacing.minTouchTarget`; nút chỉ có icon có `Semantics(label:)`.
-- `dart analyze` (không dùng `flutter analyze`: sập vì đường dẫn có dấu). Test: `flutter test --no-pub -r compact` trong `apps/erp` và `packages/vet45_design_system`.
+- `dart analyze` (không dùng `flutter analyze`: sập vì đường dẫn có dấu). Test: `flutter test --no-pub -r compact` trong `apps/erp` và `packages/c45_design_system`.
 - Trước khi sửa một symbol đã có (`VChip`, `VTable`, `MoreEntry`, router): chạy `impact` (GitNexus) và ghi blast radius vào Kết quả; HIGH / CRITICAL thì dừng, báo người dùng. Trước commit chạy `detect_changes()`.
 - Không đụng code BJ-02 / BJ-03 cũ (receipt / valuation pages) ngoài 2 lối vào tạm ở Q-a1; chúng bị xoá ở G5-4 / G5-5.
 - `AGENTS.md`, `CLAUDE.md` có thay đổi chưa commit của người dùng: không `git add`.
@@ -77,12 +77,12 @@ Tệp xoá (Task 9): `presentation/pages/warehouse_home_page.dart`, `logic/wareh
 
 | Tệp | Tạo / sửa | Trách nhiệm |
 |---|---|---|
-| `packages/vet45_design_system/lib/src/components/v_list_row.dart` | tạo | `VListRow` |
-| `packages/vet45_design_system/lib/src/components/v_quick_action_button.dart` | tạo | `VQuickActionButton` |
-| `packages/vet45_design_system/lib/src/components/v_key_value_row.dart` | tạo | `VKeyValueRow`, `VKeyValueGroup` |
-| `packages/vet45_design_system/lib/src/primitives/v_chip.dart` | sửa | thêm `count` |
-| `packages/vet45_design_system/lib/src/components/v_table.dart` | sửa | thêm `onRowTap` |
-| `packages/vet45_design_system/lib/design_system.dart` | sửa | export 3 tệp mới |
+| `packages/c45_design_system/lib/src/components/v_list_row.dart` | tạo | `VListRow` |
+| `packages/c45_design_system/lib/src/components/v_quick_action_button.dart` | tạo | `VQuickActionButton` |
+| `packages/c45_design_system/lib/src/components/v_key_value_row.dart` | tạo | `VKeyValueRow`, `VKeyValueGroup` |
+| `packages/c45_design_system/lib/src/primitives/v_chip.dart` | sửa | thêm `count` |
+| `packages/c45_design_system/lib/src/components/v_table.dart` | sửa | thêm `onRowTap` |
+| `packages/c45_design_system/lib/design_system.dart` | sửa | export 3 tệp mới |
 | `apps/erp/lib/features/inventory/presentation/patterns/inventory_layout.dart` | tạo | `inventoryIsWide`, K7 (`K7Split`, `K7Table`, `K7Column`, `K7FilterChips`, `K7Filter`) |
 | `…/patterns/inventory_states.dart` | tạo | K1 |
 | `…/patterns/inventory_footer.dart` | tạo | `InventoryFooter`, `InventoryFooterAction`, `InventoryReasonFooter` |
@@ -98,7 +98,7 @@ Tệp xoá (Task 9): `presentation/pages/warehouse_home_page.dart`, `logic/wareh
 | `apps/erp/lib/core/di/injection.dart` | sửa | `registerLazySingleton<WarehouseHubRepository>(() => const WarehouseHubRepository())` |
 | `apps/erp/lib/features/more/presentation/more_entries.dart:65` | sửa | `route: '/warehouse'` |
 | `apps/erp/test/features/inventory/support/inventory_router_harness.dart` | tạo | dựng `appRouter` thật (theo `partner_router_harness.dart`) |
-| test: `packages/vet45_design_system/test/components/v_list_row_test.dart`, `v_quick_action_button_test.dart`, `v_key_value_row_test.dart`, `test/primitives/v_chip_count_test.dart`, `test/components/v_table_row_tap_test.dart`; `apps/erp/test/features/inventory/presentation/patterns/*_test.dart`, `…/hub/*_test.dart` | tạo | |
+| test: `packages/c45_design_system/test/components/v_list_row_test.dart`, `v_quick_action_button_test.dart`, `v_key_value_row_test.dart`, `test/primitives/v_chip_count_test.dart`, `test/components/v_table_row_tap_test.dart`; `apps/erp/test/features/inventory/presentation/patterns/*_test.dart`, `…/hub/*_test.dart` | tạo | |
 
 ## 5. Các task
 
@@ -127,7 +127,7 @@ Tệp xoá (Task 9): `presentation/pages/warehouse_home_page.dart`, `logic/wareh
   `v_quick_action_button_test.dart`: `tap_calls`; `null_onPressed_is_disabled` (không gọi, semantics disabled); `size_at_least_44`.
 - [x] **Step 2:** chạy → FAIL (chưa có lớp).
 - [x] **Step 3:** Dựng hai lớp, export.
-- [x] **Step 4:** `cd packages/vet45_design_system && flutter test --no-pub test/components/v_list_row_test.dart test/components/v_quick_action_button_test.dart` → PASS.
+- [x] **Step 4:** `cd packages/c45_design_system && flutter test --no-pub test/components/v_list_row_test.dart test/components/v_quick_action_button_test.dart` → PASS.
 - [x] **Step 5:** Commit `feat(ds): VListRow, VQuickActionButton (T7-G5-0a)`.
 
 ### Task 2: `VChip.count`, `VKeyValueRow` / `VKeyValueGroup`, `VTable.onRowTap`
@@ -141,7 +141,7 @@ Tệp xoá (Task 9): `presentation/pages/warehouse_home_page.dart`, `logic/wareh
 - `VTable(..., ValueChanged<int>? onRowTap)`: mọi ô của dòng bấm được (`InkWell`), ô đầu bọc `Semantics(button: true)`; `null` = như cũ.
 
 - [x] **Step 1: Test:** `chip_count_renders_and_zero_is_muted` (text `'3'` có; với `count: 0` màu text = `textSecondary`); `chip_without_count_unchanged` (golden không cần: kiểm không có Text thứ hai). `key_value_mono_uses_mono_style`; `group_renders_title_and_rows`. `table_row_tap_reports_index` (bấm ô cột 2 dòng 1 → `onRowTap(1)`); `table_first_cell_is_button_semantics`; `table_without_onRowTap_unchanged` (không có `InkWell`).
-- [x] **Step 2:** FAIL. **Step 3:** cài đặt (chạy `impact` cho `VChip`, `VTable` trước, ghi Kết quả). **Step 4:** `flutter test --no-pub` cả package `vet45_design_system` → không thêm lỗi so với `TEST-BASELINE.md` (mốc package: 2 lỗi có sẵn).
+- [x] **Step 2:** FAIL. **Step 3:** cài đặt (chạy `impact` cho `VChip`, `VTable` trước, ghi Kết quả). **Step 4:** `flutter test --no-pub` cả package `c45_design_system` → không thêm lỗi so với `TEST-BASELINE.md` (mốc package: 2 lỗi có sẵn).
 - [x] **Step 5:** Commit `feat(ds): VChip.count, VKeyValueRow, VTable.onRowTap (T7-G5-0a)`.
 
 ### Task 3: K1 trạng thái chung, K7 bố cục web, chân màn
@@ -300,7 +300,7 @@ Tệp xoá (Task 9): `presentation/pages/warehouse_home_page.dart`, `logic/wareh
 
 ### Task 10: Kiểm toàn bộ + cập nhật tài liệu
 
-- [x] **Step 1:** `cd apps/erp && flutter test --no-pub -r compact` → số lỗi không vượt mốc `TEST-BASELINE.md` ("Sau 7-C": 55 lỗi; ghi tên test hỏng mới nếu có). `cd packages/vet45_design_system && flutter test --no-pub -r compact` → ≤ 2 lỗi có sẵn.
+- [x] **Step 1:** `cd apps/erp && flutter test --no-pub -r compact` → số lỗi không vượt mốc `TEST-BASELINE.md` ("Sau 7-C": 55 lỗi; ghi tên test hỏng mới nếu có). `cd packages/c45_design_system && flutter test --no-pub -r compact` → ≤ 2 lỗi có sẵn.
 - [x] **Step 2:** `detect_changes({scope: "compare", base_ref: "main"})` (hoặc `node .gitnexus/run.cjs detect-changes`) — chỉ symbol của plan này; ghi Kết quả.
 - [x] **Step 3:** Đối chiếu prototype: `index.html?mode=theme&app=inventory&viewport=mobile` và `viewport=web`, `&activation=pending`, `&hubView=movement`, `&hubView=pending-approvals`; ghi lệch (ngoài các lối vào ẩn theo Q9) vào Kết quả.
 - [x] **Step 4:** PLAN.md mục Theme 7, bảng Plan, dòng G5-0a cột Làm: "✅ 2026-11-09".
@@ -327,7 +327,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 
 ### Task 1 (2026-11-09) — ✅
 - Commit: `cd0bc8fa7` (commit gộp; mã cũ `2a08e4ad1` mất sau reset, xem khối "R1 — sửa")
-- Tệp:dòng đã đổi: `packages/vet45_design_system/lib/src/components/v_list_row.dart` (mới, 131 dòng), `packages/vet45_design_system/lib/src/components/v_quick_action_button.dart` (mới, 82 dòng), `packages/vet45_design_system/lib/design_system.dart` (thêm 2 dòng export), `packages/vet45_design_system/test/components/v_list_row_test.dart` (mới, 122 dòng), `packages/vet45_design_system/test/components/v_quick_action_button_test.dart` (mới, 72 dòng)
+- Tệp:dòng đã đổi: `packages/c45_design_system/lib/src/components/v_list_row.dart` (mới, 131 dòng), `packages/c45_design_system/lib/src/components/v_quick_action_button.dart` (mới, 82 dòng), `packages/c45_design_system/lib/design_system.dart` (thêm 2 dòng export), `packages/c45_design_system/test/components/v_list_row_test.dart` (mới, 122 dòng), `packages/c45_design_system/test/components/v_quick_action_button_test.dart` (mới, 72 dòng)
 - Lệch plan + lý do: Không
 - Test thêm / sửa (tên): `navigation_shows_chevron`, `plain_has_no_chevron`, `tap_calls_onTap`, `disabled_ignores_tap`, `shows_subtitle_and_trailing`, `min_height_44`, `tap_calls`, `null_onPressed_is_disabled`, `size_at_least_44` (PASS 9/9)
 - Impact (symbol → mức, số caller): Thành phần DS mới, export tại `design_system.dart`, không sửa đổi symbol cũ
@@ -335,7 +335,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 
 ### Task 2 (2026-11-09) — ✅
 - Commit: `cd0bc8fa7` (commit gộp; mã cũ `99f8c841a` mất sau reset, xem khối "R1 — sửa")
-- Tệp:dòng đã đổi: `packages/vet45_design_system/lib/src/primitives/v_chip.dart` (thêm `count`), `packages/vet45_design_system/lib/src/components/v_table.dart` (thêm `onRowTap`), `packages/vet45_design_system/lib/src/components/v_key_value_row.dart` (mới, 128 dòng), `packages/vet45_design_system/lib/design_system.dart` (export `v_key_value_row.dart`), `test/primitives/v_chip_count_test.dart` (mới, 55 dòng), `test/components/v_key_value_row_test.dart` (mới, 58 dòng), `test/components/v_table_row_tap_test.dart` (mới, 75 dòng)
+- Tệp:dòng đã đổi: `packages/c45_design_system/lib/src/primitives/v_chip.dart` (thêm `count`), `packages/c45_design_system/lib/src/components/v_table.dart` (thêm `onRowTap`), `packages/c45_design_system/lib/src/components/v_key_value_row.dart` (mới, 128 dòng), `packages/c45_design_system/lib/design_system.dart` (export `v_key_value_row.dart`), `test/primitives/v_chip_count_test.dart` (mới, 55 dòng), `test/components/v_key_value_row_test.dart` (mới, 58 dòng), `test/components/v_table_row_tap_test.dart` (mới, 75 dòng)
 - Lệch plan + lý do: Không
 - Test thêm / sửa (tên): `chip_count_renders_and_zero_is_muted`, `chip_without_count_unchanged`, `key_value_mono_uses_mono_style`, `group_renders_title_and_rows`, `table_row_tap_reports_index`, `table_first_cell_is_button_semantics`, `table_without_onRowTap_unchanged` (PASS 7/7). Toàn package: 464 đạt / 1 lỗi (khớp `TEST-BASELINE.md`).
 - Impact (symbol → mức, số caller):
@@ -369,7 +369,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 
 ### Task 6 (2026-11-09) — ✅
 - Commit: `cd0bc8fa7` (commit gộp; mã cũ `c588db94b` mất sau reset, xem khối "R1 — sửa")
-- Tệp:dòng đã đổi: `apps/erp/lib/features/inventory/presentation/patterns/k6_task_list.dart` (mới, 203 dòng), `apps/erp/test/features/inventory/presentation/patterns/k6_task_list_test.dart` (mới, 240 dòng), `packages/vet45_design_system/lib/src/components/v_list_row.dart` (thêm `contentBelow:`)
+- Tệp:dòng đã đổi: `apps/erp/lib/features/inventory/presentation/patterns/k6_task_list.dart` (mới, 203 dòng), `apps/erp/test/features/inventory/presentation/patterns/k6_task_list_test.dart` (mới, 240 dòng), `packages/c45_design_system/lib/src/components/v_list_row.dart` (thêm `contentBelow:`)
 - Lệch plan + lý do: thêm tham số tuỳ chọn `VListRow.contentBelow` (DS, ngoài plan) để đặt badge dưới tiêu đề theo G3-7 (sửa ở R1-7)
 - Test thêm / sửa (tên): `total_zero_shows_empty`, `filtered_empty_shows_filter_empty`, `tap_row_opens / disabled_row_does_not_open`, `web_uses_table_iphone_uses_rows`, `long_title_moves_badge_below`, `short_title_badge_right` (PASS 6/6)
 - Impact (symbol → mức, số caller): Thêm `contentBelow` tuỳ chọn cho `VListRow` (mặc định null), toàn bộ test DS vẫn PASS 6/6
@@ -403,7 +403,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - Commit: `cd0bc8fa7` (commit gộp; mã cũ `264676882` mất sau reset, xem khối "R1 — sửa")
 - Tệp:dòng đã đổi: `docs/refactor/PLAN.md` (cập nhật dòng G5-0a cột Làm: `✅ 2026-11-09`), `docs/refactor/plans/T7/T7-G5-0a-ui-nen.md` (hoàn tất toàn bộ checkbox và mục kết quả)
 - Lệnh đã chạy:
-  - `cd packages/vet45_design_system && flutter test --no-pub -r compact`: 464 passed / 1 failed (đúng mốc baseline ≤ 2 lỗi có sẵn).
+  - `cd packages/c45_design_system && flutter test --no-pub -r compact`: 464 passed / 1 failed (đúng mốc baseline ≤ 2 lỗi có sẵn).
   - `cd apps/erp && flutter test --no-pub test/features/inventory`: 128 passed / 0 failed.
   - `cd apps/erp && flutter test --no-pub -r compact`: 3074 passed / 55 failed (đối chiếu `TEST-BASELINE.md`: 53 lỗi baseline có sẵn + 2 lỗi ⚠️ ngoài mốc từ Sau 5-C).
   - `node .gitnexus/run.cjs detect-changes -r erp-sales-inventory`: 0 symbol rủi ro.
@@ -432,7 +432,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - R1-7 / đối chiếu prototype: tôi so mã nguồn `hub.js` (khối Hub, `:207–215`), chưa mở prototype trên trình duyệt.
 
 **Đã chạy:**
-- `dart analyze lib/features/inventory lib/core/router lib/core/di lib/features/more test/features/inventory ../../packages/vet45_design_system/lib`: sạch.
+- `dart analyze lib/features/inventory lib/core/router lib/core/di lib/features/more test/features/inventory ../../packages/c45_design_system/lib`: sạch.
 - `flutter test test/features/inventory test/features/more`: **146 / 146** (+7).
 - DS `flutter test`: **465 / 1** (+1; lỗi có sẵn như mốc).
 - Toàn `apps/erp`: **3085 đạt / 55 lỗi**. Cả 55 lỗi đều ở catalog / tenant_admin / pricing / my_account, khớp mốc "Sau 7-C"; không có lỗi nào ở inventory / more. Số đạt +7 so với R1 (3078), đúng bằng số test mới.
@@ -457,7 +457,7 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 - `flutter test --no-pub test/features/inventory test/features/more`: **146 / 146**.
 - Toàn `apps/erp`: **3085 đạt / 55 lỗi**, khớp mốc "Sau 7-C" và khớp số ở mục 7.
 - DS `flutter test`: **465 / 1**. Lỗi có sẵn là `v_overlay_menu_shell_test` (shadow token), trong mốc ≤ 2.
-- `dart analyze lib/features/inventory lib/core/router lib/core/di lib/features/more test/features/inventory ../../packages/vet45_design_system/lib`: sạch.
+- `dart analyze lib/features/inventory lib/core/router lib/core/di lib/features/more test/features/inventory ../../packages/c45_design_system/lib`: sạch.
 - `node .gitnexus/run.cjs analyze` (index cũ sai đường dẫn, đã dựng lại), rồi `detect-changes -r erp-sales-inventory --scope compare --base-ref ddef43c53`: 48 tệp, 150 symbol, **0 process bị ảnh hưởng, risk low**. Toàn bộ symbol thuộc phạm vi plan, cộng 2 mục GitNexus của `AGENTS.md` / `CLAUDE.md`.
 
 **Còn mở (từ R1, chỉ ghi nhận):** P3-2 (`VTable.onRowTap` bọc từng ô), P3-3 (thiếu `SessionStore` ⇒ coi là chủ), P3-4 (`InventoryFooter` không tự xếp thứ tự nút). Plan BJ đầu tiên đụng tới thì xử lý.
@@ -537,10 +537,10 @@ Xong **mỗi task** ghi ngay theo mẫu (không dồn cuối); dừng giữa ch�
 **R1-6 — 2 import thừa trong DS** · P3 · tuỳ chọn (nên làm)
 
 - `v_list_row.dart:5`, `v_key_value_row.dart:4`: bỏ `import '../patterns/v_gap.dart';`.
-- **Xong khi:** `cd packages/vet45_design_system && dart analyze lib` không còn 2 warning này.
+- **Xong khi:** `cd packages/c45_design_system && dart analyze lib` không còn 2 warning này.
 
 **R1-7 — Commit đã mất khỏi nhánh; mục 7 ghi sai** · bắt buộc
 
 1. **Người dùng chốt:** (a) khôi phục chuỗi commit cũ, `git reset --soft 75932d728` (cây làm việc đang khớp `75932d728`), rồi commit các sửa R1 lên trên; hay (b) commit lại thành một / vài commit mới từ cây làm việc hiện tại. Cả hai đều **không** `git add` `AGENTS.md`, `CLAUDE.md`. Nếu reset là cố ý (ví dụ để gộp commit), ghi lý do vào mục 7.
-2. Mục 7: sửa mã commit theo cách đã chọn. Thêm commit `be88977a6` (fix `VField` ở K2), hiện chưa được ghi. Task 6 "Lệch plan: Không" → ghi lệch "thêm `VListRow.contentBelow` (DS, ngoài plan) cho G3-7". Task 8 "Lệch plan" sửa câu "`VChip.count` dùng `trailing: Text`" (Hub không dùng `VChip`) cho đúng với code. Task 10: bỏ "Khớp 100%", ghi lại kết quả đối chiếu prototype sau R1-1 / R1-2. Lệnh `dart analyze` phải gồm cả `packages/vet45_design_system/lib`.
+2. Mục 7: sửa mã commit theo cách đã chọn. Thêm commit `be88977a6` (fix `VField` ở K2), hiện chưa được ghi. Task 6 "Lệch plan: Không" → ghi lệch "thêm `VListRow.contentBelow` (DS, ngoài plan) cho G3-7". Task 8 "Lệch plan" sửa câu "`VChip.count` dùng `trailing: Text`" (Hub không dùng `VChip`) cho đúng với code. Task 10: bỏ "Khớp 100%", ghi lại kết quả đối chiếu prototype sau R1-1 / R1-2. Lệnh `dart analyze` phải gồm cả `packages/c45_design_system/lib`.
 - **Xong khi:** `git log` nhánh `refactor/simple-arch` có đủ code G5-0a + R1. Mã commit ở mục 7 đều `git branch --contains` ra nhánh này.

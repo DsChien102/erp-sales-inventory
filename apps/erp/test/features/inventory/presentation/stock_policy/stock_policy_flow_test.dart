@@ -8,7 +8,7 @@ import 'package:erp/features/inventory/data/stock_policy/stock_policy_models.dar
 import 'package:erp/features/inventory/data/stock_policy/stock_policy_repository.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_hub_page.dart';
 import 'package:erp/features/inventory/presentation/stock_policy/stock_policy_page.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../support/inventory_router_harness.dart';
 

@@ -3,7 +3,7 @@ import 'package:erp/features/receivable/presentation/widgets/receivable_parts.da
 import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/features/sales/logic/return_settlement_preview.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// SG-13 nhánh "khách được hưởng" (TH-06 EP-03), dựng theo `app/sg13.js`:
 /// khách được hưởng bao nhiêu, chia thế nào, và chọn đơn nhận cấn trừ.

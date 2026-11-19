@@ -11,7 +11,7 @@ theme: example-only
 sample_status: GOLDEN_BAR_B_FIXTURE
 ```
 
-**design_status** trên [CATALOG.md](CATALOG.md). Pseudo-schema. Fixture bar B, không copy vào theme Vet45.
+**design_status** trên [CATALOG.md](CATALOG.md). Pseudo-schema. Fixture bar B, không copy vào theme Mosaic Retail.
 
 ---
 
@@ -224,7 +224,7 @@ class PinTenantLabelResultDto {
 
 ### Design system
 
-- `Vet45TextField`, `Vet45PrimaryButton`, snackbar pattern từ DS
+- `C45TextField`, `C45PrimaryButton`, snackbar pattern từ DS
 
 ### Mediator
 

@@ -3,7 +3,7 @@ import 'package:erp/features/inventory/data/stock/stock_models.dart';
 import 'package:erp/features/inventory/presentation/costing/cost_run_detail_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../support/inventory_test_surface.dart';
 

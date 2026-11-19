@@ -5,7 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../widgets/pricing_selectable_entity_card.dart';
 

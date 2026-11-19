@@ -14,7 +14,7 @@ Thành viên (nhân viên) cũng dùng app nhưng là đối tượng phụ. H�
 
 ## Product Purpose
 
-VET45 là ERP multi-tenant cho phòng khám và cửa hàng thú y: một tổ chức có nhiều cửa hàng/chi nhánh. Người dùng tự đăng ký và tự tạo tổ chức, sau đó vận hành nghiệp vụ hằng ngày trong một app duy nhất (`apps/erp`).
+Mosaic Retail là ERP multi-tenant cho phòng khám và cửa hàng thú y: một tổ chức có nhiều cửa hàng/chi nhánh. Người dùng tự đăng ký và tự tạo tổ chức, sau đó vận hành nghiệp vụ hằng ngày trong một app duy nhất (`apps/erp`).
 
 Thành công nghĩa là Owner hoàn tất nghiệp vụ (lập đơn, thu tiền, phát hành hoá đơn, cập nhật sản phẩm/giá) nhanh, đúng, không cần người hỗ trợ.
 
@@ -31,17 +31,17 @@ Thành công nghĩa là Owner hoàn tất nghiệp vụ (lập đơn, thu tiền
 ## Capabilities and Constraints
 
 - Stack: Flutter (Dart ≥ 3.11), flutter_bloc, go_router, get_it; backend Supabase (Auth, Postgres, Storage, Edge Functions). Target thiết kế: iOS (iPhone) và web; Android build được, xếp sau.
-- Design system nội bộ: package `vet45_design_system`.
+- Design system nội bộ: package `c45_design_system`.
 - Không có quản trị nền tảng (Platform Admin) trong app; chỉ có Owner và thành viên. Quyền thật do RPC kiểm, router guard chỉ ẩn/chuyển màn.
 - Tổ chức chỉ được tạo từ `/signup`; không ai tạo tổ chức sau khi đăng nhập.
 - Đang refactor kiến trúc (branch `refactor/simple-arch`): giữ nguyên hành vi người dùng thấy; thiết kế lại UI/UX nằm ngoài phạm vi đợt này, trừ luồng khởi tạo tổ chức (TH-01), Theme 7 Kho & Giá vốn, và **bố cục web** của mọi màn (khung thanh bên, danh sách – chi tiết, bảng, hộp thoại — PLAN mục "Web cho app"; nội dung và chữ không đổi).
 - Theme 7 (`apps/erp/lib/features/inventory`) được chỉnh lại UI/UX **trên nền thiết kế hiện tại**: giữ DESIGN.md (màu, chữ, token), không đổi sang phong cách mới. Sửa bố cục, thứ bậc thông tin, mật độ, trạng thái và lối đi giữa các màn.
-- Thành phần UI của Theme 7 lấy từ `vet45_design_system`. Khi DS chưa có thành phần phù hợp thì **thêm mới vào `vet45_design_system`** (dựng từ token có sẵn, đặt tên `V…` như các thành phần khác), không dựng widget riêng trong feature.
+- Thành phần UI của Theme 7 lấy từ `c45_design_system`. Khi DS chưa có thành phần phù hợp thì **thêm mới vào `c45_design_system`** (dựng từ token có sẵn, đặt tên `V…` như các thành phần khác), không dựng widget riêng trong feature.
 - Ngoài phạm vi hiện tại: TH-06 công nợ đầy đủ, báo cáo (TH-10).
 
 ## Brand Commitments
 
-- Tên sản phẩm: **VET45**.
+- Tên sản phẩm: **Mosaic Retail**.
 
 ## Evidence on Hand
 

@@ -114,7 +114,7 @@ Ghi chú:
 
 ### 4.1 Model (`apps/erp/lib/features/catalog/data/models/`)
 
-Chép class / enum / extension từ module, **giữ nguyên** tên, field, constructor, giá trị mặc định, `toWire` / `fromWire`, `props` (nếu có `Equatable`). Chỉ đổi import. Kiểu từ `vet45_shared_domain` (`ValueObject`) thì bỏ kế thừa, giữ `==` / `hashCode` theo giá trị (như `PersonTitle` ở 4-A).
+Chép class / enum / extension từ module, **giữ nguyên** tên, field, constructor, giá trị mặc định, `toWire` / `fromWire`, `props` (nếu có `Equatable`). Chỉ đổi import. Kiểu từ `c45_shared_domain` (`ValueObject`) thì bỏ kế thừa, giữ `==` / `hashCode` theo giá trị (như `PersonTitle` ở 4-A).
 
 | Tệp mới | Chứa (tệp gốc trong `modules/catalog/{application,domain}/lib/src/`) |
 |---|---|
@@ -368,7 +368,7 @@ Trước khi sửa symbol: `gitnexus impact({target, direction: "upstream"})`. 5
 
 ### Bước 0: test nhóm `old` (trên code cũ)
 
-1. `product_rpc_parity_test.dart` nhóm `old` (H1, H2, H8). Import mapper cũ bằng `package:vet45_catalog_infrastructure/src/…` kèm `// ignore: implementation_imports`. Ca mẫu mỗi RPC ở mục 3.2; `search` có đủ `keyword`, 2 trạng thái, `readinessFilter`, 1 bộ lọc trường bổ sung `optionId` + 1 `booleanValue`, sort; `createGuided` có ảnh, `NewTenantUnit`, tồn, giá `customConfig`, 1 giá trị trường; `deactivate` có `reason` + xác nhận cảnh báo.
+1. `product_rpc_parity_test.dart` nhóm `old` (H1, H2, H8). Import mapper cũ bằng `package:c45_catalog_infrastructure/src/…` kèm `// ignore: implementation_imports`. Ca mẫu mỗi RPC ở mục 3.2; `search` có đủ `keyword`, 2 trạng thái, `readinessFilter`, 1 bộ lọc trường bổ sung `optionId` + 1 `booleanValue`, sort; `createGuided` có ảnh, `NewTenantUnit`, tồn, giá `customConfig`, 1 giá trị trường; `deactivate` có `reason` + xác nhận cảnh báo.
 2. `catalog_errors_test.dart` nhóm `old` (H3); `catalog_rules_test.dart` nhóm `old` (H4); `product_readiness_test.dart` nhóm `old` (H6); H7.
 3. Chạy xanh, ghi tên test + lệnh vào Kết quả.
 
@@ -387,7 +387,7 @@ Nhóm `new` của H1, H2, H8, H9 (`_Rpc extends SupabaseRpc` ghi lời gọi, m�
 ## 7. Kiểm tra
 
 - [x] `git diff --stat` chỉ có tệp **mới** dưới `apps/erp/lib/features/catalog/{data,logic}/` và `apps/erp/test/features/catalog/{data,logic}/`.
-- [x] `git grep -n "package:vet45_" -- apps/erp/lib/features/catalog/data apps/erp/lib/features/catalog/logic` **rỗng**.
+- [x] `git grep -n "package:c45_" -- apps/erp/lib/features/catalog/data apps/erp/lib/features/catalog/logic` **rỗng**.
 - [x] `cd apps/erp && dart analyze lib/features/catalog/data lib/features/catalog/logic test/features/catalog/data test/features/catalog/logic`: không error / warning nào (`No issues found!`).
 - [x] `cd apps/erp && flutter test test/features/catalog/data test/features/catalog/logic`: 216 tests bước 0 – 3 xanh (0 fail).
 - [x] `cd apps/erp && flutter test`: 1.921 đạt / đúng 61 lỗi, không fail mới so với `docs/refactor/TEST-BASELINE.md`.
@@ -456,7 +456,7 @@ Nhóm `new` của H1, H2, H8, H9 (`_Rpc extends SupabaseRpc` ghi lời gọi, m�
   - `cd apps/erp && dart analyze lib/features/catalog/data lib/features/catalog/logic test/features/catalog/data test/features/catalog/logic`: No issues found!
   - `cd apps/erp && flutter test test/features/catalog/data test/features/catalog/logic`: 217 tests passed, 1 skipped.
   - `cd apps/erp && flutter test`: 1.922 tests passed, 61 tests failed (đúng 61 tests có sẵn trong `docs/refactor/TEST-BASELINE.md`, 0 lỗi mới).
-  - `git grep -n "package:vet45_" -- apps/erp/lib/features/catalog/data apps/erp/lib/features/catalog/logic`: Không có dòng nào.
+  - `git grep -n "package:c45_" -- apps/erp/lib/features/catalog/data apps/erp/lib/features/catalog/logic`: Không có dòng nào.
   - `grep -c "did not return a result" apps/erp/test/features/catalog/data/product_rpc_parity_test.dart`: 7.
   - `grep -c "final _expected" apps/erp/test/features/catalog/data/product_rpc_parity_test.dart`: 20.
 
@@ -503,7 +503,7 @@ Nhóm `new` của H1, H2, H8, H9 (`_Rpc extends SupabaseRpc` ghi lời gọi, m�
 - `dart analyze` 4 thư mục: No issues found.
 - `flutter test test/features/catalog/data test/features/catalog/logic`: 216 đạt.
 - `flutter test` (apps/erp): **1.921 đạt / 61 lỗi**. So từng tên test với `TEST-BASELINE.md`: cả 61 đều có sẵn, không có lỗi mới.
-- `git grep "package:vet45_"` trong `lib/features/catalog/{data,logic}`: rỗng. Mọi tệp đều mới, không sửa tệp cũ nào.
+- `git grep "package:c45_"` trong `lib/features/catalog/{data,logic}`: rỗng. Mọi tệp đều mới, không sửa tệp cũ nào.
 - Đối chiếu tay:
   - tham số 20 RPC với `ProductRpcMapper` / `CustomFieldRpcMapper` / `ProductChangeHistoryRpcMapper` / `CatalogSalesLookupRpcMapper` + handler (`Sku` viết hoa, `trim` ở handler sellable);
   - `catalogException` với `mapCatalogRpcError` (thứ tự nhánh, `_extract*`);

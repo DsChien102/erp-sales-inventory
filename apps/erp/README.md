@@ -1,10 +1,10 @@
-# VET45 ERP
+# Mosaic Retail ERP
 
 Flutter shell cho modular monolith ERP.
 
 ## Môi trường
 
-Secrets nằm trong `.vet45/profiles/<profileId>/`; `melos run env:sync` sinh `apps/erp/.env*` (generated — không chỉnh tay).
+Secrets nằm trong `.c45/profiles/<profileId>/`; `melos run env:sync` sinh `apps/erp/.env*` (generated — không chỉnh tay).
 
 | Lệnh | Mô tả |
 |---|---|
@@ -22,7 +22,7 @@ Chi tiết: [docs/operations/environment-manager.md](../../docs/operations/envir
 
 ```bash
 melos bootstrap
-cp .vet45/profiles/<profileId>/development.env.example .vet45/profiles/<profileId>/development.env
+cp .c45/profiles/<profileId>/development.env.example .c45/profiles/<profileId>/development.env
 # Điền Supabase URL + keys (remote dev)
 
 melos run env:sync
@@ -37,7 +37,7 @@ melos run env:local
 melos run debug
 ```
 
-Staging/production secrets: `.vet45/profiles/<profileId>/staging.env`, `.vet45/profiles/<profileId>/production.env` → `melos run env:use:staging` + `env:sync`.
+Staging/production secrets: `.c45/profiles/<profileId>/staging.env`, `.c45/profiles/<profileId>/production.env` → `melos run env:use:staging` + `env:sync`.
 
 ## iOS release
 

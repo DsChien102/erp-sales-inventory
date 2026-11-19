@@ -2,7 +2,7 @@ import 'package:erp/features/inventory/data/stocktake/stocktake_models.dart';
 import 'package:erp/features/inventory/logic/stocktake/stocktake_rules.dart';
 import 'package:erp/features/inventory/presentation/patterns/k7_edit_cell.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Thẻ một dòng đếm mù trên mobile (SCR-044); tuyệt đối không hiển thị số sổ.
 class StocktakeLineCard extends StatelessWidget {

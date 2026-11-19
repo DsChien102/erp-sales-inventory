@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
       templateId: job.template_id,
       templateData: job.template_data ?? {},
       code: job.code,
-      appName: Deno.env.get('APP_NAME') ?? 'VET45',
+      appName: Deno.env.get('APP_NAME') ?? 'Mosaic Retail',
     })
     const sent = await sendWithResend(job, rendered)
     if (!sent.ok) {

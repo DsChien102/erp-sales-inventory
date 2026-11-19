@@ -173,7 +173,7 @@ Không thêm đăng ký (repository có sẵn). Factory dựng trong sheet.
 
 - [x] **5.1** `sales_th05.sql` thêm: P01 đơn còn 600.000, `record_sales_payment` 600.000 ⇒ `payment_status = 'paid'`, `outstanding_amount_minor = 0`, giao dịch `source_context = 'additional_collection'` đếm = 1; P02 thu 200.000 của đơn 600.000 ⇒ `partially_paid`, còn 400.000; P03 gọi lại cùng `p_idempotency_key` + `p_payload_hash` ⇒ cùng `transactionId`, đếm giao dịch không tăng; P04 cùng khoá khác hash ⇒ `IDEMPOTENCY_CONFLICT`.
 - [x] **5.2** Sửa tài liệu.
-- [x] **5.3** `cd apps/erp && dart analyze lib/features/sales test/features/sales` → 0 lỗi, 0 cảnh báo mới; `dart run tool/check_feature_imports.dart` → ghi dòng mới (chấp nhận cùng loại 8-A: `logic/` → `presentation/`, `data/` → `vet45_sales_*`).
+- [x] **5.3** `cd apps/erp && dart analyze lib/features/sales test/features/sales` → 0 lỗi, 0 cảnh báo mới; `dart run tool/check_feature_imports.dart` → ghi dòng mới (chấp nhận cùng loại 8-A: `logic/` → `presentation/`, `data/` → `c45_sales_*`).
 - [x] **5.4** `flutter test` cả app → số lỗi đúng bằng mốc sau 8-B2; 0 lỗi `features/sales`.
 - [x] **5.5** `node .gitnexus/run.cjs analyze` rồi `detect-changes --repo erp-sales-inventory --scope all`: chỉ tệp trong plan; ghi số. Hoàn nguyên `AGENTS.md` / `CLAUDE.md` nếu bị sửa.
 

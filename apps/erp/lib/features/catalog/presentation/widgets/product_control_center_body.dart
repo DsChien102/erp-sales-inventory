@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:erp/features/catalog/data/models.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:erp/features/catalog/presentation.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../pages/product_custom_field_group_edit_page.dart';
 import '../pages/product_manual_base_price_page.dart';

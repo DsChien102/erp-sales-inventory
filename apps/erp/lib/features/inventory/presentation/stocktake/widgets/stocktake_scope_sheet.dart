@@ -1,7 +1,7 @@
 import 'package:erp/features/inventory/data/stocktake/stocktake_models.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_states.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Sheet chọn sản phẩm hoặc lô cụ thể khi mở phiên kiểm kê (SCR-043).
 /// Trả id đã chọn (`product.id` hoặc `lot.id`), hoặc `null` nếu đóng.

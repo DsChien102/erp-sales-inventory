@@ -262,12 +262,12 @@ Deno.test('lỗi model không bị bắt ở orchestrator', async () => {
   assert(thrown)
 })
 
-Deno.test('chitchat_mentions_vet45_not_blocked', async () => {
-  const greet = 'Xin chào! Mình là Hỏi VET45, giúp bạn xem số liệu cửa hàng.'
+Deno.test('chitchat_mentions_c45_not_blocked', async () => {
+  const greet = 'Xin chào! Mình là Hỏi Mosaic Retail, giúp bạn xem số liệu cửa hàng.'
   const r = await ask(new FakeModelClient([text(greet)]), [dataTool()])
   assertEquals(r.status, 'tro_chuyen')
   assertEquals(r.answer, greet)
   // vẫn chặn khi có số thật
-  const r2 = await ask(new FakeModelClient([text('Hỏi VET45: hôm nay bán 2.000.000đ')]), [dataTool()])
+  const r2 = await ask(new FakeModelClient([text('Hỏi Mosaic Retail: hôm nay bán 2.000.000đ')]), [dataTool()])
   assertEquals(r2.status, 'chua_ho_tro')
 })

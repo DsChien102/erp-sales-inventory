@@ -2338,7 +2338,7 @@ Một câu tóm tắt:
 
 ## Phụ lục F — Permission matrix
 
-Phụ lục F mô tả ma trận phân quyền khái niệm cho Theme 2. Đây là bản đề xuất ở mức SRS, dùng để thống nhất hành vi giữa BA, UX và Dev. Khi triển khai thật, tên role và permission code có thể được điều chỉnh theo mô hình IAM chung của VET45.
+Phụ lục F mô tả ma trận phân quyền khái niệm cho Theme 2. Đây là bản đề xuất ở mức SRS, dùng để thống nhất hành vi giữa BA, UX và Dev. Khi triển khai thật, tên role và permission code có thể được điều chỉnh theo mô hình IAM chung của Mosaic Retail.
 
 Nguyên tắc chung:
 
@@ -2368,7 +2368,7 @@ Nguyên tắc chung:
 |`Warehouse`|Người phụ trách tồn kho, nhập/xuất/kiểm kê|
 |`Viewer`|Người chỉ có quyền xem dữ liệu được cho phép|
 
-Role catalog này không nhất thiết là role cuối cùng của hệ thống. Khi VET45 có mô hình phân quyền chung, các quyền trong phụ lục này có thể được map sang permission code cụ thể.
+Role catalog này không nhất thiết là role cuối cùng của hệ thống. Khi Mosaic Retail có mô hình phân quyền chung, các quyền trong phụ lục này có thể được map sang permission code cụ thể.
 
 ---
 

@@ -643,7 +643,7 @@ Directory _findRepoRoot() {
   while (!Directory('${current.path}/supabase/migrations').existsSync()) {
     final parent = current.parent;
     if (parent.path == current.path) {
-      throw StateError('Could not locate Vet45 workspace root');
+      throw StateError('Could not locate Mosaic Retail workspace root');
     }
     current = parent;
   }

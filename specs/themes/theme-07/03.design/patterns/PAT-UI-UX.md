@@ -80,7 +80,7 @@ Mỗi khuôn được dựng chuẩn một lần, các màn hình và quy trình
 
 ### 6. Thành phần Design System mới
 
-Các thành phần phát sinh trong quá trình thiết kế Theme 7 đã được kiểm chứng trên prototype HTML và sẽ được đưa vào Flutter `vet45_design_system` ở Giai đoạn 5 (T7-G5):
+Các thành phần phát sinh trong quá trình thiết kế Theme 7 đã được kiểm chứng trên prototype HTML và sẽ được đưa vào Flutter `c45_design_system` ở Giai đoạn 5 (T7-G5):
 
 | Thành phần | Phát sinh ở | Mô tả | Trạng thái |
 |---|---|---|---|

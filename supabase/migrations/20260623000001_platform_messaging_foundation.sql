@@ -1,4 +1,4 @@
--- Vet45 messaging foundation: platform schema + per-module install function.
+-- Mosaic Retail messaging foundation: platform schema + per-module install function.
 -- Installed modules are registered in platform.messaging_module_registry and
 -- exposed via platform.messaging_backlog_stats + list_tenants_with_pending_messaging.
 

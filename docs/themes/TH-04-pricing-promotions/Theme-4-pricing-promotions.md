@@ -4715,7 +4715,7 @@ Cấu trúc dự kiến:
 
 # 11\. Promotion mechanics
 
-|**Nhóm**|**Ví dụ**|**Có nên đưa vào VET45?**|
+|**Nhóm**|**Ví dụ**|**Có nên đưa vào Mosaic Retail?**|
 |---|---|---|
 |1\. Giảm giá trực tiếp|Giảm 5%, giảm 50\.000đ|Có, MVP|
 |2\. Giá cố định / special price|Sản phẩm X chỉ còn 99\.000đ|Có|

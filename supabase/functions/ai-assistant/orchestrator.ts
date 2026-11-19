@@ -75,8 +75,8 @@ export async function answerQuestion(i: {
       if (answer === '') return finish('loi', MESSAGES.loi)
       if (dataCount > 0) return finish('ok', answer)
       // Không có số liệu nào từ công cụ: câu trả lời có chữ số là bịa số ⇒ chặn.
-      // Tên sản phẩm "VET45" có chữ số nhưng không phải số liệu ⇒ bỏ ra trước khi dò.
-      if (/\d/.test(answer.replace(/VET45/gi, ''))) {
+      // Tên sản phẩm "Mosaic Retail" có chữ số nhưng không phải số liệu ⇒ bỏ ra trước khi dò.
+      if (/\d/.test(answer.replace(/Mosaic Retail/gi, ''))) {
         // Chưa gọi công cụ nào nên câu trả lời không chứa dữ liệu cửa hàng — log được để chẩn đoán.
         console.log('ai-trace blocked_digits', JSON.stringify(answer.slice(0, 300)))
         return finish('chua_ho_tro', MESSAGES.chua_ho_tro, false)

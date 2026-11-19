@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import '../models/sales_order/sales_checkout_vm.dart';
 
 /// Customer header for the checkout screen: name and phone.

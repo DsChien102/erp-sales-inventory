@@ -14,7 +14,7 @@ Người mới tự mở cửa hàng mà không cần Platform Admin:
    auth.verifyOtp(type: signup)  ─▶ trigger iam._on_auth_user_confirmed (cùng transaction)
         → hồ sơ người dùng active
         → iam._create_tenant_for_owner: tổ chức active + Owner + cửa hàng mặc định + tổ chức chọn gần nhất + audit
-   ─▶ đã đăng nhập ─▶ bootstrap ─▶ "/" + toast "Chào mừng đến VET45! …"
+   ─▶ đã đăng nhập ─▶ bootstrap ─▶ "/" + toast "Chào mừng đến Mosaic Retail! …"
 ```
 
 Kèm theo:
@@ -120,10 +120,10 @@ language plpgsql security definer set search_path = iam, pg_temp
 
 ### Bước 4 — Cấu hình Auth (2A.3, chỉ Dev)
 
-1. `supabase/templates/confirmation.html`: tiêu đề "Mã xác minh VET45", nội dung tiếng Việt có `{{ .Token }}` (không dùng `{{ .ConfirmationURL }}`), hạn 1 giờ.
+1. `supabase/templates/confirmation.html`: tiêu đề "Mã xác minh Mosaic Retail", nội dung tiếng Việt có `{{ .Token }}` (không dùng `{{ .ConfirmationURL }}`), hạn 1 giờ.
 2. `config.toml`:
    - `[auth.email] enable_confirmations = true`, `max_frequency = "1m0s"`, giữ `otp_length = 6`, `otp_expiry = 3600`.
-   - `[auth.email.template.confirmation] subject = "Mã xác minh VET45"`, `content_path = "./supabase/templates/confirmation.html"`.
+   - `[auth.email.template.confirmation] subject = "Mã xác minh Mosaic Retail"`, `content_path = "./supabase/templates/confirmation.html"`.
 3. Đẩy lên Dev: `supabase db push` (2 migration) rồi `supabase config push` — **báo Claude chạy** (cần xác nhận; `config push` áp ngay, nhớ giữ danh sách `api.schemas` hiện tại, chưa có `einvoice`). Sau đó mở Dashboard ▸ Auth ▸ Email Templates kiểm template đã lên.
 4. **Email trên Dev**: dịch vụ email mặc định của Supabase chỉ gửi tới email thành viên của project và giới hạn rất thấp (vài email / giờ). Khi kiểm tay, đăng ký bằng email tài khoản Supabase của bạn; email khác phải chờ SMTP riêng (Resend, 2-B2).
 
@@ -158,7 +158,7 @@ Chuỗi UI lấy đúng TH-01 (US-01.1…01.4, US-02.4, màn 5.3, 5.4).
 **`VerifyEmailCubit(email)`** — `verify(code)`, `resend()` (đếm ngược 60 giây, nút khoá). `verify` thành công → `SessionController` nhận `signedIn` từ `onAuthStateChange` (Supabase trả session sau `verifyOtp`); gọi thêm `session.applySignedInUser(userId)` như 2-A3.
 
 **Trang:**
-- `SignupPage`: thanh 3 bước, bước 3 nhúng `VerifyEmailView` (cùng cubit với `/verify-email`). Thành công → `context.go('/')` + toast "Chào mừng đến VET45! Cửa hàng `<tên>` đã sẵn sàng."
+- `SignupPage`: thanh 3 bước, bước 3 nhúng `VerifyEmailView` (cùng cubit với `/verify-email`). Thành công → `context.go('/')` + toast "Chào mừng đến Mosaic Retail! Cửa hàng `<tên>` đã sẵn sàng."
 - `VerifyEmailPage` (`/verify-email`, nhận `email` qua `extra` hoặc query): "Xác minh email để tiếp tục", ô mã, "Xác minh", "Gửi lại mã", "Đăng xuất" (về `/login`). Email che dạng `l***@example.com` (dùng `maskEmail` của 2-A1).
 - `NoOrganizationPage`: chữ US-02.4, "Nhập mã lời mời" → `/invitation`, "Đăng xuất". Không có nút tạo tổ chức.
 

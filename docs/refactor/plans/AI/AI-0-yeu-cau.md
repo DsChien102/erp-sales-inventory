@@ -1,4 +1,4 @@
-# AI-0 — Yêu cầu trợ lý "Hỏi VET45"
+# AI-0 — Yêu cầu trợ lý "Hỏi Mosaic Retail"
 
 > Tích hợp AI · plan **AI-0** của [PLAN.md](../../PLAN.md) mục "Tích hợp AI" (bảng Plan)
 > Trạng thái: Plan ✅ (người dùng duyệt 2026-11-16) | Làm — | Review —
@@ -30,7 +30,7 @@ Ký hiệu: **[chốt]** = người dùng đã chốt (trong PLAN hoặc chat); 
 - Không đọc ảnh phiếu giao hàng (chỉ là ý tưởng nếu dư thời gian) **[chốt]**.
 - Không huấn luyện model riêng; Gemini không tự tính số **[chốt]**.
 - Không lưu lịch sử hội thoại lâu dài: đóng màn là quên **[đề xuất]**.
-- **Không làm màn dự báo riêng** **[chốt 2026-11-16]**: dự báo nhập hàng xem trong "Hỏi VET45", vào bằng lối tắt từ Home (mục 8a). Lý do: bớt ~1 ngày, demo liền mạch, lấp ô Home đang trống.
+- **Không làm màn dự báo riêng** **[chốt 2026-11-16]**: dự báo nhập hàng xem trong "Hỏi Mosaic Retail", vào bằng lối tắt từ Home (mục 8a). Lý do: bớt ~1 ngày, demo liền mạch, lấp ô Home đang trống.
 
 **Coi là thất bại dù chạy được:**
 - Trợ lý nói ra **một con số không có trong kết quả công cụ** (bịa số).
@@ -107,7 +107,7 @@ Model Gemini cụ thể (bản Flash miễn phí đang có ở thời điểm l�
 ## 7. Lời dặn cho Gemini (bản nháp) [đề xuất]
 
 ```text
-Bạn là "Hỏi VET45", trợ lý xem số liệu của MỘT cửa hàng bán lẻ trên app VET45.
+Bạn là "Hỏi Mosaic Retail", trợ lý xem số liệu của MỘT cửa hàng bán lẻ trên app Mosaic Retail.
 Hôm nay là {ngay_hom_nay} (giờ Việt Nam). Người hỏi: {vai_tro} của cửa hàng "{ten_cua_hang}".
 
 Quy tắc:
@@ -128,8 +128,8 @@ Tinh chỉnh sau khi chạy bộ câu thử: [để AI-1].
 
 | Chỗ | Chữ |
 |---|---|
-| Lối vào ở Home | Hỏi VET45 |
-| Tiêu đề màn | Hỏi VET45 |
+| Lối vào ở Home | Hỏi Mosaic Retail |
+| Tiêu đề màn | Hỏi Mosaic Retail |
 | Ô nhập | Hỏi về doanh thu, tồn kho, công nợ… |
 | Màn trống – lời chào | Chào bạn! Mình giúp bạn xem nhanh số liệu cửa hàng. Thử hỏi: |
 | Câu gợi ý (bấm để hỏi) | Hôm nay bán được bao nhiêu? · Hàng nào sắp hết, nên nhập bao nhiêu? · Khách nào đang nợ? · 5 mặt hàng bán chạy tháng này? |
@@ -152,7 +152,7 @@ Home
  └─ Việc cần xử lý:                       │
     "5 mặt hàng nên nhập thêm"    ── bấm ─┤
                                           ▼
-Hỏi VET45, tự gửi sẵn câu "Hàng nào sắp hết, nên nhập bao nhiêu?"
+Hỏi Mosaic Retail, tự gửi sẵn câu "Hàng nào sắp hết, nên nhập bao nhiêu?"
  → lời tóm tắt 1–3 câu + bảng (Sản phẩm | Tồn | Còn bán (ngày) | Nên nhập) + nút "Tạo phiếu nhập"
 ```
 

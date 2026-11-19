@@ -10,7 +10,7 @@
 
 **Architecture:** Migration mới `20261113001_inventory_supplier_programs.sql` (4 bảng, 7 RPC, helper `_ensure_walk_in_supplier`); sửa thẳng migration gốc Theme 3 (cột `partners.is_system`, chặn trong `_lock_partner`, `get_partner_detail` trả `is_system`) và `ensure_default_store_warehouse_pair` (gọi helper). Flutter: BJ mới `features/inventory/{data,logic,presentation}/supplier_program/` — một repository, ba Cubit (P1, P2, P3), luật thuần; chi tiết NCC Theme 3 nhận khối "Chương trình ưu đãi" qua tham số `supplierSection` do router truyền (Theme 3 không import Kho).
 
-**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `vet45_design_system`.
+**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `c45_design_system`.
 
 **Spec:** mục 1–2 của plan này + [spec giá vốn](T7-G5-gia-von-thiet-ke.md) mục 12 + PLAN.md Theme 7 → "Quy ước chung cho mọi plan G5".
 

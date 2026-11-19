@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import 'preview/overview_tab.dart';
 import 'preview/sg01_drafts_tab.dart';
@@ -25,7 +25,7 @@ class SalesPresentationExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'VET45 Sales Presentation Preview',
+      title: 'Mosaic Retail Sales Presentation Preview',
       theme: VTheme.lightTheme,
       home: const SalesPreviewHomeScreen(),
       debugShowCheckedModeBanner: false,

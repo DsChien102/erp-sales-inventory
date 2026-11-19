@@ -3,7 +3,7 @@ import 'package:erp/features/inventory/data/stock/stock_models.dart';
 import 'package:erp/features/inventory/logic/costing/costing_rules.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_layout.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 String formatUnitCostOrTemp(num? unitCost, String uom) {
   if (unitCost == null) return 'Giá tạm';

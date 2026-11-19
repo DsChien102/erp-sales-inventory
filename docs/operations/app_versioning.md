@@ -8,11 +8,11 @@ Monorepo policy: **ship units** carry versions and Keep a Changelog files. Other
 | Unit | Path | Framework | Version shape | Bump script | Git tag |
 | --- | ---- | --------- | ------------- | ----------- | ------- |
 | ERP | `apps/erp` | `flutter_exec` | `MAJOR.MINOR.PATCH+BUILD` | [`apps/erp/scripts/bump_version.sh`](../../apps/erp/scripts/bump_version.sh) | `erp-v1.8.0+37` |
-| Design system | `packages/vet45_design_system` | `flutter_lib` | `MAJOR.MINOR.PATCH` | [`packages/vet45_design_system/scripts/bump_version.sh`](../../packages/vet45_design_system/scripts/bump_version.sh) | `vet45_design_system-v1.0.1` |
+| Design system | `packages/c45_design_system` | `flutter_lib` | `MAJOR.MINOR.PATCH` | [`packages/c45_design_system/scripts/bump_version.sh`](../../packages/c45_design_system/scripts/bump_version.sh) | `c45_design_system-v1.0.1` |
 
 Mention other module/package work under **Internal** in the ship-unit changelog that
 actually ships the change. Design-system API/UI changes: update
-`packages/vet45_design_system/CHANGELOG.md`; if the change is user-facing in ERP,
+`packages/c45_design_system/CHANGELOG.md`; if the change is user-facing in ERP,
 also add bullets there.
 
 > `apps/admin` và `apps/messaging_worker` đã xoá ở 8-D: quản trị nền tảng nằm trong ERP (tab **Thêm**), không còn worker chạy riêng.
@@ -69,8 +69,8 @@ PR checklist:
 ./apps/erp/scripts/bump_version.sh --build --commit --push --ci
 
 # Flutter library (design system) — no build number; default is --patch
-./packages/vet45_design_system/scripts/bump_version.sh --patch --dry-run
-./packages/vet45_design_system/scripts/bump_version.sh --minor --commit --tag
+./packages/c45_design_system/scripts/bump_version.sh --patch --dry-run
+./packages/c45_design_system/scripts/bump_version.sh --minor --commit --tag
 ```
 
 Common flags: `--dry-run`, `--date YYYY-MM-DD`, `--skip-changelog`, `--commit`, `--tag`, `--push`, `--ci`, `--allow-dirty`, `--set VERSION`, `--output-file F`.

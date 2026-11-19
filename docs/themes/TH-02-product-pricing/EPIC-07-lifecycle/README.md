@@ -2,7 +2,7 @@
 
 ## Epic overview
 
-Epic này giúp VET45 quản lý vòng đời sản phẩm sau khi sản phẩm đã được tạo, bao gồm sửa thông tin, quản lý ảnh, ngừng kinh doanh, kinh doanh lại, xóa mềm và truy vết các thay đổi quan trọng.
+Epic này giúp Mosaic Retail quản lý vòng đời sản phẩm sau khi sản phẩm đã được tạo, bao gồm sửa thông tin, quản lý ảnh, ngừng kinh doanh, kinh doanh lại, xóa mềm và truy vết các thay đổi quan trọng.
 
 Trong thực tế vận hành, sản phẩm không đứng yên. Tên sản phẩm có thể cần sửa, barcode có thể thay đổi, ảnh sản phẩm có thể được cập nhật, đơn vị hoặc giá có thể được điều chỉnh, sản phẩm có thể tạm ngừng kinh doanh hoặc không còn bán nữa. Những thay đổi này cần được kiểm soát để không làm sai dữ liệu giao dịch, tồn kho, giá, hóa đơn hoặc báo cáo đã phát sinh trước đó.
 

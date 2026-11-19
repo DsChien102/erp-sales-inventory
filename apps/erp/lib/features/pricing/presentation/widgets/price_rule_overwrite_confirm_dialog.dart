@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// SG-03 — VBottomSheet xác nhận tự động ghi đè khi tạo mới giá riêng bị trùng khoảng hiệu lực.
 Future<bool> showPriceRuleOverwriteConfirmDialog(BuildContext context) async {

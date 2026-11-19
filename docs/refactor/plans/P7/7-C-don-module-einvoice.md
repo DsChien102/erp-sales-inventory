@@ -7,18 +7,18 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Xoá hẳn `modules/` (einvoice + 2 `integration_events` còn lại) và 4 package chỉ module dùng (`vet45_misa`, `vet45_async_query`, `vet45_adapters`, `vet45_generator`); app bỏ `EinvoiceStartup` / `IEInvoiceModule` / 2 checker cũ; schema `einvoice` chỉ còn phần hàng đợi Edge Function dùng.
+**Goal:** Xoá hẳn `modules/` (einvoice + 2 `integration_events` còn lại) và 4 package chỉ module dùng (`c45_misa`, `c45_async_query`, `c45_adapters`, `c45_generator`); app bỏ `EinvoiceStartup` / `IEInvoiceModule` / 2 checker cũ; schema `einvoice` chỉ còn phần hàng đợi Edge Function dùng.
 
 **Architecture:** Không đổi nghiệp vụ. Bước 0 chốt hợp đồng SQL trên migration hiện tại (Task 0). Bỏ phần test so với module (Task 1), bỏ DI / checker cũ (Task 2). Khi app không còn import module thì xoá thư mục + workspace (Task 3). Sau đó viết lại `20261031002` cho tạo thẳng hàng đợi (Task 4), dọn script trỏ `modules/` (Task 5), và cập nhật tài liệu (Task 6). Thứ tự này bắt buộc: Task 3 cần Task 1–2 xong mới biên dịch được.
 
-**Tech Stack:** Flutter / Dart (`flutter_test`), Supabase Postgres (plpgsql), `tools/vet45_supabase_migrate`, bash.
+**Tech Stack:** Flutter / Dart (`flutter_test`), Supabase Postgres (plpgsql), `tools/c45_supabase_migrate`, bash.
 
 **Spec:** [TH-08](../../../02-yeu-cau/TH-08-hoa-don-dien-tu.md) (mục 3, 6.1, 9.1, KI-17, KI-20); quyết định ở mục 2 (người dùng chốt 2026-11-09).
 
 ## Global Constraints
 
 - **Không đổi nghiệp vụ.** `apps/erp/lib` chỉ đổi: `core/di/injection.dart`, `core/session/session_contracts.dart`, `core/session/session_repository.dart` (Task 2). Không RPC nào app hoặc Edge Function gọi bị đổi chữ ký hay thân hàm.
-- **Giữ** `CoreExecutionContext` và 3 lượt đăng ký `IExecutionContext` / `ICurrentUser` / `ICurrentTenant` (sales logic còn dùng — Q1), `vet45_shared_*`, `vet45_annotations` (9-1), mọi thứ trong `platform` trừ dòng đăng ký einvoice (Q3).
+- **Giữ** `CoreExecutionContext` và 3 lượt đăng ký `IExecutionContext` / `ICurrentUser` / `ICurrentTenant` (sales logic còn dùng — Q1), `c45_shared_*`, `c45_annotations` (9-1), mọi thứ trong `platform` trừ dòng đăng ký einvoice (Q3).
 - Test giữ hành vi: được bỏ **phần so với module cũ**, không đổi điều kiện kiểm của phần `new`. Ngoại lệ duy nhất nằm ở Task 1 Step 2: test readiness đổi từ "so với handler cũ" sang "so với giá trị cố định đo trên handler cũ".
 - Migration: **sửa migration gốc**, không tạo migration mới. Phiên code **không** chạy / không đề nghị `supabase db reset`, reset Dev, chạy SQL; plan không ghi bước DB nào.
 - Trước khi sửa mỗi symbol Dart: `node .gitnexus/run.cjs impact <symbol> --direction upstream --repo erp-sales-inventory`, ghi vào Kết quả. Gặp HIGH / CRITICAL thì báo người dùng trước khi sửa. Trước mỗi commit: `detect_changes`.
@@ -40,8 +40,8 @@
 
 ## 1. Mục tiêu
 
-- `grep -rnE "vet45_einvoice_|vet45_misa|vet45_async_query|async_query|vet45_adapters|vet45_generator|_integration_events|IEInvoiceModule|EinvoiceStartup|CorePermissionChecker|CoreTenantAccessChecker" apps packages tools scripts hooks pubspec.yaml vet45.workspace.json --include='*.dart' --include='*.yaml' --include='*.sh' --include='*.json'` chỉ còn chuỗi trong test nguồn của Task 2 (`injection_test.dart`, danh sách cấm).
-- `ls modules` ⇒ không tồn tại; `ls packages` ⇒ `vet45_annotations vet45_design_system vet45_lints vet45_shared`.
+- `grep -rnE "c45_einvoice_|c45_misa|c45_async_query|async_query|c45_adapters|c45_generator|_integration_events|IEInvoiceModule|EinvoiceStartup|CorePermissionChecker|CoreTenantAccessChecker" apps packages tools scripts hooks pubspec.yaml c45.workspace.json --include='*.dart' --include='*.yaml' --include='*.sh' --include='*.json'` chỉ còn chuỗi trong test nguồn của Task 2 (`injection_test.dart`, danh sách cấm).
+- `ls modules` ⇒ không tồn tại; `ls packages` ⇒ `c45_annotations c45_design_system c45_lints c45_shared`.
 - Schema `einvoice`: còn `internal_commands` (12 cột, 2 index) + `enqueue_internal_command`, `claim_internal_commands_batch`, `complete_internal_command`, `fail_internal_command`; `outbox_messages` 5 cột + `enqueue_outbox_message`. Không còn: inbox, `receive_integration_event`, hàm claim / complete / fail của outbox và inbox, `renew_publish_series_lease`, dòng đăng ký `platform.messaging_module_registry`.
 - TH-08, PLAN.md, README, AGENTS.md, `docs/agents/domain.md` ghi đúng hiện trạng.
 
@@ -49,22 +49,22 @@
 
 | Q | Nội dung |
 |---|---|
-| Q1 | **Người dùng chốt 2026-11-09 (A): giữ `CoreExecutionContext`.** Logic sales còn dùng `IExecutionContext` (10 tệp trong `features/sales/logic`, vd `sales_checkout_cubit.dart:186-195`, `sales_checkout_orchestrator.dart:14-19`). 7-C bỏ `CorePermissionChecker`, `CoreTenantAccessChecker`, 2 lượt đăng ký `IPermissionChecker` / `ITenantAccessChecker` (`injection.dart:86-94, 99-100`). Việc thay `IExecutionContext` dời sang **9-1** (cùng lúc xoá `vet45_shared`). Bỏ kèm thứ chỉ 2 checker / einvoice dùng: `ILoggerFactory`, `IEventsBus` (`injection.dart:54-58`, chỉ `EinvoiceStartup` đọc), `SessionRepository.hasPermission` (`session_repository.dart:55-66`, chỉ `CorePermissionChecker` gọi), tham số `permissionChecker` của `setUpErpCatalogE2E` (`catalog_e2e_harness.dart:82-91`, 0 nơi truyền) |
+| Q1 | **Người dùng chốt 2026-11-09 (A): giữ `CoreExecutionContext`.** Logic sales còn dùng `IExecutionContext` (10 tệp trong `features/sales/logic`, vd `sales_checkout_cubit.dart:186-195`, `sales_checkout_orchestrator.dart:14-19`). 7-C bỏ `CorePermissionChecker`, `CoreTenantAccessChecker`, 2 lượt đăng ký `IPermissionChecker` / `ITenantAccessChecker` (`injection.dart:86-94, 99-100`). Việc thay `IExecutionContext` dời sang **9-1** (cùng lúc xoá `c45_shared`). Bỏ kèm thứ chỉ 2 checker / einvoice dùng: `ILoggerFactory`, `IEventsBus` (`injection.dart:54-58`, chỉ `EinvoiceStartup` đọc), `SessionRepository.hasPermission` (`session_repository.dart:55-66`, chỉ `CorePermissionChecker` gọi), tham số `permissionChecker` của `setUpErpCatalogE2E` (`catalog_e2e_harness.dart:82-91`, 0 nơi truyền) |
 | Q2 | **Người dùng chốt 2026-11-09 (A): viết lại `20261031002` cho tạo thẳng.** (a) Bỏ bản đè `platform.install_module_messaging` (`:11-599`, kể cả `revoke` / `grant` của nó) và lệnh `select platform.install_module_messaging('einvoice')` (`:601`). (b) Tạo thẳng trong schema `einvoice`: bảng `internal_commands` + 2 index + 4 hàm `enqueue_internal_command`, `claim_internal_commands_batch` (kèm `drop function if exists … (uuid, integer)` trước), `complete_internal_command`, `fail_internal_command` — chép **nguyên** thân từ khối `execute format` cũ, thay `%I` bằng `einvoice`. (c) `outbox_messages` giữ làm **nhật ký sự kiện** như sales Q1 của 8-C: **5 cột** `id uuid primary key`, `tenant_id uuid not null`, `event_type text not null`, `payload jsonb not null`, `occurred_at timestamptz not null default now()`; bỏ index `outbox_messages_pending_tenant_idx` (không ai đọc). `enqueue_outbox_message` chép nguyên. (d) Giữ nguyên `grant usage on schema einvoice to service_role` / `to authenticated` và `revoke all on all tables in schema einvoice from public, anon, authenticated` (đặt cuối tệp, sau khi tạo bảng, như thứ tự cũ). `revoke all … from public, anon, authenticated` + `grant execute … to service_role` cho đúng 5 hàm, cùng chữ ký cũ. (e) Bỏ: `inbox_messages`, `receive_integration_event`, `claim_outbox_batch`, `complete_outbox_message`, `fail_outbox_message`, `claim_inbox_batch`, `complete_inbox_message`, `fail_inbox_message`, dòng `insert into platform.messaging_module_registry`, `rebuild_messaging_backlog_stats_view()`. 6 migration ghi outbox (`007/008/009/012/014/015/023`) **không sửa** |
 | Q3 | **Người dùng chốt 2026-11-09 (A): không đụng nền messaging `platform`.** `20260623000001`, `20260623000002` (vẫn cài cho `iam`, `costing`, `accounting`, `dashboard`), `20260820008` giữ nguyên; việc dọn chuyển sang **9-1**. Kèm: **xoá `einvoice.renew_publish_series_lease`** (`20261031019:147-179`: chú thích + hàm; dòng `revoke` `:236`, `grant` `:241`): không ai gọi (7-E2a Q2 bỏ nhịp gia hạn) |
 | Q4 | **Người dùng chốt 2026-11-09 (A): bỏ test của module, không chuyển tệp nào sang app** (như 8-C Q7, 6-C Q4). Mọi test SQL trong `modules/einvoice/infrastructure/test` (36 tệp, gồm 5 tệp `dev_acceptance`) đọc `supabase/migrations/_drafts/`, tức là bản nháp đã promote. Hành vi SQL do `supabase/tests/einvoice_th08.sql` (7-B1) lo, hành vi bộ xử lý do test Deno của `supabase/functions/einvoice-processor` lo. Test mới `apps/erp/test/features/einvoice/data/einvoice_sql_contract_test.dart` chỉ kiểm có / không có (Task 0, Task 4) |
-| Q5 | **Người dùng chốt 2026-11-09 (A): dọn script.** Xoá 5 script chỉ phục vụ module: `scripts/scaffold_module.sh`, `scripts/ci/guard_application_dto_colocation.sh`, `guard_application_use_case_layout.sh`, `guard_infra_dart_only.sh`, `guard_layer_imports.sh`; bỏ `hooks/pre-commit:40-42`. Ba công cụ dùng chung chỉ bỏ phần quét `modules/`: `scripts/ci/guard_presentation_size.sh:27-30`, `scripts/sync_analysis_options.sh:75`, `tools/guard_design_system_usage.dart:7, 91, 176, 180`; `vet45.workspace.json:9`. Tài liệu harness cũ `docs/themes/TH-0x-*/harness/06-harness-notes.md` không sửa (lịch sử) |
+| Q5 | **Người dùng chốt 2026-11-09 (A): dọn script.** Xoá 5 script chỉ phục vụ module: `scripts/scaffold_module.sh`, `scripts/ci/guard_application_dto_colocation.sh`, `guard_application_use_case_layout.sh`, `guard_infra_dart_only.sh`, `guard_layer_imports.sh`; bỏ `hooks/pre-commit:40-42`. Ba công cụ dùng chung chỉ bỏ phần quét `modules/`: `scripts/ci/guard_presentation_size.sh:27-30`, `scripts/sync_analysis_options.sh:75`, `tools/guard_design_system_usage.dart:7, 91, 176, 180`; `c45.workspace.json:9`. Tài liệu harness cũ `docs/themes/TH-0x-*/harness/06-harness-notes.md` không sửa (lịch sử) |
 | Q6 | **Người dùng chốt 2026-11-09 (duyệt plan):** (a) 2 `[ERROR] touches_match_body` của `20261108001_einvoice_processor_cron.sql` (có sẵn từ 7-E3, chưa sửa) **không** sửa trong 7-C, coi là mốc; ghi vào mục Rủi ro. (b) `REGISTRY.yaml` cập nhật theo Task 4 Step 5 để `verify_migration_policy` không thêm cảnh báo |
 
 ## 3. Hiện trạng (đo 2026-11-09, HEAD `19c2495ba`)
 
 | Thứ | Ai còn dùng |
 |---|---|
-| `apps/erp/lib` | Chỉ `core/di/injection.dart`: import `:2-3` (`vet45_einvoice_application`, `_infrastructure`), `ILoggerFactory` / `IEventsBus` `:54-58`, 2 checker `:84-94`, đăng ký `:95-100`, `EinvoiceStartup` + `IEInvoiceModule` `:289-297`; `core/session/session_contracts.dart` (3 lớp: `:11-44`, `:50-77`, `:80-92`) |
+| `apps/erp/lib` | Chỉ `core/di/injection.dart`: import `:2-3` (`c45_einvoice_application`, `_infrastructure`), `ILoggerFactory` / `IEventsBus` `:54-58`, 2 checker `:84-94`, đăng ký `:95-100`, `EinvoiceStartup` + `IEInvoiceModule` `:289-297`; `core/session/session_contracts.dart` (3 lớp: `:11-44`, `:50-77`, `:80-92`) |
 | `apps/erp/test` | `core/di/injection_test.dart` (`:15-17` import module, `:48-52`, `:62-64`); `core/session/session_contracts_test.dart` (nhóm `CorePermissionChecker` `:67`, `CoreTenantAccessChecker` `:131`); `features/einvoice/data/einvoice_errors_test.dart` (nhóm `common cases with old …` `:21-52`: mỗi test vừa so cũ vừa so mới); `features/einvoice/data/einvoice_rpc_parity_test.dart` (nhóm `old` `:26-412`; test `readiness_dto parity …` trong `new (order)` `:942-973` so với handler cũ; `_FakeReadinessGateway` `:1072-1084`); `features/catalog/catalog_e2e_harness.dart:82-91` (`IPermissionChecker`) |
 | `apps/erp/integration_test`, `apps/erp/example/lib` | không dùng |
-| Workspace | `pubspec.yaml:13-15, 20-30` (gồm 2 `integration_events`, 5 einvoice, `vet45_async_query` ×2); `apps/erp/pubspec.yaml:20-23`; `apps/erp/example/pubspec.yaml:19-20` (dependency), override `async_query`, `async_query_flutter`, `vet45_adapters`, 5 `vet45_einvoice_*`, `vet45_misa`, 2 `integration_events` |
-| Package | `vet45_misa`, `vet45_adapters`, `vet45_generator`: chỉ `modules/einvoice/infrastructure` + example dùng; `vet45_async_query`: chỉ einvoice example + `apps/erp/example` override |
+| Workspace | `pubspec.yaml:13-15, 20-30` (gồm 2 `integration_events`, 5 einvoice, `c45_async_query` ×2); `apps/erp/pubspec.yaml:20-23`; `apps/erp/example/pubspec.yaml:19-20` (dependency), override `async_query`, `async_query_flutter`, `c45_adapters`, 5 `c45_einvoice_*`, `c45_misa`, 2 `integration_events` |
+| Package | `c45_misa`, `c45_adapters`, `c45_generator`: chỉ `modules/einvoice/infrastructure` + example dùng; `c45_async_query`: chỉ einvoice example + `apps/erp/example` override |
 | DB | `20261031002` (602 dòng) đè `platform.install_module_messaging` + cài 3 bảng / 12 hàm + đăng ký registry. Chỗ ghi outbox: 12 lần `einvoice.enqueue_outbox_message` (6 tệp) + 1 câu `insert into einvoice.outbox_messages (id, tenant_id, event_type, payload, occurred_at)` (`20261031012:279`); 0 chỗ đọc outbox / inbox. `claim_internal_commands_batch` được định nghĩa lại ở `007:689-691`, `009:773` |
 | Edge Function | gọi 38 RPC `einvoice` (gồm `claim_internal_commands_batch`, `complete_internal_command`, `fail_internal_command`, `list_tenants_with_due_commands`, `reschedule_internal_command`, `retry_or_dead_letter_internal_command`); không gọi `renew_publish_series_lease` |
 | `verify_migration_policy` | **2 ERROR** (`20261108001` `touches_match_body`, có sẵn) + 4 WARN `registry_consistency` (`20261101001` ×1, `20261104001` ×2, `20261108001` ×1); `verify_schema_lock_sync`: OK |
@@ -96,11 +96,11 @@
 | `apps/erp/test/features/einvoice/data/einvoice_errors_test.dart`, `einvoice_rpc_parity_test.dart` | sửa (Task 1) |
 | `apps/erp/lib/core/di/injection.dart`, `core/session/session_contracts.dart`, `core/session/session_repository.dart` | sửa (Task 2) |
 | `apps/erp/test/core/di/injection_test.dart` (viết lại), `test/core/session/session_contracts_test.dart`, `test/core/session/fake_session_repository.dart`, `test/features/catalog/catalog_e2e_harness.dart` | sửa (Task 2) |
-| `modules/` (cả thư mục), `packages/vet45_misa`, `vet45_async_query`, `vet45_adapters`, `vet45_generator` | xoá (Task 3) |
+| `modules/` (cả thư mục), `packages/c45_misa`, `c45_async_query`, `c45_adapters`, `c45_generator` | xoá (Task 3) |
 | `pubspec.yaml`, `apps/erp/pubspec.yaml`, `apps/erp/example/pubspec.yaml` | sửa (Task 3) |
 | `supabase/migrations/20261031002_einvoice_install_module_messaging.sql`, `20261031019_einvoice_misa_publish_series_lease.sql`, `supabase/migrations/REGISTRY.yaml` | sửa (Task 4) |
 | 5 script (Q5) | xoá (Task 5) |
-| `hooks/pre-commit`, `scripts/ci/guard_presentation_size.sh`, `scripts/sync_analysis_options.sh`, `tools/guard_design_system_usage.dart`, `vet45.workspace.json` | sửa (Task 5) |
+| `hooks/pre-commit`, `scripts/ci/guard_presentation_size.sh`, `scripts/sync_analysis_options.sh`, `tools/guard_design_system_usage.dart`, `c45.workspace.json` | sửa (Task 5) |
 | `docs/02-yeu-cau/TH-08-hoa-don-dien-tu.md`, `docs/refactor/PLAN.md`, `README.md`, `AGENTS.md`, `docs/agents/domain.md` | Task 6 |
 | `docs/refactor/TEST-BASELINE.md` | phiên review cập nhật (như 8-C) |
 
@@ -140,10 +140,10 @@
 **Files:**
 - Modify: `apps/erp/test/features/einvoice/data/einvoice_errors_test.dart`, `apps/erp/test/features/einvoice/data/einvoice_rpc_parity_test.dart`
 
-- [x] **Step 1: `einvoice_errors_test.dart`.** Trong nhóm `common cases with old mapEinvoiceRpcError parity` (`:21-52`): xoá 2 dòng "Old mapping" (`oldException = mapEinvoiceRpcError(...)` + `expect(oldException.code, …)`) ở cả 2 test, giữ nguyên phần "New mapping"; đổi tên nhóm thành `common cases`. Xoá import `vet45_einvoice_infrastructure/src/errors/einvoice_error_mapper.dart` và `vet45_shared_infrastructure` (nếu `RpcException` không còn dùng), bỏ `// ignore_for_file: implementation_imports` nếu hết import `src/`. Chạy ⇒ +16 (số không đổi); số dòng `expect(` giảm đúng 2 (2 dòng `expect(oldException.code, …)`).
+- [x] **Step 1: `einvoice_errors_test.dart`.** Trong nhóm `common cases with old mapEinvoiceRpcError parity` (`:21-52`): xoá 2 dòng "Old mapping" (`oldException = mapEinvoiceRpcError(...)` + `expect(oldException.code, …)`) ở cả 2 test, giữ nguyên phần "New mapping"; đổi tên nhóm thành `common cases`. Xoá import `c45_einvoice_infrastructure/src/errors/einvoice_error_mapper.dart` và `c45_shared_infrastructure` (nếu `RpcException` không còn dùng), bỏ `// ignore_for_file: implementation_imports` nếu hết import `src/`. Chạy ⇒ +16 (số không đổi); số dòng `expect(` giảm đúng 2 (2 dòng `expect(oldException.code, …)`).
 - [x] **Step 2: Test readiness ở `new (order)` (`:942-973`).** (a) Trên code cũ, thêm tạm vào test một `print` cho mỗi mẫu: `oldDto.level.name`, `oldDto.buyerCompletionState.name`, danh sách `(code, message)` của `blockers` và `warnings`. Chạy, chép kết quả vào Kết quả, rồi bỏ `print`. (b) Thêm, **bên cạnh** các `expect` so cũ, các `expect` trên `newDto` bằng giá trị cố định vừa đo (`level`, `buyerCompletionState`, `blockers[i].code` / `.message`, `warnings[i].code` / `.message`, đúng độ dài). Mã phải khớp nhóm cũ `:354-412`: ready ⇒ `ready`, `[]`, `[]`; missing template ⇒ `notReady`, `['CONFIG_NOT_READY']`, `[]`; org missing tax ⇒ `notReady`, `['BUYER_TAX_CODE_REQUIRED']`, `[]`. Lệch ⇒ dừng, ghi lại. Chạy ⇒ xanh. (c) Xoá phần handler cũ (`oldInput`, `oldHandler`, `oldDto` và các `expect` so với `oldDto`); đổi tên test thành `readiness_dto: new repository maps all 3 sets`.
 - [x] **Step 3: Bỏ nhóm `old`** (`:26-412`, kiểm lại bằng `grep -n "group('"`), lớp `_FakeReadinessGateway` (`:1072-1084`), các import module (`:16-21`) và `// ignore_for_file: implementation_imports` nếu hết import `src/`. Helper / hằng chỉ nhóm `old` dùng ⇒ xoá (kiểm 0 tham chiếu còn lại). **Không** sửa `einvoice_parity_expectations.dart` và các ca của nhóm `new`.
-- [x] **Step 4: Kiểm.** `grep -n "vet45_" test/features/einvoice/data/*.dart` ⇒ rỗng; `dart analyze test/features/einvoice` ⇒ 0 issue mới; `flutter test test/features/einvoice/data/einvoice_rpc_parity_test.dart` ⇒ +44 (`19 + 10 + 15`, đúng bằng 3 nhóm `new` ở Task 0 Step 3), không `~`; `flutter test test/features/einvoice` ⇒ số Task 0 trừ đúng số test của nhóm `old`.
+- [x] **Step 4: Kiểm.** `grep -n "c45_" test/features/einvoice/data/*.dart` ⇒ rỗng; `dart analyze test/features/einvoice` ⇒ 0 issue mới; `flutter test test/features/einvoice/data/einvoice_rpc_parity_test.dart` ⇒ +44 (`19 + 10 + 15`, đúng bằng 3 nhóm `new` ở Task 0 Step 3), không `~`; `flutter test test/features/einvoice` ⇒ số Task 0 trừ đúng số test của nhóm `old`.
 - [x] **Step 5: Commit** `test(einvoice): 7-C bỏ nhóm test so với module einvoice cũ`
 
 ### Task 2: DI và phiên bỏ module einvoice + 2 checker (Q1)
@@ -159,38 +159,38 @@
 - [x] **Step 2: Viết lại `injection_test.dart` (đỏ).** Bỏ 3 import module (`:15-17`). Giữ 2 fake Supabase và test hiện có trừ `:51-52`, `:62-64`. Thêm:
   - `initDependencies keeps execution context for sales`: `getIt<IExecutionContext>()`, `getIt<ICurrentUser>()`, `getIt<ICurrentTenant>()` đều `isA<CoreExecutionContext>()` và `identical` nhau.
   - `initDependencies drops module-only services`: `getIt.isRegistered<IPermissionChecker>()`, `<ITenantAccessChecker>()`, `<ILoggerFactory>()`, `<IEventsBus>()` đều `isFalse`.
-  - `ERP DI source has no einvoice module`: nội dung `apps/erp/lib/core/di/injection.dart` (tìm từ gốc repo như `_findRepoRoot` của Task 0) không chứa `vet45_einvoice_`, `EinvoiceStartup`, `IEInvoiceModule`, `CorePermissionChecker`, `CoreTenantAccessChecker`.
+  - `ERP DI source has no einvoice module`: nội dung `apps/erp/lib/core/di/injection.dart` (tìm từ gốc repo như `_findRepoRoot` của Task 0) không chứa `c45_einvoice_`, `EinvoiceStartup`, `IEInvoiceModule`, `CorePermissionChecker`, `CoreTenantAccessChecker`.
 
   Chạy ⇒ 2 test mới sau FAIL, phần còn lại PASS.
-- [x] **Step 3: Sửa `injection.dart`.** Xoá import `:2-3`; xoá `:54-58`; xoá `permissionChecker`, `tenantAccessChecker` (`:86-94`) và 2 dòng đăng ký `:99-100`; xoá `:289-297`. Sửa chú thích `:84` thành `// Ngữ cảnh phiên cho logic sales (IExecutionContext; thay ở 9-1), đọc cùng SessionStore.` Import `vet45_shared_infrastructure` (`:5`) bỏ nếu `dart analyze` báo không dùng.
+- [x] **Step 3: Sửa `injection.dart`.** Xoá import `:2-3`; xoá `:54-58`; xoá `permissionChecker`, `tenantAccessChecker` (`:86-94`) và 2 dòng đăng ký `:99-100`; xoá `:289-297`. Sửa chú thích `:84` thành `// Ngữ cảnh phiên cho logic sales (IExecutionContext; thay ở 9-1), đọc cùng SessionStore.` Import `c45_shared_infrastructure` (`:5`) bỏ nếu `dart analyze` báo không dùng.
 - [x] **Step 4: Sửa `session_contracts.dart`**: xoá `CorePermissionChecker` (`:46-77`, gồm chú thích đầu lớp) và `CoreTenantAccessChecker` (`:79-92`); bỏ import `session_repository.dart` nếu thừa. `session_repository.dart`: xoá `hasPermission` (`:55-66`). `session_store.dart:9, :43-45`: sửa chú thích còn nhắc `CorePermissionChecker` / `iam.has_permission` thành chỉ nói `CoreExecutionContext`.
-- [x] **Step 5: Test phiên + harness.** `session_contracts_test.dart`: xoá nhóm `CorePermissionChecker` và `CoreTenantAccessChecker`; giữ nguyên nhóm `CoreExecutionContext`. `fake_session_repository.dart`: xoá override `hasPermission` + trường `permissionGranted` nếu không còn ai dùng (`grep -rn "permissionGranted" test` ⇒ 0). `catalog_e2e_harness.dart`: bỏ tham số `permissionChecker` + khối `:87-90` + import `vet45_shared_application` nếu thừa.
+- [x] **Step 5: Test phiên + harness.** `session_contracts_test.dart`: xoá nhóm `CorePermissionChecker` và `CoreTenantAccessChecker`; giữ nguyên nhóm `CoreExecutionContext`. `fake_session_repository.dart`: xoá override `hasPermission` + trường `permissionGranted` nếu không còn ai dùng (`grep -rn "permissionGranted" test` ⇒ 0). `catalog_e2e_harness.dart`: bỏ tham số `permissionChecker` + khối `:87-90` + import `c45_shared_application` nếu thừa.
 - [x] **Step 6: Kiểm.**
   - `cd apps/erp && flutter test test/core/di/injection_test.dart` ⇒ PASS hết
   - `flutter test test/core` ⇒ số Task 0 trừ đúng số test của 2 nhóm checker, cộng 3 test mới
   - `flutter test test/features/sales test/features/catalog test/features/einvoice` ⇒ cùng số pass như Task 0 / Task 1
-  - `grep -rln "vet45_einvoice_\|IEInvoiceModule\|EinvoiceStartup" apps/erp --include='*.dart'` ⇒ chỉ `test/core/di/injection_test.dart` (chuỗi cấm)
+  - `grep -rln "c45_einvoice_\|IEInvoiceModule\|EinvoiceStartup" apps/erp --include='*.dart'` ⇒ chỉ `test/core/di/injection_test.dart` (chuỗi cấm)
   - `dart analyze lib test integration_test` ⇒ 0 error, 0 warning mới
 - [x] **Step 7: Commit** `refactor(einvoice): 7-C bỏ EinvoiceStartup, CorePermissionChecker, CoreTenantAccessChecker khỏi DI`
 
 ### Task 3: Xoá `modules/` + 4 package + workspace
 
 **Files:**
-- Delete: `modules/`, `packages/vet45_misa`, `packages/vet45_async_query`, `packages/vet45_adapters`, `packages/vet45_generator`
+- Delete: `modules/`, `packages/c45_misa`, `packages/c45_async_query`, `packages/c45_adapters`, `packages/c45_generator`
 - Modify: `pubspec.yaml:8-30`, `apps/erp/pubspec.yaml:20-23`, `apps/erp/example/pubspec.yaml`
 
-- [x] **Step 1: Kiểm trước.** `ls modules` ⇒ `einvoice partner sales`; `ls modules/partner modules/sales` ⇒ chỉ `integration_events`; `git status --short modules packages` sạch; `grep -rln "vet45_misa\|vet45_adapters\|vet45_generator\|async_query" packages/vet45_shared packages/vet45_annotations packages/vet45_design_system packages/vet45_lints tools apps --include='pubspec.yaml'` ⇒ chỉ `apps/erp/example/pubspec.yaml`.
-- [x] **Step 2: Xoá.** `git rm -r -q modules packages/vet45_misa packages/vet45_async_query packages/vet45_adapters packages/vet45_generator`; `rm -rf` phần không theo dõi còn lại (`.dart_tool`, `build`) của các thư mục đó.
+- [x] **Step 1: Kiểm trước.** `ls modules` ⇒ `einvoice partner sales`; `ls modules/partner modules/sales` ⇒ chỉ `integration_events`; `git status --short modules packages` sạch; `grep -rln "c45_misa\|c45_adapters\|c45_generator\|async_query" packages/c45_shared packages/c45_annotations packages/c45_design_system packages/c45_lints tools apps --include='pubspec.yaml'` ⇒ chỉ `apps/erp/example/pubspec.yaml`.
+- [x] **Step 2: Xoá.** `git rm -r -q modules packages/c45_misa packages/c45_async_query packages/c45_adapters packages/c45_generator`; `rm -rf` phần không theo dõi còn lại (`.dart_tool`, `build`) của các thư mục đó.
 - [x] **Step 3: Sửa pubspec.**
-  - `pubspec.yaml` `workspace:` còn đúng: `apps/erp`, `packages/vet45_lints`, `packages/vet45_design_system`, `packages/vet45_annotations`, `packages/vet45_shared/application`, `packages/vet45_shared/domain`, `packages/vet45_shared/infrastructure`, `packages/vet45_shared/testing`, `tools/vet45_env`, `tools/vet45_supabase_migrate`
-  - `apps/erp/pubspec.yaml`: xoá 4 dòng `vet45_einvoice_*` (`:20-23`)
-  - `apps/erp/example/pubspec.yaml`: xoá dependency `vet45_einvoice_domain` (`:19-20`); trong `dependency_overrides` xoá `async_query`, `async_query_flutter`, `vet45_adapters`, 5 `vet45_einvoice_*`, `vet45_misa`, `vet45_partner_integration_events`, `vet45_sales_integration_events`; giữ `vet45_annotations`, `vet45_design_system`, `vet45_lints`, 4 `vet45_shared_*`
+  - `pubspec.yaml` `workspace:` còn đúng: `apps/erp`, `packages/c45_lints`, `packages/c45_design_system`, `packages/c45_annotations`, `packages/c45_shared/application`, `packages/c45_shared/domain`, `packages/c45_shared/infrastructure`, `packages/c45_shared/testing`, `tools/c45_env`, `tools/c45_supabase_migrate`
+  - `apps/erp/pubspec.yaml`: xoá 4 dòng `c45_einvoice_*` (`:20-23`)
+  - `apps/erp/example/pubspec.yaml`: xoá dependency `c45_einvoice_domain` (`:19-20`); trong `dependency_overrides` xoá `async_query`, `async_query_flutter`, `c45_adapters`, 5 `c45_einvoice_*`, `c45_misa`, `c45_partner_integration_events`, `c45_sales_integration_events`; giữ `c45_annotations`, `c45_design_system`, `c45_lints`, 4 `c45_shared_*`
 - [x] **Step 4: `pub get`** ở gốc (`dart pub get`), `apps/erp/example` (`flutter pub get`) ⇒ không lỗi phân giải; `pubspec.lock` gốc đổi theo.
 - [x] **Step 5: Kiểm.**
   - `cd apps/erp && dart analyze lib test integration_test` ⇒ 0 error, 0 warning mới; `cd apps/erp/example && dart analyze lib` ⇒ 0 error
-  - `dart analyze packages/vet45_shared packages/vet45_annotations tools` ⇒ 0 error
+  - `dart analyze packages/c45_shared packages/c45_annotations tools` ⇒ 0 error
   - `cd apps/erp && flutter test` ⇒ không lỗi mới so với `TEST-BASELINE.md` (mốc "Sau 8-C": 53 + 2 ⚠️); ghi số đạt / lỗi
-- [x] **Step 6: Commit** `chore(einvoice): 7-C xoá modules/ và vet45_misa, vet45_async_query, vet45_adapters, vet45_generator`
+- [x] **Step 6: Commit** `chore(einvoice): 7-C xoá modules/ và c45_misa, c45_async_query, c45_adapters, c45_generator`
 
 ### Task 4: DB — viết lại `20261031002`, bỏ `renew_publish_series_lease` (Q2, Q3)
 
@@ -214,24 +214,24 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
 - [x] **Step 6: Kiểm**
   - `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` ⇒ 10/10 PASS
   - `grep -rnE "install_module_messaging\('einvoice'\)|einvoice\.(inbox_messages|claim_outbox_batch|receive_integration_event|renew_publish_series_lease)" supabase` ⇒ rỗng
-  - `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart` ⇒ đúng mốc mục 3 (2 ERROR + 4 WARN có sẵn), không dòng mới nào nhắc `20261031002` / `20261031019`
-  - `dart run tools/vet45_supabase_migrate/bin/verify_schema_lock_sync.dart` ⇒ `OK`
+  - `dart run tools/c45_supabase_migrate/bin/verify_migration_policy.dart` ⇒ đúng mốc mục 3 (2 ERROR + 4 WARN có sẵn), không dòng mới nào nhắc `20261031002` / `20261031019`
+  - `dart run tools/c45_supabase_migrate/bin/verify_schema_lock_sync.dart` ⇒ `OK`
 - [x] **Step 7: Commit** `chore(db): 7-C einvoice tạo thẳng hàng đợi, bỏ inbox / hàm outbox / đăng ký platform, bỏ renew_publish_series_lease (sửa migration gốc)`
 
 ### Task 5: Script và công cụ trỏ `modules/` (Q5)
 
 **Files:**
 - Delete: `scripts/scaffold_module.sh`, `scripts/ci/guard_application_dto_colocation.sh`, `scripts/ci/guard_application_use_case_layout.sh`, `scripts/ci/guard_infra_dart_only.sh`, `scripts/ci/guard_layer_imports.sh`
-- Modify: `hooks/pre-commit:40-42`, `scripts/ci/guard_presentation_size.sh:27-30`, `scripts/sync_analysis_options.sh:75`, `tools/guard_design_system_usage.dart:7, 91, 176, 180`, `vet45.workspace.json:9`
+- Modify: `hooks/pre-commit:40-42`, `scripts/ci/guard_presentation_size.sh:27-30`, `scripts/sync_analysis_options.sh:75`, `tools/guard_design_system_usage.dart:7, 91, 176, 180`, `c45.workspace.json:9`
 
 - [x] **Step 1: Kiểm người gọi.** `grep -rn "guard_application_dto_colocation\|guard_application_use_case_layout\|guard_infra_dart_only\|guard_layer_imports\|scaffold_module" scripts hooks tools pubspec.yaml README.md .gitlab-ci.yml 2>/dev/null` ⇒ chỉ `hooks/pre-commit:41-42`, `README.md:112` và chính các tệp đó. Có chỗ khác ⇒ dừng, ghi lại.
 - [x] **Step 2: Xoá** 5 script (`git rm`); `hooks/pre-commit` xoá dòng chú thích `# Harness guards (fast, architecture-only)` và 2 dòng gọi.
-- [x] **Step 3: Sửa 3 công cụ + workspace.** `guard_presentation_size.sh`: xoá vòng `while … done < <(find "$root/modules" …)`. `sync_analysis_options.sh:75`: `find apps packages -name pubspec.yaml …` (bỏ `modules`). `guard_design_system_usage.dart`: xoá `modulesDir`, vế `|| (relPath.startsWith('modules/') && …)`, `scanDir(modulesDir);`; dòng in tóm tắt thành `'         monitored = apps/erp features presentation'`. `vet45.workspace.json`: xoá `"modules/**/vet45.target.json"` (sửa dấu phẩy dòng trước).
+- [x] **Step 3: Sửa 3 công cụ + workspace.** `guard_presentation_size.sh`: xoá vòng `while … done < <(find "$root/modules" …)`. `sync_analysis_options.sh:75`: `find apps packages -name pubspec.yaml …` (bỏ `modules`). `guard_design_system_usage.dart`: xoá `modulesDir`, vế `|| (relPath.startsWith('modules/') && …)`, `scanDir(modulesDir);`; dòng in tóm tắt thành `'         monitored = apps/erp features presentation'`. `c45.workspace.json`: xoá `"modules/**/c45.target.json"` (sửa dấu phẩy dòng trước).
 - [x] **Step 4: Kiểm.**
   - `./scripts/ci/guard_presentation_size.sh` ⇒ exit 0 (hoặc đúng các lỗi như trước khi sửa — chạy trên HEAD trước để so)
   - `dart run tools/guard_design_system_usage.dart` ⇒ cùng số vi phạm `enforced` như trước khi sửa
   - `./scripts/sync_analysis_options.sh && git status --short -- '*analysis_options.yaml' '*pubspec.yaml'` ⇒ không tệp nào đổi, không có dòng `find: modules` trên stderr
-  - `dart run tools/vet45_env/bin/run.dart list` ⇒ chạy được, không lỗi đọc `vet45.workspace.json`
+  - `dart run tools/c45_env/bin/run.dart list` ⇒ chạy được, không lỗi đọc `c45.workspace.json`
   - `sh -n hooks/pre-commit` ⇒ không lỗi cú pháp; commit Step 5 chạy qua hook
 - [x] **Step 5: Commit** `chore(tools): 7-C bỏ script / guard của modules, công cụ dùng chung thôi quét modules/`
 
@@ -239,16 +239,16 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
 
 - [x] **Step 1: TH-08 → 1.2** (ngày 2026-11-09, dòng 4 `**Phiên bản:** 1.2 · **Ngày:** 2026-11-09`):
   - dòng 8 "Nguồn đối chiếu — App": bỏ "module `modules/einvoice/` (domain, application, infrastructure, presentation)", thay khối trên đơn bằng `apps/erp/lib/features/einvoice/{data,logic,presentation}` (UI thiết lập + khu HĐĐT trên đơn, 7-A2a / 7-A2b)
-  - dòng 9: thay "(`packages/vet45_misa` còn là nguồn để port)" bằng "`packages/vet45_misa` đã xoá ở 7-C (client MISA ở Edge Function, 7-E1)"
+  - dòng 9: thay "(`packages/c45_misa` còn là nguồn để port)" bằng "`packages/c45_misa` đã xoá ở 7-C (client MISA ở Edge Function, 7-E1)"
   - mục 3 (dòng 334): "Hàng đợi `internal_commands` (bộ xử lý) và `outbox_messages` (nhật ký sự kiện 5 cột, không ai đọc) do `20261031002` tạo thẳng; inbox và hàm outbox / inbox bỏ ở 7-C (KI-20)."
   - 6.1 (dòng 1384): "UI thiết lập và khu HĐĐT trên đơn nằm ở `apps/erp/lib/features/einvoice/presentation`; `features/sales` chỉ nhúng `OrderEInvoiceSection` (7-A2b)."
-  - 9.1: dòng "Module `modules/einvoice` …", "`vet45_async_query` …", "Bộ xử lý `apps/messaging_worker` …" cột "Sau refactor" thêm "(xong 7-C)"
+  - 9.1: dòng "Module `modules/einvoice` …", "`c45_async_query` …", "Bộ xử lý `apps/messaging_worker` …" cột "Sau refactor" thêm "(xong 7-C)"
 - [x] **Step 2: PLAN.md**:
   - dòng 7-C (545): nội dung ghi đúng Q1–Q5 (giữ `CoreExecutionContext`, viết lại `20261031002`, không đụng `platform`, xoá `renew_publish_series_lease`, xoá 5 script); cột Plan `✅ [plan](plans/P7/7-C-don-module-einvoice.md) duyệt 2026-11-09`; cột Làm `✅ 2026-11-09`
   - dòng 9-1 (721): thêm "thay `IExecutionContext` / `CoreExecutionContext` trong `features/sales/logic` (10 tệp) bằng `SessionController` (7-C Q1); dọn nền messaging `platform` (`20260623000001/000002`, `20260820008`, 4 schema `iam` / `costing` / `accounting` / `dashboard`) (7-C Q3)"
   - dòng 9.1 (728), 9.2 (729): ghi 7-C đã xoá `modules/` + 4 package
   - dòng trạng thái Theme 8 (530), bảng "Theo dõi tiến độ" (800)
-- [x] **Step 3: Tài liệu chung.** `README.md:21` xoá dòng `modules/` trong cây thư mục, `:112` xoá dòng scaffold; `AGENTS.md:35` thành "Code cũ trong `packages/vet45_shared` còn đến 9-1 (`modules/` đã xoá hết ở 7-C); chỉ đọc để chuyển, không thêm code mới" (`git add -p` chỉ hunk này); `docs/agents/domain.md:8` bỏ câu "Also check `modules/<context>/docs/adr/` …", cây `:20-26` đổi `modules/` thành `apps/erp/lib/features/`.
+- [x] **Step 3: Tài liệu chung.** `README.md:21` xoá dòng `modules/` trong cây thư mục, `:112` xoá dòng scaffold; `AGENTS.md:35` thành "Code cũ trong `packages/c45_shared` còn đến 9-1 (`modules/` đã xoá hết ở 7-C); chỉ đọc để chuyển, không thêm code mới" (`git add -p` chỉ hunk này); `docs/agents/domain.md:8` bỏ câu "Also check `modules/<context>/docs/adr/` …", cây `:20-26` đổi `modules/` thành `apps/erp/lib/features/`.
 - [x] **Step 4: Kiểm tổng**
   - lệnh `grep` ở mục 1 ⇒ như đã ghi
   - `ls modules` ⇒ không tồn tại; `ls packages` ⇒ 4 thư mục
@@ -265,7 +265,7 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
 - **View `platform.messaging_backlog_stats`** không còn gồm einvoice (không đăng ký); không ai đọc view này (Edge Function dùng `list_tenants_with_due_commands`).
 - **`v_allowed` của `platform.install_module_messaging`** về lại bản `20260623000001` (không có `einvoice`): vô hại, 9-1 dọn.
 - **2 ERROR có sẵn** của `20261108001` (`touches_match_body`, Q6a): để nguyên, báo người dùng khi review; nếu chặn commit / CI thì sửa ở một plan riêng.
-- **`modules/einvoice/presentation/example/vet45.target.json`** mất cùng module; profile `.vet45/profiles/*` có khoá của target này thì `vet45_env doctor` có thể báo thừa — ghi lại nếu gặp, không sửa (9-1 gọn `vet45_env`).
+- **`modules/einvoice/presentation/example/c45.target.json`** mất cùng module; profile `.c45/profiles/*` có khoá của target này thì `c45_env doctor` có thể báo thừa — ghi lại nếu gặp, không sửa (9-1 gọn `c45_env`).
 
 ## 8. Kết quả
 
@@ -307,21 +307,21 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
   - `einvoice_errors_test.dart`: +16 (giữ nguyên số lượng)
   - `einvoice_rpc_parity_test.dart`: +44 không `~` (19 + 10 + 15, giảm đúng 32 test của nhóm `old` và hết 10 `~`)
   - `test/features/einvoice`: +431 (463 - 32 = 431)
-  - `grep -n "vet45_" test/features/einvoice/data/*.dart`: rỗng
+  - `grep -n "c45_" test/features/einvoice/data/*.dart`: rỗng
   - `dart analyze test/features/einvoice`: 0 issue mới (chỉ 4 warning VBadgeStatus cũ)
 - **Impact analysis:** Sửa 2 tệp test, không ảnh hưởng symbol ứng dụng. `detect_changes`: 0 process affected, risk low.
 
 ### Task 2
 - **Commit:** `26fb51a44` `refactor(einvoice): 7-C bỏ EinvoiceStartup, CorePermissionChecker, CoreTenantAccessChecker khỏi DI`
 - **Tệp:**
-  - `apps/erp/lib/core/di/injection.dart` (-29 dòng: bỏ import module einvoice và vet45_shared_infrastructure, bỏ đăng ký ILoggerFactory/IEventsBus, bỏ CorePermissionChecker/CoreTenantAccessChecker, bỏ EinvoiceStartup)
+  - `apps/erp/lib/core/di/injection.dart` (-29 dòng: bỏ import module einvoice và c45_shared_infrastructure, bỏ đăng ký ILoggerFactory/IEventsBus, bỏ CorePermissionChecker/CoreTenantAccessChecker, bỏ EinvoiceStartup)
   - `apps/erp/lib/core/session/session_contracts.dart` (-49 dòng: bỏ CorePermissionChecker, CoreTenantAccessChecker, bỏ import session_repository.dart)
   - `apps/erp/lib/core/session/session_repository.dart` (-13 dòng: xoá hasPermission)
   - `apps/erp/lib/core/session/session_store.dart` (-3 dòng: cập nhật chú thích)
   - `apps/erp/test/core/di/injection_test.dart` (+46/-19 dòng: viết lại, thêm 3 test kiểm execution context, drop module services, không còn symbol einvoice module)
   - `apps/erp/test/core/session/fake_session_repository.dart` (-10 dòng: xoá hasPermission, permissionGranted, permissionChecks)
   - `apps/erp/test/core/session/session_contracts_test.dart` (-118 dòng: xoá nhóm CorePermissionChecker và CoreTenantAccessChecker, giữ CoreExecutionContext)
-  - `apps/erp/test/features/catalog/catalog_e2e_harness.dart` (-6 dòng: bỏ tham số permissionChecker và import vet45_shared_application)
+  - `apps/erp/test/features/catalog/catalog_e2e_harness.dart` (-6 dòng: bỏ tham số permissionChecker và import c45_shared_application)
 - **Lệch plan:** Không.
 - **Impact analysis Step 1:**
   - `initDependencies`: risk LOW (caller: `main`)
@@ -333,17 +333,17 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
 - **Test:**
   - `test/core/di/injection_test.dart`: +4 pass (đỏ 2 test ở Step 2, xanh toàn bộ sau Step 3-5)
   - `test/core`: +93 pass (Task 0 có 97 test, trừ 7 test của 2 nhóm checker bị xoá, cộng 3 test mới ở injection_test = 93)
-  - `grep -rln "vet45_einvoice_\|IEInvoiceModule\|EinvoiceStartup" apps/erp --include='*.dart'`: chỉ `apps/erp/test/core/di/injection_test.dart` (test cấm)
+  - `grep -rln "c45_einvoice_\|IEInvoiceModule\|EinvoiceStartup" apps/erp --include='*.dart'`: chỉ `apps/erp/test/core/di/injection_test.dart` (test cấm)
   - `dart analyze lib test integration_test`: 0 error, 0 warning mới (chỉ các cảnh báo deprecation cũ)
 - **Detect changes:** 11 files, 8 symbols, 0 process affected, risk low.
 
 ### Task 3
-- **Commit:** `9fce9cc30` `chore(einvoice): 7-C xoá modules/ và vet45_misa, vet45_async_query, vet45_adapters, vet45_generator`
+- **Commit:** `9fce9cc30` `chore(einvoice): 7-C xoá modules/ và c45_misa, c45_async_query, c45_adapters, c45_generator`
 - **Tệp:**
   - Xoá `modules/` (einvoice, partner/integration_events, sales/integration_events)
-  - Xoá 4 package: `packages/vet45_misa`, `packages/vet45_async_query`, `packages/vet45_adapters`, `packages/vet45_generator`
+  - Xoá 4 package: `packages/c45_misa`, `packages/c45_async_query`, `packages/c45_adapters`, `packages/c45_generator`
   - Sửa `pubspec.yaml` (dọn workspace)
-  - Sửa `apps/erp/pubspec.yaml` (bỏ 4 dependency `vet45_einvoice_*`)
+  - Sửa `apps/erp/pubspec.yaml` (bỏ 4 dependency `c45_einvoice_*`)
   - Sửa `apps/erp/example/pubspec.yaml` (bỏ dependency và overrides đã xoá)
   - Sửa `apps/erp/test/features/iam/presentation_module/production_boundary_test.dart` (đổi điều kiện tìm root từ `modules` sang `packages`)
   - Tổng: 883 files changed, 1 insertion(+), 81404 deletions(-)
@@ -354,7 +354,7 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
 - **Kiểm tra tĩnh:**
   - `apps/erp`: `dart analyze lib test integration_test`: 0 error, 0 warning mới.
   - `apps/erp/example`: `dart analyze lib`: 0 error.
-  - `packages/vet45_shared packages/vet45_annotations tools`: `dart analyze`: No issues found!
+  - `packages/c45_shared packages/c45_annotations tools`: `dart analyze`: No issues found!
 - **Test:**
   - `apps/erp`: `flutter test`: 2.984 đạt / 55 lỗi (53 lỗi có sẵn theo `TEST-BASELINE.md` + 2 lỗi ⚠️ ngoài mốc, không lỗi mới nào).
 - **Detect changes:** 0 process affected, risk low.
@@ -391,13 +391,13 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
   - Sửa `scripts/ci/guard_presentation_size.sh`: bỏ duyệt `modules/`
   - Sửa `scripts/sync_analysis_options.sh`: bỏ `modules` khỏi danh sách `find`
   - Sửa `tools/guard_design_system_usage.dart`: bỏ `modulesDir`, bỏ quét `modules/`, cập nhật tóm tắt
-  - Sửa `vet45.workspace.json`: bỏ `"modules/**/vet45.target.json"`
+  - Sửa `c45.workspace.json`: bỏ `"modules/**/c45.target.json"`
 - **Lệch plan:** Thêm cập nhật `scripts/ci/verify_harness.sh` để bỏ 4 lệnh gọi tới các script đã xoá, tránh lỗi khi chạy umbrella harness.
 - **Kiểm tra Step 4:**
   - `guard_presentation_size.sh`: 10 lỗi quá dòng có sẵn ở `apps/erp` giống hệt trước khi sửa
   - `guard_design_system_usage.dart`: WARN count: 259, enforced lane clean (exit 0), tóm tắt mới: `monitored = apps/erp features presentation`
   - `sync_analysis_options.sh`: chạy thành công, không in `find: modules`
-  - `vet45_env list`: Targets hiển thị 3 target (`erp`, `design_system`, `deploy`), không còn target module nào, không lỗi phân giải
+  - `c45_env list`: Targets hiển thị 3 target (`erp`, `design_system`, `deploy`), không còn target module nào, không lỗi phân giải
   - `sh -n hooks/pre-commit`: không lỗi cú pháp, commit Step 5 chạy qua hook thành công
 - **Detect changes:** 0 process affected, risk low.
 
@@ -413,7 +413,7 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
 - **Lệch plan:** Không.
 - **Kiểm tổng Step 4:**
   - `grep` không còn tham chiếu nào tới code/config của `modules/`, 4 package đã xoá, hay `IEInvoiceModule` / `EinvoiceStartup`
-  - `ls modules`: `No such file or directory`; `ls packages`: đúng 4 thư mục (`vet45_annotations`, `vet45_design_system`, `vet45_lints`, `vet45_shared`)
+  - `ls modules`: `No such file or directory`; `ls packages`: đúng 4 thư mục (`c45_annotations`, `c45_design_system`, `c45_lints`, `c45_shared`)
   - `dart analyze lib test integration_test`: 0 error, 0 warning (258 info cũ)
   - `flutter test test/features/einvoice test/core`: 528/528 passed (435 einvoice + 93 core)
   - `flutter test` toàn app (đã đo ở Task 3): 2.984 đạt / 55 lỗi (53 lỗi `TEST-BASELINE.md` + 2 lỗi ⚠️ ngoài mốc, không lỗi mới nào)
@@ -440,7 +440,7 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
 | Task 3 (xoá `modules/` + 4 package) | ✅ | `ls modules` không tồn tại; `ls packages` đúng 4. Lệch `production_boundary_test.dart` (tìm gốc repo bằng `packages` thay `modules`) — chấp nhận, test 6/6 xanh |
 | Task 4 (DB) — Review Focus 1, 3 | ✅ | Review so tay bản cũ / mới `20261031002`: 12 cột + 2 index `internal_commands` giống hệt; 5 hàm cùng chữ ký, `security definer`, `search_path = einvoice, platform, pg_temp`, thân giống; `drop … claim_internal_commands_batch(uuid, integer)` giữ; revoke / grant 5 hàm như cũ; dòng cuối `revoke execute on all functions in schema einvoice from public, anon` giữ. Bảng cũ cũng không bật RLS ⇒ không lệch. Không migration nào sau `002` gọi `install_module_messaging` ⇒ bỏ bản đè an toàn. 1 chỗ ghi `insert into einvoice.outbox_messages` (`012:279`) chỉ dùng 5 cột. `019`: bỏ hàm + revoke + grant + Touches; `REGISTRY.yaml` đúng Step 5. Không còn tên đã bỏ trong `supabase/tests`, `supabase/functions` |
 | `verify_migration_policy` / `verify_schema_lock_sync` | ✅ | Review chạy lại: 2 ERROR `20261108001` `touches_match_body` (mốc, Q6a) + WARN có sẵn, không dòng nào nhắc `002` / `019`; schema lock `OK` |
-| Task 5 (script) — Review Focus 4 | ✅ | `sh -n hooks/pre-commit` OK; không còn script nào trong `scripts/`, `tools/*.dart` trỏ `modules/`. Lệch `verify_harness.sh` (bỏ 4 lệnh gọi guard đã xoá) — chấp nhận, đúng ý Q5. `tools/vet45_supabase_migrate/test/*` còn chuỗi `modules/catalog/...` nhưng là đường dẫn giả trong thư mục tạm của test công cụ — để 9-1 |
+| Task 5 (script) — Review Focus 4 | ✅ | `sh -n hooks/pre-commit` OK; không còn script nào trong `scripts/`, `tools/*.dart` trỏ `modules/`. Lệch `verify_harness.sh` (bỏ 4 lệnh gọi guard đã xoá) — chấp nhận, đúng ý Q5. `tools/c45_supabase_migrate/test/*` còn chuỗi `modules/catalog/...` nhưng là đường dẫn giả trong thư mục tạm của test công cụ — để 9-1 |
 | Review Focus 2 (sales) | ✅ | `flutter test test/features/sales` +948 (bằng Task 0) |
 | Review Focus 5 (workspace) | ✅ | Theo Kết quả `pub get` gốc + example không lỗi; `dart analyze lib test integration_test` review chạy lại: 258 info, 0 error / warning |
 | `flutter test test/features/einvoice test/core` + `production_boundary_test` | ✅ | Review chạy lại: **534/534** (= 435 + 93 + 6, khớp Kết quả 528 + 6) |
@@ -453,12 +453,12 @@ Run: `flutter test test/features/einvoice/data/einvoice_sql_contract_test.dart` 
 **Góp ý nhỏ (không chặn ĐẠT):**
 
 - **R1-1** `apps/erp/lib/core/session/session_controller.dart:23`: sửa chú thích `` `CoreExecutionContext` / `CorePermissionChecker` cùng store này`` thành chỉ `` `CoreExecutionContext` `` (chỉ chú thích; `git diff 19c2495ba -- apps/erp/lib --stat` sẽ thành 5 tệp). Chạy lại lệnh `grep` mục 1 ⇒ chỉ còn `injection_test.dart`.
-- **R1-2** Chữ tài liệu: (a) TH-08 dòng 9: "hiện chưa có gì chạy lệnh MISA (`packages/vet45_misa` đã xoá ở 7-C (client MISA ở Edge Function, 7-E1))" tự mâu thuẫn — bỏ vế "hiện chưa có gì chạy lệnh MISA", ghi "lệnh MISA do Edge Function `einvoice-processor` chạy (7-E1 … 7-E3); `packages/vet45_misa` đã xoá ở 7-C". (b) PLAN.md dòng 7-C: "xoá `renew_publish_series_lease` … (Q4)" ⇒ **(Q3)**; "test hợp đồng SQL chuyển sang `apps/erp/test/features/einvoice/data/`" ⇒ "test hợp đồng SQL **mới** ở … (test module bỏ, không chuyển — Q4)".
+- **R1-2** Chữ tài liệu: (a) TH-08 dòng 9: "hiện chưa có gì chạy lệnh MISA (`packages/c45_misa` đã xoá ở 7-C (client MISA ở Edge Function, 7-E1))" tự mâu thuẫn — bỏ vế "hiện chưa có gì chạy lệnh MISA", ghi "lệnh MISA do Edge Function `einvoice-processor` chạy (7-E1 … 7-E3); `packages/c45_misa` đã xoá ở 7-C". (b) PLAN.md dòng 7-C: "xoá `renew_publish_series_lease` … (Q4)" ⇒ **(Q3)**; "test hợp đồng SQL chuyển sang `apps/erp/test/features/einvoice/data/`" ⇒ "test hợp đồng SQL **mới** ở … (test module bỏ, không chuyển — Q4)".
 - **R1-3** Lần sau mục Kết quả ghi số **đo được** (`flutter test 2>&1 | tail -1`), không ghi số ước có `~`; nếu không chạy cả app ở bước đó thì ghi "không chạy".
 
 **Sửa R1 (phiên review sửa theo yêu cầu người dùng, 2026-11-09):**
 
 - R1-1 ✅ `session_controller.dart:22-23` chú thích thành "logic sales đọc tenant / cửa hàng qua `CoreExecutionContext` cùng store này (thay ở 9-1)" (chỉ chú thích, không đổi symbol). Lệnh `grep` mục 1 ⇒ chỉ còn `apps/erp/test/core/di/injection_test.dart`; `dart analyze lib/core/session` ⇒ No issues.
-- R1-2 ✅ TH-08 dòng 9: "lệnh MISA do Edge Function `einvoice-processor` + `pg_cron` chạy (7-E1 … 7-E3); `packages/vet45_misa` đã xoá ở 7-C". PLAN.md dòng 7-C: `renew_publish_series_lease` (Q3); "test hợp đồng SQL **mới** ở `…/einvoice_sql_contract_test.dart` (test module bỏ, không chuyển — Q4)".
+- R1-2 ✅ TH-08 dòng 9: "lệnh MISA do Edge Function `einvoice-processor` + `pg_cron` chạy (7-E1 … 7-E3); `packages/c45_misa` đã xoá ở 7-C". PLAN.md dòng 7-C: `renew_publish_series_lease` (Q3); "test hợp đồng SQL **mới** ở `…/einvoice_sql_contract_test.dart` (test module bỏ, không chuyển — Q4)".
 - R1-3 — quy ước cho lần sau, không sửa Kết quả (số thật đã ghi ở bảng trên: 3.021 / 55).
 

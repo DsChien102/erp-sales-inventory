@@ -2,27 +2,27 @@
   "schemaVersion": 1,
   "source": {"fileKey":"QVJolM5tAdFKkhP7RIwe3y","pageId":"505:5889","designSystemVersion":"2.0.2","capturedAt":"2026-09-08"},
   "collections": [
-    {"name":"VET45 v2 / Color Primitive","mode":"Base","count":39,"variables":{
+    {"name":"Mosaic Retail v2 / Color Primitive","mode":"Base","count":39,"variables":{
       "Primary/50":"#F1F9F2","Primary/100":"#DCEFDE","Primary/200":"#B8DFBD","Primary/300":"#8DCB96","Primary/400":"#5FB36C","Primary/500":"#3B9448","Primary/600":"#2F7A3A","Primary/700":"#26612F","Primary/800":"#1F4D26","Primary/900":"#163A1C","Primary/Surface":"#EBF4EC",
       "Neutral/0":"#FFFFFF","Neutral/50":"#F8FAFB","Neutral/100":"#F6F8F9","Neutral/200":"#E5E8EB","Neutral/300":"#D0D5DA","Neutral/400":"#9AA3AD","Neutral/500":"#6B7480","Neutral/600":"#4A535E","Neutral/700":"#2F3640","Neutral/900":"#0E1116",
       "Success/50":"alias:Primary/100","Success/500":"alias:Primary/500",
       "Warning/50":"#FDF3E0","Warning/100":"#FBE9C6","Warning/200":"#F7D48E","Warning/300":"#F0BC4E","Warning/400":"#E5A41F","Warning/500":"#D98A0B","Warning/600":"#B87209","Warning/700":"#935A0A","Warning/800":"#70450C","Warning/900":"#53330D",
       "Danger/50":"#FBE8E8","Danger/500":"#D14343","Info/50":"#E8F0FC","Info/500":"#2F6FE0","Overlay/Black-48":"#0E11167A","State/Focus-12":"#3B94481F"
     }},
-    {"name":"VET45 v2 / Color Semantic","mode":"Light","count":44,"variables":{
+    {"name":"Mosaic Retail v2 / Color Semantic","mode":"Light","count":44,"variables":{
       "Surface/Canvas":"alias:Neutral/100","Surface/Default":"alias:Neutral/0","Surface/Subtle":"alias:Neutral/200","Surface/Brand":"alias:Primary/Surface","Surface/Success":"alias:Success/50","Surface/Warning":"alias:Warning/50","Surface/Danger":"alias:Danger/50","Surface/Info":"alias:Info/50","Surface/Toast":"alias:Neutral/900","Surface/Overlay":"alias:Overlay/Black-48",
       "Text/Primary":"alias:Neutral/900","Text/Secondary":"alias:Neutral/500","Text/Muted":"alias:Neutral/400","Text/Inverse":"alias:Neutral/0","Text/Brand":"alias:Primary/700","Text/Success":"alias:Success/500","Text/Warning":"alias:Warning/500","Text/Danger":"alias:Danger/500","Text/Info":"alias:Info/500",
       "Border/Default":"alias:Neutral/200","Border/Strong":"alias:Neutral/300","Border/Brand":"alias:Primary/200","Border/Success":"alias:Success/500","Border/Warning":"alias:Warning/500","Border/Danger":"alias:Danger/500","Border/Info":"alias:Info/500",
       "Action/Primary/Default":"alias:Primary/500","Action/Primary/Pressed":"alias:Primary/600","Action/On Primary":"alias:Neutral/0","Action/Secondary/Default":"alias:Neutral/0","Action/Secondary/Pressed":"alias:Neutral/200","Action/Secondary/Border":"alias:Neutral/300","Action/Danger/Default":"alias:Danger/500","Action/Danger/Pressed":"alias:Danger/500",
       "Icon/Primary":"alias:Neutral/700","Icon/Secondary":"alias:Neutral/500","Icon/Muted":"alias:Neutral/400","Icon/Brand":"alias:Primary/700","Icon/Success":"alias:Success/500","Icon/Warning":"alias:Warning/500","Icon/Danger":"alias:Danger/500","Icon/Info":"alias:Info/500","Icon/Inverse":"alias:Neutral/0","Focus/Ring":"alias:Primary/500"
     }},
-    {"name":"VET45 v2 / Dimension","mode":"Base","count":30,"variables":{
+    {"name":"Mosaic Retail v2 / Dimension","mode":"Base","count":30,"variables":{
       "Space/0":0,"Space/1":4,"Space/2":8,"Space/3":12,"Space/4":16,"Space/5":20,"Space/6":24,"Space/8":32,"Space/10":40,"Space/12":48,
       "Radius/1":4,"Radius/2":6,"Radius/3":8,"Radius/4":12,"Radius/5":16,"Radius/6":20,"Radius/Pill":999,
       "Icon/16":16,"Icon/20":20,"Icon/24":24,"Icon/32":32,"Icon/48":48,"Icon/72":72,"Icon/Stroke":2,"Touch/Minimum":44,
       "Layout/Mobile edge":16,"Layout/Tablet edge":24,"Layout/Desktop edge":32,"Layout/Mobile width":402,"Layout/Mobile height":874
     }},
-    {"name":"VET45 v2 / Opacity","mode":"Base","count":6,"variables":{
+    {"name":"Mosaic Retail v2 / Opacity","mode":"Base","count":6,"variables":{
       "Opacity/Disabled":0.4,"Opacity/Muted":0.6,"Opacity/Overlay":0.48,"Opacity/Subtle":0.08,"Opacity/Focus":0.12,"Opacity/Loading":0.72
     }}
   ]

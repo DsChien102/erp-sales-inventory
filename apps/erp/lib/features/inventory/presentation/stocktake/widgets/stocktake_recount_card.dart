@@ -3,7 +3,7 @@ import 'package:erp/features/inventory/logic/inventory_format.dart';
 import 'package:erp/features/inventory/logic/stocktake/stocktake_rules.dart';
 import 'package:erp/features/inventory/presentation/patterns/k7_edit_cell.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Nhãn các lựa chọn lý do thiếu hàng dùng chung cho card mobile và bảng web (SCR-045).
 const List<String> stocktakeLossReasonLabels = ['Thất thoát', 'Hỏng', 'Hết hạn'];

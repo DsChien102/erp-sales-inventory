@@ -4,7 +4,7 @@
 
 ## Objective
 
-Là hệ thống VET45, tôi cần cung cấp thông tin đơn vị đo lường của sản phẩm cho các module khác, để bán hàng, nhập hàng, tồn kho, giá vốn và báo cáo sử dụng thống nhất một bộ đơn vị.
+Là hệ thống Mosaic Retail, tôi cần cung cấp thông tin đơn vị đo lường của sản phẩm cho các module khác, để bán hàng, nhập hàng, tồn kho, giá vốn và báo cáo sử dụng thống nhất một bộ đơn vị.
 
 ## Functional requirements
 

@@ -10,7 +10,7 @@ import 'package:erp/features/receivable/presentation/widgets/receivable_parts.da
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../inventory/support/inventory_test_surface.dart';
 import '../support/fake_receivable_repository.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Shared view / print / share options for sales document sheets.
 final class SalesDocumentActionSheetCopy {

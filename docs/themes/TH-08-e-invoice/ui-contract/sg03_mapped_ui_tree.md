@@ -239,7 +239,7 @@ The invoice is presented as `Đã phát hành` only after the authoritative issu
 
 ```text
 provider confirmed success
-+ VET45 authoritative invoice registered
++ Mosaic Retail authoritative invoice registered
 → issued
 → "Đã phát hành"
 ```
@@ -705,7 +705,7 @@ Background/reopen must resolve the current operation and restore the correspondi
 
 ## 11. Design System Mapping
 
-| UI responsibility | VET45 mapping |
+| UI responsibility | Mosaic Retail mapping |
 |---|---|
 | Confirmation surface | `VBottomSheet` / current confirmation-sheet pattern |
 | Primary confirmation action | `VButton` primary |

@@ -4,11 +4,11 @@
 
 ## Giới thiệu
 
-**Theme 2: Sản phẩm & Giá bán** giúp người dùng quản lý dữ liệu nền liên quan đến sản phẩm trong VET45, bao gồm hồ sơ sản phẩm, thông tin nhận diện, ảnh sản phẩm, đơn vị đo lường, tồn kho cơ bản, Giá cơ sở định giá, Giá niêm yết, Giá sàn, trạng thái kinh doanh, thông tin bổ sung và lịch sử thay đổi quan trọng.
+**Theme 2: Sản phẩm & Giá bán** giúp người dùng quản lý dữ liệu nền liên quan đến sản phẩm trong Mosaic Retail, bao gồm hồ sơ sản phẩm, thông tin nhận diện, ảnh sản phẩm, đơn vị đo lường, tồn kho cơ bản, Giá cơ sở định giá, Giá niêm yết, Giá sàn, trạng thái kinh doanh, thông tin bổ sung và lịch sử thay đổi quan trọng.
 
-Theme này là một mắt xích nền trong chuỗi vận hành của VET45. Dữ liệu sản phẩm không đứng độc lập, mà được sử dụng lại bởi nhiều nghiệp vụ phía sau như bán hàng, nhập hàng, tồn kho, giá vốn, hóa đơn, ghi sổ, báo cáo và quản trị hiệu quả theo sản phẩm.
+Theme này là một mắt xích nền trong chuỗi vận hành của Mosaic Retail. Dữ liệu sản phẩm không đứng độc lập, mà được sử dụng lại bởi nhiều nghiệp vụ phía sau như bán hàng, nhập hàng, tồn kho, giá vốn, hóa đơn, ghi sổ, báo cáo và quản trị hiệu quả theo sản phẩm.
 
-VET45 trước mắt tập trung vào bán lẻ ngành thú y, nhưng sản phẩm được thiết kế theo hướng **retail-first, industry-extensible**. Điều này có nghĩa là hệ thống cần phục vụ tốt ngành thú y ở giai đoạn đầu, nhưng không được khóa cứng dữ liệu sản phẩm vào các trường chuyên biệt như thành phần, chỉ định, chống chỉ định, cách dùng hoặc thời gian ngưng sử dụng. Những thông tin này cần được chuyển sang mô hình **nhóm & trường thông tin bổ sung** để sau này có thể mở rộng sang ngành khác. Trong Guided creation, mỗi group active trở thành **card riêng có đánh số tự động**, nằm sau **Khung giá bán** và trước **Ghi chú**.
+Mosaic Retail trước mắt tập trung vào bán lẻ ngành thú y, nhưng sản phẩm được thiết kế theo hướng **retail-first, industry-extensible**. Điều này có nghĩa là hệ thống cần phục vụ tốt ngành thú y ở giai đoạn đầu, nhưng không được khóa cứng dữ liệu sản phẩm vào các trường chuyên biệt như thành phần, chỉ định, chống chỉ định, cách dùng hoặc thời gian ngưng sử dụng. Những thông tin này cần được chuyển sang mô hình **nhóm & trường thông tin bổ sung** để sau này có thể mở rộng sang ngành khác. Trong Guided creation, mỗi group active trở thành **card riêng có đánh số tự động**, nằm sau **Khung giá bán** và trước **Ghi chú**.
 
 ## Phạm vi của Theme
 
@@ -267,7 +267,7 @@ Nguyên tắc chung:
 
 ## Ranh giới tích hợp và trách nhiệm module
 
-Mục này mô tả cách Theme 2 tương tác với các module khác trong VET45.
+Mục này mô tả cách Theme 2 tương tác với các module khác trong Mosaic Retail.
 
 Nguyên tắc chính:
 

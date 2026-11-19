@@ -2,7 +2,7 @@ import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../shared/iam_load_status.dart';
 import '../../../logic/my_account_edit_cubit.dart';

@@ -5,7 +5,7 @@ Thứ tự đọc khi implement một FR slice. Platform CQRS/module layout: [do
 ## Trước khi code
 
 ```text
-1. AGENTS.md + .cursor/rules/vet45-architecture.mdc
+1. AGENTS.md + .cursor/rules/c45-architecture.mdc
 2. docs/harness/PROGRESS.md
 3. TH-02/README.md
 4. [OVERVIEWS.md](../OVERVIEWS.md) — yêu cầu xuyên suốt, readiness, validation (khi cần)
@@ -52,9 +52,9 @@ cd apps/erp && flutter test test/features/catalog/   # khi slice có UI
 | -------- | ---- |
 | Codegen + CQRS wiring (golden) | `modules/iam/` + [modules/iam/README.md](../../../../modules/iam/README.md) |
 | Partner codegen + vertical slice | `modules/partner/` + [modules/partner/README.md](../../../../modules/partner/README.md) |
-| Command + handler annotations (fixtures) | `packages/vet45_generator/test/fixtures/lib/src/` |
+| Command + handler annotations (fixtures) | `packages/c45_generator/test/fixtures/lib/src/` |
 | Domain VO + rule (full) | `modules/accounting/domain/lib/src/money.dart` |
-| Pipeline test | `packages/vet45_shared/testing/test/shared_testing_test.dart` |
+| Pipeline test | `packages/c45_shared/testing/test/shared_testing_test.dart` |
 | Module layout | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
 | Page mỏng + widgets tách file | `apps/erp/lib/features/dashboard/presentation/` |
 | FE fake theo contract | `modules/catalog/application/lib/testing.dart` (`FakeCatalogModule`) |

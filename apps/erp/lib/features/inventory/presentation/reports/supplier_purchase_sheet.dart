@@ -5,7 +5,7 @@ import 'package:erp/features/inventory/logic/reports/reports_rules.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_layout.dart';
 import 'package:erp/features/inventory/presentation/reports/reports_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Sản phẩm đã nhập từ một nhà cung cấp trong kỳ.
 Future<void> showSupplierPurchaseSheet(

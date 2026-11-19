@@ -10,7 +10,7 @@
 
 **Architecture:** Một migration `20261111001_inventory_stock_policy.sql`: 2 bảng chính sách, helper tính tồn + cờ hết hạn / cận hạn theo sản phẩm (`_product_stock_rows`, dùng lại ở G5-2 và Hub), 3 RPC (đọc, lưu ngưỡng, lưu cận hạn — ghi theo mẫu RPC ghi: `_assert_actor` owner → idempotency → kiểm `revision` → ghi). Flutter `features/inventory/{data,logic,presentation}/stock_policy/` + luật chỉ báo thuần `logic/stock/stock_indicator_rules.dart`; một Cubit giữ nháp cả hai tab.
 
-**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `vet45_design_system`.
+**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `c45_design_system`.
 
 **Spec:** mục 1 của plan này + `specs/themes/theme-07/03.design/screens/SCR-062.md`, `SCR-063.md` + prototype `03.design/prototype/html/app/cap01.js` (mở bằng `?scope=full`) + PLAN.md Theme 7 → "Quy ước chung cho mọi plan G5".
 
@@ -392,33 +392,33 @@ function dsSegmented({ items, value, attr, label = "Chọn mục" }) {
 CSS `styles/components.css:2673-2676, 2684-2717, 2720, 2725, 3088-3090` (bỏ `.ds-choice-*`, `.ds-radio`, `.cap-select`):
 
 ```css
-.ds-segmented { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; padding: 4px; border-radius: 12px; background: var(--vet45-v2-surface-subtle); }
-.ds-segment { min-height: 44px; border: 0; border-radius: 9px; background: transparent; color: var(--vet45-v2-text-secondary); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
-.ds-segment.is-selected { background: var(--vet45-v2-surface-default); color: var(--vet45-v2-action-primary-default); box-shadow: 0 1px 3px rgba(18, 32, 26, .10); }
+.ds-segmented { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; padding: 4px; border-radius: 12px; background: var(--c45-v2-surface-subtle); }
+.ds-segment { min-height: 44px; border: 0; border-radius: 9px; background: transparent; color: var(--c45-v2-text-secondary); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.ds-segment.is-selected { background: var(--c45-v2-surface-default); color: var(--c45-v2-action-primary-default); box-shadow: 0 1px 3px rgba(18, 32, 26, .10); }
 .k7-edit { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.k7-edit__box { display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 var(--vet45-v2-space-3); box-sizing: border-box; border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-input); background: var(--vet45-v2-surface-default); }
-.k7-edit__box:focus-within { border-color: var(--vet45-v2-border-brand); box-shadow: 0 0 0 2px var(--vet45-v2-surface-brand); }
-.k7-edit--error .k7-edit__box { border-color: var(--vet45-v2-text-danger); }
-.k7-edit__box input { flex: 1 1 auto; min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: var(--vet45-v2-text-primary); font: 500 14px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; text-align: right; }
-.k7-edit__box input:disabled { color: var(--vet45-v2-text-secondary); }
-.k7-edit__unit { flex: 0 0 auto; color: var(--vet45-v2-text-secondary); font: 400 12px/16px Inter, system-ui, sans-serif; font-style: normal; }
-.k7-edit .field-error { color: var(--vet45-v2-text-danger); font-size: 12px; line-height: 16px; text-align: left; }
+.k7-edit__box { display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 var(--c45-v2-space-3); box-sizing: border-box; border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-input); background: var(--c45-v2-surface-default); }
+.k7-edit__box:focus-within { border-color: var(--c45-v2-border-brand); box-shadow: 0 0 0 2px var(--c45-v2-surface-brand); }
+.k7-edit--error .k7-edit__box { border-color: var(--c45-v2-text-danger); }
+.k7-edit__box input { flex: 1 1 auto; min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: var(--c45-v2-text-primary); font: 500 14px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.k7-edit__box input:disabled { color: var(--c45-v2-text-secondary); }
+.k7-edit__unit { flex: 0 0 auto; color: var(--c45-v2-text-secondary); font: 400 12px/16px Inter, system-ui, sans-serif; font-style: normal; }
+.k7-edit .field-error { color: var(--c45-v2-text-danger); font-size: 12px; line-height: 16px; text-align: left; }
 .k7-table td .k7-edit { min-width: 120px; max-width: 168px; margin-left: auto; }
-.cap-note { margin: 0; color: var(--vet45-v2-text-secondary); font: 400 12px/18px Inter, system-ui, sans-serif; }
-.cap-dirty-dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--vet45-v2-action-primary-default); vertical-align: middle; }
-.cap-field { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
-.cap-field > label { color: var(--vet45-v2-text-primary); font: 600 13px/18px Inter, system-ui, sans-serif; }
-.cap-preview { margin: 0; color: var(--vet45-v2-text-primary); font: 500 14px/20px Inter, system-ui, sans-serif; }
-.cap-row-card { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); padding: var(--vet45-v2-space-3); border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-3); background: var(--vet45-v2-surface-default); }
-.cap-row-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--vet45-v2-space-2); }
-.cap-link-button { border: 0; background: transparent; color: var(--vet45-v2-action-primary-default); font: 600 13px/18px Inter, system-ui, sans-serif; cursor: pointer; padding: 8px 0; min-height: 44px; }
+.cap-note { margin: 0; color: var(--c45-v2-text-secondary); font: 400 12px/18px Inter, system-ui, sans-serif; }
+.cap-dirty-dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--c45-v2-action-primary-default); vertical-align: middle; }
+.cap-field { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.cap-field > label { color: var(--c45-v2-text-primary); font: 600 13px/18px Inter, system-ui, sans-serif; }
+.cap-preview { margin: 0; color: var(--c45-v2-text-primary); font: 500 14px/20px Inter, system-ui, sans-serif; }
+.cap-row-card { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); padding: var(--c45-v2-space-3); border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-3); background: var(--c45-v2-surface-default); }
+.cap-row-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--c45-v2-space-2); }
+.cap-link-button { border: 0; background: transparent; color: var(--c45-v2-action-primary-default); font: 600 13px/18px Inter, system-ui, sans-serif; cursor: pointer; padding: 8px 0; min-height: 44px; }
 .device-preview.is-web .cap-link-button { position: relative; min-height: 0; padding: 0; }
-.cap-narrow { display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); }
+.cap-narrow { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); }
 .device-preview.is-web .k7-wide .cap-narrow { width: 100%; max-width: 560px; margin: 0 auto; }
 .device-preview.is-web .k7-wide .cap-narrow--start { margin: 0; }
 .device-preview.is-web .k7-edit__box { height: 40px; }
 .device-preview.is-web .ds-segment { min-height: 40px; }
-.k7-edit__box:has(input:disabled) { background: var(--vet45-v2-surface-subtle); }
+.k7-edit__box:has(input:disabled) { background: var(--c45-v2-surface-subtle); }
 .k7-table:has(.k7-edit) td { vertical-align: middle; }
 .device-preview.is-web .k7-wide .cap-narrow .k7-edit:has([data-cap-expiry-days]) { max-width: 200px; }
 .device-preview.is-web .k7-wide [data-cap-override-add] { width: auto; min-width: 160px; justify-self: start; align-self: flex-start; }
@@ -456,7 +456,7 @@ Token: `surface-subtle` #E5E8EB, `surface-default` #FFFFFF, `surface-brand` #EBF
 | `primaryFooter("Lưu thay đổi")` 063 | `InventoryFooter` một nút chính, tắt khi `expiryHasError` hoặc `!expiryDirty` | cả iPhone và web; ẩn khi `readOnly` |
 
 - [ ] **Step 1: Test `K7EditCell` (đỏ)** — `test/features/inventory/presentation/patterns/k7_edit_cell_test.dart`: `shows_unit_suffix`, `shows_error_below_and_red_border` (viền `#B53232`), `disabled_uses_subtle_background` (`#E5E8EB`), `height_44_mobile_40_web`, `semantics_label`.
-- [ ] **Step 2: Viết `K7EditCell({required String value, required ValueChanged<String> onChanged, String unit = '', String? errorText, required String semanticLabel, bool enabled = true, TextInputAction? textInputAction, double? maxWidth})`** — bọc `VNumberField(suffixText: unit)`; chỉ nhận chữ số (`FilteringTextInputFormatter.digitsOnly`); căn phải, mono 14/20 w500. Thiếu tham số lỗi / cao ở `VNumberField` thì mở rộng `VNumberField` trong `packages/vet45_design_system` (kèm test ở `packages/vet45_design_system/test/`).
+- [ ] **Step 2: Viết `K7EditCell({required String value, required ValueChanged<String> onChanged, String unit = '', String? errorText, required String semanticLabel, bool enabled = true, TextInputAction? textInputAction, double? maxWidth})`** — bọc `VNumberField(suffixText: unit)`; chỉ nhận chữ số (`FilteringTextInputFormatter.digitsOnly`); căn phải, mono 14/20 w500. Thiếu tham số lỗi / cao ở `VNumberField` thì mở rộng `VNumberField` trong `packages/c45_design_system` (kèm test ở `packages/c45_design_system/test/`).
 - [ ] **Step 3: Widget test SCR-062 / SCR-063 (đỏ)** — `test/features/inventory/presentation/stock_policy/stock_policy_page_test.dart`, fake repository 5 sản phẩm như fixture `bj01.js:12-24` (Nobivac ngưỡng 30/80, Amox 50/80, Enro 10/30 tồn 0, Tylo 8/24 có lô hết hạn, Oxy chưa có ngưỡng); hai bề rộng 390 × 844 và 1280 × 800:
   - `table_ready_1280`: 6 tiêu đề cột đúng chữ; chip "Tất cả 5", "Chưa có ngưỡng 1"; chân "Lưu thay đổi (0)" tắt.
   - `edit_row_marks_dirty_and_recomputes_badge_1280`: gõ ngưỡng Oxy 20, mục tiêu 40 ⇒ có `Semantics('Đã sửa')`, badge Oxy "Tồn thấp", chân "Lưu thay đổi (1)" bật.
@@ -532,12 +532,12 @@ function capAddSheet() {
 CSS `styles/components.css:2710-2716` + `3080-3082` (hộp thoại web 480, bo 16, pad 20, không thanh kéo):
 
 ```css
-.cap-sheet-list { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); margin: 0; padding: 0; list-style: none; }
+.cap-sheet-list { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); margin: 0; padding: 0; list-style: none; }
 .cap-sheet-list li { font: 400 14px/20px Inter, system-ui, sans-serif; }
 .cap-sheet-list li strong { font-weight: 600; }
-.cap-sheet .sheet-content { display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); }
-.cap-sheet .sheet-actions { margin-top: var(--vet45-v2-space-2); }
-.device-preview.is-web .k7-wide .bottom-sheet[data-ds-component="VBottomSheet"] { width: 480px; padding: var(--vet45-v2-space-5) var(--vet45-v2-space-5) var(--vet45-v2-space-5); border-radius: var(--vet45-v2-radius-sheet); }
+.cap-sheet .sheet-content { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); }
+.cap-sheet .sheet-actions { margin-top: var(--c45-v2-space-2); }
+.device-preview.is-web .k7-wide .bottom-sheet[data-ds-component="VBottomSheet"] { width: 480px; padding: var(--c45-v2-space-5) var(--c45-v2-space-5) var(--c45-v2-space-5); border-radius: var(--c45-v2-radius-sheet); }
 ```
 
 **Bảng ánh xạ → Flutter:**
@@ -595,7 +595,7 @@ CSS `styles/components.css:2710-2716` + `3080-3082` (hộp thoại web 480, bo 1
 4. **Task 4 & Task 5 (Màn hình & Các sheet tương tác):**
    - Tạo `K7EditCell`, `StockIndicatorBadge`, `ThresholdImpactSheet`, `ThresholdEditSheet`, `NearExpiryAddSheet`, `StockThresholdTab`, `NearExpiryTab`, `StockPolicyPage`, `StockThresholdSinglePage`.
    - Test widget: `k7_edit_cell_test.dart` (6/6 PASS), `stock_policy_page_test.dart` (16/16 PASS), `stock_threshold_single_page_test.dart` (4/4 PASS).
-   - Cải tiến DS: Trong `packages/vet45_design_system/lib/src/components/v_modal.dart`, thay thế `Row` bằng `Align(child: Wrap(...))` cho action buttons của `VConfirmDialog` để chống lỗi RenderFlex overflow khi nút có nhãn dài trên màn hẹp 390px; kèm unit test `packages/vet45_design_system/test/components/v_modal_test.dart` (1/1 PASS).
+   - Cải tiến DS: Trong `packages/c45_design_system/lib/src/components/v_modal.dart`, thay thế `Row` bằng `Align(child: Wrap(...))` cho action buttons của `VConfirmDialog` để chống lỗi RenderFlex overflow khi nút có nhãn dài trên màn hẹp 390px; kèm unit test `packages/c45_design_system/test/components/v_modal_test.dart` (1/1 PASS).
 5. **Task 6 (Route, DI, Hub entry):**
    - Tạo `stock_policy_routes.dart` với 2 route `/warehouse/stock-policy` (nhận query `tab=expiry`) và `/warehouse/stock-policy/product/:productId`.
    - Đăng ký vào `app_router.dart` bên ngoài `StatefulShellRoute` (cạnh `/warehouse/receipts/new`) dưới `ShellRoute(StoreShell)`.
@@ -641,7 +641,7 @@ Các ảnh màn hình thực tế được chụp tự động trong `stock_poli
 | 9 | P3 | Đổi tiêu đề khu trong `NearExpiryTab` từ `VSection` (H3 18px) sang `Text` cỡ `15px` / `FontWeight.w600` khớp `ac310SectionTitle` | `apps/erp/lib/features/inventory/presentation/stock_policy/near_expiry_tab.dart` | Ảnh `flutter-SCR-063-READY-{390,1280}.png` |
 | 10 | P3 | Đồng bộ chữ và icon của `WarehouseArea.setup` (`'Các việc thiết lập ít dùng'`, `VIcons.inbox`) và entry `stock_policy` (`'Thiết lập ngưỡng tồn và chính sách cảnh báo'`, `VIcons.shield`) khớp đúng plan Task 6 | `apps/erp/lib/features/inventory/presentation/hub/warehouse_entries.dart` | `warehouse_hub_test.dart` (5/5 PASS), `warehouse_hub_pages_test.dart` (15/15 PASS) |
 | 11 | P3 | Thêm `insert into inventory.stock_policy_settings (tenant_id) values (v_tenant) on conflict (tenant_id) do nothing;` trước `select revision ... for update` trong cả `save_stock_thresholds` và `save_near_expiry_policy` để tránh lỗi trùng khoá `23505` khi 2 request lưu lần đầu đồng thời | `supabase/migrations/20261111001_inventory_stock_policy.sql` | `stock_policy_sql_contract_test.dart` (5/5 PASS) |
-| 12 | P3 | Sửa tên bảng trong mục 5.1 thành `stock_policy_settings`; truyền `message: ''` khi gọi `VToast.show` để không lặp chữ; thêm widget test cho `VConfirmDialog` trong package DS | `stock_policy_page.dart`, `stock_threshold_single_page.dart`, `packages/vet45_design_system/test/components/v_modal_test.dart` | `confirm_dialog_wraps_long_labels_390` trong `v_modal_test.dart` (1/1 PASS) |
+| 12 | P3 | Sửa tên bảng trong mục 5.1 thành `stock_policy_settings`; truyền `message: ''` khi gọi `VToast.show` để không lặp chữ; thêm widget test cho `VConfirmDialog` trong package DS | `stock_policy_page.dart`, `stock_threshold_single_page.dart`, `packages/c45_design_system/test/components/v_modal_test.dart` | `confirm_dialog_wraps_long_labels_390` trong `v_modal_test.dart` (1/1 PASS) |
 
 ## 6. Review
 
@@ -662,7 +662,7 @@ Các ảnh màn hình thực tế được chụp tự động trong `stock_poli
 | 9 | P3 | `near_expiry_tab.dart` | Tiêu đề khu "Mặc định cho mọi sản phẩm" / "Sản phẩm có chính sách riêng" to hơn prototype (`ac310SectionTitle` 13–15 / 600) | Dùng cỡ chữ tiêu đề khu như `VSection` ở Hub |
 | 10 | P3 | `warehouse_entries.dart` | Chữ lệch plan Task 6 / `hub.js:56-58`: khu "Chính sách tồn, hạn dùng và quy tắc kho" (plan: "Các việc thiết lập ít dùng"), lối vào "Đặt ngưỡng cảnh báo, tồn mục tiêu và số ngày cận hạn" (plan: "Thiết lập ngưỡng tồn và chính sách cảnh báo"); icon `settings` / `tune` (plan: `inbox` / `shield`) | Theo plan, hoặc ghi "Lệch plan + lý do" |
 | 11 | P3 | `save_*` (SQL) | Hai lần lưu **đầu tiên** đồng thời: cả hai không thấy dòng settings, lần sau `insert` lỗi khoá chính (23505) thay vì `VERSION_CONFLICT` | `insert … on conflict (tenant_id) do nothing;` rồi `select revision … for update` |
-| 12 | P3 | Kết quả 5.1, `stock_policy_page.dart:110-115` | Kết quả ghi bảng `product_near_expiry_policies` (thực tế `stock_policy_settings`); toast lặp chữ ở `title` và `message`; sửa `v_modal.dart` (DS) không có test trong `packages/vet45_design_system/test/` | Sửa Kết quả; toast chỉ `title`; thêm test `confirm_dialog_wraps_long_labels_390` |
+| 12 | P3 | Kết quả 5.1, `stock_policy_page.dart:110-115` | Kết quả ghi bảng `product_near_expiry_policies` (thực tế `stock_policy_settings`); toast lặp chữ ở `title` và `message`; sửa `v_modal.dart` (DS) không có test trong `packages/c45_design_system/test/` | Sửa Kết quả; toast chỉ `title`; thêm test `confirm_dialog_wraps_long_labels_390` |
 
 **Đạt:** SQL đúng thiết kế 2.1–2.3 (khoá dòng settings, kiểm `revision` sau replay, xoá số ngày riêng ngoài danh sách, chặn sản phẩm không theo lô, không mã lỗi mới); luật `stockIndicators` / `thresholdRowError` khớp `bj01.js` / `cap01.js`; Cubit giữ nháp khi đổi tab, khoá idempotency theo nội dung cho bảng và cận hạn; nhân viên chỉ xem; chữ Screen Contract và chữ đề xuất đúng; bỏ "Hành động" / `LOCKED` / SCR-065 đúng Q-2a2, Q-2a4.
 
@@ -688,7 +688,7 @@ Làm lại: #1, #2, #4, #5, #6, #7 (bắt buộc), #8–#12 khi tiện. **Ghi K�
 
 ### R3 (2026-11-10) — ✅ đạt (còn 2 P3 + nợ chạy test SQL)
 
-Đã chạy: `flutter test --no-pub test/features/inventory` = **231/231 đạt**; `dart analyze lib/features/inventory test/features/inventory` = 0 lỗi; `packages/vet45_design_system` `test/components/v_modal_test.dart` đạt. So 4 ảnh `flutter-*` (13:59) với `proto-*` trước khi đọc code.
+Đã chạy: `flutter test --no-pub test/features/inventory` = **231/231 đạt**; `dart analyze lib/features/inventory test/features/inventory` = 0 lỗi; `packages/c45_design_system` `test/components/v_modal_test.dart` đạt. So 4 ảnh `flutter-*` (13:59) với `proto-*` trước khi đọc code.
 
 | # R1 | Kết quả | Bằng chứng |
 |---|---|---|

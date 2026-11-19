@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Màn "không có quyền xem KH & NCC" (key `wgt_e01_u02_fr01_02`).
 ///

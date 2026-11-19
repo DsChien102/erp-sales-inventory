@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ensure every workspace package uses vet45_lints for analysis_options.yaml.
+# Ensure every workspace package uses c45_lints for analysis_options.yaml.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -8,7 +8,7 @@ cd "$ROOT"
 FLUTTER_MARKER='/presentation/analysis_options.yaml'
 FLUTTER_PACKAGES=(
   apps/erp
-  packages/vet45_design_system
+  packages/c45_design_system
 )
 
 is_flutter_package() {
@@ -28,13 +28,13 @@ write_analysis_options() {
   local dir="$1"
   local kind="$2"
   cat >"$dir/analysis_options.yaml" <<EOF
-include: package:vet45_lints/${kind}.yaml
+include: package:c45_lints/${kind}.yaml
 EOF
 }
 
 ensure_pubspec_dep() {
   local pubspec="$1"
-  if grep -q 'vet45_lints:' "$pubspec"; then
+  if grep -q 'c45_lints:' "$pubspec"; then
     return 0
   fi
 
@@ -50,7 +50,7 @@ if needle not in text:
     raise SystemExit(f"missing dev_dependencies in {path}")
 text = text.replace(
     needle,
-    needle + "  vet45_lints: ^1.0.0\n",
+    needle + "  c45_lints: ^1.0.0\n",
     1,
 )
 path.write_text(text)
@@ -59,7 +59,7 @@ PY
     cat >>"$pubspec" <<'EOF'
 
 dev_dependencies:
-  vet45_lints: ^1.0.0
+  c45_lints: ^1.0.0
 EOF
   fi
 }
@@ -72,6 +72,6 @@ while IFS= read -r pubspec; do
     write_analysis_options "$dir" dart
   fi
   ensure_pubspec_dep "$pubspec"
-done < <(find apps packages -name pubspec.yaml -not -path '*/.dart_tool/*' -not -path '*/vet45_lints/*' -not -path '*/vet45_design_system/example/*' | sort)
+done < <(find apps packages -name pubspec.yaml -not -path '*/.dart_tool/*' -not -path '*/c45_lints/*' -not -path '*/c45_design_system/example/*' | sort)
 
 echo "Synced analysis_options.yaml for all workspace packages."

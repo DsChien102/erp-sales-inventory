@@ -1,4 +1,4 @@
-/** HSM signing types supported by Vet45 (§6). */
+/** HSM signing types supported by Mosaic Retail (§6). */
 export const MeInvoiceSignType = {
   /** Ký số qua HSM, có hiển thị CKS. */
   hsmWithCks: { name: 'hsmWithCks', wireValue: 2 },

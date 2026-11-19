@@ -1,6 +1,6 @@
 import 'package:erp/features/inventory/logic/stock/stock_indicator_rules.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 void main() {
   group('stock_indicator_rules', () {

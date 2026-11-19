@@ -387,7 +387,7 @@ document.addEventListener("click", (event) => {
   }
 }, true);
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   capState: () => ({ capMode, capProductId, capFilter, capDraft, capSingle, capExpiry, capExpiryDraft, capPolicyRevision, capReturnFlow, capReturnScreen }),
   setCapReturn(flow = null, screen = null) { capReturnFlow = flow; capReturnScreen = screen; },
   capExit, capOpenForProduct, capOpenForTable,

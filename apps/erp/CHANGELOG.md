@@ -46,10 +46,10 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - HĐĐT: nút Phát hành hóa đơn điện tử tắt khi readiness có `PROVIDER_NOT_CONNECTED` (chưa kết nối MISA). Nút Xem trước giữ điều kiện riêng.
 - HĐĐT: chỉ cho phát hành lại khi projection `failed` có action issue/retry; khóa tap khi processing hoặc failed không retry được; widget test chứng minh auto progress → failure → retry.
 - HĐĐT màn kết quả bán hàng: hiển thị `OrderEInvoiceSection` live ngay trên hàng chứng từ (SG02-R02), bỏ card “Chưa phát hành” cố định và sheet mở khi bấm.
-- HĐĐT: polling projection qua `vet45_async_query` (`QueryClient.watchQuery`, 5s, key có tenant); bỏ `Timer.periodic` trên screen; refetch khi app resume.
+- HĐĐT: polling projection qua `c45_async_query` (`QueryClient.watchQuery`, 5s, key có tenant); bỏ `Timer.periodic` trên screen; refetch khi app resume.
 - HĐĐT: khi phát hành thất bại xác định, `OrderEInvoiceCubit` đọc metadata lỗi an toàn qua `GetIssuanceAttemptStatusQuery`; `failed` cũng là terminal và dừng poll (trừ khi delivery còn pending/sending).
 - HĐĐT hàng trạng thái đơn: icon leading dùng `VIcon` thay `VIconBox`; badge dùng `VComponentTone` thay `VBadgeStatus` deprecated; action item sheet dùng `VCard` + `VIcon`; post-issue delivery badge bỏ `isSmall`; xem hóa đơn chính thức, xem trước, và tải PDF/XML giữ sheet, hiện loading, disable nút còn lại; dismiss sheet khi đang xem trước thì hủy preview.
-- Kết nối MISA meInvoice: tự động làm mới trạng thái kết nối mỗi 2 giây khi ở trạng thái chờ xác thực (`checkRequired`) sử dụng `vet45_async_query` (`refetchInterval`), thay thế thao tác tải lại thủ công; bỏ toast thông báo chờ worker; bổ sung spinner `VLoading` cạnh trạng thái "Chờ kết nối" và phân cách dòng bằng `VDivider`.
+- Kết nối MISA meInvoice: tự động làm mới trạng thái kết nối mỗi 2 giây khi ở trạng thái chờ xác thực (`checkRequired`) sử dụng `c45_async_query` (`refetchInterval`), thay thế thao tác tải lại thủ công; bỏ toast thông báo chờ worker; bổ sung spinner `VLoading` cạnh trạng thái "Chờ kết nối" và phân cách dòng bằng `VDivider`.
 - Chi tiết đơn có đổi/trả: tab «Đơn gốc» mở phiếu bán hàng như lúc bán (chỉ đọc); tab «Sau đổi/trả» giữ phiếu hiện tại.
 - Readiness: card điều kiện bắt buộc / hồ sơ pháp lý không còn bấm để điều hướng (chỉ còn CTA dưới cùng).
 - Hồ sơ pháp lý: MST chấp nhận 10–13 chữ số (tự bỏ dấu `-`).
@@ -189,7 +189,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Einvoice S2b: `IssueInvoiceCommand` dùng opaque `sourceVersion`; thêm typed gateways (`IIssuanceCommandGateway`, `IIssuanceResultGateway`), `EInvoiceIssuanceBlockers`, `PublishPreparationAction`, `IssuanceResultEvidenceDto`, và `IDEMPOTENCY_CONFLICT`.
 - Einvoice S2a: Backend support kiểm tra sẵn sàng phát hành, hoàn thiện thông tin người mua và xem trước hóa đơn MISA (draft RPCs & schema seam).
 - Einvoice S1: `get_provider_connection_screen` đọc hồ sơ pháp lý từ `iam.tenant_legal_profiles` (không còn `public.tenants`); schema configuration apply trước RPC connection.
-- Async Query: mở rộng `refetchInterval` cho `QueryOptions`, `QueryObserver` và `UseQuery` trong `packages/vet45_async_query`.
+- Async Query: mở rộng `refetchInterval` cho `QueryOptions`, `QueryObserver` và `UseQuery` trong `packages/c45_async_query`.
 - Einvoice: đăng ký `QueryClient` trong DI ERP, đồng bộ query cache trực tiếp qua `setQueryData` trong `ProviderConnectionCubit` và tích hợp polling kết nối nhà cung cấp vào `ProviderConnectionView`.
 
 ## [1.7.3+40] - 2026-09-14
@@ -349,7 +349,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
-- IAM: read ports / mapper / catalog tenant audit V2; gắn nguồn app qua header `X-Vet45-App: tenant_app`.
+- IAM: read ports / mapper / catalog tenant audit V2; gắn nguồn app qua header `X-C45-App: tenant_app`.
 - Draft SQL audit/owner-activation cleanup (`002`, `004`, `006`, `007`; bản cũ archive) — cần promote trước khi ship DB.
 
 ## [1.7.1+37] - 2026-08-20

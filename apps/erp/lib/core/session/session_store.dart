@@ -1,4 +1,4 @@
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import 'models/session_principal.dart';
 import 'session_repository.dart';

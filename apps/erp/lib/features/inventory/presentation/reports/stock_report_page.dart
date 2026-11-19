@@ -13,7 +13,7 @@ import 'package:erp/features/inventory/presentation/reports/reports_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// SCR-055: Báo cáo nhập – xuất – tồn.
 class StockReportPage extends StatelessWidget {

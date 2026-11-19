@@ -1,5 +1,5 @@
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 enum ProgramListStatus {
   loading,

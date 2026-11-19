@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import '../models/sales_order_settlement/sales_order_payment_vm.dart';
 import 'sales_amount_highlight_row.dart';
 import 'sales_label_highlight_row.dart';

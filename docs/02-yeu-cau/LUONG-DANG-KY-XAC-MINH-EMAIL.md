@@ -45,7 +45,7 @@ sequenceDiagram
   Auth->>DB: update email_confirmed_at = now()
   DB->>DB: trigger _on_auth_user_confirmed<br/>hồ sơ active + tổ chức active + Owner<br/>+ cửa hàng mặc định + tổ chức chọn gần nhất + audit<br/>xoá signup_tenant khỏi metadata
   Auth-->>App: Phiên đăng nhập
-  App->>U: "/" + "Chào mừng đến VET45! Cửa hàng … đã sẵn sàng."
+  App->>U: "/" + "Chào mừng đến Mosaic Retail! Cửa hàng … đã sẵn sàng."
 ```
 
 ### 2.2 Dữ liệu sau mỗi bước

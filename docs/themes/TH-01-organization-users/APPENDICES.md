@@ -442,9 +442,9 @@ Các lỗi liên quan `tenant.close` hoặc tenant-facing ownership transfer ch�
 |Term|Vietnamese name|Short definition|Related domain|Related entity/model|
 |---|---|---|---|---|
 |Tenant|Tổ chức|Ranh giới dữ liệu, quyền, cấu hình và giao dịch độc lập|D-01|`tenants`|
-|Tenant App|Ứng dụng VET45 dành cho tổ chức|Application surface dùng TenantContext cho Owner và thành viên|D-04|TenantContext|
-|Platform Admin App|Ứng dụng quản trị nền tảng|Application surface nội bộ cho privileged VET45 actor|Platform reference|PlatformAdminContext|
-|Platform User|Người dùng nền tảng|Danh tính dùng chung trên toàn VET45|Auth + IAM profile|PlatformUser|
+|Tenant App|Ứng dụng Mosaic Retail dành cho tổ chức|Application surface dùng TenantContext cho Owner và thành viên|D-04|TenantContext|
+|Platform Admin App|Ứng dụng quản trị nền tảng|Application surface nội bộ cho privileged Mosaic Retail actor|Platform reference|PlatformAdminContext|
+|Platform User|Người dùng nền tảng|Danh tính dùng chung trên toàn Mosaic Retail|Auth + IAM profile|PlatformUser|
 |Platform User Profile|Hồ sơ người dùng|Hồ sơ cá nhân do IAM sở hữu (`iam.platform_user_profiles`)|IAM|`iam.platform_user_profiles`|
 |My Account|Tài khoản của tôi|Khu vực tự quản lý hồ sơ, mật khẩu và đăng xuất|IAM profile + Auth credential|PlatformUser, PasswordResetOperation|
 |Activation Invitation|Lời mời kích hoạt tài khoản|Identity-owned one-time activation flow|Platform Identity|Không phải `tenant_invitations`|
@@ -461,7 +461,7 @@ Các lỗi liên quan `tenant.close` hoặc tenant-facing ownership transfer ch�
 |LastSelectedTenant|Tổ chức được chọn gần nhất|User preference và không phải access grant|D-04 reference|Preference model|
 |TenantReadiness|Mức độ sẵn sàng|Derived blocker và warning cho activation|D-01|Derived model|
 |PasswordResetOperation|Phiên đặt lại mật khẩu|IAM metadata + Auth OTP/password; không lưu raw code|IAM + Supabase Auth|`iam.password_reset_operations`|
-|VET45 System Admin|Quản trị viên hệ thống|Actor tạo Platform User, Tenant và thực hiện onboarding|Platform reference|Platform authorization grant|
+|Mosaic Retail System Admin|Quản trị viên hệ thống|Actor tạo Platform User, Tenant và thực hiện onboarding|Platform reference|Platform authorization grant|
 |Platform Operator|Nhân sự vận hành nền tảng|Actor thực hiện privileged lifecycle operation|Platform reference|Platform authorization grant|
 |PlatformAdminContext|Ngữ cảnh quản trị nền tảng|Context dùng platform permission và không yêu cầu Tenant Membership|D-04 reference|Runtime model|
 |PlatformOnboardingOperation|Phiên khởi tạo tổ chức|Orchestration state do IAM persist (OQ-02)|IAM|operationId / idempotencyKey / correlationId|

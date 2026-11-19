@@ -11,7 +11,7 @@ import 'package:erp/features/partner/presentation/widgets/partner_list_item_tile
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../support/fake_partner_repository.dart';
 import '../support/partner_router_harness.dart';

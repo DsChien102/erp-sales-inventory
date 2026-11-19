@@ -1,4 +1,4 @@
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import '../../../data/models/tenant_audit_log.dart';
 
 /// Trạng thái của nhật ký thao tác.

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/session/session_controller.dart';
@@ -173,7 +173,7 @@ class _SignupViewState extends State<_SignupView> {
           final label = (name == null || name.isEmpty) ? 'cửa hàng' : name;
           VToast.show(
             context,
-            title: 'Chào mừng đến VET45!',
+            title: 'Chào mừng đến Mosaic Retail!',
             message: 'Cửa hàng $label đã sẵn sàng.',
             type: VToastType.success,
           );

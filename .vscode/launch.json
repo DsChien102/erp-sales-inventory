@@ -90,7 +90,7 @@
       "name": "Design system · example",
       "type": "dart",
       "request": "launch",
-      "cwd": "${workspaceFolder}/packages/vet45_design_system/example",
+      "cwd": "${workspaceFolder}/packages/c45_design_system/example",
       "program": "lib/main.dart",
       "preLaunchTask": "design-system:example pub get"
     },
@@ -98,7 +98,7 @@
       "name": "Design system · example · web",
       "type": "dart",
       "request": "launch",
-      "cwd": "${workspaceFolder}/packages/vet45_design_system/example",
+      "cwd": "${workspaceFolder}/packages/c45_design_system/example",
       "program": "lib/main.dart",
       "deviceId": "chrome",
       "preLaunchTask": "design-system:example pub get"

@@ -424,7 +424,7 @@ Task 0–6.
   - `apps/erp/test/features/sales/support/fake_sales_draft_repository.dart`: hỗ trợ `totalCount` mặc định theo tổng số items trước khi lọc (R1-5a).
 - **Lệch plan:** Không.
 - **Kết quả kiểm tra sau R1:**
-  1. `git grep -nE "SalesPaymentQrCard|VET45 · ACB|1028 6888|Chủ tài khoản" -- apps/erp` ⇒ RỖNG (chỉ còn 1 dòng CHANGELOG cũ và assertions test phủ định).
+  1. `git grep -nE "SalesPaymentQrCard|Mosaic Retail · ACB|1028 6888|Chủ tài khoản" -- apps/erp` ⇒ RỖNG (chỉ còn 1 dòng CHANGELOG cũ và assertions test phủ định).
   2. `dart analyze lib/features/sales test/features/sales example/lib/sales` ⇒ 0 error, 0 warning mới (11 deprecation hints cũ).
   3. `flutter test test/features/sales` ⇒ 1224/1224 PASS (tăng 10 test so với mốc 1214).
   4. `flutter test` toàn app ⇒ 2873 đạt / 55 lỗi baseline (khớp đúng mốc baseline, 0 lỗi trong sales).
@@ -478,7 +478,7 @@ Test `stale_response_after_scope_change_is_dropped` xanh **do tình cờ**: `set
 #### Câu hỏi cho người dùng (plan chưa nói, đổi hành vi ngoài ý) — **đã chốt 2026-11-07: Q-R1a = B, Q-R1b = B** (xem R1-5a, R1-5b)
 
 - **Q-R1a — Nút "Đơn nháp (N)" ở SG-02** (`sales_order_compose_page.dart:465`, dùng `totalCount` của cùng cubit). Trước: N = số nháp đã tải của cửa hàng (≤ 50), không theo tab / từ khoá. Nay: N = số dòng đã tải của tab + từ khoá hiện tại (mặc định "Đơn của tôi", ≤ 25 tới khi tải thêm) — đổi tab / gõ tìm ở SG-01 làm N ở SG-02 đổi theo. Chú thích `totalCount` (`sales_draft_list_state.dart:30`) đã sai. Chọn: (A) giữ như hiện tại, sửa chú thích; (B) RPC trả thêm `total_count` của cửa hàng (không lọc) và nút dùng số đó; (C) nút bỏ số.
-- **Q-R1b — QR mẫu ở thanh toán SG-06** (`sales_payment_qr_card.dart`, dùng ở `sales_checkout_page.dart:375`): vẫn hiện tài khoản giả "VET45 · ACB", "1028 6888". Phiên code đổi `accountName` 'Nguyễn Văn A' → 'Chủ tài khoản' cho grep 6.2 rỗng — tệp ngoài plan, chỉ che triệu chứng. Grep 6.2 của plan bắt rộng quá (KI-08 chỉ nói quyết toán đổi/trả). Chọn: (A) hoàn nguyên tệp, ghi KI mới vào TH-05 7.3 và làm ở plan sau; (B) bỏ thẻ QR ở SG-06 ngay trong R1 (như KI-08: Chuyển khoản chỉ chọn phương thức).
+- **Q-R1b — QR mẫu ở thanh toán SG-06** (`sales_payment_qr_card.dart`, dùng ở `sales_checkout_page.dart:375`): vẫn hiện tài khoản giả "Mosaic Retail · ACB", "1028 6888". Phiên code đổi `accountName` 'Nguyễn Văn A' → 'Chủ tài khoản' cho grep 6.2 rỗng — tệp ngoài plan, chỉ che triệu chứng. Grep 6.2 của plan bắt rộng quá (KI-08 chỉ nói quyết toán đổi/trả). Chọn: (A) hoàn nguyên tệp, ghi KI mới vào TH-05 7.3 và làm ở plan sau; (B) bỏ thẻ QR ở SG-06 ngay trong R1 (như KI-08: Chuyển khoản chỉ chọn phương thức).
 
 #### Ghi chú nhỏ (không bắt sửa)
 - `sales_th05.sql` D01–D03: nhãn "(G7)" / "(G8)" lệch (đúng là G6 / G7); D01 dựng khách với khoá `'phone'`, không phải `'phone_number'` ⇒ không thử tìm theo SĐT.
@@ -519,10 +519,10 @@ Căn cứ: TH-05 dòng ~575 (FR-02 SG-02) "số nháp đang có của cửa hàn
 Căn cứ: TH-05 dòng ~894 (Chuyển khoản chỉ "Số tiền chuyển khoản" + "Mã giao dịch"), dòng ~2236 ("QR động" ngoài phạm vi); cùng loại KI-08.
 
 **Files:** `presentation/pages/sales_checkout_page.dart:372-379` (khối `SalesPaymentQrCard` + 2 `VGap`), xoá `presentation/widgets/sales_payment_qr_card.dart`, `lib/features/sales/presentation.dart:81` (export), `example/lib/sales/preview/sg05_checkout_tab.dart:88-91`, `example/lib/sales/preview/overview_tab.dart:53`; `docs/02-yeu-cau/TH-05-ban-hang-va-don-hang.md` 7.3; test `test/features/sales/sales_checkout_page_test.dart` (hoặc test SG-06 đang có)
-- [ ] Test `checkout_transfer_shows_no_qr`: chọn "Chuyển khoản" ⇒ `find.text('VET45 · ACB')`, `find.textContaining('1028 6888')` ⇒ `findsNothing`; `find.byKey(Key('input_sg05_transaction_code'))` ⇒ `findsOneWidget`. Chạy → FAIL.
+- [ ] Test `checkout_transfer_shows_no_qr`: chọn "Chuyển khoản" ⇒ `find.text('Mosaic Retail · ACB')`, `find.textContaining('1028 6888')` ⇒ `findsNothing`; `find.byKey(Key('input_sg05_transaction_code'))` ⇒ `findsOneWidget`. Chạy → FAIL.
 - [ ] Xoá theo danh sách Files. Chạy → PASS.
-- [ ] TH-05 7.3 thêm **KI-23** "SG-06 có thẻ QR mẫu cứng ('VET45 · ACB', số tài khoản giả) khi chọn Chuyển khoản / Kết hợp" — "Đã sửa 8-B2 R1" — P8.
-- [ ] `git grep -nE "SalesPaymentQrCard|VET45 · ACB|1028 6888|Chủ tài khoản" -- apps/erp` ⇒ rỗng.
+- [ ] TH-05 7.3 thêm **KI-23** "SG-06 có thẻ QR mẫu cứng ('Mosaic Retail · ACB', số tài khoản giả) khi chọn Chuyển khoản / Kết hợp" — "Đã sửa 8-B2 R1" — P8.
+- [ ] `git grep -nE "SalesPaymentQrCard|Mosaic Retail · ACB|1028 6888|Chủ tài khoản" -- apps/erp` ⇒ rỗng.
 
 #### Kiểm sau R1 (phiên code chạy, ghi Kết quả)
 - [ ] `dart analyze lib/features/sales test/features/sales example/lib/sales` ⇒ 0 lỗi, 0 cảnh báo mới.

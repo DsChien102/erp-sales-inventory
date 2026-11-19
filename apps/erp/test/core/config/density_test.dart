@@ -1,7 +1,7 @@
 import 'package:erp/core/config/density.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 void main() {
   group('erpDensityMode', () {

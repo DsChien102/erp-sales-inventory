@@ -603,7 +603,7 @@ Object.assign(renderers, { "SCR-055": render055BJ15, "SCR-059": render059BJ15 })
 flowRenderers["UIF-15"] = Object.assign(flowRenderers["UIF-15"] || {}, { "SCR-055": render055BJ15, "SCR-056": render056BJ15, "SCR-059": render059BJ15 });
 renderers["SCR-056"] = flowScreen("SCR-056");
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   finishBJ15Export() { return bj15FinishExport(); },
   // Sổ kho theo sản phẩm tại hôm nay và so với tồn BJ-01 hiện tại (golden kiểm bằng một ca).
   getBJ15Ledger() {

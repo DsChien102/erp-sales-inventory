@@ -26,7 +26,7 @@ Business flow (rút gọn): Theme 01 legal + Theme 05 SalesOrder → Invoice Con
 | Khía cạnh      | Quyết định                                                                                   |
 | -------------- | -------------------------------------------------------------------------------------------- |
 | Vendor         | MISA **meInvoice đầu ra**                                                                    |
-| Blackbox       | `[package:vet45_misa/e_invoice.dart](../../../../packages/vet45_misa/)` — `IMeInvoiceClient` |
+| Blackbox       | `[package:c45_misa/e_invoice.dart](../../../../packages/c45_misa/)` — `IMeInvoiceClient` |
 | Phase A API    | `listTemplates`, `publish`, `getStatus`, `download`                                          |
 | Caller runtime | **Chỉ** `[apps/messaging_worker](../../../../apps/messaging_worker/)`                        |
 | ERP / Flutter  | Enqueue command bền; **không** HTTP tới `*.meinvoice.vn`                                     |
@@ -41,11 +41,11 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
   → enqueue outbox hoặc internal command (durable)
   → messaging_worker (per tenantId)
   → TenantCredentialStore + TokenCache
-  → IMeInvoiceClient (vet45_misa)
+  → IMeInvoiceClient (c45_misa)
   → MISA meInvoice HTTP
 ```
 
-Module application **không** import wire JSON MISA. Infrastructure (hoặc worker adapter) map DTO Vet45 ↔ client blackbox.
+Module application **không** import wire JSON MISA. Infrastructure (hoặc worker adapter) map DTO Mosaic Retail ↔ client blackbox.
 
 ## 2. On-behalf-of tenant
 
@@ -59,7 +59,7 @@ sequenceDiagram
   participant W as MessagingWorker
   participant Cred as TenantCredentialStore
   participant Tok as TokenCache_perTenant
-  participant Misa as vet45_misa_MeInvoiceClient
+  participant Misa as c45_misa_MeInvoiceClient
   participant API as MISA_meInvoice
 
   UI->>App: PublishEInvoice_tenantScoped
@@ -147,9 +147,9 @@ Chuyển shared store (Redis hoặc bảng token encrypted) vẫn keyed by `tena
 | ------------- | ------------------------------------------------------------------------------------------------------------------ |
 | Ai gọi MISA   | Chỉ `messaging_worker`                                                                                             |
 | Scale hôm nay | Single service — in-process token cache OK                                                                         |
-| ERP           | Chỉ enqueue; poll/query trạng thái HĐ từ DB Vet45                                                                  |
+| ERP           | Chỉ enqueue; poll/query trạng thái HĐ từ DB Mosaic Retail                                                                  |
 | Soft-fail     | Thiếu credential tenant → fail job có mã ổn định (tương tự soft-fail Resend thiếu key), không crash tick cả worker |
-| Idempotency   | `refId` từ Vet45 khi `publish` (map MISA refid)                                                                    |
+| Idempotency   | `refId` từ Mosaic Retail khi `publish` (map MISA refid)                                                                    |
 | Series lease  | Publish foreground theo `InvSeries` qua lease DB `(tenant, provider_connection, series)` — bắt buộc khi >1 worker  |
 
 
@@ -192,7 +192,7 @@ claim internal command
 
 **Owner:** TH-08.
 
-**Supporting:** `vet45_misa`, messaging worker, tenant legal profile (MST), module bán hàng/đối tác (nguồn chứng từ — slice sau).
+**Supporting:** `c45_misa`, messaging worker, tenant legal profile (MST), module bán hàng/đối tác (nguồn chứng từ — slice sau).
 
 **Ngoài scope tài liệu / theme này (tối thiểu):**
 
@@ -209,7 +209,7 @@ claim internal command
 
 | Tài nguyên              | Path / URL                                                                                                                                                                                   |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Package README          | [packages/vet45_misa/README.md](../../../../packages/vet45_misa/README.md)                                                                                                                   |
+| Package README          | [packages/c45_misa/README.md](../../../../packages/c45_misa/README.md)                                                                                                                   |
 | Theme overview          | [../OVERVIEWS.md](../OVERVIEWS.md)                                                                                                                                                           |
 | API contracts           | [07-api-contracts.md](07-api-contracts.md)                                                                                                                                                   |
 | Slice roadmap           | [04-slice-roadmap.md](04-slice-roadmap.md)                                                                                                                                                   |
@@ -474,7 +474,7 @@ Tối ưu chặng 1 mà bỏ chặng 2–3 sẽ không cải thiện cảm nhậ
 
 Read model vẫn đi qua RPC trả DTO — không đọc bảng trực tiếp từ client.
 
-**Gap cần xử lý trong S2:** `packages/vet45_async_query` chưa có `refetchInterval` (xem `lib/src/query_options.dart` — chỉ `staleTime`, `gcTime`, `retry`, `refetchOnMount`, `enabled`). Bổ sung `refetchInterval` vào `QueryOptions` / `QueryObserver` để mọi theme có long-running job dùng lại, thay vì mỗi màn tự dựng `Timer.periodic`. `AppLifecycleRefetch` sẵn có lo phần app resume.
+**Gap cần xử lý trong S2:** `packages/c45_async_query` chưa có `refetchInterval` (xem `lib/src/query_options.dart` — chỉ `staleTime`, `gcTime`, `retry`, `refetchOnMount`, `enabled`). Bổ sung `refetchInterval` vào `QueryOptions` / `QueryObserver` để mọi theme có long-running job dùng lại, thay vì mỗi màn tự dựng `Timer.periodic`. `AppLifecycleRefetch` sẵn có lo phần app resume.
 
 ### Không dùng (S2)
 

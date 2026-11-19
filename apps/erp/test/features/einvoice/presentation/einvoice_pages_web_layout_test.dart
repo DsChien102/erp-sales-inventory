@@ -6,7 +6,7 @@ import 'package:erp/features/einvoice/presentation/pages/provider_connection_pag
 import 'package:erp/features/einvoice/presentation/widgets/invoice_delivery_history_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../support/fake_einvoice_configuration_repository.dart';
 import '../support/fake_einvoice_repository.dart';

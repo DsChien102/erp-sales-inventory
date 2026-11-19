@@ -38,7 +38,7 @@ Chi tiết: [03-architecture-and-flows.md](03-architecture-and-flows.md).
 | Password reset | Mã 6 số trong app (đã login) — không dùng URL xác nhận |
 | Surfaces | `apps/erp` = Tenant App; `apps/admin` = Platform Admin (Login + S15 wired) |
 | Post-MVP | EP-02/US-04 transfer + US-05 close — không slice phase 1 |
-| Platform Admin bootstrap | Không self-signup. Preferred: `vet45 admin create --email …` (Auth Admin + `iam.platform_admins`). Fallback SQL: `INSERT INTO iam.platform_admins (user_id)`. Product invite (`CreatePlatformAdmin`) = slice sau. |
+| Platform Admin bootstrap | Không self-signup. Preferred: `c45 admin create --email …` (Auth Admin + `iam.platform_admins`). Fallback SQL: `INSERT INTO iam.platform_admins (user_id)`. Product invite (`CreatePlatformAdmin`) = slice sau. |
 
 ## Pitfalls
 
@@ -60,13 +60,13 @@ Chi tiết: [03-architecture-and-flows.md](03-architecture-and-flows.md).
 | 2026-07-16 | Scaffold harness TH-01 sau Epic/US decomposition | harness/00–07; chốt Resend + invitation confirmation |
 | 2026-07-16 | README link `02-module-map.md` thiếu SoT | SoT = harness/02; root redirect |
 | 2026-07-19 | S-NOTIFY: worker registry rỗng; chưa có Dart claim client | Bootstrap đăng ký `iam`; draft outcome SQL (chưa promote). *(Lịch sử: lần đầu dùng outbox gateway — đã thay bằng internal command 2026-07-20.)* |
-| 2026-07-19 | Resend HTTP nằm trong IAM infra — khó tái dùng module khác | Tách `packages/vet45_resend` (`IResendClient` / real / fake) |
+| 2026-07-19 | Resend HTTP nằm trong IAM infra — khó tái dùng module khác | Tách `packages/c45_resend` (`IResendClient` / real / fake) |
 | 2026-07-20 | S-NOTIFY dùng outbox như task queue (vi phạm internal command) | Refactor: `SendEmailDeliveryCommand` + `iam.internal_commands`; worker claim → CommandBus; đóng debt outbox-as-task-queue |
 | 2026-07-29 | Bỏ URL confirmation | Email chỉ chứa backend-generated opaque token; user nhập token khi logged out; existing account login khóa email, new account đăng ký với token làm email proof |
 | 2026-07-20 | IAM messaging folder/wiring ≠ golden sales (`modules/sales/infrastructure`, `dev-old`) | **Closed:** IAM có `Process{Outbox,Inbox,InternalCommands}` + `ICommandScheduler` + self-consume inbox; adapters `src/adapters/notification/`; thin `IamMessagingModule` |
 | 2026-07-20 | Dart client gọi `enqueue_outbox_message` (vi phạm RPC same-txn) | **Closed:** bỏ `enqueue` khỏi `IIamOutboxClient`; port production chỉ đọc outcome; docs/tests seed outbox như RPC |
 | 2026-07-24 | Admin chưa có Login — mở thẳng dashboard | LoginPage + router guard + platform.user.view gate; ops bootstrap `iam.platform_admins` ghi trong notes |
-| 2026-07-27 | Bootstrap platform admin thủ công dễ quên | `vet45 admin create\|grant\|list` (service role + Auth Admin API) |
+| 2026-07-27 | Bootstrap platform admin thủ công dễ quên | `c45 admin create\|grant\|list` (service role + Auth Admin API) |
 | 2026-08-23 | IAM audit + owner activation trôi khỏi thiết kế | Cleanup: bỏ legacy `iam.platform_audit_logs`; retire `iam.owner_activations`; platform audit đọc canonical `iam.audit_logs(scope='platform')`. Owner = **người dùng đầu tiên, mặc định là chủ** — membership tạo ngay ở onboarding (không dùng bảng activation), kích hoạt = đặt mật khẩu qua Auth; staff mới đi luồng mời `tenant_invitations`. `iam.platform_admins` bàn riêng. Plan: `docs/superpowers/plans/2026-08-21-iam-audit-owner-activation-cleanup.md`. |
 | 2026-09-21 | Luồng Invitation hybrid tạo sẵn profile và Membership trước khi người nhận đồng ý | Thay bằng luồng tạo dữ liệu khi accept: gửi lời mời tenant/staff và platform-owner chỉ tạo Invitation cùng trạng thái gửi; `accept_invitation` tạo/upsert profile và Membership thật. Projection Owner pending lấy từ `tenant_invitations`; vẫn tương thích bản ghi lịch sử có `target_membership_id`. |
 

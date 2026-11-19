@@ -35,9 +35,9 @@ Web: `cn01`/`cn02` hai cột (trái CN-01 rộng 380, phải CN-02 hoặc "Chọ
 ## Nguồn token / component
 
 - `shared/` (symlink tới `specs/prototype/shared/`): `tokens.css`, `components.css`, `icons.js` dùng chung với các theme khác. Xem `specs/prototype/README.md`. Cần chạy bằng `python3 tools/serve.py` (đi qua symlink).
-- `styles/receivable.css`, `cn01.css`, `cn03.css`: rule riêng của Theme 6, chỉ dùng `--vet45-v2-*`. **Ngoại lệ:** Theme 7 không có token cỡ chữ nên khai báo `--rc-fs-*` ở đầu `receivable.css`.
+- `styles/receivable.css`, `cn01.css`, `cn03.css`: rule riêng của Theme 6, chỉ dùng `--c45-v2-*`. **Ngoại lệ:** Theme 7 không có token cỡ chữ nên khai báo `--rc-fs-*` ở đầu `receivable.css`.
 - `app/icon.js`: re-export `shared/icons.js` (`icon()` / `k7CheckMark()`).
-- `styles/receivable.css`: rule mới, chỉ dùng `--vet45-v2-*`. **Ngoại lệ:** Theme 7 không có token cỡ chữ nên khai báo `--rc-fs-*` ở đầu file.
+- `styles/receivable.css`: rule mới, chỉ dùng `--c45-v2-*`. **Ngoại lệ:** Theme 7 không có token cỡ chữ nên khai báo `--rc-fs-*` ở đầu file.
 - `app/ui.js` (không có trong plan ban đầu): hàm dùng chung (khung màn, sheet / dialog, badge, toast).
 
 ## Font

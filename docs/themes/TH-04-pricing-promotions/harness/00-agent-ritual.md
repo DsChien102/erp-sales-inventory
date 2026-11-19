@@ -5,7 +5,7 @@ Thứ tự đọc khi implement một slice. `pricing` là future bounded contex
 ## Trước khi code
 
 ```text
-1. AGENTS.md + .cursor/rules/vet45-architecture.mdc
+1. AGENTS.md + .cursor/rules/c45-architecture.mdc
 2. docs/harness/PROGRESS.md
 3. TH-04/README.md + 01-business-scope.md
 4. Theme-4-pricing-promotions.md — canonical product/UI/data spec
@@ -51,8 +51,8 @@ Chỉ chạy codegen/ERP feature tests khi artifact của slice tồn tại. RPC
 | Mục đích | Path |
 | -------- | ---- |
 | Golden CQRS/access/wiring | `modules/iam/` |
-| CQRS fixtures | `packages/vet45_generator/test/fixtures/lib/src/` |
-| Pipeline harness | `packages/vet45_shared/testing/` |
+| CQRS fixtures | `packages/c45_generator/test/fixtures/lib/src/` |
+| Pipeline harness | `packages/c45_shared/testing/` |
 | Module target layout | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
 | Harness engineering | `docs/architecture/harness-engineering.md` |
 | EP02 contracts | [07-api-contracts.md](07-api-contracts.md) |

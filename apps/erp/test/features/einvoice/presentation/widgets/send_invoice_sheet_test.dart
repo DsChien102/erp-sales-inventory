@@ -8,7 +8,7 @@ import 'package:erp/features/einvoice/presentation/widgets/send_invoice_sheet.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../support/fake_einvoice_repository.dart';
 

@@ -71,7 +71,7 @@ Barrel `apps/erp/lib/features/pricing/data/models.dart` export cả 5 tệp.
 
 **Không chép:** `CustomerSnapshot`, `ProductPriceBandSnapshot`, `CustomerPriceRuleCreateContext`, `CustomerPriceRuleUpdateContext` (Q5), `RememberedPriceOutcomeDto` (Q8), `SalesWorkingStatePricingInput` (repository nhận tham số rời), `PricingBlockedException` (thay bằng `AppException`), `PricingBlockedCodes` (thay bằng `PricingErrorCodes`, mục 4.2), mọi kiểu nhập Excel (`CustomerPriceRuleImport*`, `ProductUnitResolutionStrategy`; Q9).
 
-`MoneyDto` trùng tên với `MoneyDto` của `vet45_sales_application`. Hai tệp sales ở 6-A2 đã import sales với tiền tố `sales.` nên không đụng nhau.
+`MoneyDto` trùng tên với `MoneyDto` của `c45_sales_application`. Hai tệp sales ở 6-A2 đã import sales với tiền tố `sales.` nên không đụng nhau.
 
 ### 4.2 Lỗi (`apps/erp/lib/features/pricing/data/pricing_errors.dart`)
 
@@ -336,7 +336,7 @@ class SalesPricingRepository {
 - [x] **6.1** `cd apps/erp && dart analyze lib/features/pricing test/features/pricing` → 0 lỗi, 0 cảnh báo mới.
 - [x] **6.2** `dart run tool/check_feature_imports.dart` → không dòng mới của `pricing` (tệp `data/` mới chỉ import `core/` và chính `features/pricing`).
 - [x] **6.3** `flutter test test/features/pricing/` → PASS; `flutter test` cả app → số lỗi đúng bằng `docs/refactor/TEST-BASELINE.md` (so từng tên).
-- [x] **6.4** `git grep -n "vet45_pricing" -- apps/erp/lib/features/pricing/data apps/erp/lib/features/pricing/logic` → rỗng.
+- [x] **6.4** `git grep -n "c45_pricing" -- apps/erp/lib/features/pricing/data apps/erp/lib/features/pricing/logic` → rỗng.
 - [x] **6.5** `node .gitnexus/run.cjs analyze` rồi `detect_changes({scope: "all"})`: chỉ tệp mới; ghi số tệp / symbol / luồng / rủi ro vào Kết quả.
 
 ## 7. Kiểm tra
@@ -417,7 +417,7 @@ Tự động: mục 6 Task 6. Không có kiểm tay (6-A1 không đổi màn nà
   - `apps/erp/lib/features/pricing/data/mappers/sales_pricing_json.dart:1–158` (`SalesPricingJson`: `preview`, `manualEvaluation`).
   - `apps/erp/test/features/pricing/data/pricing_rpc_parity_test.dart:3–4,412–491` (thêm nhóm `new (json)`).
 - **Lệch so với plan:**
-  - `pricing_enums.dart` có thêm `CustomerPriceRuleType` (`enum CustomerPriceRuleType { specialPrice, rememberedPrice }` từ `modules/pricing/domain/lib/src/customer_price_rule/customer_price_rule_type.dart`) vì `CustomerPriceRuleDetailDto` và `CustomerPriceRuleListItemDto` có trường `final CustomerPriceRuleType ruleType;` (bảng 4.1 sót liệt kê tên này nhưng bắt buộc phải có để không import `vet45_pricing_domain`).
+  - `pricing_enums.dart` có thêm `CustomerPriceRuleType` (`enum CustomerPriceRuleType { specialPrice, rememberedPrice }` từ `modules/pricing/domain/lib/src/customer_price_rule/customer_price_rule_type.dart`) vì `CustomerPriceRuleDetailDto` và `CustomerPriceRuleListItemDto` có trường `final CustomerPriceRuleType ruleType;` (bảng 4.1 sót liệt kê tên này nhưng bắt buộc phải có để không import `c45_pricing_domain`).
   - Khi gộp các mapper đọc kết quả vào một lớp `CustomerPriceRuleJson`: hàm `_item` của `CustomerPriceRuleHistoryRpcMapper` đổi tên thành `_historyItem` (để không đụng `_item` của `CustomerPriceRuleSearchRpcMapper`), và `_requiredStrings` của `PricingReenableRpcMapper` (có kiểm trùng mã cảnh báo) đổi tên thành `_requiredUniqueStrings` (để không đụng `_requiredStrings` của `CustomerPriceRuleDetailRpcMapper`); `_money` dùng `_requiredInt` (chép từ `PricingRpcMapper._requiredInt`) để nhận cả số nguyên dạng `double` (`1200.0`) theo Review Focus 3.
   - `SalesPricingJson.preview` và `.manualEvaluation` bỏ khối `try { ... } on PricingBlockedException` (vì không chép `PricingBlockedException`), ném thẳng `FormatException` để `_guard` của repository ở Task 5 đổi sang `AppException(SYSTEM_ERROR)` theo mục 4.6.
 - **Test thêm + kết quả chạy:** `cd apps/erp && dart analyze lib/features/pricing/data && flutter test test/features/pricing/data/pricing_rpc_parity_test.dart` → **0 issues, 34 PASS** (thêm 11 test trong `new (json)`: `parse_detail`, `parse_create_result`, `parse_search_result`, `parse_history_page`, `parse_reenable_precheck`, `parse_resolve_found`, `parse_resolve_null`, `parse_sales_preview`, `parse_sales_manual_evaluation`, `preview_rejects_mismatched_context`, `money_accepts_integer_double_and_rejects_fractional_double`).
@@ -479,7 +479,7 @@ Tự động: mục 6 Task 6. Không có kiểm tay (6-A1 không đổi màn nà
     - `cd apps/erp && flutter test test/features/pricing/data test/features/pricing/logic` → **165 PASS / 0 FAIL** (87 ở `data/`, 78 ở `logic/`).
     - `cd apps/erp && flutter test test/features/pricing/` → **239 PASS / 11 FAIL**; 11 test lỗi đều nằm ở `presentation/` và khớp đúng 11 dòng `pricing/presentation` trong `docs/refactor/TEST-BASELINE.md:110–120`.
     - `cd apps/erp && flutter test --no-pub -r compact` (cả app) → **2.277 PASS / 59 FAIL** (`2.112 + 165 = 2.277` đạt; 59 lỗi khớp 100% mốc sau 5-C trong `docs/refactor/TEST-BASELINE.md:13,65–121`: 57 lỗi trong danh sách + 2 lỗi `product_guided_create_e2e_test` / `product_change_history_e2e_test`, 0 lỗi mới).
-  - **6.4:** `git grep -n "vet45_pricing" -- apps/erp/lib/features/pricing/data apps/erp/lib/features/pricing/logic` → **rỗng**.
+  - **6.4:** `git grep -n "c45_pricing" -- apps/erp/lib/features/pricing/data apps/erp/lib/features/pricing/logic` → **rỗng**.
   - **6.5:**
     - `node .gitnexus/run.cjs analyze` (chạy lúc 2026-11-04 22:03 +07:00): `50,764 nodes | 113,320 edges | 1268 clusters | 300 flows`.
     - `node .gitnexus/run.cjs detect_changes --scope all --repo erp-sales-inventory`: `Changes: 4 files, 9 symbols | Affected processes: 0 | Risk level: low` (4 tệp thay đổi đã theo dõi trong git là tệp tài liệu từ 5-C chưa commit; toàn bộ 19 tệp code/test của 6-A1 đều là tệp mới untracked dưới `apps/erp/{lib,test}/features/pricing/{data,logic}/`, không sửa symbol có sẵn nào).
@@ -545,7 +545,7 @@ Không có lỗi nào làm hỏng app đang chạy: 6-A1 chỉ thêm tệp mới
 | `flutter test test/features/pricing/` | ✅ 239 đạt / 11 lỗi, cả 11 có trong `TEST-BASELINE.md` |
 | `flutter test` cả app | ✅ 59 lỗi = mốc sau 5-C (`TEST-BASELINE.md:13`: 57 trong danh sách + 2 test catalog ghi ở đoạn mốc). Không tệp nào ngoài `features/pricing` import tệp mới (xem P3-4) |
 | `check_feature_imports` | ✅ (chấp nhận) 2 dòng `R1` mới: `customer_price_rule_repository.dart:5`, `sales_pricing_repository.dart:5` (`data/` import `logic/pricing_rules.dart`). Cùng mẫu với catalog (7 dòng) và partner (1 dòng) đã chấp nhận ở Theme 2/3 ⇒ đúng quy ước; Kết quả đã ghi. Kỳ vọng "không dòng mới" của plan 6.2 viết sai |
-| `vet45_pricing` trong `data/`, `logic/` | ✅ rỗng |
+| `c45_pricing` trong `data/`, `logic/` | ✅ rỗng |
 | So với mapper cũ | Đã so tham số 11 RPC, các kiểm `FormatException` (bỏ đúng phần update / create context của Q5), chặn lộ giá sàn ở lịch sử, `floor_price_hidden`: ✅ trừ R1-1, R1-2 (bảng trên) và P3-1 (chấp nhận) |
 
 ### R1 — việc cần sửa

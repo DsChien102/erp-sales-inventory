@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import '../../../logic/product_images_maintenance_cubit.dart';
 
 class ProductImageAddSheet extends StatelessWidget {

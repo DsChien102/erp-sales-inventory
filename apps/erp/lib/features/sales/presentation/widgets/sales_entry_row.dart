@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Base layout cho các hàng entry/chứng từ trong Sales: icon, tiêu đề, mô tả,
 /// badge tùy chọn và chevron điều hướng.

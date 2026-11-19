@@ -14,7 +14,7 @@ import 'package:go_router/go_router.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/features/sales/presentation.dart'
     hide SalesOrderLifecycleStatus, SalesSettlementStatus;
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import 'package:erp/features/sales/presentation/pages/sales_result_invalid_entry_page.dart';
 import 'package:erp/features/sales/presentation/pages/sales_transaction_result_page.dart';

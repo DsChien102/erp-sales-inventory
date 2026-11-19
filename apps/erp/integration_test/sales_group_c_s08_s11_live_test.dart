@@ -3,19 +3,19 @@ import 'package:get_it/get_it.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import 'package:erp/main.dart' as app;
 
-const _enabledValue = String.fromEnvironment('VET45_RUN_LIVE_GROUP_C');
+const _enabledValue = String.fromEnvironment('C45_RUN_LIVE_GROUP_C');
 const _enabled = _enabledValue == '1' || _enabledValue == 'true';
-const _tenantId = String.fromEnvironment('VET45_E2E_TENANT_ID');
-const _storeId = String.fromEnvironment('VET45_E2E_STORE_ID');
-const _customerId = String.fromEnvironment('VET45_E2E_CUSTOMER_ID');
-const _productId = String.fromEnvironment('VET45_E2E_PRODUCT_ID');
-const _productUnitId = String.fromEnvironment('VET45_E2E_PRODUCT_UNIT_ID');
+const _tenantId = String.fromEnvironment('C45_E2E_TENANT_ID');
+const _storeId = String.fromEnvironment('C45_E2E_STORE_ID');
+const _customerId = String.fromEnvironment('C45_E2E_CUSTOMER_ID');
+const _productId = String.fromEnvironment('C45_E2E_PRODUCT_ID');
+const _productUnitId = String.fromEnvironment('C45_E2E_PRODUCT_UNIT_ID');
 const _expectUnavailableValue = String.fromEnvironment(
-  'VET45_E2E_GROUP_C_EXPECT_UNAVAILABLE',
+  'C45_E2E_GROUP_C_EXPECT_UNAVAILABLE',
   defaultValue: 'true',
 );
 const _expectUnavailable = _expectUnavailableValue == '1' || _expectUnavailableValue == 'true';

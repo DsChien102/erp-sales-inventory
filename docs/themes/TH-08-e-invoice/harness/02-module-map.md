@@ -13,7 +13,7 @@ Canonical boundaries: [Theme-8-e-invoice.md](../Theme-8-e-invoice.md) §1.5 · d
 | catalog | Supporting — SKU / thuế lineage qua SalesOrder | `modules/catalog/` | skeleton |
 | accounting | Downstream consumer — không trong MVP TH-08 | `modules/accounting/` | skeleton |
 
-Runtime vendor call: **chỉ** `apps/messaging_worker` → `packages/vet45_misa` — xem [03-architecture-and-flows.md](03-architecture-and-flows.md).
+Runtime vendor call: **chỉ** `apps/messaging_worker` → `packages/c45_misa` — xem [03-architecture-and-flows.md](03-architecture-and-flows.md).
 
 ```mermaid
 flowchart TB
@@ -36,7 +36,7 @@ flowchart TB
 
   subgraph runtime [Runtime]
     Worker["messaging_worker"]
-    Misa["vet45_misa"]
+    Misa["c45_misa"]
   end
 
   SalesUI --> Sales

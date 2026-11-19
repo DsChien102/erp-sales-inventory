@@ -107,7 +107,7 @@ function k5LotCard({ lot, compact = false }) {
 
 // Ô số + nút "Cả n ĐVT". attr / fillAttr là thuộc tính định danh của BJ.
 function k5QtyField({ value, max, uom, attr, fillAttr, error = "", label = "Số lượng" }) {
-  return `<div class="k5-qty"><span class="vet45-text-style-8">${esc(label)} <span class="required">*</span></span>${k7EditCell({ value, attr, unit: uom, error, label })}<button class="button button--secondary k5-fill-button" type="button" ${fillAttr} data-ds-component="VButton">Cả ${esc(t7Qty(max, uom))}</button></div>`;
+  return `<div class="k5-qty"><span class="c45-text-style-8">${esc(label)} <span class="required">*</span></span>${k7EditCell({ value, attr, unit: uom, error, label })}<button class="button button--secondary k5-fill-button" type="button" ${fillAttr} data-ds-component="VButton">Cả ${esc(t7Qty(max, uom))}</button></div>`;
 }
 
 const k5EvidenceOwners = {};
@@ -126,7 +126,7 @@ function k5Evidence({ owner, evidence, required = true, label = "Ảnh bằng ch
   const has = Boolean(evidence?.file);
   const copy = has ? `<strong>${esc(evidence.file)}</strong>${hint ? `<small>${esc(hint)}</small>` : ""}` : `<strong>${esc(emptyTitle)}</strong><small class="k7-web-only">Kéo tệp vào đây hoặc Chọn tệp</small><small class="k7-mobile-only">Chụp ảnh hoặc chọn tệp có sẵn</small>`;
   const preview = evidence?.data ? `<div class="bj06-evidence-preview"><img src="${evidence.data}" alt="Ảnh bằng chứng ${esc(evidence.file)}"><span>${esc(evidence.file)}</span><button class="button button--secondary k5-evidence-clear" type="button" data-k5-evidence-clear data-k5-evidence-owner="${escapeAttribute(owner)}">Xoá ảnh</button></div>` : "";
-  return `<div class="form-field bj02-evidence bj06-evidence k5-evidence${error ? " k5-evidence--error" : ""}" data-ds-component="VFileDropZone" data-figma-node="522:7507"><span class="vet45-text-style-8">${esc(label)}${required ? ' <span class="required">*</span>' : ""}</span><div class="bj02-evidence__zone">${icon("cloudUpload", "icon--24")}<span class="bj02-evidence__copy">${copy}</span><div class="k7-mobile-only"><div class="bj02-evidence__actions">${camera}${pick}</div></div><div class="k7-web-only"><div class="bj02-evidence__actions">${pick}</div></div></div>${preview}${error ? `<small class="field-error" role="alert">${esc(error)}</small>` : ""}</div>`;
+  return `<div class="form-field bj02-evidence bj06-evidence k5-evidence${error ? " k5-evidence--error" : ""}" data-ds-component="VFileDropZone" data-figma-node="522:7507"><span class="c45-text-style-8">${esc(label)}${required ? ' <span class="required">*</span>' : ""}</span><div class="bj02-evidence__zone">${icon("cloudUpload", "icon--24")}<span class="bj02-evidence__copy">${copy}</span><div class="k7-mobile-only"><div class="bj02-evidence__actions">${camera}${pick}</div></div><div class="k7-web-only"><div class="bj02-evidence__actions">${pick}</div></div></div>${preview}${error ? `<small class="field-error" role="alert">${esc(error)}</small>` : ""}</div>`;
 }
 
 /* ---------- SCR-036 Hàng cần xử lý (K5 + K6) ---------- */
@@ -250,7 +250,7 @@ document.addEventListener("click", (event) => {
   if (k === "history") { activeFlowId = "UIF-09"; stateByScreen["SCR-056"] = "READY"; return navigate("SCR-056"); }
 }, true);
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   // Đặt ảnh bằng chứng mẫu cho chủ ảnh (mặc định BJ-09) thay cho việc chọn tệp thật.
   setK5Evidence(owner = "bj09") {
     const h = k5EvidenceOwners[owner]; if (!h) return false;

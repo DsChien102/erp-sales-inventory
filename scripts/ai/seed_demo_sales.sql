@@ -2,7 +2,7 @@
 -- Chạy MỘT lần trên Supabase Dev (sau khi đã áp migration 20261121001):
 --   psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f scripts/ai/seed_demo_sales.sql
 -- Idempotent theo display_name: cửa hàng đã có thì bỏ qua phần dựng, chỉ in bảng kết quả.
--- Tài khoản: demo.chu@vet45.local (chủ), demo.thungan@vet45.local (staff), mật khẩu Demo@12345.
+-- Tài khoản: demo.chu@c45.local (chủ), demo.thungan@c45.local (staff), mật khẩu Demo@12345.
 -- Sổ kho / sổ giá trị được lùi cùng ngày đơn (tạm tắt trigger append-only trong khối), nên thẻ kho và lãi gộp khớp lịch sử mô phỏng.
 -- Lưu ý: script giữ khoá bảng sổ kho đến hết khối; chạy lúc không ai dùng Dev.
 
@@ -122,15 +122,15 @@ begin
                           email_confirmed_at, created_at, updated_at,
                           confirmation_token, recovery_token, email_change_token_new, email_change)
   values
-    (v_owner, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', 'demo.chu@vet45.local',
+    (v_owner, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', 'demo.chu@c45.local',
      v_pw, '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, now(), now(), now(), '', '', '', ''),
-    (v_staff, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', 'demo.thungan@vet45.local',
+    (v_staff, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', 'demo.thungan@c45.local',
      v_pw, '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, now(), now(), now(), '', '', '', '');
   insert into auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
   values
-    (gen_random_uuid(), v_owner, jsonb_build_object('sub', v_owner::text, 'email', 'demo.chu@vet45.local', 'email_verified', true),
+    (gen_random_uuid(), v_owner, jsonb_build_object('sub', v_owner::text, 'email', 'demo.chu@c45.local', 'email_verified', true),
      'email', v_owner::text, now(), now(), now()),
-    (gen_random_uuid(), v_staff, jsonb_build_object('sub', v_staff::text, 'email', 'demo.thungan@vet45.local', 'email_verified', true),
+    (gen_random_uuid(), v_staff, jsonb_build_object('sub', v_staff::text, 'email', 'demo.thungan@c45.local', 'email_verified', true),
      'email', v_staff::text, now(), now(), now());
 
   insert into iam.platform_user_profiles (user_id, email_verified, given_name, family_middle_name)
@@ -285,7 +285,7 @@ end;
 $$;
 
 -- Kết quả -----------------------------------------------------------------------
-select t.id as tenant_id, 'demo.chu@vet45.local' as owner_email, 'demo.thungan@vet45.local' as cashier_email,
+select t.id as tenant_id, 'demo.chu@c45.local' as owner_email, 'demo.thungan@c45.local' as cashier_email,
        'Sữa tươi hộp 1L' as san_pham_a,
        (select o.order_code from sales.sales_orders o where o.tenant_id = t.id order by o.completed_at desc, o.created_at desc limit 1) as ma_don
 from iam.tenants t where t.display_name = 'Cửa hàng Demo AI';
@@ -293,7 +293,7 @@ from iam.tenants t where t.display_name = 'Cửa hàng Demo AI';
 begin;
 select set_config('request.jwt.claims', json_build_object('sub', u.id::text, 'role', 'authenticated')::text, true),
        set_config('request.jwt.claim.sub', u.id::text, true)
-from auth.users u where u.email = 'demo.chu@vet45.local';
+from auth.users u where u.email = 'demo.chu@c45.local';
 select e->>'name' as ten, e->>'available' as ton, e->>'daily_rate' as ban_ngay, e->>'days_left' as con_ngay,
        e->>'suggest_qty' as nen_nhap
 from iam.tenants t,

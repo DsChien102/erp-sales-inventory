@@ -30,7 +30,7 @@ Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/R
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| US-01 | CONTRACT | §EPIC-02-US-01 | application | `CreateGuidedProductCommand` (`note?`), `CreateProductCommand`, `RequestProductImageUploadCommand`, `CheckDuplicateProductCodeQuery`, DTOs, `FakeCatalogModule` (`package:vet45_catalog_application/testing.dart`) | fake_catalog_module_test | done |
+| US-01 | CONTRACT | §EPIC-02-US-01 | application | `CreateGuidedProductCommand` (`note?`), `CreateProductCommand`, `RequestProductImageUploadCommand`, `CheckDuplicateProductCodeQuery`, DTOs, `FakeCatalogModule` (`package:c45_catalog_application/testing.dart`) | fake_catalog_module_test | done |
 | FR-01 | BE | §EPIC-02-US-01 | application + infrastructure | `CreateGuidedProductCommand`, `ProductRpcMapper`, draft RPC `create_guided_product` (`p_note` → `create_product`) | scn_e02_u01_fr01_01; product_rpc_mapper_test | done |
 | FR-01 | BE | §EPIC-02-US-01 | application + infrastructure | `RequestProductImageUploadCommandHandler`, `IProductImageUploadPort`, draft RPC `request_product_image_upload`, Storage bucket | request_product_image_upload_command_handler_test | done |
 | FR-02 | BE | §EPIC-02-US-01 | application | `CheckDuplicateProductCodeQueryHandler`, `IProductDuplicateChecker`, draft RPC | scn_e02_u01_fr02_01 | done |

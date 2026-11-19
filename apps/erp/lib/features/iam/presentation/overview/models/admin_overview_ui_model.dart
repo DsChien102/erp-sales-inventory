@@ -1,4 +1,4 @@
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Model dữ liệu thống kê tổng quan quản trị.
 class AdminOverviewMetricsUiModel {

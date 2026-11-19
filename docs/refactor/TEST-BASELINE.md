@@ -6,9 +6,9 @@
 
 **Tổng:** 41 package · 5688 đạt · **160 lỗi**
 
-> **Sau 3-D (2026-10-11):** 4 package IAM, `apps/admin` và `apps/messaging_worker` đã xoá — các hàng tương ứng dưới đây chỉ còn giá trị lịch sử. `tools/vet45_env` giữ nguyên 107 đạt / **1 lỗi có sẵn** (`config_init_test`: `ExampleGenerator` ghi `auth.env` khi `writeEnvCopies`, test kỳ vọng không có); `apps/erp` 1.494 đạt / 59 lỗi, đều nằm trong danh sách dưới đây.
+> **Sau 3-D (2026-10-11):** 4 package IAM, `apps/admin` và `apps/messaging_worker` đã xoá — các hàng tương ứng dưới đây chỉ còn giá trị lịch sử. `tools/c45_env` giữ nguyên 107 đạt / **1 lỗi có sẵn** (`config_init_test`: `ExampleGenerator` ghi `auth.env` khi `writeEnvCopies`, test kỳ vọng không có); `apps/erp` 1.494 đạt / 59 lỗi, đều nằm trong danh sách dưới đây.
 
-> **Sau 4-C (2026-11-02, review 4-C R1):** đã xoá `modules/partner/{domain,application,infrastructure}`, `modules/{accounting,costing,dashboard}` (không có test), `packages/vet45_resend`; bỏ các hàng tương ứng trong bảng và mục lỗi `modules/partner/infrastructure` (test `alternate_name` chuyển sang `apps/erp/test/features/partner/data/partner_search_sql_contract_test.dart`, nay xanh). `apps/erp` 1.705 đạt / 61 lỗi, đều trong danh sách `apps/erp` dưới đây. `modules/einvoice/application` 217 / 1 (như baseline). `modules/einvoice/infrastructure` **378 đạt / 60 lỗi**: 2 lỗi baseline (`goi1_configuration` nay lỗi cả tệp lúc nạp) + các test `*_sql_contract` / bundle đọc `supabase/migrations/_drafts/0xx_einvoice_*.sql` (`PathNotFoundException`, "draft SQL must exist", kéo theo `LateInitializationError` ở `tearDownAll`) vì 23 draft đã promote thành `20261031001…023` ngày 2026-10-31 (không do 4-C). Các test này cần trỏ sang migration chính thức (lượt promote / Theme 8, PLAN 7.1); tới lúc đó coi 60 lỗi này là có sẵn.
+> **Sau 4-C (2026-11-02, review 4-C R1):** đã xoá `modules/partner/{domain,application,infrastructure}`, `modules/{accounting,costing,dashboard}` (không có test), `packages/c45_resend`; bỏ các hàng tương ứng trong bảng và mục lỗi `modules/partner/infrastructure` (test `alternate_name` chuyển sang `apps/erp/test/features/partner/data/partner_search_sql_contract_test.dart`, nay xanh). `apps/erp` 1.705 đạt / 61 lỗi, đều trong danh sách `apps/erp` dưới đây. `modules/einvoice/application` 217 / 1 (như baseline). `modules/einvoice/infrastructure` **378 đạt / 60 lỗi**: 2 lỗi baseline (`goi1_configuration` nay lỗi cả tệp lúc nạp) + các test `*_sql_contract` / bundle đọc `supabase/migrations/_drafts/0xx_einvoice_*.sql` (`PathNotFoundException`, "draft SQL must exist", kéo theo `LateInitializationError` ở `tearDownAll`) vì 23 draft đã promote thành `20261031001…023` ngày 2026-10-31 (không do 4-C). Các test này cần trỏ sang migration chính thức (lượt promote / Theme 8, PLAN 7.1); tới lúc đó coi 60 lỗi này là có sẵn.
 
 > **Sau 5-C (2026-11-04, review 5-C đạt):** đã xoá `modules/catalog/{domain,application,infrastructure,integration_events}`, `modules/inventory/{domain,application,infrastructure,integration_events}`; bỏ các hàng tương ứng trong bảng và mục lỗi `modules/catalog/infrastructure` (8 test xanh của `price_band_sql_contract_test` chuyển sang `apps/erp/test/features/catalog/data/catalog_sql_contract_test.dart`; 4 test đọc `supabase/migrations/_drafts/…` đã bỏ, Q8 của 5-C). `apps/erp` **2.112 đạt / 59 lỗi**: 57 lỗi trong danh sách `apps/erp` dưới đây (4 test `product_measurement_units_e2e_test` nay xanh, đã bỏ khỏi danh sách) + ⚠️ **2 lỗi mới, không có trong mốc**: `product_guided_create_e2e_test.dart: e2e_e02_u01_fr01_01: duplicate SKU opens existing product in PCC` và `product_change_history_e2e_test.dart: e2e_e07_u04_fr02_01: product change history can be viewed from PCC`. Cả hai hỏng ở bước tìm tên sản phẩm trên tiêu đề PCC, không dính SP-10 / 5-C; xuất hiện trong lượt đổi UI Theme 2 (5-A3 … 5-W), cần xem lại — **chưa** coi là lỗi có sẵn.
 
@@ -16,25 +16,25 @@
 
 > **Sau 8-C (2026-11-08, review 8-C R1 đạt):** đã xoá `modules/sales/{domain,application,infrastructure}` (giữ `modules/sales/integration_events`, einvoice dùng tới 7-C); bỏ 3 hàng tương ứng trong bảng và mục lỗi `modules/sales/infrastructure` (11: test SQL đọc `_drafts/`, 8-C Q7). Test hợp đồng SQL sales mới ở `apps/erp/test/features/sales/data/sales_sql_contract_test.dart` (9, xanh). `apps/erp` **2.741 đạt / 55 lỗi**: 53 lỗi trong danh sách `apps/erp` dưới đây + 2 lỗi ⚠️ ngoài mốc đã ghi ở mục "Sau 5-C", không do 8-C. `modules/einvoice/application` 217 / 1 (như baseline).
 
-> **Sau 7-C (2026-11-09, review 7-C R1 đạt):** đã xoá hết `modules/` (`einvoice/{domain,application,infrastructure,presentation,integration_events}`, `partner/integration_events`, `sales/integration_events`) và `packages/vet45_misa`, `vet45_async_query` (kèm `async_query_flutter`), `vet45_adapters`, `vet45_generator`; bỏ 12 hàng tương ứng trong bảng và 2 mục lỗi `modules/einvoice/application` (1), `modules/einvoice/infrastructure` (2; test SQL đọc `_drafts/`, 7-C Q4). Test hợp đồng SQL einvoice mới ở `apps/erp/test/features/einvoice/data/einvoice_sql_contract_test.dart` (10, xanh). `apps/erp` **3.021 đạt / 55 lỗi** (review chạy lại): 53 lỗi trong danh sách `apps/erp` dưới đây + 2 lỗi ⚠️ ngoài mốc đã ghi ở mục "Sau 5-C", không do 7-C.
+> **Sau 7-C (2026-11-09, review 7-C R1 đạt):** đã xoá hết `modules/` (`einvoice/{domain,application,infrastructure,presentation,integration_events}`, `partner/integration_events`, `sales/integration_events`) và `packages/c45_misa`, `c45_async_query` (kèm `async_query_flutter`), `c45_adapters`, `c45_generator`; bỏ 12 hàng tương ứng trong bảng và 2 mục lỗi `modules/einvoice/application` (1), `modules/einvoice/infrastructure` (2; test SQL đọc `_drafts/`, 7-C Q4). Test hợp đồng SQL einvoice mới ở `apps/erp/test/features/einvoice/data/einvoice_sql_contract_test.dart` (10, xanh). `apps/erp` **3.021 đạt / 55 lỗi** (review chạy lại): 53 lỗi trong danh sách `apps/erp` dưới đây + 2 lỗi ⚠️ ngoài mốc đã ghi ở mục "Sau 5-C", không do 7-C.
 
 | Package | Loại | Đạt | Lỗi |
 |---|---|---|---|
 | `apps/messaging_worker` | dart | 45 | 0 |
 | `apps/admin` | flutter | 324 | **5** |
 | `apps/erp` | flutter | 1343 | **61** |
-| `tools/vet45_supabase_migrate` | dart | 76 | 0 |
-| `tools/vet45_env` | dart | 107 | **1** |
-| `packages/vet45_annotations` | dart | 8 | 0 |
-| `packages/vet45_design_system` | flutter | 288 | **2** |
+| `tools/c45_supabase_migrate` | dart | 76 | 0 |
+| `tools/c45_env` | dart | 107 | **1** |
+| `packages/c45_annotations` | dart | 8 | 0 |
+| `packages/c45_design_system` | flutter | 288 | **2** |
 | `modules/iam/integration_events` | dart | 3 | 0 |
 | `modules/iam/application` | dart | 225 | 0 |
 | `modules/iam/infrastructure` | dart | 289 | **21** |
 | `modules/iam/domain` | dart | 40 | 0 |
-| `packages/vet45_shared/testing` | dart | 6 | 0 |
-| `packages/vet45_shared/application` | dart | 5 | 0 |
-| `packages/vet45_shared/infrastructure` | dart | 22 | 0 |
-| `packages/vet45_shared/domain` | dart | 9 | 0 |
+| `packages/c45_shared/testing` | dart | 6 | 0 |
+| `packages/c45_shared/application` | dart | 5 | 0 |
+| `packages/c45_shared/infrastructure` | dart | 22 | 0 |
+| `packages/c45_shared/domain` | dart | 9 | 0 |
 
 ## Test đang lỗi
 
@@ -104,16 +104,16 @@
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart: wgt_e02_u07 — PriceRuleDisableSheet (S6) wgt_e02_u07_fr01_01 — sheet tắt giá riêng
 - /Users/macbook/Documents/Đồ án/apps/erp/test/features/tenant_admin/e2e_e02_u01_u03_u07_test.dart: e2e_e02_u07_fr01_01: audit list/search → activation forensic detail
 
-### `tools/vet45_env` (1)
+### `tools/c45_env` (1)
 
 - test/config_init_test.dart: init requires profile id and scaffolds from target aggregate
 
-### `packages/vet45_design_system` (2)
+### `packages/c45_design_system` (2)
 
 > **Cập nhật 2026-10-28:** chỉ còn hỏng test đầu (`uses bottom-weighted design-system shadow token`); `panel renders DecoratedBox with boxShadow` đã đạt. DS: 435 đạt / 1 lỗi.
 
-- /Users/macbook/Documents/Đồ án/packages/vet45_design_system/test/v_overlay_menu_shell_test.dart: VOverlayMenuShell uses bottom-weighted design-system shadow token
-- /Users/macbook/Documents/Đồ án/packages/vet45_design_system/test/v_overlay_menu_shell_test.dart: VOverlayMenuShell.panel renders DecoratedBox with boxShadow
+- /Users/macbook/Documents/Đồ án/packages/c45_design_system/test/v_overlay_menu_shell_test.dart: VOverlayMenuShell uses bottom-weighted design-system shadow token
+- /Users/macbook/Documents/Đồ án/packages/c45_design_system/test/v_overlay_menu_shell_test.dart: VOverlayMenuShell.panel renders DecoratedBox with boxShadow
 
 ### `modules/iam/infrastructure` (21)
 

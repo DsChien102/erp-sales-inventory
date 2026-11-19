@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "vet45://partner/vn-administrative-units",
+  "$id": "c45://partner/vn-administrative-units",
   "title": "Vietnamese administrative units (vn-only simplified)",
   "description": "Mirrors the vn_only_simplified_json_generated_data_vn_units.json shape from https://github.com/ThangLeQuoc/vietnamese-provinces-database (MIT). Province -> ward hierarchy for dropdown cascade.",
   "type": "array",

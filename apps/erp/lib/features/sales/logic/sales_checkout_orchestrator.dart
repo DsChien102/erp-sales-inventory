@@ -5,7 +5,7 @@ import 'package:erp/features/sales/data/sales_checkout_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 abstract final class SalesCheckoutOrchestrator {
   static SalesCheckoutPrepareFn bind() {

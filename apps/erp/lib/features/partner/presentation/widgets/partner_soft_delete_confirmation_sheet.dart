@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Returns `null` if cancelled; otherwise the optional reason (may be empty).
 Future<String?> showPartnerSoftDeleteConfirmationSheet(BuildContext context) {

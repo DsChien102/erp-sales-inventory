@@ -3,8 +3,8 @@ import 'package:erp/features/catalog/data/measurement_unit_repository.dart';
 import 'package:erp/features/catalog/data/product_price_repository.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:c45_shared_application/application.dart';
+import 'package:c45_shared_testing/shared_testing.dart';
 
 import 'fake_catalog_backend.dart';
 import 'fake_catalog_repositories.dart';

@@ -10,7 +10,7 @@ import 'package:erp/features/inventory/presentation/patterns/inventory_states.da
 import 'package:erp/features/inventory/presentation/patterns/k6_task_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 String _formatOpenedAt(DateTime dt) {
   final local = dt.toLocal();

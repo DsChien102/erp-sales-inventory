@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
 import '../../support/iam_fixtures.dart';

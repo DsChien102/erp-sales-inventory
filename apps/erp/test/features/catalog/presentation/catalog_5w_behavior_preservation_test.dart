@@ -23,7 +23,7 @@ import 'package:erp/features/dashboard/presentation/widgets/erp_bottom_navigatio
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../catalog_e2e_harness.dart';
 import '../support/catalog_router_harness.dart';

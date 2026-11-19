@@ -1,4 +1,4 @@
-// Chạy bộ câu thử của trợ lý "Hỏi VET45" (AI-0 mục 9, trừ 15–17 đang hoãn).
+// Chạy bộ câu thử của trợ lý "Hỏi Mosaic Retail" (AI-0 mục 9, trừ 15–17 đang hoãn).
 //
 //   SUPABASE_URL=… SUPABASE_ANON_KEY=… AI_EVAL_TENANT_ID=… \
 //   AI_EVAL_OWNER_EMAIL=… AI_EVAL_OWNER_PASSWORD=… \

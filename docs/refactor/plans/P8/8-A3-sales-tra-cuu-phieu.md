@@ -17,7 +17,7 @@
   SalesReceiptOperationHandler ─────┬─▶ SalesReceiptRepository generate / get / recordPrinted / recordShared
   SalesOrderDetailCubit.viewOriginalReceipt ┘                  getOriginal
   ```
-- Repository **nhận và trả kiểu của `vet45_sales_application`** (8-A1 Q1): `SalesOrderListFilterInput`, `PagedSalesOrderListDto`, `SalesOrderDetailDto`, `SalesOrderTimelineDto`, `SalesOrderReturnSummaryDto`, `AvailablePostSaleActionsDto`, `SalesOrderCancellationDetailDto`, `SalesReceiptDto`, `SalesReceiptDocumentDto`. Chép vào app: dựng tham số + đọc JSON, phân loại lỗi.
+- Repository **nhận và trả kiểu của `c45_sales_application`** (8-A1 Q1): `SalesOrderListFilterInput`, `PagedSalesOrderListDto`, `SalesOrderDetailDto`, `SalesOrderTimelineDto`, `SalesOrderReturnSummaryDto`, `AvailablePostSaleActionsDto`, `SalesOrderCancellationDetailDto`, `SalesReceiptDto`, `SalesReceiptDocumentDto`. Chép vào app: dựng tham số + đọc JSON, phân loại lỗi.
 - Lỗi đi ra là `AppException`. Câu thô (`serverMessage`, câu không dấu) ở SG-08 / SG-09 đổi theo TH-05 (Q3).
 - Cubit / loader / handler của nhóm chuyển vào `features/sales/logic/` (bước 6 của công thức).
 - `SalesTransactionResultCubit` và `SalesReceiptOperationHandler` hết `ISalesModule` + `IExecutionContext`. `SalesOrderDetailSectionsLoader` hết module.
@@ -234,7 +234,7 @@ Câu phiếu không đổi (đã đi qua `SalesTransactionResultIssue`, `sales_o
 
 - [x] **4.1** `cd apps/erp && dart analyze lib/features/sales lib/core/di test/features/sales` → 0 lỗi, 0 cảnh báo mới (cảnh báo có sẵn: `order_einvoice_section_test.dart:32`).
 - [x] **4.2** `git grep -nE "ListSalesOrdersQuery|SearchSalesOrdersQuery|GetSalesOrderTimelineQuery|GetAvailablePostSaleActionsQuery|GetSalesOrderCancellationQuery|GenerateSalesReceiptCommand|GetSalesReceiptQuery|GetSalesOrderOriginalReceiptQuery|RecordSalesReceipt(Printed|Shared)Command" -- apps/erp/lib` → rỗng; `git grep -nE "GetSalesOrderDetailQuery|GetSalesOrderReturnSummaryQuery" -- apps/erp/lib` → chỉ 3 cubit `return_exchange_order/` (8-A4); `git grep -n "SalesContractException" -- apps/erp/lib/features/sales/logic apps/erp/lib/features/sales/presentation/support/sales_transaction_result_mapper.dart` → chỉ `logic/sales_order_detail_post_sale_actions.dart` (8-A4).
-- [x] **4.3** `dart run tool/check_feature_imports.dart` → liệt kê dòng mới; chấp nhận cùng loại 8-A1 / 8-A2 (`logic/` → `presentation/`, `data/` → `vet45_sales_*`, để 8-W / 8-C), ghi từng dòng vào Kết quả.
+- [x] **4.3** `dart run tool/check_feature_imports.dart` → liệt kê dòng mới; chấp nhận cùng loại 8-A1 / 8-A2 (`logic/` → `presentation/`, `data/` → `c45_sales_*`, để 8-W / 8-C), ghi từng dòng vào Kết quả.
 - [x] **4.4** `flutter test` cả app → số lỗi đúng bằng mốc sau 8-A2 (**55**: 53 trong `docs/refactor/TEST-BASELINE.md` + 2 ⚠️ catalog), 0 lỗi `features/sales`; so từng tên.
 - [x] **4.5** `node .gitnexus/run.cjs analyze` rồi `node .gitnexus/run.cjs detect-changes --repo erp-sales-inventory --scope all`: chỉ tệp trong plan; ghi số tệp / symbol / luồng / rủi ro. Hoàn nguyên `AGENTS.md` / `CLAUDE.md` nếu `analyze` sửa.
 - [x] **4.6** PLAN.md dòng 8-A3: Làm ✅ + ngày. Chỉ `dart format` tệp của plan, không cả thư mục `test/`.

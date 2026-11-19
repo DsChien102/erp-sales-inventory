@@ -15,7 +15,7 @@ Page ─▶ Cubit ─▶ PartnerRepository ─▶ SupabaseRpc ─▶ supabase.sc
 
 Sau 4-A:
 
-- `apps/erp/lib` không còn `import 'package:vet45_partner_…'` (kể cả sales, pricing, router, DI).
+- `apps/erp/lib` không còn `import 'package:c45_partner_…'` (kể cả sales, pricing, router, DI).
 - Model, enum, rule chuyển vào `features/partner`.
 - Cubit chuyển từ `presentation/bloc/` sang `logic/`.
 - Test dùng `FakePartnerRepository` thay `FakePartnerModule`.
@@ -99,7 +99,7 @@ Chép class / enum từ module, **giữ nguyên tên class, tên field, construc
 | Tệp mới | Chứa (chép từ) |
 |---|---|
 | `partner_enums.dart` | `PartnerType`, `PartnerStatus`, `PartnerRoleType`, `OrganizationType` (`modules/partner/domain/lib/src/enums/`); `PartnerAvailableAction` (`…/get_partner_detail/partner_available_action.dart`); `PartnerDuplicateMatchField`, `PartnerDuplicateMatchLevel` (`…/check_duplicate/`) |
-| `person_title.dart` | `final class PersonTitle { PersonTitle(String raw) : value = raw { if (raw.trim().isEmpty) throw ArgumentError.value(raw, 'raw', 'Person title must not be blank'); } final String value; ==/hashCode theo value; toString() => value; }`. Bản cũ kế thừa `ValueObject`, so bằng theo `value`. Bản mới giữ đúng ngữ nghĩa đó, không phụ thuộc `vet45_shared_domain` |
+| `person_title.dart` | `final class PersonTitle { PersonTitle(String raw) : value = raw { if (raw.trim().isEmpty) throw ArgumentError.value(raw, 'raw', 'Person title must not be blank'); } final String value; ==/hashCode theo value; toString() => value; }`. Bản cũ kế thừa `ValueObject`, so bằng theo `value`. Bản mới giữ đúng ngữ nghĩa đó, không phụ thuộc `c45_shared_domain` |
 | `partner_inputs.dart` | `PersonProfileInput`, `OrganizationProfileInput`, `InvoiceProfileInput`, `DeliveryAddressInput` (`application/lib/src/partner/shared/`) + `Map<String, dynamic> toRpcJson()` theo mục 3.2 |
 | `partner_detail.dart` | `PartnerDetailDto`, `PersonProfileDto`, `OrganizationProfileDto`, `PartnerContactDto` + `factory PartnerDetailDto.fromJson(Map<String, dynamic>)`, thân chép từ `PartnerReadRpcMapper.mapDetailResult` và các hàm `_…` nó gọi |
 | `partner_list_item.dart` | `PartnerListItemDto`, `PartnerSearchResultDto` + `PartnerSearchResultDto.fromJson` (từ `mapSearchResult`) |
@@ -290,7 +290,7 @@ Trước khi sửa mỗi symbol: `gitnexus impact({target: "<symbol>", direction
 ### Bước 0: test giữ hành vi trên code cũ (chưa sửa gì trong `lib/`)
 
 1. `test/features/partner/data/partner_rpc_parity_test.dart`: nhóm `old` (H1, H2).
-   - Import mapper cũ: `package:vet45_partner_infrastructure/src/data_access/partner_rpc_mapper.dart`, `…/partner_read_rpc_mapper.dart`, kèm `// ignore: implementation_imports`.
+   - Import mapper cũ: `package:c45_partner_infrastructure/src/data_access/partner_rpc_mapper.dart`, `…/partner_read_rpc_mapper.dart`, kèm `// ignore: implementation_imports`.
    - Bộ input mẫu, mỗi RPC một ca:
      - cá nhân đủ trường kèm invoice + delivery;
      - tổ chức `businessHousehold` kèm người liên hệ chính;
@@ -337,7 +337,7 @@ Tạo `test/features/partner/support/fake_partner_repository.dart` (H20):
    - `partner_create_page.dart` (cả `PartnerCreatePage` và `.edit`), `partner_detail_page.dart`, `partner_contacts_page.dart`, `partner_contact_form_page.dart`, `partner_contact_select_page.dart`, `partner_transform_page.dart`;
    - widget `partner_contact_select_list.dart`, `partner_detail_add_contact_flow.dart`, `partner_detail_soft_delete_flow.dart`;
    - `partner_list_page.dart` dùng `GetIt.instance<PartnerRepository>()`; `PartnerPermissions` đổi import sang `logic/partner_permissions.dart`.
-4. Mọi widget đang import `vet45_partner_domain` / `vet45_partner_application` chỉ để lấy kiểu đổi import sang `data/models/…` / `logic/…`. Danh sách: `git grep -l "package:vet45_partner" -- apps/erp/lib/features/partner`; đo 2026-11-01 khoảng 45 tệp. Ghi số tệp thực tế vào Kết quả.
+4. Mọi widget đang import `c45_partner_domain` / `c45_partner_application` chỉ để lấy kiểu đổi import sang `data/models/…` / `logic/…`. Danh sách: `git grep -l "package:c45_partner" -- apps/erp/lib/features/partner`; đo 2026-11-01 khoảng 45 tệp. Ghi số tệp thực tế vào Kết quả.
 5. `partner_transform_blocked_state.dart`, `partner_operation_feedback_state.dart`: `PartnerBlockedCodes` → `PartnerErrorCodes`, không đổi gì khác.
 
 ### Bước 5: sales + pricing + router + DI
@@ -345,7 +345,7 @@ Tạo `test/features/partner/support/fake_partner_repository.dart` (H20):
 - `sales_partner_customer_lookup.dart` (H18), `pricing_pick_customer_page.dart` (H19).
 - `sales_external_lookups.dart`: sửa hai dòng chú thích: `[IPartnerModule]` → `PartnerRepository`; `[GetPartnerDetailQuery]` → `PartnerRepository.getDetail`.
 - `app_router.dart` (H22), `injection.dart` (H21).
-- **Không** bỏ `vet45_partner_*` khỏi `apps/erp/pubspec.yaml`: test parity nhóm `old` còn cần, 4-C bỏ.
+- **Không** bỏ `c45_partner_*` khỏi `apps/erp/pubspec.yaml`: test parity nhóm `old` còn cần, 4-C bỏ.
 
 ### Bước 6: test chuyển chỗ + example
 
@@ -360,9 +360,9 @@ Tạo `test/features/partner/support/fake_partner_repository.dart` (H20):
 
 ### 7.1 Tự động
 
-- [ ] `git grep -n "package:vet45_partner" -- apps/erp/lib` **rỗng**.
+- [ ] `git grep -n "package:c45_partner" -- apps/erp/lib` **rỗng**.
 - [ ] `git grep -nE "IPartnerModule|PartnerBlockedException|PartnerBlockedCodes|FakePartnerModule|executeQueryAsync|executeCommandAsync" -- apps/erp/lib/features/partner apps/erp/lib/features/sales/presentation/lookups apps/erp/lib/features/pricing/presentation/pages/pricing_pick_customer_page.dart apps/erp/lib/core` **rỗng**.
-- [ ] `git grep -n "FakePartnerModule\|vet45_partner_application/testing" -- apps/erp/test` **rỗng**. Chỉ `partner_rpc_parity_test.dart` và `partner_rules_test.dart` (nhóm `old`) còn import `vet45_partner_*`.
+- [ ] `git grep -n "FakePartnerModule\|c45_partner_application/testing" -- apps/erp/test` **rỗng**. Chỉ `partner_rpc_parity_test.dart` và `partner_rules_test.dart` (nhóm `old`) còn import `c45_partner_*`.
 - [ ] `ls apps/erp/lib/features/partner/presentation/bloc` → không tồn tại.
 - [ ] `cd apps/erp && dart analyze lib test`: không error / warning **mới** so với trước khi làm (ghi số trước / sau). Đường dẫn có dấu tiếng Việt làm `flutter analyze` (LSP) vỡ, nên dùng `dart analyze`.
 - [ ] `cd apps/erp && flutter test`: số pass ≥ trước + test mới; danh sách fail **trùng** `docs/refactor/TEST-BASELINE.md` + fail có sẵn ghi ở W-2 (61). Ghi tên fail mới nếu có.
@@ -406,7 +406,7 @@ Tạo `test/features/partner/support/fake_partner_repository.dart` (H20):
 
 ### Tóm tắt (2026-11-01)
 
-- Toàn bộ 7 bước đã làm; `apps/erp/lib` không còn `package:vet45_partner_*`.
+- Toàn bộ 7 bước đã làm; `apps/erp/lib` không còn `package:c45_partner_*`.
 - `dart analyze lib test`: **249 → 249** vấn đề (không error; diff theo nội dung không có mục mới).
 - `flutter test` (cả `apps/erp`): **1555 đạt / 61 lỗi → 1676 đạt / 61 lỗi**. Tập 61 tên lỗi **trùng khít** lúc trước khi làm (so bằng reporter json, 0 lỗi mới, 0 lỗi được sửa). Không có lỗi nào thuộc partner / sales / partner-lookup.
 - `detect_changes(scope: all)`: 112 tệp, 66 symbol, **0 execution flow bị ảnh hưởng**, risk low. Symbol đổi đúng dự kiến (`PartnerRepository`, các trang partner, `appRouter`). Index GitNexus cũ (commit `e73727491`), nên hàm top-level (`normalizeTaxCode`, `isValidTaxCode`) báo UNKNOWN.
@@ -454,14 +454,14 @@ Tạo `test/features/partner/support/fake_partner_repository.dart` (H20):
   - **H8:** `isNotFound` / `isNoPermission` theo `AppException.code`; `PartnerDetailError.message` vẫn là `e.toString()` như cũ.
   - `PartnerListCubit`: mất một dòng `if (isClosed) return;` sau `requireTenantId()` (không còn bước chờ đó); vẫn còn kiểm `isClosed` sau lời gọi search (test "ignores a search response…" xanh).
   - `PartnerTransformCubit`: bỏ cả hai nhánh dò chữ `DUPLICATE_WARNING` trong chuỗi; `DUPLICATE_WARNING` lấy từ `code`, JSON trùng từ `serverMessage`.
-- Số tệp `lib/features/partner` từng import `vet45_partner_*`: **59** tệp toàn `lib` (plan ước ~45 chỉ tính riêng partner).
+- Số tệp `lib/features/partner` từng import `c45_partner_*`: **59** tệp toàn `lib` (plan ước ~45 chỉ tính riêng partner).
 
 ### Bước 5 — sales, pricing, router, DI ✅
 
 - `sales_partner_customer_lookup.dart` (H18): `di<PartnerRepository>()`, `on AppException`; `pricing_pick_customer_page.dart` (H19); `sales_external_lookups.dart` đổi 2 dòng chú thích.
 - `app_router.dart`: **8** route partner đổi sang `repository: getIt<PartnerRepository>()` (route thứ 9, lịch sử thay đổi, đã dùng repository từ 1-B). Mọi nhánh `extra` / query giữ nguyên.
 - `core/di/injection.dart`: bỏ `PartnerStartup` + `IPartnerModule`; `PartnerRepository` thêm `actorId` (ném `AppErrorCode.authRequired` nếu chưa có `userId`). `PartnerStartup` không đăng ký bus / event handler nào nên bỏ không mất hành vi.
-- `pubspec.yaml` giữ nguyên `vet45_partner_*` (4-C bỏ).
+- `pubspec.yaml` giữ nguyên `c45_partner_*` (4-C bỏ).
 
 ### Bước 6 — test chuyển chỗ + example ✅
 
@@ -471,10 +471,10 @@ Tạo `test/features/partner/support/fake_partner_repository.dart` (H20):
 
 ### Bước 7 — kiểm ✅
 
-- `git grep "package:vet45_partner" apps/erp/lib` → rỗng.
+- `git grep "package:c45_partner" apps/erp/lib` → rỗng.
 - Grep dòng 2 mục 7.1 (`IPartnerModule|PartnerBlocked*|FakePartnerModule|executeQueryAsync|executeCommandAsync`) → **hết ở mọi tệp partner**. Còn khớp ở `sales_catalog_product_lookup.dart` và `sales_pricing_lookup.dart` (module Catalog / Pricing, thuộc Theme 2 / 5, không phải partner): plan quét cả thư mục `lookups` nên dính; không sửa.
-- `grep FakePartnerModule|vet45_partner_application/testing` trong `apps/erp/test` → rỗng.
-- **Lệch:** `test/core/di/injection_test.dart` vẫn `import vet45_partner_application` để khẳng định `IPartnerModule` **không đăng ký** (H21). Nghĩa là ba tệp test còn import `vet45_partner_*`: `partner_rpc_parity_test.dart`, `partner_rules_test.dart`, `injection_test.dart`. 4-C bỏ ba chỗ này cùng pubspec.
+- `grep FakePartnerModule|c45_partner_application/testing` trong `apps/erp/test` → rỗng.
+- **Lệch:** `test/core/di/injection_test.dart` vẫn `import c45_partner_application` để khẳng định `IPartnerModule` **không đăng ký** (H21). Nghĩa là ba tệp test còn import `c45_partner_*`: `partner_rpc_parity_test.dart`, `partner_rules_test.dart`, `injection_test.dart`. 4-C bỏ ba chỗ này cùng pubspec.
 - 7.2 (kiểm tay iPhone / Chrome trên Dev): **chưa làm**, cần người dùng hoặc review chạy.
 - Ghi cho Theme 5: `_digitsOnly(taxCode)` trong sales lookup vẫn bỏ dấu gạch MST chi nhánh (đúng plan mục 8, không sửa).
 
@@ -502,7 +502,7 @@ Cây làm việc lúc review đã gồm cả 4-B, 4-W, 4-C (chưa commit, tệp 
 - `flutter test` toàn bộ `apps/erp`: **1699 đạt / 61 lỗi**. Cả 61 tên khớp `TEST-BASELINE.md` + W-2. Không lỗi nào thuộc partner / sales.
 - `flutter test test/features/partner test/features/sales test/core/di test/core/validation` + `pricing_pick_customer_page_test`: 953 đạt, 0 lỗi.
 - `dart analyze` (`lib/features/partner`, `lib/core`, sales lookups, pricing, `test/features/partner`): 0 error / warning, chỉ `deprecated_member_use` có sẵn.
-- Grep 7.1: `package:vet45_partner` trong `apps/erp/lib` và `apps/erp/test` rỗng; `IPartnerModule|PartnerBlocked*|FakePartnerModule` chỉ còn trong 2 chú thích; `presentation/bloc` không còn.
+- Grep 7.1: `package:c45_partner` trong `apps/erp/lib` và `apps/erp/test` rỗng; `IPartnerModule|PartnerBlocked*|FakePartnerModule` chỉ còn trong 2 chú thích; `presentation/bloc` không còn.
 
 **Đối chiếu tay với module cũ** (`git show HEAD:modules/partner/...`), vì 4-C đã xoá nhóm `old`:
 - H1: tham số 14 RPC trong `PartnerRepository` khớp `PartnerRpcMapper` / `PartnerReadRpcMapper` (tên khoá, `p_role` both / any, `toRpcJson` lồng + phẳng, `organization_type` snake_case).
@@ -516,7 +516,7 @@ Cây làm việc lúc review đã gồm cả 4-B, 4-W, 4-C (chưa commit, tệp 
 
 #### P3 (không chặn)
 
-1. **[Không sửa — chỉ ghi nhận] Mục 9 đã cũ sau 4-C.** Dòng "Lệch: `injection_test.dart` vẫn import `vet45_partner_application`" không còn đúng: grep `apps/erp/test` giờ rỗng. Nhóm `old` của `partner_rpc_parity_test` / `partner_rules_test` đã bị 4-C xoá, nên ô 7.1 "Mọi test bước 0 còn xanh (kể cả nhóm `old`)" không kiểm lại được nữa. Map viết tay còn giữ, và review đã đối chiếu tay (ở trên). Không cần sửa code.
+1. **[Không sửa — chỉ ghi nhận] Mục 9 đã cũ sau 4-C.** Dòng "Lệch: `injection_test.dart` vẫn import `c45_partner_application`" không còn đúng: grep `apps/erp/test` giờ rỗng. Nhóm `old` của `partner_rpc_parity_test` / `partner_rules_test` đã bị 4-C xoá, nên ô 7.1 "Mọi test bước 0 còn xanh (kể cả nhóm `old`)" không kiểm lại được nữa. Map viết tay còn giữ, và review đã đối chiếu tay (ở trên). Không cần sửa code.
 2. **[Không sửa — chỉ ghi nhận]** Thay đổi nhỏ chưa ghi ở bảng mục 5: `SalesPartnerCustomerLookup._create` trước lấy tenant / actor **ngoài** `try` (thiếu phiên thì lỗi thoát ra ngoài), nay nằm trong repository nên rơi vào câu "Không thể kết nối để tạo khách hàng. Vui lòng thử lại.". Tốt hơn trước, giữ nguyên.
 3. **[Tuỳ chọn sửa]** `logic/partner_contacts_cubit.dart`: `import 'package:erp/core/errors/app_exception.dart'` đặt sau các import tương đối. Thứ tự import, tuỳ ý sửa.
 

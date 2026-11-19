@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Business overlay: dải góc chéo kiểu Flutter [Banner] (như EnvBanner) + icon
 /// `%` — báo hiệu dòng/SP đang dùng giá riêng / special price.

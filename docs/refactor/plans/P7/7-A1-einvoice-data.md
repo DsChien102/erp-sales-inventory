@@ -4,10 +4,10 @@
 
 > Theme 8 (mã cũ P7) · Bước (a) chuyển kiến trúc, phần dữ liệu · Gồm việc 7.2, 7.3 (phần dữ liệu), 7.5 (phần app) — PLAN.md mục Theme 8
 > Trạng thái: Plan ✅ (người dùng duyệt 2026-11-08) | Làm ✅ 2026-11-08 | Review ✅ R2 ĐẠT 2026-11-08
-> Trước: 7-E3 (Làm ✅ + Review R2 ✅). Sau: **7-A2** (đổi 4 trang thiết lập + 21 tệp HĐĐT của `features/sales` sang 2 repository, `Timer` thay `vet45_async_query`, router + DI + fake). 7-A1 **không** đổi tệp nào đang có, chỉ thêm tệp mới.
+> Trước: 7-E3 (Làm ✅ + Review R2 ✅). Sau: **7-A2** (đổi 4 trang thiết lập + 21 tệp HĐĐT của `features/sales` sang 2 repository, `Timer` thay `c45_async_query`, router + DI + fake). 7-A1 **không** đổi tệp nào đang có, chỉ thêm tệp mới.
 > Tài liệu: [TH-08](../../../02-yeu-cau/TH-08-hoa-don-dien-tu.md) mục 6.1 (đường đi), 6.2 (RPC), 6.4 (mã lỗi, câu), 9.1 (kiến trúc), 9.3 (test Dart); PLAN.md "Cách chuyển MỘT feature", "Plan chuyển kiến trúc: giữ nghiệp vụ…". Mẫu: `plans/P6/6-A1-pricing-data.md`. Việc các plan trước giao lại: map `CONFIG_NOT_READY` (7-B1 Q5), link ký Storage cho tài liệu (7-E2b "Không làm"), app gọi `functions.invoke` (7-E1, 7-E3).
 
-**Goal:** Có đủ lớp dữ liệu einvoice trong `apps/erp/lib/features/einvoice/{data,logic}` để 7-A2 đổi toàn bộ UI một lượt, không còn cần `vet45_einvoice_*`.
+**Goal:** Có đủ lớp dữ liệu einvoice trong `apps/erp/lib/features/einvoice/{data,logic}` để 7-A2 đổi toàn bộ UI một lượt, không còn cần `c45_einvoice_*`.
 
 **Architecture:** Hai repository gọi thẳng RPC schema `einvoice` qua `SupabaseRpc`, giữ đúng tham số và cách đọc kết quả của gateway / mapper cũ. Lỗi đi qua bộ phân loại giữ thứ tự `contains` của `mapEinvoiceRpcError`, rồi tới hàm câu lỗi theo TH-08 6.4. Sau mỗi RPC ghi yêu cầu, repository "đánh thức" Edge Function `einvoice-processor` mà không chờ.
 
@@ -260,7 +260,7 @@ Nếu `issuanceReadinessInputFromRow` gọi `buyerCompletionContextFromRow` hay 
 **Global Constraints** (mọi task):
 - Chỉ tạo tệp trong `apps/erp/lib/features/einvoice/data/`, `apps/erp/lib/features/einvoice/logic/` và `apps/erp/test/features/einvoice/{data,logic}/`. Không sửa `modules/`, `core/`, DI, router, cubit. Riêng Task 7 sửa tài liệu.
 - Model / hàm đọc JSON / evaluator: chép nguyên văn, chỉ đổi import. Phải sửa thân mới chạy được ⇒ ghi Kết quả, không đổi hành vi.
-- Tệp `lib` mới không import `vet45_*`. Test parity được import module, có `// ignore_for_file: implementation_imports`.
+- Tệp `lib` mới không import `c45_*`. Test parity được import module, có `// ignore_for_file: implementation_imports`.
 - Không có `tenantId` / `actorId` trong chữ ký hàm repository.
 - Câu tiếng Việt chép nguyên văn TH-08 6.4.
 
@@ -418,7 +418,7 @@ Nếu `issuanceReadinessInputFromRow` gọi `buyerCompletionContextFromRow` hay 
 
 - [x] **7.1** `cd apps/erp && dart analyze lib/features/einvoice test/features/einvoice` → 0 lỗi, 0 cảnh báo mới.
 - [x] **7.2** `dart run tool/check_feature_imports.dart` → không dòng mới của `einvoice`.
-- [x] **7.3** `git grep -n "vet45_" -- apps/erp/lib/features/einvoice/data apps/erp/lib/features/einvoice/logic` → rỗng.
+- [x] **7.3** `git grep -n "c45_" -- apps/erp/lib/features/einvoice/data apps/erp/lib/features/einvoice/logic` → rỗng.
 - [x] **7.4** `flutter test test/features/einvoice/` → PASS (ghi số ca); `flutter test` cả app → số lỗi đúng bằng `docs/refactor/TEST-BASELINE.md` (so từng tên).
 - [x] **7.5** Sửa TH-08 / PLAN.md như mục Files.
 - [x] **7.6** `node .gitnexus/run.cjs analyze` rồi `detect_changes({scope: "all"})`: chỉ tệp mới + 2 tệp tài liệu; ghi số tệp / symbol / luồng / rủi ro vào Kết quả.
@@ -458,7 +458,7 @@ Tự động: Task 7. Không có kiểm tay, vì 7-A1 không đổi màn nào. K
     - `apps/erp/lib/features/einvoice/logic/issuance_readiness_evaluator.dart` (chứa `IssuanceReadinessInput`, `IssuanceReadinessLineItemInput`).
   - Đã thêm nhóm `new (json)` vào `einvoice_rpc_parity_test.dart`.
   - Lệch so với plan:
-    - `RpcException` → `FormatException` ở 4 tệp mapper (`configuration_json`, `issuance_json`, `electronic_invoice_json`, `delivery_json`) để loại bỏ hoàn toàn phụ thuộc vào `vet45_shared` (kết quả vẫn bọc thành `SYSTEM_ERROR` qua `einvoiceException`).
+    - `RpcException` → `FormatException` ở 4 tệp mapper (`configuration_json`, `issuance_json`, `electronic_invoice_json`, `delivery_json`) để loại bỏ hoàn toàn phụ thuộc vào `c45_shared` (kết quả vẫn bọc thành `SYSTEM_ERROR` qua `einvoiceException`).
     - Nhánh `PostgrestException e => e` trong `einvoiceException` để giữ nguyên nếu đầu vào đã là `PostgrestException`.
   - Kết quả test: 49 passed, 10 skipped.
 
@@ -503,7 +503,7 @@ Tự động: Task 7. Không có kiểm tay, vì 7-A1 không đổi màn nào. K
 - **Task 7 — ✅ Hoàn thành**
   - **7.1** `cd apps/erp && dart analyze lib/features/einvoice test/features/einvoice` → 0 errors, 0 warnings.
   - **7.2** `dart run tool/check_feature_imports.dart` → Hợp lệ (chỉ có 4 dòng R1 nội bộ einvoice `data/` import `logic/rules` và `logic/evaluator` theo đúng thiết kế, 0 dòng R2/R3 vi phạm).
-  - **7.3** `git grep -n "vet45_" -- apps/erp/lib/features/einvoice/data apps/erp/lib/features/einvoice/logic` → Rỗng (exit code 1).
+  - **7.3** `git grep -n "c45_" -- apps/erp/lib/features/einvoice/data apps/erp/lib/features/einvoice/logic` → Rỗng (exit code 1).
   - **7.4** `flutter test test/features/einvoice/` → PASS (168 passed, 10 skipped).
     - `flutter test` toàn bộ `apps/erp` → 2.902 passed, 10 skipped, 55 failed. Đối chiếu `docs/refactor/TEST-BASELINE.md`: đúng chính xác 55 lỗi có sẵn (53 lỗi baseline + 2 lỗi UI PCC ngoài mốc), không phát sinh bất kỳ lỗi mới nào.
   - **7.5** Đã cập nhật tài liệu:
@@ -547,7 +547,7 @@ Tự động: Task 7. Không có kiểm tay, vì 7-A1 không đổi màn nào. K
 | Câu lỗi (D9, Q2) | ⚠️ | 18 câu khớp nguyên văn TH-08 6.4; nhưng còn so chuỗi thô ngoài bảng — R1-4 |
 | Import | ⚠️ | R1-5 |
 | `check_feature_imports` | ✅ | 4 dòng R1 `data/` → `logic/` (rule, evaluator) cùng mẫu `sales`, `pricing`, `catalog`; không R2 / R3 |
-| `git grep vet45_` trong `lib/features/einvoice/{data,logic}` | ✅ | rỗng |
+| `git grep c45_` trong `lib/features/einvoice/{data,logic}` | ✅ | rỗng |
 | TH-08 6.1 / 9.1, PLAN.md 7-A1 / 7.2 | ✅ | |
 | Số liệu Kết quả | ⚠️ | R1-6 |
 
@@ -588,7 +588,7 @@ R2 = lượt review sau khi phiên code làm xong R1-1 … R1-6 và ghi vào m�
 |---|---|---|
 | `dart analyze lib/features/einvoice test/features/einvoice` | ✅ | chạy lại: No issues found |
 | `flutter test test/features/einvoice/` | ✅ 173 + 10 bỏ qua | chạy lại; +5 ca so với R1, khớp "R1 — sửa" |
-| `git grep vet45_` trong `lib/features/einvoice/{data,logic}` | ✅ | rỗng |
+| `git grep c45_` trong `lib/features/einvoice/{data,logic}` | ✅ | rỗng |
 | R1-1 `requestPreview` | ✅ | `einvoice_repository.dart:148` `if (!evaluation.canPreview)` khớp handler; fixture `sampleReadinessOrgMissingAddressJson` (MST có, địa chỉ `null`); `preview_buyer_blocks_rpc` → `BUYER_ADDRESS_REQUIRED`; `preview_tax_code_only_still_requests_preview` 2 lần gọi + kick |
 | R1-2 `reconnect` | ✅ | hết `checkConnect`; `reconnect_has_no_rule` gửi `p_username == ''` |
 | R1-3 mapper | ✅ | `delivery_json.dart` `_requiredDateTime` / `_optionalDateTime` có lại `.toUtc()` + `try/catch`; `issuance_json.dart:131` `switch (raw)`; 2 ca parity `delivery_timestamp_is_utc`, `attempt_status_lowercase_rejected` |

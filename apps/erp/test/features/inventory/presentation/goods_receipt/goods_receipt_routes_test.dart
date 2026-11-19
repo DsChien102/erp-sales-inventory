@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_models.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_repository.dart';

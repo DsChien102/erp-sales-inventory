@@ -2,7 +2,7 @@ import 'package:erp/features/inventory/data/costing/costing_models.dart';
 import 'package:erp/features/inventory/logic/costing/costing_rules.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_layout.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Sheet "Chi tiết tính" (chỉ đọc, SCR-074).
 Future<void> showCostRunDetailSheet(

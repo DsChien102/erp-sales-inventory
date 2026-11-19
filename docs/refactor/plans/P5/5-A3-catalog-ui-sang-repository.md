@@ -14,7 +14,7 @@ Page ─▶ Cubit (features/catalog/logic) ─▶ ProductRepository / Measuremen
 
 Sau 5-A3:
 
-- `apps/erp/lib` chỉ còn **một** chỗ gọi module catalog: màn điều chỉnh tồn SP-10 (`product_stock_adjustment_page.dart`) và đăng ký `ICatalogModule` trong DI cho nó (5-C xoá sau Theme 7). Mọi tệp khác hết `import 'package:vet45_catalog_…'`, kể cả sales, pricing, router.
+- `apps/erp/lib` chỉ còn **một** chỗ gọi module catalog: màn điều chỉnh tồn SP-10 (`product_stock_adjustment_page.dart`) và đăng ký `ICatalogModule` trong DI cho nó (5-C xoá sau Theme 7). Mọi tệp khác hết `import 'package:c45_catalog_…'`, kể cả sales, pricing, router.
 - 15 cubit + state chuyển `presentation/bloc/` → `logic/`.
 - Chuỗi lỗi kỹ thuật (`e.toString()`, `error.message` thô, câu tiếng Anh của module) đổi sang `catalogErrorMessage` (KI-07 phần catalog). Mã đã có câu riêng giữ nguyên câu.
 - Bỏ sheet "Xác nhận cảnh báo giá" (KI-16 phần sheet, Q6 của 5-A2).
@@ -35,7 +35,7 @@ Giao diện iPhone không đổi, **trừ** câu lỗi (mục 5) và bỏ sheet 
 
 ## 3. Hiện trạng (đo 2026-11-01)
 
-- **83** tệp trong `apps/erp/lib` import `vet45_catalog_*` / `vet45_inventory_*` (`git grep -l "package:vet45_\(catalog\|inventory\)" -- apps/erp/lib`, đo lại 2026-11-03). Gồm: 75 tệp `features/catalog/`, `core/di/injection.dart`, `core/router/app_router.dart`, 2 tệp `pricing/`, 2 tệp `sales/`, 2 tệp `dashboard/` (inventory, việc của 5-A4). 5-A3 sửa **79** tệp: 74 tệp catalog (trừ `product_stock_adjustment_page.dart`) + router + 2 pricing + 2 sales; `injection.dart` sửa nhưng vẫn import module (Q13).
+- **83** tệp trong `apps/erp/lib` import `c45_catalog_*` / `c45_inventory_*` (`git grep -l "package:c45_\(catalog\|inventory\)" -- apps/erp/lib`, đo lại 2026-11-03). Gồm: 75 tệp `features/catalog/`, `core/di/injection.dart`, `core/router/app_router.dart`, 2 tệp `pricing/`, 2 tệp `sales/`, 2 tệp `dashboard/` (inventory, việc của 5-A4). 5-A3 sửa **79** tệp: 74 tệp catalog (trừ `product_stock_adjustment_page.dart`) + router + 2 pricing + 2 sales; `injection.dart` sửa nhưng vẫn import module (Q13).
 - 28 tệp `presentation/bloc/` (15 cubit, 13 state; `product_images_maintenance_cubit.dart`, `product_profile_maintenance_cubit.dart` để state cùng tệp cubit: giữ nguyên cấu trúc).
 - Trang lấy module bằng `GetIt.instance<ICatalogModule>()` + `GetIt.instance<IExecutionContext>()` ngay trong trang (không qua router): `edit_product_unit_price_band_page.dart:40`, `product_catalog_tab_page.dart:41,60`, `product_change_history_page.dart:27`, `product_control_center_page.dart:31`, `product_custom_field_group_edit_page.dart:37`, `product_guided_create_page.dart:18`, `product_images_maintenance_page.dart:25`, `product_manual_base_price_page.dart:36`, `product_measurement_units_page.dart:32`, `product_note_edit_page.dart:65`, `product_price_bands_page.dart:36`, `product_profile_maintenance_page.dart:25`, `settings/custom_field_groups_page.dart:24`, `settings/edit_store_price_rule_page.dart:130`, `settings/store_price_rule_change_history_page.dart:19`, `settings/store_price_rule_settings_page.dart:17`, `widgets/product_control_center_body.dart:146,157`.
 - `core/router/app_router.dart` chỉ import kiểu (`ProductChangeHistoryPage` bị `hide`, `StorePriceRuleDto` cho `extra`). `core/di/injection.dart:155–162`: `CatalogStartup.initialize` + `ICatalogModule`.
@@ -78,9 +78,9 @@ Giao diện iPhone không đổi, **trừ** câu lỗi (mục 5) và bỏ sheet 
 - Mọi chỗ ở mục 3 (đoạn 3) tạo cubit bằng `GetIt.instance<XRepository>()` thay module + context. Hai trang tự gọi module:
   - `product_catalog_tab_page.dart` `_loadFilterOptions`: → `GetIt.instance<ProductRepository>().listCustomFieldFilterOptions()`; `catch (_)` bỏ qua: **giữ**.
   - `product_note_edit_page.dart` `_submit`: → `GetIt.instance<ProductRepository>().updateProfile(productId:, expectedVersion: null, productName: product.name, commercialName: product.tradeName, sku: product.sku, barcode: product.barcode, note: …)` (cùng giá trị như command cũ). Bắt lỗi theo H8.
-- Mọi tệp chỉ import module để lấy kiểu → đổi sang `features/catalog/data/models/…`, `logic/catalog_permissions.dart`, `logic/store_price_suggestion.dart`. Danh sách: `git grep -l "package:vet45_catalog" -- apps/erp/lib ':!apps/erp/lib/features/catalog/presentation/pages/product_stock_adjustment_page.dart'`. Ghi số tệp thực tế vào Kết quả.
+- Mọi tệp chỉ import module để lấy kiểu → đổi sang `features/catalog/data/models/…`, `logic/catalog_permissions.dart`, `logic/store_price_suggestion.dart`. Danh sách: `git grep -l "package:c45_catalog" -- apps/erp/lib ':!apps/erp/lib/features/catalog/presentation/pages/product_stock_adjustment_page.dart'`. Ghi số tệp thực tế vào Kết quả.
 - `features/catalog/presentation.dart`: sửa đường export của 28 tệp cubit / state sang `logic/`.
-- `presentation/models/product_business_status.dart` đang `export 'package:vet45_catalog_domain/domain.dart' show ProductBusinessStatus;` và gắn extension `label` lên kiểu module: đổi `import` / `export` sang `data/models/catalog_enums.dart`, giữ extension. (Ở 5-A1, `ProductBusinessStatus` là **class** có hằng `active` / `inactive` / `softDeleted`, getter `isActive` …, `toWire`: chép đúng dạng class, không đổi thành `enum`.)
+- `presentation/models/product_business_status.dart` đang `export 'package:c45_catalog_domain/domain.dart' show ProductBusinessStatus;` và gắn extension `label` lên kiểu module: đổi `import` / `export` sang `data/models/catalog_enums.dart`, giữ extension. (Ở 5-A1, `ProductBusinessStatus` là **class** có hằng `active` / `inactive` / `softDeleted`, getter `isActive` …, `toWire`: chép đúng dạng class, không đổi thành `enum`.)
 - **Bỏ (Q6):** `widgets/price_band_warning_ack_sheet.dart` (xoá tệp; không có export, chỉ bỏ import ở trang), nhánh `if (state.error == 'WARNING_REQUIRE_ACK')` ở `edit_product_unit_price_band_page.dart:74` (≈ khối gọi `showPriceBandWarningAckSheet` và `submit(confirmAcknowledgeWarnings: true)`), tham số `confirmAcknowledgeWarnings` ở lời gọi `submit` của trang.
 - `ProductChangeHistoryPage` trùng tên giữa model và trang: ở tệp dùng cả hai, import model với `as models` hoặc `hide` (giống `app_router.dart:6` hiện `hide` bản module).
 
@@ -120,7 +120,7 @@ Giao diện iPhone không đổi, **trừ** câu lỗi (mục 5) và bỏ sheet 
 
 ### 4.5 Router
 
-`app_router.dart`: chỉ đổi import (`StorePriceRuleDto` từ `data/models/store_price_rule.dart`; bỏ `import 'package:vet45_catalog_application/…' hide ProductChangeHistoryPage`). Không đổi route (5-W đổi).
+`app_router.dart`: chỉ đổi import (`StorePriceRuleDto` từ `data/models/store_price_rule.dart`; bỏ `import 'package:c45_catalog_application/…' hide ProductChangeHistoryPage`). Không đổi route (5-W đổi).
 
 ### 4.6 Fake (`apps/erp/test/features/catalog/support/`)
 
@@ -206,12 +206,12 @@ Trước mỗi symbol sửa: `gitnexus impact` (upstream), ghi vào Kết quả.
 
 ### 7.1 Tự động
 
-- [ ] `git grep -l "package:vet45_catalog" -- apps/erp/lib` → **đúng 2 tệp**: `product_stock_adjustment_page.dart`, `core/di/injection.dart`.
+- [ ] `git grep -l "package:c45_catalog" -- apps/erp/lib` → **đúng 2 tệp**: `product_stock_adjustment_page.dart`, `core/di/injection.dart`.
 - [ ] `git grep -nE "ICatalogModule|IExecutionContext|executeQueryAsync|executeCommandAsync" -- apps/erp/lib/features/catalog apps/erp/lib/features/sales/presentation/lookups/sales_catalog_product_lookup.dart apps/erp/lib/features/pricing/presentation/pages/pricing_pick_product_page.dart apps/erp/lib/features/pricing/presentation/pages/pricing_pick_unit_page.dart` → chỉ còn ở `product_stock_adjustment_page.dart`.
 - [ ] `git grep -n "WARNING_REQUIRE_ACK\|PriceBandWarning\|showPriceBandWarningAckSheet\|confirmAcknowledgeWarnings: true" -- apps/erp/lib/features/catalog/logic/edit_product_unit_price_band_cubit.dart apps/erp/lib/features/catalog/presentation/pages/edit_product_unit_price_band_page.dart apps/erp/lib/features/catalog/presentation/widgets` → rỗng. (`confirmAcknowledgeWarnings` của **ngừng kinh doanh / xoá sản phẩm** vẫn còn, đúng.)
 - [ ] `git grep -n "\.toString()" -- apps/erp/lib/features/catalog/logic` → không còn `e.toString()` / `error.toString()` làm câu hiển thị (ghi các chỗ `toString` còn lại và lý do).
 - [ ] `ls apps/erp/lib/features/catalog/presentation/bloc` → không tồn tại.
-- [ ] `git grep -l "FakeCatalogModule\|vet45_catalog_application/testing" -- apps/erp/test` → rỗng.
+- [ ] `git grep -l "FakeCatalogModule\|c45_catalog_application/testing" -- apps/erp/test` → rỗng.
 - [ ] `cd apps/erp && dart analyze lib test`: không error / warning mới (ghi số trước / sau).
 - [ ] `cd apps/erp && flutter test`: pass ≥ lần chạy mốc + test mới. **Mốc:** chạy `flutter test` một lần ở đầu bước 0 (trên code sau 5-A2), ghi số pass / fail và tên fail vào Kết quả. Fail sau 5-A3 phải nằm trong mốc đó (hoặc `TEST-BASELINE.md`). Ghi tên fail mới nếu có.
 - [ ] Mọi test bước 0 xanh (trừ ca Q6 đã xoá có ghi).
@@ -239,7 +239,7 @@ Trước mỗi symbol sửa: `gitnexus impact` (upstream), ghi vào Kết quả.
 - `test/features/catalog/presentation/pages/`: `edit_product_unit_price_band_e2e_test`, `product_catalog_tab_page_test`, `product_change_history_e2e_test`, `product_change_history_page_test`, `product_control_center_page_test`, `product_custom_field_config_e2e_test`, `product_custom_field_values_e2e_test`, `product_custom_fields_search_e2e_test`, `product_discovery_e2e_test`, `product_guided_create_e2e_test`, `product_guided_create_page_test` (có `_RecordingCatalogModule`), `product_lifecycle_e2e_test`, `product_manual_base_price_e2e_test`, `product_measurement_units_e2e_test`, `product_price_bands_e2e_test`, `product_profile_maintenance_e2e_test`, `product_readiness_e2e_test`, `product_soft_delete_e2e_test`, `product_stock_e2e_test` (H23), `product_store_price_rule_e2e_test`, `store_price_rule_change_history_e2e_test`, `store_price_rule_change_history_wgt_test`
 - `test/features/sales/`: `presentation/sales_catalog_product_lookup_test` (có `_RecordingCatalogModule`), `presentation/sales_checkout_page_test`, `presentation/sales_draft_backend_test`, `sales_flow_pages_test`
 
-`presentation_module/edit_product_unit_price_band_cubit_test.dart` **không** dùng fake module (dựng cubit trực tiếp): chỉ sửa import khi `git mv` cubit, chuyển sang `test/features/catalog/logic/` cùng các cubit test khác. Không có tệp test nào ngoài catalog / sales / DI import `vet45_catalog` (đo 2026-11-03; bản cũ của plan ghi auth / iam / tenant_context / dashboard: sai, bỏ).
+`presentation_module/edit_product_unit_price_band_cubit_test.dart` **không** dùng fake module (dựng cubit trực tiếp): chỉ sửa import khi `git mv` cubit, chuyển sang `test/features/catalog/logic/` cùng các cubit test khác. Không có tệp test nào ngoài catalog / sales / DI import `c45_catalog` (đo 2026-11-03; bản cũ của plan ghi auth / iam / tenant_context / dashboard: sai, bỏ).
 
 ## 8. Rủi ro / lưu ý
 
@@ -247,7 +247,7 @@ Trước mỗi symbol sửa: `gitnexus impact` (upstream), ghi vào Kết quả.
 - `FakeCatalogModule` có kịch bản ném exception module kèm dữ liệu (`DuplicateSkuException(existingProductId:)`, `PriceBandOverwriteRequiredException(existingListAfterVat:)`). Fake mới đặt các giá trị đó vào `details` với **đúng khoá** cubit đọc ở H9 / H15.
 - Kiểu enum / DTO cùng tên ở module và app: tệp test còn import module (chỉ nhóm `old` của 5-A1 / 5-A2 và `FakeStockCatalogModule`) phải import có `as` để không lẫn.
 - `ProductReadinessChecklistPage` nhận `ProductReadinessViewDto` qua `extra` từ PCC: kiểu đổi sang app cùng lúc ở cả hai đầu (cùng PR), không lẫn.
-- `product_stock_adjustment_page.dart` import **cả** `vet45_catalog_application` lẫn `package:erp/features/catalog/presentation.dart`. Sau 5-A3, `presentation.dart` export cubit / state dùng kiểu app trùng tên kiểu module (`ProductBusinessStatus`, `ProductUnitDto`…). Đo 2026-11-03: trang chỉ dùng `SetBasicStockQuantityBaseCommand`, `AdjustBasicStockCommand`, `ICatalogModule`, `IExecutionContext`, `ProductListItemModel`, nên không trùng tên. Nếu `dart analyze` báo `ambiguous_import` ở tệp này thì thêm `show` / `hide` vào import (ngoại lệ duy nhất của Q13, ghi vào Kết quả).
+- `product_stock_adjustment_page.dart` import **cả** `c45_catalog_application` lẫn `package:erp/features/catalog/presentation.dart`. Sau 5-A3, `presentation.dart` export cubit / state dùng kiểu app trùng tên kiểu module (`ProductBusinessStatus`, `ProductUnitDto`…). Đo 2026-11-03: trang chỉ dùng `SetBasicStockQuantityBaseCommand`, `AdjustBasicStockCommand`, `ICatalogModule`, `IExecutionContext`, `ProductListItemModel`, nên không trùng tên. Nếu `dart analyze` báo `ambiguous_import` ở tệp này thì thêm `show` / `hide` vào import (ngoại lệ duy nhất của Q13, ghi vào Kết quả).
 - Màn SP-10 bắt lỗi bằng kiểu module. Đường thật vẫn qua module (đúng). Trong test, `FakeStockCatalogModule` phải ném **kiểu module**, không ném `AppException`.
 
 ## 9. Kết quả (phiên làm code ghi)
@@ -306,7 +306,7 @@ Trước mỗi symbol sửa: `gitnexus impact` (upstream), ghi vào Kết quả.
   - **Chuyển đổi Test suite (Bước 5):**
     - Đổi 30+ tệp test sang `registerFakeCatalog` và fake repository mới.
     - Chuyển `edit_product_unit_price_band_cubit_test.dart` và `product_control_center_cubit_test.dart` sang `test/features/catalog/logic/`.
-    - Dọn sạch 100% việc import `FakeCatalogModule` và `vet45_catalog_application/testing`.
+    - Dọn sạch 100% việc import `FakeCatalogModule` và `c45_catalog_application/testing`.
 
 ### Bảng chuỗi lỗi fake đã đổi (R1-6; phiên review R2 đối chiếu lại với code)
 
@@ -377,12 +377,12 @@ Bảng trước ghi tay, sai nơi gọi, nên đã thay bằng số liệu chạ
 - `flutter test` (sau mọi sửa R2): **2157 đạt / 61 lỗi / 1 bỏ qua**. Cả 61 lỗi đều có trong `TEST-BASELINE.md`; +1 đạt là ca R2-4.
 
 - **Kết quả kiểm tra tự động (Bước 6 / Mục 7.1):**
-  - `git grep -l "package:vet45_catalog" -- apps/erp/lib`: Đúng 2 tệp (`core/di/injection.dart`, `features/catalog/presentation/pages/product_stock_adjustment_page.dart`).
+  - `git grep -l "package:c45_catalog" -- apps/erp/lib`: Đúng 2 tệp (`core/di/injection.dart`, `features/catalog/presentation/pages/product_stock_adjustment_page.dart`).
   - `git grep -nE "ICatalogModule|IExecutionContext|executeQueryAsync|executeCommandAsync" ...`: Chỉ còn ở `product_stock_adjustment_page.dart`.
   - `git grep -n "WARNING_REQUIRE_ACK|..."`: Rỗng (đã xoá sạch theo Q6).
   - `git grep -n "\.toString()" -- apps/erp/lib/features/catalog/logic`: Không còn `e.toString()` làm câu hiển thị.
   - `ls apps/erp/lib/features/catalog/presentation/bloc`: Thư mục không còn tồn tại.
-  - `git grep -l "FakeCatalogModule|vet45_catalog_application/testing" -- apps/erp/test`: Rỗng.
+  - `git grep -l "FakeCatalogModule|c45_catalog_application/testing" -- apps/erp/test`: Rỗng.
   - `cd apps/erp && dart analyze lib test`: **0 errors** (số info trước / sau: xem mục "Sửa R2").
   - `cd apps/erp && flutter test`: sau R1 2156 đạt; sau R2 **2157 đạt / 61 lỗi / 1 bỏ qua** (61 lỗi đều thuộc `docs/refactor/TEST-BASELINE.md`).
 
@@ -409,7 +409,7 @@ Phần nối UI đi đúng hướng: lệnh kiểm 7.1 sạch, 13/15 cubit đổ
 
 | Mục | Kết quả | Ghi chú |
 |---|---|---|
-| 7.1 grep `vet45_catalog` trong `lib` | ✅ | đúng 2 tệp |
+| 7.1 grep `c45_catalog` trong `lib` | ✅ | đúng 2 tệp |
 | 7.1 grep `ICatalogModule` / `executeQueryAsync`… | ✅ | chỉ còn `product_stock_adjustment_page.dart` |
 | 7.1 grep sheet cảnh báo giá (Q6) | ✅ | rỗng; `confirmAcknowledgeWarnings` chỉ còn ở ngừng KD / xoá (đúng) |
 | 7.1 `toString` trong `logic/` | ✅ | 4 chỗ còn lại không phải câu hiển thị (`field_id`, `message` của `details`, `stockQuantity`, `StringBuffer`). Kết quả chưa ghi |

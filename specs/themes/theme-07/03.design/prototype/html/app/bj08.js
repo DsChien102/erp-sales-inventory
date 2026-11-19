@@ -384,7 +384,7 @@ function bj08CountRow(s, l, showError) {
   const value = s.counts[l.key] ?? "", error = showError && !bj08Valid(value) ? "Nhập số đếm được" : "";
   const text = bj08Attr(ioNormalizeSearch(`${l.name} ${l.code} ${l.lot}`));
   const tag = l.unexpected ? ds24Badge("Hàng thực tế", "Info") : "";
-  const state = l.unexpected ? `<div class="bj08-line__state"><span class="vet45-text-style-8">Tình trạng</span>${bj08UnexpectedState(l)}</div>` : "";
+  const state = l.unexpected ? `<div class="bj08-line__state"><span class="c45-text-style-8">Tình trạng</span>${bj08UnexpectedState(l)}</div>` : "";
   const mobile = `<div class="bj08-line" data-bj08-line="${bj08Attr(l.key)}" data-bj08-line-text="${text}">${bj08LineCopy(l.name, bj08LineSub(l), tag)}<div class="bj08-line__field">${bj08EditCell(s, l, value, "data-bj08-count", error)}</div>${state}</div>`;
   return { key: l.key, text, mobile, product: `<strong>${esc(l.name)}</strong><small>${esc(l.code)}</small>${tag}`, lot: esc(bj08LotText(l)), stateHtml: l.unexpected ? bj08UnexpectedState(l) : esc(bj08StateLabel(l)), count: bj08EditCell(s, l, value, "data-bj08-count", error) };
 }
@@ -538,7 +538,7 @@ function bj08AddSheet(s) {
 }
 function bj08ScanSheet(s) {
   const sample = s.lines.find((l) => !l.unexpected && !bj08Filled(s.counts[l.key])) || s.lines[0];
-  const body = `<div class="bj01-scan-frame" aria-hidden="true">${icon("scan")}</div><p class="ds24-context vet45-text-style-7">Đưa mã vạch vào khung</p>${sample ? `<button class="ds24-button ds24-button--secondary" type="button" data-bj08-scan-sample="${bj08Attr(sample.code)}" data-ds-component="VButton">Quét thử: ${esc(sample.name)}</button>` : ""}`;
+  const body = `<div class="bj01-scan-frame" aria-hidden="true">${icon("scan")}</div><p class="ds24-context c45-text-style-7">Đưa mã vạch vào khung</p>${sample ? `<button class="ds24-button ds24-button--secondary" type="button" data-bj08-scan-sample="${bj08Attr(sample.code)}" data-ds-component="VButton">Quét thử: ${esc(sample.name)}</button>` : ""}`;
   return ds24Sheet({ title: "Quét mã vạch", attrs: 'data-bj08-action="dialog-close"', body });
 }
 function bj08MatchedSheet(s) {
@@ -801,7 +801,7 @@ onPrevious["UIF-08"] = () => { if (activeScreenId === "SCR-042") return; bj08Dia
 
 /* ---------- Lối vào và QA ---------- */
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   bj08RoundHistory: () => (bj08Session()?.rounds || []).map((r) => ({ ...r, values: { ...r.values } })),
   bj08Result: () => { const r = bj08Session()?.result; return r ? { ...r } : null; },
   // Quét thử: tới dòng chưa đếm của sản phẩm có mã đó, đặt focus vào ô số.

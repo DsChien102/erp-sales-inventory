@@ -220,8 +220,8 @@ const VAL03_SAMPLE_RESULT = {
   const isQuick = (r) => r.entryType === "QUICK";
   const entryLabel = (r) => (isQuick(r) ? "Nhập nhanh" : "Theo chứng từ");
   const isOwner = () => currentActor() !== "staff";
-  const taxPolicy = () => window.__VET45_TAX_TREATMENT_POLICY__ || { recoverableRate: 0, version: "UNSET" };
-  const fxFor = (currency) => window.__VET45_FX_SOURCE_FIXTURE__?.[currency] || null;
+  const taxPolicy = () => window.__C45_TAX_TREATMENT_POLICY__ || { recoverableRate: 0, version: "UNSET" };
+  const fxFor = (currency) => window.__C45_FX_SOURCE_FIXTURE__?.[currency] || null;
   const shell = (opts) => appShell({ ...opts, extraClass: "k7-wide" });
   const muted = '<span class="k7-muted">—</span>';
   // Danh sách "nhãn — giá trị" cho khối Tóm tắt và sheet xác nhận (giá trị căn phải, tự xuống dòng khi hẹp).
@@ -638,7 +638,7 @@ let val03ReturnTo=null; // { flow, screen } khi mở từ BJ-02: nút quay lại
     activeFlowId="UIF-03"; activeScreenId="SCR-015"; stateByScreen["SCR-015"]="READY";
     syncReviewUrl(); render();
   };
-  Object.assign(window.__VET45_QA__,{val03OpenForReceipt:window.val03OpenForReceipt});
+  Object.assign(window.__C45_QA__,{val03OpenForReceipt:window.val03OpenForReceipt});
   // Vào từ BJ-02 thì quay lại về kết quả nhận hàng; vào từ nơi khác về màn trước trong luồng (danh sách chờ xác lập).
   onPrevious["UIF-03"]=()=>{
     if(val03ReturnTo&&activeScreenId==="SCR-015"){ const to=val03ReturnTo; val03ReturnTo=null; activeFlowId=to.flow; activeScreenId=to.screen; syncReviewUrl(); return render(); }

@@ -26,8 +26,8 @@ Không áp dụng để thay thế phân rã nghiệp vụ của các Business J
 
 ### 1. Lối vào Kho
 
-Kho là một phân hệ trong ứng dụng bán hàng và quản lý tổng thể VET45:
-- **Trên iPhone:** Kho nằm trong tab "Thêm" của thanh điều hướng đáy 5 tab (`VET45BottomNavigation`: Trang chủ, Đơn hàng, Sản phẩm, Đối tác, Thêm). Bấm dòng "Kho" trong màn Thêm để mở Home Kho (`SCR-090`).
+Kho là một phân hệ trong ứng dụng bán hàng và quản lý tổng thể Mosaic Retail:
+- **Trên iPhone:** Kho nằm trong tab "Thêm" của thanh điều hướng đáy 5 tab (`C45BottomNavigation`: Trang chủ, Đơn hàng, Sản phẩm, Đối tác, Thêm). Bấm dòng "Kho" trong màn Thêm để mở Home Kho (`SCR-090`).
 - **Trên Web:** Kho là mục con của "Thêm" trên thanh bên trái (Web sidebar). Bấm "Kho" để mở Home Kho (`SCR-090`).
 
 ### 2. Vị trí trên Home Kho (SCR-090)

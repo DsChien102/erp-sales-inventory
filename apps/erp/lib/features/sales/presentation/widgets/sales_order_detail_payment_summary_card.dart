@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/sales/logic/sales_order_detail_state.dart';
 import '../models/sales_order_settlement/sales_order_payment_vm.dart';
 import 'package:erp/core/formatting/money_formatter.dart';

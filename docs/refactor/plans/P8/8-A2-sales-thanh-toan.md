@@ -17,7 +17,7 @@
                              ├─▶ SalesOrderRepository.get                                   get_sales_order
   SalesOrderDetailSectionsLoader (phần thanh toán) ─▶ SalesPaymentRepository               summary / settlement / transactions
   ```
-- Repository **nhận và trả kiểu của `vet45_sales_application`** (như 8-A1 Q1): `CheckoutLineInput`, `PaymentIntentInput`, `SalesCommercialSnapshotInput`, `CheckoutPrecheckDto`, `CheckoutResultDto`, `SalesOrderResultDto`, `SalesOrderPaymentSummaryDto`, `SalesOrderSettlementDto`, `SalesPaymentTransactionsDto`. Chỉ chép vào app: dựng tham số + đọc JSON (từ `CheckoutPrecheckRpcMapper`, `SalesOrderReadRpcMapper`, `SalesOrderInquiryRpcMapper`), rule đầu vào (validator của finalize), phân loại lỗi.
+- Repository **nhận và trả kiểu của `c45_sales_application`** (như 8-A1 Q1): `CheckoutLineInput`, `PaymentIntentInput`, `SalesCommercialSnapshotInput`, `CheckoutPrecheckDto`, `CheckoutResultDto`, `SalesOrderResultDto`, `SalesOrderPaymentSummaryDto`, `SalesOrderSettlementDto`, `SalesPaymentTransactionsDto`. Chỉ chép vào app: dựng tham số + đọc JSON (từ `CheckoutPrecheckRpcMapper`, `SalesOrderReadRpcMapper`, `SalesOrderInquiryRpcMapper`), rule đầu vào (validator của finalize), phân loại lỗi.
 - Lỗi đi ra là `AppException`. Câu lỗi thô (`error.message ?? …`) ở màn thanh toán đổi theo TH-05 6.4 (Q4).
 - Test parity `old` (module) / `new` (repository) dùng **chung giá trị mong đợi**. 8-C xoá nhóm `old` cùng module.
 - `SalesCheckoutCubit` / `SalesTransactionResultCubit` (+ state, issue) và `SalesCheckoutOrchestrator` chuyển vào `features/sales/logic/` (bước 6 của công thức).
@@ -303,8 +303,8 @@ Chỗ dùng (giữ câu có sẵn ở ngoặc):
 **Files:** Modify: `docs/refactor/PLAN.md` (dòng 8-A2: cột Làm ✅ + ngày), `docs/02-yeu-cau/TH-05-ban-hang-va-don-hang.md` (Q6 đã chốt đổi; FR-03 đã đúng sẵn nên không sửa. Chỉ ghi vào 7.3 nếu bảng có mục phù hợp)
 
 - [ ] **5.1** `cd apps/erp && dart analyze lib/features/sales lib/core/di test/features/sales` → 0 lỗi, 0 cảnh báo mới.
-- [ ] **5.2** `git grep -nE "FinalizeSalesOrderCommand|PrecheckSalesOrderCheckoutQuery|GetCheckoutResultQuery|GetSalesOrderQuery|GetSalesOrderPaymentSummaryQuery|GetSalesOrderSettlementQuery|GetSalesOrderPaymentTransactionsQuery" -- apps/erp/lib` → rỗng (hoặc chỉ chú thích); `git grep -n "vet45_sales" -- apps/erp/lib/features/sales/data apps/erp/lib/features/sales/logic` → chỉ `application.dart` (kiểu DTO, Q1 của 8-A1).
-- [ ] **5.3** `dart run tool/check_feature_imports.dart` → liệt kê dòng mới; chấp nhận cùng loại với 8-A1 (logic → presentation, data → `vet45_sales_*`, để 8-C), ghi từng dòng vào Kết quả.
+- [ ] **5.2** `git grep -nE "FinalizeSalesOrderCommand|PrecheckSalesOrderCheckoutQuery|GetCheckoutResultQuery|GetSalesOrderQuery|GetSalesOrderPaymentSummaryQuery|GetSalesOrderSettlementQuery|GetSalesOrderPaymentTransactionsQuery" -- apps/erp/lib` → rỗng (hoặc chỉ chú thích); `git grep -n "c45_sales" -- apps/erp/lib/features/sales/data apps/erp/lib/features/sales/logic` → chỉ `application.dart` (kiểu DTO, Q1 của 8-A1).
+- [ ] **5.3** `dart run tool/check_feature_imports.dart` → liệt kê dòng mới; chấp nhận cùng loại với 8-A1 (logic → presentation, data → `c45_sales_*`, để 8-C), ghi từng dòng vào Kết quả.
 - [ ] **5.4** `flutter test` cả app → số lỗi đúng bằng `docs/refactor/TEST-BASELINE.md` (so từng tên; 8-A1 đã ghi 2 ca catalog lỗi có sẵn ngoài baseline).
 - [ ] **5.5** `node .gitnexus/run.cjs analyze` rồi `detect_changes({scope: "all"})`: chỉ tệp trong danh sách; ghi số tệp / symbol / luồng / rủi ro. Hoàn nguyên `AGENTS.md` / `CLAUDE.md` nếu `analyze` sửa.
 - [ ] **5.6** PLAN.md dòng 8-A2: cột Làm ✅ + ngày. Không `dart format` cả thư mục `test/` (8-A1 R-format): chỉ định dạng tệp của plan.

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Returns `true` if confirmed; `null` if cancelled.
 Future<bool?> showPartnerReactivateConfirmationSheet(BuildContext context) {

@@ -492,7 +492,7 @@ bj09Requests.push(...bj09InitialRequests());
 if (activeFlowId === "UIF-09" && entryMode === "approver" && !requestedScreen) { bj09SelectedRequestId = "ST-260915-01"; k5SelectedLotId = "oil-demo"; bj09SetState("SCR-038", "APPROVAL_REVIEW"); }
 onEntry["UIF-09:approver"] = () => { bj09SelectedRequestId = "ST-260915-01"; k5SelectedLotId = "oil-demo"; bj09SetState("SCR-038", "APPROVAL_REVIEW"); };
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   getIC09() { return { draft: { ...bj09Draft }, basis: bj09Basis, current: bj09Lot() }; },
   ic09BuildBasis() { bj09Basis = bj09BuildBasis(bj09Lot(), bj09Draft); return bj09Basis; },
   buildBasis() { bj09Basis = bj09BuildBasis(bj09Lot(), bj09Draft); return bj09Basis; },

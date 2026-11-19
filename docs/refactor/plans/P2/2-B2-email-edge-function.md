@@ -133,12 +133,12 @@ iam.complete_email_job(p_job_id uuid, p_ok boolean, p_provider_message_id text, 
 
 `schema('iam')` cần `iam` nằm trong `api.schemas` (đã có). Không cần `verify_jwt` vì gọi bằng secret riêng: `config.toml` → `[functions.send-email] verify_jwt = false`.
 
-**Template** (`templates.ts`, tiếng Việt, HTML đơn giản + bản text; tên app tạm "VET45" — đổi ở P10.5; lấy tên từ `Deno.env.get('APP_NAME') ?? 'VET45'`):
+**Template** (`templates.ts`, tiếng Việt, HTML đơn giản + bản text; tên app tạm "Mosaic Retail" — đổi ở P10.5; lấy tên từ `Deno.env.get('APP_NAME') ?? 'Mosaic Retail'`):
 
 | Template | Tiêu đề | Nội dung chính (TH-01 6.3) |
 |---|---|---|
-| `tenant_invitation` | "Lời mời tham gia `<tên tổ chức>` trên VET45" | `<người mời>` mời bạn tham gia `<tên tổ chức>` với vai trò `<vai trò>`; **mã lời mời** (8 ký tự, chữ to, giãn cách); hạn 7 ngày (`<ngày giờ hết hạn>`); hướng dẫn: mở app ▸ "Kích hoạt tài khoản" ▸ nhập mã lời mời |
-| `password_reset_code` | "Mã đặt lại mật khẩu VET45" | Mã 6 số; hết hạn sau 10 phút, chỉ dùng 1 lần; "Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này." |
+| `tenant_invitation` | "Lời mời tham gia `<tên tổ chức>` trên Mosaic Retail" | `<người mời>` mời bạn tham gia `<tên tổ chức>` với vai trò `<vai trò>`; **mã lời mời** (8 ký tự, chữ to, giãn cách); hạn 7 ngày (`<ngày giờ hết hạn>`); hướng dẫn: mở app ▸ "Kích hoạt tài khoản" ▸ nhập mã lời mời |
+| `password_reset_code` | "Mã đặt lại mật khẩu Mosaic Retail" | Mã 6 số; hết hạn sau 10 phút, chỉ dùng 1 lần; "Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này." |
 
 Escape HTML mọi giá trị từ DB (tên tổ chức, tên người mời). Dùng "mã lời mời" (thống nhất theo KI-13).
 
@@ -156,9 +156,9 @@ Escape HTML mọi giá trị từ DB (tên tổ chức, tên người mời). D�
 ### Bước 7 — Cấu hình môi trường (Dev; Prod ở P10)
 
 Ghi vào `docs/refactor/RUNBOOK-email.md`, làm theo thứ tự:
-1. Resend: tạo API key (Sending access). Chưa có tên miền → `EMAIL_FROM = "VET45 <onboarding@resend.dev>"` (chỉ gửi tới email tài khoản Resend). Có tên miền → `"VET45 <no-reply@mail.<tên-miền>>"`.
+1. Resend: tạo API key (Sending access). Chưa có tên miền → `EMAIL_FROM = "Mosaic Retail <onboarding@resend.dev>"` (chỉ gửi tới email tài khoản Resend). Có tên miền → `"Mosaic Retail <no-reply@mail.<tên-miền>>"`.
 2. Sinh `EMAIL_WEBHOOK_SECRET` (chuỗi ngẫu nhiên ≥ 32 ký tự, vd `openssl rand -hex 32`).
-3. **Bạn tự chạy** (không dán key vào chat): `supabase secrets set RESEND_API_KEY=… EMAIL_FROM="…" EMAIL_WEBHOOK_SECRET=… APP_NAME=VET45`.
+3. **Bạn tự chạy** (không dán key vào chat): `supabase secrets set RESEND_API_KEY=… EMAIL_FROM="…" EMAIL_WEBHOOK_SECRET=… APP_NAME=Mosaic Retail`.
 4. Vault (SQL Editor Dev): `select vault.create_secret('https://<ref>.supabase.co', 'project_url'); select vault.create_secret('<EMAIL_WEBHOOK_SECRET>', 'email_webhook_secret');`
 5. `supabase db push` (2 migration) → `supabase functions deploy send-email` — **báo Claude chạy** (cần xác nhận). Nếu 2 migration của 2-B1 vẫn chưa push, chúng đi cùng lần push này (xem việc còn lại ở review 2-B1).
 

@@ -1,4 +1,4 @@
-# AI-4 — Hỏi VET45 tự truy vấn: công cụ `truy_van` qua view chỉ đọc
+# AI-4 — Hỏi Mosaic Retail tự truy vấn: công cụ `truy_van` qua view chỉ đọc
 
 > Tích hợp AI · plan **AI-4** của [PLAN.md](../../PLAN.md) mục "Tích hợp AI"
 > Trạng thái: Plan ✅ (người dùng duyệt 2026-11-17) | Làm 🟡 code xong 2026-11-17, chờ chạy local / Dev | Review ⬜
@@ -6,7 +6,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development hoặc superpowers:executing-plans. Dự án này **người dùng tự code, Claude review ở phiên khác**; các bước dùng checkbox để người dùng tick.
 
-**Goal:** Hỏi VET45 trả lời được các câu về số liệu cửa hàng nằm ngoài danh sách công cụ viết sẵn (liệt kê đơn theo ngày, khách chưa mua, sản phẩm chưa bán được, so sánh, kết hợp…), mà không lộ dữ liệu cửa hàng khác, dữ liệu cá nhân hay giá vốn với nhân viên.
+**Goal:** Hỏi Mosaic Retail trả lời được các câu về số liệu cửa hàng nằm ngoài danh sách công cụ viết sẵn (liệt kê đơn theo ngày, khách chưa mua, sản phẩm chưa bán được, so sánh, kết hợp…), mà không lộ dữ liệu cửa hàng khác, dữ liệu cá nhân hay giá vốn với nhân viên.
 
 **Architecture:** Schema `ai_read` gồm 6 view đã lọc theo cửa hàng của người hỏi (cửa hàng lấy từ biến phiên do `ai.run_query` đặt; **mọi thành viên cửa hàng có quyền hỏi như nhau**, không phân chủ / nhân viên). Role `ai_reader` chỉ có `SELECT` trên các view đó. `ai.run_query(p_tenant_id, p_sql)` (security definer) kiểm tra câu SQL (một câu `SELECT`, chỉ gọi hàm trong danh sách cho phép), đặt biến phiên, `set local role ai_reader`, giới hạn 5 giây / 50 dòng, trả `json`. Edge Function thêm công cụ `truy_van`: mô tả view lấy từ `ai.get_catalog()` (chú thích trong SQL là nguồn duy nhất), lỗi SQL trả lại Gemini để tự sửa, bảng kết quả dựng từ cột trả về.
 

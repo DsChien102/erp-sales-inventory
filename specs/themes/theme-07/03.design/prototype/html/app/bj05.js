@@ -194,7 +194,7 @@ function bj05Shell(opts){return appShell({...opts,extraClass:"k7-wide"});}
 function bj05Denied(title,back=true){return bj05Shell({title,body:k1Denied({...IO05_DENIED,exitAttr:k1ExitAttr("SCR-025")}),centered:true,back});}
 function bj05Loading(title,subtitle,blocks,back=true){return bj05Shell({title,subtitle,body:k1Loading({blocks}),back});}
 function bj05TextArea(label,value,attrs="",helper="") {
-  return `<label class="bj05-textarea" data-ds-component="VTextarea" data-figma-node="522:7212" data-ds-prop-state="Filled"><span class="vet45-text-style-8">${esc(label)}</span><textarea class="bj05-textarea__control vet45-text-style-6" rows="3" ${attrs}>${esc(value)}</textarea>${helper?`<small class="vet45-text-style-11">${esc(helper)}</small>`:""}</label>`;
+  return `<label class="bj05-textarea" data-ds-component="VTextarea" data-figma-node="522:7212" data-ds-prop-state="Filled"><span class="c45-text-style-8">${esc(label)}</span><textarea class="bj05-textarea__control c45-text-style-6" rows="3" ${attrs}>${esc(value)}</textarea>${helper?`<small class="c45-text-style-11">${esc(helper)}</small>`:""}</label>`;
 }
 function bj05Progress(done,total){
   if(!total)return "";
@@ -518,6 +518,6 @@ document.addEventListener("click", (event) => {
   if (k === "confirm-handover") { if (io05HandoverInvalid() || io05HandoverTotal() <= 0) return; const result = io05ApplyHandover(); if (!result) return; io05SetState("SCR-029", result.full ? "COMPLETED" : "PARTIAL_COMPLETED"); return navigate("SCR-029"); }
 });
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   bumpIO05Source(){const o=io05CurrentOrder();o.sourceVersion=Number(o.sourceVersion||0)+1;return o.sourceVersion;}
 });

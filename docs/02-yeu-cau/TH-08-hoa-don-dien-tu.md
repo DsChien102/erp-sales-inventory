@@ -6,7 +6,7 @@
 > **Nguồn đối chiếu:**
 > - DB: schema `einvoice`, `supabase/migrations/20261031001…023` (đã promote 2026-11-02, `8b08bb01c`), cùng `sales.get_einvoice_source_snapshot`, `sales.can_access_sales_order` (draft 018), `partner.get_einvoice_buyer_profile` (023), `partner.get_einvoice_recipient_snapshot` (016).
 > - App: `apps/erp/lib/features/einvoice/{data,logic,presentation}` (UI thiết lập + khu HĐĐT trên đơn, 7-A2a / 7-A2b).
-> - Bộ xử lý: `apps/messaging_worker` (Dart) **đã xoá 2026-10-11**; lệnh MISA do Edge Function `einvoice-processor` + `pg_cron` chạy (7-E1 … 7-E3); `packages/vet45_misa` đã xoá ở 7-C. **Sau refactor thay bằng Edge Function `einvoice-processor` + `pg_cron`** (quyết định 2026-10-07, xem [9.1](#91-kiến-trúc) và KI-20). Trong tài liệu, "**bộ xử lý**" là nơi chạy mọi lệnh gọi MISA, không phụ thuộc nó là bộ xử lý hay Edge Function.
+> - Bộ xử lý: `apps/messaging_worker` (Dart) **đã xoá 2026-10-11**; lệnh MISA do Edge Function `einvoice-processor` + `pg_cron` chạy (7-E1 … 7-E3); `packages/c45_misa` đã xoá ở 7-C. **Sau refactor thay bằng Edge Function `einvoice-processor` + `pg_cron`** (quyết định 2026-10-07, xem [9.1](#91-kiến-trúc) và KI-20). Trong tài liệu, "**bộ xử lý**" là nơi chạy mọi lệnh gọi MISA, không phụ thuộc nó là bộ xử lý hay Edge Function.
 >
 > **Cách đọc:** mục 1–3 là mô hình chung và dữ liệu; mục 4 chia theo epic → user story (bối cảnh, FR, BR, AC, EC, kịch bản Gherkin); mục 5 đặc tả từng màn hình (trạng thái, thành phần, phác thảo); mục 6 RPC và thông điệp lỗi; mục 7 phân quyền và vấn đề đã biết; mục 8 ngoài phạm vi; mục 9 kế hoạch refactor và kiểm thử.
 
@@ -50,7 +50,7 @@ TH-08 cho cửa hàng phát hành **hóa đơn điện tử (HĐĐT)** qua **MIS
 - **Không có danh sách HĐĐT riêng.** Mọi thao tác hóa đơn bắt đầu từ dòng "Hóa đơn điện tử" trên **Kết quả bán hàng** hoặc **Chi tiết đơn hàng**. Danh sách đơn (TH-05) chỉ có bộ lọc "HĐĐT: Đã / Chưa phát hành".
 - **Một đơn tối đa một hóa đơn gốc.** Mỗi lần bấm phát hành là một *lượt phát hành*; lượt lỗi chắc chắn mới cho phát hành lại.
 - **Kết quả chưa rõ không phải lỗi.** Mất kết nối sau khi đã gửi MISA thì đơn ở "Đang xử lý" và hệ thống tự đối soát; không cho phát hành chồng.
-- **Tài liệu do MISA cung cấp.** Bản xem trước, bản chính thức, PDF, XML đều lấy từ MISA; VET45 không tự dựng hóa đơn.
+- **Tài liệu do MISA cung cấp.** Bản xem trước, bản chính thức, PDF, XML đều lấy từ MISA; Mosaic Retail không tự dựng hóa đơn.
 - **Ba chiều trạng thái tách nhau:** phát hành, tài liệu, gửi email. Lỗi tải PDF hay gửi email không làm mất "Đã phát hành".
 
 ### 1.4 Trong phạm vi
@@ -112,7 +112,7 @@ flowchart LR
 | Dữ liệu bổ sung người mua | Trường trống của ảnh chụp đơn được chép từ hồ sơ đối tác **lúc bắt đầu phát hành** | `buyer_invoice_completions` |
 | Phát hành (neo) | Một dòng / đơn, loại `ORIGINAL` | `invoice_issuances` |
 | Lượt phát hành | Một lần gửi MISA phát hành; giữ ảnh chụp dữ liệu bất biến | `issuance_attempts` |
-| Hóa đơn điện tử | Hóa đơn MISA đã xác nhận và VET45 đã ghi nhận; bất biến | `electronic_invoices` |
+| Hóa đơn điện tử | Hóa đơn MISA đã xác nhận và Mosaic Retail đã ghi nhận; bất biến | `electronic_invoices` |
 | Bản xem chính thức | Link MISA ngắn hạn để xem hóa đơn đã phát hành; một dòng / hóa đơn | `official_invoice_views` |
 | Tài liệu | PDF hoặc XML từ MISA; một dòng / (hóa đơn, loại) | `invoice_documents` |
 | Lần gửi | Một ý định gửi email (đầu tiên hoặc gửi lại); email chụp bất biến | `invoice_deliveries` |
@@ -157,7 +157,7 @@ stateDiagram-v2
 | Trạng thái lượt mới nhất | Hiển thị trên đơn |
 |---|---|
 | Chưa có lượt nào, chưa có hóa đơn | **Chưa phát hành** |
-| `PREPARING` / `SUBMITTED` / `WAITING_RESULT` / `RECONCILING` (kể cả hồ sơ đối soát `UNRESOLVED`), hoặc MISA đã xác nhận nhưng VET45 chưa ghi xong hóa đơn | **Đang xử lý** |
+| `PREPARING` / `SUBMITTED` / `WAITING_RESULT` / `RECONCILING` (kể cả hồ sơ đối soát `UNRESOLVED`), hoặc MISA đã xác nhận nhưng Mosaic Retail chưa ghi xong hóa đơn | **Đang xử lý** |
 | Đã có hóa đơn điện tử | **Đã phát hành** |
 | `FAILED`, không còn lượt đang chạy | **Phát hành lỗi** |
 
@@ -253,7 +253,7 @@ Lúc bắt đầu một lượt phát hành do người dùng (không phải lư
 | BR-26 | MISA từ chối chắc chắn → `FAILED`, lưu thông điệp MISA (vd "Mã số thuế người mua không hợp lệ"). Mã `InvoiceNumberNotCotinuous` → thử lại ≤ 3 lần cùng `RefID`; `InvoiceDuplicated` / `DuplicateInvoiceRefID` → đối soát trước | bộ xử lý, draft 020, 022 |
 | BR-27 | Timeout / 5xx / mất phản hồi sau khi gửi → `RECONCILING` + hồ sơ đối soát; **không** coi là lỗi, không cho phát hành lại | `record_issuance_undetermined` |
 | BR-28 | Đối soát tự động hỏi MISA theo lịch **30 giây, 2 phút, 10 phút, 30 phút, 2 giờ** (5 lần). Hết 5 lần vẫn chưa rõ → hồ sơ `UNRESOLVED`, đơn vẫn "Đang xử lý" và vẫn khóa phát hành. Kết quả MISA đến muộn vẫn được áp dụng | bộ xử lý, `invoice_reconciliation_cases` |
-| BR-29 | MISA xác nhận nhưng ghi hóa đơn ở VET45 lỗi → chỉ ghi lại phần nội bộ, **không** gọi MISA phát hành lại | `recover_internal_finalization` |
+| BR-29 | MISA xác nhận nhưng ghi hóa đơn ở Mosaic Retail lỗi → chỉ ghi lại phần nội bộ, **không** gọi MISA phát hành lại | `recover_internal_finalization` |
 | BR-30 | Phát hành lại chỉ khi lượt mới nhất `FAILED` và chưa có hóa đơn; tạo **lượt mới** với ảnh chụp mới, giữ nguyên lượt cũ | `retry_issuance` |
 | BR-31 | Lỗi phát hành không đổi trạng thái hay số liệu đơn hàng | — |
 
@@ -376,7 +376,7 @@ flowchart TD
 
 **Bối cảnh.** Để phát hành, tổ chức cần tài khoản MISA meInvoice. MISA đăng nhập bằng MST + tài khoản + mật khẩu; MST đã có trong hồ sơ pháp lý (TH-01) nên người dùng chỉ nhập tài khoản và mật khẩu. Đăng nhập thật do bộ xử lý làm, nên màn hiện "Chờ kết nối" rồi tự cập nhật.
 
-**Câu chuyện.** Là người quản lý cửa hàng, tôi muốn kết nối tài khoản MISA của cửa hàng để phát hành hóa đơn điện tử từ VET45.
+**Câu chuyện.** Là người quản lý cửa hàng, tôi muốn kết nối tài khoản MISA của cửa hàng để phát hành hóa đơn điện tử từ Mosaic Retail.
 
 **FR**
 - FR-01: Màn "Kết nối MISA" hiện nhà cung cấp "MISA meInvoice" và "Mã số thuế đơn vị phát hành" (chỉ đọc, từ hồ sơ pháp lý), chú thích "Mã số thuế được lấy từ Hồ sơ pháp lý của Tổ chức."
@@ -434,7 +434,7 @@ Feature: Kết nối MISA meInvoice
 
 #### US-01.2 — Chọn mẫu hóa đơn mặc định
 
-**Bối cảnh.** MISA cấp cho đơn vị một hoặc nhiều mẫu (mẫu số, ký hiệu). VET45 dùng **một** mẫu mặc định cho mọi lượt phát hành. Hình thức ký suy từ mẫu, người dùng không chọn.
+**Bối cảnh.** MISA cấp cho đơn vị một hoặc nhiều mẫu (mẫu số, ký hiệu). Mosaic Retail dùng **một** mẫu mặc định cho mọi lượt phát hành. Hình thức ký suy từ mẫu, người dùng không chọn.
 
 **Câu chuyện.** Là người quản lý, tôi muốn chọn mẫu hóa đơn mặc định để hóa đơn phát hành đúng mẫu đã đăng ký với cơ quan thuế.
 
@@ -618,7 +618,7 @@ Feature: Kiểm tra và xem trước hóa đơn
 
 #### US-02.2 — Phát hành thủ công
 
-**Bối cảnh.** Phát hành là thao tác pháp lý, không hoàn tác được trong VET45, nên cần một bước xác nhận. MISA có thể mất vài giây đến vài phút; app không chờ mà chuyển đơn sang "Đang xử lý" và hỏi lại trạng thái.
+**Bối cảnh.** Phát hành là thao tác pháp lý, không hoàn tác được trong Mosaic Retail, nên cần một bước xác nhận. MISA có thể mất vài giây đến vài phút; app không chờ mà chuyển đơn sang "Đang xử lý" và hỏi lại trạng thái.
 
 **Câu chuyện.** Là nhân viên bán hàng, tôi muốn phát hành hóa đơn cho đơn vừa bán sau khi xác nhận mẫu và số tiền.
 
@@ -628,7 +628,7 @@ Feature: Kiểm tra và xem trước hóa đơn
 - FR-03: Tổng tiền trên sheet là **số khách còn phải trả sau đổi/trả** (không phải tổng ban đầu khi đã có đổi/trả).
 - FR-04: Xác nhận → app tạo khóa chống trùng (UUID v4) và gọi `issue_invoice(..., source_version = phiên bản đơn, idempotency_key)`. Thành công → dòng HĐĐT chuyển ngay "Đang xử lý", không bấm được; khối HĐĐT hỏi lại mỗi 5 giây.
 - FR-05: Bộ xử lý chạy lượt: kiểm hợp đồng dữ liệu (`validateCanonical`), lấy khóa ký hiệu, chuyển `SUBMITTED`, gọi MISA, ghi kết quả.
-- FR-06: MISA xác nhận và VET45 ghi xong hóa đơn → dòng chuyển "Đã phát hành". MISA từ chối → "Phát hành lỗi".
+- FR-06: MISA xác nhận và Mosaic Retail ghi xong hóa đơn → dòng chuyển "Đã phát hành". MISA từ chối → "Phát hành lỗi".
 - FR-07: Lỗi khi gọi `issue_invoice` → toast "Hóa đơn điện tử — <thông điệp>" (bảng 6.4), dòng giữ trạng thái cũ.
 
 **BR áp dụng:** BR-12 … BR-18, BR-21 … BR-27, BR-29, BR-31.
@@ -721,7 +721,7 @@ Feature: Phát hành tự động
 
 #### US-02.4 — Xác lập kết quả và đối soát
 
-**Bối cảnh.** MISA có thể đã phát hành nhưng VET45 không nhận được phản hồi. Phát hành lại sẽ tạo hóa đơn trùng, nên hệ thống phải tự hỏi MISA cho đến khi chắc chắn. Việc này chạy nền, người dùng chỉ thấy "Đang xử lý".
+**Bối cảnh.** MISA có thể đã phát hành nhưng Mosaic Retail không nhận được phản hồi. Phát hành lại sẽ tạo hóa đơn trùng, nên hệ thống phải tự hỏi MISA cho đến khi chắc chắn. Việc này chạy nền, người dùng chỉ thấy "Đang xử lý".
 
 **Câu chuyện.** Là chủ cửa hàng, tôi muốn hệ thống tự xác định kết quả khi mạng lỗi, để không bao giờ có hai hóa đơn cho một đơn.
 
@@ -803,7 +803,7 @@ Feature: Phát hành lại
 
 #### US-03.1 — Xem hóa đơn chính thức
 
-**Bối cảnh.** Người bán cần mở đúng bản hóa đơn MISA đã phát hành để kiểm tra hoặc cho khách xem. VET45 không tự dựng hóa đơn; link MISA ngắn hạn nên phải xin mới mỗi lần.
+**Bối cảnh.** Người bán cần mở đúng bản hóa đơn MISA đã phát hành để kiểm tra hoặc cho khách xem. Mosaic Retail không tự dựng hóa đơn; link MISA ngắn hạn nên phải xin mới mỗi lần.
 
 **Câu chuyện.** Là nhân viên, tôi muốn mở hóa đơn chính thức từ đơn hàng để kiểm tra nội dung đã phát hành.
 
@@ -872,7 +872,7 @@ Feature: Lưu tài liệu hóa đơn
 
 #### US-03.3 — Ghi nhận trạng thái tại MISA (chỉ bộ xử lý)
 
-**Bối cảnh.** Bộ phận hỗ trợ có thể cần biết trạng thái hiện tại của hóa đơn bên MISA (ví dụ đã bị xử lý ngoài VET45).
+**Bối cảnh.** Bộ phận hỗ trợ có thể cần biết trạng thái hiện tại của hóa đơn bên MISA (ví dụ đã bị xử lý ngoài Mosaic Retail).
 
 **FR**
 - FR-01: `request_provider_observation_refresh` (chỉ `service_role`, có `trigger_id`) → bộ xử lý hỏi MISA `getStatus` → `record_provider_observation` ghi thêm một dòng `invoice_provider_observations`.
@@ -1027,7 +1027,7 @@ Feature: Lịch sử gửi
 | HD-12 | Gửi lại hóa đơn điện tử | Bottom sheet | sau HD-09 | US-04.2 |
 | HD-13 | Lịch sử gửi hóa đơn | Trang (đẩy từ HD-12) | — | US-04.3 |
 
-Không có: danh sách HĐĐT, màn chi tiết hóa đơn do VET45 dựng, màn đối soát, màn quan sát MISA.
+Không có: danh sách HĐĐT, màn chi tiết hóa đơn do Mosaic Retail dựng, màn đối soát, màn quan sát MISA.
 
 ```mermaid
 flowchart LR
@@ -1359,7 +1359,7 @@ Xong → chia sẻ hệ điều hành; lỗi → toast "Hóa đơn điện tử 
 ```text
 Page/Widget ─▶ Cubit ─▶ IModuleMediator / IEInvoiceModule ─▶ Command/Query handler
             ─▶ Gateway (infrastructure) ─▶ supabase.schema('einvoice').rpc(...)
-RPC ghi dữ liệu + internal_commands ─▶ messaging_worker (Dart, chạy liên tục) claim ─▶ handler ─▶ packages/vet45_misa ─▶ MISA
+RPC ghi dữ liệu + internal_commands ─▶ messaging_worker (Dart, chạy liên tục) claim ─▶ handler ─▶ packages/c45_misa ─▶ MISA
 Bộ xử lý ghi kết quả bằng RPC service_role ─▶ app hỏi lại (async_query refetchInterval / vòng lặp trong cubit)
 ```
 
@@ -1423,7 +1423,7 @@ UI thiết lập và khu HĐĐT trên đơn nằm ở `apps/erp/lib/features/ein
 | `partner.get_einvoice_buyer_profile`, `partner.get_einvoice_recipient_snapshot` | Bù trường người mua; email gợi ý / gửi tự động | drafts 023, 016 (TH-03) |
 | Đơn Hoàn tất: hiện outbox `sales_order_finalized.v1`; 🆕 trigger trên `sales.sales_orders` | Phát hành tự động | TH-05 |
 | Hồ sơ đối tác cập nhật: hiện sự kiện `partner.partner.profile_updated`; 🆕 trigger trên hồ sơ đối tác | Đánh giá lại phát hành tự động | TH-03 |
-| Client MISA: hiện `packages/vet45_misa` (Dart); 🆕 viết lại bằng TypeScript trong Edge Function | Token theo tổ chức, `RefID`, phân loại lỗi | bộ xử lý |
+| Client MISA: hiện `packages/c45_misa` (Dart); 🆕 viết lại bằng TypeScript trong Edge Function | Token theo tổ chức, `RefID`, phân loại lỗi | bộ xử lý |
 | `pg_cron`, `pg_net` 🆕 | Gọi `einvoice-processor` mỗi 30 giây | Supabase |
 | `url_launcher`, chia sẻ tệp hệ điều hành | Mở link, lưu PDF/XML | app |
 
@@ -1538,7 +1538,7 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | Kiểm kết quả gửi email với MISA | MISA không có API; `UNKNOWN` → `UNRESOLVED` ngay |
 | Màn quan sát trạng thái MISA, nút "Kiểm tra trạng thái" | Không có màn; chỉ bộ xử lý (US-03.3) |
 | CC/BCC, nhiều người nhận, chia sẻ Zalo/Messenger | Không làm |
-| Danh sách HĐĐT riêng, màn chi tiết hóa đơn do VET45 dựng | Không làm; thay bằng bộ lọc HĐĐT ở danh sách đơn (TH-05) |
+| Danh sách HĐĐT riêng, màn chi tiết hóa đơn do Mosaic Retail dựng | Không làm; thay bằng bộ lọc HĐĐT ở danh sách đơn (TH-05) |
 | Nhiều kết nối / nhiều hồ sơ pháp lý / nhà cung cấp khác | Không làm |
 | Cảnh báo Theme 11 | Chỉ phát sự kiện `einvoice.delivery.attention_required`, `einvoice.provider_observation_attention_required`; chưa ai nhận |
 
@@ -1552,8 +1552,8 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 |---|---|
 | Module `modules/einvoice` (domain / application / infrastructure / presentation / integration_events), mediator, CQRS handler | `apps/erp/lib/features/einvoice/`: `data/einvoice_configuration_repository.dart` và `data/einvoice_repository.dart` gọi `supabase.schema('einvoice').rpc(...)`; cubit gọi repository (xong 7-C) |
 | UI tách đôi module + bản sao trong `features/sales` (KI-17) | Một chỗ `features/einvoice/presentation`; `features/sales` chỉ nhúng `OrderEInvoiceSection` |
-| `vet45_async_query` (`QueryClient`, `refetchInterval`) để hỏi lại | **Giữ hành vi hỏi lại** (5 giây trên đơn, 2 giây ở kết nối, vòng lặp xem trước / xem / tải) nhưng viết bằng `Timer` trong cubit; bỏ phụ thuộc `async_query` (xong 7-C) |
-| Bộ xử lý `apps/messaging_worker` (Dart, chạy liên tục, cần hosting) dùng handler trong `modules/einvoice/application` + `packages/vet45_misa` | 🆕 Edge Function `supabase/functions/einvoice-processor` (TypeScript): client MISA + handler phát hành, đối soát, xem, tải, gửi; kích hoạt bởi app và `pg_cron` mỗi 30 giây. Giữ nguyên hàng đợi `internal_commands`, khóa ký hiệu, lịch đối soát, RPC `record_*` (KI-20); khoá ký hiệu không gia hạn (khoá 300 giây > giới hạn 150 giây của Edge Function). Xóa bộ xử lý ở P9 (xong 7-C) |
+| `c45_async_query` (`QueryClient`, `refetchInterval`) để hỏi lại | **Giữ hành vi hỏi lại** (5 giây trên đơn, 2 giây ở kết nối, vòng lặp xem trước / xem / tải) nhưng viết bằng `Timer` trong cubit; bỏ phụ thuộc `async_query` (xong 7-C) |
+| Bộ xử lý `apps/messaging_worker` (Dart, chạy liên tục, cần hosting) dùng handler trong `modules/einvoice/application` + `packages/c45_misa` | 🆕 Edge Function `supabase/functions/einvoice-processor` (TypeScript): client MISA + handler phát hành, đối soát, xem, tải, gửi; kích hoạt bởi app và `pg_cron` mỗi 30 giây. Giữ nguyên hàng đợi `internal_commands`, khóa ký hiệu, lịch đối soát, RPC `record_*` (KI-20); khoá ký hiệu không gia hạn (khoá 300 giây > giới hạn 150 giây của Edge Function). Xóa bộ xử lý ở P9 (xong 7-C) |
 | Outbox `sales_order_finalized.v1`, sự kiện `partner.partner.profile_updated`, `einvoice.electronic_invoice.registered` | 3 trigger tự động (`sales_orders`, `partners`, `electronic_invoices`) ghi thẳng `einvoice.internal_commands` (KI-19, KI-20, KI-26, 7-E3) |
 | Tìm tổ chức có việc: `platform.list_tenants_with_pending_messaging` (gộp cả outbox / inbox) | `pg_cron` quét tổ chức qua `einvoice.list_tenants_with_due_commands` (chỉ `internal_commands` đến hạn). Không có `tenant_id` chỉ `service_role` gọi được; có `tenant_id` mọi người đăng nhập gọi được (7-E1 Q2). Loại lệnh chưa có handler được dời 300 giây, không tính lượt thử. Edge Function trả CORS (`OPTIONS` → 204) để app web gọi được |
 | RPC | **Giữ nguyên chữ ký**; chỉ sửa thân theo KI-02, KI-04, KI-06 |
@@ -1565,7 +1565,7 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | 7.1 | **DB**: promote drafts 001 → 023 thành migration chính thức + `REGISTRY.yaml`; sửa `update_automation_policy` (KI-02), kiểm người mua trong `issue_invoice` / `retry_issuance` / `start_auto_issuance` (KI-04), chép lại trường người mua mỗi lượt (KI-06); test SQL | KI-02, 04, 06, 18 |
 | 7.2 | **Thiết lập**: chuyển HD-01 … HD-05 vào `features/einvoice/presentation`, `EInvoiceRepository` (kết nối, mẫu, chính sách, sẵn sàng); bỏ chuỗi cố định, bỏ màn chết, sửa khóa hỏi lại | KI-01, 15, 16, 17 |
 | 7.3 | **Trên đơn**: `OrderEInvoiceSection` + `OrderEInvoiceCubit` + `OrderInvoiceDeliveryCubit` dùng repository; gộp HD-06 … HD-13 về một chỗ; sửa dòng tóm tắt gửi lại | KI-08, 17 |
-| 7.4 | 🆕 **Edge Function `einvoice-processor`** (7-E1 / 7-E2a / 7-E2b / 7-E2c): client MISA TypeScript (đăng nhập + token theo tổ chức, lấy mẫu, xem trước, phát hành, `getStatus`, tải, gửi email; phân loại lỗi như `vet45_misa`), handler cho 9 loại lệnh ở 6.2, giới hạn số việc mỗi lần gọi; chép kịch bản test của `vet45_misa` (62 test, một số chạy nhiều bộ dữ liệu) sang Deno test | KI-20 |
+| 7.4 | 🆕 **Edge Function `einvoice-processor`** (7-E1 / 7-E2a / 7-E2b / 7-E2c): client MISA TypeScript (đăng nhập + token theo tổ chức, lấy mẫu, xem trước, phát hành, `getStatus`, tải, gửi email; phân loại lỗi như `c45_misa`), handler cho 9 loại lệnh ở 6.2, giới hạn số việc mỗi lần gọi; chép kịch bản test của `c45_misa` (62 test, một số chạy nhiều bộ dữ liệu) sang Deno test | KI-20 |
 | 7.5 | 🆕 **Kích hoạt**: `pg_cron` + `pg_net` gọi `einvoice-processor` mỗi 30 giây; app gọi `functions.invoke` sau mỗi RPC ghi yêu cầu; 3 trigger tự động (đơn Hoàn tất, hồ sơ khách đổi, hoá đơn được ghi) ghi `internal_commands` (KI-26). Checklist MISA sandbox (`S1-MISA-SANDBOX-CHECKLIST.md`) phần server hoàn tất ở 7-E3; phần UI `DEV-LIVE-ACCEPTANCE-CHECKLIST.md` chạy sau 7-A2 | KI-19, KI-20, KI-26 |
 
 ### 9.3 Kiểm thử bắt buộc

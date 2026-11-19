@@ -5,7 +5,7 @@ import 'package:erp/features/inventory/presentation/patterns/inventory_layout.da
 import 'package:erp/features/inventory/presentation/patterns/k7_edit_cell.dart';
 import 'package:erp/features/inventory/presentation/stock_policy/near_expiry_add_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class NearExpiryTab extends StatelessWidget {
   final StockPolicyCubit cubit;

@@ -1,6 +1,6 @@
 import 'package:erp/core/session/models/accessible_tenant.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../shared/iam_role_label_mapper.dart';
 import 'confirm_switch_organization_bottom_sheet.dart';

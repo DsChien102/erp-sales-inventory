@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/inventory/data/models/lot_date.dart';
 
 /// Ô nhập ngày hạn dùng / ngày sản xuất.

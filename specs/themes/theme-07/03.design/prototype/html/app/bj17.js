@@ -161,7 +161,7 @@ document.addEventListener("click", (event) => {
 onEntry["UIF-17:unknown-context"] = () => crSetState("SCR-079", cr079StateFor17(cr17Current()));
 if (activeFlowId === "UIF-17" && !requestedScreen && onEntry[`UIF-17:${entryMode}`]) onEntry[`UIF-17:${entryMode}`]();
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   bumpCR17Evidence() { const c = cr17Current(); c.evidenceVersion = Number(c.evidenceVersion || 0) + 1; return c.evidenceVersion; },
   getBJ17() { const c = cr17Current(); return { id: c.id, operation: c.operation, evidenceVersion: c.evidenceVersion, record: c.resolutionRecord }; },
 });

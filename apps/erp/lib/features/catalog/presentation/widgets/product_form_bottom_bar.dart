@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Standard cancel/save footer for Theme-2 product form pages.
 /// Matches Product Images maintenance: white bar, top border, equal-width buttons.

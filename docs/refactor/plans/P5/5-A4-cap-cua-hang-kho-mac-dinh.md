@@ -9,7 +9,7 @@
 
 - Đưa `supabase/migrations/_drafts/inventory_default_pair.sql` thành migration thật. Hiện hai RPC `inventory.get_default_store_warehouse_pair` / `ensure_default_store_warehouse_pair` **chỉ có ở bản nháp**, không nằm trong chuỗi migration ⇒ DB dựng từ migration (vd. sau `db reset`) không có schema `inventory`, cổng ở `StoreShell` lỗi và **chặn cả app** ở `DefaultPairGateErrorView`.
 - Chuyển `DefaultPairGateCubit` từ `IInventoryModule` sang `DefaultPairRepository` (`features/dashboard/data/`; **không** dùng tên `InventoryRepository`: tên đó là của Theme 7).
-- Sau 5-A4: `apps/erp/lib` không còn import `vet45_inventory_*`; DI bỏ `InventoryStartup` / `IInventoryModule`. Thư mục `modules/inventory` để 5-C xoá.
+- Sau 5-A4: `apps/erp/lib` không còn import `c45_inventory_*`; DI bỏ `InventoryStartup` / `IInventoryModule`. Thư mục `modules/inventory` để 5-C xoá.
 
 ## 2. Quyết định
 
@@ -23,20 +23,20 @@
 
 | Tệp | Hành động |
 |---|---|
-| `supabase/migrations/<số>_inventory_default_pair.sql` | **tạo** (đối tượng mới ⇒ migration mới). `<số>` = số kế tiếp **lớn hơn mọi tệp** trong `supabase/migrations/` lúc làm (đo lại 2026-11-04: lớn nhất `20261101001_partner_sales_order_history_trigger.sql` ⇒ dự kiến `20261104001`). Nội dung = toàn bộ bản nháp, **không sửa thân**, thêm header theo `_migration.template.sql` (mẫu đã promote: `20261031001_einvoice_configuration_schema.sql`): `-- Title: inventory default store/warehouse pair`, `-- Kind: patch` (**không** `feature`: `tools/vet45_supabase_migrate/lib/migration_header.dart:3` chỉ nhận `bootstrap, patch, surgical, generated`; `patch` ⇒ policy kiểm Touches khớp thân, ≤ 8 hàm, REGISTRY trỏ đúng tệp), `-- Intent: inventory_default_pair`, `-- Context: TH-07 / KB-KGV-003; PLAN 5-A4`, `-- Touches: ensure_default_store_warehouse_pair, get_default_store_warehouse_pair`, `-- Safety: one-shot ; low`, `-- Depends on: 20260830001_iam_active_store_context_group_a (iam.stores unique (tenant_id, id)), 20260916001_iam_ensure_default_store_scope_helpers (iam._ensure_tenant_default_store), 20260811024_iam_patch_owner_role_canonicalization (iam.has_permission)`, `-- Promoted from _drafts/inventory_default_pair.sql`. Bỏ 2 dòng chú thích đầu của nháp ("Draft: …", "Not a timestamped migration…") |
+| `supabase/migrations/<số>_inventory_default_pair.sql` | **tạo** (đối tượng mới ⇒ migration mới). `<số>` = số kế tiếp **lớn hơn mọi tệp** trong `supabase/migrations/` lúc làm (đo lại 2026-11-04: lớn nhất `20261101001_partner_sales_order_history_trigger.sql` ⇒ dự kiến `20261104001`). Nội dung = toàn bộ bản nháp, **không sửa thân**, thêm header theo `_migration.template.sql` (mẫu đã promote: `20261031001_einvoice_configuration_schema.sql`): `-- Title: inventory default store/warehouse pair`, `-- Kind: patch` (**không** `feature`: `tools/c45_supabase_migrate/lib/migration_header.dart:3` chỉ nhận `bootstrap, patch, surgical, generated`; `patch` ⇒ policy kiểm Touches khớp thân, ≤ 8 hàm, REGISTRY trỏ đúng tệp), `-- Intent: inventory_default_pair`, `-- Context: TH-07 / KB-KGV-003; PLAN 5-A4`, `-- Touches: ensure_default_store_warehouse_pair, get_default_store_warehouse_pair`, `-- Safety: one-shot ; low`, `-- Depends on: 20260830001_iam_active_store_context_group_a (iam.stores unique (tenant_id, id)), 20260916001_iam_ensure_default_store_scope_helpers (iam._ensure_tenant_default_store), 20260811024_iam_patch_owner_role_canonicalization (iam.has_permission)`, `-- Promoted from _drafts/inventory_default_pair.sql`. Bỏ 2 dòng chú thích đầu của nháp ("Draft: …", "Not a timestamped migration…") |
 | `supabase/migrations/REGISTRY.yaml` | thêm mục `inventory:` (theo thứ tự chữ cái: sau `iam:`, trước `partner:`) với 2 dòng `ensure_default_store_warehouse_pair: <tệp>`, `get_default_store_warehouse_pair: <tệp>`. REGISTRY chỉ ghi hàm (xem mục `partner:`), không ghi bảng |
 | `supabase/migrations/_drafts/inventory_default_pair.sql` | **xoá** |
 | `supabase/migrations/_drafts/README.md` | dòng "Còn lại trong `_drafts/`: `inventory_default_pair.sql` (chưa promote)." → "`inventory_default_pair.sql` đã promote ở 5-A4 (`<tệp>`). `_drafts/` trống." |
 | `apps/erp/lib/features/dashboard/data/default_pair_repository.dart` | **tạo** (mục 4.1). Thư mục `features/dashboard/data/` chưa có |
 | `apps/erp/lib/features/dashboard/data/models/default_store_warehouse_pair.dart` | **tạo**: model (mục 4.1), theo cách đặt của `features/partner/data/models/` |
 | `apps/erp/lib/features/dashboard/presentation/bloc/default_pair_gate_cubit.dart` → `apps/erp/lib/features/dashboard/logic/default_pair_gate_cubit.dart` | `git mv` rồi sửa (mục 4.2). Chuyển sang `logic/` theo PLAN.md "Đổi Cubit" bước 6 (như 4-A, 5-A3). State ở cùng tệp, giữ nguyên. Thư mục `presentation/bloc/` trống ⇒ xoá |
-| `apps/erp/lib/features/dashboard/presentation/store_shell.dart` | import cubit theo đường mới; tham số `IInventoryModule? inventoryModule` (dòng 37, 44 truyền xuống, 106, 118–119) → `DefaultPairRepository? defaultPairRepository`; `inventoryModule ?? getIt<IInventoryModule>()` → `defaultPairRepository ?? getIt<DefaultPairRepository>()`; bỏ import `vet45_inventory_application` (dòng 4) |
-| `apps/erp/lib/core/di/injection.dart` | thêm `registerLazySingleton<DefaultPairRepository>` (cạnh các repository khác, cùng kiểu `rpc: getIt<SupabaseRpc>(), tenantId: () => getIt<SessionController>().requireTenantId()`); xoá `InventoryStartup.initialize(...)` + `registerSingleton<IInventoryModule>` (đo 2026-11-04: dòng 231–238) và 2 import `vet45_inventory_*` (dòng 3–4) |
+| `apps/erp/lib/features/dashboard/presentation/store_shell.dart` | import cubit theo đường mới; tham số `IInventoryModule? inventoryModule` (dòng 37, 44 truyền xuống, 106, 118–119) → `DefaultPairRepository? defaultPairRepository`; `inventoryModule ?? getIt<IInventoryModule>()` → `defaultPairRepository ?? getIt<DefaultPairRepository>()`; bỏ import `c45_inventory_application` (dòng 4) |
+| `apps/erp/lib/core/di/injection.dart` | thêm `registerLazySingleton<DefaultPairRepository>` (cạnh các repository khác, cùng kiểu `rpc: getIt<SupabaseRpc>(), tenantId: () => getIt<SessionController>().requireTenantId()`); xoá `InventoryStartup.initialize(...)` + `registerSingleton<IInventoryModule>` (đo 2026-11-04: dòng 231–238) và 2 import `c45_inventory_*` (dòng 3–4) |
 | `apps/erp/test/features/dashboard/presentation/ready_default_pair_inventory_module.dart` | thay bằng `fake_default_pair_repository.dart` (mục 4.3) |
 | 9 tệp test đang dùng `IInventoryModule` / `ReadyDefaultPairInventoryModule` (mục 6.3) | đổi cách dựng |
 | `docs/02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md` BR-06, FR-03 dòng 410, dòng 60, 102, 1280 | phiên review sửa sau khi xong: cặp cửa hàng–kho tạo lười khi vào app lần đầu (Q3) |
 
-**Không** đổi: `apps/erp/pubspec.yaml` (dòng `vet45_inventory_*` để 5-C bỏ cùng `modules/inventory`); `DefaultPairGateErrorView`; `supabase/config.toml` (đã có `inventory` trong `schemas` và `extra_search_path`).
+**Không** đổi: `apps/erp/pubspec.yaml` (dòng `c45_inventory_*` để 5-C bỏ cùng `modules/inventory`); `DefaultPairGateErrorView`; `supabase/config.toml` (đã có `inventory` trong `schemas` và `extra_search_path`).
 
 ## 4. Thiết kế
 
@@ -111,7 +111,7 @@ class FakeDefaultPairRepository extends DefaultPairRepository {
 - `_unusedRpc` theo mẫu `test/features/partner/support/fake_partner_repository.dart:18` (`SupabaseRpc(_UnusedClient())`).
 - `ready`: `get` trả cặp `store-ready` / `Default Store` / `wh-ready` / `Kho mặc định` (chép từ `ReadyDefaultPairInventoryModule`). `missingThenEnsure`: `get` ném `AppException('DEFAULT_PAIR_MISSING')`, `ensure` trả cặp (`replayed: false`). `getError`: `get` ném `AppException(AppErrorCode.noPermission)`. `ensureError`: `get` ném `DEFAULT_PAIR_MISSING`, `ensure` ném `AppException('DEFAULT_PAIR_LIMIT')`.
 - Xoá `ready_default_pair_inventory_module.dart`.
-- `default_pair_gate_test.dart` hiện dựng `EnsureDefaultStoreWarehousePairCommandHandler` / `GetDefaultStoreWarehousePairQueryHandler` + `FakeDefaultStoreWarehousePairPort` (đều từ `vet45_inventory_application`, `modules/inventory/application/lib/src/default_pair/testing/`) ⇒ viết lại bằng fake trên: `scn_dashboard_gate_success` = `missingThenEnsure` + `pause` (Completer, giữ kiểm `VLoading` trước khi mở); `expect(port.warehouses/assignments, hasLength(1))` → `getCalls == 1`, `ensureCalls == 1`. `scn_dashboard_gate_error` = `ensureError` (cũ: 2 kho active ⇒ `DEFAULT_PAIR_LIMIT`); `inner.ensureCount` → `ensureCalls` (1 rồi 2 sau "Thử lại"). Giữ mọi `expect` giao diện.
+- `default_pair_gate_test.dart` hiện dựng `EnsureDefaultStoreWarehousePairCommandHandler` / `GetDefaultStoreWarehousePairQueryHandler` + `FakeDefaultStoreWarehousePairPort` (đều từ `c45_inventory_application`, `modules/inventory/application/lib/src/default_pair/testing/`) ⇒ viết lại bằng fake trên: `scn_dashboard_gate_success` = `missingThenEnsure` + `pause` (Completer, giữ kiểm `VLoading` trước khi mở); `expect(port.warehouses/assignments, hasLength(1))` → `getCalls == 1`, `ensureCalls == 1`. `scn_dashboard_gate_error` = `ensureError` (cũ: 2 kho active ⇒ `DEFAULT_PAIR_LIMIT`); `inner.ensureCount` → `ensureCalls` (1 rồi 2 sau "Thử lại"). Giữ mọi `expect` giao diện.
 
 ## 5. Đang làm gì — test giữ hành vi
 
@@ -172,7 +172,7 @@ class FakeDefaultPairRepository extends DefaultPairRepository {
     get_default_store_warehouse_pair: 20261104001_inventory_default_pair.sql
   ```
   Sửa README nháp theo mục 3.
-- [x] **1.3** Chạy `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart` → không có vi phạm của tệp mới (`header_kind`, `header_intent`, Touches, registry). Vi phạm có sẵn ở tệp khác: so với lúc trước khi sửa, ghi vào Kết quả.
+- [x] **1.3** Chạy `dart run tools/c45_supabase_migrate/bin/verify_migration_policy.dart` → không có vi phạm của tệp mới (`header_kind`, `header_intent`, Touches, registry). Vi phạm có sẵn ở tệp khác: so với lúc trước khi sửa, ghi vào Kết quả.
 - [x] **1.4** Viết `supabase/tests/inventory_default_pair.sql` (5 ca ở mục 5 D7, mẫu `supabase/tests/iam_legacy_cleanup.sql`, `begin … rollback`):
   1. `get` khi chưa có cặp → bắt lỗi, `sqlerrm = 'DEFAULT_PAIR_MISSING'`;
   2. `ensure` → `storeId` = id cửa hàng `code = 'default'` của tổ chức, `replayed = false`;
@@ -222,9 +222,9 @@ class FakeDefaultPairRepository extends DefaultPairRepository {
 - [x] **3.4** `git mv` cubit sang `logic/`; sửa theo mục 4.2 (`on AppException catch (e)`, dùng `e.code`). Xoá thư mục `presentation/bloc/` nếu trống.
 - [x] **3.5** `StoreShell`: đổi tham số + import (mục 3). `injection.dart`: thêm `registerLazySingleton<DefaultPairRepository>(() => DefaultPairRepository(rpc: getIt<SupabaseRpc>(), tenantId: () => getIt<SessionController>().requireTenantId()))`; xoá `InventoryStartup` + `IInventoryModule` + 2 import.
 - [x] **3.6** Đổi 9 tệp mục 6.3:
-  - `injection_test.dart:59`: `expect(getIt.isRegistered<IInventoryModule>(), isTrue)` → `expect(getIt.isRegistered<DefaultPairRepository>(), isTrue)`; bỏ import `vet45_inventory_application`.
+  - `injection_test.dart:59`: `expect(getIt.isRegistered<IInventoryModule>(), isTrue)` → `expect(getIt.isRegistered<DefaultPairRepository>(), isTrue)`; bỏ import `c45_inventory_application`.
   - `default_pair_gate_test.dart`: theo mục 4.3 (bỏ `_HandlerInventoryModule`, `_PausingInventoryModule`, `FakeDefaultStoreWarehousePairPort`; `inventoryModule:` → `defaultPairRepository:`). Ca 0.2 cũng đổi sang fake.
-  - 7 tệp còn lại: `registerSingleton<IInventoryModule>(const ReadyDefaultPairInventoryModule())` → `registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())` + import; bỏ import `vet45_inventory_application`.
+  - 7 tệp còn lại: `registerSingleton<IInventoryModule>(const ReadyDefaultPairInventoryModule())` → `registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())` + import; bỏ import `c45_inventory_application`.
 - [x] **3.7** Chạy `cd apps/erp && flutter test test/features/dashboard/ test/core/di/injection_test.dart` → PASS (gồm mọi test Task 0, `scn_dashboard_gate_success`, `scn_dashboard_gate_error`).
 
 ### Task 4: Kiểm toàn bộ + Kết quả
@@ -239,7 +239,7 @@ class FakeDefaultPairRepository extends DefaultPairRepository {
 
 ## 7. Kiểm tra
 
-- [x] `git grep -n "package:vet45_inventory" -- apps/erp/lib apps/erp/test` → rỗng.
+- [x] `git grep -n "package:c45_inventory" -- apps/erp/lib apps/erp/test` → rỗng.
 - [x] `git grep -n "IInventoryModule\|InventoryStartup\|ReadyDefaultPairInventoryModule" -- apps/erp` → rỗng.
 - [x] `ls supabase/migrations/_drafts/*.sql` → không còn tệp nào.
 - [x] `ls apps/erp/lib/features/dashboard/presentation/bloc` → không còn (cubit ở `logic/`).
@@ -270,7 +270,7 @@ class FakeDefaultPairRepository extends DefaultPairRepository {
   - Cập nhật `supabase/migrations/REGISTRY.yaml` thêm mục `inventory:` trước `partner:`.
   - Sửa `supabase/migrations/_drafts/README.md` (`_drafts/` nay trống).
   - Viết `supabase/tests/inventory_default_pair.sql` với 5 ca kiểm SQL (get missing, ensure lần 1, ensure replay lần 2, get sau ensure, stranger không có quyền).
-  - Chạy `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart`: 0 errors, 3 warnings: 1 cảnh báo có sẵn của `20261101001` (partner) + 2 cảnh báo `registry_consistency` **của tệp mới** `20261104001` (`catalog.ensure_default_store_warehouse_pair` / `catalog.get_default_store_warehouse_pair` not found) — do `_inferSchema` (`tools/vet45_supabase_migrate/lib/migration_policy.dart:529-542`) không biết schema `inventory`, tra nhầm `catalog.*`; REGISTRY mục `inventory:` thật đúng. Không sửa công cụ ở 5-A4. *(Sửa R1-3.)*
+  - Chạy `dart run tools/c45_supabase_migrate/bin/verify_migration_policy.dart`: 0 errors, 3 warnings: 1 cảnh báo có sẵn của `20261101001` (partner) + 2 cảnh báo `registry_consistency` **của tệp mới** `20261104001` (`catalog.ensure_default_store_warehouse_pair` / `catalog.get_default_store_warehouse_pair` not found) — do `_inferSchema` (`tools/c45_supabase_migrate/lib/migration_policy.dart:529-542`) không biết schema `inventory`, tra nhầm `catalog.*`; REGISTRY mục `inventory:` thật đúng. Không sửa công cụ ở 5-A4. *(Sửa R1-3.)*
   - Task 1.5 ⏭ giao người dùng chạy DB reset local.
 - **Task 2**: ✅
   - Viết `apps/erp/test/features/dashboard/data/default_pair_repository_test.dart` (4 tests) → FAIL (Task 2.2).
@@ -302,11 +302,11 @@ class FakeDefaultPairRepository extends DefaultPairRepository {
     Xoá `apps/erp/test/features/dashboard/presentation/ready_default_pair_inventory_module.dart`.
   - **3.7**: Chạy `flutter test test/features/dashboard/ test/core/di/injection_test.dart` → PASS 22/22.
 - **Task 4 (Kiểm tra toàn bộ)**: ✅
-  - `git grep -n "package:vet45_inventory" -- apps/erp/lib apps/erp/test` → rỗng.
+  - `git grep -n "package:c45_inventory" -- apps/erp/lib apps/erp/test` → rỗng.
   - `git grep -n "IInventoryModule\|InventoryStartup\|ReadyDefaultPairInventoryModule" -- apps/erp` → rỗng.
   - `ls supabase/migrations/_drafts/*.sql` → rỗng.
   - `ls apps/erp/lib/features/dashboard/presentation/bloc` → đã xoá.
-  - `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart` → 0 error(s), 3 warning(s) (như Task 1: 2 cảnh báo của tệp mới do `_inferSchema`, 1 có sẵn của partner; không có lỗi). *(Sửa R1-3.)*
+  - `dart run tools/c45_supabase_migrate/bin/verify_migration_policy.dart` → 0 error(s), 3 warning(s) (như Task 1: 2 cảnh báo của tệp mới do `_inferSchema`, 1 có sẵn của partner; không có lỗi). *(Sửa R1-3.)*
   - `dart analyze lib/features/dashboard test/features/dashboard` → 0 errors, 0 warnings.
   - `dart run tool/check_feature_imports.dart` → `dashboard` tuân thủ hoàn toàn ranh giới feature.
   - `flutter test` toàn bộ `apps/erp`: **2.167 passed, 1 skipped, 61 failed** (đối chiếu `TEST-BASELINE.md`: đúng 61 lỗi có sẵn, không phát sinh bất kỳ lỗi mới nào).
@@ -344,7 +344,7 @@ Review Focus (mục 8): đổi tổ chức khi đang tải: `isClosed` đủ 3 c
 
 - **R1-1** (Kết quả Task 3.1): bảng impact không khớp số đo lại (`node .gitnexus/run.cjs impact <symbol> -d upstream -r erp-sales-inventory`, index phiên code chạy lại ở Task 4): `StoreShell` **CRITICAL**, direct 1, impacted 834, 67 luồng, 20 module (Kết quả ghi HIGH, 11 / 22); `DefaultPairGateCubit` LOW, direct 1 (ghi 2 / 15); `initDependencies` LOW, direct 1 (ghi HIGH 5 / 20). Ghi lại số thật + lệnh + thời điểm index. CRITICAL của `StoreShell` chấp nhận được vì chỉ đổi kiểu tham số và có D1–D6, nhưng phải ghi rõ (CLAUDE.md).
 - **R1-2** (Kết quả Task 4.2): chưa có `detect_changes()`. Working tree đang lẫn 5-A3 chưa commit (`detect-changes -s all`: 122 tệp, 165 symbol, rủi ro critical, chủ yếu catalog) ⇒ không tách được 5-A4. Cách làm: commit 5-A3 trước, rồi chạy `node .gitnexus/run.cjs detect-changes -s all -r erp-sales-inventory` cho riêng 5-A4, ghi số tệp / symbol / luồng / rủi ro.
-- **R1-3** (Kết quả Task 1, Task 4; P3): sửa câu "1 cảnh báo có sẵn của partner + 2 cảnh báo do schema inference fallback catalog" thành: 2 cảnh báo `registry_consistency` thuộc `20261104001`, do `_inferSchema` (`tools/vet45_supabase_migrate/lib/migration_policy.dart:529-542`) không biết schema `inventory` nên tra `catalog.*`; REGISTRY thật đúng. Không sửa công cụ ở 5-A4.
+- **R1-3** (Kết quả Task 1, Task 4; P3): sửa câu "1 cảnh báo có sẵn của partner + 2 cảnh báo do schema inference fallback catalog" thành: 2 cảnh báo `registry_consistency` thuộc `20261104001`, do `_inferSchema` (`tools/c45_supabase_migrate/lib/migration_policy.dart:529-542`) không biết schema `inventory` nên tra `catalog.*`; REGISTRY thật đúng. Không sửa công cụ ở 5-A4.
 - **R1-4** (P3, lúc commit): migration chưa ghi nhận là rename (`_drafts/inventory_default_pair.sql` ` D`, tệp mới `??`); Kết quả ghi `git mv`. Khi commit `git add` cả hai (+ `supabase/tests/inventory_default_pair.sql`, `apps/erp/lib/features/dashboard/data/`, `apps/erp/test/features/dashboard/{data,logic}/`, `fake_default_pair_repository.dart`).
 
 Góp ý không chặn: `default_pair_repository_test.dart` ca `get_propagates_app_exception` dùng `expect(() => …, throwsA(…))` không `await`; nên `await expectLater(repository.get(), throwsA(…))`.

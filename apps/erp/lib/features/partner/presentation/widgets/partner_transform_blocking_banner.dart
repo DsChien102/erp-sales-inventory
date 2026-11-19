@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Blocking warning shown when transform step-one validation fails.
 class PartnerTransformBlockingBanner extends StatelessWidget {

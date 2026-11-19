@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Bottom Sheet Thao tác hồ sơ tổ chức (TA-O-01).
 class OrganizationProfileActionsBottomSheet extends StatelessWidget {

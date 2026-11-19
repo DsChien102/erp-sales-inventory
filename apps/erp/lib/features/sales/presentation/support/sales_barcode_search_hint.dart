@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 void showSalesBarcodeSearchHint(BuildContext context) {
   VToast.show(

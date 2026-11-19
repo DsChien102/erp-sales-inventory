@@ -2,7 +2,7 @@
 
 ## Epic overview
 
-Epic này giúp VET45 thiết lập nền tảng giá bán cho sản phẩm, bao gồm Giá cơ sở định giá, quy tắc giá cấp cửa hàng, Giá niêm yết, Giá sàn và khung giá theo từng đơn vị bán.
+Epic này giúp Mosaic Retail thiết lập nền tảng giá bán cho sản phẩm, bao gồm Giá cơ sở định giá, quy tắc giá cấp cửa hàng, Giá niêm yết, Giá sàn và khung giá theo từng đơn vị bán.
 
 Mục tiêu của Epic không phải là tính giá bán cuối cùng trên giao dịch. Theme 2 chỉ quản lý **khung giá chuẩn** của sản phẩm. Giá bán cuối cùng có thể bị ảnh hưởng bởi khuyến mãi, chiết khấu, coupon, combo hoặc chính sách bán hàng, và thuộc phạm vi của Promotions / Sales.
 

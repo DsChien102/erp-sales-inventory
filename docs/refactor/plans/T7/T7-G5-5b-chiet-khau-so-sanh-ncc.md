@@ -10,7 +10,7 @@
 
 **Architecture:** Migration mới `20261117001_inventory_supplier_rebates.sql` gồm 2 bảng, helper `_post_value_adjustment` (dòng sổ chỉ đổi giá trị, G5-6 dùng lại), hàm phân bổ thuần `_rebate_allocation`, 4 RPC mới. Sửa `get_supplier_program` (tại `20261113001`) và `get_warehouse_hub_summary` (tại `20261110001`). **Không** sửa `_value_line` / `_post_movements`. Flutter: BJ mới `features/inventory/{data,logic,presentation}/supplier_rebate/` (P4, K4, P5, khối dự kiến), thêm vào P3 / P2 / chi tiết tồn / dòng phiếu nhận / Hub.
 
-**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `vet45_design_system`.
+**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `c45_design_system`.
 
 **Spec:** mục 1–2 của plan này + [spec giá vốn](T7-G5-gia-von-thiet-ke.md) mục 12 + PLAN.md Theme 7 → "Quy ước chung cho mọi plan G5".
 

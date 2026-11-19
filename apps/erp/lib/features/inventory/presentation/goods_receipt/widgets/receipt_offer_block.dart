@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
 import 'package:erp/features/inventory/logic/goods_receipt/receipt_draft.dart';
 import 'package:erp/features/inventory/logic/supplier_program/receipt_hint_rules.dart';

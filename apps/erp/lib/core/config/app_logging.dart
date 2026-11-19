@@ -2,7 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
-import 'package:vet45_shared_infrastructure/infrastructure.dart';
+import 'package:c45_shared_infrastructure/infrastructure.dart';
 
 /// ERP app logging: verbose in debug, info in release/profile.
 ///

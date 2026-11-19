@@ -308,7 +308,7 @@ Trước mỗi symbol Dart sửa: `gitnexus impact` (upstream), ghi vào Kết q
 - [ ] `psql "$LOCAL_DB" -v ON_ERROR_STOP=1 -f supabase/tests/partner_th03.sql` → `partner_th03: OK` (sau `supabase db reset` local).
 - [ ] Các tệp `supabase/tests/iam_*.sql` vẫn chạy qua sau reset local (G3 sửa migration dùng chung tệp partner, không đụng IAM; kiểm cho chắc).
 - [ ] Hai test hợp đồng SQL partner xanh (hoặc ghi rõ lý do test `alternate_name` vẫn fail như baseline).
-- [ ] `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart` (= `melos run migrate:verify-policy`) không lỗi mới. Migration mới có header đủ `Kind` / `Touches`, nên **không** thêm vào `bootstrap_grandfathered`.
+- [ ] `dart run tools/c45_supabase_migrate/bin/verify_migration_policy.dart` (= `melos run migrate:verify-policy`) không lỗi mới. Migration mới có header đủ `Kind` / `Touches`, nên **không** thêm vào `bootstrap_grandfathered`.
 - [ ] Grep ở G5, G7 rỗng.
 - [ ] `cd apps/erp && dart analyze lib test`: không error / warning mới.
 - [ ] `cd apps/erp && flutter test`: không fail mới so với sau 4-A (ghi số).
@@ -338,11 +338,11 @@ Sửa migration đã áp (`20260714004`, `20260715001`) ⇒ Dev chỉ nhận sau
 ### Tóm tắt (2026-11-01)
 
 - Đã làm G1–G11 và bước 0. **Chưa `git commit`** (người dùng chưa yêu cầu).
-- **Chưa chạy được đúng quy trình `supabase db reset` local**: lệnh bị chặn (xoá dữ liệu local). DB local hiện có (`supabase_db_vet45`) là bản cũ: lịch sử migration lệch repo (có bản ghi `20260811003…20260916007` đã bị xoá / đổi số khỏi repo, thiếu `20261009001+`), nên `supabase migration up` cũng không dùng được. Thay vào đó, **không xoá gì**:
+- **Chưa chạy được đúng quy trình `supabase db reset` local**: lệnh bị chặn (xoá dữ liệu local). DB local hiện có (`supabase_db_c45`) là bản cũ: lịch sử migration lệch repo (có bản ghi `20260811003…20260916007` đã bị xoá / đổi số khỏi repo, thiếu `20261009001+`), nên `supabase migration up` cũng không dùng được. Thay vào đó, **không xoá gì**:
   - Áp tay vào DB local 3 phần idempotent: thân `add_organization_contact` (từ `20260714004`), cả `20260715001`, cả `20261101001`. Việc này chỉ để chạy thử; **không thay `db reset`**.
   - Chạy `supabase/tests/partner_th03.sql` bằng **bản scratch** (chỉ đổi đoạn dựng tenant: `iam._create_tenant_for_owner` chưa có trên DB cũ ⇒ insert thẳng `iam.tenants` + `iam.memberships` role `store_owner`): ra `partner_th03: OK`, rollback sạch.
   - Kiểm test bắt được lỗi bằng 3 đột biến (mỗi lần trong giao dịch rồi rollback): tắt trigger ⇒ `FAIL: insert order must write exactly 1 history row, got 0`; trả `add_organization_contact` về thân cũ ⇒ `FAIL: expected VALIDATION_ERROR but statement succeeded`; trả `search_partners` về thân cũ ⇒ `FAIL: "an binh" must find "An Bình", total 0`.
-  - **Việc còn lại cho người dùng** (7.1): `supabase db reset` local, rồi `docker exec -i supabase_db_vet45 psql -U postgres -v ON_ERROR_STOP=1 < supabase/tests/partner_th03.sql` (hoặc `psql "$LOCAL_DB" …`), và các tệp `supabase/tests/iam_*.sql`. Bản chính dùng `iam._create_tenant_for_owner` như `iam_legacy_cleanup.sql`; chỉ kiểm cú pháp trên DB cũ (dừng đúng ở hàm đó), chưa chạy hết trên schema HEAD.
+  - **Việc còn lại cho người dùng** (7.1): `supabase db reset` local, rồi `docker exec -i supabase_db_c45 psql -U postgres -v ON_ERROR_STOP=1 < supabase/tests/partner_th03.sql` (hoặc `psql "$LOCAL_DB" …`), và các tệp `supabase/tests/iam_*.sql`. Bản chính dùng `iam._create_tenant_for_owner` như `iam_legacy_cleanup.sql`; chỉ kiểm cú pháp trên DB cũ (dừng đúng ở hàm đó), chưa chạy hết trên schema HEAD.
 - Hai test hợp đồng SQL partner: `partner_list_search_sql_contract_test` **6/6 xanh**; `partner_alternate_name_search_sql_contract_test` **vẫn fail như baseline** (xem G2).
 - `dart analyze lib test`: **249 → 249** vấn đề (không error; 1 warning cũ ở `order_einvoice_section_test.dart`).
 - `verify_migration_policy`: 0 lỗi, 1 warning `registry_consistency` (tool luôn suy schema `catalog` cho tệp partner, cùng cảnh báo với các migration partner khác).
@@ -459,7 +459,7 @@ Nếu bước (1) ra `FAIL: …` thì báo lại; phiên review sẽ chia task R
 #### P3 (không chặn)
 
 1. **[Không sửa — chỉ ghi nhận]** Mục 9 (Tóm tắt, G2) ghi `partner_alternate_name_search_sql_contract_test` "vẫn fail như baseline" và đường dẫn `modules/partner/infrastructure/test/…`: đã cũ. 4-C gộp hai test vào `apps/erp/test/features/partner/data/partner_search_sql_contract_test.dart` và đổi kỳ vọng `op.short_name` → `v.short_name`; nay xanh. Việc đổi kỳ vọng thuộc review 4-C.
-2. **[Không sửa — chỉ ghi nhận]** Cảnh báo `registry_consistency` ("`catalog._trg_sales_order_partner_history` not found") là giới hạn của tool: `_inferSchema` (`tools/vet45_supabase_migrate/lib/migration_policy.dart:529`) trả `catalog` cho mọi tệp không có `_catalog_` / `_iam_` / `_platform_` trong tên. REGISTRY ghi đúng ở mục `partner:`.
+2. **[Không sửa — chỉ ghi nhận]** Cảnh báo `registry_consistency` ("`catalog._trg_sales_order_partner_history` not found") là giới hạn của tool: `_inferSchema` (`tools/c45_supabase_migrate/lib/migration_policy.dart:529`) trả `catalog` cho mọi tệp không có `_catalog_` / `_iam_` / `_platform_` trong tên. REGISTRY ghi đúng ở mục `partner:`.
 3. **[Không sửa — người dùng biết]** TH-03 US-04.3 AC-01 bản cũ ghi người liên hệ đã xoá → `VALIDATION_ERROR` / `NOT_FOUND`; plan đã duyệt (G3) trả `INVALID_STATUS`. Phiên review sửa TH-03 theo plan: tổ chức / khác tenant → `VALIDATION_ERROR`; đã xoá → `INVALID_STATUS`. Muốn đổi lại mã thì báo.
 4. **[Không sửa — chỉ ghi nhận]** G9: thao tác thành công nhưng lần tải lại danh sách lỗi ⇒ vẫn có toast thành công, thân màn hiện lỗi tải. Đúng sự thật (thao tác đã ghi), chấp nhận.
 

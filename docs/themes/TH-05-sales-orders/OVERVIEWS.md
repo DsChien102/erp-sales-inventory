@@ -4,7 +4,7 @@ Tài liệu rút gọn để định tuyến agent. Nội dung nghiệp vụ đ�
 
 ## Purpose
 
-TH-05 là lớp giao dịch trung tâm của VET45: lập đơn tại quầy, lưu nháp, checkout, ghi nhận settlement, tạo phiếu bán hàng, tra cứu và xử lý sau bán. Giao dịch phải có lifecycle rõ, commercial snapshot bất biến, audit, idempotency và khả năng recovery khi kết quả downstream chưa chắc chắn.
+TH-05 là lớp giao dịch trung tâm của Mosaic Retail: lập đơn tại quầy, lưu nháp, checkout, ghi nhận settlement, tạo phiếu bán hàng, tra cứu và xử lý sau bán. Giao dịch phải có lifecycle rõ, commercial snapshot bất biến, audit, idempotency và khả năng recovery khi kết quả downstream chưa chắc chắn.
 
 ## Trong phạm vi
 

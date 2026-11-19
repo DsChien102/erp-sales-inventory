@@ -331,7 +331,7 @@ Quyết định kiến trúc: [03-architecture-and-flows.md §11](03-architectur
 | Điều kiện dừng | `displayState` ∈ {`Đã phát hành`, `Phát hành lỗi`} → `refetchInterval = null` |
 | Sau resume app | `AppLifecycleRefetch` — không cần logic riêng |
 
-`refetchInterval` chưa có trong `vet45_async_query` — bổ sung vào `QueryOptions`/`QueryObserver` trong S2 FE lane.
+`refetchInterval` chưa có trong `c45_async_query` — bổ sung vào `QueryOptions`/`QueryObserver` trong S2 FE lane.
 
 ---
 
@@ -883,7 +883,7 @@ Mỗi lần gọi MISA ghi kết quả lên dòng nghiệp vụ (`failure_source
 
 ## §H1 — MISA V2 production hardening (contract freeze)
 
-Baseline: tài liệu AIO V2 (16/09/2026) + `packages/vet45_misa/doc/misa-meinvoice-open-api.md`.
+Baseline: tài liệu AIO V2 (16/09/2026) + `packages/c45_misa/doc/misa-meinvoice-open-api.md`.
 Plan: `docs/superpowers/plans/2026-09-16-th08-misa-contract-production-hardening.md`.
 Test id prefix: `th08_hardening_*`. Status aggregate `in_progress` tới gate Công việc 10.
 

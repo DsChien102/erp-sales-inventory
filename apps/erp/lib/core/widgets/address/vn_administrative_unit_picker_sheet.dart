@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'vn_administrative_units_loader.dart';
 
 /// Selection result containing the selected [province] and optional [ward].

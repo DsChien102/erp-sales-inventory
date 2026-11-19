@@ -224,6 +224,6 @@ Object.assign(renderers, {
   "SCR-071": render071BJ12,
 });
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   cf12LineCount() { return cf12Lines.length; },
 });

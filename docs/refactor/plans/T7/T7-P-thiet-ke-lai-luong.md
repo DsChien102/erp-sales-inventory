@@ -46,7 +46,7 @@
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
 | Nghiệp vụ trong BJ / UC: quy tắc, trạng thái nghiệp vụ, ai được làm gì, người duyệt = `is_owner` hoặc role `store_owner`, khác người lập — **trừ** `is_owner` **lập thì tự duyệt được** (chốt 2026-10-20; **2026-10-22 làm rõ:** vẫn qua đủ hai bước — gửi duyệt rồi tự vào màn duyệt bấm "Duyệt" một lần nữa để kiểm lại, không có đường ghi nhận thẳng; mỗi cửa hàng chỉ có một chủ; sửa đặc tả ở mục 13) | Luồng giữa các màn, lối vào, điều hướng              |
 | Chuỗi chữ của spec. Đổi chữ = đề xuất sửa Screen Contract (mục 13), không sửa thẳng trên UI khi chưa duyệt                                                                                                                     | Bố cục màn, thứ tự khối, mật độ, gom / tách / bỏ màn |
-| Token DESIGN.md, thành phần `vet45_design_system`; được thêm thành phần mới (mục 6)                                                                                                                                            | Screen Contract, UIF: chỉ là tham khảo               |
+| Token DESIGN.md, thành phần `c45_design_system`; được thêm thành phần mới (mục 6)                                                                                                                                            | Screen Contract, UIF: chỉ là tham khảo               |
 | **Home Kho = bản candidate** (SCR-090): tìm kiếm → 4 nút nhanh → Cần chú ý → Quản lý kho (5 khu) → Thiết lập kho                                                                                                               | Chi tiết bên trong Home candidate                    |
 
 **Người dùng:** cửa hàng có **Owner + 1–3 nhân viên**. Nhân viên lập phiếu (nhận hàng, kiểm kê, đổi tình trạng, tiêu hủy…); **Owner duyệt và là người duy nhất xem tiền**. Nhân viên dùng iPhone ngay tại kho / quầy giữa lúc bán hàng (mode Operate); Owner duyệt và làm việc giá trị lúc ở máy tính, lúc trên iPhone — cả hai phải làm trọn vẹn như nhau.
@@ -134,7 +134,7 @@ Plan: T7-P-A11-don-khung.md (đã xoá). Phạm vi chốt 2026-10-19:
 
 1. `core.js` chỉ còn khung: xoá `renderFlowScreen`, `ownedFlows`, mọi khối `vNNN` (`v350`, `v360`, `v361`, `v362`–`v364`, `v440`, `v450`, `v470`); `renderAppScreen` = màn gốc theme → `ThemeApp`, còn lại → `rendererFor(...)` + `ThemeApp.afterFlowRender()`.
 2. Bước sau dựng **còn sống dù mọi luồng đã sở hữu** (bọc `render` / `MutationObserver`): `simplifyNormalBanners` → gộp vào hàm dựng BJ-08 / BJ-10 (khác biệt có chủ đích, ghi CHANGELOG); `v440` grouped surface → đo trước, 0 tác động thì xoá, còn thì giữ làm **một** bước dựng chung có tên trong khung.
-3. Routing lối vào + actor gộp một bảng `entryTargets` / `applyEntry` / `currentActor()`; mọi API QA `__VET45_V350__` / `__V360__` / `__V3101__` / `__BJ10__`… → **một** `window.__VET45_QA__` (BJ tự đăng ký). Giữ tên thuộc tính `data-v350-action` / `data-v360-action` (đổi ở Giai đoạn 2).
+3. Routing lối vào + actor gộp một bảng `entryTargets` / `applyEntry` / `currentActor()`; mọi API QA `__C45_V350__` / `__V360__` / `__V3101__` / `__BJ10__`… → **một** `window.__C45_QA__` (BJ tự đăng ký). Giữ tên thuộc tính `data-v350-action` / `data-v360-action` (đổi ở Giai đoạn 2).
 4. Helper dùng chéo: `bj01Empty` → `ds24EmptyState`; bản trùng `icCard…icApprovalButtons` (`core.js` + `bj09.js`) → `shared-control.js`.
 5. Tách harness → `harness/workbench.js` / `figma-ds-map.js` / `workbench.css`; `renderFlowInspector` **giữ nguyên chữ** (golden đọc inspector).
 6. CSS chỉ phần an toàn: xoá luật không dùng (chế độ `golden.mjs usage`), gồm `.cr-*` / `.ac310-*` chết. **Gom CSS theo BJ và bỏ** `!important` **dời sang bước C của từng BJ** (mục 4.4).
@@ -165,7 +165,7 @@ Bạn duyệt bằng cách đồng ý cả brief hoặc chỉ ra điểm bỏ / 
 ### 4.4 C — Dựng thiết kế mới
 
 1. Sửa thẳng `app/bjNN.js`; CSS riêng của BJ trong `styles/screens.css` (khối có tiêu đề BJ), thành phần dùng chung trong `styles/components.css`. **Dời từ A11:** gom mọi luật của BJ (`[data-active-uif="UIF-NN"]`, tiền tố BJ, rải trong các khối `vNNN-…css`) về khối của BJ, bỏ `!important` khi không còn đối thủ — làm cùng lúc dựng thiết kế mới vì golden của BJ được phép khác.
-2. Dùng token `--vet45-v2-*`; không màu / cỡ chữ / khoảng cách gõ tay.
+2. Dùng token `--c45-v2-*`; không màu / cỡ chữ / khoảng cách gõ tay.
 3. Mọi trạng thái trong brief có nhánh dựng; nút nhảy sang BJ khác đi qua `navigate` / `ThemeApp` (không sửa DOM của BJ khác).
 4. Dựng đủ hai bố cục cho mọi màn (mục 2): iPhone và web tối ưu như nhau, không có bên chỉ kiểm "không vỡ". Màn web dùng khuôn K7 và density `compact` của DS.
 5. Cập nhật kịch bản golden theo brief.
@@ -237,7 +237,7 @@ Quy tắc chung cho mọi khuôn: một hành động chính mỗi trạng thái
 
 ## 6. Thành phần DS mới
 
-Thêm khi phát sinh ở bước B; dựng trong `styles/components.css` (prototype) và đưa vào `vet45_design_system` ở Giai đoạn 5 (PLAN.md **T7-G5**).
+Thêm khi phát sinh ở bước B; dựng trong `styles/components.css` (prototype) và đưa vào `c45_design_system` ở Giai đoạn 5 (PLAN.md **T7-G5**).
 
 | Thành phần | Phát sinh ở | Mô tả | Trạng thái |
 |---|---|---|---|
@@ -304,7 +304,7 @@ Bản đồ lớp cũ đo ngày 2026-10-16 trên `app/core.js`. "Lớp" = khối
 | A8 | **BJ-11, BJ-12** | 048–053; 066–071 | `cr11`, `cf12` | `app.js`; `v310`; `v350`; `v360` (toast) | 5 | 2,5 | Dùng `shared-control.js`. Chặng 0 khôi phục listener UIF-11/16/17 (mất từ A5) và `render()` trong `crSwitchFlow` / hẹn giờ duyệt (A7 xoá nhầm) — plan A8 mục 2.6 |
 | A9 | **BJ-15** | 054, 055, 057, 058, 059 (+056 từ A6) | `cf15` | `app.js`; `v310`; `v320` (cả khối); `v350` (seed `cf15Movements` lúc nạp, gán lại `cf15InventoryResult`, `cf15StockCardResult`, bọc 055 / 058); `v351` (cả khối); `legacy-sheet-cleanup` (cả khối) | 4 | 1,5 | Plan A9. SCR-056 BJ-09 không có `movement` tự dựng trong `bj09.js` (tránh đệ quy qua `flowScreen`); `cf`* + `ac310ProductRow` → `shared-control.js` |
 | A10 | **BJ-16, BJ-17** | 078–083 | `cr16`, `cr17` | `app.js`; `v310` (phần còn lại → xoá cả khối); `v350` (seed `cr16/17Cases` lúc nạp, `.replace` 079–082, `handoff-unknown` + `bj02-`*); `legacy-cross-theme-copy` (cả khối) | 9 | 2 | Plan A10. Một bộ màn, hai luồng qua `flowRenderers`, `bj17.js` gọi lại helper `bj16.js`. Cơ chế K3 (`handoff-unknown`) → `bj17.js` + móc `onUnknownHandoff` cho UIF-05/06/07. `ac310ProductRow` / `cf`* đã ở `shared-control.js` (A9). Xong A10 = mọi luồng đã sở hữu |
-| A11 | **Dọn khung** | — | — | `v350`, `v360`, `v361`, `v362`–`v364`, `v440`, `v450`, `v470`; harness trong `core.js` / `components.css`; CSS không dùng | — | 3 | Plan A11. `v440` / `simplifyNormalBanners` vẫn chạy trên luồng đã sở hữu (bọc `render`) — đo trước. Một API `__VET45_QA__`. CSS chỉ xoá luật không dùng; gom theo BJ dời Giai đoạn 2 |
+| A11 | **Dọn khung** | — | — | `v350`, `v360`, `v361`, `v362`–`v364`, `v440`, `v450`, `v470`; harness trong `core.js` / `components.css`; CSS không dùng | — | 3 | Plan A11. `v440` / `simplifyNormalBanners` vẫn chạy trên luồng đã sở hữu (bọc `render`) — đo trước. Một API `__C45_QA__`. CSS chỉ xoá luật không dùng; gom theo BJ dời Giai đoạn 2 |
 | | **Cộng** | | | | | **~21** | |
 
 Thứ tự gợi ý: A1 → A2 → A3 (gói nhỏ, ít lớp chồng, để quen cách làm) → A4 (BJ-02, demo chính) → A5 (cụm giá trị) → A6 → A7 (dựng `shared-control.js`) → A8 → A9 → A10 → A11. Plan gói `T7-P-A<n>-*.md` được viết ngay trước khi bạn làm gói đó.
@@ -735,7 +735,7 @@ Rà trên working tree sau A11 (chưa commit; HEAD `4c7020013`), từng plan ghi
      .review-line > strong { color:var(--v-color-text-primary); font-size:13px; line-height:20px; font-weight:600; }
    ```
 
-     Đổi biến `--v-*` sang `--vet45-v2-*` theo cách T7-P0 đã đổi các dòng ngay trên (`.app-actions` dùng `--vet45-v2-space-3`, `--vet45-v2-surface-default`; tra `styles/tokens.css` cho `text-secondary` / `text-primary`).
+     Đổi biến `--v-*` sang `--c45-v2-*` theo cách T7-P0 đã đổi các dòng ngay trên (`.app-actions` dùng `--c45-v2-space-3`, `--c45-v2-surface-default`; tra `styles/tokens.css` cho `text-secondary` / `text-primary`).
 3. Chụp `tools/.golden-a12-r1`, so với bốn mốc R0. Còn ca lệch hình (dự kiến `UIF-13_SCR-089_*` nếu chưa hết) → mở ảnh hai bên, tìm phần tử lệch, tìm luật legacy trong git cho phần tử đó mà `styles/*` không còn **và** không có trong `tools/.usage-a11-6/_css-deletable.txt` → trả lại đúng chỗ. Lặp tới khi chỉ còn 5 ca của R2.
 
 **R2. Footer duyệt và dòng "Điều chỉnh" của A8 (chặn).** ✅ 2026-10-19 (phiên review, theo yêu cầu người dùng) — 5 ca khớp `tools/.golden-a5-base`; so với trước khi sửa chỉ khác các ca SCR-050 / 051 / 070 (+ `SC_bj11_`* / `SC_bj12_`* / `SC_entry_UIF-11/12_approver` đi qua), chữ không đổi, 0 lỗi JS.
@@ -752,7 +752,7 @@ node -e 'const fs=require("fs");for(const f of fs.readdirSync("app")){const s=fs
 
 **R4. Chú thích.** ✅ 2026-10-19. `core.js`: xoá dòng 13 `/* ===== app.js ===== */`, các dòng `// v1.7.0 …`, `// v1.8.0 …` (2 chỗ), `/* flowScreen assigns after framework */`; dòng 7 bỏ `simplifyNormalBanners`. Đầu `bj01.js` / `bj04.js`: sửa câu cụt "… màn dựng"; `bj05/06/07.js`: bỏ thụt   `*/`; `cap01.js`: bỏ "Còn ở core.js (gỡ dần ở A11): fallback-exit". `bj10.js`: bỏ lớp chuyển tiếp `render0xxBJ10`.
 
-**R5. Công cụ và thư mục mốc.** ✅ 2026-10-19 — mốc `tools/.golden-phase1` (1348 ca, 0 lỗi JS, 0 khác biệt với bốn mốc gốc) chụp **trước** khi xoá 32 thư mục mốc tạm; README prototype trỏ mốc mới. `tools/golden.mjs`: bỏ nhánh `||window.__VET45_V350__` / `__VET45_V3101__`. Sau khi A12 đạt: chụp mốc Giai đoạn 2 `tools/.golden-phase1`; xoá mọi `tools/.golden-a`*, `tools/.golden-{base,check,sc-a,sc-b,bj02-sc}`, `tools/.full-`*, `tools/.usage-*`, và `.golden-*` ở gốc `html/`. `tools/.gitignore` thêm `.full*/` và `.usage*/`.
+**R5. Công cụ và thư mục mốc.** ✅ 2026-10-19 — mốc `tools/.golden-phase1` (1348 ca, 0 lỗi JS, 0 khác biệt với bốn mốc gốc) chụp **trước** khi xoá 32 thư mục mốc tạm; README prototype trỏ mốc mới. `tools/golden.mjs`: bỏ nhánh `||window.__C45_V350__` / `__C45_V3101__`. Sau khi A12 đạt: chụp mốc Giai đoạn 2 `tools/.golden-phase1`; xoá mọi `tools/.golden-a`*, `tools/.golden-{base,check,sc-a,sc-b,bj02-sc}`, `tools/.full-`*, `tools/.usage-*`, và `.golden-*` ở gốc `html/`. `tools/.gitignore` thêm `.full*/` và `.usage*/`.
 
 **R6. Ghi lại và commit.** ✅ 2026-10-19 — CHANGELOG `[5.3.1]`, `manifest.json` / badge 5.3.1, `sync-registry.py`; commit theo yêu cầu người dùng. CHANGELOG `[5.3.1] — T7-P A12: sửa sau review Giai đoạn 1` (R1 CSS trả lại, R2 footer / dòng nhấn mạnh, R3 một định nghĩa); sửa mục 5.3.0 bỏ `simplifyNormalBanners` khỏi danh sách khung. `manifest.json` 5.3.1; `python3 tools/sync-registry.py`. **Commit gồm cả cấu trúc T7-P0 + A11 chưa từng commit**: 214 file legacy đã xoá, `styles/`, `harness/`, `data/`, `index.html` — kiểm bằng `git stash -u && git status` không còn gì rồi mở `index.html` từ một bản `git worktree` sạch. `detect_changes()` trước commit. Commit: `refactor(prototype): T7-P A11+A12 — framework cleanup, harness split, post-review fixes`.
 
@@ -778,7 +778,7 @@ Chuẩn bị Giai đoạn 2. Plan ✅ (duyệt 2026-10-21) | Làm ✅ 2026-10-21
 | Thu khung cho vừa sân khấu | `fitReviewDeviceToViewport()` (`workbench.js:426`) chỉ tính cho khung iPhone (418 × 890)                                                                                                                                                                                                                                                                                                 |
 | Khung app                  | `app/hub.js:75` `bottomNav()` dựng thanh dưới 5 tab trong `shell()`; màn của luồng (BJ) dựng thẳng vào `#app-screen`, có `statusBar` iOS                                                                                                                                                                                                                                                 |
 | Golden                     | `tools/golden.mjs`: nhóm ca theo luồng (dòng ~81–84: `?uif=…&screen=…`), `HUB_home`, kịch bản `SC_*` (dòng ~312); cửa sổ chụp 1600 × 1100 (`setDeviceMetricsOverride`, dòng ~405, ~501); ảnh = vùng `#device-preview`                                                                                                                                                                    |
-| Khai báo                   | `workbench.js:449` `window.__VET45_PROTOTYPE__`: `productKind: "mobile_app"`, `devicePresets` chỉ `iphone-402`; phiên bản 5.3.1 ở `workbench.js:451`, `manifest.json`, badge `index.html:28`                                                                                                                                                                                             |
+| Khai báo                   | `workbench.js:449` `window.__C45_PROTOTYPE__`: `productKind: "mobile_app"`, `devicePresets` chỉ `iphone-402`; phiên bản 5.3.1 ở `workbench.js:451`, `manifest.json`, badge `index.html:28`                                                                                                                                                                                             |
 
 **H0. Mốc.** Chụp `node tools/golden.mjs capture tools/.golden-h1-base`; so với `tools/.golden-phase1` phải "Khớp hoàn toàn (1348 ca)". Không chụp lại mốc này giữa gói.
 
@@ -792,15 +792,15 @@ Chuẩn bị Giai đoạn 2. Plan ✅ (duyệt 2026-10-21) | Làm ✅ 2026-10-21
 **H2. Nút và khai báo.**
 
 1. `index.html`: thêm `<button class="viewport-button" data-viewport="web" type="button">Web · 1280 × 800</button>` sau nút Mobile.
-2. `workbench.js` `__VET45_PROTOTYPE__`: `productKind: "app"`; `devicePresets` thêm `{ id: "web-1280", kind: "web", width: 1280, height: 800 }`.
+2. `workbench.js` `__C45_PROTOTYPE__`: `productKind: "app"`; `devicePresets` thêm `{ id: "web-1280", kind: "web", width: 1280, height: 800 }`.
 3. Bấm nút đổi khung và tải lại trang với `&viewport=web` → vào đúng khung.
 
 **H3. Khung web (CSS).** Trong `styles/components.css`, ngay sau khối khung iPhone (sau luật `.device-preview.is-mobile` đầu tiên, dòng ~110), thêm khối `/* Khung web 1280×800 (H1) */`:
 
-- `.device-preview.is-web`: `width:1280px; height:800px; min-height:800px; border:1px solid var(--vet45-v2-neutral-300); border-radius:8px;` (không viền dày 8px như iPhone), `display:grid; grid-template-columns:240px minmax(0,1fr);`, nền `--vet45-v2-neutral-100`.
+- `.device-preview.is-web`: `width:1280px; height:800px; min-height:800px; border:1px solid var(--c45-v2-neutral-300); border-radius:8px;` (không viền dày 8px như iPhone), `display:grid; grid-template-columns:240px minmax(0,1fr);`, nền `--c45-v2-neutral-100`.
 - `.device-preview.is-web > .app-screen`: cuộn trong vùng của nó; nội dung con căn giữa, `max-width:1120px`.
 - `.device-preview.is-web .app-statusbar { display:none; }`, `.device-preview.is-web .t7-app-bottom-nav { display:none; }` (thanh bên thay thanh dưới).
-- Mọi giá trị dùng token `--vet45-v2-*`; tra `styles/tokens.css`, không gõ tay màu.
+- Mọi giá trị dùng token `--c45-v2-*`; tra `styles/tokens.css`, không gõ tay màu.
 
 **H4. Thanh bên giả (**`hub.js`**).**
 
@@ -810,7 +810,7 @@ Chuẩn bị Giai đoạn 2. Plan ✅ (duyệt 2026-10-21) | Làm ✅ 2026-10-21
    - 5 mục chính "Trang chủ · Đơn hàng · Sản phẩm · Đối tác · Thêm" (chỉ "Thêm" bật, `data-theme-sidebar-route="more"` như `bottomNav()`);
    - mục con của "Thêm": "Kho" (đang chọn; bấm → Home Kho bằng `data-theme-sidebar-route="inventory"`, cùng route cột trái của harness dùng ở `hub.js:247`; handler sẵn có ở `hub.js:367`), "Giá riêng / Nhớ giá", "Người dùng & vai trò", "Tài khoản của tôi", "Thiết lập" (tắt);
    - cuối: "Đăng xuất" (tắt).
-     Mục chọn tô `--vet45-v2-primary-*` như tab đang chọn của thanh dưới; mục tắt mờ như `bottomNav()`; `aria-current="page"` ở "Kho".
+     Mục chọn tô `--c45-v2-primary-*` như tab đang chọn của thanh dưới; mục tắt mờ như `bottomNav()`; `aria-current="page"` ở "Kho".
 3. Không sửa file `bjNN.js` nào.
 
 **H5. Thu khung cho vừa sân khấu.** `fitReviewDeviceToViewport()`: khung iPhone giữ nguyên công thức (`890` / `418`); khung web: `scale = min(1, availableHeight / 802, availableWidth / 1282)`. Cửa sổ `≤ 840` giữ scale 1 như cũ.
@@ -822,7 +822,7 @@ Chuẩn bị Giai đoạn 2. Plan ✅ (duyệt 2026-10-21) | Làm ✅ 2026-10-21
 3. `README.md` (html): thêm `DEVICE=web node tools/golden.mjs capture tools/.golden-web-now` và cách so.
 4. Kiểm: `DEVICE=web … capture tools/.golden-web-base` chạy hết, 0 lỗi JS, ảnh 1280 × 800 (+ viền); mobile `capture tools/.golden-now` → `compare tools/.golden-h1-base tools/.golden-now` "Khớp hoàn toàn". Mốc `tools/.golden-web-base` là mốc web cho BJ-12 (mục 4.5).
 
-**H7. Ghi lại.** CHANGELOG `[5.4.0] — H1: harness khung web 1280×800` (H1–H6, không đổi màn); phiên bản 5.4.0 ở `manifest.json`, `workbench.js` `__VET45_PROTOTYPE__.version`, badge `index.html:28` "v5.4.0 · H1 khung web"; `python3 tools/sync-registry.py`; mục 14 (dòng "Khung web cho harness") và mục 8.2 chặng 0 đánh ✅.
+**H7. Ghi lại.** CHANGELOG `[5.4.0] — H1: harness khung web 1280×800` (H1–H6, không đổi màn); phiên bản 5.4.0 ở `manifest.json`, `workbench.js` `__C45_PROTOTYPE__.version`, badge `index.html:28` "v5.4.0 · H1 khung web"; `python3 tools/sync-registry.py`; mục 14 (dòng "Khung web cho harness") và mục 8.2 chặng 0 đánh ✅.
 
 **Kiểm cả gói.**
 
@@ -842,7 +842,7 @@ Chuẩn bị Giai đoạn 2. Plan ✅ (duyệt 2026-10-21) | Làm ✅ 2026-10-21
 - **Lệch / bổ sung so với plan:**
   1. *Màn BJ trong khung web.* Plan chỉ nói "nội dung giữa tối đa 1120px"; thực tế mỗi UIF đặt cứng `width:402px; height:874px` cho `.figma-calibrated-shell`, nên chỉ đặt `max-width` thì màn BJ lệch trái và chân trang (nút chính) bị đẩy ra dưới khung. Thêm vào H3: `.device-preview.is-web > .app-screen > .v-page-scaffold` cao 100% khung (`!important` để thắng luật theo UIF); màn Hub / Thêm (`.t7-integrated-shell`) rộng tới 1120px, màn BJ giữ cột 402px ở giữa. Đã kiểm cả 497 màn × trạng thái: không tràn ngang.
   2. *Sân khấu hẹp hơn 1280px.* Cột lưới của `.stage-canvas` giãn theo khung 1280 làm khung thu lệch phải; thêm `.stage-canvas:has(.device-preview.is-web) { grid-template-columns: minmax(0,1fr) }` trong H3. Đổi khung bằng nút gọi lại `fitReviewDeviceToViewport()` ngay (H5).
-  3. *Tên tổ chức ở thanh bên.* Fixture của Hub không có tên tổ chức nào; thêm hằng `ORG_NAME = 'VET45 Demo'` trong `hub.js` (đổi được khi BJ-12 cần tên thật).
+  3. *Tên tổ chức ở thanh bên.* Fixture của Hub không có tên tổ chức nào; thêm hằng `ORG_NAME = 'Mosaic Retail Demo'` trong `hub.js` (đổi được khi BJ-12 cần tên thật).
   4. *Mục con "Kho".* Bấm "Kho" / "Thêm" chỉ chạy ở chế độ "Toàn Theme 7" (handler `data-theme-sidebar-route` sẵn có không chạy ở chế độ Theo BJ / UIF), giống nút "Thêm" của thanh dưới.
   5. *Không có biểu tượng cho mục con và "Đăng xuất"* (plan không nêu; W-1 3.3 không nêu).
   6. `prototype.manifest.json` (còn ghi 5.0.0, `mobile_app`) không đụng — không nằm trong H7.
@@ -856,7 +856,7 @@ Chuẩn bị Giai đoạn 2. Plan ✅ (duyệt 2026-10-21) | Làm ✅ 2026-10-21
 | Golden web | `DEVICE=web` 555 ca (màn × trạng thái + `HUB_home`, không `SC_*`), 0 lỗi JS; "Khớp hoàn toàn" với `tools/.golden-web-base` |
 | `node --check app/*.js harness/*.js` | Sạch |
 | `is-wide` | `grep` rỗng; 6 luật `:not(.is-wide)` → `.is-mobile` giữ nguyên thân luật |
-| Token | Mọi `--vet45-v2-*` mới dùng đều có trong `styles/tokens.css` |
+| Token | Mọi `--c45-v2-*` mới dùng đều có trong `styles/tokens.css` |
 | Registry | `sync-registry.py` chạy lại không đổi thêm; `shasum -c` toàn bộ OK |
 | Diff | Đúng phạm vi H0–H7; không file `bjNN.js` nào bị sửa |
 
@@ -865,7 +865,7 @@ Lệch 1–6 trong ghi chú: chấp nhận. Lệch 1 (màn BJ giữ cột 402px 
 Góp ý nhỏ (không chặn, sửa khi tiện):
 
 1. `index.html`: thuộc tính `hidden` trên `#web-sidebar` không có tác dụng (`.t7-web-sidebar { display:flex }` thắng); việc ẩn do luật `.device-preview:not(.is-web) .t7-web-sidebar` làm. Bỏ `hidden` cho khỏi hiểu nhầm.
-2. `components.css` khối `.t7-web-sidebar`: hai chỗ `font: … Inter, system-ui, sans-serif` → dùng `var(--vet45-v2-font-sans)`.
+2. `components.css` khối `.t7-web-sidebar`: hai chỗ `font: … Inter, system-ui, sans-serif` → dùng `var(--c45-v2-font-sans)`.
 3. `prototype.manifest.json` còn `5.0.0` / `mobile_app` (ngoài H7) — để mục 7.3 (chốt đặc tả) cập nhật.
 
 ### Giai đoạn 2 — thiết kế lại (theo chặng, mục 8.2)

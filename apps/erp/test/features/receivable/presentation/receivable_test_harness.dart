@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../inventory/support/inventory_test_surface.dart';
 
@@ -64,8 +64,8 @@ String repoRoot() => Directory.current.path.endsWith('apps/erp')
 /// Nạp Inter của design system: mặc định `flutter test` dùng Ahem (ô vuông, rộng hơn chữ thật)
 /// nên tràn dòng giả và golden không so được với prototype.
 Future<void> loadInterFont() async {
-  final loader = FontLoader('packages/vet45_design_system/Inter');
-  final dir = '${repoRoot()}/packages/vet45_design_system/assets/fonts/ttf_Inter';
+  final loader = FontLoader('packages/c45_design_system/Inter');
+  final dir = '${repoRoot()}/packages/c45_design_system/assets/fonts/ttf_Inter';
   for (final f in ['Regular', 'Medium', 'SemiBold', 'Bold', 'ExtraBold']) {
     final bytes = await File('$dir/Inter-$f.ttf').readAsBytes();
     loader.addFont(Future.value(ByteData.view(bytes.buffer)));

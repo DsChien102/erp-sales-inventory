@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import '../iam/support/fake_iam_backend.dart';
 import '../iam/support/iam_test_session.dart';
 import 'package:erp/features/iam/presentation.dart';
 import '../iam/support/iam_fixtures.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:c45_shared_application/application.dart';
+import 'package:c45_shared_testing/shared_testing.dart';
 
 import '../auth/support/scripted_invitations.dart';
 

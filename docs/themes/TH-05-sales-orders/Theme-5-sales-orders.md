@@ -10,7 +10,7 @@
 
 ## 1\.1 Purpose
 
-Theme 05 — Bán hàng \& Đơn hàng mô tả toàn bộ nghiệp vụ bán hàng trong VET45, từ lúc người bán bắt đầu lập đơn tại quầy cho đến khi đơn được thanh toán, hoàn tất, phát sinh phiếu bán hàng nội bộ, được tra cứu lại và được xử lý sau bán như hủy, điều chỉnh, đổi hàng hoặc trả hàng\.
+Theme 05 — Bán hàng \& Đơn hàng mô tả toàn bộ nghiệp vụ bán hàng trong Mosaic Retail, từ lúc người bán bắt đầu lập đơn tại quầy cho đến khi đơn được thanh toán, hoàn tất, phát sinh phiếu bán hàng nội bộ, được tra cứu lại và được xử lý sau bán như hủy, điều chỉnh, đổi hàng hoặc trả hàng\.
 
 Theme này đóng vai trò là lớp giao dịch trung tâm của hệ thống\. Dữ liệu phát sinh từ Theme 05 là nguồn đầu vào quan trọng cho:
 
@@ -1742,7 +1742,7 @@ Trong đổi hàng:
 
 ### 2\.4\.3 Command, query \& event conventions
 
-Phần này chỉ mang tính tạm thời, sẽ khái quát hoá và đưa vào quy chuẩn chung cho cả hệ thống VET45\.
+Phần này chỉ mang tính tạm thời, sẽ khái quát hoá và đưa vào quy chuẩn chung cho cả hệ thống Mosaic Retail\.
 
 #### Command
 
@@ -1860,7 +1860,7 @@ Draft events, UI\-view events và technical delivery events không publish công
 
 ### 2\.4\.4 Integration delivery, idempotency \& audit
 
-Phần này chỉ mang tính tạm thời, sẽ khái quát hoá và đưa vào quy chuẩn chung cho cả hệ thống VET45\.
+Phần này chỉ mang tính tạm thời, sẽ khái quát hoá và đưa vào quy chuẩn chung cho cả hệ thống Mosaic Retail\.
 
 #### Durable delivery
 
@@ -8647,7 +8647,7 @@ Scenario: SC-07 — Tạo đơn mới
 
 Sau khi giao dịch thành công, người bán thường cần đưa cho khách một phiếu bán hàng thể hiện nội dung giao dịch\. Phiếu phải được sinh từ commercial snapshot của SalesOrder để không thay đổi theo master data hiện hành\.
 
-SalesReceipt là chứng từ nội bộ của VET45, không phải hóa đơn điện tử\. Việc tạo receipt có thể diễn ra sau khi SalesOrder đã commit và không bắt buộc nằm trong checkout transaction\.
+SalesReceipt là chứng từ nội bộ của Mosaic Retail, không phải hóa đơn điện tử\. Việc tạo receipt có thể diễn ra sau khi SalesOrder đã commit và không bắt buộc nằm trong checkout transaction\.
 
 **User story statement**
 
@@ -15696,7 +15696,7 @@ Scenario: SC-07 — Downstream inventory failed
 
 ## 5\.1 Design principles
 
-Theme 5 áp dụng các nguyên tắc thiết kế chung của VET45 Product Vision và VET45 Design System, đồng thời bổ sung các nguyên tắc riêng cho hành trình bán hàng, thanh toán và xử lý sau bán\.
+Theme 5 áp dụng các nguyên tắc thiết kế chung của Mosaic Retail Product Vision và Mosaic Retail Design System, đồng thời bổ sung các nguyên tắc riêng cho hành trình bán hàng, thanh toán và xử lý sau bán\.
 
 ### 5\.1\.1 Mobile first, not mobile only
 
@@ -16264,7 +16264,7 @@ Trong Core selling, dữ liệu phục vụ thao tác nhanh được ưu tiên\.
 
 
 
-Component inventory là baseline ban đầu\. Khi thiết kế từng Screen Group, component mới hoặc biến thể mới phải được ghi nhận trong Component Delta trước khi bổ sung vào VET45 Design System\.
+Component inventory là baseline ban đầu\. Khi thiết kế từng Screen Group, component mới hoặc biến thể mới phải được ghi nhận trong Component Delta trước khi bổ sung vào Mosaic Retail Design System\.
 
 ### 5\.4\.7 Responsive considerations
 

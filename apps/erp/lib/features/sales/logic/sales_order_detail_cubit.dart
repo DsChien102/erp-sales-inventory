@@ -22,7 +22,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:erp/features/einvoice/data/einvoice_repository.dart';
 import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   SalesOrderDetailCubit({

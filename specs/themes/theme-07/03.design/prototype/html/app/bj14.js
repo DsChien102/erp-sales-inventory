@@ -9,7 +9,7 @@
  * Fixture: plan T7-P-bj14-gia-von.md mục 3 (sản phẩm / ĐVT từ bj01Products, giá vốn từ BJ08_CATALOG; số liệu khớp BJ-01…BJ-16 chặng 1–5).
  */
 
-const BJ14_POLICY = window.__VET45_TENANT_COST_POLICY__ || { version: "MISSING", method: null, label: "Chưa cấu hình", periodCloseScopes: [] };
+const BJ14_POLICY = window.__C45_TENANT_COST_POLICY__ || { version: "MISSING", method: null, label: "Chưa cấu hình", periodCloseScopes: [] };
 const BJ14_METHODS = {
   PERIODIC: ["Bình quân cuối kỳ", "giá vốn mỗi sản phẩm là giá trung bình của tồn đầu kỳ và hàng nhập cả kỳ."],
   MOVING: ["Bình quân liên hoàn", "giá vốn tính lại sau mỗi lần nhập."],
@@ -151,7 +151,7 @@ function bj14Blockers(run) {
 
 /* ---------- Tính và công bố ---------- */
 
-// Có việc chặn thì lần tính chưa chạy (BLOCKED); không thì chạy (CALCULATING → READY_FOR_REVIEW sau BJ14_CALC_MS hoặc __VET45_QA__.finishBJ14Calc).
+// Có việc chặn thì lần tính chưa chạy (BLOCKED); không thì chạy (CALCULATING → READY_FOR_REVIEW sau BJ14_CALC_MS hoặc __C45_QA__.finishBJ14Calc).
 function bj14Calculate(run) {
   if (bj14Blockers(run).length) { run.status = "BLOCKED"; return run.status; }
   run.lines.forEach((l) => { l.oldCost = bj14Official[l.code] ?? l.oldCost; });
@@ -521,7 +521,7 @@ onPrevious["UIF-14"] = () => {
 // BJ-03 / BJ-13 "Cập nhật giá vốn": mở lần tính cập nhật trong kỳ đang chờ đúng trạng thái hiện tại (không dựng lại fixture).
 // Người bấm là chủ cửa hàng (BJ-03 / BJ-13 mở bằng vai chung): vai chung thành chủ cửa hàng, nhân viên vẫn bị chặn.
 onEntry["UIF-14:dirty-scope"] = () => {
-  if (!["staff", "owner", "approver"].includes(currentActor())) window.__VET45_QA__.setActor("owner");
+  if (!["staff", "owner", "approver"].includes(currentActor())) window.__C45_QA__.setActor("owner");
   const run = bj14Runs.find((r) => r.kind === "AD_HOC" && r.status !== "PUBLISHED" && !bj14Superseded(r));
   bj14Ui.sheet = null; bj14Draft = null;
   bj14Known("SCR-072", "READY");
@@ -537,7 +537,7 @@ screenAliases["UIF-14"] = Object.assign(screenAliases["UIF-14"] || {}, { "SCR-07
 flowRenderers["UIF-14"] = Object.assign(flowRenderers["UIF-14"] || {}, { "SCR-072": render072BJ14, "SCR-074": render074BJ14, "SCR-077": render077BJ14 });
 Object.assign(renderers, { "SCR-072": render072BJ14, "SCR-074": render074BJ14, "SCR-077": render077BJ14 });
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   finishBJ14Calc() { return bj14FinishCalc(); },
   // Dữ liệu vào lần tính đổi (hoá đơn, giá nhập…): lần đang xem không còn công bố được.
   bumpBJ14Input() { const r = bj14Current(); r.inputVersion += 1; return r.inputVersion; },

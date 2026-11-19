@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Dark success toast after person → organization transform (SG-05).
 void showPartnerTransformSuccessToast(BuildContext context) {

@@ -1,4 +1,4 @@
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Formats catalog money amount only — round to nearest đồng, thousand separators (`.`).
 /// Example: `115.000`

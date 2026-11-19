@@ -2,9 +2,9 @@
 
 ## Epic overview
 
-Epic này giúp VET45 quản lý cách một sản phẩm được theo dõi tồn kho trong Theme 2, đồng thời phân biệt rõ giữa **thiết lập tồn kho** và **số lượng tồn thực tế**.
+Epic này giúp Mosaic Retail quản lý cách một sản phẩm được theo dõi tồn kho trong Theme 2, đồng thời phân biệt rõ giữa **thiết lập tồn kho** và **số lượng tồn thực tế**.
 
-Ở gói Foundation, VET45 cần cho phép người dùng nhập và chỉnh tồn kho cơ bản trực tiếp trong Product để có thể vận hành nhanh, không cần triển khai đầy đủ module Kho. Ở gói nâng cao, tồn kho không còn được chỉnh trực tiếp trong Product, mà được đọc từ module Kho dưới dạng stock summary hoặc nguồn dữ liệu tồn kho chuyên trách.
+Ở gói Foundation, Mosaic Retail cần cho phép người dùng nhập và chỉnh tồn kho cơ bản trực tiếp trong Product để có thể vận hành nhanh, không cần triển khai đầy đủ module Kho. Ở gói nâng cao, tồn kho không còn được chỉnh trực tiếp trong Product, mà được đọc từ module Kho dưới dạng stock summary hoặc nguồn dữ liệu tồn kho chuyên trách.
 
 Vai trò người dùng chính gồm chủ cửa hàng, người nhập liệu sản phẩm, nhân viên kho nếu có, kế toán và người quản lý vận hành. Chủ cửa hàng cần biết sản phẩm có đang theo dõi tồn kho hay không. Người nhập liệu cần ghi nhận tồn kho ban đầu. Kế toán và quản lý kho cần dữ liệu tồn kho rõ nguồn, rõ đơn vị, không bị nhập nhầm.
 

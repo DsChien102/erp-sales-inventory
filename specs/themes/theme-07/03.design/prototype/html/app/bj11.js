@@ -290,7 +290,7 @@ function render050BJ11(state) {
   const qtyError = showError ? (!bj11Valid(d.qty) ? "Nhập số đúng" : bj11Num(d.qty) === base ? "Số đúng đang bằng số đã ghi" : "") : "";
   const reasonError = showError && !d.reason.trim() ? "Nhập lý do sửa sai" : "";
   const strategy = `<section class="bj06-section">${ds24SectionTitle("Cách sửa")}<div class="ds-choice-list" role="radiogroup" aria-label="Cách sửa">${BJ11_STRATEGIES.map(([key, label, detail]) => dsChoiceRow({ title: label, subtitle: detail, selected: d.strategy === key, attrs: `data-bj11-strategy="${key}"` })).join("")}</div></section>`;
-  const qty = `<div class="k5-qty"><span class="vet45-text-style-8">Số đúng <span class="required">*</span></span>${k7EditCell({ value: d.qty, attr: 'data-bj11-qty enterkeyhint="next"', unit: op.uom, error: qtyError, label: "Số đúng" })}<small class="bj11-hint">Đã ghi ${esc(t7Qty(base, op.uom))}</small></div>`;
+  const qty = `<div class="k5-qty"><span class="c45-text-style-8">Số đúng <span class="required">*</span></span>${k7EditCell({ value: d.qty, attr: 'data-bj11-qty enterkeyhint="next"', unit: op.uom, error: qtyError, label: "Số đúng" })}<small class="bj11-hint">Đã ghi ${esc(t7Qty(base, op.uom))}</small></div>`;
   const form = `<div class="bj11-form">${strategy}${qty}${bj11ReasonField(d, reasonError)}<div class="bj11-after bj11-after--inline" data-bj11-after>${bj11AfterBlock(op, d)}</div></div>`;
   const short = ac310KeyValueSurface("Phiếu gốc", [["Mã phiếu", op.docCode], ["Số lượng", t7Qty(op.qty, op.uom)], ["Ghi vào kho", bj11Written(op)]]);
   const aside = `<div class="bj11-after" data-bj11-after>${bj11AfterBlock(op, d)}</div>${short}`;

@@ -4,7 +4,7 @@
 
 ## 1\.1 Purpose
 
-Theme 1 thiết lập nền móng tổ chức, người dùng và phân quyền cho toàn bộ VET45\. Theme chịu trách nhiệm tạo và quản lý Tenant như ranh giới dữ liệu, quyền truy cập, cấu hình và giao dịch của một đơn vị kinh doanh; quản lý hồ sơ tổ chức, Membership, lời mời tham gia Tenant, system role, permission, ownership, Tenant context và readiness; đồng thời cung cấp actor, Tenant và authorization context cho Theme 2–12\.
+Theme 1 thiết lập nền móng tổ chức, người dùng và phân quyền cho toàn bộ Mosaic Retail\. Theme chịu trách nhiệm tạo và quản lý Tenant như ranh giới dữ liệu, quyền truy cập, cấu hình và giao dịch của một đơn vị kinh doanh; quản lý hồ sơ tổ chức, Membership, lời mời tham gia Tenant, system role, permission, ownership, Tenant context và readiness; đồng thời cung cấp actor, Tenant và authorization context cho Theme 2–12\.
 
 Trong tài liệu kỹ thuật và các contract hệ thống, `Tenant` là thuật ngữ domain\. Trên giao diện người dùng, Tenant được hiển thị thống nhất là **Tổ chức**\.
 
@@ -12,7 +12,7 @@ Theme 1 hỗ trợ hai application surface riêng:
 
 1. **Tenant App:** ứng dụng mobile\-first dành cho Owner, người có quyền quản trị và thành viên của tổ chức\. Tenant App hỗ trợ hoàn thiện readiness, kích hoạt tổ chức, quản lý hồ sơ tổ chức, thành viên, lời mời, system role, quyền truy cập, lựa chọn Tenant context, xem lịch sử quản trị và tự quản lý tài khoản cá nhân\.
 
-2. **Platform Admin App:** ứng dụng mobile\-first dành cho VET45 System Admin và Platform Operator để quản lý Platform User, khởi tạo Tenant, chỉ định Owner đầu tiên, xem tổ chức và thành viên thuộc tổ chức, thay đổi Owner theo platform privilege, tạm ngừng hoặc khôi phục Platform User/Tenant và tra cứu nhật ký quản trị nền tảng\.
+2. **Platform Admin App:** ứng dụng mobile\-first dành cho Mosaic Retail System Admin và Platform Operator để quản lý Platform User, khởi tạo Tenant, chỉ định Owner đầu tiên, xem tổ chức và thành viên thuộc tổ chức, thay đổi Owner theo platform privilege, tạm ngừng hoặc khôi phục Platform User/Tenant và tra cứu nhật ký quản trị nền tảng\.
 
 Platform Admin App có navigation, permission model và context riêng; không sử dụng TenantContext và không yêu cầu System Admin hoặc Platform Operator có Membership trong Tenant đích\.
 
@@ -22,7 +22,7 @@ Trong MVP, ownership vẫn là một phần nền tảng của Tenant và đư�
 
 ## 1\.2 Business context
 
-VET45 phục vụ hộ kinh doanh và doanh nghiệp thương mại nhỏ tại Việt Nam, bắt đầu từ bán lẻ offline và có thể mở rộng sang đa điểm, đa kho, đa kênh, bán buôn và B2B\. Theme 1 phải trả lời nhất quán các câu hỏi nền tảng:
+Mosaic Retail phục vụ hộ kinh doanh và doanh nghiệp thương mại nhỏ tại Việt Nam, bắt đầu từ bán lẻ offline và có thể mở rộng sang đa điểm, đa kho, đa kênh, bán buôn và B2B\. Theme 1 phải trả lời nhất quán các câu hỏi nền tảng:
 
 - Dữ liệu thuộc đơn vị kinh doanh nào?
 
@@ -39,11 +39,11 @@ VET45 phục vụ hộ kinh doanh và doanh nghiệp thương mại nhỏ tại 
 - Resource có thực sự thuộc Tenant hiện hành không?
 
 Tenant không đồng nhất với Store, Warehouse, công ty hay pháp nhân\. Tenant là ranh giới dữ liệu, quyền truy cập, cấu hình và giao dịch của một đơn vị kinh doanh được quản trị độc lập\. Một Tenant có thể đại diện cho hộ kinh doanh, doanh nghiệp hoặc một business unit độc lập; Phase 1 không hỗ trợ nhiều công ty/pháp nhân trong cùng Tenant\.
-Trong Phase 1, Tenant user không tự tạo Tenant\. VET45 System Admin khởi tạo Tenant ở trạng thái `provisioning` và gửi Owner Invitation; Platform User profile và Owner Membership chỉ được tạo khi người nhận chấp nhận lời mời\. Owner sau đó đăng nhập Tenant App, hoàn thiện readiness và activate Tenant\.
+Trong Phase 1, Tenant user không tự tạo Tenant\. Mosaic Retail System Admin khởi tạo Tenant ở trạng thái `provisioning` và gửi Owner Invitation; Platform User profile và Owner Membership chỉ được tạo khi người nhận chấp nhận lời mời\. Owner sau đó đăng nhập Tenant App, hoàn thiện readiness và activate Tenant\.
 
 ## 1\.3 In scope
 
-- VET45 System Admin tạo Platform User thông qua privileged Platform Identity flow\.
+- Mosaic Retail System Admin tạo Platform User thông qua privileged Platform Identity flow\.
 
 - Gửi lời mời chỉ lưu Invitation và trạng thái gửi. Người được mời bằng email mới chưa trở thành Platform User và chưa có Tenant Membership trước khi accept.
 
@@ -51,7 +51,7 @@ Trong Phase 1, Tenant user không tự tạo Tenant\. VET45 System Admin khởi 
 
 - Gửi lại activation invitation, yêu cầu đặt lại mật khẩu, tạm ngừng và khôi phục Platform User theo platform permission\.
 
-- VET45 System Admin khởi tạo Tenant và chỉ định Owner đầu tiên\.
+- Mosaic Retail System Admin khởi tạo Tenant và chỉ định Owner đầu tiên\.
 
 - Chọn Auth user hiện hữu hoặc mời email mới làm Owner; không tạo Platform User giả khi gửi lời mời\.
 
@@ -196,8 +196,8 @@ Trong Phase 1, Tenant user không tự tạo Tenant\. VET45 System Admin khởi 
 
 |User / actor|Scope|Main needs trong MVP|Authorization source|
 |---|---|---|---|
-|VET45 System Admin|Toàn nền tảng|Tạo Platform User, khởi tạo Tenant, chọn Owner đầu tiên, theo dõi onboarding, xem người dùng và tổ chức|Platform permissions|
-|VET45 Platform Operator|Toàn nền tảng|Tạm ngừng/khôi phục Platform User hoặc Tenant, thay đổi Owner theo platform privilege, tra cứu nhật ký quản trị|Platform permissions và step\-up policy khi áp dụng|
+|Mosaic Retail System Admin|Toàn nền tảng|Tạo Platform User, khởi tạo Tenant, chọn Owner đầu tiên, theo dõi onboarding, xem người dùng và tổ chức|Platform permissions|
+|Mosaic Retail Platform Operator|Toàn nền tảng|Tạm ngừng/khôi phục Platform User hoặc Tenant, thay đổi Owner theo platform privilege, tra cứu nhật ký quản trị|Platform permissions và step\-up policy khi áp dụng|
 |Platform User|Toàn nền tảng|Đăng nhập, kích hoạt tài khoản, tự xem/chỉnh sửa hồ sơ cá nhân, đặt lại mật khẩu, đăng xuất, nhận lời mời và tham gia nhiều Tenant|Supabase Auth (credential/session) \+ IAM identity/ (profile)|
 |Tenant Owner|Một Tenant|Hoàn thiện readiness, kích hoạt Tenant, quản lý hồ sơ, thành viên, lời mời, role và lịch sử quản trị trong phạm vi quyền|`is_owner` \+ Membership role|
 |Tenant Admin / người có quyền quản trị|Một Tenant|Quản lý hồ sơ, thành viên, lời mời và role theo permission được cấp|Membership role permissions|
@@ -240,7 +240,7 @@ Tên persona trong bảng không bắt buộc trùng system role code cuối cù
 
 - Hành trình S — Thiết lập vận hành\.
 
-- User Journey 1 — Owner kích hoạt và thiết lập VET45 lần đầu\.
+- User Journey 1 — Owner kích hoạt và thiết lập Mosaic Retail lần đầu\.
 
 - User Journey 5 — Owner mời thành viên và kiểm soát vận hành\.
 
@@ -290,9 +290,9 @@ Quy tắc ghi nhận:
 
 - Product vision\_2026\.07\.12\.
 
-- VET45 Design System\.
+- Mosaic Retail Design System\.
 
-- VET45 Brand name\.
+- Mosaic Retail Brand name\.
 
 - Theme 1 — Thiết lập cửa hàng, brainstorm ban đầu\.
 
@@ -322,7 +322,7 @@ Platform User, credential, session, Platform Admin permission, Notification deli
 ```Plaintext
 Platform Identity
 └── PlatformUser
-    ├── có thể là VET45 System Admin / Platform Operator
+    ├── có thể là Mosaic Retail System Admin / Platform Operator
     └── tham gia nhiều Tenant qua TenantMembership
 
 Platform Admin App
@@ -1000,7 +1000,7 @@ Resolve TenantContext cho Tenant App, PlatformAdminContext cho Platform Admin Ap
 
 ## 3\.1 Relationship model
 
-Theme 1 sử dụng Tenant làm ranh giới dữ liệu, quyền truy cập và cấu hình vận hành\. Platform User gồm Auth\-owned identity (login/credential/session) và IAM\-owned profile (`iam.platform_user_profiles`); một User có thể tham gia nhiều Tenant qua các Membership độc lập\. VET45 System Admin có thể tạo Platform User và Tenant qua Platform Admin App nhưng không trở thành Membership hoặc Owner mặc định\.
+Theme 1 sử dụng Tenant làm ranh giới dữ liệu, quyền truy cập và cấu hình vận hành\. Platform User gồm Auth\-owned identity (login/credential/session) và IAM\-owned profile (`iam.platform_user_profiles`); một User có thể tham gia nhiều Tenant qua các Membership độc lập\. Mosaic Retail System Admin có thể tạo Platform User và Tenant qua Platform Admin App nhưng không trở thành Membership hoặc Owner mặc định\.
 
 ```Plaintext
 PlatformUser [Referenced] 1 --- N TenantMembership N --- 1 Tenant
@@ -1024,7 +1024,7 @@ Các nguyên tắc mô hình:
 
 - Mỗi Membership có đúng một system role hiện hành qua `role_id`; không tạo `membership_role_assignments` Phase 1\.
 
-- `created_by_user_id` của Tenant có thể là VET45 System Admin và không bắt buộc là Owner hoặc Membership trong Tenant\.
+- `created_by_user_id` của Tenant có thể là Mosaic Retail System Admin và không bắt buộc là Owner hoặc Membership trong Tenant\.
 
 - Tenant Membership chỉ tham chiếu Platform User thật (Auth user); Invitation pending không phải Membership\.
 
@@ -1123,7 +1123,7 @@ Danh mục tỉnh/thành và xã/phường là backend reference catalog read\-o
 |`commune_code`|`text`|Không|Backend catalog validation|Mã xã/phường; phải thuộc `province_code`|
 |`business_timezone`|`text`|Có|CHECK = `Asia/Ho_Chi_Minh`; server\-managed|Timezone nghiệp vụ, read\-only trong Phase 1|
 |`base_currency_code`|`text`|Có|CHECK = `VND`; server\-managed|Đồng tiền cơ sở, read\-only trong Phase 1|
-|`created_by_user_id`|`uuid`|Có|Logical FK → PlatformUser, immutable|VET45 System Admin/Platform User thực hiện privileged provisioning|
+|`created_by_user_id`|`uuid`|Có|Logical FK → PlatformUser, immutable|Mosaic Retail System Admin/Platform User thực hiện privileged provisioning|
 |`status_changed_at`|`timestamptz`|Có|Server\-managed|Lần thay đổi trạng thái gần nhất|
 |`version`|`integer`|Có|Default `1`, tăng dần|Optimistic concurrency counter|
 |`created_at`|`timestamptz`|Có|Server\-managed, immutable|Thời điểm tạo|
@@ -1555,7 +1555,7 @@ Epic này cho phép Platform Admin quản lý Platform User, khởi tạo Tenant
 
 ### 4\.2\.2 Business context
 
-Tenant user không tự tạo Tenant trong MVP\. VET45 chủ động provision Platform User và Tenant, kiểm soát Owner đầu tiên, role mặc định và trạng thái provisioning\. Platform User = Auth\-owned credential/session \+ IAM\-owned profile; Tenant, Membership và readiness thuộc Theme 1\.
+Tenant user không tự tạo Tenant trong MVP\. Mosaic Retail chủ động provision Platform User và Tenant, kiểm soát Owner đầu tiên, role mặc định và trạng thái provisioning\. Platform User = Auth\-owned credential/session \+ IAM\-owned profile; Tenant, Membership và readiness thuộc Theme 1\.
 
 ### 4\.2\.3 In scope
 
@@ -1615,7 +1615,7 @@ Tenant user không tự tạo Tenant trong MVP\. VET45 chủ động provision P
 |---|---|---|---|---|
 |US\-01|Platform Admin|xem và tra cứu Platform User|kiểm soát người dùng cấp nền tảng|PA\-SG\-01|
 |US\-02|Platform Admin|quản lý lifecycle của Platform User|xử lý activation, password reset và access risk|PA\-SG\-01|
-|US\-03|VET45 System Admin|khởi tạo Tenant và Owner đầu tiên|khách hàng có workspace độc lập để thiết lập|PA\-SG\-02|
+|US\-03|Mosaic Retail System Admin|khởi tạo Tenant và Owner đầu tiên|khách hàng có workspace độc lập để thiết lập|PA\-SG\-02|
 |US\-04|Tenant Owner|xem readiness của tổ chức|biết điều kiện cần hoàn thiện|TA\-SG\-01|
 |US\-05|Tenant Owner|kích hoạt tổ chức khi đủ điều kiện|bắt đầu sử dụng nghiệp vụ|TA\-SG\-01|
 
@@ -1769,7 +1769,7 @@ System Admin cần một flow onboarding thống nhất để tạo hoặc chọ
 
 |As user|I want to|So that|
 |---|---|---|
-|VET45 System Admin|khởi tạo Tenant và Owner đầu tiên|khách hàng có tổ chức để tiếp tục thiết lập|
+|Mosaic Retail System Admin|khởi tạo Tenant và Owner đầu tiên|khách hàng có tổ chức để tiếp tục thiết lập|
 
 **Functional requirements**
 
@@ -1989,7 +1989,7 @@ Epic này quản lý hồ sơ tổ chức, Legal Profile, Tenant lifecycle ở c
 
 ### 4\.3\.2 Business context
 
-Tenant App cho phép người có quyền duy trì thông tin tổ chức\. Platform Admin App cho phép VET45 xem Tenant, thành viên, readiness, trạng thái và thực hiện privileged operation mà không cần Membership trong Tenant đích\.
+Tenant App cho phép người có quyền duy trì thông tin tổ chức\. Platform Admin App cho phép Mosaic Retail xem Tenant, thành viên, readiness, trạng thái và thực hiện privileged operation mà không cần Membership trong Tenant đích\.
 
 ### 4\.3\.3 In scope
 
@@ -2475,7 +2475,7 @@ Người quản trị cần mời người dùng tham gia Tenant, kiểm soát l
 |User story|As user|I want to|So that|Related screen group|
 |---|---|---|---|---|
 |US\-01|Người có quyền|xem và tìm kiếm thành viên, lời mời|kiểm soát đội ngũ trong Tenant|TA\-SG\-03|
-|US\-02|Owner hoặc Admin được ủy quyền|mời người dùng tham gia Tenant|mở rộng đội ngũ sử dụng VET45|TA\-SG\-03|
+|US\-02|Owner hoặc Admin được ủy quyền|mời người dùng tham gia Tenant|mở rộng đội ngũ sử dụng Mosaic Retail|TA\-SG\-03|
 |US\-03|Người được mời|chấp nhận hoặc từ chối lời mời|chủ động quyết định tham gia|Identity/invitation surface|
 |US\-04|Owner hoặc Admin được ủy quyền|gửi lại hoặc thu hồi lời mời|xử lý Invitation chưa hoàn tất|TA\-SG\-03|
 |US\-05|Owner hoặc Admin được ủy quyền|xem và thay đổi trạng thái thành viên|kiểm soát access của Membership|TA\-SG\-04|
@@ -3136,7 +3136,7 @@ Một Platform User có thể tham gia nhiều Tenant\. Việc chọn hoặc chu
 
 ### 5\.2\.2 Platform Admin App
 
-- Dành cho VET45 System Admin và Platform Operator\.
+- Dành cho Mosaic Retail System Admin và Platform Operator\.
 
 - Không yêu cầu actor có Membership trong tổ chức đích\.
 
@@ -4345,12 +4345,12 @@ Các lỗi liên quan `tenant.close` hoặc tenant\-facing ownership transfer ch
 |Term|Vietnamese name|Short definition|Related domain|Related entity/model|
 |---|---|---|---|---|
 |Tenant|Tổ chức|Ranh giới dữ liệu, quyền, cấu hình và giao dịch độc lập|D\-01|`tenants`|
-|Tenant App|Ứng dụng VET45 dành cho tổ chức|Application surface dùng TenantContext cho Owner và thành viên|D\-04|TenantContext|
-|Platform Admin App|Ứng dụng quản trị nền tảng|Application surface nội bộ cho privileged VET45 actor|Platform reference|PlatformAdminContext|
-|Platform User|Người dùng nền tảng|Danh tính dùng chung trên toàn VET45|Referenced|PlatformUser|
+|Tenant App|Ứng dụng Mosaic Retail dành cho tổ chức|Application surface dùng TenantContext cho Owner và thành viên|D\-04|TenantContext|
+|Platform Admin App|Ứng dụng quản trị nền tảng|Application surface nội bộ cho privileged Mosaic Retail actor|Platform reference|PlatformAdminContext|
+|Platform User|Người dùng nền tảng|Danh tính dùng chung trên toàn Mosaic Retail|Referenced|PlatformUser|
 |Platform User Profile|Hồ sơ người dùng|Hồ sơ cá nhân do IAM sở hữu (`iam.platform_user_profiles`)|IAM|`iam.platform_user_profiles`|
 |My Account|Tài khoản của tôi|Khu vực tự quản lý hồ sơ (IAM), mật khẩu và đăng xuất (Auth qua IAM CQRS)|IAM identity/|PlatformUser, PasswordResetOperation|
-|VET45 System Admin|Quản trị viên hệ thống|Actor tạo Platform User, Tenant và thực hiện onboarding|Platform reference|Platform authorization grant|
+|Mosaic Retail System Admin|Quản trị viên hệ thống|Actor tạo Platform User, Tenant và thực hiện onboarding|Platform reference|Platform authorization grant|
 |Platform Operator|Nhân sự vận hành nền tảng|Actor thực hiện privileged lifecycle operation|Platform reference|Platform authorization grant|
 |PlatformAdminContext|Ngữ cảnh quản trị nền tảng|Context dùng platform permission và không yêu cầu Tenant Membership|D\-04 reference|Runtime model|
 |PlatformOnboardingOperation|Phiên khởi tạo tổ chức|Orchestration state cho create User, Tenant và Owner|Platform reference|PlatformOnboardingOperation|

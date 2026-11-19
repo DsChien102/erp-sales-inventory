@@ -252,7 +252,7 @@ Tên tham số / cột: đọc thân hàm mới nhất của từng RPC trước
   - 5b đúng 8 ảnh: `update_product_images` lưu được (đếm `catalog.product_images` = 8); `create_guided_product` 8 ảnh tạo được.
   Tên tham số / cột đọc từ thân hàm mới nhất (`grep -l "function catalog.<tên>(" supabase/migrations/2*.sql | tail -1`). Hết → `raise notice 'catalog_th02: OK'`. Ca nào khó dựng dữ liệu (FK, quyền) ghi vào Kết quả.
 - [x] **1.2** Sửa 2 migration theo mục 4 G1 (2 khối `if … raise exception 'validation_exception: Chỉ được tải lên tối đa 8 ảnh.'`). Không thêm kiểm vào `create_guided_product` (mục 8).
-- [x] **1.3** Chạy `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart` → không vi phạm mới ở 2 tệp đã sửa (so với chạy trước khi sửa, ghi cả hai lần vào Kết quả).
+- [x] **1.3** Chạy `dart run tools/c45_supabase_migrate/bin/verify_migration_policy.dart` → không vi phạm mới ở 2 tệp đã sửa (so với chạy trước khi sửa, ghi cả hai lần vào Kết quả).
 
 ### Task 2: G2 chip "Đã xóa"
 
@@ -343,7 +343,7 @@ Tên tham số / cột: đọc thân hàm mới nhất của từng RPC trước
 
 ### 7.1 Tự động
 
-- [x] `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart`: không lỗi mới.
+- [x] `dart run tools/c45_supabase_migrate/bin/verify_migration_policy.dart`: không lỗi mới.
 - [x] Grep ở G3, G4, G7 đúng như ghi (dùng `grep -rn`, không `git grep`).
 - [x] `cd apps/erp && dart analyze lib test`: không lỗi / cảnh báo mới trong catalog feature.
 - [x] `cd apps/erp && flutter test`: không fail mới so với mốc Task 0.5 (cây hiện tại, gồm 5-A3 + 5-A4; ghi số).
@@ -407,7 +407,7 @@ Tên tham số / cột: đọc thân hàm mới nhất của từng RPC trước
   - SP-09: Đã có sẵn test `e2e_e07_u02_fr01_02: deactivate product with stock shows warnings in bottom sheet` trong `product_lifecycle_e2e_test.dart` (pass).
   - SP-13: Thêm test `t93_sp13_round_trip_vat_price_calculation` trong `edit_product_unit_price_band_cubit_test.dart` (pass).
 - **Task 9 (Kiểm tra & nghiệm thu toàn bộ):**
-  - `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart`: 0 errors.
+  - `dart run tools/c45_supabase_migrate/bin/verify_migration_policy.dart`: 0 errors.
   - `cd apps/erp && dart analyze lib/features/catalog test/features/catalog`: 0 errors, 0 warnings.
   - `cd apps/erp && flutter test test/features/catalog`: **589 passed**, 1 skipped, **46 failed** (số fail giảm từ 48 xuống 46 so với baseline; 0 fail mới).
   - `gitnexus detect-changes -r erp-sales-inventory`: 129 files, 197 symbols, 0 affected processes, Risk level: low.

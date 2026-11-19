@@ -4,14 +4,14 @@ Canonical: [Theme-8-e-invoice.md](Theme-8-e-invoice.md) (§1 Theme overview, §5
 
 ## Mục đích
 
-Theme 08 giúp người dùng thiết lập, phát hành, theo dõi và gửi hóa đơn điện tử cho các đơn hàng đã **Hoàn tất** trên VET45.
+Theme 08 giúp người dùng thiết lập, phát hành, theo dõi và gửi hóa đơn điện tử cho các đơn hàng đã **Hoàn tất** trên Mosaic Retail.
 
 Bảo đảm chính:
 
 - Hóa đơn lập từ SalesOrder + dữ liệu người mua hiệu lực (`BuyerInvoiceSnapshot` là nền; Theme 03 chỉ completion có kiểm soát trước khi khóa).
 - Bên bán lấy từ hồ sơ pháp lý hiện hành Theme 01 tại thời điểm bắt đầu phát hành.
 - Kết quả phát hành theo phản hồi **MISA meInvoice**; hồ sơ đã phát hành bất biến.
-- Bản xem trước / chính thức, XML, PDF lấy từ provider — VET45 không tự dựng tài liệu pháp lý thay thế.
+- Bản xem trước / chính thức, XML, PDF lấy từ provider — Mosaic Retail không tự dựng tài liệu pháp lý thay thế.
 - Điểm vào: Kết quả bán hàng hoặc Chi tiết đơn hàng (không có danh sách / màn hồ sơ HĐĐT độc lập trong MVP).
 
 ## Trong phạm vi (MVP)
@@ -28,7 +28,7 @@ Trạng thái gửi email hiển thị: Chưa gửi | Đang gửi | Đã gửi |
 
 ## Ngoài phạm vi
 
-- Phát hành không có đơn / đơn chưa Hoàn tất; điều chỉnh / thay thế / hủy HĐĐT trong VET45.
+- Phát hành không có đơn / đơn chưa Hoàn tất; điều chỉnh / thay thế / hủy HĐĐT trong Mosaic Retail.
 - Nhiều provider hoặc nhiều connection/config mặc định đồng thời.
 - Danh sách / màn hồ sơ HĐĐT riêng; tự dựng PDF/XML pháp lý.
 - Hạch toán / kê khai thuế (Theme kế toán); đăng ký mẫu với CQT; chia sẻ Zalo/Messenger.

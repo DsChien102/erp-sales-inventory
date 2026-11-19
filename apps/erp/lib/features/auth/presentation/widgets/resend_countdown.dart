@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// "Gửi lại mã" hoặc "Gửi lại mã sau 00:ss".
 class ResendCountdown extends StatelessWidget {

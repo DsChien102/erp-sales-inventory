@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Web trên máy tính (chuột / bàn phím) → compact; iPhone, Android, web trên điện thoại → comfortable.
 VDensityMode erpDensityMode({

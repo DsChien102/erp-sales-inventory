@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import '../models/admin_overview_ui_model.dart';
 
 /// Card hiển thị từng hoạt động đặc quyền gần đây.

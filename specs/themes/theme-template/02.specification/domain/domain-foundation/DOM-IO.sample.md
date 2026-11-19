@@ -311,7 +311,7 @@ flowchart TB
 
 
 
-### 6.2 Messaging (tuân thủ `vet45-integration-events.mdc`)
+### 6.2 Messaging (tuân thủ `c45-integration-events.mdc`)
 
 - **Outbox = Facts:** `goods_received_physical.v1`, `goods_issued.v1`, `stock_reserved.v1`, `stock_released.v1`, `inventory_movement_appended.v1`. Cấm `*.requested` trên outbox.
 - **Commands:** Sales/Purchasing gửi qua `integration_commands` (VD: `sales.inventory.reserve_stock.v1`, `purchasing.inventory.receive_goods.v1`).

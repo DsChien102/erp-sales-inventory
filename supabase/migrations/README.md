@@ -1,4 +1,4 @@
-# Supabase Migration Conventions (Vet45)
+# Supabase Migration Conventions (Mosaic Retail)
 
 Tai lieu nay la quy chuan chung cho **migration chinh thuc** trong `supabase/migrations/`.
 
@@ -96,7 +96,7 @@ File trong `REGISTRY.yaml → bootstrap_grandfathered` (29 migration bundled hie
   - dat `set search_path = <schema>, pg_temp`
   - revoke/grant execute ro role (`authenticated` hoac `service_role`)
 
-## 5) Quy uoc schema Vet45
+## 5) Quy uoc schema Mosaic Retail
 
 - Bounded context nao thi ghi vao schema do (`iam.*`, `partner.*`, ...)
 - Khong cross-module table ownership.

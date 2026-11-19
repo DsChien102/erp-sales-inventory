@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Card hiển thị chỉ số thống kê trong Tổng quan quản trị.
 class AdminOverviewMetricCard extends StatelessWidget {

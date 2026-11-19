@@ -159,7 +159,7 @@ const SCENARIOS = [
       { name: 'SC_bj05_next_order', url: V5 + 'SCR-025', steps: [order('SO-260827-22'), act('confirm', 'confirm-handover'), ['next', click('[data-io05-next-order]')]] },
       { name: 'SC_bj04_from_pick', url: V5 + 'SCR-025', steps: [order('SO-260827-21'), ['reservation', click('[data-io05-go-reservation]')], ['pick', click('[data-bj04-go-pick]')]] },
       { name: 'SC_bj05_theme', url: T + 'inventory', steps: [['quick', click('[data-t462-quick="UIF-05"]')], order('SO-260827-21'), ['reservation', click('[data-io05-go-reservation]')], ['back-to-pick', back], ['reservation-again', click('[data-io05-go-reservation]')], ['pick', click('[data-bj04-go-pick]')], ['back-queue', back], ['back-hub', back]] },
-      { name: 'SC_bj04_after_handover', url: V5 + 'SCR-025', steps: [order('SO-260827-22'), act('confirm', 'confirm-handover'), act('to-queue', 'result-to-queue'), ['reservation', `window.__VET45_QA__.openBJ04('SO-260827-22')`]] },
+      { name: 'SC_bj04_after_handover', url: V5 + 'SCR-025', steps: [order('SO-260827-22'), act('confirm', 'confirm-handover'), act('to-queue', 'result-to-queue'), ['reservation', `window.__C45_QA__.openBJ04('SO-260827-22')`]] },
     ];
   })(),
   { name: 'SC_bj05_unknown', url: '?uif=UIF-05&screen=SCR-029&state=UNKNOWN', steps: [['handoff', click('[data-k3-action="handoff"]')]] },
@@ -178,8 +178,8 @@ const SCENARIOS = [
       { name: 'SC_bj06_list', url: U + 'SCR-030', steps: [['filter-actionable', click('[data-io06-filter="ACTIONABLE"]')], ['filter-waiting', click('[data-io06-filter="WAITING"]')], ['filter-all', click('[data-io06-filter="ALL"]')], ['search', typeIn('[data-io06-search]', 'Nam Việt')], ['clear-search', typeIn('[data-io06-search]', '')]] },
       { name: 'SC_bj06_line', url: U + 'SCR-030', steps: [['request', click('[data-io06-request="RET-260827-03"]')], ['line', click('[data-io06-line="RET-L1A"]')], ['qty-over', typeIn('[data-io06-qty]', '5')], ['qty-ok', typeIn('[data-io06-qty]', '2')], ['fill', click('[data-io06-fill-max]')], ['expected-lot', click('[data-io06-select-actual-lot]')], ['save', io('save-return-line')], ['back', back]] },
       { name: 'SC_bj06_full', url: U + 'SCR-030', steps: [['request', click('[data-io06-request="RET-260827-03"]')], ['line', click('[data-io06-line="RET-L1A"]')], ['fill', click('[data-io06-fill-max]')], ['lot', click('[data-io06-select-actual-lot]')], ['save', io('save-return-line')]] },
-      { name: 'SC_bj06_other_lot', url: U + 'SCR-030', steps: [['request', click('[data-io06-request="RET-260827-03"]')], ['line', click('[data-io06-line="RET-L1A"]')], ['other-lot', click('[data-io06-select-other-lot]')], ['lot-code', typeIn('[data-io06-actual-lot]', 'DH2509')], ['reason-other', click('[data-io06-reason="OTHER"]')], ['reason-diff', click('[data-io06-reason="RETURNED_DIFFERENT_LOT"]')], ['evidence', `window.__VET45_QA__.setIO06Evidence('RET-L1A')`], ['back-expected', click('[data-io06-select-actual-lot]')], ['back', back]] },
-      { name: 'SC_bj06_exception_submit', url: U + 'SCR-030', steps: [['request', click('[data-io06-request="RET-260827-03"]')], ['line', click('[data-io06-line="RET-L1A"]')], ['other-lot', click('[data-io06-select-other-lot]')], ['lot-code', typeIn('[data-io06-actual-lot]', 'DH2509')], ['evidence', `window.__VET45_QA__.setIO06Evidence('RET-L1A')`], ['fill', click('[data-io06-fill-max]')], ['save-exception', io('save-return-exception')], ['line-b', lineDone('RET-L1B')], ['line-2', lineDone('RET-L2')], ['line-3', lineDone('RET-L3', false)], ['submit', io('submit-return-exceptions')]] },
+      { name: 'SC_bj06_other_lot', url: U + 'SCR-030', steps: [['request', click('[data-io06-request="RET-260827-03"]')], ['line', click('[data-io06-line="RET-L1A"]')], ['other-lot', click('[data-io06-select-other-lot]')], ['lot-code', typeIn('[data-io06-actual-lot]', 'DH2509')], ['reason-other', click('[data-io06-reason="OTHER"]')], ['reason-diff', click('[data-io06-reason="RETURNED_DIFFERENT_LOT"]')], ['evidence', `window.__C45_QA__.setIO06Evidence('RET-L1A')`], ['back-expected', click('[data-io06-select-actual-lot]')], ['back', back]] },
+      { name: 'SC_bj06_exception_submit', url: U + 'SCR-030', steps: [['request', click('[data-io06-request="RET-260827-03"]')], ['line', click('[data-io06-line="RET-L1A"]')], ['other-lot', click('[data-io06-select-other-lot]')], ['lot-code', typeIn('[data-io06-actual-lot]', 'DH2509')], ['evidence', `window.__C45_QA__.setIO06Evidence('RET-L1A')`], ['fill', click('[data-io06-fill-max]')], ['save-exception', io('save-return-exception')], ['line-b', lineDone('RET-L1B')], ['line-2', lineDone('RET-L2')], ['line-3', lineDone('RET-L3', false)], ['submit', io('submit-return-exceptions')]] },
       { name: 'SC_bj06_receipt', url: U + 'SCR-030', steps: [['request', click('[data-io06-request="RET-260827-03"]')], ['line-a', lineDone('RET-L1A')], ['line-b', lineDone('RET-L1B')], ['line-2', lineDone('RET-L2')], ['line-3', lineDone('RET-L3', false)], ['commit', io('commit-receipt')], ['detail', click('[data-io06-result-detail]')], ['close', click('[data-io06-sheet-close]')], ['classify', io('open-classification')]] },
       { name: 'SC_bj06_classify', url: U + 'SCR-030', steps: [['request', click('[data-io06-request="RET-260827-05"]')], ['line-0', click('[data-io06-class-line="RET-L4"]:not([data-io06-class-mode])')], ['cancel', io('cancel-classification-item')], ['line-1', click('[data-io06-class-line="RET-L5"]:not([data-io06-class-mode])')], ['quarantine', click('[role="dialog"] [data-io06-class-mode="QUARANTINE"]')], ['line-0b', click('[data-io06-class-line="RET-L4"]:not([data-io06-class-mode])')], ['split', click('[role="dialog"] [data-io06-class-mode="SPLIT"]')], ['sellable', typeIn(WEB ? '[data-io06-class="sellable"]' : '[role="dialog"] [data-io06-class="sellable"]', '3')], ['quarantine-qty', typeIn(WEB ? '[data-io06-class="quarantine"]' : '[role="dialog"] [data-io06-class="quarantine"]', '1')], ['done', io('close-classification-item')], ['confirm', io('confirm-classification')], ['detail', click('[data-io06-result-detail]')], ['close', click('[data-io06-sheet-close]')], ['to-queue', io('result-to-return-queue')]] },
       { name: 'SC_bj06_split', url: U + 'SCR-030', steps: [['request', click('[data-io06-request="RET-260827-05"]')], ...(WEB
@@ -215,9 +215,9 @@ const SCENARIOS = [
     const io7 = (k) => click(`[data-io07-action="${k}"]`);
     const quick = (id) => click(`[data-io07-verify-quick="${id}"]`);
     const b10 = (k) => click(`[data-bj10-action="${k}"]`);
-    const ev09 = `(()=>window.__VET45_QA__.setK5Evidence('bj09'))()`;
-    const ev10 = `(()=>window.__VET45_QA__.setK5Evidence('bj10'))()`;
-    const ev10c = `(()=>window.__VET45_QA__.setK5Evidence('bj10c'))()`;
+    const ev09 = `(()=>window.__C45_QA__.setK5Evidence('bj09'))()`;
+    const ev10 = `(()=>window.__C45_QA__.setK5Evidence('bj10'))()`;
+    const ev10c = `(()=>window.__C45_QA__.setK5Evidence('bj10c'))()`;
     const home = (...exits) => `(()=>{const sb=document.querySelector('#web-sidebar:not([hidden]) [data-theme-sidebar-route="inventory"]');if(sb){sb.click();return true}${exits.map((e) => `document.querySelector(${JSON.stringify(e)})?.click();`).join('')}for(let i=0;i<3&&!document.querySelector('[data-t462-workspace]');i++)document.querySelector('#app-screen .app-back-button')?.click();return !!document.querySelector('[data-t462-workspace]')})()`;
     const toList = '[data-k5-action="to-list"]';
     const sendDisposal = [['qty', click('[data-bj10-qty-fill]')], ['method', click('[data-bj10-method="SELF"]')], ['evidence', ev10], ['submit', b10('submit')]];
@@ -234,12 +234,12 @@ const SCENARIOS = [
       { name: 'SC_bj10_price_missing', url: S10 + 'SCR-036', steps: [['select', `(()=>{k5SelectedLotId='oil-demo';return true})()`], ['request', `(()=>{bj10StartDraft();applyEntry('UIF-10','request',true);return true})()`], ['back', back]] },
       // G3-3/G3-4: "Cần xác lập giá trị" (PRICE_BASIS_REQUIRED) tới được bằng luồng thật: lô hỏng Vitamin ADE chưa có giá vốn.
       { name: 'SC_g3_price_basis', url: S10 + 'SCR-036', steps: [['item', k5row('lot:vitamin-ade')], ['request', k5act('request-disposal')], ...sendDisposal] },
-      { name: 'SC_bj10_approve', url: '?uif=UIF-10&entry=approver', steps: [['seed', `(()=>{window.__VET45_QA__.seedBJ10Pending();return true})()`], ['approve', b10('approve')]] },
-      { name: 'SC_bj10_reject', url: '?uif=UIF-10&entry=approver', steps: [['seed', `(()=>{window.__VET45_QA__.seedBJ10Pending();return true})()`], ['open', b10('reject-open')], ['reason', typeIn('[data-bj10-reject-reason]', 'Thiếu ảnh hiện trạng')], ['confirm', b10('reject-confirm')]] },
+      { name: 'SC_bj10_approve', url: '?uif=UIF-10&entry=approver', steps: [['seed', `(()=>{window.__C45_QA__.seedBJ10Pending();return true})()`], ['approve', b10('approve')]] },
+      { name: 'SC_bj10_reject', url: '?uif=UIF-10&entry=approver', steps: [['seed', `(()=>{window.__C45_QA__.seedBJ10Pending();return true})()`], ['open', b10('reject-open')], ['reason', typeIn('[data-bj10-reject-reason]', 'Thiếu ảnh hiện trạng')], ['confirm', b10('reject-confirm')]] },
       { name: 'SC_bj10_complete', url: '?uif=UIF-10&entry=completion-operator', steps: [['to-completion', b10('to-completion')], ['fill', click('[data-bj10-actual-fill]')], ['proof', ev10c], ['complete', b10('complete')]] },
       { name: 'SC_bj10_from_list', url: S10 + 'SCR-036', steps: [['disposal', k5chip('DISPOSAL')], ['row', k5row('lot:glove-nitrile')], ['to-completion', b10('to-completion')]] },
       { name: 'SC_bj10_qty_over', url: S10 + 'SCR-040&state=COMPLETION', steps: [['over', typeIn('[data-bj10-actual]', '5')], ['fix', typeIn('[data-bj10-actual]', '3')], ['proof', ev10c], ['complete', b10('complete')]] },
-      { name: 'SC_bj10_owner_self', url: T + 'inventory&entry=owner', steps: [['ws', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-09"]')], ['actor', `(()=>{window.__VET45_QA__.setActor('owner');return true})()`], ['item', k5row('lot:tylo-ty2408')], ['request', k5act('request-disposal')], ...sendDisposal, ['to-list', k5act('to-list')], ['home', home()], ['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-10"][data-t380-target-screen="SCR-040"]')], ['approve', b10('approve')], ['to-completion', b10('to-completion')], ['fill', click('[data-bj10-actual-fill]')], ['proof', ev10c], ['complete', b10('complete')]] },
+      { name: 'SC_bj10_owner_self', url: T + 'inventory&entry=owner', steps: [['ws', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-09"]')], ['actor', `(()=>{window.__C45_QA__.setActor('owner');return true})()`], ['item', k5row('lot:tylo-ty2408')], ['request', k5act('request-disposal')], ...sendDisposal, ['to-list', k5act('to-list')], ['home', home()], ['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-10"][data-t380-target-screen="SCR-040"]')], ['approve', b10('approve')], ['to-completion', b10('to-completion')], ['fill', click('[data-bj10-actual-fill]')], ['proof', ev10c], ['complete', b10('complete')]] },
       // Hết chặng 4 "Hàng có vấn đề" (plan BJ-07 + BJ-10 mục 6.4): Home → cách ly → hỏng (duyệt) → tiêu hủy (duyệt) → xác nhận → trả nhà cung cấp → Home.
       { name: 'SC_journey_4', url: T + 'inventory', steps: [
         ['attention', click('[data-t462-attention="UIF-09"]')], ['amox', k5row('lot:amox-am2505')],
@@ -348,8 +348,8 @@ const SCENARIOS = [
         const a14 = (k, ref) => click(ref ? `[data-bj14-action="${k}"][data-bj14-ref="${ref}"]` : `[data-bj14-action="${k}"]`);
         const vis14 = (k) => `(()=>{const el=[...document.querySelectorAll('[data-bj14-action="${k}"]')].find((e)=>e.getClientRects().length);if(el)el.click();return !!el})()`;
         const run14 = (id) => click(`[data-bj14-row="${id}"]`);
-        const finish14 = `(()=>window.__VET45_QA__.finishBJ14Calc())()`;
-        const bump14 = `(()=>window.__VET45_QA__.bumpBJ14Input())()`;
+        const finish14 = `(()=>window.__C45_QA__.finishBJ14Calc())()`;
+        const bump14 = `(()=>window.__C45_QA__.bumpBJ14Input())()`;
         const O = V14 + 'SCR-072&entry=owner';
         return [
           { name: 'SC_bj14_flow', url: O, steps: [['run', run14('COST-2608')], ['products', vis14('products-open')], ['close-products', vis14('dialog-close')], ['compare', a14('compare-open')], ['close-compare', a14('dialog-close')], ['open-publish', a14('open-publish')], ['publish-close', a14('dialog-close')], ['open-again', a14('open-publish')], ['publish', a14('publish')], ['to-list', a14('to-list')], ['done', click('[data-bj14-filter="DONE"]')]] },
@@ -372,7 +372,7 @@ const SCENARIOS = [
     const k5chip = (k) => click(`[data-k5-filter="${k}"]`);
     const k5row = (key) => click(`[data-k5-row="${key}"]`);
     const k5act = (k) => click(`[data-k5-action="${k}"]`);
-    const evidence09 = `(()=>window.__VET45_QA__.setK5Evidence('bj09'))()`;
+    const evidence09 = `(()=>window.__C45_QA__.setK5Evidence('bj09'))()`;
     const home9 = (...exits) => `(()=>{const sb=document.querySelector('#web-sidebar:not([hidden]) [data-theme-sidebar-route="inventory"]');if(sb){sb.click();return true}${exits.map((e) => `document.querySelector(${JSON.stringify(e)})?.click();`).join('')}for(let i=0;i<3&&!document.querySelector('[data-t462-workspace]');i++)document.querySelector('#app-screen .app-back-button')?.click();return !!document.querySelector('[data-t462-workspace]')})()`;
     const toDamaged = [['change', k5act('change-state')], ['dest', click('[data-bj09-destination="DAMAGED"]')], ['qty', click('[data-bj09-qty-fill]')], ['reason', typeIn('[data-bj09-reason]', 'Bao bì rách, không còn dùng được')], ['evidence', evidence09], ['submit', click('[data-bj09-action="submit"]')]];
     const approveFromHome = [['to-list', k5act('to-list')], ['home', home9()], ['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-09"][data-t380-target-screen="SCR-038"]', 1)], ['approve', click('[data-bj09-action="approve"]')], ['disposal', k5act('request-disposal')]];
@@ -384,7 +384,7 @@ const SCENARIOS = [
       { name: 'SC_k5_list', url: S9 + 'SCR-036', steps: [['open', k5chip('OPEN')], ['rtv', k5chip('RTV')], ['disposal', k5chip('DISPOSAL')], ['waiting', k5chip('WAITING')], ['all', k5chip('ALL')], ['search', typeIn('[data-k5-search]', 'TY2408')], ['clear', typeIn('[data-k5-search]', '')], ['lot', k5row('lot:tylo-ty2408')]] },
       { name: 'SC_k5_filter_empty', url: S9 + 'SCR-036', steps: [['search', typeIn('[data-k5-search]', 'zzz')], ['clear', k5act('clear-filter')]] },
       { name: 'SC_bj09_quarantine_to_damaged', url: T + 'inventory', steps: [['ws', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-09"]')], ['item', k5row('lot:amox-am2505')], ...toDamaged, ...approveFromHome] },
-      { name: 'SC_bj09_owner_self', url: T + 'inventory&entry=owner', steps: [['ws', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-09"]')], ['actor', `(()=>{window.__VET45_QA__.setActor('owner');return true})()`], ['item', k5row('lot:amox-am2505')], ...toDamaged, ...approveFromHome] },
+      { name: 'SC_bj09_owner_self', url: T + 'inventory&entry=owner', steps: [['ws', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-09"]')], ['actor', `(()=>{window.__C45_QA__.setActor('owner');return true})()`], ['item', k5row('lot:amox-am2505')], ...toDamaged, ...approveFromHome] },
       { name: 'SC_bj09_no_approval', url: S9 + 'SCR-036', steps: [['item', k5row('lot:amox-am2505')], ['change', k5act('change-state')], ['dest', click('[data-bj09-destination="DEMO"]')], ['qty', typeIn('[data-bj09-qty]', '1')], ['reason', typeIn('[data-bj09-reason]', 'Dùng làm hàng trưng bày')], ['submit', click('[data-bj09-action="submit"]')], ['to-list', k5act('to-list')]] },
       { name: 'SC_bj09_from_bj01', url: '?uif=UIF-01&screen=SCR-001', steps: [['product', click('[data-bj01-product="INV-NOB"]')], ['lot', click('[data-bj01-lot="DH2507"]')], ['change', click('.ds24-sheet [data-bj01-change-state]')], ['dest', click('[data-bj09-destination="QUARANTINE"]')], ['qty', click('[data-bj09-qty-fill]')], ['back', click('#app-screen .app-back-button')]] },
       { name: 'SC_bj09_expired_to_disposal', url: '?uif=UIF-01&screen=SCR-001', steps: [['product', click('[data-bj01-product="INV-TYLO"]')], ['dispose', click('[data-bj01-dispose-lot]')], ['disposal', k5act('request-disposal')]] },
@@ -416,11 +416,11 @@ const SCENARIOS = [
       { name: 'SC_bj08_review', url: '?uif=UIF-08&entry=approver', steps: [['request', a8('review-open')], ['reason', typeIn('[data-bj08-review-reason]', 'Cần đếm lại kệ A')], ['confirm', a8('confirm-review')]] },
       { name: 'SC_bj08_cancel', url: S8 + 'SCR-044', steps: [['cancel', a8('cancel-open')], ['reason', typeIn('[data-bj08-cancel-reason]', 'Sai phạm vi phiên')], ['confirm', a8('confirm-cancel')]] },
       { name: 'SC_bj08_unknown', url: S8 + 'SCR-047&state=UNKNOWN', steps: [['handoff', click('[data-k3-action="handoff"]')]] },
-      { name: 'SC_bj08_zero', url: S8 + 'SCR-044', steps: [['fill', `(()=>window.__VET45_QA__.fillBJ08Book())()`], ...submitFirst] },
-      { name: 'SC_bj08_scan', url: S8 + 'SCR-044', steps: [['scan', `(()=>window.__VET45_QA__.scanBJ08('SP-000122'))()`], ['ty2511', count('ty2511', '4')], ['chip-done', click('[data-bj08-count-filter="DONE"]')]] },
+      { name: 'SC_bj08_zero', url: S8 + 'SCR-044', steps: [['fill', `(()=>window.__C45_QA__.fillBJ08Book())()`], ...submitFirst] },
+      { name: 'SC_bj08_scan', url: S8 + 'SCR-044', steps: [['scan', `(()=>window.__C45_QA__.scanBJ08('SP-000122'))()`], ['ty2511', count('ty2511', '4')], ['chip-done', click('[data-bj08-count-filter="DONE"]')]] },
       { name: 'SC_bj08_unexpected', url: S8 + 'SCR-044', steps: [['add', a8('add-open')], ['pick', click('[data-bj08-add-pick="SP-00606"]')], ['state', click('[data-bj08-for="x-SP-00606"][data-bj08-unexpected-state="SELLABLE"]')], ['qty', count('x-SP-00606', '1')], ...typeFirst, ...submitFirst] },
       { name: 'SC_bj08_price_basis', url: S8 + 'SCR-045&state=PRICE_BASIS_REQUIRED', steps: [['cancel', a8('cancel-open')], ['reason', typeIn('[data-bj08-cancel-reason]', 'Chưa có giá vốn hàng thừa')], ['confirm', a8('confirm-cancel')]] },
-      { name: 'SC_bj08_owner_self', url: T + 'inventory&entry=owner', steps: [['quick', click('[data-t462-quick="UIF-08"]')], ['actor', `(()=>{window.__VET45_QA__.setActor('owner');return true})()`], ['create', a8('create')], ...create, ...typeFirst, ...submitFirst, ...recountSteps, ['to-list', a8('to-list')], ['home', home()], ['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-08"][data-t380-target-screen="SCR-046"]')], ['approve', a8('approve')]] },
+      { name: 'SC_bj08_owner_self', url: T + 'inventory&entry=owner', steps: [['quick', click('[data-t462-quick="UIF-08"]')], ['actor', `(()=>{window.__C45_QA__.setActor('owner');return true})()`], ['create', a8('create')], ...create, ...typeFirst, ...submitFirst, ...recountSteps, ['to-list', a8('to-list')], ['home', home()], ['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-08"][data-t380-target-screen="SCR-046"]')], ['approve', a8('approve')]] },
       { name: 'SC_bj08_from_home', url: T + 'inventory', steps: [['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-08"][data-t380-target-screen="SCR-046"]')], ['back', back]] },
       { name: 'SC_bj08_pending_view', url: S8 + 'SCR-042', steps: [['filter', click('[data-bj08-filter="PENDING"]')], ['row', click('[data-bj08-row="KK-260915-02"]')]] },
     ];
@@ -447,7 +447,7 @@ const SCENARIOS = [
       { name: 'SC_bj11_self_approve', url: S11 + 'SCR-051', steps: [['to-list', a11('to-list')]] },
       { name: 'SC_bj11_decided', url: S11 + 'SCR-051&state=APPROVAL_ALREADY_DECIDED', steps: [['result', a11('view-result')]] },
       { name: 'SC_bj11_context', url: '?uif=UIF-11&entry=operation-context', steps: [['back', back]] },
-      { name: 'SC_bj11_owner_self', url: T + 'inventory&entry=owner', steps: [['ws', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-11"]')], ['actor', `(()=>{window.__VET45_QA__.setActor('owner');return true})()`], ...correct, ['to-list', a11('to-list')], ['home', home()], ['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-11"][data-t380-target-screen="SCR-051"]')], ['approve', a11('approve')]] },
+      { name: 'SC_bj11_owner_self', url: T + 'inventory&entry=owner', steps: [['ws', click('[data-t462-workspace="control"]')], ['list', click('#app-screen [data-theme-entry-flow="UIF-11"]')], ['actor', `(()=>{window.__C45_QA__.setActor('owner');return true})()`], ...correct, ['to-list', a11('to-list')], ['home', home()], ['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-11"][data-t380-target-screen="SCR-051"]')], ['approve', a11('approve')]] },
       { name: 'SC_bj11_from_home', url: T + 'inventory', steps: [['pending', click('[data-v464-pending-approvals]')], ['case', click('[data-theme-entry-flow="UIF-11"][data-t380-target-screen="SCR-051"]')], ['back', back]] },
       { name: 'SC_bj11_rejected_redo', url: S11 + 'SCR-053&state=REJECTED', steps: [['redo', a11('redo')]] },
       { name: 'SC_bj11_dependency', url: S11 + 'SCR-048', steps: [['open', row('IO-260903-017')], ['correct', a11('correct')], ['to-detail', a11('to-detail')]] },
@@ -458,7 +458,7 @@ const SCENARIOS = [
   { name: 'SC_bj12_prepare', url: '?uif=UIF-12&screen=SCR-066', steps: [['start', click('[data-cf12-action="start"]')], ['file', click('[data-cf12-action="choose-file"]')], ['clear-qty', typeIn('[data-cf12-control-qty]', '')], ['check-err', click('[data-bj12-action="cf12-check"]')], ['qty', typeIn('[data-cf12-control-qty]', '4820')], ['check', click('[data-bj12-action="cf12-check"]')], ['send', click('[data-bj12-action="cf12-send-approval"]')]] },
   { name: 'SC_bj12_mismatch', url: '?uif=UIF-12&screen=SCR-067', steps: [['qty', typeIn('[data-cf12-control-qty]', '4800')], ['check', click('[data-bj12-action="cf12-check"]')], ['back', click('[data-cf12-action="back-file"]')]] },
   { name: 'SC_bj12_failed', url: '?uif=UIF-12&screen=SCR-068&state=VALIDATION_FAILED', steps: [['back', click('[data-cf12-action="back-file"]')]] },
-  { name: 'SC_bj12_approve', url: '?uif=UIF-12&screen=SCR-067', steps: [['check', click('[data-bj12-action="cf12-check"]')], ['send', click('[data-bj12-action="cf12-send-approval"]')], ['approver', `window.__VET45_QA__.applyEntry('UIF-12','approver')`], ['approve', click('[data-bj12-action="cf12-approve"]')], ['wait', wait(500)], ['inventory', click('[data-cf12-action="see-inventory"]')]] },
+  { name: 'SC_bj12_approve', url: '?uif=UIF-12&screen=SCR-067', steps: [['check', click('[data-bj12-action="cf12-check"]')], ['send', click('[data-bj12-action="cf12-send-approval"]')], ['approver', `window.__C45_QA__.applyEntry('UIF-12','approver')`], ['approve', click('[data-bj12-action="cf12-approve"]')], ['wait', wait(500)], ['inventory', click('[data-cf12-action="see-inventory"]')]] },
   { name: 'SC_bj12_stale', url: '?uif=UIF-12&entry=approver', steps: [['approve', click('[data-bj12-action="cf12-approve"]')]] },
   { name: 'SC_bj12_self', url: '?uif=UIF-12&screen=SCR-070', steps: [['approve', click('[data-bj12-action="cf12-approve"]')], ['exit', click('[data-k1-action="exit"]')]] },
   { name: 'SC_bj12_reject', url: '?uif=UIF-12&entry=approver', steps: [['open', click('[data-cf12-action="open-reject"]')], ['close', click('[data-cf12-action="close-reject"]')], ['open2', click('[data-cf12-action="open-reject"]')], ['reason', typeIn('[data-cf12-reject-reason]', 'Sai nhóm vaccine')], ['confirm', click('[data-bj12-action="cf12-confirm-reject"]')], ['exit', click('[data-k1-action="exit"]')], ['fix', click('[data-cf12-action="fix-rejected"]')]] },
@@ -478,11 +478,11 @@ const SCENARIOS = [
     const mode = (m) => click(`[data-bj15-date-mode="${m}"]`);
     const per = (k) => click(`[data-bj15-period="${k}"]`);
     const cardBack = click('[data-action="bj15-card-back"]');
-    const finish15 = `(()=>window.__VET45_QA__.finishBJ15Export())()`;
+    const finish15 = `(()=>window.__C45_QA__.finishBJ15Export())()`;
     // Kiểm tự động: sai thì ném lỗi trong setTimeout để golden đếm vào "lỗi JS" (tiền: nhân viên không có số tiền trong DOM; sổ kho: cuối kỳ = tồn BJ-01).
     const check = (cond, msg) => `(()=>{if(!(${cond}))setTimeout(()=>{throw new Error(${JSON.stringify('BJ-15: ' + msg)})},0);return true})()`;
     const noMoney = check(`!/\\d[\\s\\u00a0]đ|₫|[Gg]iá trị/.test(document.querySelector('#app-screen').innerHTML.replace('Giá trị tài chính',''))`, 'DOM có số tiền ở vai nhân viên');
-    const ledger = check(`window.__VET45_QA__.getBJ15Ledger().products.every((p)=>p.closing===p.bj01)&&window.__VET45_QA__.getBJ15Ledger().view.every((v)=>v.balanced)`, 'thẻ kho cuối kỳ khác tồn BJ-01 hoặc đầu + nhập − xuất ≠ cuối');
+    const ledger = check(`window.__C45_QA__.getBJ15Ledger().products.every((p)=>p.closing===p.bj01)&&window.__C45_QA__.getBJ15Ledger().view.every((v)=>v.balanced)`, 'thẻ kho cuối kỳ khác tồn BJ-01 hoặc đầu + nhập − xuất ≠ cuối');
     const NOB = 'INV-NOB', AMX = 'INV-AMX', ENRO = 'INV-ENRO', TYLO = 'INV-TYLO';
     const HANDOVER = 'SO-260827-21/SP-000184', AMX_PN = 'PN-260904-08/SP-000066';
     return [
@@ -507,9 +507,9 @@ const SCENARIOS = [
   ...(() => {
     const D = '?uif=UIF-16&screen=';
     const U = '?uif=UIF-17&screen=';
-    const bump16 = `(()=>{window.__VET45_QA__.bumpCR16Evidence();return true})()`;
-    const bump17 = `(()=>{window.__VET45_QA__.bumpCR17Evidence();return true})()`;
-    const finish16 = `(()=>window.__VET45_QA__.finishCR16Recovery())()`;
+    const bump16 = `(()=>{window.__C45_QA__.bumpCR16Evidence();return true})()`;
+    const bump17 = `(()=>{window.__C45_QA__.bumpCR17Evidence();return true})()`;
+    const finish16 = `(()=>window.__C45_QA__.finishCR16Recovery())()`;
     const row = (key) => click(`[data-recon-row="${key}"]`);
     const chip = (key) => click(`[data-recon-filter="${key}"]`);
     const a16 = (k) => click(`[data-bj16-action="${k}"]`);
@@ -517,7 +517,7 @@ const SCENARIOS = [
     const a8 = (k) => click(`[data-bj08-action="${k}"]`);
     const a11 = (k) => click(`[data-bj11-action="${k}"]`);
     const sheet = (k) => click(`[data-recon-sheet="${k}"]`);
-    const actor = (who) => `(()=>{window.__VET45_QA__.setActor('${who}');return true})()`;
+    const actor = (who) => `(()=>{window.__C45_QA__.setActor('${who}');return true})()`;
     const why = 'Hóa đơn nhà cung cấp ghi 18 hộp';
     const REC = (n) => `DIFF:REC-260907-0${n}`, UNK = (n) => `UNKNOWN:REC-UNKNOWN-0${n}`;
     const enter = (sel) => `(()=>{const i=document.querySelector(${JSON.stringify(sel)});if(!i)return false;i.focus();i.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));return true})()`;
@@ -597,7 +597,7 @@ const SCENARIOS = [
       { name: 'SC_entry_state_12', url: '?uif=UIF-12&entry=approver&state=SELF_APPROVAL_NOT_ALLOWED', steps: [] },
       { name: 'SC_entry_state_01', url: '?uif=UIF-01&entry=product-context&state=STALE', steps: [] },
       { name: 'SC_entry_flow_02', url: '?uif=UIF-02&entry=document-context&flow=quick', steps: [] },
-      { name: 'SC_qa_entry14', url: '?uif=UIF-14&screen=SCR-072', steps: [['apply', `window.__VET45_QA__.applyEntry('UIF-14','dirty-scope')`]] },
+      { name: 'SC_qa_entry14', url: '?uif=UIF-14&screen=SCR-072', steps: [['apply', `window.__C45_QA__.applyEntry('UIF-14','dirty-scope')`]] },
       { name: 'SC_banner_046', url: '?uif=UIF-08&screen=SCR-042', steps: [['to-046', `(()=>{activeScreenId='SCR-046';stateByScreen['SCR-046']='APPROVAL_REVIEW';renderAppScreen();return true})()`]] },
       { name: 'SC_banner_040', url: '?uif=UIF-10&entry=approver', steps: [['rerender', `(()=>{renderAppScreen();return true})()`]] },
     ];
@@ -615,7 +615,7 @@ const SCENARIOS = [
   const prod = (id) => click(`[data-bj15-product="${id}"]`);
   const mv = (id) => click(`[data-bj15-movement="${id}"]`);
   const lot = (l) => click(`[data-bj15-lot="${l}"]`);
-  const finish15 = `(()=>window.__VET45_QA__.finishBJ15Export())()`;
+  const finish15 = `(()=>window.__C45_QA__.finishBJ15Export())()`;
   // Đoạn BJ-14 → BJ-15 dùng chung cho SC_journey_6 và SC_demo: Giá vốn → chốt kỳ 08/2026 → công bố → "Xem báo cáo tồn".
   const toReport = [
     ['valuation', click('[data-t462-workspace="valuation"]')], ['cost', click('#app-screen [data-theme-entry-flow="UIF-14"]')], ['check-072', assertAt('UIF-14', 'SCR-072', 'Giá vốn')],
@@ -649,7 +649,7 @@ const SCENARIOS = [
     ['9-check-ledger', `(()=>{const bad=bj01Products.filter((p)=>bj15Ledger(p.id,{from:BJ15_DATA_START,to:BJ15_TODAY}).closing!==p.physical||p.available!==Math.max(0,p.eligible-p.reserved));if(bad.length)setTimeout(()=>{throw new Error('SC_demo: sổ kho lệch tồn BJ-01 ở '+bad.map((p)=>p.name).join(', '))},0);return true})()`],
   ] });
   // G3-5: việc chặn của BJ-14 xử lý ở BJ-16 xong thì "Về giá vốn" mở lại lần tính; phiếu nhận đã ghi (SCR-011 RECORDED) mở từ thẻ kho và từ BJ-01.
-  { const O14 = '?uif=UIF-14&screen=SCR-074&state=BLOCKED&entry=owner', a16 = (k) => click(`[data-bj16-action="${k}"]`), a11 = (k) => click(`[data-bj11-action="${k}"]`), actorSet = (who) => `(()=>{window.__VET45_QA__.setActor('${who}');return true})()`, why = 'Hóa đơn nhà cung cấp ghi 18 hộp';
+  { const O14 = '?uif=UIF-14&screen=SCR-074&state=BLOCKED&entry=owner', a16 = (k) => click(`[data-bj16-action="${k}"]`), a11 = (k) => click(`[data-bj11-action="${k}"]`), actorSet = (who) => `(()=>{window.__C45_QA__.setActor('${who}');return true})()`, why = 'Hóa đơn nhà cung cấp ghi 18 hộp';
     SCENARIOS.push({ name: 'SC_g3_cost_return', url: O14, steps: [['open-case', a14('to-case')], ['fix', a16('fix-source')], ['reason', typeIn('[data-bj11-reason]', why)], ['send', a11('submit')], ['to-case', a11('to-case')], ['actor', actorSet('approver')], ['view', a16('view-correction')], ['approve', a11('approve')], ['back-case', a11('to-case')], ['recheck', a16('recheck')], ['close', a16('close-case')], ['to-cost', click('[data-bj14-back-to-cost]')], ['check-074', assertAt('UIF-14', 'SCR-074', 'Về giá vốn')]] });
     SCENARIOS.push({ name: 'SC_g3_receipt_recorded', url: '?uif=UIF-15&screen=SCR-055&entry=owner', steps: [['nob', prod('INV-NOB')], ['lot', lot('DH2507')], ['mv', mv('PN-260903-02/SP-000184')], ['open-receipt', a15('open-source')], ['check-011', assertAt('UIF-02', 'SCR-011', 'Phiếu nhận đã ghi')], ['back', back], ['check-056', assertAt('UIF-15', 'SCR-056', 'chi tiết biến động')]] });
     SCENARIOS.push({ name: 'SC_g3_receipt_from_bj01', url: '?uif=UIF-01&screen=SCR-001', steps: [['receive', `(()=>{t7Ledger.post({key:'g3:rec',productId:'INV-OXY',kind:'Nhận hàng',doc:'REC-260917-01',delta:3,sourceFlow:'UIF-02'});return true})()`], ['product', click('[data-bj01-product="INV-OXY"]')], ['provenance', click('[data-bj01-provenance]')], ['open-receipt', click('[data-bj01-open-receipt]')], ['check-011', assertAt('UIF-02', 'SCR-011', 'Phiếu nhận đã ghi')], ['back', back], ['check-003', assertAt('UIF-01', 'SCR-003', 'Chi tiết tồn kho')]] }); }

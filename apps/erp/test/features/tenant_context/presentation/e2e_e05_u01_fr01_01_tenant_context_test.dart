@@ -7,8 +7,8 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../iam/support/fake_iam_backend.dart';
 import 'package:erp/features/dashboard/data/default_pair_repository.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:c45_shared_application/application.dart';
+import 'package:c45_shared_testing/shared_testing.dart';
 
 import '../../dashboard/presentation/fake_default_pair_repository.dart';
 import '../../../core/session/fake_session_repository.dart';

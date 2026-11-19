@@ -1,7 +1,7 @@
 // Chép từ einvoice-processor/auth.ts (không import chéo function).
 export const CORS_HEADERS: Readonly<Record<string, string>> = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-vet45-app',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-c45-app',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 

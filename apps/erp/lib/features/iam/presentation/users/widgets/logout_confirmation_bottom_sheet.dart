@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Logout confirmation bottom sheet (TA-D-08 / EP-06 US-04).
 Future<void> showLogoutConfirmationBottomSheet({
@@ -21,7 +21,7 @@ Future<void> showLogoutConfirmationBottomSheet({
             Semantics(
               header: true,
               child: VText(
-                'Đăng xuất khỏi VET45?',
+                'Đăng xuất khỏi Mosaic Retail?',
                 variant: VTextVariant.headingH3,
                 color: context.vColors.danger,
                 style: const TextStyle(fontWeight: FontWeight.w700),

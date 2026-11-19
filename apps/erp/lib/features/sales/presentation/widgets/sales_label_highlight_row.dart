@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Hàng nhãn + giá trị nổi bật dùng chung cho Sales: nền tint theo [tone],
 /// nhãn bên trái, giá trị (đã format sẵn) bên phải.

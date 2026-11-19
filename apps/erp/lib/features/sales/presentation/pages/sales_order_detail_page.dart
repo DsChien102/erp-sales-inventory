@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/receivable/presentation/receivable_navigation.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dart';
@@ -17,7 +17,7 @@ import 'package:erp/features/einvoice/presentation/widgets/order_einvoice_sectio
 import 'package:erp/features/sales/presentation.dart';
 import 'package:erp/features/sales/presentation/support/order_einvoice_payable.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_detail_original_receipt_actions.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 /// SG-08 — Tra cứu chi tiết giao dịch gốc & Lịch sử (EP-03/US-02..07).
 class SalesOrderDetailPage extends StatefulWidget {

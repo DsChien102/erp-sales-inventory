@@ -6,7 +6,7 @@ Facade: `ICatalogModule` (`modules/catalog/application/lib/src/contracts/i_catal
 
 **Access control:** `@RequiresPermission(CatalogPermissions.*)` + `@RequiresTenant()`; codegen emit `catalog_access_metadata.g.dart` — mirror [modules/partner/README.md](../../../../modules/partner/README.md).
 
-**Quy tắc:** FE fake theo contract này — không fake RPC trực tiếp. Scenarios trong `FakeCatalogModule` (`package:vet45_catalog_application/testing.dart`).
+**Quy tắc:** FE fake theo contract này — không fake RPC trực tiếp. Scenarios trong `FakeCatalogModule` (`package:c45_catalog_application/testing.dart`).
 
 > **Migration note (2026-07):** Spec v3; contracts theo [04-slice-roadmap.md](04-slice-roadmap.md). Bổ sung section khi từng slice vào CONTRACT lane. FR/US `pending` / `out_of_scope` không implement.
 
@@ -25,7 +25,7 @@ Facade: `ICatalogModule` (`modules/catalog/application/lib/src/contracts/i_catal
 | `CreateProductCommand` | tenantId, actorId, productName, referenceId?, commercialName?, sku?, barcode?, description?, note?, images[] (`ProductImageInput`), baseUnitName? | `CreateProductResult` (productId, referenceId, readinessSummary) | `ValidationException`, PermissionDenied (`ApplicationException`), `DuplicateSkuException`, `DuplicateBarcodeException`, `DuplicateReferenceIdException` |
 | `CheckDuplicateProductCodeQuery` | tenantId, sku?, barcode?, excludeProductId? | `List<ProductDuplicateMatchDto>` | PermissionDenied |
 
-Package: `vet45_catalog_application` — `guided_create/`, `check_duplicate/`, `readiness/`.
+Package: `c45_catalog_application` — `guided_create/`, `check_duplicate/`, `readiness/`.
 
 Supporting types:
 
@@ -69,7 +69,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 | `guided_create_upload_invalid_type` | unsupported content type | `ValidationException` |
 | `guided_create_permission_denied` | no catalog.product.create | `ApplicationException` (Permission denied) |
 
-`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+`FakeCatalogModule` — `package:c45_catalog_application/testing.dart`.
 
 ### Parallel notes
 
@@ -129,7 +129,7 @@ Import contract (UI wizard **pending**): CSV cột `reference_id` → explicit; 
 | ------ | --------------- | ------- | ------ |
 | `GetProductReadinessQuery` | tenantId, productId | `ProductReadinessViewDto` | PermissionDenied, NotFound |
 
-Package: `vet45_catalog_application` — `readiness/`.
+Package: `c45_catalog_application` — `readiness/`.
 
 Supporting types:
 
@@ -194,7 +194,7 @@ Draft: `supabase/migrations/_drafts/catalog_product_readiness.sql`
 | `readiness_refresh_after_unit` | product with unit + base price | unit complete, price band still missing |
 | `readiness_permission_denied` | no view_detail | PermissionDenied |
 
-`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+`FakeCatalogModule` — `package:c45_catalog_application/testing.dart`.
 
 ### E2E scenarios (ERP integration)
 
@@ -228,7 +228,7 @@ Pattern: `initDependencies` → override `ICatalogModule` with `FakeCatalogModul
 | `SearchProductsQuery` | tenantId, `ProductSearchCriteria`, limit, offset | `ProductSearchResultDto` | PermissionDenied |
 | `ScanBarcodeQuery` | tenantId, barcode | `ProductListItemDto?` | PermissionDenied |
 
-Package: `vet45_catalog_application` — `product_search/`. Criteria: `vet45_catalog_domain` — `search/product_search_criteria.dart`.
+Package: `c45_catalog_application` — `product_search/`. Criteria: `c45_catalog_domain` — `search/product_search_criteria.dart`.
 
 Supporting types:
 
@@ -279,7 +279,7 @@ Draft SQL: `supabase/migrations/_drafts/001_catalog_patch_product_typeahead_sear
 | `barcode_exact_match` | ScanBarcodeQuery known barcode | single `ProductListItemDto` |
 | `barcode_not_found` | ScanBarcodeQuery unknown | `null` |
 
-`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+`FakeCatalogModule` — `package:c45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e01_u01_*` trong `fake_catalog_module_test.dart`.
 
@@ -308,7 +308,7 @@ Widget keys: `wgt_e01_u01_fr01_01` (list page), `input_product_search` (search f
 | ------ | --------------- | ------- | ------ |
 | `GetProductControlCenterQuery` | tenantId, productId | `ProductControlCenterDto` | PermissionDenied, NotFound |
 
-Package: `vet45_catalog_application` — `control_center/`.
+Package: `c45_catalog_application` — `control_center/`.
 
 `ProductControlCenterDto`:
 
@@ -355,7 +355,7 @@ Foundation: `stock_mode = basic`, `base_price_mode = manual`; custom field cards
 | `pcc_inactive` | product-5 inactive | profile.businessStatus = inactive |
 | `pcc_custom_field_cards` | stub group card | 1 group "Thông tin thuốc" (layout test; data thật EPIC-03) |
 
-`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+`FakeCatalogModule` — `package:c45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e01_u02_*` trong `fake_catalog_module_test.dart`.
 
@@ -386,7 +386,7 @@ Widget keys: `wgt_e01_u02_fr01_01` (PCC), `btn_readiness_checklist_banner` (chec
 | `ListTenantMeasurementUnitsQuery` | tenantId, keyword?, limit | `List<TenantMeasurementUnitDto>` | PermissionDenied |
 | `CheckDuplicateMeasurementUnitNameQuery` | tenantId, name | `bool isDuplicate` | PermissionDenied |
 
-Package: `vet45_catalog_application` — `units/`.
+Package: `c45_catalog_application` — `units/`.
 
 **`BaseUnitSelection`:**
 
@@ -441,7 +441,7 @@ Không thêm query gates — FE derive từ `readinessSummary` / `hasBaseUnit`. 
 | `set_base_unit_inactive_unit` | `ExistingTenantUnit` inactive | `ValidationException` |
 | `unit_dependencies_locked` | `GetProductReadinessQuery` / stock without unit | blocker + `set_base_unit` action; stock → `MissingBaseUnitException` |
 
-`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+`FakeCatalogModule` — `package:c45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e04_u01_*` trong `fake_catalog_module_test.dart`.
 
@@ -465,7 +465,7 @@ Tests: `scn_contract_e04_u01_*` trong `fake_catalog_module_test.dart`.
 | `DeactivateProductConversionUnitCommand` | tenantId, productId, productUnitId | `ProductUnitMutationResult` | PermissionDenied, NotFound, `ValidationException` |
 | `ReactivateProductConversionUnitCommand` | tenantId, productId, productUnitId | `ProductUnitMutationResult` | PermissionDenied, NotFound, `DuplicateMeasurementUnitNameException`, `ValidationException` |
 
-Package: `vet45_catalog_application` — `units/`.
+Package: `c45_catalog_application` — `units/`.
 
 Supporting types:
 
@@ -617,7 +617,7 @@ File: `apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.
 | ------ | --------------- | ------- | ------ |
 | `SetManualBasePriceCommand` | tenantId, productId, basePrice (`double`, `>= 0`), currency (`VND` default), mode=`manual` | `SetManualBasePriceResult` | Validation, `MissingBaseUnitException`, `NotManualBasePriceModeException` |
 
-Package: `vet45_catalog_application` — `pricing/`.
+Package: `c45_catalog_application` — `pricing/`.
 
 Read path (PCC): `GetProductControlCenterQuery` → `ProductBasePriceCardDto`.
 
@@ -721,7 +721,7 @@ Widget keys: `wgt_e06_u01_fr01_01` (manual base price page), `input_base_price_a
 | `SuggestProductUnitPriceQuery` | tenantId, productId, productUnitId? | `ProductUnitPriceSuggestionDto` | PermissionDenied, NotFound, `MissingBaseUnitException` |
 | `ApplyStorePriceRuleCommand` | tenantId, productId, productUnitId?, storePriceRuleId?, confirmOverwrite?, basePriceVersion? | `ApplyStorePriceRuleResult` | Validation, `MissingBaseUnitException`, `MissingBasePriceException`, `StorePriceRuleNotFoundException`, `StorePriceRuleInactiveException`, `PriceBandOverwriteRequiredException`, `StaleBasePriceException` |
 
-Package: `vet45_catalog_application` — `pricing/store_rule/`.
+Package: `c45_catalog_application` — `pricing/store_rule/`.
 
 Supporting types:
 
@@ -830,7 +830,7 @@ Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | `SetProductUnitPriceBandCommand` | tenantId, productId, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, productUnitId?, sourceType?, storePriceRuleId?, listMarkupRatio?, floorMarkupRatio?, confirmAcknowledgeWarnings? | `SetProductUnitPriceBandResult` | Validation, `MissingBaseUnitException`, `InactiveProductUnitException`, `FloorPriceGreaterThanListPriceException`, `PriceBandWarningsRequireAcknowledgmentException` |
 | `ListProductUnitPriceBandsQuery` | tenantId, productId | `ProductUnitPriceBandsDto` | PermissionDenied, NotFound, `MissingBaseUnitException` |
 
-Package: `vet45_catalog_application` — `pricing/price_band/`.
+Package: `c45_catalog_application` — `pricing/price_band/`.
 
 Supporting types:
 
@@ -930,7 +930,7 @@ Tests: `scn_contract_e06_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | ------ | --------------- | ------- | ------ |
 | `GetProductPriceBandSnapshotQuery` | tenantId, `items[]` (`productId`, `productUnitId`) | `ProductPriceBandSnapshotDto` | PermissionDenied, ValidationException, NotFound |
 
-Package: `vet45_catalog_application` — `pricing/price_band_snapshot/`.
+Package: `c45_catalog_application` — `pricing/price_band_snapshot/`.
 
 Supporting types:
 
@@ -977,7 +977,7 @@ Draft: [`supabase/migrations/_drafts/15_catalog_product_price_band_snapshot.sql`
 | `scn_contract_e06_u04_permission_denied` | no `catalog.product.view` | `ApplicationException` (Permission denied) |
 | `scn_contract_e06_u04_validation` | empty items / >100 | `ValidationException` |
 
-`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+`FakeCatalogModule` — `package:c45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e06_u04_*` in `fake_catalog_module_test.dart`.
 
@@ -1015,7 +1015,7 @@ Harness: `setUpErpCatalogE2E` + `getIt<ICatalogModule>().executeQueryAsync` (Fak
 | `UpdateProductImagesCommand` | tenantId, actorId, productId, images[], expectedVersion? | `UpdateProductImagesResult` | `ValidationException`, `StaleProductVersionException`, PermissionDenied, NotFound, soft-deleted lock |
 | `RequestProductMaintenanceImageUploadCommand` | tenantId, actorId, productId, fileName, contentType, byteSize | `ProductImageUploadSlotDto` | `ValidationException`, PermissionDenied, NotFound, soft-deleted lock |
 
-Package: `vet45_catalog_application` — `lifecycle/`.
+Package: `c45_catalog_application` — `lifecycle/`.
 
 Supporting types:
 
@@ -1090,7 +1090,7 @@ Tests: `scn_contract_e07_u01_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | `DeactivateProductCommand` | tenantId, actorId, productId, reason?, expectedVersion?, confirmAcknowledgeWarnings | `ChangeProductBusinessStatusResult` (`currentStatus=inactive`) | PermissionDenied, NotFound, Validation, `StaleProductVersionException`, `ProductBusinessStatusWarningsRequireAcknowledgmentException` |
 | `ReactivateProductCommand` | tenantId, actorId, productId, reason?, expectedVersion? | `ChangeProductBusinessStatusResult` (`currentStatus=active`, readinessSummary refreshed) | PermissionDenied, NotFound, Validation, `StaleProductVersionException` |
 
-Package: `vet45_catalog_application` — `lifecycle/`.
+Package: `c45_catalog_application` — `lifecycle/`.
 
 Supporting types:
 
@@ -1157,7 +1157,7 @@ Tests: `scn_contract_e07_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | `DeleteProductCommand` | tenantId, actorId, productId, reason?, expectedVersion?, confirmAcknowledgeWarnings | `ChangeProductSoftDeleteResult` (`businessStatus=soft_deleted`) | PermissionDenied, NotFound, Validation, `StaleProductVersionException` |
 | `RestoreProductCommand` | tenantId, actorId, productId, reason?, expectedVersion? | `ChangeProductSoftDeleteResult` (`businessStatus=inactive`, readiness refreshed) | PermissionDenied, NotFound, Validation, `StaleProductVersionException`, `DuplicateSkuException`, `DuplicateBarcodeException` |
 
-Package: `vet45_catalog_application` — `lifecycle/`.
+Package: `c45_catalog_application` — `lifecycle/`.
 
 Supporting types:
 
@@ -1226,7 +1226,7 @@ Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | ------ | --------------- | ------- | ------ |
 | `GetProductChangeHistoryQuery` | tenantId, productId, limit?, offset?, changeCategories? | `ProductChangeHistoryResultDto` | PermissionDenied, ValidationException, NotFound |
 
-Package: `vet45_catalog_application` — `lifecycle/change_history/`.
+Package: `c45_catalog_application` — `lifecycle/change_history/`.
 
 Supporting types:
 
@@ -1282,7 +1282,7 @@ Drafts mở rộng: [`catalog_product_price_band_change_history_direct.sql`](../
 | `scn_e06_price_history_recalc_base_01` | đổi Giá cơ sở | chỉ band `ruleBased`/`customConfig` đổi giá được ghi |
 | `scn_e06_price_history_recalc_rule_01` | đổi Store Price Rule | chỉ band `ruleBased` thuộc rule được ghi |
 
-`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+`FakeCatalogModule` — `package:c45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e07_u04_*` in `fake_catalog_module_test.dart`.
 
@@ -1311,7 +1311,7 @@ Widget coverage: `wgt_e07_price_history_create_01`, `wgt_e07_price_history_updat
 | `ReorderCustomFieldsCommand` | tenantId, groupId, orderedFieldIds[] | void | `ValidationException`, `CustomFieldGroupNotFoundException`, `CustomFieldNotFoundException` |
 | `ListCustomFieldConfigQuery` | tenantId | `CustomFieldConfigViewDto` | PermissionDenied |
 
-Package: `vet45_catalog_application` — `custom_fields/`.
+Package: `c45_catalog_application` — `custom_fields/`.
 
 Supporting types:
 
@@ -1324,7 +1324,7 @@ Supporting types:
 | `InitializeCustomFieldTemplateResult` | groupsCreated, fieldsCreated, skippedCount |
 | `ConfigureCustomFieldAttributesResult` | field, existingProductsMissingCount |
 
-Domain enums ( `vet45_catalog_domain` ): `CustomFieldType` (`text`, `number`, `date`, `boolean`, `singleSelect`), `CustomFieldConfigStatus` (`active`, `inactive`).
+Domain enums ( `c45_catalog_domain` ): `CustomFieldType` (`text`, `number`, `date`, `boolean`, `singleSelect`), `CustomFieldConfigStatus` (`active`, `inactive`).
 
 **Upsert:** `groupId?` / `fieldId?` null = create; non-null = update. `isActive: false` = tạm tắt (DR-12 — không xóa giá trị đã nhập).
 
@@ -1366,7 +1366,7 @@ Gateway: `modules/catalog/infrastructure/lib/src/domain/custom_fields/supabase_c
 | `cf_reorder_fields_ok` | ReorderCustomFieldsCommand | field sortOrder updated |
 | `cf_permission_denied` | no catalog.custom_fields.manage | `ApplicationException` (Permission denied) |
 
-`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+`FakeCatalogModule` — `package:c45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e03_u01_*` trong `fake_catalog_module_test.dart`.
 
@@ -1388,7 +1388,7 @@ Tests: `scn_contract_e03_u01_*` trong `fake_catalog_module_test.dart`.
 | `GetProductCustomFieldValuesQuery` | tenantId, productId, includeInactiveValues=false | `ProductCustomFieldValuesDto` | PermissionDenied, NotFound |
 | `UpsertCustomFieldValuesCommand` | tenantId, productId, values[] | `UpsertCustomFieldValuesResult` | `CustomFieldValueValidationException`, `CustomFieldNotFoundException`, PermissionDenied |
 
-Package: `vet45_catalog_application` — `custom_fields/product_values/`.
+Package: `c45_catalog_application` — `custom_fields/product_values/`.
 
 Supporting types:
 
@@ -1431,7 +1431,7 @@ BE lane will add draft SQL under `supabase/migrations/_drafts/`; CONTRACT lane d
 | `e2e_cf_values_save_ok` | E2E save text/number values | template + number field `Thời gian ngưng sử dụng` |
 | `e2e_cf_values_required` | E2E required field + readiness | `Thành phần` required; product-1 missing value |
 
-`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+`FakeCatalogModule` — `package:c45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e03_u02_*` trong `fake_catalog_module_test.dart`.
 
@@ -1454,7 +1454,7 @@ Tests: `scn_contract_e03_u02_*` trong `fake_catalog_module_test.dart`.
 | `ListCustomFieldFilterOptionsQuery` | tenantId, maxOptionsPerField=50 | `List<CustomFieldFilterOptionDto>` | PermissionDenied, ValidationException |
 | `GetProductCustomFieldSnapshotQuery` | tenantId, productIds[], includeInactiveValues=false | `ProductCustomFieldSnapshotDto` | PermissionDenied, ValidationException |
 
-Package: `vet45_catalog_application` — `product_search/`, `custom_fields/product_read/`.
+Package: `c45_catalog_application` — `product_search/`, `custom_fields/product_read/`.
 
 Supporting types:
 
@@ -1501,7 +1501,7 @@ FR-04 behavior: `GetProductCustomFieldSnapshotQuery` returns current product-own
 | `scn_contract_e03_u03_fr04_01` | GetProductCustomFieldSnapshotQuery for product ids | returns grouped current custom field values; no config mutation |
 | `scn_contract_e03_u03_permission_denied` | no catalog view/viewDetail permission | ApplicationException (Permission denied) |
 
-`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+`FakeCatalogModule` — `package:c45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e03_u03_*` trong `fake_catalog_module_test.dart`.
 

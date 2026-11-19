@@ -2,7 +2,7 @@ import 'package:erp/features/inventory/logic/reports/report_period.dart';
 import 'package:erp/features/inventory/logic/reports/reports_rules.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_layout.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Nút "Tháng 11/2026 ▾" + dòng `dd/MM – dd/MM/yyyy · Số liệu đến …` (`.bj15-toolbar`).
 class ReportPeriodBar extends StatelessWidget {

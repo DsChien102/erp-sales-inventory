@@ -31,7 +31,7 @@ html/
 - **CSS:** `tokens` → `components` → `harness/workbench` → `screens` (workbench trước screens để không đè chỉnh frame v281).
 - **JS:** `data/workbench-data.js` → `app/core.js` → `harness/figma-ds-map.js` → `harness/workbench.js` → `shared-*.js` → `bj*.js` / `cap01.js` → `hub.js`.
 - **Khung:** `renderAppScreen()` → theme root `ThemeApp.renderRoot()` hoặc `rendererFor(…)(state)` + `ThemeApp.afterFlowRender()`. Routing lối vào: `entryTargets` / `applyEntry` / `onEntry`. Actor: `currentActor()`.
-- **QA:** một object `window.__VET45_QA__` (BJ chỉ `Object.assign`). Fixture `__VET45_MONEY_*` / `FX` / `TAX` / `COST_POLICY` và metadata `__VET45_PROTOTYPE__` giữ riêng.
+- **QA:** một object `window.__C45_QA__` (BJ chỉ `Object.assign`). Fixture `__C45_MONEY_*` / `FX` / `TAX` / `COST_POLICY` và metadata `__C45_PROTOTYPE__` giữ riêng.
 - Sửa UI: **sửa thẳng** file sở hữu; không thêm lớp vá `vNNN`.
 
 ## Golden

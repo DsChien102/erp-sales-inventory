@@ -5,7 +5,7 @@ import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/features/sales/data/sales_draft_repository.dart';
 import 'package:erp/features/sales/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import 'package:erp/features/sales/presentation/lookups/sales_catalog_product_lookup.dart';
 import 'package:erp/features/sales/presentation/lookups/sales_partner_customer_lookup.dart';
@@ -13,13 +13,13 @@ import 'package:erp/features/sales/presentation/lookups/sales_pricing_lookup.dar
 import 'package:erp/features/sales/logic/sales_draft_backend.dart';
 import 'package:erp/main.dart' as app;
 
-const _enabledValue = String.fromEnvironment('VET45_RUN_LIVE_GROUP_B');
+const _enabledValue = String.fromEnvironment('C45_RUN_LIVE_GROUP_B');
 const _enabled = _enabledValue == '1' || _enabledValue == 'true';
-const _tenantId = String.fromEnvironment('VET45_E2E_TENANT_ID');
-const _storeId = String.fromEnvironment('VET45_E2E_STORE_ID');
-const _customerId = String.fromEnvironment('VET45_E2E_CUSTOMER_ID');
-const _productId = String.fromEnvironment('VET45_E2E_PRODUCT_ID');
-const _productUnitId = String.fromEnvironment('VET45_E2E_PRODUCT_UNIT_ID');
+const _tenantId = String.fromEnvironment('C45_E2E_TENANT_ID');
+const _storeId = String.fromEnvironment('C45_E2E_STORE_ID');
+const _customerId = String.fromEnvironment('C45_E2E_CUSTOMER_ID');
+const _productId = String.fromEnvironment('C45_E2E_PRODUCT_ID');
+const _productUnitId = String.fromEnvironment('C45_E2E_PRODUCT_UNIT_ID');
 
 void main() {
   testWidgets(

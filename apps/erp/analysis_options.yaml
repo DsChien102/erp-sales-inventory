@@ -7,4 +7,4 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
-include: package:vet45_lints/flutter.yaml
+include: package:c45_lints/flutter.yaml

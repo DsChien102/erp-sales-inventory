@@ -7,7 +7,7 @@ Thứ tự đọc bắt buộc khi triển khai một slice. Platform CQRS/modul
 ## Trước khi code
 
 ```text
-1. AGENTS.md + .cursor/rules/vet45-architecture.mdc
+1. AGENTS.md + .cursor/rules/c45-architecture.mdc
 2. docs/harness/PROGRESS.md
 3. TH-05/README.md + OVERVIEWS.md
 4. harness/04-slice-roadmap.md — lane status, parallel group, E2E blocker
@@ -22,7 +22,7 @@ Thứ tự đọc bắt buộc khi triển khai một slice. Platform CQRS/modul
     BE domain → domain-layer
     BE handler/port → application-layer
     BE gateway/RPC → infrastructure-layer
-    FE → presentation-layer + vet45-presentation-ui rule
+    FE → presentation-layer + c45-presentation-ui rule
 12. harness/06-harness-notes.md — decisions/pitfalls/open blockers
 ```
 
@@ -57,7 +57,7 @@ Theo GitNexus instructions trong [AGENTS.md](../../../../AGENTS.md):
 - Tạo widget manifest khi slice bắt đầu; không dùng tên suy diễn từ wireframe trong bootstrap.
 - Page ≤ 500 dòng; dialog/widget lớn tách file.
 - UI gọi `ISalesModule`/`IModuleMediator`, không gọi Supabase trực tiếp.
-- Async server state dùng `vet45_async_query` theo playbook của repo.
+- Async server state dùng `c45_async_query` theo playbook của repo.
 
 ## Reference code
 
@@ -65,8 +65,8 @@ Theo GitNexus instructions trong [AGENTS.md](../../../../AGENTS.md):
 | --- | --- |
 | CQRS + codegen + access wiring | `modules/iam/` |
 | Application/domain layout | `modules/iam/` + `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
-| Pipeline testing | `packages/vet45_shared/testing/` |
-| Command/handler annotations | `packages/vet45_generator/test/fixtures/lib/src/` |
+| Pipeline testing | `packages/c45_shared/testing/` |
+| Command/handler annotations | `packages/c45_generator/test/fixtures/lib/src/` |
 | Thin page/widgets | `apps/erp/lib/features/dashboard/presentation/` |
 
 **Không copy implementation từ `modules/sales/` hiện tại** — chỉ application contract/fakes là truth; implementation pattern vẫn mirror IAM.

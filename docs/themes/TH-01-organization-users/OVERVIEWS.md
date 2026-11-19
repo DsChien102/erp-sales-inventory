@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Theme 1 thiết lập nền móng **Tổ chức** (domain: Tenant), người dùng và phân quyền cho VET45: Membership, lời mời, system role, ownership, Tenant context, readiness; đồng thời cung cấp actor/authorization context cho Theme 2–12.
+Theme 1 thiết lập nền móng **Tổ chức** (domain: Tenant), người dùng và phân quyền cho Mosaic Retail: Membership, lời mời, system role, ownership, Tenant context, readiness; đồng thời cung cấp actor/authorization context cho Theme 2–12.
 
 Hai application surface:
 
@@ -49,7 +49,7 @@ Theme 1 cung cấp Tenant/actor/Membership/role context; **không** truy vấn b
 
 | Actor | Scope | Authorization |
 | ----- | ----- | ------------- |
-| VET45 System Admin | Platform | Platform permissions |
+| Mosaic Retail System Admin | Platform | Platform permissions |
 | Platform Operator | Platform | Platform permissions (+ step-up khi policy) |
 | Platform User | Platform | Identity |
 | Tenant Owner | Một Tenant | `is_owner` + Membership role |

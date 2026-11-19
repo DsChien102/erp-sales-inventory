@@ -273,9 +273,9 @@ Cột của dòng idempotency dùng lại `sales.idempotency_records`. Không g�
 
 Dùng lại skeleton `InventoryStartup`, `InventoryDataAccessModule`, `InventoryMediationModule`, `IInventoryModule`. `initialize` hiện chỉ nhận `SupabaseClient` và trả stub. Đổi chữ ký theo `PricingStartup.initialize`: `supabase`, `loggerFactory`, `executionContext`, `permissionChecker`, `tenantAccessChecker`. Facade theo `PartnerModule`: `CommandBus` và `QueryBus`. Không dùng `ScopedCommandExecutor`. Không thêm file vào `modules/inventory/presentation`.
 
-`infrastructure/pubspec.yaml` thêm `vet45_adapters`. Gateway lấy `SupabaseSchemaRpcClient` từ package đó. `mapError` đưa `PostgrestException.message` vào `RpcException`. Không dùng `error.toString()`.
+`infrastructure/pubspec.yaml` thêm `c45_adapters`. Gateway lấy `SupabaseSchemaRpcClient` từ package đó. `mapError` đưa `PostgrestException.message` vào `RpcException`. Không dùng `error.toString()`.
 
-`build.yaml` của infrastructure đang tắt `cqrs_registrar`. Bật bốn builder như `modules/partner/infrastructure/build.yaml`, `module_name: inventory`, `scan_package: vet45_inventory_application`. Codegen ghi `processing/generated/inventory_*.g.dart`. Không sửa tay file generated.
+`build.yaml` của infrastructure đang tắt `cqrs_registrar`. Bật bốn builder như `modules/partner/infrastructure/build.yaml`, `module_name: inventory`, `scan_package: c45_inventory_application`. Codegen ghi `processing/generated/inventory_*.g.dart`. Không sửa tay file generated.
 
 `Warehouse` và `StoreWarehouseAssignment` giữ cột của bảng tương ứng. Invariant một bản `active` nằm ở unique index.
 
@@ -390,7 +390,7 @@ final class EnsureDefaultStoreWarehousePairCommand
 }
 ```
 
-Command không nhận tên, `storeId`, `warehouseId`, `idempotencyKey`, `tenantId`, hay vị trí. Không `@RequiresTenant`, không `ITenantScopedCommand`. Handler `@CommandHandlerFor(EnsureDefaultStoreWarehousePairCommand)`, nhận `IExecutionContext` và `IDefaultStoreWarehousePairPort`. `requireTenantId()` và `correlationId` đưa xuống gateway. Validator implement `ICommandValidator` và không chặn field. `application/pubspec.yaml` thêm `vet45_annotations`. `domain.dart` export `InventoryPermissions`. `application.dart` export command, handler, validator, query, DTO, và port.
+Command không nhận tên, `storeId`, `warehouseId`, `idempotencyKey`, `tenantId`, hay vị trí. Không `@RequiresTenant`, không `ITenantScopedCommand`. Handler `@CommandHandlerFor(EnsureDefaultStoreWarehousePairCommand)`, nhận `IExecutionContext` và `IDefaultStoreWarehousePairPort`. `requireTenantId()` và `correlationId` đưa xuống gateway. Validator implement `ICommandValidator` và không chặn field. `application/pubspec.yaml` thêm `c45_annotations`. `domain.dart` export `InventoryPermissions`. `application.dart` export command, handler, validator, query, DTO, và port.
 
 ### EnsureDefaultStoreWarehousePairResultDto
 
@@ -477,7 +477,7 @@ Dùng lại `DashboardPage`. Cổng chỉ khi `TenantContextState.isValid` (`Ten
 ### Mediator
 
 - `DefaultPairGateCubit` gọi `IInventoryModule.executeQueryAsync` rồi, khi `ApplicationException.message` là `DEFAULT_PAIR_MISSING`, `executeCommandAsync`
-- `initDependencies` gọi `InventoryStartup.initialize` với `supabaseModule.client`, `ILoggerFactory`, `IExecutionContext`, `IPermissionChecker`, và `ITenantAccessChecker` đã đăng ký từ IAM. `apps/erp/pubspec.yaml` thêm `vet45_inventory_application` và `vet45_inventory_infrastructure`. Đăng ký `IInventoryModule`. `initialize` không gọi RPC
+- `initDependencies` gọi `InventoryStartup.initialize` với `supabaseModule.client`, `ILoggerFactory`, `IExecutionContext`, `IPermissionChecker`, và `ITenantAccessChecker` đã đăng ký từ IAM. `apps/erp/pubspec.yaml` thêm `c45_inventory_application` và `c45_inventory_infrastructure`. Đăng ký `IInventoryModule`. `initialize` không gọi RPC
 - `InventoryStartup` bỏ stub `UnimplementedError`, gắn command bus và gateway
 - `injection_test` kỳ vọng `IInventoryModule` đã đăng ký
 - Fake cổng là `FakeDefaultStoreWarehousePairPort`, khớp Contracts

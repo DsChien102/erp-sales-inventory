@@ -1,7 +1,7 @@
 -- Title: ai assistant log and daily quota (schema ai)
 -- Kind: schema
 -- Intent: ai_assistant_log
--- Context: AI-1 Task 2 (trợ lý "Hỏi VET45"); nhật ký câu hỏi + giới hạn 100 câu / cửa hàng / ngày
+-- Context: AI-1 Task 2 (trợ lý "Hỏi Mosaic Retail"); nhật ký câu hỏi + giới hạn 100 câu / cửa hàng / ngày
 -- Touches: assistant_logs, _daily_limit, start_question, finish_question
 -- Safety: one-shot ; new schema and table, no impact on existing tables
 -- Depends on: 20260811014_iam_tenant_membership_lifecycle

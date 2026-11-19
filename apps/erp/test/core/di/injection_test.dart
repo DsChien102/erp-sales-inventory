@@ -14,8 +14,8 @@ import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dar
 import 'package:erp/features/einvoice/data/einvoice_processor_trigger.dart';
 import 'package:erp/features/einvoice/data/einvoice_repository.dart';
 import 'package:erp/features/einvoice/data/invoice_document_signed_urls.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_infrastructure/infrastructure.dart';
+import 'package:c45_shared_application/application.dart';
+import 'package:c45_shared_infrastructure/infrastructure.dart';
 
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/features/inventory/data/supplier_rebate/supplier_rebate_repository.dart';
@@ -90,7 +90,7 @@ void main() {
     final diFile = File('${repoRoot.path}/apps/erp/lib/core/di/injection.dart');
     final content = diFile.readAsStringSync();
 
-    expect(content.contains('vet45_einvoice_'), isFalse);
+    expect(content.contains('c45_einvoice_'), isFalse);
     expect(content.contains('EinvoiceStartup'), isFalse);
     expect(content.contains('IEInvoiceModule'), isFalse);
     expect(content.contains('CorePermissionChecker'), isFalse);
@@ -103,7 +103,7 @@ Directory _findRepoRoot() {
   while (!Directory('${current.path}/supabase/migrations').existsSync()) {
     final parent = current.parent;
     if (parent.path == current.path) {
-      throw StateError('Could not locate Vet45 workspace root');
+      throw StateError('Could not locate Mosaic Retail workspace root');
     }
     current = parent;
   }

@@ -1,4 +1,4 @@
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/partner/data/models/partner_models.dart';
 
 abstract final class PartnerDetailFormatters {

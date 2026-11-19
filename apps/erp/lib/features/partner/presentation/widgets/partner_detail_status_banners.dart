@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Warning when required soft-completeness fields are missing (D-03).
 class PartnerDetailWarningBanner extends StatelessWidget {

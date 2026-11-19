@@ -53,7 +53,7 @@ Thứ tự đề xuất theo **đường đi của tiền** (sai ở đây hại
 
 - Trước khi sửa symbol đã có: chạy `impact` upstream (CLI GitNexus khi không có MCP), báo bạn blast radius; CRITICAL do nhiễu tên `build` thì xác nhận bằng grep số nơi gọi thật, HIGH / CRITICAL thật thì dừng hỏi bạn.
 - Không đổi chữ trên màn trừ khi phản hồi chỉ ra chữ sai; chữ mới theo Screen Contract mục 8 nếu có, không thì tôi đề xuất và hỏi.
-- Màu chỉ dùng `context.vColors.*`. Không sửa gói `vet45_design_system` (lỗi do DS ghi lại, không sửa).
+- Màu chỉ dùng `context.vColors.*`. Không sửa gói `c45_design_system` (lỗi do DS ghi lại, không sửa).
 - Lệnh DB chỉ chạy local và do bạn chạy; reset Dev (`--linked`) hỏi bạn. Không tạo migration mới, không đụng `REGISTRY.yaml` trừ khi thêm / bỏ hàm.
 - **Không commit** (bạn chốt 2026-11-13); không `git add` `AGENTS.md`, `CLAUDE.md`. Test golden đọc `docs/refactor/plans/T7/img/<plan>/flutter-*.png` ⇒ khi xoá plan G5-x **không** xoá các ảnh `flutter-*.png`.
 - Kiểm xong mỗi phần: `cd apps/erp && flutter test --no-pub -r compact test/features/inventory/<phần>` và `dart analyze lib/features/inventory test/features/inventory`; số đỏ không hơn mốc (ghi ở mục 5 khi bắt đầu).
@@ -345,7 +345,7 @@ Cho phép thủ kho ghi nhận phiếu nhận hàng từ nhà cung cấp (NCC), 
 | 13 | **Đã sửa (Nhóm 1)** | `warehouse_entries.dart:83` | Đã đổi subtitle thẻ Nhận hàng thành "Nhận hàng theo chứng từ nhà cung cấp". |
 | 14 | **Đã sửa (Nhóm 3)** | `presentation/stock_policy/stock_indicator_badge.dart` | Đã xoá tệp thừa re-export. |
 | 15 | **Đã sửa (Nhóm 3)** | `test/features/inventory/presentation/patterns/k4_result_page_test.dart` | Đã đổi tên tệp test từ `k3_k4_test.dart` thành `k4_result_page_test.dart`. |
-| 16 | Nợ token (P3) | 27 chỗ `Color(0xFF4A535E)` ở 12 tệp; 18 chỗ `Color(0xFF0E1116)` | `main.dart:41` đang ép `ThemeMode.light` ⇒ **chưa có lỗi hiển thị**, chỉ lệch token | `context.vColors.textSecondary` / `textPrimary`. Làm gộp một lượt cuối (rủi ro golden: màu cùng giá trị nên ảnh không đổi). Không sửa gói `vet45_design_system` |
+| 16 | Nợ token (P3) | 27 chỗ `Color(0xFF4A535E)` ở 12 tệp; 18 chỗ `Color(0xFF0E1116)` | `main.dart:41` đang ép `ThemeMode.light` ⇒ **chưa có lỗi hiển thị**, chỉ lệch token | `context.vColors.textSecondary` / `textPrimary`. Làm gộp một lượt cuối (rủi ro golden: màu cùng giá trị nên ảnh không đổi). Không sửa gói `c45_design_system` |
 | 17 | **Đã sửa (Nhóm 3)** | `stock_policy_cubit.dart:167, 229, 365` · `stock_policy_cubit_test.dart` | Đã xoá `_last*Key` và `_last*Payload` sau khi lưu thành công (ở cả 3 hàm save). Đã bổ sung ca test khẳng định lưu thành công rồi lưu lại cùng nội dung sẽ sinh khoá mới. |
 | 18 | **Đã sửa (Nhóm 1)** | `get_stock_detail` (`20261112001:111-140`) | Khi sản phẩm không active (`not found` từ `_product_stock_rows`), RPC tự động tính `physical` và `available` trực tiếp từ `stock_balances` và `lots` để vẫn xem và xử lý được lượng tồn còn lại. |
 

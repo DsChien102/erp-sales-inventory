@@ -306,7 +306,7 @@ Task 3.5 (`deno check`, `deno lint`, `deno test` — 422 ca), Task 4.6 (`detect-
   - `docs/02-yeu-cau/TH-08-hoa-don-dien-tu.md:264-266,689-733,895,1365-1380,1413,1513,1553-1575` (sửa: BR-32, BR-34, US-02.3, US-02.4 FR-05, auto-delivery FR-01, sơ đồ 6.1, 6.2 lệnh nội bộ, 7.3 KI-20 cập nhật KI-26, bảng 9.1, 9.2 PR 7.5, KI-20 và thêm KI-26)
   - `docs/refactor/PLAN.md:7-E3, 7-B2, 7.5` (sửa: tóm tắt 7-E3, cập nhật 7-B2 và 7.5 với KI-26)
   - `docs/refactor/plans/P7/7-E3-einvoice-kich-hoat-server.md` (cập nhật tiến độ task 1-4)
-- Lệch plan + lý do: S1 mục 4 giữ `melos run env:sync` / `vet45 run erp debug` (lệnh chạy app để kiểm tra UI, không phải messaging worker; plan 4.2 ghi "bỏ mọi melos"). Review R1 chấp nhận giữ.
+- Lệch plan + lý do: S1 mục 4 giữ `melos run env:sync` / `c45 run erp debug` (lệnh chạy app để kiểm tra UI, không phải messaging worker; plan 4.2 ghi "bỏ mọi melos"). Review R1 chấp nhận giữ.
 - Ca test: N/A (tài liệu nghiệp vụ, checklist và runbook).
 - Impact / detect-changes:
   - `node .gitnexus/run.cjs detect-changes --repo erp-sales-inventory --scope all`: 10 files, 34 symbols, 0 affected processes, risk level LOW. Khớp đúng các tệp trong plan, không có thay đổi ngoài ý muốn.
@@ -373,7 +373,7 @@ Task 3.5 (`deno check`, `deno lint`, `deno test` — 422 ca), Task 4.6 (`detect-
     - `20261108001`: 83 / 90; `RUNBOOK-einvoice.md`: 125 / 142; `S1-MISA-SANDBOX-CHECKLIST.md`: 122 / 197.
     - `…008:1335-1426` ⇒ `:1335-1424`; `…013:1054-1086` ⇒ `:1055-1085`.
     - Sửa lại sau khi làm xong R1-1, R1-2.
-  - Task 4 "Lệch plan: Không có" ⇒ ghi lệch: S1 mục 4 giữ `melos run env:sync` / `vet45 run erp debug` (lệnh chạy app, không phải worker; plan 4.2 ghi "bỏ mọi `melos`"). Review **chấp nhận** giữ.
+  - Task 4 "Lệch plan: Không có" ⇒ ghi lệch: S1 mục 4 giữ `melos run env:sync` / `c45 run erp debug` (lệnh chạy app, không phải worker; plan 4.2 ghi "bỏ mọi `melos`"). Review **chấp nhận** giữ.
   - Ghi thêm một mục "R1 — đã sửa" theo mẫu (tệp:dòng). Phiên code không đánh dấu ĐẠT.
 
 ### R2 — 2026-11-08 — **ĐẠT**

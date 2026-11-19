@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Sheet xác nhận kết thúc chương trình (mục 2.3):
 /// Tiêu đề: 'Kết thúc chương trình "{tên}"?'

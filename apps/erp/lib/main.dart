@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import 'core/config/app_logging.dart';
 import 'core/config/density.dart';
@@ -18,7 +18,7 @@ Future<void> main() async {
   await Supabase.initialize(
     url: Env.supabaseConnectionUrl,
     publishableKey: Env.supabaseAnonKey,
-    headers: const {'X-Vet45-App': 'tenant_app'},
+    headers: const {'X-C45-App': 'tenant_app'},
     debug: false,
   );
 

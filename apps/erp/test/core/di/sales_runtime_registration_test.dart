@@ -39,7 +39,7 @@ void main() {
 
     expect(source, isNot(contains('SalesStartup')));
     expect(source, isNot(contains('ISalesModule')));
-    expect(source, isNot(contains('vet45_sales_')));
+    expect(source, isNot(contains('c45_sales_')));
   });
 
   test('initDependencies registers sales repositories', () async {
@@ -66,5 +66,5 @@ Directory _findRepoRoot() {
     }
     directory = directory.parent;
   }
-  throw StateError('Unable to locate the Vet45 repository root');
+  throw StateError('Unable to locate the Mosaic Retail repository root');
 }

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:erp/features/catalog/presentation.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../../data/product_price_repository.dart';
 import '../../widgets/store_price_rule_change_history_entry_card.dart';

@@ -8,7 +8,7 @@ Directory _repoRoot() {
     final pubspec = File('${dir.path}/pubspec.yaml');
     if (pubspec.existsSync()) {
       final text = pubspec.readAsStringSync();
-      if (text.contains('name: vet45') &&
+      if (text.contains('name: c45') &&
           Directory('${dir.path}/apps').existsSync() &&
           Directory('${dir.path}/packages').existsSync()) {
         return dir;

@@ -7,7 +7,7 @@ Canonical đã ingest; US flat như TH-03 (`Epic-*/US-*.md`). Status deliver: `i
 ## Trước khi code
 
 ```text
-1. AGENTS.md + .cursor/rules/vet45-architecture.mdc
+1. AGENTS.md + .cursor/rules/c45-architecture.mdc
 2. docs/harness/PROGRESS.md
 3. TH-08/README.md + OVERVIEWS.md
 4. Theme-8-e-invoice.md — khi cần chi tiết domain/UI §3–6
@@ -41,7 +41,7 @@ melos run codegen
 | -------- | ---- |
 | Golden CQRS | `modules/iam/` |
 | Module layout | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
-| MISA blackbox | `packages/vet45_misa/` |
+| MISA blackbox | `packages/c45_misa/` |
 | Worker jobs | `apps/messaging_worker/` + [03-architecture-and-flows.md §8](03-architecture-and-flows.md) |
 | Presentation | `.cursor/skills/presentation-layer/SKILL.md` |
 

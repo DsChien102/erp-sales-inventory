@@ -45,7 +45,7 @@ Ai thấy / làm được gì; dữ liệu nào không được có trong màn k
 
 ## 7. Thành phần DS
 
-Danh sách thành phần dùng (tên trong `vet45_design_system` / prototype), ghi rõ thành phần mới.
+Danh sách thành phần dùng (tên trong `c45_design_system` / prototype), ghi rõ thành phần mới.
 
 ## 8. Chữ trên màn
 

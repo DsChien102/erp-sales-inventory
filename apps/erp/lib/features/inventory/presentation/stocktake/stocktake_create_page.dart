@@ -10,7 +10,7 @@ import 'package:erp/features/inventory/presentation/stocktake/widgets/stocktake_
 import 'package:erp/features/inventory/presentation/stocktake/widgets/stocktake_scope_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// SCR-043: Tạo phiên kiểm kê mới.
 class StocktakeCreatePage extends StatelessWidget {

@@ -7,7 +7,7 @@
 > Trước: 7-A2a (Làm ✅ + Review R2 ✅; 4 trang thiết lập, `FakeEInvoiceConfigurationRepository`, DI `EInvoiceProcessorTrigger` / `EInvoiceConfigurationRepository`). Sau: 7-B2 (KI-01, KI-08, bố cục web), 7-C (xoá module).
 > Tài liệu: [TH-08](../../../02-yeu-cau/TH-08-hoa-don-dien-tu.md) HD-06 … HD-13, 6.4, KI-17, 9.2 PR 7.3; PLAN.md "Cách chuyển MỘT feature", "Plan xoá / tách / thay code cũ", "Plan chuyển kiến trúc: giữ nghiệp vụ…". Mẫu: `plans/P7/7-A2a-einvoice-ui-thiet-lap.md`, `plans/P7/7-A1-einvoice-data.md`.
 
-**Goal:** Khu HĐĐT trên đơn (chi tiết đơn + màn kết quả bán) chạy trên `EInvoiceRepository` / `EInvoiceConfigurationRepository` (7-A1), toàn bộ code nằm ở `features/einvoice`, `lib/` không còn import `vet45_einvoice_*` (trừ `core/di/injection.dart`, 7-C) và không còn `async_query`.
+**Goal:** Khu HĐĐT trên đơn (chi tiết đơn + màn kết quả bán) chạy trên `EInvoiceRepository` / `EInvoiceConfigurationRepository` (7-A1), toàn bộ code nằm ở `features/einvoice`, `lib/` không còn import `c45_einvoice_*` (trừ `core/di/injection.dart`, 7-C) và không còn `async_query`.
 
 **Architecture:** `git mv` 25 tệp HĐĐT của `features/sales/presentation` sang `features/einvoice/{logic,presentation}`, chép 6 tệp đơn của `modules/einvoice/presentation` (KI-17), xoá 2 tệp câu lỗi cũ. 3 cubit đổi constructor sang repository; hỏi lại 5 giây chuyển từ `QueryClient.watchQuery` sang `Timer.periodic` trong `OrderEInvoiceCubit`. Sales chỉ nhúng `OrderEInvoiceSection` (import `einvoice/presentation` + `einvoice/data`, không vi phạm R3).
 
@@ -17,7 +17,7 @@
 
 - **Giữ nghiệp vụ:** cùng thứ tự gọi, cùng tham số gửi server, cùng chuỗi chữ, cùng `Key`, cùng luồng sheet. Chỉ đổi ở Q1 (bỏ cache), Q4 (câu lỗi 6.4 — đã chốt ở 7-A1 Q2) và ở các dòng ghi "đổi có chủ đích" trong bảng 3.1.
 - **Chuyển nguyên văn:** chỉ đổi import, constructor, lời gọi (mục 5), bắt lỗi (mục 5), hỏi lại (mục 6). Không đổi tên lớp / `enum` / hàm public, trừ tham số constructor ghi ở mục 5.
-- **Không đụng:** `modules/einvoice/**` (7-C), `IEInvoiceModule` / `EinvoiceStartup` / `vet45_einvoice_*` trong `injection.dart` và `pubspec.yaml` (7-C), `apps/erp/example/` (7-C), `OrderEInvoicePayable` và `SalesEInvoiceEntryCard` (ở lại sales).
+- **Không đụng:** `modules/einvoice/**` (7-C), `IEInvoiceModule` / `EinvoiceStartup` / `c45_einvoice_*` trong `injection.dart` và `pubspec.yaml` (7-C), `apps/erp/example/` (7-C), `OrderEInvoicePayable` và `SalesEInvoiceEntryCard` (ở lại sales).
 - **Luật import** (`dart run tool/check_feature_imports.dart`): không thêm dòng R1 / R2 / R3 mới; sales không import `features/einvoice/logic/**`.
 - **Trước khi sửa symbol đang có** (danh sách ở từng Task): chạy `impact({target, direction: "upstream"})` và ghi vào Kết quả; HIGH / CRITICAL thì dừng, báo người dùng.
 - **Ghi Kết quả ngay sau mỗi task** theo mẫu mục 9. Phiên code không ghi mục 10.
@@ -43,12 +43,12 @@ SalesOrderDetailPage / SalesResultDocumentsSection (features/sales/presentation)
                └─▶ EInvoiceRepository (+ EInvoiceConfigurationRepository cho mẫu) ─▶ SupabaseRpc / functions.invoke
 ```
 
-- `git grep -n "vet45_einvoice\|async_query" -- apps/erp/lib` → chỉ còn `core/di/injection.dart` dòng `vet45_einvoice_application` / `vet45_einvoice_infrastructure`.
+- `git grep -n "c45_einvoice\|async_query" -- apps/erp/lib` → chỉ còn `core/di/injection.dart` dòng `c45_einvoice_application` / `c45_einvoice_infrastructure`.
 - `git grep -n "QueryClient" -- apps/erp/lib apps/erp/test` → rỗng.
 - `apps/erp/lib/features/sales/presentation/{bloc,services}/` không còn tệp HĐĐT; `widgets/einvoice/` không còn.
 - KI-17: một chỗ `features/einvoice/presentation`; module chỉ còn bản trùng, xoá ở 7-C.
 
-**Không làm:** KI-08 dòng tóm tắt gửi lại, bố cục web HD-07 … HD-13 (7-B2); gỡ `IEInvoiceModule` / `vet45_einvoice_*` / test module (7-C); `apps/erp/example/pubspec.yaml` (7-C).
+**Không làm:** KI-08 dòng tóm tắt gửi lại, bố cục web HD-07 … HD-13 (7-B2); gỡ `IEInvoiceModule` / `c45_einvoice_*` / test module (7-C); `apps/erp/example/pubspec.yaml` (7-C).
 
 ## 2. Quyết định
 
@@ -58,15 +58,15 @@ SalesOrderDetailPage / SalesResultDocumentsSection (features/sales/presentation)
 |---|---|---|
 | Q1 | `QueryClient` cũ còn 2 hành vi phụ: (1) cache 5 phút qua các lần mở trang (`injection.dart:53-59` `gcTime`), observer phát ngay snapshot cũ khi mount; (2) observer phát lại snapshot đang cache cả khi lượt đọc **bắt đầu** và khi **lỗi** (`query_observer.dart:51-57`, `query.dart:201-207`), nên `_applyRefreshSnapshot` chạy cả lúc đó (xoá `errorMessage`, `submitting → idle`) | **Người dùng chốt 2026-11-08 (A): bỏ cả hai, đổi có chủ đích.** Chỉ áp snapshot khi đọc thành công; cubit mới luôn bắt đầu từ `initialProjection`. Test N1, N2 (Task 3) |
 | Q2 | Tệp đặt ở đâu | Tệp cubit import (state, snapshot, vm lịch sử, idempotency, 4 service) → `logic/` để không có R2 (cùng cách 7-A2a Q4). Còn lại → `presentation/`. `widgets/einvoice/*` gộp phẳng vào `presentation/widgets/`. **Duyệt plan là chốt** |
-| Q3 | Phạm vi dọn DI | 7-A2b bỏ `QueryClient` (DI, `main.dart`, `async_query*` trong `apps/erp/pubspec.yaml`), thêm `InvoiceDocumentSignedUrls` + `EInvoiceRepository`. `IEInvoiceModule` / `EinvoiceStartup` / `vet45_einvoice_*` để 7-C (quy tắc dọn module). **Người dùng duyệt thiết kế 2026-11-08** |
+| Q3 | Phạm vi dọn DI | 7-A2b bỏ `QueryClient` (DI, `main.dart`, `async_query*` trong `apps/erp/pubspec.yaml`), thêm `InvoiceDocumentSignedUrls` + `EInvoiceRepository`. `IEInvoiceModule` / `EinvoiceStartup` / `c45_einvoice_*` để 7-C (quy tắc dọn module). **Người dùng duyệt thiết kế 2026-11-08** |
 | Q4 | Câu lỗi | Đã chốt ở 7-A1 Q2: `OrderEInvoiceErrorMessage.of` → `einvoiceErrorMessage`, `OrderInvoiceDeliveryErrorMessage.of` / `.fallback` → `einvoiceDeliveryErrorMessage` / `einvoiceDeliveryFallbackMessage`. Không cần `overrides`: câu riêng của app trong cubit (xem trước chưa sẵn sàng, bản thể hiện, tài liệu) là hằng chuỗi không gắn mã, giữ nguyên |
 | Q5 | KI-17 gộp | App đang dùng bản sales của 5 widget (module bị `hide`, `order_einvoice_section.dart:10-24`) ⇒ giữ bản sales, không chép bản module. `einvoice_action_item` hai bản chỉ khác chú thích + một `const` (`diff` 2026-11-08) ⇒ giữ bản sales; `pre_issue_einvoice_action_sheet` chép từ module dùng bản này. Toast (`issue_*_toast`, `send_*_toast`, `preview_failure_toast`), `OrderDataBlockerResult`, `invoice_delivery_history_view` / `send_invoice_copy` / `invoice_documents_copy` của module: app không dùng ⇒ không chép |
 | Q6 | `OPERATION_IN_PROGRESS` ở cubit gửi (`order_invoice_delivery_cubit.dart:138` dò `toString()`) | So `e is AppException && e.code == EInvoiceErrorCodes.operationInProgress`. Repository luôn trả `AppException` (7-A1) ⇒ không đổi hành vi thật |
 
 ## 3. Hiện trạng (đo 2026-11-08)
 
-- `features/sales` có 17 tệp `lib/` import `vet45_einvoice_*` (`git grep`), gồm 25 tệp HĐĐT ở mục 4 và 4 tệp host: `logic/sales_order_detail_cubit.dart:22-23,37-39,69,73-90`, `logic/sales_order_detail_state.dart:8`, `presentation/pages/sales_order_detail_page.dart:6-7,50-53,255-266,494-521`, `presentation/widgets/sales_result_documents_section.dart:4-5,28,36-37,74-81,162-177`. `sales_transaction_result_body.dart:22-23,29-30,76-77` truyền `eInvoiceMediator` / `executionContext` (chỉ cho HĐĐT).
-- `OrderEInvoiceCubit` (`bloc/order_einvoice_cubit.dart`, 855 dòng) gọi `IModuleMediator` + `IExecutionContext` + `QueryClient`. `OrderEInvoiceSection` lấy `QueryClientProvider.of(context)` (`:114`), import `vet45_einvoice_presentation` cho `OrderEInvoiceRow`, `showPreIssueEInvoiceActionSheet`, `PreIssueSheetState`, `PreIssueAction`, `showIssueInvoiceConfirmationSheet`, `IssueInvoiceConfirmationSummary`.
+- `features/sales` có 17 tệp `lib/` import `c45_einvoice_*` (`git grep`), gồm 25 tệp HĐĐT ở mục 4 và 4 tệp host: `logic/sales_order_detail_cubit.dart:22-23,37-39,69,73-90`, `logic/sales_order_detail_state.dart:8`, `presentation/pages/sales_order_detail_page.dart:6-7,50-53,255-266,494-521`, `presentation/widgets/sales_result_documents_section.dart:4-5,28,36-37,74-81,162-177`. `sales_transaction_result_body.dart:22-23,29-30,76-77` truyền `eInvoiceMediator` / `executionContext` (chỉ cho HĐĐT).
+- `OrderEInvoiceCubit` (`bloc/order_einvoice_cubit.dart`, 855 dòng) gọi `IModuleMediator` + `IExecutionContext` + `QueryClient`. `OrderEInvoiceSection` lấy `QueryClientProvider.of(context)` (`:114`), import `c45_einvoice_presentation` cho `OrderEInvoiceRow`, `showPreIssueEInvoiceActionSheet`, `PreIssueSheetState`, `PreIssueAction`, `showIssueInvoiceConfirmationSheet`, `IssueInvoiceConfirmationSummary`.
 - `lib/features/sales/presentation.dart:74,88-103` export 17 tệp HĐĐT (dòng 87 `sales_einvoice_entry_card` giữ).
 - `main.dart:1-2,38-39` bọc `QueryClientProvider`; `injection.dart:1,53-59` đăng ký `QueryClient`; `pubspec.yaml:10-11` `async_query`, `async_query_flutter`.
 - Test app đụng tới (16 tệp chuyển, 141 ca): `test/features/sales/presentation/{order_einvoice_section_test (30), order_einvoice_mount_test (8), order_einvoice_polling_host_test (9)}`, `bloc/{order_einvoice_cubit_test (33), order_invoice_delivery_cubit_test (10), invoice_delivery_history_cubit_test (4)}`, `services/{file_invoice_document_exporter_test (13), url_invoice_viewer_launcher_test (6)}`, `pages/invoice_delivery_history_page_test (2)`, `widgets/{post_issue_einvoice_action_sheet_test (6), invoice_documents_action_sheet_test (5)}`, `widgets/einvoice/{invoice_delivery_history_view_test (4), resend_invoice_sheet_test (3), send_invoice_sheet_test (6), sg07_app_owned_contract_test (2)}`. Xoá: `support/order_einvoice_error_message_test (3)`. Sửa tại chỗ: `presentation_module/widgets/sales_transaction_result_body_test.dart` (7), `test/core/di/injection_test.dart`. Giữ: `support/order_einvoice_payable_test.dart` (4). Fake hiện có: 13 lớp `implements IModuleMediator` tự viết trong các tệp trên.
@@ -244,8 +244,8 @@ class FakeEInvoiceRepository extends EInvoiceRepository {
 | `widgets/{post_issue_einvoice_action_sheet_test,invoice_documents_action_sheet_test}`, `widgets/einvoice/*` (4 tệp) | `presentation/widgets/` |
 
 - [ ] `impact` cho `OrderEInvoiceSection`, `OrderEInvoiceCubit`, `OrderInvoiceDeliveryCubit`, `InvoiceDeliveryHistoryCubit`, `InvoiceDeliveryHistoryPage`; ghi vào Kết quả.
-- [ ] `git mv` theo mục 4 và bảng test; sửa import tương đối / `package:erp/...` cho đúng chỗ mới. Tệp vẫn import `vet45_einvoice_*` như cũ ở bước này.
-- [ ] Chép 6 tệp module (Q5): đổi import nội bộ module sang tệp app; `pre_issue_einvoice_action_sheet.dart` import `einvoice_action_item.dart` của app. Section đổi `import 'package:vet45_einvoice_presentation/presentation.dart' hide …` thành import 4 widget vừa chép.
+- [ ] `git mv` theo mục 4 và bảng test; sửa import tương đối / `package:erp/...` cho đúng chỗ mới. Tệp vẫn import `c45_einvoice_*` như cũ ở bước này.
+- [ ] Chép 6 tệp module (Q5): đổi import nội bộ module sang tệp app; `pre_issue_einvoice_action_sheet.dart` import `einvoice_action_item.dart` của app. Section đổi `import 'package:c45_einvoice_presentation/presentation.dart' hide …` thành import 4 widget vừa chép.
 - [ ] `presentation.dart` của sales: xoá dòng 74, 88-103 (giữ 87).
 - [ ] `sales_result_documents_section.dart`, `sales_transaction_result_body.dart`, `sales_order_detail_page.dart`: sửa import sang đường dẫn mới (chưa đổi tham số).
 - [ ] `sg07_app_owned_contract_test.dart`: đường dẫn `lib/features/einvoice/presentation/widgets/order_einvoice_section.dart`; chuỗi `"'einvoice/send_invoice_sheet.dart'"` → `"'send_invoice_sheet.dart'"`, tương tự resend (đổi do gộp phẳng, cùng ý kiểm).
@@ -273,7 +273,7 @@ class FakeEInvoiceRepository extends EInvoiceRepository {
 - [ ] Chép 5 tệp test module (mục 3), đổi `FakeEInvoiceFixtures.projection` sang `OrderInvoiceProjectionDto` app, import tệp app. Chạy → đỏ chỉ vì chưa đổi kiểu (nếu đã xanh vẫn được).
 - [ ] Sửa `lib/` theo mục 5, 6: đổi import DTO sang `data/models.dart`; 3 cubit + section + trang lịch sử + 2 sheet gửi đổi constructor / lời gọi; xoá 2 tệp câu lỗi; `SalesOrderDetailCubit` / `State` dùng `EInvoiceRepository?`; trang chi tiết `isRegistered<EInvoiceRepository>()` (H13) và truyền `repository: getIt<EInvoiceRepository>()`, `configurationRepository: getIt<EInvoiceConfigurationRepository>()`; màn kết quả theo mục 5 (H14).
 - [ ] `flutter test test/features/einvoice test/features/sales` → PASS. Số ca = trước Task 3 − 3 (tệp câu lỗi xoá) + 3 (ca chuyển sang `einvoice_error_messages_test`) + 4 (N1, N2, slow, close) + 1 (fallback) + 27 (module). Ghi số.
-- [ ] `dart analyze lib test/features/einvoice test/features/sales` sạch; `dart run tool/check_feature_imports.dart` không dòng mới; `git grep -n "vet45_einvoice\|async_query" -- apps/erp/lib/features` → rỗng.
+- [ ] `dart analyze lib test/features/einvoice test/features/sales` sạch; `dart run tool/check_feature_imports.dart` không dòng mới; `git grep -n "c45_einvoice\|async_query" -- apps/erp/lib/features` → rỗng.
 - [ ] Commit `feat(einvoice): 7-A2b khu HĐĐT trên đơn dùng EInvoiceRepository, hỏi lại bằng Timer`.
 
 ### Task 4: DI, `main.dart`, pubspec
@@ -294,7 +294,7 @@ class FakeEInvoiceRepository extends EInvoiceRepository {
 
 - [ ] **5.1** `cd apps/erp && dart analyze lib test` → không lỗi / cảnh báo mới.
 - [ ] **5.2** `dart run tool/check_feature_imports.dart` → không dòng mới so với trước 7-A2b (ghi danh sách dòng `einvoice` / `sales` mới nếu có).
-- [ ] **5.3** `git grep -n "vet45_einvoice" -- apps/erp/lib` → chỉ `core/di/injection.dart`. `git grep -n "features/sales/presentation/\(bloc\|services\)/.*invoice\|widgets/einvoice/" -- apps/erp` → rỗng.
+- [ ] **5.3** `git grep -n "c45_einvoice" -- apps/erp/lib` → chỉ `core/di/injection.dart`. `git grep -n "features/sales/presentation/\(bloc\|services\)/.*invoice\|widgets/einvoice/" -- apps/erp` → rỗng.
 - [ ] **5.4** `flutter test test/features/einvoice/` → PASS (ghi số ca). `flutter test` cả app → số lỗi đúng 55 như `TEST-BASELINE.md` mục "Sau 8-C" (so từng tên; tên test chuyển chỗ không nằm trong danh sách lỗi). `cd modules/einvoice/presentation && flutter test` → không đổi so với sau 7-A2a.
 - [ ] **5.5** TH-08: KI-17 cột cuối "✅ 7-A2a (thiết lập) + 7-A2b (trên đơn) (2026-…); bản trùng module xoá ở 7-C". PLAN.md: dòng 7-A2b cột Làm.
 - [ ] **5.6** `node .gitnexus/run.cjs analyze` rồi `detect_changes({scope: "compare", base_ref: "<commit trước Task 0>"})`. Chỉ được có tệp mục 4 + test + tài liệu. Ghi số tệp / symbol / luồng / rủi ro.
@@ -306,7 +306,7 @@ class FakeEInvoiceRepository extends EInvoiceRepository {
 
 ## 8. Rủi ro / lưu ý
 
-- **Trùng tên với module:** sau 7-A2b app có `PostIssueEInvoiceActionSheet`, `OrderEInvoiceRow`… ở `features/einvoice`, module cũng export cùng tên. Không tệp `lib/` nào còn import `vet45_einvoice_presentation` ⇒ không đụng. Test chép từ module chỉ import tệp app.
+- **Trùng tên với module:** sau 7-A2b app có `PostIssueEInvoiceActionSheet`, `OrderEInvoiceRow`… ở `features/einvoice`, module cũng export cùng tên. Không tệp `lib/` nào còn import `c45_einvoice_presentation` ⇒ không đụng. Test chép từ module chỉ import tệp app.
 - **Lượt đọc treo khi đổi tenant:** repository đọc `tenantId()` mỗi lượt; trang dựng lại theo `StoreShell` nên cubit cũ bị đóng (Review Focus 3).
 - **Cubit test dùng thời gian thật:** app không có `fake_async` (7-A2a Task 3); ca mới dùng `pollInterval` ngắn + `Future.delayed`. Ca widget dùng `tester.pump(Duration)`.
 - **`apps/erp/example/pubspec.yaml`** còn `async_query` — để 7-C.
@@ -340,7 +340,7 @@ Phạm vi xem: `df9ddbd0a` (Task 1), `4f8b6aa6c` (Task 2), cùng phần chưa co
 |---|---|
 | `dart analyze lib test` | ✅ không có error hay warning. Có 1 info mới: `data/file_invoice_document_exporter.dart:9` unnecessary_import (xem R1-5) |
 | `check_feature_imports` | ✅ không có dòng `einvoice` / `sales` mới |
-| `git grep vet45_einvoice\|async_query -- lib` | ✅ chỉ còn `core/di/injection.dart:2-3` |
+| `git grep c45_einvoice\|async_query -- lib` | ✅ chỉ còn `core/di/injection.dart:2-3` |
 | `git grep QueryClient -- lib test` | ✅ rỗng |
 | `flutter test test/features/einvoice test/features/sales test/core/di/injection_test.dart` | ❌ 1348 ca đạt, 2 ca đỏ (R1-3) |
 | Cubit hỏi lại (mục 6) | ✅ đúng thiết kế: `_read` dùng chung lượt, `_pollOnce`/`refresh` nuốt lỗi, bỏ `setQueryData`, `close` huỷ timer |
@@ -358,7 +358,7 @@ Phạm vi xem: `df9ddbd0a` (Task 1), `4f8b6aa6c` (Task 2), cùng phần chưa co
   - Xoá dòng 29.
   - Trong test, đổi lỗi thô sang `AppException('<mã>')` như plan Task 3 đã ghi, ví dụ `order_einvoice_cubit_test.dart:1492` `Exception('RPC error: NO_PERMISSION')` → `const AppException('NO_PERMISSION')`. Làm tương tự ở các tệp test khác còn đỏ sau khi xoá dòng.
   - Chuyển 3 ca của `order_einvoice_error_message_test.dart` đã xoá (`missing invoice template says to choose a template`, `fully returned order has its own message`, `source version mismatch asks to reload`) sang `test/features/einvoice/logic/einvoice_error_messages_test.dart`, gọi `einvoiceErrorMessage(const AppException('<mã>'))`. Bước này hiện chưa làm: tệp test đó không đổi.
-- [ ] **R1-2 (nặng) 4 tệp test chép từ module vẫn test widget của module.** `presentation/widgets/{pre_issue_einvoice_action_sheet,issue_invoice_confirmation_sheet,issuance_failure_banner}_test.dart` và `presentation/support/einvoice_status_interaction_test.dart` import `package:vet45_einvoice_presentation/presentation.dart` (và `vet45_einvoice_domain`), không import tệp app. Vì vậy 4 tệp app đã chép ở Task 2 chưa có test nào. Đổi import sang `package:erp/features/einvoice/presentation/...` và `data/models.dart`, như `order_einvoice_row_test.dart` đang làm. Chạy lại: 27 ca phải đạt.
+- [ ] **R1-2 (nặng) 4 tệp test chép từ module vẫn test widget của module.** `presentation/widgets/{pre_issue_einvoice_action_sheet,issue_invoice_confirmation_sheet,issuance_failure_banner}_test.dart` và `presentation/support/einvoice_status_interaction_test.dart` import `package:c45_einvoice_presentation/presentation.dart` (và `c45_einvoice_domain`), không import tệp app. Vì vậy 4 tệp app đã chép ở Task 2 chưa có test nào. Đổi import sang `package:erp/features/einvoice/presentation/...` và `data/models.dart`, như `order_einvoice_row_test.dart` đang làm. Chạy lại: 27 ca phải đạt.
 - [ ] **R1-3 (nặng) 2 ca đỏ trong `order_einvoice_section_test.dart`.** Cả hai do dữ liệu test, code `lib/` không sai.
   - `save pdf keeps documents sheet open and disables xml`: constructor `_TestMediator` (`:96-110`) chép mọi trường của `FakeEInvoiceRepository.forScenario(...)` trừ `documentResults`. Vì vậy `getDocuments` trả rỗng và không bao giờ tải. Cần chép thêm `documentResults` (và cả `previewResults` / `detailResults` để các ca khác không gặp lại lỗi này).
   - `deliveryPending locks send on post-issue sheet`: cubit hỏi lại (đúng H1) và đọc projection của fake `sendSheetInitial` (`deliveryPending: false`), nên ghi đè trạng thái `pendingProjection` mà test đã `emit`. Bản cũ dùng `FakeEInvoiceModule`, trả projection khác. Sửa bằng cách cho fake trả `pendingProjection`: dùng `onMediatorCreated: (m) => m.projection = pendingProjection`. Giữ nguyên các `expect`.
@@ -371,7 +371,7 @@ Phạm vi xem: `df9ddbd0a` (Task 1), `4f8b6aa6c` (Task 2), cùng phần chưa co
 - [ ] **R1-5 (nhỏ) Lệch Q2: 4 service đặt ở `data/` và được re-export từ `data/models.dart`.** Đặt ở `data/` là đúng: `sales_result_documents_section.dart` / `sales_transaction_result_body.dart` dùng `IInvoiceViewerLauncher` / `IInvoiceDocumentExporter`, nên nếu để ở `logic/` thì sales vi phạm R3. Plan sót chỗ này. Riêng `models.dart:6-9` re-export `file_invoice_document_exporter.dart` / `url_invoice_viewer_launcher.dart` thì kéo phần cài đặt thiết bị vào mọi tệp import model (kể cả repository) và gây import vòng (info `unnecessary_import` ở `file_invoice_document_exporter.dart:9`).
   - Bỏ 4 dòng export trong `models.dart`; tệp nào dùng thì import thẳng `data/i_invoice_*.dart` / `data/*_exporter.dart`.
   - Ghi lệch này vào mục 9 Task 2.
-- [ ] **R1-6 (vừa) Test còn dựa vào module, 7-C xoá module là gãy.** `test/features/einvoice/support/fake_einvoice_repository.dart:11`, `presentation/order_einvoice_section_test.dart:7`, `presentation/order_einvoice_mount_test.dart:7`, `sales/presentation_module/widgets/sales_transaction_result_body_test.dart:10` import `vet45_einvoice_application/testing.dart` chỉ để lấy `enum FakeEInvoiceScenario`. Sửa: chép `enum` (chỉ các giá trị `forScenario` dùng) sang `test/features/einvoice/support/fake_einvoice_scenario.dart`, rồi đổi import. Kiểm: `git grep -n "vet45_einvoice" -- apps/erp/test/features/einvoice/presentation apps/erp/test/features/einvoice/support apps/erp/test/features/sales` → rỗng.
+- [ ] **R1-6 (vừa) Test còn dựa vào module, 7-C xoá module là gãy.** `test/features/einvoice/support/fake_einvoice_repository.dart:11`, `presentation/order_einvoice_section_test.dart:7`, `presentation/order_einvoice_mount_test.dart:7`, `sales/presentation_module/widgets/sales_transaction_result_body_test.dart:10` import `c45_einvoice_application/testing.dart` chỉ để lấy `enum FakeEInvoiceScenario`. Sửa: chép `enum` (chỉ các giá trị `forScenario` dùng) sang `test/features/einvoice/support/fake_einvoice_scenario.dart`, rồi đổi import. Kiểm: `git grep -n "c45_einvoice" -- apps/erp/test/features/einvoice/presentation apps/erp/test/features/einvoice/support apps/erp/test/features/sales` → rỗng.
 - [ ] **R1-7 Task 5 và mục 9.**
   - Ghi mục 9 cho Task 1–5: tệp:dòng, lệch plan (R1-5; cubit test khai báo lại các lớp `…Command` / `…Query` giả để giữ nguyên `expect`), số ca, impact.
   - Commit Task 3 và Task 4 (hiện chưa commit).
@@ -397,7 +397,7 @@ Phạm vi xem: `a26db5628` (Task 3, Task 4, các việc sửa R1). Review tự �
 | R1-3 2 ca đỏ | ✅ xanh |
 | R1-4 B0-1 … B0-3, ca `Timer` | ✅ `order_einvoice_polling_host_test.dart:370,395,413` giữ đúng điều kiện kiểm của Task 0; `retry` của fake đổi sang `processing` (`fake_einvoice_repository.dart:442-454`). `slow poll does not overlap` (`order_einvoice_cubit_test.dart:1546`) dùng `setPollingActive` + `pollInterval: 10ms`; chạy 6 lần, đạt cả 6 |
 | R1-5 service ở `data/` | ✅ `models.dart` chỉ export model; lệch plan đã ghi ở mục 9 |
-| R1-6 test không dựa vào module | ✅ `git grep vet45_einvoice` trong `test/features/einvoice/{presentation,support}` và `test/features/sales` → rỗng |
+| R1-6 test không dựa vào module | ✅ `git grep c45_einvoice` trong `test/features/einvoice/{presentation,support}` và `test/features/sales` → rỗng |
 | `dart analyze lib test` | ✅ không có error hay warning; info `unnecessary_import` của R1 đã hết |
 | `check_feature_imports` | ✅ dòng `einvoice` / `sales` giống hệt trước 7-A2b (4 dòng R1 của 7-A1, các dòng R2 / R3 có sẵn của sales) |
 | `flutter test test/features/einvoice test/features/sales test/core/di/injection_test.dart` | ✅ 1357 đạt, 10 bỏ qua, 0 đỏ |

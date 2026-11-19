@@ -1,7 +1,7 @@
 -- Title: sales stats RPC for AI assistant (revenue / order count / quantity / avg order value)
 -- Kind: schema
 -- Intent: sales_stats
--- Context: AI-1 Task 1 (trợ lý "Hỏi VET45"); doanh thu khớp báo cáo lãi gộp G5-7
+-- Context: AI-1 Task 1 (trợ lý "Hỏi Mosaic Retail"); doanh thu khớp báo cáo lãi gộp G5-7
 -- Touches: get_sales_stats
 -- Safety: one-shot ; read-only RPC, no new tables
 -- Depends on: 20261119001_inventory_reports, 20260830005_sales_rebuild_schema, 20260811014_iam_tenant_membership_lifecycle

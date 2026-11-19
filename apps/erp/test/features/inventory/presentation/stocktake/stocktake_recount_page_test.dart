@@ -7,7 +7,7 @@ import 'package:erp/features/inventory/presentation/stocktake/stocktake_recount_
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../support/inventory_test_surface.dart';
 

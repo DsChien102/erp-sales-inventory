@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/inventory/data/goods_receipt/goods_receipt_models.dart';
 
 enum ReceiptListStatus {

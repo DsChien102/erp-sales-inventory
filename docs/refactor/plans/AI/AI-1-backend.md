@@ -1,4 +1,4 @@
-# AI-1 — Backend trợ lý "Hỏi VET45": thống kê bán hàng, nhật ký, Edge Function `ai-assistant`
+# AI-1 — Backend trợ lý "Hỏi Mosaic Retail": thống kê bán hàng, nhật ký, Edge Function `ai-assistant`
 
 > Tích hợp AI · plan **AI-1** của [PLAN.md](../../PLAN.md) mục "Tích hợp AI" (bảng Plan)
 > Trạng thái: Plan ✅ (người dùng duyệt 2026-11-16) | Làm ✅ 2026-11-16 | Review ✅ R4 2026-11-16

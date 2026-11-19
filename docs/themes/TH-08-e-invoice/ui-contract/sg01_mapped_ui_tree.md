@@ -3,7 +3,7 @@
 ## Thiết lập & mức sẵn sàng HĐĐT
 
 > **Purpose:** UI implementation contract mapping the approved SG-01
-> design and business states to VET45 presentation ownership and Design
+> design and business states to Mosaic Retail presentation ownership and Design
 > System usage.
 >
 > **Scope:** SG-01 frontend UI only. This document does not define
@@ -612,7 +612,7 @@ Existing equivalent widgets take precedence.
 
 ### Confirmed from existing SG-01 implementation
 
-  UI responsibility       VET45 mapping
+  UI responsibility       Mosaic Retail mapping
   ----------------------- -------------------------
   Page shell              `VPageScaffold`
   Readiness banner        `VBanner`
@@ -638,8 +638,8 @@ Password input    → VPasswordField or current DS equivalent
 Template select   → VSelect or current DS equivalent
 Signing select    → VSelect or current DS equivalent
 Automation toggle → VSwitch or current DS equivalent
-Bottom sheet      → current VET45 sheet component/pattern
-State message     → current VET45 state-message component/pattern
+Bottom sheet      → current Mosaic Retail sheet component/pattern
+State message     → current Mosaic Retail state-message component/pattern
 ```
 
 The exact existing DS API takes precedence over names shown here.

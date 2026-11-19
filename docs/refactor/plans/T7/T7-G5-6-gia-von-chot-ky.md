@@ -10,7 +10,7 @@
 
 **Architecture:** Migration mới `20261118001_inventory_costing.sql`: 2 bảng (`cost_runs`, `cost_run_lines`), hàm tính thuần `_cost_run_compute`, helper `_cost_run_is_stale`, 7 RPC. Sửa thẳng migration gốc: `_ensure_open_period`, check `kind` (`20261110001`), `_post_value_adjustment` (`20261117001`), `_reversal_kind` (`20261115001`), `get_warehouse_hub_summary` (`20261110001`). **Không** sửa `_value_line` / `_post_movements`. Flutter: BJ mới `features/inventory/{data,logic,presentation}/costing/` (072, 074, 077, sheet đổi phương pháp, sheet chi tiết tính, sheet lịch sử giá vốn), thêm dòng "Lịch sử giá vốn" ở SCR-003, lối vào + "Cần chú ý" ở Hub.
 
-**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `vet45_design_system`.
+**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `c45_design_system`.
 
 **Spec:** mục 1–2 của plan này + [spec giá vốn](T7-G5-gia-von-thiet-ke.md) + PLAN.md Theme 7 → "Quy ước chung cho mọi plan G5".
 
@@ -254,30 +254,30 @@ Route (`presentation/costing/costing_routes.dart`, `costingRoutes()`; mọi màn
 
 **CSS dùng chung** (`styles/screens.css:4220-4254`, token `styles/tokens.css`):
 ```css
-.bj14-note { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }          /* #4A535E */
-.bj14-method, .bj14-products, .bj14-writes, .bj14-scope, .bj14-section { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); } /* 8px */
-.bj14-method__line { margin: 0; font: 400 14px/22px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }  /* #0E1116 */
+.bj14-note { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }          /* #4A535E */
+.bj14-method, .bj14-products, .bj14-writes, .bj14-scope, .bj14-section { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); } /* 8px */
+.bj14-method__line { margin: 0; font: 400 14px/22px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); }  /* #0E1116 */
 .bj14-method__line strong { font-weight: 600; }
 .bj14-method__compare, .bj14-more { width: 100%; min-height: 44px; }
-.bj14-diff { font: 600 13px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--vet45-v2-text-primary); }
-.bj14-blockers { display: flex; flex-direction: column; background: var(--vet45-v2-surface-default); border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-card); overflow: hidden; } /* #FFF, #E5E8EB, 12px */
-.bj14-blocker { display: grid; grid-template-columns: 20px minmax(0, 1fr); column-gap: var(--vet45-v2-space-2); row-gap: var(--vet45-v2-space-2); align-items: start; padding: var(--vet45-v2-space-3) var(--vet45-v2-space-4); border-bottom: 1px solid var(--vet45-v2-border-default); } /* 12px 16px */
+.bj14-diff { font: 600 13px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--c45-v2-text-primary); }
+.bj14-blockers { display: flex; flex-direction: column; background: var(--c45-v2-surface-default); border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-card); overflow: hidden; } /* #FFF, #E5E8EB, 12px */
+.bj14-blocker { display: grid; grid-template-columns: 20px minmax(0, 1fr); column-gap: var(--c45-v2-space-2); row-gap: var(--c45-v2-space-2); align-items: start; padding: var(--c45-v2-space-3) var(--c45-v2-space-4); border-bottom: 1px solid var(--c45-v2-border-default); } /* 12px 16px */
 .bj14-blocker:last-child { border-bottom: 0; }
-.bj14-blocker__icon { grid-column: 1; grid-row: 1; margin-top: 2px; color: var(--vet45-v2-icon-warning); }                /* #935A0A */
+.bj14-blocker__icon { grid-column: 1; grid-row: 1; margin-top: 2px; color: var(--c45-v2-icon-warning); }                /* #935A0A */
 .bj14-blocker__copy { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.bj14-blocker__copy strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); overflow-wrap: anywhere; }
-.bj14-blocker__copy small { font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); overflow-wrap: anywhere; }
+.bj14-blocker__copy strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); overflow-wrap: anywhere; }
+.bj14-blocker__copy small { font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); overflow-wrap: anywhere; }
 .bj14-blocker__action { grid-column: 2; grid-row: 2; justify-self: start; min-height: 44px; }
-.bj14-sheet-facts { display: flex; flex-direction: column; margin-bottom: var(--vet45-v2-space-3); }
+.bj14-sheet-facts { display: flex; flex-direction: column; margin-bottom: var(--c45-v2-space-3); }
 .device-preview.is-web .bj14-blocker { grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; }
 .device-preview.is-web .bj14-blocker__action { grid-column: 3; grid-row: 1; }
 .device-preview.is-web .k7-wide :is(.bj14-method, .bj14-writes, .bj14-products, .bj14-scope, .bj14-section, .ac310-metrics, .v-banner, .k1-stale-action) { width: 100%; max-width: none; box-sizing: border-box; }
 .device-preview.is-web .bj14-method__compare, .device-preview.is-web .bj14-more { width: auto; align-self: flex-start; }
 .device-preview.is-web .bj14-more { display: none; }
-body[data-active-uif="UIF-14"] .ds24-key-value-row { display: flex; align-items: center; justify-content: space-between; gap: var(--vet45-v2-space-3); min-height: 44px; padding: var(--vet45-v2-space-2) 0; box-sizing: border-box; }
-body[data-active-uif="UIF-14"] :is(.ac310-key-value-stack, .bj14-sheet-facts) > .ds24-key-value-row + .ds24-key-value-row { border-top: 1px solid var(--vet45-v2-border-default); }
-body[data-active-uif="UIF-14"] .ds24-key-value-row > span { flex: 1 1 0; min-width: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
-body[data-active-uif="UIF-14"] .ds24-key-value-row > strong { flex: 0 1 auto; min-width: 0; text-align: right; font: 600 14px/20px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--vet45-v2-text-primary); }
+body[data-active-uif="UIF-14"] .ds24-key-value-row { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-3); min-height: 44px; padding: var(--c45-v2-space-2) 0; box-sizing: border-box; }
+body[data-active-uif="UIF-14"] :is(.ac310-key-value-stack, .bj14-sheet-facts) > .ds24-key-value-row + .ds24-key-value-row { border-top: 1px solid var(--c45-v2-border-default); }
+body[data-active-uif="UIF-14"] .ds24-key-value-row > span { flex: 1 1 0; min-width: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+body[data-active-uif="UIF-14"] .ds24-key-value-row > strong { flex: 0 1 auto; min-width: 0; text-align: right; font: 600 14px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--c45-v2-text-primary); }
 ```
 Thẻ số liệu (`styles/screens.css:2940-2964`): `.ac310-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px }`; `.ac310-metric { min-height:76px; justify-content:center; gap:4px; padding:12px; border:1px solid #E5E8EB; border-radius:12px; background:#FFF }`; nhãn `400 12px/16px #4A535E`; giá trị `600 18px/24px` (Screen Contract mục 7: số tiền **mono**).
 

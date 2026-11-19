@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/logic/invoice_delivery_history_state.dart';
 import 'package:erp/features/einvoice/logic/invoice_delivery_history_vm.dart';

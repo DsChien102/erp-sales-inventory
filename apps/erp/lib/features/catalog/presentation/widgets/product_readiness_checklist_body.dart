@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/models.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class ProductReadinessChecklistBody extends StatelessWidget {
   const ProductReadinessChecklistBody({

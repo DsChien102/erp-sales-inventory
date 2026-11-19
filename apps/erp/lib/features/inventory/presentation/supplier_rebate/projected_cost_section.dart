@@ -7,7 +7,7 @@ import 'package:erp/features/inventory/logic/supplier_rebate/projected_cost_cubi
 import 'package:erp/features/inventory/logic/supplier_rebate/projected_cost_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Khối "Giá vốn dự kiến" trên P3 cho chương trình loại 3 đang chạy (ACTIVE).
 class ProjectedCostSection extends StatelessWidget {

@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/sales/data/models.dart';
 
 import 'package:erp/core/formatting/money_formatter.dart';
@@ -437,16 +437,16 @@ final class SalesReceiptPdfGenerator {
   static Future<_PdfFonts> _loadFonts() async {
     try {
       final regular = await rootBundle.load(
-        'packages/vet45_design_system/assets/fonts/ttf_Inter/Inter-Regular.ttf',
+        'packages/c45_design_system/assets/fonts/ttf_Inter/Inter-Regular.ttf',
       );
       final bold = await rootBundle.load(
-        'packages/vet45_design_system/assets/fonts/ttf_Inter/Inter-Bold.ttf',
+        'packages/c45_design_system/assets/fonts/ttf_Inter/Inter-Bold.ttf',
       );
       final mono = await rootBundle.load(
-        'packages/vet45_design_system/assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Regular.ttf',
+        'packages/c45_design_system/assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Regular.ttf',
       );
       final monoBold = await rootBundle.load(
-        'packages/vet45_design_system/assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Bold.ttf',
+        'packages/c45_design_system/assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Bold.ttf',
       );
       return _PdfFonts(
         regular: pw.Font.ttf(regular),

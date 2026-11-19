@@ -1,7 +1,7 @@
 import { assertEquals, assertStringIncludes, assertThrows } from 'jsr:@std/assert@1'
 import { renderEmail, UnknownTemplateError } from './templates.ts'
 
-const appName = 'VET45'
+const appName = 'Mosaic Retail'
 
 Deno.test('tenant_invitation renders organization, role, code, and expiry', () => {
   const rendered = renderEmail({
@@ -16,7 +16,7 @@ Deno.test('tenant_invitation renders organization, role, code, and expiry', () =
     },
   })
 
-  assertEquals(rendered.subject, 'Lời mời tham gia Phòng khám An trên VET45')
+  assertEquals(rendered.subject, 'Lời mời tham gia Phòng khám An trên Mosaic Retail')
   assertStringIncludes(rendered.html, 'Nguyễn An mời bạn tham gia Phòng khám An với vai trò Nhân viên.')
   assertStringIncludes(rendered.html, 'AB12CD34')
   assertStringIncludes(rendered.html, 'Kích hoạt tài khoản')
@@ -45,7 +45,7 @@ Deno.test('tenant_invitation escapes HTML in organization and inviter names', ()
   assertStringIncludes(rendered.html, 'A &amp; B')
   assertEquals(rendered.html.includes('<b>'), false)
   assertEquals(rendered.html.includes('<script>'), false)
-  assertEquals(rendered.subject, 'Lời mời tham gia <b>Shop</b> trên VET45')
+  assertEquals(rendered.subject, 'Lời mời tham gia <b>Shop</b> trên Mosaic Retail')
 })
 
 Deno.test('tenant_invitation uses a fallback sentence without inviter_name', () => {
@@ -80,7 +80,7 @@ Deno.test('password_reset_code renders a one-time 10 minute code', () => {
     templateData: { expires_in_minutes: 10 },
   })
 
-  assertEquals(rendered.subject, 'Mã đặt lại mật khẩu VET45')
+  assertEquals(rendered.subject, 'Mã đặt lại mật khẩu Mosaic Retail')
   assertStringIncludes(rendered.html, '123456')
   assertStringIncludes(rendered.html, 'hết hạn sau 10 phút')
   assertStringIncludes(rendered.html, 'chỉ dùng được một lần')

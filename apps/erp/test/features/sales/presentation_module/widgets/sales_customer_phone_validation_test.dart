@@ -1,7 +1,7 @@
 import 'package:erp/features/sales/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 void main() {
   for (final phone in ['', '09881234', '098812345678', '0988abc123456']) {

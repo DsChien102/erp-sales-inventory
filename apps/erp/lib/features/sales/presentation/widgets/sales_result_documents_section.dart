@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/einvoice/data/einvoice_configuration_repository.dart';
 import 'package:erp/features/einvoice/data/einvoice_repository.dart';

@@ -36,7 +36,7 @@
 
 ### 1.1 Mục đích
 
-TH-01 là nền móng của VET45. Mọi chức năng khác dựa vào nó để biết:
+TH-01 là nền móng của Mosaic Retail. Mọi chức năng khác dựa vào nó để biết:
 
 - **Ai** đang thao tác (người dùng đã đăng nhập qua Supabase Auth).
 - Đang thao tác trong **tổ chức** nào (ranh giới dữ liệu, cột `tenant_id`) và **cửa hàng** nào.
@@ -54,7 +54,7 @@ Chỉ có một app (`apps/erp`) và một màn đăng nhập. App `apps/admin` 
 
 ### 1.3 Bối cảnh nghiệp vụ
 
-- Khách hàng của VET45 là hộ kinh doanh và doanh nghiệp bán lẻ thuốc thú y nhỏ. Cách tạo tổ chức theo các phần mềm bán hàng phổ biến (KiotViet, Sapo…): **khách tự đăng ký cửa hàng**, xác minh email xong là dùng được ngay.
+- Khách hàng của Mosaic Retail là hộ kinh doanh và doanh nghiệp bán lẻ thuốc thú y nhỏ. Cách tạo tổ chức theo các phần mềm bán hàng phổ biến (KiotViet, Sapo…): **khách tự đăng ký cửa hàng**, xác minh email xong là dùng được ngay.
 - Chủ cửa hàng tự mời nhân viên bằng email; nhân viên tự đặt mật khẩu. Chủ không biết mật khẩu của nhân viên.
 - Hồ sơ pháp lý (MST) chỉ cần khi xuất hoá đơn điện tử, nên không bắt buộc lúc đăng ký.
 - Tổ chức không phải cửa hàng (Store): khi tạo tổ chức, hệ thống tự tạo **một cửa hàng mặc định**. Cặp cửa hàng – kho mặc định cho Theme 7 **không** tạo cùng tổ chức: tạo lười lần đầu vào app (`StoreShell` gọi `inventory.ensure_default_store_warehouse_pair`).
@@ -364,7 +364,7 @@ Khác ▸ Tài khoản của tôi ─ Sửa / Đặt lại mật khẩu / Đăng
 
 | Là | Tôi muốn | Để |
 |---|---|---|
-| Chủ cửa hàng mới | tạo tài khoản đăng nhập | bắt đầu dùng VET45 |
+| Chủ cửa hàng mới | tạo tài khoản đăng nhập | bắt đầu dùng Mosaic Retail |
 
 **Yêu cầu chức năng**
 
@@ -408,7 +408,7 @@ Khác ▸ Tài khoản của tôi ─ Sửa / Đặt lại mật khẩu / Đăng
 - FR-01: Bước "3/3 · Xác minh email": "Mã xác minh gồm 6 chữ số đã được gửi tới `<email che>`."; ô 6 số; "Xác minh".
 - FR-02: "Gửi lại mã" (chờ 60 giây, "Gửi lại mã sau 00:ss") → `auth.resend(type: signup)`.
 - FR-03: "Xác minh" → `verifyOtp(type: signup)`. Trigger `_on_auth_user_confirmed` (cùng transaction): tạo hồ sơ người dùng `active`; tạo tổ chức `active`, membership Owner (`store_owner`), cửa hàng mặc định; ghi tổ chức chọn gần nhất; audit `iam.tenant.created`; xoá `signup_tenant` khỏi metadata.
-- FR-04: Thành công → vào `/`, toast "Chào mừng đến VET45! Cửa hàng `<tên>` đã sẵn sàng."
+- FR-04: Thành công → vào `/`, toast "Chào mừng đến Mosaic Retail! Cửa hàng `<tên>` đã sẵn sàng."
 - FR-05: Mã sai / hết hạn → "Mã xác minh không đúng hoặc đã hết hạn."
 
 **Quy tắc:** BR-05…BR-07, BR-10.
@@ -479,7 +479,7 @@ Scenario: SC-02 — Chưa xác minh thì chưa có tổ chức
 | Mất mạng | "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng." |
 | Phiên lỗi | "Phiên đăng nhập không hợp lệ." |
 
-- FR-05: Thông báo sau luồng khác: "Cập nhật mật khẩu thành công — Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại."; "Tham gia tổ chức thành công — Đã tham gia tổ chức "`<tên>`" thành công. Đăng nhập để vào VET45."
+- FR-05: Thông báo sau luồng khác: "Cập nhật mật khẩu thành công — Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại."; "Tham gia tổ chức thành công — Đã tham gia tổ chức "`<tên>`" thành công. Đăng nhập để vào Mosaic Retail."
 
 **Quy tắc:** BR-54, BR-60…BR-63.
 
@@ -848,7 +848,7 @@ Scenario: SC-02 — Không loại được Owner
 
 #### US-08.4 — Đăng xuất
 
-- FR-01: "Đăng xuất khỏi VET45? — Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng ứng dụng." ("Quay lại" / "Đăng xuất") → `signOut` → `/login`; xoá dữ liệu phiên trong bộ nhớ.
+- FR-01: "Đăng xuất khỏi Mosaic Retail? — Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng ứng dụng." ("Quay lại" / "Đăng xuất") → `signOut` → `/login`; xoá dữ liệu phiên trong bộ nhớ.
 
 ---
 
@@ -898,7 +898,7 @@ Bị xoá: `/more/readiness` (`tenant_readiness_page`), mục "Quyền sở hữ
 
 ```text
 ┌──────────────────────────────────┐
-│              VET45               │
+│              Mosaic Retail               │
 │  Quản trị bán hàng thuốc thú y   │
 │ Email     [Nhập email          ] │
 │ Mật khẩu  [Nhập mật khẩu     👁] │
@@ -908,7 +908,7 @@ Bị xoá: `/more/readiness` (`tenant_readiness_page`), mục "Quyền sở hữ
 │ [     Đăng ký cửa hàng mới     ] │ 🆕
 │ Bạn đã nhận được lời mời?        │
 │ [      Kích hoạt tài khoản     ] │
-│      © VET45 · Phiên bản Mobile  │
+│      © Mosaic Retail · Phiên bản Mobile  │
 └──────────────────────────────────┘
 ```
 

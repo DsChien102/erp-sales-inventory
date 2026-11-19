@@ -96,7 +96,7 @@ function render021BJ04(state){
 Object.assign(renderers, { "SCR-021": render021BJ04 });
 
 // Mở 021 cho một đơn (QA / kịch bản golden): như vào từ chi tiết đơn của Theme 5.
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   openBJ04(orderId){ bj04OrderId = String(orderId || bj04StaticModel.order); bj04ReturnTo = null; stateByScreen["SCR-021"] = "READY"; return applyEntry("UIF-04", "order-context", true); }
 });
 

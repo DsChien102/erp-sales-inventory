@@ -1,7 +1,7 @@
 import 'package:erp/features/assistant/logic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../widgets/assistant_composer.dart';
 import '../widgets/assistant_footer.dart';
@@ -45,7 +45,7 @@ class _AskAssistantPageState extends State<AskAssistantPage> {
     final c = context.vColors;
     return Scaffold(
       backgroundColor: c.background,
-      appBar: const VAppBar(title: 'Hỏi VET45'),
+      appBar: const VAppBar(title: 'Hỏi Mosaic Retail'),
       body: BlocConsumer<AskAssistantCubit, AskAssistantState>(
         listenWhen: (a, b) => a.messages.length != b.messages.length || a.waiting != b.waiting,
         listener: (_, _) => _scrollToEnd(),

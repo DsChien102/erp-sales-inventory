@@ -613,7 +613,7 @@ Chi tiết mapping: [07-api-contracts.md](07-api-contracts.md).
 
 ## MISA V2 contract freeze (2026-09-16)
 
-Baseline: tài liệu AIO V2 do BA cung cấp + package `vet45_misa/doc/misa-meinvoice-open-api.md`.
+Baseline: tài liệu AIO V2 do BA cung cấp + package `c45_misa/doc/misa-meinvoice-open-api.md`.
 
 - **SignType:** chỉ `2` (HSM) và `5` (MTT). V2 gạch `3`/`4`/`6` — không tự mở.
 - **KCT-only:** mọi dòng `KCT`, VAT = 0 khi invariant pass; `UNSUPPORTED_TAX_DATA` khi nguồn Sales vi phạm contract thuế.
@@ -641,4 +641,4 @@ Baseline: tài liệu AIO V2 do BA cung cấp + package `vet45_misa/doc/misa-mei
 Code domain: [domain-layer skill](../../../../.cursor/skills/domain-layer/SKILL.md) → `modules/einvoice/domain/lib/src/`.
 Commands/handlers: [application-layer](../../../../.cursor/skills/application-layer/SKILL.md).
 SQL draft: `supabase/migrations/_drafts/einvoice_*.sql` (BE lane).
-Worker: `apps/messaging_worker` + `packages/vet45_misa` — xem [03-architecture-and-flows.md](03-architecture-and-flows.md).
+Worker: `apps/messaging_worker` + `packages/c45_misa` — xem [03-architecture-and-flows.md](03-architecture-and-flows.md).

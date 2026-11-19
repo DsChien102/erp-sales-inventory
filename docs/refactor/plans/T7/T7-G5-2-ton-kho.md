@@ -10,7 +10,7 @@
 
 **Architecture:** Migration `20261112001_inventory_stock_view.sql` thêm 2 RPC đọc (danh sách, chi tiết) dựa trên `inventory._product_stock_rows` của G5-2a; sửa `get_warehouse_hub_summary` (migration gốc G5-0b) điền `problems`. Flutter `features/inventory/{data,logic,presentation}/stock/`: một repository, hai Cubit (danh sách, chi tiết), luật chỉ báo dùng lại `logic/stock/stock_indicator_rules.dart` (G5-2a). Web SCR-001 là danh sách – chi tiết (chi tiết dùng chung widget thân SCR-003).
 
-**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `vet45_design_system`.
+**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `get_it`, `c45_design_system`.
 
 **Spec:** mục 1 của plan này + `specs/themes/theme-07/03.design/screens/SCR-001.md`, `SCR-003.md` + prototype `03.design/prototype/html/app/bj01.js` (v5.28.0) + [spec giá vốn](T7-G5-gia-von-thiet-ke.md) mục 7 (dòng SCR-003) + PLAN.md Theme 7 → "Quy ước chung cho mọi plan G5".
 
@@ -102,7 +102,7 @@ Nút quét camera (Q-2-1), "Nhận hàng" / "Mở phiếu nhận" (G5-3), "Đi�
 | `apps/erp/lib/features/inventory/logic/{inventory_format,receipt_rules}.dart` | tạo / sửa | 2 |
 | `apps/erp/lib/features/inventory/data/stock/*` + test | tạo | 2 |
 | `apps/erp/lib/features/inventory/logic/stock/*` + test | tạo | 3 |
-| `packages/vet45_design_system/lib/src/primitives/v_badge.dart`, `…/components/v_stock_row.dart` (mới), `design_system.dart` + test | sửa / tạo | 4 |
+| `packages/c45_design_system/lib/src/primitives/v_badge.dart`, `…/components/v_stock_row.dart` (mới), `design_system.dart` + test | sửa / tạo | 4 |
 | `apps/erp/lib/features/inventory/presentation/patterns/inventory_layout.dart` (`K7Table.selected`) | sửa | 6 |
 | `apps/erp/lib/features/inventory/presentation/stock/*` + test | tạo | 4, 5, 6 |
 | `apps/erp/lib/core/router/app_router.dart`, `lib/core/di/injection.dart`, `presentation/hub/warehouse_entries.dart`, `data/hub/warehouse_hub_repository.dart` + test Hub | sửa | 7 |
@@ -184,7 +184,7 @@ function bj01RowBadge(p) {
   const issue=bj01PrimaryAttention(p);
   return issue && BJ01_STOCK_TONE[issue.key] ? ds24DotBadge(issue.label,BJ01_STOCK_TONE[issue.key]) : "";
 }
-function bj01Context() { return `<p class="ds24-context vet45-text-style-7" data-ds-component="VText" data-ds-prop-style="Body/Small">Kho trung tâm · Dữ liệu đến ${esc(bj01AsOf()).replace(" · ", ", ")}</p>`; }
+function bj01Context() { return `<p class="ds24-context c45-text-style-7" data-ds-component="VText" data-ds-prop-style="Body/Small">Kho trung tâm · Dữ liệu đến ${esc(bj01AsOf()).replace(" · ", ", ")}</p>`; }
 function bj01SearchAndFilters() {
   const filters=[['ALL','Tất cả'],['OUT','Hết hàng'],['LOW','Tồn thấp'],['NEAR','Cận hạn'],['EXPIRED','Hết hạn']];
   const scan=`<button type="button" class="ds24-search__action" data-bj01-scan aria-label="Quét mã vạch">${icon("scan","icon--sm")}</button>`;
@@ -212,11 +212,11 @@ CSS `styles/components.css:2644-2671` + `styles/screens.css:189-192, 3885-3887`:
 
 ```css
 .ds24-chip__count { margin-inline-start: 3px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.ds24-chip.is-empty:not(.is-selected) .ds24-chip__count { color: var(--vet45-v2-text-secondary); }
+.ds24-chip.is-empty:not(.is-selected) .ds24-chip__count { color: var(--c45-v2-text-secondary); }
 .ds24-stock-row { min-height: 64px; }
 .ds24-stock-row__value { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.ds24-stock-row__qty { font-family: var(--vet45-v2-font-mono); font-size: 16px; line-height: 22px; font-weight: 700; color: var(--vet45-v2-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
-body[data-active-uif="UIF-01"] .ds24-context { margin: 0; color: var(--vet45-v2-text-secondary); font-size: 13px; }
+.ds24-stock-row__qty { font-family: var(--c45-v2-font-mono); font-size: 16px; line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+body[data-active-uif="UIF-01"] .ds24-context { margin: 0; color: var(--c45-v2-text-secondary); font-size: 13px; }
 body[data-active-uif="UIF-01"] .figma-calibrated-shell .ds24-chip-scroll { gap: 6px; }
 body[data-active-uif="UIF-01"] .figma-calibrated-shell .ds24-chip-scroll > .ds24-chip { padding-inline: 10px; }
 ```
@@ -241,7 +241,7 @@ Token: `text-secondary` #4A535E, `text-primary` #0E1116, `font-mono` "JetBrains 
 | `LOADING` | `InventoryLoading(blocks: [search, row, row, row, row])` dưới dòng ngữ cảnh | ngữ cảnh chưa có ⇒ bỏ |
 | `PERMISSION_DENIED` | `InventoryDenied(what: 'xem tồn kho', next: 'Bạn chưa được cấp quyền xem tồn kho. Liên hệ chủ cửa hàng nếu cần.', onExit: () => context.go('/warehouse'))` | tiêu đề "Bạn chưa có quyền xem tồn kho"; nút "Về Kho" |
 
-- [x] **Step 1: Test DS (đỏ)** — `packages/vet45_design_system/test/primitives/v_badge_hollow_dot_test.dart`: `hollow_dot_draws_ring` (chấm 8 × 8 viền tone, nền trong suốt); `packages/vet45_design_system/test/components/v_stock_row_test.dart`: `min_height_64`, `quantity_mono_bold_16`, `badge_below_quantity`, `has_chevron`, `semantics_button_label` ("{title}, {quantity}, {badge}").
+- [x] **Step 1: Test DS (đỏ)** — `packages/c45_design_system/test/primitives/v_badge_hollow_dot_test.dart`: `hollow_dot_draws_ring` (chấm 8 × 8 viền tone, nền trong suốt); `packages/c45_design_system/test/components/v_stock_row_test.dart`: `min_height_64`, `quantity_mono_bold_16`, `badge_below_quantity`, `has_chevron`, `semantics_button_label` ("{title}, {quantity}, {badge}").
 - [x] **Step 2: Viết** `VBadge.hollowDot` (bool, mặc định false; chỉ có hiệu lực khi `showDot`) và `VStockRow({required String title, String? subtitle, required String quantity, Widget? badge, VoidCallback? onTap, bool selected = false})` (dựa trên `VListRow` không icon đầu); export ở `design_system.dart`. Sửa `StockIndicatorBadge` của G5-2a (`presentation/stock_policy/`) dùng `hollowDot: true` cho tone `danger` và dời sang `presentation/stock/stock_indicator_badge.dart` để hai màn dùng chung (sửa import ở G5-2a). Chạy test DS + test G5-2a xanh.
 - [x] **Step 3: Widget test SCR-001 iPhone (đỏ)** — `test/features/inventory/presentation/stock/stock_list_page_test.dart` (390 × 844, fake repository fixture Task 3): `list_ready_390` (ngữ cảnh "Kho trung tâm · Dữ liệu đến 21:30, 17/09/2026"; không có `Semantics('Quét mã vạch')`; dòng đầu Enrofloxacin "0 chai" + "Hết hàng"; Oxy phụ đề "SP-000147 · Chưa có ngưỡng tồn", không badge); `chip_tap_filters_390`; `empty_when_no_products`; `filter_empty_clear_resets`; `stale_banner_refresh`; `denied_390`; `row_tap_opens_detail_route` (đẩy `/warehouse/stock/INV-AMX`).
 - [x] **Step 4: Chạy, thấy đỏ.**
@@ -297,14 +297,14 @@ function bj01LotSheet(p) {
   const t7 = bj01T7Lot(p, lot.code);
   const dispose=lot.expiryIndicator==='EXPIRED'?`<button class="ds24-button ds24-button--secondary" data-bj01-dispose-lot="${escapeAttribute(lot.code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Điều chỉnh lô hết hạn</button>`
     :''; // v5.28.0: bỏ "Đổi tình trạng" (BJ-09)
-  return ds24Sheet({title:`Lô ${lot.code}`,attrs:'data-bj01-close-lot',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · HSD ${esc(lot.expiryDisplay)}</p>${bj01LotQuantityRows(lot,p)}${status}${dispose}`});
+  return ds24Sheet({title:`Lô ${lot.code}`,attrs:'data-bj01-close-lot',body:`<p class="ds24-context c45-text-style-7">${esc(p.name)} · HSD ${esc(lot.expiryDisplay)}</p>${bj01LotQuantityRows(lot,p)}${status}${dispose}`});
 }
 function bj01ProvenanceSheet(p) {
   if(!bj01ProvenanceOpen)return "";
   const mv=bj01LatestMovement(p); const rs=p.reservationSummary||{};
   const movementValue=mv.source?`${mv.source} · ${Number(mv.delta)>0?'+':''}${mv.delta} ${p.stockUom}`:'Chưa có biến động';
   const reservationValue=Number(rs.quantity)>0?`${rs.quantity} ${p.stockUom}${rs.source?` · ${rs.source}`:''}`:`0 ${p.stockUom}`;
-  return ds24Sheet({title:'Nguồn và thời điểm cập nhật',attrs:'data-bj01-close-provenance',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · Kho trung tâm</p><div class="ds24-info-stack">${ds24InfoRow('Dữ liệu đến',bj01AsOf())}${ds24InfoRow(mv.label?`${mv.label} gần nhất`:'Biến động gần nhất',movementValue)}${mv.receipt?`<button class="k7-row-link" type="button" data-bj01-open-receipt="${escapeAttribute(mv.source)}">Mở phiếu nhận ${esc(mv.source)}</button>`:''}${ds24InfoRow('Đang giữ',reservationValue)}</div><button class="ds24-button ds24-button--secondary" data-bj01-handoff type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('history','icon--sm')}Xem thẻ kho và lịch sử</button>`});
+  return ds24Sheet({title:'Nguồn và thời điểm cập nhật',attrs:'data-bj01-close-provenance',body:`<p class="ds24-context c45-text-style-7">${esc(p.name)} · Kho trung tâm</p><div class="ds24-info-stack">${ds24InfoRow('Dữ liệu đến',bj01AsOf())}${ds24InfoRow(mv.label?`${mv.label} gần nhất`:'Biến động gần nhất',movementValue)}${mv.receipt?`<button class="k7-row-link" type="button" data-bj01-open-receipt="${escapeAttribute(mv.source)}">Mở phiếu nhận ${esc(mv.source)}</button>`:''}${ds24InfoRow('Đang giữ',reservationValue)}</div><button class="ds24-button ds24-button--secondary" data-bj01-handoff type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('history','icon--sm')}Xem thẻ kho và lịch sử</button>`});
 }
 function bj01DetailBody(p) {
   const configNote=p.monitoringConfigStatus==='NOT_CONFIGURED'?`<p class="ds24-context bj01-config-note" data-ds-component="VText">Chưa đặt tồn tối thiểu (ở hồ sơ sản phẩm); chưa xác định được tồn thấp.</p>`:'';
@@ -338,24 +338,24 @@ function render003BJ01(state) {
 CSS `styles/screens.css:3826-3865, 3881-3891, 3371` + `styles/components.css:3000-3006`:
 
 ```css
-.bj01-stock-hero { width: 100%; padding: var(--vet45-v2-space-4); display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-4); background: var(--vet45-v2-surface-default); box-sizing: border-box; }
-.bj01-stock-hero__main { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--vet45-v2-space-1) var(--vet45-v2-space-3); }
-.bj01-stock-hero__main > span { grid-column: 1 / -1; font: 400 13px/20px Inter, sans-serif; color: var(--vet45-v2-text-secondary); }
-.bj01-stock-hero__main > strong { font-family: var(--vet45-v2-font-mono); font-size: 22px; line-height: 28px; font-weight: 700; color: var(--vet45-v2-text-primary); font-variant-numeric: tabular-nums; grid-column: 1; grid-row: 2; }
+.bj01-stock-hero { width: 100%; padding: var(--c45-v2-space-4); display: flex; flex-direction: column; gap: var(--c45-v2-space-3); border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-4); background: var(--c45-v2-surface-default); box-sizing: border-box; }
+.bj01-stock-hero__main { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--c45-v2-space-1) var(--c45-v2-space-3); }
+.bj01-stock-hero__main > span { grid-column: 1 / -1; font: 400 13px/20px Inter, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj01-stock-hero__main > strong { font-family: var(--c45-v2-font-mono); font-size: 22px; line-height: 28px; font-weight: 700; color: var(--c45-v2-text-primary); font-variant-numeric: tabular-nums; grid-column: 1; grid-row: 2; }
 .bj01-stock-hero__main > .ds24-badge { grid-column: 2; grid-row: 2; width: auto; justify-self: end; }
-.bj01-stock-hero__stats { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--vet45-v2-space-3); }
-.bj01-stock-hero__stats dt { font: 400 12px/16px Inter, sans-serif; color: var(--vet45-v2-text-secondary); }
-.bj01-stock-hero__stats dd { margin: var(--vet45-v2-space-1) 0 0; font-family: var(--vet45-v2-font-mono); font-size: 14px; line-height: 20px; font-weight: 600; color: var(--vet45-v2-text-primary); }
-.bj01-stock-hero__note { margin: 0; padding-top: var(--vet45-v2-space-3); border-top: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); font: 400 13px/20px Inter, sans-serif; color: var(--vet45-v2-text-secondary); }
-.bj01-stock-hero__policy { display: flex; align-items: center; justify-content: space-between; gap: var(--vet45-v2-space-3); padding-top: var(--vet45-v2-space-3); border-top: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default); font: 400 13px/20px Inter, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj01-stock-hero__stats { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--c45-v2-space-3); }
+.bj01-stock-hero__stats dt { font: 400 12px/16px Inter, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj01-stock-hero__stats dd { margin: var(--c45-v2-space-1) 0 0; font-family: var(--c45-v2-font-mono); font-size: 14px; line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.bj01-stock-hero__note { margin: 0; padding-top: var(--c45-v2-space-3); border-top: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default); font: 400 13px/20px Inter, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj01-stock-hero__policy { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-3); padding-top: var(--c45-v2-space-3); border-top: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default); font: 400 13px/20px Inter, sans-serif; color: var(--c45-v2-text-secondary); }
 .bj01-stock-hero__note + .bj01-stock-hero__policy { padding-top: 0; border-top: 0; }
-.bj01-attention { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
-.bj01-attention__hint { margin: 0; font: 600 14px/20px Inter, sans-serif; color: var(--vet45-v2-text-primary); }
+.bj01-attention { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.bj01-attention__hint { margin: 0; font: 600 14px/20px Inter, sans-serif; color: var(--c45-v2-text-primary); }
 .bj01-config-note{margin:8px 0 0}
 .bj01-detail, .bj01-detail__summary, .bj01-detail__more { display: contents; }
-.device-preview.is-web .bj01-detail { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--vet45-v2-space-6); align-items: start; }
-.device-preview.is-web .bj01-detail__summary, .device-preview.is-web .bj01-detail__more { display: flex; flex-direction: column; gap: var(--vet45-v2-space-3); min-width: 0; }
-.device-preview.is-web .k7-split__aside > .bj01-detail { display: flex; flex-direction: column; align-items: stretch; gap: var(--vet45-v2-space-4); }
+.device-preview.is-web .bj01-detail { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--c45-v2-space-6); align-items: start; }
+.device-preview.is-web .bj01-detail__summary, .device-preview.is-web .bj01-detail__more { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); min-width: 0; }
+.device-preview.is-web .k7-split__aside > .bj01-detail { display: flex; flex-direction: column; align-items: stretch; gap: var(--c45-v2-space-4); }
 ```
 
 Token: `space-1` 4, `space-3` 12, `space-4` 16, `space-6` 24, `radius-4` 12, `border-default` #E5E8EB, `border-width-thin` 1.
@@ -448,7 +448,7 @@ const BJ01_COLUMNS = [
 CSS `styles/components.css:3006-3008`:
 
 ```css
-.device-preview.is-web .k7-split__aside > .bj01-detail { display: flex; flex-direction: column; align-items: stretch; gap: var(--vet45-v2-space-4); }
+.device-preview.is-web .k7-split__aside > .bj01-detail { display: flex; flex-direction: column; align-items: stretch; gap: var(--c45-v2-space-4); }
 .device-preview.is-web .bj01-list-detail .k7-split { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
 ```
 
@@ -489,7 +489,7 @@ CSS `styles/components.css:3006-3008`:
 
 - [x] **Step 1: Test luồng** `test/features/inventory/presentation/stock/stock_flow_test.dart` (fake repository, chủ cửa hàng, 390): Hub "Tồn kho cần chú ý" → danh sách → chip "Tồn thấp" → Tylosin → "Sửa ngưỡng" → (fake G5-2a trả `true`) → chi tiết tải lại → quay lại danh sách giữ chip "Tồn thấp".
 - [x] **Step 2: Ảnh Flutter** (`matchesGoldenFile`): `img/G5-2/flutter-SCR-001-READY-{390,1280}.png`, `flutter-SCR-003-READY-{390,1280}.png` (fixture Task 3; SCR-003 là Nobivac như ảnh prototype, chủ cửa hàng). So với `proto-*`; lệch ghi Kết quả (chênh đã biết: mục đầu Task 4, Task 5).
-- [x] **Step 3: Kiểm** — `cd apps/erp && dart analyze lib/features/inventory test/features/inventory` = 0 lỗi; `cd packages/vet45_design_system && dart analyze && flutter test --no-pub -r compact`; `flutter test --no-pub -r compact` (app) không thêm lỗi so với `TEST-BASELINE.md`; `detect_changes()`.
+- [x] **Step 3: Kiểm** — `cd apps/erp && dart analyze lib/features/inventory test/features/inventory` = 0 lỗi; `cd packages/c45_design_system && dart analyze && flutter test --no-pub -r compact`; `flutter test --no-pub -r compact` (app) không thêm lỗi so với `TEST-BASELINE.md`; `detect_changes()`.
 - [x] **Step 4: Ghi Kết quả** + PLAN.md bảng Plan (cột Làm).
 
 ## 5. Kết quả
@@ -511,7 +511,7 @@ CSS `styles/components.css:3006-3008`:
    - Test `test/features/inventory/logic/stock/stock_list_test.dart` (10/10 PASS).
 4. **Task 4 (DS `VBadge` chấm rỗng + `VStockRow`; SCR-001 iPhone):**
    - `impact` cho `VBadge` (MEDIUM — thêm tham số tuỳ chọn `hollowDot = false`) và `StockIndicatorBadge` (LOW — dời sang `presentation/stock/stock_indicator_badge.dart`, giữ re-export tại `stock_policy/`).
-   - Bổ sung `VBadge.hollowDot` và `VStockRow` trong `vet45_design_system`; test DS `v_badge_hollow_dot_test.dart`, `v_badge_test.dart`, `v_stock_row_test.dart` (14/14 PASS) và `stock_policy_page_test.dart` (16/16 PASS).
+   - Bổ sung `VBadge.hollowDot` và `VStockRow` trong `c45_design_system`; test DS `v_badge_hollow_dot_test.dart`, `v_badge_test.dart`, `v_stock_row_test.dart` (14/14 PASS) và `stock_policy_page_test.dart` (16/16 PASS).
    - Dựng `lib/features/inventory/presentation/stock/stock_list_page.dart` (iPhone 390); test `test/features/inventory/presentation/stock/stock_list_page_test.dart` (7/7 PASS).
 5. **Task 5 (SCR-003 Chi tiết tồn kho, sheet lô, sheet nguồn, khối giá vốn):**
    - Dựng `stock_cost_block.dart`, `stock_lot_sheet.dart`, `stock_provenance_sheet.dart`, `stock_detail_body.dart`, `stock_detail_page.dart`.
@@ -542,7 +542,7 @@ CSS `styles/components.css:3006-3008`:
 - `cd apps/erp && dart analyze lib/features/inventory test/features/inventory`: **No issues found!** (0 lỗi, 0 warning, 0 info).
 - `cd apps/erp && dart run tool/check_feature_imports.dart`: **0 vi phạm** trong `lib/features/inventory`.
 - `cd apps/erp && flutter test --no-pub -r compact test/features/inventory`: **281/281 PASS**.
-- `cd packages/vet45_design_system && dart analyze lib`: **No issues found!**; các test DS liên quan (`v_badge_test.dart`, `v_badge_hollow_dot_test.dart`, `v_stock_row_test.dart`, `v_table_row_tap_test.dart`, `v_table_selected_test.dart` — thêm sau R1) **PASS 100%** (toàn gói DS 472 pass / 1 fail sẵn có ở `v_overlay_menu_shell_test.dart` không liên quan).
+- `cd packages/c45_design_system && dart analyze lib`: **No issues found!**; các test DS liên quan (`v_badge_test.dart`, `v_badge_hollow_dot_test.dart`, `v_stock_row_test.dart`, `v_table_row_tap_test.dart`, `v_table_selected_test.dart` — thêm sau R1) **PASS 100%** (toàn gói DS 472 pass / 1 fail sẵn có ở `v_overlay_menu_shell_test.dart` không liên quan).
 - `node .gitnexus/run.cjs detect-changes --repo erp-sales-inventory`:
   - `Changes: 20 files, 7 symbols | Affected processes: 0 | Risk level: low`
   - Các symbol thay đổi đều nằm đúng phạm vi plan (`appRouter`, `GoRouter`, `LotIssue`, `build` trong `inventory_layout.dart`, `InventorySessionStore`, `VTable`, `isSmall` trong `v_badge.dart`).
@@ -551,7 +551,7 @@ CSS `styles/components.css:3006-3008`:
 ### 5.4 Sửa sau R1 (2026-11-10)
 - **#1** `StockDetailCubit.load`: đổi sang sản phẩm khác ⇒ xoá `data` cũ; `_fetch` bỏ phản hồi (cả lỗi) khi `productId` không còn là sản phẩm đang chọn. Test `load_other_product_clears_old_data`, `late_response_ignored` (`stock_list_test.dart`), `aside_error_shows_retry_1280` (`stock_list_page_test.dart`).
 - **#2** `StockDetailPanel` nhận `listAsOf` (mốc "Dữ liệu đến" của danh sách); mốc đổi ⇒ `refresh()` cột phải. Lưu ngưỡng ở cột phải ⇒ cột phải tự tải lại rồi làm mới danh sách (thêm 1 lần gọi khi mốc đổi — chấp nhận, để không phụ thuộc danh sách làm mới thành công). Test `refresh_reloads_aside_1280`.
-- **#3** Sửa 5.2 / 5.3 cho khớp code. Thêm `packages/vet45_design_system/test/components/v_table_selected_test.dart` (`selected_row_background`, `no_selection_by_default`, `selected_semantics`). Kèm #9 một phần: `VTable` dòng chọn dùng `colors.surfaceBrand` thay `Color(0xFFEBF4EC)` (sửa `selected_row_highlighted` theo token).
+- **#3** Sửa 5.2 / 5.3 cho khớp code. Thêm `packages/c45_design_system/test/components/v_table_selected_test.dart` (`selected_row_background`, `no_selection_by_default`, `selected_semantics`). Kèm #9 một phần: `VTable` dòng chọn dùng `colors.surfaceBrand` thay `Color(0xFFEBF4EC)` (sửa `selected_row_highlighted` theo token).
 - Kiểm: `dart analyze lib/features/inventory test/features/inventory` = 0; `flutter test --no-pub test/features/inventory` = **285/285**; DS `dart analyze lib` = 0, `v_table_*_test` 6/6.
 - Chưa sửa: P3 #4–#8, #10, #11, phần `Color(0xFF4A535E)` của #9.
 - `detect_changes` (sau `analyze` lại): 23 tệp, 44 symbol, 0 process bị ảnh hưởng, **low**; `impact StockDetailPanel` LOW (5). `AGENTS.md`, `CLAUDE.md` chỉ đổi dòng thống kê do `analyze` — không `git add`.
@@ -567,7 +567,7 @@ CSS `styles/components.css:3006-3008`:
 |---|---|---|---|---|
 | 1 | P2 | `stock_list_page.dart:473-477`, `stock_detail_cubit.dart:19-28` | Web: đổi dòng ⇒ `load(newId)` **giữ `data` cũ** (`copyWith` không xoá) ⇒ trong lúc tải cột phải vẫn hiện sản phẩm cũ trong khi bảng tô dòng mới; tải lỗi ⇒ hiện sản phẩm cũ **mãi**, không báo lỗi (nhánh `loadError && data == null` không vào). Bấm nhanh A → B: phản hồi A về sau ghi đè B (không bỏ phản hồi cũ) | `load(id)` khác `state.productId` ⇒ xoá `data`; `_fetch` bỏ kết quả khi `productId != state.productId`. Test `aside_switch_shows_loading_not_old_product_1280`, `aside_late_response_ignored`, `aside_error_shows_retry_1280` |
 | 2 | P2 | `stock_list_page.dart:405-410` | Web: "Làm mới" (banner STALE) chỉ gọi `StockListCubit.refresh` ⇒ cột phải **không tải lại** (productId không đổi) ⇒ bảng và chi tiết lệch số / "Dữ liệu đến". Khi resume, cột phải cũng không bao giờ `checkStale` | Truyền mốc `data.asOf` (hoặc `refreshTick`) vào `StockDetailPanel`, `didUpdateWidget` đổi mốc ⇒ `_cubit.refresh()`. Test `refresh_reloads_aside_1280` |
-| 3 | P2 | Kết quả 5.2, 5.3 | Ghi sai so với code / ảnh: (a) ảnh SCR-001 1280 cột phải "nút **Nhận hàng**" — code ẩn (`onReceive` null, Q-2-5), ảnh cũng không có nút; (b) bảng lô SCR-003 web ghi cột "Tồn vật lý", "Trạng thái" — code là "Tồn", "Tình trạng" (đúng plan); (c) 5.3 ghi `v_table_test.dart` PASS — tệp **không tồn tại**; `VTable.selectedRowIndex` (sửa DS) không có test nào trong `packages/vet45_design_system/test/` (chỉ test qua `K7Table` ở app) | Sửa Kết quả cho khớp; thêm `packages/vet45_design_system/test/components/v_table_selected_test.dart` (`selected_row_background`, `selected_semantics`) |
+| 3 | P2 | Kết quả 5.2, 5.3 | Ghi sai so với code / ảnh: (a) ảnh SCR-001 1280 cột phải "nút **Nhận hàng**" — code ẩn (`onReceive` null, Q-2-5), ảnh cũng không có nút; (b) bảng lô SCR-003 web ghi cột "Tồn vật lý", "Trạng thái" — code là "Tồn", "Tình trạng" (đúng plan); (c) 5.3 ghi `v_table_test.dart` PASS — tệp **không tồn tại**; `VTable.selectedRowIndex` (sửa DS) không có test nào trong `packages/c45_design_system/test/` (chỉ test qua `K7Table` ở app) | Sửa Kết quả cho khớp; thêm `packages/c45_design_system/test/components/v_table_selected_test.dart` (`selected_row_background`, `selected_semantics`) |
 | 4 | P3 | `stock_list_cubit.dart:45-52`, `stock_detail_cubit.dart:50-58` | "Làm mới" lỗi khi đã có dữ liệu ⇒ `status = loadError` nhưng màn vẫn vẽ dữ liệu cũ (vì `data != null`), banner STALE còn đó, **không báo gì** | Lỗi lúc `refresh` giữ `ready`, đặt `refreshError` ⇒ `VToast` / banner "Không làm mới được. Thử lại." |
 | 5 | P3 | `stock_list_state.dart:37-46` | Dòng chọn dự phòng chỉ tính lúc đọc, `selectedProductId` vẫn giữ sản phẩm đã ẩn ⇒ chọn Amox, lọc "Hết hạn" (thấy Tylosin), về "Tất cả" ⇒ cột phải nhảy **lại Amox**. Prototype ghi đè `bj01SelectedProductId = selected.id` (Review Focus 6: "không giữ sản phẩm đã ẩn") | `setFilter` / `setQuery`: sản phẩm chọn không còn trong `visible` ⇒ đặt `selectedProductId = visible.first.productId`. Thêm bước vào test `selected_falls_back_to_first_visible_1280` |
 | 6 | P3 | `stock_list_page.dart:114` | Không truyền `extra: item.name` ⇒ LOADING app bar ghi "Chi tiết tồn kho" thay vì tên sản phẩm (Task 5 dòng LOADING, Task 7 `extra`) | `context.push('/warehouse/stock/$id', extra: item.name)`; test `loading_shows_product_name` |

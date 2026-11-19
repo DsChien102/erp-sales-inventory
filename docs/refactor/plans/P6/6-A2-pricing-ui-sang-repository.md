@@ -7,7 +7,7 @@
 
 ## 1. Mục tiêu
 
-- App `erp` không còn gọi `IPricingModule` (pricing UI, `sales_pricing_lookup.dart`, `sales_draft_backend.dart`, router); DI bỏ `PricingStartup` / `IPricingModule`. Thư mục `modules/pricing` và dòng `vet45_pricing_*` trong `apps/erp/pubspec.yaml` để 6-C xoá (nhóm `old` của test parity 6-A1 còn dùng).
+- App `erp` không còn gọi `IPricingModule` (pricing UI, `sales_pricing_lookup.dart`, `sales_draft_backend.dart`, router); DI bỏ `PricingStartup` / `IPricingModule`. Thư mục `modules/pricing` và dòng `c45_pricing_*` trong `apps/erp/pubspec.yaml` để 6-C xoá (nhóm `old` của test parity 6-A1 còn dùng).
 - 4 cubit còn lại (danh sách, chi tiết, form, lịch sử) + state chuyển `presentation/cubit/` → `logic/` (PLAN "Đổi Cubit" bước 6), dùng repository.
 - **Bỏ nhập Excel (Q9 của 6-A1):** xoá màn PR-09 (trang, cubit, widget, service, route `/pricing/import`, test). **Bỏ màn PR-03 "Chọn cách thêm"**: nút thêm ở danh sách mở thẳng `/pricing/new`.
 - Câu lỗi thô đổi theo TH-04 6.4 (Q4); bật lại gửi đúng cờ ghi đè (Q3, đã ở repository 6-A1).
@@ -35,15 +35,15 @@ Q1–Q9: xem [6-A1 mục 2](6-A1-pricing-data.md#2-quyết-định). Thêm:
 | `features/pricing/presentation/pages/pricing_{list,detail,form,history}_page.dart` | dựng cubit bằng `GetIt.instance<CustomerPriceRuleRepository>()`; bỏ `IExecutionContext`; đổi import; danh sách sửa `_openAddFlow` (mục 4.3), câu rỗng (Q11); form sửa `_mapErrorToMessage` (mục 4.2) |
 | `features/pricing/presentation/pages/pricing_choose_method_page.dart` | **xoá** (Q10, bảng H1–H4) |
 | `features/pricing/presentation/pages/pricing_import_page.dart`, `cubit/price_rule_import_{cubit,state}.dart`, `formatters/price_rule_import_issue_formatter.dart`, `services/pricing_import_{file_service,log_xlsx_builder}.dart`, `widgets/price_rule_import_{wizard,choose_file,preview,confirm,result,issue_detail_sheet,shared}.dart`, `widgets/pricing_import_cancel_dialog.dart` | **xoá** (Q9). Thư mục `formatters/`, `services/` trống ⇒ xoá |
-| 18 tệp `features/pricing/presentation/**` còn lại (ngoài 8 tệp cubit / state ở hàng trên và các tệp bị xoá) đang import `vet45_pricing_application` / `vet45_pricing_domain` (đo `grep -rl "vet45_pricing" lib/features/pricing` sau khi xoá ở trên) | đổi import sang `package:erp/features/pricing/data/models.dart` (+ `data/pricing_errors.dart` nơi dùng `PricingBlockedCodes`); `PricingBlockedCodes.` → `PricingErrorCodes.`; `PricingBlockedException` → `AppException`. Không đổi gì khác |
+| 18 tệp `features/pricing/presentation/**` còn lại (ngoài 8 tệp cubit / state ở hàng trên và các tệp bị xoá) đang import `c45_pricing_application` / `c45_pricing_domain` (đo `grep -rl "c45_pricing" lib/features/pricing` sau khi xoá ở trên) | đổi import sang `package:erp/features/pricing/data/models.dart` (+ `data/pricing_errors.dart` nơi dùng `PricingBlockedCodes`); `PricingBlockedCodes.` → `PricingErrorCodes.`; `PricingBlockedException` → `AppException`. Không đổi gì khác |
 | `features/pricing/presentation.dart` | bỏ 9 dòng export nhập Excel (dòng 9, 10, 24–30); đổi đường cubit / state sang `logic/` |
 | `features/sales/presentation/lookups/sales_pricing_lookup.dart` | mục 4.4 |
 | `features/sales/presentation/orchestration/sales_draft_backend.dart:5,460-490` + kiểu `pricing.SalesPricingLinePreviewDto` ở `_toDraftLineInput` | mục 4.4 |
-| `core/router/app_router.dart` | xoá import dòng 9 (`vet45_pricing_application`), 111 (`pricing_choose_method_page`), 113 (`pricing_import_page`); xoá route `/pricing/choose-method` (dòng ~1267–1271) và `/pricing/import` (~1277–1281); route `/pricing/:ruleId/edit` dùng `CustomerPriceRuleDetailDto` từ model mới |
+| `core/router/app_router.dart` | xoá import dòng 9 (`c45_pricing_application`), 111 (`pricing_choose_method_page`), 113 (`pricing_import_page`); xoá route `/pricing/choose-method` (dòng ~1267–1271) và `/pricing/import` (~1277–1281); route `/pricing/:ruleId/edit` dùng `CustomerPriceRuleDetailDto` từ model mới |
 | `core/di/injection.dart` | thêm `registerLazySingleton<CustomerPriceRuleRepository>` và `<SalesPricingRepository>` (cạnh các repository khác, `rpc: getIt<SupabaseRpc>(), tenantId: () => getIt<SessionController>().requireTenantId()`); xoá `PricingStartup.initialize(...)` + `registerSingleton<IPricingModule>` (dòng 195–203) và import dòng 5–6. `permissionChecker` / `tenantAccessChecker` / `executionContext` **giữ** (sales module còn dùng) |
 | `docs/02-yeu-cau/TH-04-chinh-sach-gia.md` | phiên review sửa sau khi xong: EP-04 / PR-03 / PR-09 / KI-03 / kịch bản 5 / RPC nhập → ngoài phạm vi (Q9, Q10) |
 
-**Không** đổi: `pricing_pick_{customer,product,unit}_page.dart` (6.3 đã xong ở 4-A / 5-A3); `apps/erp/pubspec.yaml` (`vet45_pricing_*`, `file_picker` còn feature khác dùng); `modules/pricing`.
+**Không** đổi: `pricing_pick_{customer,product,unit}_page.dart` (6.3 đã xong ở 4-A / 5-A3); `apps/erp/pubspec.yaml` (`c45_pricing_*`, `file_picker` còn feature khác dùng); `modules/pricing`.
 
 ### 3.2 `test`
 
@@ -105,7 +105,7 @@ Future<void> _openAddFlow(BuildContext context) async {
 ### 4.4 Sales
 
 `sales_pricing_lookup.dart`:
-- Bỏ import `vet45_pricing_application`; import `package:erp/features/pricing/data/models.dart` với tiền tố `pricing` (giữ tên `pricing.X` ở thân, đỡ sửa), `customer_price_rule_repository.dart`, `sales_pricing_repository.dart`, `pricing_error_messages.dart`.
+- Bỏ import `c45_pricing_application`; import `package:erp/features/pricing/data/models.dart` với tiền tố `pricing` (giữ tên `pricing.X` ở thân, đỡ sửa), `customer_price_rule_repository.dart`, `sales_pricing_repository.dart`, `pricing_error_messages.dart`.
 - `_preview`: `di<SalesPricingRepository>().preview(storeId: …, customerId: …, currencyCode: …, contextVersion: …, effectiveAt: …, lines: [pricing.SalesPricingLineInput(...)])`; phần dựng `SalesPricingPreviewResult` giữ nguyên. Bỏ `di<IExecutionContext>().requireTenantId()` (repository tự đọc).
 - `_evaluate`: `di<SalesPricingRepository>().evaluateManualPrice(...)` cùng tham số.
 - `_savePrivate`: `tenantId` **vẫn** lấy `di<IExecutionContext>().requireTenantId()` (là một phần khoá idempotency `sales-private-price-v1:<tenant>:…`, giữ nguyên chuỗi); **bỏ** `requireUserId()` (không còn cần `actorId`). `_resolve` / `_create` / `_update` nhận `CustomerPriceRuleRepository` thay `IPricingModule`: `resolveApplicable(customerId, productId, productUnitId, businessDate: request.effectiveFrom)`, `create(… idempotencyKey: key)`, `update(ruleId: existing.ruleId, expectedVersion: existing.version, …, acknowledgeOverwrite: true)`. Logic đọc lại / thử lại (`on Object` → `_resolve` → `_matches` → retry / rethrow) **giữ nguyên từng nhánh**.
@@ -179,7 +179,7 @@ Future<void> _openAddFlow(BuildContext context) async {
 - [ ] **2.2** `git mv` 8 tệp cubit / state sang `logic/`; sửa theo 4.1, 4.2. Bỏ `canImport` (4.1).
 - [ ] **2.3** Sửa 4 trang (mục 3.1); `_openAddFlow` (4.3); Q11.
 - [ ] **2.4** Xoá màn chọn cách + toàn bộ tệp nhập Excel (mục 3.1); sửa `presentation.dart`.
-- [ ] **2.5** Đổi import 18 tệp còn lại; `git grep -n "vet45_pricing" -- apps/erp/lib/features/pricing` → rỗng.
+- [ ] **2.5** Đổi import 18 tệp còn lại; `git grep -n "c45_pricing" -- apps/erp/lib/features/pricing` → rỗng.
 - [ ] **2.6** `dart analyze lib/features/pricing` → 0 lỗi.
 
 ### Task 3: Sales + router + DI
@@ -188,7 +188,7 @@ Future<void> _openAddFlow(BuildContext context) async {
 
 - [ ] **3.1** `gitnexus impact` upstream `SalesPricingLookup`, `SalesDraftBackend._previewPricing` (hoặc lớp chứa), `initDependencies`, `appRouter` → ghi Kết quả.
 - [ ] **3.2** Sales theo 4.4. Router, DI theo mục 3.1.
-- [ ] **3.3** `git grep -n "vet45_pricing\|IPricingModule\|PricingStartup" -- apps/erp/lib` → rỗng. `dart analyze lib` → 0 lỗi.
+- [ ] **3.3** `git grep -n "c45_pricing\|IPricingModule\|PricingStartup" -- apps/erp/lib` → rỗng. `dart analyze lib` → 0 lỗi.
 
 ### Task 4: Đổi test sang fake mới, xoá test theo Q13
 
@@ -202,7 +202,7 @@ Future<void> _openAddFlow(BuildContext context) async {
 ### Task 5: Kiểm toàn bộ + Kết quả
 
 - [ ] **5.1** `cd apps/erp && dart analyze lib test` → 0 lỗi; `dart run tool/check_feature_imports.dart` → không dòng mới.
-- [ ] **5.2** `git grep -n "vet45_pricing\|IPricingModule\|FakePricingModule" -- apps/erp/lib apps/erp/test` → chỉ còn `test/features/pricing/data/pricing_rpc_parity_test.dart`, `pricing_errors_test.dart` (nhóm `old` của 6-A1) và `test/features/pricing/support/fake_customer_price_rule_repository_test.dart` (1.1).
+- [ ] **5.2** `git grep -n "c45_pricing\|IPricingModule\|FakePricingModule" -- apps/erp/lib apps/erp/test` → chỉ còn `test/features/pricing/data/pricing_rpc_parity_test.dart`, `pricing_errors_test.dart` (nhóm `old` của 6-A1) và `test/features/pricing/support/fake_customer_price_rule_repository_test.dart` (1.1).
 - [ ] **5.3** `flutter test` cả app → số lỗi đúng `docs/refactor/TEST-BASELINE.md` (so từng tên; test đã xoá theo Q13 mà có trong baseline thì ghi rõ).
 - [ ] **5.4** `node .gitnexus/run.cjs analyze` rồi `detect_changes({scope: "all"})` → ghi số tệp / symbol / luồng / rủi ro; đối chiếu chỉ có pricing, 2 tệp sales, router, DI.
 
@@ -285,7 +285,7 @@ Task 5.
 - **Lệch so với plan:** Không.
 - **Test thêm + kết quả chạy:** `cd apps/erp && flutter test --no-pub test/features/pricing/support/fake_customer_price_rule_repository_test.dart` → **7 PASS**.
 - **Impact:** Chỉ thêm tệp trong `test/`.
-- **Ghi chú cho review:** `fake_customer_price_rule_repository_test.dart` dùng `vet45_pricing_application/testing.dart` để đối chiếu; sẽ xoá ở 6-C cùng module.
+- **Ghi chú cho review:** `fake_customer_price_rule_repository_test.dart` dùng `c45_pricing_application/testing.dart` để đối chiếu; sẽ xoá ở 6-C cùng module.
 
 ### Task 2 — ✅
 
@@ -298,7 +298,7 @@ Task 5.
 - **Lệch so với plan:**
   1. Ở 6-A1, `pricing_error_messages.dart` được đặt tại `features/pricing/logic/pricing_error_messages.dart` (không phải `data/`), và `AppException` tại `core/errors/app_exception.dart` (không có barrel `core/errors/errors.dart`) → các cubit import đúng đường dẫn thực tế của 6-A1.
   2. Tách phần định nghĩa `price_rule_list_filters.dart` sang `logic/price_rule_list_filters.dart` và giữ re-export tại `presentation/models/price_rule_list_filters.dart` để không phát sinh vi phạm `R2` (`logic/ → presentation/`) khi chạy `tool/check_feature_imports.dart`.
-- **Kiểm chứng:** `git grep -n "vet45_pricing" -- apps/erp/lib/features/pricing` rỗng; `cd apps/erp && dart analyze lib/features/pricing` → **0 error, 0 warning**.
+- **Kiểm chứng:** `git grep -n "c45_pricing" -- apps/erp/lib/features/pricing` rỗng; `cd apps/erp && dart analyze lib/features/pricing` → **0 error, 0 warning**.
 - **Impact (GitNexus upstream):**
   - `PriceRuleListCubit`: class risk `CRITICAL` (`direct: 812`, `impacted: 1038`); constructor risk `LOW` (`direct: 0`, `impacted: 0`).
   - `PriceRuleDetailCubit`: class risk `CRITICAL` (`direct: 812`, `impacted: 1038`); constructor risk `LOW` (`direct: 0`, `impacted: 0`).
@@ -315,7 +315,7 @@ Task 5.
   - `apps/erp/lib/core/router/app_router.dart:1–1347` (xoá import & route `/pricing/choose-method`, `/pricing/import`; đổi import sang `features/pricing/data/models.dart`).
   - `apps/erp/lib/core/di/injection.dart:1–215` (xoá `PricingStartup` / `IPricingModule`, đăng ký lazy singleton `CustomerPriceRuleRepository` và `SalesPricingRepository`).
 - **Lệch so với plan:** Chữ ký thực tế của 6-A1 (`CustomerPriceRuleRepository({required rpc, required tenantId})`, `SalesPricingRepository({required rpc, required tenantId})` với `preview({required storeId, ...})` và `evaluateManualPrice({required storeId, ...})`, `CreateCustomerPriceRuleResult`) không nhận `actorId` hay `storeId` trong constructor mà truyền `storeId` vào method — đã nối đúng theo chữ ký thực tế của 6-A1.
-- **Kiểm chứng:** `git grep -n "vet45_pricing\|IPricingModule\|PricingStartup" -- apps/erp/lib` rỗng; `cd apps/erp && dart analyze lib` → **0 error, 0 warning**.
+- **Kiểm chứng:** `git grep -n "c45_pricing\|IPricingModule\|PricingStartup" -- apps/erp/lib` rỗng; `cd apps/erp && dart analyze lib` → **0 error, 0 warning**.
 - **Lệch bổ sung (ghi theo R1-2, 2026-11-05; phiên review ghi theo yêu cầu người dùng):**
   1. `sales_pricing_lookup.dart:138` — `_savePrivate` lấy `tenantId` từ `SessionController.requireTenantId()` thay vì `IExecutionContext` (mục 4.4). Cùng giá trị tenant; chuỗi khoá idempotency `sales-private-price-v1:<tenant>:…` không đổi.
   2. `sales_pricing_lookup.dart:290-292` — `_message`: `AppException` → `pricingErrorMessage(error, fallback: 'Thao tác giá bị từ chối.')`; lỗi khác → "Không thể kết nối dịch vụ giá. Vui lòng thử lại." (mục 4.2 ghi một `fallback` "Không thể kết nối…" cho mọi lỗi). Giữ đúng câu cũ cho mã lạ; repository luôn ném `AppException` nên nhánh "khác" thực tế không tới.
@@ -343,7 +343,7 @@ Task 5.
   2. Cập nhật thêm `sales_checkout_page_test.dart` và `sales_flow_pages_test.dart` (đăng ký `SalesPricingRepository` bằng `RecordingSalesPricingRepository` thay cho `_RecordingPricingModule` / `IPricingModule` vì `SalesOrderComposePage` tạo `SalesDraftBackend` mặc định lấy `SalesPricingRepository` từ `GetIt`).
 - **Test thêm/cập nhật + kết quả chạy:** `cd apps/erp && flutter test --no-pub test/features/pricing test/features/sales` → **854 PASS / 7 lỗi có sẵn trong `TEST-BASELINE.md`** (4 lỗi baseline của `pricing_import_history_e2e_test` (3) và `pricing_pages_test` nhóm `wgt_e02_u05` (1) đã xoá cùng tính năng import Excel theo Q13). Toàn bộ test mới/cập nhật (H1–H17) đều PASS.
 - **Impact:** Chỉ sửa tệp trong `test/`.
-- **Ghi chú cho review:** Không còn bất kỳ tham chiếu `vet45_pricing`, `IPricingModule`, `FakePricingModule` nào trong `apps/erp/lib` và `apps/erp/test` (ngoài `test/features/pricing/support/fake_customer_price_rule_repository_test.dart`).
+- **Ghi chú cho review:** Không còn bất kỳ tham chiếu `c45_pricing`, `IPricingModule`, `FakePricingModule` nào trong `apps/erp/lib` và `apps/erp/test` (ngoài `test/features/pricing/support/fake_customer_price_rule_repository_test.dart`).
 
 ### Task 5 — ✅
 
@@ -351,8 +351,8 @@ Task 5.
   - `cd apps/erp && dart analyze lib/features/pricing test/features/pricing lib/features/sales/presentation/lookups/sales_pricing_lookup.dart lib/features/sales/presentation/orchestration/sales_draft_backend.dart test/features/sales/presentation/sales_pricing_lookup_test.dart test/features/sales/presentation/sales_draft_backend_test.dart test/features/sales/support/recording_sales_pricing_repository.dart lib/core/router/app_router.dart lib/core/di/injection.dart` → **0 error, 0 warning** (110 info `deprecated_member_use` / `prefer_conditional_assignment` có sẵn).
   - `cd apps/erp && dart analyze lib test` → **0 error**, 1 warning có sẵn ngoài phạm vi (`test/features/sales/presentation/order_einvoice_section_test.dart:32:28`).
   - `cd apps/erp && dart run tool/check_feature_imports.dart` → không phát sinh vi phạm `R1` hay `R2` mới từ 6-A2 (`pricing/logic/` 0 vi phạm nhờ tách `logic/price_rule_list_filters.dart`); ghi nhận 1 dòng `R3` tại `lib/features/sales/presentation/lookups/sales_pricing_lookup.dart:7` (`package:erp/features/pricing/logic/pricing_error_messages.dart`) — giống hệt mẫu `sales_catalog_product_lookup.dart:5` (`package:erp/features/catalog/logic/catalog_error_messages.dart`) vì `pricing_error_messages.dart` được đặt ở `logic/` từ 6-A1 và 6-A2 không sửa `features/pricing/data/`.
-- **5.2 Kiểm tra còn sót `vet45_pricing` / `IPricingModule` / `FakePricingModule`:**
-  - `git grep -n "vet45_pricing\|IPricingModule\|FakePricingModule" -- apps/erp/lib apps/erp/test` → chỉ còn trong `test/features/pricing/data/pricing_rpc_parity_test.dart` và `test/features/pricing/support/fake_customer_price_rule_repository_test.dart` (tệp untracked từ 6-A1 / Task 1, xoá ở 6-C); trên các tệp tracked là **0 kết quả**.
+- **5.2 Kiểm tra còn sót `c45_pricing` / `IPricingModule` / `FakePricingModule`:**
+  - `git grep -n "c45_pricing\|IPricingModule\|FakePricingModule" -- apps/erp/lib apps/erp/test` → chỉ còn trong `test/features/pricing/data/pricing_rpc_parity_test.dart` và `test/features/pricing/support/fake_customer_price_rule_repository_test.dart` (tệp untracked từ 6-A1 / Task 1, xoá ở 6-C); trên các tệp tracked là **0 kết quả**.
 - **5.3 Chạy toàn bộ test `apps/erp` đối chiếu `TEST-BASELINE.md`:**
   - `cd apps/erp && flutter test --no-pub -r compact` → **2.280 PASS / 55 FAIL** (giảm 4 lỗi baseline so với mốc 59 lỗi sau 5-C nhờ xoá 3 test `pricing_import_history_e2e_test.dart` và 1 test `pricing_pages_test.dart` nhóm `wgt_e02_u05` theo Q13).
   - Đối chiếu 55 test lỗi: 53 lỗi nằm nguyên trong `TEST-BASELINE.md` (trong đó 7 lỗi của pricing: 1 ở `pricing_form_e2e_test.dart` và 6 ở `pricing_pages_test.dart`) + 2 lỗi catalog PCC đã ghi nhận ở đầu `TEST-BASELINE.md` sau 5-C (`product_guided_create_e2e_test.dart: e2e_e02_u01_fr01_01` và `product_change_history_e2e_test.dart: e2e_e07_u04_fr02_01`). **0 lỗi mới do 6-A2.**
@@ -401,7 +401,7 @@ Review chạy lại: `dart analyze lib/features/{pricing,sales} test/features/{p
 
 **R1 — việc cần sửa:**
 
-- **R1-1 — Trả 2 tệp state về như cũ, chỉ đổi import.** Lấy `git show HEAD:apps/erp/lib/features/pricing/presentation/cubit/price_rule_history_state.dart` và `…/price_rule_detail_state.dart`, chỉ thay `import 'package:vet45_pricing_application/application.dart';` bằng `import '../data/models.dart';`. Sửa nơi gọi nếu có dùng các tham số mới tuỳ chọn (đo bằng `dart analyze`). Thêm test:
+- **R1-1 — Trả 2 tệp state về như cũ, chỉ đổi import.** Lấy `git show HEAD:apps/erp/lib/features/pricing/presentation/cubit/price_rule_history_state.dart` và `…/price_rule_detail_state.dart`, chỉ thay `import 'package:c45_pricing_application/application.dart';` bằng `import '../data/models.dart';`. Sửa nơi gọi nếu có dùng các tham số mới tuỳ chọn (đo bằng `dart analyze`). Thêm test:
   - `history_loaded_keeps_sensitive_permission` (`test/features/pricing/logic/price_rule_history_sg06_test.dart`): `fetchHistory()` với fake mặc định ⇒ `state.hasSensitivePermission == true`.
   - `history_page_activity_sheet_shows_floor_diff` (widget, màn `/pricing/<id>/history` qua harness): mở một hoạt động `updated` ⇒ **không** có "Quyền hạn chế", **không** có "Ẩn theo quyền 🔒".
   - `history_no_permission_stops_paging`: sau `PriceRuleHistoryNoPermission`, gọi `fetchHistory()` lần nữa ⇒ fake không nhận thêm lần gọi `getHistory`.
@@ -420,7 +420,7 @@ Review chạy lại: `dart analyze lib/features/{pricing,sales} test/features/{p
 | Router, DI | ✅ bỏ 2 route + 2 import; 2 `registerLazySingleton` đúng mẫu; bỏ `PricingStartup` |
 | `dart analyze lib test` | ✅ 0 lỗi; 1 cảnh báo có sẵn (`order_einvoice_section_test.dart:32`) |
 | `check_feature_imports` | ✅ (chấp nhận) chỉ 2 dòng `R1` của 6-A1 và 1 dòng `R3` `sales_pricing_lookup.dart:7` (cùng mẫu `sales_catalog_product_lookup.dart:5`), Kết quả đã ghi |
-| `git grep vet45_pricing\|IPricingModule\|FakePricingModule\|PricingStartup` | ✅ `lib`: rỗng; `test`: chỉ 3 tệp nhóm `old` / đối chiếu fake (6-C xoá) |
+| `git grep c45_pricing\|IPricingModule\|FakePricingModule\|PricingStartup` | ✅ `lib`: rỗng; `test`: chỉ 3 tệp nhóm `old` / đối chiếu fake (6-C xoá) |
 | `flutter test` cả app | ✅ 2.280 đạt / 55 lỗi, khớp Kết quả: 53 trong danh sách baseline + 2 test catalog ghi ở mốc sau 5-C; 4 lỗi baseline của nhập Excel mất do test đã xoá (Q13). 0 lỗi mới |
 | Test giữ hành vi H1–H17 | ✅ đủ tên ở bảng 5, đều đạt; H4 kiểm trên `appRouter` thật |
 
@@ -428,7 +428,7 @@ Review chạy lại: `dart analyze lib/features/{pricing,sales} test/features/{p
 
 ### Sửa R1 — 2026-11-05
 
-- **R1-1 — đã sửa.** Xác nhận review đúng: ở Task 2 hai tệp state bị sửa thân, Kết quả "Lệch: không" là sai. Đã trả `logic/price_rule_history_state.dart` và `logic/price_rule_detail_state.dart` về đúng `git show HEAD:…/presentation/cubit/…`, chỉ thay `import 'package:vet45_pricing_application/application.dart';` bằng `import '../data/models.dart';` (giữ `hasSensitivePermission = true`, `NoPermission.hasReachedMax = true`, `isFirstLoad = false`, `props` cũ, bỏ `actionMessage`, `final class`). `dart analyze lib test` không phát sinh lỗi ở nơi gọi.
+- **R1-1 — đã sửa.** Xác nhận review đúng: ở Task 2 hai tệp state bị sửa thân, Kết quả "Lệch: không" là sai. Đã trả `logic/price_rule_history_state.dart` và `logic/price_rule_detail_state.dart` về đúng `git show HEAD:…/presentation/cubit/…`, chỉ thay `import 'package:c45_pricing_application/application.dart';` bằng `import '../data/models.dart';` (giữ `hasSensitivePermission = true`, `NoPermission.hasReachedMax = true`, `isFirstLoad = false`, `props` cũ, bỏ `actionMessage`, `final class`). `dart analyze lib test` không phát sinh lỗi ở nơi gọi.
   - Test thêm (đều PASS): `history_loaded_keeps_sensitive_permission`, `history_no_permission_stops_paging` (`test/features/pricing/logic/price_rule_history_sg06_test.dart`); `history_page_activity_sheet_shows_floor_diff` (`test/features/pricing/presentation/pages/pricing_history_e2e_test.dart`).
   - Lệch so với yêu cầu: fake mặc định không có hoạt động `updated` ở trang đầu (chỉ có `_historyOlderItem`), và hoạt động theo đơn hàng làm sheet overflow 223px trong khung test (lỗi có sẵn, ngoài phạm vi) ⇒ test mở hoạt động `created` thủ công và kiểm "không có 'Quyền hạn chế'", "không có 'Ẩn theo quyền 🔒'".
   - Kiểm đột biến: đặt lại mặc định `hasSensitivePermission = false` ⇒ `history_loaded_keeps_sensitive_permission` và `history_page_activity_sheet_shows_floor_diff` FAIL; đã trả lại.

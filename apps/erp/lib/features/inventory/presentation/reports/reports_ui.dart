@@ -2,7 +2,7 @@ import 'package:erp/core/di/injection.dart';
 import 'package:erp/features/inventory/data/reports/reports_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Lấy `ReportsRepository` từ cây widget (test) hoặc `getIt` (chạy thật).
 ReportsRepository resolveReportsRepository(BuildContext context) {

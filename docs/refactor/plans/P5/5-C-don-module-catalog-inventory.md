@@ -7,7 +7,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** SP-10 (màn Tồn kho) chạy qua `ProductRepository` + cubit. App không còn `vet45_catalog_*` / `vet45_inventory_*`. Xoá `modules/catalog`, `modules/inventory`; DB bỏ outbox / inbox của hai schema đó.
+**Goal:** SP-10 (màn Tồn kho) chạy qua `ProductRepository` + cubit. App không còn `c45_catalog_*` / `c45_inventory_*`. Xoá `modules/catalog`, `modules/inventory`; DB bỏ outbox / inbox của hai schema đó.
 
 **Architecture:** Thêm 2 method tồn cơ bản vào `ProductRepository` (gọi thẳng RPC, giữ rule đầu vào, bỏ đọc trước / sau). SP-10 đổi sang `ProductStockAdjustmentCubit` (mẫu `ProductManualBasePriceCubit`). Rồi xoá module, workspace, DI, nhóm test `old`, outbox SQL như 4-C.
 
@@ -22,7 +22,7 @@
 - Migration: **sửa thẳng migration gốc**, không tạo migration mới. Phiên code **không** chạy `supabase db reset`, không reset Dev, không chạy SQL. Chỉ ghi "cần reset" vào Kết quả.
 - Trước khi sửa mỗi symbol: `node .gitnexus/run.cjs impact <symbol> --direction upstream --repo erp-sales-inventory`, ghi vào Kết quả. Trước khi commit: `detect_changes`.
 - `flutter analyze` sập vì đường dẫn có dấu: dùng `dart analyze`.
-- **Giữ** `modules/` (còn `einvoice`, `partner/integration_events`, `pricing`, `sales`), `packages/vet45_adapters`, `vet45_annotations`, `vet45_generator`, `vet45_shared`. **Giữ** schema `catalog`, `inventory` và mọi RPC (Q7).
+- **Giữ** `modules/` (còn `einvoice`, `partner/integration_events`, `pricing`, `sales`), `packages/c45_adapters`, `c45_annotations`, `c45_generator`, `c45_shared`. **Giữ** schema `catalog`, `inventory` và mọi RPC (Q7).
 
 ## Review Focus
 
@@ -38,7 +38,7 @@
 
 - SP-10 không còn gọi `ICatalogModule`. Đi qua `ProductStockAdjustmentCubit` → `ProductRepository.setBasicStock` / `adjustBasicStock`. Lỗi hiện câu 6.4 (KI-07 phần app), câu chân trang theo KI-04.
 - Sửa lỗi mở SP-10 từ checklist (Q5).
-- App hết `vet45_catalog_*`, `vet45_inventory_*` (pubspec, DI, test). Xoá `modules/catalog`, `modules/inventory`.
+- App hết `c45_catalog_*`, `c45_inventory_*` (pubspec, DI, test). Xoá `modules/catalog`, `modules/inventory`.
 - DB: bỏ outbox / inbox / internal commands của `catalog` và `inventory`.
 - Ghi lại thứ tự mới vào PLAN.md (Q2, Q3).
 
@@ -47,7 +47,7 @@
 | Q | Nội dung |
 |---|---|
 | Q1 | **Làm 5-C ngay, không chờ Theme 7.** SP-10 là nơi duy nhất trong `lib/` còn gọi module (2 command). Bước nhập tồn khi tạo sản phẩm đã đi qua `ProductRepository.createGuided` (`p_basic_stock_quantity_base`) từ 5-A3. Thay quyết định "SP-10 giữ module tới 5-C, chạy sau Theme 7" (2026-11-01). |
-| Q2 | Xoá hẳn `modules/` + `packages/vet45_adapters`, `vet45_generator` chuyển về **7-5**, vì 7-5 lại là plan dọn module cuối: thứ tự 6-C → 8-C → 7-5 đều trước Theme 7. `vet45_annotations` **không** xoá được ở đó: `packages/vet45_shared/application/lib/src/cqrs/annotations.dart` re-export nó, nên xoá cùng `vet45_shared` ở **9-1**. |
+| Q2 | Xoá hẳn `modules/` + `packages/c45_adapters`, `c45_generator` chuyển về **7-5**, vì 7-5 lại là plan dọn module cuối: thứ tự 6-C → 8-C → 7-5 đều trước Theme 7. `c45_annotations` **không** xoá được ở đó: `packages/c45_shared/application/lib/src/cqrs/annotations.dart` re-export nó, nên xoá cùng `c45_shared` ở **9-1**. |
 | Q3 | Khi Theme 7 có màn thay (BJ-08 điều chỉnh / kiểm kê, BJ-12 tồn đầu kỳ): xoá SP-10 + route; nút "Sửa" thẻ Tồn kho ở PCC và mục readiness `missing_stock` mở màn Theme 7. Bước nhập tồn khi tạo sản phẩm giữ hay bỏ theo plan Theme 7. DB tồn cơ bản giữ tới 8-D (`search_sellable_products` còn đọc). Ghi vào PLAN mục Theme 7, không làm ở đây. |
 | Q4 | **Đổi có chủ đích, chỉ phía app:** KI-07: cubit + câu lỗi 6.4, thêm mã `invalid_stock_quantity`, nhận thêm `product_not_found`. KI-04: câu chân trang. KI-01 / 02 / 05 / 06 (server) để Theme 7, không đổi RPC. |
 | Q5 | **Đổi có chủ đích (sửa lỗi cũ):** `product_stock_adjustment_page.dart:144` chỉ coi là có đơn vị cơ sở khi `args.unitName` có giá trị. Checklist (`product_readiness_checklist_page.dart:96`) chỉ truyền `product`, nên luôn hiện S-01. Sửa: đơn vị = `args.unitName ?? args.product.baseUnit`, có đơn vị cơ sở khi chuỗi đó không rỗng. |
@@ -60,8 +60,8 @@
 
 | Thứ | Ai còn dùng |
 |---|---|
-| `package:vet45_catalog_*` trong `apps/erp/lib` | `core/di/injection.dart:3-4,197-205` (`CatalogStartup.initialize` → `ICatalogModule`); `features/catalog/presentation/pages/product_stock_adjustment_page.dart:4,90-111` |
-| `package:vet45_inventory_*` trong app | không tệp nào (chỉ `apps/erp/pubspec.yaml:22-23`) |
+| `package:c45_catalog_*` trong `apps/erp/lib` | `core/di/injection.dart:3-4,197-205` (`CatalogStartup.initialize` → `ICatalogModule`); `features/catalog/presentation/pages/product_stock_adjustment_page.dart:4,90-111` |
+| `package:c45_inventory_*` trong app | không tệp nào (chỉ `apps/erp/pubspec.yaml:22-23`) |
 | Test app import module | `test/core/di/injection_test.dart:3,50`; `test/features/catalog/support/{catalog_test_registry,fake_catalog_backend,fake_stock_catalog_module,fake_catalog_repositories_test}.dart`; nhóm `old` của `data/product_rpc_parity_test.dart:215`, `data/catalog_unit_field_price_rpc_parity_test.dart:269`, `data/catalog_errors_test.dart:15`, `logic/catalog_rules_test.dart:19`, `logic/product_readiness_test.dart:95` |
 | `FakeCatalogBackend` dùng kiểu module | `fake_catalog_backend.dart:20-22` (import), `:97` (`module.StockMovementType`), `:2537-2622` (`handleSetBasicStockQuantityBase`, `handleAdjustBasicStock`, `_readinessSummaryForLegacy`) |
 | `registerFakeCatalog(registerLegacyModule:)` | chỉ chính `catalog_test_registry.dart` (không caller nào truyền tham số) |
@@ -120,12 +120,12 @@
 | `…/data/catalog_sql_contract_test.dart` | tạo: 8 test chuyển từ `price_band_sql_contract_test.dart` (Q8) |
 | `…/presentation/pages/product_stock_e2e_test.dart` | thêm T0-1…T0-8 (Task 0) và test Task 3 |
 | `…/logic/product_stock_adjustment_cubit_test.dart` | tạo |
-| `apps/erp/test/core/di/injection_test.dart` | bỏ import `vet45_catalog_application` + dòng 50 |
+| `apps/erp/test/core/di/injection_test.dart` | bỏ import `c45_catalog_application` + dòng 50 |
 | `modules/catalog`, `modules/inventory` | xoá cả thư mục (trước đó chuyển 3 tệp SQL, Q9) |
 | `supabase/sql/catalog/functions/{_base32_sha256_prefix,_build_product_search_text,_normalize_product_sku}.sql` | tạo bằng `git mv` từ `modules/catalog/infrastructure/supabase/sql/functions/` |
 | `supabase/schema.lock.yaml` | 3 `source_path` → `supabase/sql/catalog/functions/<tên>.sql` |
 | `pubspec.yaml` (gốc) | xoá dòng 20-23, 37-40 |
-| `apps/erp/example/pubspec.yaml` | xoá 8 mục `vet45_catalog_*`, `vet45_inventory_*` (38-45, 58-65) |
+| `apps/erp/example/pubspec.yaml` | xoá 8 mục `c45_catalog_*`, `c45_inventory_*` (38-45, 58-65) |
 | `scripts/ci/guard_application_use_case_layout.sh` | xoá 10 dòng `modules/catalog/...` ở `guarded_areas`; dòng 3, 112 đổi sang `modules/einvoice/application/lib/src/configuration/commands/connect_provider/` |
 | `supabase/migrations/20260623000002_install_module_messaging_modules.sql` | xoá dòng `'catalog'`, `'inventory'` |
 | 10 migration catalog (bảng Task 5) | xoá 15 khối `perform catalog.enqueue_outbox_message(…);` + biến `v_outbox_payload` |
@@ -328,7 +328,7 @@ Nhập ban đầu cũ ném khi `command.mode != 'basic'`. Method mới không c�
   - Page: `ProductStockAdjustmentPage.build` bọc `BlocProvider(create: (_) => ProductStockAdjustmentCubit(productRepository: GetIt.instance<ProductRepository>()))`, như `product_manual_base_price_page.dart:34`. Thân cũ chuyển vào widget con. `_submit` chỉ validate form rồi `cubit.submit(...)`. Xoá `_isSubmitting`; dùng `BlocConsumer`, listener lo toast + `Navigator.of(context).pop(true)` khi `success`, toast "Lỗi" + `errorMessage` khi `failure`.
   - Q5: `final unitName = args.unitName ?? args.product.baseUnit ?? ''; final hasBaseUnit = unitName.trim().isNotEmpty;`
   - KI-04: câu chân trang.
-  - Bỏ import `vet45_catalog_application`, `vet45_shared_application`.
+  - Bỏ import `c45_catalog_application`, `c45_shared_application`.
 - [x] **Step 5: Chạy**: `flutter test test/features/catalog` + `dart analyze lib test` (trong `apps/erp`). Expected: catalog xanh, gồm T0-1…T0-8 không sửa điều kiện. `analyze` 0 error / warning mới.
 - [x] **Step 6: Commit** (gồm Task 2) `refactor(catalog): 5-C SP-10 qua ProductStockAdjustmentCubit + ProductRepository; sửa mở từ checklist (Q5), KI-04, KI-07`
 
@@ -339,13 +339,13 @@ Nhập ban đầu cũ ném khi `command.mode != 'basic'`. Method mới không c�
 **Interfaces:**
 - Consumes: Task 3 xong (không còn gì trong `lib/` gọi module ngoài DI).
 
-- [x] **Step 1: Kiểm điều kiện**: `grep -rln "package:vet45_\(catalog\|inventory\)_" apps/erp/lib apps/erp/test` (dùng `grep -r`, không dùng `git grep`: 4-C sót tệp chưa theo dõi). Expected: chỉ `core/di/injection.dart`, `test/core/di/injection_test.dart`, 5 tệp nhóm `old`, `fake_catalog_backend.dart` nếu Task 2 sót. Khác ⇒ dừng, ghi lại.
+- [x] **Step 1: Kiểm điều kiện**: `grep -rln "package:c45_\(catalog\|inventory\)_" apps/erp/lib apps/erp/test` (dùng `grep -r`, không dùng `git grep`: 4-C sót tệp chưa theo dõi). Expected: chỉ `core/di/injection.dart`, `test/core/di/injection_test.dart`, 5 tệp nhóm `old`, `fake_catalog_backend.dart` nếu Task 2 sót. Khác ⇒ dừng, ghi lại.
 - [x] **Step 2: Test SQL chuyển sang app (Q8)**: tạo `apps/erp/test/features/catalog/data/catalog_sql_contract_test.dart` từ `price_band_sql_contract_test.dart`. Bỏ test "set base unit creates pending ruleBased band when product has none". `package:test/test.dart` → `package:flutter_test/flutter_test.dart`, giữ `_findRepoRoot`.
   Run: `flutter test test/features/catalog/data/catalog_sql_contract_test.dart`. Expected: **8/8 PASS**, chạy **trước** khi xoá module.
 - [x] **Step 3: Bỏ nhóm `old`** ở 5 tệp + import + helper chỉ nhóm `old` dùng. Ghi số test trước / sau từng tệp vào Kết quả. Nhóm `new` không đổi gì.
 - [x] **Step 4: DI + `injection_test`**: xoá import 3-4 và khối 197-205 của `injection.dart`; xoá import + dòng 50 của `injection_test.dart`.
 - [x] **Step 5: SQL khai báo (Q9)**: `git mv modules/catalog/infrastructure/supabase/sql/functions/<3 tệp> supabase/sql/catalog/functions/`, sửa 3 `source_path` trong `supabase/schema.lock.yaml`.
-  Run: `dart run tools/vet45_supabase_migrate/bin/verify_schema_lock_sync.dart`. Expected: `OK (sources match schema.lock.yaml)`.
+  Run: `dart run tools/c45_supabase_migrate/bin/verify_schema_lock_sync.dart`. Expected: `OK (sources match schema.lock.yaml)`.
 - [x] **Step 6: Xoá thư mục + workspace**: `git rm -r modules/catalog modules/inventory` (kiểm trước: `git status --short modules/catalog modules/inventory` không có tệp chưa commit cần giữ). Sửa `pubspec.yaml` gốc (−8 dòng), `apps/erp/pubspec.yaml` (−5), `apps/erp/example/pubspec.yaml` (−8 mục).
   Run: `flutter pub get` ở gốc, `apps/erp`, `apps/erp/example`, `modules/einvoice/presentation/example`. Expected: không lỗi phân giải.
 - [x] **Step 7: Script CI**: xoá 10 dòng catalog ở `guarded_areas`; dòng 3, 112 → `modules/einvoice/application/lib/src/configuration/commands/connect_provider/`.
@@ -377,7 +377,7 @@ Nhập ban đầu cũ ném khi `command.mode != 'basic'`. Method mới không c�
   - `grep -rn "v_outbox_payload" supabase/migrations` ⇒ rỗng
   - `grep -rnE "(catalog|inventory)\.(outbox_messages|inbox_messages|internal_commands|enqueue_outbox_message|claim_|receive_integration_event)" supabase` ⇒ rỗng
   - `grep -n "install_module_messaging('\(catalog\|inventory\)')" supabase/migrations -r` ⇒ rỗng
-  - `dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart` ⇒ không lỗi mới (1 warning có sẵn `_trg_sales_order_partner_history`)
+  - `dart run tools/c45_supabase_migrate/bin/verify_migration_policy.dart` ⇒ không lỗi mới (1 warning có sẵn `_trg_sales_order_partner_history`)
 - [x] **Step 4**: ghi vào Kết quả: **người dùng** chạy `supabase db reset` local + `supabase/tests/catalog_th02.sql`, kiểm `information_schema.tables` của schema `catalog` / `inventory` không còn `outbox_messages`, `inbox_messages`, `internal_commands`; **cần reset Dev**. Phiên code không chạy.
 - [x] **Step 5: Commit** `chore(db): 5-C bỏ outbox / inbox catalog + inventory (sửa migration gốc)`
 
@@ -385,12 +385,12 @@ Nhập ban đầu cũ ném khi `command.mode != 'basic'`. Method mới không c�
 
 - [x] **Step 1: PLAN.md** (phiên viết plan đã sửa lúc tạo plan; phiên code chỉ kiểm lại và cập nhật cột Làm):
   - dòng 5-C: nội dung theo plan này (Q1, Q2, Q9), Plan 📝 → link; cập nhật `✅ 2026-11-04`.
-  - "Thứ tự chốt lại 2026-11-03" (dòng 17) và "Quy tắc dọn module" mục 4 (dòng 121): 5-C làm ngay; **7-5** xoá `modules/` + `vet45_adapters`, `vet45_generator`; `vet45_annotations` ở **9-1**;
+  - "Thứ tự chốt lại 2026-11-03" (dòng 17) và "Quy tắc dọn module" mục 4 (dòng 121): 5-C làm ngay; **7-5** xoá `modules/` + `c45_adapters`, `c45_generator`; `c45_annotations` ở **9-1**;
   - dòng 7-5, 9-1: như trên;
   - mục Theme 7: ghi Q3;
   - Rủi ro theo mục (dòng 803): bỏ dòng "modules/catalog chưa xoá được".
 - [x] **Step 2: Kiểm tổng**
-  - `grep -rn "package:vet45_\(catalog\|inventory\)_" apps modules packages tools` ⇒ rỗng
+  - `grep -rn "package:c45_\(catalog\|inventory\)_" apps modules packages tools` ⇒ rỗng
   - `ls modules` ⇒ `einvoice partner pricing sales`
   - `cd apps/erp && dart analyze lib test` ⇒ 0 error, 0 warning mới
   - `cd apps/erp && flutter test` ⇒ 2110 pass, 59 fail trùng tên `TEST-BASELINE.md`; không fail mới
@@ -406,7 +406,7 @@ Nhập ban đầu cũ ném khi `command.mode != 'basic'`. Method mới không c�
 - `adjust_basic_stock` ném `product_not_found` khi **chưa có hồ sơ tồn**. SP-10 chỉ gọi điều chỉnh khi `currentQuantity != null` nên không gặp. Câu hiện ra (nếu gặp): "Sản phẩm không tồn tại hoặc đã bị xoá."
 - `not_basic_stock_mode` không có câu riêng ở 6.4 ⇒ câu chung "Đã xảy ra lỗi. Vui lòng thử lại.". PCC chỉ mở SP-10 khi `canAdjust` (`stockMode == basic`), nên hiếm gặp.
 - Xoá `install_module_messaging('catalog')` thì không còn `catalog.internal_commands`. Theme 7 / 8-D không được tìm bảng này.
-- `modules/` chưa trống (còn einvoice, partner/integration_events, pricing, sales). `packages/vet45_generator/test` có chuỗi `'vet45_inventory_application'` trong fixture: chỉ là chuỗi cấu hình, không phân giải package, không sửa.
+- `modules/` chưa trống (còn einvoice, partner/integration_events, pricing, sales). `packages/c45_generator/test` có chuỗi `'c45_inventory_application'` trong fixture: chỉ là chuỗi cấu hình, không phân giải package, không sửa.
 - SQL tồn cơ bản (`product_stock_profiles`, 2 RPC) giữ tới 8-D / Theme 7 (Q3).
 
 ## 8. Kết quả (phiên làm code ghi)
@@ -448,7 +448,7 @@ Nhập ban đầu cũ ném khi `command.mode != 'basic'`. Method mới không c�
   - Lưu ý cho review / người dùng: **cần reset Dev**; người dùng chạy `supabase db reset` ở môi trường local khi thuận tiện.
 - **Task 6:** ✅ PLAN.md + kiểm tổng
   - `docs/refactor/PLAN.md`: cập nhật cột Làm của 5-C thành `✅ 2026-11-04`.
-  - `grep -rn "package:vet45_\(catalog\|inventory\)_"`: rỗng.
+  - `grep -rn "package:c45_\(catalog\|inventory\)_"`: rỗng.
   - `ls modules`: `einvoice partner pricing sales`.
   - `cd apps/erp && dart analyze lib test`: 0 error.
   - `cd apps/erp/example && dart analyze lib`: 0 error.
@@ -503,7 +503,7 @@ Nhập ban đầu cũ ném khi `command.mode != 'basic'`. Method mới không c�
 | Task 2: fake | ✅ `fake_catalog_backend.dart:2537-2603` ném `AppException` đúng bảng; `movementType` là `String`; `fake_stock_catalog_module.dart` đã xoá; không còn `registerLegacyModule` / `ICatalogModule` trong `test/` |
 | Task 3: cubit | ✅ `product_stock_adjustment_cubit.dart`: `combineStockAdjustmentReason` đúng BR-27; nhập ban đầu bỏ qua chip / ghi chú; `expectedQuantity = currentQuantity`; lỗi qua `catalogErrorMessage` |
 | Task 3: màn SP-10 | ❌ Q5, KI-04, KI-07, khoá Lưu khi đang gửi: ✅. **Lệch plan:** đổi câu chữ + bố cục ngoài plan, trái TH-02 5.8 (R1-1); đổi cách đọc dấu phẩy chưa ghi lại (R1-2) |
-| Task 4: xoá module, DI, workspace, test `old` | ✅ `ls modules` = `einvoice partner pricing sales`; không còn `package:vet45_(catalog\|inventory)_` (chỉ còn chuỗi fixture trong `vet45_generator/test`, như mục 7). Số test sau khi bỏ `old` khớp Kết quả (đếm lại: `catalog_unit_field_price_rpc_parity_test` trước là 71 chứ không phải 74). Nhóm `new` không mất test nào. `catalog_sql_contract_test.dart` 8 test |
+| Task 4: xoá module, DI, workspace, test `old` | ✅ `ls modules` = `einvoice partner pricing sales`; không còn `package:c45_(catalog\|inventory)_` (chỉ còn chuỗi fixture trong `c45_generator/test`, như mục 7). Số test sau khi bỏ `old` khớp Kết quả (đếm lại: `catalog_unit_field_price_rpc_parity_test` trước là 71 chứ không phải 74). Nhóm `new` không mất test nào. `catalog_sql_contract_test.dart` 8 test |
 | Task 5: DB | ✅ `20260623000002` chỉ còn 5 schema; 0 `catalog.enqueue_outbox_message`, 0 `v_outbox_payload`, 0 tham chiếu bảng outbox / inbox / internal_commands của `catalog` / `inventory`. **Lẫn việc plan khác** vào commit (R1-3) |
 | Kiểm tổng (review tự chạy) | ✅ `dart analyze lib test`: 0 error, 1 warning có sẵn (`order_einvoice_section_test.dart:32`). `flutter test`: **2110 đạt / 59 lỗi**, không lỗi nào ở SP-10. `apps/erp/example` `dart analyze lib`: 0 error. CI guard: OK. `verify_schema_lock_sync`: OK. `verify_migration_policy`: 0 error, 1 warning của `20261104001` (5-A4) |
 | Commit | ❌ HEAD không tự build được: import tệp chưa có trong git (R1-3) |

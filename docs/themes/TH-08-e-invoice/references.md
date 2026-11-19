@@ -7,8 +7,8 @@
 | Template | [THEME_DOCUMENTATION_TEMPLATE.md](../THEME_DOCUMENTATION_TEMPLATE.md) | |
 | Architecture platform | [docs/architecture/](../../architecture/README.md) | CQRS / module layout |
 | Worker + MISA runtime | [harness/03-architecture-and-flows.md](harness/03-architecture-and-flows.md) | |
-| MISA blackbox package | [`packages/vet45_misa`](../../../packages/vet45_misa/) | `IMeInvoiceClient` |
-| MISA Open API notes | [`packages/vet45_misa/doc/misa-meinvoice-open-api.md`](../../../packages/vet45_misa/doc/misa-meinvoice-open-api.md) | |
+| MISA blackbox package | [`packages/c45_misa`](../../../packages/c45_misa/) | `IMeInvoiceClient` |
+| MISA Open API notes | [`packages/c45_misa/doc/misa-meinvoice-open-api.md`](../../../packages/c45_misa/doc/misa-meinvoice-open-api.md) | |
 
 ## Cross-theme (từ SRS §1.7)
 

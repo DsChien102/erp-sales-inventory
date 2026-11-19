@@ -6,7 +6,7 @@ import 'package:erp/core/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/iam/presentation.dart';
@@ -251,7 +251,7 @@ void main() {
 
       expect(find.text('Tham gia tổ chức thành công'), findsOneWidget);
       expect(
-        find.text('Đã tham gia tổ chức "Mậu Hiên" thành công. Đăng nhập để vào VET45.'),
+        find.text('Đã tham gia tổ chức "Mậu Hiên" thành công. Đăng nhập để vào Mosaic Retail.'),
         findsOneWidget,
       );
     },
@@ -282,7 +282,7 @@ void main() {
 
       expect(find.text('Tham gia tổ chức thành công'), findsOneWidget);
       expect(
-        find.text('Đã tham gia tổ chức "Mậu Hiên" thành công. Đăng nhập để vào VET45.'),
+        find.text('Đã tham gia tổ chức "Mậu Hiên" thành công. Đăng nhập để vào Mosaic Retail.'),
         findsOneWidget,
       );
     },
@@ -313,7 +313,7 @@ void main() {
 
       expect(find.text('Tham gia tổ chức thành công'), findsOneWidget);
       expect(
-        find.text('Đã tham gia tổ chức thành công. Đăng nhập để vào VET45.'),
+        find.text('Đã tham gia tổ chức thành công. Đăng nhập để vào Mosaic Retail.'),
         findsOneWidget,
       );
     },
@@ -344,7 +344,7 @@ void main() {
 
       expect(find.text('Tham gia tổ chức thành công'), findsOneWidget);
       expect(
-        find.text('Đã tham gia tổ chức thành công. Đăng nhập để vào VET45.'),
+        find.text('Đã tham gia tổ chức thành công. Đăng nhập để vào Mosaic Retail.'),
         findsOneWidget,
       );
     },

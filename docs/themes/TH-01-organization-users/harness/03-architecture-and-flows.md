@@ -23,7 +23,7 @@ Golden: mở rộng [`modules/iam/`](../../../../modules/iam/README.md).
 | Điểm | Quyết định |
 | ---- | ---------- |
 | Provider | **Resend** — activation invitation, Tenant Invitation, password-reset code, security notification |
-| Ownership | Notification: mutation RPC `enqueue_outbox_message` (`iam.email.delivery_requested`) + optional queued outcome → worker self-consume inbox → `ICommandScheduler.enqueue(SendEmailDeliveryCommand)` → Resend (`packages/vet45_resend`); **delivery outcome** projection cho UI |
+| Ownership | Notification: mutation RPC `enqueue_outbox_message` (`iam.email.delivery_requested`) + optional queued outcome → worker self-consume inbox → `ICommandScheduler.enqueue(SendEmailDeliveryCommand)` → Resend (`packages/c45_resend`); **delivery outcome** projection cho UI |
 | Không | Theme 1 / IAM **không** gọi `enqueue_outbox_message` từ Dart; không dùng outbox làm task queue gửi mail trực tiếp; không sở hữu raw token / mã xác nhận; không dùng Supabase Auth mailer làm SoT Tenant Invitation |
 | Delivery outcome | **OQ-08 closed:** async projection; create/resend trả `queued`; UI đọc theo `correlationId` |
 | Secrets | `RESEND_API_KEY` (và related) chỉ qua `config/secrets` + `melos run env:sync` |

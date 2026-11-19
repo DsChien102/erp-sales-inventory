@@ -55,7 +55,7 @@ Thực hiện theo [docs/refactor/RUNBOOK-einvoice.md](../../../../refactor/RUNB
 
 ```bash
 melos run env:sync
-vet45 run erp debug
+c45 run erp debug
 ```
 
 - [ ] Đăng nhập đúng user/tenant đã cấp `einvoice.manage_configuration`.

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 const assistantGreeting = 'Chào bạn! Mình giúp bạn xem nhanh số liệu cửa hàng. Thử hỏi:';
 const assistantSuggestions = <String>[

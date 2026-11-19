@@ -4,7 +4,7 @@ import 'package:erp/features/inventory/data/stocktake/stocktake_models.dart';
 import 'package:erp/features/inventory/data/stocktake/stocktake_repository.dart';
 import 'package:erp/features/inventory/logic/stocktake/stocktake_list_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class StocktakeListCubit extends Cubit<StocktakeListState> {
   StocktakeListCubit({required StocktakeRepository repository})

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// No-result — CTA tạo nhanh tùy chọn (sheet dùng nút đáy riêng).
 class SalesCustomerPickerBodyNoResultState extends StatelessWidget {

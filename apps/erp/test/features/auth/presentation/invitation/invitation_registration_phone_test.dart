@@ -2,7 +2,7 @@ import 'package:erp/features/auth/data/models/invitation_token_inspection.dart';
 import 'package:erp/features/auth/presentation/widgets/invitation_registration_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 void main() {
   for (final invalid in ['12345678', '123456789012', '\t0901234567', '+84901234567']) {

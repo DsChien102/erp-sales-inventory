@@ -1,6 +1,6 @@
 import 'package:erp/features/inventory/data/stocktake/stocktake_models.dart';
 import 'package:erp/features/inventory/logic/inventory_format.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Phân tích chuỗi số đếm người dùng nhập; trả null nếu rỗng, âm hoặc không hợp lệ.
 num? parseStocktakeCount(String raw) {

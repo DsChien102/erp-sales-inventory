@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/core/session/session_store.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_entries.dart';

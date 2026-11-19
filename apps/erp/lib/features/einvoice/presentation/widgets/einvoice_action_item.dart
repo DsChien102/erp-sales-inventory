@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// App-owned action-item anatomy for post-issued E-Invoice sheets (TH-08 S4).
 ///

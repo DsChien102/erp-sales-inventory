@@ -6,7 +6,7 @@ import 'package:erp/features/inventory/logic/stocktake/stocktake_count_cubit.dar
 import 'package:erp/features/inventory/presentation/patterns/expiry_date_field.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_states.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Sheet "Thêm hàng thực tế" cho SCR-044 (Q-5-5: chỉ sản phẩm đã có giá vốn, không tình trạng).
 Future<StocktakeLine?> showStocktakeUnexpectedSheet(

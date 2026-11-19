@@ -3,7 +3,7 @@ import 'package:erp/features/assistant/data.dart';
 import 'package:erp/features/assistant/logic.dart';
 import 'package:erp/features/assistant/presentation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 import '../../features/catalog/data/models.dart' hide ProductChangeHistoryPage;

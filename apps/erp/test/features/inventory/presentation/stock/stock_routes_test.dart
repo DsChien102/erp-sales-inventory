@@ -5,7 +5,7 @@ import 'package:erp/features/inventory/data/hub/warehouse_hub_repository.dart';
 import 'package:erp/features/inventory/presentation/stock/stock_detail_page.dart';
 import 'package:erp/features/inventory/presentation/stock/stock_list_page.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../support/inventory_router_harness.dart';
 

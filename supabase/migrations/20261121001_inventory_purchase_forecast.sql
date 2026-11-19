@@ -1,7 +1,7 @@
 -- Title: purchase forecast RPC for AI assistant (daily sell rate, days left, suggested reorder qty)
 -- Kind: schema
 -- Intent: inventory_purchase_forecast
--- Context: AI-3 Task 1 (trợ lý "Hỏi VET45"); tốc độ bán 8 tuần có trọng số, cùng cách tính get_sales_stats (quantity)
+-- Context: AI-3 Task 1 (trợ lý "Hỏi Mosaic Retail"); tốc độ bán 8 tuần có trọng số, cùng cách tính get_sales_stats (quantity)
 -- Touches: get_purchase_forecast
 -- Safety: one-shot ; read-only RPC, no new tables, no money / cost in output
 -- Depends on: 20261120001_sales_stats, 20261112001_inventory_stock_view, 20261111001_inventory_stock_policy

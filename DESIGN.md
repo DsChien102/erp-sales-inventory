@@ -1,5 +1,5 @@
 ---
-name: VET45
+name: Mosaic Retail
 description: ERP cho phòng khám và cửa hàng thú y, gọn như một quầy thuốc ngăn nắp.
 colors:
   clinic-leaf-green: "#2F7A3A"
@@ -173,13 +173,13 @@ components:
     typography: "{typography.title}"
 ---
 
-# Design System: VET45
+# Design System: Mosaic Retail
 
 ## Overview
 
 **Creative North Star: "The Tidy Counter"**
 
-VET45 là một quầy thuốc thú y ngăn nắp: mọi thứ cần dùng đều trong tầm tay, đặt đúng chỗ, không có gì thừa trên mặt quầy. Owner mở app giữa lúc đang bán hàng hoặc tiếp khách, nên giao diện phải để họ thấy ngay số tiền, tồn kho, trạng thái đơn và bấm đúng hành động trong một lần nhìn.
+Mosaic Retail là một quầy thuốc thú y ngăn nắp: mọi thứ cần dùng đều trong tầm tay, đặt đúng chỗ, không có gì thừa trên mặt quầy. Owner mở app giữa lúc đang bán hàng hoặc tiếp khách, nên giao diện phải để họ thấy ngay số tiền, tồn kho, trạng thái đơn và bấm đúng hành động trong một lần nhìn.
 
 Hệ thống tiết chế và tinh gọn. Nền xám lạnh nhạt (Shelf Gray) làm mặt quầy, các khối trắng (Counter White) là khay đựng, viền mảnh 1px phân ngăn thay cho bóng đổ. Màu xanh lá Clinic Leaf Green là nhãn dán duy nhất trên quầy: nó đánh dấu hành động chính và trạng thái đang chọn, không dùng để trang trí. Vàng, đỏ, xanh dương chỉ xuất hiện khi có điều cần báo.
 
@@ -230,7 +230,7 @@ Một xanh lá phòng khám trên nền xám lạnh, với ba màu trạng thái
 
 ## Typography
 
-**Display Font:** Inter (gói kèm trong `vet45_design_system`)
+**Display Font:** Inter (gói kèm trong `c45_design_system`)
 **Body Font:** Inter
 **Label/Mono Font:** JetBrains Mono, cùng cỡ và vai trò với bản Inter tương ứng
 
@@ -353,4 +353,4 @@ Tiết chế và rõ ràng: một nút đặc màu xanh, còn lại là viền h
 - **Don't** dùng vàng, đỏ, xanh dương để trang trí hay phân loại; chúng chỉ dành cho trạng thái.
 - **Don't** thêm bóng đổ cho app bar, thanh dưới hoặc thẻ thường.
 - **Don't** dùng bậc 500 của các thang màu (`primary500`, `yellow500`, `red500`, `blue500`) cho chữ, icon hoặc nền nút có chữ trắng ở theme sáng; chúng chỉ đạt 2.5–4.7:1 (vd. `primary500` 3.8:1, `yellow500` 2.8:1). Theme sáng dùng bậc 600–700.
-- **Don't** đặt UI nghiệp vụ (thẻ dashboard, dòng việc cần làm…) vào `vet45_design_system`; chúng thuộc `apps/erp/lib/features/*/presentation`.
+- **Don't** đặt UI nghiệp vụ (thẻ dashboard, dòng việc cần làm…) vào `c45_design_system`; chúng thuộc `apps/erp/lib/features/*/presentation`.

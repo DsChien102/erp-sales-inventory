@@ -4,26 +4,26 @@
 > Gồm: việc 7.4 phần khung (client MISA, hàng đợi, 1/9 handler); hàm SQL tìm cửa hàng có việc (Q1); sửa lỗi `reschedule_internal_command` ghi cột không có (Q4, KI-22).
 > Trạng thái: Plan ✅ (viết 2026-11-08, duyệt 2026-11-08) | Làm ✅ 2026-11-08 | Review ✅ R2 2026-11-08 (ĐẠT; R1 CHƯA ĐẠT → đã sửa R1-1, R1-2)
 > Trước: 7-B1. Sau: 7-E2a / 7-E2b / 7-E2c (8 handler còn lại + 6 dead-letter, dùng `FakeMeInvoiceClient`, `QueueRpc`, `HANDLERS`, `DEAD_LETTER_HANDLERS` của plan này), 7-E3 (`pg_cron` gọi function), 7-A1 (app gọi `functions.invoke`).
-> Tài liệu: [TH-08](../../../02-yeu-cau/TH-08-hoa-don-dien-tu.md) 1 (dòng 44), 6.2 "Lệnh nội bộ", 9.1 "Sau refactor" (KI-20), 9.2 (PR 7.4), 9.4. Nguồn chép: `packages/vet45_misa/lib` + `test`; `modules/einvoice/infrastructure/lib/src/configuration/processing/internal_commands/process_internal_commands_command_handler.dart`, `einvoice_internal_command_attempt_policy.dart`; `modules/einvoice/application/lib/src/configuration/commands/sync_provider_capabilities/`; `modules/einvoice/infrastructure/lib/src/adapters/misa/{me_invoice_provider_adapter,tenant_me_invoice_client_factory,me_invoice_endpoint_capabilities}.dart`; `modules/einvoice/infrastructure/lib/src/data_access/einvoice_rpc_mapper.dart:53-100`; `modules/einvoice/domain/lib/src/issuance_profile/{provider_template_ref,invoice_series_classification}.dart`. Mẫu Edge Function: `supabase/functions/send-email/`, `supabase/functions/invitation-signup/`.
+> Tài liệu: [TH-08](../../../02-yeu-cau/TH-08-hoa-don-dien-tu.md) 1 (dòng 44), 6.2 "Lệnh nội bộ", 9.1 "Sau refactor" (KI-20), 9.2 (PR 7.4), 9.4. Nguồn chép: `packages/c45_misa/lib` + `test`; `modules/einvoice/infrastructure/lib/src/configuration/processing/internal_commands/process_internal_commands_command_handler.dart`, `einvoice_internal_command_attempt_policy.dart`; `modules/einvoice/application/lib/src/configuration/commands/sync_provider_capabilities/`; `modules/einvoice/infrastructure/lib/src/adapters/misa/{me_invoice_provider_adapter,tenant_me_invoice_client_factory,me_invoice_endpoint_capabilities}.dart`; `modules/einvoice/infrastructure/lib/src/data_access/einvoice_rpc_mapper.dart:53-100`; `modules/einvoice/domain/lib/src/issuance_profile/{provider_template_ref,invoice_series_classification}.dart`. Mẫu Edge Function: `supabase/functions/send-email/`, `supabase/functions/invitation-signup/`.
 >
 > **Cho phiên code:** dùng `superpowers:executing-plans` (tuần tự). Mỗi task xong ghi ngay mục 9 theo mẫu (tệp:dòng, lệch plan, ca test, impact). **Không commit** (người dùng commit sau `detect_changes()`). **Không làm gì với DB** (không chạy SQL, không reset, không push, không deploy function). **Không đụng `modules/`, `packages/`, `apps/`** (chỉ đọc để chép). **Không ghi mục 10.**
 
-**Goal:** Có Edge Function `supabase/functions/einvoice-processor` chạy được: nhận lời gọi từ `service_role` (quét mọi cửa hàng có việc) hoặc người đăng nhập (một cửa hàng), lấy việc trong `einvoice.internal_commands`, chạy handler `einvoice.sync_capabilities` bằng client MISA TypeScript, ghi kết quả, xử lý thử lại / hỏng / dời giờ đúng như worker Dart cũ; 62 ca test của `vet45_misa` chạy xanh bằng Deno.
+**Goal:** Có Edge Function `supabase/functions/einvoice-processor` chạy được: nhận lời gọi từ `service_role` (quét mọi cửa hàng có việc) hoặc người đăng nhập (một cửa hàng), lấy việc trong `einvoice.internal_commands`, chạy handler `einvoice.sync_capabilities` bằng client MISA TypeScript, ghi kết quả, xử lý thử lại / hỏng / dời giờ đúng như worker Dart cũ; 62 ca test của `c45_misa` chạy xanh bằng Deno.
 
-**Architecture:** Ba thư mục độc lập: `misa/` (client MISA chép 1:1 từ `vet45_misa`, nhận `fetch` qua constructor), `queue/` (vòng lấy việc, chỉ phụ thuộc interface `QueueRpc` + bảng handler), `handlers/` (handler + tạo client theo cửa hàng). `index.ts` chỉ kiểm quyền, dựng phụ thuộc thật rồi gọi `queue/`. DB: thêm `einvoice.list_tenants_with_due_commands` (migration gốc `…009`), bỏ dòng `updated_at` của `reschedule_internal_command` (migration gốc `…019`).
+**Architecture:** Ba thư mục độc lập: `misa/` (client MISA chép 1:1 từ `c45_misa`, nhận `fetch` qua constructor), `queue/` (vòng lấy việc, chỉ phụ thuộc interface `QueueRpc` + bảng handler), `handlers/` (handler + tạo client theo cửa hàng). `index.ts` chỉ kiểm quyền, dựng phụ thuộc thật rồi gọi `queue/`. DB: thêm `einvoice.list_tenants_with_due_commands` (migration gốc `…009`), bỏ dòng `updated_at` của `reschedule_internal_command` (migration gốc `…019`).
 
 **Tech Stack:** Deno 2 (máy có 2.9.7, `supabase/config.toml:396` `deno_version = 2`), TypeScript, `npm:@supabase/supabase-js@2`, `jsr:@std/assert@1`; PostgreSQL / plpgsql.
 
 ## 1. Mục tiêu
 
-- `deno test supabase/functions/einvoice-processor` xanh: 62 ca chép từ `vet45_misa` + 17 ca chép từ test handler / năng lực / mẫu của `modules/einvoice` + ca mới của `queue/` và `index.ts`.
+- `deno test supabase/functions/einvoice-processor` xanh: 62 ca chép từ `c45_misa` + 17 ca chép từ test handler / năng lực / mẫu của `modules/einvoice` + ca mới của `queue/` và `index.ts`.
 - `deno check` và `deno lint` trên thư mục không lỗi.
 - Gọi function với role `service_role`, body `{}` → quét cửa hàng do `list_tenants_with_due_commands` trả; với role `authenticated`, body `{"tenant_id": "<uuid>"}` → chỉ cửa hàng đó; `authenticated` không có `tenant_id` → 403.
 - Việc `einvoice.sync_capabilities` → `record_connection_verified` với `CONNECTED` + năng lực (cùng JSON app đang đọc) hoặc `RECONNECT_REQUIRED`; MISA không phản hồi → thử lại theo `retry_or_dead_letter_internal_command`.
 - 8 loại lệnh chưa có handler → dời 300 giây, **không** tính lượt thử.
 - `reschedule_internal_command` chạy được (không còn ghi `updated_at`).
 
-**Không làm:** 8 handler còn lại + 6 dead-letter (7-E2); `pg_cron`, `pg_net`, trigger, `record_issuance_success` xếp gửi (7-E3); app gọi `functions.invoke` (7-A1); xoá `packages/vet45_misa`, `platform.list_tenants_with_pending_messaging` (7-C); thêm `[functions.einvoice-processor]` vào `config.toml` (giữ `verify_jwt` mặc định bật); lưu token MISA vào DB.
+**Không làm:** 8 handler còn lại + 6 dead-letter (7-E2); `pg_cron`, `pg_net`, trigger, `record_issuance_success` xếp gửi (7-E3); app gọi `functions.invoke` (7-A1); xoá `packages/c45_misa`, `platform.list_tenants_with_pending_messaging` (7-C); thêm `[functions.einvoice-processor]` vào `config.toml` (giữ `verify_jwt` mặc định bật); lưu token MISA vào DB.
 
 ## 2. Quyết định
 
@@ -33,12 +33,12 @@
 | Q2 | Ai được gọi function | **Người dùng chốt 2026-11-08 (A):** `verify_jwt` mặc định (gateway đòi JWT hợp lệ). Không có `tenant_id` → chỉ role `service_role`, còn lại 403. Có `tenant_id` → mọi role, không kiểm người gọi thuộc cửa hàng (function chỉ chạy việc đã xếp, không trả dữ liệu cửa hàng) |
 | Q3 | Việc có loại chưa có handler (8 loại tới 7-E2) | **Người dùng chốt 2026-11-08 (A):** `reschedule_internal_command(…, 300)` + log `unknown_command_type`; không gọi `retry_or_dead_letter` (sẽ giết việc phát hành thật sau 3 lần) |
 | Q4 | Lỗi thấy khi viết plan: `reschedule_internal_command` (`20261031019_einvoice_misa_publish_series_lease.sql:231`) ghi `updated_at = now()` nhưng `einvoice.internal_commands` không có cột `updated_at` (`20260623000001:235-248`, `20261031002:77-90`, không migration nào thêm) ⇒ gọi là lỗi `column "updated_at" does not exist` | **Người dùng chốt 2026-11-08 (A):** sửa ở 7-E1: xoá dòng đó trong migration gốc; ca SQL E33; TH-08 7.3 thêm KI-22 |
-| Q5 | Chép client MISA tới đâu | Chép **1:1** toàn bộ `vet45_misa/lib` (10 hàm của `IMeInvoiceClient`, mọi model, `FakeMeInvoiceClient`): tên lớp / hàm / trường giữ như Dart (camelCase), chuỗi lỗi giữ nguyên từng ký tự (bộ phân loại lỗi của 7-E2 so theo chuỗi). Chỉ đổi: `http.Client` → tham số `fetchFn: FetchLike` (mặc định `fetch`); `Duration` → số mili-giây (`…Ms`); `DateTime` → `Date` |
+| Q5 | Chép client MISA tới đâu | Chép **1:1** toàn bộ `c45_misa/lib` (10 hàm của `IMeInvoiceClient`, mọi model, `FakeMeInvoiceClient`): tên lớp / hàm / trường giữ như Dart (camelCase), chuỗi lỗi giữ nguyên từng ký tự (bộ phân loại lỗi của 7-E2 so theo chuỗi). Chỉ đổi: `http.Client` → tham số `fetchFn: FetchLike` (mặc định `fetch`); `Duration` → số mili-giây (`…Ms`); `DateTime` → `Date` |
 | Q6 | Token MISA | Theo TH-08 9.1: giữ trong `Map` cấp module theo `tenant_id` (chép `TenantMeInvoiceClientFactory`), không lưu DB. Rủi ro ở mục 8 |
 | Q7 | Số lượt thử truyền cho handler | Truyền qua `CommandContext.attemptNumber = retryCount + 1` (thay khoá payload `_worker_attempt_number` của Dart); không sửa payload |
 | Q8 | Giới hạn mỗi lần gọi | `MAX_TENANTS = 20`, `CLAIM_BATCH = 5`, `SEED_LIMIT = 5`, `MAX_COMMANDS = 20`, `TIME_BUDGET_MS = 90_000` (Edge Function bản miễn phí bị cắt ở 150 giây; một lệnh MISA chờ tối đa 60 giây). Hằng số đầu `queue/processor.ts` |
 | Q9 | Chạy test SQL | Phiên code **viết**, không chạy; người dùng chạy (mục 7.2) |
-| Q10 | Đếm test `vet45_misa` | 62 lời gọi `test(` trong 6 tệp (8 + 8 + 20 + 7 + 8 + 11). `send_email_response_test.dart` có 2 ca chạy vòng nhiều bộ dữ liệu ⇒ số ca lúc chạy lớn hơn 62 (TH-08 9.2 ghi "80"). Chép đủ vòng; TH-08 9.2 sửa thành "62 test (một số chạy nhiều bộ dữ liệu)" |
+| Q10 | Đếm test `c45_misa` | 62 lời gọi `test(` trong 6 tệp (8 + 8 + 20 + 7 + 8 + 11). `send_email_response_test.dart` có 2 ca chạy vòng nhiều bộ dữ liệu ⇒ số ca lúc chạy lớn hơn 62 (TH-08 9.2 ghi "80"). Chép đủ vòng; TH-08 9.2 sửa thành "62 test (một số chạy nhiều bộ dữ liệu)" |
 
 ## 3. Hiện trạng (đo 2026-11-08)
 
@@ -57,7 +57,7 @@
 | Env worker cũ | `git show c1d3a5445^:apps/messaging_worker/lib/config/worker_env.dart:128-131` | `MISA_MEINVOICE_APP_ID`, `MISA_MEINVOICE_BASE_URL` (bắt buộc), `MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED` |
 | Không ai gọi function này | — | tới 7-E3 / 7-A1; trong 7-E1 chỉ kiểm bằng test |
 
-Không có bảng "Đang làm gì": plan không xoá / tách code cũ (xoá `vet45_misa` ở 7-C); test parity chính là các ca chép từ Dart.
+Không có bảng "Đang làm gì": plan không xoá / tách code cũ (xoá `c45_misa` ở 7-C); test parity chính là các ca chép từ Dart.
 
 ## 4. Thiết kế
 
@@ -94,7 +94,7 @@ $$;
 
 Mỗi tệp Dart → một tệp TS cùng tên (snake_case), cùng thư mục con:
 
-| Dart (`packages/vet45_misa/lib/src/e_invoice/`) | TS (`supabase/functions/einvoice-processor/misa/`) |
+| Dart (`packages/c45_misa/lib/src/e_invoice/`) | TS (`supabase/functions/einvoice-processor/misa/`) |
 |---|---|
 | `models/me_invoice_result.dart`, `me_invoice_session_token.dart`, `me_invoice_config.dart`, `me_invoice_sign_type.dart` | `models/…` cùng tên `.ts` |
 | `models/misa/*.dart` (11 tệp), `models/requests/*.dart` (5), `models/responses/*.dart` (5) | `models/misa/*.ts`, `models/requests/*.ts`, `models/responses/*.ts` |
@@ -364,7 +364,7 @@ export function authorizeRequest(method: string, role: string | null, body: unkn
 
 ## 6. Review Focus (chưa ca nào chạy — phiên review soi)
 
-1. **Chuỗi lỗi MISA lệch bản Dart:** một ký tự khác trong `meinvoice_network`, `meinvoice_5xx`, `TokenExpiredCode`, `missing credential`, `meinvoice_auth_rejected:` làm bộ phân loại của 7-E2 hiểu sai (lỗi chưa rõ thành lỗi chắc chắn ⇒ phát hành trùng). Review `diff` chuỗi: `grep -ohE "'[a-z_A-Z]+(:|')" packages/vet45_misa/lib -r | sort -u` so với cùng lệnh trên `misa/` (dấu `"`/`'`).
+1. **Chuỗi lỗi MISA lệch bản Dart:** một ký tự khác trong `meinvoice_network`, `meinvoice_5xx`, `TokenExpiredCode`, `missing credential`, `meinvoice_auth_rejected:` làm bộ phân loại của 7-E2 hiểu sai (lỗi chưa rõ thành lỗi chắc chắn ⇒ phát hành trùng). Review `diff` chuỗi: `grep -ohE "'[a-z_A-Z]+(:|')" packages/c45_misa/lib -r | sort -u` so với cùng lệnh trên `misa/` (dấu `"`/`'`).
 2. **Điều kiện lọc của `list_tenants_with_due_commands` lệch `claim_internal_commands_batch`:** lệch ⇒ cửa hàng được liệt kê mà claim rỗng (phí) hoặc có việc mà không bao giờ được quét (kẹt). Review đặt hai `where` cạnh nhau.
 3. **Việc đã claim bị bỏ rơi:** mọi nhánh thoát vòng (giới hạn, lỗi RPC giữa lô) phải `reschedule` hoặc để khoá tự hết; lỗi RPC ở `complete` sau khi handler đã chạy xong ⇒ việc sẽ chạy lại sau 10 phút — chấp nhận được vì `record_*` idempotent; review xác nhận `sync_capabilities` chạy lại không gây hại (`record_connection_verified` phiên bản lệch → no-op).
 4. **Lộ bí mật trong log / phản hồi:** `String(e)` của lỗi đăng nhập có thể chứa thân phản hồi MISA; `tenant_error` / `dead_letter_error` / `fail(…, error)` ghi vào DB. Review xem chuỗi lỗi của client có bao giờ chứa mật khẩu / token không (bản Dart: `error_mapper.dart` chỉ giữ mã an toàn).
@@ -431,7 +431,7 @@ Task 7.3 (`deno check`, `deno lint`, `deno test`), Task 8.3 (`detect-changes`). 
 
 **Task 7 — ✅**
 - Tệp: `auth.ts`, `index.ts`, `auth_test.ts` (8).
-- Lệnh: `deno test supabase/functions/einvoice-processor` → **134 passed / 0 failed**; `deno check …/index.ts` sạch; `deno lint …` sạch (64 tệp). 7.4: `grep` log chỉ trúng 1 dòng chú thích (`me_invoice_config.ts:4`), không có log bí mật. Thêm: so chuỗi lỗi `meinvoice_*` / `missing_*` / `TokenExpiredCode` giữa `packages/vet45_misa/lib` và `misa/` bằng `grep -rohE … | sort -u` ⇒ **giống hệt** (Review Focus 1).
+- Lệnh: `deno test supabase/functions/einvoice-processor` → **134 passed / 0 failed**; `deno check …/index.ts` sạch; `deno lint …` sạch (64 tệp). 7.4: `grep` log chỉ trúng 1 dòng chú thích (`me_invoice_config.ts:4`), không có log bí mật. Thêm: so chuỗi lỗi `meinvoice_*` / `missing_*` / `TokenExpiredCode` giữa `packages/c45_misa/lib` và `misa/` bằng `grep -rohE … | sort -u` ⇒ **giống hệt** (Review Focus 1).
 - Lệch plan: không có.
 
 **Task 8 — ✅ (một phần)**
@@ -509,7 +509,7 @@ Task 7.3 (`deno check`, `deno lint`, `deno test`), Task 8.3 (`detect-changes`). 
 **Đã chạy / đối chiếu (2026-11-08):**
 
 - `deno test supabase/functions/einvoice-processor`: **134 đạt / 0 lỗi** (misa 80 lúc chạy = 62 ca nguồn; queue 14; handlers 32; auth 8). `deno check …/index.ts`: sạch. `deno lint`: 64 tệp, sạch.
-- Chuỗi chữ thường trong `packages/vet45_misa/lib` so với `misa/` (bỏ test): chỉ khác ở khoá object không có nháy (`appid`, `taxcode`, `username`, `password`, `invoiceWithCode`, `ticket`, `'https:'`) và tên enum / kịch bản TS. Không có chuỗi lỗi nào lệch.
+- Chuỗi chữ thường trong `packages/c45_misa/lib` so với `misa/` (bỏ test): chỉ khác ở khoá object không có nháy (`appid`, `taxcode`, `username`, `password`, `invoiceWithCode`, `ticket`, `'https:'`) và tên enum / kịch bản TS. Không có chuỗi lỗi nào lệch.
 - So từng dòng: `me_invoice_http`, `error_mapper`, `TenantMisaClientFactory` (TS không so `accessToken*` vì factory không bao giờ truyền 2 trường này — tương đương), `authenticateAndListTemplates` + handler Dart, `ProcessInternalCommandsCommandHandler`, `SyncProviderCapabilitiesCommand.fromJson` (`expected_connection_version ?? -1`).
 - `SupabaseQueueRpc` / `index.ts` so với migration: `complete` / `fail` (`…002:485-538`), `retry_or_dead_letter` (`…007:753`), `reschedule` (`…019:200`), `seed` / `claim` (`…009:715/780`), `record_connection_verified` (`…003:86-94`, 7 tham số), `read_provider_credentials` (`…003:366`). Schema `einvoice` có trong `config.toml:13` `schemas`.
 - SQL: `where` của `list_tenants_with_due_commands` trùng `claim_internal_commands_batch` (`…009:803-809`) (Review Focus 2). E32–E34: `now()` cố định trong khối `DO`, nên mốc `119…121 s` và `11 minutes` đúng; tenant B không có việc từ ca trước.

@@ -32,7 +32,7 @@ apps/erp/lib/
 - Lỗi: repository ném `AppException` (`core/errors`), UI hiển thị `e.userMessage()`.
 - Nghiệp vụ và kiểm tra quyền nằm trong RPC Postgres (`iam.has_permission`); app chỉ hiển thị.
 - Gọi dịch vụ ngoài (MISA meInvoice, email) qua **Supabase Edge Function** (`supabase/functions/*`), kích hoạt bởi app và `pg_cron`. Không có worker chạy riêng (TH-08 KI-20).
-- Code cũ trong `packages/vet45_shared` còn đến 9-1 (`modules/` đã xoá hết ở 7-C); chỉ đọc để chuyển, không thêm code mới.
+- Code cũ trong `packages/c45_shared` còn đến 9-1 (`modules/` đã xoá hết ở 7-C); chỉ đọc để chuyển, không thêm code mới.
 
 ## Quy tắc làm việc
 
@@ -47,12 +47,12 @@ apps/erp/lib/
 | Môi trường | Project | Ghi chú |
 |---|---|---|
 | Local | `supabase start` | `supabase db reset` dựng lại từ `supabase/migrations/` |
-| Dev | `pzlsjedtsntkarkivhve` (Đồ án tốt nghiệp - Dev) | Đang link; app dùng qua `.vet45/profiles/default/development.env` → `melos run env:sync` |
+| Dev | `pzlsjedtsntkarkivhve` (Đồ án tốt nghiệp - Dev) | Đang link; app dùng qua `.c45/profiles/default/development.env` → `melos run env:sync` |
 | Prod | `xodvjcaaxtubnkibmrmn` (Đồ án tốt nghiệp - Prod) | **Không đụng** trước P10 |
 
 - Migration mới: `supabase/migrations/YYYYMMDDxxx_<scope>_<mô_tả>.sql`, không sửa migration đã áp. SQL HĐĐT còn ở `supabase/migrations/_drafts/` đến P7.1.
 - `supabase db push` / `supabase config push` ghi lên remote: **hỏi người dùng trước**. `config push` áp ngay, không có bước xem trước.
-- Không in hay commit key; file `.vet45/profiles/**` và `apps/*/.env*` đã nằm trong `.gitignore`.
+- Không in hay commit key; file `.c45/profiles/**` và `apps/*/.env*` đã nằm trong `.gitignore`.
 
 ## Lệnh hay dùng
 

@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:erp/core/session/models/session_principal.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_store.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/core/supabase/supabase_module.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Content of the disconnect confirmation (HD-03). Pops `true` on confirm and
 /// `false` on keep.

@@ -42,9 +42,9 @@ Trước khi ghi contract, với từng slice, đọc đúng concern nó đụng
 
 | Concern | Đọc |
 | --- | --- |
-| Mutation | [vet45-idempotency-and-commands.mdc](../../../.cursor/rules/vet45-idempotency-and-commands.mdc) |
-| Integration | [vet45-integration-events.mdc](../../../.cursor/rules/vet45-integration-events.mdc) |
-| File mới | [vet45-architecture.mdc](../../../.cursor/rules/vet45-architecture.mdc) và layout `modules/iam/` |
+| Mutation | [c45-idempotency-and-commands.mdc](../../../.cursor/rules/c45-idempotency-and-commands.mdc) |
+| Integration | [c45-integration-events.mdc](../../../.cursor/rules/c45-integration-events.mdc) |
+| File mới | [c45-architecture.mdc](../../../.cursor/rules/c45-architecture.mdc) và layout `modules/iam/` |
 | Persistence | `supabase/schema.lock.yaml` và SQL declarative của schema đó |
 | Code Layout nêu module và module tồn tại | Thư mục module đó |
 

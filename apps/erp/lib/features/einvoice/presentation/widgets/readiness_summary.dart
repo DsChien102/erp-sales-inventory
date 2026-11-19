@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/einvoice/presentation/support/einvoice_configuration_overview_copy.dart';
 
 class ReadinessSummary extends StatelessWidget {

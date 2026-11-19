@@ -1,6 +1,6 @@
 import 'package:erp/features/inventory/logic/supplier_program/program_form_draft.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class ProgramTierRows extends StatelessWidget {
   final List<({String minQty, String percent})> tiers;

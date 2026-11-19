@@ -8,7 +8,7 @@ import 'package:erp/features/inventory/presentation/stock/stock_cost_block.dart'
 import 'package:erp/features/inventory/presentation/stock/stock_lot_sheet.dart';
 import 'package:erp/features/inventory/presentation/stock/stock_provenance_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 int _lotSortKey(LotDate? d) {
   if (d == null) return 99999999;

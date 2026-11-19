@@ -4,7 +4,7 @@ import 'package:erp/features/more/presentation/pages/more_page.dart';
 import 'package:erp/features/more/presentation/pages/users_and_roles_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/session/models/session_snapshot.dart';
 import '../../iam/support/iam_test_session.dart';

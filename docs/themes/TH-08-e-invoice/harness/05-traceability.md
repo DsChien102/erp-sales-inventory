@@ -182,7 +182,7 @@ Plans: [MISA contract production hardening](../../../superpowers/plans/2026-09-1
 | H1/STATUS | BE | §H1 | application + adapter | Strict `InvSeries`; malformed input thành `INVOICE_SERIES_INVALID` trước HTTP | th08_hardening_status_01 | done |
 | H1/LEASE | BE | §H1 | application + SQL draft | Atomic acquire, fencing version, renew heartbeat, stale release no-op | th08_hardening_lease_01 | done |
 | H1/RETRY | BE | §H1 | classifier + worker + SQL draft | Command-scoped idempotent retry; ba child retry rồi terminal failure chuẩn | th08_hardening_retry_01 | done |
-| H1/PARSE | BE | §H1 | vet45_misa + delivery domain | Fail-closed parser/URL; `UNKNOWN` unlock | th08_hardening_parse_01 | done |
+| H1/PARSE | BE | §H1 | c45_misa + delivery domain | Fail-closed parser/URL; `UNKNOWN` unlock | th08_hardening_parse_01 | done |
 | H1/GATE-LOCAL | E2E | §H1 | domain + application + infrastructure + worker + ERP | Fake/contract/regression suites pass; harness còn đúng baseline ADR 11 | th08_hardening_gate_01 | done |
 | H1/GATE-LIVE | E2E | §H1 | reset/apply + live MISA | Draft SQL applied from clean DB; multi-worker/retry/live provider acceptance | live evidence | todo |
 

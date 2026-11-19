@@ -8,7 +8,7 @@
 | ------------------- | ------- | ------------------ | ----------------- | ---------- |
 | iam | Tenant, membership, invitation, role, context, readiness, platform user profile, IAM audit | **Owner** | `modules/iam/` | interim golden — mở rộng theo slice |
 | Supabase Auth / Platform Identity | Login email, verified state, credential, recovery OTP, session, activation proof | Supporting (external authority) | Auth + IAM ports/adapters | referenced read-only / orchestration |
-| Notification (Resend) | Email delivery + outcome | Supporting (adapter) | `packages/vet45_resend` + IAM internal command + worker | S-NOTIFY done (internal command path) |
+| Notification (Resend) | Email delivery + outcome | Supporting (adapter) | `packages/c45_resend` + IAM internal command + worker | S-NOTIFY done (internal command path) |
 | Platform Authorization | Platform permission + role–permission release manifest | Supporting | referenced | catalog |
 | Platform User Preference | LastSelectedTenant | Supporting | referenced | validate trước dùng |
 | apps/erp | Tenant App presentation | Presentation | `apps/erp` | auth shell + features |
@@ -104,6 +104,6 @@ apps/admin/lib/features/
 modules/iam/presentation/   — widgets/dialogs tái dùng (khi cần)
 ```
 
-**Import rule:** apps → `vet45_iam_application` / presentation; module presentation **không** import `apps/*`.
+**Import rule:** apps → `c45_iam_application` / presentation; module presentation **không** import `apps/*`.
 
 Skill: [.cursor/skills/presentation-layer/SKILL.md](../../../../.cursor/skills/presentation-layer/SKILL.md)

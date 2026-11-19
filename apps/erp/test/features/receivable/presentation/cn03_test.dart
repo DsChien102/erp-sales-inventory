@@ -5,7 +5,7 @@ import 'package:erp/features/receivable/presentation/pages/customer_receivable_p
 import 'package:erp/features/receivable/presentation/receivable_area_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../support/fake_receivable_repository.dart';
 import '../support/receivable_fixtures.dart' as fx;

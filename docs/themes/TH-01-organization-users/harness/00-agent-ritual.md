@@ -9,7 +9,7 @@ Hai application surface: **Tenant App** = [`apps/erp`](../../../../apps/erp); **
 ## Trước khi code
 
 ```text
-1. AGENTS.md + .cursor/rules/vet45-architecture.mdc
+1. AGENTS.md + .cursor/rules/c45-architecture.mdc
 2. docs/harness/PROGRESS.md
 3. TH-01/README.md + OVERVIEWS.md
 4. Theme-1-organization-users.md (theme context khi cần)
@@ -48,8 +48,8 @@ cd apps/erp && flutter test test/features/   # khi slice có Tenant App UI
 | Mục đích | Path |
 | -------- | ---- |
 | Codegen + CQRS wiring (golden) | `modules/iam/` + [modules/iam/README.md](../../../../modules/iam/README.md) |
-| Command + handler annotations (fixtures) | `packages/vet45_generator/test/fixtures/lib/src/` |
-| Pipeline test | `packages/vet45_shared/testing/test/shared_testing_test.dart` |
+| Command + handler annotations (fixtures) | `packages/c45_generator/test/fixtures/lib/src/` |
+| Pipeline test | `packages/c45_shared/testing/test/shared_testing_test.dart` |
 | Module layout | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
 | Page mỏng + widgets tách file | `apps/erp/lib/features/dashboard/presentation/` |
 | API contracts | [harness/07-api-contracts.md](07-api-contracts.md) |

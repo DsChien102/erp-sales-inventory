@@ -2,7 +2,7 @@
 
 Static dataset for province / ward dropdowns (partner create form).
 
-Location: `assets/data/` at the **vet45 repo root** (not under `modules/` or `packages/`).
+Location: `assets/data/` at the **c45 repo root** (not under `modules/` or `packages/`).
 
 ## Source
 

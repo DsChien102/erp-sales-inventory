@@ -1,6 +1,6 @@
 # TH-05 — Architecture & flows
 
-Tuân theo [Vet45 architecture](../../../architecture/README.md) và [01-domain-model.md](01-domain-model.md). RPC names ở đây là target catalog, chưa phải schema đã apply.
+Tuân theo [Mosaic Retail architecture](../../../architecture/README.md) và [01-domain-model.md](01-domain-model.md). RPC names ở đây là target catalog, chưa phải schema đã apply.
 
 ## Required execution path
 

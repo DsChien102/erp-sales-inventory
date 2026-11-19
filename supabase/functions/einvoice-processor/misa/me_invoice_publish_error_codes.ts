@@ -1,4 +1,4 @@
-/** Known MISA publish error codes referenced by Vet45 classification. */
+/** Known MISA publish error codes referenced by Mosaic Retail classification. */
 const definiteFailureCodes: ReadonlySet<string> = new Set([
   'InvalidInvSeries',
   'InvalidTemplate',

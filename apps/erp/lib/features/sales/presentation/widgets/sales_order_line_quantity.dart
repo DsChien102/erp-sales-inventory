@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Compact ± quantity controls for sales order lines (44px hit targets).
 class SalesOrderLineQuantityControls extends StatelessWidget {

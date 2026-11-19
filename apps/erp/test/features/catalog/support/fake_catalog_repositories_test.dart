@@ -6,7 +6,7 @@ import 'package:erp/features/catalog/data/product_price_repository.dart';
 import 'package:erp/features/catalog/data/product_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import 'catalog_test_registry.dart';
 import 'fake_catalog_backend.dart';

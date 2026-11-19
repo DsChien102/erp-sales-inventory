@@ -6,7 +6,7 @@ import 'package:erp/features/sales/presentation/models/sales_order/sales_order_a
 import 'package:erp/features/sales/presentation/models/sales_order/sales_post_sale_navigation_intent.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_cancellation_attempt_factory.dart';
 import 'package:erp/features/sales/data/models.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import 'sales_order_detail_sections_loader.dart';
 import 'sales_order_detail_state.dart';

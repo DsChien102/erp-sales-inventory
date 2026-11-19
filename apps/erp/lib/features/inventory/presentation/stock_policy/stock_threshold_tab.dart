@@ -9,7 +9,7 @@ import 'package:erp/features/inventory/presentation/patterns/k7_edit_cell.dart';
 import 'package:erp/features/inventory/presentation/stock/stock_indicator_badge.dart';
 import 'package:erp/features/inventory/presentation/stock_policy/threshold_edit_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class StockThresholdTab extends StatelessWidget {
   final StockPolicyCubit cubit;

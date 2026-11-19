@@ -1,7 +1,7 @@
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/inventory/data/supplier_rebate/supplier_rebate_models.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 String _moneyOrDash(int? vnd) =>
     vnd == null ? '—' : '${MoneyFormatter.formatMinorPlain(vnd)} đ';

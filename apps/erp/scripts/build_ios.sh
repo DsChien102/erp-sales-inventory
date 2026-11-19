@@ -44,9 +44,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 MANIFEST_ENV="$(map_manifest_env "$ENV_NAME")"
-"$ROOT/scripts/env/vet45_env.sh" sync --env "$MANIFEST_ENV" >/dev/null
+"$ROOT/scripts/env/c45_env.sh" sync --env "$MANIFEST_ENV" >/dev/null
 
-RESOLVED="$("$ROOT/scripts/env/vet45_env.sh" resolve-shell --env "$MANIFEST_ENV")"
+RESOLVED="$("$ROOT/scripts/env/c45_env.sh" resolve-shell --env "$MANIFEST_ENV")"
 while IFS= read -r line; do
   [[ -z "$line" ]] && continue
   export "$line"
@@ -54,7 +54,7 @@ done <<<"$RESOLVED"
 
 if [[ ! -f "${TARGET_erp_ENV_FILE:-}" ]]; then
   echo "Missing env file: ${TARGET_erp_ENV_FILE:-}"
-  echo "Run: vet45 sync --env ${MANIFEST_ENV} --target erp"
+  echo "Run: c45 sync --env ${MANIFEST_ENV} --target erp"
   exit 1
 fi
 

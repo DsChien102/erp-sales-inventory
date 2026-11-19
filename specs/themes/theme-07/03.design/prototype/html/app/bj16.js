@@ -366,7 +366,7 @@ function crConfirmSheet() {
   if (kind === "close") { crClose(c, "Không cần làm gì"); return crGo("UIF-16", "SCR-083", "COMPLETED"); }
   return bj17ConfirmSheet(kind, c);
 }
-// 081 → 082 khi cập nhật xong (hẹn giờ của prototype, hoặc __VET45_QA__.finishCR16Recovery); chỉ chạy khi còn ở 081.
+// 081 → 082 khi cập nhật xong (hẹn giờ của prototype, hoặc __C45_QA__.finishCR16Recovery); chỉ chạy khi còn ở 081.
 function crRecoveryDone() {
   if (activeFlowId !== "UIF-16" || activeScreenId !== "SCR-081" || stateByScreen["SCR-081"] !== "REBUILDING") return false;
   const c = cr16Current();
@@ -448,7 +448,7 @@ onPrevious["UIF-16"] = onPrevious["UIF-17"] = () => {
   return crToList();
 };
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   bumpCR16Evidence() { const c = cr16Current(); c.evidenceVersion = Number(c.evidenceVersion || 0) + 1; return c.evidenceVersion; },
   finishCR16Recovery() { return crRecoveryDone(); },
 });

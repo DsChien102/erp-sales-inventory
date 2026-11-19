@@ -7,7 +7,7 @@ void main() {
       const MaterialApp(
         home: Scaffold(
           body: Center(
-            child: Text('Vet45 ERP greenfield baseline'),
+            child: Text('Mosaic Retail ERP greenfield baseline'),
           ),
         ),
       ),

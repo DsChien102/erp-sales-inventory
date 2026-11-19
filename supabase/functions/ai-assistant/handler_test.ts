@@ -345,13 +345,13 @@ Deno.test('log lỗi model ghi message (mã HTTP) nhưng không lộ câu hỏi 
   assertEquals(all.includes('KHOÁ-BÍ-MẬT'), false)
 })
 
-Deno.test('preflight cho phép header x-vet45-app mà app gắn vào mọi request', async () => {
+Deno.test('preflight cho phép header x-c45-app mà app gắn vào mọi request', async () => {
   const res = await handleRequest(
     new Request('http://x', { method: 'OPTIONS' }),
     deps(fakeClient({ rpc: () => rpcErr('X') }), new FakeModelClient([])),
   )
   const allowed = (res.headers.get('Access-Control-Allow-Headers') ?? '').split(',').map((h) => h.trim())
-  for (const h of ['authorization', 'apikey', 'content-type', 'x-client-info', 'x-vet45-app']) {
+  for (const h of ['authorization', 'apikey', 'content-type', 'x-client-info', 'x-c45-app']) {
     assertEquals(allowed.includes(h), true, h)
   }
 })

@@ -1,9 +1,9 @@
-# 10-7 — Tinh chỉnh `vet45_design_system` từng mảng bằng impeccable
+# 10-7 — Tinh chỉnh `c45_design_system` từng mảng bằng impeccable
 
 > Phase: P10 · Trạng thái: Plan ✅ | Làm ✅ | Review ✅ — *còn task "Cuối" (polish + document + bump version)*
-> Độc lập với phase nghiệp vụ; chỉ đụng `packages/vet45_design_system` (và app khi một task đổi API công khai).
+> Độc lập với phase nghiệp vụ; chỉ đụng `packages/c45_design_system` (và app khi một task đổi API công khai).
 > Nguồn: hỏi đáp về lệnh `/impeccable` (2026-10-19).
-> Tài liệu liên quan: [DESIGN.md](../../../../DESIGN.md), [PRODUCT.md](../../../../PRODUCT.md), README `packages/vet45_design_system` (quy tắc example catalog, version), các plan trước: 10-4, 10-5, 10-6.
+> Tài liệu liên quan: [DESIGN.md](../../../../DESIGN.md), [PRODUCT.md](../../../../PRODUCT.md), README `packages/c45_design_system` (quy tắc example catalog, version), các plan trước: 10-4, 10-5, 10-6.
 > Ghi chú phạm vi: vùng chạm link và tham số tự điền được thực hiện trong plan 2-B6, không lặp lại ở phase này.
 
 ## 1. Mục tiêu
@@ -27,7 +27,7 @@ Thứ tự đi **token → theme → component → chữ trên giao diện**: s�
 | 9 | Trạng thái lỗi, rỗng, dữ liệu dài | `harden` | `components/v_input.dart`, `v_empty_state.dart` |
 | 10 | Chữ trên nhãn, thông báo lỗi | `clarify` | `forms/` |
 
-Đường dẫn trong bảng tính từ `packages/vet45_design_system/lib/src/`.
+Đường dẫn trong bảng tính từ `packages/c45_design_system/lib/src/`.
 
 Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn lại rồi mới quyết định có cần task 4 không. Task nào xem xong thấy không cần thì đánh ⏭ và ghi lý do một dòng.
 
@@ -49,7 +49,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 **Lệnh**
 
 ```
-/impeccable:impeccable typeset packages/vet45_design_system/lib/src/tokens/v_typography.dart — dễ đọc trên điện thoại, số liệu (tiền, số lượng) thẳng cột, dấu tiếng Việt không bị cắt
+/impeccable:impeccable typeset packages/c45_design_system/lib/src/tokens/v_typography.dart — dễ đọc trên điện thoại, số liệu (tiền, số lượng) thẳng cột, dấu tiếng Việt không bị cắt
 ```
 
 **Cần đạt**
@@ -69,7 +69,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 **Lệnh**
 
 ```
-/impeccable:impeccable layout packages/vet45_design_system/lib/src/tokens/v_spacing.dart packages/vet45_design_system/lib/src/tokens/v_radius.dart packages/vet45_design_system/lib/src/patterns/
+/impeccable:impeccable layout packages/c45_design_system/lib/src/tokens/v_spacing.dart packages/c45_design_system/lib/src/tokens/v_radius.dart packages/c45_design_system/lib/src/patterns/
 ```
 
 **Cần đạt**
@@ -86,7 +86,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 **Lệnh**
 
 ```
-/impeccable:impeccable colorize packages/vet45_design_system/lib/src/tokens/v_colors.dart packages/vet45_design_system/lib/src/theme/v_color_scheme.dart
+/impeccable:impeccable colorize packages/c45_design_system/lib/src/tokens/v_colors.dart packages/c45_design_system/lib/src/theme/v_color_scheme.dart
 ```
 
 **Cần đạt:** màu nhấn dùng có chủ đích (trạng thái, hành động chính), không rải đều.
@@ -102,7 +102,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 **Lệnh**
 
 ```
-/impeccable:impeccable quieter packages/vet45_design_system/lib/src/tokens/v_colors.dart packages/vet45_design_system/lib/src/tokens/v_shadows.dart
+/impeccable:impeccable quieter packages/c45_design_system/lib/src/tokens/v_colors.dart packages/c45_design_system/lib/src/tokens/v_shadows.dart
 ```
 
 **Cần đạt:** ít mức bóng hơn, mỗi mức có lý do (nổi lên khi kéo, sheet, menu).
@@ -116,7 +116,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 **Lệnh**
 
 ```
-/impeccable:impeccable adapt packages/vet45_design_system/lib/src/patterns/ packages/vet45_design_system/lib/src/theme/v_density.dart — điện thoại là chính, máy tính bảng ở quầy là phụ
+/impeccable:impeccable adapt packages/c45_design_system/lib/src/patterns/ packages/c45_design_system/lib/src/theme/v_density.dart — điện thoại là chính, máy tính bảng ở quầy là phụ
 ```
 
 **Cần đạt:** điểm ngắt (`v_breakpoints.dart`) và mật độ khớp nhau; bố cục không vỡ ở 320pt ngang và ở cỡ chữ hệ thống lớn.
@@ -130,7 +130,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 **Lệnh**
 
 ```
-/impeccable:impeccable distill packages/vet45_design_system/lib/src/components/v_combobox*.dart
+/impeccable:impeccable distill packages/c45_design_system/lib/src/components/v_combobox*.dart
 ```
 
 **Cần đạt:** bớt tham số / biến thể không ai dùng.
@@ -146,7 +146,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 **Lệnh**
 
 ```
-/impeccable:impeccable bolder packages/vet45_design_system/lib/src/components/ — app vận hành (Operate), mạnh ở chi tiết, không thêm trang trí
+/impeccable:impeccable bolder packages/c45_design_system/lib/src/components/ — app vận hành (Operate), mạnh ở chi tiết, không thêm trang trí
 ```
 
 **Cần đạt:** hành động chính trên mỗi màn nhận ra ngay; trạng thái chọn / đang bấm rõ hơn.
@@ -160,7 +160,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 **Lệnh**
 
 ```
-/impeccable:impeccable animate packages/vet45_design_system/lib/src/tokens/v_duration.dart — ghi thêm component cụ thể muốn có chuyển động
+/impeccable:impeccable animate packages/c45_design_system/lib/src/tokens/v_duration.dart — ghi thêm component cụ thể muốn có chuyển động
 ```
 
 **Cần đạt:** ít mức thời lượng, mỗi mức gắn với một loại chuyển động (phản hồi bấm, mở sheet, chuyển màn).
@@ -174,7 +174,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 **Lệnh**
 
 ```
-/impeccable:impeccable harden packages/vet45_design_system/lib/src/components/v_input.dart packages/vet45_design_system/lib/src/components/v_empty_state.dart
+/impeccable:impeccable harden packages/c45_design_system/lib/src/components/v_input.dart packages/c45_design_system/lib/src/components/v_empty_state.dart
 ```
 
 **Cần đạt:** tên sản phẩm / khách hàng rất dài không tràn; số tiền lớn (≥ 1.000.000.000 ₫) không vỡ dòng; lỗi và rỗng có hướng dẫn bước tiếp theo.
@@ -188,7 +188,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 **Lệnh**
 
 ```
-/impeccable:impeccable clarify packages/vet45_design_system/lib/src/forms/
+/impeccable:impeccable clarify packages/c45_design_system/lib/src/forms/
 ```
 
 **Cần đạt:** thông báo của validator nói rõ sai gì và sửa thế nào, cùng giọng văn; tiếng Việt có dấu đầy đủ.
@@ -202,7 +202,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 Sau khi xong các task cần làm:
 
 ```
-/impeccable:impeccable polish packages/vet45_design_system
+/impeccable:impeccable polish packages/c45_design_system
 /impeccable:impeccable document
 ```
 
@@ -210,8 +210,8 @@ Rồi bump version bằng `scripts/bump_version.sh` (minor nếu chỉ thêm / c
 
 ## 4. Kiểm tra chung (mỗi task)
 
-- [ ] `flutter analyze` trong `packages/vet45_design_system` không có lỗi mới
-- [ ] `flutter test` trong `packages/vet45_design_system` qua
+- [ ] `flutter analyze` trong `packages/c45_design_system` không có lỗi mới
+- [ ] `flutter test` trong `packages/c45_design_system` qua
 - [ ] Example catalog phủ mọi trạng thái của component vừa đổi (quy tắc trong README package)
 - [ ] Nếu đổi API công khai: `flutter analyze` ở `apps/erp` không lỗi mới
 - [ ] Tương phản không tụt dưới mức 10-4 / 10-5

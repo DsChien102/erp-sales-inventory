@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// D-07 SG-03 — Thông tin áp dụng read-only (avatar + SP/ĐV trong 1 [VCard]).
 class PriceRuleFormIdentityCard extends StatelessWidget {

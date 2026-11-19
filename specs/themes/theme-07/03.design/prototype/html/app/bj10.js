@@ -378,7 +378,7 @@ if (activeFlowId === "UIF-10" && !requestedScreen && onEntry[`UIF-10:${entryMode
 onUnknownHandoff["UIF-10"] = () => { const r = bj10Request(); if (r) r.status = "UNKNOWN"; };
 onUnknownResolved["UIF-10"] = ({ outcome }) => { const r = bj10Requests.find((x) => x.status === "UNKNOWN"); if (r) r.status = outcome === "RECORDED" ? "COMPLETED" : "APPROVED"; };
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   // Đề nghị chờ duyệt mẫu (Tylosin TY2408, 11 lọ) cho kịch bản duyệt / từ chối từ lối vào ?entry=approver.
   seedBJ10Pending() { const r = bj10SeedPending(); bj10View(r.id, "APPROVAL_REVIEW"); renderAppScreen(); return r.id; },
   getBJ10() { return { draft: { ...bj10Draft }, completion: { ...bj10Completion }, requests: bj10Requests.map((r) => ({ id: r.id, status: r.status })), result: bj10Result }; },

@@ -1,10 +1,10 @@
-# Theme 7 HTML ↔ VET45 Design System Conformance — v3.6.0
+# Theme 7 HTML ↔ Mosaic Retail Design System Conformance — v3.6.0
 
 ## Authority
 
 - **Business authority:** Product documents, BJ/UC, decisions, behavioral and UI-flow contracts determine requirements, flow, state and behavior.
 - **Theme 7 design artifact:** the mobile HTML prototype/harness is the current screen-design and executable UX surface for Theme 7.
-- **Figma:** the current VET45 Design System in `QVJolM5tAdFKkhP7RIwe3y` supplies components, variants, tokens, typography, spacing, icon semantics and interaction conventions. Mature prior-theme Figma screens may be used as composition/rhythm references. Figma is **not** the Theme 7 screen-design source.
+- **Figma:** the current Mosaic Retail Design System in `QVJolM5tAdFKkhP7RIwe3y` supplies components, variants, tokens, typography, spacing, icon semantics and interaction conventions. Mature prior-theme Figma screens may be used as composition/rhythm references. Figma is **not** the Theme 7 screen-design source.
 
 Relevant DS pages: Foundations & Icons `505:5889`, Components `505:5890`, Patterns & Templates `505:5891`.
 

@@ -5,7 +5,7 @@ import 'package:erp/features/inventory/data/stocktake/stocktake_repository.dart'
 import 'package:erp/features/inventory/presentation/patterns/k7_edit_cell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../support/inventory_router_harness.dart';
 

@@ -1,5 +1,5 @@
 import 'package:supabase/supabase.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import '../errors/app_exception.dart';
 

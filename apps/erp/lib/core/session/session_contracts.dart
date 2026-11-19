@@ -1,5 +1,5 @@
 import 'package:uuid/uuid.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import 'session_store.dart';
 

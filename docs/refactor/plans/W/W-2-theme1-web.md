@@ -35,7 +35,7 @@ Mọi màn Theme 1 dùng tốt **ngang iPhone** trên web máy tính (LUONG-UNG-
 
 ### 3.1 `VListDetailLayout` (DS)
 
-`packages/vet45_design_system/lib/src/patterns/v_list_detail_layout.dart`, export trong `design_system.dart`:
+`packages/c45_design_system/lib/src/patterns/v_list_detail_layout.dart`, export trong `design_system.dart`:
 
 ```dart
 /// Hai cột danh sách – chi tiết khi đủ rộng; hẹp hơn thì chỉ dựng [detail]
@@ -65,7 +65,7 @@ class VListDetailLayout extends StatelessWidget {
 
 ### 3.2 `VCard.isSelected` (DS)
 
-`packages/vet45_design_system/lib/src/components/v_card.dart`: tham số mới `final bool? isSelected;` (mặc định `null`):
+`packages/c45_design_system/lib/src/components/v_card.dart`: tham số mới `final bool? isSelected;` (mặc định `null`):
 - `true` ⇒ nền `colors.surfaceBrand`, viền `colors.borderBrand` (giữ độ dày viền hiện có của `emphasis`), `Semantics(selected: true)` (cùng node `button` 2-B7 đã thêm khi có `onTap`).
 - `false` / `null` ⇒ như hiện tại; `false` thêm `Semantics(selected: false)` chỉ khi có `onTap`.
 - Không đổi gì khác của `VCard`.
@@ -112,7 +112,7 @@ ShellRoute  builder: AuditAreaShell                 ← BlocProvider<TenantAudit
 
 Trang **đầu** của một `ShellRoute` nằm ở gốc navigator riêng của shell ⇒ `Navigator.of(context).canPop()` là `false` ⇒ `VAppBar(showBackButton: true)` **không hiện nút ←**. Lỗi này **đã có** ở các `ShellRoute` phạm vi luồng (vd. `quick_receipt_header_page.dart:96` `showBackButton: true` nhưng không thấy nút); 3.3 sẽ gặp ở trang danh sách khi hẹp.
 
-Sửa trong `packages/vet45_design_system/lib/src/components/v_app_bar.dart` (nhánh nút ← mặc định, đã là `maybePop` từ 2-B7):
+Sửa trong `packages/c45_design_system/lib/src/components/v_app_bar.dart` (nhánh nút ← mặc định, đã là `maybePop` từ 2-B7):
 
 ```dart
 /// Navigator gần nhất pop được, đi ngược lên các navigator lồng (ShellRoute).
@@ -132,7 +132,7 @@ Trang danh sách có nút ← tự dựng (`organization_audit_logs_page.dart` ~
 
 ### 3.5 `showVAdaptiveSheet` (DS)
 
-`packages/vet45_design_system/lib/src/components/v_adaptive_sheet.dart`, export:
+`packages/c45_design_system/lib/src/components/v_adaptive_sheet.dart`, export:
 
 ```dart
 /// Rộng (cửa sổ ≥ VBreakpoints.desktop): hộp thoại giữa màn; hẹp: [showVBottomSheet].
@@ -256,7 +256,7 @@ Mỗi dòng: việc code **cũ** đang làm ở chỗ plan chuyển / thay → s
 - [x] Sheet: rộng 1280, mở bộ lọc thành viên → `VSheetDialog` có tiêu đề "Bộ lọc thành viên" **một lần** (không trùng), áp dụng → đóng + lọc; hẹp → bottom sheet như cũ. Sheet xác nhận (tạm ngừng) ở rộng 1280 → hộp thoại căn giữa màn, `ModalBarrier` phủ kín `Rect(0, 0, 1280, 800)` chặn click sang cột danh sách/thanh bên (`w2_wide_layout_test.dart` test #8, #9, #11).
 - [x] Màn công khai: rộng 1280, đăng nhập / đăng ký / xác minh / nhập mã lời mời / chưa có tổ chức / quên mật khẩu → nội dung rộng ≤ 480, căn giữa (`w2_behavior_preservation_test.dart` H13 ở 390 và 1280, thanh đáy `< 120px`).
 - [x] `meetsGuideline(iOSTapTargetGuideline)` + `labeledTapTargetGuideline` cho Người dùng ở rộng 1280 (2 cột) (`w2_wide_layout_test.dart` test #10).
-- [x] `flutter test` cả `apps/erp` + DS: `apps/erp` 1554 pass / 61 fail baseline; `vet45_design_system` 446 pass / 1 fail baseline (so **tên** khớp 100% với `docs/refactor/TEST-BASELINE.md`).
+- [x] `flutter test` cả `apps/erp` + DS: `apps/erp` 1554 pass / 61 fail baseline; `c45_design_system` 446 pass / 1 fail baseline (so **tên** khớp 100% với `docs/refactor/TEST-BASELINE.md`).
 - [x] `detect_changes()` — 61 tệp, 70 symbols, risk low. Tách bạch phần W-2 với 2-B6 / 2-B7 / W-1 chưa commit.
 
 ### 6.2 Kiểm tay (gộp đợt kiểm tay đóng Theme 1)
@@ -299,36 +299,36 @@ Mỗi dòng: việc code **cũ** đang làm ở chỗ plan chuyển / thay → s
 - Ghi chú cho review: H13 kiểm cả 7 màn công khai (`LoginPage`, `SignupPage`, `VerifyEmailPage`, `NoOrganizationPage`, `InvitationTokenEntryForm`, `InvitationRegistrationForm`, `ResetPasswordPage`) và xác nhận chiều cao `bottomBar` `< 120px` trên 2 form lời mời.
 
 #### Bước 1 — ✅ xong
-- Tệp đã tạo: `packages/vet45_design_system/lib/src/patterns/v_list_detail_layout.dart:1-101` — Pattern `VListDetailLayout` chia 2 cột khi `constraints.maxWidth >= breakpoint` (840), cột trái cố định `listWidth = 360`, vách ngăn `VDivider(axis: Axis.vertical, thickness: VBorders.hairline)`, giữ state `detail` qua `GlobalKey`, và hàm tĩnh `VListDetailLayout.isSplitOf(context)`.
+- Tệp đã tạo: `packages/c45_design_system/lib/src/patterns/v_list_detail_layout.dart:1-101` — Pattern `VListDetailLayout` chia 2 cột khi `constraints.maxWidth >= breakpoint` (840), cột trái cố định `listWidth = 360`, vách ngăn `VDivider(axis: Axis.vertical, thickness: VBorders.hairline)`, giữ state `detail` qua `GlobalKey`, và hàm tĩnh `VListDetailLayout.isSplitOf(context)`.
 - Lệch so với plan: Không.
-- Test thêm / sửa: `packages/vet45_design_system/test/patterns/v_list_detail_layout_test.dart` — 3 test ("bề rộng >= 840 hiển thị cả list và detail, isSplitOf là true", "bề rộng < 840 chỉ hiển thị detail, isSplitOf là false", "đổi bề rộng qua ngưỡng 840 giữ nguyên state của detail").
+- Test thêm / sửa: `packages/c45_design_system/test/patterns/v_list_detail_layout_test.dart` — 3 test ("bề rộng >= 840 hiển thị cả list và detail, isSplitOf là true", "bề rộng < 840 chỉ hiển thị detail, isSplitOf là false", "đổi bề rộng qua ngưỡng 840 giữ nguyên state của detail").
 - impact: Symbol mới `VListDetailLayout` → LOW, 3 caller trong IAM shells.
 
 #### Bước 2 — ✅ xong
-- Tệp đã sửa: `packages/vet45_design_system/lib/src/components/v_card.dart:33,66,184-205,216` — Thêm thuộc tính tuỳ chọn `bool? isSelected`; khi `true` dùng nền `colors.surfaceBrand`, viền `colors.borderBrand`, và `Semantics(selected: isSelected)`.
-- Tệp đã sửa (phát hiện khi chạy H13): `packages/vet45_design_system/lib/src/components/v_button.dart:528-532` — Bọc `Flexible` + `TextOverflow.ellipsis` cho `labelText` trong `_VButtonLink` để tránh tràn ngang `RenderFlex` 13px trên màn 390px với font test Ahem.
-- Tệp đã sửa (phát hiện khi chạy wide test): `packages/vet45_design_system/lib/src/components/v_search_bar.dart:164` — Thêm `mainAxisSize: MainAxisSize.min` cho `Row` prefix icon.
+- Tệp đã sửa: `packages/c45_design_system/lib/src/components/v_card.dart:33,66,184-205,216` — Thêm thuộc tính tuỳ chọn `bool? isSelected`; khi `true` dùng nền `colors.surfaceBrand`, viền `colors.borderBrand`, và `Semantics(selected: isSelected)`.
+- Tệp đã sửa (phát hiện khi chạy H13): `packages/c45_design_system/lib/src/components/v_button.dart:528-532` — Bọc `Flexible` + `TextOverflow.ellipsis` cho `labelText` trong `_VButtonLink` để tránh tràn ngang `RenderFlex` 13px trên màn 390px với font test Ahem.
+- Tệp đã sửa (phát hiện khi chạy wide test): `packages/c45_design_system/lib/src/components/v_search_bar.dart:164` — Thêm `mainAxisSize: MainAxisSize.min` cho `Row` prefix icon.
 - Lệch so với plan: Sửa thêm 1 dòng ở `_VButtonLink` và `VSearchBar` để triệt tiêu lỗi tràn `RenderFlex` ở cột hẹp 360px / 390px.
-- Test thêm / sửa: `packages/vet45_design_system/test/components/v_card_test.dart` — thêm 2 test kiểm `isSelected: true` và `isSelected: false/null`.
+- Test thêm / sửa: `packages/c45_design_system/test/components/v_card_test.dart` — thêm 2 test kiểm `isSelected: true` và `isSelected: false/null`.
 - impact: `VCard` → **HIGH** (143 file gọi trong toàn repo; đã cảnh báo và giữ mặc định `isSelected = null` tương thích ngược 100%).
 
 #### Bước 3 — ✅ xong
-- Tệp đã sửa: `packages/vet45_design_system/lib/src/components/v_app_bar.dart:36-78,96` — Thêm `VAppBar.poppableNavigator(context)` và `VAppBar.popNearest(context)` tìm `NavigatorState` gần nhất có `canPop() == true` (hỗ trợ trang gốc bên trong `ShellRoute`).
+- Tệp đã sửa: `packages/c45_design_system/lib/src/components/v_app_bar.dart:36-78,96` — Thêm `VAppBar.poppableNavigator(context)` và `VAppBar.popNearest(context)` tìm `NavigatorState` gần nhất có `canPop() == true` (hỗ trợ trang gốc bên trong `ShellRoute`).
 - Lệch so với plan: Không.
-- Test thêm / sửa: `packages/vet45_design_system/test/components/v_app_bar_test.dart` — thêm 3 test cho nested navigator (`pops ancestor navigator when nearest cannot pop`, `pops nearest navigator if it can pop`, `no back button when no navigator can pop`).
+- Test thêm / sửa: `packages/c45_design_system/test/components/v_app_bar_test.dart` — thêm 3 test cho nested navigator (`pops ancestor navigator when nearest cannot pop`, `pops nearest navigator if it can pop`, `no back button when no navigator can pop`).
 - impact: `VAppBar` → **HIGH** (112 file gọi trong toàn repo; chỉ thay đổi hành vi khi navigator con không pop được nhưng navigator cha pop được).
 
 #### Bước 4 — ✅ xong (đã sửa S1 / A2 & A3 ở R3)
-- Tệp đã tạo: `packages/vet45_design_system/lib/src/components/v_adaptive_sheet.dart:1-165` — Hàm `showVAdaptiveSheet<T>` mở `VBottomSheet` khi `< 1024px` (`VBreakpoints.desktop`) và mở `Dialog` + `VSheetDialog` (`maxWidth: 480`, `maxHeight: 85%`, bo góc `r16`, nút đóng `VIcons.close` có tooltip `'Đóng'`, bắt phím `Escape`) khi `>= 1024px`.
+- Tệp đã tạo: `packages/c45_design_system/lib/src/components/v_adaptive_sheet.dart:1-165` — Hàm `showVAdaptiveSheet<T>` mở `VBottomSheet` khi `< 1024px` (`VBreakpoints.desktop`) và mở `Dialog` + `VSheetDialog` (`maxWidth: 480`, `maxHeight: 85%`, bo góc `r16`, nút đóng `VIcons.close` có tooltip `'Đóng'`, bắt phím `Escape`) khi `>= 1024px`.
 - Lệch so với plan: Ở R1/R2 ban đầu tự thêm `useRootNavigator: false` vào `showDialog`. Đến lượt R3 đã **bỏ hoàn toàn** lệch này, đưa `showDialog` về mặc định `useRootNavigator: true` (lớp chắn `ModalBarrier` phủ trọn màn 1280×800 theo S1/A2); sửa tận gốc ở 21 điểm gọi bằng `Builder(builder: (sheetContext) => ...)` và `Navigator.of(sheetContext).pop(...)`. Nhánh `title == null` (A3) không vẽ thanh tiêu đề và đường kẻ, đặt nút ✕ nổi trên thân (`Stack`).
-- Test thêm / sửa: `packages/vet45_design_system/test/components/v_adaptive_sheet_test.dart` — 4 test (mở hộp thoại căn giữa, phím Escape, title == null không có VDivider, mở bottom sheet khi hẹp).
+- Test thêm / sửa: `packages/c45_design_system/test/components/v_adaptive_sheet_test.dart` — 4 test (mở hộp thoại căn giữa, phím Escape, title == null không có VDivider, mở bottom sheet khi hẹp).
 - impact: Symbol mới `showVAdaptiveSheet` / `VSheetDialog` → MEDIUM (21 caller trong `auth` / `iam` / `core`).
 
 #### Bước 5 & Bước 6 — ✅ xong
 - Tệp đã sửa:
-  - `packages/vet45_design_system/lib/design_system.dart:72,107` — Export `v_adaptive_sheet.dart` và `v_list_detail_layout.dart`.
-  - `packages/vet45_design_system/CHANGELOG.md:1-15` — Ghi chú `VListDetailLayout`, `VCard.isSelected`, `VAppBar.popNearest`, `showVAdaptiveSheet`.
-  - `packages/vet45_design_system/example/lib/preview/components_tab.dart:1180-1240` — Thêm mục preview `VListDetailLayout` và `showVAdaptiveSheet`.
+  - `packages/c45_design_system/lib/design_system.dart:72,107` — Export `v_adaptive_sheet.dart` và `v_list_detail_layout.dart`.
+  - `packages/c45_design_system/CHANGELOG.md:1-15` — Ghi chú `VListDetailLayout`, `VCard.isSelected`, `VAppBar.popNearest`, `showVAdaptiveSheet`.
+  - `packages/c45_design_system/example/lib/preview/components_tab.dart:1180-1240` — Thêm mục preview `VListDetailLayout` và `showVAdaptiveSheet`.
 - Lệch so với plan: Ở nhật ký R1 đánh số nhầm Bước 6 (test DS) trước preview; thực tế cả export, CHANGELOG, preview và 4 tệp test DS đều đã hoàn tất.
 - Test thêm / sửa: 4 tệp test DS ở Bước 1–4 (tổng 45/45 test pass).
 - impact: Barrel export DS → LOW (chỉ thêm symbol mới).
@@ -396,17 +396,17 @@ Xem chi tiết bảng đánh giá và phát hiện tại mục [Audit R3](#audit
 
 ##### Kết quả chạy kiểm tra tự động (Mục 6.1)
 1. **Static Analysis & Import Check:**
-   - `cd packages/vet45_design_system && dart analyze lib test`: **No issues found!**
+   - `cd packages/c45_design_system && dart analyze lib test`: **No issues found!**
    - `cd apps/erp && dart analyze lib/core/router/app_router.dart lib/features/auth/ lib/features/iam/ test/features/iam/presentation_module/w2_behavior_preservation_test.dart test/features/iam/presentation_module/w2_wide_layout_test.dart`: **0 lỗi / 0 warning mới** (chỉ còn 1 info có sẵn `deprecated_member_use` tại `revoke_invitation_bottom_sheet.dart:99`).
    - `cd apps/erp && dart run tool/check_feature_imports.dart`: **Exit code 0**.
 2. **Test bộ W-2 & Design System:**
-   - `cd packages/vet45_design_system && flutter test test/patterns/v_list_detail_layout_test.dart test/components/v_adaptive_sheet_test.dart test/components/v_card_test.dart test/components/v_app_bar_test.dart test/components/v_button_test.dart`: **45/45 pass**.
+   - `cd packages/c45_design_system && flutter test test/patterns/v_list_detail_layout_test.dart test/components/v_adaptive_sheet_test.dart test/components/v_card_test.dart test/components/v_app_bar_test.dart test/components/v_button_test.dart`: **45/45 pass**.
    - `cd apps/erp && flutter test test/features/iam/presentation_module/w2_behavior_preservation_test.dart test/features/iam/presentation_module/w2_wide_layout_test.dart`: **26/26 pass** (16 test Bước 0 + 10 test chế độ rộng 6.1).
    - `cd apps/erp && flutter test test/features/auth/ test/features/iam/`: **348/348 pass** (bao gồm `invitation_token_page_test.dart` đã xanh 10/10 sau khi sửa P1-1).
    - Toàn bộ `apps/erp`: không phát sinh bất kỳ test lỗi mới nào ngoài danh sách trong `docs/refactor/TEST-BASELINE.md` (61 test baseline + 2 test catalog `product_measurement_units_e2e_test` có sẵn).
 3. **Tách phạm vi thay đổi W-2 với 2-B6 / 2-B7 / W-1 chưa commit:**
    - **Thuộc W-2:**
-     - `packages/vet45_design_system/`: `v_list_detail_layout.dart`, `v_adaptive_sheet.dart`, `v_card.dart`, `v_app_bar.dart`, `v_button.dart`, `v_search_bar.dart`, `design_system.dart`, `CHANGELOG.md`, `example/lib/preview/components_tab.dart`, và 4 tệp test (`v_list_detail_layout_test.dart`, `v_adaptive_sheet_test.dart`, `v_card_test.dart`, `v_app_bar_test.dart`).
+     - `packages/c45_design_system/`: `v_list_detail_layout.dart`, `v_adaptive_sheet.dart`, `v_card.dart`, `v_app_bar.dart`, `v_button.dart`, `v_search_bar.dart`, `design_system.dart`, `CHANGELOG.md`, `example/lib/preview/components_tab.dart`, và 4 tệp test (`v_list_detail_layout_test.dart`, `v_adaptive_sheet_test.dart`, `v_card_test.dart`, `v_app_bar_test.dart`).
      - `apps/erp/lib/features/auth/`: `auth_layout.dart`, `login_page.dart`, `signup_page.dart`, `verify_email_page.dart`, `no_organization_page.dart`, `invitation_token_page.dart`, `invitation_token_entry_form.dart`, `invitation_registration_form.dart`.
      - `apps/erp/lib/features/iam/`: 3 tệp `*_area_shell.dart`, `presentation.dart`, các trang/widget trong `users/`, `roles/`, `audit_logs/`, `organizations/`, `organization_profile/`.
      - `apps/erp/lib/core/`: `app_router.dart` (phần 3 `ShellRoute` IAM), `vn_administrative_unit_picker_sheet.dart`.
@@ -419,13 +419,13 @@ Xem chi tiết bảng đánh giá và phát hiện tại mục [Audit R3](#audit
 Phiên code đã thực hiện tuần tự và hoàn tất trọn vẹn danh sách việc R3:
 
 1. **S1 & A2 (Modal dialog chặn toàn màn hình):**
-   - Tệp đã sửa: `packages/vet45_design_system/lib/src/components/v_adaptive_sheet.dart:141` — Bỏ hoàn toàn `useRootNavigator: false` (về mặc định `useRootNavigator: true`).
+   - Tệp đã sửa: `packages/c45_design_system/lib/src/components/v_adaptive_sheet.dart:141` — Bỏ hoàn toàn `useRootNavigator: false` (về mặc định `useRootNavigator: true`).
    - Rà soát 21 điểm gọi `showVAdaptiveSheet`: bọc nội dung bằng `Builder(builder: (sheetContext) => ...)` và dùng `Navigator.of(sheetContext).pop(...)` tại 9 tệp có thao tác đóng/chọn gắn với context: `member_lifecycle_actions.dart:45,56,68,84`, `member_detail_bottom_sheets.dart:48,57,130,139,212,221,294,303`, `organization_invitation_detail_page.dart:268,279`, `organization_legal_profile_form_page.dart:67`, `my_account_actions_bottom_sheet.dart:36`, `logout_confirmation_bottom_sheet.dart:38`.
    - Kết quả: trên màn hình rộng 1280×800, `ModalBarrier` phủ kín `Rect(0, 0, 1280, 800)`, click vào cột danh sách / thanh bên bị chặn hoàn toàn, đóng bằng nút Huỷ/Xác nhận giữ nguyên trang chi tiết.
 2. **A1 (Triệt tiêu nút `BackButton` Material ngầm):**
-   - Tệp đã sửa: `packages/vet45_design_system/lib/src/components/v_app_bar.dart:114` — Thêm `automaticallyImplyLeading: false` cho `AppBar` bên trong `VAppBar`.
+   - Tệp đã sửa: `packages/c45_design_system/lib/src/components/v_app_bar.dart:114` — Thêm `automaticallyImplyLeading: false` cho `AppBar` bên trong `VAppBar`.
    - Grep toàn bộ codebase các điểm có `showBackButton: false`: chỉ xuất hiện ở các trang gốc tab (`/more`, catalog, partner, sales order list...) và trang kết quả (`goods_receipt_result_page`, `sales_transaction_result_page`) — 100% các màn này đều chủ ý không muốn có nút quay lại, không có màn nào dựa vào `BackButton` Material ngầm.
-   - Thêm test case vào `packages/vet45_design_system/test/components/v_app_bar_test.dart` ("showBackButton: false trên route pop được: không có BackButton ngầm").
+   - Thêm test case vào `packages/c45_design_system/test/components/v_app_bar_test.dart` ("showBackButton: false trên route pop được: không có BackButton ngầm").
 3. **S2 (Bổ sung 4 test còn thiếu vào mục 6.1):**
    - Tệp đã sửa: `apps/erp/test/features/iam/presentation_module/w2_wide_layout_test.dart` — Bổ sung test #11, #12, #13, #14:
      - Test #11: Rộng 1280, mở "Tạm ngừng thành viên" từ chi tiết -> lớp chắn `ModalBarrier` phủ `Rect(0, 0, 1280, 800)`, tạm ngừng thành công gọi `refreshActiveTab` (tăng số truy vấn `ListTenantMembersQuery`), không pop mất trang chi tiết.
@@ -444,8 +444,8 @@ Phiên code đã thực hiện tuần tự và hoàn tất trọn vẹn danh sá
    - Đã cập nhật vào `docs/02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md` dòng 1097–1101.
    - Ghi nhận thay thế `CircularProgressIndicator` thành `VLoading(size: 40)` tại `organization_role_detail_page.dart` vào "Lệch so với plan".
 6. **A3 (Hộp thoại xác nhận khi `title == null`):**
-   - Tệp đã sửa: `packages/vet45_design_system/lib/src/components/v_adaptive_sheet.dart:99-130` — Khi `title == null`, không dựng dòng tiêu đề và `VDivider`; đưa nội dung và nút đóng `VIcons.close` vào `SizedBox(width: double.infinity, child: Stack(...))`, nút đóng đặt ở góc trên bên phải với tooltip "Đóng", nội dung có lề trên `VSpacing.space6` để không bị đè.
-   - Thêm test case vào `packages/vet45_design_system/test/components/v_adaptive_sheet_test.dart` ("màn rộng >= 1024 và title == null: không có VDivider header, nút đóng vẫn hoạt động").
+   - Tệp đã sửa: `packages/c45_design_system/lib/src/components/v_adaptive_sheet.dart:99-130` — Khi `title == null`, không dựng dòng tiêu đề và `VDivider`; đưa nội dung và nút đóng `VIcons.close` vào `SizedBox(width: double.infinity, child: Stack(...))`, nút đóng đặt ở góc trên bên phải với tooltip "Đóng", nội dung có lề trên `VSpacing.space6` để không bị đè.
+   - Thêm test case vào `packages/c45_design_system/test/components/v_adaptive_sheet_test.dart` ("màn rộng >= 1024 và title == null: không có VDivider header, nút đóng vẫn hoạt động").
 7. **A4 (Căn lề tiêu đề chi tiết Lịch sử):**
    - Tệp đã sửa: `apps/erp/lib/features/iam/presentation/audit_logs/widgets/audit_log_detail_body.dart:77` và `apps/erp/lib/features/iam/presentation/audit_logs/views/audit_log_detail_page.dart:98,127` — Đổi sang `titleSpacing: isSplit ? VSpacing.space4 : 0` để khi ở chế độ 2 cột (không có leading button), tiêu đề cách đường kẻ dọc 16px thay vì dính sát vào vách ngăn.
 8. **A5 (Khoảng cách trên sheet bộ lọc):**
@@ -458,7 +458,7 @@ Phiên code đã thực hiện tuần tự và hoàn tất trọn vẹn danh sá
 11. **S7 (Ghi nhận quyết định D2 = A):**
     - Đã cập nhật mục 3.3 câu về nút ←: `(trên web rộng, nút ← mất sau lần chọn dòng đầu — chấp nhận, rời khu bằng thanh bên; D2 chốt 2026-10-28)`.
 12. **Kết quả kiểm thử & phân tích tĩnh:**
-    - `packages/vet45_design_system`: 446 pass / 1 fail baseline (`v_overlay_menu_shell_test.dart`). Phân tích tĩnh: 0 warning / 0 error.
+    - `packages/c45_design_system`: 446 pass / 1 fail baseline (`v_overlay_menu_shell_test.dart`). Phân tích tĩnh: 0 warning / 0 error.
     - `apps/erp`: 1554 pass / 61 fail baseline (so tên khớp 100% với `docs/refactor/TEST-BASELINE.md`, 0 fail mới). Phân tích tĩnh: 0 error, 0 warning mới thuộc W-2.
     - `dart run tool/check_feature_imports.dart`: Exit code 0.
 
@@ -468,12 +468,12 @@ Phiên code đã thực hiện tuần tự và hoàn tất trọn vẹn danh sá
 
 1. **R4-1 (Toast chỉ hiện 1 lần ở 2 cột):**
    - **Tệp đã sửa:**
-     - `packages/vet45_design_system/lib/src/patterns/v_list_detail_layout.dart:64-67` — Ở nhánh 2 cột (`isSplit == true`), bọc `widget.list` bằng `ScaffoldMessenger(child: widget.list)` độc lập.
-     - `packages/vet45_design_system/CHANGELOG.md:41` — Ghi nhận trong `[Unreleased]` mục *Fixed*: "`VListDetailLayout`: toast không còn hiện ở cả hai cột."
+     - `packages/c45_design_system/lib/src/patterns/v_list_detail_layout.dart:64-67` — Ở nhánh 2 cột (`isSplit == true`), bọc `widget.list` bằng `ScaffoldMessenger(child: widget.list)` độc lập.
+     - `packages/c45_design_system/CHANGELOG.md:41` — Ghi nhận trong `[Unreleased]` mục *Fixed*: "`VListDetailLayout`: toast không còn hiện ở cả hai cột."
      - `apps/erp/lib/core/router/app_router.dart:428,515,584` — Bọc 3 ô chi tiết trống (`VEmptyState` khi `isSplitOf(context)`) tại `/more/users`, `/more/roles`, `/more/audit-logs` bằng `Scaffold(backgroundColor: context.vColors.surfaceAlt, body: Center(child: VEmptyState(...)))` để khi unmount trang chi tiết sau thao tác thành công (như thu hồi lời mời), `ScaffoldMessenger` vẫn tìm thấy `Scaffold` hợp lệ để hiển thị SnackBar.
    - **Lệch so với plan:** Không.
    - **Test thêm / sửa:**
-     - `packages/vet45_design_system/test/patterns/v_list_detail_layout_test.dart`: Thêm test "màn rộng >= minSplitWidth: toast phát từ detail chỉ hiện ở chi tiết, toast từ list chỉ hiện ở list" (4/4 test pass).
+     - `packages/c45_design_system/test/patterns/v_list_detail_layout_test.dart`: Thêm test "màn rộng >= minSplitWidth: toast phát từ detail chỉ hiện ở chi tiết, toast từ list chỉ hiện ở list" (4/4 test pass).
      - `apps/erp/test/features/iam/presentation_module/w2_wide_layout_test.dart`:
        - Test #11: Sửa `findsWidgets` thành `findsOneWidget`, xoá chú thích "có thể >= 1".
        - Test #7: Thêm xác minh `expect(find.text('Đã thu hồi lời mời.'), findsOneWidget)`.
@@ -491,11 +491,11 @@ Phiên code đã thực hiện tuần tự và hoàn tất trọn vẹn danh sá
 
 3. **R4-3 (Kiểm tra chất lượng toàn diện & GitNexus):**
    - **Static Analysis & Import Check:**
-     - `cd packages/vet45_design_system && dart analyze lib test`: **0 issues**.
+     - `cd packages/c45_design_system && dart analyze lib test`: **0 issues**.
      - `cd apps/erp && dart analyze lib/core/router/app_router.dart lib/features/auth/ lib/features/iam/`: **0 errors, 0 warnings mới**.
      - `cd apps/erp && dart run tool/check_feature_imports.dart`: **Exit code 0**.
    - **Test Suite:**
-     - `vet45_design_system`: **447 pass / 1 fail baseline** (`v_overlay_menu_shell_test.dart`).
+     - `c45_design_system`: **447 pass / 1 fail baseline** (`v_overlay_menu_shell_test.dart`).
      - `apps/erp`: Toàn bộ suite `features/iam/` và `features/auth/` (353 test): **353/353 pass**.
      - `apps/erp` toàn bộ (full test suite): **1554 pass / 61 fail baseline** (so khớp 100% tên test với `docs/refactor/TEST-BASELINE.md`, 0 fail mới).
    - **GitNexus detect-changes:**
@@ -635,7 +635,7 @@ Phiên code đã thực hiện tuần tự và hoàn tất trọn vẹn danh sá
 | A4 | P2 | **Tiêu đề chi tiết Lịch sử dính sát mép cột** ở 2 cột: bỏ nút ← mà vẫn `titleSpacing: 0` ⇒ "Chi tiết hoạt động" bắt đầu ngay đường kẻ dọc (x = 601). | `audit_log_detail_body.dart` ~66 và 2 `AppBar` của `audit_log_detail_page.dart` | Khi `isSplit`: `titleSpacing: VSpacing.space4` (hẹp giữ như cũ). | Ảnh 1280 Lịch sử: tiêu đề cách đường kẻ 16 |
 | A5 | P3 | **Sheet bộ lọc: nội dung sát đường kẻ dưới tiêu đề** (~8 px, cả 390 lẫn 1280) — do bỏ tiêu đề tự vẽ kèm `VGap.md` phía sau. | 3 widget bộ lọc, `Padding(top: …)` đầu `build` | Tăng lề trên thân lên `VSpacing.space4`. | Ảnh 390 + 1280: "Trạng thái" cách đường kẻ 16 |
 
-**Ghi nhận, không sửa trong W-2:** (1) dải cửa sổ 1024–1080 (có thanh bên, chưa đủ 2 cột): tiêu đề app bar ở mép trái, nội dung ở cột 720 giữa — hành vi chung của `VPageScaffold`, xử lý ở plan khung web chung nếu cần; (2) chân màn đăng nhập "© VET45 · Phiên bản Mobile" hiện cả trên web — chuỗi có sẵn, ngoài phạm vi W-2, ghi để người dùng quyết sau; (3) `VSheetDialog` nhãn đọc màn hình mặc định "Hộp thoại" khi không có `title` — chuỗi mới chưa duyệt, xử lý cùng A3 (không có `title` thì dùng `semanticLabel` của người gọi, bỏ chuỗi mặc định).
+**Ghi nhận, không sửa trong W-2:** (1) dải cửa sổ 1024–1080 (có thanh bên, chưa đủ 2 cột): tiêu đề app bar ở mép trái, nội dung ở cột 720 giữa — hành vi chung của `VPageScaffold`, xử lý ở plan khung web chung nếu cần; (2) chân màn đăng nhập "© Mosaic Retail · Phiên bản Mobile" hiện cả trên web — chuỗi có sẵn, ngoài phạm vi W-2, ghi để người dùng quyết sau; (3) `VSheetDialog` nhãn đọc màn hình mặc định "Hộp thoại" khi không có `title` — chuỗi mới chưa duyệt, xử lý cùng A3 (không có `title` thì dùng `semanticLabel` của người gọi, bỏ chuỗi mặc định).
 
 Cuối cùng: `flutter test` **toàn bộ** `apps/erp` + DS, so **tên** test hỏng với `TEST-BASELINE.md`; `dart analyze lib test` (app + DS) không warning mới. Báo lại để review R3.
 
@@ -670,7 +670,7 @@ Cuối cùng: `flutter test` **toàn bộ** `apps/erp` + DS, so **tên** test h�
 
 | # | Từ | Việc | Xong khi |
 |---|---|---|---|
-| R4-1 | R3 P2-1 | **Toast chỉ hiện 1 lần ở 2 cột.** `packages/vet45_design_system/lib/src/patterns/v_list_detail_layout.dart`, nhánh 2 cột: bọc `widget.list` bằng `ScaffoldMessenger(child: …)` riêng ⇒ toast phát từ trang chi tiết chỉ hiện ở cột chi tiết, toast phát từ trang danh sách chỉ hiện ở cột danh sách. **Không** đổi nhánh 1 cột (hẹp / iPhone). Chạy `impact VListDetailLayout --repo erp-sales-inventory --direction upstream` trước khi sửa, ghi kết quả. CHANGELOG DS `[Unreleased]` → *Fixed*: "`VListDetailLayout`: toast không còn hiện ở cả hai cột". | (1) Test DS mới trong `test/patterns/v_list_detail_layout_test.dart`: bề rộng ≥ 840, `list` và `detail` mỗi bên một `Scaffold`; gọi `ScaffoldMessenger.of(<context trong detail>).showSnackBar(SnackBar(content: Text('x')))` ⇒ `find.text('x')` **đúng 1**, nằm trong vùng cột chi tiết; gọi từ context trong `list` ⇒ đúng 1, nằm trong cột danh sách. (2) `w2_wide_layout_test.dart` #11: `findsWidgets` → `findsOneWidget`, xoá chú thích "có thể ≥ 1". (3) #7: thêm `expect(find.text('Đã thu hồi lời mời.'), findsOneWidget)`. (4) H6 (hẹp, toast thu hồi do trang danh sách hiện) vẫn xanh |
+| R4-1 | R3 P2-1 | **Toast chỉ hiện 1 lần ở 2 cột.** `packages/c45_design_system/lib/src/patterns/v_list_detail_layout.dart`, nhánh 2 cột: bọc `widget.list` bằng `ScaffoldMessenger(child: …)` riêng ⇒ toast phát từ trang chi tiết chỉ hiện ở cột chi tiết, toast phát từ trang danh sách chỉ hiện ở cột danh sách. **Không** đổi nhánh 1 cột (hẹp / iPhone). Chạy `impact VListDetailLayout --repo erp-sales-inventory --direction upstream` trước khi sửa, ghi kết quả. CHANGELOG DS `[Unreleased]` → *Fixed*: "`VListDetailLayout`: toast không còn hiện ở cả hai cột". | (1) Test DS mới trong `test/patterns/v_list_detail_layout_test.dart`: bề rộng ≥ 840, `list` và `detail` mỗi bên một `Scaffold`; gọi `ScaffoldMessenger.of(<context trong detail>).showSnackBar(SnackBar(content: Text('x')))` ⇒ `find.text('x')` **đúng 1**, nằm trong vùng cột chi tiết; gọi từ context trong `list` ⇒ đúng 1, nằm trong cột danh sách. (2) `w2_wide_layout_test.dart` #11: `findsWidgets` → `findsOneWidget`, xoá chú thích "có thể ≥ 1". (3) #7: thêm `expect(find.text('Đã thu hồi lời mời.'), findsOneWidget)`. (4) H6 (hẹp, toast thu hồi do trang danh sách hiện) vẫn xanh |
 | R4-2 | R3 P3-2 | **Nút ← trang Lịch sử chỉ hiện khi bấm được.** `apps/erp/lib/features/iam/presentation/audit_logs/views/organization_audit_logs_page.dart` ~222: chỉ dựng `leading` khi `VAppBar.poppableNavigator(context) != null` (giống cách `VAppBar` tự ẩn ở Người dùng / Vai trò); khi không có thì `leading: null` + `automaticallyImplyLeading: false`. Chạy `impact` cho `_AuditLogsViewState` / `OrganizationAuditLogsPage` trước khi sửa. | Test mới trong `w2_wide_layout_test.dart`: rộng 1280, `go('/more/audit-logs/AUD-T-001')` ⇒ trong cột danh sách tooltip "Quay lại" = 0. Hẹp 390: mở `/more` rồi `push('/more/audit-logs')` ⇒ có "Quay lại", bấm ⇒ về `/more` (H8 / #14 vẫn xanh) |
 | R4-3 | — | Chạy lại: `flutter test` **toàn bộ** `apps/erp` + DS, so **tên** test hỏng với `TEST-BASELINE.md` (chỉ được hỏng 61 + 1 baseline đã biết); `dart analyze lib test` app + DS không warning mới; `node .gitnexus/run.cjs detect-changes --repo erp-sales-inventory`. | Mục 7 "R4 — sửa" có số pass / fail, tên test hỏng, kết quả `detect-changes`. Báo lại để review R4 |
 

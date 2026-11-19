@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "defaultEnvironment": "development",
+  "scan": {
+    "include": [
+      "apps/**/c45.target.json",
+      "packages/**/c45.target.json",
+      "deploy/**/c45.target.json"
+    ],
+    "exclude": [
+      "**/.dart_tool/**",
+      "**/build/**",
+      "**/.c45/profiles/**"
+    ]
+  },
+  "environments": {
+    "development": {
+      "description": "Remote dev — secrets + supabase link on use/sync",
+      "supabaseSource": "secrets"
+    },
+    "local": {
+      "description": "Local supabase start — supabase status only, no link",
+      "supabaseSource": "supabase_cli",
+      "syncSupabaseLink": false
+    },
+    "staging": {
+      "description": "Remote Supabase staging + staging flavor",
+      "supabaseSource": "secrets",
+      "railwayEnvironment": "staging"
+    },
+    "production": {
+      "description": "Remote Supabase production + production flavor",
+      "supabaseSource": "secrets",
+      "railwayEnvironment": "production"
+    }
+  },
+  "doctor": {
+    "alignHosts": [
+      {
+        "name": "supabase host",
+        "targets": [
+          "erp"
+        ],
+        "keys": [
+          "SUPABASE_CONNECTION_URL",
+          "SUPABASE_URL"
+        ]
+      }
+    ]
+  }
+}

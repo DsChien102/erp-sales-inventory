@@ -1,9 +1,9 @@
-# VET45 Harness Doctrine
+# Mosaic Retail Harness Doctrine
 
 > **Phiên bản:** Draft v0.11
 >
 > **Ngày:** 2026-09-24
-> **Phạm vi:** VET45; có thể phát triển tiếp thành học thuyết dùng chung cho AGAPI  
+> **Phạm vi:** Mosaic Retail; có thể phát triển tiếp thành học thuyết dùng chung cho AGAPI  
 > **Pilot tham chiếu:** Theme 7 — Kho & Giá vốn  
 > **Trạng thái:** DRAFT_FOR_REVIEW
 
@@ -11,7 +11,7 @@
 
 # 1. Mục đích
 
-Harness Doctrine xác định cách VET45 tổ chức **tri thức, yêu cầu, thiết kế, kiến trúc và công việc triển khai** để con người và AI có thể làm việc trên phạm vi lớn hơn mà vẫn giữ được khả năng kiểm soát.
+Harness Doctrine xác định cách Mosaic Retail tổ chức **tri thức, yêu cầu, thiết kế, kiến trúc và công việc triển khai** để con người và AI có thể làm việc trên phạm vi lớn hơn mà vẫn giữ được khả năng kiểm soát.
 
 Doctrine giải quyết bốn vấn đề cốt lõi:
 

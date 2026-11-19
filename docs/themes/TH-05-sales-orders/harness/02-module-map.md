@@ -24,7 +24,7 @@ flowchart LR
   Med --> Sales["sales application"]
   Sales --> Domain["sales domain"]
   Infra["sales infrastructure"] --> Sales
-  Infra --> Shared["vet45_shared infrastructure"]
+  Infra --> Shared["c45_shared infrastructure"]
   Sales --> Ports["public snapshot/integration ports"]
   Ports --> IAM
   Ports --> Catalog

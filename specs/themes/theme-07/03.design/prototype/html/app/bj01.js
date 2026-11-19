@@ -110,7 +110,7 @@ function bj01ExpirySortKey(lot) {
 }
 
 // ---- Thành phần màn
-function bj01Context() { return `<p class="ds24-context vet45-text-style-7" data-ds-component="VText" data-ds-prop-style="Body/Small">Kho trung tâm · Dữ liệu đến ${esc(bj01AsOf()).replace(" · ", ", ")}</p>`; }
+function bj01Context() { return `<p class="ds24-context c45-text-style-7" data-ds-component="VText" data-ds-prop-style="Body/Small">Kho trung tâm · Dữ liệu đến ${esc(bj01AsOf()).replace(" · ", ", ")}</p>`; }
 function bj01SearchAndFilters() {
   const filters=[['ALL','Tất cả'],['OUT','Hết hàng'],['LOW','Tồn thấp'],['NEAR','Cận hạn'],['EXPIRED','Hết hạn']];
   const scan=`<button type="button" class="ds24-search__action" data-bj01-scan aria-label="Quét mã vạch">${icon("scan","icon--sm")}</button>`;
@@ -155,7 +155,7 @@ function bj01Attention(p) {
 }
 function bj01ScanSheet() {
   if(!bj01ScanOpen) return "";
-  return ds24Sheet({title:"Quét mã vạch",attrs:"data-bj01-scan-close",body:`<div class="bj01-scan-frame" aria-hidden="true">${icon("scan")}</div><p class="ds24-context vet45-text-style-7">Đưa mã vạch vào khung</p><button class="ds24-button ds24-button--secondary" data-bj01-scan-sample="INV-AMX" type="button" data-ds-component="VButton" data-figma-node="521:529">Quét thử: Amox 500</button>`});
+  return ds24Sheet({title:"Quét mã vạch",attrs:"data-bj01-scan-close",body:`<div class="bj01-scan-frame" aria-hidden="true">${icon("scan")}</div><p class="ds24-context c45-text-style-7">Đưa mã vạch vào khung</p><button class="ds24-button ds24-button--secondary" data-bj01-scan-sample="INV-AMX" type="button" data-ds-component="VButton" data-figma-node="521:529">Quét thử: Amox 500</button>`});
 }
 // Lô của BJ-01 có trong fixture "Hàng có vấn đề" (t7Lots) thì đổi tình trạng / xử lý hết hạn được ở BJ-09.
 function bj01T7Lot(p, lotCode) { return typeof t7Lots !== "undefined" ? t7Lots.find((l) => l.code === p.code && l.lot === lotCode) : null; }
@@ -168,7 +168,7 @@ function bj01LotSheet(p) {
   const t7 = bj01T7Lot(p, lot.code);
   const dispose=lot.expiryIndicator==='EXPIRED'?`<button class="ds24-button ds24-button--secondary" data-bj01-dispose-lot="${escapeAttribute(lot.code)}" type="button" data-ds-component="VButton" data-figma-node="521:529">Điều chỉnh lô hết hạn</button>`
     :''; // v5.28.0: bỏ "Đổi tình trạng" (BJ-09)
-  return ds24Sheet({title:`Lô ${lot.code}`,attrs:'data-bj01-close-lot',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · HSD ${esc(lot.expiryDisplay)}</p>${bj01LotQuantityRows(lot,p)}${status}${dispose}`});
+  return ds24Sheet({title:`Lô ${lot.code}`,attrs:'data-bj01-close-lot',body:`<p class="ds24-context c45-text-style-7">${esc(p.name)} · HSD ${esc(lot.expiryDisplay)}</p>${bj01LotQuantityRows(lot,p)}${status}${dispose}`});
 }
 // Biến động vật lý gần nhất đọc từ sổ kho (BJ-15); chưa nạp sổ thì dùng số liệu mẫu của sản phẩm.
 function bj01LatestMovement(p) {
@@ -181,7 +181,7 @@ function bj01ProvenanceSheet(p) {
   const mv=bj01LatestMovement(p); const rs=p.reservationSummary||{};
   const movementValue=mv.source?`${mv.source} · ${Number(mv.delta)>0?'+':''}${mv.delta} ${p.stockUom}`:'Chưa có biến động';
   const reservationValue=Number(rs.quantity)>0?`${rs.quantity} ${p.stockUom}${rs.source?` · ${rs.source}`:''}`:`0 ${p.stockUom}`;
-  return ds24Sheet({title:'Nguồn và thời điểm cập nhật',attrs:'data-bj01-close-provenance',body:`<p class="ds24-context vet45-text-style-7">${esc(p.name)} · Kho trung tâm</p><div class="ds24-info-stack">${ds24InfoRow('Dữ liệu đến',bj01AsOf())}${ds24InfoRow(mv.label?`${mv.label} gần nhất`:'Biến động gần nhất',movementValue)}${mv.receipt?`<button class="k7-row-link" type="button" data-bj01-open-receipt="${escapeAttribute(mv.source)}">Mở phiếu nhận ${esc(mv.source)}</button>`:''}${ds24InfoRow('Đang giữ',reservationValue)}</div><button class="ds24-button ds24-button--secondary" data-bj01-handoff type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('history','icon--sm')}Xem thẻ kho và lịch sử</button>`});
+  return ds24Sheet({title:'Nguồn và thời điểm cập nhật',attrs:'data-bj01-close-provenance',body:`<p class="ds24-context c45-text-style-7">${esc(p.name)} · Kho trung tâm</p><div class="ds24-info-stack">${ds24InfoRow('Dữ liệu đến',bj01AsOf())}${ds24InfoRow(mv.label?`${mv.label} gần nhất`:'Biến động gần nhất',movementValue)}${mv.receipt?`<button class="k7-row-link" type="button" data-bj01-open-receipt="${escapeAttribute(mv.source)}">Mở phiếu nhận ${esc(mv.source)}</button>`:''}${ds24InfoRow('Đang giữ',reservationValue)}</div><button class="ds24-button ds24-button--secondary" data-bj01-handoff type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('history','icon--sm')}Xem thẻ kho và lịch sử</button>`});
 }
 
 // ---- Màn

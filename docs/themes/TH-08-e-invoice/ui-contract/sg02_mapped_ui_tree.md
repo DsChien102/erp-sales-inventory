@@ -356,7 +356,7 @@ Do not:
 - permit repeated preview submission;
 - start issuance after preview success.
 
-Preview success opens the MISA-provided preview. VET45 does not build a substitute legal invoice preview.
+Preview success opens the MISA-provided preview. Mosaic Retail does not build a substitute legal invoice preview.
 
 ### 6.3 Buyer NOT_READY — design label SG02-O07
 
@@ -691,7 +691,7 @@ Exact repository APIs take precedence over descriptive names here.
 
 | UI responsibility | Intended mapping |
 |---|---|
-| Bottom/action sheet | `VBottomSheet` or current VET45 sheet pattern |
+| Bottom/action sheet | `VBottomSheet` or current Mosaic Retail sheet pattern |
 | Action item | Existing action-row/tile composition using DS primitives |
 | Card/surface | `VCard` |
 | Delivery status | `VBadge` |
@@ -702,7 +702,7 @@ Exact repository APIs take precedence over descriptive names here.
 | Spacing | `VSpacing`, `VGap` |
 | Semantic colors | `context.vColors` / current semantic tokens |
 | Loading | Current DS loading behavior/component |
-| Full-screen result | Existing VET45 state/result pattern |
+| Full-screen result | Existing Mosaic Retail state/result pattern |
 
 Principles:
 
@@ -800,7 +800,7 @@ E-Invoice row on order list
 new public widget for design O07
 separate action sheets for O05-A/B/C/D
 one public action-sheet widget mixing all pre/post business semantics
-VET45-rendered legal invoice preview
+C45-rendered legal invoice preview
 global sheet loading for preview/official-view
 automatic issuance after preview
 automatic resume after correction
@@ -832,4 +832,4 @@ SG-02 is correctly mapped when:
 14. Returning from correction re-evaluates state without auto-resuming side effects.
 15. Viewer/document/send flows return to the exact originating source context.
 16. Disabled actions use coherent DS disabled treatment.
-17. No VET45-generated legal preview or independent invoice-profile screen is introduced.
+17. No C45-generated legal preview or independent invoice-profile screen is introduced.

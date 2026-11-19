@@ -366,7 +366,7 @@ function bj06EvidenceZone(line,readOnly){
   const camera=`<label class="button button--secondary bj02-pick-file${cls}"><input data-io06-evidence-file type="file" accept="image/*" capture="environment"${dis}>Chụp ảnh</label>`;
   const copy=has?`<strong>${esc(line.evidenceFile)}</strong><small>Ảnh sẽ gửi kèm yêu cầu duyệt</small>`:`<strong>Ảnh rõ mã lô</strong><small class="k7-web-only">Kéo tệp vào đây hoặc Chọn tệp</small><small class="k7-mobile-only">Chụp ảnh nhãn lô hoặc chọn tệp có sẵn</small>`;
   const preview=line.evidenceData?`<div class="bj06-evidence-preview"><img src="${line.evidenceData}" alt="Ảnh nhãn lô thực nhận ${esc(bj06Upper(line.actualLot))}"><span>${esc(line.evidenceFile||'Ảnh nhãn lô')}</span></div>`:"";
-  return `<div class="form-field bj02-evidence bj06-evidence" data-ds-component="VFileDropZone" data-figma-node="522:7507"><span class="vet45-text-style-8">Ảnh nhãn lô thực nhận <span class="required">*</span></span><div class="bj02-evidence__zone">${icon("cloudUpload","icon--24")}<span class="bj02-evidence__copy">${copy}</span><div class="k7-mobile-only"><div class="bj02-evidence__actions">${camera}${pick}</div></div><div class="k7-web-only"><div class="bj02-evidence__actions">${pick}</div></div></div>${preview}</div>`;
+  return `<div class="form-field bj02-evidence bj06-evidence" data-ds-component="VFileDropZone" data-figma-node="522:7507"><span class="c45-text-style-8">Ảnh nhãn lô thực nhận <span class="required">*</span></span><div class="bj02-evidence__zone">${icon("cloudUpload","icon--24")}<span class="bj02-evidence__copy">${copy}</span><div class="k7-mobile-only"><div class="bj02-evidence__actions">${camera}${pick}</div></div><div class="k7-web-only"><div class="bj02-evidence__actions">${pick}</div></div></div>${preview}</div>`;
 }
 function bj06LotDetailsHtml(line,readOnly){
   if(line.tracking!=='LOT'||!String(line.actualLot||'').trim())return '';
@@ -856,7 +856,7 @@ onPrevious["UIF-06"] = () => {
 });
 (window.__T7_DIRECT_CONTEXTS__ ||= {})["bj06-approval"] = (caseId) => { io06SelectedApprovalCaseId = caseId; io06RejectOpen = false; io06RejectReason = ""; io06SetState("SCR-034", "READY"); };
 
-Object.assign(window.__VET45_QA__, {
+Object.assign(window.__C45_QA__, {
   bumpIO06Source(){const r=io06CurrentRequest();r.sourceVersion=Number(r.sourceVersion||0)+1;io06RefreshRequestState(r);return r.sourceVersion;},
   // Đặt ảnh nhãn lô mẫu cho dòng (mặc định dòng đang mở) thay cho việc chọn tệp thật.
   setIO06Evidence(lineId){

@@ -4,7 +4,7 @@ import 'package:erp/features/inventory/logic/stock_policy/stock_policy_cubit.dar
 import 'package:erp/features/inventory/logic/stock_policy/stock_policy_rules.dart';
 import 'package:erp/features/inventory/presentation/patterns/k7_edit_cell.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class ThresholdEditSheet extends StatefulWidget {
   final StockPolicyProduct product;

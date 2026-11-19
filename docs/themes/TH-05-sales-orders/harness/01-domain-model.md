@@ -163,7 +163,7 @@ Domain event ở trong module; event không tự publish trực tiếp sang modu
 
 ## 9. Integration events and cross-module commands
 
-**Platform rule:** outbox / `integration_events` = **past business facts only**. Agents must follow [.cursor/rules/vet45-integration-events.mdc](../../../.cursor/rules/vet45-integration-events.mdc) and [docs/architecture/07-integration-and-messaging.md](../../../architecture/07-integration-and-messaging.md).
+**Platform rule:** outbox / `integration_events` = **past business facts only**. Agents must follow [.cursor/rules/c45-integration-events.mdc](../../../.cursor/rules/c45-integration-events.mdc) and [docs/architecture/07-integration-and-messaging.md](../../../architecture/07-integration-and-messaging.md).
 
 **TH-05 current phase (option B — reactive):** Sales **chỉ** publish lifecycle facts trên outbox. Sales **không** sở hữu `*_impact_requests`, `integration_commands`, apply/retry/reconcile enqueue, hay authoritative integration outcome projection. TH-06/07/08 (và TH-08 e-invoice khi có) consume Sales facts và sở hữu ledger/work bên owner. Thin read projection cho EP-03/US-06 (`GetOrderIntegrationStatus`) = **future slice** sau khi owner modules tồn tại — hiện stub `notRequired`.
 
@@ -221,7 +221,7 @@ Reporting / other modules may consume Sales **facts**; downstream failure must n
 - Snapshot immutable: sales/store/actor, customer, buyer tax, product/unit, pricing/promotion, tax/rounding.
 - Live reference chỉ dùng ở precheck/commit; không ghi đè lịch sử.
 - Original return line dùng original order snapshot; exchange line dùng product/unit/pricing hiện hành.
-- `Money` dùng integer minor units từ `vet45_shared_domain`.
+- `Money` dùng integer minor units từ `c45_shared_domain`.
 - Mọi idempotent command mang key + payload hash + correlation/causation/source version.
 
 ## 12. Anti-patterns và review

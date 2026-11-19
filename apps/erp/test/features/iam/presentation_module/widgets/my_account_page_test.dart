@@ -4,7 +4,7 @@ import 'package:erp/features/iam/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../../auth/support/scripted_auth.dart';
 
@@ -102,7 +102,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify logout confirmation bottom sheet is displayed
-    expect(find.text('Đăng xuất khỏi VET45?'), findsOneWidget);
+    expect(find.text('Đăng xuất khỏi Mosaic Retail?'), findsOneWidget);
     expect(
       find.text('Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng ứng dụng.'),
       findsOneWidget,
@@ -144,14 +144,14 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify confirmation bottom sheet
-    expect(find.text('Đăng xuất khỏi VET45?'), findsOneWidget);
+    expect(find.text('Đăng xuất khỏi Mosaic Retail?'), findsOneWidget);
 
     // Tap Quay lại
     await tester.tap(find.widgetWithText(VButton, 'Quay lại'));
     await tester.pumpAndSettle();
 
     // Confirmation bottom sheet should be dismissed
-    expect(find.text('Đăng xuất khỏi VET45?'), findsNothing);
+    expect(find.text('Đăng xuất khỏi Mosaic Retail?'), findsNothing);
   });
 
   testWidgets('owner badge shows when isOwner is true', (tester) async {

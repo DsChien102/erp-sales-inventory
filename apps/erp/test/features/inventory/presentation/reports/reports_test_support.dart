@@ -3,7 +3,7 @@ import 'package:erp/features/inventory/data/reports/reports_repository.dart';
 import 'package:erp/features/inventory/logic/reports/report_period.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../support/inventory_test_surface.dart';
 

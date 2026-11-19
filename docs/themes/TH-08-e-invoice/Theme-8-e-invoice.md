@@ -4,7 +4,7 @@
 
 ## 1\.1 Purpose
 
-Theme 08 giúp người dùng thiết lập, phát hành, theo dõi và gửi hóa đơn điện tử cho các đơn hàng đã Hoàn tất trên VET45\.
+Theme 08 giúp người dùng thiết lập, phát hành, theo dõi và gửi hóa đơn điện tử cho các đơn hàng đã Hoàn tất trên Mosaic Retail\.
 
 Theme bảo đảm:
 
@@ -16,7 +16,7 @@ Theme bảo đảm:
 
 - Dữ liệu và kết quả của hóa đơn đã phát hành được lưu bất biến để truy vết độc lập với dữ liệu hiện hành\.
 
-- Bản xem trước, bản xem chính thức, XML và PDF được lấy từ MISA meInvoice; VET45 không tự dựng một tài liệu pháp lý thay thế từ dữ liệu đã lưu\.
+- Bản xem trước, bản xem chính thức, XML và PDF được lấy từ MISA meInvoice; Mosaic Retail không tự dựng một tài liệu pháp lý thay thế từ dữ liệu đã lưu\.
 
 - XML, PDF và trạng thái gửi email được quản lý riêng, không làm thay đổi kết quả phát hành\.
 
@@ -134,7 +134,7 @@ Hóa đơn chỉ được coi là đã phát hành khi:
 
 - MISA meInvoice xác nhận phát hành thành công\.
 
-- VET45 hoàn tất ghi nhận hồ sơ hóa đơn chính thức\.
+- Mosaic Retail hoàn tất ghi nhận hồ sơ hóa đơn chính thức\.
 
 Lỗi phát hành:
 
@@ -212,7 +212,7 @@ Theme 08 bao gồm:
 
 - Kiểm tra lại kết quả với MISA meInvoice khi cần\.
 
-- Phục hồi trường hợp MISA meInvoice đã phát hành thành công nhưng VET45 chưa hoàn tất ghi nhận\.
+- Phục hồi trường hợp MISA meInvoice đã phát hành thành công nhưng Mosaic Retail chưa hoàn tất ghi nhận\.
 
 - Lưu ElectronicInvoice, InvoiceSnapshot và các dữ liệu bất biến của hóa đơn đã phát hành để phục vụ audit, đối soát, projection và khôi phục\.
 
@@ -220,7 +220,7 @@ Theme 08 bao gồm:
 
 - Yêu cầu lấy và lưu tài liệu XML hoặc PDF do MISA meInvoice cung cấp\.
 
-- Chuyển bản xem hóa đơn hoặc tài liệu cho viewer, file exporter hoặc khả năng phù hợp của hệ điều hành; VET45 không tự dựng lại tài liệu pháp lý\.
+- Chuyển bản xem hóa đơn hoặc tài liệu cho viewer, file exporter hoặc khả năng phù hợp của hệ điều hành; Mosaic Retail không tự dựng lại tài liệu pháp lý\.
 
 - Theo dõi trạng thái gần nhất được quan sát tại MISA meInvoice\.
 
@@ -244,7 +244,7 @@ Theme 08 bao gồm:
 
 - Việc xác lập kết quả phát hành bất thường được xử lý bởi hệ thống và phản ánh qua trạng thái trên đơn hàng; không có màn xử lý hoặc reconciliation riêng cho người dùng cuối\.
 
-- Việc lưu hồ sơ authoritative không đồng nghĩa VET45 phải cung cấp một màn hồ sơ hóa đơn riêng\.
+- Việc lưu hồ sơ authoritative không đồng nghĩa Mosaic Retail phải cung cấp một màn hồ sơ hóa đơn riêng\.
 
 - Người dùng thực hiện các hành động hóa đơn điện tử từ Kết quả bán hàng hoặc Chi tiết đơn hàng\.
 
@@ -254,7 +254,7 @@ Theme 08 bao gồm:
 |---|---|
 |Chưa phát hành|Chưa có hóa đơn và không có quá trình phát hành đang xử lý|
 |Đang xử lý|Hệ thống đang chuẩn bị, gửi yêu cầu, chờ kết quả, kiểm tra lại hoặc hoàn tất ghi nhận|
-|Đã phát hành|MISA meInvoice đã xác nhận thành công và VET45 đã ghi nhận hóa đơn|
+|Đã phát hành|MISA meInvoice đã xác nhận thành công và Mosaic Retail đã ghi nhận hóa đơn|
 |Phát hành lỗi|Lần phát hành gần nhất thất bại xác định và không còn quá trình đang xử lý|
 
 **Trạng thái gửi email hiển thị**
@@ -286,7 +286,7 @@ Theme 08 không bao gồm:
 
 - Lập hóa đơn thay thế\.
 
-- Hủy hoặc xử lý sai sót hóa đơn điện tử trong VET45\.
+- Hủy hoặc xử lý sai sót hóa đơn điện tử trong Mosaic Retail\.
 
 - Xử lý tác động hóa đơn do hủy đơn, đổi hàng hoặc trả hàng\.
 
@@ -308,11 +308,11 @@ Theme 08 không bao gồm:
 
 - Danh sách hóa đơn điện tử độc lập với danh sách đơn hàng\.
 
-- Màn hồ sơ hoặc màn chi tiết hóa đơn điện tử riêng do VET45 dựng lại từ InvoiceSnapshot\.
+- Màn hồ sơ hoặc màn chi tiết hóa đơn điện tử riêng do Mosaic Retail dựng lại từ InvoiceSnapshot\.
 
 - Tự dựng bản PDF, XML hoặc một bản hóa đơn pháp lý thay thế cho tài liệu do MISA meInvoice cung cấp\.
 
-- PDF viewer, XML viewer, file browser hoặc giao diện chọn nơi lưu do VET45 tự xây dựng khi hệ điều hành đã sở hữu khả năng tương ứng\.
+- PDF viewer, XML viewer, file browser hoặc giao diện chọn nơi lưu do Mosaic Retail tự xây dựng khi hệ điều hành đã sở hữu khả năng tương ứng\.
 
 - Màn chi tiết xử lý, recovery queue hoặc case\-management UI cho quá trình xác lập kết quả phát hành bất thường trong MVP\.
 
@@ -451,7 +451,7 @@ Product Vision hiện chưa định nghĩa AA hoặc CAA riêng cho việc phát
 
 - Việc bảo toàn lineage không đồng nghĩa Phase hiện tại tự động phát hiện chênh lệch, lập hóa đơn điều chỉnh hoặc lập hóa đơn thay thế\.
 
-- Bản hóa đơn chính thức mà người dùng xem phải được lấy từ MISA meInvoice hoặc nguồn chính thức của provider; VET45 không tự dựng một bản hóa đơn pháp lý thay thế từ `InvoiceSnapshot`\.
+- Bản hóa đơn chính thức mà người dùng xem phải được lấy từ MISA meInvoice hoặc nguồn chính thức của provider; Mosaic Retail không tự dựng một bản hóa đơn pháp lý thay thế từ `InvoiceSnapshot`\.
 
 ### 2\.1\.2 Journey catalog
 
@@ -523,7 +523,7 @@ flowchart TD
 
 - ElectronicInvoice và InvoiceSnapshot phải được lưu bất biến để phục vụ audit, đối soát, projection và khôi phục, kể cả khi dữ liệu nguồn hiện hành đã thay đổi hoặc không còn truy cập được\.
 
-- Bản hóa đơn chính thức mà người dùng xem phải được lấy từ MISA meInvoice hoặc nguồn chính thức do provider cung cấp; VET45 không tự dựng một bản hóa đơn pháp lý thay thế từ InvoiceSnapshot\.
+- Bản hóa đơn chính thức mà người dùng xem phải được lấy từ MISA meInvoice hoặc nguồn chính thức do provider cung cấp; Mosaic Retail không tự dựng một bản hóa đơn pháp lý thay thế từ InvoiceSnapshot\.
 
 ### 2\.2\.2 Issuance control
 
@@ -553,7 +553,7 @@ flowchart TD
 
 - Khi chưa xác định MISA meInvoice đã phát hành hay chưa, hệ thống phải khóa phát hành lại\.
 
-- Nếu MISA meInvoice đã thành công nhưng VET45 chưa hoàn tất ghi nhận, hệ thống chỉ tiếp tục ghi nhận nội bộ\.
+- Nếu MISA meInvoice đã thành công nhưng Mosaic Retail chưa hoàn tất ghi nhận, hệ thống chỉ tiếp tục ghi nhận nội bộ\.
 
 ### 2\.2\.3 Navigation và trạng thái hiển thị
 
@@ -591,7 +591,7 @@ Khi trạng thái là Đã phát hành, Bottom Sheet hóa đơn điện tử cun
 
 - Gửi hóa đơn cho khách\.
 
-Xem hóa đơn điện tử mở trực tiếp bản chính thức từ MISA meInvoice hoặc viewer phù hợp, không mở một màn hồ sơ do VET45 dựng lại\.
+Xem hóa đơn điện tử mở trực tiếp bản chính thức từ MISA meInvoice hoặc viewer phù hợp, không mở một màn hồ sơ do Mosaic Retail dựng lại\.
 
 Khi trạng thái là Đang xử lý, người dùng không được bắt đầu một lần phát hành cạnh tranh hoặc thực hiện thao tác retry kỹ thuật\.
 
@@ -605,19 +605,19 @@ Trạng thái phát hành, trạng thái tài liệu và trạng thái gửi ema
 
 Bản xem chính thức, XML và PDF phải do MISA meInvoice hoặc nguồn chính thức của provider cung cấp\.
 
-VET45 kiểm tra quyền, định danh hóa đơn và trạng thái operation trước khi yêu cầu hoặc chuyển giao bản xem và tài liệu\.
+Mosaic Retail kiểm tra quyền, định danh hóa đơn và trạng thái operation trước khi yêu cầu hoặc chuyển giao bản xem và tài liệu\.
 
-VET45 không tự dựng bản hóa đơn pháp lý, PDF, XML viewer hoặc file browser để thay thế tài liệu và khả năng hệ thống đã có\.
+Mosaic Retail không tự dựng bản hóa đơn pháp lý, PDF, XML viewer hoặc file browser để thay thế tài liệu và khả năng hệ thống đã có\.
 
-Khi người dùng chọn Xem hóa đơn điện tử, VET45 lấy bản xem chính thức và chuyển sang MISA meInvoice hoặc viewer phù hợp\.
+Khi người dùng chọn Xem hóa đơn điện tử, Mosaic Retail lấy bản xem chính thức và chuyển sang MISA meInvoice hoặc viewer phù hợp\.
 
-Khi người dùng chọn Tài liệu XML \& PDF, VET45 cho phép lựa chọn:
+Khi người dùng chọn Tài liệu XML \& PDF, Mosaic Retail cho phép lựa chọn:
 
 - Lưu bản PDF\.
 
 - Lưu tệp XML\.
 
-Sau khi chuẩn bị được tài liệu, VET45 chuyển tệp sang file exporter của hệ điều hành\.
+Sau khi chuẩn bị được tài liệu, Mosaic Retail chuyển tệp sang file exporter của hệ điều hành\.
 
 Nội dung CTA và helper text không thay đổi trong trạng thái loading; hệ thống chỉ khóa thao tác tương ứng và hiển thị spinner\.
 
@@ -905,7 +905,7 @@ flowchart TD
     M -- "Đã phát hành" --> G
     M -- "Thất bại xác định" --> J
     M -- "Chưa đủ bằng chứng" --> N["Tiếp tục Đang xử lý"]
-    G --> O{"VET45 đã ghi nhận xong?"}
+    G --> O{"Mosaic Retail đã ghi nhận xong?"}
     O -- "Có" --> I
     O -- "Chưa" --> P["Chỉ phục hồi ghi nhận nội bộ"]
     P --> H
@@ -943,7 +943,7 @@ flowchart TD
 
 - Hệ thống ghi nhận thành công, thất bại xác định hoặc kết quả chưa rõ\.
 
-- Khi provider thành công, VET45 hoàn tất ElectronicInvoice và InvoiceSnapshot\.
+- Khi provider thành công, Mosaic Retail hoàn tất ElectronicInvoice và InvoiceSnapshot\.
 
 - Theme 05 nhận projection trạng thái mới\.
 
@@ -969,7 +969,7 @@ flowchart TD
 
 - Warning không chặn thực sự vẫn cho phép phát hành\.
 
-- Hóa đơn chỉ hình thành sau khi provider thành công và VET45 hoàn tất ghi nhận\.
+- Hóa đơn chỉ hình thành sau khi provider thành công và Mosaic Retail hoàn tất ghi nhận\.
 
 - Kết quả chưa rõ không tự chuyển thành Phát hành lỗi\.
 
@@ -979,7 +979,7 @@ flowchart TD
 |---|---|---|
 |Xác nhận|Người dùng kiểm tra thông tin và cấu hình áp dụng trước side effect|Xác nhận phát hành|
 |Đang xử lý|Hệ thống đang chuẩn bị, gửi, chờ kết quả, kiểm tra lại hoặc hoàn tất ghi nhận|Không cho phát hành lại|
-|Đã phát hành|MISA meInvoice đã xác nhận thành công và VET45 đã hoàn tất ghi nhận|Mở Bottom Sheet HĐĐT sau phát hành|
+|Đã phát hành|MISA meInvoice đã xác nhận thành công và Mosaic Retail đã hoàn tất ghi nhận|Mở Bottom Sheet HĐĐT sau phát hành|
 |Phát hành lỗi|Có thất bại xác định và không còn operation đang xử lý|Xử lý nguyên nhân hoặc kiểm tra lại điều kiện phát hành|
 
 
@@ -1133,9 +1133,9 @@ Luồng tự động sử dụng cùng readiness, snapshot, phát hành và reco
 
 CJ\-05 xử lý các trường hợp:
 
-- VET45 đã gửi yêu cầu phát hành nhưng chưa xác định MISA meInvoice đã phát hành hóa đơn hay chưa\.
+- Mosaic Retail đã gửi yêu cầu phát hành nhưng chưa xác định MISA meInvoice đã phát hành hóa đơn hay chưa\.
 
-- MISA meInvoice đã phát hành thành công nhưng VET45 chưa hoàn tất ghi nhận ElectronicInvoice hoặc InvoiceSnapshot\.
+- MISA meInvoice đã phát hành thành công nhưng Mosaic Retail chưa hoàn tất ghi nhận ElectronicInvoice hoặc InvoiceSnapshot\.
 
 - Response, callback hoặc kết quả kiểm tra đến trễ, thiếu dữ liệu hoặc không thống nhất\.
 
@@ -1157,7 +1157,7 @@ flowchart TD
     F -- "Có" --> C
     F -- "Không" --> G["Chuyển cảnh báo hoặc xử lý vận hành<br/>Không mở khóa mù"]
     D -- "Provider thất bại xác định" --> H["Ghi nhận Phát hành lỗi"]
-    D -- "Provider thành công" --> I{"VET45 đã hoàn tất ghi nhận?"}
+    D -- "Provider thành công" --> I{"Mosaic Retail đã hoàn tất ghi nhận?"}
     I -- "Chưa" --> J["Chỉ retry local finalization"]
     J --> I
     I -- "Có" --> K["Ghi nhận Đã phát hành<br/>Cập nhật projection Theme 05"]
@@ -1260,7 +1260,7 @@ Người dùng không xem raw evidence, callback, retry count, provider payload 
 |---|---|
 |Xác nhận đã phát hành và hoàn tất ghi nhận|Cập nhật màn nguồn thành Đã phát hành; cho phép CJ\-06 và CJ\-07|
 |Xác nhận request không tạo hóa đơn|Cập nhật Phát hành lỗi; quay CJ\-02 hoặc CJ\-03 khi đủ điều kiện|
-|Provider thành công nhưng VET45 chưa hoàn tất ghi nhận|Tiếp tục CJ\-05 cho đến khi local finalization hoàn tất|
+|Provider thành công nhưng Mosaic Retail chưa hoàn tất ghi nhận|Tiếp tục CJ\-05 cho đến khi local finalization hoàn tất|
 |Chưa đủ bằng chứng và còn trong giới hạn kiểm tra|Hệ thống tự động tiếp tục CJ\-05|
 |Không thể xác định sau giới hạn kiểm tra|Chuyển cảnh báo hoặc xử lý vận hành; tiếp tục khóa phát hành cạnh tranh|
 |Phát hiện ElectronicInvoice đã tồn tại|Sử dụng bản ghi hiện có, cập nhật màn nguồn thành Đã phát hành và không tạo hóa đơn mới|
@@ -1275,9 +1275,9 @@ CJ\-06 cho phép người dùng từ đơn hàng nguồn:
 
 - Lưu bản PDF hoặc tệp XML chính thức\.
 
-ElectronicInvoice và InvoiceSnapshot vẫn được VET45 lưu làm hồ sơ authoritative phục vụ audit, đối soát, projection và khôi phục\.
+ElectronicInvoice và InvoiceSnapshot vẫn được Mosaic Retail lưu làm hồ sơ authoritative phục vụ audit, đối soát, projection và khôi phục\.
 
-Việc lưu hồ sơ authoritative không đồng nghĩa VET45 phải dựng một màn hồ sơ hóa đơn pháp lý riêng trong MVP\.
+Việc lưu hồ sơ authoritative không đồng nghĩa Mosaic Retail phải dựng một màn hồ sơ hóa đơn pháp lý riêng trong MVP\.
 
 **Sơ đồ xem hóa đơn và lấy tài liệu**
 
@@ -1346,7 +1346,7 @@ flowchart TD
 
 - Bản hóa đơn chính thức, XML và PDF phải do MISA meInvoice hoặc nguồn chính thức của provider cung cấp\.
 
-- VET45 không tự dựng bản hóa đơn pháp lý từ InvoiceSnapshot\.
+- Mosaic Retail không tự dựng bản hóa đơn pháp lý từ InvoiceSnapshot\.
 
 - InvoiceSnapshot vẫn phải được bảo toàn để audit và đối soát\.
 
@@ -1382,7 +1382,7 @@ flowchart TD
 
 - MISA meInvoice tạm thời không phản hồi: giữ trạng thái Đã phát hành và phản hồi lỗi thao tác\.
 
-- Bản xem không mở được: không thay bằng bản do VET45 dựng từ snapshot\.
+- Bản xem không mở được: không thay bằng bản do Mosaic Retail dựng từ snapshot\.
 
 - PDF hoặc XML chưa sẵn sàng: tiếp tục operation có kiểm soát hoặc báo chưa thể chuẩn bị\.
 
@@ -1537,7 +1537,7 @@ Khi email không hợp lệ, helper tạm thời được thay bằng: **Email k
 
 - Hệ thống dừng trước provider call: tiếp tục cùng delivery khi retry\.
 
-- Provider thành công nhưng VET45 chưa lưu xong: chỉ hoàn tất ghi nhận nội bộ\.
+- Provider thành công nhưng Mosaic Retail chưa lưu xong: chỉ hoàn tất ghi nhận nội bộ\.
 
 - Hai người dùng cùng gửi: chỉ một delivery hợp lệ được tạo; operation còn lại bị chặn\.
 
@@ -1681,11 +1681,11 @@ Handoff chính:
 |---|---|---|---|---|
 |Invoice Configuration|ProviderConnection|ProviderCapabilitiesSnapshot|Tham chiếu tenant sở hữu cấu hình|Tạo khi kết nối MISA meInvoice được xác thực thành công|
 |Invoice Configuration|ProviderConnection|ProviderCapabilitiesSnapshot, ProviderTemplate|Tham chiếu tenant sở hữu cấu hình|ProviderConnection được tạo khi kết nối MISA meInvoice được xác thực thành công; ProviderTemplate được ghi nhận hoặc cập nhật từ dữ liệu MISA meInvoice hoặc adapter xác nhận|
-|Invoice Configuration|SigningConfiguration|Không có entity con trong phạm vi hiện tại|Tham chiếu tenant và ProviderConnection cùng tenant|Được ghi nhận từ hình thức ký hoặc chế độ không ký mà adapter xác nhận VET45 có thể hỗ trợ|
+|Invoice Configuration|SigningConfiguration|Không có entity con trong phạm vi hiện tại|Tham chiếu tenant và ProviderConnection cùng tenant|Được ghi nhận từ hình thức ký hoặc chế độ không ký mà adapter xác nhận Mosaic Retail có thể hỗ trợ|
 |Invoice Configuration|EffectiveIssuanceConfiguration|Không có entity con trong phạm vi hiện tại|Tham chiếu đúng một ProviderTemplate và một SigningConfiguration cùng tenant và provider context|Được tạo hoặc cập nhật khi người dùng lưu tổ hợp mặc định và adapter xác nhận tổ hợp tương thích|
 |Invoice Configuration|AutomationPolicy|Không có entity con|Tham chiếu tenant và capability của cấu hình phát hành hiệu lực|Được tạo hoặc cập nhật khi người dùng lưu chính sách phát hành hoặc gửi tự động|
 |Invoice Issuance|InvoiceIssuance|IssuanceAttempt; AttemptSnapshot thuộc IssuanceAttempt|Tham chiếu đúng một SalesOrder; IssuanceAttempt tham chiếu ProviderConnection và IssuanceProfile thực tế được sử dụng|Tạo khi lần phát hành đầu tiên thực sự bắt đầu|
-|Electronic Invoice|ElectronicInvoice|InvoiceSnapshot, InvoiceDocument, ProviderObservationRecord|Tham chiếu InvoiceIssuance, successful IssuanceAttempt và SalesOrder nguồn|Chỉ tạo khi MISA meInvoice xác nhận phát hành thành công và VET45 hoàn tất authoritative local commit|
+|Electronic Invoice|ElectronicInvoice|InvoiceSnapshot, InvoiceDocument, ProviderObservationRecord|Tham chiếu InvoiceIssuance, successful IssuanceAttempt và SalesOrder nguồn|Chỉ tạo khi MISA meInvoice xác nhận phát hành thành công và Mosaic Retail hoàn tất authoritative local commit|
 |Invoice Delivery|InvoiceDelivery|DeliveryRecipientSnapshot, DeliveryAttempt|Tham chiếu đúng một ElectronicInvoice|Tạo cho mỗi business intent gửi hoặc gửi lại hóa đơn|
 
 ```Markdown
@@ -3005,7 +3005,7 @@ Constraints:
 
 - `FAILED` chỉ dùng khi có thất bại xác định\.
 
-- `SUCCEEDED` không tự đồng nghĩa VET45 đã hoàn tất ElectronicInvoice\.
+- `SUCCEEDED` không tự đồng nghĩa Mosaic Retail đã hoàn tất ElectronicInvoice\.
 
 ### 4\.4\.4 Electronic Invoice entities
 
@@ -3170,7 +3170,7 @@ Constraints:
 
 - Delivery status được áp dụng từ kết quả attempt đủ tin cậy\.
 
-- `provider_result_message` / `failure_message` chỉ chứa safe text Vet45 allow\-listed; không copy body/exception/credential nhà cung cấp\.
+- `provider_result_message` / `failure_message` chỉ chứa safe text Mosaic Retail allow\-listed; không copy body/exception/credential nhà cung cấp\.
 
 ### 4\.4\.6 Provider Reconciliation entity
 
@@ -3418,7 +3418,7 @@ ProviderTemplate và SigningConfiguration là hai cấu hình độc lập:
 
 - ProviderTemplate xác định mẫu hóa đơn, mẫu số, ký hiệu, chế độ có mã hoặc không mã, hình thức hóa đơn và trạng thái khả dụng\.
 
-- SigningConfiguration xác định cách ký hoặc chế độ không ký mà VET45 được phép sử dụng khi gọi provider\.
+- SigningConfiguration xác định cách ký hoặc chế độ không ký mà Mosaic Retail được phép sử dụng khi gọi provider\.
 
 - EffectiveIssuanceConfiguration là tổ hợp hợp lệ giữa một ProviderTemplate đang khả dụng và một SigningConfiguration tương thích\.
 
@@ -3426,11 +3426,11 @@ EP\-01 xác định mức sẵn sàng của cấu hình nhưng không kiểm tra
 
 ### 5\.2\.2 Business context
 
-Để phát hành hóa đơn điện tử từ VET45, tenant phải có hồ sơ pháp lý hiện hành đủ dữ liệu bắt buộc, ProviderConnection hợp lệ, ProviderTemplate mặc định còn khả dụng và SigningConfiguration tương thích với hình thức hóa đơn cùng cách phát hành\.
+Để phát hành hóa đơn điện tử từ Mosaic Retail, tenant phải có hồ sơ pháp lý hiện hành đủ dữ liệu bắt buộc, ProviderConnection hợp lệ, ProviderTemplate mặc định còn khả dụng và SigningConfiguration tương thích với hình thức hóa đơn cùng cách phát hành\.
 
-API kết nối MISA meInvoice sử dụng AppID của ứng dụng tích hợp, mã số thuế, tài khoản và mật khẩu để lấy token\. AppID và token thuộc integration backend, không phải field người dùng tự nhập hoặc tự quản lý trên giao diện VET45\.
+API kết nối MISA meInvoice sử dụng AppID của ứng dụng tích hợp, mã số thuế, tài khoản và mật khẩu để lấy token\. AppID và token thuộc integration backend, không phải field người dùng tự nhập hoặc tự quản lý trên giao diện Mosaic Retail\.
 
-MISA có thể cho phép đơn vị cấu hình nhiều hình thức ký\. Trong MVP, VET45 chỉ sử dụng một SigningConfiguration mặc định đang hoạt động cho mỗi tenant để bảo đảm lần phát hành có execution contract xác định\.
+MISA có thể cho phép đơn vị cấu hình nhiều hình thức ký\. Trong MVP, Mosaic Retail chỉ sử dụng một SigningConfiguration mặc định đang hoạt động cho mỗi tenant để bảo đảm lần phát hành có execution contract xác định\.
 
 Hình thức ký trong domain không được đồng nhất trực tiếp với một label UI hoặc một raw `SignType`\. Adapter chịu trách nhiệm ánh xạ SigningConfiguration sang giá trị provider khi phát hành\.
 
@@ -3451,7 +3451,7 @@ Ký qua HSM được coi là có khả năng xử lý server\-side\. Phát hành
 
 Không ký số — Hóa đơn từ máy tính tiền chỉ được chọn khi loại template và capability tương ứng đã được MISA xác nhận\. Không được chọn chế độ này cho hóa đơn thông thường\.
 
-Hồ sơ pháp lý, credential, capability, template hoặc SigningConfiguration có thể thay đổi ngoài VET45\. Readiness phải được đánh giá từ dữ liệu hiện hành và được kiểm tra lại trước khi bắt đầu mỗi lần phát hành\.
+Hồ sơ pháp lý, credential, capability, template hoặc SigningConfiguration có thể thay đổi ngoài Mosaic Retail\. Readiness phải được đánh giá từ dữ liệu hiện hành và được kiểm tra lại trước khi bắt đầu mỗi lần phát hành\.
 
 Thay đổi hồ sơ pháp lý, connection, template mặc định, SigningConfiguration hoặc AutomationPolicy chỉ áp dụng cho operation bắt đầu sau thay đổi\. Attempt đã bắt đầu và hóa đơn đã hình thành tiếp tục sử dụng snapshot đã lưu\.
 
@@ -3481,7 +3481,7 @@ EP\-01 bao gồm:
 
 - Lựa chọn một ProviderTemplate mặc định\.
 
-- Thiết lập một SigningConfiguration mặc định thuộc phạm vi VET45 hỗ trợ\.
+- Thiết lập một SigningConfiguration mặc định thuộc phạm vi Mosaic Retail hỗ trợ\.
 
 - Kiểm tra tương thích giữa ProviderTemplate, SigningConfiguration và cách phát hành\.
 
@@ -3565,9 +3565,9 @@ EP\-01 gồm bốn User Story:
 
 Tenant cần có một connection được nhà cung cấp xác thực và gắn đúng với thông tin pháp lý của Tổ chức\.
 
-Connection chỉ được coi là hoàn tất khi VET45 xác thực thành công tài khoản, xác nhận thông tin đơn vị phát hành phù hợp với hồ sơ pháp lý hiện hành và đồng bộ được dữ liệu capability tối thiểu cần thiết\.
+Connection chỉ được coi là hoàn tất khi Mosaic Retail xác thực thành công tài khoản, xác nhận thông tin đơn vị phát hành phù hợp với hồ sơ pháp lý hiện hành và đồng bộ được dữ liệu capability tối thiểu cần thiết\.
 
-Thông tin xác thực có thể hết hiệu lực hoặc bị thu hồi\. VET45 phải phân biệt trường hợp cần kiểm tra lại với trường hợp bắt buộc phải cung cấp lại thông tin kết nối\.
+Thông tin xác thực có thể hết hiệu lực hoặc bị thu hồi\. Mosaic Retail phải phân biệt trường hợp cần kiểm tra lại với trường hợp bắt buộc phải cung cấp lại thông tin kết nối\.
 
 **User story statement**
 
@@ -3764,7 +3764,7 @@ Scenario: SC-07 - Ngắt connection
 
 Sau khi ProviderConnection được xác nhận, MISA meInvoice có thể cho phép tenant sử dụng nhiều mẫu, mẫu số, ký hiệu, hình thức hóa đơn và cách ký khác nhau\.
 
-ProviderTemplate không mặc nhiên chứa SigningConfiguration\. VET45 phải quản lý hai nguồn cấu hình độc lập và chỉ hình thành EffectiveIssuanceConfiguration khi tổ hợp hiện hành được adapter xác nhận tương thích\.
+ProviderTemplate không mặc nhiên chứa SigningConfiguration\. Mosaic Retail phải quản lý hai nguồn cấu hình độc lập và chỉ hình thành EffectiveIssuanceConfiguration khi tổ hợp hiện hành được adapter xác nhận tương thích\.
 
 Trong MVP, tenant lựa chọn một ProviderTemplate mặc định và một SigningConfiguration mặc định\. Người dùng không nhập raw `SignType`, không tự ghép mẫu số hoặc ký hiệu và không lựa chọn giữa HSM đồng bộ hoặc bất đồng bộ\.
 
@@ -3772,7 +3772,7 @@ Trong MVP, tenant lựa chọn một ProviderTemplate mặc định và một Si
 
 Là Chủ cửa hàng hoặc người có quyền quản lý cấu hình hóa đơn
 
-Tôi muốn chọn mẫu hóa đơn cùng hình thức ký hoặc chế độ không ký được VET45 hỗ trợ
+Tôi muốn chọn mẫu hóa đơn cùng hình thức ký hoặc chế độ không ký được Mosaic Retail hỗ trợ
 
 Để tenant có một cấu hình phát hành mặc định rõ ràng và có thể kiểm tra readiness
 
@@ -3784,7 +3784,7 @@ Tôi muốn chọn mẫu hóa đơn cùng hình thức ký hoặc chế độ kh
 
 - FR\-02\. Hiển thị tên mẫu, mẫu số, ký hiệu, chế độ mã, hình thức hóa đơn và trạng thái của từng ProviderTemplate\.
 
-- FR\-03\. Hiển thị các SigningConfiguration thuộc phạm vi VET45 hỗ trợ và tương thích với tenant\.
+- FR\-03\. Hiển thị các SigningConfiguration thuộc phạm vi Mosaic Retail hỗ trợ và tương thích với tenant\.
 
 - FR\-04\. Cho phép chọn một ProviderTemplate và một SigningConfiguration làm mặc định\.
 
@@ -3832,7 +3832,7 @@ Tôi muốn chọn mẫu hóa đơn cùng hình thức ký hoặc chế độ kh
 
 - EC\-02\. Template mặc định biến mất sau đồng bộ: giữ dữ liệu truy vết, đánh dấu không còn khả dụng và không tự chọn template khác\.
 
-- EC\-03\. Tenant đang dùng ký USB hoặc tệp chứng thư tại MISA: VET45 hiển thị hình thức này không được hỗ trợ trên mobile và không đánh giá Sẵn sàng\.
+- EC\-03\. Tenant đang dùng ký USB hoặc tệp chứng thư tại MISA: Mosaic Retail hiển thị hình thức này không được hỗ trợ trên mobile và không đánh giá Sẵn sàng\.
 
 - EC\-04\. Tenant đang dùng MISA eSign nhưng adapter chưa xác minh capability: không cho lưu làm SigningConfiguration mặc định\.
 
@@ -3880,7 +3880,7 @@ Tôi muốn chọn mẫu hóa đơn cùng hình thức ký hoặc chế độ kh
 
 - AC\-01\. Người dùng xem được các ProviderTemplate do MISA meInvoice xác nhận\.
 
-- AC\-02\. Người dùng chỉ lựa chọn được SigningConfiguration thuộc phạm vi VET45 hỗ trợ\.
+- AC\-02\. Người dùng chỉ lựa chọn được SigningConfiguration thuộc phạm vi Mosaic Retail hỗ trợ\.
 
 - AC\-03\. HSM được trình bày thành một lựa chọn nghiệp vụ; adapter chịu trách nhiệm resolve `SignType=2` bất biến trước dispatch \(không fallback, không `SignType=3`\)\.
 
@@ -3922,7 +3922,7 @@ Scenario: SC-02 - Không cho nhập mẫu số và ký hiệu thủ công
 Scenario: SC-03 - Chặn hình thức ký USB trên mobile MVP
  Given cấu hình tại MISA đang sử dụng USB hoặc tệp chứng thư
  When người dùng kiểm tra cấu hình phát hành
- Then hệ thống đánh dấu hình thức ký chưa được VET45 mobile hỗ trợ
+ Then hệ thống đánh dấu hình thức ký chưa được Mosaic Retail mobile hỗ trợ
  And hệ thống không cho lưu cấu hình này thành EffectiveIssuanceConfiguration sẵn sàng
 
 Scenario: SC-04 - Chặn MISA eSign khi adapter chưa được xác minh
@@ -4376,7 +4376,7 @@ Chỉ SalesOrder đã Hoàn tất mới được phát hành\. Trong MVP, một 
 
 Phát hành thủ công và phát hành tự động sử dụng cùng readiness, snapshot, CanonicalInvoiceModel, duplicate prevention và result\-handling invariant\.
 
-Một yêu cầu phát hành chỉ trở thành hóa đơn điện tử chính thức sau khi MISA meInvoice xác nhận thành công và VET45 hoàn tất authoritative local commit\.
+Một yêu cầu phát hành chỉ trở thành hóa đơn điện tử chính thức sau khi MISA meInvoice xác nhận thành công và Mosaic Retail hoàn tất authoritative local commit\.
 
 Kết quả phát hành và quá trình xác lập kết quả được phản ánh trên Kết quả bán hàng hoặc Chi tiết đơn hàng; không có màn xử lý reconciliation độc lập trong MVP\.
 
@@ -4396,7 +4396,7 @@ Dòng hàng, số lượng, đơn giá, chiết khấu, thuế, làm tròn và t
 
 Theo quyết định BA ngày 16/09/2026, phạm vi sản phẩm hiện tại áp dụng chính sách **`KCT-only`**: Product, Catalog, Sales và UI không có luồng cấu hình thuế\. Theme 08 là boundary duy nhất gán `VATRateName=KCT` và tiền thuế 0 trên canonical khi nguồn Sales tuân thủ invariant \(mọi `taxAmountMinor=0`, `totals.taxMinor=0`, tax snapshot null hoặc rỗng\)\. Dữ liệu thuế ngoài contract bị chặn bằng `UNSUPPORTED_TAX_DATA` trước preview/publish\. Thay đổi chính sách chỉ sau quyết định sản phẩm/BA mới và plan riêng — không có trigger tự gỡ hard-code\.
 
-Bản xem trước phải do MISA meInvoice hoặc capability chính thức của provider tạo từ dữ liệu dự kiến\. VET45 không dựng một bản hóa đơn preview thay thế bằng UI riêng\.
+Bản xem trước phải do MISA meInvoice hoặc capability chính thức của provider tạo từ dữ liệu dự kiến\. Mosaic Retail không dựng một bản hóa đơn preview thay thế bằng UI riêng\.
 
 AttemptSnapshot phải được lưu bất biến trước khi gọi phát hành\. Buyer trong AttemptSnapshot được lấy từ EffectiveBuyerInvoiceData đã đủ điều kiện và completion đã khóa khi completion cần thiết\.
 
@@ -4520,7 +4520,7 @@ Buyer data dùng cho preview được hình thành từ BuyerInvoiceSnapshot c�
 
 Khách tổ chức thiếu mã số thuế sau completion có issuance blocker nhưng vẫn có thể xem preview khi provider capability cho phép\.
 
-VET45 xây dựng canonical preview request và yêu cầu MISA meInvoice tạo bản xem trước\. VET45 không tự dựng một màn hóa đơn pháp lý từ dữ liệu canonical\.
+Mosaic Retail xây dựng canonical preview request và yêu cầu MISA meInvoice tạo bản xem trước\. Mosaic Retail không tự dựng một màn hóa đơn pháp lý từ dữ liệu canonical\.
 
 **User story statement**
 
@@ -4583,7 +4583,7 @@ Tôi muốn kiểm tra điều kiện và mở bản xem trước hóa đơn t�
 
 - BR\-11\. Bản xem trước phải do MISA meInvoice hoặc nguồn chính thức của provider tạo\.
 
-- BR\-12\. VET45 không tự dựng bản preview pháp lý thay thế khi provider không trả được bản xem\.
+- BR\-12\. Mosaic Retail không tự dựng bản preview pháp lý thay thế khi provider không trả được bản xem\.
 
 - BR\-13\. Bản xem trước phải thể hiện đây chưa phải hóa đơn chính thức\.
 
@@ -4617,7 +4617,7 @@ Tôi muốn kiểm tra điều kiện và mở bản xem trước hóa đơn t�
 
 - UI\-03\. Khi đang chuẩn bị preview, CTA giữ nguyên title và helper, bị khóa và hiển thị spinner trailing\.
 
-- UI\-04\. Preview được mở bằng MISA meInvoice hoặc viewer phù hợp; không có màn preview do VET45 dựng\.
+- UI\-04\. Preview được mở bằng MISA meInvoice hoặc viewer phù hợp; không có màn preview do Mosaic Retail dựng\.
 
 - UI\-05\. Warning và blocker được trình bày trước khi gửi request preview khi có thể xác định\.
 
@@ -4721,7 +4721,7 @@ Scenario: SC-07 - Không dựng preview thay thế khi MISA lỗi
  And MISA meInvoice không thể tạo bản xem trước
  When hệ thống nhận kết quả lỗi preview
  Then hệ thống giữ trạng thái hóa đơn là "Chưa phát hành"
- And hệ thống không dựng bản hóa đơn thay thế từ dữ liệu VET45
+ And hệ thống không dựng bản hóa đơn thay thế từ dữ liệu Mosaic Retail
 Scenario: SC-08 - Quay đúng màn nguồn sau khi đóng viewer
  Given người dùng đã mở preview từ Kết quả bán hàng
  When người dùng đóng viewer
@@ -5245,7 +5245,7 @@ Scenario: SC-10 - Bỏ qua trigger khi đơn hàng đã có hóa đơn
 
 Sau khi request được gửi, nhà cung cấp có thể trả kết quả đồng bộ, callback bất đồng bộ hoặc kết quả được lấy qua polling và reconciliation\.
 
-Hóa đơn chỉ được coi là Đã phát hành khi nhà cung cấp xác nhận thành công và VET45 hoàn tất authoritative local commit gồm ghi nhận kết quả attempt, đăng ký ElectronicInvoice, lưu InvoiceSnapshot và liên kết với SalesOrder\.
+Hóa đơn chỉ được coi là Đã phát hành khi nhà cung cấp xác nhận thành công và Mosaic Retail hoàn tất authoritative local commit gồm ghi nhận kết quả attempt, đăng ký ElectronicInvoice, lưu InvoiceSnapshot và liên kết với SalesOrder\.
 
 Nếu nhà cung cấp đã thành công nhưng local finalization chưa hoàn tất, hệ thống phải phục hồi bước nội bộ và không được gọi lại request phát hành\.
 
@@ -5728,11 +5728,11 @@ Scenario: SC-12 - Không dùng completion cũ khi SalesOrder version đã thay �
 
 ### 5\.4\.1 Overview
 
-EP\-03 quản lý hồ sơ authoritative của hóa đơn sau khi MISA meInvoice xác nhận phát hành thành công và VET45 hoàn tất authoritative local commit\.
+EP\-03 quản lý hồ sơ authoritative của hóa đơn sau khi MISA meInvoice xác nhận phát hành thành công và Mosaic Retail hoàn tất authoritative local commit\.
 
 ElectronicInvoice và InvoiceSnapshot bảo toàn định danh, nội dung lịch sử và source lineage của dữ liệu thực tế đã được sử dụng, phục vụ audit, đối soát, projection, recovery và khả năng mở rộng các nghiệp vụ xử lý hóa đơn sau phát hành trong tương lai\.
 
-Người dùng mở nghiệp vụ hóa đơn từ Kết quả bán hàng hoặc Chi tiết đơn hàng\. Khi chọn Xem hóa đơn điện tử, VET45 resolve bản chính thức từ MISA meInvoice và mở bằng MISA hoặc viewer phù hợp\.
+Người dùng mở nghiệp vụ hóa đơn từ Kết quả bán hàng hoặc Chi tiết đơn hàng\. Khi chọn Xem hóa đơn điện tử, Mosaic Retail resolve bản chính thức từ MISA meInvoice và mở bằng MISA hoặc viewer phù hợp\.
 
 EP\-03 quản lý định danh hóa đơn, quyền truy cập bản xem chính thức, XML, PDF và trạng thái gần nhất được quan sát tại provider\. EP\-03 không sửa nội dung đã phát hành và không xử lý điều chỉnh, thay thế hoặc hủy hóa đơn\.
 
@@ -5746,7 +5746,7 @@ Hồ sơ hiện hành của Tổ chức, người mua, sản phẩm, SalesOrder 
 
 Phase hiện tại chưa triển khai việc chủ động phát hiện, đánh giá tác động hoặc phân loại thay đổi sau phát hành thành hóa đơn điều chỉnh, hóa đơn thay thế hoặc một phương án xử lý sai sót khác\. Việc bảo toàn lineage trong EP\-03 chỉ chuẩn bị data foundation cho khả năng đó\.
 
-Bản hóa đơn người dùng xem phải là bản chính thức do MISA meInvoice hoặc nguồn chính thức của provider cung cấp\. VET45 không tự dựng một bản hóa đơn pháp lý thay thế từ InvoiceSnapshot\.
+Bản hóa đơn người dùng xem phải là bản chính thức do MISA meInvoice hoặc nguồn chính thức của provider cung cấp\. Mosaic Retail không tự dựng một bản hóa đơn pháp lý thay thế từ InvoiceSnapshot\.
 
 XML và PDF là tài liệu do provider cung cấp\. Việc lấy hoặc lưu tài liệu có lifecycle độc lập với trạng thái phát hành\.
 
@@ -5788,7 +5788,7 @@ EP\-03 không bao gồm:
 
 - Danh sách hóa đơn điện tử độc lập\.
 
-- Màn hồ sơ hóa đơn chính thức do VET45 dựng từ InvoiceSnapshot\.
+- Màn hồ sơ hóa đơn chính thức do Mosaic Retail dựng từ InvoiceSnapshot\.
 
 - Phát hành hóa đơn\.
 
@@ -5796,13 +5796,13 @@ EP\-03 không bao gồm:
 
 - Lập hóa đơn điều chỉnh hoặc thay thế\.
 
-- Hủy hoặc xử lý sai sót hóa đơn trong VET45\.
+- Hủy hoặc xử lý sai sót hóa đơn trong Mosaic Retail\.
 
 - Tự thay đổi InvoiceSnapshot theo observation mới\.
 
-- Tạo bản hóa đơn, XML hoặc PDF tại VET45\.
+- Tạo bản hóa đơn, XML hoặc PDF tại Mosaic Retail\.
 
-- PDF viewer, XML viewer hoặc file browser riêng của VET45\.
+- PDF viewer, XML viewer hoặc file browser riêng của Mosaic Retail\.
 
 - Sửa nội dung XML hoặc PDF do provider trả về\.
 
@@ -5840,7 +5840,7 @@ EP\-03 gồm ba User Story:
 
 Người dùng cần mở bản hóa đơn chính thức đã phát hành để xem nội dung và định danh pháp lý\.
 
-VET45 sử dụng ElectronicInvoice để kiểm tra quyền, định danh provider và resolve quyền truy cập tạm thời\. Nội dung hiển thị cho người dùng đến từ MISA meInvoice hoặc nguồn chính thức của provider, không được dựng từ InvoiceSnapshot\.
+Mosaic Retail sử dụng ElectronicInvoice để kiểm tra quyền, định danh provider và resolve quyền truy cập tạm thời\. Nội dung hiển thị cho người dùng đến từ MISA meInvoice hoặc nguồn chính thức của provider, không được dựng từ InvoiceSnapshot\.
 
 InvoiceSnapshot vẫn phải được bảo toàn cho audit, đối soát và recovery kể cả khi bản xem tạm thời không mở được\.
 
@@ -5880,7 +5880,7 @@ InvoiceSnapshot vẫn phải được bảo toàn cho audit, đối soát và re
 
 - BR\-03\. Bản xem chính thức phải do MISA meInvoice hoặc nguồn chính thức của provider cung cấp\.
 
-- BR\-04\. VET45 không tự dựng bản hóa đơn pháp lý từ InvoiceSnapshot\.
+- BR\-04\. Mosaic Retail không tự dựng bản hóa đơn pháp lý từ InvoiceSnapshot\.
 
 - BR\-05\. InvoiceSnapshot không được cập nhật từ dữ liệu hiện hành\.
 
@@ -5918,7 +5918,7 @@ InvoiceSnapshot vẫn phải được bảo toàn cho audit, đối soát và re
 
 - UI\-03\. Loading giữ nguyên title “Xem hóa đơn điện tử” và helper “Mở hóa đơn chính thức từ MISA”; action bị khóa và hiển thị spinner\.
 
-- UI\-04\. Không có màn hồ sơ hoặc viewer do VET45 tự dựng\.
+- UI\-04\. Không có màn hồ sơ hoặc viewer do Mosaic Retail tự dựng\.
 
 - UI\-05\. Đóng viewer quay lại đúng màn nguồn\.
 
@@ -5948,7 +5948,7 @@ InvoiceSnapshot vẫn phải được bảo toàn cho audit, đối soát và re
 
 - AC\-02\. Bản xem được lấy từ MISA meInvoice hoặc nguồn chính thức của provider\.
 
-- AC\-03\. VET45 không dựng bản hóa đơn thay thế từ InvoiceSnapshot\.
+- AC\-03\. Mosaic Retail không dựng bản hóa đơn thay thế từ InvoiceSnapshot\.
 
 - AC\-04\. Loading giữ nguyên nội dung action\.
 
@@ -5995,7 +5995,7 @@ Scenario: SC-04 - Chặn truy cập ngoài data scope
 
 Scenario: SC-05 - Không mở hóa đơn khi finalization chưa hoàn tất
  Given provider đã phát hành thành công
- And VET45 chưa hoàn tất ElectronicInvoice và InvoiceSnapshot
+ And Mosaic Retail chưa hoàn tất ElectronicInvoice và InvoiceSnapshot
  When người dùng chọn row Hóa đơn điện tử
  Then hệ thống tiếp tục hiển thị "Đang xử lý"
  And hệ thống không mở bản hóa đơn chính thức
@@ -6027,7 +6027,7 @@ XML và PDF là tài liệu chính thức do MISA meInvoice cung cấp cho hóa 
 
 Người dùng bắt đầu từ Bottom Sheet HĐĐT sau phát hành, chọn Tài liệu XML \& PDF rồi chọn Lưu bản PDF hoặc Lưu tệp XML\.
 
-VET45 kiểm tra quyền, chuẩn bị tài liệu và chuyển tệp sang file exporter của hệ điều hành\. VET45 không cung cấp PDF viewer, XML viewer hoặc file browser riêng trong MVP\.
+Mosaic Retail kiểm tra quyền, chuẩn bị tài liệu và chuyển tệp sang file exporter của hệ điều hành\. Mosaic Retail không cung cấp PDF viewer, XML viewer hoặc file browser riêng trong MVP\.
 
 **User story statement**
 
@@ -6063,7 +6063,7 @@ VET45 kiểm tra quyền, chuẩn bị tài liệu và chuyển tệp sang file 
 
 - BR\-02\. XML và PDF phải lấy từ MISA meInvoice hoặc nguồn chính thức của provider\.
 
-- BR\-03\. VET45 không tự tạo XML hoặc PDF thay thế\.
+- BR\-03\. Mosaic Retail không tự tạo XML hoặc PDF thay thế\.
 
 - BR\-04\. PDF và XML có operation identity độc lập\.
 
@@ -6107,7 +6107,7 @@ VET45 kiểm tra quyền, chuẩn bị tài liệu và chuyển tệp sang file 
 
 - UI\-05\. Khi tệp sẵn sàng, hệ thống mở file exporter của hệ điều hành\.
 
-- UI\-06\. Không có màn PDF hoặc XML riêng của VET45\.
+- UI\-06\. Không có màn PDF hoặc XML riêng của Mosaic Retail\.
 
 - UI\-07\. Đóng exporter quay đúng màn nguồn\.
 
@@ -6133,7 +6133,7 @@ VET45 kiểm tra quyền, chuẩn bị tài liệu và chuyển tệp sang file 
 
 - AC\-01\. Người dùng có quyền chọn được PDF hoặc XML từ Bottom Sheet sau phát hành\.
 
-- AC\-02\. Tài liệu được lấy từ MISA meInvoice và không do VET45 tự tạo\.
+- AC\-02\. Tài liệu được lấy từ MISA meInvoice và không do Mosaic Retail tự tạo\.
 
 - AC\-03\. PDF và XML được xử lý bằng operation độc lập\.
 
@@ -6220,7 +6220,7 @@ Scenario: SC-07 - Hủy file exporter
 
 Sau khi hóa đơn được phát hành, provider có thể trả thêm trạng thái hoặc thông tin quan sát phục vụ audit và đối soát\.
 
-Phase hiện tại không xử lý điều chỉnh, thay thế, hủy hoặc sai sót hóa đơn trong VET45\. ProviderObservationRecord chỉ ghi nhận fact quan sát và không tự thay đổi InvoiceSnapshot\.
+Phase hiện tại không xử lý điều chỉnh, thay thế, hủy hoặc sai sót hóa đơn trong Mosaic Retail\. ProviderObservationRecord chỉ ghi nhận fact quan sát và không tự thay đổi InvoiceSnapshot\.
 
 Mobile MVP không có màn hoặc CTA riêng để người dùng thông thường kiểm tra provider observation\. Việc thu thập được thực hiện bởi hệ thống hoặc công cụ hỗ trợ có permission phù hợp\.
 
@@ -6242,7 +6242,7 @@ Mobile MVP không có màn hoặc CTA riêng để người dùng thông thườ
 
 - FR\-03\. Lưu thời điểm, nguồn, result code và correlation\.
 
-- FR\-04\. Phân biệt observation với trạng thái phát hành authoritative của VET45\.
+- FR\-04\. Phân biệt observation với trạng thái phát hành authoritative của Mosaic Retail\.
 
 - FR\-05\. Xác định latest observation theo thứ tự tin cậy\.
 
@@ -6282,7 +6282,7 @@ Mobile MVP không có màn hoặc CTA riêng để người dùng thông thườ
 
 - EC\-05\. Observation trả trạng thái chưa nhận diện: lưu raw code đã kiểm soát\.
 
-- EC\-06\. Provider chỉ ra hóa đơn đã được xử lý ngoài VET45: gửi dữ liệu sang luồng cảnh báo hoặc hỗ trợ\.
+- EC\-06\. Provider chỉ ra hóa đơn đã được xử lý ngoài Mosaic Retail: gửi dữ liệu sang luồng cảnh báo hoặc hỗ trợ\.
 
 **User interface**
 
@@ -7213,7 +7213,7 @@ Section 6 không định nghĩa lại lifecycle, invariant, idempotency, validat
 |Entity identity, snapshot, version và relationship|Section 4 — Data \& Entities|Xác định primary object, context và nguồn dữ liệu của surface|
 |Permission, validation, scenario và acceptance criteria|Section 5 — Epics/User Stories|Gate visibility/action và thiết kế form, warning, blocker hoặc error|
 |Navigation, display state, component behavior, interaction và responsive transformation|Section 6 — UI/UX|Normative UI contract|
-|Layout cuối cùng, spacing cụ thể, component composition, motion và visual polish|Figma/Visual package|Được quyết định trong ranh giới Section 6 và VET45 Design System|
+|Layout cuối cùng, spacing cụ thể, component composition, motion và visual polish|Figma/Visual package|Được quyết định trong ranh giới Section 6 và Mosaic Retail Design System|
 
 
 
@@ -7251,9 +7251,9 @@ Section 6 không bao gồm:
 
 - Màn reconciliation, case detail hoặc technical retry dành cho người dùng cuối\.
 
-- Màn hồ sơ hóa đơn chính thức do VET45 dựng từ InvoiceSnapshot\.
+- Màn hồ sơ hóa đơn chính thức do Mosaic Retail dựng từ InvoiceSnapshot\.
 
-- PDF viewer, XML viewer hoặc file browser riêng của VET45\.
+- PDF viewer, XML viewer hoặc file browser riêng của Mosaic Retail\.
 
 - Manual result entry hoặc privileged duplicate\-risk override\.
 
@@ -7299,7 +7299,7 @@ Thứ tự ưu tiên khi có khác biệt:
 
 3. Theme 05 đối với Kết quả bán hàng, Chi tiết đơn hàng và SalesOrder source context\.
 
-4. VET45 Design System đối với component, token, interaction và accessibility\.
+4. Mosaic Retail Design System đối với component, token, interaction và accessibility\.
 
 5. Visual annotation hoặc prototype cũ\.
 
@@ -7393,7 +7393,7 @@ Preview contract:
 
 - Preview phải thể hiện rõ đây chưa phải hóa đơn chính thức\.
 
-- VET45 không dựng bản preview pháp lý thay thế khi provider không tạo được preview\.
+- Mosaic Retail không dựng bản preview pháp lý thay thế khi provider không tạo được preview\.
 
 - Đóng viewer quay đúng màn nguồn\.
 
@@ -7762,7 +7762,7 @@ SG\-04 và SG\-05 được loại khỏi UI MVP\. Các trách nhiệm domain tư
 
 \| Contextual processing state \| Issuance đang xử lý \| Giữ màn nguồn; không có CTA cạnh tranh \|
 
-\| External/system viewer \| Preview hoặc hóa đơn chính thức \| Không dựng viewer VET45; đóng quay đúng source \|
+\| External/system viewer \| Preview hoặc hóa đơn chính thức \| Không dựng viewer Mosaic Retail; đóng quay đúng source \|
 
 \| File exporter \| Lưu XML/PDF \| Hệ điều hành sở hữu destination; cancel không đổi business state \|
 
@@ -8160,7 +8160,7 @@ Status: Implemented trong Figma; variant lựa chọn Hình thức ký số pend
 |Primary status|Chưa phát hành, Đang xử lý, Đã phát hành hoặc Phát hành lỗi|
 |Primary action|Theo action được chọn trong Bottom Sheet|
 |Permission|View row, preview, issue, view official, document và send được gate độc lập|
-|Forbidden|Row trên danh sách đơn hàng; preview do VET45 dựng; hồ sơ SG\-05; action kỹ thuật reconciliation|
+|Forbidden|Row trên danh sách đơn hàng; preview do Mosaic Retail dựng; hồ sơ SG\-05; action kỹ thuật reconciliation|
 
 **Row contract**
 
@@ -8396,7 +8396,7 @@ Status: Implemented trong Figma\.
 |Primary status|Idle hoặc loading theo PDF/XML|
 |Primary action|Lưu bản PDF hoặc Lưu tệp XML|
 |Permission|Document access và download permission|
-|Forbidden|SG\-05 dependency; viewer VET45; tự tạo file; tạo request chỉ vì mở Sheet|
+|Forbidden|SG\-05 dependency; viewer Mosaic Retail; tự tạo file; tạo request chỉ vì mở Sheet|
 
 **Action contract**
 

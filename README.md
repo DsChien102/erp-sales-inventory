@@ -1,4 +1,4 @@
-# VET45
+# Mosaic Retail
 
 Hệ thống ERP cho phòng khám thú y và cửa hàng bán lẻ thú y — **multi-tenant**, nhiều cửa hàng/chi nhánh. Sản phẩm được deliver theo **theme** (TH-01..TH-11); kiến trúc kỹ thuật là **modular monolith**: một app Flutter (`apps/erp`) gồm nhiều bounded context trong `modules/`.
 
@@ -15,7 +15,7 @@ Hệ thống ERP cho phòng khám thú y và cửa hàng bán lẻ thú y — **
 ## Cấu trúc repository
 
 ```text
-vet45/
+c45/
 ├── apps/
 │   └── erp/                 # Flutter app duy nhất — UI, DI, feature, quản trị nền tảng
 ├── packages/                # Shared kernel, design system, lint
@@ -36,15 +36,15 @@ vet45/
 
 ```bash
 # 1. Clone và vào thư mục gốc
-cd vet45
+cd c45
 
 # 2. Cài dependency workspace
 melos bootstrap
 
 # 3. Cấu hình môi trường
-cp .vet45/profiles/<profileId>/development.env.example .vet45/profiles/<profileId>/development.env
-cp .vet45/profiles/<profileId>/staging.env.example .vet45/profiles/<profileId>/staging.env
-cp .vet45/profiles/<profileId>/production.env.example .vet45/profiles/<profileId>/production.env
+cp .c45/profiles/<profileId>/development.env.example .c45/profiles/<profileId>/development.env
+cp .c45/profiles/<profileId>/staging.env.example .c45/profiles/<profileId>/staging.env
+cp .c45/profiles/<profileId>/production.env.example .c45/profiles/<profileId>/production.env
 # Điền Supabase URL + keys trong development.env (remote dev) hoặc dùng Supabase CLI local
 
 # 4. Chạy app
@@ -78,7 +78,7 @@ Schema và RPC nằm trong `supabase/`. Dev local (cần Supabase CLI):
 
 ```bash
 supabase start
-# API: http://127.0.0.1:54321 — lấy anon key: supabase status
+# API: http://127.0.0.1:54421 — lấy anon key: supabase status
 ```
 
 Áp migration lên remote:
@@ -89,7 +89,7 @@ supabase db push
 
 App Flutter chỉ dùng **anon key**; mutation nghiệp vụ quan trọng đi qua **Postgres RPC** (defense in depth + RLS).
 
-Tổ chức tạo bằng **Đăng ký cửa hàng mới** trên màn đăng nhập. Không có vai trò Platform Admin và không có lệnh `vet45 admin`.
+Tổ chức tạo bằng **Đăng ký cửa hàng mới** trên màn đăng nhập. Không có vai trò Platform Admin và không có lệnh `c45 admin`.
 
 ## Lệnh phát triển
 
@@ -100,20 +100,20 @@ melos run analyze        # dart analyze toàn workspace
 melos run test           # dart test các package có thư mục test/ (trừ erp)
 ./scripts/ci/verify_harness.sh   # Layer guards + doc link checks
 cd apps/erp && flutter test      # Unit/widget test shell app
-dart test tools/vet45_env        # CLI quản lý môi trường
+dart test tools/c45_env        # CLI quản lý môi trường
 ```
 
 **AI agents:** đọc [AGENTS.md](AGENTS.md) trước khi implement.
 
 ## Versioning & changelog (ship units)
 
-Ship units có version/changelog riêng: `erp`, `vet45_design_system`.
+Ship units có version/changelog riêng: `erp`, `c45_design_system`.
 Các module/package khác vẫn workspace-pinned — ghi note dưới **Internal** của unit ship liên quan.
 
 ```bash
 # Ghi note vào <unit>/CHANGELOG.md → ## [Unreleased] khi làm feature
 ./apps/erp/scripts/bump_version.sh --patch --dry-run
-./packages/vet45_design_system/scripts/bump_version.sh --patch --dry-run
+./packages/c45_design_system/scripts/bump_version.sh --patch --dry-run
 ```
 
 Chi tiết (framework flat `flutter_exec` / `dart_lib` / …): [docs/operations/app_versioning.md](docs/operations/app_versioning.md).

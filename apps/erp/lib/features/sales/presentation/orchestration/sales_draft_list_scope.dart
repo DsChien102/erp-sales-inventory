@@ -4,7 +4,7 @@ import 'package:erp/features/sales/logic/sales_draft_list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 import '../support/i_sales_active_store_context.dart';
 

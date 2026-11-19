@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import 'dashboard/main.dart' as dashboard show DashboardPreviewHomeScreen;
 import 'sales/main.dart' as sales show SalesPreviewHomeScreen;
@@ -14,7 +14,7 @@ class ErpPresentationExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'VET45 ERP Presentation Preview',
+      title: 'Mosaic Retail ERP Presentation Preview',
       theme: VTheme.lightTheme,
       home: const _CatalogHome(),
       debugShowCheckedModeBanner: false,

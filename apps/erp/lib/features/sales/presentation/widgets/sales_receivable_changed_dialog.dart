@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Hộp thoại một nút (khuôn `_ConfirmBox` của `customer_collection_sheet.dart`).
 class SalesReceivableChangedDialog extends StatelessWidget {

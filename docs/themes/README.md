@@ -1,6 +1,6 @@
 # Catalog theme sản phẩm (TH-01 .. TH-12)
 
-Đơn vị **deliver** của sản phẩm Vet45 là **theme**, không phải module. Mỗi theme có thể gồm nhiều bounded context / package trong `modules/`.
+Đơn vị **deliver** của sản phẩm Mosaic Retail là **theme**, không phải module. Mỗi theme có thể gồm nhiều bounded context / package trong `modules/`.
 
 Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_TEMPLATE.md)
 

@@ -88,8 +88,8 @@ apps/erp/.env
 **/.env
 **/.env.*
 !**/.env.*.example
-.vet45/
-.vet45
+.c45/
+.c45
 # Shared iOS deploy secrets (target + example are committed under deploy/)
 deploy/deploy.env
 # App env files remain ignored via **/.env rules above

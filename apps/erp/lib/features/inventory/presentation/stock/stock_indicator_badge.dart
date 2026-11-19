@@ -1,6 +1,6 @@
 import 'package:erp/features/inventory/logic/stock/stock_indicator_rules.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Badge chỉ báo tồn theo đặc tả Theme 7 (bj01 / cap01).
 class StockIndicatorBadge extends StatelessWidget {

@@ -7,7 +7,7 @@ import 'package:erp/features/inventory/data/hub/warehouse_hub_repository.dart';
 import 'package:erp/features/inventory/logic/hub/warehouse_hub_cubit.dart';
 import 'package:erp/features/inventory/logic/hub/warehouse_hub_state.dart';
 import 'package:erp/features/inventory/presentation/hub/warehouse_entries.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class _MockInventoryRpc extends Mock implements InventoryRpc {}
 

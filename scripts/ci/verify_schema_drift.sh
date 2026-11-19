@@ -39,5 +39,5 @@ if [[ -z "${db_url}" ]]; then
 fi
 
 echo "==> schema:verify-drift"
-dart run tools/vet45_supabase_migrate/bin/verify_schema_drift.dart \
+dart run tools/c45_supabase_migrate/bin/verify_schema_drift.dart \
   --database-url "$db_url"

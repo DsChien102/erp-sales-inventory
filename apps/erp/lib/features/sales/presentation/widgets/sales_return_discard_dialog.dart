@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Dialog VBottomSheet cảnh báo khi người dùng nhấn Back nhưng chưa lưu thay đổi phiếu đổi/trả (Image 4).
 Future<bool?> showSalesReturnDiscardDialog(BuildContext context) {

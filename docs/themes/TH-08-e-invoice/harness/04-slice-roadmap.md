@@ -81,7 +81,7 @@ Việc cụ thể trong S2:
 
 - [ ] `IssueInvoiceCommand` trả `PREPARING` (hoặc attempt status hiện tại khi replay) → UI hiện projection `Đang xử lý` ngay, không chờ vòng poll đầu
 - [ ] Poll `GetOrderInvoiceProjectionQuery` 3–5s khi chưa terminal; dừng hẳn khi terminal
-- [x] Thêm `refetchInterval` vào `packages/vet45_async_query` (`QueryOptions` + `QueryObserver`) — mechanism dùng chung, không dựng `Timer.periodic` từng màn *(đã có sẵn tại `packages/vet45_async_query/lib/src/query_options.dart` trước plan S2 complete)*
+- [x] Thêm `refetchInterval` vào `packages/c45_async_query` (`QueryOptions` + `QueryObserver`) — mechanism dùng chung, không dựng `Timer.periodic` từng màn *(đã có sẵn tại `packages/c45_async_query/lib/src/query_options.dart` trước plan S2 complete)*
 
 Deferred (chưa lên slice, đã ghi rationale trong §11): realtime broadcast signal → invalidate; kick worker tick server-side sau enqueue.
 

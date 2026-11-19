@@ -4,11 +4,11 @@
 
 ## Giới thiệu
 
-**Theme 2: Sản phẩm \& Giá bán** giúp người dùng quản lý dữ liệu nền liên quan đến sản phẩm trong VET45, bao gồm hồ sơ sản phẩm, thông tin nhận diện, ảnh sản phẩm, đơn vị đo lường, tồn kho cơ bản, Giá cơ sở định giá, Giá niêm yết, Giá sàn, trạng thái kinh doanh, thông tin bổ sung và lịch sử thay đổi quan trọng\.
+**Theme 2: Sản phẩm \& Giá bán** giúp người dùng quản lý dữ liệu nền liên quan đến sản phẩm trong Mosaic Retail, bao gồm hồ sơ sản phẩm, thông tin nhận diện, ảnh sản phẩm, đơn vị đo lường, tồn kho cơ bản, Giá cơ sở định giá, Giá niêm yết, Giá sàn, trạng thái kinh doanh, thông tin bổ sung và lịch sử thay đổi quan trọng\.
 
-Theme này là một mắt xích nền trong chuỗi vận hành của VET45\. Dữ liệu sản phẩm không đứng độc lập, mà được sử dụng lại bởi nhiều nghiệp vụ phía sau như bán hàng, nhập hàng, tồn kho, giá vốn, hóa đơn, ghi sổ, báo cáo và quản trị hiệu quả theo sản phẩm\.
+Theme này là một mắt xích nền trong chuỗi vận hành của Mosaic Retail\. Dữ liệu sản phẩm không đứng độc lập, mà được sử dụng lại bởi nhiều nghiệp vụ phía sau như bán hàng, nhập hàng, tồn kho, giá vốn, hóa đơn, ghi sổ, báo cáo và quản trị hiệu quả theo sản phẩm\.
 
-VET45 trước mắt tập trung vào bán lẻ ngành thú y, nhưng sản phẩm được thiết kế theo hướng **retail\-first, industry\-extensible**\. Điều này có nghĩa là hệ thống cần phục vụ tốt ngành thú y ở giai đoạn đầu, nhưng không được khóa cứng dữ liệu sản phẩm vào các trường chuyên biệt như thành phần, chỉ định, chống chỉ định, cách dùng hoặc thời gian ngưng sử dụng\. Những thông tin này cần được chuyển sang mô hình **nhóm \& trường thông tin bổ sung** để sau này có thể mở rộng sang ngành khác\. Trong Guided creation, mỗi group active trở thành **card riêng có đánh số tự động**, nằm sau **Khung giá bán** và trước **Ghi chú**\.
+Mosaic Retail trước mắt tập trung vào bán lẻ ngành thú y, nhưng sản phẩm được thiết kế theo hướng **retail\-first, industry\-extensible**\. Điều này có nghĩa là hệ thống cần phục vụ tốt ngành thú y ở giai đoạn đầu, nhưng không được khóa cứng dữ liệu sản phẩm vào các trường chuyên biệt như thành phần, chỉ định, chống chỉ định, cách dùng hoặc thời gian ngưng sử dụng\. Những thông tin này cần được chuyển sang mô hình **nhóm \& trường thông tin bổ sung** để sau này có thể mở rộng sang ngành khác\. Trong Guided creation, mỗi group active trở thành **card riêng có đánh số tự động**, nằm sau **Khung giá bán** và trước **Ghi chú**\.
 
 ## Phạm vi của Theme
 
@@ -269,7 +269,7 @@ Nguyên tắc chung:
 
 ## Ranh giới tích hợp và trách nhiệm module
 
-Mục này mô tả cách Theme 2 tương tác với các module khác trong VET45\.
+Mục này mô tả cách Theme 2 tương tác với các module khác trong Mosaic Retail\.
 
 Nguyên tắc chính:
 
@@ -3618,7 +3618,7 @@ Scenario: Giao dịch lưu snapshot thông tin bổ sung
 
 ## Epic 2\.4 — Readiness về đơn vị đo lường
 
-Epic này giúp VET45 thiết lập và kiểm soát đơn vị đo lường của sản phẩm, bao gồm đơn vị cơ sở, đơn vị quy đổi, vai trò của từng đơn vị trong bán hàng/nhập hàng/hiển thị, và tác động của đơn vị đến readiness của sản phẩm\.
+Epic này giúp Mosaic Retail thiết lập và kiểm soát đơn vị đo lường của sản phẩm, bao gồm đơn vị cơ sở, đơn vị quy đổi, vai trò của từng đơn vị trong bán hàng/nhập hàng/hiển thị, và tác động của đơn vị đến readiness của sản phẩm\.
 
 
 
@@ -4543,7 +4543,7 @@ Scenario: Chặn đổi đơn vị vì ảnh hưởng khung giá chưa xử lý 
 
 ### \(Pending\) US 2\.4\.4 — Cung cấp đơn vị đo lường cho các module khác
 
-Là hệ thống VET45, tôi cần cung cấp thông tin đơn vị đo lường của sản phẩm cho các module khác, để bán hàng, nhập hàng, tồn kho, giá vốn và báo cáo sử dụng thống nhất một bộ đơn vị\.
+Là hệ thống Mosaic Retail, tôi cần cung cấp thông tin đơn vị đo lường của sản phẩm cho các module khác, để bán hàng, nhập hàng, tồn kho, giá vốn và báo cáo sử dụng thống nhất một bộ đơn vị\.
 
 
 
@@ -4895,9 +4895,9 @@ Scenario: Hiển thị đơn vị không hoạt động
 
 ## Epic 2\.5 — Chế độ tồn kho và readiness tồn kho
 
-Epic này giúp VET45 quản lý cách một sản phẩm được theo dõi tồn kho trong Theme 2, đồng thời phân biệt rõ giữa **thiết lập tồn kho** và **số lượng tồn thực tế**\.
+Epic này giúp Mosaic Retail quản lý cách một sản phẩm được theo dõi tồn kho trong Theme 2, đồng thời phân biệt rõ giữa **thiết lập tồn kho** và **số lượng tồn thực tế**\.
 
-Ở gói Foundation, VET45 cần cho phép người dùng nhập và chỉnh tồn kho cơ bản trực tiếp trong Product để có thể vận hành nhanh, không cần triển khai đầy đủ module Kho\. Ở gói nâng cao, tồn kho không còn được chỉnh trực tiếp trong Product, mà được đọc từ module Kho dưới dạng stock summary hoặc nguồn dữ liệu tồn kho chuyên trách\.
+Ở gói Foundation, Mosaic Retail cần cho phép người dùng nhập và chỉnh tồn kho cơ bản trực tiếp trong Product để có thể vận hành nhanh, không cần triển khai đầy đủ module Kho\. Ở gói nâng cao, tồn kho không còn được chỉnh trực tiếp trong Product, mà được đọc từ module Kho dưới dạng stock summary hoặc nguồn dữ liệu tồn kho chuyên trách\.
 
 Vai trò người dùng chính gồm chủ cửa hàng, người nhập liệu sản phẩm, nhân viên kho nếu có, kế toán và người quản lý vận hành\. Chủ cửa hàng cần biết sản phẩm có đang theo dõi tồn kho hay không\. Người nhập liệu cần ghi nhận tồn kho ban đầu\. Kế toán và quản lý kho cần dữ liệu tồn kho rõ nguồn, rõ đơn vị, không bị nhập nhầm\.
 
@@ -6107,7 +6107,7 @@ Scenario: Module Kho chưa có dữ liệu sau khi đã khóa Basic stock
 
 ## Epic 2\.6 — Nền tảng định giá và khung giá bán
 
-Epic này giúp VET45 thiết lập nền tảng giá bán cho sản phẩm, bao gồm Giá cơ sở định giá, quy tắc giá cấp cửa hàng, Giá niêm yết, Giá sàn và khung giá theo từng đơn vị bán\.
+Epic này giúp Mosaic Retail thiết lập nền tảng giá bán cho sản phẩm, bao gồm Giá cơ sở định giá, quy tắc giá cấp cửa hàng, Giá niêm yết, Giá sàn và khung giá theo từng đơn vị bán\.
 
 Mục tiêu của Epic không phải là tính giá bán cuối cùng trên giao dịch\. Theme 2 chỉ quản lý **khung giá chuẩn** của sản phẩm\. Giá bán cuối cùng có thể bị ảnh hưởng bởi khuyến mãi, chiết khấu, coupon, combo hoặc chính sách bán hàng, và thuộc phạm vi của Promotions / Sales\.
 
@@ -7099,7 +7099,7 @@ Scenario: Không hiển thị lịch sử giá khi không có quyền
 
 ### US 2\.6\.4 — Cung cấp khung giá cho Sales và Promotions
 
-Là hệ thống VET45, tôi cần cung cấp Giá niêm yết và Giá sàn hiện hành cho các module bán hàng và khuyến mãi, để các module đó có thể tính hoặc kiểm soát giá bán cuối cùng theo đúng ranh giới\.
+Là hệ thống Mosaic Retail, tôi cần cung cấp Giá niêm yết và Giá sàn hiện hành cho các module bán hàng và khuyến mãi, để các module đó có thể tính hoặc kiểm soát giá bán cuối cùng theo đúng ranh giới\.
 
 #### FR\-01\. Cung cấp Giá niêm yết hiện hành cho Sales và Promotions
 
@@ -7405,7 +7405,7 @@ Scenario: Giá chỉnh tay trên giao dịch không ghi đè Product
 
 ## Epic 2\.7 — Vòng đời sản phẩm và kiểm soát
 
-Epic này giúp VET45 quản lý vòng đời sản phẩm sau khi sản phẩm đã được tạo, bao gồm sửa thông tin, quản lý ảnh, ngừng kinh doanh, kinh doanh lại, xóa mềm và truy vết các thay đổi quan trọng\.
+Epic này giúp Mosaic Retail quản lý vòng đời sản phẩm sau khi sản phẩm đã được tạo, bao gồm sửa thông tin, quản lý ảnh, ngừng kinh doanh, kinh doanh lại, xóa mềm và truy vết các thay đổi quan trọng\.
 
 Trong thực tế vận hành, sản phẩm không đứng yên\. Tên sản phẩm có thể cần sửa, barcode có thể thay đổi, ảnh sản phẩm có thể được cập nhật, đơn vị hoặc giá có thể được điều chỉnh, sản phẩm có thể tạm ngừng kinh doanh hoặc không còn bán nữa\. Những thay đổi này cần được kiểm soát để không làm sai dữ liệu giao dịch, tồn kho, giá, hóa đơn hoặc báo cáo đã phát sinh trước đó\.
 
@@ -11412,7 +11412,7 @@ Một câu tóm tắt:
 
 ## Phụ lục F — Permission matrix
 
-Phụ lục F mô tả ma trận phân quyền khái niệm cho Theme 2\. Đây là bản đề xuất ở mức SRS, dùng để thống nhất hành vi giữa BA, UX và Dev\. Khi triển khai thật, tên role và permission code có thể được điều chỉnh theo mô hình IAM chung của VET45\.
+Phụ lục F mô tả ma trận phân quyền khái niệm cho Theme 2\. Đây là bản đề xuất ở mức SRS, dùng để thống nhất hành vi giữa BA, UX và Dev\. Khi triển khai thật, tên role và permission code có thể được điều chỉnh theo mô hình IAM chung của Mosaic Retail\.
 
 
 
@@ -11446,7 +11446,7 @@ Nguyên tắc chung:
 |`Warehouse`|Người phụ trách tồn kho, nhập/xuất/kiểm kê|
 |`Viewer`|Người chỉ có quyền xem dữ liệu được cho phép|
 
-Role catalog này không nhất thiết là role cuối cùng của hệ thống\. Khi VET45 có mô hình phân quyền chung, các quyền trong phụ lục này có thể được map sang permission code cụ thể\.
+Role catalog này không nhất thiết là role cuối cùng của hệ thống\. Khi Mosaic Retail có mô hình phân quyền chung, các quyền trong phụ lục này có thể được map sang permission code cụ thể\.
 
 ---
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 const assistantFooterText =
     'Trợ lý AI có thể hiểu nhầm câu hỏi. Số liệu trong bảng lấy trực tiếp từ dữ liệu cửa hàng.';

@@ -1,6 +1,6 @@
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
 import 'package:erp/features/inventory/logic/supplier_program/program_form_draft.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Định dạng số lượng cho chương trình NCC (nhóm hàng nghìn bằng dấu chấm: 1.000;
 /// phần lẻ tối đa 3 chữ số, ngăn cách bằng dấu phẩy: 1,5).

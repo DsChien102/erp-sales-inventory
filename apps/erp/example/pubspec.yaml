@@ -12,10 +12,10 @@ dependencies:
   flutter_bloc: ^9.1.1
   erp:
     path: ../
-  vet45_design_system:
-    path: ../../../packages/vet45_design_system
-  vet45_shared_testing:
-    path: ../../../packages/vet45_shared/testing
+  c45_design_system:
+    path: ../../../packages/c45_design_system
+  c45_shared_testing:
+    path: ../../../packages/c45_shared/testing
 
 dev_dependencies:
   flutter_test:
@@ -23,20 +23,20 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
 dependency_overrides:
-  vet45_annotations:
-    path: ../../../packages/vet45_annotations
-  vet45_design_system:
-    path: ../../../packages/vet45_design_system
-  vet45_lints:
-    path: ../../../packages/vet45_lints
-  vet45_shared_application:
-    path: ../../../packages/vet45_shared/application
-  vet45_shared_domain:
-    path: ../../../packages/vet45_shared/domain
-  vet45_shared_infrastructure:
-    path: ../../../packages/vet45_shared/infrastructure
-  vet45_shared_testing:
-    path: ../../../packages/vet45_shared/testing
+  c45_annotations:
+    path: ../../../packages/c45_annotations
+  c45_design_system:
+    path: ../../../packages/c45_design_system
+  c45_lints:
+    path: ../../../packages/c45_lints
+  c45_shared_application:
+    path: ../../../packages/c45_shared/application
+  c45_shared_domain:
+    path: ../../../packages/c45_shared/domain
+  c45_shared_infrastructure:
+    path: ../../../packages/c45_shared/infrastructure
+  c45_shared_testing:
+    path: ../../../packages/c45_shared/testing
 
 flutter:
   uses-material-design: true

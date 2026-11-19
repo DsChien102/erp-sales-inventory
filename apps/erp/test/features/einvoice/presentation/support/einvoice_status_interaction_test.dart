@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/einvoice/data/models.dart';
 import 'package:erp/features/einvoice/presentation/support/einvoice_status_interaction.dart';
 

@@ -6,7 +6,7 @@ import 'package:erp/features/inventory/logic/costing/costing_rules.dart';
 import 'package:erp/features/inventory/presentation/patterns/inventory_states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// Sheet "Lịch sử giá vốn" mở từ SCR-003 (chỉ chủ cửa hàng).
 Future<void> showCostVersionsSheet(

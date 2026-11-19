@@ -2,7 +2,7 @@
 
 ## Objective
 
-Là hệ thống VET45, tôi cần cung cấp Giá niêm yết và Giá sàn hiện hành cho các module bán hàng và khuyến mãi, để các module đó có thể tính hoặc kiểm soát giá bán cuối cùng theo đúng ranh giới.
+Là hệ thống Mosaic Retail, tôi cần cung cấp Giá niêm yết và Giá sàn hiện hành cho các module bán hàng và khuyến mãi, để các module đó có thể tính hoặc kiểm soát giá bán cuối cùng theo đúng ranh giới.
 
 ## Functional requirements
 

@@ -1,7 +1,7 @@
 import 'package:erp/features/inventory/data/supplier_program/supplier_program_models.dart';
 import 'package:erp/features/inventory/logic/supplier_program/supplier_program_rules.dart';
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 class ProgramRowBelow extends StatelessWidget {
   final ProgramRow row;

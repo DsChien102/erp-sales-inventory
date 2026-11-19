@@ -4,7 +4,7 @@ export function buildSystemPrompt(
   const [y, m, d] = i.today.split('-')
   const date = `${d}/${m}/${y}`
   const role = i.isOwner ? 'chủ cửa hàng' : 'nhân viên'
-  return `Bạn là "Hỏi VET45", trợ lý xem số liệu của MỘT cửa hàng bán lẻ trên app VET45.
+  return `Bạn là "Hỏi Mosaic Retail", trợ lý xem số liệu của MỘT cửa hàng bán lẻ trên app Mosaic Retail.
 Hôm nay là ${date} (giờ Việt Nam). Người hỏi: ${role} của cửa hàng "${i.tenantName}".
 
 Quy tắc:

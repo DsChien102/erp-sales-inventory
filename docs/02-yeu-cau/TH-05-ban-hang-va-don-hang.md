@@ -1413,7 +1413,7 @@ Scenario: SC-02 — Trả hàng của đơn còn nợ
 | SG-15 | Chi tiết phiếu đổi/trả | Màn | `…/returns/:id/detail` | US-06.7 |
 | SG-16 | Xem trước phiếu (PDF) | Màn | `/sales/orders/:orderId/preview`, `…/returns/:id/preview` | US-02.6, 03.6, 06.7 |
 
-Mọi màn dùng `vet45_design_system` (`VAppBar`, `VCard`, `VButton`, `VChip`, `VToast`, `VBanner`, `VBottomSheet`, `VEmptyState`, `VSkeleton`, bàn phím số `showVNumericKeypadSheet`). Quy ước chung:
+Mọi màn dùng `c45_design_system` (`VAppBar`, `VCard`, `VButton`, `VChip`, `VToast`, `VBanner`, `VBottomSheet`, `VEmptyState`, `VSkeleton`, bàn phím số `showVNumericKeypadSheet`). Quy ước chung:
 
 - Tiền hiển thị `1.250.000 ₫`; số âm có dấu `−`.
 - Thao tác đang chạy: nút chính chuyển trạng thái đang xử lý và khoá bấm lặp.
@@ -2121,7 +2121,7 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | KI-20 | Lọc "Hôm nay / 7 ngày / 30 ngày" tính theo giờ thiết bị, mã đơn theo giờ VN | **Giữ nguyên** (thiết bị đặt giờ VN) | — |
 | KI-21 | SG-01 chỉ tải 1 trang 50 nháp, bỏ `has_more` ⇒ nháp thứ 51 trở đi không hiện (US-01.7 EC-02) | Đã sửa 8-B2: tải thêm khi cuộn theo `next_cursor` | P8 |
 | KI-22 | SG-01 không có "Tạo bởi" cho nháp của người khác: app chỉ tra được tên của chính mình, UUID bị `creatorLabel` loại (US-01.7 FR-02) | Đã sửa 8-B2: RPC trả `created_by_name`, app hiển thị đúng | P8 |
-| KI-23 | SG-06 có thẻ QR mẫu cứng ('VET45 · ACB', số tài khoản giả) khi chọn Chuyển khoản / Kết hợp | Đã sửa 8-B2 R1: bỏ thẻ QR mẫu | P8 |
+| KI-23 | SG-06 có thẻ QR mẫu cứng ('Mosaic Retail · ACB', số tài khoản giả) khi chọn Chuyển khoản / Kết hợp | Đã sửa 8-B2 R1: bỏ thẻ QR mẫu | P8 |
 
 ---
 

@@ -10,7 +10,7 @@
 
 **Architecture:** Migration mới `20261116001_inventory_stocktake.sql` gồm 3 bảng phiên / dòng / lần đếm (lần đếm chỉ thêm), 10 RPC và `_has_open_stocktake`. Ghi nhận gọi `_post_movements` một lần. **Không khoá phạm vi**: chênh lệch luôn tính theo **tồn vật lý hiện tại** (`stock_balances`), ghi nhận đưa tồn của dòng lệch về đúng số đếm lại. Tồn cơ bản: sửa **bản cuối** của các hàm Catalog cho đọc `inventory._product_stock_rows`. Migration dọn `20261116002_catalog_drop_basic_stock.sql` xoá trigger / hàm / cột / bảng. Flutter có thư mục mới `features/inventory/{data,logic,presentation}/stocktake/`, còn phía Catalog xoá SP-10, bước tồn khi tạo sản phẩm và mục `missing_stock`.
 
-**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `vet45_design_system`.
+**Tech Stack:** PostgreSQL / Supabase (plpgsql), Flutter, `flutter_bloc`, `go_router`, `c45_design_system`.
 
 **Spec:** mục 1–2 của plan này + Screen Contract SCR-042…047 (chữ mục 8, trừ chỗ mục 2.5 ghi đổi) + PLAN.md Theme 7 → "Quy ước chung cho mọi plan G5".
 
@@ -146,7 +146,7 @@ BJ-01 "Điều chỉnh lô hết hạn" ─► 043 ?lotId= (một lô hết hạ
 
 ![042 iPhone](img/G5-5/proto-SCR-042-READY-390.png) ![044 web](img/G5-5/proto-SCR-044-BLIND_COUNT-1280.png) ![045 iPhone](img/G5-5/proto-SCR-045-RECOUNT_REQUIRED-390.png)
 
-Token (`styles/tokens.css`) → Flutter: `--vet45-v2-space-1/2/3/4/5` = 4/8/12/16/20 ⇒ `VSpacing.space1/2/3/4/5`; `radius-card` 12 ⇒ `VRadius.r12`; `text-primary #0E1116`, `text-secondary #4A535E`, `text-brand #26612F`, `text-danger #B53232`, `border-default #E5E8EB`, `surface-default #FFFFFF`, `focus-ring #2F7A3A` ⇒ `context.vColors.{textPrimary, textSecondary, textBrand, textDanger, borderDefault, surfaceDefault, focusRing}` (tên hằng đúng theo `packages/vet45_design_system/lib/src/foundation/`; khác tên thì dùng hằng cùng giá trị, ghi Kết quả). Khuôn K1 / K4 / K6 / K7 đã có ở `features/inventory/presentation/patterns/` (`k6_task_list.dart`, `k4_result_page.dart`, `k7_edit_cell.dart`, `inventory_footer.dart`, `inventory_states.dart`) ⇒ không chép CSS khuôn.
+Token (`styles/tokens.css`) → Flutter: `--c45-v2-space-1/2/3/4/5` = 4/8/12/16/20 ⇒ `VSpacing.space1/2/3/4/5`; `radius-card` 12 ⇒ `VRadius.r12`; `text-primary #0E1116`, `text-secondary #4A535E`, `text-brand #26612F`, `text-danger #B53232`, `border-default #E5E8EB`, `surface-default #FFFFFF`, `focus-ring #2F7A3A` ⇒ `context.vColors.{textPrimary, textSecondary, textBrand, textDanger, borderDefault, surfaceDefault, focusRing}` (tên hằng đúng theo `packages/c45_design_system/lib/src/foundation/`; khác tên thì dùng hằng cùng giá trị, ghi Kết quả). Khuôn K1 / K4 / K6 / K7 đã có ở `features/inventory/presentation/patterns/` (`k6_task_list.dart`, `k4_result_page.dart`, `k7_edit_cell.dart`, `inventory_footer.dart`, `inventory_states.dart`) ⇒ không chép CSS khuôn.
 
 Hằng / helper chung của BJ-08:
 
@@ -236,35 +236,35 @@ CSS riêng của BJ-08:
 
 ```css
 /* styles/screens.css:4143-4173 */
-.bj08-lead { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
-.bj08-form, .bj08-count { display: flex; flex-direction: column; gap: var(--vet45-v2-space-4); width: 100%; min-width: 0; }
-.bj08-form .bj06-section { display: flex; flex-direction: column; gap: var(--vet45-v2-space-2); }
+.bj08-lead { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj08-form, .bj08-count { display: flex; flex-direction: column; gap: var(--c45-v2-space-4); width: 100%; min-width: 0; }
+.bj08-form .bj06-section { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
 .bj08-scope-pick { justify-content: space-between; align-items: center; width: 100%; min-height: 44px; }
-.bj08-scope-pick > em { font-style: normal; font-weight: 600; color: var(--vet45-v2-text-brand); }
-.bj08-scope-items h3 { margin: 0 0 var(--vet45-v2-space-2); font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
-.bj08-scope-items ul { margin: 0; padding-left: var(--vet45-v2-space-5); font: 400 13px/22px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); }
-.bj08-scope-items__more { list-style: none; margin-left: calc(-1 * var(--vet45-v2-space-5)); color: var(--vet45-v2-text-secondary); }
+.bj08-scope-pick > em { font-style: normal; font-weight: 600; color: var(--c45-v2-text-brand); }
+.bj08-scope-items h3 { margin: 0 0 var(--c45-v2-space-2); font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); }
+.bj08-scope-items ul { margin: 0; padding-left: var(--c45-v2-space-5); font: 400 13px/22px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); }
+.bj08-scope-items__more { list-style: none; margin-left: calc(-1 * var(--c45-v2-space-5)); color: var(--c45-v2-text-secondary); }
 .bj08-progress { width: 100%; }
-.bj08-line { display: grid; grid-template-columns: minmax(0, 1fr) 132px; align-items: center; column-gap: var(--vet45-v2-space-3); row-gap: var(--vet45-v2-space-2); padding: var(--vet45-v2-space-3) var(--vet45-v2-space-4); border: 1px solid var(--vet45-v2-border-default); border-radius: var(--vet45-v2-radius-card); background: var(--vet45-v2-surface-default); box-sizing: border-box; }
+.bj08-line { display: grid; grid-template-columns: minmax(0, 1fr) 132px; align-items: center; column-gap: var(--c45-v2-space-3); row-gap: var(--c45-v2-space-2); padding: var(--c45-v2-space-3) var(--c45-v2-space-4); border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); box-sizing: border-box; }
 .bj08-line[hidden], .k7-table tr[hidden] { display: none; }
 .bj08-line--recount { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
 .bj08-line__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
-.bj08-line__copy > strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-primary); overflow-wrap: anywhere; }
-.bj08-line__copy > small { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
-.bj08-line__copy > .ds24-badge { margin-top: var(--vet45-v2-space-1); }
+.bj08-line__copy > strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); overflow-wrap: anywhere; }
+.bj08-line__copy > small { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj08-line__copy > .ds24-badge { margin-top: var(--c45-v2-space-1); }
 .bj08-line__field { min-width: 0; }
-.bj08-line__state { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--vet45-v2-space-1); }
-.bj08-recount-field { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: var(--vet45-v2-space-2); }
+.bj08-line__state { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--c45-v2-space-1); }
+.bj08-recount-field { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: var(--c45-v2-space-2); }
 .bj08-recount-field > .k7-edit { flex: 1 1 auto; min-width: 0; }
-.bj08-recount-cell { display: flex; align-items: flex-start; justify-content: flex-end; gap: var(--vet45-v2-space-2); }
-.bj08-same { flex: 0 0 auto; width: auto; min-width: 44px; min-height: 44px; padding-inline: var(--vet45-v2-space-3); white-space: nowrap; }
+.bj08-recount-cell { display: flex; align-items: flex-start; justify-content: flex-end; gap: var(--c45-v2-space-2); }
+.bj08-same { flex: 0 0 auto; width: auto; min-width: 44px; min-height: 44px; padding-inline: var(--c45-v2-space-3); white-space: nowrap; }
 .bj08-add { align-self: flex-start; }
 .bj08-link { align-self: flex-start; min-height: 44px; display: inline-flex; align-items: center; }
-.bj08-cancel-link { align-self: flex-start; min-height: 44px; padding: 0 var(--vet45-v2-space-2); border: 0; background: transparent; color: var(--vet45-v2-text-danger); font: 600 14px/20px Inter, system-ui, sans-serif; cursor: pointer; }
-.bj08-cancel-link:focus-visible { outline: 2px solid var(--vet45-v2-focus-ring); outline-offset: 2px; }
-.bj08-money { font: 500 12px/16px var(--vet45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--vet45-v2-text-primary); }
-.bj08-review-row .ds24-list-row__trailing { flex-direction: column; align-items: flex-end; gap: var(--vet45-v2-space-1); }
-.k2-reject-sheet__desc { margin: 0 0 var(--vet45-v2-space-3); font: 400 14px/20px Inter, system-ui, sans-serif; color: var(--vet45-v2-text-secondary); }
+.bj08-cancel-link { align-self: flex-start; min-height: 44px; padding: 0 var(--c45-v2-space-2); border: 0; background: transparent; color: var(--c45-v2-text-danger); font: 600 14px/20px Inter, system-ui, sans-serif; cursor: pointer; }
+.bj08-cancel-link:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+.bj08-money { font: 500 12px/16px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--c45-v2-text-primary); }
+.bj08-review-row .ds24-list-row__trailing { flex-direction: column; align-items: flex-end; gap: var(--c45-v2-space-1); }
+.k2-reject-sheet__desc { margin: 0 0 var(--c45-v2-space-3); font: 400 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
 .device-preview.is-web .k7-wide :is(.bj08-form, .bj08-count) :is(.form-field, .ds-choice-list, .bj06-section, .k2-attention, .ds24-list-row, .v-banner, .cf12-strip, .bj08-progress) { width: 100%; max-width: none; box-sizing: border-box; }
 .device-preview.is-web .k7-table td .bj08-recount-cell .k7-edit { margin-left: 0; }
 ```
@@ -458,7 +458,7 @@ function bj08CountRow(s, l, showError) {
   const value = s.counts[l.key] ?? "", error = showError && !bj08Valid(value) ? "Nhập số đếm được" : "";
   const text = bj08Attr(ioNormalizeSearch(`${l.name} ${l.code} ${l.lot}`));
   const tag = l.unexpected ? ds24Badge("Hàng thực tế", "Info") : "";
-  const state = l.unexpected ? `<div class="bj08-line__state"><span class="vet45-text-style-8">Tình trạng</span>${bj08UnexpectedState(l)}</div>` : "";
+  const state = l.unexpected ? `<div class="bj08-line__state"><span class="c45-text-style-8">Tình trạng</span>${bj08UnexpectedState(l)}</div>` : "";
   const mobile = `<div class="bj08-line" data-bj08-line="${bj08Attr(l.key)}" data-bj08-line-text="${text}">${bj08LineCopy(l.name, bj08LineSub(l), tag)}<div class="bj08-line__field">${bj08EditCell(s, l, value, "data-bj08-count", error)}</div>${state}</div>`;
   return { key: l.key, text, mobile, product: `<strong>${esc(l.name)}</strong><small>${esc(l.code)}</small>${tag}`, lot: esc(bj08LotText(l)), stateHtml: l.unexpected ? bj08UnexpectedState(l) : esc(bj08StateLabel(l)), count: bj08EditCell(s, l, value, "data-bj08-count", error) };
 }

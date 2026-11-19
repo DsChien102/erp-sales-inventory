@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/iam/logic/iam_ui_failure_mapper.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:c45_shared_application/application.dart';
 
 void main() {
   group('IamUiFailureMapper', () {

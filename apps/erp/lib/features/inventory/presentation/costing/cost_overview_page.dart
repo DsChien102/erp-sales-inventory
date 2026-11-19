@@ -12,7 +12,7 @@ import 'package:erp/features/inventory/presentation/patterns/k6_task_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 /// SCR-072: Tổng quan giá vốn và chốt kỳ.
 class CostOverviewPage extends StatelessWidget {

@@ -2,7 +2,7 @@ import 'package:erp/features/pricing/data/models.dart';
 import 'package:erp/features/pricing/presentation/widgets/price_rule_detail_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 
 import '../../support/pricing_detail_dto_builder.dart';
 

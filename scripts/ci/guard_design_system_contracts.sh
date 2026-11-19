@@ -4,7 +4,7 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$root/packages/vet45_design_system"
+cd "$root/packages/c45_design_system"
 
 echo "==> component_audit --fail-on-required"
 dart run tool/component_audit.dart --fail-on-required

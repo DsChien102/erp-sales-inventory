@@ -1,7 +1,7 @@
 -- Title: ai.run_query + ai._validate_sql (read-only SQL for the AI assistant)
 -- Kind: schema
 -- Intent: ai_run_query
--- Context: AI-4 Task 2 (trợ lý "Hỏi VET45" tự truy vấn); một câu SELECT trên view ai_read, giới hạn 50 dòng / 5 giây
+-- Context: AI-4 Task 2 (trợ lý "Hỏi Mosaic Retail" tự truy vấn); một câu SELECT trên view ai_read, giới hạn 50 dòng / 5 giây
 -- Touches: _validate_sql, _begin_query, run_query
 -- Safety: one-shot ; new functions only, no change to existing objects
 -- Depends on: 20261122001_ai_read_views, 20261110001_inventory_core

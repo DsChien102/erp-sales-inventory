@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/iam/data/models/tenant_audit_log.dart';
 import '../iam/support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:c45_shared_application/application.dart';
+import 'package:c45_shared_testing/shared_testing.dart';
 
 import '../iam/support/scripted_iam_repositories.dart';
 
@@ -39,7 +39,7 @@ abstract final class _AuditAcceptance {
       type: 'tenant',
       id: 'org-001',
       displayName: 'Phòng khám Vet 45',
-      code: 'VET45-HCM',
+      code: 'C45-HCM',
       secondaryLabel: null,
       displayOrigin: TenantAuditDisplayOrigin.snapshot,
     ),
@@ -65,7 +65,7 @@ abstract final class _AuditAcceptance {
       type: 'tenant',
       id: 'org-001',
       displayName: 'Phòng khám Vet 45',
-      code: 'VET45-HCM',
+      code: 'C45-HCM',
       secondaryLabel: null,
       displayOrigin: TenantAuditDisplayOrigin.snapshot,
     ),
@@ -392,7 +392,7 @@ void main() {
       expect(find.text('Loại đối tượng'), findsOneWidget);
       expect(find.text('Tổ chức'), findsOneWidget);
       expect(find.text('Phòng khám Vet 45'), findsOneWidget);
-      expect(find.text('VET45-HCM'), findsOneWidget);
+      expect(find.text('C45-HCM'), findsOneWidget);
       expect(find.text('org-001'), findsOneWidget);
       expect(find.text('Thông tin hiện tại'), findsNothing);
       expect(find.text('Không còn dữ liệu'), findsNothing);

@@ -4,7 +4,7 @@ import 'package:erp/features/auth/presentation/widgets/invitation_token_entry_fo
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import '../../../iam/support/fake_iam_backend.dart';
