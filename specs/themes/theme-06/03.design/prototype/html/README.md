@@ -1,7 +1,7 @@
 # Prototype Theme 6 — Công nợ phải thu (T6-2a)
 
 HTML/CSS/JS thuần (ES module, không build) cho CN-01, CN-02, CN-03, SG-13 bản cấn trừ và màn gom `patches`.
-Spec: `docs/02-yeu-cau/TH-06-cong-no.md` mục 2.2, 2.3, 4.2–4.5, 5.2–5.6, 6.3. Plan: `docs/refactor/plans/T6/T6-2a-prototype.md`.
+Spec: `docs/requirements/TH-06-cong-no.md` mục 2.2, 2.3, 4.2–4.5, 5.2–5.6, 6.3. Plan: `docs/refactor/plans/T6/T6-2a-prototype.md` (đã xoá, xem lịch sử git).
 
 ## Chạy
 

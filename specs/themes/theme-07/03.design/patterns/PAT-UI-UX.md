@@ -55,7 +55,7 @@ flowchart TD
 
 Áp dụng [`../design-system/design-system-profile.md`](../design-system/design-system-profile.md). Flutter Design System ZIP là semantic/API authority; Vercel là visual authority vì được project xác nhận render trực tiếp từ cùng Flutter DS. HTML không phải Design System thứ hai.
 
-Các nguyên tắc bắt buộc: iPhone và web đều là thiết bị chính (mỗi màn đủ hai bố cục, [LUONG-UNG-DUNG 1.1](../../../../../docs/02-yeu-cau/LUONG-UNG-DUNG.md)); rõ ràng hơn thông minh; theo luồng công việc; một hành động chính; tiết lộ tăng dần; phòng ngừa trước khi sửa; trạng thái và số liệu phải trung thực.
+Các nguyên tắc bắt buộc: iPhone và web đều là thiết bị chính (mỗi màn đủ hai bố cục, [LUONG-UNG-DUNG 1.1](../../../../../docs/requirements/LUONG-UNG-DUNG.md)); rõ ràng hơn thông minh; theo luồng công việc; một hành động chính; tiết lộ tăng dần; phòng ngừa trước khi sửa; trạng thái và số liệu phải trung thực.
 
 ### 4. Kiến trúc thông tin
 
@@ -119,7 +119,7 @@ Các thành phần phát sinh trong quá trình thiết kế Theme 7 đã đư�
 
 ### 8. Thiết bị và bố cục chuẩn
 
-- **iPhone và Web ngang nhau ở mọi màn hình:** Cả hai đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](../../../../../docs/02-yeu-cau/LUONG-UNG-DUNG.md)). Không có bên nào là bản thứ cấp chỉ kiểm tra "không vỡ".
+- **iPhone và Web ngang nhau ở mọi màn hình:** Cả hai đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](../../../../../docs/requirements/LUONG-UNG-DUNG.md)). Không có bên nào là bản thứ cấp chỉ kiểm tra "không vỡ".
 - Trên Web: áp dụng khuôn K7 — danh sách/chi tiết hai cột, bảng dữ liệu thay thẻ, thanh nút hành động bên phải, sheet thành modal/dialog. Khi bề rộng cửa sổ thu hẹp dưới ngưỡng responsive, giao diện tự động chuyển về bố cục một cột như iPhone.
 
 ### 9. Danh sách màn hình

@@ -69,7 +69,7 @@ shopt -u nullglob
 
 if [[ ${#IPAS[@]} -eq 0 ]]; then
   echo "No IPA found at ${IPA_GLOB}"
-  echo "Run: melos run build:ios  (or ./apps/erp/scripts/build_ios.sh --env ${ENV_NAME})"
+  echo "Run: ./apps/erp/scripts/build_ios.sh --env ${ENV_NAME}"
   exit 1
 fi
 

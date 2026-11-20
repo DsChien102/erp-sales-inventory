@@ -1,6 +1,6 @@
 /// Mã lỗi nghiệp vụ ổn định mà UI map sang thông báo (khớp mã RPC / `blocked_error_code`).
 ///
-/// Chỉ giữ các mã app đang dùng; danh mục đầy đủ ở TH-01 (docs/02-yeu-cau).
+/// Chỉ giữ các mã app đang dùng; danh mục đầy đủ ở TH-01 (docs/requirements).
 abstract final class IamBlockedCodes {
   static const resourceNotFound = 'RESOURCE_NOT_FOUND';
   static const validationError = 'VALIDATION_ERROR';

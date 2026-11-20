@@ -118,9 +118,7 @@ Chưa cấu hình CI/CD. Kiểm tra local trước khi push: `dart analyze apps/
 | -------- | -------- |
 | [AGENTS.md](AGENTS.md) | Onboarding cho AI coding agents |
 | [docs/refactor/](docs/refactor/) | Refactor sang kiến trúc đơn giản — SCOPE, PLAN, CHECKLIST |
-| [docs/02-yeu-cau/](docs/02-yeu-cau/) | Đặc tả nghiệp vụ chuẩn TH-01…08 |
-| [docs/_legacy/](docs/_legacy/README.md) | Kiến trúc cũ (modular monolith) — chỉ để đọc code cũ |
-| [docs/themes/](docs/themes/) | Theme sản phẩm TH-01..TH-11 |
+| [docs/requirements/](docs/requirements/) | Đặc tả nghiệp vụ chuẩn TH-01…08 |
 | [docs/operations/](docs/operations/) | Môi trường, TestFlight, deploy |
 | [apps/erp/README.md](apps/erp/README.md) | Ghi chú riêng cho Flutter shell |
 

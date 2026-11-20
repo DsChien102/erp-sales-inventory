@@ -102,7 +102,7 @@ const ThemeApp = (() => {
 
   // ---------------------------------------------------------------- dựng màn
 
-  // Khung 5 tab của app (docs/02-yeu-cau/LUONG-UNG-DUNG.md); chỉ "Thêm" bấm được trong prototype.
+  // Khung 5 tab của app (docs/requirements/LUONG-UNG-DUNG.md); chỉ "Thêm" bấm được trong prototype.
   function bottomNav() {
     return `<nav class="t7-app-bottom-nav" aria-label="Điều hướng chính" data-theme-component="C45BottomNavigation">
       <button type="button" disabled aria-label="Trang chủ">${icon('warehouse', 'icon--sm')}<span>Trang chủ</span></button>

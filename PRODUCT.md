@@ -23,9 +23,9 @@ Thành công nghĩa là Owner hoàn tất nghiệp vụ (lập đơn, thu tiền
 ## Operating Context
 
 - Ngôn ngữ giao diện: **tiếng Việt**. Trên UI, `Tenant` hiển thị là **Tổ chức** (hoặc **Cửa hàng** trong luồng đăng ký).
-- Thiết bị: **iPhone** và **web trên trình duyệt máy tính**; Android build cùng mã nhưng không thiết kế / kiểm riêng; không iPad, không app desktop. **Cả hai đều là thiết bị chính**: mỗi màn thiết kế và tối ưu đủ cho iPhone và cho web, không có thiết bị phụ. Chi tiết: `docs/02-yeu-cau/LUONG-UNG-DUNG.md` mục 1.1.
-- Khung điều hướng: vùng công khai (`/login`, `/signup`, `/verify-email`, `/invitation`) không có thanh điều hướng; khu cửa hàng có 5 mục **Trang chủ · Đơn hàng · Sản phẩm · Đối tác · Thêm** — thanh dưới trên iPhone / cửa sổ hẹp, **thanh bên trái** trên web cửa sổ rộng (≥ 1024px). Chi tiết: `docs/02-yeu-cau/LUONG-UNG-DUNG.md`.
-- Nghiệp vụ theo theme: TH-01 tổ chức & người dùng, TH-02 sản phẩm & giá bán, TH-03 đối tác, TH-04 chính sách giá, TH-05 bán hàng & đơn hàng, TH-07 kho, TH-08 hoá đơn điện tử (MISA). Đặc tả chuẩn nằm trong `docs/02-yeu-cau/TH-0X-*.md`.
+- Thiết bị: **iPhone** và **web trên trình duyệt máy tính**; Android build cùng mã nhưng không thiết kế / kiểm riêng; không iPad, không app desktop. **Cả hai đều là thiết bị chính**: mỗi màn thiết kế và tối ưu đủ cho iPhone và cho web, không có thiết bị phụ. Chi tiết: `docs/requirements/LUONG-UNG-DUNG.md` mục 1.1.
+- Khung điều hướng: vùng công khai (`/login`, `/signup`, `/verify-email`, `/invitation`) không có thanh điều hướng; khu cửa hàng có 5 mục **Trang chủ · Đơn hàng · Sản phẩm · Đối tác · Thêm** — thanh dưới trên iPhone / cửa sổ hẹp, **thanh bên trái** trên web cửa sổ rộng (≥ 1024px). Chi tiết: `docs/requirements/LUONG-UNG-DUNG.md`.
+- Nghiệp vụ theo theme: TH-01 tổ chức & người dùng, TH-02 sản phẩm & giá bán, TH-03 đối tác, TH-04 chính sách giá, TH-05 bán hàng & đơn hàng, TH-07 kho, TH-08 hoá đơn điện tử (MISA). Đặc tả chuẩn nằm trong `docs/requirements/TH-0X-*.md`.
 - Tác vụ thực tế: in/chia sẻ phiếu và biên lai, quét barcode (camera trên iPhone, máy quét USB trên web), import Excel bảng giá (trên web kéo thả được), phát hành và gửi hoá đơn điện tử qua email.
 
 ## Capabilities and Constraints
@@ -45,7 +45,7 @@ Thành công nghĩa là Owner hoàn tất nghiệp vụ (lập đơn, thu tiền
 
 ## Evidence on Hand
 
-- Đặc tả yêu cầu: `docs/02-yeu-cau/` (TH-01…TH-08, luồng ứng dụng, luồng đăng ký/xác minh email).
+- Đặc tả yêu cầu: `docs/requirements/` (TH-01…TH-08, luồng ứng dụng, luồng đăng ký/xác minh email).
 - Không có khách hàng thật, testimonial, số liệu sử dụng hay bảng giá thương mại. Không được bịa các thông tin này.
 
 ## Product Principles
@@ -53,4 +53,4 @@ Thành công nghĩa là Owner hoàn tất nghiệp vụ (lập đơn, thu tiền
 1. **Owner tự làm được mọi thứ, trên iPhone hoặc máy tính**: mỗi tác vụ hằng ngày hoàn tất được trên cả iPhone lẫn máy tính, với bố cục hợp từng thiết bị, không cần người hỗ trợ, không ngõ cụt.
 2. **Đúng nghiệp vụ trước, đẹp sau**: số tiền, tồn kho, giá và hoá đơn phải rõ ràng, khó nhập sai.
 3. **Dễ trình bày**: luồng chính đi thẳng, ít nhánh, để demo trước hội đồng mạch lạc.
-4. **Đặc tả là chuẩn**: hành vi và chuỗi chữ trên UI theo `docs/02-yeu-cau`, không tự ý đổi. Riêng Theme 7: nghiệp vụ (BJ / UC) và chuỗi chữ theo `specs/themes/theme-07`; **luồng, điều hướng và bố cục màn (UIF / Screen Contract) được thiết kế lại** trên prototype HTML `specs/themes/theme-07/03.design/prototype/html`, Screen Contract sửa theo sau. Spec hiện tại và các Hub cũ là đầu vào tham khảo, không phải đáp án.
+4. **Đặc tả là chuẩn**: hành vi và chuỗi chữ trên UI theo `docs/requirements`, không tự ý đổi. Riêng Theme 7: nghiệp vụ (BJ / UC) và chuỗi chữ theo `specs/themes/theme-07`; **luồng, điều hướng và bố cục màn (UIF / Screen Contract) được thiết kế lại** trên prototype HTML `specs/themes/theme-07/03.design/prototype/html`, Screen Contract sửa theo sau. Spec hiện tại và các Hub cũ là đầu vào tham khảo, không phải đáp án.

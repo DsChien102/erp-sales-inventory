@@ -1,6 +1,6 @@
 # Checklist nghiệm thu màn hình
 
-> Lập ngày 2026-10-07 (PLAN P0.4) từ `apps/erp/lib/core/router/app_router.dart`, `sales_typed_routes.dart`, `apps/admin/lib` và bảng màn hình trong `docs/02-yeu-cau/TH-0X`. Mốc bản cũ: tag `v-legacy-arch`.
+> Lập ngày 2026-10-07 (PLAN P0.4) từ `apps/erp/lib/core/router/app_router.dart`, `sales_typed_routes.dart`, `apps/admin/lib` và bảng màn hình trong `docs/requirements/TH-0X`. Mốc bản cũ: tag `v-legacy-arch`.
 >
 > **Cách dùng:**
 > - Cột **Cũ**: tick khi đã chạy bản cũ (Supabase local) và xác nhận màn tồn tại, thao tác chính chạy được. Ghi lỗi sẵn có vào "Ghi chú" để không tính là lỗi refactor.

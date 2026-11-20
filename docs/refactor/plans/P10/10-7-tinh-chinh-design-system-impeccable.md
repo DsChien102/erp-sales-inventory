@@ -193,7 +193,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 
 **Cần đạt:** thông báo của validator nói rõ sai gì và sửa thế nào, cùng giọng văn; tiếng Việt có dấu đầy đủ.
 
-**Giữ nguyên:** chuỗi chữ đã chốt trong spec (theo `docs/02-yeu-cau`); nếu đề xuất đổi chuỗi đã có trong spec thì hỏi trước, không tự sửa.
+**Giữ nguyên:** chuỗi chữ đã chốt trong spec (theo `docs/requirements`); nếu đề xuất đổi chuỗi đã có trong spec thì hỏi trước, không tự sửa.
 
 ### Cuối — Rà soát và cập nhật DESIGN.md
 

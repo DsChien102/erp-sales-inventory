@@ -5,7 +5,7 @@
 > Plan con đã làm + review xong được xoá ngày 2026-10-27 (nội dung còn trong lịch sử git, commit `e4958a896` trở về trước); tên tệp nhắc trong tài liệu này giữ lại để tra.
 > Thuộc [PLAN.md](../../PLAN.md) mục "Theme 7". Làm sau T7-P0 (✅).
 > Phạm vi: **chỉ prototype** — `specs/themes/theme-07/03.design/prototype/html` và tài liệu thiết kế đi kèm từng BJ (Screen Contract, UIF viết lại ở bước E). Plan này hết ở Giai đoạn 3. Chốt đặc tả (Giai đoạn 4) và code Flutter (Giai đoạn 5) nằm ở PLAN.md: **T7-G4**, **T7-G5**; mục 6 và mục 13 của plan này là đầu vào của hai việc đó.
-> **Thiết bị (chốt 2026-10-20, cho cả app):** iPhone + web trên máy tính, khung web thanh bên — xem [LUONG-UNG-DUNG mục 1.1](../../../02-yeu-cau/LUONG-UNG-DUNG.md) và [PLAN mục Thiết bị](../../PLAN.md). **Cả hai là thiết bị chính ở mọi màn** (sửa 2026-10-22): mục 2.
+> **Thiết bị (chốt 2026-10-20, cho cả app):** iPhone + web trên máy tính, khung web thanh bên — xem [LUONG-UNG-DUNG mục 1.1](../../../requirements/LUONG-UNG-DUNG.md) và [PLAN mục Thiết bị](../../PLAN.md). **Cả hai là thiết bị chính ở mọi màn** (sửa 2026-10-22): mục 2.
 > **Hai giai đoạn (chốt 2026-10-16):** Giai đoạn 1 viết lại code sạch cho cả 17 BJ + CAP-01 (giao diện không đổi, golden phải khớp); Giai đoạn 2 mới thiết kế lại từng BJ.
 > Ước lượng thô: Giai đoạn 1 **~20 ngày**; Giai đoạn 2 **~24 ngày**; Giai đoạn 3 hoàn thiện ~8–9 ngày (plan G3).
 
@@ -766,7 +766,7 @@ Chuẩn bị Giai đoạn 2. Plan ✅ (duyệt 2026-10-21) | Làm ✅ 2026-10-21
 
 Đường dẫn tính từ `specs/themes/theme-07/03.design/prototype/html/`. Server: `python3 -m http.server 8765 --bind 127.0.0.1 &`.
 
-**Mục tiêu.** Harness có thêm khung **Web · 1280 × 800** cạnh khung **Mobile · 402 × 874**: cửa sổ máy tính có thanh bên trái của app (đúng khung đã chốt ở [LUONG-UNG-DUNG 1.1](../../../02-yeu-cau/LUONG-UNG-DUNG.md) và W-1 (plan đã xoá, commit `6529acd82`) mục 3.3), nội dung giữa rộng tối đa 1120px. Golden chụp được cả hai khung. **Không đổi màn nào**: màn chưa thiết kế lại cho web hiện bố cục iPhone trong vùng nội dung; mọi ca iPhone hiện có phải **khớp hoàn toàn** `tools/.golden-phase1`.
+**Mục tiêu.** Harness có thêm khung **Web · 1280 × 800** cạnh khung **Mobile · 402 × 874**: cửa sổ máy tính có thanh bên trái của app (đúng khung đã chốt ở [LUONG-UNG-DUNG 1.1](../../../requirements/LUONG-UNG-DUNG.md) và W-1 (plan đã xoá, commit `6529acd82`) mục 3.3), nội dung giữa rộng tối đa 1120px. Golden chụp được cả hai khung. **Không đổi màn nào**: màn chưa thiết kế lại cho web hiện bố cục iPhone trong vùng nội dung; mọi ca iPhone hiện có phải **khớp hoàn toàn** `tools/.golden-phase1`.
 
 **Hiện trạng (đo 2026-10-20).**
 

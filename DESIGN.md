@@ -256,7 +256,7 @@ Một xanh lá phòng khám trên nền xám lạnh, với ba màu trạng thái
 
 ## Layout
 
-Hai thiết bị: **iPhone** và **web trên máy tính** (không làm iPad), **cả hai đều là thiết bị chính** — mỗi màn có bố cục cho từng bên, thiết kế và tối ưu như nhau; web không phải cột iPhone đặt giữa hay bản iPhone kéo giãn (`docs/02-yeu-cau/LUONG-UNG-DUNG.md` mục 1.1). Ba breakpoint theo chiều rộng: mobile (< 600px), tablet (600–1023px), desktop (≥ 1024px); "tablet" chỉ là cửa sổ web hẹp, dùng bố cục như mobile. Từ desktop: thanh bên trái, nội dung rộng tối đa 1120px, danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet dưới thành hộp thoại. Lề màn hình 16px trên mobile, 24px trên tablet, 32px trên desktop.
+Hai thiết bị: **iPhone** và **web trên máy tính** (không làm iPad), **cả hai đều là thiết bị chính** — mỗi màn có bố cục cho từng bên, thiết kế và tối ưu như nhau; web không phải cột iPhone đặt giữa hay bản iPhone kéo giãn (`docs/requirements/LUONG-UNG-DUNG.md` mục 1.1). Ba breakpoint theo chiều rộng: mobile (< 600px), tablet (600–1023px), desktop (≥ 1024px); "tablet" chỉ là cửa sổ web hẹp, dùng bố cục như mobile. Từ desktop: thanh bên trái, nội dung rộng tối đa 1120px, danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet dưới thành hộp thoại. Lề màn hình 16px trên mobile, 24px trên tablet, 32px trên desktop.
 
 Khoảng cách theo thang 4px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 72. Nhịp thường dùng là 16px giữa các khối và trong thẻ, 8px giữa phần tử liên quan, 4px giữa icon và chữ.
 

@@ -829,7 +829,7 @@ Bảng 3.8. Đặc tả Use Case Hỏi đáp số liệu với trợ lý AI
 
 ### 3.2.3. Tóm tắt các Use Case còn lại
 
-Bảng 3.9 tóm tắt các use case không được đặc tả chi tiết ở mục 3.2.2. Đặc tả đầy đủ (luồng, quy tắc nghiệp vụ, tiêu chí chấp nhận, kịch bản kiểm thử) nằm trong các tài liệu `docs/02-yeu-cau/TH-01` … `TH-08` của mã nguồn dự án.
+Bảng 3.9 tóm tắt các use case không được đặc tả chi tiết ở mục 3.2.2. Đặc tả đầy đủ (luồng, quy tắc nghiệp vụ, tiêu chí chấp nhận, kịch bản kiểm thử) nằm trong các tài liệu `docs/requirements/TH-01` … `TH-08` của mã nguồn dự án.
 
 Bảng 3.9. Tóm tắt các use case còn lại
 
