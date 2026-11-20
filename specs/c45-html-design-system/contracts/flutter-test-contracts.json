@@ -1,0 +1,553 @@
+{
+  "flutterDsVersion": "1.4.1",
+  "testFileCount": 43,
+  "testCount": 287,
+  "files": [
+    {
+      "file": "components/v_banner_test.dart",
+      "sha256": "7b2628a476d2e0c5ce783f18683498daca1cf56a850d90c152c63693eb1775af",
+      "tests": [
+        "renders title and description for each status",
+        "hides description when null",
+        "deprecated message still resolves body",
+        "decoration includes semantic border",
+        "description and footer indent past icon column",
+        "icon and title share one centered row"
+      ]
+    },
+    {
+      "file": "components/v_button_test.dart",
+      "sha256": "bdda6867d19902344a665b7f06c6560ba2be201cac1fa43301cce1c5706f508f",
+      "tests": [
+        "renders label without Material splash padding chrome",
+        "disabled does not invoke onPressed",
+        "leading and trailing VIcons render",
+        "deprecated Widget icons still render",
+        "keyboard activate invokes onPressed",
+        "renders VIcon without label",
+        "expanded text respects textAlign start when fullWidth"
+      ]
+    },
+    {
+      "file": "components/v_card_test.dart",
+      "sha256": "6167f07f4b968e3fb9667adbfe104b9459915e02433fb0396acbc2c2f6973664",
+      "tests": [
+        "default has no boxShadow",
+        "default border uses borderStrong",
+        "enabled false keeps tone border and applies disabled opacity",
+        "enabled false keeps tone border for danger",
+        "inherits disabled from ambient VComponentScope",
+        "emphasis medium applies e1 shadow",
+        "emphasis strong applies e2 shadow",
+        "tone primary uses surfaceBrand and borderBrand",
+        "tone danger uses dangerBg and danger border",
+        "elevated true with subtle still applies e1",
+        "explicit backgroundColor overrides tone",
+        "renders title, description, and footer",
+        "VCardTitle without description omits secondary text",
+        "inherits card tone to icon",
+        "inherits header tone to title",
+        "local tone overrides inherited tone",
+        "throws when title used outside header",
+        "throws when header used outside card",
+        "throws when content used outside card",
+        "throws when icon used outside card"
+      ]
+    },
+    {
+      "file": "components/v_empty_state_test.dart",
+      "sha256": "1e908a12abf95edb11958389f8d541406920c9e8ca674b509030ce2bcf4ceac9",
+      "tests": [
+        "default has no border or background",
+        "bordered draws default outline",
+        "filled uses surfaceAlt background",
+        "renders header title description and content",
+        "maps title description and action",
+        "exposes icon and tone for existing tests",
+        "shell tone cascades to title without header tone",
+        "inherits tone to title media description",
+        "local tone overrides header tone",
+        "throws when title used outside header"
+      ]
+    },
+    {
+      "file": "components/v_file_drop_zone_test.dart",
+      "sha256": "f4e18d22b184d40315e83c93ea97cba2d2cfad5e6c296e27c5939ebe633fcff1",
+      "tests": [
+        "renders title and subtitle for each state",
+        "invokes onTap when enabled",
+        "does not invoke onTap when disabled",
+        "uses fileUp icon for invalid state",
+        "paints dashed border for all states",
+        "renders action CTA inside the zone",
+        "action disables full-zone onTap"
+      ]
+    },
+    {
+      "file": "components/v_input_density_test.dart",
+      "sha256": "6bb5912d2cbf6987643b7d884d0fd5b4401fdb1999ca5068c142604c79de6c14",
+      "tests": [
+        "VInput locked height matches VButton medium via VDensity"
+      ]
+    },
+    {
+      "file": "components/v_loading_test.dart",
+      "sha256": "ecd45339a0dc3a6c2fac438f5feb5d989c5d3d614a520f8f04d5111fdec04f82",
+      "tests": [
+        "renders basic circular indicator",
+        "renders task mode with title and description",
+        "shows dialog when show is called"
+      ]
+    },
+    {
+      "file": "components/v_numeric_keypad_sheet_test.dart",
+      "sha256": "5b52c670dc7aa469dc34a8af10bd755f66d806599b05404d3c6f3e7c2befd5ee",
+      "tests": [
+        "display allows hardware keyboard without soft IME",
+        "keypad tap restarts caret blink (cursor visible)",
+        "keeps display focused when tapping anywhere inside the sheet",
+        "unfocuses display when tapping outside the sheet TapRegion",
+        "money shows comma thousands and suffix đ; field has no đ in text",
+        "money formats live while typing",
+        "inserts digit at caret in the middle",
+        "backspace deletes selection range in money digits",
+        "onSave returns raw without formatting",
+        "quantity accepts decimal via keypad"
+      ]
+    },
+    {
+      "file": "components/v_progress_test.dart",
+      "sha256": "f725142f5c31304cbc9e7e06986f15045d18924e0a6944eda4aa3cce3a4458d4",
+      "tests": [
+        "renders non-animated correctly",
+        "animates value changes"
+      ]
+    },
+    {
+      "file": "components/v_radio_test.dart",
+      "sha256": "3a67cd2dc0a4086ac2855357eb5c4759de7174b6fc1c2c96369726b9987a53d3",
+      "tests": [
+        "tap label selects radio",
+        "shows selected state"
+      ]
+    },
+    {
+      "file": "components/v_search_bar_test.dart",
+      "sha256": "1ec3e66259103b5c99e311d1d6179073665651063e630da7a3e88cd52fbadea0",
+      "tests": [
+        "VSearchBar composes VInput",
+        "VSearchBar shows clear when text present and onClear set"
+      ]
+    },
+    {
+      "file": "components/v_steps_test.dart",
+      "sha256": "7a29b0cbf414b9c69aec82d8c1f212c066c0672dc6fe854c8e390cb1c27442d9",
+      "tests": [
+        "renders horizontal layout with automatic statuses",
+        "renders horizontal list type",
+        "renders vertical list type"
+      ]
+    },
+    {
+      "file": "components/v_tabs_test.dart",
+      "sha256": "dc3269a824fa43dafad8c60f8a61a7720f33c3aeb73a6d71157ea6d3f831acd0",
+      "tests": [
+        "deprecated flat API renders all tab labels",
+        "VTabsList throws when used outside VTabs",
+        "VTabsTrigger throws when used outside VTabsList",
+        "VTabsContent throws when used outside VTabs",
+        "tap trigger updates selected index",
+        "body swipe changes tab and calls onTabSelected",
+        "bar fling changes tab when not scrollable",
+        "bar fling does not change tab when scrollable",
+        "swipe skips disabled tab",
+        "external selectedIndex change syncs PageView",
+        "plain variant omits line indicator on trigger",
+        "vertical list lays out inside Row without infinite width",
+        "scrollable horizontal list lays out without infinite width",
+        "non-scrollable triggers share equal horizontal flex",
+        "vertical triggers share the list width"
+      ]
+    },
+    {
+      "file": "components/v_text_field_test.dart",
+      "sha256": "14a7cb80612acc64d341b0a5cb1299fc351821f924ddde998550511a326d82ea",
+      "tests": [
+        "composes VInput inside VTextFieldFocusRing",
+        "renders suffixText outside editable text",
+        "VInput accepts prefix and suffix widgets inside padding",
+        "VInput unfocuses on outside tap but not on outside drag"
+      ]
+    },
+    {
+      "file": "components/v_verification_code_field_test.dart",
+      "sha256": "48cfcb2b6ed2f56f2851eba43358ebf7494f614fd0669c170bc6ab3277fe112c",
+      "tests": [
+        "numeric mode completes 6 digits",
+        "alphanumeric mode uppercases and completes 8 chars",
+        "alphanumeric rejects symbols",
+        "legacy flat label and helper still render"
+      ]
+    },
+    {
+      "file": "forms/v_choice_list_test.dart",
+      "sha256": "6c6d242ba2dc15f5215adeabffb2bd2d1d660d8403303f345d1054308e0fc15d",
+      "tests": [
+        "single choice selects one radio option",
+        "multiple choice toggles checkboxes",
+        "childBuilder renders when option selected",
+        "external errorText overrides internal error",
+        "shows required asterisk in title"
+      ]
+    },
+    {
+      "file": "forms/v_choice_list_validator_test.dart",
+      "sha256": "5f1c0ce14d37961e35975429d01e6f693f38d45af3df1930f82531bb8973750f",
+      "tests": [
+        "optional empty selection is valid",
+        "required empty selection returns message",
+        "rejects fewer than minSelections",
+        "rejects more than maxSelections",
+        "updateSelected single choice replaces selection",
+        "updateSelected multiple choice toggles values"
+      ]
+    },
+    {
+      "file": "forms/v_email_field_test.dart",
+      "sha256": "23da8b2dd94fffa3e17ed53ff4a978ff3e9c2b20a34e3aa8c0cb9774a78bb9c8",
+      "tests": [
+        "shows internal error after debounce for invalid email",
+        "shows min length error after debounce",
+        "shows required error after debounce when empty",
+        "external errorText overrides internal error",
+        "onChanged is called on every keystroke",
+        "clears internal error when optional field becomes empty"
+      ]
+    },
+    {
+      "file": "forms/v_email_validator_test.dart",
+      "sha256": "0e576bc285d79fbf01b5d115be770e9d6930a292afafd55eac94ecbb463e78e4",
+      "tests": [
+        "optional empty value is valid",
+        "required empty value returns required message",
+        "valid email formats pass",
+        "invalid email formats fail",
+        "rejects email shorter than minLength",
+        "rejects email longer than maxLength",
+        "supports custom min and max length",
+        "supports custom messages"
+      ]
+    },
+    {
+      "file": "forms/v_money_field_test.dart",
+      "sha256": "26bce502bdbf7d781140df48490e4091b7115538138ff65bdbd6fa91aff9b2a0",
+      "tests": [
+        "formats input with thousand separators",
+        "shows required error after debounce when empty",
+        "shows min error after debounce",
+        "external errorText overrides internal error",
+        "onChanged returns parsed int",
+        "shows suffix đ by default"
+      ]
+    },
+    {
+      "file": "forms/v_money_validator_test.dart",
+      "sha256": "1835c0226a4838ab35744c58b3a1ae18d92187c30ff2d6e765d02363d7b37be3",
+      "tests": [
+        "format adds thousand separators with comma",
+        "parse strips separators",
+        "optional empty value is valid",
+        "required empty value returns required message",
+        "rejects value below min",
+        "rejects value above max",
+        "valid amount passes"
+      ]
+    },
+    {
+      "file": "forms/v_number_field_test.dart",
+      "sha256": "4a64bb255d5647c28c0473dbbbc8c81611b37efdff046ce0f148e76a91fa4eb8",
+      "tests": [
+        "shows required error after debounce when empty",
+        "shows max error after debounce",
+        "external errorText overrides internal error",
+        "onChanged returns parsed int for integer mode",
+        "onChanged returns parsed double for decimal mode",
+        "formats integer input with thousand separators"
+      ]
+    },
+    {
+      "file": "forms/v_number_validator_test.dart",
+      "sha256": "faeda61e63fa8240236b664105c668cd2a7b010d9ffe438239767899b8c7fbaf",
+      "tests": [
+        "parse integer mode",
+        "parse decimal mode",
+        "format integer with thousand separators",
+        "format decimal with thousand separators",
+        "optional empty value is valid",
+        "required empty value returns required message",
+        "rejects value below min",
+        "rejects value above max",
+        "valid number passes"
+      ]
+    },
+    {
+      "file": "forms/v_password_field_test.dart",
+      "sha256": "847cc36c464a3de127b02a93c7ec4980f8a58e0001b4ff527d318826174e2bae",
+      "tests": [
+        "shows min length error after debounce",
+        "shows required error after debounce when empty",
+        "external errorText overrides internal error",
+        "toggles obscureText when visibility icon is tapped",
+        "custom suffixIcon replaces built-in toggle",
+        "onChanged is called on every keystroke",
+        "clears internal error when optional field becomes empty"
+      ]
+    },
+    {
+      "file": "forms/v_password_validator_test.dart",
+      "sha256": "97e13448f964db01654584d30d28f7557bb91b1c6470c3f3f2be8fdbbf244cc8",
+      "tests": [
+        "optional empty value is valid",
+        "required empty value returns required message",
+        "does not trim — whitespace-only counts toward length",
+        "rejects password shorter than minLength",
+        "rejects password longer than maxLength",
+        "accepts password within length bounds",
+        "supports custom min and max length",
+        "supports custom messages"
+      ]
+    },
+    {
+      "file": "forms/v_phone_field_test.dart",
+      "sha256": "e8a73f37a7af60673838cc40b08919a47a5a4fca86fdf7224b0e7b191bf37ce9",
+      "tests": [
+        "rejects invalid paste and preserves selection and leading zero",
+        "debounces validation and clears errors after correction",
+        "validates controller changes and detaches replaced controller",
+        "external error takes precedence and disabled field cannot focus",
+        "phone validator checks characters before counting digits"
+      ]
+    },
+    {
+      "file": "forms/v_phone_initial_value_test.dart",
+      "sha256": "27a4d7a01cf6642f06184ea9796e7089eb8c758ec9e6d4129b16333803c07ff2",
+      "tests": [
+        "initial value sync preserves editing selection on state echo",
+        "switching controller ownership preserves or initializes text",
+        "controller and initialValue cannot both supply text"
+      ]
+    },
+    {
+      "file": "forms/v_select_field_test.dart",
+      "sha256": "269789a739a8766f819c0d453960036f2a926187d00e203afb91814b4367030a",
+      "tests": [
+        "shows required label asterisk",
+        "external errorText overrides internal error",
+        "shows helper text when no error",
+        "onChanged is called when item selected",
+        "menu shrinks to fit few items",
+        "unfocuses when tapping outside while menu is open"
+      ]
+    },
+    {
+      "file": "forms/v_select_validator_test.dart",
+      "sha256": "90f735184ed96911dba6f7e95b7333e0f16a5d0c7ca24571c780d5fa8fbc5950",
+      "tests": [
+        "null value is valid when optional",
+        "null value returns required message when required",
+        "non-null value passes",
+        "supports custom message"
+      ]
+    },
+    {
+      "file": "foundation/v_component_scope_test.dart",
+      "sha256": "62882501fff8b2777e6c77de0cd910a3400dd7387476ba10b7ca77abe9ef84bd",
+      "tests": [
+        "returns local when set",
+        "falls back to nearest scope tone",
+        "returns null when no local and no scope",
+        "nested scope overrides outer",
+        "returns local when set",
+        "falls back to nearest scope enabled",
+        "returns fallback when no local and no scope",
+        "throws when ancestor missing"
+      ]
+    },
+    {
+      "file": "foundation/v_datetime_test.dart",
+      "sha256": "124a814aeb0475afcfb7e447370d7d8c891c983bd46f14ec3ac5699a612c1786",
+      "tests": [
+        "toIct correctly shifts UTC instant by +7 hours",
+        "toIct crosses date boundary around midnight UTC",
+        "date and time formatting output matches ICT wall clock",
+        "calendarDate formats without timezone shifting",
+        "parseAndFormatCalendarDate safely formats YYYY-MM-DD strings",
+        "currentBusinessDate returns ICT calendar date",
+        "businessDayRangeUtc returns exact [00:00 ICT, 24:00 ICT) in UTC",
+        "businessDayRangeUtc for 7 days spans 7 complete ICT days"
+      ]
+    },
+    {
+      "file": "patterns/v_field_test.dart",
+      "sha256": "c4b1816f80365cb8632cbc096eab3b105ca3cb2528aeab8bf6da599a91608f3b",
+      "tests": [
+        "parts require VField ancestor",
+        "parts render inside VField",
+        "description uses textSecondary",
+        "error uses danger",
+        "error wins helper",
+        "VTextField flat props still render via shell",
+        "local wins ambient",
+        "inherits ambient when local is null",
+        "fallback false outside VField",
+        "VTextField inherits VField.invalid danger chrome",
+        "VTextField local invalid:false overrides ambient",
+        "legacy errorText still forces danger when invalid null",
+        "VCombobox inherits VField.invalid danger chrome"
+      ]
+    },
+    {
+      "file": "patterns/v_gap_test.dart",
+      "sha256": "9f2c640fd61066aba1a225a1adade39d635632725ca415fa079908f4134c800d",
+      "tests": [
+        "vertical sm uses VSpacing.sm height",
+        "horizontal sm uses VSpacing.sm width"
+      ]
+    },
+    {
+      "file": "patterns/v_page_scaffold_test.dart",
+      "sha256": "82ee4ac2c2c56d793e52744760b72913fa5b6b4ff9a8701f052463e41de8fefb",
+      "tests": [
+        "renders title and body",
+        "renders bottom bar when provided",
+        "renders title subtitle and child"
+      ]
+    },
+    {
+      "file": "patterns/v_responsive_test.dart",
+      "sha256": "9e62a65a380418c01b89af5ad879f83f9375b845d887b09cff12095136c79925",
+      "tests": [
+        "reports mobile for narrow constraints",
+        "reports desktop for wide constraints",
+        "hides when breakpoint does not match",
+        "shows when visibleFrom matches",
+        "uses one column on mobile",
+        "applies tablet max width",
+        "cascades desktop → tablet → mobile",
+        "uses desktop when provided"
+      ]
+    },
+    {
+      "file": "primitives/v_badge_test.dart",
+      "sha256": "3863db10aef5aa4764d6fc62ed7b2c75a4ff14e21a8e7468e7d9f27c06f8f21d",
+      "tests": [
+        "soft variant uses tinted surface and tone foreground",
+        "strong variant fills with tone and inverts foreground",
+        "neutral tone maps to surfaceAlt and textPrimary",
+        "ambient VComponentScope tone is inherited",
+        "local tone wins over ambient scope",
+        "deprecated status still resolves a tone",
+        "dot and icon follow the foreground color",
+        "semanticLabel overrides the announced label"
+      ]
+    },
+    {
+      "file": "primitives/v_chip_test.dart",
+      "sha256": "1038140d15e77657dd11d91fd9075df1372084dc62dbc1026488ca0b95b15041",
+      "tests": [
+        "defaults to neutral tone",
+        "primary tone uses surfaceBrand, textBrand and borderBrand",
+        "semantic tones border with their own foreground color",
+        "ambient VComponentScope tone is inherited",
+        "local tone wins over ambient scope",
+        "deprecated selected bridges to primary tone",
+        "deprecated emphasis bridges to a tone",
+        "explicit tone wins over deprecated selected",
+        "disabled chip is dimmed and does not fire onTap",
+        "icon and remove control never exceed the label line height",
+        "onRemove shows a dismiss control that fires"
+      ]
+    },
+    {
+      "file": "primitives/v_divider_test.dart",
+      "sha256": "d7bcf9d34de7a27cd741ce41fc2ee20def19c98c7545116fc5cbf13c5d244c7a",
+      "tests": [
+        "horizontal defaults to borderDefault and thickness 1",
+        "vertical renders within bounded height",
+        "explicit color and thickness override defaults"
+      ]
+    },
+    {
+      "file": "primitives/v_icon_test.dart",
+      "sha256": "88f37fd64f062ee968243210a4128f742b789f930005e05236e3c7da7ca492c0",
+      "tests": [
+        "without weight renders an Icon on the default Lucide family",
+        "weight renders the glyph from the per-weight family",
+        "every weight maps to its own font family",
+        "weighted glyph keeps the resolved size and color",
+        "weight is ignored for legacy Material iconData",
+        "weight is ignored for assetPath icons"
+      ]
+    },
+    {
+      "file": "primitives/v_text_test.dart",
+      "sha256": "b69b9a6690d96a05784df00a8b52348b24a1e74bf5015a35b0be5e95cb6e84d8",
+      "tests": [
+        "default variant renders data",
+        "custom color is applied",
+        "variant maps to typography fontSize",
+        "mono variants use mono font family",
+        "maxLines and overflow are forwarded",
+        "local tone maps to semantic color",
+        "inherits tone from VComponentScope",
+        "explicit color wins over ambient tone",
+        "local tone wins over ambient tone"
+      ]
+    },
+    {
+      "file": "tokens/v_breakpoints_test.dart",
+      "sha256": "698283f2871f01f65ca3f8e91b149443f31906228fb9cf644c5b1ae1e8bc4644",
+      "tests": [
+        "defaults horizontal inset to screenMobile",
+        "ofWidth thresholds",
+        "isAtLeast / isAtMost"
+      ]
+    },
+    {
+      "file": "v_combobox_layout_test.dart",
+      "sha256": "51f133cbbc2d7f18dfa3d49bb3bb998221c5d82c02da4bf010d22dcae9184cc9",
+      "tests": [
+        "VCombobox mounts in ListView accordion without hasSize error",
+        "VCombobox unfocuses when tapping outside while menu is open",
+        "VCombobox keeps focus when parent scrolls while menu is open",
+        "VCombobox menu shrinks to fit few items",
+        "VCombobox menu scrolls with vertical drag gesture",
+        "VCombobox menu stays open and focused while scrolling items",
+        "VCombobox selecting item closes menu and calls onChanged",
+        "VCombobox tap opens overlay with empty filter but keeps selected label",
+        "VCombobox re-opens overlay on tap when closed while still focused",
+        "VCombobox shows empty overlay when search matches no items",
+        "VComboboxEmpty uses custom message when provided",
+        "VOverlayMenuLayout.availableSpace tolerates unlaid-out ancestors",
+        "VComboboxItem custom child filters by searchText only",
+        "VComboboxItem without searchText filters via displayTextForValue",
+        "VComboboxFooter shows with empty list",
+        "VCombobox overlay refreshes when items change while open",
+        "VComboboxInput focus ring turns on when focused",
+        "VComboboxItem multi-line child sizes taller than control height",
+        "VCombobox controlled open calls onOpenChange",
+        "VOverlayMenuLayout.panelMetrics caps shell height at menu max",
+        "VOverlayMenuLayout.shadowBleedPadding reserves space for e2 shadow"
+      ]
+    },
+    {
+      "file": "v_overlay_menu_shell_test.dart",
+      "sha256": "80c3bfa3405bfa98132628e56c19e12e76e0bc2752dda68b9ffa54454c39cba6",
+      "tests": [
+        "VOverlayMenuShell.panel renders DecoratedBox with boxShadow",
+        "VOverlayMenuShell uses bottom-weighted design-system shadow token"
+      ]
+    }
+  ],
+  "authority": "Flutter 1.4.1 test source; file hashes and test names"
+}

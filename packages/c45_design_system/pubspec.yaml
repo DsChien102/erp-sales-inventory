@@ -1,0 +1,52 @@
+name: c45_design_system
+description: "Mosaic Retail Company Design System Package"
+version: 1.7.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  lucide_icons_flutter: ^3.1.15
+
+dev_dependencies:
+  c45_lints: ^1.0.0
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  # Only the TTFs loaded by path (PDF generators in apps/erp). Folder entries
+  # would bundle every weight/italic in the directory (~21 MB).
+  assets:
+    - assets/fonts/ttf_Inter/Inter-Regular.ttf
+    - assets/fonts/ttf_Inter/Inter-Bold.ttf
+    - assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Regular.ttf
+    - assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Bold.ttf
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/ttf_Inter/Inter-Regular.ttf
+        - asset: assets/fonts/ttf_Inter/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ttf_Inter/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/ttf_Inter/Inter-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/ttf_Inter/Inter-ExtraBold.ttf
+          weight: 800
+    - family: JetBrains Mono
+      fonts:
+        - asset: assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Regular.ttf
+        - asset: assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ttf_JetBrainsMono/JetBrainsMono-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/ttf_JetBrainsMono/JetBrainsMono-ExtraBold.ttf
+          weight: 800

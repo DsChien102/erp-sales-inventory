@@ -1,0 +1,11 @@
+name: c45
+
+publish_to: none
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+
+workspace:
+  - apps/erp
+  - packages/c45_lints
+  - packages/c45_design_system

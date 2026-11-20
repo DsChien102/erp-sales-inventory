@@ -1,0 +1,342 @@
+# Component contract expectations for audit.
+# Levels: required | preferred | optional | na
+# Class name = primary public V* widget per export file.
+
+# --- Primitives ---
+VBadge:
+  role: status_display
+  tone: required
+  emphasis: optional
+  state: na
+  semanticLabel: preferred
+
+VChip:
+  role: status_display
+  tone: required
+  emphasis: optional
+  state: optional
+  semanticLabel: required
+
+VIcon:
+  role: typography_primitive
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: optional
+
+VIconBox:
+  role: status_display
+  tone: optional
+  emphasis: optional
+  state: na
+  semanticLabel: optional
+
+VText:
+  role: typography_primitive
+  tone: optional
+  emphasis: na
+  state: na
+  semanticLabel: optional
+
+VSkeleton:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: preferred
+
+VDivider:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: optional
+
+# --- Action ---
+VButton:
+  role: action
+  tone: required
+  emphasis: required
+  state: preferred
+  semanticLabel: required
+
+VFloatingActionButton:
+  role: action
+  tone: preferred
+  emphasis: preferred
+  state: preferred
+  semanticLabel: required
+
+# --- Input ---
+VTextField:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+VSearchBar:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+VDropdown:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+VSearchableDropdown:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+VCompactSearchableDropdown:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+VDatePicker:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+VEmailField:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+VMoneyField:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+VNumberField:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+VSelect:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+VChoiceList:
+  role: input
+  tone: preferred
+  emphasis: preferred
+  state: required
+  semanticLabel: required
+
+# --- Toggle ---
+VCheckbox:
+  role: toggle
+  tone: optional
+  emphasis: optional
+  state: required
+  semanticLabel: required
+
+VRadio:
+  role: toggle
+  tone: optional
+  emphasis: optional
+  state: required
+  semanticLabel: required
+
+VSwitch:
+  role: toggle
+  tone: optional
+  emphasis: optional
+  state: required
+  semanticLabel: required
+
+# --- Status / feedback ---
+VToast:
+  role: status_display
+  tone: required
+  emphasis: optional
+  state: na
+  semanticLabel: preferred
+
+VEmptyState:
+  role: status_display
+  tone: optional
+  emphasis: optional
+  state: na
+  semanticLabel: preferred
+
+VLoading:
+  role: status_display
+  tone: optional
+  emphasis: na
+  state: na
+  semanticLabel: required
+
+VProgress:
+  role: status_display
+  tone: optional
+  emphasis: na
+  state: na
+  semanticLabel: required
+
+# --- Input (file) ---
+VFileDropZone:
+  role: input
+  tone: optional
+  emphasis: optional
+  state: required
+  semanticLabel: required
+
+# --- Container ---
+VCard:
+  role: container
+  tone: optional
+  emphasis: optional
+  state: optional
+  semanticLabel: optional
+
+VSection:
+  role: container
+  tone: optional
+  emphasis: optional
+  state: na
+  semanticLabel: optional
+
+# --- Overlay ---
+VConfirmDialog:
+  role: overlay_shell
+  tone: optional
+  emphasis: optional
+  state: na
+  semanticLabel: preferred
+
+VBottomSheet:
+  role: overlay_shell
+  tone: optional
+  emphasis: optional
+  state: na
+  semanticLabel: preferred
+
+# --- Navigation ---
+VTabs:
+  role: navigation_chrome
+  tone: optional
+  emphasis: optional
+  state: na
+  semanticLabel: optional
+
+VSegmentedControl:
+  role: navigation_chrome
+  tone: preferred
+  emphasis: preferred
+  state: preferred
+  semanticLabel: preferred
+
+VSwipeActionRecord:
+  role: business_chrome
+  tone: preferred
+  emphasis: preferred
+  state: preferred
+  semanticLabel: preferred
+
+VNumericKeypadSheet:
+  role: overlay_shell
+  tone: preferred
+  emphasis: preferred
+  state: optional
+  semanticLabel: preferred
+
+VSteps:
+  role: navigation_chrome
+  tone: optional
+  emphasis: na
+  state: na
+  semanticLabel: required
+
+VTable:
+  role: container
+  tone: optional
+  emphasis: optional
+  state: na
+  semanticLabel: preferred
+
+VAppBar:
+  role: navigation_chrome
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: optional
+
+VBottomNavigationBar:
+  role: navigation_chrome
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: optional
+
+# --- Layout patterns ---
+VField:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VFieldLabel:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VFieldDescription:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VFieldError:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VGap:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VPagePadding:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VPageScaffold:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na

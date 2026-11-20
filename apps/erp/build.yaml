@@ -1,0 +1,9 @@
+targets:
+  $default:
+    builders:
+      go_router_builder:
+        generate_for:
+          - lib/features/sales/presentation/navigation/sales_typed_routes.dart
+      source_gen|combining_builder:
+        generate_for:
+          - lib/features/sales/presentation/navigation/sales_typed_routes.dart

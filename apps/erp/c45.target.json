@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "id": "erp",
+  "description": "Flutter ERP",
+  "kind": "flutter",
+  "keys": [
+    {
+      "name": "APP_ENV",
+      "fromManifest": "appEnv"
+    },
+    {
+      "name": "SUPABASE_CONNECTION_URL",
+      "from": "SUPABASE_URL",
+      "required": true,
+      "description": "Supabase project URL (mapped to SUPABASE_CONNECTION_URL in app .env)"
+    },
+    {
+      "name": "SUPABASE_ANON_KEY",
+      "required": true,
+      "description": "Supabase anon/public key for Flutter ERP"
+    },
+    {
+      "name": "LOG_LEVEL",
+      "default": "INFO",
+      "description": "ERP application log level"
+    },
+    {
+      "name": "MESSAGING_CLIENT_POLL_ENABLED",
+      "default": "false",
+      "description": "Enable client-side messaging poll loop in ERP"
+    }
+  ],
+  "environments": {
+    "development": {
+      "envFile": ".env",
+      "flavor": "development",
+      "appEnv": "development"
+    },
+    "local": {
+      "envFile": ".env",
+      "flavor": "development",
+      "appEnv": "development"
+    },
+    "staging": {
+      "envFile": ".env.staging",
+      "flavor": "staging",
+      "appEnv": "staging"
+    },
+    "production": {
+      "envFile": ".env.production",
+      "flavor": "production",
+      "appEnv": "production"
+    }
+  },
+  "actions": {
+    "debug": {
+      "description": "Flutter run (device/simulator) with active flavor",
+      "command": "flutter",
+      "args": [
+        "run",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "requireEnvFile": true
+    },
+    "debug:web": {
+      "description": "Flutter run on Chrome",
+      "command": "flutter",
+      "args": [
+        "run",
+        "-d",
+        "chrome",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "requireEnvFile": true
+    },
+    "debug:ios": {
+      "description": "Flutter run on iOS (macOS only)",
+      "command": "flutter",
+      "args": [
+        "run",
+        "-d",
+        "ios",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "platforms": [
+        "macos"
+      ],
+      "requireEnvFile": true
+    },
+    "bump-version": {
+      "description": "Bump version of the app",
+      "command": "./scripts/bump_version.sh",
+      "cwd": ".",
+      "platforms": [
+        "macos"
+      ]
+    },
+    "build-ios": {
+      "description": "Build iOS IPA for TestFlight (staging/production)",
+      "command": "./scripts/build_ios.sh",
+      "args": [
+        "--env",
+        "{{environmentId}}"
+      ],
+      "cwd": ".",
+      "platforms": [
+        "macos"
+      ],
+      "requireEnvironments": [
+        "staging",
+        "production"
+      ]
+    },
+    "deploy-ios": {
+      "description": "Upload IPA to App Store Connect",
+      "command": "./deploy-ios.sh",
+      "args": [
+        "--env",
+        "{{environmentId}}"
+      ],
+      "cwd": ".",
+      "platforms": [
+        "macos"
+      ],
+      "requireEnvironments": [
+        "staging",
+        "production"
+      ],
+      "requireDoctorTargets": [
+        "deploy"
+      ],
+      "preActions": [
+        "build-ios"
+      ]
+    }
+  }
+}

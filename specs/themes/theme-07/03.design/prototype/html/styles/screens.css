@@ -1,0 +1,4327 @@
+/* ===== bj01-ds-fidelity.css ===== */
+/*
+ * Mosaic Retail Theme 7 v2.4.4 — BJ01 Figma DS fidelity hardening
+ * UI authority: live Figma DS v2, pages 01 Foundations & Icons,
+ * 02 Components, 03 Patterns & Templates.
+ * This file is deliberately loaded last to neutralize historical prototype CSS.
+ */
+
+/* ---------- shared canonical primitives used by BJ01 ---------- */
+.figma-calibrated-shell,
+.figma-calibrated-shell button,
+.figma-calibrated-shell input,
+.figma-calibrated-shell select,
+.figma-calibrated-shell textarea {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.icon--24 { width: var(--c45-v2-icon-24); height: var(--c45-v2-icon-24); }
+
+/* VBanner 526:4215 / canonical default density.
+   No decorative icon circle. The semantic DS Icon is 20x20 directly. */
+.figma-calibrated-shell .v-banner {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: var(--c45-v2-space-4);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--c45-v2-space-3);
+  border-width: var(--c45-v2-border-width-thin);
+  border-style: solid;
+  border-radius: var(--c45-v2-radius-4);
+  box-sizing: border-box;
+  box-shadow: none;
+}
+.figma-calibrated-shell .v-banner-icon {
+  width: var(--c45-v2-icon-20);
+  height: var(--c45-v2-icon-20);
+  flex: 0 0 var(--c45-v2-icon-20);
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  line-height: 0;
+}
+.figma-calibrated-shell .v-banner-icon .icon {
+  display: block;
+  width: var(--c45-v2-icon-20);
+  height: var(--c45-v2-icon-20);
+}
+.figma-calibrated-shell .v-banner-copy {
+  width: min(286px, 100%);
+  max-width: 286px;
+  min-width: 0;
+  flex: 0 1 286px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--c45-v2-space-1);
+  padding: 0;
+  text-align: left;
+  word-break: break-word;
+}
+.figma-calibrated-shell .v-banner[data-ds-prop-density="Compact"] {
+  padding: var(--c45-v2-space-3) var(--c45-v2-space-4);
+}
+.figma-calibrated-shell .v-banner-copy strong {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.figma-calibrated-shell .v-banner-copy span {
+  margin: 0;
+  color: var(--c45-v2-text-primary);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.figma-calibrated-shell .v-banner--info {
+  color: var(--c45-v2-icon-info);
+  background: var(--c45-v2-surface-info);
+  border-color: var(--c45-v2-border-info);
+}
+.figma-calibrated-shell .v-banner--info .v-banner-copy strong { color: var(--c45-v2-text-info); }
+.figma-calibrated-shell .v-banner--success {
+  color: var(--c45-v2-icon-success);
+  background: var(--c45-v2-surface-success);
+  border-color: var(--c45-v2-border-success);
+}
+.figma-calibrated-shell .v-banner--success .v-banner-copy strong { color: var(--c45-v2-text-success); }
+.figma-calibrated-shell .v-banner--warning {
+  color: var(--c45-v2-icon-warning);
+  background: var(--c45-v2-surface-warning);
+  border-color: var(--c45-v2-border-warning);
+}
+.figma-calibrated-shell .v-banner--warning .v-banner-copy strong { color: var(--c45-v2-text-warning); }
+.figma-calibrated-shell .v-banner--error {
+  color: var(--c45-v2-icon-danger);
+  background: var(--c45-v2-surface-danger);
+  border-color: var(--c45-v2-border-danger);
+}
+.figma-calibrated-shell .v-banner--error .v-banner-copy strong { color: var(--c45-v2-text-danger); }
+
+/* ---------- BJ01 exact shell/template rhythm ---------- */
+body[data-active-uif="UIF-01"] .figma-calibrated-shell {
+  width: 402px;
+  height: 874px;
+  min-height: 874px;
+  overflow: hidden;
+  color: var(--c45-v2-text-primary);
+  background: var(--c45-v2-surface-canvas);
+}
+body[data-active-uif="UIF-01"] .figma-calibrated-shell > .app-statusbar {
+  height: 24px;
+  min-height: 24px;
+  flex-basis: 24px;
+  padding: 0 var(--c45-v2-space-4);
+  color: var(--c45-v2-text-primary);
+  background: var(--c45-v2-surface-default);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: .1px;
+}
+body[data-active-uif="UIF-01"] .figma-calibrated-shell > .app-header {
+  height: 56px;
+  min-height: 56px;
+  flex-basis: 56px;
+  border: 0;
+  background: var(--c45-v2-surface-default);
+}
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .app-appbar,
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .app-appbar.has-subtitle {
+  height: 56px;
+  min-height: 56px;
+  padding: 0 var(--c45-v2-space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--c45-v2-space-2);
+  background: var(--c45-v2-surface-default);
+}
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .app-back-button {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  margin-left: -10px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--c45-v2-icon-primary);
+}
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .app-appbar-copy h3 {
+  margin: 0;
+  color: var(--c45-v2-text-primary);
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .app-appbar-copy span {
+  margin: 0;
+  color: var(--c45-v2-text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+body[data-active-uif="UIF-01"] .figma-calibrated-shell > .app-content {
+  padding: 0 var(--c45-v2-space-4) var(--c45-v2-space-4);
+  background: var(--c45-v2-surface-canvas);
+  scrollbar-width: none;
+}
+
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .body-stack {
+  width: 370px;
+  gap: var(--c45-v2-space-3);
+  padding-top: var(--c45-v2-space-4);
+}
+
+/* Body/Small context */
+body[data-active-uif="UIF-01"] .ds24-context {
+  margin: 0;
+  color: var(--c45-v2-text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Search & Filter Header / Search layout 547:2224; SearchBar 522:7245. */
+body[data-active-uif="UIF-01"] .ds24-search-header {
+  width: 402px;
+  height: 68px;
+  min-height: 68px;
+  margin: 0 -16px;
+  padding: var(--c45-v2-space-2) var(--c45-v2-space-4);
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+body[data-active-uif="UIF-01"] .ds24-search {
+  width: 370px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 var(--c45-v2-space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--c45-v2-space-2);
+  border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius: var(--c45-v2-radius-3);
+  background: var(--c45-v2-surface-default);
+  color: var(--c45-v2-icon-primary);
+}
+body[data-active-uif="UIF-01"] .ds24-search > .icon {
+  width: var(--c45-v2-icon-20);
+  height: var(--c45-v2-icon-20);
+  flex: 0 0 var(--c45-v2-icon-20);
+}
+body[data-active-uif="UIF-01"] .ds24-search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--c45-v2-text-primary);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+body[data-active-uif="UIF-01"] .ds24-search input::placeholder { color: var(--c45-v2-text-secondary); opacity: 1; }
+
+/* VChip 522:7449: visual pill is exactly 34 high; hit target remains >=44. */
+body[data-active-uif="UIF-01"] .ds24-chip-scroll {
+  width: 370px;
+  height: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: var(--c45-v2-space-2);
+  overflow-x: auto;
+}
+body[data-active-uif="UIF-01"] .ds24-chip {
+  position: relative;
+  flex: 0 0 auto;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 var(--c45-v2-space-3);
+  border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius: var(--c45-v2-radius-pill);
+  background: var(--c45-v2-surface-default);
+  color: var(--c45-v2-text-primary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+body[data-active-uif="UIF-01"] .ds24-chip::after {
+  content: "";
+  position: absolute;
+  inset: -5px 0;
+}
+body[data-active-uif="UIF-01"] .ds24-chip.is-selected {
+  color: var(--c45-v2-text-brand);
+  background: var(--c45-v2-surface-brand);
+  border-color: var(--c45-v2-border-brand);
+}
+
+/* List Row 525:519 / Navigation Default: 370x76, pL16 pR24, gap12, r12. */
+body[data-active-uif="UIF-01"] .ds24-list-stack {
+  width: 370px;
+  gap: var(--c45-v2-space-3);
+}
+body[data-active-uif="UIF-01"] .ds24-list-row {
+  width: 370px;
+  height: 76px;
+  min-height: 76px;
+  padding: 0 var(--c45-v2-space-6) 0 var(--c45-v2-space-4);
+  gap: var(--c45-v2-space-3);
+  border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius: var(--c45-v2-radius-4);
+  background: var(--c45-v2-surface-default);
+  box-shadow: none;
+}
+body[data-active-uif="UIF-01"] .ds24-list-row > .ds24-list-row__leading,
+body[data-active-uif="UIF-01"] .ds24-list-row__trailing > .icon {
+  width: var(--c45-v2-icon-20);
+  height: var(--c45-v2-icon-20);
+}
+body[data-active-uif="UIF-01"] .ds24-list-row__leading { color: var(--c45-v2-icon-primary); }
+body[data-active-uif="UIF-01"] .ds24-list-row__copy {
+  gap: var(--c45-v2-space-1);
+}
+body[data-active-uif="UIF-01"] .ds24-list-row__copy strong {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+body[data-active-uif="UIF-01"] .ds24-list-row__copy small {
+  color: var(--c45-v2-text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+body[data-active-uif="UIF-01"] .ds24-list-row__trailing {
+  gap: 0;
+  color: var(--c45-v2-icon-secondary);
+}
+
+/* VBadge 525:309 exact Soft geometry for BJ01 contexts where a badge is used. */
+body[data-active-uif="UIF-01"] .ds24-badge {
+  height: 30px;
+  min-height: 30px;
+  padding: 0 var(--c45-v2-space-3);
+  border: 0;
+  border-radius: var(--c45-v2-radius-pill);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+}
+
+/* Product identity is Product UI; all values are consumed from canonical DS typography/tokens. */
+
+/* BJ01 availability uses the existing DS v2 / Key-value Row only.
+   Emphasis owns the primary outcome; Default rows own aligned supporting quantities.
+   The 338px master width is preserved and centered inside the canonical 370px content column.
+   Typography is component-owned: Default uses Mono/Numeric; Emphasis stays Inter. */
+body[data-active-uif="UIF-01"] .ds24-availability {
+  width: 370px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--c45-v2-space-2);
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  box-sizing: border-box;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-stack {
+  width: 338px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row {
+  width: 338px;
+  height: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-sizing: border-box;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row > span,
+body[data-active-uif="UIF-01"] .ds24-key-value-row > strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row > span {
+  color: var(--c45-v2-text-secondary);
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row > strong {
+  color: var(--c45-v2-text-primary);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+/* Info Row 525:351 current live master: concise metadata, 338x44, justify-between, gap 0. */
+body[data-active-uif="UIF-01"] .ds24-info-stack {
+  width: 338px;
+  align-self: center;
+  gap: 0;
+}
+body[data-active-uif="UIF-01"] .ds24-info-row,
+body[data-active-uif="UIF-01"] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"] {
+  width: 338px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+body[data-active-uif="UIF-01"] .ds24-info-row > span {
+  flex: 0 0 auto;
+  color: var(--c45-v2-text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+body[data-active-uif="UIF-01"] .ds24-info-row > strong {
+  flex: 0 0 auto;
+  color: var(--c45-v2-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+body[data-active-uif="UIF-01"] .ds24-section {
+  width: 370px;
+  gap: var(--c45-v2-space-2);
+}
+body[data-active-uif="UIF-01"] .ds24-section-title {
+  min-height: 32px;
+  gap: var(--c45-v2-space-2);
+}
+body[data-active-uif="UIF-01"] .ds24-section-title h2 {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+}
+body[data-active-uif="UIF-01"] .ds24-section-title > span {
+  color: var(--c45-v2-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: .1px;
+}
+
+/* VButton default geometry 521:529. */
+body[data-active-uif="UIF-01"] .ds24-button {
+  min-height: 44px;
+  height: 44px;
+  padding: 0 var(--c45-v2-space-4);
+  gap: var(--c45-v2-space-2);
+  border-radius: var(--c45-v2-radius-button);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+body[data-active-uif="UIF-01"] .ds24-button > .icon {
+  width: var(--c45-v2-icon-20);
+  height: var(--c45-v2-icon-20);
+}
+
+/* Empty state is scoped to the content area and never inherits old card styling. */
+body[data-active-uif="UIF-01"] .ds24-empty {
+  width: 370px;
+  min-height: 272px;
+  gap: var(--c45-v2-space-2);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+body[data-active-uif="UIF-01"] .ds24-empty__media {
+  width: var(--c45-v2-icon-48);
+  height: var(--c45-v2-icon-48);
+  color: var(--c45-v2-icon-muted);
+}
+body[data-active-uif="UIF-01"] .ds24-empty h3 {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+}
+body[data-active-uif="UIF-01"] .ds24-empty p {
+  color: var(--c45-v2-text-secondary);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+}
+
+/* VBottomSheet 4695:6353. Canonical V-component wins over custom Theme7 sheet shell. */
+body[data-active-uif="UIF-01"] .ds24-overlay {
+  background: var(--c45-v2-surface-overlay);
+}
+body[data-active-uif="UIF-01"] .ds24-sheet {
+  width: 402px;
+  max-height: 88%;
+  padding: 12px 16px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  border-radius: 20px 20px 0 0;
+  background: var(--c45-v2-surface-default);
+  box-shadow: none;
+}
+body[data-active-uif="UIF-01"] .ds24-sheet__handle {
+  width: 48px;
+  height: 4px;
+  flex: 0 0 4px;
+  border-radius: var(--c45-v2-radius-pill);
+  background: var(--c45-v2-border-strong);
+}
+body[data-active-uif="UIF-01"] .ds24-sheet > h3 {
+  width: 370px;
+  min-height: 28px;
+  margin: 0;
+  color: var(--c45-v2-text-primary);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -.2px;
+}
+body[data-active-uif="UIF-01"] .ds24-sheet__body {
+  width: 370px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--c45-v2-space-3);
+}
+
+/* Remove historical visual artefacts within BJ01. */
+
+body[data-active-uif="UIF-01"] .figma-calibrated-shell { font-synthesis: none; }
+/* ===== bj02-ds-fidelity.css ===== */
+/* Mosaic Retail Theme 7 v2.5.0 — BJ02 live Figma DS fidelity layer.
+   Authority: Figma pages 01 Foundations & Icons, 02 Components, 03 Patterns & Templates.
+   Component-first: existing V_* -> other canonical component -> Pattern/Template -> composition. */
+
+body[data-active-uif="UIF-02"] .figma-calibrated-shell,
+body[data-active-uif="UIF-02"] .figma-calibrated-shell button,
+body[data-active-uif="UIF-02"] .figma-calibrated-shell input,
+body[data-active-uif="UIF-02"] .figma-calibrated-shell textarea,
+body[data-active-uif="UIF-02"] .figma-calibrated-shell select {
+  font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell{width:402px;height:874px;min-height:874px;overflow:hidden;background:var(--c45-v2-surface-canvas);color:var(--c45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell>.app-statusbar{height:24px;min-height:24px;flex-basis:24px;padding:0 var(--c45-v2-space-4);background:var(--c45-v2-surface-default);font-size:12px;line-height:16px;font-weight:500;letter-spacing:.1px}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell>.app-header{height:56px;min-height:56px;flex-basis:56px;border:0;background:var(--c45-v2-surface-default)}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .app-appbar,
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .app-appbar.has-subtitle{height:56px;min-height:56px;padding:0 var(--c45-v2-space-4);gap:var(--c45-v2-space-2);align-items:center;background:var(--c45-v2-surface-default)}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .app-back-button{width:44px;height:44px;flex:0 0 44px;margin-left:-10px;padding:0;display:grid;place-items:center;border:0;background:transparent;color:var(--c45-v2-icon-primary)}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .app-appbar-copy h3{margin:0;font-size:16px;line-height:22px;font-weight:600;letter-spacing:0}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .app-appbar-copy span{margin:0;font-size:13px;line-height:20px;font-weight:400;letter-spacing:0;color:var(--c45-v2-text-secondary)}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell>.app-content{padding:0 var(--c45-v2-space-4) var(--c45-v2-space-4);background:var(--c45-v2-surface-canvas);scrollbar-width:none}
+
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .body-stack{width:370px;gap:var(--c45-v2-space-3);padding-top:var(--c45-v2-space-4)}
+
+/* List Row 525:519 — no third text line, no feature card wrapper. */
+body[data-active-uif="UIF-02"] .bj02-ds-list-row:disabled{opacity:var(--c45-v2-opacity-disabled);cursor:default}
+body[data-active-uif="UIF-02"] .bj02-ds-list-leading,body[data-active-uif="UIF-02"] .bj02-ds-list-trailing{width:20px;height:20px;flex:0 0 20px;display:grid;place-items:center;color:var(--c45-v2-icon-primary)}
+body[data-active-uif="UIF-02"] .bj02-ds-list-leading .icon,body[data-active-uif="UIF-02"] .bj02-ds-list-trailing .icon{width:20px;height:20px}
+body[data-active-uif="UIF-02"] .bj02-ds-list-copy{display:flex;flex:1 1 auto;min-width:0;flex-direction:column;gap:var(--c45-v2-space-1)}
+body[data-active-uif="UIF-02"] .bj02-ds-list-copy strong{font-size:14px;line-height:20px;font-weight:600;letter-spacing:0}
+body[data-active-uif="UIF-02"] .bj02-ds-list-copy span{font-size:13px;line-height:20px;font-weight:400;letter-spacing:0;color:var(--c45-v2-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body[data-active-uif="UIF-02"] .bj02-radio-control{width:20px;height:20px;border:2px solid var(--c45-v2-border-strong);border-radius:50%;background:var(--c45-v2-surface-default);box-sizing:border-box}
+
+/* VSearchBar 522:7245. */
+body[data-active-uif="UIF-02"] .bj02-search,
+body[data-active-uif="UIF-02"] .quick-overview-search{width:370px;height:44px;min-height:44px;padding:0 var(--c45-v2-space-4);display:flex;align-items:center;gap:var(--c45-v2-space-2);border:var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);border-radius:var(--c45-v2-radius-3);background:var(--c45-v2-surface-default);box-sizing:border-box}
+body[data-active-uif="UIF-02"] .bj02-search>span:first-child,body[data-active-uif="UIF-02"] .quick-overview-search>.search-leading{width:20px;height:20px;flex:0 0 20px;color:var(--c45-v2-icon-primary)}
+body[data-active-uif="UIF-02"] .bj02-search .icon,body[data-active-uif="UIF-02"] .quick-overview-search .icon{width:20px;height:20px}
+body[data-active-uif="UIF-02"] .bj02-search input,body[data-active-uif="UIF-02"] .quick-overview-search input{flex:1 1 auto;min-width:0;width:auto;height:22px;padding:0;border:0;outline:0;background:transparent;font-size:14px;line-height:22px;font-weight:400;color:var(--c45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .bj02-search input::placeholder,body[data-active-uif="UIF-02"] .quick-overview-search input::placeholder{color:var(--c45-v2-text-secondary);opacity:1}
+
+/* Record Card 1001:7201 — used when BJ02 needs more than List Row's two-line anatomy. */
+body[data-active-uif="UIF-02"] .bj02-record-card{width:370px;height:116px;min-height:116px;padding:var(--c45-v2-space-3);display:flex;flex-direction:column;align-items:stretch;gap:var(--c45-v2-space-1);overflow:hidden;border:var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);border-radius:var(--c45-v2-radius-4);background:var(--c45-v2-surface-default);box-shadow:none;text-align:left;color:var(--c45-v2-text-primary);box-sizing:border-box}
+body[data-active-uif="UIF-02"] .bj02-record-head{height:22px;min-height:22px;display:flex;align-items:center;justify-content:space-between;gap:var(--c45-v2-space-2);overflow:hidden}
+body[data-active-uif="UIF-02"] .bj02-record-head>strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px;line-height:22px;font-weight:600;letter-spacing:0}
+body[data-active-uif="UIF-02"] .bj02-record-support{width:346px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;line-height:20px;font-weight:400}
+body[data-active-uif="UIF-02"] .bj02-record-support.secondary{color:var(--c45-v2-text-secondary)}
+body[data-active-uif="UIF-02"] .bj02-record-support.primary{color:var(--c45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .bj02-record-meta{height:18px;display:flex;align-items:center;justify-content:space-between;gap:var(--c45-v2-space-2);overflow:hidden;color:var(--c45-v2-text-secondary);font-size:12px;line-height:16px;font-weight:500;letter-spacing:.1px}
+body[data-active-uif="UIF-02"] .bj02-record-meta>span:first-child{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body[data-active-uif="UIF-02"] .bj02-record-meta>span:last-child{flex:0 0 auto;text-align:right}
+
+/* Form primitives. Public fields Fill Container in Product UI; preserve 44px input anatomy. */
+body[data-active-uif="UIF-02"] .form-stack{width:370px;gap:var(--c45-v2-space-4)}
+body[data-active-uif="UIF-02"] .form-field{width:370px;display:flex;flex-direction:column;gap:var(--c45-v2-space-2);margin:0}
+body[data-active-uif="UIF-02"] .form-field>label,body[data-active-uif="UIF-02"] .quantity-label strong{margin:0;font-size:14px;line-height:20px;font-weight:600;letter-spacing:0;color:var(--c45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .input-shell,body[data-active-uif="UIF-02"] .combobox-anchor{width:370px;height:44px;min-height:44px;padding:0 var(--c45-v2-space-4);display:flex;align-items:center;gap:var(--c45-v2-space-2);border:var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);border-radius:var(--c45-v2-radius-3);background:var(--c45-v2-surface-default);box-sizing:border-box}
+body[data-active-uif="UIF-02"] .input-shell input,body[data-active-uif="UIF-02"] .combobox-anchor input{width:100%;height:22px;padding:0;border:0;outline:0;background:transparent;font-size:14px;line-height:22px;font-weight:400;color:var(--c45-v2-text-primary)}
+
+body[data-active-uif="UIF-02"] .field-error,body[data-active-uif="UIF-02"] .field-help{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.1px}
+
+/* VFileDropZone 522:7507. The master is 310x116; center it in the 370 content column. */
+/* Four classification fields are authoritative and remain visible. Each is a canonical-width text field, not a custom stepper. */
+
+/* Review sections: one grouped surface, flat facts; no repeated nested card soup. */
+
+/* Sticky Footer 549:927. */
+body[data-active-uif="UIF-02"] .figma-sticky-footer{height:92px;min-height:92px;padding:var(--c45-v2-space-4);gap:var(--c45-v2-space-3);border-top:var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);background:var(--c45-v2-surface-default)}
+body[data-active-uif="UIF-02"] .figma-sticky-footer .button{height:52px;min-height:52px;border-radius:var(--c45-v2-radius-3);font-size:14px;line-height:20px;font-weight:600}
+
+/* Never turn product-only composition into a fake DS component. */
+body[data-active-uif="UIF-02"] [data-ds-role="product-search-composition"],
+body[data-active-uif="UIF-02"] [data-ds-role="uom-selection-composition"],
+body[data-active-uif="UIF-02"] [data-ds-role="lot-editor-composition"],
+body[data-active-uif="UIF-02"] [data-ds-role="lot-allocation-composition"]{width:370px}
+/* VDatePicker 522:7368: approved 20px leading calendar icon; suppress browser-native trailing indicator. */
+body[data-active-uif="UIF-02"] .bj02-date-shell .bj02-date-leading{width:20px;height:20px;flex:0 0 20px;display:grid;place-items:center;color:var(--c45-v2-icon-primary)}
+body[data-active-uif="UIF-02"] .bj02-date-shell .bj02-date-leading .icon{width:20px;height:20px}
+body[data-active-uif="UIF-02"] .bj02-date-shell input{flex:1 1 auto;min-width:0}
+
+/* Search Results Dropdown 1280:6136. Entity/product identity uses canonical Selection List Row
+   because BJ02 must not invent selling price/stock data merely to fill Product Result Card. */
+
+body[data-active-uif="UIF-02"] .combobox-menu{width:370px;max-height:260px;padding:var(--c45-v2-space-2);display:flex;flex-direction:column;gap:var(--c45-v2-space-2);overflow-y:auto;border:var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);border-radius:var(--c45-v2-radius-4);background:var(--c45-v2-surface-default);box-shadow:0 4px 12px rgba(0,0,0,.12);box-sizing:border-box;z-index:8}
+body[data-active-uif="UIF-02"] .combobox-menu[hidden]{display:none}
+
+body[data-active-uif="UIF-02"] .bj02-search-option:hover,body[data-active-uif="UIF-02"] .bj02-search-option:focus-visible{background:var(--c45-v2-surface-subtle);outline:0}
+/* Summary Card 525:552 — receipt context, exact two-line responsibility. */
+
+/* Confirmation Sheet 550:1058 — destructive clears and handled-zero confirmations use
+   the existing canonical bottom-sheet anatomy, never a custom centered dialog. */
+body[data-active-uif="UIF-02"] .confirm-backdrop{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;background:rgba(14,17,22,.36);z-index:40}
+body[data-active-uif="UIF-02"] .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"]{position:relative;width:402px;min-width:402px;max-width:402px;min-height:280px;height:auto;margin:0;padding:12px 16px 44px;display:flex;flex-direction:column;align-items:stretch;gap:12px;border:0;border-radius:20px 20px 0 0;background:var(--c45-v2-surface-default);box-shadow:none;box-sizing:border-box}
+body[data-active-uif="UIF-02"] .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"]::before{content:"";width:48px;height:4px;min-height:4px;align-self:center;border-radius:var(--c45-v2-radius-pill);background:var(--c45-v2-border-strong)}
+body[data-active-uif="UIF-02"] .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] h3{width:370px;margin:0;font-size:18px;line-height:24px;font-weight:600;letter-spacing:-.2px;color:var(--c45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] p{width:370px;margin:0;font-size:14px;line-height:22px;font-weight:400;color:var(--c45-v2-text-secondary)}
+body[data-active-uif="UIF-02"] .confirm-dialog-actions{width:370px;display:flex;flex-direction:column;gap:12px;margin:0}
+body[data-active-uif="UIF-02"] .confirm-dialog-actions .button{width:370px;height:44px;min-height:44px;margin:0;border-radius:var(--c45-v2-radius-3)}
+/* ===== v251-ui-ds-corrections.css ===== */
+/* Mosaic Retail Theme 7 v2.5.1 — corrective DS fidelity gate for BJ01 + BJ02.
+   Live Figma authority: Foundations/Icons + Components + Patterns/Templates.
+   This file is intentionally loaded LAST so no inherited Theme7 CSS can override
+   the exact master anatomy below. No new shared component is introduced here. */
+
+/* --------------------------------------------------------------------------
+   BJ01 — Key-value Row 525:358. Robust alignment only; typography belongs to
+   the Figma component/variant. Default = Inter 13 + JetBrains Mono 14/22;
+   Emphasis = Inter 14/16. The minimum gap only prevents collision on long copy
+   and does not change the normal justify-between geometry.
+   -------------------------------------------------------------------------- */
+body[data-active-uif="UIF-01"] .ds24-key-value-stack {
+  width:338px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:0;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row {
+  width:338px;
+  height:44px;
+  min-height:44px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  column-gap:8px;
+  padding:0;
+  margin:0;
+  border:0;
+  background:transparent;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row > span,
+body[data-active-uif="UIF-01"] .ds24-key-value-row > strong {
+  flex:0 0 auto;
+  min-width:0;
+  white-space:nowrap;
+  margin:0;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row > span {
+  font-family:"Inter",system-ui,sans-serif;
+  font-size:13px;
+  line-height:20px;
+  font-weight:400;
+  color:var(--c45-v2-text-secondary);
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row > strong {
+  margin-left:auto;
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:14px;
+  line-height:22px;
+  font-weight:400;
+  color:var(--c45-v2-text-primary);
+  text-align:right;
+}
+/* --------------------------------------------------------------------------
+   BJ02 — page shell and exact action region.
+   Sticky Footer 549:256 / 549:877 = 402x92, pt12, pb24, px16, 44px buttons.
+   -------------------------------------------------------------------------- */
+body[data-active-uif="UIF-02"] .figma-calibrated-shell { position:relative; }
+/* !important: đè luật khung Figma (không sửa được nguồn) */
+body[data-active-uif="UIF-02"] .figma-sticky-footer {
+ width:402px;
+  height:92px;
+  min-height:92px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  padding:12px 16px 24px!important;
+  gap:8px!important;
+  border:0;
+  background:var(--c45-v2-surface-default);
+  box-shadow:0 -4px 3px rgba(0,0,0,.12)!important;
+}
+body[data-active-uif="UIF-02"] .figma-sticky-footer.is-split {
+  display:grid;
+  grid-template-columns:181px 181px;
+  gap:8px;
+}
+body[data-active-uif="UIF-02"] .figma-sticky-footer .button {
+  width:100%;
+  height:44px;
+  min-height:44px;
+  margin:0;
+  padding:0 16px;
+  border-radius:8px;
+  font-family:"Inter",system-ui,sans-serif;
+  font-size:14px;
+  line-height:20px;
+  font-weight:600;
+}
+
+/* VBanner 526:4215. Direct 20px semantic icon; never a decorative circle. */
+body[data-active-uif="UIF-02"] .v-banner[data-ds-component="VBanner"] {
+  width:370px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:flex-start;
+  grid-template-columns:none;
+  gap:12px;
+  margin:0;
+  border-width:1px;
+  border-style:solid;
+  border-radius:12px;
+  box-shadow:none;
+}
+body[data-active-uif="UIF-02"] .v-banner[data-ds-prop-density="Default"] { padding:16px; }
+body[data-active-uif="UIF-02"] .v-banner[data-ds-prop-density="Compact"] {
+  height:72px;
+  min-height:72px;
+  padding:12px 16px;
+}
+body[data-active-uif="UIF-02"] .v-banner.v-banner--info { height:auto; min-height:0; background:var(--c45-v2-surface-info); border-color:var(--c45-v2-border-info); color:var(--c45-v2-text-info); }
+body[data-active-uif="UIF-02"] .v-banner.v-banner--success { background:var(--c45-v2-surface-success); border-color:var(--c45-v2-border-success); color:var(--c45-v2-text-success); }
+body[data-active-uif="UIF-02"] .v-banner.v-banner--warning { background:var(--c45-v2-surface-warning); border-color:var(--c45-v2-border-warning); color:var(--c45-v2-text-warning); }
+body[data-active-uif="UIF-02"] .v-banner.v-banner--error { background:var(--c45-v2-surface-danger); border-color:var(--c45-v2-border-danger); color:var(--c45-v2-text-danger); }
+body[data-active-uif="UIF-02"] .v-banner[data-ds-prop-density="Default"]:is(.v-banner--success,.v-banner--warning,.v-banner--error) { height:96px; min-height:96px; }
+body[data-active-uif="UIF-02"] .v-banner[data-ds-prop-density="Compact"]:is(.v-banner--info,.v-banner--success,.v-banner--warning,.v-banner--error) { height:72px; min-height:72px; }
+body[data-active-uif="UIF-02"] .v-banner-icon {
+  width:20px;
+  height:20px;
+  flex:0 0 20px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:0;
+  background:transparent;
+}
+body[data-active-uif="UIF-02"] .v-banner-icon .icon { width:20px; height:20px; }
+body[data-active-uif="UIF-02"] .v-banner-copy {
+  width:286px;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:4px;
+}
+body[data-active-uif="UIF-02"] .v-banner-copy strong {
+  margin:0;
+  font-family:"Inter",system-ui,sans-serif;
+  font-size:14px;
+  line-height:20px;
+  font-weight:600;
+  color:currentColor;
+}
+body[data-active-uif="UIF-02"] .v-banner-copy span {
+  width:286px;
+  margin:0;
+  font-family:"Inter",system-ui,sans-serif;
+  font-size:13px;
+  line-height:20px;
+  font-weight:400;
+  color:var(--c45-v2-text-primary);
+}
+
+/* Form typography and fields. */
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-02"] .form-stack {gap:16px!important; }
+body[data-active-uif="UIF-02"] .form-field.is-disabled { opacity:.4; }
+body[data-active-uif="UIF-02"] .form-field.is-disabled > * { opacity:1; }
+
+/* VSelect 522:7291; Product UI is Fill Container 370px. */
+body[data-active-uif="UIF-02"] .bj02-vselect-trigger,
+body[data-active-uif="UIF-02"] .bj02-native-select-shell {
+  width:370px;
+  height:44px;
+  min-height:44px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 16px;
+  border:1px solid var(--c45-v2-border-default);
+  border-radius:8px;
+  background:var(--c45-v2-surface-default);
+  color:var(--c45-v2-text-secondary);
+  text-align:left;
+}
+body[data-active-uif="UIF-02"] .bj02-vselect-trigger.is-filled { color:var(--c45-v2-text-primary); }
+body[data-active-uif="UIF-02"] .bj02-vselect-trigger.is-error { border-color:var(--c45-v2-border-danger); }
+body[data-active-uif="UIF-02"] .bj02-vselect-trigger > span { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font:400 14px/22px "Inter",system-ui,sans-serif; }
+body[data-active-uif="UIF-02"] .bj02-vselect-trigger .icon,
+body[data-active-uif="UIF-02"] .bj02-native-select-shell .icon { width:20px; height:20px; flex:0 0 20px; color:var(--c45-v2-icon-secondary); pointer-events:none; }
+/* Select Sheet 550:1148. */
+body[data-active-uif="UIF-02"] .bj02-select-backdrop {
+  position:absolute;
+  inset:0;
+  z-index:60;
+  display:flex;
+  align-items:flex-end;
+  background:rgba(14,17,22,.36);
+}
+body[data-active-uif="UIF-02"] .bj02-select-sheet {
+  width:402px;
+  height:560px;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  padding:12px 16px 44px;
+  border-radius:20px 20px 0 0;
+  background:var(--c45-v2-surface-default);
+  overflow:hidden;
+}
+body[data-active-uif="UIF-02"] .bj02-sheet-handle { width:48px; height:4px; flex:0 0 4px; border-radius:999px; background:var(--c45-v2-border-strong); }
+body[data-active-uif="UIF-02"] .bj02-select-sheet h2 { width:370px; height:28px; margin:0; font:600 18px/24px "Inter",system-ui,sans-serif; letter-spacing:-.2px; }
+body[data-active-uif="UIF-02"] .bj02-sheet-search { width:370px; height:44px; display:flex; align-items:center; gap:8px; padding:0 16px; border:1px solid var(--c45-v2-border-default); border-radius:8px; background:var(--c45-v2-surface-default); box-sizing:border-box; }
+body[data-active-uif="UIF-02"] .bj02-sheet-search > span,
+body[data-active-uif="UIF-02"] .bj02-sheet-search .icon { width:20px; height:20px; flex:0 0 20px; color:var(--c45-v2-icon-primary); }
+body[data-active-uif="UIF-02"] .bj02-sheet-search input { flex:1 1 auto; min-width:0; height:22px; padding:0; border:0; outline:0; background:transparent; font:400 14px/22px "Inter",system-ui,sans-serif; color:var(--c45-v2-text-primary); }
+body[data-active-uif="UIF-02"] .bj02-sheet-list { width:370px; min-height:0; flex:1 1 auto; display:flex; flex-direction:column; gap:12px; overflow-y:auto; }
+body[data-active-uif="UIF-02"] .bj02-sheet-list-row {
+  width:370px;
+  height:76px;
+  min-height:76px;
+  flex:0 0 76px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:0 24px 0 16px;
+  border:1px solid var(--c45-v2-border-default);
+  border-radius:12px;
+  background:var(--c45-v2-surface-default);
+  color:var(--c45-v2-text-primary);
+  text-align:left;
+}
+/* VFileDropZone 522:7507. Keep the master state Default even after a file is
+   selected; only text properties change. There is no invented Uploaded state. */
+/* Info Row 525:351 current live master + Key-value Row 525:358. */
+body[data-active-uif="UIF-02"] .bj02-info-row {
+  width:338px;
+  height:44px;
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:0;
+  padding:0;
+  border:0;
+  background:transparent;
+}
+body[data-active-uif="UIF-02"] .bj02-info-row > span { flex:0 0 auto; font:400 13px/20px "Inter",system-ui,sans-serif; color:var(--c45-v2-text-secondary); white-space:nowrap; }
+body[data-active-uif="UIF-02"] .bj02-info-row > strong { flex:0 0 auto; min-width:0; font:600 14px/20px "Inter",system-ui,sans-serif; color:var(--c45-v2-text-primary); text-align:right; white-space:nowrap; overflow:visible; text-overflow:clip; }
+body[data-active-uif="UIF-02"] .bj02-key-value-row {
+  width:338px;
+  height:44px;
+  min-height:44px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  column-gap:8px;
+  padding:0;
+  border:0;
+  background:transparent;
+}
+body[data-active-uif="UIF-02"] .bj02-key-value-row > span { flex:0 0 auto; font:400 13px/20px "Inter",system-ui,sans-serif; color:var(--c45-v2-text-secondary); white-space:nowrap; }
+body[data-active-uif="UIF-02"] .bj02-key-value-row > strong { flex:0 0 auto; margin-left:auto; font:400 14px/22px "JetBrains Mono",ui-monospace,monospace; color:var(--c45-v2-text-primary); white-space:nowrap; text-align:right; }
+body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis { padding:0 12px; border-radius:8px; background:var(--c45-v2-surface-brand); }
+body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis > span { font:600 14px/20px "Inter",system-ui,sans-serif; color:var(--c45-v2-text-primary); }
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis > strong {font:600 16px/22px "Inter",system-ui,sans-serif!important; color:var(--c45-v2-text-brand); }
+
+/* SCR009 context uses VSection + existing Info Rows instead of a feature Summary Card. */
+/* Product review is Product UI composition of existing VSection + Key-value Row;
+   no new shared Theme7 component/card identity. */
+/* Classification: explicit 44px numeric hit areas wrapping canonical Key-value Row.
+   Numeric editing itself is VNumericKeypadSheet; previous values persist until Lưu. */
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-02"] .bj02-quantity-hit:not(:disabled):active {background:var(--c45-v2-surface-subtle)!important; }
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-02"] .bj02-quantity-hit:disabled {opacity:.4!important; }
+body[data-active-uif="UIF-02"] .bj02-derived-total { align-self:center; }
+
+/* VNumericKeypadSheet 1829:6657. */
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-02"] .bj02-keypad-key:disabled {opacity:.4!important; }
+/* LOT editor: keep Product composition light; avoid nested card soup. */
+body[data-active-uif="UIF-02"] .lot-accordion-list { gap:8px; }
+body[data-active-uif="UIF-02"] .lot-accordion-item { border:1px solid var(--c45-v2-border-default); border-radius:12px; background:var(--c45-v2-surface-default); }
+body[data-active-uif="UIF-02"] .lot-accordion-toggle { min-height:60px; padding:12px 16px; }
+body[data-active-uif="UIF-02"] .active-lot-editor { padding:16px; border-top:1px solid var(--c45-v2-border-default); border-bottom:0; }
+body[data-active-uif="UIF-02"] .lot-fields-compact { gap:16px; }
+body[data-active-uif="UIF-02"] .section-label { margin:0; }
+
+/* Legacy feature cards must not reappear in BJ02 review/result. */
+
+/* UIF-02 product identity is page content inside VSection, not an independent
+   card. Keep it flat so VSection remains structural and avoid card soup. */
+
+/* ===== v252-bj02-quick-flow-ui.css ===== */
+/* Mosaic Retail Theme 7 v2.5.2 — BJ02 quick-receipt interaction and UI correction.
+   Loaded after v2.5.1. Uses live Figma DS geometry/tokens; no new shared component. */
+
+body[data-active-uif="UIF-02"] .quick-overview-add,
+body[data-active-uif="UIF-02"] .quick-overview-search-wrap,
+body[data-active-uif="UIF-02"] .quick-overview-uom-step {
+  width:370px;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  position:relative;
+}
+
+/* Keep search results in document flow so they never escape/cut the 402px canvas. */
+body[data-active-uif="UIF-02"] .quick-overview-product-menu {
+  position:static;
+  inset:auto;
+  transform:none;
+  width:370px;
+  max-width:370px;
+  max-height:268px;
+  margin:0;
+  padding:8px;
+  box-sizing:border-box;
+  overflow-x:hidden;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  border:1px solid var(--c45-v2-border-default);
+  border-radius:12px;
+  background:var(--c45-v2-surface-default);
+  box-shadow:0 4px 12px rgba(0,0,0,.12);
+  z-index:4;
+}
+body[data-active-uif="UIF-02"] .quick-overview-product-menu[hidden] { display:none; }
+
+/* Multi-UOM is a direct single-choice task, not another dropdown. */
+
+/* Evidence: the canonical drop-zone copy remains short; selected filename is allowed to wrap below it. */
+
+/* LOT accordion: the copy owns remaining width; very long lot codes/details never expand the card. */
+body[data-active-uif="UIF-02"] .lot-accordion-toggle { width:100%;min-width:0;box-sizing:border-box;overflow:hidden; }
+body[data-active-uif="UIF-02"] .lot-accordion-copy { flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:4px;overflow:hidden; }
+body[data-active-uif="UIF-02"] .lot-accordion-copy strong,
+body[data-active-uif="UIF-02"] .lot-accordion-copy span { max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+body[data-active-uif="UIF-02"] .lot-accordion-chevron { width:20px;height:20px;flex:0 0 20px; }
+
+/* Reduce unnecessary empty-state visual weight inside the task overview while preserving VEmptyState semantics. */
+body[data-active-uif="UIF-02"] .receipt-lines-empty {
+  width:370px;min-height:188px;height:auto;padding:24px 20px;box-sizing:border-box;border-radius:16px;
+}
+body[data-active-uif="UIF-02"] .receipt-lines-empty .icon-box { margin-bottom:4px; }
+body[data-active-uif="UIF-02"] .receipt-lines-empty h3 { margin:0;font:600 16px/22px "Inter",system-ui,sans-serif;text-align:center; }
+body[data-active-uif="UIF-02"] .receipt-lines-empty p { margin:0;max-width:300px;font:400 13px/20px "Inter",system-ui,sans-serif;text-align:center; }
+
+/* SCR-084 LOT editor: the accordion owns the 370px content width; its 16px
+   inner padding leaves exactly 338px for canonical field/data rows.  Do not
+   let the global 370px form-field rule overflow the padded editor. */
+body[data-active-uif="UIF-02"] .active-lot-editor > .form-stack,
+body[data-active-uif="UIF-02"] .active-lot-editor .lot-fields-compact {
+  width:338px;
+  max-width:338px;
+  align-self:stretch;
+}
+body[data-active-uif="UIF-02"] .active-lot-editor .form-field,
+body[data-active-uif="UIF-02"] .active-lot-editor .input-shell,
+body[data-active-uif="UIF-02"] .active-lot-editor .classification-quantities,
+body[data-active-uif="UIF-02"] .active-lot-editor .bj02-quantity-hit-stack,
+body[data-active-uif="UIF-02"] .active-lot-editor .bj02-quantity-hit,
+body[data-active-uif="UIF-02"] .active-lot-editor .bj02-key-value-row {
+  width:338px;
+  max-width:338px;
+}
+body[data-active-uif="UIF-02"] .active-lot-editor .input-shell input {
+  min-width:0;
+  max-width:100%;
+}
+body[data-active-uif="UIF-02"] .lot-accordion-item,
+body[data-active-uif="UIF-02"] .lot-accordion-header,
+body[data-active-uif="UIF-02"] .lot-accordion-toggle {
+  max-width:370px;
+}
+
+/* The empty state is guidance inside a task overview, not a standalone hero.
+   Keep the canonical empty-state semantics but avoid an oversized card-like
+   treatment that competes with Product search. */
+body[data-active-uif="UIF-02"] .receipt-lines-empty {
+  width:370px;
+  min-height:176px;
+  padding:24px 16px;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+body[data-active-uif="UIF-02"] .receipt-lines-empty .icon-box { margin-bottom:4px; }
+body[data-active-uif="UIF-02"] .receipt-lines-empty p { max-width:310px; }
+/* ===== v252-figma-live-sync.css ===== */
+/* v2.5.2 — live Figma DS sync after 2026-09-10 Info Row update.
+   Source: DS v2 / Info Row, node 525:351.
+   Exact master anatomy: 338x44, horizontal auto layout, justify-between, no inter-item gap,
+   Body/Small label at left, Label/Default value at right, Default value text-align right. */
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"] {
+  box-sizing:border-box;
+  width:338px;
+  max-width:338px;
+  height:44px;
+  min-height:44px;
+  max-height:44px;
+  margin-inline:auto;
+  padding:var(--c45-v2-space-0);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  overflow:visible;
+}
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"] > :first-child {
+  flex:0 0 auto;
+  min-width:0;
+  margin:0;
+  padding:0;
+  color:var(--c45-v2-text-secondary);
+  font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:13px;
+  line-height:20px;
+  font-weight:400;
+  letter-spacing:0;
+  white-space:nowrap;
+  text-align:left;
+}
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"] > :last-child {
+  flex:0 0 auto;
+  min-width:0;
+  margin:0;
+  padding:0;
+  color:var(--c45-v2-text-primary);
+  font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px;
+  line-height:20px;
+  font-weight:600;
+  letter-spacing:0;
+  white-space:nowrap;
+  text-align:right;
+  overflow:visible;
+  text-overflow:clip;
+  overflow-wrap:normal;
+  word-break:normal;
+}
+
+/* Long review copy is not forced into Info Row: it remains an ordinary layout composition of VText. */
+
+/* Shared read-only fallback for content that cannot preserve the fixed single-line Info Row anatomy.
+   This is layout composition only, not a new component. */
+body[data-active-uif] .figma-calibrated-shell .io-meta-detail {
+  box-sizing:border-box;
+  width:338px;
+  max-width:338px;
+  margin-inline:auto;
+  padding:8px 0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  border:0;
+  background:transparent;
+}
+body[data-active-uif] .figma-calibrated-shell .io-meta-detail > span:first-child {
+  margin:0;
+  color:var(--c45-v2-text-secondary);
+  font:400 13px/20px "Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body[data-active-uif] .figma-calibrated-shell .io-meta-detail > :last-child {
+  margin:0;
+  color:var(--c45-v2-text-primary);
+  font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px;
+  line-height:22px;
+  font-weight:400;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+body[data-active-uif] .figma-calibrated-shell .io-meta-detail > strong:last-child {font-weight:600;}
+/* ===== v253-info-row-live-sync.css ===== */
+/* v2.5.3 — current live Figma DS sync for DS v2 / Info Row (525:351).
+   Current master: 338x44, horizontal auto-layout, justify-between, gap 0,
+   Body/Small label at left, Label/Default value at right; Disabled = parent opacity 0.4.
+   This layer is intentionally loaded last to prevent legacy flow CSS from mutating canonical anatomy. */
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"] {
+  box-sizing:border-box;
+  width:338px;
+  max-width:338px;
+  height:44px;
+  min-height:44px;
+  max-height:44px;
+  margin-inline:auto;
+  padding:var(--c45-v2-space-0);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  overflow:visible;
+}
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"] > :first-child {
+  flex:0 0 auto;
+  min-width:0;
+  margin:0;
+  padding:0;
+  color:var(--c45-v2-text-secondary);
+  font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:13px;
+  line-height:20px;
+  font-weight:400;
+  letter-spacing:0;
+  white-space:nowrap;
+  text-align:left;
+}
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"] > :last-child {
+  flex:0 0 auto;
+  min-width:0;
+  margin:0;
+  padding:0;
+  color:var(--c45-v2-text-primary);
+  font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px;
+  line-height:20px;
+  font-weight:600;
+  letter-spacing:0;
+  white-space:nowrap;
+  text-align:right;
+  overflow:visible;
+  text-overflow:clip;
+  overflow-wrap:normal;
+  word-break:normal;
+}
+
+/* ===== v254-bj02-input-ux-correction.css ===== */
+/* v2.5.4 — BJ02 quantity-input semantics + quick UOM UX correction. */
+body[data-active-uif="UIF-02"] .bj02-quantity-input-trigger:focus-visible{outline:0;border:2px solid var(--c45-v2-border-brand);padding:0 15px}
+body[data-active-uif="UIF-02"] .bj02-quantity-input-trigger:disabled{opacity:.4;cursor:default}
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-02"] .bj02-danger-link-action{width:fit-content;max-width:100%;min-width:0;min-height:44px;height:44px;margin:0;padding:0;border:0;background:transparent;color:var(--c45-v2-text-danger);box-shadow:none;justify-content:flex-start;align-self:flex-start;font:600 14px/20px "Inter",system-ui,sans-serif!important}
+
+body[data-active-uif="UIF-02"] :is(.line-product-identity,.lot-accordion-copy,.bj02-review-products,.bj02-info-stack,.quick-overview-add){min-width:0;max-width:100%}
+body[data-active-uif="UIF-02"] :is(.line-product-identity strong,.line-product-identity span,.lot-accordion-copy strong,.lot-accordion-copy span,.bj02-review-products strong,.bj02-review-products span){overflow-wrap:anywhere}
+/* ===== v255-bj02-review-density.css ===== */
+/* Mosaic Retail Theme 7 v2.5.5 — BJ02 review density correction.
+   Authority: live Figma DS. Existing components only: DS v2 / List Row + VBadge + VBottomSheet + Info Row + VSection. */
+
+/* Review sections stay flat; the product list is now a dense progressive-disclosure list. */
+/* DS v2 / List Row 525:519 — Type=Status, Density=Compact. */
+body[data-active-uif="UIF-02"] .bj02-review-summary-row:not(:disabled):active{
+  background:var(--c45-v2-surface-subtle);
+}
+body[data-active-uif="UIF-02"] .bj02-review-summary-row:disabled{
+  cursor:default;
+  opacity:1;
+}
+/* Heading can carry a compact count without becoming a new component. */
+/* VBottomSheet 4695:6353 — arbitrary content slot, content-driven height, max-height implementation contract. */
+body[data-active-uif="UIF-02"] .bj02-review-detail-backdrop{
+  position:absolute;
+  inset:0;
+  z-index:95;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  background:rgba(14,17,22,.38);
+}
+body[data-active-uif="UIF-02"] .bj02-review-detail-sheet{
+  width:402px;
+  max-width:402px;
+  max-height:calc(100% - 32px);
+  padding:12px 16px 44px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:12px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  border:0;
+  border-radius:20px 20px 0 0;
+  background:var(--c45-v2-surface-default);
+  box-sizing:border-box;
+  box-shadow:none;
+}
+body[data-active-uif="UIF-02"] .bj02-review-sheet-handle{
+  width:48px;
+  height:4px;
+  min-height:4px;
+  margin:0 auto;
+  border-radius:var(--c45-v2-radius-pill);
+  background:var(--c45-v2-border-strong);
+}
+body[data-active-uif="UIF-02"] .bj02-review-detail-sheet>h2{
+  width:370px;
+  margin:0;
+  font:600 18px/24px "Inter",system-ui,sans-serif;
+  letter-spacing:-.2px;
+  color:var(--c45-v2-text-primary);
+}
+body[data-active-uif="UIF-02"] .bj02-review-sheet-context{
+  width:370px;
+  margin:-8px 0 0;
+  font:400 13px/20px "Inter",system-ui,sans-serif;
+  color:var(--c45-v2-text-secondary);
+}
+body[data-active-uif="UIF-02"] .bj02-review-detail-section{
+  width:370px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+body[data-active-uif="UIF-02"] .bj02-review-detail-heading{
+  width:370px;
+  min-height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+body[data-active-uif="UIF-02"] .bj02-review-detail-heading>strong{
+  min-width:0;
+  font:600 14px/20px "Inter",system-ui,sans-serif;
+}
+body[data-active-uif="UIF-02"] .bj02-review-detail-heading>span{
+  flex:0 0 auto;
+  font:500 12px/16px "Inter",system-ui,sans-serif;
+  letter-spacing:.1px;
+  color:var(--c45-v2-text-secondary);
+}
+body[data-active-uif="UIF-02"] .bj02-review-detail-rows,
+body[data-active-uif="UIF-02"] .bj02-review-lot-list{
+  width:338px;
+  align-self:center;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+body[data-active-uif="UIF-02"] .bj02-review-lot-group{
+  width:338px;
+  padding:8px 0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  border-bottom:1px solid var(--c45-v2-border-default);
+}
+body[data-active-uif="UIF-02"] .bj02-review-lot-group:last-child{border-bottom:0}
+body[data-active-uif="UIF-02"] .bj02-review-lot-title{
+  width:338px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+body[data-active-uif="UIF-02"] .bj02-review-lot-title>strong{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font:600 13px/20px "Inter",system-ui,sans-serif;
+}
+body[data-active-uif="UIF-02"] .bj02-review-lot-title>span{
+  flex:0 0 auto;
+  font:400 12px/16px "Inter",system-ui,sans-serif;
+  color:var(--c45-v2-text-secondary);
+  white-space:nowrap;
+}
+body[data-active-uif="UIF-02"] .bj02-review-close-button{
+  width:370px;
+  min-height:44px;
+  height:44px;
+  margin:0;
+}
+/* ===== v260-bj04-ds-fidelity.css ===== */
+/*
+ * Mosaic Retail Theme 7 v2.6.0 — BJ04 Figma DS structural migration
+ * Scope: UIF-04 / SCR-021 only.
+ * Business authority: BJ04 + UC04 + current UI contract.
+ * UI authority: live Figma DS canonical surface.
+ */
+
+body[data-active-uif="UIF-04"] .figma-calibrated-shell {
+  width: 402px;
+  height: 874px;
+  min-height: 874px;
+  overflow: hidden;
+  color: var(--c45-v2-text-primary);
+  background: var(--c45-v2-surface-canvas);
+}
+
+body[data-active-uif="UIF-04"] .figma-calibrated-shell > .app-content {
+  padding: 0 var(--c45-v2-space-4) var(--c45-v2-space-4);
+  background: var(--c45-v2-surface-canvas);
+  scrollbar-width: none;
+}
+
+body[data-active-uif="UIF-04"] .figma-calibrated-shell .body-stack {
+  width: 370px;
+  gap: var(--c45-v2-space-3);
+  padding-top: var(--c45-v2-space-4);
+}
+
+body[data-active-uif="UIF-04"] .bj04-context-line {
+  width: 370px;
+  margin: 0;
+  color: var(--c45-v2-text-secondary);
+  font: 400 13px/20px Inter, system-ui, sans-serif;
+}
+
+body[data-active-uif="UIF-04"] .bj04-section {
+  width: 370px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--c45-v2-space-2);
+}
+
+/* ===== v270-bj05-ds-fidelity.css ===== */
+/*
+ * Mosaic Retail Theme 7 v2.7.0 — BJ05 Figma DS structural migration
+ * Scope: UIF-05 / SCR-025..029 only.
+ * Business authority: BJ05 + UC05 + current UI contracts.
+ * UI authority: live Figma Design System.
+ */
+
+body[data-active-uif="UIF-05"] .figma-calibrated-shell {
+  width: 402px;
+  height: 874px;
+  min-height: 874px;
+  overflow: hidden;
+  color: var(--c45-v2-text-primary);
+  background: var(--c45-v2-surface-canvas);
+}
+
+body[data-active-uif="UIF-05"] .figma-calibrated-shell > .app-content {
+  padding: 0 var(--c45-v2-space-4) var(--c45-v2-space-4);
+  background: var(--c45-v2-surface-canvas);
+  scrollbar-width: none;
+}
+
+body[data-active-uif="UIF-05"] .figma-calibrated-shell .body-stack {
+  width: 370px;
+  gap: var(--c45-v2-space-3);
+  padding-top: var(--c45-v2-space-4);
+}
+
+body[data-active-uif="UIF-05"] .bj05-section {
+  width: 370px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--c45-v2-space-2);
+}
+
+body[data-active-uif="UIF-05"] .bj05-readonly-row:active {
+  background: var(--c45-v2-surface-default);
+}
+body[data-active-uif="UIF-05"] .ds24-list-row__copy strong,
+body[data-active-uif="UIF-05"] .ds24-list-row__copy small {
+  overflow-wrap: anywhere;
+}
+
+body[data-active-uif="UIF-05"] .bj05-business-note,
+body[data-active-uif="UIF-05"] .bj05-decision-note {
+  width: 370px;
+  margin: 0;
+  color: var(--c45-v2-text-secondary);
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+}
+body[data-active-uif="UIF-05"] .bj05-field-error {
+  width: 100%;
+  margin: calc(var(--c45-v2-space-2) * -1) 0 0;
+}
+
+body[data-active-uif="UIF-05"] .bj05-link:active {
+  color: var(--c45-v2-action-primary-pressed);
+}
+
+body[data-active-uif="UIF-05"] .bj05-summary {
+  width: 370px;
+  display: flex;
+  flex-direction: column;
+}
+body[data-active-uif="UIF-05"] .bj05-summary .ds24-key-value-row {
+  width: 338px;
+  margin-inline: auto;
+}
+
+body[data-active-uif="UIF-05"] .bj05-selection-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--c45-v2-space-3);
+}
+body[data-active-uif="UIF-05"] .bj05-textarea {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--c45-v2-space-2);
+}
+body[data-active-uif="UIF-05"] .bj05-textarea > small {
+  color: var(--c45-v2-text-secondary);
+}
+body[data-active-uif="UIF-05"] .bj05-textarea__control {
+  width: 100%;
+  min-height: 88px;
+  padding: var(--c45-v2-space-3) var(--c45-v2-space-4);
+  resize: none;
+  border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius: var(--c45-v2-radius-input);
+  outline: none;
+  background: var(--c45-v2-surface-default);
+  color: var(--c45-v2-text-primary);
+  box-sizing: border-box;
+}
+
+body[data-active-uif="UIF-05"] [data-io05-search-text][hidden] {
+  display: none;
+}
+/* ===== v271-figma-ds-corrections.css ===== */
+/*
+ * Mosaic Retail Theme 7 v2.7.1 — live Figma DS primitive correction.
+ * Scope: Product-wired UIF visual composition plus shared primitive guards across the harness.
+ * VToast, List Row density, Info Row grouping and Key-value geometry are audited globally where claimed.
+ * Business behavior is unchanged; this layer corrects component geometry/composition.
+ * Live Figma authority checked 2026-09-10:
+ * - DS v2 / List Row 525:519
+ * - DS v2 / Info Row 525:351
+ * - DS v2 / Key-value Row 525:358
+ * - VToast 526:4305 / Toast Layer 550:1347
+ */
+
+/* --------------------------------------------------------------------------
+   List Row — one density means one height. Navigation owns chevron; Status does
+   not; Selection owns its selection control. These guards deliberately outrank
+   the generic 44px touch-target rule that previously collapsed button rows.
+   -------------------------------------------------------------------------- */
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Default"] {
+  box-sizing: border-box;
+  width: 370px;
+  max-width: 370px;
+  height: 76px;
+  min-height: 76px;
+  max-height: 76px;
+  padding: var(--c45-v2-space-0) var(--c45-v2-space-4);
+  align-items: center;
+  border-radius: var(--c45-v2-radius-4);
+}
+
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] {
+  box-sizing: border-box;
+  width: 370px;
+  max-width: 370px;
+  height: 52px;
+  min-height: 52px;
+  max-height: 52px;
+}
+
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-type="Navigation"] .ds24-list-row__trailing > .icon:last-child {
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Info Row composition — Info Row itself remains transparent 338x44. Multiple
+   rows are composed inside the established 370px information surface used by
+   mature Mosaic Retail screens, with 16px inset and 12px outer radius.
+   -------------------------------------------------------------------------- */
+/* BJ02 has an older VSection composition. Correct only sections that actually
+   contain Info Rows; product/review sections remain unchanged. */
+/* --------------------------------------------------------------------------
+   Key-value Row 525:358 — canonical Default and Emphasis geometry/typography.
+   Applied to current migrated Product UIFs so BJ05 cannot drift from BJ01/BJ02.
+   -------------------------------------------------------------------------- */
+/* !important: đè luật khung Figma (không sửa được nguồn) */
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] {
+ box-sizing: border-box;
+  width: 338px;
+  max-width: 338px;
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  margin: 0 auto !important;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--c45-v2-space-2);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] > span {
+  flex: 0 0 auto;
+  min-width: 0;
+  margin: 0;
+  color: var(--c45-v2-text-secondary);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] > strong {
+  flex: 0 0 auto;
+  min-width: 0;
+  margin: 0 0 0 auto;
+  color: var(--c45-v2-text-primary);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+  text-align: right;
+  white-space: nowrap;
+}
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"],
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell .ds24-key-value-row--emphasis {
+  padding: 0 var(--c45-v2-space-3);
+  border-radius: var(--c45-v2-radius-3);
+  background: var(--c45-v2-surface-brand);
+}
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > span,
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell .ds24-key-value-row--emphasis > span {
+  color: var(--c45-v2-text-primary);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > strong,
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell .ds24-key-value-row--emphasis > strong {
+  color: var(--c45-v2-text-brand);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   VToast 526:4305 + Toast Layer 550:1347 — canonical 370x56 floating toast.
+   Semantic tone is carried by the leading circular icon; the surface stays dark.
+   -------------------------------------------------------------------------- */
+#app-screen > .toast[data-ds-component="VToast"] {
+  position: absolute;
+  z-index: 120;
+  left: var(--c45-v2-space-4);
+  right: var(--c45-v2-space-4);
+  bottom: var(--c45-v2-space-4);
+  box-sizing: border-box;
+  width: 370px;
+  max-width: 370px;
+  height: 56px;
+  min-height: 56px;
+  max-height: 56px;
+  margin: 0;
+  padding: 0 var(--c45-v2-space-3) 0 var(--c45-v2-space-4);
+  display: grid;
+  grid-template-columns: 24px minmax(0,1fr) 20px;
+  align-items: center;
+  column-gap: var(--c45-v2-space-3);
+  border: 0;
+  border-radius: var(--c45-v2-radius-3);
+  color: var(--c45-v2-text-inverse);
+  background: var(--c45-v2-surface-toast);
+  box-shadow: none;
+}
+#app-screen:has(.figma-sticky-footer) > .toast[data-ds-component="VToast"] {
+  bottom: 110px;
+}
+#app-screen > .toast[data-ds-component="VToast"] .toast-icon-box {
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--c45-v2-radius-pill);
+  color: var(--c45-v2-text-inverse);
+  background: var(--c45-v2-text-success);
+}
+#app-screen > .toast[data-ds-component="VToast"][data-ds-prop-type="VToastType.info"] .toast-icon-box { background: var(--c45-v2-text-info); }
+#app-screen > .toast[data-ds-component="VToast"] .toast-icon-box .icon {
+  width: 14px;
+  height: 14px;
+}
+#app-screen > .toast[data-ds-component="VToast"] .toast-message {
+  min-width: 0;
+  margin: 0;
+  color: var(--c45-v2-text-inverse);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#app-screen > .toast[data-ds-component="VToast"] .toast-close,
+#app-screen > .toast[data-ds-component="VToast"][data-ds-prop-type] .toast-close {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  color: var(--c45-v2-text-inverse);
+  background: transparent;
+  box-shadow: none;
+}
+#app-screen > .toast[data-ds-component="VToast"] .toast-close .icon {
+  width: 20px;
+  height: 20px;
+}
+/* Vùng chạm 44 × 44 mà icon vẫn 20 × 20. */
+#app-screen > .toast[data-ds-component="VToast"] .toast-close { position: relative; }
+#app-screen > .toast[data-ds-component="VToast"] .toast-close::after { content: ""; position: absolute; inset: -12px; }
+
+/* --------------------------------------------------------------------------
+   v2.7.1 shared audit closure — normalize every element that explicitly claims
+   the live List Row master, including legacy UIF shells not yet Product-migrated.
+   Width remains fill-container outside the Product-wired 370px surfaces; density
+   is the invariant, so one variant can never collapse to a different height.
+   -------------------------------------------------------------------------- */
+.figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Default"] {
+  box-sizing: border-box;
+  height: 76px;
+  min-height: 76px;
+  max-height: 76px;
+  align-items: center;
+}
+.figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] {
+  box-sizing: border-box;
+  height: 52px;
+  min-height: 52px;
+  max-height: 52px;
+  align-items: center;
+}
+/* Multi-row Info Row compositions follow the established Mosaic Retail detail-card
+   pattern: transparent 338x44 rows grouped by a 370px white information surface.
+   This is a composition rule, not a new component. */
+
+.figma-calibrated-shell .review-card.io-read-card:has(> .review-card-body > [data-ds-component="DS v2 / Info Row"] ~ [data-ds-component="DS v2 / Info Row"]) > .review-card-body {
+  box-sizing: border-box;
+  width: 370px;
+  padding: var(--c45-v2-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--c45-v2-space-2);
+}
+
+/* Key-value Row is a shared primitive as well; all current instances use the
+   live 525:358 contract, so the geometry must not depend on Product migration. */
+/* !important: đè luật khung Figma (không sửa được nguồn) */
+.figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] {
+ box-sizing: border-box;
+  width: 338px !important;
+  max-width: 338px !important;
+  height: 44px;
+  min-height: 44px !important;
+  max-height: 44px;
+}
+
+/* Legacy `.toast .icon:first-child` rules used to paint every first SVG child,
+   including the close glyph. Reset both internal SVGs so only VIconBox carries
+   the semantic circle and the close affordance remains a plain white X. */
+#app-screen > .toast[data-ds-component="VToast"] .toast-icon-box > .icon,
+#app-screen > .toast[data-ds-component="VToast"] .toast-icon-box > .icon:first-child {
+  display: block;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--c45-v2-text-inverse);
+  background: transparent;
+}
+#app-screen > .toast[data-ds-component="VToast"] .toast-close > .icon,
+#app-screen > .toast[data-ds-component="VToast"] .toast-close > .icon:first-child {
+  display: block;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--c45-v2-text-inverse);
+  background: transparent;
+}
+/* ===== v272-detail-composition-fidelity.css ===== */
+/*
+ * Mosaic Retail Theme 7 v2.7.2 — detail composition fidelity
+ * UI authority: live Figma DS v2, node 551:1396 Mobile / Detail and 525:552 Summary Card.
+ * Purpose: replace ad-hoc identity headers with canonical Data Display composition,
+ * while keeping VSection structural and grouped surfaces owned by Layout.
+ */
+
+/* Canonical DS v2 / Summary Card — Neutral, 370x112. */
+/* BJ05 SCR-027 follows the canonical Mobile / Detail composition:
+   Summary Card first, then supporting Info Row. VSection itself stays surface-free. */
+
+/* VSection is structural, not a visual card. Product-level handover groups are
+   independent business units, so Layout owns one light grouped surface. */
+/* Remove inherited custom product-head visual treatment once canonical Summary Card is used. */
+
+/* BJ02 previously labeled a bespoke three-column card as Summary Card. The live
+   master has only title + body. Keep change/source metadata outside the master. */
+
+/* ===== v273-ui-hardening.css ===== */
+/*
+ * Mosaic Retail Theme 7 v2.7.3 — cross-BJ UI hardening.
+ * Live Figma authority reviewed before implementation:
+ * - DS v2 / List Row 525:519: Navigation/Selection/Status, Default + Compact,
+ *   Disabled = same anatomy + Opacity/Disabled 0.4.
+ * - DS v2 / Summary Card 525:552: narrative summary, not a generic entity header.
+ * - Cross-theme Product UI reference: Theme 1 detail screens use canonical entity/list
+ *   primitives for identity and grouped white surfaces for supporting metadata.
+ *
+ * Scope: migrated Product UIFs 01/02/04/05/08. Business behavior unchanged.
+ */
+
+/* Canonical Compact List Row from live Figma: 370x52, p4/16, gap8, radius8.
+   v2.7.2 inherited Default-row padding/radius into Compact rows. */
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] {
+  box-sizing: border-box;
+  width: 370px;
+  max-width: 370px;
+  height: 52px;
+  min-height: 52px;
+  max-height: 52px;
+  padding: var(--c45-v2-space-1) var(--c45-v2-space-4);
+  gap: var(--c45-v2-space-2);
+  border-radius: var(--c45-v2-radius-3);
+  overflow: clip;
+}
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] .ds24-list-row__copy {
+  gap: var(--c45-v2-space-0);
+}
+
+/* Disabled is a state, never a different row type. Keep geometry/chevron identical
+   to the surrounding Navigation collection and apply the DS parent opacity. */
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-04"],[data-active-uif="UIF-05"]) .figma-calibrated-shell [data-ds-component="DS v2 / List Row"][data-ds-prop-state="Disabled"] {
+  opacity: var(--c45-v2-opacity-disabled);
+  cursor: default;
+  pointer-events: none;
+  background: var(--c45-v2-surface-default);
+  border-color: var(--c45-v2-border-default);
+}
+
+/* Product identity is compact context, not a narrative Summary Card. This follows
+   the List Row documentation for dense customer/context summaries. */
+/* BJ01: move the primary available quantity into the compact context row and
+   group only the supporting inventory metrics, matching mature detail-screen rhythm. */
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .ds24-availability--supporting {
+  box-sizing: border-box;
+  width: 370px;
+  max-width: 370px;
+  padding: var(--c45-v2-space-3) var(--c45-v2-space-4);
+  margin: 0;
+  border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius: var(--c45-v2-radius-4);
+  background: var(--c45-v2-surface-default);
+  box-shadow: none;
+}
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .ds24-availability--supporting .ds24-key-value-stack {
+  width: 338px;
+}
+
+/* BJ02 Record Card geometry: content box is 344px after 12px padding + 1px border.
+   The inherited 346px supporting line caused a 2px internal overflow even when the
+   copy looked visually acceptable. Use the available content width, not a magic width. */
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .bj02-record-card .bj02-record-support {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* BJ02 selected-product composition is now a compact Status List Row. Quick entry
+   keeps the existing Change action outside the row so the row itself stays read-only. */
+
+/* Keep horizontal chip scrollers inside the 370px product column. Children may
+   scroll, but the scroller itself never bleeds past the phone content boundary. */
+body:is([data-active-uif="UIF-01"],[data-active-uif="UIF-05"]) .figma-calibrated-shell :is(.ds24-chip-scroll,.bj05-chip-scroll) {
+  box-sizing: border-box;
+  width: 370px;
+  max-width: 370px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+}
+/* ===== v274-figma-ds-hard-gate.css ===== */
+/*
+ * Mosaic Retail Theme 7 v2.7.4 — Figma DS hard gate.
+ * UI authority: live Figma Design System file QVJolM5tAdFKkhP7RIwe3y.
+ * This layer fixes typography fallback and bottom-sheet/component fidelity only.
+ * Business behavior is unchanged.
+ */
+
+/* Typography: Inter remains canonical. Generic fallbacks prevent UA-serif fallback
+   when Inter is not installed on the review machine. Form controls inherit exactly. */
+.figma-calibrated-shell,
+.figma-calibrated-shell button,
+.figma-calibrated-shell input,
+.figma-calibrated-shell textarea,
+.figma-calibrated-shell select {
+  font-family: var(--c45-v2-font-sans);
+  font-synthesis: none;
+}
+
+/* VButton live DS: disabled is parent opacity 0.4, not a separate gray color. */
+.figma-calibrated-shell [data-ds-component="VButton"].button,
+.figma-calibrated-shell [data-ds-component="VButton"].ds24-button {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  border-radius: var(--c45-v2-radius-3);
+}
+.figma-calibrated-shell [data-ds-component="VButton"].button--primary:disabled,
+.figma-calibrated-shell [data-ds-component="VButton"].ds24-button--primary:disabled {
+  color: var(--c45-v2-text-inverse);
+  background: var(--c45-v2-action-primary-default);
+  border-color: transparent;
+  opacity: var(--c45-v2-opacity-disabled);
+  pointer-events: none;
+}
+
+/* Canonical VBottomSheet shell for legacy renderers that already claim VBottomSheet.
+   No feature-specific visual tone is introduced. */
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] {
+  width: 402px;
+  max-width: 100%;
+  max-height: 88%;
+  padding: 12px 16px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  border: 0;
+  border-radius: 20px 20px 0 0;
+  background: var(--c45-v2-surface-default);
+  box-shadow: none;
+  overflow-y: auto;
+}
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-handle {
+  width: 48px;
+  height: 4px;
+  min-height: 4px;
+  flex: 0 0 4px;
+  margin: 0 auto;
+  border-radius: var(--c45-v2-radius-pill);
+  background: var(--c45-v2-border-strong);
+}
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] .sheet-title {
+  width: 370px;
+  margin: 0;
+}
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] .sheet-title h3 {
+  margin: 0;
+  color: var(--c45-v2-text-primary);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-divider {
+  display: none;
+}
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-content {
+  width: 370px;
+  margin: 0;
+}
+
+/* BJ05 canonical Form Sheet 1353:6355. Directly mirrors live Figma anatomy:
+   24 handle area + 44 header + 40 intro + fields + 92 sticky footer. */
+
+body[data-active-uif="UIF-05"] .bj05-selection-list {
+  width: 370px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+body[data-active-uif="UIF-05"] .bj05-textarea {
+  width: 370px;
+  height: 140px;
+  min-height: 140px;
+  flex: 0 0 140px;
+  gap: 8px;
+}
+body[data-active-uif="UIF-05"] .bj05-textarea > span {
+  min-height: 20px;
+  color: var(--c45-v2-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+body[data-active-uif="UIF-05"] .bj05-textarea__control {
+  width: 370px;
+  height: 88px;
+  min-height: 88px;
+  max-height: 88px;
+  padding: 12px 16px;
+  border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius: var(--c45-v2-radius-3);
+  background: var(--c45-v2-surface-default);
+  color: var(--c45-v2-text-primary);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+  resize: none;
+}
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-05"] .bj05-textarea__control::placeholder {
+ color: var(--c45-v2-text-secondary) !important;
+}
+body[data-active-uif="UIF-05"] .bj05-textarea > small {
+  min-height: 16px;
+  color: var(--c45-v2-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+}
+
+/* Any DOM that claims the canonical Confirmation Sheet must render as the live
+   bottom sheet, never as the historical centered dialog. */
+.figma-calibrated-shell .confirm-backdrop:has(> [data-ds-component="DS v2 / Confirmation Sheet"]) {
+  padding: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--c45-v2-surface-overlay);
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] {
+  box-sizing: border-box;
+  width: 402px;
+  max-width: 402px;
+  min-height: 280px;
+  margin: 0;
+  padding: 12px 16px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  border: 0;
+  border-radius: 20px 20px 0 0;
+  background: var(--c45-v2-surface-default);
+  box-shadow: none;
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"]::before {
+  content: "";
+  width: 48px;
+  height: 4px;
+  min-height: 4px;
+  margin: 0 auto;
+  border-radius: var(--c45-v2-radius-pill);
+  background: var(--c45-v2-border-strong);
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] h3 {
+  width: 370px;
+  margin: 0;
+  color: var(--c45-v2-text-primary);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"][data-ds-prop-tone="Danger"] h3,
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"][data-ds-prop-is-destructive="true"] h3 {
+  color: var(--c45-v2-text-danger);
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] > p {
+  width: 370px;
+  margin: 0;
+  color: var(--c45-v2-text-secondary);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] .confirm-dialog-actions {
+  width: 370px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* Migrated BJ02 detail overlay claims VBottomSheet directly. Keep the live shell
+   geometry/typography contract even though its arbitrary content is feature-specific. */
+body[data-active-uif="UIF-02"] .bj02-review-detail-sheet[data-ds-component="VBottomSheet"] {
+  border-radius: 20px 20px 0 0;
+  font-family: var(--c45-v2-font-sans);
+}
+body[data-active-uif="UIF-02"] .bj02-review-detail-sheet[data-ds-component="VBottomSheet"] > h2 {
+  font-family: var(--c45-v2-font-sans);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+/* Canonical numeric sheets across migrated flows use 24px top radius and Inter. */
+/* ===== v275-cross-bj-ds-fidelity.css ===== */
+/*
+ * Mosaic Retail Theme 7 v2.7.5 — cross-BJ Figma DS fidelity + BJ05 handover clarity.
+ * UI authority: live Figma Design System QVJolM5tAdFKkhP7RIwe3y.
+ * Canonical bottom sheet: VBottomSheet 4695:6353. Form Sheet 1353:6355 is not used for BJ05 lot replacement.
+ */
+
+/* Product typography hard gate: every already-built BJ inherits the Figma sans stack.
+   This deliberately covers migrated and legacy-built screens inside the product viewport. */
+[data-mobile-product],
+[data-mobile-product] button,
+[data-mobile-product] input,
+[data-mobile-product] textarea,
+[data-mobile-product] select {
+  font-family: var(--c45-v2-font-sans);
+  font-synthesis: none;
+}
+[data-mobile-product] input,
+[data-mobile-product] textarea,
+[data-mobile-product] select,
+[data-mobile-product] button {
+  letter-spacing: inherit;
+}
+
+/* Canonical VBottomSheet: content-driven shell, no close icon in the shell itself. */
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+[data-mobile-product] .bottom-sheet[data-ds-component="VBottomSheet"] {
+ width: 402px;
+  max-width: 100% !important;
+  max-height: calc(100% - 24px) !important;
+  padding: 12px 16px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  border: 0;
+  border-radius: 20px 20px 0 0;
+  background: var(--c45-v2-surface-default);
+  box-shadow: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+[data-mobile-product] .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-handle {
+  width: 48px;
+  height: 4px;
+  min-height: 4px;
+  flex: 0 0 4px;
+  margin: 0 auto;
+  border-radius: var(--c45-v2-radius-pill);
+  background: var(--c45-v2-border-strong);
+}
+[data-mobile-product] .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-title {
+  width: 370px;
+  margin: 0;
+  padding: 0;
+}
+[data-mobile-product] .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-title h3 {
+  margin: 0;
+  color: var(--c45-v2-text-primary);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+[data-mobile-product] .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-divider {
+  display: none;
+}
+[data-mobile-product] .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-content {
+  width: 370px;
+  min-width: 0;
+  margin: 0;
+}
+
+/* BJ05 lot replacement is a normal VBottomSheet, not a near-full-height Form Sheet.
+   The sheet hugs content and therefore has no meaningless blank field area or top-right X. */
+body[data-active-uif="UIF-05"] .bj05-lot-sheet-backdrop {
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  background: var(--c45-v2-surface-overlay);
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet {
+  position: relative;
+  inset: auto;
+  height: auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet__content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet__intro {
+  width: 370px;
+  margin: 0;
+  color: var(--c45-v2-text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet .bj05-selection-list {
+  width: 370px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet .bj05-textarea {
+  width: 370px;
+  height: 140px;
+  min-height: 140px;
+  margin: 0;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet__cta {
+  width: 370px;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  flex: 0 0 44px;
+  border-radius: var(--c45-v2-radius-3);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet__cta:disabled {
+  color: var(--c45-v2-text-inverse);
+  background: var(--c45-v2-action-primary-default);
+  border-color: transparent;
+  opacity: var(--c45-v2-opacity-disabled);
+}
+
+/* SCR-028: clearer semantic hierarchy, following the mature Mosaic Retail detail composition:
+   section heading -> grouped product surface -> allocation blocks -> canonical field/info row. */
+/* Avoid legacy typography declarations overriding the DS stack in BJ05. */
+body[data-active-uif="UIF-05"] .bj05-row-quantity,
+body[data-active-uif="UIF-05"] .bj05-business-note,
+body[data-active-uif="UIF-05"] .bj05-decision-note,
+body[data-active-uif="UIF-05"] .bj05-allocation__head strong,
+body[data-active-uif="UIF-05"] .bj05-allocation__head small,
+body[data-active-uif="UIF-05"] .bj05-link {
+  font-family: var(--c45-v2-font-sans);
+}
+
+/* Long data must reflow, never clip product UI. */
+[data-mobile-product] .body-stack,
+[data-mobile-product] .body-stack * {
+  min-width: 0;
+}
+[data-mobile-product] .ds24-list-row__copy,
+[data-mobile-product] .ds24-section-title,
+[data-mobile-product] .v-banner-copy,
+[data-mobile-product] .sheet-content {
+  overflow-wrap: anywhere;
+}
+/* ===== v276-bj05-compact-detail.css ===== */
+/*
+ * Mosaic Retail Theme 7 v2.7.6 — BJ05 compact mobile detail + review-stage scale.
+ * Product viewport remains canonical 402x874. Desktop review canvas may visually scale
+ * the device only when needed to fit the available browser viewport without page scroll.
+ */
+
+/* Review workbench only: preserve 402x874 product coordinates, scale the decorated phone
+   to fit the available desktop review area. This never changes product CSS pixels. */
+@media (min-width: 841px) {
+  .stage-canvas {
+    min-height: calc(100vh - 152px);
+    height: calc(100vh - 152px);
+    padding: 16px 24px;
+    overflow: hidden;
+    align-items: start;
+  }
+  .device-preview.is-mobile {
+    transform: scale(var(--c45-review-scale, 1));
+    transform-origin: top center;
+  }
+}
+
+/* SCR-027: treat product + allocation as one dense, clearly nested task hierarchy.
+   No decorative card stacking; spacing comes from section rhythm and a single lot divider. */
+/* Lot replacement sheet: keep canonical shell but tighten the feature composition so it
+   never recreates the previous near-full-height, over-spaced form appearance. */
+body[data-active-uif="UIF-05"] .bj05-lot-sheet {
+  max-height: calc(100% - 16px);
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet__content {
+  gap: 10px;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet .bj05-selection-list {
+  gap: 8px;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet .bj05-textarea {
+  height: 124px;
+  min-height: 124px;
+  gap: 6px;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet .bj05-textarea__control {
+  height: 80px;
+  min-height: 80px;
+}
+/* ===== v280-bj05-sheet-bj06-figma-ds.css ===== */
+/*
+ * Mosaic Retail Theme 7 v2.8.0
+ * Authority: live Figma DS + mature Mosaic Retail mobile compositions.
+ * Scope: BJ05 lot-sheet correction, full UIF-06/BJ06 structural migration, review-stage proportional fit.
+ */
+
+/* Review canvas only. Product remains exactly 402x874 CSS px. */
+@media (min-width: 841px) {
+  /* !important: khung workbench, không thuộc sản phẩm */
+.stage-canvas {
+   height: calc(100vh - 124px) !important;
+    min-height: 0 !important;
+    padding: 10px 20px !important;
+    overflow: hidden !important;
+    display: grid !important;
+    place-items: start center !important;
+  }
+  .device-preview.is-mobile {
+    width: 402px;
+    height: 874px;
+    min-height: 874px;
+    transform: scale(var(--c45-review-scale, 1));
+    transform-origin: top center;
+  }
+}
+
+/* BJ05: normal VBottomSheet must hug content. Never let old sheet-content/flex rules create dead space. */
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-05"] .bj05-lot-sheet-backdrop {
+ display: flex;
+  align-items: flex-end !important;
+  overflow: hidden;
+}
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-05"] .bj05-lot-sheet[data-ds-component="VBottomSheet"] {
+ position: relative;
+  inset: auto;
+  width: 402px;
+  height: max-content;
+  min-height: 0;
+  max-height: calc(100% - 16px) !important;
+  padding: 12px 16px 44px;
+  gap: 12px;
+  overflow: visible;
+  flex: 0 0 auto;
+  align-self: flex-end;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet > .sheet-title,
+body[data-active-uif="UIF-05"] .bj05-lot-sheet > .sheet-content {
+  flex: 0 0 auto;
+  min-height: 0;
+  height: auto;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet__content {
+  width: 370px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet .bj05-selection-list {
+  gap: 8px;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet .bj05-textarea {
+  width: 370px;
+  height: 140px;
+  min-height: 140px;
+  gap: 8px;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet .bj05-textarea__control {
+  width: 370px;
+  height: 88px;
+  min-height: 88px;
+  padding: 12px 16px;
+}
+body[data-active-uif="UIF-05"] .bj05-lot-sheet__cta {
+  flex: 0 0 44px;
+  width: 370px;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+}
+
+/* UIF06 root fidelity. */
+
+/* Queue: exact DS search/chip/list rhythm. */
+
+/* Compact identity row uses exact Compact Status geometry. */
+
+/* Mature info composition: a single grouped surface, rows remain transparent primitives. */
+
+/* Canonical field and textarea anatomy. */
+
+/* Selection rows preserve List Row default geometry and use radio as the control. */
+
+/* Canonical VBottomSheet shell for BJ06: hug until max-height, then content scrolls. */
+
+/* Results and approval evidence: one semantic surface, no card soup. */
+
+/* Never let legacy typography leak into migrated BJ06. */
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-06"] :is(button,input,textarea,select,label,p,span,strong,small,h1,h2,h3,h4) {font-family:var(--c45-v2-font-sans)!important; }
+@media (min-width: 841px) {
+  html, body { height: 100vh; overflow: hidden; }
+  /* !important: khung workbench, không thuộc sản phẩm */
+.review-app {height: 100vh !important; min-height: 0 !important; overflow: hidden !important; }
+  /* !important: khung workbench, không thuộc sản phẩm */
+.review-layout {height: calc(100vh - 76px) !important; min-height: 0 !important; overflow: hidden !important; }
+  /* !important: khung workbench, không thuộc sản phẩm */
+.review-stage {min-height: 0 !important; overflow: hidden !important; }
+}
+
+/* --- figma calibrated (A11; bản sao .device-preview bo 32px ở đây đã xoá ở A12 R1 — khung nằm ở components.css) --- */
+
+.figma-calibrated-shell .review-card:has(> .review-card-body > [data-ds-component="DS v2 / Info Row"] ~ [data-ds-component="DS v2 / Info Row"]) {
+  box-sizing: border-box;
+  width: 370px;
+  max-width: 370px;
+  margin-left: 0;
+  margin-right: 0;
+  border: 0;
+  border-radius: var(--c45-v2-radius-card);
+  background: var(--c45-v2-surface-default);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.figma-calibrated-shell .review-card:has(> .review-card-header + .review-card-body > [data-ds-component="DS v2 / Info Row"] ~ [data-ds-component="DS v2 / Info Row"]) > .review-card-header {
+  box-sizing: border-box;
+  width: 370px;
+  min-height: 46px;
+  padding: var(--c45-v2-space-4) var(--c45-v2-space-4) var(--c45-v2-space-2);
+  border: 0;
+  background: transparent;
+}
+
+.figma-calibrated-shell .review-card:has(> .review-card-header + .review-card-body > [data-ds-component="DS v2 / Info Row"] ~ [data-ds-component="DS v2 / Info Row"]) > .review-card-body {
+  box-sizing: border-box;
+  width: 370px;
+  padding: 0 var(--c45-v2-space-4) var(--c45-v2-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--c45-v2-space-2);
+}
+
+.figma-calibrated-shell .review-card:has(> .review-card-body > [data-ds-component="DS v2 / Info Row"] ~ [data-ds-component="DS v2 / Info Row"]) > .review-card-body > [data-ds-component="DS v2 / Info Row"] {
+  box-sizing: border-box;
+  width: 338px;
+  max-width: 338px;
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  margin: 0;
+  background: transparent;
+}
+
+@media (min-width: 841px) {
+  .device-preview.is-mobile {
+    width: 418px;
+    height: 890px;
+    min-height: 890px;
+    box-sizing: border-box;
+  }
+  .device-preview.is-mobile > .app-screen {
+    width: 402px;
+    height: 874px;
+    min-width: 402px;
+    min-height: 874px;
+  }
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-05"] .sheet-backdrop:has(.bj05-pick-editor-sheet),
+body[data-active-uif="UIF-05"] .bj05-pick-editor-backdrop {
+ display: flex;
+  align-items: flex-end !important;
+  overflow: hidden;
+  background: var(--c45-v2-surface-overlay);
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet[data-ds-component="VBottomSheet"] {
+ width: 402px;
+  height: max-content;
+  min-height: 0;
+  max-height: calc(100% - 16px) !important;
+  padding: 12px 16px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  border: 0;
+  border-radius: 20px 20px 0 0;
+  background: var(--c45-v2-surface-default);
+  overflow: hidden;
+}
+
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet > .sheet-handle {
+  width: 48px;
+  height: 4px;
+  min-height: 4px;
+  flex: 0 0 4px;
+  margin: 0 auto;
+  border-radius: var(--c45-v2-radius-pill);
+  background: var(--c45-v2-border-strong);
+}
+
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet > .sheet-title {
+  width: 370px;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;
+}
+
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet > .sheet-title h3 {
+  margin: 0;
+  font-family: var(--c45-v2-font-sans);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--c45-v2-text-primary);
+}
+
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet__content {
+  width: 370px;
+  min-height: 0;
+  height: auto;
+  flex: 0 1 auto;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet__meta {
+  width: 370px;
+  margin: 0;
+  font-family: var(--c45-v2-font-sans);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--c45-v2-text-secondary);
+}
+
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet .ds24-field,
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet .ds24-field__control,
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet__change,
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet__save {
+  width: 370px;
+}
+
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet__change,
+body[data-active-uif="UIF-05"] .bj05-pick-editor-sheet__save {
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+}
+
+body:is([data-active-uif="UIF-05"],[data-active-uif="UIF-06"])
+  .ds24-grouped-collection {
+  width: 370px;
+  max-width: 370px;
+  min-width: 370px;
+  margin: 0;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 0;
+  border-radius: var(--c45-v2-radius-4);
+  background: var(--c45-v2-surface-default);
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .figma-calibrated-shell .ds24-list-row[data-ds-prop-density="Compact"] {
+  width: 370px;
+  min-width: 370px;
+  max-width: 370px;
+  height: 52px;
+  min-height: 52px;
+  max-height: 52px;
+  padding: 4px 16px;
+  gap: 8px;
+  border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius: var(--c45-v2-radius-3);
+  background: var(--c45-v2-surface-default);
+  box-sizing: border-box;
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .figma-calibrated-shell .ds24-list-row[data-ds-prop-density="Compact"] .ds24-list-row__copy {
+  gap: 0;
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .figma-calibrated-shell .ds24-list-row[data-ds-prop-density="Compact"] .ds24-list-row__copy strong {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .figma-calibrated-shell .ds24-list-row[data-ds-prop-density="Compact"] .ds24-list-row__copy small {
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* !important: đè luật khung Figma (không sửa được nguồn) */
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] {
+ box-sizing: border-box;
+  width: 338px;
+  max-width: 338px;
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  margin: 0 auto;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--c45-v2-space-2);
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] > span {
+  flex: 0 0 auto;
+  color: var(--c45-v2-text-secondary);
+  font: 400 13px/20px Inter, system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"] > strong {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--c45-v2-text-primary);
+  font: 400 14px/22px "JetBrains Mono", ui-monospace, monospace;
+  text-align: right;
+  white-space: nowrap;
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] {
+  padding: 0 var(--c45-v2-space-3);
+  border-radius: var(--c45-v2-radius-3);
+  background: var(--c45-v2-surface-brand);
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > span {
+  color: var(--c45-v2-text-primary);
+  font: 600 14px/20px Inter, system-ui, sans-serif;
+}
+
+/* !important: đè luật khung Figma (không sửa được nguồn) */
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .figma-calibrated-shell [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > strong {
+ color: var(--c45-v2-text-brand);
+  font: 600 16px/22px Inter, system-ui, sans-serif !important;
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .io-result {width:370px; max-width:370px !important; }
+
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],
+  [data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],
+  [data-active-uif="UIF-07"],[data-active-uif="UIF-13"]
+) .figma-calibrated-shell .ds24-list-row--no-leading > .ds24-list-row__copy {
+  margin-inline-start: 0;
+}
+
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],
+  [data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],
+  [data-active-uif="UIF-07"],[data-active-uif="UIF-13"]
+) .figma-calibrated-shell .ds24-list-row__copy {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* !important: đè luật khung Figma (không sửa được nguồn) */
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],
+  [data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],
+  [data-active-uif="UIF-07"],[data-active-uif="UIF-13"]
+) .figma-calibrated-shell .ds24-list-row__copy > strong,
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],
+  [data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],
+  [data-active-uif="UIF-07"],[data-active-uif="UIF-13"]
+) .figma-calibrated-shell .ds24-list-row__copy > small {
+ display: block !important;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],
+  [data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],
+  [data-active-uif="UIF-07"],[data-active-uif="UIF-13"]
+) .figma-calibrated-shell .ds24-list-row__trailing {
+  flex-shrink: 0;
+  max-width: 46%;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-list-row--no-leading > .ds24-list-row__copy {
+  margin-inline-start: 0;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-list-row__copy {
+  min-width: 0;
+  overflow: hidden;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-list-row__copy > strong,
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-list-row__copy > small {
+  display:block;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-list-row__trailing {
+  flex:0 0 auto;
+  max-width:42%;
+  min-width:0;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-list-row__trailing .ds24-badge {
+  max-width:116px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-list-row[data-ds-prop-density="Compact"] {
+  box-sizing:border-box;
+  width:370px;
+  min-width:370px;
+  max-width:370px;
+  min-height:52px;
+  height:52px;
+  padding:4px 16px;
+  gap:8px;
+  border:var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius:var(--c45-v2-radius-3);
+  background:var(--c45-v2-surface-default);
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-list-row[data-ds-prop-density="Compact"] .ds24-list-row__copy {
+  gap:0;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-list-row[data-ds-prop-density="Compact"] .ds24-list-row__copy > strong {
+  font:600 14px/20px Inter,system-ui,sans-serif;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-list-row[data-ds-prop-density="Compact"] .ds24-list-row__copy > small {
+  font:400 12px/16px Inter,system-ui,sans-serif;
+}
+
+.ac310-section-title {
+  width:370px;
+  min-width:0;
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:8px;
+  box-sizing:border-box;
+  padding:0;
+  margin:0;
+}
+
+.ac310-section-title h2,
+.ac310-surface__head h2 {
+  margin:0;
+  color:var(--c45-v2-text-primary);
+  font:600 14px/20px Inter,system-ui,sans-serif;
+}
+
+.ac310-section-title > span {
+  min-width:0;
+  color:var(--c45-v2-text-secondary);
+  font:400 12px/16px Inter,system-ui,sans-serif;
+  white-space:nowrap;
+}
+
+.ac310-surface {
+  box-sizing:border-box;
+  width:370px;
+  max-width:370px;
+  margin:0;
+  padding:12px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  border:var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius:var(--c45-v2-radius-4);
+  background:var(--c45-v2-surface-default);
+  box-shadow:none;
+  overflow:hidden;
+}
+
+.ac310-surface__head {
+  width:100%;
+  min-height:24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.ac310-info-rows,
+.ac310-key-value-stack {
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+.ac310-info-rows > .ds24-info-row,
+.ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"] {
+ box-sizing:border-box;
+  width:338px;
+  max-width:338px;
+  min-height:44px !important;
+  margin:0;
+  padding:0 !important;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+
+.ac310-info-rows > .ds24-info-row + .ds24-info-row,
+.ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"] + [data-ds-component="DS v2 / Key-value Row"] {
+  border-top:var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default,#e5e8eb);
+}
+
+.ac310-info-rows .ds24-info-row > span,
+.ac310-info-rows .ds24-info-row > strong,
+.ac310-key-value-stack [data-ds-component="DS v2 / Key-value Row"] > span,
+.ac310-key-value-stack [data-ds-component="DS v2 / Key-value Row"] > strong {
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+
+.ac310-info-row--emphasis > strong { font-weight:600; color:var(--c45-v2-text-primary); }
+
+.ac310-record-row,
+.ac310-product-row {
+  width:370px;
+  max-width:370px;
+  margin:0;
+}
+
+.ac310-radio-row:has(input:checked) { background:var(--c45-v2-surface-brand); }
+
+.ac310-radio-row:has(input:checked) .ac310-radio-control {
+  border:6px solid var(--c45-v2-action-primary-default);
+}
+
+.ac310-audit-surface {
+  box-sizing:border-box;
+  width:370px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.ac310-audit-list {
+  width:370px;
+  overflow:hidden;
+  border:1px solid var(--c45-v2-border-default);
+  border-radius:12px;
+  background:var(--c45-v2-surface-default);
+}
+
+.ac310-audit-item {
+  box-sizing:border-box;
+  width:100%;
+  min-height:64px;
+  padding:10px 16px;
+  display:grid;
+  grid-template-columns:20px minmax(0,1fr);
+  align-items:start;
+  gap:12px;
+  background:var(--c45-v2-surface-default);
+}
+
+.ac310-audit-item + .ac310-audit-item { border-top:1px solid var(--c45-v2-border-default); }
+
+.ac310-audit-item__icon { width:20px; height:20px; color:var(--c45-v2-icon-primary); }
+
+.ac310-audit-item__copy { min-width:0; display:flex; flex-direction:column; gap:2px; }
+
+.ac310-audit-item__copy strong {
+  min-width:0;
+  color:var(--c45-v2-text-primary);
+  font:600 14px/20px Inter,system-ui,sans-serif;
+  overflow-wrap:anywhere;
+}
+
+.ac310-audit-item__copy small {
+  min-width:0;
+  color:var(--c45-v2-text-secondary);
+  font:400 12px/18px Inter,system-ui,sans-serif;
+  overflow-wrap:anywhere;
+}
+
+.ac310-form-stack { width:370px; display:flex; flex-direction:column; gap:12px; }
+
+.ac310-field > input:focus,
+.ac310-field > textarea:focus { border-color:var(--c45-v2-border-brand); box-shadow:0 0 0 2px var(--c45-v2-surface-brand); }
+
+.ac310-file-drop {
+  box-sizing:border-box;
+  width:370px;
+  min-height:92px;
+  display:grid;
+  grid-template-columns:24px minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  padding:16px;
+  border:1px dashed var(--c45-v2-border-strong);
+  border-radius:12px;
+  background:var(--c45-v2-surface-default);
+}
+
+.ac310-file-drop__icon { width:24px; height:24px; display:grid; place-items:center; color:var(--c45-v2-icon-secondary); }
+
+.ac310-file-drop__copy { min-width:0; display:flex; flex-direction:column; gap:2px; }
+
+.ac310-file-drop__copy strong { color:var(--c45-v2-text-primary); font:600 14px/20px Inter,system-ui,sans-serif; }
+
+.ac310-file-drop__copy small { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--c45-v2-text-secondary); font:400 12px/18px Inter,system-ui,sans-serif; }
+
+.ac310-file-drop .button { min-height:44px; padding-inline:12px; white-space:nowrap; }
+
+.ac310-metrics {
+  box-sizing:border-box;
+  width:370px;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+
+.ac310-metric {
+  box-sizing:border-box;
+  min-width:0;
+  min-height:76px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:4px;
+  padding:12px;
+  border:1px solid var(--c45-v2-border-default);
+  border-radius:12px;
+  background:var(--c45-v2-surface-default);
+}
+
+.ac310-metric > span { color:var(--c45-v2-text-secondary); font:400 12px/16px Inter,system-ui,sans-serif; }
+
+.ac310-metric > strong { min-width:0; overflow-wrap:anywhere; color:var(--c45-v2-text-primary); font:600 18px/24px Inter,system-ui,sans-serif; }
+
+.ac310-note {
+  width:370px;
+  margin:0;
+  color:var(--c45-v2-text-secondary);
+  font:400 12px/18px Inter,system-ui,sans-serif;
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+.ac310-two-actions {gap:8px !important; }
+
+.ac310-two-actions > .button { flex:1 1 0; min-width:0; }
+
+@media (max-width:401px) {
+  /* !important: đè luật thành phần có độ ưu tiên cao hơn */
+.ac310-section-title,
+  .ac310-surface,
+  .ac310-list-surface,
+  .ac310-list-stack,
+  .ac310-record-row,
+  .ac310-product-row,
+  .ac310-audit-surface,
+  .ac310-audit-list,
+  .ac310-form-stack,
+  .ac310-field,
+  .ac310-file-drop,
+  .ac310-metrics,
+  .ac310-note,
+  .ac310-product-control-list,
+  .ac310-product-control-group,
+  .ac310-date-grid {
+   width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+  }
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"] {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  column-gap:12px;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"] > span {
+  flex:0 1 auto;
+  color:var(--c45-v2-text-secondary);
+  font:400 13px/20px Inter,system-ui,sans-serif;
+  white-space:nowrap;
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"] > strong {
+ flex:0 1 auto;
+  margin-left:auto;
+  color:var(--c45-v2-text-primary);
+  font:400 14px/22px "JetBrains Mono",ui-monospace,monospace !important;
+  text-align:right;
+  white-space:nowrap;
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] {
+ min-height:44px;
+  padding:0 12px !important;
+  border-radius:8px;
+  background:var(--c45-v2-surface-brand);
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > span {
+  color:var(--c45-v2-text-primary);
+  font:600 14px/20px Inter,system-ui,sans-serif;
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > strong {
+ color:var(--c45-v2-text-brand);
+  font:600 16px/22px Inter,system-ui,sans-serif !important;
+}
+
+body:is([data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-11"],[data-active-uif="UIF-16"],[data-active-uif="UIF-17"]) .figma-calibrated-shell .ds24-chip-scroll {
+  width:370px;
+  max-width:370px;
+  box-sizing:border-box;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  padding-right:16px;
+  scroll-padding-inline:0 16px;
+  -webkit-overflow-scrolling:touch;
+}
+
+@media (max-width: 401px) {
+  /* !important: đè luật thành phần có độ ưu tiên cao hơn */
+body[data-active-uif="UIF-07"] .io07-grouped-collection {width: 100% !important; max-width: 100% !important; }
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll {
+  width: 370px;
+  max-width: 100%;
+  height: auto;
+  min-height: 44px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+  overflow: visible;
+  padding: 0;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll > .ds24-chip {
+  flex: 0 0 auto;
+  max-width: 100%;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll {
+  width: 370px;
+  max-width: 100%;
+  height: 44px;
+  min-height: 44px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--c45-v2-space-2);
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll > .ds24-chip {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 401px) {
+  /* !important: đè luật khung Figma (không sửa được nguồn) */
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection {width:100% !important; max-width:100% !important; }
+}
+
+.figma-calibrated-shell .ds24-chip-scroll,
+.figma-calibrated-shell .io07-chip-scroll,
+.figma-calibrated-shell .bj05-chip-scroll {
+  box-sizing:border-box;
+  width:370px;
+  max-width:100%;
+  height:auto;
+  min-height:44px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  align-content:flex-start;
+  gap:8px;
+  padding:0;
+  overflow:visible;
+}
+
+@media (max-width:401px){
+  /* !important: đè luật khung Figma (không sửa được nguồn) */
+.figma-calibrated-shell :is(.ds24-chip-scroll,.io07-chip-scroll,.bj05-chip-scroll),
+  body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection {width:100% !important;max-width:100% !important;}
+}
+
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],[data-active-uif="UIF-04"],
+  [data-active-uif="UIF-05"],[data-active-uif="UIF-06"],[data-active-uif="UIF-07"],[data-active-uif="UIF-08"],
+  [data-active-uif="UIF-09"],[data-active-uif="UIF-10"],[data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-13"],[data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll {
+  width:370px;
+  max-width:100%;
+  height:auto;
+  min-height:44px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  align-content:flex-start;
+  gap:8px;
+  padding:0;
+  overflow:visible;
+}
+
+body .ds24-list-row[hidden],
+.io-product-row[hidden],
+[data-io05-row][hidden],
+[data-io06-row][hidden],
+[data-io07-row][hidden] { display: none; }
+
+.ds24-info-row strong,
+.review-card-body strong { overflow-wrap:anywhere; }
+
+#app-screen [hidden] { display: none; }
+
+body[data-active-uif] .figma-calibrated-shell :is(.ds24-chip-scroll,.io06-chip-scroll,.io07-chip-scroll,.bj05-chip-scroll) {
+  box-sizing: border-box;
+  width: 370px;
+  max-width: 100%;
+  min-height: 44px;
+  height: 44px;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 0 16px 0 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  scroll-padding-inline: 0 16px;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  background: transparent;
+}
+
+body[data-active-uif] .figma-calibrated-shell :is(.ds24-chip-scroll,.io06-chip-scroll,.io07-chip-scroll,.bj05-chip-scroll) > .ds24-chip {
+  flex: 0 0 auto;
+  max-width: none;
+  white-space: nowrap;
+}
+
+.ds24-chip-scroll,
+.io-chip-strip,
+.ac310-chip-strip {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ds24-chip-scroll > *,
+.io-chip-strip > *,
+.ac310-chip-strip > * { flex: 0 0 auto; }
+
+/* !important: đè luật khung Figma (không sửa được nguồn) */
+.figma-calibrated-shell > .app-actions.v361-dual-footer,
+.app-actions.v361-dual-footer {
+ display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: column;
+  flex-direction: row;
+  align-items: start;
+  gap: var(--c45-v2-space-2);
+  min-height: 92px;
+  height: 92px;
+  padding: var(--c45-v2-space-3) var(--c45-v2-space-4) var(--c45-v2-space-6) !important;
+  box-sizing: border-box;
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+.app-actions.v361-dual-footer > button {
+ width: 100%;
+  min-width: 0 !important;
+  min-height: var(--c45-v2-touch-minimum);
+  height: var(--c45-v2-touch-minimum);
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.app-actions.v361-dual-footer--danger > .button--secondary[data-ds-prop-tone="VComponentTone.danger"],
+.app-actions.v361-dual-footer--danger > .v360-session-cancel,
+.app-actions.v361-dual-footer--danger > .ac310-danger-text,
+.app-actions.v361-dual-footer--danger > .ds24-button--danger {
+  color: var(--c45-v2-text-danger);
+  border-color: var(--c45-v2-border-danger);
+  background: var(--c45-v2-surface-default);
+}
+
+body[data-active-uif] .figma-calibrated-shell .ds24-list-row[data-ds-prop-type="Navigation"][data-ds-prop-state="Disabled"] {
+  opacity: var(--c45-v2-opacity-disabled);
+  cursor: default;
+  pointer-events: none;
+  background: var(--c45-v2-surface-default);
+  border-color: var(--c45-v2-border-default);
+}
+
+/* !important: đè luật khung Figma (không sửa được nguồn) */
+body[data-active-uif] .figma-calibrated-shell .ds24-list-row[data-ds-prop-type="Navigation"][data-ds-prop-state="Disabled"]:active {
+ background: var(--c45-v2-surface-default) !important;
+}
+
+.figma-calibrated-shell .choice-card-copy > small,
+.figma-calibrated-shell small.helper-text,
+.figma-calibrated-shell small.field-help,
+.figma-calibrated-shell [class$="__helper"] {
+  background: transparent;
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+.t7-integrated-shell>.app-content{
+ padding-bottom:20px!important;
+}
+
+.t7-integrated-shell .body-stack{
+  gap:16px;
+}
+
+.t7-more-list {
+  gap:12px;
+}
+
+.t7-integrated-shell .ds24-list-row[data-theme-component="Theme7ModuleNavigation"],
+.t7-integrated-shell .ds24-list-row[data-theme-component="Theme7ModuleEntry"],
+.t7-integrated-shell .ds24-list-row[data-theme-component="C45MoreNavigationRow"]{
+  margin:0;
+}
+
+.t7-integrated-shell .ds24-list-row[data-ds-prop-state="Disabled"]{
+  opacity:.4;
+}
+
+.t7-app-bottom-nav{
+  flex:0 0 70px;
+  min-height:70px;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  align-items:start;
+  padding:8px 8px 12px;
+  border-top:1px solid var(--c45-v2-border-default);
+  background:var(--c45-v2-surface-default);
+  box-sizing:border-box;
+}
+
+.t7-app-bottom-nav>button{
+  min-width:0;
+  min-height:50px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  padding:2px 0;
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:var(--c45-v2-icon-secondary);
+  font-size:9px;
+  line-height:12px;
+}
+
+.t7-app-bottom-nav>button .icon{width:22px;height:22px;}
+
+.t7-app-bottom-nav>button.is-active{
+  color:var(--c45-v2-text-brand);
+  opacity:1;
+}
+
+.t7-app-bottom-nav>button:disabled{opacity:.7;}
+
+.t7-inspector-static{
+  display:inline-flex;
+  min-height:28px;
+  align-items:center;
+  padding:0 10px;
+  border-radius:999px;
+  background:var(--c45-v2-neutral-150);
+  color:var(--c45-v2-neutral-600);
+  font-size:11px;
+  font-weight:700;
+}
+
+@media (max-width:1240px){
+  .workbench-mode-tabs button{padding:0 8px;}
+  .review-meta>.review-badge:not(.review-badge--muted){display:none;}
+}
+
+.bj01-config-note{margin:8px 0 0}
+
+.v392-date-precision small,.form-field>small{display:block;margin-top:6px;color:#667085;font-size:12px;line-height:16px}
+
+.input-shell.is-readonly{background:#f6f8f9}
+
+.input-shell.is-readonly input{background:transparent;color:#111827}
+
+.v395-source-slices{margin-top:16px;padding-top:4px;display:flex;flex-direction:column;gap:12px}
+
+.v395-source-help{margin:0;color:var(--c45-v2-neutral-700);line-height:1.45}
+
+.v395-source-slice-field{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+
+.v395-source-slice-control{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+
+.v395-source-slice-control small{white-space:nowrap}
+
+.v395-mismatch-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px}
+
+.v395-mismatch-choice{min-height:44px;border:1px solid var(--c45-v2-neutral-300);border-radius:10px;background:#fff;padding:10px 12px;text-align:left;font:inherit;color:inherit}
+
+.v395-mismatch-choice.is-selected{border-color:var(--c45-v2-primary-600);box-shadow:0 0 0 1px var(--c45-v2-primary-600) inset}
+
+.v395-mismatch-sheet .sheet-content{display:flex;flex-direction:column;gap:12px}
+
+#app-screen .v398-fixed-scope:hover{background:inherit}
+
+body[data-active-uif="UIF-03"] .app-content,
+body[data-active-uif="UIF-13"] .app-content{
+  padding-left:var(--c45-v2-layout-mobile-edge);
+  padding-right:var(--c45-v2-layout-mobile-edge);
+}
+
+.v313-control:focus{outline:2px solid var(--c45-v2-focus-ring);outline-offset:1px}
+
+.v313-text-action:focus-visible{outline:2px solid var(--c45-v2-focus-ring);outline-offset:2px}
+
+body[data-active-uif="UIF-03"] button:disabled,
+body[data-active-uif="UIF-13"] button:disabled{opacity:var(--c45-v2-opacity-disabled)}
+
+body[data-active-uif="UIF-03"] .app-content,
+body[data-active-uif="UIF-13"] .app-content{padding-left:16px;padding-right:16px;}
+
+.v430-link:focus-visible{outline:2px solid var(--c45-v2-focus-ring);outline-offset:2px;}
+
+.v430-flat__rows,.v430-key-stack{display:flex;flex-direction:column;gap:0;min-width:0;}
+
+.v430-flat .ds24-info-row,.v430-flat .ds24-key-value-row,
+.v430-key-stack .ds24-key-value-row{border-bottom:1px solid var(--c45-v2-border-default);}
+
+.v430-flat .ds24-info-row:last-child,.v430-flat .ds24-key-value-row:last-child,
+.v430-key-stack .ds24-key-value-row:last-child{border-bottom:0;}
+
+.v430-key-stack{padding:0 16px;}
+
+body[data-active-uif="UIF-03"] .ds24-key-value-row,
+body[data-active-uif="UIF-13"] .ds24-key-value-row{max-width:100%;box-sizing:border-box;}
+
+body[data-active-uif="UIF-03"] .ds24-key-value-row strong,
+body[data-active-uif="UIF-13"] .ds24-key-value-row strong{min-width:0;text-align:right;overflow-wrap:anywhere;}
+
+.v430-field{width:100%;display:flex;flex-direction:column;gap:8px;color:var(--c45-v2-text-primary);}
+
+.v430-field>span{font-size:14px;line-height:20px;font-weight:600;}
+
+.v430-field>span b{color:var(--c45-v2-text-danger);}
+
+.v430-field>small{font-size:12px;line-height:16px;color:var(--c45-v2-text-secondary);}
+
+.v430-control{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--c45-v2-border-default);border-radius:8px;background:var(--c45-v2-surface-default);color:var(--c45-v2-text-primary);font:inherit;box-sizing:border-box;}
+
+.v430-control:focus{outline:2px solid var(--c45-v2-focus-ring);outline-offset:1px;}
+
+.v430-control.is-error{border-color:var(--c45-v2-border-danger);}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+.v430-field-error{color:var(--c45-v2-text-danger)!important;}
+
+.v430-money{position:relative;display:flex;align-items:center;}
+
+.v430-money .v430-control{padding-right:40px;}
+
+.v430-money>span{position:absolute;right:12px;color:var(--c45-v2-text-secondary);font-size:14px;pointer-events:none;}
+
+.v430-textarea{min-height:88px;resize:vertical;}
+
+body[data-active-uif="UIF-03"] :is(button,input,select,textarea):disabled,
+body[data-active-uif="UIF-13"] :is(button,input,select,textarea):disabled{opacity:var(--c45-v2-opacity-disabled);}
+
+.v430-money input[type=number]::-webkit-inner-spin-button,.v430-money input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+
+.v430-money input[type=number]{-moz-appearance:textfield;}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .v430-flat__rows,
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .v430-key-stack {
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  min-width:0;
+  padding:0;
+  border:1px solid var(--c45-v2-border-default);
+  border-radius:var(--c45-v2-radius-4);
+  background:var(--c45-v2-surface-default);
+  overflow:hidden;
+  box-sizing:border-box;
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .v430-flat__rows > .ds24-info-row,
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .v430-flat__rows > .ds24-key-value-row,
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .v430-key-stack > .ds24-key-value-row {
+  border:0;
+  border-radius:0;
+  border-bottom:1px solid var(--c45-v2-border-default);
+  background:transparent;
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .v430-flat__rows > :last-child,
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .v430-key-stack > :last-child {
+  border-bottom:0;
+}
+
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .v430-key-stack > .ds24-key-value-row--emphasis,
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-13"]) .v430-flat__rows > .ds24-key-value-row--emphasis {
+  background:var(--c45-v2-surface-brand);
+}
+
+.v440-grouped-surface {
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  min-width:0;
+  padding:0;
+  border:1px solid var(--c45-v2-border-default);
+  border-radius:var(--c45-v2-radius-4);
+  background:var(--c45-v2-surface-default);
+  overflow:hidden;
+  box-sizing:border-box;
+}
+
+.v440-grouped-surface > [data-ds-component="DS v2 / Info Row"],
+.v440-grouped-surface > [data-ds-component="DS v2 / Key-value Row"] {
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  margin:0;
+  border:0;
+  border-bottom:1px solid var(--c45-v2-border-default);
+  border-radius:0;
+  background:transparent;
+  box-sizing:border-box;
+}
+
+.v440-grouped-surface > [data-ds-component="DS v2 / Info Row"]:last-child,
+.v440-grouped-surface > [data-ds-component="DS v2 / Key-value Row"]:last-child {
+  border-bottom:0;
+}
+
+.v440-grouped-surface > [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"],
+.v440-grouped-surface > .ds24-key-value-row--emphasis,
+.v440-grouped-surface > .is-emphasis {
+  background:var(--c45-v2-surface-brand);
+}
+
+.figma-calibrated-shell .v-banner[data-ds-component="VBanner"][data-ds-prop-density="Compact"]{
+  box-sizing:border-box;
+  height:72px;
+  min-height:72px;
+  max-height:72px;
+  padding:12px 16px;
+  gap:12px;
+  overflow:hidden;
+}
+
+.figma-calibrated-shell .v-banner[data-ds-component="VBanner"][data-ds-prop-density="Default"]{
+  box-sizing:border-box;
+  height:96px;
+  min-height:96px;
+  max-height:96px;
+  padding:16px;
+  gap:12px;
+  overflow:hidden;
+}
+
+.figma-calibrated-shell .v-banner .v-banner-copy{
+  min-width:0;
+  max-width:286px;
+  gap:4px;
+}
+
+/* !important: đè luật khung Figma (không sửa được nguồn) */
+.figma-calibrated-shell .v-banner .v-banner-copy strong{
+ margin:0;
+  font:600 14px/20px "Inter",system-ui,sans-serif!important;
+}
+
+/* !important: đè luật khung Figma (không sửa được nguồn) */
+.figma-calibrated-shell .v-banner .v-banner-copy span{
+ margin:0;
+  font:400 13px/20px "Inter",system-ui,sans-serif!important;
+}
+
+#product-root input:disabled{cursor:not-allowed;opacity:.6;background:#f2f4f7;}
+
+.t462-warehouse-hub .app-content,
+.t462-workspace-screen .app-content {
+  padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+}
+
+.t462-warehouse-hub .body-stack,
+.t462-workspace-screen .body-stack {
+  gap: 16px;
+}
+
+.t462-search-wrap {
+  margin-bottom: 0;
+}
+
+.t462-section {
+  display: grid;
+  gap: 8px;
+}
+
+.t462-section--quick,
+.t462-section--workspace-list {
+  gap: 0;
+}
+
+.t462-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.t462-section-heading h2 {
+  margin: 0;
+  color: var(--c45-v2-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.t462-section-heading span {
+  color: var(--c45-v2-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.t462-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.t462-quick-action {
+  min-width: 0;
+  min-height: 86px;
+  padding: 14px;
+  border: 1px solid var(--c45-v2-border-default);
+  border-radius: 12px;
+  background: var(--c45-v2-surface-default);
+  color: var(--c45-v2-text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.t462-quick-action:active { transform: translateY(1px); }
+
+.t462-quick-action__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #edf6ff;
+  color: var(--c45-v2-icon-brand);
+}
+
+.t462-quick-action__label {
+  font-size: 14px;
+  line-height: 19px;
+  font-weight: 650;
+}
+
+.t462-attention-list,
+.t462-workspace-list,
+.t462-sublist {
+  display: grid;
+  gap: 12px;
+}
+
+.t462-attention-row {
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 12px;
+  border: 1px solid var(--c45-v2-border-default);
+  border-radius: 10px;
+  background: var(--c45-v2-surface-default);
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  color: var(--c45-v2-text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.t462-attention-row__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff7e6;
+  color: var(--c45-v2-text-warning);
+}
+
+.t462-attention-row__copy { min-width: 0; display: grid; gap: 2px; }
+
+.t462-attention-row__copy strong { font-size: 14px; line-height: 19px; font-weight: 600; }
+
+.t462-attention-row__copy span { color: var(--c45-v2-text-secondary); font-size: 12px; line-height: 16px; }
+
+.t462-attention-row__count { font-size: 13px; font-weight: 700; white-space: nowrap; }
+
+.t462-workspace-list .ds24-list-row,
+.t462-sublist .ds24-list-row {
+  margin: 0;
+}
+
+.t462-workspace-list .ds24-list-row__copy strong,
+.t462-sublist .ds24-list-row__copy strong {
+  font-weight: 600;
+}
+
+@media (max-width: 370px) {
+  .t462-quick-grid { gap: 12px; }
+  .t462-quick-action { min-height: 82px; padding: 12px; }
+}
+
+.t464-pending-receipt-row .ds24-badge { white-space: nowrap; }
+
+.app-content > .body-stack > p,
+.io-result p {
+  color: var(--c45-v2-text-secondary);
+}
+
+#app-screen .ds24-key-value-row--emphasis,
+#app-screen .bj02-key-value-row.is-emphasis {
+  background: var(--c45-v2-surface-default);
+  box-shadow: inset 0 1px 0 var(--c45-v2-border-strong);
+  border-radius: 0;
+}
+
+#app-screen .ds24-key-value-row--emphasis > span,
+#app-screen .bj02-key-value-row.is-emphasis > span {
+  color: var(--c45-v2-text-primary);
+  font-weight: 600;
+}
+
+/* !important: đè luật thành phần có độ ưu tiên cao hơn */
+#app-screen .ds24-key-value-row--emphasis > strong,
+#app-screen .bj02-key-value-row.is-emphasis > strong {
+ color: var(--c45-v2-text-primary);
+  font-family: "JetBrains Mono", ui-monospace, monospace !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+#app-screen .ds24-key-value-row--emphasis:first-child,
+#app-screen .bj02-key-value-row.is-emphasis:first-child {
+  box-shadow: none;
+}
+
+.ds24-badge--dot {
+  min-height: 24px;
+  gap: 6px;
+  padding-inline: 8px;
+  font-size: 11px;
+  line-height: 14px;
+}
+
+.ds24-badge--dot::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  flex: none;
+}
+
+.ds24-badge--danger.ds24-badge--dot::before {
+  /* Second cue besides hue: danger dot is a ring, warning dot is solid. */
+  background: transparent;
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.ds24-list-row__trailing .ds24-badge--dot {
+  margin-right: 4px;
+}
+
+#app-screen .t462-attention-row__icon {
+  background: var(--c45-v2-surface-warning);
+  color: var(--c45-v2-text-warning);
+}
+
+#app-screen .t462-attention-row[data-v464-pending-approvals] .t462-attention-row__icon {
+  background: var(--c45-v2-surface-info);
+  color: var(--c45-v2-text-info);
+}
+
+#app-screen .t462-attention-row {
+  grid-template-columns: 32px minmax(0, 1fr) auto 20px;
+}
+
+#app-screen .t462-attention-row__count {
+  min-width: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--c45-v2-surface-canvas);
+  color: var(--c45-v2-text-primary);
+  font: 600 12px/16px Inter, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+#app-screen .t462-attention-row > .t462-attention-row__chevron {
+  color: var(--c45-v2-text-secondary);
+  display: grid;
+  place-items: center;
+}
+
+#app-screen .t7-app-bottom-nav > button {
+  font: 600 11px/14px Inter, system-ui, sans-serif;
+  color: var(--c45-v2-text-secondary);
+  min-height: 50px;
+}
+
+#app-screen .t7-app-bottom-nav > button:disabled {
+  opacity: 1;
+}
+
+#app-screen .t7-app-bottom-nav > button.is-active {
+  color: var(--c45-v2-text-brand);
+}
+
+/* ===== BJ-01 Tồn kho (app/bj01.js) ===== */
+.bj01-stock-hero {
+  width: 100%;
+  padding: var(--c45-v2-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--c45-v2-space-3);
+  border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius: var(--c45-v2-radius-4);
+  background: var(--c45-v2-surface-default);
+  box-sizing: border-box;
+}
+
+.bj01-stock-hero__main { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--c45-v2-space-1) var(--c45-v2-space-3); }
+
+.bj01-stock-hero__main > span { grid-column: 1 / -1; font: 400 13px/20px Inter, sans-serif; color: var(--c45-v2-text-secondary); }
+
+.bj01-stock-hero__main > strong {
+  font-family: var(--c45-v2-font-mono);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+  color: var(--c45-v2-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.bj01-stock-hero__stats { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--c45-v2-space-3); }
+
+.bj01-stock-hero__stats > div { min-width: 0; }
+
+.bj01-stock-hero__stats dt { font: 400 12px/16px Inter, sans-serif; color: var(--c45-v2-text-secondary); }
+
+.bj01-stock-hero__stats dd { margin: var(--c45-v2-space-1) 0 0; font-family: var(--c45-v2-font-mono); font-size: 14px; line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); font-variant-numeric: tabular-nums; }
+
+.bj01-stock-hero__note { margin: 0; padding-top: var(--c45-v2-space-3); border-top: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default); font: 400 13px/20px Inter, sans-serif; color: var(--c45-v2-text-secondary); }
+
+.bj01-attention { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+
+.bj01-attention__hint { margin: 0; font: 600 14px/20px Inter, sans-serif; color: var(--c45-v2-text-primary); }
+
+.bj01-scan-frame {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--c45-v2-border-strong);
+  border-radius: var(--c45-v2-radius-4);
+  color: var(--c45-v2-icon-secondary);
+  box-sizing: border-box;
+}
+
+.bj01-scan-frame .icon { width: 48px; height: 48px; }
+
+.bj01-stock-hero__main > strong { grid-column: 1; grid-row: 2; }
+
+.bj01-stock-hero__main > .ds24-badge { grid-column: 2; grid-row: 2; width: auto; justify-self: end; }
+
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .ds24-chip-scroll { gap: 6px; }
+
+body[data-active-uif="UIF-01"] .figma-calibrated-shell .ds24-chip-scroll > .ds24-chip { padding-inline: 10px; }
+
+/* BJ-01 SCR-003: dòng ngưỡng của sản phẩm đã cấu hình (sau review chặng 1). */
+.bj01-stock-hero__policy { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-3); padding-top: var(--c45-v2-space-3); border-top: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default); font: 400 13px/20px Inter, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj01-stock-hero__note + .bj01-stock-hero__policy { padding-top: 0; border-top: 0; }
+
+/* Home Kho web: ô tìm tối đa 720px, bốn nút nhanh một hàng thấp, dưới chia hai cột. iPhone giữ nguyên (hub.js chỉ dựng .t462-columns ở khung web). */
+.device-preview.is-web .t462-search-wrap { max-width: 720px; }
+
+.device-preview.is-web .t462-quick-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.device-preview.is-web .t462-quick-action { min-height: 88px; }
+
+.t462-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--c45-v2-space-6); align-items: start; }
+
+.t462-column { min-width: 0; display: flex; flex-direction: column; gap: var(--c45-v2-space-4); }
+
+/* ===== v5.11.0 — BJ-04 / BJ-05 thiết kế lại (K6, gộp SCR-027 vào SCR-026) ===== */
+
+/* 026 iPhone: mỗi mặt hàng một đầu nhóm, mỗi lô phân bổ một dòng (chạm dòng = sửa lượng, nút bên phải = "Lấy đủ") */
+body[data-active-uif="UIF-05"] .bj05-lot-head {
+  min-height: 44px;
+  padding: var(--c45-v2-space-2) var(--c45-v2-space-1) 0;
+  border: 0;
+  background: transparent;
+}
+/* Luật khung Figma ép hàng Default 76px bằng !important; dòng lô lấy một phần (badge + "Lấy đủ") cao hơn nên cao theo nội dung. */
+body[data-active-uif="UIF-05"] .figma-calibrated-shell .bj05-lot.ds24-list-row[data-ds-prop-density="Default"] {
+  height: auto;
+  max-height: none;
+  padding-block: var(--c45-v2-space-2);
+}
+body[data-active-uif="UIF-05"] .bj05-lot {
+  height: auto;
+  min-height: 68px;
+  padding: var(--c45-v2-space-2) var(--c45-v2-space-3) var(--c45-v2-space-2) var(--c45-v2-space-4);
+  gap: var(--c45-v2-space-2);
+}
+body[data-active-uif="UIF-05"] .bj05-lot__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  border: 0;
+  border-radius: var(--c45-v2-radius-3);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+body[data-active-uif="UIF-05"] button.bj05-lot__main { cursor: pointer; }
+body[data-active-uif="UIF-05"] .bj05-lot__main:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+body[data-active-uif="UIF-05"] .bj05-lot__action {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--c45-v2-space-1);
+}
+body[data-active-uif="UIF-05"] .bj05-lot__progress {
+  color: var(--c45-v2-text-secondary);
+  font: 500 12px/16px Inter, system-ui, sans-serif;
+}
+body[data-active-uif="UIF-05"] .bj05-lot__banner { width: 100%; box-sizing: border-box; }
+body[data-active-uif="UIF-05"] .bj05-small-button { width: auto; min-width: 44px; min-height: 44px; padding-inline: var(--c45-v2-space-4); white-space: normal; }
+/* 026: "Lấy đủ tất cả" cạnh phải, trên danh sách lô (cùng bề rộng với dòng ngữ cảnh). */
+body[data-active-uif="UIF-05"] .bj05-bulk { width: 370px; display: flex; justify-content: flex-end; }
+.device-preview.is-web .k7-wide .bj05-bulk { width: 100%; }
+
+body[data-active-uif="UIF-05"] .bj05-context-row {
+  width: 370px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--c45-v2-space-3);
+  color: var(--c45-v2-text-secondary);
+  font: 400 13px/20px Inter, system-ui, sans-serif;
+}
+body[data-active-uif="UIF-05"] .bj05-link { min-height: 44px; padding-inline: var(--c45-v2-space-1); white-space: nowrap; }
+body[data-active-uif="UIF-05"] .bj05-progress { width: 370px; }
+body[data-active-uif="UIF-05"] .bj05-handover-card {
+  width: 370px;
+  padding: var(--c45-v2-space-3) var(--c45-v2-space-4);
+  border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default);
+  border-radius: var(--c45-v2-radius-4);
+  background: var(--c45-v2-surface-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--c45-v2-space-2);
+  box-sizing: border-box;
+}
+body[data-active-uif="UIF-05"] .bj05-selection-list { gap: var(--c45-v2-space-2); }
+
+/* Web: thoát cột iPhone 370px */
+.device-preview.is-web .k7-wide :is(.bj05-section, .bj05-business-note, .bj05-summary, .bj05-context-row, .bj05-progress, .bj05-handover-card, .bj04-section, .bj04-context-line) { width: 100%; }
+.device-preview.is-web .k7-wide .bj05-row-actions { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--c45-v2-space-2) var(--c45-v2-space-3); max-width: 220px; }
+.device-preview.is-web .k7-wide .bj05-small-button { min-height: 40px; white-space: nowrap; }
+.device-preview.is-web .k7-wide .bj05-link { min-height: 40px; }
+.device-preview.is-web .k7-wide .bj05-handover .k7-table td .k7-edit { max-width: 200px; }
+.device-preview.is-web .k7-wide .bj05-pick .k7-split.k7-split--wide-main { grid-template-columns: minmax(0, 1fr) 240px; }
+.device-preview.is-web .k7-wide .bj05-pick .k7-table-wrap { overflow-x: auto; }
+.device-preview.is-web .k7-wide .bj05-pick .k7-table :is(th, td) { padding-inline: var(--c45-v2-space-2); }
+.device-preview.is-web .k7-wide .bj05-summary .ds24-key-value-row { width: 100%; box-sizing: border-box; }
+.device-preview.is-web .k7-wide .bj05-pick .k7-table td .k7-edit { min-width: 104px; }
+.device-preview.is-web .k7-wide .bj05-handover .k7-split__main { grid-column: 1; grid-row: 1; }
+.device-preview.is-web .k7-wide .bj05-handover .k7-split__aside { grid-column: 2; grid-row: 1; }
+.bj05-lot-stack { display: flex; flex-direction: column; align-items: flex-end; gap: var(--c45-v2-space-1); }
+.k6-list .k7-table td { vertical-align: middle; }
+body[data-active-uif="UIF-05"] .bj05-handover-card > .ds24-list-row { min-height: 44px; padding-inline: 0; border: 0; background: transparent; }
+body[data-active-uif="UIF-05"] .bj05-handover-card > :is(.ds24-key-value-row, .ds24-field) { width: 100%; max-width: none; margin: 0; box-sizing: border-box; }
+/* 028 iPhone (audit SC_journey_3): luật khung Figma ép List Row 370px + đệm 16px bằng !important nên dòng sản phẩm trong thẻ tràn 17px; dòng "Giao lần này" (emphasis) thụt 12px khác dòng dưới. */
+body[data-active-uif="UIF-05"] .figma-calibrated-shell .bj05-handover-card > .ds24-list-row[data-ds-component] { width: 100%; max-width: none; padding-inline: 0; }
+body[data-active-uif="UIF-05"] .figma-calibrated-shell .bj05-summary .ds24-key-value-row--emphasis[data-ds-component] { padding-inline: 0; }
+body:is([data-active-uif="UIF-04"], [data-active-uif="UIF-05"]) .v-page-scaffold.figma-calibrated-shell :is(.k6-list, .bj04-section) .ds24-list-row__copy small { white-space: normal; overflow: visible; text-overflow: clip; }
+
+/* ===== v5.12.0 — BJ-06 thiết kế lại (K6 / K2 / K7, hai mốc nhận vào + phân loại) ===== */
+
+/* Đầu màn hai mốc: "Bước n/2" + thanh tiến độ mảnh (dùng .bj02-progress). */
+.bj06-head { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.bj06-step { margin: 0; font: 600 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj06-section { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.bj06-note { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj06-link { min-height: 44px; padding-inline: var(--c45-v2-space-1); }
+.bj06-receipt, .bj06-classify { display: flex; flex-direction: column; gap: var(--c45-v2-space-4); width: 100%; }
+
+/* Dòng hàng iPhone: lượng + nhãn bên phải; chữ phụ được xuống dòng (không cắt "Thuộc combo · Không theo lô …"). */
+.bj06-row-trailing { display: flex; flex-direction: column; align-items: flex-end; gap: var(--c45-v2-space-1); }
+.bj06-row-qty { font: 600 13px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--c45-v2-text-primary); white-space: nowrap; }
+body[data-active-uif="UIF-06"] .figma-calibrated-shell .bj06-line-row { height: auto; min-height: 68px; max-height: none; }
+body[data-active-uif="UIF-06"] .figma-calibrated-shell .bj06-line-row .ds24-list-row__copy { overflow: visible; }
+body[data-active-uif="UIF-06"] .figma-calibrated-shell .bj06-line-row .ds24-list-row__copy > small { white-space: normal; overflow: visible; text-overflow: clip; }
+body[data-active-uif="UIF-06"] .figma-calibrated-shell .bj06-line-row .ds24-list-row__trailing { max-width: 50%; }
+body[data-active-uif="UIF-06"] .k6-list .ds24-list-row__copy > small { white-space: normal; overflow: visible; text-overflow: clip; }
+
+/* Chi tiết một dòng (032 iPhone, cột phải của 031 web). */
+.bj06-detail { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); min-width: 0; }
+.bj06-qty { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.bj06-fill-button { width: 100%; min-height: 44px; }
+.bj06-inline-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--c45-v2-space-3); padding-top: var(--c45-v2-space-2); }
+.bj06-inline-actions > .k4-reason-footer__reason { margin-right: auto; text-align: left; }
+.bj06-inline-actions > .button { width: auto; min-width: 160px; }
+/* Web 031: chi tiết dòng dài hơn màn 800px nên thanh "Xong" dính đáy vùng cuộn, không phải cuộn mới thấy. */
+.device-preview.is-web .k7-wide .bj06-receipt .bj06-inline-actions { position: sticky; bottom: 0; z-index: 1; padding-block: var(--c45-v2-space-3); background: var(--c45-v2-surface-canvas); border-top: 1px solid var(--c45-v2-border-default); }
+.bj06-evidence-preview, .bj06-evidence-card { display: flex; flex-direction: column; border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-4); overflow: hidden; background: var(--c45-v2-surface-default); }
+.bj06-evidence-preview { margin-top: var(--c45-v2-space-2); }
+.bj06-evidence-preview img, .bj06-evidence-card img { display: block; width: 100%; max-height: 240px; object-fit: cover; }
+.bj06-evidence-preview span, .bj06-evidence-card span { padding: var(--c45-v2-space-2) var(--c45-v2-space-3); font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj06-evidence .bj02-pick-file { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+
+/* Phân loại: sheet iPhone (bốn lựa chọn + chia nhiều loại) và bảng web. */
+.bj06-sheet-backdrop { align-items: flex-end; }
+.bj06-sheet-content { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); max-height: 70vh; overflow-y: auto; }
+.bj06-sheet-intro { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj06-class-fields { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.bj06-sheet-actions { display: grid; grid-template-columns: 1fr 1.3fr; gap: var(--c45-v2-space-2); }
+.bj06-sheet-actions:has(> :only-child) { grid-template-columns: 1fr; }
+.bj06-sheet-actions .button { min-height: 44px; }
+.bj06-expired-note { font: 500 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj06-class-hint { display: block; min-height: 16px; font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj06-class-hint:empty { display: none; }
+.bj06-classify .k7-table td .k7-edit { max-width: 104px; margin-left: auto; }
+
+/* Kết quả theo sản phẩm và lô (sheet "Xem n dòng hàng"). */
+.bj06-result-groups { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); width: 100%; }
+.bj06-result-group { display: flex; flex-direction: column; border: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-4); overflow: hidden; }
+.bj06-result-rows { display: flex; flex-direction: column; padding: 0 var(--c45-v2-space-4) var(--c45-v2-space-2); }
+
+/* Web: 031 + 032 một trang hai cột (bảng | chi tiết dòng đang chọn); bỏ cột iPhone 370px. */
+.device-preview.is-web .k7-wide .bj06-receipt .k7-split { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+.device-preview.is-web .k7-wide .bj06-receipt .k7-table :is(th, td) { padding-inline: var(--c45-v2-space-2); }
+.device-preview.is-web .k7-wide .bj06-receipt .k7-table td { vertical-align: middle; }
+.device-preview.is-web .k7-wide .bj06-line-link { display: flex; flex-direction: column; gap: 2px; font-weight: 400; color: var(--c45-v2-text-primary); }
+.device-preview.is-web .k7-wide .bj06-line-link strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-brand); }
+.device-preview.is-web .k7-wide .bj06-line-link small { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.device-preview.is-web .k7-wide .bj06-receipt .k7-table tbody tr[data-io06-line] { cursor: pointer; }
+.device-preview.is-web .k7-wide .bj06-detail :is(.ds24-info-group, .ds24-info-row, .ds24-field, .ds24-list-row, .v-banner, .bj06-evidence, .ds-choice-list, .bj06-section) { width: 100%; max-width: none; box-sizing: border-box; }
+.device-preview.is-web .k7-wide .bj06-fill-button { width: auto; min-height: 40px; align-self: flex-start; }
+.device-preview.is-web .k7-wide .bj06-classify .k7-table-wrap { overflow-x: auto; }
+.device-preview.is-web .k7-wide .bj06-classify .k7-table :is(th, td) { padding-inline: var(--c45-v2-space-2); }
+.device-preview.is-web .k7-wide .bj06-classify .ds-segmented { min-width: 300px; }
+.device-preview.is-web .k7-wide .bj06-classify .ds-segment { white-space: nowrap; padding-inline: var(--c45-v2-space-2); }
+.device-preview.is-web .k7-wide .k7-split__aside .bj06-evidence-card { width: 100%; }
+.bj06-nowrap { white-space: nowrap; }
+.bj06-detail .ds24-info-group__title, .bj06-sheet .ds24-info-group__title { margin: 0; font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); }
+.bj06-detail .ds24-section-title h2, .bj06-section .ds24-section-title h2 { font: 600 14px/20px Inter, system-ui, sans-serif; }
+body[data-active-uif="UIF-06"] .ds24-key-value-row { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-3); min-height: 32px; }
+body[data-active-uif="UIF-06"] .ds24-key-value-row > strong { font-family: Inter, system-ui, sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* Sheet iPhone: vừa nội dung, cuộn bên trong khi dài (không tràn khỏi khung điện thoại). */
+body[data-active-uif="UIF-06"] .bj06-sheet { display: flex; flex-direction: column; max-height: calc(100% - 48px); min-height: 0; }
+body[data-active-uif="UIF-06"] .bj06-sheet > .sheet-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; max-height: none; }
+body[data-active-uif="UIF-06"] .bj06-sheet > .bj06-sheet-actions { flex: 0 0 auto; padding: var(--c45-v2-space-3) var(--c45-v2-space-4) var(--c45-v2-space-4); border-top: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default); }
+body[data-active-uif="UIF-06"] .bj06-sheet .ds-choice-row { height: auto; min-height: 60px; max-height: none; }
+.bj06-result-group > .ds24-list-row { border: 0; border-bottom: var(--c45-v2-border-width-thin) solid var(--c45-v2-border-default); border-radius: 0; background: transparent; }
+.bj06-result-group .ds24-info-row { min-height: 36px; }
+.device-preview.is-web .k7-wide .bj06-classify .ds-segment { min-height: 40px; }
+
+/* ===== v5.14.0 — BJ-07 thiết kế lại (kiểm hàng trả một chạm, bàn giao nói giao cho ai) ===== */
+
+/* 037 iPhone: đầu nhóm sản phẩm + mỗi lô một dòng (chạm dòng = sheet kiểm, nút bên phải = "Đúng hàng"). */
+body[data-active-uif="UIF-07"] .bj07-lot-head { min-height: 44px; padding: var(--c45-v2-space-2) var(--c45-v2-space-1) 0; border: 0; background: transparent; box-shadow: none; }
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .bj07-lot.ds24-list-row[data-ds-prop-density="Default"] { height: auto; max-height: none; padding-block: var(--c45-v2-space-2); }
+body[data-active-uif="UIF-07"] .bj07-lot { height: auto; min-height: 68px; padding: var(--c45-v2-space-2) var(--c45-v2-space-3) var(--c45-v2-space-2) var(--c45-v2-space-4); gap: var(--c45-v2-space-2); }
+body[data-active-uif="UIF-07"] .bj07-lot__main { flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 0; display: flex; align-items: center; border: 0; border-radius: var(--c45-v2-radius-3); background: transparent; color: inherit; font: inherit; text-align: left; }
+body[data-active-uif="UIF-07"] button.bj07-lot__main { cursor: pointer; }
+body[data-active-uif="UIF-07"] .bj07-lot__main:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+body[data-active-uif="UIF-07"] .bj07-lot__action { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: var(--c45-v2-space-1); }
+body[data-active-uif="UIF-07"] .bj07-lot .ds24-list-row__copy small, body[data-active-uif="UIF-07"] .figma-calibrated-shell .bj07-lot .ds24-list-row__copy small { white-space: normal; overflow: visible; text-overflow: clip; }
+body[data-active-uif="UIF-07"] .bj07-small-button { width: auto; min-width: 44px; min-height: 44px; padding-inline: var(--c45-v2-space-4); white-space: nowrap; }
+body[data-active-uif="UIF-07"] .bj07-small-button:disabled { opacity: 1; background: var(--c45-v2-surface-subtle); color: var(--c45-v2-text-secondary); border-color: var(--c45-v2-border-default); }
+body[data-active-uif="UIF-07"] .bj07-progress { width: 100%; }
+body[data-active-uif="UIF-07"] .bj07-link { min-height: 44px; padding-inline: var(--c45-v2-space-1); white-space: nowrap; }
+body[data-active-uif="UIF-07"] .bj07-row-quantity { font: 600 13px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--c45-v2-text-primary); white-space: nowrap; }
+body[data-active-uif="UIF-07"] .bj07-review-row { min-height: 60px; height: auto; }
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .bj07-review-row.ds24-list-row[data-ds-component] { height: auto; max-height: none; }
+body[data-active-uif="UIF-07"] .bj07-review-row .ds24-list-row__copy small { white-space: normal; overflow: visible; text-overflow: clip; }
+body[data-active-uif="UIF-07"] .bj07-prepare, body[data-active-uif="UIF-07"] .bj07-handover { width: 100%; display: flex; flex-direction: column; gap: var(--c45-v2-space-3); }
+body[data-active-uif="UIF-07"] .bj07-prepare .k7-split__main { gap: var(--c45-v2-space-3); }
+.bj07-cell-note { display: block; margin-top: 2px; font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+
+/* Web: thoát cột iPhone 370px; bảng + khối "Tóm tắt" bên phải. */
+.device-preview.is-web .k7-wide :is(.bj07-progress, .bj07-prepare .bj06-note, .bj07-handover .bj06-section) { width: 100%; }
+.device-preview.is-web .k7-wide .bj07-prepare .k7-split.k7-split--wide-main, .device-preview.is-web .k7-wide .bj07-handover .k7-split.k7-split--wide-main { grid-template-columns: minmax(0, 1fr) 280px; }
+.device-preview.is-web .k7-wide .bj07-handover .k7-split__main { grid-column: 1; grid-row: 1; }
+.device-preview.is-web .k7-wide .bj07-handover .k7-split__aside { grid-column: 2; grid-row: 1; }
+.device-preview.is-web .k7-wide .bj07-small-button { min-height: 40px; }
+.device-preview.is-web .k7-wide .bj07-link { min-height: 40px; }
+.device-preview.is-web .k7-wide .bj07-prepare .k7-table tbody tr[data-io07-row] { cursor: pointer; }
+.device-preview.is-web .k7-wide .bj07-prepare .k7-table :is(th, td) { padding-inline: var(--c45-v2-space-2); }
+.device-preview.is-web .k7-wide .bj07-prepare .k7-table td { vertical-align: middle; }
+.device-preview.is-web .k7-wide .bj07-line-link { font-weight: 600; color: var(--c45-v2-text-brand); }
+.device-preview.is-web .k7-wide .bj07-handover .ds-segmented { max-width: 100%; }
+body[data-active-uif="UIF-07"] .ds24-key-value-row { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-3); min-height: 32px; }
+body[data-active-uif="UIF-07"] .ds24-key-value-row > strong { font-family: Inter, system-ui, sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ===== v5.15.0 — BJ-10 thiết kế lại (bốn chế độ của SCR-040) ===== */
+.bj10-lead { margin: 0; font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); }
+body[data-active-uif="UIF-10"] .ds24-key-value-row { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-3); min-height: 32px; }
+body[data-active-uif="UIF-10"] .ds24-key-value-row > strong { font-family: Inter, system-ui, sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Sheet "Kiểm hàng thực tế" / "Ghi nhận chênh lệch": dùng sheet chuẩn (iPhone) và hộp thoại giữa màn (web, qua .k7-wide). */
+.io07-verification-content { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); padding: 0 0 var(--c45-v2-space-4); }
+.io07-verification-sheet .ds24-info-group { padding: var(--c45-v2-space-1) var(--c45-v2-space-4); }
+.io07-verification-sheet .ds24-info-row { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-3); min-height: 40px; }
+.io07-verification-sheet .ds24-info-row > strong { font-weight: 600; }
+.io07-verification-sheet, .v395-mismatch-sheet { max-height: calc(100% - 48px); overflow-y: auto; }
+.io07-sheet-actions { position: sticky; bottom: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--c45-v2-space-2); padding-top: var(--c45-v2-space-3); background: var(--c45-v2-surface-default); }
+.io07-sheet-actions .button { min-height: 44px; width: 100%; }
+.io07-verification-sheet .ds24-field, .io07-verification-sheet .ds24-field__control { width: 100%; box-sizing: border-box; }
+.v395-source-slice-control { grid-template-columns: minmax(0, 1fr) auto; }
+.v395-source-slice-control .ds24-field__control { min-width: 0; }
+.device-preview.is-web .k7-wide :is(.io07-verification-sheet, .v395-mismatch-sheet) { max-height: calc(100% - 48px); overflow-y: auto; }
+
+/* ===== v5.16.0 — BJ-08 thiết kế lại (kiểm kê) ===== */
+.bj08-lead { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj08-form, .bj08-count { display: flex; flex-direction: column; gap: var(--c45-v2-space-4); width: 100%; min-width: 0; }
+.bj08-form .bj06-section { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.bj08-scope-pick { justify-content: space-between; align-items: center; width: 100%; min-height: 44px; }
+.bj08-scope-pick > em { font-style: normal; font-weight: 600; color: var(--c45-v2-text-brand); }
+.bj08-scope-items h3 { margin: 0 0 var(--c45-v2-space-2); font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); }
+.bj08-scope-items ul { margin: 0; padding-left: var(--c45-v2-space-5); font: 400 13px/22px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); }
+.bj08-scope-items__more { list-style: none; margin-left: calc(-1 * var(--c45-v2-space-5)); color: var(--c45-v2-text-secondary); }
+.bj08-progress { width: 100%; }
+.bj08-line { display: grid; grid-template-columns: minmax(0, 1fr) 132px; align-items: center; column-gap: var(--c45-v2-space-3); row-gap: var(--c45-v2-space-2); padding: var(--c45-v2-space-3) var(--c45-v2-space-4); border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); box-sizing: border-box; }
+.bj08-line[hidden], .k7-table tr[hidden] { display: none; }
+.bj08-line--recount { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+.bj08-line__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+.bj08-line__copy > strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); overflow-wrap: anywhere; }
+.bj08-line__copy > small { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj08-line__copy > .ds24-badge { margin-top: var(--c45-v2-space-1); }
+.bj08-line__field { min-width: 0; }
+.bj08-line__state { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--c45-v2-space-1); }
+.bj08-recount-field { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: var(--c45-v2-space-2); }
+.bj08-recount-field > .k7-edit { flex: 1 1 auto; min-width: 0; }
+.bj08-recount-cell { display: flex; align-items: flex-start; justify-content: flex-end; gap: var(--c45-v2-space-2); }
+.bj08-same { flex: 0 0 auto; width: auto; min-width: 44px; min-height: 44px; padding-inline: var(--c45-v2-space-3); white-space: nowrap; }
+.bj08-add { align-self: flex-start; }
+.bj08-link { align-self: flex-start; min-height: 44px; display: inline-flex; align-items: center; }
+.bj08-cancel-link { align-self: flex-start; min-height: 44px; padding: 0 var(--c45-v2-space-2); border: 0; background: transparent; color: var(--c45-v2-text-danger); font: 600 14px/20px Inter, system-ui, sans-serif; cursor: pointer; }
+.bj08-cancel-link:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+.bj08-money { font: 500 12px/16px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--c45-v2-text-primary); }
+.bj08-review-row .ds24-list-row__trailing { flex-direction: column; align-items: flex-end; gap: var(--c45-v2-space-1); }
+.k2-reject-sheet__desc { margin: 0 0 var(--c45-v2-space-3); font: 400 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.device-preview.is-web .k7-wide :is(.bj08-form, .bj08-count) :is(.form-field, .ds-choice-list, .bj06-section, .k2-attention, .ds24-list-row, .v-banner, .cf12-strip, .bj08-progress) { width: 100%; max-width: none; box-sizing: border-box; }
+.device-preview.is-web .k7-table td .bj08-recount-cell .k7-edit { margin-left: 0; }
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .v-banner[data-ds-component="VBanner"] { height: auto; min-height: 0; max-height: none; }
+
+/* ===== v5.17.0 — BJ-11 thiết kế lại (hủy & sửa sai) ===== */
+.bj11-form { display: flex; flex-direction: column; gap: var(--c45-v2-space-4); width: 100%; min-width: 0; }
+.bj11-form .bj06-section { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.bj11-hint { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+/* "Sau khi sửa" chỉ là thông tin: khối thường, không nền cảnh báo. */
+.bj11-after .k2-attention { border-color: var(--c45-v2-border-default); background: var(--c45-v2-surface-default); }
+.bj11-after .k2-attention .ac310-surface__head h2 { color: var(--c45-v2-text-primary); }
+.device-preview.is-web .bj11-after--inline { display: none; }
+.device-preview.is-web .k7-wide .bj11-form :is(.form-field, .k5-qty, .ds-choice-list, .bj06-section, .k2-attention, .ds24-list-row, .v-banner) { width: 100%; max-width: none; box-sizing: border-box; }
+/* Danh sách phiếu: mã phiếu là thứ người dùng tìm theo, không cắt bằng dấu "…". */
+body[data-active-uif="UIF-11"] .v-page-scaffold.figma-calibrated-shell :is(.k6-list, .ds-choice-row) .ds24-list-row__copy > :is(strong, small) { white-space: normal; overflow: visible; text-overflow: clip; }
+body[data-active-uif="UIF-11"] .figma-calibrated-shell .v-banner[data-ds-component="VBanner"] { height: auto; min-height: 0; max-height: none; }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-bj11-row] { cursor: pointer; }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-bj11-row]:hover td { background: var(--c45-v2-surface-subtle); }
+.k7-table tbody tr[data-bj11-row]:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: -2px; }
+.bj11-form .field-error { margin: 0; font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-danger); }
+.bj11-form .bj11-field--error textarea { border-color: var(--c45-v2-border-danger, currentColor); }
+
+/* ===== v5.18.0 — BJ-16 / BJ-17 thiết kế lại (hồ sơ cần kiểm tra) ===== */
+.cr-item { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cr-item > strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); }
+.cr-item > small { font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.cr-compare__rows { display: flex; flex-direction: column; }
+.cr-compare .ds24-key-value-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--c45-v2-space-3); min-height: 0; padding: var(--c45-v2-space-2) 0; border-bottom: 1px solid var(--c45-v2-border-default); background: transparent; }
+.cr-compare .ds24-key-value-row:last-child { border-bottom: 0; }
+.cr-compare .ds24-key-value-row > span { flex: 0 1 45%; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.cr-compare .ds24-key-value-row > strong { flex: 1 1 0; min-width: 0; text-align: right; overflow-wrap: anywhere; font: 600 14px/20px Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--c45-v2-text-primary); }
+.cr-compare .ds24-key-value-row > strong[data-cr-diff] { color: var(--c45-v2-text-warning); }
+.cr-lock { display: flex; align-items: flex-start; gap: var(--c45-v2-space-2); margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.cr-lock .icon { flex: none; margin-top: 2px; color: var(--c45-v2-icon-warning); }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-recon-row] { cursor: pointer; }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-recon-row]:hover td { background: var(--c45-v2-surface-subtle); }
+.k7-table tbody tr[data-recon-row]:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: -2px; }
+.device-preview.is-web .k7-wide :is(.cr-compare, .k2-attention, .cr-lock, .v-banner, .k1-stale-action) { width: 100%; max-width: none; box-sizing: border-box; }
+/* Danh sách "Hồ sơ cần kiểm tra" (iPhone): phụ đề xuống dòng (tối đa 2 dòng) để mã hồ sơ cuối dòng không bị cắt. */
+body:is([data-active-uif="UIF-16"],[data-active-uif="UIF-17"]) .figma-calibrated-shell .k6-list .ds24-list-row .ds24-list-row__copy > :is(strong, small) {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; white-space: normal; overflow: hidden; text-overflow: clip;
+}
+body:is([data-active-uif="UIF-16"],[data-active-uif="UIF-17"]) .figma-calibrated-shell .k6-list .ds24-list-row { height: auto; max-height: none; min-height: 64px; padding-block: var(--c45-v2-space-2); }
+
+/* ===== v5.19.0 — BJ-14 thiết kế lại (giá vốn) ===== */
+/* Danh sách "Giá vốn" (iPhone): phụ đề xuống dòng để nguyên nhân / tình trạng không bị cắt bằng "…". */
+body[data-active-uif="UIF-14"] .figma-calibrated-shell .k6-list .ds24-list-row .ds24-list-row__copy > :is(strong, small) { white-space: normal; overflow: visible; text-overflow: clip; }
+body[data-active-uif="UIF-14"] .figma-calibrated-shell .k6-list .ds24-list-row { height: auto; max-height: none; min-height: 68px; padding-block: var(--c45-v2-space-3); }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-bj14-row] { cursor: pointer; }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-bj14-row]:hover td { background: var(--c45-v2-surface-subtle); }
+.k7-table tbody tr[data-bj14-row]:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: -2px; }
+.bj14-note { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj14-method, .bj14-products, .bj14-writes, .bj14-scope, .bj14-section { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.bj14-method__line { margin: 0; font: 400 14px/22px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); }
+.bj14-method__line strong { font-weight: 600; }
+.bj14-method__compare, .bj14-more { width: 100%; min-height: 44px; }
+.bj14-diff { font: 600 13px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--c45-v2-text-primary); }
+/* Việc chặn: mỗi việc một khối, nút chữ sang nơi xử lý nằm dưới (iPhone) hoặc bên phải (web). */
+.bj14-blockers { display: flex; flex-direction: column; background: var(--c45-v2-surface-default); border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-card); overflow: hidden; }
+.bj14-blocker { display: grid; grid-template-columns: 20px minmax(0, 1fr); column-gap: var(--c45-v2-space-2); row-gap: var(--c45-v2-space-2); align-items: start; padding: var(--c45-v2-space-3) var(--c45-v2-space-4); border-bottom: 1px solid var(--c45-v2-border-default); }
+.bj14-blocker:last-child { border-bottom: 0; }
+.bj14-blocker__icon { grid-column: 1; grid-row: 1; margin-top: 2px; color: var(--c45-v2-icon-warning); }
+.bj14-blocker__copy { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bj14-blocker__copy strong { font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); overflow-wrap: anywhere; }
+.bj14-blocker__copy small { font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); overflow-wrap: anywhere; }
+.bj14-blocker__action { grid-column: 2; grid-row: 2; justify-self: start; min-height: 44px; }
+.bj14-sheet-facts { display: flex; flex-direction: column; margin-bottom: var(--c45-v2-space-3); }
+.device-preview.is-web .bj14-blocker { grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; }
+.device-preview.is-web .bj14-blocker__action { grid-column: 3; grid-row: 1; }
+.device-preview.is-web .k7-wide :is(.bj14-method, .bj14-writes, .bj14-products, .bj14-scope, .bj14-section, .ac310-metrics, .v-banner, .k1-stale-action) { width: 100%; max-width: none; box-sizing: border-box; }
+.device-preview.is-web .bj14-method__compare, .device-preview.is-web .bj14-more { width: auto; align-self: flex-start; }
+.device-preview.is-web .bj14-more { display: none; }
+/* Hàng "nhãn — số tiền": nhãn bên trái, số căn phải (mono, không gãy dòng); các hàng liền nhau ngăn bằng đường mảnh. */
+body[data-active-uif="UIF-14"] .ds24-key-value-row { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-3); min-height: 44px; padding: var(--c45-v2-space-2) 0; box-sizing: border-box; }
+body[data-active-uif="UIF-14"] :is(.ac310-key-value-stack, .bj14-sheet-facts) > .ds24-key-value-row + .ds24-key-value-row { border-top: 1px solid var(--c45-v2-border-default); }
+body[data-active-uif="UIF-14"] .ds24-key-value-row > span { flex: 1 1 0; min-width: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+body[data-active-uif="UIF-14"] .ds24-key-value-row > strong { flex: 0 1 auto; min-width: 0; text-align: right; font: 600 14px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--c45-v2-text-primary); }
+/* Kết quả công bố (K4): nhãn dài vẫn xếp ngang như các hàng khác, để cả khối đọc cùng một kiểu. */
+body[data-active-uif="UIF-14"] .figma-calibrated-shell .io-meta-detail { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: var(--c45-v2-space-3); }
+body[data-active-uif="UIF-14"] .figma-calibrated-shell .io-meta-detail > span:first-child { flex: 0 1 auto; }
+body[data-active-uif="UIF-14"] .figma-calibrated-shell .io-meta-detail > :last-child { flex: 0 0 auto; font-weight: 600; text-align: right; white-space: nowrap; }
+/* Vòng focus bàn phím cho chip, dòng danh sách, thẻ chọn phạm vi và nút chữ sang BJ khác (DS chưa có vòng focus cho chip / dòng). */
+body[data-active-uif="UIF-14"] .ds24-chip:focus-visible, body[data-active-uif="UIF-14"] .bj14-blocker__action:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+body[data-active-uif="UIF-14"] :is(.ds24-list-row, .ds-choice-row):focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: -2px; }
+
+/* ===== v5.20.0 — BJ-15 thiết kế lại (báo cáo nhập – xuất – tồn, thẻ kho) ===== */
+/* Thanh lọc: kỳ + "Xuất tệp" một hàng, cách hiểu ngày ngay dưới (iPhone); một hàng trọn vẹn ở khung web. */
+.bj15-screen { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); width: 100%; }
+.bj15-toolbar { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.bj15-toolbar__row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--c45-v2-space-2); align-items: center; }
+.bj15-toolbar__row > .ds-segmented { grid-column: 1 / -1; grid-row: 2; }
+.bj15-period { display: inline-flex; align-items: center; justify-content: flex-start; gap: var(--c45-v2-space-2); width: auto; min-height: 44px; }
+.bj15-period > span { flex: 1 1 auto; text-align: left; font-weight: 600; }
+.bj15-export { min-height: 44px; width: auto; white-space: nowrap; }
+.bj15-asof { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.device-preview.is-web .bj15-toolbar__row { grid-template-columns: auto minmax(0, 340px) minmax(0, 1fr); }
+.device-preview.is-web .bj15-toolbar__row > .ds-segmented { grid-column: 2; grid-row: 1; }
+.device-preview.is-web .bj15-export { grid-column: 3; justify-self: end; min-height: 40px; }
+.device-preview.is-web .bj15-period { min-height: 40px; }
+.device-preview.is-web .bj15-screen .ds-segment { min-height: 40px; }
+.device-preview.is-web .k7-wide .bj15-screen :is(.k6-list, .ds24-search-header, .k7-table-wrap, .cf12-strip, .v-banner, .k1-stale-action, .k7-chips) { width: 100%; max-width: none; box-sizing: border-box; }
+/* Số: mono, căn phải, không gãy dòng. Báo cáo / thẻ kho iPhone: số cuối bên phải, thẻ kho có dấu +/− và tồn sau. */
+.bj15-end { font: 600 14px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--c45-v2-text-primary); }
+.bj15-mv { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; white-space: nowrap; }
+.bj15-mv__delta { font: 600 14px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--c45-v2-text-primary); }
+.bj15-mv small { font: 400 12px/16px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--c45-v2-text-secondary); }
+.bj15-balance { display: flex; align-items: baseline; justify-content: space-between; gap: var(--c45-v2-space-3); min-height: 44px; padding: var(--c45-v2-space-2) var(--c45-v2-space-4); box-sizing: border-box; border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-subtle); font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj15-balance strong { font: 600 14px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--c45-v2-text-primary); white-space: nowrap; }
+.bj15-total { margin: 0; font: 400 14px/22px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj15-total strong { font: 600 14px/22px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--c45-v2-text-primary); }
+.bj15-note { margin: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+/* Bảng thẻ kho: dòng đầu / cuối kỳ nền nhạt, chữ đậm; dòng biến động bấm được. */
+.k7-table tbody tr.bj15-edge-row > td { background: var(--c45-v2-surface-subtle); font-weight: 600; color: var(--c45-v2-text-primary); }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-bj15-product], .device-preview.is-web .k7-wide .k7-table tbody tr[data-bj15-movement] { cursor: pointer; }
+.device-preview.is-web .k7-wide .k7-table tbody tr[data-bj15-product]:hover td, .device-preview.is-web .k7-wide .k7-table tbody tr[data-bj15-movement]:hover td { background: var(--c45-v2-surface-subtle); }
+.k7-table tbody tr[data-bj15-product]:focus-visible, .k7-table tbody tr[data-bj15-movement]:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: -2px; }
+.k7-table small { display: block; font-weight: 400; color: var(--c45-v2-text-secondary); }
+/* Danh sách iPhone: tiêu đề và phụ đề xuống dòng để chứng từ / người / ngày ghi nhận không bị cắt bằng "…". */
+body[data-active-uif="UIF-15"] .figma-calibrated-shell .bj15-screen .ds24-list-row .ds24-list-row__copy > :is(strong, small) { white-space: normal; overflow: visible; text-overflow: clip; }
+body[data-active-uif="UIF-15"] .figma-calibrated-shell .bj15-screen .ds24-list-row { height: auto; max-height: none; min-height: 64px; padding-block: var(--c45-v2-space-3); }
+body[data-active-uif="UIF-15"] .figma-calibrated-shell .bj15-screen .ds24-list-row__trailing { max-width: none; flex: 0 0 auto; }
+/* Sheet kỳ và sheet xuất. */
+.bj15-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--c45-v2-space-2); align-items: start; }
+.bj15-dates .form-field { min-width: 0; }
+.bj15-sheet-facts { display: flex; flex-direction: column; }
+.bj15-check-row { display: flex; align-items: center; gap: var(--c45-v2-space-3); min-height: 44px; padding: 0 var(--c45-v2-space-4); border: 0; background: transparent; font: 600 14px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-primary); text-align: left; cursor: pointer; }
+body[data-active-uif="UIF-15"] .sheet-actions:has(> :only-child) { grid-template-columns: 1fr; }
+/* Hàng "nhãn — giá trị": nhãn bên trái, số căn phải (mono, không gãy dòng); các hàng liền nhau ngăn bằng đường mảnh. */
+body[data-active-uif="UIF-15"] .ds24-key-value-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--c45-v2-space-3); min-height: 44px; padding: var(--c45-v2-space-2) 0; box-sizing: border-box; }
+body[data-active-uif="UIF-15"] :is(.ac310-key-value-stack, .bj15-sheet-facts) > .ds24-key-value-row + .ds24-key-value-row { border-top: 1px solid var(--c45-v2-border-default); }
+body[data-active-uif="UIF-15"] .ds24-key-value-row > span { flex: 1 1 0; min-width: 0; font: 400 13px/20px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+body[data-active-uif="UIF-15"] .ds24-key-value-row > strong { flex: 0 1 auto; min-width: 0; text-align: right; font: 600 14px/20px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--c45-v2-text-primary); }
+/* Vòng focus bàn phím cho chip, dòng danh sách, nút kỳ / xuất và dòng chọn (DS chưa có vòng focus cho chip / dòng). */
+body[data-active-uif="UIF-15"] :is(.ds24-chip, .ds-segment, .bj15-period, .bj15-export, .bj15-check-row):focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+body[data-active-uif="UIF-15"] .ds24-list-row:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: -2px; }
+/* Dải số thẻ kho: bốn ô đều nhau — nhãn nhỏ trên, số đậm dưới (iPhone và web). */
+.bj15-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--c45-v2-space-2); }
+.bj15-strip .cf12-strip__dot { display: none; }
+.bj15-strip .cf12-strip__item { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font: 400 12px/16px Inter, system-ui, sans-serif; color: var(--c45-v2-text-secondary); }
+.bj15-strip .cf12-strip__item strong { font: 600 16px/22px var(--c45-v2-font-mono); font-variant-numeric: tabular-nums; color: var(--c45-v2-text-primary); }
+body[data-active-uif="UIF-15"] .ds24-key-value-row > strong.bj15-text { font: 600 14px/20px Inter, system-ui, sans-serif; white-space: normal; overflow-wrap: anywhere; }
+
+/* Web: hàng nhãn — giá trị rộng bằng khung chứa (338px là bề rộng iPhone); BJ-14 bỏ đường kẻ đôi của hàng nhấn. */
+/* !important: đè luật khung Figma (.figma-calibrated-shell … { width: 338px !important }) */
+.device-preview.is-web .figma-calibrated-shell .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"],
+.device-preview.is-web .figma-calibrated-shell .ac310-info-rows > .ds24-info-row { width: 100% !important; max-width: none !important; }
+body[data-active-uif="UIF-14"] #app-screen .ds24-key-value-row--emphasis { box-shadow: none; }
+
+/* Web, đếm hàng (BJ-08): bảng giữ bề rộng đọc được để ô "Đếm được" không cách xa sản phẩm. */
+.device-preview.is-web .bj08-count .k7-table-wrap { max-width: 820px; }
+
+/* Chân iPhone xếp dọc (chữ nút dài): hai nút 44px + khoảng cách cần cao hơn chân một hàng 92px. */
+.device-preview:not(.is-web) .app-actions.figma-sticky-footer.is-stacked { height: auto; min-height: 136px; }
+
+/* Web, cột tóm tắt hẹp: giá trị dài (thời điểm chốt) được xuống dòng thay vì tràn khỏi thẻ. */
+body[data-active-uif="UIF-14"] .device-preview.is-web .k7-split__aside .ds24-key-value-row > strong { white-space: normal; overflow-wrap: anywhere; }

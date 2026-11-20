@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "version": "4.6.4",
+  "parent": "4.6.3",
+  "scope": "BJ02_PENDING_APPROVAL_CONTINUITY",
+  "changes": [
+    "SCR-010 PENDING_APPROVAL has a primary return action to Warehouse Hub.",
+    "Back from SCR-010 PENDING_APPROVAL returns to Warehouse Hub and never reopens the locked editor.",
+    "Warehouse Hub candidate adds pending receipt approvals at the top of attention items.",
+    "The pending worklist resolves to SCR-010 read-only or SCR-011 approval according to capability; the Owner fixture validates the approver path.",
+    "SCR-011 entered from the Hub returns to the pending approval worklist."
+  ],
+  "contracts": [
+    "03.design/screens/SCR-010.md",
+    "03.design/screens/SCR-011.md",
+    "03.design/flows/UIF-02-BJ-02.md"
+  ],
+  "runtime": [
+    "03.design/prototype/html/v464-warehouse-hub-bj02-continuity.js",
+    "03.design/prototype/html/v464-warehouse-hub-bj02-continuity.css"
+  ],
+  "qa": {
+    "focused": {
+      "status": "PASS",
+      "passed": 21,
+      "total": 21,
+      "browser_errors": 0
+    },
+    "all_flow": {
+      "status": "PASS",
+      "browser_errors": []
+    },
+    "static": "PASS"
+  },
+  "visual_captures": [
+    "01-candidate-hub-with-pending-approval.png",
+    "02-pending-approval-list.png",
+    "03-approver-from-hub.png",
+    "04-scr010-pending-with-return-cta.png"
+  ],
+  "limits": [
+    "Warehouse Hub candidate remains a review-mode candidate; the current Hub remains the default comparison baseline.",
+    "This evidence validates prototype behavior and contract parity, not production authorization or integration E2E."
+  ]
+}

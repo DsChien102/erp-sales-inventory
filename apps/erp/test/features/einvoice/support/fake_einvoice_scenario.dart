@@ -1,0 +1,20 @@
+/// Kịch bản có tên cho `FakeEInvoiceRepository.forScenario` (chỉ các giá trị khu HĐĐT trên đơn dùng).
+enum FakeEInvoiceScenario {
+  previewOk,
+  previewConfigNotReady,
+  previewPermissionDenied,
+  previewProviderUnavailable,
+  configReadinessBlocked,
+  readinessBuyerIncomplete,
+  officialViewOk,
+  officialViewProviderDown,
+  downloadPdfOk,
+  downloadUnavailable,
+  retryAfterFailOk,
+  retryWhileReconciling,
+  sendOk,
+  sendInvalidEmail,
+  sendSheetInitial,
+  sendSheetResend,
+  sendSheetUnknown,
+}

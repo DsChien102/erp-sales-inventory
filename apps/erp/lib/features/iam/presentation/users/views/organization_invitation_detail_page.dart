@@ -1,0 +1,322 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:c45_design_system/design_system.dart';
+
+import '../../shared/iam_action_tile.dart';
+
+import '../../../data/invitation_repository.dart';
+import '../../shared/iam_load_status.dart';
+import '../../shared/idempotency_key_factory.dart';
+import '../bloc/organization_invitation_detail_cubit.dart';
+import '../bloc/organization_invitation_detail_state.dart';
+import '../mappers/invitation_ui_mapper.dart';
+import '../models/user_ui_model.dart';
+import '../widgets/revoke_invitation_bottom_sheet.dart';
+
+/// Chi tiết lời mời — loads by [invitationId] via [InvitationRepository.getInvitation].
+class OrganizationInvitationDetailPage extends StatelessWidget {
+  const OrganizationInvitationDetailPage({
+    super.key,
+    required this.invitationId,
+    this.invitations,
+    this.keyFactory,
+    this.clock,
+    this.cubit,
+    this.onMutated,
+  });
+
+  final String invitationId;
+  final InvitationRepository? invitations;
+  final IdempotencyKeyFactory? keyFactory;
+  final DateTime Function()? clock;
+  final OrganizationInvitationDetailCubit? cubit;
+  final VoidCallback? onMutated;
+
+  @override
+  Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: _InvitationDetailView(clock: clock, onMutated: onMutated),
+      );
+    }
+    assert(
+      invitations != null,
+      'OrganizationInvitationDetailPage requires invitations or cubit',
+    );
+    return BlocProvider(
+      create: (_) => OrganizationInvitationDetailCubit(
+        invitationId: invitationId,
+        invitations: invitations!,
+        keyFactory: keyFactory ?? const UuidIdempotencyKeyFactory(),
+      )..load(),
+      child: _InvitationDetailView(clock: clock, onMutated: onMutated),
+    );
+  }
+}
+
+class _InvitationDetailView extends StatelessWidget {
+  const _InvitationDetailView({
+    this.clock,
+    this.onMutated,
+  });
+
+  final DateTime Function()? clock;
+  final VoidCallback? onMutated;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<OrganizationInvitationDetailCubit, OrganizationInvitationDetailState>(
+      listenWhen: (previous, current) =>
+          previous.failure != current.failure ||
+          previous.successMessage != current.successMessage ||
+          previous.deliveryWarning != current.deliveryWarning,
+      listener: (context, state) {
+        final failure = state.failure;
+        if (failure != null) {
+          VToast.show(
+            context,
+            title: failure.requiresReload ? 'Dữ liệu đã thay đổi' : 'Không thực hiện được',
+            message: failure.message,
+            type: failure.requiresReload ? VToastType.warning : VToastType.danger,
+          );
+          context.read<OrganizationInvitationDetailCubit>().clearFeedback();
+          return;
+        }
+        final message = state.successMessage;
+        if (message != null) {
+          VToast.show(
+            context,
+            title: state.deliveryWarning ? 'Cảnh báo gửi email' : 'Thành công',
+            message: message,
+            type: state.deliveryWarning ? VToastType.warning : VToastType.success,
+          );
+          if (VListDetailLayout.isSplitOf(context)) onMutated?.call();
+          context.read<OrganizationInvitationDetailCubit>().clearFeedback();
+        }
+      },
+      builder: (context, state) {
+        final isSplit = VListDetailLayout.isSplitOf(context);
+
+        if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
+          return VPageScaffold(
+            title: 'Chi tiết lời mời',
+            showBackButton: !isSplit,
+            body: const Center(child: VLoading(size: 40)),
+          );
+        }
+
+        if (state.status == IamLoadStatus.failure || state.invitation == null) {
+          final colors = context.vColors;
+          return VPageScaffold(
+            title: 'Chi tiết lời mời',
+            showBackButton: !isSplit,
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(VSpacing.screenMobile),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: const VText(
+                        'Không tải được lời mời',
+                        variant: VTextVariant.headingH4,
+                      ),
+                    ),
+                    const VGap.sm(),
+                    VText(
+                      state.failure?.message ?? 'Đã xảy ra lỗi',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                      textAlign: TextAlign.center,
+                    ),
+                    const VGap.lg(),
+                    VButton(
+                      label: 'Thử lại',
+                      onPressed: () => context.read<OrganizationInvitationDetailCubit>().load(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        final now = (clock ?? (() => DateTime.now().toUtc()))();
+        final invitation = InvitationUiMapper.fromDetail(
+          state.invitation!,
+          nowUtc: now,
+        );
+        final colors = context.vColors;
+        final (badgeLabel, badgeTone) = switch (invitation.status) {
+          InvitationStatus.failed => ('Lỗi gửi', VComponentTone.danger),
+          InvitationStatus.pending => ('Đang chờ', VComponentTone.warning),
+          InvitationStatus.expiring => ('Sắp hết hạn', VComponentTone.danger),
+          InvitationStatus.accepted => ('Đã chấp nhận', VComponentTone.success),
+          InvitationStatus.declined => ('Đã từ chối', VComponentTone.neutral),
+          InvitationStatus.revoked => ('Đã thu hồi', VComponentTone.neutral),
+          InvitationStatus.expired => ('Hết hạn', VComponentTone.neutral),
+        };
+
+        return VPageScaffold(
+          title: 'Chi tiết lời mời',
+          showBackButton: !isSplit,
+          body: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.screenMobile,
+              vertical: VSpacing.space4,
+            ),
+            children: [
+              VCard(
+                padding: const EdgeInsets.all(VSpacing.space4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Semantics(
+                            header: true,
+                            child: VText(
+                              invitation.email,
+                              variant: VTextVariant.headingH4,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                        VBadge(
+                          label: badgeLabel,
+                          tone: badgeTone,
+                          variant: VBadgeVariant.soft,
+                          isSmall: true,
+                        ),
+                      ],
+                    ),
+                    const VGap.sm(),
+                    VText(
+                      invitation.statusDetail,
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                    if (invitation.deliveryStatus.isNotEmpty) ...[
+                      const VGap.sm(),
+                      VText(
+                        'Giao nhận: ${invitation.deliveryStatus}',
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textMuted,
+                      ),
+                    ],
+                    if (state.invitation!.status != 'pending') ...[
+                      const VGap.sm(),
+                      VText(
+                        'Trạng thái: ${state.invitation!.status}',
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textMuted,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          bottomBar: state.canMutate
+              ? Container(
+                  padding: const EdgeInsets.all(VSpacing.screenMobile),
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    border: Border(
+                      top: BorderSide(color: colors.borderDefault),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: VButton(
+                      label: 'Thao tác',
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.primary,
+                      fullWidth: true,
+                      isLoading: state.isSubmitting,
+                      onPressed: state.isSubmitting ? null : () => _showActionBottomSheet(context),
+                    ),
+                  ),
+                )
+              : null,
+        );
+      },
+    );
+  }
+
+  void _showActionBottomSheet(BuildContext context) {
+    final cubit = context.read<OrganizationInvitationDetailCubit>();
+    showVAdaptiveSheet(
+      context: context,
+      title: 'Thao tác lời mời',
+      child: Builder(
+        builder: (sheetContext) => Padding(
+          padding: const EdgeInsets.all(VSpacing.screenMobile),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IamActionTile(
+                icon: VIcons.refresh,
+                title: 'Gửi lại lời mời',
+                subtitle: 'Gửi lại email đến người nhận',
+                onTap: () async {
+                  Navigator.of(sheetContext).pop();
+                  await cubit.resend();
+                },
+              ),
+              const VGap.sm(),
+              IamActionTile(
+                icon: VIcons.delete,
+                title: 'Thu hồi lời mời',
+                subtitle: 'Người nhận không thể tiếp tục tham gia',
+                isDanger: true,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _openRevokeSheet(context, cubit);
+                },
+              ),
+              const VGap.md(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openRevokeSheet(
+    BuildContext context,
+    OrganizationInvitationDetailCubit cubit,
+  ) async {
+    final revoked = await showRevokeInvitationBottomSheet(
+      context: context,
+      onRevoke: (reason) async {
+        await cubit.revoke(reason: reason);
+        return cubit.state.failure == null && cubit.state.invitation?.status == 'revoked';
+      },
+    );
+    if (revoked == true && context.mounted) {
+      if (VListDetailLayout.isSplitOf(context)) {
+        VToast.show(
+          context,
+          title: 'Đã thu hồi lời mời.',
+          message: '',
+          type: VToastType.success,
+        );
+        onMutated?.call();
+        context.go('/more/users');
+        return;
+      }
+      try {
+        context.pop(true);
+      } catch (_) {
+        // Widget tests / no GoRouter.
+      }
+    }
+  }
+}

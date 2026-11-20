@@ -1,0 +1,1402 @@
+{
+  "authority": "Flutter c45_design_system 1.4.1",
+  "symbolCount": 155,
+  "visualMappedCount": 78,
+  "items": [
+    {
+      "symbol": "VColors",
+      "kind": "class",
+      "source": "src/tokens/v_colors.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VBorders",
+      "kind": "class",
+      "source": "src/tokens/v_borders.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VRadius",
+      "kind": "class",
+      "source": "src/tokens/v_radius.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VSpacing",
+      "kind": "class",
+      "source": "src/tokens/v_spacing.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VBreakpoint",
+      "kind": "enum",
+      "source": "src/tokens/v_breakpoints.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VBreakpoints",
+      "kind": "class",
+      "source": "src/tokens/v_breakpoints.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VTypography",
+      "kind": "class",
+      "source": "src/tokens/v_typography.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VShadows",
+      "kind": "class",
+      "source": "src/tokens/v_shadows.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VAssets",
+      "kind": "class",
+      "source": "src/tokens/v_assets.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VDuration",
+      "kind": "class",
+      "source": "src/tokens/v_duration.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VOpacity",
+      "kind": "class",
+      "source": "src/tokens/v_opacity.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "vDisabledOpacity",
+      "kind": "function",
+      "source": "src/tokens/v_opacity.dart",
+      "group": "tokens",
+      "status": "nonvisual-token",
+      "role": "tokens",
+      "selector": null
+    },
+    {
+      "symbol": "VTheme",
+      "kind": "class",
+      "source": "src/theme/v_theme.dart",
+      "group": "theme",
+      "status": "nonvisual-token",
+      "role": "theme",
+      "selector": null
+    },
+    {
+      "symbol": "VColorScheme",
+      "kind": "class",
+      "source": "src/theme/v_color_scheme.dart",
+      "group": "theme",
+      "status": "nonvisual-token",
+      "role": "theme",
+      "selector": null
+    },
+    {
+      "symbol": "VDensityMode",
+      "kind": "enum",
+      "source": "src/theme/v_density.dart",
+      "group": "theme",
+      "status": "nonvisual-token",
+      "role": "theme",
+      "selector": null
+    },
+    {
+      "symbol": "VDensity",
+      "kind": "class",
+      "source": "src/theme/v_density.dart",
+      "group": "theme",
+      "status": "nonvisual-token",
+      "role": "theme",
+      "selector": null
+    },
+    {
+      "symbol": "VComponentTone",
+      "kind": "enum",
+      "source": "src/foundation/v_component_contracts.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "VComponentEmphasis",
+      "kind": "enum",
+      "source": "src/foundation/v_component_contracts.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "VComponentScope",
+      "kind": "class",
+      "source": "src/foundation/v_component_scope.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "vProvideComponentScope",
+      "kind": "function",
+      "source": "src/foundation/v_component_scope.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "vInspectorHide",
+      "kind": "function",
+      "source": "src/foundation/v_inspector_scope.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "vInspectorShow",
+      "kind": "function",
+      "source": "src/foundation/v_inspector_scope.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "VIcons",
+      "kind": "enum",
+      "source": "src/foundations/icons/v_icons.dart",
+      "group": "foundations",
+      "status": "nonvisual-runtime",
+      "role": "foundations",
+      "selector": null
+    },
+    {
+      "symbol": "VTextNormalizer",
+      "kind": "class",
+      "source": "src/foundation/v_text_normalizer.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "VDateTime",
+      "kind": "class",
+      "source": "src/foundation/v_datetime.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "VRouteOverlayGuard",
+      "kind": "class",
+      "source": "src/foundation/v_route_overlay_guard.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "VOverlayMenuLayout",
+      "kind": "class",
+      "source": "src/foundation/v_overlay_menu_layout.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "VOverlayMenuPanelMetrics",
+      "kind": "class",
+      "source": "src/foundation/v_overlay_menu_layout.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "VOverlayMenuShell",
+      "kind": "class",
+      "source": "src/foundation/v_overlay_menu_shell.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "filterDropdownEntries",
+      "kind": "function",
+      "source": "src/foundation/v_dropdown_filter.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "matchesComboboxSearch",
+      "kind": "function",
+      "source": "src/foundation/v_dropdown_filter.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "matchesNormalizedComboboxSearch",
+      "kind": "function",
+      "source": "src/foundation/v_dropdown_filter.dart",
+      "group": "foundation",
+      "status": "nonvisual-runtime",
+      "role": "foundation",
+      "selector": null
+    },
+    {
+      "symbol": "VComponentAuditEntry",
+      "kind": "class",
+      "source": "src/audit/v_component_audit_snapshot.dart",
+      "group": "audit",
+      "status": "nonvisual-runtime",
+      "role": "audit",
+      "selector": null
+    },
+    {
+      "symbol": "VGap",
+      "kind": "class",
+      "source": "src/patterns/v_gap.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-gap"
+    },
+    {
+      "symbol": "VFieldScope",
+      "kind": "class",
+      "source": "src/patterns/v_field.dart",
+      "group": "patterns",
+      "status": "nonvisual-mapped",
+      "role": "scope",
+      "selector": null
+    },
+    {
+      "symbol": "VField",
+      "kind": "class",
+      "source": "src/patterns/v_field.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-field"
+    },
+    {
+      "symbol": "VFieldLabel",
+      "kind": "class",
+      "source": "src/patterns/v_field.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-field__label"
+    },
+    {
+      "symbol": "VFieldDescription",
+      "kind": "class",
+      "source": "src/patterns/v_field.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-field__description"
+    },
+    {
+      "symbol": "VFieldError",
+      "kind": "class",
+      "source": "src/patterns/v_field.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-field__error"
+    },
+    {
+      "symbol": "vFieldShell",
+      "kind": "function",
+      "source": "src/patterns/v_field.dart",
+      "group": "patterns",
+      "status": "nonvisual-function",
+      "role": "function",
+      "selector": null
+    },
+    {
+      "symbol": "VPagePadding",
+      "kind": "class",
+      "source": "src/patterns/v_page_padding.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-page-padding"
+    },
+    {
+      "symbol": "VSection",
+      "kind": "class",
+      "source": "src/patterns/v_section.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-section"
+    },
+    {
+      "symbol": "VPageScaffold",
+      "kind": "class",
+      "source": "src/patterns/v_page_scaffold.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-page-scaffold"
+    },
+    {
+      "symbol": "VResponsiveValue",
+      "kind": "class",
+      "source": "src/patterns/v_responsive.dart",
+      "group": "patterns",
+      "status": "nonvisual-mapped",
+      "role": "value-object",
+      "selector": null
+    },
+    {
+      "symbol": "VResponsive",
+      "kind": "class",
+      "source": "src/patterns/v_responsive.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-responsive"
+    },
+    {
+      "symbol": "VResponsiveVisibility",
+      "kind": "class",
+      "source": "src/patterns/v_responsive_visibility.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-responsive-visibility"
+    },
+    {
+      "symbol": "VContentWidth",
+      "kind": "class",
+      "source": "src/patterns/v_content_width.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-content-width"
+    },
+    {
+      "symbol": "VResponsiveGrid",
+      "kind": "class",
+      "source": "src/patterns/v_responsive_grid.dart",
+      "group": "patterns",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-responsive-grid"
+    },
+    {
+      "symbol": "VBadgeVariant",
+      "kind": "enum",
+      "source": "src/primitives/v_badge.dart",
+      "group": "primitives",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VBadgeStatus",
+      "kind": "enum",
+      "source": "src/primitives/v_badge.dart",
+      "group": "primitives",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VBadge",
+      "kind": "class",
+      "source": "src/primitives/v_badge.dart",
+      "group": "primitives",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-badge"
+    },
+    {
+      "symbol": "toneFromBadgeStatus",
+      "kind": "function",
+      "source": "src/primitives/v_badge.dart",
+      "group": "primitives",
+      "status": "nonvisual-function",
+      "role": "function",
+      "selector": null
+    },
+    {
+      "symbol": "VChipEmphasis",
+      "kind": "enum",
+      "source": "src/primitives/v_chip.dart",
+      "group": "primitives",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VChip",
+      "kind": "class",
+      "source": "src/primitives/v_chip.dart",
+      "group": "primitives",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-chip"
+    },
+    {
+      "symbol": "VDivider",
+      "kind": "class",
+      "source": "src/primitives/v_divider.dart",
+      "group": "primitives",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-divider"
+    },
+    {
+      "symbol": "VIconSize",
+      "kind": "enum",
+      "source": "src/primitives/v_icon.dart",
+      "group": "primitives",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VIconColor",
+      "kind": "enum",
+      "source": "src/primitives/v_icon.dart",
+      "group": "primitives",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VIconWeight",
+      "kind": "enum",
+      "source": "src/primitives/v_icon.dart",
+      "group": "primitives",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VIcon",
+      "kind": "class",
+      "source": "src/primitives/v_icon.dart",
+      "group": "primitives",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-icon"
+    },
+    {
+      "symbol": "VIconBox",
+      "kind": "class",
+      "source": "src/primitives/v_icon_box.dart",
+      "group": "primitives",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-icon-box"
+    },
+    {
+      "symbol": "VSkeletonScope",
+      "kind": "class",
+      "source": "src/primitives/v_skeleton.dart",
+      "group": "primitives",
+      "status": "nonvisual-mapped",
+      "role": "scope",
+      "selector": null
+    },
+    {
+      "symbol": "VSkeleton",
+      "kind": "class",
+      "source": "src/primitives/v_skeleton.dart",
+      "group": "primitives",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-skeleton"
+    },
+    {
+      "symbol": "VTextVariant",
+      "kind": "enum",
+      "source": "src/primitives/v_text.dart",
+      "group": "primitives",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VText",
+      "kind": "class",
+      "source": "src/primitives/v_text.dart",
+      "group": "primitives",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-text"
+    },
+    {
+      "symbol": "VAvatar",
+      "kind": "class",
+      "source": "src/components/v_avatar.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-avatar"
+    },
+    {
+      "symbol": "VBannerStatus",
+      "kind": "enum",
+      "source": "src/components/v_banner.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VBanner",
+      "kind": "class",
+      "source": "src/components/v_banner.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-banner"
+    },
+    {
+      "symbol": "VButtonVariant",
+      "kind": "enum",
+      "source": "src/components/v_button.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VButtonSize",
+      "kind": "enum",
+      "source": "src/components/v_button.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VButton",
+      "kind": "class",
+      "source": "src/components/v_button.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-btn"
+    },
+    {
+      "symbol": "VCard",
+      "kind": "class",
+      "source": "src/components/v_card.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-card"
+    },
+    {
+      "symbol": "VCardHeader",
+      "kind": "class",
+      "source": "src/components/v_card.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-card__header"
+    },
+    {
+      "symbol": "VCardIcon",
+      "kind": "class",
+      "source": "src/components/v_card.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-card__icon"
+    },
+    {
+      "symbol": "VCardTitle",
+      "kind": "class",
+      "source": "src/components/v_card.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-card__title"
+    },
+    {
+      "symbol": "VCardAction",
+      "kind": "class",
+      "source": "src/components/v_card.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-card__action"
+    },
+    {
+      "symbol": "VCardContent",
+      "kind": "class",
+      "source": "src/components/v_card.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-card__content"
+    },
+    {
+      "symbol": "VCardFooter",
+      "kind": "class",
+      "source": "src/components/v_card.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-card__footer"
+    },
+    {
+      "symbol": "VCheckbox",
+      "kind": "class",
+      "source": "src/components/v_checkbox.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-checkbox"
+    },
+    {
+      "symbol": "VRadio",
+      "kind": "class",
+      "source": "src/components/v_radio.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-radio"
+    },
+    {
+      "symbol": "VSwitch",
+      "kind": "class",
+      "source": "src/components/v_switch.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-switch"
+    },
+    {
+      "symbol": "VFloatingActionButton",
+      "kind": "class",
+      "source": "src/components/v_floating_action_button.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-fab"
+    },
+    {
+      "symbol": "VTextField",
+      "kind": "class",
+      "source": "src/components/v_text_field.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-text-field"
+    },
+    {
+      "symbol": "VTextArea",
+      "kind": "class",
+      "source": "src/components/v_text_area.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-text-area"
+    },
+    {
+      "symbol": "VTextFormField",
+      "kind": "class",
+      "source": "src/components/v_text_form_field.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-text-form-field"
+    },
+    {
+      "symbol": "VVerificationCodeCharset",
+      "kind": "enum",
+      "source": "src/components/v_verification_code_field.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VVerificationCodeField",
+      "kind": "class",
+      "source": "src/components/v_verification_code_field.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-verification"
+    },
+    {
+      "symbol": "VSearchBarVariant",
+      "kind": "enum",
+      "source": "src/components/v_search_bar.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VSearchBar",
+      "kind": "class",
+      "source": "src/components/v_search_bar.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-search-bar"
+    },
+    {
+      "symbol": "VTabsOrientation",
+      "kind": "enum",
+      "source": "src/components/v_tabs.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VTabsListVariant",
+      "kind": "enum",
+      "source": "src/components/v_tabs.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VTabs",
+      "kind": "class",
+      "source": "src/components/v_tabs.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-tabs"
+    },
+    {
+      "symbol": "VTabsList",
+      "kind": "class",
+      "source": "src/components/v_tabs.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-tabs__list"
+    },
+    {
+      "symbol": "VTabsTrigger",
+      "kind": "class",
+      "source": "src/components/v_tabs.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-tabs__trigger"
+    },
+    {
+      "symbol": "VTabsContent",
+      "kind": "class",
+      "source": "src/components/v_tabs.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-tabs__content"
+    },
+    {
+      "symbol": "VEmptyMediaVariant",
+      "kind": "enum",
+      "source": "src/components/v_empty_state.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VEmptyState",
+      "kind": "class",
+      "source": "src/components/v_empty_state.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-empty-state"
+    },
+    {
+      "symbol": "VEmptyHeader",
+      "kind": "class",
+      "source": "src/components/v_empty_state.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-empty-state__header"
+    },
+    {
+      "symbol": "VEmptyMedia",
+      "kind": "class",
+      "source": "src/components/v_empty_state.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-empty-state__media"
+    },
+    {
+      "symbol": "VEmptyTitle",
+      "kind": "class",
+      "source": "src/components/v_empty_state.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-empty-state__title"
+    },
+    {
+      "symbol": "VEmptyDescription",
+      "kind": "class",
+      "source": "src/components/v_empty_state.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-empty-state__description"
+    },
+    {
+      "symbol": "VEmptyContent",
+      "kind": "class",
+      "source": "src/components/v_empty_state.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-empty-state__content"
+    },
+    {
+      "symbol": "VFileDropZoneState",
+      "kind": "enum",
+      "source": "src/components/v_file_drop_zone.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VFileDropZone",
+      "kind": "class",
+      "source": "src/components/v_file_drop_zone.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-dropzone"
+    },
+    {
+      "symbol": "VToastType",
+      "kind": "enum",
+      "source": "src/components/v_toast.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VToast",
+      "kind": "class",
+      "source": "src/components/v_toast.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-toast"
+    },
+    {
+      "symbol": "VCombobox",
+      "kind": "class",
+      "source": "src/components/v_combobox.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-combobox"
+    },
+    {
+      "symbol": "VComboboxController",
+      "kind": "class",
+      "source": "src/components/v_combobox.dart",
+      "group": "components",
+      "status": "nonvisual-mapped",
+      "role": "controller",
+      "selector": null
+    },
+    {
+      "symbol": "vComboboxOf",
+      "kind": "function",
+      "source": "src/components/v_combobox.dart",
+      "group": "components",
+      "status": "nonvisual-function",
+      "role": "function",
+      "selector": null
+    },
+    {
+      "symbol": "vComboboxProvideScope",
+      "kind": "function",
+      "source": "src/components/v_combobox.dart",
+      "group": "components",
+      "status": "nonvisual-function",
+      "role": "function",
+      "selector": null
+    },
+    {
+      "symbol": "VComboboxEmpty",
+      "kind": "class",
+      "source": "src/components/v_combobox_empty.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-combobox__empty"
+    },
+    {
+      "symbol": "VComboboxInput",
+      "kind": "class",
+      "source": "src/components/v_combobox_input.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-combobox__input"
+    },
+    {
+      "symbol": "VComboboxContent",
+      "kind": "class",
+      "source": "src/components/v_combobox_content.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-combobox__content"
+    },
+    {
+      "symbol": "VComboboxList",
+      "kind": "class",
+      "source": "src/components/v_combobox_list.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-combobox__list"
+    },
+    {
+      "symbol": "VComboboxItem",
+      "kind": "class",
+      "source": "src/components/v_combobox_item.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-combobox__item"
+    },
+    {
+      "symbol": "VComboboxFooter",
+      "kind": "class",
+      "source": "src/components/v_combobox_footer.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-combobox__footer"
+    },
+    {
+      "symbol": "VBottomNavigationItem",
+      "kind": "class",
+      "source": "src/components/v_bottom_navigation_bar.dart",
+      "group": "components",
+      "status": "nonvisual-mapped",
+      "role": "model",
+      "selector": null
+    },
+    {
+      "symbol": "VBottomNavigationBar",
+      "kind": "class",
+      "source": "src/components/v_bottom_navigation_bar.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-bottom-nav"
+    },
+    {
+      "symbol": "VConfirmDialog",
+      "kind": "class",
+      "source": "src/components/v_modal.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-confirm-dialog"
+    },
+    {
+      "symbol": "showVConfirmDialog",
+      "kind": "function",
+      "source": "src/components/v_modal.dart",
+      "group": "components",
+      "status": "nonvisual-function",
+      "role": "function",
+      "selector": null
+    },
+    {
+      "symbol": "VBottomSheet",
+      "kind": "class",
+      "source": "src/components/v_bottom_sheet.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-bottom-sheet"
+    },
+    {
+      "symbol": "showVBottomSheet",
+      "kind": "function",
+      "source": "src/components/v_bottom_sheet.dart",
+      "group": "components",
+      "status": "nonvisual-function",
+      "role": "function",
+      "selector": null
+    },
+    {
+      "symbol": "VAppBarTitle",
+      "kind": "class",
+      "source": "src/components/v_app_bar.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-appbar__title"
+    },
+    {
+      "symbol": "VAppBarSubtitle",
+      "kind": "class",
+      "source": "src/components/v_app_bar.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-appbar__subtitle"
+    },
+    {
+      "symbol": "VAppBar",
+      "kind": "class",
+      "source": "src/components/v_app_bar.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-appbar"
+    },
+    {
+      "symbol": "VTableHeader",
+      "kind": "class",
+      "source": "src/components/v_table.dart",
+      "group": "components",
+      "status": "nonvisual-mapped",
+      "role": "model",
+      "selector": null
+    },
+    {
+      "symbol": "VTable",
+      "kind": "class",
+      "source": "src/components/v_table.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-table"
+    },
+    {
+      "symbol": "VLoading",
+      "kind": "class",
+      "source": "src/components/v_loading.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-loading"
+    },
+    {
+      "symbol": "VStepStatus",
+      "kind": "enum",
+      "source": "src/components/v_steps.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VStepsType",
+      "kind": "enum",
+      "source": "src/components/v_steps.dart",
+      "group": "components",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VStepItem",
+      "kind": "class",
+      "source": "src/components/v_steps.dart",
+      "group": "components",
+      "status": "nonvisual-mapped",
+      "role": "model",
+      "selector": null
+    },
+    {
+      "symbol": "VSteps",
+      "kind": "class",
+      "source": "src/components/v_steps.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-steps"
+    },
+    {
+      "symbol": "VProgress",
+      "kind": "class",
+      "source": "src/components/v_progress.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-progress"
+    },
+    {
+      "symbol": "VSegmentedControl",
+      "kind": "class",
+      "source": "src/components/v_segmented_control.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-segmented"
+    },
+    {
+      "symbol": "VNumericKeypadSheet",
+      "kind": "class",
+      "source": "src/components/v_numeric_keypad_sheet.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-keypad-sheet"
+    },
+    {
+      "symbol": "showVNumericKeypadSheet",
+      "kind": "function",
+      "source": "src/components/v_numeric_keypad_sheet.dart",
+      "group": "components",
+      "status": "nonvisual-function",
+      "role": "function",
+      "selector": null
+    },
+    {
+      "symbol": "VSwipeReveal",
+      "kind": "class",
+      "source": "src/components/v_swipe_reveal.dart",
+      "group": "components",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-swipe-reveal"
+    },
+    {
+      "symbol": "VEmailValidator",
+      "kind": "class",
+      "source": "src/forms/validators/v_email_validator.dart",
+      "group": "forms",
+      "status": "nonvisual-mapped",
+      "role": "validator",
+      "selector": null
+    },
+    {
+      "symbol": "VPhoneField",
+      "kind": "class",
+      "source": "src/forms/v_phone_field.dart",
+      "group": "forms",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-phone-field"
+    },
+    {
+      "symbol": "VPhoneValidator",
+      "kind": "class",
+      "source": "src/forms/validators/v_phone_validator.dart",
+      "group": "forms",
+      "status": "nonvisual-mapped",
+      "role": "validator",
+      "selector": null
+    },
+    {
+      "symbol": "VPasswordValidator",
+      "kind": "class",
+      "source": "src/forms/validators/v_password_validator.dart",
+      "group": "forms",
+      "status": "nonvisual-mapped",
+      "role": "validator",
+      "selector": null
+    },
+    {
+      "symbol": "VMoneyValidator",
+      "kind": "class",
+      "source": "src/forms/validators/v_money_validator.dart",
+      "group": "forms",
+      "status": "nonvisual-mapped",
+      "role": "validator",
+      "selector": null
+    },
+    {
+      "symbol": "VNumberValidator",
+      "kind": "class",
+      "source": "src/forms/validators/v_number_validator.dart",
+      "group": "forms",
+      "status": "nonvisual-mapped",
+      "role": "validator",
+      "selector": null
+    },
+    {
+      "symbol": "VSelectValidator",
+      "kind": "class",
+      "source": "src/forms/validators/v_select_validator.dart",
+      "group": "forms",
+      "status": "nonvisual-mapped",
+      "role": "validator",
+      "selector": null
+    },
+    {
+      "symbol": "VChoiceListValidator",
+      "kind": "class",
+      "source": "src/forms/validators/v_choice_list_validator.dart",
+      "group": "forms",
+      "status": "nonvisual-mapped",
+      "role": "validator",
+      "selector": null
+    },
+    {
+      "symbol": "VMoneyInputFormatter",
+      "kind": "class",
+      "source": "src/forms/formatters/v_money_input_formatter.dart",
+      "group": "forms",
+      "status": "nonvisual-mapped",
+      "role": "formatter",
+      "selector": null
+    },
+    {
+      "symbol": "VNumberInputFormatter",
+      "kind": "class",
+      "source": "src/forms/formatters/v_number_input_formatter.dart",
+      "group": "forms",
+      "status": "nonvisual-mapped",
+      "role": "formatter",
+      "selector": null
+    },
+    {
+      "symbol": "VChoiceOption",
+      "kind": "class",
+      "source": "src/forms/models/v_choice_option.dart",
+      "group": "forms",
+      "status": "nonvisual-mapped",
+      "role": "model",
+      "selector": null
+    },
+    {
+      "symbol": "VEmailField",
+      "kind": "class",
+      "source": "src/forms/v_email_field.dart",
+      "group": "forms",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-email-field"
+    },
+    {
+      "symbol": "VPasswordField",
+      "kind": "class",
+      "source": "src/forms/v_password_field.dart",
+      "group": "forms",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-password-field"
+    },
+    {
+      "symbol": "VMoneyField",
+      "kind": "class",
+      "source": "src/forms/v_money_field.dart",
+      "group": "forms",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-money-field"
+    },
+    {
+      "symbol": "VNumberField",
+      "kind": "class",
+      "source": "src/forms/v_number_field.dart",
+      "group": "forms",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-number-field"
+    },
+    {
+      "symbol": "VSelect",
+      "kind": "class",
+      "source": "src/forms/v_select.dart",
+      "group": "forms",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-select"
+    },
+    {
+      "symbol": "VChoiceList",
+      "kind": "class",
+      "source": "src/forms/v_choice_list.dart",
+      "group": "forms",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-choice-list"
+    },
+    {
+      "symbol": "VDatePickerIconPosition",
+      "kind": "enum",
+      "source": "src/forms/v_date_picker.dart",
+      "group": "forms",
+      "status": "nonvisual-enum",
+      "role": "enum",
+      "selector": null
+    },
+    {
+      "symbol": "VDatePicker",
+      "kind": "class",
+      "source": "src/forms/v_date_picker.dart",
+      "group": "forms",
+      "status": "visual-mapped",
+      "role": "visual-widget-or-slot",
+      "selector": ".v-date-picker"
+    }
+  ]
+}

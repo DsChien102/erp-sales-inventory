@@ -1,0 +1,1379 @@
+{
+  "schemaVersion": 3,
+  "authority": "Flutter lib/design_system.dart",
+  "flutterDsVersion": "1.4.1",
+  "exportCount": 94,
+  "items": [
+    {
+      "export": "src/tokens/v_colors.dart",
+      "api": "VColors",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VColors"
+        }
+      ],
+      "sha256": "88ba9e3daed732392a702408cf1d34a95f4f713fc1b559394802885b0a3b3c0b",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/tokens/v_borders.dart",
+      "api": "VBorders",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VBorders"
+        }
+      ],
+      "sha256": "d8bda2ffdf518a85bbe199785f15979fcec1e886f5549a19697d33ca76494df9",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/tokens/v_radius.dart",
+      "api": "VRadius",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VRadius"
+        }
+      ],
+      "sha256": "23ff9c69a89b6bb9bdf2c35b58c9a5eab04dfabacba57021adbb9ab99910ec93",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/tokens/v_spacing.dart",
+      "api": "VSpacing",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSpacing"
+        }
+      ],
+      "sha256": "f2a301f42c5373d07ecce708a703817842af54b2612ba67ab361fba8ae302fd7",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/tokens/v_breakpoints.dart",
+      "api": "VBreakpoint",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VBreakpoint"
+        },
+        {
+          "kind": "class",
+          "name": "VBreakpoints"
+        }
+      ],
+      "sha256": "673ab35f942d1d7537bda06996bb9f1d1f7b852b2658f8f1b0e13c784459f19f",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/tokens/v_typography.dart",
+      "api": "VTypography",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTypography"
+        }
+      ],
+      "sha256": "f6d5bc57ef6be528b48d6c5288e889abeea53c449635fab53d5945bcea3e1ca5",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/tokens/v_shadows.dart",
+      "api": "VShadows",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VShadows"
+        }
+      ],
+      "sha256": "4d736c0cbd89b69ff921d5c0de98bcef41538ede4d806ec1babacb83d887533d",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/tokens/v_assets.dart",
+      "api": "VAssets",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VAssets"
+        }
+      ],
+      "sha256": "78a4b88cc9799248743b838197d0a29728a25dc2ea269d2c64c37861636b37f1",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/tokens/v_duration.dart",
+      "api": "VDuration",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VDuration"
+        }
+      ],
+      "sha256": "096155e15bfdee8bcea8341a106c5aea8cdafbe384fd8fa2aa5dcb04b9cd69a0",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/tokens/v_opacity.dart",
+      "api": "VOpacity",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VOpacity"
+        },
+        {
+          "kind": "function",
+          "name": "vDisabledOpacity"
+        }
+      ],
+      "sha256": "64a4a6b255ad817db7f0bcc631376f41d2ba69321d466d0424470a91a0857709",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/theme/v_theme.dart",
+      "api": "VTheme",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTheme"
+        }
+      ],
+      "sha256": "484cad5ba10d18cbd156c1845fe6fdd978037960d1bc96bfde312874456ec5be",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/theme/v_color_scheme.dart",
+      "api": "VColorScheme",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VColorScheme"
+        }
+      ],
+      "sha256": "63da2884899fbd3ec47459fab2f6423abc1c41051e6b4dc388b8c42bf910bfb2",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/theme/v_density.dart",
+      "api": "VDensityMode",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VDensityMode"
+        },
+        {
+          "kind": "class",
+          "name": "VDensity"
+        }
+      ],
+      "sha256": "44f4a5f9fe3e498197b81b1dab2b4c4d66f4626cc6691a4a3df144b9774154f4",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundation/v_context_extensions.dart",
+      "api": null,
+      "symbols": [],
+      "sha256": "0690fb2a2ccbf08eb4b4a89cc217ad7b8a9aacf75e448551c3c3fc89cbc91faa",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundation/v_component_contracts.dart",
+      "api": "VComponentTone",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VComponentTone"
+        },
+        {
+          "kind": "enum",
+          "name": "VComponentEmphasis"
+        }
+      ],
+      "sha256": "5ecdfffaeac90a25f2000d58ad4941abbb6118313a1f3ca94c666fc1be33da8d",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundation/v_component_scope.dart",
+      "api": "VComponentScope",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComponentScope"
+        },
+        {
+          "kind": "function",
+          "name": "vProvideComponentScope"
+        }
+      ],
+      "sha256": "f4f3584a266bd442c65528697a571ad2f09c2161a3965531013573ecfbf0518a",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundation/v_inspector_scope.dart",
+      "api": "vInspectorHide",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "vInspectorHide"
+        },
+        {
+          "kind": "function",
+          "name": "vInspectorShow"
+        }
+      ],
+      "sha256": "2bdbcb3317f5d489055c1f0f538292c4f5830534239bcba148823043d250c986",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundations/icons/v_icons.dart",
+      "api": "VIcons",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VIcons"
+        }
+      ],
+      "sha256": "e2c05b9c7fa81389f2b74325b0f3ad0f84daed8f3b30f248af986fb57f16da54",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundation/v_text_normalizer.dart",
+      "api": "VTextNormalizer",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTextNormalizer"
+        }
+      ],
+      "sha256": "67a93368cbc6122297b84369698ba821419d569d3bf4dc650b58d8fb0667f5ef",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundation/v_datetime.dart",
+      "api": "VDateTime",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VDateTime"
+        }
+      ],
+      "sha256": "80ad3c7edacdf4ea613e1fd2496f88ea80747a0003b0e11e0d8456ea5013f199",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundation/v_route_overlay_guard.dart",
+      "api": "VRouteOverlayGuard",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VRouteOverlayGuard"
+        }
+      ],
+      "sha256": "57dde45aa7cbf9538438f5642070eaa2f491485e80167538afbb5f92212cf2c0",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundation/v_overlay_menu_layout.dart",
+      "api": "VOverlayMenuLayout",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VOverlayMenuLayout"
+        },
+        {
+          "kind": "class",
+          "name": "VOverlayMenuPanelMetrics"
+        }
+      ],
+      "sha256": "ca0c099dd8a1dd88cf074356088457c148b4b34023d7a0030e85797ed989146c",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundation/v_overlay_menu_shell.dart",
+      "api": "VOverlayMenuShell",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VOverlayMenuShell"
+        }
+      ],
+      "sha256": "ff58e8c5998956a794d7ed0774d05f53694f52b9c5938f2cddf68376db67d5ed",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/foundation/v_dropdown_filter.dart",
+      "api": "matchesComboboxSearch",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "filterDropdownEntries"
+        },
+        {
+          "kind": "function",
+          "name": "matchesComboboxSearch"
+        },
+        {
+          "kind": "function",
+          "name": "matchesNormalizedComboboxSearch"
+        }
+      ],
+      "sha256": "7df9755535c5d505db7a5002ff6cd2b55f06b6f2026be506bdd1756de753c385",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/audit/v_component_audit_snapshot.dart",
+      "api": "VComponentAuditEntry",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComponentAuditEntry"
+        }
+      ],
+      "sha256": "6c0f8aa70259662ab7e0ce0a15ff775a4e42adc87dd28b76d41bc867e3de5d83",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/patterns/v_gap.dart",
+      "api": "VGap",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VGap"
+        }
+      ],
+      "sha256": "f4958a5e0b436aca869d4cbde60f67877b07fcb24071be7272c881423738485f",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/patterns/v_field.dart",
+      "api": "VFieldScope",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VFieldScope"
+        },
+        {
+          "kind": "class",
+          "name": "VField"
+        },
+        {
+          "kind": "class",
+          "name": "VFieldLabel"
+        },
+        {
+          "kind": "class",
+          "name": "VFieldDescription"
+        },
+        {
+          "kind": "class",
+          "name": "VFieldError"
+        },
+        {
+          "kind": "function",
+          "name": "vFieldShell"
+        }
+      ],
+      "sha256": "a8333a761e41f8d09c481a9a27432f181f191d9e8355a560125dfe2549eef6c2",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/patterns/v_page_padding.dart",
+      "api": "VPagePadding",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VPagePadding"
+        }
+      ],
+      "sha256": "213fa339e0aed200170908a1cd987525d3a8cb86c58b24a74346b4b3e67064d8",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/patterns/v_section.dart",
+      "api": "VSection",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSection"
+        }
+      ],
+      "sha256": "2439ecd79e3331c8113b55b5c948007e1f412340049643963e0b08b81bfc7466",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/patterns/v_page_scaffold.dart",
+      "api": "VPageScaffold",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VPageScaffold"
+        }
+      ],
+      "sha256": "2d91180f2b7c14544ce3d467f72d853912b2900b8efa66d8d6dc917bb403143c",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/patterns/v_responsive.dart",
+      "api": "VResponsiveValue",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VResponsiveValue"
+        },
+        {
+          "kind": "class",
+          "name": "VResponsive"
+        }
+      ],
+      "sha256": "9c3108524cfceea55e4dc3c7d2b62e336c0fa086e5ae626c302ea964c923b175",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/patterns/v_responsive_visibility.dart",
+      "api": "VResponsiveVisibility",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VResponsiveVisibility"
+        }
+      ],
+      "sha256": "d056e87702915718b3f848cc5eb8c3205533cc53472caed3ed5cada538d64167",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/patterns/v_content_width.dart",
+      "api": "VContentWidth",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VContentWidth"
+        }
+      ],
+      "sha256": "77207450818436931769e3a56db921b8d3d016e9487a841b75ccf89129ffee2e",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/patterns/v_responsive_grid.dart",
+      "api": "VResponsiveGrid",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VResponsiveGrid"
+        }
+      ],
+      "sha256": "62fb206f5bb622cfe24ae609b92f80476ba18705f355d4751f01e6f42bdeed06",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/primitives/v_badge.dart",
+      "api": "VBadgeVariant",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VBadgeVariant"
+        },
+        {
+          "kind": "enum",
+          "name": "VBadgeStatus"
+        },
+        {
+          "kind": "class",
+          "name": "VBadge"
+        },
+        {
+          "kind": "function",
+          "name": "toneFromBadgeStatus"
+        }
+      ],
+      "sha256": "e7a8d3f889cd8ac23070748326a022ed761a55eb4b1256a50ca7fe73697475d6",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/primitives/v_chip.dart",
+      "api": "VChipEmphasis",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VChipEmphasis"
+        },
+        {
+          "kind": "class",
+          "name": "VChip"
+        }
+      ],
+      "sha256": "f8f3f9e89d7a7701126acbf5fc68100e57c56b308333b541c29b4b34eb8cc99e",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/primitives/v_divider.dart",
+      "api": "VDivider",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VDivider"
+        }
+      ],
+      "sha256": "aeeaedbd4ddedcea34eb7de29944ce6f330d0972c7619f0005741e9aaa24f8cc",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/primitives/v_icon.dart",
+      "api": "VIconSize",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VIconSize"
+        },
+        {
+          "kind": "enum",
+          "name": "VIconColor"
+        },
+        {
+          "kind": "enum",
+          "name": "VIconWeight"
+        },
+        {
+          "kind": "class",
+          "name": "VIcon"
+        }
+      ],
+      "sha256": "b8e67ae2f0664f315f15a8920c065ad50a0c7a5372088dd8c2ae4125cc31ba63",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/primitives/v_icon_box.dart",
+      "api": "VIconBox",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VIconBox"
+        }
+      ],
+      "sha256": "21d976b541aab347254d275c8172b54b5b5b3ac7dc4a9abead0536c89b09763e",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/primitives/v_skeleton.dart",
+      "api": "VSkeletonScope",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSkeletonScope"
+        },
+        {
+          "kind": "class",
+          "name": "VSkeleton"
+        }
+      ],
+      "sha256": "b82517d55652bea6a25da05eab71ad26fc9b0563f49aeff1ad27ca14c864d551",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/primitives/v_text.dart",
+      "api": "VTextVariant",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VTextVariant"
+        },
+        {
+          "kind": "class",
+          "name": "VText"
+        }
+      ],
+      "sha256": "efefcc5d3a141aef64946b55f593c98ca0f9833763e8f45a44048f88c7928747",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_avatar.dart",
+      "api": "VAvatar",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VAvatar"
+        }
+      ],
+      "sha256": "cef159bf12bf9d7d49ead04826ea84523d6cab482bd84be7da1d94b348bd8b96",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_banner.dart",
+      "api": "VBannerStatus",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VBannerStatus"
+        },
+        {
+          "kind": "class",
+          "name": "VBanner"
+        }
+      ],
+      "sha256": "29d50308019e145904126d762b97d78c5787d0386af8c502d7c0092946283211",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_button.dart",
+      "api": "VButtonVariant",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VButtonVariant"
+        },
+        {
+          "kind": "enum",
+          "name": "VButtonSize"
+        },
+        {
+          "kind": "class",
+          "name": "VButton"
+        }
+      ],
+      "sha256": "3c009fe8729cb9730a5d4d07c95584fb4df242fe2e2085fb6a50095d2cfb89cd",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_card.dart",
+      "api": "VCard",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VCard"
+        },
+        {
+          "kind": "class",
+          "name": "VCardHeader"
+        },
+        {
+          "kind": "class",
+          "name": "VCardIcon"
+        },
+        {
+          "kind": "class",
+          "name": "VCardTitle"
+        },
+        {
+          "kind": "class",
+          "name": "VCardAction"
+        },
+        {
+          "kind": "class",
+          "name": "VCardContent"
+        },
+        {
+          "kind": "class",
+          "name": "VCardFooter"
+        }
+      ],
+      "sha256": "22adc9ccfb8a8990400bbf4f55ad8c601fdf05b0090583557a10c54d3d5142d9",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_checkbox.dart",
+      "api": "VCheckbox",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VCheckbox"
+        }
+      ],
+      "sha256": "b1ed2d55cb0fd7129866d985fd0c20ff0da68e27a6c679cede8abf08e83d15db",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_radio.dart",
+      "api": "VRadio",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VRadio"
+        }
+      ],
+      "sha256": "2e4da40d6414d74a5e0ad19cc388135dd3c8cdaf31285113f832532828efd52e",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_switch.dart",
+      "api": "VSwitch",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSwitch"
+        }
+      ],
+      "sha256": "90d23e087a462a4740bb1d9942250130719758f5ddb58ecb5c5496f429c289b5",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_floating_action_button.dart",
+      "api": "VFloatingActionButton",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VFloatingActionButton"
+        }
+      ],
+      "sha256": "4977a9a73eed0cce2a064a30566e2048f97bfb9dd01bb6985a6fa1dd4af29192",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_text_field.dart",
+      "api": "VTextField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTextField"
+        }
+      ],
+      "sha256": "48d8e95c0df4cba66d2f480523c476a740924f9d54d1f7c680e85e4e24973dfb",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_text_area.dart",
+      "api": "VTextArea",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTextArea"
+        }
+      ],
+      "sha256": "b5cc5a0fcd542c28c7871f75f129a05f489cc1e9546f97868a16e77c8ccbebd9",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_text_form_field.dart",
+      "api": "VTextFormField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTextFormField"
+        }
+      ],
+      "sha256": "11ba84273e1bdd4625d21f3176ffc8b50ce38ea9ef39e983ad27b9e938fb728d",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_verification_code_field.dart",
+      "api": "VVerificationCodeCharset",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VVerificationCodeCharset"
+        },
+        {
+          "kind": "class",
+          "name": "VVerificationCodeField"
+        }
+      ],
+      "sha256": "55a89f08f991ca7703e2ea961b33ed4eb4eea686966b9f2c697eb3cc193c5956",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_search_bar.dart",
+      "api": "VSearchBarVariant",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VSearchBarVariant"
+        },
+        {
+          "kind": "class",
+          "name": "VSearchBar"
+        }
+      ],
+      "sha256": "aa3dadaab4cc605d17c297f73810a2b09b2183fd35d96b0d5d3f177810e694a5",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_tabs.dart",
+      "api": "VTabsOrientation",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VTabsOrientation"
+        },
+        {
+          "kind": "enum",
+          "name": "VTabsListVariant"
+        },
+        {
+          "kind": "class",
+          "name": "VTabs"
+        },
+        {
+          "kind": "class",
+          "name": "VTabsList"
+        },
+        {
+          "kind": "class",
+          "name": "VTabsTrigger"
+        },
+        {
+          "kind": "class",
+          "name": "VTabsContent"
+        }
+      ],
+      "sha256": "0c9408b8bd4720a24f8bd092c686ea7b7fd789b94f0e4aadf765f7c76039ad63",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_empty_state.dart",
+      "api": "VEmptyMediaVariant",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VEmptyMediaVariant"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyState"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyHeader"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyMedia"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyTitle"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyDescription"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyContent"
+        }
+      ],
+      "sha256": "c362798ff7fa1435d9eb421d12b35526308a401914dfc6b632b8f0310159a3db",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_file_drop_zone.dart",
+      "api": "VFileDropZoneState",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VFileDropZoneState"
+        },
+        {
+          "kind": "class",
+          "name": "VFileDropZone"
+        }
+      ],
+      "sha256": "4e1530d13156ae0308fad5bd8f9071a4dc4b20dfbb1f7b68f09d744a0aecf36b",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_toast.dart",
+      "api": "VToastType",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VToastType"
+        },
+        {
+          "kind": "class",
+          "name": "VToast"
+        }
+      ],
+      "sha256": "47c88874faa7311c217d209ed50ef25aaae7fadb05967179b77f527d83e42aac",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_combobox.dart",
+      "api": "VCombobox",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VCombobox"
+        },
+        {
+          "kind": "class",
+          "name": "VComboboxController"
+        },
+        {
+          "kind": "function",
+          "name": "vComboboxOf"
+        },
+        {
+          "kind": "function",
+          "name": "vComboboxProvideScope"
+        }
+      ],
+      "sha256": "23f43bcbc7fbe6c4ff5f019f0bb6593e20255e88ced5b753224bce5e1afc81fa",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_combobox_empty.dart",
+      "api": "VComboboxEmpty",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxEmpty"
+        }
+      ],
+      "sha256": "2baea5e35f2e7da72f1a59fb78b5c08d452b141591f7e540b52683f20973d773",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_combobox_input.dart",
+      "api": "VComboboxInput",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxInput"
+        }
+      ],
+      "sha256": "81d90e6806c197c094d7bb0621966bcbe37d2dfb51de62353d47123eac0da061",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_combobox_content.dart",
+      "api": "VComboboxContent",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxContent"
+        }
+      ],
+      "sha256": "75d5da47bff697781909caff9e973e1572d616ba0af9b62ee48b926cd0c6a1ee",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_combobox_list.dart",
+      "api": "VComboboxList",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxList"
+        }
+      ],
+      "sha256": "1f70e65ffb6c1f9e4a671996af5d45f355104f3c705a5788fffb6e13396482b3",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_combobox_item.dart",
+      "api": "VComboboxItem",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxItem"
+        }
+      ],
+      "sha256": "d08ff72c23480e94581e23082b0a9c54ede015ab28830f1ed9458f50d9f41f1c",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_combobox_footer.dart",
+      "api": "VComboboxFooter",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxFooter"
+        }
+      ],
+      "sha256": "348f1f39f16ffb95cde797c80995b020802936b48f5ecdea4638f0186d3a2cc5",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_bottom_navigation_bar.dart",
+      "api": "VBottomNavigationItem",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VBottomNavigationItem"
+        },
+        {
+          "kind": "class",
+          "name": "VBottomNavigationBar"
+        }
+      ],
+      "sha256": "3fd4247aa84acde41cba2098d6d438d5e56e39c434ac8ec5724f161740fba186",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_modal.dart",
+      "api": "VConfirmDialog",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VConfirmDialog"
+        },
+        {
+          "kind": "function",
+          "name": "showVConfirmDialog"
+        }
+      ],
+      "sha256": "a6d56e616522b4b5c28250e9b8bb2459137146d7a171f94651534a7454eb4658",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_bottom_sheet.dart",
+      "api": "VBottomSheet",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VBottomSheet"
+        },
+        {
+          "kind": "function",
+          "name": "showVBottomSheet"
+        }
+      ],
+      "sha256": "ca8cb382a448697f994222d1dd5158ca94117b09a0b702a7b856c9a428d26e04",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_app_bar.dart",
+      "api": "VAppBarTitle",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VAppBarTitle"
+        },
+        {
+          "kind": "class",
+          "name": "VAppBarSubtitle"
+        },
+        {
+          "kind": "class",
+          "name": "VAppBar"
+        }
+      ],
+      "sha256": "787274405cefe4ec7d08a0ee3fc4061a770d696c0236eec533f9d8200cda517f",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_table.dart",
+      "api": "VTableHeader",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTableHeader"
+        },
+        {
+          "kind": "class",
+          "name": "VTable"
+        }
+      ],
+      "sha256": "2bd52d48651696b1735930d93db2615f0d086da089ecc5842efc1b8248031c74",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_loading.dart",
+      "api": "VLoading",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VLoading"
+        }
+      ],
+      "sha256": "993eec5839d294cd0256ce77e6052b6a30d25c7798db972ebee714dec4c8745a",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_steps.dart",
+      "api": "VStepStatus",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VStepStatus"
+        },
+        {
+          "kind": "enum",
+          "name": "VStepsType"
+        },
+        {
+          "kind": "class",
+          "name": "VStepItem"
+        },
+        {
+          "kind": "class",
+          "name": "VSteps"
+        }
+      ],
+      "sha256": "c657ef78e01ef3676b5027ac7aa92e1452e3b312edb02bb5410d8f6c7ff25cb6",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_progress.dart",
+      "api": "VProgress",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VProgress"
+        }
+      ],
+      "sha256": "9de835ac6c2f1ca0f1ecd4f3f1c1e6e742f13845a6ec4a9f68bb710c7574f527",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_segmented_control.dart",
+      "api": "VSegmentedControl",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSegmentedControl"
+        }
+      ],
+      "sha256": "5c00f25387030afbe8c3dcae6bc5ef1002e52c5b92d94e1830211def1d1cd2da",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_numeric_keypad_sheet.dart",
+      "api": "VNumericKeypadSheet",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VNumericKeypadSheet"
+        },
+        {
+          "kind": "function",
+          "name": "showVNumericKeypadSheet"
+        }
+      ],
+      "sha256": "351227f95f3423372292ac166508fb89a2b671ff29abde759abff8e74b3e14f2",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/components/v_swipe_reveal.dart",
+      "api": "VSwipeReveal",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSwipeReveal"
+        }
+      ],
+      "sha256": "f1e9a6eca047e65d6f474010d30c323667a8b56d45ec49601d59210844f471c1",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/validators/v_email_validator.dart",
+      "api": "VEmailValidator",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VEmailValidator"
+        }
+      ],
+      "sha256": "271526ef4c68cccfb467b8c6bc173b39520a0508f3750a0788c5c785396ad28d",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/v_phone_field.dart",
+      "api": "VPhoneField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VPhoneField"
+        }
+      ],
+      "sha256": "92782a9bcea6754367a448d234889f5aad4fe23d5f2bff06381374144509876a",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/validators/v_phone_validator.dart",
+      "api": "VPhoneValidator",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VPhoneValidator"
+        }
+      ],
+      "sha256": "dc08548f1683060c4ec5045ed13f31bd570049dc8f12e28d265a53b95c1fc5a3",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/validators/v_password_validator.dart",
+      "api": "VPasswordValidator",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VPasswordValidator"
+        }
+      ],
+      "sha256": "8d80741242f7da0156cacfab3cd84596733e927a2e17ead54893f9f57d73824c",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/validators/v_money_validator.dart",
+      "api": "VMoneyValidator",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VMoneyValidator"
+        }
+      ],
+      "sha256": "768506cec6f448d9d72608be61c0c0678d36a0042b0b1648b5a4d11cf13b7101",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/validators/v_number_validator.dart",
+      "api": "VNumberValidator",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VNumberValidator"
+        }
+      ],
+      "sha256": "64c332a1da7105522ec932849bd31f9eb0aa0aa0efb3ba1beebd088133a4f517",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/validators/v_select_validator.dart",
+      "api": "VSelectValidator",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSelectValidator"
+        }
+      ],
+      "sha256": "83e49c1e92a2ac0acea41e55d23731e53ccc76dfac6de66b3cf67b11386718dc",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/validators/v_choice_list_validator.dart",
+      "api": "VChoiceListValidator",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VChoiceListValidator"
+        }
+      ],
+      "sha256": "5cd8f85163001a7e068fca24f3f75e68dc386b0c039878708238462214208aba",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/formatters/v_money_input_formatter.dart",
+      "api": "VMoneyInputFormatter",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VMoneyInputFormatter"
+        }
+      ],
+      "sha256": "a45b2db3603919c487693e3b5d2ca6ec159afdbcf74fe7dc2a8b425fa4841773",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/formatters/v_number_input_formatter.dart",
+      "api": "VNumberInputFormatter",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VNumberInputFormatter"
+        }
+      ],
+      "sha256": "53586a62cb8662fef156c93996b5a9e1061f7d6f347ffc37e338de83c309dacf",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/models/v_choice_option.dart",
+      "api": "VChoiceOption",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VChoiceOption"
+        }
+      ],
+      "sha256": "a34655e9e5f0e42b107aa7afade88c48e135141ff7bb1153ae61e2ae148a9dc9",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/v_email_field.dart",
+      "api": "VEmailField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VEmailField"
+        }
+      ],
+      "sha256": "3ddecc14a16fcddfd7976a676fd1756089ba6013ed656f4956ee151c3ced23e8",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/v_password_field.dart",
+      "api": "VPasswordField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VPasswordField"
+        }
+      ],
+      "sha256": "86efa90268388cb889090da3e72891871a5a560bb667feb67bf6a97b53dbbb87",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/v_money_field.dart",
+      "api": "VMoneyField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VMoneyField"
+        }
+      ],
+      "sha256": "64b789ebd846f039d248229a3609874a780041aad47c28bd7c54a06d5c0cc542",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/v_number_field.dart",
+      "api": "VNumberField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VNumberField"
+        }
+      ],
+      "sha256": "436655263f0afbe0589b9561c2a5c209ab864a31e29d83f9363bb8d2737f5823",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/v_select.dart",
+      "api": "VSelect",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSelect"
+        }
+      ],
+      "sha256": "107da8b36900d5f4ce7cfa7c211a1d834dd2b9bea7effc75111a3e4d3e3ae2bf",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/v_choice_list.dart",
+      "api": "VChoiceList",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VChoiceList"
+        }
+      ],
+      "sha256": "bc8b187271372585232bba7d8a4cf359ad7069bb06f9c016b8a388f3e35817cf",
+      "status": "canonical-flutter-1.4.1"
+    },
+    {
+      "export": "src/forms/v_date_picker.dart",
+      "api": "VDatePickerIconPosition",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VDatePickerIconPosition"
+        },
+        {
+          "kind": "class",
+          "name": "VDatePicker"
+        }
+      ],
+      "sha256": "811d608d81c3bca57c50cd0672cb290898cfa4a7c3862934d19bde7ffb910cec",
+      "status": "canonical-flutter-1.4.1"
+    }
+  ]
+}

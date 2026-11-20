@@ -1,0 +1,475 @@
+{
+  "schemaVersion": 3,
+  "authority": "Flutter 1.4.1",
+  "componentCount": 78,
+  "items": [
+    {
+      "api": "VGap",
+      "selector": ".v-gap",
+      "source": "src/patterns/v_gap.dart",
+      "sha256": "f4958a5e0b436aca869d4cbde60f67877b07fcb24071be7272c881423738485f"
+    },
+    {
+      "api": "VField",
+      "selector": ".v-field",
+      "source": "src/patterns/v_field.dart",
+      "sha256": "a8333a761e41f8d09c481a9a27432f181f191d9e8355a560125dfe2549eef6c2"
+    },
+    {
+      "api": "VFieldLabel",
+      "selector": ".v-field__label",
+      "source": "src/patterns/v_field.dart",
+      "sha256": "a8333a761e41f8d09c481a9a27432f181f191d9e8355a560125dfe2549eef6c2"
+    },
+    {
+      "api": "VFieldDescription",
+      "selector": ".v-field__description",
+      "source": "src/patterns/v_field.dart",
+      "sha256": "a8333a761e41f8d09c481a9a27432f181f191d9e8355a560125dfe2549eef6c2"
+    },
+    {
+      "api": "VFieldError",
+      "selector": ".v-field__error",
+      "source": "src/patterns/v_field.dart",
+      "sha256": "a8333a761e41f8d09c481a9a27432f181f191d9e8355a560125dfe2549eef6c2"
+    },
+    {
+      "api": "VPagePadding",
+      "selector": ".v-page-padding",
+      "source": "src/patterns/v_page_padding.dart",
+      "sha256": "213fa339e0aed200170908a1cd987525d3a8cb86c58b24a74346b4b3e67064d8"
+    },
+    {
+      "api": "VSection",
+      "selector": ".v-section",
+      "source": "src/patterns/v_section.dart",
+      "sha256": "2439ecd79e3331c8113b55b5c948007e1f412340049643963e0b08b81bfc7466"
+    },
+    {
+      "api": "VPageScaffold",
+      "selector": ".v-page-scaffold",
+      "source": "src/patterns/v_page_scaffold.dart",
+      "sha256": "2d91180f2b7c14544ce3d467f72d853912b2900b8efa66d8d6dc917bb403143c"
+    },
+    {
+      "api": "VResponsive",
+      "selector": ".v-responsive",
+      "source": "src/patterns/v_responsive.dart",
+      "sha256": "9c3108524cfceea55e4dc3c7d2b62e336c0fa086e5ae626c302ea964c923b175"
+    },
+    {
+      "api": "VResponsiveVisibility",
+      "selector": ".v-responsive-visibility",
+      "source": "src/patterns/v_responsive_visibility.dart",
+      "sha256": "d056e87702915718b3f848cc5eb8c3205533cc53472caed3ed5cada538d64167"
+    },
+    {
+      "api": "VContentWidth",
+      "selector": ".v-content-width",
+      "source": "src/patterns/v_content_width.dart",
+      "sha256": "77207450818436931769e3a56db921b8d3d016e9487a841b75ccf89129ffee2e"
+    },
+    {
+      "api": "VResponsiveGrid",
+      "selector": ".v-responsive-grid",
+      "source": "src/patterns/v_responsive_grid.dart",
+      "sha256": "62fb206f5bb622cfe24ae609b92f80476ba18705f355d4751f01e6f42bdeed06"
+    },
+    {
+      "api": "VBadge",
+      "selector": ".v-badge",
+      "source": "src/primitives/v_badge.dart",
+      "sha256": "e7a8d3f889cd8ac23070748326a022ed761a55eb4b1256a50ca7fe73697475d6"
+    },
+    {
+      "api": "VChip",
+      "selector": ".v-chip",
+      "source": "src/primitives/v_chip.dart",
+      "sha256": "f8f3f9e89d7a7701126acbf5fc68100e57c56b308333b541c29b4b34eb8cc99e"
+    },
+    {
+      "api": "VDivider",
+      "selector": ".v-divider",
+      "source": "src/primitives/v_divider.dart",
+      "sha256": "aeeaedbd4ddedcea34eb7de29944ce6f330d0972c7619f0005741e9aaa24f8cc"
+    },
+    {
+      "api": "VIcon",
+      "selector": ".v-icon",
+      "source": "src/primitives/v_icon.dart",
+      "sha256": "b8e67ae2f0664f315f15a8920c065ad50a0c7a5372088dd8c2ae4125cc31ba63"
+    },
+    {
+      "api": "VIconBox",
+      "selector": ".v-icon-box",
+      "source": "src/primitives/v_icon_box.dart",
+      "sha256": "21d976b541aab347254d275c8172b54b5b5b3ac7dc4a9abead0536c89b09763e"
+    },
+    {
+      "api": "VSkeleton",
+      "selector": ".v-skeleton",
+      "source": "src/primitives/v_skeleton.dart",
+      "sha256": "b82517d55652bea6a25da05eab71ad26fc9b0563f49aeff1ad27ca14c864d551"
+    },
+    {
+      "api": "VText",
+      "selector": ".v-text",
+      "source": "src/primitives/v_text.dart",
+      "sha256": "efefcc5d3a141aef64946b55f593c98ca0f9833763e8f45a44048f88c7928747"
+    },
+    {
+      "api": "VAvatar",
+      "selector": ".v-avatar",
+      "source": "src/components/v_avatar.dart",
+      "sha256": "cef159bf12bf9d7d49ead04826ea84523d6cab482bd84be7da1d94b348bd8b96"
+    },
+    {
+      "api": "VBanner",
+      "selector": ".v-banner",
+      "source": "src/components/v_banner.dart",
+      "sha256": "29d50308019e145904126d762b97d78c5787d0386af8c502d7c0092946283211"
+    },
+    {
+      "api": "VButton",
+      "selector": ".v-btn",
+      "source": "src/components/v_button.dart",
+      "sha256": "3c009fe8729cb9730a5d4d07c95584fb4df242fe2e2085fb6a50095d2cfb89cd"
+    },
+    {
+      "api": "VCard",
+      "selector": ".v-card",
+      "source": "src/components/v_card.dart",
+      "sha256": "22adc9ccfb8a8990400bbf4f55ad8c601fdf05b0090583557a10c54d3d5142d9"
+    },
+    {
+      "api": "VCardHeader",
+      "selector": ".v-card__header",
+      "source": "src/components/v_card.dart",
+      "sha256": "22adc9ccfb8a8990400bbf4f55ad8c601fdf05b0090583557a10c54d3d5142d9"
+    },
+    {
+      "api": "VCardIcon",
+      "selector": ".v-card__icon",
+      "source": "src/components/v_card.dart",
+      "sha256": "22adc9ccfb8a8990400bbf4f55ad8c601fdf05b0090583557a10c54d3d5142d9"
+    },
+    {
+      "api": "VCardTitle",
+      "selector": ".v-card__title",
+      "source": "src/components/v_card.dart",
+      "sha256": "22adc9ccfb8a8990400bbf4f55ad8c601fdf05b0090583557a10c54d3d5142d9"
+    },
+    {
+      "api": "VCardAction",
+      "selector": ".v-card__action",
+      "source": "src/components/v_card.dart",
+      "sha256": "22adc9ccfb8a8990400bbf4f55ad8c601fdf05b0090583557a10c54d3d5142d9"
+    },
+    {
+      "api": "VCardContent",
+      "selector": ".v-card__content",
+      "source": "src/components/v_card.dart",
+      "sha256": "22adc9ccfb8a8990400bbf4f55ad8c601fdf05b0090583557a10c54d3d5142d9"
+    },
+    {
+      "api": "VCardFooter",
+      "selector": ".v-card__footer",
+      "source": "src/components/v_card.dart",
+      "sha256": "22adc9ccfb8a8990400bbf4f55ad8c601fdf05b0090583557a10c54d3d5142d9"
+    },
+    {
+      "api": "VCheckbox",
+      "selector": ".v-checkbox",
+      "source": "src/components/v_checkbox.dart",
+      "sha256": "b1ed2d55cb0fd7129866d985fd0c20ff0da68e27a6c679cede8abf08e83d15db"
+    },
+    {
+      "api": "VRadio",
+      "selector": ".v-radio",
+      "source": "src/components/v_radio.dart",
+      "sha256": "2e4da40d6414d74a5e0ad19cc388135dd3c8cdaf31285113f832532828efd52e"
+    },
+    {
+      "api": "VSwitch",
+      "selector": ".v-switch",
+      "source": "src/components/v_switch.dart",
+      "sha256": "90d23e087a462a4740bb1d9942250130719758f5ddb58ecb5c5496f429c289b5"
+    },
+    {
+      "api": "VFloatingActionButton",
+      "selector": ".v-fab",
+      "source": "src/components/v_floating_action_button.dart",
+      "sha256": "4977a9a73eed0cce2a064a30566e2048f97bfb9dd01bb6985a6fa1dd4af29192"
+    },
+    {
+      "api": "VTextField",
+      "selector": ".v-text-field",
+      "source": "src/components/v_text_field.dart",
+      "sha256": "48d8e95c0df4cba66d2f480523c476a740924f9d54d1f7c680e85e4e24973dfb"
+    },
+    {
+      "api": "VTextArea",
+      "selector": ".v-text-area",
+      "source": "src/components/v_text_area.dart",
+      "sha256": "b5cc5a0fcd542c28c7871f75f129a05f489cc1e9546f97868a16e77c8ccbebd9"
+    },
+    {
+      "api": "VTextFormField",
+      "selector": ".v-text-form-field",
+      "source": "src/components/v_text_form_field.dart",
+      "sha256": "11ba84273e1bdd4625d21f3176ffc8b50ce38ea9ef39e983ad27b9e938fb728d"
+    },
+    {
+      "api": "VVerificationCodeField",
+      "selector": ".v-verification",
+      "source": "src/components/v_verification_code_field.dart",
+      "sha256": "55a89f08f991ca7703e2ea961b33ed4eb4eea686966b9f2c697eb3cc193c5956"
+    },
+    {
+      "api": "VSearchBar",
+      "selector": ".v-search-bar",
+      "source": "src/components/v_search_bar.dart",
+      "sha256": "aa3dadaab4cc605d17c297f73810a2b09b2183fd35d96b0d5d3f177810e694a5"
+    },
+    {
+      "api": "VTabs",
+      "selector": ".v-tabs",
+      "source": "src/components/v_tabs.dart",
+      "sha256": "0c9408b8bd4720a24f8bd092c686ea7b7fd789b94f0e4aadf765f7c76039ad63"
+    },
+    {
+      "api": "VTabsList",
+      "selector": ".v-tabs__list",
+      "source": "src/components/v_tabs.dart",
+      "sha256": "0c9408b8bd4720a24f8bd092c686ea7b7fd789b94f0e4aadf765f7c76039ad63"
+    },
+    {
+      "api": "VTabsTrigger",
+      "selector": ".v-tabs__trigger",
+      "source": "src/components/v_tabs.dart",
+      "sha256": "0c9408b8bd4720a24f8bd092c686ea7b7fd789b94f0e4aadf765f7c76039ad63"
+    },
+    {
+      "api": "VTabsContent",
+      "selector": ".v-tabs__content",
+      "source": "src/components/v_tabs.dart",
+      "sha256": "0c9408b8bd4720a24f8bd092c686ea7b7fd789b94f0e4aadf765f7c76039ad63"
+    },
+    {
+      "api": "VEmptyState",
+      "selector": ".v-empty-state",
+      "source": "src/components/v_empty_state.dart",
+      "sha256": "c362798ff7fa1435d9eb421d12b35526308a401914dfc6b632b8f0310159a3db"
+    },
+    {
+      "api": "VEmptyHeader",
+      "selector": ".v-empty-state__header",
+      "source": "src/components/v_empty_state.dart",
+      "sha256": "c362798ff7fa1435d9eb421d12b35526308a401914dfc6b632b8f0310159a3db"
+    },
+    {
+      "api": "VEmptyMedia",
+      "selector": ".v-empty-state__media",
+      "source": "src/components/v_empty_state.dart",
+      "sha256": "c362798ff7fa1435d9eb421d12b35526308a401914dfc6b632b8f0310159a3db"
+    },
+    {
+      "api": "VEmptyTitle",
+      "selector": ".v-empty-state__title",
+      "source": "src/components/v_empty_state.dart",
+      "sha256": "c362798ff7fa1435d9eb421d12b35526308a401914dfc6b632b8f0310159a3db"
+    },
+    {
+      "api": "VEmptyDescription",
+      "selector": ".v-empty-state__description",
+      "source": "src/components/v_empty_state.dart",
+      "sha256": "c362798ff7fa1435d9eb421d12b35526308a401914dfc6b632b8f0310159a3db"
+    },
+    {
+      "api": "VEmptyContent",
+      "selector": ".v-empty-state__content",
+      "source": "src/components/v_empty_state.dart",
+      "sha256": "c362798ff7fa1435d9eb421d12b35526308a401914dfc6b632b8f0310159a3db"
+    },
+    {
+      "api": "VFileDropZone",
+      "selector": ".v-dropzone",
+      "source": "src/components/v_file_drop_zone.dart",
+      "sha256": "4e1530d13156ae0308fad5bd8f9071a4dc4b20dfbb1f7b68f09d744a0aecf36b"
+    },
+    {
+      "api": "VToast",
+      "selector": ".v-toast",
+      "source": "src/components/v_toast.dart",
+      "sha256": "47c88874faa7311c217d209ed50ef25aaae7fadb05967179b77f527d83e42aac"
+    },
+    {
+      "api": "VCombobox",
+      "selector": ".v-combobox",
+      "source": "src/components/v_combobox.dart",
+      "sha256": "23f43bcbc7fbe6c4ff5f019f0bb6593e20255e88ced5b753224bce5e1afc81fa"
+    },
+    {
+      "api": "VComboboxEmpty",
+      "selector": ".v-combobox__empty",
+      "source": "src/components/v_combobox_empty.dart",
+      "sha256": "2baea5e35f2e7da72f1a59fb78b5c08d452b141591f7e540b52683f20973d773"
+    },
+    {
+      "api": "VComboboxInput",
+      "selector": ".v-combobox__input",
+      "source": "src/components/v_combobox_input.dart",
+      "sha256": "81d90e6806c197c094d7bb0621966bcbe37d2dfb51de62353d47123eac0da061"
+    },
+    {
+      "api": "VComboboxContent",
+      "selector": ".v-combobox__content",
+      "source": "src/components/v_combobox_content.dart",
+      "sha256": "75d5da47bff697781909caff9e973e1572d616ba0af9b62ee48b926cd0c6a1ee"
+    },
+    {
+      "api": "VComboboxList",
+      "selector": ".v-combobox__list",
+      "source": "src/components/v_combobox_list.dart",
+      "sha256": "1f70e65ffb6c1f9e4a671996af5d45f355104f3c705a5788fffb6e13396482b3"
+    },
+    {
+      "api": "VComboboxItem",
+      "selector": ".v-combobox__item",
+      "source": "src/components/v_combobox_item.dart",
+      "sha256": "d08ff72c23480e94581e23082b0a9c54ede015ab28830f1ed9458f50d9f41f1c"
+    },
+    {
+      "api": "VComboboxFooter",
+      "selector": ".v-combobox__footer",
+      "source": "src/components/v_combobox_footer.dart",
+      "sha256": "348f1f39f16ffb95cde797c80995b020802936b48f5ecdea4638f0186d3a2cc5"
+    },
+    {
+      "api": "VBottomNavigationBar",
+      "selector": ".v-bottom-nav",
+      "source": "src/components/v_bottom_navigation_bar.dart",
+      "sha256": "3fd4247aa84acde41cba2098d6d438d5e56e39c434ac8ec5724f161740fba186"
+    },
+    {
+      "api": "VConfirmDialog",
+      "selector": ".v-confirm-dialog",
+      "source": "src/components/v_modal.dart",
+      "sha256": "a6d56e616522b4b5c28250e9b8bb2459137146d7a171f94651534a7454eb4658"
+    },
+    {
+      "api": "VBottomSheet",
+      "selector": ".v-bottom-sheet",
+      "source": "src/components/v_bottom_sheet.dart",
+      "sha256": "ca8cb382a448697f994222d1dd5158ca94117b09a0b702a7b856c9a428d26e04"
+    },
+    {
+      "api": "VAppBarTitle",
+      "selector": ".v-appbar__title",
+      "source": "src/components/v_app_bar.dart",
+      "sha256": "787274405cefe4ec7d08a0ee3fc4061a770d696c0236eec533f9d8200cda517f"
+    },
+    {
+      "api": "VAppBarSubtitle",
+      "selector": ".v-appbar__subtitle",
+      "source": "src/components/v_app_bar.dart",
+      "sha256": "787274405cefe4ec7d08a0ee3fc4061a770d696c0236eec533f9d8200cda517f"
+    },
+    {
+      "api": "VAppBar",
+      "selector": ".v-appbar",
+      "source": "src/components/v_app_bar.dart",
+      "sha256": "787274405cefe4ec7d08a0ee3fc4061a770d696c0236eec533f9d8200cda517f"
+    },
+    {
+      "api": "VTable",
+      "selector": ".v-table",
+      "source": "src/components/v_table.dart",
+      "sha256": "2bd52d48651696b1735930d93db2615f0d086da089ecc5842efc1b8248031c74"
+    },
+    {
+      "api": "VLoading",
+      "selector": ".v-loading",
+      "source": "src/components/v_loading.dart",
+      "sha256": "993eec5839d294cd0256ce77e6052b6a30d25c7798db972ebee714dec4c8745a"
+    },
+    {
+      "api": "VSteps",
+      "selector": ".v-steps",
+      "source": "src/components/v_steps.dart",
+      "sha256": "c657ef78e01ef3676b5027ac7aa92e1452e3b312edb02bb5410d8f6c7ff25cb6"
+    },
+    {
+      "api": "VProgress",
+      "selector": ".v-progress",
+      "source": "src/components/v_progress.dart",
+      "sha256": "9de835ac6c2f1ca0f1ecd4f3f1c1e6e742f13845a6ec4a9f68bb710c7574f527"
+    },
+    {
+      "api": "VSegmentedControl",
+      "selector": ".v-segmented",
+      "source": "src/components/v_segmented_control.dart",
+      "sha256": "5c00f25387030afbe8c3dcae6bc5ef1002e52c5b92d94e1830211def1d1cd2da"
+    },
+    {
+      "api": "VNumericKeypadSheet",
+      "selector": ".v-keypad-sheet",
+      "source": "src/components/v_numeric_keypad_sheet.dart",
+      "sha256": "351227f95f3423372292ac166508fb89a2b671ff29abde759abff8e74b3e14f2"
+    },
+    {
+      "api": "VSwipeReveal",
+      "selector": ".v-swipe-reveal",
+      "source": "src/components/v_swipe_reveal.dart",
+      "sha256": "f1e9a6eca047e65d6f474010d30c323667a8b56d45ec49601d59210844f471c1"
+    },
+    {
+      "api": "VPhoneField",
+      "selector": ".v-phone-field",
+      "source": "src/forms/v_phone_field.dart",
+      "sha256": "92782a9bcea6754367a448d234889f5aad4fe23d5f2bff06381374144509876a"
+    },
+    {
+      "api": "VEmailField",
+      "selector": ".v-email-field",
+      "source": "src/forms/v_email_field.dart",
+      "sha256": "3ddecc14a16fcddfd7976a676fd1756089ba6013ed656f4956ee151c3ced23e8"
+    },
+    {
+      "api": "VPasswordField",
+      "selector": ".v-password-field",
+      "source": "src/forms/v_password_field.dart",
+      "sha256": "86efa90268388cb889090da3e72891871a5a560bb667feb67bf6a97b53dbbb87"
+    },
+    {
+      "api": "VMoneyField",
+      "selector": ".v-money-field",
+      "source": "src/forms/v_money_field.dart",
+      "sha256": "64b789ebd846f039d248229a3609874a780041aad47c28bd7c54a06d5c0cc542"
+    },
+    {
+      "api": "VNumberField",
+      "selector": ".v-number-field",
+      "source": "src/forms/v_number_field.dart",
+      "sha256": "436655263f0afbe0589b9561c2a5c209ab864a31e29d83f9363bb8d2737f5823"
+    },
+    {
+      "api": "VSelect",
+      "selector": ".v-select",
+      "source": "src/forms/v_select.dart",
+      "sha256": "107da8b36900d5f4ce7cfa7c211a1d834dd2b9bea7effc75111a3e4d3e3ae2bf"
+    },
+    {
+      "api": "VChoiceList",
+      "selector": ".v-choice-list",
+      "source": "src/forms/v_choice_list.dart",
+      "sha256": "bc8b187271372585232bba7d8a4cf359ad7069bb06f9c016b8a388f3e35817cf"
+    },
+    {
+      "api": "VDatePicker",
+      "selector": ".v-date-picker",
+      "source": "src/forms/v_date_picker.dart",
+      "sha256": "811d608d81c3bca57c50cd0672cb290898cfa4a7c3862934d19bde7ffb910cec"
+    }
+  ]
+}

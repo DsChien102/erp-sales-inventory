@@ -1,0 +1,22 @@
+{
+  "version": "5.28.0",
+  "parent": "5.26.1",
+  "status": "T7_G4_SPEC_FREEZE",
+  "scope": "T7-G4: chốt đặc tả FROZEN; không đổi giao diện",
+  "flows": 18,
+  "screens": 89,
+  "canonicalActiveScreens": 70,
+  "inspect": true,
+  "structure": {
+    "html": "index.html",
+    "styles": ["styles/tokens.css", "styles/components.css", "harness/workbench.css", "styles/screens.css"],
+    "scripts": ["data/workbench-data.js", "app/core.js", "harness/figma-ds-map.js", "harness/workbench.js", "app/shared-control.js", "app/shared-valuation.js", "app/shared-patterns.js", "app/shared-problem.js", "app/bj01.js", "app/shared-ledger.js", "app/bj02.js…bj17.js", "app/cap01.js", "app/hub.js"],
+    "golden": "tools/golden.mjs"
+  },
+  "authority": {
+    "business": "Product documents / BJ / flow / decision / contract decide business requirements, UX flow, business rules, information and user behavior.",
+    "figmaDesignSystem": "Figma Design System is the UI authority for components, patterns, templates, tokens, typography, spacing, state, interaction conventions and visual rules.",
+    "htmlPrototype": "HTML prototype is the design/verification medium and must implement both the product documents and the Figma Design System; it does not invent business rules or UI conventions.",
+    "implementation": "Production code decides the technical implementation."
+  }
+}

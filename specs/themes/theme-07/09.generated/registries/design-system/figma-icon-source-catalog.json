@@ -1,0 +1,424 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "componentsPage": "505:5890",
+    "patternsTemplatesPage": "505:5891",
+    "capturedAt": "2026-09-08"
+  },
+  "rule": "These are exact li:* glyph components referenced by canonical DS masters/templates. Business-specific glyph choices not already prescribed by a DS master must be resolved live in Figma during UIF migration; never infer from the legacy SVG map.",
+  "componentMasterReferences": [
+    {
+      "name": "li:arrow-down-right",
+      "key": "0186ce2d20ee74e331e79f2269fb5c474b159bfc",
+      "id": "494:4196",
+      "remote": true
+    },
+    {
+      "name": "li:arrow-up-right",
+      "key": "0a34655333d3c49615b09826217f58dabf9a922a",
+      "id": "494:4265",
+      "remote": true
+    },
+    {
+      "name": "li:badge-percent",
+      "key": "44439c2c1e40dcfb4f0e0aa4d73c31c04a8824c1",
+      "id": "1690:16262",
+      "remote": false
+    },
+    {
+      "name": "li:badge-percent",
+      "key": "04ec131e4ccddf4168bcc354e8aabd0ef18fa69b",
+      "id": "494:4340",
+      "remote": true
+    },
+    {
+      "name": "li:banknote-arrow-down",
+      "key": "3fe0cd0590681933bf860b22a492a8687f5a3907",
+      "id": "494:4379",
+      "remote": false
+    },
+    {
+      "name": "li:building-2",
+      "key": "c69acd950af315480fc003f0b3b6a8fb00c40c74",
+      "id": "494:4702",
+      "remote": true
+    },
+    {
+      "name": "li:calendar",
+      "key": "b145e2311e35496c0dd8df532ae1cce4f6ee3702",
+      "id": "494:4726",
+      "remote": true
+    },
+    {
+      "name": "li:check",
+      "key": "1965829e3c8953a4cb56a6ba597bcd6829756e17",
+      "id": "494:4926",
+      "remote": true
+    },
+    {
+      "name": "li:chevron-down",
+      "key": "0c36ca366d199b0e8fddb70d85d4515dc0d61454",
+      "id": "494:4952",
+      "remote": true
+    },
+    {
+      "name": "li:chevron-left",
+      "key": "0fb8ebae3e15b93a8a6bb80d3c55772db2135208",
+      "id": "494:4961",
+      "remote": true
+    },
+    {
+      "name": "li:chevron-right",
+      "key": "ad4feedd9d8561b04fffd066f6b77c5375b48458",
+      "id": "494:4964",
+      "remote": true
+    },
+    {
+      "name": "li:chevron-up",
+      "key": "5caa1839f875b387282f19cbf6fbee54bc56a75c",
+      "id": "494:4967",
+      "remote": true
+    },
+    {
+      "name": "li:circle-check",
+      "key": "419061d90ff75037a85e03e6e3f788ae88b95610",
+      "id": "494:5039",
+      "remote": true
+    },
+    {
+      "name": "li:circle-x",
+      "key": "3b13b73b7def76b8d189c56b95ddc3ee15a72921",
+      "id": "494:5140",
+      "remote": true
+    },
+    {
+      "name": "li:clock",
+      "key": "63280e83c68d15ea1d0553e06d7bc4eef7d292ad",
+      "id": "494:5187",
+      "remote": true
+    },
+    {
+      "name": "li:cloud-upload",
+      "key": "28a0dc9ad48c3fb1c09565aa1c13307924b0b344",
+      "id": "494:5296",
+      "remote": true
+    },
+    {
+      "name": "li:ellipsis",
+      "key": "bb5a149053fbc6e51d5311d108553773ec42881e",
+      "id": "494:5629",
+      "remote": true
+    },
+    {
+      "name": "li:file-up",
+      "key": "04b68696b5235d3464a7d0e5736800a3a751aba8",
+      "id": "494:5831",
+      "remote": true
+    },
+    {
+      "name": "li:handshake",
+      "key": "bbe04cd90610482d23fba7a1aec0e7dad95ca0ae",
+      "id": "494:6238",
+      "remote": true
+    },
+    {
+      "name": "li:house",
+      "key": "46444f47f29160537c7e7523c518e9beaa671423",
+      "id": "494:6344",
+      "remote": true
+    },
+    {
+      "name": "li:image",
+      "key": "20f279ef18206e8361ea60b82c7820ea851e1777",
+      "id": "494:6368",
+      "remote": true
+    },
+    {
+      "name": "li:info",
+      "key": "62f6982f738e869eec81d6c14333826f21776687",
+      "id": "494:6406",
+      "remote": true
+    },
+    {
+      "name": "li:loader-circle",
+      "key": "8b077743c4a819b572fe84109c521c7ec648ea3c",
+      "id": "494:6627",
+      "remote": true
+    },
+    {
+      "name": "li:logs",
+      "key": "29c4235c2a5cf08d86bd37369f0aae042ae268f4",
+      "id": "494:6660",
+      "remote": true
+    },
+    {
+      "name": "li:package",
+      "key": "acdf49978f631df4c679b816526a2827c52d09cf",
+      "id": "494:7107",
+      "remote": true
+    },
+    {
+      "name": "li:pencil",
+      "key": "c3ac25939032d33064a94358cb7d485c8479b4f6",
+      "id": "494:7242",
+      "remote": true
+    },
+    {
+      "name": "li:plus",
+      "key": "7cc94a26865f3114720da05173563ab01da707d3",
+      "id": "494:7353",
+      "remote": true
+    },
+    {
+      "name": "li:receipt-text",
+      "key": "9bbd744f60eb2b13e5f813b94cdf8c332baf4a57",
+      "id": "494:7473",
+      "remote": true
+    },
+    {
+      "name": "li:search",
+      "key": "36c3cc91f55e529cb77979bd657bf4f57c6477e8",
+      "id": "494:7692",
+      "remote": true
+    },
+    {
+      "name": "li:search-x",
+      "key": "de58237079b30a9f050cc9c1f28cf0562c7f1ad7",
+      "id": "494:7706",
+      "remote": true
+    },
+    {
+      "name": "li:shield-alert",
+      "key": "5b6e0cfa49664095455e5f16455afcb5f0d147ad",
+      "id": "494:7763",
+      "remote": true
+    },
+    {
+      "name": "li:tag",
+      "key": "a3b9ccc12edae0e2df462854194ef0475320153b",
+      "id": "1041:9974",
+      "remote": false
+    },
+    {
+      "name": "li:tag",
+      "key": "3d247425dfb80f50669340334976fd61cba62b2c",
+      "id": "494:8284",
+      "remote": true
+    },
+    {
+      "name": "li:trash-2",
+      "key": "f2a5e23235490760c9d5f8684fd9ff87cc6062c7",
+      "id": "494:8471",
+      "remote": true
+    },
+    {
+      "name": "li:triangle-alert",
+      "key": "cfc0efdfbae8a3c5a3fdea2d278b681b642231b6",
+      "id": "494:8501",
+      "remote": true
+    },
+    {
+      "name": "li:user",
+      "key": "89a8a9148395f89a529a594f60eb06a4449012f0",
+      "id": "494:8590",
+      "remote": true
+    },
+    {
+      "name": "li:users",
+      "key": "7b8bd4c02b98920a0c077f4ef776135becc53872",
+      "id": "494:8642",
+      "remote": true
+    },
+    {
+      "name": "li:x",
+      "key": "5322b5c557f5a6acfdaed21f18a1b693a9a950be",
+      "id": "494:8822",
+      "remote": true
+    }
+  ],
+  "patternTemplateReferences": [
+    {
+      "name": "li:building-2",
+      "key": "c69acd950af315480fc003f0b3b6a8fb00c40c74",
+      "id": "494:4702",
+      "remote": true
+    },
+    {
+      "name": "li:calendar",
+      "key": "b145e2311e35496c0dd8df532ae1cce4f6ee3702",
+      "id": "494:4726",
+      "remote": true
+    },
+    {
+      "name": "li:check",
+      "key": "1965829e3c8953a4cb56a6ba597bcd6829756e17",
+      "id": "494:4926",
+      "remote": true
+    },
+    {
+      "name": "li:chevron-down",
+      "key": "0c36ca366d199b0e8fddb70d85d4515dc0d61454",
+      "id": "494:4952",
+      "remote": true
+    },
+    {
+      "name": "li:chevron-left",
+      "key": "0fb8ebae3e15b93a8a6bb80d3c55772db2135208",
+      "id": "494:4961",
+      "remote": true
+    },
+    {
+      "name": "li:chevron-right",
+      "key": "ad4feedd9d8561b04fffd066f6b77c5375b48458",
+      "id": "494:4964",
+      "remote": true
+    },
+    {
+      "name": "li:circle-check",
+      "key": "419061d90ff75037a85e03e6e3f788ae88b95610",
+      "id": "494:5039",
+      "remote": true
+    },
+    {
+      "name": "li:circle-x",
+      "key": "3b13b73b7def76b8d189c56b95ddc3ee15a72921",
+      "id": "494:5140",
+      "remote": true
+    },
+    {
+      "name": "li:ellipsis",
+      "key": "bb5a149053fbc6e51d5311d108553773ec42881e",
+      "id": "494:5629",
+      "remote": true
+    },
+    {
+      "name": "li:handshake",
+      "key": "bbe04cd90610482d23fba7a1aec0e7dad95ca0ae",
+      "id": "494:6238",
+      "remote": true
+    },
+    {
+      "name": "li:house",
+      "key": "46444f47f29160537c7e7523c518e9beaa671423",
+      "id": "494:6344",
+      "remote": true
+    },
+    {
+      "name": "li:image",
+      "key": "20f279ef18206e8361ea60b82c7820ea851e1777",
+      "id": "494:6368",
+      "remote": true
+    },
+    {
+      "name": "li:info",
+      "key": "62f6982f738e869eec81d6c14333826f21776687",
+      "id": "494:6406",
+      "remote": true
+    },
+    {
+      "name": "li:loader-circle",
+      "key": "8b077743c4a819b572fe84109c521c7ec648ea3c",
+      "id": "494:6627",
+      "remote": true
+    },
+    {
+      "name": "li:logs",
+      "key": "29c4235c2a5cf08d86bd37369f0aae042ae268f4",
+      "id": "494:6660",
+      "remote": true
+    },
+    {
+      "name": "li:package",
+      "key": "acdf49978f631df4c679b816526a2827c52d09cf",
+      "id": "494:7107",
+      "remote": true
+    },
+    {
+      "name": "li:pause",
+      "key": "5bd95750f6b74f7cd5d2d13527d5c0778bad1570",
+      "id": "861:8617",
+      "remote": false
+    },
+    {
+      "name": "li:pause",
+      "key": "e91aa77fc00fdb8c609f871a49c818a7b5e4e223",
+      "id": "494:7221",
+      "remote": true
+    },
+    {
+      "name": "li:pencil",
+      "key": "e25a4f496f52810aad39417acd5384f97aed7780",
+      "id": "861:8612",
+      "remote": false
+    },
+    {
+      "name": "li:pencil",
+      "key": "c3ac25939032d33064a94358cb7d485c8479b4f6",
+      "id": "494:7242",
+      "remote": true
+    },
+    {
+      "name": "li:plus",
+      "key": "7cc94a26865f3114720da05173563ab01da707d3",
+      "id": "494:7353",
+      "remote": true
+    },
+    {
+      "name": "li:receipt-text",
+      "key": "9bbd744f60eb2b13e5f813b94cdf8c332baf4a57",
+      "id": "494:7473",
+      "remote": true
+    },
+    {
+      "name": "li:search",
+      "key": "36c3cc91f55e529cb77979bd657bf4f57c6477e8",
+      "id": "494:7692",
+      "remote": true
+    },
+    {
+      "name": "li:sliders-horizontal",
+      "key": "31647653ef77a5ebff784ba7fe631a932170b60e",
+      "id": "494:7880",
+      "remote": true
+    },
+    {
+      "name": "li:trash-2",
+      "key": "f2a5e23235490760c9d5f8684fd9ff87cc6062c7",
+      "id": "494:8471",
+      "remote": true
+    },
+    {
+      "name": "li:triangle-alert",
+      "key": "cfc0efdfbae8a3c5a3fdea2d278b681b642231b6",
+      "id": "494:8501",
+      "remote": true
+    },
+    {
+      "name": "li:user",
+      "key": "89a8a9148395f89a529a594f60eb06a4449012f0",
+      "id": "494:8590",
+      "remote": true
+    },
+    {
+      "name": "li:users",
+      "key": "7b8bd4c02b98920a0c077f4ef776135becc53872",
+      "id": "494:8642",
+      "remote": true
+    },
+    {
+      "name": "li:x",
+      "key": "5322b5c557f5a6acfdaed21f18a1b693a9a950be",
+      "id": "494:8822",
+      "remote": true
+    }
+  ],
+  "fullExposedCatalogLock": {
+    "count": 1676,
+    "remote": 1514,
+    "local": 162,
+    "signatureFNV1a32": "c5105795",
+    "lockFile": "FIGMA-DS-ICON-SOURCE-LOCK.json"
+  },
+  "assetPolicy": "Only exact Figma-exported/downloaded glyph bytes may enter migrated Product UI. The catalog is resolved by component key, not by visual/name approximation."
+}

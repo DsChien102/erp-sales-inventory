@@ -1,0 +1,895 @@
+{
+  "schemaVersion": 2,
+  "source": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "designSystemVersion": "2.0.2",
+    "lastUpdated": "26 August 2026",
+    "capturedAt": "2026-09-08",
+    "pages": {
+      "foundations": "505:5889",
+      "components": "505:5890",
+      "patternsTemplates": "505:5891"
+    },
+    "liveSignatures": {
+      "variables": "027dd249",
+      "textStyles": "e1352aec",
+      "paintStyles": "60a9a541",
+      "effectStyles": "12a169c3",
+      "iconWrappers": "ebd6e207",
+      "localLiIconCache": "3136211b",
+      "components": "ce8775fc",
+      "patternsTemplates": "560ffa37"
+    }
+  },
+  "collections": [
+    {
+      "id": "VariableCollectionId:511:38",
+      "name": "Mosaic Retail v2 / Color Primitive",
+      "mode": "Base",
+      "modeId": "511:0",
+      "count": 39,
+      "variables": [
+        {
+          "name": "Primary/50",
+          "web": "var(--c45-v2-primary-50)",
+          "cssName": "--c45-v2-primary-50",
+          "value": "#F1F9F2",
+          "cssValue": "#F1F9F2"
+        },
+        {
+          "name": "Primary/100",
+          "web": "var(--c45-v2-primary-100)",
+          "cssName": "--c45-v2-primary-100",
+          "value": "#DCEFDE",
+          "cssValue": "#DCEFDE"
+        },
+        {
+          "name": "Primary/200",
+          "web": "var(--c45-v2-primary-200)",
+          "cssName": "--c45-v2-primary-200",
+          "value": "#B8DFBD",
+          "cssValue": "#B8DFBD"
+        },
+        {
+          "name": "Primary/300",
+          "web": "var(--c45-v2-primary-300)",
+          "cssName": "--c45-v2-primary-300",
+          "value": "#8DCB96",
+          "cssValue": "#8DCB96"
+        },
+        {
+          "name": "Primary/400",
+          "web": "var(--c45-v2-primary-400)",
+          "cssName": "--c45-v2-primary-400",
+          "value": "#5FB36C",
+          "cssValue": "#5FB36C"
+        },
+        {
+          "name": "Primary/500",
+          "web": "var(--c45-v2-primary-500)",
+          "cssName": "--c45-v2-primary-500",
+          "value": "#3B9448",
+          "cssValue": "#3B9448"
+        },
+        {
+          "name": "Primary/600",
+          "web": "var(--c45-v2-primary-600)",
+          "cssName": "--c45-v2-primary-600",
+          "value": "#2F7A3A",
+          "cssValue": "#2F7A3A"
+        },
+        {
+          "name": "Primary/700",
+          "web": "var(--c45-v2-primary-700)",
+          "cssName": "--c45-v2-primary-700",
+          "value": "#26612F",
+          "cssValue": "#26612F"
+        },
+        {
+          "name": "Primary/800",
+          "web": "var(--c45-v2-primary-800)",
+          "cssName": "--c45-v2-primary-800",
+          "value": "#1F4D26",
+          "cssValue": "#1F4D26"
+        },
+        {
+          "name": "Primary/900",
+          "web": "var(--c45-v2-primary-900)",
+          "cssName": "--c45-v2-primary-900",
+          "value": "#163A1C",
+          "cssValue": "#163A1C"
+        },
+        {
+          "name": "Primary/Surface",
+          "web": "var(--c45-v2-primary-surface)",
+          "cssName": "--c45-v2-primary-surface",
+          "value": "#EBF4EC",
+          "cssValue": "#EBF4EC"
+        },
+        {
+          "name": "Neutral/0",
+          "web": "var(--c45-v2-neutral-0)",
+          "cssName": "--c45-v2-neutral-0",
+          "value": "#FFFFFF",
+          "cssValue": "#FFFFFF"
+        },
+        {
+          "name": "Neutral/50",
+          "web": "var(--c45-v2-neutral-50)",
+          "cssName": "--c45-v2-neutral-50",
+          "value": "#F8FAFB",
+          "cssValue": "#F8FAFB"
+        },
+        {
+          "name": "Neutral/100",
+          "web": "var(--c45-v2-neutral-100)",
+          "cssName": "--c45-v2-neutral-100",
+          "value": "#F6F8F9",
+          "cssValue": "#F6F8F9"
+        },
+        {
+          "name": "Neutral/200",
+          "web": "var(--c45-v2-neutral-200)",
+          "cssName": "--c45-v2-neutral-200",
+          "value": "#E5E8EB",
+          "cssValue": "#E5E8EB"
+        },
+        {
+          "name": "Neutral/300",
+          "web": "var(--c45-v2-neutral-300)",
+          "cssName": "--c45-v2-neutral-300",
+          "value": "#D0D5DA",
+          "cssValue": "#D0D5DA"
+        },
+        {
+          "name": "Neutral/400",
+          "web": "var(--c45-v2-neutral-400)",
+          "cssName": "--c45-v2-neutral-400",
+          "value": "#9AA3AD",
+          "cssValue": "#9AA3AD"
+        },
+        {
+          "name": "Neutral/500",
+          "web": "var(--c45-v2-neutral-500)",
+          "cssName": "--c45-v2-neutral-500",
+          "value": "#6B7480",
+          "cssValue": "#6B7480"
+        },
+        {
+          "name": "Neutral/600",
+          "web": "var(--c45-v2-neutral-600)",
+          "cssName": "--c45-v2-neutral-600",
+          "value": "#4A535E",
+          "cssValue": "#4A535E"
+        },
+        {
+          "name": "Neutral/700",
+          "web": "var(--c45-v2-neutral-700)",
+          "cssName": "--c45-v2-neutral-700",
+          "value": "#2F3640",
+          "cssValue": "#2F3640"
+        },
+        {
+          "name": "Neutral/900",
+          "web": "var(--c45-v2-neutral-900)",
+          "cssName": "--c45-v2-neutral-900",
+          "value": "#0E1116",
+          "cssValue": "#0E1116"
+        },
+        {
+          "name": "Success/50",
+          "web": "var(--c45-v2-success-50)",
+          "cssName": "--c45-v2-success-50",
+          "value": "alias:Primary/100",
+          "cssValue": "var(--c45-v2-primary-100)"
+        },
+        {
+          "name": "Success/500",
+          "web": "var(--c45-v2-success-500)",
+          "cssName": "--c45-v2-success-500",
+          "value": "alias:Primary/500",
+          "cssValue": "var(--c45-v2-primary-500)"
+        },
+        {
+          "name": "Warning/50",
+          "web": "var(--c45-v2-warning-50)",
+          "cssName": "--c45-v2-warning-50",
+          "value": "#FDF3E0",
+          "cssValue": "#FDF3E0"
+        },
+        {
+          "name": "Warning/100",
+          "web": "var(--c45-v2-warning-100)",
+          "cssName": "--c45-v2-warning-100",
+          "value": "#FBE9C6",
+          "cssValue": "#FBE9C6"
+        },
+        {
+          "name": "Warning/200",
+          "web": "var(--c45-v2-warning-200)",
+          "cssName": "--c45-v2-warning-200",
+          "value": "#F7D48E",
+          "cssValue": "#F7D48E"
+        },
+        {
+          "name": "Warning/300",
+          "web": "var(--c45-v2-warning-300)",
+          "cssName": "--c45-v2-warning-300",
+          "value": "#F0BC4E",
+          "cssValue": "#F0BC4E"
+        },
+        {
+          "name": "Warning/400",
+          "web": "var(--c45-v2-warning-400)",
+          "cssName": "--c45-v2-warning-400",
+          "value": "#E5A41F",
+          "cssValue": "#E5A41F"
+        },
+        {
+          "name": "Warning/500",
+          "web": "var(--c45-v2-warning-500)",
+          "cssName": "--c45-v2-warning-500",
+          "value": "#D98A0B",
+          "cssValue": "#D98A0B"
+        },
+        {
+          "name": "Warning/600",
+          "web": "var(--c45-v2-warning-600)",
+          "cssName": "--c45-v2-warning-600",
+          "value": "#B87209",
+          "cssValue": "#B87209"
+        },
+        {
+          "name": "Warning/700",
+          "web": "var(--c45-v2-warning-700)",
+          "cssName": "--c45-v2-warning-700",
+          "value": "#935A0A",
+          "cssValue": "#935A0A"
+        },
+        {
+          "name": "Warning/800",
+          "web": "var(--c45-v2-warning-800)",
+          "cssName": "--c45-v2-warning-800",
+          "value": "#70450C",
+          "cssValue": "#70450C"
+        },
+        {
+          "name": "Warning/900",
+          "web": "var(--c45-v2-warning-900)",
+          "cssName": "--c45-v2-warning-900",
+          "value": "#53330D",
+          "cssValue": "#53330D"
+        },
+        {
+          "name": "Danger/50",
+          "web": "var(--c45-v2-danger-50)",
+          "cssName": "--c45-v2-danger-50",
+          "value": "#FBE8E8",
+          "cssValue": "#FBE8E8"
+        },
+        {
+          "name": "Danger/500",
+          "web": "var(--c45-v2-danger-500)",
+          "cssName": "--c45-v2-danger-500",
+          "value": "#D14343",
+          "cssValue": "#D14343"
+        },
+        {
+          "name": "Info/50",
+          "web": "var(--c45-v2-info-50)",
+          "cssName": "--c45-v2-info-50",
+          "value": "#E8F0FC",
+          "cssValue": "#E8F0FC"
+        },
+        {
+          "name": "Info/500",
+          "web": "var(--c45-v2-info-500)",
+          "cssName": "--c45-v2-info-500",
+          "value": "#2F6FE0",
+          "cssValue": "#2F6FE0"
+        },
+        {
+          "name": "Overlay/Black-48",
+          "web": "var(--c45-v2-overlay-black-48)",
+          "cssName": "--c45-v2-overlay-black-48",
+          "value": "#0E11167A",
+          "cssValue": "#0E11167A"
+        },
+        {
+          "name": "State/Focus-12",
+          "web": "var(--c45-v2-state-focus-12)",
+          "cssName": "--c45-v2-state-focus-12",
+          "value": "#3B94481F",
+          "cssValue": "#3B94481F"
+        }
+      ]
+    },
+    {
+      "id": "VariableCollectionId:511:39",
+      "name": "Mosaic Retail v2 / Color Semantic",
+      "mode": "Light",
+      "modeId": "511:1",
+      "count": 44,
+      "variables": [
+        {
+          "name": "Surface/Canvas",
+          "web": "var(--c45-v2-surface-canvas)",
+          "cssName": "--c45-v2-surface-canvas",
+          "value": "alias:Neutral/100",
+          "cssValue": "var(--c45-v2-neutral-100)"
+        },
+        {
+          "name": "Surface/Default",
+          "web": "var(--c45-v2-surface-default)",
+          "cssName": "--c45-v2-surface-default",
+          "value": "alias:Neutral/0",
+          "cssValue": "var(--c45-v2-neutral-0)"
+        },
+        {
+          "name": "Surface/Subtle",
+          "web": "var(--c45-v2-surface-subtle)",
+          "cssName": "--c45-v2-surface-subtle",
+          "value": "alias:Neutral/200",
+          "cssValue": "var(--c45-v2-neutral-200)"
+        },
+        {
+          "name": "Surface/Brand",
+          "web": "var(--c45-v2-surface-brand)",
+          "cssName": "--c45-v2-surface-brand",
+          "value": "alias:Primary/Surface",
+          "cssValue": "var(--c45-v2-primary-surface)"
+        },
+        {
+          "name": "Surface/Success",
+          "web": "var(--c45-v2-surface-success)",
+          "cssName": "--c45-v2-surface-success",
+          "value": "alias:Success/50",
+          "cssValue": "var(--c45-v2-success-50)"
+        },
+        {
+          "name": "Surface/Warning",
+          "web": "var(--c45-v2-surface-warning)",
+          "cssName": "--c45-v2-surface-warning",
+          "value": "alias:Warning/50",
+          "cssValue": "var(--c45-v2-warning-50)"
+        },
+        {
+          "name": "Surface/Danger",
+          "web": "var(--c45-v2-surface-danger)",
+          "cssName": "--c45-v2-surface-danger",
+          "value": "alias:Danger/50",
+          "cssValue": "var(--c45-v2-danger-50)"
+        },
+        {
+          "name": "Surface/Info",
+          "web": "var(--c45-v2-surface-info)",
+          "cssName": "--c45-v2-surface-info",
+          "value": "alias:Info/50",
+          "cssValue": "var(--c45-v2-info-50)"
+        },
+        {
+          "name": "Surface/Toast",
+          "web": "var(--c45-v2-surface-toast)",
+          "cssName": "--c45-v2-surface-toast",
+          "value": "alias:Neutral/900",
+          "cssValue": "var(--c45-v2-neutral-900)"
+        },
+        {
+          "name": "Surface/Overlay",
+          "web": "var(--c45-v2-surface-overlay)",
+          "cssName": "--c45-v2-surface-overlay",
+          "value": "alias:Overlay/Black-48",
+          "cssValue": "var(--c45-v2-overlay-black-48)"
+        },
+        {
+          "name": "Text/Primary",
+          "web": "var(--c45-v2-text-primary)",
+          "cssName": "--c45-v2-text-primary",
+          "value": "alias:Neutral/900",
+          "cssValue": "var(--c45-v2-neutral-900)"
+        },
+        {
+          "name": "Text/Secondary",
+          "web": "var(--c45-v2-text-secondary)",
+          "cssName": "--c45-v2-text-secondary",
+          "value": "alias:Neutral/500",
+          "cssValue": "var(--c45-v2-neutral-500)"
+        },
+        {
+          "name": "Text/Muted",
+          "web": "var(--c45-v2-text-muted)",
+          "cssName": "--c45-v2-text-muted",
+          "value": "alias:Neutral/400",
+          "cssValue": "var(--c45-v2-neutral-400)"
+        },
+        {
+          "name": "Text/Inverse",
+          "web": "var(--c45-v2-text-inverse)",
+          "cssName": "--c45-v2-text-inverse",
+          "value": "alias:Neutral/0",
+          "cssValue": "var(--c45-v2-neutral-0)"
+        },
+        {
+          "name": "Text/Brand",
+          "web": "var(--c45-v2-text-brand)",
+          "cssName": "--c45-v2-text-brand",
+          "value": "alias:Primary/700",
+          "cssValue": "var(--c45-v2-primary-700)"
+        },
+        {
+          "name": "Text/Success",
+          "web": "var(--c45-v2-text-success)",
+          "cssName": "--c45-v2-text-success",
+          "value": "alias:Success/500",
+          "cssValue": "var(--c45-v2-success-500)"
+        },
+        {
+          "name": "Text/Warning",
+          "web": "var(--c45-v2-text-warning)",
+          "cssName": "--c45-v2-text-warning",
+          "value": "alias:Warning/500",
+          "cssValue": "var(--c45-v2-warning-500)"
+        },
+        {
+          "name": "Text/Danger",
+          "web": "var(--c45-v2-text-danger)",
+          "cssName": "--c45-v2-text-danger",
+          "value": "alias:Danger/500",
+          "cssValue": "var(--c45-v2-danger-500)"
+        },
+        {
+          "name": "Text/Info",
+          "web": "var(--c45-v2-text-info)",
+          "cssName": "--c45-v2-text-info",
+          "value": "alias:Info/500",
+          "cssValue": "var(--c45-v2-info-500)"
+        },
+        {
+          "name": "Border/Default",
+          "web": "var(--c45-v2-border-default)",
+          "cssName": "--c45-v2-border-default",
+          "value": "alias:Neutral/200",
+          "cssValue": "var(--c45-v2-neutral-200)"
+        },
+        {
+          "name": "Border/Strong",
+          "web": "var(--c45-v2-border-strong)",
+          "cssName": "--c45-v2-border-strong",
+          "value": "alias:Neutral/300",
+          "cssValue": "var(--c45-v2-neutral-300)"
+        },
+        {
+          "name": "Border/Brand",
+          "web": "var(--c45-v2-border-brand)",
+          "cssName": "--c45-v2-border-brand",
+          "value": "alias:Primary/200",
+          "cssValue": "var(--c45-v2-primary-200)"
+        },
+        {
+          "name": "Border/Success",
+          "web": "var(--c45-v2-border-success)",
+          "cssName": "--c45-v2-border-success",
+          "value": "alias:Success/500",
+          "cssValue": "var(--c45-v2-success-500)"
+        },
+        {
+          "name": "Border/Warning",
+          "web": "var(--c45-v2-border-warning)",
+          "cssName": "--c45-v2-border-warning",
+          "value": "alias:Warning/500",
+          "cssValue": "var(--c45-v2-warning-500)"
+        },
+        {
+          "name": "Border/Danger",
+          "web": "var(--c45-v2-border-danger)",
+          "cssName": "--c45-v2-border-danger",
+          "value": "alias:Danger/500",
+          "cssValue": "var(--c45-v2-danger-500)"
+        },
+        {
+          "name": "Border/Info",
+          "web": "var(--c45-v2-border-info)",
+          "cssName": "--c45-v2-border-info",
+          "value": "alias:Info/500",
+          "cssValue": "var(--c45-v2-info-500)"
+        },
+        {
+          "name": "Action/Primary/Default",
+          "web": "var(--c45-v2-action-primary-default)",
+          "cssName": "--c45-v2-action-primary-default",
+          "value": "alias:Primary/500",
+          "cssValue": "var(--c45-v2-primary-500)"
+        },
+        {
+          "name": "Action/Primary/Pressed",
+          "web": "var(--c45-v2-action-primary-pressed)",
+          "cssName": "--c45-v2-action-primary-pressed",
+          "value": "alias:Primary/600",
+          "cssValue": "var(--c45-v2-primary-600)"
+        },
+        {
+          "name": "Action/On Primary",
+          "web": "var(--c45-v2-action-on-primary)",
+          "cssName": "--c45-v2-action-on-primary",
+          "value": "alias:Neutral/0",
+          "cssValue": "var(--c45-v2-neutral-0)"
+        },
+        {
+          "name": "Action/Secondary/Default",
+          "web": "var(--c45-v2-action-secondary-default)",
+          "cssName": "--c45-v2-action-secondary-default",
+          "value": "alias:Neutral/0",
+          "cssValue": "var(--c45-v2-neutral-0)"
+        },
+        {
+          "name": "Action/Secondary/Pressed",
+          "web": "var(--c45-v2-action-secondary-pressed)",
+          "cssName": "--c45-v2-action-secondary-pressed",
+          "value": "alias:Neutral/200",
+          "cssValue": "var(--c45-v2-neutral-200)"
+        },
+        {
+          "name": "Action/Secondary/Border",
+          "web": "var(--c45-v2-action-secondary-border)",
+          "cssName": "--c45-v2-action-secondary-border",
+          "value": "alias:Neutral/300",
+          "cssValue": "var(--c45-v2-neutral-300)"
+        },
+        {
+          "name": "Action/Danger/Default",
+          "web": "var(--c45-v2-action-danger-default)",
+          "cssName": "--c45-v2-action-danger-default",
+          "value": "alias:Danger/500",
+          "cssValue": "var(--c45-v2-danger-500)"
+        },
+        {
+          "name": "Action/Danger/Pressed",
+          "web": "var(--c45-v2-action-danger-pressed)",
+          "cssName": "--c45-v2-action-danger-pressed",
+          "value": "alias:Danger/500",
+          "cssValue": "var(--c45-v2-danger-500)"
+        },
+        {
+          "name": "Icon/Primary",
+          "web": "var(--c45-v2-icon-primary)",
+          "cssName": "--c45-v2-icon-primary",
+          "value": "alias:Neutral/700",
+          "cssValue": "var(--c45-v2-neutral-700)"
+        },
+        {
+          "name": "Icon/Secondary",
+          "web": "var(--c45-v2-icon-secondary)",
+          "cssName": "--c45-v2-icon-secondary",
+          "value": "alias:Neutral/500",
+          "cssValue": "var(--c45-v2-neutral-500)"
+        },
+        {
+          "name": "Icon/Muted",
+          "web": "var(--c45-v2-icon-muted)",
+          "cssName": "--c45-v2-icon-muted",
+          "value": "alias:Neutral/400",
+          "cssValue": "var(--c45-v2-neutral-400)"
+        },
+        {
+          "name": "Icon/Brand",
+          "web": "var(--c45-v2-icon-brand)",
+          "cssName": "--c45-v2-icon-brand",
+          "value": "alias:Primary/700",
+          "cssValue": "var(--c45-v2-primary-700)"
+        },
+        {
+          "name": "Icon/Success",
+          "web": "var(--c45-v2-icon-success)",
+          "cssName": "--c45-v2-icon-success",
+          "value": "alias:Success/500",
+          "cssValue": "var(--c45-v2-success-500)"
+        },
+        {
+          "name": "Icon/Warning",
+          "web": "var(--c45-v2-icon-warning)",
+          "cssName": "--c45-v2-icon-warning",
+          "value": "alias:Warning/500",
+          "cssValue": "var(--c45-v2-warning-500)"
+        },
+        {
+          "name": "Icon/Danger",
+          "web": "var(--c45-v2-icon-danger)",
+          "cssName": "--c45-v2-icon-danger",
+          "value": "alias:Danger/500",
+          "cssValue": "var(--c45-v2-danger-500)"
+        },
+        {
+          "name": "Icon/Info",
+          "web": "var(--c45-v2-icon-info)",
+          "cssName": "--c45-v2-icon-info",
+          "value": "alias:Info/500",
+          "cssValue": "var(--c45-v2-info-500)"
+        },
+        {
+          "name": "Icon/Inverse",
+          "web": "var(--c45-v2-icon-inverse)",
+          "cssName": "--c45-v2-icon-inverse",
+          "value": "alias:Neutral/0",
+          "cssValue": "var(--c45-v2-neutral-0)"
+        },
+        {
+          "name": "Focus/Ring",
+          "web": "var(--c45-v2-focus-ring)",
+          "cssName": "--c45-v2-focus-ring",
+          "value": "alias:Primary/500",
+          "cssValue": "var(--c45-v2-primary-500)"
+        }
+      ]
+    },
+    {
+      "id": "VariableCollectionId:511:40",
+      "name": "Mosaic Retail v2 / Dimension",
+      "mode": "Base",
+      "modeId": "511:2",
+      "count": 30,
+      "variables": [
+        {
+          "name": "Space/0",
+          "web": "var(--c45-v2-space-0)",
+          "cssName": "--c45-v2-space-0",
+          "value": 0,
+          "cssValue": "0px"
+        },
+        {
+          "name": "Space/1",
+          "web": "var(--c45-v2-space-1)",
+          "cssName": "--c45-v2-space-1",
+          "value": 4,
+          "cssValue": "4px"
+        },
+        {
+          "name": "Space/2",
+          "web": "var(--c45-v2-space-2)",
+          "cssName": "--c45-v2-space-2",
+          "value": 8,
+          "cssValue": "8px"
+        },
+        {
+          "name": "Space/3",
+          "web": "var(--c45-v2-space-3)",
+          "cssName": "--c45-v2-space-3",
+          "value": 12,
+          "cssValue": "12px"
+        },
+        {
+          "name": "Space/4",
+          "web": "var(--c45-v2-space-4)",
+          "cssName": "--c45-v2-space-4",
+          "value": 16,
+          "cssValue": "16px"
+        },
+        {
+          "name": "Space/5",
+          "web": "var(--c45-v2-space-5)",
+          "cssName": "--c45-v2-space-5",
+          "value": 20,
+          "cssValue": "20px"
+        },
+        {
+          "name": "Space/6",
+          "web": "var(--c45-v2-space-6)",
+          "cssName": "--c45-v2-space-6",
+          "value": 24,
+          "cssValue": "24px"
+        },
+        {
+          "name": "Space/8",
+          "web": "var(--c45-v2-space-8)",
+          "cssName": "--c45-v2-space-8",
+          "value": 32,
+          "cssValue": "32px"
+        },
+        {
+          "name": "Space/10",
+          "web": "var(--c45-v2-space-10)",
+          "cssName": "--c45-v2-space-10",
+          "value": 40,
+          "cssValue": "40px"
+        },
+        {
+          "name": "Space/12",
+          "web": "var(--c45-v2-space-12)",
+          "cssName": "--c45-v2-space-12",
+          "value": 48,
+          "cssValue": "48px"
+        },
+        {
+          "name": "Radius/1",
+          "web": "var(--c45-v2-radius-1)",
+          "cssName": "--c45-v2-radius-1",
+          "value": 4,
+          "cssValue": "4px"
+        },
+        {
+          "name": "Radius/2",
+          "web": "var(--c45-v2-radius-2)",
+          "cssName": "--c45-v2-radius-2",
+          "value": 6,
+          "cssValue": "6px"
+        },
+        {
+          "name": "Radius/3",
+          "web": "var(--c45-v2-radius-3)",
+          "cssName": "--c45-v2-radius-3",
+          "value": 8,
+          "cssValue": "8px"
+        },
+        {
+          "name": "Radius/4",
+          "web": "var(--c45-v2-radius-4)",
+          "cssName": "--c45-v2-radius-4",
+          "value": 12,
+          "cssValue": "12px"
+        },
+        {
+          "name": "Radius/5",
+          "web": "var(--c45-v2-radius-5)",
+          "cssName": "--c45-v2-radius-5",
+          "value": 16,
+          "cssValue": "16px"
+        },
+        {
+          "name": "Radius/6",
+          "web": "var(--c45-v2-radius-6)",
+          "cssName": "--c45-v2-radius-6",
+          "value": 20,
+          "cssValue": "20px"
+        },
+        {
+          "name": "Radius/Pill",
+          "web": "var(--c45-v2-radius-pill)",
+          "cssName": "--c45-v2-radius-pill",
+          "value": 999,
+          "cssValue": "999px"
+        },
+        {
+          "name": "Icon/16",
+          "web": "var(--c45-v2-icon-16)",
+          "cssName": "--c45-v2-icon-16",
+          "value": 16,
+          "cssValue": "16px"
+        },
+        {
+          "name": "Icon/20",
+          "web": "var(--c45-v2-icon-20)",
+          "cssName": "--c45-v2-icon-20",
+          "value": 20,
+          "cssValue": "20px"
+        },
+        {
+          "name": "Icon/24",
+          "web": "var(--c45-v2-icon-24)",
+          "cssName": "--c45-v2-icon-24",
+          "value": 24,
+          "cssValue": "24px"
+        },
+        {
+          "name": "Icon/32",
+          "web": "var(--c45-v2-icon-32)",
+          "cssName": "--c45-v2-icon-32",
+          "value": 32,
+          "cssValue": "32px"
+        },
+        {
+          "name": "Icon/48",
+          "web": "var(--c45-v2-icon-48)",
+          "cssName": "--c45-v2-icon-48",
+          "value": 48,
+          "cssValue": "48px"
+        },
+        {
+          "name": "Icon/72",
+          "web": "var(--c45-v2-icon-72)",
+          "cssName": "--c45-v2-icon-72",
+          "value": 72,
+          "cssValue": "72px"
+        },
+        {
+          "name": "Icon/Stroke",
+          "web": "var(--c45-v2-icon-stroke)",
+          "cssName": "--c45-v2-icon-stroke",
+          "value": 2,
+          "cssValue": "2px"
+        },
+        {
+          "name": "Touch/Minimum",
+          "web": "var(--c45-v2-touch-minimum)",
+          "cssName": "--c45-v2-touch-minimum",
+          "value": 44,
+          "cssValue": "44px"
+        },
+        {
+          "name": "Layout/Mobile edge",
+          "web": "var(--c45-v2-layout-mobile-edge)",
+          "cssName": "--c45-v2-layout-mobile-edge",
+          "value": 16,
+          "cssValue": "16px"
+        },
+        {
+          "name": "Layout/Tablet edge",
+          "web": "var(--c45-v2-layout-tablet-edge)",
+          "cssName": "--c45-v2-layout-tablet-edge",
+          "value": 24,
+          "cssValue": "24px"
+        },
+        {
+          "name": "Layout/Desktop edge",
+          "web": "var(--c45-v2-layout-desktop-edge)",
+          "cssName": "--c45-v2-layout-desktop-edge",
+          "value": 32,
+          "cssValue": "32px"
+        },
+        {
+          "name": "Layout/Mobile width",
+          "web": "var(--c45-v2-layout-mobile-width)",
+          "cssName": "--c45-v2-layout-mobile-width",
+          "value": 402,
+          "cssValue": "402px"
+        },
+        {
+          "name": "Layout/Mobile height",
+          "web": "var(--c45-v2-layout-mobile-height)",
+          "cssName": "--c45-v2-layout-mobile-height",
+          "value": 874,
+          "cssValue": "874px"
+        }
+      ]
+    },
+    {
+      "id": "VariableCollectionId:511:41",
+      "name": "Mosaic Retail v2 / Opacity",
+      "mode": "Base",
+      "modeId": "511:3",
+      "count": 6,
+      "variables": [
+        {
+          "name": "Opacity/Disabled",
+          "web": "var(--c45-v2-opacity-disabled)",
+          "cssName": "--c45-v2-opacity-disabled",
+          "value": 0.4,
+          "cssValue": "0.4"
+        },
+        {
+          "name": "Opacity/Muted",
+          "web": "var(--c45-v2-opacity-muted)",
+          "cssName": "--c45-v2-opacity-muted",
+          "value": 0.6,
+          "cssValue": "0.6"
+        },
+        {
+          "name": "Opacity/Overlay",
+          "web": "var(--c45-v2-opacity-overlay)",
+          "cssName": "--c45-v2-opacity-overlay",
+          "value": 0.48,
+          "cssValue": "0.48"
+        },
+        {
+          "name": "Opacity/Subtle",
+          "web": "var(--c45-v2-opacity-subtle)",
+          "cssName": "--c45-v2-opacity-subtle",
+          "value": 0.08,
+          "cssValue": "0.08"
+        },
+        {
+          "name": "Opacity/Focus",
+          "web": "var(--c45-v2-opacity-focus)",
+          "cssName": "--c45-v2-opacity-focus",
+          "value": 0.12,
+          "cssValue": "0.12"
+        },
+        {
+          "name": "Opacity/Loading",
+          "web": "var(--c45-v2-opacity-loading)",
+          "cssName": "--c45-v2-opacity-loading",
+          "value": 0.72,
+          "cssValue": "0.72"
+        }
+      ]
+    }
+  ]
+}

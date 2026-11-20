@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "source": {"fileKey":"QVJolM5tAdFKkhP7RIwe3y","pageId":"505:5889","designSystemVersion":"2.0.2","capturedAt":"2026-09-08"},
+  "textStyles": [
+    {"name":"Mosaic Retail v2 / Display / D1","font":"Inter Extra Bold","size":40,"lineHeight":44,"letterSpacing":-1},
+    {"name":"Mosaic Retail v2 / Heading / H1","font":"Inter Bold","size":28,"lineHeight":34,"letterSpacing":-0.5},
+    {"name":"Mosaic Retail v2 / Heading / H2","font":"Inter Bold","size":22,"lineHeight":28,"letterSpacing":-0.3},
+    {"name":"Mosaic Retail v2 / Heading / H3","font":"Inter Semi Bold","size":18,"lineHeight":24,"letterSpacing":-0.2},
+    {"name":"Mosaic Retail v2 / Heading / H4","font":"Inter Semi Bold","size":16,"lineHeight":22,"letterSpacing":0},
+    {"name":"Mosaic Retail v2 / Body / Default","font":"Inter Regular","size":14,"lineHeight":22,"letterSpacing":0},
+    {"name":"Mosaic Retail v2/Body/Small","font":"Inter Regular","size":13,"lineHeight":20,"letterSpacing":0},
+    {"name":"Mosaic Retail v2 / Label / Default","font":"Inter Semi Bold","size":14,"lineHeight":20,"letterSpacing":0},
+    {"name":"Mosaic Retail v2 / Label / Small","font":"Inter Semi Bold","size":12,"lineHeight":16,"letterSpacing":0},
+    {"name":"Mosaic Retail v2 / Action / Default","font":"Inter Semi Bold","size":14,"lineHeight":20,"letterSpacing":0},
+    {"name":"Mosaic Retail v2 / Caption","font":"Inter Medium","size":12,"lineHeight":16,"letterSpacing":0.1},
+    {"name":"Mosaic Retail v2 / Overline","font":"Inter Semi Bold","size":11,"lineHeight":14,"letterSpacing":0.4},
+    {"name":"Mosaic Retail v2 / Mono / Numeric","font":"JetBrains Mono Regular","size":14,"lineHeight":22,"letterSpacing":0},
+    {"name":"Mosaic Retail v2 / Mono / Small","font":"JetBrains Mono Regular","size":13,"lineHeight":20,"letterSpacing":0},
+    {"name":"Mosaic Retail v2/Mono/Emphasis","font":"JetBrains Mono Regular","size":16,"lineHeight":22,"letterSpacing":0}
+  ],
+  "effectStyles": [
+    {"name":"Mosaic Retail v2 / Elevation / e1","css":"0 1px 3px rgba(14,17,22,0.08)"},
+    {"name":"Mosaic Retail v2 / Elevation / e2","css":"0 4px 12px rgba(14,17,22,0.10)"},
+    {"name":"Mosaic Retail v2 / Elevation / e3","css":"0 12px 28px rgba(14,17,22,0.14)"},
+    {"name":"Mosaic Retail v2 / Elevation / e4","css":"0 24px 56px rgba(14,17,22,0.20)"}
+  ],
+  "paintStyleCount":21,
+  "paintStylePolicy":"Convenience paint styles are bound to semantic variables; variables remain canonical."
+}

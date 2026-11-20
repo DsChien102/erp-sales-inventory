@@ -1,0 +1,130 @@
+---
+description: Documentation standards — one purpose, decision first, minimal sufficient detail for markdown docs
+globs: "**/*.md"
+alwaysApply: false
+---
+
+# DOCUMENTATION RULE
+
+## 1. ONE PURPOSE
+
+- Every document MUST have one primary purpose.
+- State the purpose in the first paragraph.
+- Do not mix conceptual explanation, design decisions, and implementation instructions
+  unless they are necessary for the same purpose.
+
+## 2. DECISION FIRST
+
+- Put the important decision, conclusion, or outcome before supporting details.
+- The reader should understand "what is being proposed/defined" without reading the entire document.
+
+## 3. CONTEXT ONLY WHEN NECESSARY
+
+- Explain only the context required to understand the decision.
+- Do not repeat information already defined elsewhere.
+- Prefer references over duplication.
+
+## 4. SCOPE AND BOUNDARY
+
+- Explicitly state what the document covers when ambiguity is possible.
+- Explicitly state what is out of scope when it prevents misunderstanding.
+
+## 5. STRUCTURE BY QUESTIONS
+
+- Each section MUST answer a specific question.
+- Section titles should describe the question or subject being answered.
+- Do not create a section merely because a template contains it.
+
+## 6. ONE IDEA PER SECTION
+
+- A section should communicate one coherent idea.
+- If a section contains multiple unrelated ideas, split it.
+- If a section contains only one or two unnecessary sentences, remove it.
+
+## 7. SHOW RELATIONSHIPS
+
+- Use tables for comparisons.
+- Use diagrams for flows, dependencies, boundaries, and relationships.
+- Use lists for discrete rules or items.
+- Use prose only when explanation is actually required.
+
+## 8. PREFER CONCRETE LANGUAGE
+
+- Prefer "Sales creates SalesOrder" over "Sales is responsible for managing orders."
+- Prefer explicit nouns, verbs, states, inputs, outputs, and constraints.
+- Avoid vague words such as "properly", "appropriately", "efficiently", or "seamlessly"
+  unless they are explicitly defined.
+
+## 9. NO REDUNDANCY
+
+- Do not state the same fact in multiple sections.
+- Do not repeat diagram information as long prose unless the prose adds meaning.
+- Do not repeat information that already exists in another authoritative document.
+
+## 10. DECISION / FACT / ASSUMPTION
+
+- Clearly distinguish:
+  FACT       = established behavior or requirement
+  DECISION   = chosen design
+  ASSUMPTION = unresolved premise
+  QUESTION   = requires a decision
+- Never present an assumption as a fact.
+
+## 11. MINIMUM SUFFICIENT DETAIL
+
+- Include enough information for the intended reader to perform the document's purpose.
+- Do not document implementation details that do not affect that purpose.
+- When details are not relevant, omit them.
+
+## 12. TRACEABILITY
+
+- When applicable, connect the document to its parent concept:
+  Theme → BJ / CAP / UC (SRS) → Work Slice → Implementation.
+- Do not duplicate the parent's content; reference it.
+- Do not invent a User Story row when the theme traces via BJ/UC/BC only.
+
+## 13. ACTIONABLE ENDING
+
+- End with one of:
+  - Decision
+  - Acceptance Criteria
+  - Next Action
+  - Open Questions
+- The reader should know what happens next.
+
+## 14. DELETE TEST
+
+- For every paragraph or section ask:
+  "If I remove this, does the reader lose information necessary for the document's purpose?"
+- If no, remove it.
+
+## 15. SIZE RULE
+
+- Prefer the smallest document that completely communicates its purpose.
+- Do not impose a fixed document length or fixed number of sections.
+
+## 16. SPACING
+
+- Between blocks (headings, paragraphs, lists, fences, horizontal rules), use at most **one** blank line.
+- Do not insert two consecutive blank lines (`\n\n\n`).
+
+## 17. FENCED CODE BLOCKS (no highlight abuse)
+
+Fenced blocks (` ``` ` / ` ```text ` / language tags) are **only** for:
+
+| Allowed | Examples |
+| --- | --- |
+| Quoted source / config | Dart, SQL, YAML, shell snippets |
+| Directory / path trees | `modules/` layout with indent |
+| ASCII / monospace diagrams | Rare; prefer Mermaid when the diagram is a flow or state |
+
+**Forbidden:** wrapping prose, rules, checklists, Before/After narrative, transaction bullet lists, or “highlighted notes” in a fence just for visual emphasis.
+
+| Misuse (reject) | Prefer |
+| --- | --- |
+| ` ```text ` + “Must commit atomically…” | Markdown list or short prose |
+| ` ```text ` + idempotency rules as lines | Bullet list with inline `` `code` `` |
+| ` ```text ` + Before/After paragraphs | `**Before**` / `**After**` + bullets |
+| ` ```text ` + failure steps with `↓` for emphasis | Mermaid `flowchart` / numbered list |
+
+Inline `` `identifiers` `` remain OK for symbols, RPC names, and field names.

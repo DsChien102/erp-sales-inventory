@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hỏi Mosaic Retail — prototype AI-2</title>
+<style>
+/* Giá trị token thật của c45_design_system (VColors / VSpacing / VRadius / VTypography) */
+:root{--p50:#EBF4EE;--p600:#2F7A3A;--n0:#fff;--n50:#F8FAFB;--n100:#F6F8F9;--n200:#E5E8EB;--n300:#D0D5DA;--n400:#9AA3AD;--n500:#6B7480;--n600:#4A535E;--n700:#2F3640;--n900:#0E1116;--r50:#F8ECEC;--r600:#B53232;--y50:#F9F1E2;--y700:#935A0A;--b50:#EBF0F8;--b600:#2559C4}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;font:14px/1.45 Inter,system-ui,sans-serif;color:var(--n900);background:var(--n100)}
+.screen{display:flex;flex-direction:column;overflow:hidden;background:var(--n50)}
+.bar{height:56px;display:flex;align-items:center;gap:8px;padding:0 16px;background:var(--n0);border-bottom:1px solid var(--n200);font-size:18px;font-weight:600}
+.body{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px;width:100%;max-width:840px;margin:0 auto}
+.u{align-self:flex-end;max-width:80%;background:var(--p600);color:#fff;padding:8px 12px;border-radius:12px 12px 4px 12px}
+.a{align-self:flex-start;max-width:100%;background:var(--n0);border:1px solid var(--n200);padding:12px;border-radius:12px 12px 12px 4px;display:flex;flex-direction:column;gap:12px}
+.a.err{background:var(--r50);border-color:#F1DADA}.a.warn{background:var(--y50);border-color:#F5E8CF;color:var(--y700)}
+.hello{color:var(--n600)}
+.chips{display:flex;flex-direction:column;gap:8px}
+.chip{align-self:flex-start;border:1px solid var(--n300);background:var(--n0);border-radius:999px;padding:8px 16px;min-height:44px;display:flex;align-items:center}
+.btn{align-self:flex-start;border:1px solid var(--p600);color:var(--p600);background:var(--n0);border-radius:8px;padding:0 16px;min-height:44px;display:flex;align-items:center;font-weight:600}
+.typing{color:var(--n500)}
+.tt{font-weight:600;font-size:14px}
+.cards{display:flex;flex-direction:column;gap:8px}
+.card{border:1px solid var(--n200);border-radius:12px;padding:12px;background:var(--n0)}
+.card.tap{border-color:var(--p600)}
+.card h4{margin:0 0 4px;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kv{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--n600)}.kv b{color:var(--n900);font-weight:500}
+table{border-collapse:collapse;width:100%;background:var(--n0);border:1px solid var(--n200);border-radius:8px;overflow:hidden}
+th{background:var(--n100);font-size:12px;font-weight:600;color:var(--n600);text-align:left;padding:8px 12px}
+td{padding:8px 12px;border-top:1px solid var(--n200);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r{text-align:right;font-variant-numeric:tabular-nums}tr.tap td:first-child{color:var(--p600)}
+.foot{padding:8px 16px;text-align:center;font-size:12px;color:var(--n500)}
+.comp{display:flex;gap:8px;padding:8px 16px;background:var(--n0);border-top:1px solid var(--n200);align-items:center}
+.inp{flex:1;border:1px solid var(--n300);border-radius:8px;min-height:44px;padding:0 12px;display:flex;align-items:center;color:var(--n400)}
+.inp.off{background:var(--n100);color:var(--n500)}
+.send{width:44px;height:44px;border-radius:8px;background:var(--p600);color:#fff;display:flex;align-items:center;justify-content:center}.send.off{background:var(--n300)}
+.wrap{max-width:840px;margin:0 auto;width:100%}
+</style></head><body>
+<div id="root" class="screen"></div>
+<script>
+const S=new URLSearchParams(location.search).get('s')||'empty';
+const Q=new URLSearchParams(location.search);const W=+Q.get('w')||innerWidth;const wide=W>=600;document.getElementById('root').style.width=W+'px';document.getElementById('root').style.height=(+Q.get('h')||innerHeight)+'px';
+const rows=[['Áo thun cotton cổ tròn nam màu trắng size M','12','3,5','40'],['Quần jeans slim','4','1,2','25'],['Nón lưỡi trai','0','—','30']];
+const cols=['Sản phẩm','Tồn','Còn bán (ngày)','Nên nhập'];
+function table(){
+ if(wide) return `<div class="tt">Hàng sắp hết</div><table><tr>${cols.map((c,i)=>`<th class="${i?'r':''}">${c}</th>`).join('')}</tr>${rows.map(r=>`<tr class="tap">${r.map((c,i)=>`<td class="${i?'r':''}">${c}</td>`).join('')}</tr>`).join('')}</table>`;
+ return `<div class="tt">Hàng sắp hết</div><div class="cards">${rows.map(r=>`<div class="card tap"><h4>${r[0]}</h4>${[1,2,3].map(i=>`<div class="kv"><span>${cols[i]}</span><b>${r[i]}</b></div>`).join('')}</div>`).join('')}</div>`;
+}
+const U=t=>`<div class="u">${t}</div>`, A=(t,x='')=>`<div class="a ${x}"><div>${t}</div></div>`;
+let msgs='',inp='Hỏi về doanh thu, tồn kho, công nợ…',off='',sendOff='';
+const q='Hàng nào sắp hết, nên nhập bao nhiêu?';
+if(S==='empty') msgs=`<div class="hello">Chào bạn! Mình giúp bạn xem nhanh số liệu cửa hàng. Thử hỏi:</div><div class="chips">${['Hôm nay bán được bao nhiêu?',q,'Khách nào đang nợ?','5 mặt hàng bán chạy tháng này?'].map(c=>`<div class="chip">${c}</div>`).join('')}</div>`;
+if(S==='answer') msgs=U(q)+`<div class="a"><div>Có 3 mặt hàng sắp hết, nên nhập thêm như bảng dưới.</div>${table()}</div>`;
+if(S==='waiting'){msgs=U(q)+`<div class="a typing">Đang xem số liệu…</div>`;sendOff='off';}
+if(S==='error') msgs=U(q)+A('Có lỗi khi trả lời. Bạn thử lại nhé.','err')+`<div class="btn">Thử lại</div>`;
+if(S==='limit'){msgs=U(q)+A('Cửa hàng đã dùng hết 100 câu hỏi hôm nay. Mai bạn quay lại nhé.','warn');off='off';sendOff='off';inp='Đã hết lượt hôm nay';}
+if(S==='noperm') msgs=U('Lãi gộp tháng này?')+A('Bạn không có quyền xem số liệu này. Hãy nhờ chủ cửa hàng.','warn');
+document.getElementById('root').innerHTML=`<div class="bar">‹&nbsp; Hỏi Mosaic Retail</div><div class="body">${msgs}</div><div class="wrap"><div class="comp"><div class="inp ${off}">${inp}</div><div class="send ${sendOff}">➤</div></div><div class="foot">Trợ lý AI có thể hiểu nhầm câu hỏi. Số liệu trong bảng lấy trực tiếp từ dữ liệu cửa hàng.</div></div>`;
+</script></body></html>

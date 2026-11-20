@@ -1,0 +1,54 @@
+name: erp
+description: "Mosaic Retail ERP Flutter shell."
+publish_to: 'none'
+version: 1.7.5+42
+resolution: workspace
+
+environment:
+  sdk: ^3.11.1
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_bloc: ^9.1.1
+  supabase_flutter: ^2.14.1
+  get_it: ^9.2.1
+  go_router: ^17.0.0
+  pdf: ^3.11.1
+  printing: ^5.13.2
+  c45_design_system: ^1.0.0
+  logging: ^1.3.0
+  supabase: ^2.13.0
+  image_picker: ^1.2.3
+  file_picker: ^11.0.2
+  desktop_drop: ^0.7.1
+  cross_file: ^0.3.4+2
+  archive: ^4.0.7
+  crypto: ^3.0.6
+  equatable: ^2.1.0
+  uuid: ^4.5.3
+  http: ^1.4.0
+  path_provider: ^2.1.5
+  share_plus: ^10.1.4
+  url_launcher: ^6.3.0
+dev_dependencies:
+  c45_lints: ^1.0.0
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  mocktail: ^1.0.4
+  flutter_launcher_icons: ^0.14.4
+  build_runner: ^2.15.0
+  go_router_builder: ^4.1.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/vn_administrative_units.json
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"

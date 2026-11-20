@@ -1,0 +1,436 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:c45_design_system/design_system.dart';
+import '../../logic/product_guided_create_cubit.dart';
+import '../../logic/product_guided_create_state.dart';
+import '../utils/catalog_currency_formatters.dart';
+import 'product_guided_fields.dart';
+
+class ProductGuidedStepPriceBands extends StatefulWidget {
+  const ProductGuidedStepPriceBands({
+    super.key,
+    required this.state,
+  });
+
+  final ProductGuidedCreateState state;
+
+  @override
+  State<ProductGuidedStepPriceBands> createState() => _ProductGuidedStepPriceBandsState();
+}
+
+class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBands> {
+  late final TextEditingController _customMarkupController;
+  late final TextEditingController _customFloorMarkupController;
+  late final TextEditingController _manualListPriceController;
+  late final TextEditingController _manualFloorPriceController;
+
+  @override
+  void initState() {
+    super.initState();
+    _customMarkupController = TextEditingController(text: widget.state.customAutoMarkup);
+    _customFloorMarkupController = TextEditingController(text: widget.state.customAutoFloorMarkup);
+    _manualListPriceController = TextEditingController(text: widget.state.manualListPrice);
+    _manualFloorPriceController = TextEditingController(text: widget.state.manualFloorPrice);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ProductGuidedCreateCubit>().loadStorePriceRule();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant ProductGuidedStepPriceBands oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.state.customAutoMarkup != _customMarkupController.text &&
+        widget.state.customAutoMarkup != oldWidget.state.customAutoMarkup) {
+      _customMarkupController.text = widget.state.customAutoMarkup;
+    }
+    if (widget.state.customAutoFloorMarkup != _customFloorMarkupController.text &&
+        widget.state.customAutoFloorMarkup != oldWidget.state.customAutoFloorMarkup) {
+      _customFloorMarkupController.text = widget.state.customAutoFloorMarkup;
+    }
+    if (widget.state.manualListPrice != _manualListPriceController.text &&
+        widget.state.manualListPrice != oldWidget.state.manualListPrice) {
+      _manualListPriceController.text = widget.state.manualListPrice;
+    }
+    if (widget.state.manualFloorPrice != _manualFloorPriceController.text &&
+        widget.state.manualFloorPrice != oldWidget.state.manualFloorPrice) {
+      _manualFloorPriceController.text = widget.state.manualFloorPrice;
+    }
+  }
+
+  @override
+  void dispose() {
+    _customMarkupController.dispose();
+    _customFloorMarkupController.dispose();
+    _manualListPriceController.dispose();
+    _manualFloorPriceController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dynamicColors = context.vColors;
+    final cubit = context.read<ProductGuidedCreateCubit>();
+    final baseCost = (parseCatalogCurrencyAmount(widget.state.baseCost) ?? 0).toDouble();
+
+    if (widget.state.baseUnit.trim().isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          GestureDetector(
+            onTap: () => context.read<ProductGuidedCreateCubit>().setStep(2),
+            child: Container(
+              padding: const EdgeInsets.all(VSpacing.space3),
+              decoration: BoxDecoration(
+                color: dynamicColors.warningBg,
+                borderRadius: BorderRadius.circular(VRadius.r8),
+                border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
+              ),
+              child: VText(
+                'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được khung giá bán.',
+                variant: VTextVariant.bodyDefault,
+                color: dynamicColors.warning,
+              ),
+            ),
+          ),
+          const SizedBox(height: VSpacing.space4),
+          ProductGuidedFields.buildNavigationButtons(
+            context,
+            showSkip: true,
+            skipKey: const Key('btn_guided_price_band_skip'),
+            nextKey: const Key('btn_guided_price_band_confirm'),
+            onSkip: cubit.deferPriceBandStep,
+            onNext: cubit.confirmPriceBandStep,
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        VText(
+          'Thiết lập giá bán của sản phẩm. Bạn có thể chọn cách định giá tự động hoặc nhập thủ công.',
+          variant: VTextVariant.bodySmall,
+          color: dynamicColors.textSecondary,
+        ),
+        const SizedBox(height: VSpacing.space3),
+
+        // Selectors
+        Row(
+          children: [
+            Expanded(
+              child: _buildPricingMethodCard(
+                context: context,
+                label: 'Giá cửa hàng',
+                isSelected: widget.state.pricingMethod == 'storeRule',
+                onTap: () => cubit.updatePricingMethod('storeRule'),
+              ),
+            ),
+            const SizedBox(width: VSpacing.space2),
+            Expanded(
+              child: _buildPricingMethodCard(
+                context: context,
+                label: 'Tự động riêng',
+                isSelected: widget.state.pricingMethod == 'customAuto',
+                onTap: () => cubit.updatePricingMethod('customAuto'),
+              ),
+            ),
+            const SizedBox(width: VSpacing.space2),
+            Expanded(
+              child: _buildPricingMethodCard(
+                context: context,
+                label: 'Thủ công',
+                isSelected: widget.state.pricingMethod == 'manual',
+                onTap: () => cubit.updatePricingMethod('manual'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: VSpacing.space4),
+
+        // Display Inputs and Previews depending on selected method
+        if (widget.state.pricingMethod == 'storeRule') ...[
+          if (widget.state.isStorePriceRuleLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: VSpacing.space3),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (widget.state.storePriceRuleUnavailableReason != null)
+            Container(
+              padding: const EdgeInsets.all(VSpacing.space3),
+              decoration: BoxDecoration(
+                color: dynamicColors.warningBg,
+                borderRadius: BorderRadius.circular(VRadius.r8),
+                border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
+              ),
+              child: VText(
+                widget.state.storePriceRuleUnavailableReason!,
+                variant: VTextVariant.bodySmall,
+                color: dynamicColors.warning,
+              ),
+            )
+          else ...[
+            if (widget.state.storePriceRuleName != null) ...[
+              VText(
+                'Quy tắc: ${widget.state.storePriceRuleName}',
+                variant: VTextVariant.bodySmall,
+                color: dynamicColors.textSecondary,
+              ),
+              const SizedBox(height: VSpacing.space3),
+            ],
+            _buildCalculatedPriceDisplay(
+              context: context,
+              baseCost: baseCost,
+              markupPercent: (widget.state.storeRuleListMarkupRatio ?? 0) * 100,
+              floorPercent: (widget.state.storeRuleFloorMarkupRatio ?? 0) * 100,
+              labelSuffix: 'Cửa hàng',
+            ),
+          ],
+        ] else if (widget.state.pricingMethod == 'customAuto') ...[
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ProductGuidedFields.buildLabel(context, 'Lãi cơ sở'),
+                    VNumberField(
+                      controller: _customMarkupController,
+                      allowDecimal: true,
+                      allowNegative: false,
+                      suffixText: '%',
+                      min: 0,
+                      textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                      onChanged: (_) => cubit.updateCustomAutoMarkup(_customMarkupController.text),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: VSpacing.space3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ProductGuidedFields.buildLabel(context, 'Giá sàn'),
+                    VNumberField(
+                      controller: _customFloorMarkupController,
+                      allowDecimal: true,
+                      allowNegative: false,
+                      suffixText: '%',
+                      min: 0,
+                      textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                      onChanged: (_) => cubit.updateCustomAutoFloorMarkup(
+                        _customFloorMarkupController.text,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: VSpacing.space4),
+          if (widget.state.parsedCustomAutoMarkupPercent != null &&
+              widget.state.parsedCustomAutoFloorMarkupPercent != null)
+            _buildCalculatedPriceDisplay(
+              context: context,
+              baseCost: baseCost,
+              markupPercent: widget.state.parsedCustomAutoMarkupPercent!,
+              floorPercent: widget.state.parsedCustomAutoFloorMarkupPercent!,
+              labelSuffix: 'Cấu hình riêng',
+            )
+          else
+            VText(
+              'Nhập tỷ lệ % để xem gợi ý giá.',
+              variant: VTextVariant.bodySmall,
+              color: dynamicColors.textMuted,
+            ),
+        ] else if (widget.state.pricingMethod == 'manual') ...[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ProductGuidedFields.buildLabel(context, 'Giá niêm yết'),
+                    VMoneyField(
+                      key: const Key('input_guided_manual_list_price'),
+                      controller: _manualListPriceController,
+                      hintText: '0',
+                      suffixText: 'đ',
+                      min: 0,
+                      textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                      onChanged: (_) =>
+                          cubit.updateManualListPrice(_manualListPriceController.text),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: VSpacing.space3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ProductGuidedFields.buildLabel(context, 'Giá bán sàn'),
+                    VMoneyField(
+                      key: const Key('input_guided_manual_floor_price'),
+                      controller: _manualFloorPriceController,
+                      hintText: '0',
+                      suffixText: 'đ',
+                      min: 0,
+                      errorText: widget.state.manualPriceError,
+                      textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                      onChanged: (_) =>
+                          cubit.updateManualFloorPrice(_manualFloorPriceController.text),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: VSpacing.space3),
+          Container(
+            padding: const EdgeInsets.all(VSpacing.space2),
+            decoration: BoxDecoration(
+              color: dynamicColors.warningBg,
+              borderRadius: BorderRadius.circular(VRadius.card),
+              border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, size: 16, color: dynamicColors.warning),
+                const SizedBox(width: VSpacing.space2),
+                Expanded(
+                  child: VText(
+                    'Giá nhập thủ công sẽ không tự động cập nhật khi giá cơ sở thay đổi.',
+                    variant: VTextVariant.bodySmall,
+                    color: dynamicColors.warning,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+
+        const SizedBox(height: VSpacing.space4),
+        ProductGuidedFields.buildNavigationButtons(
+          context,
+          showSkip: true,
+          skipKey: const Key('btn_guided_price_band_skip'),
+          nextKey: const Key('btn_guided_price_band_confirm'),
+          onSkip: cubit.deferPriceBandStep,
+          onNext: cubit.confirmPriceBandStep,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPricingMethodCard({
+    required BuildContext context,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final dynamicColors = context.vColors;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(VRadius.card),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
+        decoration: BoxDecoration(
+          color: isSelected ? dynamicColors.primary.withValues(alpha: 0.08) : dynamicColors.surface,
+          border: Border.all(
+            color: isSelected ? dynamicColors.primary : dynamicColors.borderDefault,
+            width: isSelected ? 1.5 : 1.0,
+          ),
+          borderRadius: BorderRadius.circular(VRadius.card),
+        ),
+        alignment: Alignment.center,
+        child: VText(
+          label,
+          variant: VTextVariant.bodySmall,
+          color: isSelected ? dynamicColors.primary : dynamicColors.textSecondary,
+          style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalculatedPriceDisplay({
+    required BuildContext context,
+    required double baseCost,
+    required double markupPercent,
+    required double floorPercent,
+    required String labelSuffix,
+  }) {
+    final listBeforeVat = baseCost * (1 + markupPercent / 100);
+    final floorBeforeVat = baseCost * (1 + floorPercent / 100);
+
+    return Column(
+      children: [
+        _buildPricePreviewRow(
+          context: context,
+          title: 'Giá niêm yết gợi ý (+$markupPercent%)',
+          value: formatCatalogCurrency(listBeforeVat),
+          subtitle: 'Giá bán chuẩn chưa chiết khấu',
+        ),
+        const SizedBox(height: VSpacing.space2),
+        _buildPricePreviewRow(
+          context: context,
+          title: 'Giá bán sàn gợi ý (+$floorPercent%)',
+          value: formatCatalogCurrency(floorBeforeVat),
+          subtitle: 'Giá tối thiểu nhân viên được phép bán',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPricePreviewRow({
+    required BuildContext context,
+    required String title,
+    required String value,
+    required String subtitle,
+  }) {
+    final dynamicColors = context.vColors;
+    return Container(
+      padding: const EdgeInsets.all(VSpacing.space3),
+      decoration: BoxDecoration(
+        color: dynamicColors.surface,
+        border: Border.all(color: dynamicColors.borderDefault),
+        borderRadius: BorderRadius.circular(VRadius.card),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                VText(
+                  title,
+                  variant: VTextVariant.bodySmall,
+                  color: dynamicColors.textSecondary,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const VGap.xs(),
+                VText(
+                  subtitle,
+                  variant: VTextVariant.bodySmall,
+                  color: dynamicColors.textMuted,
+                ),
+              ],
+            ),
+          ),
+          VText(
+            value,
+            variant: VTextVariant.headingH3,
+            color: dynamicColors.primary,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+}

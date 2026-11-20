@@ -1,0 +1,986 @@
+{
+  "schema_version": "2.0",
+  "version": "4.6.4",
+  "rows": [
+    {
+      "business_journey_id": "BJ-01",
+      "use_case_id": "UC-01-01",
+      "ui_flow_id": "UIF-01",
+      "screen_id": "SCR-001",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-01",
+      "use_case_id": "UC-01-02",
+      "ui_flow_id": "UIF-01",
+      "screen_id": "SCR-003",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-01",
+      "use_case_id": "UC-01-02",
+      "ui_flow_id": "UIF-01",
+      "screen_id": "SCR-004",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-01",
+      "use_case_id": "UC-01-03",
+      "ui_flow_id": "UIF-01",
+      "screen_id": "SCR-005",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-01",
+      "use_case_id": "UC-01-03",
+      "ui_flow_id": "UIF-01",
+      "screen_id": "SCR-003",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-01",
+      "use_case_id": "UC-01-04",
+      "ui_flow_id": "UIF-01",
+      "screen_id": "SCR-001",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-01",
+      "use_case_id": "UC-01-04",
+      "ui_flow_id": "UIF-01",
+      "screen_id": "SCR-003",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-01",
+      "use_case_id": "UC-01-05",
+      "ui_flow_id": "UIF-01",
+      "screen_id": "SCR-001",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-01",
+      "use_case_id": "UC-01-05",
+      "ui_flow_id": "UIF-01",
+      "screen_id": "SCR-003",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-01",
+      "use_case_id": "UC-01-05",
+      "ui_flow_id": "UIF-01",
+      "screen_id": "SCR-004",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-01",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-006",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-01",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-007",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-01",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-009",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-01",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-084",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-01",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-010",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-02",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-006",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-02",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-008",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-02",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-009",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-02",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-084",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-02",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-010",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-03",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-010",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-03",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-011",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-04",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-012",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-05",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-012",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-02",
+      "use_case_id": "UC-02-05",
+      "ui_flow_id": "UIF-02",
+      "screen_id": "SCR-013",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-03",
+      "use_case_id": "UC-03-01",
+      "ui_flow_id": "UIF-03",
+      "screen_id": "SCR-014",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-03",
+      "use_case_id": "UC-03-01",
+      "ui_flow_id": "UIF-03",
+      "screen_id": "SCR-015",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-03",
+      "use_case_id": "UC-03-01",
+      "ui_flow_id": "UIF-03",
+      "screen_id": "SCR-016",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-03",
+      "use_case_id": "UC-03-01",
+      "ui_flow_id": "UIF-03",
+      "screen_id": "SCR-017",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-03",
+      "use_case_id": "UC-03-01",
+      "ui_flow_id": "UIF-03",
+      "screen_id": "SCR-019",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-04",
+      "use_case_id": "UC-04-01",
+      "ui_flow_id": "UIF-04",
+      "screen_id": "SCR-021",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-04",
+      "use_case_id": "UC-04-02",
+      "ui_flow_id": "UIF-04",
+      "screen_id": "SCR-021",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-04",
+      "use_case_id": "UC-04-03",
+      "ui_flow_id": "UIF-04",
+      "screen_id": "SCR-021",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-04",
+      "use_case_id": "UC-04-04",
+      "ui_flow_id": "UIF-04",
+      "screen_id": "SCR-021",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-05",
+      "use_case_id": "UC-05-01",
+      "ui_flow_id": "UIF-05",
+      "screen_id": "SCR-025",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-05",
+      "use_case_id": "UC-05-01",
+      "ui_flow_id": "UIF-05",
+      "screen_id": "SCR-026",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-05",
+      "use_case_id": "UC-05-02",
+      "ui_flow_id": "UIF-05",
+      "screen_id": "SCR-027",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-05",
+      "use_case_id": "UC-05-03",
+      "ui_flow_id": "UIF-05",
+      "screen_id": "SCR-028",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-05",
+      "use_case_id": "UC-05-03",
+      "ui_flow_id": "UIF-05",
+      "screen_id": "SCR-029",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-05",
+      "use_case_id": "UC-05-04",
+      "ui_flow_id": "UIF-05",
+      "screen_id": "SCR-026",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-05",
+      "use_case_id": "UC-05-04",
+      "ui_flow_id": "UIF-05",
+      "screen_id": "SCR-027",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-05",
+      "use_case_id": "UC-05-05",
+      "ui_flow_id": "UIF-05",
+      "screen_id": "SCR-028",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-05",
+      "use_case_id": "UC-05-05",
+      "ui_flow_id": "UIF-05",
+      "screen_id": "SCR-029",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-06",
+      "use_case_id": "UC-06-01",
+      "ui_flow_id": "UIF-06",
+      "screen_id": "SCR-030",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-06",
+      "use_case_id": "UC-06-01",
+      "ui_flow_id": "UIF-06",
+      "screen_id": "SCR-031",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-06",
+      "use_case_id": "UC-06-02",
+      "ui_flow_id": "UIF-06",
+      "screen_id": "SCR-031",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-06",
+      "use_case_id": "UC-06-02",
+      "ui_flow_id": "UIF-06",
+      "screen_id": "SCR-032",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-06",
+      "use_case_id": "UC-06-02",
+      "ui_flow_id": "UIF-06",
+      "screen_id": "SCR-034",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-06",
+      "use_case_id": "UC-06-03",
+      "ui_flow_id": "UIF-06",
+      "screen_id": "SCR-031",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-06",
+      "use_case_id": "UC-06-03",
+      "ui_flow_id": "UIF-06",
+      "screen_id": "SCR-032",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-06",
+      "use_case_id": "UC-06-03",
+      "ui_flow_id": "UIF-06",
+      "screen_id": "SCR-035",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-06",
+      "use_case_id": "UC-06-04",
+      "ui_flow_id": "UIF-06",
+      "screen_id": "SCR-033",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-06",
+      "use_case_id": "UC-06-04",
+      "ui_flow_id": "UIF-06",
+      "screen_id": "SCR-035",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-07",
+      "use_case_id": "UC-07-01",
+      "ui_flow_id": "UIF-07",
+      "screen_id": "SCR-036",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-07",
+      "use_case_id": "UC-07-01",
+      "ui_flow_id": "UIF-07",
+      "screen_id": "SCR-037",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-07",
+      "use_case_id": "UC-07-02",
+      "ui_flow_id": "UIF-07",
+      "screen_id": "SCR-036",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-07",
+      "use_case_id": "UC-07-02",
+      "ui_flow_id": "UIF-07",
+      "screen_id": "SCR-037",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-07",
+      "use_case_id": "UC-07-02",
+      "ui_flow_id": "UIF-07",
+      "screen_id": "SCR-041",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-07",
+      "use_case_id": "UC-07-03",
+      "ui_flow_id": "UIF-07",
+      "screen_id": "SCR-036",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-07",
+      "use_case_id": "UC-07-03",
+      "ui_flow_id": "UIF-07",
+      "screen_id": "SCR-037",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-07",
+      "use_case_id": "UC-07-04",
+      "ui_flow_id": "UIF-07",
+      "screen_id": "SCR-039",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-07",
+      "use_case_id": "UC-07-04",
+      "ui_flow_id": "UIF-07",
+      "screen_id": "SCR-041",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-08",
+      "use_case_id": "UC-08-01",
+      "ui_flow_id": "UIF-08",
+      "screen_id": "SCR-042",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-08",
+      "use_case_id": "UC-08-01",
+      "ui_flow_id": "UIF-08",
+      "screen_id": "SCR-043",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-08",
+      "use_case_id": "UC-08-02",
+      "ui_flow_id": "UIF-08",
+      "screen_id": "SCR-044",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-08",
+      "use_case_id": "UC-08-03",
+      "ui_flow_id": "UIF-08",
+      "screen_id": "SCR-045",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-08",
+      "use_case_id": "UC-08-04",
+      "ui_flow_id": "UIF-08",
+      "screen_id": "SCR-046",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-08",
+      "use_case_id": "UC-08-04",
+      "ui_flow_id": "UIF-08",
+      "screen_id": "SCR-047",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-08",
+      "use_case_id": "UC-08-05",
+      "ui_flow_id": "UIF-08",
+      "screen_id": "SCR-044",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-08",
+      "use_case_id": "UC-08-05",
+      "ui_flow_id": "UIF-08",
+      "screen_id": "SCR-045",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-08",
+      "use_case_id": "UC-08-05",
+      "ui_flow_id": "UIF-08",
+      "screen_id": "SCR-047",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-01",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-036",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-01",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-037",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-01",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-038",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-02",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-038",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-02",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-041",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-03",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-036",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-03",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-037",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-03",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-041",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-04",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-038",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-04",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-041",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-09",
+      "use_case_id": "UC-09-04",
+      "ui_flow_id": "UIF-09",
+      "screen_id": "SCR-056",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-10",
+      "use_case_id": "UC-10-01",
+      "ui_flow_id": "UIF-10",
+      "screen_id": "SCR-036",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-10",
+      "use_case_id": "UC-10-01",
+      "ui_flow_id": "UIF-10",
+      "screen_id": "SCR-037",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-10",
+      "use_case_id": "UC-10-01",
+      "ui_flow_id": "UIF-10",
+      "screen_id": "SCR-040",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-10",
+      "use_case_id": "UC-10-02",
+      "ui_flow_id": "UIF-10",
+      "screen_id": "SCR-040",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-10",
+      "use_case_id": "UC-10-03",
+      "ui_flow_id": "UIF-10",
+      "screen_id": "SCR-040",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-10",
+      "use_case_id": "UC-10-04",
+      "ui_flow_id": "UIF-10",
+      "screen_id": "SCR-041",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-01",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-048",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-01",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-049",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-01",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-050",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-02",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-052",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-02",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-053",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-03",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-049",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-03",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-052",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-04",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-051",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-04",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-053",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-05",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-049",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-11",
+      "use_case_id": "UC-11-05",
+      "ui_flow_id": "UIF-11",
+      "screen_id": "SCR-053",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-12",
+      "use_case_id": "UC-12-01",
+      "ui_flow_id": "UIF-12",
+      "screen_id": "SCR-066",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-12",
+      "use_case_id": "UC-12-01",
+      "ui_flow_id": "UIF-12",
+      "screen_id": "SCR-067",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-12",
+      "use_case_id": "UC-12-01",
+      "ui_flow_id": "UIF-12",
+      "screen_id": "SCR-068",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-12",
+      "use_case_id": "UC-12-02",
+      "ui_flow_id": "UIF-12",
+      "screen_id": "SCR-069",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-12",
+      "use_case_id": "UC-12-02",
+      "ui_flow_id": "UIF-12",
+      "screen_id": "SCR-070",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-12",
+      "use_case_id": "UC-12-03",
+      "ui_flow_id": "UIF-12",
+      "screen_id": "SCR-070",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-12",
+      "use_case_id": "UC-12-03",
+      "ui_flow_id": "UIF-12",
+      "screen_id": "SCR-071",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-13",
+      "use_case_id": "UC-13-01",
+      "ui_flow_id": "UIF-13",
+      "screen_id": "SCR-085",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-13",
+      "use_case_id": "UC-13-01",
+      "ui_flow_id": "UIF-13",
+      "screen_id": "SCR-086",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-13",
+      "use_case_id": "UC-13-01",
+      "ui_flow_id": "UIF-13",
+      "screen_id": "SCR-087",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-13",
+      "use_case_id": "UC-13-01",
+      "ui_flow_id": "UIF-13",
+      "screen_id": "SCR-089",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-14",
+      "use_case_id": "UC-14-01",
+      "ui_flow_id": "UIF-14",
+      "screen_id": "SCR-072",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-14",
+      "use_case_id": "UC-14-01",
+      "ui_flow_id": "UIF-14",
+      "screen_id": "SCR-073",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-14",
+      "use_case_id": "UC-14-01",
+      "ui_flow_id": "UIF-14",
+      "screen_id": "SCR-074",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-14",
+      "use_case_id": "UC-14-01",
+      "ui_flow_id": "UIF-14",
+      "screen_id": "SCR-076",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-14",
+      "use_case_id": "UC-14-04",
+      "ui_flow_id": "UIF-14",
+      "screen_id": "SCR-076",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-14",
+      "use_case_id": "UC-14-04",
+      "ui_flow_id": "UIF-14",
+      "screen_id": "SCR-077",
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
+    },
+    {
+      "business_journey_id": "BJ-15",
+      "use_case_id": "UC-15-01",
+      "ui_flow_id": "UIF-15",
+      "screen_id": "SCR-054",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-15",
+      "use_case_id": "UC-15-02",
+      "ui_flow_id": "UIF-15",
+      "screen_id": "SCR-055",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-15",
+      "use_case_id": "UC-15-03",
+      "ui_flow_id": "UIF-15",
+      "screen_id": "SCR-055",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-15",
+      "use_case_id": "UC-15-03",
+      "ui_flow_id": "UIF-15",
+      "screen_id": "SCR-056",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-15",
+      "use_case_id": "UC-15-03",
+      "ui_flow_id": "UIF-15",
+      "screen_id": "SCR-057",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-15",
+      "use_case_id": "UC-15-04",
+      "ui_flow_id": "UIF-15",
+      "screen_id": "SCR-058",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-15",
+      "use_case_id": "UC-15-04",
+      "ui_flow_id": "UIF-15",
+      "screen_id": "SCR-059",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-16",
+      "use_case_id": "UC-16-01",
+      "ui_flow_id": "UIF-16",
+      "screen_id": "SCR-078",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-16",
+      "use_case_id": "UC-16-02",
+      "ui_flow_id": "UIF-16",
+      "screen_id": "SCR-079",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-16",
+      "use_case_id": "UC-16-02",
+      "ui_flow_id": "UIF-16",
+      "screen_id": "SCR-080",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-16",
+      "use_case_id": "UC-16-03",
+      "ui_flow_id": "UIF-16",
+      "screen_id": "SCR-079",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-16",
+      "use_case_id": "UC-16-03",
+      "ui_flow_id": "UIF-16",
+      "screen_id": "SCR-080",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-16",
+      "use_case_id": "UC-16-04",
+      "ui_flow_id": "UIF-16",
+      "screen_id": "SCR-082",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-16",
+      "use_case_id": "UC-16-04",
+      "ui_flow_id": "UIF-16",
+      "screen_id": "SCR-083",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-17",
+      "use_case_id": "UC-17-01",
+      "ui_flow_id": "UIF-17",
+      "screen_id": "SCR-078",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-17",
+      "use_case_id": "UC-17-01",
+      "ui_flow_id": "UIF-17",
+      "screen_id": "SCR-079",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-17",
+      "use_case_id": "UC-17-02",
+      "ui_flow_id": "UIF-17",
+      "screen_id": "SCR-080",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-17",
+      "use_case_id": "UC-17-02",
+      "ui_flow_id": "UIF-17",
+      "screen_id": "SCR-082",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-17",
+      "use_case_id": "UC-17-02",
+      "ui_flow_id": "UIF-17",
+      "screen_id": "SCR-083",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-17",
+      "use_case_id": "UC-17-03",
+      "ui_flow_id": "UIF-17",
+      "screen_id": "SCR-080",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-17",
+      "use_case_id": "UC-17-03",
+      "ui_flow_id": "UIF-17",
+      "screen_id": "SCR-082",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-17",
+      "use_case_id": "UC-17-03",
+      "ui_flow_id": "UIF-17",
+      "screen_id": "SCR-083",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-17",
+      "use_case_id": "UC-17-04",
+      "ui_flow_id": "UIF-17",
+      "screen_id": "SCR-079",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    },
+    {
+      "business_journey_id": "BJ-17",
+      "use_case_id": "UC-17-04",
+      "ui_flow_id": "UIF-17",
+      "screen_id": "SCR-083",
+      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+    }
+  ]
+}
