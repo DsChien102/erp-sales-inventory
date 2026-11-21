@@ -908,7 +908,7 @@ Mỗi theme đi 4 bước:
 |---|---|---|---|---|---|
 | Layout tổng thể (web + iPhone) | ✅ 2026-11-22 [`specs/prototype/shell/html/`](../../specs/prototype/shell/html/README.md), khung dùng chung `shared/shell.{js,css}` (23 ca × 2 khổ; README có 5 phát hiện) | ⬜ | ⬜ | ⬜ | Web: thanh bên trái, cửa sổ hẹp ⇒ thanh dưới 5 tab; iPhone: thanh dưới. Flutter: `features/dashboard/presentation/store_shell.dart`, `erp_tab_scaffold.dart`, `widgets/erp_side_navigation.dart`, `widgets/erp_bottom_navigation.dart` (W-1). Gồm chọn cửa hàng APP-04 |
 | Trang chủ (dashboard) | ✅ 2026-11-22 [`specs/prototype/home/html/`](../../specs/prototype/home/html/README.md) (7 ca × 2 khổ, trong khung chung; README có 6 điểm hiện trạng) | ⬜ | ⬜ | ⬜ | APP-01, `home_tab_page.dart` + `widgets/` (thẻ doanh thu, việc cần làm, thao tác nhanh, banner hồ sơ pháp lý); lối vào "Hỏi Mosaic Retail" |
-| Menu Thêm + Thiết lập hệ thống | ⬜ chưa có | ⬜ | ⬜ | ⬜ | APP-02, `features/more/presentation/` (`more_page.dart`, `system_settings_page.dart`, `users_and_roles_page.dart`, `more_entries.dart`); mục Công nợ (Theme 6), HĐĐT (Theme 8) |
+| Menu Thêm + Thiết lập hệ thống | ✅ 2026-11-22 [`specs/prototype/more/html/`](../../specs/prototype/more/html/README.md) (7 ca × 2 khổ: Thêm, Thiết lập, Người dùng & vai trò; màn con không vẽ; README có 9 điểm hiện trạng) | ⬜ | ⬜ | ⬜ | APP-02, `features/more/presentation/` (`more_page.dart`, `system_settings_page.dart`, `users_and_roles_page.dart`, `more_entries.dart`); mục Công nợ (Theme 6), HĐĐT (Theme 8) |
 
 | Theme | Prototype HTML | Kiểm lại | Rà UI (impeccable) | Chuyển về Flutter | Ghi chú |
 |---|---|---|---|---|---|
