@@ -136,3 +136,24 @@ test('Lịch sử thao tác: tiêu đề, dòng thay đổi, người làm', () 
   assert.equal(changeText({ label: 'Trạng thái', kind: 'modified', before: 'A', after: 'B' }, false), 'A → B');
   assert.equal(actorDisplay('3f9a2c1b-7d4e-4f0a'), '3f9a2c1b');
 });
+
+// ---------------------------------------------------------------- đợt 3
+import { CONTACTS, filterContacts, canSetPrimary } from '../app/contacts.js';
+import { stepOneErrors, transformTitle } from '../app/transform.js';
+
+test('Người liên hệ: lọc trên máy, đặt làm chính', () => {
+  assert.equal(filterContacts(CONTACTS, 'hà').length, 1);
+  assert.equal(filterContacts(CONTACTS, '0918').length, 1);
+  assert.equal(filterContacts(CONTACTS, '').length, 3);
+  assert.equal(canSetPrimary(CONTACTS[0]), false);
+  assert.equal(canSetPrimary(CONTACTS[1]), true);
+  assert.equal(canSetPrimary(CONTACTS[2]), false);
+});
+
+test('Chuyển thành tổ chức: lỗi bước 1, tiêu đề', () => {
+  assert.deepEqual(Object.keys(stepOneErrors({ type: '', name: '', phone: '' })), ['type', 'name', 'phone']);
+  assert.equal(stepOneErrors({ type: 'Công ty', name: 'A', phone: '0912 34' }).phone, 'Số điện thoại không hợp lệ');
+  assert.deepEqual(stepOneErrors({ type: 'Công ty', name: 'A', phone: '0912 345 678' }), {});
+  assert.equal(transformTitle({ blocked: null, step: 2 }), 'Xem trước chuyển đổi');
+  assert.equal(transformTitle({ blocked: 'x', step: 2 }), 'Chuyển thành tổ chức');
+});

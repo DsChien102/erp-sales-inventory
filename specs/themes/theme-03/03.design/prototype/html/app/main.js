@@ -11,6 +11,10 @@ import {
   softDeleteSheet, transformToast, vtoast,
 } from './detail.js';
 import { historyPage } from './history.js';
+import {
+  CONTACTS, addMethodSheet, changePrimarySheet, contactActionSheet, contactFormPage, contactFormState, contactToast, contactsPage, removeSheet, selectPage,
+} from './contacts.js';
+import { confirmDialog, transformPage, transformPrimaryBlockedSheet } from './transform.js';
 
 /** VListDetailLayout: listWidth 360, minSplitWidth 840 (tính trên bề ngang vùng nội dung của khung). */
 export const LIST_WIDTH = 360;
@@ -58,6 +62,8 @@ const DETAIL_SHEETS = {
   deactivate: ['p2', () => deactivateSheet()], 'deactivate-primary': ['p7', (d) => deactivateSheet(d.primaryOf)], reactivate: ['p5', () => reactivateSheet()],
   'delete-confirm': ['p2', () => softDeleteSheet()], 'delete-blocked': ['p1', () => deleteBlockedSheet(true)], 'delete-blocked-inactive': ['p5', () => deleteBlockedSheet(false)],
   'delete-primary-blocked': ['p7', (d) => deletePrimaryBlockedSheet(d.primaryOf)],
+  'transform-primary-blocked': ['p7', (d) => transformPrimaryBlockedSheet(d.primaryOf)],
+  'add-contact-method': ['p1', () => addMethodSheet()],
 };
 const DETAIL_TOASTS = { 'toast-created': ['p2', 'created'], 'toast-updated': ['p1', 'updated'], 'toast-deactivated': ['p5', 'deactivated'], 'toast-failed': ['p1', 'failed'], 'toast-transformed': ['p1', 'transformed'] };
 
@@ -91,6 +97,23 @@ export function renderView(v) {
     ({ page, overlay } = partnerArea(v, lv, { sheet: sh, toastHtml: th, detail: (w, split) => detailPage(o, v, w, split) }));
   } else if (v.screen === 'history') {
     page = historyPage(v.state, v);
+  } else if (v.screen === 'contacts') {
+    const kind = v.state === 'search' || v.state === 'toast-added' ? 'loaded' : v.state;
+    page = `<div class="t3-area">${contactsPage(kind, v, { query: v.state === 'search' ? 'hà' : '' })}${v.state === 'toast-added' ? contactToast('Thêm người liên hệ thành công') : ''}</div>`;
+  } else if (v.screen === 'contact-sheet') {
+    page = contactsPage('loaded', v);
+    const body = {
+      'add-method': () => addMethodSheet(), actions: () => contactActionSheet(CONTACTS[1]), 'actions-primary': () => contactActionSheet(CONTACTS[0]),
+      'change-primary': () => changePrimarySheet(CONTACTS[0].name, CONTACTS[1].name), remove: () => removeSheet(),
+    }[v.state]();
+    overlay = sheet(body, { label: 'Người liên hệ' });
+  } else if (v.screen === 'contact-form') {
+    page = contactFormPage(contactFormState(v.state), v);
+  } else if (v.screen === 'contact-select') {
+    page = selectPage(v.state, v);
+  } else if (v.screen === 'transform') {
+    page = transformPage(v.state === 'confirm' ? 'step2' : v.state, v);
+    if (v.state === 'confirm') overlay = confirmDialog();
   } else if (v.screen === 'form') {
     const s = formState(v.state === 'leave' ? 'person-main-filled' : v.state);
     page = formPage(s, v);

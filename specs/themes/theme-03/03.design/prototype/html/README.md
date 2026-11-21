@@ -2,13 +2,13 @@
 
 HTML/CSS/JS thuần (ES module, không build). Vẽ **đúng Flutter hiện tại** của các màn TH-03, ở cả iPhone 390 và Web 1280. Web dùng bố cục 2 cột danh sách – hồ sơ của 4-W. Mục đích: người dùng rà bằng impeccable (bước 3 của 10-8). Chép y nguyên chữ, thứ tự, số đo DS; **không thiết kế lại**. Sheet / hộp thoại / toast là ca riêng.
 
-Làm theo 3 đợt, mỗi đợt một commit. Cột trái trang xem chia theo đợt:
+Làm theo 3 đợt, mỗi đợt một commit (đủ 120 ca × 2 khổ, 77 điểm hiện trạng). Cột trái trang xem chia theo đợt:
 
 | Đợt | Màn | Trạng thái |
 |---|---|---|
 | 1 · Danh sách & tạo | PT-01 Danh sách (L-01…L-07), PT-02 Bộ lọc / Sắp xếp, PT-03 Thêm mới, PT-05 Tạo / sửa (+ sheet rời màn), PT-04 Trùng hồ sơ, PT-06 Chọn khu vực | ✅ 48 ca × 2 khổ |
 | 2 · Hồ sơ | PT-07 (KH / NCC, banner hoá đơn, ngừng hoạt động, đối tác hệ thống; khối **Công nợ** Theme 6, **Chương trình ưu đãi** + **Lịch sử nhập hàng** Theme 7 vẽ đầy đủ như Flutter), sheet thao tác / ngừng / kích hoạt / xoá / chặn xoá, toast, PT-12 | ✅ 36 ca × 2 khổ |
-| 3 · Liên hệ & chuyển đổi | PT-08, PT-09, PT-10, PT-11 | ⬜ |
+| 3 · Liên hệ & chuyển đổi | PT-08 (+ sheet thêm / thao tác / đổi chính / gỡ), PT-09, PT-10, PT-11 (2 bước, hộp thoại xác nhận, bị chặn); thêm 2 sheet mở từ PT-07 (chặn chuyển đổi, thêm người liên hệ) | ✅ 36 ca × 2 khổ |
 
 ## Chạy
 
@@ -35,14 +35,16 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 | `app/form.js` | PT-05, PT-04, PT-06, sheet rời màn; `sections`, `sectionTitle`, `formTitle`, `canSubmit`, `phoneError`, `invoiceWarning`, `sectionSummary`, `filterProvinces` |
 | `app/detail.js` | PT-07 + sheet + toast, khối Theme 6 / 7; `missingDescription`, `invoiceBadge`, `contactLine`, `sheetActions` |
 | `app/history.js` | PT-12; `titleLabel`, `summaryFor`, `changeText`, `actorDisplay` |
+| `app/contacts.js` | PT-08, PT-09, PT-10 + sheet; `filterContacts`, `canSetPrimary` |
+| `app/transform.js` | PT-11 + hộp thoại xác nhận + sheet chặn chuyển đổi; `stepOneErrors`, `transformTitle` |
 | `app/main.js` | Ca → trạng thái; khu KH & NCC: web chia 2 cột (`VListDetailLayout` 360 / 840; hồ sơ ở cột phải 679 → thân 640), sheet web phủ cả cửa sổ, sheet iPhone chỉ phủ vùng tab; toast nằm trong cột hồ sơ (web) / trên thanh dưới (iPhone) |
 | `styles/t3.css` | Rule tiền tố `t3-`, token `--c45-v2-*`; đầu file có bảng màu / chữ Flutter → token |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem, chụp ảnh — chép khuôn Theme 1 (cổng 8771) |
-| `shared/icons.js` | Thêm `plus` (VIcons.add), `tune`, `cloudOff`, `chevronUp` (expandLess), `searchOff`; đợt 2: `phone`, `pause`, `power`, `trash` (VIcons.delete), `stickyNote`, `plusCircle` (addCircle) |
+| `shared/icons.js` | Thêm `plus` (VIcons.add), `tune`, `cloudOff`, `chevronUp` (expandLess), `searchOff`; đợt 2: `phone`, `pause`, `power`, `trash` (VIcons.delete), `stickyNote`, `plusCircle` (addCircle); đợt 3: `userPlus` (personAdd), `star`, `idCard` (contact), `cloud`, `arrowDown` |
 
 Gom bộ widget DS về `shared/` (Theme 1 và Theme 3 đang có hai bản `ds.js`) để làm sau, khi đã có 2–3 theme và thấy rõ phần chung. Đến lúc đó sửa một widget DS phải sửa ở cả hai nơi.
 
-## Nguồn Flutter (đợt 1, 2)
+## Nguồn Flutter
 
 | Màn | Flutter (`apps/erp/lib/features/partner/`) |
 |---|---|
@@ -56,6 +58,8 @@ Gom bộ widget DS về `shared/` (Theme 1 và Theme 3 đang có hai bản `ds.j
 | PT-07 | `pages/partner_detail_page.dart`, `widgets/{partner_detail_header, partner_detail_status_banners, partner_detail_expandable_card, partner_detail_main_info_card, partner_detail_contacts_card, partner_detail_invoice_card, partner_detail_delivery_card, partner_detail_note_card, partner_detail_system_card, partner_detail_loading_skeleton, partner_detail_error_state, partner_detail_action_sheet, partner_deactivate_confirmation_sheet, partner_reactivate_confirmation_sheet, partner_soft_delete_confirmation_sheet, partner_delete_blocked_sheet, partner_delete_primary_contact_blocked_sheet, partner_detail_soft_delete_flow, partner_create_success_toast, partner_transform_success_toast}.dart` |
 | Khối theme khác trên PT-07 | `features/receivable/presentation/widgets/{customer_receivable_summary_card, receivable_parts}.dart` (Theme 6); `features/inventory/presentation/supplier_program/supplier_programs_section.dart`, `…/goods_receipt/receipt_history_section.dart` (Theme 7); gắn ở `core/router/app_router.dart` |
 | PT-12 | `pages/partner_change_history_page.dart`, `widgets/{partner_change_history_body, partner_change_history_card}.dart`, `logic/{partner_change_history_cubit, partner_action_log_diff}.dart` |
+| PT-08…10 | `pages/{partner_contacts_page, partner_contact_form_page, partner_contact_select_page}.dart`, `widgets/{partner_contacts_loaded_body, partner_contacts_error_body, partner_contact_tile, partner_contact_empty_illustration, partner_contact_action_sheet, partner_contact_add_method_sheet, partner_contact_change_primary_dialog, partner_contact_remove_dialog, partner_contact_form, partner_contact_select_list, partner_detail_add_contact_flow}.dart` |
+| PT-11 | `pages/partner_transform_page.dart`, `widgets/{partner_transform_stepper, partner_transform_step_one_view, partner_transform_step_one_validator, partner_transform_organization_form, partner_transform_field, partner_transform_primary_contact_card, partner_transform_blocking_banner, partner_transform_preview_view, partner_transform_preview_card, partner_transform_blocked_state, partner_transform_confirmation_dialog, partner_transform_primary_contact_blocked_sheet}.dart`, `logic/partner_transform_cubit.dart` |
 | DS | `packages/c45_design_system/lib/src/components/{v_button, v_input, v_text_area, v_search_bar, v_banner, v_card, v_app_bar, v_avatar, v_empty_state, v_floating_action_button, v_checkbox, v_adaptive_sheet, v_bottom_sheet}.dart`, `primitives/{v_chip, v_badge, v_icon_box, v_skeleton, v_divider}.dart`, `forms/{v_select, v_choice_list, v_phone_field}.dart`, `patterns/{v_field, v_page_scaffold, v_page_padding, v_list_detail_layout}.dart`, `theme/v_color_scheme.dart` |
 
 ## Hiện trạng Flutter (để rà) — đợt 1
@@ -148,6 +152,45 @@ Các điểm dưới đây rút ra từ việc đọc code, chưa đối chiếu
 53. **"bởi 3f9a2c1b"**: người thực hiện là 8 ký tự đầu mã người dùng, không phải tên.
 54. Ngày dạng "2026-11-21 16:40" (danh sách dùng "21/11/2026"). Thay đổi sắp theo tên nhãn (A→Z), nên tiêu đề "Cập nhật email, SĐT chính và 1 thông tin khác" không theo thứ tự trên form. "Tạo đối tác" không có dòng chi tiết.
 55. Chỉ tải trang đầu (20 dòng), không có tải thêm (TH-03 US-07.1 ghi phân trang). Đang tải: vòng Material.
+
+## Hiện trạng Flutter (để rà) — đợt 3
+
+**Người liên hệ (PT-08)**
+
+56. Route ngoài khung: web mất thanh bên. Tiêu đề **canh giữa** (danh sách, hồ sơ canh trái). Nút "⋯" góc phải **bấm không làm gì** (`onPressed: () {}`).
+57. Dòng người liên hệ là danh sách có gạch ngăn (danh sách đối tác dùng thẻ). Thẻ "Chính" caption 12 bo 4; trên hồ sơ (PT-07) cùng thẻ là 11 px.
+58. Trống: hình ghép 3 vòng người tự vẽ; nút viền "**Gợi ý** thêm người liên hệ" (chữ lạ, mở cùng sheet với nút +). Nút + vẫn hiện, nên có hai lối cùng việc.
+59. Lỗi: icon `error_outline` 48 + tiêu đề H3 w600. Đây là kiểu lỗi thứ ba trong theme (danh sách `VEmptyState`, hồ sơ `PartnerDetailErrorState`).
+60. Toast "Thêm người liên hệ thành công" / "Cập nhật người liên hệ thành công", trong khi hồ sơ dùng "Đã …".
+
+**Sheet người liên hệ**
+
+61. **"Đổi người liên hệ chính?" tự bọc `VBottomSheet` bên trong `showVAdaptiveSheet`**: iPhone sheet lồng sheet, hai tay kéo; web hộp thoại có tay kéo và bo trên bên trong.
+62. Sheet thao tác người liên hệ (ListTile 56 + gạch, "Gỡ khỏi tổ chức" đỏ) khác hẳn sheet thao tác hồ sơ (thẻ có vòng icon).
+63. "Gỡ người liên hệ?" không có icon đầu, khe giữa hai nút 8 (các sheet khác 12).
+64. Sheet "Thêm người liên hệ": khe chữ → › thẻ 1 là 8, thẻ 2 là 16. Mở từ hồ sơ (trong vùng tab, iPhone) thì "Hủy" sát mép dưới sheet; mở từ PT-08 (ngoài khung) thì có khoảng an toàn đáy.
+
+**Thêm / sửa người liên hệ (PT-09)**
+
+65. "Hủy" / "Lưu" là **nút chữ trên app bar**; form hồ sơ (PT-05) dùng hàng nút đáy. Hàng nút đáy của `PartnerContactForm` có code nhưng không bao giờ hiện (trang luôn truyền `onFormCreated`).
+66. **Đang lưu không có vòng xoay**: các ô mờ đi nhưng "Lưu" trên app bar vẫn bấm được.
+67. Lỗi máy chủ là hộp đỏ nhạt tự vẽ, không phải VBanner. Câu lỗi "Vui lòng nhập họ tên" khác form hồ sơ ("Vui lòng nhập họ và tên").
+68. Thứ tự vai trò khác TH-03 US-04.2 (Kế toán trước Nhân viên mua hàng, Giao nhận trước Phụ trách công nợ). Công tắc ghi "Người liên hệ chính" + câu phụ; TH-03 ghi "Là người liên hệ chính cho tổ chức".
+
+**Chọn từ cá nhân (PT-10)**
+
+69. Chọn nhiều nhưng ô chọn là **vòng tròn 22** (trông như radio). Trống / lỗi chỉ là một dòng chữ giữa màn; lỗi không có nút thử lại.
+70. Hàng "Hủy | Chọn (n)" nằm trong thân, nên web hẹp theo cột 720.
+
+**Chuyển thành tổ chức (PT-11)**
+
+71. Đệm thân 12 (màn khác 16). Dưới thanh bước có **vạch 96 × 4 trông như tay kéo sheet**; bước 2 vạch rộng 44. Bước 3 "Xác nhận" trên thanh không bao giờ sáng, vì xác nhận là hộp thoại.
+72. Nhãn ô là chữ xám 13 (`PartnerTransformFieldLabel`), không phải `VFieldLabel` 14 đậm như form tạo tổ chức (PT-05), dù cùng là "Thông tin tổ chức". Ô cách 8. **Không điền sẵn** SĐT / email của cá nhân. Nút "Huỷ" viết "uỷ".
+73. Xác nhận là `Dialog` Material (cả iPhone), không phải sheet như mọi xác nhận khác. Tiêu đề canh giữa nhưng 3 câu canh trái.
+74. **Đang chuyển: lớp phủ màu `textPrimary` (gần đen, đặc)** che toàn thân, kèm vòng xoay xanh.
+75. Trùng SĐT từ máy chủ: quay về bước 1, lỗi dưới ô, không có banner, "Tiếp" vẫn bật. Lỗi ô thiếu: banner vàng + "Tiếp" mờ.
+76. Sheet "Không thể chuyển thành tổ chức" (mở từ PT-07) tự vẽ tay kéo 40 × 4 giống sheet chặn xoá, nên iPhone có hai tay kéo.
+77. Bước 2: hai khối "Trước / Sau khi chuyển" nền `surfaceAlt`, trùng màu nền trang (`background`), nên khối không thấy, chỉ còn tiêu đề trôi; thẻ "Người liên hệ chính" bên dưới không nằm trong khối nên lệch vào trái 12 px so với hai thẻ trên.
 
 ## Khác biệt có chủ đích với Flutter
 

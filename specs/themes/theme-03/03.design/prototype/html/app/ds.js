@@ -149,11 +149,12 @@ export const divider = () => '<hr class="t3-divider">';
  * subtitle → preferredSize 64: tiêu đề + khe 2 + caption 12/18 textSecondary.
  * back: nút ← 48 (VIcons.chevronLeft 24); leading: HTML tự dựng (ô 56).
  */
-export function appBar(title, { subtitle = '', back = false, leading = '' } = {}) {
+export function appBar(title, { subtitle = '', back = false, leading = '', center = false, actions = '' } = {}) {
   const lead = leading ? `<span class="t3-appbar__lead">${leading}</span>` : back ? `<span class="t3-appbar__lead"><button type="button" class="t3-appbar__back" aria-label="Quay lại">${icon('chevronLeft')}</button></span>` : '';
-  return `<header class="t3-appbar${subtitle ? ' t3-appbar--sub' : ''}${lead ? ' has-lead' : ''}">
+  return `<header class="t3-appbar${subtitle ? ' t3-appbar--sub' : ''}${lead ? ' has-lead' : ''}${center ? ' t3-appbar--center' : ''}">
     ${lead}
     <div class="t3-appbar__titles"><h1 class="t3-appbar__title">${esc(title)}</h1>${subtitle ? `<p class="t3-appbar__sub">${esc(subtitle)}</p>` : ''}</div>
+    ${actions ? `<span class="t3-appbar__actions">${actions}</span>` : ''}
   </header>`;
 }
 

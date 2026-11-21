@@ -231,8 +231,8 @@
 .t3-createtype { padding: var(--c45-v2-space-4); }
 .t3-typecard { display: flex; align-items: center; gap: var(--c45-v2-space-3); }
 .t3-typecard > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.t3-typecard b { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
-.t3-typecard span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t3-typecard > div b { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t3-typecard > div span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
 .t3-typecard__chev { display: grid; margin-left: -4px; font-size: 24px; color: var(--c45-v2-text-primary); }
 
 /* ================================================ PT-05 form */
@@ -271,8 +271,8 @@
 .t3-dup__list { align-self: stretch; display: flex; flex-direction: column; }
 .t3-dupmatch { display: flex; align-items: center; gap: var(--c45-v2-space-3); text-align: left; }
 .t3-dupmatch > div { display: flex; flex-direction: column; }
-.t3-dupmatch b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
-.t3-dupmatch span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t3-dupmatch > div b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t3-dupmatch > div span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
 .t3-leave { padding: 12px 16px 16px; }
 
 /* PT-06 */
@@ -347,7 +347,7 @@
 .t3-kv b.is-empty, .t3-dval.is-empty { font-weight: 400; color: var(--c45-v2-text-muted); }
 .t3-dcontact { display: flex; align-items: flex-start; gap: var(--c45-v2-space-3); }
 .t3-dcontact > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.t3-dcontact span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t3-dcontact > div > span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
 .t3-dcontact__name { display: flex; align-items: center; gap: 8px; }
 .t3-dcontact__name b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
 .t3-dcontact__name .t3-stag { color: var(--c45-v2-action-primary-default); }
@@ -410,8 +410,8 @@
 .t3-actsheet__title { margin: 0; padding: 16px 16px 8px; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; color: var(--c45-v2-text-primary); }
 .t3-actcard { display: flex; align-items: center; gap: 12px; margin: 8px 16px; padding: 16px; border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); cursor: pointer; }
 .t3-actcard > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.t3-actcard b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
-.t3-actcard span { font-size: var(--sh-fs-sm); line-height: 1.35; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t3-actcard > div b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t3-actcard > div span { font-size: var(--sh-fs-sm); line-height: 1.35; font-weight: 500; color: var(--c45-v2-text-secondary); }
 .t3-actcard > i { display: grid; margin-left: -4px; font-size: 24px; color: var(--c45-v2-text-muted); }
 .t3-actsheet__cancel { padding: 12px 16px 16px; }
 .t3-confirm { display: flex; flex-direction: column; padding: 8px 16px 16px; }
@@ -449,3 +449,132 @@
 /* VButton link: không nền / đệm, vùng chạm tối thiểu 44 */
 .t3-btn--link { height: auto; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--c45-v2-action-primary-default); }
 .t3-btn--link:hover:not(:disabled) span { text-decoration: underline; }
+
+/* ================================================ đợt 3: app bar tiêu đề giữa + hành động */
+.t3-appbar { position: relative; }
+.t3-appbar--center .t3-appbar__titles { position: absolute; left: 72px; right: 72px; text-align: center; pointer-events: none; }
+.t3-appbar__actions { margin-left: auto; margin-right: -8px; display: flex; align-items: center; }
+.t3-appbar__act { display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--c45-v2-text-primary); font-size: 24px; cursor: pointer; }
+/* TextButton chữ trên app bar */
+.t3-textact { padding: 8px 12px; border: 0; border-radius: 20px; background: transparent; color: var(--c45-v2-action-primary-default); font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; cursor: pointer; }
+.t3-textact--b { font-weight: 700; }
+.t3-h3 { margin: 0; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t3-gap-h16 { flex: 0 0 16px; }
+.t3-rel { position: relative; }
+.t3-small--b { font-weight: 700; }
+.t3-select.is-invalid { border-color: var(--c45-v2-text-danger); }
+.t3-select.is-disabled { border-color: var(--c45-v2-border-default); opacity: var(--c45-v2-opacity-disabled); }
+
+/* PT-08 */
+.t3-orghead { margin: 16px 16px 8px; padding: 16px; border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-success); }
+.t3-orghead h2 { margin: 0; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t3-orghead p { margin: 0; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t3-csearch { flex: 0 0 auto; display: flex; padding: 16px; }
+.t3-ccount { margin: 0 16px; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.t3-clist { flex: 1; min-height: 0; overflow-y: auto; margin: 0; padding: 0 16px; list-style: none; }
+.t3-clist > li + li { border-top: 1px solid var(--c45-v2-border-default); }
+.t3-ctile { display: flex; align-items: center; gap: 8px; padding: 12px 0; cursor: pointer; }
+.t3-ctile > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t3-ctile > div span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t3-ctile > div b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t3-ctile > i { display: grid; font-size: 24px; color: var(--c45-v2-text-muted); }
+.t3-ctile--sel { gap: 12px; }
+.t3-ctile__name { display: flex; align-items: center; gap: 8px; }
+.t3-ctag { padding: 2px 8px; border-radius: 4px; font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 600; white-space: nowrap; }
+.t3-ctag--success { background: rgb(47 122 58 / .1); color: var(--c45-v2-action-primary-default) !important; }
+.t3-ctag--warning { background: rgb(147 90 10 / .1); color: var(--c45-v2-text-warning) !important; }
+.t3-cempty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 16px; text-align: center; }
+.sh-app[data-device="iphone"] .t3-cempty { padding-bottom: 34px; }
+.t3-cempty h2, .t3-cerr h2 { margin: 0; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t3-cerr h2 { font-weight: 600; }
+.t3-cempty p, .t3-cerr p { margin: 0; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t3-cart { position: relative; width: 120px; height: 120px; }
+.t3-cart > span { position: absolute; display: grid; place-items: center; border-radius: 50%; background: var(--c45-v2-surface-default); color: var(--c45-v2-text-muted); }
+.t3-cart .a { left: 10px; top: 25px; width: 50px; height: 50px; border: 2px solid var(--c45-v2-border-default); font-size: 30px; }
+.t3-cart .b { right: 15px; top: 15px; width: 60px; height: 60px; border: 2px solid var(--c45-v2-border-default); font-size: 36px; }
+.t3-cart .c { left: 28px; bottom: 10px; width: 65px; height: 65px; border: 2.5px solid var(--c45-v2-border-default); font-size: 36px; }
+.t3-cart .d { right: 15px; bottom: 10px; padding: 4px; border: 2px solid var(--c45-v2-surface-default); background: var(--c45-v2-action-primary-default); color: #fff; font-size: 16px; }
+.t3-cerr { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 16px; text-align: center; }
+.t3-cerr__icon { display: grid; font-size: 48px; color: var(--c45-v2-text-danger); }
+.t3-mcard { display: flex; align-items: center; }
+.t3-mcard > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t3-mcard > div b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t3-mcard > div span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t3-mcard__chev { display: grid; font-size: 24px; color: var(--c45-v2-text-muted); }
+.t3-ibox--info { background: var(--c45-v2-surface-info); color: var(--c45-v2-text-info); }
+.sh-app[data-device="iphone"] .t3-addm { padding-bottom: 34px; }
+.sh-app[data-device="iphone"] .t3-area .t3-addm { padding-bottom: 0; }
+.t3-ltile { display: flex; align-items: center; gap: 16px; min-height: 56px; padding: 0 16px; font-size: 24px; color: var(--c45-v2-text-secondary); cursor: pointer; }
+.t3-ltile > span { flex: 1; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-primary); }
+.t3-ltile > i { display: grid; }
+.t3-ltile__chev { color: var(--c45-v2-text-muted); }
+.t3-ltile.is-danger, .t3-ltile.is-danger > span, .t3-ltile.is-danger .t3-ltile__chev { color: var(--c45-v2-text-danger); }
+.t3-innersheet { display: flex; flex-direction: column; border-radius: 16px 16px 0 0; background: var(--c45-v2-surface-default); }
+.t3-cdesc--n { line-height: 22px; }
+.t3-swap { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.t3-swap > i { display: grid; font-size: 24px; color: var(--c45-v2-text-muted); }
+.t3-grid2--8 { gap: 8px; }
+/* PT-09 */
+.t3-cformerr { padding: 12px; border: 1px solid rgb(181 50 50 / .2); border-radius: var(--c45-v2-radius-card); background: rgb(181 50 50 / .05); font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-danger); }
+.t3-primrow { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.t3-primrow > div { flex: 1; display: flex; flex-direction: column; }
+.t3-primrow b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-primary); }
+.t3-primrow span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+/* Switch M3: rãnh 52 × 32, núm 16 (tắt) / 24 (bật) trắng; tắt nền borderInput, bật nền primary */
+.t3-switch { position: relative; flex: 0 0 52px; width: 52px; height: 32px; border-radius: 16px; background: var(--c45-v2-border-input); }
+.t3-switch i { position: absolute; top: 8px; left: 8px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+.t3-switch.is-on { background: var(--c45-v2-action-primary-default); }
+.t3-switch.is-on i { top: 4px; left: 24px; width: 24px; height: 24px; }
+.t3-switch.is-disabled { opacity: .38; }
+/* PT-10 */
+.t3-selbody { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.t3-clist--fill { flex: 1; }
+.t3-selmsg { margin: 0; padding: 16px; text-align: center; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t3-selmsg.is-danger { color: var(--c45-v2-text-danger); }
+.t3-selmark { display: grid; place-items: center; flex: 0 0 22px; width: 22px; height: 22px; border: 2px solid var(--c45-v2-border-strong); border-radius: 50%; color: #fff; font-size: 14px; }
+.t3-selmark.is-on { border-color: var(--c45-v2-action-primary-default); background: var(--c45-v2-action-primary-default); }
+.t3-ctile--sel > span.t3-selmark { color: #fff; }
+.sh-app[data-device="iphone"] .t3-form > .t3-dbar { padding-bottom: 50px; }
+
+/* PT-11 */
+.t3-tscroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; padding: 12px 12px 0; }
+.t3-tscroll > * { flex: 0 0 auto; }
+.t3-tsteps { display: flex; align-items: flex-start; padding: 0 16px; }
+.t3-tsteps > i { flex: 1; height: 1px; margin-top: 15px; background: var(--c45-v2-border-default); }
+.t3-tstep { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.t3-tstep > span { display: grid; place-items: center; width: 32px; height: 32px; border: 2px solid var(--c45-v2-border-default); border-radius: 50%; background: var(--c45-v2-surface-default); font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-secondary); }
+.t3-tstep > small { font-size: 11px; line-height: 15px; font-weight: 500; color: var(--c45-v2-text-muted); }
+.t3-tstep.is-on > span { border-color: var(--c45-v2-action-primary-default); background: var(--c45-v2-action-primary-default); color: #fff; }
+.t3-tstep.is-on > small { font-weight: 700; color: var(--c45-v2-action-primary-default); }
+.t3-tbar { align-self: center; display: block; height: 4px; border-radius: 2px; background: var(--c45-v2-border-strong); }
+.t3-tlabel { font-size: var(--sh-fs-sm); line-height: 1.2; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t3-tlabel i { font-style: normal; color: var(--c45-v2-text-danger); }
+.t3-tcontact { border: 1px solid rgb(47 122 58 / .12); border-radius: var(--c45-v2-radius-card); background: rgb(47 122 58 / .06); }
+.t3-tcontact > b { display: block; padding: 16px; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t3-tcontact > div { display: flex; align-items: center; gap: 12px; margin: 0 12px 12px; padding: 12px; border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); }
+.t3-tcontact > div > div { display: flex; flex-direction: column; color: var(--c45-v2-text-primary); }
+.t3-tcontact strong { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; }
+.t3-tcontact > div > div span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; }
+.t3-tacts { padding-bottom: 12px; }
+.sh-app[data-device="iphone"] .t3-tacts { padding-bottom: 34px; }
+.t3-psec { padding: 12px; border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-canvas); }
+.t3-psec > b { display: block; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t3-pcard { display: flex; align-items: center; gap: 12px; }
+.t3-pcard > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t3-pcard > div b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t3-pcard > div span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); white-space: pre; }
+.t3-pcard strong { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.t3-parrow { align-self: center; display: grid; padding: 12px 0; font-size: 28px; color: var(--c45-v2-action-primary-default); }
+.t3-derr--full { flex: 1; justify-content: center; }
+.t3-tart { position: relative; display: grid; place-items: center; width: 140px; height: 140px; font-size: 120px; color: rgb(107 116 128 / .28); }
+.t3-tart .p { position: absolute; display: grid; font-size: 36px; color: rgb(107 116 128 / .55); }
+.t3-tart--cloud { font-size: 110px; }
+.t3-tart .w { position: absolute; bottom: 28px; display: grid; font-size: 48px; color: rgb(181 50 50 / .92); }
+.t3-tsubmit { position: absolute; inset: 0; z-index: 10; display: flex; background: var(--c45-v2-text-primary); }
+/* Dialog Material M3: lề ngang 20, tối thiểu 280, tối đa 560, bo 16, đệm 20 */
+.t3-scrim20 { padding: 24px 20px; }
+.t3-mdialog { width: 100%; max-width: 560px; padding: 20px; border-radius: var(--c45-v2-radius-sheet); background: var(--c45-v2-surface-default); box-shadow: var(--c45-v2-elevation-e4); }
+.t3-ibox--ring { border: 2px solid var(--c45-v2-text-warning); }
+/* Scaffold endFloat ngoài khung trên iPhone: nút nổi đứng trên vùng an toàn đáy (16 + 34) */
+.sh-app[data-device="iphone"][data-layout="bare"] .t3-fabpos { bottom: 50px; }
+.t3-ctile .t3-ctag { font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 600; }
