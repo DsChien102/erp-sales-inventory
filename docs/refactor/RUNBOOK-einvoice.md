@@ -13,17 +13,33 @@ Kiến trúc xử lý nền HĐĐT (TH-08, 7-E3):
 
 Đặt secret cho Edge Function trên Dev (`pzlsjedtsntkarkivhve`):
 
-```bash
-supabase secrets set \
-  MISA_MEINVOICE_APP_ID=… \
-  MISA_MEINVOICE_BASE_URL=https://testapi.meinvoice.vn/api/integration \
-  MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED=false
-```
+> **2026-11-20:** MISA đã bỏ môi trường sandbox (`testapi.meinvoice.vn` không còn dùng được). Dev dùng **tài khoản MISA thật** trên `api.meinvoice.vn`, demo chỉ tới bước **xem trước** (`/invoice/unpublishview`), **không phát hành**. Phát hành được kiểm bằng unit test với client giả.
+
+Thứ tự an toàn khi chuyển Dev sang tài khoản thật:
+
+1. Deploy `einvoice-processor` có chốt `MISA_MEINVOICE_PUBLISH_ENABLED`.
+2. Đặt cờ chặn trước:
+
+   ```bash
+   supabase secrets set MISA_MEINVOICE_PUBLISH_ENABLED=false MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED=false
+   ```
+
+3. `supabase db reset --linked` để xoá lệnh `einvoice.publish_invoice` cũ còn trong hàng đợi.
+4. Sau cùng mới trỏ sang môi trường thật:
+
+   ```bash
+   supabase secrets set \
+     MISA_MEINVOICE_APP_ID=… \
+     MISA_MEINVOICE_BASE_URL=https://api.meinvoice.vn/api/integration
+   ```
+
+5. Trong app giữ tắt "Tự động phát hành" và "Tự động gửi email" (màn Tự động hoá).
 
 Ý nghĩa các biến (theo TH-08 mục 6.1):
-- `MISA_MEINVOICE_APP_ID`: App ID do MISA cấp cho đơn vị tích hợp.
-- `MISA_MEINVOICE_BASE_URL`: Endpoint MISA integration (`https://testapi.meinvoice.vn/api/integration` cho sandbox, `https://api.meinvoice.vn/api/integration` cho production).
-- `MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED`: `true` / `1` để bật gửi email; chỉ có hiệu lực với host `api.meinvoice.vn` — trên testapi luôn coi là không hỗ trợ, dù đặt gì.
+- `MISA_MEINVOICE_APP_ID`: App ID do MISA cấp cho đơn vị tích hợp (App ID cấp cho sandbox cũ thường không dùng được với tài khoản thật).
+- `MISA_MEINVOICE_BASE_URL`: Endpoint MISA integration — `https://api.meinvoice.vn/api/integration`. (`https://testapi.meinvoice.vn/api/integration` là sandbox cũ, MISA đã bỏ.)
+- `MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED`: `true` / `1` để bật gửi email; chỉ có hiệu lực với host `api.meinvoice.vn` — host khác luôn coi là không hỗ trợ, dù đặt gì.
+- `MISA_MEINVOICE_PUBLISH_ENABLED`: `true` / `1` mới cho gọi `POST /invoice` (phát hành thật, gửi cơ quan thuế). Thiếu hoặc giá trị khác = **tắt**: lệnh phát hành (bấm tay hay tự động) bị ghi `PUBLISH_COMMAND_DEAD_LETTER` / `PUBLISH_DISABLED`, không gọi MISA. Kết nối, lấy mẫu, xem trước vẫn chạy.
 
 ## 2. Vault Secrets trong Database
 

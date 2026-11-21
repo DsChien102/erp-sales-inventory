@@ -4,9 +4,14 @@ import { CanonicalInvoiceIntegrityError } from './errors.ts'
 import type { IssuanceGateways } from './gateways.ts'
 import type { IssuanceProvider } from './issuance_provider.ts'
 
+/** Reason stored on the attempt when MISA_MEINVOICE_PUBLISH_ENABLED is off. */
+export const PUBLISH_DISABLED_REASON = 'PUBLISH_DISABLED'
+
 export function createPublishInvoiceHandler(deps: {
   provider: IssuanceProvider
   gateways: IssuanceGateways
+  /** From MISA_MEINVOICE_PUBLISH_ENABLED; false blocks every POST /invoice (demo: preview only). */
+  publishEnabled: boolean
 }): CommandHandler {
   return async (ctx: CommandContext): Promise<void> => {
     const payload = ctx.command.payload
@@ -30,6 +35,14 @@ export function createPublishInvoiceHandler(deps: {
     }
     if (typeof idempotencyKey !== 'string' || idempotencyKey.trim().length === 0) {
       throw new Error('PublishInvoiceCommand payload missing idempotency_key')
+    }
+
+    // Gate before lease / preparePublish / markProviderCallStarted, so nothing reaches MISA.
+    // The dead-letter RPC fails a PREPARING attempt, sends a SUBMITTED / WAITING_RESULT one to
+    // reconciliation (an earlier call may have issued it), and ignores finished attempts.
+    if (!deps.publishEnabled) {
+      await deps.gateways.results.recordPublishCommandDeadLetter(tenantId, attemptId, PUBLISH_DISABLED_REASON)
+      return
     }
 
     try {

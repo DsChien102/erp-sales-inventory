@@ -24,7 +24,7 @@ Deno.test('publish lease busy reschedules by retry_after without consuming an at
   gateways.lease.leaseOutcome = { kind: 'busy', retryAfterSeconds: 17 }
 
   const handlers = {
-    'einvoice.publish_invoice': createPublishInvoiceHandler({ provider, gateways }),
+    'einvoice.publish_invoice': createPublishInvoiceHandler({ provider, gateways, publishEnabled: true }),
   }
   const deadLetters = createIssuanceDeadLetters(gateways)
   const rpc = new FakeQueueRpc()
@@ -59,7 +59,7 @@ Deno.test('publish retryable rejection completes the command without dead-letter
   }
 
   const handlers = {
-    'einvoice.publish_invoice': createPublishInvoiceHandler({ provider, gateways }),
+    'einvoice.publish_invoice': createPublishInvoiceHandler({ provider, gateways, publishEnabled: true }),
   }
   const deadLetters = createIssuanceDeadLetters(gateways)
   const rpc = new FakeQueueRpc()
@@ -85,7 +85,7 @@ Deno.test('publish failure on third attempt dead-letters to recordPublishCommand
   provider.throwOnPublish = new Error('DB error or network failure')
 
   const handlers = {
-    'einvoice.publish_invoice': createPublishInvoiceHandler({ provider, gateways }),
+    'einvoice.publish_invoice': createPublishInvoiceHandler({ provider, gateways, publishEnabled: true }),
   }
   const deadLetters = createIssuanceDeadLetters(gateways)
   const rpc = new FakeQueueRpc()

@@ -42,7 +42,10 @@ export function buildHandlers(
   return {
     [SYNC_CAPABILITIES]: createSyncCapabilitiesHandler(deps),
     'einvoice.preview_invoice': createPreviewInvoiceHandler(deps.issuance),
-    'einvoice.publish_invoice': createPublishInvoiceHandler(deps.issuance),
+    'einvoice.publish_invoice': createPublishInvoiceHandler({
+      ...deps.issuance,
+      publishEnabled: deps.env.publishEnabled,
+    }),
     'einvoice.poll_issuance_status': createPollIssuanceStatusHandler(
       deps.issuance,
     ),

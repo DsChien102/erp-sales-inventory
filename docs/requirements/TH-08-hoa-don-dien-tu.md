@@ -1378,7 +1378,7 @@ App hỏi lại kết quả như hiện tại (Timer trong cubit)
 - Hai đường kích hoạt cùng lấy việc từ một hàng đợi; RPC `claim_*` khóa từng việc nên chạy song song không xử lý trùng.
 - Mỗi lần gọi Edge Function xử lý tối đa một số việc giới hạn (để dưới hạn thời gian chạy của Edge Function); việc còn lại để lần sau.
 - Mật khẩu MISA giải mã qua `read_provider_credentials` (service_role); token MISA giữ theo tổ chức trong lúc chạy, không lưu DB.
-- Secret của Edge Function: `MISA_MEINVOICE_APP_ID`, `MISA_MEINVOICE_BASE_URL` (bắt buộc), `MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED` (`true` / `1` để bật gửi email; chỉ có hiệu lực với host `api.meinvoice.vn`).
+- Secret của Edge Function: `MISA_MEINVOICE_APP_ID`, `MISA_MEINVOICE_BASE_URL` (bắt buộc), `MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED` (`true` / `1` để bật gửi email; chỉ có hiệu lực với host `api.meinvoice.vn`), `MISA_MEINVOICE_PUBLISH_ENABLED` (`true` / `1` mới cho phát hành thật; thiếu = tắt — lệnh `einvoice.publish_invoice` ghi `record_publish_command_dead_letter(…, 'PUBLISH_DISABLED')` trước khi lấy khoá ký hiệu, không gọi MISA). 🆕 2026-11-20: MISA bỏ sandbox; Dev dùng tài khoản thật, demo dừng ở xem trước.
 - Việc hẹn giờ (đối soát 30 giây → 2 giờ, thử lại, khóa ký hiệu bận) dùng `next_check_at` / thời điểm đến hạn của `internal_commands`; `pg_cron` bảo đảm được quét dù không ai mở app.
 
 UI thiết lập và khu HĐĐT trên đơn nằm ở `apps/erp/lib/features/einvoice/presentation`; `features/sales` chỉ nhúng `OrderEInvoiceSection` (7-A2b).

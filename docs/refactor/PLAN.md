@@ -2,6 +2,8 @@
 
 > Đi kèm [SCOPE.md](SCOPE.md) (phạm vi và các quyết định đã chốt). File này trả lời câu hỏi: **làm gì, theo thứ tự nào, xong thì kiểm tra thế nào.**
 > Branch làm việc: `refactor/simple-arch` (tách từ `feature/theme8`). Ngày lập: 2026-10-06.
+> **Cập nhật 2026-11-20:** `refactor/simple-arch` đã merge vào `dev` (PR #1, `207bde8ef`); làm tiếp trên `dev`. `main` mới có "Initial Commit" — merge `dev` → `main` + tag `v2.0.0` là việc 10.6.
+> Commit `4d14f189c` (2026-11-20) xoá file plan AI-2…AI-5 và T6-2a/2b/2c, trong đó AI-2…5 và T6-2c **chưa đóng review**; việc còn mở chép vào dòng tương ứng bên dưới, nội dung đầy đủ đọc bằng `git show 4d14f189c^:docs/refactor/plans/<AI|T6>/<tệp>.md`.
 
 ## Tổng quan
 
@@ -52,7 +54,7 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 |---|---|---|---|---|
 | Chuẩn bị | Chuẩn bị branch, commit việc dở, chụp checklist | 0,5 ngày | — | |
 | Nền core | Dựng `core/` + mẫu feature | 2 ngày | Chuẩn bị | |
-| Theme 1 | Auth, đăng ký cửa hàng, IAM | 5 ngày (còn ~1–1,5: 2-B6, 2-B7) | Nền core | |
+| Theme 1 | Auth, đăng ký cửa hàng, IAM | 5 ngày (code xong; còn kiểm tay) | Nền core | |
 | Theme 1 (tiếp) | Làm gọn IAM: bỏ `modules/iam`, `apps/admin`, worker, luồng onboarding cũ, Platform Admin | 3 ngày | Theme 1 | Làm nối tiếp IAM khi còn nhớ ngữ cảnh |
 | — | **Đợt kiểm IAM** (đóng Theme 1) | 0,5 ngày | Theme 1 (tiếp) | `db reset --linked` → kịch bản SQL → Vault → `functions deploy send-email` → bật xác minh email → kiểm tay TH-01 9.3 → tick CHECKLIST |
 | Web cho app | Khung web thanh bên (W-1) + Theme 1 trên web (W-2) | ~1,5 ngày | Theme 1 | Chốt thiết bị 2026-10-20. **Hoãn** sau Theme 7 prototype; W-1 phải xong trước màn Flutter web đầu tiên |
@@ -573,7 +575,9 @@ Chi tiết từng việc:
 
 ## Theme 7. Inventory — Kho & Giá vốn
 
-**Trạng thái:** 🔄 **Rút gọn phạm vi 2026-11-09** (người dùng chốt, vì hạn 2026-12-02): còn 10 plan G5 theo luồng demo chính (kho trống → chương trình NCC → nhận hàng có giá gốc + ưu đãi → bán / trả / huỷ qua Sales → kiểm kê → ghi nhận chiết khấu NCC → giá vốn & chốt kỳ → báo cáo tồn + lãi gộp). G5-0a ✅ (2026-11-09). G5-0b ✅ (2026-11-10). G5-2b ✅ (2026-11-10). **2026-11-10:** lấy lại CAP-01 (G5-2a, làm trước G5-2); plan G5-2a + G5-2 ✅ (duyệt cùng ngày). Code BJ-02 / 03 cũ (v4.6.8) giữ tới G5-3 thì xoá. **G5-3 ✅ (2026-11-11)**, đã xoá code BJ-02 / 03 cũ. 2026-11-11: thêm `tools/db_check.sh`; sửa fixture `inventory_core` / `stock_policy` / `stock_view` (role `store_owner`, `products.reference_id`, mỗi user làm chủ 1 tenant) ⇒ 6/6 tệp test SQL Kho xanh. Nợ ngoài Theme 7 ghi ở `tools/db_check_known.txt`: 4 hàm catalog / einvoice tham chiếu cột không có, 4 tệp test (`catalog_th02`, `einvoice_th08`, `pricing_th04`, `sales_th05`) đỏ.
+**Trạng thái (2026-11-20):** 🔄 **Code + review xong cả 10 plan G5** (G5-0a … G5-8, G5-8 R3 2026-11-13: 709 test, `db_check` đạt). Còn: kiểm tay luồng demo trên Dev (tiêu chí 4 mục "Xong khi"), reset Dev `--linked`.
+
+**Lịch sử:** 🔄 **Rút gọn phạm vi 2026-11-09** (người dùng chốt, vì hạn 2026-12-02): còn 10 plan G5 theo luồng demo chính (kho trống → chương trình NCC → nhận hàng có giá gốc + ưu đãi → bán / trả / huỷ qua Sales → kiểm kê → ghi nhận chiết khấu NCC → giá vốn & chốt kỳ → báo cáo tồn + lãi gộp). G5-0a ✅ (2026-11-09). G5-0b ✅ (2026-11-10). G5-2b ✅ (2026-11-10). **2026-11-10:** lấy lại CAP-01 (G5-2a, làm trước G5-2); plan G5-2a + G5-2 ✅ (duyệt cùng ngày). Code BJ-02 / 03 cũ (v4.6.8) giữ tới G5-3 thì xoá. **G5-3 ✅ (2026-11-11)**, đã xoá code BJ-02 / 03 cũ. 2026-11-11: thêm `tools/db_check.sh`; sửa fixture `inventory_core` / `stock_policy` / `stock_view` (role `store_owner`, `products.reference_id`, mỗi user làm chủ 1 tenant) ⇒ 6/6 tệp test SQL Kho xanh. Nợ ngoài Theme 7 ghi ở `tools/db_check_known.txt`: 4 hàm catalog / einvoice tham chiếu cột không có, 4 tệp test (`catalog_th02`, `einvoice_th08`, `pricing_th04`, `sales_th05`) đỏ.
 
 > **Đã xong (bỏ khỏi bảng 2026-11-09):** T7-0 / T7-0b / T7-0c (Flutter BJ-02 / 03 theo prototype v4.6.8, commit `49967966e` — sẽ viết lại ở G5-3), T7-P0 (dọn prototype), T7-P (thiết kế lại trên prototype, đóng 2026-10-27, v5.26.1 — [plan](plans/T7/T7-P-thiet-ke-lai-luong.md) giữ để tra khuôn K1–K7, mục 5), T7-G4 (chốt đặc tả FROZEN v5.27.0, 2026-11-09). Prototype **v5.28.0 rút gọn** (2026-11-09, người dùng yêu cầu): chỉ còn 5 luồng app làm (bỏ cả tồn đầu kỳ), đã gỡ duyệt / nhập tệp / nhận theo chứng từ mua / tình trạng hàng / K3 (`?scope=full` hiện thêm luồng bỏ để tra cứu; xem CHANGELOG 5.28.0). Ảnh `proto-final` là của v5.27.0 ⇒ plan chụp lại màn đã đổi trước khi dùng làm đích. Bảng cũ (17 BJ, G5-0a…G5-17): `git show e5c9d4599:docs/refactor/PLAN.md`.
 
@@ -797,7 +801,9 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 
 ## Tích hợp AI (~4,5 ngày)
 
-**Trạng thái:** ⬜ Chưa làm. Giảng viên phụ trách yêu cầu "tích hợp AI vào app". Làm **ngay sau Theme 7** (chốt 2026-11-09; trước đây làm cuối, sau Dọn dẹp), trước Theme 6.
+**Trạng thái (2026-11-20):** 🔄 AI-0, AI-1 ✅; AI-2 làm xong, chưa review; AI-3 / AI-4 / AI-5 ⏸ tạm dừng từ 2026-11-18 (chuyển sang Theme 6). Việc còn mở ghi ở từng dòng bảng; file plan AI-2…5 đã xoá ở `4d14f189c` (đọc `git show 4d14f189c^:docs/refactor/plans/AI/<tệp>.md`). Công cụ `cong_no_phai_thu` (hoãn từ AI-1) làm khi Theme 6 đóng.
+
+Giảng viên phụ trách yêu cầu "tích hợp AI vào app". Làm **ngay sau Theme 7** (chốt 2026-11-09; trước đây làm cuối, sau Dọn dẹp), trước Theme 6.
 
 **Đã chốt (2026-10-27, người dùng; không hỏi lại giáo viên; plan chi tiết viết khi tới phần này, làm cùng người dùng):** tính năng = trợ lý **"Hỏi Mosaic Retail"** hỏi đáp số liệu cửa hàng bằng tiếng Việt, chỉ đọc, theo quyền người hỏi, **kèm dự báo nhập hàng** (AI-3: app tính dự báo bằng công thức thống kê trong RPC, Gemini chỉ giải thích — không huấn luyện model riêng, không để Gemini tự tính số). Công cụ là vài RPC tổng hợp **có tham số** (chỉ số × nhóm theo × lọc × thời gian, giá trị chọn trong danh sách cố định; SQL do mình viết), không viết một RPC cho mỗi câu hỏi; câu không có công cụ → trả lời "chưa hỗ trợ", ghi nhật ký. Đọc ảnh phiếu giao hàng: chỉ là ý tưởng nếu dư thời gian, không nằm trong plan. **Làm đủ chức năng** (người dùng chốt 2026-10-27): cả trợ lý lẫn dự báo, đủ các công cụ (thống kê bán hàng, tồn kho, biến động kho, công nợ, dự báo, tìm kiếm) và bộ 20–30 câu hỏi thử — không chia tầng cắt; người dùng đẩy nhanh các theme trước để dành thời gian cho phần này. Model: **Gemini API, hạn mức miễn phí** (khoá tạo ở Google AI Studio, chỉ nằm trong secrets Edge Function); phần gọi model tách một lớp riêng để đổi nhà cung cấp được.
 
@@ -805,10 +811,10 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 | ---- | -------- | -------- | ---- | --- | ------ |
 | **AI-0** | Yêu cầu ngắn cho "Hỏi Mosaic Retail": danh sách câu hỏi phải trả lời được, công cụ và bộ tham số (thống kê bán hàng, tình hình tồn kho, biến động kho, công nợ phải thu, dự báo bán hàng, tìm sản phẩm / khách / đơn), lời dặn hệ thống, chữ trên màn, quyền, giới hạn; bộ 20–30 câu hỏi thử để đánh giá | ~0,5 ngày | ✅ [plan](plans/AI/AI-0-yeu-cau.md) (yêu cầu, không code) | — | — |
 | **AI-1** | Backend: Edge Function `ai-assistant` gọi Gemini API (function calling); **viết mới RPC tổng hợp chỉ đọc có tham số** (app hiện chưa có RPC tổng doanh thu — `list_sales_orders` chỉ trả danh sách theo trang; thẻ doanh thu Home đang gõ cứng), dùng lại RPC đọc của Theme 7; ~~công cụ công nợ phải thu~~ **hoãn** (người dùng chốt 2026-11-16: làm sau Theme 6, xem [AI-0](plans/AI/AI-0-yeu-cau.md)); gọi bằng JWT của người hỏi (RLS + quyền tự áp); nhật ký (người hỏi, công cụ, token, câu không có công cụ), giới hạn số câu mỗi tổ chức mỗi ngày | ~2 ngày | ✅ plan (đã xoá) | ✅ | ✅ R4 |
-| **AI-2** | UI (iPhone + web): màn "Hỏi Mosaic Retail", lối vào từ Home; câu trả lời + bảng dựng từ kết quả công cụ + nút mở màn; đang trả lời, lỗi, hết lượt, không có quyền; `/impeccable audit` | ~1 ngày | ✅ plan (đã xoá) | ✅ (web + dev đã chạy thật; chưa kiểm tay: iPhone, thu ngân, tắt mạng, bấm khách — xem mục Ghi chú trong plan) | ⬜ |
-| **AI-3** | Dự báo nhập hàng: RPC tính tốc độ bán trung bình có trọng số 8 tuần → số ngày còn hàng + lượng nên nhập theo **ngưỡng cảnh báo / mức tồn mục tiêu** của sản phẩm (CAP-01, Theme 7 G5-2a — `inventory.product_stock_policies`); công cụ `du_bao_ban_hang`; script sinh lịch sử bán mô phỏng vài tháng (ghi rõ trong báo cáo là dữ liệu mô phỏng) | ~1 ngày | ✅ plan (đã xoá) | ✅ 2026-11-17 (Dev: migration + test SQL + seed + dự báo trên app ✅) | ⏸ tạm dừng 2026-11-18 — còn: bộ câu thử (gộp vào AI-5 Task 4) |
-| **AI-4** | Hỏi Mosaic Retail **tự truy vấn** (người dùng chốt 2026-11-17, sau khi thấy câu ngoài danh sách bị "chưa hỗ trợ"): schema `ai_read` gồm 6 view chỉ đọc đã lọc theo cửa hàng (không dữ liệu cá nhân; mọi thành viên hỏi như nhau, chưa phân quyền theo vai trò), role `ai_reader`, `ai.run_query` (một câu SELECT, danh sách hàm cho phép, 5 giây / 50 dòng); công cụ `truy_van` cho Gemini tự viết SELECT khi không công cụ chuyên dụng nào khớp; mở `lai_gop` (RPC `get_gross_profit_report`) cho mọi thành viên để nhất quán; bộ ~45 câu thử mở rộng (gồm nhóm an toàn) | ~2–3 ngày | ✅ plan (đã xoá) (duyệt 2026-11-17) | ✅ 2026-11-18 (local `db_check` ✅, db push + deploy Dev ✅, `truy_van` chạy trên app) | ⏸ tạm dừng 2026-11-18 — còn: bộ 45 câu (AI-5 Task 4), lỗi bấm mở đơn (UI) |
-| **AI-5** | Hỏi Mosaic Retail chạy bằng **Claude Haiku 5.5** (effort `low`, đổi qua `CLAUDE_MODEL` / `CLAUDE_EFFORT`) thay Gemini (gói miễn phí treo / 503 trên Dev 2026-11-17); `model/claude_client.ts` qua `@anthropic-ai/sdk`; **bỏ hẳn Gemini** (xoá client + biến `GEMINI_*`, không dự phòng); bộ câu thử AI-4 chạy `low` / `medium` để chốt effort và đóng AI-4 | ~1 ngày | ✅ plan (đã xoá) (duyệt 2026-11-17) | ✅ Task 1–3 2026-11-18 (Dev chạy Claude Haiku 5.5 low, ~0,001 USD/câu) | ⏸ tạm dừng 2026-11-18 — còn: Task 4 (seed Demo AI + bộ 45 câu `low`/`medium`), lỗi màn đỏ khi bấm dòng đơn từ `/ask` (Flutter, gộp đợt sửa UI) |
+| **AI-2** | UI (iPhone + web): màn "Hỏi Mosaic Retail", lối vào từ Home; câu trả lời + bảng dựng từ kết quả công cụ + nút mở màn; đang trả lời, lỗi, hết lượt, không có quyền; `/impeccable audit` | ~1 ngày | ✅ plan (đã xoá ở `4d14f189c` khi **chưa review**; tệp `AI-2-man-hoi-c45.md`) | ✅ (web + dev đã chạy thật; chưa kiểm tay: iPhone, thu ngân, tắt mạng, bấm khách) | ⬜ — còn: golden 390 / 1280 so `proto-*` (Task 5 Step 1), hỏi thử 5 câu trên iPhone + web (Step 2); audit còn nợ P2/P3 (`liveRegion`, cuộn tới đầu câu trả lời dài, chọn / sao chép chữ, vòng xoay khi chờ) |
+| **AI-3** | Dự báo nhập hàng: RPC tính tốc độ bán trung bình có trọng số 8 tuần → số ngày còn hàng + lượng nên nhập theo **ngưỡng cảnh báo / mức tồn mục tiêu** của sản phẩm (CAP-01, Theme 7 G5-2a — `inventory.product_stock_policies`); công cụ `du_bao_ban_hang`; script sinh lịch sử bán mô phỏng vài tháng (ghi rõ trong báo cáo là dữ liệu mô phỏng) | ~1 ngày | ✅ plan (đã xoá) | ✅ 2026-11-17 (Dev: migration + test SQL + seed + dự báo trên app ✅) | ⏸ tạm dừng 2026-11-18 (R2 đạt phần đọc code) — còn: bộ câu thử (gộp vào AI-5 Task 4; kiểm câu 8 ⇒ `tinh_hinh_ton_kho`, câu 18 ⇒ `du_bao_ban_hang`) |
+| **AI-4** | Hỏi Mosaic Retail **tự truy vấn** (người dùng chốt 2026-11-17, sau khi thấy câu ngoài danh sách bị "chưa hỗ trợ"): schema `ai_read` gồm 6 view chỉ đọc đã lọc theo cửa hàng (không dữ liệu cá nhân; mọi thành viên hỏi như nhau, chưa phân quyền theo vai trò), role `ai_reader`, `ai.run_query` (một câu SELECT, danh sách hàm cho phép, 5 giây / 50 dòng); công cụ `truy_van` cho Gemini tự viết SELECT khi không công cụ chuyên dụng nào khớp; mở `lai_gop` (RPC `get_gross_profit_report`) cho mọi thành viên để nhất quán; bộ ~45 câu thử mở rộng (gồm nhóm an toàn) | ~2–3 ngày | ✅ plan (đã xoá) (duyệt 2026-11-17) | ✅ 2026-11-18 (local `db_check` ✅, db push + deploy Dev ✅, `truy_van` chạy trên app) | ⏸ tạm dừng 2026-11-18 (R5: `db_check` local ✅) — còn: R6 đóng bằng bộ 45 câu (AI-5 Task 4; A–F ≥ 80%, G 100%), lỗi bấm mở đơn (UI) |
+| **AI-5** | Hỏi Mosaic Retail chạy bằng **Claude Haiku 5.5** (effort `low`, đổi qua `CLAUDE_MODEL` / `CLAUDE_EFFORT`) thay Gemini (gói miễn phí treo / 503 trên Dev 2026-11-17); `model/claude_client.ts` qua `@anthropic-ai/sdk`; **bỏ hẳn Gemini** (xoá client + biến `GEMINI_*`, không dự phòng); bộ câu thử AI-4 chạy `low` / `medium` để chốt effort và đóng AI-4 | ~1 ngày | ✅ plan (đã xoá) (duyệt 2026-11-17) | ✅ Task 1–3 2026-11-18 (Dev chạy Claude Haiku 5.5 low, ~0,001 USD/câu) | ⏸ tạm dừng 2026-11-18 (R1 chưa đóng) — còn: Task 4 (seed Demo AI + bộ 45 câu `low`/`medium`, chốt `CLAUDE_EFFORT`), lỗi màn đỏ `!keyReservation.contains(key)` / GlobalKey `root` trùng khi bấm dòng đơn từ `/ask` (Flutter), gỡ / rút gọn log `ai-trace` sau eval |
 
 **Xong khi:** tính năng chọn ở AI-0 chạy được từ đầu đến cuối trong app (iPhone + web), chỉ dùng dữ liệu của tổ chức và theo quyền người dùng; có một kịch bản demo cho hội đồng.
 
@@ -816,7 +822,7 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 
 ## Theme 6. Công nợ phải thu (~6 ngày)
 
-**Trạng thái:** 🔄 T6-0 ✅: [TH-06](../requirements/TH-06-cong-no.md) duyệt 2026-11-18; T6-2a (prototype UI) ✅ đã chốt 2026-11-18 (redesign CN-01/CN-03/SG-13, nền chung `specs/prototype/shared/`); T6-1a ✅ (review R1); T6-1b ✅ (review R1 2026-11-19); T6-2 tách T6-2b (feature `receivable`, plan ✅ duyệt 2026-11-19, Flutter làm xong 2026-11-19, chờ chạy DB + review) / T6-2c (sửa màn cũ, plan ✅ duyệt 2026-11-19, Task 1–8 xong 2026-11-19, chờ test tay + kịch bản 9.1). Dữ liệu tiền của đơn chuyển từ schema `sales` sang `receivable` (chốt 2026-11-18, TH-06 Q12–Q13). SCOPE.md mục 2.3 trước đây để TH-06 ngoài phạm vi, nay đưa vào (chốt 2026-10-27).
+**Trạng thái (2026-11-20):** 🔄 T6-0, T6-1a, T6-1b, T6-2a, T6-2b ✅ (T6-2b R3, DB `receivable_th06: OK`). **Chỉ còn T6-2c:** review R3 phần sửa R2 (`aaa67325c`) ở phiên khác + kịch bản 9.1 trên iPhone + web. File plan T6-2a/2b/2c đã xoá ở `4d14f189c` (đọc `git show 4d14f189c^:docs/refactor/plans/T6/<tệp>.md`). Đóng Theme 6 xong ⇒ làm công cụ AI `cong_no_phai_thu` (mục Tích hợp AI). Dữ liệu tiền của đơn chuyển từ schema `sales` sang `receivable` (chốt 2026-11-18, TH-06 Q12–Q13). SCOPE.md mục 2.3 trước đây để TH-06 ngoài phạm vi, nay đưa vào (chốt 2026-10-27).
 
 **Phạm vi (chốt 2026-10-27):** chỉ **phải thu khách hàng**, sinh từ phần còn phải thu của đơn bán (công nợ đơn ở TH-05); **có cấn trừ**. **Không** có phải trả nhà cung cấp.
 
@@ -826,8 +832,8 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 | **T6-1a** | DB: chuyển 3 bảng tiền (`sales_order_settlements`, `sales_payment_transactions`, `settlement_obligation_adjustments`) từ `sales` sang schema mới `receivable` (chốt 2026-11-18, cách A) và chuyển `sales_orders.payment_due_date` vào bảng quyết toán (Q13 R1); tạo lại 25 hàm `sales` + sửa view `ai_read.don_ban`; sửa 8 test SQL; app không đổi. [TH-06 3.6](../requirements/TH-06-cong-no.md#36-chuyển-bảng-tiền-sang-schema-receivable-q12-cách-a-q13-r1) | ~1,5 ngày | ✅ plan (đã xoá) (duyệt 2026-11-18, cách 2: sinh thân hàm từ DB) | ✅ | ✅ R1 |
 | **T6-1b** | DB: công nợ theo khách đọc từ quyết toán đơn; thu theo khách chia vào từng đơn (cũ trước); cấn trừ khi đổi/trả (giảm nợ đơn đó → cấn trừ đơn khác → hoàn); 4 bảng mới trong `receivable` (lần thu, cấn trừ, kế hoạch tiền đổi/trả tách khỏi `valuation_details` — Q13 R2, chống trùng riêng — R3) + 5 RPC; RPC + test. Phạm vi: [TH-06](../requirements/TH-06-cong-no.md) | ~1,5 ngày | ✅ plan (đã xoá) (duyệt 2026-11-18; cách 2 "làm gọn": xoá `settle_return_exchange_difference`, hai migration) | ✅ 2026-11-19 | ✅ R1 |
 | **T6-2a** | Prototype HTML (iPhone 390 + web 1280) cho CN-01, CN-02, CN-03, SG-13 bản cấn trừ + màn gom `patches` (sửa SG-09 / 09b / 09c / 14, PT-07, menu Thêm); thư mục riêng `specs/themes/theme-06/03.design/prototype/html/` (chép `tokens.css` Theme 7, rút `components.css`); hàm thuần `allocateOldestFirst` / `planReturnSettlement` có test; bộ ảnh đích 90 ảnh (45 ca × 2 khổ; bản chốt, token khớp Dart). Làm **trước** T6-2, không phụ thuộc DB (TH-06 5.6). Dừng sau khi có ảnh để người dùng duyệt | ~0,5 ngày | ✅ plan (đã xoá) (duyệt 2026-11-18, hướng B; review plan cùng ngày: ẩn khối cấn trừ khi `còn_lại = 0`) | ✅ 2026-11-18 (`880df71c7`, `b05cbb3e3`) | ✅ người dùng chốt 2026-11-18 |
-| **T6-2b** | Flutter feature `receivable` (iPhone + web hai cột): CN-01 danh sách khách còn nợ, CN-02 công nợ một khách, CN-03 thu tiền theo khách; route `/more/receivables`, mục menu Thêm; migration nhỏ thêm `actorDisplayName` vào lịch sử; golden 390 / 1280 so ảnh T6-2a | ~1 ngày | ✅ plan (đã xoá) (duyệt 2026-11-19, hướng A) | ✅ 2026-11-19 Flutter (`47e6e75e7`, `63ec503fe`, `c93e9881d`, `8920fd120`); migration `actorDisplayName` (DB check đạt, chưa commit) | ✅ R3 |
-| **T6-2c** | Sửa màn cũ: SG-13 khối cấn trừ (DTO + lệnh xác nhận `offset_target_order_ids`), SG-09 bỏ "Thu tiền" + dòng "Xem công nợ của khách ›", SG-09b / 09c / 14 dòng cấn trừ, PT-07 khối Công nợ; `/impeccable audit`; kịch bản 9.1; bỏ SG-11; migration nhỏ: xác nhận đổi/trả ghi cách chia thật + nhãn lịch sử thu theo khách (bổ sung 2026-11-19) | ~1,3 ngày | ✅ plan (đã xoá) (duyệt 2026-11-19, hướng A) | 🔄 2026-11-19 Task 1–8 xong (DB xanh, review R2); bỏ golden `patch-*` + audit, chờ người dùng test tay + kịch bản 9.1 | ⬜ |
+| **T6-2b** | Flutter feature `receivable` (iPhone + web hai cột): CN-01 danh sách khách còn nợ, CN-02 công nợ một khách, CN-03 thu tiền theo khách; route `/more/receivables`, mục menu Thêm; migration nhỏ thêm `actorDisplayName` vào lịch sử; golden 390 / 1280 so ảnh T6-2a | ~1 ngày | ✅ plan (đã xoá) (duyệt 2026-11-19, hướng A) | ✅ 2026-11-19 Flutter (`47e6e75e7`, `63ec503fe`, `c93e9881d`, `8920fd120`); migration `actorDisplayName` (`b2924e0d3`; `receivable_th06: OK`) | ✅ R3 |
+| **T6-2c** | Sửa màn cũ: SG-13 khối cấn trừ (DTO + lệnh xác nhận `offset_target_order_ids`), SG-09 bỏ "Thu tiền" + dòng "Xem công nợ của khách ›", SG-09b / 09c / 14 dòng cấn trừ, PT-07 khối Công nợ; `/impeccable audit`; kịch bản 9.1; bỏ SG-11; migration nhỏ: xác nhận đổi/trả ghi cách chia thật + nhãn lịch sử thu theo khách (bổ sung 2026-11-19) | ~1,3 ngày | ✅ plan (đã xoá) (duyệt 2026-11-19, hướng A) | ✅ 2026-11-19 Task 1–8 (`435f2e530` … `aa0bb054d`; migration `20261126001` ở `271144279`; DB local `receivable_th06: OK`, `sales_th05: OK`); bỏ golden `patch-*` + audit | 🔄 R1 sửa (`8331ae736`), R2 sửa (`aaa67325c`, nhãn đọc màn hình ô cấn trừ có hạn nợ) — còn: **R3** ở phiên khác + kịch bản 9.1 iPhone + web (người dùng) |
 
 **Xong khi:** bán nợ → thu một phần → thu đủ; khách trả hàng → cấn trừ vào đơn còn nợ (app không giữ tiền dư của khách); số còn phải thu của khách = tổng công nợ các đơn sau mỗi bước; kịch bản đầu–cuối của TH-06 chạy qua trên cả iPhone và web.
 
@@ -835,7 +841,7 @@ Flutter đã có sẵn: `VSegmentedControl`, `VProgress`, `VFileDropZone`, `VChe
 
 ## Dọn dẹp (1 ngày)
 
-**Trạng thái:** 🔄 9-1 ✅ (review R1 2026-11-19); 9-2 plan ✅ duyệt 2026-11-19; làm xong 2026-11-19 (test SQL đã chạy), review ✅ 2026-11-19; chờ reset Dev. **Chốt 2026-11-19 (người dùng): không gộp migration** (phương án B) — 9-2 chỉ sửa migration gốc; 9.5 bỏ.
+**Trạng thái:** 🔄 9-1 ✅ (review R1 2026-11-19); 9-2 ✅ (2026-11-19; `db reset` + vòng test SQL xanh, gồm `catalog_th02` / `pricing_th04` / `einvoice_th08` đã sửa theo schema ở `c57ac4185`, `4169b89a4`). Còn: reset Dev; xoá 3 dòng `test` tương ứng khỏi `tools/db_check_known.txt` nếu `db_check` xanh; đối chiếu DoD SCOPE mục 6. **Chốt 2026-11-19 (người dùng): không gộp migration** (phương án B) — 9-2 chỉ sửa migration gốc; 9.5 bỏ.
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
@@ -859,17 +865,18 @@ Chi tiết từng việc:
 
 ## Hoàn thiện cho báo cáo đồ án (3 ngày)
 
-**Trạng thái:** ⬜ Chưa làm
+**Trạng thái (2026-11-20):** 🔄 10-4, 10-5, 10-6 ✅; 10-7 ✅ trừ task "Cuối"; 10.5 bỏ. Báo cáo `DATN.md` (gốc repo) đang viết: đủ khung Mở đầu → Chương 1–4 → Kết luận → Tài liệu tham khảo. Còn: 10-1, 10-2, 10-8 (rà soát lại từng theme, mở 2026-11-21), 10.6 (merge `dev` → `main`, tag `v2.0.0`).
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
 | **10-1** | Tài liệu kiến trúc, sơ đồ báo cáo, README | 10.1, 10.2, 10.3 | ⬜ | ⬜ | ⬜ |
 | **10-2** | Kịch bản demo bảo vệ | 10.4 | ⬜ | ⬜ | ⬜ |
-| **10-3** | Đổi tên `c45` (tùy chọn), merge và tag `v2.0.0` — làm thẳng | 10.5, 10.6 | — | ⬜ | — |
+| **10-3** | ~~Đổi tên `c45` (tùy chọn)~~ (bỏ), merge `dev` → `main` và tag `v2.0.0` — làm thẳng (`refactor/simple-arch` → `dev` đã xong, PR #1) | 10.6 | — | ⬜ | — |
 | **10-4** | Tương phản màu xanh chủ đạo, nhãn + semantics thanh dưới (độc lập, làm lúc nào cũng được) | 10.7 | ✅ plan (đã xoá) | ✅ | ✅ |
 | **10-5** | Tương phản tone trạng thái, chữ phụ, viền ô nhập (độc lập) | 10.8 | ✅ plan (đã xoá) | ✅ | ✅ |
 | **10-6** | Vùng chạm, nhãn trình đọc màn hình, inset thanh dưới, giảm chuyển động (độc lập) | 10.9 | ✅ plan (đã xoá) | ✅ | ✅ |
-| **10-7** | Tinh chỉnh `c45_design_system` từng mảng bằng impeccable (10 task, độc lập) | — | ✅ [plan](plans/P10/10-7-tinh-chinh-design-system-impeccable.md) | ✅ | ✅ — còn task "Cuối": `polish` + `document` (DESIGN.md), bump version DS (đang `1.7.0`) |
+| **10-7** | Tinh chỉnh `c45_design_system` từng mảng bằng impeccable (10 task, độc lập) | — | ✅ [plan](plans/P10/10-7-tinh-chinh-design-system-impeccable.md) | ✅ | ✅ — còn task "Cuối": `polish` + `document` (DESIGN.md ở gốc repo), bump version DS (đang `1.7.0`) |
+| **10-8** | Rà soát lại từng theme (người dùng tự rà, tự sửa — mở 2026-11-21): kiểm lại toàn bộ + rà UI bằng impeccable trên prototype HTML (Flutter không dùng được impeccable ⇒ theme chưa có prototype thì chuyển màn Flutter sang HTML / CSS như Theme 6, 7), sửa xong chuyển ngược về Flutter; tick cột "Mới" CHECKLIST | 10.10 | — | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
@@ -884,6 +891,36 @@ Chi tiết từng việc:
 | 10.7 | Sửa lỗi khả năng tiếp cận trong `c45_design_system`: theme sáng đổi `primary` / `success` sang `primary600` (đạt 4.5:1), `VBottomNavigationBar` hiện nhãn + `Semantics`; tab 4 ERP đổi `KH&NCC` → `Đối tác` |
 | 10.8 | Theme sáng: warning `yellow700`, danger `red600`, info `blue600`, `textSecondary` `neutral600`, `textMuted` `neutral500`; token mới `borderInput` (`neutral450`) cho viền ô nhập / checkbox / radio; test tương phản tự động |
 | 10.9 | Vùng chạm ≥ 44 (nút mật khẩu, nút xoá chip, `VIconBox` có `onTap`); nhãn cho nút quay lại `VAppBar`, mũi tên combobox, bàn phím số; `VSwipeReveal.semanticActions`; thanh dưới chừa đủ inset; skeleton / swipe tôn trọng giảm chuyển động |
+| 10.10 | Rà soát lại từng theme — xem bảng 10-8 bên dưới |
+
+### 10-8. Rà soát lại từng theme
+
+Mỗi theme đi 4 bước:
+
+1. **Kiểm lại:** chạy hết màn của theme trong [CHECKLIST](CHECKLIST.md) + các mục kiểm tay còn treo của theme (ghi ở dòng trạng thái của theme đó); kịch bản viết theo khuôn [test-theme7.md](plans/T7/test-theme7.md) nếu cần.
+2. **Prototype HTML:** theme chưa có prototype thì chuyển màn Flutter sang HTML / CSS theo khuôn Theme 6 (`specs/themes/theme-06/03.design/prototype/html/`): thư mục `specs/themes/theme-0X/03.design/prototype/html/`, symlink `html/shared` → `specs/prototype/shared` (không chép tay `tokens.css` / `components.css`), CSS riêng có tiền tố của theme, mỗi màn một file `app/<màn>.js`, trạng thái ở `cases.js`. Bố cục iPhone 390 + web 1280.
+3. **Rà UI bằng impeccable** trên prototype HTML. Sửa token ở `shared/` thì sửa cùng lúc `c45_design_system` (token HTML khớp Dart) và nhìn lại Theme 6 / 7 vì dùng chung.
+4. **Chuyển ngược về Flutter** theo mục "Plan có màn Flutter: kèm code + ảnh prototype" (chép nguyên JS / CSS màn + bảng ánh xạ widget / token, so ảnh `proto-*` / `flutter-*` 390 / 1280); test phạm vi theme, `dart analyze lib test`, `check_feature_imports`; tick cột "Mới" CHECKLIST.
+
+**Khung chung làm trước:** prototype mọi theme dựng bên trong khung này (thanh bên / thanh dưới, đầu trang), nên rà xong khung rồi mới sang theme. Khung web trên prototype Theme 7 (T7-P) là điểm xuất phát; đưa phần khung ra `specs/prototype/shared/` để theme khác dùng lại.
+
+| Mục | Prototype HTML | Kiểm lại | Rà UI (impeccable) | Chuyển về Flutter | Ghi chú |
+|---|---|---|---|---|---|
+| Layout tổng thể (web + iPhone) | ⬜ chưa có ở nền chung | ⬜ | ⬜ | ⬜ | Web: thanh bên trái, cửa sổ hẹp ⇒ thanh dưới 5 tab; iPhone: thanh dưới. Flutter: `features/dashboard/presentation/store_shell.dart`, `erp_tab_scaffold.dart`, `widgets/erp_side_navigation.dart`, `widgets/erp_bottom_navigation.dart` (W-1). Gồm chọn cửa hàng APP-04 |
+| Trang chủ (dashboard) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | APP-01, `home_tab_page.dart` + `widgets/` (thẻ doanh thu, việc cần làm, thao tác nhanh, banner hồ sơ pháp lý); lối vào "Hỏi Mosaic Retail" |
+| Menu Thêm + Thiết lập hệ thống | ⬜ chưa có | ⬜ | ⬜ | ⬜ | APP-02, `features/more/presentation/` (`more_page.dart`, `system_settings_page.dart`, `users_and_roles_page.dart`, `more_entries.dart`); mục Công nợ (Theme 6), HĐĐT (Theme 8) |
+
+| Theme | Prototype HTML | Kiểm lại | Rà UI (impeccable) | Chuyển về Flutter | Ghi chú |
+|---|---|---|---|---|---|
+| Theme 1 (TH-01) + Web cho app | ⬜ chưa có | ⬜ | ⬜ | ⬜ | W-2 (Theme 1 trên web) |
+| Theme 3 (TH-03) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | |
+| Theme 2 (TH-02) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | |
+| Theme 4 (TH-04) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | |
+| Theme 5 (TH-05) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | |
+| Theme 8 (TH-08) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | |
+| Theme 7 (Kho & Giá vốn) | ✅ có (FROZEN, chưa dùng `shared/`) | ⬜ | ⬜ | ⬜ | Kiểm theo [test-theme7.md](plans/T7/test-theme7.md) |
+| Tích hợp AI | ⬜ | ⬜ | ⬜ | ⬜ | Gồm lỗi màn đỏ khi bấm dòng đơn từ `/ask` (AI-5) |
+| Theme 6 (TH-06) | ✅ có (dùng `shared/`) | ⬜ | ⬜ | ⬜ | Gồm R3 T6-2c + kịch bản 9.1 |
 
 
 ## Theo dõi tiến độ
@@ -897,15 +934,15 @@ Chi tiết từng việc:
 | Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS ✅, secrets Edge Function ✅, SMTP Auth ✅, `db reset --linked` ✅, 4 kịch bản SQL ✅, `send-email` đã deploy ✅. 2026-10-28: Vault ✅, `invitation-signup` đã deploy (12/10) ✅. Confirm email + mẫu mã 6 số + rate limit ✅. Còn: kiểm tay TH-01 9.3 kịch bản 1–4 → tick CHECKLIST |
 | Web cho app | 🔄 | | Mở 2026-10-20 (chốt thiết bị iPhone + web). 2026-10-28: W-1 ✅ (R2; test app 1524 pass / 61 fail có sẵn; DS 435 / 1 có sẵn), commit `72b4cc2dd`; W-2 plan đã duyệt + rà theo quy tắc "test giữ hành vi trước"; 2026-10-29: W-2 ✅ R4 (test app 1555 pass / 61 fail có sẵn; DS 447 / 1 có sẵn; audit 15/20), commit `1bd9268af`; còn kiểm tay W-1 mục 5 + W-2 6.2 |
 | Theme 3 | 🔄 | | 2026-11-02: code 4-A, 4-B, 4-W, 4-C xong, review ✅ cả 4 (4-W R2, các plan còn lại R1), đã commit. **Chỉ còn việc người dùng:** kiểm tay (4-A 7.2, 4-B 7.2, 4-W 6.2); `db reset` local + `supabase/tests/partner_th03.sql` / `iam_*.sql` (4-B, 4-C); reset Dev |
-| Theme 2 | 🔄 | | Đang làm: 5-A1 ✅, 5-A2 ✅, 5-A3 ✅; 5-C ✅ (review R2 2026-11-04; còn việc người dùng: `db reset` local + `catalog_th02.sql`, reset Dev) |
-| Theme 4 | 🔄 | | 6-A1, 6-A2, 6-B, 6-C ✅ (review đạt, đã commit; 6-C R1 2026-11-06). **Chỉ còn việc người dùng:** `db reset` local + `supabase/tests/pricing_th04.sql`, reset Dev; kiểm tay 6-A2 7.2, 6-B 8.2 |
-| Theme 5 | 🔄 | | 8-A1…8-A4, 8-B1…8-B3, 8-C ✅ (review đạt; 8-C R1 2026-11-08). Nối kho: Theme 7 G5-4 ✅ (2026-11-11; đạt 6 kịch bản kiểm tra `inventory_sales_link.sql`). Còn: reset Dev |
-| Theme 8 | 🔄 | | 2026-11-09: 7-B1, 7-E1..E3, 7-A1..A2b, 7-B2, 7-C ✅ (review R1 đạt 2026-11-09; xoá xong `modules/`). Còn: kiểm live trên Dev |
-| Theme 7 | 🔄 | — | Prototype + đặc tả xong (T7-P đóng 2026-10-27; T7-G4 ✅ FROZEN v5.27.0, 2026-11-09). Rút gọn 2026-11-09 (8 plan G5). G5-0a ✅; G5-0b ✅; G5-2a ✅; G5-2 ✅; G5-2b ✅; G5-3 ✅; G5-4 ✅ (2026-11-11); G5-5 ✅ (2026-11-12, review R2 đạt) |
-| Tích hợp AI | ⬜ | | Mới thêm 2026-10-27: giảng viên yêu cầu; 2026-11-09 chuyển lên sau Theme 7, trước Theme 6 |
-| Theme 6 | ⬜ | | Mới thêm 2026-10-27: phải thu + cấn trừ |
-| Dọn dẹp | ⬜ | | |
-| Báo cáo | ⬜ | | |
+| Theme 2 | 🔄 | | 5-A1, 5-A2, 5-A3, 5-C ✅ (5-C R2 2026-11-04). `catalog_th02.sql` sửa theo schema và xanh ở 9-2 (`4169b89a4`, điều kiện nới). Còn: reset Dev |
+| Theme 4 | 🔄 | | 6-A1, 6-A2, 6-B, 6-C ✅ (6-C R1 2026-11-06). `pricing_th04.sql` sửa theo schema và xanh ở 9-2 (`4169b89a4`). Còn: reset Dev; kiểm tay 6-A2 7.2, 6-B 8.2 |
+| Theme 5 | 🔄 | | 8-A1…8-A4, 8-B1…8-B3, 8-C ✅ (review đạt; 8-C R1 2026-11-08). Nối kho: Theme 7 G5-4 ✅ (2026-11-11; đạt 6 kịch bản kiểm tra `inventory_sales_link.sql`). `sales_th05: OK` (2026-11-19). Còn: reset Dev |
+| Theme 8 | 🔄 | | 2026-11-09: 7-B1, 7-E1..E3, 7-A1..A2b, 7-B2, 7-C ✅ (review R1 đạt 2026-11-09; xoá xong `modules/`). `einvoice_th08.sql` sửa theo schema và xanh ở 9-2 (`c57ac4185`). 2026-11-20: MISA bỏ sandbox → Dev dùng tài khoản thật, thêm chốt `MISA_MEINVOICE_PUBLISH_ENABLED` (mặc định tắt, 425 test Deno đạt). Còn: deploy `einvoice-processor`, reset Dev, đổi secret sang `api.meinvoice.vn` (RUNBOOK-einvoice mục 1), kiểm live **kết nối → mẫu → xem trước** |
+| Theme 7 | 🔄 | — | Prototype + đặc tả xong (T7-P đóng 2026-10-27; T7-G4 ✅ FROZEN v5.27.0). **Cả 10 plan G5 ✅:** G5-0a, 0b, 2a, 2, 2b, 3, 4 (2026-11-11), 5, 5b, 6 (2026-11-12), 7, 8 (2026-11-13; R3: 709 test, `db_check` đạt). Còn: kiểm tay luồng demo trên Dev (tiêu chí 4), reset Dev |
+| Tích hợp AI | 🔄 | | AI-0 ✅, AI-1 ✅ R4; AI-2 làm xong, review ⬜; AI-3 / AI-4 / AI-5 ⏸ từ 2026-11-18 (còn AI-5 Task 4 bộ 45 câu, lỗi màn đỏ bấm dòng đơn ở `/ask`, gỡ log `ai-trace`); công cụ `cong_no_phai_thu` chờ Theme 6 đóng. File plan AI-2…5 đã xoá ở `4d14f189c` khi chưa đóng review |
+| Theme 6 | 🔄 | | T6-0, 1a, 1b, 2a, 2b ✅; T6-2c code + DB xanh, R2 đã sửa — còn review R3 + kịch bản 9.1 iPhone + web |
+| Dọn dẹp | 🔄 | PR #1 (`207bde8ef`, gộp vào `dev`) | 9-1 ✅ R1; 9-2 ✅ (2026-11-19). Còn: reset Dev, đối chiếu DoD SCOPE mục 6 |
+| Báo cáo | 🔄 | | 10-4, 10-5, 10-6 ✅; 10-7 còn task "Cuối"; 10.5 bỏ; `DATN.md` đang viết. Còn: 10-1, 10-2, 10.6 merge `main` + tag |
 
 ## Rủi ro theo mục
 

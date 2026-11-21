@@ -63,7 +63,7 @@ function setup(opts: {
   envOver?: Partial<MisaEnv>
   logs?: [string, Record<string, unknown>][]
 }) {
-  const env: MisaEnv = { appId: 'app', baseUrl: TEST_URL, emailDeliveryEnabled: false, ...opts.envOver }
+  const env: MisaEnv = { appId: 'app', baseUrl: TEST_URL, emailDeliveryEnabled: false, publishEnabled: false, ...opts.envOver }
   const records: Recorded[] = []
   const created: MeInvoiceConfig[] = []
   const row = opts.row === undefined ? creds() : opts.row
@@ -143,7 +143,7 @@ Deno.test('th08_hardening_capability_01 — dual template fetch fetches invoiceW
     }
     return textResponse('Not Found', 404)
   })
-  const env: MisaEnv = { appId: 'app-id', baseUrl: TEST_URL, emailDeliveryEnabled: false }
+  const env: MisaEnv = { appId: 'app-id', baseUrl: TEST_URL, emailDeliveryEnabled: false, publishEnabled: false }
   const records: Recorded[] = []
   const clients = new TenantMisaClientFactory(env, { read: () => Promise.resolve(creds()) }, (c) => new MeInvoiceClient(c, fetchFn))
   const handler = createSyncCapabilitiesHandler({ clients, env, now: () => FIXED_NOW, recorder: { record: (i) => { records.push(i); return Promise.resolve() } } })

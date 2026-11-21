@@ -1,5 +1,5 @@
 import { assertEquals, assertRejects } from 'jsr:@std/assert@1'
-import { createPublishInvoiceHandler } from './publish_invoice.ts'
+import { createPublishInvoiceHandler, PUBLISH_DISABLED_REASON } from './publish_invoice.ts'
 import { FakeIssuanceGateways, FakeIssuanceProvider } from './fake_gateways.ts'
 import { CanonicalInvoiceIntegrityError } from './errors.ts'
 import { PublishSeriesLeaseBusyError } from '../../queue/errors.ts'
@@ -61,7 +61,7 @@ Deno.test('PublishInvoiceCommandHandler provider call timestamp is written only 
     return origPublish(t, c, k)
   }
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await handler(sampleContext())
 
   assertEquals(callOrder, ['markStarted', 'providerPublish'])
@@ -72,7 +72,7 @@ Deno.test('PublishInvoiceCommandHandler failure to mark provider-call start neve
   const provider = new FakeIssuanceProvider()
   gateways.results.markProviderCallStarted = () => Promise.reject(new Error('db write error'))
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await assertRejects(() => handler(sampleContext()), Error, 'db write error')
 
   assertEquals(provider.publishCalls.length, 0)
@@ -91,7 +91,7 @@ Deno.test('PublishInvoiceCommandHandler callProvider invokes provider once and r
     safeProviderEvidence: { refId: 'attempt-key-42' },
   }
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await handler(sampleContext())
 
   assertEquals(provider.publishCalls.length, 1)
@@ -110,7 +110,7 @@ Deno.test('PublishInvoiceCommandHandler reconcileOnly skips provider and records
   const provider = new FakeIssuanceProvider()
   gateways.results.preparationAction = 'RECONCILE_ONLY'
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await handler(sampleContext())
 
   assertEquals(provider.publishCalls.length, 0)
@@ -124,7 +124,7 @@ Deno.test('PublishInvoiceCommandHandler skip returns without provider or result 
   const provider = new FakeIssuanceProvider()
   gateways.results.preparationAction = 'SKIP'
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await handler(sampleContext())
 
   assertEquals(provider.publishCalls.length, 0)
@@ -140,7 +140,7 @@ Deno.test('PublishInvoiceCommandHandler busy lease throws before preparePublish 
   const provider = new FakeIssuanceProvider()
   gateways.lease.leaseOutcome = { kind: 'busy', retryAfterSeconds: 15 }
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   const err = await assertRejects(() => handler(sampleContext()), PublishSeriesLeaseBusyError)
   assertEquals((err as PublishSeriesLeaseBusyError).retryAfterSeconds, 15)
 
@@ -153,7 +153,7 @@ Deno.test('PublishInvoiceCommandHandler validateCanonical failure throws Canonic
   const provider = new FakeIssuanceProvider()
   provider.throwOnValidate = true
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await assertRejects(() => handler(sampleContext()), CanonicalInvoiceIntegrityError)
 
   assertEquals(gateways.lease.acquireCalls.length, 0)
@@ -169,7 +169,7 @@ Deno.test('PublishInvoiceCommandHandler timeout outcome records undetermined and
     safeProviderEvidence: { refId: 'attempt-key-42' },
   }
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await handler(sampleContext())
 
   assertEquals(gateways.results.undeterminedCalls.length, 1)
@@ -188,7 +188,7 @@ Deno.test('PublishInvoiceCommandHandler InvoiceNumberNotCotinuous records retrya
     safeProviderEvidence: { refId: 'attempt-key-42' },
   }
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await handler(sampleContext())
 
   assertEquals(gateways.results.retryableRejectionCalls.length, 1)
@@ -208,7 +208,7 @@ Deno.test('PublishInvoiceCommandHandler duplicate RefID records undetermined, ne
     safeProviderEvidence: { refId: 'attempt-key-42' },
   }
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await handler(sampleContext())
 
   assertEquals(gateways.results.undeterminedCalls.length, 1)
@@ -227,7 +227,7 @@ Deno.test('PublishInvoiceCommandHandler definite failure records typed failure e
     safeProviderEvidence: { refId: 'attempt-key-42' },
   }
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await handler(sampleContext())
 
   assertEquals(gateways.results.definiteFailureCalls.length, 1)
@@ -245,7 +245,7 @@ Deno.test('PublishInvoiceCommandHandler does not dispatch RecordIssuanceResultCo
     safeProviderEvidence: { refId: 'attempt-key-42' },
   }
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await handler(sampleContext())
 
   assertEquals(gateways.results.successCalls.length, 0)
@@ -254,7 +254,7 @@ Deno.test('PublishInvoiceCommandHandler does not dispatch RecordIssuanceResultCo
 Deno.test('PublishInvoiceCommandHandler parses SQL payload and fails on missing required keys', async () => {
   const gateways = new FakeIssuanceGateways()
   const provider = new FakeIssuanceProvider()
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
 
   await assertRejects(
     () => handler(makeContext({ attempt_id: 'att-1' })),
@@ -268,10 +268,28 @@ Deno.test('PublishInvoiceCommandHandler releases the lease when the provider cal
   const provider = new FakeIssuanceProvider()
   provider.throwOnPublish = new Error('catastrophic MISA client crash')
 
-  const handler = createPublishInvoiceHandler({ provider, gateways })
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: true })
   await assertRejects(() => handler(sampleContext()), Error, 'catastrophic MISA client crash')
 
   assertEquals(gateways.lease.releaseCalls.length, 1)
   assertEquals(gateways.lease.releaseCalls[0].leaseVersion, 1)
 })
 
+
+Deno.test('PublishInvoiceCommandHandler publish disabled never leases, prepares or calls MISA', async () => {
+  const gateways = new FakeIssuanceGateways()
+  const provider = new FakeIssuanceProvider()
+
+  const handler = createPublishInvoiceHandler({ provider, gateways, publishEnabled: false })
+  await handler(sampleContext())
+
+  assertEquals(provider.publishCalls.length, 0)
+  assertEquals(gateways.lease.acquireCalls.length, 0)
+  assertEquals(gateways.lease.releaseCalls.length, 0)
+  assertEquals(gateways.results.deadLetterCalls, [
+    { tenantId: 'tenant-1', attemptId: 'att-1', reasonCode: PUBLISH_DISABLED_REASON },
+  ])
+  assertEquals(gateways.results.prepareCalls.length, 0)
+  assertEquals(gateways.results.markProviderCallStartedCalls.length, 0)
+  assertEquals(gateways.results.successCalls.length, 0)
+})

@@ -53,6 +53,7 @@ function setup(opts: {
       appId: 'app',
       baseUrl: 'https://testapi.meinvoice.vn/api/integration',
       emailDeliveryEnabled: false,
+      publishEnabled: false,
     },
     reader,
     () => fakeClient,

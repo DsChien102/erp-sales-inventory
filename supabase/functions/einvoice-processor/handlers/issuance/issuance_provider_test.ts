@@ -25,6 +25,7 @@ const testEnv = {
   appId: 'test-app-id',
   baseUrl: 'https://meinvoice-test.misa.vn',
   emailDeliveryEnabled: false,
+  publishEnabled: false,
 }
 
 class FakeCredentialsReader implements CredentialsReader {

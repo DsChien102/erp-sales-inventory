@@ -4,7 +4,7 @@ import type { MeInvoiceConfig } from '../misa/mod.ts'
 import { type CredentialsRow, TenantMisaClientFactory } from './misa_client_factory.ts'
 import { readMisaEnv } from './misa_env.ts'
 
-const env = { appId: 'app', baseUrl: 'https://testapi.meinvoice.vn/api/integration', emailDeliveryEnabled: false }
+const env = { appId: 'app', baseUrl: 'https://testapi.meinvoice.vn/api/integration', emailDeliveryEnabled: false, publishEnabled: false }
 
 function setup(row: CredentialsRow | null) {
   const holder = { row }
@@ -93,4 +93,15 @@ Deno.test('readMisaEnv "1" sets the email flag', () => {
   assert(readMisaEnv(get(' TRUE ')).emailDeliveryEnabled)
   assertEquals(readMisaEnv(get(undefined)).emailDeliveryEnabled, false)
   assertEquals(readMisaEnv(get('no')).emailDeliveryEnabled, false)
+})
+
+Deno.test('readMisaEnv publish flag is off unless explicitly true / 1', () => {
+  const get = (flag?: string) => (k: string) =>
+    ({ MISA_MEINVOICE_APP_ID: 'a', MISA_MEINVOICE_BASE_URL: 'https://x', MISA_MEINVOICE_PUBLISH_ENABLED: flag })[k]
+  assertEquals(readMisaEnv(get(undefined)).publishEnabled, false)
+  assertEquals(readMisaEnv(get('')).publishEnabled, false)
+  assertEquals(readMisaEnv(get('false')).publishEnabled, false)
+  assertEquals(readMisaEnv(get('yes')).publishEnabled, false)
+  assert(readMisaEnv(get('1')).publishEnabled)
+  assert(readMisaEnv(get(' TRUE ')).publishEnabled)
 })
