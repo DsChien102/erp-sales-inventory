@@ -56,6 +56,12 @@ export const icons = {
   // Theme 1 (10-8): Icons.visibility_outlined (VIcons.visibility), Icons.location_on_outlined
   eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   mapPin: '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+  // Theme 3 (10-8): VIcons.add, VIcons.tune, VIcons.cloudOff, VIcons.expandLess, Icons.search_off_rounded
+  plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+  tune: '<path d="M4 6h9"/><path d="M17 6h3"/><circle cx="15" cy="6" r="2"/><path d="M4 12h3"/><path d="M11 12h9"/><circle cx="9" cy="12" r="2"/><path d="M4 18h11"/><path d="M19 18h1"/><circle cx="17" cy="18" r="2"/>',
+  cloudOff: '<path d="m2 2 20 20"/><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.2"/><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 9.65 5.06"/>',
+  chevronUp: '<path d="m18 15-6-6-6 6"/>',
+  searchOff: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="m8.5 8.5 5 5"/><path d="m13.5 8.5-5 5"/>',
 };
 export function icon(name, className = "") {
   return `<svg class="icon ${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.info}</svg>`;
