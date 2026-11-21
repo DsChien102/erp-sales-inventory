@@ -99,7 +99,7 @@ export function renderView(v) {
     page = historyPage(v.state, v);
   } else if (v.screen === 'contacts') {
     const kind = v.state === 'search' || v.state === 'toast-added' ? 'loaded' : v.state;
-    page = `<div class="t3-area">${contactsPage(kind, v, { query: v.state === 'search' ? 'hà' : '' })}${v.state === 'toast-added' ? contactToast('Thêm người liên hệ thành công') : ''}</div>`;
+    page = `<div class="t3-area">${contactsPage(kind, v, { query: v.state === 'search' ? 'hà' : '' })}${v.state === 'toast-added' ? contactToast('Thêm người liên hệ thành công', v.device) : ''}</div>`;
   } else if (v.screen === 'contact-sheet') {
     page = contactsPage('loaded', v);
     const body = {

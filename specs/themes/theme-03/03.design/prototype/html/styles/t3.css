@@ -502,8 +502,6 @@
 .t3-mcard > div span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
 .t3-mcard__chev { display: grid; font-size: 24px; color: var(--c45-v2-text-muted); }
 .t3-ibox--info { background: var(--c45-v2-surface-info); color: var(--c45-v2-text-info); }
-.sh-app[data-device="iphone"] .t3-addm { padding-bottom: 34px; }
-.sh-app[data-device="iphone"] .t3-area .t3-addm { padding-bottom: 0; }
 .t3-ltile { display: flex; align-items: center; gap: 16px; min-height: 56px; padding: 0 16px; font-size: 24px; color: var(--c45-v2-text-secondary); cursor: pointer; }
 .t3-ltile > span { flex: 1; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-primary); }
 .t3-ltile > i { display: grid; }
@@ -534,7 +532,7 @@
 .t3-selmark { display: grid; place-items: center; flex: 0 0 22px; width: 22px; height: 22px; border: 2px solid var(--c45-v2-border-strong); border-radius: 50%; color: #fff; font-size: 14px; }
 .t3-selmark.is-on { border-color: var(--c45-v2-action-primary-default); background: var(--c45-v2-action-primary-default); }
 .t3-ctile--sel > span.t3-selmark { color: #fff; }
-.sh-app[data-device="iphone"] .t3-form > .t3-dbar { padding-bottom: 50px; }
+.sh-app[data-device="iphone"][data-layout="bare"] .t3-form > .t3-dbar { padding-bottom: 50px; }   /* PT-10 ngoài khung: SafeArea 34 */
 
 /* PT-11 */
 .t3-tscroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; padding: 12px 12px 0; }

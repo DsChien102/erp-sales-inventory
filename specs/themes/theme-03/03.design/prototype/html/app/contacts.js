@@ -145,4 +145,8 @@ export function selectPage(kind, v) {
   return scaffold({ appbar: appBar('Chọn từ cá nhân', { back: true }), body, placeWidth: v.width, windowWidth: v.width });
 }
 
-export const contactToast = (msg) => toast('success', 'Thành công', msg);
+/**
+ * Scaffold có FAB ở đáy: SnackBar nổi lấy đỉnh FAB làm mốc đáy (_ScaffoldLayout) → toast nằm trên nút +.
+ * Đỉnh FAB: iPhone (ngoài khung) 34 + 16 + 56 = 106, web 16 + 56 = 72; cộng lề SnackBar 10 + lề VToast 4.
+ */
+export const contactToast = (msg, device) => toast('success', 'Thành công', msg, { bottom: (device === 'iphone' ? 106 : 72) + 14 });
