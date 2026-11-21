@@ -912,7 +912,7 @@ Mỗi theme đi 4 bước:
 
 | Theme | Prototype HTML | Kiểm lại | Rà UI (impeccable) | Chuyển về Flutter | Ghi chú |
 |---|---|---|---|---|---|
-| Theme 1 (TH-01) + Web cho app | ⬜ chưa có | ⬜ | ⬜ | ⬜ | W-2 (Theme 1 trên web) |
+| Theme 1 (TH-01) + Web cho app | 🔄 đợt 1/3 (công khai) ✅ 2026-11-22 [`specs/themes/theme-01/03.design/prototype/html/`](../../specs/themes/theme-01/03.design/prototype/html/README.md) (58 ca × 2 khổ; README có 30 điểm hiện trạng); đợt 2 quản trị, đợt 3 tài khoản ⬜ | ⬜ | ⬜ | ⬜ | W-2 (Theme 1 trên web). ID-08 dùng APP-04 của khung chung; ID-23 vẽ chung với ID-04 |
 | Theme 3 (TH-03) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | |
 | Theme 2 (TH-02) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | |
 | Theme 4 (TH-04) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | |
