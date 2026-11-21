@@ -120,7 +120,7 @@ export function mountViewer(root) {
   root.innerHTML = `
     <div class="vw">
       <header class="vw-top">
-        <div class="vw-brand"><b>Công nợ phải thu</b><span>Prototype T6-2a · ${FLAT.length} ca</span></div>
+        <div class="vw-brand"><a class="vw-home" href="../../../../../index.html" title="Mục lục mọi prototype (cần chạy python3 specs/prototype/serve.py)">← Mục lục</a><b>Công nợ phải thu</b><span>Prototype T6-2a · ${FLAT.length} ca</span></div>
         <div class="vw-tools" data-tools></div>
       </header>
       <nav class="vw-side" data-side aria-label="Màn và trạng thái"></nav>

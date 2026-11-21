@@ -899,14 +899,14 @@ Mỗi theme đi 4 bước:
 
 1. **Kiểm lại:** chạy hết màn của theme trong [CHECKLIST](CHECKLIST.md) + các mục kiểm tay còn treo của theme (ghi ở dòng trạng thái của theme đó); kịch bản viết theo khuôn [test-theme7.md](plans/T7/test-theme7.md) nếu cần.
 2. **Prototype HTML:** theme chưa có prototype thì chuyển màn Flutter sang HTML / CSS theo khuôn Theme 6 (`specs/themes/theme-06/03.design/prototype/html/`): thư mục `specs/themes/theme-0X/03.design/prototype/html/`, symlink `html/shared` → `specs/prototype/shared` (không chép tay `tokens.css` / `components.css`), CSS riêng có tiền tố của theme, mỗi màn một file `app/<màn>.js`, trạng thái ở `cases.js`. Bố cục iPhone 390 + web 1280.
-3. **Rà UI bằng impeccable** trên prototype HTML. Sửa token ở `shared/` thì sửa cùng lúc `c45_design_system` (token HTML khớp Dart) và nhìn lại Theme 6 / 7 vì dùng chung.
+3. **Rà UI bằng impeccable** trên prototype HTML — **người dùng tự rà**, agent không chạy impeccable; agent chỉ dựng prototype (bước 2) và sửa theo kết quả rà khi người dùng yêu cầu. Sửa token ở `shared/` thì sửa cùng lúc `c45_design_system` (token HTML khớp Dart) và nhìn lại Theme 6 / 7 vì dùng chung.
 4. **Chuyển ngược về Flutter** theo mục "Plan có màn Flutter: kèm code + ảnh prototype" (chép nguyên JS / CSS màn + bảng ánh xạ widget / token, so ảnh `proto-*` / `flutter-*` 390 / 1280); test phạm vi theme, `dart analyze lib test`, `check_feature_imports`; tick cột "Mới" CHECKLIST.
 
 **Khung chung làm trước:** prototype mọi theme dựng bên trong khung này (thanh bên / thanh dưới, đầu trang), nên rà xong khung rồi mới sang theme. Khung web trên prototype Theme 7 (T7-P) là điểm xuất phát; đưa phần khung ra `specs/prototype/shared/` để theme khác dùng lại.
 
 | Mục | Prototype HTML | Kiểm lại | Rà UI (impeccable) | Chuyển về Flutter | Ghi chú |
 |---|---|---|---|---|---|
-| Layout tổng thể (web + iPhone) | ⬜ chưa có ở nền chung | ⬜ | ⬜ | ⬜ | Web: thanh bên trái, cửa sổ hẹp ⇒ thanh dưới 5 tab; iPhone: thanh dưới. Flutter: `features/dashboard/presentation/store_shell.dart`, `erp_tab_scaffold.dart`, `widgets/erp_side_navigation.dart`, `widgets/erp_bottom_navigation.dart` (W-1). Gồm chọn cửa hàng APP-04 |
+| Layout tổng thể (web + iPhone) | ✅ 2026-11-22 [`specs/prototype/shell/html/`](../../specs/prototype/shell/html/README.md), khung dùng chung `shared/shell.{js,css}` (23 ca × 2 khổ; README có 5 phát hiện) | ⬜ | ⬜ | ⬜ | Web: thanh bên trái, cửa sổ hẹp ⇒ thanh dưới 5 tab; iPhone: thanh dưới. Flutter: `features/dashboard/presentation/store_shell.dart`, `erp_tab_scaffold.dart`, `widgets/erp_side_navigation.dart`, `widgets/erp_bottom_navigation.dart` (W-1). Gồm chọn cửa hàng APP-04 |
 | Trang chủ (dashboard) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | APP-01, `home_tab_page.dart` + `widgets/` (thẻ doanh thu, việc cần làm, thao tác nhanh, banner hồ sơ pháp lý); lối vào "Hỏi Mosaic Retail" |
 | Menu Thêm + Thiết lập hệ thống | ⬜ chưa có | ⬜ | ⬜ | ⬜ | APP-02, `features/more/presentation/` (`more_page.dart`, `system_settings_page.dart`, `users_and_roles_page.dart`, `more_entries.dart`); mục Công nợ (Theme 6), HĐĐT (Theme 8) |
 
