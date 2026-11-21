@@ -106,3 +106,33 @@ test('mọi ca vẽ được ở cả hai khổ', () => {
     assert.ok(!html.includes('undefined'), `undefined trong ${screen}/${state}/${device}`);
   }
 });
+
+// ---------------------------------------------------------------- đợt 2
+import { DETAILS, missingDescription, invoiceBadge, contactLine, sheetActions } from '../app/detail.js';
+import { titleLabel, summaryFor, changeText, actorDisplay, ENTRIES } from '../app/history.js';
+
+test('Hồ sơ: banner thiếu thông tin / nhãn thẻ hoá đơn / hàng liên hệ', () => {
+  assert.equal(missingDescription(DETAILS.p2), 'Thiếu MST và địa chỉ hóa đơn. ');
+  assert.equal(missingDescription(DETAILS.p1), null);
+  assert.equal(invoiceBadge(DETAILS.p2), 'Thiếu MST và địa chỉ');
+  assert.equal(invoiceBadge(DETAILS.p6), 'Thiếu MST, tên HĐ và địa chỉ');
+  assert.equal(contactLine(DETAILS.p1), '0283 812 4567  •  MST 0312345678');
+  assert.equal(contactLine(DETAILS.p6), '');
+});
+
+test('Sheet thao tác theo loại / trạng thái', () => {
+  assert.deepEqual(sheetActions(DETAILS.p2), { transform: true, toggle: true, del: true });
+  assert.deepEqual(sheetActions(DETAILS.p1), { transform: false, toggle: true, del: true });
+  assert.deepEqual(sheetActions(DETAILS.p5), { transform: false, toggle: true, del: true });
+});
+
+test('Lịch sử thao tác: tiêu đề, dòng thay đổi, người làm', () => {
+  assert.equal(titleLabel('SĐT chính'), 'SĐT chính');
+  assert.equal(titleLabel('Email'), 'email');
+  assert.equal(summaryFor('update', ENTRIES[1].changes), 'Cập nhật email, SĐT chính và 1 thông tin khác');
+  assert.equal(summaryFor('update', ENTRIES[1].changes.slice(0, 2)), 'Cập nhật email, SĐT chính');
+  assert.equal(summaryFor('create', []), 'Tạo đối tác');
+  assert.equal(changeText({ label: 'Email', kind: 'added', after: 'a@b.vn' }, true), 'Email: Thêm mới: a@b.vn');
+  assert.equal(changeText({ label: 'Trạng thái', kind: 'modified', before: 'A', after: 'B' }, false), 'A → B');
+  assert.equal(actorDisplay('3f9a2c1b-7d4e-4f0a'), '3f9a2c1b');
+});

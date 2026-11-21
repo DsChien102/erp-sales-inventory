@@ -7,7 +7,7 @@ Làm theo 3 đợt, mỗi đợt một commit. Cột trái trang xem chia theo �
 | Đợt | Màn | Trạng thái |
 |---|---|---|
 | 1 · Danh sách & tạo | PT-01 Danh sách (L-01…L-07), PT-02 Bộ lọc / Sắp xếp, PT-03 Thêm mới, PT-05 Tạo / sửa (+ sheet rời màn), PT-04 Trùng hồ sơ, PT-06 Chọn khu vực | ✅ 48 ca × 2 khổ |
-| 2 · Hồ sơ | PT-07 (KH / NCC, banner hoá đơn, ngừng hoạt động; khối **Công nợ** Theme 6, **Chương trình ưu đãi** + **Lịch sử nhập hàng** Theme 7 vẽ đầy đủ như Flutter), sheet thao tác / ngừng / kích hoạt / xoá / chặn xoá, toast, PT-12 | ⬜ |
+| 2 · Hồ sơ | PT-07 (KH / NCC, banner hoá đơn, ngừng hoạt động, đối tác hệ thống; khối **Công nợ** Theme 6, **Chương trình ưu đãi** + **Lịch sử nhập hàng** Theme 7 vẽ đầy đủ như Flutter), sheet thao tác / ngừng / kích hoạt / xoá / chặn xoá, toast, PT-12 | ✅ 36 ca × 2 khổ |
 | 3 · Liên hệ & chuyển đổi | PT-08, PT-09, PT-10, PT-11 | ⬜ |
 
 ## Chạy
@@ -33,14 +33,16 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 | `app/data.js` | Đối tác mẫu; 34 tỉnh + số xã thật (`assets/data/vn_administrative_units.json`); `dartCompare`, `foldVietnamese` |
 | `app/list.js` | PT-01, PT-02, PT-03, không có quyền xem, cột phải khi chưa chọn; hàm thuần `roleLabel`, `itemSubtitle`, `filterCount`, `headerLabel`, `emptyKind` |
 | `app/form.js` | PT-05, PT-04, PT-06, sheet rời màn; `sections`, `sectionTitle`, `formTitle`, `canSubmit`, `phoneError`, `invoiceWarning`, `sectionSummary`, `filterProvinces` |
-| `app/main.js` | Ca → trạng thái; khu KH & NCC: web chia 2 cột (`VListDetailLayout` 360 / 840), sheet web phủ cả cửa sổ, sheet iPhone chỉ phủ vùng tab |
+| `app/detail.js` | PT-07 + sheet + toast, khối Theme 6 / 7; `missingDescription`, `invoiceBadge`, `contactLine`, `sheetActions` |
+| `app/history.js` | PT-12; `titleLabel`, `summaryFor`, `changeText`, `actorDisplay` |
+| `app/main.js` | Ca → trạng thái; khu KH & NCC: web chia 2 cột (`VListDetailLayout` 360 / 840; hồ sơ ở cột phải 679 → thân 640), sheet web phủ cả cửa sổ, sheet iPhone chỉ phủ vùng tab; toast nằm trong cột hồ sơ (web) / trên thanh dưới (iPhone) |
 | `styles/t3.css` | Rule tiền tố `t3-`, token `--c45-v2-*`; đầu file có bảng màu / chữ Flutter → token |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem, chụp ảnh — chép khuôn Theme 1 (cổng 8771) |
-| `shared/icons.js` | Thêm `plus` (VIcons.add), `tune`, `cloudOff`, `chevronUp` (expandLess), `searchOff` |
+| `shared/icons.js` | Thêm `plus` (VIcons.add), `tune`, `cloudOff`, `chevronUp` (expandLess), `searchOff`; đợt 2: `phone`, `pause`, `power`, `trash` (VIcons.delete), `stickyNote`, `plusCircle` (addCircle) |
 
 Gom bộ widget DS về `shared/` (Theme 1 và Theme 3 đang có hai bản `ds.js`) để làm sau, khi đã có 2–3 theme và thấy rõ phần chung. Đến lúc đó sửa một widget DS phải sửa ở cả hai nơi.
 
-## Nguồn Flutter (đợt 1)
+## Nguồn Flutter (đợt 1, 2)
 
 | Màn | Flutter (`apps/erp/lib/features/partner/`) |
 |---|---|
@@ -51,6 +53,9 @@ Gom bộ widget DS về `shared/` (Theme 1 và Theme 3 đang có hai bản `ds.j
 | PT-05 | `pages/partner_create_page.dart`, `widgets/{partner_create_form, partner_form_section, partner_section_shell, partner_role_section, partner_person_section, partner_organization_section, partner_primary_contact_section, partner_invoice_section, partner_delivery_section, partner_note_section, partner_outlined_field, partner_compact_field, partner_leave_form_dialog}.dart`, `logic/{partner_create_state, partner_create_cubit, partner_create_form_validator}.dart` |
 | PT-04 | `widgets/partner_duplicate_sheet.dart` |
 | PT-06 | `widgets/partner_administrative_unit_picker_sheet.dart` (bản riêng của đối tác, khác `core/widgets/address/vn_administrative_unit_picker_sheet.dart` của Đăng ký) |
+| PT-07 | `pages/partner_detail_page.dart`, `widgets/{partner_detail_header, partner_detail_status_banners, partner_detail_expandable_card, partner_detail_main_info_card, partner_detail_contacts_card, partner_detail_invoice_card, partner_detail_delivery_card, partner_detail_note_card, partner_detail_system_card, partner_detail_loading_skeleton, partner_detail_error_state, partner_detail_action_sheet, partner_deactivate_confirmation_sheet, partner_reactivate_confirmation_sheet, partner_soft_delete_confirmation_sheet, partner_delete_blocked_sheet, partner_delete_primary_contact_blocked_sheet, partner_detail_soft_delete_flow, partner_create_success_toast, partner_transform_success_toast}.dart` |
+| Khối theme khác trên PT-07 | `features/receivable/presentation/widgets/{customer_receivable_summary_card, receivable_parts}.dart` (Theme 6); `features/inventory/presentation/supplier_program/supplier_programs_section.dart`, `…/goods_receipt/receipt_history_section.dart` (Theme 7); gắn ở `core/router/app_router.dart` |
+| PT-12 | `pages/partner_change_history_page.dart`, `widgets/{partner_change_history_body, partner_change_history_card}.dart`, `logic/{partner_change_history_cubit, partner_action_log_diff}.dart` |
 | DS | `packages/c45_design_system/lib/src/components/{v_button, v_input, v_text_area, v_search_bar, v_banner, v_card, v_app_bar, v_avatar, v_empty_state, v_floating_action_button, v_checkbox, v_adaptive_sheet, v_bottom_sheet}.dart`, `primitives/{v_chip, v_badge, v_icon_box, v_skeleton, v_divider}.dart`, `forms/{v_select, v_choice_list, v_phone_field}.dart`, `patterns/{v_field, v_page_scaffold, v_page_padding, v_list_detail_layout}.dart`, `theme/v_color_scheme.dart` |
 
 ## Hiện trạng Flutter (để rà) — đợt 1
@@ -109,6 +114,41 @@ Các điểm dưới đây rút ra từ việc đọc code, chưa đối chiếu
 
 34. `partner_active_filters.dart`, `partner_form_field_row.dart`, `PartnerCompactTextField` / `PartnerCompactDropdown` (`partner_compact_field.dart`), `partner_ward_search_dropdown.dart`: không nơi nào dùng (kể cả test).
 
+## Hiện trạng Flutter (để rà) — đợt 2
+
+**Bố cục hồ sơ (PT-07)**
+
+35. **Web: hàng nút "Chỉnh sửa | Thao tác" không chạm hai mép cột.** Hàng nút nằm trong thân `VPageScaffold`, mà thân bị giới hạn cột 640 trong cột phải rộng 679, nên hai bên hở ~20 px nền xám. App bar thì kéo hết cột.
+36. **Toast đè lên hàng nút đáy.** Web: khung không có Scaffold, nên SnackBar hiện ở Scaffold của hồ sơ, sát đáy cột phải. iPhone: SnackBar hiện ở `ErpTabScaffold`, ngay trên thanh dưới. Cả hai đều che "Chỉnh sửa | Thao tác".
+37. Ba kiểu nhãn trạng thái cho cùng một việc. Danh sách: `VBadge` bo tròn, cỡ thường / nhỏ. Đầu hồ sơ: `_StatusTag` bo 4, 11 px, nền 10%. Người liên hệ: "Chính" cùng kiểu `_StatusTag`. Nhãn nhỏ trên thẻ đóng: bo 8, 10 px.
+38. **Mọi thẻ thông tin đều đóng khi mở hồ sơ**, nên muốn xem SĐT phụ, email, địa chỉ… phải bấm từng thẻ. Thẻ đóng dùng mũi tên ›, giống thẻ điều hướng (Công nợ, Lịch sử thao tác).
+39. "Lịch sử thao tác " (thừa dấu cách cuối) dùng icon bánh răng (`VIcons.settings`).
+40. Thứ tự khối trộn lẫn: Công nợ (Theme 6) chen giữa "Thông tin" và "Người liên hệ"; khối NCC (Theme 7) nằm sau "Ghi chú". Ba khối ngoài mỗi khối một kiểu: Công nợ là thẻ viền nhạt có chevron; Chương trình ưu đãi là `VCard` viền đậm có đầu "Xem tất cả ›"; Lịch sử nhập hàng không có thẻ bọc, đầu H4 + nút link 44, mỗi phiếu một `VCard`.
+41. Lịch sử nhập hàng: ngày là chuỗi thô "2026-11-18", tiền "12.500.000 đ" (Công nợ "₫"). Chữ không màu DS (Text + VTypography không màu). Rỗng: một dòng `Text` mặc định đệm 8, không tiêu đề. **Lỗi tải hiện như rỗng.** Đang tải: vòng Material.
+42. Công nợ đang tải / lỗi → không vẽ gì, nhưng khe 8 phía sau vẫn còn (hai khe liền nhau). Lỗi không báo.
+43. Hai câu thiếu hoá đơn khác nhau: banner "Thiếu MST và địa chỉ hóa đơn. " (có dấu cách cuối), nhãn thẻ "Thiếu MST và địa chỉ" / "Thiếu MST, tên HĐ và địa chỉ". Hồ sơ ngừng hoạt động không hiện banner thiếu thông tin dù vẫn thiếu.
+44. Đối tác hệ thống "Mua lẻ / khác": không có hàng nút đáy (không có lối "Thao tác"), không có khối NCC dù có vai trò NCC. Thẻ Người liên hệ vẫn cho "Thêm người liên hệ". Nhãn đỏ "Thiếu MST, tên HĐ và địa chỉ" trên hồ sơ không sửa được.
+45. Trạng thái lỗi của hồ sơ dùng `PartnerDetailErrorState` riêng (hình ghép khiên + "?", tài liệu + kính lúp; nút viền rộng cố định 220). Danh sách dùng `VEmptyState` (nút chính, tiêu đề đỏ). Hai kiểu lỗi trong cùng khu.
+
+**Sheet thao tác (PT-07)**
+
+46. Sheet thao tác không có tiêu đề sheet; "Thao tác hồ sơ" là chữ H3 trong nội dung. Web: hộp thoại không tiêu đề nên có nút Đóng góc và đệm đôi. Mỗi thao tác là một thẻ có ›, thêm "Hủy" đầy ngang.
+47. **Xác nhận "Ngừng hoạt động" là nút xanh chính** (không cảnh báo màu); "Xóa hồ sơ" đỏ. Nút "Hủy" lúc chữ xanh (ngừng / kích hoạt), lúc chữ đen (xoá).
+48. Banner cảnh báo "đang là liên hệ chính" dùng `VBanner(title: '')`: hàng đầu chỉ có icon, câu thụt 32 xuống dòng dưới.
+49. Bốn kiểu đầu sheet xác nhận. Vòng tròn 64 (ngừng / kích hoạt / xoá). Icon cảnh báo trơ 56 (không xoá được vì có giao dịch). Icon thùng rác trơ 44 + **tay kéo tự vẽ 40 × 4** (không xoá được vì là liên hệ chính) → iPhone hiện hai tay kéo. Sheet xoá / chặn xoá có nút × riêng 32 → web thêm nút Đóng của hộp thoại thành hai ×.
+50. Hai sheet cùng tiêu đề "Không thể xóa hồ sơ" khác icon, khe, màu.
+
+**Toast**
+
+51. Toast chuyển đổi tự vẽ (chấm 24, × 20 không có vùng chạm 44, đệm 14), khác `VToast` của các thao tác khác. Câu có / không dấu chấm cuối lẫn lộn ("Đã cập nhật hồ sơ KH & NCC" / "Đã ngừng hoạt động KH & NCC.").
+
+**Lịch sử thao tác (PT-12)**
+
+52. Route ngoài khung: web mất thanh bên. Nút ← là `IconButton(arrowBack)`, khác ‹ của VAppBar.
+53. **"bởi 3f9a2c1b"**: người thực hiện là 8 ký tự đầu mã người dùng, không phải tên.
+54. Ngày dạng "2026-11-21 16:40" (danh sách dùng "21/11/2026"). Thay đổi sắp theo tên nhãn (A→Z), nên tiêu đề "Cập nhật email, SĐT chính và 1 thông tin khác" không theo thứ tự trên form. "Tạo đối tác" không có dòng chi tiết.
+55. Chỉ tải trang đầu (20 dòng), không có tải thêm (TH-03 US-07.1 ghi phân trang). Đang tải: vòng Material.
+
 ## Khác biệt có chủ đích với Flutter
 
 - Icon: Material thay bằng nét kiểu Lucide trong `shared/icons.js`, giữ ý nghĩa và cỡ. Mũi tên `arrow_drop_down` (tam giác đặc) của VSelect vẽ bằng chevron.
@@ -116,3 +156,4 @@ Các điểm dưới đây rút ra từ việc đọc code, chưa đối chiếu
 - Badge số trên nút lọc (Material `Badge`) đặt gần đúng vị trí lệch (4, −4).
 - AppBar có subtitle vẽ cao 64 (`preferredSize`), không có subtitle cao 57.
 - Không vẽ: menu thả của VSelect "Loại tổ chức", bàn phím, kéo để làm mới.
+- PT-07: hình lỗi "không quyền" dùng icon khiên có dấu ✓ của `shared/icons.js` (Flutter: khiên trơn). Thẻ trạng thái đối tác hệ thống / dữ liệu Công nợ, chương trình, phiếu nhập là dữ liệu mẫu.
