@@ -35,7 +35,7 @@ apps/erp/lib/
 
 ## Quy tắc làm việc
 
-- **Phân vai:** agent **lên plan và review**, người dùng **tự code**. Mỗi việc trong PLAN có file plan ở [docs/refactor/plans/](docs/refactor/plans/README.md); cập nhật cột Plan / Làm / Review trong PLAN.md. Không tự sửa code ứng dụng trừ khi người dùng yêu cầu rõ.
+- Mỗi việc trong PLAN có file plan ở [docs/refactor/plans/](docs/refactor/plans/README.md); cập nhật cột Plan / Làm / Review trong PLAN.md.
 - Trả lời người dùng bằng tiếng Việt.
 - Làm theo `docs/requirements`. Mục 🔧 = code cũ sai, phải sửa khi chuyển; 🆕 = chưa có, phải làm. Không chép lỗi cũ.
 - Giữ chữ ký RPC hiện có trừ khi tài liệu TH ghi sửa.
