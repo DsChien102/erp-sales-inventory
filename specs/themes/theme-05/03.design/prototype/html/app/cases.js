@@ -252,6 +252,89 @@ export const SCREENS = [
       ['toast-failed', 'Bị chặn', 'Toast vàng "Đơn đã có phiếu đổi/trả, không thể hủy." thuộc Scaffold màn chi tiết nên nằm **dưới lớp phủ và sau sheet** (sheet vẫn mở): iPhone gần như không thấy, web chỉ ló hai mép tối. Người bán bấm "Hủy đơn hàng" mà không thấy gì xảy ra. TH-05 ghi hộp thoại "Không thể huỷ đơn".'],
     ],
   },
+  // ---------------------------------------------------------------- đợt 4: đổi / trả
+  {
+    id: 'return-create', group: 'returns', code: 'SG-12', title: 'Lập phiếu đổi/trả', route: '/sales/orders/o1/returns/new', states: [
+      ['loading', 'Đang tải', 'CircularProgressIndicator 36 giữa màn (TH-05: skeleton); chưa có thanh dưới.'],
+      ['empty', 'Chưa chọn', 'Route cấp gốc, ngoài khung; web 1 cột 720. App bar "Đổi/trả hàng" + ←. "DH-000130 · Nguyễn Văn Hùng" và "Chọn hàng trả và số lượng." (bodySmall xám, hai dòng rời). "Hàng trả": thẻ viền nhạt, mỗi dòng ô icon **Material** inventory_2 (lẫn với icon Lucide nơi khác), tên bold, "125.000đ/Hộp" — **không ghi còn trả được bao nhiêu** (TH-05: "còn trả 2"); ô ± 34. "Chọn hàng đổi" mờ. "Tóm tắt dự kiến" 0đ / 0đ / chênh lệch 0đ nền xám. "Tiếp tục" mờ.'],
+      ['return-only', 'Chỉ trả', 'Dầu tắm 1 Chai → chênh lệch "-95.000đ" chữ xanh nền xanh 10% (âm ghi "-" + "đ", TH-05 ghi "−" + "₫"). "Chọn hàng đổi" và "Tiếp tục" sáng. Pate trả theo giá sau giảm 16.000đ/Lon.'],
+      ['max', 'Chạm mức tối đa', 'Dầu tắm 1 / 1, Pate 6 / 6: nút "+" vẫn trông bật nhưng bấm không có tác dụng; không có số tối đa nào hiện ra. Chạm ô số cũng không mở bàn phím (khác SG-02).'],
+      ['exchange', 'Có hàng đổi', 'Trả 1 Hộp Amoxicillin, đổi 1 Tuýp Frontline 148.000đ (ô icon Material local_pharmacy) → chênh lệch "23.000đ" chữ vàng nền vàng 10% — **không có dấu +** dù TH-05 ghi "+30.000 ₫".'],
+      ['saving', 'Đang lưu', '"Đang lưu..." mờ; ô ± chữ xám; "Chọn hàng đổi" mờ; không vòng xoay.'],
+      ['stale-price', 'Giá đã đổi', 'Banner **đỏ** (lỗi) "Giá món đổi đã thay đổi. Đã cập nhật giá mới, vui lòng kiểm tra lại." + "Thử lại" bên phải — câu là thông báo đã xử lý xong nhưng tô như lỗi; "Thử lại" tải lại phiên.'],
+      ['blocked', 'Bị chặn', '⚠ đỏ + "Không thể đổi/trả đơn DH-000130" H4 bold canh trái sát trên; "Đơn đang có phiếu đổi/trả chưa hoàn tất."; "Tải lại" viền đầy ngang. Không thanh dưới, không VEmptyState.'],
+      ['error', 'Lỗi tải', 'Cùng khuôn: "Không thể tải phiên đổi/trả" + "Không thể kết nối đến máy chủ…" + "Tải lại" (⚠ đỏ cho cả lỗi mạng).'],
+    ],
+  },
+  {
+    id: 'return-create-sheet', group: 'returns', code: 'SG-12', title: 'Sheet chọn hàng đổi / bỏ thay đổi', route: '/sales/orders/o1/returns/new', states: [
+      ['picker', 'Chọn hàng đổi', 'Sheet có tiêu đề "Chọn hàng đổi" + gạch, **cao cố định 480**. "Chạm sản phẩm để thêm vào phiếu."; ô tìm "Tìm tên, SKU hoặc barcode"; khung viền nhạt chứa thẻ: ô ảnh Material 48 (không ảnh thật), tên bold, dòng phụ **lặp lại tên** "<tên> · <đơn vị>", rồi giá | **đơn vị lần nữa** | tồn. Tồn ≤ 5 "Còn 3" vàng đậm; > 5 là số trần "15". Sản phẩm nhiều đơn vị thành nhiều thẻ trùng tên.'],
+      ['picker-loading', 'Đang tải', '3 thẻ khung (48 + vạch 140 / 180 / 80 · 40 · 30).'],
+      ['picker-empty', 'Không có', 'Icon Material search_off, "Không tìm thấy sản phẩm", "Thử tìm kiếm với từ khóa khác".'],
+      ['picker-error', 'Lỗi', 'Icon Material error_outline xám (không tone đỏ), "Không thể tải sản phẩm" + **chuỗi lỗi thô** (`error.toString()`), "Thử lại" xanh.'],
+      ['discard', 'Bỏ thay đổi?', 'Bấm ← khi đã chọn hàng: sheet không tiêu đề "Bỏ thay đổi?" H3 đỏ, "Hàng trả và hàng đổi vừa chọn chưa được lưu.", "Tiếp tục đổi/trả" (viền) trên "Bỏ thay đổi" (viền đỏ). Sheet cũng bật lên khi quay về từ SG-13 dù không sửa gì (phiếu đã lưu được tính là "thay đổi"), và chọn "Bỏ thay đổi" thì huỷ luôn phiếu nháp trên server.'],
+    ],
+  },
+  {
+    id: 'return-settle', group: 'returns', code: 'SG-13', title: 'Quyết toán đổi/trả', route: '/sales/orders/o1/returns/r2/settle', states: [
+      ['collect', 'Phải thu thêm', 'App bar "Quyết toán đổi/trả" + ←. "DH-000130 · Nguyễn Văn Hùng" bodySmall. Thẻ: khối xanh "Phải thu thêm 23.000đ"; "Khách thanh toán ngay" ô "23.000" + "đ" (bàn phím hệ thống, SG-06 dùng bàn phím số); "Phương thức thu" segmented "Tiền mặt | Chuyển khoản"; "Công nợ phát sinh 0đ". "Tóm tắt đổi/trả" thu gọn "Chênh lệch +23.000đ" + ⌄. Thanh dưới lặp "Phải thu thêm 23.000đ" + "Xác nhận đổi/trả".'],
+      ['collect-partial', 'Trả một phần', 'Nhập 10.000 → "Công nợ phát sinh 13.000đ"; hiện "Ngày hẹn thanh toán *" (nhãn bold + "*" tự vẽ) và ô ngày **tự dựng cao 48, viền borderDefault** (ô khác 44, viền borderInput) "Chọn ngày hẹn"; "Xác nhận đổi/trả" mờ mà không nói vì sao. Thanh dưới vẫn ghi "Phải thu thêm 23.000đ" (không theo số vừa nhập).'],
+      ['collect-dated', 'Có ngày hẹn', '"30/11/2026" → nút sáng. Mở "Tóm tắt đổi/trả": Giá trị hàng trả / đổi / Chênh lệch "+23.000đ".'],
+      ['walk-in', 'Khách lẻ', '"DH-000127 · Khách lẻ": ô tiền mờ + "Thu đủ, không phát sinh công nợ." (khe 4).'],
+      ['zero', 'Không chênh lệch', 'Khối xanh "Không phát sinh chênh lệch 0đ" + "Không cần thu thêm, hoàn tiền hoặc ghi nhận công nợ."; thanh dưới "Không chênh lệch 0đ".'],
+      ['refund', 'Khách được hưởng', 'Chênh lệch âm luôn ra bố cục TH-06 (thẻ "Cần hoàn tiền" cũ trong code không còn tới được): dòng phụ **labelDefault w600** (nhánh thu là bodySmall), "Khách được hưởng" + "**95.000 ₫**" 28 xanh (có dấu cách + "₫", nhánh thu "23.000đ"), meta "Chênh lệch −95.000 ₫ · Hàng trả 95.000 · Hàng đổi 0". Khối chia: thanh xám, "Hoàn cho khách 95.000 ₫", "Phương thức hoàn" segmented "Tiền mặt | **CK**" (nhánh thu ghi "Chuyển khoản"). Thanh dưới **chỉ có nút**.'],
+      ['refund-debt', 'Giảm nợ đơn', 'Đơn DH-000129 chưa thu: thanh xanh dương "Giảm nợ đơn này 95.000 ₫" + "Trừ vào nợ của chính đơn này"; "Hoàn cho khách 0 ₫" vẫn hiện; không có phương thức.'],
+      ['refund-offset', 'Cấn trừ', '"CẤN TRỪ VÀO ĐƠN KHÁC" (caption bold giãn chữ) + câu dẫn; hai dòng tick: "DH-000118 · còn nợ 60.000 ₫" ⚠ "Quá hạn 5 ngày" đỏ, "Trừ 60.000"; "DH-000122 · còn nợ 120.000 ₫" "Hẹn 30/11" xám, "Trừ 0" (xám). Thanh: xanh 60.000 + xám 35.000; "Hoàn cho khách 35.000 ₫".'],
+      ['confirm-price', 'Giá đổi khi xác nhận', 'Banner vàng "Giá món đổi đã thay đổi. Vui lòng **quay lại** màn đổi/trả để cập nhật giá." nhưng nút bên phải là "**Tải lại**" (tải lại tại chỗ, không quay lại).'],
+      ['confirming', 'Đang xử lý', '"Đang xử lý..." mờ; ← cũng mờ; không vòng xoay.'],
+      ['loading', 'Đang tải', 'CircularProgressIndicator 36; không thanh dưới (TH-05: skeleton).'],
+      ['blocked', 'Bị chặn', '"Không thể quyết toán" H4 bold + lý do; không icon, không nút — chỉ còn ←.'],
+      ['error', 'Lỗi tải', '"Không tải được quyết toán" + "Không quyết toán được phiếu đổi/trả. Vui lòng thử lại." + "Thử lại" viền. Không icon (SG-12 có ⚠).'],
+    ],
+  },
+  {
+    id: 'return-settle-sheet', group: 'returns', code: 'SG-13', title: 'Xác nhận / công nợ thay đổi', route: '/sales/orders/o1/returns/r2/settle', states: [
+      ['confirm', 'Xác nhận (thu thêm)', 'Sheet không tiêu đề: "Xác nhận đổi/trả?" H3 bold; "Thu thêm 23.000đ từ khách." — câu dựng từ **kế hoạch server**, nên khi khách chỉ trả 10.000 (ca nền "Có ngày hẹn") sheet vẫn ghi thu 23.000 và không nhắc công nợ 13.000 / ngày hẹn. "Xác nhận đổi/trả" xanh **trên** "Quay lại" (SG-10 và sheet "Bỏ thay đổi?" đặt nút huỷ dưới).'],
+      ['confirm-offset', 'Xác nhận (cấn trừ)', 'Nhánh khách được hưởng: gạch đầu dòng "Cấn trừ 60.000 ₫ vào đơn DH-000118", "Hoàn 35.000 ₫ cho khách".'],
+      ['receivable-changed', 'Công nợ thay đổi', 'Dialog M3 giữa màn (không đóng bằng chạm ngoài): câu "Công nợ của khách vừa thay đổi. Hãy tải lại quyết toán." làm tiêu đề H3, một nút "Tải lại" canh phải. Web vẫn dialog (rộng ≤ 480) trong khi mọi sheet khác là sheet đáy.'],
+    ],
+  },
+  {
+    id: 'return-result', group: 'returns', code: 'SG-14', title: 'Kết quả đổi/trả', route: '/sales/orders/o1/returns/r2/result', states: [
+      ['collect', 'Hoàn tất · thu thêm', 'App bar "Kết quả đổi/trả" **có ←** (SG-07 thì không). Thẻ giữa: ✓ xanh 40, "Đã hoàn tất đổi/trả" H4, "Phiếu #DT-000014", "26/11/2026 · 14:02", link "Xem phiếu đổi/trả". Thẻ khách. "Tóm tắt đổi/trả": "Chênh lệch 23.000đ" **nền xanh chữ xanh** (không dấu, cùng màu khi hoàn). "Quyết toán phiếu": icon ví vàng, "Thu thêm từ khách: 23.000đ" và "**Không phát sinh công nợ**" đều chữ vàng. Thanh nút nằm trong thân (không phải bottomBar): "Về trang chủ" | "Xem chi tiết đơn".'],
+      ['refund', 'Hoàn tất · hoàn tiền', '"Chênh lệch -95.000đ" vẫn nền xanh chữ xanh; "Hoàn cho khách: 95.000đ" vàng.'],
+      ['offset', 'Hoàn tất · cấn trừ', '"Cấn trừ vào DH-000118: 60.000đ" (đen) + "Hoàn cho khách: 35.000đ" (vàng); thêm nút "Xem công nợ của khách" đầy ngang trên hàng nút — thanh dưới 3 nút large.'],
+      ['processing', 'Đang xử lý', 'Icon history vàng 40, "Đang xử lý đổi/trả"; phần còn lại vẽ như đã xong (vẫn "Thu thêm từ khách: 23.000đ").'],
+      ['loading', 'Đang tải', 'CircularProgressIndicator 36; không có nút nào (kể cả về trang chủ).'],
+      ['failure', 'Lỗi tải', '"Không tải được kết quả đổi/trả" H4 + "Không tải được chi tiết phiếu." + "Thử lại" viền; hàng nút dưới vẫn có. Không icon.'],
+      ['not-found', 'Không tìm thấy', '"Không tìm thấy phiếu đổi/trả" + "Phiếu không tồn tại."'],
+      ['pending', 'Đang đồng bộ', '"Đang đồng bộ dữ liệu" + "Phiếu đang được cập nhật." + "Thử lại".'],
+    ],
+  },
+  {
+    id: 'return-detail', group: 'returns', code: 'SG-15', title: 'Chi tiết phiếu đổi/trả', route: '/sales/orders/o1/returns/r2/detail', states: [
+      ['collect', 'Khách trả thêm', 'Thẻ đầu: "DT-000014" H4 bold (**không "#"**, SG-14 có) | badge "Hoàn tất"; "26/11/2026 14:02" (không "·", SG-14 có); tên, SĐT; khối xanh "Khách trả thêm 23.000đ". Thẻ "Đơn hàng nguồn DH-000130" + "**Đã trả một phần**" — chữ cố định trong code, mọi phiếu đều ghi vậy. "Hàng trả" / "Hàng đổi": mỗi dòng một thẻ rời (icon hộp / cửa hàng), thành tiền bold không mono. "Tóm tắt đổi/trả": "Chênh lệch 23.000đ". Thanh "Thao tác ⌃".'],
+      ['refund', 'Hoàn trả khách', '"Hoàn trả khách 95.000đ"; tóm tắt "Chênh lệch **95.000đ**" (lấy trị tuyệt đối — thu và hoàn trông y hệt, cùng nền xanh).'],
+      ['loading', 'Đang tải', 'CircularProgressIndicator 36; không thanh dưới.'],
+      ['error', 'Lỗi tải', 'Chỉ một câu "Không tải được chi tiết phiếu." canh trái + "Thử lại" xanh **đầy ngang** — không icon, không tiêu đề.'],
+      ['toast-pdf', 'In / chia sẻ lỗi', 'Toast đỏ hiện **chuỗi lỗi thô** ("Exception: Unable to load asset…"); tiêu đề "Xuất PDF thất bại" không hiện.'],
+    ],
+  },
+  {
+    id: 'return-detail-sheet', group: 'returns', code: 'SG-15', title: 'Sheet Phiếu đổi/trả', route: '/sales/orders/o1/returns/r2/detail', states: [
+      ['actions', 'Xem / in / chia sẻ', 'Bấm "Thao tác": sheet có tiêu đề "Phiếu đổi/trả" — "Xem trước phiếu", "In phiếu" ("In phiếu đổi/trả cho khách"), "Chia sẻ phiếu". Nút tên "Thao tác" nhưng chỉ có thao tác in ấn.'],
+    ],
+  },
+  {
+    id: 'return-slip', group: 'returns', code: 'SG-16', title: 'Xem trước phiếu đổi/trả', route: '/sales/orders/o1/returns/r2/preview', states: [
+      ['collect', 'Thu thêm', 'App bar "Phiếu đổi/trả" + **một icon ⋮** — chạm là sinh PDF rồi **chia sẻ**, không có in (TH-05: In + Chia sẻ). Trang A5: "V45", "MOSAIC RETAIL DEMO", "PHIẾU ĐỔI/TRẢ", "DT-000014  ·  Đơn DH-000130", Ngày xác nhận / Khách / SĐT, "Hàng trả", "Hàng đổi", rồi "**Phải thu thêm 23.000đ**" (đậm, xanh), "Đã thu", "Công nợ phát sinh". Cuối "Cảm ơn quý khách!" (phiếu bán ghi "Cám ơn") — **không có dòng "phiếu nội bộ, không phải HĐĐT"** (phiếu bán có).'],
+      ['refund', 'Hoàn tiền', '"Cần hoàn tiền 95.000đ" + "Đã hoàn 95.000đ"; không có hàng đổi.'],
+      ['offset', 'Hoàn + cấn trừ', '"Cần hoàn tiền 35.000đ", "Cấn trừ sang đơn khác 60.000đ" (không ghi đơn nào), "Đã hoàn 35.000đ".'],
+      ['loading', 'Đang tải phiếu', 'Trang bọc: CircularProgressIndicator 36 (không chữ).'],
+      ['pdf-loading', 'Đang tạo PDF', 'PdfPreview: VLoading 40 + "Đang tạo bản xem trước PDF..." — hai kiểu chờ liền nhau cho một lần mở.'],
+      ['error', 'Thiếu dữ liệu', '"Không tải được phiếu đổi/trả để xem trước." giữa màn + "Thử lại" xanh (SG-16 phiếu bán thì không có nút).'],
+    ],
+  },
 ];
 
 /** { màn: [mã ca, …] } cho tools/capture.mjs và test. */

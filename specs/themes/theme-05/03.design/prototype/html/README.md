@@ -11,11 +11,11 @@ Làm 4 đợt, mỗi đợt một commit. Cột trái trang xem chia theo đợt
 | 1 · Lập đơn | SG-01 Đơn nháp (+ sheet xoá), SG-02 Soạn đơn (+ menu tìm sản phẩm, sheet rời màn, bàn phím số lượng, toast), SG-03 Chọn đơn vị bán, SG-04 Chọn khách + Tạo nhanh khách (+ bỏ thay đổi, trùng SĐT), SG-05 Điều chỉnh giá (+ bàn phím, 2 sheet xác nhận) | ✅ 63 ca × 2 khổ |
 | 2 · Thanh toán & kết quả | SG-06 Thanh toán (+ sheet hoàn tất, bàn phím tiền, toast, trang không hợp lệ), SG-07 Kết quả (+ sheet phiếu, dòng HĐĐT mặc định / dự phòng), SG-16 xem trước phiếu bán hàng (trang A5 vẽ lại bằng HTML) | ✅ 40 ca × 2 khổ |
 | 3 · Tra cứu đơn | SG-08 Đơn hàng (+ sheet lọc; trong khung), SG-09 Chi tiết (+ sheet Thao tác, sheet phiếu, toast), SG-09b Thanh toán & công nợ, SG-09c Lịch sử, SG-09d Phiếu đổi/trả của đơn, SG-10 Huỷ đơn | ✅ 55 ca × 2 khổ |
-| 4 · Đổi / trả | SG-12, SG-13 (+ cấn trừ), SG-14, SG-15, SG-16 phiếu đổi/trả | ⬜ |
+| 4 · Đổi / trả | SG-12 Lập phiếu (+ sheet chọn hàng đổi, bỏ thay đổi), SG-13 Quyết toán (+ nhánh khách được hưởng / cấn trừ, sheet xác nhận, hộp công nợ thay đổi), SG-14 Kết quả, SG-15 Chi tiết phiếu (+ sheet phiếu), SG-16 phiếu đổi/trả | ✅ 50 ca × 2 khổ |
 
 SG-11 (Thu tiền) đã gỡ khỏi Flutter ở T6-2c (thu sau bán chuyển sang CN-03), nên không vẽ. Phần của theme khác mà Flutter đang hiện (HD-06, khối cấn trừ, "Xem công nợ của khách") vẽ đúng như Flutter. Dòng HĐĐT (HD-06) trên SG-07 / SG-09 chỉ vẽ trạng thái mặc định, "Chưa đủ thông tin" và thẻ dự phòng; 4 trạng thái phát hành và các sheet HĐĐT đã vẽ ở prototype Theme 8 đợt 2 (`theme-08/…/app/order.js`). Prototype Theme 8 đợt 2 cũng vẽ lại SG-09 (`detailHost`) nhưng lệch Flutter ở hai chỗ: dòng "Đã thanh toán / Còn phải thu" chữ thường (Flutter chữ vàng w600) và icon dòng Hộp dùng `inventory` của `shared/` (Flutter: Lucide box). Bản ở đây theo Flutter.
 
-Đánh số: key trong Dart dùng `sg05` cho Thanh toán, `sg06` cho Kết quả, `sg07` / `e03_u01` cho Đơn hàng và `sg08` cho Chi tiết đơn (số cũ); prototype theo TH-05 / CHECKLIST: SG-06 Thanh toán, SG-07 Kết quả, SG-08 Đơn hàng, SG-09 Chi tiết. Prototype Theme 8 ghi trang Kết quả là "SG-06" và Chi tiết đơn là "SG-08" theo số cũ.
+Đánh số: key trong Dart dùng `sg05` cho Thanh toán, `sg06` cho Kết quả, `sg07` / `e03_u01` cho Đơn hàng, `sg08` cho Chi tiết đơn, `sg11` cho Lập phiếu đổi/trả, `sg12` cho Quyết toán, `sg13` cho Kết quả / Chi tiết phiếu / phiếu đổi trả (số cũ); prototype theo TH-05 / CHECKLIST: SG-06 Thanh toán, SG-07 Kết quả, SG-08 Đơn hàng, SG-09 Chi tiết, SG-12 … SG-16 đổi / trả. Prototype Theme 8 ghi trang Kết quả là "SG-06" và Chi tiết đơn là "SG-08" theo số cũ.
 
 ## Chạy
 
@@ -34,7 +34,7 @@ node tools/capture.mjs      # mọi ca × 2 khổ → tools/proto-final/{iphone,
 | Tệp | Vai trò |
 |---|---|
 | `app/cases.js` | Nhóm (đợt), màn, ca, kèm điều cần nhìn của từng ca |
-| `app/ds.js` | Widget DS, **chép từ Theme 4** (`theme-04/app/ds.js`, đổi `t4-` → `t5-`). Thêm: `buttonLg` (VButton large 52), `tabs` (VTabs line), `cardHeader` / `cardContent` (VCardHeader / VCardContent), `segmented` (VSegmentedControl), `keypadSheet` (VNumericKeypadSheet), `fieldDesc`, `radioLabel`, `smallLoading`; `bottomSheet` thêm `tone` (màu tay kéo) và `height` (SizedBox cố định). Icon `badgePercent` / `qrCode` để cục bộ (`LOCAL_ICONS`); đợt 3 thêm `banknoteArrowDown`, `fileXCorner`, `circleX` (VIcons.error), `box` (VIcons.inventory = Lucide box) |
+| `app/ds.js` | Widget DS, **chép từ Theme 4** (`theme-04/app/ds.js`, đổi `t4-` → `t5-`). Thêm: `buttonLg` (VButton large 52), `tabs` (VTabs line), `cardHeader` / `cardContent` (VCardHeader / VCardContent), `segmented` (VSegmentedControl), `keypadSheet` (VNumericKeypadSheet), `fieldDesc`, `radioLabel`, `smallLoading`; `bottomSheet` thêm `tone` (màu tay kéo) và `height` (SizedBox cố định). Icon `badgePercent` / `qrCode` để cục bộ (`LOCAL_ICONS`); đợt 3 thêm `banknoteArrowDown`, `fileXCorner`, `circleX` (VIcons.error), `box` (VIcons.inventory = Lucide box); đợt 4 thêm `MATERIAL_ICONS` (Flutter `Icons.*_outlined`: inventory_2, local_pharmacy, image, search_off, error_outline — tô đặc) và `banner(…, { trailing })` |
 | `app/data.js` | Nháp, sản phẩm, dòng đơn, khách mẫu (cửa hàng thú y như Theme 2 / 3 / 4), thẻ đơn SG-08 (`ORDERS`, đơn đầu = DH-000130 của SG-07); `money` (MoneyFormatter), `moneyComma` (VMoneyValidator), `draftTimestamp`, `customerSubtitle`, `totals`, `orderMetaLine` |
 | `app/drafts.js` | SG-01 + sheet xoá; hàm thuần `creatorLabel`, `phoneLine`, `draftSummary` |
 | `app/compose.js` | SG-02 + menu tìm, sheet rời màn, bàn phím số lượng; hàm thuần `stockWarning`, `unitPriceLabel`, `ribbon` (dải chéo giá riêng) |
@@ -44,6 +44,8 @@ node tools/capture.mjs      # mọi ca × 2 khổ → tools/proto-final/{iphone,
 | `app/orders.js` | SG-08 (trong khung: `contentWidth` = cửa sổ − thanh bên 240) + sheet lọc (vẽ trong vùng nội dung, không phải overlay của khung); hàm thuần `activeFilterCount`, `noResultDescription`, `listCustomerLabel` |
 | `app/detail.js` | SG-09 (ca đã tải + 5 trang trạng thái), sheet "Thao tác", SG-10; hàm thuần `productIcon`, `diffText`, `cancelImpact`, `cancelSubtitle` |
 | `app/subpages.js` | SG-09b, SG-09c, SG-09d; hàm thuần `paidMethodRows`, `transactionLabel`, `displayActorName` |
+| `app/returns.js` | SG-12 (+ sheet chọn hàng đổi, "Bỏ thay đổi?"), SG-13 (+ sheet xác nhận, hộp công nợ thay đổi); hàm thuần `expectedSummary`, `pickerStockLabel`, `planReturnSettlement`, `orderDueLabel`, `confirmationMessage`, `entitledLines`, `signedMoney`, `formatVnd`. Nhánh "khách được hưởng" dựng theo Flutter; thiết kế gốc ở prototype Theme 6 `app/sg13.js` |
+| `app/returnview.js` | SG-14, SG-15, SG-16 phiếu đổi/trả (`returnSlipPaper` theo `SalesSlipPdfGenerator`); hàm thuần `resultSettlementLines`, `detailBanner`, `settlementRows`, bảng `STATUS` |
 | `app/main.js` | Ca → trạng thái; mọi màn vẽ ngoài khung trừ SG-08 `/orders` |
 | `styles/t5.css` | Phần DS chép từ `t4.css`, rồi tới rule riêng Theme 5 (tiền tố `t5-`, token `--c45-v2-*`) |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem và chụp ảnh, chép khuôn Theme 4 (cổng 8775) |
@@ -65,6 +67,11 @@ Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 5). Việc gom về `shared/` để sau.
 | SG-08 | `pages/sales_order_list_page.dart`, `widgets/{sales_order_list_body, sales_order_list_card, sales_order_list_search_bar, sales_order_saved_search_chips, sales_order_list_empty_state, sales_order_list_no_result_state, sales_order_list_error_state, sales_order_list_blocked_state, sales_order_filter_bottom_sheet}.dart`, `models/sales_order/{sales_order_list_item_vm, sales_order_saved_search_preset}.dart`, `support/sales_order_list_mapper.dart`, `logic/sales_order_list_{cubit,state}.dart`; khung `features/dashboard/presentation/store_shell.dart` |
 | SG-09 | `pages/sales_order_detail_page.dart`, `widgets/{sales_order_detail_body, sales_detail_header_card, sales_detail_action_bar, sales_order_detail_cancel_reason_card, sales_order_detail_payment_summary_card, sales_order_detail_products_section, sales_order_detail_grouped_surface, sales_order_detail_documents_section, sales_order_detail_returns_section, sales_order_detail_history_entry, sales_order_detail_error_state, sales_order_actions_sheet}.dart`, `support/sales_order_detail_mapper.dart`, `models/sales_order_settlement/sales_order_payment_vm.dart`, `logic/{sales_order_detail_post_sale_actions, sales_post_sale_error_messages}.dart`; HD-06 `features/einvoice/presentation/widgets/order_einvoice_row.dart` |
 | SG-09b / c / d | `widgets/{sales_order_payment_debt_page, sales_order_history_page, sales_order_return_list_page, sales_label_highlight_row}.dart` (đẩy bằng `MaterialPageRoute`) |
+| SG-12 | `pages/sales_return_exchange_create_page.dart`, `widgets/{sales_return_exchange_session_body, sales_return_exchange_session_line_rows, sales_order_line_quantity, sales_exchange_product_picker_sheet, sales_return_discard_dialog}.dart`, `logic/sales_return_exchange_session_{cubit,state}.dart`, `support/sales_return_exchange_pricing_copy.dart` |
+| SG-13 | `pages/sales_return_exchange_settlement_page.dart`, `widgets/{sales_return_exchange_settlement_body, sales_return_entitled_settlement, sales_return_confirm_settlement_sheet, sales_receivable_changed_dialog}.dart`, `logic/{sales_return_exchange_settlement_cubit, sales_return_exchange_settlement_state, return_settlement_preview}.dart`, `features/receivable/{logic/receivable_format, presentation/widgets/receivable_parts}.dart` |
+| SG-14 | `pages/sales_return_exchange_result_page.dart`, `widgets/{sales_return_exchange_result_body, sales_return_result_action_bar}.dart` |
+| SG-15 | `pages/sales_return_exchange_detail_page.dart`, `widgets/{sales_return_exchange_detail_body, sales_return_exchange_detail_header_card, sales_return_exchange_source_order_card, sales_return_exchange_detail_lines_section, sales_return_exchange_detail_summary_card, sales_order_return_slip_sheet}.dart`, `logic/sales_return_exchange_detail_cubit.dart` |
+| SG-16 (đổi/trả) | `pages/{sales_return_exchange_slip_preview_page, sales_slip_preview_page}.dart`, `support/sales_slip_pdf_generator.dart` |
 | SG-10 | `widgets/sales_order_cancel_sheet.dart` |
 | Khung | `navigation/sales_typed_routes.dart` (`SalesDraftShellRoute`), `c45_design_system` `VPageScaffold`, `showVBottomSheet`, `showVNumericKeypadSheet`, `VSwipeReveal`, `VTabs`, `VSegmentedControl` |
 
@@ -229,3 +236,56 @@ Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 5). Việc gom về `shared/` để sau.
 115. "Quay lại" (viền xám) đặt trên "Hủy đơn hàng" (viền đỏ), cả hai large 52.
 116. Đang huỷ: hai nút cùng mờ, không vòng xoay.
 117. Bị chặn khi xác nhận: toast nằm trong Scaffold màn chi tiết, dưới lớp phủ và sau sheet → gần như không thấy (TH-05: hộp thoại "Không thể huỷ đơn").
+
+## Hiện trạng Flutter (để rà): đợt 4
+
+**Chung**
+
+118. Mọi màn đổi/trả ngoài khung, web một cột 720; không có bố cục hai cột (hàng trả | hàng đổi / tóm tắt) cho web.
+119. Chênh lệch ghi ba kiểu trên năm màn: SG-12 "23.000đ" / "-95.000đ" (không "+"), SG-13 "+23.000đ" / "-95.000đ", nhánh khách được hưởng "−95.000 ₫" (dấu trừ thật, có dấu cách + "₫"); SG-15 lấy trị tuyệt đối "95.000đ". TH-05: "+30.000 ₫" / "−600.000 ₫".
+120. Icon lẫn hai bộ: Material `inventory_2`, `local_pharmacy`, `image`, `search_off`, `error_outline` (tô đặc) bên cạnh Lucide (nét).
+121. Trạng thái đang tải dùng CircularProgressIndicator ở cả năm màn (TH-05: skeleton); lỗi / bị chặn là chữ canh trái sát trên, không VEmptyState, mỗi màn một khuôn (có / không icon ⚠, nút viền / nút xanh, "Tải lại" / "Thử lại").
+
+**Lập phiếu (SG-12)**
+
+122. Dòng trả không ghi còn trả được bao nhiêu (TH-05: "còn trả 2"); ở mức tối đa "+" vẫn trông bật nhưng bấm không có tác dụng; chạm ô số không mở bàn phím (SG-02 có).
+123. Hai dòng phụ đầu màn ("DH-000130 · …" và "Chọn hàng trả và số lượng.") cùng kiểu bodySmall xám, không có thẻ đơn nguồn (TH-05 có "Đơn hàng nguồn …").
+124. Banner giá đổi dùng tone lỗi (đỏ) cho một thông báo đã xử lý xong ("Đã cập nhật giá mới…"); nút "Thử lại" tải lại phiên.
+125. Sheet chọn hàng đổi: cao cố định 480; dòng phụ lặp tên sản phẩm, đơn vị in hai lần; tồn > 5 là số trần; mỗi đơn vị bán là một thẻ trùng tên; lỗi in chuỗi thô `toString()`; icon lỗi xám (không tone đỏ).
+126. Quay về từ SG-13 rồi bấm ← luôn hỏi "Bỏ thay đổi?" (phiếu đã lưu được tính là thay đổi); chọn "Bỏ thay đổi" huỷ phiếu nháp trên server.
+
+**Quyết toán (SG-13)**
+
+127. Hai bố cục cho một màn: thu thêm / không chênh lệch là thẻ cũ (dòng phụ bodySmall, tiền "23.000đ", "Chuyển khoản"), hoàn tiền là bố cục TH-06 (dòng phụ labelDefault w600, tiền "95.000 ₫", "CK"). Thẻ "Cần hoàn tiền" cũ vẫn còn trong code nhưng không tới được.
+128. Ô "Khách thanh toán ngay" dùng bàn phím hệ thống (SG-06 dùng bàn phím số); ô ngày tự dựng cao 48, viền borderDefault, nhãn bold + "*" tự vẽ (ô khác 44, borderInput, VFieldLabel).
+129. "Xác nhận đổi/trả" mờ khi thiếu ngày hẹn mà không nói vì sao.
+130. Thanh dưới lặp số của thẻ nổi bật ("Phải thu thêm 23.000đ") và không đổi theo số khách trả ngay.
+131. Sheet xác nhận dựng câu từ kế hoạch server: khách trả 10.000 vẫn ghi "Thu thêm 23.000đ từ khách.", không nhắc công nợ 13.000 và ngày hẹn. Nút "Xác nhận" đặt trên "Quay lại" (SG-10, "Bỏ thay đổi?" đặt nút an toàn trên).
+132. Giá đổi khi xác nhận: banner bảo "quay lại màn đổi/trả" nhưng nút là "Tải lại" (tải tại chỗ).
+133. "Hoàn cho khách 0 ₫" vẫn hiện khi toàn bộ được trừ vào nợ đơn này.
+134. Hộp "Công nợ của khách vừa thay đổi" là Dialog M3 giữa màn, chỉ có "Tải lại", không đóng được; là chỗ duy nhất của Theme 5 dùng dialog.
+135. Bị chặn: chỉ tiêu đề + lý do, không nút nào ngoài ←.
+
+**Kết quả (SG-14)**
+
+136. Có nút ← (SG-07 không có) và ← về đầu ngăn xếp, không về chi tiết đơn.
+137. "Chênh lệch" luôn nền xanh chữ xanh, kể cả khi khách phải trả thêm; số âm "-95.000đ".
+138. "Quyết toán phiếu": dòng thu / hoàn và dòng công nợ đều chữ vàng, kể cả "Không phát sinh công nợ"; icon ví vàng.
+139. Đang xử lý: icon history vàng nhưng phần dưới vẽ như đã xong.
+140. Đang tải: không có nút nào (lỗi thì có "Về trang chủ" | "Xem chi tiết đơn"). Có cấn trừ: thanh dưới ba nút large.
+141. Ngày "26/11/2026 · 14:02" (SG-15 ghi "26/11/2026 14:02"); "Phiếu #DT-…" (SG-15 không "#").
+
+**Chi tiết phiếu (SG-15)**
+
+142. Thẻ "Đơn hàng nguồn" luôn ghi "Đã trả một phần" (chữ mặc định trong code, không ai truyền vào).
+143. Chênh lệch lấy trị tuyệt đối: thu thêm và hoàn tiền trông y hệt; mọi khối nổi bật cùng nền xanh.
+144. Hàng trả / hàng đổi là thẻ rời (khe 4), thành tiền bold không mono (SG-09 dùng nhóm thẻ có gạch, tiền mono).
+145. Nút "Thao tác" chỉ mở sheet in ấn ("Xem trước phiếu", "In phiếu", "Chia sẻ phiếu").
+146. Lỗi tải: một câu + "Thử lại" xanh đầy ngang; toast lỗi PDF hiện chuỗi lỗi thô.
+
+**Phiếu đổi/trả (SG-16)**
+
+147. App bar chỉ có ⋮ — chạm là sinh PDF rồi chia sẻ, không có in (TH-05: In + Chia sẻ); trong lúc sinh hiện VLoading trên nền mờ.
+148. Không có dòng "phiếu nội bộ, không phải hoá đơn điện tử" (phiếu bán có); "Cảm ơn" (phiếu bán "Cám ơn").
+149. "Cấn trừ sang đơn khác" không ghi đơn nào; logo "V45" cố định như phiếu bán.
+150. Hai kiểu chờ liền nhau (CircularProgressIndicator của trang bọc, rồi VLoading + chữ của PdfPreview).

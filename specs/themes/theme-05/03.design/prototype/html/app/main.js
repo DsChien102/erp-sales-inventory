@@ -18,6 +18,9 @@ import { receiptActionSheet, receiptPreviewPage, resultPage, resultToast } from 
 import { filterSheet, orderListPage } from './orders.js';
 import { DETAIL_STATES, actionsSheet, cancelSheet, detailPage, detailStatusPage, detailToast } from './detail.js';
 import { historyPage, paymentDebtPage, returnListPage } from './subpages.js';
+import { confirmSheet, createPage, discardSheet as returnDiscardSheet, pickerSheet, receivableChangedDialog, settlePage } from './returns.js';
+import { RETURN_SLIP_COPY } from './result.js';
+import { resultPage as returnResultPage, returnDetailPage, returnDetailToast, slipPreviewPage } from './returnview.js';
 
 /** Trạng thái ban đầu của một ca. */
 export function caseView(screen, state, device) {
@@ -147,6 +150,31 @@ export function renderView(v) {
       overlay = bottomSheet(cancelSheet({ reason: v.state === 'default' ? '' : 'Khách đặt nhầm, sẽ lên đơn mới', submitting: v.state === 'submitting' }), { label: 'Hủy đơn hàng' });
       break;
     }
+    // đợt 4 — đổi / trả (mọi route ngoài khung)
+    case 'return-create': page = createPage(v.state, v); break;
+    case 'return-create-sheet':
+      page = createPage(v.state === 'discard' ? 'exchange' : 'return-only', v);
+      overlay = v.state === 'discard'
+        ? bottomSheet(returnDiscardSheet(), { label: 'Bỏ thay đổi?' })
+        : bottomSheet(pickerSheet(v.state.replace('picker-', '').replace('picker', 'ready')), { title: 'Chọn hàng đổi', height: 480 });
+      break;
+    case 'return-settle': page = settlePage(v.state, v); break;
+    case 'return-settle-sheet':
+      if (v.state === 'receivable-changed') { page = settlePage('refund-offset', v); overlay = receivableChangedDialog(); }
+      else {
+        page = settlePage(v.state === 'confirm-offset' ? 'refund-offset' : 'collect-dated', v);
+        overlay = bottomSheet(confirmSheet(v.state === 'confirm-offset' ? 'offset' : 'collect'), { label: 'Xác nhận đổi/trả' });
+      }
+      break;
+    case 'return-result': page = returnResultPage(v.state, v); break;
+    case 'return-detail':
+      page = v.state === 'toast-pdf' ? returnDetailPage('collect', v, { toastHtml: returnDetailToast(v) }) : returnDetailPage(v.state, v);
+      break;
+    case 'return-detail-sheet':
+      page = returnDetailPage('collect', v);
+      overlay = bottomSheet(receiptActionSheet(RETURN_SLIP_COPY), { title: 'Phiếu đổi/trả' });
+      break;
+    case 'return-slip': page = slipPreviewPage(v.state, v); break;
     default: break;
   }
   return renderShell({ device: v.device, width: v.width, height: v.height, location: v.location, orgName: 'Mosaic Retail Demo', overlay }, page);

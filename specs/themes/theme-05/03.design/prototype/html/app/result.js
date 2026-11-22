@@ -108,9 +108,13 @@ export const resultToast = (v, type, title, message) => toast(type, title, messa
  * showSalesDocumentActionSheet: showVBottomSheet CÓ tiêu đề ("Phiếu bán hàng" H3 w700 + VDivider); đệm 16 / 12; 3 thẻ VCard đệm 16:
  * icon 22 + khe 12 + (tiêu đề w600 / khe 4 / phụ bodySmall) + khe 8 + › 20; khe 8 giữa + 8 cuối.
  */
-export function receiptActionSheet() {
+const RECEIPT_COPY = [['Xem phiếu', 'Kiểm tra phiếu trước khi in hoặc gửi'], ['In phiếu', 'Chọn máy in và số bản cần in'], ['Chia sẻ phiếu', 'Gửi qua ứng dụng khác']];
+/** SalesDocumentActionSheetCopy của phiếu đổi/trả (showSalesReturnExchangeSlipSheet). */
+export const RETURN_SLIP_COPY = [['Xem trước phiếu', 'Kiểm tra nội dung trước khi in hoặc chia sẻ'], ['In phiếu', 'In phiếu đổi/trả cho khách'], ['Chia sẻ phiếu', 'Gửi qua ứng dụng khác']];
+export function receiptActionSheet(copy = RECEIPT_COPY) {
   const tile = (ic, t, s) => `<div class="t5-card t5-card--pad t5-entry t5-entry--22"><i class="t5-entry__ic">${icon(ic)}</i><span class="t5-entry__t"><b>${esc(t)}</b>${gap(4)}<span>${esc(s)}</span></span><i class="t5-gap-h8"></i><i class="t5-entry__chev">${icon('chevronRight')}</i></div>`;
-  return `<div class="t5-docsheet">${tile('eye', 'Xem phiếu', 'Kiểm tra phiếu trước khi in hoặc gửi')}${gap(8)}${tile('printer', 'In phiếu', 'Chọn máy in và số bản cần in')}${gap(8)}${tile('share', 'Chia sẻ phiếu', 'Gửi qua ứng dụng khác')}${gap(8)}</div>`;
+  const [v, p, sh] = copy;
+  return `<div class="t5-docsheet">${tile('eye', v[0], v[1])}${gap(8)}${tile('printer', p[0], p[1])}${gap(8)}${tile('share', sh[0], sh[1])}${gap(8)}</div>`;
 }
 
 // ---------------------------------------------------------------- SG-16 phiếu bán hàng (PDF A5)

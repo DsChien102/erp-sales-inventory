@@ -168,3 +168,61 @@ test('SG-08 /orders nằm TRONG khung; SG-09 và màn con ngoài khung', () => {
   const web = render('orders-filter', 'default', 'web');
   assert.ok(web.indexOf('sh-scrim') > web.indexOf('t5-area') && web.indexOf('sh-scrim') < web.lastIndexOf('</main>'));
 });
+
+// ---------------------------------------------------------------- đợt 4
+import {
+  confirmationMessage, entitledLines, expectedSummary, orderDueLabel, pickerStockLabel, planReturnSettlement, signedMoney, formatVnd,
+} from '../app/returns.js';
+import { SLIPS, STATUS, detailBanner, resultSettlementLines, settlementRows } from '../app/returnview.js';
+
+test('SG-12: tóm tắt dự kiến, nhãn tồn sheet chọn hàng đổi', () => {
+  assert.deepEqual(expectedSummary([{ price: 125000, qty: 1 }], [{ price: 148000, qty: 1 }]), { ret: 125000, exc: 148000, diff: 23000, tone: 'warning' });
+  assert.equal(expectedSummary([{ price: 95000, qty: 1 }]).tone, 'success');
+  assert.equal(expectedSummary([]).tone, 'neutral');
+  assert.deepEqual(pickerStockLabel(3), { text: 'Còn 3', low: true });
+  assert.deepEqual(pickerStockLabel(15), { text: '15', low: false });
+  assert.deepEqual(pickerStockLabel(0), { text: '0', low: false });
+  assert.deepEqual(pickerStockLabel(null), { text: '', low: false });
+});
+
+test('SG-13: chia tiền khách được hưởng, hạn nợ, câu xác nhận', () => {
+  const cands = [{ id: 'a', code: 'DH-1', outstanding: 60000 }, { id: 'b', code: 'DH-2', outstanding: 120000 }];
+  const one = planReturnSettlement({ distributable: 95000, candidates: cands, selected: ['a'] });
+  assert.deepEqual([one.offsetTotal, one.refund, one.showOffsetBlock], [60000, 35000, true]);
+  const both = planReturnSettlement({ distributable: 95000, candidates: cands, selected: ['b', 'a'] });
+  assert.deepEqual(both.offsets.map((o) => o.amount), [60000, 35000]); // cũ trước, không theo thứ tự tick
+  assert.equal(planReturnSettlement({ distributable: 0, candidates: cands }).showOffsetBlock, false);
+  assert.deepEqual(entitledLines({ reduceOwnDebt: 0, offsets: one.offsets, refund: 35000 }), ['Cấn trừ 60.000 ₫ vào đơn DH-1', 'Hoàn 35.000 ₫ cho khách']);
+  assert.equal(orderDueLabel({ overdueDays: 5 }).text, 'Quá hạn 5 ngày');
+  assert.equal(orderDueLabel({ due: '2026-11-30' }).text, 'Hẹn 30/11');
+  assert.equal(orderDueLabel({ due: '2026-11-26' }).kind, 'today');
+  assert.equal(orderDueLabel({}).text, 'Không có hẹn');
+  assert.equal(confirmationMessage({ collect: 23000 }), 'Thu thêm 23.000đ từ khách.');
+  assert.equal(confirmationMessage({ collect: 23000, receivableCreate: 13000 }), 'Thu thêm 23.000đ từ khách và ghi nhận công nợ 13.000đ.');
+  assert.equal(confirmationMessage({ refund: 1, receivableCreate: 2, receivableReverse: 3 }), 'Hoàn 1đ cho khách, ghi nhận công nợ 2đ và ghi giảm công nợ 3đ.');
+  assert.equal(confirmationMessage({}), 'Xác nhận đổi/trả hàng không phát sinh chênh lệch.');
+  assert.equal(signedMoney(23000), '+23.000đ');
+  assert.equal(signedMoney(-95000), '-95.000đ');
+  assert.equal(formatVnd(95000), '95.000 ₫');
+});
+
+test('SG-14 / 15 / 16: dòng quyết toán, khối đầu, dòng phiếu, trạng thái', () => {
+  assert.deepEqual(resultSettlementLines(SLIPS.collect.plan), { offsets: [], pay: 'Thu thêm từ khách: 23.000đ', debt: 'Không phát sinh công nợ' });
+  assert.deepEqual(resultSettlementLines(SLIPS.offset.plan).offsets, ['Cấn trừ vào DH-000118: 60.000đ']);
+  assert.deepEqual(detailBanner(SLIPS.collect.plan), ['Khách trả thêm', 23000]);
+  assert.deepEqual(detailBanner(SLIPS.offset.plan), ['Hoàn trả khách', 35000]);
+  assert.deepEqual(detailBanner({ net: 0, collect: 0, refund: 0 }), ['Không chênh lệch', 0]);
+  assert.deepEqual(settlementRows(SLIPS.collect.plan), [['Phải thu thêm', '23.000đ'], ['Đã thu', '23.000đ'], ['Công nợ phát sinh', '0đ']]);
+  assert.deepEqual(settlementRows(SLIPS.processing.plan)[2], ['Công nợ phát sinh', '23.000đ']);
+  assert.deepEqual(settlementRows(SLIPS.offset.plan).map((r) => r[0]), ['Cần hoàn tiền', 'Cấn trừ sang đơn khác', 'Đã hoàn']);
+  assert.deepEqual(settlementRows({ net: -95000, refund: 0, receivableReverse: 95000, processedRefund: 0, offset: 0 }).map((r) => r[0]), ['Cần hoàn tiền', 'Giảm nợ đơn', 'Đã hoàn']);
+  assert.deepEqual(settlementRows({ net: 0 }), [['Không chênh lệch', '0đ']]);
+  assert.equal(STATUS.processing.title, 'Đang xử lý đổi/trả');
+  assert.deepEqual([STATUS.confirmed.label, STATUS.confirmed.tone], ['Đã xác nhận', 'info']);
+});
+
+test('SG-12…16 nằm ngoài khung', () => {
+  for (const [s, st] of [['return-create', 'exchange'], ['return-settle', 'collect'], ['return-result', 'collect'], ['return-detail', 'collect'], ['return-slip', 'collect']]) {
+    assert.match(render(s, st, 'web'), /data-layout="bare"/, s);
+  }
+});

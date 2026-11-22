@@ -34,7 +34,8 @@ export function ribbon(rowHeight) {
 }
 
 /** SalesOrderLineQuantityControls: ô chạm 34 × 34; "−" (headingH4 16/22) và "+" (16) trong ô 24 nền surface bo 8 (không viền); ô số 30 × 20 viền borderDefault bo 8, bodySmallMono w600. */
-const qtyControls = (q) => `<span class="t5-qty"><span class="t5-qty__hit"><i class="t5-qty__chip">−</i></span><span class="t5-qty__hit"><b class="t5-qty__box">${q}</b></span><span class="t5-qty__hit"><i class="t5-qty__chip">${icon('plus')}</i></span></span>`;
+/** SalesOrderLineQuantityControls: − | ô số | + (ô chạm 34); disabled → chữ / icon textMuted. Dùng lại ở SG-12. */
+export const qtyControls = (q, { disabled = false } = {}) => `<span class="t5-qty${disabled ? ' is-off' : ''}"><span class="t5-qty__hit"><i class="t5-qty__chip">−</i></span><span class="t5-qty__hit"><b class="t5-qty__box">${q}</b></span><span class="t5-qty__hit"><i class="t5-qty__chip">${icon('plus')}</i></span></span>`;
 
 /**
  * SalesOrderLineRow: VSwipeReveal (lộ 116 = 2 × 58: "Chiết khấu" nền successBg icon tag textBrand | "Xóa" nền dangerBg icon thùng rác đỏ — chỉ icon, không chữ),

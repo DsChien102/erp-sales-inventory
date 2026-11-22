@@ -27,7 +27,17 @@ const LOCAL_ICONS = {
   circleX: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
   box: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
 };
-export const icon = (name, cls = '') => (LOCAL_ICONS[name]
+/** Icon Material (Flutter `Icons.*_outlined`, tô đặc) mà màn đổi/trả dùng lẫn với Lucide: inventory_2, local_pharmacy, image, search_off, error_outline. */
+const MATERIAL_ICONS = {
+  mInventory: 'M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-1 18H5V9h14v11zm1-13H4V4h16v3zM9 12h6v2H9z',
+  mPharmacy: 'M21 5h-2.64l1.14-3.14L17.15 1l-1.46 4H3v2l2 6-2 6v2h18v-2l-2-6 2-6V5zm-3.9 8.63L18.89 19H5.11l1.79-5.37.21-.63-.21-.63L5.11 7h13.78l-1.79 5.37-.21.63.21.63zM13 9h-2v3H8v2h3v3h2v-3h3v-2h-3z',
+  mImage: 'M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z',
+  mSearchOff: 'M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 0 0 9.5 3C6.08 3 3.28 5.64 3.03 9h2.02C5.3 6.75 7.18 5 9.5 5 11.99 5 14 7.01 14 9.5S11.99 14 9.5 14c-.17 0-.33-.03-.5-.05v2.02c.17.02.33.03.5.03 1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM6.47 10.82 4 13.29l-2.47-2.47-.71.71L3.29 14 .82 16.47l.71.71L4 14.71l2.47 2.47.71-.71L4.71 14l2.47-2.47z',
+  mError: 'M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z',
+};
+export const icon = (name, cls = '') => (MATERIAL_ICONS[name]
+  ? `<svg class="icon ${cls}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="${MATERIAL_ICONS[name]}"/></svg>`
+  : LOCAL_ICONS[name]
   ? `<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LOCAL_ICONS[name]}</svg>`
   : sharedIcon(name, cls));
 
@@ -127,9 +137,9 @@ export const avatar = (name) => iconBox({ label: initials(name), size: 40, iconS
 
 /** VBanner: bo 12, viền 1 accent, đệm 16; icon 20 + khe 12 + tiêu đề labelDefault accent; mô tả bodySmall textPrimary lùi 32. */
 const BANNER_ICON = { info: 'info', success: 'checkCircle', warning: 'alert', error: 'error' };
-export function banner(status, title, description = '', { footer = '' } = {}) {
+export function banner(status, title, description = '', { footer = '', trailing = '' } = {}) {
   return `<div class="t5-banner t5-banner--${status}" role="${status === 'error' ? 'alert' : 'status'}">
-    <div class="t5-banner__head">${icon(BANNER_ICON[status])}<b>${esc(title)}</b></div>${description ? `<p>${esc(description).replace(/\n/g, '<br>')}</p>` : ''}${footer ? `<div class="t5-banner__footer">${footer}</div>` : ''}</div>`;
+    <div class="t5-banner__head">${icon(BANNER_ICON[status])}<b${trailing ? ' class="t5-grow"' : ''}>${esc(title)}</b>${trailing ? `<span class="t5-banner__trail">${trailing}</span>` : ''}</div>${description ? `<p>${esc(description).replace(/\n/g, '<br>')}</p>` : ''}${footer ? `<div class="t5-banner__footer">${footer}</div>` : ''}</div>`;
 }
 
 /** VCard (subtle): viền 1 borderStrong, bo 12, nền surface, đệm 16; isSelected → nền surfaceBrand, viền borderBrand. */
