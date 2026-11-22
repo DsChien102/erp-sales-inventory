@@ -116,3 +116,55 @@ test('Mọi class t5-* dùng trong ca đều có rule trong styles/t5.css', asyn
   const missing = [...used].filter((c) => !new RegExp(`\\.${c.replace(/[-]/g, '\\-')}(?![\\w-])`).test(css)).sort();
   assert.deepEqual(missing, []);
 });
+
+// ---------------------------------------------------------------- đợt 3
+import { orderMetaLine } from '../app/data.js';
+import { activeFilterCount, listCustomerLabel, noResultDescription } from '../app/orders.js';
+import { cancelImpact, cancelSubtitle, diffText, productIcon, DETAIL_ORDERS } from '../app/detail.js';
+import { SETTLEMENT_LABEL, displayActorName, paidMethodRows, transactionLabel } from '../app/subpages.js';
+
+test('SG-08: dòng phụ thẻ đơn, khách lẻ, đếm bộ lọc, câu không kết quả', () => {
+  assert.equal(orderMetaLine('0912345678'), '0912345678 · Mosaic Retail Demo');
+  assert.equal(orderMetaLine(null), 'Mosaic Retail Demo');
+  assert.equal(orderMetaLine(null, ''), null);
+  assert.equal(listCustomerLabel({ customer: null }), 'Khách Lẻ');
+  assert.equal(activeFilterCount({}), 0);
+  assert.equal(activeFilterCount({ preset: 1 }), 1);
+  assert.equal(activeFilterCount({ time: 1, lifecycle: 1 }), 2);
+  assert.equal(noResultDescription(' xyz '), 'Không có đơn phù hợp với “xyz”\ntrong phạm vi hiện tại.');
+  assert.equal(noResultDescription(''), 'Không có đơn phù hợp trong phạm vi hiện tại.');
+});
+
+test('SG-09 / SG-10: icon dòng hàng, chênh lệch phiếu, tác động huỷ', () => {
+  assert.equal(productIcon('Hộp'), 'box');
+  assert.equal(productIcon('Chai'), 'tag');
+  assert.equal(productIcon('Lon'), 'tag'); // "lon" chứa "lo"
+  assert.equal(diffText(23000), 'Khách trả thêm 23.000đ');
+  assert.equal(diffText(-95000), 'Hoàn lại 95.000đ');
+  assert.equal(diffText(0), 'Không chênh lệch');
+  assert.deepEqual(cancelImpact(DETAIL_ORDERS.o2), { stock: 'Hoàn lại 9 mặt hàng', debt: 'Giảm 441.000đ' });
+  assert.equal(cancelSubtitle({ by: ' ', at: '21/11/2026 15:40' }), '21/11/2026 15:40');
+});
+
+test('SG-09b / SG-09c: dòng đã thanh toán, nhãn giao dịch, người thực hiện', () => {
+  assert.equal(SETTLEMENT_LABEL.partiallyPaid, 'Còn phải thu');
+  assert.deepEqual(paidMethodRows({ cash: 0, bank: 0, paid: 0 }), [['Đã thanh toán', 0, 'primary']]);
+  assert.deepEqual(paidMethodRows({ cash: 1, bank: 2 }).map((r) => r[0]), ['Đã thanh toán (TM)', 'Đã thanh toán (CK)']);
+  assert.equal(transactionLabel({ kind: 'collection', method: 'cash' }), 'Thu tiền · Tiền mặt');
+  assert.equal(transactionLabel({ kind: 'refund', method: 'bank' }), 'Hoàn tiền · Chuyển khoản');
+  assert.equal(transactionLabel({ kind: 'collection', method: 'offset', counterpart: 'DH-000118' }), 'Cấn trừ · từ DH-000118');
+  assert.equal(transactionLabel({ kind: 'refund', method: 'offset', counterpart: 'DH-000118' }), 'Cấn trừ · sang DH-000118');
+  assert.equal(displayActorName('Không rõ', 'Phạm Thu Hà'), 'Phạm Thu Hà');
+  assert.equal(displayActorName('7c9e6679-7425-40de-944b-e07fc1f90ae7'), 'Nhân viên');
+  assert.equal(displayActorName(' Lê Quốc Bảo '), 'Lê Quốc Bảo');
+});
+
+test('SG-08 /orders nằm TRONG khung; SG-09 và màn con ngoài khung', () => {
+  assert.match(render('orders', 'loaded', 'web'), /data-layout="desktop"/);
+  assert.match(render('orders', 'loaded', 'iphone'), /data-layout="mobile"/);
+  assert.match(render('detail', 'paid', 'web'), /data-layout="bare"/);
+  assert.match(render('payment-debt', 'paid', 'iphone'), /data-layout="bare"/);
+  // Sheet lọc nằm trong vùng nội dung (t5-area), không phải overlay phủ thanh bên.
+  const web = render('orders-filter', 'default', 'web');
+  assert.ok(web.indexOf('sh-scrim') > web.indexOf('t5-area') && web.indexOf('sh-scrim') < web.lastIndexOf('</main>'));
+});

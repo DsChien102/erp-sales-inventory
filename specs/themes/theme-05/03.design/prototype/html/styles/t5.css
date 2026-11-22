@@ -587,3 +587,97 @@
 .t5-pdf__total b { font-family: var(--c45-v2-font-mono); color: #1F7A36; }
 .t5-pdf__thanks { margin: 0; text-align: center; font-size: 10px; color: #757575; }
 .t5-pdf__note { margin: 3px 0 0; text-align: center; font-size: 8.5px; color: #9E9E9E; }
+
+/* ================================================ đợt 3 — chung */
+.t5-grow { flex: 1; min-width: 0; }
+.t5-row--0 { gap: 0; }
+.t5-gap-h16 { display: block; flex: 0 0 16px; }
+.t5-w600 { margin: 0; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-small--ink { color: var(--c45-v2-text-primary); }
+/* VCard backgroundColor surface + border borderDefault (nhạt hơn VCard thường borderStrong) */
+.t5-card--light { border-color: var(--c45-v2-border-default); }
+/* VCard backgroundColor surfaceAlt */
+.t5-card--alt { background: var(--c45-v2-surface-canvas); }
+/* Nút / tiêu đề trong VComponentScope tone warning */
+.t5-btn--primary.t5-btn--warning { background: var(--c45-v2-text-warning); }
+.t5-btn--fg-warning { color: var(--c45-v2-text-warning); }
+.t5-empty--twarning .t5-empty__title { color: var(--c45-v2-text-warning); }
+/* VButton trailingIcon: khe 8, VIconSize.sm 16 trắng */
+.t5-btn__trail { display: grid; font-style: normal; font-size: 16px; }
+.t5-btn__trail .icon { font-size: 16px; }
+/* CircularProgressIndicator 20 nét 2 (SizedBox 20) */
+.t5-spin--m20 { width: 20px; height: 20px; border-width: 2px; border-color: transparent; border-top-color: var(--c45-v2-action-primary-default); border-right-color: var(--c45-v2-action-primary-default); }
+/* Hàng "nhãn | giá trị" trong thẻ xám SG-10 */
+.t5-kv { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: var(--sh-fs-md); line-height: 22px; }
+.t5-kv span { font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t5-kv b { font-weight: 500; color: var(--c45-v2-text-primary); }
+
+/* ================================================ SG-08 đơn hàng */
+.t5-olist { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--c45-v2-space-2); padding: 0 16px; }
+.t5-olist > * { flex: 0 0 auto; }
+.t5-olist--skel { overflow: hidden; padding-bottom: 0; }
+.t5-ocard { cursor: pointer; }
+.t5-ocard__top { display: flex; align-items: flex-start; }
+.t5-ocard__main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t5-ocard__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-ocard__meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t5-ocard__total { font-style: normal; font-family: var(--c45-v2-font-mono); font-size: 14px; line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-ocard__foot { display: flex; justify-content: space-between; gap: 8px; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t5-oskel { flex: 0 0 auto; padding: 16px; border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); }
+.t5-skel--grow { flex: 1 1 auto; }
+.t5-omore { flex: 1; min-width: 0; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-danger); }
+.t5-ofilter { position: relative; flex: 0 0 44px; }
+.t5-ofilter__box { width: 44px; height: 44px; font-size: 20px; border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-button); cursor: pointer; }
+.t5-ofilter__box.is-on { background: var(--c45-v2-surface-success); border-color: var(--c45-v2-action-primary-default); color: var(--c45-v2-action-primary-default); }
+.t5-ofilter__badge { position: absolute; right: -8px; top: -6px; padding: 2px 8px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-action-primary-default); color: var(--c45-v2-text-inverse); font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 600; }
+
+/* ================================================ SG-09 chi tiết đơn */
+.t5-dhead { display: flex; align-items: flex-start; justify-content: space-between; }
+.t5-dhead p { margin: 0; }
+.t5-dhead__no { font-family: var(--c45-v2-font-mono); font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 400; color: var(--c45-v2-text-primary); }
+.t5-entry__ic--22 { font-size: 22px; }
+.t5-paycard .t5-paycard__v { font-weight: 600; color: var(--c45-v2-text-warning); }
+.t5-paycard.is-off { opacity: var(--c45-v2-opacity-disabled); border-color: var(--c45-v2-border-default); cursor: default; }
+.t5-paycard.is-off .t5-entry__ic, .t5-paycard.is-off .t5-entry__t b, .t5-paycard.is-off .t5-paycard__v { font-weight: 400; color: var(--c45-v2-text-secondary); }
+.t5-paycard.is-off .t5-entry__t b { font-weight: 600; }
+.t5-paycard.is-off .t5-paycard__v--last { color: var(--c45-v2-text-muted); }
+.t5-recvrow { display: flex; align-items: center; min-height: 44px; padding: 0 16px; border-color: var(--c45-v2-border-default); cursor: pointer; }
+.t5-recvrow span { flex: 1; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-pgroup { overflow: hidden; }
+.t5-prow { display: flex; align-items: center; height: 64px; padding: 8px 12px; }
+.t5-prow__t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t5-prow__t b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-prow__t span { white-space: nowrap; overflow: hidden; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); display: flex; }
+.t5-prow__t s { color: var(--c45-v2-text-muted); }
+.t5-prow__sum { font-style: normal; font-family: var(--c45-v2-font-mono); font-size: 14px; line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+/* _ActionOptionTile: icon 22 + khe 8; tắt / huỷ */
+.t5-acttile { border-color: var(--c45-v2-border-default); }
+.t5-acttile .t5-acttile__ic { margin-right: 8px; font-size: 22px; }
+.t5-acttile.is-danger { background: var(--c45-v2-surface-danger); border-color: color-mix(in srgb, var(--c45-v2-text-danger) 30%, transparent); }
+.t5-acttile.is-danger .t5-acttile__ic, .t5-acttile.is-danger .t5-entry__t b, .t5-acttile.is-danger .t5-entry__chev { color: var(--c45-v2-text-danger); }
+.t5-acttile.is-off { background: var(--c45-v2-surface-canvas); cursor: default; }
+.t5-acttile.is-off .t5-acttile__ic, .t5-acttile.is-off .t5-entry__t b { color: var(--c45-v2-text-muted); }
+.t5-acttile.is-off .t5-entry__chev { color: var(--c45-v2-border-default); }
+
+/* ================================================ SG-09b / 09c / 09d */
+.t5-ctxmono { margin: 0; font-family: var(--c45-v2-font-mono); font-size: 14px; line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+/* SalesLabelHighlightRow mặc định: nhãn bodyDefault 14/22 w500, giá trị bodyDefaultMono */
+.t5-hlr--body span { line-height: 22px; font-weight: 500; }
+.t5-hlr--body b { line-height: 22px; font-weight: 500; }
+.t5-txlink { display: flex; align-items: center; min-height: 44px; cursor: pointer; }
+.t5-tl { display: flex; align-items: stretch; }
+.t5-tl__rail { flex: 0 0 36px; display: flex; flex-direction: column; align-items: center; }
+.t5-tl__line { flex: 1; width: 2px; margin: 4px 0; background: var(--c45-v2-border-default); }
+.t5-tl__t { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-bottom: 12px; }
+.t5-tl.is-last .t5-tl__t { padding-bottom: 0; }
+.t5-tl__t b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t5-tl__t span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t5-tl__t span.t5-small--muted { color: var(--c45-v2-text-muted); }
+.t5-rlrow { display: flex; align-items: center; padding: 12px; cursor: pointer; }
+.t5-rlrow[role="presentation"] { cursor: default; }
+.t5-rlrow__ic { display: grid; flex: 0 0 auto; font-style: normal; font-size: 20px; color: var(--c45-v2-text-primary); }
+.t5-rlrow__t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t5-rlrow__t b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t5-rlrow__t span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t5-rlrow__t span.t5-small--muted { color: var(--c45-v2-text-muted); }
+.t5-toast--under { z-index: 5; }

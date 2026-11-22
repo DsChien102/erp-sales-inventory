@@ -164,6 +164,94 @@ export const SCREENS = [
       ['invalid', 'Thiếu dữ liệu', 'Chỉ câu "Thiếu dữ liệu phiếu bán hàng hợp lệ để xem trước." giữa màn, không nút quay về (ngoài ←).'],
     ],
   },
+  // ---------------------------------------------------------------- đợt 3: tra cứu đơn
+  {
+    id: 'orders', group: 'orders', code: 'SG-08', title: 'Đơn hàng', route: '/orders', states: [
+      ['loaded', 'Có dữ liệu', 'Route TRONG StoreShell: web có thanh bên (mục "Đơn hàng" sáng), iPhone có thanh dưới. App bar "Đơn hàng" + phụ đề "128 đơn hàng" (caption 12), không ←. Ô tìm "Tìm đơn hàng, khách hàng, SĐT" + nút lọc 44 (icon tune, **viền borderDefault** nhạt hơn ô tìm borderInput). Chip nhanh "Tất cả" (chọn: tone success) / "Còn phải thu" / "Chưa phát hành HĐĐT" — **không kèm số đếm**. Thẻ: tên H4 w600, "SĐT · Mosaic Retail Demo", tổng mono w600, badge "Hoàn tất" / "Đã hủy"; hàng cuối "DH-000130" | "10:32" — **chỉ giờ, không ngày**; không nhãn thanh toán / HĐĐT. Khách lẻ ghi "Khách Lẻ" (L hoa). Web: chỗ đặt 1040 → cột 720, nhưng gutter nút nổi tính theo cửa sổ 1280 → **FAB "+" lọt vào trong cột**, đè lên thẻ.'],
+      ['outstanding', 'Chip "Còn phải thu"', 'Chip "Còn phải thu" xanh; nút lọc nền xanh nhạt + badge "1" — **chip nhanh được đếm là 1 bộ lọc** dù sheet lọc không có mục này (Đặt lại cũng không gỡ được). Thẻ vẫn không cho biết đơn nào còn nợ bao nhiêu.'],
+      ['filtered', 'Đang lọc', 'Áp "Hôm nay" + "Hoàn tất" → badge "2"; không có dòng tóm tắt bộ lọc đang áp, phải mở sheet mới biết.'],
+      ['search', 'Đang tìm', '"mai" → nút × trong ô; phụ đề đổi "2 đơn hàng"; không có dòng số kết quả riêng.'],
+      ['loading', 'Đang tải', 'Phụ đề "Đang tải…"; 4 khung thẻ (viền borderDefault): vạch đầu bị Expanded kéo gần hết bề ngang (khác hình thẻ thật). Ô tìm, chip vẫn hiện.'],
+      ['empty', 'Chưa có đơn', 'Hộp viền nhạt cao theo nội dung: (i) "Chưa có đơn hàng", "Đơn hàng hoàn tất sẽ xuất hiện tại đây.", "Tạo đơn bán hàng" chữ xanh — trùng việc với FAB "+" ngay dưới.'],
+      ['no-result', 'Không kết quả (tìm)', 'Kính lúp, "Không tìm thấy đơn hàng", "Không có đơn phù hợp với “xyz” / trong phạm vi hiện tại." (ngoặc kép cong, xuống dòng cứng), "Xóa tìm kiếm".'],
+      ['no-result-filter', 'Không kết quả (lọc)', 'Chỉ lọc, không tìm: câu "Không có đơn phù hợp trong phạm vi hiện tại." nhưng nút **vẫn ghi "Xóa tìm kiếm"** (thật ra xoá bộ lọc).'],
+      ['error', 'Lỗi tải', 'Hộp viền nhạt tone danger: icon ⓧ đỏ, "Không thể tải danh sách" đỏ, "Không thể tải danh sách đơn hàng." (lặp ý), "Thử lại" chữ đỏ. Phụ đề "0 đơn hàng" dù chưa biết số đơn.'],
+      ['blocked', 'Không có quyền', 'Không phụ đề, không ô tìm, không FAB. Tone warning: ⚠ vàng, "Không có quyền xem đơn hàng" vàng, câu xưng "Tài khoản của bạn", "Quay lại" chữ vàng → về Trang chủ.'],
+      ['load-more', 'Đang tải thêm', 'Cuộn cuối: VLoading 40 giữa, đệm dọc 8.'],
+      ['load-more-error', 'Lỗi tải thêm', 'Thẻ đệm 12: "Không thể tải thêm đơn hàng. Vui lòng thử lại." đỏ + nút nhỏ xanh **"Thu lai"** (thiếu dấu).'],
+    ],
+  },
+  {
+    id: 'orders-filter', group: 'orders', code: 'SG-08', title: 'Sheet bộ lọc', route: '/orders', states: [
+      ['default', 'Mặc định', 'showVBottomSheet mở ở navigator lồng của khung → sheet chỉ phủ vùng nội dung: iPhone nằm TRÊN thanh dưới, web 640 canh giữa vùng 1040 (thanh bên không bị phủ). **Không tiêu đề**, chỉ tay kéo. 5 nhóm (tiêu đề bold): Thời gian, Trạng thái đơn, Thanh toán, Sau bán, Hóa đơn điện tử; chip chọn **tone primary** (chip nhanh ngoài màn tone success). "Đặt lại" (viền) | "Áp dụng" — **sát mép dưới, không đệm đáy**.'],
+      ['selected', 'Đã chọn', '"Hôm nay", "Hoàn tất", "Còn phải thu", "Có đổi/trả", "Chưa phát hành" chọn. "Thanh toán: Còn phải thu" trùng chip nhanh cùng tên ngoài màn. "Đặt lại" đóng sheet ngay (không chỉ bỏ chọn).'],
+    ],
+  },
+  {
+    id: 'detail', group: 'orders', code: 'SG-09', title: 'Chi tiết đơn hàng', route: '/sales/orders/o1', states: [
+      ['paid', 'Đã thanh toán', 'Route cấp gốc, ngoài khung (web 1 cột 720, không danh sách–chi tiết). App bar "Chi tiết đơn hàng" + ←. Thẻ đầu: "#DH-000130" H3 mono **w400**, "22/11/2026 10:32" (không "·" như SG-07), badge "Hoàn tất"; tên bold, SĐT; "Tổng đơn" nền xanh. Thẻ "Thanh toán & công nợ": "Đã thanh toán 441.000đ" và "Còn phải thu 0đ" **đều chữ vàng w600** dù đã trả đủ. "Xem công nợ của khách ›" (viền nhạt) hiện vì đơn có khách — **kể cả khi đơn không còn nợ** (TH-05 FR-02: chỉ khi còn nợ). Thanh dưới "Thao tác ⌃" xanh 52.'],
+      ['paid-end', 'Cuộn cuối', '"Sản phẩm": thẻ nhóm, hàng cao 64 — icon theo đơn vị: Hộp → hộp, **Lon → nhãn (khớp chuỗi "lo")**, Chai → nhãn; pate "6 Lon × ~~18.000đ~~ 16.000đ". "Chứng từ & hóa đơn": Phiếu bán hàng, HĐĐT "Chưa phát hành" (các trạng thái: prototype Theme 8 đợt 2), "Lịch sử — Thanh toán, chứng từ và nghiệp vụ sau bán" (TH-05 ghi "Xem thanh toán và các hoạt động của đơn").'],
+      ['unpaid', 'Bán nợ toàn bộ', '"Đã thanh toán 0đ" / "Còn phải thu 441.000đ" — cùng màu vàng như đơn đã trả đủ, không phân biệt.'],
+      ['walk-in', 'Khách lẻ', '"Khách lẻ" / "Không có số điện thoại"; không có dòng "Xem công nợ của khách".'],
+      ['returned-after', 'Có đổi/trả · Sau đổi/trả', 'Có phiếu đổi/trả → VTabs "Đơn gốc" | "Sau đổi/trả" ghim trên đầu (ngoài vùng cuộn), **mặc định chọn "Sau đổi/trả"**. Tổng 346.000đ, 2 dòng còn giữ; "Đã thanh toán 346.000đ".'],
+      ['returned-original', 'Có đổi/trả · Đơn gốc', 'Tab "Đơn gốc": 3 dòng, tổng 441.000đ, "Đã thanh toán 441.000đ".'],
+      ['returned-end', 'Có đổi/trả · cuối', 'Thêm "Phiếu đổi/trả — 1 phiếu · Mới nhất 24/11/2026 09:15" — **cùng icon history với "Lịch sử"** ngay dưới.'],
+      ['cancelled', 'Đã hủy', 'Badge "Đã hủy" đỏ; thẻ "Lý do hủy" (lý do w600, "Phạm Thu Hà · 21/11/2026 15:40"); thẻ thanh toán **mờ 0.4** (vẫn ›); không có thanh "Thao tác".'],
+      ['cancelled-end', 'Đã hủy · cuối', 'Khối chứng từ chỉ còn "Lịch sử" (ẩn phiếu bán hàng và HĐĐT).'],
+      ['cancelled-no-reason', 'Hủy không ghi lý do', 'Huỷ mà để trống ô lý do → **thẻ "Lý do hủy" biến mất hẳn** (mất luôn người huỷ và thời điểm huỷ).'],
+      ['cancel-reason-pending', 'Lý do hủy đang đồng bộ', '"Lý do hủy" / "Đang cập nhật kết quả hủy đơn..." xám.'],
+      ['sections-loading', 'Khối đang tải', 'Thanh toán: vòng Material 20 + "Đang tải thanh toán & công nợ…" (khe 12); Lịch sử: "Đang tải lịch sử…" (khe 16, viền nhạt) — hai thẻ khác khe, khác viền. "Thao tác" mờ.'],
+      ['sections-error', 'Khối lỗi', 'Thanh toán: "Không tải được thanh toán & công nợ." + "Thử lại" (khe 4); Lịch sử: "Không tải được lịch sử." + "Thử lại" (khe 8).'],
+      ['payment-pending', 'Thanh toán đang đồng bộ', '"Thanh toán đang đồng bộ. Thử lại sau." + "Thử lại".'],
+      ['payment-blocked', 'Không quyền xem thanh toán', '"Bạn không có quyền xem thanh toán của đơn này." (không nút).'],
+      ['loading', 'Đang tải', 'CircularProgressIndicator 36 giữa màn; không thanh dưới.'],
+      ['blocked', 'Không có quyền', 'VEmptyState warning: ⚠ vàng, "Không có quyền xem đơn hàng", "Quay lại" **nền vàng** (nút primary nhận tone warning).'],
+      ['not-found', 'Không tìm thấy', '(i) xám, "Không tìm thấy đơn hàng", "Đơn hàng không tồn tại hoặc đã bị xóa.", "Quay lại" xanh.'],
+      ['pending', 'Đang cập nhật', 'Icon (i) nhưng tone warning: "Đơn hàng đang cập nhật" vàng, "Thử lại" nền vàng.'],
+      ['error', 'Lỗi tải', 'Tone danger nhưng icon ⚠ (không phải ⓧ như SG-08): "Không thể tải chi tiết đơn hàng" đỏ, "Kiểm tra kết nối và thử lại.", "Thử lại" nền đỏ.'],
+      ['toast-actions', 'Thao tác chưa tải', 'Bấm "Thao tác" khi thao tác lỗi: toast vàng "Vui lòng thử lại sau." (tiêu đề "Không thể tải thao tác" không hiện).'],
+      ['toast-precheck', 'Không thể tiếp tục', 'Đổi/trả bị chặn: toast vàng "Đơn đang có phiếu đổi/trả chưa hoàn tất.".'],
+      ['toast-receipt', 'Lỗi phiếu', 'Toast đỏ "Dịch vụ phiếu tạm thời không khả dụng. Vui lòng thử lại.".'],
+    ],
+  },
+  {
+    id: 'detail-sheet', group: 'orders', code: 'SG-09', title: 'Sheet Thao tác / Phiếu', route: '/sales/orders/o1', states: [
+      ['actions', 'Thao tác (đã thu tiền)', 'Sheet có tiêu đề "Thao tác" + gạch; web sheet đáy 640. "Đổi/trả hàng" (icon history 22, khe 8). "Hủy đơn" **tắt**: nền xám, chữ xám, phụ đề đổi thành lý do "Đơn đã có thanh toán, vui lòng đổi/trả" (không mờ, không icon khoá). Không có "Thu tiền" (đúng BR-30).'],
+      ['actions-unpaid', 'Thao tác (chưa thu)', 'Đơn bán nợ toàn bộ: "Hủy đơn" bật — nền đỏ nhạt, viền đỏ 30%, chữ + icon + › đỏ.'],
+      ['receipt', 'Phiếu bán hàng', 'Chạm "Phiếu bán hàng": cùng sheet với SG-07 ("Xem phiếu" / "In phiếu" / "Chia sẻ phiếu").'],
+    ],
+  },
+  {
+    id: 'payment-debt', group: 'orders', code: 'SG-09b', title: 'Thanh toán & công nợ', route: '/sales/orders/o1', states: [
+      ['paid', 'Đã trả đủ', 'Màn con (đẩy bằng Navigator, URL không đổi). "#DH-000130 · Nguyễn Văn Hùng" **chữ mono** xám. Thẻ "Tình trạng hiện tại" (viền nhạt): "Trạng thái" | "Đã thanh toán" (**giá trị chữ in font mono**), "Tổng đơn" nền xanh, "Đã thanh toán (TM)" nền trắng, "Còn phải thu 0đ" vàng. "Giao dịch": "Thu tiền · Tiền mặt 441.000đ" — **không có thời gian, người thu**.'],
+      ['debt', 'Chưa thu', '"Trạng thái: Chưa thu"; không có TM / CK → dòng "Đã thanh toán 0đ" **nền xanh như "Tổng đơn"** (tone primary); "Hẹn thanh toán 05/12/2026" (mono). Không có thẻ "Giao dịch".'],
+      ['partial', 'Trả một phần', '"Trạng thái: **Còn phải thu**" (nhãn trạng thái trùng tên dòng số tiền bên dưới; TH-05 ghi "Thanh toán một phần"); TM 1.000.000 + CK 500.000.'],
+      ['returned', 'Có đổi/trả', 'Thêm "Từ đơn hàng gốc" (hàng sát tiêu đề, không khe) và "Từ phiếu đổi/trả #DT-000012" (khe 16 sau tiêu đề): chỉ có "Khách trả thêm 0đ" — **không thấy số tiền đã hoàn** 95.000đ; phải đọc ở "Giao dịch" ("Hoàn tiền · Tiền mặt"). Ba thẻ ba kiểu khe.'],
+      ['offset', 'Có cấn trừ', '"Đã cấn trừ 120.000đ"; giao dịch "Cấn trừ · từ DH-000118" + › (chạm sang đơn đối ứng) — dòng duy nhất bấm được, trông như dòng khác.'],
+    ],
+  },
+  {
+    id: 'history', group: 'orders', code: 'SG-09c', title: 'Lịch sử', route: '/sales/orders/o1', states: [
+      ['default', 'Đơn thường', '"DH-000130 · Nguyễn Văn Hùng" chữ thường, **không "#", không mono** (SG-09b có). Tiêu đề "Lịch sử" lặp lại ngay dưới app bar "Lịch sử". Mọi mốc cùng icon history tròn xanh; "Ghi nhận thanh toán tiền mặt 441.000đ" (số tiền dính vào tiêu đề). Thời gian "22/11/2026 10:32".'],
+      ['returned', 'Có đổi/trả', '"Hoàn tất đổi/trả #DT-000012", "Ghi nhận hoàn tiền 95.000đ", "Tính lại quyết toán" — mốc kỹ thuật hiện ra cho người bán.'],
+      ['cancelled', 'Đã hủy', '"Ghi nhận báo cáo hủy đơn", "Yêu cầu hoàn tác giá bán" (mốc nội bộ của hệ thống) đứng trên "Hủy đơn hàng"; lý do huỷ không có trong mốc.'],
+    ],
+  },
+  {
+    id: 'returns-list', group: 'orders', code: 'SG-09d', title: 'Phiếu đổi/trả của đơn', route: '/sales/orders/o1', states: [
+      ['list', '2 phiếu', 'App bar "Phiếu đổi/trả" + phụ đề "Đơn DH-000130 · Nguyễn Văn Hùng". "Các lần đổi/trả (2)"; mỗi hàng: icon history 20, "DT-000014 · **Đổi/trả**" (loại luôn "Đổi/trả", không tách đổi / trả), "26/11/2026 14:02 · Hoàn tất", "Khách trả thêm 23.000đ" / "Hoàn lại 95.000đ" (textMuted, không màu theo chiều tiền).'],
+      ['single', '1 phiếu', 'Một phiếu: vẫn phải qua màn danh sách này rồi mới tới SG-15.'],
+      ['no-identity', 'Phiếu thiếu mã', 'Phiếu không có mã → hàng không bấm được, chỉ mất › (không mờ, không nói vì sao).'],
+    ],
+  },
+  {
+    id: 'cancel', group: 'orders', code: 'SG-10', title: 'Hủy đơn', route: '/sales/orders/o2', states: [
+      ['default', 'Hủy đơn hàng?', 'Sheet không tiêu đề: "Hủy đơn hàng?" H3 đỏ; "Đơn DH-000129 sẽ chuyển sang Đã hủy và không thể mở lại."; "Lý do hủy" + ô "Nhập lý do nếu cần" + "Không bắt buộc" — **không có chip lý do** (TH-05 SG-10 có "Khách yêu cầu huỷ" / "Tạo trùng đơn" / "Lý do khác"); thẻ xám "Điều chỉnh dự kiến": "Tồn kho — **Hoàn lại 9 mặt hàng**" (đếm số lượng 2 + 6 + 1, đơn có 3 mặt hàng), "Công nợ — Giảm 441.000đ" (lấy tổng đơn). "Quay lại" **trên** "Hủy đơn hàng" (viền đỏ), cả hai large 52.'],
+      ['typed', 'Đã nhập lý do', '"Khách đặt nhầm, sẽ lên đơn mới" — chữ này thành "Lý do hủy" trên SG-09; để trống thì SG-09 không có thẻ lý do.'],
+      ['submitting', 'Đang hủy', '"Đang hủy..." và "Quay lại" cùng mờ (không vòng xoay).'],
+      ['toast-failed', 'Bị chặn', 'Toast vàng "Đơn đã có phiếu đổi/trả, không thể hủy." thuộc Scaffold màn chi tiết nên nằm **dưới lớp phủ và sau sheet** (sheet vẫn mở): iPhone gần như không thấy, web chỉ ló hai mép tối. Người bán bấm "Hủy đơn hàng" mà không thấy gì xảy ra. TH-05 ghi hộp thoại "Không thể huỷ đơn".'],
+    ],
+  },
 ];
 
 /** { màn: [mã ca, …] } cho tools/capture.mjs và test. */

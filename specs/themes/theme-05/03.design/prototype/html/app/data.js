@@ -101,3 +101,32 @@ export function customerSubtitle(c) {
   const line = [c.phone && c.phone.trim() ? c.phone.trim() : null, sub].filter(Boolean);
   return line.length ? line.join(' · ') : '—';
 }
+
+// ---------------------------------------------------------------- đợt 3: tra cứu đơn
+
+/** Cửa hàng của phiên (store.displayName trên thẻ đơn SG-08). */
+export const STORE_NAME = 'Mosaic Retail Demo';
+
+/**
+ * Thẻ đơn SG-08 (SalesOrderListMapper.toVm): khách không có → "Khách Lẻ" (chữ L hoa, khác "Khách lẻ" của chi tiết); metaLine "SĐT · cửa hàng".
+ * Đơn đầu = đơn SG-07 / SG-16 (DH-000130). Giờ HH:mm (ICT), không ngày.
+ */
+export const ORDERS = [
+  { id: 'o1', number: 'DH-000130', customer: 'Nguyễn Văn Hùng', phone: '0912345678', total: 441000, time: '10:32', status: 'completed', settlement: 'paid' },
+  { id: 'o2', number: 'DH-000129', customer: 'Trần Thị Mai', phone: '0987654321', total: 441000, time: '09:48', status: 'completed', settlement: 'unpaid' },
+  { id: 'o3', number: 'DH-000128', customer: 'Công ty TNHH Thú y An Phát', phone: '0283 822 4567', total: 2350000, time: '17:40', status: 'completed', settlement: 'partiallyPaid' },
+  { id: 'o4', number: 'DH-000127', customer: null, phone: null, total: 125000, time: '16:05', status: 'completed', settlement: 'paid' },
+  { id: 'o5', number: 'DH-000126', customer: 'Đại lý Thuốc thú y Minh Tâm', phone: '0905112233', total: 6840000, time: '11:20', status: 'cancelled', settlement: 'unpaid' },
+  { id: 'o6', number: 'DH-000125', customer: 'Lê Hoàng Phúc', phone: '0933445566', total: 289000, time: '08:15', status: 'completed', settlement: 'paid' },
+  { id: 'o7', number: 'DH-000124', customer: 'Trần Thị Mai', phone: '0987654321', total: 36000, time: '15:12', status: 'completed', settlement: 'paid' },
+];
+
+/** SalesOrderListItemVm.metaLine: "SĐT · cửa hàng"; thiếu SĐT → chỉ cửa hàng; thiếu cả hai → null. */
+export function orderMetaLine(phone, store = STORE_NAME) {
+  const p = phone && phone.trim() ? phone.trim() : null;
+  const s = store && store.trim() ? store.trim() : null;
+  if (!p && !s) return null;
+  if (!p) return s;
+  if (!s) return p;
+  return `${p} · ${s}`;
+}
