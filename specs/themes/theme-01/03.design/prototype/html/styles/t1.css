@@ -401,3 +401,18 @@
 .t1-mbar { flex: 0 0 auto; display: flex; align-items: center; height: 56px; background: var(--c45-v2-surface-default); }
 .t1-mbar--split { padding-left: 16px; }
 .t1-mbar__back { display: grid; place-items: center; width: 56px; height: 56px; padding: 0; border: 0; background: transparent; color: var(--c45-v2-text-primary); font-size: 24px; cursor: pointer; }
+
+/* ================================================ đợt 3 — tài khoản */
+.t1-btn--lg { height: 52px; min-height: 52px; padding: 0 var(--c45-v2-space-6); }
+.t1-badge--md { padding: 6px 10px; font-size: var(--sh-fs-sm); line-height: 20px; }   /* VBadge cỡ thường */
+.t1-mehead { display: flex; align-items: center; gap: 8px; }
+.t1-mehead > div { flex: 1; min-width: 0; }
+.t1-mehead__ic { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 40px; border-radius: 12px; background: var(--c45-v2-surface-canvas); color: var(--c45-v2-text-primary); font-size: 20px; }
+.t1-avatar48 { display: grid; place-items: center; width: 48px; height: 48px; flex: 0 0 48px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-success); color: var(--c45-v2-action-primary-default); font-size: 16.8px; font-weight: 600; line-height: 1; }
+.t1-acrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; }
+.t1-acrow span { flex: 0 0 auto; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-acrow b { min-width: 0; text-align: right; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t1-acrow b.is-empty { font-weight: 500; color: var(--c45-v2-text-muted); }
+.t1-optcard--12 { gap: 12px; }
+.t1-optcard--danger { border-color: var(--c45-v2-text-danger); background: var(--c45-v2-surface-danger); color: var(--c45-v2-text-danger); }
+.t1-optcard--danger .t1-optcard__chev { color: var(--c45-v2-text-danger); }

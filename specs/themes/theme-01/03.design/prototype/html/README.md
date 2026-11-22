@@ -8,7 +8,7 @@ Làm theo 3 đợt, mỗi đợt một commit; cột trái trang xem chia theo �
 |---|---|---|
 | 1 · Công khai | ID-01 Đăng nhập (+ x1, x2, x4), ID-02 Đăng ký 3 bước (+ sheet khu vực), ID-03 Xác minh email, ID-04 / ID-23 Đặt lại mật khẩu, ID-05 Chưa thuộc tổ chức, ID-06 / ID-07 Lời mời (+ sheet xác nhận) | ✅ 58 ca × 2 khổ |
 | 2 · Quản trị | ID-11…13 hồ sơ tổ chức, ID-14…18 người dùng (+ 2 sheet lọc, sheet thao tác, thu hồi, 3 sheet vòng đời), ID-19 vai trò, ID-20 lịch sử (+ sheet lọc). ID-10 hub đã vẽ ở prototype Menu Thêm (APP-02) nên không vẽ lại | ✅ 97 ca × 2 khổ |
-| 3 · Tài khoản | ID-21, ID-22 (ID-23 đã vẽ ở đợt 1 vì dùng chung màn với ID-04) | ⬜ |
+| 3 · Tài khoản | ID-21 Tài khoản của tôi (+ sheet thao tác, sheet đăng xuất), ID-22 Chỉnh sửa thông tin (+ hộp thoại bỏ thay đổi). ID-23 đã vẽ ở đợt 1 (chung màn ID-04) | ✅ 17 ca × 2 khổ |
 
 ID-08 Chọn tổ chức đã có ở khung chung (`specs/prototype/shell/html/`, APP-04), không vẽ lại. ID-09 đã bỏ.
 
@@ -41,6 +41,7 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 | `app/org.js` | ID-11 / ID-12 / ID-13 + sheet thao tác, sheet trùng mã số thuế, hộp thoại "Bỏ thay đổi?" |
 | `app/users.js` | ID-14…18: khu Người dùng hai cột web (`usersArea`), mời, chi tiết lời mời / thành viên, chọn vai trò, các sheet |
 | `app/roles.js`, `app/audit.js` | ID-19, ID-20 (danh sách + chi tiết, hai cột web) |
+| `app/account.js` | ID-21 / ID-22 + sheet thao tác tài khoản, sheet đăng xuất |
 | `app/main.js` | Ca → trạng thái, vẽ trong `renderShell` (màn công khai và quản trị đều nằm ngoài StoreShell → không thanh bên / thanh dưới) |
 | `styles/t1.css` | Rule tiền tố `t1-`, token `--c45-v2-*`; đầu file có bảng màu / chữ Flutter → token |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem (thêm tiêu đề đợt), chụp ảnh — chép khuôn Menu Thêm |
@@ -73,6 +74,13 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 | ID-19 | `roles/views/{organization_roles_page, organization_role_detail_page}.dart`, `logic/roles_cubit.dart`, `core/iam/iam_role_label_mapper.dart` |
 | ID-20 | `audit_logs/views/{organization_audit_logs_page, audit_log_detail_page}.dart`, `audit_logs/widgets/{audit_log_item_card, audit_log_category_filter_chips, audit_log_filter_bottom_sheet, audit_log_empty_view, audit_log_detail_body, audit_detail_row, audit_log_change_diff_item}.dart`, `audit_logs/mappers/tenant_audit_ui_mapper.dart` |
 | DS thêm | `components/{v_tabs, v_search_bar, v_modal (VConfirmDialog), v_radio, v_empty_state}.dart`, `primitives/{v_chip, v_badge}.dart`, `forms/v_select.dart`, `patterns/{v_list_detail_layout, v_page_scaffold}.dart`; Flutter `material/scaffold.dart` (SnackBar hiện ở mọi Scaffold gốc của cùng ScaffoldMessenger) |
+
+## Nguồn Flutter (đợt 3)
+
+| Màn | Flutter (`apps/erp/lib/features/iam/presentation/users/…`) |
+|---|---|
+| ID-21 | `views/my_account_page.dart`, `widgets/{my_account_actions_bottom_sheet, logout_confirmation_bottom_sheet}.dart`; route `/more/my-account` (GoRoute gốc, `onLogout` trong `core/router/app_router.dart`) |
+| ID-22 | `views/edit_my_account_page.dart` (mở bằng `Navigator.push`, không có route) |
 
 ## Hiện trạng Flutter (để rà) — đợt 1
 
@@ -165,6 +173,17 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 50. Dòng 3 mỗi thẻ "Loại đối tượng: Trần Văn Minh" — nhãn là loại nhưng giá trị là tên; chi tiết có dòng "Loại chủ thể: Chủ cửa hàng" thực ra là vai trò người thực hiện.
 51. Chi tiết in mã sự kiện thô ("iam.membership.role_changed"); khối thay đổi không có tiêu đề ("Dữ liệu thay đổi" có trong model nhưng không vẽ); AppBar Material tiêu đề 14 px, không gạch dưới, khác mọi màn khác (18 px + gạch).
 52. Bộ lọc: tiêu đề "Bộ lọc nhật ký nền tảng"; nhóm "Loại chủ thể" chọn được nhưng không áp dụng; chip nhanh thiếu "Lời mời" dù có sự kiện lời mời.
+
+## Hiện trạng Flutter (để rà) — đợt 3
+
+**Tài khoản của tôi (ID-21 / ID-22)**
+
+53. Web: toàn màn, mất thanh bên (route gốc ngoài StoreShell). Màn không cho biết đang ở tổ chức nào, vai trò gì — chỉ có nhãn "Chủ sở hữu" với chủ.
+54. Thẻ đầu ở ID-21 là hộp icon người trống, còn ID-22 lại có avatar chữ "NL"; thẻ "Ảnh đại diện" có mũi tên và câu "Chạm để thay hoặc xóa ảnh" nhưng không bấm được.
+55. Thanh "Thao tác" có hai gạch trên (Container tự vẽ thêm); mọi việc (sửa, đổi mật khẩu, đăng xuất) đều phải mở sheet, không có nút trực tiếp. "Đăng xuất" lặp với mục Đăng xuất ở Menu Thêm.
+56. Sheet đăng xuất dùng hai nút large 52 chia đôi; các sheet xác nhận khác (tạm ngừng, loại, thu hồi) dùng nút 44 xếp dọc.
+57. Sửa thông tin: "Lưu thay đổi" mờ tới khi có thay đổi mà không nói vì sao; đang lưu chỉ đổi chữ "Đang lưu..." (không vòng xoay); số điện thoại sai chỉ có dòng lỗi, viền ô không đỏ (VField bọc ngoài không đánh dấu invalid); Email khoá mờ không có câu giải thích.
+58. Đặt lại mật khẩu từ tài khoản mở bằng `Navigator.push`, trong khi router cũng khai báo `/more/my-account/reset-password` → hai lối vào cùng màn (ca reset/from-account ở đợt 1).
 
 ## Khác biệt có chủ đích với Flutter
 

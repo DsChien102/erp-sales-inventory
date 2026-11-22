@@ -1,6 +1,6 @@
 // Prototype Theme 1 (TH-01) + Web cho app (10-8). Không có ?screen= → trang xem (viewer.js); có → vẽ đúng một ca (URL chụp ảnh).
 // Vẽ y nguyên Flutter hiện tại (không thiết kế lại) để người dùng rà bằng impeccable. Nguồn Dart ghi ở đầu từng file màn.
-// Đợt 1 — màn công khai; đợt 2 — quản trị: đều ngoài ShellRoute(StoreShell) → không thanh bên / thanh dưới trên mọi khổ (kể cả web).
+// Đợt 1 — màn công khai; đợt 2 — quản trị; đợt 3 — tài khoản: đều ngoài ShellRoute(StoreShell) → không thanh bên / thanh dưới trên mọi khổ (kể cả web).
 import { DEVICE } from '../shared/shell.js';
 import { SCREENS } from './cases.js';
 import { bare } from './ds.js';
@@ -13,12 +13,13 @@ import { editPage, legalPage, profilePage } from './org.js';
 import { invitationDetailPage, invitePage, memberDetailPage, selectRolePage, usersPage } from './users.js';
 import { rolesPage } from './roles.js';
 import { auditDetailPage, auditPage } from './audit.js';
+import { accountPage, editAccountPage } from './account.js';
 
 const PAGES = {
   login: loginPage, signup: signupPage, verify: verifyPage, reset: resetPage, 'no-org': noOrgPage, invitation: invitationPage,
   'org-profile': profilePage, 'org-edit': editPage, 'org-legal': legalPage, users: usersPage, invite: invitePage,
   'invitation-detail': invitationDetailPage, 'member-detail': memberDetailPage, 'select-role': selectRolePage, roles: rolesPage,
-  audit: auditPage, 'audit-detail': auditDetailPage,
+  audit: auditPage, 'audit-detail': auditDetailPage, account: accountPage, 'account-edit': editAccountPage,
 };
 
 /** Trạng thái ban đầu của một ca. */

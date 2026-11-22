@@ -95,3 +95,14 @@ test('chủ sở hữu duy nhất / đã loại: không có thanh Thao tác', ()
   assert.doesNotMatch(render('member-detail', 'removed', 'iphone'), /t1-bottombar/);
   assert.match(render('member-detail', 'active', 'iphone'), /t1-bottombar/);
 });
+
+// ---------------------------------------------------------------- đợt 3
+test('VAvatar initials + tài khoản: nhãn Chủ sở hữu chỉ với chủ, "(chưa có)" khi thiếu số điện thoại', async () => {
+  const { initials } = await import('../app/account.js');
+  assert.equal(initials('Nguyễn Thị Lan'), 'NL');
+  assert.equal(initials('Lan'), 'L');
+  assert.equal(initials('  '), '?');
+  assert.match(render('account', 'owner', 'iphone'), /Chủ sở hữu/);
+  assert.doesNotMatch(render('account', 'staff', 'iphone'), /Chủ sở hữu/);
+  assert.match(render('account', 'no-phone', 'web'), /\(chưa có\)/);
+});

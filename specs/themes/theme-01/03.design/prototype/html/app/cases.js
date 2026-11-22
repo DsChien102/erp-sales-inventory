@@ -232,6 +232,32 @@ export const SCREENS = [
       ['toast-copied', 'Đã sao chép mã', 'Toast hiện cả mã theo dõi đầy đủ.'],
     ],
   },
+  // ================================================================ đợt 3 — tài khoản (ID-23 đã vẽ ở đợt 1: reset / from-account)
+  {
+    id: 'account', group: 'account', code: 'ID-21', title: 'Tài khoản của tôi', route: '/more/my-account', states: [
+      ['owner', 'Chủ sở hữu', 'Thẻ đầu: hộp icon 40 + tên + "Tài khoản cá nhân" + nhãn "Chủ sở hữu" (cỡ thường); thẻ 5 dòng. "Thao tác ⌃" ở thanh dưới có hai gạch trên. Web: toàn màn, cột 720, không thanh bên.'],
+      ['staff', 'Thành viên thường', 'Không có nhãn; không có dòng vai trò / tổ chức nào trên màn.'],
+      ['no-phone', 'Chưa có số điện thoại', '"(chưa có)" màu nhạt.'],
+      ['loading', 'Đang tải', 'VLoading giữa màn.'],
+      ['error', 'Lỗi tải', '"Không tải được hồ sơ" + "Thử lại".'],
+      ['actions', 'Sheet Thao tác', 'Mũi tên nút đổi ⌄; 3 thẻ: sửa, đặt lại mật khẩu, Đăng xuất (hộp đỏ). Web: hộp thoại 480, hai lớp đệm.'],
+      ['logout', 'Xác nhận đăng xuất', 'Tiêu đề đỏ; hai nút large 52 chia đôi (các sheet khác dùng nút 44 xếp dọc).'],
+      ['toast-updated', 'Đã cập nhật', 'Toast "Đã cập nhật thông tin cá nhân" trên thanh dưới.'],
+      ['toast-logout-failed', 'Đăng xuất thất bại', 'Toast đỏ "Không thể đóng phiên trên máy."'],
+    ],
+  },
+  {
+    id: 'account-edit', group: 'account', code: 'ID-22', title: 'Chỉnh sửa thông tin', route: '/more/my-account', states: [
+      ['default', 'Mặc định', 'Thẻ "Ảnh đại diện" (VAvatar NL, mũi tên) nhưng bấm không làm gì; 3 ô + Email khoá (mờ); "Lưu thay đổi" mờ tới khi có thay đổi.'],
+      ['changed', 'Đã sửa', '"Lưu thay đổi" bật.'],
+      ['errors', 'Lỗi', 'Hai ô tên viền đỏ; số điện thoại sai chỉ có dòng lỗi, viền ô không đỏ.'],
+      ['submitting', 'Đang lưu', '"Đang lưu..." mờ, không vòng xoay; các ô vẫn sửa được.'],
+      ['discard', 'Rời khi đã sửa', 'Hộp thoại "Bỏ thay đổi?" (web rộng 1200).'],
+      ['toast-failed', 'Lỗi lưu', 'Toast đỏ "Không lưu được" (chỉ câu message).'],
+      ['loading', 'Đang tải', 'VLoading.'],
+      ['error', 'Lỗi tải', '"Không tải được hồ sơ" + "Thử lại".'],
+    ],
+  },
 ];
 
 export const CASES = Object.fromEntries(SCREENS.map((s) => [s.id, s.states.map(([id]) => id)]));
