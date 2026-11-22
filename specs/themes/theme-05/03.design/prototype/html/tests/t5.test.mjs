@@ -7,6 +7,8 @@ import { CUSTOMERS, LINES, customerSubtitle, draftTimestamp, money, moneyComma, 
 import { creatorLabel, draftSummary, phoneLine } from '../app/drafts.js';
 import { stockWarning, unitPriceLabel } from '../app/compose.js';
 import { previewApplied, unitSubtitle } from '../app/sheets.js';
+import { checkoutVm, digitsDot, mixedDefault, percentIndex } from '../app/checkout.js';
+import { methodText } from '../app/result.js';
 
 test('MoneyFormatter: "125.000đ"; VMoneyValidator: "125,000"', () => {
   assert.equal(money(125000), '125.000đ');
@@ -52,6 +54,29 @@ test('SG-03 / SG-04 / SG-05: dòng phụ, giá xem trước', () => {
   assert.equal(previewApplied('percent', 10, 18000), 16200);
   assert.equal(previewApplied('percent', 120, 18000), null);
   assert.equal(previewApplied('unit', null, 18000), null);
+});
+
+test('SG-06: tiền thừa, công nợ, điều kiện hoàn tất, kết hợp, %', () => {
+  assert.equal(digitsDot(441000), '441.000');
+  const full = checkoutVm({ total: 441000, cash: 441000 });
+  assert.deepEqual([full.change, full.receivable, full.canFinalize], [0, 0, true]);
+  const debt = checkoutVm({ total: 441000, cash: 220500 });
+  assert.deepEqual([debt.receivable, debt.canFinalize], [220500, false]);
+  assert.equal(checkoutVm({ total: 441000, cash: 220500, due: '30/11/2026' }).canFinalize, true);
+  assert.equal(checkoutVm({ total: 441000, cash: 500000 }).change, 59000);
+  assert.equal(checkoutVm({ total: 441000, cash: 500000, walkIn: true }).canFinalize, false);
+  assert.equal(checkoutVm({ total: 441000, cash: 441000, walkIn: true }).canEditCash, false);
+  assert.equal(checkoutVm({ total: 441000, bank: 441000, walkIn: true, mode: 'mixed' }).canEditBank, true);
+  assert.deepEqual(mixedDefault(4850000), { cash: 2000000, bank: 2850000 });
+  assert.deepEqual(mixedDefault(441000), { cash: 441000, bank: 0 });
+  assert.deepEqual([percentIndex(100), percentIndex(75), percentIndex(50), percentIndex(24)], [2, 2, 1, 0]);
+});
+
+test('SG-07: phương thức trên dòng meta', () => {
+  assert.equal(methodText({ cash: 1, bank: 1 }), 'Tiền mặt + chuyển khoản');
+  assert.equal(methodText({ bank: 1 }), 'Chuyển khoản');
+  assert.equal(methodText({ cash: 1 }), 'Tiền mặt');
+  assert.equal(methodText({}), 'Chưa thanh toán');
 });
 
 test('Mọi màn thuộc một đợt; mọi ca vẽ được ở cả hai khổ', () => {

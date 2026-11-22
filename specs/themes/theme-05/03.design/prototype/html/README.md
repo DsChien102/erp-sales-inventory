@@ -9,11 +9,13 @@ Làm 4 đợt, mỗi đợt một commit. Cột trái trang xem chia theo đợt
 | Đợt | Màn | Trạng thái |
 |---|---|---|
 | 1 · Lập đơn | SG-01 Đơn nháp (+ sheet xoá), SG-02 Soạn đơn (+ menu tìm sản phẩm, sheet rời màn, bàn phím số lượng, toast), SG-03 Chọn đơn vị bán, SG-04 Chọn khách + Tạo nhanh khách (+ bỏ thay đổi, trùng SĐT), SG-05 Điều chỉnh giá (+ bàn phím, 2 sheet xác nhận) | ✅ 63 ca × 2 khổ |
-| 2 · Thanh toán & kết quả | SG-06 Thanh toán, SG-07 Kết quả (+ HD-06), SG-16 phiếu bán | ⬜ |
+| 2 · Thanh toán & kết quả | SG-06 Thanh toán (+ sheet hoàn tất, bàn phím tiền, toast, trang không hợp lệ), SG-07 Kết quả (+ sheet phiếu, dòng HĐĐT mặc định / dự phòng), SG-16 xem trước phiếu bán hàng (trang A5 vẽ lại bằng HTML) | ✅ 40 ca × 2 khổ |
 | 3 · Tra cứu đơn | SG-08 Đơn hàng (+ lọc), SG-09 Chi tiết (+ thao tác), SG-09b / 09c / 09d, SG-10 Huỷ | ⬜ |
 | 4 · Đổi / trả | SG-12, SG-13 (+ cấn trừ), SG-14, SG-15, SG-16 phiếu đổi/trả | ⬜ |
 
-SG-11 (Thu tiền) đã gỡ khỏi Flutter ở T6-2c (thu sau bán chuyển sang CN-03), nên không vẽ. Phần của theme khác mà Flutter đang hiện (HD-06, khối cấn trừ, "Xem công nợ của khách") vẽ đúng như Flutter.
+SG-11 (Thu tiền) đã gỡ khỏi Flutter ở T6-2c (thu sau bán chuyển sang CN-03), nên không vẽ. Phần của theme khác mà Flutter đang hiện (HD-06, khối cấn trừ, "Xem công nợ của khách") vẽ đúng như Flutter. Dòng HĐĐT (HD-06) trên SG-07 chỉ vẽ trạng thái mặc định, "Chưa đủ thông tin" và thẻ dự phòng; 4 trạng thái phát hành và các sheet HĐĐT đã vẽ ở prototype Theme 8 đợt 2 (`theme-08/…/app/order.js`).
+
+Đánh số: key trong Dart dùng `sg05` cho Thanh toán và `sg06` cho Kết quả (số cũ); prototype theo TH-05 / CHECKLIST: SG-06 Thanh toán, SG-07 Kết quả. Prototype Theme 8 ghi trang Kết quả là "SG-06" theo số cũ.
 
 ## Chạy
 
@@ -37,7 +39,9 @@ node tools/capture.mjs      # mọi ca × 2 khổ → tools/proto-final/{iphone,
 | `app/drafts.js` | SG-01 + sheet xoá; hàm thuần `creatorLabel`, `phoneLine`, `draftSummary` |
 | `app/compose.js` | SG-02 + menu tìm, sheet rời màn, bàn phím số lượng; hàm thuần `stockWarning`, `unitPriceLabel`, `ribbon` (dải chéo giá riêng) |
 | `app/sheets.js` | SG-03, SG-04 (chọn + tạo nhanh + 2 sheet phụ), SG-05 (+ bàn phím, 2 sheet xác nhận); hàm thuần `unitSubtitle`, `previewApplied` |
-| `app/main.js` | Ca → trạng thái; mọi màn đợt 1 vẽ ngoài khung |
+| `app/checkout.js` | SG-06 + sheet hoàn tất, bàn phím tiền, trang không hợp lệ; hàm thuần `checkoutVm`, `mixedDefault`, `percentIndex`, `digitsDot` |
+| `app/result.js` | SG-07 + sheet phiếu; SG-16 (`receiptPaper` vẽ trang A5 theo `SalesReceiptPdfGenerator`, đơn vị pt rồi phóng theo bề rộng PdfPreview); hàm thuần `methodText` |
+| `app/main.js` | Ca → trạng thái; mọi màn đợt 1–2 vẽ ngoài khung |
 | `styles/t5.css` | Phần DS chép từ `t4.css`, rồi tới rule riêng Theme 5 (tiền tố `t5-`, token `--c45-v2-*`) |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem và chụp ảnh, chép khuôn Theme 4 (cổng 8775) |
 
@@ -52,6 +56,9 @@ Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 5). Việc gom về `shared/` để sau.
 | SG-03 | `widgets/sales_product_unit_sheet.dart` |
 | SG-04 | `widgets/{sales_customer_select_sheet, sales_customer_picker_body, sales_customer_picker_card, sales_customer_picker_loading_state, sales_customer_picker_search_bar, sales_customer_picker_body_empty_state, sales_customer_picker_body_no_result_state, sales_customer_picker_body_error_state, sales_customer_quick_create_sheet}.dart`, `bloc/shared/sales_customer_picker_cubit.dart`, `lookups/sales_partner_customer_lookup.dart` (dòng phụ) |
 | SG-05 | `widgets/sales_compose_price_adjust_sheet.dart` |
+| SG-06 | `pages/{sales_checkout_page, sales_checkout_invalid_entry_page}.dart`, `widgets/{sales_checkout_summary_card, sales_checkout_payment_method_selector, sales_checkout_percent_row, sales_checkout_receivable_card, sales_checkout_finalize_sheets}.dart`, `models/sales_order/sales_checkout_vm.dart`, `logic/sales_checkout_cubit.dart` |
+| SG-07 | `pages/{sales_transaction_result_page, sales_result_invalid_entry_page}.dart`, `widgets/{sales_transaction_result_body, sales_result_header_card, sales_result_customer_card, sales_result_partial_banner, sales_result_payment_summary_card, sales_result_documents_section, sales_receipt_entry_card, sales_einvoice_entry_card, sales_entry_row, sales_result_loading_view, sales_result_failure_view, sales_transaction_result_action_bar, sales_result_receipt_sheet, sales_document_action_sheet}.dart`; HD-06 `features/einvoice/presentation/widgets/order_einvoice_row.dart` |
+| SG-16 | `pages/{sales_order_slip_preview_page, sales_receipt_preview_page}.dart`, `support/sales_receipt_pdf_generator.dart` (PdfPreview của gói `printing`: lề trang 20 / 8 / 20 / 12, bóng 0 3 5) |
 | Khung | `navigation/sales_typed_routes.dart` (`SalesDraftShellRoute`), `c45_design_system` `VPageScaffold`, `showVBottomSheet`, `showVNumericKeypadSheet`, `VSwipeReveal`, `VTabs`, `VSegmentedControl` |
 
 ## Hiện trạng Flutter (để rà): đợt 1
@@ -119,3 +126,43 @@ Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 5). Việc gom về `shared/` để sau.
 44. Banner "Dưới giá sàn" dính sát ô tích "Lưu làm giá riêng" (không khe).
 45. Khách lẻ: ô tích mờ + thêm câu "Chọn khách hàng để lưu giá riêng." dưới câu mô tả, hai câu xám liền nhau.
 46. Giảm % có phím "." nhưng giá trị bị làm tròn về số nguyên.
+
+## Hiện trạng Flutter (để rà): đợt 2
+
+**Thanh toán (SG-06)**
+
+47. Thân chỉ có thẻ khách: **không có danh sách hàng, không có tổng đơn** trong thân; tổng chỉ ở thanh dưới. Người bán không xem lại được đơn trước khi thu.
+48. Ô tiền dùng dấu chấm "441.000" (VTextField + hậu tố "đ", chữ thường); bàn phím mở ra lại dấu phẩy "441,000".
+49. Khách lẻ: hàng % thành 3 nút riêng ("0%", "50%" viền mờ, "100%" nền xanh), khác hẳn segmented của khách có hồ sơ; ô tiền ghi "Tự động bằng tổng đơn." nhưng vẫn trông như ô nhập.
+50. "Công nợ phát sinh" luôn nền xanh chữ xanh (tone primary), kể cả khi > 0 — không có màu cảnh báo.
+51. "Tiếp tục" mờ khi thiếu ngày hẹn mà không nói lý do; chỉ có câu "Bắt buộc khi phát sinh công nợ." dưới ô.
+52. "Tiền thừa 0đ" luôn hiện, kể cả khi chuyển khoản.
+53. Kết hợp: lần đầu tự điền tiền mặt **2.000.000** (mốc cứng trong cubit), phần còn lại vào chuyển khoản; nếu đổi từ Tiền mặt sang thì giữ số cũ (CK = 0). Không có hàng %.
+54. Chuyển khoản không có số tài khoản / QR cửa hàng để khách chuyển; chỉ có ô "Mã giao dịch" (không bắt buộc).
+55. Nút chính ghi "Tiếp tục" nhưng mở sheet xác nhận cuối "Hoàn tất đơn?"; sheet không nhắc lại số tiền, phương thức, công nợ.
+56. Toast lỗi chỉ hiện thông điệp (tiêu đề không hiện); hành động kiểm lại / quay về ẩn trong việc **chạm vào toast**, không có nút.
+57. Mở thẳng liên kết: câu canh trái sát app bar, không icon, không khe trên.
+58. "Khách phải trả" ở thanh dưới chữ đen; SG-02 cùng nhãn chữ xám.
+
+**Kết quả (SG-07)**
+
+59. Không có nút ← (đúng ý đồ) nhưng cũng không có danh sách hàng; tóm tắt chỉ có số tiền.
+60. "Đã thanh toán" / "Tiền thừa" dùng tone neutral của SalesAmountHighlightRow → nền trắng trên thẻ trắng, trông như dòng thường; "Còn phải thu" chữ vàng; "Hẹn thanh toán" đệm và cỡ chữ khác các hàng trên.
+61. Dòng meta ghi phương thức ("Tiền mặt") cả khi bán nợ một phần; không thấy là còn nợ ở thẻ đầu.
+62. Kết hợp: meta "Tiền mặt + chuyển khoản" nhưng tóm tắt không tách từng phần.
+63. Chưa đồng bộ xong: "Đơn <UUID>" hiện mã kỹ thuật thay số đơn.
+64. Banner lỗi phiếu có **lỗi chính tả "Đơn văn đã hoàn tất"** (đúng: "Đơn hàng"). Hai banner (đồng bộ một phần, lỗi phiếu) chỉ có tiêu đề dài, không mô tả.
+65. Dòng phiếu khi đang tạo / in / chia sẻ không bấm được nhưng không mờ, vẫn có ›.
+66. Thẻ dự phòng HĐĐT ("Chưa tải được") dùng SalesEntryRow: icon cách 12, tiêu đề w600; dòng HĐĐT thật cách 16, tiêu đề w700 — hai thẻ cạnh nhau khác số đo.
+67. Lỗi tải: khối giữa màn có "Thử tải lại" chữ xanh, thanh dưới nút thứ hai cũng thành "Thử tải lại" **nền đỏ** — 2 nút cùng việc, khác màu.
+68. Toast lỗi in / chia sẻ hiện chuỗi lỗi thô (`'$e'`).
+69. Sheet "Phiếu bán hàng" dùng `title` của VBottomSheet (tiêu đề + gạch), khác các sheet đợt 1 tự vẽ tiêu đề.
+
+**Xem trước phiếu (SG-16)**
+
+70. Logo "V45" cố định trên mọi phiếu (không phải logo / tên app hay cửa hàng).
+71. "Còn phải thu" và "Công nợ phát sinh từ đơn" là **cùng một số in hai lần** (khối công nợ chỉ có dòng đó). Không có tổng nợ của khách ("Nợ cũ" đã bỏ ở 8-B2, TH-05 KI-07).
+72. "Cám ơn quý khách!" — chính tả "Cảm ơn".
+73. iPhone: trang A5 thu còn ~350 px, chữ 10,5 pt còn ~8,8 px — khó đọc nếu không phóng.
+74. App bar chỉ có 2 icon in / chia sẻ không nhãn.
+75. Thiếu dữ liệu phiếu: chỉ một câu giữa màn, không nút quay về.

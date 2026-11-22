@@ -497,3 +497,93 @@
 /* VButton isLoading: vòng 20 nét 2 theo màu chữ nút */
 .t5-spin--btn { border-color: color-mix(in srgb, currentColor 35%, transparent); border-top-color: currentColor; }
 .t5-sumbar { display: flex; flex-direction: column; }
+
+/* ================================================ đợt 2 — chung */
+.t5-gap-h12 { display: block; flex: 0 0 12px; }
+.t5-bold { margin: 0; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t5-bodyp { margin: 0; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-primary); }
+.t5-tc { text-align: center; }
+.t5-center--col { flex-direction: column; display: flex; align-items: center; justify-content: center; }
+.t5-ibox--altdark { background: var(--c45-v2-surface-canvas); color: var(--c45-v2-text-primary); }
+.t5-empty--media56 .t5-empty__media { width: 56px !important; height: 56px !important; }
+/* SalesEntryRow / OrderEInvoiceRow / thẻ thao tác chứng từ */
+.t5-entry { display: flex; align-items: center; cursor: pointer; }
+.t5-entry__ic { display: grid; flex: 0 0 auto; margin-right: 12px; font-style: normal; font-size: 24px; color: var(--c45-v2-text-primary); }
+.t5-entry--hd .t5-entry__ic { margin-right: 16px; }
+.t5-entry--22 .t5-entry__ic { font-size: 22px; }
+.t5-entry__t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t5-entry__t b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-entry--hd .t5-entry__t b { line-height: 20px; font-weight: 700; }
+.t5-entry__t span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t5-entry__t span.t5-text-warning { color: var(--c45-v2-text-warning); }
+.t5-entry__chev { display: grid; flex: 0 0 auto; font-style: normal; font-size: 20px; color: var(--c45-v2-text-muted); }
+
+/* ================================================ SG-06 thanh toán */
+.t5-coscroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; padding: 12px 16px 16px; }
+.t5-coscroll > * { flex: 0 0 auto; }
+.t5-cocust { display: flex; align-items: center; }
+.t5-cocust__ic { display: grid; margin-right: 12px; font-style: normal; font-size: 20px; color: var(--c45-v2-text-secondary); }
+.t5-cocust__t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t5-cocust__t b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t5-cocust__t span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t5-flabel { margin: 0; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-row3 { display: flex; gap: 4px; }
+.t5-row3 > * { flex: 1 1 0; min-width: 0; }
+.t5-chrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.t5-chrow span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t5-chrow b { font-family: var(--c45-v2-font-mono); font-size: 14px; line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-hl--label b { line-height: 20px; }
+.t5-sumbar__top--dark span { color: var(--c45-v2-text-primary); }
+
+/* ================================================ SG-07 kết quả */
+.t5-rscroll { flex: 1; min-height: 0; overflow-y: auto; }
+.t5-rhead { display: flex; flex-direction: column; align-items: stretch; }
+.t5-rhead__ic { display: grid; place-items: center; font-style: normal; font-size: 22px; color: var(--c45-v2-action-primary-default); }
+.t5-rhead__t { margin: 0; text-align: center; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.t5-rhead__no { margin: 0; text-align: center; font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-rcust { display: flex; align-items: center; }
+.t5-hlr { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px; border-radius: var(--c45-v2-radius-input); }
+.t5-hlr span { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; }
+.t5-hlr span.is-small { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; }
+.t5-hlr b { font-family: var(--c45-v2-font-mono); font-size: 14px; line-height: 20px; font-weight: 600; }
+.t5-hlr--primary { background: var(--c45-v2-surface-brand); color: var(--c45-v2-text-brand); }
+.t5-hlr--neutral { background: var(--c45-v2-surface-default); color: var(--c45-v2-text-primary); }
+.t5-hlr--warning { background: transparent; color: var(--c45-v2-text-warning); }
+.t5-dueline { display: flex; align-items: center; justify-content: space-between; padding: 12px 12px 8px; }
+.t5-dueline span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-dueline b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-docsheet { padding: 12px 16px; }
+
+/* ================================================ SG-16 PdfPreview + trang A5 (đơn vị pt = px trước khi phóng) */
+.t5-pdfview { flex: 1; min-height: 0; overflow-y: auto; background: var(--c45-v2-surface-canvas); padding: 8px 20px 12px; }
+.t5-pdfview__slot { position: relative; margin: 0 auto; }
+.t5-pdf { position: absolute; left: 0; top: 0; width: 419.53px; height: 595.28px; transform-origin: 0 0; background: #fff; box-shadow: 0 3px 5px rgb(0 0 0 / .5); font-family: var(--c45-v2-font-sans); color: #000; }
+.t5-pdf__page { height: 100%; padding: 10px; }
+.t5-pdf__box { display: flex; flex-direction: column; padding: 14px; border-radius: 16px; background: #fff; }
+.t5-pdf__box > * { flex: 0 0 auto; }
+.t5-pdf__g2, .t5-pdf__g6, .t5-pdf__g8 { display: block; }
+.t5-pdf__g2 { height: 2px; } .t5-pdf__g6 { height: 6px; } .t5-pdf__g8 { height: 8px; }
+.t5-pdf__hr { width: 100%; margin: 0; border: 0; border-top: .5px solid #E0E0E0; }
+.t5-pdf__head { display: flex; align-items: flex-start; gap: 8px; }
+.t5-pdf__logo { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; border-radius: 8px; background: #1F7A36; color: #fff; font-size: 18px; font-weight: 700; }
+.t5-pdf__head > div { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.t5-pdf__head b { font-size: 12px; font-weight: 700; }
+.t5-pdf__head > div span { font-size: 10px; color: #616161; }
+.t5-pdf__title { margin: 0; text-align: center; font-size: 16px; font-weight: 700; }
+.t5-pdf__no { margin: 3px 0 0; text-align: center; white-space: pre; font-family: var(--c45-v2-font-mono); font-size: 10px; color: #616161; }
+.t5-pdf__row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; font-size: 10.5px; }
+.t5-pdf__row span { color: #424242; }
+.t5-pdf__row b { font-weight: 400; color: #212121; }
+.t5-pdf__row b.is-mono { font-family: var(--c45-v2-font-mono); }
+.t5-pdf__row.is-bold span, .t5-pdf__row.is-bold b { font-weight: 700; color: #000; }
+.t5-pdf__line { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.t5-pdf__line > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.t5-pdf__line b { font-size: 10.5px; font-weight: 700; }
+.t5-pdf__line span { font-family: var(--c45-v2-font-mono); font-size: 9.5px; color: #616161; }
+.t5-pdf__line s { color: #9E9E9E; }
+.t5-pdf__line strong { color: #212121; }
+.t5-pdf__line em { font-style: normal; font-family: var(--c45-v2-font-mono); font-size: 10.5px; font-weight: 700; }
+.t5-pdf__total { display: flex; justify-content: space-between; padding: 5px 8px; border-radius: 6px; background: #E8F6EC; font-size: 11px; font-weight: 700; }
+.t5-pdf__total b { font-family: var(--c45-v2-font-mono); color: #1F7A36; }
+.t5-pdf__thanks { margin: 0; text-align: center; font-size: 10px; color: #757575; }
+.t5-pdf__note { margin: 3px 0 0; text-align: center; font-size: 8.5px; color: #9E9E9E; }

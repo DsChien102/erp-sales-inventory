@@ -104,6 +104,66 @@ export const SCREENS = [
       ['confirm-overwrite', 'Ghi đè giá riêng', '"Ghi đè giá riêng hiện có?" + "Giá riêng đang áp dụng sẽ được cập nhật ngay." + "Ghi đè và áp dụng".'],
     ],
   },
+  {
+    id: 'checkout', group: 'checkout', code: 'SG-06', title: 'Thanh toán', route: '/sales/checkout', states: [
+      ['cash', 'Tiền mặt', 'Route cấp gốc, ngoài khung. App bar "Thanh toán" + ←. Thân chỉ có **thẻ khách** (icon người 20, tên, SĐT) — **không có danh sách hàng, không có tổng đơn trong thân**; tổng chỉ ở thanh dưới. "Phương thức" + segmented "Tiền mặt | Chuyển khoản | Kết hợp". Thẻ nhập: "Số tiền mặt", ô "441.000" + "đ" (dấu chấm; ô giá SG-05 dấu phẩy), "Có thể nhập số tiền khác.", segmented "0% | 50% | 100%", "Tiền thừa 0đ" (luôn hiện). Thẻ "Công nợ phát sinh 0đ" **nền xanh** + "Không phát sinh công nợ.". Thanh dưới: "Khách phải trả" (chữ đen; SG-02 chữ xám) + "Tiếp tục". Web: cột 720.'],
+      ['walk-in', 'Khách lẻ', 'Thẻ khách "Khách lẻ / Không bắt buộc thông tin". "Tự động bằng tổng đơn." (ô vẫn trông như ô nhập). Hàng % thành 3 nút: "0%", "50%" viền mờ, "100%" **nền xanh** — kiểu khác hẳn segmented của khách có hồ sơ.'],
+      ['bank', 'Chuyển khoản', '"Số tiền chuyển khoản" + hàng % + "Mã giao dịch" (gợi ý "Nhập mã giao dịch") + "Không bắt buộc.". Không có số tài khoản / QR để khách chuyển.'],
+      ['bank-code', 'CK có mã', 'Mã giao dịch "FT26326123456".'],
+      ['mixed', 'Kết hợp (đơn < 2 triệu)', 'Đổi từ Tiền mặt sang Kết hợp: giữ số cũ → "Tiền mặt 441.000", "Chuyển khoản 0"; không có hàng %; "Mã giao dịch" ngay dưới ô chuyển khoản (không khe 8 như CK).'],
+      ['mixed-big', 'Kết hợp (đơn ≥ 2 triệu)', 'Vào Kết hợp khi hai ô đang 0: tiền mặt tự điền **2.000.000** (mốc cứng), chuyển khoản phần còn lại 2.850.000.'],
+      ['walk-in-bank', 'Khách lẻ · CK', '"Tự động bằng tổng đơn." dưới ô chuyển khoản; mã giao dịch vẫn nhập được.'],
+      ['debt', 'Bán nợ · chưa có ngày', 'Chọn 50% → 220.500: "Công nợ phát sinh 220.500đ" **vẫn nền xanh, chữ xanh** (không cảnh báo); ô ngày "Ngày hẹn thanh toán *" / "Chọn ngày hẹn" + "Bắt buộc khi phát sinh công nợ."; "Tiếp tục" mờ mà không nói vì sao.'],
+      ['debt-dated', 'Bán nợ · có ngày', 'Ngày "30/11/2026" → "Tiếp tục" sáng.'],
+      ['debt-zero', 'Nợ toàn bộ', '0% → ô "0", công nợ = tổng đơn.'],
+      ['change', 'Có tiền thừa', 'Nhập 500.000 → "Tiền thừa 59.000đ"; hàng % vẫn chọn "100%" (≥ 75%).'],
+      ['prechecking', 'Đang kiểm tra', 'Mỗi lần đổi tiền / ngày: "Tiếp tục" thành vòng xoay, mờ.'],
+      ['toast-blocked', 'Bị chặn', 'Toast đỏ chỉ hiện lý do "Sản phẩm đã ngừng bán. Vui lòng quay lại đơn." (tiêu đề "Chưa đủ điều kiện thanh toán" không hiện). Nhiều lý do thì nối bằng xuống dòng.'],
+      ['toast-failure', 'Hoàn tất lỗi', 'Toast đỏ "Không thể hoàn tất đơn." — chạm vào toast mới kiểm lại (không có nút), tiêu đề "Chưa hoàn tất được đơn" không hiện.'],
+      ['toast-conflict', 'Xung đột', 'Toast đỏ "Vui lòng tải lại đơn." — chạm toast quay về soạn đơn.'],
+      ['invalid', 'Mở thẳng liên kết', 'Câu dài canh trái sát app bar (không icon, không khe trên) + "Quay lại tạo đơn" xanh đầy ngang. Không có thanh dưới.'],
+    ],
+  },
+  {
+    id: 'checkout-sheet', group: 'checkout', code: 'SG-06', title: 'Hoàn tất đơn? / bàn phím', route: '/sales/checkout', states: [
+      ['finalize', 'Hoàn tất đơn?', 'Bấm "Tiếp tục": sheet không tiêu đề, "Hoàn tất đơn?" H4 + câu dài bodySmall; **không nhắc lại số tiền, phương thức hay công nợ** cần kiểm. "Hoàn tất đơn" xanh | "Quay lại". Nút chính trên màn ghi "Tiếp tục" nhưng thật ra là bước xác nhận cuối.'],
+      ['finalize-debt', 'Hoàn tất · bán nợ', 'Đơn có công nợ 220.500 và hẹn 30/11: sheet y hệt ca trên.'],
+      ['keypad', 'Bàn phím tiền mặt', '"Nhập số tiền mặt", "Đơn vị: VND", "441,000" (dấu phẩy, ô ngoài dấu chấm) + "đ", phím "000".'],
+    ],
+  },
+  {
+    id: 'result', group: 'checkout', code: 'SG-07', title: 'Kết quả bán hàng', route: '/sales/result/o1', states: [
+      ['paid', 'Đã thanh toán đủ', 'Route cấp gốc, ngoài khung; app bar "Kết quả bán hàng" **không có ←**. Thẻ đầu: ✓ xanh 22, "Đã hoàn tất đơn", "Đơn DH-000130", "22/11/2026 · 10:32 · Tiền mặt", "Xem chi tiết đơn" chữ xanh. Thẻ khách ô người 40. "Tóm tắt thanh toán": "Tổng đơn" nền xanh; "Đã thanh toán" nền trắng (tone neutral, trông như dòng thường) — **không có danh sách hàng**. "Chứng từ & hóa đơn": "Phiếu bán hàng" + dòng HĐĐT "Chưa phát hành" (các trạng thái / sheet HĐĐT: prototype Theme 8 đợt 2). Thanh dưới "Về trang chủ" (viền xanh) | "Tạo đơn mới".'],
+      ['debt', 'Bán nợ', '"Còn phải thu 220.500đ" chữ vàng nền trong; "Hẹn thanh toán 30/11/2026" (đệm khác các hàng trên). Dòng meta vẫn ghi "Tiền mặt" — không thấy là bán nợ.'],
+      ['change', 'Có tiền thừa', '"Đã thanh toán 500.000đ" + "Tiền thừa 59.000đ" (cùng kiểu neutral).'],
+      ['unpaid', 'Nợ toàn bộ', 'Meta "… · Chưa thanh toán"; "Đã thanh toán 0đ", "Còn phải thu 441.000đ".'],
+      ['mixed', 'Kết hợp', 'Meta "Tiền mặt + chuyển khoản"; tóm tắt chỉ có tổng đã trả, không tách mặt / CK.'],
+      ['walk-in', 'Khách lẻ', 'Thẻ khách "Khách lẻ" / "Không có số điện thoại" — thẻ không mang thông tin.'],
+      ['syncing', 'Đang đồng bộ', 'Chưa có đơn: "Đơn 5b1f0c2e-8a4d-…" (**hiện UUID** thay số đơn), meta "Đang đồng bộ · Tiền mặt".'],
+      ['partial', 'Đồng bộ một phần', 'Banner vàng chỉ có tiêu đề dài "Một số dữ liệu liên quan đang chờ đồng bộ. Đơn hàng vẫn đã hoàn tất." giữa thẻ khách và tóm tắt.'],
+      ['receipt-generating', 'Đang tạo phiếu', 'Dòng phiếu: "Đang tạo phiếu bán hàng", không bấm được nhưng trông như bấm được (không mờ, vẫn ›).'],
+      ['receipt-error', 'Lỗi tạo phiếu', 'Banner vàng **"Đơn văn đã hoàn tất…"** (lỗi chính tả "văn" → "hàng"); dòng phiếu đổi "Tạo lại phiếu bán hàng" / "Không thể tạo phiếu, hãy thử lại".'],
+      ['hd-fallback', 'HĐĐT chưa tải được', 'Thiếu số đơn / phiên bản: thẻ dự phòng "Hóa đơn điện tử" / "Quản lý hóa đơn" + badge vàng "Chưa tải được" (kiểu SalesEntryRow: icon cách 12, tiêu đề w600 — khác dòng HĐĐT thật cách 16, w700).'],
+      ['hd-buyer', 'HĐĐT chưa đủ thông tin', 'Khách tổ chức thiếu MST: dòng HĐĐT phụ đề vàng "Chưa đủ thông tin".'],
+      ['loading', 'Đang tải', 'Vòng 40 + "Đang tải kết quả bán hàng..." giữa màn; thanh dưới vẫn có "Về trang chủ" | "Tạo đơn mới".'],
+      ['failure', 'Lỗi tải', 'Khối đỏ (icon ×), "Không tải được chi tiết kết quả", "Đơn đã được tạo. Thử tải lại và không thanh toán lại.", "Thử tải lại" chữ xanh; thanh dưới nút thứ hai cũng thành **"Thử tải lại" nền đỏ** — 2 nút cùng việc.'],
+      ['toast-pdf-error', 'In / chia sẻ lỗi', 'Toast đỏ hiện **chuỗi lỗi thô** ("Exception: …"); tiêu đề "Thao tác PDF thất bại" không hiện.'],
+    ],
+  },
+  {
+    id: 'result-sheet', group: 'checkout', code: 'SG-07', title: 'Sheet Phiếu bán hàng', route: '/sales/result/o1', states: [
+      ['actions', 'Xem / in / chia sẻ', 'Sheet **có tiêu đề + gạch** "Phiếu bán hàng" (khác các sheet đợt 1 tự vẽ tiêu đề). 3 thẻ: "Xem phiếu", "In phiếu", "Chia sẻ phiếu" (icon 22, ›). Web: sheet đáy 640.'],
+    ],
+  },
+  {
+    id: 'receipt', group: 'checkout', code: 'SG-16', title: 'Xem trước phiếu bán hàng', route: '/sales/orders/o1/preview', states: [
+      ['paid', 'Đã thanh toán', 'App bar "Phiếu bán hàng" + 2 icon in / chia sẻ (không chữ). PdfPreview: trang A5 có bóng trên nền xám. iPhone: trang 350 → chữ 10,5 pt còn ~8,8 px. Logo "V45" cố định (không phải tên / logo cửa hàng). Tên cửa hàng IN HOA. Dòng pate: giá gốc gạch + giá sau giảm. "Còn phải thu 0đ" và "Công nợ phát sinh từ đơn 0đ" — **cùng một số in hai lần**. Cuối "Cám ơn quý khách!" (chính tả "Cảm ơn").'],
+      ['debt', 'Bán nợ', '"Tiền mặt 220.500đ", "Còn phải thu 220.500đ", "Hạn thu 30/11/2026", "Công nợ phát sinh từ đơn 220.500đ". Không có "Công nợ cũ" / tổng nợ của khách.'],
+      ['walk-in', 'Khách lẻ', 'Không dòng khách, không khối công nợ.'],
+      ['loading', 'Đang tạo PDF', 'Vòng 40 + "Đang tạo bản xem trước PDF..." bodySmall.'],
+      ['invalid', 'Thiếu dữ liệu', 'Chỉ câu "Thiếu dữ liệu phiếu bán hàng hợp lệ để xem trước." giữa màn, không nút quay về (ngoài ←).'],
+    ],
+  },
 ];
 
 /** { màn: [mã ca, …] } cho tools/capture.mjs và test. */

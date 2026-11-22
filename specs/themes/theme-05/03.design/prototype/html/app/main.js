@@ -13,6 +13,8 @@ import {
   customerSheet, customerSheetHeight, duplicateSheet, priceAdjustSheet, priceConfirmSheet, priceKeypad, quickCreateSheet, quickDiscardSheet,
   unitSheet, unitSheetHeight,
 } from './sheets.js';
+import { cashKeypad, checkoutInvalidPage, checkoutPage, finalizeSheet } from './checkout.js';
+import { receiptActionSheet, receiptPreviewPage, resultPage, resultToast } from './result.js';
 
 /** Trạng thái ban đầu của một ca. */
 export function caseView(screen, state, device) {
@@ -33,6 +35,12 @@ const COMPOSE_TOASTS = {
   'toast-scan': ['filled', 'info', 'Quét mã', 'Nhập barcode vào ô tìm kiếm rồi nhấn tìm.'],
   'toast-price': ['filled', 'success', 'Đã lưu và áp dụng giá riêng', ''],
   'toast-draft-gone': ['new', 'warning', 'Đơn nháp không còn', 'Đơn nháp này đã bị xoá hoặc thay đổi ở nơi khác. Đã chuyển sang đơn mới.'],
+};
+
+const CHECKOUT_TOASTS = {
+  'toast-blocked': ['danger', 'Chưa đủ điều kiện thanh toán', 'Sản phẩm đã ngừng bán. Vui lòng quay lại đơn.'],
+  'toast-failure': ['danger', 'Chưa hoàn tất được đơn', 'Không thể hoàn tất đơn.'],
+  'toast-conflict': ['danger', 'Yêu cầu bị xung đột', 'Vui lòng tải lại đơn.'],
 };
 
 function composeCase(v) {
@@ -82,6 +90,26 @@ export function renderView(v) {
       else if (v.state === 'confirm-overwrite') overlay = bottomSheet(priceConfirmSheet('overwrite'), { label: 'Xác nhận ghi đè giá riêng' });
       else overlay = bottomSheet(priceAdjustSheet(v.state), { label: 'Điều chỉnh giá' });
       break;
+    case 'checkout': {
+      const t = CHECKOUT_TOASTS[v.state];
+      if (v.state === 'invalid') page = checkoutInvalidPage(v);
+      else page = t ? checkoutPage('cash', v, { toastHtml: composeToast(v, t[0], t[1], t[2]) }) : checkoutPage(v.state, v);
+      break;
+    }
+    case 'checkout-sheet':
+      page = checkoutPage(v.state === 'finalize-debt' ? 'debt-dated' : 'cash', v);
+      overlay = v.state === 'keypad' ? cashKeypad() : bottomSheet(finalizeSheet(), { label: 'Xác nhận hoàn tất đơn' });
+      break;
+    case 'result':
+      page = v.state === 'toast-pdf-error'
+        ? resultPage('paid', v, { toastHtml: resultToast(v, 'danger', 'Thao tác PDF thất bại', 'Exception: Không thể tạo phiếu bán hàng.') })
+        : resultPage(v.state, v);
+      break;
+    case 'result-sheet':
+      page = resultPage('paid', v);
+      overlay = bottomSheet(receiptActionSheet(), { title: 'Phiếu bán hàng' });
+      break;
+    case 'receipt': page = receiptPreviewPage(v.state, v); break;
     default: break;
   }
   return renderShell({ device: v.device, width: v.width, height: v.height, location: v.location, orgName: 'Mosaic Retail Demo', overlay }, page);
