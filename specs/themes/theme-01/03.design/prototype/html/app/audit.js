@@ -60,8 +60,15 @@ const auditFilter = () => {
 /** AppBar Material: cao 56, nền surface, không gạch dưới; leading ← 56 (hẹp) + titleSpacing 0 / web không leading + titleSpacing 16; tiêu đề headingH4 w700. */
 const materialBar = (split) => `<header class="t1-mbar${split ? ' t1-mbar--split' : ''}">${split ? '' : `<button type="button" class="t1-mbar__back" aria-label="Quay lại">${icon('chevronLeft')}</button>`}<h1 class="t1-h4">Chi tiết hoạt động</h1></header>`;
 
-/** AuditDetailRow: ngắn → nhãn bodyDefault textSecondary ↔ giá trị bodyDefault w700 phải (+ nút sao chép 44, icon 18). */
-const arow = (l, val, copy = false) => `<div class="t1-drow"><span>${esc(l)}</span><b>${esc(val)}${copy ? `<button type="button" class="t1-copy" aria-label="Sao chép mã theo dõi">${icon('copy')}</button>` : ''}</b></div>`;
+/**
+ * AuditDetailRow: giá trị ≤ 24 ký tự, một dòng → nhãn bodyDefault textSecondary ↔ giá trị bodyDefault w700 phải (+ nút sao chép 44, icon 18).
+ * Dài hơn 24 ký tự (hoặc nhiều dòng) → xếp dọc: hàng nhãn (+ nút sao chép), khe 4, giá trị w700 canh trái, cao dòng 1.4 (monospace nếu sao chép được).
+ */
+const arow = (l, val, copy = false) => {
+  const btn = copy ? `<button type="button" class="t1-copy" aria-label="Sao chép mã theo dõi">${icon('copy')}</button>` : '';
+  if (val.length > 24 || val.includes('\n')) return `<div class="t1-drow t1-drow--block"><div class="t1-drow__head"><span>${esc(l)}</span>${btn}</div><b${copy ? ' class="is-mono"' : ''}>${esc(val)}</b></div>`;
+  return `<div class="t1-drow"><span>${esc(l)}</span><b>${esc(val)}${btn}</b></div>`;
+};
 const secHead = (t, b = '') => `<div class="t1-dhead"><b class="t1-bodyb">${esc(t)}</b>${b}</div><div class="t1-gap-md"></div>`;
 
 function auditDetail(s, split, device) {

@@ -106,3 +106,9 @@ test('VAvatar initials + tài khoản: nhãn Chủ sở hữu chỉ với chủ,
   assert.doesNotMatch(render('account', 'staff', 'iphone'), /Chủ sở hữu/);
   assert.match(render('account', 'no-phone', 'web'), /\(chưa có\)/);
 });
+
+test('AuditDetailRow: giá trị > 24 ký tự xếp dọc; mã theo dõi rút gọn 12…8 vẫn một hàng', () => {
+  const html = render('audit-detail', 'actor-unavailable', 'iphone');
+  assert.match(html, /t1-drow t1-drow--block"><div class="t1-drow__head"><span>Người thực hiện/);
+  assert.match(render('audit-detail', 'detail', 'iphone'), /<div class="t1-drow"><span>Mã theo dõi<\/span><b>req_7f3a9c21…c8d19f02/);
+});

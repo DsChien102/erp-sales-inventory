@@ -64,4 +64,4 @@ export const AUDIT = [
   { id: 'a6', icon: 'close', title: 'Thu hồi lời mời thành viên', code: 'iam.invitation.revoked', actor: 'Không còn thông tin người thực hiện', actorRole: '—', at: '12/10/2026 16:47', subject: 'vy.old@gmail.com', subjectType: 'Lời mời', actorUnavailable: true },
 ];
 export const AUDIT_TOTAL = 24;
-export const TRACE_ID = 'req_7f3a9c21e0b4…c8d19f02'; // formatTraceId: > 24 ký tự → 12 đầu + … + 8 cuối
+export const TRACE_ID = 'req_7f3a9c21…c8d19f02'; // formatTraceId: > 24 ký tự → 12 đầu + … + 8 cuối

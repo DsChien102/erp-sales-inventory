@@ -416,3 +416,9 @@
 .t1-optcard--12 { gap: 12px; }
 .t1-optcard--danger { border-color: var(--c45-v2-text-danger); background: var(--c45-v2-surface-danger); color: var(--c45-v2-text-danger); }
 .t1-optcard--danger .t1-optcard__chev { color: var(--c45-v2-text-danger); }
+/* AuditDetailRow xếp dọc (giá trị > 24 ký tự) */
+.t1-drow--block { flex-direction: column; align-items: stretch; gap: 4px; }
+.t1-drow__head { display: flex; align-items: center; justify-content: space-between; }
+.t1-drow__head > span { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-drow--block > b { display: block; text-align: left; line-height: 1.4; }
+.t1-drow--block > b.is-mono { font-family: ui-monospace, Menlo, monospace; }
