@@ -8,7 +8,11 @@ import {
   automationSubtitle, completeTarget, connectionSubtitle, infoKind, issuanceSubtitle, maskAccount, notReadyDescription, overviewState,
   showsForm, statusValue, templateOptionLabel, templateSymbolValue,
 } from '../app/setup.js';
-import { TEMPLATES } from '../app/data.js';
+import { TEMPLATES, DELIVERIES } from '../app/data.js';
+import {
+  allowsTapForIssuance, confirmLine1, confirmLine2, deliveryBadge, historyRows, isValidEmail, issuanceBadge, latestSummary, money, productIcon,
+  safeFailureMessage, suggestionSource, templateDisplay,
+} from '../app/order.js';
 
 test('EInvoiceDateTimeCopy: "HH:mm, dd/MM/yyyy"', () => {
   const d = new Date(2026, 0, 5, 7, 3);
@@ -71,6 +75,44 @@ test('HD-04: nhãn lựa chọn và ký hiệu', () => {
   assert.equal(templateOptionLabel({ symbol: '  ', name: 'Hóa đơn bán hàng' }), 'Hóa đơn bán hàng');
   assert.equal(templateSymbolValue({ symbol: null, serial: 'C26TAA', templateId: 'g' }), 'C26TAA');
   assert.equal(templateSymbolValue({ symbol: null, serial: null, templateId: 'g' }), 'g');
+});
+
+test('HD-06 / HD-09: nhãn badge, bấm được', () => {
+  assert.deepEqual(issuanceBadge('processing'), ['Đang xử lý', 'primary']);
+  assert.deepEqual(issuanceBadge('failed'), ['Phát hành lỗi', 'danger']);
+  assert.equal(allowsTapForIssuance('processing'), false);
+  assert.equal(allowsTapForIssuance('failed'), true);
+  assert.deepEqual(deliveryBadge('unknown'), ['Không xác định kết quả', 'warning']);
+  assert.equal(money(5199232), '5.199.232đ');
+  assert.equal(money(0), '0đ');
+  assert.equal(productIcon('Lọ'), 'tag');
+  assert.equal(productIcon('Hộp'), 'inventory');
+});
+
+test('HD-07 / HD-08: thông điệp lỗi, dòng xác nhận', () => {
+  assert.equal(safeFailureMessage('COMMAND_INTEGRITY', 'x'), 'Dữ liệu đơn hàng hoặc cấu hình không khớp. Vui lòng kiểm tra lại.');
+  assert.equal(safeFailureMessage('PROVIDER_REJECTED', '  MISA nói  '), 'MISA nói');
+  assert.equal(safeFailureMessage('PROVIDER_REJECTED', ''), 'Nhà cung cấp từ chối phát hành hóa đơn điện tử.');
+  assert.match(safeFailureMessage(null, null), /^Đã xảy ra lỗi/);
+  const d = templateDisplay({ serial: 'C26TAA', symbol: '1C26TAA' }, 'hsm');
+  assert.equal(confirmLine2(d), 'Mẫu C26TAA · Ký hiệu 1C26TAA · Có mã CQT');
+  assert.equal(confirmLine2(templateDisplay({ serial: '', symbol: null }, null)), 'Mẫu — · Ký hiệu — · —');
+  assert.equal(templateDisplay({ serial: 'C26TAA', symbol: ' ' }, 'mtt').symbol, 'C26TAA');
+  assert.equal(confirmLine1('#DH-1', '10đ'), 'Đơn hàng #DH-1 · Tổng tiền 10đ');
+});
+
+test('HD-11 / HD-12 / HD-13: email, nguồn gợi ý, lần gửi', () => {
+  assert.equal(isValidEmail(' a@b.vn '), true);
+  assert.equal(isValidEmail('a@b'), false);
+  assert.equal(isValidEmail(''), false);
+  assert.equal(suggestionSource('userInput'), null);
+  assert.equal(suggestionSource('buyerInvoiceSnapshot'), 'Thông tin người mua trên hóa đơn');
+  assert.equal(latestSummary(DELIVERIES), 'Đã gửi gần nhất đến ketoan@thuyanphat.vn · 07/10/2026, 14:36');
+  assert.equal(latestSummary(DELIVERIES.filter((d) => d.status !== 'succeeded')), null);
+  const rows = historyRows(DELIVERIES);
+  assert.equal(rows[0].title, 'Không xác định kết quả · mua.hang@thuyanphat.vn');
+  assert.equal(rows[0].meta, '08/10/2026 · 09:10 · Người dùng');
+  assert.equal(rows[2].meta, '07/10/2026 · 14:36 · Tự động');
 });
 
 test('Mọi màn thuộc một đợt; mọi ca vẽ được ở cả hai khổ', () => {

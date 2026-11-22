@@ -9,7 +9,7 @@ Làm 2 đợt, mỗi đợt một commit. Cột trái trang xem chia theo đợt
 | Đợt | Màn | Trạng thái |
 |---|---|---|
 | 1 · Thiết lập HĐĐT | HD-01 Tổng quan, HD-02 Kết nối MISA, HD-03 Xác nhận ngắt kết nối, HD-04 Cấu hình phát hành, HD-05 Tự động hóa | ✅ 55 ca × 2 khổ |
-| 2 · Phát hành & gửi trên đơn | HD-06 dòng "Hóa đơn điện tử" trong Kết quả bán hàng / Chi tiết đơn (vẽ cả màn Sales chủ như Flutter), HD-07…HD-13 | ⬜ |
+| 2 · Phát hành & gửi trên đơn | HD-06 dòng "Hóa đơn điện tử" trong SG-06 Kết quả bán hàng và SG-08 Chi tiết đơn (vẽ cả màn Sales chủ, cuộn tới khối "Chứng từ & hóa đơn"), HD-07 trước phát hành, HD-08 xác nhận, HD-09 sau phát hành, HD-10 tài liệu, HD-11 gửi, HD-12 gửi lại, HD-13 lịch sử gửi | ✅ 51 ca × 2 khổ |
 
 ## Chạy
 
@@ -28,9 +28,10 @@ node tools/capture.mjs      # mọi ca × 2 khổ → tools/proto-final/{iphone,
 | Tệp | Vai trò |
 |---|---|
 | `app/cases.js` | Nhóm (đợt), màn, ca, kèm điều cần nhìn của từng ca |
-| `app/ds.js` | Widget DS, **chép từ Theme 4** (`theme-04/app/ds.js`, đổi `t4-` → `t8-`). Thêm: `passwordInput` (VPasswordField), `fieldDesc` (VFieldDescription), `fieldWithDesc`, `selectField` (VSelect có nhãn / mô tả / lỗi, tắt thì mờ cả khối), `loadingDot` (VLoading cỡ nhỏ có màu). Icon `key` / `fileCheck` / `circleX` / `refresh` để cục bộ (`LOCAL_ICONS`), không sửa `shared/icons.js` |
+| `app/ds.js` | Widget DS, **chép từ Theme 4** (`theme-04/app/ds.js`, đổi `t4-` → `t8-`). Thêm: `passwordInput` (VPasswordField), `fieldDesc` (VFieldDescription), `fieldWithDesc`, `selectField` (VSelect có nhãn / mô tả / lỗi, tắt thì mờ cả khối), `loadingDot` (VLoading cỡ nhỏ có màu). Icon `key` / `fileCheck` / `circleX` / `file` / `banknoteArrowDown` / `refresh` để cục bộ (`LOCAL_ICONS`), không sửa `shared/icons.js` |
 | `app/common.js` | Widget chung của feature einvoice: `SettingsInfoRow`, `ConfigurationEditorBottomBar`, trạng thái lỗi tải / không quyền, khung trang `VPageScaffold`, toast; hàm thuần `EInvoiceDateTimeCopy` |
-| `app/data.js` | MST, 3 mẫu hóa đơn (mã MISA dạng GUID), tài khoản che, mốc thời gian |
+| `app/data.js` | MST, 3 mẫu hóa đơn (mã MISA dạng GUID), tài khoản che, mốc thời gian; đơn DH-000129 (4 dòng), 3 lần gửi |
+| `app/order.js` | Đợt 2: hai màn Sales chủ + HD-06…13; hàm thuần `issuanceBadge`, `allowsTapForIssuance`, `deliveryBadge`, `safeFailureMessage`, `templateDisplay`, `confirmLine1/2`, `isValidEmail`, `suggestionSource`, `latestSummary`, `historyRows`, `productIcon`, `money` |
 | `app/setup.js` | Đợt 1: HD-01…05; hàm thuần `connectionSubtitle`, `issuanceSubtitle`, `automationSubtitle`, `completeTarget`, `statusValue`, `maskAccount`, `showsForm`, `infoKind`, `templateOptionLabel` |
 | `app/main.js` | Ca → trạng thái; mọi màn vẽ ngoài khung (`insideShell('/more/einvoice…') = false`) |
 | `styles/t8.css` | Phần DS chép từ `t4.css` (bỏ rule riêng PR-xx), rồi tới rule riêng Theme 8 (tiền tố `t8-`, token `--c45-v2-*`) |
@@ -48,6 +49,13 @@ Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 8). Việc gom về `shared/` để sau.
 | HD-04 | `presentation/pages/default_issuance_configuration_page.dart`, `presentation/widgets/default_issuance_configuration_view.dart`, `logic/default_issuance_configuration_{copy,cubit,state}.dart` |
 | HD-05 | `presentation/pages/automation_policy_page.dart`, `presentation/widgets/{automation_policy_view, switch_setting_row}.dart`, `presentation/support/automation_policy_copy.dart`, `logic/automation_policy_{cubit,state}.dart` |
 | Chung | `presentation/widgets/{settings_info_row, configuration_editor_bottom_bar, configuration_load_error_state, configuration_permission_denied_state, configuration_query_failure_view}.dart`, `presentation/support/{einvoice_datetime_copy, configuration_state_copy}.dart` |
+| HD-06 | `presentation/widgets/{order_einvoice_section, order_einvoice_row}.dart`, `presentation/support/{order_einvoice_copy, einvoice_status_interaction}.dart`, `logic/order_einvoice_{cubit,state}.dart` |
+| HD-07 | `presentation/widgets/{pre_issue_einvoice_action_sheet, einvoice_action_item, issuance_failure_banner}.dart` |
+| HD-08 | `presentation/widgets/issue_invoice_confirmation_sheet.dart` (+ `OrderEInvoiceCubit` dựng "Mẫu / Ký hiệu / cấp mã") |
+| HD-09, HD-10 | `presentation/widgets/{post_issue_einvoice_action_sheet, invoice_documents_action_sheet}.dart`, `presentation/support/order_einvoice_post_issue_copy.dart` |
+| HD-11, HD-12 | `presentation/widgets/{send_invoice_sheet, resend_invoice_sheet, invoice_delivery_recipient_form}.dart`, `presentation/support/order_invoice_delivery_copy.dart`, `logic/order_invoice_delivery_{cubit,state}.dart` |
+| HD-13 | `presentation/pages/invoice_delivery_history_page.dart`, `presentation/widgets/invoice_delivery_history_view.dart`, `logic/invoice_delivery_history_{cubit,vm}.dart` |
+| Màn Sales chủ | `apps/erp/lib/features/sales/presentation/`: SG-06 `pages/sales_transaction_result_page.dart`, `widgets/{sales_transaction_result_body, sales_result_header_card, sales_result_customer_card, sales_result_payment_summary_card, sales_result_documents_section, sales_receipt_entry_card, sales_entry_row, sales_transaction_result_action_bar}.dart`; SG-08 `pages/sales_order_detail_page.dart` (gắn `OrderEInvoiceSection`), `widgets/{sales_order_detail_body, sales_detail_header_card, sales_order_detail_payment_summary_card, sales_order_detail_products_section, sales_order_detail_documents_section, sales_order_detail_history_entry, sales_detail_action_bar}.dart`. Vẽ ở mức bố cục để thấy chỗ đặt HD-06; rà chi tiết hai màn này thuộc Theme 5 |
 | Khung | `core/router/app_router.dart` (GoRoute `/more/einvoice…` cấp gốc; quyền `einvoice.manage_configuration` chỉ kiểm ở `/more/einvoice`), `c45_design_system` `VPageScaffold`, `VSelect`, `VPasswordField`, `showVAdaptiveSheet` |
 
 ## Hiện trạng Flutter (để rà): đợt 1
@@ -89,6 +97,40 @@ Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 8). Việc gom về `shared/` để sau.
 21. Bật được "Tự động gửi email" khi "Tự động phát hành" đang tắt; không có ràng buộc hay giải thích.
 22. Lưu bị từ chối ("Chưa đủ điều kiện") thì công tắc vẫn ở trạng thái bật trên màn. Toast "Hãy tải lại rồi lưu lại" nhưng màn không có nút tải lại.
 23. Đang lưu: chỉ công tắc mờ, nhãn và mô tả giữ nguyên.
+
+## Hiện trạng Flutter (để rà): đợt 2
+
+**HD-06 (dòng trên đơn)**
+
+24. Trong cùng khối "Chứng từ & hóa đơn", thẻ HĐĐT (`OrderEInvoiceRow`: icon cách 16, tiêu đề 14 w700) khác số đo với "Phiếu bán hàng" / "Lịch sử" (`SalesEntryRow`: icon cách 12, tiêu đề 14 w600, cao hơn).
+25. Lúc chưa tải xong trạng thái thật, dòng hiện "Chưa phát hành" và không bấm được; "Đang xử lý" cũng không bấm được — cả hai vẫn trông như bấm được (không mờ, vẫn có ›).
+26. Dòng chỉ cho biết trạng thái phát hành; trạng thái gửi email (Đã gửi / Gửi lỗi / Không xác định) chỉ thấy khi mở sheet.
+27. Phát hành xong không có toast thành công (copy `issueSuccessMessage` có sẵn nhưng không dùng); chỉ badge đổi sang "Đang xử lý" rồi "Đã phát hành".
+28. "Phát hành lỗi": phụ đề vẫn "Quản lý HĐĐT", không gợi ý mở để xem lỗi.
+
+**HD-07, HD-08**
+
+29. "Gửi hóa đơn" luôn hiện và luôn mờ trước khi phát hành.
+30. Thẻ "Phát hành" mờ khi MISA chưa kết nối, thẻ "Kiểm tra & xem trước" mờ khi MISA không hỗ trợ xem trước — cả hai không có dòng giải thích hay lối mở thiết lập (copy `configBlocker…` có sẵn nhưng không dùng). Khách lẻ thiếu thông tin: banner vàng không có lối xử lý.
+31. Sau lỗi, thẻ vẫn ghi "Phát hành hóa đơn điện tử" (không phải "Phát hành lại"); banner lỗi in nguyên văn thông điệp MISA.
+32. Xác nhận: "Mẫu" in serial (C26TAA) chứ không phải số mẫu, đặt cạnh "Ký hiệu 1C26TAA" gần trùng; cấp mã viết tắt "Có mã CQT" (HD-01 / HD-04 viết "Có mã của cơ quan thuế"). Không nhắc người mua / email sẽ nhận.
+33. HD-07 và HD-09 cùng tiêu đề "Hóa đơn điện tử"; không có số hóa đơn, ngày phát hành, mã tra cứu trong sheet sau phát hành.
+34. Mọi sheet là `showVAdaptiveSheet` → web 1280 là hộp thoại 480 giữa màn (khác bottom sheet 640 của Theme 4).
+
+**HD-09, HD-10**
+
+35. Badge gửi "Không xác định kết quả" dài làm chữ thẻ hẹp lại; phụ đề bảo "kiểm tra trong lịch sử gửi" nhưng lịch sử chỉ mở được từ HD-12.
+36. Đang chờ gửi tự động (`deliveryPending`): thẻ gửi mờ, không giải thích.
+37. Đang lưu PDF: thẻ XML không mờ nhưng không bấm được (và ngược lại).
+
+**HD-11, HD-12, HD-13**
+
+38. Lỗi gửi hiện bằng SnackBar Material mặc định (không phải VToast) gắn vào Scaffold màn đơn → nằm dưới lớp phủ và dưới sheet (iPhone bị che hẳn).
+39. Đang có lệnh gửi khác (`operationLocked`): ô khoá, nút mờ, không hiện câu giải thích (copy `operationLocked` có sẵn nhưng không dùng).
+40. Dòng nguồn gợi ý ("Hồ sơ khách hàng") xám, đặt ngay dưới mô tả nên đọc như mô tả thứ hai.
+41. Gửi lại: email điền sẵn theo lần gửi cuối (kể cả lần lỗi), còn dòng "Đã gửi gần nhất…" lấy lần thành công cuối → hai email khác nhau cạnh nhau. Nút chính vẫn là "Gửi hóa đơn".
+42. Lịch sử gửi: mỗi hàng ghi trạng thái hai lần (đầu tiêu đề và badge); không có lý do lỗi. Trạng thái lỗi: tiêu đề và mô tả cùng một câu. Tiêu đề rỗng có dấu chấm.
+43. Lịch sử là `MaterialPageRoute` đẩy từ sheet, không phải route GoRouter (không có URL riêng trên web).
 
 **Phát hiện ngoài Flutter (prototype dùng chung)**
 

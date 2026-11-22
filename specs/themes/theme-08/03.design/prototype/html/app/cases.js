@@ -82,6 +82,93 @@ export const SCREENS = [
       ['no-permission', 'Không có quyền', 'Như HD-01.'],
     ],
   },
+  {
+    id: 'result', group: 'order', code: 'HD-06', title: 'Dòng HĐĐT · Kết quả bán hàng', route: '/sales/result/o1', states: [
+      ['not-issued', 'Chưa phát hành', 'Màn SG-06 (route cấp gốc, ngoài khung): app bar "Kết quả bán hàng" **không có ←**; thanh dưới "Về trang chủ" | "Tạo đơn mới". Cuộn tới cuối: khối "Chứng từ & hóa đơn" (14 w700) gồm "Phiếu bán hàng" và dòng HĐĐT: icon tệp ✓ 24, "Hóa đơn điện tử" 14 w700, "Quản lý HĐĐT" xám, badge xám "Chưa phát hành", ›. Hai thẻ trong cùng khối khác số đo: phiếu (icon cách 12, tiêu đề w600) vs HĐĐT (icon cách 16, tiêu đề w700). Lúc mới vào, dòng hiện "Chưa phát hành" khi chưa tải xong trạng thái thật và chưa bấm được — trông y như bấm được.'],
+      ['processing', 'Đang xử lý', 'Badge xanh nhạt "Đang xử lý"; dòng vẫn có › nhưng bấm không có gì xảy ra (không mờ, không vòng xoay). Sau khi xác nhận phát hành **không có toast thành công** — chỉ badge đổi.'],
+      ['issued', 'Đã phát hành', 'Badge xanh "Đã phát hành". Trạng thái gửi email (Đã gửi / Gửi lỗi) **không hiện trên dòng**, phải mở sheet mới thấy.'],
+      ['failed', 'Phát hành lỗi', 'Badge đỏ "Phát hành lỗi"; phụ đề vẫn "Quản lý HĐĐT" (không nói lỗi gì).'],
+      ['buyer-not-ready', 'Người mua thiếu thông tin', 'Phụ đề vàng "Chưa đủ thông tin"; badge vẫn "Chưa phát hành".'],
+      ['unavailable', 'Không tải được khối HĐĐT', 'Thiếu dữ liệu đơn / repository: thẻ dự phòng SalesEntryRow "Hóa đơn điện tử" + "Quản lý hóa đơn" + badge vàng "Chưa tải được"; có › nhưng không bấm được.'],
+    ],
+  },
+  {
+    id: 'detail', group: 'order', code: 'HD-06', title: 'Dòng HĐĐT · Chi tiết đơn', route: '/sales/orders/o1', states: [
+      ['not-issued', 'Chưa phát hành', 'Màn SG-08 "Chi tiết đơn hàng" + ←; thanh dưới "Thao tác ⌃" (nút 52). Cuộn tới cuối: Sản phẩm, rồi "Chứng từ & hóa đơn": Phiếu bán hàng / **Hóa đơn điện tử** / Lịch sử. Dòng HĐĐT giống hệt SG-06.'],
+      ['processing', 'Đang xử lý', 'Như SG-06.'],
+      ['issued', 'Đã phát hành', 'Như SG-06.'],
+      ['failed', 'Phát hành lỗi', 'Như SG-06.'],
+      ['buyer-not-ready', 'Người mua thiếu thông tin', 'Phụ đề vàng "Chưa đủ thông tin".'],
+      ['toast-preview-error', 'Lỗi xem trước', 'Bấm "Kiểm tra & xem trước" lỗi → sheet tự đóng, toast đỏ "Xem trước hóa đơn chưa sẵn sàng. Vui lòng thử lại sau ít giây." trên thanh "Thao tác".'],
+      ['toast-no-template', 'Chưa chọn mẫu', 'Bấm "Phát hành" khi chưa có mẫu mặc định: toast đỏ "Chưa chọn mẫu hóa đơn. Vui lòng cập nhật cấu hình phát hành." — không có lối mở thiết lập.'],
+      ['toast-document', 'Lỗi lưu tài liệu', 'Toast đỏ "Không thể lưu tài liệu hóa đơn trên thiết bị. Vui lòng thử lại."'],
+    ],
+  },
+  {
+    id: 'pre-issue', group: 'order', code: 'HD-07', title: 'Sheet trước phát hành', route: '/sales/orders/o1', states: [
+      ['default', 'Sẵn sàng phát hành', 'showVAdaptiveSheet "Hóa đơn điện tử": iPhone sheet đáy, web hộp thoại 480 có ×. Ba thẻ thao tác (đệm 16 / 8 ngoài, 16 trong): "Phát hành hóa đơn điện tử" (Gửi phát hành qua MISA), "Kiểm tra & xem trước", "Gửi hóa đơn" + badge nhỏ "Chưa gửi" **luôn mờ** (chưa phát hành thì không gửi được nhưng vẫn hiện).'],
+      ['preview-loading', 'Đang tạo xem trước', 'Thẻ xem trước mờ + vòng xoay 20 thay ›; "Phát hành" cũng mờ.'],
+      ['buyer-not-ready', 'Người mua thiếu thông tin', 'Banner vàng "Chưa đủ thông tin để phát hành" + link xanh đậm "Cập nhật thông tin khách hàng" (mở sửa khách, sheet đóng). "Phát hành" mờ, phụ đề "Cần bổ sung đủ thông tin". Không nói thiếu trường nào.'],
+      ['buyer-no-partner', 'Thiếu thông tin · khách lẻ', 'Không có mã khách → không có link sửa; banner vàng nhưng không có lối xử lý.'],
+      ['not-connected', 'MISA chưa kết nối', 'Blocker PROVIDER_NOT_CONNECTED: "Phát hành" mờ, phụ đề vẫn "Gửi phát hành qua MISA" — **không có dòng nào giải thích** vì sao tắt, không có lối mở thiết lập. Xem trước vẫn bấm được.'],
+      ['preview-unsupported', 'Không hỗ trợ xem trước', 'Thẻ "Kiểm tra & xem trước" mờ, không giải thích.'],
+      ['failed-provider', 'Lỗi · MISA từ chối', 'Mở lại sau lỗi: banner đỏ "Phát hành hóa đơn điện tử không thành công" + thông điệp nguyên văn của MISA. Thẻ vẫn ghi "Phát hành hóa đơn điện tử" (không đổi thành "Phát hành lại").'],
+      ['failed-integrity', 'Lỗi · dữ liệu không khớp', '"Dữ liệu đơn hàng hoặc cấu hình không khớp. Vui lòng kiểm tra lại."'],
+      ['failed-generic', 'Lỗi · không rõ', '"Đã xảy ra lỗi khi phát hành hóa đơn điện tử. Vui lòng kiểm tra và thử lại."'],
+    ],
+  },
+  {
+    id: 'confirm', group: 'order', code: 'HD-08', title: 'Xác nhận phát hành', route: '/sales/orders/o1', states: [
+      ['default', 'Có mã CQT', '"Phát hành hóa đơn điện tử?"; "Đơn hàng #DH-000129 · Tổng tiền 5.199.232đ"; "Mẫu C26TAA · Ký hiệu 1C26TAA · Có mã CQT" — **"Mẫu" in serial** (C26TAA, gần trùng ký hiệu) chứ không phải số mẫu. Nút chính "Phát hành hóa đơn điện tử" trên, "Hủy" dưới. Không nhắc người mua / email nhận.'],
+      ['mtt', 'Máy tính tiền', '"… · Máy tính tiền".'],
+      ['no-signing', 'Chưa có hình thức ký', 'Hồ sơ không có hình thức ký → "… · —".'],
+    ],
+  },
+  {
+    id: 'post-issue', group: 'order', code: 'HD-09', title: 'Sheet sau phát hành', route: '/sales/orders/o1', states: [
+      ['not-sent', 'Chưa gửi', 'Sheet "Hóa đơn điện tử" (cùng tiêu đề với HD-07): "Xem hóa đơn điện tử", "Tài liệu XML & PDF", "Gửi hóa đơn" + badge xám "Chưa gửi" (cỡ thường; HD-07 dùng cỡ nhỏ). Không có số hóa đơn / ngày phát hành / mã tra cứu trong sheet.'],
+      ['sent', 'Đã gửi', 'Badge xanh "Đã gửi"; bấm "Gửi hóa đơn" mở HD-12 (gửi lại).'],
+      ['sending', 'Đang gửi', 'Badge "Đang gửi"; thẻ gửi mờ.'],
+      ['failed', 'Gửi lỗi', 'Badge đỏ "Gửi lỗi"; phụ đề vẫn "Gửi qua email".'],
+      ['unknown', 'Không xác định', 'Badge vàng "Không xác định kết quả" dài đẩy chữ hẹp lại; phụ đề "Lần gửi gần nhất cần được kiểm tra trong lịch sử gửi." — lịch sử chỉ mở được từ HD-12.'],
+      ['pending', 'Đang chờ gửi tự động', 'deliveryPending: badge "Đã gửi" nhưng thẻ gửi mờ, không giải thích.'],
+      ['official-loading', 'Đang mở bản chính thức', 'Thẻ "Xem hóa đơn điện tử" vòng xoay; hai thẻ còn lại mờ.'],
+    ],
+  },
+  {
+    id: 'documents', group: 'order', code: 'HD-10', title: 'Tài liệu hóa đơn điện tử', route: '/sales/orders/o1', states: [
+      ['idle', 'Chọn tài liệu', 'Sheet "Tài liệu hóa đơn điện tử": "Lưu bản PDF" (icon tệp trống), "Lưu tệp XML" (icon tệp có dòng). Không có tên tệp / dung lượng.'],
+      ['loading-pdf', 'Đang lưu PDF', 'Thẻ PDF vòng xoay + mờ; thẻ XML **không mờ** nhưng không bấm được.'],
+      ['loading-xml', 'Đang lưu XML', 'Ngược lại.'],
+    ],
+  },
+  {
+    id: 'send', group: 'order', code: 'HD-11', title: 'Gửi hóa đơn điện tử', route: '/sales/orders/o1', states: [
+      ['suggested', 'Email từ hồ sơ khách', 'Sheet "Gửi hóa đơn điện tử": ô "Email người nhận *" đã điền; mô tả "Email chỉ áp dụng cho lần gửi này."; dòng nguồn "Hồ sơ khách hàng" (xám, trông như mô tả thứ hai). "Gửi hóa đơn" | "Hủy" xếp dọc. Một ô email, không thêm CC.'],
+      ['last-used', 'Email dùng gần nhất', 'Nguồn "Email đã dùng gần nhất cho khách hàng này".'],
+      ['empty', 'Chưa có email', 'Ô trống hint "Nhập email", không dòng nguồn; "Gửi hóa đơn" mờ.'],
+      ['invalid', 'Email sai', 'Viền đỏ + "Email không đúng định dạng." thay mô tả; nút mờ.'],
+      ['submitting', 'Đang gửi', 'Ô khoá; "Gửi hóa đơn" vòng xoay; "Hủy" tắt.'],
+      ['locked', 'Đang có lệnh gửi khác', 'operationLocked: ô khoá, nút mờ — **không hiện câu "Yêu cầu gửi trước đang được xử lý…"** dù copy có sẵn.'],
+      ['snack-error', 'Lỗi gửi', 'Lỗi gửi hiện bằng **SnackBar Material mặc định** (không phải VToast) gắn vào Scaffold của màn đơn → nằm dưới lớp phủ và dưới sheet: iPhone bị sheet che hẳn, web chỉ thấy dải tối mờ ở đáy.'],
+    ],
+  },
+  {
+    id: 'resend', group: 'order', code: 'HD-12', title: 'Gửi lại hóa đơn điện tử', route: '/sales/orders/o1', states: [
+      ['default', 'Gửi lại', 'Sheet "Gửi lại hóa đơn điện tử": email điền sẵn theo **lần gửi cuối** (mua.hang@…, lần đó không xác định kết quả), nguồn "Lần gửi gần nhất của hóa đơn này"; dưới là "Đã gửi gần nhất đến ketoan@… · 07/10/2026, 14:36" (lần **thành công** cuối) → hai email khác nhau cạnh nhau. Link "Xem lịch sử gửi" giữa. Nút chính vẫn là "Gửi hóa đơn" (không phải "Gửi lại").'],
+      ['no-success', 'Chưa lần nào thành công', 'Không có dòng "Đã gửi gần nhất…", chỉ còn link lịch sử.'],
+      ['invalid', 'Email sai', 'Lỗi định dạng; nút mờ.'],
+      ['submitting', 'Đang gửi', 'Link lịch sử mờ; nút vòng xoay.'],
+    ],
+  },
+  {
+    id: 'history', group: 'order', code: 'HD-13', title: 'Lịch sử gửi hóa đơn', route: '/sales/orders/o1/einvoice-history', states: [
+      ['loaded', 'Có lịch sử', 'Trang đẩy bằng MaterialPageRoute từ sheet (không phải route GoRouter): "Lịch sử gửi hóa đơn" + ←. "Các lần gửi"; thẻ 3 hàng, mới nhất trên: "Không xác định kết quả · mua.hang@…" + badge cùng chữ (**trạng thái lặp hai lần** mỗi hàng); "08/10/2026 · 09:10 · Người dùng". Không có lý do lỗi.'],
+      ['empty', 'Chưa có', 'VEmptyState có viền giữa màn: icon hộp thư + "Chưa có lịch sử gửi hóa đơn." (có dấu chấm trong tiêu đề).'],
+      ['error', 'Lỗi tải', 'Tiêu đề và mô tả **cùng một câu** "Không thể tải lịch sử gửi hóa đơn."; nút "Thử lại" kiểu tertiary.'],
+      ['loading', 'Đang tải', 'VLoading giữa.'],
+    ],
+  },
 ];
 
 export const CASES = Object.fromEntries(SCREENS.map((s) => [s.id, s.states.map(([id]) => id)]));

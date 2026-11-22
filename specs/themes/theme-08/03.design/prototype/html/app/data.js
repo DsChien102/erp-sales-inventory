@@ -18,3 +18,26 @@ export const CONNECTION = {
 
 /** Mốc "Đồng bộ gần nhất" của danh sách mẫu. */
 export const LAST_SYNCED_AT = new Date(2026, 9, 7, 9, 15);
+
+/** Đơn hàng mẫu cho hai màn Sales chủ (SG-06, SG-08). */
+export const ORDER = {
+  number: 'DH-000129',
+  committedAt: '07/10/2026 · 14:32',
+  soldAt: '07/10/2026 · 14:32',
+  customer: 'Phòng khám thú y An Phát',
+  phone: '0903 123 456',
+  total: 5199232, // = tổng 4 dòng
+  items: [
+    { name: 'Vắc xin dại Rabisin', qty: 10, unit: 'Lọ', price: 95000 },
+    { name: 'Thức ăn Royal Canin Mini Adult 2kg', qty: 6, unit: 'Túi', price: 389000 },
+    { name: 'Thuốc nhỏ gáy Frontline Plus', qty: 12, unit: 'Hộp', price: 98000 },
+    { name: 'Cát vệ sinh Me-O 5L', qty: 8, unit: 'Bao', price: 92404 },
+  ],
+};
+
+/** Lịch sử gửi (InvoiceDeliveryItemDto): no, status processing|succeeded|failed|unknown, email, actor system|user, startedAt, completedAt. */
+export const DELIVERIES = [
+  { no: 1, status: 'succeeded', email: 'ketoan@thuyanphat.vn', actor: 'system', startedAt: new Date(2026, 9, 7, 14, 35), completedAt: new Date(2026, 9, 7, 14, 36) },
+  { no: 2, status: 'failed', email: 'mua.hang@thuyanphat.vn', actor: 'user', startedAt: new Date(2026, 9, 8, 9, 2), completedAt: new Date(2026, 9, 8, 9, 3) },
+  { no: 3, status: 'unknown', email: 'mua.hang@thuyanphat.vn', actor: 'user', startedAt: new Date(2026, 9, 8, 9, 10), completedAt: null },
+];
