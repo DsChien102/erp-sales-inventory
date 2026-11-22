@@ -13,7 +13,7 @@ Làm 4 đợt, mỗi đợt một commit. Cột trái trang xem chia theo đợt
 | 3 · Tra cứu đơn | SG-08 Đơn hàng (+ sheet lọc; trong khung), SG-09 Chi tiết (+ sheet Thao tác, sheet phiếu, toast), SG-09b Thanh toán & công nợ, SG-09c Lịch sử, SG-09d Phiếu đổi/trả của đơn, SG-10 Huỷ đơn | ✅ 55 ca × 2 khổ |
 | 4 · Đổi / trả | SG-12, SG-13 (+ cấn trừ), SG-14, SG-15, SG-16 phiếu đổi/trả | ⬜ |
 
-SG-11 (Thu tiền) đã gỡ khỏi Flutter ở T6-2c (thu sau bán chuyển sang CN-03), nên không vẽ. Phần của theme khác mà Flutter đang hiện (HD-06, khối cấn trừ, "Xem công nợ của khách") vẽ đúng như Flutter. Dòng HĐĐT (HD-06) trên SG-07 / SG-09 chỉ vẽ trạng thái mặc định, "Chưa đủ thông tin" và thẻ dự phòng; 4 trạng thái phát hành và các sheet HĐĐT đã vẽ ở prototype Theme 8 đợt 2 (`theme-08/…/app/order.js`).
+SG-11 (Thu tiền) đã gỡ khỏi Flutter ở T6-2c (thu sau bán chuyển sang CN-03), nên không vẽ. Phần của theme khác mà Flutter đang hiện (HD-06, khối cấn trừ, "Xem công nợ của khách") vẽ đúng như Flutter. Dòng HĐĐT (HD-06) trên SG-07 / SG-09 chỉ vẽ trạng thái mặc định, "Chưa đủ thông tin" và thẻ dự phòng; 4 trạng thái phát hành và các sheet HĐĐT đã vẽ ở prototype Theme 8 đợt 2 (`theme-08/…/app/order.js`). Prototype Theme 8 đợt 2 cũng vẽ lại SG-09 (`detailHost`) nhưng lệch Flutter ở hai chỗ: dòng "Đã thanh toán / Còn phải thu" chữ thường (Flutter chữ vàng w600) và icon dòng Hộp dùng `inventory` của `shared/` (Flutter: Lucide box). Bản ở đây theo Flutter.
 
 Đánh số: key trong Dart dùng `sg05` cho Thanh toán, `sg06` cho Kết quả, `sg07` / `e03_u01` cho Đơn hàng và `sg08` cho Chi tiết đơn (số cũ); prototype theo TH-05 / CHECKLIST: SG-06 Thanh toán, SG-07 Kết quả, SG-08 Đơn hàng, SG-09 Chi tiết. Prototype Theme 8 ghi trang Kết quả là "SG-06" và Chi tiết đơn là "SG-08" theo số cũ.
 
@@ -219,7 +219,7 @@ Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 5). Việc gom về `shared/` để sau.
 108. 09b chưa thu: dòng "Đã thanh toán 0đ" tone primary, nền xanh như "Tổng đơn" — hai dòng xanh liền nhau.
 109. 09b có đổi/trả: thẻ phiếu chỉ có "Khách trả thêm 0đ", không thấy số đã hoàn; ba thẻ ba kiểu khe (0 / 12 / 16 sau tiêu đề).
 110. 09b "Giao dịch": không thời gian, không người thu; giao dịch cấn trừ bấm được (›) nhưng trông như dòng thường.
-111. 09c: "Lịch sử" lặp tiêu đề app bar; mọi mốc cùng icon; mốc nội bộ ("Ghi nhận báo cáo hủy đơn", "Yêu cầu hoàn tác giá bán", "Tính lại quyết toán") hiện cho người bán; số tiền dính vào tiêu đề.
+111. 09c: mốc xếp cũ → mới (RPC `get_sales_order_timeline` sắp `occurredAt` tăng; TH-05: mới nhất trước); "Lịch sử" lặp tiêu đề app bar; mọi mốc cùng icon; số tiền dính vào tiêu đề; không có mốc tạo / in / chia sẻ phiếu (RPC không ghi). Đơn huỷ: "Hủy đơn hàng" hiện hai lần và một mốc mã thô "sales_reporting_cancellation_recorded.v1" (bảng dịch chỉ có tên cũ).
 112. 09d: loại luôn "Đổi/trả"; chênh lệch chữ textMuted, không phân biệt thu thêm / hoàn; 1 phiếu vẫn phải qua danh sách; phiếu thiếu mã chỉ mất ›.
 
 **Huỷ đơn (SG-10)**

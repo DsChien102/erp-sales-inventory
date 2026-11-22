@@ -232,9 +232,9 @@ export const SCREENS = [
   },
   {
     id: 'history', group: 'orders', code: 'SG-09c', title: 'Lịch sử', route: '/sales/orders/o1', states: [
-      ['default', 'Đơn thường', '"DH-000130 · Nguyễn Văn Hùng" chữ thường, **không "#", không mono** (SG-09b có). Tiêu đề "Lịch sử" lặp lại ngay dưới app bar "Lịch sử". Mọi mốc cùng icon history tròn xanh; "Ghi nhận thanh toán tiền mặt 441.000đ" (số tiền dính vào tiêu đề). Thời gian "22/11/2026 10:32".'],
-      ['returned', 'Có đổi/trả', '"Hoàn tất đổi/trả #DT-000012", "Ghi nhận hoàn tiền 95.000đ", "Tính lại quyết toán" — mốc kỹ thuật hiện ra cho người bán.'],
-      ['cancelled', 'Đã hủy', '"Ghi nhận báo cáo hủy đơn", "Yêu cầu hoàn tác giá bán" (mốc nội bộ của hệ thống) đứng trên "Hủy đơn hàng"; lý do huỷ không có trong mốc.'],
+      ['default', 'Đơn thường', '"DH-000130 · Nguyễn Văn Hùng" chữ thường, **không "#", không mono** (SG-09b có). Tiêu đề "Lịch sử" lặp lại ngay dưới app bar "Lịch sử". Mốc xếp **cũ → mới** theo RPC (TH-05: mới nhất trước): "Hoàn tất đơn hàng", "Ghi nhận thanh toán 441.000đ" (số tiền dính vào tiêu đề, không ghi tiền mặt / CK). Mọi mốc cùng icon history tròn xanh. Không có mốc tạo / in / chia sẻ phiếu (RPC không ghi).'],
+      ['returned', 'Có đổi/trả', 'Thêm "Hoàn tất đổi/trả" (không kèm số phiếu) và "Ghi nhận hoàn tiền 95.000đ" ở cuối danh sách.'],
+      ['cancelled', 'Đã hủy', '"Hủy đơn hàng" **hiện hai lần** (RPC ghi hai sự kiện sales_order_cancellation_confirmed + sales_order_cancelled) và một mốc **mã thô "sales_reporting_cancellation_recorded.v1"** (bảng dịch chỉ có tên cũ SALES_ORDER_REPORTING_…). Lý do huỷ không có trong mốc.'],
     ],
   },
   {

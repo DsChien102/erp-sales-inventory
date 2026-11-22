@@ -83,25 +83,28 @@ export function paymentDebtPage(state, v) {
 
 // ---------------------------------------------------------------- SG-09c
 
+/**
+ * Mốc theo RPC get_sales_order_timeline: mọi sales.outbox_messages của đơn, xếp occurredAt TĂNG (cũ → mới). Tiêu đề = description hoặc event_type
+ * qua bảng dịch (_timelineTitle). Sự kiện hiện có: sales_order_finalized.v1, sales_payment_recorded.v1 (amountMinor), sales_refund_recorded.v1,
+ * return_exchange_completed.v1, sales_order_cancellation_confirmed.v1 + sales_order_cancelled.v1 (cả hai → "Hủy đơn hàng"),
+ * sales_reporting_cancellation_recorded.v1 (không có trong bảng dịch → hiện mã thô). Không có sự kiện tạo / in / chia sẻ phiếu.
+ */
 const HISTORY = {
   default: [
-    ['In phiếu bán hàng', null, 'Phạm Thu Hà', '22/11/2026 10:34'],
-    ['Tạo phiếu bán hàng', null, 'Phạm Thu Hà', '22/11/2026 10:32'],
-    ['Ghi nhận thanh toán tiền mặt', 441000, 'Phạm Thu Hà', '22/11/2026 10:32'],
     ['Hoàn tất đơn hàng', null, 'Phạm Thu Hà', '22/11/2026 10:32'],
+    ['Ghi nhận thanh toán', 441000, 'Phạm Thu Hà', '22/11/2026 10:32'],
   ],
   returned: [
-    ['Ghi nhận hoàn tiền', 95000, 'Lê Quốc Bảo', '24/11/2026 09:15'],
-    ['Hoàn tất đổi/trả #DT-000012', null, 'Lê Quốc Bảo', '24/11/2026 09:15'],
-    ['Tính lại quyết toán', null, 'Phạm Thu Hà', '24/11/2026 09:15'],
-    ['Ghi nhận thanh toán tiền mặt', 441000, 'Phạm Thu Hà', '22/11/2026 10:32'],
     ['Hoàn tất đơn hàng', null, 'Phạm Thu Hà', '22/11/2026 10:32'],
+    ['Ghi nhận thanh toán', 441000, 'Phạm Thu Hà', '22/11/2026 10:32'],
+    ['Hoàn tất đổi/trả', null, 'Lê Quốc Bảo', '24/11/2026 09:15'],
+    ['Ghi nhận hoàn tiền', 95000, 'Lê Quốc Bảo', '24/11/2026 09:15'],
   ],
   cancelled: [
-    ['Ghi nhận báo cáo hủy đơn', null, 'Phạm Thu Hà', '21/11/2026 15:40'],
-    ['Yêu cầu hoàn tác giá bán', null, 'Phạm Thu Hà', '21/11/2026 15:40'],
-    ['Hủy đơn hàng', null, 'Phạm Thu Hà', '21/11/2026 15:40'],
     ['Hoàn tất đơn hàng', null, 'Phạm Thu Hà', '21/11/2026 11:20'],
+    ['Hủy đơn hàng', null, 'Phạm Thu Hà', '21/11/2026 15:40'],
+    ['Hủy đơn hàng', null, 'Phạm Thu Hà', '21/11/2026 15:40'],
+    ['sales_reporting_cancellation_recorded.v1', null, 'Phạm Thu Hà', '21/11/2026 15:40'],
   ],
 };
 export const HISTORY_STATES = Object.keys(HISTORY);
@@ -116,7 +119,7 @@ export function displayActorName(name, fallback = null) {
 }
 
 /**
- * SalesOrderHistoryPage: "Lịch sử" (←). Lề 16: khe 16; "<mã> · <khách>" bodyDefault xám (không "#", chữ thường — SG-09b dùng "#" + mono); khe 24;
+ * SalesOrderHistoryPage: "Lịch sử" (←). Thứ tự giữ nguyên RPC (cũ → mới). Lề 16: khe 16; "<mã> · <khách>" bodyDefault xám (không "#", chữ thường — SG-09b dùng "#" + mono); khe 24;
  * "Lịch sử" w700 (lặp tiêu đề app bar); khe 8; thẻ viền borderDefault đệm 16: mỗi mốc = cột 36 [VIconBox tròn 36 history 18 nền successBg + vạch 2 borderDefault cách 4]
  * + khe 8 + [tiêu đề bold (+ " <số tiền>") / khe 4 / "<người> · <thời gian>" bodySmall xám / (khe 4 + mô tả textMuted)], đệm đáy 12 (mốc cuối 0); khe 32.
  */
