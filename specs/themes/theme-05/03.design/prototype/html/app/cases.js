@@ -272,7 +272,7 @@ export const SCREENS = [
       ['picker-loading', 'Đang tải', '3 thẻ khung (48 + vạch 140 / 180 / 80 · 40 · 30).'],
       ['picker-empty', 'Không có', 'Icon Material search_off, "Không tìm thấy sản phẩm", "Thử tìm kiếm với từ khóa khác".'],
       ['picker-error', 'Lỗi', 'Icon Material error_outline xám (không tone đỏ), "Không thể tải sản phẩm" + **chuỗi lỗi thô** (`error.toString()`), "Thử lại" xanh.'],
-      ['discard', 'Bỏ thay đổi?', 'Bấm ← khi đã chọn hàng: sheet không tiêu đề "Bỏ thay đổi?" H3 đỏ, "Hàng trả và hàng đổi vừa chọn chưa được lưu.", "Tiếp tục đổi/trả" (viền) trên "Bỏ thay đổi" (viền đỏ). Sheet cũng bật lên khi quay về từ SG-13 dù không sửa gì (phiếu đã lưu được tính là "thay đổi"), và chọn "Bỏ thay đổi" thì huỷ luôn phiếu nháp trên server.'],
+      ['discard', 'Bỏ thay đổi?', 'Bấm ← khi đã chọn hàng: sheet không tiêu đề "Bỏ thay đổi?" H3 đỏ, "Hàng trả và hàng đổi vừa chọn chưa được lưu.", "Tiếp tục đổi/trả" (viền) trên "Bỏ thay đổi" (viền đỏ). Đã từng bấm "Tiếp tục" thì quay về từ SG-13 bấm ← cũng hỏi lại dù không sửa gì; chọn "Bỏ thay đổi" gọi RPC huỷ phiếu nháp trên server.'],
     ],
   },
   {

@@ -50,6 +50,8 @@ node tools/capture.mjs      # mọi ca × 2 khổ → tools/proto-final/{iphone,
 | `styles/t5.css` | Phần DS chép từ `t4.css`, rồi tới rule riêng Theme 5 (tiền tố `t5-`, token `--c45-v2-*`) |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem và chụp ảnh, chép khuôn Theme 4 (cổng 8775) |
 
+Nhánh "khách được hưởng" của SG-13 có thiết kế gốc ở prototype Theme 6 (`theme-06/…/app/sg13.js`); bản ở đây vẽ theo Flutter, lệch bản Theme 6 ở: sheet xác nhận (Theme 6 "Quay lại" trước, Flutter "Xác nhận đổi/trả" trên), web (Theme 6 một cột 560, Flutter 720), "Tóm tắt đổi/trả" (Theme 6 mở sẵn, Flutter thu gọn và chỉ có ở nhánh thu thêm). Điểm lệch có chủ đích "CK" mà README Theme 6 nhắc thì Flutter nay đã theo (nhánh thu thêm vẫn "Chuyển khoản").
+
 Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 5). Việc gom về `shared/` để sau.
 
 ## Nguồn Flutter
@@ -252,7 +254,7 @@ Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 5). Việc gom về `shared/` để sau.
 123. Hai dòng phụ đầu màn ("DH-000130 · …" và "Chọn hàng trả và số lượng.") cùng kiểu bodySmall xám, không có thẻ đơn nguồn (TH-05 có "Đơn hàng nguồn …").
 124. Banner giá đổi dùng tone lỗi (đỏ) cho một thông báo đã xử lý xong ("Đã cập nhật giá mới…"); nút "Thử lại" tải lại phiên.
 125. Sheet chọn hàng đổi: cao cố định 480; dòng phụ lặp tên sản phẩm, đơn vị in hai lần; tồn > 5 là số trần; mỗi đơn vị bán là một thẻ trùng tên; lỗi in chuỗi thô `toString()`; icon lỗi xám (không tone đỏ).
-126. Quay về từ SG-13 rồi bấm ← luôn hỏi "Bỏ thay đổi?" (phiếu đã lưu được tính là thay đổi); chọn "Bỏ thay đổi" huỷ phiếu nháp trên server.
+126. Đã từng bấm "Tiếp tục" (phiếu đã lưu) thì ← luôn hỏi "Bỏ thay đổi?", dù không sửa gì thêm; chọn "Bỏ thay đổi" gọi RPC huỷ phiếu nháp trên server.
 
 **Quyết toán (SG-13)**
 
