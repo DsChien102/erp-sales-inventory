@@ -42,7 +42,7 @@ export function emptyCopy(filter, hasProducts) {
   return ['Không tìm thấy sản phẩm', 'Hãy thử tìm kiếm với từ khóa khác hoặc tạo sản phẩm mới.', false];
 }
 
-/** _buildStockInfo: stockQuantity null → "Chưa TL tồn"; có stockLabel → "Hết" / nhãn; còn lại không vẽ gì. */
+/** _buildStockInfo: stockQuantity null → "Chưa TL tồn"; có stockLabel (= số tồn dạng chuỗi) → "Hết" (warning w500) / số trơn (bodyDefault); còn lại không vẽ gì. */
 export function stockText(item) {
   if (item.stock == null) return { text: 'Chưa TL tồn', kind: 'muted' };
   if (item.stockLabel) return item.stock === 0 ? { text: 'Hết', kind: 'out' } : { text: item.stockLabel, kind: 'normal' };

@@ -7,8 +7,8 @@ Làm theo 4 đợt, mỗi đợt một commit. Cột trái trang xem chia theo �
 | Đợt | Màn | Trạng thái |
 |---|---|---|
 | 1 · Danh sách & tạo | SP-01 Danh sách, SP-02 Lọc thông tin bổ sung, SP-03 Tạo nhanh (7 bước) + sheet "Thêm ảnh sản phẩm" | ✅ 46 ca × 2 khổ |
-| 2 · PCC | SP-04 (khối Theme 7: thẻ Tồn kho chỉ xem, ô gạt "Quản lý theo lô"), sheet vòng đời / xoá / khôi phục, SP-21 Checklist, SP-22 Lịch sử thay đổi | ⬜ |
-| 3 · Màn con | SP-05 Hồ sơ, SP-06 Ảnh, SP-07 Ghi chú, SP-08 Thông tin bổ sung, SP-09 Đơn vị (+ hộp thoại), SP-11 Giá cơ sở, SP-12 / 13 Khung giá | ⬜ |
+| 2 · PCC | SP-04 (thẻ Tồn kho chỉ xem → kho Theme 7), sheet vòng đời / xoá / khôi phục + toast, SP-21 Checklist, SP-22 Lịch sử thay đổi | ✅ 33 ca × 2 khổ |
+| 3 · Màn con | SP-05 Hồ sơ (ô gạt "Quản lý theo lô" của Theme 7), SP-06 Ảnh, SP-07 Ghi chú, SP-08 Thông tin bổ sung, SP-09 Đơn vị (+ hộp thoại), SP-11 Giá cơ sở, SP-12 / 13 Khung giá | ⬜ |
 | 4 · Cài đặt sản phẩm | SP-14 … SP-20 | ⬜ |
 
 SP-10 (tồn kho cơ bản) đã bỏ ở G5-5, nên không vẽ.
@@ -36,10 +36,11 @@ Màn trần không có tương tác: mỗi trạng thái là một ca. Ca của 
 | `app/data.js` | Sản phẩm mẫu (cửa hàng thú y, như Theme 3), số đếm chip, đơn vị của tenant, nhóm thông tin bổ sung; `money` (formatCatalogCurrency); `photo` (ảnh minh hoạ thay ảnh Storage) |
 | `app/list.js` | SP-01, SP-02, cột phải khi chưa chọn; hàm thuần `chipLabel`, `emptyCopy`, `localStockFilter`, `stockText`, `cfDisplay` |
 | `app/create.js` | SP-03 + sheet thêm ảnh; `dartDouble`, `pricePercentLabel`, `stepTitles`, `hasAnyData`, `matchUnits` |
+| `app/pcc.js` | SP-04 + sheet + toast, SP-21, SP-22; `evaluate` (ProductReadinessEvaluator), `statusBadge`, `priceBandSubtitle`, `profileStockText`, `valueLine`, `ctaLabel` |
 | `app/main.js` | Ca → trạng thái. Khu Sản phẩm: web chia 2 cột (`VListDetailLayout` 360 / 840), sheet web phủ cả cửa sổ, sheet iPhone chỉ phủ vùng tab. Màn tạo nằm ngoài khung |
 | `styles/t2.css` | Rule tiền tố `t2-`, token `--c45-v2-*`; đầu file có bảng màu và cỡ chữ Flutter → token |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem và chụp ảnh, chép khuôn Theme 3 (cổng 8772) |
-| `shared/icons.js` | Thêm `image`, `imageOff`, `camera`, `images` (photo_library), `folder`, `qrScan` (qr_code_scanner), `externalLink` (open_in_new), `moreVert`, `ban` (block) |
+| `shared/icons.js` | Đợt 2: `clipboard`, `ruler` (straighten), `coins`, `play`. Đợt 1: `image`, `imageOff`, `camera`, `images` (photo_library), `folder`, `qrScan` (qr_code_scanner), `externalLink` (open_in_new), `moreVert`, `ban` (block) |
 
 Ảnh sản phẩm: Flutter tải ảnh thật từ Storage. Prototype không có ảnh thật nên vẽ ảnh minh hoạ SVG (nền màu + hình hộp), cùng khổ và cùng bo góc.
 
@@ -52,13 +53,16 @@ Có 3 bản `ds.js` (Theme 1, 3, 2). Gom về `shared/` để làm sau. Đến l
 | Khu Sản phẩm | `presentation/product_area_shell.dart` (`VListDetailLayout`), `core/router/app_router.dart` (ShellRoute khu sản phẩm, cột phải khi chưa chọn, `/products/items/new` ngoài khung) |
 | SP-01 | `pages/product_catalog_tab_page.dart`, `widgets/{product_list_search_bar, product_catalog_filter_chips, product_list_filter, product_catalog_list_body, product_list_item_tile, product_list_item_skeleton_tile}.dart`, `logic/product_list_cubit.dart`, `data/models/product_search.dart` |
 | SP-02 | `widgets/custom_field_filter_sheet.dart` |
+| SP-04 | `pages/product_control_center_page.dart`, `widgets/{product_control_center_body, product_control_center_status_badge, product_control_center_profile_card, product_control_center_readiness_banner, product_control_center_section_card, product_control_center_identity_section, product_control_center_operational_section, product_control_center_custom_fields_section, product_control_center_meta_section, product_control_center_danger_section, product_lifecycle_bottom_sheets, product_delete_confirm_dialog, product_restore_confirm_dialog}.dart`, `logic/product_readiness.dart`, `data/models/product_readiness.dart` |
+| SP-21 | `pages/product_readiness_checklist_page.dart`, `widgets/product_readiness_checklist_body.dart` |
+| SP-22 | `pages/product_change_history_page.dart`, `widgets/{product_change_history_item, product_price_band_history_change}.dart`, `utils/product_change_history_formatters.dart`; tên người làm: `get_product_change_history` trả `left(actor_id::text, 8)` |
 | SP-03 | `pages/product_guided_create_page.dart`, `widgets/{product_guided_create_body, product_guided_fields, product_guided_step_identification, product_guided_step_images, product_guided_step_base_unit, product_guided_step_base_cost, product_guided_step_price_bands, product_guided_step_custom_fields, product_guided_step_note, product_image_picker_panel, tenant_measurement_unit_search_field}.dart`, `widgets/image_picker/{product_image_grid_item, product_image_add_sheet}.dart`, `widgets/custom_fields/product_custom_field_input_widget.dart`, `logic/{product_guided_create_state, product_guided_create_cubit}.dart`, `presentation/mappers/guided_price_band_submission_resolver.dart` |
 
 ## Hiện trạng Flutter (để rà) — đợt 1
 
 **Danh sách (SP-01)**
 
-1. **Cột tồn trên thẻ luôn trống.** `ProductListItemDto` có `stockLabel` nhưng `ProductListItemReadRow` không đọc nó (`search_products` không trả), nên `_buildStockInfo` không vẽ gì. "Chưa TL tồn" cũng không bao giờ hiện, vì `stock_qty` là `coalesce(available, 0)`, không bao giờ null.
+1. Cột tồn trên thẻ là **số trơn, không có đơn vị** ("24"), vì `ProductListItemAssembler` gán `stockLabel = stockQuantity.toString()`. Hết hàng thì hiện "Hết" chữ vàng. "Chưa TL tồn" không bao giờ hiện, vì `stock_qty` là `coalesce(available, 0)`, không bao giờ null.
 2. Thẻ không cho biết sản phẩm **đang ngừng kinh doanh** hay **sẵn sàng bán / thiếu dữ liệu**. Chỉ sản phẩm đã xoá có nhãn ("Đã xóa", xám nhỏ).
 3. Chip "Còn hàng" / "Hết hàng" lọc **cục bộ** trên các dòng đã tải (trang đầu 20 dòng), không gọi máy chủ. "Hết hàng" gồm cả sản phẩm ngừng kinh doanh.
 4. Số trên chip không đều. "Tất cả / Sẵn sàng bán / Thiếu dữ liệu / Ngừng KD" có số. "Còn hàng / Hết hàng" chỉ có số khi danh sách không lọc đã tải hết. "Đã xóa" chỉ có số khi đang ở chip đó. Số chỉ cập nhật khi tải danh sách không lọc.
@@ -105,3 +109,43 @@ Có 3 bản `ds.js` (Theme 1, 3, 2). Gom về `shared/` để làm sau. Đến l
 **Mã (không ảnh hưởng hình)**
 
 38. `_onStepEntered(5)` tải lại khung giá cửa hàng khi vào bước 6, trong khi bước khung giá là chỉ số 4. Bước khung giá vẫn tự tải trong `initState` nên không thấy lỗi.
+
+## Hiện trạng Flutter (để rà) — đợt 2
+
+**PCC (SP-04)**
+
+39. **Không chỗ nào trên PCC cho biết sản phẩm đang ngừng kinh doanh.** Nhãn app bar chỉ có 3 giá trị "Sẵn sàng bán" / "Thiếu dữ liệu" / "Đã xóa". Chữ phụ của khối "Nâng cao" vẫn ghi "Ngừng kinh doanh · Xoá sản phẩm" dù bên trong là "Kinh doanh lại".
+40. **Nhãn và banner nói ngược nhau.** Sản phẩm chưa có ảnh: nhãn "Sẵn sàng bán" nhưng ngay dưới có banner "Cần bổ sung (1)", vì blocker ảnh không chặn bán nhưng vẫn được đếm.
+41. **Lúc đang tải, nhãn là "Thiếu dữ liệu" đỏ** (kể cả sản phẩm sẵn sàng), vì `controlCenter` còn null. Lỗi tải cũng giữ nhãn đó. Mở bằng link thì tiêu đề trống.
+42. Lỗi tải chỉ là một dòng chữ xám giữa màn, không icon, không nút thử lại.
+43. 10 thẻ mục cùng một khuôn và cùng màu, không chia nhóm (định danh / vận hành / giá / thông tin bổ sung / ghi chú). Mỗi thẻ có nút chữ "Sửa" (dù mở màn xem, như "Xem tồn kho", "Xem"). Phụ "Khung giá" dài 2–3 dòng.
+44. Thẻ tóm tắt lặp lại tồn và giá của các thẻ dưới. Tên sản phẩm in thường (không đậm), lặp lại tiêu đề app bar. Hai cách ghi tồn: "Tồn (Lọ): 0 (Hết hàng)" ở tóm tắt, "0 Lọ" ở thẻ Tồn kho. Chưa có đơn vị → "Tồn (cơ sở): 0".
+45. Thẻ nhóm thông tin bổ sung thiếu trường bắt buộc: nền icon đỏ nhạt, nhưng câu "Thiếu thông tin bắt buộc" lại là chữ xám 12.
+46. Banner "Cần bổ sung" (bo 12, đệm 16, icon 24), khối đỏ "Nâng cao" và các hộp vàng trong sheet (bo 8, đệm 12) là ba khuôn tự vẽ khác nhau, không phải VBanner.
+47. **Sản phẩm đã xoá vẫn sửa được một phần.** Nút "Sửa" của 6 thẻ đầu mờ, nhưng thẻ nhóm thông tin bổ sung, Ghi chú, Lịch sử vẫn bấm được.
+48. "Kinh doanh lại" trong khối Nâng cao và nút xác nhận của nó đều tô đỏ như thao tác nguy hiểm.
+49. Web: PCC trong cột phải không có nút ← (đúng), nhưng iPhone dùng ← arrowBack trong khi các màn con dùng ‹.
+50. iPhone: tiêu đề dài chạm sát nhãn trạng thái bên phải.
+
+**Sheet / toast (SP-04)**
+
+51. Ba kiểu hộp cảnh báo trong sheet: "Cần xác nhận" và "Lưu ý" có icon + gạch đầu dòng; "Readiness hiện tại" không icon, không gạch đầu dòng. Câu khôi phục có chữ tiếng Anh "readiness".
+52. Sheet đệm 20 (sheet đợt 1 đệm 16). Web: hộp thoại có nút Đóng × cạnh nút "Huỷ".
+53. Sheet xoá lúc kiểm tra chỉ có vòng Material + "Đang kiểm tra điều kiện..." dồn trái. Khi đang xoá: "Đang xóa...".
+54. Khôi phục lỗi: câu lỗi đỏ trong sheet và toast đỏ hiện cùng lúc.
+55. Lẫn "Xoá" / "Xóa": tiêu đề sheet và nút ghi "Xoá sản phẩm", toast ghi "Sản phẩm đã được xóa thành công.", nhãn ghi "Đã xóa", lịch sử ghi "Xóa mềm sản phẩm". Toast tạo dùng dấu chấm than ("đã được khởi tạo!").
+56. Toast đổi trạng thái dùng một câu chung "Đã cập nhật trạng thái kinh doanh của sản phẩm." cho cả ngừng và kinh doanh lại.
+
+**Checklist (SP-21)**
+
+57. Ba tên cho cùng một việc: tiêu đề "Sẵn sàng vận hành", nhãn PCC "Thiếu dữ liệu", banner "Cần bổ sung". Nút ‹ (PCC dùng ←).
+58. Chỉ liệt kê mục còn thiếu; không thấy mục đã xong hay tồn kho (dù `readinessView.checklist` có sẵn). Ô bo 8 (thẻ PCC bo 12).
+59. Chưa có đơn vị mà bấm "Thiết lập giá" / "Thiết lập giá cơ sở" → toast vàng "Vui lòng thiết lập đơn vị cơ sở trước." thay vì dẫn sang màn đơn vị.
+60. Câu "Thiếu giá" (blocker) khác "Thiếu Giá cơ sở định giá" (thẻ PCC) cho cùng một việc; "Giá cơ sở" lúc viết hoa chữ G giữa câu.
+
+**Lịch sử thay đổi (SP-22)**
+
+61. **"bởi 3f9a2c1b"**: người làm là 8 ký tự đầu mã người dùng (máy chủ trả `left(actor_id::text, 8)`), giống Theme 3.
+62. Đổi trạng thái hiện mã thô **"active — inactive"**. Trường ẩn hiện "*** — ***". Một số dòng chỉ có tiêu đề + "bởi …", không có chi tiết.
+63. Hai kiểu thẻ: khung giá dùng hàng nhãn 92 + "A → B" canh phải; thẻ khác dùng "A — B" (gạch dài) một dòng.
+64. Ngày "2026-11-20 15:42" (dạng ISO); không nhóm theo ngày. Lỗi / rỗng dùng icon 48 tự xếp, không dùng VEmptyState.

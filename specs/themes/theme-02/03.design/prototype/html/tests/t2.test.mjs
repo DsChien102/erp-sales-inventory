@@ -35,7 +35,8 @@ test('Lọc tồn cục bộ + ô tồn', () => {
   assert.equal(localStockFilter(items, 'outOfStock').length, 1);
   assert.equal(localStockFilter(items, 'all').length, 3);
   assert.deepEqual(stockText({ stock: null }), { text: 'Chưa TL tồn', kind: 'muted' });
-  assert.equal(stockText({ stock: 5 }), null); // stockLabel luôn null → không vẽ gì
+  assert.equal(stockText({ stock: 5 }), null); // không có stockLabel → không vẽ gì
+  assert.deepEqual(stockText({ stock: 24, stockLabel: '24' }), { text: '24', kind: 'normal' });
   assert.deepEqual(stockText({ stock: 0, stockLabel: '0 hộp' }), { text: 'Hết', kind: 'out' });
   assert.equal(cfDisplay('1500'), '1.500');
   assert.equal(cfDisplay('Viên nén'), 'Viên nén');
@@ -70,4 +71,29 @@ test('Mọi màn thuộc một đợt; mọi ca vẽ được ở cả hai khổ
       }
     }
   }
+});
+
+import { evaluate, statusBadge, priceBandSubtitle, profileStockText, valueLine, ctaLabel } from '../app/pcc.js';
+
+test('ProductReadinessEvaluator + nhãn PCC', () => {
+  const full = { unit: 'Hộp', images: 3, basePrice: 1, band: {}, cfMissing: false };
+  assert.deepEqual(evaluate(full), { ready: true, blockers: [] });
+  const noImg = evaluate({ ...full, images: 0 });
+  assert.equal(noImg.ready, true);
+  assert.deepEqual(noImg.blockers, ['missing_image']); // vẫn đếm vào "Cần bổ sung (1)"
+  assert.deepEqual(evaluate({ images: 0, basePrice: null }).blockers, ['missing_base_unit', 'missing_image', 'missing_price', 'missing_price_band']);
+  assert.deepEqual(statusBadge({ deleted: false, ready: false }), ['Thiếu dữ liệu', 'danger']);
+  assert.deepEqual(statusBadge({ deleted: true, ready: true }), ['Đã xóa', 'neutral']);
+});
+
+test('Chữ phụ thẻ PCC + lịch sử', () => {
+  assert.equal(priceBandSubtitle({ list: 125000, floor: 110000, rule: 'Khung giá mặc định' }, 'Hộp'), 'Niêm yết: 125.000 đ · Sàn: 110.000 đ · Đơn vị: Hộp · Khung giá mặc định');
+  assert.equal(priceBandSubtitle({ list: 18000, floor: 15000, custom: true, rule: 'X' }, 'Lon'), 'Niêm yết: 18.000 đ · Sàn: 15.000 đ · Đơn vị: Lon · Giá riêng');
+  assert.equal(priceBandSubtitle(null, 'Hộp'), 'Thiếu khung giá bán');
+  assert.equal(profileStockText(0, null), 'Tồn (cơ sở): 0 (Hết hàng)');
+  assert.equal(profileStockText(24, 'Hộp'), 'Tồn (Hộp): 24');
+  assert.equal(valueLine({ before: 'active', after: 'inactive' }), 'active — inactive');
+  assert.equal(valueLine({ masked: true, before: 'a', after: 'b' }), '*** — ***');
+  assert.equal(valueLine({}), '');
+  assert.equal(ctaLabel('missing_price_band'), 'Thiết lập giá');
 });
