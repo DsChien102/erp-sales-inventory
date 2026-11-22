@@ -110,3 +110,14 @@ test('Màn con: tỉ lệ khung cửa hàng, nút lưu màn đơn vị', () => {
   assert.equal(formatRate(20), '20');
   assert.equal(formatRate(2.5), '2.5');
 });
+
+import { ruleValues, deltaText, fieldMeta } from '../app/settings.js';
+
+test('Cài đặt: tỉ lệ khung giá cửa hàng, dòng phụ trường', () => {
+  assert.deepEqual(ruleValues({ list: 0.28, floor: 0.14 }), ['+28.0%', '14.0%']);
+  assert.deepEqual(ruleValues(null), ['—', '—']);
+  assert.equal(deltaText(0.25, 0.28, '+'), '(+25.0% → +28.0%)');
+  assert.equal(deltaText(null, 0.2), null);
+  assert.equal(fieldMeta({ type: 'singleSelect', required: true, search: true, filter: true, list: true }), 'Single select • Bắt buộc • Tìm kiếm • Lọc • Hiển thị');
+  assert.equal(fieldMeta({ type: 'text' }), 'Text');
+});

@@ -202,6 +202,66 @@ export const SCREENS = [
       ['overwrite', 'Ghi đè?', 'Sheet **không tiêu đề**: "Ghi đè khung giá hiện tại?" tự vẽ trong nội dung, ô xám giá hiện tại, "Hủy" | "Ghi đè" (xanh). Web: hộp thoại không tiêu đề + nút Đóng góc.'],
     ],
   },
+  {
+    id: 'settings', group: 'settings', code: 'SP-14', title: 'Cài đặt sản phẩm', route: '/more/product-settings', states: [
+      ['default', 'Mặc định', 'Mở từ menu Thêm; route gốc ngoài khung (web mất thanh bên). Tiêu đề **"Sản phẩm"** — trùng tiêu đề danh sách sản phẩm. 2 thẻ: hộp icon 44 nền trắng (thẻ PCC: nền xanh nhạt 40), tiêu đề H4, mô tả, ›. Thứ tự: giá trước, nhóm trường sau.'],
+    ],
+  },
+  {
+    id: 'cf-groups', group: 'settings', code: 'SP-15', title: 'Nhóm & trường thông tin', route: '/more/product-settings/custom-fields', states: [
+      ['loaded', 'Có nhóm', 'Nút + xanh trên app bar (danh sách sản phẩm dùng nút + nổi). Banner vàng tự vẽ (một câu hướng dẫn mà tô vàng như cảnh báo) có icon tay kéo trong câu. Thẻ: tay kéo, tên, VBadge "Đang dùng" / "Tạm tắt" (cỡ thường — PCC dùng cỡ nhỏ), "4 trường • 1 bắt buộc" (chấm "•"; PCC dùng "·").'],
+      ['empty', 'Chưa có nhóm', 'Icon hộp thư 64 + "Chưa có nhóm thông tin nào" + "Tạo mẫu mặc định" (không VEmptyState, không nói mẫu gồm gì).'],
+      ['loading', 'Đang tải', 'Vòng Material.'],
+    ],
+  },
+  {
+    id: 'cf-group', group: 'settings', code: 'SP-16', title: 'Chi tiết nhóm', route: '/more/product-settings/custom-fields/g1', states: [
+      ['loaded', 'Có trường', 'Nút ⋮ trên app bar mở **màn sửa nhóm** (không phải menu). Nhãn tự vẽ "Đang dùng" (khác VBadge ở SP-15). "TRƯỜNG THÔNG TIN" | "+ Thêm trường" chữ 13 không vùng chạm 44. Dòng phụ trường lẫn Anh – Việt: "**Single select** • Bắt buộc • Tìm kiếm • Lọc • Hiển thị", "**Text** • …" (ô chọn kiểu dữ liệu ở SP-17 ghi "Tùy chọn", "Văn bản"). Trường tắt xuống cuối + nhãn "Tạm tắt".'],
+      ['empty', 'Chưa có trường', 'Khung trắng bo 12: hộp xanh + "Chưa có trường nào" + "+ Thêm trường thông tin" — cùng lúc với "+ Thêm trường" ở hàng trên (hai lối).'],
+      ['inactive', 'Nhóm tạm tắt', 'Nhãn "Tạm tắt" xám.'],
+    ],
+  },
+  {
+    id: 'upsert-group', group: 'settings', code: 'SP-16', title: 'Tạo / sửa nhóm', route: '/more/product-settings/custom-fields/upsert-group', states: [
+      ['create', 'Tạo nhóm', 'Nút ← arrowBack (SP-14/15 dùng ‹). "Icon" + ô 56 + câu; lưới **8 cột** 30 emoji (gồm 🐄 🐖 🏭 …) — web cột 720 nên ô ~80 px. Nhãn "Tên nhóm *": dấu * là chữ trong nhãn, **cùng màu đen** (màn khác * đỏ). "Mô tả (tuỳ chọn)" (chữ "tuỳ"; nơi khác "tùy"). Chân hai gạch (web).'],
+      ['edit', 'Sửa nhóm', 'Thêm hàng "Trạng thái hoạt động" + Switch Material (tắt: nền borderStrong nhạt hơn VSwitch).'],
+      ['deactivate', 'Tạm tắt nhóm?', 'Sheet **không tiêu đề sheet**, tiêu đề tự vẽ trong nội dung; web: hộp thoại không tiêu đề + nút Đóng góc. "Huỷ" | "Tạm tắt" đỏ.'],
+      ['leave', 'Thoát mà không lưu?', 'Sheet **có** tiêu đề "Thoát mà không lưu?" + gạch — "Ở lại" | "Thoát" đỏ (Theme 3 dùng "Rời khỏi màn hình?" / "Ở lại chỉnh sửa" | "Rời khỏi").'],
+    ],
+  },
+  {
+    id: 'upsert-field', group: 'settings', code: 'SP-17', title: 'Tạo / sửa trường', route: '/more/product-settings/custom-fields/g1/upsert-field', states: [
+      ['create', 'Tạo trường', 'Tên, Mô tả, "Kiểu dữ liệu" = "Văn bản", "Nhóm" (ô tắt, mờ — chỉ để xem). "THUỘC TÍNH" (chữ hoa) + khung 3 hàng Switch Material: Bắt buộc, Cho phép tìm kiếm, Hiển thị trên danh sách sản phẩm.'],
+      ['select', 'Kiểu "Tùy chọn"', 'Phần "Tùy chọn" | "+ Thêm" (TextButton.icon màu mặc định); mỗi dòng: tay kéo 16 + ô + thùng rác đỏ. Bật "Bắt buộc" → "Tham gia tính **readiness** của sản phẩm" (tiếng Anh). Thêm hàng "Cho phép lọc".'],
+      ['edit', 'Cấu hình trường', 'Tiêu đề "Cấu hình trường" (tạo: "Tạo trường thông tin"). Câu vàng "Thay đổi kiểu dữ liệu có thể ảnh hưởng …"; "Hiển thị trên danh sách" bật → "Danh sách sản phẩm chỉ hiển thị giới hạn **field**." (tiếng Anh). Phần "TRẠNG THÁI" + "Đang dùng".'],
+      ['locked', 'Đã có dữ liệu', '"Không đổi được kiểu dữ liệu do đã có dữ liệu." nhưng ô chọn kiểu vẫn trông như bấm được.'],
+      ['required-confirm', 'Bật bắt buộc', 'Dialog VConfirmDialog (cả iPhone): tiêu đề trái, câu có "blocker readiness" (tiếng Anh), hai nút cỡ nội dung canh phải "Hủy" | "Xác nhận".'],
+      ['deactivate', 'Tạm tắt trường?', 'Sheet không tiêu đề sheet, tiêu đề tự vẽ; "Tạm tắt" đỏ.'],
+    ],
+  },
+  {
+    id: 'store-rule', group: 'settings', code: 'SP-18', title: 'Khung giá cửa hàng', route: '/more/product-settings/store-price-rule', states: [
+      ['default', 'Đã cấu hình', 'Tiêu đề "Giá sàn & Giá niêm yết" (thẻ giới thiệu ghi "Khung giá cửa hàng"). 4 khung bo 12 khác kiểu nhau. Giá niêm yết: icon lên xanh "+28.0%"; **Giá sàn: icon xuống + chữ đỏ "14.0%"** dù giá sàn vẫn cao hơn giá cơ sở 14% (tô như giảm). "✎ Sửa" chữ xanh. Khung "Lưu ý" vàng có gạch đầu dòng chấm tròn.'],
+      ['empty', 'Chưa cấu hình', '"Chưa cấu hình khung giá cửa hàng. Nhấn Sửa để thiết lập…" + hai hàng "—".'],
+      ['error', 'Lỗi tải', 'Banner đỏ tự vẽ + TextButton "Thử lại" (màu mặc định) ở đầu, phần dưới vẫn hiện như chưa cấu hình; thêm toast đỏ.'],
+      ['loading', 'Đang tải', 'Vòng Material.'],
+    ],
+  },
+  {
+    id: 'store-rule-edit', group: 'settings', code: 'SP-19', title: 'Sửa khung giá cửa hàng', route: '/more/product-settings/store-price-rule/edit', states: [
+      ['default', 'Mới mở', 'Tiêu đề "Chỉnh sửa khung giá" (SP-13 ghi "Khung giá bán"). Ô % là **ô nhiều dòng** (VTextFormField, cao 2 dòng) chữ H4; cạnh đó 2 nút ▲ ▼ 36 (dưới 44). Câu "Tính theo % trên Giá cơ sở" **hiện hai lần** (helper trong ô + dòng dưới). "XEM TRƯỚC VỚI VÍ DỤ": giá cơ sở 100.000 đ, giá sàn dự kiến chữ đỏ. "Lưu thay đổi" mờ tới khi sửa.'],
+      ['error', 'Sàn > niêm yết', 'Lỗi đỏ dưới ô sàn (câu có dấu chấm; lỗi khác cùng ô thì không); helper trong ô ẩn nhưng dòng dưới vẫn hiện.'],
+      ['confirm', 'Áp dụng?', 'Sheet không tiêu đề sheet: "Áp dụng quy tắc lên sản phẩm đã có giá?" + câu + "Hủy" | "Áp dụng" (xanh, dù đổi giá hàng loạt).'],
+    ],
+  },
+  {
+    id: 'store-rule-history', group: 'settings', code: 'SP-20', title: 'Lịch sử khung giá cửa hàng', route: '/more/product-settings/store-price-rule/history', states: [
+      ['loaded', 'Có dữ liệu', 'Tiêu đề "Lịch sử thay đổi" (trùng SP-22). Banner vàng một câu. Thẻ: ngày ISO bold | "Hiện tại"; **"Bởi: 3f9a2c1b"** (SP-22 ghi "bởi …" thường); hai hàng tỉ lệ + "(+25.0% → +28.0%)" nhỏ canh phải. Lần đầu không có dòng trước → sau.'],
+      ['empty', 'Chưa có', 'Icon đồng hồ + "Chưa có lịch sử thay đổi" (SP-22: "… thay đổi nào").'],
+      ['error', 'Lỗi', 'Một dòng chữ xám, không nút thử lại (SP-22 có).'],
+      ['loading', 'Đang tải', 'Vòng Material.'],
+    ],
+  },
 ];
 
 export const CASES = Object.fromEntries(SCREENS.map((s) => [s.id, s.states.map(([id]) => id)]));

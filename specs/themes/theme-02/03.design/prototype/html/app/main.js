@@ -15,6 +15,10 @@ import {
   UNIT_SHEETS, basePricePage, basePriceState, customFieldsPage, customFieldsState, editBandPage, editBandState, galleryPage, imageDeleteDialog,
   imagesPage, imagesState, notePage, noteState, overwriteSheet, priceBandsPage, priceBandsState, profilePage, profileState, unitsPage, unitsState,
 } from './sub.js';
+import {
+  confirmDialog, fieldDeactivateSheet, groupDeactivateSheet, groupDetailPage, groupsPage, ruleHistoryPage, ruleSaveSheet, settingsPage, storeRuleEditPage,
+  storeRulePage, unsavedSheet, upsertFieldPage, upsertGroupPage,
+} from './settings.js';
 
 /** VListDetailLayout: listWidth 360, minSplitWidth 840 (tính trên bề ngang vùng nội dung của khung). */
 export const LIST_WIDTH = 360;
@@ -125,7 +129,25 @@ export function renderView(v) {
   else if (v.screen === 'edit-band') {
     page = editBandPage(editBandState(v.state), v);
     if (v.state === 'overwrite') overlay = sheet(overwriteSheet(), { label: 'Ghi đè khung giá' });
-  } else if (v.screen === 'create') {
+  } else if (v.screen === 'settings') page = settingsPage(v);
+  else if (v.screen === 'cf-groups') page = groupsPage(v.state, v);
+  else if (v.screen === 'cf-group') page = groupDetailPage(v.state, v);
+  else if (v.screen === 'upsert-group') {
+    page = upsertGroupPage(v.state === 'create' ? 'create' : v.state === 'leave' ? 'create-dirty' : 'edit', v);
+    if (v.state === 'deactivate') overlay = sheet(groupDeactivateSheet(), { label: 'Tạm tắt nhóm này?' });
+    if (v.state === 'leave') overlay = sheet(unsavedSheet(), { title: 'Thoát mà không lưu?' });
+  } else if (v.screen === 'upsert-field') {
+    page = upsertFieldPage(v.state === 'required-confirm' ? 'select' : v.state === 'deactivate' ? 'edit' : v.state, v);
+    if (v.state === 'required-confirm') overlay = confirmDialog();
+    if (v.state === 'deactivate') overlay = sheet(fieldDeactivateSheet(), { label: 'Tạm tắt trường này?' });
+  } else if (v.screen === 'store-rule') {
+    page = storeRulePage(v.state, v);
+    if (v.state === 'error') page = `<div class="t2-area">${page}${toast('danger', 'Lỗi', 'Đã xảy ra lỗi. Vui lòng thử lại.', { bottom: 14 + (v.device === 'iphone' ? 34 : 0) })}</div>`;
+  } else if (v.screen === 'store-rule-edit') {
+    page = storeRuleEditPage(v.state === 'confirm' ? 'dirty' : v.state, v);
+    if (v.state === 'confirm') overlay = sheet(ruleSaveSheet(), { label: 'Áp dụng quy tắc' });
+  } else if (v.screen === 'store-rule-history') page = ruleHistoryPage(v.state, v);
+  else if (v.screen === 'create') {
     page = createPage(createState(v.state), v);
   } else if (v.screen === 'image-add') {
     page = createPage(createState('images'), v);

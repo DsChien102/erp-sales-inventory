@@ -2,14 +2,14 @@
 
 HTML/CSS/JS thuần (ES module, không build). Vẽ **đúng Flutter hiện tại** của các màn TH-02 ở cả iPhone 390 và Web 1280. Trên web, danh sách và PCC chia 2 cột như 5-W. Mục đích: để người dùng rà bằng impeccable (bước 3 của 10-8). Chép y nguyên chữ, thứ tự, số đo DS; **không thiết kế lại**. Sheet, hộp thoại, toast là ca riêng.
 
-Làm theo 4 đợt, mỗi đợt một commit. Cột trái trang xem chia theo đợt:
+Làm theo 4 đợt, mỗi đợt một commit (đủ 153 ca × 2 khổ, 112 điểm hiện trạng). Cột trái trang xem chia theo đợt:
 
 | Đợt | Màn | Trạng thái |
 |---|---|---|
 | 1 · Danh sách & tạo | SP-01 Danh sách, SP-02 Lọc thông tin bổ sung, SP-03 Tạo nhanh (7 bước) + sheet "Thêm ảnh sản phẩm" | ✅ 46 ca × 2 khổ |
 | 2 · PCC | SP-04 (thẻ Tồn kho chỉ xem → kho Theme 7), sheet vòng đời / xoá / khôi phục + toast, SP-21 Checklist, SP-22 Lịch sử thay đổi | ✅ 33 ca × 2 khổ |
 | 3 · Màn con | SP-05 Hồ sơ (ô gạt "Quản lý theo lô" của Theme 7), SP-06 Ảnh (+ hộp thoại xoá, gallery), SP-07 Ghi chú, SP-08 Thông tin bổ sung, SP-09 Đơn vị (+ 4 sheet), SP-11 Giá cơ sở, SP-12 / 13 Khung giá (+ sheet ghi đè) | ✅ 46 ca × 2 khổ |
-| 4 · Cài đặt sản phẩm | SP-14 … SP-20 | ⬜ |
+| 4 · Cài đặt sản phẩm | SP-14 Cài đặt, SP-15 Nhóm, SP-16 Chi tiết / tạo / sửa nhóm (+ sheet tạm tắt, thoát không lưu), SP-17 Tạo / sửa trường (+ dialog bắt buộc, sheet tạm tắt), SP-18 Khung giá cửa hàng, SP-19 Sửa (+ sheet áp dụng), SP-20 Lịch sử | ✅ 28 ca × 2 khổ |
 
 SP-10 (tồn kho cơ bản) đã bỏ ở G5-5, nên không vẽ.
 
@@ -38,10 +38,11 @@ Màn trần không có tương tác: mỗi trạng thái là một ca. Ca của 
 | `app/create.js` | SP-03 + sheet thêm ảnh; `dartDouble`, `pricePercentLabel`, `stepTitles`, `hasAnyData`, `matchUnits` |
 | `app/pcc.js` | SP-04 + sheet + toast, SP-21, SP-22; `evaluate` (ProductReadinessEvaluator), `statusBadge`, `priceBandSubtitle`, `profileStockText`, `valueLine`, `ctaLabel` |
 | `app/sub.js` | Đợt 3: SP-05…09, SP-11…13 + dialog / sheet / gallery; `formBar` (ProductFormBottomBar), `ratioText`, `unitsSaveEnabled`, `formatRate` |
+| `app/settings.js` | Đợt 4: SP-14…20 + sheet / dialog; `pct1`, `ruleValues`, `deltaText`, `fieldMeta`, `TYPE_CARD` / `TYPE_SELECT` |
 | `app/main.js` | Ca → trạng thái. Khu Sản phẩm: web chia 2 cột (`VListDetailLayout` 360 / 840), sheet web phủ cả cửa sổ, sheet iPhone chỉ phủ vùng tab. Màn tạo nằm ngoài khung |
 | `styles/t2.css` | Rule tiền tố `t2-`, token `--c45-v2-*`; đầu file có bảng màu và cỡ chữ Flutter → token |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem và chụp ảnh, chép khuôn Theme 3 (cổng 8772) |
-| `shared/icons.js` | Đợt 2: `clipboard`, `ruler` (straighten), `coins`, `play`. Đợt 1: `image`, `imageOff`, `camera`, `images` (photo_library), `folder`, `qrScan` (qr_code_scanner), `externalLink` (open_in_new), `moreVert`, `ban` (block) |
+| `shared/icons.js` | Đợt 4: `grip` (gripVertical), `trendingDown`. Đợt 2: `clipboard`, `ruler` (straighten), `coins`, `play`. Đợt 1: `image`, `imageOff`, `camera`, `images` (photo_library), `folder`, `qrScan` (qr_code_scanner), `externalLink` (open_in_new), `moreVert`, `ban` (block) |
 
 Ảnh sản phẩm: Flutter tải ảnh thật từ Storage. Prototype không có ảnh thật nên vẽ ảnh minh hoạ SVG (nền màu + hình hộp), cùng khổ và cùng bo góc.
 
@@ -56,6 +57,7 @@ Có 3 bản `ds.js` (Theme 1, 3, 2). Gom về `shared/` để làm sau. Đến l
 | SP-02 | `widgets/custom_field_filter_sheet.dart` |
 | SP-04 | `pages/product_control_center_page.dart`, `widgets/{product_control_center_body, product_control_center_status_badge, product_control_center_profile_card, product_control_center_readiness_banner, product_control_center_section_card, product_control_center_identity_section, product_control_center_operational_section, product_control_center_custom_fields_section, product_control_center_meta_section, product_control_center_danger_section, product_lifecycle_bottom_sheets, product_delete_confirm_dialog, product_restore_confirm_dialog}.dart`, `logic/product_readiness.dart`, `data/models/product_readiness.dart` |
 | SP-05…09, SP-11…13 | xem đầu `app/sub.js` (mỗi màn một trang + widget đi kèm; chân chung `widgets/product_form_bottom_bar.dart`) |
+| SP-14…20 | xem đầu `app/settings.js` (`pages/settings/*` + sheet đi kèm) |
 | SP-21 | `pages/product_readiness_checklist_page.dart`, `widgets/product_readiness_checklist_body.dart` |
 | SP-22 | `pages/product_change_history_page.dart`, `widgets/{product_change_history_item, product_price_band_history_change}.dart`, `utils/product_change_history_formatters.dart`; tên người làm: `get_product_change_history` trả `left(actor_id::text, 8)` |
 | SP-03 | `pages/product_guided_create_page.dart`, `widgets/{product_guided_create_body, product_guided_fields, product_guided_step_identification, product_guided_step_images, product_guided_step_base_unit, product_guided_step_base_cost, product_guided_step_price_bands, product_guided_step_custom_fields, product_guided_step_note, product_image_picker_panel, tenant_measurement_unit_search_field}.dart`, `widgets/image_picker/{product_image_grid_item, product_image_add_sheet}.dart`, `widgets/custom_fields/product_custom_field_input_widget.dart`, `logic/{product_guided_create_state, product_guided_create_cubit}.dart`, `presentation/mappers/guided_price_band_submission_resolver.dart` |
@@ -200,3 +202,39 @@ Có 3 bản `ds.js` (Theme 1, 3, 2). Gom về `shared/` để làm sau. Đến l
 85. Ô "Theo khung giá cửa hàng": hai hàng "Giá niêm yết 28%" / "Giá sàn 14%" rồi lặp lại nhãn "Giá niêm yết 102.400 đ" / "Giá sàn 91.200 đ". Chữ trong các ô dùng `Text()` không màu.
 86. Ô % rộng cố định 120. Hộp ghi chú bo 4 (hộp khác bo 8 / 12). Bo ô 8 (thẻ PCC 12).
 87. Sheet ghi đè **không có tiêu đề sheet**: tiêu đề tự vẽ trong nội dung; web là hộp thoại không tiêu đề + nút Đóng góc. "Hủy" (sheet) / "Huỷ" (chân).
+
+## Hiện trạng Flutter (để rà) — đợt 4
+
+**Chung**
+
+88. Cả khu Cài đặt là route gốc ngoài khung: web mất thanh bên dù mở từ mục "Thêm" của thanh bên.
+89. Nút quay lại lẫn lộn: ‹ (SP-14, 15, 16 chi tiết, 18, 19, 20) và ← arrowBack (tạo / sửa nhóm, tạo / sửa trường).
+90. Tiêu đề trùng hoặc lệch tên: SP-14 "Sản phẩm" trùng danh sách sản phẩm; SP-18 "Giá sàn & Giá niêm yết" nhưng thẻ trong ghi "Khung giá cửa hàng"; SP-19 "Chỉnh sửa khung giá" (SP-13 "Khung giá bán"); SP-20 "Lịch sử thay đổi" trùng SP-22.
+91. Chữ tiếng Anh: "Text", "Single select" (thẻ trường), "readiness", "blocker readiness", "field". Kiểu dữ liệu có hai bộ tên: thẻ trường "Text / Single select / Ngày tháng", ô chọn "Văn bản / Tùy chọn / Ngày".
+92. Ba kiểu nhãn trạng thái cho "Đang dùng / Tạm tắt": VBadge cỡ thường (SP-15), pill tự vẽ (SP-16 chi tiết), pill nhỏ hơn (thẻ trường).
+93. Dấu ngăn "•" ở Cài đặt, "·" ở PCC.
+94. Ba kiểu nhãn nhóm CHỮ HOA ("TRƯỜNG THÔNG TIN", "THUỘC TÍNH", "CẤU HÌNH HIỆN TẠI", "XEM TRƯỚC VỚI VÍ DỤ") với cỡ / độ đậm khác nhau.
+95. Bốn sheet xác nhận không tiêu đề sheet, tiêu đề tự vẽ trong nội dung (tạm tắt nhóm / trường, áp dụng khung giá; như ghi đè ở đợt 3); web là hộp thoại không tiêu đề + nút Đóng góc. Sheet "Thoát mà không lưu?" lại có tiêu đề sheet.
+96. Lỗi tải hầu hết chỉ có toast (SP-15, 16) hoặc một dòng chữ (SP-20), không nút thử lại.
+
+**Nhóm & trường (SP-15…17)**
+
+97. Banner hướng dẫn kéo thả tô vàng như cảnh báo. Tay kéo ⠿ nằm trong thẻ bấm được; web không có cách đổi thứ tự bằng bàn phím.
+98. SP-15: nút + trên app bar (danh sách sản phẩm dùng nút + nổi). Rỗng: "Tạo mẫu mặc định" không nói mẫu gồm gì.
+99. SP-16 chi tiết: nút ⋮ mở **màn sửa nhóm** (không phải menu). "+ Thêm trường" chữ 13 không vùng chạm 44; khi rỗng còn thêm nút "+ Thêm trường thông tin" (hai lối).
+100. Tạo / sửa nhóm: lưới emoji 8 cột (30 emoji gồm 🐄 🐖 🏭…); web cột 720 → ô ~80 px. "Tên nhóm *": dấu * là chữ trong nhãn, cùng màu đen. "Mô tả (tuỳ chọn)" (chữ "tuỳ"), nơi khác "tùy".
+101. Switch Material tự cấu hình (tắt nền borderStrong) ở Cài đặt; VSwitch (tắt nền borderInput đậm hơn) ở màn sản phẩm — hai kiểu ô gạt.
+102. Tạo / sửa trường: ô "Nhóm" tắt mờ chỉ để xem. "Không đổi được kiểu dữ liệu…" nhưng ô chọn kiểu vẫn trông bấm được. "+ Thêm" tùy chọn là TextButton màu mặc định.
+103. Bật "Bắt buộc" mở **Dialog** VConfirmDialog (cả iPhone; hai nút cỡ nội dung canh phải) — tạm tắt thì là sheet. Hai khuôn xác nhận trong cùng màn.
+104. "Thoát mà không lưu?" / "Ở lại" | "Thoát" — Theme 3 dùng "Rời khỏi màn hình?" / "Ở lại chỉnh sửa" | "Rời khỏi". Màn nhập thông tin bổ sung của sản phẩm (SP-08) thì không hỏi.
+
+**Khung giá cửa hàng (SP-18…20)**
+
+105. **Giá sàn tô đỏ + icon đi xuống** ("14.0%") dù giá sàn vẫn cao hơn giá cơ sở; giá niêm yết có "+", giá sàn không. Xem trước "Giá sàn (dự kiến)" cũng đỏ.
+106. 4 khung trên SP-18 mỗi khung một kiểu (giới thiệu, cấu hình, lưu ý vàng, lịch sử). Hộp icon "Lịch sử thay đổi" nền xanh nhạt, hộp icon ở SP-14 nền trắng (vô hình trên thẻ trắng).
+107. Lỗi tải SP-18: banner đỏ + toast đỏ cùng lúc, phần dưới vẫn hiện "—" như chưa cấu hình. "Thử lại" là TextButton màu mặc định.
+108. SP-19: ô % là **ô nhiều dòng** (cao 2 dòng) cho một con số; 2 nút ▲ ▼ 36 (dưới 44), bước 0,1. Câu "Tính theo % trên Giá cơ sở" **hiện hai lần**.
+109. Nhãn ô SP-19 "Giá niêm yết (tỷ lệ lãi)" / "Giá sàn (tỷ lệ sàn)"; SP-13 "Tỷ lệ giá niêm yết"; màn tạo "Lãi cơ sở" / "Giá sàn" — ba cách gọi một tham số.
+110. Lưu SP-19 → sheet "Áp dụng quy tắc lên sản phẩm đã có giá?" nút "Áp dụng" xanh, dù đổi giá hàng loạt. "Hủy" (sheet) / "Huỷ" (chân).
+111. SP-20: "**Bởi: 3f9a2c1b**" (SP-22 "bởi …" chữ thường); ngày ISO; giá trị trước → sau nằm dòng nhỏ canh phải dưới mỗi hàng. Rỗng "Chưa có lịch sử thay đổi" (SP-22 "… thay đổi nào").
+112. SP-14: hai thẻ đều 2 dòng mô tả bị cắt "…" nếu dài; thứ tự giá trước, nhóm trường sau (khác thứ tự trên PCC).
