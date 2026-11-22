@@ -11,6 +11,10 @@ import {
   PCC, checklistPage, deactivateSheet, deleteBlockedSheet, deleteSheet, evaluate, historyPage, loadingRow, pccPage, reactivateSheet, restoreSheet, BLOCKER_MSG,
 } from './pcc.js';
 import { toast } from './ds.js';
+import {
+  UNIT_SHEETS, basePricePage, basePriceState, customFieldsPage, customFieldsState, editBandPage, editBandState, galleryPage, imageDeleteDialog,
+  imagesPage, imagesState, notePage, noteState, overwriteSheet, priceBandsPage, priceBandsState, profilePage, profileState, unitsPage, unitsState,
+} from './sub.js';
 
 /** VListDetailLayout: listWidth 360, minSplitWidth 840 (tính trên bề ngang vùng nội dung của khung). */
 export const LIST_WIDTH = 360;
@@ -104,6 +108,23 @@ export function renderView(v) {
     page = checklistPage(b, v, v.state === 'no-unit-toast' ? 'Vui lòng thiết lập đơn vị cơ sở trước.' : '');
   } else if (v.screen === 'history') {
     page = historyPage(v.state, v);
+  } else if (v.screen === 'profile') page = profilePage(profileState(v.state), v);
+  else if (v.screen === 'images') {
+    if (v.state === 'gallery') page = galleryPage(v);
+    else page = imagesPage(imagesState(v.state), v);
+    if (v.state === 'delete-dialog') overlay = imageDeleteDialog();
+  } else if (v.screen === 'note') page = notePage(noteState(v.state), v);
+  else if (v.screen === 'custom-fields') page = customFieldsPage(customFieldsState(v.state), v);
+  else if (v.screen === 'units') page = unitsPage(unitsState(v.state), v);
+  else if (v.screen === 'units-sheet') {
+    page = unitsPage(unitsState('default'), v);
+    const [title, make] = UNIT_SHEETS[v.state];
+    overlay = sheet(make(), { title });
+  } else if (v.screen === 'base-price') page = basePricePage(basePriceState(v.state), v);
+  else if (v.screen === 'price-bands') page = priceBandsPage(priceBandsState(v.state), v);
+  else if (v.screen === 'edit-band') {
+    page = editBandPage(editBandState(v.state), v);
+    if (v.state === 'overwrite') overlay = sheet(overwriteSheet(), { label: 'Ghi đè khung giá' });
   } else if (v.screen === 'create') {
     page = createPage(createState(v.state), v);
   } else if (v.screen === 'image-add') {

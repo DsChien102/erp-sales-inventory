@@ -230,7 +230,7 @@ const BLANK = {
   groups: CF_GROUPS, cf: {}, cfErrors: {}, note: '', active: 0, submitting: false, toast: null, scrollEnd: false,
 };
 const FILLED = { ...BLANK, name: 'Amoxicillin 500mg', tradeName: 'Amoxi-Vet 500', sku: 'AMX500', barcode: '8936012345678', lot: true };
-const WITH_UNIT = { ...FILLED, baseUnit: 'Hộp', baseCost: '80.000' };
+const WITH_UNIT = { ...FILLED, baseUnit: 'hộp', baseCost: '80.000' };
 const IMGS = [{ hue: 32, cover: true }, { hue: 160 }, { hue: 280, uploading: true }, { hue: 200, failed: 'Lỗi tải' }];
 
 export function createState(state) {

@@ -46,9 +46,9 @@ export const SCREENS = [
       ['images', 'Bước 2 · có ảnh', 'Ảnh bìa viền xanh 2 + nhãn "Mặc định"; một ảnh đang tải (phủ trắng + vòng); một ảnh lỗi (viền đỏ, "Lỗi tải"). Nút × tròn 24 trên mọi ảnh (vùng chạm 24). "Xem gallery" chữ xanh đậm. Câu "Một số ảnh tải lên thất bại — …".'],
       ['images-max', 'Bước 2 · đủ 8 ảnh', 'Không còn ô Thêm; "Đã đạt tối đa 8 ảnh." chữ vàng đậm + câu xám.'],
       ['unit', 'Bước 3 · Đơn vị cơ sở', 'Mô tả nhỏ; nhãn kiểu khác (13 đậm xám, lùi 4) và ô nhập kiểu Material (nền xám canvas, viền nhạt, cao ~40) khác ô VInput 44 ở bước 1. Khe dưới ô là 8 + 16.'],
-      ['unit-dropdown', 'Bước 3 · gợi ý đơn vị', 'Gõ "h": danh sách nổi (bóng 8, bo 8) dưới ô: icon nhãn giá + tên đơn vị (Hộp, Hũ, Chai). Không có dòng "Tạo đơn vị mới".'],
+      ['unit-dropdown', 'Bước 3 · gợi ý đơn vị', 'Gõ "h": danh sách nổi (bóng 8, bo 8) dưới ô: icon nhãn giá + tên đơn vị (hộp, hũ, chai). Không có dòng "Tạo đơn vị mới"; đơn vị lưu chữ thường.'],
       ['cost-no-unit', 'Bước 4 · chưa có ĐVT', 'Hộp vàng tự vẽ "Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được giá cơ sở." (chạm → về bước 3, không có dấu hiệu bấm được). "Bỏ qua" | "Tiếp" vẫn hiện.'],
-      ['cost', 'Bước 4 · Giá cơ sở', 'Nhãn "Giá cơ sở (Hộp)" kiểu nhỏ + ô tiền VInput 44 hậu tố "đ" (bước này lại dùng VInput, bước 3 thì không).'],
+      ['cost', 'Bước 4 · Giá cơ sở', 'Nhãn "Giá cơ sở (hộp)" kiểu nhỏ + ô tiền VInput 44 hậu tố "đ" (bước này lại dùng VInput, bước 3 thì không).'],
       ['price-store', 'Bước 5 · Giá cửa hàng', '3 nút chọn cách tính (36 cao, chữ 13). "Quy tắc: Khung giá mặc định"; 2 thẻ gợi ý: tiêu đề **"(+28.000000000000004%)" / "(+14.000000000000002%)"** (tỉ lệ 0,28 / 0,14 × 100 in thẳng số thực; tỉ lệ tròn như 0,3 thì ra "(+30.0%)"), giá H3 xanh.'],
       ['price-store-loading', 'Bước 5 · đang tải quy tắc', 'Vòng xoay Material giữa.'],
       ['price-store-missing', 'Bước 5 · chưa có khung giá', 'Hộp vàng "Chưa cấu hình khung giá cửa hàng. Vui lòng thiết lập trong Cài đặt sản phẩm." — không có lối sang Cài đặt.'],
@@ -73,9 +73,9 @@ export const SCREENS = [
   },
   {
     id: 'pcc', group: 'pcc', code: 'SP-04', title: 'Product Control Center', route: '/products/items/sp1', states: [
-      ['ready', 'Sẵn sàng bán', 'iPhone: PCC thay danh sách trong khung (thanh dưới vẫn hiện), nút ← arrowBack. Web: cột phải 679 (thân 640), danh sách đánh dấu dòng chọn, không có nút ←. App bar: tên (H3) + nhãn nhỏ "Sẵn sàng bán". Thẻ tóm tắt: ảnh 64, tên chữ thường (không đậm), "Giá niêm yết: 125.000 đ", "Tồn (Hộp): 24". 10 thẻ mục cùng một khuôn (hộp icon xanh nhạt 40 + tiêu đề + phụ + nút chữ "Sửa"); thẻ nhóm thông tin bổ sung dùng emoji 💊. Phụ "Khung giá" dài 2 dòng: "Niêm yết · Sàn · Đơn vị · tên khung giá". Cuối là khối đỏ "Nâng cao" (đóng).'],
+      ['ready', 'Sẵn sàng bán', 'iPhone: PCC thay danh sách trong khung (thanh dưới vẫn hiện), nút ← arrowBack. Web: cột phải 679 (thân 640), danh sách đánh dấu dòng chọn, không có nút ←. App bar: tên (H3) + nhãn nhỏ "Sẵn sàng bán". Thẻ tóm tắt: ảnh 64, tên chữ thường (không đậm), "Giá niêm yết: 125.000 đ", "Tồn (hộp): 24". 10 thẻ mục cùng một khuôn (hộp icon xanh nhạt 40 + tiêu đề + phụ + nút chữ "Sửa"); thẻ nhóm thông tin bổ sung dùng emoji 💊. Phụ "Khung giá" dài 2 dòng: "Niêm yết · Sàn · Đơn vị · tên khung giá". Cuối là khối đỏ "Nâng cao" (đóng).'],
       ['ready-no-image', 'Sẵn sàng bán · chưa có ảnh', 'Nhãn "Sẵn sàng bán" nhưng ngay dưới là banner vàng "Cần bổ sung (1)" (blocker ảnh không chặn bán nhưng vẫn đếm). Ảnh trống → ô xám icon ảnh. Khung giá riêng → "· Giá riêng".'],
-      ['incomplete', 'Thiếu dữ liệu', 'Nhãn đỏ "Thiếu dữ liệu"; banner "Cần bổ sung (4)"; "Thiếu Giá cơ sở định giá", "Thiếu khung giá bán"; thẻ nhóm 💊 nền đỏ nhạt + "Thiếu thông tin bắt buộc" (chữ xám, không đỏ). "Chưa có mã vạch". Thẻ tóm tắt "Giá niêm yết: --", "Tồn (Lọ): 0 (Hết hàng)".'],
+      ['incomplete', 'Thiếu dữ liệu', 'Nhãn đỏ "Thiếu dữ liệu"; banner "Cần bổ sung (4)"; "Thiếu Giá cơ sở định giá", "Thiếu khung giá bán"; thẻ nhóm 💊 nền đỏ nhạt + "Thiếu thông tin bắt buộc" (chữ xám, không đỏ). "Chưa có mã vạch". Thẻ tóm tắt "Giá niêm yết: --", "Tồn (lọ): 0 (Hết hàng)".'],
       ['no-unit', 'Chưa có đơn vị cơ sở', '"Cần bổ sung (4)"; "Thiếu đơn vị cơ sở"; Tồn kho "0" (không đơn vị); tóm tắt "Tồn (cơ sở): 0 (Hết hàng)". Lịch sử "Chưa có lịch sử".'],
       ['inactive', 'Ngừng kinh doanh', '**Không chỗ nào trên màn cho biết sản phẩm đang ngừng kinh doanh**: nhãn vẫn "Sẵn sàng bán", chỉ khi mở "Nâng cao" mới thấy "Kinh doanh lại".'],
       ['deleted', 'Đã xoá', 'Nhãn xám "Đã xóa". Nút "Sửa" của 6 thẻ đầu mờ (chạm thẻ không làm gì), nhưng thẻ nhóm bổ sung, Ghi chú, Lịch sử vẫn bấm được (sửa được dữ liệu của sản phẩm đã xoá). "Nâng cao" → "Khôi phục sản phẩm".'],
@@ -118,6 +118,88 @@ export const SCREENS = [
       ['loading', 'Đang tải', 'Vòng Material giữa màn.'],
       ['empty', 'Chưa có lịch sử', 'Icon đồng hồ 48 xám nhạt + "Chưa có lịch sử thay đổi nào" (không VEmptyState).'],
       ['error', 'Lỗi', 'Icon lỗi 48 đỏ + câu + "Thử lại" viền (danh sách sản phẩm lỗi thì không có nút).'],
+    ],
+  },
+  {
+    id: 'profile', group: 'sub', code: 'SP-05', title: 'Hồ sơ sản phẩm', route: '/products/items/sp1/profile-maintenance', states: [
+      ['default', 'Mới mở', 'Ngoài khung, nút ← arrowBack, **không có tên sản phẩm** trên app bar (màn con khác có). 4 ô khe 16 (màn tạo khe 12). Hai ô gạt mỗi ô một hàng (màn tạo: chung một hàng). Chân "Huỷ | Lưu thay đổi" (mờ). Web: **hai gạch trên chân** — gạch hết bề ngang của VPageScaffold.bottomBar và gạch của ProductFormBottomBar trong cột 720.'],
+      ['lot-on', 'Bật quản lý theo lô', 'Ô "Bắt buộc hạn dùng" sáng; "Lưu thay đổi" bật.'],
+      ['locked', 'Đã có biến động kho', 'Hai ô gạt mờ + "Đã có biến động kho, không đổi được." chữ vàng.'],
+      ['sku-error', 'Trùng SKU', 'Lỗi dưới ô SKU **và** toast đỏ cùng câu.'],
+      ['name-error', 'Thiếu tên', 'Lỗi dưới tên.'],
+      ['saving', 'Đang lưu', '"Lưu thay đổi" có vòng; "Huỷ" vẫn bấm được.'],
+    ],
+  },
+  {
+    id: 'images', group: 'sub', code: 'SP-06', title: 'Ảnh sản phẩm', route: '/products/items/sp1/images-maintenance', states: [
+      ['default', 'Có ảnh', 'Như bước ảnh của màn tạo nhưng chữ là "Xem trước ảnh" (màn tạo "Xem gallery"); không có tên sản phẩm trên app bar. Web: ô ảnh ~212 px.'],
+      ['empty', 'Chưa có ảnh', 'Chỉ ô "+ Thêm" + câu gợi ý (không có "Chưa có ảnh" như màn tạo).'],
+      ['uploading', 'Đang tải lên', 'Ô "Thêm" thành vòng Material 36; ảnh đang tải không có lớp phủ "Đang tải" như màn tạo.'],
+      ['max', 'Đủ 8 ảnh', '"Đã đạt tối đa 8 ảnh." chữ vàng đậm.'],
+      ['delete-dialog', 'Xoá ảnh?', 'Dialog Material (cả iPhone — xác nhận khác của Theme 2 là sheet): vòng đỏ + thùng rác 32, "Xóa ảnh sản phẩm?" giữa, câu giữa, "Hủy" | "Xóa ảnh" đỏ.'],
+      ['gallery', 'Gallery', 'Toàn màn nền gần đen, AppBar Material "Gallery ảnh" + "1/3"; ảnh giữa; đáy: pill "Mặc định", "Vuốt để xem ảnh khác" (web không vuốt được, không có nút trước / sau), nút "Đóng" viền trắng.'],
+    ],
+  },
+  {
+    id: 'note', group: 'sub', code: 'SP-07', title: 'Ghi chú', route: '/products/items/sp1/note', states: [
+      ['default', 'Có ghi chú', 'Scaffold thường + VAppBar: nút ‹ (màn con khác ←); **web không giới hạn cột** — ô ghi chú và chân kéo hết 1280. Ô 6 dòng + bộ đếm. "Lưu thay đổi" mờ tới khi sửa.'],
+      ['empty', 'Trống', 'Gợi ý "Ví dụ: Hàng nhập từ NCC A…".'],
+      ['dirty', 'Đã sửa', '"Lưu thay đổi" bật.'],
+    ],
+  },
+  {
+    id: 'custom-fields', group: 'sub', code: 'SP-08', title: 'Nhập nhóm thông tin bổ sung', route: '/products/items/sp1/custom-fields/edit', states: [
+      ['default', 'Có giá trị', 'Tiêu đề = tên nhóm, phụ = tên sản phẩm. Một khung trắng bo 12 chứa các ô, **không đệm đáy** (khoảng trống dưới là đệm 24 của ô cuối). Chọn một, số, ô gạt "Kê đơn", ngày.'],
+      ['dirty', 'Đã sửa', '"Lưu thay đổi" bật. Bấm ← khi đã sửa thì **không hỏi**, mất thay đổi (CHECKLIST ghi "hỏi khi rời").'],
+      ['error', 'Thiếu bắt buộc', '"Trường này là bắt buộc" + toast.'],
+      ['loading', 'Đang tải', 'Tiêu đề tạm "Trường thông tin", nút ‹ (khi tải xong thành ←).'],
+      ['inactive', 'Mọi trường đã tắt', 'Ô mờ; không có chân lưu.'],
+    ],
+  },
+  {
+    id: 'units', group: 'sub', code: 'SP-09', title: 'Đơn vị đo lường', route: '/products/items/sp1/measurement-units', states: [
+      ['default', 'Có đơn vị', 'Hai thẻ có nhãn CHỮ HOA xám ("ĐƠN VỊ CƠ SỞ", "ĐƠN VỊ QUY ĐỔI (3)"). ĐVT cơ sở "hộp" chữ thường đậm. Mỗi đơn vị quy đổi: tên đậm, **tên lặp lại** ở dòng dưới, "20 x hộp"; chữ "giữ để mở" — chỉ nhấn giữ mới ra nút (web: không có cách bấm). Đơn vị tắt: nền xám + thẻ "Đã tắt". Nút "+ Thêm đơn vị quy đổi" viền xanh tự vẽ.'],
+      ['no-base', 'Chưa có ĐVT cơ sở', '"Chưa thiết lập (không bắt buộc)." (PCC thì báo đỏ "Thiếu đơn vị cơ sở" và chặn sẵn sàng bán) + nút viền "+ Thiết lập đơn vị cơ sở".'],
+      ['edit-base', 'Nhập ĐVT cơ sở', 'Ô + "Sẽ lưu ở dạng chữ thường: hộp" + "Huỷ" (chữ xám) | "Lưu". "Lưu thay đổi" ở chân cũng bật — hai nút lưu cho một việc.'],
+      ['no-conv', 'Chưa có quy đổi', '"Chưa có đơn vị quy đổi." + nút thêm.'],
+      ['adding', 'Thêm quy đổi', '"Tên đơn vị" | "Tỉ lệ (x hộp)" (nhãn bodySmall xám, khác VFieldLabel) + câu chữ thường + "Huỷ" | "Thêm".'],
+      ['expanded', 'Mở thao tác', '"Tắt đơn vị" (viền) | "Xoá" (đỏ) | "Đóng" (chữ xám) — 3 nút nhỏ trong thẻ.'],
+      ['expanded-off', 'Mở thao tác · đơn vị tắt', '"Bật đơn vị" | "Xoá" | "Đóng".'],
+      ['toast-added', 'Đã thêm', 'Toast "Đã cập nhật đơn vị quy đổi"; "Lưu thay đổi" bật nhưng chỉ đóng màn (đã lưu rồi).'],
+      ['toast-error', 'Lỗi nhập', 'Toast đỏ "Không thể dùng đơn vị cơ sở làm đơn vị quy đổi" — lỗi nhập hiện bằng toast, không dưới ô.'],
+    ],
+  },
+  {
+    id: 'units-sheet', group: 'sub', code: 'SP-09', title: 'Đơn vị · xác nhận', route: '/products/items/sp1/measurement-units', states: [
+      ['deactivate', 'Tắt đơn vị?', '"Tắt đơn vị này?" — "Tắt" đỏ.'],
+      ['reactivate', 'Bật lại?', '"Bật lại đơn vị?" — nút "Bật" **đỏ**.'],
+      ['delete', 'Xoá đơn vị?', '"Xoá đơn vị quy đổi?" — câu dài 3 ý; "Xoá" đỏ; câu viết "xóa", tiêu đề "Xoá".'],
+      ['delete-blocked', 'Không xoá được', '"Không thể xóa đơn vị" — "Đóng" | "Tắt đơn vị" **xanh** (cùng việc tắt mà sheet "Tắt đơn vị này?" tô đỏ).'],
+    ],
+  },
+  {
+    id: 'base-price', group: 'sub', code: 'SP-11', title: 'Giá cơ sở', route: '/products/items/sp1/manual-base-price', states: [
+      ['default', 'Có giá', 'Thẻ: ô "Giá cơ sở hiện tại | 80.000 đ" (viền xám nhạt), nhãn nhỏ "Giá cơ sở mới (đ / 1 hộp)", ô tiền gợi ý "Ví dụ: 45,000" (dấu phẩy; ô hiện "80.000" dấu chấm), hậu tố "đ / hộp", câu nhỏ. Chân nằm trong thân (một gạch; màn con khác hai gạch).'],
+      ['dirty', 'Đã sửa', '"Lưu thay đổi" bật.'],
+      ['empty', 'Chưa có giá', '"Giá cơ sở hiện tại | —".'],
+      ['no-unit', 'Chưa có ĐVT', 'Khung viền đứt "Cần thiết lập **đơn vị cơ sở** …" — không có nút sang màn đơn vị; chân "Lưu thay đổi" luôn mờ.'],
+      ['saving', 'Đang lưu', 'Vòng trên nút.'],
+    ],
+  },
+  {
+    id: 'price-bands', group: 'sub', code: 'SP-12', title: 'Khung giá bán', route: '/products/items/sp1/price-bands', states: [
+      ['default', 'Có đơn vị', '"ĐƠN VỊ & KHUNG GIÁ BÁN" (caption CHỮ HOA). Mỗi đơn vị một ô bo 8: tên + chữ "Sửa" / "Thiết lập" màu xanh (không phải nút, không vùng chạm 44); "Đơn vị cơ sở"; 3 hàng giá. Đơn vị tắt: "Đơn vị ngừng hoạt động" + nhãn "Không hoạt động" (đơn vị cùng trạng thái mà màn đơn vị gọi "Đã tắt").'],
+      ['loading', 'Đang tải', 'Vòng Material.'],
+      ['no-unit', 'Chưa có ĐVT', 'Khung viền đứt + chân "Huỷ | Lưu thay đổi" (màn chỉ xem mà có nút lưu, luôn mờ).'],
+      ['error', 'Lỗi', 'Một dòng chữ đen giữa màn.'],
+    ],
+  },
+  {
+    id: 'edit-band', group: 'sub', code: 'SP-13', title: 'Sửa khung giá một đơn vị', route: '/products/items/sp1/price-bands/edit', states: [
+      ['store', 'Theo khung giá cửa hàng', 'Cùng tiêu đề "Khung giá bán" với SP-12, không ghi đang sửa đơn vị nào (chỉ "1 hộp" nhỏ trong ô giá cơ sở). VChoiceList "Cách tính" 3 lựa chọn có mô tả. Ô chi tiết: "Giá niêm yết 28%" / "Giá sàn 14%", gạch, rồi **lặp lại nhãn** "Giá niêm yết 102.400 đ" / "Giá sàn 91.200 đ". Chữ trong ô dùng Text() không màu.'],
+      ['custom', 'Tự động riêng', 'Ô % rộng cố định 120 + "= 108.000 đ"; "(dự kiến)"; hộp ghi chú bo 4 (hộp khác bo 8 / 12).'],
+      ['manual', 'Nhập thủ công', 'Nhãn trái (2 phần) | ô tiền canh phải (3 phần); hộp ghi chú.'],
+      ['overwrite', 'Ghi đè?', 'Sheet **không tiêu đề**: "Ghi đè khung giá hiện tại?" tự vẽ trong nội dung, ô xám giá hiện tại, "Hủy" | "Ghi đè" (xanh). Web: hộp thoại không tiêu đề + nút Đóng góc.'],
     ],
   },
 ];

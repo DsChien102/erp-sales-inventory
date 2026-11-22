@@ -54,8 +54,8 @@ test('Bước tạo: số thứ tự, hasAnyData, gợi ý đơn vị', () => {
   assert.equal(hasAnyData(createState('new')), false);
   assert.equal(hasAnyData({ ...createState('new'), lot: true }), false);
   assert.equal(hasAnyData(createState('name-error')), true);
-  assert.deepEqual(matchUnits(['Hộp', 'Hũ', 'Chai', 'Lọ'], 'h'), ['Hộp', 'Hũ', 'Chai']);
-  assert.deepEqual(matchUnits(['Hộp', 'Lọ'], 'hop'), ['Hộp']);
+  assert.deepEqual(matchUnits(['hộp', 'hũ', 'chai', 'lọ'], 'h'), ['hộp', 'hũ', 'chai']);
+  assert.deepEqual(matchUnits(['hộp', 'lọ'], 'hop'), ['hộp']);
 });
 
 test('Mọi màn thuộc một đợt; mọi ca vẽ được ở cả hai khổ', () => {
@@ -76,7 +76,7 @@ test('Mọi màn thuộc một đợt; mọi ca vẽ được ở cả hai khổ
 import { evaluate, statusBadge, priceBandSubtitle, profileStockText, valueLine, ctaLabel } from '../app/pcc.js';
 
 test('ProductReadinessEvaluator + nhãn PCC', () => {
-  const full = { unit: 'Hộp', images: 3, basePrice: 1, band: {}, cfMissing: false };
+  const full = { unit: 'hộp', images: 3, basePrice: 1, band: {}, cfMissing: false };
   assert.deepEqual(evaluate(full), { ready: true, blockers: [] });
   const noImg = evaluate({ ...full, images: 0 });
   assert.equal(noImg.ready, true);
@@ -87,13 +87,26 @@ test('ProductReadinessEvaluator + nhãn PCC', () => {
 });
 
 test('Chữ phụ thẻ PCC + lịch sử', () => {
-  assert.equal(priceBandSubtitle({ list: 125000, floor: 110000, rule: 'Khung giá mặc định' }, 'Hộp'), 'Niêm yết: 125.000 đ · Sàn: 110.000 đ · Đơn vị: Hộp · Khung giá mặc định');
-  assert.equal(priceBandSubtitle({ list: 18000, floor: 15000, custom: true, rule: 'X' }, 'Lon'), 'Niêm yết: 18.000 đ · Sàn: 15.000 đ · Đơn vị: Lon · Giá riêng');
+  assert.equal(priceBandSubtitle({ list: 125000, floor: 110000, rule: 'Khung giá mặc định' }, 'hộp'), 'Niêm yết: 125.000 đ · Sàn: 110.000 đ · Đơn vị: hộp · Khung giá mặc định');
+  assert.equal(priceBandSubtitle({ list: 18000, floor: 15000, custom: true, rule: 'X' }, 'lon'), 'Niêm yết: 18.000 đ · Sàn: 15.000 đ · Đơn vị: lon · Giá riêng');
   assert.equal(priceBandSubtitle(null, 'Hộp'), 'Thiếu khung giá bán');
   assert.equal(profileStockText(0, null), 'Tồn (cơ sở): 0 (Hết hàng)');
-  assert.equal(profileStockText(24, 'Hộp'), 'Tồn (Hộp): 24');
+  assert.equal(profileStockText(24, 'hộp'), 'Tồn (hộp): 24');
   assert.equal(valueLine({ before: 'active', after: 'inactive' }), 'active — inactive');
   assert.equal(valueLine({ masked: true, before: 'a', after: 'b' }), '*** — ***');
   assert.equal(valueLine({}), '');
   assert.equal(ctaLabel('missing_price_band'), 'Thiết lập giá');
+});
+
+import { ratioText, unitsSaveEnabled, formatRate } from '../app/sub.js';
+
+test('Màn con: tỉ lệ khung cửa hàng, nút lưu màn đơn vị', () => {
+  assert.equal(ratioText(102400, 80000), '28%');
+  assert.equal(ratioText(null, 80000), '—');
+  assert.equal(ratioText(1, 0), '—');
+  assert.equal(unitsSaveEnabled({ persisted: false, editingBase: false }), false);
+  assert.equal(unitsSaveEnabled({ persisted: false, editingBase: true, input: 'Hộp', base: '' }), true);
+  assert.equal(unitsSaveEnabled({ persisted: false, editingBase: true, input: 'HỘP', base: 'hộp' }), false);
+  assert.equal(formatRate(20), '20');
+  assert.equal(formatRate(2.5), '2.5');
 });

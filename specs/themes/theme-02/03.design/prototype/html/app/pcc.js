@@ -68,10 +68,10 @@ export function valueLine(e) {
 // ---------------------------------------------------------------- dữ liệu PCC
 
 const HIST = [
-  { kind: 'band', summary: 'Cập nhật khung giá', title: 'Cập nhật khung giá — Hộp', at: '2026-11-20T15:42', rows: [['Cách tính', 'Nhập thủ công → Theo khung giá cửa hàng'], ['Giá niêm yết', '120.000 đ → 125.000 đ'], ['Giá sàn', '100.000 đ → 110.000 đ']], cause: 'Thao tác trực tiếp', actor: '3f9a2c1b' },
+  { kind: 'band', summary: 'Cập nhật khung giá', title: 'Cập nhật khung giá — hộp', at: '2026-11-20T15:42', rows: [['Cách tính', 'Nhập thủ công → Theo khung giá cửa hàng'], ['Giá niêm yết', '120.000 đ → 125.000 đ'], ['Giá sàn', '100.000 đ → 110.000 đ']], cause: 'Thao tác trực tiếp', actor: '3f9a2c1b' },
   { summary: 'Cập nhật giá cơ sở', at: '2026-11-20T15:40', actor: '3f9a2c1b' },
   { summary: 'Cập nhật hồ sơ sản phẩm', at: '2026-11-18T09:12', before: 'Amoxicillin', after: 'Amoxicillin 500mg', actor: '3f9a2c1b' },
-  { kind: 'band', summary: 'Cập nhật khung giá', title: 'Cập nhật khung giá — Hộp', at: '2026-11-15T10:03', rows: [['Cách tính', 'Theo khung giá cửa hàng → Theo khung giá cửa hàng'], ['Giá niêm yết', '115.000 đ → 120.000 đ'], ['Giá sàn', '96.000 đ → 100.000 đ']], cause: 'Tự động do Giá cơ sở thay đổi', actor: '3f9a2c1b' },
+  { kind: 'band', summary: 'Cập nhật khung giá', title: 'Cập nhật khung giá — hộp', at: '2026-11-15T10:03', rows: [['Cách tính', 'Theo khung giá cửa hàng → Theo khung giá cửa hàng'], ['Giá niêm yết', '115.000 đ → 120.000 đ'], ['Giá sàn', '96.000 đ → 100.000 đ']], cause: 'Tự động do Giá cơ sở thay đổi', actor: '3f9a2c1b' },
   { summary: 'Thay đổi trạng thái kinh doanh', at: '2026-11-12T14:05', before: 'inactive', after: 'active', actor: 'a71d09e4' },
   { summary: 'Thay đổi trạng thái kinh doanh', at: '2026-11-10T08:30', before: 'active', after: 'inactive', actor: 'a71d09e4' },
   { summary: 'Cập nhật thuộc tính sản phẩm', at: '2026-11-05T11:20', masked: true, before: 'x', after: 'y', actor: '3f9a2c1b' },
@@ -80,12 +80,12 @@ const HIST = [
 
 /** Sản phẩm trên PCC (ProductControlCenterDto rút gọn). */
 export const PCC = {
-  sp1: { id: 'sp1', name: 'Amoxicillin 500mg', img: 32, images: 3, sku: 'AMX500', barcode: '8936012345678', unit: 'Hộp', stock: 24, basePrice: 80000, band: { list: 125000, floor: 110000, rule: 'Khung giá mặc định' }, groups: [{ name: 'Thông tin dược', emoji: '💊', filled: 4, total: 4 }], note: 'Hàng nhập từ NCC Thú y Sài Gòn.', status: 'active', history: HIST[0] },
-  sp3: { id: 'sp3', name: 'Vắc-xin 5 bệnh cho chó', img: null, images: 0, sku: 'VX5B', barcode: null, unit: 'Lọ', stock: 0, basePrice: null, band: null, groups: [{ name: 'Thông tin dược', emoji: '💊', filled: 1, total: 4, missing: true }], cfMissing: true, note: '', status: 'active', history: { summary: 'Tạo sản phẩm', at: '2026-11-19T10:15' } },
+  sp1: { id: 'sp1', name: 'Amoxicillin 500mg', img: 32, images: 3, sku: 'AMX500', barcode: '8936012345678', unit: 'hộp', stock: 24, basePrice: 80000, band: { list: 125000, floor: 110000, rule: 'Khung giá mặc định' }, groups: [{ name: 'Thông tin dược', emoji: '💊', filled: 4, total: 4 }], note: 'Hàng nhập từ NCC Thú y Sài Gòn.', status: 'active', history: HIST[0] },
+  sp3: { id: 'sp3', name: 'Vắc-xin 5 bệnh cho chó', img: null, images: 0, sku: 'VX5B', barcode: null, unit: 'lọ', stock: 0, basePrice: null, band: null, groups: [{ name: 'Thông tin dược', emoji: '💊', filled: 1, total: 4, missing: true }], cfMissing: true, note: '', status: 'active', history: { summary: 'Tạo sản phẩm', at: '2026-11-19T10:15' } },
   sp5: { id: 'sp5', name: 'Men tiêu hoá Bio-Pet', img: null, images: 0, sku: null, barcode: null, unit: null, stock: 0, basePrice: null, band: null, groups: [], note: '', status: 'active', history: null },
-  sp8: { id: 'sp8', name: 'Pate cho mèo vị cá ngừ 85g', img: null, images: 0, sku: 'PATE85', barcode: '8850006301234', unit: 'Lon', stock: 120, basePrice: 12000, band: { list: 18000, floor: 15000, custom: true }, groups: [], note: '', status: 'active', history: { summary: 'Cập nhật khung giá', at: '2026-11-17T16:02' } },
-  sp6: { id: 'sp6', name: 'Cát vệ sinh cho mèo 10L', img: 50, images: 1, sku: 'CAT10', barcode: '8936099887766', unit: 'Bao', stock: 0, basePrice: 110000, band: { list: 145000, floor: 125000, rule: 'Khung giá mặc định' }, groups: [], note: '', status: 'inactive', history: { summary: 'Thay đổi trạng thái kinh doanh', at: '2026-11-10T08:30' } },
-  sp9: { id: 'sp9', name: 'Vòng cổ chống ve (mẫu cũ)', img: 120, images: 2, sku: 'VC-OLD', barcode: null, unit: 'Cái', stock: 0, basePrice: 45000, band: { list: 65000, floor: 55000, rule: 'Khung giá mặc định' }, groups: [{ name: 'Thông tin dược', emoji: '💊', filled: 0, total: 4, missing: true }], cfMissing: true, note: 'Mẫu cũ, không nhập thêm.', status: 'deleted', history: { summary: 'Xóa mềm sản phẩm', at: '2026-11-08T17:45' } },
+  sp8: { id: 'sp8', name: 'Pate cho mèo vị cá ngừ 85g', img: null, images: 0, sku: 'PATE85', barcode: '8850006301234', unit: 'lon', stock: 120, basePrice: 12000, band: { list: 18000, floor: 15000, custom: true }, groups: [], note: '', status: 'active', history: { summary: 'Cập nhật khung giá', at: '2026-11-17T16:02' } },
+  sp6: { id: 'sp6', name: 'Cát vệ sinh cho mèo 10L', img: 50, images: 1, sku: 'CAT10', barcode: '8936099887766', unit: 'bao', stock: 0, basePrice: 110000, band: { list: 145000, floor: 125000, rule: 'Khung giá mặc định' }, groups: [], note: '', status: 'inactive', history: { summary: 'Thay đổi trạng thái kinh doanh', at: '2026-11-10T08:30' } },
+  sp9: { id: 'sp9', name: 'Vòng cổ chống ve (mẫu cũ)', img: 120, images: 2, sku: 'VC-OLD', barcode: null, unit: 'cái', stock: 0, basePrice: 45000, band: { list: 65000, floor: 55000, rule: 'Khung giá mặc định' }, groups: [{ name: 'Thông tin dược', emoji: '💊', filled: 0, total: 4, missing: true }], cfMissing: true, note: 'Mẫu cũ, không nhập thêm.', status: 'deleted', history: { summary: 'Xóa mềm sản phẩm', at: '2026-11-08T17:45' } },
 };
 export const HISTORY = HIST;
 
