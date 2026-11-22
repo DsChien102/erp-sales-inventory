@@ -10,9 +10,10 @@ import { DESKTOP } from '../shared/shell.js';
 
 export const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-/** Icon riêng Theme 4 chưa có ở shared/icons.js (VIcons.straighten = thước đo, VIcons.refresh). Không sửa shared/ để tránh đụng phiên Theme 2. */
+/** Icon riêng Theme 4 chưa có ở shared/icons.js (VIcons.straighten = thước đo, VIcons.refresh, VIcons.powerOff). Không sửa shared/ để tránh đụng phiên Theme 2. */
 const LOCAL_ICONS = {
   ruler: '<path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/>',
+  powerOff: '<path d="M18.36 6.64A9 9 0 0 1 20.77 15"/><path d="M6.16 6.16a9 9 0 1 0 12.68 12.68"/><path d="M12 2v4"/><path d="m2 2 20 20"/>',
   refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
 };
 export const icon = (name, cls = '') => (LOCAL_ICONS[name]

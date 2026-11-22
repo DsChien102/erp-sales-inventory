@@ -67,3 +67,26 @@ export const UNITS = [
   { id: 'u5', name: 'Gói dùng thử', base: false, list: null, floor: null, floorHidden: false },
   { id: 'u4', name: 'Thùng (20 hộp)', base: false, list: 2200000, floor: 1800000, floorHidden: true },
 ];
+
+/**
+ * CustomerPriceRuleDetailDto cho PR-08 (giá riêng r1 và các biến thể). customer.phone có; referenceHealth.issueCodes là mã thô từ RPC.
+ */
+export const DETAIL = {
+  id: 'r1', customer: 'Công ty TNHH Thú y An Phát', phone: '0283 812 4567', product: 'Amoxicillin 500mg', unit: 'Hộp',
+  price: 105000, list: 125000, floor: 98000, floorHidden: false, status: 'applying', persisted: 'active', below: false,
+  from: '01/07/2026', to: null, source: 'manual', issues: [],
+  actions: ['edit', 'disable', 'history'],
+  disabledBy: null, disabledAt: null, disabledReason: null,
+};
+
+/**
+ * CustomerPriceRuleActivityDto (mới nhất trước). type: created | updated | disabled | reenabled; source: manual | excelImport | salesOrder | migration.
+ * oldPrice / newPrice: rule_price_minor; oldFrom/newFrom/oldTo/newTo: chuỗi ngày ISO như RPC trả (null → "Không giới hạn").
+ */
+export const ACTIVITIES = [
+  { id: 'a5', type: 'updated', actor: 'Nguyễn Thị Lan', source: 'manual', at: '05/10/2026 10:21', oldPrice: 110000, newPrice: 105000, oldFrom: '2026-07-01', newFrom: '2026-07-01', oldTo: null, newTo: null, reason: 'Theo hợp đồng đại lý Q4', oldFloorDiff: 12000, newFloorDiff: 7000 },
+  { id: 'a4', type: 'reenabled', actor: 'Trần Minh Đức', source: 'manual', at: '18/09/2026 08:05', oldPrice: 110000, newPrice: 110000, oldFrom: '2026-07-01', newFrom: '2026-07-01', oldTo: null, newTo: null, reason: '', oldFloorDiff: 12000, newFloorDiff: 12000 },
+  { id: 'a3', type: 'disabled', actor: 'Trần Minh Đức', source: 'manual', at: '02/09/2026 16:40', oldPrice: 110000, newPrice: 110000, oldFrom: '2026-07-01', newFrom: '2026-07-01', oldTo: null, newTo: null, reason: 'Khách tạm ngưng nhập hàng', oldFloorDiff: 12000, newFloorDiff: 12000 },
+  { id: 'a2', type: 'updated', actor: 'Nguyễn Thị Lan', source: 'manual', at: '15/07/2026 14:12', oldPrice: 115000, newPrice: 110000, oldFrom: '2026-07-01', newFrom: '2026-07-01', oldTo: '2026-12-31', newTo: null, reason: '', oldFloorDiff: 17000, newFloorDiff: 12000 },
+  { id: 'a1', type: 'created', actor: 'Nguyễn Thị Lan', source: 'manual', at: '01/07/2026 08:00', oldPrice: null, newPrice: 115000, oldFrom: null, newFrom: '2026-07-01', oldTo: null, newTo: '2026-12-31', reason: null, oldFloorDiff: null, newFloorDiff: 17000 },
+];

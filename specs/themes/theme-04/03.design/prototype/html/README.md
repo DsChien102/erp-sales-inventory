@@ -9,7 +9,7 @@ Làm 2 đợt, mỗi đợt một commit. Cột trái trang xem chia theo đợt
 | Đợt | Màn | Trạng thái |
 |---|---|---|
 | 1 · Danh sách & form | PR-01 Danh sách, PR-02 Bộ lọc / Sắp xếp, PR-04 Tạo / sửa (+ 4 sheet: Đến ngày, Ghi đè, Rời khỏi, Lưu thay đổi), PR-05 Chọn khách, PR-06 Chọn sản phẩm, PR-07 Chọn đơn vị | ✅ 53 ca × 2 khổ |
-| 2 · Chi tiết & lịch sử | PR-08 Chi tiết (+ sheet thao tác / tắt / bật lại), PR-10 Lịch sử (+ sheet lọc, chi tiết hoạt động) | ⬜ |
+| 2 · Chi tiết & lịch sử | PR-08 Chi tiết (+ sheet thao tác / tắt / bật lại, toast), PR-10 Lịch sử (+ sheet lọc, chi tiết hoạt động) | ✅ 44 ca × 2 khổ |
 
 PR-03 (Chọn cách thêm) và PR-09 (Nhập Excel) đã bỏ ở 6-A nên không vẽ.
 
@@ -30,10 +30,12 @@ node tools/capture.mjs      # mọi ca × 2 khổ → tools/proto-final/{iphone,
 | Tệp | Vai trò |
 |---|---|
 | `app/cases.js` | Nhóm (đợt), màn, ca, kèm điều cần nhìn của từng ca |
-| `app/ds.js` | Widget DS, **chép từ Theme 2** (`theme-02/app/ds.js`, đổi `t2-` → `t4-`). Thêm: `bottomSheet` (showVBottomSheet M3, web rộng ≤ 640), `section` (VSection), `datePicker` (VDatePicker), `moneyField` (VMoneyField), `pickerField`, `radio`, `textAreaPlain`, `banner` có `footer`. Icon `ruler` / `refresh` để cục bộ (`LOCAL_ICONS`), không sửa `shared/icons.js` |
+| `app/ds.js` | Widget DS, **chép từ Theme 2** (`theme-02/app/ds.js`, đổi `t2-` → `t4-`). Thêm: `bottomSheet` (showVBottomSheet M3, web rộng ≤ 640), `section` (VSection), `datePicker` (VDatePicker), `moneyField` (VMoneyField), `pickerField`, `radio`, `textAreaPlain`, `banner` có `footer`. Icon `ruler` / `refresh` / `powerOff` để cục bộ (`LOCAL_ICONS`), không sửa `shared/icons.js` |
 | `app/data.js` | Giá riêng, khách, sản phẩm, đơn vị mẫu (cửa hàng thú y như Theme 2 / 3); `money` (MoneyFormatter.formatMinor), `dong` (định dạng của màn chọn) |
 | `app/list.js` | PR-01, PR-02; hàm thuần `bodyBranch`, `activeCount`, `effectiveText`, `sortLabel` |
 | `app/form.js` | PR-04…07 + 4 sheet; hàm thuần `diffWithPercent`, `showSummary`, `isBelowFloor`, `isValid`, `isLongValue`, `unitSubtitle` |
+| `app/detail.js` | PR-08 + sheet thao tác / tắt / bật lại; hàm thuần `detailDiff`, `activitySummary`, nhãn / icon / tone hoạt động |
+| `app/history.js` | PR-10 + sheet lọc / chi tiết hoạt động; hàm thuần `filterActivities`, `withinDays`, `calendarDate`, `diffMoney`, `actorOptions` |
 | `app/main.js` | Ca → trạng thái; mọi màn vẽ ngoài khung (`insideShell('/pricing…') = false`) |
 | `styles/t4.css` | Phần DS chép từ `t2.css`, rồi tới rule riêng Theme 4 (tiền tố `t4-`, token `--c45-v2-*`) |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem và chụp ảnh, chép khuôn Theme 2 (cổng 8774) |
@@ -47,6 +49,8 @@ Có 4 bản `ds.js` (Theme 1, 3, 2, 4). Việc gom về `shared/` để sau.
 | PR-01 | `pages/pricing_list_page.dart`, `widgets/{price_rule_list_search_and_filter, price_rule_list_view, price_rule_card, price_rule_status_badge}.dart`, `logic/price_rule_list_{cubit,state,filters}.dart` |
 | PR-02 | `widgets/{price_rule_filter_bottom_sheet, price_rule_sort_bottom_sheet}.dart` |
 | PR-04 | `pages/pricing_form_page.dart`, `widgets/{price_rule_form_body, price_rule_form_edit_header, price_rule_form_readiness_summary, price_rule_price_field, price_rule_warning_banner, price_rule_form_blocking_states, price_rule_overwrite_confirm_dialog, price_rule_leave_form_dialog, price_rule_save_confirm_sheet}.dart`, `logic/price_rule_form_{cubit,state}.dart` |
+| PR-08 | `pages/pricing_detail_page.dart`, `widgets/{price_rule_detail_content, price_rule_detail_rows, price_rule_action_sheet, price_rule_disable_sheet, price_rule_reenable_sheet}.dart`, `logic/price_rule_detail_cubit.dart` |
+| PR-10 | `pages/pricing_history_page.dart`, `widgets/{price_rule_history_view, price_rule_history_timeline_tile, price_rule_history_states, price_rule_history_filter_sheet, price_rule_activity_detail_sheet, price_rule_history_shared}.dart`, `logic/price_rule_history_{cubit,state}.dart` |
 | PR-05…07 | `pages/pricing_pick_{customer,product,unit}_page.dart`, `widgets/pricing_selectable_entity_card.dart` |
 | Khung | `core/router/app_router.dart` (GoRoute `/pricing…` cấp gốc), `c45_design_system` `VPageScaffold` (bottomBar = `bottomNavigationBar`), `showVBottomSheet` |
 
@@ -114,3 +118,52 @@ Có 4 bản `ds.js` (Theme 1, 3, 2, 4). Việc gom về `shared/` để sau.
 43. Lỗi tải ra hộp trung tính "Đã xảy ra lỗi", còn lỗi danh sách là hộp đỏ.
 44. Khung tải là 3 khối xám 72, không phải khung thẻ.
 45. Nhãn vai trò ("KH & NCC") cùng kiểu chữ với dòng email / SĐT ngay trên.
+
+## Hiện trạng Flutter (để rà): đợt 2
+
+**Chi tiết (PR-08)**
+
+46. Có 3 kiểu nút quay lại: chi tiết là IconButton 48 (←), form là VIconBox 40 (←), màn chọn và lịch sử là ‹ của VAppBar.
+47. Tên khách lặp 2 lần liền nhau: ở phụ đề app bar và ở hàng đầu thẻ. Thẻ đầu không có tiêu đề, trong khi các thẻ sau có tiêu đề + gạch.
+48. Mọi giá trị là bodySmall 13 canh phải. Nhãn cố định 128, nên tên khách dài xuống 2 dòng dù cột nhãn còn trống.
+49. **"Chênh lệch 20.000đ (-16,0%)" mất dấu trừ ở phần tiền** (cùng lỗi với form), và không nói chênh so với gì.
+50. "Giá sàn: Ẩn theo quyền" hiện cả khi thật ra là **thiếu giá sàn** (sản phẩm chưa có khung giá).
+51. Banner "Cần kiểm tra" liệt kê **mã lỗi thô** từ RPC ("• product_unit_reference_inactive"). Gạch đầu dòng ghép bằng chữ.
+52. Banner cách thẻ dưới 8, các thẻ cách nhau 16. Giá riêng đã tắt hiện banner xanh dương (thông tin), không phải cảnh báo.
+53. "Thời gian" tắt ghi "02/09/2026 16:40", form ghi "05/10/2026 · 10:21": hai kiểu ngày giờ.
+54. Mọi việc nằm sau một nút "Thao tác" ở chân. Kể cả giá hết hiệu lực chỉ còn "Lịch sử", vẫn phải mở sheet mới thấy; trong khi thân đã có "Xem tất cả lịch sử".
+55. Chưa có hoạt động: thẻ "Lịch sử gần đây" chỉ còn tiêu đề + gạch + "Xem tất cả lịch sử ›", không có câu "chưa có".
+56. Lỗi / không tìm thấy / không có quyền không có lối về danh sách (chỉ nút ←).
+57. Toast chỉ hiện `message`, không hiện `title`. Vì vậy "Đã tắt giá riêng" mất, chỉ còn "Giá riêng sẽ không áp dụng cho đơn hàng mới."; lỗi bật lại chỉ còn "Vui lòng thử lại sau."
+
+**Sheet thao tác / tắt / bật lại**
+
+58. Sheet tắt và sheet bật lại có tiêu đề sheet ("Tắt giá riêng") rồi ngay dưới lại có icon 56 + tiêu đề gần trùng ("Tắt giá riêng?").
+59. Sheet tắt: ô lý do không có bộ đếm, khác ô lý do của sheet "Lưu thay đổi?" (có "0/200").
+60. Sheet bật lại: banner ghi "tự động ghi đè **(xoá)** giá riêng trùng". Đây là thao tác phá dữ liệu mà banner chỉ là thông tin xanh dương, nút chính màu xanh.
+61. Bị chặn ("Không thể bật lại"): không có lối mở giá riêng đang chặn. Chỉ còn nút viền "Giữ đã tắt" đầy ngang.
+62. Đang kiểm tra: 2 khối xám, không có chữ.
+63. Trong thẻ tóm tắt, "Không giới hạn" cũng dùng chữ mono đậm như ngày.
+64. "Đang tắt..." / "Đang bật lại..." chỉ đổi chữ, không có vòng xoay.
+
+**Lịch sử (PR-10)**
+
+65. Tên khách lặp lại: phụ đề app bar và hàng ngữ cảnh dưới ô tìm. Hàng ngữ cảnh là Row không co, nên **tên dài tràn mép phải** (debug hiện sọc vàng đen).
+66. Nhãn hoạt động ngắn ("Sửa giá", "Tắt"), khác chi tiết ("Sửa giá riêng", "Tắt giá riêng").
+67. Nguồn hiện 2 lần trên mỗi thẻ: "Nguyễn Thị Lan · Tạo thủ công" và badge "Tạo thủ công".
+68. Icon hoạt động "Sửa" (tone primary) nền trắng, gần như không thấy vòng trên nền xám.
+69. Tìm, chip, bộ lọc, đảo thứ tự đều lọc **cục bộ** trên các dòng đã tải. Tìm chỉ theo nhãn + tên người, không theo lý do hay giá.
+70. Nút lọc báo đang lọc bằng chấm tròn; danh sách giá riêng dùng số. Chip "Sửa giá" cũng làm nút lọc sáng.
+71. Hàng chip đang lọc chỉ có loại và thời gian. Lọc theo người thì không có chip nào nhưng vẫn có "Xóa lọc". Dấu ✕ là ký tự trong chữ, không phải nút xoá của VChip.
+72. "Mới nhất trước ˅" có mũi tên xuống như menu, nhưng bấm là đảo luôn.
+73. Chưa có lịch sử: ô tìm, chip, "0 kết quả" vẫn hiện trên hộp rỗng. Tải thêm: ô xám vuông 40 × 40.
+74. Trạng thái rỗng / lỗi / không quyền dùng widget riêng (vòng 64, H4, nút viền), khác VEmptyState ở danh sách và chi tiết.
+
+**Sheet lịch sử**
+
+75. "Bộ lọc lịch sử" không có tiêu đề sheet; tự vẽ tiêu đề không gạch, không ×. Bộ lọc danh sách thì có tiêu đề + gạch. Nhãn nhóm 14 đen (danh sách: 13 xám). Chip có đổi màu khi chọn (danh sách thì không).
+76. "Người thực hiện": **"Tất cả" nằm cuối**, vì `..sort()` sắp theo mã ký tự. Danh sách người chỉ lấy từ các dòng đã tải.
+77. "Thời gian" có 7 / 30 / 90 ngày; bộ lọc danh sách chỉ 7 / 30.
+78. "Chi tiết hoạt động": bảng trước / sau luôn đủ 4 hàng dù chỉ đổi giá; giá "Sau" luôn tô xanh. Tạo mới: "Ngày bắt đầu" cột Trước ghi **"Không giới hạn"** (giá trị rỗng mặc định của ngày). Rỗng dùng 3 ký hiệu: "—", "-", "Không giới hạn".
+79. "Xem chi tiết giá riêng >" (">" là chữ) chỉ quay lại màn chi tiết vừa rời.
+80. Banner "Quyền hạn chế" và ô "Ẩn theo quyền 🔒" không bao giờ hiện: `hasSensitivePermission` luôn true.

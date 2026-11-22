@@ -10,6 +10,9 @@ import {
   customerPick, effectiveToSheet, formNoPermission, formPage, formState, formStateChanged, leaveSheet, overwriteSheet,
   productPick, saveConfirmSheet, saveErrorToast, unitPick,
 } from './form.js';
+import { actionSheet, detailPage, detailState, detailToast, disableSheet, reenableError, reenableLoading, reenableSheet } from './detail.js';
+import { activitySheet, historyFilterSheet, historyPage } from './history.js';
+import { ACTIVITIES } from './data.js';
 
 /** Trạng thái ban đầu của một ca. */
 export function caseView(screen, state, device) {
@@ -50,6 +53,39 @@ export function renderView(v) {
     case 'pick-customer': page = customerPick(v.state, v); break;
     case 'pick-product': page = productPick(v.state, v); break;
     case 'pick-unit': page = unitPick(v.state, v); break;
+    case 'detail': {
+      const t = { 'toast-created': ['success', 'Đã tạo giá riêng thành công'], 'toast-disabled': ['success', 'Giá riêng sẽ không áp dụng cho đơn hàng mới.'], 'toast-reenable-error': ['danger', 'Vui lòng thử lại sau.'] }[v.state];
+      const st = v.state === 'toast-created' ? 'applying' : v.state === 'toast-reenable-error' ? 'disabled' : v.state;
+      page = detailPage(st, v, { toastHtml: t ? detailToast(v, t[0], t[1]) : '' });
+      break;
+    }
+    case 'detail-sheet': {
+      const off = detailState('disabled');
+      const on = detailState('applying');
+      const sheets = {
+        actions: () => [on, bottomSheet(actionSheet(on.actions), { title: 'Thao tác' })],
+        'actions-disabled': () => [off, bottomSheet(actionSheet(off.actions), { title: 'Thao tác' })],
+        disable: () => [on, bottomSheet(disableSheet(on), { title: 'Tắt giá riêng' })],
+        'disable-submitting': () => [on, bottomSheet(disableSheet(on, { submitting: true, reason: 'Khách tạm ngưng nhập hàng' }), { title: 'Tắt giá riêng' })],
+        'reenable-loading': () => [off, bottomSheet(reenableLoading(), { title: 'Bật lại giá riêng' })],
+        reenable: () => [off, bottomSheet(reenableSheet(off), { title: 'Bật lại giá riêng' })],
+        'reenable-below': () => [off, bottomSheet(reenableSheet(off, { mode: 'below' }), { title: 'Bật lại giá riêng' })],
+        'reenable-below-ack': () => [off, bottomSheet(reenableSheet(off, { mode: 'below', ack: true }), { title: 'Bật lại giá riêng' })],
+        'reenable-blocked': () => [off, bottomSheet(reenableSheet(off, { mode: 'blocked' }), { title: 'Bật lại giá riêng' })],
+        'reenable-error': () => [off, bottomSheet(reenableError(), { title: 'Bật lại giá riêng' })],
+      };
+      const [rule, sheet] = sheets[v.state]();
+      page = detailPage(rule === off ? 'disabled' : 'applying', v);
+      overlay = sheet;
+      break;
+    }
+    case 'history': page = historyPage(v.state, v); break;
+    case 'history-sheet':
+      page = historyPage('loaded', v);
+      if (v.state === 'filter') overlay = bottomSheet(historyFilterSheet(), { label: 'Bộ lọc lịch sử giá riêng' });
+      else if (v.state === 'filter-selected') overlay = bottomSheet(historyFilterSheet({ type: 'Sửa giá', actor: 'Trần Minh Đức', time: '30 ngày gần đây' }), { label: 'Bộ lọc lịch sử giá riêng' });
+      else overlay = bottomSheet(activitySheet(v.state === 'activity' ? ACTIVITIES[0] : ACTIVITIES[4]), { title: 'Chi tiết hoạt động' });
+      break;
     default: break;
   }
   return renderShell({ device: v.device, width: v.width, height: v.height, location: v.location, orgName: 'Mosaic Retail Demo', overlay }, page);

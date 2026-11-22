@@ -5,7 +5,9 @@ import { render } from '../app/main.js';
 import { CASES, SCREENS, GROUPS } from '../app/cases.js';
 import { activeCount, bodyBranch, effectiveText, sortLabel } from '../app/list.js';
 import { diffWithPercent, isBelowFloor, isLongValue, isValid, showSummary, unitSubtitle } from '../app/form.js';
-import { dong, money } from '../app/data.js';
+import { dong, money, ACTIVITIES } from '../app/data.js';
+import { activitySummary, detailDiff } from '../app/detail.js';
+import { actorOptions, calendarDate, diffMoney, filterActivities, withinDays } from '../app/history.js';
 
 test('MoneyFormatter.formatMinor: "95.000đ", không dấu cách', () => {
   assert.equal(money(95000), '95.000đ');
@@ -47,6 +49,29 @@ test('Chọn đơn vị: dòng giá', () => {
   assert.equal(unitSubtitle({ list: null, floor: null, floorHidden: false }), '');
   assert.match(unitSubtitle({ list: null, floor: 4000, floorHidden: false }), /--.*Giá sàn/);
   assert.doesNotMatch(unitSubtitle({ list: 100, floor: 50, floorHidden: true }), /Giá sàn/);
+});
+
+test('Chi tiết: chênh lệch, tóm tắt hoạt động', () => {
+  assert.equal(detailDiff(-20000, 125000), '20.000đ (-16,0%)');
+  assert.equal(detailDiff(5000, 100000), '+5.000đ (+5,0%)');
+  assert.equal(detailDiff(5000, null), '+5.000đ');
+  assert.equal(activitySummary(ACTIVITIES[0]), 'Giá đổi từ 110.000đ → 105.000đ');
+  assert.equal(activitySummary(ACTIVITIES[2]), 'Lý do: Khách tạm ngưng nhập hàng');
+  assert.equal(activitySummary(ACTIVITIES[1]), 'Giá áp dụng: 110.000đ');
+});
+
+test('Lịch sử: lọc cục bộ, ngày, người thực hiện', () => {
+  assert.equal(filterActivities(ACTIVITIES, { quick: 'priceEdit' }).length, 3);
+  assert.equal(filterActivities(ACTIVITIES, { q: 'đức' }).length, 2);
+  assert.equal(filterActivities(ACTIVITIES, { q: 'giá sàn' }).length, 0);
+  assert.equal(filterActivities(ACTIVITIES, { newestFirst: false })[0].type, 'created');
+  assert.equal(filterActivities(ACTIVITIES, { type: 'Sửa giá', time: '90 ngày gần đây' }).length, 1);
+  assert.equal(withinDays('05/10/2026 10:21', 30), false);
+  assert.deepEqual(actorOptions(ACTIVITIES), ['Nguyễn Thị Lan', 'Trần Minh Đức', 'Tất cả']);
+  assert.equal(calendarDate(null), 'Không giới hạn');
+  assert.equal(calendarDate('2026-07-01'), '01/07/2026');
+  assert.equal(diffMoney(null), '-');
+  assert.equal(diffMoney(-7000), '-7.000đ');
 });
 
 test('Mọi màn thuộc một đợt; mọi ca vẽ được ở cả hai khổ', () => {
