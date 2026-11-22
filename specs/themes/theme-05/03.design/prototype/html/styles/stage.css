@@ -1,0 +1,4 @@
+/* Nền trang chụp ảnh (không thuộc khung). Web hẹp 900 canh trái trong khổ 1280 để thấy rõ chiều rộng cửa sổ. */
+html, body { margin: 0; font-family: var(--c45-v2-font-sans); }
+body { background: var(--c45-v2-neutral-300); }
+.sh-stage { display: flex; }
