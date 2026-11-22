@@ -68,3 +68,30 @@ test('mọi ca vẽ được; màn công khai mở ngoài khung (không thanh b�
     assert.doesNotMatch(html, /undefined|NaN/, `${screen}/${state}/${d} giá trị lỗi`);
   }
 });
+
+// ---------------------------------------------------------------- đợt 2
+test('màn quản trị: web chia hai cột 360 | chi tiết, hẹp một màn', () => {
+  assert.match(render('users', 'members', 'web'), /t1-split__list" style="width:360px/);
+  assert.doesNotMatch(render('users', 'members', 'iphone'), /t1-split/);
+  assert.match(render('member-detail', 'active', 'web'), /t1-card t1-card--pad is-selected/); // thẻ đang mở được tô trong cột trái
+});
+
+test('toast của chi tiết nằm trong cột phải (ScaffoldMessenger gốc), danh sách có messenger riêng', () => {
+  const html = render('member-detail', 'toast-deactivated', 'web');
+  const right = html.slice(html.indexOf('t1-split__detail'));
+  assert.match(right, /t1-toast/);
+  assert.doesNotMatch(html.slice(0, html.indexOf('t1-split__detail')), /t1-toast/);
+});
+
+test('VPageScaffold mặc định: cột 720 (web toàn màn) / 640 (cột phải 919) / không giới hạn (iPhone)', async () => {
+  const { columnMax, detailWidth } = await import('../app/ds.js');
+  assert.equal(columnMax(1280), 720);
+  assert.equal(columnMax(detailWidth(1280)), 640);
+  assert.equal(columnMax(390), Infinity);
+});
+
+test('chủ sở hữu duy nhất / đã loại: không có thanh Thao tác', () => {
+  assert.doesNotMatch(render('member-detail', 'owner', 'iphone'), /t1-bottombar/);
+  assert.doesNotMatch(render('member-detail', 'removed', 'iphone'), /t1-bottombar/);
+  assert.match(render('member-detail', 'active', 'iphone'), /t1-bottombar/);
+});

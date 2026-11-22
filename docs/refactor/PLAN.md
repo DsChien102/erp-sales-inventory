@@ -912,7 +912,7 @@ Mỗi theme đi 4 bước:
 
 | Theme | Prototype HTML | Kiểm lại | Rà UI (impeccable) | Chuyển về Flutter | Ghi chú |
 |---|---|---|---|---|---|
-| Theme 1 (TH-01) + Web cho app | 🔄 đợt 1/3 (công khai) ✅ 2026-11-22 [`specs/themes/theme-01/03.design/prototype/html/`](../../specs/themes/theme-01/03.design/prototype/html/README.md) (58 ca × 2 khổ; README có 30 điểm hiện trạng); đợt 2 quản trị, đợt 3 tài khoản ⬜ | ⬜ | ⬜ | ⬜ | W-2 (Theme 1 trên web). ID-08 dùng APP-04 của khung chung; ID-23 vẽ chung với ID-04 |
+| Theme 1 (TH-01) + Web cho app | 🔄 đợt 1/3 (công khai) ✅ 2026-11-22 [`specs/themes/theme-01/03.design/prototype/html/`](../../specs/themes/theme-01/03.design/prototype/html/README.md) (58 ca × 2 khổ; README có 30 điểm hiện trạng); đợt 2/3 (quản trị ID-11…20) ✅ 2026-11-22 (97 ca × 2 khổ; thêm 22 điểm hiện trạng); đợt 3 tài khoản ⬜ | ⬜ | ⬜ | ⬜ | W-2 (Theme 1 trên web). ID-08 dùng APP-04 của khung chung; ID-10 dùng APP-02 (Menu Thêm); ID-23 vẽ chung với ID-04 |
 | Theme 3 (TH-03) | ✅ 2026-11-22 [`specs/themes/theme-03/03.design/prototype/html/`](../../specs/themes/theme-03/03.design/prototype/html/README.md), 3 đợt: danh sách & tạo, hồ sơ PT-07 + PT-12, liên hệ & chuyển đổi (120 ca × 2 khổ; README có 77 điểm hiện trạng) | ⬜ | ⬜ | ⬜ | DS chép từ Theme 1 (`ds.js`, tiền tố `t3-`; gom về `shared/` để sau). PT-07 vẽ đủ khối Công nợ (Theme 6), Chương trình ưu đãi + Lịch sử nhập hàng (Theme 7) như Flutter |
 | Theme 2 (TH-02) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | |
 | Theme 4 (TH-04) | ⬜ chưa có | ⬜ | ⬜ | ⬜ | |
