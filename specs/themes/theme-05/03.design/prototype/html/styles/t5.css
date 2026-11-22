@@ -468,3 +468,32 @@
 .t5-h4b { margin: 0; font-size: var(--sh-fs-md); line-height: 20px; font-weight: 700; color: var(--c45-v2-text-primary); }
 .t5-h3b.t5-text-danger, .t5-h4b.t5-text-danger { color: var(--c45-v2-text-danger); }
 .t5-swipe:not(.is-open) > .t5-swipe__actions { visibility: hidden; }
+
+/* ================================================ DS chung chép lại từ t4.css (rule bị cắt khi tách phần Theme 4) */
+/* _FilterButton: VIconBox 44 bo VRadius.button (8), viền borderDefault, nền surface; đang lọc → nền primary 10%, viền + icon primary */
+.t5-filterbtn { position: relative; display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; padding: 0; border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-input); background: var(--c45-v2-surface-default); color: var(--c45-v2-text-primary); font-size: 20px; cursor: pointer; }
+.t5-filterbtn.is-active { background: rgb(47 122 58 / .1); border-color: var(--c45-v2-action-primary-default); color: var(--c45-v2-action-primary-default); }
+.t5-filterbtn__badge { position: absolute; top: -6px; right: -8px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--c45-v2-action-primary-default); color: var(--c45-v2-surface-default); font-family: var(--c45-v2-font-mono); font-size: 14px; line-height: 16px; font-weight: 600; text-align: center; }
+.t5-label { display: block; }
+.t5-section { display: flex; flex-direction: column; }
+.t5-section__title { margin: 0 0 8px; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-input__chev { display: grid; place-items: center; font-size: 20px; color: var(--c45-v2-text-muted); }
+.t5-input--picker input { cursor: pointer; }
+.t5-input--mono input { font-family: var(--c45-v2-font-mono); font-size: 14px; line-height: 20px; font-weight: 600; }
+.t5-date { display: flex; align-items: center; gap: 8px; width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--c45-v2-border-input); border-radius: var(--c45-v2-radius-input); background: var(--c45-v2-surface-default); text-align: left; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-muted); cursor: pointer; }
+.t5-date .icon { flex: 0 0 auto; font-size: 20px; color: var(--c45-v2-text-muted); }
+.t5-date.has-value { color: var(--c45-v2-text-primary); }
+.t5-summary { padding: 16px; border: 1px solid var(--c45-v2-action-primary-default); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-success); }
+.t5-cmp { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-bottom: 8px; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-primary); }
+.t5-cmp b { min-width: 0; text-align: right; font-family: var(--c45-v2-font-mono); font-size: 14px; line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t5-cmp b.is-danger { color: var(--c45-v2-text-danger); }
+.t5-cmp b.is-success { color: var(--c45-v2-action-primary-default); }
+/* VIconBox tone preset: primary → (surface, primary); neutral → (surface, textSecondary); info / success / danger → nền nhạt + màu */
+.t5-ibox--tone-primary { background: var(--c45-v2-surface-default); color: var(--c45-v2-action-primary-default); }
+.t5-ibox--tone-neutral { background: var(--c45-v2-surface-default); color: var(--c45-v2-text-secondary); }
+.t5-ibox--tone-info { background: var(--c45-v2-surface-info); color: var(--c45-v2-text-info); }
+.t5-ibox--tone-success { background: var(--c45-v2-surface-success); color: var(--c45-v2-action-primary-default); }
+.t5-ibox--tone-danger { background: var(--c45-v2-surface-danger); color: var(--c45-v2-text-danger); }
+/* VButton isLoading: vòng 20 nét 2 theo màu chữ nút */
+.t5-spin--btn { border-color: color-mix(in srgb, currentColor 35%, transparent); border-top-color: currentColor; }
+.t5-sumbar { display: flex; flex-direction: column; }

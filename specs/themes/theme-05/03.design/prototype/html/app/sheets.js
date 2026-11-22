@@ -146,7 +146,7 @@ export function priceAdjustSheet(state = 'default') {
   const a = ADJ[state] || ADJ.default;
   const suffix = a.mode === 2 ? '%' : 'đ';
   const ctl = `<span class="t5-input t5-input--num"><input type="text" readonly value="${esc(a.value)}">${suffixText(suffix)}</span>`;
-  return `<div class="t5-sheetbody16 t5-adj"><h2 class="t5-h3b">Điều chỉnh giá</h2>${gap(8)}
+  return `<div class="t5-sheetbody16"><h2 class="t5-h3b">Điều chỉnh giá</h2>${gap(8)}
     <div class="t5-card t5-card--pad t5-adj__prod">${iconBox({ ic: 'inventory', size: 48, iconSize: 24, radius: 8, cls: 't5-ibox--altmuted' })}<span class="t5-adj__t"><b>Pate cho mèo vị cá ngừ 85g</b>${gap(4)}<span>Giá riêng áp dụng: 16.000đ/Lon</span><span>Giá niêm yết: 18.000đ/Lon</span></span></div>${gap(8)}
     <p class="t5-adj__lbl">Cách điều chỉnh</p>${gap(8)}${segmented(['Đơn giá', 'Giảm tiền', 'Giảm %'], a.mode)}${gap(8)}
     <div class="t5-field">${fieldLabel('Nhập điều chỉnh')}${ctl}${fieldDesc('Áp dụng cho 1 Lon')}</div>

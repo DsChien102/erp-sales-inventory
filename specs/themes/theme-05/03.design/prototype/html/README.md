@@ -106,7 +106,7 @@ Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 5). Việc gom về `shared/` để sau.
 34. Thẻ khách lặp "Khách hàng" ở gần mọi dòng (vai trò); NCC thuần không SĐT ra "—". Khách ngừng hoạt động vẫn nằm trong danh sách, chỉ mờ chữ.
 35. Lỗi tải khách **không có nút Thử lại**.
 36. Số đếm "2 kết quả · “an”" dùng ngoặc kép cong; SG-01 dùng ngoặc đơn thẳng `'xyz'`.
-37. Tạo nhanh: SĐT bắt buộc (TH-03 cho phép trống); khe giữa các ô 8 (form khác 16); câu dẫn chữ đen bodySmall. Không đóng được bằng chạm ngoài sheet.
+37. Tạo nhanh: chọn "Tổ chức" không có ô "Loại tổ chức" (TH-03 BR-05 bắt buộc với tổ chức), chỉ đổi gợi ý ô tên; khe giữa các ô 8 (form khác 16); câu dẫn chữ đen bodySmall. Không đóng được bằng chạm ngoài sheet.
 38. Lỗi tạo khách: banner đỏ chèn ngay trên nút, ngoài vùng cuộn.
 39. Sheet "Bỏ thay đổi chưa lưu?" có tay kéo đỏ (tone danger) — sheet duy nhất như vậy; sheet xác nhận dưới sàn (tone warning) vẫn tay kéo xám.
 

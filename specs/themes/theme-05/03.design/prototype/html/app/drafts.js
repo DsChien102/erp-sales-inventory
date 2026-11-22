@@ -37,7 +37,7 @@ export function draftCard(d, { showCreatedBy = false, open = false } = {}) {
   const note = (d.note || '').trim();
   const content = `${note ? `<p class="t5-dcard__note">${esc(note)}</p>${gap(8)}` : ''}<div class="t5-dcard__foot"><span>${esc(draftSummary(d))}</span><time>${esc(draftTimestamp(d.at))}</time></div>`;
   const card = `<div class="t5-card t5-dcard" role="button" aria-label="${esc(d.customer)}">${cardHeader({ title: d.customer, desc: phoneLine(d, showCreatedBy), action: d.needsCheck ? badge('Cần kiểm tra', { tone: 'warning', small: true }) : '' })}${cardContent(content)}</div>`;
-  return `<div class="t5-swipe${open ? ' is-open' : ''}" style="--reveal:100px"><div class="t5-swipe__actions t5-swipe__actions--draft"><i class="t5-gap-h8"></i>${button('Xóa', { tone: 'danger', full: true, cls: 't5-btn--fillh' })}</div><div class="t5-swipe__child">${card}</div></div>`;
+  return `<div class="t5-swipe${open ? ' is-open' : ''}" style="--reveal:100px"><div class="t5-swipe__actions t5-swipe__actions--draft"><i class="t5-gap-h8"></i>${button('Xóa', { tone: 'danger', full: true })}</div><div class="t5-swipe__child">${card}</div></div>`;
 }
 
 /** SalesDraftListCardSkeleton: hộp đệm 16, bo 12, viền borderDefault; vạch 160×18 | 72×18; 90×12 + 72×12; 120×12; 120×12 | 40×12 (bo 4). */
@@ -107,7 +107,8 @@ export function draftListPage(state, v, { toastHtml = '' } = {}) {
   });
 }
 
-const bareToastBottom = (v) => 14 + (v.device === 'iphone' ? 34 : 0);
+/** SnackBar floating đặt TRÊN nút nổi endFloat: đỉnh FAB = 16 + 56 (+ 34 vùng an toàn iPhone), cộng lề 14 của VToast. */
+const bareToastBottom = (v) => 14 + 16 + 56 + (v.device === 'iphone' ? 34 : 0);
 export const draftToast = (v, type, title, message) => toast(type, title, message, { bottom: bareToastBottom(v) });
 
 /**

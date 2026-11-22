@@ -74,3 +74,20 @@ test('Route /sales/* nằm ngoài khung (không thanh bên / thanh dưới)', ()
   assert.match(render('drafts', 'loaded', 'web'), /data-layout="bare"/);
   assert.match(render('compose', 'filled', 'iphone'), /data-layout="bare"/);
 });
+
+test('Mọi class t5-* dùng trong ca đều có rule trong styles/t5.css', async () => {
+  const fs = await import('node:fs');
+  const css = fs.readFileSync(new URL('../styles/t5.css', import.meta.url), 'utf8');
+  const used = new Set();
+  for (const [screen, states] of Object.entries(CASES)) {
+    for (const state of states) {
+      for (const device of ['iphone', 'web']) {
+        for (const m of render(screen, state, device).matchAll(/class="([^"]*)"/g)) {
+          for (const c of m[1].split(/\s+/)) if (c.startsWith('t5-')) used.add(c);
+        }
+      }
+    }
+  }
+  const missing = [...used].filter((c) => !new RegExp(`\\.${c.replace(/[-]/g, '\\-')}(?![\\w-])`).test(css)).sort();
+  assert.deepEqual(missing, []);
+});

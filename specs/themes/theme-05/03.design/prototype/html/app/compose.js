@@ -44,7 +44,7 @@ const qtyControls = (q) => `<span class="t5-qty"><span class="t5-qty__hit"><i cl
 export function lineRow(l, { open = false } = {}) {
   const w = stockWarning(l.stock, l.unit);
   const h = 8 + 20 + Math.max(w ? 40 : 20, 34) + 8;
-  const actions = `<span class="t5-swipe__actions t5-swipe__actions--line"><span class="t5-swact t5-swact--tag">${icon('tag')}</span><span class="t5-swact t5-swact--del">${icon('trash')}</span></span>`;
+  const actions = `<span class="t5-swipe__actions"><span class="t5-swact t5-swact--tag">${icon('tag')}</span><span class="t5-swact t5-swact--del">${icon('trash')}</span></span>`;
   const row = `<div class="t5-line">
     ${iconBox({ ic: 'inventory', size: 40, iconSize: 20, radius: 8, cls: 't5-ibox--alt' })}
     <div class="t5-line__main"><b class="t5-line__name">${esc(l.name)}</b>

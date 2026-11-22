@@ -22,7 +22,7 @@ export const SCREENS = [
       ['swipe', 'Vuốt để xoá', 'Thẻ đầu trượt trái 100: khe 8 + nút đỏ "Xóa" cao bằng thẻ. Đây là lối xoá duy nhất; web không có cử chỉ vuốt bằng chuột rõ ràng.'],
       ['more', 'Đang tải thêm', 'Cuộn tới cuối: vòng xoay Material 36 dưới thẻ cuối (iOS là vòng Cupertino).'],
       ['more-error', 'Lỗi tải thêm', 'TextButton icon ↻ 16 + "Không thể tải thêm đơn nháp · Thử lại" chữ 13 xanh, không phải VButton.'],
-      ['toast-deleted', 'Vừa xoá', 'Toast xanh "Đơn nháp của Trần Thị Mai đã được xóa." (tiêu đề "Đã xóa đơn nháp" không hiện).'],
+      ['toast-deleted', 'Vừa xoá', 'Toast nổi trên nút "+" (SnackBar đặt trên FAB). Toast xanh "Đơn nháp của Trần Thị Mai đã được xóa." (tiêu đề "Đã xóa đơn nháp" không hiện).'],
       ['toast-delete-failed', 'Xoá lỗi', 'Toast đỏ "Đơn nháp đã thay đổi. Vui lòng tải lại danh sách." — danh sách tự tải lại.'],
     ],
   },
@@ -81,8 +81,8 @@ export const SCREENS = [
   },
   {
     id: 'quick-create', group: 'compose', code: 'SG-04', title: 'Tạo nhanh khách hàng', route: '/sales/compose', states: [
-      ['empty', 'Mới mở', 'Sheet riêng (showModalBottomSheet + VBottomSheet), không đóng bằng chạm ngoài. Hàng tiêu đề tự vẽ H3 w700 + ×; câu dẫn chữ đen bodySmall; gạch trong lề 16. "Loại khách hàng *" (radio Cá nhân / Tổ chức), "Tên khách hàng *", "Số điện thoại *" (SĐT bắt buộc — khác TH-03 cho phép trống), "Mã số thuế" + "Không bắt buộc", "Địa chỉ" 3 dòng + "Không bắt buộc". Khe giữa ô 8 (form khác 16). Nút "Tạo & chọn khách hàng" luôn sáng. Web: sheet đáy 640.'],
-      ['org', 'Tổ chức', 'Chọn "Tổ chức": gợi ý tên đổi "Ví dụ: Công ty Minh Phát"; các ô giữ nguyên (MST vẫn không bắt buộc với tổ chức).'],
+      ['empty', 'Mới mở', 'Sheet riêng (showModalBottomSheet + VBottomSheet), không đóng bằng chạm ngoài. Hàng tiêu đề tự vẽ H3 w700 + ×; câu dẫn chữ đen bodySmall; gạch trong lề 16. "Loại khách hàng *" (radio Cá nhân / Tổ chức), "Tên khách hàng *", "Số điện thoại *", "Mã số thuế" + "Không bắt buộc", "Địa chỉ" 3 dòng + "Không bắt buộc". Khe giữa ô 8 (form khác 16). Nút "Tạo & chọn khách hàng" luôn sáng. Web: sheet đáy 640.'],
+      ['org', 'Tổ chức', 'Chọn "Tổ chức": gợi ý tên đổi "Ví dụ: Công ty Minh Phát"; các ô giữ nguyên — không có "Loại tổ chức" (TH-03 BR-05 bắt buộc), MST vẫn không bắt buộc.'],
       ['invalid', 'Thiếu thông tin', 'Bấm tạo khi trống: viền + chữ đỏ, "Vui lòng nhập tên khách hàng", "Vui lòng nhập số điện thoại".'],
       ['submitting', 'Đang tạo', 'Nút có vòng xoay, mờ.'],
       ['error', 'Lỗi tạo', 'Banner đỏ "Không thể tạo khách hàng" + "Không thể kết nối để tạo khách hàng. Vui lòng thử lại." chèn ngay trên nút (ngoài vùng cuộn).'],
