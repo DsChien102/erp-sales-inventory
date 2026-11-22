@@ -1,0 +1,100 @@
+/* Tích hợp AI — prototype 10-8, tiền tố ai-. Chỉ token --c45-v2-* (shared/tokens.css) và cỡ chữ --sh-fs-* (shared/shell.css).
+   Phần DS (app bar, nút, ô nhập) chép từ theme-08/styles/t8.css (đổi t8- → ai-). Màu Flutter → token (như Theme 8):
+     primary → action-primary-default, surface → surface-default, background → surface-canvas, borderDefault → border-default,
+     borderStrong → border-strong, borderInput → border-input, borderBrand → border-brand, textBrand → text-brand,
+     danger → text-danger, dangerBg → surface-danger, warning → text-warning, warningBg → surface-warning,
+     textPrimary / textSecondary / textMuted / textInverse → text-primary / text-secondary / text-muted / text-inverse.
+   Chữ: headingH3 18/26 (app bar ép w700), headingH4 14/20 w600, bodyDefault 14/22 w500, bodySmall 13/20 w500, caption 12/18 w600.
+   VSpacing: xs 4, sm 8, cozy 12, md 16. VRadius: r12 = card = 12, input / button 8, pill 999. */
+
+/* ------------------------------------------------ khung màn (Scaffold nền background, Column[Expanded(danh sách), SafeArea(ô nhập + chân)]) */
+.ai-page { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--c45-v2-surface-canvas); }
+.ai-page button { font-family: inherit; }
+.ai-page :focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+.ai-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+/* ConstrainedBox(maxWidth: 840) canh giữa — cho cả danh sách và dải nhập */
+.ai-col { width: 100%; max-width: 840px; margin: 0 auto; }
+.ai-list { box-sizing: border-box; padding: var(--c45-v2-space-4); display: flex; flex-direction: column; }
+/* SafeArea(top: false): đệm 34 đáy iPhone NẰM NGOÀI dải trắng → lộ nền canvas dưới câu nhắc */
+.ai-bottom { flex: 0 0 auto; }
+.sh-app[data-device="iphone"] .ai-bottom { padding-bottom: 34px; }
+
+/* ------------------------------------------------ VAppBar: 56 + gạch 1; leading 56; tiêu đề H3 w700 */
+.ai-appbar { flex: 0 0 auto; display: flex; align-items: center; height: 57px; box-sizing: border-box; padding: 0 var(--c45-v2-space-4); background: var(--c45-v2-surface-default); border-bottom: 1px solid var(--c45-v2-border-default); }
+.ai-appbar__lead { display: grid; place-items: center; flex: 0 0 56px; width: 56px; height: 56px; margin: 0 var(--c45-v2-space-4) 0 calc(-1 * var(--c45-v2-space-4)); }
+.ai-appbar__back { display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-pill); background: transparent; color: var(--c45-v2-text-primary); font-size: 24px; cursor: pointer; }
+.ai-appbar__titles { min-width: 0; }
+.ai-appbar__title { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; color: var(--c45-v2-text-primary); }
+
+/* ------------------------------------------------ VButton (medium 44, đệm 16) / VButton.icon (44 × 44, đệm 12, icon 20) */
+.ai-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--c45-v2-space-2); height: 44px; box-sizing: border-box; padding: 0 var(--c45-v2-space-4); border: 1px solid transparent; border-radius: var(--c45-v2-radius-button); font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.ai-btn--primary { background: var(--c45-v2-action-primary-default); color: var(--c45-v2-text-inverse); }
+.ai-btn--primary:hover:not(:disabled) { background: var(--c45-v2-primary-700); }
+.ai-btn--secondary { background: var(--c45-v2-surface-default); color: var(--c45-v2-text-primary); border-color: var(--c45-v2-border-input); }
+.ai-btn--secondary:hover:not(:disabled) { background: var(--c45-v2-neutral-50); }
+.ai-btn--icon { flex: 0 0 44px; width: 44px; padding: 0 var(--c45-v2-space-3); font-size: 20px; }
+.ai-btn:disabled { opacity: var(--c45-v2-opacity-disabled); cursor: default; }
+
+/* ------------------------------------------------ VTextField (VInput): 44, đệm 12, viền borderInput, bo 8 */
+.ai-input { flex: 1; min-width: 0; display: flex; align-items: center; height: 44px; box-sizing: border-box; padding: 0 12px; border: 1px solid var(--c45-v2-border-input); border-radius: var(--c45-v2-radius-input); background: var(--c45-v2-surface-default); }
+.ai-input:focus-within, .ai-input.is-focus { border-color: var(--c45-v2-action-primary-default); box-shadow: 0 0 0 3px var(--c45-v2-surface-success); }
+.ai-input input { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-primary); }
+.ai-input input::placeholder { color: var(--c45-v2-text-muted); opacity: 1; }
+.ai-input.is-disabled { border-color: var(--c45-v2-border-default); opacity: var(--c45-v2-opacity-disabled); }
+
+/* ------------------------------------------------ AssistantComposer: dải surface, đệm 16 / 8, khe 8 */
+.ai-composer { display: flex; align-items: center; gap: var(--c45-v2-space-2); padding: var(--c45-v2-space-2) var(--c45-v2-space-4); background: var(--c45-v2-surface-default); }
+
+/* AssistantFooter: surface, đệm 16 / 0 / 16 / 8, caption canh giữa */
+.ai-footer { padding: 0 var(--c45-v2-space-4) var(--c45-v2-space-2); background: var(--c45-v2-surface-default); text-align: center; }
+.ai-footer p { margin: 0; font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 600; }
+.ai-footer__remaining { color: var(--c45-v2-text-secondary); }
+.ai-footer__note { color: var(--c45-v2-text-muted); }
+
+/* ------------------------------------------------ AssistantSuggestions */
+.ai-suggest { display: flex; flex-direction: column; }
+.ai-greeting { margin: 0 0 var(--c45-v2-space-3); font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.ai-chip { display: flex; align-items: center; width: 100%; min-height: 44px; box-sizing: border-box; margin-bottom: var(--c45-v2-space-2); padding: var(--c45-v2-space-2) var(--c45-v2-space-4); border: 1px solid var(--c45-v2-border-input); border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-default); color: var(--c45-v2-text-primary); font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; text-align: left; cursor: pointer; }
+.ai-chip:hover { background: var(--c45-v2-neutral-50); }
+
+/* ------------------------------------------------ tin nhắn: Padding(bottom: cozy 12) */
+.ai-item { padding-bottom: var(--c45-v2-space-3); }
+.ai-row { display: flex; justify-content: flex-start; }
+.ai-row--end { justify-content: flex-end; }
+/* bong bóng hỏi: primary, đệm 12 / 8, bo 12, chữ bodyDefault trắng */
+.ai-user { box-sizing: border-box; padding: var(--c45-v2-space-2) var(--c45-v2-space-3); border-radius: 12px; background: var(--c45-v2-action-primary-default); color: var(--c45-v2-text-inverse); font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; overflow-wrap: anywhere; }
+/* _Bubble: đệm 12, viền 1, bo 12 */
+.ai-bubble { box-sizing: border-box; min-width: 0; max-width: 100%; padding: var(--c45-v2-space-3); border: 1px solid var(--c45-v2-border-default); border-radius: 12px; background: var(--c45-v2-surface-default); }
+.ai-bubble.is-full { width: 100%; }
+.ai-bubble--warning { background: var(--c45-v2-surface-warning); border-color: var(--c45-v2-text-warning); }
+.ai-bubble--danger { background: var(--c45-v2-surface-danger); border-color: var(--c45-v2-text-danger); }
+.ai-text { margin: 0; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-primary); overflow-wrap: anywhere; }
+.ai-text--secondary { color: var(--c45-v2-text-secondary); }
+/* nút Thử lại: khe 8, co theo chữ */
+.ai-retry { margin-top: var(--c45-v2-space-2); }
+
+/* ------------------------------------------------ AssistantResultTable: khe 12 trước mỗi bảng; tiêu đề headingH4 + khe 8 */
+.ai-result { margin-top: var(--c45-v2-space-3); }
+.ai-bubble > .ai-result:first-child { margin-top: 0; }
+.ai-table-title { margin: 0 0 var(--c45-v2-space-2); font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+
+/* VTable: viền dưới + giữa dòng borderDefault; dòng đầu viền dưới borderStrong; đệm ô 12 / 8 */
+.ai-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.ai-table th { padding: var(--c45-v2-space-3) var(--c45-v2-space-2); border-bottom: 1px solid var(--c45-v2-border-strong); font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 700; color: var(--c45-v2-text-secondary); text-align: left; vertical-align: middle; overflow-wrap: anywhere; }
+.ai-table td { padding: var(--c45-v2-space-3) var(--c45-v2-space-2); border-bottom: 1px solid var(--c45-v2-border-default); vertical-align: middle; overflow: hidden; }
+.ai-table .is-num { text-align: right; }
+.ai-table tr.is-tap td { cursor: pointer; }
+.ai-table tr.is-tap:hover td { background: rgb(0 0 0 / .04); } /* InkWell */
+.ai-cell { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-primary); }
+.ai-cell.is-brand { color: var(--c45-v2-text-brand); }
+
+/* _RowCard: đệm 12, bo 12, viền borderBrand (mở được) / borderDefault; khe 8 sau mỗi thẻ */
+.ai-cards { display: flex; flex-direction: column; }
+.ai-card { display: block; width: 100%; box-sizing: border-box; margin: 0 0 var(--c45-v2-space-2); padding: var(--c45-v2-space-3); border: 1px solid var(--c45-v2-border-default); border-radius: 12px; background: var(--c45-v2-surface-default); color: var(--c45-v2-text-primary); text-align: left; font: inherit; }
+.ai-card.is-open { border-color: var(--c45-v2-border-brand); cursor: pointer; }
+.ai-card__title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; }
+.ai-card__line { display: flex; justify-content: space-between; gap: var(--c45-v2-space-2); margin-top: var(--c45-v2-space-1); font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; }
+/* Row(spaceBetween)[Flexible, khe 8, Flexible]: mỗi bên tối đa nửa chỗ còn lại */
+.ai-card__name, .ai-card__value { flex: 0 1 auto; min-width: 0; max-width: calc(50% - 4px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-card__name { color: var(--c45-v2-text-secondary); }
+.ai-card__value { text-align: right; color: var(--c45-v2-text-primary); }
