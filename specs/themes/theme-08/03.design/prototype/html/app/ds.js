@@ -116,7 +116,7 @@ export function initials(name) {
 export const avatar = (name) => iconBox({ label: initials(name), size: 40, iconSize: 14, circle: true, cls: 't8-ibox--success' });
 
 /** VBanner: bo 12, viền 1 accent, đệm 16; icon 20 + khe 12 + tiêu đề labelDefault accent; mô tả bodySmall textPrimary lùi 32. */
-const BANNER_ICON = { info: 'info', success: 'checkCircle', warning: 'alert', error: 'error' };
+const BANNER_ICON = { info: 'info', success: 'checkCircle', warning: 'alert', error: 'circleX' }; // VIcons.error = Lucide circle-x (shared 'error' là chấm than)
 export function banner(status, title, description = '', { footer = '' } = {}) {
   return `<div class="t8-banner t8-banner--${status}" role="${status === 'error' ? 'alert' : 'status'}">
     <div class="t8-banner__head">${icon(BANNER_ICON[status])}<b>${esc(title)}</b></div>${description ? `<p>${esc(description).replace(/\n/g, '<br>')}</p>` : ''}${footer ? `<div class="t8-banner__footer">${footer}</div>` : ''}</div>`;
@@ -188,7 +188,7 @@ export function scaffold({ appbar, body, bottomBar = '', fabHtml = '', placeWidt
  * VToast trong SnackBar floating: lề SnackBar 15 + lề VToast 16 → kéo hết bề ngang chỗ có ScaffoldMessenger.
  * Chỉ hiện `message`. Nền toastSurface, bo 16, icon tròn 26, chữ bodyDefault w600 trắng, nút đóng 44.
  */
-const TOAST_ICON = { success: 'check', danger: 'error', info: 'info', warning: 'alert' };
+const TOAST_ICON = { success: 'check', danger: 'circleX', info: 'info', warning: 'alert' };
 export function toast(type, title, message, { bottom = 14, left = 0, width = null } = {}) {
   const pos = width != null ? `left:${left + 31}px;width:${width - 62}px;right:auto` : '';
   return `<div class="t8-toast t8-toast--${type}" role="status" aria-label="${esc(title)}" style="bottom:${bottom}px;${pos}">

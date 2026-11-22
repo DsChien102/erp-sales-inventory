@@ -89,3 +89,7 @@ Có 5 bản `ds.js` (Theme 1, 3, 2, 4, 8). Việc gom về `shared/` để sau.
 21. Bật được "Tự động gửi email" khi "Tự động phát hành" đang tắt; không có ràng buộc hay giải thích.
 22. Lưu bị từ chối ("Chưa đủ điều kiện") thì công tắc vẫn ở trạng thái bật trên màn. Toast "Hãy tải lại rồi lưu lại" nhưng màn không có nút tải lại.
 23. Đang lưu: chỉ công tắc mờ, nhãn và mô tả giữ nguyên.
+
+**Phát hiện ngoài Flutter (prototype dùng chung)**
+
+- `shared/icons.js` vẽ `error` là vòng tròn có chấm than, nhưng `VIcons.error` của DS là Lucide **circle-x** (⊗). Theme 8 dùng `circleX` cục bộ cho trạng thái lỗi tải, banner lỗi, toast lỗi; các theme khác (banner / toast lỗi) và `shared/` chưa sửa.

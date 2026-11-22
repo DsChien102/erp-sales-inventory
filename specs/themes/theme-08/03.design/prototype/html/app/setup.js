@@ -193,7 +193,8 @@ function connectionInfo(v, s) {
 }
 
 export function connectionPage(v, kind) {
-  const st = commonState(kind === 'load-error' ? 'error' : kind);
+  // Ca 'error' của HD-02 là kết nối lỗi (reconnectRequired), không phải lỗi tải → chỉ 'load-error' / 'loading' / 'no-permission' dùng trạng thái chung.
+  const st = { 'load-error': commonState('error'), loading: commonState('loading'), 'no-permission': commonState('no-permission') }[kind];
   if (st) return page(v, { title: 'Kết nối MISA', content: st });
   const s = connectionState(kind);
   return showsForm(s.status, s.reconnectMode) ? connectionForm(v, s) : connectionInfo(v, s);

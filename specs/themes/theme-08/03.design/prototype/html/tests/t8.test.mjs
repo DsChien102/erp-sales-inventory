@@ -58,6 +58,14 @@ test('HD-02: trạng thái, che tài khoản, form / thẻ', () => {
   assert.equal(infoKind('reconnectRequired', true), null);
 });
 
+test('HD-02 / HD-03: ca "error" là thẻ lỗi kết nối, không phải lỗi tải', () => {
+  for (const [screen, state] of [['connection', 'error'], ['disconnect', 'from-error']]) {
+    const html = render(screen, state, 'iphone');
+    assert.ok(html.includes('Lỗi kết nối'), `${screen}/${state}`);
+    assert.ok(!html.includes('Không thể tải dữ liệu'), `${screen}/${state}`);
+  }
+});
+
 test('HD-04: nhãn lựa chọn và ký hiệu', () => {
   assert.equal(templateOptionLabel(TEMPLATES[0]), '1C26TAA');
   assert.equal(templateOptionLabel({ symbol: '  ', name: 'Hóa đơn bán hàng' }), 'Hóa đơn bán hàng');
