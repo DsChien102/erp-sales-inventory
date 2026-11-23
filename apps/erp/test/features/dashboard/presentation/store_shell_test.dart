@@ -183,12 +183,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  FakeSessionRepository ownerRepo({bool isOwner = true}) {
+  FakeSessionRepository ownerRepo({bool isOwner = true, String tenantName = 'Thú y Minh Phát'}) {
     final repository = FakeSessionRepository(scenario: FakeIamScenario.bootstrapValid);
     repository.overrideContext = TenantContext(
       status: TenantContextStatus.valid,
       tenantId: 'org-001',
-      tenantName: 'Thú y Minh Phát',
+      tenantName: tenantName,
       isOwner: isOwner,
       permissions: const ['tenant.access'],
     );
@@ -208,6 +208,11 @@ void main() {
 
   Finder inNav(Finder f) =>
       find.descendant(of: find.byType(VSideNavigation), matching: f);
+
+  Future<void> openManageMenu(WidgetTester tester) async {
+    await tester.tap(inNav(find.text('Quản lý')));
+    await tester.pumpAndSettle();
+  }
 
   testWidgets('wide 1280: VSideNavigation present, bottom bar absent, tab navigation works', (
     tester,
@@ -448,6 +453,9 @@ void main() {
     testWidgets('staff at 1280: no "Người dùng & vai trò" sub-entry', (tester) async {
       final router = createTestRouter(repository: ownerRepo(isOwner: false), initialLocation: '/orders');
       await pumpWide(tester, router);
+      await openManageMenu(tester);
+      expect(find.text('Quản lý cửa hàng'), findsOneWidget);
+      expect(find.text('Tài khoản của tôi'), findsOneWidget);
       expect(find.text('Người dùng & vai trò'), findsNothing);
     });
 
@@ -458,8 +466,9 @@ void main() {
         initialLocation: '/orders',
       );
       await pumpWide(tester, router);
-      expect(enabledAncestor(inNav(find.text('Kho')), enabled: false), findsWidgets);
-      expect(enabledAncestor(inNav(find.text('Tài khoản của tôi')), enabled: true), findsWidgets);
+      await openManageMenu(tester);
+      expect(enabledAncestor(find.text('Kho'), enabled: false), findsWidgets);
+      expect(enabledAncestor(find.text('Tài khoản của tôi'), enabled: true), findsWidgets);
       handle.dispose();
     });
 
@@ -491,7 +500,8 @@ void main() {
     testWidgets('tap sub-entry "Kho" goes to /warehouse', (tester) async {
       final router = createTestRouter(repository: ownerRepo(), initialLocation: '/orders');
       await pumpWide(tester, router);
-      await tester.tap(inNav(find.text('Kho')));
+      await openManageMenu(tester);
+      await tester.tap(find.text('Kho'));
       await tester.pumpAndSettle();
       expect(find.text('WAREHOUSE_PAGE'), findsOneWidget);
     });
@@ -512,6 +522,65 @@ void main() {
         tester.getSize(find.byKey(const ValueKey('page-/more/my-account'))).width,
         lessThanOrEqualTo(1120),
       );
+    });
+
+    testWidgets('1280: rail has no "Thêm", has "Quản lý" and "Đăng xuất"', (tester) async {
+      final router = createTestRouter(repository: ownerRepo(), initialLocation: '/orders');
+      await pumpWide(tester, router);
+      expect(inNav(find.text('Thêm')), findsNothing);
+      expect(inNav(find.text('Quản lý')), findsOneWidget);
+      expect(inNav(find.text('Đăng xuất')), findsOneWidget);
+      for (final l in ['Trang chủ', 'Đơn hàng', 'Sản phẩm', 'Đối tác']) {
+        expect(inNav(find.text(l)), findsOneWidget, reason: l);
+      }
+    });
+
+    testWidgets('1280 on /: content width 1196 (không bó)', (tester) async {
+      final router = createTestRouter(repository: ownerRepo(), initialLocation: '/');
+      await pumpWide(tester, router);
+      expect(tester.getSize(find.byType(ErpTabScaffold)).width, 1280 - 84);
+    });
+
+    testWidgets('1280 blocked on /: notice spans full content width', (tester) async {
+      final router = createTestRouter(
+        repository: FakeSessionRepository(noTenants: true),
+        initialLocation: '/',
+      );
+      await pumpWide(tester, router);
+      expect(tester.getSize(find.byType(OrganizationEmptyView)).width, greaterThan(1120));
+    });
+
+    testWidgets('org tile initial: " đại lý Minh Tâm" → "Đ"', (tester) async {
+      final router = createTestRouter(
+        repository: ownerRepo(tenantName: ' đại lý Minh Tâm'),
+        initialLocation: '/orders',
+      );
+      await pumpWide(tester, router);
+      expect(inNav(find.text('Đ')), findsOneWidget);
+    });
+
+    testWidgets('menu closes when tenant changes', (tester) async {
+      final repository = FakeSessionRepository(scenario: FakeIamScenario.bootstrapValid);
+      final router = createTestRouter(repository: repository, initialLocation: '/orders');
+      await pumpWide(tester, router);
+      await openManageMenu(tester);
+      expect(find.text('Quản lý cửa hàng'), findsOneWidget);
+
+      final controller = tester.element(find.byType(VSideNavigation)).read<SessionController>();
+      await controller.switchTo('org-002');
+      await tester.pumpAndSettle();
+      expect(controller.state.current?.tenantId, 'org-002');
+      expect(find.text('Quản lý cửa hàng'), findsNothing);
+    });
+
+    testWidgets('900 wide: bottom bar 5 tabs incl. "Thêm", no rail', (tester) async {
+      final router = createTestRouter(repository: ownerRepo(), initialLocation: '/');
+      await pumpWide(tester, router, width: 900);
+      expect(find.byType(VSideNavigation), findsNothing);
+      expect(find.byType(ErpBottomNavigation), findsOneWidget);
+      for (final l in ['Trang chủ', 'Đơn hàng', 'Sản phẩm', 'Đối tác', 'Thêm']) {
+        expect(find.descendant(of: find.byType(ErpBottomNavigation), matching: find.text(l)), findsOneWidget, reason: l);
+      }
     });
   });
 }

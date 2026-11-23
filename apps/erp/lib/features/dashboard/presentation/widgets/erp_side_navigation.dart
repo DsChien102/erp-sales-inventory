@@ -45,13 +45,17 @@ class ErpSideNavigation extends StatelessWidget {
 
     final sideNavItems = ErpTab.values.map((tab) {
       if (tab == ErpTab.more) {
+        // Web: "Thêm" hiện là "Quản lý" (menu nổi); thanh dưới giữ nhãn "Thêm".
         return VSideNavigationItem(
-          icon: Icon(tab.icon),
-          label: tab.label,
+          icon: const VIcon(icon: VIcons.layers),
+          label: 'Quản lý',
+          menuTitle: 'Quản lý cửa hàng',
           enabled: tab.enabled,
           children: visibleSubEntries.map((sub) {
             return VSideNavigationItem(
+              icon: VIcon(icon: sub.icon),
               label: sub.title,
+              description: sub.subtitle,
               enabled: sub.isInteractive(isBlocked: isBlocked),
             );
           }).toList(),
@@ -65,13 +69,18 @@ class ErpSideNavigation extends StatelessWidget {
     }).toList();
 
     return VSideNavigation(
-      width: 240,
+      // Đổi tổ chức thì dựng lại, gỡ menu đang mở (danh sách mục con có thể đổi).
+      key: ValueKey(sessionState.current?.tenantId),
       selected: (mainIndex, subIndex),
-      header: _SideNavHeader(
+      header: _SideNavOrgTile(
         orgName: orgName,
+        showStore: isBlocked || orgName.trim().isEmpty,
         onTap: () => openTenantContextSelector(context),
       ),
-      footer: _SideNavFooter(
+      footer: VSideNavigationAction(
+        icon: VIcons.logout,
+        label: 'Đăng xuất',
+        destructive: true,
         onTap: () => signOutAndGoToLogin(context),
       ),
       items: sideNavItems,
@@ -90,138 +99,89 @@ class ErpSideNavigation extends StatelessWidget {
   }
 }
 
-class _SideNavHeader extends StatefulWidget {
-  const _SideNavHeader({
+/// Ô tổ chức 40×40 trên cùng thanh biểu tượng: chữ cái đầu (hoặc icon cửa hàng
+/// khi bị chặn), bấm để đổi tổ chức.
+class _SideNavOrgTile extends StatefulWidget {
+  const _SideNavOrgTile({
     required this.orgName,
+    required this.showStore,
     required this.onTap,
   });
 
   final String orgName;
+  final bool showStore;
   final VoidCallback onTap;
 
   @override
-  State<_SideNavHeader> createState() => _SideNavHeaderState();
+  State<_SideNavOrgTile> createState() => _SideNavOrgTileState();
 }
 
-class _SideNavHeaderState extends State<_SideNavHeader> {
+class _SideNavOrgTileState extends State<_SideNavOrgTile> {
   bool _isFocused = false;
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final borderRadius = BorderRadius.circular(VRadius.r8);
+    final radius = BorderRadius.circular(VRadius.r8);
+    final initial = widget.showStore
+        ? ''
+        : widget.orgName.trim().characters.first.toUpperCase();
 
-    return Semantics(
-      button: true,
-      label: 'Đổi tổ chức, ${widget.orgName}',
-      child: Container(
-        margin: const EdgeInsets.symmetric(
-          horizontal: VSpacing.space2,
-          vertical: VSpacing.space2,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          border: _isFocused
-              ? Border.all(color: colors.primary, width: VBorders.thick)
-              : Border.all(color: Colors.transparent, width: VBorders.thick),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: borderRadius,
-            focusColor: colors.primary.withValues(alpha: 0.12),
-            hoverColor: colors.surfaceHover,
-            onFocusChange: (focused) => setState(() => _isFocused = focused),
-            onTap: widget.onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: VSpacing.space2,
-                vertical: VSpacing.space2,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.orgName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: VTypography.headingH4.copyWith(
-                        fontWeight: FontWeight.w700,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: VSpacing.space4),
+      child: Center(
+        child: Tooltip(
+          message: widget.orgName,
+          child: Semantics(
+            button: true,
+            label: 'Đổi tổ chức, ${widget.orgName}',
+            excludeSemantics: true,
+            child: SizedBox.square(
+              dimension: 40,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: _isHovered ? colors.primaryPressed : colors.primary,
+                  borderRadius: radius,
+                ),
+                position: DecorationPosition.background,
+                child: DecoratedBox(
+                  position: DecorationPosition.foreground,
+                  decoration: BoxDecoration(
+                    borderRadius: radius,
+                    border: Border.all(
+                      color: _isFocused ? colors.textBrand : Colors.transparent,
+                      width: VBorders.thick,
+                    ),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: radius,
+                      focusColor: Colors.white24,
+                      hoverColor: Colors.transparent,
+                      onHover: (v) => setState(() => _isHovered = v),
+                      onFocusChange: (v) => setState(() => _isFocused = v),
+                      onTap: widget.onTap,
+                      child: Center(
+                        child: widget.showStore
+                            ? VIcon(
+                                icon: VIcons.store,
+                                size: 20,
+                                color: colors.textInverse,
+                              )
+                            : Text(
+                                initial,
+                                style: VTypography.headingH4.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.textInverse,
+                                ),
+                              ),
                       ),
                     ),
                   ),
-                  VIcon(
-                    icon: VIcons.swapVert,
-                    size: 20,
-                    color: colors.textSecondary,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SideNavFooter extends StatefulWidget {
-  const _SideNavFooter({
-    required this.onTap,
-  });
-
-  final VoidCallback onTap;
-
-  @override
-  State<_SideNavFooter> createState() => _SideNavFooterState();
-}
-
-class _SideNavFooterState extends State<_SideNavFooter> {
-  bool _isFocused = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final borderRadius = BorderRadius.circular(VRadius.r8);
-
-    return Semantics(
-      button: true,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          border: _isFocused
-              ? Border.all(color: colors.primary, width: VBorders.thick)
-              : Border.all(color: Colors.transparent, width: VBorders.thick),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: borderRadius,
-            focusColor: colors.primary.withValues(alpha: 0.12),
-            hoverColor: colors.surfaceHover,
-            onFocusChange: (focused) => setState(() => _isFocused = focused),
-            onTap: widget.onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: VSpacing.space2,
-                vertical: VSpacing.space2,
-              ),
-              child: Row(
-                children: [
-                  VIcon(
-                    icon: VIcons.logout,
-                    size: 20,
-                    color: colors.danger,
-                  ),
-                  const SizedBox(width: VSpacing.space3),
-                  Text(
-                    'Đăng xuất',
-                    style: VTypography.labelDefault.copyWith(
-                      color: colors.danger,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

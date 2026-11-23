@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:c45_design_system/design_system.dart';
 
 import '../../../core/di/injection.dart';
@@ -18,8 +19,9 @@ import 'widgets/erp_side_navigation.dart';
 /// - Bootstraps the user session once via [_SessionBootstrap].
 /// - Validates the store-warehouse default pair gate via [DefaultPairGateCubit].
 ///   Loading and gate errors are displayed full-screen without navigation rails.
-/// - On wide/desktop viewports (≥ 1024), renders [ErpSideNavigation] on the left
-///   and limits the content width to [VContentWidth] (1120px).
+/// - On wide/desktop viewports (≥ 1024), renders [ErpSideNavigation] (icon rail,
+///   84px) on the left and limits the content width to [VContentWidth] (1120px),
+///   except on Trang chủ (`/`), which spans the full width and bounds itself.
 /// - On narrow/mobile viewports (< 1024), renders the child as-is (the tab scaffold
 ///   renders the bottom navigation bar on root tab screens).
 class StoreShell extends StatelessWidget {
@@ -154,6 +156,9 @@ class _StoreShellBody extends StatelessWidget {
         if (!isDesktop) {
           return content;
         }
+        // Trang chủ tự bó cột thân (10-8b); route khác giữ bó 1120 đến khi
+        // theme của nó được rà (Q1, 10-8a).
+        final isHome = GoRouterState.of(context).matchedLocation == '/';
 
         return Material(
           color: context.vColors.background,
@@ -162,7 +167,7 @@ class _StoreShellBody extends StatelessWidget {
             children: [
               const ErpSideNavigation(),
               Expanded(
-                child: VContentWidth(child: content),
+                child: isHome ? content : VContentWidth(child: content),
               ),
             ],
           ),
