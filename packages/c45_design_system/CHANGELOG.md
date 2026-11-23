@@ -15,11 +15,22 @@ changelogs when relevant.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Internal
+
+## [1.8.0] - 2026-11-23
+
+### Added
+
 - `VListDetailLayout`: layout 2 cột danh sách – chi tiết khi bề rộng ≥ `minSplitWidth` (mặc định 840), hẹp hơn chỉ hiển thị chi tiết; hỗ trợ `isSplitOf(context)`.
 - `VCard.isSelected`: hỗ trợ trạng thái được chọn (`surfaceBrand` + `borderBrand` và `Semantics(selected: true)`).
 - `showVAdaptiveSheet` / `VSheetDialog`: bottom sheet tự động chuyển thành hộp thoại trên desktop (≥ 1024).
 - `VAppBar.popNearest`: pop navigator gần nhất pop được.
 - `VSideNavigation` / `VSideNavigationItem`: thanh điều hướng bên trái cho màn hình rộng (desktop ≥ 1024), hỗ trợ một cấp mục con luôn mở, vùng chạm ≥ 44pt, semantics selected, focus viền bàn phím rõ ràng, token màu chuẩn Design System.
+- `VSideNavigationItem.description` / `menuTitle`, `VSideNavigationAction` (tab icon + nhãn cho footer, `destructive`), `VColors.neutral150`, `VColorScheme.surfaceHoverStrong`, `VIcons.layers` (10-8a).
 - `VChip.isSelected` exposes chip selection to semantics.
 - `VPageScaffold.contentMaxWidth` (+ `defaultContentMaxWidth`, `fullWidth`): từ breakpoint tablet, body và `bottomBar` nằm trong một cột giữa (640 tablet / 720 desktop); điện thoại giữ nguyên full-width. FAB bám mép cột. Trang tự chia pane truyền `VPageScaffold.fullWidth`.
 - `VPageScaffold` chừa inset ngang an toàn (tai thỏ / đảo động) cho body khi xoay ngang.
@@ -27,6 +38,7 @@ changelogs when relevant.
 
 ### Changed
 
+- `VSideNavigation` (10-8a): thành thanh biểu tượng rộng 84 (mặc định `width` 240 → 84). Mục không có `children` là tab icon + nhãn; mục có `children` vẽ ở đáy và mở menu nổi (`OverlayPortal`, đóng bằng Esc / bấm ngoài / chọn mục). Mục tab đang chọn tô `surfaceBrand`; nhánh có con đang chọn cũng `surfaceBrand` (bỏ 50%). `header` / `footer` giữ nguyên chữ ký, footer không còn viền trên.
 - `VAppBar` uses `Navigator.maybePop()` for its default back action.
 - 10-7.2 layout: `VSpacing.hairline` (1px) replaces the misnamed `space0` (deprecated); `VSection` keeps an 8px gap before the trailing action and centers a lone title on it; `VPageScaffold.bottomBar` uses a hairline top border instead of `elevation: 8`.
 

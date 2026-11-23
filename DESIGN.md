@@ -161,7 +161,7 @@ components:
     backgroundColor: "{colors.counter-white}"
     textColor: "{colors.ink-secondary}"
     typography: "{typography.body}"
-    width: "240px"
+    width: "84px"
     borderRight: "{colors.hairline}"
   side-nav-active:
     backgroundColor: "{colors.leaf-wash}"
@@ -319,10 +319,10 @@ Tiết chế và rõ ràng: một nút đặc màu xanh, còn lại là viền h
 ### Navigation
 - **App bar:** nền trắng, không bóng, đường kẻ Hairline 1px phía dưới; tiêu đề cỡ Title (18px) weight 700 màu Ink; nút quay lại là chevron trái, đọc "Quay lại".
 - **Thanh dưới:** nền trắng, đường kẻ Hairline phía trên, đệm trên 4px, ô tab cao tối thiểu 48px, đệm dưới bằng trọn inset của thanh Home / thanh cử chỉ (tối thiểu 12px); mỗi tab có icon 24px và nhãn Label Small bên dưới (cách 4px, 1 dòng, cỡ chữ phóng tối đa ×1.3); tab đang chọn màu Clinic Leaf Green, tab khác Ink Secondary; không có hiệu ứng splash. Mỗi tab là một nút semantics mang tên tab và trạng thái đã chọn.
-- **Thanh bên (Web / màn rộng ≥ 1024px):** bề rộng 240px cố định, nền trắng, viền phải Hairline 1px; phần đầu (header) chứa selector tổ chức, phần thân là danh sách cuộn các mục chính và mục con (một cấp, luôn mở); mỗi mục cao tối thiểu 44px, bo góc 8px (R8), đệm ngang 12px (mục con thụt vào 44px khi không có icon); mục đang chọn tô nền Leaf Wash (`surfaceBrand`), chữ và icon màu Clinic Leaf Green (`primary` / `textBrand`); mục phụ khi đang chọn nhánh tô nền Leaf Wash 50% alpha; hover nền xám nhạt (`surfaceHover`); focus bàn phím qua phím Tab có viền xanh 2px nhìn thấy rõ, kích hoạt bằng Enter hoặc Space; mục bị vô hiệu hoá mờ 40% (`vDisabledOpacity`); hỗ trợ semantics nút và trạng thái đã chọn. Phần cuối (footer) có viền trên Hairline 1px, chứa nút Đăng xuất.
+- **Thanh biểu tượng (Web / màn rộng ≥ 1024px):** bề rộng 84px cố định, nền trắng, viền phải Hairline 1px, đệm 16px dọc / 8px ngang, khe 4px. Trên cùng là ô tổ chức 40×40 (bo R8, nền `primary`, chữ cái đầu tên tổ chức 16px weight 700; bị chặn thì icon cửa hàng) bấm để đổi tổ chức. Mỗi tab cao tối thiểu 60px, bo R8, icon 22px và nhãn Label Small (11/14, 1 dòng, cỡ chữ phóng tối đa ×1.3) bên dưới, cách 4px; tab chọn tô Leaf Wash (`surfaceBrand`), chữ `textBrand` weight 700, icon `primary`; hover nền `surfaceHoverStrong` (neutral-150), chữ `textPrimary`; focus bàn phím viền xanh 2px; tắt mờ 40%. Web có 4 tab (không có "Thêm"); "Quản lý" nằm ở đáy (sau khoảng giãn) và mở menu nổi "Quản lý cửa hàng" rộng 320px (đệm 8px, bo R12, viền Hairline, bóng hai lớp) sát mép phải nút; mỗi mục cao tối thiểu 44px gồm icon 18px, tên (Label Default) và mô tả (12/16, `textSecondary`); mục đang chọn tô `surfaceBrand`; menu đóng khi nhấn Esc, bấm ra ngoài hoặc chọn mục. Đang ở mục phụ thì "Quản lý" sáng. Đăng xuất là tab chữ và icon `danger` ở đáy. Mỗi tab và mục menu là nút semantics mang tên và trạng thái đã chọn.
 
 ### List-Detail Layout (Danh sách – chi tiết hai cột)
-- **Breakpoint chia cột:** kích hoạt khi bề rộng layout ≥ 840px (`VListDetailLayout`), tương đương màn hình ≥ 1080px khi có thanh bên 240px. Dưới ngưỡng này, bố cục hiển thị một cột tuần tự theo điều hướng.
+- **Breakpoint chia cột:** kích hoạt khi bề rộng layout ≥ 840px (`VListDetailLayout`), tương đương ≥ 924px khi có thanh biểu tượng 84px, tức mọi khổ desktop; ở 1024–1080 các trang Sản phẩm / Đối tác giờ chia hai cột. Dưới ngưỡng này, bố cục hiển thị một cột tuần tự theo điều hướng.
 - **Cột danh sách (trái):** cố định 360px (`listWidth: 360`), cuộn độc lập; chứa danh sách tóm tắt (thành viên, vai trò, lịch sử).
 - **Cột chi tiết (phải):** chiếm toàn bộ không gian còn lại (`Expanded`), cuộn độc lập; hiển thị form xem/sửa chi tiết. Khi chưa chọn mục nào, hiển thị `VEmptyState` với thông điệp hướng dẫn.
 - **Đường phân cách:** `VDivider(axis: Axis.vertical)` 1px, màu `borderDefault`.

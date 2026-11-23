@@ -1717,7 +1717,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         PreviewSection(
           title: 'VSideNavigation',
           description:
-              'Thanh bên máy tính / web (bề rộng 240, 5 mục chính, mục con của Thêm, header, footer).',
+              'Thanh biểu tượng web 84, 4 tab, Quản lý mở menu, Đăng xuất.',
           child: SizedBox(
             height: 480,
             child: Row(
@@ -1726,13 +1726,15 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 VSideNavigation(
                   selected: _sideNavSelected,
                   header: const Padding(
-                    padding: EdgeInsets.all(VSpacing.space3),
-                    child: Text(
-                      'Tổ chức Demo',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
+                    padding: EdgeInsets.only(bottom: VSpacing.space4),
+                    child: Center(child: VIcon(icon: VIcons.store, size: 20)),
                   ),
-                  footer: const Text('Đăng xuất'),
+                  footer: VSideNavigationAction(
+                    icon: VIcons.logout,
+                    label: 'Đăng xuất',
+                    destructive: true,
+                    onTap: () {},
+                  ),
                   items: const [
                     VSideNavigationItem(
                       icon: Icon(Icons.home_outlined),
@@ -1751,23 +1753,34 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                       label: 'Đối tác',
                     ),
                     VSideNavigationItem(
-                      icon: Icon(Icons.more_horiz_rounded),
-                      label: 'Thêm',
+                      icon: VIcon(icon: VIcons.layers),
+                      label: 'Quản lý',
+                      menuTitle: 'Quản lý cửa hàng',
                       children: [
                         VSideNavigationItem(
+                          icon: VIcon(icon: VIcons.warehouse),
                           label: 'Kho',
+                          description: 'Tồn kho, phiếu nhập, điều chỉnh',
                         ),
                         VSideNavigationItem(
-                          label: 'Giá riêng / Nhớ giá',
+                          icon: VIcon(icon: VIcons.tag),
+                          label: 'Giá riêng',
+                          description: 'Giá riêng theo khách hàng',
                         ),
                         VSideNavigationItem(
+                          icon: VIcon(icon: VIcons.people),
                           label: 'Người dùng & vai trò',
+                          description: 'Quản lý thành viên và quyền truy cập',
                         ),
                         VSideNavigationItem(
+                          icon: VIcon(icon: VIcons.person),
                           label: 'Tài khoản của tôi',
+                          description: 'Xem và chỉnh sửa thông tin cá nhân',
                         ),
                         VSideNavigationItem(
+                          icon: VIcon(icon: VIcons.settings),
                           label: 'Thiết lập',
+                          description: 'Cấu hình hệ thống & hóa đơn điện tử',
                         ),
                       ],
                     ),
