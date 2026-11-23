@@ -88,7 +88,10 @@ void main() {
                     GoRoute(
                       path: '/orders',
                       builder: (context, state) => const Scaffold(
-                        body: Center(child: Text('ORDERS_PAGE')),
+                        body: SizedBox.expand(
+                          key: ValueKey('page-/orders'),
+                          child: Center(child: Text('ORDERS_PAGE')),
+                        ),
                       ),
                     ),
                   ],
@@ -131,7 +134,16 @@ void main() {
             GoRoute(
               path: '/more/my-account',
               builder: (context, state) => const Scaffold(
-                body: Center(child: Text('MY_ACCOUNT_PAGE')),
+                body: SizedBox.expand(
+                  key: ValueKey('page-/more/my-account'),
+                  child: Center(child: Text('MY_ACCOUNT_PAGE')),
+                ),
+              ),
+            ),
+            GoRoute(
+              path: '/warehouse',
+              builder: (context, state) => const Scaffold(
+                body: Center(child: Text('WAREHOUSE_PAGE')),
               ),
             ),
             GoRoute(
@@ -148,9 +160,54 @@ void main() {
             ),
           ],
         ),
+        GoRoute(
+          path: '/login',
+          builder: (context, state) => const Scaffold(
+            body: Center(child: Text('LOGIN_PAGE')),
+          ),
+        ),
       ],
     );
   }
+
+  Future<void> pumpWide(
+    WidgetTester tester,
+    GoRouter router, {
+    double width = 1280,
+  }) async {
+    tester.view.physicalSize = Size(width, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+  }
+
+  FakeSessionRepository ownerRepo({bool isOwner = true}) {
+    final repository = FakeSessionRepository(scenario: FakeIamScenario.bootstrapValid);
+    repository.overrideContext = TenantContext(
+      status: TenantContextStatus.valid,
+      tenantId: 'org-001',
+      tenantName: 'Thú y Minh Phát',
+      isOwner: isOwner,
+      permissions: const ['tenant.access'],
+    );
+    return repository;
+  }
+
+  Finder semanticsLabel(String label) => find.byWidgetPredicate(
+    (w) => w is Semantics && w.properties.label == label,
+  );
+
+  Finder enabledAncestor(Finder of, {required bool enabled}) => find.ancestor(
+    of: of,
+    matching: find.byWidgetPredicate(
+      (w) => w is Semantics && w.properties.enabled == enabled,
+    ),
+  );
+
+  Finder inNav(Finder f) =>
+      find.descendant(of: find.byType(VSideNavigation), matching: f);
 
   testWidgets('wide 1280: VSideNavigation present, bottom bar absent, tab navigation works', (
     tester,
@@ -374,5 +431,87 @@ void main() {
     await tester.tap(khoFinder);
     await tester.pumpAndSettle();
     expect(find.byType(MorePage), findsOneWidget);
+  });
+
+  group('side navigation behaviours (10-8a T0)', () {
+    testWidgets('blocked session at 1280: org header label "Đổi tổ chức, Chưa chọn tổ chức"', (tester) async {
+      final handle = tester.ensureSemantics();
+      final router = createTestRouter(
+        repository: FakeSessionRepository(noTenants: true),
+        initialLocation: '/orders',
+      );
+      await pumpWide(tester, router);
+      expect(semanticsLabel('Đổi tổ chức, Chưa chọn tổ chức'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('staff at 1280: no "Người dùng & vai trò" sub-entry', (tester) async {
+      final router = createTestRouter(repository: ownerRepo(isOwner: false), initialLocation: '/orders');
+      await pumpWide(tester, router);
+      expect(find.text('Người dùng & vai trò'), findsNothing);
+    });
+
+    testWidgets('blocked at 1280: "Kho" disabled, "Tài khoản của tôi" enabled', (tester) async {
+      final handle = tester.ensureSemantics();
+      final router = createTestRouter(
+        repository: FakeSessionRepository(noTenants: true),
+        initialLocation: '/orders',
+      );
+      await pumpWide(tester, router);
+      expect(enabledAncestor(inNav(find.text('Kho')), enabled: false), findsWidgets);
+      expect(enabledAncestor(inNav(find.text('Tài khoản của tôi')), enabled: true), findsWidgets);
+      handle.dispose();
+    });
+
+    testWidgets('tap org header opens tenant selector', (tester) async {
+      final handle = tester.ensureSemantics();
+      final router = createTestRouter(repository: ownerRepo(), initialLocation: '/orders');
+      await pumpWide(tester, router);
+      await tester.tap(semanticsLabel('Đổi tổ chức, Thú y Minh Phát'));
+      await tester.pumpAndSettle();
+      expect(find.text('Chọn tổ chức'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('tap "Đăng xuất" signs out', (tester) async {
+      final repository = ownerRepo();
+      final controller = SessionController(
+        repository: repository,
+        initialState: const SessionState(authStatus: AuthStatus.signedIn),
+      );
+      getIt.registerSingleton<SessionController>(controller);
+      final router = createTestRouter(repository: repository, initialLocation: '/orders');
+      await pumpWide(tester, router);
+      await tester.tap(inNav(find.text('Đăng xuất')));
+      await tester.pumpAndSettle();
+      expect(controller.state.authStatus, AuthStatus.signedOut);
+      expect(find.text('LOGIN_PAGE'), findsOneWidget);
+    });
+
+    testWidgets('tap sub-entry "Kho" goes to /warehouse', (tester) async {
+      final router = createTestRouter(repository: ownerRepo(), initialLocation: '/orders');
+      await pumpWide(tester, router);
+      await tester.tap(inNav(find.text('Kho')));
+      await tester.pumpAndSettle();
+      expect(find.text('WAREHOUSE_PAGE'), findsOneWidget);
+    });
+
+    testWidgets('1280 on /orders: content width ≤ 1120', (tester) async {
+      final router = createTestRouter(repository: ownerRepo(), initialLocation: '/orders');
+      await pumpWide(tester, router);
+      expect(
+        tester.getSize(find.byKey(const ValueKey('page-/orders'))).width,
+        lessThanOrEqualTo(1120),
+      );
+    });
+
+    testWidgets('1280 on /more/my-account: content width ≤ 1120', (tester) async {
+      final router = createTestRouter(repository: ownerRepo(), initialLocation: '/more/my-account');
+      await pumpWide(tester, router);
+      expect(
+        tester.getSize(find.byKey(const ValueKey('page-/more/my-account'))).width,
+        lessThanOrEqualTo(1120),
+      );
+    });
   });
 }

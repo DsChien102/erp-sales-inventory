@@ -165,5 +165,58 @@ void main() {
 
       expect(selections, [(0, null), (1, null)]);
     });
+
+    testWidgets('has surface background and right hairline', (tester) async {
+      await pumpNav(tester);
+      final colors = VColorScheme.light;
+      final box = tester.widget<Container>(
+        find.descendant(
+          of: find.byType(VSideNavigation),
+          matching: find.byWidgetPredicate(
+            (w) => w is Container && w.decoration is BoxDecoration && (w.decoration! as BoxDecoration).border != null,
+          ),
+        ).first,
+      );
+      final deco = box.decoration! as BoxDecoration;
+      expect(deco.color, colors.surface);
+      expect((deco.border! as Border).right.color, colors.borderDefault);
+    });
+
+    testWidgets('every item is at least 44 tall', (tester) async {
+      await pumpNav(tester);
+      for (final label in ['Trang chủ', 'Đơn hàng', 'Thêm', 'Kho', 'Thiết lập']) {
+        final item = find.ancestor(
+          of: find.text(label),
+          matching: find.byType(MergeSemantics),
+        ).first;
+        expect(
+          tester.getSize(item).height,
+          greaterThanOrEqualTo(VSpacing.minTouchTarget),
+          reason: label,
+        );
+      }
+    });
+
+    testWidgets('labels stay on one line under text scale 2.0', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+            child: Scaffold(
+              body: VSideNavigation(
+                selected: (0, null),
+                items: buildItems(),
+                onSelect: (_, _) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      for (final label in ['Trang chủ', 'Đơn hàng', 'Thêm', 'Kho', 'Thiết lập']) {
+        expect(tester.widget<Text>(find.text(label)).maxLines, 1, reason: label);
+      }
+    });
   });
 }
