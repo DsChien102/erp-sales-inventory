@@ -25,6 +25,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
   final Color primaryDisabled;
   final Color surfaceHover;
+  final Color surfaceHoverStrong;
   final Color surfacePressed;
   final Color focusRing;
   @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
@@ -78,6 +79,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
     required this.primaryDisabled,
     required this.surfaceHover,
+    required this.surfaceHoverStrong,
     required this.surfacePressed,
     required this.focusRing,
     @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
@@ -130,6 +132,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     // ignore: deprecated_member_use_from_same_package
     primaryDisabled: VColors.neutral200,
     surfaceHover: VColors.neutral50,
+    surfaceHoverStrong: VColors.neutral150,
     surfacePressed: VColors.neutral100,
     focusRing: VColors.primary200,
     // ignore: deprecated_member_use_from_same_package
@@ -182,6 +185,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     // ignore: deprecated_member_use_from_same_package
     primaryDisabled: VColors.primary800,
     surfaceHover: VColors.neutral600,
+    surfaceHoverStrong: VColors.neutral500,
     surfacePressed: VColors.neutral500,
     focusRing: VColors.primary700,
     // ignore: deprecated_member_use_from_same_package
@@ -235,6 +239,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     Color? primaryFocus,
     @Deprecated('Use vDisabledOpacity / VOpacity.disabled') Color? primaryDisabled,
     Color? surfaceHover,
+    Color? surfaceHoverStrong,
     Color? surfacePressed,
     Color? focusRing,
     @Deprecated('Use vDisabledOpacity / VOpacity.disabled') Color? disabledBg,
@@ -281,6 +286,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       // ignore: deprecated_member_use_from_same_package
       primaryDisabled: primaryDisabled ?? this.primaryDisabled,
       surfaceHover: surfaceHover ?? this.surfaceHover,
+      surfaceHoverStrong: surfaceHoverStrong ?? this.surfaceHoverStrong,
       surfacePressed: surfacePressed ?? this.surfacePressed,
       focusRing: focusRing ?? this.focusRing,
       // ignore: deprecated_member_use_from_same_package
@@ -337,6 +343,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       // ignore: deprecated_member_use_from_same_package
       primaryDisabled: Color.lerp(primaryDisabled, other.primaryDisabled, t)!,
       surfaceHover: Color.lerp(surfaceHover, other.surfaceHover, t)!,
+      surfaceHoverStrong: Color.lerp(surfaceHoverStrong, other.surfaceHoverStrong, t)!,
       surfacePressed: Color.lerp(surfacePressed, other.surfacePressed, t)!,
       focusRing: Color.lerp(focusRing, other.focusRing, t)!,
       // ignore: deprecated_member_use_from_same_package

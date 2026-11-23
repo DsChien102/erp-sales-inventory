@@ -121,6 +121,7 @@ enum VIcons {
   fileXCorner,
   pencil,
   save,
+  layers,
 }
 
 /// Lucide font glyphs used by [VIcons].
@@ -337,6 +338,11 @@ abstract final class _Lucide {
   );
   static const box = IconData(
     57441,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const layers = IconData(
+    58665,
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
@@ -850,6 +856,8 @@ extension VIconsExtension on VIcons {
         return _Lucide.pencil;
       case VIcons.save:
         return _Lucide.save;
+      case VIcons.layers:
+        return _Lucide.layers;
     }
   }
 }
