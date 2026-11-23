@@ -44,17 +44,17 @@ Theme khác dùng khung: nạp `shared/shell.css`, `import { renderShell } from 
 
 ## Phát hiện khi chép (để rà)
 
-1. **Mục con của "Thêm" mở ngoài khung.** Chỉ 5 nhánh tab và `/warehouse` nằm trong `ShellRoute(StoreShell)`. `/more/receivables`, `/pricing`, `/more/users-and-roles`, `/more/my-account`, `/more/settings` khai báo ngoài → trên web bấm mục con ở thanh bên sẽ mở **toàn màn, mất thanh bên**; trạng thái "mục con được chọn" chỉ thấy được ở "Kho". Ca `sub__*`.
+1. **~~Mục con của "Thêm" mở ngoài khung~~ (đính chính 2026-11-23).** Sai: `/more/receivables`, `/pricing`, `/more/settings`, `/more/users-and-roles`, `/more/my-account` nằm trong `ShellRoute(StoreShell)` (đóng ở `app_router.dart:1234`) nên **web có thanh bên**; chỉ iPhone mất thanh dưới vì các route này không đi qua `ErpTabScaffold`. Hàm `insideShell` trong `shared/shell.js` chưa đổi (chỉ thêm chú thích); đổi hàm sẽ đổi ảnh mọi theme, để người dùng quyết.
 2. **Thanh dưới hiện cả ở trang con trong nhánh** (ví dụ `/warehouse/...`), vì `ErpTabScaffold` luôn vẽ thanh dưới trên màn hẹp; chú thích trong `store_shell.dart` ghi "chỉ trang gốc" là không đúng.
 3. **Màn lỗi kho mặc định và thẻ "bị chặn" trên web rộng hết khung** (không giới hạn bề ngang), thẻ lỗi kho mặc định dính sát trên.
-4. Nội dung web ở 1280 rộng 1040 (< 1120) nên giới hạn `VContentWidth` 1120 chưa bao giờ có tác dụng ở khổ này.
+4. Nội dung web ở 1280 rộng 1040 (< 1120) nên giới hạn `VContentWidth` 1120 chưa bao giờ có tác dụng ở khổ này. **Sửa theo Q1 (10-8a):** khung chỉ thôi bó 1120 ở Trang chủ (`/`); route khác trong khung vẫn bó 1120.
 5. Thanh bên Theme 7 (FROZEN) lệch Flutter: 5 mục con cũ, icon Trang chủ là nhà kho, không có icon đổi tổ chức, Đăng xuất không đỏ. Khung này theo Flutter, không theo Theme 7.
 
-## Đề xuất đã chốt, chưa có trong Flutter (2026-11-23)
+## Đề xuất đã chốt (2026-11-23) — đã có trong Flutter (10-8a)
 
 - **Thanh biểu tượng web thay thanh bên 240** (`sideNav` trong `shared/shell.js`, CSS `.sh-side*`, `.sh-menu*`): rộng 84; ô tổ chức (chữ cái đầu, bấm để đổi), 4 tab icon + nhãn (**bỏ "Thêm" trên web**), "Quản lý" mở menu nổi (popover) có 6 tính năng phụ kèm mô tả, Đăng xuất ở đáy. Đang ở tính năng phụ → "Quản lý" sáng, mục trong menu tô nền brand. iPhone giữ thanh dưới 5 tab (còn "Thêm").
 - Nội dung web vì vậy rộng 1196 → `VContentWidth` 1120 bắt đầu có tác dụng (phát hiện 4 ở trên không còn đúng).
-- Cần sửa theo khi làm Flutter: `erp_side_navigation.dart`, `v_side_navigation.dart`, mục Navigation trong `DESIGN.md`.
+- **Đã có trong Flutter (10-8a, 2026-11-23):** `erp_side_navigation.dart`, `v_side_navigation.dart` (DS 1.8.0), `store_shell.dart`, mục Navigation trong `DESIGN.md`; ảnh `flutter-shell-*` ở `docs/refactor/plans/P10/img/10-8a/`.
 
 ## Khác biệt có chủ đích với Flutter
 

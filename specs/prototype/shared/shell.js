@@ -51,6 +51,8 @@ export function tabFromLocation(location) {
  * Đường dẫn nằm trong ShellRoute(StoreShell) của app_router.dart: 5 nhánh tab + /warehouse (warehouseHubRoutes trong nhánh "Thêm").
  * Mọi route khác (/more/receivables, /pricing, /more/settings, /more/users-and-roles, /more/my-account, trang chi tiết đối tác…)
  * khai báo ngoài ShellRoute → mở toàn màn, KHÔNG có thanh bên / thanh dưới (kể cả trên web).
+ * LƯU Ý (đính chính 2026-11-23): thực tế /more/receivables, /pricing, /more/settings, /more/users-and-roles, /more/my-account
+ * cũng nằm trong ShellRoute(StoreShell) (app_router.dart:1234) → web CÓ thanh bên, chỉ iPhone mất thanh dưới. Hàm chưa đổi vì đổi sẽ đổi ảnh mọi theme.
  */
 export function insideShell(location) {
   if (location === '/' || location === '/more') return true;

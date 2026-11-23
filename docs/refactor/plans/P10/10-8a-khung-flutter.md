@@ -389,7 +389,20 @@ Expected: không lỗi mới; check imports OK.
 
 ## Kết quả
 
-_(phiên code ghi: tên 11 test bước 0, kết quả từng lệnh, lệch ảnh nếu có)_
+**Task 0 (code cũ, xanh trước khi sửa):** ERP (`store_shell_test`, 17/17 lúc đó) — `blocked session at 1280: org header label …`, `staff at 1280: no "Người dùng & vai trò" sub-entry`, `blocked at 1280: "Kho" disabled, "Tài khoản của tôi" enabled`, `tap org header opens tenant selector`, `tap "Đăng xuất" signs out`, `tap sub-entry "Kho" goes to /warehouse`, `1280 on /orders: content width ≤ 1120`, `1280 on /more/my-account: content width ≤ 1120`. DS (`v_side_navigation_test`, 10/10) — `has surface background and right hairline`, `every item is at least 44 tall`, `labels stay on one line under text scale 2.0`.
+
+**Lệnh sau khi sửa:**
+- DS: `flutter test test/components/v_side_navigation_test.dart test/components/accessibility_guidelines_test.dart test/theme test/tokens` → 93/93 xanh; `check_prototype_tokens.py` hết lệch `neutral-150` (còn dòng "khác khái niệm focus-ring" có sẵn).
+- ERP: `store_shell_test` 23/23, `shell_golden_test` 10/10 (chạy `--update-goldens` rồi chạy lại xanh), `warehouse_hub_routes_test` xanh; `dart analyze` file đã sửa sạch; `check_feature_imports` 91 dòng như trước khi sửa, không có dòng nào ở `dashboard`.
+- DS bump `1.7.0` → `1.8.0` (script `--set 1.8.0`, cắt cả mục Unreleased có sẵn).
+
+**Rulings:**
+- Viền focus của tab / mục menu vẽ bằng `foregroundDecoration` luôn có mặt (trong suốt khi không focus): đổi null ↔ giá trị làm đổi cây widget và mất focus bàn phím.
+- `VIcon` bỏ qua `IconTheme` nên DS dựng lại `VIcon` với cỡ / màu theo trạng thái (`_styledIcon`); icon không phải `VIcon` dùng `IconTheme`.
+- Test T0 tìm trạng thái bật / tắt bằng `Semantics.properties.enabled` thay vì `SemanticsNode.flags` (nhãn "Đổi tổ chức…" cũng tìm bằng `Semantics.properties.label`), vì nhãn bị gộp với chữ con.
+- Test đăng xuất đăng ký `SessionController` riêng vào `getIt` (hàm `signOutAndGoToLogin` đọc từ `getIt`, còn `StoreShell` test dựng controller riêng).
+
+**Lệch ảnh:** golden dựng bằng font Ahem (test không nạp font) nên chữ và icon là ô vuông; chỉ so được hình học. Kích thước, vị trí tab, menu (mép trái ≈ 76, đáy menu trùng đáy nút "Quản lý"), ô tổ chức 40, tab "Đăng xuất" ở đáy khớp ảnh `proto-*`. Chưa so được màu chữ / icon thật — người dùng kiểm tay trên máy (APP-04 chưa tick CHECKLIST).
 
 ## Review
 
