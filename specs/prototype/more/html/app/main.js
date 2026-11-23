@@ -6,7 +6,7 @@
 // Danh sách mục + luật hiện / bấm được dùng lại shared/shell.js (MORE_ENTRIES), không chép lại.
 // Màn trần không có tương tác (mọi thẻ trong Flutter push sang route khác).
 import { icon } from '../shared/icons.js';
-import { renderShell, DEVICE, MORE_ENTRIES } from '../shared/shell.js';
+import { renderShell, DEVICE, DESKTOP, MORE_ENTRIES } from '../shared/shell.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -100,7 +100,7 @@ export function morePage(v) {
 /** VPageScaffold: thân trong cột tối đa 720 (≥ 1024) / 640 (tablet), đệm hai bên = (rộng − 720) / 2. */
 function pageScaffold(title, list, v) {
   return `<div class="mr-page mr-page--scaffold">
-    ${appBar(title, { back: true })}
+    ${appBar(title, { back: (v.width ?? DEVICE[v.device].w) < DESKTOP })}
     <div class="mr-body"><div class="mr-column" style="--mr-col:${columnMax(v.width)}">${list}</div></div>
   </div>`;
 }

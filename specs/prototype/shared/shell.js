@@ -80,26 +80,28 @@ export function selectedMoreEntry(location) {
   return SIDE_SUB_ENTRIES.find((e) => (e.matchPrefixes || []).some((p) => location === p || location.startsWith(`${p}/`))) || null;
 }
 
-/** Thanh bên (ErpSideNavigation + VSideNavigation). */
+/** Thanh biểu tượng web (≥ 1024) — ĐỀ XUẤT thay ErpSideNavigation 240 (chưa có trong Flutter).
+ *  Rộng 84: ô tổ chức (bấm để đổi), 4 tab (icon + nhãn, không có "Thêm"), "Quản lý" mở menu nổi
+ *  (popover) chứa 6 tính năng phụ kèm mô tả, Đăng xuất ở đáy. Đang ở một tính năng phụ → "Quản lý" sáng. */
 export function sideNav({ location = '/', isOwner = true, isBlocked = false, orgName = 'Chưa chọn tổ chức' } = {}) {
   const tab = tabFromLocation(location);
-  const subs = visibleSubEntries({ isOwner, isBlocked });
   const sel = tab === 'more' ? selectedMoreEntry(location) : null;
-  const item = ({ label, ic, selected, exact, sub, enabled = true, attrs = '' }) => {
-    const cls = ['sh-side__item', sub ? 'sh-side__item--sub' : '', selected ? 'is-selected' : '', exact ? 'is-exact' : ''].filter(Boolean).join(' ');
-    return `<button type="button" class="${cls}" ${attrs}${exact ? ' aria-current="page"' : ''}${enabled ? '' : ' disabled'}>${ic ? icon(ic, 'sh-side__icon') : ''}<span class="sh-side__label">${esc(label)}</span></button>`;
-  };
-  const rows = TABS.map((t) => {
-    const selected = t.id === tab;
-    const main = item({ label: t.label, ic: t.icon, selected, exact: selected && !sel, attrs: `data-shell-route="${t.route}"` });
-    if (t.id !== 'more') return main;
-    const children = subs.map((e) => item({ label: e.title, sub: true, selected: sel?.id === e.id, exact: sel?.id === e.id, enabled: isInteractive(e, { isBlocked }), attrs: `data-shell-route="${e.route}"` })).join('');
-    return main + children;
+  const tabs = TABS.filter((t) => t.id !== 'more').map((t) => {
+    const on = t.id === tab;
+    return `<button type="button" class="sh-side__tab${on ? ' is-on' : ''}" data-shell-route="${t.route}"${on ? ' aria-current="page"' : ''}>${icon(t.icon)}<span>${esc(t.label)}</span></button>`;
   }).join('');
+  const subs = visibleSubEntries({ isOwner, isBlocked }).map((e) => {
+    const on = sel?.id === e.id;
+    return `<button type="button" class="sh-menu__item${on ? ' is-on' : ''}" data-shell-route="${e.route}"${on ? ' aria-current="page"' : ''}${isInteractive(e, { isBlocked }) ? '' : ' disabled'}><span class="sh-menu__icon">${icon(e.icon)}</span><span class="sh-menu__text"><b>${esc(e.title)}</b><small>${esc(e.subtitle)}</small></span></button>`;
+  }).join('');
+  const initial = isBlocked ? '' : esc(String(orgName).trim().charAt(0).toUpperCase());
   return `<nav class="sh-side" aria-label="Điều hướng chính">
-    <button type="button" class="sh-side__org" data-shell-org aria-label="Đổi tổ chức, ${esc(orgName)}"><span class="sh-side__org-name">${esc(orgName)}</span>${icon('swapVert', 'sh-side__org-icon')}</button>
-    <div class="sh-side__list">${rows}</div>
-    <div class="sh-side__footer"><button type="button" class="sh-side__logout" data-shell-logout>${icon('logout', 'sh-side__icon')}<span>Đăng xuất</span></button></div>
+    <button type="button" class="sh-side__org" data-shell-org aria-label="Đổi tổ chức, ${esc(orgName)}" title="${esc(orgName)}">${initial || icon('store')}</button>
+    ${tabs}
+    <span class="sh-side__spacer"></span>
+    <button type="button" class="sh-side__tab sh-side__manage${tab === 'more' ? ' is-on' : ''}" popovertarget="sh-manage-menu">${icon('layers')}<span>Quản lý</span></button>
+    <button type="button" class="sh-side__tab sh-side__logout" data-shell-logout>${icon('logout')}<span>Đăng xuất</span></button>
+    <div id="sh-manage-menu" class="sh-menu sh-side__menu" popover><p class="sh-menu__title">Quản lý cửa hàng</p>${subs}</div>
   </nav>`;
 }
 

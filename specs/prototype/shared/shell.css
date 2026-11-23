@@ -16,33 +16,45 @@
 .sh-desktop { flex: 1; min-height: 0; display: flex; }
 .sh-mobile { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .sh-main { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-/* VContentWidth: canh giữa trên, rộng tối đa 1120 */
-.sh-content { flex: 1; min-height: 0; width: 100%; max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; }
+/* Vùng nội dung web: tràn hết bề ngang để app bar + đường kẻ chạy suốt tới mép phải.
+   Không bó 1120 ở khung (đó là nguyên nhân hở hai bên); mỗi trang tự giới hạn cột thân (VPageScaffold 720, Trợ lý 840…),
+   trang không có cột riêng dùng --sh-col-gutter để thân rộng tối đa 1120 canh giữa. */
+.sh-content { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; --sh-col-max: 1120px; }
 .sh-hold { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--c45-v2-surface-canvas); }
 .sh-hold--center { justify-content: center; }
 .sh-center { flex: 1; display: grid; place-items: center; }
 
-/* Thanh bên */
-.sh-side { width: 240px; flex: 0 0 240px; display: flex; flex-direction: column; min-height: 0; background: var(--c45-v2-surface-default); border-right: 1px solid var(--c45-v2-border-default); }
-.sh-side__org { display: flex; align-items: center; gap: var(--c45-v2-space-2); margin: var(--c45-v2-space-2); padding: var(--c45-v2-space-2); border: 2px solid transparent; border-radius: var(--c45-v2-radius-3); background: transparent; color: var(--c45-v2-text-primary); text-align: left; cursor: pointer; }
-.sh-side__org-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-md); line-height: 20px; font-weight: 700; }
-.sh-side__org-icon { font-size: 20px; color: var(--c45-v2-text-secondary); }
-.sh-side__list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--c45-v2-space-1); padding: var(--c45-v2-space-2) var(--c45-v2-space-3); }
-.sh-side__item { display: flex; align-items: center; gap: var(--c45-v2-space-3); width: 100%; min-height: var(--c45-v2-touch-minimum); padding: var(--c45-v2-space-1) var(--c45-v2-space-3); border: 2px solid transparent; border-radius: var(--c45-v2-radius-3); background: transparent; color: var(--c45-v2-text-secondary); font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; text-align: left; cursor: pointer; }
-.sh-side__icon { font-size: 20px; color: var(--c45-v2-text-secondary); }
-.sh-side__label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sh-side__item--sub { padding-left: calc(var(--c45-v2-space-3) + 32px); line-height: 22px; font-weight: 500; }
-.sh-side__item.is-selected { color: var(--c45-v2-text-brand); font-weight: 700; }
-.sh-side__item.is-selected .sh-side__icon { color: var(--c45-v2-action-primary-default); }
-/* mục chính đang chứa mục con được chọn: nền brand 50% */
-.sh-side__item.is-selected:not(.is-exact):not(.sh-side__item--sub) { background: color-mix(in srgb, var(--c45-v2-surface-brand) 50%, transparent); }
-.sh-side__item.is-exact { background: var(--c45-v2-surface-brand); }
-.sh-side__item:not(:disabled):not(.is-exact):hover, .sh-side__org:hover, .sh-side__logout:hover { background: var(--c45-v2-neutral-150); }
-.sh-side__item:disabled { opacity: var(--c45-v2-opacity-disabled); cursor: default; }
-.sh-side__item:focus-visible, .sh-side__org:focus-visible, .sh-side__logout:focus-visible { outline: none; border-color: var(--c45-v2-action-primary-default); background: var(--c45-v2-state-focus-12); }
-.sh-side__footer { padding: var(--c45-v2-space-3); border-top: 1px solid var(--c45-v2-border-default); }
-.sh-side__logout { display: flex; align-items: center; gap: var(--c45-v2-space-3); width: 100%; padding: var(--c45-v2-space-2); border: 2px solid transparent; border-radius: var(--c45-v2-radius-3); background: transparent; color: var(--c45-v2-text-danger); font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; cursor: pointer; }
-.sh-side__logout .sh-side__icon { color: var(--c45-v2-icon-danger); }
+/* Thanh biểu tượng web (ĐỀ XUẤT, thay thanh bên 240): rộng 84, mục icon 22 + nhãn 11/14, cao ≥ 60 */
+.sh-side { flex: 0 0 84px; width: 84px; display: flex; flex-direction: column; align-items: stretch; gap: var(--c45-v2-space-1); min-height: 0; padding: var(--c45-v2-space-4) var(--c45-v2-space-2); background: var(--c45-v2-surface-default); border-right: 1px solid var(--c45-v2-border-default); }
+.sh-side__org { align-self: center; display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: var(--c45-v2-space-4); padding: 0; border: 0; border-radius: var(--c45-v2-radius-3); background: var(--c45-v2-action-primary-default); color: var(--c45-v2-action-on-primary); font-size: var(--sh-fs-lg); font-weight: 700; cursor: pointer; }
+.sh-side__org .icon { font-size: 20px; }
+.sh-side__org:hover { background: var(--c45-v2-action-primary-pressed); }
+.sh-side__tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 60px; padding: var(--c45-v2-space-2) 2px; border: 0; border-radius: var(--c45-v2-radius-3); background: transparent; color: var(--c45-v2-text-secondary); font-size: var(--sh-fs-label-sm); line-height: 14px; font-weight: 600; text-align: center; cursor: pointer; }
+.sh-side__tab .icon { font-size: 22px; }
+.sh-side__tab:not(.is-on):hover { background: var(--c45-v2-neutral-150); color: var(--c45-v2-text-primary); }
+.sh-side__tab.is-on { background: var(--c45-v2-surface-brand); color: var(--c45-v2-text-brand); font-weight: 700; }
+.sh-side__tab.is-on .icon { color: var(--c45-v2-action-primary-default); }
+.sh-side__logout { color: var(--c45-v2-text-danger); }
+.sh-side__tab:focus-visible, .sh-side__org:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+.sh-side__spacer { flex: 1; }
+.sh-side__manage { anchor-name: --sh-manage; }
+.sh-side__menu { position-anchor: --sh-manage; inset: auto; left: anchor(right); bottom: anchor(bottom); width: 320px; margin-left: var(--c45-v2-space-3); }
+
+/* Menu nổi (popover ở top layer, nên tự đặt font / box-sizing) */
+.sh-menu { margin: 0; padding: var(--c45-v2-space-2); border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-4); background: var(--c45-v2-surface-default); color: var(--c45-v2-text-primary); font-family: var(--c45-v2-font-sans); font-size: var(--sh-fs-md); box-shadow: 0 4px 12px rgb(14 17 22 / .08), 0 16px 40px rgb(14 17 22 / .12); }
+.sh-menu, .sh-menu * { box-sizing: border-box; }
+.sh-menu .icon { width: 1em; height: 1em; }
+.sh-menu__title { margin: 0; padding: var(--c45-v2-space-2) var(--c45-v2-space-3) var(--c45-v2-space-1); font-size: var(--sh-fs-xs); line-height: 16px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.sh-menu__item { display: flex; align-items: center; gap: var(--c45-v2-space-3); width: 100%; min-height: var(--c45-v2-touch-minimum); padding: var(--c45-v2-space-1) var(--c45-v2-space-3); border: 0; border-radius: var(--c45-v2-radius-3); background: transparent; color: var(--c45-v2-text-primary); font-family: inherit; text-align: left; cursor: pointer; }
+.sh-menu__item:not(:disabled):not(.is-on):hover { background: var(--c45-v2-neutral-150); }
+.sh-menu__item.is-on { background: var(--c45-v2-surface-brand); color: var(--c45-v2-text-brand); }
+.sh-menu__item.is-on .sh-menu__icon { color: var(--c45-v2-action-primary-default); }
+.sh-menu__item:disabled { opacity: var(--c45-v2-opacity-disabled); cursor: default; }
+.sh-menu__item:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: -2px; }
+.sh-menu__icon { display: grid; place-items: center; flex: 0 0 auto; font-size: 18px; color: var(--c45-v2-text-secondary); }
+.sh-menu__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sh-menu__text b { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; }
+.sh-menu__text small { font-size: var(--sh-fs-xs); line-height: 16px; font-weight: 500; color: var(--c45-v2-text-secondary); }
 
 /* Thanh dưới */
 .sh-bottom { flex: 0 0 auto; display: flex; padding-top: var(--c45-v2-space-1); background: var(--c45-v2-surface-default); border-top: 1px solid var(--c45-v2-border-default); }
@@ -80,7 +92,7 @@
 .sh-appbar { flex: 0 0 auto; display: flex; align-items: center; gap: var(--c45-v2-space-1); min-height: 56px; padding: 0 var(--c45-v2-space-4); background: var(--c45-v2-surface-default); border-bottom: 1px solid var(--c45-v2-border-default); }
 .sh-appbar h1 { margin: 0; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; }
 .sh-appbar__back { display: grid; place-items: center; width: 44px; height: 44px; margin-left: calc(-1 * var(--c45-v2-space-3)); border: 0; background: transparent; color: var(--c45-v2-icon-primary); font-size: 24px; cursor: pointer; }
-.sh-placeholder { flex: 1; margin: var(--c45-v2-space-4); display: grid; place-items: center; align-content: center; gap: var(--c45-v2-space-1); border: 1.5px dashed var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); color: var(--c45-v2-text-muted); text-align: center; }
+.sh-placeholder { flex: 1; margin: var(--c45-v2-space-4) max(var(--c45-v2-space-4), calc((100% - var(--sh-col-max, 100%)) / 2 + var(--c45-v2-space-4))); display: grid; place-items: center; align-content: center; gap: var(--c45-v2-space-1); border: 1.5px dashed var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); color: var(--c45-v2-text-muted); text-align: center; }
 .sh-placeholder b { color: var(--c45-v2-text-secondary); font-size: var(--sh-fs-lg); }
 .sh-placeholder code { font-family: var(--c45-v2-font-mono, ui-monospace, monospace); font-size: var(--sh-fs-xs); }
 

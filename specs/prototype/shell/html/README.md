@@ -50,6 +50,12 @@ Theme khác dùng khung: nạp `shared/shell.css`, `import { renderShell } from 
 4. Nội dung web ở 1280 rộng 1040 (< 1120) nên giới hạn `VContentWidth` 1120 chưa bao giờ có tác dụng ở khổ này.
 5. Thanh bên Theme 7 (FROZEN) lệch Flutter: 5 mục con cũ, icon Trang chủ là nhà kho, không có icon đổi tổ chức, Đăng xuất không đỏ. Khung này theo Flutter, không theo Theme 7.
 
+## Đề xuất đã chốt, chưa có trong Flutter (2026-11-23)
+
+- **Thanh biểu tượng web thay thanh bên 240** (`sideNav` trong `shared/shell.js`, CSS `.sh-side*`, `.sh-menu*`): rộng 84; ô tổ chức (chữ cái đầu, bấm để đổi), 4 tab icon + nhãn (**bỏ "Thêm" trên web**), "Quản lý" mở menu nổi (popover) có 6 tính năng phụ kèm mô tả, Đăng xuất ở đáy. Đang ở tính năng phụ → "Quản lý" sáng, mục trong menu tô nền brand. iPhone giữ thanh dưới 5 tab (còn "Thêm").
+- Nội dung web vì vậy rộng 1196 → `VContentWidth` 1120 bắt đầu có tác dụng (phát hiện 4 ở trên không còn đúng).
+- Cần sửa theo khi làm Flutter: `erp_side_navigation.dart`, `v_side_navigation.dart`, mục Navigation trong `DESIGN.md`.
+
 ## Khác biệt có chủ đích với Flutter
 
 - Icon: Material (`Icons.*`, `VIcons.*`) thay bằng nét kiểu Lucide trong `icons.js`, giữ ý nghĩa và cỡ (24 thanh dưới, 20 thanh bên).

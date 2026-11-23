@@ -3,12 +3,11 @@
 export const SCREENS = [
   {
     id: 'home', code: 'APP-01', title: 'Trang chủ', states: [
-      ['owner-banner', 'Chủ, chưa có hồ sơ pháp lý', 'Ca mặc định của chủ cửa hàng mới: banner xanh "Bổ sung hồ sơ pháp lý…" + "Bổ sung" + nút đóng. Số liệu ghi cứng như Flutter (8.420.000 ₫, ba ô "-", hai dòng việc chữ mẫu).'],
-      ['owner', 'Chủ, không còn banner', 'Đã có hồ sơ pháp lý hoặc đã bấm đóng banner: "Hỏi Mosaic Retail" lên ngay dưới đầu trang.'],
-      ['staff', 'Nhân viên', 'Không phải chủ: không có banner. Web: thanh bên mất "Người dùng & vai trò".'],
-      ['scrolled', 'Cuộn tới cuối', 'iPhone: phần dưới cùng (hai dòng "Việc cần xử lý") phía trên thanh dưới. Đầu trang xanh đứng yên, chỉ thân trang cuộn.'],
+      ['owner', 'Chủ cửa hàng', 'Giao diện "Bảng giá chợ": doanh thu số rất lớn + cột 7 ngày (biểu đồ duy nhất); ba hộp Đơn hôm nay (12 ▲3 | Chưa xuất hoá đơn 2, dòng cách trả), Tiền đã thu hôm nay (tiền mặt / chuyển khoản, gồm cả khách trả nợ), Công nợ phải thu (số khoản quá hạn). Không nút thao tác, không banner. Dữ liệu mẫu.'],
+      ['staff', 'Nhân viên', 'Như chủ cửa hàng (chưa có quy tắc ẩn số liệu theo vai trò). Web: menu "Quản lý" mất "Người dùng & vai trò".'],
+      ['long-name', 'Tên tổ chức dài', 'Tên cắt "…" một dòng, mũi tên xuống vẫn ở chỗ cũ.'],
       ['loading-name', 'Đang tải tên', 'Phiên chưa có tên: đầu trang ghi "Đang tải…".'],
-      ['long-name', 'Tên tổ chức dài', 'Tên cắt "…" một dòng, mũi tên xuống và chuông vẫn ở chỗ cũ.'],
+      ['ask-open', 'Mở Hỏi Mosaic Retail', 'Nút nổi góc dưới phải (không còn ở đầu trang) mở khung chat: web là cửa sổ lớn (≤ 1120, cách đỉnh 64, dải đầu xanh, nội dung cột 720) neo trên nút, nút thành ✕; iPhone là màn toàn phần, ẩn thanh dưới. Lời chào + 4 câu gợi ý + ô hỏi nguyên văn /ask; ⤢ mở màn /ask đầy đủ. Esc / ✕ đóng.'],
       ['evening', 'Buổi tối', 'Lời chào theo giờ máy: 5–11 "Chào buổi sáng", 12–17 "Chào buổi chiều", còn lại "Chào buổi tối".'],
     ],
   },

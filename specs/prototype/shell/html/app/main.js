@@ -1,7 +1,7 @@
 // Prototype khung chung (10-8). Không có ?screen= → trang xem (viewer.js); có → vẽ đúng một ca (URL chụp ảnh).
 // Tương tác ở URL màn trần: bấm tab / mục con để chuyển; bấm tên tổ chức → APP-04 (tìm, chọn, xác nhận, đang chuyển, toast).
 import { icon } from '../shared/icons.js';
-import { renderShell, DEVICE, MORE_ENTRIES, TABS, insideShell } from '../shared/shell.js';
+import { renderShell, DEVICE, DESKTOP, MORE_ENTRIES, TABS, insideShell } from '../shared/shell.js';
 import { ORGS, orgListBody, confirmBody, adaptiveSheet, switching, toast } from './org.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -33,7 +33,9 @@ function page(location, ctx) {
   if (location === '/more') return morePage(ctx);
   const [title, note] = PAGES[location] || ['Màn', ''];
   const isTabRoot = TABS.some((t) => t.route === location);
-  const back = !isTabRoot ? `<button type="button" class="sh-appbar__back" aria-label="Quay lại" data-shell-route="/more">${icon('chevronLeft')}</button>` : '';
+  // Web (≥ 1024): màn con mở thẳng từ menu Quản lý ở thanh bên, không có trang "Thêm" để quay về → không có nút back.
+  const wide = (ctx.width ?? DEVICE[ctx.device].w) >= DESKTOP;
+  const back = !isTabRoot && !wide ? `<button type="button" class="sh-appbar__back" aria-label="Quay lại" data-shell-route="/more">${icon('chevronLeft')}</button>` : '';
   return `<div class="sh-page"><header class="sh-appbar">${back}<h1>${esc(title)}</h1></header>
     <div class="sh-placeholder"><b>Nội dung màn</b><span>${esc(note)}</span><code>${esc(location)}${insideShell(location) ? '' : ' · ngoài StoreShell'}</code></div></div>`;
 }
