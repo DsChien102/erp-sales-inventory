@@ -107,6 +107,23 @@ void main() {
     expect(repo.getCalls, 2);
     expect(find.byKey(const Key('home_board')), findsOneWidget);
   });
+
+  // Sau đăng nhập: phiên đang nạp rồi đến cổng kho mặc định. Hai giai đoạn phải
+  // dùng cùng một màn chờ toàn màn hình, không lồng loader trong khung tab.
+  testWidgets('scn_dashboard_session_loading_uses_full_screen_hold', (tester) async {
+    await _setPhone(tester);
+    final repo = FakeDefaultPairRepository(mode: FakeDefaultPairMode.ready);
+
+    await tester.pumpWidget(
+      _app(repo, sessionState: const SessionState(status: TenantLoadStatus.loading)),
+    );
+    await tester.pump();
+
+    expect(find.byType(VLoading), findsOneWidget);
+    expect(find.byType(ErpBottomNavigation), findsNothing);
+    expect(find.byKey(const Key('home_board')), findsNothing);
+    expect(repo.getCalls, 0);
+  });
 }
 
 Future<void> _setPhone(WidgetTester tester) async {
@@ -116,7 +133,7 @@ Future<void> _setPhone(WidgetTester tester) async {
   addTearDown(tester.view.resetDevicePixelRatio);
 }
 
-Widget _app(DefaultPairRepository defaultPairRepository) {
+Widget _app(DefaultPairRepository defaultPairRepository, {SessionState? sessionState}) {
   final router = GoRouter(
     initialLocation: '/',
     routes: [
@@ -125,15 +142,16 @@ Widget _app(DefaultPairRepository defaultPairRepository) {
           autoBootstrap: false,
           repository: FakeSessionRepository(scenario: FakeIamScenario.tenantsMulti),
           defaultPairRepository: defaultPairRepository,
-          initialState: const SessionState(
-            status: TenantLoadStatus.ready,
-            userDisplayName: 'Lan',
-            current: TenantContext(
-              status: TenantContextStatus.valid,
-              tenantId: 'tenant-test',
-              tenantName: 'Thú y Minh Phát',
-            ),
-          ),
+          initialState: sessionState ??
+              const SessionState(
+                status: TenantLoadStatus.ready,
+                userDisplayName: 'Lan',
+                current: TenantContext(
+                  status: TenantContextStatus.valid,
+                  tenantId: 'tenant-test',
+                  tenantName: 'Thú y Minh Phát',
+                ),
+              ),
           child: child,
         ),
         routes: [

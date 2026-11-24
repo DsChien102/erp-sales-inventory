@@ -111,6 +111,12 @@ class _StoreShellBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SessionController, SessionState>(
       builder: (context, state) {
+        // Phiên đang nạp dùng chung màn chờ toàn màn hình với cổng kho mặc định,
+        // để sau đăng nhập chỉ thấy một màn chờ, không lồng loader trong khung tab.
+        if (state.status == TenantLoadStatus.initial ||
+            state.status == TenantLoadStatus.loading) {
+          return _buildLoadingHold(context);
+        }
         if (!state.isValid) {
           return _buildLayout(context, child);
         }
@@ -134,18 +140,25 @@ class _StoreShellBody extends StatelessWidget {
     );
   }
 
-  Widget _buildGateHold(BuildContext context, DefaultPairGateState gate) {
-    final dynamicColors = context.vColors;
+  Widget _buildLoadingHold(BuildContext context) {
     return Scaffold(
-      backgroundColor: dynamicColors.background,
-      body: gate.status == DefaultPairGateStatus.loading
-          ? const Center(child: VLoading())
-          : SafeArea(
-              child: DefaultPairGateErrorView(
-                onRetry: () => context.read<DefaultPairGateCubit>().load(),
-                onChooseOrganization: () => openTenantContextSelector(context),
-              ),
-            ),
+      backgroundColor: context.vColors.background,
+      body: const Center(child: VLoading()),
+    );
+  }
+
+  Widget _buildGateHold(BuildContext context, DefaultPairGateState gate) {
+    if (gate.status == DefaultPairGateStatus.loading) {
+      return _buildLoadingHold(context);
+    }
+    return Scaffold(
+      backgroundColor: context.vColors.background,
+      body: SafeArea(
+        child: DefaultPairGateErrorView(
+          onRetry: () => context.read<DefaultPairGateCubit>().load(),
+          onChooseOrganization: () => openTenantContextSelector(context),
+        ),
+      ),
     );
   }
 
