@@ -21,6 +21,12 @@ changelogs when relevant.
 
 ### Internal
 
+## [1.9.0] - 2026-11-24
+
+### Added
+
+- `VIcons.messageCircle`, `VIcons.maximize` (Lucide `message-circle`, `maximize-2`): nút nổi và nút mở toàn màn hình "Hỏi Mosaic Retail" trên Trang chủ (10-8b).
+
 ## [1.8.0] - 2026-11-23
 
 ### Added

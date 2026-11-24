@@ -122,6 +122,8 @@ enum VIcons {
   pencil,
   save,
   layers,
+  messageCircle,
+  maximize,
 }
 
 /// Lucide font glyphs used by [VIcons].
@@ -343,6 +345,16 @@ abstract final class _Lucide {
   );
   static const layers = IconData(
     58665,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const messageCircle = IconData(
+    57622,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const maximize2 = IconData(
+    57619,
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
@@ -858,6 +870,10 @@ extension VIconsExtension on VIcons {
         return _Lucide.save;
       case VIcons.layers:
         return _Lucide.layers;
+      case VIcons.messageCircle:
+        return _Lucide.messageCircle;
+      case VIcons.maximize:
+        return _Lucide.maximize2;
     }
   }
 }

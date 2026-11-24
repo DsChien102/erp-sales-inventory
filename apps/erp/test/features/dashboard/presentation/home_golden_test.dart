@@ -8,6 +8,11 @@ import 'package:erp/features/dashboard/presentation/erp_tab_scaffold.dart';
 import 'package:erp/features/dashboard/presentation/home_tab_page.dart';
 import 'package:erp/features/dashboard/presentation/store_shell.dart';
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/assistant/data.dart';
+import 'package:erp/features/assistant/logic.dart';
+import 'package:erp/features/assistant/presentation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -20,11 +25,18 @@ import '../../receivable/presentation/receivable_test_harness.dart' show repoRoo
 import '../support/fake_home_repository.dart';
 import 'fake_default_pair_repository.dart';
 
+class _MockAssistant extends Mock implements AssistantRepository {}
+
 /// Golden 10-8b: Trang chủ trong khung (như ảnh prototype) — so với `proto-APP01-*`.
 String _goldenPath(String name) =>
     '${repoRoot()}/docs/refactor/plans/P10/img/10-8b/flutter-APP01-$name.png';
 
-GoRouter _router(FakeSessionRepository session, FakeHomeRepository home, DateTime now) {
+GoRouter _router(
+  FakeSessionRepository session,
+  FakeHomeRepository home,
+  DateTime now,
+  AssistantRepository assistant,
+) {
   Widget placeholder(String title) =>
       Scaffold(appBar: VAppBar(title: title, showBackButton: false));
   return GoRouter(
@@ -40,7 +52,22 @@ GoRouter _router(FakeSessionRepository session, FakeHomeRepository home, DateTim
                 routes: [
                   GoRoute(
                     path: '/',
-                    builder: (_, _) => HomeTabPage(repository: home, now: () => now),
+                    builder: (_, _) => HomeTabPage(
+                      repository: home,
+                      now: () => now,
+                      askScope: (child) => BlocProvider(
+                        create: (_) => AskAssistantCubit(
+                          repository: assistant,
+                          tenantId: () async => 'org-001',
+                        ),
+                        child: child,
+                      ),
+                      askPanel: (homeContext, {required wide, required onClose}) =>
+                          BlocProvider.value(
+                            value: homeContext.read<AskAssistantCubit>(),
+                            child: AssistantChatPanel(wide: wide, onClose: onClose),
+                          ),
+                    ),
                   ),
                 ],
               ),
@@ -89,13 +116,30 @@ void main() {
     FakeSessionRepository? session,
     FakeHomeRepository? home,
     DateTime? now,
+    bool openAsk = false,
+    bool answer = false,
   }) async {
+    final assistant = _MockAssistant();
+    when(
+      () => assistant.ask(
+        tenantId: any(named: 'tenantId'),
+        question: any(named: 'question'),
+        history: any(named: 'history'),
+      ),
+    ).thenAnswer(
+      (_) async => const AssistantReply(
+        status: AssistantStatus.ok,
+        text: 'Hôm nay cửa hàng bán được 8.420.000 ₫ từ 12 đơn, tăng 18% so với hôm qua.',
+        blocks: [],
+      ),
+    );
     useInventoryTestSurface(size);
     final key = GlobalKey();
     final router = _router(
       session ?? _session(),
       home ?? FakeHomeRepository(),
       now ?? DateTime(2026, 11, 23, 9),
+      assistant,
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(
@@ -109,6 +153,18 @@ void main() {
     // Khung xương nhấp nháy mãi → không pumpAndSettle ở ca đang tải.
     for (var i = 0; i < 8; i++) {
       await tester.pump(const Duration(milliseconds: 250));
+    }
+    if (openAsk || answer) {
+      await tester.tap(find.byTooltip('Hỏi Mosaic Retail'));
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 250));
+      }
+      if (answer) {
+        await tester.tap(find.text('Hôm nay bán được bao nhiêu?'));
+        for (var i = 0; i < 4; i++) {
+          await tester.pump(const Duration(milliseconds: 250));
+        }
+      }
     }
     await expectLater(find.byKey(key), matchesGoldenFile(_goldenPath(name)));
   }
@@ -150,6 +206,8 @@ void main() {
         home: FakeHomeRepository(error: const AppException('NETWORK_ERROR')),
       ),
     );
+    testWidgets('ask-open-$w', (t) => capture(t, name: 'ask-open-$w', size: size, openAsk: true));
+    testWidgets('ask-answer-$w', (t) => capture(t, name: 'ask-answer-$w', size: size, answer: true));
     testWidgets(
       'no-einvoice-$w',
       (t) => capture(

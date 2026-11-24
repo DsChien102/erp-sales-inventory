@@ -13,6 +13,9 @@ class AssistantComposer extends StatelessWidget {
     required this.waiting,
     required this.locked,
     required this.onSend,
+    this.height = 44,
+    this.autofocus = false,
+    this.padding = const EdgeInsets.symmetric(horizontal: VSpacing.md, vertical: VSpacing.sm),
   });
 
   final TextEditingController controller;
@@ -20,17 +23,23 @@ class AssistantComposer extends StatelessWidget {
   final bool locked;
   final VoidCallback onSend;
 
+  /// Cao ô nhập / cạnh nút gửi: 44 (iPhone), 52 (khung chat web 10-8b).
+  final double height;
+  final bool autofocus;
+  final EdgeInsetsGeometry padding;
+
   @override
   Widget build(BuildContext context) {
     final c = context.vColors;
     return Container(
       color: c.surface,
-      padding: const EdgeInsets.symmetric(horizontal: VSpacing.md, vertical: VSpacing.sm),
+      padding: padding,
       child: Row(
         children: [
           Expanded(
             child: VTextField(
               controller: controller,
+              autofocus: autofocus,
               enabled: !locked,
               hintText: locked ? assistantLockedHint : assistantHint,
               textInputAction: TextInputAction.send,
@@ -41,10 +50,13 @@ class AssistantComposer extends StatelessWidget {
             ),
           ),
           const SizedBox(width: VSpacing.sm),
-          VButton.icon(
-            icon: VIcons.send,
-            semanticLabel: 'Gửi',
-            onPressed: (waiting || locked) ? null : onSend,
+          SizedBox.square(
+            dimension: height,
+            child: VButton.icon(
+              icon: VIcons.send,
+              semanticLabel: 'Gửi',
+              onPressed: (waiting || locked) ? null : onSend,
+            ),
           ),
         ],
       ),

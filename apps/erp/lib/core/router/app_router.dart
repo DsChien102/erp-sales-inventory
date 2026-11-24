@@ -323,13 +323,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/ask',
       name: 'assistant.ask',
-      builder: (context, state) => BlocProvider(
-        create: (_) => AskAssistantCubit(
-          repository: getIt<AssistantRepository>(),
-          tenantId: () => getIt<SessionController>().requireTenantId(),
-        ),
-        child: const AskAssistantPage(),
-      ),
+      builder: (context, state) => buildAskAssistantRoutePage(state, _newAskAssistantCubit),
     ),
     // Sản phẩm: các route độc lập / toàn màn khai báo TRƯỚC ShellRoute(StoreShell)
     GoRoute(
@@ -484,7 +478,19 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: '/',
                   name: 'dashboard',
-                  builder: (context, state) => HomeTabPage(repository: getIt<HomeRepository>()),
+                  builder: (context, state) => HomeTabPage(
+                    repository: getIt<HomeRepository>(),
+                    // Cuộc trò chuyện sống cùng Trang chủ (indexedStack); ⤢ đưa cubit sang /ask.
+                    askScope: (child) => BlocProvider(
+                      create: (_) => _newAskAssistantCubit(),
+                      child: child,
+                    ),
+                    askPanel: (homeContext, {required wide, required onClose}) =>
+                        BlocProvider.value(
+                          value: homeContext.read<AskAssistantCubit>(),
+                          child: AssistantChatPanel(wide: wide, onClose: onClose),
+                        ),
+                  ),
                 ),
               ],
             ),
@@ -1238,6 +1244,21 @@ final appRouter = GoRouter(
 
 bool _hasTenantPermission(String code) {
   return getIt<SessionController>().hasPermission(code);
+}
+
+AskAssistantCubit _newAskAssistantCubit() => AskAssistantCubit(
+  repository: getIt<AssistantRepository>(),
+  tenantId: () => getIt<SessionController>().requireTenantId(),
+);
+
+/// `/ask`: dùng lại cubit của khung chat Trang chủ khi được đưa qua `extra` (⤢, 10-8b),
+/// không thì tạo cuộc trò chuyện mới.
+Widget buildAskAssistantRoutePage(GoRouterState state, AskAssistantCubit Function() create) {
+  final extra = state.extra;
+  if (extra is AskAssistantCubit && !extra.isClosed) {
+    return BlocProvider.value(value: extra, child: const AskAssistantPage());
+  }
+  return BlocProvider(create: (_) => create(), child: const AskAssistantPage());
 }
 
 Widget _permissionDeniedScaffold(
