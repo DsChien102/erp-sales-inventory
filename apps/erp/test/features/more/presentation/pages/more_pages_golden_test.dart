@@ -9,8 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../iam/support/iam_test_session.dart';
 import '../../../inventory/support/inventory_test_surface.dart';
-import '../../../receivable/presentation/receivable_test_harness.dart'
-    show loadInterFont, repoRoot;
+import '../../../receivable/presentation/receivable_test_harness.dart' show loadInterFont, repoRoot;
 
 const _owner = SessionSnapshot(
   isAuthenticated: true,

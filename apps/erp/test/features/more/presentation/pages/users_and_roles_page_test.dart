@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/session/models/session_snapshot.dart';
 import '../../../iam/support/iam_test_session.dart';
-import 'system_settings_page_test.dart' show pumpPushed;
 
 const _owner = SessionSnapshot(
   isAuthenticated: true,
@@ -14,6 +13,51 @@ const _owner = SessionSnapshot(
   role: 'store_owner',
   isOwner: true,
 );
+
+Future<GoRouter> pumpPushed(
+  WidgetTester tester, {
+  required Size size,
+  required Widget page,
+  required String path,
+  bool push = true,
+}) async {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+  final router = GoRouter(
+    initialLocation: push ? '/more' : path,
+    routes: [
+      GoRoute(
+        path: '/more',
+        builder: (_, _) => const Scaffold(body: Text('MORE_PAGE')),
+      ),
+      GoRoute(path: path, builder: (_, _) => page),
+      GoRoute(
+        path: '/more/einvoice',
+        builder: (_, _) => const VPageScaffold(title: 'HĐĐT', body: SizedBox()),
+      ),
+      GoRoute(path: '/more/product-settings', builder: (_, _) => const SizedBox()),
+      GoRoute(
+        path: '/more/roles',
+        builder: (_, _) => const VPageScaffold(title: 'ROLES', body: SizedBox()),
+      ),
+      GoRoute(path: '/more/organization-profile', builder: (_, _) => const SizedBox()),
+      GoRoute(path: '/more/users', builder: (_, _) => const SizedBox()),
+      GoRoute(path: '/more/audit-logs', builder: (_, _) => const SizedBox()),
+    ],
+  );
+  addTearDown(router.dispose);
+  await tester.pumpWidget(
+    MaterialApp.router(theme: VTheme.lightTheme, routerConfig: router),
+  );
+  await tester.pumpAndSettle();
+  if (push) {
+    router.push(path);
+    await tester.pumpAndSettle();
+  }
+  return router;
+}
 
 void main() {
   testWidgets(

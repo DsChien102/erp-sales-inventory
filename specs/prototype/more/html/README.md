@@ -42,7 +42,7 @@ Thiết lập, Người dùng & vai trò chỉ có nút ← khi cửa sổ < 102
 
 ## Hiện trạng Flutter (để rà)
 
-1. **Thiết lập và Người dùng & vai trò nằm trong khung web, chỉ iPhone mất thanh dưới.** Hai route nằm **trong** `ShellRoute(StoreShell)` (đóng ở `app_router.dart:679`) nên web có thanh bên; iPhone mất thanh dưới vì không qua `ErpTabScaffold`. Ảnh web của prototype không có thanh biểu tượng là do `insideShell` trong `shared/shell.js` coi hai route này nằm ngoài khung (10-8c Q4).
+1. **Thiết lập và Người dùng & vai trò nằm trong khung web, chỉ iPhone mất thanh dưới.** Hai route nằm **trong** `ShellRoute(StoreShell)` (mở ở `app_router.dart:468`, đóng ở `:1241`) nên web có thanh bên; iPhone mất thanh dưới vì không qua `ErpTabScaffold`. Ảnh web của prototype không có thanh biểu tượng là do `insideShell` trong `shared/shell.js` coi hai route này nằm ngoài khung (10-8c Q4).
 2. **Web dùng nguyên bố cục điện thoại cho màn Thêm:** 10 thẻ cao 74 xếp dọc, giãn hết vùng nội dung (~1008 px), chữ dồn bên trái, mũi tên sát mép phải; web 800 px vẫn phải cuộn mới thấy "Thiết lập", "Đăng xuất". Thanh bên đã có đủ mục con nên màn Thêm trên web lặp lại thanh bên.
 3. **Ba kiểu thẻ menu cho cùng một việc:** Thêm = hộp icon 44 nền xanh nhạt + tiêu đề 1 dòng; Thiết lập = hộp icon 44 **nền trắng trùng nền thẻ** (không truyền `backgroundColor`) + phụ đề 2 dòng; Người dùng & vai trò = icon trần 20 màu chữ, đệm dọc 16, khe 8, chữ không giới hạn dòng.
 4. **Màn Thêm trên web khi tổ chức bị chặn:** 7/10 thẻ mờ 45%; chỉ "Tài khoản của tôi" và "Đăng xuất" bấm được, không có dòng giải thích vì sao mờ. Mờ dùng chung một cách cho "chưa làm" (Khách hàng & NCC, Đơn nhập, Báo cáo) và "bị chặn" → người dùng không phân biệt được.

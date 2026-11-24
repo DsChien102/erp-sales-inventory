@@ -282,8 +282,32 @@ Expected: không lỗi mới; check imports OK.
 **Lệch đã biết:**
 - `w2_behavior_preservation_test.dart` H12 **đỏ cả trước khi sửa** (`GetIt: HomeRepository is not registered`, do Trang chủ 10-8b) → không phải do 10-8c; chưa sửa (ngoài phạm vi).
 - Golden Flutter hiện icon là ô vuông (font icon không nạp trong test), bố cục thanh tiêu đề + thân khớp prototype: 390 có ←, 1280 không có ←, cột 720 căn giữa. Thiết lập 1280 và Q4 như plan.
-- Plan ghi `app_router.dart:1234`; dòng thật là 679.
+- Plan ghi `app_router.dart:1234`; dòng thật là 1241 (mở ở 468).
 
 ## Review
 
-_(phiên review ghi)_
+### R1 (2026-11-24) — Đạt, có 3 góp ý nhỏ (không chặn) — đã xác nhận và sửa cả 3 (2026-11-24)
+
+**Đã kiểm:**
+- Lib: đúng 2 dòng như Task 1 Step 3 (`system_settings_page.dart:15`, `users_and_roles_page.dart:88` trong `BlocBuilder`), dùng `MediaQuery.sizeOf(context).width < VBreakpoints.desktop` (Q1). Không đụng `MorePage`, `/more`, `more_entries.dart`, màn con (Global Constraints).
+- Route: `/more/settings` (`app_router.dart:676`), `/more/users-and-roles` (`:681`) nằm trong `ShellRoute(StoreShell)` mở ở `:468`, đóng ở `:1241` (đếm ngoặc). Thanh bên mở bằng `context.go` (`erp_side_navigation.dart:90,94`) → ở ≥ 1024 vốn không pop được; trường hợp đẩy từ Thêm ở khổ hẹp rồi kéo rộng là Q3, có test.
+- Test phủ đủ Review Focus 1–4: 1023/1024, 900 → 1280 → 900 rồi bấm ← về `/more`, màn con `/more/einvoice` / `/more/roles` ở 1280 có ←, vào thẳng 390 không có ←.
+- Chạy lại: `flutter test test/features/more/presentation` **29/29** (25 + 4 golden); `dart analyze lib/features/more test/features/more` không lỗi.
+- Golden 390 có ←, tiêu đề bắt đầu 72; 1280 không ←, tiêu đề cách lề 16, cột 720 căn giữa — khớp bố cục prototype (icon ô vuông do không nạp font icon, như mọi golden khác trong repo).
+- Không chạy lại được "đỏ trước khi sửa" (bị chặn quyền tạm sửa file lib); xét logic: code cũ `showBackButton: true` + đã đẩy → luôn có ←, nên 6 ca 1280 / 1024 / widen phải đỏ — khớp Kết quả.
+
+**Góp ý:**
+
+| # | Mức | Chỗ | Vấn đề | Đề xuất |
+|---|---|---|---|---|
+| G1 | Nhỏ (tài liệu) | Kết quả "dòng thật là 679"; `specs/prototype/more/html/README.md` Hiện trạng 1 "mở ở `app_router.dart:468`, đóng ở `:1241`" | Dòng 679 là cuối `GoRoute('/more/settings')`, không phải chỗ đóng `ShellRoute(StoreShell)`. Khung đóng ở `:1241` (plan ghi 1234 là gần đúng, lệch do code dời). | Sửa cả hai chỗ thành `app_router.dart:1241` (hoặc bỏ số dòng, ghi "mở ở `:468`"). |
+| G2 | Nhỏ (ngoài phạm vi, cần ghi) | `test/features/iam/presentation_module/w2_behavior_preservation_test.dart` H12 | Đỏ do 10-8b (`GetIt: HomeRepository is not registered`); 15/16 ca còn lại xanh. Không có trong `TEST-BASELINE.md` lẫn review 10-8b. H12 là test giữ hành vi "tab gốc không ←, màn con có ←" mà bảng "Đang làm gì" dựa vào → hiện không bảo vệ gì. | Đăng ký `HomeRepository` giả trong `setUp` của file test (chỉ sửa test), chạy lại H12 xanh; hoặc tối thiểu ghi vào mục Review 10-8b / `TEST-BASELINE.md` để không bị coi là lỗi sẵn có. |
+| G3 | Rất nhỏ | `users_and_roles_page_test.dart:9` | `import 'system_settings_page_test.dart' show pumpPushed;` — test này phụ thuộc một file test khác (có `main()` riêng). Plan ghi "mỗi file tự khai báo". Chạy được nhưng đổi / xoá file Thiết lập sẽ làm vỡ test Người dùng & vai trò. | Chép hàm vào file, hoặc chấp nhận và ghi lý do. Không bắt sửa. |
+
+**Còn lại trước khi đóng plan:** kiểm tay APP-02 (iPhone 390: vào từ Thêm có ←; web ≥ 1024 mở từ menu "Quản lý" không có ←; web thu < 1024 vào từ Thêm có ←), rồi tick CHECKLIST APP-02 cột "Mới" (Task 2).
+
+**Xử lý R1 (xác nhận từng góp ý trên code):**
+- G1 đúng: đếm ngoặc cho `ShellRoute(StoreShell)` mở `:468`, đóng `:1241`. Đã sửa README prototype và mục Kết quả.
+- G2 đúng: `HomeRepository` không đăng ký trong `setUp` của H1–H13. Đã đăng ký `FakeHomeRepository` (chỉ sửa test) → H12 xanh, file 16/16.
+- G3 đúng: đã chép `pumpPushed` vào `users_and_roles_page_test.dart`, bỏ import chéo.
+- Chạy lại: `flutter test test/features/more/presentation test/features/iam/presentation_module/w2_behavior_preservation_test.dart` → 45 pass.

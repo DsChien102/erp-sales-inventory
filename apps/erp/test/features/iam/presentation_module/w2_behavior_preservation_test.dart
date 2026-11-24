@@ -23,6 +23,8 @@ import '../../auth/support/scripted_auth.dart';
 
 import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 import '../../dashboard/presentation/fake_default_pair_repository.dart';
+import 'package:erp/features/dashboard/data/home_repository.dart';
+import '../../dashboard/support/fake_home_repository.dart';
 
 base class _CustomSessionStore extends SessionStore {
   _CustomSessionStore({this.grantedPermissions = const {}, this.owner = false});
@@ -43,7 +45,8 @@ void main() {
   setUp(() async {
     await getIt.reset();
     getIt
-      ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository());
+      ..registerSingleton<DefaultPairRepository>(FakeDefaultPairRepository())
+      ..registerSingleton<HomeRepository>(FakeHomeRepository());
   });
 
   tearDown(() async {
