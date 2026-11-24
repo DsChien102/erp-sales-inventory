@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# Framework: Flutter library — MAJOR.MINOR.PATCH via pubspec.yaml (no store build)
+#
+# Wrapper must set ROOT, UNIT_ID, UNIT_PATH, TAG_PREFIX, TAG_MESSAGE_PREFIX
+# then: source this file; bump_main "$@"
+set -euo pipefail
+
+_FW_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../lib/manifests/pubspec.sh
+source "${_FW_DIR}/../lib/manifests/pubspec.sh"
+
+VERSION_FILE="${ROOT}/${UNIT_PATH}/pubspec.yaml"
+
+scheme_default_bump_kind() {
+  echo "patch"
+}
+
+scheme_accepts_build() {
+  return 1
+}
+
+scheme_reject_build_message() {
+  echo "${UNIT_ID} is a Flutter library (no store build number); use --patch|--minor|--major"
+}
+
+scheme_read_version() {
+  pubspec_read_version "$VERSION_FILE"
+}
+
+scheme_write_version() {
+  pubspec_write_version "$VERSION_FILE" "$1"
+}
+
+scheme_version_files() {
+  echo "${UNIT_PATH}/pubspec.yaml"
+}
+
+scheme_validate_version() {
+  local version="$1"
+  if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Invalid version format '${version}' (expected x.y.z)" >&2
+    exit 1
+  fi
+}
+
+scheme_compute_next_version() {
+  local current="$1"
+  local major minor patch
+
+  IFS='.' read -r major minor patch <<< "$current"
+
+  case "$BUMP_KIND" in
+    patch)
+      patch=$((patch + 1))
+      ;;
+    minor)
+      minor=$((minor + 1))
+      patch=0
+      ;;
+    major)
+      major=$((major + 1))
+      minor=0
+      patch=0
+      ;;
+    set)
+      echo "$EXPLICIT_VERSION"
+      return
+      ;;
+    *)
+      echo "Unknown bump kind: ${BUMP_KIND}" >&2
+      exit 1
+      ;;
+  esac
+
+  echo "${major}.${minor}.${patch}"
+}
+
+# shellcheck source=../lib/bump_common.sh
+source "${_FW_DIR}/../lib/bump_common.sh"
+
+bump_main() {
+  bump_run "$@"
+}

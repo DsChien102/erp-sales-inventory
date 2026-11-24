@@ -1,0 +1,107 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+
+# Build directories
+/build/
+build/
+
+# Platform-specific build artifacts
+/build/ios
+/build/android
+/build/macos
+/build/windows
+/build/linux
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Platform directories
+/android/
+/ios/
+/macos/
+/windows/
+/linux/
+
+# Dependency directories
+node_modules/
+**/node_modules/
+.npm/
+
+pubspec.lock
+
+# Specific files to ignore
+lib/firebase_options.dart
+lib/main.dart
+firebase.json
+.vercel
+functions/node_modules/
+.env*.local
+.meinvoice_token.local
+**/meinvoice_token.local
+**/.meinvoice_token.local
+
+build/flutter_assets
+linux/flutter
+windows/flutter
+macos/Flutter
+macos/Runner/GoogleService-Info.plist
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+ios/Runner/GoogleService-Info.plist
+apps/erp/.env
+.cursor/settings.json
+**/.env
+**/.env.*
+!**/.env.*.example
+# Shared iOS deploy secrets (example is committed under deploy/)
+deploy/deploy.env
+# App env files remain ignored via **/.env rules above
+
+# Local agent plans and specs
+docs/superpowers/
+
+
+# Flutter iOS generated files (machine-specific paths)
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/ephemeral/
+
+# Theme 7 prototype golden screenshots (T7-P0)
+specs/themes/theme-07/03.design/prototype/html/tools/.golden*/
+
+# Ảnh lỗi do golden test sinh ra (flutter test), không commit
+apps/erp/test/**/failures/

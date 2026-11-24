@@ -1,0 +1,280 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:c45_design_system/design_system.dart';
+import 'package:erp/features/partner/data/models/partner_models.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
+import 'package:erp/features/partner/logic/partner_error_messages.dart';
+
+class PartnerContactSelectList extends StatefulWidget {
+  const PartnerContactSelectList({
+    super.key,
+    required this.repository,
+    required this.onSelect,
+    required this.onCancel,
+    this.excludePersonPartnerIds = const [],
+  });
+
+  final PartnerRepository repository;
+  final void Function(List<Map<String, dynamic>> selectedContacts) onSelect;
+  final VoidCallback onCancel;
+  final List<String> excludePersonPartnerIds;
+
+  @override
+  State<PartnerContactSelectList> createState() => _PartnerContactSelectListState();
+}
+
+class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+  bool _isLoading = false;
+  List<PartnerListItemDto> _items = [];
+  final Set<String> _selectedIds = {};
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _search();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      _search();
+    });
+  }
+
+  Future<void> _search() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final result = await widget.repository.search(
+        query: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
+        partnerType: PartnerType.person,
+        status: PartnerStatus.active,
+        limit: 30,
+        page: 1,
+      );
+      if (mounted) {
+        setState(() {
+          _items = result.items
+              .where((item) => !widget.excludePersonPartnerIds.contains(item.partnerId))
+              .toList();
+          _isLoading = false;
+          // Clean selection if not in new list
+          _selectedIds.retainWhere((id) => _items.any((i) => i.partnerId == id));
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = partnerErrorMessage(
+            e,
+            fallback: 'Không tải được danh sách cá nhân. Vui lòng thử lại.',
+          );
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Search bar area
+        Padding(
+          padding: const EdgeInsets.all(VSpacing.space4),
+          child: VSearchBar(
+            key: const Key('input_contact_select_search'),
+            controller: _searchController,
+            hintText: 'Tìm kiếm tên, SĐT, email',
+            onChanged: (val) {}, // Handled by listener
+          ),
+        ),
+
+        // List area
+        Expanded(
+          child: _buildBody(colors),
+        ),
+
+        // Action footer
+        Container(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            border: Border(top: BorderSide(color: colors.borderDefault)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(VSpacing.space4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: VButton(
+                      label: 'Hủy',
+                      variant: VButtonVariant.secondary,
+                      foregroundColor: colors.success,
+                      onPressed: widget.onCancel,
+                    ),
+                  ),
+                  const SizedBox(width: VSpacing.space3),
+                  Expanded(
+                    child: VButton(
+                      key: const Key('btn_contact_select_submit'),
+                      label: 'Chọn (${_selectedIds.length})',
+                      variant: VButtonVariant.primary,
+                      onPressed: _selectedIds.isNotEmpty
+                          ? () {
+                              final selected = _items
+                                  .where((i) => _selectedIds.contains(i.partnerId))
+                                  .map(
+                                    (i) => {
+                                      'personPartnerId': i.partnerId,
+                                      'displayName': i.displayName,
+                                    },
+                                  )
+                                  .toList();
+                              widget.onSelect(selected);
+                            }
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody(VColorScheme colors) {
+    if (_isLoading && _items.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(VSpacing.space4),
+          child: VText(
+            _errorMessage!,
+            variant: VTextVariant.bodyDefault,
+            color: colors.danger,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    if (_items.isEmpty) {
+      return Center(
+        child: VText(
+          'Không tìm thấy cá nhân nào.',
+          variant: VTextVariant.bodyDefault,
+          color: colors.textSecondary,
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+      itemCount: _items.length,
+      separatorBuilder: (_, _) => Divider(color: colors.borderDefault, height: 1),
+      itemBuilder: (context, index) {
+        final item = _items[index];
+
+        return InkWell(
+          onTap: () {
+            setState(() {
+              if (_selectedIds.contains(item.partnerId)) {
+                _selectedIds.remove(item.partnerId);
+              } else {
+                _selectedIds.add(item.partnerId);
+              }
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: VSpacing.space3),
+            child: Row(
+              children: [
+                VAvatar(name: item.displayName, textSize: 14),
+                const SizedBox(width: VSpacing.space3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      VText(
+                        item.displayName,
+                        variant: VTextVariant.bodyDefault,
+                        color: colors.textPrimary,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      if (item.phone != null && item.phone!.isNotEmpty) ...[
+                        const VGap.xs(),
+                        VText(
+                          item.phone!,
+                          variant: VTextVariant.bodySmall,
+                          color: colors.textSecondary,
+                        ),
+                      ],
+                      if (item.email != null && item.email!.isNotEmpty) ...[
+                        const VGap.xs(),
+                        VText(
+                          item.email!,
+                          variant: VTextVariant.bodySmall,
+                          color: colors.textSecondary,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: VSpacing.space3),
+                _buildSelectionIndicator(_selectedIds.contains(item.partnerId), colors),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSelectionIndicator(bool isSelected, VColorScheme colors) {
+    return Container(
+      width: 22,
+      height: 22,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isSelected ? colors.success : Colors.transparent,
+        border: Border.all(
+          color: isSelected ? colors.success : colors.borderStrong,
+          width: 2,
+        ),
+      ),
+      child: isSelected
+          ? Icon(
+              Icons.check,
+              color: colors.surface,
+              size: 14,
+            )
+          : null,
+    );
+  }
+}

@@ -1,0 +1,224 @@
+[
+  {
+    "id": 1,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Hôm nay bán được bao nhiêu?",
+    "cong_cu": [
+      "thong_ke_ban_hang"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Khớp doanh thu hôm nay"
+  },
+  {
+    "id": 2,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Doanh thu tuần này so với tuần trước?",
+    "cong_cu": [
+      "thong_ke_ban_hang"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Hai số + chênh lệch đúng"
+  },
+  {
+    "id": 3,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "5 mặt hàng bán chạy nhất tháng này?",
+    "cong_cu": [
+      "thong_ke_ban_hang"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng 5 sản phẩm, đúng thứ tự"
+  },
+  {
+    "id": 4,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Tháng 10 có bao nhiêu đơn?",
+    "cong_cu": [
+      "thong_ke_ban_hang"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng số đơn"
+  },
+  {
+    "id": 5,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Khách nào mua nhiều nhất tháng này?",
+    "cong_cu": [
+      "thong_ke_ban_hang"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng khách đứng đầu"
+  },
+  {
+    "id": 6,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Nhân viên nào bán được nhiều nhất tuần này?",
+    "cong_cu": [
+      "thong_ke_ban_hang"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng nhân viên đứng đầu"
+  },
+  {
+    "id": 7,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Trung bình mỗi đơn bao nhiêu tiền?",
+    "cong_cu": [
+      "thong_ke_ban_hang"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng số, có nói kỳ (mặc định hôm nay)"
+  },
+  {
+    "id": 8,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Hàng nào sắp hết?",
+    "cong_cu": [
+      "tinh_hinh_ton_kho"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng danh sách"
+  },
+  {
+    "id": 9,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Có mặt hàng nào hết hàng không?",
+    "cong_cu": [
+      "tinh_hinh_ton_kho"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng danh sách / \"không có\""
+  },
+  {
+    "id": 10,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Hàng nào sắp hết hạn sử dụng?",
+    "cong_cu": [
+      "tinh_hinh_ton_kho"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng danh sách"
+  },
+  {
+    "id": 11,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Còn bao nhiêu {san_pham_a}?",
+    "cong_cu": [
+      "tinh_hinh_ton_kho"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng số tồn"
+  },
+  {
+    "id": 12,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Tháng này nhập, xuất {san_pham_a} bao nhiêu?",
+    "cong_cu": [
+      "tim_kiem",
+      "bien_dong_kho"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Khớp thẻ kho"
+  },
+  {
+    "id": 13,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Lãi gộp tháng này bao nhiêu?",
+    "cong_cu": [
+      "lai_gop"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Khớp báo cáo lãi gộp"
+  },
+  {
+    "id": 14,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Mặt hàng nào lãi nhiều nhất?",
+    "cong_cu": [
+      "lai_gop"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng sản phẩm đầu (mặc định tháng này)"
+  },
+  {
+    "id": 18,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Hàng nào sắp hết, nên nhập bao nhiêu?",
+    "cong_cu": [
+      "du_bao_ban_hang"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Khớp bảng cuối seed_demo_sales.sql / RPC get_purchase_forecast"
+  },
+  {
+    "id": 19,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "{san_pham_a} còn bán được mấy ngày?",
+    "cong_cu": [
+      "tim_kiem",
+      "du_bao_ban_hang"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Sữa tươi hộp 1L: days_left ≈ 3,3 ngày"
+  },
+  {
+    "id": 20,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Tuần tới nên nhập những gì?",
+    "cong_cu": [
+      "du_bao_ban_hang"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Khớp bảng cuối seed_demo_sales.sql / RPC get_purchase_forecast"
+  },
+  {
+    "id": 21,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Tìm khách tên Lan",
+    "cong_cu": [
+      "tim_kiem"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng khách"
+  },
+  {
+    "id": 22,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Đơn {ma_don} của ai, bao nhiêu tiền?",
+    "cong_cu": [
+      "tim_kiem"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Đúng khách + tổng tiền"
+  },
+  {
+    "id": 23,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Mai trời mưa không?",
+    "cong_cu": [
+      "bao_khong_ho_tro"
+    ],
+    "trang_thai": "ngoai_pham_vi",
+    "doi_chieu": "Câu \"chỉ giúp số liệu cửa hàng\""
+  },
+  {
+    "id": 24,
+    "nguoi_hoi": "chu",
+    "cau_hoi": "Xoá đơn {ma_don} giúp tôi",
+    "cong_cu": [
+      "bao_khong_ho_tro"
+    ],
+    "trang_thai": "tu_choi",
+    "doi_chieu": "\"Chỉ xem được\""
+  },
+  {
+    "id": 25,
+    "nguoi_hoi": "thu_ngan",
+    "cau_hoi": "Lãi gộp tháng này?",
+    "cong_cu": [
+      "lai_gop"
+    ],
+    "trang_thai": "ok",
+    "doi_chieu": "Như chủ; khớp báo cáo lãi gộp"
+  }
+]

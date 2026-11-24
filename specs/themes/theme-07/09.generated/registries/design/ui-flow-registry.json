@@ -1,0 +1,1201 @@
+{
+  "schema_version": "2.0",
+  "patch_version": "4.6.8",
+  "freeze_id": "T07-UIF-V4.6.1",
+  "source_baseline": "v4.6.6",
+  "source_ui_ux_freeze": "T7-UIUX-FREEZE-v4.2.0-rc1",
+  "prototype_status": "BJ02_DESIGN_STATE_CLEANUP_v4.6.8",
+  "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
+  "flows": [
+    {
+      "id": "UIF-01",
+      "business_journey_id": "BJ-01",
+      "name": "Theo dõi tồn, khả dụng và chỉ báo vận hành",
+      "file": "UIF-01-BJ-01.md",
+      "canonical_path": "03.design/flows/UIF-01-BJ-01.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-01-01",
+        "UC-01-02",
+        "UC-01-03",
+        "UC-01-04",
+        "UC-01-05"
+      ],
+      "screen_ids": [
+        "SCR-001",
+        "SCR-003"
+      ],
+      "compatibility_screen_ids": [
+        "SCR-004",
+        "SCR-005",
+        "SCR-060",
+        "SCR-061"
+      ],
+      "action_ids": [
+        "ACT-01-REFRESH"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen": "SCR-001",
+          "from": "Inventory > Tồn kho"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen": "SCR-003",
+          "actor": "Inventory viewer/operator",
+          "from": "Product/inventory context",
+          "urlParam": "entry=product-context"
+        }
+      ],
+      "transition_count": 11,
+      "prototype_status": "BJ01_V0_3_2_QA_PASS",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "BJ01_V0_3_2_QA_PASS",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-003"
+      ],
+      "entry_screen_ids": [
+        "SCR-001"
+      ]
+    },
+    {
+      "id": "UIF-02",
+      "business_journey_id": "BJ-02",
+      "name": "Nhận hàng mua",
+      "file": "UIF-02-BJ-02.md",
+      "canonical_path": "03.design/flows/UIF-02-BJ-02.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-02-01",
+        "UC-02-02",
+        "UC-02-03",
+        "UC-02-04",
+        "UC-02-05"
+      ],
+      "screen_ids": [
+        "SCR-006",
+        "SCR-007",
+        "SCR-008",
+        "SCR-009",
+        "SCR-084",
+        "SCR-010",
+        "SCR-011",
+        "SCR-012",
+        "SCR-013"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-02-DECIDE",
+        "ACT-02-RECEIVE",
+        "ACT-02-SUBMIT"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen": "SCR-006",
+          "actor": "Warehouse receiver",
+          "from": "Inventory > Nhận hàng"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen": "SCR-009",
+          "actor": "Warehouse receiver",
+          "from": "Purchase document > Nhận hàng"
+        },
+        {
+          "type": "ACTOR_HANDOFF_TASK",
+          "screen": "SCR-011",
+          "actor": "Receiving approver",
+          "from": "Assigned approval task"
+        },
+        {
+          "type": "SYSTEM_RECOVERY",
+          "screen": "SCR-013",
+          "actor": "Warehouse receiver",
+          "from": "SCR-012 UNKNOWN only"
+        },
+        {
+          "type": "WAREHOUSE_HUB_ATTENTION",
+          "screen": "SCR-010",
+          "actor": "Warehouse receiver",
+          "from": "Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt"
+        },
+        {
+          "type": "WAREHOUSE_HUB_ATTENTION",
+          "screen": "SCR-011",
+          "actor": "Receiving approver",
+          "from": "Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt"
+        }
+      ],
+      "transition_count": 21,
+      "prototype_status": "BJ02_DESIGN_STATE_CLEANUP_v4.6.8",
+      "parity_status": "ALIGNED_TO_v4.6.8_DESIGN_STATE_CLEANUP",
+      "evidence_level": "PILOT_STATIC_VALIDATED",
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "BJ02_PILOT_CALIBRATING_v0.2.8",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-012",
+        "SCR-013"
+      ],
+      "entry_screen_ids": [
+        "SCR-006"
+      ]
+    },
+    {
+      "id": "UIF-03",
+      "business_journey_id": "BJ-03",
+      "name": "Xác lập giá trị ban đầu của hàng nhận",
+      "file": "UIF-03-BJ-03.md",
+      "canonical_path": "03.design/flows/UIF-03-BJ-03.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-03-01"
+      ],
+      "screen_ids": [
+        "SCR-014",
+        "SCR-015",
+        "SCR-017",
+        "SCR-019"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-03-CONFIRM-COST"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen": "SCR-014",
+          "actor": "Kế toán",
+          "from": "Giá trị & giá vốn > Hàng chờ xác lập giá trị"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen": "SCR-015",
+          "actor": "Kế toán",
+          "from": "Phiếu nhận cần xác lập giá trị"
+        }
+      ],
+      "transition_count": 8,
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.6.1",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
+      "retired_screen_ids": [
+        "SCR-016",
+        "SCR-018"
+      ],
+      "contextual_surfaces": [
+        "Căn cứ giá trực tiếp của nhập nhanh mở bằng DS v2 / Form Sheet; vùng form cuộn độc lập và Sticky Footer cố định."
+      ],
+      "patterns_promoted": [
+        "VALUATION_WORK_QUEUE",
+        "DOCUMENT_OR_QUICK_BASIS",
+        "DIRECT_BASIS_SHEET",
+        "VALUE_COMPONENT_BREAKDOWN",
+        "COMMERCIAL_CONFLICT_HANDOFF",
+        "READ_ONLY_FINAL_REVIEW",
+        "INITIAL_VALUE_RESULT",
+        "UNKNOWN_RECOVERY",
+        "FINANCIAL_MASKING",
+        "NO_ARCHITECTURE_EXPLANATION_UI"
+      ],
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "GROUP_PRODUCT_CORRECTED_v1.5.0",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-019"
+      ],
+      "entry_screen_ids": [
+        "SCR-014"
+      ]
+    },
+    {
+      "id": "UIF-04",
+      "business_journey_id": "BJ-04",
+      "name": "Quản lý vòng đời giữ hàng",
+      "file": "UIF-04-BJ-04.md",
+      "canonical_path": "03.design/flows/UIF-04-BJ-04.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-04-01",
+        "UC-04-02",
+        "UC-04-03",
+        "UC-04-04"
+      ],
+      "screen_ids": [
+        "SCR-021"
+      ],
+      "compatibility_screen_ids": [
+        "SCR-020",
+        "SCR-022",
+        "SCR-023",
+        "SCR-024"
+      ],
+      "action_ids": [],
+      "entry_contexts": [
+        {
+          "type": "CONTEXTUAL_ONLY",
+          "screen": "SCR-021",
+          "actor": "Order/warehouse viewer",
+          "from": "Order detail > Tình trạng giữ hàng"
+        }
+      ],
+      "transition_count": 1,
+      "prototype_status": "CONTEXTUAL_READ_ONLY_v1.4.3",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "ENTRY_CONSISTENCY_REVIEWED",
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "CONTEXTUAL_READ_ONLY_v1.4.3",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-021"
+      ],
+      "entry_screen_ids": [
+        "SCR-021"
+      ]
+    },
+    {
+      "id": "UIF-05",
+      "business_journey_id": "BJ-05",
+      "name": "Lấy hàng và bàn giao đơn",
+      "file": "UIF-05-BJ-05.md",
+      "canonical_path": "03.design/flows/UIF-05-BJ-05.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-05-01",
+        "UC-05-02",
+        "UC-05-03",
+        "UC-05-04",
+        "UC-05-05"
+      ],
+      "screen_ids": [
+        "SCR-025",
+        "SCR-026",
+        "SCR-027",
+        "SCR-028",
+        "SCR-029"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-06-HANDOVER",
+        "ACT-06-SAVE-PICK"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen": "SCR-025",
+          "actor": "Warehouse picker",
+          "from": "Inventory > Lấy hàng"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen": "SCR-026",
+          "actor": "Warehouse picker",
+          "from": "Assigned pick task / order"
+        }
+      ],
+      "transition_count": 11,
+      "prototype_status": "HARNESS_FULL_RENDERED",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "HARNESS_LOCAL_AND_CUMULATIVE_REVIEWED",
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "HARNESS_FULL_RENDERED",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-029"
+      ],
+      "entry_screen_ids": [
+        "SCR-025"
+      ]
+    },
+    {
+      "id": "UIF-06",
+      "business_journey_id": "BJ-06",
+      "name": "Tiếp nhận và phân loại hàng khách trả",
+      "file": "UIF-06-BJ-06.md",
+      "canonical_path": "03.design/flows/UIF-06-BJ-06.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-06-01",
+        "UC-06-02",
+        "UC-06-03",
+        "UC-06-04"
+      ],
+      "screen_ids": [
+        "SCR-030",
+        "SCR-031",
+        "SCR-032",
+        "SCR-034",
+        "SCR-033",
+        "SCR-035"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-07-SUBMIT-LOT-EXCEPTIONS",
+        "ACT-07-DECIDE-LOT-EXCEPTION",
+        "ACT-07-RECEIVE-RETURN",
+        "ACT-07-CLASSIFY"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen": "SCR-030",
+          "actor": "Warehouse return receiver",
+          "from": "Inventory > Hàng khách trả"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen": "SCR-031",
+          "actor": "Warehouse return receiver",
+          "from": "Assigned return request",
+          "urlParam": "entry=return-task"
+        },
+        {
+          "type": "ACTOR_HANDOFF_TASK",
+          "screen": "SCR-034",
+          "actor": "Wrong-LOT approver",
+          "from": "Assigned approval task"
+        }
+      ],
+      "transition_count": 12,
+      "prototype_status": "HARNESS_FULL_RENDERED_v1.3.8",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "HARNESS_LOCAL_AND_CUMULATIVE_REVIEWED_v1.3.8",
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "HARNESS_FULL_RENDERED_v1.3.8",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-035"
+      ],
+      "entry_screen_ids": [
+        "SCR-030"
+      ]
+    },
+    {
+      "id": "UIF-07",
+      "business_journey_id": "BJ-07",
+      "name": "Thực hiện trả hàng cho nhà cung cấp",
+      "file": "UIF-07-BJ-07.md",
+      "canonical_path": "03.design/flows/UIF-07-BJ-07.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-07-01",
+        "UC-07-02",
+        "UC-07-03",
+        "UC-07-04"
+      ],
+      "screen_ids": [
+        "SCR-036",
+        "SCR-037",
+        "SCR-039",
+        "SCR-041"
+      ],
+      "compatibility_screen_ids": [
+        "SCR-038"
+      ],
+      "action_ids": [
+        "ACT-08-RTV"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen": "SCR-036",
+          "actor": "Warehouse supplier-return operator",
+          "from": "Inventory > Trả nhà cung cấp"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen": "SCR-037",
+          "actor": "Warehouse supplier-return operator",
+          "from": "Purchase-authorized return task"
+        },
+        {
+          "type": "CROSS_DOMAIN_REENTRY",
+          "screen": "SCR-037",
+          "actor": "Warehouse supplier-return operator",
+          "from": "Purchase amendment / new source version"
+        }
+      ],
+      "transition_count": 8,
+      "prototype_status": "BJ07_DEEP_CORRECTION_v1.3.9",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "BJ07_DEEP_CORRECTION_v1.3.9",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-041"
+      ],
+      "entry_screen_ids": [
+        "SCR-036"
+      ]
+    },
+    {
+      "id": "UIF-08",
+      "business_journey_id": "BJ-08",
+      "name": "Kiểm kê và điều chỉnh chênh lệch",
+      "file": "UIF-08-BJ-08.md",
+      "canonical_path": "03.design/flows/UIF-08-BJ-08.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-08-01",
+        "UC-08-02",
+        "UC-08-03",
+        "UC-08-04",
+        "UC-08-05"
+      ],
+      "screen_ids": [
+        "SCR-042",
+        "SCR-043",
+        "SCR-044",
+        "SCR-045",
+        "SCR-046",
+        "SCR-047"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-09-APPROVE",
+        "ACT-09-CANCEL",
+        "ACT-09-OPEN",
+        "ACT-09-SUBMIT"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen_id": "SCR-042",
+          "from": "Inventory > Kiểm kê",
+          "actor": "Stock-count maker"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen_id": "SCR-044",
+          "from": "Assigned stock-count session",
+          "actor": "Assigned counter"
+        },
+        {
+          "type": "ACTOR_HANDOFF_TASK",
+          "screen_id": "SCR-046",
+          "from": "Assigned stock-count approval task",
+          "actor": "Eligible approver"
+        }
+      ],
+      "transition_count": 16,
+      "prototype_status": "PRODUCT_CORRECTED_v3.10.0",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "STATIC_RUNTIME_TARGET",
+      "patterns_promoted": [
+        "BLIND_COUNT_SUPPRESSION",
+        "ATOMIC_SCOPE_BARRIER",
+        "FROZEN_SCOPE_SNAPSHOT",
+        "PHYSICAL_COUNT_KEY",
+        "IMMUTABLE_RECOUNT_ROUNDS",
+        "ZERO_VARIANCE_NO_APPROVAL",
+        "SURPLUS_VALUE_BASIS_BLOCKER",
+        "CONTRIBUTOR_EXCLUSION",
+        "ACTOR_HANDOFF",
+        "SESSION_CONTEXT_CANCELLATION",
+        "RESULT_FINALITY",
+        "UNKNOWN_RECOVERY"
+      ],
+      "holistic_review": {
+        "version": "3.10.0",
+        "status": "PENDING_RUNTIME_REVALIDATION",
+        "evidence_level": "STATIC_CONTRACT_ALIGNED"
+      },
+      "terminal_screen_ids": [
+        "SCR-047"
+      ],
+      "entry_screen_ids": [
+        "SCR-042"
+      ]
+    },
+    {
+      "id": "UIF-09",
+      "business_journey_id": "BJ-09",
+      "name": "Quản lý trạng thái hàng",
+      "file": "UIF-09-BJ-09.md",
+      "canonical_path": "03.design/flows/UIF-09-BJ-09.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-09-01",
+        "UC-09-02",
+        "UC-09-03",
+        "UC-09-04"
+      ],
+      "screen_ids": [
+        "SCR-036",
+        "SCR-037",
+        "SCR-038",
+        "SCR-041",
+        "SCR-056"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-08-STATE",
+        "ACT-COMMON-DECIDE",
+        "ACT-COMMON-SUBMIT",
+        "ACT-COMMON-SAVE-DRAFT"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen_id": "SCR-036",
+          "from": "Inventory > Tình trạng hàng",
+          "actor": "Inventory controller"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen_id": "SCR-037",
+          "from": "Product/Lot context",
+          "actor": "Inventory controller"
+        },
+        {
+          "type": "ACTOR_HANDOFF_TASK",
+          "screen_id": "SCR-038",
+          "from": "Assigned state-change approval task",
+          "actor": "Eligible approver"
+        }
+      ],
+      "transition_count": 14,
+      "prototype_status": "GROUP_PRODUCT_CORRECTED_v1.6.0",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
+      "patterns_promoted": [
+        "STATE_WHITELIST",
+        "DERIVED_EXPIRY",
+        "TRUE_READ_ONLY_LOCK",
+        "ACTOR_HANDOFF",
+        "PHYSICAL_VALUE_PRESERVATION",
+        "RESULT_FINALITY",
+        "UNKNOWN_RECOVERY",
+        "NO_ARCHITECTURE_EXPLANATION_UI"
+      ],
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "GROUP_PRODUCT_CORRECTED_v1.6.0",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-041",
+        "SCR-056"
+      ],
+      "entry_screen_ids": [
+        "SCR-036"
+      ]
+    },
+    {
+      "id": "UIF-10",
+      "business_journey_id": "BJ-10",
+      "name": "Tiêu hủy hàng",
+      "file": "UIF-10-BJ-10.md",
+      "canonical_path": "03.design/flows/UIF-10-BJ-10.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-10-01",
+        "UC-10-02",
+        "UC-10-03",
+        "UC-10-04"
+      ],
+      "screen_ids": [
+        "SCR-036",
+        "SCR-037",
+        "SCR-040",
+        "SCR-041"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-08-DISPOSE",
+        "ACT-COMMON-DECIDE",
+        "ACT-COMMON-SUBMIT",
+        "ACT-COMMON-SAVE-DRAFT"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen_id": "SCR-036",
+          "from": "Inventory > Hàng có thể xử lý",
+          "actor": "Disposal maker"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen_id": "SCR-037",
+          "from": "Eligible non-sellable Product/Lot",
+          "actor": "Disposal maker"
+        },
+        {
+          "type": "ACTOR_HANDOFF_TASK",
+          "screen_id": "SCR-040",
+          "from": "Assigned disposal approval task",
+          "actor": "Eligible approver"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen_id": "SCR-040",
+          "from": "Approved disposal awaiting physical completion",
+          "actor": "Completion operator"
+        }
+      ],
+      "transition_count": 10,
+      "prototype_status": "GROUP_PRODUCT_CORRECTED_v1.6.0",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
+      "patterns_promoted": [
+        "NON_SELLABLE_SOURCE_ONLY",
+        "PRICE_BASIS_BLOCKER",
+        "ACTOR_HANDOFF",
+        "APPROVAL_NOT_DISPOSAL",
+        "COMPLETION_ASSERTION",
+        "ACTUAL_QTY_POLICY_GUARD",
+        "RESULT_FINALITY",
+        "UNKNOWN_RECOVERY",
+        "NO_ARCHITECTURE_EXPLANATION_UI"
+      ],
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "GROUP_PRODUCT_CORRECTED_v1.6.0",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-041"
+      ],
+      "entry_screen_ids": [
+        "SCR-036"
+      ]
+    },
+    {
+      "id": "UIF-11",
+      "business_journey_id": "BJ-11",
+      "name": "Hủy và sửa sai nghiệp vụ kho",
+      "file": "UIF-11-BJ-11.md",
+      "canonical_path": "03.design/flows/UIF-11-BJ-11.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-11-01",
+        "UC-11-02",
+        "UC-11-03",
+        "UC-11-04",
+        "UC-11-05"
+      ],
+      "screen_ids": [
+        "SCR-048",
+        "SCR-049",
+        "SCR-052",
+        "SCR-050",
+        "SCR-053",
+        "SCR-051"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-10-CANCEL",
+        "ACT-10-CORRECT",
+        "ACT-10-DECIDE",
+        "ACT-10-SAVE-DRAFT",
+        "ACT-10-SUBMIT"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen_id": "SCR-048",
+          "from": "Inventory > Kiểm soát > Sửa sai",
+          "actor": "Người phụ trách kho"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen_id": "SCR-049",
+          "from": "Chi tiết nghiệp vụ kho / source context",
+          "actor": "Người phụ trách kho"
+        },
+        {
+          "type": "ACTOR_HANDOFF_TASK",
+          "screen_id": "SCR-051",
+          "from": "Assigned correction approval task",
+          "actor": "Người phê duyệt độc lập"
+        }
+      ],
+      "transition_count": 16,
+      "prototype_status": "GROUP_PRODUCT_CORRECTED_v1.7.0",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
+      "patterns_promoted": [
+        "CONTEXTUAL_ENTRY",
+        "ACTOR_HANDOFF",
+        "AUTO_SAVE_DRAFT",
+        "AUTO_EXECUTION_AFTER_APPROVAL",
+        "UNKNOWN_HANDOFF",
+        "CORRECTION_CHAIN",
+        "NO_ARCHITECTURE_EXPLANATION_UI"
+      ],
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "GROUP_PRODUCT_CORRECTED_v1.7.0",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-053"
+      ],
+      "entry_screen_ids": [
+        "SCR-048",
+        "SCR-049",
+        "SCR-051"
+      ]
+    },
+    {
+      "id": "UIF-12",
+      "business_journey_id": "BJ-12",
+      "name": "Khởi tạo số dư tồn kho đầu kỳ",
+      "file": "UIF-12-BJ-12.md",
+      "canonical_path": "03.design/flows/UIF-12-BJ-12.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-12-01",
+        "UC-12-02",
+        "UC-12-03"
+      ],
+      "screen_ids": [
+        "SCR-066",
+        "SCR-067",
+        "SCR-068",
+        "SCR-069",
+        "SCR-070",
+        "SCR-071"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-13-COMMIT",
+        "ACT-13-PREPARE",
+        "ACT-COMMON-DECIDE"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen_id": "SCR-066",
+          "actor": "Người chuẩn bị số dư",
+          "from": "Kho > Khởi tạo tồn kho"
+        },
+        {
+          "type": "ACTOR_HANDOFF_TASK",
+          "screen_id": "SCR-070",
+          "actor": "Người duyệt độc lập",
+          "from": "Task duyệt số dư đầu kỳ"
+        }
+      ],
+      "transition_count": 12,
+      "prototype_status": "GROUP_PRODUCT_CORRECTED_v1.8.0",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "RUNTIME_VISUAL_PRODUCT_REVIEWED",
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "GROUP_PRODUCT_CORRECTED_v1.8.0",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-066",
+        "SCR-071"
+      ],
+      "entry_screen_ids": [
+        "SCR-066",
+        "SCR-070"
+      ]
+    },
+    {
+      "id": "UIF-13",
+      "business_journey_id": "BJ-13",
+      "name": "Điều chỉnh giá trị hàng nhập",
+      "file": "UIF-13-BJ-13.md",
+      "canonical_path": "03.design/flows/UIF-13-BJ-13.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-13-01"
+      ],
+      "screen_ids": [
+        "SCR-085",
+        "SCR-086",
+        "SCR-089"
+      ],
+      "compatibility_screen_ids": [
+        "SCR-018",
+        "SCR-087",
+        "SCR-088"
+      ],
+      "action_ids": [
+        "ACT-03-RECORD-LATE-COST"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen_id": "SCR-085",
+          "from": "Giá trị & giá vốn > Điều chỉnh giá trị hàng nhập"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen_id": "SCR-086",
+          "from": "Căn cứ điều chỉnh đã được liên kết"
+        }
+      ],
+      "transition_count": 9,
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.6.1",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
+      "retired_screen_ids": [
+        "SCR-018",
+        "SCR-087",
+        "SCR-088"
+      ],
+      "patterns_promoted": [
+        "SIGNED_VALUE_ADJUSTMENT_QUEUE",
+        "SOURCE_SCOPE_ALLOCATION_ON_ONE_SURFACE",
+        "VALUE_COMPONENT_PROVENANCE",
+        "DIRTY_COST_SCOPE_HANDOFF",
+        "UNKNOWN_RECOVERY",
+        "FINANCIAL_MASKING",
+        "NO_ARCHITECTURE_EXPLANATION_UI",
+        "CONFIRMATION_SHEET_BEFORE_COMMIT",
+        "ALLOCATION_METRIC_EXPLAINABILITY",
+        "NO_EQUAL_SPLIT_FALLBACK"
+      ],
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "GROUP_PRODUCT_CORRECTED_v1.5.0",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-089"
+      ],
+      "entry_screen_ids": [
+        "SCR-085"
+      ],
+      "contextual_surfaces": [
+        "Review/confirm mutation uses DS v2 / Confirmation Sheet on SCR-086; SCR-088 is retired."
+      ]
+    },
+    {
+      "id": "UIF-14",
+      "business_journey_id": "BJ-14",
+      "name": "Tính và công bố giá vốn",
+      "file": "UIF-14-BJ-14.md",
+      "canonical_path": "03.design/flows/UIF-14-BJ-14.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-14-01",
+        "UC-14-04"
+      ],
+      "screen_ids": [
+        "SCR-072",
+        "SCR-074",
+        "SCR-077"
+      ],
+      "compatibility_screen_ids": [
+        "SCR-075"
+      ],
+      "action_ids": [
+        "ACT-14-CALCULATE",
+        "ACT-14-PUBLISH"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen_id": "SCR-072",
+          "from": "Giá trị & giá vốn > Công việc giá vốn"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen_id": "SCR-074",
+          "from": "Phạm vi cần cập nhật giá vốn"
+        }
+      ],
+      "transition_count": 10,
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.6.1",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
+      "retired_screen_ids": [
+        "SCR-073",
+        "SCR-075",
+        "SCR-076"
+      ],
+      "patterns_promoted": [
+        "COST_WORK_QUEUE",
+        "DIRTY_SCOPE_SYSTEM_DERIVED",
+        "TENANT_METHOD_READ_ONLY",
+        "BLOCKERS_INLINE",
+        "ALTERNATIVE_METHOD_AS_COMPARISON",
+        "PUBLICATION_REVIEW_SHEET",
+        "OFFICIAL_COST_RESULT",
+        "UNKNOWN_RECOVERY",
+        "FINANCIAL_MASKING",
+        "NO_ARCHITECTURE_EXPLANATION_UI"
+      ],
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "GROUP_PRODUCT_CORRECTED_v1.5.0",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-077"
+      ],
+      "entry_screen_ids": [
+        "SCR-072"
+      ],
+      "contextual_surfaces": [
+        "Rà soát công bố mở bằng DS v2 / Confirmation Sheet trên SCR-074; không tạo screen công bố trung gian."
+      ]
+    },
+    {
+      "id": "UIF-15",
+      "business_journey_id": "BJ-15",
+      "name": "Tra cứu báo cáo tồn và thẻ kho",
+      "file": "UIF-15-BJ-15.md",
+      "canonical_path": "03.design/flows/UIF-15-BJ-15.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-15-01",
+        "UC-15-02",
+        "UC-15-03",
+        "UC-15-04"
+      ],
+      "screen_ids": [
+        "SCR-054",
+        "SCR-055",
+        "SCR-056",
+        "SCR-057",
+        "SCR-058",
+        "SCR-059"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-11-EXPORT"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen_id": "SCR-054",
+          "actor": "Người xem báo cáo",
+          "from": "Kho > Báo cáo / Thẻ kho"
+        }
+      ],
+      "transition_count": 9,
+      "prototype_status": "GROUP_PRODUCT_CORRECTED_v1.8.0",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "RUNTIME_VISUAL_PRODUCT_REVIEWED",
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "GROUP_PRODUCT_CORRECTED_v1.8.0",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-055",
+        "SCR-057",
+        "SCR-059"
+      ],
+      "entry_screen_ids": [
+        "SCR-054"
+      ]
+    },
+    {
+      "id": "UIF-16",
+      "business_journey_id": "BJ-16",
+      "name": "Điều tra và đối soát sai lệch",
+      "file": "UIF-16-BJ-16.md",
+      "canonical_path": "03.design/flows/UIF-16-BJ-16.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-16-01",
+        "UC-16-02",
+        "UC-16-03",
+        "UC-16-04"
+      ],
+      "screen_ids": [
+        "SCR-078",
+        "SCR-079",
+        "SCR-080",
+        "SCR-081",
+        "SCR-082",
+        "SCR-083"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-15-RECONCILE"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen_id": "SCR-078",
+          "from": "Inventory > Kiểm soát > Đối soát",
+          "actor": "Người phụ trách kiểm soát kho"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen_id": "SCR-079",
+          "from": "Control alert / report discrepancy context",
+          "actor": "Người phụ trách kiểm soát kho"
+        }
+      ],
+      "transition_count": 13,
+      "prototype_status": "GROUP_PRODUCT_CORRECTED_v1.7.0",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
+      "patterns_promoted": [
+        "EVIDENCE_FIRST",
+        "SCOPE_PROTECTION",
+        "SYSTEM_RECOMMENDED_RECOVERY",
+        "CROSS_BJ_HANDOFF",
+        "REVIEW_DIFFERENCES_FIRST",
+        "LEDGER_INTEGRITY_ESCALATION",
+        "NO_ARCHITECTURE_EXPLANATION_UI"
+      ],
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "GROUP_PRODUCT_CORRECTED_v1.7.0",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-083"
+      ],
+      "entry_screen_ids": [
+        "SCR-078",
+        "SCR-079"
+      ]
+    },
+    {
+      "id": "UIF-17",
+      "business_journey_id": "BJ-17",
+      "name": "Phục hồi nghiệp vụ có kết quả chưa xác định",
+      "file": "UIF-17-BJ-17.md",
+      "canonical_path": "03.design/flows/UIF-17-BJ-17.md",
+      "owner": "BA/UX",
+      "use_case_ids": [
+        "UC-17-01",
+        "UC-17-02",
+        "UC-17-03",
+        "UC-17-04"
+      ],
+      "screen_ids": [
+        "SCR-078",
+        "SCR-079",
+        "SCR-080",
+        "SCR-082",
+        "SCR-083"
+      ],
+      "compatibility_screen_ids": [],
+      "action_ids": [
+        "ACT-15-RECONCILE"
+      ],
+      "entry_contexts": [
+        {
+          "type": "MODULE_ENTRY",
+          "screen_id": "SCR-078",
+          "from": "Inventory > Kiểm soát > Việc cần xác minh",
+          "actor": "Người phụ trách kiểm soát kho"
+        },
+        {
+          "type": "CONTEXTUAL_DEEP_LINK",
+          "screen_id": "SCR-079",
+          "from": "UNKNOWN operation / source waiting context",
+          "actor": "Người phụ trách kiểm soát kho"
+        }
+      ],
+      "transition_count": 10,
+      "prototype_status": "GROUP_PRODUCT_CORRECTED_v1.7.0",
+      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
+      "patterns_promoted": [
+        "UNKNOWN_RECOVERY",
+        "SAME_IDENTITY_CONTINUATION",
+        "EVIDENCE_FIRST",
+        "NO_BLIND_RETRY",
+        "CONTROLLED_ESCALATION",
+        "NO_DUPLICATE_MUTATION",
+        "NO_ARCHITECTURE_EXPLANATION_UI"
+      ],
+      "holistic_review": {
+        "version": "1.9.0",
+        "status": "PASS",
+        "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+        "preserves_prototype_status": "GROUP_PRODUCT_CORRECTED_v1.7.0",
+        "runtime_validation_v3_5_0": "PASS",
+        "runtime_validation_v3_6_0": "PASS"
+      },
+      "terminal_screen_ids": [
+        "SCR-083"
+      ],
+      "entry_screen_ids": [
+        "SCR-078",
+        "SCR-079"
+      ]
+    }
+  ],
+  "runtime_validation": {
+    "status": "PASS",
+    "version": "v4.3.0",
+    "all_flow_renders": "86/86",
+    "valuation_flow_e2e": "29/29",
+    "valuation_visual_integrity": "19/19",
+    "valuation_full_state_smoke": "54/54",
+    "browser_errors": 0,
+    "evidence": "03.design/prototype/html/qa/"
+  },
+  "version": "4.6.8",
+  "patch": "BJ02_DESIGN_STATE_CLEANUP"
+}

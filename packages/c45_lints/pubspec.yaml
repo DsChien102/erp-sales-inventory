@@ -1,0 +1,11 @@
+name: c45_lints
+description: Shared analyzer and linter configuration for the Mosaic Retail monorepo.
+version: 1.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+
+dependencies:
+  lints: ^6.0.0

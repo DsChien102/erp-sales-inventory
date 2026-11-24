@@ -1,0 +1,394 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T16:08:25Z",
+  "title": "Design System: Mosaic Retail",
+  "extensions": {
+    "colorMeta": {
+      "clinic-leaf-green": {
+        "role": "primary",
+        "displayName": "Clinic Leaf Green",
+        "canonical": "#2F7A3A",
+        "tonalRamp": [
+          "#163A1C",
+          "#1F4D26",
+          "#26612F",
+          "#2F7A3A",
+          "#3B9448",
+          "#5FB36C",
+          "#B8DFBD",
+          "#E8F6EC"
+        ]
+      },
+      "clinic-leaf-text": {
+        "role": "primary",
+        "displayName": "Clinic Leaf Text",
+        "canonical": "#26612F"
+      },
+      "leaf-wash": {
+        "role": "primary",
+        "displayName": "Leaf Wash",
+        "canonical": "#E8F6EC"
+      },
+      "leaf-border": {
+        "role": "primary",
+        "displayName": "Leaf Border",
+        "canonical": "#B8DFBD"
+      },
+      "amber-warning": {
+        "role": "secondary",
+        "displayName": "Amber Warning",
+        "canonical": "#935A0A",
+        "tonalRamp": [
+          "#53330D",
+          "#70450C",
+          "#935A0A",
+          "#B87209",
+          "#D98A0B",
+          "#E5A41F",
+          "#F7D48E",
+          "#FDF3E0"
+        ]
+      },
+      "alert-red": {
+        "role": "secondary",
+        "displayName": "Alert Red",
+        "canonical": "#B53232",
+        "tonalRamp": [
+          "#541717",
+          "#701F1F",
+          "#922828",
+          "#B53232",
+          "#D14343",
+          "#D95A5A",
+          "#ECA9A9",
+          "#FBE8E8"
+        ]
+      },
+      "info-blue": {
+        "role": "secondary",
+        "displayName": "Info Blue",
+        "canonical": "#2559C4",
+        "tonalRamp": [
+          "#122A59",
+          "#183878",
+          "#1E479E",
+          "#2559C4",
+          "#2F6FE0",
+          "#4F8AE7",
+          "#AEC9F5",
+          "#E8F0FC"
+        ]
+      },
+      "counter-white": {
+        "role": "neutral",
+        "displayName": "Counter White",
+        "canonical": "#FFFFFF"
+      },
+      "shelf-gray": {
+        "role": "neutral",
+        "displayName": "Shelf Gray",
+        "canonical": "#F6F8F9",
+        "tonalRamp": [
+          "#0E1116",
+          "#2F3640",
+          "#4A535E",
+          "#6B7480",
+          "#9AA3AD",
+          "#D0D5DA",
+          "#E5E8EB",
+          "#F6F8F9"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#E5E8EB"
+      },
+      "hairline-strong": {
+        "role": "neutral",
+        "displayName": "Hairline Strong",
+        "canonical": "#D0D5DA"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#0E1116"
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Ink Secondary",
+        "canonical": "#4A535E"
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Ink Muted",
+        "canonical": "#6B7480"
+      },
+      "input-border": {
+        "role": "neutral",
+        "displayName": "Input Border",
+        "canonical": "#868E98"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display D1",
+        "purpose": "Con số lớn đơn lẻ; hiếm dùng."
+      },
+      "headline": {
+        "displayName": "Heading H1",
+        "purpose": "Tiêu đề trang lớn."
+      },
+      "title-lg": {
+        "displayName": "Heading H2",
+        "purpose": "Tiêu đề khu vực."
+      },
+      "title": {
+        "displayName": "Heading H3",
+        "purpose": "Tiêu đề thẻ; app bar ở weight 700."
+      },
+      "body": {
+        "displayName": "Body Default",
+        "purpose": "Chữ thân, giá trị ô nhập."
+      },
+      "body-sm": {
+        "displayName": "Body Small",
+        "purpose": "Chữ phụ, nhãn chip."
+      },
+      "label": {
+        "displayName": "Label / Action",
+        "purpose": "Nhãn form, chữ nút và link."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Chú thích, badge nhỏ."
+      },
+      "label-sm": {
+        "displayName": "Label Small",
+        "purpose": "Badge trạng thái, nhãn chật chỗ."
+      },
+      "numeric": {
+        "displayName": "Mono",
+        "purpose": "Số tiền, số lượng, mã cần căn cột."
+      }
+    },
+    "shadows": [
+      {
+        "name": "e1",
+        "value": "0 2px 8px rgba(14,17,22,0.04)",
+        "purpose": "Thẻ emphasis medium."
+      },
+      {
+        "name": "e2",
+        "value": "0 4px 16px rgba(14,17,22,0.08)",
+        "purpose": "Thẻ emphasis strong."
+      },
+      {
+        "name": "e3",
+        "value": "0 8px 24px rgba(14,17,22,0.12)",
+        "purpose": "Menu, popover."
+      },
+      {
+        "name": "e4",
+        "value": "0 16px 32px rgba(14,17,22,0.16)",
+        "purpose": "Modal, sheet."
+      }
+    ],
+    "motion": [
+      {
+        "name": "fast",
+        "value": "150ms",
+        "purpose": "Đổi trạng thái nhỏ."
+      },
+      {
+        "name": "medium",
+        "value": "200ms",
+        "purpose": "Chuyển trạng thái control."
+      },
+      {
+        "name": "normal",
+        "value": "300ms",
+        "purpose": "Chuyển cảnh, mở rộng."
+      },
+      {
+        "name": "slow",
+        "value": "350ms",
+        "purpose": "Sheet, overlay."
+      },
+      {
+        "name": "pulse",
+        "value": "1000ms",
+        "purpose": "Nhịp skeleton."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tablet",
+        "value": "600px"
+      },
+      {
+        "name": "desktop",
+        "value": "1024px"
+      },
+      {
+        "name": "list-detail-split",
+        "value": "840px",
+        "purpose": "Bề rộng của chính vùng danh sách – chi tiết (không phải cửa sổ); có thanh bên 240px ⇒ cửa sổ ≈ 1080px mới chia 2 cột."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Hành động chính duy nhất của màn.",
+      "html": "<button class=\"ds-btn-primary\">Thanh toán</button>",
+      "css": ".ds-btn-primary { background: #2F7A3A; color: #fff; height: 44px; padding: 0 16px; border: none; border-radius: 8px; font: 600 14px/20px Inter, sans-serif; transition: background 0.15s; } .ds-btn-primary:hover { background: #26612F; } .ds-btn-primary:active { background: #1F4D26; } .ds-btn-primary:focus-visible { outline: 3px solid #B8DFBD; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Hành động phụ có viền.",
+      "html": "<button class=\"ds-btn-secondary\">Lưu nháp</button>",
+      "css": ".ds-btn-secondary { background: #fff; color: #0E1116; height: 44px; padding: 0 16px; border: 1px solid #868E98; border-radius: 8px; font: 600 14px/20px Inter, sans-serif; transition: background 0.15s; } .ds-btn-secondary:hover { background: #F8FAFB; } .ds-btn-secondary:active { background: #F6F8F9; } .ds-btn-secondary:focus-visible { outline: 3px solid #B8DFBD; outline-offset: 2px; }"
+    },
+    {
+      "name": "Tertiary Button",
+      "kind": "button",
+      "refersTo": "button-tertiary",
+      "description": "Hành động nhẹ, không nền.",
+      "html": "<button class=\"ds-btn-tertiary\">Xem tất cả</button>",
+      "css": ".ds-btn-tertiary { background: transparent; color: #26612F; height: 44px; padding: 0 16px; border: none; border-radius: 8px; font: 600 14px/20px Inter, sans-serif; transition: background 0.15s; } .ds-btn-tertiary:hover, .ds-btn-tertiary:active { background: #E8F6EC; } .ds-btn-tertiary:focus-visible { outline: 3px solid #B8DFBD; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Ô nhập chuẩn; focus viền xanh kèm vòng Leaf Wash.",
+      "html": "<input class=\"ds-input\" placeholder=\"Tìm sản phẩm\" />",
+      "css": ".ds-input { background: #fff; color: #0E1116; height: 44px; padding: 8px 12px; border: 1px solid #868E98; border-radius: 8px; font: 500 14px/22px Inter, sans-serif; outline: none; transition: border-color 0.15s, box-shadow 0.15s; } .ds-input::placeholder { color: #6B7480; } .ds-input:focus-visible { border-color: #2F7A3A; box-shadow: 0 0 0 3px #E8F6EC; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Khối trắng trên nền Shelf Gray, viền mảnh, không bóng mặc định.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Doanh thu hôm nay</div><div class=\"ds-card-body\">12.450.000 ₫</div></div>",
+      "css": ".ds-card { background: #fff; border: 1px solid #D0D5DA; border-radius: 12px; padding: 16px; } .ds-card-title { font: 600 18px/24px Inter, sans-serif; letter-spacing: -0.2px; color: #0E1116; } .ds-card-body { margin-top: 8px; font: 500 14px/22px 'JetBrains Mono', monospace; color: #4A535E; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Chip bo tròn, nền và viền theo tone.",
+      "html": "<span class=\"ds-chip\">Đang bán</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; background: #E8F6EC; color: #2F7A3A; border: 1px solid #B8DFBD; border-radius: 999px; font: 500 13px/20px Inter, sans-serif; }"
+    },
+    {
+      "name": "Bottom Navigation",
+      "kind": "nav",
+      "refersTo": "bottom-nav",
+      "description": "5 tab có icon 24px và nhãn; tab chọn màu xanh, kẻ Hairline phía trên.",
+      "html": "<nav class=\"ds-bnav\"><button class=\"ds-bnav-item is-active\" aria-current=\"page\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z\"/></svg><span>Trang chủ</span></button><button class=\"ds-bnav-item\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M6 2h12v20l-3-2-3 2-3-2-3 2z\"/></svg><span>Đơn hàng</span></button><button class=\"ds-bnav-item\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8\"/></svg><span>Sản phẩm</span></button></nav>",
+      "css": ".ds-bnav { display: flex; padding: 4px 0 34px; background: #fff; border-top: 1px solid #E5E8EB; } .ds-bnav-item { flex: 1; min-height: 48px; display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; background: none; border: none; color: #4A535E; cursor: pointer; } .ds-bnav-item.is-active { color: #2F7A3A; } .ds-bnav-item:focus-visible { outline: 2px solid #B8DFBD; outline-offset: -2px; } .ds-bnav-item span { font: 600 11px/14px Inter, sans-serif; }"
+    },
+    {
+      "name": "Side Navigation",
+      "kind": "nav",
+      "refersTo": "side-nav",
+      "description": "Thanh bên 240px cho web rộng (≥1024px), viền phải Hairline, mục chọn nền Leaf Wash chữ xanh.",
+      "html": "<nav class=\"ds-snav\"><div class=\"ds-snav-item is-active\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z\"/></svg><span>Trang chủ</span></div><div class=\"ds-snav-item\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M6 2h12v20l-3-2-3 2-3-2-3 2z\"/></svg><span>Đơn hàng</span></div></nav>",
+      "css": ".ds-snav { width: 240px; padding: 12px; background: #fff; border-right: 1px solid #E5E8EB; } .ds-snav-item { min-height: 44px; display: flex; align-items: center; gap: 12px; padding: 4px 12px; border-radius: 8px; color: #4A535E; font: 500 14px/20px Inter, sans-serif; cursor: pointer; } .ds-snav-item.is-active { background: #E8F6EC; color: #2F7A3A; font-weight: 600; } .ds-snav-item:focus-visible { outline: 2px solid #2F7A3A; outline-offset: -2px; }"
+    },
+    {
+      "name": "Selected Card",
+      "kind": "card",
+      "refersTo": "card-brand",
+      "description": "Thẻ đang chọn ở cột danh sách của bố cục danh sách – chi tiết: nền Leaf Wash, viền Leaf Border; thẻ khác giữ kiểu Card thường.",
+      "html": "<div class=\"ds-list\"><button class=\"ds-sel-card\" aria-pressed=\"true\"><span class=\"ds-sel-title\">Lan Le</span><span class=\"ds-sel-sub\">lan@gmail.com · Chủ cửa hàng</span></button><button class=\"ds-sel-card ds-sel-card--idle\" aria-pressed=\"false\"><span class=\"ds-sel-title\">Hoa Tran</span><span class=\"ds-sel-sub\">hoa@example.com · Nhân viên bán hàng</span></button></div>",
+      "css": ".ds-list { display: grid; gap: 8px; width: 328px; } .ds-sel-card { display: grid; gap: 4px; text-align: left; background: #E8F6EC; border: 1px solid #B8DFBD; border-radius: 12px; padding: 16px; cursor: pointer; transition: background 0.15s; } .ds-sel-card--idle { background: #fff; border-color: #D0D5DA; } .ds-sel-card--idle:hover { background: #F8FAFB; } .ds-sel-card:focus-visible { outline: 2px solid #2F7A3A; outline-offset: 2px; } .ds-sel-title { font: 600 14px/20px Inter, sans-serif; color: #0E1116; } .ds-sel-sub { font: 500 13px/20px Inter, sans-serif; color: #4A535E; }"
+    },
+    {
+      "name": "Sheet Dialog",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Bottom sheet trở thành hộp thoại giữa màn khi cửa sổ ≥ 1024px: rộng tối đa 480px, cao tối đa 85%, bo 16px, tiêu đề + nút ✕ \"Đóng\" + đường kẻ Hairline; không có tiêu đề thì chỉ nút ✕ ở góc.",
+      "html": "<div class=\"ds-dialog\" role=\"dialog\" aria-labelledby=\"ds-dlg-t\"><div class=\"ds-dialog-head\"><h3 id=\"ds-dlg-t\">Bộ lọc thành viên</h3><button class=\"ds-dialog-close\" title=\"Đóng\" aria-label=\"Đóng\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/></svg></button></div><div class=\"ds-dialog-body\"><div class=\"ds-dialog-label\">Trạng thái</div><div class=\"ds-dialog-chips\"><span class=\"ds-dialog-chip ds-dialog-chip--on\">Tất cả</span><span class=\"ds-dialog-chip\">Hoạt động</span><span class=\"ds-dialog-chip\">Tạm ngừng</span></div></div></div>",
+      "css": ".ds-dialog { width: 448px; max-width: 480px; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(14,17,22,0.18); overflow: hidden; } .ds-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 8px 16px; border-bottom: 1px solid #E5E8EB; } .ds-dialog-head h3 { margin: 0; font: 700 18px/26px Inter, sans-serif; letter-spacing: -0.2px; color: #0E1116; } .ds-dialog-close { width: 44px; height: 44px; display: grid; place-items: center; background: none; border: 0; border-radius: 8px; color: #0E1116; cursor: pointer; } .ds-dialog-close:hover { background: #F6F8F9; } .ds-dialog-close:focus-visible { outline: 2px solid #2F7A3A; } .ds-dialog-body { padding: 16px; } .ds-dialog-label { font: 600 14px/20px Inter, sans-serif; color: #0E1116; margin-bottom: 8px; } .ds-dialog-chips { display: flex; gap: 8px; flex-wrap: wrap; } .ds-dialog-chip { font: 500 13px/20px Inter, sans-serif; padding: 6px 16px; border: 1px solid #E5E8EB; border-radius: 999px; color: #0E1116; } .ds-dialog-chip--on { background: #E8F6EC; border-color: #B8DFBD; color: #26612F; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Tidy Counter",
+    "overview": "Mosaic Retail là một quầy thuốc thú y ngăn nắp: mọi thứ cần dùng đều trong tầm tay, đặt đúng chỗ, không có gì thừa trên mặt quầy. Owner mở app giữa lúc đang bán hàng hoặc tiếp khách, nên giao diện phải để họ thấy ngay số tiền, tồn kho, trạng thái đơn và bấm đúng hành động trong một lần nhìn.\n\nHệ thống tiết chế và tinh gọn. Nền xám lạnh nhạt (Shelf Gray) làm mặt quầy, các khối trắng (Counter White) là khay đựng, viền mảnh 1px phân ngăn thay cho bóng đổ. Màu xanh lá Clinic Leaf Green là nhãn dán duy nhất trên quầy: nó đánh dấu hành động chính và trạng thái đang chọn, không dùng để trang trí. Vàng, đỏ, xanh dương chỉ xuất hiện khi có điều cần báo.\n\nMật độ ở mức thoải mái cho ngón tay (comfortable): control cao 44px, vùng chạm tối thiểu 44px. Chữ Inter đậm hơn mặc định một bậc (w500 cho chữ thân) để đọc rõ trên điện thoại dưới ánh đèn cửa hàng. Số liệu tài chính và mã dùng JetBrains Mono khi cần căn thẳng cột.",
+    "keyCharacteristics": [
+      "Một màu nhấn duy nhất (Clinic Leaf Green), còn lại là thang xám lạnh.",
+      "Phẳng: phân lớp bằng nền xám / khối trắng / viền mảnh; bóng đổ chỉ khi cần nhấn mạnh.",
+      "Bo góc vừa phải: 8px cho control, 12px cho thẻ, 16px cho sheet, tròn hẳn cho chip/badge.",
+      "Vùng chạm ≥ 44px, chữ thân 14px w500.",
+      "Giao diện sáng là mặc định đang chạy; bảng màu tối đã định nghĩa nhưng app chưa bật."
+    ],
+    "rules": [
+      {
+        "name": "The One Sticker Rule",
+        "body": "Clinic Leaf Green là nhãn dán duy nhất trên quầy. Mỗi màn chỉ một hành động chính mang nền xanh; mọi hành động khác là secondary hoặc tertiary.",
+        "section": "colors"
+      },
+      {
+        "name": "The Semantic-Only Rule",
+        "body": "Component, app và module chỉ lấy màu qua `context.vColors` (bảng màu ngữ nghĩa). Không dùng `VColors.*` (bảng màu gốc) ngoài theme builder và trang preview token, nếu không chế độ tối và đổi theme sẽ không áp dụng.",
+        "section": "colors"
+      },
+      {
+        "name": "The Status Earns Color Rule",
+        "body": "Vàng, đỏ, xanh dương chỉ xuất hiện khi có trạng thái thật cần báo. Không dùng chúng để phân loại hay trang trí.",
+        "section": "colors"
+      },
+      {
+        "name": "The 4.5 Floor Rule",
+        "body": "Mọi chữ và icon mang màu ở theme sáng đạt 4.5:1 trên nền nó đặt lên (cả nền wash của chính tone đó); ranh giới control đạt 3:1. `test/theme/v_color_scheme_contrast_test.dart` khoá quy tắc này — đổi màu thì test phải còn xanh.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Figures Rule",
+        "body": "Mọi vai trò Inter bật `tnum`: chữ số cùng bề rộng, nên số tiền và số lượng tự thẳng cột ở bất kỳ style nào.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mono for Money Rule",
+        "body": "Khi cả chuỗi (mã, SKU, số tiền kèm ký hiệu) cần căn thẳng cột theo từng ký tự (bảng, danh sách dòng hàng), dùng biến thể JetBrains Mono cùng vai trò thay vì Inter. Bản mono có cùng chiều cao dòng với bản Inter.",
+        "section": "typography"
+      },
+      {
+        "name": "The Stacked Marks Rule",
+        "body": "Dấu chồng tiếng Việt (Ẫ, Ỗ, Ặ) cao hơn ascender của Inter. Từ Title trở lên, chiều cao dòng ≥ 1.43 × cỡ chữ để dấu không bị cắt hay đè lên dòng trên; không hạ line-height của token. `test/tokens/v_typography_test.dart` vẽ chữ thật để khoá quy tắc này.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hairline First Rule",
+        "body": "Muốn tách hai vùng, dùng viền 1px hoặc đổi nền trước. Bóng đổ chỉ dành cho thứ thật sự nổi lên trên trang (menu, sheet, modal) hoặc thẻ được đặt emphasis.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do lấy màu qua `context.vColors` và token `VSpacing` / `VRadius` / `VTypography` / `VShadows`; dùng component `V*` trước khi tự dựng widget.",
+      "Do giữ đúng một nút primary mỗi màn (The One Sticker Rule).",
+      "Do giữ vùng chạm ≥ 44px cho mọi control, kể cả icon chạm được (`VIconBox(onTap)` tự nới) và nút xoá của chip; phần vẽ có thể nhỏ hơn.",
+      "Do tách vùng bằng nền Shelf Gray / khối trắng / viền Hairline 1px trước khi nghĩ đến bóng.",
+      "Do dùng biến thể JetBrains Mono khi số tiền hoặc số lượng cần căn cột.",
+      "Do làm mờ 40% để biểu thị trạng thái vô hiệu.",
+      "Do cho mọi tab và nút chỉ có icon một nhãn đọc được (chữ hiển thị hoặc semantics label); hành động ẩn sau thao tác vuốt phải có `semanticActions`.",
+      "Do dùng chấm hình học kèm nhãn \"đang áp dụng\" cho nút lọc; không chỉ đổi màu để báo trạng thái.",
+      "Do tôn trọng Giảm chuyển động (`MediaQuery.disableAnimations`): skeleton đứng yên, thao tác vuốt mở / đóng tức thì.",
+      "Do cho web đi được bằng bàn phím: Tab qua mọi control theo thứ tự đọc, vòng focus nhìn thấy, Enter / Space kích hoạt, Esc đóng hộp thoại và sheet; mọi hành động vuốt có nút hoặc menu thay thế dùng chuột."
+    ],
+    "donts": [
+      "Don't dùng `VColors.*` trực tiếp trong component, app hoặc module.",
+      "Don't dùng vàng, đỏ, xanh dương để trang trí hay phân loại; chúng chỉ dành cho trạng thái.",
+      "Don't thêm bóng đổ cho app bar, thanh dưới hoặc thẻ thường.",
+      "Don't dùng bậc 500 của các thang màu (`primary500`, `yellow500`, `red500`, `blue500`) cho chữ, icon hoặc nền nút có chữ trắng ở theme sáng; chúng chỉ đạt 2.5–4.7:1 (vd. `primary500` 3.8:1, `yellow500` 2.8:1). Theme sáng dùng bậc 600–700.",
+      "Don't đặt UI nghiệp vụ (thẻ dashboard, dòng việc cần làm…) vào `c45_design_system`; chúng thuộc `apps/erp/lib/features/*/presentation`."
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // ── ERP · Dart (preLaunchTask syncs target erp only) ──
+    {
+      "name": "ERP · development",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
+    {
+      "name": "ERP · local",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
+    {
+      "name": "ERP · web · development",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
+    {
+      "name": "ERP · staging",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "staging",
+        "--dart-define-from-file=.env.staging"
+      ]
+    },
+    {
+      "name": "ERP · production",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "production",
+        "--dart-define-from-file=.env.production"
+      ]
+    },
+    // ── Design system example (no env sync required) ─────────────────────────
+    {
+      "name": "Design system · example",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/packages/c45_design_system/example",
+      "program": "lib/main.dart",
+      "preLaunchTask": "design-system:example pub get"
+    },
+    {
+      "name": "Design system · example · web",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/packages/c45_design_system/example",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "preLaunchTask": "design-system:example pub get"
+    },
+  ]
+}

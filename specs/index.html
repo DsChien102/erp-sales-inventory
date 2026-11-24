@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mosaic Retail · Mục lục prototype</title>
+    <link rel="stylesheet" href="prototype/shared/tokens.css" />
+    <style>
+      /* Trang mục lục (chạy bằng: python3 specs/prototype/serve.py). Thêm prototype mới: thêm một <li> vào nhóm phù hợp. */
+      body { margin: 0; background: var(--c45-v2-surface-canvas); color: var(--c45-v2-text-primary); font-family: var(--c45-v2-font-sans); font-size: 14px; line-height: 22px; }
+      main { max-width: 760px; margin: 0 auto; padding: 40px 16px 64px; }
+      h1 { margin: 0; font-size: 24px; line-height: 32px; }
+      .lead { margin: 4px 0 32px; color: var(--c45-v2-text-secondary); }
+      h2 { margin: 32px 0 8px; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--c45-v2-text-secondary); }
+      ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+      a.card { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 14px 16px; background: var(--c45-v2-surface-default); border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-card); color: inherit; text-decoration: none; }
+      a.card:hover { border-color: var(--c45-v2-border-brand); background: var(--c45-v2-surface-brand); }
+      a.card:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+      a.card b { font-size: 15px; }
+      a.card small { grid-column: 1; color: var(--c45-v2-text-secondary); }
+      a.card code { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-family: var(--c45-v2-font-mono); font-size: 12px; color: var(--c45-v2-text-muted); }
+      .tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-subtle); color: var(--c45-v2-text-secondary); font-size: 11px; font-weight: 600; vertical-align: 2px; }
+      @media (max-width: 560px) { a.card { grid-template-columns: 1fr; } a.card code { grid-row: auto; grid-column: 1; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Prototype HTML · Mosaic Retail</h1>
+      <p class="lead">Rà UI (10-8). Thứ tự rà: khung chung trước, rồi từng theme.</p>
+
+      <h2>Nền chung</h2>
+      <ul>
+        <li><a class="card" href="prototype/shell/html/index.html"><b>Khung chung (web + iPhone)</b><small>Thanh bên, thanh dưới, màn chờ, chọn tổ chức APP-04 · 23 ca</small><code>prototype/shell</code></a></li>
+        <li><a class="card" href="prototype/home/html/index.html"><b>Trang chủ (dashboard)</b><small>APP-01 đề xuất "Bảng giá chợ": doanh thu + 7 ngày, đơn hôm nay, tiền đã thu, công nợ, Hỏi Mosaic Retail · 6 ca</small><code>prototype/home</code></a></li>
+        <li><a class="card" href="prototype/more/html/index.html"><b>Menu Thêm + Thiết lập hệ thống</b><small>APP-02: màn Thêm, Thiết lập, Người dùng &amp; vai trò · 7 ca</small><code>prototype/more</code></a></li>
+      </ul>
+
+      <h2>Theme</h2>
+      <ul>
+        <li><a class="card" href="themes/theme-01/03.design/prototype/html/index.html"><b>Theme 1 · Tổ chức &amp; người dùng</b><small>Đợt 1 công khai (đăng nhập, đăng ký, xác minh, đặt lại mật khẩu, lời mời) · đợt 2 quản trị (hồ sơ tổ chức, người dùng, vai trò, lịch sử) · đợt 3 tài khoản · 172 ca</small><code>theme-01</code></a></li>
+        <li><a class="card" href="themes/theme-02/03.design/prototype/html/index.html"><b>Theme 2 · Sản phẩm &amp; giá bán</b><small>SP-01…22 (trừ SP-10): danh sách, tạo nhanh, PCC, checklist, lịch sử, màn con (hồ sơ, ảnh, ghi chú, thông tin bổ sung, đơn vị, giá cơ sở, khung giá), Cài đặt sản phẩm (nhóm & trường, khung giá cửa hàng) · 153 ca</small><code>theme-02</code></a></li>
+        <li><a class="card" href="themes/theme-03/03.design/prototype/html/index.html"><b>Theme 3 · Đối tác giao dịch (KH &amp; NCC)</b><small>PT-01…PT-12: danh sách, tạo / sửa, hồ sơ (kèm khối Công nợ, Chương trình ưu đãi, Lịch sử nhập hàng), lịch sử thao tác, người liên hệ, chuyển thành tổ chức · 120 ca</small><code>theme-03</code></a></li>
+        <li><a class="card" href="themes/theme-04/03.design/prototype/html/index.html"><b>Theme 4 · Chính sách giá (giá riêng)</b><small>PR-01…PR-10: danh sách, bộ lọc / sắp xếp, tạo / sửa (+ sheet), chọn khách / sản phẩm / đơn vị, chi tiết (+ tắt / bật lại), lịch sử · 97 ca</small><code>theme-04</code></a></li>
+        <li><a class="card" href="themes/theme-05/03.design/prototype/html/index.html"><b>Theme 5 · Bán hàng &amp; đơn hàng</b><small>Đợt 1 lập đơn: SG-01 đơn nháp, SG-02 soạn đơn (+ tìm sản phẩm, rời màn, bàn phím số), SG-03 chọn đơn vị, SG-04 chọn / tạo nhanh khách, SG-05 điều chỉnh giá · đợt 2 thanh toán: SG-06, SG-07 kết quả, SG-16 phiếu bán · đợt 3 tra cứu: SG-08 đơn hàng, SG-09 chi tiết (+ 09b / 09c / 09d), SG-10 huỷ · đợt 4 đổi / trả: SG-12 … SG-16 · 208 ca</small><code>theme-05</code></a></li>
+        <li><a class="card" href="themes/theme-06/03.design/prototype/html/index.html"><b>Theme 6 · Công nợ phải thu</b><small>CN-01, CN-02, CN-03, SG-13, chỗ sửa màn cũ</small><code>theme-06</code></a></li>
+        <li><a class="card" href="themes/theme-07/03.design/prototype/html/index.html"><b>Theme 7 · Kho &amp; Giá vốn<span class="tag">FROZEN</span></b><small>BJ-01…BJ-17, Hub kho · chưa dùng nền chung</small><code>theme-07</code></a></li>
+        <li><a class="card" href="themes/theme-08/03.design/prototype/html/index.html"><b>Theme 8 · Hóa đơn điện tử</b><small>Đợt 1 thiết lập (HD-01…05: tổng quan, kết nối MISA, cấu hình phát hành, tự động hóa) · đợt 2 trên đơn (HD-06 trong Kết quả bán hàng / Chi tiết đơn, HD-07…13: phát hành, xem trước, tài liệu, gửi / gửi lại, lịch sử gửi) · 106 ca</small><code>theme-08</code></a></li>
+        <li><a class="card" href="prototype/assistant/html/index.html"><b>Tích hợp AI · Hỏi Mosaic Retail</b><small>AI-01 /ask: màn trống &amp; câu gợi ý, đang chờ, trả lời kèm bảng (lưới web / thẻ iPhone), từ chối, bận, hết lượt, lỗi + Thử lại · 26 ca</small><code>prototype/assistant</code></a></li>
+      </ul>
+
+      <h2>Tham khảo</h2>
+      <ul>
+        <li><a class="card" href="c45-html-design-system/index.html"><b>HTML Design System 2.0.2</b><small>Bản HTML cũ của c45_design_system (token, component)</small><code>c45-html-design-system</code></a></li>
+      </ul>
+    </main>
+  </body>
+</html>

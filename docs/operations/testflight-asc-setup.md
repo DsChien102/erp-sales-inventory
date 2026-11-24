@@ -1,0 +1,64 @@
+# App Store Connect & TestFlight setup (manual)
+
+Thực hiện một lần trên [App Store Connect](https://appstoreconnect.apple.com).
+
+## 1. Tạo app records
+
+| App name | Bundle ID | Mục đích |
+|---|---|---|
+| **Mosaic Retail Staging** | `com.dschien.erp.staging` | TestFlight only — QA / UAT |
+| **Mosaic Retail** | `com.dschien.erp` | TestFlight beta + App Store production |
+
+**Không** gộp staging và production vào một app ASC.
+
+## 2. Provisioning
+
+- Xcode automatic signing hoặc fastlane match cho từng bundle ID
+- Đảm bảo `flutter build ipa --flavor staging` ký đúng `com.dschien.erp.staging`
+
+## 3. API key (shared)
+
+1. App Store Connect → Users and Access → Keys
+2. Tạo API key với quyền Developer
+3. Lưu vào `deploy/deploy.env` (local, dùng chung staging + production) hoặc CircleCI context `c45-deploy`:
+   - `APP_STORE_CONNECT_ISSUER_ID`
+   - `APP_STORE_CONNECT_KEY_IDENTIFIER`
+   - File `.p8` tại `~/.appstoreconnect/private_keys/AuthKey_<KEY_IDENTIFIER>.p8` (không commit)
+
+## 4. TestFlight groups
+
+**Mosaic Retail Staging app:**
+- Internal: QA + Product + Dev
+- (Optional) External: pilot khách — cần Beta App Review lần đầu
+
+**Mosaic Retail production app:**
+- Internal: beta testers hẹp
+- Sau soak test → Submit App Store Review
+
+## 5. Upload build đầu tiên
+
+```bash
+cp apps/erp/.env.staging.example apps/erp/.env.staging
+# Điền Supabase staging credentials
+
+./apps/erp/scripts/build_ios.sh --env staging
+./apps/erp/deploy-ios.sh --env staging
+```
+
+Tăng build number mỗi lần upload bằng script của app (khuyến nghị):
+
+```bash
+./apps/erp/scripts/bump_version.sh --build
+# kèm commit/tag khi release: --commit --tag
+```
+
+Chi tiết version/changelog: [app_versioning.md](app_versioning.md). Manual: sửa `version: x.y.z+N` trong `apps/erp/pubspec.yaml`.
+
+## 6. Checklist
+
+- [ ] App **Mosaic Retail Staging** tạo với bundle `com.dschien.erp.staging`
+- [ ] App **Mosaic Retail** có bundle `com.dschien.erp`
+- [ ] TestFlight group staging có QA
+- [ ] Build staging upload thành công
+- [ ] Build production upload thành công (app riêng)
+- [ ] Staging app **không** submit public App Store Review

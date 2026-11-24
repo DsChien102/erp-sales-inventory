@@ -1,0 +1,32 @@
+/* CN-03 Thu tiền — phương án A "Đơn là biểu mẫu" (chốt 2026-11-18). Chỉ token --c45-v2-*; cỡ chữ: 13 / 14 / 22. */
+.rw-who { margin: 0; color: var(--c45-v2-text-secondary); font-weight: 600; font-size: var(--rc-fs-sm); }
+.rw-label { font-weight: 600; font-size: var(--rc-fs-sm); }
+.rw-row { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-3); margin-bottom: calc(-1 * var(--c45-v2-space-2)); }
+.rw-row--top { margin-bottom: 0; }
+.rw-money { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; font-size: var(--rc-fs-md); }
+.rw-money--in { color: var(--c45-v2-text-success); }
+.rw-money--off { color: var(--c45-v2-text-muted); font-weight: 600; }
+.rw-money--done { color: var(--c45-v2-text-success); }
+.rw-amount { display: flex; align-items: center; gap: var(--c45-v2-space-2); }
+.rw-amount input { flex: 1; min-width: 0; text-align: right; font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 700; }
+.rw-amount__unit { font-weight: 700; font-size: var(--rc-fs-md); }
+.rw-after { display: flex; justify-content: space-between; align-items: baseline; gap: var(--c45-v2-space-3); padding: var(--c45-v2-space-3) 0 var(--c45-v2-space-1); border-top: 1px solid var(--c45-v2-border-default); font-weight: 600; font-size: var(--rc-fs-md); }
+
+/* A: dòng đơn mang kết quả chia */
+.rw-orders { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); }
+.rw-order { display: grid; grid-template-columns: var(--c45-v2-touch-minimum) minmax(0, 1fr) auto; align-items: center; gap: var(--c45-v2-space-2); width: 100%; min-height: 64px; padding: var(--c45-v2-space-2) var(--c45-v2-space-3) var(--c45-v2-space-2) 0; border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.rw-order > .k7-check__box { margin: auto; }
+.rw-order.is-on { border-color: var(--c45-v2-border-brand); background: var(--c45-v2-primary-50); }
+.rw-order__main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rw-order__code { font-weight: 700; font-size: var(--rc-fs-md); }
+.rw-order__main .rc-due { font-size: var(--rc-fs-sm); }
+.rw-order__side { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.rw-res { color: var(--c45-v2-text-success); font-weight: 600; font-size: var(--rc-fs-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rw-res--off { color: var(--c45-v2-text-muted); }
+.rw-order--static { grid-template-columns: minmax(0, 1fr) auto; padding: var(--c45-v2-space-2) var(--c45-v2-space-3); cursor: default; }
+.rw-order--static.is-on { background: var(--c45-v2-surface-default); border-color: var(--c45-v2-border-default); }
+
+.rw-master { display: grid; grid-template-columns: var(--c45-v2-touch-minimum) minmax(0, 1fr) auto; align-items: center; gap: var(--c45-v2-space-2); width: 100%; min-height: var(--c45-v2-touch-minimum); padding: 0 var(--c45-v2-space-3) 0 0; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.rw-master > .k7-check__box { margin: auto; }
+.rw-master__label { font-weight: 600; font-size: var(--rc-fs-md); }
+.rw-master:focus-visible, .rw-order:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }

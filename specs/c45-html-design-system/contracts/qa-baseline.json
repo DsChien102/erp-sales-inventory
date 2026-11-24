@@ -1,0 +1,17 @@
+{
+  "htmlDsVersion": "2.0.2",
+  "expected": {
+    "flutterVersion": "1.4.1",
+    "exports": 94,
+    "tests": 287,
+    "icons": 108,
+    "fontBinaries": 0,
+    "previewTabs": [
+      "Tokens",
+      "Primitives",
+      "Components",
+      "Forms",
+      "UI Audit"
+    ]
+  }
+}

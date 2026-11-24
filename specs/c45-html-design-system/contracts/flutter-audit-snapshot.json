@@ -1,0 +1,550 @@
+{
+  "authority": "Flutter lib/src/audit/v_component_audit_snapshot.dart + example/lib/preview/ui_audit_tab.dart",
+  "generatedAt": "2026-09-07T15:12:05.617329",
+  "entryCount": 52,
+  "coveredCount": 50,
+  "semanticsCount": 30,
+  "missingRequiredCount": 1,
+  "exampleCoverage": [
+    "VAppBar",
+    "VAvatar",
+    "VBadge",
+    "VBanner",
+    "VBottomNavigationBar",
+    "VBottomSheet",
+    "VButton",
+    "VCard",
+    "VCardAction",
+    "VCardContent",
+    "VCardFooter",
+    "VCardHeader",
+    "VCardIcon",
+    "VCardTitle",
+    "VCheckbox",
+    "VChip",
+    "VChoiceList",
+    "VCombobox",
+    "VComboboxEmpty",
+    "VComponentScope",
+    "VConfirmDialog",
+    "VContentWidth",
+    "VDatePicker",
+    "VDivider",
+    "VEmailField",
+    "VEmptyContent",
+    "VEmptyDescription",
+    "VEmptyHeader",
+    "VEmptyMedia",
+    "VEmptyState",
+    "VEmptyTitle",
+    "VField",
+    "VFieldDescription",
+    "VFieldError",
+    "VFieldLabel",
+    "VFileDropZone",
+    "VFloatingActionButton",
+    "VGap",
+    "VIcon",
+    "VIconBox",
+    "VLoading",
+    "VMoneyField",
+    "VNumberField",
+    "VNumericKeypadSheet",
+    "VPagePadding",
+    "VPageScaffold",
+    "VPasswordField",
+    "VPhoneField",
+    "VProgress",
+    "VRadio",
+    "VResponsive",
+    "VResponsiveGrid",
+    "VResponsiveVisibility",
+    "VSearchBar",
+    "VSection",
+    "VSegmentedControl",
+    "VSelect",
+    "VSkeleton",
+    "VSteps",
+    "VSwipeReveal",
+    "VSwitch",
+    "VTable",
+    "VTabs",
+    "VTabsContent",
+    "VTabsList",
+    "VTabsTrigger",
+    "VText",
+    "VTextField",
+    "VToast",
+    "VVerificationCodeField"
+  ],
+  "entries": [
+    {
+      "primaryClass": "VAppBar",
+      "role": "navigation_chrome",
+      "hasSemantics": false,
+      "toneStatus": "na",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VAvatar",
+      "role": "unmapped",
+      "hasSemantics": false,
+      "toneStatus": "pass",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "optional_absent",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VBanner",
+      "role": "unmapped",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "optional_absent",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VBottomNavigationBar",
+      "role": "navigation_chrome",
+      "hasSemantics": false,
+      "toneStatus": "na",
+      "emphasisStatus": "na",
+      "stateStatus": "na_present",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VBottomSheet",
+      "role": "overlay_shell",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "na",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VButton",
+      "role": "action",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VCard",
+      "role": "container",
+      "hasSemantics": false,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VCheckbox",
+      "role": "toggle",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VCombobox",
+      "role": "unmapped",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VEmptyState",
+      "role": "status_display",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "na",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VFileDropZone",
+      "role": "input",
+      "hasSemantics": true,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "missing_required",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VFloatingActionButton",
+      "role": "action",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VLoading",
+      "role": "status_display",
+      "hasSemantics": true,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VConfirmDialog",
+      "role": "overlay_shell",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "na",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VNumericKeypadSheet",
+      "role": "overlay_shell",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VProgress",
+      "role": "status_display",
+      "hasSemantics": true,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VRadio",
+      "role": "toggle",
+      "hasSemantics": true,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VSearchBar",
+      "role": "input",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VSegmentedControl",
+      "role": "navigation_chrome",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VSteps",
+      "role": "navigation_chrome",
+      "hasSemantics": true,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VSwipeReveal",
+      "role": "unmapped",
+      "hasSemantics": false,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VSwitch",
+      "role": "toggle",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VTable",
+      "role": "container",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "na",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VTabs",
+      "role": "navigation_chrome",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "na_present",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VTextArea",
+      "role": "unmapped",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VTextField",
+      "role": "input",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VTextFormField",
+      "role": "unmapped",
+      "hasSemantics": false,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "optional_absent",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VToast",
+      "role": "status_display",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "na",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VVerificationCodeField",
+      "role": "unmapped",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VChoiceList",
+      "role": "input",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VDatePicker",
+      "role": "input",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VEmailField",
+      "role": "input",
+      "hasSemantics": false,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VMoneyField",
+      "role": "input",
+      "hasSemantics": false,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VNumberField",
+      "role": "input",
+      "hasSemantics": false,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VPasswordField",
+      "role": "unmapped",
+      "hasSemantics": false,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VSelect",
+      "role": "input",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VContentWidth",
+      "role": "unmapped",
+      "hasSemantics": false,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "optional_absent",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VField",
+      "role": "layout_pattern",
+      "hasSemantics": false,
+      "toneStatus": "na",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "na"
+    },
+    {
+      "primaryClass": "VGap",
+      "role": "layout_pattern",
+      "hasSemantics": false,
+      "toneStatus": "na",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "na"
+    },
+    {
+      "primaryClass": "VPagePadding",
+      "role": "layout_pattern",
+      "hasSemantics": false,
+      "toneStatus": "na",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "na"
+    },
+    {
+      "primaryClass": "VPageScaffold",
+      "role": "layout_pattern",
+      "hasSemantics": false,
+      "toneStatus": "na",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "na"
+    },
+    {
+      "primaryClass": "VResponsive",
+      "role": "unmapped",
+      "hasSemantics": false,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "optional_absent",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VResponsiveGrid",
+      "role": "unmapped",
+      "hasSemantics": false,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "optional_absent",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VResponsiveVisibility",
+      "role": "unmapped",
+      "hasSemantics": false,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "optional_absent",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VSection",
+      "role": "container",
+      "hasSemantics": false,
+      "toneStatus": "optional_absent",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "na",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VBadge",
+      "role": "status_display",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "na",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VChip",
+      "role": "status_display",
+      "hasSemantics": true,
+      "toneStatus": "pass",
+      "emphasisStatus": "pass",
+      "stateStatus": "pass",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VDivider",
+      "role": "layout_pattern",
+      "hasSemantics": false,
+      "toneStatus": "na",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VIcon",
+      "role": "typography_primitive",
+      "hasSemantics": true,
+      "toneStatus": "na",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VIconBox",
+      "role": "status_display",
+      "hasSemantics": false,
+      "toneStatus": "pass",
+      "emphasisStatus": "optional_absent",
+      "stateStatus": "na",
+      "semanticLabelStatus": "optional_absent"
+    },
+    {
+      "primaryClass": "VSkeleton",
+      "role": "layout_pattern",
+      "hasSemantics": true,
+      "toneStatus": "na",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "pass"
+    },
+    {
+      "primaryClass": "VText",
+      "role": "typography_primitive",
+      "hasSemantics": false,
+      "toneStatus": "pass",
+      "emphasisStatus": "na",
+      "stateStatus": "na",
+      "semanticLabelStatus": "optional_absent"
+    }
+  ]
+}

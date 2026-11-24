@@ -1,0 +1,258 @@
+{
+  "VButton": {
+    "variants": [
+      "primary",
+      "secondary",
+      "tertiary",
+      "link"
+    ],
+    "sizes": [
+      "small",
+      "medium",
+      "large"
+    ],
+    "defaultVariant": "primary",
+    "defaultSize": "medium",
+    "defaultTone": "primary",
+    "defaultEmphasis": "strong"
+  },
+  "VBadge": {
+    "variants": [
+      "soft",
+      "strong"
+    ],
+    "tones": [
+      "neutral",
+      "primary",
+      "success",
+      "warning",
+      "danger",
+      "info"
+    ],
+    "legacyStatuses": [
+      "draft",
+      "pending",
+      "processing",
+      "completed",
+      "paid",
+      "partiallyPaid",
+      "outstanding",
+      "overdue",
+      "cancelled",
+      "locked",
+      "success",
+      "warning",
+      "danger",
+      "info"
+    ],
+    "defaultVariant": "soft"
+  },
+  "VChip": {
+    "tones": [
+      "neutral",
+      "primary",
+      "success",
+      "warning",
+      "danger",
+      "info"
+    ],
+    "legacyEmphasis": [
+      "subdued",
+      "base",
+      "strong"
+    ]
+  },
+  "VCard": {
+    "tones": [
+      "neutral",
+      "primary",
+      "success",
+      "warning",
+      "danger",
+      "info"
+    ],
+    "emphasis": [
+      "subtle",
+      "medium",
+      "strong"
+    ],
+    "defaultEmphasis": "subtle"
+  },
+  "VBanner": {
+    "statuses": [
+      "info",
+      "success",
+      "warning",
+      "error"
+    ]
+  },
+  "VSearchBar": {
+    "variants": [
+      "outlined",
+      "filled",
+      "header"
+    ],
+    "defaultVariant": "outlined"
+  },
+  "VTabs": {
+    "orientations": [
+      "horizontal",
+      "vertical"
+    ],
+    "listVariants": [
+      "line",
+      "plain"
+    ],
+    "defaultOrientation": "horizontal",
+    "defaultListVariant": "line"
+  },
+  "VEmptyState": {
+    "mediaVariants": [
+      "icon",
+      "plain"
+    ],
+    "emphasis": [
+      "subtle",
+      "medium",
+      "strong"
+    ]
+  },
+  "VFileDropZone": {
+    "states": [
+      "empty",
+      "valid",
+      "invalid",
+      "disabled"
+    ],
+    "defaultState": "empty"
+  },
+  "VToast": {
+    "types": [
+      "success",
+      "warning",
+      "danger",
+      "info"
+    ],
+    "defaultEmphasis": "strong"
+  },
+  "VVerificationCodeField": {
+    "charsets": [
+      "numeric",
+      "alphanumeric"
+    ],
+    "defaultCharset": "numeric",
+    "defaultLength": 6
+  },
+  "VSteps": {
+    "statuses": [
+      "completed",
+      "active",
+      "inactive"
+    ],
+    "types": [
+      "horizontal",
+      "list"
+    ],
+    "defaultType": "horizontal"
+  },
+  "VSegmentedControl": {
+    "selectedIndex": "integer"
+  },
+  "VNumericKeypadSheet": {
+    "modes": [
+      "quantity",
+      "money"
+    ]
+  },
+  "VDatePicker": {
+    "iconPositions": [
+      "left",
+      "right"
+    ],
+    "defaultIconPosition": "left"
+  },
+  "VIcon": {
+    "sizes": {
+      "xs": 16,
+      "sm": 20,
+      "md": 24,
+      "lg": 32,
+      "xl": 40
+    },
+    "colors": [
+      "primary",
+      "secondary",
+      "muted",
+      "success",
+      "warning",
+      "danger",
+      "info",
+      "white"
+    ],
+    "weights": [
+      "thin",
+      "extraLight",
+      "light",
+      "regular",
+      "medium",
+      "semiBold"
+    ],
+    "defaultSize": 24
+  },
+  "VText": {
+    "variants": [
+      "displayD1",
+      "headingH1",
+      "headingH2",
+      "headingH3",
+      "headingH4",
+      "bodyDefault",
+      "bodySmall",
+      "caption",
+      "labelDefault",
+      "labelSmall",
+      "actionDefault",
+      "displayD1Mono",
+      "headingH1Mono",
+      "headingH2Mono",
+      "headingH3Mono",
+      "headingH4Mono",
+      "bodyDefaultMono",
+      "bodySmallMono",
+      "labelDefaultMono",
+      "monoNumeric"
+    ],
+    "defaultVariant": "bodyDefault"
+  },
+  "VComponentTone": {
+    "values": [
+      "neutral",
+      "primary",
+      "success",
+      "warning",
+      "danger",
+      "info"
+    ]
+  },
+  "VComponentEmphasis": {
+    "values": [
+      "subtle",
+      "medium",
+      "strong"
+    ]
+  },
+  "VDensityMode": {
+    "values": [
+      "compact",
+      "comfortable"
+    ],
+    "default": "comfortable"
+  },
+  "VBreakpoint": {
+    "values": [
+      "mobile",
+      "tablet",
+      "desktop"
+    ]
+  }
+}

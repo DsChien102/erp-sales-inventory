@@ -1,0 +1,119 @@
+import 'package:flutter/material.dart';
+
+import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
+import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
+import '../tokens/v_typography.dart';
+
+/// Typography scale variants — map 1-1 to [VTypography] public styles.
+enum VTextVariant {
+  // Sans
+  displayD1,
+  headingH1,
+  headingH2,
+  headingH3,
+  headingH4,
+  bodyDefault,
+  bodySmall,
+  caption,
+  labelDefault,
+  labelSmall,
+  actionDefault,
+  // Mono
+  displayD1Mono,
+  headingH1Mono,
+  headingH2Mono,
+  headingH3Mono,
+  headingH4Mono,
+  bodyDefaultMono,
+  bodySmallMono,
+  labelDefaultMono,
+  monoNumeric,
+}
+
+/// Design-system text primitive. Resolves style from [VTextVariant] + theme color.
+///
+/// Color precedence: [color] → [tone] / ambient [VComponentScope] →
+/// [VColorScheme.textPrimary].
+class VText extends StatelessWidget {
+  const VText(
+    this.data, {
+    super.key,
+    this.variant = VTextVariant.bodyDefault,
+    this.color,
+    this.tone,
+    this.textAlign,
+    this.maxLines,
+    this.overflow,
+    this.softWrap,
+    this.style,
+    this.semanticsLabel,
+  });
+
+  final String data;
+  final VTextVariant variant;
+
+  /// Explicit color; wins over [tone] and ambient scope.
+  final Color? color;
+
+  /// Soft-inherit via [VComponentScope.resolveTone] when [color] is null.
+  final VComponentTone? tone;
+
+  final TextAlign? textAlign;
+  final int? maxLines;
+  final TextOverflow? overflow;
+  final bool? softWrap;
+
+  /// Optional merge on top of the resolved variant style.
+  final TextStyle? style;
+  final String? semanticsLabel;
+
+  TextStyle _baseStyle(VTextVariant variant) {
+    return switch (variant) {
+      VTextVariant.displayD1 => VTypography.displayD1,
+      VTextVariant.headingH1 => VTypography.headingH1,
+      VTextVariant.headingH2 => VTypography.headingH2,
+      VTextVariant.headingH3 => VTypography.headingH3,
+      VTextVariant.headingH4 => VTypography.headingH4,
+      VTextVariant.bodyDefault => VTypography.bodyDefault,
+      VTextVariant.bodySmall => VTypography.bodySmall,
+      VTextVariant.caption => VTypography.caption,
+      VTextVariant.labelDefault => VTypography.labelDefault,
+      VTextVariant.labelSmall => VTypography.labelSmall,
+      VTextVariant.actionDefault => VTypography.actionDefault,
+      VTextVariant.displayD1Mono => VTypography.displayD1Mono,
+      VTextVariant.headingH1Mono => VTypography.headingH1Mono,
+      VTextVariant.headingH2Mono => VTypography.headingH2Mono,
+      VTextVariant.headingH3Mono => VTypography.headingH3Mono,
+      VTextVariant.headingH4Mono => VTypography.headingH4Mono,
+      VTextVariant.bodyDefaultMono => VTypography.bodyDefaultMono,
+      VTextVariant.bodySmallMono => VTypography.bodySmallMono,
+      VTextVariant.labelDefaultMono => VTypography.labelDefaultMono,
+      VTextVariant.monoNumeric => VTypography.monoNumeric,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
+    final resolvedColor =
+        color ?? colors.foregroundForTone(resolvedTone) ?? colors.textPrimary;
+    final resolved = _baseStyle(variant)
+        .copyWith(color: resolvedColor)
+        .merge(style);
+
+    return vInspectorHide(
+      Text(
+        data,
+        style: resolved,
+        textAlign: textAlign,
+        maxLines: maxLines,
+        overflow: overflow,
+        softWrap: softWrap,
+        semanticsLabel: semanticsLabel,
+      ),
+    );
+  }
+}

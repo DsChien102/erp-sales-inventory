@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 1,
+  "source": "QVJolM5tAdFKkhP7RIwe3y",
+  "pageId": "505:5889",
+  "componentSet": {
+    "id": "511:673",
+    "name": "DS v2 / Icon"
+  },
+  "variantCount": 54,
+  "variants": [
+    {
+      "id": "511:490",
+      "size": 16,
+      "tone": "Primary",
+      "name": "Size=16, Tone=Primary"
+    },
+    {
+      "id": "511:493",
+      "size": 16,
+      "tone": "Secondary",
+      "name": "Size=16, Tone=Secondary"
+    },
+    {
+      "id": "511:496",
+      "size": 16,
+      "tone": "Muted",
+      "name": "Size=16, Tone=Muted"
+    },
+    {
+      "id": "511:502",
+      "size": 16,
+      "tone": "Brand",
+      "name": "Size=16, Tone=Brand"
+    },
+    {
+      "id": "511:505",
+      "size": 16,
+      "tone": "Success",
+      "name": "Size=16, Tone=Success"
+    },
+    {
+      "id": "511:508",
+      "size": 16,
+      "tone": "Warning",
+      "name": "Size=16, Tone=Warning"
+    },
+    {
+      "id": "511:511",
+      "size": 16,
+      "tone": "Danger",
+      "name": "Size=16, Tone=Danger"
+    },
+    {
+      "id": "511:514",
+      "size": 16,
+      "tone": "Info",
+      "name": "Size=16, Tone=Info"
+    },
+    {
+      "id": "511:517",
+      "size": 16,
+      "tone": "Inverse",
+      "name": "Size=16, Tone=Inverse"
+    },
+    {
+      "id": "511:520",
+      "size": 20,
+      "tone": "Primary",
+      "name": "Size=20, Tone=Primary"
+    },
+    {
+      "id": "511:523",
+      "size": 20,
+      "tone": "Secondary",
+      "name": "Size=20, Tone=Secondary"
+    },
+    {
+      "id": "511:526",
+      "size": 20,
+      "tone": "Muted",
+      "name": "Size=20, Tone=Muted"
+    },
+    {
+      "id": "511:532",
+      "size": 20,
+      "tone": "Brand",
+      "name": "Size=20, Tone=Brand"
+    },
+    {
+      "id": "511:535",
+      "size": 20,
+      "tone": "Success",
+      "name": "Size=20, Tone=Success"
+    },
+    {
+      "id": "511:538",
+      "size": 20,
+      "tone": "Warning",
+      "name": "Size=20, Tone=Warning"
+    },
+    {
+      "id": "511:541",
+      "size": 20,
+      "tone": "Danger",
+      "name": "Size=20, Tone=Danger"
+    },
+    {
+      "id": "511:544",
+      "size": 20,
+      "tone": "Info",
+      "name": "Size=20, Tone=Info"
+    },
+    {
+      "id": "511:547",
+      "size": 20,
+      "tone": "Inverse",
+      "name": "Size=20, Tone=Inverse"
+    },
+    {
+      "id": "511:550",
+      "size": 24,
+      "tone": "Primary",
+      "name": "Size=24, Tone=Primary"
+    },
+    {
+      "id": "511:553",
+      "size": 24,
+      "tone": "Secondary",
+      "name": "Size=24, Tone=Secondary"
+    },
+    {
+      "id": "511:556",
+      "size": 24,
+      "tone": "Muted",
+      "name": "Size=24, Tone=Muted"
+    },
+    {
+      "id": "511:562",
+      "size": 24,
+      "tone": "Brand",
+      "name": "Size=24, Tone=Brand"
+    },
+    {
+      "id": "511:565",
+      "size": 24,
+      "tone": "Success",
+      "name": "Size=24, Tone=Success"
+    },
+    {
+      "id": "511:568",
+      "size": 24,
+      "tone": "Warning",
+      "name": "Size=24, Tone=Warning"
+    },
+    {
+      "id": "511:571",
+      "size": 24,
+      "tone": "Danger",
+      "name": "Size=24, Tone=Danger"
+    },
+    {
+      "id": "511:574",
+      "size": 24,
+      "tone": "Info",
+      "name": "Size=24, Tone=Info"
+    },
+    {
+      "id": "511:577",
+      "size": 24,
+      "tone": "Inverse",
+      "name": "Size=24, Tone=Inverse"
+    },
+    {
+      "id": "511:580",
+      "size": 32,
+      "tone": "Primary",
+      "name": "Size=32, Tone=Primary"
+    },
+    {
+      "id": "511:583",
+      "size": 32,
+      "tone": "Secondary",
+      "name": "Size=32, Tone=Secondary"
+    },
+    {
+      "id": "511:586",
+      "size": 32,
+      "tone": "Muted",
+      "name": "Size=32, Tone=Muted"
+    },
+    {
+      "id": "511:592",
+      "size": 32,
+      "tone": "Brand",
+      "name": "Size=32, Tone=Brand"
+    },
+    {
+      "id": "511:595",
+      "size": 32,
+      "tone": "Success",
+      "name": "Size=32, Tone=Success"
+    },
+    {
+      "id": "511:598",
+      "size": 32,
+      "tone": "Warning",
+      "name": "Size=32, Tone=Warning"
+    },
+    {
+      "id": "511:601",
+      "size": 32,
+      "tone": "Danger",
+      "name": "Size=32, Tone=Danger"
+    },
+    {
+      "id": "511:604",
+      "size": 32,
+      "tone": "Info",
+      "name": "Size=32, Tone=Info"
+    },
+    {
+      "id": "511:607",
+      "size": 32,
+      "tone": "Inverse",
+      "name": "Size=32, Tone=Inverse"
+    },
+    {
+      "id": "511:610",
+      "size": 48,
+      "tone": "Primary",
+      "name": "Size=48, Tone=Primary"
+    },
+    {
+      "id": "511:613",
+      "size": 48,
+      "tone": "Secondary",
+      "name": "Size=48, Tone=Secondary"
+    },
+    {
+      "id": "511:616",
+      "size": 48,
+      "tone": "Muted",
+      "name": "Size=48, Tone=Muted"
+    },
+    {
+      "id": "511:622",
+      "size": 48,
+      "tone": "Brand",
+      "name": "Size=48, Tone=Brand"
+    },
+    {
+      "id": "511:625",
+      "size": 48,
+      "tone": "Success",
+      "name": "Size=48, Tone=Success"
+    },
+    {
+      "id": "511:628",
+      "size": 48,
+      "tone": "Warning",
+      "name": "Size=48, Tone=Warning"
+    },
+    {
+      "id": "511:631",
+      "size": 48,
+      "tone": "Danger",
+      "name": "Size=48, Tone=Danger"
+    },
+    {
+      "id": "511:634",
+      "size": 48,
+      "tone": "Info",
+      "name": "Size=48, Tone=Info"
+    },
+    {
+      "id": "511:637",
+      "size": 48,
+      "tone": "Inverse",
+      "name": "Size=48, Tone=Inverse"
+    },
+    {
+      "id": "511:640",
+      "size": 72,
+      "tone": "Primary",
+      "name": "Size=72, Tone=Primary"
+    },
+    {
+      "id": "511:643",
+      "size": 72,
+      "tone": "Secondary",
+      "name": "Size=72, Tone=Secondary"
+    },
+    {
+      "id": "511:646",
+      "size": 72,
+      "tone": "Muted",
+      "name": "Size=72, Tone=Muted"
+    },
+    {
+      "id": "511:652",
+      "size": 72,
+      "tone": "Brand",
+      "name": "Size=72, Tone=Brand"
+    },
+    {
+      "id": "511:655",
+      "size": 72,
+      "tone": "Success",
+      "name": "Size=72, Tone=Success"
+    },
+    {
+      "id": "511:658",
+      "size": 72,
+      "tone": "Warning",
+      "name": "Size=72, Tone=Warning"
+    },
+    {
+      "id": "511:661",
+      "size": 72,
+      "tone": "Danger",
+      "name": "Size=72, Tone=Danger"
+    },
+    {
+      "id": "511:664",
+      "size": 72,
+      "tone": "Info",
+      "name": "Size=72, Tone=Info"
+    },
+    {
+      "id": "511:667",
+      "size": 72,
+      "tone": "Inverse",
+      "name": "Size=72, Tone=Inverse"
+    }
+  ],
+  "sourcePolicy": "Glyph source MUST resolve to a Figma li:* Lucide component; disabled is parent opacity 0.4, not an icon tone.",
+  "disabledOpacityVariable": "Opacity/Disabled = 0.4",
+  "strokeVariable": "Icon/Stroke = 2",
+  "localLiCache": {
+    "count": 162,
+    "signatureFNV1a32": "3136211b"
+  },
+  "defaultSource": {
+    "name": "li:circle",
+    "id": "494:5009",
+    "key": "097d94bb82bf7b69e68bbce43adbd6262b66e4ea",
+    "remote": true
+  },
+  "fullExposedLucideCatalog": {
+    "count": 1676,
+    "remote": 1514,
+    "local": 162,
+    "signatureFNV1a32": "c5105795"
+  },
+  "assetMaterializationPolicy": "For migrated Product UI, resolve the exact live Figma li:* component key, then export/download exact SVG bytes and commit those bytes locally. Never hand-author, redraw, approximate, or substitute by name alone."
+}

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Mosaic Retail Theme 7 — full prototype harness with task-driven Warehouse Home." />
+    <title>Mosaic Retail · Theme 7 Prototype Harness</title>
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/components.css" />
+    <link rel="stylesheet" href="harness/workbench.css" />
+    <link rel="stylesheet" href="styles/screens.css" />
+</head>
+  <body>
+    <div class="review-app" data-review-workbench>
+      <header class="review-topbar">
+        <div class="brand-lockup" aria-label="Mosaic Retail">
+          <div class="brand-mark">V</div>
+          <div>
+            <strong>Mosaic Retail</strong>
+            <span>UI/UX Review</span>
+          </div>
+        </div>
+        <div class="review-title">
+          <span class="eyebrow">Theme 7 · Figma DS Working Freeze</span>
+          <h1 id="workbench-title">Theme 7 · Prototype Harness</h1>
+        </div>
+        <div class="review-meta">
+          <span class="review-badge" id="scope-badge">v5.28.0 · Rút gọn phạm vi</span>
+          <span id="workbench-count" class="review-badge review-badge--muted">17 BJ + CAP-01</span>
+        </div>
+      </header>
+
+      <div class="review-layout">
+        <aside class="review-sidebar" aria-label="Danh sách màn hình">
+          <div class="sidebar-intro">
+            <span class="eyebrow">Harness flow</span>
+            <label class="flow-label" for="flow-selector">BJ / UIF</label>
+            <select id="flow-selector" class="flow-selector" aria-label="Chọn Business Journey / UI Flow"></select>
+            <h2 id="sidebar-flow-title">UIF</h2>
+            <p id="sidebar-flow-intent"></p>
+          </div>
+          <nav id="screen-navigation" class="screen-navigation"></nav>
+          <div class="sidebar-note">
+            <span class="note-dot"></span>
+            <p><strong>Cumulative Theme 7 Harness.</strong> HTML prototype là artifact thiết kế Theme 7; Figma cung cấp Design System và tham khảo thiết kế các theme trước. BJ/UC/UIF/Screen Contract quyết định nghiệp vụ và hành vi.</p>
+          </div>
+        </aside>
+
+        <main class="review-stage">
+          <div class="stage-toolbar">
+            <div>
+              <span id="current-screen-id" class="eyebrow"></span>
+              <h2 id="current-screen-name"></h2>
+            </div>
+            <div class="stage-actions">
+              <div class="viewport-switcher" aria-label="Chọn viewport">
+                <button class="viewport-button is-active" data-viewport="mobile" type="button">Mobile · 402 × 874</button>
+                <button class="viewport-button" data-viewport="web" type="button">Web · 1280 × 800</button>
+              </div>
+              <button id="inspect-toggle" class="inspect-toggle" type="button" aria-pressed="false" title="Inspect component & box model">Inspect</button>
+            </div>
+          </div>
+
+          <div class="stage-canvas">
+            <div id="device-preview" class="device-preview is-mobile">
+              <nav id="web-sidebar" class="t7-web-sidebar" aria-label="Điều hướng chính" hidden></nav>
+              <div id="app-screen" class="app-screen" aria-live="polite"></div>
+            </div>
+          </div>
+        </main>
+
+        <aside class="review-inspector" aria-label="Thông tin thiết kế">
+          <section class="inspector-section">
+            <span class="eyebrow">Trạng thái</span>
+            <div id="state-switcher" class="state-switcher"></div>
+          </section>
+          <section class="inspector-section">
+            <span class="eyebrow">Design Contract</span>
+            <div id="traceability" class="traceability"></div>
+          </section>
+          <section id="inspect-section" class="inspector-section inspect-panel" hidden>
+            <div class="inspect-panel-heading">
+              <span class="eyebrow">Inspect</span>
+              <span id="inspect-pin-status" class="inspect-pin-status">Hover component</span>
+            </div>
+            <div id="inspect-details" class="inspect-details">Bật Inspect rồi rê chuột lên UI trong thiết bị.</div>
+          </section>
+          <section class="inspector-section">
+            <span class="eyebrow">Chủ đích thiết kế</span>
+            <p id="design-rationale" class="design-rationale"></p>
+          </section>
+          <section class="inspector-section inspector-section--accent">
+            <span class="eyebrow">Nguyên tắc xuyên suốt</span>
+            <ul class="principle-list">
+              <li>Một hành động chính trong mỗi trạng thái.</li>
+              <li>Không dùng màu làm tín hiệu duy nhất.</li>
+              <li>Giữ dữ liệu khi lỗi có thể sửa an toàn.</li>
+              <li>UNKNOWN không đồng nghĩa thất bại.</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </div>
+
+    <div id="inspect-overlay" class="inspect-overlay" hidden aria-hidden="true">
+      <div class="inspect-box inspect-box--margin"></div>
+      <div class="inspect-box inspect-box--border"></div>
+      <div class="inspect-box inspect-box--padding"></div>
+      <div class="inspect-box inspect-box--content"></div>
+      <div class="inspect-tag"></div>
+    </div>
+    <script src="data/workbench-data.js"></script>
+    <script src="app/core.js"></script>
+    <script src="harness/figma-ds-map.js"></script>
+    <script src="harness/workbench.js"></script>
+    <script src="app/shared-control.js"></script>
+    <script src="app/shared-valuation.js"></script>
+    <script src="app/shared-patterns.js"></script>
+    <script src="app/shared-problem.js"></script>
+    <script src="app/bj01.js"></script>
+    <script src="app/shared-ledger.js"></script>
+    <script src="app/bj02.js"></script>
+    <script src="app/bj03.js"></script>
+    <script src="app/bj04.js"></script>
+    <script src="app/bj05.js"></script>
+    <script src="app/bj06.js"></script>
+    <script src="app/bj07.js"></script>
+    <script src="app/bj08.js"></script>
+    <script src="app/bj09.js"></script>
+    <script src="app/bj10.js"></script>
+    <script src="app/bj11.js"></script>
+    <script src="app/bj12.js"></script>
+    <script src="app/bj13.js"></script>
+    <script src="app/bj14.js"></script>
+    <script src="app/bj15.js"></script>
+    <script src="app/bj16.js"></script>
+    <script src="app/bj17.js"></script>
+    <script src="app/cap01.js"></script>
+    <script src="app/hub.js"></script>
+
+  </body>
+</html>
