@@ -311,3 +311,14 @@ Expected: không lỗi mới; check imports OK.
 - G2 đúng: `HomeRepository` không đăng ký trong `setUp` của H1–H13. Đã đăng ký `FakeHomeRepository` (chỉ sửa test) → H12 xanh, file 16/16.
 - G3 đúng: đã chép `pumpPushed` vào `users_and_roles_page_test.dart`, bỏ import chéo.
 - Chạy lại: `flutter test test/features/more/presentation test/features/iam/presentation_module/w2_behavior_preservation_test.dart` → 45 pass.
+
+### R2 (2026-11-24) — Đạt
+
+Xem commit `945d803ae` (sửa R1):
+- **G1** README `more` Hiện trạng 1 và mục Kết quả ghi đúng `app_router.dart:468` / `:1241`.
+- **G2** `w2_behavior_preservation_test.dart` `setUp` đăng ký `FakeHomeRepository` (`test/features/dashboard/support/`), chỉ sửa test → H12 xanh, file 16/16.
+- **G3** `pumpPushed` chép vào `users_and_roles_page_test.dart`, không còn import chéo giữa hai file test.
+- Chạy lại: `flutter test test/features/more/presentation test/features/iam/presentation_module/w2_behavior_preservation_test.dart` **45/45**; `dart analyze` (phần `more` + file w2) không lỗi. `dart format` báo file w2 lệch định dạng, nhưng bản trước commit sửa cũng đã lệch, không do R1.
+- Ghi chú: phiên sửa đã viết lại cột "Chỗ" của dòng G1 trong bảng R1 thành chữ sau khi sửa (`mở ở :468, đóng ở :1241`). Bảng R1 nên giữ chữ gốc lúc review (`đóng ở app_router.dart:679`); chỉ ghi nhận, không bắt sửa.
+
+**Còn lại trước khi đóng plan:** kiểm tay APP-02 như R1, rồi tick CHECKLIST APP-02 cột "Mới".
