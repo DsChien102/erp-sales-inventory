@@ -685,7 +685,28 @@ Run: `cd apps/erp && flutter test test/features/assistant test/features/dashboar
 
 ## Kết quả
 
-_(phiên code ghi: tên test bước 0, kết quả `db_check`, kết quả từng lệnh, lệch ảnh)_
+**Task 0 (code cũ, xanh trước khi sửa):** `home_tab_page_test.dart` 3/3 — `home shows "Đang tải…" while branch name is null`, `home shows "Chọn tổ chức" when blocked`, `tap branch name opens tenant selector`; còn xanh sau Task 4 (chỉ đổi cách dựng `HomeTabPage(repository: FakeHomeRepository())`).
+
+**Task 1 (SQL):** `20261127001_sales_home_summary.sql` (`sales._daily_revenue`, `sales.get_home_summary`), `REGISTRY.yaml`, `supabase/tests/home_summary.sql` (h1…h10, thêm h8b thành viên đã nghỉ bị chặn). **Chưa chạy `tools/db_check.sh home_summary`** — người dùng chạy; chưa commit tới khi xanh.
+
+**Lệnh sau khi sửa:**
+- `flutter test test/features/dashboard/data` 8/8; `test/features/dashboard/logic` 20/20.
+- `flutter test test/features/assistant test/features/dashboard test/features/auth/e2e_th01_s0_session_test.dart test/features/tenant_context test/core/session` 203/203 (gồm `home_board_test` 14, `home_ask_test` 7, `assistant_chat_panel_test` 7, `home_golden_test` 18 chạy `--update-goldens` rồi chạy lại xanh).
+- DS: `flutter test test/foundations test/theme` 33/33; `dart analyze lib test example` sạch; bump `1.8.0` → `1.9.0` (`--set 1.9.0`).
+- ERP: `dart analyze lib test` không có lỗi / cảnh báo mới; `check_feature_imports` không có dòng `dashboard` / `assistant`.
+
+**Rulings:**
+- `HomeCubit.load({reset})`: đổi tổ chức bỏ số tổ chức cũ, hiện khung xương (Q10 chỉ nói giữ số khi tải lại cùng tổ chức).
+- Chú thích trong hộp (`Tiền mặt 7`…) là một `Text.rich` để tự xuống dòng khi hộp hẹp (hàng `Row` tràn với font test).
+- Cột 7 ngày dùng `colors.borderDefault` (= `neutral200` ở nền sáng) thay `VColors.neutral200` để có màu tối đúng.
+- `VToast` chỉ hiện `message` → toast tải lại lỗi: "Chưa tải lại được số liệu. <lỗi>".
+- `/ask`: hàm `buildAskAssistantRoutePage` ở `app_router.dart` (dùng `extra` nếu là cubit chưa đóng, không thì tạo mới).
+- `AssistantComposer` thêm `height` (cạnh nút gửi), `autofocus`, `padding`; `VTextField` không nhận chiều cao nên ô nhập web vẫn ~44 (prototype 52).
+- Khung iPhone là route riêng (không `Scaffold`) nên tự chừa `max(viewInsets, viewPadding)` đáy.
+- Test `fetch wraps PostgrestException` đổi thành `fetch propagates AppException` (`SupabaseRpc.call` đã bọc lỗi).
+- `e2e_e05_u01_fr01_01` tìm nút đổi tổ chức theo nhãn "Đổi tổ chức, …" (đầu trang mới không còn icon cửa hàng).
+
+**Lệch ảnh:** golden dùng font Ahem nên chỉ so được hình học. Khớp prototype: đầu trang, dải doanh thu (web 1.1 : 1, cột 7 ngày, cột NAY xanh), ba hộp (web một hàng Đơn → Tiền đã thu → Công nợ; iPhone Đơn → Công nợ → Tiền đã thu), nút nổi 56 góc dưới phải, cửa sổ chat web (đỉnh 64, phải 32, dải đầu xanh, gợi ý 2 cột, nút nổi thành ✕), iPhone toàn màn che thanh dưới. Lệch: ô hỏi web cao ~44 (prototype 52) và đang có focus khi mở (prototype chụp không focus); dải xám phẳng dưới cửa sổ chat (lớp bóng trong môi trường test, như 10-8a). Chưa so màu chữ / số lật thật — người dùng kiểm tay APP-01.
 
 ## Review
 
