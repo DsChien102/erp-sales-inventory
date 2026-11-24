@@ -742,3 +742,18 @@ Mỗi góp ý: viết test tái hiện trước, chạy thấy đỏ, rồi mớ
 - **G5 — xác nhận, sửa.** Máy đã sang 24/11 (0:30), số liệu ngày 23/11 → dòng ngày hiện `Thứ Ba · 24/11` (test đỏ). `home_board.dart`: phần ngày lấy `state.summary?.today ?? now`, lời chào vẫn theo giờ máy. Test `R1-G5 date line follows server day of the numbers, greeting follows device hour` (`home_board_test.dart`).
 
 Chạy lại: `flutter test test/features/assistant test/features/dashboard test/features/auth/e2e_th01_s0_session_test.dart test/features/tenant_context test/core/session` **208/208** (thêm 5 test; golden 18/18 không đổi); `dart analyze lib test` không lỗi / cảnh báo; `check_feature_imports` không dòng `dashboard` / `assistant`.
+
+### R2 (2026-11-24) — Đạt
+
+Xem commit `1e497808d` (sửa R1):
+- **G1** `percentDelta`: hôm qua `<= 0` → `null`, `up: today >= yesterday` — đúng đề xuất; test phủ hôm qua âm, hôm qua âm + hôm nay 0, giảm < 0,5%, bằng nhau.
+- **G2** `_askRoute` + `_dropAskRoute()` trong listener đổi tổ chức: `BlocListener` chạy ngay khi session đổi, trước lần dựng lại đóng cubit cũ, nên route bị gỡ trước khi `askScope` đóng cubit; `whenComplete` xoá tham chiếu khi người dùng tự đóng (✕ / vuốt lùi). Trường hợp `/ask` qua ⤢ để lại — đúng như R1.
+- **G3** test `returning to / reloads numbers`, có kiểm đột biến.
+- **G4** `if (!wide) _askOpen = false` trong `build` (không `setState`, an toàn); test thu → kéo rộng lại không còn cửa sổ.
+- **G5** phần ngày theo `state.summary?.today ?? now`, lời chào theo giờ máy; golden không đổi (dữ liệu mẫu cùng ngày 23/11).
+
+Chạy lại: `flutter test test/features/assistant test/features/dashboard test/features/auth/e2e_th01_s0_session_test.dart test/features/tenant_context test/core/session` **208/208**; `dart analyze lib test` không lỗi / cảnh báo ở `dashboard/` / `assistant/`; `check_feature_imports` sạch.
+
+Ghi nhận (không bắt sửa): chiều ngược của G4 — đang mở khung toàn màn iPhone ở cửa sổ hẹp rồi kéo rộng ≥ 1024 thì route vẫn ở dạng hẹp tới khi đóng; chỉ xảy ra khi đổi cỡ cửa sổ trình duyệt, không gây lỗi.
+
+**Còn lại:** kiểm tay APP-01 trên Dev (migration `20261127001` phải có trên Dev), rồi tick CHECKLIST APP-01 cột "Mới".
