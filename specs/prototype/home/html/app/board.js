@@ -130,7 +130,7 @@ export function boardPage(v, web) {
   const secs = `<div class="bz-boxes">${ordersBox()}${web ? cashBox() + debtBox() : debtBox() + cashBox()}</div>`;
   return `<div class="hm-page bz${web ? ' is-web' : ''}${v.askOpen ? ' is-asking' : ''}">
     <div class="bz-scroll" data-home-body>
-      ${head}
+      ${web ? '' : head /* web: bỏ lời chào + tên tổ chức; đổi tổ chức ở nút đầu thanh bên */}
       ${hero}
       ${secs}
     </div>

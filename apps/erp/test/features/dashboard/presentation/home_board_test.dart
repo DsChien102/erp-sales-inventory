@@ -86,8 +86,8 @@ void main() {
 
   testWidgets('shows real numbers from summary', (tester) async {
     await pumpHome(tester, size: _web, repository: FakeHomeRepository());
+    expect(find.text('Chào buổi sáng · Thứ Hai · 23/11'), findsNothing);
     for (final t in [
-      'Chào buổi sáng · Thứ Hai · 23/11',
       '8.420.000',
       '▲ 18%',
       'so với hôm qua',
@@ -251,7 +251,7 @@ void main() {
     // Máy đã sang 24/11 lúc 0:30, số liệu vẫn của ngày 23/11 (sampleHomeSummary.today).
     await pumpHome(
       tester,
-      size: _web,
+      size: _phone,
       repository: FakeHomeRepository(),
       now: DateTime(2026, 11, 24, 0, 30),
     );

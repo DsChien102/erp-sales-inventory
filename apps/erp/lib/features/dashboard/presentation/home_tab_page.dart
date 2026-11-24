@@ -209,7 +209,10 @@ class _HomeTabPageState extends State<HomeTabPage> {
             ),
           ),
         ],
-        child: Scaffold(backgroundColor: colors.surface, body: body),
+        child: Scaffold(
+          backgroundColor: wide ? colors.background : colors.surface,
+          body: body,
+        ),
       ),
     );
   }

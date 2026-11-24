@@ -1,4 +1,5 @@
 // harness:allow-design-system-bypass — login shell không dùng VAppBar (branded form, không phải page ERP chuẩn)
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -396,14 +397,15 @@ class _LoginViewState extends State<_LoginView> {
                             onPressed: isSubmitting ? null : () => context.push('/invitation'),
                           ),
                           const Spacer(),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: VSpacing.md),
-                            child: VText(
-                              '© Mosaic Retail · Phiên bản Mobile',
-                              variant: VTextVariant.bodySmall,
-                              color: dynamicColors.textMuted,
+                          if (!kIsWeb)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: VSpacing.md),
+                              child: VText(
+                                '© Mosaic Retail · Phiên bản Mobile',
+                                variant: VTextVariant.bodySmall,
+                                color: dynamicColors.textMuted,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),

@@ -26,7 +26,8 @@
 
 .bz-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--c45-v2-space-5); padding: var(--c45-v2-space-4) var(--c45-v2-space-4) var(--c45-v2-space-8); scrollbar-color: var(--c45-v2-border-strong) transparent; }
 .bz-scroll > * { flex-shrink: 0; }
-.bz.is-web .bz-scroll { gap: var(--c45-v2-space-6); padding: var(--c45-v2-space-6) max(var(--c45-v2-space-8), calc((100% - var(--sh-col-max, 100%)) / 2 + var(--c45-v2-space-8))) var(--c45-v2-space-10); }
+/* Web: Trang chủ trải hết bề rộng vùng nội dung (không giới hạn cột --sh-col-max), chỉ chừa lề cố định. */
+.bz.is-web .bz-scroll { gap: var(--c45-v2-space-6); padding: var(--c45-v2-space-6) var(--c45-v2-space-8) var(--c45-v2-space-10); justify-content: safe center; }
 
 /* Đầu trang */
 .bz-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--c45-v2-space-3); }
@@ -142,7 +143,8 @@
 /* Lối vào trợ lý AI: nút nổi góc dưới phải + khung chat nổi (không còn nút ở đầu trang) */
 .sh-main:has(.bz) { position: relative; }
 .bz-scroll { padding-bottom: 96px; }
-.bz.is-web .bz-scroll { padding-bottom: 112px; }
+/* Web: lề trên = lề dưới để khối nội dung nằm đúng giữa chiều dọc (vẫn đủ chỗ cho nút nổi). */
+.bz.is-web .bz-scroll { padding-block: 112px; }
 .bz-fab { position: absolute; z-index: 6; right: var(--c45-v2-space-4); bottom: var(--c45-v2-space-4); display: grid; place-items: center; width: 56px; height: 56px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-5); background: var(--c45-v2-text-primary); color: var(--c45-v2-text-inverse) !important; box-shadow: var(--c45-v2-shadow-3); cursor: pointer; transition: background-color .15s ease-out, transform .2s cubic-bezier(.16, 1, .3, 1); }
 .bz.is-web .bz-fab { right: var(--c45-v2-space-8); bottom: var(--c45-v2-space-8); }
 .bz-fab svg { grid-area: 1 / 1; width: 24px; height: 24px; font-size: 24px; transition: opacity .15s ease-out, transform .2s cubic-bezier(.16, 1, .3, 1); }
@@ -209,3 +211,10 @@
 /* iPhone: khung chat mở là màn toàn phần, ẩn thanh dưới; chừa vạch home 34 dưới câu nhắc */
 .sh-app:has(.bz.is-asking:not(.is-web)) .sh-bottom { display: none; }
 .sh-app[data-device="iphone"] .bz.is-asking .bz-chat__foot { padding-bottom: 34px; }
+
+/* Web: bớt trắng — vùng nội dung nền canvas (#F6F8F9), doanh thu + 7 ngày và ba hộp là thẻ trắng nổi trên nền. Chỉ token Mosaic có sẵn. */
+.sh-main:has(.bz.is-web), .bz.is-web { background: var(--c45-v2-surface-canvas); }
+.bz.is-web .bz-hero { padding: var(--c45-v2-space-2) var(--c45-v2-space-8) var(--c45-v2-space-4); border: 1px solid var(--bz-line); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); }
+.bz.is-web .bz-box { background: var(--c45-v2-surface-default); }
+/* Web: trang cao bằng vùng nội dung để .bz-scroll (justify-content: safe center) căn giữa được theo chiều dọc. */
+.hm-page.bz.is-web { flex: 1; min-height: 0; display: flex; flex-direction: column; }

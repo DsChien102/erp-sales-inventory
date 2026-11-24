@@ -37,7 +37,7 @@ class HomeBoard extends StatelessWidget {
     final colors = context.vColors;
     return ColoredBox(
       key: const Key('home_board'),
-      color: colors.surface,
+      color: wide ? colors.background : colors.surface,
       child: SafeArea(
         bottom: false,
         child: LayoutBuilder(
@@ -53,24 +53,47 @@ class HomeBoard extends StatelessWidget {
                 : const EdgeInsets.fromLTRB(VSpacing.space4, VSpacing.space4, VSpacing.space4, 96);
             final gap = wide ? VSpacing.space6 : VSpacing.space5;
             final children = <Widget>[
-              _HomeHead(
-                // Lời chào theo giờ máy; ngày theo ngày của số liệu (server, Asia/Ho_Chi_Minh).
-                greeting: '${greetingForHour(now.hour)} · ${dateLine(state.summary?.today ?? now)}',
-                branchName: branchName,
-                onTap: onBranchTap,
-                wide: wide,
-              ),
+              if (!wide)
+                _HomeHead(
+                  // Lời chào theo giờ máy; ngày theo ngày của số liệu (server, Asia/Ho_Chi_Minh).
+                  greeting: '${greetingForHour(now.hour)} · ${dateLine(state.summary?.today ?? now)}',
+                  branchName: branchName,
+                  onTap: onBranchTap,
+                  wide: wide,
+                ),
               ..._body(),
             ];
-            final list = ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: padding,
-              itemCount: children.length,
-              separatorBuilder: (_, _) => SizedBox(height: gap),
-              itemBuilder: (_, i) => children[i],
+            if (wide) {
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: padding,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: math.max(0, constraints.maxHeight - padding.vertical),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var i = 0; i < children.length; i++) ...[
+                        if (i > 0) SizedBox(height: gap),
+                        children[i],
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            }
+            return RefreshIndicator(
+              onRefresh: onRefresh,
+              child: ListView.separated(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: padding,
+                itemCount: children.length,
+                separatorBuilder: (_, _) => SizedBox(height: gap),
+                itemBuilder: (_, i) => children[i],
+              ),
             );
-            if (wide) return list;
-            return RefreshIndicator(onRefresh: onRefresh, child: list);
           },
         ),
       ),
@@ -212,32 +235,36 @@ class _Hero extends StatelessWidget {
     return Semantics(
       container: true,
       label: 'Doanh thu hôm nay',
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: c.textPrimary, width: 2)),
-        ),
-        child: wide
-            ? DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border(bottom: VBorders.side(c.borderDefault)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: VSpacing.space2),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(flex: 11, child: rev),
-                      const SizedBox(width: VSpacing.space10),
-                      Expanded(flex: 10, child: week),
-                    ],
-                  ),
-                ),
-              )
-            : Column(
+      child: wide
+          ? Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: VSpacing.space8,
+                vertical: VSpacing.space6,
+              ),
+              decoration: BoxDecoration(
+                color: c.surface,
+                border: VBorders.all(c.borderDefault),
+                borderRadius: BorderRadius.circular(VRadius.card),
+                boxShadow: VShadows.e1,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(flex: 11, child: rev),
+                  const SizedBox(width: VSpacing.space10),
+                  Expanded(flex: 10, child: week),
+                ],
+              ),
+            )
+          : DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: c.textPrimary, width: 2)),
+              ),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [rev, week],
               ),
-      ),
+            ),
     );
   }
 }
@@ -253,7 +280,9 @@ class _RevenueRow extends StatelessWidget {
     final c = context.vColors;
     final delta = percentDelta(summary.revenueToday, summary.revenueYesterday);
     return Padding(
-      padding: const EdgeInsets.only(top: VSpacing.space4, bottom: VSpacing.space3),
+      padding: wide
+          ? EdgeInsets.zero
+          : const EdgeInsets.only(top: VSpacing.space4, bottom: VSpacing.space3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -326,10 +355,12 @@ class _WeekChart extends StatelessWidget {
     final h = wide ? 120.0 : 96.0;
     final small = VTypography.caption.copyWith(height: 14 / 12, fontWeight: FontWeight.w600);
     final chart = Padding(
-      padding: EdgeInsets.only(
-        top: VSpacing.space3,
-        bottom: wide ? VSpacing.space3 : VSpacing.space4,
-      ),
+      padding: wide
+          ? EdgeInsets.zero
+          : const EdgeInsets.only(
+              top: VSpacing.space3,
+              bottom: VSpacing.space4,
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -348,7 +379,10 @@ class _WeekChart extends StatelessWidget {
               const SizedBox(width: VSpacing.space2),
               Text(
                 millionsTotal(total),
-                style: VTypography.labelDefault.copyWith(color: c.textSecondary),
+                style: VTypography.labelDefault.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: wide ? c.textPrimary : c.textSecondary,
+                ),
               ),
             ],
           ),
@@ -502,8 +536,10 @@ class _Box extends StatelessWidget {
             ? const EdgeInsets.symmetric(vertical: VSpacing.space5, horizontal: VSpacing.space6)
             : const EdgeInsets.all(VSpacing.space4),
         decoration: BoxDecoration(
+          color: c.surface,
           border: VBorders.all(c.borderDefault),
           borderRadius: BorderRadius.circular(VRadius.card),
+          boxShadow: wide ? VShadows.e1 : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -697,10 +733,19 @@ class _CashBox extends StatelessWidget {
         index: 3,
         numStyle: _moneyStyle(c, wide),
       ),
-      legend: _legend([
-        _LegendItem('Tiền mặt', _money(summary.cashInCash)),
-        _LegendItem('Chuyển khoản', _money(summary.cashInBank)),
-      ]),
+      legend: wide
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _LegendItem('Tiền mặt', _money(summary.cashInCash)),
+                const SizedBox(height: VSpacing.space1),
+                _LegendItem('Chuyển khoản', _money(summary.cashInBank)),
+              ],
+            )
+          : _legend([
+              _LegendItem('Tiền mặt', _money(summary.cashInCash)),
+              _LegendItem('Chuyển khoản', _money(summary.cashInBank)),
+            ]),
     );
   }
 }
@@ -798,8 +843,10 @@ class _Skeleton extends StatelessWidget {
       height: 150,
       padding: const EdgeInsets.all(VSpacing.space4),
       decoration: BoxDecoration(
+        color: c.surface,
         border: VBorders.all(c.borderDefault),
         borderRadius: BorderRadius.circular(VRadius.card),
+        boxShadow: wide ? VShadows.e1 : null,
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -812,32 +859,44 @@ class _Skeleton extends StatelessWidget {
         ],
       ),
     );
-    final hero = DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: c.textPrimary, width: 2)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(top: VSpacing.space4, bottom: VSpacing.space3),
-        child: wide
-            ? const Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    flex: 11,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        VSkeleton(width: 80, height: 14),
-                        SizedBox(height: VSpacing.space2),
-                        VSkeleton(width: 420, height: 96),
-                      ],
-                    ),
+    final hero = wide
+        ? Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.space8,
+              vertical: VSpacing.space6,
+            ),
+            decoration: BoxDecoration(
+              color: c.surface,
+              border: VBorders.all(c.borderDefault),
+              borderRadius: BorderRadius.circular(VRadius.card),
+              boxShadow: VShadows.e1,
+            ),
+            child: const Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  flex: 11,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      VSkeleton(width: 80, height: 14),
+                      SizedBox(height: VSpacing.space2),
+                      VSkeleton(width: 420, height: 96),
+                    ],
                   ),
-                  SizedBox(width: VSpacing.space10),
-                  Expanded(flex: 10, child: VSkeleton(height: 120)),
-                ],
-              )
-            : const Column(
+                ),
+                SizedBox(width: VSpacing.space10),
+                Expanded(flex: 10, child: VSkeleton(height: 120)),
+              ],
+            ),
+          )
+        : DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: c.textPrimary, width: 2)),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.only(top: VSpacing.space4, bottom: VSpacing.space3),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   VSkeleton(width: 80, height: 14),
@@ -847,8 +906,8 @@ class _Skeleton extends StatelessWidget {
                   VSkeleton(height: 96),
                 ],
               ),
-      ),
-    );
+            ),
+          );
     return Semantics(
       label: 'Đang tải số liệu',
       child: VSkeletonScope(
@@ -893,8 +952,10 @@ class _ErrorCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(VSpacing.space4),
       decoration: BoxDecoration(
+        color: c.surface,
         border: VBorders.all(c.borderDefault),
         borderRadius: BorderRadius.circular(VRadius.card),
+        boxShadow: VShadows.e1,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

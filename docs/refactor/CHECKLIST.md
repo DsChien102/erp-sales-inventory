@@ -26,10 +26,10 @@
 
 | Mã | Màn | Route | Thao tác chính | Cũ | Mới | Ghi chú |
 |---|---|---|---|---|---|---|
-| APP-01 | Trang chủ (dashboard) | `/` | Mở được sau đăng nhập; điều hướng tab | ☐ | ☐ | |
-| APP-02 | Thêm → Thiết lập hệ thống | `/more/settings` | Liệt kê các mục thiết lập (có "Hóa đơn điện tử") | ☐ | ☐ | |
+| APP-01 | Trang chủ (dashboard) | `/` | Mở được sau đăng nhập; điều hướng tab | ☐ | ☑ | |
+| APP-02 | Thêm → Thiết lập hệ thống | `/more/settings` | Liệt kê các mục thiết lập (có "Hóa đơn điện tử") | ☐ | ☑ | |
 | APP-03 | Mức sẵn sàng | `/more/readiness` | Mở được, số liệu đúng | ☐ | ☐ | Bỏ ở app cửa hàng (2-B3). DB và màn platform để P3 |
-| APP-04 | Chọn cửa hàng / tổ chức | (sheet) | Đổi cửa hàng, dữ liệu tải lại theo cửa hàng | ☐ | ☐ | TH-01 ID-08 |
+| APP-04 | Chọn cửa hàng / tổ chức | (sheet) | Đổi cửa hàng, dữ liệu tải lại theo cửa hàng | ☐ | ☑ | TH-01 ID-08 |
 
 ## P2 — TH-01 Tổ chức và người dùng
 
