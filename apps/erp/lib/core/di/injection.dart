@@ -8,6 +8,7 @@ import '../../features/catalog/data/measurement_unit_repository.dart';
 import '../../features/catalog/data/product_price_repository.dart';
 import '../../features/catalog/data/product_repository.dart';
 import '../../features/dashboard/data/default_pair_repository.dart';
+import '../../features/dashboard/data/home_repository.dart';
 import '../../features/einvoice/data/einvoice_configuration_repository.dart';
 import '../../features/einvoice/data/einvoice_processor_trigger.dart';
 import '../../features/einvoice/data/einvoice_repository.dart';
@@ -209,6 +210,12 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     )
     ..registerLazySingleton<DefaultPairRepository>(
       () => DefaultPairRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<HomeRepository>(
+      () => HomeRepository(
         rpc: getIt<SupabaseRpc>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
       ),
