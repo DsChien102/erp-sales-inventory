@@ -687,7 +687,7 @@ Run: `cd apps/erp && flutter test test/features/assistant test/features/dashboar
 
 **Task 0 (code cũ, xanh trước khi sửa):** `home_tab_page_test.dart` 3/3 — `home shows "Đang tải…" while branch name is null`, `home shows "Chọn tổ chức" when blocked`, `tap branch name opens tenant selector`; còn xanh sau Task 4 (chỉ đổi cách dựng `HomeTabPage(repository: FakeHomeRepository())`).
 
-**Task 1 (SQL):** `20261127001_sales_home_summary.sql` (`sales._daily_revenue`, `sales.get_home_summary`), `REGISTRY.yaml`, `supabase/tests/home_summary.sql` (h1…h10, thêm h8b thành viên đã nghỉ bị chặn). **Chưa chạy `tools/db_check.sh home_summary`** — người dùng chạy; chưa commit tới khi xanh.
+**Task 1 (SQL):** `20261127001_sales_home_summary.sql` (`sales._daily_revenue`, `sales.get_home_summary`), `REGISTRY.yaml`, `supabase/tests/home_summary.sql` (h1…h10, thêm h8b thành viên đã nghỉ bị chặn). `tools/db_check.sh home_summary` (người dùng chạy 2026-11-24): lần 1 đỏ ở fixture h6 — ràng buộc `sales_payment_tx_offset_source_check` (offset chỉ đi với `return_exchange` / `receivable_offset`), sửa test giả lập đủ ba cột; lần 2 `--no-reset` **đạt** (`home_summary: OK`, plpgsql_check không lỗi mới, 2 nợ đã biết).
 
 **Lệnh sau khi sửa:**
 - `flutter test test/features/dashboard/data` 8/8; `test/features/dashboard/logic` 20/20.

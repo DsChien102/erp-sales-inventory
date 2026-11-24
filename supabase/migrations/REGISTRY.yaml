@@ -477,6 +477,7 @@ sales:
   _base_quantity_micros: 20260830012_sales_return_exchange_session_rpcs.sql
   _begin_sales_idempotency: 20260830006_sales_shared_rpc_helpers.sql
   _complete_sales_idempotency: 20260830006_sales_shared_rpc_helpers.sql
+  _daily_revenue: 20261127001_sales_home_summary.sql
   _draft_customer_snapshot: 20260830007_sales_draft_rpcs.sql
   _draft_payload: 20260830007_sales_draft_rpcs.sql
   _emit_sales_settlement_changed: 20261123001_receivable_move_money_tables.sql
@@ -504,6 +505,7 @@ sales:
   get_available_post_sale_actions: 20260830011_sales_adjustment_cancellation_rpcs.sql
   get_checkout_result: 20260830008_sales_checkout_rpcs.sql
   get_einvoice_source_snapshot: 20261031018_sales_einvoice_source_contract.sql
+  get_home_summary: 20261127001_sales_home_summary.sql
   get_order_integration_status: 20260830010_sales_inquiry_receipt_rpcs.sql
   get_return_exchange_detail: 20261124002_receivable_return_offsets.sql
   get_return_exchange_form_policy: 20260830012_sales_return_exchange_session_rpcs.sql
@@ -727,6 +729,7 @@ bootstrap_grandfathered:
   - 20261123001_receivable_move_money_tables.sql
   - 20261124001_receivable_customer_collections.sql
   - 20261124002_receivable_return_offsets.sql
+  - 20261127001_sales_home_summary.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
 #   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql
