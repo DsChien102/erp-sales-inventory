@@ -3,9 +3,9 @@
 //   apps/erp/lib/features/auth/logic/signup_cubit.dart (_accountErrors, _storeErrors)
 //   apps/erp/lib/core/widgets/address/{administrative_units_form_section.dart, vn_administrative_unit_picker_sheet.dart}
 //   bước 3 = VerifyEmailView (verify.js)
-// Scaffold nền surface + VAppBar('Đăng ký cửa hàng', nút ←) hết bề ngang; ListView đệm 16 trong cột 480.
+// Nền canvas + VAppBar('Đăng ký cửa hàng', nút ←) hết bề ngang; cột 520: thanh tiến độ, thẻ trắng chứa bước hiện tại.
 import { icon } from '../shared/icons.js';
-import { adaptiveSheet, appBar, banner, button, esc, field, fieldError, input, plainScaffold, steps } from './ds.js';
+import { adaptiveSheet, appBar, banner, button, esc, field, fieldError, input, progressBar } from './ds.js';
 import { verifyView } from './verify.js';
 
 export const STEP_TITLES = ['Tài khoản', 'Cửa hàng', 'Xác minh email'];
@@ -75,9 +75,7 @@ function accountStep(s) {
     ${f('Nhập lại mật khẩu', 'confirmPassword', (o) => input({ ...o, value: a.confirmPassword, hint: 'Nhập lại mật khẩu', password: true }))}
   </div>
   <div class="t1-gap-lg"></div>
-  ${button('Tiếp tục', { full: true })}
-  <div class="t1-gap-md"></div>
-  <div class="t1-center-row">${button('Đã có tài khoản? Đăng nhập', { variant: 'link' })}</div>`;
+  ${button('Tiếp tục', { full: true })}`;
 }
 
 /**
@@ -156,12 +154,17 @@ export function signupPage(v) {
   else if (s.step === 0) content = accountStep(s);
   else if (s.step === 1) content = storeStep(s);
   else content = verifyView(v, { state: s.verify, email: 'lan@anphat.vn', cooldown: 59 });
-  const body = `<div class="t1-list">
-    ${steps(STEP_TITLES, s.emailExists ? 1 : s.step)}
-    <div class="t1-gap-lg"></div>
-    ${s.failure ? `${banner('error', s.failure)}<div class="t1-gap-md"></div>` : ''}
-    ${content}
+  const cur = s.emailExists ? 1 : s.step;
+  // Thanh tiến độ 3 đoạn + thẻ trắng trên nền canvas; tiêu đề thẻ = tên bước. Chọn qua impeccable live (2026-11-24).
+  const body = `<div class="t1-stepcol">
+    ${progressBar(STEP_TITLES, cur)}
+    <div class="t1-stepcard">
+      <h2 class="t1-stepcard__title">${esc(STEP_TITLES[cur])}</h2>
+      ${s.failure ? `${banner('error', s.failure)}<div class="t1-gap-md"></div>` : ''}
+      ${content}
+    </div>
+    ${cur === 0 && !s.emailExists ? `<div class="t1-center-row t1-stepcol__after">${button('Đã có tài khoản? Đăng nhập', { variant: 'link' })}</div>` : ''}
   </div>`;
   const overlay = s.picker ? adaptiveSheet(v.width, pickerBody(s.picker, Math.round(v.height * 0.75)), 'Khu vực hành chính') : '';
-  return { page: plainScaffold({ appbar: appBar('Đăng ký cửa hàng', { back: true }), body, width: v.width }), overlay };
+  return { page: `<div class="t1-page t1-page--canvas">${appBar('Đăng ký cửa hàng', { back: true })}<div class="t1-scroll">${body}</div></div>`, overlay };
 }

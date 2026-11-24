@@ -48,21 +48,30 @@ export function field({ label, required = false, control, error = null, desc = n
 }
 
 /**
- * VVerificationCodeField: ô 48 × 56, khe 8; hẹp hơn thì ô co lại (cao max(48, rộng + 8), chữ headingH4).
+ * VVerificationCodeField: các ô chia đều bề ngang cột, khe 8; cao 56 (ô hẹp hơn 48 → cao max(48, rộng + 8), chữ 14).
  * Viền: borderInput; ô đang nhập (con trỏ) → primary + vòng 3 successBg.
  * VField(invalid): chỉ ô đang focus đổi viền danger + vòng dangerBg; các ô khác giữ borderInput (viền nghỉ chỉ đỏ khi có errorText kiểu cũ), chữ số không đỏ.
  */
 export function codeField({ length = 6, value = '', columnWidth, invalid = false, disabled = false, focus = true }) {
   const gap = 8;
-  const cellW = Math.min(48, (columnWidth - gap * (length - 1)) / length);
+  // Ô trải đều hết bề ngang cột (flex: 1); chiều cao theo bề rộng thực của ô.
+  const cellW = (columnWidth - gap * (length - 1)) / length;
   const cellH = cellW < 48 ? Math.max(48, cellW + 8) : 56;
   const at = Math.min(value.length, length - 1);
   const cells = Array.from({ length }, (_, i) => {
     const ch = value[i] || '';
     const isFocus = focus && !disabled && i === at;
-    return `<span class="t1-code__cell${isFocus ? ' is-focus' : ''}${isFocus && invalid ? ' is-danger' : ''}" style="width:${cellW}px;height:${cellH}px;font-size:${cellW < 48 ? 14 : 18}px">${esc(ch)}${isFocus && !ch ? '<i class="t1-code__caret"></i>' : ''}</span>`;
+    return `<span class="t1-code__cell${isFocus ? ' is-focus' : ''}${isFocus && invalid ? ' is-danger' : ''}" style="height:${cellH}px;font-size:${cellW < 48 ? 14 : 18}px">${esc(ch)}${isFocus && !ch ? '<i class="t1-code__caret"></i>' : ''}</span>`;
   }).join('');
   return `<div class="t1-code${disabled ? ' is-disabled' : ''}" role="group" aria-label="Mã ${length} ký tự">${cells}</div>`;
+}
+
+/** Thanh tiến độ các bước (đăng ký, đặt lại mật khẩu): mỗi bước một đoạn cao 4 (xong / đang: primary; chưa: borderDefault) + nhãn "n. Tên bước". */
+export function progressBar(titles, current) {
+  return `<ol class="t1-progress" style="grid-template-columns:repeat(${titles.length},1fr)" aria-label="${esc(`${current + 1}/${titles.length} · ${titles[current]}`)}">${titles.map((t, i) => {
+    const st = i < current ? 'done' : i === current ? 'active' : 'todo';
+    return `<li class="t1-progress__seg is-${st}"${i === current ? ' aria-current="step"' : ''}><i></i><span>${i + 1}. ${esc(t)}</span></li>`;
+  }).join('')}</ol>`;
 }
 
 /** VBanner: bo 12, viền 1 accent, đệm 16; icon 20 + khe 12 + tiêu đề labelDefault accent; mô tả bodySmall textPrimary lùi 32. */
@@ -141,6 +150,12 @@ export function adaptiveSheet(width, body, label, { title = '' } = {}) {
 
 /** Lớp phủ đang xử lý của ResetPasswordPage: surface 50% + VLoading 40. */
 export const busyOverlay = () => `<div class="t1-busy" role="progressbar" aria-label="Đang xử lý">${spinner('t1-spin--40')}</div>`;
+/**
+ * VSkeleton (c45_design_system/primitives/v_skeleton.dart): khối nền surfaceAlt bo 4 (VRadius.r4), hoặc tròn (VSkeleton.circle);
+ * nhấp nháy độ mờ 0.4 ↔ 0.8, 1 s easeInOut (VDuration.pulse); giảm chuyển động → đứng yên 0.5. Cả cụm chung một nhịp (VSkeletonScope).
+ */
+export const skeleton = ({ w = '100%', h = 14, circle = false } = {}) => `<span class="t1-skel${circle ? ' t1-skel--circle' : ''}" style="width:${typeof w === 'number' ? `${w}px` : w};height:${h}px"></span>`;
+
 export const centerLoading = () => `<div class="t1-center">${spinner('t1-spin--40')}</div>`;
 
 /**

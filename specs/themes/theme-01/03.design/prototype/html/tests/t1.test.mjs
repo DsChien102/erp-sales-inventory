@@ -50,9 +50,9 @@ test('form nhập mã lời mời', () => {
   assert.equal(entryFailureMessage('LẠ'), 'Không thể xác thực mã. Kiểm tra kết nối và thử lại.');
 });
 
-test('VVerificationCodeField co ô khi hẹp', () => {
-  assert.match(codeField({ length: 6, columnWidth: 448 }), /width:48px;height:56px/);
-  assert.match(codeField({ length: 8, columnWidth: 358 }), /width:37\.75px;height:48px/);
+test('VVerificationCodeField: ô chia đều cột, thấp lại khi ô hẹp', () => {
+  assert.match(codeField({ length: 6, columnWidth: 448 }), /style="height:56px;font-size:18px"/);
+  assert.match(codeField({ length: 8, columnWidth: 358 }), /style="height:48px;font-size:14px"/);
 });
 
 test('mọi màn có nhóm hợp lệ', () => {
@@ -70,17 +70,22 @@ test('mọi ca vẽ được; màn công khai mở ngoài khung (không thanh b�
 });
 
 // ---------------------------------------------------------------- đợt 2
-test('màn quản trị: web chia hai cột 360 | chi tiết, hẹp một màn', () => {
-  assert.match(render('users', 'members', 'web'), /t1-split__list" style="width:360px/);
-  assert.doesNotMatch(render('users', 'members', 'iphone'), /t1-split/);
-  assert.match(render('member-detail', 'active', 'web'), /t1-card t1-card--pad is-selected/); // thẻ đang mở được tô trong cột trái
+test('Người dùng / Vai trò: web là bảng toàn màn, chi tiết mở toàn màn (←)', () => {
+  const web = render('users', 'members', 'web');
+  assert.match(web, /class="t1-utable" role="table"/);
+  assert.doesNotMatch(web, /t1-split/);
+  assert.doesNotMatch(render('users', 'members', 'iphone'), /t1-utable|t1-split/);
+  const detail = render('member-detail', 'active', 'web');
+  assert.doesNotMatch(detail, /t1-split/);
+  assert.match(detail, /t1-appbar__back/);
+  assert.match(render('roles', 'list', 'web'), /aria-label="Vai trò hệ thống"/);
+  assert.doesNotMatch(render('roles', 'detail', 'web'), /t1-split/);
 });
 
-test('toast của chi tiết nằm trong cột phải (ScaffoldMessenger gốc), danh sách có messenger riêng', () => {
+test('toast của chi tiết thành viên nằm trong màn chi tiết (web toàn màn)', () => {
   const html = render('member-detail', 'toast-deactivated', 'web');
-  const right = html.slice(html.indexOf('t1-split__detail'));
-  assert.match(right, /t1-toast/);
-  assert.doesNotMatch(html.slice(0, html.indexOf('t1-split__detail')), /t1-toast/);
+  assert.match(html, /Chi tiết thành viên/);
+  assert.match(html, /t1-toast/);
 });
 
 test('VPageScaffold mặc định: cột 720 (web toàn màn) / 640 (cột phải 919) / không giới hạn (iPhone)', async () => {
@@ -90,10 +95,14 @@ test('VPageScaffold mặc định: cột 720 (web toàn màn) / 640 (cột phả
   assert.equal(columnMax(390), Infinity);
 });
 
-test('chủ sở hữu duy nhất / đã loại: không có thanh Thao tác', () => {
-  assert.doesNotMatch(render('member-detail', 'owner', 'iphone'), /t1-bottombar/);
-  assert.doesNotMatch(render('member-detail', 'removed', 'iphone'), /t1-bottombar/);
-  assert.match(render('member-detail', 'active', 'iphone'), /t1-bottombar/);
+test('chi tiết thành viên: nút thao tác nằm trong khối; chủ sở hữu duy nhất / đã loại không có nút', () => {
+  assert.doesNotMatch(render('member-detail', 'owner', 'iphone'), /t1-invacts/);
+  assert.doesNotMatch(render('member-detail', 'removed', 'iphone'), /t1-invacts/);
+  const active = render('member-detail', 'active', 'iphone');
+  assert.match(active, /t1-invacts/);
+  assert.match(active, /Tạm ngừng thành viên/);
+  assert.match(render('member-detail', 'suspended', 'iphone'), /Kích hoạt lại/);
+  assert.doesNotMatch(active, /t1-bottombar/);
 });
 
 // ---------------------------------------------------------------- đợt 3

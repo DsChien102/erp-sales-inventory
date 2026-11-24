@@ -5,7 +5,7 @@
 // Sửa thông tin mở bằng Navigator.push (không có route riêng); ID-23 (đặt lại mật khẩu) đã vẽ ở đợt 1 (reset/from-account).
 import { icon } from '../shared/icons.js';
 import { loadFailed } from './org.js';
-import { button, centerLoading, confirmDialog, esc, field, input, toast, vcard, vScaffold, adaptiveSheet } from './ds.js';
+import { button, iconButton, centerLoading, confirmDialog, esc, field, input, toast, vcard, vScaffold, adaptiveSheet } from './ds.js';
 
 export const ME = { lastName: 'Nguyễn Thị', firstName: 'Lan', email: 'lan@anphat.vn', emailStatus: 'Đã xác minh', phone: '0912 345 678' };
 /** VAvatar._initialsFrom: nhiều từ → chữ đầu từ đầu + chữ đầu từ cuối, viết hoa. */
@@ -15,31 +15,19 @@ export const initials = (name) => {
   return (w.length === 1 ? w[0][0] : w[0][0] + w[w.length - 1][0]).toUpperCase();
 };
 
-/**
- * bottomBar tự vẽ: Container đệm 16 + nền surface + gạch trên 1 (chồng gạch của VPageScaffold) + SafeArea → cao 78.
- * "Thao tác" primary tone primary; mũi tên ⌃ đổi thành ⌄ khi sheet đang mở.
- */
+/** Thanh dưới tự vẽ của ID-22: cao 78 (toast nổi trên). */
 const BAR2 = 78;
-const actionBar = (open) => `<div class="t1-bar-pad t1-bar-line">${button('Thao tác', { full: true, trailing: open ? 'chevronDown' : 'chevronUp' })}</div>`;
 
 /** _buildInfoRow: đệm dọc 8; nhãn bodyDefault textSecondary, khe 8, giá trị bodyDefault w700 phải; rỗng → "(chưa có)" textMuted w thường. */
 const infoRow = (l, val) => `<div class="t1-acrow"><span>${esc(l)}</span><b${val ? '' : ' class="is-empty"'}>${esc(val || '(chưa có)')}</b></div>`;
 
 export const ACCOUNT_STATES = {
   owner: {}, staff: { staff: true }, 'no-phone': { me: { phone: '' } }, loading: { loading: true }, error: { error: true },
-  actions: { sheet: 'actions' }, logout: { sheet: 'logout' },
+  logout: { sheet: 'logout' },
   'toast-updated': { toast: ['success', 'Thành công', 'Đã cập nhật thông tin cá nhân'] },
   'toast-logout-failed': { toast: ['danger', 'Đăng xuất thất bại', 'Không thể đóng phiên trên máy.'] },
 };
 
-/** Sheet "Thao tác tài khoản" (không tiêu đề sheet): đệm 16 / 16; H3 w700; khe 16; 2 VCard (icon 20 + khe 12) + hộp Đăng xuất đỏ, cách 8; khe 24. */
-function actionsSheet() {
-  const opt = (ic, t, sub, danger = false) => `<div class="t1-card t1-card--pad t1-optcard t1-optcard--12${danger ? ' t1-optcard--danger' : ''}">${icon(ic)}<div><b>${esc(t)}</b><span>${esc(sub)}</span></div>${icon('chevronRight', 't1-optcard__chev')}</div>`;
-  return `<div class="t1-list"><h2 class="t1-h3">Thao tác tài khoản</h2><div class="t1-gap-md"></div>
-    ${opt('edit', 'Chỉnh sửa thông tin cá nhân', 'Cập nhật hồ sơ cá nhân')}<div class="t1-gap-sm"></div>
-    ${opt('lock', 'Đặt lại mật khẩu', 'Xác minh email và tạo mật khẩu mới')}<div class="t1-gap-sm"></div>
-    ${opt('logout', 'Đăng xuất', 'Kết thúc phiên sử dụng hiện tại', true)}<div class="t1-gap-lg"></div></div>`;
-}
 /** Sheet đăng xuất: đệm 16 / 16; H3 w700 danger; khe 4; bodySmall; khe 32; hai nút large (52) chia đôi khe 8; khe 16. */
 const logoutSheet = () => `<div class="t1-list"><h2 class="t1-h3 t1-danger">Đăng xuất khỏi Mosaic Retail?</h2><div class="t1-gap-xs"></div>
   <p class="t1-small">Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng ứng dụng.</p><div class="t1-gap-xl"></div>
@@ -51,14 +39,23 @@ export function accountPage(v) {
   if (s.loading) return { page: vScaffold({ ...base, body: centerLoading(), fixed: true }) };
   if (s.error) return { page: vScaffold({ ...base, body: loadFailed('Không tải được hồ sơ', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.'), fixed: true }) };
   const me = { ...ME, ...s.me };
-  const body = `<div class="t1-list">
-    ${vcard(`<div class="t1-mehead"><span class="t1-mehead__ic">${icon('user')}</span><div><h2 class="t1-h4">${esc(`${me.lastName} ${me.firstName}`)}</h2><p class="t1-small t1-mt-xs">Tài khoản cá nhân</p></div>${s.staff ? '' : '<span class="t1-badge t1-badge--success t1-badge--md">Chủ sở hữu</span>'}</div>`)}
-    <div class="t1-gap-md"></div>
-    ${vcard(`<h2 class="t1-h4">Thông tin cá nhân</h2><div class="t1-gap-md"></div>${infoRow('Họ và tên đệm', me.lastName)}${infoRow('Tên', me.firstName)}${infoRow('Email đăng nhập', me.email)}${infoRow('Trạng thái email', me.emailStatus)}${infoRow('Số điện thoại', me.phone)}`)}
-    <div class="t1-gap-xl"></div></div>`;
-  const page = vScaffold({ ...base, body, bottomBar: actionBar(!!s.sheet), toastHtml: s.toast ? toast(...s.toast, { device: v.device, above: BAR2 }) : '' });
-  const overlay = s.sheet === 'actions' ? adaptiveSheet(v.width, actionsSheet(), 'Thao tác tài khoản') : s.sheet === 'logout' ? adaptiveSheet(v.width, logoutSheet(), 'Đăng xuất') : '';
-  return { page, overlay };
+  // Thiết kế lại qua impeccable live (2026-11-24): web ≥ 900 hai cột — trái thẻ hồ sơ (chữ viết tắt 72, tên, email, nhãn Chủ sở hữu, "Đăng xuất");
+  // phải "Thông tin cá nhân" (nút bút chì) + "Bảo mật" (Đặt lại mật khẩu). Hẹp: xếp dọc. Không còn thanh "Thao tác" / sheet.
+  const name = `${me.lastName} ${me.firstName}`;
+  const sec = (title, action, inner) => `<section class="t1-orgsec"><div class="t1-orgsec__head"><h2>${esc(title)}</h2>${action}</div>${inner}</section>`;
+  const body = `<div class="t1-orgp"><div class="t1-acgrid">
+    <div class="t1-accard"><span class="t1-avatar t1-avatar--xl" aria-hidden="true">${esc(initials(name))}</span><h1>${esc(name)}</h1><p>${esc(me.email)}</p>
+      ${s.staff ? '' : '<span class="t1-badge t1-badge--success">Chủ sở hữu</span>'}
+      <div class="t1-accard__out">${button('Đăng xuất', { variant: 'secondary', full: true, cls: 't1-btn--danger-outline' })}</div></div>
+    <div class="t1-acright">
+      ${sec('Thông tin cá nhân', iconButton('edit', 'Chỉnh sửa thông tin cá nhân', { size: 20 }), `<div class="t1-stack4">${infoRow('Họ và tên đệm', me.lastName)}${infoRow('Tên', me.firstName)}${infoRow('Email đăng nhập', me.email)}${infoRow('Trạng thái email', me.emailStatus)}${infoRow('Số điện thoại', me.phone)}</div>`)}
+      ${sec('Bảo mật', '', `<div class="t1-acpw"><div><b>Đặt lại mật khẩu</b><p class="t1-small">Xác minh email và tạo mật khẩu mới</p></div>${button('Đặt lại mật khẩu', { variant: 'secondary' })}</div>`)}
+    </div></div></div>`;
+  const page = vScaffold({ ...base, body, toastHtml: s.toast ? toast(...s.toast, { device: v.device, above: 0 }) : '' });
+  // Web cần cột rộng hơn 720 cho hai cột.
+  const wide = v.width >= 900 ? page.replace(/(<div class="t1-col" style=")[^"]*(")/, '$1max-width:1040px$2') : page;
+  const overlay = s.sheet === 'logout' ? adaptiveSheet(v.width, logoutSheet(), 'Đăng xuất') : '';
+  return { page: wide, overlay };
 }
 
 // ---------------------------------------------------------------- ID-22
@@ -79,18 +76,19 @@ export function editAccountPage(v) {
   if (s.error) return { page: vScaffold({ ...base, body: loadFailed('Không tải được hồ sơ', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.'), fixed: true }) };
   const x = { last: ME.lastName, first: ME.firstName, phone: ME.phone, ...s.values };
   const e = s.errors || {};
-  // VAvatar 48 (nền successBg, chữ success, cỡ 16.8) — thẻ có mũi tên nhưng không có onTap.
-  const body = `<div class="t1-list">
-    ${vcard(`<div class="t1-mehead"><span class="t1-avatar48">${esc(initials(`${ME.lastName} ${ME.firstName}`))}</span><div><h2 class="t1-h4">Ảnh đại diện</h2><p class="t1-small t1-mt-xs">Chạm để thay hoặc xóa ảnh</p></div>${icon('chevronRight', 't1-chev20')}</div>`)}
-    <div class="t1-gap-lg"></div>
+  // Thiết kế lại qua impeccable live (2026-11-24): cột 560, một thẻ — dòng "Ảnh đại diện" (chữ viết tắt 48 + mô tả + mũi tên) → gạch → 4 ô xếp dọc.
+  const body = `<div class="t1-formpage"><div class="t1-formcard">
+    <button type="button" class="t1-avrow"><span class="t1-avatar t1-avatar--lg" aria-hidden="true">${esc(initials(`${ME.lastName} ${ME.firstName}`))}</span><span><b>Ảnh đại diện</b><small>Chạm để thay hoặc xóa ảnh</small></span>${icon('chevronRight', 't1-chev20')}</button>
+    <hr class="t1-avsep">
     <div class="t1-form">
       ${field({ label: 'Họ và tên đệm', required: true, control: input({ value: x.last, hint: 'Nhập họ và tên đệm', invalid: !!e.last }), error: e.last })}
       ${field({ label: 'Tên', required: true, control: input({ value: x.first, hint: 'Nhập tên', invalid: !!e.first }), error: e.first })}
       ${/* VField ngoài không invalid → ô số điện thoại không đổi viền đỏ dù có lỗi */ ''}${field({ label: 'Số điện thoại', control: input({ value: x.phone, hint: 'Nhập số điện thoại' }), error: e.phone })}
       ${field({ label: 'Email đăng nhập', control: input({ value: ME.email, disabled: true }) })}
-    </div><div class="t1-gap-xl"></div></div>`;
+    </div></div></div>`;
   // Lưu: tắt khi chưa đổi gì; đang lưu → chữ "Đang lưu..." + tắt (không vòng xoay).
   const bar = `<div class="t1-bar-pad t1-bar-line t1-row2 t1-row2--8">${button('Hủy', { variant: 'secondary', full: true, disabled: !!s.busy })}${button(s.busy ? 'Đang lưu...' : 'Lưu thay đổi', { full: true, disabled: !s.dirty || !!s.busy })}</div>`;
   const page = vScaffold({ ...base, body, bottomBar: bar, toastHtml: s.toast ? toast(...s.toast, { device: v.device, above: BAR2 }) : '' });
-  return { page, overlay: s.dialog ? confirmDialog(DISCARD) : '' };
+  const narrow = v.width >= 600 ? page.replace(/(<div class="t1-col" style=")[^"]*(")/g, '$1max-width:560px$2') : page;
+  return { page: narrow, overlay: s.dialog ? confirmDialog(DISCARD) : '' };
 }

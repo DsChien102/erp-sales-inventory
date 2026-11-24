@@ -93,14 +93,12 @@ export const SCREENS = [
   // ================================================================ đợt 2 — quản trị (mọi route ngoài StoreShell: web không có thanh bên)
   {
     id: 'org-profile', group: 'admin', code: 'ID-11', title: 'Hồ sơ tổ chức', route: '/more/organization-profile', states: [
-      ['no-legal', 'Chưa có hồ sơ pháp lý', 'Banner info + link "Bổ sung"; ba thẻ (tên, thông tin, pháp lý); hộp vàng "Chưa có hồ sơ pháp lý". Nút "Thao tác ⌃" ở thanh dưới. Web: toàn màn, cột 720, không thanh bên.'],
-      ['with-legal', 'Đã có hồ sơ pháp lý', 'Không banner; thẻ pháp lý 4 dòng. Địa chỉ đăng ký dài xuống dòng canh phải.'],
+      ['no-legal', 'Chưa có hồ sơ pháp lý', 'Đầu trang (tên + email · điện thoại); khối Thông tin (nút bút chì); khối Pháp lý: hộp vàng + "Thêm hồ sơ pháp lý". Không banner, không thanh dưới. Web: cột 720.'],
+      ['with-legal', 'Đã có hồ sơ pháp lý', 'Khối pháp lý 4 dòng + nút bút chì. Địa chỉ đăng ký dài xuống dòng canh phải.'],
       ['loading', 'Đang tải', 'VLoading 40 giữa màn.'],
       ['error', 'Lỗi tải', '"Không tải được hồ sơ" + câu lỗi + "Thử lại" giữa màn.'],
       ['forbidden', 'Không có quyền', 'OrganizationEmptyView: "Không có quyền xem tổ chức" — câu "…quản lý tổ chức nền tảng" còn sót từ quản trị nền tảng.'],
-      ['actions', 'Sheet Thao tác', 'Không tiêu đề sheet; tự vẽ "Thao tác hồ sơ" + 2 thẻ. Web: hộp thoại 480, hai lớp đệm.'],
-      ['actions-legal', 'Sheet Thao tác (đã có pháp lý)', 'Thẻ 2 đổi thành "Chỉnh sửa hồ sơ pháp lý".'],
-      ['toast-saved', 'Toast đã lưu thông tin', 'Quay về sau khi sửa: toast chỉ hiện câu message, nổi trên thanh dưới; web kéo hết 1280.'],
+      ['toast-saved', 'Toast đã lưu thông tin', 'Quay về sau khi sửa: toast chỉ hiện câu message, sát đáy màn; web kéo hết 1280.'],
       ['toast-legal-saved', 'Toast đã lưu pháp lý', 'message rỗng → hiện title "Đã lưu hồ sơ pháp lý."'],
     ],
   },
@@ -109,7 +107,7 @@ export const SCREENS = [
       ['filled', 'Mặc định (điền sẵn)', 'Câu dẫn bodySmall; 4 ô bắt buộc; tỉnh / xã không bắt buộc (không *), viền nhạt hơn ô nhập. Thanh dưới Hủy | Lưu thay đổi.'],
       ['errors', 'Bấm Lưu khi thiếu', 'Lỗi dưới từng ô; "Tên hiển thị." bị lỗi thay chỗ.'],
       ['submitting', 'Đang lưu', '"Lưu thay đổi" vòng xoay, "Hủy" mờ; các ô vẫn sửa được.'],
-      ['discard', 'Rời khi đã sửa', 'VConfirmDialog "Bỏ thay đổi?" — Dialog Material không giới hạn rộng: web rộng 1200 (cửa sổ − 80), hai nút dồn phải.'],
+      ['discard', 'Rời khi đã sửa', 'VConfirmDialog "Bỏ thay đổi?" — hộp rộng tối đa 440 giữa màn, hai nút dồn phải.'],
       ['toast-state-changed', 'Dữ liệu đã thay đổi', 'Toast vàng (chỉ câu message), vẫn ở lại form.'],
       ['toast-failed', 'Lỗi lưu', 'Toast đỏ "Không thể kết nối…".'],
       ['loading', 'Đang tải', 'VLoading giữa màn.'],
@@ -117,9 +115,9 @@ export const SCREENS = [
   },
   {
     id: 'org-legal', group: 'admin', code: 'ID-13', title: 'Hồ sơ pháp lý', route: '/more/organization-profile/legal', states: [
-      ['add-empty', 'Thêm mới', 'Tiêu đề "Thêm hồ sơ pháp lý"; "Loại chủ thể" là VSelect, không có * dù bắt buộc; mô tả mã số thuế.'],
+      ['add-empty', 'Thêm mới', 'Tiêu đề "Thêm hồ sơ pháp lý"; "Loại chủ thể" là VSelect, không có * dù bắt buộc; ô mã số thuế không có dòng mô tả.'],
       ['add-errors', 'Bấm Lưu khi trống', 'Lỗi dưới 3 ô (cả "Loại chủ thể" không có *) + toast đỏ "Vui lòng điền đầy đủ…" — báo hai lần.'],
-      ['add-tax-format', 'Mã số thuế sai dạng', 'Câu lỗi dài thay dòng mô tả; vẫn kèm toast "Thiếu thông tin" dù không thiếu.'],
+      ['add-tax-format', 'Mã số thuế sai dạng', 'Câu lỗi dài dưới ô mã số thuế; vẫn kèm toast "Thiếu thông tin" dù không thiếu.'],
       ['edit-filled', 'Chỉnh sửa', 'Tiêu đề "Chỉnh hồ sơ pháp lý", điền sẵn.'],
       ['submitting', 'Đang lưu', '"Lưu hồ sơ" vòng xoay.'],
       ['duplicate', 'Mã số thuế trùng (sheet)', 'Sheet cảnh báo: tiêu đề, câu, hộp vàng, "Vẫn lưu" / "Kiểm tra lại".'],
@@ -159,12 +157,11 @@ export const SCREENS = [
   },
   {
     id: 'invitation-detail', group: 'admin', code: 'ID-16', title: 'Chi tiết lời mời', route: '/more/users/invitations/i1', states: [
-      ['pending', 'Đang chờ', 'Một thẻ: email + nhãn, dòng trạng thái, "Giao nhận: sent" (giá trị thô). Thanh dưới hai gạch chồng. Web: cột phải, danh sách tab Lời mời có thẻ được chọn.'],
-      ['delivery-failed', 'Gửi email lỗi', 'Nhãn đỏ "Lỗi gửi", "Giao nhận: failed".'],
-      ['expired', 'Hết hạn', '"Trạng thái: expired" (thô); không có thanh thao tác.'],
+      ['pending', 'Đang chờ', 'Đầu trang (chữ viết tắt + email + hạn); khối "Thông tin lời mời" + nhãn; Vai trò ban đầu / Trạng thái / Giao nhận; "Gửi lại lời mời" + "Thu hồi lời mời" cuối khối. Web: toàn màn có ←.'],
+      ['delivery-failed', 'Gửi email lỗi', 'Nhãn đỏ "Lỗi gửi", Giao nhận "Chưa gửi được email".'],
+      ['expired', 'Hết hạn', 'Nhãn "Hết hạn"; không có nút thao tác.'],
       ['loading', 'Đang tải', 'VLoading.'],
       ['error', 'Lỗi tải', '"Không tải được lời mời".'],
-      ['actions', 'Sheet Thao tác', 'Có tiêu đề "Thao tác lời mời"; ô "Gửi lại" và ô đỏ "Thu hồi".'],
       ['revoke', 'Sheet Thu hồi', 'Tiêu đề đỏ; ô lý do dính sát câu mô tả (không khe); "Thu hồi lời mời" viền đỏ dưới "Quay lại".'],
       ['revoke-empty', 'Thu hồi khi trống lý do', 'Lỗi "Vui lòng nhập lý do thu hồi." (nhãn không có * dù bắt buộc).'],
       ['revoke-submitting', 'Đang thu hồi', 'Ô lý do và "Quay lại" mờ, nút đỏ vòng xoay.'],
@@ -177,19 +174,17 @@ export const SCREENS = [
   },
   {
     id: 'member-detail', group: 'admin', code: 'ID-17', title: 'Chi tiết thành viên', route: '/more/users/members/m2', states: [
-      ['active', 'Hoạt động', 'Hai thẻ; "Danh tính: Chỉ đọc" cho mọi thành viên không phải chủ (dễ hiểu nhầm là quyền). Thao tác ⌃.'],
-      ['suspended', 'Tạm ngừng', 'Banner vàng giữa hai thẻ; "Tạm ngừng lúc".'],
-      ['removed', 'Đã loại', 'Thẻ đầu mờ 60%; banner info; không thanh thao tác.'],
-      ['owner', 'Chủ sở hữu duy nhất', '"Quyền sở hữu: Chủ sở hữu"; không có thanh thao tác.'],
+      ['active', 'Hoạt động', 'Đầu trang (chữ viết tắt + tên + email · vai trò); khối Thông tin (+ nhãn); khối Trạng thái truy cập + 3 nút: Thay đổi vai trò, Tạm ngừng thành viên, Loại khỏi tổ chức (đỏ). "Danh tính: Chỉ đọc" vẫn dễ hiểu nhầm là quyền.'],
+      ['suspended', 'Tạm ngừng', 'Banner vàng giữa hai khối; "Tạm ngừng lúc"; nút giữa đổi thành "Kích hoạt lại".'],
+      ['removed', 'Đã loại', 'Đầu trang và khối đầu mờ 60%; banner info; không có nút thao tác.'],
+      ['owner', 'Chủ sở hữu duy nhất', '"Quyền sở hữu: Chủ sở hữu"; không có nút thao tác.'],
       ['loading', 'Đang tải', 'VLoading.'],
       ['error', 'Lỗi tải', '"Không tải được thành viên".'],
-      ['actions', 'Sheet Thao tác (hoạt động)', 'Đổi vai trò, Tạm ngừng, Loại (đỏ).'],
-      ['actions-suspended', 'Sheet Thao tác (tạm ngừng)', 'Đổi vai trò, Kích hoạt lại, Loại.'],
       ['deactivate', 'Xác nhận tạm ngừng', 'Tiêu đề đỏ; nút "Tạm ngừng" viền đỏ (không nền).'],
       ['reactivate', 'Xác nhận kích hoạt lại', 'Tiêu đề đen; nút xanh.'],
       ['remove', 'Xác nhận loại', 'Tiêu đề đỏ, nút viền đỏ.'],
       ['remove-submitting', 'Đang loại', 'Vòng xoay trong nút đỏ, "Quay lại" mờ.'],
-      ['toast-deactivated', 'Đã tạm ngừng', 'Toast ở trang chi tiết (web: trong cột phải), trên thanh thao tác.'],
+      ['toast-deactivated', 'Đã tạm ngừng', 'Toast ở trang chi tiết, sát đáy màn.'],
       ['toast-role-changed', 'Đã đổi vai trò', 'Toast thành công.'],
       ['toast-last-owner', 'Chủ sở hữu cuối cùng', 'Toast vàng "Không thể thực hiện vì đây là chủ sở hữu cuối cùng."'],
     ],
@@ -203,18 +198,18 @@ export const SCREENS = [
   },
   {
     id: 'roles', group: 'admin', code: 'ID-19', title: 'Vai trò', route: '/more/roles', states: [
-      ['list', 'Danh mục', '4 thẻ; có người giữ → nhãn "Đang dùng" thay mũi tên (thẻ trông như không bấm được); mô tả "Chủ cửa hàng" lộ ghi chú kỹ thuật "(gán mặc định cho Owner… BR-36)".'],
-      ['loading', 'Đang tải', 'Không có vòng xoay: "0 vai trò hệ thống" + danh sách trống.'],
+      ['list', 'Danh mục', 'Web: bảng toàn màn (Vai trò hệ thống | Thành viên đang giữ vai trò). Hẹp: 4 thẻ; có người giữ → nhãn "Đang dùng" thay mũi tên. Mô tả bỏ ghi chú kỹ thuật trong ngoặc.'],
+      ['loading', 'Đang tải', 'Web: skeleton 4 dòng bảng. Hẹp: "0 vai trò hệ thống" + danh sách trống.'],
       ['failed', 'Lỗi tải', 'Thẻ giữa màn, tiêu đề đỏ, link "Thử lại" (xanh).'],
-      ['detail', 'Chi tiết vai trò', 'Thẻ + "Thành viên đang giữ vai trò" (tên trần, không thẻ). Web: cột phải, thẻ được chọn bên trái.'],
+      ['detail', 'Chi tiết vai trò', 'Thẻ + "Thành viên đang giữ vai trò" (tên trần, không thẻ). Web: toàn màn có ←.'],
       ['detail-empty', 'Chi tiết · chưa ai giữ', '"Chưa có thành viên đang giữ vai trò này."'],
     ],
   },
   {
     id: 'audit', group: 'admin', code: 'ID-20', title: 'Lịch sử quản trị', route: '/more/audit-logs', states: [
-      ['list', 'Danh sách', 'Scaffold thường nền xám (không cột tối đa); dòng 3 mỗi thẻ "Loại đối tượng: Trần Văn Minh" (nhãn là loại nhưng giá trị là tên). "Tải thêm" cuối danh sách.'],
+      ['list', 'Danh sách', 'Web: bảng toàn màn (Hoạt động | Người thực hiện | Đối tượng | Thời điểm) + "Tải thêm". Hẹp: thẻ, dòng 3 "<loại đối tượng>: <tên>" (vd. "Thành viên: Trần Văn Minh").'],
       ['chip-member', 'Chip Thành viên', 'Không có chip "Lời mời" dù có sự kiện lời mời.'],
-      ['loading', 'Đang tải', 'VLoading dưới phần đầu.'],
+      ['loading', 'Đang tải', 'Web: skeleton 5 dòng bảng. Hẹp: VLoading dưới phần đầu.'],
       ['empty', 'Chưa có hoạt động', 'Thẻ trống lệch lên trên (Align −0.75).'],
       ['no-results', 'Không có kết quả', '"Không có hoạt động phù hợp" + "Xóa bộ lọc".'],
       ['error', 'Lỗi tải', 'Tiêu đề đỏ, link "Thử lại".'],
@@ -225,7 +220,7 @@ export const SCREENS = [
   },
   {
     id: 'audit-detail', group: 'admin', code: 'ID-20', title: 'Chi tiết hoạt động', route: '/more/audit-logs/a1', states: [
-      ['detail', 'Chi tiết', 'AppBar Material (tiêu đề 14 nhỏ hơn mọi màn khác, không gạch dưới); mã sự kiện thô "iam.membership.role_changed"; "Loại chủ thể: Chủ cửa hàng" là vai trò; thẻ thay đổi không có tiêu đề. Web: thẻ kéo hết cột phải (không cột tối đa).'],
+      ['detail', 'Chi tiết', 'Cột 720: đầu trang (biểu tượng + tên hoạt động + người · thời điểm + "Thành công"); một thẻ 4 phần: Thay đổi (Trước → Sau), Ngữ cảnh, Đối tượng, Thông tin truy vết (+ mã sự kiện thô chữ nhỏ). "Loại chủ thể: Chủ cửa hàng" vẫn là vai trò. Web: toàn màn có ←.'],
       ['actor-unavailable', 'Không còn người thực hiện', 'Nhãn "Không còn dữ liệu" + thẻ vàng.'],
       ['loading', 'Đang tải', 'VLoading.'],
       ['not-found', 'Không tìm thấy', '"Không tìm thấy hoạt động" + "Thử lại".'],
@@ -235,14 +230,13 @@ export const SCREENS = [
   // ================================================================ đợt 3 — tài khoản (ID-23 đã vẽ ở đợt 1: reset / from-account)
   {
     id: 'account', group: 'account', code: 'ID-21', title: 'Tài khoản của tôi', route: '/more/my-account', states: [
-      ['owner', 'Chủ sở hữu', 'Thẻ đầu: hộp icon 40 + tên + "Tài khoản cá nhân" + nhãn "Chủ sở hữu" (cỡ thường); thẻ 5 dòng. "Thao tác ⌃" ở thanh dưới có hai gạch trên. Web: toàn màn, cột 720, không thanh bên.'],
+      ['owner', 'Chủ sở hữu', 'Web hai cột: thẻ hồ sơ (chữ viết tắt NL, tên, email, nhãn Chủ sở hữu, "Đăng xuất" viền đỏ) | "Thông tin cá nhân" (bút chì) + "Bảo mật" (Đặt lại mật khẩu). Hẹp: xếp dọc. Không thanh dưới.'],
       ['staff', 'Thành viên thường', 'Không có nhãn; không có dòng vai trò / tổ chức nào trên màn.'],
       ['no-phone', 'Chưa có số điện thoại', '"(chưa có)" màu nhạt.'],
       ['loading', 'Đang tải', 'VLoading giữa màn.'],
       ['error', 'Lỗi tải', '"Không tải được hồ sơ" + "Thử lại".'],
-      ['actions', 'Sheet Thao tác', 'Mũi tên nút đổi ⌄; 3 thẻ: sửa, đặt lại mật khẩu, Đăng xuất (hộp đỏ). Web: hộp thoại 480, hai lớp đệm.'],
       ['logout', 'Xác nhận đăng xuất', 'Tiêu đề đỏ; hai nút large 52 chia đôi (các sheet khác dùng nút 44 xếp dọc).'],
-      ['toast-updated', 'Đã cập nhật', 'Toast "Đã cập nhật thông tin cá nhân" trên thanh dưới.'],
+      ['toast-updated', 'Đã cập nhật', 'Toast "Đã cập nhật thông tin cá nhân" sát đáy màn.'],
       ['toast-logout-failed', 'Đăng xuất thất bại', 'Toast đỏ "Không thể đóng phiên trên máy."'],
     ],
   },
@@ -252,7 +246,7 @@ export const SCREENS = [
       ['changed', 'Đã sửa', '"Lưu thay đổi" bật.'],
       ['errors', 'Lỗi', 'Hai ô tên viền đỏ; số điện thoại sai chỉ có dòng lỗi, viền ô không đỏ.'],
       ['submitting', 'Đang lưu', '"Đang lưu..." mờ, không vòng xoay; các ô vẫn sửa được.'],
-      ['discard', 'Rời khi đã sửa', 'Hộp thoại "Bỏ thay đổi?" (web rộng 1200).'],
+      ['discard', 'Rời khi đã sửa', 'Hộp thoại "Bỏ thay đổi?" (rộng tối đa 440).'],
       ['toast-failed', 'Lỗi lưu', 'Toast đỏ "Không lưu được" (chỉ câu message).'],
       ['loading', 'Đang tải', 'VLoading.'],
       ['error', 'Lỗi tải', '"Không tải được hồ sơ" + "Thử lại".'],

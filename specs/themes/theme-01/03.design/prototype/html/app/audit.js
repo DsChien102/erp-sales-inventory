@@ -1,10 +1,10 @@
 // ID-20 Lịch sử quản trị (danh sách + chi tiết). Chép từ apps/erp/lib/features/iam/presentation/audit_logs/{audit_area_shell.dart,
 //   views/organization_audit_logs_page.dart, views/audit_log_detail_page.dart, widgets/*.dart, mappers/tenant_audit_ui_mapper.dart}.
-// /more/audit-logs(/:id): ShellRoute riêng (AuditAreaShell → VListDetailLayout), ngoài StoreShell.
+// /more/audit-logs(/:id): ngoài StoreShell. Web (thiết kế lại qua impeccable live 2026-11-24): bảng toàn màn, chi tiết toàn màn có ←.
 // Khác các màn IAM khác: danh sách là Scaffold thường (nền surfaceAlt, không cột tối đa); chi tiết dùng AppBar Material (không VAppBar).
 import { icon } from '../shared/icons.js';
 import { AUDIT, AUDIT_TOTAL, TRACE_ID } from './admin-data.js';
-import { adaptiveSheet, appBar, badge, button, centerLoading, chip, chipRow, esc, iconButton, isSplit, listDetail, searchBar, splitPlaceholder, toast, vcard } from './ds.js';
+import { adaptiveSheet, appBar, badge, button, centerLoading, chip, chipRow, esc, iconButton, isSplit, searchBar, skeleton, toast, vcard } from './ds.js';
 
 export const AUDIT_STATES = {
   list: {}, 'chip-member': { category: 'Thành viên' }, loading: { loading: true }, empty: { empty: true }, 'no-results': { query: 'xoá dữ liệu', noResults: true },
@@ -16,7 +16,7 @@ export const AUDIT_DETAIL_STATES = { detail: { id: 'a1' }, 'actor-unavailable': 
 const auditCard = (a, selected) => vcard(`<div class="t1-arow">${icon(a.icon, 't1-arow__ic')}<div class="t1-arow__text">
   <div class="t1-arow__title"><b>${esc(a.title)}</b>${a.legacy ? badge('Thông tin hiện tại', 'neutral') : ''}</div>
   <span>${esc(a.actorRole && a.actorRole !== '—' ? `${a.actor} (${a.actorRole}) · ${a.at}` : `${a.actor} · ${a.at}`)}</span>
-  <span>${esc(`Loại đối tượng: ${a.subject}`)}</span></div></div>`, { selected, keepBg: true });
+  <span>${esc(`${a.subjectType}: ${a.subject}`)}</span></div></div>`, { selected, keepBg: true });
 
 /** AuditLogEmptyView: Align(0, −0.75); đệm ngang 16; VCard đệm 24; vòng 64 + icon 28; khe 16; H3 w700; khe 8; bodyDefault; khe 16; link. */
 const EMPTY = {
@@ -76,28 +76,58 @@ function auditDetail(s, split, device) {
   if (s.loading) return wrap(centerLoading());
   if (s.notFound) return wrap(`<div class="t1-center"><div class="t1-failed2"><h2 class="t1-h4 t1-h4--600">Không tìm thấy hoạt động</h2><div class="t1-gap-sm"></div><p class="t1-small t1-text-center">Nhật ký không tồn tại hoặc không thuộc tổ chức hiện tại.</p><div class="t1-gap-lg"></div>${button('Thử lại')}</div></div>`);
   const a = AUDIT.find((x) => x.id === s.id);
+  // Thiết kế lại qua impeccable live (2026-11-24): cột 720; đầu trang (ô biểu tượng + tên hoạt động + "người · thời điểm" + "Thành công")
+  // → (hộp vàng khi không còn thông tin người thực hiện) → một thẻ, 4 phần ngăn gạch: Thay đổi (Trước gạch ngang → Sau nổi) · Ngữ cảnh ·
+  // Đối tượng · Thông tin truy vết (+ mã sự kiện thô, chữ nhỏ).
   const gone = badge('Không còn dữ liệu', 'warning');
-  const body = `<div class="t1-list t1-stack16">
-    ${vcard(`<div class="t1-arow t1-arow--top">${icon(a.icon, 't1-arow__ic t1-arow__ic--2')}<div class="t1-arow__text t1-arow__text--8"><b>${esc(a.title)}</b><span>${esc(a.code)}</span></div><span class="t1-pill">Thành công</span></div>`, { keepBg: true })}
-    ${vcard(`${secHead('Ngữ cảnh', a.actorUnavailable ? gone : '')}<div class="t1-stack8">${arow('Người thực hiện', a.actor)}${arow('Loại chủ thể', a.actorRole)}</div>`, { keepBg: true })}
-    ${vcard(`${secHead('Đối tượng', a.legacy ? badge('Thông tin hiện tại', 'neutral') : '')}<div class="t1-stack8">${arow(a.subjectType, a.subject)}${a.subjectId ? arow('ID đối tượng', a.subjectId) : ''}</div>`, { keepBg: true })}
-    ${vcard(`${secHead('Thông tin truy vết')}<div class="t1-stack8">${arow('Thời điểm', a.at.replace(' ', ' · '))}${arow('Nguồn', 'Tenant App')}${arow('Mã theo dõi', TRACE_ID, true)}</div>`, { keepBg: true })}
-    ${a.actorUnavailable ? `<div class="t1-card t1-card--pad t1-card--warn"><b class="t1-bodyb t1-warn">Không còn thông tin người thực hiện</b><div class="t1-gap-xs"></div><p class="t1-small">Thông tin người thực hiện không còn khả dụng tại thời điểm xem.</p></div>` : ''}
-    ${a.changes ? `<div class="t1-card t1-card--pad t1-card--alt">${a.changes.map(([f, b, af]) => `<b class="t1-bodyb">${esc(f)}</b><div class="t1-gap-xs"></div><p class="t1-small">Trước: ${esc(b)}</p><p class="t1-small t1-strong-sm t1-mt2">Sau: ${esc(af)}</p>`).join('<hr class="t1-divider t1-my12">')}</div>` : ''}
-    <div class="t1-gap-md"></div></div>`;
-  return wrap(body, s.toast ? toast('success', 'Đã sao chép', 'req_7f3a9c21e0b4d6a8b1e5f3c8d19f02', { device }) : '');
+  const part = (t, inner, b = '') => `<div class="t1-adpart"><div class="t1-adpart__head"><h3>${esc(t)}</h3>${b}</div>${inner}</div>`;
+  const change = a.changes ? part('Thay đổi', a.changes.map(([f, b4, af]) => `<div class="t1-adchange"><span class="t1-adchange__f">${esc(f)}</span><span class="t1-adchange__v"><span class="t1-adchange__before">Trước: ${esc(b4)}</span>${icon('chevronRight', 't1-adchange__arrow')}<b>Sau: ${esc(af)}</b></span></div>`).join('')) : '';
+  const body = `<div class="t1-orgp">
+    <div class="t1-orgp__head"><span class="t1-aic t1-aic--48" aria-hidden="true">${icon(a.icon)}</span><div><h1>${esc(a.title)}</h1><p>${esc(a.actor)} · ${esc(a.at)}</p></div><span class="t1-adok"><span class="t1-pill">Thành công</span></span></div>
+    ${a.actorUnavailable ? `<div class="t1-warnbox">${icon('alert')}<div><b>Không còn thông tin người thực hiện</b><p class="t1-small">Thông tin người thực hiện không còn khả dụng tại thời điểm xem.</p></div></div>` : ''}
+    <section class="t1-orgsec">
+      ${change}
+      ${part('Ngữ cảnh', `<div class="t1-stack8">${arow('Người thực hiện', a.actor)}${arow('Loại chủ thể', a.actorRole)}</div>`, a.actorUnavailable ? gone : '')}
+      ${part('Đối tượng', `<div class="t1-stack8">${arow(a.subjectType, a.subject)}${a.subjectId ? arow('ID đối tượng', a.subjectId) : ''}</div>`, a.legacy ? badge('Thông tin hiện tại', 'neutral') : '')}
+      ${part('Thông tin truy vết', `<div class="t1-stack8">${arow('Thời điểm', a.at.replace(' ', ' · '))}${arow('Nguồn', 'Tenant App')}${arow('Mã theo dõi', TRACE_ID, true)}</div><p class="t1-small t1-adcode">${esc(a.code)}</p>`)}
+    </section>
+  </div>`;
+  return wrap(`<div class="t1-col" style="max-width:720px">${body}</div>`, s.toast ? toast('success', 'Đã sao chép', 'req_7f3a9c21e0b4d6a8b1e5f3c8d19f02', { device }) : '');
+}
+
+/**
+ * Web (≥ 840) — bảng toàn màn, chọn qua impeccable live (2026-11-24): app bar + phụ đề; thanh công cụ (chip trái, ô tìm + bộ lọc phải);
+ * cột 1120: dòng thời gian lọc → bảng (Hoạt động | Người thực hiện | Đối tượng: loại + tên | Thời điểm) → "Tải thêm". Chi tiết mở toàn màn (←).
+ */
+function auditTable(s) {
+  const days = s.days || 30;
+  const sub = s.forbidden ? 'Chưa được cấp quyền' : s.error ? 'Không tải được dữ liệu' : `${s.empty || s.noResults ? 0 : AUDIT_TOTAL} hoạt động trong ${days} ngày`;
+  const items = s.category === 'Thành viên' ? AUDIT.filter((a) => ['a3', 'a5'].includes(a.id)) : AUDIT;
+  const who = (a) => (a.actorRole && a.actorRole !== '—' ? `${a.actor} (${a.actorRole})` : a.actor);
+  const ic = (a) => `<span class="t1-aic" aria-hidden="true">${icon(a.icon)}</span>`;
+  const th = `<div class="t1-utable__tr t1-utable__th t1-atable__tr" role="row"><span role="columnheader">Hoạt động</span><span role="columnheader">Người thực hiện</span><span role="columnheader">Đối tượng</span><span role="columnheader">Thời điểm</span><span></span></div>`;
+  let content;
+  const state = s.forbidden ? 'forbidden' : s.error ? 'error' : s.empty ? 'empty' : s.noResults ? 'noResults' : '';
+  if (state) content = `<div class="t1-utable t1-utable--state">${auditEmpty(state)}</div>`;
+  else if (s.loading) {
+    content = `<div class="t1-utable" role="table" aria-busy="true" aria-label="Đang tải">${th}${[0, 1, 2, 3, 4].map(() => `<div class="t1-utable__tr t1-utable__tr--skel t1-atable__tr"><span class="t1-atable__act">${skeleton({ w: 36, h: 36 })}${skeleton({ w: 180, h: 16 })}</span><span>${skeleton({ w: 140 })}</span><span class="t1-skelcol">${skeleton({ w: 60, h: 10 })}${skeleton({ w: 120 })}</span><span>${skeleton({ w: 110 })}</span><span></span></div>`).join('')}</div>`;
+  } else {
+    content = `<div class="t1-utable" role="table" aria-label="Lịch sử quản trị">${th}
+      ${items.map((a) => `<button type="button" class="t1-utable__tr t1-atable__tr" role="row"><span class="t1-atable__act">${ic(a)}<span><b>${esc(a.title)}</b>${a.legacy ? badge('Thông tin hiện tại', 'neutral') : ''}</span></span><span class="t1-atable__sub">${esc(who(a))}</span><span class="t1-atable__sub"><small>${esc(a.subjectType)}</small>${esc(a.subject)}</span><span class="t1-utable__num">${esc(a.at)}</span>${icon('chevronRight', 't1-utable__chev')}</button>`).join('')}</div>
+      <div class="t1-amore">${button('Tải thêm', { variant: 'secondary' })}</div>`;
+  }
+  const tools = `<div class="t1-utools"><div class="t1-atools__chips">${chipRow(['Tất cả', 'Thành viên', 'Vai trò', 'Tổ chức'], s.category || 'Tất cả')}</div>
+    <div class="t1-utools__find">${searchBar('Tìm người thực hiện hoặc hoạt động', s.query || '')}${iconButton('tune', days !== 30 ? 'Bộ lọc (đang áp dụng)' : 'Bộ lọc', { size: 20, dot: days !== 30 })}</div></div>`;
+  return `<div class="t1-page t1-page--canvas">${appBar('Lịch sử quản trị', { back: true, subtitle: sub })}${tools}
+    <div class="t1-scroll"><div class="t1-uwrap"><p class="t1-small t1-atime2">Thời gian: ${days} ngày gần đây · Mới nhất trước</p>${content}</div></div></div>`;
 }
 
 export function auditPage(v) {
   const s = AUDIT_STATES[v.state];
   const overlay = s.sheet ? adaptiveSheet(v.width, auditFilter(), '', { title: 'Bộ lọc nhật ký nền tảng' }) : '';
-  if (!isSplit(v.width)) return { page: auditList(s), overlay };
-  return { page: listDetail(v.width, auditList(s), splitPlaceholder('Chọn một mục lịch sử để xem chi tiết.')), overlay };
+  return { page: isSplit(v.width) ? auditTable(s) : auditList(s), overlay };
 }
 
 export function auditDetailPage(v) {
-  const s = AUDIT_DETAIL_STATES[v.state];
-  const split = isSplit(v.width);
-  if (!split) return { page: auditDetail(s, false, v.device) };
-  return { page: listDetail(v.width, auditList({}, s.id), auditDetail(s, true, v.device)) };
+  return { page: auditDetail(AUDIT_DETAIL_STATES[v.state], false, v.device) };
 }

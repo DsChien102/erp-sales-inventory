@@ -1,26 +1,35 @@
 // ID-14 Người dùng · ID-15 Mời thành viên · ID-16 Chi tiết lời mời · ID-17 Chi tiết thành viên · ID-18 Chọn vai trò. Chép từ:
 //   apps/erp/lib/features/iam/presentation/users/{users_area_shell.dart, views/*.dart, widgets/*.dart}, core/router/app_router.dart
 // /more/users(/…): ShellRoute riêng (UsersAreaShell → VListDetailLayout) nằm NGOÀI StoreShell → không thanh bên / thanh dưới.
-//   web ≥ 840: danh sách 360 (bọc ScaffoldMessenger riêng) | gạch | chi tiết (cột VPageScaffold 640). Hẹp: một màn.
+//   Web ≥ 840 (thiết kế lại qua impeccable live 2026-11-24): danh sách là bảng toàn màn, chi tiết mở toàn màn có nút ←. Hẹp: một màn.
 // /more/users/invite: GoRoute gốc → toàn màn cả web. Chọn vai trò: Navigator.push từ chi tiết → web mở trong cột phải.
 // /more/users/preview-role-change và /select-role đều redirect về hub → màn "Xem trước thay đổi" (ID-18) không mở được.
 import { icon } from '../shared/icons.js';
 import { INVITATION_BADGE, INVITATIONS, MEMBER_BADGE, MEMBERS, invitationById, memberById, statusDetail } from './admin-data.js';
 import {
-  actionTile, adaptiveSheet, badge, banner, button, centerLoading, chipRow, detailWidth, esc, field, filterChip, iconButton, input, isSplit, kv,
-  LIST_WIDTH, listDetail, radio, searchBar, select, splitPlaceholder, tabs, textArea, toast, vcard, vScaffold,
+  actionTile, adaptiveSheet, appBar, badge, skeleton, banner, button, centerLoading, chipRow, esc, field, fieldDesc, fieldError, filterChip, iconButton, input, isSplit, kv,
+  radio, searchBar, select, tabs, textArea, toast, vcard, vScaffold,
 } from './ds.js';
 import { BAR_H, loadFailed } from './org.js';
 
 // ---------------------------------------------------------------- ID-14 danh sách
+/** Chữ viết tắt: ký tự đầu của tên (từ cuối họ tên). */
+const initial = (name) => esc(String(name).trim().split(/\s+/).pop()[0] || '');
+const avatar = (name) => `<span class="t1-avatar" aria-hidden="true">${initial(name)}</span>`;
+
 const memberCard = (m, selected) => {
   const [label, tone] = MEMBER_BADGE[m.status];
-  return vcard(`<div class="t1-urow">${icon('user', 't1-urow__ic')}<div class="t1-urow__text"><div class="t1-urow__name"><b>${esc(m.name)}</b>${m.isOwner ? badge('Chủ sở hữu', 'primary') : ''}</div><span>${esc(`${m.email} · ${m.role}`)}</span></div>${badge(label, tone)}</div>`, { selected });
+  return vcard(`<div class="t1-urow">${avatar(m.name)}<div class="t1-urow__text"><div class="t1-urow__name"><b>${esc(m.name)}</b>${m.isOwner ? badge('Chủ sở hữu', 'primary') : ''}</div><span>${esc(`${m.email} · ${m.role}`)}</span></div>${badge(label, tone)}</div>`, { selected });
 };
 const invitationCard = (i, selected) => {
   const [label, tone] = INVITATION_BADGE[i.status];
-  return vcard(`<div class="t1-urow">${icon('user', 't1-urow__ic')}<div class="t1-urow__text"><b>${esc(i.email)}</b><span>${esc(statusDetail(i))}</span></div>${badge(label, tone)}</div>`, { selected });
+  return vcard(`<div class="t1-urow">${avatar(i.email.split('@')[0])}<div class="t1-urow__text"><b>${esc(i.email)}</b><span>${esc(statusDetail(i))}</span></div>${badge(label, tone)}</div>`, { selected });
 };
+
+/** Đang tải (VSkeletonScope): hẹp — 3 thẻ giả (tròn 36 + 2 dòng + nhãn); web — 4 dòng bảng giả dưới hàng tiêu đề thật. */
+const listSkeleton = () => `<div class="t1-ulist" aria-busy="true" aria-label="Đang tải">${[0, 1, 2].map(() => vcard(`<div class="t1-urow">${skeleton({ w: 36, h: 36, circle: true })}<div class="t1-urow__text t1-skelcol">${skeleton({ w: '55%', h: 16 })}${skeleton({ w: '80%', h: 12 })}</div>${skeleton({ w: 64, h: 22 })}</div>`)).join('')}</div>`;
+const tableSkeleton = (cols) => `<div class="t1-utable" role="table" aria-busy="true" aria-label="Đang tải"><div class="t1-utable__tr t1-utable__th" role="row">${cols.map((c) => `<span role="columnheader">${esc(c)}</span>`).join('')}<span></span></div>
+  ${[0, 1, 2, 3].map(() => `<div class="t1-utable__tr t1-utable__tr--skel"><span class="t1-utable__who">${skeleton({ w: 36, h: 36, circle: true })}<span class="t1-skelcol">${skeleton({ w: 160, h: 16 })}${skeleton({ w: 120, h: 12 })}</span></span><span>${skeleton({ w: 120 })}</span><span>${skeleton({ w: 72, h: 22 })}</span><span>${cols[3] ? skeleton({ w: 110 }) : ''}</span><span></span></div>`).join('')}</div>`;
 
 /** UsersEmptyState trong UsersEmptyScroll (khung cao 480 canh giữa): VIconBox 56 bo 12 (icon 28) → 16 → H4 w700 → 8 → bodySmall → 24 → VButton. */
 const usersEmpty = ({ ic, tone = '', title, sub, action, danger = false }) => `<div class="t1-uempty"><div class="t1-uempty__in">
@@ -50,18 +59,45 @@ export function usersListPage(s, placeWidth, { selectedId = null, toastHtml = ''
   if (s.roleFilter) items = items.filter((m) => m.role === s.roleFilter);
   if (s.empty) items = [];
   let list;
-  if (s.loading) list = centerLoading();
+  if (s.loading) list = isSplit(placeWidth) ? 'SKELETON' : listSkeleton();
   else if (s.failure === 'forbidden') list = usersEmpty({ ic: 'shield', tone: 'warning', title: 'Bạn không có quyền quản lý', sub: 'Liên hệ Chủ tổ chức hoặc Quản trị viên để được cấp quyền phù hợp.', action: 'Quay lại' });
   else if (s.failure) list = usersEmpty({ ic: 'close', tone: 'danger', title: 'Không thể tải danh sách', sub: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.', action: 'Thử lại', danger: true });
   else if (!items.length && (s.query || s.chip)) list = usersEmpty({ ic: 'search', title: 'Không tìm thấy kết quả', sub: 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.', action: 'Xóa bộ lọc' });
   else if (!items.length) list = usersEmpty({ ic: 'info', title: s.tab === 0 ? 'Chưa có thành viên khác' : 'Chưa có lời mời', sub: s.tab === 0 ? 'Mời thêm người dùng để cùng vận hành tổ chức.' : 'Mời thành viên mới để họ nhận email tham gia.', action: 'Mời thành viên' });
   else list = `<div class="t1-ulist">${items.map((x) => (s.tab === 0 ? memberCard(x, x.id === selectedId) : invitationCard(x, x.id === selectedId))).join('')}</div>`;
   const chips = s.tab === 0 ? ['Tất cả', 'Hoạt động', 'Tạm ngừng'] : ['Tất cả', 'Đang chờ', 'Hết hạn'];
+  if (isSplit(placeWidth)) return usersTablePage(s, items, list, chips, toastHtml);
   const body = `<div class="t1-ubar">${searchBar('Tìm tên hoặc email', s.query || '')}${iconButton('tune', s.filterOn ? 'Bộ lọc (đang áp dụng)' : 'Bộ lọc', { size: 20, dot: !!s.filterOn })}</div>
     ${tabs(['Thành viên', 'Lời mời'], s.tab)}<hr class="t1-divider">
     <div class="t1-chippad">${chipRow(chips, s.chip || 'Tất cả')}</div>
     <div class="t1-ulistwrap">${list}</div>`;
   return vScaffold({ title: 'Người dùng', subtitle: subtitle(s, items), actions: iconButton('plus', 'Mời thành viên'), body, placeWidth, fixed: true, toastHtml });
+}
+
+/**
+ * Web (≥ 840) — bảng toàn màn, chọn qua impeccable live (2026-11-24): app bar "Người dùng" + phụ đề + nút "Mời thành viên";
+ * thanh công cụ (tab trái, ô tìm + bộ lọc phải); cột 1120: chip nhanh → bảng. Bấm dòng mở chi tiết toàn màn (nút ←).
+ * Trạng thái rỗng / lỗi / đang tải dùng lại khối của danh sách hẹp, đặt vào chỗ bảng.
+ */
+function usersTable(s, items) {
+  const head = (cols) => `<div class="t1-utable__tr t1-utable__th" role="row">${cols.map((c) => `<span role="columnheader">${esc(c)}</span>`).join('')}<span></span></div>`;
+  const chev = icon('chevronRight', 't1-utable__chev');
+  if (s.tab === 0) {
+    return `<div class="t1-utable" role="table" aria-label="Thành viên">${head(['Tên', 'Vai trò hiện hành', 'Trạng thái truy cập', 'Hoạt động gần nhất'])}
+      ${items.map((m) => `<button type="button" class="t1-utable__tr" role="row"><span class="t1-utable__who">${avatar(m.name)}<span><b>${esc(m.name)}</b>${m.isOwner ? badge('Chủ sở hữu', 'primary') : ''}<small>${esc(m.email)}</small></span></span><span>${esc(m.role)}</span><span>${badge(...MEMBER_BADGE[m.status])}</span><span class="t1-utable__num">${esc(m.status === 'active' ? m.lastActive : '—')}</span>${chev}</button>`).join('')}</div>`;
+  }
+  return `<div class="t1-utable" role="table" aria-label="Lời mời">${head(['Email', 'Vai trò ban đầu', 'Trạng thái', ''])}
+    ${items.map((i) => `<button type="button" class="t1-utable__tr" role="row"><span class="t1-utable__who">${avatar(i.email.split('@')[0])}<span><b>${esc(i.email)}</b><small>${esc(i.expiry)} · ${esc(statusDetail(i).split(' · ').pop())}</small></span></span><span>${esc(i.role)}</span><span>${badge(...INVITATION_BADGE[i.status])}</span><span></span>${chev}</button>`).join('')}</div>`;
+}
+
+function usersTablePage(s, items, list, chips, toastHtml) {
+  const cols = s.tab === 0 ? ['Tên', 'Vai trò hiện hành', 'Trạng thái truy cập', 'Hoạt động gần nhất'] : ['Email', 'Vai trò ban đầu', 'Trạng thái', ''];
+  const content = list === 'SKELETON' ? tableSkeleton(cols)
+    : list.startsWith('<div class="t1-ulist">') ? usersTable(s, items) : `<div class="t1-utable t1-utable--state">${list}</div>`;
+  const bar = `<div class="t1-utools"><div class="t1-utools__tabs">${tabs(['Thành viên', 'Lời mời'], s.tab)}</div>
+    <div class="t1-utools__find">${searchBar('Tìm tên hoặc email', s.query || '')}${iconButton('tune', s.filterOn ? 'Bộ lọc (đang áp dụng)' : 'Bộ lọc', { size: 20, dot: !!s.filterOn })}</div></div>`;
+  return `<div class="t1-page t1-page--canvas">${appBar('Người dùng', { back: true, subtitle: subtitle(s, items), actions: `<div class="t1-uinvite">${button('Mời thành viên')}</div>` })}
+    ${bar}<div class="t1-scroll"><div class="t1-uwrap"><div class="t1-uwrap__chips">${chipRow(chips, s.chip || 'Tất cả')}</div>${content}</div></div>${toastHtml}</div>`;
 }
 
 /** MemberFilterBottomSheet / InvitationFilterBottomSheet: đệm 16 / 16 / 16 / 24; tiêu đề nhóm bodyDefault w700, khe 4, Wrap chip khe 8; nhóm cách 16; khe 24; Đặt lại | khe 16 | Áp dụng. */
@@ -74,20 +110,18 @@ function filterSheet(kind) {
 }
 
 /**
- * Khu Người dùng. detail(w): HTML cột phải / cả màn; null → placeholder (web) hoặc danh sách (hẹp).
- * Toast của chi tiết (ScaffoldMessenger gốc) nằm trong cột phải; toast của danh sách nằm trong cột trái.
+ * Khu Người dùng. Web: danh sách là bảng toàn màn, chi tiết mở toàn màn (nút ←) — không còn chia 2 cột. Hẹp: một màn như cũ.
+ * listToast: toast của danh sách (cả hai khổ).
  */
-export function usersArea(v, ls, { selectedId = null, detail = null, listToast = '', placeholderToast = '' } = {}) {
-  if (!isSplit(v.width)) return detail ? detail(v.width) : usersListPage(ls, v.width, { toastHtml: listToast });
-  const right = detail ? detail(detailWidth(v.width)) : splitPlaceholder('Chọn một thành viên hoặc lời mời để xem chi tiết.', placeholderToast);
-  return listDetail(v.width, usersListPage(ls, LIST_WIDTH, { selectedId, toastHtml: listToast }), right);
+export function usersArea(v, ls, { detail = null, listToast = '' } = {}) {
+  return detail ? detail(v.width) : usersListPage(ls, v.width, { toastHtml: listToast });
 }
 
 export function usersPage(v) {
   const s = LIST_STATES[v.state];
   const t = s.toast ? toast(...s.toast, { device: v.device }) : '';
-  // Web: thu hồi xong context.go('/more/users') → toast gốc hiện ở cột phải (Scaffold placeholder); hẹp: pop về danh sách.
-  const page = usersArea(v, s, { listToast: isSplit(v.width) ? '' : t, placeholderToast: isSplit(v.width) ? t : '' });
+  // Thu hồi xong quay về danh sách → toast đáy màn (cả web lẫn hẹp).
+  const page = usersArea(v, s, { listToast: t });
   const overlay = s.sheet ? adaptiveSheet(v.width, filterSheet(s.sheet), '', { title: s.sheet === 'members' ? 'Bộ lọc thành viên' : 'Bộ lọc lời mời' }) : '';
   return { page, overlay };
 }
@@ -107,11 +141,18 @@ export function invitePage(v) {
   if (s.loading) return { page: vScaffold({ ...base, body: centerLoading(), fixed: true }) };
   if (s.rolesFailed) return { page: vScaffold({ ...base, body: loadFailed('Không tải được danh sách vai trò', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.'), fixed: true }) };
   const e = s.errors || {};
-  const body = `<div class="t1-list"><p class="t1-small">Người nhận phải đăng nhập đúng email. Lời mời sẽ hết hạn sau 7 ngày.</p><div class="t1-gap-md"></div>
-    <div class="t1-form">
-      ${field({ label: 'Email', required: true, control: input({ value: s.email || '', hint: 'nhanvien@minhphat.vn', invalid: !!e.email }), error: e.email })}
-      ${field({ label: 'Vai trò ban đầu', required: true, control: select({ value: s.role || '', hint: 'Chọn vai trò' }), error: e.role, desc: 'Vai trò có thể thay đổi sau khi tham gia.' })}
-    </div></div>`;
+  // Câu dẫn → thẻ trắng: Email → "Vai trò ban đầu" chọn bằng 4 thẻ có radio + mô tả (2 cột ≥ 600). Chọn qua impeccable live (2026-11-24).
+  const roleCard = ([t, d]) => {
+    const on = t === s.role;
+    return `<button type="button" class="t1-rolepick__opt${on ? ' is-on' : ''}" aria-pressed="${on}"${s.busy ? ' disabled' : ''}>${radio(on)}<span><b>${esc(t)}</b><small>${esc(d)}</small></span></button>`;
+  };
+  const body = `<div class="t1-formpage"><p class="t1-small">Người nhận phải đăng nhập đúng email. Lời mời sẽ hết hạn sau 7 ngày.</p>
+    <div class="t1-formcard"><div class="t1-form">
+      ${field({ label: 'Email', required: true, control: input({ value: s.email || '', hint: 'nhanvien@minhphat.vn', invalid: !!e.email, disabled: !!s.busy }), error: e.email })}
+      <fieldset class="t1-rolepick${e.role ? ' is-invalid' : ''}"><legend class="t1-label">Vai trò ban đầu<i aria-hidden="true"> *</i></legend>
+        <div class="t1-rolepick__grid">${SELECT_ROLES.map(roleCard).join('')}</div>
+        ${e.role ? fieldError(e.role) : fieldDesc('Vai trò có thể thay đổi sau khi tham gia.')}</fieldset>
+    </div></div></div>`;
   // Nút gửi: khi đang gửi đổi chữ "Đang gửi..." + tắt (không có vòng xoay).
   const bar = `<div class="t1-bar-pad t1-row2 t1-row2--8">${button('Hủy', { variant: 'secondary', full: true, disabled: !!s.busy })}${button(s.busy ? 'Đang gửi...' : 'Gửi lời mời', { full: true, disabled: !!s.busy })}</div>`;
   return { page: vScaffold({ ...base, body, bottomBar: bar, toastHtml: s.toast ? toast(...s.toast, { device: v.device, above: BAR_H }) : '' }) };
@@ -120,7 +161,7 @@ export function invitePage(v) {
 // ---------------------------------------------------------------- ID-16 chi tiết lời mời
 export const INVITATION_STATES = {
   pending: { id: 'i1' }, 'delivery-failed': { id: 'i3' }, expired: { id: 'i4' }, loading: { id: 'i1', loading: true }, error: { id: 'i1', error: true },
-  actions: { id: 'i1', sheet: 'actions' }, revoke: { id: 'i1', sheet: 'revoke' }, 'revoke-empty': { id: 'i1', sheet: 'revoke', revokeError: 'Vui lòng nhập lý do thu hồi.' },
+  revoke: { id: 'i1', sheet: 'revoke' }, 'revoke-empty': { id: 'i1', sheet: 'revoke', revokeError: 'Vui lòng nhập lý do thu hồi.' },
   'revoke-submitting': { id: 'i1', sheet: 'revoke', revokeBusy: true, reason: 'Sai email người nhận' },
   'toast-created': { id: 'i1', toast: ['success', 'Đã gửi lời mời thành công.', ''] },
   'toast-created-warning': { id: 'i3', toast: ['warning', 'Đã tạo lời mời', 'Email chưa gửi được. Bạn có thể gửi lại từ chi tiết lời mời.'] },
@@ -129,8 +170,6 @@ export const INVITATION_STATES = {
   'toast-state-changed': { id: 'i1', toast: ['warning', 'Dữ liệu đã thay đổi', 'Dữ liệu đã thay đổi. Vui lòng tải lại rồi xác nhận lại.'] },
 };
 
-/** Bottom bar tự vẽ: Container đệm 16 + nền surface + gạch trên 1 (chồng lên gạch của VPageScaffold) + SafeArea → cao 78. */
-const INV_BAR_H = 78;
 
 function invitationDetail(s, w, split, device) {
   const back = !split;
@@ -139,18 +178,20 @@ function invitationDetail(s, w, split, device) {
   if (s.error) return vScaffold({ ...base, body: loadFailed('Không tải được lời mời', 'Không tìm thấy tài nguyên.'), fixed: true });
   const i = invitationById(s.id);
   const [label, tone] = INVITATION_BADGE[i.status];
-  // deliveryStatus / status in nguyên giá trị wire ("sent", "expired").
-  const body = `<div class="t1-list">${vcard(`<div class="t1-dhead"><h2 class="t1-h4">${esc(i.email)}</h2>${badge(label, tone)}</div>
-    <div class="t1-gap-sm"></div><p class="t1-small">${esc(statusDetail(i))}</p>
-    <div class="t1-gap-sm"></div><p class="t1-small t1-muted">Giao nhận: ${esc(i.delivery)}</p>
-    ${i.wire !== 'pending' ? `<div class="t1-gap-sm"></div><p class="t1-small t1-muted">Trạng thái: ${esc(i.wire)}</p>` : ''}`)}</div>`;
+  // Thiết kế lại qua impeccable live (2026-11-24): đầu trang (chữ viết tắt + email + hạn) → khối "Thông tin lời mời" (nhãn trạng thái,
+  // 3 dòng nhãn | giá trị) → còn chờ: "Gửi lại lời mời" + "Thu hồi lời mời" ngay cuối khối (không còn thanh "Thao tác" / sheet).
+  const delivery = statusDetail(i).split(' · ').pop();
   const canMutate = i.wire === 'pending';
-  const bar = canMutate ? `<div class="t1-bar-pad t1-bar-line">${button('Thao tác', { full: true, loading: !!s.revokeBusy })}</div>` : '';
-  return vScaffold({ ...base, body, bottomBar: bar, toastHtml: s.toast ? toast(...s.toast, { device, above: canMutate ? INV_BAR_H : 0 }) : '' });
+  const acts = canMutate ? `<div class="t1-invacts">${button('Gửi lại lời mời', { variant: 'secondary' })}${button('Thu hồi lời mời', { variant: 'secondary', cls: 't1-btn--danger-outline', loading: !!s.revokeBusy })}</div>` : '';
+  const body = `<div class="t1-orgp">
+    <div class="t1-orgp__head">${avatar(i.email.split('@')[0]).replace('t1-avatar"', 't1-avatar t1-avatar--lg"')}<div><h1>${esc(i.email)}</h1><p>${esc(i.expiry)}</p></div></div>
+    <section class="t1-orgsec"><div class="t1-orgsec__head"><h2>Thông tin lời mời</h2>${badge(label, tone)}</div>
+      <div class="t1-stack12">${kv('Vai trò ban đầu', i.role, 't1-kv--profile')}${kv('Trạng thái', label, 't1-kv--profile')}${kv('Giao nhận', delivery, 't1-kv--profile')}</div>
+      ${acts}</section>
+  </div>`;
+  return vScaffold({ ...base, body, toastHtml: s.toast ? toast(...s.toast, { device, above: 0 }) : '' });
 }
 
-/** Sheet "Thao tác lời mời" (có title): đệm 16; IamActionTile gửi lại / khe 8 / thu hồi (danger) / khe 16. */
-const invitationActions = () => `<div class="t1-list">${actionTile('rotate', 'Gửi lại lời mời', 'Gửi lại email đến người nhận')}<div class="t1-gap-sm"></div>${actionTile('trash', 'Thu hồi lời mời', 'Người nhận không thể tiếp tục tham gia', true)}<div class="t1-gap-md"></div></div>`;
 /** _RevokeInvitationSheetBody: đệm 16; H3 w700 danger; khe 4; bodyDefault; (không khe) VField "Lý do thu hồi" + ô 3 dòng; khe 24; Quay lại / khe 8 / Thu hồi (secondary danger) / khe 8. */
 const revokeSheet = (s) => `<div class="t1-list"><h2 class="t1-h3 t1-danger">Thu hồi lời mời?</h2><div class="t1-gap-xs"></div>
   <p class="t1-body2">Người nhận sẽ không thể dùng liên kết hiện tại để tham gia tổ chức.</p>
@@ -160,9 +201,8 @@ const revokeSheet = (s) => `<div class="t1-list"><h2 class="t1-h3 t1-danger">Thu
 
 export function invitationDetailPage(v) {
   const s = INVITATION_STATES[v.state];
-  const page = usersArea(v, { tab: 1 }, { selectedId: s.id, detail: (w) => invitationDetail(s, w, isSplit(v.width), v.device) });
+  const page = usersArea(v, { tab: 1 }, { detail: (w) => invitationDetail(s, w, false, v.device) });
   let overlay = '';
-  if (s.sheet === 'actions') overlay = adaptiveSheet(v.width, invitationActions(), '', { title: 'Thao tác lời mời' });
   if (s.sheet === 'revoke') overlay = adaptiveSheet(v.width, revokeSheet(s), 'Thu hồi lời mời?');
   return { page, overlay };
 }
@@ -170,7 +210,6 @@ export function invitationDetailPage(v) {
 // ---------------------------------------------------------------- ID-17 chi tiết thành viên
 export const MEMBER_STATES = {
   active: { id: 'm2' }, suspended: { id: 'm3' }, removed: { id: 'm4' }, owner: { id: 'm1' }, loading: { id: 'm2', loading: true }, error: { id: 'm2', error: true },
-  actions: { id: 'm2', sheet: 'actions' }, 'actions-suspended': { id: 'm3', sheet: 'actions' },
   deactivate: { id: 'm2', sheet: 'deactivate' }, reactivate: { id: 'm3', sheet: 'reactivate' }, remove: { id: 'm2', sheet: 'remove' },
   'remove-submitting': { id: 'm2', sheet: 'remove', busy: true },
   'toast-deactivated': { id: 'm3', toast: ['success', 'Đã tạm ngừng thành viên.', ''] },
@@ -187,28 +226,25 @@ function memberDetail(s, w, split, device) {
   if (s.error) return vScaffold({ ...base, body: loadFailed('Không tải được thành viên', 'Không tìm thấy tài nguyên.'), fixed: true });
   const m = memberById(s.id);
   const [label, tone] = MEMBER_BADGE[m.status];
-  const access = m.status === 'active' ? drow('Ngày tham gia', m.joined) + drow('Hoạt động gần nhất', m.lastActive)
-    : m.status === 'suspended' ? drow('Tạm ngừng lúc', m.suspendedAt) : drow('Đã loại lúc', m.removedAt) + drow('Vai trò trước đó', m.role);
+  // Thiết kế lại qua impeccable live (2026-11-24): đầu trang (chữ viết tắt + tên + email · vai trò) → khối "Thông tin thành viên" (+ nhãn)
+  // → ghi chú (tạm ngừng / đã loại) → khối "Trạng thái truy cập" + nút thao tác ngay cuối khối (không còn thanh "Thao tác" / sheet).
+  const row = (l, val) => kv(l, val, 't1-kv--profile');
+  const access = m.status === 'active' ? row('Ngày tham gia', m.joined) + row('Hoạt động gần nhất', m.lastActive)
+    : m.status === 'suspended' ? row('Tạm ngừng lúc', m.suspendedAt) : row('Đã loại lúc', m.removedAt) + row('Vai trò trước đó', m.role);
   const note = m.status === 'suspended' ? banner('warning', 'Quyền truy cập đã tạm ngừng', 'Thành viên không thể truy cập tổ chức cho đến khi được kích hoạt lại.')
     : m.status === 'removed' ? banner('info', 'Thành viên đã được loại', 'Quyền truy cập đã kết thúc. Lịch sử và dữ liệu nghiệp vụ vẫn được giữ lại.') : '';
-  const body = `<div class="t1-list">
-    <div${m.status === 'removed' ? ' class="t1-o60"' : ''}>${vcard(`<div class="t1-dhead"><h2 class="t1-h4">Thông tin thành viên</h2>${badge(label, tone)}</div><div class="t1-gap-md"></div>
-      <div class="t1-stack16">${drow('Tên', m.name)}${drow('Email', m.email)}${drow('Vai trò hiện hành', m.role)}${drow(m.isOwner ? 'Quyền sở hữu' : 'Danh tính', m.isOwner ? 'Chủ sở hữu' : 'Chỉ đọc')}</div>`)}</div>
-    ${note ? `<div class="t1-gap-md"></div>${note}` : ''}<div class="t1-gap-md"></div>
-    ${vcard(`<h2 class="t1-h4">Trạng thái truy cập</h2><div class="t1-gap-md"></div><div class="t1-stack16">${access}</div>`)}</div>`;
   const hasActions = !m.soleOwner && m.status !== 'removed';
-  const bar = hasActions ? `<div class="t1-bar-pad">${button('Thao tác', { full: true, trailing: 'chevronUp', loading: !!s.busy })}</div>` : '';
-  return vScaffold({ ...base, body, bottomBar: bar, toastHtml: s.toast ? toast(...s.toast, { device, above: hasActions ? BAR_H : 0 }) : '' });
+  const acts = hasActions ? `<div class="t1-invacts">${button('Thay đổi vai trò', { variant: 'secondary' })}${m.status === 'active' ? button('Tạm ngừng thành viên', { variant: 'secondary' }) : button('Kích hoạt lại', { variant: 'secondary' })}${button('Loại khỏi tổ chức', { variant: 'secondary', cls: 't1-btn--danger-outline' })}</div>` : '';
+  const sec = (title, action, inner) => `<section class="t1-orgsec"><div class="t1-orgsec__head"><h2>${esc(title)}</h2>${action}</div>${inner}</section>`;
+  const body = `<div class="t1-orgp">
+    <div class="t1-orgp__head${m.status === 'removed' ? ' t1-o60' : ''}">${avatar(m.name).replace('t1-avatar"', 't1-avatar t1-avatar--lg"')}<div><h1>${esc(m.name)}</h1><p>${esc(`${m.email} · ${m.role}`)}</p></div></div>
+    <div${m.status === 'removed' ? ' class="t1-o60"' : ''}>${sec('Thông tin thành viên', badge(label, tone), `<div class="t1-stack12">${row('Tên', m.name)}${row('Email', m.email)}${row('Vai trò hiện hành', m.role)}${row(m.isOwner ? 'Quyền sở hữu' : 'Danh tính', m.isOwner ? 'Chủ sở hữu' : 'Chỉ đọc')}</div>`)}</div>
+    ${note}
+    ${sec('Trạng thái truy cập', '', `<div class="t1-stack12">${access}</div>${acts}`)}
+  </div>`;
+  return vScaffold({ ...base, body, toastHtml: s.toast ? toast(...s.toast, { device, above: 0 }) : '' });
 }
 
-/** showMemberLifecycleActionsBottomSheet: đệm 16 / 8 / 16 / 24; H3 w700 "Thao tác thành viên"; khe 16; tile cách 8. */
-function memberActions(m) {
-  const tiles = [actionTile('shield', 'Thay đổi vai trò', 'Cập nhật vai trò')];
-  if (m.status === 'active') tiles.push(actionTile('pause', 'Tạm ngừng thành viên', 'Dừng quyền truy cập tạm thời'));
-  if (m.status === 'suspended') tiles.push(actionTile('userCheck', 'Kích hoạt lại', 'Khôi phục quyền truy cập'));
-  tiles.push(actionTile('userX', 'Loại khỏi tổ chức', 'Kết thúc tư cách thành viên', true));
-  return `<div class="t1-sheetpad"><h2 class="t1-h3">Thao tác thành viên</h2><div class="t1-gap-md"></div>${tiles.join('<div class="t1-gap-sm"></div>')}</div>`;
-}
 /** MembershipLifecycleConfirmSheet: đệm 16 / 8 / 16 / 24; H3 w700 (danger tuỳ); khe 4; bodyDefault; khe 32; Quay lại / khe 8 / nút xác nhận. */
 const LIFECYCLE = {
   deactivate: { title: 'Tạm ngừng thành viên?', danger: true, desc: 'Thành viên mất quyền truy cập tới khi được kích hoạt lại.', ok: 'Tạm ngừng' },
@@ -224,10 +260,9 @@ const lifecycleSheet = (k, busy) => {
 
 export function memberDetailPage(v) {
   const s = MEMBER_STATES[v.state];
-  const page = usersArea(v, { tab: 0 }, { selectedId: s.id, detail: (w) => memberDetail(s, w, isSplit(v.width), v.device) });
+  const page = usersArea(v, { tab: 0 }, { detail: (w) => memberDetail(s, w, false, v.device) });
   let overlay = '';
-  if (s.sheet === 'actions') overlay = adaptiveSheet(v.width, memberActions(memberById(s.id)), 'Thao tác thành viên');
-  else if (s.sheet) overlay = adaptiveSheet(v.width, lifecycleSheet(s.sheet, !!s.busy), LIFECYCLE[s.sheet].title);
+  if (s.sheet) overlay = adaptiveSheet(v.width, lifecycleSheet(s.sheet, !!s.busy), LIFECYCLE[s.sheet].title);
   return { page, overlay };
 }
 
@@ -256,5 +291,5 @@ function selectRole(s, w) {
 
 export function selectRolePage(v) {
   const s = SELECT_STATES[v.state];
-  return { page: usersArea(v, { tab: 0 }, { selectedId: s.id, detail: (w) => selectRole(s, w) }) };
+  return { page: usersArea(v, { tab: 0 }, { detail: (w) => selectRole(s, w) }) };
 }
