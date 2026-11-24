@@ -359,11 +359,46 @@ class _ParentTabState extends State<_ParentTab> {
   final _link = LayerLink();
   final _focusNode = FocusNode(debugLabel: 'VSideNavigation parent tab');
   final _tapGroup = Object();
+  final _menuScope = FocusScopeNode(debugLabel: 'VSideNavigation menu');
 
   @override
   void dispose() {
+    _menuScope.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _toggle() {
+    if (_controller.isShowing) {
+      _close();
+      return;
+    }
+    _controller.show();
+    // Đưa focus vào menu để bàn phím (Esc, mũi tên) hoạt động dù trước đó
+    // focus đang ở nút này hoặc ở ô nhập trong trang.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _controller.isShowing) _menuScope.requestFocus();
+    });
+  }
+
+  /// Menu neo đáy theo nút nên chỉ có phần phía trên đáy nút để vẽ.
+  double _availableHeight() {
+    final box = context.findRenderObject();
+    if (box is! RenderBox || !box.attached) {
+      return MediaQuery.sizeOf(context).height - 2 * VSpacing.space4;
+    }
+    final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
+    return (bottom - VSpacing.space4).clamp(0.0, double.infinity);
+  }
+
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (_controller.isShowing &&
+        event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.escape) {
+      _close(restoreFocus: true);
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 
   void _close({bool restoreFocus = false}) {
@@ -375,52 +410,50 @@ class _ParentTabState extends State<_ParentTab> {
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
-    return OverlayPortal(
-      controller: _controller,
-      overlayChildBuilder: (context) => Align(
-        alignment: Alignment.topLeft,
-        child: CompositedTransformFollower(
-          link: _link,
-          showWhenUnlinked: false,
-          targetAnchor: Alignment.bottomRight,
-          followerAnchor: Alignment.bottomLeft,
-          child: TapRegion(
-            groupId: _tapGroup,
-            onTapOutside: (_) => _close(),
-            child: FocusScope(
-              autofocus: true,
-              onKeyEvent: (node, event) {
-                if (event is KeyDownEvent &&
-                    event.logicalKey == LogicalKeyboardKey.escape) {
-                  _close(restoreFocus: true);
-                  return KeyEventResult.handled;
-                }
-                return KeyEventResult.ignored;
-              },
-              child: _ManageMenu(
-                title: item.menuTitle ?? item.label,
-                children: item.children,
-                selectedChild: widget.selectedChild,
-                onSelect: (c) {
-                  _close();
-                  widget.onSelectChild(c);
-                },
+    return Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      onKeyEvent: _onKey,
+      child: OverlayPortal(
+        controller: _controller,
+        overlayChildBuilder: (context) => Align(
+          alignment: Alignment.topLeft,
+          child: CompositedTransformFollower(
+            link: _link,
+            showWhenUnlinked: false,
+            targetAnchor: Alignment.bottomRight,
+            followerAnchor: Alignment.bottomLeft,
+            child: TapRegion(
+              groupId: _tapGroup,
+              onTapOutside: (_) => _close(),
+              child: FocusScope(
+                node: _menuScope,
+                child: _ManageMenu(
+                  maxHeight: _availableHeight(),
+                  title: item.menuTitle ?? item.label,
+                  children: item.children,
+                  selectedChild: widget.selectedChild,
+                  onSelect: (c) {
+                    _close();
+                    widget.onSelectChild(c);
+                  },
+                ),
               ),
             ),
           ),
         ),
-      ),
-      child: CompositedTransformTarget(
-        link: _link,
-        child: TapRegion(
-          groupId: _tapGroup,
-          child: _RailTab(
-            icon: item.icon,
-            label: item.label,
-            selected: widget.selected,
-            enabled: item.enabled,
-            focusNode: _focusNode,
-            onTap: () => _controller.toggle(),
+        child: CompositedTransformTarget(
+          link: _link,
+          child: TapRegion(
+            groupId: _tapGroup,
+            child: _RailTab(
+              icon: item.icon,
+              label: item.label,
+              selected: widget.selected,
+              enabled: item.enabled,
+              focusNode: _focusNode,
+              onTap: _toggle,
+            ),
           ),
         ),
       ),
@@ -431,12 +464,14 @@ class _ParentTabState extends State<_ParentTab> {
 class _ManageMenu extends StatelessWidget {
   const _ManageMenu({
     required this.title,
+    required this.maxHeight,
     required this.children,
     required this.selectedChild,
     required this.onSelect,
   });
 
   final String title;
+  final double maxHeight;
   final List<VSideNavigationItem> children;
   final int? selectedChild;
   final void Function(int child) onSelect;
@@ -444,7 +479,6 @@ class _ManageMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final maxHeight = MediaQuery.sizeOf(context).height - 2 * VSpacing.space4;
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: 320, maxHeight: maxHeight),
       child: SizedBox(

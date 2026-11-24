@@ -206,8 +206,7 @@ void main() {
     ),
   );
 
-  Finder inNav(Finder f) =>
-      find.descendant(of: find.byType(VSideNavigation), matching: f);
+  Finder inNav(Finder f) => find.descendant(of: find.byType(VSideNavigation), matching: f);
 
   Future<void> openManageMenu(WidgetTester tester) async {
     await tester.tap(inNav(find.text('Quản lý')));
@@ -360,26 +359,29 @@ void main() {
     );
   });
 
-  testWidgets('nested flow route /warehouse/receipts/quick/header at 1280 renders in shell without provider errors', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1280, 900);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets(
+    'nested flow route /warehouse/receipts/quick/header at 1280 renders in shell without provider errors',
+    (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1280, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    final repository = FakeSessionRepository(scenario: FakeIamScenario.bootstrapValid);
-    final router = createTestRouter(
-      repository: repository,
-      initialLocation: '/warehouse/receipts/quick/header',
-    );
+      final repository = FakeSessionRepository(scenario: FakeIamScenario.bootstrapValid);
+      final router = createTestRouter(
+        repository: repository,
+        initialLocation: '/warehouse/receipts/quick/header',
+      );
 
-    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
 
-    expect(find.text('QUICK_RECEIPT_PAGE'), findsOneWidget);
-    expect(find.byType(VSideNavigation), findsOneWidget);
-  });
+      expect(find.text('QUICK_RECEIPT_PAGE'), findsOneWidget);
+      expect(find.byType(VSideNavigation), findsOneWidget);
+    },
+  );
 
   testWidgets('blocked session on /orders: displays OrganizationEmptyView and not ORDERS_PAGE', (
     tester,
@@ -439,7 +441,9 @@ void main() {
   });
 
   group('side navigation behaviours (10-8a T0)', () {
-    testWidgets('blocked session at 1280: org header label "Đổi tổ chức, Chưa chọn tổ chức"', (tester) async {
+    testWidgets('blocked session at 1280: org header label "Đổi tổ chức, Chưa chọn tổ chức"', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       final router = createTestRouter(
         repository: FakeSessionRepository(noTenants: true),
@@ -451,7 +455,10 @@ void main() {
     });
 
     testWidgets('staff at 1280: no "Người dùng & vai trò" sub-entry', (tester) async {
-      final router = createTestRouter(repository: ownerRepo(isOwner: false), initialLocation: '/orders');
+      final router = createTestRouter(
+        repository: ownerRepo(isOwner: false),
+        initialLocation: '/orders',
+      );
       await pumpWide(tester, router);
       await openManageMenu(tester);
       expect(find.text('Quản lý cửa hàng'), findsOneWidget);
@@ -480,6 +487,24 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Chọn tổ chức'), findsOneWidget);
       handle.dispose();
+    });
+
+    testWidgets('org tile focus ring is drawn outside the tile in primary', (tester) async {
+      final router = createTestRouter(repository: ownerRepo(), initialLocation: '/orders');
+      await pumpWide(tester, router);
+      final ring = find.byKey(const ValueKey('org-tile-focus-ring'));
+      BoxDecoration deco() => tester.widget<DecoratedBox>(ring).decoration as BoxDecoration;
+      expect((deco().border! as Border).top.color, Colors.transparent);
+
+      // Đưa focus bàn phím vào ô tổ chức (điểm focus đầu tiên của thanh).
+      final scope = FocusScope.of(tester.element(ring));
+      for (var i = 0; i < 10 && (deco().border! as Border).top.color == Colors.transparent; i++) {
+        scope.nextFocus();
+        await tester.pumpAndSettle();
+      }
+      expect((deco().border! as Border).top.color, VColorScheme.light.primary);
+      // Viền lớn hơn ô 40×40 mỗi phía 4 (khe 2 + viền 2).
+      expect(tester.getSize(ring), const Size(48, 48));
     });
 
     testWidgets('tap "Đăng xuất" signs out', (tester) async {
@@ -579,7 +604,11 @@ void main() {
       expect(find.byType(VSideNavigation), findsNothing);
       expect(find.byType(ErpBottomNavigation), findsOneWidget);
       for (final l in ['Trang chủ', 'Đơn hàng', 'Sản phẩm', 'Đối tác', 'Thêm']) {
-        expect(find.descendant(of: find.byType(ErpBottomNavigation), matching: find.text(l)), findsOneWidget, reason: l);
+        expect(
+          find.descendant(of: find.byType(ErpBottomNavigation), matching: find.text(l)),
+          findsOneWidget,
+          reason: l,
+        );
       }
     });
   });

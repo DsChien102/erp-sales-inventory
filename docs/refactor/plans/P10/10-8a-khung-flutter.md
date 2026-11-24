@@ -406,4 +406,60 @@ Expected: không lỗi mới; check imports OK.
 
 ## Review
 
-_(phiên review ghi)_
+### R1 (2026-11-23)
+
+Đã chạy lại: DS `v_side_navigation_test` + `test/theme` + `test/tokens` 91/91 xanh; ERP `test/features/dashboard/presentation` + `warehouse_hub_routes_test` 41/41 xanh; `dart analyze` không có lỗi / cảnh báo ở file đã sửa; `check_feature_imports` không có dòng `dashboard`; `check_prototype_tokens.py` hết lệch `neutral-150`.
+
+Cần sửa:
+
+1. **Esc không đóng menu khi mở bằng bàn phím** (`v_side_navigation.dart`, `_ParentTabState`). `FocusScope(autofocus: true)` không lấy focus khi đã có nút khác đang giữ focus. Tab tới "Quản lý" → Enter: focus vẫn ở nút "Quản lý" (ngoài `FocusScope` của menu), nên Esc không vào `onKeyEvent` và menu vẫn mở (đã thử bằng test tạm: sau Enter + Esc vẫn thấy "Kho"). Ô nhập trong trang đang giữ focus rồi bấm "Quản lý" cũng vậy. Test DS `Escape and outside tap close menu` chỉ xanh vì lúc đó không có gì giữ focus. Sửa: bắt Esc ở chỗ bao cả nút lẫn menu (ví dụ `Shortcuts` / `CallbackShortcuts` bọc `OverlayPortal`, cộng với `FocusScope` của menu), hoặc khi mở thì `requestFocus` thẳng vào menu / mục đầu tiên. Thêm test: Tab, Tab, Enter, Esc → menu đóng, focus trở lại "Quản lý".
+2. **Viền focus của ô tổ chức gần như không thấy** (`erp_side_navigation.dart`, `_SideNavOrgTileState`): viền `textBrand` #26612F vẽ bên trong ô nền `primary` #2F7A3A, tương phản ≈ 1.4:1 (dưới 3:1). Prototype dùng `outline-offset: 2px`, tức viền `primary` nằm ngoài ô, trên nền trắng. Sửa: vẽ viền ra ngoài ô (khe 2, viền `colors.primary` `VBorders.thick`), giữ ô 40×40.
+
+Nhỏ (tuỳ chọn):
+
+3. `focusColor: Colors.white24` ở ô tổ chức là màu viết cứng, trái ràng buộc "mọi màu qua `vColors`" (có thể bỏ khi đã có viền focus ở mục 2).
+4. Mục `[1.8.0]` của CHANGELOG vẫn giữ dòng Added cũ "`VSideNavigation` … một cấp mục con luôn mở" (chuyển từ Unreleased sang), mâu thuẫn với dòng Changed ngay bên dưới. Nên sửa dòng cũ cho khớp.
+5. Menu neo đáy theo nút "Quản lý" và giới hạn `maxHeight = cao màn − 32`, nhưng phía trên nút chỉ còn khoảng `cao màn − 80`. Cửa sổ thấp hơn khoảng 480 thì mép trên menu tràn ra ngoài màn. Nên tính `maxHeight` theo phần còn trống phía trên nút.
+6. Ảnh golden `flutter-shell-menu-*`: có một dải xám phẳng 16px dưới menu (lớp bóng `offset (0,16)`, trong ảnh không thấy nhoè). Có thể do môi trường test; khi kiểm tay APP-04 nhớ nhìn bóng menu trên máy thật.
+
+Đúng plan: hợp đồng `items` / `selected` / `onSelect` giữ nguyên; lọc `ownerOnly`, `isInteractive`, chọn mục con, `ValueKey(tenantId)` gỡ menu khi đổi tổ chức; bỏ `VContentWidth` chỉ ở `/` (Q1); bấm "Quản lý" bật / tắt menu, không mở hai lớp; gỡ thanh thì menu cũng gỡ; chữ cái đầu xử lý được khoảng trắng đầu và chữ thường có dấu; token `neutral150` / `surfaceHoverStrong` có trong `copyWith` / `lerp`; DESIGN.md, README shell, chú thích `insideShell` đã cập nhật.
+
+Kết luận: **chưa đạt** — sửa mục 1 và 2 (kèm test) rồi review lại.
+
+### Sửa R1 (2026-11-24)
+
+**Mục 1 — xác nhận rồi sửa.** Test mới `keyboard: Tab, Tab, Tab, Enter opens menu; Escape closes it and restores focus` (`v_side_navigation_test.dart`) đỏ trên code cũ: Tab ×3 + Enter mở menu, Esc không đóng (focus vẫn ở nút "Quản lý", ngoài `FocusScope` của menu). Sửa trong `_ParentTabState`: (a) `Focus(canRequestFocus: false, skipTraversal: true, onKeyEvent: _onKey)` bọc `OverlayPortal` — lớp phủ là con logic của portal nên Esc từ nút lẫn menu đều bubble tới đây; (b) `_toggle()` mở menu thì `FocusScopeNode.requestFocus()` ở frame sau, nên cả khi focus đang ở ô nhập trong trang thì Esc vẫn vào menu; (c) đóng bằng Esc trả focus về nút "Quản lý". Test xanh: DS `v_side_navigation_test` 19/19; ERP `test/features/dashboard/presentation` 36/36; `dart analyze` file đã sửa sạch.
+
+**Mục 2 — sửa.** `_SideNavOrgTileState` (`erp_side_navigation.dart`): viền focus vẽ bằng `Positioned` ngoài ô (`Stack`, `clipBehavior: none`, lệch 4 mỗi phía = khe 2 + viền 2, bo `r8 + 4`), màu `colors.primary` `VBorders.thick`, `IgnorePointer`; ô giữ 40×40. Viền luôn có mặt (trong suốt khi không focus) để không đổi cây widget. Bỏ luôn `focusColor: Colors.white24` (mục 3) vì đã có viền. Test mới `org tile focus ring is drawn outside the tile in primary` (`store_shell_test.dart`): trước focus viền trong suốt, sau `nextFocus` viền `primary`, kích thước vòng 48×48. `Tab` bằng `sendKeyEvent` không dời focus trong test này nên test dùng `FocusScope.nextFocus()`. Xanh: ERP `test/features/dashboard/presentation` + `warehouse_hub_routes_test` 42/42; golden không đổi (viền trong suốt khi không focus).
+
+**Mục 4 — sửa.** Dòng Added cũ trong CHANGELOG `[1.8.0]` đổi "một cấp mục con luôn mở" → "mục có con mở menu nổi".
+
+**Mục 5 — sửa.** `_ParentTabState._availableHeight()` tính `maxHeight` menu = đáy nút "Quản lý" − `VSpacing.space4` (thay cho `cao màn − 32`), truyền vào `_ManageMenu`. Test DS mới `menu is limited to the space above the button` (rail cao 260, menu 8 mục): đỏ trên code cũ, xanh sau sửa. DS `v_side_navigation_test` 20/20.
+
+**Mục 6 — không đổi code.** Dải xám dưới menu trong golden nhiều khả năng do môi trường test (font Ahem, không nhoè bóng); giữ lại ở bước kiểm tay APP-04: nhìn bóng menu trên máy thật.
+
+### R2 (2026-11-24)
+
+Đã chạy lại: DS `v_side_navigation_test` + `test/theme` + `test/tokens` 93/93 xanh; ERP `test/features/dashboard/presentation` + `warehouse_hub_routes_test` 42/42 xanh (trong đó `shell_golden_test` 10/10, golden không đổi); `dart analyze` không có lỗi / cảnh báo ở 4 file đã sửa; `dart format` sạch; `check_feature_imports` không có dòng `dashboard`.
+
+Kiểm thêm bằng test tạm (đã xoá, không commit):
+- Ô nhập trong trang đang giữ focus → bấm chuột "Thêm" → Esc: menu đóng (đúng mục 1b).
+- Tab tới nút → Enter: focus vào `FocusScope` của menu; Tab tiếp vào mục đầu; Enter trên mục chọn và đóng menu (đúng mục 1a).
+- Đổi cửa sổ 800 → 400 khi menu đang mở: menu dựng lại, đáy menu vẫn trùng đáy nút, không exception.
+
+Từng mục R1:
+1. **Esc — đạt.** `Focus(canRequestFocus: false, onKeyEvent)` bọc `OverlayPortal` bắt Esc từ cả nút lẫn menu (lớp phủ là con logic của portal); mở thì `requestFocus` vào menu ở frame sau, có kiểm `mounted && isShowing`; đóng bằng Esc trả focus về nút. Test `keyboard: Tab, Tab, Tab, Enter …` kiểm cả focus trả về.
+2. **Viền focus ô tổ chức — đạt.** Viền `primary` nằm ngoài ô (khe 2 + viền 2, 48×48), trên nền trắng của thanh (tương phản ≈ 5.3:1); `IgnorePointer`; ô giữ 40×40; viền luôn có mặt nên cây widget không đổi. Không bị cắt: thanh đệm trên 16, hai bên 22.
+3. **`Colors.white24` — đã bỏ.**
+4. **CHANGELOG — đạt.**
+5. **`maxHeight` theo phần trống phía trên nút — đạt.** Test mới đỏ trên code cũ, xanh sau sửa.
+6. Giữ ở bước kiểm tay APP-04 — đồng ý.
+
+Nhỏ (không chặn):
+- Test `menu is limited to the space above the button` kiểm `top >= 0`, trong khi code bảo đảm `top >= VSpacing.space4`. Nên siết thành `greaterThanOrEqualTo(VSpacing.space4)` để test bắt được nếu ai bỏ phần trừ 16.
+- `_availableHeight()` đọc vị trí của render box ngay trong `overlayChildBuilder`, tức lấy bố cục của frame trước. Khi đổi cỡ cửa sổ, vị trí có thể cũ đi một frame; thử 800 → 400 không thấy lỗi. Chấp nhận.
+- Diff có nhiều dòng chỉ do `dart format` dàn lại (`store_shell_test`, `v_side_navigation_test`). Vô hại, chỉ làm diff dài hơn.
+- Bản sửa R1 chưa commit. `PLAN.md` dòng "Layout tổng thể" vẫn ghi "chờ review": sau khi commit thì đổi sang "review đạt, chờ kiểm tay APP-04".
+
+Kết luận: **đạt**. Còn kiểm tay APP-04 trên máy thật (màu chữ / icon thật, bóng menu) trước khi tick CHECKLIST.
+

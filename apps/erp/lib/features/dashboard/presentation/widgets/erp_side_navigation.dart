@@ -117,6 +117,7 @@ class _SideNavOrgTile extends StatefulWidget {
 }
 
 class _SideNavOrgTileState extends State<_SideNavOrgTile> {
+  static const _focusGap = 4.0; // khe 2 + viền 2
   bool _isFocused = false;
   bool _isHovered = false;
 
@@ -124,9 +125,7 @@ class _SideNavOrgTileState extends State<_SideNavOrgTile> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final radius = BorderRadius.circular(VRadius.r8);
-    final initial = widget.showStore
-        ? ''
-        : widget.orgName.trim().characters.first.toUpperCase();
+    final initial = widget.showStore ? '' : widget.orgName.trim().characters.first.toUpperCase();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: VSpacing.space4),
@@ -139,49 +138,67 @@ class _SideNavOrgTileState extends State<_SideNavOrgTile> {
             excludeSemantics: true,
             child: SizedBox.square(
               dimension: 40,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: _isHovered ? colors.primaryPressed : colors.primary,
-                  borderRadius: radius,
-                ),
-                position: DecorationPosition.background,
-                child: DecoratedBox(
-                  position: DecorationPosition.foreground,
-                  decoration: BoxDecoration(
-                    borderRadius: radius,
-                    border: Border.all(
-                      color: _isFocused ? colors.textBrand : Colors.transparent,
-                      width: VBorders.thick,
-                    ),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: radius,
-                      focusColor: Colors.white24,
-                      hoverColor: Colors.transparent,
-                      onHover: (v) => setState(() => _isHovered = v),
-                      onFocusChange: (v) => setState(() => _isFocused = v),
-                      onTap: widget.onTap,
-                      child: Center(
-                        child: widget.showStore
-                            ? VIcon(
-                                icon: VIcons.store,
-                                size: 20,
-                                color: colors.textInverse,
-                              )
-                            : Text(
-                                initial,
-                                style: VTypography.headingH4.copyWith(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: colors.textInverse,
-                                ),
-                              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: _isHovered ? colors.primaryPressed : colors.primary,
+                        borderRadius: radius,
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: radius,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          onHover: (v) => setState(() => _isHovered = v),
+                          onFocusChange: (v) => setState(() => _isFocused = v),
+                          onTap: widget.onTap,
+                          child: Center(
+                            child: widget.showStore
+                                ? VIcon(
+                                    icon: VIcons.store,
+                                    size: 20,
+                                    color: colors.textInverse,
+                                  )
+                                : Text(
+                                    initial,
+                                    style: VTypography.headingH4.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: colors.textInverse,
+                                    ),
+                                  ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  // Viền focus nằm ngoài ô (khe 2, dày 2) như `outline-offset: 2px`
+                  // của prototype: vẽ trên nền trắng của thanh nên đủ tương phản.
+                  Positioned(
+                    left: -_focusGap,
+                    top: -_focusGap,
+                    right: -_focusGap,
+                    bottom: -_focusGap,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        key: const ValueKey('org-tile-focus-ring'),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            VRadius.r8 + _focusGap,
+                          ),
+                          border: Border.all(
+                            color: _isFocused ? colors.primary : Colors.transparent,
+                            width: VBorders.thick,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

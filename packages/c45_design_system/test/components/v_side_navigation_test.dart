@@ -92,7 +92,10 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpWidget(
-        MaterialApp(theme: VTheme.lightTheme, home: Scaffold(body: nav)),
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(body: nav),
+        ),
       );
     }
 
@@ -131,7 +134,9 @@ void main() {
       expect(find.text('Quản lý cửa hàng'), findsOneWidget);
     });
 
-    testWidgets('tapping parent does not call onSelect; tapping it again closes menu', (tester) async {
+    testWidgets('tapping parent does not call onSelect; tapping it again closes menu', (
+      tester,
+    ) async {
       final selections = <(int, int?)>[];
       await pumpNav(tester, onSelect: (i, c) => selections.add((i, c)));
 
@@ -178,6 +183,69 @@ void main() {
       await tester.tapAt(const Offset(800, 100));
       await tester.pumpAndSettle();
       expect(find.text('Kho'), findsNothing);
+    });
+
+    testWidgets('keyboard: Tab, Tab, Tab, Enter opens menu; Escape closes it and restores focus', (
+      tester,
+    ) async {
+      await pumpNav(tester);
+
+      for (var i = 0; i < 3; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+      }
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(find.text('Kho'), findsOneWidget);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Kho'), findsNothing);
+      expect(
+        FocusManager.instance.primaryFocus?.debugLabel,
+        'VSideNavigation parent tab',
+      );
+    });
+
+    testWidgets('menu is limited to the space above the button', (tester) async {
+      tester.view.physicalSize = const Size(1000, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                height: 260, // rail thấp, menu 8 mục cao hơn phần trống phía trên nút
+                child: VSideNavigation(
+                  selected: (0, null),
+                  onSelect: (_, _) {},
+                  items: [
+                    ...buildItems().take(2),
+                    VSideNavigationItem(
+                      icon: const Icon(Icons.more_horiz_rounded),
+                      label: 'Thêm',
+                      menuTitle: 'Quản lý cửa hàng',
+                      children: [
+                        for (var i = 0; i < 8; i++) VSideNavigationItem(label: 'Mục $i'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Thêm'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Quản lý cửa hàng'), findsOneWidget);
+      final top = tester.getTopLeft(find.byType(SingleChildScrollView).last).dy;
+      expect(top, greaterThanOrEqualTo(0));
     });
 
     testWidgets('disabled main item and child do not call onSelect', (tester) async {
@@ -236,12 +304,17 @@ void main() {
 
       Color? tabBg(String label) {
         final box = tester.widget<Container>(
-          find.ancestor(
-            of: find.text(label),
-            matching: find.byWidgetPredicate(
-              (w) => w is Container && w.decoration is BoxDecoration && (w.decoration! as BoxDecoration).color != null,
-            ),
-          ).first,
+          find
+              .ancestor(
+                of: find.text(label),
+                matching: find.byWidgetPredicate(
+                  (w) =>
+                      w is Container &&
+                      w.decoration is BoxDecoration &&
+                      (w.decoration! as BoxDecoration).color != null,
+                ),
+              )
+              .first,
         );
         return (box.decoration! as BoxDecoration).color;
       }
@@ -250,7 +323,10 @@ void main() {
 
       final handle = tester.ensureSemantics();
       await openMenu(tester);
-      expect(tester.getSemantics(find.text('Thiết lập')).flagsCollection.isSelected, Tristate.isTrue);
+      expect(
+        tester.getSemantics(find.text('Thiết lập')).flagsCollection.isSelected,
+        Tristate.isTrue,
+      );
       expect(tester.getSemantics(find.text('Kho')).flagsCollection.isSelected, Tristate.isFalse);
       handle.dispose();
     });
@@ -293,12 +369,17 @@ void main() {
       await pumpNav(tester);
       final colors = VColorScheme.light;
       final box = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(VSideNavigation),
-          matching: find.byWidgetPredicate(
-            (w) => w is Container && w.decoration is BoxDecoration && (w.decoration! as BoxDecoration).border != null,
-          ),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(VSideNavigation),
+              matching: find.byWidgetPredicate(
+                (w) =>
+                    w is Container &&
+                    w.decoration is BoxDecoration &&
+                    (w.decoration! as BoxDecoration).border != null,
+              ),
+            )
+            .first,
       );
       final deco = box.decoration! as BoxDecoration;
       expect(deco.color, colors.surface);
@@ -308,13 +389,21 @@ void main() {
     testWidgets('tab min height 60, menu item min height 44', (tester) async {
       await pumpNav(tester);
       for (final label in ['Trang chủ', 'Đơn hàng', 'Thêm']) {
-        final item = find.ancestor(of: find.text(label), matching: find.byType(MergeSemantics)).first;
+        final item = find
+            .ancestor(of: find.text(label), matching: find.byType(MergeSemantics))
+            .first;
         expect(tester.getSize(item).height, greaterThanOrEqualTo(60), reason: label);
       }
       await openMenu(tester);
       for (final label in ['Kho', 'Thiết lập']) {
-        final item = find.ancestor(of: find.text(label), matching: find.byType(MergeSemantics)).first;
-        expect(tester.getSize(item).height, greaterThanOrEqualTo(VSpacing.minTouchTarget), reason: label);
+        final item = find
+            .ancestor(of: find.text(label), matching: find.byType(MergeSemantics))
+            .first;
+        expect(
+          tester.getSize(item).height,
+          greaterThanOrEqualTo(VSpacing.minTouchTarget),
+          reason: label,
+        );
       }
     });
 
@@ -336,7 +425,10 @@ void main() {
       expect(find.text('Kho'), findsOneWidget);
 
       await tester.pumpWidget(
-        MaterialApp(theme: VTheme.lightTheme, home: const Scaffold(body: SizedBox())),
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: const Scaffold(body: SizedBox()),
+        ),
       );
       await tester.pumpAndSettle();
       expect(find.text('Kho'), findsNothing);

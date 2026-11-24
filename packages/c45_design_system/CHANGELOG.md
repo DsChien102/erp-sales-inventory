@@ -29,7 +29,7 @@ changelogs when relevant.
 - `VCard.isSelected`: hỗ trợ trạng thái được chọn (`surfaceBrand` + `borderBrand` và `Semantics(selected: true)`).
 - `showVAdaptiveSheet` / `VSheetDialog`: bottom sheet tự động chuyển thành hộp thoại trên desktop (≥ 1024).
 - `VAppBar.popNearest`: pop navigator gần nhất pop được.
-- `VSideNavigation` / `VSideNavigationItem`: thanh điều hướng bên trái cho màn hình rộng (desktop ≥ 1024), hỗ trợ một cấp mục con luôn mở, vùng chạm ≥ 44pt, semantics selected, focus viền bàn phím rõ ràng, token màu chuẩn Design System.
+- `VSideNavigation` / `VSideNavigationItem`: thanh điều hướng bên trái cho màn hình rộng (desktop ≥ 1024), mục có con mở menu nổi, vùng chạm ≥ 44pt, semantics selected, focus viền bàn phím rõ ràng, token màu chuẩn Design System.
 - `VSideNavigationItem.description` / `menuTitle`, `VSideNavigationAction` (tab icon + nhãn cho footer, `destructive`), `VColors.neutral150`, `VColorScheme.surfaceHoverStrong`, `VIcons.layers` (10-8a).
 - `VChip.isSelected` exposes chip selection to semantics.
 - `VPageScaffold.contentMaxWidth` (+ `defaultContentMaxWidth`, `fullWidth`): từ breakpoint tablet, body và `bottomBar` nằm trong một cột giữa (640 tablet / 720 desktop); điện thoại giữ nguyên full-width. FAB bám mép cột. Trang tự chia pane truyền `VPageScaffold.fullWidth`.
