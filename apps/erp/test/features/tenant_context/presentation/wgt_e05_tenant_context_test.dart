@@ -1,6 +1,5 @@
 import 'package:erp/features/dashboard/presentation/home_tab_page.dart';
 import 'package:erp/features/dashboard/presentation/store_shell.dart';
-import 'package:erp/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:erp/features/dashboard/presentation/widgets/tenant_ready_gate.dart';
 import 'package:erp/features/sales/presentation/pages/sales_order_list_page.dart';
 import 'package:erp/core/session/models/accessible_tenant.dart';
@@ -19,6 +18,7 @@ import 'package:erp/features/iam/presentation.dart';
 
 import '../../dashboard/presentation/fake_default_pair_repository.dart';
 import '../../../core/session/fake_session_repository.dart';
+import '../../dashboard/support/fake_home_repository.dart';
 
 void main() {
   final getIt = GetIt.instance;
@@ -49,7 +49,7 @@ void main() {
           builder: (context, state) => StoreShell(
             repository: repository,
             autoBootstrap: true,
-            child: const TenantReadyGate(child: HomeTabPage()),
+            child: TenantReadyGate(child: HomeTabPage(repository: FakeHomeRepository())),
           ),
         ),
       ],
@@ -314,9 +314,9 @@ void main() {
       await tester.pumpWidget(wrapDashboard(FakeSessionRepository(scenario: module.scenario)));
       await tester.pumpAndSettle();
 
-      expect(find.byType(DashboardHeader), findsOneWidget);
+      expect(find.byKey(const Key('home_board')), findsOneWidget);
       expect(find.textContaining('Thú y Minh Phát'), findsWidgets);
-      expect(find.text('Tổng quan hôm nay'), findsOneWidget);
+      expect(find.byKey(const Key('home_board')), findsOneWidget);
     });
 
     testWidgets('bootstrap without last selected adopts the first tenant', (tester) async {
@@ -328,7 +328,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Thú y Minh Phát'), findsWidgets);
-      expect(find.text('Tổng quan hôm nay'), findsOneWidget);
+      expect(find.byKey(const Key('home_board')), findsOneWidget);
       expect(repository.lastSelectedTenantId, 'org-001');
     });
 
@@ -393,7 +393,7 @@ void main() {
                 status: TenantLoadStatus.blocked,
                 emptyStateType: OrganizationEmptyStateType.noAuthorizedOrganizations,
               ),
-              child: const TenantReadyGate(child: HomeTabPage()),
+              child: TenantReadyGate(child: HomeTabPage(repository: FakeHomeRepository())),
             ),
           ),
         ],

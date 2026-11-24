@@ -13,6 +13,7 @@ import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 import '../../core/session/fake_session_repository.dart';
 import '../dashboard/presentation/fake_default_pair_repository.dart';
 import 'support/scripted_auth.dart';
+import '../dashboard/support/fake_home_repository.dart';
 
 /// e2e_th01_s0_session — sign-in → session query → dashboard (S0).
 void main() {
@@ -58,7 +59,7 @@ void main() {
             builder: (context, state) => StoreShell(
               repository: tenants,
               autoBootstrap: true,
-              child: const HomeTabPage(),
+              child: HomeTabPage(repository: FakeHomeRepository()),
             ),
           ),
         ],
@@ -77,7 +78,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(auth.signIns, hasLength(1));
-      expect(find.text('Tổng quan hôm nay'), findsOneWidget);
+      expect(find.byKey(const Key('home_board')), findsOneWidget);
     },
   );
 

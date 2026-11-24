@@ -54,6 +54,7 @@ import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/pages/verify_email_page.dart';
 
 // Dashboard & Shell
+import '../../features/dashboard/data/home_repository.dart';
 import '../../features/dashboard/presentation/erp_tab_scaffold.dart';
 import '../../features/dashboard/presentation/home_tab_page.dart';
 import '../../features/dashboard/presentation/store_shell.dart';
@@ -483,7 +484,7 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: '/',
                   name: 'dashboard',
-                  builder: (context, state) => const HomeTabPage(),
+                  builder: (context, state) => HomeTabPage(repository: getIt<HomeRepository>()),
                 ),
               ],
             ),

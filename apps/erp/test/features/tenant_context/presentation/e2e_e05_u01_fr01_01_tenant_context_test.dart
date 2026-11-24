@@ -10,6 +10,7 @@ import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 
 import '../../dashboard/presentation/fake_default_pair_repository.dart';
 import '../../../core/session/fake_session_repository.dart';
+import '../../dashboard/support/fake_home_repository.dart';
 
 /// e2e_e05_u01/u02/u03 — ERP tenant context via FakeIamBackend (Group A).
 void main() {
@@ -27,9 +28,7 @@ void main() {
   });
 
   void registerModule(FakeIamBackend module) {
-    getIt
-      
-      ..registerSingleton<FakeIamBackend>(module);
+    getIt..registerSingleton<FakeIamBackend>(module);
   }
 
   Widget wrap(FakeSessionRepository repository) {
@@ -41,7 +40,7 @@ void main() {
           builder: (context, state) => StoreShell(
             repository: repository,
             autoBootstrap: true,
-            child: const TenantReadyGate(child: HomeTabPage()),
+            child: TenantReadyGate(child: HomeTabPage(repository: FakeHomeRepository())),
           ),
         ),
       ],
@@ -50,7 +49,14 @@ void main() {
   }
 
   Future<void> openSelectorFromHeader(WidgetTester tester) async {
-    await tester.tap(find.byIcon(Icons.storefront_outlined));
+    // 10-8b: đầu Trang chủ mới không còn icon cửa hàng; bấm nút tên tổ chức.
+    await tester.tap(
+      find
+          .byWidgetPredicate(
+            (w) => w is Semantics && (w.properties.label ?? '').startsWith('Đổi tổ chức, '),
+          )
+          .first,
+    );
     await tester.pumpAndSettle();
     expect(find.text('Chọn tổ chức'), findsOneWidget);
   }
@@ -70,7 +76,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Thú y Minh Phát'), findsWidgets);
-    expect(find.text('Tổng quan hôm nay'), findsOneWidget);
+    expect(find.byKey(const Key('home_board')), findsOneWidget);
   });
 
   testWidgets('e2e_e05_u01_fr01_02: open selector → multi tenants', (

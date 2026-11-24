@@ -18,6 +18,7 @@ import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 import '../../../core/session/fake_session_repository.dart';
 import '../../iam/support/fake_iam_backend.dart';
 import 'fake_default_pair_repository.dart';
+import '../support/fake_home_repository.dart';
 
 void main() {
   final getIt = GetIt.instance;
@@ -79,7 +80,7 @@ void main() {
                   routes: [
                     GoRoute(
                       path: '/',
-                      builder: (context, state) => const HomeTabPage(),
+                      builder: (context, state) => HomeTabPage(repository: FakeHomeRepository()),
                     ),
                   ],
                 ),

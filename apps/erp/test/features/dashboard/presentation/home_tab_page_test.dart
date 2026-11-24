@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../core/session/fake_session_repository.dart';
 import '../../iam/support/fake_iam_backend.dart';
+import '../support/fake_home_repository.dart';
 
 /// 10-8b T0: hành vi đầu Trang chủ (tên tổ chức, bấm đổi tổ chức) giữ khi thay màn.
 void main() {
@@ -23,7 +24,7 @@ void main() {
     );
   }
 
-  Widget page() => const HomeTabPage();
+  Widget page() => HomeTabPage(repository: FakeHomeRepository());
 
   const ready = SessionState(
     status: TenantLoadStatus.ready,

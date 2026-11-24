@@ -94,12 +94,6 @@ final class SessionController extends Cubit<SessionState> {
     _holdSignedIn = false;
   }
 
-  /// Ẩn banner hồ sơ pháp lý đến hết phiên, hoặc đến khi đổi người dùng / tổ chức.
-  void dismissLegalProfileBanner() {
-    if (isClosed || state.legalProfileBannerDismissed) return;
-    emit(state.copyWith(legalProfileBannerDismissed: true));
-  }
-
   void _apply(String? userId) {
     final trimmed = userId?.trim();
     if (trimmed == null || trimmed.isEmpty) {
@@ -438,7 +432,6 @@ final class SessionController extends Cubit<SessionState> {
           clearSwitchFailure: true,
           clearContextFailure: true,
           clearBlockedErrorCode: true,
-          legalProfileBannerDismissed: false,
         ),
       );
       return true;
@@ -553,8 +546,6 @@ final class SessionController extends Cubit<SessionState> {
     if (context.status == TenantContextStatus.valid) {
       _applyTenantContextPermissions(context);
     }
-    final tenantChanged = state.current?.tenantId != context.tenantId;
-    final keepBanner = !tenantChanged && state.legalProfileBannerDismissed;
     switch (context.status) {
       case TenantContextStatus.valid:
         emit(
@@ -566,7 +557,6 @@ final class SessionController extends Cubit<SessionState> {
             clearContextFailure: true,
             clearBlockedErrorCode: true,
             openSelectorRequested: false,
-            legalProfileBannerDismissed: keepBanner,
           ),
         );
         break;

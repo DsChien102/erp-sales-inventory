@@ -7,7 +7,6 @@ import 'package:erp/features/dashboard/data/default_pair_repository.dart';
 import 'package:erp/features/dashboard/presentation/erp_tab_scaffold.dart';
 import 'package:erp/features/dashboard/presentation/home_tab_page.dart';
 import 'package:erp/features/dashboard/presentation/store_shell.dart';
-import 'package:erp/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:erp/features/dashboard/presentation/widgets/erp_bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,6 +17,7 @@ import 'package:c45_design_system/design_system.dart';
 import '../../../core/session/fake_session_repository.dart';
 import '../../iam/support/fake_iam_backend.dart';
 import 'fake_default_pair_repository.dart';
+import '../support/fake_home_repository.dart';
 
 void main() {
   testWidgets('scn_dashboard_gate_success', (tester) async {
@@ -35,14 +35,13 @@ void main() {
 
     await tester.pumpWidget(_app(repo));
     expect(find.byType(VLoading), findsOneWidget);
-    expect(find.byType(DashboardHeader), findsNothing);
+    expect(find.byKey(const Key('home_board')), findsNothing);
     expect(find.byType(ErpBottomNavigation), findsNothing);
 
     gate.complete();
     await tester.pumpAndSettle();
 
-    expect(find.text('Tổng quan hôm nay'), findsOneWidget);
-    expect(find.byType(DashboardHeader), findsOneWidget);
+    expect(find.byKey(const Key('home_board')), findsOneWidget);
     expect(find.byType(ErpBottomNavigation), findsOneWidget);
     expect(repo.getCalls, 1);
     expect(repo.ensureCalls, 1);
@@ -62,15 +61,14 @@ void main() {
     );
 
     await tester.pumpWidget(_app(repo));
-    expect(find.byType(DashboardHeader), findsNothing);
+    expect(find.byKey(const Key('home_board')), findsNothing);
     expect(find.byType(ErpBottomNavigation), findsNothing);
 
     gate.complete();
     await tester.pumpAndSettle();
 
     expect(find.text('Không thiết lập được kho mặc định'), findsOneWidget);
-    expect(find.text('Tổng quan hôm nay'), findsNothing);
-    expect(find.byType(DashboardHeader), findsNothing);
+    expect(find.byKey(const Key('home_board')), findsNothing);
     expect(find.text('Không thể tải danh sách'), findsNothing);
     expect(repo.ensureCalls, 1);
 
@@ -78,14 +76,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Không thiết lập được kho mặc định'), findsOneWidget);
-    expect(find.text('Tổng quan hôm nay'), findsNothing);
+    expect(find.byKey(const Key('home_board')), findsNothing);
     expect(repo.ensureCalls, 2);
 
     await tester.tap(find.text('Chọn tổ chức khác'));
     await tester.pumpAndSettle();
 
     expect(find.text('Chọn tổ chức'), findsOneWidget);
-    expect(find.text('Tổng quan hôm nay'), findsNothing);
+    expect(find.byKey(const Key('home_board')), findsNothing);
   });
 
   testWidgets('scn_dashboard_gate_reload_on_tenant_change', (tester) async {
@@ -95,7 +93,7 @@ void main() {
     await tester.pumpWidget(_app(repo));
     await tester.pumpAndSettle();
 
-    expect(find.text('Tổng quan hôm nay'), findsOneWidget);
+    expect(find.byKey(const Key('home_board')), findsOneWidget);
     expect(repo.getCalls, 1);
 
     final ok = await tester
@@ -107,7 +105,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.getCalls, 2);
-    expect(find.text('Tổng quan hôm nay'), findsOneWidget);
+    expect(find.byKey(const Key('home_board')), findsOneWidget);
   });
 }
 
@@ -148,7 +146,7 @@ Widget _app(DefaultPairRepository defaultPairRepository) {
                   GoRoute(
                     path: '/',
                     name: 'dashboard',
-                    builder: (context, state) => const HomeTabPage(),
+                    builder: (context, state) => HomeTabPage(repository: FakeHomeRepository()),
                   ),
                 ],
               ),
