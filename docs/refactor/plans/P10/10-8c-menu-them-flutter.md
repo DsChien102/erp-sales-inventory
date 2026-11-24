@@ -275,7 +275,14 @@ Expected: không lỗi mới; check imports OK.
 
 ## Kết quả
 
-_(phiên code ghi: tên 6 test Task 0, kết quả từng lệnh, lệch ảnh nếu có)_
+**Task 0** (xanh trên code cũ, `flutter test test/features/more/presentation/pages` → 9 pass): `settings at 390 pushed from /more: has back`, `settings at 390 opened directly: no back`, `settings: tap back returns to /more`, `users-and-roles at 390 pushed from /more: has back`, `users-and-roles at 390 opened directly: no back`, `users-and-roles: tap back returns to /more`.
+
+**Task 1:** 8 test mới (4 mỗi trang) đỏ trước khi sửa (6 fail: 1280, 1024, widen), xanh sau: `flutter test test/features/more/presentation` → 25 pass. 4 golden tạo và chạy lại không `--update-goldens` → pass. `check_feature_imports`: chỉ vi phạm có sẵn ở `features/pricing/data` (không thuộc phạm vi); `dart analyze lib test`: không cảnh báo mới ở `features/more`.
+
+**Lệch đã biết:**
+- `w2_behavior_preservation_test.dart` H12 **đỏ cả trước khi sửa** (`GetIt: HomeRepository is not registered`, do Trang chủ 10-8b) → không phải do 10-8c; chưa sửa (ngoài phạm vi).
+- Golden Flutter hiện icon là ô vuông (font icon không nạp trong test), bố cục thanh tiêu đề + thân khớp prototype: 390 có ←, 1280 không có ←, cột 720 căn giữa. Thiết lập 1280 và Q4 như plan.
+- Plan ghi `app_router.dart:1234`; dòng thật là 679.
 
 ## Review
 

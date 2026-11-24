@@ -36,9 +36,13 @@ Màn trần không có tương tác: mọi thẻ trong Flutter `push` sang route
 | Người dùng & vai trò | `features/more/presentation/pages/users_and_roles_page.dart` (`_HubMenuCard`), quyền ở `logic/iam_feature_access_state.dart` |
 | DS | `v_card.dart` (subtle: không bóng), `v_icon_box.dart`, `v_app_bar.dart`, `patterns/v_page_scaffold.dart` (thân tối đa 720 khi ≥ 1024) |
 
+## Đề xuất đã chốt (2026-11-23) — đã có trong Flutter (10-8c, 2026-11-24)
+
+Thiết lập, Người dùng & vai trò chỉ có nút ← khi cửa sổ < 1024 (`main.js:103`; iPhone, web hẹp vào từ màn Thêm). Web ≥ 1024 mở từ menu "Quản lý" của thanh biểu tượng, không có trang Thêm để quay về. Plan: [10-8c](../../../../docs/refactor/plans/P10/10-8c-menu-them-flutter.md).
+
 ## Hiện trạng Flutter (để rà)
 
-1. **Thiết lập và Người dùng & vai trò mở ngoài khung.** `/more/settings`, `/more/users-and-roles` khai báo ngoài `ShellRoute(StoreShell)` → web mất thanh bên, iPhone mất thanh dưới (đã ghi ở Khung chung, phát hiện 1).
+1. **Thiết lập và Người dùng & vai trò nằm trong khung web, chỉ iPhone mất thanh dưới.** Hai route nằm **trong** `ShellRoute(StoreShell)` (đóng ở `app_router.dart:679`) nên web có thanh bên; iPhone mất thanh dưới vì không qua `ErpTabScaffold`. Ảnh web của prototype không có thanh biểu tượng là do `insideShell` trong `shared/shell.js` coi hai route này nằm ngoài khung (10-8c Q4).
 2. **Web dùng nguyên bố cục điện thoại cho màn Thêm:** 10 thẻ cao 74 xếp dọc, giãn hết vùng nội dung (~1008 px), chữ dồn bên trái, mũi tên sát mép phải; web 800 px vẫn phải cuộn mới thấy "Thiết lập", "Đăng xuất". Thanh bên đã có đủ mục con nên màn Thêm trên web lặp lại thanh bên.
 3. **Ba kiểu thẻ menu cho cùng một việc:** Thêm = hộp icon 44 nền xanh nhạt + tiêu đề 1 dòng; Thiết lập = hộp icon 44 **nền trắng trùng nền thẻ** (không truyền `backgroundColor`) + phụ đề 2 dòng; Người dùng & vai trò = icon trần 20 màu chữ, đệm dọc 16, khe 8, chữ không giới hạn dòng.
 4. **Màn Thêm trên web khi tổ chức bị chặn:** 7/10 thẻ mờ 45%; chỉ "Tài khoản của tôi" và "Đăng xuất" bấm được, không có dòng giải thích vì sao mờ. Mờ dùng chung một cách cho "chưa làm" (Khách hàng & NCC, Đơn nhập, Báo cáo) và "bị chặn" → người dùng không phân biệt được.
@@ -46,7 +50,7 @@ Màn trần không có tương tác: mọi thẻ trong Flutter `push` sang route
 6. **Người dùng & vai trò lỗi im lặng:** cubit lỗi / không quyền → danh sách rỗng, không chữ, không nút thử lại (ca `users__empty`). Có `RefreshIndicator` (kéo để tải lại) nhưng web không kéo được.
 7. **"Đăng xuất" là thẻ menu như mọi mục** (nền đỏ nhạt, chữ đỏ, có mũi tên `>`), đặt cuối danh sách, không hỏi xác nhận. Mũi tên gợi ý "mở màn khác" trong khi bấm là đăng xuất ngay.
 8. **Trùng icon:** "Khách hàng & NCC" và "Người dùng & vai trò" cùng `VIcons.people`; trong màn Người dùng & vai trò, "Người dùng" lại dùng `people`.
-9. Màn Thêm có `VAppBar` "Thêm" trong khi thanh bên web đã ghi "Thêm" đang chọn → tiêu đề lặp.
+9. Màn Thêm có `VAppBar` "Thêm" trong khi thanh bên web đã ghi "Thêm" đang chọn → tiêu đề lặp. Web ≥ 1024 không còn tab "Thêm" (10-8a) nên không còn lặp trên web.
 
 ## Khác biệt có chủ đích với Flutter
 
