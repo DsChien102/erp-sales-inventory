@@ -225,10 +225,7 @@ void main() {
     await tester.tap(find.text('Đăng xuất'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Đăng xuất khỏi Mosaic Retail?'), findsOneWidget);
-    await tester.tap(find.widgetWithText(VButton, 'Đăng xuất'));
-    await tester.pumpAndSettle();
-
+    expect(find.text('Đăng xuất khỏi Mosaic Retail?'), findsNothing);
     expect(signOutCalls, 1);
     expect(find.text('Login'), findsOneWidget);
   });
@@ -250,8 +247,6 @@ void main() {
       await tester.tap(find.text('Thao tác'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Đăng xuất'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(VButton, 'Đăng xuất'));
       await tester.pumpAndSettle();
 
       expect(find.text('Login'), findsOneWidget);

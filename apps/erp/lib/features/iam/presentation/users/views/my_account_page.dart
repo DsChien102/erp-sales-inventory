@@ -10,7 +10,6 @@ import 'package:c45_design_system/design_system.dart';
 import '../../shared/iam_load_status.dart';
 import '../../../logic/my_account_cubit.dart';
 import '../../../logic/my_account_state.dart';
-import '../widgets/logout_confirmation_bottom_sheet.dart';
 import '../widgets/my_account_actions_bottom_sheet.dart';
 import 'edit_my_account_page.dart';
 import 'reset_password_page.dart';
@@ -141,13 +140,6 @@ class _MyAccountSampleBodyState extends State<_MyAccountSampleBody> {
   late MyAccountUiModel _accountData = widget.data;
   bool _isActionsOpen = false;
 
-  void _showLogoutConfirmation() {
-    showLogoutConfirmationBottomSheet(
-      context: context,
-      onConfirm: () => widget.onLogout?.call(),
-    );
-  }
-
   String _maskEmail(String email) {
     final at = email.indexOf('@');
     if (at <= 0) return '***';
@@ -190,7 +182,7 @@ class _MyAccountSampleBodyState extends State<_MyAccountSampleBody> {
           await _openLoginAfterPasswordReset(context, widget.session);
         }
       },
-      onLogout: _showLogoutConfirmation,
+      onLogout: () => widget.onLogout?.call(),
     ).then((_) {
       if (mounted) {
         setState(() => _isActionsOpen = false);
@@ -227,13 +219,6 @@ class _MyAccountBody extends StatefulWidget {
 
 class _MyAccountBodyState extends State<_MyAccountBody> {
   bool _isActionsOpen = false;
-
-  void _showLogoutConfirmation() {
-    showLogoutConfirmationBottomSheet(
-      context: context,
-      onConfirm: () => widget.onLogout?.call(),
-    );
-  }
 
   String _maskEmail(String email) {
     final at = email.indexOf('@');
@@ -282,7 +267,7 @@ class _MyAccountBodyState extends State<_MyAccountBody> {
           await _openLoginAfterPasswordReset(context, widget.session);
         }
       },
-      onLogout: _showLogoutConfirmation,
+      onLogout: () => widget.onLogout?.call(),
     ).then((_) {
       if (mounted) {
         setState(() => _isActionsOpen = false);

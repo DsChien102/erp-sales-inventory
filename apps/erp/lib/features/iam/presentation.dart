@@ -67,7 +67,6 @@ export 'logic/organization_member_detail_cubit.dart';
 export 'logic/organization_member_detail_state.dart';
 export 'presentation/users/invitation_role_options.dart';
 export 'presentation/users/invitation_role_options_source.dart';
-export 'presentation/users/widgets/logout_confirmation_bottom_sheet.dart';
 export 'presentation/users/widgets/my_account_actions_bottom_sheet.dart';
 export 'presentation/users/widgets/revoke_invitation_bottom_sheet.dart';
 export 'presentation/users/widgets/member_detail_body.dart';
