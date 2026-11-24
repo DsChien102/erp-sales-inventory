@@ -11,7 +11,8 @@ class SystemSettingsPage extends StatelessWidget {
 
     return VPageScaffold(
       title: 'Thiết lập',
-      showBackButton: true,
+      // Web ≥ 1024: mở từ menu "Quản lý" của thanh biểu tượng, không có trang Thêm để quay về (10-8c).
+      showBackButton: MediaQuery.sizeOf(context).width < VBreakpoints.desktop,
       body: ListView(
         padding: const EdgeInsets.symmetric(
           horizontal: VSpacing.screenMobile,

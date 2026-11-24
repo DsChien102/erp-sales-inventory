@@ -8,7 +8,6 @@ import 'package:erp/core/session/models/session_snapshot.dart';
 import '../../../iam/support/iam_test_session.dart';
 import 'system_settings_page_test.dart' show pumpPushed;
 
-
 const _owner = SessionSnapshot(
   isAuthenticated: true,
   userId: 'owner-1',
@@ -153,31 +152,96 @@ void main() {
 
   testWidgets('users-and-roles at 390 pushed from /more: has back', (tester) async {
     final cubit = await ownerCubit(tester);
-    await pumpPushed(tester,
-        size: const Size(390, 844),
-        page: UsersAndRolesPage(accessCubit: cubit),
-        path: path);
+    await pumpPushed(
+      tester,
+      size: const Size(390, 844),
+      page: UsersAndRolesPage(accessCubit: cubit),
+      path: path,
+    );
     expect(back, findsOneWidget);
   });
 
   testWidgets('users-and-roles at 390 opened directly: no back', (tester) async {
     final cubit = await ownerCubit(tester);
-    await pumpPushed(tester,
-        size: const Size(390, 844),
-        page: UsersAndRolesPage(accessCubit: cubit),
-        path: path,
-        push: false);
+    await pumpPushed(
+      tester,
+      size: const Size(390, 844),
+      page: UsersAndRolesPage(accessCubit: cubit),
+      path: path,
+      push: false,
+    );
     expect(back, findsNothing);
   });
 
   testWidgets('users-and-roles: tap back returns to /more', (tester) async {
     final cubit = await ownerCubit(tester);
-    await pumpPushed(tester,
-        size: const Size(390, 844),
-        page: UsersAndRolesPage(accessCubit: cubit),
-        path: path);
+    await pumpPushed(
+      tester,
+      size: const Size(390, 844),
+      page: UsersAndRolesPage(accessCubit: cubit),
+      path: path,
+    );
     await tester.tap(back);
     await tester.pumpAndSettle();
     expect(find.text('MORE_PAGE'), findsOneWidget);
+  });
+
+  testWidgets('users-and-roles at 1280 pushed from /more: no back', (tester) async {
+    final cubit = await ownerCubit(tester);
+    await pumpPushed(
+      tester,
+      size: const Size(1280, 800),
+      page: UsersAndRolesPage(accessCubit: cubit),
+      path: path,
+    );
+    expect(back, findsNothing);
+  });
+
+  testWidgets('users-and-roles at 1023 pushed: has back; at 1024: no back', (tester) async {
+    final cubit = await ownerCubit(tester);
+    await pumpPushed(
+      tester,
+      size: const Size(1023, 800),
+      page: UsersAndRolesPage(accessCubit: cubit),
+      path: path,
+    );
+    expect(back, findsOneWidget);
+    tester.view.physicalSize = const Size(1024, 800);
+    await tester.pumpAndSettle();
+    expect(back, findsNothing);
+  });
+
+  testWidgets('users-and-roles pushed at 900 then widened to 1280 and back to 900', (tester) async {
+    final cubit = await ownerCubit(tester);
+    await pumpPushed(
+      tester,
+      size: const Size(900, 800),
+      page: UsersAndRolesPage(accessCubit: cubit),
+      path: path,
+    );
+    expect(back, findsOneWidget);
+    tester.view.physicalSize = const Size(1280, 800);
+    await tester.pumpAndSettle();
+    expect(back, findsNothing);
+    expect(tester.takeException(), isNull);
+    tester.view.physicalSize = const Size(900, 800);
+    await tester.pumpAndSettle();
+    expect(back, findsOneWidget);
+    await tester.tap(back);
+    await tester.pumpAndSettle();
+    expect(find.text('MORE_PAGE'), findsOneWidget);
+  });
+
+  testWidgets('users-and-roles at 1280: child /more/roles keeps back', (tester) async {
+    final cubit = await ownerCubit(tester);
+    await pumpPushed(
+      tester,
+      size: const Size(1280, 800),
+      page: UsersAndRolesPage(accessCubit: cubit),
+      path: path,
+    );
+    await tester.tap(find.text('Vai trò'));
+    await tester.pumpAndSettle();
+    expect(back, findsOneWidget);
   });
 }
