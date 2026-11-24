@@ -710,4 +710,35 @@ Run: `cd apps/erp && flutter test test/features/assistant test/features/dashboar
 
 ## Review
 
-_(phiên review ghi)_
+### R1 (2026-11-24) — Đạt, có 5 góp ý nhỏ (không chặn)
+
+**Đã kiểm:**
+- SQL `20261127001_sales_home_summary.sql` so với Q1–Q7: `_daily_revenue` chép đúng 4 nhánh `get_sales_stats` (`20261120001…sql:58-104`, cùng `store_id`, cùng múi giờ); số đơn / cách trả / chưa xuất HĐĐT dùng cùng tập đơn hoàn tất hôm nay; tiền đã thu bỏ `offset`, lọc cửa hàng qua settlement → đơn; công nợ từ `receivable._open_orders` (có `iam.can_access_store`). Checkout chặn trả dư (`20261123001…sql` "Paid amount exceeds checkout total") nên Q4 / Q6 không lẫn tiền thối. `revoke` / `grant` đúng. `db_check` người dùng đã chạy đạt — không chạy lại.
+- Flutter: `Page → HomeCubit → HomeRepository → RPC`; `dashboard` không import `assistant` (builder ở `app_router`); `/ask` dùng `BlocProvider.value` khi `extra` là cubit chưa đóng. Cubit bỏ kết quả cũ theo `_generation` (Review Focus 1). Số lớn bọc `FittedBox(scaleDown)` (Focus 2). Hôm qua 0 → ẩn ▲ %, max 0 → cột 2px (Focus 3). Khung iPhone tự chừa `max(viewInsets, viewPadding)` (Focus 5). Banner pháp lý: hết dấu vết ở `lib` / `test`, còn ở `organization_profile_page.dart`.
+- Chạy lại: `flutter test test/features/assistant test/features/dashboard test/features/auth/e2e_th01_s0_session_test.dart test/features/tenant_context test/core/session` **203/203**; `dart analyze lib test` không có lỗi / cảnh báo (chỉ info cũ, không dòng nào ở `dashboard/` / `assistant/`); `check_feature_imports` không dòng `dashboard` / `assistant`.
+- Q5: chữ `'DISCONNECTED'` khớp ràng buộc `provider_connections.status` (`20261031001…sql:22-25`, in hoa). DS: `VIcons.messageCircle` 57622 / `maximize` 57619 khớp `lucide_icons_flutter-3.1.25` (`messageCircle`, `maximize2`); `flutter test test/foundations/v_icons_10_8b_test.dart` 2/2. `AssistantComposer` mặc định 44 = `controlHeightMedium` của `VDensity.comfortable` → nút gửi `/ask` không đổi cỡ.
+- Ảnh golden 1280 (owner, ask-answer) khớp bố cục prototype; lệch đã ghi ở Kết quả (ô hỏi web 44, font Ahem làm chú thích xuống dòng).
+
+**Góp ý:**
+
+| # | Mức | Chỗ | Vấn đề | Đề xuất |
+|---|---|---|---|---|
+| G1 | Nhỏ | `home_format.dart` `percentDelta` | Doanh thu hôm qua **âm** (ngày trả hàng / huỷ đơn nhiều hơn bán — công thức Q2 cho phép) → chia cho số âm, ▲/▼ ngược (hôm nay 100k, hôm qua −100k → "▼ 200%"). Giảm dưới 0,5% → "▲ 0%". | `yesterday <= 0 → null`; `up: today >= yesterday`. Thêm 2 ca vào `home_format_test.dart`. |
+| G2 | Nhỏ | `home_tab_page.dart:169-175` | Đổi tổ chức (kể cả `tenantId → null`) khi đang mở khung chat iPhone (route gốc) hoặc `/ask` qua ⤢: `KeyedSubtree` đổi key → `BlocProvider` của `askScope` đóng cubit, còn route khung / `/ask` vẫn giữ cubit đã đóng → bấm Gửi ném `StateError` "Cannot emit new states after calling close". Khó gặp (trong khung không có lối đổi tổ chức). | Đủ: trong listener đổi tổ chức, pop route khung iPhone nếu đang mở (giữ tham chiếu route). `/ask` có thể ghi nhận, không bắt sửa. |
+| G3 | Nhỏ | `home_tab_page.dart:62-66` | Q10 "web tải lại khi quay về tab Trang chủ" (`_onRoute`) không có test. | Thêm ca `returning to / reloads` (GoRouter hai tab, đếm số lần `fetch`). |
+| G4 | Nhỏ | `home_tab_page.dart:77-122` | Mở cửa sổ web rồi thu cửa sổ < 1024: `_askOpen` vẫn `true`; bấm nút nổi mở route toàn màn; kéo rộng lại thì có cả route toàn màn lẫn cửa sổ web. | Khi `wide` đổi sang `false` thì đặt `_askOpen = false` (hoặc chỉ ghi nhận — trường hợp hiếm). |
+| G5 | Nhỏ | `home_board.dart:57`, `home_tab_page.dart:139` | Dòng "lời chào · Thứ … · dd/MM" lấy giờ máy (`widget.now()`), còn số liệu và cột `NAY` theo ngày server (`summary.today`, Asia/Ho_Chi_Minh). Gần nửa đêm hoặc máy khác múi giờ → dòng ngày lệch một ngày so với số. | Khi đã có số, phần ngày lấy `summary.today` (lời chào vẫn theo giờ máy). |
+
+**Còn lại trước khi đóng plan:** kiểm tay APP-01 trên Dev (cần migration `20261127001` đã lên Dev — `supabase migration list --linked` để xem; nếu chưa thì `supabase db push --linked`, người dùng chạy), rồi tick CHECKLIST APP-01 cột "Mới" (Task 6).
+
+### Sửa R1 (2026-11-24)
+
+Mỗi góp ý: viết test tái hiện trước, chạy thấy đỏ, rồi mới sửa.
+
+- **G1 — xác nhận, sửa.** `percentDelta(100000, -100000)` trả `▼ 200%` (test đỏ). `home_format.dart`: hôm qua `<= 0` → `null` (ẩn ▲ %); `up: today >= yesterday` nên giảm dưới 0,5% hiện `▼ 0%`. Test `R1-G1 percentDelta: hôm qua âm → ẩn; giảm < 0,5% → ▼ 0%` (`home_format_test.dart`).
+- **G2 — xác nhận, sửa.** iPhone mở khung toàn màn rồi đổi tổ chức thì khung vẫn mở, giữ cubit đã đóng (test đỏ: vẫn thấy `AssistantChatPanel`). `home_tab_page.dart`: giữ `_askRoute` khi push; trong listener đổi tổ chức gọi `_dropAskRoute()` (`navigator.removeRoute`). Test `R1-G2 390: tenant change closes full-screen panel (cubit of old tenant)` (`home_ask_test.dart`). Trường hợp `/ask` mở qua ⤢ rồi đổi tổ chức: ghi nhận, không sửa (như góp ý).
+- **G3 — thêm test.** Code đã đúng; test `R1-G3 returning to / reloads numbers` (`home_ask_test.dart`: `/` → `/orders` → `/`, `fetch` 1 → 2). Kiểm đột biến: tắt dòng tải lại trong `_onRoute` thì test đỏ, trả lại thì xanh.
+- **G4 — xác nhận, sửa.** Mở cửa sổ web, thu < 1024 rồi kéo rộng lại thì cửa sổ hiện lại (test đỏ). `home_tab_page.dart`: `build` đặt `_askOpen = false` khi `!wide`. Test `R1-G4 web window closes when window shrinks below 1024`.
+- **G5 — xác nhận, sửa.** Máy đã sang 24/11 (0:30), số liệu ngày 23/11 → dòng ngày hiện `Thứ Ba · 24/11` (test đỏ). `home_board.dart`: phần ngày lấy `state.summary?.today ?? now`, lời chào vẫn theo giờ máy. Test `R1-G5 date line follows server day of the numbers, greeting follows device hour` (`home_board_test.dart`).
+
+Chạy lại: `flutter test test/features/assistant test/features/dashboard test/features/auth/e2e_th01_s0_session_test.dart test/features/tenant_context test/core/session` **208/208** (thêm 5 test; golden 18/18 không đổi); `dart analyze lib test` không lỗi / cảnh báo; `check_feature_imports` không dòng `dashboard` / `assistant`.

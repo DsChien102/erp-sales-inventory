@@ -57,4 +57,11 @@ void main() {
     expect(millions(0), '0');
     expect(millionsTotal(0), '0 triệu');
   });
+
+  test('R1-G1 percentDelta: hôm qua âm → ẩn; giảm < 0,5% → ▼ 0%', () {
+    expect(percentDelta(100000, -100000), isNull);
+    expect(percentDelta(0, -5000), isNull);
+    expect(percentDelta(999, 1000), (text: '0%', up: false));
+    expect(percentDelta(1000, 1000), (text: '0%', up: true));
+  });
 }

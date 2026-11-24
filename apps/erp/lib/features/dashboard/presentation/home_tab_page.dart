@@ -75,6 +75,9 @@ class _HomeTabPageState extends State<HomeTabPage> {
 
   /// Khung chat web đang mở (iPhone mở bằng route riêng, không dùng cờ này).
   bool _askOpen = false;
+
+  /// Route khung chat toàn màn iPhone đang mở (để gỡ khi đổi tổ chức: cubit cũ sẽ bị đóng).
+  Route<void>? _askRoute;
   final _fabFocus = FocusNode(debugLabel: 'Hỏi Mosaic Retail');
 
   void _openAsk(BuildContext inner, bool wide) {
@@ -87,27 +90,35 @@ class _HomeTabPageState extends State<HomeTabPage> {
     // iPhone: toàn màn trên navigator gốc → che thanh dưới; cubit lấy từ [inner] nên còn cuộc trò chuyện.
     final navigator = Navigator.of(inner, rootNavigator: true);
     final reduce = MediaQuery.disableAnimationsOf(inner);
-    navigator.push(
-      PageRouteBuilder<void>(
-        opaque: true,
-        transitionDuration: reduce ? Duration.zero : const Duration(milliseconds: 260),
-        reverseTransitionDuration: reduce ? Duration.zero : const Duration(milliseconds: 200),
-        pageBuilder: (routeContext, _, _) =>
-            panel(inner, wide: false, onClose: () => Navigator.of(routeContext).maybePop()),
-        transitionsBuilder: (_, animation, _, child) {
-          final t = CurvedAnimation(parent: animation, curve: const Cubic(.16, 1, .3, 1));
-          return FadeTransition(
-            opacity: t,
-            child: AnimatedBuilder(
-              animation: t,
-              builder: (_, c) =>
-                  Transform.translate(offset: Offset(0, 24 * (1 - t.value)), child: c),
-              child: child,
-            ),
-          );
-        },
-      ),
+    final route = PageRouteBuilder<void>(
+      opaque: true,
+      transitionDuration: reduce ? Duration.zero : const Duration(milliseconds: 260),
+      reverseTransitionDuration: reduce ? Duration.zero : const Duration(milliseconds: 200),
+      pageBuilder: (routeContext, _, _) =>
+          panel(inner, wide: false, onClose: () => Navigator.of(routeContext).maybePop()),
+      transitionsBuilder: (_, animation, _, child) {
+        final t = CurvedAnimation(parent: animation, curve: const Cubic(.16, 1, .3, 1));
+        return FadeTransition(
+          opacity: t,
+          child: AnimatedBuilder(
+            animation: t,
+            builder: (_, c) => Transform.translate(offset: Offset(0, 24 * (1 - t.value)), child: c),
+            child: child,
+          ),
+        );
+      },
     );
+    _askRoute = route;
+    navigator.push(route).whenComplete(() {
+      if (identical(_askRoute, route)) _askRoute = null;
+    });
+  }
+
+  /// Đổi tổ chức: gỡ khung chat toàn màn (nếu đang mở) vì cubit của nó thuộc tổ chức cũ.
+  void _dropAskRoute() {
+    final route = _askRoute;
+    _askRoute = null;
+    if (route != null && route.isActive) route.navigator?.removeRoute(route);
   }
 
   void _closeAsk() {
@@ -120,6 +131,8 @@ class _HomeTabPageState extends State<HomeTabPage> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final wide = MediaQuery.sizeOf(context).width >= VBreakpoints.desktop;
+    // Thu cửa sổ < 1024 thì đóng cửa sổ chat web (không để mở lại cùng lúc với khung toàn màn).
+    if (!wide) _askOpen = false;
     final webOpen = _askOpen && wide;
     Widget content(BuildContext inner) => LayoutBuilder(
       builder: (_, area) => Stack(
@@ -182,6 +195,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
                 b.current?.tenantId != null && a.current?.tenantId != b.current?.tenantId,
             listener: (_, _) {
               _cubit.load(reset: true);
+              _dropAskRoute();
               if (_askOpen) setState(() => _askOpen = false);
             },
           ),

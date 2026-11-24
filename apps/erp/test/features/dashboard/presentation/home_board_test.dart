@@ -36,6 +36,7 @@ Future<SessionController> pumpHome(
   required FakeHomeRepository repository,
   bool reduceMotion = false,
   bool settle = true,
+  DateTime? now,
 }) async {
   useInventoryTestSurface(size);
   final controller = SessionController(
@@ -52,7 +53,7 @@ Future<SessionController> pumpHome(
       ),
       home: BlocProvider<SessionController>.value(
         value: controller,
-        child: HomeTabPage(repository: repository, now: () => DateTime(2026, 11, 23, 9)),
+        child: HomeTabPage(repository: repository, now: () => now ?? DateTime(2026, 11, 23, 9)),
       ),
     ),
   );
@@ -242,5 +243,18 @@ void main() {
     expect(controller.state.current?.tenantId, 'org-002');
     expect(repo.calls, 2);
     expect(find.text('5.000.000'), findsOneWidget);
+  });
+
+  testWidgets('R1-G5 date line follows server day of the numbers, greeting follows device hour', (
+    tester,
+  ) async {
+    // Máy đã sang 24/11 lúc 0:30, số liệu vẫn của ngày 23/11 (sampleHomeSummary.today).
+    await pumpHome(
+      tester,
+      size: _web,
+      repository: FakeHomeRepository(),
+      now: DateTime(2026, 11, 24, 0, 30),
+    );
+    expect(find.text('Chào buổi tối · Thứ Hai · 23/11'), findsOneWidget);
   });
 }

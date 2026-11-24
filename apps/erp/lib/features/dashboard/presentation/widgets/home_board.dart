@@ -54,7 +54,8 @@ class HomeBoard extends StatelessWidget {
             final gap = wide ? VSpacing.space6 : VSpacing.space5;
             final children = <Widget>[
               _HomeHead(
-                greeting: '${greetingForHour(now.hour)} · ${dateLine(now)}',
+                // Lời chào theo giờ máy; ngày theo ngày của số liệu (server, Asia/Ho_Chi_Minh).
+                greeting: '${greetingForHour(now.hour)} · ${dateLine(state.summary?.today ?? now)}',
                 branchName: branchName,
                 onTap: onBranchTap,
                 wide: wide,

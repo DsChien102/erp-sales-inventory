@@ -40,11 +40,11 @@ String millionsTotal(int minor) => '${_millions(minor, 1)} triệu';
 
 typedef HomeDelta = ({String text, bool up});
 
-/// ▲/▼ % doanh thu so với hôm qua; hôm qua 0 → `null` (ẩn).
+/// ▲/▼ % doanh thu so với hôm qua; hôm qua ≤ 0 (không bán, hoặc trả / huỷ nhiều hơn bán) → `null` (ẩn).
 HomeDelta? percentDelta(int today, int yesterday) {
-  if (yesterday == 0) return null;
+  if (yesterday <= 0) return null;
   final pct = ((today - yesterday) / yesterday * 100).round();
-  return (text: '${pct.abs()}%', up: pct >= 0);
+  return (text: '${pct.abs()}%', up: today >= yesterday);
 }
 
 /// ▲/▼ số đơn so với hôm qua; bằng nhau → `null` (ẩn).
