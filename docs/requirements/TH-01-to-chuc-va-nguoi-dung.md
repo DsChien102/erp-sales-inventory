@@ -6,6 +6,7 @@
 > - 🔧 = code hiện tại **sai**, phải sửa khi refactor.
 >
 > **Phiên bản:** 4.0 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> - **2026-11-24:** 10-8b: bỏ banner pháp lý ở Trang chủ (Trang chủ "Bảng giá chợ"); banner chỉ còn ở Hồ sơ tổ chức (BR-14, US-05.4)
 > - **2026-10-28:** W-2: Theme 1 trên web — cột hẹp màn công khai, danh sách – chi tiết, sheet thành hộp thoại
 > - **2026-10-27:** 2-B7: bỏ họ tên / SĐT khỏi form mời (FR-01), lỗi mời dưới ô + nút Gửi luôn bật (FR-06), hộp thoại bỏ thay đổi, ô MST tự chèn gạch
 > **Thay thế:** bản 3.0 (2026-10-06, cùng phạm vi, ít chi tiết hơn), bản 2.0 (luồng cũ qua 2 app), `Theme 1_ Tổ chức & người dùng.md` (v1), `docs/themes/TH-01-organization-users/`.
@@ -65,7 +66,7 @@ Chỉ có một app (`apps/erp`) và một màn đăng nhập. App `apps/admin` 
 - Đăng nhập, đăng xuất, quên mật khẩu (mã 6 số qua email); 🆕 định tuyến sau đăng nhập.
 - Nhận lời mời bằng mã: kích hoạt tài khoản mới hoặc đăng nhập, chấp nhận / từ chối.
 - Chọn và chuyển tổ chức; ghi nhớ tổ chức chọn gần nhất; xử lý khi mất quyền.
-- Hồ sơ tổ chức và hồ sơ pháp lý (MST); 🆕 banner nhắc thiếu hồ sơ pháp lý.
+- Hồ sơ tổ chức và hồ sơ pháp lý (MST); 🆕 banner nhắc thiếu hồ sơ pháp lý ở Hồ sơ tổ chức.
 - Mời thành viên; gửi lại, thu hồi lời mời.
 - Quản lý thành viên: đổi vai trò, tạm ngừng, kích hoạt lại, loại khỏi tổ chức.
 - Danh mục vai trò (chỉ đọc); lịch sử quản trị của tổ chức.
@@ -179,7 +180,7 @@ Số BR giữ từ bản 3.0.
 | BR-11 | Múi giờ `Asia/Ho_Chi_Minh` và tiền tệ `VND` do server gán; không sửa được |
 | BR-12 | ~~Tổ chức tạm ngừng / đã đóng~~ — bỏ (3-E, 2026-10-12): tổ chức không có trạng thái, luôn hoạt động |
 | BR-13 | ~~Lý do tạm ngừng / đóng tổ chức~~ — bỏ (3-E, 2026-10-12) |
-| BR-14 | Chưa có hồ sơ pháp lý → hiện **banner nhắc** ở trang chủ và Hồ sơ tổ chức (không chặn) 🆕 |
+| BR-14 | Chưa có hồ sơ pháp lý → hiện **banner nhắc** ở Hồ sơ tổ chức (không chặn) 🆕. Trang chủ không còn banner (10-8b, 2026-11-24) |
 
 **Hồ sơ pháp lý**
 
@@ -688,8 +689,8 @@ Scenario: SC-01 — MST trùng tổ chức khác
 
 #### US-05.4 — Banner nhắc hồ sơ pháp lý 🆕
 
-- FR-01: Tổ chức chưa có hồ sơ pháp lý → banner ở trang chủ (chỉ Owner) và Hồ sơ tổ chức: "Bổ sung hồ sơ pháp lý để xuất hoá đơn điện tử." + "Bổ sung".
-- FR-02: Chỉ nhắc, không chặn (BR-14). Đóng banner ở trang chủ thì ẩn trong phiên.
+- FR-01: Tổ chức chưa có hồ sơ pháp lý → banner ở Hồ sơ tổ chức (chỉ Owner): "Bổ sung hồ sơ pháp lý để xuất hoá đơn điện tử." + "Bổ sung". Trang chủ không hiện banner (10-8b).
+- FR-02: Chỉ nhắc, không chặn (BR-14).
 - AC-01: Thành viên không phải Owner không thấy banner.
 
 ---
@@ -1270,7 +1271,7 @@ Số KI giữ từ bản 3.0.
 
 | # | Kịch bản | Kỳ vọng chính |
 |---|---|---|
-| 1 | Đăng ký cửa hàng → xác minh → vào trang chủ → bổ sung hồ sơ pháp lý | 1 tổ chức, 1 Owner, 1 cửa hàng; banner nhắc biến mất |
+| 1 | Đăng ký cửa hàng → xác minh → vào trang chủ → bổ sung hồ sơ pháp lý | 1 tổ chức, 1 Owner, 1 cửa hàng; banner nhắc ở Hồ sơ tổ chức biến mất |
 | 2 | Đăng ký dở (không nhập mã) → đăng nhập → `/verify-email` → xác minh | Tổ chức được tạo từ metadata |
 | 3 | Owner mời → nhân viên kích hoạt tài khoản → chấp nhận → bán hàng; Owner loại → mời lại → chấp nhận | Nhân viên làm được nghiệp vụ, không vào hub; mời lại không lỗi trùng |
 | 4 | Thành viên đổi vai trò, tạm ngừng, kích hoạt lại | Hiệu lực ở request kế tiếp; lịch sử quản trị đầy đủ |

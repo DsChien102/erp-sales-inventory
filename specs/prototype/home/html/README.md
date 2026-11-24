@@ -47,7 +47,9 @@ node tools/capture.mjs      # 5 ca × 2 khổ → tools/proto-final/{iphone,web}
 5. **Widget thừa trong thư mục:** `QuickActionButton` (thao tác nhanh mà PLAN nhắc tới), `ActivityItem` không được dùng ở đâu.
 6. Banner: icon canh giữa theo hàng cao 48 (do nút × 48), tiêu đề canh trên → trên web tiêu đề lệch lên so với icon; "Bổ sung" là nút link cao 44 nên khoảng trống dưới tiêu đề lớn.
 
-## Đề xuất đã chốt "Bảng giá chợ", chưa có trong Flutter (2026-11-23)
+## Đề xuất đã chốt "Bảng giá chợ" (2026-11-23) — đã có trong Flutter (10-8b, 2026-11-24)
+
+Đã chuyển về Flutter theo [plan 10-8b](../../../../docs/refactor/plans/P10/10-8b-trang-chu-flutter.md): RPC `sales.get_home_summary`, `HomeTabPage` + `widgets/home_board.dart`, khung chat `AssistantChatPanel`; ảnh so sánh `docs/refactor/plans/P10/img/10-8b/`.
 
 Giữ màu, font Mosaic; đổi cách trình bày. Cả web (≥ 1024, trong thanh biểu tượng) và iPhone (trong thanh dưới).
 
@@ -57,8 +59,8 @@ Giữ màu, font Mosaic; đổi cách trình bày. Cả web (≥ 1024, trong tha
 - **Ba hộp số** (web một hàng, iPhone xếp dọc): **Đơn hôm nay** (số đơn ▲ so với hôm qua | **Chưa xuất hoá đơn** chỉ con số, dòng Tiền mặt / Chuyển khoản / Ghi nợ); **Tiền đã thu hôm nay** (thu lúc bán + khách trả nợ TH-06, tách tiền mặt / chuyển khoản); **Công nợ phải thu** (tổng + số khoản quá hạn). Thứ tự trên iPhone: Đơn hôm nay → Công nợ phải thu → Tiền đã thu hôm nay (người dùng chốt 2026-11-23); web giữ Đơn → Tiền đã thu → Công nợ.
 - Số lật lên một lần khi mở (tắt khi giảm chuyển động).
 - **Không có:** nút thao tác (Tạo đơn, Nhập hàng…), việc cần xử lý, ô số "Sắp hết", **banner hồ sơ pháp lý**.
-- **Lệch tài liệu:** bỏ banner trái TH-01 BR-14 / FR-01 (banner nhắc ở trang chủ) — cần sửa TH-01 nếu giữ.
-- **Cần cho Flutter:** RPC doanh thu hôm nay + 7 ngày, đơn hôm nay theo cách trả, số đơn chưa xuất HĐĐT (TH-08), tiền đã thu hôm nay (TH-06), tổng phải thu + quá hạn (TH-06). Số liệu trong prototype là dữ liệu mẫu.
+- **Lệch tài liệu:** bỏ banner trái TH-01 BR-14 / FR-01 (banner nhắc ở trang chủ) — **đã sửa TH-01** (2026-11-24): banner chỉ còn ở Hồ sơ tổ chức.
+- **Cần cho Flutter (đã làm ở 10-8b):** RPC doanh thu hôm nay + 7 ngày, đơn hôm nay theo cách trả, số đơn chưa xuất HĐĐT (TH-08), tiền đã thu hôm nay (TH-06), tổng phải thu + quá hạn (TH-06). Số liệu trong prototype là dữ liệu mẫu.
 
 ## Khác biệt có chủ đích với Flutter
 
