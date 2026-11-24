@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/session/models/session_snapshot.dart';
 import '../../../iam/support/iam_test_session.dart';
+import 'system_settings_page_test.dart' show pumpPushed;
 
 
 const _owner = SessionSnapshot(
@@ -138,5 +139,45 @@ void main() {
 
     expect(find.text('Vai trò'), findsOneWidget);
     expect(find.text('Quyền sở hữu'), findsNothing);
+  });
+
+  Future<IamFeatureAccessCubit> ownerCubit(WidgetTester tester) async {
+    final cubit = IamFeatureAccessCubit(session: sessionFromSnapshot(_owner));
+    await cubit.load();
+    addTearDown(cubit.close);
+    return cubit;
+  }
+
+  const path = '/more/users-and-roles';
+  final back = find.byTooltip('Quay lại');
+
+  testWidgets('users-and-roles at 390 pushed from /more: has back', (tester) async {
+    final cubit = await ownerCubit(tester);
+    await pumpPushed(tester,
+        size: const Size(390, 844),
+        page: UsersAndRolesPage(accessCubit: cubit),
+        path: path);
+    expect(back, findsOneWidget);
+  });
+
+  testWidgets('users-and-roles at 390 opened directly: no back', (tester) async {
+    final cubit = await ownerCubit(tester);
+    await pumpPushed(tester,
+        size: const Size(390, 844),
+        page: UsersAndRolesPage(accessCubit: cubit),
+        path: path,
+        push: false);
+    expect(back, findsNothing);
+  });
+
+  testWidgets('users-and-roles: tap back returns to /more', (tester) async {
+    final cubit = await ownerCubit(tester);
+    await pumpPushed(tester,
+        size: const Size(390, 844),
+        page: UsersAndRolesPage(accessCubit: cubit),
+        path: path);
+    await tester.tap(back);
+    await tester.pumpAndSettle();
+    expect(find.text('MORE_PAGE'), findsOneWidget);
   });
 }
