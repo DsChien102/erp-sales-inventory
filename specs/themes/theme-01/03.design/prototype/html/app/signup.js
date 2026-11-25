@@ -3,9 +3,10 @@
 //   apps/erp/lib/features/auth/logic/signup_cubit.dart (_accountErrors, _storeErrors)
 //   apps/erp/lib/core/widgets/address/{administrative_units_form_section.dart, vn_administrative_unit_picker_sheet.dart}
 //   bước 3 = VerifyEmailView (verify.js)
-// Scaffold nền surface + VAppBar('Đăng ký cửa hàng', nút ←) hết bề ngang; ListView đệm 16 trong cột 480.
+// Scaffold nền surface + VAppBar('Đăng ký cửa hàng', nút ←) hết bề ngang; ListView đệm 16 trong cột 480 (đáy 34 = thanh Home).
+// Bố cục iPhone tối ưu qua impeccable live (2026-11-25): thanh tiến độ 3 đoạn thay VSteps (cả 3 bước); bước 1 "Họ và tên đệm" + "Tên" cùng hàng (3 : 2). Chữ giữ nguyên.
 import { icon } from '../shared/icons.js';
-import { adaptiveSheet, appBar, banner, button, esc, field, fieldError, input, plainScaffold, steps } from './ds.js';
+import { adaptiveSheet, appBar, banner, button, esc, field, fieldError, input, plainScaffold, progressBar } from './ds.js';
 import { verifyView } from './verify.js';
 
 export const STEP_TITLES = ['Tài khoản', 'Cửa hàng', 'Xác minh email'];
@@ -67,8 +68,10 @@ function accountStep(s) {
   const e = s.errors || {};
   const f = (label, key, ctl, { required = true, desc } = {}) => field({ label, required, control: ctl({ invalid: !!e[key] }), error: e[key], desc });
   return `<div class="t1-form">
-    ${f('Họ và tên đệm', 'familyName', (o) => input({ ...o, value: a.familyName, hint: 'Nguyễn Thị' }))}
-    ${f('Tên', 'givenName', (o) => input({ ...o, value: a.givenName, hint: 'Lan' }))}
+    <div class="t1-signup__names">
+      ${f('Họ và tên đệm', 'familyName', (o) => input({ ...o, value: a.familyName, hint: 'Nguyễn Thị' }))}
+      ${f('Tên', 'givenName', (o) => input({ ...o, value: a.givenName, hint: 'Lan' }))}
+    </div>
     ${f('Email', 'email', (o) => input({ ...o, value: a.email, hint: 'lan@example.com' }))}
     ${f('Số điện thoại', 'phone', (o) => input({ ...o, value: a.phone, hint: '0912 345 678' }), { required: false })}
     ${f('Mật khẩu', 'password', (o) => input({ ...o, value: a.password, hint: 'Nhập mật khẩu', password: true }), { desc: PASSWORD_RULE })}
@@ -76,7 +79,7 @@ function accountStep(s) {
   </div>
   <div class="t1-gap-lg"></div>
   ${button('Tiếp tục', { full: true })}
-  <div class="t1-gap-md"></div>
+  <div class="t1-gap-xs"></div>
   <div class="t1-center-row">${button('Đã có tài khoản? Đăng nhập', { variant: 'link' })}</div>`;
 }
 
@@ -156,8 +159,8 @@ export function signupPage(v) {
   else if (s.step === 0) content = accountStep(s);
   else if (s.step === 1) content = storeStep(s);
   else content = verifyView(v, { state: s.verify, email: 'lan@anphat.vn', cooldown: 59 });
-  const body = `<div class="t1-list">
-    ${steps(STEP_TITLES, s.emailExists ? 1 : s.step)}
+  const body = `<div class="t1-list t1-signup">
+    ${progressBar(STEP_TITLES, s.emailExists ? 1 : s.step)}
     <div class="t1-gap-lg"></div>
     ${s.failure ? `${banner('error', s.failure)}<div class="t1-gap-md"></div>` : ''}
     ${content}

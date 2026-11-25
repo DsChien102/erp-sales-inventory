@@ -1,4 +1,4 @@
-// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone giữ bản chép Flutter ở ../audit.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
+// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone ở ../audit.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
 import { icon } from '../../shared/icons.js';
 import { AUDIT, AUDIT_TOTAL, TRACE_ID } from '../admin-data.js';
 import { arow, AUDIT_DETAIL_STATES, AUDIT_STATES, auditEmpty, auditFilter, materialBar } from '../audit.js';

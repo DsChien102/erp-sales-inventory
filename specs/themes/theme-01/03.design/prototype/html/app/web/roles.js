@@ -1,4 +1,4 @@
-// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone giữ bản chép Flutter ở ../roles.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
+// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone ở ../roles.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
 import { icon } from '../../shared/icons.js';
 import { ROLES } from '../admin-data.js';
 import { appBar, button, esc, skeleton, vcard, vScaffold } from '../ds.js';

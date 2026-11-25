@@ -1,4 +1,4 @@
-// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone giữ bản chép Flutter ở ../signup.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
+// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone ở ../signup.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
 import { adaptiveSheet, appBar, banner, button, esc, field, input, progressBar } from '../ds.js';
 import { EMPTY_ACCOUNT, emailExists, PASSWORD_RULE, pickerBody, STATES, STEP_TITLES, storeStep } from '../signup.js';
 import { verifyView } from './verify.js';

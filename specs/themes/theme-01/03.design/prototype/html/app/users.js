@@ -7,26 +7,24 @@
 import { icon } from '../shared/icons.js';
 import { INVITATION_BADGE, INVITATIONS, MEMBER_BADGE, MEMBERS, invitationById, memberById, statusDetail } from './admin-data.js';
 import {
-  actionTile, adaptiveSheet, badge, banner, button, centerLoading, chipRow, detailWidth, esc, field, filterChip, iconButton, input, isSplit, kv,
-  LIST_WIDTH, listDetail, radio, searchBar, select, splitPlaceholder, tabs, textArea, toast, vcard, vScaffold,
+  actionTile, adaptiveSheet, badge, banner, button, card, centerLoading, chipRow, detailWidth, esc, field, fieldError, filterChip, iconButton, input, isSplit, kv,
+  LIST_WIDTH, listDetail, radio, searchBar, splitPlaceholder, textArea, toast, vScaffold,
 } from './ds.js';
 import { BAR_H, loadFailed } from './org.js';
 
 // ---------------------------------------------------------------- ID-14 danh sách
-const memberCard = (m, selected) => {
-  const [label, tone] = MEMBER_BADGE[m.status];
-  return vcard(`<div class="t1-urow">${icon('user', 't1-urow__ic')}<div class="t1-urow__text"><div class="t1-urow__name"><b>${esc(m.name)}</b>${m.isOwner ? badge('Chủ sở hữu', 'primary') : ''}</div><span>${esc(`${m.email} · ${m.role}`)}</span></div>${badge(label, tone)}</div>`, { selected });
-};
-const invitationCard = (i, selected) => {
-  const [label, tone] = INVITATION_BADGE[i.status];
-  return vcard(`<div class="t1-urow">${icon('user', 't1-urow__ic')}<div class="t1-urow__text"><b>${esc(i.email)}</b><span>${esc(statusDetail(i))}</span></div>${badge(label, tone)}</div>`, { selected });
-};
+// Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25); chữ giữ nguyên Flutter: tab hai nút liền → ô tìm + bộ lọc (nền trắng) → chip → thẻ; "Mời thành viên" ở thanh dưới (thay nút +).
+const userLine = (ic, text) => `<span class="t1-ucard__line">${icon(ic)}${esc(text)}</span>`;
+const userCard = (name, badges, lines, selected) => `<button type="button" class="t1-ucard"${selected ? ' aria-current="true"' : ''}><span class="t1-ucard__name"><b>${esc(name)}</b>${badges}</span>${lines.join('')}</button>`;
+const memberCard = (m, selected) => userCard(m.name, `${m.isOwner ? badge('Chủ sở hữu', 'primary') : ''}<i></i>${badge(...MEMBER_BADGE[m.status])}`, [userLine('mail', m.email), userLine('shield', m.role)], selected);
+/** Dòng phụ lời mời: vai trò; hạn · kết quả gửi (cùng chữ statusDetail). */
+const invitationCard = (i, selected) => userCard(i.email, `<i></i>${badge(...INVITATION_BADGE[i.status])}`, [userLine('shield', i.role), userLine('clock', statusDetail(i).slice(i.role.length + 3))], selected);
 
 /** UsersEmptyState trong UsersEmptyScroll (khung cao 480 canh giữa): VIconBox 56 bo 12 (icon 28) → 16 → H4 w700 → 8 → bodySmall → 24 → VButton. */
-export const usersEmpty = ({ ic, tone = '', title, sub, action, danger = false }) => `<div class="t1-uempty"><div class="t1-uempty__in">
+export const usersEmpty = ({ ic, tone = '', title, sub, action, danger = false, variant = 'primary' }) => `<div class="t1-uempty"><div class="t1-uempty__in">
   <span class="t1-ibox56${tone ? ` t1-ibox56--${tone}` : ''}">${icon(ic)}</span><div class="t1-gap-md"></div>
   <h2 class="t1-h4 t1-text-center${tone === 'danger' ? ' t1-danger' : ''}">${esc(title)}</h2><div class="t1-gap-sm"></div>
-  <p class="t1-small t1-text-center">${esc(sub)}</p>${action ? `<div class="t1-gap-lg"></div>${button(action, { cls: danger ? 't1-btn--danger' : '' })}` : ''}</div></div>`;
+  <p class="t1-small t1-text-center">${esc(sub)}</p>${action ? `<div class="t1-gap-lg"></div>${button(action, { variant, cls: danger ? 't1-btn--danger' : '' })}` : ''}</div></div>`;
 
 export const LIST_STATES = {
   members: { tab: 0 }, invitations: { tab: 1 }, loading: { tab: 0, loading: true }, 'invitations-loading': { tab: 1, loading: true },
@@ -43,7 +41,7 @@ export function subtitle(s, items) {
   return s.tab === 0 ? `${items.length} thành viên` : `${items.length} lời mời`;
 }
 
-/** OrganizationUsersPage (VPageScaffold "Người dùng" + phụ đề + nút + 48) — placeWidth: 360 (cột trái web) hoặc bề ngang màn. */
+/** OrganizationUsersPage (VPageScaffold "Người dùng" + phụ đề) — placeWidth: 360 (cột trái web) hoặc bề ngang màn. */
 export function usersListPage(s, placeWidth, { selectedId = null, toastHtml = '' } = {}) {
   let items = s.tab === 0 ? MEMBERS : INVITATIONS.filter((i) => !(s.revoked && i.id === 'i1'));
   if (s.chip === 'Tạm ngừng') items = items.filter((m) => m.status === 'suspended');
@@ -53,15 +51,18 @@ export function usersListPage(s, placeWidth, { selectedId = null, toastHtml = ''
   if (s.loading) list = centerLoading();
   else if (s.failure === 'forbidden') list = usersEmpty({ ic: 'shield', tone: 'warning', title: 'Bạn không có quyền quản lý', sub: 'Liên hệ Chủ tổ chức hoặc Quản trị viên để được cấp quyền phù hợp.', action: 'Quay lại' });
   else if (s.failure) list = usersEmpty({ ic: 'close', tone: 'danger', title: 'Không thể tải danh sách', sub: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.', action: 'Thử lại', danger: true });
-  else if (!items.length && (s.query || s.chip)) list = usersEmpty({ ic: 'search', title: 'Không tìm thấy kết quả', sub: 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.', action: 'Xóa bộ lọc' });
+  else if (!items.length && (s.query || s.chip)) list = usersEmpty({ ic: 'search', title: 'Không tìm thấy kết quả', sub: 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.', action: 'Xóa bộ lọc', variant: 'secondary' });
   else if (!items.length) list = usersEmpty({ ic: 'info', title: s.tab === 0 ? 'Chưa có thành viên khác' : 'Chưa có lời mời', sub: s.tab === 0 ? 'Mời thêm người dùng để cùng vận hành tổ chức.' : 'Mời thành viên mới để họ nhận email tham gia.', action: 'Mời thành viên' });
   else list = `<div class="t1-ulist">${items.map((x) => (s.tab === 0 ? memberCard(x, x.id === selectedId) : invitationCard(x, x.id === selectedId))).join('')}</div>`;
   const chips = s.tab === 0 ? ['Tất cả', 'Hoạt động', 'Tạm ngừng'] : ['Tất cả', 'Đang chờ', 'Hết hạn'];
-  const body = `<div class="t1-ubar">${searchBar('Tìm tên hoặc email', s.query || '')}${iconButton('tune', s.filterOn ? 'Bộ lọc (đang áp dụng)' : 'Bộ lọc', { size: 20, dot: !!s.filterOn })}</div>
-    ${tabs(['Thành viên', 'Lời mời'], s.tab)}<hr class="t1-divider">
+  const body = `<div class="t1-utop"><div class="t1-useg" role="tablist">${['Thành viên', 'Lời mời'].map((l, i) => `<button type="button" role="tab" aria-selected="${i === s.tab}">${l}</button>`).join('')}</div>
+      <div class="t1-utop__find">${searchBar('Tìm tên hoặc email', s.query || '')}${iconButton('tune', s.filterOn ? 'Bộ lọc (đang áp dụng)' : 'Bộ lọc', { size: 20, dot: !!s.filterOn })}</div></div>
     <div class="t1-chippad">${chipRow(chips, s.chip || 'Tất cả')}</div>
     <div class="t1-ulistwrap">${list}</div>`;
-  return vScaffold({ title: 'Người dùng', subtitle: subtitle(s, items), actions: iconButton('plus', 'Mời thành viên'), body, placeWidth, fixed: true, toastHtml });
+  // Một nút chính mỗi màn: ẩn thanh dưới khi khối rỗng / lỗi / không có quyền đã có nút riêng (không ra kết quả vẫn hiện, "Xóa bộ lọc" là secondary).
+  const hasBar = !s.failure && (s.loading || items.length || s.query || s.chip);
+  const bar = hasBar ? `<div class="t1-bar-pad">${button('Mời thành viên', { full: true, attrs: 'data-primary' })}</div>` : '';
+  return vScaffold({ title: 'Người dùng', subtitle: subtitle(s, items), body, bottomBar: bar, placeWidth, fixed: true, toastHtml });
 }
 
 /** MemberFilterBottomSheet / InvitationFilterBottomSheet: đệm 16 / 16 / 16 / 24; tiêu đề nhóm bodyDefault w700, khe 4, Wrap chip khe 8; nhóm cách 16; khe 24; Đặt lại | khe 16 | Áp dụng. */
@@ -85,7 +86,7 @@ export function usersArea(v, ls, { selectedId = null, detail = null, listToast =
 
 export function usersPage(v) {
   const s = LIST_STATES[v.state];
-  const t = s.toast ? toast(...s.toast, { device: v.device }) : '';
+  const t = s.toast ? toast(...s.toast, { device: v.device, above: BAR_H }) : '';
   // Web: thu hồi xong context.go('/more/users') → toast gốc hiện ở cột phải (Scaffold placeholder); hẹp: pop về danh sách.
   const page = usersArea(v, s, { listToast: isSplit(v.width) ? '' : t, placeholderToast: isSplit(v.width) ? t : '' });
   const overlay = s.sheet ? adaptiveSheet(v.width, filterSheet(s.sheet), '', { title: s.sheet === 'members' ? 'Bộ lọc thành viên' : 'Bộ lọc lời mời' }) : '';
@@ -107,11 +108,19 @@ export function invitePage(v) {
   if (s.loading) return { page: vScaffold({ ...base, body: centerLoading(), fixed: true }) };
   if (s.rolesFailed) return { page: vScaffold({ ...base, body: loadFailed('Không tải được danh sách vai trò', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.'), fixed: true }) };
   const e = s.errors || {};
-  const body = `<div class="t1-list"><p class="t1-small">Người nhận phải đăng nhập đúng email. Lời mời sẽ hết hạn sau 7 ngày.</p><div class="t1-gap-md"></div>
-    <div class="t1-form">
-      ${field({ label: 'Email', required: true, control: input({ value: s.email || '', hint: 'nhanvien@minhphat.vn', invalid: !!e.email }), error: e.email })}
-      ${field({ label: 'Vai trò ban đầu', required: true, control: select({ value: s.role || '', hint: 'Chọn vai trò' }), error: e.role, desc: 'Vai trò có thể thay đổi sau khi tham gia.' })}
-    </div></div>`;
+  // Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): thẻ Email (ghi chú dưới ô, giữ cả khi báo lỗi) → thẻ "Vai trò ban đầu" chọn bằng 4 dòng radio + mô tả → câu "có thể thay đổi sau".
+  const roleRow = ([name, d]) => {
+    const on = name === s.role;
+    return `<button type="button" role="radio" class="t1-rolelist__opt${on ? ' is-on' : ''}" aria-checked="${on}">${radio(on)}<span><b>${esc(name)}</b><small>${esc(d)}</small></span></button>`;
+  };
+  const body = `<div class="t1-list t1-invitem">
+    ${card(`${field({ label: 'Email', required: true, control: input({ value: s.email || '', hint: 'nhanvien@minhphat.vn', invalid: !!e.email }), error: e.email })}
+      <p class="t1-small t1-invitem__note">Người nhận phải đăng nhập đúng email. Lời mời sẽ hết hạn sau 7 ngày.</p>`, 't1-card--pad')}
+    ${card(`<div class="t1-rolelist__legend"><span class="t1-label">Vai trò ban đầu<i aria-hidden="true"> *</i></span></div>
+      <div role="radiogroup" aria-label="Vai trò ban đầu">${SELECT_ROLES.map(roleRow).join('')}</div>`, `t1-rolelist${e.role ? ' is-invalid' : ''}`)}
+    ${e.role ? `<div class="t1-invitem__error">${fieldError(e.role)}</div>` : ''}
+    <p class="t1-small t1-invitem__later">Vai trò có thể thay đổi sau khi tham gia.</p>
+  </div>`;
   // Nút gửi: khi đang gửi đổi chữ "Đang gửi..." + tắt (không có vòng xoay).
   const bar = `<div class="t1-bar-pad t1-row2 t1-row2--8">${button('Hủy', { variant: 'secondary', full: true, disabled: !!s.busy })}${button(s.busy ? 'Đang gửi...' : 'Gửi lời mời', { full: true, disabled: !!s.busy })}</div>`;
   return { page: vScaffold({ ...base, body, bottomBar: bar, toastHtml: s.toast ? toast(...s.toast, { device: v.device, above: BAR_H }) : '' }) };
@@ -129,9 +138,6 @@ export const INVITATION_STATES = {
   'toast-state-changed': { id: 'i1', toast: ['warning', 'Dữ liệu đã thay đổi', 'Dữ liệu đã thay đổi. Vui lòng tải lại rồi xác nhận lại.'] },
 };
 
-/** Bottom bar tự vẽ: Container đệm 16 + nền surface + gạch trên 1 (chồng lên gạch của VPageScaffold) + SafeArea → cao 78. */
-const INV_BAR_H = 78;
-
 function invitationDetail(s, w, split, device) {
   const back = !split;
   const base = { title: 'Chi tiết lời mời', back, placeWidth: w };
@@ -139,14 +145,16 @@ function invitationDetail(s, w, split, device) {
   if (s.error) return vScaffold({ ...base, body: loadFailed('Không tải được lời mời', 'Không tìm thấy tài nguyên.'), fixed: true });
   const i = invitationById(s.id);
   const [label, tone] = INVITATION_BADGE[i.status];
-  // deliveryStatus / status in nguyên giá trị wire ("sent", "expired").
-  const body = `<div class="t1-list">${vcard(`<div class="t1-dhead"><h2 class="t1-h4">${esc(i.email)}</h2>${badge(label, tone)}</div>
-    <div class="t1-gap-sm"></div><p class="t1-small">${esc(statusDetail(i))}</p>
-    <div class="t1-gap-sm"></div><p class="t1-small t1-muted">Giao nhận: ${esc(i.delivery)}</p>
-    ${i.wire !== 'pending' ? `<div class="t1-gap-sm"></div><p class="t1-small t1-muted">Trạng thái: ${esc(i.wire)}</p>` : ''}`)}</div>`;
+  // Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): ô thư + email + hạn → thẻ "Thông tin lời mời" (vai trò, trạng thái, giao nhận); nhãn như bản web, không in giá trị wire.
+  const delivery = statusDetail(i).split(' · ').pop();
+  const body = `<div class="t1-list t1-orgm">
+    <div class="t1-orgm__head"><div class="t1-orgm__icon" aria-hidden="true">${icon('mail')}</div><div><h2>${esc(i.email)}</h2><p>${esc(i.expiry)}</p></div></div>
+    <section class="t1-card t1-card--pad t1-orgm__sec"><h3 class="t1-h4 t1-h4--600">Thông tin lời mời</h3>
+      ${kv('Vai trò ban đầu', i.role, 't1-kv--profile')}<div class="t1-orgm__status"><span>Trạng thái</span>${badge(label, tone)}</div>${kv('Giao nhận', delivery, 't1-kv--profile')}</section>
+  </div>`;
   const canMutate = i.wire === 'pending';
-  const bar = canMutate ? `<div class="t1-bar-pad t1-bar-line">${button('Thao tác', { full: true, loading: !!s.revokeBusy })}</div>` : '';
-  return vScaffold({ ...base, body, bottomBar: bar, toastHtml: s.toast ? toast(...s.toast, { device, above: canMutate ? INV_BAR_H : 0 }) : '' });
+  const bar = canMutate ? `<div class="t1-bar-pad">${button('Thao tác', { full: true, trailing: 'chevronUp', loading: !!s.revokeBusy, attrs: 'data-primary' })}</div>` : '';
+  return vScaffold({ ...base, body, bottomBar: bar, toastHtml: s.toast ? toast(...s.toast, { device, above: canMutate ? BAR_H : 0 }) : '' });
 }
 
 /** Sheet "Thao tác lời mời" (có title): đệm 16; IamActionTile gửi lại / khe 8 / thu hồi (danger) / khe 16. */
@@ -178,8 +186,10 @@ export const MEMBER_STATES = {
   'toast-last-owner': { id: 'm2', toast: ['warning', 'Không thể thực hiện', 'Không thể thực hiện vì đây là chủ sở hữu cuối cùng.'] },
 };
 
-/** _DetailRow: nhãn bodySmall textSecondary ↔ giá trị bodySmall w700 phải. */
-const drow = (l, val) => kv(l, val, 't1-kv--small');
+/** _DetailRow (iPhone 2026-11-25): nhãn bodyDefault textSecondary ↔ giá trị bodyDefault w600 phải. */
+const drow = (l, val) => kv(l, val, 't1-kv--profile');
+/** Ô tròn 52: chữ đầu của tên; xám khi không còn hoạt động. */
+const memberAvatar = (m) => `<span class="t1-orgm__avatar${m.status === 'active' ? '' : ' is-off'}" aria-hidden="true">${esc(m.name.trim().split(/\s+/).pop()[0])}</span>`;
 
 function memberDetail(s, w, split, device) {
   const base = { title: 'Chi tiết thành viên', back: !split, placeWidth: w };
@@ -191,13 +201,17 @@ function memberDetail(s, w, split, device) {
     : m.status === 'suspended' ? drow('Tạm ngừng lúc', m.suspendedAt) : drow('Đã loại lúc', m.removedAt) + drow('Vai trò trước đó', m.role);
   const note = m.status === 'suspended' ? banner('warning', 'Quyền truy cập đã tạm ngừng', 'Thành viên không thể truy cập tổ chức cho đến khi được kích hoạt lại.')
     : m.status === 'removed' ? banner('info', 'Thành viên đã được loại', 'Quyền truy cập đã kết thúc. Lịch sử và dữ liệu nghiệp vụ vẫn được giữ lại.') : '';
-  const body = `<div class="t1-list">
-    <div${m.status === 'removed' ? ' class="t1-o60"' : ''}>${vcard(`<div class="t1-dhead"><h2 class="t1-h4">Thông tin thành viên</h2>${badge(label, tone)}</div><div class="t1-gap-md"></div>
-      <div class="t1-stack16">${drow('Tên', m.name)}${drow('Email', m.email)}${drow('Vai trò hiện hành', m.role)}${drow(m.isOwner ? 'Quyền sở hữu' : 'Danh tính', m.isOwner ? 'Chủ sở hữu' : 'Chỉ đọc')}</div>`)}</div>
-    ${note ? `<div class="t1-gap-md"></div>${note}` : ''}<div class="t1-gap-md"></div>
-    ${vcard(`<h2 class="t1-h4">Trạng thái truy cập</h2><div class="t1-gap-md"></div><div class="t1-stack16">${access}</div>`)}</div>`;
+  // Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): ô tròn + tên + email → thẻ "Thông tin thành viên" (+ nhãn) → thông báo (tạm ngừng / đã loại) → thẻ "Trạng thái truy cập".
+  const off = m.status === 'removed' ? ' t1-o60' : '';
+  const body = `<div class="t1-list t1-orgm">
+    <div class="t1-orgm__head${off}">${memberAvatar(m)}<div><h2>${esc(m.name)}</h2><p>${esc(m.email)}</p></div></div>
+    <section class="t1-card t1-card--pad t1-orgm__sec${off}"><div class="t1-dhead"><h3 class="t1-h4 t1-h4--600">Thông tin thành viên</h3>${badge(label, tone)}</div>
+      ${drow('Tên', m.name)}${drow('Email', m.email)}${drow('Vai trò hiện hành', m.role)}${drow(m.isOwner ? 'Quyền sở hữu' : 'Danh tính', m.isOwner ? 'Chủ sở hữu' : 'Chỉ đọc')}</section>
+    ${note}
+    <section class="t1-card t1-card--pad t1-orgm__sec"><h3 class="t1-h4 t1-h4--600">Trạng thái truy cập</h3>${access}</section>
+  </div>`;
   const hasActions = !m.soleOwner && m.status !== 'removed';
-  const bar = hasActions ? `<div class="t1-bar-pad">${button('Thao tác', { full: true, trailing: 'chevronUp', loading: !!s.busy })}</div>` : '';
+  const bar = hasActions ? `<div class="t1-bar-pad">${button('Thao tác', { full: true, trailing: 'chevronUp', loading: !!s.busy, attrs: 'data-primary' })}</div>` : '';
   return vScaffold({ ...base, body, bottomBar: bar, toastHtml: s.toast ? toast(...s.toast, { device, above: hasActions ? BAR_H : 0 }) : '' });
 }
 
@@ -236,21 +250,24 @@ export function memberDetailPage(v) {
 export const SELECT_ROLES = [['Nhân viên bán hàng', 'Bán hàng và chăm sóc khách hàng'], ['Kế toán', 'Công nợ, hóa đơn và báo cáo'], ['Thủ kho', 'Nhập xuất, tồn kho và kiểm kê'], ['Chủ cửa hàng', 'Quản lý toàn bộ cửa hàng']];
 export const SELECT_STATES = { default: { id: 'm2' }, selected: { id: 'm2', pick: 'Thủ kho' }, suspended: { id: 'm3' } };
 
-export function selectRole(s, w) {
+// Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): ô tròn + tên + nhãn → "Chọn vai trò mới" → thẻ danh sách (vai trò hiện tại dòng đầu nền canvas, không chọn được). Web giữ bản cũ ở web/users.js.
+function selectRole(s, w) {
   const m = memberById(s.id);
   const i = SELECT_ROLES.findIndex(([t]) => t === m.role);
   const roles = i > 0 ? [SELECT_ROLES[i], ...SELECT_ROLES.filter((_, k) => k !== i)] : SELECT_ROLES;
   const active = m.status === 'active';
   const item = ([t, d]) => {
-    const cur = t === m.role; const on = t === s.pick;
-    return `<div class="t1-roleopt${on ? ' is-on' : ''}">${icon('user', 't1-roleopt__ic')}<div class="t1-roleopt__text"><b>${esc(t)}</b><span>${esc(d)}</span></div>${cur ? badge('Hiện tại', 'success') : radio(on)}</div>`;
+    const text = `<span class="t1-rolelist__text"><b>${esc(t)}</b><small>${esc(d)}</small></span>`;
+    if (t === m.role) return `<div class="t1-rolelist__opt is-current">${text}${badge('Hiện tại', 'success')}</div>`;
+    const on = t === s.pick;
+    return `<button type="button" role="radio" class="t1-rolelist__opt${on ? ' is-on' : ''}" aria-checked="${on}">${radio(on)}${text}</button>`;
   };
-  const body = `<div class="t1-list">
-    ${vcard(`<div class="t1-dhead"><h2 class="t1-h4">${esc(m.name)}</h2>${badge(active ? 'Hoạt động' : 'Tạm ngừng', active ? 'success' : 'danger')}</div><div class="t1-gap-xs"></div>
-      <p class="t1-small">${esc(`${m.email} · ${m.role}`)}</p><div class="t1-gap-md"></div><p class="t1-strong">${m.isOwner ? 'Quyền sở hữu: Chủ sở hữu' : 'Danh tính: Chỉ đọc'}</p>`)}
-    <div class="t1-gap-md"></div><h2 class="t1-h4">Chọn vai trò mới</h2><div class="t1-gap-xs"></div><p class="t1-small">Mỗi thành viên có đúng một vai trò hiện hành.</p><div class="t1-gap-md"></div>
-    ${roles.map(item).join('')}</div>`;
-  const bar = `<div class="t1-bar-pad t1-row2 t1-row2--8">${button('Hủy', { variant: 'secondary', full: true })}${button('Tiếp tục', { full: true, disabled: !s.pick })}</div>`;
+  const body = `<div class="t1-list t1-selrole">
+    <div class="t1-orgm__head">${memberAvatar(m)}<div><div class="t1-selrole__name"><h2>${esc(m.name)}</h2>${badge(active ? 'Hoạt động' : 'Tạm ngừng', active ? 'success' : 'danger')}</div>
+      <p>${esc(`${m.email} · ${m.role}`)}</p><p>${m.isOwner ? 'Quyền sở hữu: Chủ sở hữu' : 'Danh tính: Chỉ đọc'}</p></div></div>
+    <h3 class="t1-selrole__title">Chọn vai trò mới</h3><p class="t1-small t1-selrole__sub">Mỗi thành viên có đúng một vai trò hiện hành.</p>
+    ${card(`<div role="radiogroup" aria-label="Chọn vai trò mới">${roles.map(item).join('')}</div>`, 't1-rolelist')}</div>`;
+  const bar = `<div class="t1-bar-pad t1-row2 t1-row2--8">${button('Hủy', { variant: 'secondary', full: true })}${button('Tiếp tục', { full: true, disabled: !s.pick, attrs: 'data-primary' })}</div>`;
   return vScaffold({ title: 'Chọn vai trò', body, bottomBar: bar, placeWidth: w });
 }
 

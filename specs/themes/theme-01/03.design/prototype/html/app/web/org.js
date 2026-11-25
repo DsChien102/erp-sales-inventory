@@ -1,4 +1,4 @@
-// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone giữ bản chép Flutter ở ../org.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
+// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone ở ../org.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
 import { icon } from '../../shared/icons.js';
 import { LEGAL, LEGAL_NOTICE, ORG } from '../admin-data.js';
 import { adaptiveSheet, button, centerLoading, confirmDialog, esc, field, iconButton, input, select, toast, vScaffold } from '../ds.js';

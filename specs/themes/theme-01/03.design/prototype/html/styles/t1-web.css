@@ -2,7 +2,6 @@
    iPhone không dùng: mọi lớp ở đây chỉ xuất hiện trong HTML web; chỗ chạm lớp dùng chung phải đứng sau [data-device="web"] hoặc lớp riêng của web. */
 
 /* Ô mã trải đều bề ngang cột (codeField fill). */
-.t1-code--fill .t1-code__cell { flex: 1 1 0; min-width: 0; }
 /* Hộp xác nhận: rộng tối đa 440. */
 .sh-app[data-device="web"] .t1-mdialog { max-width: 440px; margin: 0 auto; padding: 24px; }
 
@@ -10,7 +9,7 @@
 .t1-wlogin { flex: 1 0 auto; display: flex; flex-direction: column; }
 .t1-wlogin__panel { display: flex; flex-direction: column; padding: var(--c45-v2-space-6) var(--c45-v2-space-5); background: var(--c45-v2-surface-brand); color: var(--c45-v2-text-primary); }
 .t1-wlogin__brand { display: flex; align-items: center; gap: var(--c45-v2-space-3); }
-.t1-wlogin__logo { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: var(--c45-v2-radius-4); background: var(--c45-v2-action-primary-default); color: var(--c45-v2-action-on-primary); font-size: var(--sh-fs-md); font-weight: 900; }
+.t1-wlogin__logo { display: block; flex: none; width: 48px; height: 48px; border: 1px solid var(--c45-v2-border-brand); border-radius: var(--c45-v2-radius-4); }
 .t1-wlogin__name { margin: 0; font-size: 22px; line-height: 28px; font-weight: 700; }
 .t1-wlogin__tagline { margin: 2px 0 0; font-size: var(--sh-fs-md); line-height: 20px; font-weight: 500; color: var(--c45-v2-primary-800); }
 .t1-wlogin__panel .t1-wlogin__foot { display: none; }
@@ -28,7 +27,7 @@
   .t1-wlogin { flex-direction: row; }
   .t1-wlogin__panel { flex: 0 0 42%; justify-content: space-between; padding: var(--c45-v2-space-12); }
   .t1-wlogin__brand { flex-direction: column; align-items: flex-start; gap: var(--c45-v2-space-6); }
-  .t1-wlogin__logo { width: 72px; height: 72px; font-size: var(--sh-fs-xl); }
+  .t1-wlogin__logo { width: 72px; height: 72px; }
   .t1-wlogin__name { font-size: 36px; line-height: 44px; letter-spacing: -0.01em; }
   .t1-wlogin__tagline { margin-top: var(--c45-v2-space-2); font-size: var(--sh-fs-lg); line-height: 24px; }
   .t1-wlogin__panel .t1-wlogin__foot { display: block; margin: 0; text-align: left; }
@@ -38,13 +37,6 @@
 
 /* Luồng nhiều bước (Đăng ký, Đặt lại mật khẩu): cột 520 trên nền canvas — thanh tiến độ 3 đoạn, thẻ trắng (viền borderDefault, bo card) chứa bước hiện tại. */
 .t1-stepcol { width: 100%; max-width: 520px; margin: 0 auto; padding: var(--c45-v2-space-6) var(--c45-v2-space-4) var(--c45-v2-space-8); }
-.t1-progress { display: grid; gap: var(--c45-v2-space-2); margin: 0; padding: 0; list-style: none; }
-.t1-progress__seg { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); min-width: 0; }
-.t1-progress__seg i { height: 4px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-border-default); }
-.t1-progress__seg span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-sm); line-height: 18px; font-weight: 600; color: var(--c45-v2-text-muted); }
-.t1-progress__seg.is-done i, .t1-progress__seg.is-active i { background: var(--c45-v2-action-primary-default); }
-.t1-progress__seg.is-done span { color: var(--c45-v2-text-secondary); }
-.t1-progress__seg.is-active span { color: var(--c45-v2-action-primary-default); }
 .t1-stepcard { margin-top: var(--c45-v2-space-6); padding: var(--c45-v2-space-6) var(--c45-v2-space-5); border: 1px solid var(--c45-v2-border-default); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); }
 .t1-stepcard__title { margin: 0 0 var(--c45-v2-space-5); font-size: 22px; line-height: 28px; font-weight: 700; color: var(--c45-v2-text-primary); }
 .t1-stepcol__after { margin-top: var(--c45-v2-space-4); }

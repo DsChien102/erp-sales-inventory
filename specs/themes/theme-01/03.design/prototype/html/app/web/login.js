@@ -1,4 +1,4 @@
-// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone giữ bản chép Flutter ở ../login.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
+// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone ở ../login.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
 import { banner, button, field, fieldError, fieldLabel, input, toast } from '../ds.js';
 import { joinedMessage, STATES } from '../login.js';
 
@@ -18,7 +18,7 @@ export function loginPage(v) {
   // Khối thương hiệu: dải nền surfaceBrand trên đầu (hẹp); cột trái 42% (≥ 900px), dòng bản quyền đáy cột.
   const page = `<div class="t1-page t1-page--surface t1-page--login"><div class="t1-scroll"><div class="t1-wlogin">
     <div class="t1-wlogin__panel">
-      <div class="t1-wlogin__brand"><div class="t1-wlogin__logo" aria-hidden="true">V45</div><div><h1 class="t1-wlogin__name">Mosaic Retail</h1><p class="t1-wlogin__tagline">Quản trị bán hàng thuốc thú y</p></div></div>
+      <div class="t1-wlogin__brand"><img class="t1-wlogin__logo" src="assets/app-icon.png" alt="" width="72" height="72"><div><h1 class="t1-wlogin__name">Mosaic Retail</h1><p class="t1-wlogin__tagline">Quản trị bán hàng thuốc thú y</p></div></div>
       ${foot}
     </div>
     <div class="t1-wlogin__main">

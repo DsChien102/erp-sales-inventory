@@ -61,7 +61,7 @@ Bố cục theo **bề rộng**; mật độ điều khiển theo **cách thao t
 |---|---|---|
 | Khách (chưa đăng nhập) | Vùng công khai | Mọi thứ khác → `/login` |
 | Thành viên (không phải Owner) | Khu cửa hàng; tab Thêm: nghiệp vụ, Tài khoản của tôi, Thiết lập, Đăng xuất | "Người dùng & vai trò" |
-| Owner | Như thành viên + **"Người dùng & vai trò"**, banner hồ sơ pháp lý | — |
+| Owner | Như thành viên + **"Người dùng & vai trò"**, lời nhắc hồ sơ pháp lý | — |
 | Người không còn tổ chức nào | `/no-organization`, `/invitation` | Khu cửa hàng |
 
 ## 3. Mở app và định tuyến sau đăng nhập
@@ -117,7 +117,6 @@ flowchart TD
   NAV --> T3["Sản phẩm"]
   NAV --> T4["Đối tác"]
   NAV --> T5["Thêm"]
-  T1 --- BAN["Banner 'Bổ sung hồ sơ pháp lý'<br/>(chỉ Owner, chưa có MST)"]
   T1 --- SEL["Sheet chọn tổ chức (nhiều tổ chức)"]
   T5 --> M1["Khách hàng & NCC · Đơn nhập · Kho · Báo cáo · Giá riêng"]
   T5 --> M2["Người dùng & vai trò (chỉ Owner)"]
@@ -125,6 +124,7 @@ flowchart TD
   T5 --> M4["Thiết lập"]
   T5 --> M6["Đăng xuất"]
   M2 --> U1["Hồ sơ tổ chức · Người dùng · Vai trò · Lịch sử quản trị"]
+  U1 --- BAN["Hồ sơ tổ chức: nhắc 'Bổ sung hồ sơ pháp lý'<br/>(chỉ Owner, chưa có hồ sơ pháp lý)"]
 ```
 
 ## 6. Mất quyền khi đang dùng (TH-01 US-04.2)

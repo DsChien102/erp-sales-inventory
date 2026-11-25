@@ -1,5 +1,5 @@
 // Prototype Theme 1 (TH-01) + Web cho app (10-8). Không có ?screen= → trang xem (viewer.js); có → vẽ đúng một ca (URL chụp ảnh).
-// iPhone: vẽ y nguyên Flutter (app/*.js, nguồn Dart ghi ở đầu từng file). Web: bố cục thiết kế lại (app/web/*.js) — sửa web không đụng iPhone.
+// iPhone: bố cục thiết kế lại 2026-11-25 (app/*.js; chữ và trạng thái chép Flutter, nguồn Dart ghi ở đầu từng file). Web: bố cục thiết kế lại (app/web/*.js) — sửa web không đụng iPhone.
 // Đợt 1 — màn công khai; đợt 2 — quản trị; đợt 3 — tài khoản: đều ngoài ShellRoute(StoreShell) → không thanh bên / thanh dưới trên mọi khổ (kể cả web).
 import { DEVICE } from '../shared/shell.js';
 import { SCREENS } from './cases.js';
@@ -25,7 +25,7 @@ import * as auditWeb from './web/audit.js';
 import * as account from './account.js';
 import * as accountWeb from './web/account.js';
 
-// [màn iPhone (chép Flutter), màn web (app/web, thiết kế lại 2026-11-24)]
+// [màn iPhone, màn web (app/web, thiết kế lại 2026-11-24)]
 const PAGES = {
   login: [login.loginPage, loginWeb.loginPage],
   signup: [signup.signupPage, signupWeb.signupPage],

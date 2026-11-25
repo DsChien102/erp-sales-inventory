@@ -2,8 +2,8 @@
 // cùng một ResetPasswordPage(authRepository) → cùng giao diện; khác nhau chỉ ở email nhận mã và nơi quay về.
 // Chép từ apps/erp/lib/features/iam/presentation/users/views/reset_password_page.dart (_ResetPasswordBodyState, _PasswordBottomBar)
 //   + widgets/{reset_password_verify_code_step.dart, reset_password_create_password_step.dart}
-// VPageScaffold(contentMaxWidth: authMaxWidth, title 'Đặt lại mật khẩu'): nền xám canvas, nút ← tự có (route pop được).
-import { busyOverlay, button, card, centerLoading, codeField, field, input, pageScaffold, toast } from './ds.js';
+// Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): nền surface, thanh 2 bước, tiêu đề canh trái; chữ, trạng thái giữ nguyên Flutter. Web ở web/reset.js.
+import { appBar, authColumn, busyOverlay, button, card, centerLoading, codeField, field, input, progressBar, toast } from './ds.js';
 import { PASSWORD_RULE } from './signup.js';
 import { maskEmail } from './verify.js';
 
@@ -28,26 +28,34 @@ export const STATES = {
   'from-account': { phase: 'verify', seconds: 59, account: true },
 };
 
-/** ResetPasswordVerifyCodeStep: ListView đệm 16 / 16; VCard (đệm 16) → [không khe] VField → khe 24 → "Xác nhận mã" → khe 8 → "Gửi lại mã…" (secondary) → khe 16 → ghi chú. */
+const RESET_STEPS = ['Xác minh email', 'Tạo mật khẩu mới']; // TH-01 FR-01
+
+/**
+ * Bước 1: thanh 2 bước → khe 24 → tiêu đề → lời nhắc → khe 24 → ô mã (sáu ô cao 56 trải hết bề ngang) → ghi chú 10 phút
+ * → khe 24 → "Xác nhận mã" → khe 8 → gửi lại (giữa): còn đếm ngược là chữ textSecondary, hết là nút link.
+ */
 function verifyStep(s, v, email) {
   const col = Math.min(v.width, v.width >= 600 ? 480 : v.width) - 32;
   const code = s.code || '';
-  return `<div class="t1-list">
-    ${card(`<h2 class="t1-h4">Xác minh email</h2><p class="t1-small t1-mt-xs">Mã 6 chữ số đã được gửi tới ${maskEmail(email)}. Xác nhận mã để tạo mật khẩu mới.</p>`, 't1-card--pad')}
-    ${field({ label: 'Mã xác nhận', required: true, control: codeField({ length: 6, value: code, columnWidth: col, disabled: !!s.busy, focus: !s.busy && code.length < 6 }) })}
-    <div class="t1-gap-lg"></div>
-    ${button('Xác nhận mã', { full: true, disabled: code.length !== 6 || !!s.busy })}
+  const label = resetResendLabel(s.seconds);
+  return `<div class="t1-list t1-reset">
+    ${progressBar(RESET_STEPS, 0)}
+    <h2 class="t1-reset__title">Xác minh email</h2>
+    <p class="t1-body2 t1-reset__prompt">Mã 6 chữ số đã được gửi tới <b>${maskEmail(email)}</b>. Xác nhận mã để tạo mật khẩu mới.</p>
+    ${field({ label: 'Mã xác nhận', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, disabled: !!s.busy, focus: !s.busy && code.length < 6 }) })}
     <div class="t1-gap-sm"></div>
-    ${button(resetResendLabel(s.seconds), { variant: 'secondary', full: true, disabled: s.seconds > 0 })}
-    <div class="t1-gap-md"></div>
     <p class="t1-small">Mã chỉ sử dụng một lần và hết hạn sau 10 phút.</p>
+    <div class="t1-gap-lg"></div>
+    ${button('Xác nhận mã', { full: true, disabled: code.length !== 6 || !!s.busy, attrs: 'data-primary' })}
+    <div class="t1-reset__resend">${s.seconds > 0 ? `<p class="t1-body2 t1-reset__wait">${label}</p>` : button(label, { variant: 'link' })}</div>
   </div>`;
 }
 
-/** ResetPasswordCreatePasswordStep: tiêu đề H3 → khe 16 → 2 ô mật khẩu (gợi ý ••••) → khe 24 → VCard "Quy tắc mật khẩu". */
+/** Bước 2: thanh 2 bước → tiêu đề → 2 ô mật khẩu (gợi ý ••••) → khe 24 → VCard "Quy tắc mật khẩu"; thanh dưới giữ nguyên. */
 function createStep(s) {
-  return `<div class="t1-list">
-    <h2 class="t1-h3">Tạo mật khẩu mới</h2>
+  return `<div class="t1-list t1-reset">
+    ${progressBar(RESET_STEPS, 1)}
+    <h2 class="t1-reset__title">Tạo mật khẩu mới</h2>
     <div class="t1-gap-md"></div>
     <div class="t1-form">
       ${field({ label: 'Mật khẩu mới', required: true, control: input({ value: s.pw || '', hint: '••••••••••••', password: true, invalid: !!s.pwError }), error: s.pwError })}
@@ -78,8 +86,11 @@ export function resetPage(v) {
     </div></div>`;
   } else if (s.phase === 'verify') body = verifyStep(s, v, email);
   else { body = createStep(s); bar = bottomBar(s); }
-  // Bản bottomBar của trang tự vẽ nền + viền + đệm 16; VPageScaffold bọc thêm một lớp nền + gạch trên.
-  const page = pageScaffold({ title: 'Đặt lại mật khẩu', body, bottomBar: bar, width: v.width });
+  const col = `max-width:${authColumn(v.width)}`;
+  const page = `<div class="t1-page t1-page--surface">${appBar('Đặt lại mật khẩu', { back: true })}
+    <div class="t1-scroll"><div class="t1-col" style="${col}">${body}</div></div>
+    ${bar ? `<footer class="t1-bottombar"><div class="t1-col" style="${col}">${bar}</div></footer>` : ''}
+  </div>`;
   const overlay = (s.busy ? busyOverlay() : '') + (s.toast ? toast(...s.toast, { device: v.device, above: bar ? 78 : 0 }) : '');
   return { page, overlay };
 }

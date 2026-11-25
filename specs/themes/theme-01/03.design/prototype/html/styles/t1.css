@@ -18,8 +18,6 @@
 .t1-scroll > .t1-col { flex: 1 0 auto; display: flex; flex-direction: column; }
 .t1-list { padding: var(--c45-v2-space-4); }              /* ListView padding all(16) */
 .t1-pad-h { padding: 0 var(--c45-v2-space-4); }           /* VPagePadding(horizontal: 16) */
-.t1-list--center { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.t1-page--fill .t1-scroll > .t1-col { justify-content: center; }
 
 .t1-gap-xs { height: 4px; } .t1-gap-sm { height: 8px; } .t1-gap-md { height: 16px; } .t1-gap-lg { height: 24px; } .t1-gap-xl { height: 32px; }
 .t1-mt-xs { margin-top: 4px !important; }
@@ -91,6 +89,9 @@
 .t1-code__cell.is-focus { border-color: var(--c45-v2-action-primary-default); box-shadow: 0 0 0 3px var(--c45-v2-surface-success); }
 .t1-code__cell.is-focus.is-danger { border-color: var(--c45-v2-text-danger); box-shadow: 0 0 0 3px var(--c45-v2-surface-danger); }
 .t1-code__caret { width: 2px; height: 22px; background: var(--c45-v2-action-primary-default); }
+.t1-code--fill .t1-code__cell { flex: 1 1 0; min-width: 0; }
+.t1-code--split { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) 8px repeat(4, minmax(0, 1fr)); gap: 5px; }
+.t1-code--split .t1-code__cell:nth-child(5) { grid-column: 6; }
 .t1-code.is-disabled { opacity: var(--c45-v2-opacity-disabled); }
 
 /* _AdministrativeUnitTouchField: 44, đệm ngang 12, viền 1 borderDefault, bo 8 */
@@ -133,19 +134,279 @@
 .t1-card { border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); }
 .t1-card--pad { padding: var(--c45-v2-space-4); }
 
-/* ------------------------------------------------ Đăng nhập */
-.t1-login { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0 var(--c45-v2-space-4); }
+/* ------------------------------------------------ Đăng nhập (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+/* Vùng thanh trạng thái cùng nền canvas với màn (SafeArea). */
+.sh-app[data-device="iphone"]:has(.t1-page--login, .t1-page--vmail) > .app-statusbar { background: var(--c45-v2-surface-canvas); }
+/* Đệm đáy 34 = thanh Home. */
+.t1-login { flex: 1 0 auto; display: flex; flex-direction: column; padding: var(--c45-v2-space-8) var(--c45-v2-space-4) 34px; }
 .t1-login > * { flex: 0 0 auto; }
 .t1-login > .t1-spacer { flex: 1 1 auto; }
-.t1-login__logo { display: grid; place-items: center; width: 80px; height: 80px; margin-top: 40px; border-radius: var(--c45-v2-radius-4); background: var(--c45-v2-action-primary-default); color: var(--c45-v2-surface-default); font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 900; }
-.t1-login__brand { margin: 24px 0 0; font-size: 28px; line-height: 40px; font-weight: 700; color: var(--c45-v2-text-primary); }
-.t1-login__tagline { margin: 4px 0 32px; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
-.t1-login__banner { width: 100%; margin-bottom: 24px; }
-.t1-login__form { width: 100%; }
-.t1-login__forgot { width: 100%; margin-top: 16px; margin-bottom: 24px; display: flex; }
-.t1-login > .t1-btn--full + .t1-btn--full { margin-top: 16px; }
-.t1-login__ask { margin: 24px 0 16px; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
-.t1-login__foot { margin: 0 0 16px; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-muted); }
+.t1-login__brand { display: flex; flex-direction: column; align-items: center; gap: var(--c45-v2-space-3); text-align: center; }
+/* Icon app (apps/erp/assets/icon/app_icon.png, thu về 256); viền để tách khỏi nền canvas. */
+.t1-login__logo { display: block; width: 64px; height: 64px; border: 1px solid var(--c45-v2-border-brand); border-radius: var(--c45-v2-radius-4); }
+.t1-login__name { margin: 0; font-size: 22px; line-height: 32px; font-weight: 700; letter-spacing: -0.3px; color: var(--c45-v2-text-primary); }
+.t1-login__tagline { margin: 0; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-login__banner { margin-top: var(--c45-v2-space-6); }
+.t1-login__card { margin-top: var(--c45-v2-space-6); padding: var(--c45-v2-space-5) var(--c45-v2-space-4) var(--c45-v2-space-2); }
+.t1-login__banner + .t1-login__card { margin-top: var(--c45-v2-space-4); }
+.t1-login__cta { margin-top: var(--c45-v2-space-2); }
+.t1-login__forgot { display: flex; justify-content: center; margin-top: calc(-1 * var(--c45-v2-space-2)); }
+.t1-login__list { margin-top: var(--c45-v2-space-4); overflow: hidden; }
+.t1-login__row { display: flex; align-items: center; gap: var(--c45-v2-space-3); width: 100%; min-height: 60px; padding: var(--c45-v2-space-2) var(--c45-v2-space-4); border: 0; background: transparent; text-align: left; color: var(--c45-v2-text-primary); cursor: pointer; }
+.t1-login__row + .t1-login__row { border-top: 1px solid var(--c45-v2-border-default); }
+.t1-login__row:hover:not(:disabled) { background: var(--c45-v2-neutral-50); }
+.t1-login__row:focus-visible { outline-offset: -2px; }
+.t1-login__row:disabled > * { opacity: var(--c45-v2-opacity-disabled); }
+.t1-login__row:disabled { cursor: default; }
+.t1-login__rowic { font-size: 20px; color: var(--c45-v2-icon-brand); }
+.t1-login__rowgo { font-size: 18px; color: var(--c45-v2-icon-secondary); }
+.t1-login__rowtext { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t1-login__rowtext b { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; }
+.t1-login__rowtext small { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-login__foot { margin: 0; padding-top: var(--c45-v2-space-6); text-align: center; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+
+/* ------------------------------------------------ Thanh tiến độ các bước (web + iPhone Đăng ký) */
+.t1-progress { display: grid; gap: var(--c45-v2-space-2); margin: 0; padding: 0; list-style: none; }
+.t1-progress__seg { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); min-width: 0; }
+.t1-progress__seg i { height: 4px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-border-default); }
+.t1-progress__seg span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-sm); line-height: 18px; font-weight: 600; color: var(--c45-v2-text-muted); }
+.t1-progress__seg.is-done i, .t1-progress__seg.is-active i { background: var(--c45-v2-action-primary-default); }
+.t1-progress__seg.is-done span { color: var(--c45-v2-text-secondary); }
+.t1-progress__seg.is-active span { color: var(--c45-v2-action-primary-default); }
+/* iPhone: đoạn chưa tới đậm hơn, nhãn chưa tới textSecondary, nhãn đang làm textBrand. */
+.sh-app[data-device="iphone"] .t1-progress__seg { gap: 6px; }
+.sh-app[data-device="iphone"] .t1-progress__seg span { line-height: 20px; }
+.sh-app[data-device="iphone"] .t1-progress__seg.is-todo i { background: var(--c45-v2-border-strong); }
+.sh-app[data-device="iphone"] .t1-progress__seg:not(.is-active) span { color: var(--c45-v2-text-secondary); }
+.sh-app[data-device="iphone"] .t1-progress__seg.is-active span { color: var(--c45-v2-text-brand); }
+
+/* ------------------------------------------------ Đăng ký (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-signup { padding-bottom: 34px; }
+.t1-signup__names { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; gap: var(--c45-v2-space-3); }
+
+/* ------------------------------------------------ Xác minh email (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-vmail { flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; padding: var(--c45-v2-space-8) var(--c45-v2-space-4) 34px; }
+.t1-vmail__icon { display: grid; place-items: center; width: 64px; height: 64px; border: 1px solid var(--c45-v2-border-brand); border-radius: var(--c45-v2-radius-icon-box); background: var(--c45-v2-surface-brand); color: var(--c45-v2-icon-brand); font-size: 28px; }
+.t1-vmail__icon--neutral { border-color: var(--c45-v2-border-strong); background: var(--c45-v2-neutral-150); color: var(--c45-v2-icon-primary); }
+.t1-vmail__icon--warning { border-color: transparent; background: var(--c45-v2-surface-warning); color: var(--c45-v2-icon-warning); }
+.t1-vmail__title { margin: var(--c45-v2-space-4) 0 0; text-align: center; text-wrap: balance; font-size: 22px; line-height: 32px; font-weight: 700; letter-spacing: -0.3px; color: var(--c45-v2-text-primary); }
+.t1-vmail__prompt { margin-top: 4px; text-align: center; }
+.t1-vmail__prompt b { font-weight: 600; color: var(--c45-v2-text-primary); }
+.t1-vmail__card { width: 100%; margin-top: var(--c45-v2-space-6); padding: var(--c45-v2-space-5) var(--c45-v2-space-4) var(--c45-v2-space-2); }
+.t1-vmail__out { margin-top: var(--c45-v2-space-4); }
+.t1-verify__resend { display: grid; place-items: center; min-height: 44px; margin-top: var(--c45-v2-space-2); }
+.t1-verify__wait { font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------ Đặt lại mật khẩu (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-reset { padding-bottom: 34px; }
+.t1-reset__title { margin: var(--c45-v2-space-6) 0 0; font-size: 22px; line-height: 32px; font-weight: 700; letter-spacing: -0.3px; color: var(--c45-v2-text-primary); }
+.t1-reset__prompt { margin: 4px 0 var(--c45-v2-space-6); text-wrap: pretty; }
+.t1-reset__prompt b { font-weight: 600; color: var(--c45-v2-text-primary); }
+.t1-reset__resend { display: grid; place-items: center; min-height: 44px; margin-top: var(--c45-v2-space-2); }
+.t1-reset__wait { font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------ Chưa thuộc tổ chức (iPhone, impeccable live 2026-11-25; biểu tượng + tiêu đề dùng .t1-vmail__*; web ở t1-web.css) */
+.t1-noorgm { flex: 1 0 auto; display: flex; flex-direction: column; padding: 0 var(--c45-v2-space-4) 34px; }
+.t1-noorgm__mid { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--c45-v2-space-6) var(--c45-v2-space-4); text-align: center; }
+.t1-noorgm__text { margin-top: var(--c45-v2-space-2); text-wrap: pretty; }
+.t1-noorgm__actions { display: flex; flex-direction: column; gap: var(--c45-v2-space-1); }
+
+/* ------------------------------------------------ Nhập mã lời mời (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-invite { padding: var(--c45-v2-space-6) var(--c45-v2-space-4) 34px; }
+.t1-invite__title { margin: 0; font-size: 22px; line-height: 32px; font-weight: 700; letter-spacing: -0.3px; color: var(--c45-v2-text-primary); }
+.t1-invite__text { margin: 4px 0 var(--c45-v2-space-6); text-wrap: pretty; }
+
+/* ------------------------------------------------ Kích hoạt tài khoản theo lời mời (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-invreg { padding: var(--c45-v2-space-5) var(--c45-v2-space-4) 34px; }
+.t1-invreg__ok { display: flex; align-items: center; gap: var(--c45-v2-space-2); margin: 0; font-size: var(--sh-fs-h3); line-height: 26px; color: var(--c45-v2-text-primary); }
+.t1-invreg__ok b { font-weight: 700; letter-spacing: -0.2px; }
+.t1-invreg__ok .icon { font-size: 22px; color: var(--c45-v2-icon-success); }
+.t1-invreg__text { margin: 4px 0 var(--c45-v2-space-5); text-wrap: pretty; }
+.t1-invreg__text b { font-weight: 600; color: var(--c45-v2-text-primary); }
+.t1-invreg__mail { display: flex; align-items: center; gap: var(--c45-v2-space-3); min-height: 44px; padding: 8px 12px; border-radius: var(--c45-v2-radius-input); background: var(--c45-v2-surface-canvas); font-size: var(--sh-fs-md); line-height: 20px; }
+.t1-invreg__mail span { font-weight: 600; color: var(--c45-v2-text-primary); }
+.t1-invreg__mail b { flex: 1; min-width: 0; overflow-wrap: anywhere; text-align: right; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-invreg__mail .icon { font-size: 16px; color: var(--c45-v2-icon-secondary); }
+
+/* ------------------------------------------------ Hồ sơ tổ chức + Chi tiết lời mời + Chi tiết thành viên (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-orgm { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); }
+.t1-orgm__head { display: flex; align-items: center; gap: var(--c45-v2-space-3); padding: var(--c45-v2-space-2) 0; }
+.t1-orgm__head h2 { margin: 0; min-width: 0; overflow-wrap: anywhere; font-size: 22px; line-height: 32px; font-weight: 700; letter-spacing: -0.3px; color: var(--c45-v2-text-primary); }
+.t1-orgm__head > div:last-child { min-width: 0; }
+.t1-orgm__head p { margin: 0; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-orgm__avatar { display: grid; place-items: center; flex: none; width: 52px; height: 52px; border: 1px solid var(--c45-v2-border-brand); border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-brand); color: var(--c45-v2-text-brand); font-size: var(--sh-fs-xl); line-height: 24px; font-weight: 700; }
+.t1-orgm__avatar.is-off { border-color: var(--c45-v2-border-strong); background: var(--c45-v2-neutral-150); color: var(--c45-v2-text-secondary); }
+.t1-orgm__status { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-4); font-size: var(--sh-fs-md); line-height: 22px; }
+.t1-orgm__status > span:first-child { font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-orgm__icon { display: grid; place-items: center; flex: none; width: 52px; height: 52px; border: 1px solid var(--c45-v2-border-brand); border-radius: var(--c45-v2-radius-icon-box); background: var(--c45-v2-surface-brand); color: var(--c45-v2-icon-brand); font-size: 24px; }
+.t1-orgm__sec { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); }
+.t1-orgm__sec .t1-kv { gap: var(--c45-v2-space-4); }
+.t1-orgm__sec .t1-kv span { color: var(--c45-v2-text-secondary); }
+.t1-orgm__sec .t1-kv b { overflow-wrap: anywhere; }
+.t1-orgm__sec .t1-warnbox { padding: var(--c45-v2-space-3); border-radius: var(--c45-v2-radius-3); }
+.t1-orgm__sec .t1-warnbox b { margin-bottom: 0; }
+.t1-orgm__add { display: flex; align-items: center; gap: var(--c45-v2-space-3); margin: -4px 0 -8px; }
+.t1-orgm__add p { flex: 1; margin: 0; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-primary); }
+
+/* ------------------------------------------------ Chỉnh thông tin tổ chức + Hồ sơ pháp lý (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-orgedit { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); }
+/* Ô chọn tỉnh / xã cùng viền với ô nhập. */
+.t1-orgedit .t1-unit:not(.is-disabled):not(.is-invalid) { border-color: var(--c45-v2-border-input); }
+.t1-segctl { display: grid; grid-template-columns: 1fr 1fr; }
+.t1-segctl button { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 var(--c45-v2-space-2); border: 1px solid var(--c45-v2-border-input); background: var(--c45-v2-surface-default); font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); cursor: pointer; }
+.t1-segctl button:first-child { border-radius: var(--c45-v2-radius-input) 0 0 var(--c45-v2-radius-input); }
+.t1-segctl button:last-child { margin-left: -1px; border-radius: 0 var(--c45-v2-radius-input) var(--c45-v2-radius-input) 0; }
+.t1-segctl button[aria-checked="true"] { z-index: 1; border-color: var(--c45-v2-action-primary-default); background: var(--c45-v2-surface-brand); color: var(--c45-v2-text-brand); }
+.t1-segctl.is-invalid button { border-color: var(--c45-v2-text-danger); }
+.t1-segctl .icon { font-size: 16px; }
+.t1-orgedit__note { display: flex; gap: var(--c45-v2-space-2); margin: 0; padding: 4px 2px 0; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-orgedit__note .icon { flex: none; margin-top: 2px; font-size: 16px; color: var(--c45-v2-icon-secondary); }
+
+/* ------------------------------------------------ Người dùng (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-utop { flex: 0 0 auto; background: var(--c45-v2-surface-default); border-bottom: 1px solid var(--c45-v2-border-default); }
+.t1-utop__find { display: flex; align-items: center; gap: 4px; padding: var(--c45-v2-space-3) 8px var(--c45-v2-space-3) var(--c45-v2-space-4); }
+.t1-utop__find .t1-vsearch { flex: 1; min-width: 0; }
+.t1-useg { display: grid; grid-template-columns: 1fr 1fr; margin: var(--c45-v2-space-3) var(--c45-v2-space-4) 0; padding: 3px; border-radius: var(--c45-v2-radius-3); background: var(--c45-v2-neutral-150); }
+.t1-useg button { min-height: 40px; border: 0; border-radius: var(--c45-v2-radius-2); background: transparent; font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-secondary); cursor: pointer; }
+.t1-useg button[aria-selected="true"] { background: var(--c45-v2-surface-default); color: var(--c45-v2-text-brand); box-shadow: var(--c45-v2-shadow-1); }
+.t1-ucard { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: var(--c45-v2-space-3) var(--c45-v2-space-4); border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); text-align: left; color: var(--c45-v2-text-primary); cursor: pointer; }
+.t1-ucard:hover { background: var(--c45-v2-neutral-50); }
+.t1-ucard__name { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+.t1-ucard__name b { min-width: 0; overflow-wrap: anywhere; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; }
+.t1-ucard__name i { flex: 1; }
+.t1-ucard__line { display: flex; align-items: flex-start; gap: 8px; overflow-wrap: anywhere; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-ucard__line .icon { flex: none; margin-top: 2px; font-size: 16px; color: var(--c45-v2-icon-secondary); }
+
+/* ------------------------------------------------ Mời thành viên (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-invitem { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); }
+.t1-invitem__note { margin-top: var(--c45-v2-space-2); }
+.t1-invitem__error { display: flex; margin-top: -12px; padding: 0 2px; }
+.t1-invitem__later { margin-top: -4px; padding: 0 2px; }
+.t1-rolelist { overflow: hidden; }
+.t1-rolelist.is-invalid { border-color: var(--c45-v2-text-danger); }
+.t1-rolelist__legend { padding: var(--c45-v2-space-4) var(--c45-v2-space-4) 4px; }
+.t1-rolelist__legend .t1-label { margin: 0; }
+.t1-rolelist__opt { display: flex; align-items: center; gap: var(--c45-v2-space-3); width: 100%; min-height: 60px; padding: 8px var(--c45-v2-space-4); border: 0; background: transparent; text-align: left; color: var(--c45-v2-text-primary); cursor: pointer; }
+.t1-rolelist__opt + .t1-rolelist__opt { border-top: 1px solid var(--c45-v2-border-default); }
+.t1-rolelist__opt.is-on { background: var(--c45-v2-surface-brand); }
+.t1-rolelist__opt:focus-visible { outline-offset: -2px; }
+.t1-rolelist__opt .t1-radio-hit { flex: 0 0 20px; width: 20px; height: 20px; margin: 0; }
+.t1-rolelist__opt b { display: block; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; }
+.t1-rolelist__opt small { display: block; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+
+/* ------------------------------------------------ Chọn vai trò (iPhone, impeccable live 2026-11-25; web dùng .t1-roleopt) */
+.t1-selrole .t1-orgm__head { padding-bottom: var(--c45-v2-space-5); }
+.t1-selrole .t1-orgm__head p { font-size: var(--sh-fs-sm); line-height: 20px; overflow-wrap: anywhere; }
+.t1-selrole__name { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+.t1-selrole__title { margin: 0; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; letter-spacing: -0.2px; color: var(--c45-v2-text-primary); }
+.t1-selrole__sub { margin: 2px 0 var(--c45-v2-space-3); }
+.t1-rolelist__text { flex: 1; min-width: 0; }
+.t1-rolelist__opt.is-current { background: var(--c45-v2-surface-canvas); cursor: default; }
+.t1-rolelist__opt.is-current + .t1-rolelist__opt { border-top: 1px solid var(--c45-v2-border-default); }
+
+/* ------------------------------------------------ Vai trò (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-rolecards { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); padding-bottom: 18px; }
+.t1-rolecard { display: block; width: 100%; padding: 0; border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); text-align: left; color: var(--c45-v2-text-primary); cursor: pointer; }
+.t1-rolecard:hover { background: var(--c45-v2-neutral-50); }
+.t1-rolecard__main { display: flex; align-items: center; gap: var(--c45-v2-space-3); min-height: 64px; padding: 10px var(--c45-v2-space-4); }
+.t1-rolecard__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t1-rolecard__name { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+.t1-rolecard__name b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; }
+.t1-rolecard__text small { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-rolecard__go { flex: none; font-size: 18px; color: var(--c45-v2-icon-secondary); }
+.t1-rolecard__foot { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px var(--c45-v2-space-4); border-top: 1px solid var(--c45-v2-border-default); }
+.t1-rolecard__av { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-brand); color: var(--c45-v2-text-brand); font-size: var(--sh-fs-sm); line-height: 16px; font-weight: 700; }
+.t1-rolecard__who { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+
+/* ------------------------------------------------ Lịch sử quản trị (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-utop__chips { padding: 0 var(--c45-v2-space-4) var(--c45-v2-space-3); overflow-x: auto; }
+.t1-atimem { flex: none; padding: var(--c45-v2-space-3) var(--c45-v2-space-4) 0; }
+.t1-alist--days { gap: 0; padding-bottom: 34px; }
+.t1-alist--days .t1-more { padding-top: var(--c45-v2-space-4); }
+.t1-aday__title { margin: var(--c45-v2-space-3) 0 6px; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); font-variant-numeric: tabular-nums; }
+.t1-aday__box { border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); overflow: hidden; }
+.t1-aday__row { display: flex; align-items: center; gap: var(--c45-v2-space-3); width: 100%; padding: var(--c45-v2-space-3); border: 0; background: transparent; text-align: left; color: var(--c45-v2-text-primary); cursor: pointer; }
+.t1-aday__row + .t1-aday__row { border-top: 1px solid var(--c45-v2-border-default); }
+.t1-aday__row:hover { background: var(--c45-v2-neutral-50); }
+.t1-aday__row:focus-visible { outline-offset: -2px; }
+.t1-aday__time { flex: 0 0 40px; align-self: flex-start; font-size: var(--sh-fs-sm); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-secondary); font-variant-numeric: tabular-nums; }
+.t1-aday__text { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-wrap: anywhere; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-aday__name { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+.t1-aday__name b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t1-aday__name .t1-badge { border: 1px solid var(--c45-v2-border-default); }
+.t1-aday__go { flex: none; font-size: 18px; color: var(--c45-v2-icon-secondary); }
+
+/* ------------------------------------------------ Chi tiết hoạt động (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-adm { padding-bottom: 34px; }
+.t1-adm .t1-orgm__head h2 { font-size: var(--sh-fs-xl); line-height: 28px; }
+.t1-adm__result { margin-bottom: var(--c45-v2-space-4); display: flex; }
+.t1-adm__warn { margin-bottom: var(--c45-v2-space-3); }
+.t1-adm__card { overflow: hidden; }
+.t1-adm__part { display: flex; flex-direction: column; gap: 10px; padding: var(--c45-v2-space-4); }
+.t1-adm__part + .t1-adm__part { border-top: 1px solid var(--c45-v2-border-default); }
+.t1-adm__part .t1-badge--neutral { border: 1px solid var(--c45-v2-border-default); }
+.t1-adm__row { display: flex; justify-content: space-between; gap: var(--c45-v2-space-4); font-size: var(--sh-fs-md); line-height: 22px; }
+.t1-adm__row span { flex: none; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-adm__row b { min-width: 0; overflow-wrap: anywhere; text-align: right; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t1-adm__change { display: flex; flex-direction: column; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-adm__change b { font-weight: 600; color: var(--c45-v2-text-brand); }
+.t1-adm__trace { display: flex; align-items: center; gap: 8px; }
+.t1-adm__trace > div { flex: 1; min-width: 0; }
+.t1-adm__trace span { display: block; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-adm__trace b { overflow-wrap: anywhere; font-family: var(--c45-v2-font-mono); font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-primary); }
+.t1-adm__copy { display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-right: -10px; padding: 0; border: 0; background: transparent; font-size: 18px; color: var(--c45-v2-icon-brand); cursor: pointer; }
+.t1-adm__code { margin: 0; overflow-wrap: anywhere; font-family: var(--c45-v2-font-mono); font-size: var(--sh-fs-xs); line-height: 18px; color: var(--c45-v2-text-secondary); }
+
+/* ------------------------------------------------ Tài khoản của tôi (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-acc { padding-bottom: 34px; }
+.t1-acc .t1-orgm__head { padding-bottom: var(--c45-v2-space-5); }
+.t1-acc__title { margin: 0 0 var(--c45-v2-space-2); font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t1-acc__title--next { margin-top: var(--c45-v2-space-5); }
+.t1-rows { padding: 0 var(--c45-v2-space-4); }
+.t1-rows__row { display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-4); min-height: 46px; padding: 10px 0; font-size: var(--sh-fs-md); line-height: 22px; }
+.t1-rows__row + .t1-rows__row { border-top: 1px solid var(--c45-v2-border-default); }
+.t1-rows__row span { flex: none; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-rows__row b { min-width: 0; overflow-wrap: anywhere; text-align: right; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t1-rows__row b.is-empty { font-weight: 500; color: var(--c45-v2-text-muted); }
+.t1-actlist { overflow: hidden; }
+.t1-actlist__row { display: flex; align-items: center; gap: var(--c45-v2-space-3); width: 100%; min-height: 60px; padding: 8px var(--c45-v2-space-4); border: 0; background: transparent; text-align: left; color: var(--c45-v2-text-primary); cursor: pointer; }
+.t1-actlist__row + .t1-actlist__row { border-top: 1px solid var(--c45-v2-border-default); }
+.t1-actlist__row:hover { background: var(--c45-v2-neutral-50); }
+.t1-actlist__row:focus-visible { outline-offset: -2px; }
+.t1-actlist__ic { flex: none; font-size: 20px; color: var(--c45-v2-icon-brand); }
+.t1-actlist__text { flex: 1; min-width: 0; }
+.t1-actlist__text b { display: block; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; }
+.t1-actlist__text small { display: block; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-actlist__go { flex: none; font-size: 18px; color: var(--c45-v2-icon-secondary); }
+.t1-actlist__row.is-danger b, .t1-actlist__row.is-danger .t1-actlist__ic { color: var(--c45-v2-text-danger); }
+
+/* ------------------------------------------------ Chỉnh sửa thông tin cá nhân (iPhone, impeccable live 2026-11-25; web ở t1-web.css) */
+.t1-accedit { display: flex; flex-direction: column; gap: var(--c45-v2-space-3); }
+.t1-accedit__pic { display: flex; align-items: center; gap: var(--c45-v2-space-3); width: 100%; padding: var(--c45-v2-space-3) var(--c45-v2-space-4); border: 0; border-radius: var(--c45-v2-radius-card); background: transparent; text-align: left; color: var(--c45-v2-text-primary); cursor: pointer; }
+.t1-accedit__text { flex: 1; min-width: 0; }
+.t1-accedit__text b { display: block; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; }
+.t1-accedit__text small { display: block; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+
+/* ------------------------------------------------ Chi tiết vai trò (iPhone, impeccable live 2026-11-25; web ở web/roles.js) */
+.t1-roledet .t1-orgm__head { align-items: flex-start; padding-bottom: var(--c45-v2-space-5); }
+.t1-roledet .t1-roledet__sys { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: var(--sh-fs-sm); line-height: 20px; }
+.t1-roledet__sys .icon { font-size: 14px; color: var(--c45-v2-icon-secondary); }
+.t1-roledet__list { overflow: hidden; }
+.t1-roledet__row { display: flex; align-items: center; gap: var(--c45-v2-space-3); min-height: 56px; padding: 8px var(--c45-v2-space-4); }
+.t1-roledet__row + .t1-roledet__row { border-top: 1px solid var(--c45-v2-border-default); }
+.t1-roledet__row b { min-width: 0; overflow-wrap: anywhere; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t1-roledet__av { width: 36px; height: 36px; font-size: 15px; line-height: 18px; }
+.t1-roledet__none { padding: var(--c45-v2-space-4); }
+
+/* ------------------------------------------------ Sheet xác nhận lời mời (iPhone, impeccable live 2026-11-25; web dùng .t1-inforow) */
+.t1-invconf__title { margin: 0; text-wrap: balance; font-size: var(--sh-fs-xl); line-height: 28px; font-weight: 700; letter-spacing: -0.2px; color: var(--c45-v2-text-primary); }
+.t1-invconf__ok { display: flex; align-items: center; gap: 6px; margin: 4px 0 var(--c45-v2-space-4); font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-invconf__ok .icon { font-size: 18px; color: var(--c45-v2-icon-success); }
+.t1-invconf__box { display: flex; flex-direction: column; gap: 10px; padding: var(--c45-v2-space-4); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-canvas); }
+.t1-invconf__row { display: flex; justify-content: space-between; gap: var(--c45-v2-space-4); font-size: var(--sh-fs-md); line-height: 22px; }
+.t1-invconf__row span { flex: none; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.t1-invconf__row b { min-width: 0; overflow-wrap: anywhere; text-align: right; font-weight: 600; color: var(--c45-v2-text-primary); }
+.t1-invconf__acts { display: flex; flex-direction: column; gap: var(--c45-v2-space-2); margin-top: var(--c45-v2-space-5); }
 
 /* ------------------------------------------------ Trạng thái chung */
 .t1-center { flex: 1; display: grid; place-items: center; }
@@ -323,7 +584,6 @@
 .t1-kv--small b { font-weight: 700; }
 
 /* ID-11…13 */
-.t1-orghead { display: flex; align-items: center; gap: 8px; font-size: 24px; color: var(--c45-v2-text-primary); }
 .t1-warnbox { display: flex; align-items: flex-start; gap: 8px; padding: 16px; border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-warning); }
 .t1-warnbox > .icon { flex: 0 0 auto; font-size: 20px; color: var(--c45-v2-text-warning); }
 .t1-warnbox b { display: block; margin-bottom: 4px; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-warning); }
@@ -341,8 +601,6 @@
 .t1-ring--56 { width: 56px; height: 56px; }
 
 /* ID-14…18 */
-.t1-ubar { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--c45-v2-surface-default); }
-.t1-ubar--canvas { background: var(--c45-v2-surface-canvas); }
 .t1-chippad { flex: 0 0 auto; padding: 12px 16px; }
 .t1-ulistwrap { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
 .t1-ulist { display: flex; flex-direction: column; gap: 8px; padding: 8px 16px 32px; }
@@ -378,8 +636,6 @@
 .t1-rfail { display: flex; flex-direction: column; align-items: center; width: 100%; padding: 24px 20px; }
 
 /* ID-20 */
-.t1-achips { flex: 0 0 auto; padding: 4px 16px; }
-.t1-atime { flex: 0 0 auto; padding: 8px 16px; }
 .t1-alist { display: flex; flex-direction: column; gap: 8px; padding: 0 16px 24px; }
 .t1-more { display: flex; justify-content: center; padding: 8px 0; }
 .t1-arow { display: flex; align-items: flex-start; gap: 16px; }
@@ -405,10 +661,6 @@
 /* ================================================ đợt 3 — tài khoản */
 .t1-btn--lg { height: 52px; min-height: 52px; padding: 0 var(--c45-v2-space-6); }
 .t1-badge--md { padding: 6px 10px; font-size: var(--sh-fs-sm); line-height: 20px; }   /* VBadge cỡ thường */
-.t1-mehead { display: flex; align-items: center; gap: 8px; }
-.t1-mehead > div { flex: 1; min-width: 0; }
-.t1-mehead__ic { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 40px; border-radius: 12px; background: var(--c45-v2-surface-canvas); color: var(--c45-v2-text-primary); font-size: 20px; }
-.t1-avatar48 { display: grid; place-items: center; width: 48px; height: 48px; flex: 0 0 48px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-success); color: var(--c45-v2-action-primary-default); font-size: 16.8px; font-weight: 600; line-height: 1; }
 .t1-acrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; }
 .t1-acrow span { flex: 0 0 auto; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
 .t1-acrow b { min-width: 0; text-align: right; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }

@@ -1,11 +1,11 @@
-// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone giữ bản chép Flutter ở ../verify.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
+// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone ở ../verify.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
 import { icon } from '../../shared/icons.js';
 import { button, codeField, field } from '../ds.js';
 import { maskEmail, OTP_WRONG, RESEND_FAILED, resendLabel } from '../verify.js';
 
 /**
  * VerifyEmailView: lời nhắc bodyDefault textSecondary → khe 24 → VField(nhãn "Mã xác minh" *, ô 6 số, lỗi)
- * → khe 16 → ResendCountdown (nút link) → khe 24 → "Xác minh" (đầy ngang).
+ * → khe 24 → "Xác minh" (đầy ngang) → khe 8 → gửi lại (giữa): còn đếm ngược là chữ thường, hết là nút link (2026-11-25, giống iPhone).
  * state: default | error | filled | submitting | can-resend
  */
 export function verifyView(v, { state = 'default', email, prompt, cooldown = 59, columnWidth }) {
@@ -19,10 +19,9 @@ export function verifyView(v, { state = 'default', email, prompt, cooldown = 59,
     <p class="t1-body2">${text}</p>
     <div class="t1-gap-lg"></div>
     ${field({ label: 'Mã xác minh', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, invalid, disabled: busy, focus: !busy && code.length < 6 }), error: state === 'resend-failed' ? RESEND_FAILED : invalid ? OTP_WRONG : null })}
-    <div class="t1-gap-md"></div>
-    <div>${button(resendLabel(secs), { variant: 'link', disabled: secs > 0 })}</div>
     <div class="t1-gap-lg"></div>
     ${button('Xác minh', { full: true, loading: busy })}
+    <div class="t1-verify__resend">${secs > 0 ? `<p class="t1-body2 t1-verify__wait">${resendLabel(secs)}</p>` : button(resendLabel(secs), { variant: 'link' })}</div>
   </div>`;
 }
 

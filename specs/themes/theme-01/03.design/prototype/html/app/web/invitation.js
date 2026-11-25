@@ -1,7 +1,7 @@
-// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone giữ bản chép Flutter ở ../invitation.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
+// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone ở ../invitation.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
 import { icon } from '../../shared/icons.js';
-import { adaptiveSheet, appBar, banner, button, codeField, field, input, toast } from '../ds.js';
-import { confirmSheet, INSPECTION, outcomeView, STATES } from '../invitation.js';
+import { adaptiveSheet, appBar, banner, button, codeField, esc, field, input, plainScaffold, toast } from '../ds.js';
+import { INSPECTION, STATES } from '../invitation.js';
 import { PASSWORD_RULE } from '../signup.js';
 
 /**
@@ -51,6 +51,34 @@ function registerView(v, s) {
     </div></div>
     <footer class="t1-bottombar"><div class="t1-col" style="${col}"><div class="t1-bar-pad">${button('Kích hoạt tài khoản', { full: true, loading: busy })}</div></div></footer>
   </div>`;
+}
+
+/** _InvitationConfirmSheetContent: đệm 16 / 16; tiêu đề H3 w700 → khe 8 → "Mã lời mời hợp lệ." → khe 16 → 3 dòng (nhãn 72 bodySmall + giá trị labelDefault) → khe 32 → Xác nhận / khe 16 / Từ chối → khe 8. */
+function confirmSheet() {
+  const row = (l, val) => `<div class="t1-inforow"><span>${esc(l)}</span><b>${esc(val)}</b></div>`;
+  return `<div class="t1-confirm">
+    <h2 class="t1-h3">Xác nhận lời mời tham gia tổ chức?</h2>
+    <div class="t1-gap-sm"></div>
+    <p class="t1-body2">Mã lời mời hợp lệ.</p>
+    <div class="t1-gap-md"></div>
+    ${row('Tổ chức', INSPECTION.tenantName)}${row('Vai trò', INSPECTION.role)}${row('Email', INSPECTION.email)}
+    <div class="t1-gap-xl"></div>
+    ${button('Xác nhận', { full: true })}
+    <div class="t1-gap-md"></div>
+    ${button('Từ chối', { variant: 'secondary', full: true })}
+    <div class="t1-gap-sm"></div>
+  </div>`;
+}
+
+/** InvitationOutcomeView trong Scaffold nền surface, cột 480 đệm 16 (canh trên). onRetryLater không được truyền → không có "Thử lại sau". */
+function outcomeView(v, s) {
+  const declined = s.step === 'declined';
+  const title = declined ? 'Đã từ chối lời mời' : 'Không thể tiếp tục';
+  const body = s.message || (declined ? 'Lời mời đã được từ chối.' : 'Mã lời mời không dùng được. Bạn có thể nhập mã khác.');
+  return plainScaffold({
+    width: v.width,
+    body: `<div class="t1-list"><h2 class="t1-h3">${esc(title)}</h2><div class="t1-gap-sm"></div><p class="t1-body2">${esc(body)}</p><div class="t1-gap-lg"></div>${button('Nhập mã khác', { full: true })}</div>`,
+  });
 }
 
 export function invitationPage(v) {

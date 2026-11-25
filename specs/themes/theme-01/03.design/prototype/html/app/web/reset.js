@@ -1,4 +1,4 @@
-// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone giữ bản chép Flutter ở ../reset.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
+// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone ở ../reset.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
 import { icon } from '../../shared/icons.js';
 import { appBar, busyOverlay, button, centerLoading, codeField, field, input, pageScaffold, progressBar, toast } from '../ds.js';
 import { bottomBar, resetResendLabel, STATES } from '../reset.js';
@@ -19,8 +19,7 @@ function verifyStep(s, v, email) {
       ${field({ label: 'Mã xác nhận', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, disabled: !!s.busy, focus: !s.busy && code.length < 6 }) })}
       <div class="t1-gap-lg"></div>
       ${button('Xác nhận mã', { full: true, disabled: code.length !== 6 || !!s.busy })}
-      <div class="t1-gap-sm"></div>
-      <div class="t1-center-row">${button(resetResendLabel(s.seconds), { variant: 'link', disabled: s.seconds > 0 })}</div>
+      <div class="t1-reset__resend">${s.seconds > 0 ? `<p class="t1-body2 t1-reset__wait">${resetResendLabel(s.seconds)}</p>` : button(resetResendLabel(s.seconds), { variant: 'link' })}</div>
     </div>
     <p class="t1-small t1-text-center t1-stepcol__after">Mã chỉ sử dụng một lần và hết hạn sau 10 phút.</p>`;
 }

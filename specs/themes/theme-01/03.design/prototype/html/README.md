@@ -1,6 +1,6 @@
 # Prototype Theme 1 (TH-01) + Web cho app (10-8)
 
-HTML/CSS/JS thuần (ES module, không build). **iPhone 390** vẽ đúng Flutter hiện tại của các màn TH-01 (chép y nguyên chữ, thứ tự, số đo DS). **Web 1280** là bố cục thiết kế lại qua impeccable live (2026-11-24/25), tách riêng ở `app/web/` + `styles/t1-web.css`: sửa web không đụng iPhone. Sheet / hộp thoại / toast là ca riêng.
+HTML/CSS/JS thuần (ES module, không build). **iPhone 390** vẽ đúng Flutter hiện tại của các màn TH-01 (chép y nguyên chữ, thứ tự, số đo DS), trừ màn đã thiết kế lại qua impeccable live (từ 2026-11-25, chữ giữ nguyên): ID-01 Đăng nhập, ID-02 Đăng ký (thanh tiến độ 3 đoạn, họ + tên cùng hàng), ID-03 Xác minh email (thẻ nhập mã; ô mã trải hết bề ngang, dùng chung bước 3 Đăng ký), ID-04 / ID-23 Đặt lại mật khẩu (thanh 2 bước, nền trắng), ID-05 Chưa thuộc tổ chức (nút ở đáy), ID-06 Nhập mã lời mời (ô mã 4 + 4), ID-07 Kích hoạt tài khoản theo lời mời (sheet xác nhận + form + màn kết quả), ID-11 Hồ sơ tổ chức (gộp nhắc pháp lý vào thẻ), ID-12 Chỉnh thông tin tổ chức (hai thẻ), ID-13 Hồ sơ pháp lý (hai thẻ, loại chủ thể hai nút), ID-14 Người dùng (tab hai nút, "Mời thành viên" ở thanh dưới), ID-15 Mời thành viên (chọn vai trò bằng danh sách), ID-16 Chi tiết lời mời, ID-17 Chi tiết thành viên, ID-18 Chọn vai trò, ID-19 Vai trò (danh mục + chi tiết), ID-20 Lịch sử quản trị (danh sách theo ngày + chi tiết một thẻ), ID-21 Tài khoản của tôi (thao tác ngay trong màn), ID-22 Chỉnh sửa thông tin (hai thẻ). **Web 1280** là bố cục thiết kế lại qua impeccable live (2026-11-24/25), tách riêng ở `app/web/` + `styles/t1-web.css`: sửa web không đụng iPhone. Sheet / hộp thoại / toast là ca riêng.
 
 Làm theo 3 đợt, mỗi đợt một commit; cột trái trang xem chia theo đợt:
 
@@ -8,7 +8,7 @@ Làm theo 3 đợt, mỗi đợt một commit; cột trái trang xem chia theo �
 |---|---|---|
 | 1 · Công khai | ID-01 Đăng nhập (+ x1, x2, x4), ID-02 Đăng ký 3 bước (+ sheet khu vực), ID-03 Xác minh email, ID-04 / ID-23 Đặt lại mật khẩu, ID-05 Chưa thuộc tổ chức, ID-06 / ID-07 Lời mời (+ sheet xác nhận) | ✅ 58 ca × 2 khổ |
 | 2 · Quản trị | ID-11…13 hồ sơ tổ chức, ID-14…18 người dùng (+ 2 sheet lọc, sheet thao tác, thu hồi, 3 sheet vòng đời), ID-19 vai trò, ID-20 lịch sử (+ sheet lọc). ID-10 hub đã vẽ ở prototype Menu Thêm (APP-02) nên không vẽ lại | ✅ 97 ca × 2 khổ |
-| 3 · Tài khoản | ID-21 Tài khoản của tôi (+ sheet thao tác, sheet đăng xuất), ID-22 Chỉnh sửa thông tin (+ hộp thoại bỏ thay đổi). ID-23 đã vẽ ở đợt 1 (chung màn ID-04) | ✅ 17 ca × 2 khổ |
+| 3 · Tài khoản | ID-21 Tài khoản của tôi (+ sheet đăng xuất), ID-22 Chỉnh sửa thông tin (+ hộp thoại bỏ thay đổi). ID-23 đã vẽ ở đợt 1 (chung màn ID-04) | ✅ 16 ca × 2 khổ |
 
 ID-08 Chọn tổ chức đã có ở khung chung (`specs/prototype/shell/html/`, APP-04), không vẽ lại. ID-09 đã bỏ.
 
@@ -95,7 +95,7 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 
 **Đăng nhập (ID-01)**
 
-6. Logo là ô xanh chữ "V45" (không phải tên sản phẩm Mosaic Retail). Khẩu hiệu "Quản trị bán hàng thuốc thú y".
+6. Logo là ô xanh chữ "V45" (không phải tên sản phẩm Mosaic Retail). Prototype (iPhone + web) đã thay bằng icon app (2026-11-25); Flutter còn "V45". Khẩu hiệu "Quản trị bán hàng thuốc thú y".
 7. Sai email / mật khẩu: câu lỗi gắn dưới ô **Email** (ô Mật khẩu không đỏ), dễ hiểu nhầm là email sai. Lỗi mạng: banner đỏ chen giữa ô Mật khẩu và "Quên mật khẩu?".
 8. Bốn lối đi trên một màn, cùng độ nổi gần nhau: "Quên mật khẩu?" (link), "Đăng nhập", "Đăng ký cửa hàng mới" (viền), "Kích hoạt tài khoản" (link dưới câu hỏi). Hai link cao tối thiểu 44 nên khoảng trống quanh chúng lớn hơn quanh nút.
 9. Sau Quên mật khẩu → toast; sau đổi mật khẩu từ Tài khoản → banner. Cùng câu "Cập nhật mật khẩu thành công", hai cách báo.

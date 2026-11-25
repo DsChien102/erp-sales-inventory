@@ -96,10 +96,14 @@ test('web: nút thao tác nằm trong khối, không thanh dưới; iPhone giữ
   assert.match(web, /t1-invacts/); assert.match(web, /Tạm ngừng thành viên/); assert.doesNotMatch(web, /t1-bottombar/);
   assert.match(render('member-detail', 'suspended', 'web'), /Kích hoạt lại/);
   for (const st of ['owner', 'removed']) assert.doesNotMatch(render('member-detail', st, 'web'), /t1-invacts/);
-  for (const [scr, st] of [['org-profile', 'no-legal'], ['invitation-detail', 'pending'], ['member-detail', 'active'], ['account', 'owner']]) {
+  for (const [scr, st] of [['org-profile', 'no-legal'], ['invitation-detail', 'pending'], ['member-detail', 'active']]) {
     assert.match(render(scr, st, 'iphone'), /<span>Thao tác<\/span>/, scr);
     assert.doesNotMatch(render(scr, st, 'web'), /<span>Thao tác<\/span>/, scr);
   }
+  // Tài khoản của tôi (2026-11-25): iPhone cũng không còn nút / sheet Thao tác, thao tác là dòng trong màn.
+  const acc = render('account', 'owner', 'iphone');
+  assert.doesNotMatch(acc, /<span>Thao tác<\/span>|t1-bottombar/);
+  for (const l of ['Chỉnh sửa thông tin cá nhân', 'Đặt lại mật khẩu', 'Đăng xuất']) assert.match(acc, new RegExp(`<b>${l}</b>`));
   for (const [scr, sts] of Object.entries(IPHONE_ONLY)) for (const st of sts) { assert.ok(CASES[scr].includes(st), `${scr}/${st}`); assert.match(render(scr, st, 'iphone'), /Thao tác/); }
 });
 
@@ -141,8 +145,16 @@ test('VAvatar initials + tài khoản: nhãn Chủ sở hữu chỉ với chủ,
   assert.match(render('account', 'no-phone', 'web'), /\(chưa có\)/);
 });
 
-test('AuditDetailRow: giá trị > 24 ký tự xếp dọc; mã theo dõi rút gọn 12…8 vẫn một hàng', () => {
-  const html = render('audit-detail', 'actor-unavailable', 'iphone');
+test('AuditDetailRow (web): giá trị > 24 ký tự xếp dọc; mã theo dõi rút gọn 12…8 vẫn một hàng', () => {
+  const html = render('audit-detail', 'actor-unavailable', 'web');
   assert.match(html, /t1-drow t1-drow--block"><div class="t1-drow__head"><span>Người thực hiện/);
-  assert.match(render('audit-detail', 'detail', 'iphone'), /<div class="t1-drow"><span>Mã theo dõi<\/span><b>req_7f3a9c21…c8d19f02/);
+  assert.match(render('audit-detail', 'detail', 'web'), /<div class="t1-drow"><span>Mã theo dõi<\/span><b>req_7f3a9c21…c8d19f02/);
+});
+
+test('Chi tiết hoạt động (iPhone): một thẻ, "Dữ liệu thay đổi" đứng đầu; mã theo dõi rút gọn 12…8 + nút sao chép', () => {
+  const html = render('audit-detail', 'detail', 'iphone');
+  assert.ok(html.indexOf('Dữ liệu thay đổi') < html.indexOf('Ngữ cảnh'));
+  assert.match(html, /<span>Mã theo dõi<\/span><b>req_7f3a9c21…c8d19f02<\/b>/);
+  assert.match(html, /aria-label="Sao chép mã theo dõi"/);
+  assert.doesNotMatch(render('audit-detail', 'actor-unavailable', 'iphone'), /Dữ liệu thay đổi/);
 });

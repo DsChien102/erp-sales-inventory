@@ -6,7 +6,7 @@
 // Ba route nằm ngoài ShellRoute → toàn màn, không thanh bên / thanh dưới (cả web). VPageScaffold mặc định: cột 720 trên web.
 import { icon } from '../shared/icons.js';
 import { LEGAL, LEGAL_NOTICE, ORG } from './admin-data.js';
-import { adaptiveSheet, banner, button, centerLoading, confirmDialog, esc, field, input, kv, select, toast, vScaffold } from './ds.js';
+import { adaptiveSheet, button, card, centerLoading, confirmDialog, esc, field, input, kv, toast, vScaffold } from './ds.js';
 import { unitSection } from './signup.js';
 
 /** Bottom bar "Thao tác" (primary success, trailing chevronUp) / hai nút chia đôi khe 8: đệm 16 → cao 77 kể cả gạch. */
@@ -26,21 +26,22 @@ export const orgUnauthorized = () => `<div class="t1-oempty"><div class="t1-card
 
 /** _InfoRow: nhãn bodyDefault textMuted ↔ giá trị bodyDefault w600 phải ("—" khi rỗng). */
 export const info = (l, val) => kv(l, val || '—', 't1-kv--profile');
-const section = (title, inner) => `<div class="t1-card t1-card--pad"><h2 class="t1-h4">${esc(title)}</h2><div class="t1-gap-md"></div><div class="t1-stack16">${inner}</div></div>`;
+const section = (title, inner) => `<section class="t1-card t1-card--pad t1-orgm__sec"><h3 class="t1-h4 t1-h4--600">${esc(title)}</h3>${inner}</section>`;
 
 /** _LegalNotice: nền warningBg bo 12 đệm 16; icon cảnh báo 20 + khe 8; tiêu đề bodyDefault w700 warning, khe 4, bodySmall. */
 export const warnBox = (title, message) => `<div class="t1-warnbox">${icon('alert')}<div><b>${esc(title)}</b><p class="t1-small">${esc(message)}</p></div></div>`;
 
+/**
+ * Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25); chữ giữ nguyên Flutter: ô tòa nhà 52 + tên tổ chức → thẻ "Thông tin tổ chức" → thẻ "Hồ sơ pháp lý".
+ * Chưa có pháp lý: hộp vàng + dòng nhắc "Bổ sung hồ sơ pháp lý…" + link "Bổ sung" (BR-14, gộp vào thẻ pháp lý thay banner đầu màn).
+ */
 function profileBody(hasLegal) {
   const legal = hasLegal
     ? [info('Loại chủ thể', LEGAL.entityType), info('Tên pháp lý', LEGAL.legalName), info('Mã số thuế', LEGAL.taxCode), info('Địa chỉ đăng ký', LEGAL.registeredAddress)].join('')
-    : warnBox(LEGAL_NOTICE.title, LEGAL_NOTICE.message);
-  return `<div class="t1-list">
-    ${hasLegal ? '' : `${banner('info', 'Bổ sung hồ sơ pháp lý để xuất hoá đơn điện tử.', '', button('Bổ sung', { variant: 'link' }))}<div class="t1-gap-md"></div>`}
-    <div class="t1-card t1-card--pad t1-orghead">${icon('building')}<h2 class="t1-h4">${esc(ORG.name)}</h2></div>
-    <div class="t1-gap-sm"></div>
+    : `${warnBox(LEGAL_NOTICE.title, LEGAL_NOTICE.message)}<div class="t1-orgm__add"><p>Bổ sung hồ sơ pháp lý để xuất hoá đơn điện tử.</p>${button('Bổ sung', { variant: 'link' })}</div>`;
+  return `<div class="t1-list t1-orgm">
+    <div class="t1-orgm__head"><div class="t1-orgm__icon" aria-hidden="true">${icon('building')}</div><h2>${esc(ORG.name)}</h2></div>
     ${section('Thông tin tổ chức', [info('Tên hiển thị', ORG.name), info('Điện thoại', ORG.phone), info('Email', ORG.email), info('Địa chỉ', ORG.address)].join(''))}
-    <div class="t1-gap-sm"></div>
     ${section('Hồ sơ pháp lý', legal)}
   </div>`;
 }
@@ -94,15 +95,19 @@ export function editPage(v) {
   if (s.loading) return { page: vScaffold({ ...base, body: centerLoading(), fixed: true }) };
   const x = { name: ORG.name, phone: ORG.phone, email: ORG.email, address: ORG.address, ...s.values };
   const e = s.errors || {};
-  const body = `<div class="t1-list">
-    <p class="t1-small">Thông tin liên hệ này độc lập với hồ sơ pháp lý và chứng từ đã phát hành.</p><div class="t1-gap-md"></div>
-    <div class="t1-form">
+  // Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): thẻ liên hệ → thẻ địa chỉ (tỉnh, xã, địa chỉ — thứ tự TH-01 US-05.2 FR-01) → ghi chú.
+  const body = `<div class="t1-list t1-orgedit">
+    ${card(`<div class="t1-form">
       ${field({ label: 'Tên tổ chức', required: true, control: input({ value: x.name, invalid: !!e.name }), error: e.name, desc: 'Tên hiển thị.' })}
       ${field({ label: 'Số điện thoại', required: true, control: input({ value: x.phone, invalid: !!e.phone }), error: e.phone })}
       ${field({ label: 'Email liên hệ', required: true, control: input({ value: x.email, invalid: !!e.email }), error: e.email })}
-      ${field({ label: 'Địa chỉ liên hệ', required: true, control: input({ value: x.address, invalid: !!e.address }), error: e.address })}
+    </div>`, 't1-card--pad')}
+    ${card(`<div class="t1-form">
       ${unitSection({ province: ORG.province, commune: ORG.commune, required: false })}
-    </div></div>`;
+      ${field({ label: 'Địa chỉ liên hệ', required: true, control: input({ value: x.address, invalid: !!e.address }), error: e.address })}
+    </div>`, 't1-card--pad')}
+    <p class="t1-orgedit__note">${icon('info')}<span>Thông tin liên hệ này độc lập với hồ sơ pháp lý và chứng từ đã phát hành.</span></p>
+  </div>`;
   const page = vScaffold({ ...base, body, bottomBar: twoBar('Lưu thay đổi', !!s.busy), toastHtml: s.toast ? toast(...s.toast, { device: v.device, above: BAR_H }) : '' });
   return { page, overlay: s.dialog ? confirmDialog(DISCARD) : '' };
 }
@@ -123,6 +128,10 @@ export const duplicateSheet = () => `<div class="t1-sheetpad"><h2 class="t1-h3">
   ${warnBox('Có thể tiếp tục lưu', 'Mã số thuế không bắt buộc duy nhất. Hãy kiểm tra lại trước khi tiếp tục.')}<div class="t1-gap-lg"></div>
   ${button('Vẫn lưu', { full: true })}<div class="t1-gap-sm"></div>${button('Kiểm tra lại', { variant: 'secondary', full: true })}</div>`;
 
+/** Loại chủ thể (iPhone): hai nút liền nhau 44; đang chọn → nền surfaceBrand + viền primary + chữ textBrand; lỗi → viền danger. */
+const ENTITY_TYPES = ['Hộ kinh doanh', 'Doanh nghiệp'];
+const entitySegment = (value, invalid) => `<div class="t1-segctl${invalid ? ' is-invalid' : ''}" role="radiogroup" aria-label="Loại chủ thể">${ENTITY_TYPES.map((n) => `<button type="button" role="radio" aria-checked="${n === value}">${n === value ? icon('check') : ''}<span>${esc(n)}</span></button>`).join('')}</div>`;
+
 export function legalPage(v) {
   const s = LEGAL_STATES[v.state];
   const title = s.edit ? 'Chỉnh hồ sơ pháp lý' : 'Thêm hồ sơ pháp lý';
@@ -130,15 +139,19 @@ export function legalPage(v) {
   if (s.loading) return { page: vScaffold({ ...base, body: centerLoading(), fixed: true }) };
   const x = s.edit ? { type: LEGAL.entityType, name: LEGAL.legalName, tax: LEGAL.taxCode, address: LEGAL.registeredAddress, ...s.values } : { type: '', name: '', tax: '', address: '', ...s.values };
   const e = s.errors || {};
-  const body = `<div class="t1-list">
-    <p class="t1-small">Thay đổi hiện tại không làm thay đổi chứng từ lịch sử.</p><div class="t1-gap-md"></div>
-    <div class="t1-form">
-      ${field({ label: 'Loại chủ thể', control: select({ value: x.type, hint: 'Chọn loại chủ thể', invalid: !!e.type }), error: e.type })}
+  // Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): thẻ pháp lý (loại chủ thể hai nút) → thẻ địa chỉ (tỉnh, xã, địa chỉ) → ghi chú. "Loại chủ thể" có * theo TH-01 US-05.3 FR-01.
+  const body = `<div class="t1-list t1-orgedit">
+    ${card(`<div class="t1-form">
+      ${field({ label: 'Loại chủ thể', required: true, control: entitySegment(x.type, !!e.type), error: e.type })}
       ${field({ label: 'Tên pháp lý', required: true, control: input({ value: x.name, hint: 'Nhập tên pháp lý', invalid: !!e.name }), error: e.name })}
       ${field({ label: 'Mã số thuế', required: true, control: input({ value: x.tax, hint: 'Nhập mã số thuế', invalid: !!e.tax }), error: e.tax, desc: '10 hoặc 12 chữ số; chi nhánh nhập đủ 13 số, dấu gạch tự thêm.' })}
-      ${field({ label: 'Địa chỉ đăng ký', control: input({ value: x.address, hint: 'Nhập địa chỉ đăng ký' }) })}
+    </div>`, 't1-card--pad')}
+    ${card(`<div class="t1-form">
       ${unitSection(s.edit ? { province: ORG.province, commune: ORG.commune, required: false } : { required: false })}
-    </div><div class="t1-gap-md"></div></div>`;
+      ${field({ label: 'Địa chỉ đăng ký', control: input({ value: x.address, hint: 'Nhập địa chỉ đăng ký' }) })}
+    </div>`, 't1-card--pad')}
+    <p class="t1-orgedit__note">${icon('info')}<span>Thay đổi hiện tại không làm thay đổi chứng từ lịch sử.</span></p>
+  </div>`;
   const page = vScaffold({ ...base, body, bottomBar: twoBar('Lưu hồ sơ', !!s.busy), toastHtml: s.toast ? toast(...s.toast, { device: v.device, above: BAR_H }) : '' });
   const overlay = s.sheet ? adaptiveSheet(v.width, duplicateSheet(), 'Mã số thuế đã được ghi nhận') : s.dialog ? confirmDialog(DISCARD) : '';
   return { page, overlay };

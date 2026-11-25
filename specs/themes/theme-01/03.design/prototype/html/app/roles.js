@@ -3,9 +3,21 @@
 // /more/roles(/:code): ShellRoute riêng (RolesAreaShell → VListDetailLayout), ngoài StoreShell; chỉ Chủ sở hữu.
 import { icon } from '../shared/icons.js';
 import { ROLES } from './admin-data.js';
-import { badge, button, detailWidth, esc, isSplit, LIST_WIDTH, listDetail, splitPlaceholder, vcard, vScaffold } from './ds.js';
+import { badge, button, card, detailWidth, esc, isSplit, LIST_WIDTH, listDetail, splitPlaceholder, vScaffold } from './ds.js';
 
 export const ROLE_STATES = { list: {}, loading: { loading: true }, failed: { failed: true }, detail: { code: 'staff' }, 'detail-empty': { code: 'warehouse' } };
+
+/** Mô tả hiển thị: bỏ ghi chú kỹ thuật trong ngoặc ở cuối (như bản web). */
+const shortDesc = (d) => String(d).replace(/\s*\([^)]*\)\s*$/, '');
+
+/**
+ * Thẻ vai trò (iPhone, impeccable live 2026-11-25): tên + nhãn "Đang dùng" + mô tả + mũi tên (cả thẻ bấm được);
+ * chân thẻ: người đang giữ (tối đa 3 ô tròn 28 + tên một dòng, dư cắt "…") hoặc câu chưa có ai.
+ */
+const holderAvatar = (n) => `<span class="t1-rolecard__av" aria-hidden="true">${esc(n.trim().split(/\s+/).pop()[0])}</span>`;
+const roleCard = (r, selected) => `<button type="button" class="t1-rolecard"${selected ? ' aria-current="true"' : ''}>
+  <span class="t1-rolecard__main"><span class="t1-rolecard__text"><span class="t1-rolecard__name"><b>${esc(r.title)}</b>${r.members.length ? badge('Đang dùng', 'success') : ''}</span><small>${esc(shortDesc(r.description))}</small></span>${icon('chevronRight', 't1-rolecard__go')}</span>
+  <span class="t1-rolecard__foot">${r.members.length ? `${r.members.slice(0, 3).map(holderAvatar).join('')}<span class="t1-rolecard__who">${r.members.map(esc).join(', ')}</span>` : '<span class="t1-rolecard__who">Chưa có thành viên đang giữ vai trò này.</span>'}</span></button>`;
 
 /** Không có nhánh "đang tải": khi chưa có dữ liệu vẫn vẽ phần đầu + "0 vai trò hệ thống" và danh sách rỗng. */
 function rolesList(s, w, selected) {
@@ -16,16 +28,19 @@ function rolesList(s, w, selected) {
         <h2 class="t1-h3 t1-danger t1-text-center">Không thể tải danh sách vai trò</h2><div class="t1-gap-xs"></div>
         <p class="t1-body2 t1-text-center">Dịch vụ phân quyền đang tạm thời không khả dụng. Vui lòng thử lại sau.</p><div class="t1-gap-md"></div>
         ${button('Thử lại', { variant: 'link' })}</div></div>`
-    : `<div class="t1-list"><h2 class="t1-h4">Vai trò hệ thống</h2><div class="t1-gap-xs"></div><p class="t1-small">Vai trò vận hành không thay đổi tư cách Chủ sở hữu.</p><div class="t1-gap-md"></div>
-      ${roles.map((r) => `<div class="t1-mb12">${vcard(`<div class="t1-urow">${icon('user', 't1-urow__ic')}<div class="t1-urow__text"><b>${esc(r.title)}</b><span>${esc(r.description)}</span></div>${r.members.length ? badge('Đang dùng', 'success') : icon('chevronRight', 't1-chev20')}</div>`, { selected: r.id === selected })}</div>`).join('')}</div>`;
+    : `<div class="t1-list"><h2 class="t1-selrole__title">Vai trò hệ thống</h2><p class="t1-small t1-selrole__sub">Vai trò vận hành không thay đổi tư cách Chủ sở hữu.</p>
+      <div class="t1-rolecards">${roles.map((r) => roleCard(r, r.id === selected)).join('')}</div></div>`;
   return vScaffold({ title: 'Vai trò', subtitle: s.failed ? 'Không tải được' : `${roles.length} vai trò hệ thống`, body, placeWidth: w, fixed: !!s.failed });
 }
 
 function roleDetail(code, w, split) {
   const r = ROLES.find((x) => x.id === code);
-  const body = `<div class="t1-list">${vcard(`<h2 class="t1-h4">${esc(r.title)}</h2><div class="t1-gap-xs"></div><p class="t1-small">${esc(r.description)}</p><div class="t1-gap-md"></div><p class="t1-small">Vai trò hệ thống · Chỉ đọc</p>`)}
-    <div class="t1-gap-md"></div><h2 class="t1-h4">Thành viên đang giữ vai trò</h2><div class="t1-gap-sm"></div>
-    ${r.members.length ? r.members.map((n) => `<p class="t1-bodyp t1-mb8">${esc(n)}</p>`).join('') : '<p class="t1-small">Chưa có thành viên đang giữ vai trò này.</p>'}</div>`;
+  // Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): ô khiên + tên + mô tả + "Vai trò hệ thống · Chỉ đọc" → thẻ thành viên (ô tròn 36 + tên, không bấm được).
+  const holders = r.members.map((n) => `<div class="t1-roledet__row"><span class="t1-rolecard__av t1-roledet__av" aria-hidden="true">${esc(n.trim().split(/\s+/).pop()[0])}</span><b>${esc(n)}</b></div>`).join('');
+  const body = `<div class="t1-list t1-roledet">
+    <div class="t1-orgm__head"><div class="t1-orgm__icon" aria-hidden="true">${icon('shield')}</div><div><h2>${esc(r.title)}</h2><p>${esc(shortDesc(r.description))}</p><p class="t1-roledet__sys">${icon('lock')}Vai trò hệ thống · Chỉ đọc</p></div></div>
+    <h3 class="t1-acc__title">Thành viên đang giữ vai trò</h3>
+    ${card(holders || '<p class="t1-small t1-roledet__none">Chưa có thành viên đang giữ vai trò này.</p>', 't1-roledet__list')}</div>`;
   return vScaffold({ title: 'Chi tiết vai trò', back: !split, body, placeWidth: w });
 }
 

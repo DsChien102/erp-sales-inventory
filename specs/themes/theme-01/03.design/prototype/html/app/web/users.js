@@ -1,14 +1,14 @@
-// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone giữ bản chép Flutter ở ../users.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
+// Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone ở ../users.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
 import { icon } from '../../shared/icons.js';
 import { INVITATION_BADGE, INVITATIONS, MEMBER_BADGE, MEMBERS, invitationById, memberById, statusDetail } from '../admin-data.js';
 import {
   adaptiveSheet, appBar, badge, banner, button, centerLoading, chipRow, esc, field, fieldDesc, fieldError, iconButton, input, kv,
-  radio, searchBar, skeleton, tabs, toast, vScaffold,
+  radio, searchBar, skeleton, tabs, toast, vcard, vScaffold,
 } from '../ds.js';
 import { BAR_H, loadFailed } from '../org.js';
 import {
   filterSheet, INVITATION_STATES, INVITE_STATES, LIFECYCLE, lifecycleSheet, LIST_STATES, MEMBER_STATES, revokeSheet, SELECT_ROLES, SELECT_STATES,
-  selectRole, subtitle, usersEmpty,
+  subtitle, usersEmpty,
 } from '../users.js';
 
 /** Chữ viết tắt: ký tự đầu của tên (từ cuối họ tên). */
@@ -152,6 +152,24 @@ export function memberDetailPage(v) {
   let overlay = '';
   if (LIFECYCLE[s.sheet]) overlay = adaptiveSheet(v.width, lifecycleSheet(s.sheet, !!s.busy), LIFECYCLE[s.sheet].title);
   return { page, overlay };
+}
+
+function selectRole(s, w) {
+  const m = memberById(s.id);
+  const i = SELECT_ROLES.findIndex(([t]) => t === m.role);
+  const roles = i > 0 ? [SELECT_ROLES[i], ...SELECT_ROLES.filter((_, k) => k !== i)] : SELECT_ROLES;
+  const active = m.status === 'active';
+  const item = ([t, d]) => {
+    const cur = t === m.role; const on = t === s.pick;
+    return `<div class="t1-roleopt${on ? ' is-on' : ''}">${icon('user', 't1-roleopt__ic')}<div class="t1-roleopt__text"><b>${esc(t)}</b><span>${esc(d)}</span></div>${cur ? badge('Hiện tại', 'success') : radio(on)}</div>`;
+  };
+  const body = `<div class="t1-list">
+    ${vcard(`<div class="t1-dhead"><h2 class="t1-h4">${esc(m.name)}</h2>${badge(active ? 'Hoạt động' : 'Tạm ngừng', active ? 'success' : 'danger')}</div><div class="t1-gap-xs"></div>
+      <p class="t1-small">${esc(`${m.email} · ${m.role}`)}</p><div class="t1-gap-md"></div><p class="t1-strong">${m.isOwner ? 'Quyền sở hữu: Chủ sở hữu' : 'Danh tính: Chỉ đọc'}</p>`)}
+    <div class="t1-gap-md"></div><h2 class="t1-h4">Chọn vai trò mới</h2><div class="t1-gap-xs"></div><p class="t1-small">Mỗi thành viên có đúng một vai trò hiện hành.</p><div class="t1-gap-md"></div>
+    ${roles.map(item).join('')}</div>`;
+  const bar = `<div class="t1-bar-pad t1-row2 t1-row2--8">${button('Hủy', { variant: 'secondary', full: true })}${button('Tiếp tục', { full: true, disabled: !s.pick })}</div>`;
+  return vScaffold({ title: 'Chọn vai trò', body, bottomBar: bar, placeWidth: w });
 }
 
 export function selectRolePage(v) {

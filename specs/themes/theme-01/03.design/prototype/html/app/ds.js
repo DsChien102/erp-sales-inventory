@@ -50,21 +50,23 @@ export function field({ label, required = false, control, error = null, desc = n
 /**
  * VVerificationCodeField: ô 48 × 56, khe 8; hẹp hơn thì ô co lại (cao max(48, rộng + 8), chữ headingH4).
  * fill (chỉ web, impeccable live 2026-11-24): ô chia đều hết bề ngang cột.
+ * split (iPhone, mã lời mời 8 ký tự, impeccable live 2026-11-25): hai nhóm 4 ô chia đều bề ngang, khe ô 5, khe nhóm 18; ô cao 52, chữ 18.
  * Viền: borderInput; ô đang nhập (con trỏ) → primary + vòng 3 successBg.
  * VField(invalid): chỉ ô đang focus đổi viền danger + vòng dangerBg; các ô khác giữ borderInput (viền nghỉ chỉ đỏ khi có errorText kiểu cũ), chữ số không đỏ.
  */
-export function codeField({ length = 6, value = '', columnWidth, invalid = false, disabled = false, focus = true, fill = false }) {
+export function codeField({ length = 6, value = '', columnWidth, invalid = false, disabled = false, focus = true, fill = false, split = false }) {
   const gap = 8;
   const share = (columnWidth - gap * (length - 1)) / length;
   const cellW = fill ? share : Math.min(48, share);
   const cellH = cellW < 48 ? Math.max(48, cellW + 8) : 56;
   const at = Math.min(value.length, length - 1);
+  const size = split ? 'height:52px;font-size:18px' : `${fill ? '' : `width:${cellW}px;`}height:${cellH}px;font-size:${cellW < 48 ? 14 : 18}px`;
   const cells = Array.from({ length }, (_, i) => {
     const ch = value[i] || '';
     const isFocus = focus && !disabled && i === at;
-    return `<span class="t1-code__cell${isFocus ? ' is-focus' : ''}${isFocus && invalid ? ' is-danger' : ''}" style="${fill ? '' : `width:${cellW}px;`}height:${cellH}px;font-size:${cellW < 48 ? 14 : 18}px">${esc(ch)}${isFocus && !ch ? '<i class="t1-code__caret"></i>' : ''}</span>`;
+    return `<span class="t1-code__cell${isFocus ? ' is-focus' : ''}${isFocus && invalid ? ' is-danger' : ''}" style="${size}">${esc(ch)}${isFocus && !ch ? '<i class="t1-code__caret"></i>' : ''}</span>`;
   }).join('');
-  return `<div class="t1-code${fill ? ' t1-code--fill' : ''}${disabled ? ' is-disabled' : ''}" role="group" aria-label="Mã ${length} ký tự">${cells}</div>`;
+  return `<div class="t1-code${fill ? ' t1-code--fill' : ''}${split ? ' t1-code--split' : ''}${disabled ? ' is-disabled' : ''}" role="group" aria-label="Mã ${length} ký tự">${cells}</div>`;
 }
 
 /** Thanh tiến độ các bước (đăng ký, đặt lại mật khẩu): mỗi bước một đoạn cao 4 (xong / đang: primary; chưa: borderDefault) + nhãn "n. Tên bước". */

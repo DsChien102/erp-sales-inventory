@@ -6,6 +6,7 @@
 > - 🔧 = code hiện tại **sai**, phải sửa khi refactor.
 >
 > **Phiên bản:** 4.0 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> - **2026-11-25:** 10-8: Tài khoản của tôi bỏ nút / sheet "Thao tác", thao tác nằm ngay trong màn (US-08.1 FR-02, mục 5.10); lời nhắc hồ sơ pháp lý nằm trong khối "Hồ sơ pháp lý" thay banner đầu màn (BR-14, US-05.4, mục 5.7); Hồ sơ tổ chức, Chi tiết lời mời, Chi tiết thành viên trên web: thao tác ở từng khối (US-05.1 FR-02, US-06.3 FR-02, US-06.4 FR-03)
 > - **2026-11-24:** 10-8b: bỏ banner pháp lý ở Trang chủ (Trang chủ "Bảng giá chợ"); banner chỉ còn ở Hồ sơ tổ chức (BR-14, US-05.4)
 > - **2026-10-28:** W-2: Theme 1 trên web — cột hẹp màn công khai, danh sách – chi tiết, sheet thành hộp thoại
 > - **2026-10-27:** 2-B7: bỏ họ tên / SĐT khỏi form mời (FR-01), lỗi mời dưới ô + nút Gửi luôn bật (FR-06), hộp thoại bỏ thay đổi, ô MST tự chèn gạch
@@ -66,7 +67,7 @@ Chỉ có một app (`apps/erp`) và một màn đăng nhập. App `apps/admin` 
 - Đăng nhập, đăng xuất, quên mật khẩu (mã 6 số qua email); 🆕 định tuyến sau đăng nhập.
 - Nhận lời mời bằng mã: kích hoạt tài khoản mới hoặc đăng nhập, chấp nhận / từ chối.
 - Chọn và chuyển tổ chức; ghi nhớ tổ chức chọn gần nhất; xử lý khi mất quyền.
-- Hồ sơ tổ chức và hồ sơ pháp lý (MST); 🆕 banner nhắc thiếu hồ sơ pháp lý ở Hồ sơ tổ chức.
+- Hồ sơ tổ chức và hồ sơ pháp lý (MST); 🆕 lời nhắc thiếu hồ sơ pháp lý ở Hồ sơ tổ chức.
 - Mời thành viên; gửi lại, thu hồi lời mời.
 - Quản lý thành viên: đổi vai trò, tạm ngừng, kích hoạt lại, loại khỏi tổ chức.
 - Danh mục vai trò (chỉ đọc); lịch sử quản trị của tổ chức.
@@ -180,7 +181,7 @@ Số BR giữ từ bản 3.0.
 | BR-11 | Múi giờ `Asia/Ho_Chi_Minh` và tiền tệ `VND` do server gán; không sửa được |
 | BR-12 | ~~Tổ chức tạm ngừng / đã đóng~~ — bỏ (3-E, 2026-10-12): tổ chức không có trạng thái, luôn hoạt động |
 | BR-13 | ~~Lý do tạm ngừng / đóng tổ chức~~ — bỏ (3-E, 2026-10-12) |
-| BR-14 | Chưa có hồ sơ pháp lý → hiện **banner nhắc** ở Hồ sơ tổ chức (không chặn) 🆕. Trang chủ không còn banner (10-8b, 2026-11-24) |
+| BR-14 | Chưa có hồ sơ pháp lý → hiện **lời nhắc** trong khối "Hồ sơ pháp lý" của màn Hồ sơ tổ chức (không chặn) 🆕. 🔧 Không còn banner đầu màn (10-8, 2026-11-25); Trang chủ không nhắc (10-8b, 2026-11-24) |
 
 **Hồ sơ pháp lý**
 
@@ -334,7 +335,7 @@ Vai trò `manager` (Quản lý) đã bị xoá ở `20260811024`.
 | EP-02 | Đăng nhập & mật khẩu | US-02.1 Đăng nhập; US-02.2 🆕 Định tuyến sau đăng nhập; US-02.3 Quên mật khẩu; US-02.4 🆕 Chưa thuộc tổ chức nào | ID-01, ID-04, ID-05 |
 | EP-03 | Nhận lời mời | US-03.1 Nhập mã lời mời; US-03.2 Kích hoạt tài khoản mới; US-03.3 Chấp nhận / từ chối | ID-06, ID-07 |
 | EP-04 | Ngữ cảnh tổ chức | US-04.1 Chọn / chuyển tổ chức; US-04.2 Mất quyền khi đang dùng | ID-08, ID-09 |
-| EP-05 | Hồ sơ tổ chức (Owner) | US-05.1 Xem hồ sơ; US-05.2 Sửa thông tin; US-05.3 Hồ sơ pháp lý; US-05.4 🆕 Banner nhắc hồ sơ pháp lý | ID-11…ID-13 |
+| EP-05 | Hồ sơ tổ chức (Owner) | US-05.1 Xem hồ sơ; US-05.2 Sửa thông tin; US-05.3 Hồ sơ pháp lý; US-05.4 🆕 Nhắc hồ sơ pháp lý | ID-11…ID-13 |
 | EP-06 | Thành viên & lời mời (Owner) | US-06.1 Danh sách; US-06.2 Mời; US-06.3 Chi tiết lời mời; US-06.4 Chi tiết thành viên; US-06.5 Đổi vai trò; US-06.6 Tạm ngừng / kích hoạt lại / loại | ID-14…ID-18 |
 | EP-07 | Vai trò & lịch sử quản trị (Owner) | US-07.1 Danh mục vai trò; US-07.2 Lịch sử quản trị | ID-19, ID-20 |
 | EP-08 | Tài khoản của tôi | US-08.1 Xem; US-08.2 Sửa; US-08.3 Đổi mật khẩu; US-08.4 Đăng xuất | ID-21…ID-23 |
@@ -643,7 +644,7 @@ Scenario: SC-02 — Mời lại người đã bị loại
 #### US-05.1 — Xem hồ sơ tổ chức
 
 - FR-01: "Hồ sơ tổ chức": "Thông tin tổ chức" (Tên hiển thị, Điện thoại, Email, Địa chỉ); "Hồ sơ pháp lý" (Loại chủ thể, Tên pháp lý, Mã số thuế, Địa chỉ đăng ký) với nhãn "Đã có hồ sơ pháp lý" / "Chưa có hồ sơ pháp lý — Có thể bổ sung sau. Một số tính năng pháp lý chưa sử dụng được."; ghi chú "Hồ sơ pháp lý dùng cho chứng từ; thay đổi không sửa chứng từ lịch sử."
-- FR-02: "Thao tác" → "Thao tác hồ sơ": "Chỉnh sửa thông tin tổ chức — Cập nhật thông tin liên hệ và địa chỉ"; "Thêm hồ sơ pháp lý — Bổ sung thông tin pháp lý" / "Chỉnh sửa hồ sơ pháp lý — Cập nhật thông tin pháp lý".
+- FR-02: iPhone: "Thao tác" → sheet "Thao tác hồ sơ": "Chỉnh sửa thông tin tổ chức — Cập nhật thông tin liên hệ và địa chỉ"; "Thêm hồ sơ pháp lý — Bổ sung thông tin pháp lý" / "Chỉnh sửa hồ sơ pháp lý — Cập nhật thông tin pháp lý". 🔧 Web: không có nút / sheet "Thao tác", thao tác nằm ở từng khối — nút bút chì "Chỉnh sửa thông tin tổ chức" ở khối "Thông tin tổ chức"; khối "Hồ sơ pháp lý" có nút "Thêm hồ sơ pháp lý" khi chưa có, nút bút chì "Chỉnh sửa hồ sơ pháp lý" khi đã có.
 - FR-03: 🔧 Bỏ nhãn / thao tác của luồng cũ: "Đang khởi tạo", "Tổ chức đang được khởi tạo", sheet "Kích hoạt tổ chức?" (KI-05).
 - AC-01: Lỗi tải → "Không tải được hồ sơ" + "Thử lại".
 
@@ -687,11 +688,11 @@ Scenario: SC-01 — MST trùng tổ chức khác
   Then tôi thấy "Đã lưu hồ sơ pháp lý."
 ```
 
-#### US-05.4 — Banner nhắc hồ sơ pháp lý 🆕
+#### US-05.4 — Nhắc hồ sơ pháp lý 🆕
 
-- FR-01: Tổ chức chưa có hồ sơ pháp lý → banner ở Hồ sơ tổ chức (chỉ Owner): "Bổ sung hồ sơ pháp lý để xuất hoá đơn điện tử." + "Bổ sung". Trang chủ không hiện banner (10-8b).
+- FR-01: 🔧 Tổ chức chưa có hồ sơ pháp lý → nhắc trong khối "Hồ sơ pháp lý" của màn Hồ sơ tổ chức (chỉ Owner), không có banner đầu màn. Cả hai: hộp vàng "Chưa có hồ sơ pháp lý — Có thể bổ sung sau. Một số tính năng pháp lý chưa sử dụng được." iPhone: thêm dòng "Bổ sung hồ sơ pháp lý để xuất hoá đơn điện tử." + link "Bổ sung". Web: nút "Thêm hồ sơ pháp lý". Trang chủ không nhắc (10-8b).
 - FR-02: Chỉ nhắc, không chặn (BR-14).
-- AC-01: Thành viên không phải Owner không thấy banner.
+- AC-01: Thành viên không phải Owner không thấy lời nhắc.
 
 ---
 
@@ -736,7 +737,7 @@ Scenario: SC-01 — MST trùng tổ chức khác
 #### US-06.3 — Chi tiết lời mời
 
 - FR-01: "Chi tiết lời mời": email, họ tên, vai trò, trạng thái, hạn, người mời, "Giao nhận: `<trạng thái gửi>`"; cảnh báo "Cảnh báo gửi email — Lời mời vẫn còn hiệu lực nhưng gửi email thất bại."
-- FR-02: "Thao tác lời mời": "Gửi lại lời mời — Gửi lại email đến người nhận" → `resend_tenant_invitation` → mã mới, "Đã gửi lại lời mời."; "Thu hồi lời mời — Người nhận không thể tiếp tục tham gia".
+- FR-02: iPhone: "Thao tác" → sheet "Thao tác lời mời": "Gửi lại lời mời — Gửi lại email đến người nhận" → `resend_tenant_invitation` → mã mới, "Đã gửi lại lời mời."; "Thu hồi lời mời — Người nhận không thể tiếp tục tham gia". 🔧 Web: không có nút / sheet "Thao tác"; hai nút "Gửi lại lời mời" và "Thu hồi lời mời" (viền đỏ) nằm cuối khối "Thông tin lời mời", không kèm câu mô tả. Cả hai chỉ hiện khi `pending` (AC-01).
 - FR-03: Thu hồi: "Thu hồi lời mời? — Người nhận sẽ không thể dùng liên kết hiện tại để tham gia tổ chức."; "Lý do thu hồi" * ("Ví dụ: Sai email người nhận"); "Quay lại" / "Thu hồi lời mời" → "Đã thu hồi lời mời."
 - AC-01: Chỉ lời mời `pending` có thao tác (BR-41).
 - AC-02: Gửi lại → mã cũ vô hiệu.
@@ -747,7 +748,7 @@ Scenario: SC-01 — MST trùng tổ chức khác
 
 - FR-01: "Chi tiết thành viên": "Thông tin thành viên" (Tên, Danh tính / email, Ngày tham gia, Hoạt động gần nhất), "Vai trò hiện hành", "Quyền sở hữu", "Trạng thái truy cập"; 🔧 bỏ "Phiên bản dữ liệu" (thông tin kỹ thuật, KI-14).
 - FR-02: Tạm ngừng: banner "Quyền truy cập đã tạm ngừng — Thành viên không thể truy cập tổ chức cho đến khi được kích hoạt lại." + "Tạm ngừng lúc"; đã loại: "Thành viên đã được loại — Quyền truy cập đã kết thúc. Lịch sử và dữ liệu nghiệp vụ vẫn được giữ lại." + "Đã loại lúc", "Vai trò trước đó".
-- FR-03: "Thao tác thành viên": "Thay đổi vai trò — Cập nhật quyền vận hành" → 🔧 "Cập nhật vai trò"; "Tạm ngừng thành viên — Dừng quyền truy cập tạm thời"; "Kích hoạt lại — Khôi phục quyền truy cập"; "Loại khỏi tổ chức — Kết thúc tư cách thành viên".
+- FR-03: iPhone: "Thao tác" → sheet "Thao tác thành viên": "Thay đổi vai trò — Cập nhật quyền vận hành" → 🔧 "Cập nhật vai trò"; "Tạm ngừng thành viên — Dừng quyền truy cập tạm thời"; "Kích hoạt lại — Khôi phục quyền truy cập"; "Loại khỏi tổ chức — Kết thúc tư cách thành viên". 🔧 Web: không có nút / sheet "Thao tác"; các nút "Thay đổi vai trò", "Tạm ngừng thành viên" / "Kích hoạt lại", "Loại khỏi tổ chức" (viền đỏ) nằm cuối khối "Trạng thái truy cập", không kèm câu mô tả.
 - FR-04: Owner: không có thao tác tạm ngừng / loại (BR-31).
 - FR-05: 🔧 Thiếu dữ liệu "Tạm ngừng lúc / bởi", "Đã loại lúc" thì hiện "—"; không hiện giá trị giả ("14/07/2026 · 09:30", "Lê Thị Lan") như code hiện tại (KI-14).
 
@@ -831,7 +832,7 @@ Scenario: SC-02 — Không loại được Owner
 #### US-08.1 — Xem tài khoản
 
 - FR-01: `/more/my-account` "Tài khoản của tôi": "Tài khoản cá nhân" (avatar, họ tên, nhãn "Chủ sở hữu" nếu là Owner); "Thông tin cá nhân": "Họ và tên đệm", "Tên", "Email đăng nhập", "Trạng thái email" (Đã xác minh / Chưa xác minh), "Số điện thoại" ("(chưa có)").
-- FR-02: "Thao tác" → "Thao tác tài khoản": "Chỉnh sửa thông tin cá nhân — Cập nhật hồ sơ cá nhân"; "Đặt lại mật khẩu — Xác minh email và tạo mật khẩu mới"; "Đăng xuất — Kết thúc phiên sử dụng hiện tại".
+- FR-02: 🔧 Thao tác nằm ngay trong màn, không còn nút / sheet "Thao tác". iPhone: khối "Thao tác tài khoản" ba dòng — "Chỉnh sửa thông tin cá nhân — Cập nhật hồ sơ cá nhân"; "Đặt lại mật khẩu — Xác minh email và tạo mật khẩu mới"; "Đăng xuất — Kết thúc phiên sử dụng hiện tại". Web: nút bút chì ở "Thông tin cá nhân", khối "Bảo mật" (Đặt lại mật khẩu), nút "Đăng xuất" ở thẻ hồ sơ. Màn sửa, đặt lại mật khẩu và sheet xác nhận đăng xuất (US-08.4) không đổi.
 - AC-01: Lỗi → "Không tải được hồ sơ" + "Thử lại".
 
 #### US-08.2 — Sửa thông tin cá nhân
@@ -1003,8 +1004,6 @@ ID-09 chỉ còn hai trường hợp, cùng câu với màn chưa thuộc tổ c
 ┌──────────────────────────────────┐
 │ ←  Hồ sơ tổ chức      [Thao tác] │
 ├──────────────────────────────────┤
-│ ⓘ Bổ sung hồ sơ pháp lý để xuất  │ 🆕
-│   hoá đơn điện tử.   [Bổ sung]   │
 │ THÔNG TIN TỔ CHỨC                │
 │ Tên hiển thị   Thú y An Phát     │
 │ Điện thoại     0912 345 678      │
@@ -1012,11 +1011,15 @@ ID-09 chỉ còn hai trường hợp, cùng câu với màn chưa thuộc tổ c
 │ Địa chỉ        Số 1, Cầu Giấy, HN│
 │ ● Tổ chức đang hoạt động         │
 │ HỒ SƠ PHÁP LÝ                    │
-│ Chưa có hồ sơ pháp lý            │
+│ ⚠ Chưa có hồ sơ pháp lý          │
 │ Có thể bổ sung sau. Một số tính  │
 │ năng pháp lý chưa sử dụng được.  │
+│ Bổ sung hồ sơ pháp lý để xuất    │ 🆕
+│ hoá đơn điện tử.       Bổ sung   │
 └──────────────────────────────────┘
 ```
+
+Khung trên là iPhone. Web không có [Thao tác]: nút bút chì ở từng khối, nút "Thêm hồ sơ pháp lý" khi chưa có (US-05.1 FR-02).
 
 **Màn hồ sơ pháp lý (ID-13):**
 - Ô "Mã số thuế": mô tả ô "10 hoặc 12 chữ số; chi nhánh nhập đủ 13 số, dấu gạch tự thêm." và "Bàn phím số; dấu gạch tự chèn khi đủ 13 chữ số (BR-21)."
@@ -1069,15 +1072,20 @@ ID-09 chỉ còn hai trường hợp, cùng câu với màn chưa thuộc tổ c
 
 ```text
 ┌──────────────────────────────────┐
-│ ←  Tài khoản của tôi  [Thao tác] │
+│ ←  Tài khoản của tôi             │
 ├──────────────────────────────────┤
-│ (ảnh) Nguyễn Thị Lan [Chủ sở hữu]│
-│ THÔNG TIN CÁ NHÂN                │
+│ (NL) Nguyễn Thị Lan [Chủ sở hữu] │
+│      Tài khoản cá nhân           │
+│ Thông tin cá nhân                │
 │ Họ và tên đệm   Nguyễn Thị       │
 │ Tên             Lan              │
 │ Email đăng nhập lan@example.com  │
 │ Trạng thái email  Đã xác minh    │
 │ Số điện thoại   (chưa có)        │
+│ Thao tác tài khoản               │
+│ Chỉnh sửa thông tin cá nhân    › │
+│ Đặt lại mật khẩu               › │
+│ Đăng xuất                      › │
 └──────────────────────────────────┘
 ```
 
@@ -1262,7 +1270,7 @@ Số KI giữ từ bản 3.0.
 | 2A.3, 2A.4 | Cấu hình OTP; `email_jobs` + Edge Function; RPC mời / đặt lại mật khẩu ghi job | 6.3; KI-07 |
 | 2B.1–2B.4 | `/login`, `/signup`, `/verify-email`, `/no-organization`, định tuyến; quên mật khẩu (60 giây) | EP-01, EP-02; KI-12 |
 | 2B.5 | Lời mời (người nhận), chọn tổ chức, mất quyền | EP-03, EP-04; KI-13 |
-| 2B.6, 2B.7 | Hub quản trị tổ chức: hồ sơ, pháp lý (banner), người dùng, vai trò, lịch sử; tài khoản của tôi; sửa chữ / dữ liệu giả | EP-05…EP-08; KI-06, KI-10, KI-11, KI-14 |
+| 2B.6, 2B.7 | Hub quản trị tổ chức: hồ sơ, pháp lý (lời nhắc), người dùng, vai trò, lịch sử; tài khoản của tôi; sửa chữ / dữ liệu giả | EP-05…EP-08; KI-06, KI-10, KI-11, KI-14 |
 | 3-E | Bỏ Platform Admin, trạng thái chặn tổ chức / tài khoản, chuyển Owner | KI-08 |
 
 ### 9.3 Kiểm thử bắt buộc
@@ -1271,7 +1279,7 @@ Số KI giữ từ bản 3.0.
 
 | # | Kịch bản | Kỳ vọng chính |
 |---|---|---|
-| 1 | Đăng ký cửa hàng → xác minh → vào trang chủ → bổ sung hồ sơ pháp lý | 1 tổ chức, 1 Owner, 1 cửa hàng; banner nhắc ở Hồ sơ tổ chức biến mất |
+| 1 | Đăng ký cửa hàng → xác minh → vào trang chủ → bổ sung hồ sơ pháp lý | 1 tổ chức, 1 Owner, 1 cửa hàng; lời nhắc ở Hồ sơ tổ chức biến mất |
 | 2 | Đăng ký dở (không nhập mã) → đăng nhập → `/verify-email` → xác minh | Tổ chức được tạo từ metadata |
 | 3 | Owner mời → nhân viên kích hoạt tài khoản → chấp nhận → bán hàng; Owner loại → mời lại → chấp nhận | Nhân viên làm được nghiệp vụ, không vào hub; mời lại không lỗi trùng |
 | 4 | Thành viên đổi vai trò, tạm ngừng, kích hoạt lại | Hiệu lực ở request kế tiếp; lịch sử quản trị đầy đủ |
