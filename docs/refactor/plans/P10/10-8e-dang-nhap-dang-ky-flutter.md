@@ -866,4 +866,30 @@ Expected: PASS, không lỗi analyze mới, không vi phạm import mới
 
 ## Kết quả
 
+Làm xong 2026-11-26 (commit `151ac74d9` … `7e81f92df`). Test chạy: `flutter test test/features/auth test/core/widgets test/features/iam/presentation_module/w2_behavior_preservation_test.dart` → 189 xanh; `my_account_page_test`, `route_guard_test` xanh; `node --test` (prototype) 21 xanh. `dart analyze lib test` 241 (không đổi so trước), `check_feature_imports` 18 R1 (không đổi).
+
+- **T0** (74 ca trên code cũ): login 4, signup 6, verify 1, no-org 2 ca giữ hành vi.
+- **Lỗi 2** (Q5, Q5b): `resendFailure`, `resending` trong `VerifyEmailState`; toast "Không gửi được mã", ô mã không đỏ; gửi lại không khoá "Xác minh". Prototype `verify__resend-failed` sửa + chụp lại.
+- **Golden** `img/10-8e/flutter-*`: login 5, signup 7, verify 4 (`default`, `countdown`, `error`, `resend-failed`), no-org 1, mỗi ca 390 và 1280.
+- Bản quyền web "© Mosaic Retail" (Q7): prototype `web/login.js` sửa, 5 ảnh web `proto-login__*-1280` chụp lại.
+
+**Quyết định thêm khi làm (ngoài bảng Quyết định):**
+
+| # | Quyết định | Lý do |
+|---|---|---|
+| R1 | `_emailExists` bọc `VField(invalid: true)` quanh `VFieldError` | Trên code cũ màn "Email đã được đăng ký" ném assertion `VFieldError must be used within a VField` (lỗi có sẵn, T0 lộ ra) |
+| R2 | Họ / Tên cùng hàng 3 : 2 chỉ khi chữ phóng ≤ 1.3; hai nút bước Cửa hàng xếp dọc (nút chính trên) khi chữ phóng > 1.3 | `VFieldLabel` không xuống dòng; ca 320 × 2.0 bắt buộc không tràn |
+| R3 | `VFieldLabel` (c45_design_system) bọc nhãn trong `Flexible`; ghi CHANGELOG `[Unreleased]` | Nhãn "Số điện thoại cửa hàng" tràn 55 px ở 320 × 2.0; chỉ đổi khi nhãn không vừa |
+| R4 | `SignupPage.clock`, `VerifyEmailPage.clock` truyền xuống `VerifyEmailView` | Golden cố định đồng hồ đếm ngược |
+| R5 | ID-03 iPhone, ID-05 iPhone dựng bằng `LayoutBuilder` + `ConstrainedBox(minHeight)` + `spaceBetween`, không `IntrinsicHeight` / `SliverFillRemaining` | `VVerificationCodeField(fill)` dùng `LayoutBuilder`, không hỗ trợ kích thước nội tại |
+| R6 | "Quên mật khẩu?" web dùng `VButtonSize.small` | `VButton` không có cỡ chữ 13 |
+| R7 | Test Tab kiểm thứ tự đi qua `[email, password, forgot, submit]` | Nút hiện mật khẩu nằm giữa ô và link, số lần Tab không cố định |
+| R8 | Test toast chào mừng dùng tên cửa hàng trùng tên tổ chức của fake | `VToast` là SnackBar, toast thứ hai xoá toast đầu |
+
+**Lệch so với prototype (chấp nhận):** icon Lucide không nạp trong golden (ô vuông); chữ đậm hơn nhẹ do Inter; `VPasswordField` thêm ~2 px dưới ô nên khối form Đăng nhập iPhone thấp hơn ~2–4 px; link "Quên mật khẩu?" web chữ ~14 thay 13; đếm ngược golden 01:00 (đồng hồ cố định) thay 00:59; Đăng nhập iPhone ca `joined` cuộn được (nội dung dài hơn khung ở 844, prototype cũng cuộn).
+
+PLAN.md dòng Theme 1 đã ghi ✅ 10-8e từ trước, không sửa thêm.
+
 ## Review
+
+Tự rà lại toàn bộ diff (không có subagent review, theo quy tắc phiên): không thấy lỗi Critical/Important còn lại. Việc cần người khác nhìn: R3 (đổi nhỏ ở `c45_design_system`) và R2 (xếp dọc khi chữ phóng).
