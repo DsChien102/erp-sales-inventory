@@ -6,6 +6,7 @@ import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/features/auth/data/models/signup_input.dart';
 import 'package:erp/features/auth/logic/signup_cubit.dart';
 import 'package:erp/features/auth/presentation/pages/login_page.dart';
+import 'package:erp/features/auth/presentation/pages/no_organization_page.dart';
 import 'package:erp/features/auth/presentation/pages/signup_page.dart';
 import 'package:erp/features/auth/presentation/pages/verify_email_page.dart';
 import 'package:flutter/material.dart';
@@ -360,6 +361,22 @@ void main() {
             await t.tap(find.byKey(const Key('signup_resend')));
             await t.pump();
           },
+        );
+      });
+    }
+  });
+
+  group('no-org', () {
+    for (final width in const [390, 1280]) {
+      testWidgets('no-org__default $width', (tester) async {
+        final session = loginSession();
+        addTearDown(session.close);
+        await captureAuth(
+          tester,
+          width: width,
+          name: 'no-org__default',
+          page: NoOrganizationPage(session: session),
+          act: () => tester.pumpAndSettle(),
         );
       });
     }

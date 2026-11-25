@@ -708,22 +708,37 @@ void main() {
       expect(tester.getSize(acceptButton).height, lessThan(120));
     });
 
-    testWidgets('7 màn công khai ở bề rộng 1280 co lại tối đa 480', (tester) async {
-      tester.view.physicalSize = const Size(1280, 800);
+    Future<void> expectCapped(
+      WidgetTester tester,
+      Size size,
+      List<Widget> Function(SessionController session) screens,
+    ) async {
+      tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final session = loginSession();
-      final authScreens = <Widget>[
-        LoginPage(auth: ScriptedAuthRepository(), session: session),
-        SignupPage(auth: ScriptedAuthRepository(), session: session),
-        VerifyEmailPage(
-          email: 'user@example.com',
-          auth: ScriptedAuthRepository(),
-          session: session,
-        ),
-        NoOrganizationPage(session: session),
+      for (final screen in screens(session)) {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: screen,
+          ),
+        );
+        await tester.pump();
+        final scrollable = find.byType(Scrollable);
+        expect(scrollable, findsWidgets, reason: '${screen.runtimeType}');
+        expect(
+          tester.getSize(scrollable.first).width,
+          lessThanOrEqualTo(480),
+          reason: '${screen.runtimeType}',
+        );
+      }
+    }
+
+    testWidgets('3 màn công khai (Lời mời ×2, Đặt lại mật khẩu) ở 1280 co lại tối đa 480', (tester) async {
+      await expectCapped(tester, const Size(1280, 800), (session) => [
         InvitationTokenEntryForm(onInspect: (_) {}, isSubmitting: false),
         InvitationRegistrationForm(
           inspection: InvitationTokenInspection(
@@ -746,24 +761,20 @@ void main() {
         const ResetPasswordPage(
           emailMasked: 'u***@example.com',
         ),
-      ];
+      ]);
+    });
 
-      for (final screen in authScreens) {
-        await tester.pumpWidget(
-          MaterialApp(
-            theme: VTheme.lightTheme,
-            home: screen,
-          ),
-        );
-        await tester.pump();
-        final scrollable = find.byType(Scrollable);
-        expect(scrollable, findsWidgets, reason: '${screen.runtimeType}');
-        expect(
-          tester.getSize(scrollable.first).width,
-          lessThanOrEqualTo(480),
-          reason: '${screen.runtimeType}',
-        );
-      }
+    testWidgets('4 màn công khai (Đăng nhập, Đăng ký, Xác minh, Chưa thuộc tổ chức) ở 800 co lại tối đa 480', (tester) async {
+      await expectCapped(tester, const Size(800, 1000), (session) => [
+        LoginPage(auth: ScriptedAuthRepository(), session: session),
+        SignupPage(auth: ScriptedAuthRepository(), session: session),
+        VerifyEmailPage(
+          email: 'user@example.com',
+          auth: ScriptedAuthRepository(),
+          session: session,
+        ),
+        NoOrganizationPage(session: session),
+      ]);
     });
   });
 }
