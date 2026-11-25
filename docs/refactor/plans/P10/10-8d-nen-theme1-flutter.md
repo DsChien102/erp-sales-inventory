@@ -445,7 +445,7 @@ Làm xong 5 task (commit `79ab689e4`…, nhánh `dev`).
 
 - Task 1: DS `VVerificationCodeLayout` + lỗi đỏ cả dãy + con trỏ; prototype sửa `is-invalid`, chụp lại `verify__error`. Test DS 14/14; màn dùng ô mã 51/51.
 - Task 2: `VStepProgress`, `VConfirmDialog` 440, DS 1.10.0; test components 207/207. `pricing_pages_test` còn 6 ca đỏ đã có trong TEST-BASELINE. `component_audit` chạy lại và kéo theo ~340 dòng snapshot lệch sẵn từ trước.
-- Golden `flutter-foundation-{390,1280}`: cỡ ô, khe, màu, con trỏ khớp prototype. **Lệch:** ở 390 nhãn bước 3 "3. Xác minh email" bị cắt `…` (cột 114 px; prototype vừa 111 px) — số đo Inter trong môi trường test; cần xem trên máy thật.
+- Golden `flutter-foundation-{390,1280}`: cỡ ô, khe, màu, con trỏ khớp prototype. Nhãn bước 3 từng bị cắt `…` ở 390 vì thừa hưởng `letterSpacing: 0.25` của Material; đã sửa ở R1 (G1). Ở 375 (cột 109) vẫn cắt vì chữ rộng 110,7.
 - Task 3: `isWideLayout`, `shellRouteIsUnbounded`; luôn bọc `VContentWidth` (chỉ đổi bề ngang) nên ca bộ đếm xanh. 10 ca `home_golden_test` đỏ trước và sau y hệt (đối chiếu `git stash`).
 - Task 4: `AppLogo`, icon 256 vào bundle, hai PDF dùng icon (lỗi nạp → không icon). Test 82/82.
 - Task 5: TH-01, LUONG-UNG-DUNG, CHECKLIST ID-18b, README + chú thích prototype. PLAN.md dòng Theme 1 đã có link 10-8d…k nên giữ nguyên.
@@ -454,3 +454,41 @@ Làm xong 5 task (commit `79ab689e4`…, nhánh `dev`).
 ## Review
 
 Tự rà (không dùng subagent); chưa có review khác phiên.
+
+### R1 (2026-11-25) — Cần sửa G1; còn lại nhỏ
+
+Commit xem: `79ab689e4` … `e6e1c1f8e`.
+
+**Đã kiểm:**
+- DS: `compact` giữ nguyên công thức; `fill`, `split4`, con trỏ, lỗi đỏ cả dãy đúng Q5–Q7; vòng focus vẫn vẽ ở ô `fill` (chụp riêng sau `pumpAndSettle`). `VConfirmDialog` 310 / 440, đệm 20 / 24.
+- `StoreShell` đọc `uri.path`, so theo đoạn, luôn bọc `VContentWidth`: ca bộ đếm và ca `push` qua ShellRoute lồng xanh; Review Focus 1–3 đủ test.
+- Icon: in thử phiếu bán ra PDF, icon đúng chỗ (70 KB); chặn asset icon thì PDF vẫn ra (20 KB), không có icon.
+- TH-01, LUONG-UNG-DUNG, CHECKLIST, README, chú thích prototype đúng plan, trừ G5.
+- Chạy lại: DS `test/components` 207/207; phạm vi app (core, store_shell, auth, đặt lại mật khẩu, lời mời, PDF, w2, ba form) 326/326; `node --test` 20/20.
+- Đối chiếu bằng worktree ở `9da34c29d`: `home_golden_test` đỏ cùng 10 ca, `pricing_pages_test` cùng 14 xanh / 6 đỏ, `dart analyze lib test` cùng 241 mục, `check_feature_imports` cùng 91 dòng → không phát sinh.
+
+| # | Mức | Chỗ | Vấn đề | Đề xuất |
+|---|---|---|---|---|
+| G1 | Vừa | `v_step_progress.dart`, nhãn bước | Ở 390 nhãn "3. Xác minh email" bị cắt "…", khác ảnh đã duyệt. Nguyên nhân **không** phải số đo Inter trong test như mục Kết quả ghi: chữ Inter SemiBold 13 rộng 110,7 (vừa cột 114), nhưng `Text` thừa hưởng `letterSpacing: 0.25` của `DefaultTextStyle` Material nên thành 115,0. Font app dùng cùng tệp Inter nên máy thật cũng cắt | Thêm `letterSpacing: 0` vào style nhãn; thêm test ở cột 358 (nạp Inter): nhãn bước 3 không `didExceedMaxLines`; chụp lại `flutter-foundation-390`; sửa câu "Lệch" ở Kết quả. Ở 375 (cột 109) vẫn cắt vì chữ rộng hơn cột — không có ảnh duyệt, chấp nhận |
+| G2 | Nhỏ | `theme1_foundation_golden_test.dart` | Ảnh golden chụp giữa hiệu ứng focus: vòng xanh nằm ở ô "K" của dãy thứ ba (không focus), ô đang focus ở dãy đầu chưa có vòng. Một lần `pump(400ms)` sau `tap` chỉ mới bắt đầu hiệu ứng | `pumpAndSettle()` (con trỏ đứng yên nên không treo) rồi chụp lại hai ảnh |
+| G3 | Nhỏ | Test Task 4 | Review Focus 5 chưa có test: chỉ kiểm `loadAppIconBytes` trả `null` và nguồn không còn "V45", không kiểm PDF vẫn tạo khi thiếu icon. Mình thử tay thì đúng | Thêm ca: chặn `flutter/assets` cho `app_icon_256.png` → `generate` ra bytes > 100 (cả hai mẫu) |
+| G4 | Nhỏ | `sales_{receipt,slip}_pdf_generator.dart` | `_PdfFonts` bỏ `const` để gắn `icon` sửa được sau khi tạo; icon không phải font | Truyền `pw.MemoryImage? icon` làm tham số hàm vẽ đầu phiếu, trả `_PdfFonts` về `const` |
+| G5 | Nhỏ (tài liệu) | TH-01 5.8 | Khung sheet ghi nút "[ Xác nhận ]", FR-03 ghi "Xác nhận thay đổi"; dòng "Thủ kho." đẩy lệch viền | Sửa chữ nút và canh lại khung |
+| G6 | Rất nhỏ | `v_modal.dart`, `v_step_progress.dart`, `v_verification_code_field.dart` | `1024` và `999` ghi cứng (có `VBreakpoints.desktop`, `VRadius.pill`); biến `ringed` thừa; vài chỗ chỉ đổi định dạng | Dùng hằng có sẵn, bỏ biến thừa |
+| G7 | Rất nhỏ | `v_verification_code_field.dart` `textStyle` | Q7 ghi chữ số giữ `textPrimary` cả khi lỗi bằng `errorText`; code vẫn đỏ chữ với `errorText` kiểu cũ. Không màn nào trong `apps/erp/lib` dùng `errorText` | Để nguyên cũng được; nếu sửa thì bỏ nhánh `legacyError` ở màu chữ |
+| G8 | Ghi nhận | `v_component_audit_snapshot.dart`, `component_audit_report.md` | Chạy lại công cụ kéo theo 14 mục khác (VListRow, VSideNavigation…) lệch sẵn; không sai nhưng lẫn vào commit của plan | Không cần sửa |
+| G9 | Ghi nhận (ngoài phạm vi) | `erp_side_navigation.dart:23` | Vẫn đọc `matchedLocation`: sau `push` sang khu khác (ví dụ từ `/` sang `/warehouse`), thanh bên sáng mục cũ. Có từ trước; cùng nguyên nhân với Q1 | Sửa kèm ở 10-8h hoặc lần rà khung |
+
+**Xử lý R1 (2026-11-25, người dùng yêu cầu sửa luôn trong phiên review):**
+- G1: `letterSpacing: 0` ở nhãn bước; test `step labels fit the 358 column at 390` (đỏ trước, xanh sau); chụp lại golden.
+- G2: golden dùng `pumpAndSettle`; vòng focus đúng ô đầu của dãy đầu.
+- G3: hai ca `missing app icon still generates…` (`generate` / `generateReturnExchange` nhận `@visibleForTesting AssetBundle? iconBundle`).
+- G4: icon truyền làm tham số hàm vẽ, `_PdfFonts` về `const`.
+- G5: khung sheet TH-01 5.8 ghi "Xác nhận thay đổi", canh lại viền.
+- G6: `VRadius.pill`, `VBreakpoints`, bỏ biến `ringed`. Định dạng lại ở file ô mã để nguyên.
+- G7: bỏ nhánh chữ đỏ với `errorText`.
+- G8: không sửa.
+- G9: thanh bên đọc `uri.path`; test `1280: rail follows a page pushed from another tab` (đỏ trước, xanh sau).
+- Chạy lại: DS `test/components` 207/207; app (core, store_shell, shell golden, PDF, auth, đặt lại mật khẩu, lời mời, w2, more) 354/354; `dart analyze lib test` 241 mục, `check_feature_imports` 91 dòng, bằng trước 10-8d.
+
+**Còn lại trước khi đóng plan:** kiểm tay ba mục ở "Kiểm tay". Phần sửa R1 do phiên review làm, chưa có phiên khác xem lại.

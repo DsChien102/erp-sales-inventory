@@ -1,8 +1,14 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/features/sales/presentation.dart';
+
+class _FailingBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) => Future.error(Exception('missing $key'));
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +37,19 @@ void main() {
       );
       expect(bytes, isNotEmpty);
       expect(bytes.length, greaterThan(100));
+    });
+
+    test('missing app icon still generates the slip, without the image', () async {
+      Future<int> size({AssetBundle? bundle}) async =>
+          (await SalesSlipPdfGenerator.generateReturnExchange(
+            detail: _detail(referenceNumber: 'RE-42'),
+            orderNumber: 'SO-1',
+            customerDisplayName: 'Khách A',
+            iconBundle: bundle,
+          )).length;
+      final without = await size(bundle: _FailingBundle());
+      expect(without, greaterThan(100));
+      expect(without, lessThan(await size()));
     });
 
     test('slip source no longer prints the V45 placeholder', () {

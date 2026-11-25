@@ -667,6 +667,23 @@ void main() {
       );
     });
 
+    testWidgets('1280: rail follows a page pushed from another tab', (tester) async {
+      final router = createTestRouter(repository: ownerRepo(), initialLocation: '/');
+      await pumpWide(tester, router);
+      (int, int?) selected() =>
+          tester.widget<VSideNavigation>(find.byType(VSideNavigation)).selected;
+      expect(selected(), (0, null));
+
+      router.push('/warehouse');
+      await tester.pumpAndSettle();
+      expect(selected().$1, 4); // "Quản lý"
+      expect(selected().$2, isNotNull); // mục "Kho"
+
+      router.pop();
+      await tester.pumpAndSettle();
+      expect(selected(), (0, null));
+    });
+
     testWidgets('1280: rail has no "Thêm", has "Quản lý" and "Đăng xuất"', (tester) async {
       final router = createTestRouter(repository: ownerRepo(), initialLocation: '/orders');
       await pumpWide(tester, router);

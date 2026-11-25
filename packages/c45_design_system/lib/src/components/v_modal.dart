@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
+import '../tokens/v_breakpoints.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -47,7 +48,7 @@ class VConfirmDialog extends StatelessWidget {
           child: Padding(
             key: const Key('v-confirm-dialog-body'),
             padding: EdgeInsets.all(
-              MediaQuery.sizeOf(context).width >= 1024 ? VSpacing.space6 : VSpacing.space5,
+              VBreakpoints.of(context).isDesktop ? VSpacing.space6 : VSpacing.space5,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,

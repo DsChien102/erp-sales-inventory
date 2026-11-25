@@ -1,5 +1,6 @@
 import 'package:c45_design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../features/receivable/presentation/receivable_test_harness.dart';
@@ -78,7 +79,7 @@ Future<void> _pumpFoundation(
   await tester.enterText(fields.at(1), '123456');
   await tester.enterText(fields.at(2), 'K7M2');
   await tester.tap(fields.at(0));
-  await tester.pump(const Duration(milliseconds: 400));
+  await tester.pumpAndSettle();
   await expectLater(
     find.byKey(key),
     matchesGoldenFile(_goldenPath('flutter-foundation-${width.toInt()}')),
@@ -87,6 +88,32 @@ Future<void> _pumpFoundation(
 
 void main() {
   setUpAll(loadInterFont);
+
+  testWidgets('step labels fit the 358 column at 390', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: const Scaffold(
+          body: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: 358,
+              child: VStepProgress(
+                titles: ['Tài khoản', 'Cửa hàng', 'Xác minh email'],
+                currentIndex: 0,
+                variant: VStepProgressVariant.mobile,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    final label = tester.renderObject<RenderParagraph>(
+      find.descendant(of: find.text('3. Xác minh email'), matching: find.byType(RichText)),
+    );
+    expect(label.didExceedMaxLines, isFalse);
+    expect(label.getMaxIntrinsicWidth(double.infinity), lessThanOrEqualTo(label.size.width));
+  });
 
   testWidgets('foundation 390', (tester) async {
     await _pumpFoundation(

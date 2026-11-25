@@ -1030,14 +1030,14 @@ Khung trên là iPhone. Web không có [Thao tác]: nút bút chì ở từng kh
 ```text
 ┌──────────────────────────────────┐   ┌──────────────────────────────────────┐
 │ ←  Người dùng                [+] │   │ Đổi vai trò của Minh?  (sheet)       │
-│ [ Thành viên ] [ Lời mời ]       │   │ Vai trò Nhân viên bán hàng → Thủ kho. │
+│ [ Thành viên ] [ Lời mời ]       │   │ Vai trò Nhân viên bán hàng → Thủ kho.│
 │ 🔎 Tìm tên hoặc email         [⚲] │   │ Vai trò là nhãn công việc; quyền     │
 │ 3 thành viên                     │   │ nghiệp vụ của thành viên không       │ 🔧
 │ Nguyễn Thị Lan  [Chủ sở hữu]     │   │ thay đổi.                            │
 │ Chủ cửa hàng · Hoạt động         │   │                                      │
 │ Trần Minh                        │   │                                      │
 │ Nhân viên bán hàng · Hoạt động   │   │                                      │
-│ Lê Hà                            │   │ [ Quay lại ] [ Xác nhận ]            │
+│ Lê Hà                            │   │ [ Quay lại ] [ Xác nhận thay đổi ]   │
 │ Kế toán · Tạm ngừng              │   │                                      │
 └──────────────────────────────────┘   └──────────────────────────────────────┘
 ```

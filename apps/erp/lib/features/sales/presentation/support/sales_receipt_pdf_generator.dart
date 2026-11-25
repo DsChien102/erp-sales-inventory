@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -30,11 +31,15 @@ final class SalesReceiptPdfGenerator {
   static String _money(MoneyDto money) =>
       MoneyFormatter.format(amountMinor: money.amountMinor, currencyCode: money.currencyCode);
 
-  static Future<Uint8List> generate(SalesReceiptDocumentDto document) async {
+  /// [iconBundle] chỉ để test; không nạp được icon thì phiếu in không có icon (Q11).
+  static Future<Uint8List> generate(
+    SalesReceiptDocumentDto document, {
+    @visibleForTesting AssetBundle? iconBundle,
+  }) async {
     final pdf = pw.Document();
     final fonts = await _loadFonts();
-    final iconBytes = await loadAppIconBytes();
-    if (iconBytes != null) fonts.icon = pw.MemoryImage(iconBytes);
+    final iconBytes = await loadAppIconBytes(bundle: iconBundle);
+    final icon = iconBytes == null ? null : pw.MemoryImage(iconBytes);
     final theme = pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold);
 
     pdf.addPage(
@@ -48,7 +53,7 @@ final class SalesReceiptPdfGenerator {
             color: PdfColors.white,
             borderRadius: pw.BorderRadius.circular(16),
           ),
-          child: _buildBody(document, fonts),
+          child: _buildBody(document, fonts, icon),
         ),
       ),
     );
@@ -62,11 +67,15 @@ final class SalesReceiptPdfGenerator {
     return compacted.isEmpty ? 'sales_receipt.pdf' : '$compacted.pdf';
   }
 
-  static pw.Widget _buildBody(SalesReceiptDocumentDto document, _PdfFonts fonts) {
+  static pw.Widget _buildBody(
+    SalesReceiptDocumentDto document,
+    _PdfFonts fonts,
+    pw.MemoryImage? icon,
+  ) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
-        _buildHeader(document, fonts),
+        _buildHeader(document, fonts, icon),
         pw.SizedBox(height: 6),
         pw.Center(
           child: pw.Column(
@@ -224,7 +233,11 @@ final class SalesReceiptPdfGenerator {
     );
   }
 
-  static pw.Widget _buildHeader(SalesReceiptDocumentDto document, _PdfFonts fonts) {
+  static pw.Widget _buildHeader(
+    SalesReceiptDocumentDto document,
+    _PdfFonts fonts,
+    pw.MemoryImage? icon,
+  ) {
     final storeName = document.store.displayName.toUpperCase();
     final storeCode = document.store.storeCode.trim();
     return pw.Column(
@@ -233,11 +246,11 @@ final class SalesReceiptPdfGenerator {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            if (fonts.icon != null) ...[
+            if (icon != null) ...[
               pw.ClipRRect(
                 horizontalRadius: 8,
                 verticalRadius: 8,
-                child: pw.Image(fonts.icon!, width: 44, height: 44),
+                child: pw.Image(icon, width: 44, height: 44),
               ),
               pw.SizedBox(width: 8),
             ],
@@ -468,7 +481,7 @@ final class SalesReceiptPdfGenerator {
 }
 
 final class _PdfFonts {
-  _PdfFonts({
+  const _PdfFonts({
     required this.regular,
     required this.bold,
     required this.mono,
@@ -479,7 +492,4 @@ final class _PdfFonts {
   final pw.Font bold;
   final pw.Font mono;
   final pw.Font monoBold;
-
-  /// Icon app 44 × 44; `null` khi không nạp được (Q11): phiếu in không có icon.
-  pw.MemoryImage? icon;
 }

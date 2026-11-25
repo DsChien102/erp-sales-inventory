@@ -20,7 +20,8 @@ class ErpSideNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final location = currentLocation ?? GoRouterState.of(context).matchedLocation;
+    // Sau `push`, `matchedLocation` vẫn là trang gốc; `uri` mới là trang được đẩy (10-8d Q1).
+    final location = currentLocation ?? GoRouterState.of(context).uri.path;
     final sessionState = context.watch<SessionController>().state;
     final isOwner = sessionState.current?.isOwner == true;
     final isBlocked = sessionState.isBlocked;

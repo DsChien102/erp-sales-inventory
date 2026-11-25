@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
+import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 
@@ -72,7 +73,7 @@ class VStepProgress extends StatelessWidget {
                         key: Key('v-step-bar-$i'),
                         decoration: BoxDecoration(
                           color: barColor(i),
-                          borderRadius: BorderRadius.circular(999),
+                          borderRadius: BorderRadius.circular(VRadius.pill),
                         ),
                         child: const SizedBox(height: 4),
                       ),
@@ -85,6 +86,9 @@ class VStepProgress extends StatelessWidget {
                         style: VTypography.bodySmall.copyWith(
                           fontSize: 13,
                           height: lineHeight,
+                          // Không thừa hưởng letterSpacing 0.25 của Material: nhãn bước
+                          // dài nhất sẽ tràn cột 114 ở 390.
+                          letterSpacing: 0,
                           fontWeight: FontWeight.w600,
                           color: labelColor(i),
                         ),

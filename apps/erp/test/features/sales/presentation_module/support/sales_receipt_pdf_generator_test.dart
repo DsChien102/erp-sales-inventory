@@ -1,9 +1,15 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/sales/data/models.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/sales/presentation.dart';
+
+class _FailingBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) => Future.error(Exception('missing $key'));
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -61,6 +67,16 @@ void main() {
       expect(line, contains('decoration: pw.TextDecoration.lineThrough'));
       expect(line, contains('MoneyFormatter.formatMinor(discountedUnitPriceMinor)'));
       expect(MoneyFormatter.formatMinor(90000), contains('90.000'));
+    });
+
+    test('missing app icon still generates the receipt, without the image', () async {
+      final withIcon = await SalesReceiptPdfGenerator.generate(_documentA());
+      final without = await SalesReceiptPdfGenerator.generate(
+        _documentA(),
+        iconBundle: _FailingBundle(),
+      );
+      expect(without.length, greaterThan(100));
+      expect(without.length, lessThan(withIcon.length));
     });
 
     test('receipt source no longer prints the V45 placeholder', () {

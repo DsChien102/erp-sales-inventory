@@ -245,8 +245,6 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     final char = index < code.length ? code[index] : '';
     final focused = isEnabled && _focusNode.hasFocus && index == _activeIndex;
 
-    // ignore: deprecated_member_use_from_same_package
-    final legacyError = widget.errorText;
     final restingBorderColor = useDanger
         ? colors.danger
         : switch (widget.tone) {
@@ -257,7 +255,7 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     final borderColor = focused ? focusBorderColor : restingBorderColor;
 
     final textStyle = VTypography.headingH3.copyWith(
-      color: useDanger && legacyError != null ? colors.danger : colors.textPrimary,
+      color: colors.textPrimary,
       fontWeight: FontWeight.w700,
       fontSize: fontSize,
     );
@@ -295,13 +293,12 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
       ),
     );
 
-    final ringed = VTextFieldFocusRing(
+    return VTextFieldFocusRing(
       focused: focused,
       danger: useDanger,
       innerRadius: VRadius.input,
       child: cell,
     );
-    return ringed;
   }
 
   Widget _buildHiddenInput({required bool isEnabled}) {

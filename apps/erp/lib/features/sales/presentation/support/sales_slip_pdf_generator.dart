@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -22,10 +23,11 @@ class SalesSlipPdfGenerator {
     String? storeName,
     String? storeCode,
     String? customerPhoneNumber,
+    @visibleForTesting AssetBundle? iconBundle,
   }) async {
     final fonts = await _loadFonts();
-    final iconBytes = await loadAppIconBytes();
-    if (iconBytes != null) fonts.icon = pw.MemoryImage(iconBytes);
+    final iconBytes = await loadAppIconBytes(bundle: iconBundle);
+    final icon = iconBytes == null ? null : pw.MemoryImage(iconBytes);
     final theme = pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold);
     final pdf = pw.Document();
 
@@ -48,6 +50,7 @@ class SalesSlipPdfGenerator {
             storeCode: storeCode,
             customerPhoneNumber: customerPhoneNumber,
             fonts: fonts,
+            icon: icon,
           ),
         ),
       ),
@@ -148,6 +151,7 @@ class SalesSlipPdfGenerator {
     String? storeCode,
     String? customerPhoneNumber,
     required _PdfFonts fonts,
+    required pw.MemoryImage? icon,
   }) {
     final plan = detail.settlementPlan;
     final rows = settlementRows(plan);
@@ -165,7 +169,7 @@ class SalesSlipPdfGenerator {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
-        _buildHeader(storeName: storeName, storeCode: storeCode, fonts: fonts),
+        _buildHeader(storeName: storeName, storeCode: storeCode, fonts: fonts, icon: icon),
         pw.SizedBox(height: 6),
         pw.Center(
           child: pw.Column(
@@ -269,6 +273,7 @@ class SalesSlipPdfGenerator {
     String? storeName,
     String? storeCode,
     required _PdfFonts fonts,
+    required pw.MemoryImage? icon,
   }) {
     final resolvedStoreName = storeName?.trim().isNotEmpty == true
         ? storeName!.trim().toUpperCase()
@@ -281,11 +286,11 @@ class SalesSlipPdfGenerator {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            if (fonts.icon != null) ...[
+            if (icon != null) ...[
               pw.ClipRRect(
                 horizontalRadius: 8,
                 verticalRadius: 8,
-                child: pw.Image(fonts.icon!, width: 44, height: 44),
+                child: pw.Image(icon, width: 44, height: 44),
               ),
               pw.SizedBox(width: 8),
             ],
@@ -492,7 +497,7 @@ class SalesSlipPdfGenerator {
 }
 
 final class _PdfFonts {
-  _PdfFonts({
+  const _PdfFonts({
     required this.regular,
     required this.bold,
     required this.mono,
@@ -503,7 +508,4 @@ final class _PdfFonts {
   final pw.Font bold;
   final pw.Font mono;
   final pw.Font monoBold;
-
-  /// Icon app 44 × 44; `null` khi không nạp được (Q11): phiếu in không có icon.
-  pw.MemoryImage? icon;
 }
