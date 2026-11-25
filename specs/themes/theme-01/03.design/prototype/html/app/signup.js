@@ -3,9 +3,9 @@
 //   apps/erp/lib/features/auth/logic/signup_cubit.dart (_accountErrors, _storeErrors)
 //   apps/erp/lib/core/widgets/address/{administrative_units_form_section.dart, vn_administrative_unit_picker_sheet.dart}
 //   bước 3 = VerifyEmailView (verify.js)
-// Nền canvas + VAppBar('Đăng ký cửa hàng', nút ←) hết bề ngang; cột 520: thanh tiến độ, thẻ trắng chứa bước hiện tại.
+// Scaffold nền surface + VAppBar('Đăng ký cửa hàng', nút ←) hết bề ngang; ListView đệm 16 trong cột 480.
 import { icon } from '../shared/icons.js';
-import { adaptiveSheet, appBar, banner, button, esc, field, fieldError, input, progressBar } from './ds.js';
+import { adaptiveSheet, appBar, banner, button, esc, field, fieldError, input, plainScaffold, steps } from './ds.js';
 import { verifyView } from './verify.js';
 
 export const STEP_TITLES = ['Tài khoản', 'Cửa hàng', 'Xác minh email'];
@@ -42,7 +42,7 @@ export function policyError(pw) {
   return null;
 }
 
-const EMPTY_ACCOUNT = { familyName: '', givenName: '', email: '', phone: '', password: '', confirmPassword: '' };
+export const EMPTY_ACCOUNT = { familyName: '', givenName: '', email: '', phone: '', password: '', confirmPassword: '' };
 const ACCOUNT = { familyName: 'Nguyễn Thị', givenName: 'Lan', email: 'lan@anphat.vn', phone: '0912 345 678', password: 'AnPhat@2026', confirmPassword: 'AnPhat@2026' };
 const STORE = { name: 'Thú y An Phát', contactPhone: '0283 456 789', province: 'Thành phố Hồ Chí Minh', commune: 'Phường An Lạc', addressText: '125 Kinh Dương Vương', contactEmail: 'lan@anphat.vn' };
 const EMPTY_STORE = { name: '', contactPhone: '', province: '', commune: '', addressText: '', contactEmail: 'lan@anphat.vn' };
@@ -75,7 +75,9 @@ function accountStep(s) {
     ${f('Nhập lại mật khẩu', 'confirmPassword', (o) => input({ ...o, value: a.confirmPassword, hint: 'Nhập lại mật khẩu', password: true }))}
   </div>
   <div class="t1-gap-lg"></div>
-  ${button('Tiếp tục', { full: true })}`;
+  ${button('Tiếp tục', { full: true })}
+  <div class="t1-gap-md"></div>
+  <div class="t1-center-row">${button('Đã có tài khoản? Đăng nhập', { variant: 'link' })}</div>`;
 }
 
 /**
@@ -95,7 +97,7 @@ export function unitSection({ province = '', commune = '', provinceError, commun
   </div>`;
 }
 
-function storeStep(s) {
+export function storeStep(s) {
   const st = { ...EMPTY_STORE, ...s.store };
   const e = s.errors || {};
   const busy = !!s.submitting;
@@ -114,7 +116,7 @@ function storeStep(s) {
   </div>`;
 }
 
-function emailExists() {
+export function emailExists() {
   return `<div class="t1-field is-invalid">${fieldError('Email đã được đăng ký')}</div>
   <div class="t1-gap-lg"></div>
   ${button('Đăng nhập', { full: true })}
@@ -132,7 +134,7 @@ export const HCM_WARDS = ['Phường An Hội Tây', 'Phường An Hội Đông'
  * Nội dung sheet: SizedBox cao 75% màn; hàng tiêu đề (đệm 16 / 4 / 8 / 8) "Khu vực hành chính" headingH4 w700 + nút Đóng (Icons.close, textSecondary);
  * VSearchBar (đệm ngang 16); khe 8; hai tab bước (bodySmall, gạch dưới 2.5 primary) ngăn bởi mũi tên 20 borderStrong; VDivider; danh sách (đệm 16 / 8, dòng đệm 12 / 8, ngăn VDivider).
  */
-function pickerBody({ tab, province }, height) {
+export function pickerBody({ tab, province }, height) {
   const tabItem = (i, label, { active, done, enabled = true }) => `<button type="button" class="t1-ptab${active ? ' is-active' : ''}${done ? ' is-done' : ''}"${enabled ? '' : ' disabled'}>${done && !active ? icon('checkCircle') : ''}<span>${esc(label)}</span></button>`;
   const items = tab === 0 ? PROVINCES : HCM_WARDS;
   return `<div class="t1-picker" style="height:${height}px">
@@ -154,17 +156,12 @@ export function signupPage(v) {
   else if (s.step === 0) content = accountStep(s);
   else if (s.step === 1) content = storeStep(s);
   else content = verifyView(v, { state: s.verify, email: 'lan@anphat.vn', cooldown: 59 });
-  const cur = s.emailExists ? 1 : s.step;
-  // Thanh tiến độ 3 đoạn + thẻ trắng trên nền canvas; tiêu đề thẻ = tên bước. Chọn qua impeccable live (2026-11-24).
-  const body = `<div class="t1-stepcol">
-    ${progressBar(STEP_TITLES, cur)}
-    <div class="t1-stepcard">
-      <h2 class="t1-stepcard__title">${esc(STEP_TITLES[cur])}</h2>
-      ${s.failure ? `${banner('error', s.failure)}<div class="t1-gap-md"></div>` : ''}
-      ${content}
-    </div>
-    ${cur === 0 && !s.emailExists ? `<div class="t1-center-row t1-stepcol__after">${button('Đã có tài khoản? Đăng nhập', { variant: 'link' })}</div>` : ''}
+  const body = `<div class="t1-list">
+    ${steps(STEP_TITLES, s.emailExists ? 1 : s.step)}
+    <div class="t1-gap-lg"></div>
+    ${s.failure ? `${banner('error', s.failure)}<div class="t1-gap-md"></div>` : ''}
+    ${content}
   </div>`;
   const overlay = s.picker ? adaptiveSheet(v.width, pickerBody(s.picker, Math.round(v.height * 0.75)), 'Khu vực hành chính') : '';
-  return { page: `<div class="t1-page t1-page--canvas">${appBar('Đăng ký cửa hàng', { back: true })}<div class="t1-scroll">${body}</div></div>`, overlay };
+  return { page: plainScaffold({ appbar: appBar('Đăng ký cửa hàng', { back: true }), body, width: v.width }), overlay };
 }

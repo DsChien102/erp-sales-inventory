@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { CASES } from '../app/cases.js';
+import { CASES, devicesFor } from '../app/cases.js';
 
 const SIZE = { iphone: '390,844', web: '1280,800' };
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -18,7 +18,7 @@ for (const device of Object.keys(SIZE)) {
   fs.mkdirSync(path.join(root, device), { recursive: true });
   for (const [screen, states] of Object.entries(CASES)) for (const state of states) {
     const name = `${screen}__${state}`;
-    if (!name.startsWith(filter)) continue;
+    if (!name.startsWith(filter) || !devicesFor(screen, state).includes(device)) continue;
     n++;
     const file = path.join(root, device, `${name}.png`);
     fs.rmSync(file, { force: true });

@@ -1,7 +1,7 @@
 // Trang xem prototype (index.html không có ?screen=): chọn màn / trạng thái ở cột trái,
 // xem trong khung iPhone / Web / cả hai, hoặc lưới mọi trạng thái của một màn.
 // Mỗi khung là iframe tới đúng URL chụp ảnh (?screen=&state=&device=), nên ảnh và trang xem luôn giống nhau.
-import { GROUPS, SCREENS } from './cases.js';
+import { devicesFor, GROUPS, SCREENS, webNote } from './cases.js';
 import { render } from './main.js';
 
 const DEV = { iphone: { w: 390, h: 844, label: 'iPhone 390' }, web: { w: 1280, h: 800, label: 'Web 1280' } };
@@ -17,7 +17,13 @@ function readHash() {
 }
 const hashOf = (v) => `#${v.screen}/${v.state}/${v.device}/${v.mode}`;
 const go = (patch) => { location.hash = hashOf({ ...readHash(), ...patch }); };
-const devicesOf = (d) => (d === 'both' ? ['iphone', 'web'] : [d]);
+const devicesOf = (d, screen, state) => (d === 'both' ? ['iphone', 'web'] : [d]).filter((x) => devicesFor(screen, state).includes(x));
+const IPHONE_ONLY_MSG = '<p class="vw-note">Ca này chỉ có trên iPhone (web không có thanh / sheet Thao tác).</p>';
+/** Ghi chú ca: bản iPhone + bản web, theo khổ đang xem. */
+const notes = (v, state, note) => {
+  const web = devicesFor(v.screen, state).includes('web') ? webNote(v.screen, state) : '';
+  return (v.device === 'web' && web ? '' : `<p class="vw-note">${web ? '<b>iPhone:</b> ' : ''}${esc(note)}</p>`) + (v.device !== 'iphone' && web ? `<p class="vw-note"><b>Web:</b> ${esc(web)}</p>` : '');
+};
 
 function seg(name, value, options) {
   return `<div class="vw-seg" role="group" aria-label="${name}">${options.map(([v, label]) => `<button type="button" data-${name}="${v}" aria-pressed="${v === value}">${label}</button>`).join('')}</div>`;
@@ -65,7 +71,7 @@ function head(v, extra = '') {
       <div>
         <p class="vw-crumb">${esc(scr.code)} · ${esc(scr.title)}</p>
         <h1>${esc(label)} <code>${v.state}</code></h1>
-        <p class="vw-note">${esc(note)}</p>${extra}
+        ${notes(v, v.state, note)}${extra}
       </div>
       <div class="vw-pager">
         <button type="button" data-step="-1" ${i === 0 ? 'disabled' : ''} aria-label="Ca trước">‹</button>
@@ -76,7 +82,8 @@ function head(v, extra = '') {
 }
 
 function single(v, box) {
-  const devs = devicesOf(v.device);
+  const devs = devicesOf(v.device, v.screen, v.state);
+  if (!devs.length) return `${head(v)}${IPHONE_ONLY_MSG}`;
   // Một tỉ lệ chung cho mọi khung đang hiện: vừa chiều ngang và chiều cao vùng xem.
   const gap = 32;
   const W = box.width - 48; const H = box.height - 150;
@@ -90,7 +97,8 @@ function single(v, box) {
 // Sửa trực tiếp: vẽ màn thẳng vào trang (không iframe, cỡ thật) để /impeccable live chọn được phần tử.
 // Chỉ để xem / chọn; tương tác của màn (gõ tiền, lọc…) chạy ở chế độ Từng ca hoặc URL màn trần.
 function edit(v) {
-  const devs = devicesOf(v.device);
+  const devs = devicesOf(v.device, v.screen, v.state);
+  if (!devs.length) return `${head(v)}${IPHONE_ONLY_MSG}`;
   const tip = '<p class="vw-tip">Cỡ thật: dùng ⊕ của Impeccable để chọn phần tử; Shift+↑ để chọn khung lớn hơn (tới cả màn), Enter để chốt. Chuyển ca bằng cột trái hoặc phím j / k. Màn ở đây không bấm được; thử tương tác ở nút ↗ (mở màn trần).</p>';
   return `${head(v, tip)}
     <div class="vw-live-stage">${devs.map((d) => `
@@ -103,7 +111,6 @@ function edit(v) {
 
 function grid(v) {
   const scr = SCREENS.find((s) => s.id === v.screen);
-  const devs = devicesOf(v.device);
   const scale = { iphone: 0.42, web: 0.3 };
   return `
     <header class="vw-head">
@@ -116,8 +123,8 @@ function grid(v) {
     <div class="vw-grid" style="--vw-card:${{ iphone: 230, web: 430, both: 640 }[v.device]}px">${scr.states.map(([id, label, note]) => `
       <article class="vw-card">
         <a class="vw-card__title" href="${hashOf({ ...v, state: id, mode: 'single' })}"><b>${esc(label)}</b><code>${id}</code></a>
-        <p class="vw-note">${esc(note)}</p>
-        <div class="vw-card__frames">${devs.map((d) => frame(v.screen, id, d, scale[d])).join('')}</div>
+        ${notes(v, id, note)}
+        <div class="vw-card__frames">${devicesOf(v.device, v.screen, id).map((d) => frame(v.screen, id, d, scale[d])).join('') || IPHONE_ONLY_MSG}</div>
       </article>`).join('')}
     </div>`;
 }

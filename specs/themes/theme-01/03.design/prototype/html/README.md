@@ -1,6 +1,6 @@
 # Prototype Theme 1 (TH-01) + Web cho app (10-8)
 
-HTML/CSS/JS thuần (ES module, không build). Vẽ **đúng Flutter hiện tại** của các màn TH-01, gồm cả bố cục iPhone 390 và Web 1280 của W-2, để người dùng rà bằng impeccable (bước 3 của 10-8). Chép y nguyên chữ, thứ tự, số đo DS; **không thiết kế lại**. Sheet / hộp thoại / toast là ca riêng.
+HTML/CSS/JS thuần (ES module, không build). **iPhone 390** vẽ đúng Flutter hiện tại của các màn TH-01 (chép y nguyên chữ, thứ tự, số đo DS). **Web 1280** là bố cục thiết kế lại qua impeccable live (2026-11-24/25), tách riêng ở `app/web/` + `styles/t1-web.css`: sửa web không đụng iPhone. Sheet / hộp thoại / toast là ca riêng.
 
 Làm theo 3 đợt, mỗi đợt một commit; cột trái trang xem chia theo đợt:
 
@@ -44,6 +44,7 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 | `app/account.js` | ID-21 / ID-22 + sheet thao tác tài khoản, sheet đăng xuất |
 | `app/main.js` | Ca → trạng thái, vẽ trong `renderShell` (màn công khai và quản trị đều nằm ngoài StoreShell → không thanh bên / thanh dưới) |
 | `styles/t1.css` | Rule tiền tố `t1-`, token `--c45-v2-*`; đầu file có bảng màu / chữ Flutter → token |
+| `app/web/*.js`, `styles/t1-web.css` | Bố cục web (khung ≥ 840; `main.js` chọn). Trạng thái mẫu, hàm thuần, sheet lấy từ `app/*.js` |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem (thêm tiêu đề đợt), chụp ảnh — chép khuôn Menu Thêm |
 | `shared/icons.js` | Thêm `eye` (VIcons.visibility), `mapPin` (Icons.location_on_outlined); đợt 2: `mail`, `send`, `userCheck` (personCheck), `userX` (personRemove), `copy` (clipboard) |
 

@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { render } from '../app/main.js';
-import { CASES, SCREENS, GROUPS } from '../app/cases.js';
+import { CASES, devicesFor, GROUPS, IPHONE_ONLY, SCREENS, WEB_NOTES } from '../app/cases.js';
 import { codeField } from '../app/ds.js';
 import { joinedMessage } from '../app/login.js';
 import { accountErrors, storeErrors, policyError, PROVINCES } from '../app/signup.js';
@@ -50,9 +50,14 @@ test('form nhập mã lời mời', () => {
   assert.equal(entryFailureMessage('LẠ'), 'Không thể xác thực mã. Kiểm tra kết nối và thử lại.');
 });
 
-test('VVerificationCodeField: ô chia đều cột, thấp lại khi ô hẹp', () => {
-  assert.match(codeField({ length: 6, columnWidth: 448 }), /style="height:56px;font-size:18px"/);
-  assert.match(codeField({ length: 8, columnWidth: 358 }), /style="height:48px;font-size:14px"/);
+test('VVerificationCodeField co ô khi hẹp', () => {
+  assert.match(codeField({ length: 6, columnWidth: 448 }), /width:48px;height:56px/);
+  assert.match(codeField({ length: 8, columnWidth: 358 }), /width:37\.75px;height:48px/);
+});
+
+test('codeField fill (web): ô chia đều, không đặt bề rộng', () => {
+  assert.match(codeField({ length: 6, columnWidth: 446, fill: true }), /t1-code--fill.*style="height:56px;font-size:18px"/);
+  assert.doesNotMatch(codeField({ length: 6, columnWidth: 446, fill: true }), /width:/);
 });
 
 test('mọi màn có nhóm hợp lệ', () => {
@@ -61,7 +66,7 @@ test('mọi màn có nhóm hợp lệ', () => {
 });
 
 test('mọi ca vẽ được; màn công khai mở ngoài khung (không thanh bên / thanh dưới)', () => {
-  for (const [screen, states] of Object.entries(CASES)) for (const state of states) for (const d of ['iphone', 'web']) {
+  for (const [screen, states] of Object.entries(CASES)) for (const state of states) for (const d of devicesFor(screen, state)) {
     const html = render(screen, state, d);
     assert.match(html, /class="t1-page/, `${screen}/${state}/${d}`);
     assert.doesNotMatch(html, /class="sh-(bottom|side)"/, `${screen}/${state}/${d} khung`);
@@ -70,22 +75,46 @@ test('mọi ca vẽ được; màn công khai mở ngoài khung (không thanh b�
 });
 
 // ---------------------------------------------------------------- đợt 2
-test('Người dùng / Vai trò: web là bảng toàn màn, chi tiết mở toàn màn (←)', () => {
-  const web = render('users', 'members', 'web');
-  assert.match(web, /class="t1-utable" role="table"/);
-  assert.doesNotMatch(web, /t1-split/);
-  assert.doesNotMatch(render('users', 'members', 'iphone'), /t1-utable|t1-split/);
-  const detail = render('member-detail', 'active', 'web');
-  assert.doesNotMatch(detail, /t1-split/);
-  assert.match(detail, /t1-appbar__back/);
-  assert.match(render('roles', 'list', 'web'), /aria-label="Vai trò hệ thống"/);
-  assert.doesNotMatch(render('roles', 'detail', 'web'), /t1-split/);
+test('Người dùng / Vai trò / Lịch sử: web là bảng toàn màn, chi tiết mở toàn màn (←); iPhone một màn, không bảng', () => {
+  for (const [list, st, detail, dst] of [['users', 'members', 'member-detail', 'active'], ['roles', 'list', 'roles', 'detail'], ['audit', 'list', 'audit-detail', 'detail']]) {
+    assert.match(render(list, st, 'web'), /class="t1-utable" role="table"/, list);
+    assert.doesNotMatch(render(list, st, 'web'), /t1-split/, list);
+    assert.doesNotMatch(render(list, st, 'iphone'), /t1-utable|t1-split/, list);
+    assert.doesNotMatch(render(detail, dst, 'web'), /t1-split/, detail);
+    assert.match(render(detail, dst, 'web'), /aria-label="Quay lại"/, detail);
+  }
 });
 
-test('toast của chi tiết thành viên nằm trong màn chi tiết (web toàn màn)', () => {
+test('toast chi tiết thành viên (web) nằm trong màn chi tiết toàn màn', () => {
   const html = render('member-detail', 'toast-deactivated', 'web');
   assert.match(html, /Chi tiết thành viên/);
   assert.match(html, /t1-toast/);
+});
+
+test('web: nút thao tác nằm trong khối, không thanh dưới; iPhone giữ thanh Thao tác và sheet', () => {
+  const web = render('member-detail', 'active', 'web');
+  assert.match(web, /t1-invacts/); assert.match(web, /Tạm ngừng thành viên/); assert.doesNotMatch(web, /t1-bottombar/);
+  assert.match(render('member-detail', 'suspended', 'web'), /Kích hoạt lại/);
+  for (const st of ['owner', 'removed']) assert.doesNotMatch(render('member-detail', st, 'web'), /t1-invacts/);
+  for (const [scr, st] of [['org-profile', 'no-legal'], ['invitation-detail', 'pending'], ['member-detail', 'active'], ['account', 'owner']]) {
+    assert.match(render(scr, st, 'iphone'), /<span>Thao tác<\/span>/, scr);
+    assert.doesNotMatch(render(scr, st, 'web'), /<span>Thao tác<\/span>/, scr);
+  }
+  for (const [scr, sts] of Object.entries(IPHONE_ONLY)) for (const st of sts) { assert.ok(CASES[scr].includes(st), `${scr}/${st}`); assert.match(render(scr, st, 'iphone'), /Thao tác/); }
+});
+
+test('bố cục web không lọt sang iPhone: lớp chỉ khai ở t1-web.css không xuất hiện trong HTML iPhone', async () => {
+  const { readFileSync } = await import('node:fs');
+  const read = (f) => readFileSync(new URL(`../${f}`, import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const classes = (css) => new Set([...css.matchAll(/\.(t1-[\w-]+)/g)].map((m) => m[1]));
+  const base = classes(read('styles/t1.css'));
+  const webOnly = [...classes(read('styles/t1-web.css'))].filter((c) => !base.has(c));
+  assert.ok(webOnly.length > 50);
+  for (const [scr, sts] of Object.entries(CASES)) for (const st of sts) {
+    const used = new Set([...render(scr, st, 'iphone').matchAll(/class="([^"]*)"/g)].flatMap((m) => m[1].split(/\s+/)));
+    assert.deepEqual(webOnly.filter((c) => used.has(c)), [], `${scr}/${st}`);
+  }
+  for (const k of Object.keys(WEB_NOTES)) assert.ok(CASES[k], k);
 });
 
 test('VPageScaffold mặc định: cột 720 (web toàn màn) / 640 (cột phải 919) / không giới hạn (iPhone)', async () => {
@@ -95,14 +124,10 @@ test('VPageScaffold mặc định: cột 720 (web toàn màn) / 640 (cột phả
   assert.equal(columnMax(390), Infinity);
 });
 
-test('chi tiết thành viên: nút thao tác nằm trong khối; chủ sở hữu duy nhất / đã loại không có nút', () => {
-  assert.doesNotMatch(render('member-detail', 'owner', 'iphone'), /t1-invacts/);
-  assert.doesNotMatch(render('member-detail', 'removed', 'iphone'), /t1-invacts/);
-  const active = render('member-detail', 'active', 'iphone');
-  assert.match(active, /t1-invacts/);
-  assert.match(active, /Tạm ngừng thành viên/);
-  assert.match(render('member-detail', 'suspended', 'iphone'), /Kích hoạt lại/);
-  assert.doesNotMatch(active, /t1-bottombar/);
+test('chủ sở hữu duy nhất / đã loại: không có thanh Thao tác', () => {
+  assert.doesNotMatch(render('member-detail', 'owner', 'iphone'), /t1-bottombar/);
+  assert.doesNotMatch(render('member-detail', 'removed', 'iphone'), /t1-bottombar/);
+  assert.match(render('member-detail', 'active', 'iphone'), /t1-bottombar/);
 });
 
 // ---------------------------------------------------------------- đợt 3

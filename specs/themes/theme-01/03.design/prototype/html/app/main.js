@@ -1,25 +1,51 @@
 // Prototype Theme 1 (TH-01) + Web cho app (10-8). Không có ?screen= → trang xem (viewer.js); có → vẽ đúng một ca (URL chụp ảnh).
-// Vẽ y nguyên Flutter hiện tại (không thiết kế lại) để người dùng rà bằng impeccable. Nguồn Dart ghi ở đầu từng file màn.
+// iPhone: vẽ y nguyên Flutter (app/*.js, nguồn Dart ghi ở đầu từng file). Web: bố cục thiết kế lại (app/web/*.js) — sửa web không đụng iPhone.
 // Đợt 1 — màn công khai; đợt 2 — quản trị; đợt 3 — tài khoản: đều ngoài ShellRoute(StoreShell) → không thanh bên / thanh dưới trên mọi khổ (kể cả web).
 import { DEVICE } from '../shared/shell.js';
 import { SCREENS } from './cases.js';
-import { bare } from './ds.js';
-import { invitationPage } from './invitation.js';
-import { loginPage } from './login.js';
-import { resetPage } from './reset.js';
-import { signupPage } from './signup.js';
-import { noOrgPage, verifyPage } from './verify.js';
-import { editPage, legalPage, profilePage } from './org.js';
-import { invitationDetailPage, invitePage, memberDetailPage, selectRolePage, usersPage } from './users.js';
-import { rolesPage } from './roles.js';
-import { auditDetailPage, auditPage } from './audit.js';
-import { accountPage, editAccountPage } from './account.js';
+import { bare, isSplit } from './ds.js';
+import * as invitation from './invitation.js';
+import * as invitationWeb from './web/invitation.js';
+import * as login from './login.js';
+import * as loginWeb from './web/login.js';
+import * as reset from './reset.js';
+import * as resetWeb from './web/reset.js';
+import * as signup from './signup.js';
+import * as signupWeb from './web/signup.js';
+import * as verify from './verify.js';
+import * as verifyWeb from './web/verify.js';
+import * as org from './org.js';
+import * as orgWeb from './web/org.js';
+import * as users from './users.js';
+import * as usersWeb from './web/users.js';
+import * as roles from './roles.js';
+import * as rolesWeb from './web/roles.js';
+import * as audit from './audit.js';
+import * as auditWeb from './web/audit.js';
+import * as account from './account.js';
+import * as accountWeb from './web/account.js';
 
+// [màn iPhone (chép Flutter), màn web (app/web, thiết kế lại 2026-11-24)]
 const PAGES = {
-  login: loginPage, signup: signupPage, verify: verifyPage, reset: resetPage, 'no-org': noOrgPage, invitation: invitationPage,
-  'org-profile': profilePage, 'org-edit': editPage, 'org-legal': legalPage, users: usersPage, invite: invitePage,
-  'invitation-detail': invitationDetailPage, 'member-detail': memberDetailPage, 'select-role': selectRolePage, roles: rolesPage,
-  audit: auditPage, 'audit-detail': auditDetailPage, account: accountPage, 'account-edit': editAccountPage,
+  login: [login.loginPage, loginWeb.loginPage],
+  signup: [signup.signupPage, signupWeb.signupPage],
+  verify: [verify.verifyPage, verifyWeb.verifyPage],
+  reset: [reset.resetPage, resetWeb.resetPage],
+  'no-org': [verify.noOrgPage, verifyWeb.noOrgPage],
+  invitation: [invitation.invitationPage, invitationWeb.invitationPage],
+  'org-profile': [org.profilePage, orgWeb.profilePage],
+  'org-edit': [org.editPage, orgWeb.editPage],
+  'org-legal': [org.legalPage, orgWeb.legalPage],
+  users: [users.usersPage, usersWeb.usersPage],
+  invite: [users.invitePage, usersWeb.invitePage],
+  'invitation-detail': [users.invitationDetailPage, usersWeb.invitationDetailPage],
+  'member-detail': [users.memberDetailPage, usersWeb.memberDetailPage],
+  'select-role': [users.selectRolePage, usersWeb.selectRolePage],
+  roles: [roles.rolesPage, rolesWeb.rolesPage],
+  audit: [audit.auditPage, auditWeb.auditPage],
+  'audit-detail': [audit.auditDetailPage, auditWeb.auditDetailPage],
+  account: [account.accountPage, accountWeb.accountPage],
+  'account-edit': [account.editAccountPage, accountWeb.editAccountPage],
 };
 
 /** Trạng thái ban đầu của một ca. */
@@ -34,7 +60,7 @@ export function caseView(screen, state, device) {
 }
 
 export function renderView(v) {
-  const { page, overlay = '' } = PAGES[v.screen](v);
+  const { page, overlay = '' } = PAGES[v.screen][isSplit(v.width) ? 1 : 0](v);
   return bare(v, page, overlay);
 }
 
