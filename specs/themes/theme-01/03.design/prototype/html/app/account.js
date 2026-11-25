@@ -1,7 +1,7 @@
 // ID-21 Tài khoản của tôi · ID-22 Chỉnh sửa thông tin. Chép từ:
 //   apps/erp/lib/features/iam/presentation/users/views/{my_account_page, edit_my_account_page}.dart
 //   apps/erp/lib/features/iam/presentation/users/widgets/{my_account_actions_bottom_sheet, logout_confirmation_bottom_sheet}.dart
-//   core/router/app_router.dart (/more/my-account: GoRoute gốc, ngoài StoreShell; onLogout → toast lỗi)
+//   core/router/app_router.dart (/more/my-account: GoRoute trong ShellRoute(StoreShell), web ≥ 1024 có thanh bên 84; onLogout → toast lỗi)
 // Sửa thông tin mở bằng Navigator.push (không có route riêng); ID-23 (đặt lại mật khẩu) đã vẽ ở đợt 1 (reset/from-account).
 import { icon } from '../shared/icons.js';
 import { BAR_H, loadFailed } from './org.js';

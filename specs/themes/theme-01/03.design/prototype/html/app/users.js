@@ -1,6 +1,6 @@
 // ID-14 Người dùng · ID-15 Mời thành viên · ID-16 Chi tiết lời mời · ID-17 Chi tiết thành viên · ID-18 Chọn vai trò. Chép từ:
 //   apps/erp/lib/features/iam/presentation/users/{users_area_shell.dart, views/*.dart, widgets/*.dart}, core/router/app_router.dart
-// /more/users(/…): ShellRoute riêng (UsersAreaShell → VListDetailLayout) nằm NGOÀI StoreShell → không thanh bên / thanh dưới.
+// /more/users(/…): ShellRoute riêng (UsersAreaShell → VListDetailLayout) nằm TRONG StoreShell (web ≥ 1024 có thanh bên 84; ảnh vẽ trang trần).
 //   web ≥ 840: danh sách 360 (bọc ScaffoldMessenger riêng) | gạch | chi tiết (cột VPageScaffold 640). Hẹp: một màn.
 // /more/users/invite: GoRoute gốc → toàn màn cả web. Chọn vai trò: Navigator.push từ chi tiết → web mở trong cột phải.
 // /more/users/preview-role-change và /select-role đều redirect về hub → màn "Xem trước thay đổi" (ID-18) không mở được.

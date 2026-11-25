@@ -1,6 +1,6 @@
 // Prototype Theme 1 (TH-01) + Web cho app (10-8). Không có ?screen= → trang xem (viewer.js); có → vẽ đúng một ca (URL chụp ảnh).
 // iPhone: bố cục thiết kế lại 2026-11-25 (app/*.js; chữ và trạng thái chép Flutter, nguồn Dart ghi ở đầu từng file). Web: bố cục thiết kế lại (app/web/*.js) — sửa web không đụng iPhone.
-// Đợt 1 — màn công khai; đợt 2 — quản trị; đợt 3 — tài khoản: đều ngoài ShellRoute(StoreShell) → không thanh bên / thanh dưới trên mọi khổ (kể cả web).
+// Đợt 1 — màn công khai; đợt 2 — quản trị; đợt 3 — tài khoản: màn công khai ngoài ShellRoute(StoreShell); route /more/* của Theme 1 trong ShellRoute (web ≥ 1024 có thanh bên 84). Ảnh vẽ trang trần nên không có thanh bên / thanh dưới.
 import { DEVICE } from '../shared/shell.js';
 import { SCREENS } from './cases.js';
 import { bare, isSplit } from './ds.js';

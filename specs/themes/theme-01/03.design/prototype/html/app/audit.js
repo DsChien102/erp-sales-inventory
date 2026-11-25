@@ -1,6 +1,6 @@
 // ID-20 Lịch sử quản trị (danh sách + chi tiết). Chép từ apps/erp/lib/features/iam/presentation/audit_logs/{audit_area_shell.dart,
 //   views/organization_audit_logs_page.dart, views/audit_log_detail_page.dart, widgets/*.dart, mappers/tenant_audit_ui_mapper.dart}.
-// /more/audit-logs(/:id): ShellRoute riêng (AuditAreaShell → VListDetailLayout), ngoài StoreShell.
+// /more/audit-logs(/:id): ShellRoute riêng (AuditAreaShell → VListDetailLayout), trong ShellRoute(StoreShell); web ≥ 1024 có thanh bên 84 (ảnh vẽ trang trần).
 // Khác các màn IAM khác: danh sách là Scaffold thường (nền surfaceAlt, không cột tối đa); chi tiết Flutter dùng AppBar Material; prototype iPhone dùng VAppBar chung (2026-11-25).
 import { icon } from '../shared/icons.js';
 import { AUDIT, AUDIT_TOTAL, TRACE_ID } from './admin-data.js';

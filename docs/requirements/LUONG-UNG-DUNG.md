@@ -53,7 +53,7 @@ Bố cục theo **bề rộng**; mật độ điều khiển theo **cách thao t
 
 **Cả hai là thiết bị chính (sửa 2026-10-22):** iPhone và web ngang nhau ở **mọi màn, mọi phần của app** — mỗi màn thiết kế và tối ưu đủ cho cả hai (bố cục, mật độ, cách nhập liệu); không có thiết bị phụ chỉ cần "không vỡ, đủ hành động". Ai thường dùng ở đâu (nhân viên cầm iPhone tại kho / quầy, Owner hay ngồi máy tính) chỉ là bối cảnh để chọn bố cục, không dùng để xếp thiết bị nào xuống hàng phụ. Bản 2026-10-20 xếp "thiết bị chính" theo phần (TH-01 web, TH-07 theo màn…) là hiểu sai — bỏ.
 
-**Bố cục web chung:** danh sách – chi tiết hai cột (không đổi trang khi chọn); bảng thay danh sách thẻ khi nhiều cột số; sheet dưới thành hộp thoại hoặc bảng bên; đi được hết bằng bàn phím (Tab, Enter, Esc). **Nhập liệu:** quét mã = camera trên iPhone, máy quét USB (gõ như bàn phím) trên web; chọn tệp = nút trên iPhone, thêm kéo thả trên web.
+**Bố cục web chung:** danh sách – chi tiết hai cột (không đổi trang khi chọn); bảng thay danh sách thẻ khi nhiều cột số; ngoại lệ: Người dùng, Vai trò, Lịch sử quản trị (TH-01 5.12) dùng bảng toàn màn, chi tiết mở toàn màn (10-8); sheet dưới thành hộp thoại hoặc bảng bên; đi được hết bằng bàn phím (Tab, Enter, Esc). **Nhập liệu:** quét mã = camera trên iPhone, máy quét USB (gõ như bàn phím) trên web; chọn tệp = nút trên iPhone, thêm kéo thả trên web.
 
 ## 2. Ai thấy gì
 

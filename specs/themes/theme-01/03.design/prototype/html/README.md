@@ -42,7 +42,7 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 | `app/users.js` | ID-14…18: khu Người dùng hai cột web (`usersArea`), mời, chi tiết lời mời / thành viên, chọn vai trò, các sheet |
 | `app/roles.js`, `app/audit.js` | ID-19, ID-20 (danh sách + chi tiết, hai cột web) |
 | `app/account.js` | ID-21 / ID-22 + sheet thao tác tài khoản, sheet đăng xuất |
-| `app/main.js` | Ca → trạng thái, vẽ trong `renderShell` (màn công khai và quản trị đều nằm ngoài StoreShell → không thanh bên / thanh dưới) |
+| `app/main.js` | Ca → trạng thái, vẽ trong `renderShell` (màn công khai nằm ngoài StoreShell → không thanh bên / thanh dưới; route `/more/*` của Theme 1 nằm **trong** `ShellRoute(StoreShell)`, web ≥ 1024 có thanh bên 84 — ảnh không vẽ thanh vì vẽ trang trần) |
 | `styles/t1.css` | Rule tiền tố `t1-`, token `--c45-v2-*`; đầu file có bảng màu / chữ Flutter → token |
 | `app/web/*.js`, `styles/t1-web.css` | Bố cục web (khung ≥ 840; `main.js` chọn). Trạng thái mẫu, hàm thuần, sheet lấy từ `app/*.js` |
 | `app/viewer.js`, `styles/viewer.css`, `styles/stage.css`, `tools/` | Trang xem (thêm tiêu đề đợt), chụp ảnh — chép khuôn Menu Thêm |
@@ -65,7 +65,7 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 
 | Màn | Flutter (`apps/erp/lib/features/iam/presentation/…`) |
 |---|---|
-| Route / khung | `core/router/app_router.dart`: `/more/organization-profile…`, `/more/users/invite` là GoRoute gốc; `/more/users`, `/more/roles`, `/more/audit-logs` là ShellRoute riêng (`users_area_shell`, `roles/roles_area_shell`, `audit_logs/audit_area_shell` → `VListDetailLayout`), đều ngoài StoreShell |
+| Route / khung | `core/router/app_router.dart`: `/more/organization-profile…`, `/more/users/invite` là GoRoute gốc; `/more/users`, `/more/roles`, `/more/audit-logs` là ShellRoute riêng (`users_area_shell`, `roles/roles_area_shell`, `audit_logs/audit_area_shell` → `VListDetailLayout`), đều nằm **trong** `ShellRoute(StoreShell)` (`app_router.dart:468`; web ≥ 1024 có thanh bên 84, ảnh không vẽ thanh vì vẽ trang trần) |
 | ID-11…13 | `organization_profile/views/{organization_profile_page, organization_edit_profile_page, organization_legal_profile_form_page}.dart`, `organization_profile/widgets/{organization_profile_actions_bottom_sheet, tax_code_duplicate_warning_bottom_sheet}.dart`, `organizations/widgets/organization_empty_view.dart`, `logic/organization_profile_cubit.dart` |
 | ID-14 | `users/views/organization_users_page.dart`, `users/widgets/{organization_users_body, member_list_section, invitation_list_section, member_card, invitation_card, users_empty_state, member_filter_bottom_sheet, invitation_filter_bottom_sheet}.dart`, `logic/{member_ui_mapper, invitation_ui_mapper, iam_date_formatter}.dart` |
 | ID-15 | `users/views/organization_invite_member_page.dart`, `logic/organization_invite_member_cubit.dart` |
@@ -123,7 +123,7 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 22. Thẻ "Xác minh email" dính sát nhãn "Mã xác nhận" (không khe). Nút gửi lại là nút viền đầy ngang (Đăng ký / Xác minh dùng link nhỏ); nhãn luôn "00:ss" nên lúc vừa gửi lại có thể hiện "00:60".
 23. Thanh dưới bước 2 (`_PasswordBottomBar`) tự vẽ nền + gạch trên + đệm 16 bên trong bottomBar của VPageScaffold (đã có nền + gạch) → hai gạch / đệm chồng (khó thấy, cùng màu).
 24. Đang xử lý: lớp phủ trắng 50% + vòng tải che cả màn (gồm app bar), trong khi nơi khác dùng vòng xoay trong nút.
-25. Hai lối vào (quên mật khẩu / đổi mật khẩu khi đã đăng nhập) chung một màn, không có chữ nào cho biết đang ở trường hợp nào; ID-23 mở ngoài khung (web mất thanh bên).
+25. Hai lối vào (quên mật khẩu / đổi mật khẩu khi đã đăng nhập) chung một màn, không có chữ nào cho biết đang ở trường hợp nào; ID-23 nằm trong khung StoreShell (web có thanh bên 84; ảnh vẽ trang trần).
 
 **Chưa thuộc tổ chức (ID-05)**
 
@@ -140,7 +140,7 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 
 **Chung**
 
-31. Web: mọi màn quản trị nằm ngoài StoreShell → **mất thanh bên**, toàn màn 1280; chỉ còn nút ← để quay ra. Ba kiểu khung trong cùng một khu: VPageScaffold cột 720 (hồ sơ, mời), hai cột 360 | chi tiết (người dùng, vai trò, lịch sử), Scaffold thường không giới hạn rộng (lịch sử quản trị — thẻ chi tiết kéo hết cột phải ~900 px).
+31. Web: các route quản trị nằm trong StoreShell (có thanh bên 84 ở ≥ 1024; ảnh vẽ trang trần); toàn màn 1280; chỉ còn nút ← để quay ra. Ba kiểu khung trong cùng một khu: VPageScaffold cột 720 (hồ sơ, mời), hai cột 360 | chi tiết (người dùng, vai trò, lịch sử), Scaffold thường không giới hạn rộng (lịch sử quản trị — thẻ chi tiết kéo hết cột phải ~900 px).
 32. Mời thành viên là route gốc: đang ở hai cột bấm + → mất cột danh sách; gửi xong nhảy sang chi tiết lời mời nhưng danh sách bên trái vẫn ở tab Thành viên nếu trước đó ở tab đó.
 33. Hộp thoại "Bỏ thay đổi?" (VConfirmDialog = Dialog Material không maxWidth): web rộng 1200 px, hai nút dồn mép phải.
 34. Sheet không tiêu đề tự vẽ tiêu đề bên trong (Thao tác hồ sơ / thành viên, xác nhận vòng đời, thu hồi) còn sheet bộ lọc / "Thao tác lời mời" dùng tiêu đề của sheet → hai kiểu đầu sheet; trên web thêm lớp đệm hộp thoại như đợt 1.
@@ -179,7 +179,7 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 
 **Tài khoản của tôi (ID-21 / ID-22)**
 
-53. Web: toàn màn, mất thanh bên (route gốc ngoài StoreShell). Màn không cho biết đang ở tổ chức nào, vai trò gì — chỉ có nhãn "Chủ sở hữu" với chủ.
+53. Web: toàn màn (route nằm trong StoreShell, thanh bên 84 ở ≥ 1024; ảnh vẽ trang trần). Màn không cho biết đang ở tổ chức nào, vai trò gì — chỉ có nhãn "Chủ sở hữu" với chủ.
 54. Thẻ đầu ở ID-21 là hộp icon người trống, còn ID-22 lại có avatar chữ "NL"; thẻ "Ảnh đại diện" có mũi tên và câu "Chạm để thay hoặc xóa ảnh" nhưng không bấm được.
 55. Thanh "Thao tác" có hai gạch trên (Container tự vẽ thêm); mọi việc (sửa, đổi mật khẩu, đăng xuất) đều phải mở sheet, không có nút trực tiếp. "Đăng xuất" lặp với mục Đăng xuất ở Menu Thêm.
 56. Sheet đăng xuất dùng hai nút large 52 chia đôi; các sheet xác nhận khác (tạm ngừng, loại, thu hồi) dùng nút 44 xếp dọc.

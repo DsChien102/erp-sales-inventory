@@ -54,7 +54,7 @@
 | ID-16 | Chi tiết lời mời | `/more/users/invitations/:id` | Gửi lại, thu hồi | ☐ | ☐ | Route cũ còn `/more/users/invitation-detail`. (a) xong 2-A2; (b) xong 2-B3; email qua Edge Function (2-B2); chưa kiểm tay hộp thư |
 | ID-17 | Chi tiết thành viên | `/more/users/members/:id` | Tạm ngừng / kích hoạt, đổi vai trò | ☐ | ☐ | Route cũ còn `/more/users/member-detail`. (a) xong 2-A2; (b) xong 2-B3 |
 | ID-18a | Chọn vai trò | `/more/users/select-role` | Chọn vai trò | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |
-| ID-18b | Xem trước đổi vai trò | `/more/users/preview-role-change` | Xác nhận đổi | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |
+| ID-18b | Xem trước đổi vai trò | `/more/users/preview-role-change` | Xác nhận đổi | ⏭ bỏ (10-8h: gộp vào sheet xác nhận ID-18) | ⏭ | (a) xong 2-A2; (b) xong 2-B3 |
 | ID-19a | Vai trò | `/more/roles` | Danh sách vai trò | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |
 | ID-19b | Chi tiết vai trò | `/more/roles/detail` | Xem quyền | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3. Route chi tiết thật là `/more/roles/:code`; `/detail` chuyển về danh sách |
 | ID-20a | Lịch sử quản trị | `/more/audit-logs` | Danh sách, lọc | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |

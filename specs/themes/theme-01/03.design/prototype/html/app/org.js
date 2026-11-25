@@ -3,7 +3,7 @@
 //     organization_legal_profile_form_page}.dart
 //   …/organization_profile/widgets/{organization_profile_actions_bottom_sheet, tax_code_duplicate_warning_bottom_sheet}.dart
 //   …/organizations/widgets/organization_empty_view.dart (unauthorized), apps/erp/lib/core/widgets/address/administrative_units_form_section.dart
-// Ba route nằm ngoài ShellRoute → toàn màn, không thanh bên / thanh dưới (cả web). VPageScaffold mặc định: cột 720 trên web.
+// Ba route nằm trong ShellRoute(StoreShell) (web ≥ 1024 có thanh bên 84; ảnh vẽ trang trần). VPageScaffold mặc định: cột 720 trên web.
 import { icon } from '../shared/icons.js';
 import { LEGAL, LEGAL_NOTICE, ORG } from './admin-data.js';
 import { adaptiveSheet, button, card, centerLoading, confirmDialog, esc, field, input, kv, toast, vScaffold } from './ds.js';

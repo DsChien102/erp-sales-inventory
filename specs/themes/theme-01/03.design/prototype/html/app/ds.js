@@ -196,7 +196,7 @@ export const breakpoint = (w) => (w >= DESKTOP ? 'desktop' : w >= 600 ? 'tablet'
 export const columnMax = (w) => ({ mobile: Infinity, tablet: 640, desktop: 720 }[breakpoint(w)]);
 const colStyle = (w) => (Number.isFinite(columnMax(w)) ? `max-width:${columnMax(w)}px` : '');
 
-/** VListDetailLayout: listWidth 360, minSplitWidth 840 (bề ngang chỗ đặt = cả cửa sổ vì màn quản trị nằm ngoài StoreShell). */
+/** VListDetailLayout: listWidth 360, minSplitWidth 840 (ảnh vẽ trang trần nên bề ngang chỗ đặt = cả cửa sổ). */
 export const LIST_WIDTH = 360;
 export const isSplit = (w) => w >= 840;
 export const detailWidth = (w) => (isSplit(w) ? w - LIST_WIDTH - 1 : w);

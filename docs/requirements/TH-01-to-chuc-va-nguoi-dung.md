@@ -6,6 +6,7 @@
 > - 🔧 = code hiện tại **sai**, phải sửa khi refactor.
 >
 > **Phiên bản:** 4.0 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> - **2026-11-25:** 10-8d: web theo ngưỡng cửa sổ rộng ≥ 840 và cao ≥ 480; Người dùng, Vai trò, Lịch sử quản trị bảng toàn màn (🔧 code theo ở 10-8e…k); đổi vai trò gộp một sheet xác nhận, bỏ màn xem trước riêng; "Ảnh đại diện" chỉ hiển thị.
 > - **2026-11-25:** 10-8: Tài khoản của tôi bỏ nút / sheet "Thao tác", thao tác nằm ngay trong màn (US-08.1 FR-02, mục 5.10); lời nhắc hồ sơ pháp lý nằm trong khối "Hồ sơ pháp lý" thay banner đầu màn (BR-14, US-05.4, mục 5.7); Hồ sơ tổ chức, Chi tiết lời mời, Chi tiết thành viên trên web: thao tác ở từng khối (US-05.1 FR-02, US-06.3 FR-02, US-06.4 FR-03)
 > - **2026-11-24:** 10-8b: bỏ banner pháp lý ở Trang chủ (Trang chủ "Bảng giá chợ"); banner chỉ còn ở Hồ sơ tổ chức (BR-14, US-05.4)
 > - **2026-10-28:** W-2: Theme 1 trên web — cột hẹp màn công khai, danh sách – chi tiết, sheet thành hộp thoại
@@ -228,7 +229,7 @@ Số BR giữ từ bản 3.0.
 | BR-52 | Thành viên khác **bị chặn** mọi quyền `tenant.*` / `iam.*` (quản trị tổ chức) và **được phép** mọi quyền nghiệp vụ (`catalog.*`, `partner.*`, `pricing.*`, `sales.*`…). Vai trò chỉ là **nhãn** để biết ai làm việc gì; vai trò không giới hạn quyền nghiệp vụ |
 | BR-53 | Các RPC vẫn gọi `has_permission` với mã quyền chi tiết, để sau này có thể phân quyền theo vai trò mà không phải sửa RPC |
 | BR-54 | Thành viên tạm ngừng hoặc đã loại không có quyền trong tổ chức đó. Tài khoản không có trạng thái tạm ngừng |
-| BR-55 | 🔧 Vì vai trò chỉ là nhãn, UI **không** hiện danh sách quyền theo vai trò: bỏ khối "Quyền được thêm / Quyền bị gỡ" ở màn xem trước đổi vai trò và số "N quyền" ở danh mục vai trò (KI-10) |
+| BR-55 | 🔧 Vì vai trò chỉ là nhãn, UI **không** hiện danh sách quyền theo vai trò: bỏ khối "Quyền được thêm / Quyền bị gỡ" ở sheet xác nhận đổi vai trò và số "N quyền" ở danh mục vai trò (KI-10) |
 
 **Truy cập và định tuyến**
 
@@ -757,8 +758,8 @@ Scenario: SC-01 — MST trùng tổ chức khác
 **Yêu cầu chức năng**
 
 - FR-01: "Chọn vai trò mới": danh sách vai trò kèm mô tả (3.4), nhãn "Hiện tại"; "Mỗi thành viên có đúng một vai trò hiện hành."; "Hủy" / "Tiếp tục".
-- FR-02: "Xem trước thay đổi": "Vai trò hiện tại" → "Vai trò mới"; 🔧 thay khối "Quyền được thêm / Quyền bị gỡ" (Tạo đơn bán, Thu tiền, Quản lý hóa đơn…) bằng câu "Vai trò là nhãn công việc; quyền nghiệp vụ của thành viên không thay đổi." (BR-55, KI-10).
-- FR-03: "Đổi vai trò của `<tên>`? — Vai trò `<cũ>` → `<mới>`. Quyền mới có hiệu lực ở yêu cầu tiếp theo." ("Quay lại" / "Xác nhận thay đổi") → `assign_member_role` → "Đã thay đổi vai trò thành công."
+- FR-02: 🔧 Bấm "Tiếp tục" mở một sheet xác nhận, không có màn "Xem trước thay đổi": tiêu đề "Đổi vai trò của `<tên>`?"; "Vai trò `<cũ>` → `<mới>`."; "Vai trò là nhãn công việc; quyền nghiệp vụ của thành viên không thay đổi." (BR-55).
+- FR-03: 🔧 "Quay lại" (giữ lựa chọn) / "Xác nhận thay đổi" → `assign_member_role` → "Đã thay đổi vai trò thành công."
 - FR-04: Chọn được cả "Chủ cửa hàng" cho thành viên không phải Owner; việc này **không** biến người đó thành Owner (BR-36).
 
 **Quy tắc:** BR-34, BR-36, BR-55.
@@ -837,7 +838,7 @@ Scenario: SC-02 — Không loại được Owner
 
 #### US-08.2 — Sửa thông tin cá nhân
 
-- FR-01: "Chỉnh sửa thông tin": "Ảnh đại diện" ("Chạm để thay hoặc xóa ảnh"), "Họ và tên đệm", "Tên", "Số điện thoại"; "Email đăng nhập" chỉ đọc.
+- FR-01: "Chỉnh sửa thông tin": "Ảnh đại diện" chỉ hiển thị (chưa có tính năng thay ảnh), "Họ và tên đệm", "Tên", "Số điện thoại"; "Email đăng nhập" chỉ đọc.
 - FR-02: "Lưu thay đổi" ("Đang lưu...") → `update_my_platform_user_profile` → "Đã cập nhật thông tin cá nhân".
 - AC-01: Không đổi được email (mục 8).
 
@@ -879,7 +880,7 @@ Không còn trong sản phẩm: không Platform Admin, không danh sách tổ ch
 | ID-15 | Mời thành viên | `/more/users/invite` | `organization_invite_member_page` |
 | ID-16 | Chi tiết lời mời | `/more/users/invitations/:id` | `organization_invitation_detail_page` |
 | ID-17 | Chi tiết thành viên | `/more/users/members/:id` | `organization_member_detail_page` |
-| ID-18 | Chọn vai trò → Xem trước | `/more/users/select-role`, `/preview-role-change` | `organization_select_role_page`, `organization_preview_role_change_page` |
+| ID-18 | Chọn vai trò → xác nhận (sheet) | `/more/users/select-role` | `organization_select_role_page` |
 | ID-19 | Vai trò | `/more/roles`, `/more/roles/detail` | `organization_roles_page`, `organization_role_detail_page` |
 | ID-20 | Lịch sử quản trị | `/more/audit-logs`, `/:id` | `organization_audit_logs_page`, `audit_log_detail_page` |
 | ID-21 | Tài khoản của tôi | `/more/my-account` | `my_account_page` |
@@ -1027,18 +1028,18 @@ Khung trên là iPhone. Web không có [Thao tác]: nút bút chì ở từng kh
 ### 5.8 ID-14 … ID-18 — Người dùng
 
 ```text
-┌──────────────────────────────────┐   ┌──────────────────────────────────┐
-│ ←  Người dùng                [+] │   │ ←  Xem trước thay đổi            │
-│ [ Thành viên ] [ Lời mời ]       │   │ Minh · minh@example.com          │
-│ 🔎 Tìm tên hoặc email         [⚲] │   │ Vai trò hiện tại                 │
-│ 3 thành viên                     │   │   Nhân viên bán hàng             │
-│ Nguyễn Thị Lan  [Chủ sở hữu]     │   │ Vai trò mới                      │
-│ Chủ cửa hàng · Hoạt động         │   │   Thủ kho                        │
-│ Trần Minh                        │   │ Vai trò là nhãn công việc; quyền │ 🔧
-│ Nhân viên bán hàng · Hoạt động   │   │ nghiệp vụ của thành viên không   │
-│ Lê Hà                            │   │ thay đổi.                        │
-│ Kế toán · Tạm ngừng              │   │ [ Quay lại ]      [ Tiếp tục ]   │
-└──────────────────────────────────┘   └──────────────────────────────────┘
+┌──────────────────────────────────┐   ┌──────────────────────────────────────┐
+│ ←  Người dùng                [+] │   │ Đổi vai trò của Minh?  (sheet)       │
+│ [ Thành viên ] [ Lời mời ]       │   │ Vai trò Nhân viên bán hàng → Thủ kho. │
+│ 🔎 Tìm tên hoặc email         [⚲] │   │ Vai trò là nhãn công việc; quyền     │
+│ 3 thành viên                     │   │ nghiệp vụ của thành viên không       │ 🔧
+│ Nguyễn Thị Lan  [Chủ sở hữu]     │   │ thay đổi.                            │
+│ Chủ cửa hàng · Hoạt động         │   │                                      │
+│ Trần Minh                        │   │                                      │
+│ Nhân viên bán hàng · Hoạt động   │   │                                      │
+│ Lê Hà                            │   │ [ Quay lại ] [ Xác nhận ]            │
+│ Kế toán · Tạm ngừng              │   │                                      │
+└──────────────────────────────────┘   └──────────────────────────────────────┘
 ```
 
 | Màn | Trạng thái riêng |
@@ -1101,13 +1102,10 @@ Không còn màn quản trị nền tảng. Khung cũ (C1–C7) chỉ để đ�
 - Rời form có thay đổi chưa lưu (sửa tài khoản, sửa hồ sơ tổ chức, hồ sơ pháp lý): hộp thoại "Bỏ thay đổi?" — "Các thay đổi chưa lưu sẽ bị mất." — nút "Tiếp tục sửa" / "Bỏ thay đổi" (đỏ). Lưu thành công rời trang không hỏi.
 - Hai thiết bị đều là thiết bị chính ([LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md), sửa 2026-10-22): mỗi màn có bố cục iPhone và bố cục web thiết kế đủ như nhau — web không phải cột iPhone đặt giữa hay kéo giãn. Web dùng bố cục chung: danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet thành hộp thoại, đi được bằng bàn phím; bố cục từng màn chốt trong plan của theme.
 - **Bố cục web & Chuỗi chung (W-2):**
-  - Màn hình công khai / xác thực co lại tối đa 480px trên tablet/desktop, căn trên giữa.
-  - Phân khu Người dùng, Vai trò, Lịch sử quản trị chuyển sang bố cục 2 cột (danh sách bên trái 360px, chi tiết bên phải) khi bề rộng khả dụng ≥ 840px (tương đương màn hình có thanh bên ≥ 1080px).
-  - Khi chưa chọn mục chi tiết trên giao diện 2 cột, hiển thị trạng thái rỗng hướng dẫn với các chuỗi chuẩn:
-    - Người dùng: *"Chọn một thành viên hoặc lời mời để xem chi tiết."*
-    - Vai trò: *"Chọn một vai trò để xem chi tiết."*
+  - Màn công khai: web (cửa sổ rộng ≥ 840 và cao ≥ 480) theo prototype Theme 1 — Đăng nhập hai phần (thương hiệu 42% | form 400), Đăng ký, Xác minh email, Đặt lại mật khẩu, Lời mời một cột tối đa 520; Chưa thuộc tổ chức tối đa 560; cửa sổ hẹp hơn ngưỡng: tối đa 480.
+  - 🔧 Người dùng, Vai trò, Lịch sử quản trị (web): bảng toàn màn; bấm dòng mở chi tiết toàn màn có ←, không còn hai cột.
+  - Chuỗi chuẩn còn dùng:
     - Vai trò không tồn tại (nhánh đã tải xong nhưng không khớp mã vai trò): *"Không tìm thấy vai trò"*
-    - Lịch sử quản trị: *"Chọn một mục lịch sử để xem chi tiết."*
   - Bottom sheet tự động chuyển thành hộp thoại căn giữa khi màn hình rộng (≥ 1024px), có nút đóng với tooltip: *"Đóng"*.
 
 ---

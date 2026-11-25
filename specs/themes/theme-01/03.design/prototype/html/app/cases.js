@@ -62,7 +62,7 @@ export const SCREENS = [
       ['create-filled', 'Bước 2 · Đã nhập', 'Nút "Đặt lại mật khẩu" bật.'],
       ['create-errors', 'Bước 2 · Lỗi', 'Lỗi dưới hai ô + toast đỏ "Vui lòng kiểm tra lại…".'],
       ['create-submitting', 'Đang đặt lại', 'Lớp phủ trắng 50% + vòng tải.'],
-      ['from-account', 'Từ Tài khoản của tôi (ID-23)', '/more/my-account/reset-password: cùng màn, mã gửi tới email đang đăng nhập; mở ngoài khung (web không có thanh bên).'],
+      ['from-account', 'Từ Tài khoản của tôi (ID-23)', '/more/my-account/reset-password: cùng màn, mã gửi tới email đang đăng nhập; trong khung StoreShell (web ≥ 1024 có thanh bên 84; ảnh vẽ trang trần).'],
     ],
   },
   {
@@ -91,7 +91,7 @@ export const SCREENS = [
       ['blocked', 'Không thể tiếp tục', 'Lỗi khi tiếp nhận (ví dụ bị thu hồi giữa chừng): câu lỗi từ máy chủ.'],
     ],
   },
-  // ================================================================ đợt 2 — quản trị (mọi route ngoài StoreShell: web không có thanh bên)
+  // ================================================================ đợt 2 — quản trị (route trong StoreShell; ảnh vẽ trang trần nên không có thanh bên)
   {
     id: 'org-profile', group: 'admin', code: 'ID-11', title: 'Hồ sơ tổ chức', route: '/more/organization-profile', states: [
       ['no-legal', 'Chưa có hồ sơ pháp lý', 'Tên tổ chức đầu màn; thẻ thông tin; thẻ pháp lý gồm hộp vàng "Chưa có hồ sơ pháp lý" + dòng nhắc "Bổ sung…" + link. Nút "Thao tác ⌃" ở thanh dưới.'],

@@ -1,6 +1,6 @@
 // ID-19 Vai trò (danh mục + chi tiết). Chép từ apps/erp/lib/features/iam/presentation/roles/{roles_area_shell.dart,
 //   views/organization_roles_page.dart, views/organization_role_detail_page.dart}, logic/roles_cubit.dart, core/router/app_router.dart.
-// /more/roles(/:code): ShellRoute riêng (RolesAreaShell → VListDetailLayout), ngoài StoreShell; chỉ Chủ sở hữu.
+// /more/roles(/:code): ShellRoute riêng (RolesAreaShell → VListDetailLayout), trong ShellRoute(StoreShell), web ≥ 1024 có thanh bên 84; chỉ Chủ sở hữu.
 import { icon } from '../shared/icons.js';
 import { ROLES } from './admin-data.js';
 import { badge, button, card, detailWidth, esc, isSplit, LIST_WIDTH, listDetail, splitPlaceholder, vScaffold } from './ds.js';
