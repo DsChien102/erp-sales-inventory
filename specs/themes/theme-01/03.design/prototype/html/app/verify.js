@@ -5,7 +5,7 @@
 // Bố cục iPhone ID-03, ID-05 thiết kế lại qua impeccable live (2026-11-25); chữ, trạng thái giữ nguyên Flutter. Web ở web/verify.js.
 // ID-05 Chưa thuộc tổ chức: apps/erp/lib/features/auth/presentation/pages/no_organization_page.dart
 import { icon } from '../shared/icons.js';
-import { authColumn, button, card, codeField, field, plainScaffold } from './ds.js';
+import { authColumn, button, card, codeField, field, plainScaffold, toast } from './ds.js';
 
 /** maskEmail (features/iam/data/models/password_reset_result.dart): ký tự đầu + *** + @tên miền. */
 export function maskEmail(email) {
@@ -22,7 +22,7 @@ export function resendLabel(seconds) {
   return `Gửi lại mã sau ${mm}:${ss}`;
 }
 
-export const RESEND_FAILED = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.'; // resend() lỗi → failure, hiện cùng chỗ lỗi mã
+export const RESEND_FAILED = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.'; // resend() lỗi → resendFailure, hiện bằng toast đỏ (không phải lỗi mã)
 export const OTP_WRONG = 'Mã xác minh không đúng hoặc đã hết hạn.'; // verify_email_cubit (cả khi chưa đủ 6 số)
 
 /**
@@ -35,9 +35,9 @@ function codeForm(v, { state = 'default', cooldown = 59 }) {
   const col = Math.min(v.width, v.width >= 600 ? 480 : v.width) - 32;
   const code = state === 'error' ? '123456' : state === 'filled' || state === 'submitting' ? '482915' : '';
   const busy = state === 'submitting';
-  const invalid = state === 'error' || state === 'resend-failed';
+  const invalid = state === 'error';
   const secs = state === 'can-resend' || state === 'resend-failed' ? 0 : cooldown;
-  return `${field({ label: 'Mã xác minh', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, invalid, disabled: busy, focus: !busy && code.length < 6 }), error: state === 'resend-failed' ? RESEND_FAILED : invalid ? OTP_WRONG : null })}
+  return `${field({ label: 'Mã xác minh', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, invalid, disabled: busy, focus: !busy && code.length < 6 }), error: invalid ? OTP_WRONG : null })}
     <div class="t1-gap-lg"></div>
     ${button('Xác minh', { full: true, loading: busy, attrs: 'data-primary' })}
     <div class="t1-verify__resend">${secs > 0 ? `<p class="t1-body2 t1-verify__wait">${resendLabel(secs)}</p>` : button(resendLabel(secs), { variant: 'link' })}</div>`;
@@ -64,7 +64,8 @@ export function verifyPage(v) {
     <span class="t1-spacer"></span>
     <div class="t1-vmail__out">${button('Đăng xuất', { variant: 'link' })}</div>
   </div>`;
-  return { page: `<div class="t1-page t1-page--canvas t1-page--vmail"><div class="t1-scroll"><div class="t1-col" style="max-width:${authColumn(v.width)}">${body}</div></div></div>` };
+  const overlay = v.state === 'resend-failed' ? toast('danger', 'Không gửi được mã', RESEND_FAILED, { device: v.device }) : '';
+  return { page: `<div class="t1-page t1-page--canvas t1-page--vmail"><div class="t1-scroll"><div class="t1-col" style="max-width:${authColumn(v.width)}">${body}</div></div></div>`, overlay };
 }
 
 /** NoOrganizationPage: nền surface, cột 480; biểu tượng tòa nhà 64 + tiêu đề + mô tả canh giữa vùng trên; "Nhập mã lời mời" + "Đăng xuất" (link) ở đáy màn. */

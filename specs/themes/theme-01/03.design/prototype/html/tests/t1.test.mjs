@@ -163,3 +163,12 @@ test('codeField invalid: class is-invalid trên thẻ ngoài', () => {
   assert.match(codeField({ length: 6, columnWidth: 358, fill: true, invalid: true }), /class="t1-code t1-code--fill is-invalid"/);
   assert.doesNotMatch(codeField({ length: 6, columnWidth: 358, fill: true }), /is-invalid/);
 });
+
+test('verify resend-failed: toast đỏ, ô mã không đỏ (10-8e, lỗi 2)', () => {
+  for (const d of ['iphone', 'web']) {
+    const html = render('verify', 'resend-failed', d);
+    assert.doesNotMatch(html, /is-invalid/, d);
+    assert.match(html, /t1-toast--danger/, d);
+    assert.match(html, /Không thể kết nối đến máy chủ/, d);
+  }
+});

@@ -61,7 +61,13 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
       emit(state.copyWith(failure: 'Mã xác minh không đúng hoặc đã hết hạn.'));
       return;
     }
-    emit(state.copyWith(submitting: true, clearFailure: true));
+    emit(
+      state.copyWith(
+        submitting: true,
+        clearFailure: true,
+        clearResendFailure: true,
+      ),
+    );
     if (deferSignedIn) _session.holdSignedInApply();
     try {
       final userId = await _auth.verifySignupOtp(email: email, code: trimmed);
@@ -92,17 +98,22 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
 
   Future<void> resend() async {
     if (isClosed || !state.canResend) return;
-    emit(state.copyWith(submitting: true, clearFailure: true, now: _clock()));
+    emit(
+      state.copyWith(
+        resending: true,
+        clearResendFailure: true,
+        now: _clock(),
+      ),
+    );
     try {
       await _auth.resendSignupOtp(email);
       if (isClosed) return;
       final now = _clock();
       emit(
         state.copyWith(
-          submitting: false,
+          resending: false,
           now: now,
           resendAvailableAt: now.add(_cooldown),
-          clearFailure: true,
         ),
       );
     } catch (error) {
@@ -111,19 +122,18 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
         final now = _clock();
         emit(
           state.copyWith(
-            submitting: false,
+            resending: false,
             now: now,
             resendAvailableAt: now.add(Duration(seconds: _cooldownSeconds(error))),
-            clearFailure: true,
           ),
         );
         return;
       }
       emit(
         state.copyWith(
-          submitting: false,
+          resending: false,
           now: _clock(),
-          failure: IamUiFailureMapper.from(error).message,
+          resendFailure: IamUiFailureMapper.from(error).message,
         ),
       );
     }

@@ -1,6 +1,6 @@
 // Bố cục WEB (khung ≥ 840), chọn qua impeccable live 2026-11-24. iPhone ở ../verify.js; trạng thái mẫu, hàm kiểm, sheet dùng chung lấy từ đó.
 import { icon } from '../../shared/icons.js';
-import { button, codeField, field } from '../ds.js';
+import { button, codeField, field, toast } from '../ds.js';
 import { maskEmail, OTP_WRONG, RESEND_FAILED, resendLabel } from '../verify.js';
 
 /**
@@ -12,13 +12,13 @@ export function verifyView(v, { state = 'default', email, prompt, cooldown = 59,
   const col = columnWidth ?? Math.min(v.width, v.width >= 600 ? 480 : v.width) - 32;
   const code = state === 'error' ? '123456' : state === 'filled' || state === 'submitting' ? '482915' : '';
   const busy = state === 'submitting';
-  const invalid = state === 'error' || state === 'resend-failed';
+  const invalid = state === 'error';
   const secs = state === 'can-resend' || state === 'resend-failed' ? 0 : cooldown;
   const text = prompt || `Mã xác minh gồm 6 chữ số đã được gửi tới ${maskEmail(email)}.`;
   return `<div class="t1-verify">
     <p class="t1-body2">${text}</p>
     <div class="t1-gap-lg"></div>
-    ${field({ label: 'Mã xác minh', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, invalid, disabled: busy, focus: !busy && code.length < 6 }), error: state === 'resend-failed' ? RESEND_FAILED : invalid ? OTP_WRONG : null })}
+    ${field({ label: 'Mã xác minh', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, invalid, disabled: busy, focus: !busy && code.length < 6 }), error: invalid ? OTP_WRONG : null })}
     <div class="t1-gap-lg"></div>
     ${button('Xác minh', { full: true, loading: busy })}
     <div class="t1-verify__resend">${secs > 0 ? `<p class="t1-body2 t1-verify__wait">${resendLabel(secs)}</p>` : button(resendLabel(secs), { variant: 'link' })}</div>
@@ -41,7 +41,8 @@ export function verifyPage(v) {
     </div>
     <div class="t1-center-row t1-verify-page__after">${button('Đăng xuất', { variant: 'link' })}</div>
   </div></div></div>`;
-  return { page };
+  const overlay = v.state === 'resend-failed' ? toast('danger', 'Không gửi được mã', RESEND_FAILED, { device: v.device }) : '';
+  return { page, overlay };
 }
 
 /**

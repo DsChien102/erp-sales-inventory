@@ -9,7 +9,7 @@ import '../../../iam/data/models/password_reset_result.dart';
 import '../../data/auth_repository.dart';
 import '../../logic/verify_email_cubit.dart';
 import '../../logic/verify_email_state.dart';
-import 'resend_countdown.dart';
+import '../../../../core/widgets/flow/resend_countdown.dart';
 
 class VerifyEmailView extends StatefulWidget {
   const VerifyEmailView({
@@ -18,6 +18,7 @@ class VerifyEmailView extends StatefulWidget {
     required this.auth,
     required this.session,
     this.prompt,
+    this.showPrompt = true,
     this.onVerified,
     this.clock,
     this.allowImmediateResend = false,
@@ -29,6 +30,9 @@ class VerifyEmailView extends StatefulWidget {
   final AuthRepository auth;
   final SessionController session;
   final String? prompt;
+
+  /// false: trang tự vẽ lời nhắc (ID-03 iPhone).
+  final bool showPrompt;
   final void Function(String userId)? onVerified;
   final DateTime Function()? clock;
   final bool allowImmediateResend;
@@ -78,19 +82,36 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
         'Mã xác minh gồm 6 chữ số đã được gửi tới ${maskEmail(widget.email)}.';
     return BlocConsumer<VerifyEmailCubit, VerifyEmailState>(
       bloc: _cubit,
-      listenWhen: (previous, current) => !previous.verified && current.verified,
-      listener: (context, state) =>
-          widget.onVerified?.call(state.verifiedUserId ?? ''),
+      listenWhen: (previous, current) =>
+          (!previous.verified && current.verified) ||
+          (previous.resendFailure != current.resendFailure &&
+              current.resendFailure != null),
+      listener: (context, state) {
+        if (state.verified) {
+          widget.onVerified?.call(state.verifiedUserId ?? '');
+        }
+        final resendFailure = state.resendFailure;
+        if (resendFailure != null) {
+          VToast.show(
+            context,
+            title: 'Không gửi được mã',
+            message: resendFailure,
+            type: VToastType.danger,
+          );
+        }
+      },
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            VText(
-              prompt,
-              variant: VTextVariant.bodyDefault,
-              color: colors.textSecondary,
-            ),
-            const VGap.lg(),
+            if (widget.showPrompt) ...[
+              VText(
+                prompt,
+                variant: VTextVariant.bodyDefault,
+                color: colors.textSecondary,
+              ),
+              const VGap.lg(),
+            ],
             VField(
               invalid: state.failure != null,
               child: Column(
@@ -101,6 +122,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
                     key: const Key('otp_code_field'),
                     child: VVerificationCodeField(
                       length: 6,
+                      layout: VVerificationCodeLayout.fill,
                       charset: VVerificationCodeCharset.numeric,
                       autofocus: true,
                       enabled: !state.submitting,
@@ -113,11 +135,6 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
                 ],
               ),
             ),
-            const VGap.md(),
-            ResendCountdown(
-              remaining: state.remaining,
-              onResend: state.canResend ? () => _cubit.resend() : null,
-            ),
             const VGap.lg(),
             VButton(
               key: const Key('signup_verify'),
@@ -125,6 +142,10 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               isLoading: state.submitting,
               fullWidth: true,
               onPressed: state.submitting ? null : () => _cubit.verify(_code),
+            ),
+            ResendCountdown(
+              remaining: state.remaining,
+              onResend: state.canResend ? () => _cubit.resend() : null,
             ),
           ],
         );

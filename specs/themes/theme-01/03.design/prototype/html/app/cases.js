@@ -45,7 +45,7 @@ export const SCREENS = [
       ['filled', 'Đủ 6 số (thoáng qua)', 'Thoáng qua: đủ mã là onCompleted tự gửi xác minh ngay → chuyển sang "Đang xác minh". Nút "Xác minh" gần như không cần bấm.'],
       ['submitting', 'Đang xác minh', 'Ô mã mờ; nút "Xác minh" có vòng xoay.'],
       ['error', 'Sai mã', 'Dòng lỗi đỏ; mọi ô viền đỏ, vòng đỏ nhạt chỉ ở ô đang focus, chữ số không đỏ.'],
-      ['resend-failed', 'Gửi lại mã lỗi', 'resend() lỗi → câu lỗi mạng hiện đúng chỗ lỗi mã (dưới sáu ô), "Gửi lại mã" bấm lại được.'],
+      ['resend-failed', 'Gửi lại mã lỗi', 'Gửi lại lỗi: toast đỏ, ô mã không đỏ, "Gửi lại mã" bấm lại được.'],
     ],
   },
   {
