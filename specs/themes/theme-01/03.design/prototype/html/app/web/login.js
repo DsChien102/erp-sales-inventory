@@ -14,7 +14,7 @@ export function loginPage(v) {
         <div class="t1-wlogin__labelrow">${fieldLabel('Mật khẩu')}${button('Quên mật khẩu?', { variant: 'link', disabled: busy })}</div>
         ${input({ value: s.password, hint: 'Nhập mật khẩu', password: true, invalid: !!s.passwordError })}${s.passwordError ? fieldError(s.passwordError) : ''}
       </div>`;
-  const foot = '<p class="t1-wlogin__foot">© Mosaic Retail · Phiên bản Mobile</p>';
+  const foot = '<p class="t1-wlogin__foot">© Mosaic Retail</p>';
   // Khối thương hiệu: dải nền surfaceBrand trên đầu (hẹp); cột trái 42% (≥ 900px), dòng bản quyền đáy cột.
   const page = `<div class="t1-page t1-page--surface t1-page--login"><div class="t1-scroll"><div class="t1-wlogin">
     <div class="t1-wlogin__panel">

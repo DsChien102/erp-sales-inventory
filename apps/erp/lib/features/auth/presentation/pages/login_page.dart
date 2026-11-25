@@ -1,6 +1,4 @@
 // harness:allow-design-system-bypass — login shell không dùng VAppBar (branded form, không phải page ERP chuẩn)
-import 'package:flutter/foundation.dart';
-import 'package:erp/core/widgets/app_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +11,9 @@ import '../../../../core/session/session_controller.dart';
 import '../../data/auth_repository.dart';
 import '../../logic/login_cubit.dart';
 import '../../logic/login_state.dart';
-import '../auth_layout.dart';
+import '../../../../core/config/wide_layout.dart';
+import '../widgets/login_narrow.dart';
+import '../widgets/login_wide.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({
@@ -84,6 +84,8 @@ class _LoginView extends StatefulWidget {
 class _LoginViewState extends State<_LoginView> {
   late final TextEditingController _emailController;
   final _passwordController = TextEditingController();
+  final _emailKey = GlobalKey();
+  final _passwordKey = GlobalKey();
 
   String? _emailError;
   String? _passwordError;
@@ -178,7 +180,6 @@ class _LoginViewState extends State<_LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    final dynamicColors = context.vColors;
     final orgName = widget.organizationName?.trim();
     final joinedMessage = (orgName != null && orgName.isNotEmpty)
         ? 'Đã tham gia tổ chức "$orgName" thành công. Đăng nhập để vào Mosaic Retail.'
@@ -212,189 +213,100 @@ class _LoginViewState extends State<_LoginView> {
       builder: (context, state) {
         final isSubmitting = state.isSubmitting;
 
-        return Scaffold(
-          backgroundColor: dynamicColors.surface,
-          body: SafeArea(
-            child: VContentWidth(
-              maxWidth: authMaxWidth,
-              alignment: Alignment.topCenter,
-              child: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight:
-                        MediaQuery.of(context).size.height -
-                        MediaQuery.of(context).padding.top -
-                        MediaQuery.of(context).padding.bottom,
-                  ),
-                  child: IntrinsicHeight(
-                    child: VPagePadding(
-                      horizontal: VSpacing.screenMobile,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const VGap.xxl(),
-                          const AppLogo(size: 64),
-                          const VGap.lg(),
-                          VText(
-                            'Mosaic Retail',
-                            variant: VTextVariant.headingH1,
-                            color: dynamicColors.textPrimary,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0,
-                            ),
-                          ),
-                          const VGap.xs(),
-                          VText(
-                            'Quản trị bán hàng thuốc thú y',
-                            variant: VTextVariant.bodyDefault,
-                            color: dynamicColors.textSecondary,
-                          ),
-                          const VGap.xl(),
-                          if (widget.passwordResetSuccess) ...[
-                            const VBanner(
-                              status: VBannerStatus.success,
-                              title: 'Cập nhật mật khẩu thành công',
-                              description: 'Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại.',
-                            ),
-                            const VGap.lg(),
-                          ],
-                          if (widget.showSuccessBanner) ...[
-                            VBanner(
-                              status: VBannerStatus.success,
-                              title: 'Tham gia tổ chức thành công',
-                              description: joinedMessage,
-                            ),
-                            const VGap.lg(),
-                          ],
-                          AutofillGroup(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                VField(
-                                  invalid: _emailError != null,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const VFieldLabel('Email'),
-                                      VEmailField(
-                                        controller: _emailController,
-                                        hintText: 'Nhập email',
-                                        validateOnChanged: false,
-                                        autofillHints: const [
-                                          AutofillHints.username,
-                                          AutofillHints.email,
-                                        ],
-                                        textInputAction: TextInputAction.next,
-                                        onChanged: (_) {
-                                          if (_emailError != null || _formError != null) {
-                                            setState(() {
-                                              _emailError = null;
-                                              _formError = null;
-                                            });
-                                          }
-                                        },
-                                      ),
-                                      if (_emailError != null) VFieldError(_emailError!),
-                                    ],
-                                  ),
-                                ),
-                                const VGap.md(),
-                                VField(
-                                  invalid: _passwordError != null,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const VFieldLabel('Mật khẩu'),
-                                      VPasswordField(
-                                        controller: _passwordController,
-                                        hintText: 'Nhập mật khẩu',
-                                        minLength: 1,
-                                        validateOnChanged: false,
-                                        autofillHints: const [
-                                          AutofillHints.password,
-                                        ],
-                                        textInputAction: TextInputAction.done,
-                                        onChanged: (_) {
-                                          if (_passwordError != null || _formError != null) {
-                                            setState(() {
-                                              _passwordError = null;
-                                              _formError = null;
-                                            });
-                                          }
-                                        },
-                                        onSubmitted: (_) => _submit(),
-                                      ),
-                                      if (_passwordError != null) VFieldError(_passwordError!),
-                                    ],
-                                  ),
-                                ),
-                                if (_formError != null) ...[
-                                  const VGap.md(),
-                                  VBanner(
-                                    status: VBannerStatus.error,
-                                    title: 'Đăng nhập thất bại',
-                                    description: _formError!,
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          const VGap.md(),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: VButton(
-                              label: 'Quên mật khẩu?',
-                              variant: VButtonVariant.link,
-                              onPressed: isSubmitting ? null : _navigateToResetPassword,
-                            ),
-                          ),
-                          const VGap.lg(),
-                          VButton(
-                            label: 'Đăng nhập',
-                            isLoading: isSubmitting,
-                            fullWidth: true,
-                            onPressed: isSubmitting ? null : _submit,
-                          ),
-                          const VGap.md(),
-                          VButton(
-                            key: const Key('login_signup'),
-                            label: 'Đăng ký cửa hàng mới',
-                            variant: VButtonVariant.secondary,
-                            fullWidth: true,
-                            onPressed: isSubmitting ? null : () => context.push('/signup'),
-                          ),
-                          const VGap.lg(),
-                          VText(
-                            'Bạn đã nhận được lời mời?',
-                            variant: VTextVariant.bodyDefault,
-                            color: dynamicColors.textSecondary,
-                          ),
-                          const VGap.md(),
-                          VButton(
-                            label: 'Kích hoạt tài khoản',
-                            variant: VButtonVariant.link,
-                            onPressed: isSubmitting ? null : () => context.push('/invitation'),
-                          ),
-                          const Spacer(),
-                          if (!kIsWeb)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: VSpacing.md),
-                              child: VText(
-                                '© Mosaic Retail · Phiên bản Mobile',
-                                variant: VTextVariant.bodySmall,
-                                color: dynamicColors.textMuted,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
+        final emailField = KeyedSubtree(
+          key: _emailKey,
+          child: VField(
+            invalid: _emailError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Email'),
+                VEmailField(
+                  controller: _emailController,
+                  hintText: 'Nhập email',
+                  validateOnChanged: false,
+                  autofillHints: const [
+                    AutofillHints.username,
+                    AutofillHints.email,
+                  ],
+                  textInputAction: TextInputAction.next,
+                  onChanged: (_) {
+                    if (_emailError != null || _formError != null) {
+                      setState(() {
+                        _emailError = null;
+                        _formError = null;
+                      });
+                    }
+                  },
                 ),
-              ),
+                if (_emailError != null) VFieldError(_emailError!),
+              ],
             ),
           ),
         );
+        final passwordInput = KeyedSubtree(
+          key: _passwordKey,
+          child: VPasswordField(
+            controller: _passwordController,
+            hintText: 'Nhập mật khẩu',
+            minLength: 1,
+            validateOnChanged: false,
+            autofillHints: const [AutofillHints.password],
+            textInputAction: TextInputAction.done,
+            onChanged: (_) {
+              if (_passwordError != null || _formError != null) {
+                setState(() {
+                  _passwordError = null;
+                  _formError = null;
+                });
+              }
+            },
+            onSubmitted: (_) => _submit(),
+          ),
+        );
+        final banners = <Widget>[
+          if (widget.passwordResetSuccess)
+            const VBanner(
+              status: VBannerStatus.success,
+              title: 'Cập nhật mật khẩu thành công',
+              description: 'Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại.',
+            ),
+          if (widget.showSuccessBanner)
+            VBanner(
+              status: VBannerStatus.success,
+              title: 'Tham gia tổ chức thành công',
+              description: joinedMessage,
+            ),
+        ];
+
+        void signup() => context.push('/signup');
+        void activate() => context.push('/invitation');
+
+        return isWideLayout(context)
+            ? LoginWide(
+                emailField: emailField,
+                passwordInput: passwordInput,
+                passwordError: _passwordError,
+                banners: banners,
+                formError: _formError,
+                isSubmitting: isSubmitting,
+                onSubmit: _submit,
+                onForgotPassword: _navigateToResetPassword,
+                onSignup: signup,
+                onActivate: activate,
+              )
+            : LoginNarrow(
+                emailField: emailField,
+                passwordInput: passwordInput,
+                passwordError: _passwordError,
+                banners: banners,
+                formError: _formError,
+                isSubmitting: isSubmitting,
+                onSubmit: _submit,
+                onForgotPassword: _navigateToResetPassword,
+                onSignup: signup,
+                onActivate: activate,
+              );
       },
     );
   }

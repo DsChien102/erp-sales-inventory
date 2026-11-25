@@ -5,6 +5,7 @@ import 'package:erp/features/auth/presentation/pages/login_page.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/auth/logic/login_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:c45_design_system/design_system.dart';
 
@@ -84,6 +85,10 @@ void main() {
   testWidgets('auth links satisfy labeled and iOS tap target guidelines', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final session = loginSession();
     addTearDown(session.close);
 
@@ -140,6 +145,163 @@ void main() {
     expect(tester.takeException()?.toString(), isNot(contains('overflowed')));
     expect(find.text('Đăng nhập'), findsOneWidget);
     expect(find.text('Đăng ký cửa hàng mới'), findsOneWidget);
+  });
+
+  group('bố cục iPhone / web (10-8e)', () {
+    Future<void> pumpAt(
+      WidgetTester tester,
+      Size size, {
+      String? organizationName,
+      bool showSuccessBanner = false,
+      bool passwordResetSuccess = false,
+      double textScale = 1,
+    }) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = textScale;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final session = loginSession();
+      addTearDown(session.close);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: LoginPage(
+            auth: ScriptedAuthRepository(),
+            session: session,
+            organizationName: organizationName,
+            showSuccessBanner: showSuccessBanner,
+            passwordResetSuccess: passwordResetSuccess,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('390 uses the narrow layout', (tester) async {
+      await pumpAt(tester, const Size(390, 844));
+      expect(find.byKey(const Key('login_wide_panel')), findsNothing);
+      expect(
+        tester.getSize(find.byKey(const Key('login_signup'))).height,
+        greaterThanOrEqualTo(60),
+      );
+    });
+
+    testWidgets('1280 footer reads © Mosaic Retail only', (tester) async {
+      await pumpAt(tester, const Size(1280, 800));
+      expect(find.text('© Mosaic Retail'), findsOneWidget);
+      expect(find.textContaining('Phiên bản Mobile'), findsNothing);
+    });
+
+    testWidgets('1280 splits 42 / 58', (tester) async {
+      await pumpAt(tester, const Size(1280, 800));
+      final panel = tester.getRect(find.byKey(const Key('login_wide_panel')));
+      final form = tester.getRect(find.byKey(const Key('login_wide_form')));
+      expect(panel.width, moreOrLessEquals(537.6, epsilon: 1));
+      expect(panel.height, 800);
+      expect(form.width, 400);
+      expect(
+        form.center.dx,
+        moreOrLessEquals(panel.right + (1280 - panel.right) / 2, epsilon: 1),
+      );
+      expect(tester.getSize(find.byType(VEmailField)).width, 336);
+    });
+
+    testWidgets('860 stacks the brand strip', (tester) async {
+      await pumpAt(tester, const Size(860, 800));
+      final panel = tester.getRect(find.byKey(const Key('login_wide_panel')));
+      final form = tester.getRect(find.byKey(const Key('login_wide_form')));
+      expect(panel.width, 860);
+      expect(panel.bottom, lessThanOrEqualTo(form.top));
+    });
+
+    testWidgets('844x390 landscape scrolls to the last action', (tester) async {
+      await pumpAt(tester, const Size(844, 390));
+      expect(find.byKey(const Key('login_wide_panel')), findsNothing);
+      await tester.ensureVisible(find.text('Kích hoạt tài khoản'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final rect = tester.getRect(find.text('Kích hoạt tài khoản'));
+      expect(rect.bottom, lessThanOrEqualTo(390));
+    });
+
+    testWidgets('resizing 900 → 700 → 900 keeps typed text and password visibility', (
+      tester,
+    ) async {
+      await pumpAt(tester, const Size(900, 800));
+      await tester.enterText(find.byType(TextField).at(0), 'lan@example.com');
+      await tester.enterText(find.byType(TextField).at(1), 'secret-1');
+      await tester.tap(find.byTooltip('Hiện mật khẩu'));
+      await tester.pump();
+      EditableText password() => tester.widget<EditableText>(
+        find.byType(EditableText).at(1),
+      );
+      expect(password().obscureText, isFalse);
+
+      for (final size in const [Size(700, 800), Size(900, 800)]) {
+        tester.view.physicalSize = size;
+        await tester.pumpAndSettle();
+        expect(find.text('lan@example.com'), findsOneWidget);
+        expect(find.text('secret-1'), findsOneWidget);
+        expect(password().obscureText, isFalse);
+      }
+    });
+
+    testWidgets('wide: Tab order email, password, forgot, submit', (tester) async {
+      await pumpAt(tester, const Size(1280, 800));
+      Finder editable(int i) => find.byType(EditableText).at(i);
+      bool focusIn(Finder f) {
+        final focus = FocusManager.instance.primaryFocus;
+        if (focus == null) return false;
+        return find
+            .descendant(of: f, matching: find.byWidgetPredicate((w) => true))
+            .evaluate()
+            .any((e) => e == focus.context || _isAncestor(e, focus.context));
+      }
+
+      final stops = <String, Finder>{
+        'email': editable(0),
+        'password': editable(1),
+        'forgot': find.widgetWithText(VButton, 'Quên mật khẩu?'),
+        'submit': find.widgetWithText(VButton, 'Đăng nhập'),
+      };
+      final visited = <String>[];
+      void record() {
+        for (final entry in stops.entries) {
+          if (focusIn(entry.value) && !visited.contains(entry.key)) {
+            visited.add(entry.key);
+          }
+        }
+      }
+
+      await tester.tap(editable(0));
+      await tester.pump();
+      record();
+      for (var i = 0; i < 6; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        record();
+      }
+      expect(visited, ['email', 'password', 'forgot', 'submit']);
+    });
+
+    testWidgets('320 at text scale 2.0 does not overflow, long org name banner', (
+      tester,
+    ) async {
+      await pumpAt(
+        tester,
+        const Size(320, 568),
+        organizationName: 'Công ty ' * 10,
+        showSuccessBanner: true,
+        passwordResetSuccess: true,
+        textScale: 2,
+      );
+      expect(tester.takeException(), isNull);
+      await tester.ensureVisible(find.text('Kích hoạt tài khoản'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
   });
 
   group('hành vi giữ nguyên khi đổi bố cục', () {
@@ -251,4 +413,17 @@ class _HangingSignIn extends ScriptedAuthRepository {
     await gate.future;
     return super.signIn(email: email, password: password);
   }
+}
+
+bool _isAncestor(Element ancestor, BuildContext? descendant) {
+  if (descendant == null) return false;
+  var found = false;
+  descendant.visitAncestorElements((e) {
+    if (e == ancestor) {
+      found = true;
+      return false;
+    }
+    return true;
+  });
+  return found;
 }
