@@ -63,6 +63,13 @@ void main() {
       expect(MoneyFormatter.formatMinor(90000), contains('90.000'));
     });
 
+    test('receipt source no longer prints the V45 placeholder', () {
+      final src = File(
+        'lib/features/sales/presentation/support/sales_receipt_pdf_generator.dart',
+      ).readAsStringSync();
+      expect(src.contains('V45'), isFalse);
+    });
+
     test('sanitizes filename from receipt number', () {
       final fileName = SalesReceiptPdfGenerator.sanitizeFileName('PBH/2026:08:12*001');
       expect(fileName, 'PBH_2026_08_12_001.pdf');

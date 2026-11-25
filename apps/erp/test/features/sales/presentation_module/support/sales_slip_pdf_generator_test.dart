@@ -33,6 +33,13 @@ void main() {
       expect(bytes.length, greaterThan(100));
     });
 
+    test('slip source no longer prints the V45 placeholder', () {
+      final src = File(
+        'lib/features/sales/presentation/support/sales_slip_pdf_generator.dart',
+      ).readAsStringSync();
+      expect(src.contains('V45'), isFalse);
+    });
+
     test('sanitizes filename from backend reference number', () {
       expect(
         SalesSlipPdfGenerator.sanitizeFileName('RE/2026:08*01'),

@@ -1,3 +1,4 @@
+import 'package:erp/core/widgets/app_logo.dart';
 import 'package:erp/features/auth/presentation/pages/login_page.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/auth/logic/login_cubit.dart';
@@ -8,6 +9,24 @@ import 'package:c45_design_system/design_system.dart';
 import '../../support/scripted_auth.dart';
 
 void main() {
+  testWidgets('login shows the app logo instead of V45', (tester) async {
+    final auth = ScriptedAuthRepository();
+    final session = loginSession();
+    final cubit = LoginCubit(auth: auth, session: session);
+    addTearDown(cubit.close);
+    addTearDown(session.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: LoginPage(auth: auth, session: session, cubit: cubit),
+      ),
+    );
+
+    expect(find.byType(AppLogo), findsOneWidget);
+    expect(find.text('V45'), findsNothing);
+  });
+
   testWidgets('network login failure shows an inline banner without a toast', (
     tester,
   ) async {

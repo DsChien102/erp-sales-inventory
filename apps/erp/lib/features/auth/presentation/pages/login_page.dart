@@ -1,5 +1,6 @@
 // harness:allow-design-system-bypass — login shell không dùng VAppBar (branded form, không phải page ERP chuẩn)
 import 'package:flutter/foundation.dart';
+import 'package:erp/core/widgets/app_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -232,28 +233,7 @@ class _LoginViewState extends State<_LoginView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const VGap.xxl(),
-                          ExcludeSemantics(
-                            child: Container(
-                              width: 80,
-                              height: 80,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: dynamicColors.primary,
-                                borderRadius: BorderRadius.circular(
-                                  VRadius.r12,
-                                ),
-                              ),
-                              child: VText(
-                                'V45',
-                                variant: VTextVariant.headingH3,
-                                color: dynamicColors.surface,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0,
-                                ),
-                              ),
-                            ),
-                          ),
+                          const AppLogo(size: 64),
                           const VGap.lg(),
                           VText(
                             'Mosaic Retail',

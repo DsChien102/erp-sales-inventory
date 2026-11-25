@@ -6,6 +6,7 @@ import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/sales/data/models.dart';
 
 import 'package:erp/core/formatting/money_formatter.dart';
+import 'package:erp/core/widgets/app_logo.dart';
 
 final class SalesReceiptPdfGenerator {
   /// Label/value rows the PDF prints for the commercial and settlement totals.
@@ -32,6 +33,8 @@ final class SalesReceiptPdfGenerator {
   static Future<Uint8List> generate(SalesReceiptDocumentDto document) async {
     final pdf = pw.Document();
     final fonts = await _loadFonts();
+    final iconBytes = await loadAppIconBytes();
+    if (iconBytes != null) fonts.icon = pw.MemoryImage(iconBytes);
     final theme = pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold);
 
     pdf.addPage(
@@ -230,24 +233,14 @@ final class SalesReceiptPdfGenerator {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Container(
-              width: 44,
-              height: 44,
-              alignment: pw.Alignment.center,
-              decoration: pw.BoxDecoration(
-                color: PdfColor.fromHex('#1F7A36'),
-                borderRadius: pw.BorderRadius.circular(8),
+            if (fonts.icon != null) ...[
+              pw.ClipRRect(
+                horizontalRadius: 8,
+                verticalRadius: 8,
+                child: pw.Image(fonts.icon!, width: 44, height: 44),
               ),
-              child: pw.Text(
-                'V45',
-                style: pw.TextStyle(
-                  font: fonts.bold,
-                  color: PdfColors.white,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-            pw.SizedBox(width: 8),
+              pw.SizedBox(width: 8),
+            ],
             pw.Expanded(
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
@@ -475,7 +468,7 @@ final class SalesReceiptPdfGenerator {
 }
 
 final class _PdfFonts {
-  const _PdfFonts({
+  _PdfFonts({
     required this.regular,
     required this.bold,
     required this.mono,
@@ -486,4 +479,7 @@ final class _PdfFonts {
   final pw.Font bold;
   final pw.Font mono;
   final pw.Font monoBold;
+
+  /// Icon app 44 × 44; `null` khi không nạp được (Q11): phiếu in không có icon.
+  pw.MemoryImage? icon;
 }
