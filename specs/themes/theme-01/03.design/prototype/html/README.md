@@ -111,7 +111,7 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 
 **Xác minh email / ô mã (ID-03, bước 3)**
 
-16. **Sai mã: gần như không thấy ô nào đỏ.** Trong `VField(invalid)`, `VVerificationCodeField` chỉ đổi viền cho **ô đang focus** (viền đỏ + vòng đỏ nhạt); các ô còn lại giữ viền xám, chữ số không đỏ (viền nghỉ chỉ đỏ khi có `errorText` kiểu cũ). Áp cho mọi ô mã (OTP, mã lời mời).
+16. **Sai mã: gần như không thấy ô nào đỏ.** *Đã sửa ở prototype + Flutter 10-8d:* mọi ô viền `danger`, vòng đỏ nhạt chỉ ở ô đang focus, chữ số không đỏ. Áp cho mọi ô mã (OTP, mã lời mời).
 17. Bấm "Xác minh" khi chưa đủ 6 số vẫn báo "Mã xác minh không đúng hoặc đã hết hạn." (cubit dùng một câu cho cả hai).
 18. Vòng focus của ô (3 px `successBg` #EBF4EE trên nền trắng) gần như không thấy.
 19. **Đủ mã là tự gửi** (`onCompleted` → xác minh / xác nhận mã / kiểm mã lời mời) ở cả ba ô mã → nút "Xác minh", "Xác nhận mã", "Tiếp tục" hầu như không bao giờ phải bấm, nhưng vẫn là nút chính to nhất màn. Gửi lại mã lỗi: câu lỗi mạng hiện đúng chỗ lỗi mã.

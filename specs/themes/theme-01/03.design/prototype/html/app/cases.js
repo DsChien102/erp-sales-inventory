@@ -35,7 +35,7 @@ export const SCREENS = [
       ['server-error', 'Lỗi máy chủ', 'Banner đỏ chỉ có tiêu đề (câu lỗi làm tiêu đề, không có mô tả) giữa thanh bước và form.'],
       ['email-exists', 'Email đã đăng ký', 'Thay cả form bằng một dòng lỗi đỏ + "Đăng nhập" + "Quên mật khẩu". Thanh bước vẫn ở bước 2.'],
       ['verify', 'Bước 3 · Xác minh email', 'VerifyEmailView: ô 6 số, "Xác minh", "Gửi lại mã sau 00:59" (chữ thường). Không có tiêu đề riêng (tiêu đề chỉ ở thanh bước).'],
-      ['verify-error', 'Bước 3 · Sai mã', 'Chỉ ô đang focus viền đỏ + vòng đỏ nhạt; các ô khác giữ viền xám, chữ số không đỏ; dòng lỗi đỏ bên dưới.'],
+      ['verify-error', 'Bước 3 · Sai mã', 'Cả sáu ô viền đỏ, vòng đỏ nhạt chỉ ở ô đang focus; chữ số không đỏ; dòng lỗi đỏ bên dưới.'],
     ],
   },
   {
@@ -44,7 +44,7 @@ export const SCREENS = [
       ['countdown', 'Sau khi gửi lại', 'Đếm ngược "Gửi lại mã sau 00:59" là chữ thường (không bấm được), hết giờ thành link "Gửi lại mã".'],
       ['filled', 'Đủ 6 số (thoáng qua)', 'Thoáng qua: đủ mã là onCompleted tự gửi xác minh ngay → chuyển sang "Đang xác minh". Nút "Xác minh" gần như không cần bấm.'],
       ['submitting', 'Đang xác minh', 'Ô mã mờ; nút "Xác minh" có vòng xoay.'],
-      ['error', 'Sai mã', 'Dòng lỗi đỏ; chỉ ô đang focus viền đỏ + vòng đỏ nhạt, các ô khác viền xám, chữ số không đỏ.'],
+      ['error', 'Sai mã', 'Dòng lỗi đỏ; mọi ô viền đỏ, vòng đỏ nhạt chỉ ở ô đang focus, chữ số không đỏ.'],
       ['resend-failed', 'Gửi lại mã lỗi', 'resend() lỗi → câu lỗi mạng hiện đúng chỗ lỗi mã (dưới sáu ô), "Gửi lại mã" bấm lại được.'],
     ],
   },

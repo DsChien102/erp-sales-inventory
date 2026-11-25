@@ -25,6 +25,19 @@ enum VVerificationCodeCharset {
   alphanumeric,
 }
 
+/// How [VVerificationCodeField] lays out its cells.
+enum VVerificationCodeLayout {
+  /// Fixed 48 × 56 cells, shrinking when the column is narrow (default).
+  compact,
+
+  /// Cells share the whole column width equally.
+  fill,
+
+  /// Two groups of four (requires `length == 8`), 5 px between cells and 18 px
+  /// between the groups.
+  split4,
+}
+
 /// Multi-box field for OTP or alphanumeric verification codes.
 ///
 /// Prefer [VField] + [VFieldLabel] / [VFieldDescription] / [VFieldError] for chrome.
@@ -42,6 +55,9 @@ class VVerificationCodeField extends StatefulWidget {
 
   /// Accepted characters. Defaults to [VVerificationCodeCharset.numeric].
   final VVerificationCodeCharset charset;
+
+  /// Cell layout. Defaults to [VVerificationCodeLayout.compact].
+  final VVerificationCodeLayout layout;
 
   /// Called when all [length] characters are filled.
   final ValueChanged<String>? onCompleted;
@@ -74,6 +90,7 @@ class VVerificationCodeField extends StatefulWidget {
   const VVerificationCodeField({
     super.key,
     this.length = 6,
+    this.layout = VVerificationCodeLayout.compact,
     this.charset = VVerificationCodeCharset.numeric,
     this.onCompleted,
     this.onChanged,
@@ -91,11 +108,18 @@ class VVerificationCodeField extends StatefulWidget {
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
     this.enableAutofill = true,
-  }) : assert(length > 0, 'length must be greater than 0');
+  }) : assert(length > 0, 'length must be greater than 0'),
+       assert(
+         layout != VVerificationCodeLayout.split4 || length == 8,
+         'split4 layout requires length == 8',
+       );
 
   @override
   State<VVerificationCodeField> createState() => _VVerificationCodeFieldState();
 }
+
+/// Below this cell width the `fill` layout drops to 48 high / 14 pt digits.
+const double _fillNarrowThreshold = 40;
 
 class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
   late final TextEditingController _controller;
@@ -120,8 +144,7 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     _focusNode = FocusNode()..addListener(_handleFocusChange);
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted &&
-            VComponentScope.resolveEnabled(context, local: widget.enabled)) {
+        if (mounted && VComponentScope.resolveEnabled(context, local: widget.enabled)) {
           _focusNode.requestFocus();
         }
       });
@@ -214,8 +237,9 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     required bool isEnabled,
     required bool useDanger,
     required double borderWidth,
-    required double cellW,
+    required double? cellW,
     required double cellH,
+    required double fontSize,
   }) {
     final code = _code;
     final char = index < code.length ? code[index] : '';
@@ -223,11 +247,10 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
 
     // ignore: deprecated_member_use_from_same_package
     final legacyError = widget.errorText;
-    final restingBorderColor = legacyError != null
+    final restingBorderColor = useDanger
         ? colors.danger
         : switch (widget.tone) {
             VComponentTone.primary => colors.primary,
-            VComponentTone.danger => colors.danger,
             _ => colors.borderInput,
           };
     final focusBorderColor = useDanger ? colors.danger : colors.primary;
@@ -236,12 +259,11 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     final textStyle = VTypography.headingH3.copyWith(
       color: useDanger && legacyError != null ? colors.danger : colors.textPrimary,
       fontWeight: FontWeight.w700,
-      fontSize: cellW < VVerificationCodeField.cellWidth
-          ? VTypography.headingH4.fontSize
-          : VTypography.headingH3.fontSize,
+      fontSize: fontSize,
     );
 
     final cell = SizedBox(
+      key: Key('v-code-cell-$index'),
       width: cellW,
       height: cellH,
       child: DecoratedBox(
@@ -253,21 +275,33 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
           ),
         ),
         child: Center(
-          child: Text(
-            char,
-            style: textStyle,
-            textAlign: TextAlign.center,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              MediaQuery.withClampedTextScaling(
+                maxScaleFactor: 1.3,
+                child: Text(char, style: textStyle, textAlign: TextAlign.center),
+              ),
+              if (focused && char.isEmpty)
+                SizedBox(
+                  key: const Key('v-code-caret'),
+                  width: 2,
+                  height: 22,
+                  child: ColoredBox(color: colors.primary),
+                ),
+            ],
           ),
         ),
       ),
     );
 
-    return VTextFieldFocusRing(
+    final ringed = VTextFieldFocusRing(
       focused: focused,
       danger: useDanger,
       innerRadius: VRadius.input,
       child: cell,
     );
+    return ringed;
   }
 
   Widget _buildHiddenInput({required bool isEnabled}) {
@@ -277,9 +311,7 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
       enabled: isEnabled,
       autofocus: widget.autofocus,
       keyboardType: _isAlphanumeric ? TextInputType.visiblePassword : TextInputType.number,
-      textCapitalization: _isAlphanumeric
-          ? TextCapitalization.characters
-          : TextCapitalization.none,
+      textCapitalization: _isAlphanumeric ? TextCapitalization.characters : TextCapitalization.none,
       showCursor: false,
       enableInteractiveSelection: true,
       style: const TextStyle(color: Colors.transparent, height: 0.01, fontSize: 1),
@@ -313,45 +345,92 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     // ignore: deprecated_member_use_from_same_package
     final legacyRequired = widget.isRequired;
     final hasError = legacyError != null;
-    final isInvalid =
-        VField.resolveInvalid(context, local: widget.invalid) || hasError;
+    final isInvalid = VField.resolveInvalid(context, local: widget.invalid) || hasError;
     final useDanger = isInvalid || widget.tone == VComponentTone.danger;
     final borderWidth = VBorders.widthFor(widget.emphasis);
 
     final control = LayoutBuilder(
       builder: (context, constraints) {
-        final gap = VSpacing.space2;
-        final gapsTotal = gap * (widget.length - 1);
-        final available = constraints.maxWidth.isFinite
-            ? constraints.maxWidth
-            : VVerificationCodeField.cellWidth * widget.length + gapsTotal;
-        final maxCellW = (available - gapsTotal) / widget.length;
-        final cellW = math.min(VVerificationCodeField.cellWidth, maxCellW);
-        final cellH = cellW < VVerificationCodeField.cellWidth
-            ? math.max(48.0, cellW + 8)
-            : VVerificationCodeField.cellHeight;
+        Widget cellAt(
+          int i, {
+          double? w,
+          required double h,
+          required double fontSize,
+        }) => _buildCell(
+          index: i,
+          colors: colors,
+          isEnabled: isEnabled,
+          useDanger: useDanger,
+          borderWidth: borderWidth,
+          cellW: w,
+          cellH: h,
+          fontSize: fontSize,
+        );
+
+        final Widget cells;
+        switch (widget.layout) {
+          case VVerificationCodeLayout.compact:
+            final gap = VSpacing.space2;
+            final gapsTotal = gap * (widget.length - 1);
+            final available = constraints.maxWidth.isFinite
+                ? constraints.maxWidth
+                : VVerificationCodeField.cellWidth * widget.length + gapsTotal;
+            final maxCellW = (available - gapsTotal) / widget.length;
+            final cellW = math.min(VVerificationCodeField.cellWidth, maxCellW);
+            final narrow = cellW < VVerificationCodeField.cellWidth;
+            final cellH = narrow ? math.max(48.0, cellW + 8) : VVerificationCodeField.cellHeight;
+            final fontSize = narrow
+                ? VTypography.headingH4.fontSize!
+                : VTypography.headingH3.fontSize!;
+            cells = Row(
+              children: [
+                for (var i = 0; i < widget.length; i++) ...[
+                  if (i > 0) SizedBox(width: gap),
+                  cellAt(i, w: cellW, h: cellH, fontSize: fontSize),
+                ],
+              ],
+            );
+          case VVerificationCodeLayout.fill:
+            final gap = VSpacing.space2;
+            final gapsTotal = gap * (widget.length - 1);
+            final available = constraints.maxWidth.isFinite
+                ? constraints.maxWidth
+                : VVerificationCodeField.cellWidth * widget.length + gapsTotal;
+            final cellW = (available - gapsTotal) / widget.length;
+            final narrow = cellW < _fillNarrowThreshold;
+            final cellH = narrow ? 48.0 : VVerificationCodeField.cellHeight;
+            final fontSize = narrow
+                ? VTypography.headingH4.fontSize!
+                : VTypography.headingH3.fontSize!;
+            cells = Row(
+              children: [
+                for (var i = 0; i < widget.length; i++) ...[
+                  if (i > 0) SizedBox(width: gap),
+                  Expanded(
+                    child: cellAt(i, h: cellH, fontSize: fontSize),
+                  ),
+                ],
+              ],
+            );
+          case VVerificationCodeLayout.split4:
+            final fontSize = VTypography.headingH3.fontSize!;
+            Widget group(int from) => Expanded(
+              child: Row(
+                children: [
+                  for (var i = from; i < from + 4; i++) ...[
+                    if (i > from) const SizedBox(width: 5),
+                    Expanded(child: cellAt(i, h: 52, fontSize: fontSize)),
+                  ],
+                ],
+              ),
+            );
+            cells = Row(children: [group(0), const SizedBox(width: 18), group(4)]);
+        }
 
         return Stack(
           alignment: Alignment.centerLeft,
           children: [
-            IgnorePointer(
-              child: Row(
-                children: [
-                  for (var i = 0; i < widget.length; i++) ...[
-                    if (i > 0) SizedBox(width: gap),
-                    _buildCell(
-                      index: i,
-                      colors: colors,
-                      isEnabled: isEnabled,
-                      useDanger: useDanger,
-                      borderWidth: borderWidth,
-                      cellW: cellW,
-                      cellH: cellH,
-                    ),
-                  ],
-                ],
-              ),
-            ),
+            IgnorePointer(child: cells),
             Positioned.fill(
               child: Opacity(
                 opacity: 0,
@@ -363,10 +442,8 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
       },
     );
 
-    final useShell = legacyLabel != null ||
-        legacyHelper != null ||
-        legacyError != null ||
-        legacyRequired;
+    final useShell =
+        legacyLabel != null || legacyHelper != null || legacyError != null || legacyRequired;
     final body = useShell
         ? vFieldShell(
             control: control,

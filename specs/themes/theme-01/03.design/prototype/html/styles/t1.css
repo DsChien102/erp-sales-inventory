@@ -92,6 +92,7 @@
 .t1-code--fill .t1-code__cell { flex: 1 1 0; min-width: 0; }
 .t1-code--split { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) 8px repeat(4, minmax(0, 1fr)); gap: 5px; }
 .t1-code--split .t1-code__cell:nth-child(5) { grid-column: 6; }
+.t1-code.is-invalid .t1-code__cell { border-color: var(--c45-v2-text-danger); }
 .t1-code.is-disabled { opacity: var(--c45-v2-opacity-disabled); }
 
 /* _AdministrativeUnitTouchField: 44, đệm ngang 12, viền 1 borderDefault, bo 8 */

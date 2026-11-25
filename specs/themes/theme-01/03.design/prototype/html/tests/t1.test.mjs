@@ -158,3 +158,8 @@ test('Chi tiết hoạt động (iPhone): một thẻ, "Dữ liệu thay đổi"
   assert.match(html, /aria-label="Sao chép mã theo dõi"/);
   assert.doesNotMatch(render('audit-detail', 'actor-unavailable', 'iphone'), /Dữ liệu thay đổi/);
 });
+
+test('codeField invalid: class is-invalid trên thẻ ngoài', () => {
+  assert.match(codeField({ length: 6, columnWidth: 358, fill: true, invalid: true }), /class="t1-code t1-code--fill is-invalid"/);
+  assert.doesNotMatch(codeField({ length: 6, columnWidth: 358, fill: true }), /is-invalid/);
+});
