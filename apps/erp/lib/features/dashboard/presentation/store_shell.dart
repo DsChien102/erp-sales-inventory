@@ -13,6 +13,32 @@ import '../logic/default_pair_gate_cubit.dart';
 import 'widgets/default_pair_gate_error_view.dart';
 import 'widgets/erp_side_navigation.dart';
 
+const _unboundedWidth = VResponsiveValue<double>(
+  mobile: double.infinity,
+  tablet: double.infinity,
+  desktop: double.infinity,
+);
+
+/// Route Theme 1 tự bó cột thân trong trang (10-8): ở ≥ 1024 không bó 1120.
+const _unboundedPrefixes = <String>[
+  '/more/organization-profile',
+  '/more/users',
+  '/more/roles',
+  '/more/audit-logs',
+  '/more/my-account',
+];
+
+/// `true` khi [path] là Trang chủ (`/`) hoặc nằm dưới một route Theme 1 tự bó
+/// cột. So khớp theo đoạn: `/more/users` không dính `/more/users-and-roles`.
+@visibleForTesting
+bool shellRouteIsUnbounded(String path) {
+  if (path == '/') return true;
+  for (final p in _unboundedPrefixes) {
+    if (path == p || path.startsWith('$p/')) return true;
+  }
+  return false;
+}
+
 /// Outer shell for the store area.
 ///
 /// Responsibilities:
@@ -21,7 +47,10 @@ import 'widgets/erp_side_navigation.dart';
 ///   Loading and gate errors are displayed full-screen without navigation rails.
 /// - On wide/desktop viewports (≥ 1024), renders [ErpSideNavigation] (icon rail,
 ///   84px) on the left and limits the content width to [VContentWidth] (1120px),
-///   except on Trang chủ (`/`), which spans the full width and bounds itself.
+///   except on Trang chủ (`/`) and the Theme 1 routes in [shellRouteIsUnbounded],
+///   which span the full width and bound themselves. The path is read from
+///   `GoRouterState.uri.path`: after a `push`, `matchedLocation` stays on the
+///   root page and only `uri` is the pushed one (go_router 17.5).
 /// - On narrow/mobile viewports (< 1024), renders the child as-is (the tab scaffold
 ///   renders the bottom navigation bar on root tab screens).
 class StoreShell extends StatelessWidget {
@@ -169,9 +198,10 @@ class _StoreShellBody extends StatelessWidget {
         if (!isDesktop) {
           return content;
         }
-        // Trang chủ tự bó cột thân (10-8b); route khác giữ bó 1120 đến khi
-        // theme của nó được rà (Q1, 10-8a).
-        final isHome = GoRouterState.of(context).matchedLocation == '/';
+        // Trang chủ (10-8b) và route Theme 1 (10-8d) tự bó cột thân; route khác
+        // giữ bó 1120 đến khi theme của nó được rà. Luôn bọc VContentWidth, chỉ
+        // đổi bề ngang tối đa: đổi hình dạng cây sẽ dựng lại Navigator và mất state.
+        final unbounded = shellRouteIsUnbounded(GoRouterState.of(context).uri.path);
 
         return Material(
           color: context.vColors.background,
@@ -180,7 +210,10 @@ class _StoreShellBody extends StatelessWidget {
             children: [
               const ErpSideNavigation(),
               Expanded(
-                child: isHome ? content : VContentWidth(child: content),
+                child: VContentWidth(
+                  maxWidth: unbounded ? _unboundedWidth : null,
+                  child: content,
+                ),
               ),
             ],
           ),

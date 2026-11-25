@@ -20,7 +20,60 @@ import '../../iam/support/fake_iam_backend.dart';
 import 'fake_default_pair_repository.dart';
 import '../support/fake_home_repository.dart';
 
+class _CounterPage extends StatefulWidget {
+  const _CounterPage();
+
+  @override
+  State<_CounterPage> createState() => _CounterPageState();
+}
+
+class _CounterPageState extends State<_CounterPage> {
+  int n = 0;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: SizedBox.expand(
+      key: const ValueKey('page-/more/users-and-roles'),
+      child: Column(
+        children: [
+          Text('count $n'),
+          TextButton(onPressed: () => setState(() => n++), child: const Text('inc')),
+        ],
+      ),
+    ),
+  );
+}
+
 void main() {
+  test('shellRouteIsUnbounded', () {
+    for (final p in [
+      '/',
+      '/more/organization-profile',
+      '/more/organization-profile/legal',
+      '/more/users',
+      '/more/users/invite',
+      '/more/users/members/m1',
+      '/more/roles',
+      '/more/roles/staff',
+      '/more/audit-logs',
+      '/more/audit-logs/a1',
+      '/more/my-account',
+      '/more/my-account/edit',
+    ]) {
+      expect(shellRouteIsUnbounded(p), isTrue, reason: p);
+    }
+    for (final p in [
+      '/orders',
+      '/more',
+      '/more/users-and-roles',
+      '/more/settings',
+      '/more/receivables',
+      '/warehouse',
+    ]) {
+      expect(shellRouteIsUnbounded(p), isFalse, reason: p);
+    }
+  });
+
   final getIt = GetIt.instance;
 
   setUp(() async {
@@ -144,8 +197,29 @@ void main() {
             GoRoute(
               path: '/warehouse',
               builder: (context, state) => const Scaffold(
-                body: Center(child: Text('WAREHOUSE_PAGE')),
+                body: SizedBox.expand(
+                  key: ValueKey('page-/warehouse'),
+                  child: Center(child: Text('WAREHOUSE_PAGE')),
+                ),
               ),
+            ),
+            GoRoute(
+              path: '/more/users-and-roles',
+              builder: (context, state) => const _CounterPage(),
+            ),
+            ShellRoute(
+              builder: (_, _, child) => child,
+              routes: [
+                GoRoute(
+                  path: '/more/users',
+                  builder: (context, state) => const Scaffold(
+                    body: SizedBox.expand(
+                      key: ValueKey('page-/more/users'),
+                      child: Center(child: Text('USERS_PAGE')),
+                    ),
+                  ),
+                ),
+              ],
             ),
             GoRoute(
               path: '/more/users/invite',
@@ -541,11 +615,54 @@ void main() {
       );
     });
 
-    testWidgets('1280 on /more/my-account: content width ≤ 1120', (tester) async {
+    testWidgets('1280 on /more/my-account: content width 1196', (tester) async {
       final router = createTestRouter(repository: ownerRepo(), initialLocation: '/more/my-account');
       await pumpWide(tester, router);
+      expect(tester.getSize(find.byKey(const ValueKey('page-/more/my-account'))).width, 1196);
+    });
+
+    testWidgets('1280 on /more/users-and-roles: content width ≤ 1120', (tester) async {
+      final router = createTestRouter(
+        repository: ownerRepo(),
+        initialLocation: '/more/users-and-roles',
+      );
+      await pumpWide(tester, router);
       expect(
-        tester.getSize(find.byKey(const ValueKey('page-/more/my-account'))).width,
+        tester.getSize(find.byKey(const ValueKey('page-/more/users-and-roles'))).width,
+        lessThanOrEqualTo(1120),
+      );
+    });
+
+    testWidgets('1280: /more/users pushed from /more/users-and-roles is not boxed', (tester) async {
+      final router = createTestRouter(
+        repository: ownerRepo(),
+        initialLocation: '/more/users-and-roles',
+      );
+      await pumpWide(tester, router);
+      await tester.tap(find.text('inc'));
+      await tester.pump();
+      expect(find.text('count 1'), findsOneWidget);
+
+      router.push('/more/users');
+      await tester.pumpAndSettle();
+      expect(tester.getSize(find.byKey(const ValueKey('page-/more/users'))).width, 1196);
+
+      router.pop();
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSize(find.byKey(const ValueKey('page-/more/users-and-roles'))).width,
+        lessThanOrEqualTo(1120),
+      );
+      expect(find.text('count 1'), findsOneWidget); // State không bị dựng lại
+    });
+
+    testWidgets('1280: /warehouse pushed from / is boxed', (tester) async {
+      final router = createTestRouter(repository: ownerRepo(), initialLocation: '/');
+      await pumpWide(tester, router);
+      router.push('/warehouse');
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSize(find.byKey(const ValueKey('page-/warehouse'))).width,
         lessThanOrEqualTo(1120),
       );
     });
