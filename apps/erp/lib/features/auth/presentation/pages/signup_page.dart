@@ -12,15 +12,20 @@ import '../../data/auth_repository.dart';
 import '../../data/models/signup_input.dart';
 import '../../logic/signup_cubit.dart';
 import '../../logic/signup_state.dart';
+import '../../../../core/config/wide_layout.dart';
+import '../widgets/signup_narrow.dart';
+import '../widgets/signup_wide.dart';
 import '../widgets/verify_email_view.dart';
-import '../auth_layout.dart';
 
 class SignupPage extends StatelessWidget {
-  const SignupPage({super.key, this.auth, this.session, this.cubit});
+  const SignupPage({super.key, this.auth, this.session, this.cubit, this.clock});
 
   final AuthRepository? auth;
   final SessionController? session;
   final SignupCubit? cubit;
+
+  /// Đồng hồ cho bước xác minh (test / golden cố định giờ).
+  final DateTime Function()? clock;
 
   @override
   Widget build(BuildContext context) {
@@ -29,21 +34,22 @@ class SignupPage extends StatelessWidget {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: _SignupView(auth: repository, session: sessionController),
+        child: _SignupView(auth: repository, session: sessionController, clock: clock),
       );
     }
     return BlocProvider(
       create: (_) => SignupCubit(auth: repository, session: sessionController),
-      child: _SignupView(auth: repository, session: sessionController),
+      child: _SignupView(auth: repository, session: sessionController, clock: clock),
     );
   }
 }
 
 class _SignupView extends StatefulWidget {
-  const _SignupView({required this.auth, required this.session});
+  const _SignupView({required this.auth, required this.session, this.clock});
 
   final AuthRepository auth;
   final SessionController session;
+  final DateTime Function()? clock;
 
   @override
   State<_SignupView> createState() => _SignupViewState();
@@ -65,18 +71,13 @@ class _SignupViewState extends State<_SignupView> {
   String? _communeCode;
   Future<List<VnAdministrativeUnit>>? _units;
   final _bannerKey = GlobalKey();
+  final _verifyKey = GlobalKey<State<VerifyEmailView>>();
   final _fieldKeys = {
     for (final field in SignupField.values) field: GlobalKey(),
   };
 
   Future<List<VnAdministrativeUnit>> get _administrativeUnits =>
       _units ??= VnAdministrativeUnitsLoader.load();
-
-  static const _stepLabels = [
-    '1/3 · Tài khoản',
-    '2/3 · Cửa hàng',
-    '3/3 · Xác minh email',
-  ];
 
   @override
   void dispose() {
@@ -190,8 +191,22 @@ class _SignupViewState extends State<_SignupView> {
         }
       },
       builder: (context, state) {
+        final wide = isWideLayout(context);
+        final stepIndex = state.emailExists ? 1 : state.step.index;
+        final banner = (state.failure != null && !state.emailExists)
+            ? VBanner(
+                key: _bannerKey,
+                status: VBannerStatus.error,
+                title: state.failure!,
+              )
+            : null;
+        final content = state.emailExists
+            ? _emailExists(context)
+            : _step(context, state, wide: wide);
         return Scaffold(
-          backgroundColor: context.vColors.surface,
+          backgroundColor: wide
+              ? context.vColors.background
+              : context.vColors.surface,
           appBar: VAppBar(
             title: 'Đăng ký cửa hàng',
             leading: IconButton(
@@ -214,48 +229,44 @@ class _SignupViewState extends State<_SignupView> {
             ),
           ),
           body: SafeArea(
-            child: VContentWidth(
-              maxWidth: authMaxWidth,
-              alignment: Alignment.topCenter,
-              child: ListView(
-                padding: const EdgeInsets.all(VSpacing.screenMobile),
-                children: [
-                  VSteps(
-                    steps: const [
-                      VStepItem(title: 'Tài khoản'),
-                      VStepItem(title: 'Cửa hàng'),
-                      VStepItem(title: 'Xác minh email'),
-                    ],
-                    currentStep: state.step.index,
-                    semanticLabel: _stepLabels[state.step.index],
+            child: wide
+                ? SignupWide(
+                    stepIndex: stepIndex,
+                    banner: banner,
+                    content: content,
+                    footer: (stepIndex == 0 && !state.emailExists)
+                        ? _loginLink(context)
+                        : null,
+                  )
+                : SignupNarrow(
+                    stepIndex: stepIndex,
+                    banner: banner,
+                    content: content,
                   ),
-                  const VGap.lg(),
-                  if (state.failure != null && !state.emailExists) ...[
-                    VBanner(
-                      key: _bannerKey,
-                      status: VBannerStatus.error,
-                      title: state.failure!,
-                    ),
-                    const VGap.md(),
-                  ],
-                  if (state.emailExists) _emailExists(context) else _step(context, state),
-                ],
-              ),
-            ),
           ),
         );
       },
     );
   }
 
-  Widget _step(BuildContext context, SignupState state) {
+  Widget _loginLink(BuildContext context) {
+    return VButton(
+      label: 'Đã có tài khoản? Đăng nhập',
+      variant: VButtonVariant.link,
+      onPressed: () => context.go('/login'),
+    );
+  }
+
+  Widget _step(BuildContext context, SignupState state, {required bool wide}) {
     return switch (state.step) {
-      SignupStep.account => _accountStep(state),
+      SignupStep.account => _accountStep(state, wide: wide),
       SignupStep.store => _storeStep(state),
       SignupStep.verify => VerifyEmailView(
+        key: _verifyKey,
         email: state.account?.email.trim() ?? '',
         auth: widget.auth,
         session: widget.session,
+        clock: widget.clock,
         deferSignedIn: true,
         initialResendCooldown: state.verifyCooldownSeconds == null
             ? null
@@ -267,42 +278,56 @@ class _SignupViewState extends State<_SignupView> {
     };
   }
 
-  Widget _accountStep(SignupState state) {
+  Widget _accountStep(SignupState state, {required bool wide}) {
+    // Họ và tên cùng hàng 3 : 2 chỉ khi chữ không phóng to: nhãn của VFieldLabel không xuống dòng.
+    final stackNames = wide || MediaQuery.textScalerOf(context).scale(14) > 14 * 1.3;
+    final familyName = _field(
+      label: 'Họ và tên đệm',
+      field: SignupField.familyName,
+      state: state,
+      child: VTextField(
+        key: const Key('signup_family_name'),
+        controller: _familyName,
+        hintText: 'Nguyễn Thị',
+        autofillHints: const [AutofillHints.familyName],
+        textInputAction: TextInputAction.next,
+        onChanged: (_) => context.read<SignupCubit>().clearFieldError(
+          SignupField.familyName,
+        ),
+      ),
+    );
+    final givenName = _field(
+      label: 'Tên',
+      field: SignupField.givenName,
+      state: state,
+      child: VTextField(
+        key: const Key('signup_given_name'),
+        controller: _givenName,
+        hintText: 'Lan',
+        autofillHints: const [AutofillHints.givenName],
+        textInputAction: TextInputAction.next,
+        onChanged: (_) => context.read<SignupCubit>().clearFieldError(
+          SignupField.givenName,
+        ),
+      ),
+    );
     return AutofillGroup(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _field(
-            label: 'Họ và tên đệm',
-            field: SignupField.familyName,
-            state: state,
-            child: VTextField(
-              key: const Key('signup_family_name'),
-              controller: _familyName,
-              hintText: 'Nguyễn Thị',
-              autofillHints: const [AutofillHints.familyName],
-              textInputAction: TextInputAction.next,
-              onChanged: (_) => context.read<SignupCubit>().clearFieldError(
-                SignupField.familyName,
-              ),
+          if (stackNames) ...[
+            familyName,
+            const VGap.md(),
+            givenName,
+          ] else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 3, child: familyName),
+                const SizedBox(width: VSpacing.cozy),
+                Expanded(flex: 2, child: givenName),
+              ],
             ),
-          ),
-          const VGap.md(),
-          _field(
-            label: 'Tên',
-            field: SignupField.givenName,
-            state: state,
-            child: VTextField(
-              key: const Key('signup_given_name'),
-              controller: _givenName,
-              hintText: 'Lan',
-              autofillHints: const [AutofillHints.givenName],
-              textInputAction: TextInputAction.next,
-              onChanged: (_) => context.read<SignupCubit>().clearFieldError(
-                SignupField.givenName,
-              ),
-            ),
-          ),
           const VGap.md(),
           _field(
             label: 'Email',
@@ -382,14 +407,10 @@ class _SignupViewState extends State<_SignupView> {
             fullWidth: true,
             onPressed: _continue,
           ),
-          const VGap.md(),
-          Center(
-            child: VButton(
-              label: 'Đã có tài khoản? Đăng nhập',
-              variant: VButtonVariant.link,
-              onPressed: () => context.go('/login'),
-            ),
-          ),
+          if (!wide) ...[
+            const VGap.xs(),
+            Center(child: _loginLink(context)),
+          ],
         ],
       ),
     );
@@ -495,28 +516,39 @@ class _SignupViewState extends State<_SignupView> {
             color: context.vColors.textSecondary,
           ),
           const VGap.lg(),
-          Row(
-            children: [
-              Expanded(
-                child: VButton(
-                  label: 'Quay lại',
-                  variant: VButtonVariant.secondary,
-                  onPressed: state.submitting ? null : () => context.read<SignupCubit>().back(),
-                ),
-              ),
-              const VGap.horizontalMd(),
-              Expanded(
-                child: VButton(
-                  key: const Key('signup_create'),
-                  label: state.submitting ? 'Đang tạo...' : 'Tạo cửa hàng',
-                  isLoading: state.submitting,
-                  onPressed: state.submitting ? null : _createStore,
-                ),
-              ),
-            ],
-          ),
+          _storeActions(state),
         ],
       ),
+    );
+  }
+
+  /// Hai nút bước Cửa hàng: cùng hàng; chữ phóng to thì xếp dọc, nút chính trên.
+  Widget _storeActions(SignupState state) {
+    final back = VButton(
+      label: 'Quay lại',
+      variant: VButtonVariant.secondary,
+      fullWidth: true,
+      onPressed: state.submitting ? null : () => context.read<SignupCubit>().back(),
+    );
+    final create = VButton(
+      key: const Key('signup_create'),
+      label: state.submitting ? 'Đang tạo...' : 'Tạo cửa hàng',
+      isLoading: state.submitting,
+      fullWidth: true,
+      onPressed: state.submitting ? null : _createStore,
+    );
+    if (MediaQuery.textScalerOf(context).scale(14) > 14 * 1.3) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [create, const VGap.md(), back],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: back),
+        const VGap.horizontalMd(),
+        Expanded(child: create),
+      ],
     );
   }
 

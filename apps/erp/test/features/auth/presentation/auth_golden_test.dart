@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/features/auth/data/models/signup_input.dart';
+import 'package:erp/features/auth/logic/signup_cubit.dart';
 import 'package:erp/features/auth/presentation/pages/login_page.dart';
+import 'package:erp/features/auth/presentation/pages/signup_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -157,6 +160,126 @@ void main() {
             await t.pump(const Duration(milliseconds: 100));
           },
         );
+      });
+    }
+  });
+
+  group('signup', () {
+    const account = SignupAccountInput(
+      familyName: 'Nguyễn Thị',
+      givenName: 'Lan',
+      email: 'lan@anphat.vn',
+      password: 'Matkhau@123',
+      confirmPassword: 'Matkhau@123',
+    );
+    const store = SignupStoreInput(
+      name: 'Thú y An Phát',
+      contactPhone: '0912345678',
+      provinceCode: '01',
+      communeCode: '00001',
+      addressText: '12 Nguyễn Trãi',
+    );
+
+    for (final width in const [390, 1280]) {
+      Future<void> run(
+        WidgetTester tester,
+        String name,
+        Future<void> Function(SignupCubit cubit, WidgetTester tester)? act, {
+        ScriptedAuthRepository? auth,
+      }) async {
+        final repo = auth ?? ScriptedAuthRepository();
+        final session = loginSession();
+        final cubit = SignupCubit(auth: repo, session: session);
+        addTearDown(session.close);
+        addTearDown(cubit.close);
+        await captureAuth(
+          tester,
+          width: width,
+          name: name,
+          page: SignupPage(
+            auth: repo,
+            session: session,
+            cubit: cubit,
+            clock: () => DateTime.utc(2026, 11, 25, 9),
+          ),
+          act: () async {
+            await tester.pumpAndSettle();
+            await act?.call(cubit, tester);
+            await tester.pumpAndSettle();
+          },
+        );
+      }
+
+      testWidgets('signup__account $width', (tester) async {
+        await run(tester, 'signup__account', null);
+      });
+      testWidgets('signup__account-errors $width', (tester) async {
+        await run(tester, 'signup__account-errors', (cubit, t) async {
+          cubit.continueToStore(
+            const SignupAccountInput(
+              familyName: '',
+              givenName: '',
+              email: 'lan@anphat',
+              password: 'abc',
+              confirmPassword: '',
+            ),
+          );
+        });
+      });
+      testWidgets('signup__store $width', (tester) async {
+        await run(tester, 'signup__store', (cubit, t) async {
+          cubit.continueToStore(account);
+        });
+      });
+      testWidgets('signup__store-errors $width', (tester) async {
+        await run(tester, 'signup__store-errors', (cubit, t) async {
+          cubit.continueToStore(account);
+          await t.pumpAndSettle();
+          await cubit.createStore(
+            const SignupStoreInput(
+              name: '',
+              contactPhone: '',
+              provinceCode: '',
+              communeCode: '',
+              addressText: '',
+            ),
+          );
+        });
+      });
+      testWidgets('signup__server-error $width', (tester) async {
+        await run(
+          tester,
+          'signup__server-error',
+          (cubit, t) async {
+            cubit.continueToStore(account);
+            await t.pumpAndSettle();
+            await cubit.createStore(store);
+          },
+          auth: ScriptedAuthRepository(
+            signUpError: const AppException('NETWORK_ERROR'),
+          ),
+        );
+      });
+      testWidgets('signup__email-exists $width', (tester) async {
+        await run(
+          tester,
+          'signup__email-exists',
+          (cubit, t) async {
+            cubit.continueToStore(account);
+            await t.pumpAndSettle();
+            await cubit.createStore(store);
+          },
+          auth: ScriptedAuthRepository(
+            signUpError: const AppException('PLATFORM_USER_ALREADY_EXISTS'),
+          ),
+        );
+      });
+      testWidgets('signup__verify $width', (tester) async {
+        await run(tester, 'signup__verify', (cubit, t) async {
+          cubit.continueToStore(account);
+          await t.pumpAndSettle();
+          await cubit.createStore(store);
+        });
       });
     }
   });

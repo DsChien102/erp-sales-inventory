@@ -119,10 +119,12 @@ class VFieldLabel extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              VText(
-                text,
-                variant: VTextVariant.headingH4,
-                color: colors.textPrimary,
+              Flexible(
+                child: VText(
+                  text,
+                  variant: VTextVariant.headingH4,
+                  color: colors.textPrimary,
+                ),
               ),
               if (isRequired)
                 VText(

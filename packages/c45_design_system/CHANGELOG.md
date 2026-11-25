@@ -19,6 +19,8 @@ changelogs when relevant.
 
 ### Fixed
 
+- `VFieldLabel`: nhãn dài xuống dòng thay vì tràn khi chữ phóng to (10-8e).
+
 ### Internal
 
 ## [1.10.0] - 2026-11-25

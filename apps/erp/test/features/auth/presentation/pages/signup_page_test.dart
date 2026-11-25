@@ -3,15 +3,19 @@ import 'package:erp/features/auth/logic/signup_cubit.dart';
 import 'package:erp/features/auth/presentation/pages/signup_page.dart';
 import 'package:erp/core/widgets/address/administrative_units_form_section.dart';
 import 'package:erp/core/widgets/address/vn_administrative_units_loader.dart';
+import 'package:erp/core/widgets/flow/flow_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:c45_design_system/design_system.dart';
 
+import '../../../receivable/presentation/receivable_test_harness.dart' show loadInterFont;
 import '../../support/scripted_auth.dart';
 import '../../support/test_router.dart';
 import 'package:erp/core/errors/app_exception.dart';
 
 void main() {
+  setUpAll(loadInterFont);
+
   testWidgets('administrative unit errors use required labels and danger borders', (
     tester,
   ) async {
@@ -163,6 +167,152 @@ void main() {
     expect(auth.storeSignUps, hasLength(1));
 
     await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  group('bố cục iPhone / web (10-8e)', () {
+    Future<SignupCubit> pumpAt(
+      WidgetTester tester,
+      Size size, {
+      ScriptedAuthRepository? auth,
+      double textScale = 1,
+    }) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = textScale;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final repo = auth ?? ScriptedAuthRepository();
+      final session = loginSession();
+      final cubit = SignupCubit(auth: repo, session: session);
+      addTearDown(session.close);
+      addTearDown(cubit.close);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: SignupPage(auth: repo, session: session, cubit: cubit),
+        ),
+      );
+      await tester.pumpAndSettle();
+      return cubit;
+    }
+
+    const account = SignupAccountInput(
+      familyName: 'Nguyen',
+      givenName: 'Lan',
+      email: 'lan@example.com',
+      password: 'password-1',
+      confirmPassword: 'password-1',
+    );
+    const store = SignupStoreInput(
+      name: 'Thú y An Phát',
+      contactPhone: '0912345678',
+      provinceCode: '01',
+      communeCode: '00001',
+      addressText: '12 Nguyen Trai',
+    );
+    final family = find.byKey(const Key('signup_family_name'));
+    final given = find.byKey(const Key('signup_given_name'));
+
+    testWidgets('390: names share a row 3 : 2', (tester) async {
+      await pumpAt(tester, const Size(390, 844));
+      expect(tester.getTopLeft(family).dy, tester.getTopLeft(given).dy);
+      final ratio = tester.getSize(family).width / tester.getSize(given).width;
+      expect(ratio, moreOrLessEquals(1.5, epsilon: 0.05));
+    });
+
+    testWidgets('390: error under one name keeps the row aligned at top', (
+      tester,
+    ) async {
+      await pumpAt(tester, const Size(390, 844));
+      await tester.enterText(given, 'Lan');
+      await tester.tap(find.byKey(const Key('signup_continue')));
+      await tester.pumpAndSettle();
+      expect(find.text('Vui lòng nhập họ và tên đệm'), findsOneWidget);
+      expect(tester.getTopLeft(family).dy, tester.getTopLeft(given).dy);
+    });
+
+    testWidgets('1280: card 488 wide, names stacked, login link under the card', (
+      tester,
+    ) async {
+      await pumpAt(tester, const Size(1280, 800));
+      final card = tester.getRect(find.byType(FlowCard));
+      expect(card.width, 488);
+      expect(
+        tester.getTopLeft(family).dy,
+        lessThan(tester.getTopLeft(given).dy),
+      );
+      expect(tester.getTopLeft(family).dx, tester.getTopLeft(given).dx);
+      expect(
+        tester.getTopLeft(find.text('Đã có tài khoản? Đăng nhập')).dy,
+        greaterThanOrEqualTo(card.bottom),
+      );
+      expect(find.text('Tài khoản'), findsWidgets);
+    });
+
+    testWidgets('1280: step 2 and 3 have no login link', (tester) async {
+      final cubit = await pumpAt(tester, const Size(1280, 800));
+      cubit.continueToStore(account);
+      await tester.pumpAndSettle();
+      expect(find.text('Đã có tài khoản? Đăng nhập'), findsNothing);
+      await cubit.createStore(store);
+      await tester.pumpAndSettle();
+      expect(find.text('Xác minh'), findsWidgets);
+      expect(find.text('Đã có tài khoản? Đăng nhập'), findsNothing);
+    });
+
+    testWidgets('resizing keeps typed values and the step', (tester) async {
+      final cubit = await pumpAt(tester, const Size(900, 800));
+      cubit.continueToStore(account);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('signup_store_name')),
+        'Thú y Mới',
+      );
+      for (final size in const [Size(700, 800), Size(900, 800)]) {
+        tester.view.physicalSize = size;
+        await tester.pumpAndSettle();
+        expect(find.text('Thú y Mới'), findsOneWidget);
+        expect(find.byKey(const Key('signup_create')), findsOneWidget);
+      }
+    });
+
+    testWidgets('resizing at step 3 keeps the typed code and cooldown', (
+      tester,
+    ) async {
+      final auth = ScriptedAuthRepository();
+      final cubit = await pumpAt(tester, const Size(900, 800), auth: auth);
+      cubit.continueToStore(account);
+      await cubit.createStore(store);
+      await tester.pumpAndSettle();
+      final code = find.descendant(
+        of: find.byKey(const Key('otp_code_field')),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(code, '123');
+      await tester.pump();
+
+      for (final size in const [Size(700, 800), Size(900, 800)]) {
+        tester.view.physicalSize = size;
+        await tester.pumpAndSettle();
+        expect(tester.widget<TextField>(code).controller?.text, '123');
+        expect(find.textContaining('Gửi lại mã sau'), findsOneWidget);
+      }
+      expect(auth.resentEmails, isEmpty);
+      expect(auth.otpCodes, isEmpty);
+    });
+
+    testWidgets('320 at text scale 2.0 does not overflow', (tester) async {
+      final cubit = await pumpAt(
+        tester,
+        const Size(320, 568),
+        textScale: 2,
+      );
+      expect(tester.takeException(), isNull);
+      cubit.continueToStore(account);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
   });
 
   group('hành vi giữ nguyên khi đổi bố cục', () {
