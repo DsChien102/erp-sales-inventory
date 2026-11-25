@@ -7,6 +7,7 @@ import 'package:erp/features/auth/data/models/signup_input.dart';
 import 'package:erp/features/auth/logic/signup_cubit.dart';
 import 'package:erp/features/auth/presentation/pages/login_page.dart';
 import 'package:erp/features/auth/presentation/pages/signup_page.dart';
+import 'package:erp/features/auth/presentation/pages/verify_email_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -280,6 +281,86 @@ void main() {
           await t.pumpAndSettle();
           await cubit.createStore(store);
         });
+      });
+    }
+  });
+
+  group('verify', () {
+    for (final width in const [390, 1280]) {
+      Future<void> run(
+        WidgetTester tester,
+        String name, {
+        ScriptedAuthRepository? auth,
+        Future<void> Function(WidgetTester)? act,
+        bool settle = true,
+      }) async {
+        final repo = auth ?? ScriptedAuthRepository();
+        final session = loginSession();
+        addTearDown(session.close);
+        await captureAuth(
+          tester,
+          width: width,
+          name: name,
+          page: VerifyEmailPage(
+            email: 'lan@anphat.vn',
+            auth: repo,
+            session: session,
+            clock: () => DateTime.utc(2026, 11, 25, 9),
+          ),
+          act: () async {
+            await act?.call(tester);
+            if (settle) {
+              await tester.pumpAndSettle();
+            } else {
+              await tester.pump(const Duration(milliseconds: 500));
+            }
+          },
+        );
+      }
+
+      testWidgets('verify__default $width', (tester) async {
+        await run(tester, 'verify__default');
+      });
+      testWidgets('verify__countdown $width', (tester) async {
+        await run(
+          tester,
+          'verify__countdown',
+          act: (t) async {
+            await t.tap(find.byKey(const Key('signup_resend')));
+            await t.pumpAndSettle();
+          },
+        );
+      });
+      testWidgets('verify__error $width', (tester) async {
+        await run(
+          tester,
+          'verify__error',
+          auth: ScriptedAuthRepository()
+            ..verifyError = const AppException('OTP_INVALID'),
+          act: (t) async {
+            await t.enterText(
+              find.descendant(
+                of: find.byKey(const Key('otp_code_field')),
+                matching: find.byType(TextField),
+              ),
+              '123456',
+            );
+            await t.pumpAndSettle();
+          },
+        );
+      });
+      testWidgets('verify__resend-failed $width', (tester) async {
+        await run(
+          tester,
+          'verify__resend-failed',
+          auth: ScriptedAuthRepository()
+            ..resendError = const AppException(AppErrorCode.network),
+          settle: false,
+          act: (t) async {
+            await t.tap(find.byKey(const Key('signup_resend')));
+            await t.pump();
+          },
+        );
       });
     }
   });
