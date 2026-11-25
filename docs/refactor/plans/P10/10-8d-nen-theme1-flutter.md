@@ -441,4 +441,16 @@ Expected: FAIL
 
 ## Kết quả
 
+Làm xong 5 task (commit `79ab689e4`…, nhánh `dev`).
+
+- Task 1: DS `VVerificationCodeLayout` + lỗi đỏ cả dãy + con trỏ; prototype sửa `is-invalid`, chụp lại `verify__error`. Test DS 14/14; màn dùng ô mã 51/51.
+- Task 2: `VStepProgress`, `VConfirmDialog` 440, DS 1.10.0; test components 207/207. `pricing_pages_test` còn 6 ca đỏ đã có trong TEST-BASELINE. `component_audit` chạy lại và kéo theo ~340 dòng snapshot lệch sẵn từ trước.
+- Golden `flutter-foundation-{390,1280}`: cỡ ô, khe, màu, con trỏ khớp prototype. **Lệch:** ở 390 nhãn bước 3 "3. Xác minh email" bị cắt `…` (cột 114 px; prototype vừa 111 px) — số đo Inter trong môi trường test; cần xem trên máy thật.
+- Task 3: `isWideLayout`, `shellRouteIsUnbounded`; luôn bọc `VContentWidth` (chỉ đổi bề ngang) nên ca bộ đếm xanh. 10 ca `home_golden_test` đỏ trước và sau y hệt (đối chiếu `git stash`).
+- Task 4: `AppLogo`, icon 256 vào bundle, hai PDF dùng icon (lỗi nạp → không icon). Test 82/82.
+- Task 5: TH-01, LUONG-UNG-DUNG, CHECKLIST ID-18b, README + chú thích prototype. PLAN.md dòng Theme 1 đã có link 10-8d…k nên giữ nguyên.
+- `check_feature_imports`: vi phạm R1 ở pricing có sẵn, không thêm mới.
+
 ## Review
+
+Tự rà (không dùng subagent); chưa có review khác phiên.
