@@ -21,6 +21,21 @@ changelogs when relevant.
 
 ### Internal
 
+## [1.10.0] - 2026-11-25
+
+### Added
+
+- `VVerificationCodeLayout` (`compact` / `fill` / `split4`) và tham số `VVerificationCodeField.layout`; con trỏ đứng yên ở ô đang nhập còn trống (10-8d).
+- `VStepProgress` (`standard` / `mobile`): thanh tiến độ các bước, mỗi bước một đoạn cao 4 + nhãn "n. Tên bước" (10-8d).
+
+### Changed
+
+- `VConfirmDialog` rộng tối đa 440, đệm 24 khi cửa sổ ≥ 1024 (trước đó rộng theo cửa sổ).
+
+### Fixed
+
+- `VVerificationCodeField`: khi lỗi (`VField.invalid`, `invalid`, `errorText`) cả dãy ô viền `danger`, không chỉ ô đang focus.
+
 ## [1.9.0] - 2026-11-24
 
 ### Added

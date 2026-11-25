@@ -38,13 +38,17 @@ class VConfirmDialog extends StatelessWidget {
       Semantics(
         label: semanticLabel ?? title,
         child: Dialog(
+          constraints: const BoxConstraints(minWidth: 280, maxWidth: 440),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(VRadius.sheet),
           ),
           backgroundColor: dynamicColors.surface,
           elevation: 24,
           child: Padding(
-            padding: const EdgeInsets.all(VSpacing.space5),
+            key: const Key('v-confirm-dialog-body'),
+            padding: EdgeInsets.all(
+              MediaQuery.sizeOf(context).width >= 1024 ? VSpacing.space6 : VSpacing.space5,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,

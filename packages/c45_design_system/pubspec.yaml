@@ -1,6 +1,6 @@
 name: c45_design_system
 description: "Mosaic Retail Company Design System Package"
-version: 1.9.0
+version: 1.10.0
 publish_to: none
 resolution: workspace
 

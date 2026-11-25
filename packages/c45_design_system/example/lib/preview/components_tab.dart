@@ -1019,6 +1019,25 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           ),
         ),
         PreviewSection(
+          title: 'VStepProgress',
+          description: 'Thanh tiến độ các bước (đăng ký, đặt lại mật khẩu): standard (web) và mobile (iPhone).',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              VStepProgress(
+                titles: ['Tài khoản', 'Cửa hàng', 'Xác minh email'],
+                currentIndex: 1,
+              ),
+              VGap.lg(),
+              VStepProgress(
+                titles: ['Tài khoản', 'Cửa hàng', 'Xác minh email'],
+                currentIndex: 1,
+                variant: VStepProgressVariant.mobile,
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
           title: 'VSteps',
           description:
               'Hiển thị các bước tiến trình dạng ngang (stepper) hoặc dạng danh sách (list).',

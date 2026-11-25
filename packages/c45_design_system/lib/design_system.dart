@@ -85,6 +85,7 @@ export 'src/components/v_app_bar.dart';
 export 'src/components/v_table.dart';
 export 'src/components/v_loading.dart';
 export 'src/components/v_steps.dart';
+export 'src/components/v_step_progress.dart';
 export 'src/components/v_progress.dart';
 export 'src/components/v_segmented_control.dart';
 export 'src/components/v_numeric_keypad_sheet.dart';
