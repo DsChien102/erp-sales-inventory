@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:c45_design_system/design_system.dart';
 import '../../support/scripted_auth.dart';
+import '../../support/test_router.dart';
 
 void main() {
   testWidgets('no-organization page scrolls at large text on a small screen', (
@@ -47,5 +48,35 @@ void main() {
     expect(find.textContaining('Tạo tổ chức'), findsNothing);
     expect(find.textContaining('Đăng ký cửa hàng'), findsNothing);
     expect(find.text('Quản trị nền tảng'), findsNothing);
+  });
+
+  Future<TestRouter> pumpNoOrg(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final session = loginSession();
+    addTearDown(session.close);
+    final harness = TestRouter(
+      initial: '/no-organization',
+      pages: {'/no-organization': NoOrganizationPage(session: session)},
+    );
+    await tester.pumpWidget(harness.app());
+    await tester.pumpAndSettle();
+    return harness;
+  }
+
+  testWidgets('invite goes to invitation', (tester) async {
+    await pumpNoOrg(tester);
+    await tester.tap(find.byKey(const Key('no_organization_invite')));
+    await tester.pumpAndSettle();
+    expect(find.text('INVITATION_PAGE'), findsOneWidget);
+  });
+
+  testWidgets('sign out goes to login', (tester) async {
+    await pumpNoOrg(tester);
+    await tester.tap(find.byKey(const Key('no_organization_sign_out')));
+    await tester.pumpAndSettle();
+    expect(find.text('LOGIN_PAGE'), findsOneWidget);
   });
 }

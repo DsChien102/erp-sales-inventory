@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:c45_design_system/design_system.dart';
 
 import '../../support/scripted_auth.dart';
+import '../../support/test_router.dart';
+import 'package:erp/core/errors/app_exception.dart';
 
 void main() {
   testWidgets('administrative unit errors use required labels and danger borders', (
@@ -161,5 +163,159 @@ void main() {
     expect(auth.storeSignUps, hasLength(1));
 
     await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  group('hành vi giữ nguyên khi đổi bố cục', () {
+    Future<({TestRouter harness, ScriptedAuthRepository auth, SignupCubit cubit})>
+    pumpSignup(
+      WidgetTester tester, {
+      ScriptedAuthRepository? auth,
+      String initial = '/signup',
+    }) async {
+      tester.view.physicalSize = const Size(390, 1200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final repo = auth ?? ScriptedAuthRepository();
+      final session = loginSession();
+      final cubit = SignupCubit(auth: repo, session: session);
+      addTearDown(session.close);
+      addTearDown(cubit.close);
+      final harness = TestRouter(
+        initial: initial,
+        pages: {
+          '/signup': SignupPage(auth: repo, session: session, cubit: cubit),
+        },
+      );
+      await tester.pumpWidget(harness.app());
+      await tester.pumpAndSettle();
+      return (harness: harness, auth: repo, cubit: cubit);
+    }
+
+    Future<void> fillAccount(WidgetTester tester) async {
+      for (final entry in {
+        'signup_family_name': 'Nguyen',
+        'signup_given_name': 'Lan',
+        'signup_email': 'lan@example.com',
+        'signup_password': 'password-1',
+        'signup_confirm_password': 'password-1',
+      }.entries) {
+        await tester.enterText(find.byKey(Key(entry.key)), entry.value);
+      }
+      final next = find.byKey(const Key('signup_continue'));
+      await tester.ensureVisible(next);
+      await tester.pumpAndSettle();
+      await tester.tap(next);
+      await tester.pumpAndSettle();
+    }
+
+    const store = SignupStoreInput(
+      name: 'Thú y An Phát',
+      contactPhone: '0912345678',
+      provinceCode: '01',
+      communeCode: '00001',
+      addressText: '12 Nguyen Trai',
+    );
+
+    testWidgets('back from store step returns to account', (tester) async {
+      await pumpSignup(tester);
+      await fillAccount(tester);
+      expect(find.byKey(const Key('signup_create')), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Quay lại'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('signup_continue')), findsOneWidget);
+      expect(find.byKey(const Key('signup_create')), findsNothing);
+    });
+
+    testWidgets('back from account goes to login', (tester) async {
+      await pumpSignup(tester);
+      await tester.tap(find.byTooltip('Quay lại'));
+      await tester.pumpAndSettle();
+      expect(find.text('LOGIN_PAGE'), findsOneWidget);
+    });
+
+    testWidgets('server error banner is scrolled into view', (tester) async {
+      final r = await pumpSignup(
+        tester,
+        auth: ScriptedAuthRepository(signUpError: const AppException('NETWORK_ERROR')),
+      );
+      tester.view.physicalSize = const Size(390, 500);
+      await tester.pumpAndSettle();
+      await fillAccount(tester);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -2000));
+      await tester.pumpAndSettle();
+
+      await r.cubit.createStore(store);
+      await tester.pumpAndSettle();
+
+      final banner = find.byType(VBanner);
+      expect(banner, findsOneWidget);
+      final top = tester.getTopLeft(banner).dy;
+      expect(top, greaterThanOrEqualTo(0));
+      expect(top, lessThan(500));
+    });
+
+    testWidgets('contact email defaults to account email', (tester) async {
+      await pumpSignup(tester);
+      await fillAccount(tester);
+      final field = tester.widget<TextField>(
+        find.descendant(
+          of: find.byKey(const Key('signup_contact_email')),
+          matching: find.byType(TextField),
+        ),
+      );
+      expect(field.controller?.text, 'lan@example.com');
+    });
+
+    testWidgets('email exists: login carries the email', (tester) async {
+      final r = await pumpSignup(
+        tester,
+        auth: ScriptedAuthRepository(
+          signUpError: const AppException('PLATFORM_USER_ALREADY_EXISTS'),
+        ),
+      );
+      await fillAccount(tester);
+      await r.cubit.createStore(store);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Email đã được đăng ký'), findsOneWidget);
+      expect(find.text('Quên mật khẩu'), findsOneWidget);
+      await tester.tap(find.widgetWithText(VButton, 'Đăng nhập'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('LOGIN_PAGE'), findsOneWidget);
+      expect(r.harness.extras['/login'], {'prefilledEmail': 'lan@example.com'});
+    });
+
+    testWidgets('completed shows welcome toast and goes home', (tester) async {
+      final r = await pumpSignup(tester);
+      await fillAccount(tester);
+      await r.cubit.createStore(
+        const SignupStoreInput(
+          name: 'Thú y Minh Phát',
+          contactPhone: '0912345678',
+          provinceCode: '01',
+          communeCode: '00001',
+          addressText: '12 Nguyen Trai',
+        ),
+      );
+      await tester.pumpAndSettle();
+      await r.cubit.completeAfterVerification('user-9');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.byType(VToast), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(VToast),
+          matching: find.textContaining('Thú y Minh Phát đã sẵn sàng'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('HOME_PAGE'), findsOneWidget);
+      await tester.pumpAndSettle(const Duration(seconds: 10));
+    });
   });
 }

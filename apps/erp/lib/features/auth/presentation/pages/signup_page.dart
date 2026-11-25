@@ -524,7 +524,7 @@ class _SignupViewState extends State<_SignupView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const VFieldError('Email đã được đăng ký'),
+        const VField(invalid: true, child: VFieldError('Email đã được đăng ký')),
         const VGap.lg(),
         VButton(
           label: 'Đăng nhập',
