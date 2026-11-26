@@ -80,7 +80,7 @@ class OrganizationEmptyView extends StatelessWidget {
         iconColor = colors.warning;
         title = 'Không có quyền xem tổ chức';
         titleColor = null;
-        description = 'Liên hệ chủ cửa hàng để được cấp quyền quản lý tổ chức nền tảng.';
+        description = 'Liên hệ chủ cửa hàng để được cấp quyền quản lý tổ chức.';
         actionLabel = 'Quay lại';
         break;
     }

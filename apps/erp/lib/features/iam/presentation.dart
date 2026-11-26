@@ -36,6 +36,7 @@ export 'presentation/organization_profile/views/organization_legal_profile_form_
 export 'logic/organization_profile_cubit.dart';
 export 'logic/organization_profile_state.dart';
 export 'logic/organization_profile_form_input.dart';
+export 'presentation/organization_profile/widgets/entity_type_segment.dart';
 export 'presentation/organization_profile/widgets/organization_profile_actions_bottom_sheet.dart';
 export 'presentation/organization_profile/widgets/tax_code_duplicate_warning_bottom_sheet.dart';
 export 'logic/roles_cubit.dart';

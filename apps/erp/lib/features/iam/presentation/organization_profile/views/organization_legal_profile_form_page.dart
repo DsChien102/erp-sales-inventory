@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:c45_design_system/design_system.dart';
+import 'package:erp/core/config/wide_layout.dart';
 import 'package:erp/core/validation/tax_code_input_formatter.dart';
 import 'package:erp/core/validation/tax_code.dart';
-import 'package:erp/features/iam/data/models/tenant_profile.dart';
 import 'package:erp/features/iam/data/organization_repository.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 
@@ -15,6 +15,9 @@ import '../../../logic/organization_profile_state.dart';
 import '../data/vn_administrative_units_loader.dart';
 import '../mappers/organization_profile_ui_mapper.dart';
 import '../widgets/administrative_units_form_section.dart';
+import '../widgets/entity_type_segment.dart';
+import '../widgets/organization_legal_narrow.dart';
+import '../widgets/organization_legal_wide.dart';
 import '../widgets/tax_code_duplicate_warning_bottom_sheet.dart';
 
 /// Trang Thêm / Chỉnh sửa hồ sơ pháp lý (TA-D-03 & TA-D-04 / S12).
@@ -82,6 +85,13 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
   String? _entityTypeError;
   String? _legalNameError;
   String? _taxCodeError;
+
+  final _entityKey = GlobalKey();
+  final _nameKey = GlobalKey();
+  final _taxKey = GlobalKey();
+  final _addressKey = GlobalKey();
+  final _provinceKey = GlobalKey();
+  final _communeKey = GlobalKey();
 
   @override
   void initState() {
@@ -168,47 +178,49 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
     );
   }
 
-  bool _validateLocal() {
+  ({bool ok, bool hasMissing}) _validateLocal() {
     var ok = true;
+    var hasMissing = false;
     if (_selectedEntityType == null || _selectedEntityType!.isEmpty) {
       _entityTypeError = 'Vui lòng chọn loại chủ thể';
       ok = false;
+      hasMissing = true;
     } else {
       _entityTypeError = null;
     }
     if (_legalNameController.text.trim().isEmpty) {
       _legalNameError = 'Vui lòng nhập tên pháp lý';
       ok = false;
+      hasMissing = true;
     } else {
       _legalNameError = null;
     }
     final tax = _taxCodeController.text.trim();
-    final type = LegalEntityTypeCodes.fromCode(_selectedEntityType);
     if (tax.isEmpty) {
       _taxCodeError = 'Vui lòng nhập mã số thuế';
       ok = false;
-    } else if (type != null) {
-      if (!isValidTaxCode(tax)) {
-        _taxCodeError = taxCodeFormatMessage;
-        ok = false;
-      } else {
-        _taxCodeError = null;
-      }
+      hasMissing = true;
+    } else if (!isValidTaxCode(tax)) {
+      _taxCodeError = taxCodeFormatMessage;
+      ok = false;
     } else {
       _taxCodeError = null;
     }
     setState(() {});
-    return ok;
+    return (ok: ok, hasMissing: hasMissing);
   }
 
   Future<void> _save(BuildContext context) async {
-    if (!_validateLocal()) {
-      VToast.show(
-        context,
-        title: 'Thiếu thông tin',
-        message: 'Vui lòng điền đầy đủ các thông tin bắt buộc',
-        type: VToastType.danger,
-      );
+    final validation = _validateLocal();
+    if (!validation.ok) {
+      if (validation.hasMissing) {
+        VToast.show(
+          context,
+          title: 'Thiếu thông tin',
+          message: 'Vui lòng điền đầy đủ các thông tin bắt buộc',
+          type: VToastType.danger,
+        );
+      }
       return;
     }
 
@@ -236,37 +248,35 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
       _showingDuplicateSheet = true;
       await showVAdaptiveSheet<void>(
         context: context,
-        child: Builder(
-          builder: (sheetContext) => TaxCodeDuplicateWarningBottomSheet(
-            message: state.duplicateWarning!.message,
-            onSaveAnyway: () async {
-              final confirmed = await cubit.confirmDuplicateLegal();
-              if (!context.mounted) return;
-              _showingDuplicateSheet = false;
-              if (confirmed) {
-                VToast.show(
-                  context,
-                  title: cubit.state.successMessage ?? 'Đã lưu hồ sơ pháp lý.',
-                  message: '',
-                  type: VToastType.success,
-                );
-                cubit.clearFeedback();
-                Navigator.of(sheetContext).pop(true);
-              } else if (cubit.state.failure != null) {
-                VToast.show(
-                  context,
-                  title: 'Không lưu được',
-                  message: cubit.state.failure!.message,
-                  type: VToastType.danger,
-                );
-                cubit.clearFeedback();
-              }
-            },
-            onReview: () {
-              _showingDuplicateSheet = false;
-              cubit.dismissDuplicateWarning();
-            },
-          ),
+        child: TaxCodeDuplicateWarningBottomSheet(
+          message: state.duplicateWarning!.message,
+          onSaveAnyway: () async {
+            final confirmed = await cubit.confirmDuplicateLegal();
+            if (!context.mounted) return;
+            _showingDuplicateSheet = false;
+            if (confirmed) {
+              VToast.show(
+                context,
+                title: cubit.state.successMessage ?? 'Đã lưu hồ sơ pháp lý.',
+                message: '',
+                type: VToastType.success,
+              );
+              cubit.clearFeedback();
+              Navigator.of(context).pop(true);
+            } else if (cubit.state.failure != null) {
+              VToast.show(
+                context,
+                title: 'Không lưu được',
+                message: cubit.state.failure!.message,
+                type: VToastType.danger,
+              );
+              cubit.clearFeedback();
+            }
+          },
+          onReview: () {
+            _showingDuplicateSheet = false;
+            cubit.dismissDuplicateWarning();
+          },
         ),
       );
       _showingDuplicateSheet = false;
@@ -324,7 +334,146 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
           }
         }
 
-        final colors = context.vColors;
+        final wide = isWideLayout(context);
+        final entityField = KeyedSubtree(
+          key: _entityKey,
+          child: VField(
+            invalid: _entityTypeError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Loại chủ thể', isRequired: true),
+                if (wide)
+                  VSelect<String>(
+                    hintText: 'Chọn loại chủ thể',
+                    value: _selectedEntityType,
+                    tone: _entityTypeError != null
+                        ? VComponentTone.danger
+                        : VComponentTone.neutral,
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'ENTERPRISE',
+                        child: VText('Doanh nghiệp'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'HOUSEHOLD_BUSINESS',
+                        child: VText('Hộ kinh doanh'),
+                      ),
+                    ],
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedEntityType = val;
+                        _entityTypeError = null;
+                      });
+                    },
+                  )
+                else
+                  EntityTypeSegment(
+                    value: _selectedEntityType,
+                    invalid: _entityTypeError != null,
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedEntityType = val;
+                        _entityTypeError = null;
+                      });
+                    },
+                  ),
+                if (_entityTypeError != null) VFieldError(_entityTypeError!),
+              ],
+            ),
+          ),
+        );
+        final nameField = KeyedSubtree(
+          key: _nameKey,
+          child: VField(
+            invalid: _legalNameError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Tên pháp lý', isRequired: true),
+                VTextField(
+                  hintText: 'Nhập tên pháp lý',
+                  controller: _legalNameController,
+                  tone: _legalNameError != null
+                      ? VComponentTone.danger
+                      : VComponentTone.neutral,
+                  onChanged: (_) {
+                    if (_legalNameError != null) {
+                      setState(() => _legalNameError = null);
+                    }
+                  },
+                ),
+                if (_legalNameError != null) VFieldError(_legalNameError!),
+              ],
+            ),
+          ),
+        );
+        final taxField = KeyedSubtree(
+          key: _taxKey,
+          child: VField(
+            invalid: _taxCodeError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Mã số thuế', isRequired: true),
+                VTextField(
+                  hintText: 'Nhập mã số thuế',
+                  controller: _taxCodeController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [TaxCodeInputFormatter()],
+                  tone: _taxCodeError != null
+                      ? VComponentTone.danger
+                      : VComponentTone.neutral,
+                  onChanged: (_) {
+                    if (_taxCodeError != null) {
+                      setState(() => _taxCodeError = null);
+                    }
+                  },
+                ),
+                if (_taxCodeError != null)
+                  VFieldError(_taxCodeError!)
+                else
+                  const VFieldDescription(
+                    '10 hoặc 12 chữ số; chi nhánh nhập đủ 13 số, dấu gạch tự thêm.',
+                  ),
+              ],
+            ),
+          ),
+        );
+        final addressField = KeyedSubtree(
+          key: _addressKey,
+          child: VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Địa chỉ đăng ký'),
+                VTextField(
+                  hintText: 'Nhập địa chỉ đăng ký',
+                  controller: _addressController,
+                ),
+              ],
+            ),
+          ),
+        );
+        final unitsSection = AdministrativeUnitsFormSection(
+          unitsFuture: _unitsFuture,
+          selectedProvinceCode: _selectedProvinceCode,
+          selectedCommuneCode: _selectedCommuneCode,
+          provinceKey: _provinceKey,
+          communeKey: _communeKey,
+          direction: wide ? Axis.horizontal : Axis.vertical,
+          inputBorder: !wide,
+          onProvinceChanged: (code) {
+            setState(() {
+              _selectedProvinceCode = code;
+              _selectedCommuneCode = null;
+            });
+          },
+          onCommuneChanged: (code) {
+            setState(() => _selectedCommuneCode = code);
+          },
+        );
+
         return PopScope(
           canPop: !_hasChanges || state.isSubmittingLegal,
           onPopInvokedWithResult: (didPop, _) {
@@ -354,128 +503,28 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                       tone: VComponentTone.success,
                       fullWidth: true,
                       isLoading: state.isSubmittingLegal,
-                      onPressed: state.isSubmittingLegal ? null : () => _save(context),
+                      onPressed:
+                          state.isSubmittingLegal ? null : () => _save(context),
                     ),
                   ),
                 ],
               ),
             ),
-            body: ListView(
-              padding: const EdgeInsets.all(VSpacing.screenMobile),
-              children: [
-                VText(
-                  'Thay đổi hiện tại không làm thay đổi chứng từ lịch sử.',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
-                ),
-                const VGap.md(),
-                VField(
-                  invalid: _entityTypeError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Loại chủ thể'),
-                      VSelect<String>(
-                        hintText: 'Chọn loại chủ thể',
-                        value: _selectedEntityType,
-                        tone: _entityTypeError != null
-                            ? VComponentTone.danger
-                            : VComponentTone.neutral,
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'ENTERPRISE',
-                            child: VText('Doanh nghiệp'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'HOUSEHOLD_BUSINESS',
-                            child: VText('Hộ kinh doanh'),
-                          ),
-                        ],
-                        onChanged: (val) {
-                          setState(() {
-                            _selectedEntityType = val;
-                            _entityTypeError = null;
-                          });
-                        },
-                      ),
-                      if (_entityTypeError != null) VFieldError(_entityTypeError!),
-                    ],
+            body: wide
+                ? OrganizationLegalWide(
+                    entityField: entityField,
+                    nameField: nameField,
+                    taxField: taxField,
+                    addressField: addressField,
+                    unitsSection: unitsSection,
+                  )
+                : OrganizationLegalNarrow(
+                    entityField: entityField,
+                    nameField: nameField,
+                    taxField: taxField,
+                    addressField: addressField,
+                    unitsSection: unitsSection,
                   ),
-                ),
-                const VGap.md(),
-                VField(
-                  invalid: _legalNameError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Tên pháp lý', isRequired: true),
-                      VTextField(
-                        hintText: 'Nhập tên pháp lý',
-                        controller: _legalNameController,
-                        tone: _legalNameError != null
-                            ? VComponentTone.danger
-                            : VComponentTone.neutral,
-                      ),
-                      if (_legalNameError != null) VFieldError(_legalNameError!),
-                    ],
-                  ),
-                ),
-                const VGap.md(),
-                VField(
-                  invalid: _taxCodeError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Mã số thuế', isRequired: true),
-                      VTextField(
-                        hintText: 'Nhập mã số thuế',
-                        controller: _taxCodeController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [TaxCodeInputFormatter()],
-                        tone: _taxCodeError != null
-                            ? VComponentTone.danger
-                            : VComponentTone.neutral,
-                      ),
-                      if (_taxCodeError != null)
-                        VFieldError(_taxCodeError!)
-                      else
-                        const VFieldDescription(
-                          '10 hoặc 12 chữ số; chi nhánh nhập đủ 13 số, dấu gạch tự thêm.',
-                        ),
-                    ],
-                  ),
-                ),
-                const VGap.md(),
-                VField(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Địa chỉ đăng ký'),
-                      VTextField(
-                        hintText: 'Nhập địa chỉ đăng ký',
-                        controller: _addressController,
-                      ),
-                    ],
-                  ),
-                ),
-                const VGap.md(),
-                AdministrativeUnitsFormSection(
-                  unitsFuture: _unitsFuture,
-                  selectedProvinceCode: _selectedProvinceCode,
-                  selectedCommuneCode: _selectedCommuneCode,
-                  onProvinceChanged: (code) {
-                    setState(() {
-                      _selectedProvinceCode = code;
-                      _selectedCommuneCode = null;
-                    });
-                  },
-                  onCommuneChanged: (code) {
-                    setState(() => _selectedCommuneCode = code);
-                  },
-                ),
-                const VGap.md(),
-              ],
-            ),
           ),
         );
       },

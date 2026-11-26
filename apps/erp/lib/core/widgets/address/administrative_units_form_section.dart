@@ -27,6 +27,8 @@ class AdministrativeUnitsFormSection extends StatelessWidget {
     this.isRequired = false,
     this.provinceLabel = 'Tỉnh / thành phố',
     this.communeLabel = 'Xã / phường',
+    this.direction = Axis.vertical,
+    this.inputBorder = false,
   });
 
   final Future<List<VnAdministrativeUnit>> unitsFuture;
@@ -49,6 +51,8 @@ class AdministrativeUnitsFormSection extends StatelessWidget {
   final bool isRequired;
   final String provinceLabel;
   final String communeLabel;
+  final Axis direction;
+  final bool inputBorder;
 
   static VnAdministrativeUnit? findProvince(
     List<VnAdministrativeUnit> units, {
@@ -134,88 +138,105 @@ class AdministrativeUnitsFormSection extends StatelessWidget {
 
         final canSelectWard = selectedProvince != null;
 
+        final provinceField = KeyedSubtree(
+          key: provinceKey,
+          child: VField(
+            invalid: provinceError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SearchDropdownField(
+                  label: provinceLabel,
+                  isRequired: isRequired,
+                  child: _AdministrativeUnitTouchField(
+                    fieldKey: provinceFieldKey,
+                    clearKey: provinceClearKey,
+                    value: selectedProvince?.fullName,
+                    hintText: 'Chọn tỉnh / thành phố',
+                    prefixIcon: Icons.location_on_outlined,
+                    enabled: units.isNotEmpty,
+                    inputBorder: inputBorder,
+                    onTap: () => _openPicker(
+                      context: context,
+                      units: units,
+                      currentProvince: selectedProvince,
+                      currentWard: selectedWard,
+                      initialTab: 0,
+                    ),
+                    onClear: selectedProvince != null
+                        ? () {
+                            onProvinceChanged?.call(null);
+                            onProvinceNameChanged?.call(null);
+                            onCommuneChanged?.call(null);
+                            onCommuneNameChanged?.call(null);
+                          }
+                        : null,
+                  ),
+                ),
+                if (provinceError != null) VFieldError(provinceError!),
+              ],
+            ),
+          ),
+        );
+
+        final communeField = KeyedSubtree(
+          key: communeKey,
+          child: VField(
+            invalid: communeError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SearchDropdownField(
+                  label: communeLabel,
+                  isRequired: isRequired,
+                  child: _AdministrativeUnitTouchField(
+                    fieldKey: communeFieldKey,
+                    clearKey: communeClearKey,
+                    value: selectedWard?.fullName,
+                    hintText: canSelectWard
+                        ? 'Chọn xã / phường'
+                        : 'Chọn tỉnh / thành phố trước',
+                    prefixIcon: Icons.apartment_outlined,
+                    enabled: canSelectWard,
+                    inputBorder: inputBorder,
+                    onTap: () => _openPicker(
+                      context: context,
+                      units: units,
+                      currentProvince: selectedProvince,
+                      currentWard: selectedWard,
+                      initialTab: canSelectWard ? 1 : 0,
+                    ),
+                    onClear: selectedWard != null
+                        ? () {
+                            onCommuneChanged?.call(null);
+                            onCommuneNameChanged?.call(null);
+                          }
+                        : null,
+                  ),
+                ),
+                if (communeError != null) VFieldError(communeError!),
+              ],
+            ),
+          ),
+        );
+
+        if (direction == Axis.horizontal) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: provinceField),
+              const SizedBox(width: VSpacing.space5),
+              Expanded(child: communeField),
+            ],
+          );
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            KeyedSubtree(
-              key: provinceKey,
-              child: VField(
-                invalid: provinceError != null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SearchDropdownField(
-                      label: provinceLabel,
-                      isRequired: isRequired,
-                      child: _AdministrativeUnitTouchField(
-                        fieldKey: provinceFieldKey,
-                        clearKey: provinceClearKey,
-                        value: selectedProvince?.fullName,
-                        hintText: 'Chọn tỉnh / thành phố',
-                        prefixIcon: Icons.location_on_outlined,
-                        enabled: units.isNotEmpty,
-                        onTap: () => _openPicker(
-                          context: context,
-                          units: units,
-                          currentProvince: selectedProvince,
-                          currentWard: selectedWard,
-                          initialTab: 0,
-                        ),
-                        onClear: selectedProvince != null
-                            ? () {
-                                onProvinceChanged?.call(null);
-                                onProvinceNameChanged?.call(null);
-                                onCommuneChanged?.call(null);
-                                onCommuneNameChanged?.call(null);
-                              }
-                            : null,
-                      ),
-                    ),
-                    if (provinceError != null) VFieldError(provinceError!),
-                  ],
-                ),
-              ),
-            ),
+            provinceField,
             const VGap.md(),
-            KeyedSubtree(
-              key: communeKey,
-              child: VField(
-                invalid: communeError != null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SearchDropdownField(
-                      label: communeLabel,
-                      isRequired: isRequired,
-                      child: _AdministrativeUnitTouchField(
-                        fieldKey: communeFieldKey,
-                        clearKey: communeClearKey,
-                        value: selectedWard?.fullName,
-                        hintText: canSelectWard
-                            ? 'Chọn xã / phường'
-                            : 'Chọn tỉnh / thành phố trước',
-                        prefixIcon: Icons.apartment_outlined,
-                        enabled: canSelectWard,
-                        onTap: () => _openPicker(
-                          context: context,
-                          units: units,
-                          currentProvince: selectedProvince,
-                          currentWard: selectedWard,
-                          initialTab: canSelectWard ? 1 : 0,
-                        ),
-                        onClear: selectedWard != null
-                            ? () {
-                                onCommuneChanged?.call(null);
-                                onCommuneNameChanged?.call(null);
-                              }
-                            : null,
-                      ),
-                    ),
-                    if (communeError != null) VFieldError(communeError!),
-                  ],
-                ),
-              ),
-            ),
+            communeField,
           ],
         );
       },
@@ -232,6 +253,7 @@ class _AdministrativeUnitTouchField extends StatelessWidget {
     required this.hintText,
     required this.prefixIcon,
     required this.enabled,
+    required this.inputBorder,
     required this.onTap,
     this.onClear,
   });
@@ -242,6 +264,7 @@ class _AdministrativeUnitTouchField extends StatelessWidget {
   final String hintText;
   final IconData prefixIcon;
   final bool enabled;
+  final bool inputBorder;
   final VoidCallback onTap;
   final VoidCallback? onClear;
 
@@ -270,6 +293,8 @@ class _AdministrativeUnitTouchField extends StatelessWidget {
                     ? colors.borderDefault.withValues(alpha: 0.5)
                     : VField.resolveInvalid(context, local: null)
                     ? colors.danger
+                    : inputBorder
+                    ? colors.borderInput
                     : colors.borderDefault,
               ),
             ),

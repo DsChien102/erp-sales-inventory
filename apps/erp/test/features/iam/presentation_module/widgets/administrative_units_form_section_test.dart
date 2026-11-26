@@ -1,3 +1,4 @@
+import 'package:c45_design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/iam/presentation/organization_profile/data/vn_administrative_units_loader.dart';
@@ -107,5 +108,98 @@ void main() {
 
     expect(find.byType(VnAdministrativeUnitPickerSheet), findsOneWidget);
     expect(find.text('Khu vực hành chính'), findsOneWidget);
+  });
+
+  testWidgets('horizontal puts both fields on one row', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 600,
+            child: AdministrativeUnitsFormSection(
+              unitsFuture: Future.value(units),
+              direction: Axis.horizontal,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final provinceRect = tester.getRect(
+      find.byKey(const Key('field_select_province')),
+    );
+    final wardRect = tester.getRect(
+      find.byKey(const Key('field_select_ward')),
+    );
+    expect(provinceRect.top, wardRect.top);
+    expect(wardRect.left - provinceRect.right, 20);
+  });
+
+  testWidgets('inputBorder uses borderInput only when enabled and valid', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: Scaffold(
+          body: AdministrativeUnitsFormSection(
+            unitsFuture: Future.value(units),
+            inputBorder: true,
+            provinceError: null,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final lightColors = VTheme.lightTheme.extension<VColorScheme>()!;
+    final provinceBox = tester
+        .widgetList<Container>(
+          find.descendant(
+            of: find.byKey(const Key('field_select_province')),
+            matching: find.byType(Container),
+          ),
+        )
+        .first;
+    final dec = provinceBox.decoration! as BoxDecoration;
+    expect(dec.border!.top.color, lightColors.borderInput);
+
+    // Disabled ward does not use borderInput.
+    final wardBox = tester
+        .widgetList<Container>(
+          find.descendant(
+            of: find.byKey(const Key('field_select_ward')),
+            matching: find.byType(Container),
+          ),
+        )
+        .first;
+    final wardDec = wardBox.decoration! as BoxDecoration;
+    expect(wardDec.border!.top.color, isNot(lightColors.borderInput));
+
+    // Invalid province uses danger, not borderInput.
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: Scaffold(
+          body: AdministrativeUnitsFormSection(
+            unitsFuture: Future.value(units),
+            inputBorder: true,
+            provinceError: 'Lỗi tỉnh',
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final invalidBox = tester
+        .widgetList<Container>(
+          find.descendant(
+            of: find.byKey(const Key('field_select_province')),
+            matching: find.byType(Container),
+          ),
+        )
+        .first;
+    final invalidDec = invalidBox.decoration! as BoxDecoration;
+    expect(invalidDec.border!.top.color, lightColors.danger);
   });
 }

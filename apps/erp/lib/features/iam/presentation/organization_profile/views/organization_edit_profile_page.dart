@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:c45_design_system/design_system.dart';
+import 'package:erp/core/config/wide_layout.dart';
 import 'package:erp/features/iam/data/organization_repository.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 
@@ -12,6 +13,8 @@ import '../../../logic/organization_profile_state.dart';
 import '../data/vn_administrative_units_loader.dart';
 import '../mappers/organization_profile_ui_mapper.dart';
 import '../widgets/administrative_units_form_section.dart';
+import '../widgets/organization_edit_narrow.dart';
+import '../widgets/organization_edit_wide.dart';
 
 /// Trang Chỉnh thông tin tổ chức (TA-D-02 / S12).
 class OrganizationEditProfilePage extends StatelessWidget {
@@ -74,6 +77,13 @@ class _EditProfileViewState extends State<_EditProfileView> {
   String? _phoneError;
   String? _emailError;
   String? _addressError;
+
+  final _nameKey = GlobalKey();
+  final _phoneKey = GlobalKey();
+  final _emailKey = GlobalKey();
+  final _addressKey = GlobalKey();
+  final _provinceKey = GlobalKey();
+  final _communeKey = GlobalKey();
 
   @override
   void initState() {
@@ -249,7 +259,110 @@ class _EditProfileViewState extends State<_EditProfileView> {
           }
         }
 
-        final colors = context.vColors;
+        final wide = isWideLayout(context);
+        final nameField = KeyedSubtree(
+          key: _nameKey,
+          child: VField(
+            invalid: _nameError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Tên tổ chức', isRequired: true),
+                VTextField(
+                  controller: _nameController,
+                  onChanged: (_) {
+                    if (_nameError != null) setState(() => _nameError = null);
+                  },
+                ),
+                if (_nameError != null)
+                  VFieldError(_nameError!)
+                else
+                  const VFieldDescription('Tên hiển thị.'),
+              ],
+            ),
+          ),
+        );
+        final phoneField = KeyedSubtree(
+          key: _phoneKey,
+          child: VField(
+            invalid: _phoneError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Số điện thoại', isRequired: true),
+                VPhoneField(
+                  isRequired: true,
+                  controller: _phoneController,
+                  validateOnChanged: false,
+                  onChanged: (_) {
+                    if (_phoneError != null) setState(() => _phoneError = null);
+                  },
+                ),
+                if (_phoneError != null) VFieldError(_phoneError!),
+              ],
+            ),
+          ),
+        );
+        final emailField = KeyedSubtree(
+          key: _emailKey,
+          child: VField(
+            invalid: _emailError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Email liên hệ', isRequired: true),
+                VEmailField(
+                  controller: _emailController,
+                  validateOnChanged: false,
+                  onChanged: (_) {
+                    if (_emailError != null) setState(() => _emailError = null);
+                  },
+                ),
+                if (_emailError != null) VFieldError(_emailError!),
+              ],
+            ),
+          ),
+        );
+        final addressField = KeyedSubtree(
+          key: _addressKey,
+          child: VField(
+            invalid: _addressError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Địa chỉ liên hệ', isRequired: true),
+                VTextField(
+                  controller: _addressController,
+                  onChanged: (_) {
+                    if (_addressError != null) {
+                      setState(() => _addressError = null);
+                    }
+                  },
+                ),
+                if (_addressError != null) VFieldError(_addressError!),
+              ],
+            ),
+          ),
+        );
+        final unitsSection = AdministrativeUnitsFormSection(
+          unitsFuture: _unitsFuture,
+          selectedProvinceCode: _selectedProvinceCode,
+          selectedCommuneCode: _selectedCommuneCode,
+          provinceKey: _provinceKey,
+          communeKey: _communeKey,
+          direction: wide ? Axis.horizontal : Axis.vertical,
+          inputBorder: !wide,
+          onProvinceChanged: (code) {
+            setState(() {
+              _selectedProvinceCode = code;
+              _selectedCommuneCode = null;
+            });
+          },
+          onCommuneChanged: (code) {
+            setState(() => _selectedCommuneCode = code);
+          },
+        );
+
         return PopScope(
           canPop: !_hasChanges || state.isSubmittingProfile,
           onPopInvokedWithResult: (didPop, _) {
@@ -279,111 +392,28 @@ class _EditProfileViewState extends State<_EditProfileView> {
                       tone: VComponentTone.success,
                       fullWidth: true,
                       isLoading: state.isSubmittingProfile,
-                      onPressed: state.isSubmittingProfile ? null : () => _save(context),
+                      onPressed:
+                          state.isSubmittingProfile ? null : () => _save(context),
                     ),
                   ),
                 ],
               ),
             ),
-            body: ListView(
-              padding: const EdgeInsets.all(VSpacing.screenMobile),
-              children: [
-                VText(
-                  'Thông tin liên hệ này độc lập với hồ sơ pháp lý và chứng từ đã phát hành.',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
-                ),
-                const VGap.md(),
-                VField(
-                  invalid: _nameError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Tên tổ chức', isRequired: true),
-                      VTextField(
-                        controller: _nameController,
-                        onChanged: (_) {
-                          if (_nameError != null) setState(() => _nameError = null);
-                        },
-                      ),
-                      if (_nameError != null)
-                        VFieldError(_nameError!)
-                      else
-                        const VFieldDescription('Tên hiển thị.'),
-                    ],
+            body: wide
+                ? OrganizationEditWide(
+                    nameField: nameField,
+                    phoneField: phoneField,
+                    emailField: emailField,
+                    addressField: addressField,
+                    unitsSection: unitsSection,
+                  )
+                : OrganizationEditNarrow(
+                    nameField: nameField,
+                    phoneField: phoneField,
+                    emailField: emailField,
+                    addressField: addressField,
+                    unitsSection: unitsSection,
                   ),
-                ),
-                const VGap.md(),
-                VField(
-                  invalid: _phoneError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Số điện thoại', isRequired: true),
-                      VPhoneField(
-                        isRequired: true,
-                        controller: _phoneController,
-                        validateOnChanged: false,
-                        onChanged: (_) {
-                          if (_phoneError != null) setState(() => _phoneError = null);
-                        },
-                      ),
-                      if (_phoneError != null) VFieldError(_phoneError!),
-                    ],
-                  ),
-                ),
-                const VGap.md(),
-                VField(
-                  invalid: _emailError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Email liên hệ', isRequired: true),
-                      VEmailField(
-                        controller: _emailController,
-                        validateOnChanged: false,
-                        onChanged: (_) {
-                          if (_emailError != null) setState(() => _emailError = null);
-                        },
-                      ),
-                      if (_emailError != null) VFieldError(_emailError!),
-                    ],
-                  ),
-                ),
-                const VGap.md(),
-                VField(
-                  invalid: _addressError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Địa chỉ liên hệ', isRequired: true),
-                      VTextField(
-                        controller: _addressController,
-                        onChanged: (_) {
-                          if (_addressError != null) setState(() => _addressError = null);
-                        },
-                      ),
-                      if (_addressError != null) VFieldError(_addressError!),
-                    ],
-                  ),
-                ),
-                const VGap.md(),
-                AdministrativeUnitsFormSection(
-                  unitsFuture: _unitsFuture,
-                  selectedProvinceCode: _selectedProvinceCode,
-                  selectedCommuneCode: _selectedCommuneCode,
-                  onProvinceChanged: (code) {
-                    setState(() {
-                      _selectedProvinceCode = code;
-                      _selectedCommuneCode = null;
-                    });
-                  },
-                  onCommuneChanged: (code) {
-                    setState(() => _selectedCommuneCode = code);
-                  },
-                ),
-              ],
-            ),
           ),
         );
       },

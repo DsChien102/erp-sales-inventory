@@ -130,7 +130,7 @@ void main() {
     expect(find.text('Không có quyền xem tổ chức'), findsOneWidget);
     expect(
       find.text(
-          'Liên hệ chủ cửa hàng để được cấp quyền quản lý tổ chức nền tảng.'),
+          'Liên hệ chủ cửa hàng để được cấp quyền quản lý tổ chức.'),
       findsOneWidget,
     );
     expect(find.text('Quay lại'), findsOneWidget);

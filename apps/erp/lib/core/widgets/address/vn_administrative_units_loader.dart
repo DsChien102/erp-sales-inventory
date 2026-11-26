@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 final class VnAdministrativeUnit {
@@ -51,6 +52,10 @@ abstract final class VnAdministrativeUnitsAsset {
 
 final class VnAdministrativeUnitsLoader {
   static Future<List<VnAdministrativeUnit>>? _cache;
+  static List<VnAdministrativeUnit>? _cachedUnits;
+
+  /// Danh mục đã nạp xong từ `rootBundle` (đọc đồng bộ, `null` khi chưa nạp).
+  static List<VnAdministrativeUnit>? get cachedUnits => _cachedUnits;
 
   static Future<List<VnAdministrativeUnit>> load({AssetBundle? bundle}) {
     if (bundle != null) {
@@ -61,6 +66,13 @@ final class VnAdministrativeUnitsLoader {
 
   static void resetCache() {
     _cache = null;
+    _cachedUnits = null;
+  }
+
+  @visibleForTesting
+  static void seedCacheForTest(List<VnAdministrativeUnit> units) {
+    _cachedUnits = units;
+    _cache = Future.value(units);
   }
 
   static Future<List<VnAdministrativeUnit>> _load(AssetBundle bundle) async {
@@ -69,10 +81,14 @@ final class VnAdministrativeUnitsLoader {
     if (decoded is! List<dynamic>) {
       throw const FormatException('Expected top-level JSON array');
     }
-    return decoded
+    final units = decoded
         .map(
           (item) => VnAdministrativeUnit.fromJson(item as Map<String, dynamic>),
         )
         .toList(growable: false);
+    if (bundle == rootBundle) {
+      _cachedUnits = units;
+    }
+    return units;
   }
 }
