@@ -5,20 +5,20 @@
 // Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): nền surface, thanh 2 bước, tiêu đề canh trái; chữ, trạng thái giữ nguyên Flutter. Web ở web/reset.js.
 import { appBar, authColumn, busyOverlay, button, card, centerLoading, codeField, field, input, progressBar, toast } from './ds.js';
 import { PASSWORD_RULE } from './signup.js';
-import { maskEmail } from './verify.js';
+import { maskEmail, resendLabel } from './verify.js';
 
-/** Nhãn nút gửi lại ở bước 1: luôn "00:" + giây (khác ResendCountdown của đăng ký, dùng mm:ss). */
+/** Nhãn nút gửi lại ở bước 1: dùng mm:ss giống ResendCountdown. */
 export function resetResendLabel(seconds) {
-  return seconds > 0 ? `Gửi lại mã sau 00:${String(seconds).padStart(2, '0')}` : 'Gửi lại mã';
+  return resendLabel(seconds);
 }
 
 export const STATES = {
   requesting: { phase: 'requesting' },
-  'request-failed': { phase: 'request-failed', toast: ['danger', 'Không gửi được mã', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.'] },
+  'request-failed': { phase: 'request-failed', message: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.' },
   verify: { phase: 'verify', seconds: 59 },
   'verify-filled': { phase: 'verify', seconds: 42, code: '482915' },
   verifying: { phase: 'verify', seconds: 40, code: '482915', busy: true },
-  'verify-wrong': { phase: 'verify', seconds: 31, code: '482915', toast: ['danger', 'Không thể tiếp tục', 'Mã xác minh không đúng hoặc đã hết hạn.'] },
+  'verify-wrong': { phase: 'verify', seconds: 31, code: '482915', codeError: 'Mã xác nhận không đúng.' },
   'resend-ready': { phase: 'verify', seconds: 0 },
   'resent-toast': { phase: 'verify', seconds: 60, toast: ['info', 'Thông báo', 'Đã gửi lại mã xác nhận.'] },
   create: { phase: 'create' },
@@ -42,7 +42,7 @@ function verifyStep(s, v, email) {
     ${progressBar(RESET_STEPS, 0)}
     <h2 class="t1-reset__title">Xác minh email</h2>
     <p class="t1-body2 t1-reset__prompt">Mã 6 chữ số đã được gửi tới <b>${maskEmail(email)}</b>. Xác nhận mã để tạo mật khẩu mới.</p>
-    ${field({ label: 'Mã xác nhận', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, disabled: !!s.busy, focus: !s.busy && code.length < 6 }) })}
+    ${field({ label: 'Mã xác nhận', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, invalid: !!s.codeError, disabled: !!s.busy, focus: !s.busy && code.length < 6 }), error: s.codeError })}
     <div class="t1-gap-sm"></div>
     <p class="t1-small">Mã chỉ sử dụng một lần và hết hạn sau 10 phút.</p>
     <div class="t1-gap-lg"></div>
@@ -80,7 +80,7 @@ export function resetPage(v) {
   else if (s.phase === 'request-failed') {
     body = `<div class="t1-center"><div class="t1-failed">
       <h2 class="t1-h4 t1-h4--600">Không gửi được mã</h2>
-      <p class="t1-small t1-text-center">${s.toast[2]}</p>
+      <p class="t1-small t1-text-center">${s.message}</p>
       <div class="t1-gap-lg"></div>
       ${button('Thử lại')}
     </div></div>`;
@@ -91,6 +91,6 @@ export function resetPage(v) {
     <div class="t1-scroll"><div class="t1-col" style="${col}">${body}</div></div>
     ${bar ? `<footer class="t1-bottombar"><div class="t1-col" style="${col}">${bar}</div></footer>` : ''}
   </div>`;
-  const overlay = (s.busy ? busyOverlay() : '') + (s.toast ? toast(...s.toast, { device: v.device, above: bar ? 78 : 0 }) : '');
+  const overlay = (s.busy ? busyOverlay() : '') + (s.toast ? toast(...s.toast, { device: v.device, above: bar ? 77 : 0 }) : '');
   return { page, overlay };
 }

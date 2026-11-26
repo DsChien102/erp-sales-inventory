@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/core/iam/iam_ui_failure_mapper.dart';
 import 'package:erp/core/validation/password_policy.dart';
 import 'package:erp/features/iam/data/models/password_reset_result.dart';
 import 'package:erp/features/iam/logic/password_reset_cubit.dart';
@@ -111,7 +113,7 @@ void main() {
         find.textContaining('Mã 6 chữ số đã được gửi tới l***@example.com'),
         findsOneWidget,
       );
-      expect(find.text('Gửi lại mã sau 00:60'), findsOneWidget);
+      expect(find.text('Gửi lại mã sau 01:00'), findsOneWidget);
 
       now = now.add(const Duration(seconds: 60));
       await tester.pump(const Duration(seconds: 1));
@@ -122,12 +124,7 @@ void main() {
       await _settleRequest(tester);
 
       expect(auth.calls, contains('resendMy:op-1'));
-      expect(
-        find.byWidgetPredicate(
-          (w) => w is VButton && w.label.startsWith('Gửi lại mã sau 00:') && w.onPressed == null,
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Gửi lại mã sau 01:00'), findsOneWidget);
     },
   );
 
@@ -363,7 +360,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     var now = DateTime.utc(2026, 7, 31, 9);
-    final auth = _T0AuthRepository(
+    final auth = _ConfigurableAuthRepository(
       clock: () => now,
       resendAfter: const Duration(seconds: 60),
       resendError: const AppException(AppErrorCode.unknown),
@@ -396,7 +393,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final verifyCompleter = Completer<PasswordResetVerifyResult>();
-    final auth = _T0AuthRepository(verifyCompleter: verifyCompleter);
+    final auth = _ConfigurableAuthRepository(verifyCompleter: verifyCompleter);
     await tester.pumpWidget(
       MaterialApp(
         theme: VTheme.lightTheme,
@@ -421,17 +418,468 @@ void main() {
     verifyCompleter.complete(const PasswordResetVerifyResult(verified: true));
     await _settleRequest(tester);
   });
+
+  group('10-8f Task 1', () {
+    test('wrong, expired, exceeded codes set codeError without failure', () async {
+      for (final code in [
+        IamBlockedCodes.resetCodeInvalid,
+        IamBlockedCodes.resetCodeExpired,
+        IamBlockedCodes.resetCodeAttemptsExceeded,
+      ]) {
+        final auth = _ConfigurableAuthRepository(
+          verifyError: AppException(code),
+        );
+        final cubit = PasswordResetCubit(authRepository: auth);
+        await cubit.request();
+        await cubit.verify('123456');
+        expect(cubit.state.failure, isNull);
+        expect(
+          cubit.state.codeError,
+          IamUiFailureMapper.from(AppException(code)).message,
+        );
+        await cubit.close();
+      }
+    });
+
+    test('network error while verifying sets failure only', () async {
+      final auth = _ConfigurableAuthRepository(
+        verifyError: const AppException(AppErrorCode.network),
+      );
+      final cubit = PasswordResetCubit(authRepository: auth);
+      await cubit.request();
+      await cubit.verify('123456');
+      expect(cubit.state.codeError, isNull);
+      expect(cubit.state.failure, isNotNull);
+      await cubit.close();
+    });
+
+    test('verified=false sets codeError', () async {
+      final auth = _ConfigurableAuthRepository(verifyResult: false);
+      final cubit = PasswordResetCubit(authRepository: auth);
+      await cubit.request();
+      await cubit.verify('123456');
+      expect(cubit.state.failure, isNull);
+      expect(cubit.state.codeError, 'Mã xác nhận không đúng.');
+      await cubit.close();
+    });
+
+    test('codeError clears on edit, verify start, resend start, step 2', () async {
+      final auth = _ConfigurableAuthRepository(
+        verifyError: const AppException(IamBlockedCodes.resetCodeInvalid),
+      );
+      final cubit = PasswordResetCubit(authRepository: auth);
+      await cubit.request();
+      await cubit.verify('123456');
+      expect(cubit.state.codeError, isNotNull);
+
+      cubit.clearCodeError();
+      expect(cubit.state.codeError, isNull);
+
+      await cubit.verify('123456');
+      expect(cubit.state.codeError, isNotNull);
+      auth.verifyError = null;
+      await cubit.verify('123456');
+      expect(cubit.state.codeError, isNull);
+      expect(cubit.state.step, PasswordResetStep.createNewPassword);
+
+      cubit.returnToVerify();
+      auth.verifyError = const AppException(IamBlockedCodes.resetCodeInvalid);
+      await cubit.verify('123456');
+      expect(cubit.state.codeError, isNotNull);
+      await cubit.resend();
+      expect(cubit.state.codeError, isNull);
+      await cubit.close();
+    });
+
+    testWidgets('wrong code shows the error under the cells, no toast', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final auth = _ConfigurableAuthRepository(
+        verifyError: const AppException(IamBlockedCodes.resetCodeInvalid),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: ResetPasswordPage(authRepository: auth),
+        ),
+      );
+      await _settleRequest(tester);
+
+      await _enterResetCode(tester, '123456');
+      await _settleRequest(tester);
+
+      expect(find.byType(VFieldError), findsOneWidget);
+      expect(find.byType(VToast), findsNothing);
+      final dangerColor =
+          tester.element(find.byType(VVerificationCodeField)).vColors.danger;
+      for (var i = 0; i < 6; i++) {
+        final cell = tester.widget<DecoratedBox>(
+          find
+              .descendant(
+                of: find.byKey(Key('v-code-cell-$i')),
+                matching: find.byType(DecoratedBox),
+              )
+              .first,
+        );
+        final dec = cell.decoration as BoxDecoration;
+        expect((dec.border! as Border).top.color, dangerColor);
+      }
+    });
+
+    testWidgets(
+      'resend failure after a wrong code shows one toast and no inline error',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        var now = DateTime.utc(2026, 7, 31, 9);
+        final auth = _ConfigurableAuthRepository(
+          clock: () => now,
+          resendAfter: const Duration(seconds: 60),
+          verifyError: const AppException(IamBlockedCodes.resetCodeInvalid),
+          resendError: const AppException(AppErrorCode.network),
+        );
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: ResetPasswordPage(authRepository: auth, clock: () => now),
+          ),
+        );
+        await _settleRequest(tester);
+
+        await _enterResetCode(tester, '123456');
+        await _settleRequest(tester);
+        expect(find.byType(VFieldError), findsOneWidget);
+
+        now = now.add(const Duration(seconds: 60));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.tap(find.widgetWithText(VButton, 'Gửi lại mã'));
+        await _settleRequest(tester);
+
+        expect(find.byType(VFieldError), findsNothing);
+        expect(find.byType(VToast), findsOneWidget);
+        final dangerColor =
+            tester.element(find.byType(VVerificationCodeField)).vColors.danger;
+        for (var i = 0; i < 6; i++) {
+          final cell = tester.widget<DecoratedBox>(
+            find
+                .descendant(
+                  of: find.byKey(Key('v-code-cell-$i')),
+                  matching: find.byType(DecoratedBox),
+                )
+                .first,
+          );
+          final dec = cell.decoration as BoxDecoration;
+          expect((dec.border! as Border).top.color, isNot(dangerColor));
+        }
+      },
+    );
+
+    testWidgets('exceeded attempts keeps resend available', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      var now = DateTime.utc(2026, 7, 31, 9);
+      final auth = _ConfigurableAuthRepository(
+        clock: () => now,
+        resendAfter: const Duration(seconds: 60),
+        verifyError: const AppException(
+          IamBlockedCodes.resetCodeAttemptsExceeded,
+        ),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: ResetPasswordPage(authRepository: auth, clock: () => now),
+        ),
+      );
+      await _settleRequest(tester);
+
+      await _enterResetCode(tester, '123456');
+      await _settleRequest(tester);
+      expect(find.text('Bạn đã nhập sai mã quá nhiều lần.'), findsOneWidget);
+
+      now = now.add(const Duration(seconds: 60));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.tap(find.widgetWithText(VButton, 'Gửi lại mã'));
+      await _settleRequest(tester);
+
+      expect(auth.calls, contains('resendMy:op-1'));
+    });
+
+    testWidgets('request failure shows no toast', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final auth = RecordingAuthRepository(failFirstRequest: true);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: ResetPasswordPage(authRepository: auth),
+        ),
+      );
+      await _settleRequest(tester);
+
+      expect(find.text('Không gửi được mã'), findsOneWidget);
+      expect(find.byType(VToast), findsNothing);
+    });
+
+    testWidgets('step 2 bottom bar has a single top border', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final auth = RecordingAuthRepository();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: ResetPasswordPage(authRepository: auth),
+        ),
+      );
+      await _settleRequest(tester);
+      await _enterResetCode(tester, '123456');
+      await _settleRequest(tester);
+
+      final bottomBar = find.descendant(
+        of: find.byType(Scaffold),
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is Container &&
+              w.decoration is BoxDecoration &&
+              (w.decoration! as BoxDecoration).border is Border &&
+              ((w.decoration! as BoxDecoration).border! as Border).top !=
+                  BorderSide.none,
+        ),
+      );
+      // Filter to those inside bottomNavigationBar (y > 600)
+      final bottomBorders = bottomBar
+          .evaluate()
+          .where((e) => tester.getTopLeft(find.byWidget(e.widget)).dy > 600)
+          .toList();
+      expect(bottomBorders, hasLength(1));
+      expect(
+        tester.getSize(find.byWidget(bottomBorders.single.widget)).width,
+        1280,
+      );
+    });
+
+    testWidgets('countdown starts at 01:00', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      var now = DateTime.utc(2026, 7, 31, 9);
+      final auth = RecordingAuthRepository(
+        clock: () => now,
+        resendAfter: const Duration(seconds: 60),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: ResetPasswordPage(authRepository: auth, clock: () => now),
+        ),
+      );
+      await _settleRequest(tester);
+
+      expect(find.text('Gửi lại mã sau 01:00'), findsOneWidget);
+      expect(find.widgetWithText(VButton, 'Gửi lại mã sau 01:00'), findsNothing);
+
+      now = now.add(const Duration(seconds: 60));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.widgetWithText(VButton, 'Gửi lại mã'), findsOneWidget);
+    });
+
+    testWidgets('back from step 2 clears the code and disables confirm', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final auth = RecordingAuthRepository();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: ResetPasswordPage(authRepository: auth),
+        ),
+      );
+      await _settleRequest(tester);
+      await _enterResetCode(tester, '123456');
+      await _settleRequest(tester);
+
+      await tester.tap(find.widgetWithText(VButton, 'Quay lại'));
+      await tester.pump();
+
+      final confirmBtn = tester.widget<VButton>(
+        find.widgetWithText(VButton, 'Xác nhận mã'),
+      );
+      expect(confirmBtn.onPressed, isNull);
+    });
+
+    testWidgets(
+      '390: note sits right under the cells; 1280: note under the card',
+      (WidgetTester tester) async {
+        Future<void> check(Size size, {required bool underCard}) async {
+          tester.view.physicalSize = size;
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+
+          await tester.pumpWidget(
+            MaterialApp(
+              theme: VTheme.lightTheme,
+              home: ResetPasswordPage(authRepository: RecordingAuthRepository()),
+            ),
+          );
+          await _settleRequest(tester);
+
+          final noteY = tester
+              .getTopLeft(
+                find.text('Mã chỉ sử dụng một lần và hết hạn sau 10 phút.'),
+              )
+              .dy;
+          final btnY = tester
+              .getTopLeft(find.widgetWithText(VButton, 'Xác nhận mã'))
+              .dy;
+          if (underCard) {
+            expect(noteY, greaterThan(btnY));
+          } else {
+            expect(noteY, lessThan(btnY));
+          }
+        }
+
+        await check(const Size(390, 844), underCard: false);
+        await check(const Size(1280, 800), underCard: true);
+      },
+    );
+
+    testWidgets(
+      '1280: card 488 wide, bottom bar content 488 wide at step 2',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(1280, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final auth = RecordingAuthRepository();
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: ResetPasswordPage(authRepository: auth),
+          ),
+        );
+        await _settleRequest(tester);
+
+        final cardWidth = tester
+            .getSize(
+              find.ancestor(
+                of: find.text('Xác minh email'),
+                matching: find.byType(DecoratedBox),
+              ).first,
+            )
+            .width;
+        expect(cardWidth, 488);
+
+        await _enterResetCode(tester, '123456');
+        await _settleRequest(tester);
+
+        final barRow = find.ancestor(
+          of: find.widgetWithText(VButton, 'Quay lại'),
+          matching: find.byType(Row),
+        );
+        expect(tester.getSize(barRow.first).width, 488);
+      },
+    );
+
+    testWidgets('resizing 900 → 700 keeps 3 typed digits', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(900, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final auth = RecordingAuthRepository();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: ResetPasswordPage(authRepository: auth),
+        ),
+      );
+      await _settleRequest(tester);
+
+      await _enterResetCode(tester, '123');
+      tester.view.physicalSize = const Size(700, 800);
+      await tester.pump();
+
+      expect(
+        tester.widget<TextField>(find.byType(TextField).first).controller!.text,
+        '123',
+      );
+      expect(auth.calls.where((c) => c == 'verifyMy'), isEmpty);
+    });
+
+    testWidgets('320 at text scale 2.0 does not overflow', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final auth = RecordingAuthRepository();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: const TextScaler.linear(2.0),
+            ),
+            child: child!,
+          ),
+          home: ResetPasswordPage(authRepository: auth),
+        ),
+      );
+      await _settleRequest(tester);
+      expect(tester.takeException(), isNull);
+
+      await _enterResetCode(tester, '123456');
+      await _settleRequest(tester);
+      expect(tester.takeException(), isNull);
+    });
+  });
 }
 
-final class _T0AuthRepository extends RecordingAuthRepository {
-  _T0AuthRepository({
+final class _ConfigurableAuthRepository extends RecordingAuthRepository {
+  _ConfigurableAuthRepository({
+    super.verifyResult,
     super.clock,
     super.resendAfter,
     this.resendError,
+    this.verifyError,
     this.verifyCompleter,
   });
 
   final Object? resendError;
+  Object? verifyError;
   final Completer<PasswordResetVerifyResult>? verifyCompleter;
 
   @override
@@ -449,6 +897,7 @@ final class _T0AuthRepository extends RecordingAuthRepository {
     String code,
   ) async {
     calls.add('verifyMy');
+    if (verifyError != null) throw verifyError!;
     if (verifyCompleter != null) return verifyCompleter!.future;
     return PasswordResetVerifyResult(verified: verifyResult);
   }

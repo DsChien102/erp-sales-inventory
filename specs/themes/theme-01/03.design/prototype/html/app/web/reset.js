@@ -16,7 +16,7 @@ function verifyStep(s, v, email) {
       <h2 class="t1-stepcard__title t1-stepcard__title--icon">Xác minh email</h2>
       <p class="t1-body2">Mã 6 chữ số đã được gửi tới ${maskEmail(email)}. Xác nhận mã để tạo mật khẩu mới.</p>
       <div class="t1-gap-lg"></div>
-      ${field({ label: 'Mã xác nhận', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, disabled: !!s.busy, focus: !s.busy && code.length < 6 }) })}
+      ${field({ label: 'Mã xác nhận', required: true, control: codeField({ fill: true, length: 6, value: code, columnWidth: col, invalid: !!s.codeError, disabled: !!s.busy, focus: !s.busy && code.length < 6 }), error: s.codeError })}
       <div class="t1-gap-lg"></div>
       ${button('Xác nhận mã', { full: true, disabled: code.length !== 6 || !!s.busy })}
       <div class="t1-reset__resend">${s.seconds > 0 ? `<p class="t1-body2 t1-reset__wait">${resetResendLabel(s.seconds)}</p>` : button(resetResendLabel(s.seconds), { variant: 'link' })}</div>
@@ -44,7 +44,7 @@ export function resetPage(v) {
   else if (s.phase === 'request-failed') {
     body = `<div class="t1-center"><div class="t1-failed">
       <h2 class="t1-h4 t1-h4--600">Không gửi được mã</h2>
-      <p class="t1-small t1-text-center">${s.toast[2]}</p>
+      <p class="t1-small t1-text-center">${s.message}</p>
       <div class="t1-gap-lg"></div>
       ${button('Thử lại')}
     </div></div>`;
@@ -61,6 +61,6 @@ export function resetPage(v) {
   } else {
     page = pageScaffold({ title: 'Đặt lại mật khẩu', body, width: v.width });
   }
-  const overlay = (s.busy ? busyOverlay() : '') + (s.toast ? toast(...s.toast, { device: v.device, above: bar ? 78 : 0 }) : '');
+  const overlay = (s.busy ? busyOverlay() : '') + (s.toast ? toast(...s.toast, { device: v.device, above: bar ? 77 : 0 }) : '');
   return { page, overlay };
 }

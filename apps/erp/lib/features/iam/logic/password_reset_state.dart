@@ -11,6 +11,7 @@ final class PasswordResetState {
     this.verified = false,
     this.completion,
     this.failure,
+    this.codeError,
     required this.nowUtc,
   });
 
@@ -20,6 +21,7 @@ final class PasswordResetState {
   final bool verified;
   final PasswordResetCompletionResult? completion;
   final IamUiFailure? failure;
+  final String? codeError;
   final DateTime nowUtc;
 
   String? get operationId => request?.operationId;
@@ -43,8 +45,10 @@ final class PasswordResetState {
     bool? verified,
     PasswordResetCompletionResult? completion,
     IamUiFailure? failure,
+    String? codeError,
     DateTime? nowUtc,
     bool clearFailure = false,
+    bool clearCodeError = false,
     bool clearRequest = false,
     bool clearCompletion = false,
   }) {
@@ -55,6 +59,7 @@ final class PasswordResetState {
       verified: verified ?? this.verified,
       completion: clearCompletion ? null : (completion ?? this.completion),
       failure: clearFailure ? null : (failure ?? this.failure),
+      codeError: clearCodeError ? null : (codeError ?? this.codeError),
       nowUtc: nowUtc ?? this.nowUtc,
     );
   }

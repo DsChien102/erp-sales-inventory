@@ -29,9 +29,19 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
     emit(state.copyWith(nowUtc: _clock()));
   }
 
+  void clearCodeError() {
+    if (isClosed || state.codeError == null) return;
+    emit(state.copyWith(clearCodeError: true));
+  }
+
   void returnToVerify() {
     if (isClosed) return;
-    emit(state.copyWith(step: PasswordResetStep.verifyCode));
+    emit(
+      state.copyWith(
+        step: PasswordResetStep.verifyCode,
+        clearCodeError: true,
+      ),
+    );
   }
 
   Future<void> request() async {
@@ -40,6 +50,7 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
       state.copyWith(
         isSubmitting: true,
         clearFailure: true,
+        clearCodeError: true,
         nowUtc: _clock(),
       ),
     );
@@ -93,6 +104,7 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
       state.copyWith(
         isSubmitting: true,
         clearFailure: true,
+        clearCodeError: true,
         nowUtc: _clock(),
       ),
     );
@@ -141,6 +153,7 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
       state.copyWith(
         isSubmitting: true,
         clearFailure: true,
+        clearCodeError: true,
         nowUtc: _clock(),
       ),
     );
@@ -156,6 +169,8 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
             isSubmitting: false,
             verified: false,
             step: PasswordResetStep.verifyCode,
+            codeError: 'Mã xác nhận không đúng.',
+            clearFailure: true,
             nowUtc: _clock(),
           ),
         );
@@ -167,17 +182,25 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
           verified: true,
           step: PasswordResetStep.createNewPassword,
           clearFailure: true,
+          clearCodeError: true,
           nowUtc: _clock(),
         ),
       );
     } catch (error) {
       if (isClosed) return;
+      final mapped = IamUiFailureMapper.from(error);
+      final isCodeError = mapped.code == IamBlockedCodes.resetCodeInvalid ||
+          mapped.code == IamBlockedCodes.resetCodeExpired ||
+          mapped.code == IamBlockedCodes.resetCodeAttemptsExceeded;
       emit(
         state.copyWith(
           isSubmitting: false,
           verified: false,
           step: PasswordResetStep.verifyCode,
-          failure: IamUiFailureMapper.from(error),
+          failure: isCodeError ? null : mapped,
+          codeError: isCodeError ? mapped.message : null,
+          clearFailure: isCodeError,
+          clearCodeError: !isCodeError,
           nowUtc: _clock(),
         ),
       );
@@ -207,6 +230,7 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
       state.copyWith(
         isSubmitting: true,
         clearFailure: true,
+        clearCodeError: true,
         nowUtc: _clock(),
       ),
     );

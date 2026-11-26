@@ -119,8 +119,8 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 **Đặt lại mật khẩu (ID-04 / ID-23)**
 
 20. Gửi mã lỗi: thân màn ghi lỗi **và** toast đỏ cùng câu (báo hai lần).
-21. **Sai mã không báo tại ô**: `errorText` của bước 1 không được truyền → chỉ có toast.
-22. Thẻ "Xác minh email" dính sát nhãn "Mã xác nhận" (không khe). Nút gửi lại là nút viền đầy ngang (Đăng ký / Xác minh dùng link nhỏ); nhãn luôn "00:ss" nên lúc vừa gửi lại có thể hiện "00:60".
+21. **Sai mã không báo tại ô**: `errorText` của bước 1 không được truyền → chỉ có toast. Đã sửa 10-8f.
+22. Thẻ "Xác minh email" dính sát nhãn "Mã xác nhận" (không khe). Nút gửi lại là nút viền đầy ngang (Đăng ký / Xác minh dùng link nhỏ); nhãn luôn "00:ss" nên lúc vừa gửi lại có thể hiện "00:60". Đã sửa 10-8f.
 23. Thanh dưới bước 2 (`_PasswordBottomBar`) tự vẽ nền + gạch trên + đệm 16 bên trong bottomBar của VPageScaffold (đã có nền + gạch) → hai gạch / đệm chồng (khó thấy, cùng màu).
 24. Đang xử lý: lớp phủ trắng 50% + vòng tải che cả màn (gồm app bar), trong khi nơi khác dùng vòng xoay trong nút.
 25. Hai lối vào (quên mật khẩu / đổi mật khẩu khi đã đăng nhập) chung một màn, không có chữ nào cho biết đang ở trường hợp nào; ID-23 nằm trong khung StoreShell (web có thanh bên 84; ảnh vẽ trang trần).

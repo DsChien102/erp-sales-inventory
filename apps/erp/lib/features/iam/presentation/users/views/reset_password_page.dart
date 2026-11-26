@@ -1,17 +1,17 @@
 import 'dart:async';
 
+import 'package:c45_design_system/design_system.dart';
+import 'package:erp/core/config/wide_layout.dart';
 import 'package:erp/core/validation/password_policy.dart';
 import 'package:erp/features/auth/data/auth_repository.dart';
-import 'package:erp/features/auth/presentation/auth_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:c45_design_system/design_system.dart';
 
-import '../../shared/iam_ui_failure.dart';
 import '../../../logic/password_reset_cubit.dart';
 import '../../../logic/password_reset_state.dart';
-import '../widgets/reset_password_create_password_step.dart';
-import '../widgets/reset_password_verify_code_step.dart';
+import '../../shared/iam_ui_failure.dart';
+import '../widgets/reset_password_narrow.dart';
+import '../widgets/reset_password_wide.dart';
 
 /// Trang Đặt lại mật khẩu (TA-D-03).
 class ResetPasswordPage extends StatelessWidget {
@@ -58,6 +58,58 @@ class ResetPasswordPage extends StatelessWidget {
   }
 }
 
+Widget _buildResetCodeField({
+  required Key fieldKey,
+  required bool isVerifying,
+  required String? codeError,
+  required ValueChanged<String> onChanged,
+  required VoidCallback onCompleted,
+}) {
+  return VField(
+    invalid: codeError != null,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const VFieldLabel('Mã xác nhận', isRequired: true),
+        VVerificationCodeField(
+          key: fieldKey,
+          length: 6,
+          charset: VVerificationCodeCharset.numeric,
+          layout: VVerificationCodeLayout.fill,
+          autofocus: true,
+          enabled: !isVerifying,
+          onChanged: onChanged,
+          onCompleted: (_) => onCompleted(),
+        ),
+        if (codeError != null) VFieldError(codeError),
+      ],
+    ),
+  );
+}
+
+Widget _buildPasswordField({
+  required String label,
+  required TextEditingController controller,
+  required String? error,
+  required VoidCallback onChanged,
+}) {
+  return VField(
+    invalid: error != null,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        VFieldLabel(label, isRequired: true),
+        VPasswordField(
+          hintText: '••••••••••••',
+          controller: controller,
+          onChanged: (_) => onChanged(),
+        ),
+        if (error != null) VFieldError(error),
+      ],
+    ),
+  );
+}
+
 class _ResetPasswordSampleBody extends StatefulWidget {
   const _ResetPasswordSampleBody({required this.emailMasked});
 
@@ -71,6 +123,7 @@ class _ResetPasswordSampleBody extends StatefulWidget {
 class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
   PasswordResetStep _currentStep = PasswordResetStep.verifyCode;
 
+  final _codeFieldKey = GlobalKey();
   String _code = '';
   late final TextEditingController _newPasswordController;
   late final TextEditingController _confirmPasswordController;
@@ -176,51 +229,94 @@ class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
       _newPasswordController.text.isNotEmpty &&
       _confirmPasswordController.text.isNotEmpty;
 
+  void _clearPasswordErrors() {
+    setState(() {
+      _newPasswordError = null;
+      _confirmPasswordError = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final wide = isWideLayout(context);
     final isLoading = _isVerifyingCode || _isSubmittingPassword;
+    final canSubmitCode = RegExp(r'^\d{6}$').hasMatch(_code) && !_isVerifyingCode;
+    final remaining = Duration(seconds: _secondsRemaining);
+    final onResend = _secondsRemaining == 0 ? _handleResendCode : null;
+
+    final Widget body;
+    if (_currentStep == PasswordResetStep.verifyCode) {
+      final codeField = _buildResetCodeField(
+        fieldKey: _codeFieldKey,
+        isVerifying: _isVerifyingCode,
+        codeError: null,
+        onChanged: (value) => setState(() => _code = value),
+        onCompleted: _handleVerifyCode,
+      );
+      body = wide
+          ? ResetVerifyWide(
+              maskedEmail: widget.emailMasked,
+              codeField: codeField,
+              canSubmit: canSubmitCode,
+              remaining: remaining,
+              onVerify: _handleVerifyCode,
+              onResend: onResend,
+            )
+          : ResetVerifyNarrow(
+              maskedEmail: widget.emailMasked,
+              codeField: codeField,
+              canSubmit: canSubmitCode,
+              remaining: remaining,
+              onVerify: _handleVerifyCode,
+              onResend: onResend,
+            );
+    } else {
+      final newPwField = _buildPasswordField(
+        label: 'Mật khẩu mới',
+        controller: _newPasswordController,
+        error: _newPasswordError,
+        onChanged: _clearPasswordErrors,
+      );
+      final confirmPwField = _buildPasswordField(
+        label: 'Nhập lại mật khẩu mới',
+        controller: _confirmPasswordController,
+        error: _confirmPasswordError,
+        onChanged: _clearPasswordErrors,
+      );
+      body = wide
+          ? ResetCreateWide(
+              newPasswordField: newPwField,
+              confirmPasswordField: confirmPwField,
+            )
+          : ResetCreateNarrow(
+              newPasswordField: newPwField,
+              confirmPasswordField: confirmPwField,
+            );
+    }
 
     return Stack(
       children: [
-        VPageScaffold(
-          contentMaxWidth: authMaxWidth,
-          title: 'Đặt lại mật khẩu',
-          body: _currentStep == PasswordResetStep.verifyCode
-              ? ResetPasswordVerifyCodeStep(
-                  emailMasked: widget.emailMasked,
-                  code: _code,
-                  secondsRemaining: _secondsRemaining,
-                  isVerifying: _isVerifyingCode,
-                  onCodeChanged: (value) => setState(() => _code = value),
-                  onVerify: _handleVerifyCode,
-                  onResend: _handleResendCode,
-                )
-              : ResetPasswordCreatePasswordStep(
-                  newPasswordController: _newPasswordController,
-                  confirmPasswordController: _confirmPasswordController,
-                  newPasswordError: _newPasswordError,
-                  confirmPasswordError: _confirmPasswordError,
-                  onChanged: () {
-                    setState(() {
-                      _newPasswordError = null;
-                      _confirmPasswordError = null;
-                    });
-                  },
-                ),
-          bottomBar: _currentStep == PasswordResetStep.createNewPassword
-              ? _PasswordBottomBar(
-                  isLoading: isLoading,
-                  onBack: () {
-                    setState(() {
-                      _currentStep = PasswordResetStep.verifyCode;
-                    });
-                  },
-                  onSubmit: _isPasswordFormFilled && !isLoading
-                      ? _handleResetPassword
-                      : null,
-                )
-              : null,
+        Scaffold(
+          backgroundColor: wide ? colors.background : colors.surface,
+          appBar: const VAppBar(title: 'Đặt lại mật khẩu'),
+          body: body,
+          bottomNavigationBar:
+              _currentStep == PasswordResetStep.createNewPassword
+                  ? _PasswordBottomBar(
+                      wide: wide,
+                      isLoading: isLoading,
+                      onBack: () {
+                        setState(() {
+                          _code = '';
+                          _currentStep = PasswordResetStep.verifyCode;
+                        });
+                      },
+                      onSubmit: _isPasswordFormFilled && !isLoading
+                          ? _handleResetPassword
+                          : null,
+                    )
+                  : null,
         ),
         if (isLoading)
           Positioned.fill(
@@ -242,6 +338,7 @@ class _ResetPasswordBody extends StatefulWidget {
 }
 
 class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
+  final _codeFieldKey = GlobalKey();
   String _code = '';
   late final TextEditingController _newPasswordController;
   late final TextEditingController _confirmPasswordController;
@@ -325,19 +422,30 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
     await context.read<PasswordResetCubit>().complete(newPass);
   }
 
+  void _clearPasswordErrors() {
+    setState(() {
+      _newPasswordError = null;
+      _confirmPasswordError = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final wide = isWideLayout(context);
+    final pageBg = wide ? colors.background : colors.surface;
 
     return BlocConsumer<PasswordResetCubit, PasswordResetState>(
       listener: (context, state) {
+        final isInitialRequestFailure =
+            state.step == PasswordResetStep.initial && state.request == null;
         if (state.failure != null &&
+            !isInitialRequestFailure &&
             !identical(state.failure, _lastShownFailure)) {
           _lastShownFailure = state.failure;
-          final isRequestPhase = state.request == null;
           VToast.show(
             context,
-            title: isRequestPhase ? 'Không gửi được mã' : 'Không thể tiếp tục',
+            title: 'Không thể tiếp tục',
             message: state.failure!.message,
             type: VToastType.danger,
           );
@@ -350,47 +458,50 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
       },
       builder: (context, state) {
         if (state.step == PasswordResetStep.initial && state.isSubmitting) {
-          return const VPageScaffold(
-            contentMaxWidth: authMaxWidth,
-            title: 'Đặt lại mật khẩu',
-            body: Center(child: VLoading(size: 40)),
+          return Scaffold(
+            backgroundColor: pageBg,
+            appBar: const VAppBar(title: 'Đặt lại mật khẩu'),
+            body: const Center(child: VLoading(size: 40)),
           );
         }
 
         if (state.step == PasswordResetStep.initial &&
             state.failure != null &&
             state.request == null) {
-          return VPageScaffold(
-            contentMaxWidth: authMaxWidth,
-            title: 'Đặt lại mật khẩu',
+          return Scaffold(
+            backgroundColor: pageBg,
+            appBar: const VAppBar(title: 'Đặt lại mật khẩu'),
             body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(VSpacing.screenMobile),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Semantics(
-                      header: true,
-                      child: VText(
-                        'Không gửi được mã',
-                        variant: VTextVariant.headingH4,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Padding(
+                  padding: const EdgeInsets.all(VSpacing.screenMobile),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: VText(
+                          'Không gửi được mã',
+                          variant: VTextVariant.headingH4,
+                        ),
                       ),
-                    ),
-                    const VGap.sm(),
-                    VText(
-                      state.failure!.message,
-                      variant: VTextVariant.bodySmall,
-                      color: colors.textSecondary,
-                      textAlign: TextAlign.center,
-                    ),
-                    const VGap.lg(),
-                    VButton(
-                      label: 'Thử lại',
-                      onPressed: state.isSubmitting
-                          ? null
-                          : () => context.read<PasswordResetCubit>().retry(),
-                    ),
-                  ],
+                      const VGap.sm(),
+                      VText(
+                        state.failure!.message,
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textSecondary,
+                        textAlign: TextAlign.center,
+                      ),
+                      const VGap.lg(),
+                      VButton(
+                        label: 'Thử lại',
+                        onPressed: state.isSubmitting
+                            ? null
+                            : () => context.read<PasswordResetCubit>().retry(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -398,47 +509,89 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
         }
 
         final isLoading = state.isSubmitting;
+        final isVerifying =
+            state.isSubmitting && state.step == PasswordResetStep.verifyCode;
+        final canSubmitCode =
+            RegExp(r'^\d{6}$').hasMatch(_code) && !isVerifying;
+        final maskedEmail = state.maskedEmail.isEmpty
+            ? '***'
+            : state.maskedEmail;
+        final remaining = Duration(seconds: state.resendSecondsRemaining);
+        final onResend = state.canResend ? _handleResend : null;
+
+        final Widget body;
+        if (state.step == PasswordResetStep.createNewPassword) {
+          final newPwField = _buildPasswordField(
+            label: 'Mật khẩu mới',
+            controller: _newPasswordController,
+            error: _newPasswordError,
+            onChanged: _clearPasswordErrors,
+          );
+          final confirmPwField = _buildPasswordField(
+            label: 'Nhập lại mật khẩu mới',
+            controller: _confirmPasswordController,
+            error: _confirmPasswordError,
+            onChanged: _clearPasswordErrors,
+          );
+          body = wide
+              ? ResetCreateWide(
+                  newPasswordField: newPwField,
+                  confirmPasswordField: confirmPwField,
+                )
+              : ResetCreateNarrow(
+                  newPasswordField: newPwField,
+                  confirmPasswordField: confirmPwField,
+                );
+        } else {
+          final codeField = _buildResetCodeField(
+            fieldKey: _codeFieldKey,
+            isVerifying: isVerifying,
+            codeError: state.codeError,
+            onChanged: (value) {
+              setState(() => _code = value);
+              context.read<PasswordResetCubit>().clearCodeError();
+            },
+            onCompleted: _handleVerify,
+          );
+          body = wide
+              ? ResetVerifyWide(
+                  maskedEmail: maskedEmail,
+                  codeField: codeField,
+                  canSubmit: canSubmitCode,
+                  remaining: remaining,
+                  onVerify: _handleVerify,
+                  onResend: onResend,
+                )
+              : ResetVerifyNarrow(
+                  maskedEmail: maskedEmail,
+                  codeField: codeField,
+                  canSubmit: canSubmitCode,
+                  remaining: remaining,
+                  onVerify: _handleVerify,
+                  onResend: onResend,
+                );
+        }
 
         return Stack(
           children: [
-            VPageScaffold(
-              contentMaxWidth: authMaxWidth,
-              title: 'Đặt lại mật khẩu',
-              body: state.step == PasswordResetStep.createNewPassword
-                  ? ResetPasswordCreatePasswordStep(
-                      newPasswordController: _newPasswordController,
-                      confirmPasswordController: _confirmPasswordController,
-                      newPasswordError: _newPasswordError,
-                      confirmPasswordError: _confirmPasswordError,
-                      onChanged: () {
-                        setState(() {
-                          _newPasswordError = null;
-                          _confirmPasswordError = null;
-                        });
-                      },
-                    )
-                  : ResetPasswordVerifyCodeStep(
-                      emailMasked: state.maskedEmail.isEmpty
-                          ? '***'
-                          : state.maskedEmail,
-                      code: _code,
-                      secondsRemaining: state.resendSecondsRemaining,
-                      isVerifying: state.isSubmitting &&
-                          state.step == PasswordResetStep.verifyCode,
-                      onCodeChanged: (value) => setState(() => _code = value),
-                      onVerify: _handleVerify,
-                      onResend: state.canResend ? _handleResend : null,
-                    ),
-              bottomBar: state.step == PasswordResetStep.createNewPassword
-                  ? _PasswordBottomBar(
-                      isLoading: isLoading,
-                      onBack: () =>
-                          context.read<PasswordResetCubit>().returnToVerify(),
-                      onSubmit: _isPasswordFormFilled && !isLoading
-                          ? _handleComplete
-                          : null,
-                    )
-                  : null,
+            Scaffold(
+              backgroundColor: pageBg,
+              appBar: const VAppBar(title: 'Đặt lại mật khẩu'),
+              body: body,
+              bottomNavigationBar:
+                  state.step == PasswordResetStep.createNewPassword
+                      ? _PasswordBottomBar(
+                          wide: wide,
+                          isLoading: isLoading,
+                          onBack: () {
+                            setState(() => _code = '');
+                            context.read<PasswordResetCubit>().returnToVerify();
+                          },
+                          onSubmit: _isPasswordFormFilled && !isLoading
+                              ? _handleComplete
+                              : null,
+                        )
+                      : null,
             ),
             if (isLoading)
               Positioned.fill(
@@ -456,11 +609,13 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
 
 class _PasswordBottomBar extends StatelessWidget {
   const _PasswordBottomBar({
+    required this.wide,
     required this.isLoading,
     required this.onBack,
     required this.onSubmit,
   });
 
+  final bool wide;
   final bool isLoading;
   final VoidCallback onBack;
   final VoidCallback? onSubmit;
@@ -469,7 +624,7 @@ class _PasswordBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     return Container(
-      padding: const EdgeInsets.all(VSpacing.screenMobile),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: colors.surface,
         border: Border(
@@ -478,27 +633,38 @@ class _PasswordBottomBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: VButton(
-                label: 'Quay lại',
-                variant: VButtonVariant.secondary,
-                fullWidth: true,
-                onPressed: isLoading ? null : onBack,
+        child: Center(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: wide ? 520 : 480,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(VSpacing.screenMobile),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: VButton(
+                      label: 'Quay lại',
+                      variant: VButtonVariant.secondary,
+                      fullWidth: true,
+                      onPressed: isLoading ? null : onBack,
+                    ),
+                  ),
+                  const VGap.horizontalSm(),
+                  Expanded(
+                    child: VButton(
+                      label: 'Đặt lại mật khẩu',
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.primary,
+                      fullWidth: true,
+                      onPressed: onSubmit,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const VGap.horizontalSm(),
-            Expanded(
-              child: VButton(
-                label: 'Đặt lại mật khẩu',
-                variant: VButtonVariant.primary,
-                tone: VComponentTone.primary,
-                fullWidth: true,
-                onPressed: onSubmit,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

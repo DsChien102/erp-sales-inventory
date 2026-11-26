@@ -42,7 +42,7 @@
 .sh-app[data-device="iphone"] .t1-bottombar { padding-bottom: 34px; }      /* SafeArea(top: false) */
 .t1-bar-pad { padding: var(--c45-v2-space-4); }
 /* _PasswordBottomBar tự vẽ thêm nền + gạch trên + đệm 16 bên trong bottomBar → hai gạch chồng nhau */
-.t1-pwbar { display: grid; grid-template-columns: 1fr 1fr; gap: var(--c45-v2-space-2); padding: var(--c45-v2-space-4); background: var(--c45-v2-surface-default); border-top: 1px solid var(--c45-v2-border-default); }
+.t1-pwbar { display: grid; grid-template-columns: 1fr 1fr; gap: var(--c45-v2-space-2); padding: var(--c45-v2-space-4); }
 
 /* ------------------------------------------------ VButton (medium 44, đệm ngang 16, bo 8, chữ actionDefault 14/20 w600) */
 .t1-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--c45-v2-space-2); min-height: 44px; height: 44px; padding: 0 var(--c45-v2-space-4); border: 1px solid transparent; border-radius: var(--c45-v2-radius-button); font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; cursor: pointer; white-space: nowrap; }

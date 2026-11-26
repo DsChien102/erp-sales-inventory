@@ -51,13 +51,13 @@ export const SCREENS = [
   {
     id: 'reset', group: 'public', code: 'ID-04 · ID-23', title: 'Đặt lại mật khẩu', route: '/login/reset-password', states: [
       ['requesting', 'Đang gửi mã', 'Vào màn là gửi mã ngay: chỉ có app bar + vòng tải 40 giữa màn, nền trắng.'],
-      ['request-failed', 'Gửi mã lỗi', 'Thân giữa màn "Không gửi được mã" + câu lỗi + "Thử lại", đồng thời toast đỏ cùng câu (lặp hai lần).'],
+      ['request-failed', 'Gửi mã lỗi', 'Thân giữa màn "Không gửi được mã" + câu lỗi + "Thử lại", không toast.'],
       ['verify', 'Bước 1 · Nhập mã', 'Thanh 2 bước, tiêu đề canh trái, ô mã trải hết bề ngang, ghi chú 10 phút ngay dưới ô mã. Đếm ngược là chữ thường; hết giờ thành link "Gửi lại mã".'],
       ['verify-filled', 'Bước 1 · Đủ 6 số (thoáng qua)', 'Thoáng qua: đủ mã là onCompleted gọi xác nhận ngay → lớp phủ "Đang xác nhận". "Xác nhận mã" chỉ bật trong khoảnh khắc này.'],
       ['verifying', 'Đang xác nhận mã', 'Lớp phủ trắng 50% + vòng tải 40 phủ cả màn.'],
-      ['verify-wrong', 'Sai mã', 'Không có lỗi dưới ô (errorText không được truyền): chỉ toast đỏ "Mã xác minh không đúng hoặc đã hết hạn.".'],
+      ['verify-wrong', 'Sai mã', 'Lỗi đỏ dưới ô mã ("Mã xác nhận không đúng."), mọi ô viền đỏ, không toast.'],
       ['resend-ready', 'Hết đếm ngược', '"Gửi lại mã" bật.'],
-      ['resent-toast', 'Đã gửi lại mã', 'Toast xanh dương "Đã gửi lại mã xác nhận."; đếm lại "00:60" (nhãn luôn 00:ss).'],
+      ['resent-toast', 'Đã gửi lại mã', 'Toast xanh dương "Đã gửi lại mã xác nhận."; đếm lại "01:00" (mm:ss).'],
       ['create', 'Bước 2 · Mật khẩu mới', 'Thanh 2 bước, tiêu đề 22, hai ô gợi ý "••••", thẻ "Quy tắc mật khẩu"; thanh dưới "Quay lại" | "Đặt lại mật khẩu" (mờ khi chưa nhập đủ).'],
       ['create-filled', 'Bước 2 · Đã nhập', 'Nút "Đặt lại mật khẩu" bật.'],
       ['create-errors', 'Bước 2 · Lỗi', 'Lỗi dưới hai ô + toast đỏ "Vui lòng kiểm tra lại…".'],

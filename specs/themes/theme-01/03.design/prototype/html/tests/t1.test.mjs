@@ -16,11 +16,11 @@ test('maskEmail (password_reset_result.dart)', () => {
   assert.equal(maskEmail('khong-co-a-cong'), '***');
 });
 
-test('ResendCountdown mm:ss; nút gửi lại của Đặt lại mật khẩu luôn 00:ss', () => {
+test('ResendCountdown mm:ss; nút gửi lại của Đặt lại mật khẩu dùng mm:ss', () => {
   assert.equal(resendLabel(0), 'Gửi lại mã');
   assert.equal(resendLabel(59), 'Gửi lại mã sau 00:59');
   assert.equal(resendLabel(60), 'Gửi lại mã sau 01:00');
-  assert.equal(resetResendLabel(60), 'Gửi lại mã sau 00:60');
+  assert.equal(resetResendLabel(60), 'Gửi lại mã sau 01:00');
   assert.equal(resetResendLabel(0), 'Gửi lại mã');
 });
 
