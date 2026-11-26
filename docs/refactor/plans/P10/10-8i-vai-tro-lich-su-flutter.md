@@ -603,4 +603,27 @@ Expected: PASS, không lỗi analyze mới, không vi phạm import mới
 
 ## Kết quả
 
+Làm xong Task 0–3; xử lý review R1 (2026-11-26). Golden `test/features/iam/presentation_module/roles_audit_golden_test.dart`: 32 ảnh, so cạnh prototype ở mục Ảnh. Hai ca test plan không viết riêng vì đã có ở `w2_wide_layout_test` (dùng `appRouter`): "1280 table opens detail by url" của Vai trò → ca 3, "deep link back works" của Lịch sử → ca 4. Còn lệch chấp nhận được:
+
+- Icon ra ô vuông, chữ monospace (mã theo dõi, mã sự kiện) ra khối đen, không có ← trên app bar: golden không nạp font và trang không có route để quay lại (giống 10-8g, 10-8h).
+- Web bảng Lịch sử: cột "Thời điểm" `flex: 0.9` thay vì rộng cố định 150 (`AdminTableColumn` chưa có độ rộng cố định); hàng chip lùi vào 40 (prototype 24); thanh công cụ cao hơn ~13 px.
+- Web chi tiết hoạt động: gạch giữa các phần chạy hết bề ngang thẻ (prototype thụt 16).
+- Golden danh sách Lịch sử có 3 dòng (prototype 6).
+
+Kiểm: `flutter test test/features/iam` 497 PASS; `node --test tests/t1.test.mjs` 25 PASS; `dart analyze lib test` phần iam không có mục mới; `check_feature_imports` không vi phạm iam. Còn: kiểm tay.
+
 ## Review
+
+**R1 (2026-11-26):** Test xanh, logic Q2–Q16 đúng (khoảng 24 giờ chốt mốc UTC, giữ khi "Tải thêm"; 7 / 30 ngày theo ngày Việt Nam; bỏ trả lời cũ; lỗi "Tải thêm" ra toast). Thiếu bước và lỗi, đã sửa:
+
+| # | Lỗi | Sửa |
+|---|---|---|
+| A | Task 1 Step 1: `tests/t1.test.mjs`, README 48–52 chưa sửa; README dòng 68, 75–76 còn tả `VListDetailLayout` và các file widget đã xoá | Thêm ca `10-8i` (Vai trò đang tải, sheet hai nhóm, nhãn Q14, toast Q13, Bị chặn); đánh dấu 48–52 "(Đã sửa 10-8i)" (51, 52 ghi rõ phần giữ theo prototype / TH-01); sửa ba dòng tả file |
+| B | `## Kết quả` trống | Ghi như trên |
+| 1 | Dòng danh sách hai khung in "Loại đối tượng: Trần Văn Minh" (README 50, golden thấy rõ): `fromSummary` đặt `targetSubjectLabel: 'Loại đối tượng'` | `fromSummary` dùng cặp như `fromDetail` (nhãn = loại đã dịch, giá trị = tên). Test `390 and 1280 show Bị chặn / Lỗi badges only` thêm "Thành viên: Minh", "Tổ chức: An Phát", không có "Loại đối tượng" |
+| 2 | **Lỗi ngoài danh sách Q:** "Dữ liệu thay đổi" in mã vai trò thô ("Trước: warehouse", "Sau: staff"); `TenantAuditFieldCatalog._valueLabels` giữ mã vai trò cũ (`store_manager`, `veterinarian`, `cashier`…) và `store_owner` → "Chủ sở hữu" (sai, vai trò là "Chủ cửa hàng"). RPC `iam_assign_member_role` ghi `before/after.role` = mã (`20260820005…sql:85-111`) | Khoá `role` / `role_code` đi qua `IamRoleLabelMapper.toDisplayLabel`; xoá các mã vai trò cũ khỏi `_valueLabels`. Cũng sửa nhánh dự phòng vai trò người thực hiện (`_resolveActorRole`). `tenant_audit_field_catalog_test` đổi kỳ vọng + 3 mã mới |
+| 3 | iPhone dòng lịch sử: giờ nằm giữa dòng (prototype bám đỉnh, `align-self: flex-start`); ô giờ rộng 44 (prototype 40) | `IntrinsicHeight` + giờ `Align(topLeft)` cao dòng 22, mũi tên giữa; rộng 40 |
+| 4 | iPhone chi tiết: "Mã theo dõi" một hàng nhãn ↔ mã; prototype `traceRow()` nhãn trên, mã monospace dưới, nút sao chép 44 bên phải | `_TraceRow` ở `audit_detail_narrow.dart`; web giữ một hàng. Test `detail labels…` kiểm vị trí hai khung |
+| 5 | `selectedId` không ai truyền ở `OrganizationRolesPage`, `OrganizationAuditLogsPage` (như 10-8h R1 #4) | Xoá |
+
+Chụp lại golden; `audit__list`, `audit-detail__detail` hai khung khớp prototype trừ lệch đã ghi.
