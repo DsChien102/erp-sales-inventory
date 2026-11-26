@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:erp/features/auth/data/models/invitation_token_inspection.dart';
+import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
 import 'package:erp/features/auth/presentation/widgets/invitation_registration_form.dart';
 import 'package:erp/features/auth/presentation/widgets/invitation_token_entry_form.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +11,9 @@ import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import '../../../iam/support/fake_iam_backend.dart';
+import '../../../iam/support/iam_fixtures.dart';
 
+import '../../support/scripted_auth.dart';
 import '../../support/scripted_invitations.dart';
 
 Future<void> _enterInvitationCode(WidgetTester tester, String code) async {
@@ -508,4 +513,240 @@ void main() {
       expect(map['showSuccessBanner'], true);
     },
   );
+
+  testWidgets('back is disabled while inspecting', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final completer = Completer<InvitationTokenInspection>();
+    final invitations = _HangingInspectInvitations(completer);
+    final router = GoRouter(
+      initialLocation: '/invitation',
+      routes: <RouteBase>[
+        GoRoute(
+          path: '/login',
+          builder: (_, _) => const Scaffold(body: Text('LOGIN_PAGE')),
+        ),
+        GoRoute(
+          path: '/invitation',
+          builder: (_, _) => InvitationTokenPage(
+            invitations: invitations,
+            auth: ScriptedAuthRepository(),
+            session: loginSession(email: 'invitee@example.com'),
+            keyFactory: FakeIdempotencyKeyFactory(),
+          ),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        theme: VTheme.lightTheme,
+        routerConfig: router,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _enterInvitationCode(tester, 'K7P29XQM');
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('Quay lại'), warnIfMissed: false);
+    await tester.pump();
+    expect(find.text('LOGIN_PAGE'), findsNothing);
+
+    completer.complete(
+      InvitationTokenInspection(
+        tenantId: 'org-001',
+        tenantName: 'Mậu Hiên',
+        inviteeEmail: 'invitee@example.com',
+        initialRoleId: 'role-staff',
+        initialRoleLabel: 'Nhân viên bán hàng',
+        expiresAt: DateTime.utc(2026, 8, 5),
+        accountExists: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('typing clears the server error', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: InvitationPageHarness(scenario: FakeIamScenario.acceptExpired).page,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _enterInvitationCode(tester, 'TOKENEXP');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Mã lời mời đã hết hạn'), findsOneWidget);
+
+    await _enterInvitationCode(tester, 'TOKENEX');
+    await tester.pump();
+    expect(find.textContaining('Mã lời mời đã hết hạn'), findsNothing);
+  });
+
+  testWidgets('decline shows outcome', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: InvitationPageHarness(
+          scenario: FakeIamScenario.inspectExistingAccount,
+        ).page,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _enterInvitationCode(tester, 'K7P29XQM');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('invitation_confirm_sheet_decline')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Đã từ chối lời mời'), findsOneWidget);
+    expect(find.widgetWithText(VButton, 'Nhập mã khác'), findsOneWidget);
+  });
+
+  testWidgets('passwords are cleared after a failed submit', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: InvitationPageHarness(
+          scenario: FakeIamScenario.registerAndAcceptOk,
+          registerError: const AppException(AppErrorCode.unknown),
+        ).page,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _enterInvitationCode(tester, 'TOKENNEW');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('invitation_confirm_sheet_accept')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('invitation_register_family_name')),
+      'Nguyễn',
+    );
+    await tester.enterText(
+      find.byKey(const Key('invitation_register_given_name')),
+      'An',
+    );
+    await tester.enterText(
+      find.byKey(const Key('invitation_register_phone')),
+      '0912345678',
+    );
+    await tester.enterText(
+      find.byKey(const Key('invitation_register_password')),
+      'Password123@',
+    );
+    await tester.enterText(
+      find.byKey(const Key('invitation_register_confirm_password')),
+      'Password123@',
+    );
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('invitation_accept_submit')));
+    await tester.pumpAndSettle();
+
+    String fieldText(Key key) => tester
+        .widget<TextField>(
+          find.descendant(of: find.byKey(key), matching: find.byType(TextField)),
+        )
+        .controller!
+        .text;
+
+    expect(fieldText(const Key('invitation_register_password')), isEmpty);
+    expect(fieldText(const Key('invitation_register_confirm_password')), isEmpty);
+    expect(fieldText(const Key('invitation_register_family_name')), 'Nguyễn');
+    expect(fieldText(const Key('invitation_register_given_name')), 'An');
+    expect(fieldText(const Key('invitation_register_phone')), '0912345678');
+  });
+
+  testWidgets('back returns to token entry', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: InvitationPageHarness(
+          scenario: FakeIamScenario.inspectNewAccount,
+        ).page,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _enterInvitationCode(tester, 'TOKENNEW');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('invitation_confirm_sheet_accept')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('invitation_register_given_name')), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Quay lại'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nhập mã lời mời'), findsOneWidget);
+  });
+
+  testWidgets('enter other token returns to entry', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: InvitationPageHarness(
+          scenario: FakeIamScenario.inspectExistingAccount,
+        ).page,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _enterInvitationCode(tester, 'K7P29XQM');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('invitation_confirm_sheet_decline')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(VButton, 'Nhập mã khác'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nhập mã lời mời'), findsOneWidget);
+  });
+}
+
+class _HangingInspectInvitations extends ScriptedInvitations {
+  _HangingInspectInvitations(this.completer)
+    : super(scenario: FakeIamScenario.inspectExistingAccount);
+
+  final Completer<InvitationTokenInspection> completer;
+
+  @override
+  Future<InvitationTokenInspection> inspect(String token) => completer.future;
 }

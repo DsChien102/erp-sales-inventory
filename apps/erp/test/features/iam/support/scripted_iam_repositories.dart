@@ -231,7 +231,7 @@ final class ScriptedAccountRepository extends AccountRepository {
   }
 }
 
-final class RecordingAuthRepository extends AuthRepository {
+class RecordingAuthRepository extends AuthRepository {
   RecordingAuthRepository({
     this.verifyResult = true,
     this.failFirstRequest = false,

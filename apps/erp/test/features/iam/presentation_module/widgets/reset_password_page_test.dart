@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/validation/password_policy.dart';
+import 'package:erp/features/iam/data/models/password_reset_result.dart';
 import 'package:erp/features/iam/logic/password_reset_cubit.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:flutter/material.dart';
@@ -305,4 +309,147 @@ void main() {
       expect(find.text('Mật khẩu nhập lại không trùng khớp'), findsNothing);
     },
   );
+
+  testWidgets('request failure shows retry', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final auth = RecordingAuthRepository(failFirstRequest: true);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: ResetPasswordPage(authRepository: auth),
+      ),
+    );
+    await _settleRequest(tester);
+
+    expect(find.text('Không gửi được mã'), findsWidgets);
+    expect(find.widgetWithText(VButton, 'Thử lại'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(VButton, 'Thử lại'));
+    await _settleRequest(tester);
+
+    expect(auth.calls.where((c) => c == 'requestMy'), hasLength(2));
+    expect(find.text('Xác minh email'), findsOneWidget);
+  });
+
+  testWidgets('six digits verify once', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final auth = RecordingAuthRepository();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: ResetPasswordPage(authRepository: auth),
+      ),
+    );
+    await _settleRequest(tester);
+
+    await _enterResetCode(tester, '123456');
+    await _settleRequest(tester);
+
+    expect(auth.calls.where((c) => c == 'verifyMy'), hasLength(1));
+  });
+
+  testWidgets('resend failure shows a toast', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    var now = DateTime.utc(2026, 7, 31, 9);
+    final auth = _T0AuthRepository(
+      clock: () => now,
+      resendAfter: const Duration(seconds: 60),
+      resendError: const AppException(AppErrorCode.unknown),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: ResetPasswordPage(authRepository: auth, clock: () => now),
+      ),
+    );
+    await _settleRequest(tester);
+
+    now = now.add(const Duration(seconds: 60));
+    await tester.pump(const Duration(seconds: 1));
+
+    await tester.tap(find.widgetWithText(VButton, 'Gửi lại mã'));
+    await _settleRequest(tester);
+
+    expect(find.byType(VToast), findsOneWidget);
+    expect(
+      tester.widget<VToast>(find.byType(VToast)).title,
+      'Không thể tiếp tục',
+    );
+  });
+
+  testWidgets('submitting shows the overlay', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final verifyCompleter = Completer<PasswordResetVerifyResult>();
+    final auth = _T0AuthRepository(verifyCompleter: verifyCompleter);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: ResetPasswordPage(authRepository: auth),
+      ),
+    );
+    await _settleRequest(tester);
+
+    await _enterResetCode(tester, '123456');
+    await tester.pump();
+
+    expect(find.byType(VLoading), findsOneWidget);
+
+    await tester.tap(
+      find.widgetWithText(VButton, 'Xác nhận mã'),
+      warnIfMissed: false,
+    );
+    await tester.pump();
+
+    expect(auth.calls.where((c) => c == 'verifyMy'), hasLength(1));
+
+    verifyCompleter.complete(const PasswordResetVerifyResult(verified: true));
+    await _settleRequest(tester);
+  });
+}
+
+final class _T0AuthRepository extends RecordingAuthRepository {
+  _T0AuthRepository({
+    super.clock,
+    super.resendAfter,
+    this.resendError,
+    this.verifyCompleter,
+  });
+
+  final Object? resendError;
+  final Completer<PasswordResetVerifyResult>? verifyCompleter;
+
+  @override
+  Future<PasswordResetRequestResult> resendMyPasswordReset(
+    String operationId,
+  ) async {
+    calls.add('resendMy:$operationId');
+    if (resendError != null) throw resendError!;
+    return super.resendMyPasswordReset(operationId);
+  }
+
+  @override
+  Future<PasswordResetVerifyResult> verifyMyPasswordReset(
+    String operationId,
+    String code,
+  ) async {
+    calls.add('verifyMy');
+    if (verifyCompleter != null) return verifyCompleter!.future;
+    return PasswordResetVerifyResult(verified: verifyResult);
+  }
 }
