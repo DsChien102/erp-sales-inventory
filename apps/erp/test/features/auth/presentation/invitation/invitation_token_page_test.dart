@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:erp/core/widgets/flow/flow_layout.dart';
 import 'package:erp/features/auth/data/models/invitation_token_inspection.dart';
+import 'package:erp/features/auth/logic/invitation_acceptance_state.dart';
 import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
+import 'package:erp/features/auth/presentation/widgets/invitation_confirm_bottom_sheet.dart';
+import 'package:erp/features/auth/presentation/widgets/invitation_outcome_view.dart';
 import 'package:erp/features/auth/presentation/widgets/invitation_registration_form.dart';
 import 'package:erp/features/auth/presentation/widgets/invitation_token_entry_form.dart';
 import 'package:flutter/material.dart';
@@ -1155,6 +1158,210 @@ void main() {
         expect(tester.takeException(), isNull);
       },
     );
+  });
+
+  group('10-8f Task 4 confirm & outcome', () {
+    InvitationTokenInspection sampleConfirmInspection() {
+      return InvitationTokenInspection(
+        tenantId: 'org-001',
+        tenantName: 'Mậu Hiên',
+        inviteeEmail: 'invitee@example.com',
+        initialRoleId: 'role-staff',
+        initialRoleLabel: 'Nhân viên bán hàng',
+        expiresAt: DateTime.utc(2026, 8, 5),
+        accountExists: true,
+      );
+    }
+
+    testWidgets('390: confirm sheet shows a filled box with three rows', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showInvitationConfirmBottomSheet(
+                  context: context,
+                  inspection: sampleConfirmInspection(),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      final bgColor =
+          tester.element(find.text('Xác nhận lời mời tham gia tổ chức?')).vColors.background;
+      final boxFinder = find.ancestor(
+        of: find.text('Mậu Hiên'),
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is Container &&
+              w.decoration is BoxDecoration &&
+              (w.decoration! as BoxDecoration).color == bgColor,
+        ),
+      );
+      expect(boxFinder, findsOneWidget);
+      final valueWidget = tester.widget<Text>(find.text('Mậu Hiên'));
+      expect(valueWidget.textAlign, TextAlign.right);
+    });
+
+    testWidgets('1280: confirm dialog keeps the 72-wide labels', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showInvitationConfirmBottomSheet(
+                  context: context,
+                  inspection: sampleConfirmInspection(),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      final labelBox = tester.widget<SizedBox>(
+        find.ancestor(
+          of: find.text('Tổ chức'),
+          matching: find.byType(SizedBox),
+        ).first,
+      );
+      expect(labelBox.width, 72);
+    });
+
+    testWidgets(
+      '390: declined uses the neutral icon, blocked the warning icon, action at the bottom',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: InvitationOutcomeView(
+              step: InvitationAcceptanceStep.declined,
+              onEnterOtherToken: () {},
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(FlowIcon), findsOneWidget);
+        expect(
+          tester.widget<VIcon>(find.byType(VIcon)).icon,
+          VIcons.close,
+        );
+        expect(
+          tester.getTopLeft(find.widgetWithText(VButton, 'Nhập mã khác')).dy,
+          greaterThan(700),
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: InvitationOutcomeView(
+              step: InvitationAcceptanceStep.blocked,
+              onEnterOtherToken: () {},
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.widget<VIcon>(find.byType(VIcon)).icon,
+          VIcons.warning,
+        );
+      },
+    );
+
+    testWidgets('1280: outcome is top aligned within 480', (tester) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationOutcomeView(
+            step: InvitationAcceptanceStep.declined,
+            onEnterOtherToken: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.getTopLeft(find.text('Đã từ chối lời mời')).dy, lessThan(100));
+      expect(
+        tester.getSize(find.widgetWithText(VButton, 'Nhập mã khác')).width,
+        lessThanOrEqualTo(480),
+      );
+    });
+
+    testWidgets('320 at text scale 2.0: confirm sheet scrolls to decline', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: const TextScaler.linear(2.0),
+            ),
+            child: child!,
+          ),
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showInvitationConfirmBottomSheet(
+                  context: context,
+                  inspection: sampleConfirmInspection(),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      final decline = find.byKey(const Key('invitation_confirm_sheet_decline'));
+      await tester.ensureVisible(decline);
+      await tester.pumpAndSettle();
+      expect(decline.hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
 }
 

@@ -75,19 +75,30 @@ class FlowCard extends StatelessWidget {
   }
 }
 
-/// Ô biểu tượng `surfaceBrand`: [large] 64 viền `borderBrand` icon 28;
-/// [medium] 48 không viền icon 24. Trang trí, không có semantics.
+/// Tông màu của [FlowIcon].
+enum FlowIconTone { brand, neutral, warning }
+
+/// Ô biểu tượng `surfaceBrand` (hoặc [neutral] / [warning]):
+/// [large] 64 viền, icon 28; [medium] 48 không viền, icon 24.
+/// Trang trí, không có semantics.
 class FlowIcon extends StatelessWidget {
-  const FlowIcon.large(this.icon, {super.key})
-    : _size = 64,
-      _iconSize = 28,
-      _bordered = true;
-  const FlowIcon.medium(this.icon, {super.key})
-    : _size = 48,
-      _iconSize = 24,
-      _bordered = false;
+  const FlowIcon.large(
+    this.icon, {
+    super.key,
+    this.tone = FlowIconTone.brand,
+  }) : _size = 64,
+       _iconSize = 28,
+       _bordered = true;
+  const FlowIcon.medium(
+    this.icon, {
+    super.key,
+    this.tone = FlowIconTone.brand,
+  }) : _size = 48,
+       _iconSize = 24,
+       _bordered = false;
 
   final VIcons icon;
+  final FlowIconTone tone;
   final double _size;
   final double _iconSize;
   final bool _bordered;
@@ -95,17 +106,34 @@ class FlowIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final (bg, border, fg) = switch (tone) {
+      FlowIconTone.brand => (
+        colors.surfaceBrand,
+        colors.borderBrand,
+        colors.textBrand,
+      ),
+      FlowIconTone.neutral => (
+        colors.background,
+        colors.borderDefault,
+        colors.textSecondary,
+      ),
+      FlowIconTone.warning => (
+        colors.warningBg,
+        colors.warning,
+        colors.warning,
+      ),
+    };
     return ExcludeSemantics(
       child: Container(
         width: _size,
         height: _size,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: colors.surfaceBrand,
+          color: bg,
           borderRadius: BorderRadius.circular(VRadius.iconBox),
-          border: _bordered ? Border.all(color: colors.borderBrand) : null,
+          border: _bordered ? Border.all(color: border) : null,
         ),
-        child: VIcon(icon: icon, size: _iconSize, color: colors.textBrand),
+        child: VIcon(icon: icon, size: _iconSize, color: fg),
       ),
     );
   }

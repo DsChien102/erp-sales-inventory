@@ -29,11 +29,11 @@ class ResetVerifyNarrow extends StatelessWidget {
     final colors = context.vColors;
     return SafeArea(
       top: false,
-      child: SingleChildScrollView(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(VSpacing.screenMobile),
               child: Column(
@@ -121,11 +121,11 @@ class ResetCreateNarrow extends StatelessWidget {
     final colors = context.vColors;
     return SafeArea(
       top: false,
-      child: SingleChildScrollView(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(VSpacing.screenMobile),
               child: Column(

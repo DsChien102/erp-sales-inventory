@@ -737,8 +737,16 @@ void main() {
       }
     }
 
-    testWidgets('3 màn công khai (Lời mời ×2, Đặt lại mật khẩu) ở 1280 co lại tối đa 480', (tester) async {
-      await expectCapped(tester, const Size(1280, 800), (session) => [
+    testWidgets('7 màn công khai ở 800 co lại tối đa 480', (tester) async {
+      await expectCapped(tester, const Size(800, 1000), (session) => [
+        LoginPage(auth: ScriptedAuthRepository(), session: session),
+        SignupPage(auth: ScriptedAuthRepository(), session: session),
+        VerifyEmailPage(
+          email: 'user@example.com',
+          auth: ScriptedAuthRepository(),
+          session: session,
+        ),
+        NoOrganizationPage(session: session),
         InvitationTokenEntryForm(onInspect: (_) {}, isSubmitting: false),
         InvitationRegistrationForm(
           inspection: InvitationTokenInspection(
@@ -761,19 +769,6 @@ void main() {
         const ResetPasswordPage(
           emailMasked: 'u***@example.com',
         ),
-      ]);
-    });
-
-    testWidgets('4 màn công khai (Đăng nhập, Đăng ký, Xác minh, Chưa thuộc tổ chức) ở 800 co lại tối đa 480', (tester) async {
-      await expectCapped(tester, const Size(800, 1000), (session) => [
-        LoginPage(auth: ScriptedAuthRepository(), session: session),
-        SignupPage(auth: ScriptedAuthRepository(), session: session),
-        VerifyEmailPage(
-          email: 'user@example.com',
-          auth: ScriptedAuthRepository(),
-          session: session,
-        ),
-        NoOrganizationPage(session: session),
       ]);
     });
   });

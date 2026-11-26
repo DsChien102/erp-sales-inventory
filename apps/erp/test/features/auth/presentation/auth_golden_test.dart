@@ -559,6 +559,71 @@ void main() {
           },
         );
       });
+
+      testWidgets('invitation__confirm $width', (tester) async {
+        await runEntry(
+          tester,
+          'invitation__confirm',
+          scenario: FakeIamScenario.inspectExistingAccount,
+          act: (t) async {
+            await t.enterText(
+              find
+                  .descendant(
+                    of: find.byKey(const Key('invitation_token_input')),
+                    matching: find.byType(TextField),
+                  )
+                  .first,
+              'K7P29XQM',
+            );
+          },
+        );
+      });
+
+      testWidgets('invitation__declined $width', (tester) async {
+        await runEntry(
+          tester,
+          'invitation__declined',
+          scenario: FakeIamScenario.inspectExistingAccount,
+          act: (t) async {
+            await t.enterText(
+              find
+                  .descendant(
+                    of: find.byKey(const Key('invitation_token_input')),
+                    matching: find.byType(TextField),
+                  )
+                  .first,
+              'K7P29XQM',
+            );
+            await t.pumpAndSettle();
+            await t.tap(
+              find.byKey(const Key('invitation_confirm_sheet_decline')),
+            );
+          },
+        );
+      });
+
+      testWidgets('invitation__blocked $width', (tester) async {
+        await runEntry(
+          tester,
+          'invitation__blocked',
+          scenario: FakeIamScenario.acceptEmailMismatch,
+          act: (t) async {
+            await t.enterText(
+              find
+                  .descendant(
+                    of: find.byKey(const Key('invitation_token_input')),
+                    matching: find.byType(TextField),
+                  )
+                  .first,
+              'K7P29XQM',
+            );
+            await t.pumpAndSettle();
+            await t.tap(
+              find.byKey(const Key('invitation_confirm_sheet_accept')),
+            );
+          },
+        );
+      });
     }
   });
 }

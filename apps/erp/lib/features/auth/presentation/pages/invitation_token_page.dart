@@ -15,7 +15,6 @@ import '../../logic/invitation_acceptance_state.dart';
 import '../widgets/invitation_confirm_bottom_sheet.dart';
 import '../widgets/invitation_outcome_view.dart';
 import '../widgets/invitation_token_entry_form.dart';
-import '../auth_layout.dart';
 import 'invitation_registration_page.dart';
 
 class InvitationTokenPage extends StatelessWidget {
@@ -141,46 +140,15 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
         }
       },
       builder: (context, state) {
-        // Token entry and registration own a full page (app bar + pinned
-        // bottom bar), so they must not be nested inside this shell's
-        // scroll view.
-        if (_isEntryStep(state) || _isRegistrationStep(state)) {
-          return _body(context, state);
+        if (state.step == InvitationAcceptanceStep.accepted) {
+          return Scaffold(
+            backgroundColor: colors.surface,
+            body: const SizedBox.shrink(),
+          );
         }
-        return Scaffold(
-          backgroundColor: colors.surface,
-          body: SafeArea(
-            child: VContentWidth(
-              maxWidth: authMaxWidth,
-              alignment: Alignment.topCenter,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(VSpacing.screenMobile),
-                child: _body(context, state),
-              ),
-            ),
-          ),
-        );
+        return _body(context, state);
       },
     );
-  }
-
-  /// Steps that render the token-entry page — including the guard paths where
-  /// a later step lost its inspection and has to fall back to entry.
-  bool _isEntryStep(InvitationAcceptanceState state) {
-    switch (state.step) {
-      case InvitationAcceptanceStep.tokenEntry:
-      case InvitationAcceptanceStep.inspecting:
-      case InvitationAcceptanceStep.existingAccountLogin:
-        return true;
-      case InvitationAcceptanceStep.newAccountRegistration:
-        return state.inspection == null || !_confirmedNewAccount;
-      case InvitationAcceptanceStep.submitting:
-        return state.inspection?.accountExists == true;
-      case InvitationAcceptanceStep.accepted:
-      case InvitationAcceptanceStep.declined:
-      case InvitationAcceptanceStep.blocked:
-        return false;
-    }
   }
 
   /// Code → inline message for inspect-time failures on the entry screen.
@@ -193,14 +161,6 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
       IamBlockedCodes.invitationAlreadyUsed => 'Lời mời đã được sử dụng và không thể tiếp nhận.',
       _ => 'Không thể xác thực mã. Kiểm tra kết nối và thử lại.',
     };
-  }
-
-  bool _isRegistrationStep(InvitationAcceptanceState state) {
-    if (state.inspection == null) return false;
-    return (state.step == InvitationAcceptanceStep.newAccountRegistration &&
-            _confirmedNewAccount) ||
-        (state.step == InvitationAcceptanceStep.submitting &&
-            state.inspection!.accountExists == false);
   }
 
   Widget _body(BuildContext context, InvitationAcceptanceState state) {

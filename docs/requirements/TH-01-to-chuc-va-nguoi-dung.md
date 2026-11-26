@@ -512,7 +512,7 @@ Scenario: SC-01 — Nhân viên đã bị loại
 **Yêu cầu chức năng**
 
 - FR-01: `/login/reset-password` "Đặt lại mật khẩu", 2 bước: "Xác minh email" → "Tạo mật khẩu mới".
-- FR-02: Bước 1: "Mã 6 chữ số đã được gửi tới `<email che>`. Xác nhận mã để tạo mật khẩu mới."; "Mã xác nhận"; "Mã chỉ sử dụng một lần và hết hạn sau 10 phút."; "Xác nhận mã"; "Gửi lại mã" / "Gửi lại mã sau 00:ss" (🔧 60 giây, KI-12); "Đã gửi lại mã xác nhận."
+- FR-02: Bước 1: "Mã 6 chữ số đã được gửi tới `<email che>`. Xác nhận mã để tạo mật khẩu mới."; "Mã xác nhận"; "Mã chỉ sử dụng một lần và hết hạn sau 10 phút."; "Xác nhận mã"; "Gửi lại mã" / "Gửi lại mã sau mm:ss" (🔧 60 giây, KI-12); "Đã gửi lại mã xác nhận.". Mã sai / hết hạn / nhập sai quá số lần báo dưới ô mã, không toast (10-8f).
 - FR-03: Bước 2: "Mật khẩu mới", "Nhập lại mật khẩu mới", "Quy tắc mật khẩu" (≥ 8 ký tự); "Mật khẩu nhập lại không trùng khớp".
 - FR-04: Xong → về `/login` với thông báo "Cập nhật mật khẩu thành công".
 - FR-05: Phản hồi giống nhau dù email có tồn tại hay không.
