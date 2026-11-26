@@ -51,32 +51,32 @@
 
 Nguồn: `tools/proto-final/`, chép 2026-11-25; mọi ảnh chụp lại ở Task 1 sau khi sửa prototype; thêm ca mới `select-role__confirm`. Cột Flutter: golden `img/10-8h/flutter-<ca>-{390,1280}.png`.
 
-| Ca | 390 | 1280 |
-|---|---|---|
-| users__members | ![](img/10-8h/proto-users__members-390.png) | ![](img/10-8h/proto-users__members-1280.png) |
-| users__invitations | ![](img/10-8h/proto-users__invitations-390.png) | ![](img/10-8h/proto-users__invitations-1280.png) |
-| users__loading | ![](img/10-8h/proto-users__loading-390.png) | ![](img/10-8h/proto-users__loading-1280.png) |
-| users__invitations-empty | ![](img/10-8h/proto-users__invitations-empty-390.png) | ![](img/10-8h/proto-users__invitations-empty-1280.png) |
-| users__no-results | ![](img/10-8h/proto-users__no-results-390.png) | ![](img/10-8h/proto-users__no-results-1280.png) |
-| users__forbidden | ![](img/10-8h/proto-users__forbidden-390.png) | ![](img/10-8h/proto-users__forbidden-1280.png) |
-| users__filter-applied | ![](img/10-8h/proto-users__filter-applied-390.png) | ![](img/10-8h/proto-users__filter-applied-1280.png) |
-| users__filter-invitations | ![](img/10-8h/proto-users__filter-invitations-390.png) | ![](img/10-8h/proto-users__filter-invitations-1280.png) |
-| invite__empty | ![](img/10-8h/proto-invite__empty-390.png) | ![](img/10-8h/proto-invite__empty-1280.png) |
-| invite__filled | ![](img/10-8h/proto-invite__filled-390.png) | ![](img/10-8h/proto-invite__filled-1280.png) |
-| invite__empty-submit | ![](img/10-8h/proto-invite__empty-submit-390.png) | ![](img/10-8h/proto-invite__empty-submit-1280.png) |
-| invitation-detail__pending | ![](img/10-8h/proto-invitation-detail__pending-390.png) | ![](img/10-8h/proto-invitation-detail__pending-1280.png) |
-| invitation-detail__expired | ![](img/10-8h/proto-invitation-detail__expired-390.png) | ![](img/10-8h/proto-invitation-detail__expired-1280.png) |
-| invitation-detail__revoke | ![](img/10-8h/proto-invitation-detail__revoke-390.png) | ![](img/10-8h/proto-invitation-detail__revoke-1280.png) |
-| member-detail__active | ![](img/10-8h/proto-member-detail__active-390.png) | ![](img/10-8h/proto-member-detail__active-1280.png) |
-| member-detail__suspended | ![](img/10-8h/proto-member-detail__suspended-390.png) | ![](img/10-8h/proto-member-detail__suspended-1280.png) |
-| member-detail__removed | ![](img/10-8h/proto-member-detail__removed-390.png) | ![](img/10-8h/proto-member-detail__removed-1280.png) |
-| member-detail__owner | ![](img/10-8h/proto-member-detail__owner-390.png) | ![](img/10-8h/proto-member-detail__owner-1280.png) |
-| member-detail__deactivate | ![](img/10-8h/proto-member-detail__deactivate-390.png) | ![](img/10-8h/proto-member-detail__deactivate-1280.png) |
-| select-role__default | ![](img/10-8h/proto-select-role__default-390.png) | ![](img/10-8h/proto-select-role__default-1280.png) |
-| select-role__selected | ![](img/10-8h/proto-select-role__selected-390.png) | ![](img/10-8h/proto-select-role__selected-1280.png) |
-| select-role__confirm | ![](img/10-8h/proto-select-role__confirm-390.png) | ![](img/10-8h/proto-select-role__confirm-1280.png) |
+| Ca | Proto 390 | Flutter 390 | Proto 1280 | Flutter 1280 |
+|---|---|---|---|---|
+| users__members | ![](img/10-8h/proto-users__members-390.png) | ![](img/10-8h/flutter-users__members-390.png) | ![](img/10-8h/proto-users__members-1280.png) | ![](img/10-8h/flutter-users__members-1280.png) |
+| users__invitations | ![](img/10-8h/proto-users__invitations-390.png) | ![](img/10-8h/flutter-users__invitations-390.png) | ![](img/10-8h/proto-users__invitations-1280.png) | ![](img/10-8h/flutter-users__invitations-1280.png) |
+| users__loading | ![](img/10-8h/proto-users__loading-390.png) | ![](img/10-8h/flutter-users__loading-390.png) | ![](img/10-8h/proto-users__loading-1280.png) | ![](img/10-8h/flutter-users__loading-1280.png) |
+| users__invitations-empty | ![](img/10-8h/proto-users__invitations-empty-390.png) | ![](img/10-8h/flutter-users__invitations-empty-390.png) | ![](img/10-8h/proto-users__invitations-empty-1280.png) | ![](img/10-8h/flutter-users__invitations-empty-1280.png) |
+| users__no-results | ![](img/10-8h/proto-users__no-results-390.png) | ![](img/10-8h/flutter-users__no-results-390.png) | ![](img/10-8h/proto-users__no-results-1280.png) | ![](img/10-8h/flutter-users__no-results-1280.png) |
+| users__forbidden | ![](img/10-8h/proto-users__forbidden-390.png) | ![](img/10-8h/flutter-users__forbidden-390.png) | ![](img/10-8h/proto-users__forbidden-1280.png) | ![](img/10-8h/flutter-users__forbidden-1280.png) |
+| users__filter-applied | ![](img/10-8h/proto-users__filter-applied-390.png) | ![](img/10-8h/flutter-users__filter-applied-390.png) | ![](img/10-8h/proto-users__filter-applied-1280.png) | ![](img/10-8h/flutter-users__filter-applied-1280.png) |
+| users__filter-invitations | ![](img/10-8h/proto-users__filter-invitations-390.png) | ![](img/10-8h/flutter-users__filter-invitations-390.png) | ![](img/10-8h/proto-users__filter-invitations-1280.png) | ![](img/10-8h/flutter-users__filter-invitations-1280.png) |
+| invite__empty | ![](img/10-8h/proto-invite__empty-390.png) | ![](img/10-8h/flutter-invite__empty-390.png) | ![](img/10-8h/proto-invite__empty-1280.png) | ![](img/10-8h/flutter-invite__empty-1280.png) |
+| invite__filled | ![](img/10-8h/proto-invite__filled-390.png) | ![](img/10-8h/flutter-invite__filled-390.png) | ![](img/10-8h/proto-invite__filled-1280.png) | ![](img/10-8h/flutter-invite__filled-1280.png) |
+| invite__empty-submit | ![](img/10-8h/proto-invite__empty-submit-390.png) | ![](img/10-8h/flutter-invite__empty-submit-390.png) | ![](img/10-8h/proto-invite__empty-submit-1280.png) | ![](img/10-8h/flutter-invite__empty-submit-1280.png) |
+| invitation-detail__pending | ![](img/10-8h/proto-invitation-detail__pending-390.png) | ![](img/10-8h/flutter-invitation-detail__pending-390.png) | ![](img/10-8h/proto-invitation-detail__pending-1280.png) | ![](img/10-8h/flutter-invitation-detail__pending-1280.png) |
+| invitation-detail__expired | ![](img/10-8h/proto-invitation-detail__expired-390.png) | ![](img/10-8h/flutter-invitation-detail__expired-390.png) | ![](img/10-8h/proto-invitation-detail__expired-1280.png) | ![](img/10-8h/flutter-invitation-detail__expired-1280.png) |
+| invitation-detail__revoke | ![](img/10-8h/proto-invitation-detail__revoke-390.png) | ![](img/10-8h/flutter-invitation-detail__revoke-390.png) | ![](img/10-8h/proto-invitation-detail__revoke-1280.png) | ![](img/10-8h/flutter-invitation-detail__revoke-1280.png) |
+| member-detail__active | ![](img/10-8h/proto-member-detail__active-390.png) | ![](img/10-8h/flutter-member-detail__active-390.png) | ![](img/10-8h/proto-member-detail__active-1280.png) | ![](img/10-8h/flutter-member-detail__active-1280.png) |
+| member-detail__suspended | ![](img/10-8h/proto-member-detail__suspended-390.png) | ![](img/10-8h/flutter-member-detail__suspended-390.png) | ![](img/10-8h/proto-member-detail__suspended-1280.png) | ![](img/10-8h/flutter-member-detail__suspended-1280.png) |
+| member-detail__removed | ![](img/10-8h/proto-member-detail__removed-390.png) | ![](img/10-8h/flutter-member-detail__removed-390.png) | ![](img/10-8h/proto-member-detail__removed-1280.png) | ![](img/10-8h/flutter-member-detail__removed-1280.png) |
+| member-detail__owner | ![](img/10-8h/proto-member-detail__owner-390.png) | ![](img/10-8h/flutter-member-detail__owner-390.png) | ![](img/10-8h/proto-member-detail__owner-1280.png) | ![](img/10-8h/flutter-member-detail__owner-1280.png) |
+| member-detail__deactivate | ![](img/10-8h/proto-member-detail__deactivate-390.png) | ![](img/10-8h/flutter-member-detail__deactivate-390.png) | ![](img/10-8h/proto-member-detail__deactivate-1280.png) | ![](img/10-8h/flutter-member-detail__deactivate-1280.png) |
+| select-role__default | ![](img/10-8h/proto-select-role__default-390.png) | ![](img/10-8h/flutter-select-role__default-390.png) | ![](img/10-8h/proto-select-role__default-1280.png) | ![](img/10-8h/flutter-select-role__default-1280.png) |
+| select-role__selected | ![](img/10-8h/proto-select-role__selected-390.png) | ![](img/10-8h/flutter-select-role__selected-390.png) | ![](img/10-8h/proto-select-role__selected-1280.png) | ![](img/10-8h/flutter-select-role__selected-1280.png) |
+| select-role__confirm | ![](img/10-8h/proto-select-role__confirm-390.png) | ![](img/10-8h/flutter-select-role__confirm-390.png) | ![](img/10-8h/proto-select-role__confirm-1280.png) | ![](img/10-8h/flutter-select-role__confirm-1280.png) |
 
-Chỉ iPhone: ![](img/10-8h/proto-invitation-detail__actions-390.png) ![](img/10-8h/proto-member-detail__actions-390.png) ![](img/10-8h/proto-member-detail__actions-suspended-390.png)
+Chỉ iPhone (proto | Flutter): ![](img/10-8h/proto-invitation-detail__actions-390.png) ![](img/10-8h/flutter-invitation-detail__actions-390.png) · ![](img/10-8h/proto-member-detail__actions-390.png) ![](img/10-8h/flutter-member-detail__actions-390.png) · ![](img/10-8h/proto-member-detail__actions-suspended-390.png) ![](img/10-8h/flutter-member-detail__actions-suspended-390.png)
 
 ## Code prototype (chép nguyên văn, token thay bằng giá trị)
 
@@ -666,8 +666,8 @@ CSS đã có ở 10-8g: `.t1-orgm__*`, `.t1-orgp*`, `.t1-orgsec*`, `.t1-kv*`, `.
 - Consumes: kịch bản giả trong `test/features/iam/support/scripted_iam_repositories.dart`.
 - Produces: không.
 
-- [ ] **Step 1: Viết ca T0 trong bảng** ở 390 × 844. Ca `revoke shows one toast…` đánh dấu `skip: 'đỏ trên code cũ, mở ở Task 4 (Q16)'`.
-- [ ] **Step 2: Chạy, phải xanh trên code cũ** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets`
+- [x] **Step 1: Viết ca T0 trong bảng** ở 390 × 844. Ca `revoke shows one toast…` đánh dấu `skip: 'đỏ trên code cũ, mở ở Task 4 (Q16)'`.
+- [x] **Step 2: Chạy, phải xanh trên code cũ** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets`
 
 ### Task 1: Migration "Hoạt động gần nhất" + prototype
 
@@ -681,11 +681,11 @@ CSS đã có ở 10-8g: `.t1-orgm__*`, `.t1-orgp*`, `.t1-orgsec*`, `.t1-kv*`, `.
 **Interfaces:**
 - Produces: `TenantMember.lastActivityAt` (`DateTime?`); `MemberUiModel.lastActiveDate` rỗng khi không có (cả summary và detail).
 
-- [ ] **Step 1: SQL** — `create or replace function iam.list_tenant_members(...)` chép nguyên thân `20260820004…sql:117-283`, thêm `u.last_sign_in_at as last_activity_at` ở CTE `filtered` và `'last_activity_at', f.last_activity_at` ở `jsonb_build_object`; giữ `revoke` / `grant`.
-- [ ] **Step 2: Test SQL** `iam_member_list.sql` (bọc `begin … rollback`, theo khuôn `home_summary.sql`): `m1_owner_sees_last_activity` (khác null khi đã đăng nhập, null khi chưa), `m2_staff_denied` (`PERMISSION_DENIED`), `m3_cursor_and_search_unchanged`. Run (người dùng): `tools/db_check.sh iam_member_list` → xanh.
-- [ ] **Step 3: Prototype** — Q3, Q4, Q5, Q18, Q20 (không đổi ảnh vì chỉ có pending / hết hạn), Q21: `filterSheet('invitations')`, `usersEmpty` lời mời, `INVITE_STATES['empty-submit']` có cả `role`, nhãn `*` + khe ở `revokeSheet`, dòng "Quyền sở hữu", gợi ý email (hai khung); thêm ca `['confirm', 'Xác nhận đổi vai trò (sheet)', …]` ở `select-role` dùng `lifecycleSheet` với chữ Q6. Sửa câu mô tả ca, README mục 44, 45, 46, 47. `node --test` PASS; `node tools/capture.mjs users`, `invite`, `invitation-detail`, `member-detail`, `select-role`; chép lại ảnh ở mục Ảnh và `select-role__confirm` hai khung.
-- [ ] **Step 4: Viết test Dart** — `TenantMember.fromJson` có / không có `last_activity_at`; `member_detail_missing_date_test`: thiếu hoạt động → "—" (Q17).
-- [ ] **Step 5: Chạy → FAIL, cài đặt, chạy → PASS** — `flutter test test/features/iam/data test/features/iam/presentation_module/widgets/member_detail_missing_date_test.dart`
+- [x] **Step 1: SQL** — `create or replace function iam.list_tenant_members(...)` chép nguyên thân `20260820004…sql:117-283`, thêm `u.last_sign_in_at as last_activity_at` ở CTE `filtered` và `'last_activity_at', f.last_activity_at` ở `jsonb_build_object`; giữ `revoke` / `grant`.
+- [x] **Step 2: Test SQL** `iam_member_list.sql` (bọc `begin … rollback`, theo khuôn `home_summary.sql`): `m1_owner_sees_last_activity` (khác null khi đã đăng nhập, null khi chưa), `m2_staff_denied` (`PERMISSION_DENIED`), `m3_cursor_and_search_unchanged`. Run (người dùng): `tools/db_check.sh iam_member_list` → xanh.
+- [x] **Step 3: Prototype** — Q3, Q4, Q5, Q18, Q20 (không đổi ảnh vì chỉ có pending / hết hạn), Q21: `filterSheet('invitations')`, `usersEmpty` lời mời, `INVITE_STATES['empty-submit']` có cả `role`, nhãn `*` + khe ở `revokeSheet`, dòng "Quyền sở hữu", gợi ý email (hai khung); thêm ca `['confirm', 'Xác nhận đổi vai trò (sheet)', …]` ở `select-role` dùng `lifecycleSheet` với chữ Q6. Sửa câu mô tả ca, README mục 44, 45, 46, 47. `node --test` PASS; `node tools/capture.mjs users`, `invite`, `invitation-detail`, `member-detail`, `select-role`; chép lại ảnh ở mục Ảnh và `select-role__confirm` hai khung.
+- [x] **Step 4: Viết test Dart** — `TenantMember.fromJson` có / không có `last_activity_at`; `member_detail_missing_date_test`: thiếu hoạt động → "—" (Q17).
+- [x] **Step 5: Chạy → FAIL, cài đặt, chạy → PASS** — `flutter test test/features/iam/data test/features/iam/presentation_module/widgets/member_detail_missing_date_test.dart`
 
 ### Task 2: Logic danh sách, mời, lời mời
 
@@ -703,7 +703,7 @@ CSS đã có ở 10-8g: `.t1-orgm__*`, `.t1-orgp*`, `.t1-orgsec*`, `.t1-kv*`, `.
 // MemberUiModel.identityText: 'Chủ sở hữu' | 'Thành viên'
 ```
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```dart
 test('role filter loads every page and finds a member on page 2', …)      // listMembers gọi 2 lần với limit 100; members.length == 1
@@ -719,9 +719,9 @@ test('terminal invitations have no expiry label; unknown delivery is —', …)
 test('store_owner description has no technical note', …)
 ```
 
-- [ ] **Step 2: Chạy → FAIL** — `cd apps/erp && flutter test test/features/iam/presentation_module/users test/features/iam/logic test/features/iam/presentation_module/shared`
-- [ ] **Step 3: Cài đặt** Q3, Q4, Q10–Q16, Q18, Q20, Q21. Ca cũ `filters invitations by sendResult (Đã gửi, Gửi lỗi, Thu hồi)`: phần "Thu hồi" chuyển sang ca trạng thái.
-- [ ] **Step 4: Chạy → PASS** (lệnh Step 2)
+- [x] **Step 2: Chạy → FAIL** — `cd apps/erp && flutter test test/features/iam/presentation_module/users test/features/iam/logic test/features/iam/presentation_module/shared`
+- [x] **Step 3: Cài đặt** Q3, Q4, Q10–Q16, Q18, Q20, Q21. Ca cũ `filters invitations by sendResult (Đã gửi, Gửi lỗi, Thu hồi)`: phần "Thu hồi" chuyển sang ca trạng thái.
+- [x] **Step 4: Chạy → PASS** (lệnh Step 2)
 
 ### Task 3: Danh sách (ID-14)
 
@@ -747,7 +747,7 @@ class AdminTablePage extends StatelessWidget { // thân 1120, đệm 20 / 24 / 3
 // UsersAreaShell({super.key, required Widget child, members, invitations, cubit}) — chỉ cấp cubit, bỏ selectedId / canInvite
 ```
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```dart
 // admin_table_test.dart
@@ -767,10 +767,10 @@ testWidgets('320 at text scale 2.0 does not overflow', …)
 // một golden có khung: StoreShell thật 1280 + Người dùng (thanh bên 84, thân 1196)
 ```
 
-- [ ] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/widgets/organization_users_page_test.dart test/features/iam/presentation_module/shared test/features/iam/presentation_module/w2_wide_layout_test.dart`
-- [ ] **Step 3: Cài đặt** Q2, Q9, Q22, Q23. Router: bỏ nhánh `VListDetailLayout.isSplitOf` và khối "Chọn một thành viên…"; `GoRoute('/more/users')` luôn dựng `OrganizationUsersPage`. Mời xong: `selectTab(invitations)` rồi `loadInvitations(reset: true)` (Q19).
-- [ ] **Step 4: Chạy → PASS** (lệnh Step 2) và `flutter test test/features/invitations`
-- [ ] **Step 5: Golden** `users__{members,invitations,loading,invitations-empty,no-results,forbidden,filter-applied,filter-invitations}` × 2 + golden có khung. So ảnh, ghi lệch.
+- [x] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/widgets/organization_users_page_test.dart test/features/iam/presentation_module/shared test/features/iam/presentation_module/w2_wide_layout_test.dart`
+- [x] **Step 3: Cài đặt** Q2, Q9, Q22, Q23. Router: bỏ nhánh `VListDetailLayout.isSplitOf` và khối "Chọn một thành viên…"; `GoRoute('/more/users')` luôn dựng `OrganizationUsersPage`. Mời xong: `selectTab(invitations)` rồi `loadInvitations(reset: true)` (Q19).
+- [x] **Step 4: Chạy → PASS** (lệnh Step 2) và `flutter test test/features/invitations`
+- [x] **Step 5: Golden** `users__{members,invitations,loading,invitations-empty,no-results,forbidden,filter-applied,filter-invitations}` × 2 + golden có khung. So ảnh, ghi lệch.
 
 ### Task 4: Chi tiết lời mời, chi tiết thành viên (ID-16, ID-17)
 
@@ -792,7 +792,7 @@ const MemberDetailWide({super.key, required MemberUiModel member, required VoidC
 // callback null = không hiện nút; busy != null = mọi nút tắt, nút của việc đó xoay
 ```
 
-- [ ] **Step 1: Viết test** (mở `skip` của T0 `revoke shows one toast…`)
+- [x] **Step 1: Viết test** (mở `skip` của T0 `revoke shows one toast…`)
 
 ```dart
 testWidgets('1280: resend and revoke inside the section, no Thao tác', …)
@@ -807,10 +807,10 @@ testWidgets('revoke reason is required and spaced', …)                    // '
 testWidgets('320 at text scale 2.0 does not overflow', …)
 ```
 
-- [ ] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/widgets/organization_invitation_detail_page_test.dart test/features/iam/presentation_module/widgets/organization_member_detail_page_test.dart test/features/iam/presentation_module/w2_wide_layout_test.dart`
-- [ ] **Step 3: Cài đặt** Q5, Q16, Q22–Q24; `showBackButton` luôn `true`.
-- [ ] **Step 4: Chạy → PASS** (lệnh Step 2)
-- [ ] **Step 5: Golden** `invitation-detail__{pending,expired,revoke}`, `member-detail__{active,suspended,removed,owner,deactivate}` × 2; ba ca sheet "Thao tác" × 390. So ảnh.
+- [x] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/widgets/organization_invitation_detail_page_test.dart test/features/iam/presentation_module/widgets/organization_member_detail_page_test.dart test/features/iam/presentation_module/w2_wide_layout_test.dart`
+- [x] **Step 3: Cài đặt** Q5, Q16, Q22–Q24; `showBackButton` luôn `true`.
+- [x] **Step 4: Chạy → PASS** (lệnh Step 2)
+- [x] **Step 5: Golden** `invitation-detail__{pending,expired,revoke}`, `member-detail__{active,suspended,removed,owner,deactivate}` × 2; ba ca sheet "Thao tác" × 390. So ảnh.
 
 ### Task 5: Mời thành viên, chọn vai trò (ID-15, ID-18) + dọn
 
@@ -831,7 +831,7 @@ Future<bool?> showChangeRoleBottomSheet({required BuildContext context, required
 class OrganizationSelectRolePage { const OrganizationSelectRolePage({super.key, required MemberUiModel member, required Future<bool> Function(String roleCode) onConfirm, List<InvitationRoleOption>? invitationRoleOptions}); }
 ```
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```dart
 testWidgets('390: invite roles are four radio rows; 1280: two-column grid', …)
@@ -846,24 +846,56 @@ testWidgets('success returns to the invitations tab', …)                     /
 testWidgets('320 at text scale 2.0 does not overflow', …)
 ```
 
-- [ ] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/widgets/organization_invite_member_page_test.dart test/features/iam/presentation_module/widgets/organization_select_role_page_test.dart test/features/iam/presentation_module/widgets/organization_member_detail_page_test.dart`
-- [ ] **Step 3: Cài đặt** Q4, Q6–Q8, Q19, Q21.
-- [ ] **Step 4: TH-01** — 3.4 mô tả `store_owner` "Quản lý toàn bộ cửa hàng" (ghi chú BR-36 chuyển xuống dưới bảng); US-06.4 FR-01: "Quyền sở hữu: Chủ sở hữu / Thành viên"; US-06.1 thêm "Hoạt động gần nhất" ở bảng web. CHECKLIST ID-18b giữ như 10-8d.
-- [ ] **Step 5: Chạy → PASS**
+- [x] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/widgets/organization_invite_member_page_test.dart test/features/iam/presentation_module/widgets/organization_select_role_page_test.dart test/features/iam/presentation_module/widgets/organization_member_detail_page_test.dart`
+- [x] **Step 3: Cài đặt** Q4, Q6–Q8, Q19, Q21.
+- [x] **Step 4: TH-01** — 3.4 mô tả `store_owner` "Quản lý toàn bộ cửa hàng" (ghi chú BR-36 chuyển xuống dưới bảng); US-06.4 FR-01: "Quyền sở hữu: Chủ sở hữu / Thành viên"; US-06.1 thêm "Hoạt động gần nhất" ở bảng web. CHECKLIST ID-18b giữ như 10-8d.
+- [x] **Step 5: Chạy → PASS**
 
 Run: `cd apps/erp && flutter test test/features/iam test/features/invitations && dart analyze lib test && dart run tool/check_feature_imports.dart`
 Expected: PASS, không lỗi analyze mới, không vi phạm import mới
 
-- [ ] **Step 6: Golden** `invite__{empty,filled,empty-submit}`, `select-role__{default,selected,confirm}` × 2. So ảnh.
-- [ ] **Step 7: PLAN.md** dòng Theme 1: 10-8h đã làm
+- [x] **Step 6: Golden** `invite__{empty,filled,empty-submit}`, `select-role__{default,selected,confirm}` × 2. So ảnh.
+- [x] **Step 7: PLAN.md** dòng Theme 1: 10-8h đã làm
 
 ## Kiểm tay (người dùng)
 
-- [ ] DB: `tools/db_check.sh iam_member_list` xanh; áp Dev khi đồng ý (`supabase db push`).
+- [x] DB: `tools/db_check.sh iam_member_list` xanh (2026-11-26).
+- [ ] Áp Dev khi đồng ý (`supabase db push`).
 - [ ] Web + iPhone: tìm, lọc từng tiêu chí, mời (trống, sai, trùng, đúng), gửi lại, thu hồi, tạm ngừng, kích hoạt lại, loại, đổi vai trò.
 - [ ] Web: gõ thẳng URL chi tiết, ← của trang và của trình duyệt; thu cửa sổ khi đang ở chi tiết.
 - [ ] CHECKLIST ID-14…ID-18 cột "Mới".
 
 ## Kết quả
 
+Làm xong Task 0–5; xử lý review R1 (2026-11-26). Golden `test/features/iam/presentation_module/users_golden_test.dart`: 47 ảnh, dữ liệu trùng `admin-data.js`, so cạnh prototype ở mục Ảnh. Còn lệch chấp nhận được:
+
+- Icon ra ô vuông, không có ← trên app bar: golden không nạp font icon và trang không có route để quay lại (giống 10-8g).
+- Ngày giờ "21/11/2026 · 17:05" (`VDateTime.dateTime` dùng chung toàn app); prototype viết "21/11/2026 17:05".
+- Web: thẻ vai trò ở Mời thành viên cao hơn ~3 px; iPhone: chữ phụ đề đầu trang Chọn vai trò cỡ `bodyDefault` (prototype nhỏ hơn 1 cỡ).
+- Web chi tiết thành viên tạm ngừng: ô chữ viết tắt xám (`DetailAvatar(muted)`, như bản iPhone); prototype web giữ màu xanh.
+
+Kiểm: `flutter test test/features/iam test/features/invitations` 448 PASS; `node --test tests/t1.test.mjs` 24 PASS; `dart analyze` phần iam không có mục mới; `check_feature_imports` không vi phạm iam. `tools/db_check.sh iam_member_list` đạt (người dùng chạy 2026-11-26; lần đầu đỏ do test dùng mã vai trò `sales_staff` và chèn trùng profile mà `trg_on_auth_user_confirmed_ins` đã tạo — sửa thành `staff` + `on conflict`). Còn: kiểm tay, áp Dev.
+
 ## Review
+
+**R1 (2026-11-26):** Test xanh, migration chép đúng, Q1–Q5, Q7–Q24 đúng. Thiếu bước và lỗi, đã sửa:
+
+| # | Lỗi | Sửa |
+|---|---|---|
+| A | Task 1 Step 3: prototype chưa sửa (còn "Danh tính: Chỉ đọc", `minhphat.vn`, "Thu hồi" ở "Kết quả gửi", "Chưa có lời mời"), không có ca `select-role__confirm` | Sửa `users.js`, `web/users.js`, `admin-data.js` (Q20 `statusDetail`), `cases.js`, README 44–47; thêm `changeRoleSheet` + ca `confirm`; 3 ca `node --test`; chụp lại 5 màn, chép ảnh |
+| B | Chưa có golden, chưa so ảnh | `users_golden_test.dart` (bọc `RepaintBoundary` ở `MaterialApp.builder` để sheet lọt vào ảnh); so từng cặp, sửa các lệch 8–13 |
+| 1 | Đổi vai trò lỗi vẫn đóng sheet và trang "Chọn vai trò": `onConfirm` đọc `state.failure` sau khi listener đã `clearFeedback()`. Ca test cũ xanh giả vì `memberLastOwnerProtected` không chặn `assignRole` (đổi thành công thật) | `changeRole` trả `Future<bool>`; `onConfirm: cubit.changeRole`. Test dùng repo chặn `assignRole` + `pumpAndSettle`; đỏ với code cũ, xanh với code mới |
+| 2 | Web: chủ duy nhất tạm ngừng vẫn có "Thay đổi vai trò", "Loại khỏi tổ chức" | Dùng `canChangeRole` / `canRemove`; thêm ca `1280: suspended sole owner only shows Kích hoạt lại` |
+| 3 | Info analyze mới: `_UserCardLine` private trong API public; `hasFlag` deprecated | `UserCardLine`; `flagsCollection.isSelected` |
+| 4 | `selectedId` không ai truyền (5 file) | Xoá |
+| 5 | Comment cũ ở `invitation_filter_bottom_sheet.dart:6-7` | Sửa |
+| 6 | Review Focus 2, 3 chỉ test bằng router tự dựng | Thêm `1b`, `1c` ở `w2_wide_layout_test` dùng `appRouter` (go ở 1280 → 700 → ←; URL ở 700 → 1280 → ←) |
+| 7 | (Rút lại) "toast nạp thêm lặp chữ": `VToast` chỉ vẽ `message`, `title` dùng cho trình đọc màn hình | Giữ nguyên |
+| 8 | Web danh sách: `VPageScaffold` giới hạn thân 720 → bảng hẹp, tên / vai trò xuống dòng | `contentMaxWidth: VPageScaffold.fullWidth` khi rộng |
+| 9 | Web: tab giãn hết hàng; hai gạch chồng dưới tab (README 41) | `VTabsList(isScrollable: true)`; dịch tab 1 px trùng gạch hàng công cụ |
+| 10 | Nhãn lời mời sai chữ / màu so với prototype và `InvitationCard` cũ ("Gửi lỗi", Đang chờ xám, Hết hạn / Đã thu hồi đỏ) | "Lỗi gửi"; Đang chờ vàng; Hết hạn, Đã thu hồi xám |
+| 11 | iPhone thẻ danh sách: nhãn "Chủ sở hữu" và trạng thái chồng ở giữa | Tên + nhãn phụ liền nhau, nhãn trạng thái dạt phải (`.t1-ucard__name`) |
+| 12 | Mời thành viên: chọn sẵn vai trò đầu → không bao giờ báo thiếu vai trò (Q4, TH-01 US-06.2 FR-01/06, prototype không chọn sẵn); iPhone nhãn "Vai trò ban đầu" nằm ngoài thẻ; web khe nhãn → lưới 16 (proto 8), radio 32 | Bỏ chọn sẵn (6 test cũ thêm bước chọn vai trò; `empty email…` đếm 2 câu lỗi); `RoleRadioList(header:)`; bỏ `SizedBox(8)` thừa; radio 20 × 20 |
+| 13 | iPhone Chọn vai trò: nhãn "Hoạt động" xuống dưới hai dòng phụ; khe 24 trước "Chọn vai trò mới" (proto ~12) | `DetailHeaderNarrow(badgeInline: true)` (mặc định giữ như 10-8g, golden 10-8g không đổi); khe 12 |
+
+DB: `tools/db_check.sh iam_member_list` đạt sau khi sửa test SQL (mã vai trò `staff`; upsert profile).
