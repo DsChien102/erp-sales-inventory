@@ -408,7 +408,6 @@ export function legalPage(v) {
 
 - [ ] **Step 1: Viết ca T0 trong bảng**, khổ 390 × 844. `returning true reloads`: đếm lời gọi `getTenant` tăng thêm 1.
 - [ ] **Step 2: Chạy, phải xanh trên code cũ** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets/organization_profile_page_test.dart`
-- [ ] **Step 3: Commit** `test(10-8g): test giữ hành vi Hồ sơ tổ chức`
 
 ### Task 1: Hồ sơ tổ chức + khối dùng chung (lỗi 7, 8)
 
@@ -470,7 +469,6 @@ testWidgets('320 at text scale 2.0 and 840x900 do not overflow', …)
 - [ ] **Step 4: Cài đặt** Q3, Q4, Q6, Q10.
 - [ ] **Step 5: Chạy → PASS** (lệnh Step 3) và `flutter test test/features/tenant_context/presentation/wgt_e05_tenant_context_test.dart`
 - [ ] **Step 6: Golden** `org-profile__{no-legal,with-legal,forbidden}` × 2, `org-profile__actions` × 390 (trang trần, khổ như 10-8e). So ảnh, ghi lệch.
-- [ ] **Step 7: Commit** `feat(10-8g): Hồ sơ tổ chức theo prototype, địa chỉ đủ xã tỉnh`
 
 ### Task 2: Chỉnh thông tin tổ chức
 
@@ -500,7 +498,6 @@ testWidgets('320 at text scale 2.0 and 840x900 do not overflow', …)
 - [ ] **Step 3: Cài đặt** Q8, Q9.
 - [ ] **Step 4: Chạy → PASS** — lệnh Step 2, thêm `test/features/iam/presentation_module/widgets/profile_phone_validation_test.dart test/features/auth/presentation/pages/signup_page_test.dart test/features/tenant_admin`
 - [ ] **Step 5: Golden** `org-edit__{filled,errors,discard}` × 2. So ảnh.
-- [ ] **Step 6: Commit** `feat(10-8g): Chỉnh thông tin tổ chức theo prototype`
 
 ### Task 3: Hồ sơ pháp lý (lỗi 5, 6, Q5)
 
@@ -546,7 +543,7 @@ Run: `cd apps/erp && flutter test test/features/iam/presentation_module/widgets/
 Expected: PASS, không lỗi analyze mới, không vi phạm import mới
 
 - [ ] **Step 5: Golden** `org-legal__{add-empty,add-errors,add-tax-format,edit-filled,duplicate}` × 2. So ảnh.
-- [ ] **Step 6: PLAN.md** dòng Theme 1: 10-8g đã làm. Commit `feat(10-8g): Hồ sơ pháp lý theo prototype, sửa báo thiếu sai và Vẫn lưu`
+- [ ] **Step 6: PLAN.md** dòng Theme 1: 10-8g đã làm
 
 ## Kiểm tay (người dùng)
 
@@ -557,3 +554,18 @@ Expected: PASS, không lỗi analyze mới, không vi phạm import mới
 ## Kết quả
 
 ## Review
+
+**R1 (2026-11-26):** Q1–Q10 đúng; đủ ca test plan; `e2e_e02_u07_fr01_01` lỗi sẵn (TEST-BASELINE). Lệch so prototype, đã sửa:
+
+| # | Lỗi | Sửa |
+|---|---|---|
+| 1 | `DetailRow`: nhãn `Flexible` + giá trị `Expanded` chia đôi ngang, địa chỉ dài xuống 4 dòng (390) / 2 dòng (1280) | Nhãn theo bề rộng chữ, tối đa 45%; giá trị lấy phần còn lại |
+| 2 | Cỡ chữ: tên đầu trang hẹp 18 (proto 22), web 22 (24); tiêu đề khối web 14 (16) | `headingH2`; web 24/32; khối web 16/24 |
+| 3 | Web: hộp vàng → "Thêm hồ sơ pháp lý" cách ~28 (proto 16) | Gộp vào `Column` khe 16 |
+| 4 | Golden form: seed danh mục ở `setUp` (ngoài vùng thời gian giả) → `FutureBuilder` không nhận, ô tỉnh / xã trông như tắt | Seed trong thân test (`_captureOrg`); chụp lại ảnh |
+| 5 | "Địa chỉ đăng ký" ẩn vẫn để khe 12 cuối thẻ | `VnAddressBuilder` dựng cả khối dòng pháp lý |
+| 6 | `EntityTypeSegment` viền giữa 2px, chữ 1 dòng bị cắt ở chữ 2.0 | Cạnh chung chỉ một nửa vẽ (nửa đang chọn giữ); chữ tối đa 2 dòng |
+| 7 | "Bổ sung hồ sơ pháp lý…" cách hộp vàng 12 (proto 8) | Khe 8 |
+| 8 | `cachedUnits` ghi được từ ngoài; `seedCacheForTest` không đánh dấu | Getter chỉ đọc; `@visibleForTesting` |
+
+Chạy lại: test Task 0–3 + `signup_page_test`, `tenant_admin`, `wgt_e05` PASS (trừ ca baseline); golden 23 ca; `dart analyze` không lỗi mới; `check_feature_imports` không vi phạm mới. Còn: kiểm tay.

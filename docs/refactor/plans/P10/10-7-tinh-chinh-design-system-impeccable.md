@@ -8,7 +8,7 @@
 
 ## 1. Mục tiêu
 
-Chỉnh design system theo **từng mảng một**: mỗi task chạy một lệnh impeccable trên phạm vi hẹp, xem lại, kiểm tra, commit riêng. Đây là **tinh chỉnh**, không phải thiết kế lại: giữ nhận diện hiện tại (xanh lá phòng khám, Inter, "gọn như một quầy thuốc ngăn nắp" trong DESIGN.md), giữ hành vi và API công khai trừ khi task ghi rõ.
+Chỉnh design system theo **từng mảng một**: mỗi task chạy một lệnh impeccable trên phạm vi hẹp, xem lại, kiểm tra. Đây là **tinh chỉnh**, không phải thiết kế lại: giữ nhận diện hiện tại (xanh lá phòng khám, Inter, "gọn như một quầy thuốc ngăn nắp" trong DESIGN.md), giữ hành vi và API công khai trừ khi task ghi rõ.
 
 ## 2. Thứ tự và cách làm
 
@@ -37,7 +37,7 @@ Task 3 và 4 đi ngược chiều nhau trên cùng file: làm task 3 xong, nhìn
 2. Chạy lệnh ở mục "Lệnh" của task. Đọc phần impeccable đề xuất **trước khi** nó sửa; gạt bỏ đề xuất ra ngoài phạm vi.
 3. Chạy app example để nhìn: `melos run design-system:example` (hoặc `:web`). Xem cả sáng / tối nếu theme có hai chế độ.
 4. Kiểm tra chung (mục 4) + kiểm tra riêng của task.
-5. Ghi một dòng vào `CHANGELOG.md` mục `[Unreleased]`, commit riêng: `style(design-system): 10-7.<số> — <mảng>`.
+5. Ghi một dòng vào `CHANGELOG.md` mục `[Unreleased]` (người dùng tự commit).
 6. Tích `- [ ] Xong (làm + review)` trong mục 3 (chỉ tích sau khi đã review xong), ghi ngày nếu cần.
 
 ## 3. Task

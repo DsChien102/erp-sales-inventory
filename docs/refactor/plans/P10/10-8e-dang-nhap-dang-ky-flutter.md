@@ -943,4 +943,4 @@ R1–R7 ở Kết quả: đồng ý; R8 xem G16. R1 (bọc `VField` ở màn ema
 - G16: khi `nameDiffers`, một toast nối hai câu; sửa LUONG-DANG-KY-XAC-MINH-EMAIL.
 - Chạy lại: app (`test/features/auth`, `test/core/widgets`, `test/features/iam`, `store_shell_test`) 486/486; golden các màn khác bằng mốc (47 đỏ sẵn); DS 533/534 (`v_overlay_menu_shell_test` đỏ sẵn); `dart analyze lib test` 241, `check_feature_imports` 18, bằng trước khi sửa. Không chạy toàn app.
 
-**Còn lại trước khi đóng plan:** kiểm tay bốn mục ở "Kiểm tay". Phần sửa R1 do phiên review làm, chưa có phiên khác xem lại.
+**Trạng thái: done (2026-11-26).**

@@ -307,7 +307,6 @@ CSS đã có ở 10-8g: `.t1-orgm__head`, `.t1-orgm__avatar`, `.t1-orgsec*`, `.t
 
 - [ ] **Step 1: Viết ca T0 trong bảng** ở 390 × 844.
 - [ ] **Step 2: Chạy, phải xanh trên code cũ** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets/my_account_page_test.dart test/features/my_account`
-- [ ] **Step 3: Commit** `test(10-8k): test giữ hành vi Tài khoản của tôi`
 
 ### Task 1: Prototype + logic
 
@@ -335,7 +334,6 @@ testWidgets('remote failure still goes to login with the banner', …)  // local
 - [ ] **Step 3: Chạy → FAIL** — `flutter test test/features/iam/logic/my_account_cubit_test.dart test/features/iam/presentation_module/widgets/my_account_page_test.dart`
 - [ ] **Step 4: Cài đặt** Q5, Q7–Q9 (phần logic; sheet xoá ở Task 2).
 - [ ] **Step 5: Chạy → PASS** (lệnh Step 3)
-- [ ] **Step 6: Commit** `fix(10-8k): nhãn chủ theo tổ chức, đăng xuất một lần, lỗi đăng xuất sau đặt lại mật khẩu`
 
 ### Task 2: Tài khoản của tôi
 
@@ -368,7 +366,6 @@ testWidgets('labeled tap targets', …)                                // meetsG
 - [ ] **Step 3: Cài đặt** Q1–Q3, Q10, Q11, Q13. Test e2e `e2e_e06_u04_*` thêm bước bấm "Đăng xuất" trong sheet.
 - [ ] **Step 4: Chạy → PASS** (lệnh Step 2) và `flutter test test/features/more`
 - [ ] **Step 5: Golden** `account__{owner,staff,no-phone,error,logout,toast-logout-failed}` × 2. So ảnh, ghi lệch.
-- [ ] **Step 6: Commit** `feat(10-8k): Tài khoản của tôi theo prototype`
 
 ### Task 3: Chỉnh sửa thông tin + đóng Theme 1
 
@@ -402,7 +399,7 @@ Run: `cd apps/erp && flutter test test/features/iam test/features/auth test/feat
 Expected: PASS, không lỗi analyze mới, không vi phạm import mới (đây là phạm vi Theme 1; so `TEST-BASELINE.md`)
 
 - [ ] **Step 6: Golden** `account-edit__{default,errors,submitting,discard}` × 2. So ảnh.
-- [ ] **Step 7: Đóng Theme 1** — PLAN.md dòng Theme 1 cột "Plan chuyển Flutter" ✅, cột "Xong" chờ kiểm tay; README prototype thêm bảng "Đã có trong Flutter" theo plan 10-8d…k. Commit `feat(10-8k): Chỉnh sửa thông tin theo prototype, đóng Theme 1`
+- [ ] **Step 7: Đóng Theme 1** — PLAN.md dòng Theme 1 cột "Plan chuyển Flutter" ✅, cột "Xong" chờ kiểm tay; README prototype thêm bảng "Đã có trong Flutter" theo plan 10-8d…k
 
 ## Kiểm tay (người dùng)
 

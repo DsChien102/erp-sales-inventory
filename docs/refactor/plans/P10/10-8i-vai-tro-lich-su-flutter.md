@@ -488,7 +488,6 @@ CSS đã có: `.t1-utable*`, `.t1-utools*`, `.t1-uwrap`, `.t1-avatar`, `.t1-skel
 
 - [ ] **Step 1: Viết ca T0 trong bảng** ở 390 × 844.
 - [ ] **Step 2: Chạy, phải xanh trên code cũ** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets/organization_roles_page_test.dart test/features/iam/presentation_module/widgets/organization_role_detail_page_test.dart test/features/iam/presentation_module/widgets/organization_audit_logs_page_test.dart`
-- [ ] **Step 3: Commit** `test(10-8i): test giữ hành vi Vai trò`
 
 ### Task 1: Prototype + Vai trò (ID-19)
 
@@ -520,7 +519,6 @@ testWidgets('320 at text scale 2.0 does not overflow', …)
 - [ ] **Step 4: Cài đặt** Q4, Q5, Q19; router bỏ khối "Chọn một vai trò để xem chi tiết."
 - [ ] **Step 5: Chạy → PASS** (lệnh Step 3)
 - [ ] **Step 6: Golden** `roles__{list,loading,failed,detail,detail-empty}` × 2. So ảnh, ghi lệch.
-- [ ] **Step 7: Commit** `feat(10-8i): Vai trò theo prototype`
 
 ### Task 2: Logic lịch sử
 
@@ -557,7 +555,6 @@ testWidgets('detail page requests once', …)                              // đ
 - [ ] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/audit_logs test/features/iam/presentation_module/widgets/audit_log_filter_bottom_sheet_test.dart`
 - [ ] **Step 3: Cài đặt** Q2, Q3, Q6–Q7, Q9–Q11, Q14 (mapper), Q16.
 - [ ] **Step 4: Chạy → PASS** (lệnh Step 2)
-- [ ] **Step 5: Commit** `fix(10-8i): lọc thời gian, tìm, nạp thêm lịch sử quản trị`
 
 ### Task 3: Lịch sử quản trị (ID-20) + dọn
 
@@ -596,7 +593,7 @@ Run: `cd apps/erp && flutter test test/features/iam && dart analyze lib test && 
 Expected: PASS, không lỗi analyze mới, không vi phạm import mới
 
 - [ ] **Step 6: Golden** `audit__{list,loading,no-results,forbidden,filter,filter-applied,blocked}`, `audit-detail__{detail,actor-unavailable,not-found,toast-copied}` × 2. So ảnh.
-- [ ] **Step 7: PLAN.md** dòng Theme 1: 10-8i đã làm. Commit `feat(10-8i): Lịch sử quản trị theo prototype`
+- [ ] **Step 7: PLAN.md** dòng Theme 1: 10-8i đã làm
 
 ## Kiểm tay (người dùng)
 

@@ -668,7 +668,6 @@ CSS đã có ở 10-8g: `.t1-orgm__*`, `.t1-orgp*`, `.t1-orgsec*`, `.t1-kv*`, `.
 
 - [ ] **Step 1: Viết ca T0 trong bảng** ở 390 × 844. Ca `revoke shows one toast…` đánh dấu `skip: 'đỏ trên code cũ, mở ở Task 4 (Q16)'`.
 - [ ] **Step 2: Chạy, phải xanh trên code cũ** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets`
-- [ ] **Step 3: Commit** `test(10-8h): test giữ hành vi Người dùng`
 
 ### Task 1: Migration "Hoạt động gần nhất" + prototype
 
@@ -687,7 +686,6 @@ CSS đã có ở 10-8g: `.t1-orgm__*`, `.t1-orgp*`, `.t1-orgsec*`, `.t1-kv*`, `.
 - [ ] **Step 3: Prototype** — Q3, Q4, Q5, Q18, Q20 (không đổi ảnh vì chỉ có pending / hết hạn), Q21: `filterSheet('invitations')`, `usersEmpty` lời mời, `INVITE_STATES['empty-submit']` có cả `role`, nhãn `*` + khe ở `revokeSheet`, dòng "Quyền sở hữu", gợi ý email (hai khung); thêm ca `['confirm', 'Xác nhận đổi vai trò (sheet)', …]` ở `select-role` dùng `lifecycleSheet` với chữ Q6. Sửa câu mô tả ca, README mục 44, 45, 46, 47. `node --test` PASS; `node tools/capture.mjs users`, `invite`, `invitation-detail`, `member-detail`, `select-role`; chép lại ảnh ở mục Ảnh và `select-role__confirm` hai khung.
 - [ ] **Step 4: Viết test Dart** — `TenantMember.fromJson` có / không có `last_activity_at`; `member_detail_missing_date_test`: thiếu hoạt động → "—" (Q17).
 - [ ] **Step 5: Chạy → FAIL, cài đặt, chạy → PASS** — `flutter test test/features/iam/data test/features/iam/presentation_module/widgets/member_detail_missing_date_test.dart`
-- [ ] **Step 6: Commit** `feat(10-8h): list_tenant_members trả hoạt động gần nhất; prototype sửa lỗi 9–11`
 
 ### Task 2: Logic danh sách, mời, lời mời
 
@@ -724,7 +722,6 @@ test('store_owner description has no technical note', …)
 - [ ] **Step 2: Chạy → FAIL** — `cd apps/erp && flutter test test/features/iam/presentation_module/users test/features/iam/logic test/features/iam/presentation_module/shared`
 - [ ] **Step 3: Cài đặt** Q3, Q4, Q10–Q16, Q18, Q20, Q21. Ca cũ `filters invitations by sendResult (Đã gửi, Gửi lỗi, Thu hồi)`: phần "Thu hồi" chuyển sang ca trạng thái.
 - [ ] **Step 4: Chạy → PASS** (lệnh Step 2)
-- [ ] **Step 5: Commit** `fix(10-8h): lọc, sắp, nạp trang, mời, thu hồi`
 
 ### Task 3: Danh sách (ID-14)
 
@@ -774,7 +771,6 @@ testWidgets('320 at text scale 2.0 does not overflow', …)
 - [ ] **Step 3: Cài đặt** Q2, Q9, Q22, Q23. Router: bỏ nhánh `VListDetailLayout.isSplitOf` và khối "Chọn một thành viên…"; `GoRoute('/more/users')` luôn dựng `OrganizationUsersPage`. Mời xong: `selectTab(invitations)` rồi `loadInvitations(reset: true)` (Q19).
 - [ ] **Step 4: Chạy → PASS** (lệnh Step 2) và `flutter test test/features/invitations`
 - [ ] **Step 5: Golden** `users__{members,invitations,loading,invitations-empty,no-results,forbidden,filter-applied,filter-invitations}` × 2 + golden có khung. So ảnh, ghi lệch.
-- [ ] **Step 6: Commit** `feat(10-8h): Người dùng theo prototype, web bảng toàn màn`
 
 ### Task 4: Chi tiết lời mời, chi tiết thành viên (ID-16, ID-17)
 
@@ -815,7 +811,6 @@ testWidgets('320 at text scale 2.0 does not overflow', …)
 - [ ] **Step 3: Cài đặt** Q5, Q16, Q22–Q24; `showBackButton` luôn `true`.
 - [ ] **Step 4: Chạy → PASS** (lệnh Step 2)
 - [ ] **Step 5: Golden** `invitation-detail__{pending,expired,revoke}`, `member-detail__{active,suspended,removed,owner,deactivate}` × 2; ba ca sheet "Thao tác" × 390. So ảnh.
-- [ ] **Step 6: Commit** `feat(10-8h): chi tiết lời mời, thành viên theo prototype`
 
 ### Task 5: Mời thành viên, chọn vai trò (ID-15, ID-18) + dọn
 
@@ -860,7 +855,7 @@ Run: `cd apps/erp && flutter test test/features/iam test/features/invitations &&
 Expected: PASS, không lỗi analyze mới, không vi phạm import mới
 
 - [ ] **Step 6: Golden** `invite__{empty,filled,empty-submit}`, `select-role__{default,selected,confirm}` × 2. So ảnh.
-- [ ] **Step 7: PLAN.md** dòng Theme 1: 10-8h đã làm. Commit `feat(10-8h): mời thành viên, đổi vai trò qua một sheet xác nhận`
+- [ ] **Step 7: PLAN.md** dòng Theme 1: 10-8h đã làm
 
 ## Kiểm tay (người dùng)
 
