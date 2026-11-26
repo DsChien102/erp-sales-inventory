@@ -59,6 +59,8 @@ class DetailAvatar extends StatelessWidget {
           initials,
           variant: VTextVariant.headingH4,
           style: TextStyle(
+            // Ô lớn (prototype `.t1-avatar--xl` 72) dùng chữ 24.
+            fontSize: size >= 72 ? 24 : null,
             fontWeight: FontWeight.w700,
             color: muted ? colors.textSecondary : colors.textBrand,
           ),
@@ -327,11 +329,17 @@ class DetailRow extends StatelessWidget {
     required this.label,
     required this.value,
     this.muted = false,
+    this.valueMuted = false,
   });
 
   final String label;
   final String value;
+
+  /// Làm mờ nhãn (dòng của đối tượng không còn hoạt động).
   final bool muted;
+
+  /// Giá trị rỗng kiểu "(chưa có)": `textMuted`, chữ thường w500.
+  final bool valueMuted;
 
   @override
   Widget build(BuildContext context) {
@@ -359,8 +367,8 @@ class DetailRow extends StatelessWidget {
                 value.isEmpty ? '—' : value,
                 variant: VTextVariant.bodyDefault,
                 style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: colors.textPrimary,
+                  fontWeight: valueMuted ? FontWeight.w500 : FontWeight.w600,
+                  color: valueMuted ? colors.textMuted : colors.textPrimary,
                 ),
                 textAlign: TextAlign.right,
               ),

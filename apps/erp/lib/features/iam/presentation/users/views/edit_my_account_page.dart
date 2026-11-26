@@ -1,3 +1,4 @@
+import 'package:erp/core/config/wide_layout.dart';
 import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:c45_design_system/design_system.dart';
 import '../../shared/iam_load_status.dart';
 import '../../../logic/my_account_edit_cubit.dart';
 import '../../../logic/my_account_edit_state.dart';
+import '../widgets/edit_account_narrow.dart';
+import '../widgets/edit_account_wide.dart';
 import 'my_account_page.dart';
 
 /// Trang Chỉnh sửa thông tin cá nhân (TA-D-02).
@@ -55,6 +58,10 @@ class _EditMyAccountSampleBody extends StatefulWidget {
 }
 
 class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
+  final _lastNameKey = GlobalKey();
+  final _firstNameKey = GlobalKey();
+  final _phoneKey = GlobalKey();
+  final _emailKey = GlobalKey();
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _phoneNumberController;
@@ -117,6 +124,11 @@ class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
   Widget build(BuildContext context) {
     return _EditFormScaffold(
       fullName: widget.data.fullName,
+      email: widget.data.email,
+      lastNameKey: _lastNameKey,
+      firstNameKey: _firstNameKey,
+      phoneKey: _phoneKey,
+      emailKey: _emailKey,
       firstNameController: _firstNameController,
       lastNameController: _lastNameController,
       phoneNumberController: _phoneNumberController,
@@ -126,10 +138,14 @@ class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
       firstNameErrorText: _firstNameErrorText,
       hasChanges: _hasChanges,
       isSaving: false,
-      onChanged: () => setState(() {
-        _phoneErrorText = null;
+      onLastNameChanged: () => setState(() {
         if (_lastNameController.text.trim().isNotEmpty) _lastNameErrorText = null;
+      }),
+      onFirstNameChanged: () => setState(() {
         if (_firstNameController.text.trim().isNotEmpty) _firstNameErrorText = null;
+      }),
+      onPhoneChanged: () => setState(() {
+        _phoneErrorText = null;
       }),
       onSave: _handleSave,
       onCancel: () => Navigator.of(context).maybePop(),
@@ -145,6 +161,10 @@ class _EditMyAccountBody extends StatefulWidget {
 }
 
 class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
+  final _lastNameKey = GlobalKey();
+  final _firstNameKey = GlobalKey();
+  final _phoneKey = GlobalKey();
+  final _emailKey = GlobalKey();
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _phoneNumberController;
@@ -292,6 +312,11 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
 
         return _EditFormScaffold(
           fullName: fullName,
+          email: profile?.email ?? _emailController.text,
+          lastNameKey: _lastNameKey,
+          firstNameKey: _firstNameKey,
+          phoneKey: _phoneKey,
+          emailKey: _emailKey,
           firstNameController: _firstNameController,
           lastNameController: _lastNameController,
           phoneNumberController: _phoneNumberController,
@@ -301,10 +326,14 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
           firstNameErrorText: _firstNameErrorText,
           hasChanges: _hasChanges,
           isSaving: state.isSubmitting,
-          onChanged: () => setState(() {
-            _phoneErrorText = null;
+          onLastNameChanged: () => setState(() {
             if (_lastNameController.text.trim().isNotEmpty) _lastNameErrorText = null;
+          }),
+          onFirstNameChanged: () => setState(() {
             if (_firstNameController.text.trim().isNotEmpty) _firstNameErrorText = null;
+          }),
+          onPhoneChanged: () => setState(() {
+            _phoneErrorText = null;
           }),
           onSave: _handleSave,
           onCancel: () => Navigator.of(context).maybePop(),
@@ -317,6 +346,11 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
 class _EditFormScaffold extends StatelessWidget {
   const _EditFormScaffold({
     required this.fullName,
+    required this.email,
+    required this.lastNameKey,
+    required this.firstNameKey,
+    required this.phoneKey,
+    required this.emailKey,
     required this.firstNameController,
     required this.lastNameController,
     required this.phoneNumberController,
@@ -326,12 +360,25 @@ class _EditFormScaffold extends StatelessWidget {
     required this.firstNameErrorText,
     required this.hasChanges,
     required this.isSaving,
-    required this.onChanged,
+    required this.onLastNameChanged,
+    required this.onFirstNameChanged,
+    required this.onPhoneChanged,
     required this.onSave,
     required this.onCancel,
   });
 
+  static const _wideContentMaxWidth = VResponsiveValue<double>(
+    mobile: double.infinity,
+    tablet: 560,
+    desktop: 560,
+  );
+
   final String fullName;
+  final String email;
+  final GlobalKey lastNameKey;
+  final GlobalKey firstNameKey;
+  final GlobalKey phoneKey;
+  final GlobalKey emailKey;
   final TextEditingController firstNameController;
   final TextEditingController lastNameController;
   final TextEditingController phoneNumberController;
@@ -341,13 +388,81 @@ class _EditFormScaffold extends StatelessWidget {
   final String? firstNameErrorText;
   final bool hasChanges;
   final bool isSaving;
-  final VoidCallback onChanged;
+  final VoidCallback onLastNameChanged;
+  final VoidCallback onFirstNameChanged;
+  final VoidCallback onPhoneChanged;
   final VoidCallback onSave;
   final VoidCallback onCancel;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
+    final wide = isWideLayout(context);
+
+    final lastNameField = VField(
+      invalid: lastNameErrorText != null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const VFieldLabel('Họ và tên đệm', isRequired: true),
+          VTextField(
+            key: lastNameKey,
+            hintText: 'Nhập họ và tên đệm',
+            controller: lastNameController,
+            onChanged: (_) => onLastNameChanged(),
+          ),
+          if (lastNameErrorText != null) VFieldError(lastNameErrorText!),
+        ],
+      ),
+    );
+
+    final firstNameField = VField(
+      invalid: firstNameErrorText != null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const VFieldLabel('Tên', isRequired: true),
+          VTextField(
+            key: firstNameKey,
+            hintText: 'Nhập tên',
+            controller: firstNameController,
+            onChanged: (_) => onFirstNameChanged(),
+          ),
+          if (firstNameErrorText != null) VFieldError(firstNameErrorText!),
+        ],
+      ),
+    );
+
+    final phoneField = VField(
+      invalid: phoneErrorText != null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const VFieldLabel('Số điện thoại'),
+          VPhoneField(
+            key: phoneKey,
+            hintText: 'Nhập số điện thoại',
+            controller: phoneNumberController,
+            validateOnChanged: false,
+            onChanged: (_) => onPhoneChanged(),
+          ),
+          if (phoneErrorText != null) VFieldError(phoneErrorText!),
+        ],
+      ),
+    );
+
+    final emailField = VField(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const VFieldLabel('Email đăng nhập'),
+          VTextField(
+            key: emailKey,
+            controller: emailController,
+            enabled: false,
+          ),
+        ],
+      ),
+    );
 
     return PopScope(
       canPop: !hasChanges || isSaving,
@@ -368,126 +483,28 @@ class _EditFormScaffold extends StatelessWidget {
       },
       child: VPageScaffold(
         title: 'Chỉnh sửa thông tin',
-        body: ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: VSpacing.screenMobile,
-            vertical: VSpacing.space4,
-          ),
-          children: [
-            VCard(
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Row(
-                children: [
-                  VAvatar(
-                    name: fullName,
-                    size: 48,
-                  ),
-                  const VGap.horizontalSm(),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Semantics(
-                          header: true,
-                          child: VText(
-                            'Ảnh đại diện',
-                            variant: VTextVariant.headingH4,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                        const VGap.xs(),
-                        VText(
-                          'Chạm để thay hoặc xóa ảnh',
-                          variant: VTextVariant.bodySmall,
-                          color: colors.textSecondary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  VIcon(
-                    icon: VIcons.chevronRight,
-                    size: 20,
-                    color: colors.textSecondary,
-                  ),
-                ],
+        contentMaxWidth: wide
+            ? _wideContentMaxWidth
+            : VPageScaffold.defaultContentMaxWidth,
+        body: wide
+            ? EditAccountWide(
+                fullName: fullName,
+                email: email,
+                lastNameField: lastNameField,
+                firstNameField: firstNameField,
+                phoneField: phoneField,
+                emailField: emailField,
+              )
+            : EditAccountNarrow(
+                fullName: fullName,
+                email: email,
+                lastNameField: lastNameField,
+                firstNameField: firstNameField,
+                phoneField: phoneField,
+                emailField: emailField,
               ),
-            ),
-            const VGap.lg(),
-            VField(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const VFieldLabel('Họ và tên đệm', isRequired: true),
-                  VField(
-                    invalid: lastNameErrorText != null,
-                    child: VTextField(
-                      hintText: 'Nhập họ và tên đệm',
-                      controller: lastNameController,
-                      onChanged: (_) => onChanged(),
-                    ),
-                  ),
-                  if (lastNameErrorText != null) VFieldError(lastNameErrorText!),
-                ],
-              ),
-            ),
-            const VGap.md(),
-            VField(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const VFieldLabel('Tên', isRequired: true),
-                  VField(
-                    invalid: firstNameErrorText != null,
-                    child: VTextField(
-                      hintText: 'Nhập tên',
-                      controller: firstNameController,
-                      onChanged: (_) => onChanged(),
-                    ),
-                  ),
-                  if (firstNameErrorText != null) VFieldError(firstNameErrorText!),
-                ],
-              ),
-            ),
-            const VGap.md(),
-            VField(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const VFieldLabel('Số điện thoại'),
-                  VPhoneField(
-                    hintText: 'Nhập số điện thoại',
-                    controller: phoneNumberController,
-                    validateOnChanged: false,
-                    onChanged: (_) => onChanged(),
-                  ),
-                  if (phoneErrorText != null) VFieldError(phoneErrorText!),
-                ],
-              ),
-            ),
-            const VGap.md(),
-            VField(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const VFieldLabel('Email đăng nhập'),
-                  VTextField(
-                    controller: emailController,
-                    enabled: false,
-                  ),
-                ],
-              ),
-            ),
-            const VGap.xl(),
-          ],
-        ),
-        bottomBar: Container(
+        bottomBar: Padding(
           padding: const EdgeInsets.all(VSpacing.screenMobile),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            border: Border(
-              top: BorderSide(color: colors.borderDefault),
-            ),
-          ),
           child: SafeArea(
             top: false,
             child: Row(

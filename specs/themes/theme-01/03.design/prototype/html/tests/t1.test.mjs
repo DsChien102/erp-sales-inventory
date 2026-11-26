@@ -145,6 +145,13 @@ test('VAvatar initials + tài khoản: nhãn Chủ sở hữu chỉ với chủ,
   assert.match(render('account', 'owner', 'iphone'), /Chủ sở hữu/);
   assert.doesNotMatch(render('account', 'staff', 'iphone'), /Chủ sở hữu/);
   assert.match(render('account', 'no-phone', 'web'), /\(chưa có\)/);
+  for (const d of ['iphone', 'web']) {
+    const def = render('account-edit', 'default', d);
+    assert.doesNotMatch(def, /Chạm để thay hoặc xóa ảnh/);
+    assert.doesNotMatch(def, /<button[^>]*(t1-accedit__pic|t1-avrow)/);
+    const errs = render('account-edit', 'errors', d);
+    assert.match(errs, /t1-input is-invalid"><input type="text" value="0912 34"/);
+  }
 });
 
 test('AuditDetailRow (web): giá trị > 24 ký tự xếp dọc; mã theo dõi rút gọn 12…8 vẫn một hàng', () => {

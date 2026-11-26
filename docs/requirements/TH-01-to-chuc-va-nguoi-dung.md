@@ -832,7 +832,7 @@ Scenario: SC-02 — Không loại được Owner
 
 #### US-08.1 — Xem tài khoản
 
-- FR-01: `/more/my-account` "Tài khoản của tôi": "Tài khoản cá nhân" (avatar, họ tên, nhãn "Chủ sở hữu" nếu là Owner); "Thông tin cá nhân": "Họ và tên đệm", "Tên", "Email đăng nhập", "Trạng thái email" (Đã xác minh / Chưa xác minh), "Số điện thoại" ("(chưa có)").
+- FR-01: `/more/my-account` "Tài khoản của tôi": "Tài khoản cá nhân" (avatar, họ tên, nhãn "Chủ sở hữu" nếu là Owner của tổ chức đang dùng); "Thông tin cá nhân": "Họ và tên đệm", "Tên", "Email đăng nhập", "Trạng thái email" (Đã xác minh / Chưa xác minh), "Số điện thoại" ("(chưa có)").
 - FR-02: 🔧 Thao tác nằm ngay trong màn, không còn nút / sheet "Thao tác". iPhone: khối "Thao tác tài khoản" ba dòng — "Chỉnh sửa thông tin cá nhân — Cập nhật hồ sơ cá nhân"; "Đặt lại mật khẩu — Xác minh email và tạo mật khẩu mới"; "Đăng xuất — Kết thúc phiên sử dụng hiện tại". Web: nút bút chì ở "Thông tin cá nhân", khối "Bảo mật" (Đặt lại mật khẩu), nút "Đăng xuất" ở thẻ hồ sơ. Màn sửa, đặt lại mật khẩu và sheet xác nhận đăng xuất (US-08.4) không đổi.
 - AC-01: Lỗi → "Không tải được hồ sơ" + "Thử lại".
 
@@ -851,7 +851,7 @@ Scenario: SC-02 — Không loại được Owner
 
 #### US-08.4 — Đăng xuất
 
-- FR-01: "Đăng xuất khỏi Mosaic Retail? — Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng ứng dụng." ("Quay lại" / "Đăng xuất") → `signOut` → `/login`; xoá dữ liệu phiên trong bộ nhớ.
+- FR-01: "Đăng xuất khỏi Mosaic Retail? — Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng ứng dụng." ("Quay lại" / "Đăng xuất") → `signOut` → `/login`; xoá dữ liệu phiên trong bộ nhớ (Tài khoản của tôi; tab Thêm và thanh bên đăng xuất ngay). Lỗi → toast "Đăng xuất thất bại".
 
 ---
 

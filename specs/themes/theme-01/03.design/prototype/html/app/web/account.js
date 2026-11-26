@@ -36,18 +36,18 @@ export function editAccountPage(v) {
   if (s.error) return { page: vScaffold({ ...base, body: loadFailed('Không tải được hồ sơ', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.'), fixed: true }) };
   const x = { last: ME.lastName, first: ME.firstName, phone: ME.phone, ...s.values };
   const e = s.errors || {};
-  // Thiết kế lại qua impeccable live (2026-11-24): cột 560, một thẻ — dòng "Ảnh đại diện" (chữ viết tắt 48 + mô tả + mũi tên) → gạch → 4 ô xếp dọc.
+  // Thiết kế lại qua impeccable live (2026-11-24): cột 560, một thẻ — dòng "Ảnh đại diện" (chỉ hiển thị) → gạch → 4 ô xếp dọc.
   const body = `<div class="t1-formpage"><div class="t1-formcard">
-    <button type="button" class="t1-avrow"><span class="t1-avatar t1-avatar--lg" aria-hidden="true">${esc(initials(`${ME.lastName} ${ME.firstName}`))}</span><span><b>Ảnh đại diện</b><small>Chạm để thay hoặc xóa ảnh</small></span>${icon('chevronRight', 't1-chev20')}</button>
+    <div class="t1-avrow"><span class="t1-avatar t1-avatar--lg" aria-hidden="true">${esc(initials(`${ME.lastName} ${ME.firstName}`))}</span><span><b>Ảnh đại diện</b></span></div>
     <hr class="t1-avsep">
     <div class="t1-form">
       ${field({ label: 'Họ và tên đệm', required: true, control: input({ value: x.last, hint: 'Nhập họ và tên đệm', invalid: !!e.last }), error: e.last })}
       ${field({ label: 'Tên', required: true, control: input({ value: x.first, hint: 'Nhập tên', invalid: !!e.first }), error: e.first })}
-      ${/* VField ngoài không invalid → ô số điện thoại không đổi viền đỏ dù có lỗi */ ''}${field({ label: 'Số điện thoại', control: input({ value: x.phone, hint: 'Nhập số điện thoại' }), error: e.phone })}
+      ${field({ label: 'Số điện thoại', control: input({ value: x.phone, hint: 'Nhập số điện thoại', invalid: !!e.phone }), error: e.phone })}
       ${field({ label: 'Email đăng nhập', control: input({ value: ME.email, disabled: true }) })}
     </div></div></div>`;
   // Lưu: tắt khi chưa đổi gì; đang lưu → chữ "Đang lưu..." + tắt (không vòng xoay).
-  const bar = `<div class="t1-bar-pad t1-bar-line t1-row2 t1-row2--8">${button('Hủy', { variant: 'secondary', full: true, disabled: !!s.busy })}${button(s.busy ? 'Đang lưu...' : 'Lưu thay đổi', { full: true, disabled: !s.dirty || !!s.busy })}</div>`;
+  const bar = `<div class="t1-bar-pad t1-row2 t1-row2--8">${button('Hủy', { variant: 'secondary', full: true, disabled: !!s.busy })}${button(s.busy ? 'Đang lưu...' : 'Lưu thay đổi', { full: true, disabled: !s.dirty || !!s.busy })}</div>`;
   const page = vScaffold({ ...base, body, bottomBar: bar, toastHtml: s.toast ? toast(...s.toast, { device: v.device, above: BAR2 }) : '' });
   const narrow = v.width >= 600 ? page.replace(/(<div class="t1-col" style=")[^"]*(")/g, '$1max-width:560px$2') : page;
   return { page: narrow, overlay: s.dialog ? confirmDialog(DISCARD) : '' };

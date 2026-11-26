@@ -32,8 +32,13 @@ final class MyAccountCubit extends Cubit<MyAccountState> {
 
       var isOwner = false;
       try {
-        await _session.loadAccessibleTenants();
-        isOwner = _session.state.tenants.any((tenant) => tenant.isOwner);
+        final currentTenantId = _session.tenantId?.trim() ?? '';
+        if (currentTenantId.isNotEmpty) {
+          isOwner = _session.isOwner;
+        } else {
+          await _session.loadAccessibleTenants();
+          isOwner = _session.state.tenants.any((tenant) => tenant.isOwner);
+        }
       } catch (_) {
         // Không chặn trang cá nhân nếu danh sách tổ chức lỗi.
       }

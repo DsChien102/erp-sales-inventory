@@ -73,15 +73,15 @@ export function editAccountPage(v) {
   if (s.error) return { page: vScaffold({ ...base, body: loadFailed('Không tải được hồ sơ', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.'), fixed: true }) };
   const x = { last: ME.lastName, first: ME.firstName, phone: ME.phone, ...s.values };
   const e = s.errors || {};
-  // Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): thẻ "Ảnh đại diện" (Flutter chưa nối onTap) → thẻ form (họ + tên cùng hàng 3 : 2, số điện thoại, email khoá một dòng).
+  // Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): thẻ "Ảnh đại diện" (chỉ hiển thị) → thẻ form (họ + tên cùng hàng 3 : 2, số điện thoại, email khoá một dòng).
   const body = `<div class="t1-list t1-accedit">
-    ${card(`<button type="button" class="t1-accedit__pic"><span class="t1-orgm__avatar" aria-hidden="true">${esc(initials(`${ME.lastName} ${ME.firstName}`))}</span><span class="t1-accedit__text"><b>Ảnh đại diện</b><small>Chạm để thay hoặc xóa ảnh</small></span>${icon('chevronRight', 't1-actlist__go')}</button>`)}
+    ${card(`<div class="t1-accedit__pic"><span class="t1-orgm__avatar" aria-hidden="true">${esc(initials(`${ME.lastName} ${ME.firstName}`))}</span><span class="t1-accedit__text"><b>Ảnh đại diện</b></span></div>`)}
     ${card(`<div class="t1-form">
       <div class="t1-signup__names">
         ${field({ label: 'Họ và tên đệm', required: true, control: input({ value: x.last, hint: 'Nhập họ và tên đệm', invalid: !!e.last }), error: e.last })}
         ${field({ label: 'Tên', required: true, control: input({ value: x.first, hint: 'Nhập tên', invalid: !!e.first }), error: e.first })}
       </div>
-      ${/* VField ngoài không invalid → ô số điện thoại không đổi viền đỏ dù có lỗi */ ''}${field({ label: 'Số điện thoại', control: input({ value: x.phone, hint: 'Nhập số điện thoại' }), error: e.phone })}
+      ${field({ label: 'Số điện thoại', control: input({ value: x.phone, hint: 'Nhập số điện thoại', invalid: !!e.phone }), error: e.phone })}
       <div class="t1-invreg__mail"><span>Email đăng nhập</span><b>${esc(ME.email)}</b>${icon('lock')}</div>
     </div>`, 't1-card--pad')}
   </div>`;

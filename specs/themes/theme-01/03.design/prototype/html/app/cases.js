@@ -250,9 +250,9 @@ export const SCREENS = [
   },
   {
     id: 'account-edit', group: 'account', code: 'ID-22', title: 'Chỉnh sửa thông tin', route: '/more/my-account', states: [
-      ['default', 'Mặc định', 'Thẻ "Ảnh đại diện" (bấm chưa làm gì) + thẻ form: họ + tên cùng hàng, số điện thoại, email khoá một dòng; "Lưu thay đổi" mờ tới khi có thay đổi.'],
+      ['default', 'Mặc định', 'Thẻ "Ảnh đại diện" (chỉ hiển thị) + thẻ form: họ + tên cùng hàng, số điện thoại, email khoá một dòng; "Lưu thay đổi" mờ tới khi có thay đổi.'],
       ['changed', 'Đã sửa', '"Lưu thay đổi" bật.'],
-      ['errors', 'Lỗi', 'Hai ô tên viền đỏ; số điện thoại sai chỉ có dòng lỗi, viền ô không đỏ.'],
+      ['errors', 'Lỗi', 'Cả ba ô lỗi (họ tên đệm, tên, số điện thoại) đều viền đỏ.'],
       ['submitting', 'Đang lưu', '"Đang lưu..." mờ, không vòng xoay; các ô vẫn sửa được.'],
       ['discard', 'Rời khi đã sửa', 'Hộp thoại "Bỏ thay đổi?".'],
       ['toast-failed', 'Lỗi lưu', 'Toast đỏ "Không lưu được" (chỉ câu message).'],
@@ -291,6 +291,6 @@ export const WEB_NOTES = {
   audit: { '*': 'Bảng toàn màn (Hoạt động | Người thực hiện | Đối tượng | Thời điểm).', loading: 'Skeleton 5 dòng.' },
   'audit-detail': { '*': 'Cột 720, một thẻ 4 phần: Thay đổi, Ngữ cảnh, Đối tượng, Thông tin truy vết.' },
   account: { '*': 'Hai cột: thẻ hồ sơ + "Đăng xuất" | "Thông tin cá nhân" (bút chì) + "Bảo mật"; không thanh dưới.' },
-  'account-edit': { '*': 'Một thẻ cột 560, dòng "Ảnh đại diện" ở đầu thẻ.', discard: 'Hộp xác nhận rộng tối đa 440.' },
+  'account-edit': { '*': 'Một thẻ cột 560, dòng "Ảnh đại diện" (chỉ hiển thị) ở đầu thẻ.', discard: 'Hộp xác nhận rộng tối đa 440.' },
 };
 export const webNote = (screen, state) => [WEB_NOTES[screen]?.['*'], WEB_NOTES[screen]?.[state]].filter(Boolean).join(' ');

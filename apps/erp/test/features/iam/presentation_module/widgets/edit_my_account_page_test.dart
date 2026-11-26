@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:c45_design_system/design_system.dart';
+import 'package:erp/core/widgets/flow/flow_layout.dart';
 import 'package:erp/features/iam/presentation.dart';
 
 void main() {
@@ -23,7 +24,7 @@ void main() {
 
       // Avatar Card
       expect(find.text('Ảnh đại diện'), findsOneWidget);
-      expect(find.text('Chạm để thay hoặc xóa ảnh'), findsOneWidget);
+      expect(find.text('Chạm để thay hoặc xóa ảnh'), findsNothing);
 
       // Fields
       expect(
@@ -42,12 +43,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(
-        find.byWidgetPredicate(
-          (w) => w is RichText && w.text.toPlainText().contains('Email đăng nhập'),
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Email đăng nhập'), findsOneWidget);
       expect(find.text('minh@gmail.com'), findsOneWidget);
 
       // Buttons
@@ -192,6 +188,231 @@ void main() {
       await tester.tap(find.text('Bỏ thay đổi'));
       await tester.pumpAndSettle();
       expect(find.text('Chỉnh sửa thông tin'), findsNothing);
+    });
+  });
+
+  group('10-8k EditMyAccountPage narrow & wide', () {
+    testWidgets('invalid phone turns the field border danger', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: const EditMyAccountPage(data: MyAccountUiModel.sample),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).at(2), '0912 34');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(VButton, 'Lưu thay đổi'));
+      await tester.pump();
+
+      expect(find.text(VPhoneValidator.defaultInvalidMessage), findsOneWidget);
+      final phoneField = tester.widget<VField>(
+        find.ancestor(
+          of: find.byType(VPhoneField),
+          matching: find.byType(VField),
+        ),
+      );
+      expect(phoneField.invalid, isTrue);
+    });
+
+    testWidgets('typing a name keeps the phone error', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: const EditMyAccountPage(data: MyAccountUiModel.sample),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).at(2), '0912 34');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(VButton, 'Lưu thay đổi'));
+      await tester.pump();
+      expect(find.text(VPhoneValidator.defaultInvalidMessage), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField).at(1), 'Hải');
+      await tester.pump();
+      expect(find.text(VPhoneValidator.defaultInvalidMessage), findsOneWidget);
+    });
+
+    testWidgets('avatar row is not tappable and has no chevron', (tester) async {
+      for (final size in const [Size(390, 844), Size(1280, 800)]) {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1.0;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: const EditMyAccountPage(data: MyAccountUiModel.sample),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Chạm để thay hoặc xóa ảnh'), findsNothing);
+        expect(
+          find.byWidgetPredicate((w) => w is VIcon && w.icon == VIcons.chevronRight),
+          findsNothing,
+        );
+        final inkWells = find.ancestor(
+          of: find.text('Ảnh đại diện'),
+          matching: find.byType(InkWell),
+        );
+        for (final element in inkWells.evaluate()) {
+          expect((element.widget as InkWell).onTap, isNull);
+        }
+      }
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+    });
+
+    testWidgets('390: names share a row 3 : 2, email is a read-only row', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: const EditMyAccountPage(data: MyAccountUiModel.sample),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(EditAccountNarrow), findsOneWidget);
+      expect(find.byType(EditAccountWide), findsNothing);
+      final lastRect = tester.getRect(find.byType(TextField).at(0));
+      final firstRect = tester.getRect(find.byType(TextField).at(1));
+      expect(lastRect.left, lessThan(firstRect.left));
+      expect(lastRect.width, greaterThan(firstRect.width));
+      // 3 editable TextFields (lastName, firstName, phone); email is a read-only row with lock icon
+      expect(find.byType(TextField), findsNWidgets(3));
+      expect(
+        find.byWidgetPredicate((w) => w is VIcon && w.icon == VIcons.lock),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('1280: one card in a 560 column, email is a disabled field', (tester) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: const EditMyAccountPage(data: MyAccountUiModel.sample),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(EditAccountWide), findsOneWidget);
+      expect(find.byType(EditAccountNarrow), findsNothing);
+      expect(find.byType(FlowCard), findsOneWidget);
+      final cardWidth = tester.getSize(find.byType(FlowCard)).width;
+      expect(cardWidth, lessThanOrEqualTo(560));
+      expect(find.byType(TextField), findsNWidgets(4));
+      expect(tester.widget<TextField>(find.byType(TextField).at(3)).enabled, isFalse);
+    });
+
+    testWidgets('bottom bar has a single top border', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: const EditMyAccountPage(data: MyAccountUiModel.sample),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final scaffold = tester.widget<VPageScaffold>(find.byType(VPageScaffold));
+      expect(scaffold.bottomBar, isNotNull);
+      final containersWithTopBorder = find.descendant(
+        of: find.byWidget(scaffold.bottomBar!),
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is Container &&
+              w.decoration is BoxDecoration &&
+              (w.decoration! as BoxDecoration).border != null,
+        ),
+      );
+      expect(containersWithTopBorder, findsNothing);
+    });
+
+    testWidgets('resizing keeps values and still asks before leaving', (tester) async {
+      tester.view.physicalSize = const Size(900, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const EditMyAccountPage(data: MyAccountUiModel.sample),
+                  ),
+                ),
+                child: const Text('Mở form'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Mở form'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).at(1), 'Hải');
+      await tester.pump();
+
+      tester.view.physicalSize = const Size(700, 800);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(EditAccountNarrow), findsOneWidget);
+      expect(tester.widget<TextField>(find.byType(TextField).at(1)).controller!.text, 'Hải');
+
+      await tester.tap(find.byTooltip('Quay lại'));
+      await tester.pumpAndSettle();
+      expect(find.text('Bỏ thay đổi?'), findsOneWidget);
+    });
+
+    testWidgets('320 at text scale 2.0 does not overflow', (tester) async {
+      tester.view.physicalSize = const Size(320, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
+          child: MaterialApp(
+            theme: VTheme.lightTheme,
+            home: const EditMyAccountPage(data: MyAccountUiModel.sample),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
     });
   });
 }

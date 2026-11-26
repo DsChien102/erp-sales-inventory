@@ -148,8 +148,6 @@ void main() {
     await tester.pumpWidget(wrap(module));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Thao tác'));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('Chỉnh sửa thông tin cá nhân'));
     await tester.pumpAndSettle();
 
@@ -178,8 +176,6 @@ void main() {
     await tester.pumpWidget(wrap(module));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Thao tác'));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('Đặt lại mật khẩu'));
     await tester.pumpAndSettle();
 
@@ -220,12 +216,12 @@ void main() {
     await tester.pumpWidget(wrap(module));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Thao tác'));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('Đăng xuất'));
     await tester.pumpAndSettle();
+    expect(find.text('Đăng xuất khỏi Mosaic Retail?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(VButton, 'Đăng xuất'));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Đăng xuất khỏi Mosaic Retail?'), findsNothing);
     expect(signOutCalls, 1);
     expect(find.text('Login'), findsOneWidget);
   });
@@ -244,9 +240,10 @@ void main() {
       await tester.pumpWidget(wrap(module, warnRemoteSignOut: true));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Thao tác'));
-      await tester.pumpAndSettle();
       await tester.tap(find.text('Đăng xuất'));
+      await tester.pumpAndSettle();
+      expect(find.text('Đăng xuất khỏi Mosaic Retail?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(VButton, 'Đăng xuất'));
       await tester.pumpAndSettle();
 
       expect(find.text('Login'), findsOneWidget);

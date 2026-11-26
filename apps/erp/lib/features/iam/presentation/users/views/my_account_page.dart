@@ -1,7 +1,11 @@
+import 'package:erp/core/config/wide_layout.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/core/session/models/sign_out_result.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/auth/data/auth_repository.dart';
 import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:erp/features/iam/data/models/my_account.dart';
+import 'package:erp/features/iam/data/models/password_reset_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -10,7 +14,9 @@ import 'package:c45_design_system/design_system.dart';
 import '../../shared/iam_load_status.dart';
 import '../../../logic/my_account_cubit.dart';
 import '../../../logic/my_account_state.dart';
-import '../widgets/my_account_actions_bottom_sheet.dart';
+import '../widgets/logout_confirmation_bottom_sheet.dart';
+import '../widgets/my_account_narrow.dart';
+import '../widgets/my_account_wide.dart';
 import 'edit_my_account_page.dart';
 import 'reset_password_page.dart';
 
@@ -72,6 +78,7 @@ class MyAccountPage extends StatelessWidget {
     this.authRepository,
     this.session,
     this.cubit,
+    this.onResetSignOut,
   });
 
   /// Test-only seed when repositories/[cubit] are null.
@@ -81,6 +88,8 @@ class MyAccountPage extends StatelessWidget {
   final AuthRepository? authRepository;
   final SessionController? session;
   final MyAccountCubit? cubit;
+  @visibleForTesting
+  final Future<SignOutResult> Function()? onResetSignOut;
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +101,7 @@ class MyAccountPage extends StatelessWidget {
           accountRepository: accountRepository,
           authRepository: authRepository,
           session: session,
+          onResetSignOut: onResetSignOut,
         ),
       );
     }
@@ -106,6 +116,7 @@ class MyAccountPage extends StatelessWidget {
           accountRepository: accountRepository,
           authRepository: authRepository,
           session: session,
+          onResetSignOut: onResetSignOut,
         ),
       );
     }
@@ -117,6 +128,7 @@ class MyAccountPage extends StatelessWidget {
       data: data!,
       onLogout: onLogout,
       session: session,
+      onResetSignOut: onResetSignOut,
     );
   }
 }
@@ -126,11 +138,13 @@ class _MyAccountSampleBody extends StatefulWidget {
     required this.data,
     this.onLogout,
     this.session,
+    this.onResetSignOut,
   });
 
   final MyAccountUiModel data;
   final Future<void> Function()? onLogout;
   final SessionController? session;
+  final Future<SignOutResult> Function()? onResetSignOut;
 
   @override
   State<_MyAccountSampleBody> createState() => _MyAccountSampleBodyState();
@@ -138,64 +152,68 @@ class _MyAccountSampleBody extends StatefulWidget {
 
 class _MyAccountSampleBodyState extends State<_MyAccountSampleBody> {
   late MyAccountUiModel _accountData = widget.data;
-  bool _isActionsOpen = false;
+  bool _loggingOut = false;
 
-  String _maskEmail(String email) {
-    final at = email.indexOf('@');
-    if (at <= 0) return '***';
-    final local = email.substring(0, at);
-    final domain = email.substring(at);
-    if (local.length <= 2) return '${local[0]}***$domain';
-    return '${local.substring(0, 2)}***$domain';
+  Future<void> _logout() async {
+    if (_loggingOut) return;
+    setState(() => _loggingOut = true);
+    try {
+      await widget.onLogout?.call();
+    } finally {
+      if (mounted) setState(() => _loggingOut = false);
+    }
   }
 
-  Future<void> _showActionsBottomSheet() async {
-    setState(() => _isActionsOpen = true);
+  Future<void> _editProfile() async {
+    final updated = await Navigator.of(context).push<MyAccountUiModel>(
+      MaterialPageRoute(
+        builder: (context) => EditMyAccountPage(data: _accountData),
+      ),
+    );
+    if (updated != null && mounted) {
+      setState(() => _accountData = updated);
+      VToast.show(
+        context,
+        title: 'Thành công',
+        message: 'Đã cập nhật thông tin cá nhân',
+        type: VToastType.success,
+      );
+    }
+  }
 
-    await showMyAccountActionsBottomSheet(
+  Future<void> _resetPassword() async {
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) => ResetPasswordPage(
+          emailMasked: maskEmail(_accountData.email),
+        ),
+      ),
+    );
+    if (result == true && mounted) {
+      await _openLoginAfterPasswordReset(
+        context,
+        widget.session,
+        signOutOverride: widget.onResetSignOut,
+      );
+    }
+  }
+
+  void _confirmLogout() {
+    if (_loggingOut) return;
+    showLogoutConfirmationBottomSheet(
       context: context,
-      onEditProfile: () async {
-        final updated = await Navigator.of(context).push<MyAccountUiModel>(
-          MaterialPageRoute(
-            builder: (context) => EditMyAccountPage(data: _accountData),
-          ),
-        );
-        if (updated != null && mounted) {
-          setState(() => _accountData = updated);
-          VToast.show(
-            context,
-            title: 'Thành công',
-            message: 'Đã cập nhật thông tin cá nhân',
-            type: VToastType.success,
-          );
-        }
-      },
-      onResetPassword: () async {
-        final result = await Navigator.of(context).push<bool>(
-          MaterialPageRoute(
-            builder: (context) => ResetPasswordPage(
-              emailMasked: _maskEmail(_accountData.email),
-            ),
-          ),
-        );
-        if (result == true && mounted) {
-          await _openLoginAfterPasswordReset(context, widget.session);
-        }
-      },
-      onLogout: () => widget.onLogout?.call(),
-    ).then((_) {
-      if (mounted) {
-        setState(() => _isActionsOpen = false);
-      }
-    });
+      onConfirm: _logout,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return _MyAccountScaffold(
       accountData: _accountData,
-      isActionsOpen: _isActionsOpen,
-      onShowActions: _showActionsBottomSheet,
+      loggingOut: _loggingOut,
+      onEdit: _editProfile,
+      onResetPassword: _resetPassword,
+      onLogout: _confirmLogout,
     );
   }
 }
@@ -206,91 +224,98 @@ class _MyAccountBody extends StatefulWidget {
     this.accountRepository,
     this.authRepository,
     this.session,
+    this.onResetSignOut,
   });
 
   final Future<void> Function()? onLogout;
   final AccountRepository? accountRepository;
   final AuthRepository? authRepository;
   final SessionController? session;
+  final Future<SignOutResult> Function()? onResetSignOut;
 
   @override
   State<_MyAccountBody> createState() => _MyAccountBodyState();
 }
 
 class _MyAccountBodyState extends State<_MyAccountBody> {
-  bool _isActionsOpen = false;
+  bool _loggingOut = false;
 
-  String _maskEmail(String email) {
-    final at = email.indexOf('@');
-    if (at <= 0) return '***';
-    final local = email.substring(0, at);
-    final domain = email.substring(at);
-    if (local.length <= 2) return '${local[0]}***$domain';
-    return '${local.substring(0, 2)}***$domain';
+  Future<void> _logout() async {
+    if (_loggingOut) return;
+    setState(() => _loggingOut = true);
+    try {
+      await widget.onLogout?.call();
+    } finally {
+      if (mounted) setState(() => _loggingOut = false);
+    }
   }
 
-  Future<void> _showActionsBottomSheet(MyAccountUiModel accountData) async {
-    setState(() => _isActionsOpen = true);
+  Future<void> _editProfile() async {
     final accountCubit = context.read<MyAccountCubit>();
+    final updated = await Navigator.of(context).push<MyAccountUiModel>(
+      MaterialPageRoute(
+        builder: (context) => EditMyAccountPage(
+          accountRepository: widget.accountRepository,
+        ),
+      ),
+    );
+    if (updated != null && mounted) {
+      await accountCubit.load();
+      if (!mounted) return;
+      VToast.show(
+        context,
+        title: 'Thành công',
+        message: 'Đã cập nhật thông tin cá nhân',
+        type: VToastType.success,
+      );
+    }
+  }
 
-    await showMyAccountActionsBottomSheet(
+  Future<void> _resetPassword(MyAccountUiModel accountData) async {
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) => ResetPasswordPage(
+          emailMasked: maskEmail(accountData.email),
+          authRepository: widget.authRepository,
+        ),
+      ),
+    );
+    if (result == true && mounted) {
+      await _openLoginAfterPasswordReset(
+        context,
+        widget.session,
+        signOutOverride: widget.onResetSignOut,
+      );
+    }
+  }
+
+  void _confirmLogout() {
+    if (_loggingOut) return;
+    showLogoutConfirmationBottomSheet(
       context: context,
-      onEditProfile: () async {
-        final updated = await Navigator.of(context).push<MyAccountUiModel>(
-          MaterialPageRoute(
-            builder: (context) => EditMyAccountPage(
-              accountRepository: widget.accountRepository,
-            ),
-          ),
-        );
-        if (updated != null && mounted) {
-          await accountCubit.load();
-          if (!mounted) return;
-          VToast.show(
-            context,
-            title: 'Thành công',
-            message: 'Đã cập nhật thông tin cá nhân',
-            type: VToastType.success,
-          );
-        }
-      },
-      onResetPassword: () async {
-        final result = await Navigator.of(context).push<bool>(
-          MaterialPageRoute(
-            builder: (context) => ResetPasswordPage(
-              emailMasked: _maskEmail(accountData.email),
-              authRepository: widget.authRepository,
-            ),
-          ),
-        );
-        if (result == true && mounted) {
-          await _openLoginAfterPasswordReset(context, widget.session);
-        }
-      },
-      onLogout: () => widget.onLogout?.call(),
-    ).then((_) {
-      if (mounted) {
-        setState(() => _isActionsOpen = false);
-      }
-    });
+      onConfirm: _logout,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final showBack = MediaQuery.sizeOf(context).width < VBreakpoints.desktop;
     return BlocBuilder<MyAccountCubit, MyAccountState>(
       builder: (context, state) {
         final colors = context.vColors;
         if (state.status == IamLoadStatus.loading ||
             state.status == IamLoadStatus.initial) {
-          return const VPageScaffold(
+          return VPageScaffold(
             title: 'Tài khoản của tôi',
-            body: Center(child: VLoading(size: 40)),
+            showBackButton: showBack,
+            body: const Center(child: VLoading(size: 40)),
           );
         }
 
         if (state.status == IamLoadStatus.failure || state.profile == null) {
           return VPageScaffold(
             title: 'Tài khoản của tôi',
+            showBackButton: showBack,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(VSpacing.screenMobile),
@@ -329,8 +354,10 @@ class _MyAccountBodyState extends State<_MyAccountBody> {
         );
         return _MyAccountScaffold(
           accountData: accountData,
-          isActionsOpen: _isActionsOpen,
-          onShowActions: () => _showActionsBottomSheet(accountData),
+          loggingOut: _loggingOut,
+          onEdit: _editProfile,
+          onResetPassword: () => _resetPassword(accountData),
+          onLogout: _confirmLogout,
         );
       },
     );
@@ -340,164 +367,92 @@ class _MyAccountBodyState extends State<_MyAccountBody> {
 class _MyAccountScaffold extends StatelessWidget {
   const _MyAccountScaffold({
     required this.accountData,
-    required this.isActionsOpen,
-    required this.onShowActions,
+    required this.loggingOut,
+    required this.onEdit,
+    required this.onResetPassword,
+    required this.onLogout,
   });
 
+  static const _wideContentMaxWidth = VResponsiveValue<double>(
+    mobile: double.infinity,
+    tablet: 1040,
+    desktop: 1040,
+  );
+
   final MyAccountUiModel accountData;
-  final bool isActionsOpen;
-  final VoidCallback onShowActions;
-
-  Widget _buildInfoRow(BuildContext context, String label, String? value) {
-    final colors = context.vColors;
-    final hasValue = value != null && value.trim().isNotEmpty;
-    final displayValue = hasValue ? value.trim() : '(chưa có)';
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          VText(
-            label,
-            variant: VTextVariant.bodyDefault,
-            color: colors.textSecondary,
-          ),
-          const VGap.horizontalSm(),
-          Flexible(
-            child: VText(
-              displayValue,
-              variant: VTextVariant.bodyDefault,
-              color: hasValue ? null : colors.textMuted,
-              style: TextStyle(fontWeight: hasValue ? FontWeight.w700 : null),
-              textAlign: TextAlign.end,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  final bool loggingOut;
+  final VoidCallback onEdit;
+  final VoidCallback onResetPassword;
+  final VoidCallback onLogout;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final data = accountData;
+    final wide = isWideLayout(context);
+    final showBack = MediaQuery.sizeOf(context).width < VBreakpoints.desktop;
 
     return VPageScaffold(
       title: 'Tài khoản của tôi',
-      body: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: VSpacing.screenMobile,
-          vertical: VSpacing.space4,
-        ),
-        children: [
-          VCard(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: Row(
-              children: [
-                VIconBox(
-                  icon: VIcons.person,
-                  size: 40,
-                  iconSize: 20,
-                  backgroundColor: colors.surfaceAlt,
-                  iconColor: colors.textPrimary,
-                  borderRadius: VRadius.r12,
-                ),
-                const VGap.horizontalSm(),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Semantics(
-                        header: true,
-                        child: VText(
-                          data.hasName ? data.fullName : '(chưa có tên)',
-                          variant: VTextVariant.headingH4,
-                          color: data.hasName ? null : colors.textMuted,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      const VGap.xs(),
-                      VText(
-                        'Tài khoản cá nhân',
-                        variant: VTextVariant.bodySmall,
-                        color: colors.textSecondary,
-                      ),
-                    ],
-                  ),
-                ),
-                if (data.isOwner) ...[
-                  const VGap.horizontalSm(),
-                  const VBadge(
-                    label: 'Chủ sở hữu',
-                    tone: VComponentTone.success,
-                    variant: VBadgeVariant.soft,
-                  ),
-                ],
-              ],
+      showBackButton: showBack,
+      contentMaxWidth: wide
+          ? _wideContentMaxWidth
+          : VPageScaffold.defaultContentMaxWidth,
+      body: wide
+          ? MyAccountWide(
+              data: accountData,
+              onEdit: onEdit,
+              onResetPassword: onResetPassword,
+              onLogout: onLogout,
+              loggingOut: loggingOut,
+            )
+          : MyAccountNarrow(
+              data: accountData,
+              onEdit: onEdit,
+              onResetPassword: onResetPassword,
+              onLogout: onLogout,
+              loggingOut: loggingOut,
             ),
-          ),
-          const VGap.md(),
-          VCard(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Semantics(
-                  header: true,
-                  child: VText(
-                    'Thông tin cá nhân',
-                    variant: VTextVariant.headingH4,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                ),
-                const VGap.md(),
-                _buildInfoRow(context, 'Họ và tên đệm', data.lastName),
-                _buildInfoRow(context, 'Tên', data.firstName),
-                _buildInfoRow(context, 'Email đăng nhập', data.email),
-                _buildInfoRow(context, 'Trạng thái email', data.emailStatus),
-                _buildInfoRow(context, 'Số điện thoại', data.phoneNumber),
-              ],
-            ),
-          ),
-          const VGap.xl(),
-        ],
-      ),
-      bottomBar: Container(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          border: Border(
-            top: BorderSide(color: colors.borderDefault),
-          ),
-        ),
-        child: SafeArea(
-          top: false,
-          child: SizedBox(
-            width: double.infinity,
-            child: VButton(
-              label: 'Thao tác',
-              variant: VButtonVariant.primary,
-              tone: VComponentTone.primary,
-              fullWidth: true,
-              trailing:
-                  isActionsOpen ? VIcons.chevronDown : VIcons.chevronUp,
-              onPressed: onShowActions,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
 
 Future<void> _openLoginAfterPasswordReset(
   BuildContext context,
-  SessionController? session,
-) async {
-  if (session != null) {
-    await session.signOut();
+  SessionController? session, {
+  Future<SignOutResult> Function()? signOutOverride,
+}) async {
+  final signOut = signOutOverride ?? session?.signOut;
+  if (signOut != null) {
+    try {
+      final result = await signOut();
+      if (!context.mounted) return;
+      if (!result.localCleared) {
+        VToast.show(
+          context,
+          title: 'Đăng xuất thất bại',
+          message: 'Không thể đóng phiên trên máy.',
+          type: VToastType.danger,
+        );
+        return;
+      }
+    } on AppException catch (error) {
+      if (!context.mounted) return;
+      VToast.show(
+        context,
+        title: 'Đăng xuất thất bại',
+        message: error.userMessage(),
+        type: VToastType.danger,
+      );
+      return;
+    } catch (_) {
+      if (!context.mounted) return;
+      VToast.show(
+        context,
+        title: 'Đăng xuất thất bại',
+        message: 'Không thể đóng phiên trên máy.',
+        type: VToastType.danger,
+      );
+      return;
+    }
   }
   if (!context.mounted) return;
   context.go('/login', extra: <String, dynamic>{'passwordResetSuccess': true});

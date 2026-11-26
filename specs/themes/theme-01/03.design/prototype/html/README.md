@@ -12,6 +12,18 @@ Làm theo 3 đợt, mỗi đợt một commit; cột trái trang xem chia theo �
 
 ID-08 Chọn tổ chức đã có ở khung chung (`specs/prototype/shell/html/`, APP-04), không vẽ lại. ID-09 đã bỏ.
 
+## Đã có trong Flutter
+
+| Plan | Phạm vi | Trạng thái |
+|---|---|---|
+| `10-8d` | Nền chung: ô mã `fill` / `split4`, `VStepProgress`, `VConfirmDialog` 440, `AppLogo`, `isWideLayout`, `StoreShell` | ✅ |
+| `10-8e` | ID-01 Đăng nhập, ID-02 Đăng ký, ID-03 Xác minh email, ID-05 Chưa thuộc tổ chức | ✅ |
+| `10-8f` | ID-04 / ID-23 Đặt lại mật khẩu, ID-06 Nhập mã lời mời, ID-07 Kích hoạt tài khoản theo lời mời | ✅ |
+| `10-8g` | ID-11 Hồ sơ tổ chức, ID-12 Chỉnh thông tin tổ chức, ID-13 Hồ sơ pháp lý | ✅ |
+| `10-8h` | ID-14 Người dùng, ID-15 Mời thành viên, ID-16 Chi tiết lời mời, ID-17 Chi tiết thành viên, ID-18 Chọn vai trò | ✅ |
+| `10-8i` | ID-19 Vai trò, ID-20 Lịch sử quản trị | ✅ |
+| `10-8k` | ID-21 Tài khoản của tôi, ID-22 Chỉnh sửa thông tin | ✅ |
+
 ## Chạy
 
 ```bash
@@ -179,12 +191,12 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 
 **Tài khoản của tôi (ID-21 / ID-22)**
 
-53. Web: toàn màn (route nằm trong StoreShell, thanh bên 84 ở ≥ 1024; ảnh vẽ trang trần). Màn không cho biết đang ở tổ chức nào, vai trò gì — chỉ có nhãn "Chủ sở hữu" với chủ.
-54. Thẻ đầu ở ID-21 là hộp icon người trống, còn ID-22 lại có avatar chữ "NL"; thẻ "Ảnh đại diện" có mũi tên và câu "Chạm để thay hoặc xóa ảnh" nhưng không bấm được.
-55. Thanh "Thao tác" có hai gạch trên (Container tự vẽ thêm); mọi việc (sửa, đổi mật khẩu, đăng xuất) đều phải mở sheet, không có nút trực tiếp. "Đăng xuất" lặp với mục Đăng xuất ở Menu Thêm.
-56. Sheet đăng xuất dùng hai nút large 52 chia đôi; các sheet xác nhận khác (tạm ngừng, loại, thu hồi) dùng nút 44 xếp dọc.
-57. Sửa thông tin: "Lưu thay đổi" mờ tới khi có thay đổi mà không nói vì sao; đang lưu chỉ đổi chữ "Đang lưu..." (không vòng xoay); số điện thoại sai chỉ có dòng lỗi, viền ô không đỏ (VField bọc ngoài không đánh dấu invalid); Email khoá mờ không có câu giải thích.
-58. Đặt lại mật khẩu từ tài khoản mở bằng `Navigator.push`, trong khi router cũng khai báo `/more/my-account/reset-password` → hai lối vào cùng màn (ca reset/from-account ở đợt 1).
+53. Web: toàn màn (route nằm trong StoreShell, thanh bên 84 ở ≥ 1024; ảnh vẽ trang trần). Màn không cho biết đang ở tổ chức nào, vai trò gì — chỉ có nhãn "Chủ sở hữu" theo tổ chức đang dùng. (Đã sửa 10-8k: hai cột 1040)
+54. Thẻ đầu ở ID-21 là hộp icon người trống, còn ID-22 lại có avatar chữ "NL"; thẻ "Ảnh đại diện" có mũi tên và câu "Chạm để thay hoặc xóa ảnh" nhưng không bấm được. (Đã sửa 10-8k: ID-21 dùng avatar chữ viết tắt, ID-22 bỏ mũi tên và câu phụ)
+55. Thanh "Thao tác" có hai gạch trên (Container tự vẽ thêm); mọi việc (sửa, đổi mật khẩu, đăng xuất) đều phải mở sheet, không có nút trực tiếp. "Đăng xuất" lặp với mục Đăng xuất ở Menu Thêm. (Đã sửa 10-8k: bỏ thanh/sheet Thao tác, đưa ba thao tác vào màn)
+56. Sheet đăng xuất dùng hai nút large 52 chia đôi; các sheet xác nhận khác (tạm ngừng, loại, thu hồi) dùng nút 44 xếp dọc. (Giữ 10-8k Q13: sheet xác nhận đăng xuất theo prototype, hai nút 52.)
+57. Sửa thông tin: "Lưu thay đổi" mờ tới khi có thay đổi mà không nói vì sao; đang lưu chỉ đổi chữ "Đang lưu..." (không vòng xoay); số điện thoại sai chỉ có dòng lỗi, viền ô không đỏ (VField bọc ngoài không đánh dấu invalid); Email khoá mờ không có câu giải thích. (Đã sửa 10-8k: SĐT lỗi viền đỏ, bỏ gạch chồng thanh dưới)
+58. Đặt lại mật khẩu từ tài khoản mở bằng `Navigator.push`, trong khi router cũng khai báo `/more/my-account/reset-password` → hai lối vào cùng màn (ca reset/from-account ở đợt 1). (Giữ 10-8k: vẫn `Navigator.push` để quay về đúng trang; route giữ cho lối vào trực tiếp.)
 
 ## Khác biệt có chủ đích với Flutter
 
