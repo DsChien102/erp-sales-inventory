@@ -65,15 +65,15 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 
 | Màn | Flutter (`apps/erp/lib/features/iam/presentation/…`) |
 |---|---|
-| Route / khung | `core/router/app_router.dart`: `/more/organization-profile…`, `/more/users/invite` là GoRoute gốc; `/more/users`, `/more/roles`, `/more/audit-logs` là ShellRoute riêng (`users_area_shell`, `roles/roles_area_shell`, `audit_logs/audit_area_shell` → `VListDetailLayout`), đều nằm **trong** `ShellRoute(StoreShell)` (`app_router.dart:468`; web ≥ 1024 có thanh bên 84, ảnh không vẽ thanh vì vẽ trang trần) |
+| Route / khung | `core/router/app_router.dart`: `/more/organization-profile…`, `/more/users/invite` là GoRoute gốc; `/more/users`, `/more/roles`, `/more/audit-logs` là ShellRoute riêng (`users_area_shell`, `roles/roles_area_shell`, `audit_logs/audit_area_shell`; chỉ cấp cubit, web bảng toàn màn từ 10-8h / 10-8i), đều nằm **trong** `ShellRoute(StoreShell)` (`app_router.dart:468`; web ≥ 1024 có thanh bên 84, ảnh không vẽ thanh vì vẽ trang trần) |
 | ID-11…13 | `organization_profile/views/{organization_profile_page, organization_edit_profile_page, organization_legal_profile_form_page}.dart`, `organization_profile/widgets/{organization_profile_actions_bottom_sheet, tax_code_duplicate_warning_bottom_sheet}.dart`, `organizations/widgets/organization_empty_view.dart`, `logic/organization_profile_cubit.dart` |
 | ID-14 | `users/views/organization_users_page.dart`, `users/widgets/{organization_users_body, member_list_section, invitation_list_section, member_card, invitation_card, users_empty_state, member_filter_bottom_sheet, invitation_filter_bottom_sheet}.dart`, `logic/{member_ui_mapper, invitation_ui_mapper, iam_date_formatter}.dart` |
 | ID-15 | `users/views/organization_invite_member_page.dart`, `logic/organization_invite_member_cubit.dart` |
 | ID-16 | `users/views/organization_invitation_detail_page.dart`, `users/widgets/revoke_invitation_bottom_sheet.dart`, `shared/iam_action_tile.dart` |
 | ID-17 | `users/views/organization_member_detail_page.dart`, `users/widgets/{member_detail_body, member_lifecycle_actions, membership_lifecycle_confirm_sheet, deactivate_/reactivate_/remove_membership_bottom_sheet}.dart`, `logic/organization_member_detail_state.dart` |
 | ID-18 | `users/views/organization_select_role_page.dart` (`organization_preview_role_change_page.dart` còn trong code nhưng route redirect, không mở được) |
-| ID-19 | `roles/views/{organization_roles_page, organization_role_detail_page}.dart`, `logic/roles_cubit.dart`, `core/iam/iam_role_label_mapper.dart` |
-| ID-20 | `audit_logs/views/{organization_audit_logs_page, audit_log_detail_page}.dart`, `audit_logs/widgets/{audit_log_item_card, audit_log_category_filter_chips, audit_log_filter_bottom_sheet, audit_log_empty_view, audit_log_detail_body, audit_detail_row, audit_log_change_diff_item}.dart`, `audit_logs/mappers/tenant_audit_ui_mapper.dart` |
+| ID-19 | `roles/views/{organization_roles_page, organization_role_detail_page}.dart`, `roles/widgets/{role_card, roles_narrow, roles_wide, role_detail_narrow, role_detail_wide}.dart`, `logic/roles_cubit.dart`, `core/iam/iam_role_label_mapper.dart` |
+| ID-20 | `audit_logs/views/{organization_audit_logs_page, audit_log_detail_page}.dart`, `audit_logs/widgets/{audit_narrow, audit_wide, audit_day_section, audit_detail_narrow, audit_detail_wide, detail_part, audit_log_category_filter_chips, audit_log_filter_bottom_sheet, audit_log_empty_view, audit_detail_row}.dart`, `audit_logs/mappers/tenant_audit_ui_mapper.dart` |
 | DS thêm | `components/{v_tabs, v_search_bar, v_modal (VConfirmDialog), v_radio, v_empty_state}.dart`, `primitives/{v_chip, v_badge}.dart`, `forms/v_select.dart`, `patterns/{v_list_detail_layout, v_page_scaffold}.dart`; Flutter `material/scaffold.dart` (SnackBar hiện ở mọi Scaffold gốc của cùng ScaffoldMessenger) |
 
 ## Nguồn Flutter (đợt 3)
@@ -166,14 +166,14 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 
 **Vai trò (ID-19)**
 
-48. Thẻ có người giữ hiện nhãn "Đang dùng" thay mũi tên → trông như không bấm được; mô tả "Chủ cửa hàng" lộ ghi chú kỹ thuật "(gán mặc định cho Owner…, BR-36)".
-49. Không có trạng thái đang tải: hiện "0 vai trò hệ thống" + danh sách trống tới khi có dữ liệu. Chi tiết vai trò liệt kê tên trần, không bấm sang thành viên được.
+48. Thẻ có người giữ hiện nhãn "Đang dùng" thay mũi tên → trông như không bấm được; mô tả "Chủ cửa hàng" lộ ghi chú kỹ thuật "(gán mặc định cho Owner…, BR-36)". (Đã sửa 10-8i)
+49. Không có trạng thái đang tải: hiện "0 vai trò hệ thống" + danh sách trống tới khi có dữ liệu. Chi tiết vai trò liệt kê tên trần, không bấm sang thành viên được. (Đã sửa 10-8i)
 
 **Lịch sử quản trị (ID-20)**
 
-50. Dòng 3 mỗi thẻ "Loại đối tượng: Trần Văn Minh" — nhãn là loại nhưng giá trị là tên; chi tiết có dòng "Loại chủ thể: Chủ cửa hàng" thực ra là vai trò người thực hiện.
-51. Chi tiết in mã sự kiện thô ("iam.membership.role_changed"); khối thay đổi không có tiêu đề ("Dữ liệu thay đổi" có trong model nhưng không vẽ); AppBar Material tiêu đề 14 px, không gạch dưới, khác mọi màn khác (18 px + gạch).
-52. Bộ lọc: tiêu đề "Bộ lọc nhật ký nền tảng"; nhóm "Loại chủ thể" chọn được nhưng không áp dụng; chip nhanh thiếu "Lời mời" dù có sự kiện lời mời.
+50. Dòng 3 mỗi thẻ "Loại đối tượng: Trần Văn Minh" — nhãn là loại nhưng giá trị là tên; chi tiết có dòng "Loại chủ thể: Chủ cửa hàng" thực ra là vai trò người thực hiện. (Đã sửa 10-8i)
+51. Chi tiết in mã sự kiện thô ("iam.membership.role_changed"); khối thay đổi không có tiêu đề ("Dữ liệu thay đổi" có trong model nhưng không vẽ); AppBar Material tiêu đề 14 px, không gạch dưới, khác mọi màn khác (18 px + gạch). (Đã sửa 10-8i: có tiêu đề "Dữ liệu thay đổi", `VAppBar` chung; mã sự kiện giữ chữ nhỏ cuối phần truy vết theo prototype)
+52. Bộ lọc: tiêu đề "Bộ lọc nhật ký nền tảng"; nhóm "Loại chủ thể" chọn được nhưng không áp dụng; chip nhanh thiếu "Lời mời" dù có sự kiện lời mời. (Đã sửa 10-8i: tiêu đề, bỏ nhóm "Loại chủ thể"; chip nhanh giữ 4 nhóm theo TH-01 US-07.2 FR-01)
 
 ## Hiện trạng Flutter (để rà) — đợt 3
 

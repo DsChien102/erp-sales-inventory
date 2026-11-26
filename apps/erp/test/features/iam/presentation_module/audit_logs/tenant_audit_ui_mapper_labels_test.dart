@@ -97,7 +97,29 @@ void main() {
       expect(detail.targetSubjectLabel, 'Tổ chức');
       expect(detail.targetDetailLabel, 'ID đối tượng');
       expect(detail.targetDetailValue, '7a3c8e61…b942');
-      expect(detail.sourceApp, 'Tenant App');
+      expect(detail.sourceApp, 'Ứng dụng');
+    });
+
+    test('sourceApp tenant_app reads Ứng dụng', () {
+      final detail = TenantAuditUiMapper.fromDetail(
+        TenantAuditLogDetailDto(
+          auditLogId: 'audit-1',
+          auditDisplayId: 'AUD-000982',
+          tenantId: 'tenant-1',
+          eventCode: IamAuditEvents.tenantProfileUpdated,
+          result: TenantAuditLogResult.success,
+          occurredAt: DateTime.utc(2026, 8, 2, 8, 35),
+          source: 'tenant_app',
+          correlationId: 'corr-1',
+          trackingId: 'tracking-1',
+          actorUnavailable: false,
+          beforeRedacted: false,
+          afterRedacted: false,
+          actor: const TenantAuditActorDto(),
+          subject: const TenantAuditSubjectDto(type: 'tenant'),
+        ),
+      );
+      expect(detail.sourceApp, 'Ứng dụng');
     });
 
     test('handles unavailable actor gracefully without UUID guessing', () {

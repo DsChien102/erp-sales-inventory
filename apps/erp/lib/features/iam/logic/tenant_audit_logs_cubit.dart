@@ -26,47 +26,76 @@ final class TenantAuditLogsCubit extends Cubit<TenantAuditLogsState> {
 
   final AuditLogRepository _auditLogs;
   final DateTime Function() _clockLocal;
+  int _searchSeq = 0;
 
   Future<void> search({bool reset = true}) async {
     if (isClosed) return;
+    if (!reset && (state.isLoadingMore || !state.hasMore)) return;
+
+    final seq = ++_searchSeq;
+    var activeFilter = state.filters;
+
     if (reset) {
+      if (activeFilter.range == TenantAuditRange.h24) {
+        final refreshed = TenantAuditFilter.forRange(
+          TenantAuditRange.h24,
+          nowIct: VDateTime.toIct(_clockLocal()),
+        );
+        activeFilter = activeFilter.copyWith(
+          fromLocal: refreshed.fromLocal,
+          toLocal: refreshed.toLocal,
+          exactFromUtc: refreshed.exactFromUtc,
+          exactToUtc: refreshed.exactToUtc,
+        );
+      }
       emit(
         state.copyWith(
           status: IamLoadStatus.loading,
+          filters: activeFilter,
           items: const [],
           totalCount: 0,
           clearNextCursor: true,
           clearFailure: true,
+          clearLoadMoreFailure: true,
           isLoadingMore: false,
         ),
       );
     } else {
-      if (state.isLoadingMore || !state.hasMore) return;
-      emit(state.copyWith(isLoadingMore: true, clearFailure: true));
+      emit(
+        state.copyWith(
+          isLoadingMore: true,
+          clearLoadMoreFailure: true,
+        ),
+      );
     }
 
     try {
-      final trimmedQuery = state.filters.query?.trim();
+      final trimmedQuery = activeFilter.query?.trim();
       final hasQuery = trimmedQuery != null && trimmedQuery.isNotEmpty;
       final matchingEventCodes = hasQuery
           ? TenantAuditEventCatalog.matchingEventCodes(trimmedQuery)
           : const <String>[];
       final effectiveQuery = hasQuery && matchingEventCodes.isEmpty ? trimmedQuery : null;
       final effectiveEventCodes = _mergeEventCodes(
-        structured: state.filters.eventCodes,
+        structured: activeFilter.eventCodes,
         derived: matchingEventCodes,
       );
+      final fromUtc = activeFilter.exactFromUtc ??
+          toUtcStartOfLocalDay(activeFilter.fromLocal);
+      final toUtc = activeFilter.exactToUtc ??
+          toUtcEndExclusiveOfLocalDay(activeFilter.toLocal);
+
       final page = await _auditLogs.search(
-        from: toUtcStartOfLocalDay(state.filters.fromLocal),
-        to: toUtcEndExclusiveOfLocalDay(state.filters.toLocal),
+        from: fromUtc,
+        to: toUtc,
         query: effectiveQuery,
-        result: state.filters.result?.code,
-        eventCategory: state.filters.eventCategory?.code,
-        subjectType: state.filters.subjectType,
+        result: activeFilter.result?.code,
+        eventCategory: activeFilter.eventCategory?.code,
+        subjectType: activeFilter.subjectType,
         eventCodes: effectiveEventCodes,
         cursor: reset ? null : state.nextCursor,
       );
-      if (isClosed) return;
+      if (isClosed || seq != _searchSeq) return;
 
       final merged = reset ? page.items : _dedupeAppend(state.items, page.items);
       emit(
@@ -78,17 +107,27 @@ final class TenantAuditLogsCubit extends Cubit<TenantAuditLogsState> {
           clearNextCursor: page.nextCursor == null,
           isLoadingMore: false,
           clearFailure: true,
+          clearLoadMoreFailure: true,
         ),
       );
     } catch (error) {
-      if (isClosed) return;
-      emit(
-        state.copyWith(
-          status: reset ? IamLoadStatus.failure : state.status,
-          isLoadingMore: false,
-          failure: IamUiFailureMapper.from(error),
-        ),
-      );
+      if (isClosed || seq != _searchSeq) return;
+      if (reset) {
+        emit(
+          state.copyWith(
+            status: IamLoadStatus.failure,
+            isLoadingMore: false,
+            failure: IamUiFailureMapper.from(error),
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            isLoadingMore: false,
+            loadMoreFailure: IamUiFailureMapper.from(error),
+          ),
+        );
+      }
     }
   }
 
@@ -100,8 +139,38 @@ final class TenantAuditLogsCubit extends Cubit<TenantAuditLogsState> {
     await search(reset: true);
   }
 
+  Future<void> applyRangeAndResult(
+    TenantAuditRange range,
+    TenantAuditLogResult? result,
+  ) async {
+    final base = TenantAuditFilter.forRange(
+      range,
+      nowIct: VDateTime.toIct(_clockLocal()),
+    );
+    await applyFilter(
+      base.copyWith(
+        query: state.filters.query,
+        result: result,
+        clearResult: result == null,
+        eventCategory: state.filters.eventCategory,
+        subjectType: state.filters.subjectType,
+        eventCodes: state.filters.eventCodes,
+      ),
+    );
+  }
+
   Future<void> clearFilter() async {
-    await applyFilter(TenantAuditFilter.last30Days(nowLocal: _clockLocal()));
+    await applyFilter(
+      TenantAuditFilter.forRange(
+        TenantAuditRange.d30,
+        nowIct: VDateTime.toIct(_clockLocal()),
+      ),
+    );
+  }
+
+  void clearLoadMoreFailure() {
+    if (isClosed) return;
+    emit(state.copyWith(clearLoadMoreFailure: true));
   }
 
   Future<void> loadDetail(String auditLogId) async {

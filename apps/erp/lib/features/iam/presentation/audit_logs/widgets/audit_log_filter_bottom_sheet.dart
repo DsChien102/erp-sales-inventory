@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:c45_design_system/design_system.dart';
 
+import '../../../logic/tenant_audit_filter.dart';
 import '../models/audit_log_filter_criteria.dart';
 import '../models/audit_log_ui_model.dart';
 
-/// Bottom Sheet Bộ lọc nhật ký nền tảng (PA-D-02 BottomSheet).
+/// Bottom Sheet Bộ lọc lịch sử quản trị (Q1, Q2, Q3).
 class AuditLogFilterBottomSheet extends StatefulWidget {
   final AuditLogFilterCriteria initialCriteria;
   final ValueChanged<AuditLogFilterCriteria>? onApply;
@@ -22,10 +23,10 @@ class AuditLogFilterBottomSheet extends StatefulWidget {
 class _AuditLogFilterBottomSheetState extends State<AuditLogFilterBottomSheet> {
   late AuditLogFilterCriteria _currentCriteria;
 
-  static const List<String> _timeRangeOptions = [
-    '24 giờ',
-    '7 ngày',
-    '30 ngày',
+  static const List<({String label, TenantAuditRange range})> _timeRangeOptions = [
+    (label: '24 giờ', range: TenantAuditRange.h24),
+    (label: '7 ngày', range: TenantAuditRange.d7),
+    (label: '30 ngày', range: TenantAuditRange.d30),
   ];
 
   static const List<({String label, AuditLogStatus? status})> _statusOptions = [
@@ -33,12 +34,6 @@ class _AuditLogFilterBottomSheetState extends State<AuditLogFilterBottomSheet> {
     (label: 'Thành công', status: AuditLogStatus.success),
     (label: 'Bị chặn', status: AuditLogStatus.blocked),
     (label: 'Lỗi', status: AuditLogStatus.error),
-  ];
-
-  static const List<String> _actorTypeOptions = [
-    'Tất cả',
-    'Người dùng',
-    'Hệ thống',
   ];
 
   @override
@@ -81,13 +76,13 @@ class _AuditLogFilterBottomSheetState extends State<AuditLogFilterBottomSheet> {
             spacing: VSpacing.space2,
             runSpacing: VSpacing.space2,
             children: _timeRangeOptions.map((option) {
-              final isSelected = _currentCriteria.timeRange == option;
+              final isSelected = _currentCriteria.range == option.range;
               return VChip(
-                label: option,
+                label: option.label,
                 tone: isSelected ? VComponentTone.primary : VComponentTone.neutral,
                 onTap: () {
                   setState(() {
-                    _currentCriteria = _currentCriteria.copyWith(timeRange: option);
+                    _currentCriteria = _currentCriteria.copyWith(range: option.range);
                   });
                 },
               );
@@ -112,27 +107,6 @@ class _AuditLogFilterBottomSheetState extends State<AuditLogFilterBottomSheet> {
                       status: option.status,
                       clearStatus: option.status == null,
                     );
-                  });
-                },
-              );
-            }).toList(),
-          ),
-          const VGap.md(),
-
-          // Nhóm 3: Loại chủ thể
-          const _FilterSectionTitle(title: 'Loại chủ thể'),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: VSpacing.space2,
-            runSpacing: VSpacing.space2,
-            children: _actorTypeOptions.map((option) {
-              final isSelected = _currentCriteria.actorType == option;
-              return VChip(
-                label: option,
-                tone: isSelected ? VComponentTone.primary : VComponentTone.neutral,
-                onTap: () {
-                  setState(() {
-                    _currentCriteria = _currentCriteria.copyWith(actorType: option);
                   });
                 },
               );

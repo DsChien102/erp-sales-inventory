@@ -62,5 +62,19 @@ void main() {
       expect(fallback.eventCode, 'iam.custom.something_special');
       expect(fallback.category, TenantAuditEventCategory.system);
     });
+
+    test('partial titles of two or more words match events', () {
+      expect(
+        TenantAuditEventCatalog.matchingEventCodes('tạm ngừng'),
+        contains(IamAuditEvents.membershipDeactivated),
+      );
+      expect(
+        TenantAuditEventCatalog.matchingEventCodes('Thành'),
+        isEmpty,
+      );
+      final memberPhrase = TenantAuditEventCatalog.matchingEventCodes('thành viên');
+      expect(memberPhrase, contains(IamAuditEvents.membershipDeactivated));
+      expect(memberPhrase, contains(IamAuditEvents.invitationCreated));
+    });
   });
 }

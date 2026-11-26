@@ -14,7 +14,10 @@ void main() {
     test('formats enum and boolean values accurately', () {
       expect(TenantAuditFieldCatalog.formatValue('status', 'active'), 'Đang hoạt động');
       expect(TenantAuditFieldCatalog.formatValue('status', 'suspended'), 'Tạm ngừng');
-      expect(TenantAuditFieldCatalog.formatValue('role', 'store_owner'), 'Chủ sở hữu');
+      expect(TenantAuditFieldCatalog.formatValue('role', 'store_owner'), 'Chủ cửa hàng');
+      expect(TenantAuditFieldCatalog.formatValue('role', 'warehouse'), 'Thủ kho');
+      expect(TenantAuditFieldCatalog.formatValue('role', 'staff'), 'Nhân viên bán hàng');
+      expect(TenantAuditFieldCatalog.formatValue('role_code', 'accountant'), 'Kế toán');
       expect(TenantAuditFieldCatalog.formatValue('is_active', true), 'Bật');
       expect(TenantAuditFieldCatalog.formatValue('is_active', false), 'Tắt');
       expect(TenantAuditFieldCatalog.formatValue('unknown', null), '—');

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/iam/data/invitation_repository.dart';
 import 'package:erp/features/iam/data/member_repository.dart';
@@ -5,6 +8,7 @@ import 'package:erp/features/iam/data/models/cursor_page.dart';
 import 'package:erp/features/iam/data/models/tenant_invitation.dart';
 import 'package:erp/features/iam/data/models/tenant_member.dart';
 import 'package:erp/features/iam/presentation.dart';
+import 'package:erp/features/iam/presentation/shared/admin_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase/supabase.dart';
@@ -100,6 +104,182 @@ void main() {
     expect(find.text('4 vai trò hệ thống'), findsOneWidget);
   });
 
+  testWidgets('detail lists holders', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final cubit = await _loadedCubit();
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(home: OrganizationRolesPage(cubit: cubit)),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Chủ cửa hàng'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chi tiết vai trò'), findsOneWidget);
+    expect(find.text('An'), findsOneWidget);
+  });
+
+  testWidgets('390 loading shows a spinner and Đang tải vai trò', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final completer = Completer<List<AssignableInvitationRole>>();
+    final cubit = RolesCubit(
+      invitations: _HangingInvitations(completer),
+      members: _ScriptedMembers(const []),
+    );
+    addTearDown(cubit.close);
+    unawaited(cubit.load());
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: OrganizationRolesPage(cubit: cubit),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byType(VLoading), findsOneWidget);
+    expect(find.text('Đang tải vai trò'), findsOneWidget);
+    expect(find.text('0 vai trò hệ thống'), findsNothing);
+  });
+
+  testWidgets('1280 loading shows four skeleton rows', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final completer = Completer<List<AssignableInvitationRole>>();
+    final cubit = RolesCubit(
+      invitations: _HangingInvitations(completer),
+      members: _ScriptedMembers(const []),
+    );
+    addTearDown(cubit.close);
+    unawaited(cubit.load());
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: OrganizationRolesPage(cubit: cubit),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Đang tải vai trò'), findsOneWidget);
+    final table = tester.widget<AdminTable>(find.byType(AdminTable));
+    expect(table.loadingRows, 4);
+  });
+
+  testWidgets('390 cards: badge, arrow on every card, holders footer', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final cubit = await _loadedCubit();
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: OrganizationRolesPage(cubit: cubit),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Đang dùng'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate((w) => w is VIcon && w.icon == VIcons.chevronRight),
+      findsNWidgets(4),
+    );
+    expect(find.text('An'), findsOneWidget);
+    expect(
+      find.text('Chưa có thành viên đang giữ vai trò này.'),
+      findsNWidgets(3),
+    );
+  });
+
+  testWidgets('12 holders: one line in list, all in detail', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final twelveMembers = List.generate(
+      12,
+      (i) => TenantMember(
+        membershipId: 'm$i',
+        userId: 'u$i',
+        displayName: 'Thành viên ${i + 1}',
+        email: 'tv$i@example.com',
+        roleId: 'role-staff',
+        roleLabel: 'Nhân viên bán hàng',
+        isOwner: false,
+        status: 'active',
+        joinedAt: DateTime.utc(2026, 1, 1),
+        version: 1,
+      ),
+    );
+    final cubit = RolesCubit(
+      invitations: _ScriptedInvitations(),
+      members: _ScriptedMembers([CursorPage(items: twelveMembers)]),
+    );
+    addTearDown(cubit.close);
+    await cubit.load();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: OrganizationRolesPage(cubit: cubit),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final joined = twelveMembers.map((m) => m.displayName).join(', ');
+    final listText = tester.widget<Text>(find.text(joined));
+    expect(listText.maxLines, 1);
+    expect(listText.overflow, TextOverflow.ellipsis);
+
+    await tester.tap(find.text('Nhân viên bán hàng'));
+    await tester.pumpAndSettle();
+
+    for (final m in twelveMembers) {
+      expect(find.text(m.displayName), findsOneWidget);
+    }
+  });
+
+  testWidgets('320 at text scale 2.0 does not overflow', (tester) async {
+    tester.view.physicalSize = const Size(320, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final cubit = await _loadedCubit();
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
+          child: OrganizationRolesPage(cubit: cubit),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('accessibility guidelines: tap target size and labeled tap target', (
     WidgetTester tester,
   ) async {
@@ -180,6 +360,16 @@ final class _ScriptedInvitations extends InvitationRepository {
     if (failFirst && _calls == 1) throw StateError('down');
     return _roles;
   }
+}
+
+final class _HangingInvitations extends InvitationRepository {
+  _HangingInvitations(this.completer)
+    : super(rpc: _rpc, tenantId: () async => 'org-001');
+
+  final Completer<List<AssignableInvitationRole>> completer;
+
+  @override
+  Future<List<AssignableInvitationRole>> listAssignableRoles() => completer.future;
 }
 
 final class _ScriptedMembers extends MemberRepository {

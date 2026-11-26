@@ -15,7 +15,7 @@ export const LEGAL_NOTICE = { title: 'Chưa có hồ sơ pháp lý', message: 'C
 
 /** IamRoleLabelMapper.description (TH-01 3.4). */
 export const ROLE_DESC = {
-  'Chủ cửa hàng': 'Quản lý toàn bộ cửa hàng (gán mặc định cho Owner khi tạo tổ chức; gán được cho thành viên khác, BR-36)',
+  'Chủ cửa hàng': 'Quản lý toàn bộ cửa hàng',
   'Nhân viên bán hàng': 'Bán hàng và chăm sóc khách hàng',
   'Kế toán': 'Công nợ, hóa đơn và báo cáo',
   'Thủ kho': 'Nhập xuất, tồn kho và kiểm kê',
@@ -64,5 +64,10 @@ export const AUDIT = [
   { id: 'a5', icon: 'checkCircle', title: 'Chấp nhận lời mời tham gia', code: 'iam.invitation.accepted', actor: 'Trần Văn Minh', actorRole: 'Nhân viên bán hàng', at: '15/10/2026 08:03', subject: 'Trần Văn Minh', subjectType: 'Thành viên' },
   { id: 'a6', icon: 'close', title: 'Thu hồi lời mời thành viên', code: 'iam.invitation.revoked', actor: 'Không còn thông tin người thực hiện', actorRole: '—', at: '12/10/2026 16:47', subject: 'vy.old@gmail.com', subjectType: 'Lời mời', actorUnavailable: true },
 ];
+export const AUDIT_BLOCKED_ITEM = {
+  id: 'a7', icon: 'users', title: 'Loại thành viên khỏi tổ chức', code: 'iam.membership.removed',
+  actor: 'Nguyễn Thị Lan', actorRole: 'Chủ cửa hàng', at: '20/11/2026 08:15',
+  subject: 'Trần Văn Minh', subjectType: 'Thành viên', result: ['Bị chặn', 'warning'],
+};
 export const AUDIT_TOTAL = 24;
 export const TRACE_ID = 'req_7f3a9c21…c8d19f02'; // formatTraceId: > 24 ký tự → 12 đầu + … + 8 cuối

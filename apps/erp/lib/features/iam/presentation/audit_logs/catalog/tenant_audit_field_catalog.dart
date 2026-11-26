@@ -1,3 +1,5 @@
+import 'package:erp/core/iam/iam_role_label_mapper.dart';
+
 /// Translates state payload keys and values into user-friendly Vietnamese labels.
 abstract final class TenantAuditFieldCatalog {
   static const Map<String, String> _fieldLabels = {
@@ -35,11 +37,6 @@ abstract final class TenantAuditFieldCatalog {
     'deactivated': 'Đã tạm ngừng',
     'removed': 'Đã loại bỏ',
     'provisioning': 'Đang hoạt động',
-    'store_owner': 'Chủ sở hữu',
-    'store_manager': 'Quản lý chi nhánh',
-    'veterinarian': 'Bác sĩ thú y',
-    'care_staff': 'Nhân viên chăm sóc',
-    'cashier': 'Thu ngân',
     'pending': 'Đang chờ',
     'revoked': 'Đã thu hồi',
     'accepted': 'Đã chấp nhận',
@@ -68,6 +65,11 @@ abstract final class TenantAuditFieldCatalog {
 
     final text = value.toString().trim();
     if (text.isEmpty) return '—';
+
+    final key = fieldKey.toLowerCase();
+    if (key == 'role' || key == 'role_code') {
+      return IamRoleLabelMapper.toDisplayLabel(text);
+    }
 
     final mapped = _valueLabels[text.toLowerCase()];
     if (mapped != null) return mapped;

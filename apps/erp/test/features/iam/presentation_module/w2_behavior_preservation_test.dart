@@ -528,7 +528,7 @@ void main() {
                   ElevatedButton(
                     onPressed: () => showVAdaptiveSheet<void>(
                       context: context,
-                      title: 'Bộ lọc nhật ký nền tảng',
+                      title: 'Bộ lọc lịch sử quản trị',
                       child: AuditLogFilterBottomSheet(
                         initialCriteria: const AuditLogFilterCriteria(),
                         onApply: (criteria) => auditApplied = criteria,

@@ -29,12 +29,12 @@ void main() {
       ),
     );
 
-    await tester.pumpWidget(MaterialApp(home: AuditLogDetailBody(log: log)));
+    await tester.pumpWidget(MaterialApp(home: Scaffold(body: AuditDetailNarrow(log: log))));
     await tester.pumpAndSettle();
 
     expect(find.text('Không còn thông tin người thực hiện'), findsWidgets);
     expect(find.text('Tài khoản đã ngừng'), findsNothing);
-    expect(find.text('Loại chủ thể'), findsOneWidget);
+    expect(find.text('Vai trò'), findsOneWidget);
     expect(find.text('—'), findsWidgets);
   });
 }

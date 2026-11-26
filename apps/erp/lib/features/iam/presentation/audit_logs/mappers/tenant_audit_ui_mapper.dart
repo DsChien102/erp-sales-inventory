@@ -41,8 +41,8 @@ abstract final class TenantAuditUiMapper {
       icon: entry.icon,
       category: eventCategory.code,
       eventCategory: eventCategory,
-      targetSubjectLabel: 'Loại đối tượng',
-      targetSubjectValue: localizedSubject,
+      targetSubjectLabel: localizedSubject,
+      targetSubjectValue: subjectName,
       targetDetailLabel: 'Mã đối tượng',
       targetDetailValue: detailValue,
       subjectName: subjectName,
@@ -182,7 +182,7 @@ abstract final class TenantAuditUiMapper {
 
   static String _localizedSource(String source) {
     return switch (source.toLowerCase()) {
-      'tenant_app' || 'erp' => 'Tenant App',
+      'tenant_app' || 'erp' => 'Ứng dụng',
       'iam' => 'Hệ thống IAM',
       'worker' || 'system' => 'Hệ thống',
       _ => source,

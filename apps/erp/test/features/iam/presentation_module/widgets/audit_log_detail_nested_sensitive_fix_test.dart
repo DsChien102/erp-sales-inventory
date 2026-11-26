@@ -43,7 +43,7 @@ void main() {
     );
     final log = TenantAuditUiMapper.fromDetail(detail);
 
-    await tester.pumpWidget(MaterialApp(home: AuditLogDetailBody(log: log)));
+    await tester.pumpWidget(MaterialApp(home: Scaffold(body: AuditDetailNarrow(log: log))));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('RAW-BEFORE-NONCE'), findsNothing);

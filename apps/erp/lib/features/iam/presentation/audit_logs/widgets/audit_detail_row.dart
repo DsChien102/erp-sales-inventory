@@ -121,7 +121,7 @@ class AuditCopyButton extends StatelessWidget {
       icon: VIcon(
         icon: VIcons.clipboard,
         size: 18,
-        color: colors.textSecondary,
+        color: colors.textBrand,
       ),
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints.tightFor(
@@ -135,7 +135,7 @@ class AuditCopyButton extends StatelessWidget {
         VToast.show(
           context,
           title: 'Đã sao chép',
-          message: value,
+          message: 'Đã sao chép mã theo dõi.',
           type: VToastType.success,
         );
       },

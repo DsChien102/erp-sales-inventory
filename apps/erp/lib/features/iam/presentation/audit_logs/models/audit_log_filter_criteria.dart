@@ -1,30 +1,27 @@
+import '../../../logic/tenant_audit_filter.dart';
 import 'audit_log_ui_model.dart';
 
-/// Class chứa các tiêu chí lọc nâng cao cho danh sách nhật ký nền tảng (AuditLogFilterCriteria).
+/// Tiêu chí lọc nâng cao cho danh sách lịch sử quản trị.
 class AuditLogFilterCriteria {
-  final String timeRange;
+  final TenantAuditRange range;
   final AuditLogStatus? status;
-  final String actorType;
 
   const AuditLogFilterCriteria({
-    this.timeRange = '24 giờ',
+    this.range = TenantAuditRange.d30,
     this.status,
-    this.actorType = 'Tất cả',
   });
 
   /// Kiểm tra xem có tiêu chí lọc nào khác mặc định không.
-  bool get isFilterActive => timeRange != '24 giờ' || status != null || actorType != 'Tất cả';
+  bool get isFilterActive => range != TenantAuditRange.d30 || status != null;
 
   AuditLogFilterCriteria copyWith({
-    String? timeRange,
+    TenantAuditRange? range,
     AuditLogStatus? status,
     bool clearStatus = false,
-    String? actorType,
   }) {
     return AuditLogFilterCriteria(
-      timeRange: timeRange ?? this.timeRange,
+      range: range ?? this.range,
       status: clearStatus ? null : (status ?? this.status),
-      actorType: actorType ?? this.actorType,
     );
   }
 
@@ -33,10 +30,9 @@ class AuditLogFilterCriteria {
       identical(this, other) ||
       other is AuditLogFilterCriteria &&
           runtimeType == other.runtimeType &&
-          timeRange == other.timeRange &&
-          status == other.status &&
-          actorType == other.actorType;
+          range == other.range &&
+          status == other.status;
 
   @override
-  int get hashCode => timeRange.hashCode ^ status.hashCode ^ actorType.hashCode;
+  int get hashCode => range.hashCode ^ status.hashCode;
 }

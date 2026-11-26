@@ -13,11 +13,13 @@ enum AuditLogEmptyStateType {
 class AuditLogEmptyView extends StatelessWidget {
   final AuditLogEmptyStateType type;
   final VoidCallback onAction;
+  final bool flat;
 
   const AuditLogEmptyView({
     super.key,
     required this.type,
     required this.onAction,
+    this.flat = false,
   });
 
   @override
@@ -74,58 +76,67 @@ class AuditLogEmptyView extends StatelessWidget {
         break;
     }
 
+    final content = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            color: iconBgColor,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: VIcon(
+              icon: icon,
+              color: iconColor,
+              size: 28,
+            ),
+          ),
+        ),
+        const VGap.md(),
+        Semantics(
+          header: true,
+          child: VText(
+            title,
+            variant: VTextVariant.headingH3,
+            color: titleColor ?? colors.textPrimary,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const VGap.sm(),
+        VText(
+          description,
+          variant: VTextVariant.bodyDefault,
+          color: colors.textSecondary,
+          textAlign: TextAlign.center,
+        ),
+        const VGap.md(),
+        VButton(
+          label: actionLabel,
+          variant: VButtonVariant.link,
+          onPressed: onAction,
+        ),
+      ],
+    );
+
+    if (flat) {
+      return Padding(
+        padding: const EdgeInsets.all(VSpacing.space6),
+        child: content,
+      );
+    }
+
     return Align(
       alignment: const Alignment(0, -0.75),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: VSpacing.screenMobile),
         child: VCard(
           padding: const EdgeInsets.all(VSpacing.space6),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: VIcon(
-                    icon: icon,
-                    color: iconColor,
-                    size: 28,
-                  ),
-                ),
-              ),
-              const VGap.md(),
-              Semantics(
-                header: true,
-                child: VText(
-                  title,
-                  variant: VTextVariant.headingH3,
-                  color: titleColor ?? colors.textPrimary,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const VGap.sm(),
-              VText(
-                description,
-                variant: VTextVariant.bodyDefault,
-                color: colors.textSecondary,
-                textAlign: TextAlign.center,
-              ),
-              const VGap.md(),
-              VButton(
-                label: actionLabel,
-                variant: VButtonVariant.link,
-                onPressed: onAction,
-              ),
-            ],
-          ),
+          child: content,
         ),
       ),
     );

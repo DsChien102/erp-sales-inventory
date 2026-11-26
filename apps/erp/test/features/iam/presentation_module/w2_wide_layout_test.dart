@@ -216,7 +216,7 @@ void main() {
     });
 
     testWidgets(
-      '3. Roles: 1280x800 hiện 2 cột, detail không có nút Quay lại vs 390x844 có nút Quay lại',
+      '3. Roles: 1280x800 hiện bảng toàn màn, bấm dòng mở chi tiết bằng go, Quay lại về danh sách; deep link /more/roles/staff Quay lại về danh sách',
       (tester) async {
         final module = FakeIamBackend(scenario: FakeIamScenario.usersSearchOk);
         final memberRepo = FakeMemberRepository(module);
@@ -233,9 +233,10 @@ void main() {
         getIt.registerSingleton<InvitationRepository>(invitationRepo);
         getIt.registerSingleton<AuditLogRepository>(auditRepo);
 
-        // --- A. Bề rộng 1280x800 ---
         tester.view.physicalSize = const Size(1280, 800);
         tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
         await tester.pumpWidget(
           MaterialApp.router(
@@ -244,36 +245,47 @@ void main() {
           ),
         );
 
-        appRouter.go('/more/roles/warehouse');
+        appRouter.go('/more/roles');
         await tester.pumpAndSettle();
 
-        expect(find.byType(OrganizationRolesPage), findsOneWidget);
-        expect(find.byType(OrganizationRoleDetailPage), findsOneWidget);
-        for (final matching in [find.byTooltip('Quay lại'), find.byType(BackButton)]) {
-          expect(
-            find.descendant(
-              of: find.byType(OrganizationRoleDetailPage),
-              matching: matching,
-            ),
-            findsNothing,
-          );
-        }
+        expect(find.byType(AdminTable), findsOneWidget);
+        expect(find.byType(VListDetailLayout), findsNothing);
 
-        // --- B. Bề rộng 390x844 ---
-        tester.view.physicalSize = const Size(390, 844);
+        await tester.tap(find.text('Nhân viên bán hàng'));
         await tester.pumpAndSettle();
 
-        expect(find.byType(OrganizationRolesPage), findsNothing);
+        expect(
+          appRouter.routerDelegate.currentConfiguration.uri.toString(),
+          '/more/roles/staff',
+        );
         expect(find.byType(OrganizationRoleDetailPage), findsOneWidget);
         expect(find.byTooltip('Quay lại'), findsOneWidget);
 
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
+        await tester.tap(find.byTooltip('Quay lại'));
+        await tester.pumpAndSettle();
+
+        expect(
+          appRouter.routerDelegate.currentConfiguration.uri.toString(),
+          '/more/roles',
+        );
+        expect(find.byType(AdminTable), findsOneWidget);
+
+        // Deep link /more/roles/staff ở 1280
+        appRouter.go('/more/roles/staff');
+        await tester.pumpAndSettle();
+        expect(find.byType(OrganizationRoleDetailPage), findsOneWidget);
+        await tester.tap(find.byTooltip('Quay lại'));
+        await tester.pumpAndSettle();
+        expect(
+          appRouter.routerDelegate.currentConfiguration.uri.toString(),
+          '/more/roles',
+        );
+        expect(find.byType(AdminTable), findsOneWidget);
       },
     );
 
     testWidgets(
-      '4. AuditLogs: 1280x800 hiện 2 cột, card isSelected: true, detail không nút Quay lại vs 390x844 có nút Quay lại',
+      '4. AuditLogs: 1280x800 hiện bảng toàn màn, bấm dòng mở chi tiết bằng go, Quay lại về danh sách; deep link Quay lại về danh sách',
       (tester) async {
         final module = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
         final memberRepo = FakeMemberRepository(module);
@@ -293,9 +305,10 @@ void main() {
         getIt.registerSingleton<InvitationRepository>(invitationRepo);
         getIt.registerSingleton<AuditLogRepository>(auditRepo);
 
-        // --- A. Bề rộng 1280x800 ---
         tester.view.physicalSize = const Size(1280, 800);
         tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
         await tester.pumpWidget(
           MaterialApp.router(
@@ -304,34 +317,47 @@ void main() {
           ),
         );
 
-        appRouter.go('/more/audit-logs/AUD-T-001');
+        appRouter.go('/more/audit-logs');
         await tester.pumpAndSettle();
 
-        expect(find.byType(OrganizationAuditLogsPage), findsOneWidget);
-        expect(find.byType(AuditLogDetailPage), findsOneWidget);
+        expect(find.byType(AdminTable), findsOneWidget);
+        expect(find.byType(VListDetailLayout), findsNothing);
 
-        final selectedItemCard = tester.widget<AuditLogItemCard>(
-          find.byType(AuditLogItemCard).first,
-        );
-        expect(selectedItemCard.isSelected, isTrue);
-        expect(
+        await tester.tap(
           find.descendant(
-            of: find.byType(AuditLogDetailPage),
-            matching: find.byTooltip('Quay lại'),
-          ),
-          findsNothing,
+            of: find.byType(AdminTable),
+            matching: find.byType(InkWell),
+          ).first,
         );
-
-        // --- B. Bề rộng 390x844 ---
-        tester.view.physicalSize = const Size(390, 844);
         await tester.pumpAndSettle();
 
-        expect(find.byType(OrganizationAuditLogsPage), findsNothing);
+        expect(
+          appRouter.routerDelegate.currentConfiguration.uri.toString(),
+          startsWith('/more/audit-logs/'),
+        );
         expect(find.byType(AuditLogDetailPage), findsOneWidget);
         expect(find.byTooltip('Quay lại'), findsOneWidget);
 
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
+        await tester.tap(find.byTooltip('Quay lại'));
+        await tester.pumpAndSettle();
+
+        expect(
+          appRouter.routerDelegate.currentConfiguration.uri.toString(),
+          '/more/audit-logs',
+        );
+        expect(find.byType(AdminTable), findsOneWidget);
+
+        // Deep link ở 1280: Quay lại về danh sách
+        appRouter.go('/more/audit-logs/AUD-T-001');
+        await tester.pumpAndSettle();
+        expect(find.byType(AuditLogDetailPage), findsOneWidget);
+        await tester.tap(find.byTooltip('Quay lại'));
+        await tester.pumpAndSettle();
+        expect(
+          appRouter.routerDelegate.currentConfiguration.uri.toString(),
+          '/more/audit-logs',
+        );
+        expect(find.byType(AdminTable), findsOneWidget);
       },
     );
 
@@ -369,15 +395,17 @@ void main() {
         ),
       );
 
-      // 5.2 /more/roles
+      // 5.2 /more/roles (bảng toàn màn, không còn placeholder 2 cột)
       appRouter.go('/more/roles');
       await tester.pumpAndSettle();
-      expect(find.text('Chọn một vai trò để xem chi tiết.'), findsOneWidget);
+      expect(find.byType(AdminTable), findsOneWidget);
+      expect(find.text('Chọn một vai trò để xem chi tiết.'), findsNothing);
 
-      // 5.3 /more/audit-logs
+      // 5.3 /more/audit-logs (bảng toàn màn, không còn placeholder 2 cột)
       appRouter.go('/more/audit-logs');
       await tester.pumpAndSettle();
-      expect(find.text('Chọn một mục lịch sử để xem chi tiết.'), findsOneWidget);
+      expect(find.byType(AdminTable), findsOneWidget);
+      expect(find.text('Chọn một mục lịch sử để xem chi tiết.'), findsNothing);
     });
 
     testWidgets(
@@ -800,7 +828,7 @@ void main() {
     );
 
     testWidgets(
-      '15. Lịch sử: 1280x800 cột danh sách không có nút Quay lại; 390x844 từ /more có nút Quay lại',
+      '15. Lịch sử: 1280x800 từ /more có nút Quay lại; 390x844 từ /more có nút Quay lại',
       (tester) async {
         // --- A. Bề rộng 1280x800 ---
         await pumpApp(
@@ -810,20 +838,12 @@ void main() {
           scenario: FakeIamScenario.tenantAuditSearchOk,
         );
 
-        appRouter.go('/more/audit-logs/AUD-T-001');
+        appRouter.go('/more/audit-logs');
         await tester.pumpAndSettle();
 
         expect(find.byType(OrganizationAuditLogsPage), findsOneWidget);
-        expect(find.byType(AuditLogDetailPage), findsOneWidget);
-
-        // Trong cột danh sách, tooltip "Quay lại" = 0
-        expect(
-          find.descendant(
-            of: find.byType(OrganizationAuditLogsPage),
-            matching: find.byTooltip('Quay lại'),
-          ),
-          findsNothing,
-        );
+        expect(find.byType(AdminTable), findsOneWidget);
+        expect(find.byType(AuditLogDetailPage), findsNothing);
 
         // --- B. Bề rộng 390x844: mở /more rồi push sang /more/audit-logs ---
         tester.view.physicalSize = const Size(390, 844);

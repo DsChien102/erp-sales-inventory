@@ -12,6 +12,7 @@ final class TenantAuditLogsState {
     required this.filters,
     this.isLoadingMore = false,
     this.failure,
+    this.loadMoreFailure,
     this.selectedDetail,
     this.detailStatus = IamLoadStatus.initial,
     this.detailFailure,
@@ -24,6 +25,7 @@ final class TenantAuditLogsState {
   final TenantAuditFilter filters;
   final bool isLoadingMore;
   final IamUiFailure? failure;
+  final IamUiFailure? loadMoreFailure;
   final TenantAuditLogDetailDto? selectedDetail;
   final IamLoadStatus detailStatus;
   final IamUiFailure? detailFailure;
@@ -38,11 +40,13 @@ final class TenantAuditLogsState {
     TenantAuditFilter? filters,
     bool? isLoadingMore,
     IamUiFailure? failure,
+    IamUiFailure? loadMoreFailure,
     TenantAuditLogDetailDto? selectedDetail,
     IamLoadStatus? detailStatus,
     IamUiFailure? detailFailure,
     bool clearNextCursor = false,
     bool clearFailure = false,
+    bool clearLoadMoreFailure = false,
     bool clearDetail = false,
     bool clearDetailFailure = false,
   }) {
@@ -54,6 +58,8 @@ final class TenantAuditLogsState {
       filters: filters ?? this.filters,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       failure: clearFailure ? null : (failure ?? this.failure),
+      loadMoreFailure:
+          clearLoadMoreFailure ? null : (loadMoreFailure ?? this.loadMoreFailure),
       selectedDetail: clearDetail ? null : (selectedDetail ?? this.selectedDetail),
       detailStatus: detailStatus ?? this.detailStatus,
       detailFailure: clearDetailFailure ? null : (detailFailure ?? this.detailFailure),

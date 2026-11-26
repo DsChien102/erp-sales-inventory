@@ -786,36 +786,15 @@ final appRouter = GoRouter(
             message: 'Bạn không có quyền xem vai trò',
           );
         }
-        final selectedId = state.pathParameters['code'];
-        return RolesAreaShell(
-          selectedId: selectedId,
-          child: child,
-        );
+        return RolesAreaShell(child: child);
       },
       routes: [
         GoRoute(
           path: '/more/roles',
           name: 'more.roles',
-          builder: (context, state) {
-            if (VListDetailLayout.isSplitOf(context)) {
-              return Scaffold(
-                backgroundColor: context.vColors.surfaceAlt,
-                body: const Center(
-                  child: VEmptyState(
-                    child: VEmptyHeader(
-                      children: [
-                        VEmptyMedia(icon: VIcons.info),
-                        VEmptyTitle('Chọn một vai trò để xem chi tiết.'),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }
-            return OrganizationRolesPage(
-              cubit: context.read<RolesCubit>(),
-            );
-          },
+          builder: (context, state) => OrganizationRolesPage(
+            cubit: context.read<RolesCubit>(),
+          ),
           routes: [
             GoRoute(
               path: ':code',
@@ -855,36 +834,15 @@ final appRouter = GoRouter(
             message: 'Bạn không có quyền xem lịch sử quản trị',
           );
         }
-        final selectedId = state.pathParameters['auditLogId'];
-        return AuditAreaShell(
-          selectedId: selectedId,
-          child: child,
-        );
+        return AuditAreaShell(child: child);
       },
       routes: [
         GoRoute(
           path: '/more/audit-logs',
           name: 'more.audit-logs',
-          builder: (context, state) {
-            if (VListDetailLayout.isSplitOf(context)) {
-              return Scaffold(
-                backgroundColor: context.vColors.surfaceAlt,
-                body: const Center(
-                  child: VEmptyState(
-                    child: VEmptyHeader(
-                      children: [
-                        VEmptyMedia(icon: VIcons.info),
-                        VEmptyTitle('Chọn một mục lịch sử để xem chi tiết.'),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }
-            return OrganizationAuditLogsPage(
-              cubit: context.read<TenantAuditLogsCubit>(),
-            );
-          },
+          builder: (context, state) => OrganizationAuditLogsPage(
+            cubit: context.read<TenantAuditLogsCubit>(),
+          ),
           routes: [
             GoRoute(
               path: ':auditLogId',

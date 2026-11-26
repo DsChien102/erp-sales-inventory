@@ -203,3 +203,23 @@ test('10-8h: chữ mới ở Người dùng (Q4, Q5, Q6, Q18, Q21)', () => {
   }
   assert.match(render('invitation-detail', 'revoke', 'iphone'), /Lý do thu hồi[\s\S]{0,200}\*/);
 });
+
+test('10-8i: Vai trò đang tải, bộ lọc hai nhóm, nhãn chi tiết, toast, Bị chặn (Q1–Q4, Q13–Q15)', () => {
+  for (const d of ['iphone', 'web']) {
+    const loading = render('roles', 'loading', d);
+    assert.match(loading, /Đang tải vai trò/, d);
+    assert.doesNotMatch(loading, /0 vai trò hệ thống/, d);
+    const sheet = render('audit', 'filter', d);
+    assert.match(sheet, /Bộ lọc lịch sử quản trị/, d);
+    assert.doesNotMatch(sheet, /nền tảng|Loại chủ thể/, d);
+    const detail = render('audit-detail', 'detail', d);
+    assert.match(detail, />Vai trò</, d);
+    assert.match(detail, /Dữ liệu thay đổi/, d);
+    assert.match(detail, /Ứng dụng/, d);
+    assert.doesNotMatch(detail, /Loại chủ thể|Tenant App/, d);
+    assert.match(render('audit-detail', 'toast-copied', d), /Đã sao chép mã theo dõi\./, d);
+    const blocked = render('audit', 'blocked', d);
+    assert.match(blocked, /Bị chặn/, d);
+    assert.doesNotMatch(render('audit', 'list', d), /Thành công/, d);
+  }
+});

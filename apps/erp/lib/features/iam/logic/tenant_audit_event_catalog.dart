@@ -168,15 +168,21 @@ abstract final class TenantAuditEventCatalog {
     );
   }
 
-  /// Finds event codes only for complete localized titles or aliases.
+  /// Finds event codes for complete localized titles/aliases, or partial matches when query has 2+ words.
   static List<String> matchingEventCodes(String search) {
     final query = search.trim().toLowerCase();
     if (query.isEmpty) return const [];
 
+    final allowPartial = query.split(RegExp(r'\s+')).length >= 2;
     final matched = <String>[];
     for (final entry in _entries.values) {
-      if (entry.title.toLowerCase() == query ||
-          entry.searchAliases.any((alias) => alias.toLowerCase() == query)) {
+      final title = entry.title.toLowerCase();
+      final exact = title == query ||
+          entry.searchAliases.any((alias) => alias.toLowerCase() == query);
+      final partial = allowPartial &&
+          (title.contains(query) ||
+              entry.searchAliases.any((alias) => alias.toLowerCase().contains(query)));
+      if (exact || partial) {
         matched.add(entry.eventCode);
       }
     }

@@ -1,75 +1,68 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 
-import '../../../data/models/tenant_audit_log.dart';
-
+import '../../../../../core/config/wide_layout.dart';
+import '../../../../../core/di/injection.dart';
 import '../../../data/audit_log_repository.dart';
+import '../../../data/models/tenant_audit_log.dart';
 import '../../shared/iam_load_status.dart';
 import '../bloc/tenant_audit_filter.dart';
 import '../bloc/tenant_audit_logs_cubit.dart';
 import '../bloc/tenant_audit_logs_state.dart';
-import '../catalog/tenant_audit_event_catalog.dart';
 import '../mappers/tenant_audit_ui_mapper.dart';
 import '../models/audit_log_filter_criteria.dart';
 import '../models/audit_log_ui_model.dart';
-import '../widgets/audit_log_category_filter_chips.dart';
 import '../widgets/audit_log_empty_view.dart';
 import '../widgets/audit_log_filter_bottom_sheet.dart';
-import '../widgets/audit_log_item_card.dart';
+import '../widgets/audit_narrow.dart';
+import '../widgets/audit_wide.dart';
 import 'audit_log_detail_page.dart';
 
-/// Trang Lịch sử quản trị tổ chức (S13).
+/// Màn hình danh sách lịch sử quản trị (US-07.2).
 class OrganizationAuditLogsPage extends StatelessWidget {
   const OrganizationAuditLogsPage({
     super.key,
     this.auditLogs,
-    this.cubit,
     this.clockLocal,
-    this.selectedId,
+    this.cubit,
   });
 
   final AuditLogRepository? auditLogs;
-  final TenantAuditLogsCubit? cubit;
   final DateTime Function()? clockLocal;
-  final String? selectedId;
+  final TenantAuditLogsCubit? cubit;
 
   @override
   Widget build(BuildContext context) {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: _AuditLogsView(selectedId: selectedId),
+        child: const _OrganizationAuditLogsView(),
       );
     }
-    assert(
-      auditLogs != null,
-      'OrganizationAuditLogsPage requires auditLogs or cubit',
-    );
     return BlocProvider(
       create: (_) => TenantAuditLogsCubit(
-        auditLogs: auditLogs!,
+        auditLogs: auditLogs ?? getIt<AuditLogRepository>(),
         clockLocal: clockLocal,
       )..search(),
-      child: _AuditLogsView(selectedId: selectedId),
+      child: const _OrganizationAuditLogsView(),
     );
   }
 }
 
-class _AuditLogsView extends StatefulWidget {
-  const _AuditLogsView({this.selectedId});
-
-  final String? selectedId;
+class _OrganizationAuditLogsView extends StatefulWidget {
+  const _OrganizationAuditLogsView();
 
   @override
-  State<_AuditLogsView> createState() => _AuditLogsViewState();
+  State<_OrganizationAuditLogsView> createState() =>
+      _OrganizationAuditLogsViewState();
 }
 
-class _AuditLogsViewState extends State<_AuditLogsView> {
+class _OrganizationAuditLogsViewState
+    extends State<_OrganizationAuditLogsView> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
 
@@ -80,73 +73,80 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
     super.dispose();
   }
 
-  Future<void> _applySearch(String raw) async {
-    final cubit = context.read<TenantAuditLogsCubit>();
-    final trimmed = raw.trim();
-    final matchingEventCodes = TenantAuditEventCatalog.matchingEventCodes(trimmed);
-    final next = switch ((trimmed.isEmpty, matchingEventCodes.isNotEmpty)) {
-      (true, _) => cubit.state.filters.copyWith(
-        clearQuery: true,
-        clearEventCodes: true,
-      ),
-      (false, true) => cubit.state.filters.copyWith(
-        eventCodes: matchingEventCodes,
-        clearQuery: true,
-      ),
-      (false, false) => cubit.state.filters.copyWith(
-        query: trimmed,
-        clearEventCodes: true,
-      ),
-    };
-    await cubit.applyFilter(next);
-  }
-
-  Future<void> _openDetail(String auditLogId) async {
-    final isSplit = VListDetailLayout.isSplitOf(context);
-    if (isSplit) {
-      context.go('/more/audit-logs/$auditLogId');
-      return;
-    }
-    try {
-      await context.push('/more/audit-logs/$auditLogId');
-    } catch (_) {
+  void _onSearchChanged(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 350), () {
       if (!mounted) return;
       final cubit = context.read<TenantAuditLogsCubit>();
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => AuditLogDetailPage(
-            auditLogId: auditLogId,
-            cubit: cubit,
-          ),
+      final trimmed = value.trim();
+      cubit.applyFilter(
+        cubit.state.filters.copyWith(
+          query: trimmed.isEmpty ? null : trimmed,
+          clearQuery: trimmed.isEmpty,
         ),
       );
+    });
+  }
+
+  void _clearAllFilters() {
+    _debounce?.cancel();
+    _searchController.clear();
+    context.read<TenantAuditLogsCubit>().clearFilter();
+  }
+
+  String _rangeLabel(TenantAuditRange range) {
+    return switch (range) {
+      TenantAuditRange.h24 => '24 giờ',
+      TenantAuditRange.d7 => '7 ngày',
+      TenantAuditRange.d30 => '30 ngày',
+    };
+  }
+
+  String _rangeSubtitle(TenantAuditRange range) {
+    return switch (range) {
+      TenantAuditRange.h24 => 'Thời gian: 24 giờ gần đây · Mới nhất trước',
+      TenantAuditRange.d7 => 'Thời gian: 7 ngày gần đây · Mới nhất trước',
+      TenantAuditRange.d30 => 'Thời gian: 30 ngày gần đây · Mới nhất trước',
+    };
+  }
+
+  String _buildSubtitle(TenantAuditLogsState state) {
+    if (state.status == IamLoadStatus.failure) {
+      if (state.failure?.code == IamBlockedCodes.permissionDenied) {
+        return 'Chưa được cấp quyền';
+      }
+      return 'Không tải được dữ liệu';
     }
-  }
-
-  int _calculateRangeDays(DateTime from, DateTime to) {
-    return to.difference(from).inDays + 1;
-  }
-
-  String _formatTimeInfo(TenantAuditFilter filter) {
-    final days = _calculateRangeDays(filter.fromLocal, filter.toLocal);
-    if (days == 30) {
-      return 'Thời gian: 30 ngày gần đây · Mới nhất trước';
-    } else if (days == 7) {
-      return 'Thời gian: 7 ngày gần đây · Mới nhất trước';
-    } else if (days <= 1) {
-      return 'Thời gian: 24 giờ gần đây · Mới nhất trước';
+    if (state.status == IamLoadStatus.loading ||
+        state.status == IamLoadStatus.initial) {
+      return 'Đang tải lịch sử quản trị';
     }
-    return 'Thời gian: ${filter.fromLocal.day}/${filter.fromLocal.month} → ${filter.toLocal.day}/${filter.toLocal.month} · Mới nhất trước';
+    return '${state.totalCount} hoạt động trong ${_rangeLabel(state.filters.range)}';
   }
 
-  Future<void> _openFilterBottomSheet(
+  AuditLogEmptyStateType? _resolveEmptyType(TenantAuditLogsState state) {
+    if (state.status == IamLoadStatus.failure) {
+      if (state.failure?.code == IamBlockedCodes.permissionDenied) {
+        return AuditLogEmptyStateType.unauthorized;
+      }
+      return AuditLogEmptyStateType.loadError;
+    }
+    if (state.status == IamLoadStatus.success && state.items.isEmpty) {
+      return state.filters.hasAdvancedFilters
+          ? AuditLogEmptyStateType.noResults
+          : AuditLogEmptyStateType.noAuditLogs;
+    }
+    return null;
+  }
+
+  Future<void> _openFilterSheet(
     BuildContext context,
     TenantAuditLogsState state,
   ) async {
     final cubit = context.read<TenantAuditLogsCubit>();
     await showVAdaptiveSheet<void>(
       context: context,
-      title: 'Bộ lọc nhật ký nền tảng',
+      title: 'Bộ lọc lịch sử quản trị',
       child: AuditLogFilterBottomSheet(
         initialCriteria: AuditLogFilterCriteria(
           status: state.filters.result != null
@@ -156,18 +156,9 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
                   TenantAuditLogResult.error => AuditLogStatus.error,
                 })
               : null,
-          timeRange: _resolveTimeRange(state.filters),
-          actorType: 'Tất cả',
+          range: state.filters.range,
         ),
         onApply: (criteria) async {
-          final now = DateTime.now();
-          final today = DateTime(now.year, now.month, now.day);
-          final fromLocal = switch (criteria.timeRange) {
-            '24 giờ' => today.subtract(const Duration(days: 1)),
-            '7 ngày' => today.subtract(const Duration(days: 6)),
-            '30 ngày' => today.subtract(const Duration(days: 29)),
-            _ => state.filters.fromLocal,
-          };
           final result = criteria.status != null
               ? (switch (criteria.status!) {
                   AuditLogStatus.success => TenantAuditLogResult.success,
@@ -175,204 +166,140 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
                   AuditLogStatus.error => TenantAuditLogResult.error,
                 })
               : null;
-          final next = state.filters.copyWith(
-            fromLocal: fromLocal,
-            toLocal: today,
-            result: result,
-            clearResult: result == null,
-          );
-          await cubit.applyFilter(next);
+          await cubit.applyRangeAndResult(criteria.range, result);
         },
       ),
     );
   }
 
-  String _resolveTimeRange(TenantAuditFilter filter) {
-    final days = _calculateRangeDays(filter.fromLocal, filter.toLocal);
-    if (days <= 1) return '24 giờ';
-    if (days == 7) return '7 ngày';
-    return '30 ngày';
+  Future<void> _openDetail(BuildContext context, AuditLogItemUiModel item) async {
+    if (isWideLayout(context)) {
+      context.go('/more/audit-logs/${item.id}');
+      return;
+    }
+    try {
+      await context.push('/more/audit-logs/${item.id}');
+    } catch (_) {
+      if (!context.mounted) return;
+      final cubit = context.read<TenantAuditLogsCubit>();
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AuditLogDetailPage(
+            auditLogId: item.id,
+            cubit: cubit,
+          ),
+        ),
+      );
+    }
+  }
+
+  void _handleEmptyAction(
+    BuildContext context,
+    AuditLogEmptyStateType emptyType,
+  ) {
+    switch (emptyType) {
+      case AuditLogEmptyStateType.unauthorized:
+        Navigator.of(context).maybePop();
+      case AuditLogEmptyStateType.noResults:
+        _clearAllFilters();
+      case AuditLogEmptyStateType.noAuditLogs:
+      case AuditLogEmptyStateType.loadError:
+        context.read<TenantAuditLogsCubit>().search(reset: true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    return BlocBuilder<TenantAuditLogsCubit, TenantAuditLogsState>(
-      builder: (context, state) {
-        final days = _calculateRangeDays(
-          state.filters.fromLocal,
-          state.filters.toLocal,
-        );
-        final isFilterActive = state.filters.result != null || days != 30;
-        final subtitleText = state.failure?.code == IamBlockedCodes.permissionDenied
-            ? 'Chưa được cấp quyền'
-            : state.status == IamLoadStatus.failure
-            ? 'Không tải được dữ liệu'
-            : '${state.totalCount} hoạt động trong $days ngày';
+    final wide = isWideLayout(context);
 
-        return Scaffold(
-          backgroundColor: colors.surfaceAlt,
-          appBar: VAppBar(
-            title: 'Lịch sử quản trị',
-            subtitle: subtitleText,
-            showBackButton: true,
-            leading: VAppBar.poppableNavigator(context) != null
-                ? IconButton(
-                    tooltip: 'Quay lại',
-                    icon: VIcon(
-                      icon: VIcons.chevronLeft,
-                      color: colors.textPrimary,
-                    ),
-                    onPressed: () => VAppBar.popNearest(context),
-                  )
-                : null,
-          ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                color: colors.surfaceAlt,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: VSpacing.screenMobile,
-                  vertical: VSpacing.space2,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: VSearchBar(
-                        hintText: 'Tìm người thực hiện hoặc hoạt động',
-                        controller: _searchController,
-                        onChanged: (value) {
-                          if (_debounce?.isActive ?? false) _debounce!.cancel();
-                          _debounce = Timer(const Duration(milliseconds: 350), () {
-                            _applySearch(value);
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: VSpacing.space2),
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        IconButton(
-                          tooltip: isFilterActive ? 'Bộ lọc (đang áp dụng)' : 'Bộ lọc',
-                          icon: VIcon(
-                            icon: VIcons.tune,
-                            size: 20,
-                            color: colors.textPrimary,
-                          ),
-                          onPressed: () => _openFilterBottomSheet(context, state),
-                        ),
-                        if (isFilterActive)
-                          Positioned(
-                            top: 6,
-                            right: 6,
-                            child: ExcludeSemantics(
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: colors.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              AuditLogCategoryFilterChips(
-                selectedCategory: state.filters.eventCategory,
-                onCategorySelected: (category) {
-                  final cubit = context.read<TenantAuditLogsCubit>();
-                  final next = category == null
-                      ? state.filters.copyWith(clearEventCategory: true)
-                      : state.filters.copyWith(eventCategory: category);
-                  cubit.applyFilter(next);
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: VSpacing.screenMobile,
-                  vertical: VSpacing.space2,
-                ),
-                child: VText(
-                  _formatTimeInfo(state.filters),
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
-                ),
-              ),
-              Expanded(child: _buildBody(context, state)),
-            ],
-          ),
+    return BlocConsumer<TenantAuditLogsCubit, TenantAuditLogsState>(
+      listenWhen: (previous, current) =>
+          previous.loadMoreFailure != current.loadMoreFailure &&
+          current.loadMoreFailure != null,
+      listener: (context, state) {
+        final failure = state.loadMoreFailure;
+        if (failure == null) return;
+        VToast.show(
+          context,
+          title: 'Không tải thêm được',
+          message: 'Không tải thêm được. ${failure.message}',
+          type: VToastType.danger,
         );
+        context.read<TenantAuditLogsCubit>().clearLoadMoreFailure();
       },
-    );
-  }
+      builder: (context, state) {
+        final cubit = context.read<TenantAuditLogsCubit>();
+        final emptyType = _resolveEmptyType(state);
+        final isLoading = state.status == IamLoadStatus.loading ||
+            state.status == IamLoadStatus.initial;
+        final isFilterActive = state.filters.range != TenantAuditRange.d30 ||
+            state.filters.result != null;
+        final mappedItems =
+            state.items.map(TenantAuditUiMapper.fromSummary).toList(growable: false);
+        final rangeSub = _rangeSubtitle(state.filters.range);
 
-  Widget _buildBody(BuildContext context, TenantAuditLogsState state) {
-    if (state.failure?.code == IamBlockedCodes.permissionDenied) {
-      return AuditLogEmptyView(
-        type: AuditLogEmptyStateType.unauthorized,
-        onAction: () => Navigator.of(context).maybePop(),
-      );
-    }
-
-    if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
-      return const Center(child: VLoading(size: 40));
-    }
-
-    if (state.status == IamLoadStatus.failure) {
-      return AuditLogEmptyView(
-        type: AuditLogEmptyStateType.loadError,
-        onAction: () => context.read<TenantAuditLogsCubit>().search(),
-      );
-    }
-
-    if (state.items.isEmpty) {
-      final filtered = state.filters.hasAdvancedFilters;
-      return AuditLogEmptyView(
-        type: filtered ? AuditLogEmptyStateType.noResults : AuditLogEmptyStateType.noAuditLogs,
-        onAction: filtered
-            ? () {
-                _searchController.clear();
-                context.read<TenantAuditLogsCubit>().clearFilter();
-              }
-            : () => context.read<TenantAuditLogsCubit>().search(),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.only(
-        left: VSpacing.screenMobile,
-        right: VSpacing.screenMobile,
-        bottom: VSpacing.space6,
-      ),
-      itemCount: state.items.length + (state.hasMore ? 1 : 0),
-      separatorBuilder: (_, _) => const VGap.sm(),
-      itemBuilder: (context, index) {
-        if (index >= state.items.length) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: VSpacing.space4),
-            child: Center(
-              child: state.isLoadingMore
-                  ? const VLoading(size: 28)
-                  : VButton(
-                      label: 'Tải thêm',
-                      variant: VButtonVariant.secondary,
-                      onPressed: () => context.read<TenantAuditLogsCubit>().loadNextPage(),
-                    ),
-            ),
-          );
-        }
-        final summary = state.items[index];
-        final log = TenantAuditUiMapper.fromSummary(summary);
-        return AuditLogItemCard(
-          log: log,
-          isSelected: summary.auditLogId == widget.selectedId,
-          onTap: () => _openDetail(summary.auditLogId),
+        return VPageScaffold(
+          title: 'Lịch sử quản trị',
+          subtitle: _buildSubtitle(state),
+          showBackButton: true,
+          contentMaxWidth: VPageScaffold.fullWidth,
+          body: wide
+              ? AuditWide(
+                  searchController: _searchController,
+                  isFilterActive: isFilterActive,
+                  selectedCategory: state.filters.eventCategory,
+                  rangeSubtitle: rangeSub,
+                  emptyType: emptyType,
+                  isLoading: isLoading,
+                  isLoadingMore: state.isLoadingMore,
+                  hasMore: state.hasMore,
+                  items: mappedItems,
+                  onSearchChanged: _onSearchChanged,
+                  onOpenFilter: () => _openFilterSheet(context, state),
+                  onCategorySelected: (cat) {
+                    cubit.applyFilter(
+                      state.filters.copyWith(
+                        eventCategory: cat,
+                        clearEventCategory: cat == null,
+                      ),
+                    );
+                  },
+                  onEmptyAction: () {
+                    if (emptyType != null) {
+                      _handleEmptyAction(context, emptyType);
+                    }
+                  },
+                  onItemTap: (item) => _openDetail(context, item),
+                  onLoadMore: () => cubit.loadNextPage(),
+                )
+              : AuditNarrow(
+                  searchController: _searchController,
+                  isFilterActive: isFilterActive,
+                  selectedCategory: state.filters.eventCategory,
+                  rangeSubtitle: rangeSub,
+                  emptyType: emptyType,
+                  isLoading: isLoading,
+                  isLoadingMore: state.isLoadingMore,
+                  hasMore: state.hasMore,
+                  items: mappedItems,
+                  onSearchChanged: _onSearchChanged,
+                  onOpenFilter: () => _openFilterSheet(context, state),
+                  onCategorySelected: (cat) {
+                    cubit.applyFilter(
+                      state.filters.copyWith(
+                        eventCategory: cat,
+                        clearEventCategory: cat == null,
+                      ),
+                    );
+                  },
+                  onEmptyAction: () {
+                    if (emptyType != null) {
+                      _handleEmptyAction(context, emptyType);
+                    }
+                  },
+                  onItemTap: (item) => _openDetail(context, item),
+                  onLoadMore: () => cubit.loadNextPage(),
+                ),
         );
       },
     );

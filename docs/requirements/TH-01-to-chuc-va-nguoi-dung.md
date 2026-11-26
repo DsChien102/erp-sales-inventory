@@ -818,9 +818,9 @@ Scenario: SC-02 — Không loại được Owner
 
 **Yêu cầu chức năng**
 
-- FR-01: `/more/audit-logs` "Lịch sử quản trị": "`<n>` hoạt động trong `<d>` ngày"; ô "Tìm người thực hiện hoặc hoạt động"; chip nhóm "Tất cả / Tổ chức / Thành viên / Vai trò"; thời gian "24 giờ / 7 ngày / 30 ngày"; "Mới nhất trước"; "Tải thêm".
-- FR-02: Mỗi mục: hoạt động, người thực hiện, thời điểm, đối tượng, kết quả (Thành công / Lỗi / Bị chặn).
-- FR-03: Chi tiết "Chi tiết hoạt động": thời điểm, người thực hiện (hoặc "Không còn thông tin người thực hiện"), đối tượng, "Dữ liệu thay đổi" (Trước / Sau theo trường), "Thông tin truy vết" (Mã theo dõi, "Sao chép mã theo dõi"); dữ liệu nhạy cảm → "[Đã che theo chính sách]".
+- FR-01: `/more/audit-logs` "Lịch sử quản trị": "`<n>` hoạt động trong 24 giờ / 7 ngày / 30 ngày"; ô "Tìm người thực hiện hoặc hoạt động" (tìm theo tên hoạt động từ hai từ); chip nhóm "Tất cả / Thành viên / Vai trò / Tổ chức"; thời gian "24 giờ / 7 ngày / 30 ngày"; "Mới nhất trước"; "Tải thêm".
+- FR-02: Mỗi mục: hoạt động, người thực hiện, thời điểm, đối tượng, kết quả (nhãn kết quả hiện khi là Lỗi / Bị chặn).
+- FR-03: Chi tiết "Chi tiết hoạt động": thời điểm, người thực hiện (hoặc "Không còn thông tin người thực hiện"), "Vai trò" của người thực hiện, đối tượng, "Dữ liệu thay đổi" (Trước / Sau theo trường), "Thông tin truy vết" ("Nguồn", "Mã nhật ký", Mã theo dõi, "Sao chép mã theo dõi"); dữ liệu nhạy cảm → "[Đã che theo chính sách]".
 - FR-04: Rỗng → "Chưa có hoạt động quản trị — Các thay đổi người dùng, vai trò và thiết lập sẽ được ghi lại tại đây."; lọc không ra → "Không có hoạt động phù hợp" + "Xóa bộ lọc"; không tồn tại → "Không tìm thấy hoạt động — Nhật ký không tồn tại hoặc không thuộc tổ chức hiện tại."
 - FR-05: Ghi cho: đăng ký tổ chức, sửa hồ sơ, hồ sơ pháp lý, mời / gửi lại / thu hồi, chấp nhận lời mời, đổi vai trò, tạm ngừng / kích hoạt lại / loại thành viên.
 

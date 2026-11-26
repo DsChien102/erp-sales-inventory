@@ -4,12 +4,9 @@ import { ROLES } from '../admin-data.js';
 import { appBar, button, esc, skeleton, vcard, vScaffold } from '../ds.js';
 import { ROLE_STATES } from '../roles.js';
 
-/** Mô tả hiển thị: bỏ ghi chú kỹ thuật trong ngoặc ở cuối (vd. "(gán mặc định cho Owner…, BR-36)"). */
-const shortDesc = (d) => String(d).replace(/\s*\([^)]*\)\s*$/, '');
-
 function roleDetail(code, w) {
   const r = ROLES.find((x) => x.id === code);
-  const body = `<div class="t1-list">${vcard(`<h2 class="t1-h4">${esc(r.title)}</h2><div class="t1-gap-xs"></div><p class="t1-small">${esc(shortDesc(r.description))}</p><div class="t1-gap-md"></div><p class="t1-small">Vai trò hệ thống · Chỉ đọc</p>`)}
+  const body = `<div class="t1-list">${vcard(`<h2 class="t1-h4">${esc(r.title)}</h2><div class="t1-gap-xs"></div><p class="t1-small">${esc(r.description)}</p><div class="t1-gap-md"></div><p class="t1-small">Vai trò hệ thống · Chỉ đọc</p>`)}
     <div class="t1-gap-md"></div><h2 class="t1-h4">Thành viên đang giữ vai trò</h2><div class="t1-gap-sm"></div>
     ${r.members.length ? r.members.map((n) => `<p class="t1-bodyp t1-mb8">${esc(n)}</p>`).join('') : '<p class="t1-small">Chưa có thành viên đang giữ vai trò này.</p>'}</div>`;
   return vScaffold({ title: 'Chi tiết vai trò', body, placeWidth: w });
@@ -34,9 +31,9 @@ function rolesTable(s) {
     content = `<div class="t1-utable" role="table" aria-busy="true" aria-label="Đang tải">${th}${[0, 1, 2, 3].map(() => `<div class="t1-utable__tr t1-utable__tr--skel t1-rtable__tr"><span class="t1-skelcol">${skeleton({ w: 140, h: 16 })}${skeleton({ w: 220, h: 12 })}</span><span class="t1-rholders">${skeleton({ w: 28, h: 28, circle: true })}${skeleton({ w: 120 })}</span><span></span></div>`).join('')}</div>`;
   } else {
     content = `<div class="t1-utable" role="table" aria-label="Vai trò hệ thống">${th}
-      ${ROLES.map((r) => `<button type="button" class="t1-utable__tr t1-rtable__tr" role="row"><span class="t1-rtable__role"><b>${esc(r.title)}</b><small>${esc(shortDesc(r.description))}</small></span><span>${holders(r)}</span>${icon('chevronRight', 't1-utable__chev')}</button>`).join('')}</div>`;
+      ${ROLES.map((r) => `<button type="button" class="t1-utable__tr t1-rtable__tr" role="row"><span class="t1-rtable__role"><b>${esc(r.title)}</b><small>${esc(r.description)}</small></span><span>${holders(r)}</span>${icon('chevronRight', 't1-utable__chev')}</button>`).join('')}</div>`;
   }
-  const sub = s.failed ? 'Không tải được' : s.loading ? '0 vai trò hệ thống' : `${ROLES.length} vai trò hệ thống`;
+  const sub = s.failed ? 'Không tải được' : s.loading ? 'Đang tải vai trò' : `${ROLES.length} vai trò hệ thống`;
   return `<div class="t1-page t1-page--canvas">${appBar('Vai trò', { back: true, subtitle: sub })}
     <div class="t1-scroll"><div class="t1-uwrap"><p class="t1-small t1-rlead">Vai trò vận hành không thay đổi tư cách Chủ sở hữu.</p>${content}</div></div></div>`;
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:c45_design_system/design_system.dart';
 
+import '../../../../../core/config/wide_layout.dart';
 import '../../../../../core/di/injection.dart';
 import '../../../data/invitation_repository.dart';
 import '../../../data/member_repository.dart';
@@ -9,6 +10,9 @@ import '../../../logic/iam_load_status.dart';
 import '../../../logic/role_ui_model.dart';
 import '../../../logic/roles_cubit.dart';
 import '../../../logic/roles_state.dart';
+import '../widgets/role_card.dart';
+import '../widgets/role_detail_narrow.dart';
+import '../widgets/role_detail_wide.dart';
 
 /// Chi tiết vai trò hệ thống (US-07.1 FR-02).
 class OrganizationRoleDetailPage extends StatelessWidget {
@@ -31,7 +35,7 @@ class OrganizationRoleDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final known = role;
     if (known != null) {
-      return _RoleDetailBody(role: known);
+      return _RoleDetailScaffold(role: known);
     }
     if (cubit != null) {
       return BlocProvider.value(
@@ -65,100 +69,55 @@ class _LoadedRoleDetail extends StatelessWidget {
             break;
           }
         }
-        if (role != null) return _RoleDetailBody(role: role);
-        final isSplit = VListDetailLayout.isSplitOf(context);
+        if (role != null) return _RoleDetailScaffold(role: role);
         if (state.status == IamLoadStatus.failure) {
           return VPageScaffold(
             title: 'Chi tiết vai trò',
-            showBackButton: !isSplit,
-            body: const Center(child: Text(rolesLoadErrorMessage)),
+            showBackButton: true,
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: VSpacing.screenMobile,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: RolesLoadError(
+                    onRetry: () => context.read<RolesCubit>().load(),
+                  ),
+                ),
+              ),
+            ),
           );
         }
         if (state.status == IamLoadStatus.success) {
-          return VPageScaffold(
+          return const VPageScaffold(
             title: 'Chi tiết vai trò',
-            showBackButton: !isSplit,
-            body: const Center(child: Text('Không tìm thấy vai trò')),
+            showBackButton: true,
+            body: Center(child: Text('Không tìm thấy vai trò')),
           );
         }
-        return VPageScaffold(
+        return const VPageScaffold(
           title: 'Chi tiết vai trò',
-          showBackButton: !isSplit,
-          body: const Center(child: VLoading(size: 40)),
+          showBackButton: true,
+          body: Center(child: VLoading(size: 40)),
         );
       },
     );
   }
 }
 
-class _RoleDetailBody extends StatelessWidget {
-  const _RoleDetailBody({required this.role});
+class _RoleDetailScaffold extends StatelessWidget {
+  const _RoleDetailScaffold({required this.role});
 
   final RoleUiModel role;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final isSplit = VListDetailLayout.isSplitOf(context);
+    final wide = isWideLayout(context);
     return VPageScaffold(
       title: 'Chi tiết vai trò',
-      showBackButton: !isSplit,
-      body: ListView(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        children: [
-          VCard(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Semantics(
-                  header: true,
-                  child: VText(
-                    role.title,
-                    variant: VTextVariant.headingH4,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                ),
-                const VGap.xs(),
-                VText(
-                  role.description,
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
-                ),
-                const VGap.md(),
-                VText(
-                  'Vai trò hệ thống · Chỉ đọc',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
-                ),
-              ],
-            ),
-          ),
-          const VGap.md(),
-          Semantics(
-            header: true,
-            child: VText(
-              'Thành viên đang giữ vai trò',
-              variant: VTextVariant.headingH4,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-          const VGap.sm(),
-          if (role.memberNames.isEmpty)
-            VText(
-              'Chưa có thành viên đang giữ vai trò này.',
-              variant: VTextVariant.bodySmall,
-              color: colors.textSecondary,
-            )
-          else
-            ...role.memberNames.map(
-              (name) => Padding(
-                padding: const EdgeInsets.only(bottom: VSpacing.space2),
-                child: VText(name, variant: VTextVariant.bodyDefault),
-              ),
-            ),
-        ],
-      ),
+      showBackButton: true,
+      body: wide ? RoleDetailWide(role: role) : RoleDetailNarrow(role: role),
     );
   }
 }

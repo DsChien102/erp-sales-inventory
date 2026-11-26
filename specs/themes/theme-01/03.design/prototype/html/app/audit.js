@@ -3,22 +3,22 @@
 // /more/audit-logs(/:id): ShellRoute riêng (AuditAreaShell → VListDetailLayout), trong ShellRoute(StoreShell); web ≥ 1024 có thanh bên 84 (ảnh vẽ trang trần).
 // Khác các màn IAM khác: danh sách là Scaffold thường (nền surfaceAlt, không cột tối đa); chi tiết Flutter dùng AppBar Material; prototype iPhone dùng VAppBar chung (2026-11-25).
 import { icon } from '../shared/icons.js';
-import { AUDIT, AUDIT_TOTAL, TRACE_ID } from './admin-data.js';
+import { AUDIT, AUDIT_BLOCKED_ITEM, AUDIT_TOTAL, TRACE_ID } from './admin-data.js';
 import { adaptiveSheet, appBar, badge, button, card, centerLoading, chip, chipRow, esc, iconButton, isSplit, listDetail, searchBar, splitPlaceholder, toast } from './ds.js';
 import { warnBox } from './org.js';
 
 export const AUDIT_STATES = {
   list: {}, 'chip-member': { category: 'Thành viên' }, loading: { loading: true }, empty: { empty: true }, 'no-results': { query: 'xoá dữ liệu', noResults: true },
-  error: { error: true }, forbidden: { forbidden: true }, filter: { sheet: true }, 'filter-applied': { days: 7 },
+  error: { error: true }, forbidden: { forbidden: true }, filter: { sheet: true }, 'filter-applied': { days: 7 }, blocked: { blocked: true },
 };
 export const AUDIT_DETAIL_STATES = { detail: { id: 'a1' }, 'actor-unavailable': { id: 'a6' }, loading: { id: 'a1', loading: true }, 'not-found': { id: 'a1', notFound: true }, 'toast-copied': { id: 'a1', toast: true } };
 
 /**
- * Dòng lịch sử (iPhone, impeccable live 2026-11-25): giờ 40 | tiêu đề w600 (+ nhãn "Thông tin hiện tại"), "người (vai trò)", "<loại đối tượng>: <tên>" | mũi tên.
+ * Dòng lịch sử (iPhone, impeccable live 2026-11-25): giờ 40 | tiêu đề w600 (+ nhãn kết quả / "Thông tin hiện tại"), "người (vai trò)", "<loại đối tượng>: <tên>" | mũi tên.
  * Gộp theo ngày: tiêu đề ngày + một thẻ chứa các dòng trong ngày (giữ thứ tự mới nhất trước).
  */
 const auditRow = (a, selected) => `<button type="button" class="t1-aday__row"${selected ? ' aria-current="true"' : ''}><span class="t1-aday__time">${esc(a.at.split(' ')[1])}</span><span class="t1-aday__text">
-  <span class="t1-aday__name"><b>${esc(a.title)}</b>${a.legacy ? badge('Thông tin hiện tại', 'neutral') : ''}</span>
+  <span class="t1-aday__name"><b>${esc(a.title)}</b>${a.result ? badge(a.result[0], a.result[1]) : ''}${a.legacy ? badge('Thông tin hiện tại', 'neutral') : ''}</span>
   <span>${esc(a.actorRole && a.actorRole !== '—' ? `${a.actor} (${a.actorRole})` : a.actor)}</span>
   <span>${esc(`${a.subjectType}: ${a.subject}`)}</span></span>${icon('chevronRight', 't1-aday__go')}</button>`;
 const auditDays = (items, selected) => [...new Set(items.map((a) => a.at.split(' ')[0]))].map((d) => `<section class="t1-aday"><h2 class="t1-aday__title">${esc(d)}</h2>
@@ -40,7 +40,7 @@ export const auditEmpty = (k) => {
 function auditList(s, selected) {
   const days = s.days || 30;
   const sub = s.forbidden ? 'Chưa được cấp quyền' : s.error ? 'Không tải được dữ liệu' : `${s.empty || s.noResults ? 0 : AUDIT_TOTAL} hoạt động trong ${days} ngày`;
-  let items = AUDIT;
+  let items = s.blocked ? [AUDIT_BLOCKED_ITEM, ...AUDIT] : AUDIT;
   if (s.category === 'Thành viên') items = AUDIT.filter((a) => ['a3', 'a5'].includes(a.id));
   let list;
   if (s.forbidden) list = auditEmpty('forbidden');
@@ -55,10 +55,10 @@ function auditList(s, selected) {
     <div class="t1-ulistwrap"><p class="t1-small t1-atimem">Thời gian: ${days} ngày gần đây · Mới nhất trước</p>${list}</div></div></div>`;
 }
 
-/** AuditLogFilterBottomSheet (title "Bộ lọc nhật ký nền tảng"): đệm 16 / 16 / 16 / 24; nhóm w700 + khe 8 + VChip; khe 16; khe 24; Đặt lại | 12 | Áp dụng. */
+/** AuditLogFilterBottomSheet (title "Bộ lọc lịch sử quản trị"): đệm 16 / 16 / 16 / 24; nhóm w700 + khe 8 + VChip; khe 16; khe 24; Đặt lại | 12 | Áp dụng. */
 export const auditFilter = () => {
   const g = (t, opts, sel) => `<div class="t1-fgroup t1-fgroup--8"><b>${esc(t)}</b><div class="t1-fwrap">${opts.map((o) => chip(o, { tone: o === sel ? 'primary' : 'neutral' })).join('')}</div></div>`;
-  return `<div class="t1-fsheet">${g('Thời gian', ['24 giờ', '7 ngày', '30 ngày'], '30 ngày')}${g('Kết quả', ['Tất cả', 'Thành công', 'Bị chặn', 'Lỗi'], 'Tất cả')}${g('Loại chủ thể', ['Tất cả', 'Người dùng', 'Hệ thống'], 'Tất cả')}
+  return `<div class="t1-fsheet">${g('Thời gian', ['24 giờ', '7 ngày', '30 ngày'], '30 ngày')}${g('Kết quả', ['Tất cả', 'Thành công', 'Bị chặn', 'Lỗi'], 'Tất cả')}
     <div class="t1-row2 t1-row2--12 t1-fsheet__acts">${button('Đặt lại', { variant: 'secondary', full: true })}${button('Áp dụng', { full: true })}</div></div>`;
 };
 
@@ -95,16 +95,16 @@ function auditDetail(s, split, device) {
     <div class="t1-adm__result">${badge('Thành công', 'success')}</div>
     ${a.actorUnavailable ? `<div class="t1-adm__warn">${warnBox('Không còn thông tin người thực hiện', 'Thông tin người thực hiện không còn khả dụng tại thời điểm xem.')}</div>` : ''}
     ${card(`${changes}
-      ${part('Ngữ cảnh', prow('Người thực hiện', a.actor) + prow('Loại chủ thể', a.actorRole), a.actorUnavailable ? gone : '')}
+      ${part('Ngữ cảnh', prow('Người thực hiện', a.actor) + prow('Vai trò', a.actorRole), a.actorUnavailable ? gone : '')}
       ${part('Đối tượng', prow(a.subjectType, a.subject) + (a.subjectId ? prow('ID đối tượng', a.subjectId) : ''), a.legacy ? badge('Thông tin hiện tại', 'neutral') : '')}
-      ${part('Thông tin truy vết', `${prow('Thời điểm', a.at.replace(' ', ' · '))}${prow('Nguồn', 'Tenant App')}${traceRow()}<p class="t1-adm__code">${esc(a.code)}</p>`)}`, 't1-adm__card')}
+      ${part('Thông tin truy vết', `${prow('Thời điểm', a.at.replace(' ', ' · '))}${prow('Nguồn', 'Ứng dụng')}${traceRow()}<p class="t1-adm__code">${esc(a.code)}</p>`)}`, 't1-adm__card')}
   </div>`;
-  return wrap(body, s.toast ? toast('success', 'Đã sao chép', 'req_7f3a9c21e0b4d6a8b1e5f3c8d19f02', { device }) : '');
+  return wrap(body, s.toast ? toast('success', 'Đã sao chép', 'Đã sao chép mã theo dõi.', { device }) : '');
 }
 
 export function auditPage(v) {
   const s = AUDIT_STATES[v.state];
-  const overlay = s.sheet ? adaptiveSheet(v.width, auditFilter(), '', { title: 'Bộ lọc nhật ký nền tảng' }) : '';
+  const overlay = s.sheet ? adaptiveSheet(v.width, auditFilter(), '', { title: 'Bộ lọc lịch sử quản trị' }) : '';
   if (!isSplit(v.width)) return { page: auditList(s), overlay };
   return { page: listDetail(v.width, auditList(s), splitPlaceholder('Chọn một mục lịch sử để xem chi tiết.')), overlay };
 }

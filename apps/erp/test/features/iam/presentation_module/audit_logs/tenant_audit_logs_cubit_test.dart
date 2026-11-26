@@ -1,10 +1,18 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/core/supabase/supabase_rpc.dart';
 import '../../support/fake_iam_backend.dart';
+import 'package:erp/features/iam/data/audit_log_repository.dart';
 import 'package:erp/features/iam/presentation/audit_logs/bloc/tenant_audit_filter.dart';
 import 'package:erp/features/iam/presentation/audit_logs/bloc/tenant_audit_logs_cubit.dart';
+import 'package:erp/features/iam/presentation/audit_logs/views/audit_log_detail_page.dart';
 import 'package:erp/features/iam/presentation/shared/iam_load_status.dart';
 import 'package:erp/features/iam/data/models/tenant_audit_log.dart' as audit;
+import 'package:supabase/supabase.dart';
 
 void main() {
   final clock = DateTime(2026, 7, 31, 10);
@@ -129,4 +137,162 @@ void main() {
     expect(cubit.state.selectedDetail, isNull);
     await cubit.close();
   });
+
+  test('h24 searches exactly the last 24 hours, kept across load more', () async {
+    final module = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
+    final cubit = TenantAuditLogsCubit(
+      auditLogs: FakeAuditLogRepository(module),
+      // 2026-11-25 00:10 VN == 2026-11-24 17:10 UTC
+      clockLocal: () => DateTime.utc(2026, 11, 24, 17, 10),
+    );
+    addTearDown(cubit.close);
+
+    await cubit.applyRangeAndResult(TenantAuditRange.h24, null);
+    await cubit.loadNextPage();
+
+    final queries = module.queriesOf<SearchTenantAuditLogsQuery>().toList();
+    expect(queries, hasLength(2));
+    final expectedFrom = DateTime.utc(2026, 11, 23, 17, 10);
+    final expectedTo = DateTime.utc(2026, 11, 24, 17, 10);
+    expect(queries[0].fromUtc, expectedFrom);
+    expect(queries[0].toUtc, expectedTo);
+    expect(queries[1].fromUtc, expectedFrom);
+    expect(queries[1].toUtc, expectedTo);
+  });
+
+  test('d7 follows Vietnam days on a UTC device', () async {
+    final module = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
+    final cubit = TenantAuditLogsCubit(
+      auditLogs: FakeAuditLogRepository(module),
+      // 2026-11-24T18:00Z == 2026-11-25 01:00 VN
+      clockLocal: () => DateTime.utc(2026, 11, 24, 18),
+    );
+    addTearDown(cubit.close);
+
+    await cubit.applyRangeAndResult(TenantAuditRange.d7, null);
+    final query = module.queriesOf<SearchTenantAuditLogsQuery>().single;
+    // from = đầu ngày 19/11 VN (2026-11-18T17:00Z), to = hết ngày 25/11 VN (2026-11-25T17:00Z)
+    expect(query.fromUtc, DateTime.utc(2026, 11, 18, 17));
+    expect(query.toUtc, DateTime.utc(2026, 11, 25, 17));
+  });
+
+  test('range makes the filter advanced', () {
+    final base = TenantAuditFilter.forRange(
+      TenantAuditRange.d30,
+      nowIct: DateTime.utc(2026, 11, 25, 10),
+    );
+    expect(base.hasAdvancedFilters, isFalse);
+    expect(base.copyWith(range: TenantAuditRange.d7).hasAdvancedFilters, isTrue);
+    expect(base.copyWith(range: TenantAuditRange.h24).hasAdvancedFilters, isTrue);
+  });
+
+  test('stale search response is dropped', () async {
+    final first = Completer<audit.TenantAuditLogPage>();
+    final second = Completer<audit.TenantAuditLogPage>();
+    var call = 0;
+    final repo = _CustomSearchRepo((_) {
+      call += 1;
+      return call == 1 ? first.future : second.future;
+    });
+    final cubit = TenantAuditLogsCubit(
+      auditLogs: repo,
+      clockLocal: () => DateTime.utc(2026, 11, 25, 3),
+    );
+    addTearDown(cubit.close);
+
+    final f1 = cubit.search();
+    final f2 = cubit.applyRangeAndResult(TenantAuditRange.d7, null);
+
+    second.complete(
+      const audit.TenantAuditLogPage(items: [], totalCount: 1),
+    );
+    await f2;
+    expect(cubit.state.totalCount, 1);
+
+    first.complete(
+      const audit.TenantAuditLogPage(items: [], totalCount: 99),
+    );
+    await f1;
+    expect(cubit.state.totalCount, 1);
+  });
+
+  test('load more failure keeps items and status', () async {
+    final module = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
+    final baseRepo = FakeAuditLogRepository(module);
+    var failNext = false;
+    final repo = _CustomSearchRepo((cursor) {
+      if (failNext) {
+        throw const AppException(
+          IamBlockedCodes.permissionDenied,
+          serverMessage: 'Không có quyền',
+        );
+      }
+      return baseRepo.search(
+        from: DateTime.utc(2026, 7, 1),
+        to: DateTime.utc(2026, 8, 1),
+        cursor: cursor,
+      );
+    });
+    final cubit = TenantAuditLogsCubit(
+      auditLogs: repo,
+      clockLocal: () => clock,
+    );
+    addTearDown(cubit.close);
+
+    await cubit.search();
+    final initialCount = cubit.state.items.length;
+    expect(initialCount, greaterThan(0));
+
+    failNext = true;
+    await cubit.loadNextPage();
+
+    expect(cubit.state.status, IamLoadStatus.success);
+    expect(cubit.state.items, hasLength(initialCount));
+    expect(cubit.state.failure, isNull);
+    expect(cubit.state.loadMoreFailure?.code, IamBlockedCodes.permissionDenied);
+  });
+
+  testWidgets('detail page requests once', (tester) async {
+    final module = FakeIamBackend(scenario: FakeIamScenario.tenantAuditDetailOk);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AuditLogDetailPage(
+          auditLogId: 'AUD-T-001',
+          auditLogs: FakeAuditLogRepository(module),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(module.queriesOf<GetTenantAuditLogQuery>(), hasLength(1));
+  });
+}
+
+final class _CustomSearchRepo extends AuditLogRepository {
+  _CustomSearchRepo(this._onSearch)
+    : super(
+        rpc: SupabaseRpc(
+          SupabaseClient(
+            'http://127.0.0.1',
+            'anon',
+            authOptions: const AuthClientOptions(autoRefreshToken: false),
+          ),
+        ),
+        tenantId: () async => 'tenant-1',
+      );
+
+  final Future<audit.TenantAuditLogPage> Function(String? cursor) _onSearch;
+
+  @override
+  Future<audit.TenantAuditLogPage> search({
+    required DateTime from,
+    required DateTime to,
+    String? query,
+    String? result,
+    String? eventCategory,
+    String? subjectType,
+    List<String>? eventCodes,
+    String? cursor,
+    int limit = 20,
+  }) => _onSearch(cursor);
 }

@@ -206,7 +206,7 @@ export const SCREENS = [
   {
     id: 'roles', group: 'admin', code: 'ID-19', title: 'Vai trò', route: '/more/roles', states: [
       ['list', 'Danh mục', '4 thẻ: tên + nhãn "Đang dùng" + mô tả + mũi tên; chân thẻ là người đang giữ hoặc "Chưa có thành viên đang giữ vai trò này.". Bỏ ghi chú kỹ thuật trong ngoặc.'],
-      ['loading', 'Đang tải', 'Không có vòng xoay: "0 vai trò hệ thống" + danh sách trống.'],
+      ['loading', 'Đang tải', 'Vòng xoay giữa màn, phụ đề "Đang tải vai trò".'],
       ['failed', 'Lỗi tải', 'Thẻ giữa màn, tiêu đề đỏ, link "Thử lại" (xanh).'],
       ['detail', 'Chi tiết vai trò', 'Ô khiên + tên vai trò + mô tả đầu màn; thẻ "Thành viên đang giữ vai trò" (ô tròn + tên).'],
       ['detail-empty', 'Chi tiết · chưa ai giữ', '"Chưa có thành viên đang giữ vai trò này."'],
@@ -221,17 +221,18 @@ export const SCREENS = [
       ['no-results', 'Không có kết quả', '"Không có hoạt động phù hợp" + "Xóa bộ lọc".'],
       ['error', 'Lỗi tải', 'Tiêu đề đỏ, link "Thử lại".'],
       ['forbidden', 'Không có quyền', 'Khiên vàng.'],
-      ['filter', 'Bộ lọc (sheet)', 'Tiêu đề "Bộ lọc nhật ký nền tảng" (sót chữ "nền tảng"); nhóm "Loại chủ thể" chọn được nhưng không được áp dụng.'],
+      ['filter', 'Bộ lọc (sheet)', 'Tiêu đề "Bộ lọc lịch sử quản trị"; hai nhóm Thời gian và Kết quả.'],
       ['filter-applied', 'Lọc 7 ngày', 'Chấm xanh trên nút bộ lọc, "24 hoạt động trong 7 ngày".'],
+      ['blocked', 'Có hoạt động bị chặn', 'Nhãn vàng "Bị chặn" cạnh tên hoạt động.'],
     ],
   },
   {
     id: 'audit-detail', group: 'admin', code: 'ID-20', title: 'Chi tiết hoạt động', route: '/more/audit-logs/a1', states: [
-      ['detail', 'Chi tiết', 'Ô biểu tượng + tên hoạt động đầu màn, nhãn kết quả; một thẻ bốn phần (Dữ liệu thay đổi · Ngữ cảnh · Đối tượng · Thông tin truy vết). "Loại chủ thể: Chủ cửa hàng" là vai trò.'],
+      ['detail', 'Chi tiết', 'Ô biểu tượng + tên hoạt động đầu màn, nhãn kết quả; một thẻ bốn phần (Dữ liệu thay đổi · Ngữ cảnh · Đối tượng · Thông tin truy vết). "Vai trò: Chủ cửa hàng".'],
       ['actor-unavailable', 'Không còn người thực hiện', 'Nhãn "Không còn dữ liệu" + hộp vàng trên thẻ.'],
       ['loading', 'Đang tải', 'VLoading.'],
       ['not-found', 'Không tìm thấy', '"Không tìm thấy hoạt động" + "Thử lại".'],
-      ['toast-copied', 'Đã sao chép mã', 'Toast hiện cả mã theo dõi đầy đủ.'],
+      ['toast-copied', 'Đã sao chép mã', 'Toast "Đã sao chép mã theo dõi."'],
     ],
   },
   // ================================================================ đợt 3 — tài khoản (ID-23 đã vẽ ở đợt 1: reset / from-account)
