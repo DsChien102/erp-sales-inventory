@@ -150,9 +150,9 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 **Hồ sơ tổ chức (ID-11…13)**
 
 37. Banner "Bổ sung hồ sơ pháp lý" và hộp vàng "Chưa có hồ sơ pháp lý" nói cùng một việc trên một màn; thẻ đầu chỉ lặp tên tổ chức (đã có ở dòng "Tên hiển thị").
-38. Trang hồ sơ chỉ hiện địa chỉ chi tiết, không hiện tỉnh / xã dù form có hai ô này.
-39. "Loại chủ thể" bắt buộc (lỗi "Vui lòng chọn loại chủ thể") nhưng nhãn không có *. Lưu thiếu: vừa lỗi dưới ô vừa toast "Thiếu thông tin"; sai dạng mã số thuế cũng ra toast "Thiếu thông tin".
-40. Màn không quyền: câu "…quản lý tổ chức nền tảng" sót từ phần quản trị nền tảng đã bỏ.
+38. Trang hồ sơ chỉ hiện địa chỉ chi tiết, không hiện tỉnh / xã dù form có hai ô này. (Đã sửa 10-8g)
+39. "Loại chủ thể" bắt buộc (lỗi "Vui lòng chọn loại chủ thể") nhưng nhãn không có *. Lưu thiếu: vừa lỗi dưới ô vừa toast "Thiếu thông tin"; sai dạng mã số thuế cũng ra toast "Thiếu thông tin". (Đã sửa 10-8g)
+40. Màn không quyền: câu "…quản lý tổ chức nền tảng" sót từ phần quản trị nền tảng đã bỏ. (Đã sửa 10-8g)
 
 **Người dùng (ID-14…18)**
 

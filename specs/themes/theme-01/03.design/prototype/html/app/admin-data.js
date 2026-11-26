@@ -8,7 +8,7 @@ export const ORG = {
 };
 export const LEGAL = {
   entityType: 'Doanh nghiệp', legalName: 'Công ty TNHH Thú y An Phát', taxCode: '0312345678',
-  registeredAddress: 'Số 12 Nguyễn Trãi, Phường Bàn Cờ, TP. Hồ Chí Minh',
+  registeredAddress: 'Số 12 Nguyễn Trãi',
 };
 /** mapper: legalNoticeTitle / legalNoticeMessage (chỉ dùng khi chưa có hồ sơ pháp lý). */
 export const LEGAL_NOTICE = { title: 'Chưa có hồ sơ pháp lý', message: 'Có thể bổ sung sau. Một số tính năng pháp lý chưa sử dụng được.' };

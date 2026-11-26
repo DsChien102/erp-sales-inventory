@@ -11,9 +11,9 @@ import { unitSection } from '../signup.js';
  * Thao tác nằm ngay ở từng khối, không còn nút "Thao tác ⌃" / sheet; bỏ banner info (trùng ý hộp vàng).
  */
 function profileBody(hasLegal) {
-  const orgRows = [info('Tên hiển thị', ORG.name), info('Điện thoại', ORG.phone), info('Email', ORG.email), info('Địa chỉ', ORG.address)].join('');
+  const orgRows = [info('Tên hiển thị', ORG.name), info('Điện thoại', ORG.phone), info('Email', ORG.email), info('Địa chỉ', [ORG.address, ORG.commune, ORG.province].join(', '))].join('');
   const legal = hasLegal
-    ? `<div class="t1-stack12">${[info('Loại chủ thể', LEGAL.entityType), info('Tên pháp lý', LEGAL.legalName), info('Mã số thuế', LEGAL.taxCode), info('Địa chỉ đăng ký', LEGAL.registeredAddress)].join('')}</div>`
+    ? `<div class="t1-stack12">${[info('Loại chủ thể', LEGAL.entityType), info('Tên pháp lý', LEGAL.legalName), info('Mã số thuế', LEGAL.taxCode), info('Địa chỉ đăng ký', [LEGAL.registeredAddress, ORG.commune, ORG.province].join(', '))].join('')}</div>`
     : `${warnBox(LEGAL_NOTICE.title, LEGAL_NOTICE.message)}<div class="t1-gap-md"></div>${button('Thêm hồ sơ pháp lý', { full: true })}`;
   const sec = (title, action, inner) => `<section class="t1-orgsec"><div class="t1-orgsec__head"><h2>${esc(title)}</h2>${action}</div>${inner}</section>`;
   return `<div class="t1-orgp">
@@ -72,8 +72,8 @@ export function legalPage(v) {
     <p class="t1-small">Thay đổi hiện tại không làm thay đổi chứng từ lịch sử.</p>
     <div class="t1-formcard"><div class="t1-grid2">
       <div class="t1-grid2__wide">${field({ label: 'Tên pháp lý', required: true, control: input({ value: x.name, hint: 'Nhập tên pháp lý', invalid: !!e.name }), error: e.name })}</div>
-      ${field({ label: 'Loại chủ thể', control: select({ value: x.type, hint: 'Chọn loại chủ thể', invalid: !!e.type }), error: e.type })}
-      ${field({ label: 'Mã số thuế', required: true, control: input({ value: x.tax, hint: 'Nhập mã số thuế', invalid: !!e.tax }), error: e.tax })}
+      ${field({ label: 'Loại chủ thể', required: true, control: select({ value: x.type, hint: 'Chọn loại chủ thể', invalid: !!e.type }), error: e.type })}
+      ${field({ label: 'Mã số thuế', required: true, control: input({ value: x.tax, hint: 'Nhập mã số thuế', invalid: !!e.tax }), error: e.tax, desc: '10 hoặc 12 chữ số; chi nhánh nhập đủ 13 số, dấu gạch tự thêm.' })}
       <div class="t1-grid2__wide">${field({ label: 'Địa chỉ đăng ký', control: input({ value: x.address, hint: 'Nhập địa chỉ đăng ký' }) })}</div>
       ${unitSection(s.edit ? { province: ORG.province, commune: ORG.commune, required: false } : { required: false })}
     </div></div>

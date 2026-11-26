@@ -21,7 +21,7 @@ export const loadFailed = (title, message) => `<div class="t1-failed2"><h2 class
 export const orgUnauthorized = () => `<div class="t1-oempty"><div class="t1-card t1-oempty__card">
   <span class="t1-ring t1-ring--warning">${icon('shield')}</span><div class="t1-gap-md"></div>
   <h2 class="t1-h3 t1-text-center">Không có quyền xem tổ chức</h2><div class="t1-gap-xs"></div>
-  <p class="t1-body2 t1-text-center">Liên hệ chủ cửa hàng để được cấp quyền quản lý tổ chức nền tảng.</p><div class="t1-gap-md"></div>
+  <p class="t1-body2 t1-text-center">Liên hệ chủ cửa hàng để được cấp quyền quản lý tổ chức.</p><div class="t1-gap-md"></div>
   ${button('Quay lại', { variant: 'link' })}</div></div>`;
 
 /** _InfoRow: nhãn bodyDefault textMuted ↔ giá trị bodyDefault w600 phải ("—" khi rỗng). */
@@ -37,11 +37,11 @@ export const warnBox = (title, message) => `<div class="t1-warnbox">${icon('aler
  */
 function profileBody(hasLegal) {
   const legal = hasLegal
-    ? [info('Loại chủ thể', LEGAL.entityType), info('Tên pháp lý', LEGAL.legalName), info('Mã số thuế', LEGAL.taxCode), info('Địa chỉ đăng ký', LEGAL.registeredAddress)].join('')
+    ? [info('Loại chủ thể', LEGAL.entityType), info('Tên pháp lý', LEGAL.legalName), info('Mã số thuế', LEGAL.taxCode), info('Địa chỉ đăng ký', [LEGAL.registeredAddress, ORG.commune, ORG.province].join(', '))].join('')
     : `${warnBox(LEGAL_NOTICE.title, LEGAL_NOTICE.message)}<div class="t1-orgm__add"><p>Bổ sung hồ sơ pháp lý để xuất hoá đơn điện tử.</p>${button('Bổ sung', { variant: 'link' })}</div>`;
   return `<div class="t1-list t1-orgm">
     <div class="t1-orgm__head"><div class="t1-orgm__icon" aria-hidden="true">${icon('building')}</div><h2>${esc(ORG.name)}</h2></div>
-    ${section('Thông tin tổ chức', [info('Tên hiển thị', ORG.name), info('Điện thoại', ORG.phone), info('Email', ORG.email), info('Địa chỉ', ORG.address)].join(''))}
+    ${section('Thông tin tổ chức', [info('Tên hiển thị', ORG.name), info('Điện thoại', ORG.phone), info('Email', ORG.email), info('Địa chỉ', [ORG.address, ORG.commune, ORG.province].join(', '))].join(''))}
     ${section('Hồ sơ pháp lý', legal)}
   </div>`;
 }
@@ -116,7 +116,7 @@ export function editPage(v) {
 const TAX_FORMAT = 'Mã số thuế phải gồm 10 hoặc 12 chữ số, hoặc dạng chi nhánh 10 số-3 số (VD: 0123456789-001).';
 export const LEGAL_STATES = {
   'add-empty': {}, 'add-errors': { errors: { type: 'Vui lòng chọn loại chủ thể', name: 'Vui lòng nhập tên pháp lý', tax: 'Vui lòng nhập mã số thuế' }, toast: ['danger', 'Thiếu thông tin', 'Vui lòng điền đầy đủ các thông tin bắt buộc'] },
-  'add-tax-format': { values: { type: 'Hộ kinh doanh', name: 'Hộ kinh doanh Thú y An Phát', tax: '031234567' }, errors: { tax: TAX_FORMAT }, toast: ['danger', 'Thiếu thông tin', 'Vui lòng điền đầy đủ các thông tin bắt buộc'] },
+  'add-tax-format': { values: { type: 'Hộ kinh doanh', name: 'Hộ kinh doanh Thú y An Phát', tax: '031234567' }, errors: { tax: TAX_FORMAT } },
   'edit-filled': { edit: true }, submitting: { edit: true, busy: true },
   duplicate: { edit: true, sheet: true }, discard: { edit: true, values: { name: 'Công ty TNHH Thú y An Phát Sài Gòn' }, dialog: true },
   loading: { loading: true },
