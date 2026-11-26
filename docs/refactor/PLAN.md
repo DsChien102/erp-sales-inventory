@@ -109,7 +109,7 @@ Lý do: dựng màn từ mô tả bằng lời làm UI Flutter lệch prototype 
    | ![](img/<mã plan>/proto-SCR-066-normal-390.png) | ![](img/<mã plan>/flutter-SCR-066-normal-390.png) |
    ```
    Lúc viết plan cột Flutter để trống; phiên code thêm ảnh `flutter-…` (golden test cùng bề rộng, mặt vẽ thật).
-4. **Ảnh người dùng chụp lỗi:** bỏ vào cùng thư mục, tên `user-<SCR>-<mô tả>.png`; phiên review / code đọc ảnh và chuyển thành việc cần sửa trong mục Review.
+4. **Ảnh người dùng chụp lỗi:** bỏ vào cùng thư mục, tên `user-<SCR>-<mô tả>.png`; đọc ảnh và chuyển thành việc cần sửa trong mục Review.
 5. **Review** so từng cặp ảnh trước khi đọc code; lệch ghi kèm tên ảnh.
 6. Plan xoá (đã ✅) thì xoá luôn thư mục `img/<mã plan>/` (ảnh tra lại trong lịch sử git).
 
@@ -700,7 +700,7 @@ Mọi plan G5 trỏ về mục này trong "Global Constraints" và chỉ ghi ph�
 #### Review plan có SQL (chốt 2026-11-11, sau G5-3)
 
 - Chạy `tools/db_check.sh` (reset + `plpgsql_check` + mọi tệp test SQL, gồm tệp của plan trước); dán phần kết quả vào mục Review. Fixture lỗi thì đối chiếu `information_schema.columns`.
-- Mục `### Rn` chỉ phiên review ghi; phiên làm ghi "Kết quả" / "Sửa sau Rn".
+- Mục `### Rn` ghi việc cần sửa sau review; "Kết quả" / "Sửa sau Rn" ghi việc đã làm.
 
 #### Điều hướng
 
@@ -717,7 +717,7 @@ Mọi plan G5 trỏ về mục này trong "Global Constraints" và chỉ ghi ph�
 4. **Điều hướng:** route; đăng ký lối vào Hub (`warehouse_entries.dart`) + nguồn "Cần chú ý" nếu có; lối vào ngữ cảnh (PAT-NAV mục 3).
 5. **Luồng đầu–cuối:** một test đi hết luồng chính trên fake repository.
 6. **Đối chiếu prototype:** so ảnh prototype với ảnh Flutter của **trạng thái chính** (mục "UI Flutter" bước 5); ghi lệch vào Kết quả.
-7. **Kết quả** (mẫu "Cách làm việc") + **Review** (phiên review ghi).
+7. **Kết quả** (mẫu "Cách làm việc") + **Review**.
 
 Mỗi plan có mục "Quyết định" (câu hỏi đã chốt với người dùng) và "Review Focus". Plan xoá / thay code đang chạy có bảng "Đang làm gì" + bước 0 test giữ hành vi (PLAN.md "Cách làm việc").
 
@@ -911,7 +911,7 @@ Mỗi theme đi 3 bước:
 
 | Theme | Prototype HTML | Refactor lại UI | Plan chuyển Flutter | Xong | Ghi chú |
 |---|---|---|---|---|---|
-| Theme 1 (TH-01) + Web cho app | ✅ [theme-01](../../specs/themes/theme-01/03.design/prototype/html/README.md) | ✅ 2026-11-25 (web + iPhone, người dùng duyệt) | ✅ [10-8d](plans/P10/10-8d-nen-theme1-flutter.md); ✅ [10-8e](plans/P10/10-8e-dang-nhap-dang-ky-flutter.md) (đã làm 2026-11-26, review R1 đã xử lý, chờ kiểm tay); ✅ [10-8f](plans/P10/10-8f-dat-lai-mat-khau-loi-moi-flutter.md) (đã làm 2026-11-26, chờ kiểm tay); ✅ [10-8g](plans/P10/10-8g-ho-so-to-chuc-flutter.md); ✅ [10-8h](plans/P10/10-8h-nguoi-dung-flutter.md); ✅ [10-8i](plans/P10/10-8i-vai-tro-lich-su-flutter.md); ✅ [10-8k](plans/P10/10-8k-tai-khoan-flutter.md) | ⬜ | W-2 (Theme 1 trên web). Bố cục web thiết kế lại tách riêng ở `app/web/` + `styles/t1-web.css` (`c61d6c521`); iPhone thiết kế lại ở `app/*.js` + `t1.css` (2026-11-25). Khi chuyển Flutter: icon app thay "V45" ở `login_page.dart` và hai mẫu in PDF. ID-08 dùng APP-04 của khung chung; ID-10 dùng APP-02 (Menu Thêm); ID-23 vẽ chung với ID-04; "Tài khoản của tôi" (ID-21) còn ← khi được đẩy ở web ≥ 1024 (`my_account_page.dart`), sửa khi rà theme (10-8c Q5) |
+| Theme 1 (TH-01) + Web cho app | ✅ [theme-01](../../specs/themes/theme-01/03.design/prototype/html/README.md) | ✅ 2026-11-25 (web + iPhone, người dùng duyệt) | ✅ [10-8d](plans/P10/10-8d-nen-theme1-flutter.md); ✅ [10-8e](plans/P10/10-8e-dang-nhap-dang-ky-flutter.md) (đã làm 2026-11-26, review R1 đã xử lý, chờ kiểm tay); ✅ [10-8f](plans/P10/10-8f-dat-lai-mat-khau-loi-moi-flutter.md) (✅ done 2026-11-26, review đạt); ✅ [10-8g](plans/P10/10-8g-ho-so-to-chuc-flutter.md); ✅ [10-8h](plans/P10/10-8h-nguoi-dung-flutter.md); ✅ [10-8i](plans/P10/10-8i-vai-tro-lich-su-flutter.md); ✅ [10-8k](plans/P10/10-8k-tai-khoan-flutter.md) | ⬜ | W-2 (Theme 1 trên web). Bố cục web thiết kế lại tách riêng ở `app/web/` + `styles/t1-web.css` (`c61d6c521`); iPhone thiết kế lại ở `app/*.js` + `t1.css` (2026-11-25). Khi chuyển Flutter: icon app thay "V45" ở `login_page.dart` và hai mẫu in PDF. ID-08 dùng APP-04 của khung chung; ID-10 dùng APP-02 (Menu Thêm); ID-23 vẽ chung với ID-04; "Tài khoản của tôi" (ID-21) còn ← khi được đẩy ở web ≥ 1024 (`my_account_page.dart`), sửa khi rà theme (10-8c Q5) |
 | Theme 3 (TH-03) | ✅ [theme-03](../../specs/themes/theme-03/03.design/prototype/html/README.md) | ⬜ | ⬜ | ⬜ | DS chép từ Theme 1 (`ds.js`, tiền tố `t3-`; gom về `shared/` để sau). PT-07 vẽ đủ khối Công nợ (Theme 6), Chương trình ưu đãi + Lịch sử nhập hàng (Theme 7) như Flutter |
 | Theme 2 (TH-02) | ✅ [theme-02](../../specs/themes/theme-02/03.design/prototype/html/README.md) | ⬜ | ⬜ | ⬜ | DS chép từ Theme 3 (`ds.js`, tiền tố `t2-`). SP-10 đã bỏ (G5-5). PCC vẽ thẻ Tồn kho (Theme 7) như Flutter; ô gạt "Quản lý theo lô" ở SP-05 |
 | Theme 4 (TH-04) | ✅ [theme-04](../../specs/themes/theme-04/03.design/prototype/html/README.md) | ⬜ | ⬜ | ⬜ | DS chép từ Theme 2 (`ds.js`, tiền tố `t4-`). Route `/pricing/*` ngoài khung ⇒ vẽ không thanh bên / thanh dưới, web 1 cột 720. Sheet là `showVBottomSheet` ⇒ web cũng sheet đáy 640; "Giá riêng" (`pricing_list_page.dart:70`) còn ← khi được đẩy ở web ≥ 1024, sửa khi rà theme (10-8c Q5) |

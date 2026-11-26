@@ -513,7 +513,7 @@ CSS đã có ở plan 10-8e: `.t1-stepcol`, `.t1-stepcard*`, `.t1-mailbox`, `.t1
 - Consumes: `RecordingAuthRepository`, `scripted_invitations.dart` (có sẵn).
 - Produces: không.
 
-- [ ] **Step 1: Viết các ca T0 trong bảng**, mỗi ca một `testWidgets` đúng tên, khổ 390 × 844, tìm bằng `Key` / chữ. Khẳng định chính:
+- [x] **Step 1: Viết các ca T0 trong bảng**, mỗi ca một `testWidgets` đúng tên, khổ 390 × 844, tìm bằng `Key` / chữ. Khẳng định chính:
 
 ```dart
 // request failure…: find.text('Không gửi được mã') trong thân và 'Thử lại'; tap 'Thử lại' → auth.calls có 'requestMy' hai lần
@@ -522,8 +522,8 @@ CSS đã có ở plan 10-8e: `.t1-stepcol`, `.t1-stepcard*`, `.t1-mailbox`, `.t1
 // passwords are cleared…: hai ô mật khẩu rỗng, họ / tên / SĐT còn
 ```
 
-- [ ] **Step 2: Chạy, phải xanh trên code cũ** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets/reset_password_page_test.dart test/features/auth/presentation/invitation`
-- [ ] **Step 3: Commit** `test(10-8f): test giữ hành vi Đặt lại mật khẩu, Lời mời`
+- [x] **Step 2: Chạy, phải xanh trên code cũ** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets/reset_password_page_test.dart test/features/auth/presentation/invitation`
+- [x] **Step 3: Commit** `test(10-8f): test giữ hành vi Đặt lại mật khẩu, Lời mời`
 
 ### Task 1: Đặt lại mật khẩu (lỗi 3, 4)
 
@@ -549,9 +549,9 @@ const ResetCreateNarrow({super.key, required Widget newPasswordField, required W
 // codeField = VField(nhãn 'Mã xác nhận' *, ô mã layout fill, VFieldError khi codeError != null)
 ```
 
-- [ ] **Step 1: Prototype** — `resetResendLabel(s)` trả như `resendLabel(s)` (`mm:ss`); ca `verify-wrong`: bỏ `toast`, thêm `codeError: 'Mã xác nhận không đúng.'`, `codeField({ invalid: !!s.codeError })` + `field({ error: s.codeError })` ở hai khung; ca `resent-toast` nhãn "01:00"; sửa câu mô tả hai ca; sửa test node (`resetResendLabel(60) === 'Gửi lại mã sau 01:00'`). Ca `request-failed`: thay `toast` bằng `message` (thân màn đọc `s.message`), không còn toast. `t1.css .t1-pwbar`: bỏ `border-top` và `background`; `toast(… above)` của bước 2 đổi 78 → 77. `node --test` PASS; `node tools/capture.mjs reset__verify`, `node tools/capture.mjs reset__re`, `node tools/capture.mjs reset__create`; chép lại ảnh `reset__{verify-wrong,resent-toast,request-failed,create,create-errors}` hai khung.
+- [x] **Step 1: Prototype** — `resetResendLabel(s)` trả như `resendLabel(s)` (`mm:ss`); ca `verify-wrong`: bỏ `toast`, thêm `codeError: 'Mã xác nhận không đúng.'`, `codeField({ invalid: !!s.codeError })` + `field({ error: s.codeError })` ở hai khung; ca `resent-toast` nhãn "01:00"; sửa câu mô tả hai ca; sửa test node (`resetResendLabel(60) === 'Gửi lại mã sau 01:00'`). Ca `request-failed`: thay `toast` bằng `message` (thân màn đọc `s.message`), không còn toast. `t1.css .t1-pwbar`: bỏ `border-top` và `background`; `toast(… above)` của bước 2 đổi 78 → 77. `node --test` PASS; `node tools/capture.mjs reset__verify`, `node tools/capture.mjs reset__re`, `node tools/capture.mjs reset__create`; chép lại ảnh `reset__{verify-wrong,resent-toast,request-failed,create,create-errors}` hai khung.
 
-- [ ] **Step 2: Viết test**
+- [x] **Step 2: Viết test**
 
 ```dart
 test('wrong, expired, exceeded codes set codeError without failure', …) // 3 mã → 3 câu của mapper; failure isNull
@@ -571,11 +571,11 @@ testWidgets('resizing 900 → 700 keeps 3 typed digits', …)               // a
 testWidgets('320 at text scale 2.0 does not overflow', …)               // bước 1, bước 2
 ```
 
-- [ ] **Step 3: Chạy → FAIL** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets/reset_password_page_test.dart`
-- [ ] **Step 4: Cài đặt** Q1–Q8. Hẹp: `Scaffold(backgroundColor: surface, appBar: VAppBar(title: 'Đặt lại mật khẩu'))`; web: nền `background`.
-- [ ] **Step 5: Chạy → PASS** — `flutter test test/features/iam/presentation_module/widgets/reset_password_page_test.dart test/features/auth/presentation/wgt_th01_s0_login_test.dart test/features/my_account test/features/iam/presentation_module/widgets/my_account_page_test.dart`
-- [ ] **Step 6: Golden** ca `reset__{verify,verify-wrong,resend-ready,create,create-errors,request-failed}` × 2 (khổ như `captureAuth` 10-8e, `clock` cố định). So ảnh, ghi lệch.
-- [ ] **Step 7: Commit** `feat(10-8f): Đặt lại mật khẩu theo prototype, sai mã báo tại ô`
+- [x] **Step 3: Chạy → FAIL** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets/reset_password_page_test.dart`
+- [x] **Step 4: Cài đặt** Q1–Q8. Hẹp: `Scaffold(backgroundColor: surface, appBar: VAppBar(title: 'Đặt lại mật khẩu'))`; web: nền `background`.
+- [x] **Step 5: Chạy → PASS** — `flutter test test/features/iam/presentation_module/widgets/reset_password_page_test.dart test/features/auth/presentation/wgt_th01_s0_login_test.dart test/features/my_account test/features/iam/presentation_module/widgets/my_account_page_test.dart`
+- [x] **Step 6: Golden** ca `reset__{verify,verify-wrong,resend-ready,create,create-errors,request-failed}` × 2 (khổ như `captureAuth` 10-8e, `clock` cố định). So ảnh, ghi lệch.
+- [x] **Step 7: Commit** `feat(10-8f): Đặt lại mật khẩu theo prototype, sai mã báo tại ô`
 
 ### Task 2: Nhập mã lời mời
 
@@ -588,7 +588,7 @@ testWidgets('320 at text scale 2.0 does not overflow', …)               // bư
 - Consumes: `VVerificationCodeLayout.split4` / `.fill`, `FlowColumn`, `FlowCard`, `FlowIcon.medium`.
 - Produces: hai widget cùng `({super.key, required Widget codeField, required bool isSubmitting, required VoidCallback onSubmit, required VoidCallback? onBack})`. `codeField` gồm `KeyedSubtree(key: Key('invitation_token_input'))`, `GlobalKey` trên `VVerificationCodeField`; `layout` đổi theo `isWideLayout`, `State` ô mã giữ nguyên.
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```dart
 testWidgets('390: split 4 + 4 cells, continue right under the hint', …)  // Key v-code-cell-0 cao 52; không có bottomNavigationBar
@@ -597,11 +597,11 @@ testWidgets('resizing 900 → 700 keeps 5 typed characters and does not submit',
 testWidgets('320 at text scale 2.0 does not overflow', …)
 ```
 
-- [ ] **Step 2: Chạy → FAIL** — `flutter test test/features/auth/presentation/invitation`
-- [ ] **Step 3: Cài đặt**
-- [ ] **Step 4: Chạy → PASS** — lệnh Step 2 và `flutter test test/features/invitations`
-- [ ] **Step 5: Golden** ca `invitation__{entry,entry-partial,entry-invalid,inspecting}` × 2 (`inspecting`: `pump(100ms)`). So ảnh.
-- [ ] **Step 6: Commit** `feat(10-8f): Nhập mã lời mời theo prototype`
+- [x] **Step 2: Chạy → FAIL** — `flutter test test/features/auth/presentation/invitation`
+- [x] **Step 3: Cài đặt**
+- [x] **Step 4: Chạy → PASS** — lệnh Step 2 và `flutter test test/features/invitations`
+- [x] **Step 5: Golden** ca `invitation__{entry,entry-partial,entry-invalid,inspecting}` × 2 (`inspecting`: `pump(100ms)`). So ảnh.
+- [x] **Step 6: Commit** `feat(10-8f): Nhập mã lời mời theo prototype`
 
 ### Task 3: Kích hoạt tài khoản theo lời mời
 
@@ -614,7 +614,7 @@ testWidgets('320 at text scale 2.0 does not overflow', …)
 - Consumes: `FlowColumn`, `FlowCard`.
 - Produces: hai widget cùng `({super.key, required String tenantName, required String email, required Widget familyField, givenField, emailField, phoneField, passwordField, confirmField, required bool isSubmitting, required VoidCallback onSubmit, required VoidCallback? onBack})`; `InvitationRegisterNarrow` không dùng `emailField` (tự vẽ dòng Q9).
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```dart
 testWidgets('390: locked email is a read-only row', …)   // Key invitation_locked_email chứa Text email; không có TextField bên trong; semantics 'Email, …, không sửa được'
@@ -626,11 +626,11 @@ testWidgets('resizing keeps every typed value', …)
 testWidgets('320 at text scale 2.0, 80-char tenant and 60-char email do not overflow', …)
 ```
 
-- [ ] **Step 2: Chạy → FAIL** — `flutter test test/features/auth/presentation/invitation`
-- [ ] **Step 3: Cài đặt** Q9; `AutofillGroup` bọc form ở cả hai bố cục.
-- [ ] **Step 4: Chạy → PASS** (lệnh Step 2)
-- [ ] **Step 5: Golden** ca `invitation__{register,register-errors}` × 2. So ảnh.
-- [ ] **Step 6: Commit** `feat(10-8f): Kích hoạt tài khoản theo lời mời theo prototype`
+- [x] **Step 2: Chạy → FAIL** — `flutter test test/features/auth/presentation/invitation`
+- [x] **Step 3: Cài đặt** Q9; `AutofillGroup` bọc form ở cả hai bố cục.
+- [x] **Step 4: Chạy → PASS** (lệnh Step 2)
+- [x] **Step 5: Golden** ca `invitation__{register,register-errors}` × 2. So ảnh.
+- [x] **Step 6: Commit** `feat(10-8f): Kích hoạt tài khoản theo lời mời theo prototype`
 
 ### Task 4: Sheet xác nhận, màn kết quả, dọn
 
@@ -643,7 +643,7 @@ testWidgets('320 at text scale 2.0, 80-char tenant and 60-char email do not over
 - Consumes: `FlowIcon`.
 - Produces: `enum FlowIconTone { brand, neutral, warning }`; `FlowIcon.large(icon, {tone = FlowIconTone.brand})`. `InvitationOutcomeView` tự dựng cả `Scaffold` (trang không bọc nữa).
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```dart
 testWidgets('390: confirm sheet shows a filled box with three rows', …)  // nền background; giá trị canh phải
@@ -655,16 +655,16 @@ testWidgets('320 at text scale 2.0: confirm sheet scrolls to decline', …)
 
 `w2_behavior_preservation_test.dart`: xoá ca "3 màn công khai … ở 1280 ≤ 480" (10-8e Task 5 để lại); ca "ở 800 ≤ 480" thêm lại ba màn này thành 7.
 
-- [ ] **Step 2: Chạy → FAIL** — `flutter test test/features/auth/presentation/invitation`
-- [ ] **Step 3: Cài đặt** Q10–Q12.
-- [ ] **Step 4: TH-01 US-02.3** — FR-02 thêm: "Mã sai / hết hạn / nhập sai quá số lần báo dưới ô mã, không toast (10-8f)"; "Gửi lại mã sau 00:ss" → "Gửi lại mã sau mm:ss".
-- [ ] **Step 5: Chạy → PASS**
+- [x] **Step 2: Chạy → FAIL** — `flutter test test/features/auth/presentation/invitation`
+- [x] **Step 3: Cài đặt** Q10–Q12.
+- [x] **Step 4: TH-01 US-02.3** — FR-02 thêm: "Mã sai / hết hạn / nhập sai quá số lần báo dưới ô mã, không toast (10-8f)"; "Gửi lại mã sau 00:ss" → "Gửi lại mã sau mm:ss".
+- [x] **Step 5: Chạy → PASS**
 
 Run: `cd apps/erp && flutter test test/features/auth test/features/invitations test/core/widgets test/features/iam/presentation_module/widgets/reset_password_page_test.dart test/features/iam/presentation_module/w2_behavior_preservation_test.dart && dart analyze lib test && dart run tool/check_feature_imports.dart`
 Expected: PASS, không lỗi analyze mới, không vi phạm import mới
 
-- [ ] **Step 6: Golden** ca `invitation__{confirm,declined,blocked}` × 2. So ảnh.
-- [ ] **Step 7: PLAN.md** dòng Theme 1: 10-8f đã làm. Commit `feat(10-8f): sheet xác nhận và kết quả lời mời theo prototype`
+- [x] **Step 6: Golden** ca `invitation__{confirm,declined,blocked}` × 2. So ảnh.
+- [x] **Step 7: PLAN.md** dòng Theme 1: 10-8f đã làm. Commit `feat(10-8f): sheet xác nhận và kết quả lời mời theo prototype`
 
 ## Kiểm tay (người dùng)
 
@@ -675,4 +675,24 @@ Expected: PASS, không lỗi analyze mới, không vi phạm import mới
 
 ## Kết quả
 
+Làm xong 2026-11-26, 5 commit (`11647b6a1` … `405cf44db`). Test trong phạm vi plan: 296 ca xanh (`reset_password_page_test`, `reset_password_golden_test`, `test/features/auth`, `test/features/invitations`, `test/core/widgets`, `w2_behavior_preservation_test`). `check_feature_imports` không có vi phạm mới ở `iam/presentation`, `auth/presentation`, `core/widgets`.
+
+- Lỗi 3: sai / hết hạn / quá số lần báo dưới ô mã bằng `PasswordResetState.codeError`, không toast; lỗi mạng vẫn là toast.
+- Lỗi 4: đếm ngược "Gửi lại mã sau 01:00" qua `ResendCountdown`.
+- Lời mời: nhập mã, kích hoạt tài khoản, sheet xác nhận, màn kết quả có bố cục hẹp / rộng riêng; email khoá ở hẹp là dòng đọc (Q9).
+- Docs: TH-01 US-02.3 và README prototype (mục 21, 22) đã cập nhật; `PLAN.md` ghi 10-8f.
+
+**Lệch golden so với prototype (chấp nhận):**
+- Golden thiếu mũi tên ← ở app bar: harness không có route để pop.
+- Icon hiện ô vuông (font Ahem của test), không phải lỗi bố cục.
+- Không có thanh trạng thái 09:41 / LTE của khung iPhone prototype.
+- Email, tên tổ chức trong golden là dữ liệu mẫu của test, không trùng ảnh prototype.
+
 ## Review
+
+Review 2026-11-26: không có lỗi chặn. **Trạng thái: done.**
+
+- R1 (đã xử lý): hai import thừa ở `reset_password_page_test.dart` (`iam_ui_failure_mapper.dart`, `password_reset_cubit.dart`) gây 2 cảnh báo `unnecessary_import`; đã xoá, analyze sạch, 27 ca xanh.
+- R2 (đã xử lý): nhánh `catch` của `PasswordResetCubit.verify` truyền cặp `failure` / `clearFailure` và `codeError` / `clearCodeError` trùng ý; tách thành hai `copyWith` (lỗi mã / lỗi khác), hành vi giữ nguyên, 39 ca reset xanh.
+- R3 (rủi ro đã chấp nhận, kiểm tay): form kích hoạt khổ hẹp không còn ô email nhập được (Q9), trình quản lý mật khẩu không tự ghép email với mật khẩu mới. Xem mục Kiểm tay.
+- Đã đối chiếu Q1–Q12 và 5 Review Focus với code và test: đủ.
