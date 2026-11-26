@@ -500,6 +500,65 @@ void main() {
         gate.complete();
         await tester.pumpAndSettle();
       });
+
+      testWidgets('invitation__register $width', (tester) async {
+        await runEntry(
+          tester,
+          'invitation__register',
+          scenario: FakeIamScenario.inspectNewAccount,
+          act: (t) async {
+            await t.enterText(
+              find
+                  .descendant(
+                    of: find.byKey(const Key('invitation_token_input')),
+                    matching: find.byType(TextField),
+                  )
+                  .first,
+              'TOKENNEW',
+            );
+            await t.pumpAndSettle();
+            await t.tap(
+              find.byKey(const Key('invitation_confirm_sheet_accept')),
+            );
+          },
+        );
+      });
+
+      testWidgets('invitation__register-errors $width', (tester) async {
+        await runEntry(
+          tester,
+          'invitation__register-errors',
+          scenario: FakeIamScenario.inspectNewAccount,
+          act: (t) async {
+            await t.enterText(
+              find
+                  .descendant(
+                    of: find.byKey(const Key('invitation_token_input')),
+                    matching: find.byType(TextField),
+                  )
+                  .first,
+              'TOKENNEW',
+            );
+            await t.pumpAndSettle();
+            await t.tap(
+              find.byKey(const Key('invitation_confirm_sheet_accept')),
+            );
+            await t.pumpAndSettle();
+            await t.enterText(
+              find.byKey(const Key('invitation_register_password')),
+              '123',
+            );
+            await t.enterText(
+              find.byKey(const Key('invitation_register_confirm_password')),
+              '456',
+            );
+            await t.pump();
+            final submit = find.byKey(const Key('invitation_accept_submit'));
+            await t.ensureVisible(submit);
+            await t.tap(submit);
+          },
+        );
+      });
     }
   });
 }

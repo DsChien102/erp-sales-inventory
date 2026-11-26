@@ -375,27 +375,18 @@ void main() {
         '0901234567',
       );
       expect(
-        tester
-            .widget<TextField>(
-              find.descendant(
-                of: find.byKey(const Key('invitation_locked_email')),
-                matching: find.byType(TextField),
-              ),
-            )
-            .controller!
-            .text,
-        'dosychien9@gmail.com',
+        find.descendant(
+          of: find.byKey(const Key('invitation_locked_email')),
+          matching: find.text('dosychien9@gmail.com'),
+        ),
+        findsOneWidget,
       );
       expect(
-        tester
-            .widget<TextField>(
-              find.descendant(
-                of: find.byKey(const Key('invitation_locked_email')),
-                matching: find.byType(TextField),
-              ),
-            )
-            .enabled,
-        isFalse,
+        find.descendant(
+          of: find.byKey(const Key('invitation_locked_email')),
+          matching: find.byType(TextField),
+        ),
+        findsNothing,
       );
     },
   );
@@ -862,6 +853,308 @@ void main() {
 
       expect(tester.takeException(), isNull);
     });
+  });
+
+  group('10-8f Task 3 register', () {
+    InvitationTokenInspection sampleInspection({
+      String tenantName = 'Mậu Hiên',
+      String email = 'invitee@example.com',
+    }) {
+      return InvitationTokenInspection(
+        tenantId: 'org-001',
+        tenantName: tenantName,
+        inviteeEmail: email,
+        initialRoleId: 'role-staff',
+        initialRoleLabel: 'Nhân viên bán hàng',
+        expiresAt: DateTime.utc(2026, 8, 5),
+        accountExists: false,
+      );
+    }
+
+    testWidgets('390: locked email is a read-only row', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationRegistrationForm(
+            inspection: sampleInspection(email: 'lan@anphat.vn'),
+            isSubmitting: false,
+            onRegister: ({
+              required givenName,
+              required familyName,
+              phone,
+              required password,
+            }) async {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final row = find.byKey(const Key('invitation_locked_email'));
+      expect(row, findsOneWidget);
+      expect(
+        find.descendant(of: row, matching: find.text('lan@anphat.vn')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: row, matching: find.byType(TextField)),
+        findsNothing,
+      );
+      expect(
+        find.bySemanticsLabel('Email, lan@anphat.vn, không sửa được'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('1280: locked email is a disabled field', (tester) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationRegistrationForm(
+            inspection: sampleInspection(email: 'dosychien9@gmail.com'),
+            isSubmitting: false,
+            onRegister: ({
+              required givenName,
+              required familyName,
+              phone,
+              required password,
+            }) async {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final field = tester.widget<TextField>(
+        find.descendant(
+          of: find.byKey(const Key('invitation_locked_email')),
+          matching: find.byType(TextField),
+        ),
+      );
+      expect(field.controller!.text, 'dosychien9@gmail.com');
+      expect(field.enabled, isFalse);
+    });
+
+    testWidgets('390: names share a row 3 : 2, submit right under the form', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationRegistrationForm(
+            inspection: sampleInspection(),
+            isSubmitting: false,
+            onRegister: ({
+              required givenName,
+              required familyName,
+              phone,
+              required password,
+            }) async {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final familyRect = tester.getRect(
+        find.byKey(const Key('invitation_register_family_name')),
+      );
+      final givenRect = tester.getRect(
+        find.byKey(const Key('invitation_register_given_name')),
+      );
+      expect(familyRect.top, closeTo(givenRect.top, 2));
+      expect(familyRect.width / givenRect.width, closeTo(1.5, 0.1));
+      expect(
+        tester.widget<Scaffold>(find.byType(Scaffold)).bottomNavigationBar,
+        isNull,
+      );
+    });
+
+    testWidgets('390: keyboard open, submit can be scrolled into view', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      tester.view.viewInsets = const FakeViewPadding(bottom: 327);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetViewInsets);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationRegistrationForm(
+            inspection: sampleInspection(),
+            isSubmitting: false,
+            onRegister: ({
+              required givenName,
+              required familyName,
+              phone,
+              required password,
+            }) async {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final submit = find.byKey(const Key('invitation_accept_submit'));
+      await tester.ensureVisible(submit);
+      await tester.pumpAndSettle();
+      expect(submit.hitTestable(), findsOneWidget);
+    });
+
+    testWidgets('1280: banner then card 488, bottom bar content 488', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationRegistrationForm(
+            inspection: sampleInspection(),
+            isSubmitting: false,
+            onRegister: ({
+              required givenName,
+              required familyName,
+              phone,
+              required password,
+            }) async {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final bannerY = tester.getTopLeft(find.byType(VBanner)).dy;
+      final cardY = tester.getTopLeft(find.byType(FlowCard)).dy;
+      expect(bannerY, lessThan(cardY));
+      expect(tester.getSize(find.byType(FlowCard)).width, 488);
+      expect(
+        tester
+            .getSize(find.byKey(const Key('invitation_accept_submit')))
+            .width,
+        488,
+      );
+    });
+
+    testWidgets('resizing keeps every typed value', (tester) async {
+      tester.view.physicalSize = const Size(900, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationRegistrationForm(
+            inspection: sampleInspection(),
+            isSubmitting: false,
+            onRegister: ({
+              required givenName,
+              required familyName,
+              phone,
+              required password,
+            }) async {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('invitation_register_family_name')),
+        'Nguyễn',
+      );
+      await tester.enterText(
+        find.byKey(const Key('invitation_register_given_name')),
+        'Bình',
+      );
+      await tester.enterText(
+        find.byKey(const Key('invitation_register_phone')),
+        '0912345678',
+      );
+      await tester.enterText(
+        find.byKey(const Key('invitation_register_password')),
+        'Abc@12345',
+      );
+      await tester.enterText(
+        find.byKey(const Key('invitation_register_confirm_password')),
+        'Abc@12345',
+      );
+
+      tester.view.physicalSize = const Size(700, 800);
+      await tester.pump();
+
+      String textOf(Key key) => tester
+          .widget<TextField>(
+            find.descendant(of: find.byKey(key), matching: find.byType(TextField)),
+          )
+          .controller!
+          .text;
+
+      expect(textOf(const Key('invitation_register_family_name')), 'Nguyễn');
+      expect(textOf(const Key('invitation_register_given_name')), 'Bình');
+      expect(textOf(const Key('invitation_register_phone')), '0912345678');
+      expect(textOf(const Key('invitation_register_password')), 'Abc@12345');
+      expect(
+        textOf(const Key('invitation_register_confirm_password')),
+        'Abc@12345',
+      );
+    });
+
+    testWidgets(
+      '320 at text scale 2.0, 80-char tenant and 60-char email do not overflow',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 568);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final longTenant = 'Cửa hàng ' * 9;
+        final longEmail = '${'a' * 48}@example.com';
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: const TextScaler.linear(2.0),
+              ),
+              child: child!,
+            ),
+            home: InvitationRegistrationForm(
+              inspection: sampleInspection(
+                tenantName: longTenant,
+                email: longEmail,
+              ),
+              isSubmitting: false,
+              onRegister: ({
+                required givenName,
+                required familyName,
+                phone,
+                required password,
+              }) async {},
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }
 
