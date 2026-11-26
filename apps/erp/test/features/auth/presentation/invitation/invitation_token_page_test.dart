@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:erp/core/widgets/flow/flow_layout.dart';
 import 'package:erp/features/auth/data/models/invitation_token_inspection.dart';
 import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
 import 'package:erp/features/auth/presentation/widgets/invitation_registration_form.dart';
@@ -738,6 +739,129 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Nhập mã lời mời'), findsOneWidget);
+  });
+
+  group('10-8f Task 2 entry', () {
+    testWidgets('390: split 4 + 4 cells, continue right under the hint', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationTokenEntryForm(
+            isSubmitting: false,
+            onInspect: (_) {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.getSize(find.byKey(const Key('v-code-cell-0'))).height, 52);
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+      expect(scaffold.bottomNavigationBar, isNull);
+    });
+
+    testWidgets('1280: card 488 wide, 8 cells fill 446, continue inside the card', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationTokenEntryForm(
+            isSubmitting: false,
+            onInspect: (_) {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.getSize(find.byType(FlowCard)).width, 488);
+      final left = tester.getTopLeft(find.byKey(const Key('v-code-cell-0'))).dx;
+      final right = tester.getTopRight(find.byKey(const Key('v-code-cell-7'))).dx;
+      expect(right - left, closeTo(448, 0.5));
+      expect(
+        find.descendant(
+          of: find.byType(FlowCard),
+          matching: find.byKey(const Key('invitation_token_submit')),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('resizing 900 → 700 keeps 5 typed characters and does not submit', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(900, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      var inspected = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationTokenEntryForm(
+            isSubmitting: false,
+            onInspect: (_) => inspected = true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await _enterInvitationCode(tester, 'K7P29');
+      tester.view.physicalSize = const Size(700, 800);
+      await tester.pump();
+
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: find.byKey(const Key('invitation_token_input')),
+                matching: find.byType(TextField),
+              ),
+            )
+            .controller!
+            .text,
+        'K7P29',
+      );
+      expect(inspected, isFalse);
+    });
+
+    testWidgets('320 at text scale 2.0 does not overflow', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: const TextScaler.linear(2.0),
+            ),
+            child: child!,
+          ),
+          home: InvitationTokenEntryForm(
+            isSubmitting: false,
+            onInspect: (_) {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+    });
   });
 }
 

@@ -5,7 +5,9 @@ import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/widgets/address/vn_administrative_units_loader.dart';
 import 'package:erp/core/widgets/app_logo.dart';
+import 'package:erp/features/auth/data/models/invitation_token_inspection.dart';
 import 'package:erp/features/auth/logic/signup_cubit.dart';
+import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
 import 'package:erp/features/auth/presentation/pages/login_page.dart';
 import 'package:erp/features/auth/presentation/pages/no_organization_page.dart';
 import 'package:erp/features/auth/presentation/pages/signup_page.dart';
@@ -13,17 +15,20 @@ import 'package:erp/features/auth/presentation/pages/verify_email_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../iam/support/fake_iam_backend.dart';
 import '../../receivable/presentation/receivable_test_harness.dart';
 import '../support/scripted_auth.dart';
+import '../support/scripted_invitations.dart';
 
 /// Chụp một màn công khai ở 390 (iPhone, thanh trạng thái 30, thanh Home 34) hoặc 1280.
-/// Ảnh: `docs/refactor/plans/P10/img/10-8e/flutter-<name>-<width>.png`.
+/// Ảnh: `docs/refactor/plans/P10/img/<folder>/flutter-<name>-<width>.png`.
 Future<void> captureAuth(
   WidgetTester tester, {
   required int width,
   required String name,
   required Widget page,
   Future<void> Function()? act,
+  String folder = '10-8e',
 }) async {
   final phone = width == 390;
   final view = tester.view;
@@ -54,7 +59,7 @@ Future<void> captureAuth(
   await expectLater(
     find.byKey(key),
     matchesGoldenFile(
-      '${repoRoot()}/docs/refactor/plans/P10/img/10-8e/flutter-$name-$width.png',
+      '${repoRoot()}/docs/refactor/plans/P10/img/$folder/flutter-$name-$width.png',
     ),
   );
 }
@@ -397,4 +402,117 @@ void main() {
       });
     }
   });
+
+  group('invitation', () {
+    for (final width in const [390, 1280]) {
+      Future<void> runEntry(
+        WidgetTester tester,
+        String name, {
+        FakeIamScenario scenario = FakeIamScenario.inspectExistingAccount,
+        ScriptedInvitations? invitations,
+        Future<void> Function(WidgetTester)? act,
+        bool settle = true,
+      }) async {
+        final harness = InvitationPageHarness(scenario: scenario);
+        addTearDown(harness.session.close);
+        final page = invitations == null
+            ? harness.page
+            : InvitationTokenPage(
+                invitations: invitations,
+                auth: harness.auth,
+                session: harness.session,
+                keyFactory: harness.page.keyFactory,
+              );
+        await captureAuth(
+          tester,
+          width: width,
+          name: name,
+          folder: '10-8f',
+          page: page,
+          act: () async {
+            await act?.call(tester);
+            if (settle) {
+              await tester.pumpAndSettle();
+            } else {
+              await tester.pump(const Duration(milliseconds: 100));
+            }
+          },
+        );
+      }
+
+      testWidgets('invitation__entry $width', (tester) async {
+        await runEntry(tester, 'invitation__entry');
+      });
+      testWidgets('invitation__entry-partial $width', (tester) async {
+        await runEntry(
+          tester,
+          'invitation__entry-partial',
+          act: (t) async {
+            await t.enterText(
+              find
+                  .descendant(
+                    of: find.byKey(const Key('invitation_token_input')),
+                    matching: find.byType(TextField),
+                  )
+                  .first,
+              'K7P29',
+            );
+          },
+        );
+      });
+      testWidgets('invitation__entry-invalid $width', (tester) async {
+        await runEntry(
+          tester,
+          'invitation__entry-invalid',
+          scenario: FakeIamScenario.acceptExpired,
+          act: (t) async {
+            await t.enterText(
+              find
+                  .descendant(
+                    of: find.byKey(const Key('invitation_token_input')),
+                    matching: find.byType(TextField),
+                  )
+                  .first,
+              'TOKENEXP',
+            );
+          },
+        );
+      });
+      testWidgets('invitation__inspecting $width', (tester) async {
+        final gate = Completer<void>();
+        await runEntry(
+          tester,
+          'invitation__inspecting',
+          invitations: _HangingInspectInvitations(gate),
+          settle: false,
+          act: (t) async {
+            await t.enterText(
+              find
+                  .descendant(
+                    of: find.byKey(const Key('invitation_token_input')),
+                    matching: find.byType(TextField),
+                  )
+                  .first,
+              'K7P29XQM',
+            );
+          },
+        );
+        gate.complete();
+        await tester.pumpAndSettle();
+      });
+    }
+  });
+}
+
+class _HangingInspectInvitations extends ScriptedInvitations {
+  _HangingInspectInvitations(this.gate)
+    : super(scenario: FakeIamScenario.inspectExistingAccount);
+
+  final Completer<void> gate;
+
+  @override
+  Future<InvitationTokenInspection> inspect(String token) async {
+    await gate.future;
+    return super.inspect(token);
+  }
 }
