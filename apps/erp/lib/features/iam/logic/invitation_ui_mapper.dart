@@ -7,11 +7,18 @@ abstract final class InvitationUiMapper {
     InvitationSummaryDto dto, {
     required DateTime nowUtc,
   }) {
+    final expiry = _expiryLabel(dto, nowUtc);
+    final delivery = _deliveryLabel(dto.deliveryStatus);
+    final detail = expiry.isEmpty
+        ? '${dto.initialRoleLabel} · $delivery'
+        : '${dto.initialRoleLabel} · $expiry · $delivery';
     return InvitationUiModel(
       id: dto.invitationId,
       email: dto.inviteeEmail,
       role: dto.initialRoleLabel,
-      statusDetail: _statusDetail(dto, nowUtc),
+      statusDetail: detail,
+      expiryLabel: expiry,
+      deliveryLabel: delivery,
       status: _listStatus(dto, nowUtc),
       deliveryStatus: dto.deliveryStatus,
       expiresAt: dto.expiresAt,
@@ -52,17 +59,21 @@ abstract final class InvitationUiMapper {
     return InvitationStatus.pending;
   }
 
-  static String _statusDetail(InvitationSummaryDto dto, DateTime nowUtc) {
-    final delivery = switch (dto.deliveryStatus) {
+  static String _deliveryLabel(String deliveryStatus) {
+    return switch (deliveryStatus) {
       'failed' => 'Chưa gửi được email',
       'queued' => 'Đang xếp hàng gửi',
       'sent' => 'Đã gửi email',
-      _ => dto.deliveryStatus,
+      _ => '—',
     };
-    final expiry = IamDateFormatter.invitationExpiryDetail(
-      dto.expiresAt,
-      nowUtc,
-    );
-    return '${dto.initialRoleLabel} · $expiry · $delivery';
+  }
+
+  static String _expiryLabel(InvitationSummaryDto dto, DateTime nowUtc) {
+    if (dto.status == 'accepted' ||
+        dto.status == 'declined' ||
+        dto.status == 'revoked') {
+      return '';
+    }
+    return IamDateFormatter.invitationExpiryDetail(dto.expiresAt, nowUtc);
   }
 }

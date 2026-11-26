@@ -1,281 +1,154 @@
-import 'package:flutter/material.dart';
 import 'package:c45_design_system/design_system.dart';
+import 'package:erp/core/config/wide_layout.dart';
+import 'package:flutter/material.dart';
 
-import '../models/user_ui_model.dart';
+import '../../shared/iam_role_label_mapper.dart';
 import '../invitation_role_options.dart';
+import '../models/user_ui_model.dart';
+import '../widgets/change_role_bottom_sheet.dart';
+import '../widgets/role_radio_list.dart';
+import '../widgets/select_role_narrow.dart';
+import '../widgets/select_role_wide.dart';
 
-class RoleOptionItem {
-  final String title;
-  final String description;
-  final String roleCode;
-
-  const RoleOptionItem({
-    required this.title,
-    required this.description,
-    required this.roleCode,
-  });
-
-  factory RoleOptionItem.fromInvitationOption(InvitationRoleOption option) {
-    return RoleOptionItem(
-      title: option.label,
-      description: 'Vai trò được gán khi tham gia',
-      roleCode: option.roleId,
-    );
-  }
-}
-
-/// Màn hình Chọn vai trò (TA-D-03).
+/// Màn hình Chọn vai trò (ID-18).
 class OrganizationSelectRolePage extends StatefulWidget {
-  final MemberUiModel member;
-  final List<InvitationRoleOption>? invitationRoleOptions;
-
   const OrganizationSelectRolePage({
     super.key,
     required this.member,
+    required this.onConfirm,
     this.invitationRoleOptions,
   });
 
+  final MemberUiModel member;
+  final Future<bool> Function(String roleCode) onConfirm;
+  final List<InvitationRoleOption>? invitationRoleOptions;
+
   @override
-  State<OrganizationSelectRolePage> createState() => _OrganizationSelectRolePageState();
+  State<OrganizationSelectRolePage> createState() =>
+      _OrganizationSelectRolePageState();
 }
 
-class _OrganizationSelectRolePageState extends State<OrganizationSelectRolePage> {
-  String? _selectedRole;
+class _OrganizationSelectRolePageState
+    extends State<OrganizationSelectRolePage> {
+  String? _selectedRoleCode;
 
-  static const List<RoleOptionItem> _availableRoles = [
-    RoleOptionItem(
-      title: 'Nhân viên bán hàng',
-      description: 'Bán hàng và chăm sóc khách hàng',
-      roleCode: 'staff',
-    ),
-    RoleOptionItem(
-      title: 'Kế toán',
-      description: 'Công nợ, hóa đơn và báo cáo',
-      roleCode: 'accountant',
-    ),
-    RoleOptionItem(
-      title: 'Thủ kho',
-      description: 'Nhập xuất, tồn kho và kiểm kê',
-      roleCode: 'warehouse',
-    ),
-    RoleOptionItem(
-      title: 'Chủ cửa hàng',
-      description: 'Quản lý toàn bộ cửa hàng',
-      roleCode: 'store_owner',
-    ),
+  static const List<String> _canonicalRoleCodes = [
+    'staff',
+    'accountant',
+    'warehouse',
+    'store_owner',
   ];
 
-  List<RoleOptionItem> get _orderedRoles {
+  List<RoleChoice> get _orderedRoles {
     final fromInvite = widget.invitationRoleOptions;
     if (fromInvite != null && fromInvite.isNotEmpty) {
-      return fromInvite.map(RoleOptionItem.fromInvitationOption).toList(growable: false);
+      return [
+        for (final option in fromInvite)
+          RoleChoice(
+            id: option.roleId,
+            title: option.label,
+            description: IamRoleLabelMapper.description(option.label),
+            isCurrent: option.label == widget.member.role,
+          ),
+      ];
     }
 
-    final currentRoleTitle = widget.member.role;
-    final index = _availableRoles.indexWhere((r) => r.title == currentRoleTitle);
+    final base = [
+      for (final code in _canonicalRoleCodes)
+        RoleChoice(
+          id: code,
+          title: IamRoleLabelMapper.toDisplayLabel(code),
+          description: IamRoleLabelMapper.description(code),
+          isCurrent: IamRoleLabelMapper.toDisplayLabel(code) == widget.member.role,
+        ),
+    ];
 
-    if (index <= 0) return _availableRoles;
+    final currentIdx = base.indexWhere((r) => r.isCurrent);
+    if (currentIdx <= 0) return base;
+    final current = base.removeAt(currentIdx);
+    base.insert(0, current);
+    return base;
+  }
 
-    final result = List<RoleOptionItem>.from(_availableRoles);
-    final currentItem = result.removeAt(index);
-    result.insert(0, currentItem);
-    return result;
+  Future<void> _onContinue(List<RoleChoice> roles) async {
+    final code = _selectedRoleCode;
+    if (code == null) return;
+    final selected = roles.firstWhere(
+      (r) => r.id == code,
+      orElse: () => roles.first,
+    );
+    final confirmed = await showChangeRoleBottomSheet(
+      context: context,
+      memberName: widget.member.name,
+      fromRole: widget.member.role,
+      toRole: selected.title,
+      onConfirm: () => widget.onConfirm(selected.id),
+    );
+    if (confirmed == true && mounted) {
+      Navigator.of(context).pop(true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final member = widget.member;
-    final isActive = member.status == MemberStatus.active;
+    final wide = isWideLayout(context);
+    final roles = _orderedRoles;
 
     return VPageScaffold(
       title: 'Chọn vai trò',
-      bottomBar: Padding(
+      bottomBar: Container(
         padding: const EdgeInsets.all(VSpacing.screenMobile),
-        child: Row(
-          children: [
-            Expanded(
-              child: VButton(
-                label: 'Hủy',
-                variant: VButtonVariant.secondary,
-                tone: VComponentTone.neutral,
-                fullWidth: true,
-                onPressed: () => Navigator.of(context).pop(),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          border: Border(
+            top: BorderSide(color: colors.borderDefault),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: [
+              Expanded(
+                child: VButton(
+                  label: 'Hủy',
+                  variant: VButtonVariant.secondary,
+                  tone: VComponentTone.neutral,
+                  fullWidth: true,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ),
-            ),
-            const VGap.horizontalSm(),
-            Expanded(
-              child: VButton(
-                label: 'Tiếp tục',
-                variant: VButtonVariant.primary,
-                tone: VComponentTone.success,
-                fullWidth: true,
-                onPressed: _selectedRole == null
-                    ? null
-                    : () {
-                        final selectedOption = _orderedRoles.firstWhere(
-                          (r) => r.title == _selectedRole,
-                          orElse: () => _orderedRoles.first,
-                        );
-                        Navigator.of(context).pop(selectedOption.roleCode);
-                      },
+              const VGap.horizontalSm(),
+              Expanded(
+                child: VButton(
+                  label: 'Tiếp tục',
+                  variant: VButtonVariant.primary,
+                  tone: VComponentTone.primary,
+                  fullWidth: true,
+                  onPressed: _selectedRoleCode == null
+                      ? null
+                      : () => _onContinue(roles),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-      body: RadioGroup<String>(
-        groupValue: _selectedRole,
-        onChanged: (val) {
-          if (val != null) {
-            setState(() {
-              _selectedRole = val;
-            });
-          }
-        },
-        child: ListView(
-          padding: const EdgeInsets.all(VSpacing.screenMobile),
-          children: [
-            // Top Summary Card
-            VCard(
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Semantics(
-                          header: true,
-                          child: VText(
-                            member.name,
-                            variant: VTextVariant.headingH4,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                      ),
-                      VBadge(
-                        label: isActive ? 'Hoạt động' : 'Tạm ngừng',
-                        tone: isActive ? VComponentTone.success : VComponentTone.danger,
-                        variant: VBadgeVariant.soft,
-                        isSmall: true,
-                      ),
-                    ],
-                  ),
-                  const VGap.xs(),
-                  VText(
-                    '${member.email} · ${member.role}',
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
-                  const VGap.md(),
-                  VText(
-                    member.isOwner
-                        ? 'Quyền sở hữu: Chủ sở hữu'
-                        : 'Danh tính: ${member.identityText}',
-                    variant: VTextVariant.bodyDefault,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ],
+      body: ColoredBox(
+        color: colors.surfaceAlt,
+        child: wide
+            ? SelectRoleWide(
+                member: widget.member,
+                roles: roles,
+                selectedRoleCode: _selectedRoleCode,
+                onChanged: (code) => setState(() => _selectedRoleCode = code),
+              )
+            : SelectRoleNarrow(
+                member: widget.member,
+                roles: roles,
+                selectedRoleCode: _selectedRoleCode,
+                onChanged: (code) => setState(() => _selectedRoleCode = code),
               ),
-            ),
-            const VGap.md(),
-
-            // Section Title
-            Semantics(
-              header: true,
-              child: VText(
-                'Chọn vai trò mới',
-                variant: VTextVariant.headingH4,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ),
-            const VGap.xs(),
-            VText(
-              'Mỗi thành viên có đúng một vai trò hiện hành.',
-              variant: VTextVariant.bodySmall,
-              color: colors.textSecondary,
-            ),
-            const VGap.md(),
-
-            // Role List
-            ..._orderedRoles.map((role) {
-              final isCurrent = role.title == member.role;
-              final isSelected = role.title == _selectedRole;
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: VSpacing.space3),
-                child: InkWell(
-                  onTap: isCurrent
-                      ? null
-                      : () {
-                          setState(() {
-                            _selectedRole = role.title;
-                          });
-                        },
-                  borderRadius: BorderRadius.circular(VRadius.card),
-                  child: Container(
-                    padding: const EdgeInsets.all(VSpacing.space4),
-                    decoration: BoxDecoration(
-                      color: isSelected ? colors.successBg : colors.surface,
-                      border: Border.all(
-                        color: isSelected ? colors.success : colors.borderDefault,
-                        width: isSelected ? 1.5 : 1,
-                      ),
-                      borderRadius: BorderRadius.circular(VRadius.card),
-                    ),
-                    child: Row(
-                      children: [
-                        VIcon(
-                          icon: VIcons.person,
-                          size: 24,
-                          color: isSelected ? colors.success : colors.textPrimary,
-                        ),
-                        const VGap.horizontalMd(),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              VText(
-                                role.title,
-                                variant: VTextVariant.bodyDefault,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected ? colors.success : colors.textPrimary,
-                                ),
-                              ),
-                              const VGap.xs(),
-                              VText(
-                                role.description,
-                                variant: VTextVariant.bodySmall,
-                                color: colors.textSecondary,
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (isCurrent)
-                          const VBadge(
-                            label: 'Hiện tại',
-                            tone: VComponentTone.success,
-                            variant: VBadgeVariant.soft,
-                            isSmall: true,
-                          )
-                        else
-                          IgnorePointer(
-                            child: VRadio<String>(
-                              value: role.title,
-                              onChanged: null,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ],
-        ),
       ),
     );
   }

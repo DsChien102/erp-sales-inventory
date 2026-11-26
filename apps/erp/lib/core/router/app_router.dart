@@ -718,34 +718,13 @@ final appRouter = GoRouter(
             message: 'Bạn không có quyền xem thành viên',
           );
         }
-        final selectedId = state.pathParameters['membershipId'] ??
-            state.pathParameters['invitationId'];
-        return UsersAreaShell(
-          selectedId: selectedId,
-          canInvite: _hasTenantPermission(IamPermissions.memberInvite),
-          child: child,
-        );
+        return UsersAreaShell(child: child);
       },
       routes: [
         GoRoute(
           path: '/more/users',
           name: 'more.users',
           builder: (context, state) {
-            if (VListDetailLayout.isSplitOf(context)) {
-              return Scaffold(
-                backgroundColor: context.vColors.surfaceAlt,
-                body: const Center(
-                  child: VEmptyState(
-                    child: VEmptyHeader(
-                      children: [
-                        VEmptyMedia(icon: VIcons.info),
-                        VEmptyTitle('Chọn một thành viên hoặc lời mời để xem chi tiết.'),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }
             return OrganizationUsersPage(
               cubit: context.read<OrganizationUsersCubit>(),
               canInvite: _hasTenantPermission(IamPermissions.memberInvite),

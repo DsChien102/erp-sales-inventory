@@ -42,12 +42,11 @@ final class OrganizationInviteMemberCubit extends Cubit<OrganizationInviteMember
       final tenantId = await _session.requireTenantId();
       final options = await _roleOptionsSource.load(tenantId);
       if (isClosed) return;
-      final preferred = options.isEmpty ? null : options.first.roleId;
+      // Không chọn sẵn vai trò (TH-01 US-06.2 FR-01, FR-06: "Chọn vai trò").
       emit(
         state.copyWith(
           status: IamLoadStatus.success,
           roleOptions: options,
-          selectedRoleId: state.selectedRoleId ?? preferred,
           clearFailure: true,
         ),
       );
@@ -104,7 +103,7 @@ final class OrganizationInviteMemberCubit extends Cubit<OrganizationInviteMember
     final emailError = email.isEmpty
         ? 'Vui lòng nhập email và chọn vai trò.'
         : (!VEmailValidator.isValid(email) ? 'Email không hợp lệ' : null);
-    final roleError = roleId == null && email.isNotEmpty
+    final roleError = roleId == null
         ? 'Vui lòng nhập email và chọn vai trò.'
         : null;
     if (emailError != null || roleError != null) {

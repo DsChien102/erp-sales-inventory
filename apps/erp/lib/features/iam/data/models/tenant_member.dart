@@ -13,6 +13,7 @@ final class TenantMember {
     required this.isOwner,
     required this.status,
     required this.joinedAt,
+    this.lastActivityAt,
     required this.version,
   });
 
@@ -27,9 +28,11 @@ final class TenantMember {
   /// Wire: `active` | `inactive` | `removed`.
   final String status;
   final DateTime joinedAt;
+  final DateTime? lastActivityAt;
   final int version;
 
   factory TenantMember.fromJson(Map<String, dynamic> row) {
+    final rawLastActivity = row['last_activity_at'] as String?;
     return TenantMember(
       membershipId: row['membership_id'] as String? ?? row['user_id'] as String,
       userId: row['user_id'] as String,
@@ -42,6 +45,7 @@ final class TenantMember {
       joinedAt: DateTime.parse(
         (row['joined_at'] as String?) ?? (row['created_at'] as String),
       ),
+      lastActivityAt: rawLastActivity == null ? null : DateTime.parse(rawLastActivity),
       version: (row['version'] as num?)?.toInt() ?? 1,
     );
   }

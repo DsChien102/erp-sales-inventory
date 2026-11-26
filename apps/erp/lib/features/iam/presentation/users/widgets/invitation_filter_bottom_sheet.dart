@@ -3,8 +3,8 @@ import 'package:c45_design_system/design_system.dart';
 
 /// Filter criteria model for invitations list.
 class InvitationFilterCriteria {
-  final String status; // 'Tất cả', 'Đang chờ', 'Hết hạn'
-  final String sendResult; // 'Tất cả', 'Đã gửi', 'Gửi lỗi', 'Thu hồi'
+  final String status; // 'Tất cả', 'Đang chờ', 'Hết hạn', 'Thu hồi'
+  final String sendResult; // 'Tất cả', 'Đã gửi', 'Gửi lỗi'
   final String timeRange; // 'Tất cả', '7 ngày', '30 ngày', 'Tùy chọn'
   final DateTimeRange? customDateRange;
 
@@ -78,13 +78,13 @@ class _InvitationFilterBottomSheetState extends State<InvitationFilterBottomShee
     'Tất cả',
     'Đang chờ',
     'Hết hạn',
+    'Thu hồi',
   ];
 
   static const List<String> _sendResultOptions = [
     'Tất cả',
     'Đã gửi',
     'Gửi lỗi',
-    'Thu hồi',
   ];
 
   static const List<String> _timeRangeOptions = [

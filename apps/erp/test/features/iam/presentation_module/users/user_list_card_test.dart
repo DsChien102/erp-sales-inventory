@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:c45_design_system/design_system.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/presentation/users/widgets/member_card.dart';
+import 'package:erp/features/iam/presentation/users/widgets/user_list_card.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 MemberUiModel _member(MemberStatus status) => MemberUiModel(
       id: 'mem-1',
@@ -16,14 +16,14 @@ Future<void> _pump(WidgetTester tester, MemberStatus status) async {
   await tester.pumpWidget(
     MaterialApp(
       theme: VTheme.lightTheme,
-      home: Scaffold(body: MemberCard(member: _member(status))),
+      home: Scaffold(body: UserListCard.member(member: _member(status))),
     ),
   );
   await tester.pumpAndSettle();
 }
 
 void main() {
-  group('MemberCard status badge', () {
+  group('UserListCard status badge', () {
     testWidgets('active shows Hoạt động', (tester) async {
       await _pump(tester, MemberStatus.active);
       expect(find.text('Hoạt động'), findsOneWidget);
@@ -44,9 +44,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
-          home: const Scaffold(
-            body: MemberCard(
-              member: MemberUiModel(
+          home: Scaffold(
+            body: UserListCard.member(
+              member: const MemberUiModel(
                 id: 'mem-1',
                 name: 'Nguyen Van A',
                 email: 'a@example.com',
@@ -64,9 +64,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
-          home: const Scaffold(
-            body: MemberCard(
-              member: MemberUiModel(
+          home: Scaffold(
+            body: UserListCard.member(
+              member: const MemberUiModel(
                 id: 'mem-2',
                 name: 'Nguyen Van B',
                 email: 'b@example.com',

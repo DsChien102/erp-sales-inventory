@@ -34,8 +34,7 @@ abstract final class IamRoleLabelMapper {
   /// Mô tả trên UI theo TH-01 3.4.
   static String description(String? code) {
     return switch (toRoleCode(code)) {
-      'store_owner' =>
-        'Quản lý toàn bộ cửa hàng (gán mặc định cho Owner khi tạo tổ chức; gán được cho thành viên khác, BR-36)',
+      'store_owner' => 'Quản lý toàn bộ cửa hàng',
       'staff' => 'Bán hàng và chăm sóc khách hàng',
       'accountant' => 'Công nợ, hóa đơn và báo cáo',
       'warehouse' => 'Nhập xuất, tồn kho và kiểm kê',

@@ -305,12 +305,12 @@ Bị bỏ khi refactor: `onboarding_operations`, `owner_activations`, outbox / i
 
 | Mã | Tên hiển thị | Mô tả trên UI |
 |---|---|---|
-| `store_owner` | Chủ cửa hàng | Quản lý toàn bộ cửa hàng (gán mặc định cho Owner khi tạo tổ chức; gán được cho thành viên khác, BR-36) |
+| `store_owner` | Chủ cửa hàng | Quản lý toàn bộ cửa hàng |
 | `staff` | Nhân viên bán hàng | Bán hàng và chăm sóc khách hàng |
 | `accountant` | Kế toán | Công nợ, hóa đơn và báo cáo |
 | `warehouse` | Thủ kho | Nhập xuất, tồn kho và kiểm kê |
 
-Vai trò `manager` (Quản lý) đã bị xoá ở `20260811024`.
+Vai trò `manager` (Quản lý) đã bị xoá ở `20260811024`. `store_owner` được gán mặc định cho Owner khi tạo tổ chức và có thể gán cho thành viên khác (BR-36).
 
 ### 3.5 Bất biến kiểm tra được
 
@@ -704,7 +704,7 @@ Scenario: SC-01 — MST trùng tổ chức khác
 **Yêu cầu chức năng**
 
 - FR-01: `/more/users` "Người dùng": tab "Thành viên" / "Lời mời"; ô "Tìm tên hoặc email"; "`<n>` thành viên" / "`<n>` lời mời".
-- FR-02: Thẻ thành viên: tên, email, vai trò, nhãn "Chủ sở hữu", trạng thái (Hoạt động / Tạm ngừng / Đã loại).
+- FR-02: Thẻ thành viên: tên, email, vai trò, nhãn "Chủ sở hữu", trạng thái (Hoạt động / Tạm ngừng / Đã loại); bảng web thêm cột "Hoạt động gần nhất" (chỉ hiện khi đang hoạt động, còn lại "—").
 - FR-03: Thẻ lời mời: email, vai trò, trạng thái (Đang chờ / Sắp hết hạn / Hết hạn / Đã chấp nhận / Đã từ chối / Đã thu hồi), trạng thái gửi ("Lỗi gửi"), hạn còn lại (BR-49).
 - FR-04: "Bộ lọc thành viên": Trạng thái (Tất cả / Hoạt động / Tạm ngừng), Vai trò 🔧 theo danh mục thật: Chủ cửa hàng / Nhân viên bán hàng / Kế toán / Thủ kho (hiện là "Quản trị / Bán hàng / Kế toán", KI-11), Sắp xếp (Tên A–Z / Z–A).
 - FR-05: "Bộ lọc lời mời": Trạng thái (Tất cả / Đang chờ / Hết hạn / Thu hồi), Kết quả gửi (Đã gửi / Gửi lỗi), Thời gian (7 ngày / 30 ngày / Tùy chọn).
@@ -747,7 +747,7 @@ Scenario: SC-01 — MST trùng tổ chức khác
 
 #### US-06.4 — Chi tiết thành viên
 
-- FR-01: "Chi tiết thành viên": "Thông tin thành viên" (Tên, Danh tính / email, Ngày tham gia, Hoạt động gần nhất), "Vai trò hiện hành", "Quyền sở hữu", "Trạng thái truy cập"; 🔧 bỏ "Phiên bản dữ liệu" (thông tin kỹ thuật, KI-14).
+- FR-01: "Chi tiết thành viên": "Thông tin thành viên" (Tên, Email, Vai trò hiện hành, "Quyền sở hữu: Chủ sở hữu / Thành viên"), "Trạng thái truy cập" (Ngày tham gia, Hoạt động gần nhất); 🔧 bỏ "Phiên bản dữ liệu" (thông tin kỹ thuật, KI-14).
 - FR-02: Tạm ngừng: banner "Quyền truy cập đã tạm ngừng — Thành viên không thể truy cập tổ chức cho đến khi được kích hoạt lại." + "Tạm ngừng lúc"; đã loại: "Thành viên đã được loại — Quyền truy cập đã kết thúc. Lịch sử và dữ liệu nghiệp vụ vẫn được giữ lại." + "Đã loại lúc", "Vai trò trước đó".
 - FR-03: iPhone: "Thao tác" → sheet "Thao tác thành viên": "Thay đổi vai trò — Cập nhật quyền vận hành" → 🔧 "Cập nhật vai trò"; "Tạm ngừng thành viên — Dừng quyền truy cập tạm thời"; "Kích hoạt lại — Khôi phục quyền truy cập"; "Loại khỏi tổ chức — Kết thúc tư cách thành viên". 🔧 Web: không có nút / sheet "Thao tác"; các nút "Thay đổi vai trò", "Tạm ngừng thành viên" / "Kích hoạt lại", "Loại khỏi tổ chức" (viền đỏ) nằm cuối khối "Trạng thái truy cập", không kèm câu mô tả.
 - FR-04: Owner: không có thao tác tạm ngừng / loại (BR-31).

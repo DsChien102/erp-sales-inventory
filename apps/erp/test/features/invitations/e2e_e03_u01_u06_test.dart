@@ -101,6 +101,7 @@ void main() {
 
       expect(find.text('Nhân viên bán hàng'), findsWidgets);
       await tester.enterText(find.byType(TextField), 'new.staff@example.com');
+      await tester.tap(find.text('Nhân viên bán hàng').first); // không còn chọn sẵn vai trò
       await tester.pump();
       await tester.tap(find.text('Gửi lời mời'));
       await tester.pumpAndSettle();

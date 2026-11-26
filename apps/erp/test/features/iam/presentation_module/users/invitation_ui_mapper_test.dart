@@ -80,5 +80,23 @@ void main() {
         InvitationStatus.revoked,
       );
     });
+
+    test('terminal invitations have no expiry label; unknown delivery is —', () {
+      for (final terminal in ['accepted', 'declined', 'revoked']) {
+        final ui = InvitationUiMapper.fromSummary(
+          _summary(status: terminal, deliveryStatus: 'unknown'),
+          nowUtc: now,
+        );
+        expect(ui.expiryLabel, isEmpty);
+        expect(ui.deliveryLabel, '—');
+        expect(ui.statusDetail, 'Quản lý · —');
+      }
+      final expired = InvitationUiMapper.fromSummary(
+        _summary(status: 'expired', deliveryStatus: 'sent'),
+        nowUtc: now,
+      );
+      expect(expired.expiryLabel, isNotEmpty);
+      expect(expired.deliveryLabel, 'Đã gửi email');
+    });
   });
 }

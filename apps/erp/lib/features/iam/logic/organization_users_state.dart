@@ -26,6 +26,7 @@ final class OrganizationUsersState {
     this.invitationNextCursor,
     this.memberFailure,
     this.invitationFailure,
+    this.loadMoreFailure,
     this.loadingMoreMembers = false,
     this.loadingMoreInvitations = false,
   });
@@ -63,6 +64,7 @@ final class OrganizationUsersState {
   final String? invitationNextCursor;
   final IamUiFailure? memberFailure;
   final IamUiFailure? invitationFailure;
+  final IamUiFailure? loadMoreFailure;
   final bool loadingMoreMembers;
   final bool loadingMoreInvitations;
 
@@ -71,6 +73,11 @@ final class OrganizationUsersState {
 
   bool get hasMoreInvitations =>
       invitationNextCursor != null && invitationNextCursor!.isNotEmpty;
+
+  bool get isMemberFiltered =>
+      memberSearch.trim().isNotEmpty ||
+      memberFilter != null ||
+      memberRoleFilter != null;
 
   bool get isInvitationFiltered =>
       invitationSearch.trim().isNotEmpty ||
@@ -98,6 +105,7 @@ final class OrganizationUsersState {
     String? invitationNextCursor,
     IamUiFailure? memberFailure,
     IamUiFailure? invitationFailure,
+    IamUiFailure? loadMoreFailure,
     bool? loadingMoreMembers,
     bool? loadingMoreInvitations,
     bool clearMemberFilter = false,
@@ -111,6 +119,7 @@ final class OrganizationUsersState {
     bool clearInvitationCursor = false,
     bool clearMemberFailure = false,
     bool clearInvitationFailure = false,
+    bool clearLoadMoreFailure = false,
   }) {
     return OrganizationUsersState(
       activeTab: activeTab ?? this.activeTab,
@@ -151,6 +160,9 @@ final class OrganizationUsersState {
       invitationFailure: clearInvitationFailure
           ? null
           : (invitationFailure ?? this.invitationFailure),
+      loadMoreFailure: clearLoadMoreFailure
+          ? null
+          : (loadMoreFailure ?? this.loadMoreFailure),
       loadingMoreMembers: loadingMoreMembers ?? this.loadingMoreMembers,
       loadingMoreInvitations:
           loadingMoreInvitations ?? this.loadingMoreInvitations,

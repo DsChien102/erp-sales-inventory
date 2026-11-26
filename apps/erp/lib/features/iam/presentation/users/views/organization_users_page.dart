@@ -1,8 +1,9 @@
+import 'package:c45_design_system/design_system.dart';
+import 'package:erp/core/config/wide_layout.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:c45_design_system/design_system.dart';
-import 'package:erp/core/iam/iam_codes.dart';
 
 import '../../../data/invitation_repository.dart';
 import '../../../data/member_repository.dart';
@@ -21,21 +22,21 @@ class OrganizationUsersPage extends StatelessWidget {
     this.invitations,
     this.cubit,
     this.canInvite = true,
-    this.selectedId,
   });
 
   final MemberRepository? members;
   final InvitationRepository? invitations;
   final OrganizationUsersCubit? cubit;
   final bool canInvite;
-  final String? selectedId;
 
   @override
   Widget build(BuildContext context) {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: _OrganizationUsersView(canInvite: canInvite, selectedId: selectedId),
+        child: _OrganizationUsersView(
+          canInvite: canInvite,
+        ),
       );
     }
     assert(
@@ -47,7 +48,9 @@ class OrganizationUsersPage extends StatelessWidget {
         members: members!,
         invitations: invitations!,
       )..loadInitial(),
-      child: _OrganizationUsersView(canInvite: canInvite, selectedId: selectedId),
+      child: _OrganizationUsersView(
+        canInvite: canInvite,
+      ),
     );
   }
 }
@@ -55,20 +58,16 @@ class OrganizationUsersPage extends StatelessWidget {
 class _OrganizationUsersView extends StatelessWidget {
   const _OrganizationUsersView({
     required this.canInvite,
-    this.selectedId,
   });
 
   final bool canInvite;
-  final String? selectedId;
 
   String _subtitle(OrganizationUsersState state) {
     final isMember = state.activeTab == OrganizationUsersTab.members;
     final status = isMember ? state.memberStatus : state.invitationStatus;
     final failure = isMember ? state.memberFailure : state.invitationFailure;
     final items = isMember ? state.members : state.invitations;
-    final search = isMember ? state.memberSearch : state.invitationSearch;
-    final filter = isMember ? state.memberFilter : state.invitationFilter;
-    final isFiltered = search.trim().isNotEmpty || filter != null;
+    final isFiltered = isMember ? state.isMemberFiltered : state.isInvitationFiltered;
 
     if (status == IamLoadStatus.failure) {
       if (failure?.code == IamBlockedCodes.permissionDenied) {
@@ -97,24 +96,20 @@ class _OrganizationUsersView extends StatelessWidget {
       }
     }
     if (result == true && context.mounted) {
-      await context.read<OrganizationUsersCubit>().loadInvitations(reset: true);
+      final cubit = context.read<OrganizationUsersCubit>();
+      cubit.selectTab(OrganizationUsersTab.invitations);
+      await cubit.loadInvitations(reset: true);
     }
   }
 
   Future<void> _openMember(BuildContext context, MemberUiModel member) async {
-    final isSplit = VListDetailLayout.isSplitOf(context);
-    if (isSplit) {
-      context.go('/more/users/members/${member.id}');
+    final path = '/more/users/members/${member.id}';
+    if (isWideLayout(context)) {
+      context.go(path);
       return;
     }
     try {
-      await context.push('/more/users/members/${member.id}');
-      // A lifecycle action (suspend / reactivate / remove) inside the detail
-      // page mutates member status; refresh on return so the list badge never
-      // shows a stale value.
-      if (context.mounted) {
-        await context.read<OrganizationUsersCubit>().loadMembers(reset: true);
-      }
+      await context.push(path);
     } catch (_) {
       // Navigator fallback omitted — production uses go_router paths.
     }
@@ -124,57 +119,95 @@ class _OrganizationUsersView extends StatelessWidget {
     BuildContext context,
     InvitationUiModel invitation,
   ) async {
-    final isSplit = VListDetailLayout.isSplitOf(context);
-    if (isSplit) {
-      context.go('/more/users/invitations/${invitation.id}');
+    final path = '/more/users/invitations/${invitation.id}';
+    if (isWideLayout(context)) {
+      context.go(path);
       return;
     }
-    dynamic result;
     try {
-      result = await context.push(
-        '/more/users/invitations/${invitation.id}',
-      );
+      await context.push(path);
     } catch (_) {
-      result = null;
-    }
-    if (result == true && context.mounted) {
-      VToast.show(
-        context,
-        title: 'Đã thu hồi lời mời.',
-        message: '',
-        type: VToastType.success,
-      );
-      await context.read<OrganizationUsersCubit>().loadInvitations(reset: true);
+      // Navigator fallback omitted — production uses go_router paths.
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OrganizationUsersCubit, OrganizationUsersState>(
+    final wide = isWideLayout(context);
+    final colors = context.vColors;
+
+    return BlocConsumer<OrganizationUsersCubit, OrganizationUsersState>(
+      listenWhen: (p, c) => p.loadMoreFailure != c.loadMoreFailure && c.loadMoreFailure != null,
+      listener: (context, state) {
+        final failure = state.loadMoreFailure;
+        if (failure == null) return;
+        VToast.show(
+          context,
+          title: 'Không tải thêm được',
+          message: 'Không tải thêm được. ${failure.message}',
+          type: VToastType.danger,
+        );
+        context.read<OrganizationUsersCubit>().clearLoadMoreFailure();
+      },
       builder: (context, state) {
+        final isMember = state.activeTab == OrganizationUsersTab.members;
+        final status = isMember ? state.memberStatus : state.invitationStatus;
+        final items = isMember ? state.members : state.invitations;
+        final isLoading = status == IamLoadStatus.loading || status == IamLoadStatus.initial;
+        final isFiltered = isMember ? state.isMemberFiltered : state.isInvitationFiltered;
+        final hasBottomBar =
+            !wide &&
+            canInvite &&
+            status != IamLoadStatus.failure &&
+            (isLoading || items.isNotEmpty || isFiltered);
+
         return VPageScaffold(
           title: 'Người dùng',
           subtitle: _subtitle(state),
-          actions: canInvite
+          contentMaxWidth: wide
+              ? VPageScaffold.fullWidth
+              : VPageScaffold.defaultContentMaxWidth,
+          actions: wide && canInvite
               ? [
-                  IconButton(
-                    key: const Key('users_invite'),
-                    tooltip: 'Mời thành viên',
-                    icon: VIcon(
-                      icon: VIcons.add,
-                      color: context.vColors.textPrimary,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: VButton(
+                      key: const Key('users_invite'),
+                      label: 'Mời thành viên',
+                      onPressed: () => _navigateInvite(context),
                     ),
-                    onPressed: () => _navigateInvite(context),
                   ),
                 ]
               : null,
-          body: OrganizationUsersBody(
-            canInvite: canInvite,
-            selectedId: selectedId,
-            onMemberTap: (m) => _openMember(context, m),
-            onInvitationTap: (i) => _openInvitation(context, i),
-            onInviteTap: () => _navigateInvite(context),
+          body: ColoredBox(
+            color: colors.surfaceAlt,
+            child: OrganizationUsersBody(
+              canInvite: canInvite,
+              onMemberTap: (m) => _openMember(context, m),
+              onInvitationTap: (i) => _openInvitation(context, i),
+              onInviteTap: () => _navigateInvite(context),
+            ),
           ),
+          bottomBar: hasBottomBar
+              ? Container(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    border: Border(
+                      top: BorderSide(color: colors.borderDefault),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: VButton(
+                      key: const Key('users_invite'),
+                      label: 'Mời thành viên',
+                      fullWidth: true,
+                      onPressed: () => _navigateInvite(context),
+                    ),
+                  ),
+                )
+              : null,
         );
       },
     );

@@ -4,6 +4,37 @@ import 'package:erp/features/iam/data/models/tenant_member.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('TenantMember.fromJson maps optional last_activity_at', () {
+    final withActivity = TenantMember.fromJson({
+      'membership_id': 'mem-1',
+      'user_id': 'user-1',
+      'display_name': 'Lan',
+      'email': 'lan@example.com',
+      'role_id': 'staff',
+      'role_label': 'Nhân viên',
+      'is_owner': false,
+      'status': 'active',
+      'joined_at': '2026-01-02T00:00:00Z',
+      'last_activity_at': '2026-11-21T10:05:00Z',
+      'version': 1,
+    });
+    final withoutActivity = TenantMember.fromJson({
+      'membership_id': 'mem-2',
+      'user_id': 'user-2',
+      'display_name': 'Minh',
+      'email': 'minh@example.com',
+      'role_id': 'staff',
+      'role_label': 'Nhân viên',
+      'is_owner': false,
+      'status': 'active',
+      'joined_at': '2026-01-02T00:00:00Z',
+      'version': 1,
+    });
+
+    expect(withActivity.lastActivityAt, DateTime.utc(2026, 11, 21, 10, 5));
+    expect(withoutActivity.lastActivityAt, isNull);
+  });
+
   test('TenantMemberDetail.fromJson maps lifecycle fields', () {
     final detail = TenantMemberDetail.fromJson({
       'membership_id': 'mem-1',

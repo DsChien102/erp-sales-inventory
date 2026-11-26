@@ -13,6 +13,7 @@ class UsersEmptyState extends StatelessWidget {
     this.iconColor,
     this.titleColor,
     this.actionColor,
+    this.actionVariant = VButtonVariant.primary,
   });
 
   final VIcons icon;
@@ -24,6 +25,7 @@ class UsersEmptyState extends StatelessWidget {
   final Color? iconColor;
   final Color? titleColor;
   final Color? actionColor;
+  final VButtonVariant actionVariant;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +66,7 @@ class UsersEmptyState extends StatelessWidget {
             const VGap.lg(),
             VButton(
               label: actionText,
-              variant: VButtonVariant.primary,
+              variant: actionVariant,
               tone: isDanger ? VComponentTone.danger : VComponentTone.primary,
               onPressed: onAction,
             ),

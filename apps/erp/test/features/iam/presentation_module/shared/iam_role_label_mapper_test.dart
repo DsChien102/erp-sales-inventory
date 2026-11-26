@@ -36,5 +36,12 @@ void main() {
       expect(IamRoleLabelMapper.toDisplayLabel(''), '');
       expect(IamRoleLabelMapper.toDisplayLabel('   '), '');
     });
+
+    test('store_owner description has no technical note', () {
+      expect(
+        IamRoleLabelMapper.description('store_owner'),
+        'Quản lý toàn bộ cửa hàng',
+      );
+    });
   });
 }

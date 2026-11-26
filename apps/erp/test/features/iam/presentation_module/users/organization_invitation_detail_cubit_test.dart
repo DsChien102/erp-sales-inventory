@@ -131,4 +131,14 @@ void main() {
     expect(cubit.state.failure?.code, IamBlockedCodes.resourceNotFound);
     await cubit.close();
   });
+
+  test('revoke has no success message', () async {
+    final module = FakeIamBackend(scenario: FakeIamScenario.invitationRevokeOk);
+    final cubit = buildCubit(module: module);
+    await cubit.load();
+    await cubit.revoke(reason: 'Sai email');
+    expect(cubit.state.invitation?.status, 'revoked');
+    expect(cubit.state.successMessage, isNull);
+    await cubit.close();
+  });
 }

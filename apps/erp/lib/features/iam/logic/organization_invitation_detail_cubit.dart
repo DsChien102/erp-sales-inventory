@@ -137,7 +137,7 @@ final class OrganizationInvitationDetailCubit
           clearMutation: true,
           invitation: updated,
           status: IamLoadStatus.success,
-          successMessage: 'Đã thu hồi lời mời.',
+          clearSuccessMessage: true,
           deliveryWarning: false,
           clearFailure: true,
         ),

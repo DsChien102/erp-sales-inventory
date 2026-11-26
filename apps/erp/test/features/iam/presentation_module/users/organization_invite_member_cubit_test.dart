@@ -104,4 +104,20 @@ void main() {
     expect(cubit.state.email.trim(), 'staff@example.com');
     await cubit.close();
   });
+
+  test('empty submit flags both fields', () async {
+    final cubit = OrganizationInviteMemberCubit(
+      session: testSessionController(),
+      invitations: FakeInvitationRepository(
+        FakeIamBackend(scenario: FakeIamScenario.inviteOk),
+      ),
+      roleOptionsSource: FakeInvitationRoleOptionsSource(const []),
+      keyFactory: FakeIdempotencyKeyFactory(),
+    );
+    await cubit.loadRoleOptions();
+    await cubit.submit();
+    expect(cubit.state.emailError, 'Vui lòng nhập email và chọn vai trò.');
+    expect(cubit.state.roleError, 'Vui lòng nhập email và chọn vai trò.');
+    await cubit.close();
+  });
 }

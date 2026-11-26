@@ -76,12 +76,16 @@ class DetailHeaderNarrow extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.badge,
+    this.badgeInline = false,
   });
 
   final Widget leading;
   final String title;
   final String? subtitle;
   final Widget? badge;
+
+  /// `true`: nhãn nằm cạnh tên (`.t1-selrole__name`), không xuống dòng riêng.
+  final bool badgeInline;
 
   @override
   Widget build(BuildContext context) {
@@ -98,16 +102,24 @@ class DetailHeaderNarrow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Semantics(
-                  header: true,
-                  child: VText(
-                    title,
-                    variant: VTextVariant.headingH2,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
+                Wrap(
+                  spacing: VSpacing.space2,
+                  runSpacing: VSpacing.space1,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: VText(
+                        title,
+                        variant: VTextVariant.headingH2,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: colors.textPrimary,
+                        ),
+                      ),
                     ),
-                  ),
+                    if (badge != null && badgeInline) badge!,
+                  ],
                 ),
                 if (subtitle != null && subtitle!.isNotEmpty) ...[
                   const SizedBox(height: VSpacing.space1),
@@ -117,7 +129,7 @@ class DetailHeaderNarrow extends StatelessWidget {
                     color: colors.textSecondary,
                   ),
                 ],
-                if (badge != null) ...[
+                if (badge != null && !badgeInline) ...[
                   const SizedBox(height: VSpacing.space1),
                   badge!,
                 ],

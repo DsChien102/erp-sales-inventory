@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/core/iam/iam_codes.dart';
@@ -204,11 +206,6 @@ void main() {
     expect(cubit.state.invitations, hasLength(1));
     expect(cubit.state.invitations.first.id, 'inv-failed');
 
-    // Filter 'Thu hồi' -> inv-revoked
-    await cubit.applyInvitationCriteria(sendResult: 'Thu hồi');
-    expect(cubit.state.invitations, hasLength(1));
-    expect(cubit.state.invitations.first.id, 'inv-revoked');
-
     await cubit.close();
   });
 
@@ -288,6 +285,334 @@ void main() {
     expect(cubit.state.invitations, hasLength(1));
     expect(cubit.state.invitations.first.id, 'inv-medium');
 
+    await cubit.close();
+  });
+
+  test('role filter loads every page and finds a member on page 2', () async {
+    final calls = <ListTenantMembersQuery>[];
+    final scripted = FakeIamBackend(
+      onListMembers: (q) async {
+        calls.add(q);
+        if (q.cursor == null) {
+          return CursorPage<TenantMember>(
+            items: [
+              TenantMember(
+                membershipId: 'm1',
+                userId: 'u1',
+                displayName: 'An',
+                email: 'an@example.com',
+                roleId: 'staff',
+                roleLabel: 'Nhân viên bán hàng',
+                isOwner: false,
+                status: 'active',
+                joinedAt: DateTime.utc(2026, 1, 1),
+                version: 1,
+              ),
+            ],
+            nextCursor: 'page-2',
+          );
+        }
+        return CursorPage<TenantMember>(
+          items: [
+            TenantMember(
+              membershipId: 'm2',
+              userId: 'u2',
+              displayName: 'Bình',
+              email: 'binh@example.com',
+              roleId: 'warehouse',
+              roleLabel: 'Thủ kho',
+              isOwner: false,
+              status: 'active',
+              joinedAt: DateTime.utc(2026, 1, 2),
+              version: 1,
+            ),
+          ],
+        );
+      },
+    );
+
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
+      searchDebounce: Duration.zero,
+    );
+
+    await cubit.applyMemberCriteria(role: 'Thủ kho');
+
+    expect(calls, hasLength(2));
+    expect(calls.every((c) => c.limit == 100), isTrue);
+    expect(cubit.state.members, hasLength(1));
+    expect(cubit.state.members.single.id, 'm2');
+    await cubit.close();
+  });
+
+  test('role filter with no match is reported as filtered', () async {
+    final scripted = FakeIamBackend(
+      onListMembers: (_) async => CursorPage<TenantMember>(
+        items: [
+          TenantMember(
+            membershipId: 'm1',
+            userId: 'u1',
+            displayName: 'An',
+            email: 'an@example.com',
+            roleId: 'staff',
+            roleLabel: 'Nhân viên bán hàng',
+            isOwner: false,
+            status: 'active',
+            joinedAt: DateTime.utc(2026, 1, 1),
+            version: 1,
+          ),
+        ],
+      ),
+    );
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
+      searchDebounce: Duration.zero,
+    );
+
+    await cubit.applyMemberCriteria(role: 'Thủ kho');
+
+    expect(cubit.state.members, isEmpty);
+    expect(cubit.state.isMemberFiltered, isTrue);
+    await cubit.close();
+  });
+
+  test('name sort ignores Vietnamese tones', () async {
+    final scripted = FakeIamBackend(
+      onListMembers: (_) async => CursorPage<TenantMember>(
+        items: [
+          TenantMember(
+            membershipId: 'm4',
+            userId: 'u4',
+            displayName: 'Em',
+            email: 'e@example.com',
+            roleId: 'staff',
+            roleLabel: 'Nhân viên bán hàng',
+            isOwner: false,
+            status: 'active',
+            joinedAt: DateTime.utc(2026, 1, 1),
+            version: 1,
+          ),
+          TenantMember(
+            membershipId: 'm3',
+            userId: 'u3',
+            displayName: 'Đạt',
+            email: 'd@example.com',
+            roleId: 'staff',
+            roleLabel: 'Nhân viên bán hàng',
+            isOwner: false,
+            status: 'active',
+            joinedAt: DateTime.utc(2026, 1, 1),
+            version: 1,
+          ),
+          TenantMember(
+            membershipId: 'm1',
+            userId: 'u1',
+            displayName: 'Ân',
+            email: 'a@example.com',
+            roleId: 'staff',
+            roleLabel: 'Nhân viên bán hàng',
+            isOwner: false,
+            status: 'active',
+            joinedAt: DateTime.utc(2026, 1, 1),
+            version: 1,
+          ),
+          TenantMember(
+            membershipId: 'm2',
+            userId: 'u2',
+            displayName: 'Bình',
+            email: 'b@example.com',
+            roleId: 'staff',
+            roleLabel: 'Nhân viên bán hàng',
+            isOwner: false,
+            status: 'active',
+            joinedAt: DateTime.utc(2026, 1, 1),
+            version: 1,
+          ),
+        ],
+      ),
+    );
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
+      searchDebounce: Duration.zero,
+    );
+
+    await cubit.applyMemberCriteria(sort: 'Tên A–Z');
+
+    expect(
+      cubit.state.members.map((m) => m.name).toList(),
+      ['Ân', 'Bình', 'Đạt', 'Em'],
+    );
+    await cubit.close();
+  });
+
+  test('a stale members response is dropped', () async {
+    var call = 0;
+    final firstCompleter = Completer<CursorPage<TenantMember>>();
+    final scripted = FakeIamBackend(
+      onListMembers: (_) {
+        call += 1;
+        if (call == 1) return firstCompleter.future;
+        return Future.value(
+          CursorPage<TenantMember>(
+            items: [
+              TenantMember(
+                membershipId: 'm2',
+                userId: 'u2',
+                displayName: 'Mới',
+                email: 'moi@example.com',
+                roleId: 'staff',
+                roleLabel: 'Nhân viên bán hàng',
+                isOwner: false,
+                status: 'active',
+                joinedAt: DateTime.utc(2026, 1, 1),
+                version: 1,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
+      searchDebounce: Duration.zero,
+    );
+
+    final f1 = cubit.loadMembers(reset: true);
+    final f2 = cubit.loadMembers(reset: true);
+    await f2;
+    firstCompleter.complete(
+      CursorPage<TenantMember>(
+        items: [
+          TenantMember(
+            membershipId: 'm1',
+            userId: 'u1',
+            displayName: 'Cũ',
+            email: 'cu@example.com',
+            roleId: 'staff',
+            roleLabel: 'Nhân viên bán hàng',
+            isOwner: false,
+            status: 'active',
+            joinedAt: DateTime.utc(2026, 1, 1),
+            version: 1,
+          ),
+        ],
+      ),
+    );
+    await f1;
+
+    expect(cubit.state.members.single.name, 'Mới');
+    await cubit.close();
+  });
+
+  test('custom range uses Vietnam days', () async {
+    final createdAtVn = DateTime.utc(2026, 7, 30, 17, 30); // 00:30 31/07 VN
+    final invitations = [
+      TenantInvitation(
+        invitationId: 'inv-vn',
+        inviteeEmail: 'vn@example.com',
+        initialRoleId: 'r1',
+        initialRoleLabel: 'Staff',
+        status: 'pending',
+        expiresAt: createdAtVn.add(const Duration(days: 7)),
+        deliveryStatus: 'sent',
+        deliveryCorrelationId: 'c1',
+        version: 1,
+      ),
+    ];
+    final scripted = FakeIamBackend(
+      onListInvitations: (_) async => CursorPage<TenantInvitation>(items: invitations),
+    );
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
+      searchDebounce: Duration.zero,
+      clock: () => DateTime.utc(2026, 8, 1),
+    );
+
+    await cubit.applyInvitationCriteria(
+      timeRange: 'Tùy chọn',
+      customDateRange: DateTimeRange(
+        start: DateTime(2026, 7, 20),
+        end: DateTime(2026, 7, 30),
+      ),
+    );
+    expect(cubit.state.invitations, isEmpty);
+
+    await cubit.applyInvitationCriteria(
+      timeRange: 'Tùy chọn',
+      customDateRange: DateTimeRange(
+        start: DateTime(2026, 7, 31),
+        end: DateTime(2026, 7, 31),
+      ),
+    );
+    expect(cubit.state.invitations.single.id, 'inv-vn');
+    await cubit.close();
+  });
+
+  test('load more failure keeps the list', () async {
+    var call = 0;
+    final scripted = FakeIamBackend(
+      onListMembers: (_) async {
+        call += 1;
+        if (call == 1) {
+          return CursorPage<TenantMember>(
+            items: [
+              TenantMember(
+                membershipId: 'm1',
+                userId: 'u1',
+                displayName: 'An',
+                email: 'an@example.com',
+                roleId: 'staff',
+                roleLabel: 'Nhân viên bán hàng',
+                isOwner: false,
+                status: 'active',
+                joinedAt: DateTime.utc(2026, 1, 1),
+                version: 1,
+              ),
+            ],
+            nextCursor: 'c2',
+          );
+        }
+        throw Exception('network down');
+      },
+    );
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
+      searchDebounce: Duration.zero,
+    );
+
+    await cubit.loadMembers(reset: true);
+    await cubit.loadNextMembersPage();
+
+    expect(cubit.state.memberStatus, IamLoadStatus.success);
+    expect(cubit.state.members, hasLength(1));
+    expect(cubit.state.loadingMoreMembers, isFalse);
+    expect(cubit.state.loadMoreFailure, isNotNull);
+    await cubit.close();
+  });
+
+  test('status filter revoked is sent to the server', () async {
+    final calls = <ListInvitationsQuery>[];
+    final scripted = FakeIamBackend(
+      onListInvitations: (q) async {
+        calls.add(q);
+        return const CursorPage<TenantInvitation>(items: []);
+      },
+    );
+    final cubit = OrganizationUsersCubit(
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
+      searchDebounce: Duration.zero,
+    );
+
+    await cubit.applyInvitationCriteria(status: 'revoked');
+
+    expect(calls.single.status, 'revoked');
     await cubit.close();
   });
 }

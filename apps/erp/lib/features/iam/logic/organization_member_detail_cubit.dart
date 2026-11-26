@@ -91,8 +91,9 @@ final class OrganizationMemberDetailCubit
     );
   }
 
-  Future<void> changeRole(String newRoleCode) async {
-    if (isClosed || state.isSubmitting || !state.canChangeRole) return;
+  /// Trả `true` chỉ khi đã gán vai trò và tải lại thành công.
+  Future<bool> changeRole(String newRoleCode) async {
+    if (isClosed || state.isSubmitting || !state.canChangeRole) return false;
     emit(
       state.copyWith(
         isSubmitting: true,
@@ -105,7 +106,7 @@ final class OrganizationMemberDetailCubit
       final member = state.member!;
       await _members.assignRole(userId: member.userId, role: newRoleCode);
       final updated = await _fetchDetail();
-      if (isClosed) return;
+      if (isClosed) return false;
       emit(
         state.copyWith(
           isSubmitting: false,
@@ -116,8 +117,10 @@ final class OrganizationMemberDetailCubit
           clearFailure: true,
         ),
       );
+      return true;
     } catch (error) {
       await _handleMutationError(error);
+      return false;
     }
   }
 

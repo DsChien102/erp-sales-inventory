@@ -19,9 +19,11 @@ abstract final class MemberUiMapper {
       ),
       status: _status(dto.status),
       isOwner: dto.isOwner,
-      identityText: dto.isOwner ? 'Chủ sở hữu' : 'Chỉ đọc',
+      identityText: dto.isOwner ? 'Chủ sở hữu' : 'Thành viên',
       joinedDate: IamDateFormatter.formatDate(dto.joinedAt),
-      lastActiveDate: '',
+      lastActiveDate: dto.lastActivityAt != null
+          ? IamDateFormatter.formatDateTime(dto.lastActivityAt!)
+          : '',
       dataVersion: 'v${dto.version}',
       suspendedAt: null,
       suspendedBy: null,
@@ -55,11 +57,11 @@ abstract final class MemberUiMapper {
         MembershipStatus.removed => MemberStatus.removed,
       },
       isOwner: dto.isOwner,
-      identityText: dto.isOwner ? 'Chủ sở hữu' : 'Chỉ đọc',
+      identityText: dto.isOwner ? 'Chủ sở hữu' : 'Thành viên',
       joinedDate: IamDateFormatter.formatDate(dto.joinedAt),
       lastActiveDate: dto.lastActivityAt != null
           ? IamDateFormatter.formatDateTime(dto.lastActivityAt!)
-          : IamDateFormatter.formatDateTime(dto.joinedAt),
+          : '',
       dataVersion: 'v${dto.version}',
       suspendedAt: dto.statusChangedAt == null
           ? null

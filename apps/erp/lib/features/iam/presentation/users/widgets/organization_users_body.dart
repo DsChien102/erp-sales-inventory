@@ -1,28 +1,26 @@
+import 'package:c45_design_system/design_system.dart';
+import 'package:erp/core/config/wide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:c45_design_system/design_system.dart';
 
 import '../bloc/organization_users_cubit.dart';
 import '../bloc/organization_users_state.dart';
 import '../models/user_ui_model.dart';
 import 'invitation_filter_bottom_sheet.dart';
-import 'invitation_list_section.dart';
 import 'member_filter_bottom_sheet.dart';
-import 'member_list_section.dart';
+import 'users_narrow.dart';
+import 'users_wide.dart';
 
 class OrganizationUsersBody extends StatefulWidget {
   const OrganizationUsersBody({
     super.key,
     required this.canInvite,
-    this.selectedId,
     required this.onMemberTap,
     required this.onInvitationTap,
     required this.onInviteTap,
   });
 
   final bool canInvite;
-  final String? selectedId;
   final ValueChanged<MemberUiModel> onMemberTap;
   final ValueChanged<InvitationUiModel> onInvitationTap;
   final VoidCallback onInviteTap;
@@ -113,9 +111,15 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
           onApply: (criteria) {
             cubit.applyInvitationCriteria(
               status: _invitationChipToWire(criteria.status),
-              sendResult: criteria.sendResult == 'Tất cả' ? null : criteria.sendResult,
-              timeRange: criteria.timeRange == 'Tất cả' ? null : criteria.timeRange,
-              customDateRange: criteria.timeRange == 'Tùy chọn' ? criteria.customDateRange : null,
+              sendResult: criteria.sendResult == 'Tất cả'
+                  ? null
+                  : criteria.sendResult,
+              timeRange: criteria.timeRange == 'Tất cả'
+                  ? null
+                  : criteria.timeRange,
+              customDateRange: criteria.timeRange == 'Tùy chọn'
+                  ? criteria.customDateRange
+                  : null,
             );
           },
         ),
@@ -136,6 +140,7 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
       'Đang chờ' => 'pending',
       'Hết hạn' => 'expired',
       'Sắp hết hạn' => 'expiring',
+      'Thu hồi' => 'revoked',
       _ => null,
     };
   }
@@ -153,13 +158,14 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
       'pending' => 'Đang chờ',
       'expired' => 'Hết hạn',
       'expiring' => 'Hết hạn',
+      'revoked' => 'Thu hồi',
       _ => 'Tất cả',
     };
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
+    final wide = isWideLayout(context);
 
     return BlocBuilder<OrganizationUsersCubit, OrganizationUsersState>(
       builder: (context, state) {
@@ -169,163 +175,66 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
             : _invitationWireToChip(state.invitationFilter);
         final isFilterActive = isMemberTab
             ? (state.memberFilter != null ||
-                  (state.memberRoleFilter != null && state.memberRoleFilter != 'Tất cả') ||
+                  (state.memberRoleFilter != null &&
+                      state.memberRoleFilter != 'Tất cả') ||
                   (state.memberSort != null && state.memberSort != 'Tất cả'))
             : (state.invitationFilter != null ||
                   state.invitationSendResultFilter != null ||
                   state.invitationTimeRangeFilter != null ||
                   state.invitationCustomDateRange != null);
 
+        void onTabSelected(int index) {
+          final tab = index == 0
+              ? OrganizationUsersTab.members
+              : OrganizationUsersTab.invitations;
+          context.read<OrganizationUsersCubit>().selectTab(tab);
+          _searchController.text =
+              index == 0 ? state.memberSearch : state.invitationSearch;
+        }
+
+        void onChipSelected(String label) {
+          final cubit = context.read<OrganizationUsersCubit>();
+          if (isMemberTab) {
+            cubit.setMemberFilter(_memberChipToWire(label));
+          } else {
+            cubit.setInvitationFilter(_invitationChipToWire(label));
+          }
+        }
+
         return GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.translucent,
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  Container(
-                    color: colors.surface,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: VSpacing.screenMobile,
-                      vertical: VSpacing.space2,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: VSearchBar(
-                            hintText: 'Tìm tên hoặc email',
-                            controller: _searchController,
-                            onChanged: _onSearchChanged,
-                          ),
-                        ),
-                        const VGap.horizontalSm(),
-                        Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            IconButton(
-                              tooltip: isFilterActive ? 'Bộ lọc (đang áp dụng)' : 'Bộ lọc',
-                              icon: VIcon(
-                                icon: VIcons.tune,
-                                size: 20,
-                                color: colors.textPrimary,
-                              ),
-                              onPressed: () => _openFilterBottomSheet(context),
-                            ),
-                            if (isFilterActive)
-                              Positioned(
-                                top: 6,
-                                right: 6,
-                                child: ExcludeSemantics(
-                                  child: Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: colors.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  VTabs(
-                    key: const Key('users_tabs'),
-                    selectedIndex: isMemberTab ? 0 : 1,
-                    semanticLabel: 'Người dùng',
-                    onTabSelected: (index) {
-                      final tab = index == 0
-                          ? OrganizationUsersTab.members
-                          : OrganizationUsersTab.invitations;
-                      context.read<OrganizationUsersCubit>().selectTab(tab);
-                      _searchController.text = index == 0
-                          ? state.memberSearch
-                          : state.invitationSearch;
-                      if (VListDetailLayout.isSplitOf(context)) {
-                        context.go('/more/users');
-                      }
-                    },
-                    child: const VTabsList(
-                      children: [
-                        VTabsTrigger(label: 'Thành viên'),
-                        VTabsTrigger(label: 'Lời mời'),
-                      ],
-                    ),
-                  ),
-                  Divider(height: 1, color: colors.borderDefault),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: VSpacing.screenMobile,
-                      vertical: VSpacing.space3,
-                    ),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: isMemberTab
-                          ? [
-                              for (final label in const [
-                                'Tất cả',
-                                'Hoạt động',
-                                'Tạm ngừng',
-                              ]) ...[
-                                if (label != 'Tất cả') const VGap.horizontalSm(),
-                                VChip(
-                                  label: label,
-                                  tone: selectedChip == label ? VComponentTone.primary : null,
-                                  isSelected: selectedChip == label,
-                                  onTap: () {
-                                    context.read<OrganizationUsersCubit>().setMemberFilter(
-                                      _memberChipToWire(label),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ]
-                          : [
-                              for (final label in const [
-                                'Tất cả',
-                                'Đang chờ',
-                                'Hết hạn',
-                              ]) ...[
-                                if (label != 'Tất cả') const VGap.horizontalSm(),
-                                VChip(
-                                  label: label,
-                                  tone: selectedChip == label ? VComponentTone.primary : null,
-                                  isSelected: selectedChip == label,
-                                  onTap: () {
-                                    context.read<OrganizationUsersCubit>().setInvitationFilter(
-                                      _invitationChipToWire(label),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: isMemberTab
-                        ? MemberListSection(
-                            canInvite: widget.canInvite,
-                            selectedId: widget.selectedId,
-                            onMemberTap: widget.onMemberTap,
-                            onInviteTap: widget.onInviteTap,
-                            onClearFilters: _clearFilters,
-                          )
-                        : InvitationListSection(
-                            canInvite: widget.canInvite,
-                            selectedId: widget.selectedId,
-                            onInvitationTap: widget.onInvitationTap,
-                            onInviteTap: widget.onInviteTap,
-                            onClearFilters: _clearFilters,
-                          ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          child: wide
+              ? UsersWide(
+                  state: state,
+                  searchController: _searchController,
+                  isFilterActive: isFilterActive,
+                  selectedChip: selectedChip,
+                  canInvite: widget.canInvite,
+                  onTabSelected: onTabSelected,
+                  onSearchChanged: _onSearchChanged,
+                  onOpenFilter: () => _openFilterBottomSheet(context),
+                  onChipSelected: onChipSelected,
+                  onMemberTap: widget.onMemberTap,
+                  onInvitationTap: widget.onInvitationTap,
+                  onInviteTap: widget.onInviteTap,
+                  onClearFilters: _clearFilters,
+                )
+              : UsersNarrow(
+                  state: state,
+                  searchController: _searchController,
+                  isFilterActive: isFilterActive,
+                  selectedChip: selectedChip,
+                  canInvite: widget.canInvite,
+                  onTabSelected: onTabSelected,
+                  onSearchChanged: _onSearchChanged,
+                  onOpenFilter: () => _openFilterBottomSheet(context),
+                  onChipSelected: onChipSelected,
+                  onMemberTap: widget.onMemberTap,
+                  onInvitationTap: widget.onInvitationTap,
+                  onInviteTap: widget.onInviteTap,
+                  onClearFilters: _clearFilters,
+                ),
         );
       },
     );

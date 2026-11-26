@@ -7,14 +7,13 @@ import '../../shared/iam_load_status.dart';
 import '../bloc/organization_users_cubit.dart';
 import '../bloc/organization_users_state.dart';
 import '../models/user_ui_model.dart';
-import 'invitation_card.dart';
+import 'user_list_card.dart';
 import 'users_empty_state.dart';
 
 class InvitationListSection extends StatelessWidget {
   const InvitationListSection({
     super.key,
     this.canInvite = true,
-    this.selectedId,
     required this.onInvitationTap,
     required this.onInviteTap,
     required this.onClearFilters,
@@ -22,7 +21,6 @@ class InvitationListSection extends StatelessWidget {
 
   final ValueChanged<InvitationUiModel> onInvitationTap;
   final bool canInvite;
-  final String? selectedId;
   final VoidCallback onInviteTap;
   final VoidCallback onClearFilters;
 
@@ -86,6 +84,7 @@ class InvitationListSection extends StatelessWidget {
                 title: 'Không tìm thấy kết quả',
                 subtitle: 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.',
                 actionText: 'Xóa bộ lọc',
+                actionVariant: VButtonVariant.secondary,
                 onAction: onClearFilters,
               ),
             );
@@ -94,8 +93,8 @@ class InvitationListSection extends StatelessWidget {
             onRefresh: cubit.refreshActiveTab,
             child: UsersEmptyState(
               icon: VIcons.info,
-              title: 'Chưa có lời mời',
-              subtitle: 'Mời thành viên mới để họ nhận email tham gia.',
+              title: 'Chưa có lời mời nào',
+              subtitle: 'Tạo lời mời mới để thêm người dùng vào tổ chức.',
               actionText: 'Mời thành viên',
               onAction: canInvite ? onInviteTap : null,
             ),
@@ -131,9 +130,8 @@ class InvitationListSection extends StatelessWidget {
                   );
                 }
                 final invitation = state.invitations[index];
-                return InvitationCard(
+                return UserListCard.invitation(
                   invitation: invitation,
-                  isSelected: invitation.id == selectedId,
                   onTap: () => onInvitationTap(invitation),
                 );
               },

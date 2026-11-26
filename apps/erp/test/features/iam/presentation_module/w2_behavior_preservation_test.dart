@@ -224,7 +224,7 @@ void main() {
 
       final initialInvitationsQueries = module.queriesOf<ListInvitationsQuery>().length;
 
-      await tester.tap(find.byTooltip('Mời thành viên'));
+      await tester.tap(find.byKey(const Key('users_invite')));
       await tester.pumpAndSettle();
 
       expect(find.text('Mời thành viên'), findsWidgets);
@@ -277,7 +277,7 @@ void main() {
       await tester.tap(find.byTooltip('Quay lại'));
       await tester.pumpAndSettle();
 
-      expect(module.queriesOf<ListTenantMembersQuery>().length, greaterThan(initialCount));
+      expect(module.queriesOf<ListTenantMembersQuery>().length, equals(initialCount));
     });
 
     testWidgets('H6: Thu hồi lời mời -> toast đúng chuỗi và tải lại lời mời', (tester) async {

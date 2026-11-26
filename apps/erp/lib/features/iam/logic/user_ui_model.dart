@@ -64,6 +64,8 @@ final class InvitationUiModel {
   final String email;
   final String role;
   final String statusDetail;
+  final String expiryLabel;
+  final String deliveryLabel;
   final InvitationStatus status;
   final String deliveryStatus;
   final DateTime? expiresAt;
@@ -74,6 +76,8 @@ final class InvitationUiModel {
     required this.email,
     required this.role,
     required this.statusDetail,
+    this.expiryLabel = '',
+    this.deliveryLabel = '',
     required this.status,
     this.deliveryStatus = '',
     this.expiresAt,

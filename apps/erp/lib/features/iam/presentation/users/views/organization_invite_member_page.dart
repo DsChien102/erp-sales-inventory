@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:c45_design_system/design_system.dart';
+import 'package:erp/core/config/wide_layout.dart';
 
 import '../../../../../../core/session/session_controller.dart';
 import '../../../data/invitation_repository.dart';
 import '../../shared/iam_load_status.dart';
+import '../../shared/iam_role_label_mapper.dart';
 import '../../shared/idempotency_key_factory.dart';
 import '../bloc/organization_invite_member_cubit.dart';
 import '../bloc/organization_invite_member_state.dart';
 import '../invitation_role_options_source.dart';
 import '../invitation_role_options.dart';
+import '../widgets/invite_narrow.dart';
+import '../widgets/invite_wide.dart';
+import '../widgets/role_radio_list.dart';
 
 /// Trang Mời thành viên (TA-D-03 / S7).
 class OrganizationInviteMemberPage extends StatelessWidget {
@@ -182,95 +187,78 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
         }
 
         final canSubmit = !state.isSubmitting;
+        final wide = isWideLayout(context);
+        final choices = [
+          for (final option in state.roleOptions)
+            RoleChoice(
+              id: option.roleId,
+              title: option.label,
+              description: IamRoleLabelMapper.description(option.label),
+            ),
+        ];
 
         return VPageScaffold(
           title: 'Mời thành viên',
-          bottomBar: Padding(
+          bottomBar: Container(
             padding: const EdgeInsets.all(VSpacing.screenMobile),
-            child: Row(
-              children: [
-                Expanded(
-                  child: VButton(
-                    label: 'Hủy',
-                    variant: VButtonVariant.secondary,
-                    fullWidth: true,
-                    onPressed: state.isSubmitting ? null : () => Navigator.of(context).maybePop(),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              border: Border(
+                top: BorderSide(color: colors.borderDefault),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: VButton(
+                      label: 'Hủy',
+                      variant: VButtonVariant.secondary,
+                      fullWidth: true,
+                      onPressed: state.isSubmitting
+                          ? null
+                          : () => Navigator.of(context).maybePop(),
+                    ),
                   ),
-                ),
-                const VGap.horizontalSm(),
-                Expanded(
-                  child: VButton(
-                    label: state.isSubmitting ? 'Đang gửi...' : 'Gửi lời mời',
-                    variant: VButtonVariant.primary,
-                    tone: VComponentTone.success,
-                    fullWidth: true,
-                    onPressed: canSubmit ? () => _onSubmit(context) : null,
+                  const VGap.horizontalSm(),
+                  Expanded(
+                    child: VButton(
+                      label: state.isSubmitting ? 'Đang gửi...' : 'Gửi lời mời',
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.primary,
+                      fullWidth: true,
+                      onPressed: canSubmit ? () => _onSubmit(context) : null,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-          body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            behavior: HitTestBehavior.translucent,
-            child: ListView(
-              padding: const EdgeInsets.all(VSpacing.screenMobile),
-              children: [
-                VText(
-                  'Người nhận phải đăng nhập đúng email. Lời mời sẽ hết hạn sau 7 ngày.',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
-                ),
-                const VGap.md(),
-                VField(
-                  invalid: state.emailError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Email', isRequired: true),
-                      VEmailField(
-                        hintText: 'nhanvien@minhphat.vn',
-                        controller: _emailController,
-                        validateOnChanged: false,
-                        onChanged: context.read<OrganizationInviteMemberCubit>().emailChanged,
-                      ),
-                      if (state.emailError != null) VFieldError(state.emailError!),
-                    ],
-                  ),
-                ),
-                const VGap.md(),
-                VField(
-                  invalid: state.roleError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Vai trò ban đầu', isRequired: true),
-                      VSelect<String>(
-                        hintText: 'Chọn vai trò',
-                        value: state.selectedRoleId,
-                        items: [
-                          for (final option in state.roleOptions)
-                            DropdownMenuItem(
-                              value: option.roleId,
-                              child: VText(option.label),
-                            ),
-                        ],
-                        onChanged: (val) {
-                          if (val != null) {
-                            context.read<OrganizationInviteMemberCubit>().roleSelected(val);
-                          }
-                        },
-                      ),
-                      if (state.roleError != null)
-                        VFieldError(state.roleError!)
-                      else
-                        const VFieldDescription(
-                          'Vai trò có thể thay đổi sau khi tham gia.',
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+          body: ColoredBox(
+            color: colors.surfaceAlt,
+            child: GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              behavior: HitTestBehavior.translucent,
+              child: wide
+                  ? InviteWide(
+                      state: state,
+                      emailController: _emailController,
+                      choices: choices,
+                      onEmailChanged:
+                          context.read<OrganizationInviteMemberCubit>().emailChanged,
+                      onRoleSelected:
+                          context.read<OrganizationInviteMemberCubit>().roleSelected,
+                    )
+                  : InviteNarrow(
+                      state: state,
+                      emailController: _emailController,
+                      choices: choices,
+                      onEmailChanged:
+                          context.read<OrganizationInviteMemberCubit>().emailChanged,
+                      onRoleSelected:
+                          context.read<OrganizationInviteMemberCubit>().roleSelected,
+                    ),
             ),
           ),
         );

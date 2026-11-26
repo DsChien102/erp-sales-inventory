@@ -7,14 +7,13 @@ import '../../shared/iam_load_status.dart';
 import '../bloc/organization_users_cubit.dart';
 import '../bloc/organization_users_state.dart';
 import '../models/user_ui_model.dart';
-import 'member_card.dart';
+import 'user_list_card.dart';
 import 'users_empty_state.dart';
 
 class MemberListSection extends StatelessWidget {
   const MemberListSection({
     super.key,
     this.canInvite = true,
-    this.selectedId,
     required this.onMemberTap,
     required this.onInviteTap,
     required this.onClearFilters,
@@ -22,7 +21,6 @@ class MemberListSection extends StatelessWidget {
 
   final ValueChanged<MemberUiModel> onMemberTap;
   final bool canInvite;
-  final String? selectedId;
   final VoidCallback onInviteTap;
   final VoidCallback onClearFilters;
 
@@ -36,11 +34,12 @@ class MemberListSection extends StatelessWidget {
           p.loadingMoreMembers != c.loadingMoreMembers ||
           p.memberSearch != c.memberSearch ||
           p.memberFilter != c.memberFilter ||
+          p.memberRoleFilter != c.memberRoleFilter ||
           p.memberNextCursor != c.memberNextCursor,
       builder: (context, state) {
         final colors = context.vColors;
         final cubit = context.read<OrganizationUsersCubit>();
-        final isFiltered = state.memberSearch.trim().isNotEmpty || state.memberFilter != null;
+        final isFiltered = state.isMemberFiltered;
 
         if (state.memberStatus == IamLoadStatus.loading ||
             state.memberStatus == IamLoadStatus.initial) {
@@ -83,6 +82,7 @@ class MemberListSection extends StatelessWidget {
                 title: 'Không tìm thấy kết quả',
                 subtitle: 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.',
                 actionText: 'Xóa bộ lọc',
+                actionVariant: VButtonVariant.secondary,
                 onAction: onClearFilters,
               ),
             );
@@ -128,9 +128,8 @@ class MemberListSection extends StatelessWidget {
                   );
                 }
                 final member = state.members[index];
-                return MemberCard(
+                return UserListCard.member(
                   member: member,
-                  isSelected: member.id == selectedId,
                   onTap: () => onMemberTap(member),
                 );
               },

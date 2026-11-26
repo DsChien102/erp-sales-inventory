@@ -1,7 +1,8 @@
+import 'package:c45_design_system/design_system.dart';
+import 'package:erp/core/config/wide_layout.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:c45_design_system/design_system.dart';
-import 'package:erp/core/iam/iam_codes.dart';
 
 import '../../../data/member_repository.dart';
 import '../../../data/models/tenant_member.dart';
@@ -9,13 +10,13 @@ import '../../shared/iam_load_status.dart';
 import '../bloc/organization_member_detail_cubit.dart';
 import '../bloc/organization_member_detail_state.dart';
 import '../mappers/member_ui_mapper.dart';
+import '../models/user_ui_model.dart';
 import '../widgets/deactivate_membership_bottom_sheet.dart';
-import '../widgets/member_detail_body.dart';
+import '../widgets/member_detail_narrow.dart';
+import '../widgets/member_detail_wide.dart';
 import '../widgets/member_lifecycle_actions.dart';
 import '../widgets/reactivate_membership_bottom_sheet.dart';
 import '../widgets/remove_membership_bottom_sheet.dart';
-
-import '../models/user_ui_model.dart';
 import 'organization_select_role_page.dart';
 
 /// Chi tiết thành viên — loads by [membershipId] via [MemberRepository.getMember].
@@ -62,6 +63,8 @@ class _MemberDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final wide = isWideLayout(context);
+
     return BlocConsumer<OrganizationMemberDetailCubit,
         OrganizationMemberDetailState>(
       listenWhen: (previous, current) =>
@@ -92,22 +95,20 @@ class _MemberDetailView extends StatelessWidget {
           VToast.show(
             context,
             title: message,
-            message: '',
+            message: message,
             type: VToastType.success,
           );
-          if (VListDetailLayout.isSplitOf(context)) onMutated?.call();
+          onMutated?.call();
           context.read<OrganizationMemberDetailCubit>().clearFeedback();
         }
       },
       builder: (context, state) {
-        final isSplit = VListDetailLayout.isSplitOf(context);
-
         if (state.status == IamLoadStatus.loading ||
             state.status == IamLoadStatus.initial) {
-          return VPageScaffold(
+          return const VPageScaffold(
             title: 'Chi tiết thành viên',
-            showBackButton: !isSplit,
-            body: const Center(child: VLoading(size: 40)),
+            showBackButton: true,
+            body: Center(child: VLoading(size: 40)),
           );
         }
 
@@ -115,7 +116,7 @@ class _MemberDetailView extends StatelessWidget {
           final colors = context.vColors;
           return VPageScaffold(
             title: 'Chi tiết thành viên',
-            showBackButton: !isSplit,
+            showBackButton: true,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(VSpacing.screenMobile),
@@ -150,29 +151,59 @@ class _MemberDetailView extends StatelessWidget {
           );
         }
 
+        final colors = context.vColors;
+        final cubit = context.read<OrganizationMemberDetailCubit>();
         final member = MemberUiMapper.fromDetail(state.member!);
+        final canAct = state.hasLifecycleActions;
+
         return VPageScaffold(
           title: 'Chi tiết thành viên',
-          showBackButton: !isSplit,
-          bottomBar: state.hasLifecycleActions
-              ? Padding(
+          showBackButton: true,
+          bottomBar: !wide && canAct
+              ? Container(
                   padding: const EdgeInsets.all(VSpacing.screenMobile),
-                  child: VButton(
-                    label: 'Thao tác',
-                    trailing: VIcons.chevronUp,
-                    variant: VButtonVariant.primary,
-                    tone: VComponentTone.success,
-                    fullWidth: true,
-                    isLoading: state.isSubmitting,
-                    onPressed: state.isSubmitting
-                        ? null
-                        : () => _openActions(context, state),
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    border: Border(
+                      top: BorderSide(color: colors.borderDefault),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: VButton(
+                      label: 'Thao tác',
+                      trailing: VIcons.chevronUp,
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.primary,
+                      fullWidth: true,
+                      isLoading: state.isSubmitting,
+                      onPressed: state.isSubmitting
+                          ? null
+                          : () => _openActions(context, state),
+                    ),
                   ),
                 )
               : null,
-          body: MemberDetailBody(
-            member: member,
-            detailStatus: state.member!.status,
+          body: ColoredBox(
+            color: colors.surfaceAlt,
+            child: wide
+                ? MemberDetailWide(
+                    member: member,
+                    onChangeRole: state.canChangeRole
+                        ? () => _openChangeRole(context, member, cubit)
+                        : null,
+                    onDeactivate: state.canDeactivate
+                        ? () => _confirmDeactivate(context, cubit)
+                        : null,
+                    onReactivate: state.canReactivate
+                        ? () => _confirmReactivate(context, cubit)
+                        : null,
+                    onRemove: state.canRemove
+                        ? () => _confirmRemove(context, cubit)
+                        : null,
+                    busy: state.activeMutation,
+                  )
+                : MemberDetailNarrow(member: member),
           ),
         );
       },
@@ -200,14 +231,14 @@ class _MemberDetailView extends StatelessWidget {
     MemberUiModel member,
     OrganizationMemberDetailCubit cubit,
   ) async {
-    final selectedRoleCode = await Navigator.of(context).push<String>(
+    await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => OrganizationSelectRolePage(member: member),
+        builder: (_) => OrganizationSelectRolePage(
+          member: member,
+          onConfirm: cubit.changeRole,
+        ),
       ),
     );
-    if (selectedRoleCode != null && context.mounted) {
-      await cubit.changeRole(selectedRoleCode);
-    }
   }
 
   Future<void> _confirmDeactivate(

@@ -90,12 +90,13 @@ class _RevokeInvitationSheetBodyState extends State<_RevokeInvitationSheetBody> 
             variant: VTextVariant.bodyDefault,
             color: colors.textSecondary,
           ),
+          const VGap.md(),
           VField(
             invalid: _localError != null,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const VFieldLabel('Lý do thu hồi'),
+                const VFieldLabel('Lý do thu hồi', isRequired: true),
                 VTextFormField(
                   controller: _reasonController,
                   hintText: 'Ví dụ: Sai email người nhận',

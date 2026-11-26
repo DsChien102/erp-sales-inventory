@@ -10,7 +10,8 @@ import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/data/member_repository.dart';
 import 'package:erp/features/iam/data/invitation_repository.dart';
 import 'package:erp/features/iam/data/audit_log_repository.dart';
-import 'package:erp/features/iam/presentation/users/widgets/member_card.dart';
+import 'package:erp/features/iam/presentation/shared/admin_table.dart';
+import 'package:erp/features/iam/presentation/users/widgets/member_detail_narrow.dart';
 
 import '../support/fake_iam_backend.dart';
 import '../../auth/support/scripted_auth.dart';
@@ -56,7 +57,7 @@ void main() {
 
   group('W-2 — Test bố cục rộng (Checklist 6.1)', () {
     testWidgets(
-      '1. Users: 1280x800 hiện 2 cột, card isSelected: true, detail không có nút Quay lại',
+      '1. Users: 1280 hiện bảng, không có VListDetailLayout',
       (tester) async {
         tester.view.physicalSize = const Size(1280, 800);
         tester.view.devicePixelRatio = 1.0;
@@ -88,30 +89,87 @@ void main() {
           ),
         );
 
-        // Đi thẳng tới chi tiết thành viên ở viewport rộng
-        appRouter.go('/more/users/members/mem-owner-1');
+        appRouter.go('/more/users');
         await tester.pumpAndSettle();
 
-        // Cả 2 cột đều dựng
+        expect(find.byType(AdminTable), findsOneWidget);
+        expect(find.byType(VListDetailLayout), findsNothing);
+        expect(find.text('Lan Le'), findsOneWidget);
+      },
+    );
+
+    Future<void> pumpUsersRouter(WidgetTester tester, Size size) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final module = FakeIamBackend(scenario: FakeIamScenario.usersSearchOk);
+      final session = loginSession(
+        store: _CustomSessionStore(
+          grantedPermissions: {IamPermissions.memberView},
+          owner: true,
+        ),
+      );
+      session.applySignedInUser('user-1');
+
+      getIt.registerSingleton<SessionController>(session);
+      getIt.registerSingleton<MemberRepository>(FakeMemberRepository(module));
+      getIt.registerSingleton<InvitationRepository>(
+        FakeInvitationRepository(module),
+      );
+      getIt.registerSingleton<AuditLogRepository>(FakeAuditLogRepository(module));
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: VTheme.lightTheme,
+          routerConfig: appRouter,
+        ),
+      );
+    }
+
+    String currentUsersUri() =>
+        appRouter.routerDelegate.currentConfiguration.uri.toString();
+
+    testWidgets(
+      '1b. Users: 1280 bấm dòng mở chi tiết bằng go, thu về 700 rồi ← về danh sách',
+      (tester) async {
+        await pumpUsersRouter(tester, const Size(1280, 800));
+        appRouter.go('/more/users');
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Hoa Tran'));
+        await tester.pumpAndSettle();
+        expect(currentUsersUri(), '/more/users/members/mem-staff-1');
+
+        tester.view.physicalSize = const Size(700, 800);
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+
+        await tester.tap(find.byTooltip('Quay lại'));
+        await tester.pumpAndSettle();
+        expect(currentUsersUri(), '/more/users');
         expect(find.byType(OrganizationUsersBody), findsOneWidget);
-        expect(find.byType(MemberDetailBody), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
 
-        // Card của thành viên đang chọn có isSelected: true
-        final selectedCard = tester.widget<MemberCard>(
-          find.widgetWithText(MemberCard, 'Lan Le'),
-        );
-        expect(selectedCard.isSelected, isTrue);
+    testWidgets(
+      '1c. Users: gõ thẳng URL chi tiết ở 700, nới 1280 rồi ← về danh sách',
+      (tester) async {
+        await pumpUsersRouter(tester, const Size(700, 800));
+        appRouter.go('/more/users/members/mem-staff-1');
+        await tester.pumpAndSettle();
 
-        // Detail không có nút Quay lại, cũng không có BackButton Material ngầm
-        for (final matching in [find.byTooltip('Quay lại'), find.byType(BackButton)]) {
-          expect(
-            find.descendant(
-              of: find.byType(OrganizationMemberDetailPage),
-              matching: matching,
-            ),
-            findsNothing,
-          );
-        }
+        tester.view.physicalSize = const Size(1280, 800);
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+
+        await tester.tap(find.byTooltip('Quay lại'));
+        await tester.pumpAndSettle();
+        expect(currentUsersUri(), '/more/users');
+        expect(find.byType(AdminTable), findsOneWidget);
+        expect(tester.takeException(), isNull);
       },
     );
 
@@ -151,7 +209,7 @@ void main() {
 
       // Chỉ dựng chi tiết, danh sách không dựng
       expect(find.byType(OrganizationUsersBody), findsNothing);
-      expect(find.byType(MemberDetailBody), findsOneWidget);
+      expect(find.byType(MemberDetailNarrow), findsOneWidget);
 
       // Có nút Quay lại
       expect(find.byTooltip('Quay lại'), findsOneWidget);
@@ -311,11 +369,6 @@ void main() {
         ),
       );
 
-      // 5.1 /more/users
-      appRouter.go('/more/users');
-      await tester.pumpAndSettle();
-      expect(find.text('Chọn một thành viên hoặc lời mời để xem chi tiết.'), findsOneWidget);
-
       // 5.2 /more/roles
       appRouter.go('/more/roles');
       await tester.pumpAndSettle();
@@ -430,9 +483,6 @@ void main() {
       final initialInvitationQueries = module.queriesOf<ListInvitationsQuery>().length;
 
       // Thực hiện thu hồi lời mời
-      await tester.tap(find.text('Thao tác'));
-      await tester.pumpAndSettle();
-
       await tester.tap(find.text('Thu hồi lời mời'));
       await tester.pumpAndSettle();
 
@@ -445,7 +495,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.widgetWithText(VButton, 'Thu hồi lời mời'));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(VSheetDialog),
+          matching: find.widgetWithText(VButton, 'Thu hồi lời mời'),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Sau khi thu hồi, điều hướng về /more/users
@@ -556,9 +611,6 @@ void main() {
       appRouter.go('/more/users/members/mem-staff-1');
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Thao tác'));
-      await tester.pumpAndSettle();
-
       await tester.tap(find.text('Tạm ngừng thành viên'));
       await tester.pumpAndSettle();
 
@@ -604,7 +656,7 @@ void main() {
           ),
         );
 
-        appRouter.go('/more/users/members/mem-owner-1');
+        appRouter.go('/more/users');
         await tester.pumpAndSettle();
 
         await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
@@ -645,8 +697,7 @@ void main() {
     String currentUri() => appRouter.routerDelegate.currentConfiguration.uri.toString();
 
     Future<void> openDeactivateDialog(WidgetTester tester) async {
-      await tester.tap(find.text('Thao tác'));
-      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Tạm ngừng thành viên'));
       await tester.tap(find.text('Tạm ngừng thành viên'));
       await tester.pumpAndSettle();
       expect(find.byType(VSheetDialog), findsOneWidget);
@@ -665,20 +716,13 @@ void main() {
         await tester.pumpAndSettle();
         await openDeactivateDialog(tester);
 
-        // Lớp chắn của hộp thoại phủ toàn cửa sổ (cả cột danh sách và thanh bên).
+        // Lớp chắn của hộp thoại phủ toàn cửa sổ (cả thanh bên).
         expect(
           tester.getRect(find.byType(ModalBarrier).last),
           equals(const Rect.fromLTWH(0, 0, 1280, 800)),
         );
 
-        // Bấm vào vùng cột danh sách khi hộp thoại mở: URL không đổi.
-        await tester.tap(find.text('Lan Le'), warnIfMissed: false);
-        await tester.pumpAndSettle();
-        expect(currentUri(), equals('/more/users/members/mem-staff-1'));
-        expect(find.byType(OrganizationMemberDetailPage), findsOneWidget);
-
         // Huỷ: hộp thoại đóng, trang chi tiết còn.
-        await openDeactivateDialog(tester);
         await tester.tap(
           find.descendant(of: find.byType(VSheetDialog), matching: find.text('Quay lại')),
         );

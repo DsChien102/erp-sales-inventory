@@ -1,18 +1,20 @@
+import 'package:c45_design_system/design_system.dart';
+import 'package:erp/core/config/wide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:c45_design_system/design_system.dart';
-
-import '../../shared/iam_action_tile.dart';
 
 import '../../../data/invitation_repository.dart';
+import '../../shared/iam_action_tile.dart';
 import '../../shared/iam_load_status.dart';
 import '../../shared/idempotency_key_factory.dart';
 import '../bloc/organization_invitation_detail_cubit.dart';
 import '../bloc/organization_invitation_detail_state.dart';
 import '../mappers/invitation_ui_mapper.dart';
-import '../models/user_ui_model.dart';
+import '../widgets/invitation_detail_narrow.dart';
+import '../widgets/invitation_detail_wide.dart';
 import '../widgets/revoke_invitation_bottom_sheet.dart';
+import '../widgets/user_list_card.dart';
 
 /// Chi tiết lời mời — loads by [invitationId] via [InvitationRepository.getInvitation].
 class OrganizationInvitationDetailPage extends StatelessWidget {
@@ -67,7 +69,10 @@ class _InvitationDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<OrganizationInvitationDetailCubit, OrganizationInvitationDetailState>(
+    final wide = isWideLayout(context);
+
+    return BlocConsumer<OrganizationInvitationDetailCubit,
+        OrganizationInvitationDetailState>(
       listenWhen: (previous, current) =>
           previous.failure != current.failure ||
           previous.successMessage != current.successMessage ||
@@ -77,9 +82,13 @@ class _InvitationDetailView extends StatelessWidget {
         if (failure != null) {
           VToast.show(
             context,
-            title: failure.requiresReload ? 'Dữ liệu đã thay đổi' : 'Không thực hiện được',
+            title: failure.requiresReload
+                ? 'Dữ liệu đã thay đổi'
+                : 'Không thực hiện được',
             message: failure.message,
-            type: failure.requiresReload ? VToastType.warning : VToastType.danger,
+            type: failure.requiresReload
+                ? VToastType.warning
+                : VToastType.danger,
           );
           context.read<OrganizationInvitationDetailCubit>().clearFeedback();
           return;
@@ -92,18 +101,17 @@ class _InvitationDetailView extends StatelessWidget {
             message: message,
             type: state.deliveryWarning ? VToastType.warning : VToastType.success,
           );
-          if (VListDetailLayout.isSplitOf(context)) onMutated?.call();
+          onMutated?.call();
           context.read<OrganizationInvitationDetailCubit>().clearFeedback();
         }
       },
       builder: (context, state) {
-        final isSplit = VListDetailLayout.isSplitOf(context);
-
-        if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
-          return VPageScaffold(
+        if (state.status == IamLoadStatus.loading ||
+            state.status == IamLoadStatus.initial) {
+          return const VPageScaffold(
             title: 'Chi tiết lời mời',
-            showBackButton: !isSplit,
-            body: const Center(child: VLoading(size: 40)),
+            showBackButton: true,
+            body: Center(child: VLoading(size: 40)),
           );
         }
 
@@ -111,7 +119,7 @@ class _InvitationDetailView extends StatelessWidget {
           final colors = context.vColors;
           return VPageScaffold(
             title: 'Chi tiết lời mời',
-            showBackButton: !isSplit,
+            showBackButton: true,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(VSpacing.screenMobile),
@@ -135,7 +143,9 @@ class _InvitationDetailView extends StatelessWidget {
                     const VGap.lg(),
                     VButton(
                       label: 'Thử lại',
-                      onPressed: () => context.read<OrganizationInvitationDetailCubit>().load(),
+                      onPressed: () => context
+                          .read<OrganizationInvitationDetailCubit>()
+                          .load(),
                     ),
                   ],
                 ),
@@ -149,81 +159,34 @@ class _InvitationDetailView extends StatelessWidget {
           state.invitation!,
           nowUtc: now,
         );
+        final (badgeLabel, badgeTone) =
+            invitationStatusBadge(invitation.status);
         final colors = context.vColors;
-        final (badgeLabel, badgeTone) = switch (invitation.status) {
-          InvitationStatus.failed => ('Lỗi gửi', VComponentTone.danger),
-          InvitationStatus.pending => ('Đang chờ', VComponentTone.warning),
-          InvitationStatus.expiring => ('Sắp hết hạn', VComponentTone.danger),
-          InvitationStatus.accepted => ('Đã chấp nhận', VComponentTone.success),
-          InvitationStatus.declined => ('Đã từ chối', VComponentTone.neutral),
-          InvitationStatus.revoked => ('Đã thu hồi', VComponentTone.neutral),
-          InvitationStatus.expired => ('Hết hạn', VComponentTone.neutral),
-        };
+        final cubit = context.read<OrganizationInvitationDetailCubit>();
 
         return VPageScaffold(
           title: 'Chi tiết lời mời',
-          showBackButton: !isSplit,
-          body: ListView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: VSpacing.screenMobile,
-              vertical: VSpacing.space4,
-            ),
-            children: [
-              VCard(
-                padding: const EdgeInsets.all(VSpacing.space4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Semantics(
-                            header: true,
-                            child: VText(
-                              invitation.email,
-                              variant: VTextVariant.headingH4,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
-                        VBadge(
-                          label: badgeLabel,
-                          tone: badgeTone,
-                          variant: VBadgeVariant.soft,
-                          isSmall: true,
-                        ),
-                      ],
-                    ),
-                    const VGap.sm(),
-                    VText(
-                      invitation.statusDetail,
-                      variant: VTextVariant.bodySmall,
-                      color: colors.textSecondary,
-                    ),
-                    if (invitation.deliveryStatus.isNotEmpty) ...[
-                      const VGap.sm(),
-                      VText(
-                        'Giao nhận: ${invitation.deliveryStatus}',
-                        variant: VTextVariant.bodySmall,
-                        color: colors.textMuted,
-                      ),
-                    ],
-                    if (state.invitation!.status != 'pending') ...[
-                      const VGap.sm(),
-                      VText(
-                        'Trạng thái: ${state.invitation!.status}',
-                        variant: VTextVariant.bodySmall,
-                        color: colors.textMuted,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
+          showBackButton: true,
+          body: ColoredBox(
+            color: colors.surfaceAlt,
+            child: wide
+                ? InvitationDetailWide(
+                    invitation: invitation,
+                    statusLabel: badgeLabel,
+                    statusTone: badgeTone,
+                    onResend: state.canMutate ? () => cubit.resend() : null,
+                    onRevoke: state.canMutate
+                        ? () => _openRevokeSheet(context, cubit)
+                        : null,
+                    busy: state.activeMutation,
+                  )
+                : InvitationDetailNarrow(
+                    invitation: invitation,
+                    statusLabel: badgeLabel,
+                    statusTone: badgeTone,
+                  ),
           ),
-          bottomBar: state.canMutate
+          bottomBar: !wide && state.canMutate
               ? Container(
                   padding: const EdgeInsets.all(VSpacing.screenMobile),
                   decoration: BoxDecoration(
@@ -236,11 +199,14 @@ class _InvitationDetailView extends StatelessWidget {
                     top: false,
                     child: VButton(
                       label: 'Thao tác',
+                      trailing: VIcons.chevronUp,
                       variant: VButtonVariant.primary,
                       tone: VComponentTone.primary,
                       fullWidth: true,
                       isLoading: state.isSubmitting,
-                      onPressed: state.isSubmitting ? null : () => _showActionBottomSheet(context),
+                      onPressed: state.isSubmitting
+                          ? null
+                          : () => _showActionBottomSheet(context),
                     ),
                   ),
                 )
@@ -297,19 +263,22 @@ class _InvitationDetailView extends StatelessWidget {
       context: context,
       onRevoke: (reason) async {
         await cubit.revoke(reason: reason);
-        return cubit.state.failure == null && cubit.state.invitation?.status == 'revoked';
+        return cubit.state.failure == null &&
+            cubit.state.invitation?.status == 'revoked';
       },
     );
     if (revoked == true && context.mounted) {
-      if (VListDetailLayout.isSplitOf(context)) {
-        VToast.show(
-          context,
-          title: 'Đã thu hồi lời mời.',
-          message: '',
-          type: VToastType.success,
-        );
-        onMutated?.call();
-        context.go('/more/users');
+      VToast.show(
+        context,
+        title: 'Đã thu hồi lời mời.',
+        message: 'Đã thu hồi lời mời.',
+        type: VToastType.success,
+      );
+      onMutated?.call();
+      if (isWideLayout(context)) {
+        try {
+          context.go('/more/users');
+        } catch (_) {}
         return;
       }
       try {

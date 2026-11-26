@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:c45_design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -32,6 +33,25 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
 
   Timer? _memberSearchTimer;
   Timer? _invitationSearchTimer;
+  int _memberLoadSeq = 0;
+  int _invitationLoadSeq = 0;
+
+  bool get _hasClientMemberCriteria =>
+      (state.memberRoleFilter != null && state.memberRoleFilter != 'Tất cả') ||
+      state.memberSort != null;
+
+  bool get _hasClientInvitationCriteria =>
+      state.invitationFilter == 'expiring' ||
+      (state.invitationSendResultFilter != null &&
+          state.invitationSendResultFilter != 'Tất cả') ||
+      (state.invitationTimeRangeFilter != null &&
+          state.invitationTimeRangeFilter != 'Tất cả') ||
+      state.invitationCustomDateRange != null;
+
+  void clearLoadMoreFailure() {
+    if (isClosed || state.loadMoreFailure == null) return;
+    emit(state.copyWith(clearLoadMoreFailure: true));
+  }
 
   Future<void> loadInitial() async {
     await Future.wait([
@@ -42,11 +62,13 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
 
   Future<void> loadMembers({bool reset = false}) async {
     if (isClosed) return;
+    final seq = ++_memberLoadSeq;
     if (reset) {
       emit(
         state.copyWith(
           memberStatus: IamLoadStatus.loading,
           clearMemberFailure: true,
+          clearLoadMoreFailure: true,
           clearMemberCursor: true,
           members: const [],
         ),
@@ -61,32 +83,51 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
     }
 
     try {
-      final page = await _members.listMembers(
-        search: _nullableSearch(state.memberSearch),
-        status: state.memberFilter,
-        cursor: reset ? null : state.memberNextCursor,
-      );
-      if (isClosed) return;
-      final mapped = page.items.map(MemberUiMapper.fromSummary).toList();
+      final loadAll = reset && _hasClientMemberCriteria;
+      final collected = <MemberUiModel>[];
+      String? cursor = reset ? null : state.memberNextCursor;
+      do {
+        final page = await _members.listMembers(
+          search: _nullableSearch(state.memberSearch),
+          status: state.memberFilter,
+          cursor: cursor,
+          limit: loadAll ? 100 : 20,
+        );
+        if (isClosed || seq != _memberLoadSeq) return;
+        collected.addAll(page.items.map(MemberUiMapper.fromSummary));
+        cursor = page.nextCursor;
+      } while (loadAll && cursor != null && cursor.isNotEmpty);
+
       final merged = reset
-          ? mapped
-          : _dedupeMembers([...state.members, ...mapped]);
+          ? collected
+          : _dedupeMembers([...state.members, ...collected]);
       emit(
         state.copyWith(
           memberStatus: IamLoadStatus.success,
           members: _filterAndSortMembers(merged),
-          memberNextCursor: page.nextCursor,
-          clearMemberCursor: page.nextCursor == null,
+          memberNextCursor: cursor,
+          clearMemberCursor: cursor == null,
           clearMemberFailure: true,
+          clearLoadMoreFailure: true,
           loadingMoreMembers: false,
         ),
       );
     } catch (error) {
-      if (isClosed) return;
+      if (isClosed || seq != _memberLoadSeq) return;
+      final failure = IamUiFailureMapper.from(error);
+      if (!reset && state.memberStatus == IamLoadStatus.success) {
+        emit(
+          state.copyWith(
+            loadMoreFailure: failure,
+            loadingMoreMembers: false,
+          ),
+        );
+        return;
+      }
       emit(
         state.copyWith(
           memberStatus: IamLoadStatus.failure,
-          memberFailure: IamUiFailureMapper.from(error),
+          memberFailure: failure,
           loadingMoreMembers: false,
         ),
       );
@@ -95,11 +136,13 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
 
   Future<void> loadInvitations({bool reset = false}) async {
     if (isClosed) return;
+    final seq = ++_invitationLoadSeq;
     if (reset) {
       emit(
         state.copyWith(
           invitationStatus: IamLoadStatus.loading,
           clearInvitationFailure: true,
+          clearLoadMoreFailure: true,
           clearInvitationCursor: true,
           invitations: const [],
         ),
@@ -117,40 +160,60 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
       final wireStatus = state.invitationFilter == 'expiring'
           ? 'pending'
           : state.invitationFilter;
-      final page = await _invitations.listInvitations(
-        search: _nullableSearch(state.invitationSearch),
-        status: wireStatus,
-        cursor: reset ? null : state.invitationNextCursor,
-      );
-      if (isClosed) return;
+      final loadAll = reset && _hasClientInvitationCriteria;
+      final collected = <InvitationUiModel>[];
+      String? cursor = reset ? null : state.invitationNextCursor;
       final now = _clock();
-      var mapped = page.items
-          .map((dto) => InvitationUiMapper.fromSummary(dto, nowUtc: now))
-          .toList();
-      if (state.invitationFilter == 'expiring') {
-        mapped = mapped
-            .where((i) => i.status == InvitationStatus.expiring)
+      do {
+        final page = await _invitations.listInvitations(
+          search: _nullableSearch(state.invitationSearch),
+          status: wireStatus,
+          cursor: cursor,
+          limit: loadAll ? 100 : 20,
+        );
+        if (isClosed || seq != _invitationLoadSeq) return;
+        var mapped = page.items
+            .map((dto) => InvitationUiMapper.fromSummary(dto, nowUtc: now))
             .toList();
-      }
+        if (state.invitationFilter == 'expiring') {
+          mapped = mapped
+              .where((i) => i.status == InvitationStatus.expiring)
+              .toList();
+        }
+        collected.addAll(mapped);
+        cursor = page.nextCursor;
+      } while (loadAll && cursor != null && cursor.isNotEmpty);
+
       final merged = reset
-          ? mapped
-          : _dedupeInvitations([...state.invitations, ...mapped]);
+          ? collected
+          : _dedupeInvitations([...state.invitations, ...collected]);
       emit(
         state.copyWith(
           invitationStatus: IamLoadStatus.success,
           invitations: _filterInvitations(merged),
-          invitationNextCursor: page.nextCursor,
-          clearInvitationCursor: page.nextCursor == null,
+          invitationNextCursor: cursor,
+          clearInvitationCursor: cursor == null,
           clearInvitationFailure: true,
+          clearLoadMoreFailure: true,
           loadingMoreInvitations: false,
         ),
       );
     } catch (error) {
-      if (isClosed) return;
+      if (isClosed || seq != _invitationLoadSeq) return;
+      final failure = IamUiFailureMapper.from(error);
+      if (!reset && state.invitationStatus == IamLoadStatus.success) {
+        emit(
+          state.copyWith(
+            loadMoreFailure: failure,
+            loadingMoreInvitations: false,
+          ),
+        );
+        return;
+      }
       emit(
         state.copyWith(
           invitationStatus: IamLoadStatus.failure,
-          invitationFailure: IamUiFailureMapper.from(error),
+          invitationFailure: failure,
           loadingMoreInvitations: false,
         ),
       );
@@ -304,13 +367,20 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
       result = result.where((m) => m.roleCode == code).toList();
     }
     if (state.memberSort == 'Tên A–Z') {
-      result.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+      result.sort(_compareNames);
     } else if (state.memberSort == 'Tên Z–A') {
-      result.sort((a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()));
+      result.sort((a, b) => _compareNames(b, a));
     } else {
       result = _sortMembers(result);
     }
     return result;
+  }
+
+  int _compareNames(MemberUiModel a, MemberUiModel b) {
+    final normA = VTextNormalizer.normalizeForSearch(a.name);
+    final normB = VTextNormalizer.normalizeForSearch(b.name);
+    final cmp = normA.compareTo(normB);
+    return cmp != 0 ? cmp : a.name.compareTo(b.name);
   }
 
   List<MemberUiModel> _sortMembers(List<MemberUiModel> items) {
@@ -347,7 +417,6 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
           'Gửi lỗi' =>
             item.deliveryStatus == 'failed' ||
                 item.status == InvitationStatus.failed,
-          'Thu hồi' => item.status == InvitationStatus.revoked,
           _ => true,
         };
       }).toList();
@@ -373,7 +442,7 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
             range.start.year,
             range.start.month,
             range.start.day,
-          );
+          ).subtract(const Duration(hours: 7));
           final endOfLastDay = DateTime.utc(
             range.end.year,
             range.end.month,
@@ -382,7 +451,7 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
             59,
             59,
             999,
-          );
+          ).subtract(const Duration(hours: 7));
           return (itemDate.isAfter(startOfFirstDay) ||
                   itemDate.isAtSameMomentAs(startOfFirstDay)) &&
               (itemDate.isBefore(endOfLastDay) ||
