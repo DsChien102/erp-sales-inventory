@@ -305,8 +305,8 @@ CSS đã có ở 10-8g: `.t1-orgm__head`, `.t1-orgm__avatar`, `.t1-orgsec*`, `.t
 **Files:**
 - Modify: `apps/erp/test/features/iam/presentation_module/widgets/my_account_page_test.dart`
 
-- [ ] **Step 1: Viết ca T0 trong bảng** ở 390 × 844.
-- [ ] **Step 2: Chạy, phải xanh trên code cũ** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets/my_account_page_test.dart test/features/my_account`
+- [x] **Step 1: Viết ca T0 trong bảng** ở 390 × 844.
+- [x] **Step 2: Chạy, phải xanh trên code cũ** — `cd apps/erp && flutter test test/features/iam/presentation_module/widgets/my_account_page_test.dart test/features/my_account`
 
 ### Task 1: Prototype + logic
 
@@ -318,8 +318,8 @@ CSS đã có ở 10-8g: `.t1-orgm__head`, `.t1-orgm__avatar`, `.t1-orgsec*`, `.t
 **Interfaces:**
 - Produces: `MyAccountState.isOwner` theo Q5; trong trang `Future<void> _logout()` có cờ `_loggingOut`.
 
-- [ ] **Step 1: Prototype** — giữ ca `account/logout` và `logoutSheet`; dòng ảnh đại diện hai khung thành `<div>` không mũi tên, không `<small>`; ô SĐT `invalid: !!e.phone`; thanh dưới web bỏ `t1-bar-line`; sửa câu mô tả ca, `WEB_NOTES`, README. `node --test` PASS; `node tools/capture.mjs account`; chép lại ảnh ở mục Ảnh.
-- [ ] **Step 2: Viết test**
+- [x] **Step 1: Prototype** — giữ ca `account/logout` và `logoutSheet`; dòng ảnh đại diện hai khung thành `<div>` không mũi tên, không `<small>`; ô SĐT `invalid: !!e.phone`; thanh dưới web bỏ `t1-bar-line`; sửa câu mô tả ca, `WEB_NOTES`, README. `node --test` PASS; `node tools/capture.mjs account`; chép lại ảnh ở mục Ảnh.
+- [x] **Step 2: Viết test**
 
 ```dart
 // my_account_cubit_test.dart
@@ -331,9 +331,9 @@ testWidgets('failed sign-out after password reset shows a toast and stays', …)
 testWidgets('remote failure still goes to login with the banner', …)  // localCleared true
 ```
 
-- [ ] **Step 3: Chạy → FAIL** — `flutter test test/features/iam/logic/my_account_cubit_test.dart test/features/iam/presentation_module/widgets/my_account_page_test.dart`
-- [ ] **Step 4: Cài đặt** Q5, Q7–Q9 (phần logic; sheet xoá ở Task 2).
-- [ ] **Step 5: Chạy → PASS** (lệnh Step 3)
+- [x] **Step 3: Chạy → FAIL** — `flutter test test/features/iam/logic/my_account_cubit_test.dart test/features/iam/presentation_module/widgets/my_account_page_test.dart`
+- [x] **Step 4: Cài đặt** Q5, Q7–Q9 (phần logic; sheet xoá ở Task 2).
+- [x] **Step 5: Chạy → PASS** (lệnh Step 3)
 
 ### Task 2: Tài khoản của tôi
 
@@ -347,7 +347,7 @@ testWidgets('remote failure still goes to login with the banner', …)  // local
 - Consumes: `DetailHeaderNarrow`, `DetailAvatar`, `DetailSectionWide`, `FlowCard`, `isWideLayout`.
 - Produces: `Future<void> showLogoutConfirmationBottomSheet({required BuildContext context, required VoidCallback onConfirm})`; hai widget cùng `({super.key, required MyAccountUiModel data, required VoidCallback onEdit, required VoidCallback onResetPassword, required VoidCallback? onLogout, required bool loggingOut})`.
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```dart
 testWidgets('390: rows and three actions in the page, no Thao tác, no bottom bar', …)
@@ -362,10 +362,10 @@ testWidgets('320 at text scale 2.0 and 840 with long name and email do not overf
 testWidgets('labeled tap targets', …)                                // meetsGuideline iOSTapTarget, labeledTapTarget ở 390
 ```
 
-- [ ] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/widgets/my_account_page_test.dart test/features/my_account`
-- [ ] **Step 3: Cài đặt** Q1–Q3, Q10, Q11, Q13. Test e2e `e2e_e06_u04_*` thêm bước bấm "Đăng xuất" trong sheet.
-- [ ] **Step 4: Chạy → PASS** (lệnh Step 2) và `flutter test test/features/more`
-- [ ] **Step 5: Golden** `account__{owner,staff,no-phone,error,logout,toast-logout-failed}` × 2. So ảnh, ghi lệch.
+- [x] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/widgets/my_account_page_test.dart test/features/my_account`
+- [x] **Step 3: Cài đặt** Q1–Q3, Q10, Q11, Q13. Test e2e `e2e_e06_u04_*` thêm bước bấm "Đăng xuất" trong sheet.
+- [x] **Step 4: Chạy → PASS** (lệnh Step 2) và `flutter test test/features/more`
+- [x] **Step 5: Golden** `account__{owner,staff,no-phone,error,logout,toast-logout-failed}` × 2. So ảnh, ghi lệch.
 
 ### Task 3: Chỉnh sửa thông tin + đóng Theme 1
 
@@ -377,7 +377,7 @@ testWidgets('labeled tap targets', …)                                // meetsG
 **Interfaces:**
 - Produces: hai widget cùng `({super.key, required String fullName, required String email, required Widget lastNameField, firstNameField, phoneField, emailField})`; `EditAccountNarrow` không dùng `emailField` (tự vẽ dòng khoá).
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```dart
 testWidgets('invalid phone turns the field border danger', …)
@@ -390,16 +390,16 @@ testWidgets('resizing keeps values and still asks before leaving', …)
 testWidgets('320 at text scale 2.0 does not overflow', …)
 ```
 
-- [ ] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/widgets/edit_my_account_page_test.dart`
-- [ ] **Step 3: Cài đặt** Q4, Q6, Q11, Q12.
-- [ ] **Step 4: TH-01** — US-08.4 FR-01 giữ nguyên, thêm "(Tài khoản của tôi; tab Thêm và thanh bên đăng xuất ngay). Lỗi → toast "Đăng xuất thất bại"."; US-08.1 FR-01: nhãn "Chủ sở hữu" nếu là Owner **của tổ chức đang dùng**.
-- [ ] **Step 5: Chạy → PASS**
+- [x] **Step 2: Chạy → FAIL** — `flutter test test/features/iam/presentation_module/widgets/edit_my_account_page_test.dart`
+- [x] **Step 3: Cài đặt** Q4, Q6, Q11, Q12.
+- [x] **Step 4: TH-01** — US-08.4 FR-01 giữ nguyên, thêm "(Tài khoản của tôi; tab Thêm và thanh bên đăng xuất ngay). Lỗi → toast "Đăng xuất thất bại"."; US-08.1 FR-01: nhãn "Chủ sở hữu" nếu là Owner **của tổ chức đang dùng**.
+- [x] **Step 5: Chạy → PASS**
 
 Run: `cd apps/erp && flutter test test/features/iam test/features/auth test/features/my_account test/features/tenant_admin test/features/invitations test/features/more test/features/dashboard test/core && dart analyze lib test && dart run tool/check_feature_imports.dart`
 Expected: PASS, không lỗi analyze mới, không vi phạm import mới (đây là phạm vi Theme 1; so `TEST-BASELINE.md`)
 
-- [ ] **Step 6: Golden** `account-edit__{default,errors,submitting,discard}` × 2. So ảnh.
-- [ ] **Step 7: Đóng Theme 1** — PLAN.md dòng Theme 1 cột "Plan chuyển Flutter" ✅, cột "Xong" chờ kiểm tay; README prototype thêm bảng "Đã có trong Flutter" theo plan 10-8d…k
+- [x] **Step 6: Golden** `account-edit__{default,errors,submitting,discard}` × 2. So ảnh.
+- [x] **Step 7: Đóng Theme 1** — PLAN.md dòng Theme 1 cột "Plan chuyển Flutter" ✅, cột "Xong" chờ kiểm tay; README prototype thêm bảng "Đã có trong Flutter" theo plan 10-8d…k
 
 ## Kiểm tay (người dùng)
 
@@ -409,4 +409,30 @@ Expected: PASS, không lỗi analyze mới, không vi phạm import mới (đây
 
 ## Kết quả
 
+Làm xong Task 0–3; xử lý review R1 (2026-11-26). Golden `test/features/iam/presentation_module/account_golden_test.dart`: 20 ảnh, so cạnh prototype ở mục Ảnh. Còn lệch chấp nhận được:
+
+- Icon ra ô vuông, không có ← trên app bar: golden không nạp font icon và trang không có route để quay lại (giống 10-8g…i). Ảnh prototype `account__*` vẽ ← ở 1280, Flutter ẩn theo Q2.
+- Web Tài khoản: cột trong 1040 có đệm 24 (prototype 16), hai cột hẹp hơn khoảng 16 px.
+- iPhone màn sửa: nhãn "Email đăng nhập" ở dòng khoá dùng `bodySmall` (prototype 14 đậm hơn).
+
+Kiểm: `flutter test test/features/iam test/features/my_account test/features/more` 575 PASS, 1 FAIL `e2e_e06_u02_fr01_01: edit profile save` (có sẵn trong `TEST-BASELINE.md`); `node --test tests/t1.test.mjs` 25 PASS; `dart analyze` phần iam, my_account 4 info có sẵn, không có mục mới; `check_feature_imports` không vi phạm iam. Còn: kiểm tay.
+
 ## Review
+
+**R1 (2026-11-26):** Test xanh, logic Q1, Q2, Q5–Q9, Q13 đúng (nhãn chủ theo `SessionController.isOwner` khi có tổ chức đang dùng; sheet đóng rồi mới đăng xuất, cờ `_loggingOut` chặn gọi hai lần; lỗi đăng xuất sau đặt lại mật khẩu ra toast, không sang `/login`). Thiếu bước và lỗi, đã sửa:
+
+| # | Lỗi | Sửa |
+|---|---|---|
+| A | Task 1 Step 1: ảnh `proto-account-edit__*` chưa chụp lại sau khi sửa prototype (còn mũi tên, "Chạm để thay hoặc xóa ảnh", SĐT không viền đỏ) → Task 3 Step 6 so với ảnh cũ | `node tools/capture.mjs account-edit`, chép lại 8 ảnh |
+| B | Golden `account__logout`, `account-edit__discard` không có sheet / hộp thoại: `RepaintBoundary` chỉ bọc `home`, lớp phủ của Navigator nằm ngoài | Bọc ở `MaterialApp.builder`; chụp lại |
+| C | Golden `account-edit__errors`: hai ô tên trống không có chữ gợi ý (chụp giữa hiệu ứng mờ dần) | Chờ 300 ms trước khi chụp |
+| D | `## Kết quả`, `## Review` trống; README prototype mục 56, 58 chưa đánh dấu (plan ghi mục 53–58) | Ghi như trên; 56, 58 ghi "Giữ 10-8k" |
+| 1 | Web dòng rỗng: `DetailRow(muted: true)` làm mờ **nhãn**, "(chưa có)" vẫn đậm đen (prototype `b.is-empty`: giá trị `textMuted` w500) | `DetailRow` thêm `valueMuted`; `MyAccountWide` dùng `valueMuted` thay `muted` |
+| 2 | Web dòng thông tin dính nhau (~26 px/dòng; prototype `.t1-acrow` đệm dọc 8 + gap 4 → ~42) | Bọc mỗi dòng `Padding(vertical: 8)` |
+| 3 | Web chữ viết tắt ô 72 cỡ `headingH4` (prototype `.t1-avatar--xl` chữ 24) | `DetailAvatar`: `size >= 72` → chữ 24 |
+
+Test thêm: `1280: empty value is muted, rows spaced like prototype, initials 24`. Chụp lại golden; `account__no-phone`, `account__logout`, `account-edit__errors` hai khung khớp prototype trừ lệch đã ghi.
+
+Để sau (không chặn):
+- iPhone dòng "Đăng xuất" khi đang đăng xuất chỉ tắt, nhìn không khác.
+- `onLogout` ở `app_router.dart` (`/more/my-account`) chỉ bắt `AppException` và trùng `signOutAndGoToLogin` (`more_logout.dart`).
