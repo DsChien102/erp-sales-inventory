@@ -52,7 +52,7 @@ export function usersListPage(s, placeWidth, { selectedId = null, toastHtml = ''
   else if (s.failure === 'forbidden') list = usersEmpty({ ic: 'shield', tone: 'warning', title: 'Bạn không có quyền quản lý', sub: 'Liên hệ Chủ tổ chức hoặc Quản trị viên để được cấp quyền phù hợp.', action: 'Quay lại' });
   else if (s.failure) list = usersEmpty({ ic: 'close', tone: 'danger', title: 'Không thể tải danh sách', sub: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.', action: 'Thử lại', danger: true });
   else if (!items.length && (s.query || s.chip)) list = usersEmpty({ ic: 'search', title: 'Không tìm thấy kết quả', sub: 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.', action: 'Xóa bộ lọc', variant: 'secondary' });
-  else if (!items.length) list = usersEmpty({ ic: 'info', title: s.tab === 0 ? 'Chưa có thành viên khác' : 'Chưa có lời mời', sub: s.tab === 0 ? 'Mời thêm người dùng để cùng vận hành tổ chức.' : 'Mời thành viên mới để họ nhận email tham gia.', action: 'Mời thành viên' });
+  else if (!items.length) list = usersEmpty({ ic: 'info', title: s.tab === 0 ? 'Chưa có thành viên khác' : 'Chưa có lời mời nào', sub: s.tab === 0 ? 'Mời thêm người dùng để cùng vận hành tổ chức.' : 'Tạo lời mời mới để thêm người dùng vào tổ chức.', action: 'Mời thành viên' });
   else list = `<div class="t1-ulist">${items.map((x) => (s.tab === 0 ? memberCard(x, x.id === selectedId) : invitationCard(x, x.id === selectedId))).join('')}</div>`;
   const chips = s.tab === 0 ? ['Tất cả', 'Hoạt động', 'Tạm ngừng'] : ['Tất cả', 'Đang chờ', 'Hết hạn'];
   const body = `<div class="t1-utop"><div class="t1-useg" role="tablist">${['Thành viên', 'Lời mời'].map((l, i) => `<button type="button" role="tab" aria-selected="${i === s.tab}">${l}</button>`).join('')}</div>
@@ -69,7 +69,7 @@ export function usersListPage(s, placeWidth, { selectedId = null, toastHtml = ''
 export function filterSheet(kind) {
   const groups = kind === 'members'
     ? [['Trạng thái', ['Tất cả', 'Hoạt động', 'Tạm ngừng']], ['Vai trò', ['Tất cả', 'Chủ cửa hàng', 'Nhân viên bán hàng', 'Kế toán', 'Thủ kho']], ['Sắp xếp', ['Tất cả', 'Tên A–Z', 'Tên Z–A']]]
-    : [['Trạng thái', ['Tất cả', 'Đang chờ', 'Hết hạn']], ['Kết quả gửi', ['Tất cả', 'Đã gửi', 'Gửi lỗi', 'Thu hồi']], ['Thời gian', ['Tất cả', '7 ngày', '30 ngày', 'Tùy chọn']]];
+    : [['Trạng thái', ['Tất cả', 'Đang chờ', 'Hết hạn', 'Thu hồi']], ['Kết quả gửi', ['Tất cả', 'Đã gửi', 'Gửi lỗi']], ['Thời gian', ['Tất cả', '7 ngày', '30 ngày', 'Tùy chọn']]];
   return `<div class="t1-fsheet">${groups.map(([t, opts]) => `<div class="t1-fgroup"><b>${esc(t)}</b><div class="t1-fwrap">${opts.map((o, i) => filterChip(o, i === 0)).join('')}</div></div>`).join('')}
     <div class="t1-row2 t1-fsheet__acts">${button('Đặt lại', { variant: 'secondary', full: true })}${button('Áp dụng', { full: true })}</div></div>`;
 }
@@ -95,7 +95,7 @@ export function usersPage(v) {
 
 // ---------------------------------------------------------------- ID-15 mời thành viên
 export const INVITE_STATES = {
-  empty: {}, filled: { email: 'tuan@anphat.vn', role: 'Nhân viên bán hàng' }, 'empty-submit': { errors: { email: 'Vui lòng nhập email và chọn vai trò.' } },
+  empty: {}, filled: { email: 'tuan@anphat.vn', role: 'Nhân viên bán hàng' }, 'empty-submit': { errors: { email: 'Vui lòng nhập email và chọn vai trò.', role: 'Vui lòng nhập email và chọn vai trò.' } },
   'no-role': { email: 'tuan@anphat.vn', errors: { role: 'Vui lòng nhập email và chọn vai trò.' } }, 'bad-email': { email: 'tuan@anphat', role: 'Nhân viên bán hàng', errors: { email: 'Email không hợp lệ' } },
   submitting: { email: 'tuan@anphat.vn', role: 'Nhân viên bán hàng', busy: true },
   'toast-failed': { email: 'tuan@anphat.vn', role: 'Nhân viên bán hàng', toast: ['danger', 'Không gửi được lời mời', 'Đã có lời mời đang chờ xử lý.'] },
@@ -114,7 +114,7 @@ export function invitePage(v) {
     return `<button type="button" role="radio" class="t1-rolelist__opt${on ? ' is-on' : ''}" aria-checked="${on}">${radio(on)}<span><b>${esc(name)}</b><small>${esc(d)}</small></span></button>`;
   };
   const body = `<div class="t1-list t1-invitem">
-    ${card(`${field({ label: 'Email', required: true, control: input({ value: s.email || '', hint: 'nhanvien@minhphat.vn', invalid: !!e.email }), error: e.email })}
+    ${card(`${field({ label: 'Email', required: true, control: input({ value: s.email || '', hint: 'nhanvien@example.com', invalid: !!e.email }), error: e.email })}
       <p class="t1-small t1-invitem__note">Người nhận phải đăng nhập đúng email. Lời mời sẽ hết hạn sau 7 ngày.</p>`, 't1-card--pad')}
     ${card(`<div class="t1-rolelist__legend"><span class="t1-label">Vai trò ban đầu<i aria-hidden="true"> *</i></span></div>
       <div role="radiogroup" aria-label="Vai trò ban đầu">${SELECT_ROLES.map(roleRow).join('')}</div>`, `t1-rolelist${e.role ? ' is-invalid' : ''}`)}
@@ -159,10 +159,10 @@ function invitationDetail(s, w, split, device) {
 
 /** Sheet "Thao tác lời mời" (có title): đệm 16; IamActionTile gửi lại / khe 8 / thu hồi (danger) / khe 16. */
 const invitationActions = () => `<div class="t1-list">${actionTile('rotate', 'Gửi lại lời mời', 'Gửi lại email đến người nhận')}<div class="t1-gap-sm"></div>${actionTile('trash', 'Thu hồi lời mời', 'Người nhận không thể tiếp tục tham gia', true)}<div class="t1-gap-md"></div></div>`;
-/** _RevokeInvitationSheetBody: đệm 16; H3 w700 danger; khe 4; bodyDefault; (không khe) VField "Lý do thu hồi" + ô 3 dòng; khe 24; Quay lại / khe 8 / Thu hồi (secondary danger) / khe 8. */
+/** _RevokeInvitationSheetBody: đệm 16; H3 w700 danger; khe 4; bodyDefault; khe 16; VField "Lý do thu hồi *" + ô 3 dòng; khe 24; Quay lại / khe 8 / Thu hồi (secondary danger) / khe 8. */
 export const revokeSheet = (s) => `<div class="t1-list"><h2 class="t1-h3 t1-danger">Thu hồi lời mời?</h2><div class="t1-gap-xs"></div>
-  <p class="t1-body2">Người nhận sẽ không thể dùng liên kết hiện tại để tham gia tổ chức.</p>
-  ${field({ label: 'Lý do thu hồi', control: textArea({ value: s.reason || '', hint: 'Ví dụ: Sai email người nhận', invalid: !!s.revokeError, disabled: !!s.revokeBusy }), error: s.revokeError })}
+  <p class="t1-body2">Người nhận sẽ không thể dùng liên kết hiện tại để tham gia tổ chức.</p><div class="t1-gap-md"></div>
+  ${field({ label: 'Lý do thu hồi', required: true, control: textArea({ value: s.reason || '', hint: 'Ví dụ: Sai email người nhận', invalid: !!s.revokeError, disabled: !!s.revokeBusy }), error: s.revokeError })}
   <div class="t1-gap-lg"></div>${button('Quay lại', { variant: 'secondary', full: true, disabled: !!s.revokeBusy })}<div class="t1-gap-sm"></div>
   ${button('Thu hồi lời mời', { variant: 'secondary', full: true, loading: !!s.revokeBusy, cls: 't1-btn--danger-outline' })}<div class="t1-gap-sm"></div></div>`;
 
@@ -206,7 +206,7 @@ function memberDetail(s, w, split, device) {
   const body = `<div class="t1-list t1-orgm">
     <div class="t1-orgm__head${off}">${memberAvatar(m)}<div><h2>${esc(m.name)}</h2><p>${esc(m.email)}</p></div></div>
     <section class="t1-card t1-card--pad t1-orgm__sec${off}"><div class="t1-dhead"><h3 class="t1-h4 t1-h4--600">Thông tin thành viên</h3>${badge(label, tone)}</div>
-      ${drow('Tên', m.name)}${drow('Email', m.email)}${drow('Vai trò hiện hành', m.role)}${drow(m.isOwner ? 'Quyền sở hữu' : 'Danh tính', m.isOwner ? 'Chủ sở hữu' : 'Chỉ đọc')}</section>
+      ${drow('Tên', m.name)}${drow('Email', m.email)}${drow('Vai trò hiện hành', m.role)}${drow('Quyền sở hữu', m.isOwner ? 'Chủ sở hữu' : 'Thành viên')}</section>
     ${note}
     <section class="t1-card t1-card--pad t1-orgm__sec"><h3 class="t1-h4 t1-h4--600">Trạng thái truy cập</h3>${access}</section>
   </div>`;
@@ -248,7 +248,14 @@ export function memberDetailPage(v) {
 // ---------------------------------------------------------------- ID-18 chọn vai trò
 /** _availableRoles (mô tả riêng của màn này, ngắn hơn TH-01 3.4); vai trò hiện tại đưa lên đầu. */
 export const SELECT_ROLES = [['Nhân viên bán hàng', 'Bán hàng và chăm sóc khách hàng'], ['Kế toán', 'Công nợ, hóa đơn và báo cáo'], ['Thủ kho', 'Nhập xuất, tồn kho và kiểm kê'], ['Chủ cửa hàng', 'Quản lý toàn bộ cửa hàng']];
-export const SELECT_STATES = { default: { id: 'm2' }, selected: { id: 'm2', pick: 'Thủ kho' }, suspended: { id: 'm3' } };
+export const SELECT_STATES = { default: { id: 'm2' }, selected: { id: 'm2', pick: 'Thủ kho' }, confirm: { id: 'm2', pick: 'Thủ kho', sheet: 'confirm' }, suspended: { id: 'm3' } };
+
+/** showChangeRoleBottomSheet (MembershipLifecycleConfirmSheet, 10-8h Q6): tiêu đề đen; mô tả hai dòng "<cũ> → <mới>" + câu nhãn công việc; khe 32; Quay lại / khe 8 / "Xác nhận thay đổi" (primary). */
+export const changeRoleSheet = (m, pick, busy = false) => `<div class="t1-sheetpad"><h2 class="t1-h3">${esc(`Đổi vai trò của ${m.name}?`)}</h2><div class="t1-gap-xs"></div>
+  <p class="t1-body2">${esc(`Vai trò ${m.role} → ${pick}.`)}<br>Vai trò là nhãn công việc; quyền nghiệp vụ của thành viên không thay đổi.</p><div class="t1-gap-xl"></div>
+  ${button('Quay lại', { variant: 'secondary', full: true, disabled: busy })}<div class="t1-gap-sm"></div>
+  ${button('Xác nhận thay đổi', { full: true, loading: busy })}</div>`;
+export const changeRoleTitle = (m) => `Đổi vai trò của ${m.name}?`;
 
 // Bố cục iPhone thiết kế lại qua impeccable live (2026-11-25): ô tròn + tên + nhãn → "Chọn vai trò mới" → thẻ danh sách (vai trò hiện tại dòng đầu nền canvas, không chọn được). Web giữ bản cũ ở web/users.js.
 function selectRole(s, w) {
@@ -264,7 +271,7 @@ function selectRole(s, w) {
   };
   const body = `<div class="t1-list t1-selrole">
     <div class="t1-orgm__head">${memberAvatar(m)}<div><div class="t1-selrole__name"><h2>${esc(m.name)}</h2>${badge(active ? 'Hoạt động' : 'Tạm ngừng', active ? 'success' : 'danger')}</div>
-      <p>${esc(`${m.email} · ${m.role}`)}</p><p>${m.isOwner ? 'Quyền sở hữu: Chủ sở hữu' : 'Danh tính: Chỉ đọc'}</p></div></div>
+      <p>${esc(`${m.email} · ${m.role}`)}</p><p>${m.isOwner ? 'Quyền sở hữu: Chủ sở hữu' : 'Quyền sở hữu: Thành viên'}</p></div></div>
     <h3 class="t1-selrole__title">Chọn vai trò mới</h3><p class="t1-small t1-selrole__sub">Mỗi thành viên có đúng một vai trò hiện hành.</p>
     ${card(`<div role="radiogroup" aria-label="Chọn vai trò mới">${roles.map(item).join('')}</div>`, 't1-rolelist')}</div>`;
   const bar = `<div class="t1-bar-pad t1-row2 t1-row2--8">${button('Hủy', { variant: 'secondary', full: true })}${button('Tiếp tục', { full: true, disabled: !s.pick, attrs: 'data-primary' })}</div>`;
@@ -273,5 +280,7 @@ function selectRole(s, w) {
 
 export function selectRolePage(v) {
   const s = SELECT_STATES[v.state];
-  return { page: usersArea(v, { tab: 0 }, { selectedId: s.id, detail: (w) => selectRole(s, w) }) };
+  const m = memberById(s.id);
+  const overlay = s.sheet === 'confirm' ? adaptiveSheet(v.width, changeRoleSheet(m, s.pick), changeRoleTitle(m)) : '';
+  return { page: usersArea(v, { tab: 0 }, { selectedId: s.id, detail: (w) => selectRole(s, w) }), overlay };
 }

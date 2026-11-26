@@ -21,7 +21,7 @@ export const ROLE_DESC = {
   'Thủ kho': 'Nhập xuất, tồn kho và kiểm kê',
 };
 
-// identityText: chủ → "Chủ sở hữu", còn lại → "Chỉ đọc" (member_ui_mapper.dart).
+// identityText: chủ → "Chủ sở hữu", còn lại → "Thành viên" (member_ui_mapper.dart, 10-8h Q18).
 export const MEMBERS = [
   { id: 'm1', name: 'Nguyễn Thị Lan', email: 'lan@anphat.vn', role: 'Chủ cửa hàng', status: 'active', isOwner: true, soleOwner: true, joined: '02/09/2026', lastActive: '22/11/2026 08:41' },
   { id: 'm2', name: 'Trần Văn Minh', email: 'minh@anphat.vn', role: 'Nhân viên bán hàng', status: 'active', joined: '15/10/2026', lastActive: '21/11/2026 17:05' },
@@ -31,7 +31,8 @@ export const MEMBERS = [
 export const REMOVED = { id: 'm4', name: 'Phạm Quốc Bảo', email: 'bao@anphat.vn', role: 'Thủ kho', status: 'removed', joined: '01/10/2026', removedAt: '10/11/2026 14:30' };
 export const memberById = (id) => [...MEMBERS, REMOVED].find((m) => m.id === id);
 
-/** statusDetail = "<vai trò> · <hạn> · <gửi>" (invitation_ui_mapper.dart); status theo thứ tự: kết thúc > gửi lỗi > sắp hết hạn (≤ 2 ngày) > đang chờ. */
+/** statusDetail = "<vai trò> · <hạn> · <gửi>" (invitation_ui_mapper.dart); status theo thứ tự: kết thúc > gửi lỗi > sắp hết hạn (≤ 2 ngày) > đang chờ.
+ * Đã chấp nhận / từ chối / thu hồi: không ghi hạn (expiry rỗng); mã gửi lạ → "—" (10-8h Q20). */
 export const INVITATIONS = [
   { id: 'i1', email: 'tuan@anphat.vn', role: 'Nhân viên bán hàng', expiry: 'Hết hạn sau 6 ngày', delivery: 'sent', wire: 'pending', status: 'pending' },
   { id: 'i2', email: 'nga.kt@gmail.com', role: 'Kế toán', expiry: 'Hết hạn trong 1 ngày', delivery: 'sent', wire: 'pending', status: 'expiring' },
@@ -39,7 +40,7 @@ export const INVITATIONS = [
   { id: 'i4', email: 'vy@anphat.vn', role: 'Nhân viên bán hàng', expiry: 'Đã hết hạn', delivery: 'sent', wire: 'expired', status: 'expired' },
 ];
 const DELIVERY = { failed: 'Chưa gửi được email', queued: 'Đang xếp hàng gửi', sent: 'Đã gửi email' };
-export const statusDetail = (i) => `${i.role} · ${i.expiry} · ${DELIVERY[i.delivery] || i.delivery}`;
+export const statusDetail = (i) => [i.role, i.expiry, DELIVERY[i.delivery] || '—'].filter(Boolean).join(' · ');
 export const invitationById = (id) => INVITATIONS.find((i) => i.id === id);
 
 export const MEMBER_BADGE = { active: ['Hoạt động', 'success'], suspended: ['Tạm ngừng', 'danger'], removed: ['Đã loại', 'danger'] };

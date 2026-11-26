@@ -9,6 +9,8 @@ import { accountErrors, storeErrors, policyError, PROVINCES } from '../app/signu
 import { maskEmail, resendLabel } from '../app/verify.js';
 import { resetResendLabel } from '../app/reset.js';
 import { entryFailureMessage, tokenFormatError } from '../app/invitation.js';
+import { statusDetail } from '../app/admin-data.js';
+import { filterSheet } from '../app/users.js';
 
 test('maskEmail (password_reset_result.dart)', () => {
   assert.equal(maskEmail('lan@anphat.vn'), 'l***@anphat.vn');
@@ -171,4 +173,33 @@ test('verify resend-failed: toast đỏ, ô mã không đỏ (10-8e, lỗi 2)', 
     assert.match(html, /t1-toast--danger/, d);
     assert.match(html, /Không thể kết nối đến máy chủ/, d);
   }
+});
+
+test('10-8h: bộ lọc lời mời — "Thu hồi" thuộc Trạng thái, không thuộc Kết quả gửi (Q3)', () => {
+  const html = filterSheet('invitations');
+  const [status, send] = html.split('Kết quả gửi');
+  assert.match(status, /Thu hồi/);
+  assert.doesNotMatch(send.split('Thời gian')[0], /Thu hồi/);
+});
+
+test('10-8h: lời mời kết thúc không ghi hạn; mã gửi lạ → — (Q20)', () => {
+  assert.equal(statusDetail({ role: 'Kế toán', expiry: '', delivery: 'sent' }), 'Kế toán · Đã gửi email');
+  assert.equal(statusDetail({ role: 'Kế toán', expiry: 'Hết hạn sau 2 ngày', delivery: 'unknown' }), 'Kế toán · Hết hạn sau 2 ngày · —');
+});
+
+test('10-8h: chữ mới ở Người dùng (Q4, Q5, Q6, Q18, Q21)', () => {
+  for (const d of ['iphone', 'web']) {
+    const invite = render('invite', 'empty-submit', d);
+    assert.equal(invite.match(/Vui lòng nhập email và chọn vai trò\./g).length, 2, d);
+    assert.match(render('invite', 'empty', d), /nhanvien@example\.com/, d);
+    assert.match(render('member-detail', 'active', d), /Thành viên/, d);
+    assert.doesNotMatch(render('member-detail', 'active', d), /Danh tính|Chỉ đọc/, d);
+    assert.doesNotMatch(render('select-role', 'default', d), /Danh tính|Chỉ đọc/, d);
+    const confirm = render('select-role', 'confirm', d);
+    assert.match(confirm, /Đổi vai trò của Trần Văn Minh\?/, d);
+    assert.match(confirm, /Vai trò Nhân viên bán hàng → Thủ kho\./, d);
+    assert.match(confirm, /Xác nhận thay đổi/, d);
+    assert.match(render('users', 'invitations-empty', d), /Chưa có lời mời nào/, d);
+  }
+  assert.match(render('invitation-detail', 'revoke', 'iphone'), /Lý do thu hồi[\s\S]{0,200}\*/);
 });

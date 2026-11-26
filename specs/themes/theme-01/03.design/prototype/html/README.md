@@ -159,10 +159,10 @@ Màn trần không có tương tác: mỗi trạng thái là một ca.
 41. Dưới tab có hai gạch chồng (gạch của VTabs + Divider); ô tìm nền trắng nhưng hàng tab / chip nền xám.
 42. Thẻ thành viên: tên + "Chủ sở hữu" xuống dòng trong cột 360; "email · vai trò" xuống dòng. Bộ lọc đã áp dụng chỉ báo bằng chấm 8 px, chip nhanh vẫn "Tất cả".
 43. Chi tiết lời mời: in giá trị thô "Giao nhận: sent", "Trạng thái: expired"; thanh "Thao tác" có hai gạch trên (Container tự vẽ thêm). Lời mời hết hạn không có thao tác nào (không mời lại được từ đây).
-44. Chi tiết thành viên: "Danh tính: Chỉ đọc" cho mọi người không phải chủ — đọc như quyền chỉ đọc. Chủ sở hữu duy nhất không có thanh thao tác và không có câu giải thích vì sao.
-45. Sheet thu hồi: ô lý do dính sát câu mô tả (không khe); lý do bắt buộc nhưng nhãn không có *. Nút xác nhận nguy hiểm là nút viền đỏ đặt dưới "Quay lại" (thứ tự ngược hộp thoại "Bỏ thay đổi?" nơi nút đỏ đặc bên phải).
-46. Mời thành viên: bấm gửi khi trống chỉ ô Email báo "Vui lòng nhập email và chọn vai trò."; thiếu vai trò thì câu đó hiện dưới VSelect nhưng viền không đỏ; nút đang gửi đổi chữ "Đang gửi..." không vòng xoay (các màn khác dùng vòng xoay). Gợi ý "nhanvien@minhphat.vn" là tên cửa hàng khác.
-47. Chọn vai trò: không có bước "Xem trước thay đổi" (TH-01 ID-18 có) — chọn xong bấm Tiếp tục là đổi ngay; mô tả vai trò ở màn này khác mô tả ở màn Vai trò.
+44. Chi tiết thành viên: "Danh tính: Chỉ đọc" cho mọi người không phải chủ — đọc như quyền chỉ đọc. Chủ sở hữu duy nhất không có thanh thao tác và không có câu giải thích vì sao. (Đã sửa 10-8h)
+45. Sheet thu hồi: ô lý do dính sát câu mô tả (không khe); lý do bắt buộc nhưng nhãn không có *. Nút xác nhận nguy hiểm là nút viền đỏ đặt dưới "Quay lại" (thứ tự ngược hộp thoại "Bỏ thay đổi?" nơi nút đỏ đặc bên phải). (Đã sửa 10-8h)
+46. Mời thành viên: bấm gửi khi trống chỉ ô Email báo "Vui lòng nhập email và chọn vai trò."; thiếu vai trò thì câu đó hiện dưới VSelect nhưng viền không đỏ; nút đang gửi đổi chữ "Đang gửi..." không vòng xoay (các màn khác dùng vòng xoay). Gợi ý "nhanvien@minhphat.vn" là tên cửa hàng khác. (Đã sửa 10-8h)
+47. Chọn vai trò: không có bước "Xem trước thay đổi" (TH-01 ID-18 có) — chọn xong bấm Tiếp tục là đổi ngay; mô tả vai trò ở màn này khác mô tả ở màn Vai trò. (Đã sửa 10-8h)
 
 **Vai trò (ID-19)**
 

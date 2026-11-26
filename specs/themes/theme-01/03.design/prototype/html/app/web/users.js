@@ -7,7 +7,7 @@ import {
 } from '../ds.js';
 import { BAR_H, loadFailed } from '../org.js';
 import {
-  filterSheet, INVITATION_STATES, INVITE_STATES, LIFECYCLE, lifecycleSheet, LIST_STATES, MEMBER_STATES, revokeSheet, SELECT_ROLES, SELECT_STATES,
+  changeRoleSheet, changeRoleTitle, filterSheet, INVITATION_STATES, INVITE_STATES, LIFECYCLE, lifecycleSheet, LIST_STATES, MEMBER_STATES, revokeSheet, SELECT_ROLES, SELECT_STATES,
   subtitle, usersEmpty,
 } from '../users.js';
 
@@ -31,7 +31,7 @@ function usersListPage(s, toastHtml) {
   else if (s.failure === 'forbidden') list = usersEmpty({ ic: 'shield', tone: 'warning', title: 'Bạn không có quyền quản lý', sub: 'Liên hệ Chủ tổ chức hoặc Quản trị viên để được cấp quyền phù hợp.', action: 'Quay lại' });
   else if (s.failure) list = usersEmpty({ ic: 'close', tone: 'danger', title: 'Không thể tải danh sách', sub: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.', action: 'Thử lại', danger: true });
   else if (!items.length && (s.query || s.chip)) list = usersEmpty({ ic: 'search', title: 'Không tìm thấy kết quả', sub: 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.', action: 'Xóa bộ lọc' });
-  else if (!items.length) list = usersEmpty({ ic: 'info', title: s.tab === 0 ? 'Chưa có thành viên khác' : 'Chưa có lời mời', sub: s.tab === 0 ? 'Mời thêm người dùng để cùng vận hành tổ chức.' : 'Mời thành viên mới để họ nhận email tham gia.', action: 'Mời thành viên' });
+  else if (!items.length) list = usersEmpty({ ic: 'info', title: s.tab === 0 ? 'Chưa có thành viên khác' : 'Chưa có lời mời nào', sub: s.tab === 0 ? 'Mời thêm người dùng để cùng vận hành tổ chức.' : 'Tạo lời mời mới để thêm người dùng vào tổ chức.', action: 'Mời thành viên' });
   const chips = s.tab === 0 ? ['Tất cả', 'Hoạt động', 'Tạm ngừng'] : ['Tất cả', 'Đang chờ', 'Hết hạn'];
   return usersTablePage(s, items, list, chips, toastHtml);
 }
@@ -83,7 +83,7 @@ export function invitePage(v) {
   };
   const body = `<div class="t1-formpage"><p class="t1-small">Người nhận phải đăng nhập đúng email. Lời mời sẽ hết hạn sau 7 ngày.</p>
     <div class="t1-formcard"><div class="t1-form">
-      ${field({ label: 'Email', required: true, control: input({ value: s.email || '', hint: 'nhanvien@minhphat.vn', invalid: !!e.email, disabled: !!s.busy }), error: e.email })}
+      ${field({ label: 'Email', required: true, control: input({ value: s.email || '', hint: 'nhanvien@example.com', invalid: !!e.email, disabled: !!s.busy }), error: e.email })}
       <fieldset class="t1-rolepick${e.role ? ' is-invalid' : ''}"><legend class="t1-label">Vai trò ban đầu<i aria-hidden="true"> *</i></legend>
         <div class="t1-rolepick__grid">${SELECT_ROLES.map(roleCard).join('')}</div>
         ${e.role ? fieldError(e.role) : fieldDesc('Vai trò có thể thay đổi sau khi tham gia.')}</fieldset>
@@ -139,7 +139,7 @@ function memberDetail(s, w, device) {
   const sec = (title, action, inner) => `<section class="t1-orgsec"><div class="t1-orgsec__head"><h2>${esc(title)}</h2>${action}</div>${inner}</section>`;
   const body = `<div class="t1-orgp">
     <div class="t1-orgp__head${m.status === 'removed' ? ' t1-o60' : ''}">${avatar(m.name).replace('t1-avatar"', 't1-avatar t1-avatar--lg"')}<div><h1>${esc(m.name)}</h1><p>${esc(`${m.email} · ${m.role}`)}</p></div></div>
-    <div${m.status === 'removed' ? ' class="t1-o60"' : ''}>${sec('Thông tin thành viên', badge(label, tone), `<div class="t1-stack12">${row('Tên', m.name)}${row('Email', m.email)}${row('Vai trò hiện hành', m.role)}${row(m.isOwner ? 'Quyền sở hữu' : 'Danh tính', m.isOwner ? 'Chủ sở hữu' : 'Chỉ đọc')}</div>`)}</div>
+    <div${m.status === 'removed' ? ' class="t1-o60"' : ''}>${sec('Thông tin thành viên', badge(label, tone), `<div class="t1-stack12">${row('Tên', m.name)}${row('Email', m.email)}${row('Vai trò hiện hành', m.role)}${row('Quyền sở hữu', m.isOwner ? 'Chủ sở hữu' : 'Thành viên')}</div>`)}</div>
     ${note}
     ${sec('Trạng thái truy cập', '', `<div class="t1-stack12">${access}</div>${acts}`)}
   </div>`;
@@ -165,7 +165,7 @@ function selectRole(s, w) {
   };
   const body = `<div class="t1-list">
     ${vcard(`<div class="t1-dhead"><h2 class="t1-h4">${esc(m.name)}</h2>${badge(active ? 'Hoạt động' : 'Tạm ngừng', active ? 'success' : 'danger')}</div><div class="t1-gap-xs"></div>
-      <p class="t1-small">${esc(`${m.email} · ${m.role}`)}</p><div class="t1-gap-md"></div><p class="t1-strong">${m.isOwner ? 'Quyền sở hữu: Chủ sở hữu' : 'Danh tính: Chỉ đọc'}</p>`)}
+      <p class="t1-small">${esc(`${m.email} · ${m.role}`)}</p><div class="t1-gap-md"></div><p class="t1-strong">${m.isOwner ? 'Quyền sở hữu: Chủ sở hữu' : 'Quyền sở hữu: Thành viên'}</p>`)}
     <div class="t1-gap-md"></div><h2 class="t1-h4">Chọn vai trò mới</h2><div class="t1-gap-xs"></div><p class="t1-small">Mỗi thành viên có đúng một vai trò hiện hành.</p><div class="t1-gap-md"></div>
     ${roles.map(item).join('')}</div>`;
   const bar = `<div class="t1-bar-pad t1-row2 t1-row2--8">${button('Hủy', { variant: 'secondary', full: true })}${button('Tiếp tục', { full: true, disabled: !s.pick })}</div>`;
@@ -174,5 +174,7 @@ function selectRole(s, w) {
 
 export function selectRolePage(v) {
   const s = SELECT_STATES[v.state];
-  return { page: selectRole(s, v.width) };
+  const m = memberById(s.id);
+  const overlay = s.sheet === 'confirm' ? adaptiveSheet(v.width, changeRoleSheet(m, s.pick), changeRoleTitle(m)) : '';
+  return { page: selectRole(s, v.width), overlay };
 }
