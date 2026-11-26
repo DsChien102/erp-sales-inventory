@@ -178,6 +178,83 @@ void main() {
     await session.close();
   });
 
+  test('resend clears a wrong-code failure', () async {
+    final auth = ScriptedAuthRepository()
+      ..verifyError = const AppException('OTP_INVALID');
+    final session = loginSession();
+    final cubit = VerifyEmailCubit(
+      auth: auth,
+      session: session,
+      email: 'lan@example.com',
+      allowImmediateResend: true,
+    );
+    await cubit.verify('123456');
+    expect(cubit.state.failure, isNotNull);
+    await cubit.resend();
+    expect(cubit.state.failure, isNull);
+    await cubit.close();
+    await session.close();
+  });
+
+  testWidgets('resend failing after a correct code: verified once, no toast', (
+    tester,
+  ) async {
+    final gate = Completer<void>();
+    final auth = _HangingResend(gate)
+      ..resendError = const AppException(AppErrorCode.network);
+    final session = loginSession();
+    addTearDown(session.close);
+    var verified = 0;
+    await tester.pumpWidget(
+      _host(auth, session, allowImmediateResend: true, onVerified: (_) => verified++),
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('signup_resend')));
+    await tester.pump();
+    await tester.enterText(find.byType(TextField), '123456');
+    await tester.pumpAndSettle();
+    expect(verified, 1);
+
+    gate.complete();
+    await tester.pumpAndSettle();
+    expect(verified, 1);
+    expect(find.byType(VToast), findsNothing);
+  });
+
+  testWidgets('resend failing while verifying: the toast is not repeated on success', (
+    tester,
+  ) async {
+    final resendGate = Completer<void>();
+    final verifyGate = Completer<void>();
+    final auth = _HangingResend(resendGate, verifyGate: verifyGate)
+      ..resendError = const AppException(AppErrorCode.network);
+    final session = loginSession();
+    addTearDown(session.close);
+    var verified = 0;
+    await tester.pumpWidget(
+      _host(auth, session, allowImmediateResend: true, onVerified: (_) => verified++),
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('signup_resend')));
+    await tester.pump();
+    await tester.enterText(find.byType(TextField), '123456');
+    await tester.pump();
+    resendGate.complete();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byType(VToast), findsOneWidget);
+    ScaffoldMessenger.of(tester.element(find.byType(Scaffold))).clearSnackBars();
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byType(VToast), findsNothing);
+
+    verifyGate.complete();
+    await tester.pumpAndSettle();
+    expect(verified, 1);
+    expect(find.byType(VToast), findsNothing);
+  });
+
   testWidgets('resending keeps the code field and Xác minh usable', (tester) async {
     final gate = Completer<void>();
     final auth = _HangingResend(gate);
@@ -226,6 +303,12 @@ void main() {
       expect(find.byType(VToast), findsNothing);
     }
     expect(auth.resentEmails, hasLength(2));
+
+    // Sau đó sai mã: ô đỏ bình thường.
+    auth.verifyError = const AppException('OTP_INVALID');
+    await tester.enterText(find.byType(TextField), '123456');
+    await tester.pumpAndSettle();
+    expect(find.byType(VFieldError), findsOneWidget);
   });
 
   testWidgets('countdown is text, then a link', (tester) async {
@@ -266,6 +349,7 @@ Widget _host(
   SessionController session, {
   bool allowImmediateResend = false,
   DateTime Function()? clock,
+  void Function(String userId)? onVerified,
 }) {
   return MaterialApp(
     theme: VTheme.lightTheme,
@@ -277,6 +361,7 @@ Widget _host(
           session: session,
           allowImmediateResend: allowImmediateResend,
           clock: clock,
+          onVerified: onVerified,
         ),
       ),
     ),
@@ -284,8 +369,18 @@ Widget _host(
 }
 
 class _HangingResend extends ScriptedAuthRepository {
-  _HangingResend(this.gate);
+  _HangingResend(this.gate, {this.verifyGate});
   final Completer<void> gate;
+  final Completer<void>? verifyGate;
+
+  @override
+  Future<String> verifySignupOtp({
+    required String email,
+    required String code,
+  }) async {
+    await verifyGate?.future;
+    return super.verifySignupOtp(email: email, code: code);
+  }
 
   @override
   Future<void> resendSignupOtp(String email) async {

@@ -257,64 +257,67 @@ class _AdministrativeUnitTouchField extends StatelessWidget {
         key: fieldKey,
         onTap: enabled ? onTap : null,
         borderRadius: BorderRadius.circular(VRadius.input),
-        child: Container(
-          height: VCombobox.controlHeight,
-          padding: const EdgeInsets.symmetric(horizontal: VSpacing.space3),
-          decoration: BoxDecoration(
-            color: enabled ? colors.surface : colors.surfaceAlt,
-            borderRadius: BorderRadius.circular(VRadius.input),
-            border: Border.all(
-              color: !enabled
-                  ? colors.borderDefault.withValues(alpha: 0.5)
-                  : VField.resolveInvalid(context, local: null)
-                  ? colors.danger
-                  : colors.borderDefault,
+        child: vDisabledOpacity(
+          enabled: enabled,
+          child: Container(
+            height: VCombobox.controlHeight,
+            padding: const EdgeInsets.symmetric(horizontal: VSpacing.space3),
+            decoration: BoxDecoration(
+              color: enabled ? colors.surface : colors.surfaceAlt,
+              borderRadius: BorderRadius.circular(VRadius.input),
+              border: Border.all(
+                color: !enabled
+                    ? colors.borderDefault.withValues(alpha: 0.5)
+                    : VField.resolveInvalid(context, local: null)
+                    ? colors.danger
+                    : colors.borderDefault,
+              ),
             ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                prefixIcon,
-                size: 18,
-                color: enabled ? colors.textSecondary : colors.textMuted,
-              ),
-              const SizedBox(width: VSpacing.space2),
-              Expanded(
-                child: Text(
-                  hasValue ? value! : hintText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: !enabled
-                        ? colors.textMuted
-                        : hasValue
-                        ? colors.textPrimary
-                        : colors.textSecondary,
-                  ),
+            child: Row(
+              children: [
+                Icon(
+                  prefixIcon,
+                  size: 18,
+                  color: enabled ? colors.textSecondary : colors.textMuted,
                 ),
-              ),
-              if (hasValue && onClear != null) ...[
-                GestureDetector(
-                  key: clearKey,
-                  onTap: onClear,
-                  behavior: HitTestBehavior.opaque,
-                  child: Padding(
-                    padding: const EdgeInsets.all(VSpacing.space1),
-                    child: Icon(
-                      Icons.close_rounded,
-                      size: 16,
-                      color: colors.textSecondary,
+                const SizedBox(width: VSpacing.space2),
+                Expanded(
+                  child: Text(
+                    hasValue ? value! : hintText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: VTypography.bodyDefault.copyWith(
+                      color: !enabled
+                          ? colors.textMuted
+                          : hasValue
+                          ? colors.textPrimary
+                          : colors.textSecondary,
                     ),
                   ),
                 ),
-                const SizedBox(width: VSpacing.space1),
+                if (hasValue && onClear != null) ...[
+                  GestureDetector(
+                    key: clearKey,
+                    onTap: onClear,
+                    behavior: HitTestBehavior.opaque,
+                    child: Padding(
+                      padding: const EdgeInsets.all(VSpacing.space1),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: VSpacing.space1),
+                ],
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: enabled ? colors.textSecondary : colors.textMuted,
+                ),
               ],
-              Icon(
-                Icons.keyboard_arrow_down_rounded,
-                size: 20,
-                color: enabled ? colors.textSecondary : colors.textMuted,
-              ),
-            ],
+            ),
           ),
         ),
       ),

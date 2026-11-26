@@ -5,6 +5,7 @@ import 'package:erp/features/auth/presentation/pages/login_page.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/auth/logic/login_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:c45_design_system/design_system.dart';
@@ -154,6 +155,7 @@ void main() {
       String? organizationName,
       bool showSuccessBanner = false,
       bool passwordResetSuccess = false,
+      ScriptedAuthRepository? auth,
       double textScale = 1,
     }) async {
       tester.view.physicalSize = size;
@@ -168,7 +170,7 @@ void main() {
         MaterialApp(
           theme: VTheme.lightTheme,
           home: LoginPage(
-            auth: ScriptedAuthRepository(),
+            auth: auth ?? ScriptedAuthRepository(),
             session: session,
             organizationName: organizationName,
             showSuccessBanner: showSuccessBanner,
@@ -200,12 +202,22 @@ void main() {
       final form = tester.getRect(find.byKey(const Key('login_wide_form')));
       expect(panel.width, moreOrLessEquals(537.6, epsilon: 1));
       expect(panel.height, 800);
-      expect(form.width, 400);
+      expect(form.width, moreOrLessEquals(400, epsilon: 0.01));
       expect(
         form.center.dx,
         moreOrLessEquals(panel.right + (1280 - panel.right) / 2, epsilon: 1),
       );
-      expect(tester.getSize(find.byType(VEmailField)).width, 336);
+      expect(
+        tester.getSize(find.byType(VEmailField)).width,
+        moreOrLessEquals(336, epsilon: 0.01),
+      );
+    });
+
+    testWidgets('1280: password label row is 32 tall', (tester) async {
+      await pumpAt(tester, const Size(1280, 800));
+      final link = tester.getRect(find.widgetWithText(VButton, 'Quên mật khẩu?'));
+      expect(link.height, 32);
+      expect(link.bottom, tester.getRect(find.byType(VPasswordField)).top);
     });
 
     testWidgets('860 stacks the brand strip', (tester) async {
@@ -286,6 +298,110 @@ void main() {
       expect(visited, ['email', 'password', 'forgot', 'submit']);
     });
 
+    for (final size in const [
+      Size(840, 480),
+      Size(860, 600),
+      Size(1280, 500),
+      Size(1280, 600),
+    ]) {
+      testWidgets('wide ${size.width}x${size.height}: banners scroll, never overflow', (
+        tester,
+      ) async {
+        Future<void> expectReachable(String reason) async {
+          expect(tester.takeException(), isNull, reason: reason);
+          final last = find.text('Kích hoạt tài khoản');
+          await tester.ensureVisible(last);
+          await tester.pumpAndSettle();
+          expect(
+            tester.getRect(last).bottom,
+            lessThanOrEqualTo(size.height),
+            reason: reason,
+          );
+        }
+
+        await pumpAt(tester, size, organizationName: 'Công ty ' * 10, showSuccessBanner: true);
+        await expectReachable('joined');
+        await tester.pumpWidget(const SizedBox.shrink());
+        await pumpAt(
+          tester,
+          size,
+          organizationName: 'Thú y An Phát',
+          showSuccessBanner: true,
+          passwordResetSuccess: true,
+        );
+        await expectReachable('joined + reset');
+        await tester.pumpWidget(const SizedBox.shrink());
+        await pumpAt(
+          tester,
+          size,
+          auth: ScriptedAuthRepository(
+            signInError: const AppException('NETWORK_ERROR'),
+          ),
+        );
+        await tester.enterText(find.byType(TextField).at(0), 'lan@example.com');
+        await tester.enterText(find.byType(TextField).at(1), 'secret');
+        final submit = find.widgetWithText(VButton, 'Đăng nhập');
+        await tester.ensureVisible(submit);
+        await tester.tap(submit);
+        await tester.pumpAndSettle();
+        expect(find.text('Đăng nhập thất bại'), findsOneWidget);
+        await expectReachable('network');
+      });
+    }
+
+    for (final size in const [Size(840, 800), Size(1280, 800)]) {
+      testWidgets('wide ${size.width} at text scale 2.0 does not overflow or clip', (
+        tester,
+      ) async {
+        await pumpAt(tester, size, textScale: 2);
+        expect(tester.takeException(), isNull);
+        final label = tester.renderObject<RenderParagraph>(
+          find.descendant(
+            of: find.text('Mật khẩu'),
+            matching: find.byType(RichText),
+          ),
+        );
+        expect(
+          label.size.height,
+          greaterThanOrEqualTo(label.getMaxIntrinsicHeight(label.size.width)),
+        );
+      });
+    }
+
+    testWidgets('resizing does not commit the autofill context', (tester) async {
+      await pumpAt(tester, const Size(900, 800));
+      await tester.enterText(find.byType(TextField).at(1), 'nua-mat-khau');
+      final calls = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.textInput,
+        (call) async {
+          calls.add(call.method);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.textInput,
+          null,
+        ),
+      );
+      for (final size in const [Size(700, 800), Size(860, 800), Size(1000, 800)]) {
+        tester.view.physicalSize = size;
+        await tester.pumpAndSettle();
+      }
+      expect(calls, isNot(contains('TextInput.finishAutofillContext')));
+    });
+
+    testWidgets('375x667 without a home bar keeps 16 under the footer', (
+      tester,
+    ) async {
+      await pumpAt(tester, const Size(375, 667));
+      final footer = find.textContaining('Phiên bản Mobile');
+      await tester.ensureVisible(footer);
+      await tester.pumpAndSettle();
+      expect(tester.getRect(footer).bottom, lessThanOrEqualTo(667 - 16));
+    });
+
     testWidgets('320 at text scale 2.0 does not overflow, long org name banner', (
       tester,
     ) async {
@@ -305,8 +421,6 @@ void main() {
   });
 
   group('hành vi giữ nguyên khi đổi bố cục', () {
-    setUp(() {});
-
     Future<TestRouter> pumpLogin(
       WidgetTester tester, {
       ScriptedAuthRepository? auth,
@@ -334,7 +448,7 @@ void main() {
       return harness;
     }
 
-    testWidgets('typing clears email error and banner', (tester) async {
+    testWidgets('typing clears email error', (tester) async {
       await pumpLogin(tester);
       await tester.tap(find.text('Đăng nhập').last);
       await tester.pumpAndSettle();
@@ -343,6 +457,24 @@ void main() {
       await tester.enterText(find.byType(TextField).at(0), 'a');
       await tester.pump();
       expect(find.text('Vui lòng nhập email'), findsNothing);
+    });
+
+    testWidgets('typing clears the failure banner', (tester) async {
+      await pumpLogin(
+        tester,
+        auth: ScriptedAuthRepository(
+          signInError: const AppException('NETWORK_ERROR'),
+        ),
+      );
+      await tester.enterText(find.byType(TextField).at(0), 'lan@example.com');
+      await tester.enterText(find.byType(TextField).at(1), 'secret');
+      await tester.tap(find.text('Đăng nhập').last);
+      await tester.pumpAndSettle();
+      expect(find.byType(VBanner), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField).at(0), 'lan2@example.com');
+      await tester.pump();
+      expect(find.byType(VBanner), findsNothing);
     });
 
     testWidgets('enter in password submits', (tester) async {

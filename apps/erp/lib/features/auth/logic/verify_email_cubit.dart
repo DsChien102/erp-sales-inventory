@@ -101,6 +101,7 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
     emit(
       state.copyWith(
         resending: true,
+        clearFailure: true,
         clearResendFailure: true,
         now: _clock(),
       ),
@@ -133,7 +134,10 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
         state.copyWith(
           resending: false,
           now: _clock(),
-          resendFailure: IamUiFailureMapper.from(error).message,
+          // Mã đã đúng trong lúc chờ: lỗi gửi lại không còn ý nghĩa.
+          resendFailure: state.verified
+              ? null
+              : IamUiFailureMapper.from(error).message,
         ),
       );
     }

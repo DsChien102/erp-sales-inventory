@@ -85,6 +85,12 @@ void main() {
     expect(out.bottom, greaterThan(844 - 34 - 24));
   });
 
+  testWidgets('375x667 without a home bar keeps 16 under sign out', (tester) async {
+    await pumpAt(tester, const Size(375, 667));
+    final out = tester.getRect(find.widgetWithText(VButton, 'Đăng xuất'));
+    expect(out.bottom, 667 - 16);
+  });
+
   testWidgets('390: masked email is bold', (tester) async {
     await pumpAt(tester, const Size(390, 844));
     final bold = find.byWidgetPredicate((w) {

@@ -78,7 +78,7 @@ Vấn đề: người dùng sửa tên cửa hàng hoặc đổi mật khẩu �
 Cách xử lý, gọn và không cần server riêng:
 1. Ở bước 3 của `/signup`, ngay sau `verifyOtp` thành công (đã có phiên), app gọi `auth.updateUser(password: <mật khẩu vừa nhập>)` để chắc chắn mật khẩu là cái người dùng vừa đặt.
 2. Toast chào mừng lấy **tên tổ chức từ DB** (sau bootstrap), không lấy từ form.
-3. Nếu tên tổ chức từ DB khác tên vừa nhập: toast phụ "Cửa hàng được tạo theo thông tin lần đăng ký trước. Bạn có thể sửa trong Hồ sơ tổ chức." Người dùng sửa ở ID-12.
+3. Nếu tên tổ chức từ DB khác tên vừa nhập: nối thêm vào toast chào mừng (một toast) "Cửa hàng được tạo theo thông tin lần đăng ký trước. Bạn có thể sửa trong Hồ sơ tổ chức." Người dùng sửa ở ID-12.
 4. Kiểm trên Dev trước khi làm: đăng ký → thoát ở bước 3 → đăng ký lại với tên cửa hàng và mật khẩu khác → xác minh → xem tổ chức tên gì, mật khẩu nào đăng nhập được.
 
 → Đưa vào plan tiếp theo (2-B4) nếu bạn đồng ý.

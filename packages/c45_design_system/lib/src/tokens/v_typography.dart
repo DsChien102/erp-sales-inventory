@@ -18,6 +18,8 @@ class VTypography {
   // [displayD1] is reserved for numerals and stays tight.
   // test/tokens/v_typography_test.dart locks this.
 
+  // Every role sets letterSpacing: an unset one inherits Material's 0.25 / 0.5.
+
   // --- Sans (Inter) ---
 
   /// Numerals only (large single amounts). Too tight for Vietnamese marks.
@@ -63,6 +65,7 @@ class VTypography {
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w600,
+    letterSpacing: 0,
   );
 
   static const TextStyle bodyDefault = TextStyle(
@@ -71,6 +74,7 @@ class VTypography {
     fontSize: 14,
     height: 22 / 14,
     fontWeight: FontWeight.w500,
+    letterSpacing: 0,
   );
 
   static const TextStyle bodySmall = TextStyle(
@@ -79,6 +83,7 @@ class VTypography {
     fontSize: 13,
     height: 20 / 13,
     fontWeight: FontWeight.w500,
+    letterSpacing: 0,
   );
 
   /// 14px / 20 line — semibold label (form rows, highlight labels).
@@ -88,6 +93,7 @@ class VTypography {
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w600,
+    letterSpacing: 0,
   );
 
   /// 11px — for status badges, chips, and tight label text.
@@ -97,6 +103,7 @@ class VTypography {
     fontSize: 11,
     height: 16 / 11,
     fontWeight: FontWeight.w600,
+    letterSpacing: 0,
   );
 
   static const TextStyle caption = TextStyle(
@@ -105,6 +112,7 @@ class VTypography {
     fontSize: 12,
     height: 18 / 12,
     fontWeight: FontWeight.w600,
+    letterSpacing: 0,
   );
 
   /// 14px / 20 line — semibold action text (buttons, links, CTAs).
@@ -114,6 +122,7 @@ class VTypography {
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w600,
+    letterSpacing: 0,
   );
 
   // --- Mono (JetBrains Mono) — same size/role as sans counterpart ---
@@ -155,6 +164,7 @@ class VTypography {
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w600,
+    letterSpacing: 0,
   );
 
   static const TextStyle bodyDefaultMono = TextStyle(
@@ -162,6 +172,7 @@ class VTypography {
     fontSize: 14,
     height: 22 / 14,
     fontWeight: FontWeight.w500,
+    letterSpacing: 0,
   );
 
   static const TextStyle bodySmallMono = TextStyle(
@@ -169,6 +180,7 @@ class VTypography {
     fontSize: 13,
     height: 20 / 13,
     fontWeight: FontWeight.w500,
+    letterSpacing: 0,
   );
 
   /// Mono counterpart of [labelDefault].
@@ -177,6 +189,7 @@ class VTypography {
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w600,
+    letterSpacing: 0,
   );
 
   /// Tabular figures for amounts / SKUs.
@@ -186,5 +199,6 @@ class VTypography {
     height: 20 / 14,
     fontWeight: FontWeight.w500,
     fontFeatures: [FontFeature.tabularFigures()],
+    letterSpacing: 0,
   );
 }

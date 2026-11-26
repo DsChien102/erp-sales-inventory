@@ -5,6 +5,7 @@ import 'package:erp/core/widgets/address/administrative_units_form_section.dart'
 import 'package:erp/core/widgets/address/vn_administrative_units_loader.dart';
 import 'package:erp/core/widgets/flow/flow_layout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:c45_design_system/design_system.dart';
 
@@ -54,6 +55,13 @@ void main() {
     final decoration = tester.widget<Container>(provinceContainer).decoration!;
     final colors = tester.element(provinceField).vColors;
     expect((decoration as BoxDecoration).border!.top.color, colors.danger);
+    // Ô Xã đang tắt: mờ 0.4 như prototype; ô Tỉnh thì không.
+    Finder fade(String key) => find.descendant(
+      of: find.byKey(Key(key)),
+      matching: find.byType(Opacity),
+    );
+    expect(tester.widget<Opacity>(fade('field_select_ward')).opacity, 0.4);
+    expect(fade('field_select_province'), findsNothing);
   });
 
   testWidgets('typing after account validation does not move the scroll position', (
@@ -175,6 +183,7 @@ void main() {
       Size size, {
       ScriptedAuthRepository? auth,
       double textScale = 1,
+      DateTime Function()? clock,
     }) async {
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1;
@@ -190,7 +199,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
-          home: SignupPage(auth: repo, session: session, cubit: cubit),
+          home: SignupPage(auth: repo, session: session, cubit: cubit, clock: clock),
         ),
       );
       await tester.pumpAndSettle();
@@ -281,10 +290,19 @@ void main() {
       tester,
     ) async {
       final auth = ScriptedAuthRepository();
-      final cubit = await pumpAt(tester, const Size(900, 800), auth: auth);
+      var now = DateTime.utc(2026, 11, 26, 9);
+      final cubit = await pumpAt(
+        tester,
+        const Size(900, 800),
+        auth: auth,
+        clock: () => now,
+      );
       cubit.continueToStore(account);
       await cubit.createStore(store);
       await tester.pumpAndSettle();
+      now = now.add(const Duration(seconds: 18));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('Gửi lại mã sau 00:42'), findsOneWidget);
       final code = find.descendant(
         of: find.byKey(const Key('otp_code_field')),
         matching: find.byType(TextField),
@@ -296,11 +314,70 @@ void main() {
         tester.view.physicalSize = size;
         await tester.pumpAndSettle();
         expect(tester.widget<TextField>(code).controller?.text, '123');
-        expect(find.textContaining('Gửi lại mã sau'), findsOneWidget);
+        expect(find.text('Gửi lại mã sau 00:42'), findsOneWidget);
       }
       expect(auth.resentEmails, isEmpty);
       expect(auth.otpCodes, isEmpty);
     });
+
+    testWidgets('resizing does not commit the autofill context', (tester) async {
+      final cubit = await pumpAt(tester, const Size(900, 800));
+      final calls = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.textInput,
+        (call) async {
+          calls.add(call.method);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.textInput,
+          null,
+        ),
+      );
+      Future<void> resize() async {
+        for (final size in const [Size(700, 800), Size(900, 800)]) {
+          tester.view.physicalSize = size;
+          await tester.pumpAndSettle();
+        }
+      }
+
+      await resize();
+      cubit.continueToStore(account);
+      await tester.pumpAndSettle();
+      await resize();
+      expect(calls, isNot(contains('TextInput.finishAutofillContext')));
+
+      // Rời form (sang bước xác minh) thì vẫn kết thúc như trước.
+      await cubit.createStore(store);
+      await tester.pumpAndSettle();
+      expect(calls, contains('TextInput.finishAutofillContext'));
+    });
+
+    for (final size in const [Size(390, 844), Size(1280, 800)]) {
+      testWidgets('email exists ${size.width}: forgot link is left aligned', (
+        tester,
+      ) async {
+        final cubit = await pumpAt(
+          tester,
+          size,
+          auth: ScriptedAuthRepository(
+            signUpError: const AppException('PLATFORM_USER_ALREADY_EXISTS'),
+          ),
+        );
+        cubit.continueToStore(account);
+        await cubit.createStore(store);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getTopLeft(find.text('Quên mật khẩu')).dx,
+          moreOrLessEquals(
+            tester.getTopLeft(find.text('Email đã được đăng ký')).dx,
+            epsilon: 1,
+          ),
+        );
+      });
+    }
 
     testWidgets('320 at text scale 2.0 does not overflow', (tester) async {
       final cubit = await pumpAt(
@@ -465,6 +542,33 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('HOME_PAGE'), findsOneWidget);
+      await tester.pumpAndSettle(const Duration(seconds: 10));
+    });
+
+    testWidgets('completed under an earlier name: one toast says both', (
+      tester,
+    ) async {
+      final r = await pumpSignup(tester);
+      await fillAccount(tester);
+      await r.cubit.createStore(store);
+      await tester.pumpAndSettle();
+      await r.cubit.completeAfterVerification('user-9');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final toast = find.byType(VToast);
+      expect(toast, findsOneWidget);
+      for (final text in [
+        'Thú y Minh Phát đã sẵn sàng.',
+        'Cửa hàng được tạo theo thông tin lần đăng ký trước.',
+        'Bạn có thể sửa trong Hồ sơ tổ chức.',
+      ]) {
+        expect(
+          find.descendant(of: toast, matching: find.textContaining(text)),
+          findsOneWidget,
+          reason: text,
+        );
+      }
       await tester.pumpAndSettle(const Duration(seconds: 10));
     });
   });

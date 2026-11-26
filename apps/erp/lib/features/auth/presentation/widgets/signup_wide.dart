@@ -2,6 +2,7 @@ import 'package:c45_design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/flow/flow_layout.dart';
+import 'signup_steps.dart';
 
 /// Thân trang Đăng ký trên web (prototype `app/web/signup.js`, `.t1-stepcol`):
 /// cột 520, thanh tiến độ, thẻ trắng có tiêu đề = tên bước, [footer] dưới thẻ.
@@ -19,14 +20,12 @@ class SignupWide extends StatelessWidget {
   final Widget content;
   final Widget? footer;
 
-  static const _titles = ['Tài khoản', 'Cửa hàng', 'Xác minh email'];
-
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
     return FlowColumn(
       children: [
-        VStepProgress(titles: _titles, currentIndex: stepIndex),
+        VStepProgress(titles: signupStepTitles, currentIndex: stepIndex),
         const VGap.lg(),
         FlowCard(
           child: Column(
@@ -35,7 +34,7 @@ class SignupWide extends StatelessWidget {
               Semantics(
                 header: true,
                 child: VText(
-                  _titles[stepIndex],
+                  signupStepTitles[stepIndex],
                   variant: VTextVariant.headingH2,
                   color: colors.textPrimary,
                   style: const TextStyle(height: 28 / 22, letterSpacing: 0),

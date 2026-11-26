@@ -2,6 +2,7 @@ import 'package:c45_design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
 import '../auth_layout.dart';
+import 'signup_steps.dart';
 
 /// Thân trang Đăng ký trên iPhone (prototype `app/signup.js`): thanh tiến độ,
 /// khe 24, banner lỗi máy chủ (nếu có) + khe 16, rồi nội dung bước. `VAppBar` và ← do trang giữ.
@@ -17,8 +18,6 @@ class SignupNarrow extends StatelessWidget {
   final Widget? banner;
   final Widget content;
 
-  static const _titles = ['Tài khoản', 'Cửa hàng', 'Xác minh email'];
-
   @override
   Widget build(BuildContext context) {
     return VContentWidth(
@@ -30,7 +29,7 @@ class SignupNarrow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             VStepProgress(
-              titles: _titles,
+              titles: signupStepTitles,
               currentIndex: stepIndex,
               variant: VStepProgressVariant.mobile,
             ),

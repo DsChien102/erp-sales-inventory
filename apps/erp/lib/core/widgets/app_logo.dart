@@ -19,6 +19,10 @@ class AppLogo extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(VRadius.r12),
+        ),
+        // Vẽ trên ảnh: ảnh vuông đè mất viền ở bốn góc bo.
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(VRadius.r12),
           border: Border.all(color: context.vColors.borderBrand),
         ),
         clipBehavior: Clip.antiAlias,

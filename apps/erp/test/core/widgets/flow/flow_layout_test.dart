@@ -25,4 +25,24 @@ void main() {
     expect(await contentWidth(tester, 1280), 488);
     expect(await contentWidth(tester, 390), 358);
   });
+
+  testWidgets('FlowColumn centered: content sits exactly in the middle', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    const key = Key('probe');
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: const Scaffold(
+          body: FlowColumn(
+            centerVertically: true,
+            children: [SizedBox(key: key, height: 100)],
+          ),
+        ),
+      ),
+    );
+    expect(tester.getCenter(find.byKey(key)).dy, 400);
+  });
 }

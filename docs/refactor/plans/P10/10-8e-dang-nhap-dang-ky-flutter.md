@@ -886,10 +886,61 @@ Làm xong 2026-11-26 (commit `151ac74d9` … `7e81f92df`). Test chạy: `flutter
 | R7 | Test Tab kiểm thứ tự đi qua `[email, password, forgot, submit]` | Nút hiện mật khẩu nằm giữa ô và link, số lần Tab không cố định |
 | R8 | Test toast chào mừng dùng tên cửa hàng trùng tên tổ chức của fake | `VToast` là SnackBar, toast thứ hai xoá toast đầu |
 
-**Lệch so với prototype (chấp nhận):** icon Lucide không nạp trong golden (ô vuông); chữ đậm hơn nhẹ do Inter; `VPasswordField` thêm ~2 px dưới ô nên khối form Đăng nhập iPhone thấp hơn ~2–4 px; link "Quên mật khẩu?" web chữ ~14 thay 13; đếm ngược golden 01:00 (đồng hồ cố định) thay 00:59; Đăng nhập iPhone ca `joined` cuộn được (nội dung dài hơn khung ở 844, prototype cũng cuộn).
+**Lệch so với prototype (chấp nhận):** icon không nạp trong golden (ô vuông); chữ đậm hơn nhẹ do Inter (giãn chữ đã sửa ở R1 G6); `VPasswordField` thêm ~2 px dưới ô nên khối form Đăng nhập iPhone thấp hơn ~2–4 px; link "Quên mật khẩu?" web chữ ~14 thay 13; đếm ngược golden 01:00 (đồng hồ cố định) thay 00:59; Đăng nhập iPhone ca `joined`, `network` cuộn được (nội dung dài hơn khung ở 844, prototype cũng cuộn).
 
-PLAN.md dòng Theme 1 đã ghi ✅ 10-8e từ trước, không sửa thêm.
+PLAN.md dòng Theme 1: ✅ trước đó là trạng thái plan; trạng thái làm ghi khi xử lý R1 (G15).
 
 ## Review
 
 Tự rà lại toàn bộ diff (không có subagent review, theo quy tắc phiên): không thấy lỗi Critical/Important còn lại. Việc cần người khác nhìn: R3 (đổi nhỏ ở `c45_design_system`) và R2 (xếp dọc khi chữ phóng).
+
+### R1 (2026-11-26) — Cần sửa G1–G5; còn lại nhỏ hoặc chờ chọn
+
+Commit xem: `151ac74d9` … `59869b023`.
+
+**Đã kiểm:**
+- Đọc toàn bộ diff `lib`, test, prototype; đối chiếu `LoginPage`, `SignupPage`, `VerifyEmailPage`, `NoOrganizationPage` với bản ở `433675dcc`. Điều hướng, câu lỗi, toast, `Key`, hint / autofill của từng ô giữ nguyên. `LoginCubit`, `SignupCubit` không đổi.
+- Chạy lại: 189/189 (lệnh Task 5 Step 4, gồm golden khi chạy cả file); `node --test` 21/21; `dart analyze lib test` 241 mục. Design system: `test/components` + `test/patterns` 245/245, `dart analyze lib` sạch.
+- Xem cạnh nhau ảnh prototype / Flutter (đủ 34 cặp).
+- Test dò tạm (đã xoá) cho G1–G7; G8 chạy riêng một ca golden; G10 phóng to ảnh. G4 chỉ đo ở Đăng nhập, G6 chỉ đo ở mô tả ID-05; các chỗ còn lại đọc code / nhìn ảnh.
+
+| # | Mức | Chỗ | Vấn đề | Đề xuất |
+|---|---|---|---|---|
+| G1 | **Nặng** | `login_wide.dart` `build` / `_main` | Web tràn đáy **ở cỡ chữ thường** khi cửa sổ thấp và có banner: 860×600 mất mạng 20 px, banner tham gia 20 px; 1280×500 mất mạng 20 px, tham gia 40 px; 1280×600 tên tổ chức dài 20 px, hai banner 60 px; 860×700 hai banner 40 px. Bản release cắt mất phần "Kích hoạt tài khoản" / bản quyền và không cuộn tới được. Nguyên nhân: `IntrinsicHeight` đo chiều cao theo cả cột (742–860 px) vì `ConstrainedBox(maxWidth: 400)` không kẹp bề rộng khi tính kích thước nội tại, nên banner được tính ít dòng hơn lúc vẽ. Test hiện có chỉ chạy 800 px cao, không banner | Giữ `IntrinsicHeight` (bỏ thì `Row` stretch và `Expanded` gặp chiều cao vô hạn). Thay `ConstrainedBox(maxWidth: 400)` bằng `Padding(horizontal: max(0, (rộng cột − 400) / 2))` bọc ngoài `Align`, rộng cột = 0,58 × `constraints.maxWidth` khi chia hai, = cả `constraints.maxWidth` khi xếp dọc; `Key('login_wide_form')` chuyển sang `Padding` đệm bên trong. Đã thử tạm (đã trả lại file): 30/30 ca dò hết tràn, `login_page_test` + golden 51/51 không đổi ảnh. Thêm test: (860×600, 1280×500, 1280×600) × (mất mạng, tham gia tên 80 ký tự, hai banner) không tràn và cuộn tới được "Kích hoạt tài khoản" |
+| G2 | **Vừa** | `verify_email_view.dart` `listener` | Một `listener` lo hai việc nên lẫn nhau khi gửi lại và xác minh chồng nhau (Q5b mới cho phép): (a) mã đúng trước, gửi lại lỗi sau → `onVerified` gọi **lần hai** và hiện toast đỏ sau khi đã thành công; (b) gửi lại lỗi trong lúc đang xác minh, rồi mã đúng → toast "Không gửi được mã" hiện **lại**. Đăng ký không hỏng vì `completeAfterVerification` tự chặn; ID-03 gọi `go('/')` hai lần | Tách hai `BlocListener`, mỗi cái `listenWhen` riêng; trong `resend()` nếu `state.verified` thì không đặt `resendFailure`. Test cho (a) và (b) |
+| G3 | **Vừa** | `verify_email_cubit.dart` `resend()` | Lùi so với bản cũ: gửi lại **không còn xoá `failure`**. Sai mã → bấm "Gửi lại mã" → gửi được → ô mã vẫn đỏ, vẫn báo "Mã xác minh không đúng…" cho tới lần xác minh sau. Q5 chỉ tách lỗi gửi lại, không bỏ việc xoá này | Thêm `clearFailure: true` ở `emit` đầu `resend()` (chỉ ở đầu, để không xoá lỗi của lượt xác minh chạy chồng). Test: sai mã → `resend()` → `failure` là `null` |
+| G4 | Vừa | `login_narrow.dart`, `login_wide.dart`, `signup_page.dart` `AutofillGroup` | `AutofillGroup` không có `GlobalKey` nên kéo qua 840 (và 900 ở Đăng nhập) là huỷ nhóm → Flutter gọi `TextInput.finishAutofillContext(shouldSave: true)`: trình duyệt có thể hỏi lưu mật khẩu đang gõ dở. Đo được ở Đăng nhập khi 900→700 và 860→1000. Trái ràng buộc "`finishAutofillContext()` giữ như cũ" | Trang giữ một `GlobalKey` cho `AutofillGroup` (truyền vào hai bố cục, hoặc bọc `AutofillGroup` ở trang, ngoài bố cục). iPad xoay ngang / dọc (820↔1180) cũng qua mốc 840. Test: đổi 900→700→900 không có lời gọi `finishAutofillContext` |
+| G5 | Vừa | `no_organization_narrow.dart`, `verify_email_narrow.dart`, `login_narrow.dart` | Máy / cửa sổ không có thanh Home (iPhone SE, Android nút, web < 840): phần cuối dính sát mép, đáy "Đăng xuất" = 667/667, dòng bản quyền cũng vậy. Trước đây ID-03, ID-05 có đệm 16, Đăng nhập có 16 dưới bản quyền. Plan ghi để `SafeArea` lo phần 34 nên sót ca này | `SafeArea(minimum: EdgeInsets.only(bottom: VSpacing.md))` ở ba bố cục; iPhone có thanh Home không đổi. Test ở 375×667 |
+| G6 | Vừa (chung app, cần người dùng chọn) | `VTypography.bodyDefault`, `bodySmall`, `headingH4` | Kết quả ghi chữ lệch do Inter; phần lớn là `letterSpacing 0.25` thừa hưởng của Material (cùng nguyên nhân G1 của 10-8d). Làm đổi số dòng: mô tả ID-05 ở 390 là 3 dòng, lẻ chữ "hàng." (prototype 2 dòng, đo với 0 thì đúng 2). Cùng kiểu, chưa đo riêng: banner tham gia web 3 dòng thay 2; toast 390 3 thay 2; chú thích pháp lý bước Cửa hàng web 2 thay 1 | Đặt `letterSpacing: 0` trong `VTypography` (đúng token) thì ảnh golden toàn app đổi, nên làm thành việc riêng trước 10-8f. Ở đây chỉ sửa câu "Lệch" cho đúng nguyên nhân |
+| G7 | Nhỏ | `login_wide.dart` `_passwordBlock` | `SizedBox(height: 32)` cứng: chữ phóng 2.0 nhãn "Mật khẩu" cần 40 nên bị cắt, và hàng tràn ngang (127,6 + 223,7 > 336) | `ConstrainedBox(minHeight: 32)` + `Wrap(alignment: spaceBetween)` |
+| G8 | Nhỏ (test) | `auth_golden_test.dart` | Golden phụ thuộc thứ tự chạy: logo chưa nạp ở ca đầu (`login__default-*-390` thiếu logo), các ca sau có. Chạy riêng `login__network 390` đỏ, lệch 1,16% | `precacheImage` trong `tester.runAsync` trước khi chụp; chụp lại |
+| G9 | Nhỏ (test) | Golden `signup__*` | Ca gọi thẳng cubit, không điền ô: `store`, `server-error`, `account-errors` trống; Tỉnh / Xã đang ở trạng thái **chưa nạp** (xám) nên viền đỏ ô Tỉnh và ô đã chọn chưa từng được so. Kết quả không ghi lệch này | Điền ô bằng `enterText`, nạp danh sách hành chính bằng `runAsync`, chọn tỉnh / xã rồi chụp lại |
+| G10 | Nhỏ | `app_logo.dart` (10-8d) | Viền `borderBrand` mất ở bốn góc: ảnh vuông đè lên viền bo | Viền chuyển sang `foregroundDecoration` |
+| G11 | Nhỏ | `signup_page.dart` `_emailExists` | "Quên mật khẩu" ở giữa; prototype (hai khung) canh trái. Kết quả không ghi | Người dùng chọn: giữ giữa (như app cũ) thì ghi vào "Lệch"; theo prototype thì `Align(centerLeft)` |
+| G12 | Nhỏ | `flow_layout.dart` | `centerVertically` dùng đệm 24 / 32; prototype ID-03, ID-05 web đệm 32 / 32 nên cột lệch lên 4 px | Khi `centerVertically` thì đệm trên 32 |
+| G13 | Nhỏ (test) | Test Task 1, 3, T0 | Thiếu so với plan: Review Focus 3 nửa sau (gửi lại lỗi rồi sai mã → ô đỏ); `resizing at step 3` chỉ tìm "Gửi lại mã sau", không khẳng định đếm không về 01:00 (dùng giờ thật); `typing clears email error and banner` không kiểm banner | Bổ sung khẳng định; ca bước 3 dùng `clock` (R4 đã mở) |
+| G14 | Rất nhỏ | `login_narrow.dart`; `signup_{narrow,wide}.dart` | `0.4` ghi cứng (có `VOpacity.disabled` / `vDisabledOpacity`); `_titles` chép hai nơi; `setUp(() {})` thừa trong `login_page_test.dart`; import `resend_countdown` dạng `../../../../core` xếp cuối | Dọn |
+| G15 | Rất nhỏ (tài liệu) | Kết quả, PLAN.md | Dấu ✅ của 10-8e ở PLAN.md nằm ở cột "Plan chuyển Flutter" (10-8f…k chưa làm cũng ✅), nên Step 6 "10-8e đã làm" chưa ghi. Ca `network` 390 cũng cuộn, Kết quả chỉ ghi `joined` | Ghi trạng thái làm của 10-8e vào PLAN.md; sửa câu "Lệch" |
+| G16 | Ghi nhận (có từ trước) | `signup_page.dart` `completed`; `v_toast.dart:34` | `VToast.show` gọi `clearSnackBars()` trước, nên khi `nameDiffers` người dùng chỉ thấy toast "Thông báo", không thấy "Chào mừng…". R8 đổi test để né ca này; bảng "Đang làm gì" ghi giữ cả hai toast | Gộp hai câu vào một toast khi `nameDiffers`, thêm test; hoặc ghi lại là chấp nhận |
+
+R1–R7 ở Kết quả: đồng ý; R8 xem G16. R1 (bọc `VField` ở màn email đã đăng ký) và R3 (`VFieldLabel` `Flexible`) đúng, `VFieldLabel` chỉ đổi khi nhãn không vừa. R6 chấp nhận.
+
+**Xử lý R1 (2026-11-26, người dùng yêu cầu sửa luôn, chỗ cần chọn theo prototype):**
+- G1: canh giữa form bằng `Padding`, giữ `IntrinsicHeight`; test 4 khổ × 3 loại banner (đỏ trước, xanh sau).
+- G2: hai `BlocListener`; gửi lại lỗi sau khi đã xác minh thì bỏ qua; hai ca test.
+- G3: `resend()` xoá `failure` lúc bắt đầu; một ca test.
+- G4: `AutofillGroup` bọc ngoài hai bố cục (Đăng nhập; Đăng ký khi ở bước 1, 2); test không gọi `finishAutofillContext` khi đổi bố cục, vẫn gọi khi sang bước xác minh.
+- G5: `SafeArea(minimum: bottom 16)` ở ba bố cục hẹp; test 375×667.
+- G6: `VTypography` đặt `letterSpacing: 0` cho mọi vai chữ còn trống (CSS prototype là 0). Chữ toàn app hẹp lại nhẹ. 90 golden màn khác (10-8a, 10-8b, 10-8c, T6-2b, T6-2c, G5-2b, G5-6, G5-7) đang xanh đổi ảnh, đã chụp lại đúng 90 ca đó; 47 ca golden đỏ sẵn trước khi sửa không đụng tới.
+- G7: hàng nhãn Mật khẩu web cao `max(32, 20 × cỡ chữ)`, không vừa thì link xuống dòng; test 2.0.
+- G8, G9: golden nạp logo trước, điền ô bằng tay như người dùng, nạp danh sách tỉnh; chụp lại 34 ảnh. Lộ thêm: ô Xã khi tắt ở ảnh prototype mờ (từ `.is-disabled` của `shared/components.css`, 0.46) mà Flutter không → `AdministrativeUnitsFormSection` dùng `vDisabledOpacity` (0.4); hai màn hồ sơ tổ chức dùng chung nên cũng đổi.
+- G10: viền logo vẽ ở `foregroundDecoration`.
+- G11: "Quên mật khẩu" canh trái theo prototype.
+- G12: đệm trên 32 khi canh giữa dọc.
+- G13: thêm đủ khẳng định thiếu.
+- G14: `vDisabledOpacity`, `signup_steps.dart`, dọn import / `setUp` thừa.
+- G15: PLAN.md, câu "Lệch".
+- G16: khi `nameDiffers`, một toast nối hai câu; sửa LUONG-DANG-KY-XAC-MINH-EMAIL.
+- Chạy lại: app (`test/features/auth`, `test/core/widgets`, `test/features/iam`, `store_shell_test`) 486/486; golden các màn khác bằng mốc (47 đỏ sẵn); DS 533/534 (`v_overlay_menu_shell_test` đỏ sẵn); `dart analyze lib test` 241, `check_feature_imports` 18, bằng trước khi sửa. Không chạy toàn app.
+
+**Còn lại trước khi đóng plan:** kiểm tay bốn mục ở "Kiểm tay". Phần sửa R1 do phiên review làm, chưa có phiên khác xem lại.

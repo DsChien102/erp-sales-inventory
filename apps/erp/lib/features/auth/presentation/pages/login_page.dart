@@ -6,12 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 
+import '../../../../core/config/wide_layout.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/session/session_controller.dart';
 import '../../data/auth_repository.dart';
 import '../../logic/login_cubit.dart';
 import '../../logic/login_state.dart';
-import '../../../../core/config/wide_layout.dart';
 import '../widgets/login_narrow.dart';
 import '../widgets/login_wide.dart';
 
@@ -282,7 +282,7 @@ class _LoginViewState extends State<_LoginView> {
         void signup() => context.push('/signup');
         void activate() => context.push('/invitation');
 
-        return isWideLayout(context)
+        final layout = isWideLayout(context)
             ? LoginWide(
                 emailField: emailField,
                 passwordInput: passwordInput,
@@ -307,6 +307,8 @@ class _LoginViewState extends State<_LoginView> {
                 onSignup: signup,
                 onActivate: activate,
               );
+        // Bọc ngoài hai bố cục: đổi bố cục không huỷ nhóm (huỷ là lưu autofill đang gõ dở).
+        return AutofillGroup(child: layout);
       },
     );
   }

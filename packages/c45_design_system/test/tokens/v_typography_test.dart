@@ -137,4 +137,13 @@ void main() {
       });
     }
   });
+
+  group('VTypography letter spacing', () {
+    for (final role in {...textRoles, ...numeralRoles}.entries) {
+      // Không đặt thì Text thừa hưởng 0.25 / 0.5 của Material.
+      test('${role.key} does not inherit Material tracking', () {
+        expect(role.value.letterSpacing, isNotNull);
+      });
+    }
+  });
 }

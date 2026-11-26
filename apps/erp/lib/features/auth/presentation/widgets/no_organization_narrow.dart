@@ -22,6 +22,7 @@ class NoOrganizationNarrow extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.surface,
       body: SafeArea(
+        minimum: const EdgeInsets.only(bottom: VSpacing.md),
         child: VContentWidth(
           maxWidth: authMaxWidth,
           alignment: Alignment.topCenter,

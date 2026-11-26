@@ -111,6 +111,24 @@ void main() {
     expect(tester.getRect(signOut).bottom, greaterThan(844 - 34 - 24));
   });
 
+  testWidgets('375x667 without a home bar keeps 16 under sign out', (tester) async {
+    tester.view.physicalSize = const Size(375, 667);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final session = loginSession();
+    addTearDown(session.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: NoOrganizationPage(session: session),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final out = tester.getRect(find.byKey(const Key('no_organization_sign_out')));
+    expect(out.bottom, 667 - 16);
+  });
+
   testWidgets('1280: card 528 wide, primary on the right of sign out', (
     tester,
   ) async {

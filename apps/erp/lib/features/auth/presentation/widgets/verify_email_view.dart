@@ -5,11 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:c45_design_system/design_system.dart';
 
 import '../../../../core/session/session_controller.dart';
+import '../../../../core/widgets/flow/resend_countdown.dart';
 import '../../../iam/data/models/password_reset_result.dart';
 import '../../data/auth_repository.dart';
 import '../../logic/verify_email_cubit.dart';
 import '../../logic/verify_email_state.dart';
-import '../../../../core/widgets/flow/resend_countdown.dart';
 
 class VerifyEmailView extends StatefulWidget {
   const VerifyEmailView({
@@ -78,30 +78,29 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final prompt =
-        widget.prompt ??
-        'Mã xác minh gồm 6 chữ số đã được gửi tới ${maskEmail(widget.email)}.';
-    return BlocConsumer<VerifyEmailCubit, VerifyEmailState>(
-      bloc: _cubit,
-      listenWhen: (previous, current) =>
-          (!previous.verified && current.verified) ||
-          (previous.resendFailure != current.resendFailure &&
-              current.resendFailure != null),
-      listener: (context, state) {
-        if (state.verified) {
-          widget.onVerified?.call(state.verifiedUserId ?? '');
-        }
-        final resendFailure = state.resendFailure;
-        if (resendFailure != null) {
-          VToast.show(
+        widget.prompt ?? 'Mã xác minh gồm 6 chữ số đã được gửi tới ${maskEmail(widget.email)}.';
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<VerifyEmailCubit, VerifyEmailState>(
+          bloc: _cubit,
+          listenWhen: (previous, current) => !previous.verified && current.verified,
+          listener: (context, state) => widget.onVerified?.call(state.verifiedUserId ?? ''),
+        ),
+        BlocListener<VerifyEmailCubit, VerifyEmailState>(
+          bloc: _cubit,
+          listenWhen: (previous, current) =>
+              previous.resendFailure != current.resendFailure && current.resendFailure != null,
+          listener: (context, state) => VToast.show(
             context,
             title: 'Không gửi được mã',
-            message: resendFailure,
+            message: state.resendFailure!,
             type: VToastType.danger,
-          );
-        }
-      },
-      builder: (context, state) {
-        return Column(
+          ),
+        ),
+      ],
+      child: BlocBuilder<VerifyEmailCubit, VerifyEmailState>(
+        bloc: _cubit,
+        builder: (context, state) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (widget.showPrompt) ...[
@@ -148,8 +147,8 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               onResend: state.canResend ? () => _cubit.resend() : null,
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 }

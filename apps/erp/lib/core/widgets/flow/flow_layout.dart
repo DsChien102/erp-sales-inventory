@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 /// Cột nội dung của luồng công khai nhiều bước (prototype `.t1-stepcol`):
 /// rộng tối đa [maxWidth], đệm 24 / 16 / 32, cuộn được, canh trên giữa.
-/// [centerVertically] đặt cột giữa chiều cao khi nội dung thấp hơn màn.
+/// [centerVertically] đặt cột giữa chiều cao khi nội dung thấp hơn màn (đệm trên 32).
 class FlowColumn extends StatelessWidget {
   const FlowColumn({
     super.key,
@@ -27,9 +27,9 @@ class FlowColumn extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding: EdgeInsets.fromLTRB(
                   VSpacing.screenMobile,
-                  VSpacing.lg,
+                  centerVertically ? VSpacing.xl : VSpacing.lg,
                   VSpacing.screenMobile,
                   VSpacing.xl,
                 ),

@@ -20,6 +20,7 @@ changelogs when relevant.
 ### Fixed
 
 - `VFieldLabel`: nhãn dài xuống dòng thay vì tràn khi chữ phóng to (10-8e).
+- `VTypography`: mọi vai chữ đặt `letterSpacing` (0 nếu trước đó trống), không còn thừa hưởng 0,25 / 0,5 của Material; chữ khớp prototype (10-8e).
 
 ### Internal
 

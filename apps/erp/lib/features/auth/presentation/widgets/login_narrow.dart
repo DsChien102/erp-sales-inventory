@@ -42,6 +42,7 @@ class LoginNarrow extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
+        minimum: const EdgeInsets.only(bottom: VSpacing.md),
         child: VContentWidth(
           maxWidth: authMaxWidth,
           alignment: Alignment.topCenter,
@@ -130,34 +131,27 @@ class LoginNarrow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AutofillGroup(
+          emailField,
+          const SizedBox(height: VSpacing.md),
+          VField(
+            invalid: passwordError != null,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                emailField,
-                const SizedBox(height: VSpacing.md),
-                VField(
-                  invalid: passwordError != null,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VFieldLabel('Mật khẩu'),
-                      passwordInput,
-                      if (passwordError != null) VFieldError(passwordError!),
-                    ],
-                  ),
-                ),
-                if (formError != null) ...[
-                  const SizedBox(height: VSpacing.md),
-                  VBanner(
-                    status: VBannerStatus.error,
-                    title: 'Đăng nhập thất bại',
-                    description: formError!,
-                  ),
-                ],
+                const VFieldLabel('Mật khẩu'),
+                passwordInput,
+                if (passwordError != null) VFieldError(passwordError!),
               ],
             ),
           ),
+          if (formError != null) ...[
+            const SizedBox(height: VSpacing.md),
+            VBanner(
+              status: VBannerStatus.error,
+              title: 'Đăng nhập thất bại',
+              description: formError!,
+            ),
+          ],
           const SizedBox(height: VSpacing.lg),
           VButton(
             label: 'Đăng nhập',
@@ -235,8 +229,8 @@ class _EntryRow extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
-            child: Opacity(
-              opacity: enabled ? 1 : 0.4,
+            child: vDisabledOpacity(
+              enabled: enabled,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 60),
                 child: Padding(

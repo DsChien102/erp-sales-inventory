@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:c45_design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
@@ -33,6 +35,8 @@ class LoginWide extends StatelessWidget {
   final VoidCallback onActivate;
 
   static const double _sideBreakpoint = 900;
+  static const double _panelShare = 0.42;
+  static const double _formWidth = 400;
 
   @override
   Widget build(BuildContext context) {
@@ -52,17 +56,29 @@ class LoginWide extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             SizedBox(
-                              width: constraints.maxWidth * 0.42,
+                              width: constraints.maxWidth * _panelShare,
                               child: _brandPanel(context, side: true),
                             ),
-                            Expanded(child: _main(context, side: true)),
+                            Expanded(
+                              child: _main(
+                                context,
+                                side: true,
+                                width: constraints.maxWidth * (1 - _panelShare),
+                              ),
+                            ),
                           ],
                         )
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             _brandPanel(context, side: false),
-                            Expanded(child: _main(context, side: false)),
+                            Expanded(
+                              child: _main(
+                                context,
+                                side: false,
+                                width: constraints.maxWidth,
+                              ),
+                            ),
                           ],
                         ),
                 ),
@@ -139,7 +155,14 @@ class LoginWide extends StatelessWidget {
     );
   }
 
-  Widget _main(BuildContext context, {required bool side}) {
+  /// [width] là bề rộng cột chứa form. Canh giữa bằng đệm, không bằng
+  /// `ConstrainedBox(maxWidth)`: `IntrinsicHeight` đo theo bề rộng chưa kẹp
+  /// nên banner được tính ít dòng hơn lúc vẽ và cột bị tràn.
+  Widget _main(
+    BuildContext context, {
+    required bool side,
+    required double width,
+  }) {
     final colors = context.vColors;
     final content = <Widget>[
       FocusTraversalGroup(
@@ -154,27 +177,20 @@ class LoginWide extends StatelessWidget {
               ],
               const SizedBox(height: VSpacing.space5),
             ],
-            AutofillGroup(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  FocusTraversalOrder(
-                    order: const NumericFocusOrder(1),
-                    child: emailField,
-                  ),
-                  const SizedBox(height: VSpacing.space5),
-                  _passwordBlock(context),
-                  if (formError != null) ...[
-                    const SizedBox(height: VSpacing.space5),
-                    VBanner(
-                      status: VBannerStatus.error,
-                      title: 'Đăng nhập thất bại',
-                      description: formError!,
-                    ),
-                  ],
-                ],
-              ),
+            FocusTraversalOrder(
+              order: const NumericFocusOrder(1),
+              child: emailField,
             ),
+            const SizedBox(height: VSpacing.space5),
+            _passwordBlock(context),
+            if (formError != null) ...[
+              const SizedBox(height: VSpacing.space5),
+              VBanner(
+                status: VBannerStatus.error,
+                title: 'Đăng nhập thất bại',
+                description: formError!,
+              ),
+            ],
             const SizedBox(height: VSpacing.space5),
             FocusTraversalOrder(
               order: const NumericFocusOrder(4),
@@ -227,12 +243,13 @@ class LoginWide extends StatelessWidget {
             VSpacing.space5,
             VSpacing.md,
           );
-    return Align(
-      alignment: side ? Alignment.center : Alignment.topCenter,
-      child: ConstrainedBox(
-        key: const Key('login_wide_form'),
-        constraints: const BoxConstraints(maxWidth: 400),
+    final gutter = math.max(0.0, (width - _formWidth) / 2);
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: gutter),
+      child: Align(
+        alignment: side ? Alignment.center : Alignment.topCenter,
         child: Padding(
+          key: const Key('login_wide_form'),
           padding: padding,
           child: Column(
             mainAxisSize: side ? MainAxisSize.min : MainAxisSize.max,
@@ -258,18 +275,23 @@ class LoginWide extends StatelessWidget {
     );
   }
 
-  /// Nhãn "Mật khẩu" và link "Quên mật khẩu?" cùng một dòng cao 32 (`.t1-wlogin__labelrow`).
+  /// Nhãn "Mật khẩu" và link "Quên mật khẩu?" cùng một dòng cao ≥ 32 (`.t1-wlogin__labelrow`);
+  /// chữ phóng to không vừa thì link xuống dòng.
   Widget _passwordBlock(BuildContext context) {
     final colors = context.vColors;
+    final rowHeight = math.max(32.0, MediaQuery.textScalerOf(context).scale(20));
     return VField(
       invalid: passwordError != null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 32,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            width: double.infinity,
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runAlignment: WrapAlignment.center,
+              spacing: VSpacing.sm,
               children: [
                 VText(
                   'Mật khẩu',
@@ -278,11 +300,14 @@ class LoginWide extends StatelessWidget {
                 ),
                 FocusTraversalOrder(
                   order: const NumericFocusOrder(3),
-                  child: VButton(
-                    label: 'Quên mật khẩu?',
-                    variant: VButtonVariant.link,
-                    size: VButtonSize.small,
-                    onPressed: isSubmitting ? null : onForgotPassword,
+                  child: SizedBox(
+                    height: rowHeight,
+                    child: VButton(
+                      label: 'Quên mật khẩu?',
+                      variant: VButtonVariant.link,
+                      size: VButtonSize.small,
+                      onPressed: isSubmitting ? null : onForgotPassword,
+                    ),
                   ),
                 ),
               ],

@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:c45_design_system/design_system.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/iam/iam_codes.dart';
-import 'package:erp/features/auth/data/models/signup_input.dart';
+import 'package:erp/core/widgets/address/vn_administrative_units_loader.dart';
+import 'package:erp/core/widgets/app_logo.dart';
 import 'package:erp/features/auth/logic/signup_cubit.dart';
 import 'package:erp/features/auth/presentation/pages/login_page.dart';
 import 'package:erp/features/auth/presentation/pages/no_organization_page.dart';
@@ -44,6 +45,10 @@ Future<void> captureAuth(
       home: RepaintBoundary(key: key, child: page),
     ),
   );
+  // Nạp logo trước để ảnh không phụ thuộc thứ tự chạy các ca.
+  await tester.runAsync(
+    () => precacheImage(const AssetImage(appIconAsset), key.currentContext!),
+  );
   await tester.pump(const Duration(milliseconds: 50));
   if (act != null) await act();
   await expectLater(
@@ -65,7 +70,10 @@ class _HangingSignIn extends ScriptedAuthRepository {
 }
 
 void main() {
-  setUpAll(loadInterFont);
+  setUpAll(() async {
+    await loadInterFont();
+    await VnAdministrativeUnitsLoader.load();
+  });
 
   group('login', () {
     for (final width in const [390, 1280]) {
@@ -167,26 +175,56 @@ void main() {
   });
 
   group('signup', () {
-    const account = SignupAccountInput(
-      familyName: 'Nguyễn Thị',
-      givenName: 'Lan',
-      email: 'lan@anphat.vn',
-      password: 'Matkhau@123',
-      confirmPassword: 'Matkhau@123',
-    );
-    const store = SignupStoreInput(
-      name: 'Thú y An Phát',
-      contactPhone: '0912345678',
-      provinceCode: '01',
-      communeCode: '00001',
-      addressText: '12 Nguyễn Trãi',
-    );
+    Future<void> enter(WidgetTester t, Map<String, String> values) async {
+      for (final entry in values.entries) {
+        await t.enterText(find.byKey(Key(entry.key)), entry.value);
+      }
+    }
+
+    Future<void> tap(WidgetTester t, String key) async {
+      await t.ensureVisible(find.byKey(Key(key)));
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(Key(key)));
+      await t.pumpAndSettle();
+    }
+
+    Future<void> toStore(WidgetTester t) async {
+      await enter(t, {
+        'signup_family_name': 'Nguyễn Thị',
+        'signup_given_name': 'Lan',
+        'signup_email': 'lan@anphat.vn',
+        'signup_password': 'Matkhau@123',
+        'signup_confirm_password': 'Matkhau@123',
+      });
+      await tap(t, 'signup_continue');
+      // Danh sách tỉnh nạp ngoài đồng hồ giả: nhường một vòng thật để FutureBuilder nhận.
+      await t.runAsync(() => Future<void>.delayed(Duration.zero));
+      await t.pumpAndSettle();
+    }
+
+    Future<void> createStore(WidgetTester t) async {
+      await toStore(t);
+      await enter(t, {
+        'signup_store_name': 'Thú y An Phát',
+        'signup_store_phone': '0283 456 789',
+        'signup_address': '125 Kinh Dương Vương',
+      });
+      await tap(t, 'field_select_province');
+      final search = find.byKey(const Key('input_unit_search'));
+      await t.enterText(search, 'Hồ Chí Minh');
+      await t.pumpAndSettle();
+      await tap(t, 'item_province_79');
+      await t.enterText(search, 'An Lạc');
+      await t.pumpAndSettle();
+      await tap(t, 'item_ward_27460');
+      await tap(t, 'signup_create');
+    }
 
     for (final width in const [390, 1280]) {
       Future<void> run(
         WidgetTester tester,
         String name,
-        Future<void> Function(SignupCubit cubit, WidgetTester tester)? act, {
+        Future<void> Function(WidgetTester tester)? act, {
         ScriptedAuthRepository? auth,
       }) async {
         final repo = auth ?? ScriptedAuthRepository();
@@ -206,7 +244,12 @@ void main() {
           ),
           act: () async {
             await tester.pumpAndSettle();
-            await act?.call(cubit, tester);
+            await act?.call(tester);
+            // Bước xác minh giữ focus ở ô mã như prototype; form thì không.
+            if (find.byKey(const Key('otp_code_field')).evaluate().isEmpty) {
+              FocusManager.instance.primaryFocus?.unfocus();
+            }
+            tester.state<ScrollableState>(find.byType(Scrollable).first).position.jumpTo(0);
             await tester.pumpAndSettle();
           },
         );
@@ -216,47 +259,28 @@ void main() {
         await run(tester, 'signup__account', null);
       });
       testWidgets('signup__account-errors $width', (tester) async {
-        await run(tester, 'signup__account-errors', (cubit, t) async {
-          cubit.continueToStore(
-            const SignupAccountInput(
-              familyName: '',
-              givenName: '',
-              email: 'lan@anphat',
-              password: 'abc',
-              confirmPassword: '',
-            ),
-          );
+        await run(tester, 'signup__account-errors', (t) async {
+          await enter(t, {
+            'signup_email': 'lan@anphat',
+            'signup_password': 'abc',
+          });
+          await tap(t, 'signup_continue');
         });
       });
       testWidgets('signup__store $width', (tester) async {
-        await run(tester, 'signup__store', (cubit, t) async {
-          cubit.continueToStore(account);
-        });
+        await run(tester, 'signup__store', toStore);
       });
       testWidgets('signup__store-errors $width', (tester) async {
-        await run(tester, 'signup__store-errors', (cubit, t) async {
-          cubit.continueToStore(account);
-          await t.pumpAndSettle();
-          await cubit.createStore(
-            const SignupStoreInput(
-              name: '',
-              contactPhone: '',
-              provinceCode: '',
-              communeCode: '',
-              addressText: '',
-            ),
-          );
+        await run(tester, 'signup__store-errors', (t) async {
+          await toStore(t);
+          await tap(t, 'signup_create');
         });
       });
       testWidgets('signup__server-error $width', (tester) async {
         await run(
           tester,
           'signup__server-error',
-          (cubit, t) async {
-            cubit.continueToStore(account);
-            await t.pumpAndSettle();
-            await cubit.createStore(store);
-          },
+          createStore,
           auth: ScriptedAuthRepository(
             signUpError: const AppException('NETWORK_ERROR'),
           ),
@@ -266,22 +290,14 @@ void main() {
         await run(
           tester,
           'signup__email-exists',
-          (cubit, t) async {
-            cubit.continueToStore(account);
-            await t.pumpAndSettle();
-            await cubit.createStore(store);
-          },
+          createStore,
           auth: ScriptedAuthRepository(
             signUpError: const AppException('PLATFORM_USER_ALREADY_EXISTS'),
           ),
         );
       });
       testWidgets('signup__verify $width', (tester) async {
-        await run(tester, 'signup__verify', (cubit, t) async {
-          cubit.continueToStore(account);
-          await t.pumpAndSettle();
-          await cubit.createStore(store);
-        });
+        await run(tester, 'signup__verify', createStore);
       });
     }
   });
