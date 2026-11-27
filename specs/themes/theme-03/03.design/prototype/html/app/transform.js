@@ -7,6 +7,8 @@
 //   widgets/partner_transform_step_one_validator.dart
 import { icon } from '../shared/icons.js';
 import { appBar, avatar, banner, button, card, centerLoading, esc, gap, iconBox, input, scaffold, select } from './ds.js';
+import { DESKTOP } from '../shared/shell.js';
+import { transformPageWeb } from './transform-web.js';
 
 export const PERSON = { name: 'Nguyễn Văn Hùng', phone: '0912 345 678', roles: 'Khách hàng' };
 export const ORG_DRAFT = { type: 'Công ty', name: 'Công ty TNHH Hùng Phát', shortName: 'Hùng Phát', intlName: '', phone: '0292 381 2233', email: 'lienhe@hungphat.vn', taxCode: '1801998877' };
@@ -70,7 +72,7 @@ function stepTwo(d, error) {
 }
 
 /** PartnerTransformBlockedState: đệm 24 / 32; hình 140; khe 24; tiêu đề; khe 12; mô tả; khe 32; nút viền đầy ngang. */
-function blockedState(kind) {
+export function blockedState(kind) {
   const np = kind === 'no-permission';
   const art = np ? `<div class="t3-tart">${icon('shield')}<i class="p">${icon('plus')}</i></div>` : `<div class="t3-tart t3-tart--cloud">${icon('cloud')}<i class="w">${icon('alert')}</i></div>`;
   return `<div class="t3-derr t3-derr--full">${art}${gap(24)}<h2>${np ? 'Không có quyền chuyển đổi' : 'Dữ liệu đã thay đổi'}</h2>${gap(12)}<p>${np ? 'Bạn không có quyền thực hiện chuyển đổi hồ sơ này.' : 'Hồ sơ đã được cập nhật ở nơi khác. Vui lòng tải lại để tiếp tục.'}</p>${gap(32)}${button(np ? 'Quay lại' : 'Tải lại', { variant: 'secondary', fg: 'success', full: true })}</div>`;
@@ -88,6 +90,7 @@ export const transformPrimaryBlockedSheet = (org) => `<div class="t3-confirm t3-
 
 /** Trang PT-11 theo ca. */
 export function transformPage(state, v) {
+  if (v.width >= DESKTOP) return transformPageWeb(state); // Web: form + cột phải (transform-web.js)
   const EMPTY = { type: '', name: '', shortName: '', intlName: '', phone: '', email: '', taxCode: '' };
   let step = 1; let blocked = null; let body;
   if (state === 'blocked-permission' || state === 'blocked-stale') {

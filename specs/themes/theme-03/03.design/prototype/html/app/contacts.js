@@ -9,6 +9,8 @@ import { icon } from '../shared/icons.js';
 import {
   appBar, avatar, button, card, centerLoading, esc, field, gap, iconBox, input, scaffold, searchBar, select, textArea, toast, fab,
 } from './ds.js';
+import { DESKTOP } from '../shared/shell.js';
+import { contactFormPageWeb, contactsPageWeb } from './contacts-web.js';
 
 export const ORG = { name: 'Công ty TNHH Thú y An Phát', roles: 'KH & NCC' };
 export const CONTACTS = [
@@ -45,10 +47,11 @@ function contactTile(c) {
 }
 
 /** Ảnh trống: 3 vòng người + chấm "+" xanh (Stack 120 × 120). */
-const emptyArt = () => `<div class="t3-cart"><span class="a">${icon('user')}</span><span class="b">${icon('user')}</span><span class="c">${icon('idCard')}</span><span class="d">${icon('plus')}</span></div>`;
+export const emptyArt = () => `<div class="t3-cart"><span class="a">${icon('user')}</span><span class="b">${icon('user')}</span><span class="c">${icon('idCard')}</span><span class="d">${icon('plus')}</span></div>`;
 
 /** PartnerContactsPage: VPageScaffold("Người liên hệ", centerTitle, ← mặc định, action "⋯" không làm gì), FAB khi đã tải. */
 export function contactsPage(kind, v, { query = '' } = {}) {
+  if (v.width >= DESKTOP) return contactsPageWeb(kind, { query }); // Web: bảng (contacts-web.js)
   let body;
   if (kind === 'loading') body = centerLoading({ material: true });
   else if (kind === 'error' || kind === 'no-permission') {
@@ -98,6 +101,7 @@ export const removeSheet = () => `<div class="t3-confirm"><h2 class="t3-ctitle">
  * Thân: ListView đệm 16, ô cách 16; hàng nút đáy của PartnerContactForm không hiện (trang luôn truyền onFormCreated).
  */
 export function contactFormPage(s, v) {
+  if (v.width >= DESKTOP) return contactFormPageWeb(s); // Web: form + cột tóm tắt (contacts-web.js)
   const e = s.errors || {};
   const err = s.serverError ? `<div class="t3-cformerr">${esc(s.serverError)}</div>${gap(16)}` : '';
   const dis = s.submitting;

@@ -5,6 +5,8 @@
 //   logic/{partner_change_history_cubit, partner_action_log_diff}.dart (tiêu đề dòng, người làm = 8 ký tự đầu user id, chỉ trang 1 / 20 dòng)
 import { icon } from '../shared/icons.js';
 import { appBar, button, card, centerLoading, emptyDesc, emptyMedia, emptyState, emptyTitle, esc, gap, scaffold } from './ds.js';
+import { DESKTOP } from '../shared/shell.js';
+import { historyPageWeb } from './history-web.js';
 
 // ---------------------------------------------------------------- hàm thuần (đối chiếu Dart)
 
@@ -66,6 +68,7 @@ export function historyCard(e) {
 }
 
 export function historyPage(kind, v) {
+  if (v.width >= DESKTOP) return historyPageWeb(kind); // Web: dòng thời gian (history-web.js)
   let body;
   if (kind === 'loading') body = centerLoading({ material: true });
   else if (kind === 'error') {

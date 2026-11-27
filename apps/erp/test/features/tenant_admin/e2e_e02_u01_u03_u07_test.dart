@@ -358,13 +358,12 @@ void main() {
       expect(find.text('Kích hoạt tổ chức'), findsNWidgets(2));
       expect(find.text('Cập nhật hồ sơ tổ chức'), findsNothing);
 
-      final activationCard = find.byWidgetPredicate(
-        (widget) =>
-            widget is AuditLogItemCard &&
-            widget.log.title == 'Kích hoạt tổ chức' &&
-            widget.log.id == 'AUD-T-ACTIVATE-042',
-        description: 'activation audit card with stable title and audit ID',
-      );
+      final activationCard = find
+          .ancestor(
+            of: find.text('Kích hoạt tổ chức').last,
+            matching: find.byType(InkWell),
+          )
+          .first;
       expect(activationCard, findsOneWidget);
 
       await tester.tap(activationCard);

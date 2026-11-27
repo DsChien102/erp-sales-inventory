@@ -1,0 +1,148 @@
+/* PT-01 web ≥ 1024 "Bảng toàn trang" (app/list-web.js). Chỉ token c45-v2 có sẵn; tiền tố wp-. */
+.wp { background: var(--c45-v2-surface-canvas); color: var(--c45-v2-text-primary); font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; font-feature-settings: 'tnum'; }
+.wp button { font-family: inherit; }
+.wp :focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+.wp ::selection { background: var(--c45-v2-primary-200); color: var(--c45-v2-text-primary); }
+.wp .icon { width: 1em; height: 1em; flex: 0 0 auto; }
+.wp-mono { font-family: var(--c45-v2-font-mono); font-size: var(--sh-fs-sm); }
+.wp-muted { color: var(--c45-v2-text-secondary); }
+.wp-dash { color: var(--c45-v2-text-muted); }
+.wp-grow { flex: 1; }
+
+/* ---------- trang */
+.wp-head { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: var(--c45-v2-space-4); padding: var(--c45-v2-space-5) var(--c45-v2-space-8); background: var(--c45-v2-surface-default); border-bottom: 1px solid var(--c45-v2-border-default); }
+.wp-head h1 { margin: 0; font-size: 22px; line-height: 32px; font-weight: 700; letter-spacing: -0.3px; }
+.wp-head p { margin: 0; font-size: var(--sh-fs-sm); line-height: 20px; color: var(--c45-v2-text-secondary); }
+.wp-wrap { flex: 1; min-height: 0; width: 100%; max-width: 1120px; margin: 0 auto; padding: var(--c45-v2-space-5) var(--c45-v2-space-8) var(--c45-v2-space-6); display: flex; flex-direction: column; gap: var(--c45-v2-space-4); box-sizing: border-box; }
+.wp-toolbar { display: flex; align-items: center; gap: var(--c45-v2-space-3); }
+
+/* ---------- control (mật độ compact của web: cao 40) */
+.wp-btn { display: inline-flex; align-items: center; gap: var(--c45-v2-space-2); height: 40px; padding: 0 14px; border: 1px solid transparent; border-radius: var(--c45-v2-radius-button); font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; white-space: nowrap; cursor: pointer; font-size: 14px; }
+.wp-btn .icon { font-size: 18px; }
+.wp-btn--primary { background: var(--c45-v2-action-primary-default); color: var(--c45-v2-text-inverse); }
+.wp-btn--primary:hover { background: var(--c45-v2-primary-700); }
+.wp-btn--primary:active { background: var(--c45-v2-primary-800); }
+.wp-btn--secondary { background: var(--c45-v2-surface-default); color: var(--c45-v2-text-primary); border-color: var(--c45-v2-border-input); }
+.wp-btn--secondary:hover { background: var(--c45-v2-neutral-50); }
+.wp-btn--secondary:active { background: var(--c45-v2-surface-canvas); }
+.wp-btn--sort .icon:last-child { font-size: 16px; color: var(--c45-v2-text-secondary); }
+
+.wp-search { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--c45-v2-space-2); height: 40px; padding: 0 10px 0 12px; border: 1px solid var(--c45-v2-border-input); border-radius: var(--c45-v2-radius-input); background: var(--c45-v2-surface-default); color: var(--c45-v2-text-secondary); font-size: 18px; box-sizing: border-box; }
+.wp-search { flex: 0 1 340px; }
+.wp-search__clear { display: grid; place-items: center; width: 28px; height: 28px; margin-right: -4px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-pill); background: transparent; color: var(--c45-v2-text-secondary); font-size: 16px; cursor: pointer; }
+.wp-search__clear:hover { background: var(--c45-v2-surface-subtle); }
+.wp-search:focus-within { border-color: var(--c45-v2-action-primary-default); box-shadow: 0 0 0 3px var(--c45-v2-surface-success); }
+.wp-search input { flex: 1; min-width: 0; padding: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 14px; line-height: 22px; font-weight: 500; color: var(--c45-v2-text-primary); caret-color: var(--c45-v2-action-primary-default); }
+.wp-search input::placeholder { color: var(--c45-v2-text-muted); opacity: 1; }
+.wp-search input::-webkit-search-cancel-button { display: none; }
+.wp-search kbd { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 4px; border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-1); font-family: var(--c45-v2-font-mono); font-size: 11px; line-height: 1; color: var(--c45-v2-text-secondary); box-sizing: border-box; }
+
+.wp-seg { display: inline-flex; flex: 0 0 auto; padding: 3px; gap: 2px; border-radius: var(--c45-v2-radius-button); background: var(--c45-v2-surface-subtle); }
+.wp-seg button { height: 34px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: var(--c45-v2-text-secondary); font-size: var(--sh-fs-sm); font-weight: 600; white-space: nowrap; cursor: pointer; }
+.wp-seg button:hover { color: var(--c45-v2-text-primary); }
+.wp-seg button[aria-checked="true"] { background: var(--c45-v2-surface-default); color: var(--c45-v2-text-brand); box-shadow: var(--c45-v2-elevation-e1); }
+
+/* ---------- trạng thái */
+.wp-status { display: inline-flex; align-items: center; gap: 6px; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 600; white-space: nowrap; }
+.wp-status i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.wp-status--on { color: var(--c45-v2-text-success); }
+.wp-status--off { color: var(--c45-v2-text-warning); }
+.wp-status--off i { background: transparent; box-shadow: inset 0 0 0 2px currentColor; }
+
+.wp-av { display: grid; place-items: center; flex: 0 0 auto; width: 32px; height: 32px; font-size: 12px; border-radius: 50%; background: var(--c45-v2-surface-success); color: var(--c45-v2-text-brand); font-weight: 700; line-height: 1; }
+
+/* ---------- bảng */
+.wp-card { background: var(--c45-v2-surface-default); border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); }
+.wp-card--table { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.wp-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.wp-card--table .wp-table { display: block; flex: 1; min-height: 0; overflow: auto; }
+.wp-card--table .wp-table thead, .wp-card--table .wp-table tbody { display: table; width: 100%; table-layout: fixed; }
+.wp-table thead { position: sticky; top: 0; z-index: 1; }
+.wp-table th { height: 40px; padding: 0 16px; background: var(--c45-v2-neutral-50); border-bottom: 1px solid var(--c45-v2-border-default); text-align: left; font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 600; color: var(--c45-v2-text-secondary); white-space: nowrap; }
+.wp-table td { height: 56px; padding: 0 16px; border-bottom: 1px solid var(--c45-v2-border-default); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wp-table tbody tr { cursor: pointer; }
+.wp-table tbody tr:hover { background: var(--c45-v2-neutral-50); }
+.wp-table tbody tr:focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: -2px; }
+.wp-table tbody tr[data-off] .wp-name b { color: var(--c45-v2-text-secondary); }
+.wp-table :is(th, td):nth-child(1) { width: 34%; } .wp-table :is(th, td):nth-child(2) { width: 13%; } .wp-table :is(th, td):nth-child(3) { width: 15%; }
+.wp-table :is(th, td):nth-child(4) { width: 15%; } .wp-table :is(th, td):nth-child(5) { width: 10%; }
+.wp-name { display: flex; align-items: center; gap: var(--c45-v2-space-3); min-width: 0; }
+.wp-name > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.wp-name b, .wp-name small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wp-name b { font-weight: 600; }
+.wp-name small { font-size: var(--sh-fs-xs); line-height: 18px; color: var(--c45-v2-text-secondary); }
+.wp-tfoot { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; height: 44px; padding: 0 16px; font-size: var(--sh-fs-sm); color: var(--c45-v2-text-secondary); }
+
+.wp-tfoot__end { flex: 1; text-align: center; }
+.wp-card--state { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+.wp-card--state .t3-empty { background: transparent; }
+
+/* ---------- nút lọc có số + hàng lọc đang áp (FR-03) */
+.wp-btn.is-active { border-color: var(--c45-v2-action-primary-default); color: var(--c45-v2-text-brand); }
+.wp-btn__count { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-action-primary-default); color: var(--c45-v2-text-inverse); font-size: 11px; line-height: 1; box-sizing: border-box; }
+.wp-active { display: flex; align-items: center; flex-wrap: wrap; gap: var(--c45-v2-space-2); min-height: 32px; margin: -4px 0; }
+.wp-active > b { margin-right: var(--c45-v2-space-2); font-weight: 600; }
+.wp-achip { display: inline-flex; align-items: center; gap: 2px; height: 30px; padding: 0 4px 0 12px; border: 1px solid var(--c45-v2-border-brand); border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-brand); color: var(--c45-v2-text-brand); font-size: var(--sh-fs-sm); font-weight: 600; }
+.wp-achip button { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; font-size: 14px; cursor: pointer; }
+.wp-achip button:hover { background: var(--c45-v2-primary-150); }
+.wp-clear { margin-left: var(--c45-v2-space-1); padding: 4px; border: 0; background: none; color: var(--c45-v2-text-brand); font-size: var(--sh-fs-sm); font-weight: 600; cursor: pointer; }
+.wp-clear:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- đang tải */
+.wp-skelrow { cursor: default !important; }
+.wp-skelrow:hover { background: transparent !important; }
+.wp-skelrow td:first-child { display: flex; align-items: center; gap: var(--c45-v2-space-3); }
+.wp-skel { display: inline-block; height: 12px; border-radius: var(--c45-v2-radius-1); background: var(--c45-v2-surface-subtle); vertical-align: middle; }
+.wp-skel--av { flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%; }
+
+/* ---------- PT-02 Bộ lọc (hộp thoại web, filterDialogWeb) */
+.t3-dialog:has(.wpf) { max-width: 520px; }
+.t3-dialog__body:has(> .wpf) { padding: 0; }
+.wpf { display: flex; flex-direction: column; color: var(--c45-v2-text-primary); font-size: 14px; line-height: 22px; font-weight: 500; }
+.wpf button { font-family: inherit; }
+.wpf .icon { width: 1em; height: 1em; flex: 0 0 auto; }
+.wpf :focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+.wpf-head { display: flex; align-items: baseline; gap: 12px; padding: 20px 64px 16px 24px; }
+.wpf-head h2 { margin: 0; font-size: 18px; line-height: 26px; font-weight: 700; letter-spacing: -0.2px; }
+.wpf-badge { padding: 0 8px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-brand); color: var(--c45-v2-text-brand); font-size: 12px; line-height: 22px; font-weight: 600; }
+.wpf-s { padding: 0 24px 20px; }
+.wpf-s h3 { margin: 0 0 10px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.wpf-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.wpf-chip { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-default); color: var(--c45-v2-text-primary); font-size: 13px; font-weight: 600; cursor: pointer; }
+.wpf-chip:hover { background: var(--c45-v2-neutral-50); }
+.wpf-chip[aria-pressed="true"] { padding-left: 10px; background: var(--c45-v2-surface-brand); border-color: var(--c45-v2-border-brand); color: var(--c45-v2-text-brand); }
+.wpf-chip .icon { font-size: 16px; }
+.wpf-range { display: flex; align-items: flex-end; gap: 8px; margin-top: 12px; }
+.wpf-range label { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.wpf-range label span { font-size: 12px; line-height: 18px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.wpf-range input { height: 40px; padding: 0 12px; border: 1px solid var(--c45-v2-border-input); border-radius: var(--c45-v2-radius-input); font: inherit; font-family: var(--c45-v2-font-mono); font-size: 13px; color: var(--c45-v2-text-primary); caret-color: var(--c45-v2-action-primary-default); }
+.wpf-range input::placeholder { color: var(--c45-v2-text-muted); }
+.wpf-range input:focus { outline: 0; border-color: var(--c45-v2-action-primary-default); box-shadow: 0 0 0 3px var(--c45-v2-surface-success); }
+.wpf-range__dash { padding-bottom: 9px; color: var(--c45-v2-text-secondary); }
+.wpf-foot { position: sticky; bottom: 0; display: flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--c45-v2-surface-default); border-top: 1px solid var(--c45-v2-border-default); border-radius: 0 0 var(--c45-v2-radius-sheet) var(--c45-v2-radius-sheet); }
+.wpf-grow { flex: 1; }
+.wpf-reset { height: 40px; margin-left: -12px; padding: 0 12px; border: 0; border-radius: var(--c45-v2-radius-button); background: transparent; color: var(--c45-v2-text-brand); font-size: 14px; font-weight: 600; cursor: pointer; }
+.wpf-reset:hover { background: var(--c45-v2-surface-success); }
+.wpf .wp-btn--primary { padding: 0 20px; }
+
+/* ---------- PT-03 Thêm KH & NCC mới (hộp thoại web, createTypeDialogWeb) */
+.wpc { max-width: 520px; overflow: hidden; color: var(--c45-v2-text-primary); font-size: 14px; line-height: 22px; font-weight: 500; }
+.wpc button { font-family: inherit; }
+.wpc .icon { width: 1em; height: 1em; flex: 0 0 auto; }
+.wpc :focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+.wpc-head { display: flex; align-items: center; gap: 12px; padding: 16px 12px 0 24px; }
+.wpc-head h2 { flex: 1; min-width: 0; margin: 0; font-size: 18px; line-height: 26px; font-weight: 700; letter-spacing: -0.2px; }
+.wpc-x { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-button); background: transparent; color: var(--c45-v2-text-secondary); font-size: 20px; cursor: pointer; }
+.wpc-x:hover { background: var(--c45-v2-neutral-50); color: var(--c45-v2-text-primary); }
+.wpc-radios { display: flex; flex-direction: column; gap: 10px; padding: 16px 24px 20px; }
+.wpc-radio { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); color: inherit; text-align: left; cursor: pointer; }
+.wpc-radio:hover { background: var(--c45-v2-neutral-50); }
+.wpc-radio[aria-checked="true"] { border-color: var(--c45-v2-action-primary-default); background: var(--c45-v2-surface-brand); box-shadow: 0 0 0 1px var(--c45-v2-action-primary-default); }
+.wpc-dot { width: 20px; height: 20px; flex: 0 0 auto; border: 1px solid var(--c45-v2-border-input); border-radius: 50%; box-sizing: border-box; background: var(--c45-v2-surface-default); }
+.wpc-radio[aria-checked="true"] .wpc-dot { border: 6px solid var(--c45-v2-action-primary-default); }
+.wpc-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.wpc-text b { font-weight: 600; }
+.wpc-text span { font-size: 13px; line-height: 20px; color: var(--c45-v2-text-secondary); }
+.wpc-ic { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; border-radius: var(--c45-v2-radius-icon-box); background: var(--c45-v2-surface-brand); color: var(--c45-v2-action-primary-default); font-size: 20px; }
+.wpc-radio[aria-checked="true"] .wpc-ic { background: var(--c45-v2-surface-default); }
+.wpc-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 24px; border-top: 1px solid var(--c45-v2-border-default); }

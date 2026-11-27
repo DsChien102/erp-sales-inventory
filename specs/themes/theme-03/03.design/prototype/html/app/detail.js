@@ -15,6 +15,8 @@ import { icon } from '../shared/icons.js';
 import {
   appBar, avatar, banner, button, card, centerLoading, esc, gap, iconBox, scaffold, skeleton, textArea, toast,
 } from './ds.js';
+import { DESKTOP } from '../shared/shell.js';
+import { detailPageWeb } from './detail-web.js';
 
 // ---------------------------------------------------------------- dữ liệu mẫu (PartnerDetailDto)
 
@@ -225,13 +227,13 @@ function skeletonBody() {
 }
 
 /** PartnerDetailErrorState: đệm 24 / 32; hình; khe 24; tiêu đề H3 w700; khe 12; mô tả; khe 32; nút secondary rộng 220 chữ xanh. */
-const ERRORS = {
+export const ERRORS = {
   error: { kind: 'box', title: 'Không tải được hồ sơ', desc: 'Vui lòng kiểm tra kết nối internet hoặc thử lại sau.', action: 'Thử lại' },
   'not-found': { kind: 'search', title: 'Không tìm thấy hồ sơ', desc: 'Hồ sơ có thể đã bị xóa hoặc không tồn tại\nhoặc bạn không có quyền xem.', action: 'Quay lại' },
   'contact-only': { kind: 'search', title: 'Không phải hồ sơ đối tác', desc: 'Người liên hệ chỉ quản lý trong hồ sơ tổ chức.\nKhông mở như hồ sơ cá nhân độc lập.', action: 'Quay lại' },
   'no-permission': { kind: 'lock', title: 'Không có quyền xem hồ sơ', desc: 'Bạn không có quyền truy cập hồ sơ\nKhách hàng & Nhà cung cấp.', action: 'Quay lại' },
 };
-function errorBody(key) {
+export function errorBody(key) {
   const e = ERRORS[key];
   const art = e.kind === 'box' ? iconBox({ ic: 'cloudOff', size: 64, iconSize: 28, radius: 16, cls: 't3-empty__media' })
     : e.kind === 'lock' ? `<div class="t3-art-lock">${icon('shield')}<span>?</span></div>`
@@ -241,6 +243,7 @@ function errorBody(key) {
 
 /** PartnerDetailPage: VPageScaffold("Hồ sơ KH & NCC", showBackButton: !isSplit). */
 export function detailPage(o, v, placeWidth, split) {
+  if (v.width >= DESKTOP) return detailPageWeb(o); // Web: hồ sơ toàn trang hai cột (detail-web.js)
   const d = DETAILS[o.id];
   let body;
   if (o.kind === 'loading') body = skeletonBody();

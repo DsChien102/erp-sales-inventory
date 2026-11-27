@@ -10,7 +10,7 @@ export const GROUPS = [
 export const SCREENS = [
   {
     id: 'list', group: 'list', code: 'PT-01', title: 'Danh sách KH & NCC', route: '/partner', states: [
-      ['loaded', 'Có dữ liệu (L-02)', 'App bar "KH & NCC" + "48 đối tác"; ô tìm + nút lọc 44; 4 chip nhanh; "Danh sách đối tác" / "Sắp xếp"; thẻ: avatar chữ tắt, tên, "Loại · Vai trò", SĐT, MST, "Cập nhật …", nhãn trạng thái (đang hoạt động cỡ thường, ngừng hoạt động cỡ nhỏ). "Mua lẻ / khác" (đối tác hệ thống) nằm lẫn trong danh sách. Web: 2 cột, danh sách 360 + cột phải "Chọn một KH & NCC để xem chi tiết."; nút + bị đẩy vào trong 280 px (gutter tính theo cửa sổ 1280) nên nằm sát mép trái cột danh sách.'],
+      ['loaded', 'Có dữ liệu (L-02)', 'App bar "KH & NCC" + "48 đối tác"; ô tìm + nút lọc 44; 4 chip nhanh; "Danh sách đối tác" / "Sắp xếp"; thẻ: avatar chữ tắt, tên, "Loại · Vai trò", SĐT, MST, "Cập nhật …", nhãn trạng thái (đang hoạt động cỡ thường, ngừng hoạt động cỡ nhỏ). "Mua lẻ / khác" (đối tác hệ thống) nằm lẫn trong danh sách. Web (thiết kế lại, list-web.js): bảng toàn trang — đầu trang có nút chính "Thêm KH & NCC" (thay nút +), một hàng công cụ (ô tìm, lọc nhanh chia đoạn, Bộ lọc, sắp xếp), bảng 6 cột Tên / Vai trò / SĐT / MST / Cập nhật / Trạng thái (chấm + chữ), chân "Đang hiện N / 48 đối tác"; bấm dòng → hồ sơ.'],
       ['loading', 'Đang tải (L-01)', '8 khối xám 128 (bo 12). App bar ghi "0 đối tác" khi chưa có tổng lần nào.'],
       ['search', 'Đang tìm', 'Từ khoá "thú y": nút × trong ô tìm; đầu danh sách "3 kết quả phù hợp"; hết trang → "Đã ở cuối danh sách".'],
       ['quick-filter', 'Chip nhanh', 'Chọn "Khách hàng": chip xanh; nút lọc có số 1 (chip nhanh cũng đếm vào bộ lọc) và viền xanh; "31 kết quả phù hợp".'],
@@ -28,19 +28,19 @@ export const SCREENS = [
   },
   {
     id: 'filter', group: 'list', code: 'PT-02', title: 'Bộ lọc / Sắp xếp', route: '/partner', states: [
-      ['filter', 'Bộ lọc', 'Sheet không tiêu đề: "Bộ lọc KH & NCC" (H4), 4 nhóm chip; "Thời gian cập nhật" là 3 chip chia đều (iPhone: chữ bị cắt "…", chữ canh trái). "Tùy chọn" bấm không làm gì. Vai trò không có chip "Tất cả" (Trạng thái thì có). "Đặt lại" | "Áp dụng". iPhone: sheet mở trong vùng tab nên thanh dưới vẫn hiện, không bị phủ tối. Web: hộp thoại 480 có đệm 16 / 24 + đệm riêng 16 của nội dung.'],
+      ['filter', 'Bộ lọc', 'Sheet không tiêu đề: "Bộ lọc KH & NCC" (H4), 4 nhóm chip; "Thời gian cập nhật" là 3 chip chia đều (iPhone: chữ bị cắt "…", chữ canh trái). "Tùy chọn" bấm không làm gì. Vai trò không có chip "Tất cả" (Trạng thái thì có). "Đặt lại" | "Áp dụng". iPhone: sheet mở trong vùng tab nên thanh dưới vẫn hiện, không bị phủ tối. Web (thiết kế lại, filterDialogWeb): hộp 520, mỗi nhóm có "Tất cả", chip chọn có ✓, đầu hộp "N đang chọn", "Tùy chọn" mở ô Từ ngày – Đến ngày trong hộp, chân cố định "Đặt lại" | "Áp dụng".'],
       ['filter-selected', 'Bộ lọc đã chọn', 'Khách hàng + Tổ chức + Đang hoạt động + 7 ngày.'],
       ['sort', 'Sắp xếp', 'Nhãn "Sắp xếp danh sách" + 4 radio (mỗi dòng cao 64 + khe 12) + "Áp dụng".'],
     ],
   },
   {
     id: 'create-type', group: 'list', code: 'PT-03', title: 'Thêm KH & NCC mới', route: '/partner', states: [
-      ['default', 'Chọn loại hồ sơ', 'Sheet có tiêu đề "Thêm KH & NCC mới" + gạch; 2 thẻ (ô icon nền xanh nhạt, tiêu đề H4, mô tả, mũi tên ›). Web: hộp thoại có tiêu đề + nút Đóng.'],
+      ['default', 'Chọn loại hồ sơ', 'Sheet có tiêu đề "Thêm KH & NCC mới" + gạch; 2 thẻ (ô icon nền xanh nhạt, tiêu đề H4, mô tả, mũi tên ›). Web (thiết kế lại, createTypeDialogWeb): hộp 520, hai thẻ chọn tròn (mặc định "Tạo cá nhân"), chân "Hủy" | "Tiếp tục".'],
     ],
   },
   {
     id: 'form', group: 'list', code: 'PT-05', title: 'Tạo / sửa hồ sơ', route: '/partner/new', states: [
-      ['person-new', 'Tạo cá nhân · mới mở', 'Toàn màn (ngoài khung, web không thanh bên); nút ← là ô 40 icon 20 (khác nút ← 24 của màn khác). Mục "1. Loại hồ sơ" khoá; "2. Vai trò" mở sẵn; các mục khác đóng, mục "4. Hóa đơn / thuế" không có chữ phụ (khác các mục "Tùy chọn"). "Lưu & Xem" mờ, không nói vì sao. Viền mục borderDefault (nhạt hơn thẻ danh sách). iPhone: hàng nút dưới không chừa vùng an toàn đáy (34).'],
+      ['person-new', 'Tạo cá nhân · mới mở', 'Toàn màn (ngoài khung, web không thanh bên); nút ← là ô 40 icon 20 (khác nút ← 24 của màn khác). Mục "1. Loại hồ sơ" khoá; "2. Vai trò" mở sẵn; các mục khác đóng, mục "4. Hóa đơn / thuế" không có chữ phụ (khác các mục "Tùy chọn"). "Lưu & Xem" mờ, không nói vì sao. Viền mục borderDefault (nhạt hơn thẻ danh sách). iPhone: hàng nút dưới không chừa vùng an toàn đáy (34). Web (thiết kế lại, form-web.js, mọi ca PT-05): mọi mục mở sẵn thành thẻ, ô nhập 2 cột, nhãn Bắt buộc / Tùy chọn; cột phải 300 dính: tên + vai trò, "Cần có để lưu" (✓ khi đủ), "Lưu & Xem" + "Hủy"; bỏ đóng / mở mục và "Bỏ qua" | "Tiếp".'],
       ['person-role-error', 'Vai trò · chưa chọn', 'Bấm "Tiếp" khi chưa chọn: dòng đỏ "Vui lòng chọn vai trò giao dịch" dưới chip.'],
       ['person-main', 'Thông tin cá nhân · trống', 'Vai trò ✓ "Khách hàng". Khe giữa "Danh xưng" và "Họ và tên" 8, các ô sau 16.'],
       ['person-main-filled', 'Thông tin cá nhân · đã nhập', 'Đủ tên + SĐT → "Lưu & Xem" bật.'],
@@ -68,13 +68,13 @@ export const SCREENS = [
   },
   {
     id: 'duplicate', group: 'list', code: 'PT-04', title: 'Trùng hồ sơ', route: '/partner/new', states: [
-      ['exact', 'Trùng khớp hoàn toàn', 'Vòng đỏ 48 + "Trùng khớp hoàn toàn" (H3 w600) + câu + thẻ hồ sơ "SĐT: …" + "Đi đến hồ sơ" | "Quay lại". Web: hộp thoại không tiêu đề.'],
+      ['exact', 'Trùng khớp hoàn toàn', 'Vòng đỏ 48 + "Trùng khớp hoàn toàn" (H3 w600) + câu + thẻ hồ sơ "SĐT: …" + "Đi đến hồ sơ" | "Quay lại". Web (thiết kế lại, duplicateDialogWeb): hộp 600 so sánh "Bạn đang nhập" | "Hồ sơ đã có", trường trùng tô đỏ + nhãn "Trùng", nút canh phải.'],
       ['possible', 'Có thể trùng', 'Vòng vàng; 2 thẻ; "Tiếp tục tạo mới" | "Xem chi tiết" — "Xem chi tiết" luôn mở hồ sơ đầu tiên; không có nút quay lại (chỉ vuốt / Đóng).'],
     ],
   },
   {
     id: 'picker', group: 'list', code: 'PT-06', title: 'Chọn khu vực hành chính', route: '/partner/new', states: [
-      ['province', 'Chọn tỉnh', 'Cao 75% màn; tiêu đề + nút Đóng; ô tìm; 2 bước (số 1 nền xanh, số 2 xám mờ); danh sách 34 tỉnh sắp theo mã ký tự: "Thành phố …" trước "Tỉnh …", tên bắt đầu bằng "Đ" xuống cuối nhóm; mỗi dòng có "N xã/phường". Web: hộp thoại không tiêu đề → hai nút Đóng chồng góc phải.'],
+      ['province', 'Chọn tỉnh', 'Cao 75% màn; tiêu đề + nút Đóng; ô tìm; 2 bước (số 1 nền xanh, số 2 xám mờ); danh sách 34 tỉnh sắp theo mã ký tự: "Thành phố …" trước "Tỉnh …", tên bắt đầu bằng "Đ" xuống cuối nhóm; mỗi dòng có "N xã/phường". Web (thiết kế lại, pickerDialogWeb): hộp 640 × 600, một nút Đóng, ô tìm + hai bước trên cùng, tỉnh / xã xếp lưới 2 cột.'],
       ['province-selected', 'Tỉnh đã chọn', 'Mở lại khi đã có tỉnh: dòng "Thành phố Cần Thơ" nền xanh nhạt + ✓; bước 1 hiện tên tỉnh dưới nhãn.'],
       ['province-empty', 'Tìm không thấy', '"Không tìm thấy tỉnh / thành phố" + câu có từ khoá.'],
       ['ward', 'Chọn xã', 'Bước 1 dấu ✓ + tên tỉnh, bước 2 đang chọn; ô tìm "Tìm kiếm xã, phường tại Thành phố Cần Thơ..."; dòng xã không có số đếm.'],
@@ -82,7 +82,7 @@ export const SCREENS = [
   },
   {
     id: 'detail', group: 'detail', code: 'PT-07', title: 'Hồ sơ KH & NCC', route: '/partner/p1', states: [
-      ['org-both', 'Tổ chức KH & NCC', 'Avatar 64 + tên H3 + "Tổ chức • KH & NCC" + thẻ trạng thái (kiểu riêng: bo 4, 11 px — khác VBadge ở danh sách); hàng SĐT  •  MST; các thẻ đều đóng (ListTile dense 48): Thông tin, Công nợ (Theme 6, kiểu thẻ riêng có chevron), Người liên hệ "2", Hóa đơn, Địa chỉ, Ghi chú… Hàng nút "Chỉnh sửa" (viền, chữ xanh) | "Thao tác ˄". Web: cột phải 679 → thân cột 640 canh giữa nên hàng nút đáy không chạm hai mép cột; không có nút ←; danh sách bên trái đánh dấu dòng đang mở. iPhone: có nút ‹, thanh dưới vẫn hiện.'],
+      ['org-both', 'Tổ chức KH & NCC', 'Avatar 64 + tên H3 + "Tổ chức • KH & NCC" + thẻ trạng thái (kiểu riêng: bo 4, 11 px — khác VBadge ở danh sách); hàng SĐT  •  MST; các thẻ đều đóng (ListTile dense 48): Thông tin, Công nợ (Theme 6, kiểu thẻ riêng có chevron), Người liên hệ "2", Hóa đơn, Địa chỉ, Ghi chú… Hàng nút "Chỉnh sửa" (viền, chữ xanh) | "Thao tác ˄". Web: cột phải 679 → thân cột 640 canh giữa nên hàng nút đáy không chạm hai mép cột; không có nút ←; danh sách bên trái đánh dấu dòng đang mở. iPhone: có nút ‹, thanh dưới vẫn hiện. Web (thiết kế lại, detail-web.js, mọi ca PT-07): toàn trang, không chia cột với danh sách; đầu trang có đường dẫn + avatar + tên + loại · vai trò · trạng thái + SĐT · email · MST, nút "Lịch sử thao tác" | "Thao tác ▾" | "Chỉnh sửa" (nút chính); thân hai cột: trái Thông tin / Hóa đơn / Địa chỉ / Ghi chú (luôn mở), phải Công nợ / Người liên hệ / Chương trình ưu đãi / Lịch sử nhập hàng.'],
       ['org-both-end', 'Tổ chức · cuộn cuối', 'Khối NCC (Theme 7) sau Ghi chú: "Chương trình ưu đãi" là VCard (viền đậm) chứa dòng VListRow + nhãn trạng thái + thanh tiến độ; "Lịch sử nhập hàng" không có thẻ bọc, mỗi phiếu là một VCard riêng, ngày dạng "2026-11-18" (chuỗi thô từ DB), tiền "đ" (Công nợ dùng "₫"). Cuối cùng "Lịch sử thao tác " (icon bánh răng).'],
       ['org-expanded', 'Tổ chức · mở thẻ', 'Thông tin tổ chức mở: nhãn 11 px, giá trị 14; ô trống ghi "—". Người liên hệ mở: tối đa 2 người (chính lên đầu, thẻ "Chính"), gạch, "⊕ Thêm người liên hệ" | "Xem tất cả (2) ›".'],
       ['blocks-loading', 'Khối Theme 6 / 7 đang tải', 'Công nợ chưa tải → không vẽ gì nhưng khe 8 vẫn còn (hai khe liền nhau); Chương trình ưu đãi: khối xám 44; Lịch sử nhập hàng: vòng xoay Material giữa khối.'],
@@ -108,23 +108,23 @@ export const SCREENS = [
   },
   {
     id: 'detail-sheet', group: 'detail', code: 'PT-07', title: 'Thao tác hồ sơ (sheet)', route: '/partner/p1', states: [
-      ['actions-person', 'Thao tác · cá nhân', 'Sheet không tiêu đề, chữ "Thao tác hồ sơ" H3 trong nội dung; 3 thẻ (Chuyển thành tổ chức, Ngừng hoạt động, Xóa hồ sơ) mỗi thẻ có ›; "Hủy" viền đầy ngang. Web: hộp thoại không tiêu đề → nút Đóng góc + đệm đôi.'],
+      ['actions-person', 'Thao tác · cá nhân', 'Web (thiết kế lại): menu thả xuống ngay dưới nút "Thao tác ▾" ở đầu hồ sơ, nền không tối, "Xóa hồ sơ" đỏ tách bằng gạch, không có "Hủy". iPhone: sheet không tiêu đề, chữ "Thao tác hồ sơ" H3 trong nội dung; 3 thẻ (Chuyển thành tổ chức, Ngừng hoạt động, Xóa hồ sơ) mỗi thẻ có ›; "Hủy" viền đầy ngang. Web: hộp thoại không tiêu đề → nút Đóng góc + đệm đôi.'],
       ['actions-org', 'Thao tác · tổ chức', 'Không có "Chuyển thành tổ chức".'],
       ['actions-inactive', 'Thao tác · đang ngừng', '"Kích hoạt lại" (icon nguồn xanh).'],
-      ['deactivate', 'Ngừng hoạt động?', 'Vòng vàng 64; câu 2 dòng; "Lý do (không bắt buộc)" + ô 3 dòng + "0/200"; nút xác nhận "Ngừng hoạt động" màu xanh chính (không phải vàng / đỏ).'],
+      ['deactivate', 'Ngừng hoạt động?', 'Web (thiết kế lại, deactivateDialogWeb): hộp 460, hai dòng hệ quả ⊘ / ✓, "+ Thêm lý do (không bắt buộc)" thu gọn, nút "Ngừng hoạt động" màu cảnh báo canh phải. iPhone: Vòng vàng 64; câu 2 dòng; "Lý do (không bắt buộc)" + ô 3 dòng + "0/200"; nút xác nhận "Ngừng hoạt động" màu xanh chính (không phải vàng / đỏ).'],
       ['deactivate-primary', 'Ngừng · đang là liên hệ chính', 'Banner vàng tiêu đề rỗng: hàng icon trơ, câu thụt 32.'],
-      ['reactivate', 'Kích hoạt lại?', 'Vòng xanh 64 + câu + "Hủy" | "Kích hoạt lại".'],
-      ['delete-confirm', 'Xóa hồ sơ?', 'Nút × riêng 32 ở góc (web: thêm nút Đóng của hộp thoại → hai ×); vòng đỏ; câu đậm "không xóa giao dịch…"; "Xóa hồ sơ" đỏ.'],
-      ['delete-blocked', 'Không thể xóa (có giao dịch)', 'Icon cảnh báo 56 không hộp (khác vòng 64 của các sheet khác); "Quay lại" | "Ngừng hoạt động".'],
-      ['delete-blocked-inactive', 'Không thể xóa · đang ngừng', 'Chỉ còn "Quay lại" đầy ngang.'],
-      ['transform-primary-blocked', 'Không thể chuyển (liên hệ chính)', 'Bấm "Chuyển thành tổ chức" khi cá nhân đang là liên hệ chính của tổ chức khác: như sheet chặn xoá — tay kéo tự vẽ (iPhone hai tay kéo), icon tổ chức 44 vàng, "Đóng" | "Xem tổ chức".'],
-      ['add-contact-method', 'Thêm người liên hệ (từ hồ sơ)', 'Bấm "Thêm người liên hệ" trong thẻ: sheet 2 lựa chọn. iPhone: mở trong vùng tab nên "Hủy" sát mép dưới sheet (SafeArea = 0, không có khe dưới). Khe chữ → › thẻ 1 là 8, thẻ 2 là 16.'],
-      ['delete-primary-blocked', 'Không thể xóa (liên hệ chính)', 'Sheet tự vẽ thêm tay kéo 40 × 4 → iPhone có hai tay kéo; icon thùng rác 44 đỏ không hộp; "Đóng" | "Xem tổ chức". Cùng tiêu đề "Không thể xóa hồ sơ" với sheet trên nhưng icon / khe khác.'],
+      ['reactivate', 'Kích hoạt lại?', 'Web (thiết kế lại, reactivateDialogWeb): hộp 440, biểu tượng nguồn xanh canh trái + tiêu đề + câu, một nút Đóng, "Hủy" | "Kích hoạt lại" canh phải. iPhone: Vòng xanh 64 + câu + "Hủy" | "Kích hoạt lại".'],
+      ['delete-confirm', 'Xóa hồ sơ?', 'Web (thiết kế lại, softDeleteDialogWeb): cùng mẫu "Ngừng hoạt động" — hai dòng hệ quả 🗑 / ✓, "+ Thêm lý do" thu gọn, một nút Đóng, "Hủy" | "Xóa hồ sơ" (đỏ) canh phải. iPhone: Nút × riêng 32 ở góc (web: thêm nút Đóng của hộp thoại → hai ×); vòng đỏ; câu đậm "không xóa giao dịch…"; "Xóa hồ sơ" đỏ.'],
+      ['delete-blocked', 'Không thể xóa (có giao dịch)', 'Web (thiết kế lại, mẫu cảnh báo canh trái alertDialogWeb): hộp 440, biểu tượng tròn theo tone bên trái + tiêu đề + câu, một nút Đóng, nút canh phải. iPhone: Icon cảnh báo 56 không hộp (khác vòng 64 của các sheet khác); "Quay lại" | "Ngừng hoạt động".'],
+      ['delete-blocked-inactive', 'Không thể xóa · đang ngừng', 'Web (thiết kế lại, mẫu cảnh báo canh trái alertDialogWeb): hộp 440, biểu tượng tròn theo tone bên trái + tiêu đề + câu, một nút Đóng, nút canh phải. iPhone: Chỉ còn "Quay lại" đầy ngang.'],
+      ['transform-primary-blocked', 'Không thể chuyển (liên hệ chính)', 'Web (thiết kế lại, mẫu cảnh báo canh trái alertDialogWeb): hộp 440, biểu tượng tròn theo tone bên trái + tiêu đề + câu, một nút Đóng, nút canh phải. iPhone: Bấm "Chuyển thành tổ chức" khi cá nhân đang là liên hệ chính của tổ chức khác: như sheet chặn xoá — tay kéo tự vẽ (iPhone hai tay kéo), icon tổ chức 44 vàng, "Đóng" | "Xem tổ chức".'],
+      ['add-contact-method', 'Thêm người liên hệ (từ hồ sơ)', 'Web (thiết kế lại): menu thả xuống ngay dưới "Thêm người liên hệ" trong thẻ Người liên hệ. iPhone: Bấm "Thêm người liên hệ" trong thẻ: sheet 2 lựa chọn. iPhone: mở trong vùng tab nên "Hủy" sát mép dưới sheet (SafeArea = 0, không có khe dưới). Khe chữ → › thẻ 1 là 8, thẻ 2 là 16.'],
+      ['delete-primary-blocked', 'Không thể xóa (liên hệ chính)', 'Web (thiết kế lại, mẫu cảnh báo canh trái alertDialogWeb): hộp 440, biểu tượng tròn theo tone bên trái + tiêu đề + câu, một nút Đóng, nút canh phải. iPhone: Sheet tự vẽ thêm tay kéo 40 × 4 → iPhone có hai tay kéo; icon thùng rác 44 đỏ không hộp; "Đóng" | "Xem tổ chức". Cùng tiêu đề "Không thể xóa hồ sơ" với sheet trên nhưng icon / khe khác.'],
     ],
   },
   {
     id: 'history', group: 'detail', code: 'PT-12', title: 'Lịch sử thao tác', route: '/partner/p1/history', states: [
-      ['loaded', 'Có dữ liệu', 'Toàn màn (ngoài khung, web không thanh bên); app bar có dòng phụ tên đối tác + nút ← 24 (arrowBack). Thẻ: tiêu đề đậm | ngày "2026-11-21 16:40" (định dạng khác dd/MM/yyyy ở danh sách); thay đổi "Nhãn: cũ → mới" sắp theo nhãn; "Lý do: …" nghiêng; "bởi 3f9a2c1b" = 8 ký tự đầu mã người dùng, không phải tên. "Tạo đối tác" không có dòng thay đổi. Chỉ tải 20 dòng đầu, không tải thêm.'],
+      ['loaded', 'Có dữ liệu', 'Toàn màn (ngoài khung, web không thanh bên); app bar có dòng phụ tên đối tác + nút ← 24 (arrowBack). Thẻ: tiêu đề đậm | ngày "2026-11-21 16:40" (định dạng khác dd/MM/yyyy ở danh sách); thay đổi "Nhãn: cũ → mới" sắp theo nhãn; "Lý do: …" nghiêng; "bởi 3f9a2c1b" = 8 ký tự đầu mã người dùng, không phải tên. "Tạo đối tác" không có dòng thay đổi. Chỉ tải 20 dòng đầu, không tải thêm. Web (thiết kế lại, history-web.js, cả 4 ca): đầu trang "‹ Hồ sơ KH & NCC" + tiêu đề + tên đối tác; dòng thời gian nhóm theo tháng, chấm biểu tượng theo loại, thay đổi "cũ (gạch) → mới (đậm)".'],
       ['loading', 'Đang tải', 'Vòng xoay Material giữa màn.'],
       ['empty', 'Trống', '"Chưa có lịch sử thao tác nào" + mô tả.'],
       ['error', 'Lỗi', 'Ô icon cảnh báo đỏ + tiêu đề đỏ + câu lỗi chung + "Thử lại".'],
@@ -132,7 +132,7 @@ export const SCREENS = [
   },
   {
     id: 'contacts', group: 'contacts', code: 'PT-08', title: 'Người liên hệ', route: '/partner/p1/contacts', states: [
-      ['loaded', 'Có người liên hệ', 'Toàn màn (ngoài khung, web không thanh bên); tiêu đề giữa; "⋯" góc phải bấm không làm gì. Thẻ xanh nhạt tên tổ chức + "Tổ chức • KH & NCC"; ô tìm; "3 người liên hệ"; dòng có gạch ngăn (không phải thẻ như danh sách đối tác); thẻ "Chính" / "Ngừng hoạt động" caption bo 4. Nút + nổi (mặc định xanh).'],
+      ['loaded', 'Có người liên hệ', 'Web (thiết kế lại, contacts-web.js, mọi ca): đầu trang "‹ Hồ sơ KH & NCC" + tiêu đề + tên tổ chức + nút chính "Thêm người liên hệ" (thay +, bỏ "⋯"); ô tìm + số đếm; bảng Họ và tên / Vai trò / SĐT / Email + nút Chỉnh sửa / Đặt làm chính / Gỡ trên từng dòng. iPhone: Toàn màn (ngoài khung, web không thanh bên); tiêu đề giữa; "⋯" góc phải bấm không làm gì. Thẻ xanh nhạt tên tổ chức + "Tổ chức • KH & NCC"; ô tìm; "3 người liên hệ"; dòng có gạch ngăn (không phải thẻ như danh sách đối tác); thẻ "Chính" / "Ngừng hoạt động" caption bo 4. Nút + nổi (mặc định xanh).'],
       ['search', 'Đang tìm', 'Lọc trên máy "hà" → 1 người; số đếm đổi theo.'],
       ['empty', 'Chưa có', 'Hình ghép 3 vòng người + chấm "+"; "Chưa có người liên hệ"; nút viền "Gợi ý thêm người liên hệ" (chữ khác "Thêm người liên hệ"); không có ô tìm; nút + vẫn hiện.'],
       ['loading', 'Đang tải', 'Vòng xoay Material giữa màn; không nút +.'],
@@ -143,16 +143,16 @@ export const SCREENS = [
   },
   {
     id: 'contact-sheet', group: 'contacts', code: 'PT-08', title: 'Sheet người liên hệ', route: '/partner/p1/contacts', states: [
-      ['add-method', 'Thêm người liên hệ', 'Mở từ PT-08 (ngoài khung): iPhone có vùng an toàn đáy. Web: hộp thoại không tiêu đề + VPagePadding → chữ cách mép 32.'],
-      ['actions', 'Thao tác liên hệ', '"Thao tác" H3 + gạch + 3 ListTile (56, icon 24): Chỉnh sửa liên hệ, Đặt làm chính, Gỡ khỏi tổ chức (đỏ, › đỏ) + "Hủy". Kiểu khác sheet thao tác hồ sơ (thẻ có vòng icon).'],
+      ['add-method', 'Thêm người liên hệ', 'Web (thiết kế lại): menu thả xuống dưới nút "+ Thêm người liên hệ", 2 dòng, không "Hủy". iPhone: Mở từ PT-08 (ngoài khung): iPhone có vùng an toàn đáy. Web: hộp thoại không tiêu đề + VPagePadding → chữ cách mép 32.'],
+      ['actions', 'Thao tác liên hệ', 'Web (thiết kế lại): menu thả xuống ở cuối dòng người liên hệ (Chỉnh sửa liên hệ, Đặt làm chính, gạch, Gỡ khỏi tổ chức đỏ), không "Hủy". iPhone: "Thao tác" H3 + gạch + 3 ListTile (56, icon 24): Chỉnh sửa liên hệ, Đặt làm chính, Gỡ khỏi tổ chức (đỏ, › đỏ) + "Hủy". Kiểu khác sheet thao tác hồ sơ (thẻ có vòng icon).'],
       ['actions-primary', 'Thao tác · người chính', 'Không có "Đặt làm chính".'],
-      ['change-primary', 'Đổi người liên hệ chính?', 'Widget tự bọc VBottomSheet trong showVAdaptiveSheet → iPhone: hai tay kéo, sheet lồng sheet; web: trong hộp thoại có tay kéo và bo trên. Hai avatar 48 + mũi tên.'],
-      ['remove', 'Gỡ người liên hệ?', 'Không icon đầu (khác các sheet xác nhận của hồ sơ); khe giữa hai nút 8 (sheet khác 12); "Gỡ liên hệ" đỏ.'],
+      ['change-primary', 'Đổi người liên hệ chính?', 'Web (thiết kế lại): mẫu cảnh báo canh trái (sao xanh) + hàng avatar cũ → mới, "Quay lại" | "Xác nhận đổi", một nút Đóng. iPhone: Widget tự bọc VBottomSheet trong showVAdaptiveSheet → iPhone: hai tay kéo, sheet lồng sheet; web: trong hộp thoại có tay kéo và bo trên. Hai avatar 48 + mũi tên.'],
+      ['remove', 'Gỡ người liên hệ?', 'Web (thiết kế lại): mẫu liệt kê hệ quả (gỡ khỏi danh sách / hồ sơ cá nhân không bị xóa), "Quay lại" | "Gỡ liên hệ" đỏ. iPhone: Không icon đầu (khác các sheet xác nhận của hồ sơ); khe giữa hai nút 8 (sheet khác 12); "Gỡ liên hệ" đỏ.'],
     ],
   },
   {
     id: 'contact-form', group: 'contacts', code: 'PT-09', title: 'Thêm / sửa người liên hệ', route: '/partner/p1/contacts/new', states: [
-      ['new', 'Thêm mới', '"Hủy" / "Lưu" là nút chữ trên app bar (form hồ sơ dùng hàng nút đáy); tiêu đề giữa; 6 ô cách 16; công tắc "Người liên hệ chính" + câu phụ. Thứ tự vai trò khác TH-03.'],
+      ['new', 'Thêm mới', 'Web (thiết kế lại, contactFormPageWeb, mọi ca PT-09): cùng mẫu PT-05 web — đầu trang "‹ Người liên hệ" + tiêu đề + tên tổ chức, thẻ form 2 cột (công tắc liên hệ chính trong khung), cột phải "Cần có để lưu" + "Lưu" / "Hủy". iPhone: "Hủy" / "Lưu" là nút chữ trên app bar (form hồ sơ dùng hàng nút đáy); tiêu đề giữa; 6 ô cách 16; công tắc "Người liên hệ chính" + câu phụ. Thứ tự vai trò khác TH-03.'],
       ['filled', 'Đã nhập', 'Công tắc bật.'],
       ['errors', 'Lỗi', '"Vui lòng nhập họ tên" (form hồ sơ: "Vui lòng nhập họ và tên"), "Vui lòng chọn vai trò", SĐT không hợp lệ.'],
       ['submitting', 'Đang lưu', 'Các ô mờ; không có vòng xoay nào; "Lưu" trên app bar vẫn bấm được.'],
@@ -163,7 +163,7 @@ export const SCREENS = [
   },
   {
     id: 'contact-select', group: 'contacts', code: 'PT-10', title: 'Chọn từ cá nhân', route: '/partner/p1/contacts/select', states: [
-      ['loaded', 'Danh sách', 'Ô chọn tròn 22 (chọn nhiều nhưng trông như radio); "Chọn (0)" mờ. Hàng nút nằm trong thân → web hẹp theo cột 720.'],
+      ['loaded', 'Danh sách', 'Web (thiết kế lại, selectDialogWeb, cả 5 ca): hộp 560 đè trên bảng Người liên hệ; ô tick vuông chọn nhiều, dòng chọn nền xanh nhạt; chân "N đã chọn" + "Hủy" | "Chọn (N)". iPhone: Ô chọn tròn 22 (chọn nhiều nhưng trông như radio); "Chọn (0)" mờ. Hàng nút nằm trong thân → web hẹp theo cột 720.'],
       ['selected', 'Đã chọn 2', '"Chọn (2)" bật; vòng xanh có dấu ✓.'],
       ['empty', 'Không có kết quả', 'Một dòng chữ giữa màn "Không tìm thấy cá nhân nào." (không VEmptyState).'],
       ['loading', 'Đang tải', 'Vòng xoay Material.'],
@@ -172,11 +172,11 @@ export const SCREENS = [
   },
   {
     id: 'transform', group: 'contacts', code: 'PT-11', title: 'Chuyển thành tổ chức', route: '/partner/p2/transform', states: [
-      ['step1', 'Bước 1 · trống', 'Tiêu đề giữa; nút ← arrowBack. Đệm thân 12 (màn khác 16). Thanh 3 bước chia 5 phần bằng nhau; dưới là vạch 96 × 4 giống tay kéo. Nhãn ô là chữ xám 13 (không phải VFieldLabel 14 đậm như form hồ sơ), ô cách 8. Không điền sẵn SĐT / email của cá nhân. "Huỷ" (chữ "uỷ", nơi khác "Hủy").'],
+      ['step1', 'Bước 1 · trống', 'Web (thiết kế lại, transform-web.js, mọi ca PT-11): cùng mẫu PT-05 web — đầu trang "‹ Hồ sơ KH & NCC" + tiêu đề + tên cá nhân, thanh 3 bước ngang; bước 1 form 2 cột | cột phải người liên hệ chính + "Cần có để tiếp tục" + "Tiếp" / "Huỷ"; bước 2 xem trước | "Xác nhận" / "Quay lại". iPhone: Tiêu đề giữa; nút ← arrowBack. Đệm thân 12 (màn khác 16). Thanh 3 bước chia 5 phần bằng nhau; dưới là vạch 96 × 4 giống tay kéo. Nhãn ô là chữ xám 13 (không phải VFieldLabel 14 đậm như form hồ sơ), ô cách 8. Không điền sẵn SĐT / email của cá nhân. "Huỷ" (chữ "uỷ", nơi khác "Hủy").'],
       ['step1-errors', 'Bước 1 · lỗi', 'Lỗi dưới ô + banner vàng "Không thể chuyển đổi khi thiếu thông tin bắt buộc hoặc dữ liệu bị trùng."; "Tiếp" mờ tới khi hợp lệ.'],
       ['step1-filled', 'Bước 1 · đã nhập', 'Đủ thông tin.'],
       ['step1-duplicate', 'Bước 1 · trùng SĐT', 'Máy chủ báo trùng → quay về bước 1, lỗi dưới ô SĐT, không có banner, "Tiếp" vẫn bật.'],
-      ['step2', 'Bước 2 · xem trước', '"Xem trước chuyển đổi"; vạch dưới thanh bước rộng 44 (bước 1: 96). Hai khối "Trước / Sau khi chuyển" nền surfaceAlt trùng nền trang (không thấy khối) + mũi tên xanh; thẻ người liên hệ chính; banner info; "Quay lại" | "Xác nhận". Bước 3 "Xác nhận" trên thanh không bao giờ sáng.'],
+      ['step2', 'Bước 2 · xem trước', 'Web (thiết kế lại): Trước → Sau nằm ngang (thẻ Sau nền xanh nhạt), thẻ người liên hệ chính, banner giữ lịch sử; cột phải "Sẽ thay đổi" (cũ gạch → mới) + "Xác nhận" / "Quay lại". iPhone: "Xem trước chuyển đổi"; vạch dưới thanh bước rộng 44 (bước 1: 96). Hai khối "Trước / Sau khi chuyển" nền surfaceAlt trùng nền trang (không thấy khối) + mũi tên xanh; thẻ người liên hệ chính; banner info; "Quay lại" | "Xác nhận". Bước 3 "Xác nhận" trên thanh không bao giờ sáng.'],
       ['step2-error', 'Bước 2 · lỗi', 'Banner vàng "Không thể chuyển đổi hồ sơ. Vui lòng thử lại." dưới thanh bước.'],
       ['confirm', 'Hộp thoại xác nhận', 'Dialog Material (cả iPhone; các xác nhận khác là sheet): vòng vàng 58 viền 2; tiêu đề giữa nhưng 3 câu canh trái.'],
       ['submitting', 'Đang chuyển', 'Lớp phủ màu textPrimary (gần đen, đặc) che toàn thân + vòng xoay xanh.'],

@@ -6,6 +6,7 @@ import { SCREENS } from './cases.js';
 import { adaptiveSheet } from './ds.js';
 import { createTypeSheet, detailPlaceholder, filterSheet, listPage, listState, noPermissionPage, sortSheet, SORT_CHOICES } from './list.js';
 import { DUP_EXACT, DUP_POSSIBLE, duplicateSheet, formPage, formState, leaveSheet, pickerSheet } from './form.js';
+import { duplicateDialogWeb, pickerDialogWeb } from './form-web.js';
 import {
   DETAILS, actionSheet, deactivateSheet, deleteBlockedSheet, deletePrimaryBlockedSheet, detailPage, detailState, reactivateSheet,
   softDeleteSheet, transformToast, vtoast,
@@ -15,6 +16,11 @@ import {
   CONTACTS, addMethodSheet, changePrimarySheet, contactActionSheet, contactFormPage, contactFormState, contactToast, contactsPage, removeSheet, selectPage,
 } from './contacts.js';
 import { confirmDialog, transformPage, transformPrimaryBlockedSheet } from './transform.js';
+import { createTypeDialogWeb, filterDialogWeb, listPageWeb } from './list-web.js';
+import {
+  deactivateDialogWeb, deleteBlockedDialogWeb, deletePrimaryBlockedDialogWeb, reactivateDialogWeb, softDeleteDialogWeb, transformPrimaryBlockedDialogWeb,
+} from './detail-web.js';
+import { changePrimaryDialogWeb, contactsPageWeb, removeContactDialogWeb, selectDialogWeb } from './contacts-web.js';
 
 /** VListDetailLayout: listWidth 360, minSplitWidth 840 (tính trên bề ngang vùng nội dung của khung). */
 export const LIST_WIDTH = 360;
@@ -48,6 +54,8 @@ function partnerArea(v, lv, { sheet = '', detail = null, toastHtml = '' } = {}) 
   const local = !desktop && sheet ? sheet : '';
   let content;
   if (v.screen === 'list' && v.state === 'no-permission') content = noPermissionPage(v, contentWidth(v.width));
+  else if (desktop && !detail) content = listPageWeb(lv); // Web chưa mở hồ sơ: bảng toàn trang (list-web.js), không chia 2 cột.
+  else if (desktop) content = `${detail(contentWidth(v.width), false)}${toastHtml}`; // Web mở hồ sơ: toàn trang (detail-web.js).
   else if (isSplit(v.width)) {
     const detailWidth = contentWidth(v.width) - LIST_WIDTH - 1;
     const right = detail ? `${detail(detailWidth, true)}${toastHtml}` : detailPlaceholder();
@@ -74,11 +82,14 @@ export function renderView(v) {
   if (v.screen === 'list') {
     ({ page, overlay } = partnerArea(v, listState(v.state)));
   } else if (v.screen === 'filter') {
-    const body = v.state === 'sort' ? sortSheet(SORT_CHOICES[0])
-      : filterSheet(v.state === 'filter-selected' ? { role: 'customer', type: 'organization', status: 'active', updated: 7 } : {});
+    const sel = v.state === 'filter-selected' ? { role: 'customer', type: 'organization', status: 'active', updated: 7 } : {};
+    // Web: hộp thoại bộ lọc thiết kế lại (list-web.js); iPhone: sheet như Flutter hiện tại.
+    const body = v.state === 'sort' ? sortSheet(SORT_CHOICES[0]) : v.width >= DESKTOP ? filterDialogWeb(sel) : filterSheet(sel);
     ({ page, overlay } = partnerArea(v, listState('loaded'), { sheet: sheet(body, { label: v.state === 'sort' ? 'Sắp xếp' : 'Bộ lọc KH & NCC' }) }));
   } else if (v.screen === 'create-type') {
-    ({ page, overlay } = partnerArea(v, listState('loaded'), { sheet: sheet(createTypeSheet(), { title: 'Thêm KH & NCC mới' }) }));
+    // Web: hộp thoại chọn loại + "Tiếp tục" (list-web.js); iPhone: sheet như Flutter hiện tại.
+    const dlg = v.width >= DESKTOP ? createTypeDialogWeb() : sheet(createTypeSheet(), { title: 'Thêm KH & NCC mới' });
+    ({ page, overlay } = partnerArea(v, listState('loaded'), { sheet: dlg }));
   } else if (v.screen === 'detail' || v.screen === 'detail-sheet') {
     let o = detailState(v.state);
     let sh = '';
@@ -87,7 +98,16 @@ export function renderView(v) {
       const [id, make] = DETAIL_SHEETS[v.state];
       o = detailState(id === 'p1' ? 'org-both' : id === 'p5' ? 'inactive' : id === 'p7' ? 'person-both' : 'person-missing');
       o.scrollEnd = false;
-      sh = sheet(make(DETAILS[id]), { label: 'Thao tác hồ sơ' });
+      // Web: "Thao tác hồ sơ" là menu thả xuống dưới nút "Thao tác ▾" (detail-web.js), không phải hộp thoại.
+      if (v.width >= DESKTOP && v.state.startsWith('actions-')) o.menu = true;
+      else if (v.width >= DESKTOP && v.state === 'add-contact-method') o.addMenu = true; // Web: menu dưới "Thêm người liên hệ" trong thẻ
+      else if (v.width >= DESKTOP && v.state.startsWith('delete-blocked')) sh = deleteBlockedDialogWeb(v.state === 'delete-blocked'); // Web: cảnh báo canh trái
+      else if (v.width >= DESKTOP && v.state === 'delete-primary-blocked') sh = deletePrimaryBlockedDialogWeb(DETAILS[id].primaryOf);
+      else if (v.width >= DESKTOP && v.state === 'transform-primary-blocked') sh = transformPrimaryBlockedDialogWeb(DETAILS[id].primaryOf);
+      else if (v.width >= DESKTOP && v.state === 'reactivate') sh = reactivateDialogWeb(); // Web: cảnh báo canh trái (detail-web.js)
+      else if (v.width >= DESKTOP && v.state === 'delete-confirm') sh = softDeleteDialogWeb(); // Web: liệt kê hệ quả (detail-web.js)
+      else if (v.width >= DESKTOP && v.state.startsWith('deactivate')) sh = deactivateDialogWeb(v.state === 'deactivate-primary' ? DETAILS[id].primaryOf : null); // Web: liệt kê hệ quả (detail-web.js)
+      else sh = sheet(make(DETAILS[id]), { label: 'Thao tác hồ sơ' });
     } else if (DETAIL_TOASTS[v.state]) {
       const [id, key] = DETAIL_TOASTS[v.state];
       o = detailState(id === 'p2' ? 'person-missing' : id === 'p5' ? 'inactive' : 'org-both');
@@ -100,6 +120,14 @@ export function renderView(v) {
   } else if (v.screen === 'contacts') {
     const kind = v.state === 'search' || v.state === 'toast-added' ? 'loaded' : v.state;
     page = `<div class="t3-area">${contactsPage(kind, v, { query: v.state === 'search' ? 'hà' : '' })}${v.state === 'toast-added' ? contactToast('Thêm người liên hệ thành công', v.device) : ''}</div>`;
+  } else if (v.screen === 'contact-sheet' && v.state === 'add-method' && v.width >= DESKTOP) {
+    page = contactsPageWeb('loaded', { addMenu: true }); // Web: menu thả xuống dưới nút "Thêm người liên hệ" (contacts-web.js)
+  } else if (v.screen === 'contact-sheet' && v.width >= DESKTOP) {
+    // Web: "Thao tác" = menu ở cuối dòng; đổi chính = cảnh báo canh trái; gỡ = liệt kê hệ quả (contacts-web.js).
+    const menuRow = v.state === 'actions' ? 1 : v.state === 'actions-primary' ? 0 : -1;
+    page = contactsPageWeb('loaded', { menuRow });
+    if (v.state === 'change-primary') overlay = changePrimaryDialogWeb(CONTACTS[0].name, CONTACTS[1].name);
+    else if (v.state === 'remove') overlay = removeContactDialogWeb();
   } else if (v.screen === 'contact-sheet') {
     page = contactsPage('loaded', v);
     const body = {
@@ -109,6 +137,10 @@ export function renderView(v) {
     overlay = sheet(body, { label: 'Người liên hệ' });
   } else if (v.screen === 'contact-form') {
     page = contactFormPage(contactFormState(v.state), v);
+  } else if (v.screen === 'contact-select' && v.width >= DESKTOP) {
+    // Web: hộp thoại chọn nhiều đè trên bảng Người liên hệ (contacts-web.js).
+    page = contactsPageWeb('loaded');
+    overlay = selectDialogWeb(v.state);
   } else if (v.screen === 'contact-select') {
     page = selectPage(v.state, v);
   } else if (v.screen === 'transform') {
@@ -120,15 +152,21 @@ export function renderView(v) {
     if (v.state === 'leave') overlay = sheet(leaveSheet(), { title: 'Rời khỏi màn hình?' });
   } else if (v.screen === 'duplicate') {
     const exact = v.state === 'exact';
-    page = formPage({ ...formState(exact ? 'person-main-filled' : 'org-main'), active: null, submitting: false }, v);
-    overlay = sheet(duplicateSheet(exact ? 'exact' : 'possible', exact ? DUP_EXACT : DUP_POSSIBLE), { label: exact ? 'Trùng khớp hoàn toàn' : 'Có thể là hồ sơ trùng' });
+    const fs = { ...formState(exact ? 'person-main-filled' : 'org-main'), active: null, submitting: false };
+    page = formPage(fs, v);
+    const level = exact ? 'exact' : 'possible';
+    const matches = exact ? DUP_EXACT : DUP_POSSIBLE;
+    // Web: hộp so sánh "Bạn đang nhập" | "Hồ sơ đã có" (form-web.js); iPhone: sheet như Flutter hiện tại.
+    overlay = v.width >= DESKTOP ? duplicateDialogWeb(level, matches, fs)
+      : sheet(duplicateSheet(level, matches), { label: exact ? 'Trùng khớp hoàn toàn' : 'Có thể là hồ sơ trùng' });
   } else if (v.screen === 'picker') {
     const p = {
       province: { tab: 0 }, 'province-selected': { tab: 0, province: 'Thành phố Cần Thơ' }, 'province-empty': { tab: 0, query: 'Sài Gòn' },
       ward: { tab: 1, province: 'Thành phố Cần Thơ' },
     }[v.state];
     page = formPage(formState(v.state === 'province' || v.state === 'province-empty' ? 'delivery-empty' : 'delivery'), v);
-    overlay = sheet(pickerSheet(p, v.height), { label: 'Khu vực hành chính' });
+    // Web: hộp lưới 2 cột (form-web.js); iPhone: sheet như Flutter hiện tại.
+    overlay = v.width >= DESKTOP ? pickerDialogWeb(p) : sheet(pickerSheet(p, v.height), { label: 'Khu vực hành chính' });
   }
   return renderShell({ device: v.device, width: v.width, height: v.height, location: v.location, orgName: 'Mosaic Retail Demo', overlay }, page);
 }
