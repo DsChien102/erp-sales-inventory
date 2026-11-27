@@ -1,0 +1,33 @@
+/* PT-12 Lịch sử thao tác — iPhone "Dòng thời gian" (app/history-mobile.js). Token Mosaic, tiền tố mh-. */
+.mh { background: var(--c45-v2-surface-canvas); }
+.mh button { font-family: inherit; cursor: pointer; }
+.mh :focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+.mh h1, .mh h2, .mh p { margin: 0; }
+.mh-mono { font-family: var(--c45-v2-font-mono); font-weight: 500; }
+.mh-bar { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; min-height: 60px; padding: 4px 8px 4px 4px; background: var(--c45-v2-surface-default); border-bottom: 1px solid var(--c45-v2-border-default); }
+.mh-bar h1 { font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.mh-bar p { font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.mh-back { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-pill); background: transparent; color: var(--c45-v2-text-primary); font-size: 24px; }
+.mh-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 16px 24px; }
+.mh-month { position: sticky; top: -8px; z-index: 1; margin: 0 -16px; padding: 12px 20px 8px; background: var(--c45-v2-surface-canvas); font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 700; color: var(--c45-v2-text-secondary); }
+.mh-tl { position: relative; margin: 0 0 8px; padding: 0; list-style: none; }
+.mh-tl::before { content: ""; position: absolute; top: 8px; bottom: 8px; left: 15px; width: 2px; background: var(--c45-v2-border-default); }
+.mh-ev { position: relative; display: flex; gap: 12px; padding: 6px 0; }
+.mh-dot { position: relative; z-index: 1; display: grid; place-items: center; flex: 0 0 32px; width: 32px; height: 32px; margin: -2px; border: 2px solid var(--c45-v2-surface-canvas); border-radius: var(--c45-v2-radius-pill); box-sizing: content-box; background: var(--c45-v2-surface-brand); color: var(--c45-v2-action-primary-default); font-size: 16px; }
+.mh-ev--deactivate .mh-dot, .mh-ev--delete .mh-dot { background: var(--c45-v2-surface-warning); color: var(--c45-v2-text-warning); }
+.mh-ev--update .mh-dot { background: var(--c45-v2-neutral-150); color: var(--c45-v2-text-secondary); }
+.mh-card { flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); }
+.mh-h { display: flex; align-items: baseline; gap: 8px; }
+.mh-h b { flex: 1; font-size: var(--sh-fs-md); line-height: 20px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.mh-h time { flex: 0 0 auto; font-size: var(--sh-fs-xs); color: var(--c45-v2-text-secondary); }
+.mh-ch { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.mh-ch li { display: flex; flex-direction: column; gap: 2px; }
+.mh-lbl { font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.mh-v { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; }
+.mh-v .icon { font-size: 14px; color: var(--c45-v2-icon-secondary); }
+.mh-before { color: var(--c45-v2-text-secondary); text-decoration: line-through; }
+.mh-after { font-weight: 600; color: var(--c45-v2-text-primary); }
+.mh-v em { padding: 0 6px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-neutral-150); font-style: normal; font-size: var(--sh-fs-label-sm); line-height: 16px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.mh-reason { margin-top: 8px !important; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; font-style: italic; color: var(--c45-v2-text-secondary); }
+.mh-by { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.mh-by .icon { font-size: 13px; }

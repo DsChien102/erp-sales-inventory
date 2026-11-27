@@ -17,6 +17,9 @@ import {
 } from './contacts.js';
 import { confirmDialog, transformPage, transformPrimaryBlockedSheet } from './transform.js';
 import { createTypeDialogWeb, filterDialogWeb, listPageWeb, noPermissionPageWeb } from './list-web.js';
+import { pickerSheetMobile } from './form-mobile.js';
+import { actionSheetMobile, deactivateSheetMobile, reactivateSheetMobile } from './detail-mobile.js';
+import { createTypeSheetMobile, filterSheetMobile, listPageMobile, noPermissionPageMobile } from './list-mobile.js';
 import {
   deactivateDialogWeb, deleteBlockedDialogWeb, deletePrimaryBlockedDialogWeb, reactivateDialogWeb, softDeleteDialogWeb, transformPrimaryBlockedDialogWeb,
 } from './detail-web.js';
@@ -53,14 +56,14 @@ function partnerArea(v, lv, { sheet = '', detail = null, toastHtml = '' } = {}) 
   const desktop = v.width >= DESKTOP;
   const local = !desktop && sheet ? sheet : '';
   let content;
-  if (v.screen === 'list' && v.state === 'no-permission') content = desktop ? noPermissionPageWeb() : noPermissionPage(v, contentWidth(v.width));
+  if (v.screen === 'list' && v.state === 'no-permission') content = desktop ? noPermissionPageWeb() : isSplit(v.width) ? noPermissionPage(v, contentWidth(v.width)) : noPermissionPageMobile(); // iPhone: list-mobile.js
   else if (desktop && !detail) content = listPageWeb(lv); // Web chưa mở hồ sơ: bảng toàn trang (list-web.js), không chia 2 cột.
   else if (desktop) content = `${detail(contentWidth(v.width), false)}${toastHtml}`; // Web mở hồ sơ: toàn trang (detail-web.js).
   else if (isSplit(v.width)) {
     const detailWidth = contentWidth(v.width) - LIST_WIDTH - 1;
     const right = detail ? `${detail(detailWidth, true)}${toastHtml}` : detailPlaceholder();
     content = `<div class="t3-split"><div class="t3-split__list" style="width:${LIST_WIDTH}px">${listPage({ ...lv, width: v.width }, LIST_WIDTH)}</div><i class="t3-vdivider"></i><div class="t3-split__detail">${right}</div></div>`;
-  } else content = detail ? `${detail(v.width, false)}${toastHtml}` : listPage({ ...lv, width: v.width }, v.width);
+  } else content = detail ? `${detail(v.width, false)}${toastHtml}` : listPageMobile({ ...lv, width: v.width }); // iPhone: "Danh bạ gọn" (list-mobile.js)
   return { page: `<div class="t3-area">${content}${local}</div>`, overlay: desktop && sheet ? sheet : '' };
 }
 
@@ -87,11 +90,11 @@ export function renderView(v) {
   } else if (v.screen === 'filter') {
     const sel = v.state === 'filter-selected' ? { role: 'customer', type: 'organization', status: 'active', updated: 7 } : {};
     // Web: hộp thoại bộ lọc thiết kế lại (list-web.js); iPhone: sheet như Flutter hiện tại.
-    const body = v.state === 'sort' ? sortSheet(SORT_CHOICES[0]) : v.width >= DESKTOP ? filterDialogWeb(sel) : filterSheet(sel);
+    const body = v.state === 'sort' ? sortSheet(SORT_CHOICES[0]) : v.width >= DESKTOP ? filterDialogWeb(sel) : isSplit(v.width) ? filterSheet(sel) : filterSheetMobile(sel); // iPhone: list-mobile.js
     ({ page, overlay } = partnerArea(v, listState('loaded'), { sheet: sheet(body, { label: v.state === 'sort' ? 'Sắp xếp' : 'Bộ lọc KH & NCC' }) }));
   } else if (v.screen === 'create-type') {
     // Web: hộp thoại chọn loại + "Tiếp tục" (list-web.js); iPhone: sheet như Flutter hiện tại.
-    const dlg = v.width >= DESKTOP ? createTypeDialogWeb() : sheet(createTypeSheet(), { title: 'Thêm KH & NCC mới' });
+    const dlg = v.width >= DESKTOP ? createTypeDialogWeb() : isSplit(v.width) ? sheet(createTypeSheet(), { title: 'Thêm KH & NCC mới' }) : sheet(createTypeSheetMobile(), { label: 'Thêm KH & NCC mới' }); // iPhone: list-mobile.js
     ({ page, overlay } = partnerArea(v, listState('loaded'), { sheet: dlg }));
   } else if (v.screen === 'detail' || v.screen === 'detail-sheet') {
     let o = detailState(v.state);
@@ -110,7 +113,11 @@ export function renderView(v) {
       else if (v.width >= DESKTOP && v.state === 'reactivate') sh = reactivateDialogWeb(); // Web: cảnh báo canh trái (detail-web.js)
       else if (v.width >= DESKTOP && v.state === 'delete-confirm') sh = softDeleteDialogWeb(); // Web: liệt kê hệ quả (detail-web.js)
       else if (v.width >= DESKTOP && v.state.startsWith('deactivate')) sh = deactivateDialogWeb(v.state === 'deactivate-primary' ? DETAILS[id].primaryOf : null); // Web: liệt kê hệ quả (detail-web.js)
-      else sh = sheet(make(DETAILS[id]), { label: 'Thao tác hồ sơ' });
+      else sh = sheet(v.width >= 840 ? make(DETAILS[id])
+        : v.state.startsWith('actions-') ? actionSheetMobile(DETAILS[id])
+          : v.state.startsWith('deactivate') ? deactivateSheetMobile(v.state === 'deactivate-primary' ? DETAILS[id].primaryOf : null)
+            : v.state === 'reactivate' ? reactivateSheetMobile()
+            : make(DETAILS[id]), { label: 'Thao tác hồ sơ' }); // iPhone: detail-mobile.js
     } else if (DETAIL_TOASTS[v.state]) {
       const [id, key] = DETAIL_TOASTS[v.state];
       o = detailState(id === 'p2' ? 'person-missing' : id === 'p5' ? 'inactive' : 'org-both');
@@ -169,7 +176,7 @@ export function renderView(v) {
     }[v.state];
     page = formPage(formState(v.state === 'province' || v.state === 'province-empty' ? 'delivery-empty' : 'delivery'), v);
     // Web: hộp lưới 2 cột (form-web.js); iPhone: sheet như Flutter hiện tại.
-    overlay = v.width >= DESKTOP ? pickerDialogWeb(p) : sheet(pickerSheet(p, v.height), { label: 'Khu vực hành chính' });
+    overlay = v.width >= DESKTOP ? pickerDialogWeb(p) : sheet(v.width < 840 ? pickerSheetMobile(p, v.height) : pickerSheet(p, v.height), { label: 'Khu vực hành chính' }); // iPhone: form-mobile.js
   }
   return renderShell({ device: v.device, width: v.width, height: v.height, location: v.location, orgName: 'Mosaic Retail Demo', overlay }, page);
 }

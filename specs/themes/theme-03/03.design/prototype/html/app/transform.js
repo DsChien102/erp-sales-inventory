@@ -9,6 +9,7 @@ import { icon } from '../shared/icons.js';
 import { appBar, avatar, banner, button, card, centerLoading, esc, gap, iconBox, input, scaffold, select } from './ds.js';
 import { DESKTOP } from '../shared/shell.js';
 import { transformPageWeb } from './transform-web.js';
+import { transformPageMobile } from './transform-mobile.js';
 
 export const PERSON = { name: 'Nguyễn Văn Hùng', phone: '0912 345 678', roles: 'Khách hàng' };
 export const ORG_DRAFT = { type: 'Công ty', name: 'Công ty TNHH Hùng Phát', shortName: 'Hùng Phát', intlName: '', phone: '0292 381 2233', email: 'lienhe@hungphat.vn', taxCode: '1801998877' };
@@ -91,6 +92,7 @@ export const transformPrimaryBlockedSheet = (org) => `<div class="t3-confirm t3-
 /** Trang PT-11 theo ca. */
 export function transformPage(state, v) {
   if (v.width >= DESKTOP) return transformPageWeb(state); // Web: form + cột phải (transform-web.js)
+  if (v.width < 840) return transformPageMobile(state); // iPhone: cùng mẫu form hồ sơ (transform-mobile.js)
   const EMPTY = { type: '', name: '', shortName: '', intlName: '', phone: '', email: '', taxCode: '' };
   let step = 1; let blocked = null; let body;
   if (state === 'blocked-permission' || state === 'blocked-stale') {

@@ -1,0 +1,25 @@
+/* PT-11 Chuyển thành tổ chức — iPhone (app/transform-mobile.js); khung dùng lớp mfm- của form-mobile.css. Tiền tố mtf-. */
+.mtf-prog { flex: 0 0 auto; padding: 10px 16px 12px; background: var(--c45-v2-surface-default); border-bottom: 1px solid var(--c45-v2-border-default); }
+.mtf-bars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.mtf-bars i { height: 4px; border-radius: 2px; background: var(--c45-v2-border-default); }
+.mtf-bars i.is-on { background: var(--c45-v2-action-primary-default); }
+.mtf-prog p { margin: 8px 0 0; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.mtf-prog b { font-weight: 700; color: var(--c45-v2-text-primary); }
+.mtf-note { margin: 0 0 -4px; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.mtf-person { display: flex; align-items: center; gap: 12px; }
+.mtf-person > div { display: flex; flex-direction: column; gap: 2px; }
+.mtf-person b { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.mtf-person small { font-size: var(--sh-fs-sm); line-height: 18px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.mtf-av { display: grid; place-items: center; flex: 0 0 40px; width: 40px; height: 40px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-success); color: var(--c45-v2-action-primary-default); font-size: 14px; font-weight: 600; }
+.mtf-av--lg { flex-basis: 48px; width: 48px; height: 48px; font-size: 16px; }
+.mtf-pcard { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); }
+.mtf-pcard.is-after { border-color: var(--c45-v2-border-brand); background: var(--c45-v2-surface-brand); }
+.mtf-pcard > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mtf-pcard b { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.mtf-pcard small { font-size: var(--sh-fs-sm); line-height: 18px; font-weight: 500; color: var(--c45-v2-text-secondary); white-space: pre; }
+.mtf-pcard strong { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); font-variant-numeric: tabular-nums; }
+.mtf-arrow { display: grid; justify-items: center; margin: -12px 0; font-size: 20px; color: var(--c45-v2-icon-secondary); }
+/* Đang chuyển: nội dung mờ, nút chính quay vòng (giữ màu đầy, không mờ 40% như nút tắt) */
+.mtf-dim { opacity: 0.6; pointer-events: none; }
+.t3-btn.mtf-busy:disabled { opacity: 1; cursor: progress; }
+.mtf-av--org { border-radius: var(--c45-v2-radius-icon-box); background: var(--c45-v2-surface-default); box-shadow: inset 0 0 0 1px var(--c45-v2-border-brand); font-size: 22px; }

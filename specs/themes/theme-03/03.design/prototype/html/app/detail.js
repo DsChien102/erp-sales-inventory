@@ -17,6 +17,7 @@ import {
 } from './ds.js';
 import { DESKTOP } from '../shared/shell.js';
 import { detailPageWeb } from './detail-web.js';
+import { detailPageMobile } from './detail-mobile.js';
 
 // ---------------------------------------------------------------- dữ liệu mẫu (PartnerDetailDto)
 
@@ -244,6 +245,7 @@ export function errorBody(key) {
 /** PartnerDetailPage: VPageScaffold("Hồ sơ KH & NCC", showBackButton: !isSplit). */
 export function detailPage(o, v, placeWidth, split) {
   if (v.width >= DESKTOP) return detailPageWeb(o); // Web: hồ sơ toàn trang hai cột (detail-web.js)
+  if (!split && v.width < 840) return detailPageMobile(o); // iPhone: mở sẵn kiểu danh bạ (detail-mobile.js)
   const d = DETAILS[o.id];
   let body;
   if (o.kind === 'loading') body = skeletonBody();

@@ -16,6 +16,7 @@ import {
 import { CAN_THO_WARDS, UNITS, dartCompare, foldVietnamese } from './data.js';
 import { DESKTOP } from '../shared/shell.js';
 import { formPageWeb } from './form-web.js';
+import { formPageMobile } from './form-mobile.js';
 
 // ---------------------------------------------------------------- hàm thuần (đối chiếu Dart)
 
@@ -211,6 +212,7 @@ function formBody(s) {
 /** PartnerCreatePage: VPageScaffold(title, showBackButton false, leading VIconBox(arrowBack, 40, nền trong)). */
 export function formPage(s, v) {
   if (v.width >= DESKTOP) return formPageWeb(s); // Web: form + cột tóm tắt (form-web.js)
+  if (v.width < 840) return formPageMobile(s); // iPhone: một trang cuộn (form-mobile.js)
   const leading = `<span class="t3-iconbtn40">${iconBox({ ic: 'arrowLeft', size: 40, iconSize: 20, cls: 't3-ibox--clear' })}</span>`;
   return scaffold({ appbar: appBar(formTitle(s), { leading }), body: formBody(s), placeWidth: v.width, windowWidth: v.width });
 }

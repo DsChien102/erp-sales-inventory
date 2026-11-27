@@ -7,6 +7,7 @@ import { icon } from '../shared/icons.js';
 import { appBar, button, card, centerLoading, emptyDesc, emptyMedia, emptyState, emptyTitle, esc, gap, scaffold } from './ds.js';
 import { DESKTOP } from '../shared/shell.js';
 import { historyPageWeb } from './history-web.js';
+import { historyPageMobile } from './history-mobile.js';
 
 // ---------------------------------------------------------------- hàm thuần (đối chiếu Dart)
 
@@ -69,6 +70,7 @@ export function historyCard(e) {
 
 export function historyPage(kind, v) {
   if (v.width >= DESKTOP) return historyPageWeb(kind); // Web: dòng thời gian (history-web.js)
+  if (v.width < 840) return historyPageMobile(kind); // iPhone: dòng thời gian (history-mobile.js)
   let body;
   if (kind === 'loading') body = centerLoading({ material: true });
   else if (kind === 'error') {

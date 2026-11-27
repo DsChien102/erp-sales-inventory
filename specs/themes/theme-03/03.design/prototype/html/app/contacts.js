@@ -11,6 +11,7 @@ import {
 } from './ds.js';
 import { DESKTOP } from '../shared/shell.js';
 import { contactFormPageWeb, contactsPageWeb } from './contacts-web.js';
+import { contactFormPageMobile, contactsPageMobile, selectPageMobile } from './contacts-mobile.js';
 
 export const ORG = { name: 'Công ty TNHH Thú y An Phát', roles: 'KH & NCC' };
 export const CONTACTS = [
@@ -52,6 +53,7 @@ export const emptyArt = () => `<div class="t3-cart"><span class="a">${icon('user
 /** PartnerContactsPage: VPageScaffold("Người liên hệ", centerTitle, ← mặc định, action "⋯" không làm gì), FAB khi đã tải. */
 export function contactsPage(kind, v, { query = '' } = {}) {
   if (v.width >= DESKTOP) return contactsPageWeb(kind, { query }); // Web: bảng (contacts-web.js)
+  if (v.width < 840) return contactsPageMobile(kind, { query }); // iPhone: danh bạ gọn (contacts-mobile.js)
   let body;
   if (kind === 'loading') body = centerLoading({ material: true });
   else if (kind === 'error' || kind === 'no-permission') {
@@ -102,6 +104,7 @@ export const removeSheet = () => `<div class="t3-confirm"><h2 class="t3-ctitle">
  */
 export function contactFormPage(s, v) {
   if (v.width >= DESKTOP) return contactFormPageWeb(s); // Web: form + cột tóm tắt (contacts-web.js)
+  if (v.width < 840) return contactFormPageMobile(s); // iPhone: cùng mẫu form hồ sơ (contacts-mobile.js)
   const e = s.errors || {};
   const err = s.serverError ? `<div class="t3-cformerr">${esc(s.serverError)}</div>${gap(16)}` : '';
   const dis = s.submitting;
@@ -136,6 +139,7 @@ export function contactFormState(state) {
 
 /** PartnerContactSelectList: ô tìm đệm 16; danh sách gạch ngăn; ô chọn tròn 22 (nhiều lựa chọn nhưng trông như radio); hàng nút đáy nằm trong thân. */
 export function selectPage(kind, v) {
+  if (v.width < 840) return selectPageMobile(kind); // iPhone: danh sách gộp, ô tick vuông (contacts-mobile.js)
   const selected = kind === 'selected' ? [0, 3] : [];
   let list;
   if (kind === 'loading') list = centerLoading({ material: true });

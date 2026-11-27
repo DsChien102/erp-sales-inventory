@@ -1,0 +1,59 @@
+/* PT-08 Người liên hệ — iPhone "Danh bạ gọn" (app/contacts-mobile.js). Token Mosaic, tiền tố mct-. */
+.mct { position: relative; background: var(--c45-v2-surface-canvas); }
+.mct button { font-family: inherit; cursor: pointer; }
+.mct :focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+.mct h1, .mct p { margin: 0; }
+.mct-bar { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; min-height: 60px; padding: 4px 8px 4px 4px; background: var(--c45-v2-surface-default); border-bottom: 1px solid var(--c45-v2-border-default); }
+.mct-titles { flex: 1; min-width: 0; }
+.mct-bar h1 { font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.mct-bar p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.mct-back { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-pill); background: transparent; color: var(--c45-v2-text-primary); font-size: 24px; }
+.mct-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px 88px; }
+.mct-search { display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 12px; border: 1px solid var(--c45-v2-border-input); border-radius: var(--c45-v2-radius-input); background: var(--c45-v2-surface-default); color: var(--c45-v2-text-secondary); font-size: 20px; }
+.mct-search:focus-within { border-color: var(--c45-v2-action-primary-default); box-shadow: 0 0 0 3px var(--c45-v2-surface-success); }
+.mct-search input { flex: 1; min-width: 0; padding: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: var(--sh-fs-md); font-weight: 500; color: var(--c45-v2-text-primary); }
+.mct-search input::placeholder { color: var(--c45-v2-text-muted); opacity: 1; }
+.mct-search input::-webkit-search-cancel-button { display: none; }
+.mct-clear { display: grid; place-items: center; width: 40px; height: 40px; margin-right: -12px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-pill); background: transparent; color: var(--c45-v2-text-secondary); font-size: 18px; }
+.mct-count { margin: 16px 4px 8px !important; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.mct-group { margin: 0; padding: 0; list-style: none; overflow: hidden; border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); }
+.mct-group li { position: relative; }
+.mct-group li + li::before { content: ""; position: absolute; top: 0; left: 62px; right: 0; border-top: 1px solid var(--c45-v2-border-default); }
+.mct-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 12px 12px 14px; border: 0; background: transparent; text-align: left; font-size: 20px; color: var(--c45-v2-icon-secondary); }
+.mct-row:active { background: var(--c45-v2-neutral-50); }
+.mct-av { display: grid; place-items: center; flex: 0 0 36px; width: 36px; height: 36px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-success); color: var(--c45-v2-action-primary-default); font-size: 13px; font-weight: 600; }
+.mct-row[data-off] .mct-av { background: var(--c45-v2-neutral-150); color: var(--c45-v2-text-secondary); }
+.mct-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mct-n { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.mct-t b { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.mct-row[data-off] b { color: var(--c45-v2-text-secondary); }
+.mct-t small { font-size: var(--sh-fs-sm); line-height: 18px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.mct-tag { padding: 0 6px; border-radius: var(--c45-v2-radius-pill); font-size: var(--sh-fs-label-sm); line-height: 16px; font-weight: 600; }
+.mct-tag--ok { background: var(--c45-v2-surface-success); color: var(--c45-v2-text-success); }
+.mct-tag--warn { background: var(--c45-v2-surface-warning); color: var(--c45-v2-text-warning); }
+.mct-fab { position: absolute; right: 16px; bottom: 50px; z-index: 5; display: grid; place-items: center; width: 56px; height: 56px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-action-primary-default); color: var(--c45-v2-text-inverse); font-size: 28px; box-shadow: var(--c45-v2-elevation-e2); }
+
+/* PT-09 form người liên hệ (contactFormPageMobile; khung dùng lớp mfm- của form-mobile.css) */
+.mcf-sw { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.mcf-sw > div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.mcf-sw b { font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-primary); }
+.mcf-sw span { font-size: var(--sh-fs-sm); line-height: 18px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+
+/* PT-10 Chọn từ cá nhân (selectPageMobile) */
+.mcs-scroll { display: flex; flex-direction: column; padding-bottom: 16px; }
+.mcs-group li + li::before { left: 0; }
+.mcs-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 14px; border: 0; background: transparent; text-align: left; }
+.mcs-row.is-on { background: var(--c45-v2-surface-brand); }
+.mcs-row .mct-t small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mcs-box { display: grid; place-items: center; flex: 0 0 22px; width: 22px; height: 22px; border: 1.5px solid var(--c45-v2-border-input); border-radius: 6px; background: var(--c45-v2-surface-default); color: var(--c45-v2-text-inverse); font-size: 14px; }
+.mcs-box.is-on { border-color: var(--c45-v2-action-primary-default); background: var(--c45-v2-action-primary-default); }
+.mcs-center { flex: 1; display: flex; }
+.mcs-msg { flex: 1; display: grid; place-items: center; margin: 0; padding: 32px 16px; text-align: center; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.mcs-msg.is-danger { color: var(--c45-v2-text-danger); }
+.mcs-foot { flex: 0 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px 16px 34px; background: var(--c45-v2-surface-default); border-top: 1px solid var(--c45-v2-border-default); }
+.mcs-dim { opacity: var(--c45-v2-opacity-disabled); pointer-events: none; }
+.mcs-err { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px 24px 48px; text-align: center; }
+.mcs-err__ic { display: grid; place-items: center; width: 72px; height: 72px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-surface-danger); color: var(--c45-v2-text-danger); font-size: 32px; }
+.mcs-err p { max-width: 30ch; margin: 0; font-size: var(--sh-fs-md); line-height: 22px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.mcs-err .t3-btn .icon { font-size: 18px; }
+.mcs-foot.is-one { grid-template-columns: 1fr; }

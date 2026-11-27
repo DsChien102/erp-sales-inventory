@@ -1,0 +1,65 @@
+/* PT-05 Tạo / sửa hồ sơ — iPhone "Một trang cuộn" (app/form-mobile.js). Token Mosaic, tiền tố mfm-. */
+.mfm { background: var(--c45-v2-surface-canvas); }
+.mfm button { font-family: inherit; cursor: pointer; }
+.mfm :focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: 2px; }
+.mfm h1, .mfm h2 { margin: 0; }
+
+.mfm-bar { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; min-height: 56px; padding: 6px 8px 6px 4px; background: var(--c45-v2-surface-default); border-bottom: 1px solid var(--c45-v2-border-default); }
+.mfm-back { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-pill); background: transparent; color: var(--c45-v2-text-primary); font-size: 24px; }
+.mfm-titles { flex: 1; min-width: 0; }
+.mfm-titles h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.mfm-titles p { margin: 0; font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+
+.mfm-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding: 16px; }
+.mfm-gh { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 4px 8px; }
+.mfm-gh h2 { font-size: 15px; line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.mfm-tag { flex: 0 0 auto; padding: 0 8px; border-radius: var(--c45-v2-radius-pill); background: var(--c45-v2-neutral-150); font-size: var(--sh-fs-xs); line-height: 18px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.mfm-tag.is-req { background: var(--c45-v2-surface-brand); color: var(--c45-v2-text-brand); }
+.mfm-card { display: flex; flex-direction: column; gap: 16px; padding: 16px; border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); }
+.mfm-desc { margin: 0 0 -4px; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.mfm-err { margin: -8px 0 0; }
+
+.mfm-folded { display: flex; flex-direction: column; gap: 8px; }
+.mfm-more { display: flex; align-items: center; width: 100%; min-height: 56px; padding: 0 16px; border: 1px solid var(--c45-v2-border-strong); border-radius: var(--c45-v2-radius-card); background: var(--c45-v2-surface-default); text-align: left; font-size: 20px; color: var(--c45-v2-icon-secondary); }
+.mfm-more span { flex: 1; display: flex; flex-direction: column; }
+.mfm-more b { font-size: 15px; line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.mfm-more small { font-size: var(--sh-fs-sm); line-height: 18px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+
+.mfm-foot { flex: 0 0 auto; padding: 12px 16px 34px; background: var(--c45-v2-surface-default); border-top: 1px solid var(--c45-v2-border-default); }
+.mfm-need { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.mfm-need .icon { flex: 0 0 auto; font-size: 16px; }
+.mfm-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* PT-06 Khu vực hành chính (pickerSheetMobile) */
+.mpk { display: flex; flex-direction: column; min-height: 0; }
+.mpk button { font-family: inherit; cursor: pointer; }
+.mpk :focus-visible { outline: 2px solid var(--c45-v2-focus-ring); outline-offset: -2px; }
+.mpk-head { display: flex; align-items: center; justify-content: space-between; padding: 0 8px 4px 16px; }
+.mpk-head h2 { margin: 0; font-size: var(--sh-fs-h3); line-height: 26px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.mpk-x { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-pill); background: transparent; color: var(--c45-v2-text-secondary); font-size: 22px; }
+.mpk-searchrow { padding: 4px 16px 8px; }
+.mpk-search { display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 12px; border: 1px solid var(--c45-v2-border-input); border-radius: var(--c45-v2-radius-input); background: var(--c45-v2-surface-default); color: var(--c45-v2-text-secondary); font-size: 20px; }
+.mpk-search:focus-within { border-color: var(--c45-v2-action-primary-default); box-shadow: 0 0 0 3px var(--c45-v2-surface-success); }
+.mpk-search input { flex: 1; min-width: 0; padding: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: var(--sh-fs-md); font-weight: 500; color: var(--c45-v2-text-primary); }
+.mpk-search input::placeholder { color: var(--c45-v2-text-muted); opacity: 1; }
+.mpk-search input::-webkit-search-cancel-button { display: none; }
+.mpk-clear { display: grid; place-items: center; width: 40px; height: 40px; margin-right: -12px; padding: 0; border: 0; border-radius: var(--c45-v2-radius-pill); background: transparent; color: var(--c45-v2-text-secondary); font-size: 18px; }
+.mpk-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--c45-v2-border-default); }
+.mpk-tabs button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 44px; padding: 4px 8px; border: 0; background: transparent; font-size: var(--sh-fs-md); line-height: 20px; font-weight: 600; color: var(--c45-v2-text-secondary); }
+.mpk-tabs button small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--sh-fs-xs); line-height: 16px; font-weight: 500; color: var(--c45-v2-text-secondary); }
+.mpk-tabs button:disabled { opacity: var(--c45-v2-opacity-disabled); cursor: default; }
+.mpk-tabs button[aria-selected="true"] { color: var(--c45-v2-text-brand); font-weight: 700; }
+.mpk-tabs button[aria-selected="true"]::after { content: ""; position: absolute; left: 16px; right: 16px; bottom: -1px; height: 2px; border-radius: 2px; background: var(--c45-v2-action-primary-default); }
+.mpk-list { flex: 1; min-height: 0; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
+.mpk-list li + li .mpk-row { box-shadow: inset 0 1px 0 var(--c45-v2-border-default); }
+.mpk-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0 16px; border: 0; background: transparent; text-align: left; }
+.mpk-row:active { background: var(--c45-v2-neutral-50); }
+.mpk-row > span { flex: 1; min-width: 0; font-size: 15px; line-height: 22px; font-weight: 500; color: var(--c45-v2-text-primary); }
+.mpk-row small { flex: 0 0 auto; font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; color: var(--c45-v2-text-muted); font-variant-numeric: tabular-nums; }
+.mpk-row.is-selected { background: var(--c45-v2-surface-brand); }
+.mpk-row.is-selected > span { font-weight: 700; color: var(--c45-v2-text-brand); }
+.mpk-row.is-selected small { color: var(--c45-v2-text-secondary); }
+.mpk-row i { display: grid; font-size: 20px; color: var(--c45-v2-action-primary-default); }
+.mpk-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px 32px 64px; text-align: center; font-size: 32px; color: var(--c45-v2-text-secondary); }
+.mpk-empty b { font-size: var(--sh-fs-md); line-height: 22px; font-weight: 700; color: var(--c45-v2-text-primary); }
+.mpk-empty span { font-size: var(--sh-fs-sm); line-height: 20px; font-weight: 500; }
