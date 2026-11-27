@@ -6,7 +6,7 @@ import { SCREENS } from './cases.js';
 import { adaptiveSheet } from './ds.js';
 import { createTypeSheet, detailPlaceholder, filterSheet, listPage, listState, noPermissionPage, sortSheet, SORT_CHOICES } from './list.js';
 import { DUP_EXACT, DUP_POSSIBLE, duplicateSheet, formPage, formState, leaveSheet, pickerSheet } from './form.js';
-import { duplicateDialogWeb, pickerDialogWeb } from './form-web.js';
+import { duplicateDialogWeb, leaveDialogWeb, pickerDialogWeb } from './form-web.js';
 import {
   DETAILS, actionSheet, deactivateSheet, deleteBlockedSheet, deletePrimaryBlockedSheet, detailPage, detailState, reactivateSheet,
   softDeleteSheet, transformToast, vtoast,
@@ -16,7 +16,7 @@ import {
   CONTACTS, addMethodSheet, changePrimarySheet, contactActionSheet, contactFormPage, contactFormState, contactToast, contactsPage, removeSheet, selectPage,
 } from './contacts.js';
 import { confirmDialog, transformPage, transformPrimaryBlockedSheet } from './transform.js';
-import { createTypeDialogWeb, filterDialogWeb, listPageWeb } from './list-web.js';
+import { createTypeDialogWeb, filterDialogWeb, listPageWeb, noPermissionPageWeb } from './list-web.js';
 import {
   deactivateDialogWeb, deleteBlockedDialogWeb, deletePrimaryBlockedDialogWeb, reactivateDialogWeb, softDeleteDialogWeb, transformPrimaryBlockedDialogWeb,
 } from './detail-web.js';
@@ -53,7 +53,7 @@ function partnerArea(v, lv, { sheet = '', detail = null, toastHtml = '' } = {}) 
   const desktop = v.width >= DESKTOP;
   const local = !desktop && sheet ? sheet : '';
   let content;
-  if (v.screen === 'list' && v.state === 'no-permission') content = noPermissionPage(v, contentWidth(v.width));
+  if (v.screen === 'list' && v.state === 'no-permission') content = desktop ? noPermissionPageWeb() : noPermissionPage(v, contentWidth(v.width));
   else if (desktop && !detail) content = listPageWeb(lv); // Web chưa mở hồ sơ: bảng toàn trang (list-web.js), không chia 2 cột.
   else if (desktop) content = `${detail(contentWidth(v.width), false)}${toastHtml}`; // Web mở hồ sơ: toàn trang (detail-web.js).
   else if (isSplit(v.width)) {
@@ -81,6 +81,9 @@ export function renderView(v) {
   const sheet = (body, opts) => adaptiveSheet(v.width, body, opts);
   if (v.screen === 'list') {
     ({ page, overlay } = partnerArea(v, listState(v.state)));
+  } else if (v.screen === 'filter' && v.state === 'sort' && v.width >= DESKTOP) {
+    // Web: "Sắp xếp" là menu thả xuống dưới nút sắp xếp của bảng (list-web.js), không phải hộp thoại.
+    page = `<div class="t3-area">${listPageWeb(listState('loaded'), { sortOpen: true })}</div>`;
   } else if (v.screen === 'filter') {
     const sel = v.state === 'filter-selected' ? { role: 'customer', type: 'organization', status: 'active', updated: 7 } : {};
     // Web: hộp thoại bộ lọc thiết kế lại (list-web.js); iPhone: sheet như Flutter hiện tại.
@@ -149,7 +152,7 @@ export function renderView(v) {
   } else if (v.screen === 'form') {
     const s = formState(v.state === 'leave' ? 'person-main-filled' : v.state);
     page = formPage(s, v);
-    if (v.state === 'leave') overlay = sheet(leaveSheet(), { title: 'Rời khỏi màn hình?' });
+    if (v.state === 'leave') overlay = v.width >= DESKTOP ? leaveDialogWeb() : sheet(leaveSheet(), { title: 'Rời khỏi màn hình?' });
   } else if (v.screen === 'duplicate') {
     const exact = v.state === 'exact';
     const fs = { ...formState(exact ? 'person-main-filled' : 'org-main'), active: null, submitting: false };

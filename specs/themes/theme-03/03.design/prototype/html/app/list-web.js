@@ -6,7 +6,7 @@
 import { icon } from '../shared/icons.js';
 import { button, emptyDesc, emptyMedia, emptyState, emptyTitle, esc, gap, initials } from './ds.js';
 import { PARTNERS } from './data.js';
-import { emptyKind, filterCount, roleLabel } from './list.js';
+import { SORT_CHOICES, emptyKind, filterCount, roleLabel } from './list.js';
 
 // Dòng mẫu thêm cho ca có dữ liệu (không phải dữ liệu thật) để bảng đủ dài ở khổ 1280 × 800.
 const EXTRA = [
@@ -97,13 +97,18 @@ function body(v) {
 }
 
 /** Trang danh sách web: v = listState(…) (list.js). */
-export function listPageWeb(v) {
+/** "Sắp xếp" — menu thả xuống dưới nút sắp xếp (thay hộp "Sắp xếp danh sách" + "Áp dụng"; chọn là áp). */
+function sortMenu(selected) {
+  return `<div class="wd-menu wp-sortmenu" role="menu" aria-label="Sắp xếp danh sách">${SORT_CHOICES.map((c) => `<button type="button" role="menuitemradio" aria-checked="${c === selected}" class="wd-mi wp-sortmi"><span class="wd-mi__ic">${c === selected ? icon('check') : ''}</span><span class="wd-mi__t"><b>${esc(c)}</b></span></button>`).join('')}</div>`;
+}
+
+export function listPageWeb(v, { sortOpen = false } = {}) {
   const total = v.kind === 'loading' ? 0 : v.total;
   const add = v.canCreate ? btn('Thêm KH & NCC', { variant: 'primary', ic: 'plus' }) : '';
   return `<div class="wp t3-page">
     <header class="wp-head"><div><h1>KH &amp; NCC</h1><p>${total} đối tác</p></div>${add}</header>
     <div class="wp-wrap">
-      <div class="wp-toolbar">${search(v.f.query)}${seg(v.f.role)}<span class="wp-grow"></span>${filterBtn(v.f)}${btn('Cập nhật gần nhất', { ic: 'swapVert', trail: 'chevronDown', cls: 'wp-btn--sort' })}</div>
+      <div class="wp-toolbar">${search(v.f.query)}${seg(v.f.role)}<span class="wp-grow"></span>${filterBtn(v.f)}<span class="wd-menuwrap">${btn(SORT_CHOICES[0], { ic: 'swapVert', trail: sortOpen ? 'chevronUp' : 'chevronDown', cls: `wp-btn--sort${sortOpen ? ' is-open' : ''}` })}${sortOpen ? sortMenu(SORT_CHOICES[0]) : ''}</span></div>
       ${activeRow(v.f, v.total)}
       ${body(v)}
     </div>
@@ -147,4 +152,10 @@ export function createTypeDialogWeb(selected = 0) {
     <div class="wpc-radios" role="radiogroup" aria-label="Loại hồ sơ">${CREATE_TYPES.map(opt).join('')}</div>
     <footer class="wpc-foot">${btn('Hủy')}${btn('Tiếp tục', { variant: 'primary' })}</footer>
   </section></div>`;
+}
+
+/** L-07 Không có quyền xem (web): đầu trang "KH & NCC" kiểu mới (không nút thêm) + ổ khoá giữa vùng còn lại. */
+export function noPermissionPageWeb() {
+  return `<div class="wp t3-page"><header class="wp-head"><div><h1>KH &amp; NCC</h1></div></header>
+    ${emptyState({ header: [emptyMedia('lock'), emptyTitle('Bạn không có quyền xem\nKH & NCC'), emptyDesc('Liên hệ quản trị viên để được cấp quyền.')] })}</div>`;
 }

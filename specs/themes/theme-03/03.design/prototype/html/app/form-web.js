@@ -6,6 +6,7 @@ import { icon } from '../shared/icons.js';
 import {
   appBar, banner, button, centerLoading, checkbox, chip, esc, field, iconBox, input, select, textArea,
 } from './ds.js';
+import { alertDialogWeb } from './detail-web.js';
 import { canSubmit, filterProvinces, formTitle, invoiceWarning, sectionTitle, sections } from './form.js';
 import { CAN_THO_WARDS } from './data.js';
 
@@ -98,13 +99,13 @@ function summary(s) {
 // ---------------------------------------------------------------- trang
 
 export function formPageWeb(s) {
-  const leading = `<span class="t3-iconbtn40">${iconBox({ ic: 'arrowLeft', size: 40, iconSize: 20, cls: 't3-ibox--clear' })}</span>`;
-  const head = appBar(formTitle(s), { leading });
-  if (s.loading) return `<div class="t3-page">${head}<div class="t3-body">${centerLoading({ material: true })}</div></div>`;
+  // Đầu trang kiểu mới (như hồ sơ / người liên hệ): đường dẫn quay lại + tiêu đề lớn.
+  const head = `<header class="wcn-head"><nav class="wcn-crumb"><button type="button">${icon('chevronLeft')}${s.edit ? 'Hồ sơ KH &amp; NCC' : 'KH &amp; NCC'}</button></nav><h1>${esc(formTitle(s))}</h1></header>`;
+  if (s.loading) return `<div class="t3-page wcn">${head}<div class="t3-body">${centerLoading({ material: true })}</div></div>`;
   const locked = `<section class="wfm-card wfm-card--lock"><header class="wfm-card__head"><h2><span class="wfm-n">1</span>Loại hồ sơ</h2><span class="wfm-locktag">${icon('lock')}${s.type === 'person' ? 'Cá nhân' : 'Tổ chức'}</span></header></section>`;
   const err = s.generalError ? banner('error', s.generalError) : '';
   const cards = sections(s.type, s.edit).map((sec) => card(s, sec)).join('');
-  return `<div class="t3-page">${head}
+  return `<div class="t3-page wcn">${head}
     <div class="t3-body wfm"><div class="wfm-scroll"${s.scrollTo ? ` data-scroll-to="${s.scrollTo}"` : ''}><div class="wfm-cols">
       <div class="wfm-stack">${err}${locked}${cards}</div>
       ${summary(s)}
@@ -172,3 +173,10 @@ export function pickerDialogWeb(p) {
     ${list}
   </section></div>`;
 }
+
+// ---------------------------------------------------------------- "Rời khỏi màn hình?" (web) — mẫu cảnh báo canh trái (detail-web.js)
+export const leaveDialogWeb = () => alertDialogWeb({
+  ic: 'alert', tone: 'warning', title: 'Rời khỏi màn hình?',
+  desc: '<p>Những thay đổi chưa lưu sẽ bị mất.</p>',
+  actions: `${button('Ở lại chỉnh sửa', { variant: 'secondary' })}${button('Rời khỏi', { tone: 'danger' })}`,
+});

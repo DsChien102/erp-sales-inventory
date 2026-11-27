@@ -146,3 +146,10 @@
 .wpc-ic { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; border-radius: var(--c45-v2-radius-icon-box); background: var(--c45-v2-surface-brand); color: var(--c45-v2-action-primary-default); font-size: 20px; }
 .wpc-radio[aria-checked="true"] .wpc-ic { background: var(--c45-v2-surface-default); }
 .wpc-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 24px; border-top: 1px solid var(--c45-v2-border-default); }
+
+/* "Sắp xếp" — menu thả xuống (sortMenu) */
+.wp-btn--sort.is-open { background: var(--c45-v2-neutral-50); border-color: var(--c45-v2-border-strong); }
+.wp-sortmenu { width: 240px; }
+.wp-sortmi { align-items: center; padding: 8px 12px; }
+.wp-sortmi[aria-checked="true"] b { color: var(--c45-v2-text-brand); }
+.wp-sortmi[aria-checked="true"] .wd-mi__ic { color: var(--c45-v2-action-primary-default); }
