@@ -23,14 +23,14 @@ export const SCREENS = [
       ['no-result', 'Không kết quả (L-04)', '"Không tìm thấy kết quả" + câu có từ khoá + "Xóa từ khóa" (nút chữ).'],
       ['error', 'Lỗi tải (L-06)', 'Biểu tượng mây gạch nền đỏ nhạt, tiêu đề chữ đỏ, mô tả, "Thử lại" (nút chính) canh giữa vùng còn lại; ô tìm / chip / "Sắp xếp" vẫn bấm được.'],
       ['view-only', 'Chỉ có quyền xem', 'Không có partner.create: không có nút +.'],
-      ['no-permission', 'Không có quyền xem (L-07)', 'Cả khu (danh sách và cột phải) thay bằng một trang "KH & NCC" + ổ khoá + "Bạn không có quyền xem KH & NCC". Web: không còn 2 cột.'],
+      ['no-permission', 'Không có quyền xem (L-07)', 'Web (thiết kế lại): đầu trang "KH & NCC" kiểu mới + ổ khoá giữa vùng còn lại. iPhone / Flutter: Cả khu (danh sách và cột phải) thay bằng một trang "KH & NCC" + ổ khoá + "Bạn không có quyền xem KH & NCC". Web: không còn 2 cột.'],
     ],
   },
   {
     id: 'filter', group: 'list', code: 'PT-02', title: 'Bộ lọc / Sắp xếp', route: '/partner', states: [
       ['filter', 'Bộ lọc', 'Sheet không tiêu đề: "Bộ lọc KH & NCC" (H4), 4 nhóm chip; "Thời gian cập nhật" là 3 chip chia đều (iPhone: chữ bị cắt "…", chữ canh trái). "Tùy chọn" bấm không làm gì. Vai trò không có chip "Tất cả" (Trạng thái thì có). "Đặt lại" | "Áp dụng". iPhone: sheet mở trong vùng tab nên thanh dưới vẫn hiện, không bị phủ tối. Web (thiết kế lại, filterDialogWeb): hộp 520, mỗi nhóm có "Tất cả", chip chọn có ✓, đầu hộp "N đang chọn", "Tùy chọn" mở ô Từ ngày – Đến ngày trong hộp, chân cố định "Đặt lại" | "Áp dụng".'],
       ['filter-selected', 'Bộ lọc đã chọn', 'Khách hàng + Tổ chức + Đang hoạt động + 7 ngày.'],
-      ['sort', 'Sắp xếp', 'Nhãn "Sắp xếp danh sách" + 4 radio (mỗi dòng cao 64 + khe 12) + "Áp dụng".'],
+      ['sort', 'Sắp xếp', 'Web (thiết kế lại): menu thả xuống dưới nút sắp xếp của bảng, 4 lựa chọn, dấu ✓ ở lựa chọn đang dùng, chọn là áp (không "Áp dụng"). iPhone: Nhãn "Sắp xếp danh sách" + 4 radio (mỗi dòng cao 64 + khe 12) + "Áp dụng".'],
     ],
   },
   {
@@ -40,7 +40,7 @@ export const SCREENS = [
   },
   {
     id: 'form', group: 'list', code: 'PT-05', title: 'Tạo / sửa hồ sơ', route: '/partner/new', states: [
-      ['person-new', 'Tạo cá nhân · mới mở', 'Toàn màn (ngoài khung, web không thanh bên); nút ← là ô 40 icon 20 (khác nút ← 24 của màn khác). Mục "1. Loại hồ sơ" khoá; "2. Vai trò" mở sẵn; các mục khác đóng, mục "4. Hóa đơn / thuế" không có chữ phụ (khác các mục "Tùy chọn"). "Lưu & Xem" mờ, không nói vì sao. Viền mục borderDefault (nhạt hơn thẻ danh sách). iPhone: hàng nút dưới không chừa vùng an toàn đáy (34). Web (thiết kế lại, form-web.js, mọi ca PT-05): mọi mục mở sẵn thành thẻ, ô nhập 2 cột, nhãn Bắt buộc / Tùy chọn; cột phải 300 dính: tên + vai trò, "Cần có để lưu" (✓ khi đủ), "Lưu & Xem" + "Hủy"; bỏ đóng / mở mục và "Bỏ qua" | "Tiếp".'],
+      ['person-new', 'Tạo cá nhân · mới mở', 'Web: đầu trang kiểu mới "‹ KH & NCC" (sửa: "‹ Hồ sơ KH & NCC") + tiêu đề lớn, thay thanh tiêu đề có nút ← 40. Toàn màn (ngoài khung, web không thanh bên); nút ← là ô 40 icon 20 (khác nút ← 24 của màn khác). Mục "1. Loại hồ sơ" khoá; "2. Vai trò" mở sẵn; các mục khác đóng, mục "4. Hóa đơn / thuế" không có chữ phụ (khác các mục "Tùy chọn"). "Lưu & Xem" mờ, không nói vì sao. Viền mục borderDefault (nhạt hơn thẻ danh sách). iPhone: hàng nút dưới không chừa vùng an toàn đáy (34). Web (thiết kế lại, form-web.js, mọi ca PT-05): mọi mục mở sẵn thành thẻ, ô nhập 2 cột, nhãn Bắt buộc / Tùy chọn; cột phải 300 dính: tên + vai trò, "Cần có để lưu" (✓ khi đủ), "Lưu & Xem" + "Hủy"; bỏ đóng / mở mục và "Bỏ qua" | "Tiếp".'],
       ['person-role-error', 'Vai trò · chưa chọn', 'Bấm "Tiếp" khi chưa chọn: dòng đỏ "Vui lòng chọn vai trò giao dịch" dưới chip.'],
       ['person-main', 'Thông tin cá nhân · trống', 'Vai trò ✓ "Khách hàng". Khe giữa "Danh xưng" và "Họ và tên" 8, các ô sau 16.'],
       ['person-main-filled', 'Thông tin cá nhân · đã nhập', 'Đủ tên + SĐT → "Lưu & Xem" bật.'],
@@ -63,7 +63,7 @@ export const SCREENS = [
       ['edit', 'Sửa tổ chức', '"Chỉnh sửa tổ chức"; 6 mục (không có người liên hệ chính) nên số mục 4 / 5 / 6; "Lưu thay đổi" tắt tới khi sửa gì đó; mục đóng không có ✓ dù đã có dữ liệu.'],
       ['edit-dirty', 'Sửa · đã đổi', 'Đổi SĐT → "Lưu thay đổi" bật.'],
       ['edit-conflict', 'Sửa · xung đột phiên bản', 'Banner đỏ "Hồ sơ đã được cập nhật bởi người khác. Vui lòng tải lại rồi thử lại." — không có nút tải lại.'],
-      ['leave', 'Rời khỏi màn hình?', 'Bấm ← / Hủy khi đã nhập: sheet có tiêu đề + gạch; "Ở lại chỉnh sửa" | "Rời khỏi" (đỏ).'],
+      ['leave', 'Rời khỏi màn hình?', 'Web (thiết kế lại, leaveDialogWeb): mẫu cảnh báo canh trái (⚠ vàng), "Ở lại chỉnh sửa" | "Rời khỏi" (đỏ). iPhone: Bấm ← / Hủy khi đã nhập: sheet có tiêu đề + gạch; "Ở lại chỉnh sửa" | "Rời khỏi" (đỏ).'],
     ],
   },
   {
